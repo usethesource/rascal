@@ -19,8 +19,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -41,7 +39,6 @@ import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.SourceLocationListContributor;
@@ -50,7 +47,6 @@ import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.repl.LimitedWriter;
@@ -84,40 +80,15 @@ public class Reflective {
 	}
     
     
-	// A nice memory leak.
-	private final Map<ISourceLocation, IEvaluator<?>> evals = new HashMap<>();
-	private final Map<ISourceLocation, IList> lastRun = new HashMap<>();
-	private final Map<ISourceLocation, IList> lastResults = new HashMap<>();
-	
-	
 	public IList evalCommands(IList commands, ISourceLocation loc, IEvaluatorContext ctx) {
 		StringWriter out = new StringWriter();
 		StringWriter err = new StringWriter();
 		IListWriter result = values.listWriter();
-		IEvaluator<?> evaluator;
-		if (evals.containsKey(loc)) {
-			evaluator = evals.get(loc);
-			((Evaluator)evaluator).overrideDefaultWriters(new PrintWriter(out), new PrintWriter(err));
-		}
-		else {
-			evaluator = getDefaultEvaluator(new PrintWriter(out), new PrintWriter(err));
-			evals.put(loc, evaluator);
-		}
+		IEvaluator<?> evaluator = getDefaultEvaluator(new PrintWriter(out), new PrintWriter(err));
 		int outOffset = 0;
 		int errOffset = 0;
 		
-		int i = 0;
-		boolean changed = false;
 		for (IValue v: commands) {
-			if (!changed && lastRun.containsKey(loc)) {
-				if (lastRun.get(loc).get(i).isEqual(v)) {
-					result.append(lastResults.get(loc).get(i));
-					i++;
-					continue;
-				}
-				changed = true;
-			}
-			i++;
 			String errOut = "";
 			boolean exc = false;
 			Result<IValue> x = null;
@@ -146,8 +117,6 @@ public class Reflective {
 			}
 		}
 		IList results = result.done();
-		lastResults.put(loc,  results);
-		lastRun.put(loc, commands);
 		return results;
 	}
 	
