@@ -14,7 +14,6 @@
 package org.rascalmpl.interpreter.control_exceptions;
 
 import java.io.IOException;
-import java.net.URI;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
