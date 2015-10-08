@@ -530,7 +530,15 @@ start syntax Commands
 start syntax EvalCommand
   = declaration: Declaration declaration  
   | statement: Statement!variableDeclaration!functionDeclaration!visit statement 
-  | \import: Import imported ;
+  | \import: Import imported
+  | output: Output
+  ;
+ 
+lexical Output   
+  = @category="Result" result: "⇨" ![\n\r]* [\n] 
+  | @category="StdOut" stdout: ^ "≫" ![\n\r]* [\n]
+  | @category="StdErr" stderr: ^ "⚠" ![\n\r]* [\n]
+  ;
   
 start syntax Command
 	= expression: Expression!nonEmptyBlock expression 
