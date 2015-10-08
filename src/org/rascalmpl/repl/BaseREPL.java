@@ -15,9 +15,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import jline.Terminal;
 import jline.console.ConsoleReader;
+import jline.console.UserInterruptException;
 import jline.console.completer.CandidateListCompletionHandler;
 import jline.console.completer.Completer;
 import jline.console.history.FileHistory;
+import jline.console.history.PersistentHistory;
 import jline.internal.ShutdownHooks;
 import jline.internal.ShutdownHooks.Task;
 
@@ -32,14 +34,22 @@ public abstract class BaseREPL {
   protected final Writer stdErr;
   protected volatile boolean keepRunning = true;
   private volatile Task historyFlusher = null;
-  private volatile FileHistory history = null;
+  private volatile PersistentHistory history = null;
   private final Queue<String> commandQueue = new ConcurrentLinkedQueue<String>();
 
-  public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal) throws IOException {
-    this.originalStdOut = stdout;
+  public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException {
+  	this(stdin, stdout, prettyPrompt, allowColors, file != null ? new FileHistory(file) : null, terminal);
+  }
+  
+  public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, ISourceLocation file, Terminal terminal) throws IOException {
+  	this(stdin, stdout, prettyPrompt, allowColors, file != null ? new SourceLocationHistory(file) : null, terminal);
+  }
+  
+  private BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, PersistentHistory history, Terminal terminal) throws IOException {
+      this.originalStdOut = stdout;
     reader = new ConsoleReader(stdin, stdout, terminal);
-    if (persistentHistory != null) {
-      history = new FileHistory(persistentHistory);
+    if (history != null) {
+      this.history = history;
       reader.setHistory(history);
       historyFlusher = new Task() {
         @Override
@@ -80,15 +90,13 @@ public abstract class BaseREPL {
       if (reader.getCompletionHandler() instanceof CandidateListCompletionHandler) {
           ((CandidateListCompletionHandler)reader.getCompletionHandler()).setPrintSpaceAfterFullCompletion(printSpaceAfterFullCompletion());
       }
-      
+      reader.setHandleUserInterrupt(true);
     }
   }
 
 
-  public BaseREPL(InputStream in, PrintStream out, boolean prettyPrompt2,
-      boolean allowColors2, ISourceLocation iSourceLocation, Terminal terminal) {
-	  throw new RuntimeException("make it so davy");
-  }
+ 
+
 
 
 
@@ -112,6 +120,12 @@ public abstract class BaseREPL {
    * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
    */
   protected abstract void handleInput(String line) throws InterruptedException;
+  
+  /**
+   * If a line is canceled with ctrl-C this method is called too handle the reset in the child-class.
+   * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
+   */
+  protected abstract void handleReset() throws InterruptedException;
   
   /**
    * Test if completion of statement in the current line is supported
@@ -185,11 +199,18 @@ public abstract class BaseREPL {
         }
 
         updatePrompt();
-        String line = reader.readLine(reader.getPrompt(), null, null);
-        if (line == null) { // EOF
-          break;
+        try {
+            String line = reader.readLine(reader.getPrompt(), null, null);
+            if (line == null) { // EOF
+                break;
+            }
+            handleInput(line);
         }
-        handleInput(line);
+        catch (UserInterruptException u) {
+            reader.println();
+            handleReset();
+            updatePrompt();
+        }
 
       }
     }

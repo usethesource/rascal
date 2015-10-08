@@ -421,16 +421,12 @@ coroutine MATCH_SIMPLE_CALL_OR_TREE(iName, pats, iSubject)
 guard
 	iSubject is node
 {
-    var args 
-    
     if(equal(iName, get_name(iSubject))) {
-        args = get_children_and_keyword_mmap(iSubject);
-        MATCH_N(pats, args)
+        MATCH_N(pats,  get_children_and_keyword_mmap(iSubject))
         exhaust
     }
     if(has_label(iSubject, iName)) {
-        args = get_children_without_layout_or_separators_with_keyword_map(iSubject)
-        MATCH_N(pats, args)
+        MATCH_N(pats, get_children_without_layout_or_separators_with_keyword_map(iSubject))
     }
 }
 
@@ -440,11 +436,8 @@ coroutine MATCH_CONCRETE_SIMPLE_CALL_OR_TREE(iName, pats, iSubject)
 guard
     iSubject is node
 {
-    var args 
-    
     if(has_label(iSubject, iName)) {
-        args = get_children_without_layout_or_separators_with_keyword_map(iSubject)
-        MATCH_N(pats, args)
+        MATCH_N(pats, get_children_without_layout_or_separators_with_keyword_map(iSubject))
     }
 }
 
@@ -454,12 +447,12 @@ coroutine MATCH_SIMPLE_CALL_OR_TREE_NO_KEYWORD_PARAMS(iName, pats, iSubject)
 guard
     iSubject is node
 {
-    var args 
-    
     if(equal(iName, get_name(iSubject))) {
-        args = get_children(iSubject);
-        MATCH_N(pats, args)
+        MATCH_N(pats, get_children(iSubject))
         exhaust
+    }
+    if(has_label(iSubject, iName)) {
+        MATCH_N(pats, get_children_without_layout_or_separators_without_keyword_map(iSubject))
     }
 }
 
@@ -469,11 +462,8 @@ coroutine MATCH_CONCRETE_SIMPLE_CALL_OR_TREE_NO_KEYWORD_PARAMS(iName, pats, iSub
 guard
     iSubject is node
 {
-    var args 
-    
     if(has_label(iSubject, iName)) {
-        args = get_children_without_layout_or_separators_without_keyword_map(iSubject)
-        MATCH_N(pats, args)
+        MATCH_N(pats, get_children_without_layout_or_separators_without_keyword_map(iSubject))
     }
 }
 
@@ -483,9 +473,7 @@ coroutine MATCH_CALL_OR_TREE(pats, iSubject)
 guard
 	iSubject is node
 {
-    var args = get_name_and_children_and_keyword_mmap(iSubject)
-    //println("MATCH_CALL_OR_TREE", args)
-    MATCH_N(pats, args)
+    MATCH_N(pats, get_name_and_children_and_keyword_mmap(iSubject))
 }
 
 // Match a call pattern with an arbitrary pattern as function symbol, but without keyword params
@@ -494,9 +482,7 @@ coroutine MATCH_CALL_OR_TREE_NO_KEYWORD_PARAMS(pats, iSubject)
 guard
     iSubject is node
 {
-    var args = get_name_and_children(iSubject)
-    //println("MATCH_CALL_OR_TREE_NO_KEYWORD_PARAMS", args)
-    MATCH_N(pats, args)
+    MATCH_N(pats, get_name_and_children(iSubject))
 }
 
 // Match a concrete syntax tree of the form appl(prod, args)
@@ -1639,7 +1625,7 @@ coroutine ENUM_SUBSETS(set, rSubset) {
 coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal) 
 {
 	//println("DESCENT_AND_MATCH", typeOf(iVal),  descendantDescriptor)
-	//if(prim("should_descent_in_abstract", iVal, descendantDescriptor)){
+	if(prim("should_descent_in_abstract", iVal, descendantDescriptor)){
 	    typeswitch(iVal) {
 	        case list:        DESCENT_AND_MATCH_LIST (pat, descendantDescriptor, iVal)
 	        case lrel:        DESCENT_AND_MATCH_LIST (pat, descendantDescriptor, iVal)
@@ -1652,7 +1638,7 @@ coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal)
 	        default:          true
 	    }
 	   // println("DESCENT_AND_MATCH, applying pat to", typeOf(iVal))
-	 //}
+	 }
 	 pat(iVal) 
 }
 

@@ -630,11 +630,19 @@ void extractConstantDefaultExpressions(){
         consName = prettyPrintName(a_constructor.name);
         if(a_constructor is constructor){
            fieldSet = { fieldName | field <- a_constructor.rtype.parameters, label(fieldName, _) := field };
-           constructorFields[a_constructor.rtype.\adt] += (consName : fieldSet);
+           if(constructorFields[a_constructor.rtype.\adt]?){
+              constructorFields[a_constructor.rtype.\adt] += (consName : fieldSet);
+           } else {
+              constructorFields[a_constructor.rtype.\adt] =  (consName : fieldSet);
+           }
         } else if (a_constructor is production){
             pr = a_constructor.p;
             fieldSet = { fieldName | field <- pr.symbols, label(fieldName, _) := field };
-            constructorFields[a_constructor.rtype] += (consName : fieldSet);
+            if(constructorFields[a_constructor.rtype]?){
+               constructorFields[a_constructor.rtype] +=(consName : fieldSet);
+            } else {
+               constructorFields[a_constructor.rtype] = (consName : fieldSet);
+            }
         }  
      }
      for(tp <- config.dataKeywordDefaults){

@@ -23,6 +23,10 @@ public Tree getModuleParseTree(str modulePath) {
 }
 
 @javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{Uses Evaluator to evaluate}
+public java lrel[str result, str out, str err] evalCommands(list[str] command, loc org);
+
+@javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to get back the parse tree for the given command}
 public java Tree parseCommand(str command, loc location);
 

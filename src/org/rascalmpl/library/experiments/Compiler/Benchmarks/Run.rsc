@@ -19,6 +19,7 @@ import String;
 import ValueIO;
 import util::Benchmark;
 import util::Math;
+import util::Reflective;
 import analysis::statistics::Descriptive;
 import experiments::Compiler::Compile;
 import experiments::Compiler::Execute;
@@ -281,6 +282,26 @@ void main_visit(){
 
 void main_fac(){
 	run_benchmarks(10, ["BFac"]);	
+}
+
+void main_fib(){
+    run_benchmarks(10, ["BFib"]);   
+}
+
+void main_marriage(){
+    run_benchmarks(10, ["BMarriage"]);   
+}
+
+void main_sudoku(){
+    run_benchmarks(10, ["BSudoku"]);   
+}
+
+void main_template(){
+    run_benchmarks(10, ["BTemplate"]);   
+}
+
+void main_bottles(){
+    run_benchmarks(10, ["BBottles"]);   
 }
 
 void main_rsf() {

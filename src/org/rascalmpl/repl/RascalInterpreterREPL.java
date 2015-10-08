@@ -35,10 +35,12 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
 
   protected Evaluator eval;
   private boolean measureCommandTime;
+  private final OutputStream originalOutput;
   
   public RascalInterpreterREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal)
       throws IOException {
     super(stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal);
+    originalOutput = stdout;
   }
 
   public void setMeasureCommandTime(boolean measureCommandTime) {
@@ -52,6 +54,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
   @Override
   protected void initialize(Writer stdout, Writer stderr) {
     eval = constructEvaluator(stdout, stderr);
+    eval.setREPL(this);
   }
   
   protected abstract Evaluator constructEvaluator(Writer stdout, Writer stderr);
@@ -165,5 +168,16 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
   @Override
   protected SortedSet<String> getCommandLineOptions() {
       return commandLineOptions;
+  }
+
+  public Terminal getTerminal() {
+      return reader.getTerminal();
+  }
+
+  public InputStream getInput() {
+      return reader.getInput();
+  }
+  public OutputStream getOutput() {
+      return originalOutput;
   }
 }

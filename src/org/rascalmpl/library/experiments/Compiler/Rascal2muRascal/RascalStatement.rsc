@@ -271,38 +271,6 @@ MuExp translateTemplate(str indent, s: (StringTemplate) `if ( <{Expression ","}+
 
 MuExp translate(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) = translateSwitch(s);
 
-
-// Original case translation
-
-//MuExp translateSwitch(s: (Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`) {
-//    str fuid = topFunctionScope();
-//    switchname = getLabel(label);
-//    switchval = asTmp(switchname);
-//    return muBlock([ muAssignTmp(switchval,fuid,translate(expression)), translateSwitchCases(switchval,fuid,[c | c <- cases]) ]);
-//}
-
-//MuExp translateSwitchCases(str switchval, str fuid, list[Case] cases) {
-//  if(size(cases) == 0)
-//      return muBlock([]);
-//  c = head(cases);
-//  
-//  if(c is patternWithAction){
-//     pwa = c.patternWithAction;
-//     if(pwa is arbitrary){
-//     	ifname = nextLabel();
-//        cond = muMulti(muApply(translatePat(pwa.pattern), [ muTmp(switchval,fuid) ]));
-//        exp = muIfelse(ifname, cond, 
-//                               { enterBacktrackingScope(ifname); [ translate(pwa.statement) ]; }, 
-//                               { leaveBacktrackingScope(); [ translateSwitchCases(switchval,fuid,tail(cases)) ]; });
-//        return exp; 
-//     } else {
-//        throw "Replacement not allowed in switch statement";
-//     }
-//  } else {
-//        return translate(c.statement);
-//  }
-//}
-
 /*
  * Optimized switch translation that uses a SWITCH instruction.
  * A table is constructed that maps a "fingerprint" of the switch value to a label associated with a MuExp to handle that case.

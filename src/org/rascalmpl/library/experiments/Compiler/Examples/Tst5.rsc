@@ -1,5 +1,5 @@
 module experiments::Compiler::Examples::Tst5
 
-import Zap;
+int inc (int n, int delta = 1, int mul = 1) = (n + delta) * mul;
 
-value main()  = double(10).d;
+value main() = inc(5, mul=2, delta=10);

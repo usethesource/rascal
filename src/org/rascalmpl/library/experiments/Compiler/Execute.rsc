@@ -297,7 +297,7 @@ value execute(RVMModule mainModule, map[str,value] keywordArguments = (), bool d
     return execute(merged, keywordArguments=keywordArguments, debug=debug, testsuite=testsuite,recompile=recompile,profile=profile,trackCalls=trackCalls,coverage=coverage,useJVM=useJVM,serialize=serialize,verbose=verbose,bindir=bindir);             
 }
 
-value execute(loc rascalSource, map[str,value] keywordArguments = (), bool debug=false, bool testsuite=false, bool recompile=true, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|){
+value execute(loc rascalSource, map[str,value] keywordArguments = (), bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|){
    if(!recompile){
       executable = RVMExecutableLocation(rascalSource, bindir);
       compressed = RVMExecutableCompressedLocation(rascalSource, bindir);
