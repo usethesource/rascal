@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class NotifieableInputStream extends InputStream {
     private final ConcurrentLinkedQueue<Byte> queue;
@@ -15,7 +15,10 @@ public class NotifieableInputStream extends InputStream {
     private final Thread reader;
     private final InputStream peekAt;
 
-    public NotifieableInputStream(final InputStream peekAt, final byte[] watchFor, final Consumer<Byte> callback) {
+    /**
+     * scan for certain bytes in the stream, and if they are found, call the callback function to see if it has to be swallowed.
+     */
+    public NotifieableInputStream(final InputStream peekAt, final byte[] watchFor, final Function<Byte, Boolean> swallow) {
         this.queue = new ConcurrentLinkedQueue<Byte>();
         this.closed = false;
         this.toThrow = null;
@@ -24,21 +27,24 @@ public class NotifieableInputStream extends InputStream {
             @Override
             public void run() {
                 try {
+                    reading:
                     while (!closed) {
                         int b = peekAt.read();
                         if (b == -1) {
                             NotifieableInputStream.this.close();
                             return;
                         }
-                        queue.offer((byte)b);
-                        newData.release();
-
                         for (byte c: watchFor) {
                             if (b == c) {
-                                callback.accept((byte)b);
+                                if (swallow.apply((byte)b)) {
+                                    continue reading;
+                                }
                                 break;
                             }
                         }
+                        queue.offer((byte)b);
+                        newData.release();
+
                     }
                 }
                 catch(IOException e) {
