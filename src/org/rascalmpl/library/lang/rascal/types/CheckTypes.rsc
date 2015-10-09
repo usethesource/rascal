@@ -7719,7 +7719,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 					int aliasId = getOneFrom(definitions[t@\loc]);
 					Symbol aliasedType = ci.store[aliasId].rtype;
 					ci = checkDeclaration(t,true,ci);
-					if(aliasedType != ci.store[aliasId].rtype) {
+					if(unsetRec(aliasedType) != unsetRec(ci.store[aliasId].rtype)) {
 						modified = true;
 					}
 				}
