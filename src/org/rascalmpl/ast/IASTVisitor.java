@@ -181,6 +181,8 @@ public interface IASTVisitor<T> {
 
   public T visitEvalCommandImport(EvalCommand.Import x);
 
+  public T visitEvalCommandOutput(EvalCommand.Output x);
+
   public T visitEvalCommandStatement(EvalCommand.Statement x);
 
   public T visitExpressionAddition(Expression.Addition x);
@@ -799,6 +801,8 @@ public interface IASTVisitor<T> {
   public T visitOctalIntegerLiteralLexical(OctalIntegerLiteral.Lexical x);
 
   public T visitOptionalCommaLexical(OptionalComma.Lexical x);
+
+  public T visitOutputLexical(Output.Lexical x);
 
   public T visitPathCharsLexical(PathChars.Lexical x);
 
