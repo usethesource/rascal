@@ -312,7 +312,7 @@ value execute(loc rascalSource, map[str,value] keywordArguments = (), bool debug
    }
    startTime = cpuTime();
    mainModule = compile(rascalSource, verbose=verbose, bindir=bindir);
-   println("Compiling: <(cpuTime() - startTime)/1000000> ms");
+   //println("Compiling: <(cpuTime() - startTime)/1000000> ms");
    //<cfg, mainModule> = compile(rascalSource, bindir=bindir);
    startTime = cpuTime();
    v = execute(mainModule, keywordArguments=keywordArguments, debug=debug, testsuite=testsuite, profile=profile, verbose=verbose, bindir=bindir, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize);
@@ -323,7 +323,7 @@ value execute(loc rascalSource, map[str,value] keywordArguments = (), bool debug
 RVMProgram compileAndLink(loc rascalSource,  bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|){
    startTime = cpuTime();
    mainModule = compile(rascalSource, verbose=verbose, bindir=bindir);
-   println("Compiling: <(cpuTime() - startTime)/1000000> ms");
+   //println("Compiling: <(cpuTime() - startTime)/1000000> ms");
    start_linking = cpuTime();   
    merged = mergeImports(mainModule, verbose=verbose, useJVM=useJVM, bindir=bindir, serialize=serialize);
    link_time = cpuTime() - start_linking;

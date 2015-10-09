@@ -65,7 +65,7 @@ tuple[Configuration, RVMModule] compile1(loc moduleLoc, bool verbose = true, loc
    		//M = parseModuleAndGetTop(moduleLoc);
    	    config  = checkModule(M, newConfiguration()/*, verbose=verbose, bindir=bindir*/);
    	    check_time = (cpuTime() - start_checking)/1000000;
-   	    println("Checking <moduleLoc>: <check_time> ms");
+   	    //println("Checking <moduleLoc>: <check_time> ms");
    	} catch e: {
    	    throw e;
    	}
