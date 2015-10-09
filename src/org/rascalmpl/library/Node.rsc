@@ -33,6 +33,7 @@ delAnnotation(F, "size");
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
+@reflect{To print warning}
 public java &T <: node delAnnotation(&T <: node x, str label);
 
 @doc{
@@ -62,6 +63,7 @@ delAnnotations(F);
 </screen>
 }
 @javaClass{org.rascalmpl.library.Prelude}
+@reflect{To print warning}
 public java &T <: node  delAnnotations(&T <: node x);
 
 @doc{

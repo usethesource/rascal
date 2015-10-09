@@ -389,9 +389,14 @@ guard {
     plen == slen 
 } 
 {
-    var ipats = make_array(plen),
+    var ipats,
         j = 0, 
         pat
+    if(plen == 0){
+       yield
+       exhaust
+    }
+    ipats = make_array(plen)
     ipats[j] = create(pats[j], subjects[j])
     //println("MATCH_N, plen, slen", plen, slen);
     while((j >= 0) && (j < plen)) {
@@ -410,38 +415,74 @@ guard {
     }   
 }
 
-// Match a call pattern with a simple string as function symbol
+// Match an (abstract or concrete) call pattern with a simple string as function symbol, with keyword fields
 
 coroutine MATCH_SIMPLE_CALL_OR_TREE(iName, pats, iSubject)
 guard
 	iSubject is node
 {
-    var args 
-    //println("MATCH_SIMPLE_CALL_OR_TREE", iName, pats)
-    //println("MATCH_SIMPLE_CALL_OR_TREE", iSubject) 
-    
     if(equal(iName, get_name(iSubject))) {
-        args = get_children_and_keyword_mmap(iSubject);
-        //println("MATCH_SIMPLE_CALL_OR_TREE, args, case 1", args);
-        MATCH_N(pats, args)
+        MATCH_N(pats,  get_children_and_keyword_mmap(iSubject))
         exhaust
     }
     if(has_label(iSubject, iName)) {
-        args = get_children_without_layout_or_separators(iSubject)
-        //println("MATCH_SIMPLE_CALL_OR_TREE, case 2", size_array(args), size_array(pats), pats, args);
-        MATCH_N(pats, args)
+        MATCH_N(pats, get_children_without_layout_or_separators_with_keyword_map(iSubject))
     }
 }
 
-// Match a call pattern with an arbitrary pattern as function symbol
+// Match a concrete call pattern with a simple string as function symbol, with keyword fields
+
+coroutine MATCH_CONCRETE_SIMPLE_CALL_OR_TREE(iName, pats, iSubject)
+guard
+    iSubject is node
+{
+    if(has_label(iSubject, iName)) {
+        MATCH_N(pats, get_children_without_layout_or_separators_with_keyword_map(iSubject))
+    }
+}
+
+// Match an (abstract or concrete) call pattern with a simple string as function symbol, without keyword fields
+
+coroutine MATCH_SIMPLE_CALL_OR_TREE_NO_KEYWORD_PARAMS(iName, pats, iSubject)
+guard
+    iSubject is node
+{
+    if(equal(iName, get_name(iSubject))) {
+        MATCH_N(pats, get_children(iSubject))
+        exhaust
+    }
+    if(has_label(iSubject, iName)) {
+        MATCH_N(pats, get_children_without_layout_or_separators_without_keyword_map(iSubject))
+    }
+}
+
+// Match a concrete call pattern with a simple string as function symbol, without keyword fields
+
+coroutine MATCH_CONCRETE_SIMPLE_CALL_OR_TREE_NO_KEYWORD_PARAMS(iName, pats, iSubject)
+guard
+    iSubject is node
+{
+    if(has_label(iSubject, iName)) {
+        MATCH_N(pats, get_children_without_layout_or_separators_without_keyword_map(iSubject))
+    }
+}
+
+// Match a call pattern with an arbitrary pattern as function symbol, with keyword fields
 
 coroutine MATCH_CALL_OR_TREE(pats, iSubject)
 guard
 	iSubject is node
 {
-    var args = get_name_and_children_and_keyword_mmap(iSubject)
-    //println("MATCH_CALL_OR_TREE", args)
-    MATCH_N(pats, args)
+    MATCH_N(pats, get_name_and_children_and_keyword_mmap(iSubject))
+}
+
+// Match a call pattern with an arbitrary pattern as function symbol, but without keyword params
+
+coroutine MATCH_CALL_OR_TREE_NO_KEYWORD_PARAMS(pats, iSubject)
+guard
+    iSubject is node
+{
+    MATCH_N(pats, get_name_and_children(iSubject))
 }
 
 // Match a concrete syntax tree of the form appl(prod, args)
@@ -1584,7 +1625,7 @@ coroutine ENUM_SUBSETS(set, rSubset) {
 coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal) 
 {
 	//println("DESCENT_AND_MATCH", typeOf(iVal),  descendantDescriptor)
-	//if(prim("should_descent_in_abstract", iVal, descendantDescriptor)){
+	if(prim("should_descent_in_abstract", iVal, descendantDescriptor)){
 	    typeswitch(iVal) {
 	        case list:        DESCENT_AND_MATCH_LIST (pat, descendantDescriptor, iVal)
 	        case lrel:        DESCENT_AND_MATCH_LIST (pat, descendantDescriptor, iVal)
@@ -1597,7 +1638,7 @@ coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal)
 	        default:          true
 	    }
 	   // println("DESCENT_AND_MATCH, applying pat to", typeOf(iVal))
-	 //}
+	 }
 	 pat(iVal) 
 }
 

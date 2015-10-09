@@ -34,6 +34,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
@@ -210,6 +211,13 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	}
 	
 	public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
-		return ResultFactory.makeResult(TF.boolType(), VF.bool(false), __eval);
+	    __eval.warning("INTERNAL WARNING: generic implementation of isDefined triggered", getLocation());
+	    try {
+	        interpret(__eval);
+	        return ResultFactory.makeResult(TF.boolType(), VF.bool(true), __eval);
+	    }
+	    catch (Throw e) {
+	        return ResultFactory.makeResult(TF.boolType(), VF.bool(false), __eval);
+	    }
 	}
 }

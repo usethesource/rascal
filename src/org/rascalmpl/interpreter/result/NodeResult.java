@@ -40,6 +40,26 @@ public class NodeResult extends ElementResult<INode> {
 	public NodeResult(Type type, INode node, IEvaluatorContext ctx) {
 		super(type, node, ctx);
 	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public Result<IBool> isKeyDefined(Result<?>[] subscripts) {
+		if (subscripts.length != 1) { 
+			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
+		} 
+		Result<IValue> key = (Result<IValue>) subscripts[0];
+		if (!key.getType().isSubtypeOf(getTypeFactory().integerType())) {
+			throw new UnexpectedType(getTypeFactory().integerType(), key.getType(), ctx.getCurrentAST());
+		}
+		int idx = ((IInteger) key.getValue()).intValue();
+		int len = getValue().arity();
+		
+		if ((idx >= 0 && idx >= len) || (idx < 0 && idx < -len)){
+			return makeResult(getTypeFactory().boolType(), getValueFactory().bool(false), ctx);
+		}
+		
+		return makeResult(getTypeFactory().boolType(), getValueFactory().bool(true), ctx);
+	}
 
 	@Override
 	public <V extends IValue> Result<IBool> equals(Result<V> that) {

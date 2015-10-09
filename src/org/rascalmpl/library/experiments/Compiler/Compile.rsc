@@ -12,6 +12,7 @@ import Map;
 import Relation;
 
 import lang::rascal::\syntax::Rascal;
+import experiments::Compiler::Rascal2muRascal::ParseModule;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::RVM::AST;
 
@@ -22,8 +23,6 @@ import experiments::Compiler::muRascal2RVM::mu2rvm;
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
-
-import Ambiguity;
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
 
@@ -51,18 +50,22 @@ tuple[Configuration, RVMModule] compile1(loc moduleLoc, bool verbose = true, loc
 
 	Configuration config;
     lang::rascal::\syntax::Rascal::Module M;
+    int check_time;
+    int comp_time;
    	try {
    	    if(verbose) println("rascal2rvm: Parsing and checking <moduleLoc>");
    	    start_checking = cpuTime();
-   		M = parse(#start[Module], moduleLoc).top;
-   		dia = diagnose(M);
-        if(dia != []){                          // TODO Temporary defense against ambiguities
-           iprintln(dia);
-           throw  "*** Ambiguities in muRascal code, see above report";
-        }
+   		//M = parse(#start[Module], moduleLoc).top;
+   		M = parseModuleGetTop(moduleLoc);
+   		//dia = diagnose(M);
+     //   if(dia != []){                          // TODO Temporary defense against ambiguities
+     //      iprintln(dia);
+     //      throw  "*** Ambiguities in muRascal code, see above report";
+     //   }
    		//M = parseModuleAndGetTop(moduleLoc);
-   	    config  = checkModule(M, newConfiguration(), verbose=verbose, bindir=bindir);
-   	    println("Checking <moduleLoc>: <(cpuTime() - start_checking)/1000000> ms");
+   	    config  = checkModule(M, newConfiguration()/*, verbose=verbose, bindir=bindir*/);
+   	    check_time = (cpuTime() - start_checking)/1000000;
+   	    //println("Checking <moduleLoc>: <check_time> ms");
    	} catch e: {
    	    throw e;
    	}
@@ -77,9 +80,12 @@ tuple[Configuration, RVMModule] compile1(loc moduleLoc, bool verbose = true, loc
    	rvmModuleLoc = RVMModuleLocation(moduleLoc, bindir);
    	
     if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
+    start_comp = cpuTime();
    	muMod = r2mu(M, config, verbose=verbose);
    	
     rvmMod = mu2rvm(muMod, verbose=verbose); 
+    comp_time = (cpuTime() - start_comp)/1000000;
+    println("Compiling <moduleLoc>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
     if(verbose) println("compile: Writing RVMModule <rvmModuleLoc>");
     writeBinaryValueFile(rvmModuleLoc, rvmMod);
     for(msg <- rvmMod.messages){
@@ -92,9 +98,6 @@ tuple[Configuration, RVMModule] compile1(loc moduleLoc, bool verbose = true, loc
 
 RVMModule compile(loc moduleLoc, bool verbose = false, loc bindir = |home:///bin|){
 
-   // moduleLoc = getSearchPathLocation(moduleLoc.path);
-    if(verbose) println("moduleLoc = <moduleLoc>");
-    //moduleLoc = normalize(moduleLoc);
 	<cfg, rvmMod> = compile1(moduleLoc, verbose=verbose, bindir=bindir);
    
    	errors = [ e | e:error(_,_) <- cfg.messages];
@@ -105,9 +108,9 @@ RVMModule compile(loc moduleLoc, bool verbose = false, loc bindir = |home:///bin
    	}
    	
    	dirtyModulesLoc = { getModuleLocation(prettyPrintName(dirty)) | dirty <- cfg.dirtyModules };
-   	for(dirtyLoc <- dirtyModulesLoc){
-   		println("\tdirty: <dirtyLoc>");
-   	}
+   	//for(dirtyLoc <- dirtyModulesLoc){
+   	//	println("\tdirty: <dirtyLoc>");
+   	//}
    	if(verbose){
    	   for(<m1, m2> <- cfg.importGraph){
    		   println("<prettyPrintName(m1)> imports <prettyPrintName(m2)>");

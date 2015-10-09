@@ -98,7 +98,7 @@ public class AssignableEvaluator {
 	 */
 	public Result<IValue> newResult(Result<IValue> oldValue, Result<IValue> rhsValue) {
 		Result<IValue> newValue;
-		if(oldValue != null){
+		if(oldValue != null) {
 			switch(this.__getOperator()){
 			case Default:
 				newValue = rhsValue; break;
@@ -135,6 +135,7 @@ public class AssignableEvaluator {
 			// on the right hand side
 			throw new UnexpectedType(oldValue.getType(), rhsValue.getType(), this.__getEval().getCurrentAST());
 		}
+		
 		switch(this.__getOperator()){
 			case Default:
 			case IsDefined:

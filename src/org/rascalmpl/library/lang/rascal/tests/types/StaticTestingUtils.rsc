@@ -21,7 +21,7 @@ import lang::rascal::types::CheckTypes;
 import lang::rascal::types::CheckerConfig;
 import lang::rascal::\syntax::Rascal;
 
-str abbrev(str s) { return size(s) < 100 ? s : "<s[0..97]> ..."; }
+str abbrev(str s) { return size(s) < 120 ? s : "<s[0..117]> ..."; }
 
 bool matches(str subject, str pat){
     pat = uncapitalize(pat);
@@ -157,20 +157,13 @@ bool declarationError(str stmts, list[str] importedModules = [], list[str] initi
 	
 bool missingModule(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	check(stmts, [
-		"Cannot import module _"
+		"Cannot import module _",
+		"Could not parse and prepare config for base module to check: IO"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
 	
 void makeModule(str name, str body){
-	tmpdir = getSystemProperty("java.io.tmpdir");
-	test_modules = |file:///| + tmpdir + "/test-modules";
-	if(!exists(test_modules)){
-		mkDirectory(test_modules);
-	}
-   
 	mloc = |test-modules:///<name>.rsc|;
     writeFile(mloc, "module <name>
                      <body>");
-    println("makeModule: <name>, <body>");
-    println("<test_modules>/<name>.rsc: <readFile(mloc)>");
 }

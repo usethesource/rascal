@@ -137,9 +137,48 @@ test bool testKwParams2() {
   return X.kw1 == 2;
 }
 
+
 test bool isKeyDefined1(value key, int val) {
   m = ();
   m[key]?val += 1;
   m[key]?val += 1;
   return m[key] == val + 2;
 }
+
+@expected{UninitializedVariable}
+test bool testUnInitAssignment1() {
+  m = ();
+  m[0] += 1;
+}
+
+test bool testInitAssignment1() {
+  m = ();
+  m[0]?0 += 1;
+  return m[0] == 1;
+}
+
+
+@expected{UninitializedVariable}
+test bool testUnInitAssignment2() {
+  m = ();
+  m[0] -= 1;
+}
+
+@expected{UninitializedVariable}
+test bool testUnInitAssignment3() {
+  m = ();
+  m[0] *= 1;
+}
+
+@expected{UninitializedVariable}
+test bool testUnInitAssignment4() {
+  m = ();
+  m[0] /= 1;
+}
+
+@expected{IndexOutOfBounds}
+test bool testUnInitAssignment5() {
+  m = [];
+  m[0] += 1;
+}
+

@@ -12,7 +12,7 @@ public str sing() =
   'Go to the store and buy some more, 99 bottles of beer on the wall.
   <}>";
   
-value main(list[value] args) {
+value main() {
   for(int i <- [0 .. 200]){
 	sing();
   }

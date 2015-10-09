@@ -97,7 +97,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 		@Override
 		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
-			return makeResult(TF.boolType(), getReceiver().interpret(__eval.getEvaluator()).has(getField()).getValue(), __eval.getEvaluator());
+			return makeResult(TF.boolType(), getReceiver().interpret(__eval.getEvaluator()).has(getAnnotation()).getValue(), __eval.getEvaluator());
 		}
 
 		@Override
@@ -310,7 +310,13 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 					IValue paramValue = cons.asWithKeywordParameters().getParameter(label);
 					if (paramValue == null) {
-						paramValue = receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore()).getValue();
+					    __eval.__getOperator();
+                        if (__eval.__getOperator().name().equals(AssignmentOperator.IsDefined.name()) && __eval.__getValue() != null) {
+					        paramValue = __eval.__getValue().getValue();
+					    }
+					    else { // we use the default
+					        paramValue = receiver.fieldAccess(label, __eval.getCurrentEnvt().getStore()).getValue();
+					    }
 					}
 					__eval.__setValue(__eval.newResult(paramValue, __eval.__getValue()));
 
@@ -488,11 +494,16 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					    oldResult = makeResult(oldType, oldValue, __eval.getEvaluator());
 					    oldResult.setInferredType(rec.hasInferredType());
 					    __eval.__setValue(__eval.newResult(oldResult, __eval.__getValue()));
+					    IMap map = ((IMap) rec.getValue()).put(subscript.getValue(), __eval.__getValue().getValue());
+					    result = makeResult(rec.hasInferredType() ? rec.getType().lub(map.getType()) : rec.getType(), map, __eval.__getEval());
 					}
-					
-					IMap map = ((IMap) rec.getValue()).put(subscript.getValue(), __eval.__getValue().getValue());
-					result = makeResult(rec.hasInferredType() ? rec.getType().lub(map.getType()) : rec.getType(), map,
-									__eval.__getEval());
+					else {
+					    // to trigger unassigned variable exception in case of a += operator 
+					    __eval.newResult(oldResult, __eval.__getValue()); 
+					    IMap map = ((IMap) rec.getValue()).put(subscript.getValue(), __eval.__getValue().getValue());
+					    result = makeResult(rec.hasInferredType() ? rec.getType().lub(map.getType()) : rec.getType(), map,
+					            __eval.__getEval());
+					}
 				} else {
 					throw new UnexpectedType(keyType, subscript.getType(),
 							this.getSubscript());

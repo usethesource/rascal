@@ -15,7 +15,7 @@ int f(int n) = n + 1;
 
 int g(int n) = n * 2;
 
-value main(list[value] args){
+value main(){
 	x = 10;
 	y = x + 20;
 	startCoverage();

@@ -17,7 +17,6 @@ test bool descendant20() = [1, /g(int N1), 3] := [1, f(g(1),f(g(2),g(3))), 3] &&
 test bool descendant21() = [1, /g(int N2), 3] := [1, f(g(1),f(g(2),g(3))), 3] && N2 == 2;
 test bool descendant22() = [1, /g(int N3), 3] := [1, f(g(1),f(g(2),g(3))), 3] && N3 == 3;
 
-
 data A = a(int i);
 data B = b(str s);
 
@@ -37,26 +36,43 @@ test bool descendant43() = {s | /b(str s) := [d((a(1) : b("one"), a(2) : b("two"
 
 data NODE = nd(NODE lhs, NODE rhs) | leaf(int n);
 
-test bool descendant5() {
-	nd1 = "leaf"(1);
-	nd2 = "nd"(nd1,"leaf"(2));
-	nd3 = "nd"("leaf"(3),"leaf"(4));
-	nd4 = "nd"(nd2,nd3);
-	
-	cnd1 = leaf(1);
-	cnd2 = nd(cnd1,leaf(2));
-	cnd3 = nd(leaf(3),leaf(4));
-	cnd4 = nd(cnd2,cnd3);
-	
-	return <  { v | /v:"nd"(node _, "leaf"(int _)) <- "nd"(nd4,"leaf"(0)) }
-			+ { v | /v: nd(NODE _, leaf(int _))    <-  nd(cnd4,leaf(0)) },
-			  [ v | /v:"nd"(node _, "leaf"(int _)) <- "nd"(nd4,"leaf"(0)) ]
-			+ [ v | /v: nd(NODE _, leaf(int _))    <-  nd(cnd4,leaf(0)) ]
-		   >
-		   ==
-		   <{"nd"("leaf"(1),"leaf"(2)), nd(leaf(3), leaf(4)), nd(leaf(1), leaf(2)),"nd"("leaf"(3),"leaf"(4))},
-		    ["nd"("leaf"(1),"leaf"(2)),"nd"("leaf"(3),"leaf"(4)),nd(leaf(1),leaf(2)),nd(leaf(3),leaf(4))]
-		   >;
+test bool desecendant50(){
+    nd1 = "leaf"(1);
+    nd2 = "nd"(nd1,"leaf"(2));
+    nd3 = "nd"("leaf"(3),"leaf"(4));
+    nd4 = "nd"(nd2,nd3);
+    return { v | /v:"nd"(node _, "leaf"(int _)) <- "nd"(nd4,"leaf"(0)) }==
+           {"nd"("leaf"(1),"leaf"(2)),"nd"("leaf"(3),"leaf"(4))};
+   }
+   
+test bool desecendant51() {
+    cnd1 = leaf(1);
+    cnd2 = nd(cnd1,leaf(2));
+    cnd3 = nd(leaf(3),leaf(4));
+    cnd4 = nd(cnd2,cnd3);
+    
+    return { v | /v: nd(NODE _, leaf(int _))    <-  nd(cnd4,leaf(0)) } ==
+           {nd(leaf(3), leaf(4)), nd(leaf(1),leaf(2))};        
+}
+
+test bool desecendant52() {
+    nd1 = "leaf"(1);
+    nd2 = "nd"(nd1,"leaf"(2));
+    nd3 = "nd"("leaf"(3),"leaf"(4));
+    nd4 = "nd"(nd2,nd3);
+
+    return [ v | /v:"nd"(node _, "leaf"(int _)) <- "nd"(nd4,"leaf"(0)) ] ==
+           ["nd"("leaf"(1), "leaf"(2)),"nd"("leaf"(3),"leaf"(4))];
+}
+
+test bool desecendant53() {
+    cnd1 = leaf(1);
+    cnd2 = nd(cnd1,leaf(2));
+    cnd3 = nd(leaf(3),leaf(4));
+    cnd4 = nd(cnd2,cnd3);
+    
+    return [ v | /v: nd(NODE _, leaf(int _))    <-  nd(cnd4,leaf(0)) ] ==
+           [ nd(leaf(1), leaf(2)), nd(leaf(3), leaf(4)) ];
 }
 
 test bool descendant6() {

@@ -222,7 +222,6 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 				
 		@Override
 		public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
-			Failure f1 = null;
 			try {
 				try {
 					return getRight().call(argTypes, argValues, keyArgValues);

@@ -112,7 +112,7 @@ public bool solv() {
 
 /* ----------------------------------------- */
 
-public value main(list[value] args) { 
+public value main() { 
   for(int i <- [0 .. 5]){
    	list[int] sdku=readSudoku(|std:///experiments/Compiler/Benchmarks/example1.txt|);
    	val = sdku;

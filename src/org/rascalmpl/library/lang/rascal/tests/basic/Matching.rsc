@@ -126,3 +126,14 @@ bool dispatch(e(D _)) = true;
 bool dispatch(d()) = false;
 
 test bool dispatchTest() = dispatch((D) `ed`) && !dispatch((D) `d`);
+
+data IG = ig(int x = 1);
+
+test bool ignoreKeywordParameter1() = ig() := ig(x=1);
+test bool ignoreKeywordParameter2() = ig(x=1) := ig();
+test bool ignoreKeywordParameter3() = "bla"() := "bla"(y=1);
+test bool ignoreKeywordParameter4() = {ig()} := {ig(x=1)};
+test bool ignoreKeywordParameter5() = {{ig()}} := {{ig(x=1)}};
+test bool ignoreKeywordParameter6() = <ig(),_> := <ig(x=1),2>;
+test bool ignoreKeywordParameter7() = [ig(),_] := [ig(x=1),2];
+test bool ignoreKeywordParameter8() = "fiets"(ig()) := "fiets"(ig(x=1));

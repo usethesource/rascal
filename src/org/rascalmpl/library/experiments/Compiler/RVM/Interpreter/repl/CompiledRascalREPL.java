@@ -11,6 +11,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import jline.Terminal;
 
@@ -20,12 +22,9 @@ import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.utils.StringUtils;
-import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.BaseRascalREPL;
-import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.uri.URIUtil;
 
 public abstract class CompiledRascalREPL extends BaseRascalREPL {
@@ -140,19 +139,25 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   }
 
   @Override
-  protected boolean supportsCompletion() {
-	  return true;
+  protected Collection<String> completePartialIdentifier(String qualifier, String term) {
+      return executor.completePartialIdentifier(qualifier, term);
   }
-
+  
+  private static final SortedSet<String> commandLineOptions = new TreeSet<String>();
+  static {
+     commandLineOptions.add("profiling"); 
+     commandLineOptions.add("tracing"); 
+     commandLineOptions.add("coverage"); 
+     commandLineOptions.add("debug"); 
+     commandLineOptions.add("testsuite"); 
+  }
   @Override
-  protected CompletionResult completeFragment(String line, int cursor) {
-	  OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(line, cursor);
-	  if (identifier != null) {
-		  Collection<String> suggestions = executor.completePartialIdentifier(identifier.term);
-		  if (suggestions != null && ! suggestions.isEmpty()) {
-			  return new CompletionResult(identifier.offset, identifier.length, suggestions);
-		  }
-	  }
-	  return null;
+  protected SortedSet<String> getCommandLineOptions() {
+      return commandLineOptions;
   }
+  
+  @Override
+    protected Collection<String> completeModule(String qualifier, String partialModuleName) {
+        return null;
+    }
 }

@@ -23,6 +23,10 @@ public Tree getModuleParseTree(str modulePath) {
 }
 
 @javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{Uses Evaluator to evaluate}
+public java lrel[str result, str out, str err] evalCommands(list[str] command, loc org);
+
+@javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to get back the parse tree for the given command}
 public java Tree parseCommand(str command, loc location);
 
@@ -89,10 +93,15 @@ for source files in a separate directory.
 
 }
 
+@memo
 loc getDerivedLocation(loc src, str extension, loc bindir = |home:///bin|, bool compressed = false){
 	loc res;
 	if(compressed){
 		bindir.scheme = "compressed+" + bindir.scheme;
+	}
+	if(src.scheme == "test-modules"){
+	   bindir.scheme = "test-modules";
+	   return (bindir + src.path)[extension=extension];
 	}
 	phys = getSearchPathLocation(src.path);
     if(exists(phys)){

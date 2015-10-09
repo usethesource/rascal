@@ -1454,7 +1454,10 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
             return getTupleFieldType(t1, fAsString);
         else
             return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
-    } 
+    } else if (isNodeType(t1)) {
+        return \value();
+    }
+     
 
     return makeFailType("Cannot access fields on type <prettyPrintType(t1)>", l);
 }
@@ -7485,7 +7488,9 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			} else {
 				; // TODO: Add a warning here, this means we are importing something that we cannot find
 			}
-		} catch : {
+		} catch ex: {
+		    chloc1 = getModuleLocation(prettyPrintName(imn));
+		    println("<prettyPrintName(imn)>: <chloc1>, <ex>");
 			c = addScopeError(c, "Cannot import module <prettyPrintName(imn)>", md@\loc);
 		}
 	}

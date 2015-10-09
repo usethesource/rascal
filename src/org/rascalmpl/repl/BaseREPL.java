@@ -5,6 +5,7 @@ import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Arrays;
@@ -14,11 +15,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import jline.Terminal;
 import jline.console.ConsoleReader;
+import jline.console.UserInterruptException;
+import jline.console.completer.CandidateListCompletionHandler;
 import jline.console.completer.Completer;
 import jline.console.history.FileHistory;
+import jline.console.history.PersistentHistory;
 import jline.internal.ShutdownHooks;
 import jline.internal.ShutdownHooks.Task;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.fusesource.jansi.Ansi;
 
 public abstract class BaseREPL {
@@ -29,14 +34,22 @@ public abstract class BaseREPL {
   protected final Writer stdErr;
   protected volatile boolean keepRunning = true;
   private volatile Task historyFlusher = null;
-  private volatile FileHistory history = null;
+  private volatile PersistentHistory history = null;
   private final Queue<String> commandQueue = new ConcurrentLinkedQueue<String>();
 
-  public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal) throws IOException {
-    this.originalStdOut = stdout;
+  public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException {
+  	this(stdin, stdout, prettyPrompt, allowColors, file != null ? new FileHistory(file) : null, terminal);
+  }
+  
+  public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, ISourceLocation file, Terminal terminal) throws IOException {
+  	this(stdin, stdout, prettyPrompt, allowColors, file != null ? new SourceLocationHistory(file) : null, terminal);
+  }
+  
+  private BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, PersistentHistory history, Terminal terminal) throws IOException {
+      this.originalStdOut = stdout;
     reader = new ConsoleReader(stdin, stdout, terminal);
-    if (persistentHistory != null) {
-      history = new FileHistory(persistentHistory);
+    if (history != null) {
+      this.history = history;
       reader.setHistory(history);
       historyFlusher = new Task() {
         @Override
@@ -74,12 +87,21 @@ public abstract class BaseREPL {
           return -1;
         }
       });
-      
+      if (reader.getCompletionHandler() instanceof CandidateListCompletionHandler) {
+          ((CandidateListCompletionHandler)reader.getCompletionHandler()).setPrintSpaceAfterFullCompletion(printSpaceAfterFullCompletion());
+      }
+      reader.setHandleUserInterrupt(true);
     }
   }
 
 
-  /**
+ 
+
+
+
+
+
+/**
    * During the constructor call initialize is called after the REPL is setup enough to have a stdout and std err to write to.
    * @param stdout the output stream to write normal output to.
    * @param stderr the error stream to write error messages on, depending on the environment and options passed, will print in red.
@@ -100,10 +122,22 @@ public abstract class BaseREPL {
   protected abstract void handleInput(String line) throws InterruptedException;
   
   /**
+   * If a line is canceled with ctrl-C this method is called too handle the reset in the child-class.
+   * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
+   */
+  protected abstract void handleReset() throws InterruptedException;
+  
+  /**
    * Test if completion of statement in the current line is supported
    * @return true if the completeFragment method can provide completions
    */
   protected abstract boolean supportsCompletion();
+
+  /**
+   * If the completion succeeded with one match, should a space be printed aftwards?
+   * @return true if completed fragment should be followed by a space
+   */
+  protected abstract boolean printSpaceAfterFullCompletion();
   
   /**
    * If a user hits the TAB key, the current line and the offset is provided to try and complete a fragment of the current line.
@@ -165,11 +199,18 @@ public abstract class BaseREPL {
         }
 
         updatePrompt();
-        String line = reader.readLine(reader.getPrompt(), null, null);
-        if (line == null) { // EOF
-          break;
+        try {
+            String line = reader.readLine(reader.getPrompt(), null, null);
+            if (line == null) { // EOF
+                break;
+            }
+            handleInput(line);
         }
-        handleInput(line);
+        catch (UserInterruptException u) {
+            reader.println();
+            handleReset();
+            updatePrompt();
+        }
 
       }
     }

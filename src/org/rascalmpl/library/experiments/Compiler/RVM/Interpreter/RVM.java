@@ -43,8 +43,8 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalType;
-import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse;
@@ -60,7 +60,9 @@ public class RVM implements java.io.Serializable {
 	private static final long serialVersionUID = 2178453095307370332L;
 	
 	public final IValueFactory vf;
+
 	private final TypeFactory tf;
+	
 	private final IBool Rascal_TRUE;
 	private final IBool Rascal_FALSE;
 	private final IString NONE; 
@@ -85,9 +87,11 @@ public class RVM implements java.io.Serializable {
 	PrintWriter stdout;
 	PrintWriter stderr;
 	
+	private final HashMap<String, IValue> emptyKeywordMap = new HashMap<>(0);
+	
 	//private Frame currentFrame;	// used for profiling
 	private ILocationCollector locationCollector;
-	
+		
 	// Management of active coroutines
 	Stack<Coroutine> activeCoroutines = new Stack<>();
 	Frame ccf = null; // The start frame of the current active coroutine (coroutine's main function)
@@ -129,24 +133,20 @@ public class RVM implements java.io.Serializable {
 
 	public RVM(RVMExecutable rrs, RascalExecutionContext rex) {
 		
-		super();
-
+		this.rex = rex;
+		rex.setRVM(this);
+		
 		this.vf = rex.getValueFactory();
 		tf = TypeFactory.getInstance();
-		//typeStore = rex.getTypeStore();
+
 		this.instanceCache = new HashMap<Class<?>, Object>();
 		this.classCache = new HashMap<String, Class<?>>();
 		
-		this.rex = rex;
-		rex.setRVM(this);
 		this.classLoaders = rex.getClassLoaders();
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
 		this.debug = rex.getDebug();
 		this.trackCalls = rex.getTrackCalls();
-		//this.finalized = false;
-		
-		//this.types = new Types(this.vf);
 		
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
@@ -162,9 +162,7 @@ public class RVM implements java.io.Serializable {
 		this.overloadedStore = rrs.getOverloadedStore();
 		
 		moduleVariables = new HashMap<IValue,IValue>();
-		
-		MuPrimitive.init(vf);
-		RascalPrimitive.init(this, rex);
+
 		Opcode.init(stdout, rex.getProfile());
 		
 		this.locationCollector = NullLocationCollector.getInstance();
@@ -352,33 +350,83 @@ public class RVM implements java.io.Serializable {
 		throw new CompilerError("Undefined overloaded function index " + n);
 	}
 	
+	public Function getCompanionDefaultsFunction(String name, Type ftype){
+		all:
+			for(Function f : functionStore){
+				if(f.name.contains("companion-defaults") && f.name.contains("::" + name + "(")){
+					FunctionType ft = (FunctionType) f.ftype;
+					if(ftype.getAbstractDataType().equals(ft.getReturnType())){
+						if(ftype.isAbstractData()){
+							return f;
+						}
+						if(ftype.getFieldTypes().getArity() == ft.getArgumentTypes().getArity()){
+							for(int i = 0; i < ftype.getFieldTypes().getArity(); i++){
+								if(!ftype.getFieldType(i).equals(ft.getArgumentTypes().getFieldType(i))){
+									continue all;
+								}
+							}
+							return f;
+						}
+					}
+				}
+			}
+	return null;
+	}
+	
+	public Function getFunction(String name, Type returnType, Type argumentTypes){
+		for(Function f : functionStore){
+			if(f.name.contains("/" + name + "(")){
+				FunctionType ft = (FunctionType) f.ftype;
+				if(returnType.equals(ft.getReturnType()) &&
+				   argumentTypes.equals(ft.getArgumentTypes())){
+					return f;
+				}
+			}
+		}
+		return null;
+	}
+	
 	/**
 	 * execute a single function, on-overloaded, function
 	 * 
 	 * @param uid_func	Internal function name
-	 * @param args		Argumens
+	 * @param posArgs		Arguments
 	 * @param kwArgs	Keyword arguments
 	 * @return
 	 */
-	public IValue executeFunction(String uid_func, IValue[] args, IMap kwArgs){
+	public Object executeFunction(String uid_func, IValue[] posArgs, Map<String,IValue> kwArgs){
 		// Assumption here is that the function called is not a nested one
 		// and does not use global variables
 		Function func = functionStore.get(functionMap.get(uid_func));
+		return executeFunction(func, posArgs, kwArgs);
+	}
+	
+	/**
+	 * execute a single function, on-overloaded, function
+	 * 
+	 * @param uid_func	Internal function name
+	 * @param posArgs		Argumens
+	 * @param kwArgs	Keyword arguments
+	 * @return
+	 */
+	public Object executeFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs){
+		// Assumption here is that the function called is not a nested one
+		// and does not use global variables
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
 		Frame cf = root;
 		
 		// Pass the program arguments to main
-		for(int i = 0; i < args.length; i++){
-			cf.stack[i] = args[i]; 
+		for(int i = 0; i < posArgs.length; i++){
+			cf.stack[i] = posArgs[i]; 
 		}
-		cf.stack[func.nformals-1] =  new HashMap<String, IValue>();
-		cf.stack[func.nformals] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;
+		cf.stack[func.nformals-1] =  kwArgs; // new HashMap<String, IValue>();
+		//cf.stack[func.nformals] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;
 		Object o = executeProgram(root, cf);
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
-		RascalPrimitive.restoreRVMAndContext(this, rex);
-		return narrow(o); 
+		//return narrow(o); 
+		return o;
 	}
 	
 	public Frame makeFrameForVisit(FunctionInstance func){
@@ -408,7 +456,6 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
-		RascalPrimitive.restoreRVMAndContext(this, rex);
 		return narrow(o);
 	}
 	
@@ -424,7 +471,6 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
-		RascalPrimitive.restoreRVMAndContext(this, rex);
 		return narrow(o); 
 	}
 	
@@ -450,7 +496,6 @@ public class RVM implements java.io.Serializable {
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
-		RascalPrimitive.restoreRVMAndContext(this, rex);
 		return narrow(o); 
 	}
 			
@@ -478,7 +523,7 @@ public class RVM implements java.io.Serializable {
 		return (name != null) ? name.getValue() : "** unknown variable **";
 	}
 	
-	public IValue executeProgram(String moduleName, String uid_main, IValue[] args, IMap kwArgs) {
+	public IValue executeProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs) {
 		
 		String oldModuleName = rex.getCurrentModuleName();
 		rex.setCurrentModuleName(moduleName);
@@ -495,8 +540,8 @@ public class RVM implements java.io.Serializable {
 		
 		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
 		Frame cf = root;
-		cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
-		cf.stack[1] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;
+		//cf.stack[0] = vf.list(args); // pass the program argument to main_function as a IList object
+		cf.stack[0] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;
 		cf.src = main_function.src;
 		
 		Object o = executeProgram(root, cf);
@@ -652,8 +697,8 @@ public class RVM implements java.io.Serializable {
 			if (f.scopeId == varScope) {	
 				if(f.function.nformals > 0){
 					Object okargs = f.stack[f.function.nformals - 1];
-					if(okargs instanceof HashMap<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
-						HashMap<String, IValue> kargs = (HashMap<String,IValue>) okargs;
+					if(okargs instanceof Map<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
+						Map<String, IValue> kargs = (Map<String,IValue>) okargs;
 						if(kargs.containsKey(name)) {
 							IValue val = kargs.get(name);
 							//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
@@ -684,11 +729,17 @@ public class RVM implements java.io.Serializable {
 			if (f.scopeId == varScope) {
 				if(f.function.nformals > 0){
 					Object okargs = f.stack[f.function.nformals - 1];
-					if(okargs instanceof HashMap<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
-						HashMap<String, IValue> kargs = (HashMap<String,IValue>) f.stack[f.function.nformals - 1];
+					if(okargs instanceof Map<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
+						Map<String, IValue> kargs = (Map<String,IValue>) f.stack[f.function.nformals - 1];
+						
 						if(kargs.containsKey(name)) {
 							val = kargs.get(name);
 							//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+							if(kargs == emptyKeywordMap){
+								System.err.println("Creating new kw map while updating: " + name);
+								kargs = new HashMap<>();
+								f.stack[f.function.nformals - 1] = kargs;
+							}
 							kargs.put(name,  val);
 							return sp;
 							//}
@@ -698,7 +749,8 @@ public class RVM implements java.io.Serializable {
 						if(defaults.containsKey(name)) {
 							Entry<Type, IValue> defaultValue = defaults.get(name);
 							//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
-							stack[sp++] = defaultValue.getValue();
+							kargs.put(name,val);
+							stack[sp++] = val;
 							return sp;
 							//}
 						}
@@ -712,12 +764,15 @@ public class RVM implements java.io.Serializable {
 	int LOADLOCKWP(String name, Frame cf, Object[] stack, int sp){
 		Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
 		Map.Entry<Type, IValue> defaultValue = defaults.get(name);
-		for(Frame f = cf; f != null; f = f.previousCallFrame) {
+		Frame f = cf;
+		
+		// TODO: UNCOMMENT TO GET KEYWORD PARAMETER PROPAGATION
+		//for(Frame f = cf; f != null; f = f.previousCallFrame) {
 			int nf = f.function.nformals;
 			if(nf > 0){								// Some generated functions have zero args, i.e. EQUIVALENCE
 				Object okargs = f.stack[nf - 1];
-				if(okargs instanceof HashMap<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
-					HashMap<String, IValue> kargs = (HashMap<String,IValue>) okargs;
+				if(okargs instanceof Map<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
+					Map<String, IValue> kargs = (Map<String,IValue>) okargs;
 					if(kargs.containsKey(name)) {
 						IValue val = kargs.get(name);
 						if(val.getType().isSubtypeOf(defaultValue.getKey())) {
@@ -727,7 +782,7 @@ public class RVM implements java.io.Serializable {
 					}
 				}
 			}
-		}				
+		//}				
 		stack[sp++] = defaultValue.getValue();
 		return sp;
 	}
@@ -788,13 +843,13 @@ public class RVM implements java.io.Serializable {
 	}
 	
 	private Object executeProgram(Frame root, Frame cf) {
-		long start = Timing.getCpuTime();
+		//long start = Timing.getCpuTime();
 		//trackCalls = true;
 		Object res = executeProgram(root, cf, null);
-		long duration = (Timing.getCpuTime() - start)/1000000;
-		if(duration > 50){
-			System.out.println("executeProgram: " + cf.function.name + " " + duration + " ms");
-		}
+		//long duration = (Timing.getCpuTime() - start)/1000000;
+		//if(duration > 50){
+		//	System.out.println("executeProgram: " + cf.function.name + " " + duration + " ms");
+		//}
 		return res;
 	}
 	
@@ -857,70 +912,70 @@ public class RVM implements java.io.Serializable {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC0:
-					assert 0 < cf.function.nlocals : "LOADLOC0: pos larger that nlocals at " + cf.src;
-					assert stack[0] != null: "Local variable 0 is null";
-					Object oval = stack[0]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+//					assert 0 < cf.function.nlocals : "LOADLOC0: pos larger that nlocals at " + cf.src;
+//					assert stack[0] != null: "Local variable 0 is null";
+					Object oval = stack[0]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
 					stack[sp++] = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC1:
-					assert 1 < cf.function.nlocals : "LOADLOC1: pos larger that nlocals at " + cf.src;
-					assert stack[1] != null: "Local variable 1 is null";
-					oval = stack[1]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+//					assert 1 < cf.function.nlocals : "LOADLOC1: pos larger that nlocals at " + cf.src;
+//					assert stack[1] != null: "Local variable 1 is null";
+					oval = stack[1]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
 					stack[sp++] = oval; continue NEXT_INSTRUCTION; 
 					
 				case Opcode.OP_LOADLOC2:
-					assert 2 < cf.function.nlocals : "LOADLOC2: pos larger that nlocals at " + cf.src;
-					assert stack[2] != null: "Local variable 2 is null";
-					oval = stack[2]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+//					assert 2 < cf.function.nlocals : "LOADLOC2: pos larger that nlocals at " + cf.src;
+//					assert stack[2] != null: "Local variable 2 is null";
+					oval = stack[2]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
 					stack[sp++] = oval; continue NEXT_INSTRUCTION; 
 					
 				case Opcode.OP_LOADLOC3:
-					assert 3 < cf.function.nlocals : "LOADLOC3: pos larger that nlocals at " + cf.src;
-					assert stack[3] != null: "Local variable 3 is null";
-					oval = stack[3]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+//					assert 3 < cf.function.nlocals : "LOADLOC3: pos larger that nlocals at " + cf.src;
+//					assert stack[3] != null: "Local variable 3 is null";
+					oval = stack[3]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
 					stack[sp++] = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC4:
-					assert 4 < cf.function.nlocals : "LOADLOC4: pos larger that nlocals at " + cf.src;
-					assert stack[4] != null: "Local variable 4 is null";
-					oval = stack[4]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+//					assert 4 < cf.function.nlocals : "LOADLOC4: pos larger that nlocals at " + cf.src;
+//					assert stack[4] != null: "Local variable 4 is null";
+					oval = stack[4]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
 					stack[sp++] = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC5:
-					assert 5 < cf.function.nlocals : "LOADLOC5: pos larger that nlocals at " + cf.src;
-					assert stack[5] != null: "Local variable 5 is null";
-					oval = stack[5]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+//					assert 5 < cf.function.nlocals : "LOADLOC5: pos larger that nlocals at " + cf.src;
+//					assert stack[5] != null: "Local variable 5 is null";
+					oval = stack[5]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
 					stack[sp++] = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC6:
-					assert 6 < cf.function.nlocals : "LOADLOC6: pos larger that nlocals at " + cf.src;
-					assert stack[6] != null: "Local variable 6 is null";
-					oval = stack[6]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+//					assert 6 < cf.function.nlocals : "LOADLOC6: pos larger that nlocals at " + cf.src;
+//					assert stack[6] != null: "Local variable 6 is null";
+					oval = stack[6]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
 					stack[sp++] = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC7:
-					assert 7 < cf.function.nlocals : "LOADLOC7: pos larger that nlocals at " + cf.src;
-					assert stack[7] != null: "Local variable 7 is null";
-					oval = stack[7]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+//					assert 7 < cf.function.nlocals : "LOADLOC7: pos larger that nlocals at " + cf.src;
+//					assert stack[7] != null: "Local variable 7 is null";
+					oval = stack[7]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
 					stack[sp++] = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC8:
-					assert 8 < cf.function.nlocals : "LOADLOC8: pos larger that nlocals at " + cf.src;
-					assert stack[8] != null: "Local variable 8 is null";
-					oval = stack[8]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+//					assert 8 < cf.function.nlocals : "LOADLOC8: pos larger that nlocals at " + cf.src;
+//					assert stack[8] != null: "Local variable 8 is null";
+					oval = stack[8]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
 					stack[sp++] = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC9:
-					assert 9 < cf.function.nlocals : "LOADLOC9: pos larger that nlocals at " + cf.src;
-					assert stack[9] != null: "Local variable 9 is null";
-					oval = stack[9]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+//					assert 9 < cf.function.nlocals : "LOADLOC9: pos larger that nlocals at " + cf.src;
+//					assert stack[9] != null: "Local variable 9 is null";
+					oval = stack[9]; // if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
 					stack[sp++] = oval; continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_LOADLOC:
 					pos = CodeBlock.fetchArg1(instruction);
-					assert pos < cf.function.nlocals : "LOADLOC: pos larger that nlocals at " + cf.src;
-					assert stack[pos] != null: "Local variable " + pos + " is null";
-					oval = stack[pos]; if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+//					assert pos < cf.function.nlocals : "LOADLOC: pos larger that nlocals at " + cf.src;
+//					assert stack[pos] != null: "Local variable " + pos + " is null";
+					oval = stack[pos]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
 					stack[sp++] = oval;
 					continue NEXT_INSTRUCTION;
 					
@@ -946,6 +1001,13 @@ public class RVM implements java.io.Serializable {
 					
 				case Opcode.OP_LOADLOCREF:
 					stack[sp++] = new Reference(stack, CodeBlock.fetchArg1(instruction));
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_LOADEMPTYKWMAP:
+					// TODO: use unique copy of emptyKeywordMap and delay creation of new copy to assignment
+					// to keyword parameter
+					stack[sp++] = emptyKeywordMap;
+					//stack[sp++] = new HashMap<String,IValue>();
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_CALLMUPRIM:	
@@ -1537,7 +1599,7 @@ public class RVM implements java.io.Serializable {
 //							sp = RascalPrimitive.values[n].execute(stack, sp, arity, cf);
 //							RascalPrimitive.recordTime(n, System.nanoTime() - start);
 //						} else {
-							sp = RascalPrimitive.values[n].execute(stack, sp, arity, cf);
+							sp = RascalPrimitive.values[n].execute(stack, sp, arity, cf, rex);
 //						}
 						//assert sp == sp1 - arity + 1;
 					} catch (Thrown exception) {
@@ -1660,7 +1722,12 @@ public class RVM implements java.io.Serializable {
 				case Opcode.OP_STORELOCKWP:
 					val = (IValue) stack[sp - 1];
 					name = ((IString) cf.function.codeblock.getConstantValue(CodeBlock.fetchArg1(instruction))).getValue();
-					HashMap<String, IValue> kargs = (HashMap<String, IValue>) stack[cf.function.nformals - 1];
+					Map<String, IValue> kargs = (Map<String, IValue>) stack[cf.function.nformals - 1];
+					if(kargs == emptyKeywordMap){
+						System.err.println("Creating new kw map while updating: " + name);
+						kargs = new HashMap<>();
+						stack[cf.function.nformals - 1] = kargs;
+					}
 					kargs.put(name, val);
 					continue NEXT_INSTRUCTION;
 					

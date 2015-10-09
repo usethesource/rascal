@@ -179,19 +179,22 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	public Result<IBool> has(Name name) {
 		if (TreeAdapter.isAppl((ITree) getValue())) {
 			IConstructor prod = TreeAdapter.getProduction((ITree) getValue());
-			IList syms = ProductionAdapter.getSymbols(prod);
-			String tmp = Names.name(name);
-			
-			// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.
-			for (IValue sym : syms) {
-				if (SymbolAdapter.isLabel((IConstructor) sym)) {
-					if (SymbolAdapter.getLabel((IConstructor) sym).equals(tmp)) {
-						return ResultFactory.bool(true, ctx);
+			if(ProductionAdapter.isDefault(prod)){
+				IList syms = ProductionAdapter.getSymbols(prod);
+				String tmp = Names.name(name);
+
+				// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.
+
+				for (IValue sym : syms) {
+					if (SymbolAdapter.isLabel((IConstructor) sym)) {
+						if (SymbolAdapter.getLabel((IConstructor) sym).equals(tmp)) {
+							return ResultFactory.bool(true, ctx);
+						}
 					}
 				}
 			}
 		}
-		return ResultFactory.bool(false, ctx); 
+		return super.has(name);
 	}
 	
 	@Override

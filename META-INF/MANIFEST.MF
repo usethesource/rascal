@@ -1,31 +1,12 @@
 Manifest-Version: 1.0
+Eclipse-BuddyPolicy: registered
 Bundle-ManifestVersion: 2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: CWI
 Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
-Bundle-Version: 0.7.3.qualifier
+Bundle-Version: 0.8.0.qualifier
 Export-Package: 
- com.github.benmanes.caffeine,
- com.github.benmanes.caffeine.base,
- com.github.benmanes.caffeine.cache,
- com.github.benmanes.caffeine.cache.stats,
- com.github.benmanes.caffeine.cache.tracing,
- com.github.benmanes.caffeine.locks,
- de.ruedigermoeller.serialization,
- de.ruedigermoeller.serialization.annotations,
- de.ruedigermoeller.serialization.serializers,
- de.ruedigermoeller.serialization.util,
- jline,
- jline.console,
- jline.console.completer,
- org.apache.commons.compress.compressors,
- org.apache.commons.compress.compressors.bzip2,
- org.apache.commons.compress.compressors.deflate,
- org.apache.commons.compress.compressors.gzip,
- org.apache.commons.compress.compressors.lzma,
- org.apache.commons.compress.compressors.xz,
- org.apache.commons.compress.compressors.z,
  org.rascalmpl.ast,
  org.rascalmpl.checker,
  org.rascalmpl.debug,
@@ -87,11 +68,14 @@ Export-Package:
  org.rascalmpl.test.infrastructure,
  org.rascalmpl.tutor,
  org.rascalmpl.uri,
+ org.rascalmpl.uri.file,
+ org.rascalmpl.uri.jar,
+ org.rascalmpl.uri.libraries,
+ org.rascalmpl.uri.remote,
  org.rascalmpl.values,
  org.rascalmpl.values.uptr,
  org.rascalmpl.values.uptr.visitors,
- org.tukaani.xz,
- org.yaml.snakeyaml
+ jline
 Require-Bundle: org.eclipse.imp.pdb.values,
  org.eclipse.swt,
  org.objectweb.asm;bundle-version="4.0.0",

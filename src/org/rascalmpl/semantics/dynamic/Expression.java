@@ -51,7 +51,6 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.AndResult;
 import org.rascalmpl.interpreter.matching.AntiPattern;
@@ -907,7 +906,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			java.util.List<Field> fields = this.getFields();
 			return base.fieldSelect(fields.toArray(new Field[0]));
 		}
-
+		
 	}
 
 	static public class FieldUpdate extends

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,15 +21,10 @@ package org.rascalmpl.interpreter;
 
 import static org.rascalmpl.semantics.dynamic.Import.parseFragments;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -53,7 +48,6 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -69,9 +63,9 @@ import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.debug.AbstractInterpreterEventTrigger;
+import org.rascalmpl.debug.IRascalFrame;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.debug.IRascalRuntimeInspection;
-import org.rascalmpl.debug.IRascalFrame;
 import org.rascalmpl.debug.IRascalSuspendTrigger;
 import org.rascalmpl.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -114,151 +108,15 @@ import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
-import org.rascalmpl.uri.CWDURIResolver;
-import org.rascalmpl.uri.ClassResourceInput;
-import org.rascalmpl.uri.CompressedStreamResolver;
-import org.rascalmpl.uri.FileURIResolver;
-import org.rascalmpl.uri.HomeURIResolver;
-import org.rascalmpl.uri.HttpURIResolver;
-import org.rascalmpl.uri.HttpsURIResolver;
-import org.rascalmpl.uri.ISourceLocationInputOutput;
-import org.rascalmpl.uri.JarURIResolver;
-import org.rascalmpl.uri.TempURIResolver;
-import org.rascalmpl.uri.TestModuleResolver;
+import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger, IRascalRuntimeInspection {
-	private static final class CourseResolver extends FileURIResolver {
-		private final String courseSrc;
-
-		private CourseResolver(String courseSrc) {
-			this.courseSrc = courseSrc;
-		}
-
-		@Override
-		public String scheme() {
-		  return "courses";
-		}
-
-		@Override
-		protected String getPath(ISourceLocation uri) {
-		  String path = uri.getPath();
-		  return courseSrc + (path.startsWith("/") ? path : ("/" + path));
-		}
-	}
 	
-//	/**
-//	 * The scheme "test-modules" is used, amongst others, to generate modules during tests.
-//	 * These modules are implemented via an in-memory "file system" that guarantees
-//	 * that "lastModified" is monotone increasing, i.e. after a write to a file lastModified
-//	 * is ALWAYS larger than for the previous version of the same file.
-//	 * When files are written at high speeed (e.g. with 10-30 ms intervals ), this property is, 
-//	 * unfortunately, not guaranteed on all operating systems.
-//	 *
-//	 */
-//	private static final class TestModuleResolver implements ISourceLocationInputOutput {
-//		
-//		@Override
-//		public String scheme() {
-//			return "test-modules";
-//		}
-//		
-//		private static final class File {
-//			byte[] contents;
-//			long timestamp;
-//			public File() {
-//				contents = new byte[0];
-//				timestamp = System.currentTimeMillis();
-//			}
-//			public void newContent(byte[] byteArray) {
-//				long newTimestamp = System.currentTimeMillis();
-//				if (newTimestamp <= timestamp) {
-//					newTimestamp =  timestamp +1;
-//				}
-//				timestamp = newTimestamp;
-//				contents = byteArray;
-//			}
-//		}
-//		
-//		private final Map<ISourceLocation, File> files = new HashMap<>();
-//
-//		@Override
-//		public InputStream getInputStream(ISourceLocation uri)
-//				throws IOException {
-//			File file = files.get(uri);
-//			if (file == null) {
-//				throw new IOException();
-//			}
-//			return new ByteArrayInputStream(file.contents);
-//		}
-//
-//		@Override
-//		public OutputStream getOutputStream(ISourceLocation uri, boolean append)
-//				throws IOException {
-//			File file = files.get(uri);
-//			final File result = file == null ? new File() : file; 
-//			return new ByteArrayOutputStream() {
-//				@Override
-//				public void close() throws IOException {
-//					super.close();
-//					result.newContent(this.toByteArray());
-//					files.put(uri, result);
-//				}
-//			};
-//		}
-//		
-//		@Override
-//		public long lastModified(ISourceLocation uri) throws IOException {
-//			File file = files.get(uri);
-//			if (file == null) {
-//				throw new IOException();
-//			}
-//			return file.timestamp;
-//		}
-//		
-//		@Override
-//		public Charset getCharset(ISourceLocation uri) throws IOException {
-//			return null;
-//		}
-//
-//		@Override
-//		public boolean exists(ISourceLocation uri) {
-//			return files.containsKey(uri);
-//		}
-//
-//		@Override
-//		public boolean isDirectory(ISourceLocation uri) {
-//			return false;
-//		}
-//
-//		@Override
-//		public boolean isFile(ISourceLocation uri) {
-//			return files.containsKey(uri);
-//		}
-//
-//		@Override
-//		public String[] list(ISourceLocation uri) throws IOException {
-//			return null;
-//		}
-//
-//		@Override
-//		public boolean supportsHost() {
-//			return false;
-//		}
-//
-//		@Override
-//		public void mkDirectory(ISourceLocation uri) throws IOException {
-//		}
-//
-//		@Override
-//		public void remove(ISourceLocation uri) throws IOException {
-//			files.remove(uri);
-//		}
-//	}
-
+	
 	private final IValueFactory vf; // sharable
 	private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
 	protected Environment currentEnvt; // not sharable
@@ -325,7 +183,16 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private final URIResolverRegistry resolverRegistry; // sharable
 
 	private final Map<IConstructorDeclared,Object> constructorDeclaredListeners; // TODO: can this be shared?
-	private static final Object dummy = new Object();	
+ 	private static final Object dummy = new Object();	
+    private RascalInterpreterREPL repl = null;
+	
+	public void setREPL(RascalInterpreterREPL repl) {
+	    this.repl = repl;
+	}
+	@Override
+	public RascalInterpreterREPL getREPL() {
+	    return repl;
+	}
 	
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
 		this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
@@ -358,56 +225,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			throw new NullPointerException();
 		}
 		
-		// register some schemes
-		FileURIResolver files = new FileURIResolver();
-		resolverRegistry.registerInputOutput(files);
-
-		HttpURIResolver http = new HttpURIResolver();
-		resolverRegistry.registerInput(http);
-		
-		//added
-		HttpsURIResolver https = new HttpsURIResolver();
-		resolverRegistry.registerInput(https);
-
-		CWDURIResolver cwd = new CWDURIResolver();
-		resolverRegistry.registerLogical(cwd);
-
-		ClassResourceInput library = new ClassResourceInput("std", getClass(), "/org/rascalmpl/library");
-		resolverRegistry.registerInput(library);
-
-		ClassResourceInput testdata = new ClassResourceInput("testdata", getClass(), "/org/rascalmpl/test/data");
-		resolverRegistry.registerInput(testdata);
-		
-		ClassResourceInput benchmarkdata = new ClassResourceInput("benchmarks", getClass(), "/org/rascalmpl/benchmark");
-		resolverRegistry.registerInput(benchmarkdata);
-		
-		resolverRegistry.registerInput(new JarURIResolver());
-
-		resolverRegistry.registerLogical(new HomeURIResolver());
-		resolverRegistry.registerInputOutput(new TempURIResolver());
-		
-		resolverRegistry.registerInputOutput(new CompressedStreamResolver(resolverRegistry));
-		
-		// here we have code that makes sure that courses can be edited by
-		// maintainers of Rascal, using the -Drascal.courses=/path/to/courses property.
-		final String courseSrc = System.getProperty("rascal.courses");
-		if (courseSrc != null) {
-		   FileURIResolver fileURIResolver = new CourseResolver(courseSrc);
-		  
-		  resolverRegistry.registerInputOutput(fileURIResolver);
-		}
-		else {
-		  resolverRegistry.registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
-		}
-	
-		TestModuleResolver testModuleResolver = new TestModuleResolver();
-
-		resolverRegistry.registerInputOutput(testModuleResolver);
-		addRascalSearchPath(URIUtil.rootLocation("test-modules"));
-
-		ClassResourceInput tutor = new ClassResourceInput("tutor", getClass(), "/org/rascalmpl/tutor");
-		resolverRegistry.registerInput(tutor);
-
 		// default event trigger to swallow events
 		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
 	}
@@ -1792,13 +1609,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public TraversalEvaluator __popTraversalEvaluator() {
 		return teStack.pop();
 	}
-	public Collection<String> completePartialIdentifier(String partialIdentifier) {
-		if (partialIdentifier == null || partialIdentifier.isEmpty()) {
-			throw new IllegalArgumentException("The behavior with empty string is undefined.");
-		}
+	@Override
+	public Collection<String> completePartialIdentifier(String qualifier, String partialIdentifier) {
 		if (partialIdentifier.startsWith("\\")) {
 			partialIdentifier = partialIdentifier.substring(1);
 		}
+		String partialModuleName = qualifier + "::" + partialIdentifier;
 		SortedSet<String> result = new TreeSet<>(new Comparator<String>() {
 			@Override
 			public int compare(String a, String b) {
@@ -1818,35 +1634,47 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 		for (ModuleEnvironment env: todo) {
 			for (Pair<String, List<AbstractFunction>> p : env.getFunctions()) {
-				addIt(result, p.getFirst(), partialIdentifier);
+			    for (AbstractFunction f : p.getSecond()) {
+			        String module = ((ModuleEnvironment)f.getEnv()).getName();
+			        if (module.startsWith(qualifier)) {
+			            addIt(result, p.getFirst(), qualifier.isEmpty() ? "" : module, module.startsWith(partialModuleName) ? "" : partialIdentifier);
+			        }
+			    }
 			}
-			for (String v : env.getVariables().keySet()) {
-				addIt(result, v, partialIdentifier);
-			}
-			for (IValue key: env.getSyntaxDefinition()) {
-				addIt(result, ((IString)key).getValue(), partialIdentifier);
-			}
-			for (Type t: env.getAbstractDatatypes()) {
-				addIt(result, t.getName(), partialIdentifier);
-			}
-			for (Type t: env.getAliases()) {
-				addIt(result, t.getName(), partialIdentifier);
-			}
-			Map<Type, Map<String, Type>> annos = env.getAnnotations();
-			for (Type t: annos.keySet()) {
-				for (String k: annos.get(t).keySet()) {
-					addIt(result, k, partialIdentifier);
-				}
-			}
+		    boolean inQualifiedModule = env.getName().equals(qualifier) || qualifier.isEmpty();
+            if (inQualifiedModule) {
+		        for (String v : env.getVariables().keySet()) {
+			        addIt(result, v, qualifier, partialIdentifier);
+			    }
+		        for (Type t: env.getAbstractDatatypes()) {
+		            if (inQualifiedModule) {
+		                addIt(result, t.getName(), qualifier, partialIdentifier);
+		            }
+		        }
+		        for (Type t: env.getAliases()) {
+		            addIt(result, t.getName(), qualifier, partialIdentifier);
+		        }
+		    }
+            if (qualifier.isEmpty()) {
+                Map<Type, Map<String, Type>> annos = env.getAnnotations();
+                for (Type t: annos.keySet()) {
+                    for (String k: annos.get(t).keySet()) {
+                        addIt(result, k, "", partialIdentifier);
+                    }
+                }
+            }
 		}
 
 		return result;
 	}
 
-	private static void addIt(SortedSet<String> result, String v, String originalTerm) {
+	private static void addIt(SortedSet<String> result, String v, String qualifier, String originalTerm) {
 		if (v.startsWith(originalTerm) && !v.equals(originalTerm)) {
 			if (v.contains("-")) {
 				v = "\\" + v;
+			}
+			if (!qualifier.isEmpty() && !v.startsWith(qualifier)) {
+			    v = qualifier + "::" + v;
 			}
 			result.add(v);
 		}

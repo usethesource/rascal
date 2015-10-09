@@ -4,7 +4,7 @@ import IO;
 import ValueIO;
 import Type;
 
-void main(list[value] args){
+void main(){
   l = |std:///experiments/Compiler/Tests/XXX|;
   v = #int;
   writeTextValueFile(l, v);

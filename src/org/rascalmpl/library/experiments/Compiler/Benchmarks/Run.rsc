@@ -19,6 +19,7 @@ import String;
 import ValueIO;
 import util::Benchmark;
 import util::Math;
+import util::Reflective;
 import analysis::statistics::Descriptive;
 import experiments::Compiler::Compile;
 import experiments::Compiler::Execute;
@@ -67,7 +68,7 @@ import experiments::Compiler::Benchmarks::BVisit6g;
 
 import experiments::Compiler::Benchmarks::BSudoku;
 
-map[str name,  value(list[value]) job] jobs = (
+map[str name,  value() job] jobs = (
 //"BasType" : 				experiments::Compiler::Benchmarks::BasType::main,
 "BBottles": 				experiments::Compiler::Benchmarks::BBottles::main,
 "BCompareFor":				experiments::Compiler::Benchmarks::BCompareFor::main,
@@ -116,7 +117,7 @@ map[str name,  value(list[value]) job] jobs = (
 
 loc base = |std:///experiments/Compiler/Benchmarks/|;
 
-loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted6.value|;
+loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted7.value|;
 
 
 map[str, list[num]] measurementsCompiled = ();		// list of timings of repeated runs per job, compiled
@@ -154,7 +155,7 @@ void initialize(int n){
 
 void precompile(list[str] jobs) {
   for(job <- jobs) {
-      execute(base + (job + ".rsc"), [], recompile=true, serialize=true);
+      execute(base + (job + ".rsc"), recompile=true, serialize=true);
   }
 }
 
@@ -180,7 +181,7 @@ void runCompiled(str job) {
   measurementsCompiled[job] =
 	  for(int i <- [0 .. nsamples]){
 		  t1 = cpuTime();
-		  v = execute(base + (job + ".rsc"), []);
+		  v = execute(base + (job + ".rsc"));
 		  t2 = cpuTime();
 		  append (t2 - t1)/1000000;
 	  }
@@ -191,7 +192,7 @@ void runInterpreted(str job) {
   measurementsInterpreted[job] =
 	  for(int i <- [0 .. nsamples]){  
 		  t1 = cpuTime();
-		  bmain([]);
+		  bmain();
 		  t2 = cpuTime();
 		  append (t2 - t1)/1000000;
 	  }
@@ -281,6 +282,30 @@ void main_visit(){
 
 void main_fac(){
 	run_benchmarks(10, ["BFac"]);	
+}
+
+void main_fib(){
+    run_benchmarks(10, ["BFib"]);   
+}
+
+void main_marriage(){
+    run_benchmarks(10, ["BMarriage"]);   
+}
+
+void main_sudoku(){
+    run_benchmarks(10, ["BSudoku"]);   
+}
+
+void main_template(){
+    run_benchmarks(10, ["BTemplate"]);   
+}
+
+void main_bottles(){
+    run_benchmarks(10, ["BBottles"]);   
+}
+
+void main_rsf() {
+    run_benchmarks(10, ["BRSFCalls"]);   
 }
 
 void main_money(){

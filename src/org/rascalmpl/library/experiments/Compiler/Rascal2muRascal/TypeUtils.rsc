@@ -1,10 +1,8 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::TypeUtils
 
-
-
-
 import IO;
+import ValueIO;
 import Set;
 import Map;
 import Node;
@@ -118,6 +116,9 @@ public bool isDefaultFunction(UID uid) = uid in defaultFunctions;
 
 private set[UID] constructors = {};					// declared constructors
 
+private map[Symbol, map[str, map[str,value]]] constructorConstantDefaultExpressions;
+private map[Symbol, map[str,set[str]]] constructorFields;
+
 public bool isConstructor(UID uid) = uid in constructors;
 //public set[UID] getConstructors() = constructors;
 
@@ -136,8 +137,8 @@ public set[UID] outerScopes= {};					// outermost scopes, i.e. scopes directly c
 
 public set[str] moduleNames = {};					// encountered module names
 
-
 public map[UID uid,str name] uid2name = (); 		// map uid to simple names, used to recursively compute qualified names
+
 @doc{Counters for different scopes}
 
 private map[UID uid,int n] blocks = ();             // number of blocks within a scope
@@ -171,7 +172,7 @@ public map[UID,str] uid2str = ();					// map uids to str
 public map[UID,Symbol] uid2type = ();				// We need to perform more precise overloading resolution than provided by the type checker
 
 private map[str,int] overloadingResolver = ();		// map function name to overloading resolver
-private list[OFUN] overloadedFunctions = [];		// list of overloaded functions
+private list[OFUN] overloadedFunctions = [];		// list of overloaded functions 
 
 str unescape(str name) = name[0] == "\\" ? name[1..] : name;
 
@@ -193,7 +194,6 @@ public list[OFUN] getOverloadedFunctions() = overloadedFunctions;
 
 public map[str,int] getOverloadingResolver() = overloadingResolver;
 
-
 bool hasOverloadingResolver(FUID fuid) = overloadingResolver[fuid]?;
 
 OFUN getOverloadedFunction(FUID fuid) {
@@ -213,6 +213,8 @@ public void resetScopeExtraction() {
 	functions = {};
 	defaultFunctions = {};
 	constructors = {};
+	constructorConstantDefaultExpressions = ();
+	constructorFields = ();
 	variables = {};
 	module_var_init_locals = ();
 	keywordParameters = {};
@@ -562,14 +564,14 @@ void extractScopes(Configuration c){
             keywordParams = config.store[fuid1].keywordParams;
             
             if(size(keywordParams) > 0){
-                // There may be default expressions with variables, so introduce avariable ddresses inside the companion function
+                // There may be default expressions with variables, so introduce variable addresses inside the companion function
                // println("fuid1 = <fuid1>, nformals = <nformals>, innerScopes = <innerScopes>, keywordParams = <keywordParams>");
                 // Filter all the non-keyword variables within the function scope
                 // ***Note: Filtering by name is possible only when shadowing of local variables is not permitted
                 // Sort variable declarations to ensure that formal parameters get first positions preserving their order
                 decls_non_kwp = sort([ uid | UID uid <- declares[innerScopes], variable(RName name,_,_,_,_) := config.store[uid], name notin keywordParams ]);
                 
-                fuid_str = getCompanionForUID(fuid1);
+                fuid_str = getCompanionDefaultsForUID(fuid1);
                 //println("fuid_str = <fuid_str>, decls_non_kwp = <decls_non_kwp>, declared[innerSopes] = <declares[innerScopes]>");
                 for(int i <- index(decls_non_kwp)) {
                     // Note: we need to reserve positions for variables that will replace formal parameter patterns
@@ -587,8 +589,6 @@ void extractScopes(Configuration c){
         }
 
     }
-    
-    //println("ofunctions = <ofunctions>");
     
     // Fill in uid2addr for overloaded functions;
     for(UID fuid2 <- ofunctions) {
@@ -612,18 +612,95 @@ void extractScopes(Configuration c){
     	//assert size(scopes) == 0 || size(scopes) == 1 : "extractScopes";
     	uid2addr[fuid2] = <scopeIn,-1>;
     }
+     extractConstantDefaultExpressions();
+}
+
+// extractConstantDefaultExpressions:
+// For every ADT, for every constructor, find the default fields with constant default expression
+// Note: the notion of "constant" is weaker than use din other parts of the compiler and is here equated to "literal"
+//       as a consequence, e.g. "abc" + "def" will not be classified as constant.
+
+void extractConstantDefaultExpressions(){
+
+     // TODO: the following hacks are needed to convince the interpreter of the correct type.
+     constructorConstantDefaultExpressions = (adt("XXX", []) : ("c1" : ("f1": true, "f2" : 0)));
+     constructorFields = (adt("XXX", []) : ("c1" : {"a", "b"}));
+     for(cuid <- constructors){
+        a_constructor = config.store[cuid];
+        consName = prettyPrintName(a_constructor.name);
+        if(a_constructor is constructor){
+           fieldSet = { fieldName | field <- a_constructor.rtype.parameters, label(fieldName, _) := field };
+           if(constructorFields[a_constructor.rtype.\adt]?){
+              constructorFields[a_constructor.rtype.\adt] += (consName : fieldSet);
+           } else {
+              constructorFields[a_constructor.rtype.\adt] =  (consName : fieldSet);
+           }
+        } else if (a_constructor is production){
+            pr = a_constructor.p;
+            fieldSet = { fieldName | field <- pr.symbols, label(fieldName, _) := field };
+            if(constructorFields[a_constructor.rtype]?){
+               constructorFields[a_constructor.rtype] +=(consName : fieldSet);
+            } else {
+               constructorFields[a_constructor.rtype] = (consName : fieldSet);
+            }
+        }  
+     }
+     for(tp <- config.dataKeywordDefaults){
+         uid = tp[0];
+         the_constructor = config.store[uid];
+         Symbol the_adt = the_constructor.rtype.\adt;
+         str the_cons = the_constructor.rtype.name;
+         str fieldName = prettyPrintName(tp[1]);
+         
+         map[str, set[str]] adtFieldMap = constructorFields[the_adt] ? ();
+         set[str] fieldSet = adtFieldMap[the_cons] ? {};
+         adtFieldMap[the_cons] = fieldSet + fieldName;
+         constructorFields += (the_adt : adtFieldMap);
+         
+         defaultVal = tp[2];
+         if(Expression defaultExpr := defaultVal &&  defaultExpr is literal){
+            try {
+               constValue = getConstantValue(defaultExpr.literal);
+               map[str, map[str,value]] adtMap = constructorConstantDefaultExpressions[the_adt] ? ();
+               map[str,value] consMap = adtMap[the_cons] ? ();
+               
+               consMap[fieldName] = constValue;
+               adtMap[the_cons] = consMap;
+               constructorConstantDefaultExpressions += (the_adt : adtMap);
+               
+            } catch:
+                ;// ok, non-constant
+         } 
+    }
+}
+
+// Identify constant expressions and compute their value
+
+value getConstantValue((Literal) `<BooleanLiteral b>`) = 
+    "<b>" == "true" ? true : false;
+
+// -- integer literal  -----------------------------------------------
+ 
+value getConstantValue((Literal) `<IntegerLiteral n>`) = 
+    toInt("<n>");
+
+// -- string literal  ------------------------------------------------
     
-    //for(int uid <- sort(toList(domain(uid2addr)))){
-    //	println("<uid>: <uid2addr[uid]>");
-    //}
-    //for(int uid <- uid2addr){
-    //	if(uid in ofunctions)
-    //		println("uid2addr[<uid>] = <uid2addr[uid]>, <config.store[uid]>");
-    //}
+value getConstantValue((StringLiteral)`<StringConstant constant>`) =
+    readTextValueString("<constant>");
+
+value getConstantValue((Literal) `<LocationLiteral src>`) = 
+    readTextValueString("<src>");
+
+default value getConstantValue((Literal) `<Literal s>`) = 
+    readTextValueString("<s>");
+    
+default value getConstantValue(Expression e) {
+    throw "Not constant";
 }
 
 int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
-	println("declareGeneratedFunction: <name>, <rtype>, <src>");
+	//println("declareGeneratedFunction: <name>, <rtype>, <src>");
     uid = config.nextLoc;
     config.nextLoc = config.nextLoc + 1;
     // TODO: all are placed in scope 0, is that ok?
@@ -715,6 +792,16 @@ AbstractValue getAbstractValueForQualifiedName(QualifiedName name){
 					
 KeywordParamMap getKeywords(loc location) = config.store[getLoc2uid(location)].keywordParams;
 
+map[str, map[str, value]] getConstantConstructorDefaultExpressions(loc location){
+    tp = getType(location);
+    return constructorConstantDefaultExpressions[tp] ? ();
+}
+
+map[str, set[str]] getAllConstructorFields(loc location){
+    tp = getType(location);
+    return constructorFields[tp] ? ();
+}
+
 tuple[str fuid,int pos] getVariableScope(str name, loc l) {
   //println("getVariableScope: <name>, <l>)");
   //for(l1 <- loc2uid){
@@ -769,6 +856,8 @@ str getUID(str modName, [ *tuple[str,int] funNames, <str funName, int nformals> 
 
 
 str getCompanionForUID(UID uid) = uid2str[uid] + "::companion";
+
+str getCompanionDefaultsForUID(UID uid) = uid2str[uid] + "::companion-defaults";
 
 str qualifiedNameToPath(QualifiedName qname){
     str path = replaceAll("<qname>", "::", "/");

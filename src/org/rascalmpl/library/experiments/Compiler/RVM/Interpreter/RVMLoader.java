@@ -363,8 +363,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		
 		String moduleName = ((IString) main_module.get("name")).getValue();
 		
-		String main = "/main(list(value());)#0";
-		String main_testsuite = /*"/" + moduleName + */ "_testsuite(list(value());)#0";
+		String main = "/main()#0";
+		String main_testsuite = /*"/" + moduleName + */ "_testsuite()#0";
 		
 		String mu_main = "/MAIN";
 		String mu_main_testsuite = "/TESTSUITE";
@@ -843,9 +843,15 @@ static FSTCodeBlockSerializer codeblockSerializer;
 								getBooleanField(instruction, "progress"),
 								getBooleanField(instruction, "rebuild"));
 				break;
+				
 			case "CHECKMEMO":
 				codeblock.CHECKMEMO();
 				break;
+				
+			case "LOADEMPTYKWMAP":
+				codeblock.LOADEMPTYKWMAP();
+				break;
+				
 			default:
 				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);
 			}

@@ -6,7 +6,7 @@ import ParseTree;
 import IO;
 
 Tree parseMuRascal(loc s) {
-  pt = parse( #start[Module], s);
+  pt = parse( #start[MuPreModule], s);
   return pt;
   // Tmp, PK
   //dia = diagnose(pt);
@@ -20,7 +20,7 @@ Tree parseMuRascal(loc s) {
 }
 
 Tree parseMuRascal(str s) {
-  pt = parse( #start[Module], s);
+  pt = parse( #start[MuPreModule], s);
   return pt;
   //Tmp, PK
   //dia = diagnose(pt);
@@ -34,6 +34,6 @@ Tree parseMuRascal(str s) {
 }
 
 Tree parseMuRascal(loc l){
-  pt = parse( #start[Module], l);
+  pt = parse( #start[MuPreModule], l);
   return pt;
 }

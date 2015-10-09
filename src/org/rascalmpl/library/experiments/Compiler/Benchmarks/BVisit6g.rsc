@@ -2,7 +2,7 @@ module experiments::Compiler::Benchmarks::BVisit6g
 
 data ABCD = a(int x) | b(int x) | c(int x) | d(int x);
 
-value main(list[value] args) {
+value main() {
 	res = {};
 	for(j <- [1 .. 10000]) {
 	

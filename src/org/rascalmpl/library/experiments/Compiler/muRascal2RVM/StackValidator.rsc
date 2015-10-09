@@ -144,6 +144,10 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 	
 	graph = makeGraph(blocks, targets);
 	<deltaSPBlock, maxSPBlock> = computeStackEffects(blocks);
+	
+//	useDefBlock = computeUseDefEffects(blocks);
+	
+//	findUnassigned(graph, blocks);
 
 	stackAtEntry = (0: 0);
 	stackAtExit  = (0: deltaSPBlock[0]);
@@ -203,6 +207,8 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 	return <maxStack + 1 + 1, exceptions>;  // + 1: to turn an index into a length; 
 										    // + 1 to cater for some imprecision
 }
+
+
 
 // Simulate the effect of each RVM instruction on the stack pointer
 
@@ -312,3 +318,109 @@ int simulate(VISIT(bool direction, bool fixedpoint,
                    bool progress, bool rebuild),
                    int sp)          					= sp - 8 + 1;
 int simulate(CHECKMEMO(), int sp)    					= sp + 1;
+int simulate(LOADEMPTYKWMAP(), int sp)                  = sp + 1;
+
+/*
+// Simulate the effect of each RVM instruction on availability of variables
+
+// Compute use/def per basic block
+
+private map[int,UseDef] computeUseDefEffects(map[int, list[Instruction]] blocks){
+    UseDefBlock = ();
+    for(int i <- sort(domain(blocks))){
+        if(debug) println("Block <i>:");
+        UseDef ud = <{}, {}, {}, {}>;
+        for(ins <- blocks[i]){
+            if(debug)println("\t<ins>");
+            ud = simulateUseDef(ins, ud);
+        
+        }
+        if(debug)println("Block <i>, <ud>");
+        UseDefBlock[i] = ud;
+    }
+    return UseDefBlock;
+}
+
+set[int] findUnitialized(map[int, list[Instruction]] blocks, Graph[int] graph, map[int, UseDef] useDef){
+    useDefAtEntry = (0: <{},{},{},{}>);
+    useDefAtExit  = (0: useDef[0]);
+    
+    void update(int blk, int successor, int sp){
+        if(debug)println("update <blk>, <successor>, <sp>");
+        if(stackAtEntry[successor]?){
+            if(stackAtEntry[successor] != sp){
+                throw("Inconsistent stackAtEntry for <src>, from block <blk> to <successor>: <stackAtEntry[successor]> versus <sp>");
+            }
+            maxSPPath[successor] = max(max(maxSPPath[blk], sp + maxSPBlock[successor]), maxSPPath[successor]);
+        } else {
+            stackAtEntry[successor] = sp;
+            stackAtExit[successor] = sp + deltaSPBlock[successor];
+            maxSPPath[successor] = max(maxSPPath[blk], sp + maxSPBlock[successor]);
+        }   
+    }
+    
+    solve(useDefAtEntry){
+        for(blk <- domain(blocks)){
+            if(useDefAtEntry[blk]?){
+                ud = usedDefAtExit[blk];
+                for(successor <- graph[blk]){
+                    update(blk, successor, sp);
+               }
+            }
+        }
+        //for(exc <- exceptions){
+        //    fromBlk = label2block[exc.from];
+        //    targetBlk = label2block[exc.target];
+        //    if(stackAtEntry[fromBlk]? && !stackAtEntry[targetBlk]?){
+        //        update(fromBlk, targetBlk,  stackAtEntry[fromBlk]);
+        //    }
+        //}
+    } 
+}
+
+alias Var = tuple[str fuid, int pos];
+
+alias UseDef = tuple[set[int] localUses, set[int] localDefines, set[Var] globalUses, set[Var] globalDefines];
+
+UseDef addLocalUse(UseDef ud, int pos) = 
+  pos in ud.localDefines ? ud : <ud.localUses + pos, ud.localDefines, ud.globalUses, ud.globalDefines>;
+  
+UseDef addLocalDef(UseDef ud, int pos) = 
+  <ud.localUses, ud.localDefines + pos, ud.globalUses, ud.globalDefines>;
+  
+UseDef addGlobalUse(UseDef ud, str fuid, int pos) = 
+  <ud.localUses, ud.localDefines, ud.globalUses + <fuid, pos>, ud.globalDefines>;
+
+UseDef addGlobalDef(UseDef ud, str fuid, int pos) = 
+  <ud.localUses + pos, ud.localDefines, ud.globalUses + <fuid, pos>, ud.globalDefines>;
+
+
+UseDef simulateUseDef(LOADLOC(int pos), UseDef ud)                  = addLocalUse(ud, pos);
+UseDef simulateUseDef(STORELOC(int pos), UseDef ud)                 = addLocalDef(ud, pos);
+UseDef simulateUseDef(RESETLOCS(list[int] positions), UseDef ud)    = ud;
+
+UseDef simulateUseDef(LOADLOCKWP(str name), UseDef ud)              = ud;
+UseDef simulateUseDef(STORELOCKWP(str name), UseDef ud)             = ud;
+UseDef simulateUseDef(UNWRAPTHROWNLOC(int pos), UseDef ud)          = ud;
+UseDef simulateUseDef(UNWRAPTHROWNVAR(str fuid, int pos),
+             UseDef ud)                                    = ud;
+UseDef simulateUseDef(LOADVAR(str fuid, int pos) , UseDef ud)       = addGlobalUse(ud, fuid, pos);
+UseDef simulateUseDef(STOREVAR(str fuid, int pos), UseDef ud)       = addGlobalDef(ud, fuid, pos);
+UseDef simulateUseDef(LOADVARKWP(str fuid, str name), UseDef ud)    = ud;
+UseDef simulateUseDef(STOREVARKWP(str fuid, str name), UseDef ud)   = ud;
+UseDef simulateUseDef(LOADMODULEVAR(str fuid), UseDef ud)           = addGlobalUse(ud, fuid, -1);
+
+UseDef simulateUseDef(STOREMODULEVAR(str fuid), UseDef ud)          = addGlobalDef(ud, fuid, -1);
+UseDef simulateUseDef(LOADLOCREF(int pos), UseDef ud)               = addLocalDef(ud, pos);
+UseDef simulateUseDef(LOADLOCDEREF(int pos), UseDef ud)             = addLocalDef(ud, pos);
+UseDef simulateUseDef(STORELOCDEREF(int pos), UseDef ud)            = addGlobalDef(ud, fuid, pos);
+UseDef simulateUseDef(LOADVARREF(str fuid, int pos), UseDef ud)     = addGlobalUse(ud, fuid, pos);
+UseDef simulateUseDef(LOADVARDEREF(str fuid, int pos), UseDef ud)   = addGlobalUse(ud, fuid, pos);
+UseDef simulateUseDef(STOREVARDEREF(str fuid, int pos), UseDef ud)  = addGlobalDef(ud, fuid, pos);
+
+UseDef simulateUseDef(CHECKARGTYPEANDCOPY(
+            int pos1, Symbol \type, int pos2), UseDef ud)           = addLocalDef(addLocalDef(ud, pos1), pos2);
+            
+default UseDef simulateUseDef(Instruction ins, UseDef ud)           = ud;
+
+*/

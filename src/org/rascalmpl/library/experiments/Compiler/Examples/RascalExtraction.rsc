@@ -8,9 +8,9 @@ import IO;
 import ValueIO;
 import util::Reflective;
 
-value main(list[value] args) = compareAll(args);
+value main() = compareAll();
 
-value compareAll(list[value] args) {
+value compareAll() {
 	moduleLoc = |std:///experiments/Compiler/Rascal2muRascal/RascalExpression.rsc|;
 	//moduleLoc = |project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst3.rsc|;
 	m = parse(#start[Module], moduleLoc).top;
