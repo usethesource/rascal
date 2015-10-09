@@ -17,11 +17,11 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import jline.Terminal;
-
 import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.StackTrace;
+import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.IRascalResult;
@@ -30,6 +30,8 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
+
+import jline.Terminal;
 
 public abstract class RascalInterpreterREPL extends BaseRascalREPL {
 
@@ -76,6 +78,29 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
   }
   
   @Override
+  protected void cancelRunningCommandRequested() {
+      eval.interrupt();
+  }
+  
+  @Override
+  protected void terminateRequested() {
+      eval.interrupt();
+  }
+  
+  @Override
+  protected void stackTraceRequested() {
+      StackTrace trace = eval.getStackTrace();
+      Writer err = getErrorWriter();
+      try {
+          err.write("Current stack trace:\n");
+          err.write(trace.toLinkedString());
+          err.flush();
+      }
+      catch (IOException e) {
+      }
+  }
+  
+  @Override
   protected IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException {
       try {
           Result<IValue> value;
@@ -91,6 +116,11 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
               eval.getStdErr().println("\nTime: " + duration + "ms");
           }
           return value;
+      }
+      catch (InterruptException ie) {
+          eval.getStdErr().println("Interrupted");
+          eval.getStdErr().println(ie.getRascalStackTrace().toLinkedString());
+          return null;
       }
       catch (ParseError pe) {
           eval.getStdErr().println(parseErrorMessage(lastLine, "prompt", pe));

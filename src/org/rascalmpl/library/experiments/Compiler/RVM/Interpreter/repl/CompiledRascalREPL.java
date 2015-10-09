@@ -45,6 +45,21 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   public boolean getMeasureCommandTime() {
     return measureCommandTime;
   }
+  
+  @Override
+  protected void cancelRunningCommandRequested() {
+      // TODO: interrupt compiler
+  }
+  
+  @Override
+  protected void terminateRequested() {
+      // TODO: stop compiler
+  }
+  
+  @Override
+  protected void stackTraceRequested() {
+      // TODO: print current stack trace, without stopping  the running code.
+  }
 
   @Override
   protected void initialize(Writer stdout, Writer stderr) {
