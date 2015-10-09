@@ -13,24 +13,24 @@ import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
 
 public class RascalCommandCompletion {
-	private static final TreeSet<String> COMMAND_KEYWORDS;
-	static {
-	    COMMAND_KEYWORDS = new TreeSet<>();
-	    COMMAND_KEYWORDS.add("set");
-	    COMMAND_KEYWORDS.add("undeclare");
-	    COMMAND_KEYWORDS.add("help");
-	    COMMAND_KEYWORDS.add("edit");
-	    COMMAND_KEYWORDS.add("unimport");
-	    COMMAND_KEYWORDS.add("declarations");
-	    COMMAND_KEYWORDS.add("quit");
-	    COMMAND_KEYWORDS.add("history");
-	    COMMAND_KEYWORDS.add("test");
-	    COMMAND_KEYWORDS.add("modules");
-	    COMMAND_KEYWORDS.add("clear");
-	}
-	
-	
-	private static final Pattern splitCommand = Pattern.compile("^[\\t ]*:(?<command>[a-z]*)([\\t ]|$)");
+    private static final TreeSet<String> COMMAND_KEYWORDS;
+    static {
+        COMMAND_KEYWORDS = new TreeSet<>();
+        COMMAND_KEYWORDS.add("set");
+        COMMAND_KEYWORDS.add("undeclare");
+        COMMAND_KEYWORDS.add("help");
+        COMMAND_KEYWORDS.add("edit");
+        COMMAND_KEYWORDS.add("unimport");
+        COMMAND_KEYWORDS.add("declarations");
+        COMMAND_KEYWORDS.add("quit");
+        COMMAND_KEYWORDS.add("history");
+        COMMAND_KEYWORDS.add("test");
+        COMMAND_KEYWORDS.add("modules");
+        COMMAND_KEYWORDS.add("clear");
+    }
+
+
+    private static final Pattern splitCommand = Pattern.compile("^[\\t ]*:(?<command>[a-z]*)([\\t ]|$)");
     public static CompletionResult complete(String line, int cursor, SortedSet<String> commandOptions, CompletionFunction completeIdentifier, CompletionFunction completeModule) {
         assert line.trim().startsWith(":");
         Matcher m = splitCommand.matcher(line);
@@ -41,9 +41,9 @@ public class RascalCommandCompletion {
                     OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(line, cursor);
                     if (identifier != null && identifier.offset > m.end("command")) {
                         Collection<String> suggestions = commandOptions.stream()
-                            .filter(s -> s.startsWith(identifier.term))
-                            .sorted()
-                            .collect(Collectors.toList());
+                                        .filter(s -> s.startsWith(identifier.term))
+                                        .sorted()
+                                        .collect(Collectors.toList());
                         if (suggestions != null && ! suggestions.isEmpty()) {
                             return new CompletionResult(identifier.offset, suggestions);
                         }
@@ -66,11 +66,11 @@ public class RascalCommandCompletion {
                     }
                     else {
                         result = COMMAND_KEYWORDS.stream()
-                            .filter(s -> s.startsWith(currentCommand))
-                            .collect(Collectors.toList());
+                                        .filter(s -> s.startsWith(currentCommand))
+                                        .collect(Collectors.toList());
                     }
                     if (!result.isEmpty()) {
-                       return new CompletionResult(m.start("command"), result);
+                        return new CompletionResult(m.start("command"), result);
                     }
                 }
             }
