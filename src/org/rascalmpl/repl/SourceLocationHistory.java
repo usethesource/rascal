@@ -18,51 +18,51 @@ import org.rascalmpl.uri.URIResolverRegistry;
 
 public class SourceLocationHistory extends MemoryHistory implements PersistentHistory {
 
-	private static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
-	private final ISourceLocation loc;
+    private static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
+    private final ISourceLocation loc;
 
-  public SourceLocationHistory(ISourceLocation loc) throws IOException {
-      this.loc = loc;
-      load(loc);
-  }
+    public SourceLocationHistory(ISourceLocation loc) throws IOException {
+        this.loc = loc;
+        load(loc);
+    }
 
-  public void load(final ISourceLocation loc) throws IOException {
-      checkNotNull(loc);
-      if (reg.exists(loc)) {
-          Log.trace("Loading history from: ", loc);
-          load(reg.getInputStream(loc));
-      }
-  }
+    public void load(final ISourceLocation loc) throws IOException {
+        checkNotNull(loc);
+        if (reg.exists(loc)) {
+            Log.trace("Loading history from: ", loc);
+            load(reg.getInputStream(loc));
+        }
+    }
 
-  public void load(final InputStream input) throws IOException {
-      checkNotNull(input);
-      load(new InputStreamReader(input));
-  }
+    public void load(final InputStream input) throws IOException {
+        checkNotNull(input);
+        load(new InputStreamReader(input));
+    }
 
-  public void load(final Reader reader) throws IOException {
-      checkNotNull(reader);
-      BufferedReader input = new BufferedReader(reader);
+    public void load(final Reader reader) throws IOException {
+        checkNotNull(reader);
+        BufferedReader input = new BufferedReader(reader);
 
-      String item;
-      while ((item = input.readLine()) != null) {
-          internalAdd(item);
-      }
-  }
+        String item;
+        while ((item = input.readLine()) != null) {
+            internalAdd(item);
+        }
+    }
 
-  public void flush() throws IOException {
-      Log.trace("Flushing history");
+    public void flush() throws IOException {
+        Log.trace("Flushing history");
 
-      try (PrintStream out = new PrintStream(reg.getOutputStream(loc, false))) {
-          for (Entry entry : this) {
-              out.println(entry.value());
-          }
-      }
-  }
+        try (PrintStream out = new PrintStream(reg.getOutputStream(loc, false))) {
+            for (Entry entry : this) {
+                out.println(entry.value());
+            }
+        }
+    }
 
-  public void purge() throws IOException {
-      Log.trace("Purging history");
-      clear();
-      reg.remove(loc);
-  }
+    public void purge() throws IOException {
+        Log.trace("Purging history");
+        clear();
+        reg.remove(loc);
+    }
 
 }
