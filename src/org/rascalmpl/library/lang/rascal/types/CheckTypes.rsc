@@ -354,7 +354,7 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
         failures += rt; 
     }  
     
-    varName = convertName(n)[at=n@\loc];
+    varName = convertName(n)/*[at=n@\loc]*/;
     
     if (fcvExists(c, varName)) {
         c.uses = c.uses + < c.fcvEnv[varName], n@\loc >;
