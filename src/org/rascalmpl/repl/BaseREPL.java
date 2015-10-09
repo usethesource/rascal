@@ -45,9 +45,19 @@ public abstract class BaseREPL {
   	this(stdin, stdout, prettyPrompt, allowColors, file != null ? new SourceLocationHistory(file) : null, terminal);
   }
   
+  public static char ctrl(char ch) {
+      assert 'A' <= ch && ch <= '_'; 
+      return (char)((((int)ch) - 'A') + 1);
+  }
+  
+  private static byte CANCEL_RUNNING_COMMAND = (byte)ctrl('C'); 
+  private static byte STOP_REPL = (byte)ctrl('D'); 
+  private static byte STACK_TRACE = (byte)ctrl('\\'); 
+ 
+  
   private BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, PersistentHistory history, Terminal terminal) throws IOException {
       this.originalStdOut = stdout;
-    reader = new ConsoleReader(stdin, stdout, terminal);
+    reader = new ConsoleReader(new NotifieableInputStream(stdin, new byte[] { CANCEL_RUNNING_COMMAND, STOP_REPL, STACK_TRACE }, (Byte b) -> handleEscape(b)), stdout, terminal);
     if (history != null) {
       this.history = history;
       reader.setHistory(history);
@@ -93,14 +103,7 @@ public abstract class BaseREPL {
       reader.setHandleUserInterrupt(true);
     }
   }
-
-
- 
-
-
-
-
-
+  
 /**
    * During the constructor call initialize is called after the REPL is setup enough to have a stdout and std err to write to.
    * @param stdout the output stream to write normal output to.
@@ -147,6 +150,27 @@ public abstract class BaseREPL {
    */
   protected abstract CompletionResult completeFragment(String line, int cursor);
   
+  /**
+   * This method gets called from another thread, and indicates the user pressed CTLR-C during a call to handleInput.
+   * 
+   * Interrupt the handleInput code as soon as possible, but leave stuff in a valid state.
+   */
+  protected abstract void cancelRunningCommandRequested();
+  
+  /**
+   * This method gets called from another thread, and indicates the user pressed CTLR-D during a call to handleInput.
+   * 
+   * Quit the code from handleInput as soon as possible, assume the REPL will close after this.
+   */
+  protected abstract void terminateRequested();
+  
+  /**
+   * This method gets called from another thread, indicates a user pressed CTRL+\ during a call to handleInput.
+   * 
+   * If possible, print the current stack trace.
+   */
+  protected abstract void stackTraceRequested();
+  
   private String previousPrompt = "";
   private static final String PRETTY_PROMPT_PREFIX = Ansi.ansi().reset().bold().toString();
   private static final String PRETTY_PROMPT_POSTFIX = Ansi.ansi().boldOff().reset().toString();
@@ -171,6 +195,26 @@ public abstract class BaseREPL {
     commandQueue.addAll(Arrays.asList(command.split("[\\n\\r]")));
   }
   
+
+  private volatile boolean handlingInput = false;
+  
+  private void handleEscape(Byte b) {
+      if (handlingInput) {
+          if (b == CANCEL_RUNNING_COMMAND) {
+              cancelRunningCommandRequested();
+          }
+          else if (b == STOP_REPL) {
+              // jline already handles this
+              // but we do have to stop the interpreter
+              terminateRequested();
+              this.stop();
+          }
+          else if (b == STACK_TRACE) {
+              stackTraceRequested();
+          }
+      }
+  }
+
   /**
    * This will run the console in the current thread, and will block until it is either:
    * <ul>
@@ -190,7 +234,13 @@ public abstract class BaseREPL {
           reader.resetPromptLine(reader.getPrompt(), queuedCommand, 0);
           reader.println();
           reader.getHistory().add(queuedCommand);
-          handleInput(queuedCommand);
+          try {
+              handlingInput = true;
+              handleInput(queuedCommand);
+          }
+          finally {
+              handlingInput = false;
+          }
         }
         if (handledQueue) {
           String oldPrompt = reader.getPrompt();
@@ -204,7 +254,13 @@ public abstract class BaseREPL {
             if (line == null) { // EOF
                 break;
             }
-            handleInput(line);
+            try {
+                handlingInput = true;
+                handleInput(line);
+            }
+            finally {
+                handlingInput = false;
+            }
         }
         catch (UserInterruptException u) {
             reader.println();

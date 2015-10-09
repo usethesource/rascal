@@ -119,14 +119,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	private final IValueFactory vf; // sharable
 	private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
-	protected Environment currentEnvt; // not sharable
+	protected volatile Environment currentEnvt; // not sharable
  
 	private final GlobalEnvironment heap; // shareable if frozen
 	private final Configuration config = new Configuration();
 	/**
 	 * True if an interrupt has been signalled and we should abort execution
 	 */
-	private boolean interrupt = false;
+	private volatile boolean interrupt = false;
 
 	private final JavaBridge javaBridge; // TODO: sharable if synchronized
 

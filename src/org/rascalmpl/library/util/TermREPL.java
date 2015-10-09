@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
@@ -57,6 +58,30 @@ public class TermREPL {
             this.currentPrompt = ((IString)repl.get("prompt")).getValue();
             assert stdout != null;
             stdout.println(((IString)repl.get("welcome")).getValue());
+        }
+        
+        @Override
+        protected void cancelRunningCommandRequested() {
+            ctx.interrupt();
+        }
+        
+        @Override
+        protected void terminateRequested() {
+            ctx.interrupt();
+        }
+        
+        
+        @Override
+        protected void stackTraceRequested() {
+            StackTrace trace = ctx.getStackTrace();
+            Writer err = ctx.getStdErr();
+            try {
+                err.write("Current stack trace:\n");
+                err.write(trace.toLinkedString());
+                err.flush();
+            }
+            catch (IOException e) {
+            } 
         }
 
 

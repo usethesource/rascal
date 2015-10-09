@@ -75,7 +75,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
   protected String getPrompt() {
     return currentPrompt;
   }
-
+  
   @Override
   protected void handleInput(String line) throws InterruptedException {
     assert line != null;
