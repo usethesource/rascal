@@ -156,7 +156,7 @@ bool declarationError(str stmts, list[str] importedModules = [], list[str] initi
 bool missingModule(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	check(stmts, [
 		"Cannot import module _",
-		"Could not parse and prepare config for base module to check: IO"
+		"Could not parse and prepare config for base module to check: _"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
 	
