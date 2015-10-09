@@ -345,6 +345,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitEvalCommandOutput(EvalCommand.Output x) { 
+    return null; 
+  }
+
   public T visitEvalCommandStatement(EvalCommand.Statement x) { 
     return null; 
   }
@@ -1579,6 +1583,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitOptionalCommaLexical(OptionalComma.Lexical x) { 
+    return null; 
+  }
+
+  public T visitOutputLexical(Output.Lexical x) { 
     return null; 
   }
 
