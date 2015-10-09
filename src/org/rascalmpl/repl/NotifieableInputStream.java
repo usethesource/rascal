@@ -28,24 +28,24 @@ public class NotifieableInputStream extends InputStream {
             public void run() {
                 try {
                     reading:
-                    while (!closed) {
-                        int b = peekAt.read();
-                        if (b == -1) {
-                            NotifieableInputStream.this.close();
-                            return;
-                        }
-                        for (byte c: watchFor) {
-                            if (b == c) {
-                                if (swallow.apply((byte)b)) {
-                                    continue reading;
-                                }
-                                break;
+                        while (!closed) {
+                            int b = peekAt.read();
+                            if (b == -1) {
+                                NotifieableInputStream.this.close();
+                                return;
                             }
-                        }
-                        queue.offer((byte)b);
-                        newData.release();
+                            for (byte c: watchFor) {
+                                if (b == c) {
+                                    if (swallow.apply((byte)b)) {
+                                        continue reading;
+                                    }
+                                    break;
+                                }
+                            }
+                            queue.offer((byte)b);
+                            newData.release();
 
-                    }
+                        }
                 }
                 catch(IOException e) {
                     if (!e.getMessage().contains("closed")) {
@@ -106,11 +106,11 @@ public class NotifieableInputStream extends InputStream {
                 return -1;
             }
             if (toThrow != null) {
-               IOException throwCopy = toThrow;
-               toThrow = null;
-               if (throwCopy != null) {
-                   throw throwCopy;
-               }
+                IOException throwCopy = toThrow;
+                toThrow = null;
+                if (throwCopy != null) {
+                    throw throwCopy;
+                }
             }
             if (closed) {
                 return -1;
@@ -118,7 +118,7 @@ public class NotifieableInputStream extends InputStream {
         }
         return (result & 0xFF);
     }
-    
+
     @Override
     public void close() throws IOException {
         closed = true;
