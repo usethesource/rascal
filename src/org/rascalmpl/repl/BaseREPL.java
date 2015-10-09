@@ -198,21 +198,25 @@ public abstract class BaseREPL {
 
   private volatile boolean handlingInput = false;
   
-  private void handleEscape(Byte b) {
+  private boolean handleEscape(Byte b) {
       if (handlingInput) {
           if (b == CANCEL_RUNNING_COMMAND) {
               cancelRunningCommandRequested();
+              return true;
           }
           else if (b == STOP_REPL) {
               // jline already handles this
               // but we do have to stop the interpreter
               terminateRequested();
               this.stop();
+              return true;
           }
           else if (b == STACK_TRACE) {
               stackTraceRequested();
+              return true;
           }
       }
+      return false;
   }
 
   /**
