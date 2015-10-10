@@ -101,21 +101,22 @@ void inspect(loc srcLoc,                // location of Rascal source file
     RVMModule p;
     listing = listing || line >= 0;
     try {
-    	if(rvmLoc == bindir + "/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/Library.rvm.gz"){
+    	if(rvmLoc == bindir + "/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/Library.rvm.xz"){
     		decls = readBinaryValueFile(#list[Declaration], rvmLoc);
-    		p = rvmModule("Library",
-    		  (),
-		      {},
-			  [],
-			  [],
-              (), 
-              (),
-              (d.qname : d | d <- decls),
-              [], 
-              (), 
-              [],
-              {},
-              rvmLoc);
+    		p = rvmModule("Library",        // name
+    		  (),                           // module_tags
+		      {},                           // messages
+			  [],                           // imports
+			  [],                           // extends
+              (),                           // types 
+              (),                           // symbol_definitions
+              //(d.qname : d | d <- decls),   // declarations
+              [d | d <- decls],
+              [],                           // initialization
+              (),                           // resolver
+              [],                           // overloaded_functions
+              {},                           // importGraph
+              rvmLoc);                      // src
     	} else {
         	p = readBinaryValueFile(#RVMModule, rvmLoc);
         }	
@@ -367,7 +368,7 @@ set[loc] getFunctionLocations(
    try {
         p = readBinaryValueFile(#RVMModule, rvmLoc);
         
-        return {p.declarations[dname].src | dname <- p.declarations};
+        return {d.src | d <- p.declarations};
    } catch e: {
         println("Reading: <rvmLoc>: <e>");
    }

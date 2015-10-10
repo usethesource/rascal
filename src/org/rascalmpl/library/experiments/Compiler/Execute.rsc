@@ -27,11 +27,11 @@ import util::Reflective;
 
 private loc MuLibrary() = getSearchPathLocation("experiments/Compiler/muRascal2RVM/Library.mu");
 
-loc getMuLibraryCompiled(loc bindir = |home:///bin|) = getDerivedLocation(MuLibrary(), "rvm.gz", compressed=true, bindir = bindir);
+loc getMuLibraryCompiled(loc bindir = |home:///bin|) = getDerivedLocation(MuLibrary(), "rvm.xz", compressed=true, bindir = bindir);
 
 loc getMergedImportsLocation(loc mainSourceLoc, loc bindir = |home:///bin|){
     merged_imports_src = mainSourceLoc[path = replaceLast(mainSourceLoc.path, ".rsc", "-imports.rsc")];
-    return getDerivedLocation(merged_imports_src, "rvm.gz", compressed=true, bindir = bindir);
+    return getDerivedLocation(merged_imports_src, "rvm.xz", compressed=true, bindir = bindir);
 }
 
 alias Resolved = tuple[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors];
