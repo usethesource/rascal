@@ -14,12 +14,17 @@
 package org.rascalmpl.library.util;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -28,16 +33,27 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.SourceLocationListContributor;
+import org.rascalmpl.interpreter.load.StandardLibraryContributor;
+import org.rascalmpl.interpreter.result.IRascalResult;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
+import org.rascalmpl.repl.LimitedLineWriter;
+import org.rascalmpl.repl.LimitedWriter;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class Reflective {
 	protected final IValueFactory values;
@@ -51,6 +67,105 @@ public class Reflective {
 		this.values = values;
 		prelude = new Prelude(values);
 	}
+	
+	
+	IEvaluator<?> getDefaultEvaluator(PrintWriter stdout, PrintWriter stderr) {
+		GlobalEnvironment heap = new GlobalEnvironment();
+		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
+		IValueFactory vf = ValueFactoryFactory.getValueFactory();
+		Evaluator evaluator = new Evaluator(vf, stderr, stdout, root, heap);
+		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+		evaluator.setMonitor(new ConsoleRascalMonitor());
+		return evaluator;
+	}
+    
+    
+	public IList evalCommands(IList commands, ISourceLocation loc, IEvaluatorContext ctx) {
+		StringWriter out = new StringWriter();
+		StringWriter err = new StringWriter();
+		IListWriter result = values.listWriter();
+		IEvaluator<?> evaluator = getDefaultEvaluator(new PrintWriter(out), new PrintWriter(err));
+		int outOffset = 0;
+		int errOffset = 0;
+		
+		for (IValue v: commands) {
+			String errOut = "";
+			boolean exc = false;
+			Result<IValue> x = null;
+			try {
+				x = evaluator.eval(evaluator.getMonitor(), ((IString)v).getValue(), loc);
+			}
+			catch (Throwable e) {
+				errOut = err.getBuffer().substring(errOffset);
+				errOffset += errOut.length();
+				errOut += e.getMessage();
+				exc = true;
+			}
+			String output = out.getBuffer().substring(outOffset);
+			outOffset += output.length();
+			if (!exc) {
+				errOut += err.getBuffer().substring(errOffset);
+				errOffset += errOut.length();
+			}
+			String s;
+			try {
+				s = printResult(x);
+				ITuple tuple = values.tuple(values.string(s), values.string(output), values.string(errOut));
+				result.append(tuple);
+			} catch (IOException e) {
+				continue;
+			}
+		}
+		IList results = result.done();
+		return results;
+	}
+	
+	private final static int LINE_LIMIT = 200;
+	private final static int CHAR_LIMIT = LINE_LIMIT * 20;
+	  
+	private String printResult(IRascalResult result) throws IOException {
+	    if (result == null) {
+	      return "";
+	    }
+	    
+	    StringWriter sw = new StringWriter();
+		PrintWriter out = new PrintWriter(sw);
+	    IValue value = result.getValue();
+	    
+	    if (value == null) {
+	    	return "";
+	    }
+	    
+	    Type type = result.getType();
+
+	    StandardTextWriter indentedPrettyPrinter = new StandardTextWriter();
+	      
+		if (type.isAbstractData() && type.isSubtypeOf(RascalValueFactory.Tree)) {
+	    	out.print(type.toString());
+	        out.print(": ");
+	      // we first unparse the tree
+	      out.print("`");
+	      TreeAdapter.yield((IConstructor)result.getValue(), true, out);
+	      out.println("`");
+	      // write parse tree out one a single line for reference
+	      out.print("Tree: ");
+	      
+	      StandardTextWriter singleLinePrettyPrinter = new StandardTextWriter(false);
+	      try (Writer wrt = new LimitedWriter(out, CHAR_LIMIT)) {
+	    	  singleLinePrettyPrinter.write(value, wrt);
+	      }
+	    }
+	    else {
+	    	out.print(type.toString());
+	    	out.print(": ");
+	    	// limit both the lines and the characters
+	    	try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out,LINE_LIMIT), CHAR_LIMIT)) {
+	    		indentedPrettyPrinter.write(value, wrt);
+	    	}
+	    }
+	    out.flush();
+	    return sw.toString();
+	  }
 	
 	// REFLECT -- copy in ReflectiveCompiled
 	public IValue parseCommand(IString str, ISourceLocation loc, IEvaluatorContext ctx) {

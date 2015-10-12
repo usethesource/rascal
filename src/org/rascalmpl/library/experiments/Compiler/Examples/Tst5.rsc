@@ -1,19 +1,5 @@
-@bootstrapParser
 module experiments::Compiler::Examples::Tst5
 
-import lang::rascal::\syntax::Rascal;
-import List;
-import IO;
+int inc (int n, int delta = 1, int mul = 1) = (n + delta) * mul;
 
-int processRegExpLiteral(e: (RegExpLiteral) `/<RegExp* rexps>/<RegExpModifier modifier>`){
-   iprintln(rexps);
-
-   lrexps = [r | r <- rexps];
-   
-   println("lrexps = <lrexps>");
-   
-   return size(lrexps);
-   
-}
-
-value main(list[value] args) = processRegExpLiteral((RegExpLiteral) `/abc/`);
+value main() = inc(5, mul=2, delta=10);

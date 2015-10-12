@@ -18,8 +18,8 @@ import  analysis::graphs::Graph;
 import lang::rsf::IO;
 import IO;
 
-public value main(list[value] args){
-  return measure(["JHotDraw52.rsf", "JDK140AWT.rsf", "JWAM16FullAndreas.rsf.xz", "jdk14v2.rsf.xz"/*, "Eclipse202a.rsf"*/]);
+public value main(){
+  return measure([/*"JHotDraw52.rsf", "JDK140AWT.rsf", */"JWAM16FullAndreas.rsf.xz", "jdk14v2.rsf.xz" /*, "Eclipse202a.rsf.xz"*/]);
 }
 
 public bool measureOne(){

@@ -65,6 +65,7 @@ public class StandardLibraryContributor implements
 			l.add(vf.sourceLocation("cwd","",""));
 			l.add(vf.sourceLocation("std","",""));
 			l.add(vf.sourceLocation("testdata","",""));
+		    l.add(vf.sourceLocation("test-modules","",""));
 			l.add(vf.sourceLocation("benchmarks","",""));
 		}
 		catch (URISyntaxException e) {

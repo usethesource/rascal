@@ -1,6 +1,6 @@
 module experiments::Compiler::Benchmarks::BFor
 
-value main(list[value] args){
+value main(){
     for(i <- [1 .. 500000]){
        x=0;
     }

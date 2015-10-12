@@ -36,7 +36,7 @@ public str genClass(str name, map[str,str] fields) {
     '}";
 }
 
-value main(list[value] args){
+value main(){
   for(int i <- [0 .. 5000]){
       genClass("Person", ("first" : "String", "last" : "String", "age" : "int", "married" : "boolean"));
   }

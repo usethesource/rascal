@@ -2,7 +2,7 @@ module lang::rascal::tests::extends::ABSTRACTTYPE
 
 extend lang::rascal::tests::extends::PARSETREE;
 
-value main(list[value] args) = comparable(A(), D());
+value main() = comparable(A(), D());
 
 data SYM = E();
 

@@ -1,8 +1,10 @@
+@bootstrapParser
 module experiments::Compiler::Examples::Tst1
 
 import experiments::Compiler::Execute;
 import ParseTree;
 
 
-value main(list[value] args) =
-   execute(|std:///experiments/Compiler/Examples/Tst2.rsc|, [], recompile=true);
+value main() =
+   //execute(|std:///experiments/Compiler/Examples/Tst2.rsc|, recompile=true);
+   execute(|std:///experiments/Compiler/Examples/RascalExtraction.rsc|, recompile=true);

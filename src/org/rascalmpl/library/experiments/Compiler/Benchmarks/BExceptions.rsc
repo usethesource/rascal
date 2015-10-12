@@ -61,7 +61,7 @@ value tryToCatchMe() {
 	return n; // "Try to catch: start, then default, then 1, then 2, then 8, then 9!, then last catch and $$$"
 }
 
-value main(list[value] args){
+value main(){
 	value x;
     for(i <- [1 .. 50000]){
        x = tryToCatchMe();

@@ -25,7 +25,7 @@ import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import de.ruedigermoeller.serialization.FSTConfiguration;
 
-public class RascalLinker {
+public class RVMLoader {
 	
 static FSTConfiguration conf;
 static FSTSerializableType serializableType;
@@ -48,7 +48,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		   
 		   // Specific serializers
 		   rvmExecutableSerializer = new FSTRVMExecutableSerializer();
-		   conf.registerSerializer(RVMLinked.class, rvmExecutableSerializer, false);
+		   conf.registerSerializer(RVMExecutable.class, rvmExecutableSerializer, false);
 		   
 		   functionSerializer = new FSTFunctionSerializer();
 		   conf.registerSerializer(Function.class, functionSerializer, false);
@@ -81,7 +81,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 	private TypeStore typeStore;
 	private final Types types;
 
-	public RascalLinker(IValueFactory vf, TypeStore typeStore) {
+	public RVMLoader(IValueFactory vf, TypeStore typeStore) {
 		this.vf = vf;
 		this.types = new Types(this.vf);
 		this.tf = TypeFactory.getInstance();
@@ -128,7 +128,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			functionStore.add(null);
 			//System.out.println("useFunctionName (undef): " + index + "  => " + fname);
 		}
-		//System.out.println("useFunctionName: " + index + "  => " + fname);
+		// System.out.println("useFunctionName: " + index + "  => " + fname);
 		return index;
 	}
 	
@@ -290,13 +290,13 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		}
 	}
 	
-	public RVMLinked link(
+	public RVMExecutable load(
 				 IConstructor program,
-				 IMap imported_module_tags,
-				 IMap imported_types,
-				 IList imported_functions,
-				 IList imported_overloaded_functions,
-				 IMap imported_overloading_resolvers,
+//				 IMap imported_module_tags,
+//				 IMap imported_types,
+//				 IList imported_functions,
+//				 IList imported_overloaded_functions,
+//				 IMap imported_overloading_resolvers,
 				 boolean useJVM) {
 		
 		long start = Timing.getCpuTime();
@@ -310,10 +310,13 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		resolver = new HashMap<String,Integer>();
 		overloadedStore = new ArrayList<OverloadedFunction>();
 		
-		IMap moduleTags = imported_module_tags.put(program.get("name"), program.get("module_tags"));
+		IMap imported_module_tags = (IMap) program.get("imported_module_tags");
+		IConstructor main_module = (IConstructor) program.get("main_module");
+		IMap moduleTags = imported_module_tags.put(main_module.get("name"), main_module.get("module_tags"));
 
 		/** Imported types */
 
+		IMap imported_types = (IMap) program.get("imported_types");
 		Iterator<Entry<IValue, IValue>> entries = imported_types.entryIterator();
 		while(entries.hasNext()) {
 			Entry<IValue, IValue> entry = entries.next();
@@ -325,11 +328,14 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
 
-		for(IValue imp : imported_functions){
+		IList imported_declarations = (IList) program.get("imported_declarations");
+		for(IValue imp : imported_declarations){
 			IConstructor declaration = (IConstructor) imp;
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				String name = ((IString) declaration.get("qname")).getValue();
 
+				//System.out.println("IMPORTED FUNCTION: " + name);
+				
 				if(name.endsWith("_init(list(value());)#0")){
 					initializers.add(name);
 				}
@@ -346,7 +352,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 
 		/** Types from main module */
 
-		IMap types = (IMap) program.get("types");
+		IMap types = (IMap) main_module.get("types");
 		entries = types.entryIterator();
 		while(entries.hasNext()) {
 			Entry<IValue, IValue> entry = entries.next();
@@ -355,10 +361,10 @@ static FSTCodeBlockSerializer codeblockSerializer;
 
 		/** Declarations for  main module */
 		
-		String moduleName = ((IString) program.get("name")).getValue();
+		String moduleName = ((IString) main_module.get("name")).getValue();
 		
-		String main = "/main(list(value());)#0";
-		String main_testsuite = /*"/" + moduleName + */ "_testsuite(list(value());)#0";
+		String main = "/main()#0";
+		String main_testsuite = /*"/" + moduleName + */ "_testsuite()#0";
 		
 		String mu_main = "/MAIN";
 		String mu_main_testsuite = "/TESTSUITE";
@@ -371,14 +377,13 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		String uid_module_init = "";
 		String uid_module_main_testsuite = "";
 
-		IMap declarations = (IMap) program.get("declarations");
-		for (IValue dname : declarations) {
-			IConstructor declaration = (IConstructor) declarations.get(dname);
-			
+		IList declarations = (IList) main_module.get("declarations");
+		for (IValue ideclaration : declarations) {
+			IConstructor declaration = (IConstructor) ideclaration;
 
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				String name = ((IString) declaration.get("qname")).getValue();
-					
+				
 				//System.out.println("FUNCTION: " + name);
 				
 				if(name.endsWith(main) || name.endsWith(mu_main)) {
@@ -407,12 +412,15 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		/** Overloading resolution */
 
 		// Overloading resolution of imported functions
+		IMap imported_overloading_resolvers = (IMap) program.get("imported_overloading_resolvers");
 		addResolver(imported_overloading_resolvers);
+		
+		IList imported_overloaded_functions = (IList) program.get("imported_overloaded_functions");
 		fillOverloadedStore(imported_overloaded_functions);
 
 		// Overloading resolution of functions in main module
-		addResolver((IMap) program.get("resolver"));
-		fillOverloadedStore((IList) program.get("overloaded_functions"));
+		addResolver((IMap) main_module.get("resolver"));
+		fillOverloadedStore((IList) main_module.get("overloaded_functions"));
 
 		/** Finalize & validate */
 
@@ -424,10 +432,10 @@ static FSTCodeBlockSerializer codeblockSerializer;
 
 		validateOverloading();
 
-		System.out.println("Linking: " +  (Timing.getCpuTime() - start)/1000000 + " ms");
-		return new RVMLinked(((IString) program.get("name")).getValue(),
+		System.out.println("Loading: " +  (Timing.getCpuTime() - start)/1000000 + " ms");
+		return new RVMExecutable(((IString) main_module.get("name")).getValue(),
 							     moduleTags,
-								 (IMap) program.get("symbol_definitions"),
+								 (IMap) main_module.get("symbol_definitions"),
 								 functionMap, 
 								 functionStore, 
 								 constructorMap, 
@@ -835,9 +843,15 @@ static FSTCodeBlockSerializer codeblockSerializer;
 								getBooleanField(instruction, "progress"),
 								getBooleanField(instruction, "rebuild"));
 				break;
+				
 			case "CHECKMEMO":
 				codeblock.CHECKMEMO();
 				break;
+				
+			case "LOADEMPTYKWMAP":
+				codeblock.LOADEMPTYKWMAP();
+				break;
+				
 			default:
 				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);
 			}

@@ -1,24 +1,19 @@
-
 module experiments::Compiler::Examples::Tst4
 
-import ParseTree;
-syntax A = "a";
-syntax B = "b";
 
-syntax M[&T] = "[[" &T "]]";
+data F = z(int l = 2) | u();
 
-syntax MA = M[A];
-syntax MB = M[B];
+// ? is not the same as has, has returns whether or not in principle (statically) the current dynamic value has the field or could have the field (in case of keyword parameter)
+// while ? computes whether or not currently dynamically the field is set (which is always true in case of named parameters of the right constructor and sometimes true for keyword parameters)
+// for constructors it is true that ? implies has, but not for nodes.
 
-syntax N[&T,&U] = "\<\<" &T "," &U "\>\>";
 
-syntax NAB = N[A,B];
 
-test bool parameterized1() = /A a := (M[A]) `[[a]]`;
-test bool parameterized2() = /A a !:= (M[B]) `[[b]]`;
 
-test bool parameterized3() = /B b := (M[B]) `[[b]]`;
-test bool parameterized4() = /B b !:= (M[A]) `[[a]]`;
 
-test bool parameterized5() = /A a := (N[A,B]) `\<\<a,b\>\>`;
-test bool parameterized6() = /B b := (N[A,B]) `\<\<a,b\>\>`;
+value main() {
+  e = z();
+  e.l?=3; // set l to 3 if the field is not set, otherwise leave it
+  return e;
+}
+

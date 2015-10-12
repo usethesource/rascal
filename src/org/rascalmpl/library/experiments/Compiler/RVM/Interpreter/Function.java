@@ -149,7 +149,7 @@ public class Function implements Serializable {
 		this.typeConstantStore = codeblock.getTypeConstants();
 	}
 	
-	public void attachExceptionTable(final IList exceptions, final RascalLinker rascalLinker) {
+	public void attachExceptionTable(final IList exceptions, final RVMLoader rascalLinker) {
 			froms = new int[exceptions.length()];
 			tos = new int[exceptions.length()];
 			types = new int[exceptions.length()];

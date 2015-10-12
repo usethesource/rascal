@@ -23,7 +23,7 @@ str () f() {
 	};
 }
 
-value main(list[value] args) {
+value main() {
     int i;
     i = 100;
     str s = f()();

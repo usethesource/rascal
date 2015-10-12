@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
-public abstract class JarTreeHierachy {
+public abstract class FileTree {
 
-  protected static class FSEntry {
+  public static class FSEntry {
     public long lastModified;
 
     public FSEntry(long lastModified) {
@@ -32,7 +32,7 @@ public abstract class JarTreeHierachy {
   protected long totalSize;
   protected IOException throwMe;
 
-  public JarTreeHierachy() {
+  public FileTree() {
     fs = new TreeMap<String, FSEntry>();
     totalSize = 0;
     throwMe = null;
@@ -42,6 +42,11 @@ public abstract class JarTreeHierachy {
     if (throwMe != null) {
       return false;
     }
+    
+    if ("/".equals(path)) {
+        return true;
+    }
+    
     // since we only store files, but they are sorted
     // the ceilingKey will return either the first file in the directory
     // or the actual file itself
@@ -76,9 +81,15 @@ public abstract class JarTreeHierachy {
     if (throwMe != null) {
       return false;
     }
+    
     if (!path.endsWith("/")) {
       path += "/";
     }
+    
+    if ("/".equals(path)) {
+        return true;
+    }
+    
     // since we only store files, but they are sorted
     // the ceilingKey will return either the first file in the directory
     // or the first file greater than the directory

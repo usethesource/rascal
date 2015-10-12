@@ -11,57 +11,46 @@ import Set;
 import ParseTree;
 import util::Benchmark;
 import analysis::graphs::Graph;
+import DateTime;
 
-//import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::muRascal::Load;
 
-extend experiments::Compiler::RVM::AST;   // Strange: using import here, gives RVMProgram not defined errors later on
+import experiments::Compiler::RVM::AST;   // Strange: using import here, gives RVMModule not defined errors later on
 import experiments::Compiler::RVM::ExecuteProgram;
 import experiments::Compiler::Compile;
 
-//import lang::rascal::types::TestChecker;
-import lang::rascal::types::CheckTypes; // redundant!
-
 import experiments::Compiler::muRascal2RVM::mu2rvm;
-import experiments::Compiler::muRascal2RVM::StackValidator;
+import experiments::Compiler::muRascal2RVM::StackValidator; // TODO: hide these two
 import experiments::Compiler::muRascal2RVM::PeepHole;
 import util::Reflective;
 
-public loc MuLibrary = getSearchPathLocation("experiments/Compiler/muRascal2RVM/Library.mu");
+private loc MuLibrary() = getSearchPathLocation("experiments/Compiler/muRascal2RVM/Library.mu");
 
-loc getMuLibraryCompiled(loc bindir = |home:///bin|) = getDerivedLocation(MuLibrary, "rvm.gz", compressed=true, bindir = bindir);
+loc getMuLibraryCompiled(loc bindir = |home:///bin|) = getDerivedLocation(MuLibrary(), "rvm.gz", compressed=true, bindir = bindir);
 
 loc getMergedImportsLocation(loc mainSourceLoc, loc bindir = |home:///bin|){
     merged_imports_src = mainSourceLoc[path = replaceLast(mainSourceLoc.path, ".rsc", "-imports.rsc")];
     return getDerivedLocation(merged_imports_src, "rvm.gz", compressed=true, bindir = bindir);
 }
 
-public list[loc] defaultImports = [];  //[|std:///Exception.rsc|, |std:///ParseTree.rsc| ];
-
 alias Resolved = tuple[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors];
 
-map[loc,tuple[datetime modified, RVMProgram program]] importCache = ();
+//private map[loc,tuple[datetime modified, RVMModule rvmModule]] importCache = ();
 
-RVMProgram getImport(loc importedLoc){
-    lastMod = lastModified(importedLoc);
-    if(importCache[importedLoc]?){
-       <lastModifiedAtImport, program> = importCache[importedLoc];
-       if(lastMod <= lastModifiedAtImport){
-          //println("getImport: use cached version for <importedLoc>");
-          return program;
-       }
-    }
-    program = readBinaryValueFile(#RVMProgram, importedLoc);
-    importCache[importedLoc] = <lastMod, program>;
-    //println("getImport: import new version for <importedLoc>");
-    return program;
+RVMModule getImport(loc importedLoc){
+    return getImport1(importedLoc, lastModified(importedLoc));
+}
+
+@memo
+RVMModule getImport1(loc importedLoc, datetime lastModified){
+    return readBinaryValueFile(#RVMModule, importedLoc);
 }
  
-list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(bool verbose = true, loc bindir = |home:///bin|){
-    if(verbose) println("execute: Recompiling library <basename(MuLibrary)>.mu");
+list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(bool verbose = false, loc bindir = |home:///bin|){
+    if(verbose) println("execute: Recompiling library <basename(MuLibrary())>.mu");
     MuLibraryCompiled = getMuLibraryCompiled(bindir = bindir);
-    libModule = load(MuLibrary);
+    libModule = load(MuLibrary());
     functions = [];
  
     for(fun <- libModule.functions) {
@@ -81,12 +70,23 @@ list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(bool verbose =
     return functions; 
 }
 
-bool valid(loc mergedImportsLoc, RVMProgram mergedProgram, RVMProgram program, loc bindir = |home:///bin|){
+bool valid(loc mergedImportsLoc, RVMModule mergedProgram, RVMModule program, loc bindir = |home:///bin|){
 
     if(mergedProgram.imports == program.imports && mergedProgram.extends == program.extends){
         mm = lastModified(mergedImportsLoc);
         for(imp <- mergedProgram.imports){
-            if(lastModified(RVMProgramLocation(getModuleLocation(imp), bindir)) > mm){
+            if(contains(imp, "\\")){
+               imp1 = replaceAll(imp, "\\", "");
+               println("valid: <imp> -\> <imp1>");
+               imp = imp1;
+            }
+            if(lastModified(RVMModuleLocation(getModuleLocation(imp), bindir)) > mm){
+                return false;
+            }
+        }
+        
+        for(ext <- mergedProgram.extends){
+            if(lastModified(RVMModuleLocation(getModuleLocation(ext), bindir)) > mm){
                 return false;
             }
         }
@@ -95,21 +95,14 @@ bool valid(loc mergedImportsLoc, RVMProgram mergedProgram, RVMProgram program, l
     return false;
 }
 
-alias RVMParts = tuple[RVMProgram mainProgram,
-                       map[str,map[str,str]] imported_module_tags,
-                       map[str,Symbol] imported_types,
-                       list[experiments::Compiler::RVM::AST::Declaration] imported_declarations,
-                       lrel[str name, Symbol funType, str scope, list[str] ofunctions,list[str] oconstructors] imported_overloaded_functions,
-                       map[str,int] imported_overloading_resolvers];
-
-RVMParts collectParts0(RVMProgram mainProgram, bool useJVM = false, bool serialize=false, bool verbose = true, loc bindir = |home:///bin|){
+RVMProgram mergeImports(RVMModule mainModule, bool useJVM = false, bool serialize=false, bool verbose = false, loc bindir = |home:///bin|){
                         
    map[str,map[str,str]] imported_moduleTags = ();
    map[str,Symbol] imported_types = ();
    list[experiments::Compiler::RVM::AST::Declaration] imported_declarations = [];
    lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] imported_overloaded_functions = [];
    map[str,int] imported_overloading_resolvers = ();
-   set[Message] messages = mainProgram.messages;
+   set[Message] messages = mainModule.messages;
    
    if(any(msg <- messages, error(_,_) := msg)){
         for(msg <- messages){
@@ -118,18 +111,21 @@ RVMParts collectParts0(RVMProgram mainProgram, bool useJVM = false, bool seriali
         throw messages;
    }
    
-   mergedImportsLoc = getMergedImportsLocation(mainProgram.src, bindir=bindir);
+   mergedImportsLoc = getMergedImportsLocation(mainModule.src, bindir=bindir);
    if(exists(mergedImportsLoc)){
       startTime = cpuTime();
-      rvmMergedImports = readBinaryValueFile(#RVMProgram, mergedImportsLoc);
+      rvmMergedImports = readBinaryValueFile(#RVMModule, mergedImportsLoc);
       println("Reading: <mergedImportsLoc>: <(cpuTime() - startTime)/1000000>ms");
-      if(valid(mergedImportsLoc, rvmMergedImports, mainProgram)){
-         return <mainProgram,
+      if(valid(mergedImportsLoc, rvmMergedImports, mainModule)){
+         pos_delta = size(rvmMergedImports.overloaded_functions);
+         mainModule.resolver = ( ofname : mainModule.resolver[ofname] + pos_delta | str ofname <- mainModule.resolver );
+         return rvmProgram(mainModule,
                  rvmMergedImports.module_tags,
                  rvmMergedImports.types,
-                 toList(range(rvmMergedImports.declarations)),      // TODO redefine RVM interface to avoid this
-                 rvmMergedImports.overloaded_functions, 
-                 rvmMergedImports.resolver>;
+                 rvmMergedImports.declarations,
+                 rvmMergedImports.resolver,
+                 rvmMergedImports.overloaded_functions
+                 );
            }
    }
    
@@ -137,7 +133,7 @@ RVMParts collectParts0(RVMProgram mainProgram, bool useJVM = false, bool seriali
    //println("MuLibrary: <MuLibrary>");
    MuLibraryCompiled = getMuLibraryCompiled(bindir = bindir);
    //println("MuLibraryCompiled: <MuLibraryCompiled>");
-   if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary)){
+   if(exists(MuLibraryCompiled) && lastModified(MuLibraryCompiled) > lastModified(MuLibrary())){
       try {
            imported_declarations = readBinaryValueFile(#list[experiments::Compiler::RVM::AST::Declaration], MuLibraryCompiled);
            // Temporary work around related to issue #343
@@ -152,47 +148,47 @@ RVMParts collectParts0(RVMProgram mainProgram, bool useJVM = false, bool seriali
    
    rel[str,str] extending_modules = {};
    
-   void processImports(RVMProgram rvmProgram) {
-       list[str] orderedImports = reverse(order(rvmProgram.importGraph))/* - rvmProgram.name*/;
-       //println("Ordered import graph <rvmProgram.name>: <orderedImports>");
+   void processImports(RVMModule rvmModule) {
+       list[str] orderedImports = reverse(order(rvmModule.importGraph))/* - rvmModule.name*/;
+       //println("Ordered import graph <rvmModule.name>: <orderedImports>");
        
        for(str impName <- orderedImports) {
           // println("execute: IMPORT <impName>");
            
            imp = getModuleLocation(impName);
-           importedLoc = RVMProgramLocation(imp, bindir);
+           importedLoc = RVMModuleLocation(imp, bindir);
            try {
-               RVMProgram importedRvmProgram = getImport(importedLoc);
+               RVMModule importedRvmModule = getImport(importedLoc);
                
                extensions = {};
                 
-               for(ext <- importedRvmProgram.extends){
-                  // println("execute: <importedRvmProgram.name> EXTENDS <ext>");
-                   extensions += {<importedRvmProgram.name, ext>};
+               for(ext <- importedRvmModule.extends){
+                  // println("execute: <importedRvmModule.name> EXTENDS <ext>");
+                   extensions += {<importedRvmModule.name, ext>};
                }
            
-               messages += importedRvmProgram.messages;
-               //imported_moduleTags[importedRvmProgram.name] = importedRvmProgram.tags;
-               imported_moduleTags += importedRvmProgram.module_tags;
+               messages += importedRvmModule.messages;
+               //imported_moduleTags[importedRvmModule.name] = importedRvmModule.tags;
+               imported_moduleTags += importedRvmModule.module_tags;
                
                // Temporary work around related to issue #343
-               importedRvmProgram = visit(importedRvmProgram) { case type[value] t : { insert type(t.symbol,t.definitions); }}
+               importedRvmModule = visit(importedRvmModule) { case type[value] t : { insert type(t.symbol,t.definitions); }}
               
-               imported_types = imported_types + importedRvmProgram.types;
-               new_declarations = [ importedRvmProgram.declarations[dname] | str dname <-importedRvmProgram.declarations ];
+               imported_types = imported_types + importedRvmModule.types;
+               new_declarations = importedRvmModule.declarations;
                
                if(!isEmpty(extensions)){
                     extending_modules += extensions;
                     //println("extending_modules = <extending_modules>");
-                    resolve_module_extensions(importedRvmProgram.name, imported_declarations, new_declarations);
+                    resolve_module_extensions(importedRvmModule.name, imported_declarations, new_declarations);
                }    
                
                imported_declarations += new_declarations;
                
                // Merge overloading functions and resolvers: all indices in the current resolver have to be incremented by the number of imported overloaded functions
                pos_delta = size(imported_overloaded_functions); 
-               imported_overloaded_functions = imported_overloaded_functions + importedRvmProgram.overloaded_functions;
-               imported_overloading_resolvers = imported_overloading_resolvers + ( ofname : (importedRvmProgram.resolver[ofname] + pos_delta) | str ofname <- importedRvmProgram.resolver );
+               imported_overloaded_functions = imported_overloaded_functions + importedRvmModule.overloaded_functions;
+               imported_overloading_resolvers = imported_overloading_resolvers + ( ofname : (importedRvmModule.resolver[ofname] + pos_delta) | str ofname <- importedRvmModule.resolver );
            
            } catch x: throw "execute: Reading <importedLoc> did not succeed: <x>";      
        }
@@ -233,7 +229,7 @@ RVMParts collectParts0(RVMProgram mainProgram, bool useJVM = false, bool seriali
        }
    }
    
-   processImports(mainProgram);
+   processImports(mainModule);
   
    if(any(msg <- messages, error(_,_) := msg)){
         for(e: error(_,_) <- messages){
@@ -243,58 +239,44 @@ RVMParts collectParts0(RVMProgram mainProgram, bool useJVM = false, bool seriali
    }
    
    rvmMergedImports =
-   rvm(mainProgram.name,
+   rvmModule(mainModule.name,
             imported_moduleTags,
             messages,
-            mainProgram.imports,
-            mainProgram.extends,
+            mainModule.imports,
+            mainModule.extends,
             imported_types, 
-            mainProgram.symbol_definitions,
-            (decl.qname : decl | decl <- imported_declarations),
-            mainProgram.initialization, 
+            (), //mainModule.symbol_definitions,
+            imported_declarations,
+            [], //mainModule.initialization, 
             imported_overloading_resolvers, 
             imported_overloaded_functions,
-            mainProgram.importGraph,
-            mainProgram.src);
-            
-   writeBinaryValueFile(mergedImportsLoc, rvmMergedImports);
+            mainModule.importGraph,
+            mainModule.src
+            );
+ 
+   //if(serialize){        
+      writeBinaryValueFile(mergedImportsLoc, rvmMergedImports);
+   //}
    
-  return <mainProgram,
-           rvmMergedImports.module_tags,
-           rvmMergedImports.types,
-           toList(range(rvmMergedImports.declarations)),
-           rvmMergedImports.overloaded_functions, 
-           rvmMergedImports.resolver>;
+   pos_delta = size(imported_overloaded_functions);
+   mainModule.resolver = ( ofname : mainModule.resolver[ofname] + pos_delta | str ofname <- mainModule.resolver );
+   
+   
+  return rvmProgram(mainModule,
+           imported_moduleTags,
+           imported_types,
+           imported_declarations,
+           imported_overloading_resolvers,
+           imported_overloaded_functions
+           );
 }
 
-RVMParts collectParts(RVMProgram mainProgram, bool useJVM = false, bool serialize=false, bool verbose = true, loc bindir = |home:///bin|){
-
-    parts = collectParts0(mainProgram, verbose=verbose, useJVM=useJVM, bindir=bindir);
-    pos_delta = size(parts.imported_overloaded_functions);
-    mainProgram.resolver = ( ofname : mainProgram.resolver[ofname] + pos_delta | str ofname <- mainProgram.resolver );
-    return <mainProgram,
-           parts.imported_module_tags,
-           parts.imported_types,
-           parts.imported_declarations,
-           parts.imported_overloaded_functions, 
-           parts.imported_overloading_resolvers>;
-}
-
-tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments, bool debug=false, 
+value execute(RVMProgram program, map[str,value] keywordArguments = (), bool debug=false, 
                                     bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
-                                    bool coverage = false, bool useJVM = false, bool serialize=false, bool verbose = true, loc bindir = |home:///bin|){
-    start_loading = cpuTime();   
-    parts = collectParts(mainProgram, verbose=verbose, useJVM=useJVM, bindir=bindir);
-    load_time = cpuTime() - start_loading;
-    println("collectParts: <load_time/1000000> msec");
-    <v, t> = executeProgram(RVMExecutableLocation(mainProgram.src, bindir),
-                           parts.mainProgram, 
-                           parts.imported_module_tags,
-                           parts.imported_types,
-                           parts.imported_declarations, 
-                           parts.imported_overloaded_functions, 
-                           parts.imported_overloading_resolvers, 
-                           arguments, 
+                                    bool coverage = false, bool useJVM = false, bool serialize=false, bool verbose = false, loc bindir = |home:///bin|){
+    v = executeProgram(RVMExecutableLocation(program.main_module.src, bindir),
+                           program,
+                           keywordArguments, 
                            debug, 
                            testsuite, 
                            profile, 
@@ -302,84 +284,74 @@ tuple[value, num] execute_and_time(RVMProgram mainProgram, list[value] arguments
                            coverage,
                            useJVM,
                            serialize);
-   if(!testsuite && verbose){
-        println("Result = <v>, [load: <load_time/1000000> msec, execute: <t> msec]");
-   }    
-   return <v, t>;                            
+   return v;                            
 }
 
-void linkProgram(loc rascalSource, bool verbose = false, bool useJVM = false, loc bindir = |home:///bin|){
-    rvmLoc = RVMProgramLocation(rascalSource, bindir);
-        
-    RVMProgram mainProgram = readBinaryValueFile(#RVMProgram, rvmLoc);
-    parts = collectParts(mainProgram, verbose=verbose, useJVM=useJVM, bindir=bindir);
-    linkProgram(RVMExecutableLocation(mainProgram.src, bindir),
-                mainProgram, 
-                parts.imported_module_tags,
-                parts.imported_types,
-                parts.imported_declarations, 
-                parts.imported_overloaded_functions, 
-                parts.imported_overloading_resolvers,
-                useJVM);
+value execute(RVMModule mainModule, map[str,value] keywordArguments = (), bool debug=false, 
+                                    bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
+                                    bool coverage = false, bool useJVM = false, bool serialize=false, bool verbose = false, loc bindir = |home:///bin|){
+    start_linking = cpuTime();   
+    merged = mergeImports(mainModule, verbose=verbose, useJVM=useJVM, bindir=bindir);
+    link_time = cpuTime() - start_linking;
+    println("linking: <link_time/1000000> msec");
+    return execute(merged, keywordArguments=keywordArguments, debug=debug, testsuite=testsuite,recompile=recompile,profile=profile,trackCalls=trackCalls,coverage=coverage,useJVM=useJVM,serialize=serialize,verbose=verbose,bindir=bindir);             
 }
 
-value execute(RVMProgram mainProgram, list[value] arguments, bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, bool coverage=false, bool useJVM=false, bool serialize=false, bool verbose=true, loc bindir = |home:///bin|){
-    <v, t> = execute_and_time(mainProgram, arguments, debug=debug, testsuite=testsuite,recompile=recompile, profile=profile, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize, verbose=verbose, bindir=bindir);
-    //if(testsuite){
- //        return printTestReport(v);
- //   }
-   return v;
-}
-
-value execute(loc rascalSource, list[value] arguments, bool debug=false, bool testsuite=false, bool recompile=true, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|){
+value execute(loc rascalSource, map[str,value] keywordArguments = (), bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|){
    if(!recompile){
       executable = RVMExecutableLocation(rascalSource, bindir);
       compressed = RVMExecutableCompressedLocation(rascalSource, bindir);
       if(exists(compressed)){
          if(verbose) println("Using <compressed>");
-         <v, t> = executeProgram(compressed, arguments, debug, testsuite, profile, trackCalls, coverage, useJVM);
-         println("Executing (not recompiled): <t> ms");
+         v = executeProgram(compressed, keywordArguments, debug, testsuite, profile, trackCalls, coverage, useJVM);
          if(!testsuite && verbose){
-            println("Result = <v>, [execute: <t> msec]");
+            println("Result = <v>");
          }  
          return v;
       }
    }
    startTime = cpuTime();
-   mainProgram = compile(rascalSource, verbose=verbose, bindir=bindir);
-   println("Compiling: <(cpuTime() - startTime)/1000000> ms");
-   //<cfg, mainProgram> = compile(rascalSource, bindir=bindir);
+   mainModule = compile(rascalSource, verbose=verbose, bindir=bindir);
+   //println("Compiling: <(cpuTime() - startTime)/1000000> ms");
+   //<cfg, mainModule> = compile(rascalSource, bindir=bindir);
    startTime = cpuTime();
-   v = execute(mainProgram, arguments, debug=debug, testsuite=testsuite, profile=profile, verbose=verbose, bindir=bindir, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize);
+   v = execute(mainModule, keywordArguments=keywordArguments, debug=debug, testsuite=testsuite, profile=profile, verbose=verbose, bindir=bindir, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize);
    println("Executing: <(cpuTime() - startTime)/1000000> ms");
    return v;
 }
 
-value executeBinary(loc executable, list[value] arguments, bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM = false, bool verbose = true, loc bindir = |home:///bin|){
-  if(exists(executable)){
-     if(verbose) println("Using <executable>");
-     <v, t> = executeProgram(executable, arguments, debug, testsuite, profile, trackCalls, coverage, useJVM);
-    
-     if(!testsuite && verbose){
-        println("Result = <v>, [execute: <t> msec]");
-     }  
-     return v;
-  }
+RVMProgram compileAndLink(loc rascalSource,  bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|){
+   startTime = cpuTime();
+   mainModule = compile(rascalSource, verbose=verbose, bindir=bindir);
+   //println("Compiling: <(cpuTime() - startTime)/1000000> ms");
+   start_linking = cpuTime();   
+   merged = mergeImports(mainModule, verbose=verbose, useJVM=useJVM, bindir=bindir, serialize=serialize);
+   link_time = cpuTime() - start_linking;
+   println("linking: <link_time/1000000> msec");
+   return merged;
 }
 
-//value execute(str rascalSource, list[value] arguments, bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, loc bindir = |home:///bin|){
-//   mainProgram = compile(rascalSource, recompile=recompile, bindir=bindir);
-//   return execute(mainProgram, arguments, debug=debug, testsuite=testsuite,profile=profile, bindir = bindir, trackCalls=trackCalls, coverage=coverage);
+
+//value executeBinary(loc executable, list[value] arguments, bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM = false, bool verbose = true, loc bindir = |home:///bin|){
+//  if(exists(executable)){
+//     if(verbose) println("Using <executable>");
+//     <v, t> = executeProgram(executable, arguments, debug, testsuite, profile, trackCalls, coverage, useJVM);
+//    
+//     if(!testsuite && verbose){
+//        println("Result = <v>, [execute: <t> msec]");
+//     }  
+//     return v;
+//  }
 //}
 
-tuple[value, num] execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, bool useJVM=false, bool serialize=false, bool verbose = true, loc bindir = |home:///bin|){
-   mainProgram = compile(rascalSource, bindir=bindir);
-   return execute_and_time(mainProgram, arguments, debug=debug, testsuite=testsuite, profile=profile, verbose = verbose, bindir = bindir, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize);
-}
+//value execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, bool useJVM=false, bool serialize=false, bool verbose = true, loc bindir = |home:///bin|){
+//   mainModule = compile(rascalSource, bindir=bindir);
+//   return execute(mainModule, arguments, debug=debug, testsuite=testsuite, profile=profile, verbose = verbose, bindir = bindir, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize);
+//}
 
 value executeTests(loc rascalSource){
-   mainProgram = compile(rascalSource);
-   return execute(mainProgram, [], testsuite=true);
+   mainModule = compile(rascalSource);
+   return execute(mainModule, testsuite=true);
 }
 
 str makeTestSummary(lrel[loc,int,str] test_results) = "<size(test_results)> tests executed; < size(test_results[_,0])> failed; < size(test_results[_,2])> ignored";
@@ -405,12 +377,4 @@ bool printTestReport(value results){
   } else {
     throw "cannot create report for test results: <results>";
   }
-}
-
-value main(list[value] args) {
-   println("Execute.main: <args>");
-   if(loc src := args[0]){
-      return execute(src, []);
-   }
-   throw "Cannot execute <args[0]>";
 }

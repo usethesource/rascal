@@ -6,7 +6,9 @@ Issues:
 - lang::rascal::grammar::definition::Symbols:sym2symbol
   - The Symbol:: qualifier should be unnneccessary
   - empty (from Rascal.rsc) can cause trouble.
-- Various type chcker tests still fail
+- Various type checker tests still fail
+- Various (compiled) rascal tests fail.
+- Change main convention from "value main(list[value] args)" to value "main()"
 
 Still to be implemented:
 x memo functions
@@ -21,9 +23,11 @@ x Compile and test compiler
 x Test compiled compiler
 
 Runtime environment end IDE integration
-- Make use-def etc info available for the Rascal IDE
+- Make info available for RascalShell Rascal IDE:
+  - Preserve @doc per function/module in compiled code
+  - Preserve use/def info per function/module
 - Replace current interpreter-based parser generator used by the compiler by compiled parser generator
-- Detach the execute command from the interpreter and make it stand alone
+x Detach the execute command from the interpreter and make it stand alone
 - Adapt the debugger to run with compiled code
 - Create a RascalShell for compiled code
 - Replace interpreter by compiler in IDE 
@@ -34,7 +38,7 @@ Code improvement
 - Overal consistency check on naming of primitives in RascalPrimitive and MuPrimitive
 
 Performance improvement
-- Make the compiler truly incremental:
+x Make the compiler truly incremental:
   - Best done using import graph (still to be provided by typechecker) 
 - Optimize the case of an overloaded function call with only one remaining alternative.
 - Currently, RVM does null pointer checking; these checks can disappear when there is a guarantee that

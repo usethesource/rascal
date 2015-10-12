@@ -4,6 +4,14 @@ import Type;
 import Message;
 import ParseTree;
 
+/*
+ * Abstract syntax for RVM (Rascal Virtual Machine).
+ * 
+ * Position in the compiler pipeline: Rascal -> muRascal -> RVM
+ */
+ 
+// Declarations for functions and coroutines
+
 public data Declaration = 
 		  FUNCTION(str qname,
 		  		   str uqname, 
@@ -36,15 +44,18 @@ public data Declaration =
 		  		    lrel[str from, str to, Symbol \type, str target, int fromSP] exceptions)
 		;
 
-public data RVMProgram = 
-		  rvm(str name,
+// A single RVMmodule is a container for declarations
+// Each Rascal module is mapped to one RVMModule
+
+public data RVMModule = 
+		  rvmModule(str name,
 		  	  map[str, map[str,str]] module_tags,
 		      set[Message] messages,
 			  list[str] imports,
 			  list[str] extends,
               map[str,Symbol] types, 
               map[Symbol, Production] symbol_definitions,
-              map[str, Declaration] declarations, 
+              list[Declaration] declarations, // map[str, Declaration] declarations, 
               list[Instruction] initialization, 
               map[str,int] resolver, 
               lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] overloaded_functions,
@@ -52,13 +63,28 @@ public data RVMProgram =
               loc src)
         ;
 
-RVMProgram errorRVMProgram(str name, set[Message] messages, loc src) = rvm(name, (), messages, [], [], (), (), (), [], (), [], {}, src);
+RVMModule errorRVMModule(str name, set[Message] messages, loc src) = rvmModule(name, (), messages, [], [], (), (), [], [], (), [], {}, src);
+
+// A program is a completely linked collection of modules and is ready for loading.
+// A top-level Rascal module (that contains a main function) is mapped to an RVMProgram
+
+public data RVMProgram =
+            rvmProgram(
+                RVMModule  main_module,
+                map[str, map[str,str]] imported_module_tags,
+                map[str,Symbol] imported_types,
+                list[Declaration] imported_declarations,
+                 map[str,int] imported_overloading_resolvers,
+                lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] imported_overloaded_functions
+                )
+         ;
+
 
 public data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean
         | LOADINT(int nval)  						// Push a (Java) integer
 	   	| LOADCON(value val)						// Push an IValue
-	   	| LOADTREE(Tree tree)						// Unused, but forces Tree to be part of the type RVMProgram
+	   	| LOADTREE(Tree tree)						// Unused, but forces Tree to be part of the type RVMModule
 	   												// This is necessary to guarantee correct (de)serialization and can be removed
 	   												// when (de)serialization has been improved.
 	   	| LOADTYPE(Symbol \type)					// Push a type constant
@@ -173,5 +199,6 @@ public data Instruction =
 		        bool progress, bool rebuild)		// Visit expression
 		        
 		| CHECKMEMO()								// Check args of memo function
+		| LOADEMPTYKWMAP()                          // Load an empty keyword map
 ;
 	

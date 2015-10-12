@@ -1,6 +1,6 @@
 module experiments::Compiler::Benchmarks::BVisit4
 
-value main(list[value] args) {
+value main() {
 	res = {};
 	for(j <- [1 .. 10000]) {
 	

@@ -11,31 +11,25 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import jline.Terminal;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.utils.StringUtils;
-import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.BaseRascalREPL;
-import org.rascalmpl.repl.CompletionResult;
-import org.rascalmpl.repl.LimitedLineWriter;
-import org.rascalmpl.repl.LimitedWriter;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public abstract class CompiledRascalREPL extends BaseRascalREPL {
 
-  protected Executor executor;
+  protected CommandExecutor executor;
   private boolean measureCommandTime;
   private boolean semiColonAdded = false;
   
@@ -51,13 +45,33 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   public boolean getMeasureCommandTime() {
     return measureCommandTime;
   }
+  
+  @Override
+  protected void cancelRunningCommandRequested() {
+      // TODO: interrupt the RVM interpreter or the running compiler. After the intteruption be ready for new commands
+      // reminder: this method is called from a different thread.
+      // don't wait for the interruption to happen, that will cause deadlocks, just trigger a flag or something like it
+  }
+  
+  @Override
+  protected void terminateRequested() {
+      // TODO: stop the RVM interpreted or the running compiler, don't worry about the state afterward.
+      // reminder: this method is called from a different thread.
+      // don't wait for the interruption to happen, that will cause deadlocks, just trigger a flag or something like it
+  }
+  
+  @Override
+  protected void stackTraceRequested() {
+      // TODO: print current stack trace, without stopping  the running code.
+      // reminder: this method is called from a different thread.
+  }
 
   @Override
   protected void initialize(Writer stdout, Writer stderr) {
     executor = constructExecutor(stdout, stderr);
   }
   
-  protected abstract Executor constructExecutor(Writer stdout, Writer stderr);
+  protected abstract CommandExecutor constructExecutor(Writer stdout, Writer stderr);
   
   @Override
   protected PrintWriter getErrorWriter() {
@@ -145,19 +159,25 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   }
 
   @Override
-  protected boolean supportsCompletion() {
-	  return true;
+  protected Collection<String> completePartialIdentifier(String qualifier, String term) {
+      return executor.completePartialIdentifier(qualifier, term);
   }
-
+  
+  private static final SortedSet<String> commandLineOptions = new TreeSet<String>();
+  static {
+     commandLineOptions.add("profiling"); 
+     commandLineOptions.add("tracing"); 
+     commandLineOptions.add("coverage"); 
+     commandLineOptions.add("debug"); 
+     commandLineOptions.add("testsuite"); 
+  }
   @Override
-  protected CompletionResult completeFragment(String line, int cursor) {
-	  OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(line, cursor);
-	  if (identifier != null) {
-		  Collection<String> suggestions = executor.completePartialIdentifier(identifier.term);
-		  if (suggestions != null && ! suggestions.isEmpty()) {
-			  return new CompletionResult(identifier.offset, identifier.length, suggestions);
-		  }
-	  }
-	  return null;
+  protected SortedSet<String> getCommandLineOptions() {
+      return commandLineOptions;
   }
+  
+  @Override
+    protected Collection<String> completeModule(String qualifier, String partialModuleName) {
+        return null;
+    }
 }

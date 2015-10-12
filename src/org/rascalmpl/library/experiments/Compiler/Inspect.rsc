@@ -96,14 +96,14 @@ void inspect(loc srcLoc,                // location of Rascal source file
           bool listing = false,         // show instruction listing
           bool linked = false           // inspect the fully linked version of the program
           ){
-    rvmLoc = linked ? RVMExecutableCompressedLocation(srcLoc, bindir) : RVMProgramLocation(srcLoc, bindir);
+    rvmLoc = linked ? RVMExecutableCompressedLocation(srcLoc, bindir) : RVMModuleLocation(srcLoc, bindir);
     println("rvmLoc = <rvmLoc>");
-    RVMProgram p;
+    RVMModule p;
     listing = listing || line >= 0;
     try {
     	if(rvmLoc == bindir + "/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/Library.rvm.gz"){
     		decls = readBinaryValueFile(#list[Declaration], rvmLoc);
-    		p = rvm("Library",
+    		p = rvmModule("Library",
     		  (),
 		      {},
 			  [],
@@ -117,7 +117,7 @@ void inspect(loc srcLoc,                // location of Rascal source file
               {},
               rvmLoc);
     	} else {
-        	p = readBinaryValueFile(#RVMProgram, rvmLoc);
+        	p = readBinaryValueFile(#RVMModule, rvmLoc);
         }	
         
         noSelection = line < 0 && select == none();
@@ -125,8 +125,8 @@ void inspect(loc srcLoc,                // location of Rascal source file
         if(noSelection){
 	        println("RVM PROGRAM: <p.name>");
 	        
-	        if(p.tags != ()){
-	        	println("TAGS: <p.tags>");
+	        if(p.module_tags != ()){
+	        	println("TAGS: <p.module_tags>");
 	        }
 	        
 	        if(p.importGraph != {}){
@@ -155,8 +155,8 @@ void inspect(loc srcLoc,                // location of Rascal source file
         printSymbolDefinitions(p.symbol_definitions);
        
         println("DECLARATIONS:");
-        for(dname <- p.declarations){
-            printDecl(p.declarations[dname]);
+        for(decl <- p.declarations){
+            printDecl(decl);
         }
         
         init = p.initialization;
@@ -265,13 +265,14 @@ bool matchesSelection(str info, Query select, bool atStart = false){
 bool containsLine(loc src, int line) =
 	line >= 0 && line >= src.begin.line && line <= src.end.line;
 
-void listDecls(RVMProgram p, Query select, int line, bool listing){
-    for(dname <- p.declarations){
-        uqname = p.declarations[dname].uqname;
-        if(matchesSelection(uqname, select, atStart = true) || containsLine(p.declarations[dname].src, line)){
-        	printDecl(p.declarations[dname]);
+void listDecls(RVMModule p, Query select, int line, bool listing){
+    for(decl <- p.declarations){
+        dname = decl.uqname;
+        uqname = decl.uqname;
+        if(matchesSelection(uqname, select, atStart = true) || containsLine(decl.src, line)){
+        	printDecl(decl);
             if(listing){
- 				for(ins <- p.declarations[dname].instructions){
+ 				for(ins <- decl.instructions){
 					println("\t\t<ins>");                
 				}
             }
@@ -279,7 +280,7 @@ void listDecls(RVMProgram p, Query select, int line, bool listing){
     }
 }
 
-void statistics(loc root = |project://rascal/src/|,
+void statistics(loc root = |std:///|,
                 loc bindir = |home:///bin|,
                 bool printMessages = false
                 ){
@@ -298,9 +299,9 @@ void statistics(loc root = |project://rascal/src/|,
     }
     
     for(f <- allFiles){
-        rvmLoc = RVMProgramLocation(f, bindir);
+        rvmLoc = RVMModuleLocation(f, bindir);
         try {
-            p = readBinaryValueFile(#RVMProgram, rvmLoc);
+            p = readBinaryValueFile(#RVMModule, rvmLoc);
             if(size(p.messages) == 0 || all(msg <- p.messages, msg is warning)){
                 nsuccess += 1;
             }
@@ -313,8 +314,7 @@ void statistics(loc root = |project://rascal/src/|,
         	   }
         	} 
            
-            for(dname <- p.declarations){
-                decl = p.declarations[dname];
+            for(decl <- p.declarations){
                 if(decl is FUNCTION)
                     nfunctions += 1;
                 else {
@@ -363,9 +363,9 @@ set[loc] getFunctionLocations(
 						   loc srcLoc,                  // location of Rascal source file
    							loc bindir = |home:///bin|   // location where binaries are stored
 							){
-   rvmLoc = RVMProgramLocation(srcLoc, bindir);
+   rvmLoc = RVMModuleLocation(srcLoc, bindir);
    try {
-        p = readBinaryValueFile(#RVMProgram, rvmLoc);
+        p = readBinaryValueFile(#RVMModule, rvmLoc);
         
         return {p.declarations[dname].src | dname <- p.declarations};
    } catch e: {

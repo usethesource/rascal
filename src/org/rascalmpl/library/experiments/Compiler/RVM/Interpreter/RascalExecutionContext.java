@@ -5,7 +5,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -24,21 +28,19 @@ import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
-import org.rascalmpl.uri.CWDURIResolver;
-import org.rascalmpl.uri.ClassResourceInput;
-import org.rascalmpl.uri.CompressedStreamResolver;
-import org.rascalmpl.uri.FileURIResolver;
-import org.rascalmpl.uri.HomeURIResolver;
-import org.rascalmpl.uri.HttpURIResolver;
-import org.rascalmpl.uri.HttpsURIResolver;
-import org.rascalmpl.uri.JarURIResolver;
-import org.rascalmpl.uri.TempURIResolver;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 /**
- * Provide all context information that is needed during the execution of a compiled Rascal program
+ * Provides all context information that is needed during the execution of a compiled Rascal program
+ * and contains:
+ * - I/O streams
+ * - class loaders
+ * - RascalSearchPath
+ * - execution flags
+ * - state variables need by RascalPrimitives
  *
  */
 public class RascalExecutionContext implements IRascalMonitor {
@@ -48,7 +50,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final Configuration config;
 	private final List<ClassLoader> classLoaders;
 	private final PrintWriter stdout;
-	//private final IEvaluatorContext ctx;
+	
 	private final IValueFactory vf;
 	private final TypeStore typeStore;
 	private final boolean debug;
@@ -60,11 +62,20 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private RascalSearchPath rascalSearchPath;
 	
 	private String currentModuleName;
-	//private ILocationCollector locationReporter;
 	private RVM rvm;
 	private boolean coverage;
 	private boolean useJVM;
 	private final IMap moduleTags;
+	
+	// State for RascalPrimitive
+	
+	private final ParsingTools parsingTools; 
+	private final Map<Type,Map<Type,Boolean>> subtypeCache = new HashMap<Type,Map<Type,Boolean>>();
+	Stack<String> indentStack = new Stack<String>();
+	static final HashMap<Type,IConstructor> type2symbolCache = new HashMap<Type,IConstructor>();
+	StringBuilder templateBuilder = null;
+	private final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
+	private IListWriter test_results;
 	
 	public RascalExecutionContext(
 			IValueFactory vf, 
@@ -79,7 +90,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 			boolean trackCalls, 
 			boolean coverage, 
 			boolean useJVM, 
-			ITestResultListener testResultListener
+			ITestResultListener testResultListener, 
+			RascalSearchPath rascalSearchPath
 	){
 		
 		this.vf = vf;
@@ -95,8 +107,13 @@ public class RascalExecutionContext implements IRascalMonitor {
 		
 		currentModuleName = "UNDEFINED";
 		
-		this.rascalSearchPath = new RascalSearchPath();
-		registerCommonSchemes();
+		if(rascalSearchPath == null){
+			this.rascalSearchPath = new RascalSearchPath();
+			addRascalSearchPath(URIUtil.rootLocation("test-modules"));
+            addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+		} else {
+			this.rascalSearchPath = rascalSearchPath;
+		}
 	
 		monitor = new ConsoleRascalMonitor(); //ctx.getEvaluator().getMonitor();
 		this.stdout = stdout;
@@ -105,8 +122,13 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.classLoaders = new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader()));
 		this.testResultListener = (testResultListener == null) ? (ITestResultListener) new DefaultTestResultListener(stderr)
 															  : testResultListener;
+		parsingTools = new ParsingTools(this);
 	}
 
+	public ParsingTools getParsingTools(){
+		return parsingTools;
+	}
+	
 	IValueFactory getValueFactory(){ return vf; }
 	
 	public IMap getSymbolDefinitions() { return symbol_definitions; }
@@ -129,7 +151,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	public RVM getRVM(){ return rvm; }
 	
-	void setRVM(RVM rvm){ this.rvm = rvm; }
+	void setRVM(RVM rvm){ 
+		this.rvm = rvm; 
+	}
 	
 	public void addClassLoader(ClassLoader loader) {
 		// later loaders have precedence
@@ -157,6 +181,33 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public String getCurrentModuleName(){ return currentModuleName; }
 	
 	public void setCurrentModuleName(String moduleName) { currentModuleName = moduleName; }
+	
+	public Stack<String> getIndentStack() { return indentStack; }
+	
+	public HashMap<Type,IConstructor> getType2SymbolCache(){ return type2symbolCache; }
+	
+	public Map<Type,Map<Type,Boolean>> getSubtypeCache() { return subtypeCache; }
+	
+	StringBuilder getTemplateBuilder() { return templateBuilder; }
+	
+	void setTemplateBuilder(StringBuilder sb) { templateBuilder = sb; }
+	
+	Stack<StringBuilder> getTemplateBuilderStack() { return  templateBuilderStack; }
+	
+	IListWriter getTestResults() { return test_results; }
+	
+	void setTestResults(IListWriter writer) { test_results = writer; }
+	
+	private Cache<String, Function> companionDefaultFunctionCache = Caffeine.newBuilder().build();
+	
+	public Function getCompanionDefaultsFunction(String name, Type ftype){
+		String key = name + ftype;
+		return companionDefaultFunctionCache.get(key, k -> rvm.getCompanionDefaultsFunction(name, ftype));
+	}
+	
+	public void resetCaches(){
+		companionDefaultFunctionCache = Caffeine.newBuilder().build();
+	}
 	
 	boolean bootstrapParser(String moduleName){
 		if(moduleTags != null){
@@ -224,13 +275,15 @@ public class RascalExecutionContext implements IRascalMonitor {
 		stdout.flush();
 	}
 
-	public RascalSearchPath getRascalSearchPath() { return rascalSearchPath; }
+	public RascalSearchPath getRascalSearchPath() { 
+		return rascalSearchPath; 
+	}
 	
-	public void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
+	private void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
 		rascalSearchPath.addPathContributor(contrib);
 	}
 	
-	public void addRascalSearchPath(final ISourceLocation uri) {
+	private void addRascalSearchPath(final ISourceLocation uri) {
 		rascalSearchPath.addPathContributor(new URIContributor(uri));
 	}
 	/**
@@ -275,95 +328,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	}
 	
 	void registerCommonSchemes(){
-		URIResolverRegistry resolverRegistry = rascalSearchPath.getRegistry();
-		
-		
-		// register some schemes
-		FileURIResolver files = new FileURIResolver();
-		resolverRegistry.registerInputOutput(files);
-
-		HttpURIResolver http = new HttpURIResolver();
-		resolverRegistry.registerInput(http);
-
-		//added
-		HttpsURIResolver https = new HttpsURIResolver();
-		resolverRegistry.registerInput(https);
-
-		CWDURIResolver cwd = new CWDURIResolver();
-		resolverRegistry.registerLogical(cwd);
-
-		ClassResourceInput library = new ClassResourceInput("std", getClass(), "/org/rascalmpl/library");
-		resolverRegistry.registerInput(library);
-
-		ClassResourceInput testdata = new ClassResourceInput("testdata", getClass(), "/org/rascalmpl/test/data");
-		resolverRegistry.registerInput(testdata);
-
-		ClassResourceInput benchmarkdata = new ClassResourceInput("benchmarks", getClass(), "/org/rascalmpl/benchmark");
-		resolverRegistry.registerInput(benchmarkdata);
-
-		resolverRegistry.registerInput(new JarURIResolver());
-
-		resolverRegistry.registerLogical(new HomeURIResolver());
-		resolverRegistry.registerInputOutput(new TempURIResolver());
-
-		resolverRegistry.registerInputOutput(new CompressedStreamResolver(resolverRegistry));
-
-		// here we have code that makes sure that courses can be edited by
-		// maintainers of Rascal, using the -Drascal.courses=/path/to/courses property.
-		final String courseSrc = System.getProperty("rascal.courses");
-		if (courseSrc != null) {
-			FileURIResolver fileURIResolver = new CourseResolver(courseSrc);
-
-			resolverRegistry.registerInputOutput(fileURIResolver);
-		}
-		else {
-			resolverRegistry.registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
-		}
-
-		FileURIResolver testModuleResolver = new TestModuleResolver();
-
-		addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-		
-		resolverRegistry.registerInputOutput(testModuleResolver);
 		addRascalSearchPath(URIUtil.rootLocation("test-modules"));
-
-		ClassResourceInput tutor = new ClassResourceInput("tutor", getClass(), "/org/rascalmpl/tutor");
-		resolverRegistry.registerInput(tutor);
+		addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 	}
-
-
-	private static final class CourseResolver extends FileURIResolver {
-		private final String courseSrc;
-
-		private CourseResolver(String courseSrc) {
-			this.courseSrc = courseSrc;
-		}
-
-		@Override
-		public String scheme() {
-			return "courses";
-		}
-
-		@Override
-		protected String getPath(ISourceLocation uri) {
-			String path = uri.getPath();
-			return courseSrc + (path.startsWith("/") ? path : ("/" + path));
-		}
-	}
-
-	private static final class TestModuleResolver extends TempURIResolver {
-		@Override
-		public String scheme() {
-			return "test-modules";
-		}
-
-		@Override
-		protected String getPath(ISourceLocation uri) {
-			String path = uri.getPath();
-			path = path.startsWith("/") ? "/test-modules" + path : "/test-modules/" + path;
-			return System.getProperty("java.io.tmpdir") + path;
-		}
-	}
-
-	
 }

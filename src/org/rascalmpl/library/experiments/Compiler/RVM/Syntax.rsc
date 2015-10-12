@@ -3,14 +3,14 @@ module experiments::Compiler::RVM::Syntax
 import ParseTree;
 //import util::IDE;
 
-layout LAYOUTLIST
-  = LAYOUT* !>> [\t-\n \r \ ] !>> "//" !>> "/*";
+layout RVMLayoutList
+  = RVMLayout* !>> [\t-\n \r \ ] !>> "//" !>> "/*";
 
-lexical LAYOUT
-  = Comment 
+lexical RVMLayout
+  = RVMComment 
   | [\t-\n \r \ ];
     
-lexical Comment
+lexical RVMComment
   = "/*" (![*] | [*] !>> [/])* "*/" 
   | "//" ![\n]* [\n];
   
