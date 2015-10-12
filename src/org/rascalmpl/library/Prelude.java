@@ -118,6 +118,7 @@ import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.TimeZone;
 import com.ibm.icu.util.ULocale;
 
+@SuppressWarnings("deprecation")
 public class Prelude {
 	private static final int FILE_BUFFER_SIZE = 8 * 1024;
 	protected final IValueFactory values;
@@ -2022,20 +2023,32 @@ public class Prelude {
 		return node.asAnnotatable().setAnnotations(map);
 	}
 	
-	public INode delAnnotations(INode node) {
-		return node.asAnnotatable().removeAnnotations();
+    public INode delAnnotations(INode node, IEvaluatorContext ctx) {
+	    if (node.isAnnotatable()) {
+	        return node.asAnnotatable().removeAnnotations();
+	    }
+	    else {
+	        ctx.warning("Trying to remove annotations from a node which has keyword parameters", ctx.getCurrentAST().getLocation());
+	        return node;
+	    }
 	}
 	
-	public INode delAnnotation(INode node, IString label) {
-		return node.asAnnotatable().removeAnnotation(label.getValue());
+    public INode delAnnotation(INode node, IString label, IEvaluatorContext ctx) {
+	    if (node.isAnnotatable()) {
+	        return node.asAnnotatable().removeAnnotation(label.getValue());
+	    }
+	    else {
+	        ctx.warning("Trying to remove annotations from a node which has keyword parameters", ctx.getCurrentAST().getLocation());
+	        return node;
+	    }
 	}
 	
 	public INode unset(INode node, IString label) {
-        return node.asWithKeywordParameters().unsetParameter(label.getValue());
+        return node.mayHaveKeywordParameters() ? node.asWithKeywordParameters().unsetParameter(label.getValue()) : node;
     }
     
     public INode unset(INode node) {
-        return node.asWithKeywordParameters().unsetAll();
+        return  node.mayHaveKeywordParameters() ? node.asWithKeywordParameters().unsetAll() : node;
     }
 	
 	/*
@@ -2116,7 +2129,8 @@ public class Prelude {
 	public IString saveParser(ISourceLocation outFile, IEvaluatorContext ctx) {
 		
 		IGTD<IConstructor, ITree, ISourceLocation> parser = org.rascalmpl.semantics.dynamic.Import.getParser(ctx.getEvaluator(), (ModuleEnvironment) ctx.getCurrentEnvt().getRoot(), URIUtil.invalidLocation(), false);
-		Class<IGTD<IConstructor, ITree, ISourceLocation>> parserClass = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) parser.getClass();
+		@SuppressWarnings("unchecked")
+        Class<IGTD<IConstructor, ITree, ISourceLocation>> parserClass = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) parser.getClass();
 		
 		
 		try(OutputStream outStream = URIResolverRegistry.getInstance().getOutputStream(outFile, false)) {
@@ -3361,7 +3375,7 @@ public class Prelude {
 		}
 	}
 	
-	public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression){
+    public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression){
 		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
 			new BinaryValueWriter().write(value, out, compression.getValue());
 		}

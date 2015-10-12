@@ -3,6 +3,7 @@ module lang::rascal::tests::basic::ListRelations
 import List;
 import ListRelation;
 import IO;
+import Type;
 
 // Operators
 
@@ -77,7 +78,7 @@ test bool tst_complement(lrel[int, int] X) =
    
 test bool tst_domain(lrel[int, int] X) = 
    isEmpty(X) || 
-   all(<a, b> <- X, a in domain(X)) && all(c <- domain(X), any(<int x, int y> <- X, x == c));
+   all(<a, b> <- X, a in domain(X)) && all(c <- domain(X), any(<int x, int y> <- X, eq(x,c)));
    
 test bool tst_domainR(lrel[int, int] X) {
    s = sample(X);
@@ -91,13 +92,13 @@ test bool tst_domainX(lrel[int, int] X) {
    return isEmpty(XR) || all(<a, b> <- XR, a notin s);
 }
 
-test bool tst_ident(list[int] X) = isEmpty(X) || all(<a, b> <- ident(X), a == b, a in X);
+test bool tst_ident(list[int] X) = isEmpty(X) || all(<a, b> <- ident(X), eq(a,b), a in X);
 
 test bool tst_invert(lrel[int, int] X) = invert(invert(X)) == X;
 
 test bool tst_range(lrel[int, int] X) = 
    isEmpty(X) || 
-   all(<int a, int b> <- X, b in range(X)) && all(int c <- range(X), any(<int x, int y> <- X, y == c));
+   all(<int a, int b> <- X, b in range(X)) && all(int c <- range(X), any(<int x, int y> <- X, eq(y,c)));
    
 test bool tst_rangeR(lrel[int, int] X) {
    s = sample(X);

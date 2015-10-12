@@ -11,8 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.control_exceptions;
 
-import java.net.URI;
-
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.AbstractAST;
 

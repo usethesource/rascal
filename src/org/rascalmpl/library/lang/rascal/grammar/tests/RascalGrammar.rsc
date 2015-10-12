@@ -164,6 +164,6 @@ int generateAndTimeRascalParser() {
 	return (cpuTime() - t)/1000000;
 }	
 
-value main(list[value] args) = generateAndTimeRascalParser();
+value main() = generateAndTimeRascalParser();
 
 test bool tstgenerateRascalParser() = sameLines(generateRascalParser(), readFile(RascalParserLoc));

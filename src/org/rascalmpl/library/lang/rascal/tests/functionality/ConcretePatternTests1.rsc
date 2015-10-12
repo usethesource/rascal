@@ -158,7 +158,7 @@ test bool concreteMatchVisit() {
   return result == 3;
 }
 
-@ignoreInterpreter{While this should work, the fix is to large, and there are workarounds}
+@ignoreInterpreter{While this should work, the fix is too large, and there are workarounds}
 test bool concreteMatchVisitLayout() {
   result = false;
   visit ([start[XorY]] ".x.") {
@@ -316,7 +316,7 @@ test bool matchInsideSyntax()
 test bool matchInsideSyntax2()
     = /A2 _ := [AB2]"AABBAA";
 
-value main(list[value] args) = ["<x>" | F x <- ((Fs) `ffffff`).fs] ;
+value main() = ["<x>" | F x <- ((Fs) `ffffff`).fs] ;
  
 test bool optionalNotPresentIsFalse() = !((A)`a` <- ([OptTestGrammar] "b").a);
 test bool optionalPresentIsTrue() = (A)`a` <- ([OptTestGrammar] "ab").a;

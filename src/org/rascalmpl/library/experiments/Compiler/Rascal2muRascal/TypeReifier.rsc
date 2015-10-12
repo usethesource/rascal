@@ -9,8 +9,6 @@ module experiments::Compiler::Rascal2muRascal::TypeReifier
  */
 
 import lang::rascal::types::CheckerConfig;
-//import lang::rascal::types::TestChecker;
-//import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
 
@@ -32,12 +30,16 @@ private set[Symbol] types = {};
 private rel[Symbol,Symbol] constructors = {};
 private rel[Symbol,Symbol] productions = {};
 private map[Symbol,Production] grammar = ();
-private map[Symbol,Production] fullGrammar = ();
+private map[Symbol,Production] cachedGrammar = ();
 private map[Symbol,Production] instantiatedGrammar = ();
 private set[Symbol] starts = {};
 private Symbol activeLayout = Symbol::\layouts("$default$");
 private rel[value,value] reachableTypes = {};
 private rel[Symbol,Symbol] reachableConcreteTypes = {};
+
+map[tuple[Symbol symbol, map[Symbol,Production] definitions], map[Symbol,Production]] reifyCache = ();
+
+private map[Symbol symbol, type[value] resType] symbolToValueCache = ();
 
 public void resetTypeReifier() {
     typeRel = {};
@@ -45,12 +47,14 @@ public void resetTypeReifier() {
     constructors = {};
     productions = {};
     grammar = ();
-    fullGrammar = ();
+    cachedGrammar = ();
     instantiatedGrammar = ();
     starts = {};
     activeLayout = Symbol::\layouts("$default$");
     reachableTypes = {};
     reachableConcreteTypes = {};
+    reifyCache = ();
+    symbolToValueCache = ();
 }
 
 // Extract common declaration info and save it for later use by
@@ -103,13 +107,15 @@ public void extractDeclarationInfo(Configuration config){
    	if(!isEmpty(activeLayouts)) {
    		activeLayout = getOneFrom(activeLayouts);
    	}
-    fullGrammar = getGrammar();
+    cachedGrammar = getGrammar1();
    	computeReachableTypesAndConstructors();
 }
 
 // Extract the declared grammar from a type checker configuration
 
-public map[Symbol,Production] getGrammar() {
+public map[Symbol,Production] getGrammar() = cachedGrammar;
+
+private map[Symbol,Production] getGrammar1() {
 	map[Symbol,Production] definitions =   
 		( nonterminal : \layouts(grammar[nonterminal]) | nonterminal <- grammar ) 
 		+ 
@@ -138,7 +144,7 @@ public map[Symbol,Production] getDefinitions() {
 public Production getLabeledProduction(str name, Symbol symbol){
 	//println("getLabeledProduction: <getGrammar()[symbol]>");
 	name = unescape(name);
-	visit(fullGrammar[symbol]){
+	visit(cachedGrammar[symbol]){
 		case p:prod(\label(name, symbol), _, _): return p;
 		case p:regular(\label(name, symbol)): return p;
 	};
@@ -190,7 +196,7 @@ bool isParameterFree(list[Symbol] symbols) = !(/\parameter(name, formals) := sym
 
 set[Symbol] getInstantiatedParameters(){
 	instantiated_params = {};
-	visit(fullGrammar){
+	visit(cachedGrammar){
 		case sym: \parameterized-sort(name, list[Symbol] args):
 			if( isParameterFree(args)) instantiated_params += sym; else fail;
 		case sym: \parameterized-lex(name, list[Symbol] args):
@@ -224,7 +230,7 @@ private map[Symbol, Production] instantiateAllParameterizedProductions(map[Symbo
 	for(Symbol lhs <- grammar){
 		if(\parameterized-sort(name, list[Symbol] parameters) := lhs){
 			for(Symbol ip <- instantiated_params, ip.name == name, size(ip.parameters) == size(parameters)){
-				iprod = instantiateParameterizedProduction(fullGrammar[lhs], ip.parameters);
+				iprod = instantiateParameterizedProduction(cachedGrammar[lhs], ip.parameters);
 				instantiated_productions[iprod.def] = iprod;
 			}
 		}
@@ -233,7 +239,7 @@ private map[Symbol, Production] instantiateAllParameterizedProductions(map[Symbo
 }
 
 private void computeReachableConcreteTypes(){
-	instantiatedGrammar = fullGrammar + instantiateAllParameterizedProductions(fullGrammar);
+	instantiatedGrammar = cachedGrammar + instantiateAllParameterizedProductions(cachedGrammar);
 	reachableConcreteTypes = {};
 	for(/Production p: prod(sym,args,attrs) := instantiatedGrammar){
 	    for(/Symbol s := args){
@@ -250,7 +256,7 @@ private void computeReachableConcreteTypes(){
 // - a set of patternTypes that occur in the patterns
 
 set[value] getReachableTypes(Symbol subjectType, set[str] consNames, set[Symbol] patternTypes, bool concreteMatch){
-	println("getReachableTypes: <subjectType>, <consNames>, <patternTypes>, <concreteMatch>");
+	//println("getReachableTypes: <subjectType>, <consNames>, <patternTypes>, <concreteMatch>");
 	
 	consNames = {unescape(name) | name <- consNames};
 	if(concreteMatch){
@@ -272,8 +278,8 @@ set[value] getReachableAbstractTypes(Symbol subjectType, set[str] consNames, set
 		//println("descent_into (abstract) [1]: {value()}");
 	   return {\value()};
 	}
-	println("desiredSubjectTypes = <desiredSubjectTypes>");
-	println("desiredTypes = <desiredTypes>");
+	//println("desiredSubjectTypes = <desiredSubjectTypes>");
+	//println("desiredTypes = <desiredTypes>");
 	prunedReachableTypes = reachableTypes ;
 	if(\value() notin desiredSubjectTypes){
 	    // if specific subject types are given, the reachability relation can be further pruned
@@ -318,7 +324,7 @@ set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNames, set
 	desiredSubjectTypes = { s | /Symbol s := subjectType};
 	desiredTypes = desiredPatternTypes;
 	
-	println("desiredPatternTypes = <desiredPatternTypes>");
+	//println("desiredPatternTypes = <desiredPatternTypes>");
 	
 	prunedReachableConcreteTypes = reachableConcreteTypes;
 	if(\value() notin desiredSubjectTypes){
@@ -360,7 +366,7 @@ set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNames, set
 	    descent_into += regular(itr);
 	    if(isAltOrSeq(s)) descent_into += regular(s);
 	}	
-	println("descent_into (concrete) [<size(descent_into)>]: "); for(s <- descent_into) println("\t<s>");
+	//println("descent_into (concrete) [<size(descent_into)>]: "); for(s <- descent_into) println("\t<s>");
 	return descent_into;
 }
 
@@ -377,8 +383,19 @@ bool isAltOrSeq(Symbol s) = alt(_) := s || seq(_) := s;
 //   prod(Symbol def, str cons, list[Symbol] symbols, set[Attr] attributes)
 //   to record the constructor name. Remove these as soon as possible.
 // - Consistent introduction of layout.
-	
+
+// symbolToValue1 is a caching wrapper around symbolToValue
+
 public type[value] symbolToValue(Symbol symbol) {
+    if(symbolToValueCache[symbol]?){
+        return symbolToValueCache[symbol];
+    }
+    res = symbolToValue1(symbol);
+    symbolToValueCache[symbol] = res;
+    return res;
+}
+
+private type[value] symbolToValue1(Symbol symbol) {
    	
 	// Recursively collect all the type definitions associated with a given symbol
 	
@@ -407,50 +424,61 @@ public type[value] symbolToValue(Symbol symbol) {
  	return type(symbol, definitions); 
 }
 
+public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions){
+    tuple[Symbol symbol, map[Symbol,Production] definitions] tup = <symbol, definitions>;
+    
+    if(reifyCache[tup]?){
+       return reifyCache[tup];
+    }
+    map[Symbol, Production] result = reify1(symbol, definitions);
+    reifyCache[tup] = result;
+    return result;
+}
+
 // primitive
-public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) 
+private map[Symbol,Production] reify1(Symbol symbol, map[Symbol,Production] definitions) 
 	= definitions when isIntType(symbol) || isBoolType(symbol) || isRealType(symbol) || isRatType(symbol) ||
 					   isStrType(symbol) || isNumType(symbol) || isNodeType(symbol) || isVoidType(symbol) ||
 					   isValueType(symbol) || isLocType(symbol) || isDateTimeType(symbol);
 					   
 // labeled					   
-public map[Symbol,Production] reify(Symbol::\label(str name, Symbol symbol), map[Symbol,Production] definitions)
-	= reify(symbol, definitions);
+private map[Symbol,Production] reify1(Symbol::\label(str name, Symbol symbol), map[Symbol,Production] definitions)
+	= reify1(symbol, definitions);
 	
 // set
-public map[Symbol,Production] reify(Symbol::\set(Symbol symbol), map[Symbol,Production] definitions)
-	= reify(symbol, definitions);
+private map[Symbol,Production] reify1(Symbol::\set(Symbol symbol), map[Symbol,Production] definitions)
+	= reify1(symbol, definitions);
 	
 // rel
-public map[Symbol,Production] reify(Symbol::\rel(list[Symbol] symbols), map[Symbol,Production] definitions)
-	= ( definitions | reify(sym, it) | sym <- symbols );
+private map[Symbol,Production] reify1(Symbol::\rel(list[Symbol] symbols), map[Symbol,Production] definitions)
+	= ( definitions | reify1(sym, it) | sym <- symbols );
 	
 // list
-public map[Symbol,Production] reify(Symbol::\list(Symbol symbol), map[Symbol,Production] definitions)
-	= reify(symbol, definitions);
+private map[Symbol,Production] reify1(Symbol::\list(Symbol symbol), map[Symbol,Production] definitions)
+	= reify1(symbol, definitions);
 	
 // lrel
-public map[Symbol,Production] reify(Symbol::\lrel(list[Symbol] symbols), map[Symbol,Production] definitions)
-	= ( definitions | reify(sym, it) | sym <- symbols );
+private map[Symbol,Production] reify1(Symbol::\lrel(list[Symbol] symbols), map[Symbol,Production] definitions)
+	= ( definitions | reify1(sym, it) | sym <- symbols );
 	
 // bag
-public map[Symbol,Production] reify(Symbol::\bag(Symbol symbol), map[Symbol,Production] definitions)
-	= reify(symbol, definitions);
+private map[Symbol,Production] reify1(Symbol::\bag(Symbol symbol), map[Symbol,Production] definitions)
+	= reify1(symbol, definitions);
 	
 // tuple
-public map[Symbol,Production] reify(Symbol::\tuple(list[Symbol] symbols), map[Symbol,Production] definitions)
-	= ( definitions | reify(sym, it) | sym <- symbols );
+private map[Symbol,Production] reify1(Symbol::\tuple(list[Symbol] symbols), map[Symbol,Production] definitions)
+	= ( definitions | reify1(sym, it) | sym <- symbols );
 	
 // map
-public map[Symbol,Production] reify(Symbol::\map(Symbol from, Symbol to), map[Symbol,Production] definitions)
-	= reify(from, definitions) + reify(to, definitions);
+private map[Symbol,Production] reify1(Symbol::\map(Symbol from, Symbol to), map[Symbol,Production] definitions)
+	= reify1(from, definitions) + reify1(to, definitions);
 
 
 
 // adt
-public map[Symbol,Production] reify(Symbol::\adt(str name, list[Symbol] symbols), map[Symbol,Production] definitions) {
+private map[Symbol,Production] reify1(Symbol::\adt(str name, list[Symbol] symbols), map[Symbol,Production] definitions) {
 	set[Symbol] defs = typeRel[name];
-	//println("reify adt: <name>, <symbols>, <defs>, <constructors>");
+	//println("reify1 adt: <name>, <symbols>, <defs>, <constructors>");
 
     for(Symbol s <- defs){
 	   if(adtDef: Symbol::\adt(name,_) := s){
@@ -458,10 +486,10 @@ public map[Symbol,Production] reify(Symbol::\adt(str name, list[Symbol] symbols)
           if(!definitions[adtDef]?) {
         	 alts = { sym2prod(sym) | sym <- constructors[adtDef] };
         	 definitions[adtDef] = Production::\choice(adtDef, alts);
-        	 definitions = ( definitions | reify(sym, it) | sym <- constructors[adtDef] );
+        	 definitions = ( definitions | reify1(sym, it) | sym <- constructors[adtDef] );
           }
-          definitions = ( definitions | reify(sym, it) | sym <- symbols );
-          //println("reify adt <name> =\> <definitions>");
+          definitions = ( definitions | reify1(sym, it) | sym <- symbols );
+          //println("reify1 adt <name> =\> <definitions>");
           return definitions;
        }
     }
@@ -469,48 +497,48 @@ public map[Symbol,Production] reify(Symbol::\adt(str name, list[Symbol] symbols)
 }
 
 // constructors
-public map[Symbol,Production] reify(Symbol::\cons(Symbol \adt, str name, list[Symbol] parameters), map[Symbol,Production] definitions)
+private map[Symbol,Production] reify1(Symbol::\cons(Symbol \adt, str name, list[Symbol] parameters), map[Symbol,Production] definitions)
 	// adt has been already added to the definitions
-	= ( definitions | reify(sym, it) | sym <- parameters );
+	= ( definitions | reify1(sym, it) | sym <- parameters );
 	
 // alias
-public map[Symbol,Production] reify(Symbol::\alias(str name, list[Symbol] parameters, Symbol aliased), map[Symbol,Production] definitions) {
-    //println("reify alias: <name>, <aliased>");
-	definitions = reify(aliased, definitions);
-	definitions = ( definitions | reify(sym, it) | sym <- parameters );
+private map[Symbol,Production] reify1(Symbol::\alias(str name, list[Symbol] parameters, Symbol aliased), map[Symbol,Production] definitions) {
+    //println("reify1 alias: <name>, <aliased>");
+	definitions = reify1(aliased, definitions);
+	definitions = ( definitions | reify1(sym, it) | sym <- parameters );
 	return definitions;
 }
 
 // function
-public map[Symbol,Production] reify(Symbol::\func(Symbol ret, list[Symbol] parameters), map[Symbol,Production] definitions) {
-    //println("reify function: <ret>, <parameters>, <definitions>");
-	definitions = reify(ret, definitions);
-	definitions = ( definitions | reify(sym, it) | Symbol sym <- parameters );
+private map[Symbol,Production] reify1(Symbol::\func(Symbol ret, list[Symbol] parameters), map[Symbol,Production] definitions) {
+    //println("reify1 function: <ret>, <parameters>, <definitions>");
+	definitions = reify1(ret, definitions);
+	definitions = ( definitions | reify1(sym, it) | Symbol sym <- parameters );
 	return definitions;
 }
 
 // function with varargs
-public map[Symbol,Production] reify(Symbol::\var-func(Symbol ret, list[Symbol] parameters, Symbol varArg), map[Symbol,Production] definitions) {
+private map[Symbol,Production] reify1(Symbol::\var-func(Symbol ret, list[Symbol] parameters, Symbol varArg), map[Symbol,Production] definitions) {
     
-	definitions = reify(ret, definitions);
-	definitions = ( definitions | reify(sym, it) | sym <- parameters );
-	definitions = reify(varArg, definitions);
+	definitions = reify1(ret, definitions);
+	definitions = ( definitions | reify1(sym, it) | sym <- parameters );
+	definitions = reify1(varArg, definitions);
 	return definitions;
 }
 
 // reified
-public map[Symbol,Production] reify(Symbol::\reified(Symbol ret), map[Symbol,Production] definitions) 
-	= reify(ret, definitions);
+private map[Symbol,Production] reify1(Symbol::\reified(Symbol ret), map[Symbol,Production] definitions) 
+	= reify1(ret, definitions);
 	
 // parameter
-public map[Symbol,Production] reify(Symbol::\parameter(str name, Symbol bound), map[Symbol,Production] definitions)
-	= reify(bound, definitions);
+private map[Symbol,Production] reify1(Symbol::\parameter(str name, Symbol bound), map[Symbol,Production] definitions)
+	= reify1(bound, definitions);
 	
 // sort, lex
-public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) 
+private map[Symbol,Production] reify1(Symbol symbol, map[Symbol,Production] definitions) 
 	= { 
 	    set[Symbol] defs = typeRel[name];
-		//println("reify: symbol-<symbol>, name=<name>"); 
+		//println("reify1: symbol-<symbol>, name=<name>"); 
 		//assert !(Symbol::\adt(name,_) := nonterminal);
 		for(Symbol nonterminal <- defs){
 		    if(Symbol::\adt(name,_) !:= nonterminal){
@@ -530,7 +558,7 @@ public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] defini
 			      }
 			     //println("Productions[nonterminal]: <productions[nonterminal]>");
 			     //println("Domain(grammar): <domain(grammar)>");
-			    definitions = ( definitions | reify(sym, it) | sym <- productions[nonterminal] );
+			    definitions = ( definitions | reify1(sym, it) | sym <- productions[nonterminal] );
 		     }
 		     return definitions;
 		  }
@@ -540,7 +568,7 @@ public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] defini
 	  		 (Symbol::\layouts(str name) := symbol && name != "$default$") || Symbol::\keywords(str name) := symbol;
 
 // parameterized-sort, parameterized-lex  
-public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) 
+private map[Symbol,Production] reify1(Symbol symbol, map[Symbol,Production] definitions) 
 	= { 
 	    set[Symbol] defs = typeRel[name];
 		//assert !(Symbol::\adt(name,_) := nonterminal);
@@ -554,43 +582,43 @@ public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] defini
 			      }
 			      //println("Productions[nonterminal]: <productions[nonterminal]>");
 			     //println("Domain(grammar): <domain(grammar)>");
-			     definitions = ( definitions | reify(sym, it) | sym <- productions[nonterminal] );
+			     definitions = ( definitions | reify1(sym, it) | sym <- productions[nonterminal] );
 		      }
-		      definitions = ( definitions | reify(sym, it) | sym <- parameters );
+		      definitions = ( definitions | reify1(sym, it) | sym <- parameters );
 		       return definitions;
 		   }
 		}
 		throw "No definition for symbol <name>";
 	  } when Symbol::\parameterized-sort(str name, list[Symbol] parameters) := symbol || Symbol::\parameterized-lex(str name, list[Symbol] parameters) := symbol;
 
-public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions)
-	= reify(sym, definitions)
+private map[Symbol,Production] reify1(Symbol symbol, map[Symbol,Production] definitions)
+	= reify1(sym, definitions)
 		when Symbol::\start(Symbol sym) := symbol || Symbol::\opt(Symbol sym) := symbol || Symbol::\iter(Symbol sym) := symbol ||
 			 Symbol::\iter-star(Symbol sym) := symbol || Symbol::\iter-seps(Symbol sym, _) := symbol ||
 			 Symbol::\iter-star-seps(Symbol sym, list[Symbol] _) := symbol;
 
-public map[Symbol,Production] reify(Symbol::\alt(set[Symbol] alternatives), map[Symbol,Production] definitions)
-	= ( definitions | reify(sym, it) | sym <- alternatives );
+private map[Symbol,Production] reify1(Symbol::\alt(set[Symbol] alternatives), map[Symbol,Production] definitions)
+	= ( definitions | reify1(sym, it) | sym <- alternatives );
 
-public map[Symbol,Production] reify(Symbol::\seq(list[Symbol] symbols), map[Symbol,Production] definitions)
-	= ( definitions | reify(sym, it) | sym <- symbols );
+private map[Symbol,Production] reify1(Symbol::\seq(list[Symbol] symbols), map[Symbol,Production] definitions)
+	= ( definitions | reify1(sym, it) | sym <- symbols );
 
-public map[Symbol,Production] reify(Symbol::\conditional(Symbol symbol, set[Condition] conditions), map[Symbol,Production] definitions)
-	= reify(symbol, definitions) + ( definitions | reify(cond, it) | cond <- conditions );
+private map[Symbol,Production] reify1(Symbol::\conditional(Symbol symbol, set[Condition] conditions), map[Symbol,Production] definitions)
+	= reify1(symbol, definitions) + ( definitions | reify1(cond, it) | cond <- conditions );
 	
-public map[Symbol,Production] reify(Symbol::\prod(Symbol \sort, str name, list[Symbol] parameters, set[Attr] _), map[Symbol,Production] definitions)
+private map[Symbol,Production] reify1(Symbol::\prod(Symbol \sort, str name, list[Symbol] parameters, set[Attr] _), map[Symbol,Production] definitions)
 	// sort has been already added to the definitions
-	= ( definitions | reify(sym, it) | sym <- parameters );
+	= ( definitions | reify1(sym, it) | sym <- parameters );
 	
-public map[Symbol,Production] reify(Condition cond, map[Symbol,Production] definitions)
-	= reify(symbol, definitions)
+private map[Symbol,Production] reify1(Condition cond, map[Symbol,Production] definitions)
+	= reify1(symbol, definitions)
 		when Condition::\follow(Symbol symbol) := cond || Condition::\not-follow(Symbol symbol) := cond ||
 			 Condition::\precede(Symbol symbol) := cond || Condition::\not-precede(Symbol symbol) := cond ||
 			 Condition::\delete(Symbol symbol) := cond;
 			 
-public map[Symbol,Production] reify(Condition cond, map[Symbol,Production] definitions) = definitions;
+private map[Symbol,Production] reify1(Condition cond, map[Symbol,Production] definitions) = definitions;
 		   
-public default map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions) = definitions;
+private default map[Symbol,Production] reify1(Symbol symbol, map[Symbol,Production] definitions) = definitions;
 
 private Production sym2prod(Symbol::\cons(Symbol \type, str name, list[Symbol] parameters)) 
 	= Production::\cons(Symbol::label(name, \type), parameters, [], /*(),*/ {}) 

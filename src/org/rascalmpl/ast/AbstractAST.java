@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -33,6 +34,7 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
@@ -206,5 +208,16 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	 */
 	public boolean isBreakable() {
 		return false;
+	}
+	
+	public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+	    __eval.warning("INTERNAL WARNING: generic implementation of isDefined triggered", getLocation());
+	    try {
+	        interpret(__eval);
+	        return ResultFactory.makeResult(TF.boolType(), VF.bool(true), __eval);
+	    }
+	    catch (Throw e) {
+	        return ResultFactory.makeResult(TF.boolType(), VF.bool(false), __eval);
+	    }
 	}
 }

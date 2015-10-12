@@ -242,9 +242,32 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 
 		for (IMatchingResult v : keywordParameters.values()) {
-			res.addAll(v.getVariables());
+		    res.addAll(v.getVariables());
 		}
-
+		
+		if (res.isEmpty()) {
+		    // nodes may have ignorable keyword parameters which we simulate here
+		    // by adding a dummy variable to indicate this pattern is not constant. The reason
+		    // is other containing patterns may treat a constructor without parameters as
+		    // constant and simulate matching with isEqual otherwise.
+		    res.add(new IVarPattern() {
+                @Override
+                public String name() {
+                    return "_";
+                }
+                
+                @Override
+                public boolean isVarIntroducing() {
+                    return false;
+                }
+                
+                @Override
+                public Type getType() {
+                    return tf.voidType();
+                }
+            });
+		}
+		
 		return res;
 	}
 
@@ -320,7 +343,7 @@ public class NodePattern extends AbstractMatchingResult {
 		if(n == 1){
 			return Names.fullName(qName) + "()";
 		}
-		StringBuilder res = new StringBuilder(Names.fullName(qName));
+		StringBuilder res = new StringBuilder(qName != null ? Names.fullName(qName) : namePattern.toString());
 		res.append("(");
 		String sep = "";
 

@@ -27,7 +27,6 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ICallableCompiledValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -68,6 +67,28 @@ public class PreludeCompiled extends Prelude {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
+    public INode delAnnotations(INode node, RascalExecutionContext ctx) {
+        if (node.isAnnotatable()) {
+            return node.asAnnotatable().removeAnnotations();
+        }
+        else {
+            ctx.getStdErr().println("Trying to remove annotations from a node which has keyword parameters.");
+            return node;
+        }
+    }
+    
+    @SuppressWarnings("deprecation")
+    public INode delAnnotation(INode node, IString label, RascalExecutionContext ctx) {
+        if (node.isAnnotatable()) {
+            return node.asAnnotatable().removeAnnotation(label.getValue());
+        }
+        else {
+            ctx.getStdErr().println("Trying to remove annotations from a node which has keyword parameters.");
+            return node;
+        }
+    }
+    
 	public void iprint(IValue arg, RascalExecutionContext rex){
 		StandardTextWriter w = new StandardTextWriter(true, 2);
 		
@@ -266,12 +287,12 @@ public class PreludeCompiled extends Prelude {
 	
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input);
 	public IValue parse(IValue start, ISourceLocation input, RascalExecutionContext rex) {
-		return RascalPrimitive.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null);
+		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null);
 	}
 
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin);
 	public IValue parse(IValue start, IString input, RascalExecutionContext rex) {
-		return RascalPrimitive.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null);
+		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null);
 	}
 	
 	private TypeStore typeStore = new TypeStore();

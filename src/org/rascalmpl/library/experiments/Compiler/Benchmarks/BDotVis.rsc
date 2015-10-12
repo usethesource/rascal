@@ -92,7 +92,7 @@ public Figure dot2fig(DotGraph g) {
     return graph(nodes, edges, size(800),vgap(40), hgap(40), hint("layered"));
 }
     
-public value main(list[value] args) {
+public value main() {
      ConceptLattice[str, str] cl = fca(readCxt(|std:///experiments/Compiler/Benchmarks/fca/examples/FCxt2.cxt|));
      DotGraph gr = toDot(cl);
      Figure g = dot2fig(gr);

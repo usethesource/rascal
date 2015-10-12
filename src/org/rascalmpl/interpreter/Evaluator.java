@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,7 +48,6 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -64,9 +63,9 @@ import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.debug.AbstractInterpreterEventTrigger;
+import org.rascalmpl.debug.IRascalFrame;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.debug.IRascalRuntimeInspection;
-import org.rascalmpl.debug.IRascalFrame;
 import org.rascalmpl.debug.IRascalSuspendTrigger;
 import org.rascalmpl.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -109,64 +108,25 @@ import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
-import org.rascalmpl.uri.CWDURIResolver;
-import org.rascalmpl.uri.ClassResourceInput;
-import org.rascalmpl.uri.CompressedStreamResolver;
-import org.rascalmpl.uri.FileURIResolver;
-import org.rascalmpl.uri.HomeURIResolver;
-import org.rascalmpl.uri.HttpURIResolver;
-import org.rascalmpl.uri.HttpsURIResolver;
-import org.rascalmpl.uri.JarURIResolver;
-import org.rascalmpl.uri.TempURIResolver;
+import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger, IRascalRuntimeInspection {
-	private static final class CourseResolver extends FileURIResolver {
-		private final String courseSrc;
-
-		private CourseResolver(String courseSrc) {
-			this.courseSrc = courseSrc;
-		}
-
-		@Override
-		public String scheme() {
-		  return "courses";
-		}
-
-		@Override
-		protected String getPath(ISourceLocation uri) {
-		  String path = uri.getPath();
-		  return courseSrc + (path.startsWith("/") ? path : ("/" + path));
-		}
-	}
-
-	private static final class TestModuleResolver extends TempURIResolver {
-		@Override
-		public String scheme() {
-		  return "test-modules";
-		}
-
-		@Override
-		protected String getPath(ISourceLocation uri) {
-		  String path = uri.getPath();
-		  path = path.startsWith("/") ? "/test-modules" + path : "/test-modules/" + path;
-		  return System.getProperty("java.io.tmpdir") + path;
-		}
-	}
-
+	
+	
 	private final IValueFactory vf; // sharable
 	private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
-	protected Environment currentEnvt; // not sharable
+	protected volatile Environment currentEnvt; // not sharable
  
 	private final GlobalEnvironment heap; // shareable if frozen
 	private final Configuration config = new Configuration();
 	/**
 	 * True if an interrupt has been signalled and we should abort execution
 	 */
-	private boolean interrupt = false;
+	private volatile boolean interrupt = false;
 
 	private final JavaBridge javaBridge; // TODO: sharable if synchronized
 
@@ -223,7 +183,16 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private final URIResolverRegistry resolverRegistry; // sharable
 
 	private final Map<IConstructorDeclared,Object> constructorDeclaredListeners; // TODO: can this be shared?
-	private static final Object dummy = new Object();	
+ 	private static final Object dummy = new Object();	
+    private RascalInterpreterREPL repl = null;
+	
+	public void setREPL(RascalInterpreterREPL repl) {
+	    this.repl = repl;
+	}
+	@Override
+	public RascalInterpreterREPL getREPL() {
+	    return repl;
+	}
 	
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
 		this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
@@ -256,58 +225,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			throw new NullPointerException();
 		}
 		
-		// register some schemes
-		FileURIResolver files = new FileURIResolver();
-		resolverRegistry.registerInputOutput(files);
-
-		HttpURIResolver http = new HttpURIResolver();
-		resolverRegistry.registerInput(http);
-		
-		//added
-		HttpsURIResolver https = new HttpsURIResolver();
-		resolverRegistry.registerInput(https);
-
-		CWDURIResolver cwd = new CWDURIResolver();
-		resolverRegistry.registerLogical(cwd);
-
-		ClassResourceInput library = new ClassResourceInput("std", getClass(), "/org/rascalmpl/library");
-		resolverRegistry.registerInput(library);
-
-		ClassResourceInput testdata = new ClassResourceInput("testdata", getClass(), "/org/rascalmpl/test/data");
-		resolverRegistry.registerInput(testdata);
-		
-		ClassResourceInput benchmarkdata = new ClassResourceInput("benchmarks", getClass(), "/org/rascalmpl/benchmark");
-		resolverRegistry.registerInput(benchmarkdata);
-		
-		resolverRegistry.registerInput(new JarURIResolver());
-
-		resolverRegistry.registerLogical(new HomeURIResolver());
-		resolverRegistry.registerInputOutput(new TempURIResolver());
-		
-		resolverRegistry.registerInputOutput(new CompressedStreamResolver(resolverRegistry));
-		
-		// here we have code that makes sure that courses can be edited by
-		// maintainers of Rascal, using the -Drascal.courses=/path/to/courses property.
-		final String courseSrc = System.getProperty("rascal.courses");
-		if (courseSrc != null) {
-		   FileURIResolver fileURIResolver = new CourseResolver(courseSrc);
-		  
-		  resolverRegistry.registerInputOutput(fileURIResolver);
-		}
-		else {
-		  resolverRegistry.registerInput(new ClassResourceInput("courses", getClass(), "/org/rascalmpl/courses"));
-		}
-	
-		FileURIResolver testModuleResolver = new TestModuleResolver();
-		  
-		  resolverRegistry.registerInputOutput(testModuleResolver);
-		  addRascalSearchPath(URIUtil.rootLocation("test-modules"));
-		  
-		  ClassResourceInput tutor = new ClassResourceInput("tutor", getClass(), "/org/rascalmpl/tutor");
-		  resolverRegistry.registerInput(tutor);
-
-		  // default event trigger to swallow events
-		  setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
+		// default event trigger to swallow events
+		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
 	}
 
 	private Evaluator(Evaluator source, ModuleEnvironment scope) {
@@ -1690,13 +1609,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	public TraversalEvaluator __popTraversalEvaluator() {
 		return teStack.pop();
 	}
-	public Collection<String> completePartialIdentifier(String partialIdentifier) {
-		if (partialIdentifier == null || partialIdentifier.isEmpty()) {
-			throw new IllegalArgumentException("The behavior with empty string is undefined.");
-		}
+	@Override
+	public Collection<String> completePartialIdentifier(String qualifier, String partialIdentifier) {
 		if (partialIdentifier.startsWith("\\")) {
 			partialIdentifier = partialIdentifier.substring(1);
 		}
+		String partialModuleName = qualifier + "::" + partialIdentifier;
 		SortedSet<String> result = new TreeSet<>(new Comparator<String>() {
 			@Override
 			public int compare(String a, String b) {
@@ -1716,35 +1634,47 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 		for (ModuleEnvironment env: todo) {
 			for (Pair<String, List<AbstractFunction>> p : env.getFunctions()) {
-				addIt(result, p.getFirst(), partialIdentifier);
+			    for (AbstractFunction f : p.getSecond()) {
+			        String module = ((ModuleEnvironment)f.getEnv()).getName();
+			        if (module.startsWith(qualifier)) {
+			            addIt(result, p.getFirst(), qualifier.isEmpty() ? "" : module, module.startsWith(partialModuleName) ? "" : partialIdentifier);
+			        }
+			    }
 			}
-			for (String v : env.getVariables().keySet()) {
-				addIt(result, v, partialIdentifier);
-			}
-			for (IValue key: env.getSyntaxDefinition()) {
-				addIt(result, ((IString)key).getValue(), partialIdentifier);
-			}
-			for (Type t: env.getAbstractDatatypes()) {
-				addIt(result, t.getName(), partialIdentifier);
-			}
-			for (Type t: env.getAliases()) {
-				addIt(result, t.getName(), partialIdentifier);
-			}
-			Map<Type, Map<String, Type>> annos = env.getAnnotations();
-			for (Type t: annos.keySet()) {
-				for (String k: annos.get(t).keySet()) {
-					addIt(result, k, partialIdentifier);
-				}
-			}
+		    boolean inQualifiedModule = env.getName().equals(qualifier) || qualifier.isEmpty();
+            if (inQualifiedModule) {
+		        for (String v : env.getVariables().keySet()) {
+			        addIt(result, v, qualifier, partialIdentifier);
+			    }
+		        for (Type t: env.getAbstractDatatypes()) {
+		            if (inQualifiedModule) {
+		                addIt(result, t.getName(), qualifier, partialIdentifier);
+		            }
+		        }
+		        for (Type t: env.getAliases()) {
+		            addIt(result, t.getName(), qualifier, partialIdentifier);
+		        }
+		    }
+            if (qualifier.isEmpty()) {
+                Map<Type, Map<String, Type>> annos = env.getAnnotations();
+                for (Type t: annos.keySet()) {
+                    for (String k: annos.get(t).keySet()) {
+                        addIt(result, k, "", partialIdentifier);
+                    }
+                }
+            }
 		}
 
 		return result;
 	}
 
-	private static void addIt(SortedSet<String> result, String v, String originalTerm) {
+	private static void addIt(SortedSet<String> result, String v, String qualifier, String originalTerm) {
 		if (v.startsWith(originalTerm) && !v.equals(originalTerm)) {
 			if (v.contains("-")) {
 				v = "\\" + v;
+			}
+			if (!qualifier.isEmpty() && !v.startsWith(qualifier)) {
+			    v = qualifier + "::" + v;
 			}
 			result.add(v);
 		}

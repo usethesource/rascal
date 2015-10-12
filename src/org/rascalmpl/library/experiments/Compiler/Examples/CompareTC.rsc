@@ -31,7 +31,7 @@ public set[Message] checkModule(loc moduleLoc) {
 	return c.messages;
 }
 
-value main(list[value] args){
+value main(){
 	
 	m = |std:///lang/rascal/types/CheckerConfig.rsc|;
 	return checkModule(m);

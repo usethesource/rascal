@@ -7,8 +7,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -17,12 +17,15 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NameCompleter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMLinked;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
@@ -36,30 +39,29 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-public class Executor {
+public class CommandExecutor {
 	
 	private PrintWriter stdout;
 	private PrintWriter stderr;
 	private final IValueFactory vf;
-	private ISourceLocation executeBinaryLocation;
+	private ISourceLocation compilerBinaryLocation;
 	private ISourceLocation consoleInputLocation;
-	private final RVMLinked rvmExecutable;
-	private RVMLinked rvmConsoleExecutable;
+	private final RVMExecutable rvmCompilerExecutable;
+	private RVMExecutable rvmConsoleExecutable;
+	private RVMExecutable lastRvmConsoleExecutable;
 	private final Prelude prelude;
 	private final ExecuteProgram execute;
-	private final RascalExecutionContext rex;
-	private RVM rvm;
+	private RVM rvmCompiler;
+	private final Function compileAndLink;
 	
-	IBool debug;
-	IBool testsuite;
-	IBool profile;
-	IBool trackCalls;
-	IBool coverage;
-	IBool useJVM;
-	IBool verbose;
-	IBool serialize;
-	private final String executeFunId;
-	private final IValue[] executeArgs;
+	boolean debug;
+	boolean testsuite;
+	boolean profile;
+	boolean trackCalls;
+	boolean coverage;
+	boolean useJVM;
+	boolean verbose;
+	boolean serialize;
 	
 	private ArrayList<String> imports;
 	private ArrayList<String> syntaxDefinitions;
@@ -68,31 +70,31 @@ public class Executor {
 	private HashMap<String, Variable> variables = new HashMap<String, Variable>();
 	
 	private final String shellModuleName = "CompiledRascalShell";
-	private ISourceLocation consoleInputLinked;
+
+	private IValue[] compileArgs;
 	
-	public Executor(PrintWriter stdout, PrintWriter stderr) {
+	public CommandExecutor(PrintWriter stdout, PrintWriter stderr) {
 		this.stdout = stdout;
 		this.stderr = stderr; 
 		vf = ValueFactoryFactory.getValueFactory();
 		prelude = new Prelude(vf);
 		execute = new ExecuteProgram(vf);
 		try {
-			executeBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/experiments/Compiler/Execute.rvm.ser.gz");
-			consoleInputLocation = vf.sourceLocation("home", "", "ConsoleInput.rsc");
-			consoleInputLinked = vf.sourceLocation("compressed+home", "", "/bin/rascal/ConsoleInput.rvm.ser.gz");
+			compilerBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/experiments/Compiler/Execute.rvm.ser.gz");
+			consoleInputLocation = vf.sourceLocation("test-modules", "", "/ConsoleInput.rsc");
 			
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException("Cannot initialize: " + e.getMessage());
 		}
-		debug = vf.bool(false);
-		testsuite = vf.bool(false);
-		profile = vf.bool(false);
-		trackCalls = vf.bool(false);
-		coverage = vf.bool(false);
-		useJVM = vf.bool(false);
-		verbose = vf.bool(false);
-		serialize = vf.bool(true);
+		debug = false;
+		testsuite = false;
+		profile = false;
+		trackCalls = false;
+		coverage = false;
+		useJVM = false;
+		verbose = false;
+		
+		serialize = false;
 		
 		IMapWriter w = vf.mapWriter();
 		w.put(vf.string("bootstrapParser"), vf.string(""));
@@ -102,36 +104,32 @@ public class Executor {
 		w.put(vf.string(shellModuleName), CompiledRascalShellModuleTags);
 		IMap moduleTags = w.done();
 		
-		rex = new RascalExecutionContext(vf,stdout,stderr, moduleTags, null, null, false, false, false, false, false, false, null);
+		RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, false, false, true, false, false, false, null, null);
 		rex.setCurrentModuleName(shellModuleName);
-		rvmExecutable = RVMLinked.read(executeBinaryLocation);
-		rvm = execute.initializedRVM(rvmExecutable, rex);
-		RascalPrimitive.init(rvm, rex);
+		rvmCompilerExecutable = RVMExecutable.read(compilerBinaryLocation);
+		rvmCompiler = execute.initializedRVM(rvmCompilerExecutable, rex);
 		
-		executeFunId = "experiments::Compiler::Execute/execute(\\loc();list(value());)#334";
-		executeArgs = new IValue[] {consoleInputLocation, vf.list()};
+		TypeFactory tf = TypeFactory.getInstance();
+		compileAndLink = rvmCompiler.getFunction("compileAndLink", tf.abstractDataType(new TypeStore(), "RVMProgram"), tf.tupleType(tf.sourceLocationType()));
+		if(compileAndLink == null){
+			throw new RuntimeException("Cannot find compileAndLink function");
+		}
+		compileArgs = new IValue[] {consoleInputLocation};
 		
 		imports = new ArrayList<String>();
 		syntaxDefinitions = new ArrayList<String>();
 		declarations = new ArrayList<String>();
 	}
 	
-	private IMap makeKwParams(){
-		IMapWriter w = vf.mapWriter();
-		w.put(vf.string("debug"), debug);
-		w.put(vf.string("testsuite"), testsuite);
-		w.put(vf.string("profile"), profile);
-		w.put(vf.string("trackCalls"), trackCalls);
-		w.put(vf.string("coverage"), coverage);
-		w.put(vf.string("useJVM"), useJVM);
-		w.put(vf.string("verbose"), verbose);
-		w.put(vf.string("serialize"), serialize);
-		return w.done();
+	private Map<String, IValue> makeCompileKwParams(){
+		HashMap<String, IValue> w = new HashMap<>();
+		w.put("verbose", vf.bool(false));
+		return w;
 	}
 	
 	IValue executeModule(String main){
 		StringWriter w = new StringWriter();
-		w.append("@bootstrapParser module TMP\n");
+		w.append("@bootstrapParser module ConsoleInput\n");
 		for(String imp : imports){
 			w.append("import ").append(imp).append(";\n");
 		}
@@ -147,12 +145,22 @@ public class Executor {
 		}
 		w.append(main);
 		String modString = w.toString();
-		//stdout.println(modString);
-		prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
-		
-		IValue val = rvm.executeFunction(executeFunId, executeArgs, makeKwParams());
-		rvmConsoleExecutable = RVMLinked.read(consoleInputLinked);
-		return val;
+		try {
+			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
+			IConstructor consoleRVMProgram = (IConstructor) rvmCompiler.executeFunction(compileAndLink, compileArgs, makeCompileKwParams());
+			
+			rvmConsoleExecutable = execute.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(useJVM));
+			
+			RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, testsuite, profile, trackCalls, coverage, useJVM, null, null);
+			rex.setCurrentModuleName(shellModuleName);
+			IValue val = execute.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
+			lastRvmConsoleExecutable = rvmConsoleExecutable;
+			return val;
+		} catch (Exception e){
+			stderr.println(e.getMessage());
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	private boolean is(ITree tree, String consName){
@@ -221,7 +229,7 @@ public class Executor {
 	
 	public IValue evalExpression(String src, ITree exp){
 		try {
-			return executeModule("\nvalue main(list[value] args) = " + src + ";\n");
+			return executeModule("\nvalue main() = " + src + ";\n");
 		} catch (Thrown e){
 			return null;
 		}
@@ -255,7 +263,7 @@ public class Executor {
 		case "expression":
 			String innerExp = unparse(get(stat, "expression"));
 			try {
-				return executeModule("\nvalue main(list[value] args) = " + innerExp + ";\n");
+				return executeModule("\nvalue main() = " + innerExp + ";\n");
 			} catch (Exception e){
 				return null;
 			}
@@ -269,7 +277,7 @@ public class Executor {
 			if(name != null){
 				Variable var = variables.get(name);
 				if(var != null){
-					IValue val = executeModule("\nvalue main(list[value] args) { " + src + "}\n");
+					IValue val = executeModule("\nvalue main() { " + src + "}\n");
 					var.value = val.toString();
 					return val;
 				} else {
@@ -299,7 +307,7 @@ public class Executor {
 			}
 		}
 		
-		return executeModule("\nvalue main(list[value] args) = true;\n");
+		return executeModule("\nvalue main() = true;\n");
 	}
 	
 	public IValue evalImport(String src, ITree imp) throws FactTypeUseException, IOException{
@@ -310,7 +318,7 @@ public class Executor {
 			}
 			imports.add(impName);
 			try {
-				return executeModule("\nvalue main(list[value] args) = true;\n");
+				return executeModule("\nvalue main() = true;\n");
 			} catch (Exception e){
 				imports.remove(impName);
 				return null;
@@ -319,7 +327,7 @@ public class Executor {
 		if(is(imp, "syntax")){
 			syntaxDefinitions.add(src);
 			try {
-				return executeModule("\nvalue main(list[value] args) = true;\n");
+				return executeModule("\nvalue main() = true;\n");
 			} catch (Exception e){
 				syntaxDefinitions.remove(src);
 				return null;
@@ -344,7 +352,7 @@ public class Executor {
 				String initial = unparse(get(var, "initial"));
 				declareVar(unparse(type), name, initial);
 				try {
-					return executeModule("\nvalue main(list[value] args) = " + name + ";\n");
+					return executeModule("\nvalue main() = " + name + ";\n");
 				} catch (Exception e){
 					this.variables.remove(name);
 					return null;
@@ -357,7 +365,7 @@ public class Executor {
 		declarations.add(src);
 	
 		try {
-			return executeModule("\nvalue main(list[value] args) = true;\n");
+			return executeModule("\nvalue main() = true;\n");
 		} catch (Exception e){
 			declarations.remove(src);
 			return null;
@@ -390,48 +398,59 @@ public class Executor {
 			
 			switch(name){
 			case "profile": case "profiling":
-				profile =  vf.bool(getBooleanValue(val));
-				return report(name + " set to "  + profile.getValue());
+				profile =  getBooleanValue(val);
+				return report(name + " set to "  + profile);
 				
 			case "trace": case "tracing": case "trackCalls":
-				trackCalls = vf.bool(getBooleanValue(val));
-				return report(name + " set to "  + trackCalls.getValue());
+				trackCalls = getBooleanValue(val);
+				return report(name + " set to "  + trackCalls);
 				
 			case "coverage":
-				coverage = vf.bool(getBooleanValue(val));
-				return report(name + " set to "  + coverage.getValue());
+				coverage = getBooleanValue(val);
+				return report(name + " set to "  + coverage);
+				
+			case "debug":
+				debug = getBooleanValue(val);
+				return report(name + " set to "  + coverage);
+				
+			case "testsuite":
+				testsuite = getBooleanValue(val);
+				return report(name + " set to "  + coverage);
 				
 			default:
 				return report("Unrecognized option : " + name);
 			}
 	
 		case "help":
-			stdout.println("Welcome to the compiler-based Rascal command shell.");
+			stdout.println("Help for the compiler-based Rascal command shell.");
 			stdout.println();
-			stdout.println("Shell commands:");
-			stdout.println(":help                      Prints this message");
-			stdout.println(":quit or EOF               Quits the shell");
-			stdout.println(":declarations              Lists all visible rules, functions and variables");
-			stdout.println(":set <option> <expression> Sets an option");
-			stdout.println("e.g. profiling    true/false");
-			stdout.println("     tracing      true/false");
+			stdout.println("RascalShell commands:");
+			stdout.println("    :help                    Prints this message");
+			stdout.println("    :quit or EOF             Quits the shell");
+			stdout.println("    :declarations            Lists all declarations");
 			//stdout.println(":edit <modulename>         Opens an editor for that module");
-			stdout.println(":modules                   Lists all imported modules");
+			stdout.println("    :modules                 Lists all imported modules");
 			//stdout.println(":test                      Runs all unit tests currently loaded");
 			//stdout.println(":unimport <modulename>     Undo an import");
 			//stdout.println(":undeclare <name>          Undeclares a variable or function introduced in the shell");
 			//stdout.println(":history                   Print the command history");
-			stdout.println(":clear                     Clears the console");			
+			stdout.println("    :clear                   Clears the console");
+			stdout.println("    :set <option> <expr>     Sets a RascalShell option to value");
+			stdout.println("    e.g. :set profiling true");
+			stdout.println("         :set tracing false");
 			stdout.println();
-//			stdout.println("Example rascal statements and declarations:");
-//			stdout.println("1 + 1;                     Expressions simply print their stdoutput and type");
-//			stdout.println("int a;                     Declarations allocate a name in the current scope");
-//			stdout.println("a = 1;                     Assignments store a value in a (optionally previously declared) variable");
-//			stdout.println("int a = 1;                 Declaration with initialization");
-//			stdout.println("import IO;                 Importing a module makes its public members available");
-//			stdout.println("println(\"Hello World\")     Function calling");
-//			stdout.println();
-			stdout.println("Please read the manual for further information");
+			stdout.println("Keyboard essentials:");
+			stdout.println("    <UP>                     Previous command in history");
+			stdout.println("    <DOWN>                   Next command in history");
+			stdout.println("    <CTRL>r                  Backward search in history");
+			stdout.println("    <CTRL>s                  Forward search in history");
+			stdout.println("    <TAB>                    Complete previous word");
+			stdout.println("    <CTRL>a                  Move cursor to begin of line");
+			stdout.println("    <CTRL>e                  Move cursor to end of line");
+			stdout.println("    <CTRL>k                  Kill remainder of line after cursor");
+			stdout.println("    <CTRL>l                  Clear screen");
+			stdout.println();
+			stdout.println("Further help: XXX");
 			break;
 			
 		case "listDeclarations":
@@ -495,15 +514,9 @@ public class Executor {
 		return stdout;
 	}
 	
-	public Collection<String> completePartialIdentifier(String term) {
-		if(rvmConsoleExecutable != null){
-			NameCompleter completer = new NameCompleter();
-			String[] commandKeywords = {":set", "undeclare", ":help", ":unimport", 
-					":declarations", ":quit", ":test", ":modules", ":clear"};
-			for(String kw : commandKeywords){
-				completer.add(kw, term);
-			}
-			return rvmConsoleExecutable.completePartialIdentifier(completer, term).getResult();
+	public Collection<String> completePartialIdentifier(String qualifier, String term) {
+		if(lastRvmConsoleExecutable != null){
+			return lastRvmConsoleExecutable.completePartialIdentifier(new NameCompleter(), term).getResult();
 		}
 		return null;
 	}

@@ -1,6 +1,5 @@
 module experiments::Compiler::muRascal::Implode
 
-//import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
 import IO;
 import ValueIO;
@@ -8,9 +7,7 @@ import Set;
 import List;
 import String;
 import Type;
-//import ParseTree;
 import Map;
-//import Ambiguity;
 
 import experiments::Compiler::muRascal::MuBoolExp;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
@@ -31,7 +28,7 @@ private str nextLabel() {
   return "<nLabel>";
 }
 
-MuModule preprocess(experiments::Compiler::muRascal::AST::Module pmod){
+MuModule preprocess(experiments::Compiler::muRascal::AST::MuPreModule pmod){
    global_functions = {};
    vardefs = ();
    functions_in_module = [];
@@ -235,11 +232,13 @@ private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, i
   			   case muCall(preVar(mvar("get_children_and_keyword_mmap")), [exp1])			    => muCallMuPrim("get_children_and_keyword_mmap", [exp1])
 			   case muCall(preVar(mvar("get_name")), [exp1])									=> muCallMuPrim("get_name", [exp1])
 			   case muCall(preVar(mvar("get_name_and_children_and_keyword_mmap")), [exp1])		=> muCallMuPrim("get_name_and_children_and_keyword_mmap", [exp1])
+			   case muCall(preVar(mvar("get_name_and_children")), [exp1])                       => muCallMuPrim("get_name_and_children", [exp1])
 			   case muCall(preVar(mvar("get_children_and_keyword_values")), [exp1])				=> muCallMuPrim("get_children_and_keyword_values", [exp1])
 			   case muCall(preVar(mvar("get_keyword_mmap")), [exp1])							=> muCallMuPrim("get_keyword_mmap", [exp1])
 			   case muCall(preVar(mvar("make_keyword_mmap")), [exp1, exp2])					    => muCallMuPrim("make_keyword_mmap", [exp1, exp2])
 			   case muCall(preVar(mvar("get_keys_mmap")), [exp1])								=> muCallMuPrim("get_keys_mmap", [exp1])
- 			   case muCall(preVar(mvar("get_children_without_layout_or_separators")), [exp1])	=> muCallMuPrim("get_children_without_layout_or_separators", [exp1])
+ 			   case muCall(preVar(mvar("get_children_without_layout_or_separators_with_keyword_map")), [exp1])	=> muCallMuPrim("get_children_without_layout_or_separators_with_keyword_map", [exp1])
+               case muCall(preVar(mvar("get_children_without_layout_or_separators_without_keyword_map")), [exp1])  => muCallMuPrim("get_children_without_layout_or_separators_without_keyword_map", [exp1])
  			   case muCall(preVar(mvar("has_label")), [exp1, exp2])								=> muCallMuPrim("has_label", [exp1, exp2])
                case muCall(preVar(mvar("typeOfMset")), [exp1])									=> muCallMuPrim("typeOfMset", [exp1])
                case muCall(preVar(mvar("make_iarray")), [exp1])									=> muCallMuPrim("make_iarray_of_size", [exp1])

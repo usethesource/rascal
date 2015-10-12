@@ -521,19 +521,25 @@ MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> 
 MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, Symbol subjectType) {
    MuExp fun_pat;
    str fun_name;
+   int nKwArgs = (keywordArguments is none) ? 0 : size([kw | kw <- keywordArguments.keywordArgumentList]);
    
-   argCode = [ translatePat(pat, Symbol::\value()) | pat <- arguments ] + translatePatKWArguments(keywordArguments); //TODO: compute type per argument
-   //iprintln(expression);
+   noKwParams = nKwArgs == 0 ? "_NO_KEYWORD_PARAMS" : "";
+   concreteMatch = isNonTerminalType(subjectType) ? "_CONCRETE" : "";
+   
+   argCode = [ translatePat(pat, Symbol::\value()) | pat <- arguments ];
+   if(nKwArgs > 0){
+      argCode += translatePatKWArguments(keywordArguments); //TODO: compute type per argument
+   }
+   
    if(expression is qualifiedName){
       fun_name = "<getType(expression@\loc).name>";
-      //fun_pat = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(fun_name)]);
-      return muApply(mkCallToLibFun("Library","MATCH_SIMPLE_CALL_OR_TREE"), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
+      return muApply(mkCallToLibFun("Library", "MATCH<concreteMatch>_SIMPLE_CALL_OR_TREE<noKwParams>"), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
    } else if(expression is literal){ // StringConstant
       fun_name = "<expression>"[1..-1];
-      return muApply(mkCallToLibFun("Library","MATCH_SIMPLE_CALL_OR_TREE"), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
+      return muApply(mkCallToLibFun("Library", "MATCH<concreteMatch>_SIMPLE_CALL_OR_TREE<noKwParams>"), [muCon(fun_name), muCallMuPrim("make_array", argCode)]);
    } else {
      fun_pat = translatePat(expression, getType(expression@\loc));
-     return muApply(mkCallToLibFun("Library","MATCH_CALL_OR_TREE"), [muCallMuPrim("make_array", fun_pat + argCode)]);
+     return muApply(mkCallToLibFun("Library","MATCH_CALL_OR_TREE<noKwParams>"), [muCallMuPrim("make_array", fun_pat + argCode)]);
    }
 }
 
@@ -547,26 +553,10 @@ MuExp translatePatKWArguments((KeywordArguments[Pattern]) `<OptionalComma option
    for(kwarg <- keywordArgumentList){
        //println("kwarg = <kwarg>");
        keyword_names += muCon("<kwarg.name>");
-       pats += translatePat(kwarg.expression, Symbol::\value());
+       pats += translatePat(kwarg.expression, Symbol::\value()); // getType(kwarg.expression@\loc)?
    }
    return muApply(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS"), [muCallMuPrim("make_array", keyword_names), muCallMuPrim("make_array", pats)]);
 }
-
-// TODO: extend the following with all pattern cases, however this requires translating 
-// from expression to pattern!
-
-//MuExp translatePatKWValue(e: (Expression) `<Literal lit>`) = translateLitPat(lit);
-//
-//MuExp translatePatKWValue(e: (Expression) `<QualifiedName name>`) = translateQualifiedNamePat(name);
-//
-//default MuExp translatePatKWValue(e: (Expression) `<Expression exp>`) {
-//  if(isConstant(exp)){
-//     return muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(getConstantValue(exp))]);
-//  } else {
-//    throw "Non-constant expressions in keyword parameters not yet supported";
-//  }
-//}
-
 
 // -- set pattern ----------------------------------------------------
 
@@ -648,6 +638,7 @@ value getLiteralValue((Literal) `<Literal s>`) =  readTextValueString("<s>"); //
 
 bool isConstant(StringLiteral l) = l is nonInterpolated;
 bool isConstant(LocationLiteral l) = l.protocolPart is nonInterpolated && l.pathPart is nonInterpolated;
+bool isConstant(RegExpLiteral l)  = false;
 default bool isConstant(Literal l) = true;
 
 
@@ -950,7 +941,7 @@ default MuExp translatePat(Pattern p, Symbol subjectType) { throw "Pattern <p> c
 /*                 Constant Patterns                                  */
 /**********************************************************************/
 
-value translatePatternAsConstant(p:(Pattern) `<Literal lit>`) = getLiteralValue(lit) when !(lit is regExp);
+value translatePatternAsConstant(p:(Pattern) `<Literal lit>`) = getLiteralValue(lit) when isConstant(lit);
 
 value translatePatternAsConstant(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) =
   makeNode("<expression>", [ translatePatternAsConstant(pat) | pat <- arguments ] + translatePatKWArguments(keywordArguments));
@@ -996,7 +987,6 @@ value translatePatternAsConstant(p:(Pattern) `\<<Pattern  pat1>, <Pattern  pat2>
            translatePatternAsConstant(pat5)
          >;
 }
-
  
 default value translatePatternAsConstant(Pattern p){
   throw "Not a constant pattern: <p>";

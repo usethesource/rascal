@@ -3,6 +3,8 @@ module experiments::Compiler::muRascal2RVM::mu2rvm
 import IO;
 import Type;
 import List;
+import Set;
+import Map;
 import ListRelation;
 import Node;
 import Message;
@@ -12,10 +14,6 @@ import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
-//import experiments::Compiler::muRascal::Implode;
-
-//import experiments::Compiler::Rascal2muRascal::RascalModule;
-//import experiments::Compiler::Rascal2muRascal::RascalExpression;
 
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
@@ -69,13 +67,13 @@ str mkFinallyTo(str label) = "FINALLY_TO_<label>";
 
 // Manage locals
 
-int newLocal() {
+private int newLocal() {
     n = nlocal[functionScope];
     nlocal[functionScope] = n + 1;
     return n;
 }
 
-int newLocal(str fuid) {
+private int newLocal(str fuid) {
     n = nlocal[fuid];
     nlocal[fuid] = n + 1;
     return n;
@@ -83,10 +81,10 @@ int newLocal(str fuid) {
 
 // Manage temporaries
 
-map[tuple[str,str],int] temporaries = ();
-str asUnwrappedThrown(str name) = name + "_unwrapped";
+private map[tuple[str,str],int] temporaries = ();
+private str asUnwrappedThrown(str name) = name + "_unwrapped";
 
-int getTmp(str name, str fuid){
+private int getTmp(str name, str fuid){
    if(temporaries[<name,fuid>]?)
    		return temporaries[<name,fuid>];
    n = newLocal(fuid);
@@ -181,7 +179,7 @@ void resetShiftCounter() {
 
 // Translate a muRascal module
 
-RVMProgram mu2rvm(muModule(str module_name, 
+RVMModule mu2rvm(muModule(str module_name, 
 						   map[str,str] tags,
 						   set[Message] messages, 
 						   list[str] imports,
@@ -199,7 +197,7 @@ RVMProgram mu2rvm(muModule(str module_name,
                   bool verbose=true){
  
   if(any(m <- messages, error(_,_) := m)){
-    return errorRVMProgram(module_name, messages, src);
+    return errorRVMModule(module_name, messages, src);
   }
  
   main_fun = getUID(module_name,[],"MAIN",2);
@@ -338,7 +336,7 @@ RVMProgram mu2rvm(muModule(str module_name,
   // Specific to delimited continuations (experimental)
   funMap = funMap + shiftClosures;
   
-  res = rvm(module_name, (module_name: tags), messages, imports, extends, types, symbol_definitions, funMap, [], resolver, overloaded_functions, importGraph, src);
+  res = rvmModule(module_name, (module_name: tags), messages, imports, extends, types, symbol_definitions, toList(range(funMap)), [], resolver, overloaded_functions, importGraph, src);
   return res;
 }
 
@@ -515,6 +513,7 @@ INS tr(muCallMuPrim("addition_mint_mint", list[MuExp] args)) = [*tr(args), ADDIN
 INS tr(muCallMuPrim("subtraction_mint_mint", list[MuExp] args)) = [*tr(args), SUBTRACTINT()];
 INS tr(muCallMuPrim("and_mbool_mbool", list[MuExp] args)) = [*tr(args), ANDBOOL()];
 INS tr(muCallMuPrim("check_arg_type_and_copy", [muCon(int pos1), muTypeCon(Symbol tp), muCon(int pos2)])) = [CHECKARGTYPEANDCOPY(pos1, tp, pos2)];
+INS tr(muCallMuPrim("make_mmap", [])) = [ LOADEMPTYKWMAP() ];
 
 default INS tr(muCallMuPrim(str name, list[MuExp] args)) = [*tr(args), CALLMUPRIM(name, size(args))];
 
@@ -878,7 +877,7 @@ INS tr_cond(muOne1(MuExp exp), str continueLab, str failLab, str falseLab) =
         JMPFALSE(falseLab)
       ];
 
-// muMultiL explore all successful evaluations
+// muMulti: explore all successful evaluations
 
 INS tr_cond(muMulti(MuExp exp), str continueLab, str failLab, str falseLab) {
     co = newLocal();
@@ -892,26 +891,6 @@ INS tr_cond(muMulti(MuExp exp), str continueLab, str failLab, str falseLab) {
              JMPFALSE(falseLab)
            ];
 }
-
-// Specific to delimited continuations (experimental)
-//INS tr_cond(muMulti(MuExp exp), str continueLab, str failLab, str falseLab) {
-//    co = newLocal();
-//    return [ *tr(exp),
-//             RESET(),
-//             STORELOC(co),
-//             POP(),
-//             *[ LABEL(continueLab), LABEL(failLab) ],
-//             LOADLOC(co),
-//             CALL("Library/NEXT(1)",1),
-//             JMPFALSE(falseLab),
-//             LOADLOC(co),
-//             LOADCON("cont"),
-//             CALLPRIM("adt_field_access",2),
-//             CALLDYN(0),
-//             STORELOC(co),
-//             POP()
-//           ];
-//}
 
 default INS tr_cond(MuExp exp, str continueLab, str failLab, str falseLab) 
 	= [ JMP(continueLab), LABEL(failLab), JMP(falseLab), LABEL(continueLab), *tr(exp), JMPFALSE(falseLab) ];

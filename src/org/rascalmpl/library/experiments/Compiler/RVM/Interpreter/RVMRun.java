@@ -152,7 +152,7 @@ public class RVMRun extends RVM {
 		return rex;
 	}
 
-	public RVMRun(RVMLinked rrs, RascalExecutionContext rex) {
+	public RVMRun(RVMExecutable rrs, RascalExecutionContext rex) {
 		super(rrs, rex);
 
 		this.vf = rex.getValueFactory();
@@ -192,9 +192,7 @@ public class RVMRun extends RVM {
 		constructorMap = new HashMap<String, Integer>();
 
 		moduleVariables = new HashMap<IValue, IValue>();
-
-		MuPrimitive.init(vf);
-		RascalPrimitive.init(this, rex);
+		
 		Opcode.init(stdout, rex.getProfile());
 
 		this.locationCollector = NullLocationCollector.getInstance();

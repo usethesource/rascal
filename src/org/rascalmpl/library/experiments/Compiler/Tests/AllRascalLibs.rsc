@@ -104,7 +104,7 @@ list[str] eclipse_libs =
 
 ]; 
 
-value main(list[value] args){
+value main(){
   crashes = [];
   for(lib <- libs){
     println("**** Compiling <lib> ****");

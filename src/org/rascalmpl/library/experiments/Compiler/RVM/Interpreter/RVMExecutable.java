@@ -30,12 +30,12 @@ import de.ruedigermoeller.serialization.FSTObjectInput;
 import de.ruedigermoeller.serialization.FSTObjectOutput;
 
 /**
- * RVMLinked contains all data needed for executing an RVM program.
+ * RVMExecutable contains all data needed for executing an RVM program.
  *
- * RVMLinked is serialized by FSTRVMExecutableSerializer; make sure that
+ * RVMExecutable is serialized by FSTRVMExecutableSerializer; make sure that
  * all fields declared here are synced with the serializer.
  */
-public class RVMLinked implements Serializable{
+public class RVMExecutable implements Serializable{
 
 	private static final long serialVersionUID = -8966920880207428792L;
    
@@ -72,7 +72,7 @@ public class RVMLinked implements Serializable{
 	private String fullyQualifiedName ;
 	private String fullyQualifiedDottedName;
 	
-	public RVMLinked(
+	public RVMExecutable(
 			final String module_name,
 			final IMap moduleTags,
 			
@@ -239,11 +239,11 @@ public class RVMLinked implements Serializable{
 		try {
 			ISourceLocation compOut = rvmExecutable;
 			fileOut = URIResolverRegistry.getInstance().getOutputStream(compOut, false);
-			FSTObjectOutput out = new FSTObjectOutput(fileOut, RascalLinker.conf);
+			FSTObjectOutput out = new FSTObjectOutput(fileOut, RVMLoader.conf);
 			long before = Timing.getCpuTime();
 			out.writeObject(this);
 			out.close();
-			//System.out.println("Writing: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
+			System.out.println("Writing: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -253,8 +253,8 @@ public class RVMLinked implements Serializable{
 		} 
 	}
 	
-	public static RVMLinked read(ISourceLocation rvmExecutable) {
-		RVMLinked executable = null;
+	public static RVMExecutable read(ISourceLocation rvmExecutable) {
+		RVMExecutable executable = null;
 		
 		vf = ValueFactoryFactory.getValueFactory();
 		TypeStore typeStore = new TypeStore(RascalValueFactory.getStore());
@@ -270,12 +270,12 @@ public class RVMLinked implements Serializable{
 		try {
 			ISourceLocation compIn = rvmExecutable;
 			InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(compIn);
-			in = new FSTObjectInput(fileIn, RascalLinker.conf);
+			in = new FSTObjectInput(fileIn, RVMLoader.conf);
 			long before = Timing.getCpuTime();
-			executable = (RVMLinked) in.readObject(RVMLinked.class);
+			executable = (RVMExecutable) in.readObject(RVMExecutable.class);
 			in.close();
 			in = null;
-			//System.out.println("Reading: " + compIn.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
+			System.out.println("Reading: " + compIn.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 		} catch (IOException i) {
 			i.printStackTrace();
 
@@ -322,7 +322,7 @@ public class RVMLinked implements Serializable{
 		return completer;
 	}
 	
-	public boolean comparable(RVMLinked other){
+	public boolean comparable(RVMExecutable other){
 		
 		boolean nameOk = this.getModuleName().equals(other.getModuleName());
 		boolean symbol_definitionsOk = true;
@@ -445,7 +445,7 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 					throws IOException {
 
 		int n;
-		RVMLinked ex = (RVMLinked) toWrite;
+		RVMExecutable ex = (RVMExecutable) toWrite;
 
 		// public String module_name;
 
@@ -604,7 +604,7 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 	
 		String fullyQualifiedDottedName = (String) in.readObject();
 
-		RVMLinked ex = new RVMLinked(module_name, moduleTags, symbol_definitions, functionMap, functionStore, 
+		RVMExecutable ex = new RVMExecutable(module_name, moduleTags, symbol_definitions, functionMap, functionStore, 
 								constructorMap, constructorStore, resolver, overloadedStore, initializers, testsuites, 
 								uid_module_init, uid_module_main, uid_module_main_testsuite, store, vf, false);
 		ex.setJvmByteCode(jvmByteCode);

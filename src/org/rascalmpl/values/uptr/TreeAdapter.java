@@ -54,6 +54,10 @@ public class TreeAdapter {
 	public static final String META_KEYWORD = "MetaKeyword";
 	public static final String META_SKIPPED = "MetaSkipped";
 	public static final String NONTERMINAL_LABEL = "NonterminalLabel";
+	public static final String RESULT = "Result";
+	public static final String STDOUT = "StdOut";
+	public static final String STDERR = "StdErr";
+	
 
 	private TreeAdapter() {
 		super();

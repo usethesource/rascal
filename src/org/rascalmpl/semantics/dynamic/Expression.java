@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -50,7 +50,6 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.AndResult;
 import org.rascalmpl.interpreter.matching.AntiPattern;
@@ -323,6 +322,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.notifyAboutSuspension(this);			
 
 			return this.getExpression().interpret(__eval);
+		}
+		
+		@Override
+		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+			return getExpression().isDefined(__eval);
 		}
 	}
 
@@ -864,7 +868,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return expr.fieldAccess(field, __eval.getCurrentEnvt().getStore());
 
 		}
-
+		
+		@Override
+		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+			Result<IValue> expr = this.getExpression().interpret(__eval);
+			return expr.isDefined(this.getField());
+		}
 	}
 
 	static public class FieldProject extends
@@ -897,7 +906,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			java.util.List<Field> fields = this.getFields();
 			return base.fieldSelect(fields.toArray(new Field[0]));
 		}
-
+		
 	}
 
 	static public class FieldUpdate extends
@@ -965,6 +974,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
+		@Override
+		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+			return getExpression().interpret(__eval).has(getName());
+		}
 	}
 
 	static public class GreaterThan extends
@@ -1129,20 +1142,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);	
 			
-			try {
-				return this.getLhs().interpret(__eval);
-			} catch (UninitializedVariable e) {
-				return this.getRhs().interpret(__eval);
-			} catch (Throw e) {
-				// TODO For now we __evaluate any Throw here, restrict to
-				// NoSuchKey and NoSuchAnno?
-				return this.getRhs().interpret(__eval);
+			if (getLhs().isDefined(__eval).getValue().getValue()) {
+				return getLhs().interpret(__eval);
 			}
-
+			else {
+				return getRhs().interpret(__eval);
+			}
 		}
 
 	}
@@ -1319,20 +1327,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 			
-			try {
-				this.getArgument().interpret(__eval); // wait for exception
-				return org.rascalmpl.interpreter.result.ResultFactory
-						.makeResult(TF.boolType(), __eval.__getVf().bool(true),
-								__eval);
-
-			} catch (Throw e) {
-				// TODO For now we __evaluate any Throw here, restrict to
-				// NoSuchKey and NoSuchAnno?
-				return org.rascalmpl.interpreter.result.ResultFactory
-						.makeResult(TF.boolType(),
-								__eval.__getVf().bool(false), __eval);
-			}
-
+			return makeResult(TF.boolType(), getArgument().isDefined(__eval).getValue(), __eval);
 		}
 
 	}
@@ -2116,6 +2111,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return variable;
 
 		}
+		
+		@Override
+		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+			org.rascalmpl.ast.QualifiedName name = this.getQualifiedName();
+			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
+			__eval.warning("deprecated feature: run-time check on variable initialization", getLocation());
+			return org.rascalmpl.interpreter.result.ResultFactory.bool(variable.getValue() != null, __eval);
+		}
 
 		@Override
 		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
@@ -2526,6 +2529,21 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new BasicBooleanResult(eval, this);
 		}
 
+		@Override
+		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
+			Result<IValue> expr = this.getExpression().interpret(__eval);
+			int nSubs = this.getSubscripts().size();
+			Result<?> subscripts[] = new Result<?>[nSubs];
+			
+			for (int i = 0; i < nSubs; i++) {
+				org.rascalmpl.ast.Expression subsExpr = this.getSubscripts()
+						.get(i);
+				subscripts[i] = isWildCard(subsExpr) ? null
+						: subsExpr.interpret(__eval);
+			}
+			
+			return expr.isKeyDefined(subscripts);
+		}
 		
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {

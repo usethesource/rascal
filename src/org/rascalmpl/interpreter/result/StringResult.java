@@ -41,6 +41,26 @@ public class StringResult extends ElementResult<IString> {
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
+	public Result<IBool> isKeyDefined(Result<?>[] subscripts) {
+		if (subscripts.length != 1) { 
+			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
+		} 
+		Result<IValue> key = (Result<IValue>) subscripts[0];
+		if (!key.getType().isSubtypeOf(getTypeFactory().integerType())) {
+			throw new UnexpectedType(getTypeFactory().integerType(), key.getType(), ctx.getCurrentAST());
+		}
+		int idx = ((IInteger) key.getValue()).intValue();
+		int len = getValue().length();
+		
+		if ((idx >= 0 && idx >= len) || (idx < 0 && idx < -len)){
+			return makeResult(getTypeFactory().boolType(), getValueFactory().bool(false), ctx);
+		}
+		
+		return makeResult(getTypeFactory().boolType(), getValueFactory().bool(true), ctx);
+	}
+	
+	@Override
 	public IString getValue() {
 		return string;
 	}

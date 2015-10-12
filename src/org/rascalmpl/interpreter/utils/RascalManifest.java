@@ -14,6 +14,10 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
+
 /**
  * The META-INF/RASCAL.MF file contains information about 
  *   - project configuration options, such as location of source code relative to the root
@@ -49,7 +53,7 @@ public class RascalManifest {
     return hasManifest(manifest(clazz));
   }
   
-  protected boolean hasManifest(InputStream is) {
+  public boolean hasManifest(InputStream is) {
     try {
       return is != null;
     }
@@ -176,7 +180,7 @@ public class RascalManifest {
    * @return a list of paths relative to the root of the jar, if no such option is configured
    *         it will return ["src"].
    */
-  protected List<String> getManifestSourceRoots(InputStream manifestFile) {
+  public List<String> getManifestSourceRoots(InputStream manifestFile) {
     return getManifestAttributeList(manifestFile, SOURCE, DEFAULT_SRC);
   }
   
@@ -191,36 +195,45 @@ public class RascalManifest {
   /**
    * @return the name of the main module of a deployment unit, or 'null' if none is configured.
    */
-  protected String getManifestMainModule(InputStream project) {
+  public String getManifestMainModule(InputStream project) {
     return getManifestAttribute(project, MAIN_MODULE, null);
   }
   
   /**
    * @return the name of the main function of a deployment unit, or 'null' if none is configured.
    */
-  protected String getManifestMainFunction(InputStream project) {
+  public String getManifestMainFunction(InputStream project) {
     return getManifestAttribute(project, MAIN_FUNCTION, null);
   }
   
   /**
    * @return a list of bundle names this jar depends on, or 'null' if none is configured.
    */
-  protected List<String> getManifestRequiredBundles(InputStream project) {
+  public List<String> getManifestRequiredBundles(InputStream project) {
     return getManifestAttributeList(project, REQUIRE_BUNDLES, null);
   }
 
   /**
    * @return a list of bundle names this jar depends on, or 'null' if none is configured.
    */
-  protected List<String> getManifestRequiredLibraries(InputStream project) {
+  public List<String> getManifestRequiredLibraries(InputStream project) {
     return getManifestAttributeList(project, REQUIRE_LIBRARIES, null);
   }
   
-  protected InputStream manifest(Class<?> clazz) {
+  public InputStream manifest(Class<?> clazz) {
     return clazz.getResourceAsStream("/" + META_INF_RASCAL_MF);
   }
+
+  // TODO: copy methods for ISourceLocation?
+  public InputStream manifest(ISourceLocation root) {
+      try {
+        return URIResolverRegistry.getInstance().getInputStream(URIUtil.getChildLocation(root, META_INF_RASCAL_MF));
+    } catch (IOException e) {
+        return null;
+    }
+  }
   
-  protected InputStream manifest(JarInputStream stream) {
+  public InputStream manifest(JarInputStream stream) {
 			JarEntry next = null;
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 		
@@ -243,7 +256,7 @@ public class RascalManifest {
 			return null;
   }
   
-  protected InputStream manifest(File jarFile) {
+  public InputStream manifest(File jarFile) {
 	  try (JarFile file = new JarFile(jarFile)) {
 		  return file.getInputStream(new ZipEntry(META_INF_RASCAL_MF));
 	  }
@@ -260,7 +273,7 @@ public class RascalManifest {
    * @param def   may be null, returned if the configuration option with label is not defined
    * @return the list of strings labeled by the given option.
    */
-  protected List<String> getManifestAttributeList(InputStream mf, String label, String def) {
+  public List<String> getManifestAttributeList(InputStream mf, String label, String def) {
     if (mf != null) {
       try {
         Manifest manifest = new Manifest(mf);
@@ -297,7 +310,7 @@ public class RascalManifest {
    * @param def   may be null, returned if the configuration option with label is not defined
    * @return either the configured option, or the given default value
    */
-  protected String getManifestAttribute(InputStream is, String label, String def) {
+  public String getManifestAttribute(InputStream is, String label, String def) {
     if (is != null) {
       try {
         Manifest manifest = new Manifest(is);

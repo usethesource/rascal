@@ -9,9 +9,11 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.uri;
+package org.rascalmpl.uri.file;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.uri.ILogicalSourceLocationResolver;
+import org.rascalmpl.uri.URIUtil;
 
 public class HomeURIResolver implements ILogicalSourceLocationResolver {
 

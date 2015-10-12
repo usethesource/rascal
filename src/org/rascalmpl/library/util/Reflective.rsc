@@ -16,16 +16,15 @@ import Exception;
 import Message;
 import ParseTree;
 import IO;
+import lang::rascal::\syntax::Rascal;
 
 public Tree getModuleParseTree(str modulePath) {
-    mloc = getModuleLocation(modulePath);
-    return getModuleParseTree1(mloc, lastModified(mloc));
+    return parseModule(getModuleLocation(modulePath));
 }
 
-@memo
-private Tree getModuleParseTree1(loc mloc, datetime lastMod){
-   return parseModule(mloc);
-}
+@javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{Uses Evaluator to evaluate}
+public java lrel[str result, str out, str err] evalCommands(list[str] command, loc org);
 
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to get back the parse tree for the given command}
@@ -39,6 +38,18 @@ public java Tree parseCommands(str commands, loc location);
 @reflect{Uses Evaluator to access the Rascal module parser}
 @doc{This parses a module from a string, in its own evaluator context}
 public java Tree parseModule(str moduleContent, loc location);
+
+
+lang::rascal::\syntax::Rascal::Module parseModuleAndGetTop(loc moduleLoc){
+    tree = parseModule(moduleLoc);
+    if(tree has top){
+        tree = tree.top;
+    }
+    if(lang::rascal::\syntax::Rascal::Module M := tree){
+        return M;
+    }
+    throw tree;
+}
 
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to access the Rascal module parser}
@@ -82,10 +93,15 @@ for source files in a separate directory.
 
 }
 
+@memo
 loc getDerivedLocation(loc src, str extension, loc bindir = |home:///bin|, bool compressed = false){
 	loc res;
 	if(compressed){
 		bindir.scheme = "compressed+" + bindir.scheme;
+	}
+	if(src.scheme == "test-modules"){
+	   bindir.scheme = "test-modules";
+	   return (bindir + src.path)[extension=extension];
 	}
 	phys = getSearchPathLocation(src.path);
     if(exists(phys)){
