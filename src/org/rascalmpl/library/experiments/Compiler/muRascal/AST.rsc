@@ -379,7 +379,8 @@ MuExp muCallPrim3("list_create", list[MuExp] args, loc src) = muCon([a | muCon(a
 
 MuExp muCallPrim3("set_create", list[MuExp] args, loc src) = muCon({a | muCon(a) <- args}) 
       when allConstant(args);
-      
+ 
+// TODO: do not generate constant in case of multiple keys     
 MuExp muCallPrim3("map_create", list[MuExp] args, loc src) = muCon((args[i].c : args[i+1].c | int i <- [0, 2 .. size(args)]))
       when allConstant(args);
       
