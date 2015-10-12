@@ -62,18 +62,27 @@ public Property property(str id, value \value = "") {
      return v;
     }
 
-public Text textLabel(str id, str text = "") {
+public Text textProperty(str id, str text = "", str html = "") {
      Text v = _getText(id);
      if (!isEmpty(text)) v.text = text;
+     if (!isEmpty(html)) v.html = html;
      _setText(id, v);
-     //  println(v);
+     // println(v);
      return v;
      }
      
-public Text clearTextLabel(str id) {
+public Text clearTextProperty(str id) {
      Text v = _getText(id);
      v.text = "";
      _setText(id, v);
      //  println(v);
      return v;
      }
+     
+public Timer timer(str id, int delay = -1, str command = "") {
+    Timer t = _getTimer(id);
+    if (delay>=0) t.delay = delay;
+    if (!isEmpty(command)) t.command = command;
+     _setTimer(id, t);
+     return t;
+    }

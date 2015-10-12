@@ -43,8 +43,14 @@ public Alignment bottomLeft   	= <0.0, 1.0>;
 public Alignment bottomMid 		= <0.5, 1.0>;
 public Alignment bottomRight	= <1.0, 1.0>;
 
-// Events and bindings for input elements
 
+data Orientation =
+		leftRight()
+	|	rightLeft()
+	| 	topDown()
+	|	downTop();
+
+// Events and bindings for input elements
 
 
 data Event 
@@ -120,7 +126,7 @@ public alias Figures = list[Figure];
 
 public num nullFunction(list[num] x) { return 0;}
 
-void nullCallback(str x, str y, str z) = "";
+void nullCallback(str x, str y, str z) {return;}
 
 public data Attr (
     int width = -1,
@@ -132,6 +138,11 @@ public data Attr (
 public data Property (
      value \value = ""
     ) = property();
+    
+public data Timer (
+     int delay = -1,
+     str command = ""
+    ) = timer();
     
 public data Style (	
     bool svg = false,
@@ -147,11 +158,13 @@ public data Style (
     
     
 public data Text (		
-    str text = ""  
+    str text = "",
+    str html = ""  
     ) = text();
     
+    
 public alias Prop =
-    tuple[Attr attr, Style style,  Property property, Text text];
+    tuple[Attr attr, Style style,  Property property, Text text, Timer timer];
     
     
 public data Figure(
@@ -211,8 +224,8 @@ public data Figure(
 
 // atomic primitivesreturn [[z] +[*((c[z]?)?c[z]:"null")|c<-m]|z<-x];
 	
-   | text(value text)		    			// text label html
-   | label(value text)		    			// text label svg
+   | htmlText(value text, bool nl2br = true)		    			// text label html
+   | text(value text, bool nl2br = true)		    			// text label svg
    | markdown(value text)					// text with markdown markup (TODO: make flavor of text?)
    | math(value text)						// text with latex markup
    
@@ -252,10 +265,10 @@ public data Figure(
 
 // Figure composers
                    
-   | hcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "black") 					// horizontal and vertical concatenation
-   | vcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "black") 					// horizontal and vertical concatenation 
+   | hcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "") 					// horizontal and vertical concatenation
+   | vcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "") 					// horizontal and vertical concatenation 
    | overlay(Figures figs=[])				// overlay (stacked) comAlignment
-   | grid(list[Figures] figArray = [[]], str borderStyle="solid", int borderWidth=0, str borderColor = "black") 	// grid of figures
+   | grid(list[Figures] figArray = [[]], str borderStyle="solid", int borderWidth=0, str borderColor = "") 	// grid of figures
 
 // Figure transformations
 
@@ -317,8 +330,10 @@ public data Figure(
      GraphOptions options = graphOptions())
  
 // Trees
-	| tree(Figure root, Figures figs, int scaleX=5, int scaleY=5, int rasterHeight=100
-	       ,int xSeparation = 5, int ySeparation = 10)
+	| tree(Figure root, Figures figs, int scaleX=1, int scaleY=5, int rasterHeight=150
+	       ,int xSeparation = 1, int ySeparation = 10, str pathColor = "black"
+	       ,Orientation orientation = topDown()
+	       ,bool cityblock=false)
    ;
    
 data GraphOptions = graphOptions(
@@ -586,9 +601,9 @@ public Figure idRect(int width, int height) = rect(width = width, height = heigh
 
 public Figure graph(list[tuple[str, Figure]] n, list[Edge] e, tuple[int, int] size=<0,0>, int width = -1, int height = -1,
    int lineWidth = 1) =  
-   box(fig = graph(nodes = n, edges = e,
+   box(fig = graph(nodes = n, edges = e, lineWidth = lineWidth, 
                nodeProp = (), size = size, width = width, height = height,
-               options = graphOptions()), align = topLeft, lineWidth = lineWidth);
+               options = graphOptions()), align = topLeft, lineWidth = 0);
                
 public Figure overlayBox(int width, int height, list[Figure] figs) {
       list[Figure] b = [box(width = width, height = height, fig = f, fillColor="none", align = centerMid)|Figure f<-figs];

@@ -298,5 +298,10 @@ function askServer(path, parameters, callback) {
    
 function isObject (item) {
   return (typeof item === "object" && !Array.isArray(item) && item !== null);
+  } 
+  
+function nl2br (str, is_xhtml) {
+     var breakTag = (is_xhtml || typeof is_xhtml === 'undefined') ? '<br />' : '<br>';
+     return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + breakTag + '$2');
   }    
   
