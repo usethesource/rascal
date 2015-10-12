@@ -34,3 +34,41 @@ test bool interpolateQuotes() {
     str s = " \" <0 + 0> \" ";
     return s == " \" 0 \" ";   
 }
+
+test bool interpolateEsc1() { A = "A"; return "\t<A>" == "\tA"; }
+test bool interpolateEsc2() { A = "A"; return "<A>\t" == "A\t"; }
+test bool interpolateEsc3() { A = "A"; return "<A>\t<A>" == "A\tA"; }
+
+test bool interpolateEsc4() { A = "A"; return "\n<A>" == "\nA"; }
+test bool interpolateEsc5() { A = "A"; return "<A>\n" == "A\n"; }
+test bool interpolateEsc6() { A = "A"; return "<A>\n<A>" == "A\n<A>"; }
+
+test bool interpolateEsc7() { A = "A"; return "\"<A>" == "\"A"; }
+test bool interpolateEsc8() { A = "A"; return "<A>\"" == "A\""; }
+test bool interpolateEsc9() { A = "A"; return "<A>\"<A>" == "A\"<A>"; }
+
+test bool interpolateEsc10() { A = "A"; return "\\<A>" == "\\A"; }
+test bool interpolateEsc11() { A = "A"; return "<A>\\" == "A\\"; }
+test bool interpolateEsc12() { A = "A"; return "<A>\\<A>" == "A\\<A>"; }
+
+test bool interpolateEsc13() { A = "A"; return "\u0000<A>" == "\u0000A"; }
+test bool interpolateEsc14() { A = "A"; return "<A>\u0000" == "A\u0000"; }
+test bool interpolateEsc15() { A = "A"; return "<A>\u0000<A>" == "A\u0000A"; }
+
+test bool interpolateEsc16() { A = "A"; return "\a20<A>" == " A"; }
+test bool interpolateEsc17() { A = "A"; return "<A>\a20" == "A "; }
+test bool interpolateEsc18() { A = "A"; return "<A>\a20<A>" == "A A"; }
+
+test bool interpolateEsc19() { A = "A"; return "\U01F35D<A>" == "🍝A"; }
+test bool interpolateEsc20() { A = "A"; return "<A>\U01F35D " == "A🍝 "; }
+test bool interpolateEsc21() { A = "A"; return "<A>\U01F35D <A>" == "A🍝 A"; }
+
+test bool interpolateEsc22() { A = "A"; return "\u2713<A>" == "✓A"; }
+test bool interpolateEsc23() { A = "A"; return "<A>\u2713" == "A✓"; }
+test bool interpolateEsc24() { A = "A"; return "<A>\u2713<A>" == "A✓A"; }
+
+test bool interpolateEsc25() { A = "A\tB"; return "x<A>z" == "xA\tBz"; }
+test bool interpolateEsc26() { A = "A\\tB"; return "x<A>z" == "xA\\tBz"; }
+
+
+
