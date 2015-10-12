@@ -1602,7 +1602,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				IValue keyValue = result.get(keyResult.getValue());
 				if (keyValue != null) {
 					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
-							.MultipleKey(keyValue, mapping.getFrom(), __eval
+							.MultipleKey(keyResult.getValue(), mapping.getFrom(), __eval
 									.getStackTrace());
 				}
 
