@@ -26,10 +26,10 @@ import lang::rascal::types::AbstractName;
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
 
-loc RVMModuleLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.xz", bindir = bindir, compressed=true); //(bindir + src.path)[extension="rvm"];
+loc RVMModuleLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.gz", bindir = bindir, compressed=true); //(bindir + src.path)[extension="rvm"];
 
-loc RVMExecutableLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.ser.xz", bindir = bindir, compressed=true); //(bindir + src.path)[extension="rvm.ser.xz"];
-loc RVMExecutableCompressedLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.ser.xz", bindir = bindir, compressed=true); //(bindir + src.path)[extension="rvm.ser.xz"];
+loc RVMExecutableLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.ser.gz", bindir = bindir, compressed=true); //(bindir + src.path)[extension="rvm.ser.xz"];
+loc RVMExecutableCompressedLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.ser.gz", bindir = bindir, compressed=true); //(bindir + src.path)[extension="rvm.ser.xz"];
 
 
 loc MuModuleLocation(loc src, loc bindir) = getDerivedLocation(src, "mu", bindir = bindir); //(bindir + src.path)[extension="mu"];
