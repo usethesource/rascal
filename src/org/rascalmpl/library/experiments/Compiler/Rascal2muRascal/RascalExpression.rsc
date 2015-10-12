@@ -316,16 +316,12 @@ private MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <E
 					]   );
 }
                     
-private MuExp translateStringLiteral(s: (StringLiteral)`<StringConstant constant>`) {
-	//println("RascalExpression::translateStringLiteral constant = <constant>");
-	v = muCon(readTextValueString(removeMargins("<constant>")));
-	//println("RascalExpression::translateStringLiteral <s>, <v>");
-	return v;
-}	
+private MuExp translateStringLiteral(s: (StringLiteral)`<StringConstant constant>`) =
+	muCon(readTextValueString(removeMargins("<constant>")));
 
 // --- translateExpInStringLiteral
 
-private list[MuExp] translateExpInStringLiteral(str indent, Expression expression){
+private list[MuExp] translateExpInStringLiteral(str indent, Expression expression){   
     if(indent == ""){
     	return [ muCallPrim3("template_add", [translate(expression)], expression@\loc)];
     }	
@@ -341,7 +337,7 @@ private str removeMargins(str s) {
 		return s;
 	} else {
 		res = visit(s) { case /^[ \t]*\\?'/m => ""  /*case /^[ \t]+$/m => ""*/};
-		//println("RascalExpression::removeMargins: <s> =\> <res>");
+	    //println("RascalExpression::removeMargins: <s> =\> <res>");
 		return res;
 	}
 }
@@ -353,20 +349,30 @@ private str computeIndent(str s) {
    return isEmpty(lines) ? "" : left("", size(lines[-1]));
 } 
 
-private str computeIndent(PreStringChars pre) = computeIndent(removeMargins(deescape("<pre>"[1..-1])));
-private str computeIndent(MidStringChars mid) = computeIndent(removeMargins(deescape("<mid>"[1..-1])));
+private str computeIndent(PreStringChars pre) = computeIndent(removeMargins(/*deescape(*/"<pre>"[1..-1]/*)*/));
+private str computeIndent(MidStringChars mid) = computeIndent(removeMargins(/*deescape(*/"<mid>"[1..-1]/*)*/));
 
 private list[MuExp] translatePreChars(PreStringChars pre) {
-   spre = removeMargins(deescape("<pre>"[1..-1]));
+   spre = removeMargins("<pre>"[1..-1]);
    return "<spre>" == "" ? [] : [ muCon(deescape(spre)) ];
 }	
 
 private list[MuExp] translateMidChars(MidStringChars mid) {
-  smid = removeMargins(deescape("<mid>"[1..-1]));
+  smid = removeMargins("<mid>"[1..-1]);
   return "<mid>" == "" ? [] : [ muCallPrim3("template_add", [ muCon(deescape(smid)) ], mid@\loc) ];	//?
 }
 
-str deescape(str s)  = visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t]>/m => c };
+str deescape(str s)  { 
+    res = visit(s) { 
+        case /^\\<c: [\" \' \< \> \\]>/ => c
+        case /^\\t/ => "\t"
+        case /^\\n/ => "\n"
+        case /^\\u<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
+        case /^\\U<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
+        case /^\\a<hex:[0-7][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
+        }; 
+    return res;
+}
                      
 /* Recap of relevant rules from Rascal grammar:
 
@@ -391,7 +397,7 @@ str deescape(str s)  = visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t]>/m => c
 // --- translateMiddle
 
 public list[MuExp] translateMiddle(str indent, (StringMiddle) `<MidStringChars mid>`) {
-	mids = removeMargins(deescape("<mid>"[1..-1]));
+	mids = removeMargins("<mid>"[1..-1]);
 	return mids == "" ? [] : [ muCallPrim3("template_add", [muCon(deescape(mids))], mid@\loc) ];	// ?
 }
 
@@ -423,7 +429,7 @@ private list[MuExp] translateTail(str indent, s: (StringTail) `<MidStringChars m
 }
 	
 private list[MuExp] translateTail(str indent, (StringTail) `<PostStringChars post>`) {
-  content = removeMargins(deescape("<post>"[1..-1]));
+  content = removeMargins("<post>"[1..-1]);
   return size(content) == 0 ? [] : [muCallPrim3("template_add", [ muCon(deescape(content)) ], post@\loc)];
 }
 
