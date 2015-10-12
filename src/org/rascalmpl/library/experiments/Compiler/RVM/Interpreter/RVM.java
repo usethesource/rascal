@@ -375,7 +375,7 @@ public class RVM implements java.io.Serializable {
 	
 	public Function getFunction(String name, Type returnType, Type argumentTypes){
 		for(Function f : functionStore){
-			if(f.name.contains("/" + name + "(")){
+			if(f.name.contains("/" + name + "(") && f.ftype instanceof FunctionType){
 				FunctionType ft = (FunctionType) f.ftype;
 				if(returnType.equals(ft.getReturnType()) &&
 				   argumentTypes.equals(ft.getArgumentTypes())){
