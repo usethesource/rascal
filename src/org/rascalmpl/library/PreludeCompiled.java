@@ -287,12 +287,12 @@ public class PreludeCompiled extends Prelude {
 	
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input);
 	public IValue parse(IValue start, ISourceLocation input, RascalExecutionContext rex) {
-		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null);
+		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null, rex);
 	}
 
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin);
 	public IValue parse(IValue start, IString input, RascalExecutionContext rex) {
-		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null);
+		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null, rex);
 	}
 	
 	private TypeStore typeStore = new TypeStore();
