@@ -117,7 +117,7 @@ public class ASTBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends AbstractAST> T buildSort(org.rascalmpl.values.uptr.ITree parseTree, String sort) {
+	public <T extends AbstractAST> T buildSort(org.rascalmpl.values.uptr.ITree parseTree, String sort) {
 		if (TreeAdapter.isAppl(parseTree)) {
 			org.rascalmpl.values.uptr.ITree tree = TreeAdapter.getStartTop(parseTree);
 

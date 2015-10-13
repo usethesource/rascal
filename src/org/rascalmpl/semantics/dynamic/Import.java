@@ -446,7 +446,7 @@ public abstract class Import {
     }
   }
   
-  private static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod) {
+  public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod) {
 	  org.rascalmpl.ast.Import imp = (org.rascalmpl.ast.Import) getBuilder().buildValue(mod);
 	  try {
 		  imp.interpret(eval);
