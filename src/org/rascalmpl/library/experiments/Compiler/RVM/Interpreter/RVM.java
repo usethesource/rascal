@@ -83,6 +83,8 @@ public class RVM implements java.io.Serializable {
 	private final ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
 	
+	final static Function noCompanionFunction = new Function(null, null, null, 0, 0, false, null, 0, false, 0, 0, null, null, 0);
+	
 	private final Map<IValue, IValue> moduleVariables;
 	PrintWriter stdout;
 	PrintWriter stderr;
@@ -131,7 +133,7 @@ public class RVM implements java.io.Serializable {
 		}  
 	};
 
-	public RVM(RVMExecutable rrs, RascalExecutionContext rex) {
+	public RVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
 		
 		this.rex = rex;
 		rex.setRVM(this);
@@ -152,14 +154,14 @@ public class RVM implements java.io.Serializable {
 		Rascal_FALSE = vf.bool(false);
 		NONE = vf.string("$nothing$");
 		
-		this.functionMap = rrs.getFunctionMap();
-		this.functionStore = rrs.getFunctionStore();
+		this.functionMap = rvmExec.getFunctionMap();
+		this.functionStore = rvmExec.getFunctionStore();
 		
-		this.constructorMap = rrs.getConstructorMap();
-		this.constructorStore = rrs.getConstructorStore();
+		this.constructorMap = rvmExec.getConstructorMap();
+		this.constructorStore = rvmExec.getConstructorStore();
 
-		this.resolver = rrs.getResolver();
-		this.overloadedStore = rrs.getOverloadedStore();
+		this.resolver = rvmExec.getResolver();
+		this.overloadedStore = rvmExec.getOverloadedStore();
 		
 		moduleVariables = new HashMap<IValue,IValue>();
 
@@ -357,6 +359,7 @@ public class RVM implements java.io.Serializable {
 					FunctionType ft = (FunctionType) f.ftype;
 					if(ftype.getAbstractDataType().equals(ft.getReturnType())){
 						if(ftype.isAbstractData()){
+							//System.err.println("getCompanionDefaultsFunction1: " + name + ", " + ftype);
 							return f;
 						}
 						if(ftype.getFieldTypes().getArity() == ft.getArgumentTypes().getArity()){
@@ -365,12 +368,14 @@ public class RVM implements java.io.Serializable {
 									continue all;
 								}
 							}
+							//System.err.println("getCompanionDefaultsFunction2: " + name + ", " + ftype);
 							return f;
 						}
 					}
 				}
 			}
-	return null;
+	//System.err.println("getCompanionDefaultsFunction3: " + name + ", " + ftype);
+	return noCompanionFunction;
 	}
 	
 	public Function getFunction(String name, Type returnType, Type argumentTypes){
@@ -1903,11 +1908,7 @@ public class RVM implements java.io.Serializable {
 			for(int i = arity - 1; i >= 0; i--){
 				parameters[i] = stack[sp - arity - kwMaps + i];
 			}
-//			int i = 0;
-//			while(i < arity){
-//				parameters[i] = stack[sp - arity - kwMaps + i];
-//				i++;
-//			}
+
 			if(kwArity > 0){
 				@SuppressWarnings("unchecked")
 				Map<String, IValue> kwMap = (Map<String, IValue>) stack[sp - 2];
@@ -1922,17 +1923,6 @@ public class RVM implements java.io.Serializable {
 					}
 					parameters[i] = val;
 				}
-				
-//				int i = arity;
-//				while(i < arity + kwArity){
-//					String key = keywordTypes.getFieldName(i - arity);
-//					IValue val = kwMap.get(key);
-//					if(val == null){
-//						val = kwDefaultMap.get(key).getValue();
-//					}
-//					parameters[i] = val;
-//					i++;
-//				}
 			}
 			
 			if(reflect == 1) {
