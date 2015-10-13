@@ -6922,7 +6922,7 @@ public enum RascalPrimitive {
 				
 				Function getDefaults = rex.getCompanionDefaultsFunction(consName, tp);
 				
-				if(getDefaults != null){
+				if(getDefaults != RVM.noCompanionFunction){
 					IValue[] posArgs = new IValue[cons.arity()];
 					for(int i = 0; i < cons.arity(); i++){
 						posArgs[i] = cons.get(i);
