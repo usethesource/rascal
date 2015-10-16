@@ -136,40 +136,71 @@ test bool testKwParams2() {
   return X.kw1 == 2;
 }
 
+@ignoreCompiler{Exception differs}
 @expected{UninitializedVariable}
 test bool testUnInitAssignment1() {
-  m = ();
+  map[int,int] m = ();
+  m[0] += 1;
+}
+
+@ignoreInterpreter{Exception differs}
+@expected{NoSuchKey}
+test bool testUnInitAssignment1() {
+  map[int,int] m = ();
   m[0] += 1;
 }
 
 test bool testInitAssignment1() {
-  m = ();
+ map[int,int]  m = ();
   m[0]?0 += 1;
   return m[0] == 1;
 }
 
-
+@ignoreCompiler{Exception differs}
 @expected{UninitializedVariable}
 test bool testUnInitAssignment2() {
-  m = ();
+  map[int,int] m = ();
   m[0] -= 1;
 }
 
+@ignoreInterpreter{Exception differs}
+@expected{NoSuchKey}
+test bool testUnInitAssignment2() {
+  map[int,int] m = ();
+  m[0] -= 1;
+}
+
+@ignoreCompiler{Exception differs}
 @expected{UninitializedVariable}
 test bool testUnInitAssignment3() {
-  m = ();
+  map[int,int] m = ();
   m[0] *= 1;
 }
 
+@ignoreInterpreter{Exception differs}
+@expected{NoSuchKey}
+test bool testUnInitAssignment3() {
+  map[int,int] m = ();
+  m[0] *= 1;
+}
+
+@ignoreCompiler{Exception differs}
 @expected{UninitializedVariable}
 test bool testUnInitAssignment4() {
-  m = ();
+  map[int,int]m = ();
+  m[0] /= 1;
+}
+
+@ignoreInterpreter{Exception differs}
+@expected{NoSuchKey}
+test bool testUnInitAssignment4() {
+  map[int,int]m = ();
   m[0] /= 1;
 }
 
 @expected{IndexOutOfBounds}
 test bool testUnInitAssignment5() {
-  m = [];
+  list[int] m = [];
   m[0] += 1;
 }
 

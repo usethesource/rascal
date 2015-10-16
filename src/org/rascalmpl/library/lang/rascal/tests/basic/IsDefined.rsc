@@ -178,6 +178,7 @@ test bool isDefinedRel1(){
     return ({<1, "a">, <2, "b">}[0])?;
 }
 
+@ignoreCompiler{Already detected by type checker}
 @expected{UnsupportedSubscriptArity}
 test bool isDefinedRel2(){
     return !({<1, "a">, <2, "b">}[1,2,3])?;
@@ -199,6 +200,7 @@ test bool isDefinedLRel1(){
     return ([<1, "a">, <2, "b">][0])?;
 }
 
+@ignoreCompiler{Already detected by type checker}
 @expected{UnsupportedSubscriptArity}
 test bool isDefinedLRel2(){
     return !([<1, "a">, <2, "b">][1,2,3])?;
