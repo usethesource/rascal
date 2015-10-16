@@ -34,7 +34,13 @@ public Style style(str id, str fillColor="", str lineColor="", int lineWidth = -
      if (lineOpacity>=0) v.lineOpacity = lineOpacity;
      if (!isEmpty(fillColor)) v.fillColor = fillColor;
      if (!isEmpty(lineColor)) v.lineColor = lineColor;
-     if (!isEmpty(visibility)) v.visibility = visibility;
+     if (!isEmpty(visibility)) {
+           v.visibility = visibility;
+           list[str] xs = getDescendants(id);
+           for (x<-xs) {
+              style(x, visibility = visibility);
+              }
+             }
      _setStyle(id, v);
      return v;
      }

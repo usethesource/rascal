@@ -313,7 +313,17 @@ str getIntro() {
 	return res;
 	}
 	
+list[Figure] getChildren(Figure f) {
+   if (box():=f || ellipse() := f || circle():= f || ngon():=f) return [f.fig];
+   if (hcat():=f || vcat():= f) return f.figs;
+   if (grid():=f) return [*g|g<-f.figArray];
+   return [];
+   }
    
+list[str] getDescendants(str id) {
+   list[Figure] h = getChildren(figMap[id]); 
+   return [x.id|x<-h]+[*getDescendants(x.id)|x<-h];
+   }
 
 Response page(get(), /^\/$/, map[str,str] _) { 
 	return response(getIntro());
@@ -2172,8 +2182,8 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
              
               // println(fs);
               list[IFigure] ifs = [_translate(q, addSvgTag = true)|q<-fs];
-              map[str, tuple[int, int]] m = (getId(f): <getWidth(f), getHeight(f)>|IFigure f<-ifs);
-              list[Vertex] vs  = treeLayout(f, m,  f.scaleX, f.scaleY, f.rasterHeight, f.cityblock,
+              map[str, tuple[int, int]] m = (getId(g): <getWidth(g), getHeight(g)>|IFigure g<-ifs);
+              list[Vertex] vs  = treeLayout(f, m,  f.sX, f.sY, f.rasterHeight, f.cityblock,
               xSeparation=f.xSeparation, ySeparation=f.ySeparation, orientation = f.orientation);
               tuple[int ,int] dim = computeDim(fs, m);
               vs  = vertexUpdate(vs, f.orientation, dim[0], dim[1]);
