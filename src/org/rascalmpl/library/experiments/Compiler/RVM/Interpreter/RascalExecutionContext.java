@@ -97,7 +97,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.vf = vf;
 		this.moduleTags = moduleTags;
 		this.symbol_definitions = symbol_definitions;
-		this.typeStore = typeStore;
+		this.typeStore = typeStore == null ? new TypeStore() : typeStore;
 		this.debug = debug;
 		this.testsuite = testsuite;
 		this.profile = profile;
@@ -122,7 +122,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.classLoaders = new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader()));
 		this.testResultListener = (testResultListener == null) ? (ITestResultListener) new DefaultTestResultListener(stderr)
 															  : testResultListener;
-		parsingTools = new ParsingTools(this);
+		parsingTools = new ParsingTools(vf);
 	}
 
 	public ParsingTools getParsingTools(){

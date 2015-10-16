@@ -92,7 +92,7 @@ public abstract class FunctionModifiers extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 2 + 461 * modifiers.hashCode() ; 
+      return 461 + 877 * modifiers.hashCode() ; 
     } 
   
     

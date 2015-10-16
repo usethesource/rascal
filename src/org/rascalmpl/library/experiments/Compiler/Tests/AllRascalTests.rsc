@@ -13,7 +13,7 @@ import util::Reflective;
 // Percentage of succeeded tests, see spreadsheet TestOverview.ods
 
 
-list[str] basicTests = [
+private list[str] basicTests = [
 "Booleans",					// OK
 "Equality",					// OK
 "Functions",				// OK
@@ -36,7 +36,7 @@ list[str] basicTests = [
 ];
 
 
-list[str] functionalityTests = [
+private list[str] functionalityTests = [
 
 "AccumulatingTests",		// OK
 "AliasTests",				// OK
@@ -79,7 +79,7 @@ list[str] functionalityTests = [
 ];
 
 
-list[str] libraryTests = [
+private list[str] libraryTests = [
 
 // OK
 
@@ -104,7 +104,7 @@ list[str] libraryTests = [
 "lang/json/JSONIOTests"    // OK
 ];
 
-list[str] importTests = [
+private list[str] importTests = [
 "ImportTests1",             // OK
 "ImportTests2",             // OK
 "ImportTests3",             // OK
@@ -116,7 +116,7 @@ list[str] importTests = [
 "ModuleInitRange"
 ];
 
-list[str] extendTests  = [
+private list[str] extendTests  = [
 "ABSTRACTTYPE",
 "A1",
 "A2",
@@ -131,7 +131,7 @@ list[str] extendTests  = [
 "UseExtendBaseExtended"
 ];
 
-list[str] typeTests = [
+private list[str] typeTests = [
 "StaticTestingUtilsTests",	// OK
 "AccumulatingTCTests",		// OK
 //"AliasTCTests",			// C & I: Overflow/LOOP?
@@ -155,7 +155,7 @@ list[str] typeTests = [
 ];
 
 
-list[str] files_with_tests =
+private list[str] files_with_tests =
 [
 "demo/basic/Ackermann",                             // OK
 "demo/basic/Bubble",                                // OK
@@ -193,6 +193,7 @@ list[str] files_with_tests =
 "lang/rascal/grammar/tests/CGrammar",            	// ok
 "lang/rascal/grammar/tests/CharactersTests", 		// OK
 "lang/rascal/grammar/tests/LiteralsTests", 			// 5 fail
+"lang/rascal/grammar/tests/LookaheadTests",         // OK
 "lang/rascal/grammar/tests/RascalGrammar",          // ok
 "lang/rascal/syntax/tests/ConcreteSyntax",          // OK
 "lang/rascal/syntax/tests/ExpressionGrammars",      // OK
@@ -211,7 +212,7 @@ list[str] files_with_tests =
 "util/UUID"                                         // OK
 ];
 
-list[str] reachability_tests = [
+private list[str] reachability_tests = [
 "ConcretePatternTests1",
 "ConcretePatternTests2",
 "ConcretePatternTests3",
@@ -224,8 +225,8 @@ list[str] reachability_tests = [
 "VisitTests"	
 ];
 
-lrel[loc,str] crashes = [];
-lrel[loc,str] partial_results = [];
+private lrel[loc,str] crashes = [];
+private lrel[loc,str] partial_results = [];
 
 lrel[loc,int,str] runTests(list[str] names, loc base){
  all_test_results = [];

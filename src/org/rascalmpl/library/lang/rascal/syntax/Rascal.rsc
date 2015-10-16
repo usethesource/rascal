@@ -535,9 +535,9 @@ start syntax EvalCommand
   ;
  
 lexical Output   
-  = @category="Result" result: "⇨" ![\n\r]* [\n] 
-  | @category="StdOut" stdout: ^ "≫" ![\n\r]* [\n]
-  | @category="StdErr" stderr: ^ "⚠" ![\n\r]* [\n]
+  = @category="Result" resultOutput: "⇨" ![\n\r]* [\n] 
+  | @category="StdOut" stdoutOutput: ^ "≫" ![\n\r]* [\n]
+  | @category="StdErr" stderrOutput: ^ "⚠" ![\n\r]* [\n]
   ;
   
 start syntax Command

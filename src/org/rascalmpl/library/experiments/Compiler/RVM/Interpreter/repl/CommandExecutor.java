@@ -80,7 +80,8 @@ public class CommandExecutor {
 		prelude = new Prelude(vf);
 		execute = new ExecuteProgram(vf);
 		try {
-			compilerBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/experiments/Compiler/Execute.rvm.ser.gz");
+			compilerBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/lang/rascal/boot/Kernel.rvm.ser.gz");
+			//compilerBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/experiments/Compiler/Execute.rvm.ser.gz");
 			consoleInputLocation = vf.sourceLocation("test-modules", "", "/ConsoleInput.rsc");
 			
 		} catch (URISyntaxException e) {
