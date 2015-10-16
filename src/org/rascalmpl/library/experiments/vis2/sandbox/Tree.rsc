@@ -15,20 +15,15 @@ import experiments::vis2::sandbox::Figure;
 
 data TreeNode  = treenode(str id, int width, int height, 
     list[TreeNode] branches, int x=0, int y=0,
-    EDGE left=<0,[]>, EDGE right= <0,[]>);
-
-
-list[int] leftOffset =  [];
-list[int] rightOffset = [];
+    int left=0, int right=0);
 
 int MIN = 0;
 
 map[str, TreeNode] m = ();
 
-str rootId = "";
-
-
 alias EDGE = tuple[int yPosition, list[int] offset]; 
+
+list[tuple[EDGE left, EDGE right]] z = [];
 
 data FigTree = br(Figure root, list[FigTree] figs)|lf(Figure root);
 
@@ -36,7 +31,6 @@ TreeNode convertFigure(Figure f, map[str, tuple[int, int]] m, int scaleX = 1, in
      if (tree(Figure root, Figures figs):=f) {
            root.width = m[root.id][0];
            root.height = m[root.id][1];
-       // println("Convert: <root.width>");
        return treenode(f.root.id, root.width/scaleX+1, root.height/scaleY+1,
        [convertFigure(b, m)|Figure b<-figs]);
        }
@@ -52,13 +46,20 @@ str makeMap(TreeNode t) {
    return t.id;
    }
    
+list[tuple[str, tuple[int, int], int, int, tuple[int, int]]] makeInfo(TreeNode t, int sY) {
+   list[tuple[str, tuple[int, int],  int, int, tuple[int, int]]] r =[];
+   innermost visit(t) {
+       case u:treenode(_, _,_,_): r+=<u.id, <u.x, u.y/sY>, z[u.left].left.yPosition, z[u.right].right.yPosition,
+       <z[u.left].left.offset[z[u.left].left.yPosition]
+       ,z[u.right].right.offset[z[u.right].right.yPosition]>>;
+       }
+   return r;
+   }
+   
 bool isDisjunct(TreeNode n1, TreeNode n2) {
      bool r =  (n1.y+n1.height<n2.y ||  n2.y+n2.height < n1.y)
-                 || (n1.x + (n1.width+n2.width)/2 < n2.x || n2.x + (n1.width+n2.width)/2 < n1.x); 
-              
+                 || (n1.x + (n1.width+n2.width)/2 < n2.x || n2.x + (n1.width+n2.width)/2 < n1.x);             
      if (!r)  {
-        // println([n1.x+d |d<-n1.right.offset]);
-        // println([n2.x+d |d<-n2.left.offset]);
         println("Error: <<n1.id, n1.x, n1.y, n1.width, n1.height>> <<n2.id, n2.x, n2.y, n2.width, n2.height>>");    
         }
       //else
@@ -68,9 +69,7 @@ bool isDisjunct(TreeNode n1, TreeNode n2) {
      
  public bool isDisjunct() {  
     bool disjunct = true;
-    // println("isDisjunct: <size(m)>");
     list[TreeNode] leaves = [m[d]|d<-m, isEmpty(m[d].branches)];
-    // println("isDisjunct: <size(m)> <size(leaves)>");
     for (int i<-[0..size(leaves)]) {
        for (int j<-[0..i])
              disjunct = disjunct && isDisjunct(leaves[j], leaves[i]);
@@ -80,15 +79,16 @@ bool isDisjunct(TreeNode n1, TreeNode n2) {
 
 list[Vertex] treeLayout(Figure f, map[str, tuple[int, int]] y, 
     int scaleX, int scaleY, int height, bool cityblock, int xSeparation = 5, int ySeparation = 10) {
-    // println(y);
-    TreeNode z = convertFigure(f, y, scaleX=scaleX, scaleY=scaleY);
-    // println("Help0 <scaleX>");
-    TreeNode r = layoutTree(z, height, scaleX=scaleX, scaleY=scaleY
+    z = [];
+    TreeNode c = convertFigure(f, y, scaleX=scaleX, scaleY=scaleY);
+    TreeNode r = layoutTree(c, height, scaleX=scaleX, scaleY=scaleY
     , xSeparation = xSeparation, ySeparation = ySeparation, orientation = f.orientation);  
-    m = ();
+    m = ();  
     MIN = 0;
-    rootId = makeMap(r); 
-     if (!isDisjunct()) {
+    makeMap(r);
+    // list[tuple[str, tuple[int, int], int, int, tuple[int, int]]] b = makeInfo(r, f.sY);
+    //      for (d<-b) println(d);  
+     if (!isDisjunct()) { 
 		  println("WRONG Tree");
 		  }
     list[Vertex] q = display(r, [], cityblock);
@@ -126,9 +126,6 @@ Figures treeUpdate(Figures fs,  map[str, tuple[int, int]] q, Orientation orienta
     for (Figure f<-fs) {
        f.width = q[f.id][0];
        f.height = q[f.id][1];
-       // println("treeupdate: <f.width>");
-       // f.width=  f.width/5; f.height = 0;
-       // f.at = <m[f.id].x-f.width/2, m[f.id].y-f.height/2>;
        f.at = orient(orientation, m[f.id].x, m[f.id].y,f.width, f.height, maxWidth, maxHeight);
        r+=[f];
        }
@@ -217,24 +214,20 @@ TreeNode absoluteX(TreeNode t, int x, int scaleX, int scaleY) {
     
 TreeNode layoutTree(TreeNode t, int height, int scaleX=1, int scaleY = 5,
       int ySeparation = 10, int xSeparation = 5, Orientation orientation = topDown()) {
-      leftOffset =  [0|int i<-[0..height]];
-      rightOffset =  [0|int i<-[0..height]];
       // println(orientation);
       if (orientation==leftRight() || orientation == rightLeft()) t = mirror(t);
-      // println("Help scaleX <scaleX>");
       return absoluteX(doShapeTree(t, height, ySeparation, ySeparation, xSeparation),0 , scaleX, scaleY);
    }
 
 TreeNode doShapeTree(TreeNode t, int height, int yPosition, int ySeparation, int xSeparation) {
       // println("doShapeTree <t.id>");
-      t.left = <0, [0|int i<-[0..height]]>;
-      t.right = <0,[0|int i<-[0..height]]>;
       // println("xSep: <xSeparation>");
       t.x = 0;
       if (isEmpty(t.branches)) {
-          t.left.yPosition = yPosition + t.height-1;
-          t.right.yPosition = yPosition + t.height-1;
-          // println("Leaves <t.id> <t.left.yPosition> : <t.id> <t.right.yPosition> h = <t.height>");
+           t.left = size(z);
+           t.right = size(z);
+           z = z  +[<<yPosition + t.height-1, [0|int i<-[0..height]]>
+                    ,<yPosition + t.height-1, [0|int i<-[0..height]]>>];
           }
       else {
         list[TreeNode] outline = [doShapeTree(b, height, yPosition+t.height+ySeparation
@@ -248,60 +241,39 @@ TreeNode doShapeTree(TreeNode t, int height, int yPosition, int ySeparation, int
         for (b<-tail(outline)) {
             int overlap = 0;   
             for (int j<-[yPosition+t.height+ySeparation..
-                    min([b.left.yPosition, t.right.yPosition])+1]) {
-                      // println("H: <t.right.offset[j]> <b.left.offset[j]>");
-                      overlap = max([overlap, b.left.offset[j]+t.right.offset[j]]);
-                      // println("Q:overlap <overlap>  <b.left.offset[j]> <t.right.offset[j]>");
-                      }
-            // println("QQQ <t.id>:<yPosition+t.height+ySeparation> <min([b.left.yPosition, t.right.yPosition])> <overlap>");
-            // println("overlap=<overlap>");
-            // println("RL:<zip(t.right.offset,b.left.offset)>");       
-            outline[i].x = overlap+xSeparation;  
-            // println("<t.id>: x =<outline[i].x>");     
-           /* Adjust left outline */
-           // println("From: (<yPosition>) <t.left.yPosition+1> to  <b.left.yPosition+1>");
-           // println("Check <t.left.yPosition+1> \< <b.left.yPosition+1>");
-           
-           for (int j <- [t.left.yPosition+1 .. b.left.yPosition+1]) {
-                t.left.offset[j] = b.left.offset[j] - outline[i].x;
-            }
-            // println("left offset:<t.left.offset[b.left.yPosition]>");      
+                    min([z[b.left].left.yPosition, z[t.right].right.yPosition])+1]) {
+                    overlap = max([overlap, z[b.left].left.offset[j]+z[t.right].right.offset[j]]);
+                    }    
+           outline[i].x = overlap+xSeparation; 
+            /* Adjust left outline */
+           if (z[t.left].left.yPosition+1 < z[b.left].left.yPosition+1)
+           for (int j <- [z[t.left].left.yPosition+1 .. z[b.left].left.yPosition+1]) {
+                z[t.left].left.offset[j] = z[b.left].left.offset[j] - outline[i].x;
+            }   
             /* Adjust right outline */
-            for (int j <- [yPosition .. b.right.yPosition+1]) {
-                t.right.offset[j] = b.right.offset[j]+ outline[i].x;
-                
+            if (yPosition+1 < z[b.right].right.yPosition+1)
+            for (int j <- [yPosition .. z[b.right].right.yPosition+1]) {
+                z[t.right].right.offset[j] = z[b.right].right.offset[j]+ outline[i].x;              
             }
-            //println("<outline[0].id> (<t.right.yPosition>, <t.left.yPosition>) <
-            //b.id> (<b.left.yPosition> <b.right.yPosition>) (<b.height>) (<
-            //t.right.offset[t.right.yPosition]>, <t.left.offset[b.left.yPosition]>)
-            //");
-            // println("right offset:<t.right.offset[b.right.yPosition]>");
-            t.left.yPosition = max([b.left.yPosition, t.left.yPosition]);
-            t.right.yPosition = max([b.right.yPosition, t.right.yPosition]);
-            
+             z[t.left].left.yPosition = max([z[b.left].left.yPosition, z[t.left].left.yPosition]);
+             z[t.right].right.yPosition= max([z[b.right].right.yPosition, z[t.right].right.yPosition]);
+                   
           i=i+1;
-       }
-       // println("position:<<t.left.yPosition, t.right.yPosition>>");
+       }  
        if (!isEmpty(outline)) {
            int centre = last(outline).x/2;
-           // println("center: <center>");
            for (int i<-[0..size(outline)]) {         
-              outline[i].x -= centre;  
-              // println("outline:<outline[i].x> <outline[i].width>");         
+              outline[i].x -= centre;         
               }
-           // println("Check: <yPosition+t.height>\<<t.left.yPosition+1>");
-           for (int i<-[yPosition..t.left.yPosition+1]) t.left.offset[i] += centre;
-           for (int i<-[yPosition..t.right.yPosition+1]) t.right.offset[i] -= centre;
-          //println("Round <t.id>: <yPosition> -\> <t.right.yPosition>");
-          // for (int i<-[yPosition..t.right.yPosition+1]) {
-          //     println("y=<i>  <t.left.offset[i]> <t.right.offset[i]> <t.right.offset[i]+t.left.offset[i]> <t.width>");
-          //     }
+           // println("Check: <yPosition+t.height>\<<z[t.left].left.offset[z[t.left].left.yPosition]>");
+           for (int i<-[yPosition,yPosition+1..z[t.left].left.yPosition+1]) z[t.left].left.offset[i] += centre;
+           for (int i<-[yPosition,yPosition+1..z[t.right].right.yPosition+1]) z[t.right].right.offset[i] -= centre;
            t.branches = outline;
            } 
       }
       for (int i<-[yPosition-ySeparation..yPosition+t.height]) {
-         t.left.offset[i] = (t.width)/2;
-         t.right.offset[i] =(t.width+1)/2;
+         z[t.left].left.offset[i] = (t.width)/2;
+         z[t.right].right.offset[i] =(t.width+1)/2;
          } 
       
       t.y = yPosition;

@@ -291,31 +291,38 @@ bool animating = false;
 Figure flipflop() {
      animating = false;
      return          
-     box(size=<100, 50>, id = "animate", fillColor = "antiquewhite"
+     hcat(figs=[
+          box(size=<100, 50>, id = "animate", fillColor = "antiquewhite"
           , event = on(["message","click"], 
            void(str e, str n, str v) {
                 if (e=="message") {
                 if (currentColor  == "blue") {
                      style("animate", fillColor = "red");
                      currentColor = "red";
+                     style("vis", visibility = "visible");
                      }
                 else {
                      style("animate", fillColor = "blue");
                      currentColor = "blue";
+                     style("vis", visibility = "hidden");
                      } 
                 } 
                 if (e=="click") {
                     if (animating==false) {
                     timer("animate", delay=500, command = "start");
-                    animating = true;
+                    animating = true;           
                     }
                else {
                    timer("animate", command = "finish");
-                   animating = false;
+                   animating = false;                
                    }    
                }       
            })
-       );
+       )
+       ,
+       box(size=<80, 80>, fillColor = "antiqueWhite", fig = box(id = "vis", size = <60, 60> , fillColor="yellow",
+            fig = text("Hallo")))
+       ]);
        }
            
   void tflipflop() = render(flipflop());

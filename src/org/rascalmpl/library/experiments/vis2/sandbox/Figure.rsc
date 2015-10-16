@@ -249,7 +249,7 @@ public data Figure(
             Rescale scaleX = <<0,1>, <0, 1>>,
    			Rescale scaleY = <<0,1>, <0, 1>>)
    
-   | shape(Vertices vertices, 				// Arbitrary shape
+   | shape(list[Vertex] vertices, 				// Arbitrary shape
    			bool shapeConnected = true, 	// Connect vertices with line/curve
    			bool shapeClosed = false, 		// Make a closed shape
    			bool shapeCurved = false, 		// Connect vertices with a spline
@@ -330,8 +330,8 @@ public data Figure(
      GraphOptions options = graphOptions())
  
 // Trees
-	| tree(Figure root, Figures figs, int scaleX=1, int scaleY=5, int rasterHeight=150
-	       ,int xSeparation = 1, int ySeparation = 10, str pathColor = "black"
+	| tree(Figure root, list[Figure] figs, int sX=1, int sY=5, int rasterHeight=150
+	       ,int xSeparation = 1, int ySeparation = 2, str pathColor = "black"
 	       ,Orientation orientation = topDown()
 	       ,bool cityblock=false)
    ;
