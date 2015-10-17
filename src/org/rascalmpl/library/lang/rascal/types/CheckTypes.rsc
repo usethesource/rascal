@@ -1211,10 +1211,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
     	if (!isIntType(t3)) failures += makeFailType("The last slice index must be of type int", elast@\loc);
     }
     
-    res = makeFailType("Slices can only be used on lists, strings, and nodes", exp@\loc);
-    
-	if (isListType(t1) || isStrType(t1)) {
-		res = t1;	
+    res = makeFailType("Slices can only be used on (concrete) lists, strings, and nodes", exp@\loc);
+
+	if (isListType(t1) || isStrType(t1) || isNonTerminalIterType(t1)) {
+		res = t1;
 	} else if (isNodeType(t1)) {
 		res = \list(Symbol::\value());
 	}
@@ -1246,13 +1246,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
     	if (!isIntType(t4)) failures += makeFailType("The last slice index must be of type int", elast@\loc);
     }
 
-    res = makeFailType("Slices can only be used on lists, strings, and nodes", exp@\loc);
+    res = makeFailType("Slices can only be used on (concrete) lists, strings, and nodes", exp@\loc);
     
-	if (isListType(t1) || isStrType(t1)) {
-		res = t1;	
-	} else if (isNodeType(t1)) {
-		res = \list(Symbol::\value());
-	}
+	if (isListType(t1) || isStrType(t1) || isNonTerminalIterType(t1)) {
+        res = t1;
+    } else if (isNodeType(t1)) {
+        res = \list(Symbol::\value());
+    }
 	
 	if (isFailType(res) || size(failures) > 0)
 		return markLocationFailed(c, exp@\loc, failures + res);
@@ -1494,6 +1494,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> \< <{Fiel
 
     // Get back the fields as a tuple, if this is one of the allowed subscripting types.
     Symbol rt = Symbol::\void();
+
     if (isRelType(t1)) {
         rt = getRelElementType(t1);
     } else if (isListRelType(t1)) {
