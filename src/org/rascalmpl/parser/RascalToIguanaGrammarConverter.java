@@ -66,6 +66,7 @@ import org.iguana.grammar.symbol.Return;
 import org.iguana.grammar.symbol.Rule;
 import org.iguana.grammar.symbol.Symbol;
 import org.iguana.grammar.symbol.Terminal;
+import org.iguana.grammar.symbol.Terminal.Category;
 import org.iguana.grammar.symbol.While;
 import org.iguana.grammar.transformation.EBNFToBNF;
 import org.iguana.regex.Alt;
@@ -116,6 +117,8 @@ public class RascalToIguanaGrammarConverter {
 	
 	private Map<IConstructor, Terminal> tokens = new HashMap<>();
 	
+	private Set<String> keywords = new HashSet<>();
+	
 	private IMap definitions;
 	
 	private Symbol layout;
@@ -147,7 +150,9 @@ public class RascalToIguanaGrammarConverter {
 				case "token":
 				case "layouts":
 				case "lex":
+					break;
 				case "keywords":
+					keywords.add(getName(constructor));
 					break;
 				case "sort": computeEnds(nonterminal, definitions);
 					break;
@@ -336,9 +341,9 @@ public class RascalToIguanaGrammarConverter {
 		List<Symbol> symbols = getSymbolList((IList) alt.get("symbols"));
 
 		if (symbols.size() == 1)
-			return Terminal.builder((RegularExpression) symbols.get(0)).asToken().setName(getName(constructor)).build();
+			return Terminal.builder((RegularExpression) symbols.get(0)).setCategory(Category.REGEX).setName(getName(constructor)).build();
 		else 
-			return Terminal.builder(Sequence.from(symbols)).asToken().setName(getName(constructor)).build();
+			return Terminal.builder(Sequence.from(symbols)).setCategory(Category.REGEX).setName(getName(constructor)).build();
 	}
 	
 	private List<Rule> computeEnds(IValue nonterminal, IMap definitions) {
@@ -779,7 +784,11 @@ public class RascalToIguanaGrammarConverter {
 				return getCharacterClass(symbol);
 				
 			case "lit":
-				return Terminal.from(Sequence.from(getString(symbol)));
+				String string = getString(symbol);
+				if (keywords.contains(string))
+					return Terminal.from(Sequence.from(string)).copyBuilder().setCategory(Category.KEYWORD).build();
+				
+				return Terminal.from(Sequence.from(string));
 	
 			case "label":
 				return getSymbol(getSymbolCons(symbol)).copyBuilder().setLabel(getLabel(symbol)).build();
