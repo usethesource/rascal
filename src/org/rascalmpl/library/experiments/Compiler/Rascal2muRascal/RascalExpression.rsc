@@ -1699,7 +1699,10 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
     }
     fcode = [(f is index) ? muCon(toInt("<f>")) : muCon(indexOf(fieldNames, unescape("<f>"))) | f <- fields];
     //fcode = [(f is index) ? muCon(toInt("<f>")) : muCon("<f>") | f <- fields];
-    return muCallPrim3("<getOuterType(expression)>_field_project", [ translate(expression), *fcode], e@\loc);
+    ot = getOuterType(expression);
+    if(ot == "list") ot = "lrel"; else if(ot == "set") ot = "rel";
+    
+    return muCallPrim3("<ot>_field_project", [ translate(expression), *fcode], e@\loc);
 }
 
 // -- set annotation expression -------------------------------------
