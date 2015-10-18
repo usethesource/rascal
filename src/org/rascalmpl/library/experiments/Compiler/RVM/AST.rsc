@@ -185,7 +185,7 @@ public data Instruction =
 		| ANDBOOL()									// and between two mbools.
 		
 		| TYPEOF()									// Get type of top element
-		| SUBTYPE()									// Subtype between top two IValues
+		| SUBTYPE()									// Subtype between top two Types on the stack
 		| CHECKARGTYPEANDCOPY(
 			int pos1, Symbol \type, int pos2)		// Check the type of argument at pos1 and assign to pos2
 		
@@ -200,5 +200,6 @@ public data Instruction =
 		        
 		| CHECKMEMO()								// Check args of memo function
 		| LOADEMPTYKWMAP()                          // Load an empty keyword map
+		| VALUESUBTYPE(Symbol \type)                // Check that type of top element is subtype of given type
 ;
 	
