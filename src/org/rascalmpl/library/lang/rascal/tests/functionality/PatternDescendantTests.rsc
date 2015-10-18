@@ -36,7 +36,7 @@ test bool descendant43() = {s | /b(str s) := [d((a(1) : b("one"), a(2) : b("two"
 
 data NODE = nd(NODE lhs, NODE rhs) | leaf(int n);
 
-test bool desecendant50(){
+test bool descendant50(){
     nd1 = "leaf"(1);
     nd2 = "nd"(nd1,"leaf"(2));
     nd3 = "nd"("leaf"(3),"leaf"(4));
@@ -45,7 +45,7 @@ test bool desecendant50(){
            {"nd"("leaf"(1),"leaf"(2)),"nd"("leaf"(3),"leaf"(4))};
    }
    
-test bool desecendant51() {
+test bool descendant51() {
     cnd1 = leaf(1);
     cnd2 = nd(cnd1,leaf(2));
     cnd3 = nd(leaf(3),leaf(4));
@@ -55,7 +55,7 @@ test bool desecendant51() {
            {nd(leaf(3), leaf(4)), nd(leaf(1),leaf(2))};        
 }
 
-test bool desecendant52() {
+test bool descendant52() {
     nd1 = "leaf"(1);
     nd2 = "nd"(nd1,"leaf"(2));
     nd3 = "nd"("leaf"(3),"leaf"(4));
@@ -65,7 +65,7 @@ test bool desecendant52() {
            ["nd"("leaf"(1), "leaf"(2)),"nd"("leaf"(3),"leaf"(4))];
 }
 
-test bool desecendant53() {
+test bool descendant53() {
     cnd1 = leaf(1);
     cnd2 = nd(cnd1,leaf(2));
     cnd3 = nd(leaf(3),leaf(4));
