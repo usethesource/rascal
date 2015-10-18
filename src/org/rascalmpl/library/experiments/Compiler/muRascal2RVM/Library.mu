@@ -1647,7 +1647,6 @@ coroutine DESCENT_AND_MATCH_LITERAL(pat, descendantDescriptor, iSubject) {
         yield
         exhaust
     }
-    DESCENT_AND_MATCH(MATCH_LITERAL(pat), iSubject) 	
 }
 
 coroutine DESCENT_AND_MATCH_LIST(pat, descendantDescriptor, iLst)
