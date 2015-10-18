@@ -8086,7 +8086,7 @@ public enum RascalPrimitive {
 
 	/**
 	 * Create list slice
-	 * [ ... IList s, IInteger from, IInteger by, IInteger to] => [ ..., new IList with slice elements ]
+	 * [ ... IList lst, IInteger from, IInteger by, IInteger to] => [ ..., new IList with slice elements ]
 	 */
 	list_slice {
 		@Override
@@ -8101,7 +8101,7 @@ public enum RascalPrimitive {
 
 	/**
 	 * Create str slice
-	 * [ ... IString s s, IInteger from, IInteger by, IInteger to] => [ ..., new IString with slice elements ]
+	 * [ ... IString s, IInteger from, IInteger by, IInteger to] => [ ..., new IString with slice elements ]
 	 */
 	str_slice {
 		@Override
@@ -8116,7 +8116,7 @@ public enum RascalPrimitive {
 
 	/**
 	 * Create node slice
-	 * [ ... INode s s, IInteger from, IInteger by, IInteger to] => [ ..., new INode with slice elements as args ]
+	 * [ ... INode node, IInteger from, IInteger by, IInteger to] => [ ..., new INode with slice elements as args ]
 	 */
 	node_slice {
 		@Override
@@ -8126,6 +8126,61 @@ public enum RascalPrimitive {
 			INode node = (INode) stack[sp - 4];
 			int nd_arity = node.arity();
 			stack[sp - 4] = $makeSlice(node, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), nd_arity, currentFrame));
+			return sp - 3;
+		}
+	},
+	
+	/**
+	 * Create concrete list slice
+	 * [ ... ITree tree, IInteger from, IInteger by, IInteger to] => [ ..., new INode with slice elements as args ]
+	 */
+	concrete_list_slice {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 5;
+
+			ITree tree = (ITree) stack[sp - 5];
+			IList elems = TreeAdapter.getArgs(tree);
+			int len = elems.length();
+			int sep_count = TreeAdapter.getSeparatorCount(tree);
+			int list_length = (len == 0) ? 0 : ((sep_count == 0 ? len : 1 + len/(1 + sep_count)));
+			int min_length =  $getInt((IValue) stack[sp - 1]);
+			stack[sp - 5] = $makeSlice(tree, sep_count, min_length, $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), list_length, currentFrame));
+			if(stack[sp - 5] == null){
+				throw RascalRuntimeException.illegalArgument(tree, currentFrame, "sliced value should have length of at least " + min_length);
+			}
+			return sp - 4;
+		}
+	},
+	
+	/**
+	 * Create nonterminal slice
+	 * [ ... ITree tree, IInteger from, IInteger by, IInteger to] => [ ..., new INode with slice elements as args ]
+	 */
+	nonterminal_slice {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 4;
+
+			ITree tree = (ITree) stack[sp - 4];
+			int tree_arity = TreeAdapter.getArgs(tree).length();
+			stack[sp - 4] = $makeSlice(tree, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), tree_arity, currentFrame));
+			return sp - 3;
+		}
+	},
+	
+	/**
+	 * Create lexical slice
+	 * [ ... ITree tree, IInteger from, IInteger by, IInteger to] => [ ..., new INode with slice elements as args ]
+	 */
+	lex_slice {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 4;
+
+			ITree tree = (ITree) stack[sp - 4];
+			int tree_arity = TreeAdapter.getArgs(tree).length();
+			stack[sp - 4] = $makeSlice(tree, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), tree_arity, currentFrame));
 			return sp - 3;
 		}
 	},
@@ -8731,28 +8786,85 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
 			assert arity == 2;
+			
+			// TODO: old code
 
-			// TODO: this code can be optimized and simplified via TreeAdapter
+//			ITree appl = (ITree) stack[sp - 2];
+//			IList appl_args = (IList) appl.get("args");
+//			IConstructor prod = (IConstructor) appl.getProduction();
+//			IConstructor symbol = $removeLabel((IConstructor) prod.get("def"));
+//			int delta = $getIterDelta(symbol);
+//			if(delta < 0){
+//				if(appl_args.length() == 1){
+//					IConstructor child = (IConstructor) appl_args.get(0);
+//					prod = (IConstructor) child.get("prod");
+//					symbol = $removeLabel((IConstructor) prod.get("def"));
+//					appl_args = (IList) child.get(1);
+//					delta = $getIterDelta(symbol);
+//					if(delta < 0){
+//						throw new CompilerError("subscript not supported on " + symbol, currentFrame);
+//					}
+//				}
+//			}
+//			int index = ((IInteger) stack[sp - 1]).intValue();
+//			stack[sp - 2] = appl_args.get(index * delta);
+//			return sp - 1;
+			
+			// TODO: new code
+			
+			ITree tree =  (ITree) stack[sp - 2];
+			if(!TreeAdapter.isList(tree) && TreeAdapter.isInjectionOrSingleton(tree)){
+				tree = (ITree) TreeAdapter.getArgs(tree).get(0);
+			}
+			if(!TreeAdapter.isList(tree)){
+				throw new CompilerError("subscript not supported on " + TreeAdapter.getProduction(tree), currentFrame);
+			}
 
-			ITree appl = (ITree) stack[sp - 2];
-			IList appl_args = (IList) appl.get("args");
-			IConstructor prod = (IConstructor) appl.getProduction();
-			IConstructor symbol = $removeLabel((IConstructor) prod.get("def"));
-			int delta = $getIterDelta(symbol);
-			if(delta < 0){
-				if(appl_args.length() == 1){
-					IConstructor child = (IConstructor) appl_args.get(0);
-					prod = (IConstructor) child.get("prod");
-					symbol = $removeLabel((IConstructor) prod.get("def"));
-					appl_args = (IList) child.get(1);
-					delta = $getIterDelta(symbol);
-					if(delta < 0){
-						throw new CompilerError("subscript not supported on " + symbol, currentFrame);
-					}
-				}
+			IList elems = TreeAdapter.getArgs(tree);
+			int phys_length = elems.length();
+			int sep_count = TreeAdapter.getSeparatorCount(tree);
+			int log_length = (phys_length == 0) ? 0 : ((sep_count == 0 ? phys_length : 1 + phys_length/(1 + sep_count)));
+
+			int index = ((IInteger) stack[sp - 1]).intValue();
+			if(index < 0){
+				index = log_length + index;
+			}
+			if(index < 0 || index >= log_length){
+				throw RascalRuntimeException.indexOutOfBounds((IInteger) stack[sp - 1], currentFrame);
+			}
+			IValue result = elems.get(index * (sep_count + 1));
+			if(result == null){
+				throw RascalRuntimeException.indexOutOfBounds((IInteger) stack[sp - 1], currentFrame);
+			}
+
+			stack[sp - 2] = result;
+			return sp - 1;
+		}
+	},
+	
+	/**
+	 * Get argument with given index from lexical
+	 * 
+	 * [ ..., ITree tree, IInteger idx ] => [ ..., tree[idx] ]
+	 */
+	lex_subscript_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 2;
+			
+			ITree tree =  (ITree) stack[sp - 2];
+			if(!TreeAdapter.isList(tree) && TreeAdapter.isInjectionOrSingleton(tree)){
+				tree = (ITree) TreeAdapter.getArgs(tree).get(0);
+			}
+			if(!TreeAdapter.isList(tree)){
+				throw new CompilerError("subscript not supported on " + TreeAdapter.getProduction(tree), currentFrame);
 			}
 			int index = ((IInteger) stack[sp - 1]).intValue();
-			stack[sp - 2] = appl_args.get(index * delta);
+			int delta = 1;
+			if(TreeAdapter.isSeparatedList(tree)){
+				delta = TreeAdapter.getSeparatorCount(tree) + 1;
+			}
+			stack[sp - 2] = TreeAdapter.getArgs(tree).get(index * delta);
 			return sp - 1;
 		}
 	},
@@ -8850,7 +8962,11 @@ public enum RascalPrimitive {
 			IValue val = (IValue) stack[sp - 2];
 			String label = ((IString) stack[sp - 1]).getValue();
 			try {
-
+				Map<String, IValue> annos = val.asAnnotatable().getAnnotations();
+//				System.err.println("ANNOTATIONS:");
+//				for(String key : annos.keySet()){
+//					System.err.println(key + ": " + annos.get(key));
+//				}
 				stack[sp - 2] = val.asAnnotatable().getAnnotation(label);
 
 				if(stack[sp - 2] == null) {
@@ -9613,6 +9729,7 @@ public enum RascalPrimitive {
 
 	public SliceDescriptor $makeSliceDescriptor(Integer first, Integer second, Integer end, int len, Frame currentFrame) {
 
+
 		int firstIndex = 0;
 		int secondIndex = 1;
 		int endIndex = len;
@@ -9647,7 +9764,10 @@ public enum RascalPrimitive {
 			firstIndex = secondIndex = endIndex = 0;
 		} else if(endIndex > len){
 			endIndex = len;
-		}
+		} 
+//		else if(endIndex == -1){
+//			endIndex = 0;
+//		}
 
 		return new SliceDescriptor(firstIndex, secondIndex, endIndex);
 	}
@@ -9784,6 +9904,46 @@ public enum RascalPrimitive {
 
 		return w.done();
 	}
+	
+	public IConstructor $makeSlice(final ITree tree, final int separatorCount, final int minLength, final SliceDescriptor sd){
+		IListWriter w = vf.listWriter();
+
+		IList elems = TreeAdapter.getArgs(tree);
+		
+		int increment = sd.second - sd.first;
+		if(sd.first == sd.end){
+			// nothing to be done
+		} else
+			if(sd.first <= sd.end){
+				for(int i = sd.first; i >= 0 && i < sd.end; i += increment){
+					int base_i = i * (separatorCount + 1);
+					w.append(elems.get(base_i));
+					if(i < sd.end - increment){
+						for(int k = 1; k <= separatorCount; k++){
+							w.append(elems.get(base_i + k));
+						}
+					}
+				}
+			} else {
+				for(int j = sd.first; j >= 0 && j > sd.end && j < elems.length(); j += increment){
+					int base_j = j * (separatorCount + 1);
+					w.append(elems.get(base_j));
+					if(j > sd.end && j > 0){
+						for(int k = 1; k <= separatorCount; k++){
+							w.append(elems.get(base_j - k));
+						}
+					}
+				}
+			}
+		
+		IConstructor prod = TreeAdapter.getProduction(tree);
+		IList new_elems = w.done();
+		if(new_elems.length() < minLength){
+			return null;
+		}
+		IConstructor result = vf.constructor(RascalValueFactory.Tree_Appl, prod, new_elems);
+		return result;
+	}
 
 	private static boolean $isTree(final IValue v){
 		return v.getType().isSubtypeOf(RascalValueFactory.Tree); 
@@ -9801,11 +9961,11 @@ public enum RascalPrimitive {
 		return -1;
 	}
 
-	private static IConstructor $removeLabel(final IConstructor cons){
-		if(cons.getName().equals("label"))
-			return (IConstructor) cons.get(1);
-		return cons;
-	}
+//	private static IConstructor $removeLabel(final IConstructor cons){
+//		if(cons.getName().equals("label"))
+//			return (IConstructor) cons.get(1);
+//		return cons;
+//	}
 
 	public String $unescape(final String s) {
 		StringBuilder b = new StringBuilder(s.length() * 2); 
@@ -10034,21 +10194,24 @@ public enum RascalPrimitive {
 	}
 
 	boolean $subtype(final Type t1, final Type t2, final RascalExecutionContext rex){
-		Map<Type,Boolean> t2map = rex.getSubtypeCache().get(t1);
-		if(t2map == null){
-			boolean sub = t1.isSubtypeOf(t2);
-			t2map = new HashMap<Type,Boolean>();
-			t2map.put(t2, sub);
-			rex.getSubtypeCache().put(t1, t2map);
-			return sub;
-		}
-		Boolean res = t2map.get(t2);
-		if(res == null){
-			boolean sub = t1.isSubtypeOf(t2);
-			t2map.put(t2,  sub);
-			return sub;
-		}
-		return res.booleanValue();
+		
+		return t1.isSubtypeOf(t2);
+		
+//		Map<Type,Boolean> t2map = rex.getSubtypeCache().get(t1);
+//		if(t2map == null){
+//			boolean sub = t1.isSubtypeOf(t2);
+//			t2map = new HashMap<Type,Boolean>();
+//			t2map.put(t2, sub);
+//			rex.getSubtypeCache().put(t1, t2map);
+//			return sub;
+//		}
+//		Boolean res = t2map.get(t2);
+//		if(res == null){
+//			boolean sub = t1.isSubtypeOf(t2);
+//			t2map.put(t2,  sub);
+//			return sub;
+//		}
+//		return res.booleanValue();
 	}
 }
 
