@@ -98,7 +98,8 @@ public enum Opcode {
 	RESETLOCS			(80,	1),
 	VISIT               (81,    3),
 	CHECKMEMO			(82,	1),
-	LOADEMPTYKWMAP      (83, 	1)
+	LOADEMPTYKWMAP      (83, 	1),
+	VALUESUBTYPE		(84,	1)
 	;
 	
 	
@@ -198,6 +199,7 @@ public enum Opcode {
 	static public final int OP_VISIT = 81;
 	static public final int OP_CHECKMEMO = 82;
 	static public final int OP_LOADEMPTYKWMAP = 83;
+	static public final int OP_VALUESUBTYPE = 84;
 	
 	/*
 	 * Meta-instructions that are generated dynamically during execution and
@@ -529,6 +531,9 @@ public enum Opcode {
 				
 		case LOADEMPTYKWMAP:
 			return "LOADEMPTYKWMAP";
+			
+		case VALUESUBTYPE:
+			return "VALUESUBTYPE " + cb.getConstantType(arg1) ;
 				
 		default:
 			break;
