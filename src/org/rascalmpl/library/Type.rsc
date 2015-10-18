@@ -646,6 +646,7 @@ public bool isRelType(Symbol::\alias(_,_,Symbol at)) = isRelType(at);
 public bool isRelType(Symbol::\parameter(_,Symbol tvb)) = isRelType(tvb);
 public bool isRelType(Symbol::\label(_,Symbol lt)) = isRelType(lt);
 public bool isRelType(Symbol::\rel(_)) = true;
+public bool isRelType(Symbol::\set(Symbol tp)) = true when isTupleType(tp);
 public default bool isRelType(Symbol _) = false;
 
 @doc{
@@ -655,6 +656,7 @@ public bool isListRelType(Symbol::\alias(_,_,Symbol at)) = isListRelType(at);
 public bool isListRelType(Symbol::\parameter(_,Symbol tvb)) = isListRelType(tvb);
 public bool isListRelType(Symbol::\label(_,Symbol lt)) = isListRelType(lt);
 public bool isListRelType(Symbol::\lrel(_)) = true;
+public bool isListRelType(Symbol::\list(Symbol tp)) = true when isTupleType(tp);
 public default bool isListRelType(Symbol _) = false;
 
 @doc{
