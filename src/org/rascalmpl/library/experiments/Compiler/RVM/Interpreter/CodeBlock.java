@@ -97,6 +97,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.T
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownLoc;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ValueSubtype;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Visit;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
@@ -730,6 +731,10 @@ public class CodeBlock implements Serializable {
 	
 	public CodeBlock LOADEMPTYKWMAP(){
 		return add(new LoadEmptyKwMap(this));
+	}
+	
+	public CodeBlock VALUESUBTYPE(Type type){
+		return add(new ValueSubtype(this, getTypeConstantIndex(type)));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {

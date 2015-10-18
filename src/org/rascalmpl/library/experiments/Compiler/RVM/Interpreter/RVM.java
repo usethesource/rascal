@@ -1683,6 +1683,11 @@ public class RVM implements java.io.Serializable {
 					stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
 					sp--;
 					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_VALUESUBTYPE:
+					Type reqType = cf.function.typeConstantStore[CodeBlock.fetchArg1(instruction)];
+					stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isSubtypeOf(reqType));
+					continue NEXT_INSTRUCTION;
 								
 				case Opcode.OP_LABEL:
 					throw new CompilerError("LABEL instruction at runtime", cf);

@@ -852,6 +852,10 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				codeblock.LOADEMPTYKWMAP();
 				break;
 				
+			case "VALUESUBTYPE":
+				codeblock.VALUESUBTYPE(symbolToType((IConstructor) instruction.get("type")));
+				break;
+				
 			default:
 				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);
 			}
