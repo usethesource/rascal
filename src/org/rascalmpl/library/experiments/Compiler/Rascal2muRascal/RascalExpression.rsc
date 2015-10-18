@@ -1618,14 +1618,27 @@ MuExp translate (e:(Expression) `<Expression expression> [ <OptionalExpression o
 MuExp translate (e:(Expression) `<Expression expression> [ <OptionalExpression optFirst> , <Expression second> .. <OptionalExpression optLast> ]`) =
 	translateSlice(expression, optFirst, second, optLast);
 
-private MuExp translateSlice(Expression expression, OptionalExpression optFirst, OptionalExpression optLast) =
-    muCallPrim3("<getOuterType(expression)>_slice", [ translate(expression), translateOpt(optFirst), muCon("false"), translateOpt(optLast) ], expression@\loc);
+private MuExp translateSlice(Expression expression, OptionalExpression optFirst, OptionalExpression optLast) {
+    ot = getOuterType(expression);
+
+    if(ot in {"iter", "iter-star", "iter-star-seps", "iter-seps"}){
+        min_size = contains(ot, "star") ? 0 : 1;
+        return muCallPrim3("concrete_list_slice", [ translate(expression), translateOpt(optFirst), muCon("false"), translateOpt(optLast), muCon(min_size) ], expression@\loc);
+    }
+    return muCallPrim3("<ot>_slice", [ translate(expression), translateOpt(optFirst), muCon("false"), translateOpt(optLast) ], expression@\loc);
+}
 
 public MuExp translateOpt(OptionalExpression optExp) =
     optExp is noExpression ? muCon("false") : translate(optExp.expression);
 
-private MuExp translateSlice(Expression expression, OptionalExpression optFirst, Expression second, OptionalExpression optLast) =
-    muCallPrim3("<getOuterType(expression)>_slice", [  translate(expression), translateOpt(optFirst), translate(second), translateOpt(optLast) ], expression@\loc);
+private MuExp translateSlice(Expression expression, OptionalExpression optFirst, Expression second, OptionalExpression optLast) {
+    ot = getOuterType(expression);
+    if(ot in {"iter", "iter-star", "iter-star-seps", "iter-seps"}){
+        min_size = contains(ot, "star") ? 0 : 1;
+        return muCallPrim3("concrete_list_slice", [ translate(expression), translateOpt(optFirst), translate(second), translateOpt(optLast), muCon(min_size) ], expression@\loc);
+    }
+    return muCallPrim3("<ot>_slice", [  translate(expression), translateOpt(optFirst), translate(second), translateOpt(optLast) ], expression@\loc);
+}
 
 // -- field access expression ---------------------------------------
 
