@@ -58,8 +58,8 @@ public class DescendantDescriptor {
 		return containsNodeOrValueType;
 	}
 	
-	public IBool shouldDescentInAbstractValue(IValue subject) {
-		assert !concreteMatch : "shouldDescentInAbstractValue: abstract traversal required";
+	public IBool shouldDescentInAbstractValue(final IValue subject) {
+		//assert !concreteMatch : "shouldDescentInAbstractValue: abstract traversal required";
 		//System.out.println("shouldDescentInAbstractValue: " + ++counter + ", " + subject.toString());
 		if (containsNodeOrValueType) {
 			return RascalPrimitive.Rascal_TRUE;
@@ -70,8 +70,8 @@ public class DescendantDescriptor {
 		return mSymbolSet.contains(type) ? RascalPrimitive.Rascal_TRUE : RascalPrimitive.Rascal_FALSE;
 	}
 	
-	public IBool shouldDescentInConcreteValue(ITree subject) {
-		assert concreteMatch : "shouldDescentInConcreteValue: concrete traversal required";
+	public IBool shouldDescentInConcreteValue(final ITree subject) {
+		//assert concreteMatch : "shouldDescentInConcreteValue: concrete traversal required";
 		if (subject.isAppl()) {
 			IConstructor prod = (IConstructor) subject.getProduction();
 			return mSymbolSet.contains(prod) ? RascalPrimitive.Rascal_TRUE : RascalPrimitive.Rascal_FALSE;
