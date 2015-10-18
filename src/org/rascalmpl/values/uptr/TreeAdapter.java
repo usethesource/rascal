@@ -242,7 +242,8 @@ public class TreeAdapter {
 	}
 
 	public static int getSeparatorCount(ITree tree) {
-		return SymbolAdapter.getSeparators(ProductionAdapter.getType(getProduction(tree))).length();
+		IConstructor nt = ProductionAdapter.getType(getProduction(tree));
+		return SymbolAdapter.isSepList(nt) ? SymbolAdapter.getSeparators(nt).length() : 0;
 	}
 
 	public static boolean isLexical(ITree tree) {
