@@ -15,7 +15,7 @@ test bool tupleExpressions() {
     value s = "string"; 
     return tuple[int, int] _ := < n, n > && tuple[str, str] _ := < s, s > && tuple[int, str] _ := < n , s >;
 }
- 
+  
 test bool dropLabelsConcat(tuple[int x, str s] a, tuple[real] b) 
 	= !((a + b) has x);
 

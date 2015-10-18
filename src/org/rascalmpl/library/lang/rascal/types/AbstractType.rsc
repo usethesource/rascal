@@ -144,7 +144,9 @@ public Symbol makeLocType() = Symbol::\loc();
 public Symbol makeDateTimeType() = Symbol::\datetime();
 
 @doc{Create a new set type, given the element type of the set.}
-public Symbol makeSetType(Symbol elementType) = Symbol::\set(elementType);
+public Symbol makeSetType(Symbol elementType) {
+    return isTupleType(elementType) ? makeRelTypeFromTuple(elementType) : Symbol::\set(elementType);
+}    
 
 @doc{Create a new rel type, given the element types of the fields. Check any given labels for consistency.}
 public Symbol makeRelType(Symbol elementTypes...) {
@@ -180,7 +182,9 @@ public Symbol makeTupleType(Symbol elementTypes...) {
 }
 
 @doc{Create a new list type, given the element type of the list.}
-public Symbol makeListType(Symbol elementType) = Symbol::\list(elementType);
+public Symbol makeListType(Symbol elementType) {
+    return isTupleType(elementType) ? makeListRelTypeFromTuple(elementType) : Symbol::\list(elementType);
+}
 
 @doc{Create a new map type, given the types of the domain and range. Check to make sure field names are used consistently.}
 public Symbol makeMapType(Symbol domain, Symbol range) {
@@ -278,7 +282,8 @@ public Symbol getReifiedType(Symbol t) {
 
 @doc{Get the type of the relation fields as a tuple.}
 public Symbol getRelElementType(Symbol t) {
-    if (Symbol::\rel(ets) := unwrapType(t)) return Symbol::\tuple(ets);
+    if (\rel(ets) := unwrapType(t)) return \tuple(ets);
+    if (\set(tup) := unwrapType(t)) return tup;
     throw "Error: Cannot get relation element type from type <prettyPrintType(t)>";
 }
 
@@ -304,6 +309,7 @@ public list[Symbol] getRelFields(Symbol t) {
 @doc{Get the type of the list relation fields as a tuple.}
 public Symbol getListRelElementType(Symbol t) {
     if (\lrel(ets) := unwrapType(t)) return \tuple(ets);
+    if (\list(tup) := unwrapType(t)) return tup;
     throw "Error: Cannot get list relation element type from type <prettyPrintType(t)>";
 }
 
