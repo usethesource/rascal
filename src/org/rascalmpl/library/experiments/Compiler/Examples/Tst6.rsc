@@ -1,5 +1,5 @@
 module experiments::Compiler::Examples::Tst6
+  
+int N = 42;
 
-syntax A = "a";
-
-test bool concreteMatch01() = (A) `<A a>` := [A] "a";
+value main() = N;
