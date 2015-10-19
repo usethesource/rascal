@@ -273,6 +273,7 @@ private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, i
                case muCall(preVar(mvar("iterator")), [exp1])									=> muCallMuPrim("make_iterator", [exp1])
                case muCall(preVar(mvar("hasNext")), [exp1])										=> muCallMuPrim("iterator_hasNext", [exp1])
                case muCall(preVar(mvar("getNext")), [exp1])										=> muCallMuPrim("iterator_next", [exp1])
+               case muCall(preVar(mvar("descendant_iterator")), [exp1, exp2])                   => muCallMuPrim("make_descendant_iterator", [exp1, exp2])
                
                // Macro-like function calls that are direcetly translated to a muExpression
                case muCall(preVar(mvar("GET_SUBJECT_LIST")), [exp1])							=> muCallMuPrim("subscript_array_mint", [exp1, muCon(0)])
