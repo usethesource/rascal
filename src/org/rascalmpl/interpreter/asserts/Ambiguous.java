@@ -11,8 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.asserts;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 

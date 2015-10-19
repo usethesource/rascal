@@ -10,7 +10,6 @@ package org.rascalmpl.library.vis.figure.interaction.swtwidgets;
 import static org.rascalmpl.library.vis.util.vector.Dimension.X;
 import static org.rascalmpl.library.vis.util.vector.Dimension.Y;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.rascalmpl.library.vis.figure.Figure;
@@ -19,6 +18,7 @@ import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.applet.FigureSWTApplet;
 import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.vector.BoundingBox;
+import org.rascalmpl.value.IConstructor;
 
 public class Scrollable extends SWTWidgetFigure<FigureSWTApplet> {
 

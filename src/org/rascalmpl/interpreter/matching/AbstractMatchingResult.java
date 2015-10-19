@@ -19,8 +19,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -28,6 +26,8 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public abstract class AbstractMatchingResult extends AbstractBooleanResult implements IMatchingResult {

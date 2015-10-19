@@ -20,23 +20,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.type.Type;
 
 
 public class TypedVariablePattern extends AbstractMatchingResult implements IVarPattern {
 	private String name;
-	protected org.eclipse.imp.pdb.facts.type.Type declaredType;
+	protected org.rascalmpl.value.type.Type declaredType;
 	private boolean anonymous = false;
 	private boolean debug = false;
 	protected boolean alreadyStored = false;
 
-	public TypedVariablePattern(IEvaluatorContext ctx, Expression x, org.eclipse.imp.pdb.facts.type.Type type, org.rascalmpl.ast.Name name) {
+	public TypedVariablePattern(IEvaluatorContext ctx, Expression x, org.rascalmpl.value.type.Type type, org.rascalmpl.ast.Name name) {
 		super(ctx, x);
 		this.name = Names.name(name);
 		this.declaredType = type;
@@ -45,7 +45,7 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 		
 	}
 	
-	public TypedVariablePattern(IEvaluatorContext ctx, Expression x, org.eclipse.imp.pdb.facts.type.Type type, String name) {
+	public TypedVariablePattern(IEvaluatorContext ctx, Expression x, org.rascalmpl.value.type.Type type, String name) {
 		super(ctx, x);
 		this.name = name;
 		this.declaredType = type;

@@ -2,10 +2,10 @@ package org.rascalmpl.interpreter.load;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.TypeFactory;
 
 public class SourceLocationListContributor implements IRascalSearchPathContributor {
   private IList locs;

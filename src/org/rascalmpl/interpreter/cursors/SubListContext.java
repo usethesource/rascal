@@ -1,7 +1,7 @@
 package org.rascalmpl.interpreter.cursors;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IValue;
 
 public class SubListContext extends Context {
 

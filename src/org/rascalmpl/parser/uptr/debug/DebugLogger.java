@@ -2,7 +2,6 @@ package org.rascalmpl.parser.uptr.debug;
 
 import java.io.PrintWriter;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.debug.IDebugListener;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
@@ -10,6 +9,7 @@ import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class DebugLogger implements IDebugListener<IConstructor>{

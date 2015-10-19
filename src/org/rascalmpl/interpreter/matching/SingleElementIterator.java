@@ -16,9 +16,9 @@ package org.rascalmpl.interpreter.matching;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.IValue;
 
 class SingleElementIterator implements Iterator<IValue> {
 	private final Iterator<IValue> elementIter;

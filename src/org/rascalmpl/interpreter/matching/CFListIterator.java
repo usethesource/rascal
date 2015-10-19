@@ -15,8 +15,8 @@ package org.rascalmpl.interpreter.matching;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IValue;
 
 class CFListIterator implements Iterator<IValue> {
 	private IList list;

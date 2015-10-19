@@ -18,11 +18,6 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.List;
 import java.util.Stack;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Assignable;
 import org.rascalmpl.ast.Bound;
 import org.rascalmpl.ast.Case;
@@ -53,6 +48,11 @@ import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.utils.Cases;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
 
 public abstract class Statement extends org.rascalmpl.ast.Statement {
 

@@ -20,10 +20,6 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
@@ -31,6 +27,10 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -44,7 +44,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 	private boolean iDeclaredItMyself;
 	
 	public ConcreteListVariablePattern(IEvaluatorContext ctx, AbstractAST x,
-			org.eclipse.imp.pdb.facts.type.Type type, org.rascalmpl.ast.Name name) {
+			org.rascalmpl.value.type.Type type, org.rascalmpl.ast.Name name) {
 		super(ctx, x);
 		this.name = Names.name(name);
 		this.declaredType = (NonTerminalType) type;
@@ -54,7 +54,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 	}
 
 	public ConcreteListVariablePattern(IEvaluatorContext ctx, AbstractAST x,
-			org.eclipse.imp.pdb.facts.type.Type type, String name) {
+			org.rascalmpl.value.type.Type type, String name) {
 		super(ctx, x);
 		this.name = name;
 		this.declaredType = (NonTerminalType) type;

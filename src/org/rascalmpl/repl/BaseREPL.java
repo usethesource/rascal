@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.fusesource.jansi.Ansi;
+import org.rascalmpl.value.ISourceLocation;
 
 import jline.Terminal;
 import jline.console.ConsoleReader;

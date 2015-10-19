@@ -17,10 +17,10 @@ import java.net.URISyntaxException;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.uri.FileTree;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
 
 public class JarInputStreamResolver extends JarFileResolver {
 	private final URIResolverRegistry CTX;

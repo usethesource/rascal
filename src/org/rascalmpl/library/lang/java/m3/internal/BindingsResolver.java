@@ -14,13 +14,6 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
@@ -52,6 +45,13 @@ import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class BindingsResolver {
@@ -65,7 +65,7 @@ public class BindingsResolver {
 	private final Map<ISourceLocation, Integer> initializerCounter = new HashMap<ISourceLocation, Integer>();
 	private final Map<Initializer, ISourceLocation> initializerLookUp = new HashMap<>();
 	
-  private org.eclipse.imp.pdb.facts.type.Type typeSymbol;
+  private org.rascalmpl.value.type.Type typeSymbol;
 	
 	BindingsResolver(final TypeStore store, boolean collectBindings) {
 		this.collectBindings = collectBindings;
@@ -266,7 +266,7 @@ public class BindingsResolver {
     return parameters.done();
   }
 
-  private org.eclipse.imp.pdb.facts.type.Type getTypeSymbol() {
+  private org.rascalmpl.value.type.Type getTypeSymbol() {
     if (typeSymbol == null) {
       typeSymbol = store.lookupAbstractDataType("TypeSymbol");
     }
@@ -274,12 +274,12 @@ public class BindingsResolver {
   }
 
   private IConstructor methodSymbol(ISourceLocation decl, IList typeParameters, IConstructor retSymbol, IList parameters) {
-    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "method", tf.tupleType(decl.getType(), typeParameters.getType(), retSymbol.getType(), parameters.getType()));
+    org.rascalmpl.value.type.Type cons = store.lookupConstructor(getTypeSymbol(), "method", tf.tupleType(decl.getType(), typeParameters.getType(), retSymbol.getType(), parameters.getType()));
     return values.constructor(cons, decl, typeParameters, retSymbol, parameters);
   }
 
   private IConstructor constructorSymbol(ISourceLocation decl, IList parameters) {
-    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "constructor", tf.tupleType(decl.getType(), parameters.getType()));
+    org.rascalmpl.value.type.Type cons = store.lookupConstructor(getTypeSymbol(), "constructor", tf.tupleType(decl.getType(), parameters.getType()));
     return values.constructor(cons, decl, parameters);
   }
 
@@ -289,21 +289,21 @@ public class BindingsResolver {
       if (bound.length > 0) {
         boundSym = boundSymbol(bound, isDeclaration, isUpperbound);
       }
-      org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "typeParameter", tf.tupleType(decl.getType(), boundSym.getType()));
+      org.rascalmpl.value.type.Type cons = store.lookupConstructor(getTypeSymbol(), "typeParameter", tf.tupleType(decl.getType(), boundSym.getType()));
       return values.constructor(cons, decl, boundSym);
     }
-    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "typeArgument", tf.tupleType(decl.getType()));
+    org.rascalmpl.value.type.Type cons = store.lookupConstructor(getTypeSymbol(), "typeArgument", tf.tupleType(decl.getType()));
     return values.constructor(cons, decl);
   }
 
   private IConstructor unboundedSym() {
-    org.eclipse.imp.pdb.facts.type.Type boundType = store.lookupAbstractDataType("Bound");
-    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(boundType, "unbounded", tf.voidType());
+    org.rascalmpl.value.type.Type boundType = store.lookupAbstractDataType("Bound");
+    org.rascalmpl.value.type.Type cons = store.lookupConstructor(boundType, "unbounded", tf.voidType());
     return values.constructor(cons);
   }
   
   private IConstructor unresolvedSym() {
-	org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "unresolved", tf.voidType());
+	org.rascalmpl.value.type.Type cons = store.lookupConstructor(getTypeSymbol(), "unresolved", tf.voidType());
     return values.constructor(cons);
   }
 
@@ -360,12 +360,12 @@ public class BindingsResolver {
   }
 
   private IConstructor captureSymbol(IConstructor bound, IConstructor wildcard) {
-    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "capture", tf.tupleType(bound.getType(), wildcard.getType()));
+    org.rascalmpl.value.type.Type cons = store.lookupConstructor(getTypeSymbol(), "capture", tf.tupleType(bound.getType(), wildcard.getType()));
     return values.constructor(cons, bound, wildcard);
   }
 
   private IConstructor wildcardSymbol(IConstructor boundSymbol) {
-    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "wildcard", tf.tupleType(boundSymbol.getType()));
+    org.rascalmpl.value.type.Type cons = store.lookupConstructor(getTypeSymbol(), "wildcard", tf.tupleType(boundSymbol.getType()));
     return values.constructor(cons, boundSymbol);
   }
 
@@ -373,52 +373,52 @@ public class BindingsResolver {
 	// Assumption: Anything appearing in a bound symbol is not a declaration
     IList boundSym = computeTypes(bound, false);
     
-    org.eclipse.imp.pdb.facts.type.Type boundType = store.lookupAbstractDataType("Bound");
+    org.rascalmpl.value.type.Type boundType = store.lookupAbstractDataType("Bound");
     
     if (!isUpperbound) {
-      org.eclipse.imp.pdb.facts.type.Type sup = store.lookupConstructor(boundType, "super", tf.tupleType(boundSym.getType()));
+      org.rascalmpl.value.type.Type sup = store.lookupConstructor(boundType, "super", tf.tupleType(boundSym.getType()));
       return values.constructor(sup, boundSym);
     }
     else {
-      org.eclipse.imp.pdb.facts.type.Type ext = store.lookupConstructor(boundType, "extends", tf.tupleType(boundSym.getType()));
+      org.rascalmpl.value.type.Type ext = store.lookupConstructor(boundType, "extends", tf.tupleType(boundSym.getType()));
       return values.constructor(ext, boundSym);
     }
   }
 
   private IConstructor enumSymbol(ISourceLocation decl) {
-    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "enum", tf.tupleType(decl.getType()));
+    org.rascalmpl.value.type.Type cons = store.lookupConstructor(getTypeSymbol(), "enum", tf.tupleType(decl.getType()));
     return values.constructor(cons, decl);
   }
 
   private IConstructor interfaceSymbol(ISourceLocation decl, IList typeParameters) {
-    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "interface", tf.tupleType(decl.getType(), typeParameters.getType()));
+    org.rascalmpl.value.type.Type cons = store.lookupConstructor(getTypeSymbol(), "interface", tf.tupleType(decl.getType(), typeParameters.getType()));
     return values.constructor(cons, decl, typeParameters);
 
   }
 
   private IConstructor classSymbol(ISourceLocation decl, IList typeParameters) {
     if (decl.getPath().equals("/java/lang/Object")) {
-      org.eclipse.imp.pdb.facts.type.Type obj = store.lookupConstructor(getTypeSymbol(), "object", tf.voidType());
+      org.rascalmpl.value.type.Type obj = store.lookupConstructor(getTypeSymbol(), "object", tf.voidType());
       return values.constructor(obj);
     }
     else {
-      org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "class", tf.tupleType(decl.getType(), typeParameters.getType()));
+      org.rascalmpl.value.type.Type cons = store.lookupConstructor(getTypeSymbol(), "class", tf.tupleType(decl.getType(), typeParameters.getType()));
       return values.constructor(cons, decl, typeParameters);
     }
 }
 
   private IConstructor nullSymbol() {
-    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "null", tf.voidType());
+    org.rascalmpl.value.type.Type cons = store.lookupConstructor(getTypeSymbol(), "null", tf.voidType());
     return values.constructor(cons);
   }
 
   private IConstructor primitiveSymbol(String name) {
-    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), name, tf.voidType());
+    org.rascalmpl.value.type.Type cons = store.lookupConstructor(getTypeSymbol(), name, tf.voidType());
     return values.constructor(cons);
   }
 
   private IConstructor arraySymbol(IConstructor elem, int dimensions) {
-    org.eclipse.imp.pdb.facts.type.Type cons = store.lookupConstructor(getTypeSymbol(), "array", tf.tupleType(elem.getType(), tf.integerType()));
+    org.rascalmpl.value.type.Type cons = store.lookupConstructor(getTypeSymbol(), "array", tf.tupleType(elem.getType(), tf.integerType()));
     return values.constructor(cons, elem, values.integer(dimensions));
   }
 

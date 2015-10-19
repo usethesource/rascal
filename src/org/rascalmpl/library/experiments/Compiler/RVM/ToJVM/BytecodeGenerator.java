@@ -16,12 +16,6 @@ import java.util.TreeMap;
 
 import javax.xml.bind.DatatypeConverter;
 
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
@@ -31,6 +25,12 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.io.StandardTextWriter;
 
 public class BytecodeGenerator implements Opcodes {
 

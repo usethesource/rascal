@@ -22,8 +22,6 @@ import static org.rascalmpl.library.vis.util.FigureColorUtils.dropShadowColor;
 
 import java.util.HashMap;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.library.vis.properties.CombinedProperty.Combine;
@@ -31,6 +29,8 @@ import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.RascalToJavaValueConverters.Convert;
 import org.rascalmpl.library.vis.util.RascalToJavaValueConverters.ConvertStr;
 import org.rascalmpl.library.vis.util.RascalToJavaValueConverters.DoNotConvert;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValue;
 
 	  	  
 

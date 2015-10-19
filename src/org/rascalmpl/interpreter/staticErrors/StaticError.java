@@ -14,10 +14,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.staticErrors;
 
-import java.net.URI;
-
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.value.ISourceLocation;
 
 /**
  * A static error represents all errors that are detected by the interpreter

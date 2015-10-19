@@ -13,16 +13,16 @@ package org.rascalmpl.test.parser;
 
 import java.io.IOException;
 
-import junit.framework.TestCase;
-
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.junit.Assert;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
+
+import junit.framework.TestCase;
 
 public class ParserTest extends TestCase{
 	private final static TypeFactory tf = TypeFactory.getInstance();

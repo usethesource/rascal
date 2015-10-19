@@ -2,15 +2,15 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse;
 
 import java.util.HashSet;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.uptr.ITree;
 
 /**

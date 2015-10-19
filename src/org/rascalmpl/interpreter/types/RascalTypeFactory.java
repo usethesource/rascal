@@ -13,9 +13,9 @@ package org.rascalmpl.interpreter.types;
 
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 
 public class RascalTypeFactory {
 	private TypeFactory tf = TypeFactory.getInstance();

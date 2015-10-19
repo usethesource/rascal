@@ -26,11 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Expression.Closure;
@@ -62,6 +57,11 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.semantics.dynamic.Tree.Appl;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public class RascalFunction extends NamedFunction {
 	private final List<Statement> body;

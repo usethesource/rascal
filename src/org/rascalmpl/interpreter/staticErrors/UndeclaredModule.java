@@ -13,8 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.staticErrors;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.value.ISourceLocation;
 
 public class UndeclaredModule extends StaticError {
 	private static final long serialVersionUID = -3215674111118811111L;
