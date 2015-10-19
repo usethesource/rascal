@@ -26,10 +26,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -660,7 +662,9 @@ public class RascalToIguanaGrammarConverter {
 									.setAssociativity(associativity)
 									.setPrecedence(precedence)
 									.setPrecedenceLevel(level)
-									.setLabel(addLabel(production)).build();
+									.setLabel(addLabel(production))
+									.setAttributes(getAttributes(production))
+									.build();
 	}
 
 	private List<PrecedencePattern> getPrecedencePatterns(IMap notAllowed) {
@@ -823,6 +827,7 @@ public class RascalToIguanaGrammarConverter {
 					return ((Nonterminal) sym).copyBuilder().addExcepts(getExcepts(symbol))
 												.addPreConditions(getPreConditions(symbol))
 												.addPostConditions(getPostConditions(symbol))
+												.addAttributes(getAttributes(symbol))
 												.build();
 				
 				return sym.copyBuilder()
@@ -1119,6 +1124,60 @@ public class RascalToIguanaGrammarConverter {
 			}
 		}
 		return conds;
+	}
+	
+	private static Map<String, Object> getAttributes(IConstructor constructor) {
+		
+		Map<String, Object> map = new HashMap<>();
+		
+		if (constructor.getName().equals("prod")) {
+			ISet attributes = (ISet) constructor.get("attributes");
+			
+			for (IValue attribute : attributes) {
+				if (attribute instanceof IConstructor) {
+					IConstructor attr = (IConstructor) attribute;
+					if (attr.getName().equals("tag")) {
+						INode tag = (INode) attr.get("tag");
+						if (tag.arity() != 1)
+							throw new RuntimeException("Unsupported arity of tags!");
+						
+						IValue child = tag.getChildren().iterator().next();
+						Object value = null;
+						
+						if (child instanceof IInteger) 
+							value = ((IInteger) child).intValue();
+						else if (child instanceof IBool)
+							value = ((IBool) child).getValue();
+						else if (child instanceof IString)
+							value = ((IString) child).getValue();
+						else
+							throw new RuntimeException("Unsupported value of a tag: " + child);
+						
+						map.put(tag.getName(), value);
+					}
+				}
+			}
+			
+			return map;
+			
+		} else if (constructor.getName().equals("conditional")) {
+			
+			ISet conditions = (ISet) constructor.get("conditions");
+			for (IValue condition : conditions) {
+				if (condition instanceof IConstructor) {
+					IConstructor cond = (IConstructor) condition;
+					if (cond.getName().equals("at-column")) {
+						IValue child = cond.getChildren().iterator().next();
+						map.put("name", ((IInteger) child).intValue());
+					}
+				}
+			}
+			
+			return map;
+			
+		}
+		
+		return map;
 	}
 	
 	public static class Visitor extends NullASTVisitor<AbstractAST> {
