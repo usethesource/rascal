@@ -33,6 +33,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantMatchIterator;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory.AnnotatedAmbFacade;
@@ -1177,6 +1178,18 @@ public enum MuPrimitive {
 			}
 			
 			return sp;
+		};
+	},
+	
+	make_descendant_iterator{
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity) {
+			assert arity == 2;
+			IValue iteratee = (IValue) stack[sp - 2];
+			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
+			stack[sp - 2] = new DescendantMatchIterator(iteratee, descriptor);
+			
+			return sp - 1;
 		};
 	},
 	
