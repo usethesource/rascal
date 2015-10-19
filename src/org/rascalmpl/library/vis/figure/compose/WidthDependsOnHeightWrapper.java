@@ -7,7 +7,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.figure.compose;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.library.vis.figure.interaction.swtwidgets.Scrollable;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
@@ -15,6 +14,7 @@ import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.vector.BoundingBox;
 import org.rascalmpl.library.vis.util.vector.Dimension;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
+import org.rascalmpl.value.IConstructor;
 
 public class WidthDependsOnHeightWrapper extends Scrollable{
 

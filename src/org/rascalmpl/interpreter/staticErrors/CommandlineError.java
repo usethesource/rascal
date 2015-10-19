@@ -1,8 +1,8 @@
 package org.rascalmpl.interpreter.staticErrors;
 
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 
 public class CommandlineError extends RuntimeException {
   private static final long serialVersionUID = -5679812063174925071L;

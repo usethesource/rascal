@@ -13,12 +13,12 @@ package org.rascalmpl.interpreter.result;
 
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IExternalValue;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.value.IExternalValue;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public interface ICallableValue extends IExternalValue {
 	public int getArity();

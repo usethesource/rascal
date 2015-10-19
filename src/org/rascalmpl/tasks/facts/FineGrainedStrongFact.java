@@ -17,10 +17,10 @@ import static org.rascalmpl.tasks.IDependencyListener.Change.REMOVED;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.tasks.IDependencyListener;
 import org.rascalmpl.tasks.IExpirationListener;
 import org.rascalmpl.tasks.IFact;
+import org.rascalmpl.value.IValue;
 /**
  * This class implements fact storage for strongly referenced facts (i.e., a fact will never be removed
  * by the garbarge collector unless it is explicitly removed from the database) with fine-grained
@@ -36,7 +36,7 @@ public class FineGrainedStrongFact<V> extends AbstractFact<V> {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.rascalmpl.eclipse.db.IFact#setValue(org.eclipse.imp.pdb.facts.T)
+	 * @see org.rascalmpl.eclipse.db.IFact#setValue(org.rascalmpl.value.T)
 	 */
 	public synchronized boolean setValue(V val) {
 		V oldValue = value;

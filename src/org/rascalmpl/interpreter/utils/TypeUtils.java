@@ -13,12 +13,12 @@ package org.rascalmpl.interpreter.utils;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.TypeArg;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.PartiallyLabeledFields;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredField;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 
 public final class TypeUtils {
 	private static TypeFactory TF = TypeFactory.getInstance();

@@ -24,13 +24,13 @@ import javax.swing.text.html.HTML.Tag;
 import javax.swing.text.html.HTMLEditorKit.ParserCallback;
 import javax.swing.text.html.parser.ParserDelegator;
 
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 
 public class IO {
 	private final IValueFactory factory;

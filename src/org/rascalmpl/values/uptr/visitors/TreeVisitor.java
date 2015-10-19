@@ -13,11 +13,11 @@
 *******************************************************************************/
 package org.rascalmpl.values.uptr.visitors;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.visitors.IdentityVisitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.visitors.IdentityVisitor;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 

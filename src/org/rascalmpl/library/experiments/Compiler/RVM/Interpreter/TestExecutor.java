@@ -15,9 +15,9 @@
  *******************************************************************************/
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
+import org.rascalmpl.value.ISourceLocation;
 
 public class TestExecutor {
 

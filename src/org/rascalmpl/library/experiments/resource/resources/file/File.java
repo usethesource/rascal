@@ -7,13 +7,13 @@
 *******************************************************************************/
 package org.rascalmpl.library.experiments.resource.resources.file;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ResourceResult;
 import org.rascalmpl.library.experiments.resource.resources.BaseResource;
 import org.rascalmpl.library.experiments.resource.results.FileResult;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 
 public class File extends BaseResource {
 

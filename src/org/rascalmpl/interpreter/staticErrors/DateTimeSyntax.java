@@ -12,7 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.staticErrors;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.ISourceLocation;
 
 public class DateTimeSyntax extends StaticError {
 

@@ -7,11 +7,11 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.properties;
 
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.Key;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.RascalToJavaValueConverters.Convert;
+import org.rascalmpl.value.IValue;
 
 public class MeasureValue<PropType> extends PropertyValue<PropType> {
 

@@ -14,8 +14,8 @@ package org.rascalmpl.interpreter.matching;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.IValue;
 
 class NodeChildIterator implements Iterator<IValue> {
 	private INode node;

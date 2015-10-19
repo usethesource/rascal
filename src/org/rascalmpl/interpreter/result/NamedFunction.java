@@ -18,8 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionModifier;
@@ -35,6 +33,8 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 abstract public class NamedFunction extends AbstractFunction {
     private static final String RESOURCE_TAG = "resource";

@@ -20,11 +20,6 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Case;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.PatternWithAction;
@@ -43,6 +38,11 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.semantics.dynamic.QualifiedName;
 import org.rascalmpl.semantics.dynamic.Tree;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -204,7 +204,7 @@ public class Cases  {
 		@Override
 		public boolean matchAndEval(IEvaluator<Result<IValue>> eval, Result<IValue> subject) {
 			IValue value = subject.getValue();
-			org.eclipse.imp.pdb.facts.type.Type subjectType = value
+			org.rascalmpl.value.type.Type subjectType = value
 					.getType();
 
 			if (subjectType.isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((org.rascalmpl.values.uptr.ITree) value)) {
@@ -356,7 +356,7 @@ public class Cases  {
 		@Override
 		public boolean matchAndEval(IEvaluator<Result<IValue>> eval, Result<IValue> subject) {
 			IValue value = subject.getValue();
-			org.eclipse.imp.pdb.facts.type.Type subjectType = value
+			org.rascalmpl.value.type.Type subjectType = value
 					.getType();
 
 			if (subjectType.isSubtypeOf(TF.nodeType())) {

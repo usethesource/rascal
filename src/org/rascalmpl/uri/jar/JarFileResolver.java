@@ -20,9 +20,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.uri.FileTree;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;

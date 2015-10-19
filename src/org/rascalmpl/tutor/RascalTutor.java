@@ -16,8 +16,6 @@ package org.rascalmpl.tutor;
 import java.io.PrintWriter;
 import java.net.URI;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.NullRascalMonitor;
@@ -27,6 +25,8 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.uri.StandardLibraryURIResolver;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalTutor {

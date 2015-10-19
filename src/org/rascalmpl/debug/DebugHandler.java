@@ -21,8 +21,8 @@ import static org.rascalmpl.debug.AbstractInterpreterEventTrigger.newNullEventTr
 import java.util.Set;
 import java.util.function.IntSupplier;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.debug.IDebugMessage.Detail;
+import org.rascalmpl.value.ISourceLocation;
 
 public final class DebugHandler implements IDebugHandler {
 

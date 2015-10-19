@@ -13,9 +13,9 @@
 *******************************************************************************/
 package org.rascalmpl.uri.file;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
 
 /**
  * For reading and writing files relative to the current working directory.

@@ -1,12 +1,12 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Reference;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.values.uptr.ITree;
 
 public class TraversalState {

@@ -17,16 +17,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.ITuple;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 
 public class IO{
 	private static final TypeFactory types = TypeFactory.getInstance();

@@ -23,12 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.KeywordFormal;
@@ -43,6 +37,12 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ConstructorFunction extends NamedFunction {

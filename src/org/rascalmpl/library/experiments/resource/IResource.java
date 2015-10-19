@@ -9,10 +9,10 @@ package org.rascalmpl.library.experiments.resource;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ResourceResult;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.type.Type;
 
 public interface IResource {
 

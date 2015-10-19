@@ -3,10 +3,10 @@ package org.rascalmpl.interpreter.cursors;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
 
 public class WithKeywordParametersCursor extends Cursor implements IWithKeywordParameters<IConstructor> {
 

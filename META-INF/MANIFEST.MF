@@ -78,7 +78,7 @@ Export-Package:
  org.rascalmpl.values.uptr,
  org.rascalmpl.values.uptr.visitors,
  jline
-Require-Bundle: org.eclipse.imp.pdb.values,
+Require-Bundle: 
  org.eclipse.swt,
  org.objectweb.asm;bundle-version="4.0.0",
  org.apache.commons.math,
@@ -112,4 +112,7 @@ Bundle-ClassPath: lib/snakeyaml-1.11.jar,
  lib/fst-1.34.jar,
  lib/caffeine-1.2.0.jar,
  lib/jline-2.13.jar,
+ lib/capsule-0.1.0-SNAPSHOT.jar,
+ lib/value-api-0.5.0-SNAPSHOT.jar,
+ lib/value-core-0.5.0-SNAPSHOT.jar,
  .

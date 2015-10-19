@@ -11,12 +11,12 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 
 public class MonitorCompiled {
 	private final IValueFactory vf;

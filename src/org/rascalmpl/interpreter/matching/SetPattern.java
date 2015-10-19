@@ -20,9 +20,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
@@ -30,6 +27,9 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public class SetPattern extends AbstractMatchingResult {
 	private List<IMatchingResult> patternChildren; // The elements of the set pattern

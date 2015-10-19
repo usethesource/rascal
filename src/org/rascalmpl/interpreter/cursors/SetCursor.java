@@ -2,10 +2,10 @@ package org.rascalmpl.interpreter.cursors;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISetRelation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetRelation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public class SetCursor extends Cursor implements ISet {
 

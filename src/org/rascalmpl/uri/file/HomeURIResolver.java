@@ -11,9 +11,9 @@
 *******************************************************************************/
 package org.rascalmpl.uri.file;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
 
 public class HomeURIResolver implements ILogicalSourceLocationResolver {
 

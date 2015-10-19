@@ -1,9 +1,9 @@
 package org.rascalmpl.interpreter.cursors;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 
 public abstract class Context {
 

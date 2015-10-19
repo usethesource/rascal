@@ -1,8 +1,8 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
+import org.rascalmpl.value.ISourceLocation;
 
 public class OCall extends Instruction {
 

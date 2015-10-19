@@ -14,9 +14,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.control_exceptions;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
 
 public class Return extends ControlException {
 	private static final long serialVersionUID = -6601026099925601817L;

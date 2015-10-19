@@ -1,9 +1,9 @@
 package org.rascalmpl.values.uptr;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.ISet;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISet;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 public interface ITree extends IConstructor {

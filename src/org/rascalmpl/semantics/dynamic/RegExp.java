@@ -16,12 +16,12 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;
 import org.rascalmpl.semantics.dynamic.RegExpLiteral.InterpolationElement;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class RegExp extends org.rascalmpl.ast.RegExp {
 

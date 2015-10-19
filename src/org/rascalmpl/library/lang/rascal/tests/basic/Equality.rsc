@@ -79,7 +79,7 @@ test bool setTransLTE(set[value] x, set[value] y, set[value] z) = (x <= y && y <
 /*TODO:
 
 java.lang.Exception: Test submapOrdering1 failed due to
-	org.eclipse.imp.pdb.facts.type.IntegerType cannot be cast to org.eclipse.imp.pdb.facts.util.TrieMap$CompactMapNode
+	org.rascalmpl.value.type.IntegerType cannot be cast to org.rascalmpl.value.util.TrieMap$CompactMapNode
 
 Actual parameters:
 	map[value, value] =>(true:("":[]))

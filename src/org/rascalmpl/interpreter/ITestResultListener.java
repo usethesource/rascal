@@ -12,7 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.ISourceLocation;
 
 public interface ITestResultListener{
 	void start(String context, int count);

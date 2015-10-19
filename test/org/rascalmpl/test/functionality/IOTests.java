@@ -17,16 +17,16 @@ package org.rascalmpl.test.functionality;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import junit.framework.TestCase;
-
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.io.ATermReader;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.io.ATermReader;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
+
+import junit.framework.TestCase;
 
 public class IOTests extends TestCase {
 	private static TypeFactory tf = TypeFactory.getInstance();

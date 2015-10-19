@@ -18,23 +18,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import jline.Terminal;
-
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.StandardTextWriter;
+import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
+
+import jline.Terminal;
 
 public abstract class BaseRascalREPL extends BaseREPL {
     protected enum State {

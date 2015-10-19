@@ -5,23 +5,23 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IDateTime;
-import org.eclipse.imp.pdb.facts.IExternalValue;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.INumber;
-import org.eclipse.imp.pdb.facts.IRational;
-import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
-import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IDateTime;
+import org.rascalmpl.value.IExternalValue;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.INumber;
+import org.rascalmpl.value.IRational;
+import org.rascalmpl.value.IReal;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.ITypeVisitor;
+import org.rascalmpl.value.type.Type;
 
 public class CursorFactory implements ITypeVisitor<IValue, RuntimeException> {
 

@@ -14,7 +14,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.asserts;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.ISourceLocation;
 
 
 /**

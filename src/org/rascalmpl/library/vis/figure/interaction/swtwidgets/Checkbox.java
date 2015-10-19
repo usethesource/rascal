@@ -13,11 +13,11 @@
  *******************************************************************************/
 package org.rascalmpl.library.vis.figure.interaction.swtwidgets;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.SWT;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Checkbox extends Button {

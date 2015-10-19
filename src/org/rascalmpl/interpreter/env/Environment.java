@@ -26,12 +26,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Name;
@@ -46,6 +40,12 @@ import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeStore;
 
 /**
  * A simple environment for variables and functions and types.

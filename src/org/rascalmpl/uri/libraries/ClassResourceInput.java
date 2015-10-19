@@ -20,9 +20,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**

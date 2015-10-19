@@ -8,8 +8,6 @@
 package org.rascalmpl.library.vis.figure.interaction.swtwidgets;
 
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -20,6 +18,8 @@ import org.rascalmpl.library.vis.properties.PropertyValue;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.vector.Dimension;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Scale extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.Scale>{

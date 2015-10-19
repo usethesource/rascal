@@ -22,9 +22,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.Tag;
@@ -40,6 +37,9 @@ import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public class JavaMethod extends NamedFunction {
 	private final Object instance;

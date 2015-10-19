@@ -12,9 +12,9 @@
 *******************************************************************************/
 package org.rascalmpl.library.lang.yaml;
 
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 
 public class YAMLTypeFactory {
 	public static final TypeStore yaml = new TypeStore();

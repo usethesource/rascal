@@ -1,6 +1,6 @@
 package org.rascalmpl.interpreter.cursors;
 
-import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.value.IValue;
 
 public interface ICursor extends IValue {
 	IValue root();

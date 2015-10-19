@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.ISourceLocation;
 
 public class StandardInputURIResolver implements ISourceLocationInput {
 	public boolean exists(ISourceLocation uri) {

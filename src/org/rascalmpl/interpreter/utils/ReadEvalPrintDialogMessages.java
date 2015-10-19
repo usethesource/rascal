@@ -17,10 +17,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.regex.Matcher;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
@@ -29,6 +25,10 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.io.StandardTextWriter;
+import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 

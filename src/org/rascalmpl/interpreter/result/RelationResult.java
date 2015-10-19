@@ -17,16 +17,6 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -36,6 +26,16 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.ITuple;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.exceptions.UndeclaredFieldException;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RelationResult extends SetOrRelationResult<ISet> {

@@ -15,15 +15,15 @@ package org.rascalmpl.semantics.dynamic;
 
 import java.util.ArrayList;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
 
 public abstract class Comprehension extends org.rascalmpl.ast.Comprehension {
 

@@ -13,7 +13,7 @@ package org.rascalmpl.debug;
 
 import java.util.Stack;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.ISourceLocation;
 
 public interface IRascalRuntimeInspection {
     /**

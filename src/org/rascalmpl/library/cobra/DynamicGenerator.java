@@ -17,9 +17,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
@@ -29,6 +26,9 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public class DynamicGenerator extends AbstractFunction {
 

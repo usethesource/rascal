@@ -12,14 +12,14 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.MidPathChars;
 import org.rascalmpl.ast.PostPathChars;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
 
 public abstract class PathTail extends org.rascalmpl.ast.PathTail {
 

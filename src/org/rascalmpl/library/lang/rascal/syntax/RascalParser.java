@@ -3,31 +3,48 @@ package org.rascalmpl.library.lang.rascal.syntax;
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.rascalmpl.parser.gtd.stack.*;
-import org.rascalmpl.parser.gtd.stack.filter.*;
-import org.rascalmpl.parser.gtd.stack.filter.follow.*;
-import org.rascalmpl.parser.gtd.stack.filter.match.*;
-import org.rascalmpl.parser.gtd.stack.filter.precede.*;
 import org.rascalmpl.parser.gtd.preprocessing.ExpectBuilder;
+import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.parser.gtd.stack.AlternativeStackNode;
+import org.rascalmpl.parser.gtd.stack.CharStackNode;
+import org.rascalmpl.parser.gtd.stack.EmptyStackNode;
+import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
+import org.rascalmpl.parser.gtd.stack.ListStackNode;
+import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
+import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.gtd.stack.OptionalStackNode;
+import org.rascalmpl.parser.gtd.stack.SeparatedListStackNode;
+import org.rascalmpl.parser.gtd.stack.SequenceStackNode;
+import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
+import org.rascalmpl.parser.gtd.stack.filter.follow.AtEndOfLineRequirement;
+import org.rascalmpl.parser.gtd.stack.filter.follow.CharFollowRestriction;
+import org.rascalmpl.parser.gtd.stack.filter.follow.StringFollowRequirement;
+import org.rascalmpl.parser.gtd.stack.filter.follow.StringFollowRestriction;
+import org.rascalmpl.parser.gtd.stack.filter.match.StringMatchRestriction;
+import org.rascalmpl.parser.gtd.stack.filter.precede.AtStartOfLineRequirement;
+import org.rascalmpl.parser.gtd.stack.filter.precede.CharPrecedeRequirement;
+import org.rascalmpl.parser.gtd.stack.filter.precede.CharPrecedeRestriction;
+import org.rascalmpl.parser.gtd.stack.filter.precede.StringPrecedeRestriction;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.io.StandardTextReader;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 @SuppressWarnings("all")
 public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, ITree, ISourceLocation> {
   protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
-  protected static IValue _read(java.lang.String s, org.eclipse.imp.pdb.facts.type.Type type) {
+  protected static IValue _read(java.lang.String s, org.rascalmpl.value.type.Type type) {
     try {
       return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.RascalValueFactory.uptr, type, new StringReader(s));
     }

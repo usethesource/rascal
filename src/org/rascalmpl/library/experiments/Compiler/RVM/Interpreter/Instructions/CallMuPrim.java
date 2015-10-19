@@ -1,8 +1,8 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
+import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class CallMuPrim extends Instruction {
 

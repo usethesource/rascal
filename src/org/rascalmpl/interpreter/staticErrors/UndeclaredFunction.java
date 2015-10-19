@@ -14,9 +14,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.staticErrors;
 
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.value.type.Type;
 
 public class UndeclaredFunction extends StaticError {
 	private static final long serialVersionUID = -3215674987633177L;

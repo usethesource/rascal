@@ -10,7 +10,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.lang.java.m3.internal;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
@@ -34,6 +33,7 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.rascalmpl.value.ISourceLocation;
 
 public interface IBindingsResolver {
 	public ISourceLocation resolveBinding(TypeDeclaration node); // declaration

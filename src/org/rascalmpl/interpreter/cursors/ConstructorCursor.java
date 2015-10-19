@@ -1,12 +1,12 @@
 package org.rascalmpl.interpreter.cursors;
 
-import org.eclipse.imp.pdb.facts.IAnnotatable;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.value.IAnnotatable;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeStore;
 
 public class ConstructorCursor extends NodeCursor implements IConstructor {
 

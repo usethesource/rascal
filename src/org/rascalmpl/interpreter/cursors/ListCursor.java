@@ -3,11 +3,11 @@ package org.rascalmpl.interpreter.cursors;
 import java.util.Iterator;
 import java.util.Random;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListRelation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.type.Type;
 
 public class ListCursor extends Cursor implements IList {
 

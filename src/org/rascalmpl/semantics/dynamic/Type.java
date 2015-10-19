@@ -13,9 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.BasicType;
 import org.rascalmpl.ast.DataTypeSelector;
 import org.rascalmpl.ast.FunctionType;
@@ -27,6 +24,9 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
 
 public abstract class Type extends org.rascalmpl.ast.Type {
 	static public class Basic extends org.rascalmpl.ast.Type.Basic {
@@ -36,7 +36,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public org.rascalmpl.value.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			return this.getBasic().typeOf(__eval, instantiateTypeParameters, eval);
 		}
 
@@ -49,7 +49,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public org.rascalmpl.value.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 
 			return this.getType().typeOf(__eval, instantiateTypeParameters, eval);
 
@@ -64,7 +64,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public org.rascalmpl.value.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 
 			return this.getFunction().typeOf(__eval, instantiateTypeParameters, eval);
 
@@ -79,7 +79,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public org.rascalmpl.value.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 
 			return this.getSelector().typeOf(__eval, instantiateTypeParameters, eval);
 
@@ -94,7 +94,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public org.rascalmpl.value.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			return getStructured().typeOf(__eval, instantiateTypeParameters, eval);
 		}
 
@@ -107,7 +107,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public org.rascalmpl.value.type.Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			// TODO: !!! where to get the right layout name for this non-terminal? It depends on where it was/is used when parsing whatever
 			// is being analyzed here...
 			// TODO AND: we always assume this non-terminal is not a lexical one here for some reason.
@@ -124,7 +124,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public org.rascalmpl.value.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 
 			return this.getUser().typeOf(__eval, instantiateTypeParameters, eval);
 
@@ -139,9 +139,9 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 		@Override
-		public org.eclipse.imp.pdb.facts.type.Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public org.rascalmpl.value.type.Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			TypeVar var = this.getTypeVar();
-			org.eclipse.imp.pdb.facts.type.Type param;
+			org.rascalmpl.value.type.Type param;
 
 			if (var.isBounded()) {
 				param = TF.parameterType(Names.name(var.getName()), var

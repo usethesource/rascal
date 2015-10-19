@@ -15,15 +15,15 @@ package org.rascalmpl.semantics.dynamic;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Import;
 import org.rascalmpl.ast.ModuleParameters;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Tags;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
 
 public abstract class Header extends org.rascalmpl.ast.Header {
 

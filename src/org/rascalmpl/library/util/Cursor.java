@@ -1,14 +1,5 @@
 package org.rascalmpl.library.util;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.cursors.Context;
 import org.rascalmpl.interpreter.cursors.CursorFactory;
 import org.rascalmpl.interpreter.cursors.ICursor;
@@ -18,6 +9,15 @@ import org.rascalmpl.interpreter.cursors.TopContext;
 import org.rascalmpl.interpreter.cursors.UnionContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 
 public class Cursor {
 

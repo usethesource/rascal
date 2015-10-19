@@ -19,10 +19,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.exceptions.IllegalOperationException;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**

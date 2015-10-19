@@ -6,14 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -25,6 +17,14 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class JavaToRascalConverter extends ASTVisitor {
@@ -42,13 +42,13 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	private static final String DATATYPE_RASCAL_MESSAGE                 = "Message";
 	private static final String DATATYPE_RASCAL_MESSAGE_ERROR           = "error";
 	
-	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_DECLARATION_NODE_TYPE;
-	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_EXPRESSION_NODE_TYPE;
-	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE;
-	protected static org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_TYPE_NODE_TYPE;
-	protected static org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE;
-	protected static org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_MESSAGE_DATA_TYPE;
-	protected static org.eclipse.imp.pdb.facts.type.Type DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE;
+	private final org.rascalmpl.value.type.Type DATATYPE_RASCAL_AST_DECLARATION_NODE_TYPE;
+	private final org.rascalmpl.value.type.Type DATATYPE_RASCAL_AST_EXPRESSION_NODE_TYPE;
+	private final org.rascalmpl.value.type.Type DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE;
+	protected static org.rascalmpl.value.type.Type DATATYPE_RASCAL_AST_TYPE_NODE_TYPE;
+	protected static org.rascalmpl.value.type.Type DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE;
+	protected static org.rascalmpl.value.type.Type DATATYPE_RASCAL_MESSAGE_DATA_TYPE;
+	protected static org.rascalmpl.value.type.Type DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE;
 	
 	protected CompilationUnit compilUnit;
 	protected ISourceLocation loc;
@@ -187,8 +187,8 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		
 		
 		for (String constructor: java.lang.reflect.Modifier.toString(modifiers).split(" ")) {
-			Set<org.eclipse.imp.pdb.facts.type.Type> exConstr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE, constructor);
-			for (org.eclipse.imp.pdb.facts.type.Type con: exConstr) {
+			Set<org.rascalmpl.value.type.Type> exConstr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE, constructor);
+			for (org.rascalmpl.value.type.Type con: exConstr) {
 				extendedModifierList.add(values.constructor(con));
 			}
 		}
@@ -230,8 +230,8 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	}
 	
 	protected IConstructor constructModifierNode(String constructor, IValue... children) {
-		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(removeNulls(children));
-		org.eclipse.imp.pdb.facts.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE, constructor, args);
+		org.rascalmpl.value.type.Type args = TF.tupleType(removeNulls(children));
+		org.rascalmpl.value.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE, constructor, args);
 		return values.constructor(constr, removeNulls(children));
 	}
 	
@@ -255,31 +255,31 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	}
 	
 	protected IValue constructDeclarationNode(String constructor, IValue... children) {
-		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(removeNulls(children));
-		org.eclipse.imp.pdb.facts.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_DECLARATION_NODE_TYPE, constructor, args);
+		org.rascalmpl.value.type.Type args = TF.tupleType(removeNulls(children));
+		org.rascalmpl.value.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_DECLARATION_NODE_TYPE, constructor, args);
 		return values.constructor(constr, removeNulls(children));
 	}
 	
 	protected IValue constructExpressionNode(String constructor, IValue... children) {
-		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(removeNulls(children));
-		org.eclipse.imp.pdb.facts.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_EXPRESSION_NODE_TYPE, constructor, args);
+		org.rascalmpl.value.type.Type args = TF.tupleType(removeNulls(children));
+		org.rascalmpl.value.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_EXPRESSION_NODE_TYPE, constructor, args);
 		return values.constructor(constr, removeNulls(children));
 	}
 	
 	protected IValue constructStatementNode(String constructor, IValue... children) {
-		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(removeNulls(children));
-		org.eclipse.imp.pdb.facts.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE, constructor, args);
+		org.rascalmpl.value.type.Type args = TF.tupleType(removeNulls(children));
+		org.rascalmpl.value.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE, constructor, args);
 		return values.constructor(constr, removeNulls(children));
 	}
 	
 	protected IValue constructTypeNode(String constructor, IValue... children) {
-		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(removeNulls(children));
-		org.eclipse.imp.pdb.facts.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_TYPE_NODE_TYPE, constructor, args);
+		org.rascalmpl.value.type.Type args = TF.tupleType(removeNulls(children));
+		org.rascalmpl.value.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_TYPE_NODE_TYPE, constructor, args);
 		return values.constructor(constr, removeNulls(children));
 	}
 	
 	protected void insertCompilationUnitMessages(boolean insertErrors, IList otherMessages) {
-		org.eclipse.imp.pdb.facts.type.Type args = TF.tupleType(TF.stringType(), TF.sourceLocationType());
+		org.rascalmpl.value.type.Type args = TF.tupleType(TF.stringType(), TF.sourceLocationType());
 		
 		IValueList result = new IValueList(values);
 
@@ -298,7 +298,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 				int length = problems[i].getSourceEnd() - offset + 1;
 				int sl = problems[i].getSourceLineNumber();
 				ISourceLocation pos = values.sourceLocation(loc, offset, length, sl, sl, 0, 0);
-				org.eclipse.imp.pdb.facts.type.Type constr;
+				org.rascalmpl.value.type.Type constr;
 				if (problems[i].isError()) {
 					constr = typeStore.lookupConstructor(this.typeStore.lookupAbstractDataType("Message"), "error", args);
 				} else {

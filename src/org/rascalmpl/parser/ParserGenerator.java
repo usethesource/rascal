@@ -20,13 +20,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
@@ -38,6 +31,13 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.parser.gtd.IGTD;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 

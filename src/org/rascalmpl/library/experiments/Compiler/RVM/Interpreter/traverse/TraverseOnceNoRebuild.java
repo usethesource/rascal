@@ -3,16 +3,16 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.ITuple;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.IWithKeywordParameters;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 

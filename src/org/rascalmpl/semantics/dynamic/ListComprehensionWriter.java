@@ -1,10 +1,10 @@
 package org.rascalmpl.semantics.dynamic;
 
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IValue;
 
 public class ListComprehensionWriter extends ComprehensionWriter {
 

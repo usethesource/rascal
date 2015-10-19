@@ -11,15 +11,17 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
-import org.eclipse.imp.pdb.facts.IAnnotatable;
-import org.eclipse.imp.pdb.facts.IExternalValue;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
-import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.value.IAnnotatable;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IExternalValue;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.value.exceptions.IllegalOperationException;
+import org.rascalmpl.value.impl.AbstractExternalValue;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.visitors.IValueVisitor;
 
 public abstract class ResourceResult extends Result<IValue> implements IExternalValue {
 
@@ -67,4 +69,10 @@ public abstract class ResourceResult extends Result<IValue> implements IExternal
 	public boolean mayHaveKeywordParameters() {
 	  return false;
 	}
+	
+	@Override
+	public IConstructor encodeAsConstructor() {
+		return AbstractExternalValue.encodeAsConstructor(this);
+	}
+	
 }
