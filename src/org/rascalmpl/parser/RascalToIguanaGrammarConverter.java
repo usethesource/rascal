@@ -119,7 +119,7 @@ public class RascalToIguanaGrammarConverter {
 	
 	private Map<IConstructor, Terminal> tokens = new HashMap<>();
 	
-	private Set<String> keywords = new HashSet<>();
+	private Set<Terminal> keywords = new HashSet<>();
 	
 	private IMap definitions;
 	
@@ -154,12 +154,21 @@ public class RascalToIguanaGrammarConverter {
 				case "lex":
 					break;
 				case "keywords":
-					keywords.add(getName(constructor));
+					
+					List<Rule> rules = getAlternatives(nonterminal, definitions, LayoutStrategy.NO_LAYOUT);
+					
+					for (Rule rule : rules) {
+						assert rule.getBody().size() == 1;
+						if (rule.getBody().get(0) instanceof Terminal)
+							keywords.add((Terminal) rule.getBody().get(0));
+					}
+					
+					builder.addRules(rules);
 					break;
 				case "sort": computeEnds(nonterminal, definitions);
 					break;
 				default:
-					System.out.println("Unkonwn construct: " + constructor);
+					System.out.println("Unknown construct: " + constructor);
 					break;
  			}
 		}
@@ -226,10 +235,10 @@ public class RascalToIguanaGrammarConverter {
 					
 				case "layouts":
 				case "lex":
-				case "keywords":
 					builder.addRules(getAlternatives(nonterminal, definitions, LayoutStrategy.NO_LAYOUT));
 					break;
-					
+				case "keywords":
+					break;
 				case "sort":
 					builder.addRules(getAlternatives(nonterminal, definitions, LayoutStrategy.INHERITED));
 					break;
@@ -788,11 +797,10 @@ public class RascalToIguanaGrammarConverter {
 				return getCharacterClass(symbol);
 				
 			case "lit":
-				String string = getString(symbol);
-				if (keywords.contains(string))
-					return Terminal.from(Sequence.from(string)).copyBuilder().setCategory(Category.KEYWORD).build();
-				
-				return Terminal.from(Sequence.from(string));
+				Terminal terminal = Terminal.from(Sequence.from(getString(symbol)));
+				if (keywords.contains(terminal))
+					return terminal.copyBuilder().setCategory(Category.KEYWORD).build();
+				return terminal;
 	
 			case "label":
 				return getSymbol(getSymbolCons(symbol)).copyBuilder().setLabel(getLabel(symbol)).build();
