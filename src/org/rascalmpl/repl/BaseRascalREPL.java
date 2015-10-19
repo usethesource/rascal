@@ -135,18 +135,13 @@ public abstract class BaseRascalREPL extends BaseREPL {
         }
         Type type = result.getType();
 
-        if (type.isAbstractData() && type.isSubtypeOf(RascalValueFactory.Tree)) {
+        if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree)) {
             out.print(type.toString());
             out.print(": ");
-            // we first unparse the tree
-            out.print("`");
+            // we unparse the tree
+            out.print("(" + type.toString() +") `");
             TreeAdapter.yield((IConstructor)result.getValue(), true, out);
-            out.println("`");
-            // write parse tree out one a single line for reference
-            out.print("Tree: ");
-            try (Writer wrt = new LimitedWriter(out, CHAR_LIMIT)) {
-                singleLinePrettyPrinter.write(value, wrt);
-            }
+            out.print("`");
         }
         else {
             out.print(type.toString());
