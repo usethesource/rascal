@@ -7,6 +7,7 @@ Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
 Bundle-Version: 0.8.0.qualifier
 Export-Package: 
+ jline,
  org.rascalmpl.ast,
  org.rascalmpl.checker,
  org.rascalmpl.debug,
@@ -77,7 +78,17 @@ Export-Package:
  org.rascalmpl.values,
  org.rascalmpl.values.uptr,
  org.rascalmpl.values.uptr.visitors,
- jline
+ org.rascalmpl.value,
+ org.rascalmpl.value.exceptions,
+ org.rascalmpl.value.impl,
+ org.rascalmpl.value.impl.fast,
+ org.rascalmpl.value.impl.persistent,
+ org.rascalmpl.value.impl.primitive,
+ org.rascalmpl.value.impl.reference,
+ org.rascalmpl.value.io,
+ org.rascalmpl.value.type,
+ org.rascalmpl.value.util,
+ org.rascalmpl.value.visitors
 Require-Bundle: 
  org.eclipse.swt,
  org.objectweb.asm;bundle-version="4.0.0",
