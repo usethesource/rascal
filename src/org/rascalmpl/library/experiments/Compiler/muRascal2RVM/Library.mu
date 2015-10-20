@@ -616,7 +616,7 @@ guard
 
 coroutine MATCH_VAR_BECOMES(rVar, pat, iSubject) {
     var cpat = create(pat, iSubject)
-    if(is_defined(rVar)){
+   /* if(is_defined(rVar)){
        while(next(cpat)) {
             if(equal(iSubject, deref rVar)){
                yield iSubject
@@ -625,7 +625,7 @@ coroutine MATCH_VAR_BECOMES(rVar, pat, iSubject) {
             }
        }
        exhaust
-    }
+    }*/
     while(next(cpat)) {
         yield iSubject
     }
@@ -1639,7 +1639,6 @@ coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal) {
     }
 }
 
-
 coroutine DESCENT_AND_MATCH_CONCRETE(pat, descendantDescriptor, iNd) {
     var iter = descendant_iterator(iNd, descendantDescriptor);
     while(hasNext(iter)){
@@ -1667,7 +1666,7 @@ coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal)
 	 }
 	 pat(iVal) 
 }
-*/
+
 
 coroutine DESCENT_AND_MATCH_LITERAL(pat, descendantDescriptor, iSubject) {
     if(equal(pat, iSubject)) {
@@ -1725,7 +1724,7 @@ coroutine DESCENT_AND_MATCH_TUPLE(pat, descendantDescriptor, iTup) {
 
 
 // Descent and match a concrete tree
-/*
+
 coroutine DESCENT_AND_MATCH_CONCRETE(pat, descendantDescriptor, iNd) 
 {  var val, iter;
 
@@ -1743,7 +1742,7 @@ coroutine DESCENT_AND_MATCH_CONCRETE(pat, descendantDescriptor, iNd)
    DESCENT_AND_MATCH_CONCRETE_NODE (pat, descendantDescriptor, iNd)
    pat(iNd) 
 }
-*/
+
 coroutine DESCENT_AND_MATCH_CONCRETE_NODE(pat, descendantDescriptor, iNd)
 guard
 	prim("should_descent_in_concrete", iNd, descendantDescriptor)
@@ -1770,6 +1769,8 @@ guard
    }
    exhaust
 }
+
+*/
 
 // ***** Regular expressions *****
 
