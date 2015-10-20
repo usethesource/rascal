@@ -17,7 +17,7 @@ import org.rascalmpl.interpreter.matching.TupleElementIterator;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalType;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -75,21 +75,36 @@ public class DescendantMatchIterator implements Iterator<IValue> {
 			}
 			return;
 		}
-		if(descriptor.shouldDescentInAbstractValue(v).getValue()){	
+		if(descriptor.shouldDescentInAbstractValue(v) == RascalPrimitive.Rascal_TRUE){	
 			if(v.getType().accept(new DefaultRascalTypeVisitor<Boolean,RuntimeException>(false) {
 				@Override
 				public Boolean visitList(final Type type) throws RuntimeException {
-					push(v, ((IList) v).iterator()); 
+					IList lst = (IList) v;
+					if(lst.length() > 0){
+						push(lst, lst.iterator()); 
+					} else {
+						spine.push(lst);
+					}
 					return true;
 				}
 				@Override
 				public Boolean visitSet(final Type type) throws RuntimeException {
-					push(v, ((ISet) v).iterator()); 
+					ISet set = (ISet) v;
+					if(set.size() > 0){
+						push(set, set.iterator()); 
+					} else {
+						spine.push(set);
+					}
 					return true;
 				}
 				@Override
 				public Boolean visitMap(final Type type) throws RuntimeException {
-					push(v, new MapKeyValueIterator((IMap) v));  
+					IMap map = (IMap) v;
+					if(map.size() > 0){
+						push(map, new MapKeyValueIterator(map));
+					} else {
+						spine.push(map);
+					}
 					return true;
 				}
 				@Override
@@ -100,7 +115,11 @@ public class DescendantMatchIterator implements Iterator<IValue> {
 				@Override
 				public Boolean visitNode(final Type type) throws RuntimeException {
 					INode node = (INode) v;
-					push(v, node.getChildren().iterator());
+					if(node.arity() > 0){
+						push(v, node.getChildren().iterator());
+					} else {
+						spine.push(v);
+					}
 					if (node.mayHaveKeywordParameters()) {
 						IWithKeywordParameters<? extends INode> nodeKW = node.asWithKeywordParameters();
 						for (String name : nodeKW.getParameterNames()) {
@@ -123,54 +142,13 @@ public class DescendantMatchIterator implements Iterator<IValue> {
 				}
 			})){
 				return;
-			} else {
-				spine.push(v);
-				return;
 			}
-			
-			
-			/*
-			switch (ToplevelType.getToplevelType(v.getType())){
-			
-			case CONSTRUCTOR:
-			case NODE:
-			case ADT:
-				INode node = (INode) v;
-				push(v, node.getChildren().iterator());
-				if (node.mayHaveKeywordParameters()) {
-					IWithKeywordParameters<? extends INode> nodeKW = node.asWithKeywordParameters();
-					for (String name : nodeKW.getParameterNames()) {
-						push(nodeKW.getParameter(name));
-					}
-				}
-				return;
-			case LIST:
-				push(v, ((IList) v).iterator()); 
-				return;
-			case SET:
-				push(v, ((ISet) v).iterator()); 
-				return;
-			case MAP:
-				push(v, new MapKeyValueIterator((IMap) v)); 
-				return;
-			case TUPLE:
-				push(v, new TupleElementIterator((ITuple) v)); 
-				return;
-			default:
-				spine.push(v);
-				return;
-			}
-			*/
-		}
+		} 
+		spine.push(v);
 	}
 
 	private void pushConcreteSyntaxNode(final ITree tree){
 		if (debug) System.err.println("pushConcreteSyntaxNode: " + tree);
-
-//		if (/*TreeAdapter.isChar(tree) || */TreeAdapter.isCycle(tree) || TreeAdapter.isLiteral(tree) || TreeAdapter.isCILiteral(tree)) {
-//			spine.push(tree);
-//			return; // do not recurse
-//		}
 
 		if (TreeAdapter.isAmb(tree)) {
 			// only recurse
