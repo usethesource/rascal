@@ -48,6 +48,8 @@ default MuExp translateMatch(Pattern pat, Expression exp) =
 
 default MuExp translatePat(p:(Pattern) `<Literal lit>`, Symbol subjectType) = translateLitPat(lit);
 
+MuExp translatePat(Literal lit) = translateLitPat(lit);
+
 MuExp translateLitPat(Literal lit) = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [translate(lit)]);
 
 // -- regexp pattern -------------------------------------------------
@@ -935,7 +937,7 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Symb
 
 // -- default rule for pattern ---------------------------------------
 
-default MuExp translatePat(Pattern p, Symbol subjectType) { throw "Pattern <p> cannot be translated"; }
+default MuExp translatePat(Pattern p, Symbol subjectType) { iprintln(p); throw "Pattern <p> cannot be translated"; }
 
 /**********************************************************************/
 /*                 Constant Patterns                                  */
