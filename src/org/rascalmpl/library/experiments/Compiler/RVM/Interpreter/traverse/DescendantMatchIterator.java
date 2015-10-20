@@ -80,10 +80,14 @@ public class DescendantMatchIterator implements Iterator<IValue> {
 				@Override
 				public Boolean visitList(final Type type) throws RuntimeException {
 					IList lst = (IList) v;
-					if(lst.length() > 0){
-						push(lst, lst.iterator()); 
-					} else {
+					int len = lst.length();
+					if(len == 0){
 						spine.push(lst);
+					} else if(len == 1){
+						spine.push(lst);
+						push(lst.get(0));
+					} else {
+						push(lst, lst.iterator()); 
 					}
 					return true;
 				}
@@ -115,11 +119,16 @@ public class DescendantMatchIterator implements Iterator<IValue> {
 				@Override
 				public Boolean visitNode(final Type type) throws RuntimeException {
 					INode node = (INode) v;
-					if(node.arity() > 0){
-						push(v, node.getChildren().iterator());
+					int arity = node.arity();
+					if(arity == 0){
+						spine.push(node);
+					} else if(arity == 1){
+						spine.push(node);
+						push(node.get(0));
 					} else {
-						spine.push(v);
+						push(node, node.getChildren().iterator());
 					}
+
 					if (node.mayHaveKeywordParameters()) {
 						IWithKeywordParameters<? extends INode> nodeKW = node.asWithKeywordParameters();
 						for (String name : nodeKW.getParameterNames()) {
