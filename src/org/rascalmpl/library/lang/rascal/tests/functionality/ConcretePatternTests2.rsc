@@ -194,11 +194,48 @@ test bool concreteMatch249(){
 		case \layouts(_): n += 1;
 	}
 	return n == 34;
-}			
+}	
+
+test bool concreteMatch250() = [ n | /char(int n) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ] 
+                               == [105,102,32,120,32,116,104,101,110,32,97,32,58,61,32,49,59,98,58,61,50,32,101,108,115,101,32,99,58,61,51,32,102,105];
+ 		
+test bool concreteMatch251() {
+    res = [];;
+    visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi" ){
+        case char(int n):res += n;
+    }
+    return res == [105,102,32,120,32,116,104,101,110,32,97,32,58,61,32,49,59,98,58,61,50,32,101,108,115,101,32,99,58,61,51,32,102,105];
+}
+
+test bool concreteMatch252() = size([ p | /p:prod(_,_,_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) 
+             == 37;
  
+test bool concreteMatch252(){
+    n = 0;
+    visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi" ){
+        case prod(_,_,_): n += 1;
+    }
+    return n == 37;
+}  
+
+test bool concreteMatch253() = size([ r | /r:range(_,_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 75;  
  
- 
- 
- 
+test bool concreteMatch254(){
+    n = 0;
+    visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi" ){
+        case range(_,_): n += 1;
+    }
+    return n == 75;
+} 
+
+test bool concreteMatch255() = size([ iss | /iss:\iter-star-seps(_,_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 4;
+
+test bool concreteMatch256(){
+    n = 0;
+    visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi" ){
+        case \iter-star-seps(_,_): n += 1;
+    }
+    return n == 4;
+}   
  
  								
