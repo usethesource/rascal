@@ -3,9 +3,9 @@ package org.rascalmpl.shell;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.io.StandardTextWriter;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.NullRascalMonitor;

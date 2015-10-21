@@ -3,8 +3,8 @@ package org.rascalmpl.shell;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.io.StandardTextWriter;
 import org.rascalmpl.interpreter.Evaluator;
 
 public class ModuleRunner implements ShellRunner {
