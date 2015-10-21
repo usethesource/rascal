@@ -52,7 +52,7 @@ public class Thrown extends RuntimeException {
 		if(value.getType().isConstructor()){
 			String prefix = "http://tutor.rascal-mpl.org/Errors/Dynamic/";
 			String cn = ((IConstructor) value).getName();
-			return "\uE007[Advice](" + prefix + cn + "/" + cn + ".html)";
+			return "Advice: |" + prefix + cn + "/" + cn + ".html|";
 		}
 		return "";
 	}
