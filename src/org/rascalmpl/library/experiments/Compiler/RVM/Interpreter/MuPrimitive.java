@@ -16,6 +16,7 @@ import java.util.regex.PatternSyntaxException;
 
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantMatchIterator;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
