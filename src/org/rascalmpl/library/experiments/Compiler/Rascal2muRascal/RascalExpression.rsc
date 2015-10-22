@@ -1766,22 +1766,27 @@ MuExp translate(e:(Expression) `<Expression argument> ?`) =
 
 private MuExp translateIsDefined(Expression exp){
 	switch(exp){
+	
 		case (Expression) `( <Expression exp1> )`:
 			return translateIsDefined(exp1);
+			
 		case (Expression) `<Expression exp1> [ <{Expression ","}+ subscripts> ]`: 
 		    if(getOuterType(exp1) notin {"rel", "lrel", "nonterminal"}){
 			 return translateSubscript(exp, true);
 			} else {
 			 fail;
 			}
+			
 		case (Expression) `<Expression expression> @ <Name name>`:
     		return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_annotation_get", [translate(expression), muCon(unescape("<name>"))], exp@\loc), muCon(0)]);
+		
 		case (Expression) `<Expression expression> . <Name field>`:
 		    if(getOuterType(expression) notin {"tuple"}){
 		       return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_<getOuterType(expression)>_field_access_get", [translate(expression), muCon(unescape("<field>"))], exp@\loc), muCon(0)]);
 		    } else {
 		      fail;
 		    }
+		    
 		default:
     		return translateIfDefinedOtherwise(muBlock([ translate(exp), muCon(true) ]),  muCon(false), exp@\loc);
     }
@@ -1791,8 +1796,10 @@ private MuExp translateIsDefined(Expression exp){
 
 MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) {
 	switch(lhs){
+	
 		case (Expression) `<Expression exp1> [ <{Expression ","}+ subscripts> ]`: 
 			return translateSubscriptIsDefinedElse(lhs, rhs);
+			
 		case (Expression) `<Expression expression> @ <Name name>`: {
 			str fuid = topFunctionScope();
     		str varname = asTmp(nextLabel());
@@ -1803,7 +1810,8 @@ MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) {
     						[muCallMuPrim("subscript_array_int", [muTmp(varname,fuid), muCon(1)])],
     						[translate(rhs)])
     			  ]);
-    		}	
+    		}
+    			
     	case (Expression) `<Expression expression> . <Name field>`:	{
     	   str fuid = topFunctionScope();
            str varname = asTmp(nextLabel());
@@ -1814,7 +1822,8 @@ MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) {
                             [muCallMuPrim("subscript_array_int", [muTmp(varname,fuid), muCon(1)])],
                             [translate(rhs)])
                   ]);
-            }      		
+            }   
+               		
 		default:
     		return translateIfDefinedOtherwise(translate(lhs), translate(rhs), e@\loc);
 	}
