@@ -25,10 +25,9 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.iguana.grammar.Grammar;
 import org.iguana.grammar.symbol.Nonterminal;
-import org.iguana.parser.GLLParser;
+import org.iguana.parser.Iguana;
 import org.iguana.parser.ParseError;
 import org.iguana.parser.ParseResult;
-import org.iguana.parser.ParserFactory;
 import org.iguana.util.Configuration;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -63,8 +62,7 @@ public class Parser {
 	public IConstructor parseObject(Grammar grammar, String nt, char[] data, URI location) {
 		Input input = Input.fromCharArray(data, location);
 		
-  		GLLParser parser = ParserFactory.getParser();
-		ParseResult result = parser.parse(input, grammar, Nonterminal.withName(nt));
+  		ParseResult result = Iguana.parse(input, grammar, Nonterminal.withName(nt));
 
   		if (result.isParseError()) {
   			ParseError e = result.asParseError();
