@@ -662,11 +662,9 @@ list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <Expression subsc
 }
     
 list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`) = 
-    //translateSlice(getValues(receiver), translateOpt(optFirst), muCon(false),  translateOpt(optLast));
      [ muCallPrim3("<getOuterType(receiver)>_slice", [ *getValues(receiver), translateOpt(optFirst), muCon("false"), translateOpt(optLast) ], a@\loc) ];
     
 list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`) = 
-    //translateSlice(getValues(receiver), translateOpt(optFirst), translate(second),  translateOpt(optLast));
      [ muCallPrim3("<getOuterType(receiver)>_slice", [ *getValues(receiver), translateOpt(optFirst),  translate(second), translateOpt(optLast) ], a@\loc) ];
 
 list[MuExp] getValues(a:(Assignable) `<Assignable receiver> . <Name field>`) { 
