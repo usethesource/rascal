@@ -87,6 +87,10 @@ tuple[Configuration, RVMModule] compile1(loc moduleLoc, bool verbose = true, loc
     return <config, rvmMod>;  
 }	
 
+RVMModule compile(str moduleName, bool verbose = false, loc bindir = |home:///bin|){
+    return compile(getModuleLocation(moduleName), verbose=verbose, bindir=bindir);
+}
+
 @doc{Compile a Rascal source module (given at a location) to RVM}
 
 RVMModule compile(loc moduleLoc, bool verbose = false, loc bindir = |home:///bin|){
