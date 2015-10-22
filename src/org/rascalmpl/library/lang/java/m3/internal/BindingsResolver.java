@@ -547,7 +547,7 @@ public class BindingsResolver {
 	        EclipseJavaCompiler.cache.put(binding.getKey(), result);
 	        return result;
 		}
-        catch (@SuppressWarnings("restriction") AbortCompilation e) {
+        catch (@SuppressWarnings("restriction") org.eclipse.jdt.internal.compiler.problem.AbortCompilation e) {
             // work around internal error of JDT compiler which can throw this exception 
             // after calling getKey()
             
