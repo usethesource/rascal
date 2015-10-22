@@ -8,7 +8,6 @@ import org.rascalmpl.interpreter.matching.TupleElementIterator;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalType;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
@@ -75,7 +74,7 @@ public class DescendantMatchIterator implements Iterator<IValue> {
 			}
 			return;
 		}
-		if(descriptor.shouldDescentInAbstractValue(v) == RascalPrimitive.Rascal_TRUE){	
+		if(descriptor.shouldDescentInAbstractValue(v).getValue()){	
 			if(v.getType().accept(new DefaultRascalTypeVisitor<Boolean,RuntimeException>(false) {
 				@Override
 				public Boolean visitList(final Type type) throws RuntimeException {
@@ -94,20 +93,20 @@ public class DescendantMatchIterator implements Iterator<IValue> {
 				@Override
 				public Boolean visitSet(final Type type) throws RuntimeException {
 					ISet set = (ISet) v;
-					if(set.size() > 0){
-						push(set, set.iterator()); 
-					} else {
+					if(set.isEmpty()){
 						spine.push(set);
+					} else {
+						push(set, set.iterator()); 
 					}
 					return true;
 				}
 				@Override
 				public Boolean visitMap(final Type type) throws RuntimeException {
 					IMap map = (IMap) v;
-					if(map.size() > 0){
-						push(map, new MapKeyValueIterator(map));
-					} else {
+					if(map.isEmpty()){
 						spine.push(map);
+					} else {
+						push(map, new MapKeyValueIterator(map));
 					}
 					return true;
 				}
