@@ -53,19 +53,24 @@ public class EclipseJavaCompiler {
     this.sourcePathEntries = new ArrayList<String>();
   }
   
-  public void setEnvironmentOptions(ISet classPaths, ISet sourcePaths, IEvaluatorContext eval) {
+  public void setEnvironmentOptions(ISet classPaths, ISet sourcePaths, IEvaluatorContext eval) throws IOException {
 	EclipseJavaCompiler.cache.clear();
     classPathEntries.clear();
     sourcePathEntries.clear();
     for (IValue path : classPaths) {
-        assert ((ISourceLocation) path).getScheme().equals("file");
+        if (!((ISourceLocation) path).getScheme().equals("file")) {
+        	throw new IOException("all classpath entries must have the file:/// scheme: " + path);
+        }
         classPathEntries.add(((ISourceLocation) path).getPath());
     }
 
     for (IValue path : sourcePaths) {
-        assert ((ISourceLocation) path).getScheme().equals("file");
+        if (!((ISourceLocation) path).getScheme().equals("file")) {
+        	throw new IOException("all sourcepath entries must have the file:/// scheme: " + path);
+        }
 		sourcePathEntries.add(((ISourceLocation) path).getPath());
     }
+    
   }
   
   public IValue createM3FromJarClass(ISourceLocation jarLoc, IEvaluatorContext eval) {
