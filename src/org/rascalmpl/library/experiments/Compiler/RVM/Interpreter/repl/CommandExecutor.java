@@ -45,7 +45,6 @@ public class CommandExecutor {
 	private final IValueFactory vf;
 	private ISourceLocation compilerBinaryLocation;
 	private ISourceLocation consoleInputLocation;
-	private final RVMExecutable rvmCompilerExecutable;
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
 	private final Prelude prelude;
@@ -104,8 +103,8 @@ public class CommandExecutor {
 		
 		RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, false, false, /*profile*/false, false, false, false, null, null);
 		rex.setCurrentModuleName(shellModuleName);
-		rvmCompilerExecutable = RVMExecutable.read(compilerBinaryLocation);
-		rvmCompiler = ExecutionTools.initializedRVM(rvmCompilerExecutable, rex);
+		
+		rvmCompiler = RVM.readFromFileAndInitialize(compilerBinaryLocation, rex);
 		
 		TypeFactory tf = TypeFactory.getInstance();
 		compileAndLink = rvmCompiler.getFunction("compileAndLink", tf.abstractDataType(new TypeStore(), "RVMProgram"), tf.tupleType(tf.sourceLocationType(), tf.boolType()));

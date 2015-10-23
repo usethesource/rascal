@@ -324,7 +324,7 @@ public class RVMExecutable implements Serializable{
 	
 	public boolean comparable(RVMExecutable other){
 		
-		boolean nameOk = this.getModuleName().equals(other.getModuleName());
+		//boolean nameOk = this.getModuleName().equals(other.getModuleName());
 		boolean symbol_definitionsOk = true;
 		
 		IMap defs1 = this.symbol_definitions;
@@ -417,11 +417,9 @@ public class RVMExecutable implements Serializable{
 //		System.out.println("\tuids:               " + uidsOk);
 //		System.out.println("\toverloadedStore:    " + overloadedStoreOk 	+ " [" + overloadedStore.size() + "]");
 		
-		return functionMapOk && constructorStoreOk && constructorMapOk && 
+		return symbol_definitionsOk && functionMapOk && constructorStoreOk && constructorMapOk && 
 			   resolverOk && overloadedStoreOk && initializersOk && testsuitesOk && uidsOk;
 	}
-
-
 }
 	
 class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {

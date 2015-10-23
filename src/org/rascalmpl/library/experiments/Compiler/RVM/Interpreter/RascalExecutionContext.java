@@ -79,10 +79,18 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private IListWriter test_results;
 	
 	public RascalExecutionContext(
+			String moduleName, 
 			IValueFactory vf, 
-			PrintStream out, 
-			PrintStream err) {
-		this(vf, new PrintWriter(out), new PrintWriter(err), null, null, null, false, false, false, false, false, false, null, null);
+			PrintStream out, PrintStream err) {
+		this(moduleName, vf, new PrintWriter(out), new PrintWriter(err));
+	}
+	
+	public RascalExecutionContext(
+			String moduleName, 
+			IValueFactory vf, 
+			PrintWriter out, PrintWriter err) {
+		this(vf, out, err, null, null, null, false, false, false, false, false, false, null, null);
+		setCurrentModuleName(moduleName);
 	}
 	
 	public RascalExecutionContext(

@@ -68,7 +68,7 @@ public class RVM implements java.io.Serializable {
 	private final IString NONE; 
 	
 	private boolean debug = false;
-	private final boolean profileRascalPrimtives = false;
+	private final boolean profileRascalPrimitives = false;
 	private final boolean profileMuPrimitives = false;
 	private boolean ocall_debug = false;
 	private boolean trackCalls = false;
@@ -167,8 +167,19 @@ public class RVM implements java.io.Serializable {
 
 		Opcode.init(stdout, rex.getProfile());
 		
-		this.locationCollector = NullLocationCollector.getInstance();
-					
+		this.locationCollector = NullLocationCollector.getInstance();			
+	}
+	
+	public static RVM readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex){
+		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
+		RVM result = ExecutionTools.initializedRVM(rvmExecutable, rex);
+		rex.setRVM(result);
+		return result;
+	}
+	
+	public static IValue readFromFileAndExecuteProgram(ISourceLocation rvmBinaryLocation, IMap keywordArguments, RascalExecutionContext rex){
+		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
+		return ExecutionTools.executeProgram(rvmExecutable, keywordArguments, rex);
 	}
 	
 	URIResolverRegistry getResolverRegistry() { return URIResolverRegistry.getInstance(); }

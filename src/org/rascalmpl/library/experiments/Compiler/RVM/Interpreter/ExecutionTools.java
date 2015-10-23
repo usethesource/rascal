@@ -3,7 +3,6 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.PrintWriter;
 import java.util.HashMap;
 
-import org.rascalmpl.interpreter.IEvaluatorContext;  // TODO: remove import? NOT YET: Only used as argument of reflective library function
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
@@ -25,98 +24,9 @@ public class ExecutionTools {
 	
 	private static ITestResultListener testResultListener;
 
-//	public ExecutionTools(IValueFactory vf) {
-//		this.vf = vf;
-//	}
-	
 	static void setTestResultListener(ITestResultListener trl){
 		testResultListener = trl;
 	}
-	
-//	// Library function to execute a RVMProgram
-//	// (Interpreter version)
-//
-//	public IValue executeProgram(
-//			ISourceLocation rvmProgramLoc,
-//			IConstructor rvmProgram,
-//			IMap keywordArguments,
-//			IBool debug, 
-//			IBool testsuite, 
-//			IBool profile, 
-//			IBool trackCalls, 
-//			IBool coverage,
-//			IBool useJVM,
-//			IBool serialize, 
-//			IEvaluatorContext ctx
-//			) {
-//
-//		RVMExecutable executable = load(rvmProgramLoc, rvmProgram, useJVM, serialize);
-//
-//		RascalExecutionContext rex = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM, ctx.getEvaluator().getRascalResolver());
-//		return executeProgram(executable, keywordArguments, rex);
-//	}
-//
-//	// Library function to execute an RVMProgram
-//	// (Compiler version)
-//
-//	public IValue executeProgram(
-//			ISourceLocation rvmProgramLoc,
-//			IConstructor rvmProgram,
-//			IMap keywordArguments,
-//			IBool debug, 
-//			IBool testsuite, 
-//			IBool profile, 
-//			IBool trackCalls, 
-//			IBool coverage,
-//			IBool useJVM,
-//			IBool serialize, 
-//			RascalExecutionContext rex
-//			) {
-//
-//		RVMExecutable executable = load(rvmProgramLoc, rvmProgram, useJVM, serialize);
-//
-//		RascalExecutionContext rex2 = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM, rex.getRascalSearchPath());
-//		return executeProgram(executable, keywordArguments, rex2);
-//	}
-//
-//	// Library function to link and execute a RVM program from file
-//	// (Interpreter version)
-//
-//	public IValue executeProgram(
-//			ISourceLocation rvmExecutableLoc,
-//			IMap keywordArguments,
-//			IBool debug, 
-//			IBool testsuite, 
-//			IBool profile, 
-//			IBool trackCalls, 
-//			IBool coverage,
-//			IBool useJVM,
-//			IEvaluatorContext ctx
-//			) {
-//
-//		RVMExecutable executable = load(rvmExecutableLoc);
-//		RascalExecutionContext rex = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM, ctx.getEvaluator().getRascalResolver());
-//		return executeProgram(executable, keywordArguments, rex);
-//		}
-//		
-//	// Library function to link and execute a RVM program from file
-//	// (Compiler version)
-//
-//	public IValue executeProgram(
-//			ISourceLocation rvmExecutableLoc,
-//			IMap keywordArguments,
-//			IBool debug, 
-//			IBool testsuite, 
-//			IBool profile, 
-//			IBool trackCalls, 
-//			IBool coverage,
-//			IBool useJVM,
-//			RascalExecutionContext rex
-//			) {
-//		RVMExecutable executable = load(rvmExecutableLoc);
-//		RascalExecutionContext rex2 = makeRex(executable, debug, testsuite, profile, trackCalls, coverage, useJVM, rex.getRascalSearchPath());
-//		return executeProgram(executable, keywordArguments, rex2);
-//	}
 	
 	public static RascalExecutionContext makeRex(
 					RVMExecutable rvmExecutable,
