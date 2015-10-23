@@ -4,6 +4,7 @@ import java.io.StringWriter;
 import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.value.ISourceLocation;
@@ -37,10 +38,8 @@ public class Execute extends Command {
 		
 		handleArgs("rascal", args);
 		
-		RascalExecutionContext rex = new RascalExecutionContext(vf, System.out, System.err);
-		rex.setCurrentModuleName("Execute");
-		RVMExecutable mainExecutable = RVMExecutable.read(findBinary(mainModule.getValue()));
-	
-		IValue res = ExecutionTools.executeProgram(mainExecutable, null, rex);
+		RascalExecutionContext rex = new RascalExecutionContext("Execute", vf, System.out, System.err);
+		
+		RVM.readFromFileAndExecuteProgram(findBinary(mainModule.getValue()), null, rex);
 	}
 }
