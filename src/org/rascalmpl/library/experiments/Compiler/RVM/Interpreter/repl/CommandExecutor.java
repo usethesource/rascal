@@ -11,7 +11,7 @@ import java.util.Map;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.library.Prelude;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NameCompleter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
@@ -49,7 +49,6 @@ public class CommandExecutor {
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
 	private final Prelude prelude;
-	private final ExecuteProgram execute;
 	private RVM rvmCompiler;
 	private final Function compileAndLink;
 	
@@ -77,7 +76,6 @@ public class CommandExecutor {
 		this.stderr = stderr; 
 		vf = ValueFactoryFactory.getValueFactory();
 		prelude = new Prelude(vf);
-		execute = new ExecuteProgram(vf);
 		try {
 			compilerBinaryLocation = vf.sourceLocation("compressed+boot", "", "Kernel.rvm.ser.gz");
 			//compilerBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/lang/rascal/boot/Kernel.rvm.ser.gz");
@@ -107,7 +105,7 @@ public class CommandExecutor {
 		RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, false, false, /*profile*/false, false, false, false, null, null);
 		rex.setCurrentModuleName(shellModuleName);
 		rvmCompilerExecutable = RVMExecutable.read(compilerBinaryLocation);
-		rvmCompiler = execute.initializedRVM(rvmCompilerExecutable, rex);
+		rvmCompiler = ExecutionTools.initializedRVM(rvmCompilerExecutable, rex);
 		
 		TypeFactory tf = TypeFactory.getInstance();
 		compileAndLink = rvmCompiler.getFunction("compileAndLink", tf.abstractDataType(new TypeStore(), "RVMProgram"), tf.tupleType(tf.sourceLocationType(), tf.boolType()));
@@ -150,11 +148,11 @@ public class CommandExecutor {
 			compileArgs[1] = vf.bool(onlyMainChanged);
 			IConstructor consoleRVMProgram = (IConstructor) rvmCompiler.executeFunction(compileAndLink, compileArgs, makeCompileKwParams());
 			
-			rvmConsoleExecutable = execute.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(useJVM));
+			rvmConsoleExecutable = ExecutionTools.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(useJVM));
 			
 			RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, testsuite, profile, trackCalls, coverage, useJVM, null, null);
 			rex.setCurrentModuleName(shellModuleName);
-			IValue val = execute.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
+			IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
 			lastRvmConsoleExecutable = rvmConsoleExecutable;
 			return val;
 		} catch (Exception e){

@@ -51,7 +51,6 @@ public class ParserGenerator {
 	private RVMExecutable parserGeneratorRVMExecutable;
 	private RVM parserGeneratorRVM;
 	private Prelude prelude;
-	private ExecuteProgram execute;
 	private Function getParserMethodNameFunction;
 	private Function newGenerateFunction;
 	private Function createHoleFunction;
@@ -66,7 +65,6 @@ public class ParserGenerator {
 
 		if(useCompiledParserGenerator){
 			prelude = new Prelude(vf);
-			execute = new ExecuteProgram(vf);
 			try {
 				parserGeneratorBinaryLocation = vf.sourceLocation("compressed+boot", "", "ParserGenerator.rvm.ser.gz");
 				//parserGeneratorBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/lang/rascal/grammar/ParserGenerator.rvm.ser.gz");
@@ -77,7 +75,7 @@ public class ParserGenerator {
 			RascalExecutionContext rex2 = new RascalExecutionContext(vf, rex.getStdOut(), rex.getStdErr(), null, null, null, false, false, false, /*trackCalls*/false, false, false, null, null);
 			rex2.setCurrentModuleName("$parsergenerator$");
 			parserGeneratorRVMExecutable = RVMExecutable.read(parserGeneratorBinaryLocation);
-			parserGeneratorRVM = execute.initializedRVM(parserGeneratorRVMExecutable, rex2);
+			parserGeneratorRVM = ExecutionTools.initializedRVM(parserGeneratorRVMExecutable, rex2);
 			rex2.setRVM(parserGeneratorRVM);
 			
 			Type symSort = RascalTypeFactory.getInstance().nonTerminalType(vf.constructor(RascalValueFactory.Symbol_Sort, vf.string("Sym")));

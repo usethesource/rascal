@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,6 +77,13 @@ public class RascalExecutionContext implements IRascalMonitor {
 	StringBuilder templateBuilder = null;
 	private final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
 	private IListWriter test_results;
+	
+	public RascalExecutionContext(
+			IValueFactory vf, 
+			PrintStream out, 
+			PrintStream err) {
+		this(vf, new PrintWriter(out), new PrintWriter(err), null, null, null, false, false, false, false, false, false, null, null);
+	}
 	
 	public RascalExecutionContext(
 			IValueFactory vf, 
