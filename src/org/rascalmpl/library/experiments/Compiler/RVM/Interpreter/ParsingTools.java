@@ -336,19 +336,12 @@ public class ParsingTools {
 	 
 	  // Rascal library function (interpreter version)
 	  public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
-		  //if(rex == null){
-			//  System.err.println("*** parseFragment (interpeter version) creates new rex");
-			  RascalExecutionContext rex = new RascalExecutionContext(vf, new PrintWriter(ctx.getStdOut()), new PrintWriter(ctx.getStdErr()), null, null, null, false, false, false, false, false, false, null, ctx.getEvaluator().getRascalResolver());
-		  //}
+		  RascalExecutionContext rex = new RascalExecutionContext(vf, new PrintWriter(ctx.getStdOut()), new PrintWriter(ctx.getStdErr()), null, null, null, false, false, false, false, false, false, null, ctx.getEvaluator().getRascalResolver());
 		  return parseFragment1(name, start, tree, loc, grammar, rex);
 	  }
 		
 	  // Rascal library function (compiler version)
 	  public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex){ 
-//		  if(this.rex == null){
-//			  System.err.println("*** parseFragment (compiler version) sets rex");
-//			  this.rex = rex;
-//		  }
 		  return parseFragment1(name, start, tree, loc, grammar, rex);
 	  }
 	
