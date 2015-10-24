@@ -108,22 +108,6 @@ public class ReflectiveCompiled extends Reflective {
 				throw RascalRuntimeException.io(values.string(e.getMessage()), null);
 			}
 		});
-//		IValue tree = parseModuleCache.get(key);
-//		if(tree != null){
-//			//System.err.println("parseModule (from loc), use cached result " + key);
-//			return tree;
-//		}	
-//
-//		IActionExecutor<ITree> actions = new NoActionExecutor();	
-
-//		try {
-//			IValue tree = new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(rex.resolveSourceLocation(loc)), actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
-////			parseModuleCache.put(key, tree);
-//			//System.err.println("parseModule (from loc), cache new tree " + key);
-//			return tree;
-//		} catch (IOException e) {
-//			throw RascalRuntimeException.io(values.string(e.getMessage()), null);
-//		}
 	}
 	
 	public IValue parseModule(IString str, ISourceLocation loc,  RascalExecutionContext rex) {
