@@ -23,7 +23,7 @@ public rel[RName,loc] getIntroducedNames((Assignable)`<Assignable a> . <Name _>`
 public rel[RName,loc] getIntroducedNames((Assignable)`<Assignable a> ? <Expression _>`) = { };
 public rel[RName,loc] getIntroducedNames((Assignable)`<Name _> ( <{Assignable ","}+ al> )`) = { }; // NOTE: We should remove this case, it is unsafe
 public rel[RName,loc] getIntroducedNames((Assignable)`\< <{Assignable ","}+ al> \>`) = { *getIntroducedNames(ali) | ali <- al };
-public rel[RName,loc] getIntroducedNames((Assignable)`<Assignable a>  @ <Name _>`) = { };
+public rel[RName,loc] getIntroducedNames((Assignable)`<Assignable a>@<Name _>`) = { };
 public default rel[RName,loc] getIntroducedNames(Assignable a) { throw "Case not handled: <a>"; }
 
 public rel[RName,loc] getPatternNames(Pattern pat:(Pattern)`{ <{Pattern ","}* ps> }`) = { *getPatternNames(psi) | psi <- ps };

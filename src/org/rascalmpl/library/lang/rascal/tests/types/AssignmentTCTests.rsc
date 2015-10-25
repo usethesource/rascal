@@ -24,15 +24,15 @@ test bool errorMap1() = unexpectedType("map[int,list[int]] M = (0:[1,2,3],1:[10,
 
 test bool errorSet1() = unexpectedType("set[int] L = {1,2,3}; L *= {4}; L=={\<1,4\>,\<2,4\>,\<3,4\>};");
 
-test bool annotationError1() = uninitialized(" X @ pos = 1;");
+test bool annotationError1() = uninitialized(" X @pos = 1;");
 
-test bool annotationError2() = uninitialized(" F X; X @ pos += 1;", initialDecls=["data F = f() | f(int n) | g(int n) | deep(F f);", "anno int F @ pos;"]);
+test bool annotationError2() = uninitialized(" F X; X @pos += 1;", initialDecls=["data F = f() | f(int n) | g(int n) | deep(F f);", "anno int F @pos;"]);
 
-test bool annotationError3() = uninitialized(" F X; X @ pos -= 1;", initialDecls=["data F = f() | f(int n) | g(int n) | deep(F f);", "anno int F @ pos;"]);
+test bool annotationError3() = uninitialized(" F X; X @pos -= 1;", initialDecls=["data F = f() | f(int n) | g(int n) | deep(F f);", "anno int F @pos;"]);
 
-test bool annotationError4() = uninitialized(" F X; X @ pos *= 1;", initialDecls=["data F = f() | f(int n) | g(int n) | deep(F f);", "anno int F @ pos;"]);
+test bool annotationError4() = uninitialized(" F X; X @pos *= 1;", initialDecls=["data F = f() | f(int n) | g(int n) | deep(F f);", "anno int F @pos;"]);
 
-test bool annotationError5() = uninitialized(" F X; X @ pos /= 1;", initialDecls=["data F = f() | f(int n) | g(int n) | deep(F f);", "anno int F @ pos;"]);
+test bool annotationError5() = uninitialized(" F X; X @pos /= 1;", initialDecls=["data F = f() | f(int n) | g(int n) | deep(F f);", "anno int F @pos;"]);
   
 test bool testInteger6() = uninitialized("N ?= 2; N==2;"); 
 

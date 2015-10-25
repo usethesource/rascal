@@ -266,7 +266,7 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
 				}
 
 				// Annotation declaration
-				case (Toplevel) `<Tags tgs> <Visibility vis> anno <Type typ> <Type otyp> @ <Name n> ;` : {
+				case (Toplevel) `<Tags tgs> <Visibility vis> anno <Type typ> <Type otyp>@<Name n> ;` : {
 					sig.annotations = sig.annotations + AnnotationSigItem(convertName(n), typ, otyp, t@\loc);
 				}
 
