@@ -320,7 +320,18 @@ value execute(loc rascalSource, map[str,value] keywordArguments = (), bool debug
    return v;
 }
 
-RVMProgram compileAndLink(loc rascalSource, bool reuseConfig, bool useJVM=false, bool serialize=false, bool verbose = false, loc bindir = |home:///bin|){
+RVMProgram compileAndLink(str moduleName, bool useJVM=false, bool serialize=false, bool verbose = false, loc bindir = |home:///bin|){
+   startTime = cpuTime();
+   mainModule = compile(getModuleLocation(moduleName), verbose=verbose, bindir=bindir);
+   //println("Compiling: <(cpuTime() - startTime)/1000000> ms");
+   start_linking = cpuTime();   
+   merged = mergeImports(mainModule, verbose=verbose, useJVM=useJVM, bindir=bindir, serialize=serialize);
+   link_time = cpuTime() - start_linking;
+   println("linking: <link_time/1000000> msec");
+   return merged;
+}
+
+RVMProgram compileAndLinkIncremental(loc rascalSource, bool reuseConfig, bool useJVM=false, bool serialize=false, bool verbose = false, loc bindir = |home:///bin|){
    startTime = cpuTime();
    mainModule = compileIncremental(rascalSource, reuseConfig, verbose=verbose, bindir=bindir);
    //println("Compiling: <(cpuTime() - startTime)/1000000> ms");
