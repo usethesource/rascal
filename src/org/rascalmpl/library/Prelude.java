@@ -2023,6 +2023,7 @@ public class Prelude {
 		return node.asAnnotatable().setAnnotations(map);
 	}
 	
+	// REFLECT -- copy in {@link PreludeCompiled}
     public INode delAnnotations(INode node, IEvaluatorContext ctx) {
 	    if (node.isAnnotatable()) {
 	        return node.asAnnotatable().removeAnnotations();
@@ -2033,6 +2034,7 @@ public class Prelude {
 	    }
 	}
 	
+    // REFLECT -- copy in {@link PreludeCompiled}
     public INode delAnnotation(INode node, IString label, IEvaluatorContext ctx) {
 	    if (node.isAnnotatable()) {
 	        return node.asAnnotatable().removeAnnotation(label.getValue());
