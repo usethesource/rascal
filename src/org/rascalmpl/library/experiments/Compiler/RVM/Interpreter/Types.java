@@ -140,6 +140,7 @@ public class Types {
 		return symbolsToTupleType((IList) symbol.get("symbols"), store);
 	}
 
+	@SuppressWarnings("deprecation")
 	private Type symbolsToTupleType(IList symbols, TypeStore store) {
 		boolean allLabels = true;
 		Type[] types = new Type[symbols.length()];
