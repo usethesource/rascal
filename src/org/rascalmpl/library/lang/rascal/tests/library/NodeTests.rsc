@@ -17,8 +17,8 @@ test bool arity3() = arity(xf(1,2)) == 2;
 // delAnnotation
 
 data ANODE = leaf(int n) | a(ANODE left, ANODE right);
-anno int ANODE @ pos;
-anno str ANODE @ label;
+anno int ANODE@pos;
+anno str ANODE@label;
 
 public ANODE A1 = leaf(3);
 public ANODE A2 = leaf(3)[@pos = 1][@label="a"];

@@ -13,7 +13,7 @@
   *******************************************************************************/
  
 data F = f() | f(int n) | g(int n) | deep(F f);
-anno int F @ pos;
+anno int F@pos;
 data AN = an(int n);
   	
 // boolannotations

@@ -259,7 +259,7 @@ test bool tst() { int x = 10; y = x ? 1; return y == 10; }
 // Annotations
 
 data F = f3() | f3(int n) | g(int n) | deep(F f);
-anno int F @ pos;
+anno int F@pos;
 
 test bool isDefinedAnno1() = (f3()[@pos=1])@pos?;
 
@@ -271,13 +271,13 @@ test bool isDefinedAnno4() = ((f3())@pos ? 10) == 10;
 
 test bool isDefinedAnno5(){
     X = f3(); 
-    X @ pos ? 0 += 1;
+    X@pos ? 0 += 1;
     return X@pos == 1;
 }
 
 test bool isDefinedAnno6(){
     X = f3()[@pos=1];
-    X @ pos ? 0 += 1;
+    X@pos ? 0 += 1;
     return X@pos == 2;
 }
 
@@ -289,7 +289,7 @@ test bool isDefinedAnno7(){
 
 test bool isDefinedAnno8(){
     X = f3()[@pos = 1]; 
-    X @ pos ?= 3;
+    X@pos ?= 3;
     return X@pos == 1;
 }
 

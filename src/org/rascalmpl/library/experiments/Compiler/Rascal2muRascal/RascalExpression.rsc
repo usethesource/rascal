@@ -1777,7 +1777,7 @@ private MuExp translateIsDefined(Expression exp){
 			 fail;
 			}
 			
-		case (Expression) `<Expression expression> @ <Name name>`:
+		case (Expression) `<Expression expression>@<Name name>`:
     		return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_annotation_get", [translate(expression), muCon(unescape("<name>"))], exp@\loc), muCon(0)]);
 		
 		case (Expression) `<Expression expression> . <Name field>`:
@@ -1800,7 +1800,7 @@ MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) {
 		case (Expression) `<Expression exp1> [ <{Expression ","}+ subscripts> ]`: 
 			return translateSubscriptIsDefinedElse(lhs, rhs);
 			
-		case (Expression) `<Expression expression> @ <Name name>`: {
+		case (Expression) `<Expression expression>@<Name name>`: {
 			str fuid = topFunctionScope();
     		str varname = asTmp(nextLabel());
     		return muBlock([
