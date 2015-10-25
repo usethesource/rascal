@@ -179,7 +179,7 @@ public enum MuPrimitive {
 			assert arity == 2;
 			ISet set = (ISet) stack[sp - 2];
 			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
-			stack[sp - 2] = Rascal_FALSE;
+			stack[sp - 2] = RascalPrimitive.Rascal_FALSE;
 			if (set.size() != mset.size()) {
 				return sp - 1;
 			}
@@ -188,7 +188,7 @@ public enum MuPrimitive {
 					return sp - 1;
 				}
 			}
-			stack[sp - 2] = Rascal_TRUE;
+			stack[sp - 2] = RascalPrimitive.Rascal_TRUE;
 			return sp - 1;
 		};
 	},
@@ -247,7 +247,7 @@ public enum MuPrimitive {
 					elems[j++] = args.get(i);
 				}
 			}
-			elems[non_lit_len] = emptyKeywordMap;
+			elems[non_lit_len] = RVM.emptyKeywordMap;
 			stack[sp - 1] = elems;
 			return sp;
 		}
@@ -328,30 +328,30 @@ public enum MuPrimitive {
 		};
 	},
 	
-	/**
-	 * Given a constructor or node get an array consisting of
-	 * - node/constructor name 
-	 * - positional arguments 
-	 * - keyword parameters collected in a mmap	
-	 * 
-	 * [ ..., node ] => [ ..., array ]
-	 */
-	get_name_and_children_and_keyword_mmap {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			INode v = (INode) stack[sp - 1];
-			int cons_arity = v.arity();
-			Object[] elems = new Object[cons_arity + 2];
-			elems[0] = vf.string(v.getName());
-			for (int i = 0; i < cons_arity; i++) {
-			  elems[i + 1] = v.get(i);
-			}
-			elems[cons_arity + 1] = $getAllKeywordParameters(v);
-			stack[sp - 1] = elems;
-			return sp;
-		};
-	},
+//	/**
+//	 * Given a constructor or node get an array consisting of
+//	 * - node/constructor name 
+//	 * - positional arguments 
+//	 * - keyword parameters collected in a mmap	
+//	 * 
+//	 * [ ..., node ] => [ ..., array ]
+//	 */
+//	get_name_and_children_and_keyword_mmap {
+//		@Override
+//		public int execute(final Object[] stack, final int sp, final int arity) {
+//			assert arity == 1;
+//			INode v = (INode) stack[sp - 1];
+//			int cons_arity = v.arity();
+//			Object[] elems = new Object[cons_arity + 2];
+//			elems[0] = vf.string(v.getName());
+//			for (int i = 0; i < cons_arity; i++) {
+//			  elems[i + 1] = v.get(i);
+//			}
+//			elems[cons_arity + 1] = $getAllKeywordParameters(v);
+//			stack[sp - 1] = elems;
+//			return sp;
+//		};
+//	},
 	
 	/**
 	 * Given a constructor or node get an array consisting of
@@ -376,44 +376,44 @@ public enum MuPrimitive {
 		};
 	},
 	
-	/**
-	 * Given a constructor or node get an array consisting of
-	 * - positional arguments 
-	 * - keyword parameters collected in a mmap	
-	 * 
-	 * [ ..., node ] => [ ..., array ]
-	 */
-	get_children_and_keyword_mmap {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			INode v = (INode) stack[sp - 1];
-			int cons_arity = v.arity();
-			Object[] elems = new Object[cons_arity + 1];
-			for (int i = 0; i < cons_arity; i++) {
-			  elems[i] = v.get(i);
-			}
-			elems[cons_arity] = $getAllKeywordParameters(v);
-			stack[sp - 1] = elems;
-			return sp;
-		};
-	},
-	
-	/**
-	 * Given a constructor or node get an array consisting of
-	 * - keyword parameters collected in a mmap
-	 * 
-	 * [ ..., node ] => [ ..., mmap ]
-	 */
-	get_keyword_mmap {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			INode v = (INode) stack[sp - 1];
-			stack[sp - 1] = $getAllKeywordParameters(v);
-			return sp;
-		};
-	},
+//	/**
+//	 * Given a constructor or node get an array consisting of
+//	 * - positional arguments 
+//	 * - keyword parameters collected in a mmap	
+//	 * 
+//	 * [ ..., node ] => [ ..., array ]
+//	 */
+//	get_children_and_keyword_mmap {
+//		@Override
+//		public int execute(final Object[] stack, final int sp, final int arity) {
+//			assert arity == 1;
+//			INode v = (INode) stack[sp - 1];
+//			int cons_arity = v.arity();
+//			Object[] elems = new Object[cons_arity + 1];
+//			for (int i = 0; i < cons_arity; i++) {
+//			  elems[i] = v.get(i);
+//			}
+//			elems[cons_arity] = $getAllKeywordParameters(v);
+//			stack[sp - 1] = elems;
+//			return sp;
+//		};
+//	},
+//	
+//	/**
+//	 * Given a constructor or node get an array consisting of
+//	 * - keyword parameters collected in a mmap
+//	 * 
+//	 * [ ..., node ] => [ ..., mmap ]
+//	 */
+//	get_keyword_mmap {
+//		@Override
+//		public int execute(final Object[] stack, final int sp, final int arity) {
+//			assert arity == 1;
+//			INode v = (INode) stack[sp - 1];
+//			stack[sp - 1] = $getAllKeywordParameters(v);
+//			return sp;
+//		};
+//	},
 	
 	/**
 	 * Given a mmap, return its keys as array
@@ -462,34 +462,34 @@ public enum MuPrimitive {
 		};
 	},
 	
-	/**
-	 * Given a constructor or node get an array consisting of
-	 * - its positional arguments 
-	 * - the values of its keyword arguments
-	 * 
-	 * [ ... node ] => [ ..., array ]
-	 */
-	get_children_and_keyword_values {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			INode v = (INode) stack[sp - 1];
-			int cons_arity = v.arity();
-			Map<String, IValue> m = $getAllKeywordParameters(v);
-
-			int kw_arity = m.size();
-			Object[] elems = new Object[cons_arity + kw_arity];
-			for (int i = 0; i < cons_arity; i++) {
-			  elems[i] = v.get(i);
-			}
-			int j = cons_arity;
-			for(IValue val : m.values()){
-				elems[j++] = val;
-			}
-			stack[sp - 1] = elems;
-			return sp;
-		};
-	},
+//	/**
+//	 * Given a constructor or node get an array consisting of
+//	 * - its positional arguments 
+//	 * - the values of its keyword arguments
+//	 * 
+//	 * [ ... node ] => [ ..., array ]
+//	 */
+//	get_children_and_keyword_values {
+//		@Override
+//		public int execute(final Object[] stack, final int sp, final int arity) {
+//			assert arity == 1;
+//			INode v = (INode) stack[sp - 1];
+//			int cons_arity = v.arity();
+//			Map<String, IValue> m = $getAllKeywordParameters(v);
+//
+//			int kw_arity = m.size();
+//			Object[] elems = new Object[cons_arity + kw_arity];
+//			for (int i = 0; i < cons_arity; i++) {
+//			  elems[i] = v.get(i);
+//			}
+//			int j = cons_arity;
+//			for(IValue val : m.values()){
+//				elems[j++] = val;
+//			}
+//			stack[sp - 1] = elems;
+//			return sp;
+//		};
+//	},
 	
 	/**
 	 * Given a tuple, get an array consisting of its elements
@@ -559,11 +559,11 @@ public enum MuPrimitive {
 				ITree cons = (ITree) v;
 				if (TreeAdapter.isAppl(cons)) {
 					String treeLabel = TreeAdapter.getConstructorName(cons);
-					stack[sp - 2] = (treeLabel != null && label_name.equals(treeLabel)) ? Rascal_TRUE : Rascal_FALSE;
+					stack[sp - 2] = (treeLabel != null && label_name.equals(treeLabel)) ? RascalPrimitive.Rascal_TRUE : RascalPrimitive.Rascal_FALSE;
 					return sp - 1;
 				}
 			}
-			stack[sp - 2] = Rascal_FALSE;
+			stack[sp - 2] = RascalPrimitive.Rascal_FALSE;
 			return sp - 1;
 		}
 	},
@@ -1008,33 +1008,33 @@ public enum MuPrimitive {
 		};
 	},	
 	
-	/**
-	 * Create a descendant descriptor given
-	 * - a unique id
-	 * - symbolset (converted from ISet of values to HashSet of Types, symbols and Productions)
-	 * - concreteMatch, indicates a concrete or abstract match
-	 * - definitions needed for type reifier
-	 * 
-	 * [ ISet symbolset, IBool concreteMatch, IMap definitions] => DescendantDescriptor
-	 */
-	// TODO: move to RascalPrimitive?
-	make_descendant_descriptor {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 4;
-			IString id = (IString) stack[sp - 4];
-			DescendantDescriptor desc = descendantDescriptorMap.get(id);
-			if(desc == null){
-				ISet symbolset = (ISet) stack[sp - 3];
-				IBool concreteMatch = (IBool) stack[sp - 2];
-				IMap definitions = (IMap) stack[sp - 1];
-				desc = new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
-				descendantDescriptorMap.put(id,  desc);
-			}
-			stack[sp - 4] = desc;
-			return sp - 3;
-		};
-	},
+//	/**
+//	 * Create a descendant descriptor given
+//	 * - a unique id
+//	 * - symbolset (converted from ISet of values to HashSet of Types, symbols and Productions)
+//	 * - concreteMatch, indicates a concrete or abstract match
+//	 * - definitions needed for type reifier
+//	 * 
+//	 * [ ISet symbolset, IBool concreteMatch, IMap definitions] => DescendantDescriptor
+//	 */
+//	// TODO: move to RascalPrimitive?
+//	make_descendant_descriptor {
+//		@Override
+//		public int execute(final Object[] stack, final int sp, final int arity) {
+//			assert arity == 4;
+//			IString id = (IString) stack[sp - 4];
+//			DescendantDescriptor desc = descendantDescriptorMap.get(id);
+//			if(desc == null){
+//				ISet symbolset = (ISet) stack[sp - 3];
+//				IBool concreteMatch = (IBool) stack[sp - 2];
+//				IMap definitions = (IMap) stack[sp - 1];
+//				desc = new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
+//				descendantDescriptorMap.put(id,  desc);
+//			}
+//			stack[sp - 4] = desc;
+//			return sp - 3;
+//		};
+//	},
 	
 	/**
 	 * Make a new mset
@@ -1628,7 +1628,7 @@ public enum MuPrimitive {
 			IList list = ((IList) stack[sp - 2]);
 			int start = (int) stack[sp - 1];
 			int nlist = list.length();
-			stack[sp - 3] = Rascal_FALSE;
+			stack[sp - 3] = RascalPrimitive.Rascal_FALSE;
 			int newsp = sp - 2;
 			if (start + nsub <= nlist) {
 				for (int i = 0; i < nsub; i++) {
@@ -1639,7 +1639,7 @@ public enum MuPrimitive {
 				return newsp;
 			}
 
-			stack[sp - 3] = Rascal_TRUE;
+			stack[sp - 3] = RascalPrimitive.Rascal_TRUE;
 			return newsp;
 		};
 	},
@@ -1876,11 +1876,11 @@ public enum MuPrimitive {
 			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
 			for (IValue v : subset) {
 				if (!mset.contains(v)) {
-					stack[sp - 2] = Rascal_FALSE;
+					stack[sp - 2] = RascalPrimitive.Rascal_FALSE;
 					return sp - 1;
 				}
 			}
-			stack[sp - 2] = Rascal_TRUE;
+			stack[sp - 2] = RascalPrimitive.Rascal_TRUE;
 			return sp - 1;
 		};
 	},
@@ -2024,12 +2024,12 @@ public enum MuPrimitive {
 			IList sublist = (IList) stack[sp - 3];
 			IList list = (IList) stack[sp - 2];
 			int start = (int) stack[sp - 1];
-			IBool eq = Rascal_TRUE;
+			IBool eq = RascalPrimitive.Rascal_TRUE;
 
 			if (start + sublist.length() <= list.length()) {
 				for (int i = 0; i < sublist.length() && eq.getValue(); i++) {
 					if (!sublist.get(i).equals(list.get(start + i))) {
-						eq = Rascal_FALSE;
+						eq = RascalPrimitive.Rascal_FALSE;
 					}
 				}
 			}
@@ -2147,7 +2147,7 @@ public enum MuPrimitive {
 			if(start + substr.length() == subject.length()){
 				stack[sp - 3] = vf.bool(subject.substring(start, start + substr.length()).compare(substr) == 0);
 			} else {
-				stack[sp - 3] = Rascal_FALSE;
+				stack[sp - 3] = RascalPrimitive.Rascal_FALSE;
 			}
 			return sp - 2;
 		};
@@ -2284,16 +2284,16 @@ public enum MuPrimitive {
 			int cursor = (int) subject[1];
 			int len = listSubject.length();
 			if(cursor == len){
-				stack[sp - 1] = Rascal_TRUE;
+				stack[sp - 1] = RascalPrimitive.Rascal_TRUE;
 				return sp;
 			}
 			for(int i = cursor; i < len; i++){				// Check whether only nullables follow
 				if(!$is_nullable(listSubject.get(i))){		// TODO maybe better to make a separate accept for the concrete case
-					stack[sp - 1] = Rascal_FALSE;
+					stack[sp - 1] = RascalPrimitive.Rascal_FALSE;
 					return sp;
 				}
 			}
-			stack[sp - 1] = Rascal_TRUE;
+			stack[sp - 1] = RascalPrimitive.Rascal_TRUE;
 			return sp;
 		};
 	}
@@ -2306,25 +2306,9 @@ public enum MuPrimitive {
 	
 	private static final HashSet<IValue> emptyMset = new HashSet<IValue>(0);
 	
-	private static final IBool Rascal_TRUE = vf.bool(true);
-	
-	private static final IBool Rascal_FALSE = vf.bool(false);
-	
-	private static final Map<String, IValue> emptyKeywordMap = new HashMap<String, IValue>(0);
-	
 	private static final boolean profileMuPrimitives = false;
 
 	private static final long timeSpent[] = new long[values.length];
-	
-	// TODO: remaining global state, remove
-	
-	private static final HashMap<IString,DescendantDescriptor> descendantDescriptorMap = new HashMap<IString,DescendantDescriptor>();
-	
-	private static RascalExecutionContext rex;
-	
-	public static RascalExecutionContext getRascalExecutionContext() { return rex; }
-	
-	public static void setRascalExecutionContext(RascalExecutionContext otherRex) { rex = otherRex; }
 	
 	public static MuPrimitive fromInteger(int muprim) {
 		return values[muprim];
@@ -2386,54 +2370,6 @@ public enum MuPrimitive {
 		return false;
 	}
 	
-	private static Map<String,IValue> $getAllKeywordParameters(IValue v){
-		Type tp = v.getType();
-		
-		if(tp.isAbstractData()){
-			IConstructor cons = (IConstructor) v;
-			if(cons.mayHaveKeywordParameters()){
-				Map<String, IValue> setKwArgs =  cons.asWithKeywordParameters().getParameters();
-				String consName = cons.getName();
-				Function getDefaults = rex.getCompanionDefaultsFunction(consName, tp);
-				if(getDefaults != RVM.noCompanionFunction){
-					IValue[] posArgs = new IValue[cons.arity()];
-					for(int i = 0; i < cons.arity(); i++){
-						posArgs[i] = cons.get(i);
-					}
-					
-					@SuppressWarnings("unchecked")
-					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeFunction(getDefaults, posArgs, setKwArgs);
-
-					HashMap<String, IValue> allKwArgs = new HashMap<>(defaults.size());
-					for(String key : defaults.keySet()){
-						IValue val = setKwArgs.get(key);
-						if(val != null){
-							allKwArgs.put(key,  val);
-						} else {
-							allKwArgs.put(key, defaults.get(key).getValue());
-						}
-					}
-					System.err.print(", returns " + allKwArgs);
-					
-					return allKwArgs;
-					
-				}
-			} else {
-				return emptyKeywordMap;
-			}
-		}
-		
-		if(tp.isNode()){
-			INode nd = (INode) v;
-			if(nd.mayHaveKeywordParameters()){
-				return nd.asWithKeywordParameters().getParameters();
-			} else {
-				return emptyKeywordMap;
-			}
-		}
-		
-		throw new CompilerError("getAllKeywordParameters");
-	}
 }
 
 class ArrayIterator<T> implements Iterator<T> {
