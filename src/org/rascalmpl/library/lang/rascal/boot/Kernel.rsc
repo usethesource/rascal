@@ -23,8 +23,11 @@ import experiments::Compiler::Execute;
 RVMModule compile(loc moduleLoc, bool verbose = false, loc bindir = |home:///bin|) =
     experiments::Compiler::Compile::compile(moduleLoc, verbose = verbose, bindir = bindir);
     
-RVMProgram compileAndLink(loc rascalSource,  bool reuseConfig, bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|) =
-     experiments::Compiler::Execute::compileAndLink(rascalSource, reuseConfig, useJVM=useJVM, serialize=serialize, verbose = verbose, bindir = bindir);
+RVMProgram compileAndLink(str moduleName, bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|) =
+     experiments::Compiler::Execute::compileAndLink(moduleName, useJVM=useJVM, serialize=serialize, verbose = verbose, bindir = bindir);
+
+RVMProgram compileAndLinkIncremental(loc rascalSource,  bool reuseConfig, bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|) =
+     experiments::Compiler::Execute::compileAndLinkIncremental(rascalSource, reuseConfig, useJVM=useJVM, serialize=serialize, verbose = verbose, bindir = bindir);
     
 value execute(loc rascalSource, map[str,value] keywordArguments = (), bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|)
      =
