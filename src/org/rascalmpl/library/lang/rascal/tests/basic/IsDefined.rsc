@@ -283,14 +283,14 @@ test bool isDefinedAnno6(){
 
 test bool isDefinedAnno7(){
     X = f3(); 
-    X @ pos ?= 3;
-    return X @ pos == 3;
+    X@pos ?= 3;
+    return X@pos == 3;
 }
 
 test bool isDefinedAnno8(){
     X = f3()[@pos = 1]; 
     X @ pos ?= 3;
-    return X @ pos == 1;
+    return X@pos == 1;
 }
 
 test bool isDefinedAnno9() = f3()[@pos = 1] has pos;
