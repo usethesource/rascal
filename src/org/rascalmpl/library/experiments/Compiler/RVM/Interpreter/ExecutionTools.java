@@ -119,7 +119,6 @@ public class ExecutionTools {
 	 */
 	public static IValue executeProgram(RVM rvm, RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){
 		
-		MuPrimitive.setRascalExecutionContext(rex);
 		IValue[] arguments = new IValue[0];
 		HashMap<String, IValue> hmKeywordArguments = new HashMap<>();
 		
@@ -140,9 +139,8 @@ public class ExecutionTools {
 				IListWriter w = vf.listWriter();
 				int n = 0;
 				for(String uid_testsuite: executable.getTestSuites()){
-					//RascalPrimitive.reset();
-					rex.resetCaches();
-					System.out.println("Testsuite: " + uid_testsuite);
+					rex.clearCaches();
+					//System.out.println("Testsuite: " + uid_testsuite);
 					IList test_results = (IList)rvm.executeProgram("TESTSUITE" + n++, uid_testsuite, arguments, hmKeywordArguments);
 					w.insertAll(test_results);
 				}
@@ -185,8 +183,6 @@ public class ExecutionTools {
 	 public static RVM initializedRVM(RVMExecutable executable, RascalExecutionContext rex){
 		
 		RVM rvm = rex.getUseJVM() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
-		
-		MuPrimitive.setRascalExecutionContext(rex);
 		
 		ProfileLocationCollector profilingCollector = null;
 		CoverageLocationCollector coverageCollector = null;
