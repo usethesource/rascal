@@ -83,13 +83,13 @@ public class RVM implements java.io.Serializable {
 	private final ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
 	
-	final static Function noCompanionFunction = new Function(null, null, null, 0, 0, false, null, 0, false, 0, 0, null, null, 0);
+	final static Function noCompanionFunction = new Function("noCompanionFunction", null, null, 0, 0, false, null, 0, false, 0, 0, null, null, 0);
 	
 	private final Map<IValue, IValue> moduleVariables;
 	PrintWriter stdout;
 	PrintWriter stderr;
 	
-	private final HashMap<String, IValue> emptyKeywordMap = new HashMap<>(0);
+	protected static final HashMap<String, IValue> emptyKeywordMap = new HashMap<>(0);
 	
 	//private Frame currentFrame;	// used for profiling
 	private ILocationCollector locationCollector;
@@ -172,9 +172,7 @@ public class RVM implements java.io.Serializable {
 	
 	public static RVM readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex){
 		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
-		RVM result = ExecutionTools.initializedRVM(rvmExecutable, rex);
-		rex.setRVM(result);
-		return result;
+		return ExecutionTools.initializedRVM(rvmExecutable, rex);
 	}
 	
 	public static IValue readFromFileAndExecuteProgram(ISourceLocation rvmBinaryLocation, IMap keywordArguments, RascalExecutionContext rex){
@@ -366,11 +364,13 @@ public class RVM implements java.io.Serializable {
 	public Function getCompanionDefaultsFunction(String name, Type ftype){
 		all:
 			for(Function f : functionStore){
-				if(f.name.contains("companion-defaults") && f.name.contains("::" + name + "(")){
+				//if(f.name.contains("companion")) System.err.println("getCompanionDefaultsFunction " + f.name);
+				if(f.name.contains("companion-defaults") && 
+						f.name.contains("::" + name + "(")){
 					FunctionType ft = (FunctionType) f.ftype;
 					if(ftype.getAbstractDataType().equals(ft.getReturnType())){
 						if(ftype.isAbstractData()){
-							//System.err.println("getCompanionDefaultsFunction1: " + name + ", " + ftype);
+							System.err.println("getCompanionDefaultsFunction1: " + name + ", " + ftype);
 							return f;
 						}
 						if(ftype.getFieldTypes().getArity() == ft.getArgumentTypes().getArity()){
@@ -379,13 +379,13 @@ public class RVM implements java.io.Serializable {
 									continue all;
 								}
 							}
-							//System.err.println("getCompanionDefaultsFunction2: " + name + ", " + ftype);
+							System.err.println("getCompanionDefaultsFunction2: " + name + ", " + ftype);
 							return f;
 						}
 					}
 				}
 			}
-	//System.err.println("getCompanionDefaultsFunction3: " + name + ", " + ftype);
+	System.err.println("getCompanionDefaultsFunction3: " + name + ", " + ftype);
 	return noCompanionFunction;
 	}
 	
@@ -426,6 +426,10 @@ public class RVM implements java.io.Serializable {
 	 * @return
 	 */
 	public Object executeFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs){
+		
+//		for(String fname : functionMap.keySet()){
+//			if(fname.contains("companion")) System.err.println("executeFunction: " + func.name + "companion found: " + fname);
+//		}
 		// Assumption here is that the function called is not a nested one
 		// and does not use global variables
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
@@ -1022,8 +1026,8 @@ public class RVM implements java.io.Serializable {
 				case Opcode.OP_LOADEMPTYKWMAP:
 					// TODO: use unique copy of emptyKeywordMap and delay creation of new copy to assignment
 					// to keyword parameter
-					stack[sp++] = emptyKeywordMap;
-					//stack[sp++] = new HashMap<String,IValue>();
+					//stack[sp++] = emptyKeywordMap;
+					stack[sp++] = new HashMap<String,IValue>();
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_CALLMUPRIM:	
@@ -1980,6 +1984,8 @@ public class RVM implements java.io.Serializable {
 			"org.rascalmpl.library.lang.csv.IOCompiled.writeCSV",
 			"org.rascalmpl.library.lang.json.IOCompiled.fromJSON",
 			
+			"org.rascalmpl.library.PreludeCompiled.delAnnotation",
+			"org.rascalmpl.library.PreludeCompiled.delAnnotations",
 			"org.rascalmpl.library.PreludeCompiled.implode",
 			"org.rascalmpl.library.PreludeCompiled.parse",
 			"org.rascalmpl.library.PreludeCompiled.print",
