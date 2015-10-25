@@ -72,7 +72,8 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * 
  * and returns a new stack pointer (an index in 'stack'). 
  * 
- * 'execute' is only allowed to make modifications to the stack.
+ * 'execute' is only allowed to make modifications to the stack and usually returns an IValue
+ * on top of the stack.
  *
  * This enumeration is organized in the following sections:
  * - Creation of values and some utilities on them (~ line 90)
@@ -95,7 +96,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  *   one or more type parameters, still a single translation is generated that 
  *   is shared across all type instantiations of the parameters. Under those circumstances,
  *   there is no static knowldege of the argument types of these primitives and they have to
- *   determined at run-time.
+ *   be determined at run-time.
  * 
  */
 
@@ -8340,7 +8341,7 @@ public enum RascalPrimitive {
 				return sp - 4;
 			}
 			IConstructor type_cons = ((IConstructor) stack[sp - 1]);
-			TypeReifier typeReifier = new TypeReifier(vf);          // TODO: relatio n with global?******
+			TypeReifier typeReifier = new TypeReifier(vf);          // TODO: relation with global?******
 			Type argType = typeReifier.valueToType(type_cons);
 			IMap definitions = (IMap) type_cons.get("definitions");
 
@@ -8369,6 +8370,9 @@ public enum RascalPrimitive {
 				}
 				try {
 					//System.err.println("Before executing test " + fun);
+//					for(String fname : rex.getRVM().functionMap.keySet()){
+//						if(fname.contains("companion")) System.err.println("testreport_add: " + fname);
+//					}
 					IValue res = (IValue) rex.getRVM().executeFunction(fun, args, null); 
 					//System.err.println("After executing test " + fun);
 					passed = ((IBool) res).getValue();
@@ -9059,6 +9063,33 @@ public enum RascalPrimitive {
 			return sp - 1;
 		}
 	},
+	
+	/**
+	 * Create a descendant descriptor given
+	 * - a unique id
+	 * - symbolset (converted from ISet of values to HashSet of Types, symbols and Productions)
+	 * - concreteMatch, indicates a concrete or abstract match
+	 * - definitions needed for type reifier
+	 * 
+	 * [ ISet symbolset, IBool concreteMatch, IMap definitions] => DescendantDescriptor
+	 */
+	make_descendant_descriptor {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 4;
+			IString id = (IString) stack[sp - 4];
+			DescendantDescriptor desc = rex.getDescendantDescriptorMap().get(id);
+			if(desc == null){
+				ISet symbolset = (ISet) stack[sp - 3];
+				IBool concreteMatch = (IBool) stack[sp - 2];
+				IMap definitions = (IMap) stack[sp - 1];
+				desc = new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
+				rex.getDescendantDescriptorMap().put(id,  desc);
+			}
+			stack[sp - 4] = desc;
+			return sp - 3;
+		};
+	},
 
 	/************************************************************************************************/
 	/*				Miscellaneous																	*/
@@ -9160,8 +9191,8 @@ public enum RascalPrimitive {
 			}
 			return sp - 2;
 		}
-
 	},
+	
 	/**
 	 * memoize result of executing a function for given parameters
 	 * 
@@ -9186,6 +9217,104 @@ public enum RascalPrimitive {
 	            fun.memoization = new SoftReference<>(cache);
 			}
 			cache.storeResult(args, (Map<String,IValue>)currentFrame.stack[nformals - 1], result);
+			return sp;
+		}
+	},
+	
+	/************************************************************************************************/
+	/*				Keyword-related (former) MuPrimitives that need access to rex					*/
+	/* NOTE: these primitives violate the convention that all RascalPrimitives return an IValue		*/
+	/************************************************************************************************/
+	
+	/**
+	 * Given a constructor or node get an array consisting of
+	 * - node/constructor name 
+	 * - positional arguments 
+	 * - keyword parameters collected in a mmap	
+	 * 
+	 * [ ..., node ] => [ ..., array ]
+	 */
+	get_name_and_children_and_keyword_mmap {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 1;
+			INode v = (INode) stack[sp - 1];
+			int cons_arity = v.arity();
+			Object[] elems = new Object[cons_arity + 2];
+			elems[0] = vf.string(v.getName());
+			for (int i = 0; i < cons_arity; i++) {
+				elems[i + 1] = v.get(i);
+			}
+			elems[cons_arity + 1] = $getAllKeywordParameters(v, rex);
+			stack[sp - 1] = elems;
+			return sp;
+		}	
+	},
+	
+	/**
+	 * Given a constructor or node get an array consisting of
+	 * - positional arguments 
+	 * - keyword parameters collected in a mmap	
+	 * 
+	 * [ ..., node ] => [ ..., array ]
+	 */
+	get_children_and_keyword_mmap {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 1;
+			INode v = (INode) stack[sp - 1];
+			int cons_arity = v.arity();
+			Object[] elems = new Object[cons_arity + 1];
+			for (int i = 0; i < cons_arity; i++) {
+			  elems[i] = v.get(i);
+			}
+			elems[cons_arity] = $getAllKeywordParameters(v, rex);
+			stack[sp - 1] = elems;
+			return sp;
+		}
+	},
+	
+	/**
+	 * Given a constructor or node get an array consisting of
+	 * - keyword parameters collected in a mmap
+	 * 
+	 * [ ..., node ] => [ ..., mmap ]
+	 */
+	get_keyword_mmap {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 1;
+			INode v = (INode) stack[sp - 1];
+			stack[sp - 1] = $getAllKeywordParameters(v, rex);
+			return sp;
+		}
+	},
+	
+	/**
+	 * Given a constructor or node get an array consisting of
+	 * - its positional arguments 
+	 * - the values of its keyword arguments
+	 * 
+	 * [ ... node ] => [ ..., array ]
+	 */
+	get_children_and_keyword_values {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 1;
+			INode v = (INode) stack[sp - 1];
+			int cons_arity = v.arity();
+			Map<String, IValue> m = $getAllKeywordParameters(v, rex);
+
+			int kw_arity = m.size();
+			Object[] elems = new Object[cons_arity + kw_arity];
+			for (int i = 0; i < cons_arity; i++) {
+			  elems[i] = v.get(i);
+			}
+			int j = cons_arity;
+			for(IValue val : m.values()){
+				elems[j++] = val;
+			}
+			stack[sp - 1] = elems;
 			return sp;
 		}
 	}
@@ -9232,6 +9361,7 @@ public enum RascalPrimitive {
 	private static final IMap emptyMap = vf.mapWriter().done();
 	private static final IList emptyList = vf.listWriter().done();
 	private static final ISet emptySet = vf.setWriter().done();
+
 	public static final IBool Rascal_TRUE =  ValueFactoryFactory.getValueFactory().bool(true);
 	public static final IBool Rascal_FALSE =  ValueFactoryFactory.getValueFactory().bool(false);
 	
@@ -9961,12 +10091,6 @@ public enum RascalPrimitive {
 		return -1;
 	}
 
-//	private static IConstructor $removeLabel(final IConstructor cons){
-//		if(cons.getName().equals("label"))
-//			return (IConstructor) cons.get(1);
-//		return cons;
-//	}
-
 	public String $unescape(final String s) {
 		StringBuilder b = new StringBuilder(s.length() * 2); 
 
@@ -10035,8 +10159,6 @@ public enum RascalPrimitive {
 		}
 		return val.toString();
 	}
-
-	//static HashMap<Type,IConstructor> type2symbolCache = new HashMap<Type,IConstructor>();
 
 	/**
 	 * @param t the given type
@@ -10212,6 +10334,55 @@ public enum RascalPrimitive {
 //			return sub;
 //		}
 //		return res.booleanValue();
+	}
+	
+	private static Map<String,IValue> $getAllKeywordParameters(IValue v, RascalExecutionContext rex){
+		Type tp = v.getType();
+		
+		if(tp.isAbstractData()){
+			IConstructor cons = (IConstructor) v;
+			if(cons.mayHaveKeywordParameters()){
+				Map<String, IValue> setKwArgs =  cons.asWithKeywordParameters().getParameters();
+				String consName = cons.getName();
+				Function getDefaults = rex.getCompanionDefaultsFunction(consName, tp);
+				if(getDefaults != RVM.noCompanionFunction){
+					IValue[] posArgs = new IValue[cons.arity()];
+					for(int i = 0; i < cons.arity(); i++){
+						posArgs[i] = cons.get(i);
+					}
+					
+					@SuppressWarnings("unchecked")
+					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeFunction(getDefaults, posArgs, setKwArgs);
+
+					HashMap<String, IValue> allKwArgs = new HashMap<>(defaults.size());
+					for(String key : defaults.keySet()){
+						IValue val = setKwArgs.get(key);
+						if(val != null){
+							allKwArgs.put(key,  val);
+						} else {
+							allKwArgs.put(key, defaults.get(key).getValue());
+						}
+					}
+					//System.err.println(", returns " + allKwArgs);
+					
+					return allKwArgs;
+					
+				}
+			} else {
+				return RVM.emptyKeywordMap;
+			}
+		}
+		
+		if(tp.isNode()){
+			INode nd = (INode) v;
+			if(nd.mayHaveKeywordParameters()){
+				return nd.asWithKeywordParameters().getParameters();
+			} else {
+				return RVM.emptyKeywordMap;
+			}
+		}
+		
+		throw new CompilerError("getAllKeywordParameters");
 	}
 }
 
