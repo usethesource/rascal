@@ -107,7 +107,7 @@ public class CommandExecutor {
 		rvmCompiler = RVM.readFromFileAndInitialize(compilerBinaryLocation, rex);
 		
 		TypeFactory tf = TypeFactory.getInstance();
-		compileAndLink = rvmCompiler.getFunction("compileAndLink", tf.abstractDataType(new TypeStore(), "RVMProgram"), tf.tupleType(tf.sourceLocationType(), tf.boolType()));
+		compileAndLink = rvmCompiler.getFunction("compileAndLinkIncremental", tf.abstractDataType(new TypeStore(), "RVMProgram"), tf.tupleType(tf.sourceLocationType(), tf.boolType()));
 		if(compileAndLink == null){
 			throw new RuntimeException("Cannot find compileAndLink function");
 		}
