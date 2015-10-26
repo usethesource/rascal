@@ -1,8 +1,8 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
+import org.rascalmpl.value.IValue;
 
 public class LoadCon extends Instruction {
 

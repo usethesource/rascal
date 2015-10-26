@@ -1,7 +1,7 @@
 package org.rascalmpl.interpreter.types;
 
-import org.eclipse.imp.pdb.facts.type.ExternalType;
-import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.value.type.ExternalType;
+import org.rascalmpl.value.type.Type;
 
 public abstract class RascalType extends ExternalType {
   protected final static RascalTypeFactory RTF = RascalTypeFactory.getInstance();

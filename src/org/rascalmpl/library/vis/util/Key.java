@@ -7,7 +7,7 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.util;
 
-import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.value.IValue;
 
 public interface Key<T> {
 	

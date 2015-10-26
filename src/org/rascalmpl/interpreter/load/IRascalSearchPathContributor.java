@@ -13,7 +13,7 @@ package org.rascalmpl.interpreter.load;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.ISourceLocation;
 
 public interface IRascalSearchPathContributor {
 	void contributePaths(List<ISourceLocation> path);

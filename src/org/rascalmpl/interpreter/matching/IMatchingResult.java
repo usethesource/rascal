@@ -14,11 +14,11 @@ package org.rascalmpl.interpreter.matching;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 /**
  * The IBacktrackingExpression  interface describes the standard way of applying a pattern to a subject:

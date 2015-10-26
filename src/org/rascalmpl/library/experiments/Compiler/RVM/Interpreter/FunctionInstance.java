@@ -3,15 +3,16 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.imp.pdb.facts.IAnnotatable;
-import org.eclipse.imp.pdb.facts.IExternalValue;
-import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
-import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.value.IAnnotatable;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IExternalValue;
+import org.rascalmpl.value.IMapWriter;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.value.exceptions.IllegalOperationException;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.visitors.IValueVisitor;
 
 
 public class FunctionInstance implements ICallableCompiledValue, IExternalValue {
@@ -143,20 +144,24 @@ public class FunctionInstance implements ICallableCompiledValue, IExternalValue 
 	public IValue call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
 		return this.call(rvm.getMonitor(), argTypes, argValues, keyArgValues);
 	}
-	
+
 	@Override
-  public boolean mayHaveKeywordParameters() {
-    return false;
-  }
-  
-  @Override
-  public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-    throw new IllegalOperationException(
-        "Cannot be viewed as with keyword parameters", getType());
-  }
-  
-  public String toString(){
-	  return "FunctionInstance[" + function.name + "]";
-  }
+	public boolean mayHaveKeywordParameters() {
+		return false;
+	}
+
+	@Override
+	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+		throw new IllegalOperationException("Cannot be viewed as with keyword parameters", getType());
+	}
+
+	@Override
+	public IConstructor encodeAsConstructor() {
+		throw new UnsupportedOperationException("Not implemented.");
+	}
+
+	public String toString() {
+		return "FunctionInstance[" + function.name + "]";
+	}
 
 }

@@ -6,14 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AddInt;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AndBool;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Apply;
@@ -97,10 +89,19 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.T
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownLoc;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ValueSubtype;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Visit;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
 import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import de.ruedigermoeller.serialization.FSTBasicObjectSerializer;
@@ -730,6 +731,10 @@ public class CodeBlock implements Serializable {
 	
 	public CodeBlock LOADEMPTYKWMAP(){
 		return add(new LoadEmptyKwMap(this));
+	}
+	
+	public CodeBlock VALUESUBTYPE(Type type){
+		return add(new ValueSubtype(this, getTypeConstantIndex(type)));
 	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {

@@ -1,9 +1,9 @@
 package org.rascalmpl.library.experiments.Compiler;
 
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.IValueFactory;
 
 public class Coverage {
 	protected final IValueFactory values;

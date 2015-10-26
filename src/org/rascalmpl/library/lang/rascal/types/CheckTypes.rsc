@@ -1211,10 +1211,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
     	if (!isIntType(t3)) failures += makeFailType("The last slice index must be of type int", elast@\loc);
     }
     
-    res = makeFailType("Slices can only be used on lists, strings, and nodes", exp@\loc);
-    
-	if (isListType(t1) || isStrType(t1)) {
-		res = t1;	
+    res = makeFailType("Slices can only be used on (concrete) lists, strings, and nodes", exp@\loc);
+
+	if (isListType(t1) || isStrType(t1) || isNonTerminalIterType(t1)) {
+		res = t1;
 	} else if (isNodeType(t1)) {
 		res = \list(Symbol::\value());
 	}
@@ -1246,13 +1246,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
     	if (!isIntType(t4)) failures += makeFailType("The last slice index must be of type int", elast@\loc);
     }
 
-    res = makeFailType("Slices can only be used on lists, strings, and nodes", exp@\loc);
+    res = makeFailType("Slices can only be used on (concrete) lists, strings, and nodes", exp@\loc);
     
-	if (isListType(t1) || isStrType(t1)) {
-		res = t1;	
-	} else if (isNodeType(t1)) {
-		res = \list(Symbol::\value());
-	}
+	if (isListType(t1) || isStrType(t1) || isNonTerminalIterType(t1)) {
+        res = t1;
+    } else if (isNodeType(t1)) {
+        res = \list(Symbol::\value());
+    }
 	
 	if (isFailType(res) || size(failures) > 0)
 		return markLocationFailed(c, exp@\loc, failures + res);
@@ -1494,6 +1494,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> \< <{Fiel
 
     // Get back the fields as a tuple, if this is one of the allowed subscripting types.
     Symbol rt = Symbol::\void();
+
     if (isRelType(t1)) {
         rt = getRelElementType(t1);
     } else if (isListRelType(t1)) {
@@ -1594,7 +1595,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ @ <Name
 }
 
 @doc{Check the types of Rascal expressions: Get Annotation (DONE)}
-public CheckResult checkExp(Expression exp:(Expression)`<Expression e> @ <Name n>`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e>@<Name n>`, Configuration c) {
     < c, t1 > = checkExp(e, c);
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
     if (isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) {
@@ -5260,7 +5261,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`\< <{Assignable
 }
 
 @doc{Extract a tree representation of the pattern and perform basic checks: Annotation (DONE)}
-public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> @ <Name an>`, bool top, Configuration c) {
+public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>@<Name an>`, bool top, Configuration c) {
     // First, build the tree for the receiver and convert the annotation name into something
     // we can use below.
     < c, atree > = buildAssignableTree(ar, false, c);
@@ -5756,7 +5757,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
 }
 
 @doc{Check the type of the components of a declaration: Annotation}
-public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> anno <Type annoType> <Type onType> @ <Name n>;`, bool descend, Configuration c) {
+public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> anno <Type annoType> <Type onType>@<Name n>;`, bool descend, Configuration c) {
     // NOTE: We ignore descend here. There is nothing that is done here that should be deferred until
     // later in declaration processing.
     
@@ -7697,7 +7698,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						names = names + decl;
 						varNamesToDeclare = varNamesToDeclare + getDeclarationNames(decl);
 					}
-					case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : 
+					case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _>@<Name _>;` : 
 						annotations = annotations + decl;
 					case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : 
 						aliases = aliases + decl;
@@ -7867,7 +7868,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						names = names + decl;
 						varNamesToDeclare = varNamesToDeclare + getDeclarationNames(decl);
 					}
-					case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : 
+					case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _>@<Name _>;` : 
 						annotations = annotations + decl;
 					case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : 
 						aliases = aliases + decl;
@@ -7951,7 +7952,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						names = names + decl;
 						varNamesToDeclare = varNamesToDeclare + getDeclarationNames(decl);
 					}
-					case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : 
+					case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _>@<Name _>;` : 
 						annotations = annotations + decl;
 					case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : 
 						aliases = aliases + decl;

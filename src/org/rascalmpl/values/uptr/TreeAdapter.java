@@ -23,20 +23,20 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 import org.fusesource.jansi.Ansi.Color;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
@@ -242,7 +242,8 @@ public class TreeAdapter {
 	}
 
 	public static int getSeparatorCount(ITree tree) {
-		return SymbolAdapter.getSeparators(ProductionAdapter.getType(getProduction(tree))).length();
+		IConstructor nt = ProductionAdapter.getType(getProduction(tree));
+		return SymbolAdapter.isSepList(nt) ? SymbolAdapter.getSeparators(nt).length() : 0;
 	}
 
 	public static boolean isLexical(ITree tree) {

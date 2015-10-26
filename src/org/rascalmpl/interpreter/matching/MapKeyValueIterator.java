@@ -15,14 +15,14 @@ package org.rascalmpl.interpreter.matching;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.IValue;
 
-class MapKeyValueIterator implements Iterator<IValue> {
+public class MapKeyValueIterator implements Iterator<IValue> {
 	private Iterator<Entry<IValue,IValue>> iter;
 	private Entry <IValue,IValue> prevEntry;
 	
-	MapKeyValueIterator(IMap map){
+	public MapKeyValueIterator(IMap map){
 		iter = map.entryIterator();
 		prevEntry = null;
 	}

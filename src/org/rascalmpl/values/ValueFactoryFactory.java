@@ -15,7 +15,7 @@
 *******************************************************************************/
 package org.rascalmpl.values;
 
-import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 public class ValueFactoryFactory{

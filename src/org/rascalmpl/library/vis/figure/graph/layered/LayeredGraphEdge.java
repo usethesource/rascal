@@ -22,7 +22,6 @@ import static org.rascalmpl.library.vis.properties.Properties.VGAP;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IString;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.vis.figure.Figure;
 import org.rascalmpl.library.vis.figure.interaction.MouseOver;
@@ -32,6 +31,7 @@ import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.vector.Rectangle;
+import org.rascalmpl.value.IString;
 
 /**
  * A LayeredGraphEdge is created for each "edge" constructor that occurs in a graph:

@@ -1,8 +1,8 @@
 package org.rascalmpl.interpreter.cursors;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public class InvertorContext extends Context {
 	private final Context ctx;

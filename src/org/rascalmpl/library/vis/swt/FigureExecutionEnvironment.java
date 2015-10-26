@@ -9,9 +9,6 @@ package org.rascalmpl.library.vis.swt;
 
 import java.io.OutputStream;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -27,6 +24,9 @@ import org.rascalmpl.library.vis.swt.applet.FigureSWTApplet;
 import org.rascalmpl.library.vis.util.FigureMath;
 import org.rascalmpl.library.vis.util.NameResolver;
 import org.rascalmpl.library.vis.util.vector.BoundingBox;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public class FigureExecutionEnvironment implements ICallbackEnv{
 

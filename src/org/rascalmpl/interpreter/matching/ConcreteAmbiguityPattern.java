@@ -16,10 +16,10 @@ package org.rascalmpl.interpreter.matching;
 
 import java.util.HashMap;
 
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.value.type.Type;
 
 class ConcreteAmbiguityPattern extends AbstractMatchingResult {
 

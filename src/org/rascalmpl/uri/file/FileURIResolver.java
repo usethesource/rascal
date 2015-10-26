@@ -24,10 +24,10 @@ import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
 
 public class FileURIResolver implements ISourceLocationInputOutput {
 	public FileURIResolver(){

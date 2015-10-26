@@ -11,8 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.control_exceptions;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.interpreter.StackTrace;
+import org.rascalmpl.value.ISourceLocation;
 
 public class InterruptException extends ControlException {
 	private static final long serialVersionUID = -6244185056015873062L;

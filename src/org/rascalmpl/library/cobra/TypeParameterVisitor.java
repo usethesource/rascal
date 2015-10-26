@@ -2,9 +2,9 @@ package org.rascalmpl.library.cobra;
 
 import java.util.HashMap;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
-import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.ITypeVisitor;
+import org.rascalmpl.value.type.Type;
 
 public class TypeParameterVisitor implements ITypeVisitor<IValue,RuntimeException> {
 	

@@ -644,7 +644,7 @@ MuExp assignTo(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, 
               ]);
 }
 
-MuExp assignTo(a: (Assignable) `<Assignable receiver> @ <Name annotation>`,  str operator,  str rhs_type, MuExp rhs) =
+MuExp assignTo(a: (Assignable) `<Assignable receiver>@<Name annotation>`,  str operator,  str rhs_type, MuExp rhs) =
      assignTo(receiver, "=", rhs_type, muCallPrim3("annotation_set", [*getValues(receiver), muCon("<annotation>"), applyOperator(operator, a, rhs_type, rhs)], a@\loc));
 
 // getValues: get the current value(s) of an assignable
@@ -662,11 +662,9 @@ list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <Expression subsc
 }
     
 list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`) = 
-    //translateSlice(getValues(receiver), translateOpt(optFirst), muCon(false),  translateOpt(optLast));
      [ muCallPrim3("<getOuterType(receiver)>_slice", [ *getValues(receiver), translateOpt(optFirst), muCon("false"), translateOpt(optLast) ], a@\loc) ];
     
 list[MuExp] getValues(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`) = 
-    //translateSlice(getValues(receiver), translateOpt(optFirst), translate(second),  translateOpt(optLast));
      [ muCallPrim3("<getOuterType(receiver)>_slice", [ *getValues(receiver), translateOpt(optFirst),  translate(second), translateOpt(optLast) ], a@\loc) ];
 
 list[MuExp] getValues(a:(Assignable) `<Assignable receiver> . <Name field>`) { 
@@ -683,7 +681,7 @@ list[MuExp] getValues(a:(Assignable) `\<  <{Assignable ","}+ elements > \>` ) = 
 
 list[MuExp] getValues(a:(Assignable) `<Name name> ( <{Assignable ","}+ arguments> )` ) = [ *getValues(arg) | arg <- arguments ];
 
-list[MuExp] getValues(a: (Assignable) `<Assignable receiver> @ <Name annotation>`) = 
+list[MuExp] getValues(a: (Assignable) `<Assignable receiver>@<Name annotation>`) = 
     [ muCallPrim3("annotation_get", [ *getValues(receiver), muCon("<annotation>")], a@\loc) ];
 
 // getReceiver: get the final receiver of an assignable
@@ -696,7 +694,7 @@ Assignable getReceiver(a: (Assignable) `<Assignable receiver> . <Name field>`) =
 Assignable getReceiver(a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`) = getReceiver(receiver); 
 Assignable getReceiver(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`) = a;
 Assignable getReceiver(a: (Assignable) `\< <{Assignable ","}+ elements> \>`) =  a;
-Assignable getReceiver(a: (Assignable) `<Assignable receiver> @ <Name annotation>`) = getReceiver(receiver); 
+Assignable getReceiver(a: (Assignable) `<Assignable receiver>@<Name annotation>`) = getReceiver(receiver); 
 
 // -- empty statement ------------------------------------------------
 

@@ -71,13 +71,13 @@ import static org.rascalmpl.library.vis.KeySym.KeySym_keyShiftLeft;
 import static org.rascalmpl.library.vis.KeySym.KeySym_keyTab;
 import static org.rascalmpl.library.vis.KeySym.KeySym_keyUnknown;
 
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class KeySymTranslate {

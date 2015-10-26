@@ -17,15 +17,15 @@ package org.rascalmpl.interpreter.matching;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 
 public class QualifiedNamePattern extends AbstractMatchingResult implements IVarPattern {
 	protected org.rascalmpl.ast.QualifiedName name;

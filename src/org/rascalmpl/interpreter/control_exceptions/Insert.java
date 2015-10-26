@@ -14,11 +14,11 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.control_exceptions;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public class Insert extends ControlException {
 	private static final long serialVersionUID = -6601026099925601817L;

@@ -14,10 +14,6 @@ import java.util.Collection;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import jline.Terminal;
-
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.IRascalResult;
@@ -26,6 +22,10 @@ import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
+
+import jline.Terminal;
 
 public abstract class CompiledRascalREPL extends BaseRascalREPL {
 

@@ -6,5 +6,6 @@ import ParseTree;
 
 
 value main() =
-   //execute(|std:///experiments/Compiler/Examples/Tst2.rsc|, recompile=true);
-   execute(|std:///experiments/Compiler/Examples/RascalExtraction.rsc|, recompile=true);
+   execute(|std:///lang/rascal/tests/basic/Tuples.rsc|, testsuite=true, recompile=true);
+   //execute(|std:///experiments/Compiler/Examples/Tst4.rsc|, recompile=true);
+  

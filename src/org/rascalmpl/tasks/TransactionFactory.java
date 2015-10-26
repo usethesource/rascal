@@ -11,8 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.tasks;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public class TransactionFactory {
 	public static ITransaction<Type,IValue,IValue> transaction() {

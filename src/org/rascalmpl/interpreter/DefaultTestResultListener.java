@@ -15,8 +15,8 @@ package org.rascalmpl.interpreter;
 
 import java.io.PrintWriter;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.repl.ReplTextWriter;
+import org.rascalmpl.value.ISourceLocation;
 
 public class DefaultTestResultListener implements ITestResultListener{
 	private PrintWriter err;

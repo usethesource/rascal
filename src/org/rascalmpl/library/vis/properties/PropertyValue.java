@@ -11,10 +11,10 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.properties;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.util.NameResolver;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public abstract class PropertyValue<PropType> {
 	

@@ -616,6 +616,16 @@ guard
 
 coroutine MATCH_VAR_BECOMES(rVar, pat, iSubject) {
     var cpat = create(pat, iSubject)
+   /* if(is_defined(rVar)){
+       while(next(cpat)) {
+            if(equal(iSubject, deref rVar)){
+               yield iSubject
+            } else {
+              exhaust
+            }
+       }
+       exhaust
+    }*/
     while(next(cpat)) {
         yield iSubject
     }
@@ -1622,6 +1632,21 @@ coroutine ENUM_SUBSETS(set, rSubset) {
 // - DESCENT_AND_MATCH: for abstract trees
 // - DESCENT_AND_MATCH_CONCRETE for concrete trees
 
+coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal) {
+    var iter = descendant_iterator(iVal, descendantDescriptor);
+    while(hasNext(iter)){
+        pat(getNext(iter))
+    }
+}
+
+coroutine DESCENT_AND_MATCH_CONCRETE(pat, descendantDescriptor, iNd) {
+    var iter = descendant_iterator(iNd, descendantDescriptor);
+    while(hasNext(iter)){
+        pat(getNext(iter))
+    }
+}
+
+/*
 coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal) 
 {
 	//println("DESCENT_AND_MATCH", typeOf(iVal),  descendantDescriptor)
@@ -1642,12 +1667,12 @@ coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal)
 	 pat(iVal) 
 }
 
+
 coroutine DESCENT_AND_MATCH_LITERAL(pat, descendantDescriptor, iSubject) {
     if(equal(pat, iSubject)) {
         yield
         exhaust
     }
-    DESCENT_AND_MATCH(MATCH_LITERAL(pat), iSubject) 	
 }
 
 coroutine DESCENT_AND_MATCH_LIST(pat, descendantDescriptor, iLst)
@@ -1744,6 +1769,8 @@ guard
    }
    exhaust
 }
+
+*/
 
 // ***** Regular expressions *****
 

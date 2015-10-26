@@ -11,8 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.staticErrors;
 
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.value.type.Type;
 
 public class UnsupportedSubscript extends StaticError {
 	private static final long serialVersionUID = -315365847166484727L;

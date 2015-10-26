@@ -17,11 +17,11 @@ import static org.junit.Assert.fail;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.junit.Test;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.library.cobra.RandomType;
 import org.rascalmpl.test.infrastructure.TestFramework;
+import org.rascalmpl.value.type.Type;
 
 public class RascalTypes extends TestFramework {
 	

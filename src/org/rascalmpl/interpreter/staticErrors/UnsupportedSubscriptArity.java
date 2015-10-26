@@ -12,8 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.staticErrors;
 
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.value.type.Type;
 
 public class UnsupportedSubscriptArity extends StaticError {
 

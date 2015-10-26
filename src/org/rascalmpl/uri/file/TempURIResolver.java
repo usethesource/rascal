@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.uri.file;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.ISourceLocation;
 
 public class TempURIResolver extends FileURIResolver {
 	@Override

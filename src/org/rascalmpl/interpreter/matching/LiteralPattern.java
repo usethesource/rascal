@@ -19,14 +19,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public class LiteralPattern extends AbstractMatchingResult {
 	private IValue literal;

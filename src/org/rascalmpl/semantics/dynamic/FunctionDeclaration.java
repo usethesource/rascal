@@ -18,10 +18,6 @@ package org.rascalmpl.semantics.dynamic;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.FunctionBody;
 import org.rascalmpl.ast.FunctionModifier;
@@ -37,6 +33,10 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.MissingModifier;
 import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public abstract class FunctionDeclaration extends
 		org.rascalmpl.ast.FunctionDeclaration {

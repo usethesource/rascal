@@ -12,10 +12,10 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.type.TypeFactory;
 
 public class LessThanOrEqualResult extends BoolResult {
   private final boolean less;

@@ -1,11 +1,11 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.IMapWriter;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
 
 public class Switch extends Instruction {
 	IMap caseLabels;

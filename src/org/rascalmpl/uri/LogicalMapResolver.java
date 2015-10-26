@@ -1,7 +1,7 @@
 package org.rascalmpl.uri;
 
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.ISourceLocation;
 
 public class LogicalMapResolver implements ILogicalSourceLocationResolver {
 	private final IMap map;

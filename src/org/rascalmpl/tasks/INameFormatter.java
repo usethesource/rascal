@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.tasks;
 
-import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.value.IValue;
 
 public interface INameFormatter {
 	String format(IValue name);

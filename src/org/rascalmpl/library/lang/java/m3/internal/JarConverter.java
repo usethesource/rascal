@@ -21,9 +21,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.jdt.core.Signature;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
@@ -35,6 +32,9 @@ import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.type.TypeStore;
 
 public class JarConverter extends M3Converter {
   private final int CLASSE = 0;

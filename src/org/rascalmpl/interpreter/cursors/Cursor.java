@@ -1,10 +1,10 @@
 package org.rascalmpl.interpreter.cursors;
 
-import org.eclipse.imp.pdb.facts.IAnnotatable;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
+import org.rascalmpl.value.IAnnotatable;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.visitors.IValueVisitor;
 
 public abstract class Cursor implements ICursor {
 	

@@ -17,10 +17,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public class PDBValueTaskRegistry extends TaskRegistry<Type, IValue, IValue> implements ITaskRegistry<Type, IValue, IValue> {
 	private static volatile PDBValueTaskRegistry instance = null;

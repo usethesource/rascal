@@ -11,9 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
@@ -28,6 +25,9 @@ import org.rascalmpl.library.vis.util.BogusList;
 import org.rascalmpl.library.vis.util.KeySymTranslate;
 import org.rascalmpl.library.vis.util.Util;
 import org.rascalmpl.library.vis.util.vector.Coordinate;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class InputHandler implements MouseListener,MouseMoveListener, MouseTrackListener, KeyListener, IFigureChangedListener{

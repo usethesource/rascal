@@ -15,9 +15,9 @@
  *******************************************************************************/
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
+import org.rascalmpl.value.ISourceLocation;
 
 public class TestExecutor {
 
@@ -30,7 +30,7 @@ public class TestExecutor {
 		this.eval = eval;
 		this.testResultListener = testResultListener;
 		// Make listener known to compiler's run-time system
-		ExecuteProgram.setTestResultListener(testResultListener);
+		ExecutionTools.setTestResultListener(testResultListener);
 	}
 
 	public void test(String moduleName, int nTests) {

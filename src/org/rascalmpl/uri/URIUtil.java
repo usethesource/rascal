@@ -14,8 +14,8 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class URIUtil {

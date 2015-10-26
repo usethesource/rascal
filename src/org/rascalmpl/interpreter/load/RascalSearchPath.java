@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
 
 /**
  * This class implements a search path for Rascal. It can be used to look up modules

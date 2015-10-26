@@ -16,11 +16,11 @@ package org.rascalmpl.interpreter.utils;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
+import org.rascalmpl.value.ISourceLocation;
 
 
 public class Names {

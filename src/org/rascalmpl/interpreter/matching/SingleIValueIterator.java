@@ -14,8 +14,8 @@ package org.rascalmpl.interpreter.matching;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.value.IValue;
 
 
 /*

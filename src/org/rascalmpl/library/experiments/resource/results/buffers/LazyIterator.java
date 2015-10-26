@@ -9,7 +9,7 @@ package org.rascalmpl.library.experiments.resource.results.buffers;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.value.IValue;
 
 	public class LazyIterator implements Iterator<IValue> {
 		

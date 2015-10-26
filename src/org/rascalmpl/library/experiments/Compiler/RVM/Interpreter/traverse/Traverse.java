@@ -1,12 +1,12 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Reference;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.Type;
 
 public class Traverse {
 	public enum DIRECTION  {BottomUp, TopDown}	// Parameters for traversing trees

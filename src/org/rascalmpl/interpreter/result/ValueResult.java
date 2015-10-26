@@ -19,10 +19,10 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public class ValueResult extends ElementResult<IValue> {
 

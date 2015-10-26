@@ -17,8 +17,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.uri.ISourceLocationInput;
+import org.rascalmpl.value.ISourceLocation;
 
 public class HttpURIResolver implements ISourceLocationInput {
 

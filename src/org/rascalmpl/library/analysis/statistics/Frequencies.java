@@ -8,12 +8,12 @@
 package org.rascalmpl.library.analysis.statistics;
 
 import org.apache.commons.math.stat.Frequency;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.INumber;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.INumber;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 
 public class Frequencies {
 	private final IValueFactory values;

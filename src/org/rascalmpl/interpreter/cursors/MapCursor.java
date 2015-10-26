@@ -3,9 +3,9 @@ package org.rascalmpl.interpreter.cursors;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public class MapCursor extends Cursor implements IMap {
 
@@ -34,6 +34,11 @@ public class MapCursor extends Cursor implements IMap {
 	@Override
 	public IMap put(IValue key, IValue value) {
 		return new MapCursor(getMap().put(key,  value), getCtx());
+	}
+	
+	@Override
+	public IMap removeKey(IValue arg0) {
+		return new MapCursor(getMap().removeKey(arg0), getCtx());
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 package org.rascalmpl.interpreter.types;
 
-import org.eclipse.imp.pdb.facts.type.DefaultTypeVisitor;
-import org.eclipse.imp.pdb.facts.type.Type;
+import org.rascalmpl.value.type.DefaultTypeVisitor;
+import org.rascalmpl.value.type.Type;
 
 public abstract class DefaultRascalTypeVisitor<T, E extends Throwable> extends DefaultTypeVisitor<T, E> implements IRascalTypeVisitor<T, E> {
 

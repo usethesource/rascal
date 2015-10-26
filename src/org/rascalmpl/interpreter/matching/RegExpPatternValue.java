@@ -23,9 +23,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -35,6 +32,9 @@ import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.semantics.dynamic.RegExpLiteral;
 import org.rascalmpl.semantics.dynamic.RegExpLiteral.InterpolationElement;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public class RegExpPatternValue extends AbstractMatchingResult  {
 	private final List<InterpolationElement> regexp;

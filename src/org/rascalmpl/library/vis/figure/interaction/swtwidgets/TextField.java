@@ -14,8 +14,6 @@ package org.rascalmpl.library.vis.figure.interaction.swtwidgets;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -32,6 +30,8 @@ import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.swt.SWTFontsAndColors;
 import org.rascalmpl.library.vis.swt.applet.IHasSWTElement;
 import org.rascalmpl.library.vis.util.FigureColorUtils;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class TextField extends SWTWidgetFigureWithValidationAndCallBack<Text> {

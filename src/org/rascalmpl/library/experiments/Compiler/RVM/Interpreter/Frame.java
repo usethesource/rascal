@@ -3,11 +3,11 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.PrintWriter;
 import java.util.HashMap;
 
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.types.FunctionType;  // TODO: remove import: NO
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Frame {

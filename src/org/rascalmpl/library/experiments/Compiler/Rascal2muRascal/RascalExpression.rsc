@@ -880,7 +880,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	reachable = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
 	//println("reachableTypesInVisit: <reachable>");
 	
-	descriptor = muCallMuPrim("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())]);
+	descriptor = muCallPrim3("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())], \visit.subject@\loc);
 	
 	bool direction = true;
 	bool progress = true;
@@ -1618,14 +1618,27 @@ MuExp translate (e:(Expression) `<Expression expression> [ <OptionalExpression o
 MuExp translate (e:(Expression) `<Expression expression> [ <OptionalExpression optFirst> , <Expression second> .. <OptionalExpression optLast> ]`) =
 	translateSlice(expression, optFirst, second, optLast);
 
-private MuExp translateSlice(Expression expression, OptionalExpression optFirst, OptionalExpression optLast) =
-    muCallPrim3("<getOuterType(expression)>_slice", [ translate(expression), translateOpt(optFirst), muCon("false"), translateOpt(optLast) ], expression@\loc);
+private MuExp translateSlice(Expression expression, OptionalExpression optFirst, OptionalExpression optLast) {
+    ot = getOuterType(expression);
+
+    if(ot in {"iter", "iter-star", "iter-star-seps", "iter-seps"}){
+        min_size = contains(ot, "star") ? 0 : 1;
+        return muCallPrim3("concrete_list_slice", [ translate(expression), translateOpt(optFirst), muCon("false"), translateOpt(optLast), muCon(min_size) ], expression@\loc);
+    }
+    return muCallPrim3("<ot>_slice", [ translate(expression), translateOpt(optFirst), muCon("false"), translateOpt(optLast) ], expression@\loc);
+}
 
 public MuExp translateOpt(OptionalExpression optExp) =
     optExp is noExpression ? muCon("false") : translate(optExp.expression);
 
-private MuExp translateSlice(Expression expression, OptionalExpression optFirst, Expression second, OptionalExpression optLast) =
-    muCallPrim3("<getOuterType(expression)>_slice", [  translate(expression), translateOpt(optFirst), translate(second), translateOpt(optLast) ], expression@\loc);
+private MuExp translateSlice(Expression expression, OptionalExpression optFirst, Expression second, OptionalExpression optLast) {
+    ot = getOuterType(expression);
+    if(ot in {"iter", "iter-star", "iter-star-seps", "iter-seps"}){
+        min_size = contains(ot, "star") ? 0 : 1;
+        return muCallPrim3("concrete_list_slice", [ translate(expression), translateOpt(optFirst), translate(second), translateOpt(optLast), muCon(min_size) ], expression@\loc);
+    }
+    return muCallPrim3("<ot>_slice", [  translate(expression), translateOpt(optFirst), translate(second), translateOpt(optLast) ], expression@\loc);
+}
 
 // -- field access expression ---------------------------------------
 
@@ -1686,7 +1699,10 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
     }
     fcode = [(f is index) ? muCon(toInt("<f>")) : muCon(indexOf(fieldNames, unescape("<f>"))) | f <- fields];
     //fcode = [(f is index) ? muCon(toInt("<f>")) : muCon("<f>") | f <- fields];
-    return muCallPrim3("<getOuterType(expression)>_field_project", [ translate(expression), *fcode], e@\loc);
+    ot = getOuterType(expression);
+    if(ot == "list") ot = "lrel"; else if(ot == "set") ot = "rel";
+    
+    return muCallPrim3("<ot>_field_project", [ translate(expression), *fcode], e@\loc);
 }
 
 // -- set annotation expression -------------------------------------
@@ -1698,7 +1714,7 @@ MuExp translate (e:(Expression) `<Expression expression> [ @ <Name name> = <Expr
 
 // -- get annotation expression -------------------------------------
 
-MuExp translate (e:(Expression) `<Expression expression> @ <Name name>`) =
+MuExp translate (e:(Expression) `<Expression expression>@<Name name>`) =
     muCallPrim3("annotation_get", [translate(expression), muCon(unescape("<name>"))], e@\loc);
 
 // -- is expression --------------------------------------------------
@@ -1750,22 +1766,27 @@ MuExp translate(e:(Expression) `<Expression argument> ?`) =
 
 private MuExp translateIsDefined(Expression exp){
 	switch(exp){
+	
 		case (Expression) `( <Expression exp1> )`:
 			return translateIsDefined(exp1);
+			
 		case (Expression) `<Expression exp1> [ <{Expression ","}+ subscripts> ]`: 
 		    if(getOuterType(exp1) notin {"rel", "lrel", "nonterminal"}){
 			 return translateSubscript(exp, true);
 			} else {
 			 fail;
 			}
-		case (Expression) `<Expression expression> @ <Name name>`:
+			
+		case (Expression) `<Expression expression>@<Name name>`:
     		return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_annotation_get", [translate(expression), muCon(unescape("<name>"))], exp@\loc), muCon(0)]);
+		
 		case (Expression) `<Expression expression> . <Name field>`:
 		    if(getOuterType(expression) notin {"tuple"}){
 		       return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_<getOuterType(expression)>_field_access_get", [translate(expression), muCon(unescape("<field>"))], exp@\loc), muCon(0)]);
 		    } else {
 		      fail;
 		    }
+		    
 		default:
     		return translateIfDefinedOtherwise(muBlock([ translate(exp), muCon(true) ]),  muCon(false), exp@\loc);
     }
@@ -1775,9 +1796,11 @@ private MuExp translateIsDefined(Expression exp){
 
 MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) {
 	switch(lhs){
+	
 		case (Expression) `<Expression exp1> [ <{Expression ","}+ subscripts> ]`: 
 			return translateSubscriptIsDefinedElse(lhs, rhs);
-		case (Expression) `<Expression expression> @ <Name name>`: {
+			
+		case (Expression) `<Expression expression>@<Name name>`: {
 			str fuid = topFunctionScope();
     		str varname = asTmp(nextLabel());
     		return muBlock([
@@ -1787,7 +1810,8 @@ MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) {
     						[muCallMuPrim("subscript_array_int", [muTmp(varname,fuid), muCon(1)])],
     						[translate(rhs)])
     			  ]);
-    		}	
+    		}
+    			
     	case (Expression) `<Expression expression> . <Name field>`:	{
     	   str fuid = topFunctionScope();
            str varname = asTmp(nextLabel());
@@ -1798,7 +1822,8 @@ MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) {
                             [muCallMuPrim("subscript_array_int", [muTmp(varname,fuid), muCon(1)])],
                             [translate(rhs)])
                   ]);
-            }      		
+            }   
+               		
 		default:
     		return translateIfDefinedOtherwise(translate(lhs), translate(rhs), e@\loc);
 	}

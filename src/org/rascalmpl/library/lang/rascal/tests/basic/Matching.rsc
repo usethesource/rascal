@@ -137,3 +137,21 @@ test bool ignoreKeywordParameter5() = {{ig()}} := {{ig(x=1)}};
 test bool ignoreKeywordParameter6() = <ig(),_> := <ig(x=1),2>;
 test bool ignoreKeywordParameter7() = [ig(),_] := [ig(x=1),2];
 test bool ignoreKeywordParameter8() = "fiets"(ig()) := "fiets"(ig(x=1));
+
+@ignore{Not yet operational}
+test bool ignoreKeywordParameter9() { A = ig(x = 1); return A := ig(); }
+
+@ignore{Not yet operational}
+test bool ignoreKeywordParameter10() { L = [ ig(x = 1) ]; return L := [ ig() ]; }
+
+@ignore{Not yet operational}
+test bool ignoreKeywordParameter11() { S = { ig(x = 1) }; return S := { ig() }; }
+
+@ignore{Not yet operational}
+test bool ignoreKeywordParameter12() { M = (ig(x = 1): ig(x = 1)); return M := (ig(): ig()); }
+
+@ignore{Not yet operational}
+test bool ignoreKeywordParameter13() { M = ([ig(x = 1)]: ig(x = 1)); return M := ([ig()]: ig()); }
+
+@ignore{Not yet operational}
+test bool ignoreKeywordParameter14() { T = <ig(x = 1), ig(x = 1)>; return T := <ig(), ig()>; }

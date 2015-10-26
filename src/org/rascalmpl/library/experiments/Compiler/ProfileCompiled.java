@@ -1,9 +1,9 @@
 package org.rascalmpl.library.experiments.Compiler;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ProfileLocationCollector;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IValueFactory;
 
 public class ProfileCompiled extends Profile {
 	

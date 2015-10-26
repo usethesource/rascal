@@ -1,9 +1,9 @@
 package org.rascalmpl.library.experiments.Compiler;
 
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CoverageLocationCollector;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.IValueFactory;
 
 public class CoverageCompiled extends Coverage {
 	

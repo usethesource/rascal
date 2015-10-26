@@ -48,6 +48,8 @@ default MuExp translateMatch(Pattern pat, Expression exp) =
 
 default MuExp translatePat(p:(Pattern) `<Literal lit>`, Symbol subjectType) = translateLitPat(lit);
 
+MuExp translatePat(Literal lit) = translateLitPat(lit);
+
 MuExp translateLitPat(Literal lit) = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [translate(lit)]);
 
 // -- regexp pattern -------------------------------------------------
@@ -873,7 +875,7 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`, Symbol subjectType){
 	descendantFun = concreteMatch && (subjectType != \str()) ? "DESCENT_AND_MATCH_CONCRETE" : "DESCENT_AND_MATCH";
 	tc = getTypesAndConstructors(pattern);
     reachable = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
-    descriptor = muCallMuPrim("make_descendant_descriptor", [muCon(descId), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())]);
+    descriptor = muCallPrim3("make_descendant_descriptor", [muCon(descId), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())], p@\loc);
     return muApply(mkCallToLibFun("Library",descendantFun), [translatePat(pattern, Symbol::\value()),  descriptor]);
 }
 
@@ -935,7 +937,7 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Symb
 
 // -- default rule for pattern ---------------------------------------
 
-default MuExp translatePat(Pattern p, Symbol subjectType) { throw "Pattern <p> cannot be translated"; }
+default MuExp translatePat(Pattern p, Symbol subjectType) { iprintln(p); throw "Pattern <p> cannot be translated"; }
 
 /**********************************************************************/
 /*                 Constant Patterns                                  */

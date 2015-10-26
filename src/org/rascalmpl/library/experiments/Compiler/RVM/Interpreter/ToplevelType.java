@@ -1,12 +1,12 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.RascalType;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.ITuple;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.uptr.ITree;
 
 public enum ToplevelType {

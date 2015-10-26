@@ -2,12 +2,12 @@ package org.rascalmpl.interpreter.cursors;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IAnnotatable;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.rascalmpl.value.IAnnotatable;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
 
 public class NodeCursor extends Cursor implements INode {
 	public NodeCursor(INode value) {
