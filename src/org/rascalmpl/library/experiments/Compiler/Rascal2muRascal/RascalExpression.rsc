@@ -1714,7 +1714,7 @@ MuExp translate (e:(Expression) `<Expression expression> [ @ <Name name> = <Expr
 
 // -- get annotation expression -------------------------------------
 
-MuExp translate (e:(Expression) `<Expression expression> @ <Name name>`) =
+MuExp translate (e:(Expression) `<Expression expression>@<Name name>`) =
     muCallPrim3("annotation_get", [translate(expression), muCon(unescape("<name>"))], e@\loc);
 
 // -- is expression --------------------------------------------------
