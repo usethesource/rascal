@@ -6598,7 +6598,7 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
 			assert arity == 2;
 			//stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
-			stack[sp - 2] = vf.bool($subtype((Type) stack[sp - 2], (Type) stack[sp - 1], rex));
+			stack[sp - 2] = vf.bool(rex.isSubtypeOf((Type) stack[sp - 2], (Type) stack[sp - 1]));
 			return sp - 1;
 		}
 	},
@@ -6614,7 +6614,7 @@ public enum RascalPrimitive {
 			assert arity == 2;
 
 			//stack[sp - 2] = vf.bool(((IValue) stack[sp - 2]).getType().isSubtypeOf((Type) stack[sp - 1]));
-			stack[sp - 2] = vf.bool($subtype(((IValue) stack[sp - 2]).getType(), (Type) stack[sp - 1], rex));
+			stack[sp - 2] = vf.bool(rex.isSubtypeOf(((IValue) stack[sp - 2]).getType(), (Type) stack[sp - 1]));
 			return sp - 1;
 		}
 	},
@@ -10313,27 +10313,6 @@ public enum RascalPrimitive {
 
 		rex.getType2SymbolCache().put(t, result);
 		return result;
-	}
-
-	boolean $subtype(final Type t1, final Type t2, final RascalExecutionContext rex){
-		
-		return t1.isSubtypeOf(t2);
-		
-//		Map<Type,Boolean> t2map = rex.getSubtypeCache().get(t1);
-//		if(t2map == null){
-//			boolean sub = t1.isSubtypeOf(t2);
-//			t2map = new HashMap<Type,Boolean>();
-//			t2map.put(t2, sub);
-//			rex.getSubtypeCache().put(t1, t2map);
-//			return sub;
-//		}
-//		Boolean res = t2map.get(t2);
-//		if(res == null){
-//			boolean sub = t1.isSubtypeOf(t2);
-//			t2map.put(t2,  sub);
-//			return sub;
-//		}
-//		return res.booleanValue();
 	}
 	
 	private static Map<String,IValue> $getAllKeywordParameters(IValue v, RascalExecutionContext rex){

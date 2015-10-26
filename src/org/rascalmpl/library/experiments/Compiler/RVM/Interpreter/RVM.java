@@ -1701,7 +1701,8 @@ public class RVM implements java.io.Serializable {
 					
 				case Opcode.OP_VALUESUBTYPE:
 					Type reqType = cf.function.typeConstantStore[CodeBlock.fetchArg1(instruction)];
-					stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isSubtypeOf(reqType));
+					//stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isSubtypeOf(reqType));
+					stack[sp - 1] = vf.bool(rex.isSubtypeOf(((IValue) stack[sp - 1]).getType(), reqType));
 					continue NEXT_INSTRUCTION;
 								
 				case Opcode.OP_LABEL:
