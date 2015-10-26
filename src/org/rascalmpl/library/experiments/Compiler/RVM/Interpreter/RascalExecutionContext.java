@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
 import org.rascalmpl.debug.IRascalMonitor;
@@ -73,7 +72,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	// State for RascalPrimitive
 	
 	private final ParsingTools parsingTools; 
-	private final Map<Type,Map<Type,Boolean>> subtypeCache = new HashMap<Type,Map<Type,Boolean>>();
 	Stack<String> indentStack = new Stack<String>();
 	final HashMap<Type,IConstructor> type2symbolCache = new HashMap<Type,IConstructor>();
 	StringBuilder templateBuilder = null;
@@ -194,8 +192,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	Configuration getConfiguration() { return config; }
 	
-	//IEvaluatorContext getEvaluatorContext() { return ctx; }
-	
 	ITestResultListener getTestResultListener() { return testResultListener; }
 	
 	public String getCurrentModuleName(){ return currentModuleName; }
@@ -210,7 +206,13 @@ public class RascalExecutionContext implements IRascalMonitor {
 		return descendantDescriptorMap;
 	}
 	
-	public Map<Type,Map<Type,Boolean>> getSubtypeCache() { return subtypeCache; }
+	private Cache<Type[], Boolean> subtypeCache = Caffeine.newBuilder().build();
+	
+	public boolean isSubtypeOf(Type t1, Type t2){
+		Type[] key = new Type[] { t1, t2};
+		
+		return subtypeCache.get(key, k -> t1.isSubtypeOf(t2));
+	}
 	
 	StringBuilder getTemplateBuilder() { return templateBuilder; }
 	
@@ -235,7 +237,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public void clearCaches(){
 		companionDefaultFunctionCache = Caffeine.newBuilder().build();
 		descendantDescriptorMap.clear();
-		subtypeCache.clear();
+		subtypeCache = Caffeine.newBuilder().build();
 	}
 	
 	boolean bootstrapParser(String moduleName){
