@@ -11,11 +11,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IMapWriter;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 
 /**
  * Use this class to create values from arbitrary Java objects.

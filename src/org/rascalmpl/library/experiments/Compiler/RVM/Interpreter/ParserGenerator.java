@@ -19,15 +19,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;							// TODO: remove import: YES
 import org.rascalmpl.interpreter.control_exceptions.Throw;			// TODO: remove import: LATER
@@ -38,6 +29,15 @@ import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.JavaBridge;					// remove import: NO
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.parser.gtd.IGTD;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -48,10 +48,7 @@ public class ParserGenerator {
 	private final IValueFactory vf;
 	private final TypeFactory tf;
 	private ISourceLocation parserGeneratorBinaryLocation;
-	private RVMExecutable parserGeneratorRVMExecutable;
-	private RVM parserGeneratorRVM;
-	private Prelude prelude;
-	private ExecuteProgram execute;
+	private RVM rvmParserGenerator;
 	private Function getParserMethodNameFunction;
 	private Function newGenerateFunction;
 	private Function createHoleFunction;
@@ -65,8 +62,6 @@ public class ParserGenerator {
 		this.bridge = new JavaBridge(rex.getClassLoaders(), rex.getValueFactory(), rex.getConfiguration());
 
 		if(useCompiledParserGenerator){
-			prelude = new Prelude(vf);
-			execute = new ExecuteProgram(vf);
 			try {
 				parserGeneratorBinaryLocation = vf.sourceLocation("compressed+boot", "", "ParserGenerator.rvm.ser.gz");
 				//parserGeneratorBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/lang/rascal/grammar/ParserGenerator.rvm.ser.gz");
@@ -74,14 +69,12 @@ public class ParserGenerator {
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Cannot initialize: " + e.getMessage());
 			}
-			RascalExecutionContext rex2 = new RascalExecutionContext(vf, rex.getStdOut(), rex.getStdErr(), null, null, null, false, false, false, /*trackCalls*/false, false, false, null, null);
-			rex2.setCurrentModuleName("$parsergenerator$");
-			parserGeneratorRVMExecutable = RVMExecutable.read(parserGeneratorBinaryLocation);
-			parserGeneratorRVM = execute.initializedRVM(parserGeneratorRVMExecutable, rex2);
-			rex2.setRVM(parserGeneratorRVM);
+			RascalExecutionContext rex2 = new RascalExecutionContext("$parsergenerator$", vf, rex.getStdOut(), rex.getStdErr());
+		
+			rvmParserGenerator = RVM.readFromFileAndInitialize(parserGeneratorBinaryLocation, rex2);
 			
 			Type symSort = RascalTypeFactory.getInstance().nonTerminalType(vf.constructor(RascalValueFactory.Symbol_Sort, vf.string("Sym")));
-			getParserMethodNameFunction = parserGeneratorRVM.getFunction("getParserMethodName", tf.stringType(), tf.tupleType(symSort));
+			getParserMethodNameFunction = rvmParserGenerator.getFunction("getParserMethodName", tf.stringType(), tf.tupleType(symSort));
 			if(getParserMethodNameFunction == null){
 				throw new CompilerError("Function getParserMethodName not found");
 			}
@@ -93,7 +86,7 @@ public class ParserGenerator {
 			}
 
 			Type cpLex = RascalTypeFactory.getInstance().nonTerminalType(vf.constructor(RascalValueFactory.Symbol_Lex, vf.string("ConcretePart")));
-			createHoleFunction = parserGeneratorRVM.getFunction("createHole", tf.stringType(), 
+			createHoleFunction = rvmParserGenerator.getFunction("createHole", tf.stringType(), 
 																 			  tf.tupleType(cpLex, tf.integerType()));
 			if(createHoleFunction == null){
 				throw new CompilerError("Function createHole not found");
@@ -249,7 +242,7 @@ public class ParserGenerator {
 	 */
 	public String getParserMethodName(IConstructor symbol, RascalExecutionContext rex) {
 	  if(useCompiledParserGenerator){
-		  return ((IString) parserGeneratorRVM.executeFunction(getParserMethodNameFunction, new IValue[]{ symbol }, new HashMap<String, IValue>())).getValue();
+		  return ((IString) rvmParserGenerator.executeFunction(getParserMethodNameFunction, new IValue[]{ symbol }, new HashMap<String, IValue>())).getValue();
 	  } else {
 		  return ((IString) evaluator.call((IRascalMonitor) null, "getParserMethodName", symbol)).getValue();
 	  }
@@ -293,7 +286,7 @@ public class ParserGenerator {
 		  rex.event("Generating java source code for parser: " + name,30);
 		  IString classString;
 		  if(useCompiledParserGenerator){
-			  classString = (IString) parserGeneratorRVM.executeFunction(newGenerateFunction, new IValue[]{ vf.string(packageName), vf.string(normName), grammar }, new HashMap<String, IValue>());
+			  classString = (IString) rvmParserGenerator.executeFunction(newGenerateFunction, new IValue[]{ vf.string(packageName), vf.string(normName), grammar }, new HashMap<String, IValue>());
 		  } else {
 			  classString = (IString) evaluator.call(rex.getMonitor(), "newGenerate", vf.string(packageName), vf.string(normName), grammar);
 		  }
@@ -311,7 +304,7 @@ public class ParserGenerator {
 
   public String createHole(IConstructor part, int size, RascalExecutionContext rex) {
 	  if(useCompiledParserGenerator){
-		  return ((IString) parserGeneratorRVM.executeFunction(createHoleFunction, new IValue[]{ part, vf.integer(size) }, new HashMap<String, IValue>())).getValue();
+		  return ((IString) rvmParserGenerator.executeFunction(createHoleFunction, new IValue[]{ part, vf.integer(size) }, new HashMap<String, IValue>())).getValue();
 	  } else {
 		  return ((IString) evaluator.call("createHole", part, vf.integer(size))).getValue();
 	  }

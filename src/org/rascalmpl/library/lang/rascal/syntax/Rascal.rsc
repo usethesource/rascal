@@ -220,7 +220,7 @@ syntax Expression
 	| fieldUpdate  : Expression expression "[" Name key "=" Expression replacement "]" 
 	| fieldProject : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "\<" {Field ","}+ fields "\>" 
 	| setAnnotation: Expression expression "[" "@" Name name "=" Expression value "]" 
-    | getAnnotation: Expression expression "@" Name name 
+    | getAnnotation: Expression expression >> "@" "@" Name name 
 	| is           : Expression expression "is" Name name
 	| has          : Expression expression "has" Name name
 	| transitiveClosure: Expression argument "+" !>> "="
@@ -881,7 +881,7 @@ syntax Pattern
 syntax Tag
 	= @Folded @category="Comment" \default   : "@" Name name TagString contents 
 	| @Folded @category="Comment" empty     : "@" Name name 
-	| @Folded @category="Comment" expression: "@" Name name "=" Expression expression ;
+	| @Folded @category="Comment" expression: "@" Name name "=" Expression expression !>> "@";
 
 syntax ModuleActuals
 	= \default: "[" {Type ","}+ types "]" ;

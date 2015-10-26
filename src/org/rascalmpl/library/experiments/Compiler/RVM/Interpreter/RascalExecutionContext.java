@@ -1,22 +1,13 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
@@ -28,7 +19,18 @@ import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -70,12 +72,28 @@ public class RascalExecutionContext implements IRascalMonitor {
 	// State for RascalPrimitive
 	
 	private final ParsingTools parsingTools; 
-	private final Map<Type,Map<Type,Boolean>> subtypeCache = new HashMap<Type,Map<Type,Boolean>>();
 	Stack<String> indentStack = new Stack<String>();
-	static final HashMap<Type,IConstructor> type2symbolCache = new HashMap<Type,IConstructor>();
+	final HashMap<Type,IConstructor> type2symbolCache = new HashMap<Type,IConstructor>();
 	StringBuilder templateBuilder = null;
 	private final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
 	private IListWriter test_results;
+	
+	private final HashMap<IString,DescendantDescriptor> descendantDescriptorMap = new HashMap<IString,DescendantDescriptor>();
+	
+	public RascalExecutionContext(
+			String moduleName, 
+			IValueFactory vf, 
+			PrintStream out, PrintStream err) {
+		this(moduleName, vf, new PrintWriter(out), new PrintWriter(err));
+	}
+	
+	public RascalExecutionContext(
+			String moduleName, 
+			IValueFactory vf, 
+			PrintWriter out, PrintWriter err) {
+		this(vf, out, err, null, null, null, false, false, false, false, false, false, null, null);
+		setCurrentModuleName(moduleName);
+	}
 	
 	public RascalExecutionContext(
 			IValueFactory vf, 
@@ -151,7 +169,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	public RVM getRVM(){ return rvm; }
 	
-	void setRVM(RVM rvm){ 
+	protected void setRVM(RVM rvm){ 
 		this.rvm = rvm; 
 	}
 	
@@ -174,8 +192,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	Configuration getConfiguration() { return config; }
 	
-	//IEvaluatorContext getEvaluatorContext() { return ctx; }
-	
 	ITestResultListener getTestResultListener() { return testResultListener; }
 	
 	public String getCurrentModuleName(){ return currentModuleName; }
@@ -186,7 +202,17 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	public HashMap<Type,IConstructor> getType2SymbolCache(){ return type2symbolCache; }
 	
-	public Map<Type,Map<Type,Boolean>> getSubtypeCache() { return subtypeCache; }
+	HashMap<IString,DescendantDescriptor> getDescendantDescriptorMap() {
+		return descendantDescriptorMap;
+	}
+	
+	private Cache<Type[], Boolean> subtypeCache = Caffeine.newBuilder().build();
+	
+	public boolean isSubtypeOf(Type t1, Type t2){
+		Type[] key = new Type[] { t1, t2};
+		
+		return subtypeCache.get(key, k -> t1.isSubtypeOf(t2));
+	}
 	
 	StringBuilder getTemplateBuilder() { return templateBuilder; }
 	
@@ -202,11 +228,16 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	public Function getCompanionDefaultsFunction(String name, Type ftype){
 		String key = name + ftype;
-		return companionDefaultFunctionCache.get(key, k -> rvm.getCompanionDefaultsFunction(name, ftype));
+		
+		Function result = companionDefaultFunctionCache.get(key, k -> rvm.getCompanionDefaultsFunction(name, ftype));
+		//System.err.println("RascalExecutionContext.getCompanionDefaultsFunction: " + key + " => " + result.name);
+		return result;
 	}
 	
-	public void resetCaches(){
+	public void clearCaches(){
 		companionDefaultFunctionCache = Caffeine.newBuilder().build();
+		descendantDescriptorMap.clear();
+		subtypeCache = Caffeine.newBuilder().build();
 	}
 	
 	boolean bootstrapParser(String moduleName){

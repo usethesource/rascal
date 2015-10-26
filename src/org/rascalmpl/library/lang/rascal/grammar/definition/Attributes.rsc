@@ -11,6 +11,7 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Literals;
 import ParseTree;
 import IO;
+import ValueIO;
 
 @doc{adds an attribute to all productions it can find}
 public Production attribute(Production p, Attr a) = p[attributes=p.attributes+{a}];
@@ -31,6 +32,8 @@ public Attr mod2attr(ProdModifier m) {
                                                 : return \tag("<n>"("<unescape(l)>"));
     case \tag(\expression(Name n, literal(Literal l)))
                                                 : return \tag("<n>"("<unescape("<l>")>"));
+    case \tag(\expression(Name n, Expression e))     
+                                                : return \tag("<n>"( readTextValueString("<e>")));                                       
     default: { rprintln(m); throw "mod2attr, missed a case <m>"; }
   }
 }

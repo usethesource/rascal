@@ -9,25 +9,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.library.Prelude;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NameCompleter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.Parser;
@@ -35,6 +24,16 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.IMapWriter;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -46,11 +45,9 @@ public class CommandExecutor {
 	private final IValueFactory vf;
 	private ISourceLocation compilerBinaryLocation;
 	private ISourceLocation consoleInputLocation;
-	private final RVMExecutable rvmCompilerExecutable;
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
 	private final Prelude prelude;
-	private final ExecuteProgram execute;
 	private RVM rvmCompiler;
 	private final Function compileAndLink;
 	
@@ -78,10 +75,9 @@ public class CommandExecutor {
 		this.stderr = stderr; 
 		vf = ValueFactoryFactory.getValueFactory();
 		prelude = new Prelude(vf);
-		execute = new ExecuteProgram(vf);
 		try {
-			compilerBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/lang/rascal/boot/Kernel.rvm.ser.gz");
-			//compilerBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/experiments/Compiler/Execute.rvm.ser.gz");
+			compilerBinaryLocation = vf.sourceLocation("compressed+boot", "", "Kernel.rvm.ser.gz");
+			//compilerBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/lang/rascal/boot/Kernel.rvm.ser.gz");
 			consoleInputLocation = vf.sourceLocation("test-modules", "", "/ConsoleInput.rsc");
 			
 		} catch (URISyntaxException e) {
@@ -105,17 +101,17 @@ public class CommandExecutor {
 		w.put(vf.string(shellModuleName), CompiledRascalShellModuleTags);
 		IMap moduleTags = w.done();
 		
-		RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, false, false, true, false, false, false, null, null);
+		RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, false, false, /*profile*/false, false, false, false, null, null);
 		rex.setCurrentModuleName(shellModuleName);
-		rvmCompilerExecutable = RVMExecutable.read(compilerBinaryLocation);
-		rvmCompiler = execute.initializedRVM(rvmCompilerExecutable, rex);
+		
+		rvmCompiler = RVM.readFromFileAndInitialize(compilerBinaryLocation, rex);
 		
 		TypeFactory tf = TypeFactory.getInstance();
-		compileAndLink = rvmCompiler.getFunction("compileAndLink", tf.abstractDataType(new TypeStore(), "RVMProgram"), tf.tupleType(tf.sourceLocationType()));
+		compileAndLink = rvmCompiler.getFunction("compileAndLinkIncremental", tf.abstractDataType(new TypeStore(), "RVMProgram"), tf.tupleType(tf.sourceLocationType(), tf.boolType()));
 		if(compileAndLink == null){
 			throw new RuntimeException("Cannot find compileAndLink function");
 		}
-		compileArgs = new IValue[] {consoleInputLocation};
+		compileArgs = new IValue[] {consoleInputLocation, vf.bool(true)};
 		
 		imports = new ArrayList<String>();
 		syntaxDefinitions = new ArrayList<String>();
@@ -128,7 +124,7 @@ public class CommandExecutor {
 		return w;
 	}
 	
-	IValue executeModule(String main){
+	IValue executeModule(String main, boolean onlyMainChanged){
 		StringWriter w = new StringWriter();
 		w.append("@bootstrapParser module ConsoleInput\n");
 		for(String imp : imports){
@@ -148,13 +144,13 @@ public class CommandExecutor {
 		String modString = w.toString();
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
+			compileArgs[1] = vf.bool(onlyMainChanged);
 			IConstructor consoleRVMProgram = (IConstructor) rvmCompiler.executeFunction(compileAndLink, compileArgs, makeCompileKwParams());
-			
-			rvmConsoleExecutable = execute.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(useJVM));
+			rvmConsoleExecutable = ExecutionTools.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(useJVM));
 			
 			RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, testsuite, profile, trackCalls, coverage, useJVM, null, null);
 			rex.setCurrentModuleName(shellModuleName);
-			IValue val = execute.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
+			IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
 			lastRvmConsoleExecutable = rvmConsoleExecutable;
 			return val;
 		} catch (Exception e){
@@ -230,7 +226,7 @@ public class CommandExecutor {
 	
 	public IValue evalExpression(String src, ITree exp){
 		try {
-			return executeModule("\nvalue main() = " + src + ";\n");
+			return executeModule("\nvalue main() = " + src + ";\n", true);
 		} catch (Thrown e){
 			return null;
 		}
@@ -264,7 +260,7 @@ public class CommandExecutor {
 		case "expression":
 			String innerExp = unparse(get(stat, "expression"));
 			try {
-				return executeModule("\nvalue main() = " + innerExp + ";\n");
+				return executeModule("\nvalue main() = " + innerExp + ";\n", true);
 			} catch (Exception e){
 				return null;
 			}
@@ -278,7 +274,7 @@ public class CommandExecutor {
 			if(name != null){
 				Variable var = variables.get(name);
 				if(var != null){
-					IValue val = executeModule("\nvalue main() { " + src + "}\n");
+					IValue val = executeModule("\nvalue main() { " + src + "}\n", true);
 					var.value = val.toString();
 					return val;
 				} else {
@@ -308,7 +304,7 @@ public class CommandExecutor {
 			}
 		}
 		
-		return executeModule("\nvalue main() = true;\n");
+		return executeModule("\nvalue main() = true;\n", false);
 	}
 	
 	public IValue evalImport(String src, ITree imp) throws FactTypeUseException, IOException{
@@ -319,7 +315,7 @@ public class CommandExecutor {
 			}
 			imports.add(impName);
 			try {
-				return executeModule("\nvalue main() = true;\n");
+				return executeModule("\nvalue main() = true;\n", false);
 			} catch (Exception e){
 				imports.remove(impName);
 				return null;
@@ -328,7 +324,7 @@ public class CommandExecutor {
 		if(is(imp, "syntax")){
 			syntaxDefinitions.add(src);
 			try {
-				return executeModule("\nvalue main() = true;\n");
+				return executeModule("\nvalue main() = true;\n", false);
 			} catch (Exception e){
 				syntaxDefinitions.remove(src);
 				return null;
@@ -353,7 +349,7 @@ public class CommandExecutor {
 				String initial = unparse(get(var, "initial"));
 				declareVar(unparse(type), name, initial);
 				try {
-					return executeModule("\nvalue main() = " + name + ";\n");
+					return executeModule("\nvalue main() = " + name + ";\n", false);
 				} catch (Exception e){
 					this.variables.remove(name);
 					return null;
@@ -366,7 +362,7 @@ public class CommandExecutor {
 		declarations.add(src);
 	
 		try {
-			return executeModule("\nvalue main() = true;\n");
+			return executeModule("\nvalue main() = true;\n", false);
 		} catch (Exception e){
 			declarations.remove(src);
 			return null;

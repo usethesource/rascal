@@ -4,10 +4,10 @@ import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class CoverageLocationCollector implements ILocationCollector, ILocationReporter<ISet> {

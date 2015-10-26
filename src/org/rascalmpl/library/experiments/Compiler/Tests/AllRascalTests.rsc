@@ -49,6 +49,7 @@ private list[str] functionalityTests = [
 "ConcretePatternTests1",	// OK
 "ConcretePatternTests2",	// OK
 "ConcretePatternTests3",	// OK
+"ConcreteSubscriptAndSliceTests",   // OK
 "ConcreteSyntaxTests1",     // OK
 "ConcreteSyntaxTests2",     // OK
 "ConcreteSyntaxTests3",     // OK

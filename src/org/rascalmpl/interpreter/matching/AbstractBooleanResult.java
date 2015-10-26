@@ -12,8 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.value.type.TypeFactory;
 
 public abstract class AbstractBooleanResult implements IBooleanResult {
 	protected boolean initialized = false;

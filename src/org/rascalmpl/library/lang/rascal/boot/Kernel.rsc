@@ -14,22 +14,21 @@ module lang::rascal::boot::Kernel
  
 // TODO: it would make sense to use extend here, however compiler does not handle that properly.
 
-import Grammar;
+
 import experiments::Compiler::RVM::AST;
 import experiments::Compiler::Compile;
 import experiments::Compiler::Execute;
 //import experiments::Compiler::Inspect;
-import lang::rascal::grammar::ParserGenerator;
 
 RVMModule compile(loc moduleLoc, bool verbose = false, loc bindir = |home:///bin|) =
     experiments::Compiler::Compile::compile(moduleLoc, verbose = verbose, bindir = bindir);
     
-RVMProgram compileAndLink(loc rascalSource,  bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|) =
-     experiments::Compiler::Execute::compileAndLink(rascalSource,  useJVM=useJVM, serialize=serialize, verbose = verbose, bindir = bindir);
+RVMProgram compileAndLink(str moduleName, bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|) =
+     experiments::Compiler::Execute::compileAndLink(moduleName, useJVM=useJVM, serialize=serialize, verbose = verbose, bindir = bindir);
+
+RVMProgram compileAndLinkIncremental(loc rascalSource,  bool reuseConfig, bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|) =
+     experiments::Compiler::Execute::compileAndLinkIncremental(rascalSource, reuseConfig, useJVM=useJVM, serialize=serialize, verbose = verbose, bindir = bindir);
     
 value execute(loc rascalSource, map[str,value] keywordArguments = (), bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|)
      =
      experiments::Compiler::Execute::execute(rascalSource, keywordArguments = keywordArguments, debug=debug, testsuite=testsuite, recompile=recompile, profile=profile, trackCalls= trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize, verbose = verbose, bindir = bindir);
- 
-public str generateParser(str package, str name, Grammar gr) =
-    lang::rascal::grammar::ParserGenerator::newGenerate(package, name, gr);    

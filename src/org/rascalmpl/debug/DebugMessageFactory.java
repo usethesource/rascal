@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.debug;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.ISourceLocation;
 
 /**
  * Factory to support the creation of {@link IDebugMessage} instances.

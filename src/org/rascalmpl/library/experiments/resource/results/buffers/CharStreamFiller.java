@@ -12,10 +12,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class CharStreamFiller implements ILazyFiller {

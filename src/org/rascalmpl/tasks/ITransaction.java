@@ -13,8 +13,8 @@ package org.rascalmpl.tasks;
 
 import java.util.Collection;
 
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.value.IValue;
 
 public interface ITransaction<K,N,V> {
 

@@ -1,7 +1,7 @@
 //package org.rascalmpl.library.vis.figure.keys;
 //
-//import org.eclipse.imp.pdb.facts.IValue;
-//import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
+//import org.rascalmpl.value.IValue;
+//import org.rascalmpl.value.impl.fast.ValueFactory;
 //import org.rascalmpl.library.vis.figure.Figure;
 //import org.rascalmpl.library.vis.figure.combine.WithInnerFig;
 //import org.rascalmpl.library.vis.graphics.GraphicsContext;

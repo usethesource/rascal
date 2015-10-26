@@ -2,9 +2,9 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public interface ICallableCompiledValue {
 

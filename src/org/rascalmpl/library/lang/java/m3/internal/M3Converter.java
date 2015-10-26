@@ -2,24 +2,24 @@ package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.util.Stack;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 
 public abstract class M3Converter extends JavaToRascalConverter {
 	private static final String DATATYPE_M3_NODE							= "M3";
-	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_M3_NODE_TYPE;
-	private final org.eclipse.imp.pdb.facts.type.Type DATATYPE_TYPESYMBOL;
+	private final org.rascalmpl.value.type.Type DATATYPE_M3_NODE_TYPE;
+	private final org.rascalmpl.value.type.Type DATATYPE_TYPESYMBOL;
 	
-	private static final org.eclipse.imp.pdb.facts.type.Type locType 		= TF.sourceLocationType();
-	private static final org.eclipse.imp.pdb.facts.type.Type m3TupleType 	= TF.tupleType(locType, locType);
-	private final org.eclipse.imp.pdb.facts.type.Type m3LOCModifierType;
-	private final org.eclipse.imp.pdb.facts.type.Type m3LOCTypeType;
+	private static final org.rascalmpl.value.type.Type locType 		= TF.sourceLocationType();
+	private static final org.rascalmpl.value.type.Type m3TupleType 	= TF.tupleType(locType, locType);
+	private final org.rascalmpl.value.type.Type m3LOCModifierType;
+	private final org.rascalmpl.value.type.Type m3LOCTypeType;
 	
 	protected final Stack<ISourceLocation> scopeManager = new Stack<ISourceLocation>();
 	
@@ -37,7 +37,7 @@ public abstract class M3Converter extends JavaToRascalConverter {
 	protected ISetWriter methodOverrides;
 	protected ISetWriter types;
 	protected ISetWriter annotations;
-	protected final org.eclipse.imp.pdb.facts.type.Type CONSTRUCTOR_M3;
+	protected final org.rascalmpl.value.type.Type CONSTRUCTOR_M3;
 	
 	@SuppressWarnings("deprecation")
 	M3Converter(final TypeStore typeStore) {

@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.Nonterminal;
 import org.rascalmpl.ast.Prod;
 import org.rascalmpl.ast.Start;
@@ -25,6 +21,10 @@ import org.rascalmpl.ast.SyntaxDefinition.Lexical;
 import org.rascalmpl.ast.Visibility;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**

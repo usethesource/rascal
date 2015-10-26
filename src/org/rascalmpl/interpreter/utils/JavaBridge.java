@@ -41,23 +41,6 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IDateTime;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.INumber;
-import org.eclipse.imp.pdb.facts.IRational;
-import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.KeywordFormal;
@@ -78,6 +61,23 @@ import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethod;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.RascalType;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IDateTime;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.INumber;
+import org.rascalmpl.value.IRational;
+import org.rascalmpl.value.IReal;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.ITuple;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.uptr.ITree;
 
 
@@ -200,11 +200,11 @@ public class JavaBridge {
 		return toJavaClass(tp.typeOf(env, true, null));
 	}
 
-	private Class<?> toJavaClass(org.eclipse.imp.pdb.facts.type.Type type) {
+	private Class<?> toJavaClass(org.rascalmpl.value.type.Type type) {
 		return type.accept(javaClasses);
 	}
 	
-	private org.eclipse.imp.pdb.facts.type.Type toValueType(Expression formal, Environment env) {
+	private org.rascalmpl.value.type.Type toValueType(Expression formal, Environment env) {
 		return formal.typeOf(env, true, null);
 	}
 	
@@ -215,92 +215,92 @@ public class JavaBridge {
 		}
 
 		@Override
-		public Class<?> visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
+		public Class<?> visitBool(org.rascalmpl.value.type.Type boolType) {
 			return IBool.class;
 		}
 
 		@Override
-		public Class<?> visitReal(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitReal(org.rascalmpl.value.type.Type type) {
 			return IReal.class;
 		}
 
 		@Override
-		public Class<?> visitInteger(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitInteger(org.rascalmpl.value.type.Type type) {
 			return IInteger.class;
 		}
 		
 		@Override
-		public Class<?> visitRational(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitRational(org.rascalmpl.value.type.Type type) {
 			return IRational.class;
 		}
 		
 		@Override
-		public Class<?> visitNumber(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitNumber(org.rascalmpl.value.type.Type type) {
 			return INumber.class;
 		}
 
 		@Override
-		public Class<?> visitList(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitList(org.rascalmpl.value.type.Type type) {
 			return IList.class;
 		}
 
 		@Override
-		public Class<?> visitMap(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitMap(org.rascalmpl.value.type.Type type) {
 			return IMap.class;
 		}
 
 		@Override
-		public Class<?> visitAlias(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitAlias(org.rascalmpl.value.type.Type type) {
 			return type.getAliased().accept(this);
 		}
 
 		@Override
-		public Class<?> visitAbstractData(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitAbstractData(org.rascalmpl.value.type.Type type) {
 			return IConstructor.class;
 		}
 
 		@Override
-		public Class<?> visitSet(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitSet(org.rascalmpl.value.type.Type type) {
 			return ISet.class;
 		}
 
 		@Override
-		public Class<?> visitSourceLocation(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitSourceLocation(org.rascalmpl.value.type.Type type) {
 			return ISourceLocation.class;
 		}
 
 		@Override
-		public Class<?> visitString(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitString(org.rascalmpl.value.type.Type type) {
 			return IString.class;
 		}
 
 		@Override
-		public Class<?> visitNode(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitNode(org.rascalmpl.value.type.Type type) {
 			return INode.class;
 		}
 
 		@Override
-		public Class<?> visitConstructor(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitConstructor(org.rascalmpl.value.type.Type type) {
 			return IConstructor.class;
 		}
 
 		@Override
-		public Class<?> visitTuple(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitTuple(org.rascalmpl.value.type.Type type) {
 			return ITuple.class;
 		}
 
 		@Override
-		public Class<?> visitValue(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitValue(org.rascalmpl.value.type.Type type) {
 			return IValue.class;
 		}
 
 		@Override
-		public Class<?> visitVoid(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitVoid(org.rascalmpl.value.type.Type type) {
 			return null;
 		}
 
 		@Override
-		public Class<?> visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
+		public Class<?> visitParameter(org.rascalmpl.value.type.Type parameterType) {
 			return parameterType.getBound().accept(this);
 		}
 

@@ -12,8 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.staticErrors;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.value.ISourceLocation;
 
 public class ModuleImport extends StaticError {
 	public ModuleImport(String name, String cause, AbstractAST ast) {

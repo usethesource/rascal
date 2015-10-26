@@ -12,8 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 
 public class RegExpVar implements IVarPattern {
 	private String name;

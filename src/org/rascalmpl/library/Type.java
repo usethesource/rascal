@@ -17,19 +17,19 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 
 public class Type {
 	private final IValueFactory vf;
@@ -56,10 +56,10 @@ public class Type {
 	
 	public IValue make(IValue type, IString name, IList args, IMap keywordParameters) {
 		TypeStore store = new TypeStore();
-		org.eclipse.imp.pdb.facts.type.Type t = new TypeReifier(vf).valueToType((IConstructor) type, store);
+		org.rascalmpl.value.type.Type t = new TypeReifier(vf).valueToType((IConstructor) type, store);
 		
 		IValue[] children = new IValue[args.length()];
-		org.eclipse.imp.pdb.facts.type.Type[] argsTypes = new org.eclipse.imp.pdb.facts.type.Type[args.length()];
+		org.rascalmpl.value.type.Type[] argsTypes = new org.rascalmpl.value.type.Type[args.length()];
 
 		for (int i = 0; i < args.length(); i++) {
 			children[i] = args.get(i);
@@ -82,7 +82,7 @@ public class Type {
 		
 		try {
 			
-			org.eclipse.imp.pdb.facts.type.Type constructor 
+			org.rascalmpl.value.type.Type constructor 
 			= store.lookupConstructor(t, name.getValue(), TypeFactory.getInstance().tupleType(argsTypes));
 			
 			if (constructor == null) {

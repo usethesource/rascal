@@ -10,9 +10,9 @@
  */
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 

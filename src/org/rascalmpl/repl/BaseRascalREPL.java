@@ -18,23 +18,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import jline.Terminal;
-
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.StandardTextWriter;
+import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
+
+import jline.Terminal;
 
 public abstract class BaseRascalREPL extends BaseREPL {
     protected enum State {
@@ -135,18 +135,13 @@ public abstract class BaseRascalREPL extends BaseREPL {
         }
         Type type = result.getType();
 
-        if (type.isAbstractData() && type.isSubtypeOf(RascalValueFactory.Tree)) {
+        if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree)) {
             out.print(type.toString());
             out.print(": ");
-            // we first unparse the tree
-            out.print("`");
+            // we unparse the tree
+            out.print("(" + type.toString() +") `");
             TreeAdapter.yield((IConstructor)result.getValue(), true, out);
-            out.println("`");
-            // write parse tree out one a single line for reference
-            out.print("Tree: ");
-            try (Writer wrt = new LimitedWriter(out, CHAR_LIMIT)) {
-                singleLinePrettyPrinter.write(value, wrt);
-            }
+            out.print("`");
         }
         else {
             out.print(type.toString());

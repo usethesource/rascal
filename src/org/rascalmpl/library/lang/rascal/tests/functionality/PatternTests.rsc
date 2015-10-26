@@ -1526,9 +1526,9 @@ test bool descendant25() = {n | /int n <- {<1,2,3>}} == {1,2,3};
 test bool descendant26() = {v | /value v <- {<1,"b",true>}} == {1,"b",true, <1,"b",true>}; 
 
 @ignoreInterpreter{Not implemented}
-test bool descendant27() = [n | /int n := [1, "f"(2, kw1=3, kw2=4), 5]]  == [1,2,3,4,5];
+test bool descendant27() = {n | /int n := [1, "f"(2, kw1=3, kw2=4), 5]}  == {1,2,3,4,5};
 @ignoreInterpreter{Not implemented}	
-test bool descendant28() = [s | /str s := [1, rect(10,20), 5, rect(30,40,color="red")]]  == ["white", "red"];
+test bool descendant28() = {s | /str s := [1, rect(10,20), 5, rect(30,40,color="red")]}  == {"red"};
   	
 // Match in loops
 
