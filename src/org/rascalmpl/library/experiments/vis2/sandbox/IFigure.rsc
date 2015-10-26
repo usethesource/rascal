@@ -90,7 +90,7 @@ void _setStyle(str id, Style v) {state[widget[id].seq].v.style = v;}
 
 Text _getText(str id) = state[widget[id].seq].v.text;
 
-Property _getProperty(str id) = state[widget[id].seq].v.property;
+Property _getProperty(str id) { return state[widget[id].seq].v.property;}
 
 void _setProperty(str id, Property v) {state[widget[id].seq].v.property = v;}
 
@@ -106,6 +106,8 @@ void addState(Figure f) {
     if (choiceInput():=f)
          property.\value = f.\value;
     if (rangeInput():=f)
+         property.\value = f.\value;
+    if (strInput():=f)
          property.\value = f.\value;
     if (checkboxInput():=f) 
          if (map[str, bool] s2b := f.\value)
@@ -200,7 +202,8 @@ str getIntro() {
         '\<script src=\"http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.min.js\"\>\</script\>
         '<google> 
         '\<script\>
-         '    var timer = {};
+        '    var timer = {};
+        '    var timeout = {};
         '    function CR(evt, ev, id, v ) {
         '       evt = evt || window.event;
         '       if (evt.keyCode == 13 && v) {
@@ -213,7 +216,8 @@ str getIntro() {
         '       v=v.replace(\"/\",\"^div\");
         '    } 
         '    askServer(\"<getSite()>/getValue/\"+ev+\"/\"+id+\"/\"+v, {},
-        '            function(t) {              
+        '            function(t) {   
+        '                // alert(JSON.stringify(t));         
         '                for (var d in t) {
         '                   var e = d3.select(\"#\"+d); 
         '                   for (var i in t[d][\"text\"]) {
@@ -221,24 +225,29 @@ str getIntro() {
         '                        if (i==\"html\") e=e.html(t[d][\"text\"][i]);
         '                        }
         '                   for (var i in t[d][\"attr\"]) {
-        '                        if (i!=\"grow\")
+        '                        if (i!=\"grow\" && i!=\"disabled\")
         '                        e=e.attr(i, t[d][\"attr\"][i]);
+        '                        if (i==\"disabled\") e=e.attr(i, t[d][\"attr\"][i]?true:null);
+        '                        }
+        '                   for (var i in t[d][\"property\"]) {
+        '                        e=e.property(i, t[d][\"property\"][i]);
         '                        }
         '                   for (var i in t[d][\"timer\"]) {
-        '                        
-        '                        var q = doTimerFunction(\"message\", d);
+        '                        var q =  doFunction(\"message\", d);
         '                        if (i==\"command\") { 
         '                              if (t[d][\"timer\"][i]==\"start\") {
-        '                                    // e=e.attr(\"visibility\", \"visible\");  
-        '                                    // q();
-        '                                    // alert(t[d][\"timer\"][\"delay\"]);  
         '                                    if (timer[d]!=null) clearInterval(timer[d]);                                
         '                                    timer[d] = setInterval(q, t[d][\"timer\"][\"delay\"]); 
         '                                    }
         '                              if (t[d][\"timer\"][i]==\"finish\") {
         '                                  // e=e.attr(\"visibility\", \"hidden\"); 
-        '                                  clearInterval(timer[d]); 
+        '                                  if (timeout[d]!=null) clearTimeout(timeout[d]);
+        '                                  if (timer[d]!=null) clearInterval(timer[d]); 
         '                              }
+        '                              if (t[d][\"timer\"][i]==\"timeout\") {
+        '                                    if (timeout[d]!=null) clearTimeout(timeout[d]);                             
+        '                                    timeout[d]= setTimeout(q, t[d][\"timer\"][\"delay\"]); 
+        '                                    }
         '                        }
         '                   }
         '                   var svg = t[d][\"style\"][\"svg\"];
@@ -299,7 +308,8 @@ str getIntro() {
            <for (d<-markerScript) {> <d> <}>
            <for (d<-widgetOrder) {> <widget[d].script> <}>
            <for (d<-reverse(adjust)) {> <d> <}>
-           <for (d<-googleChart) {> <d> <}>        
+           <for (d<-googleChart) {> <d> <}> 
+           doFunction(\"load\", \"figureArea\")();     
        ' }
        ' onload=initFunction;
        '\</script\>
@@ -439,11 +449,9 @@ private loc site = startFigureServer();
 
 private str getSite() = "<site>"[1 .. -1];
 
-
-      
 public void _render(IFigure fig1, int width = 400, int height = 400, 
      Alignment align = centerMid, int lineWidth = -1, 
-     str fillColor = "none", str lineColor = "black", bool display = true)
+     str fillColor = "none", str lineColor = "black", bool display = true, Event event = on(nullCallback))
      {
      screenWidth = width;
      screenHeight = height;
@@ -453,9 +461,9 @@ public void _render(IFigure fig1, int width = 400, int height = 400,
     // println(getWidth(fig1));
     str endtag = endTag();   
     // '<style("border","0px solid black")>  
-    widget[id] = <null, seq, id, begintag, endtag, 
+    widget[id] = <getCallback(event), seq, id, begintag, endtag, 
         "
-        'd3.select(\"#<id>\")     
+        'd3.select(\"#<id>\")   
         '<stylePx("width", width)><style("height", width)>
         '<style("border-width",lineWidth)>
         ;       
@@ -1573,7 +1581,7 @@ IFigure _buttonInput(str id, Figure f, str txt, bool addSvgTag) {
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>\"/\> 
+         "\<svg id=\"<id>_svg\"\> 
          '\<foreignObject id=\"<id>_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
          }
        begintag+="                    
@@ -1802,6 +1810,7 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
         widget[id] = <null, seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\") 
+        '<on(f)>
         '<stylePx("width", width)><stylePx("height", height)>
         '<attrPx("width", width)><attrPx("height", height)>      
         '<debugStyle()> 
@@ -2220,7 +2229,8 @@ list[Figure] treeToList(Figure f) {
 public void _render(Figure fig1, int width = 400, int height = 400, 
      Alignment align = centerMid, tuple[int, int] size = <0, 0>,
      str fillColor = "white", str lineColor = "black", 
-     int lineWidth = 1, bool display = true, num lineOpacity = 1.0, num fillOpacity = 1.0)
+     int lineWidth = 1, bool display = true, num lineOpacity = 1.0, num fillOpacity = 1.0
+     , Event event = on(nullCallback))
      {
         
         id = 0;
@@ -2251,7 +2261,7 @@ public void _render(Figure fig1, int width = 400, int height = 400,
         IFigure f = _translate(fig1, align = align, forceHtml = true);
         addState(fig1);
         _render(f , width = screenWidth, height = screenHeight, align = align, fillColor = fillColor, lineColor = lineColor,
-        lineWidth = lineWidth, display = display);
+        lineWidth = lineWidth, display = display, event = event);
      }
   
  //public void main() {

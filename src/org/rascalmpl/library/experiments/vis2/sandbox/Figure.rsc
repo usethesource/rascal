@@ -132,7 +132,8 @@ public data Attr (
     int width = -1,
     int height =  -1,
     int r = -1,
-    num grow = 1.0  
+    num grow = 1.0,
+    bool disabled = false 
     ) = attr();
     
 public data Property (
@@ -142,6 +143,7 @@ public data Property (
 public data Timer (
      int delay = -1,
      str command = ""
+     // ,str mark = ""
     ) = timer();
     
 public data Style (	
