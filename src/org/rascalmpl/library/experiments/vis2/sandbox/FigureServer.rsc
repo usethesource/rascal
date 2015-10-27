@@ -58,10 +58,24 @@ public Attr attr(str id, int width = -1, int height = -1, int r = -1
      if (height!=-1) v.height = height;
      if (grow>=0) v.grow = grow;    
      if (r!=-1) v.r = r;
-     v.disabled = disabled;
+     // if (disabled?) v.disabled= disabled;
      _setAttr(id, v);
      return v;
      }
+     
+public void disable(str id) {
+     Attr v = _getAttr(id);
+     v.disabled = true;
+     _setAttr(id, v);
+     }
+     
+public void enable(str id) {
+     Attr v = _getAttr(id);
+     v.disabled = false;
+     _setAttr(id, v);
+     }
+
+public bool isDisabled(str id) = _getAttr(id).disabled;
      
 public Property property(str id, value \value = "") {
     Property v = _getProperty(id);
