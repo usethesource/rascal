@@ -514,17 +514,26 @@ Synopsis: Select the innermost Tree of a given type which is enclosed by a given
 
 Description: Select the innermost Tree of type `t` which is enclosed by location `l`.
 }
-public TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, a:appl(_, _)) {
-	if ((a@\loc)?, al := a@\loc, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length) {
-		for (arg <- a.args, TreeSearchResult[&T<:Tree] r:treeFound(&T<:Tree _) := treeAt(t, l, arg)) {
-			return r;
-		}
-		
-		if (&T<:Tree tree := a) {
-			return treeFound(tree);
-		}
-	}
-	return treeNotFound();
+public TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] _, loc l, Tree t)
+  = treeFound(&T r) := treeAt(bool (type[&T <: Tree] u) { return &T _ := u; }, l, a) ? r : treeNotFound();
+
+@doc{ 
+Synopsis: Select the innermost Tree which satisfies a given condition 
+which is enclosed by a given location.
+
+Description: Select the innermost Tree of which satisfied a given condition which is enclosed by location `l`.
+}
+public TreeSearchResult[Tree] treeAt(bool (Tree t) cond, loc l, Tree a:appl(_, _)) {
+    if ((a@\loc)?, al := a@\loc, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length) {
+        for (arg <- a.args, TreeSearchResult[&T<:Tree] r:treeFound(&T<:Tree _) := treeAt(t, l, arg)) {
+            return r;
+        }
+        
+        if (cond(tree)) {
+            return treeFound(tree);
+        }
+    }
+    return treeNotFound();
 }
 
 public default TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree root) = treeNotFound();
