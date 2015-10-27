@@ -528,7 +528,7 @@ public Figure wirth() {
               ])
             ]
           ,
-          cityblock = true, pathColor = "green", orientation = downTop()
+          manhattan = true, pathColor = "green", orientation = downTop()
        );
    return r;         
    }

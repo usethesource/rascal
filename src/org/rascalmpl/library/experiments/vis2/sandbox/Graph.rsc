@@ -88,3 +88,37 @@ Figure model() = graph([<"a", mbox("Figure")>
                        , width = 150, height = 300, lineWidth = 0, align = centerMid);
                         
 void tmodel()= render(model(), align = centerMid);
+
+Figure g() = box(fig=box(align = centerRight, fig=graph(nodeProperty=(),width=1000,height=1000,nodes=
+   [<"Exception",box(tooltip="Exception",fig=text("Exception",fontSize=12))>
+   ,<"experiments::Compiler::Examples::RascalExtraction",box(tooltip="experiments::Compiler::Examples::RascalExtraction",fig=text("RascalExtraction",fontSize=12))>
+   ,<"IO",box(tooltip="IO",fig=text("IO",fontSize=12))>
+   ,<"Message",box(tooltip="Message",fig=text("Message",fontSize=12))>
+   ,<"Type",box(tooltip="Type",fig=text("Type",fontSize=12))>
+   ,<"Map",box(tooltip="Map",fig=text("Map",fontSize=12))>
+   ,<"ParseTree",box(tooltip="ParseTree",fig=text("ParseTree",fontSize=12))>
+   ,<"util::Benchmark",box(tooltip="util::Benchmark",fig=text("Benchmark",fontSize=12))>
+   ,<"util::Reflective",box(tooltip="util::Reflective",fig=text("Reflective",fontSize=12))>
+   ,<"ValueIO",box(tooltip="ValueIO",fig=text("ValueIO",fontSize=12))>
+   ,<"List",box(tooltip="List",fig=text("List",fontSize=12))>
+   ,<"lang::rascal::syntax::Rascal",box(tooltip="lang::rascal::syntax::Rascal",fig=text("Rascal",fontSize=12))>]
+   ,lineWidth=1
+   ,edges=[
+    edge("util::Reflective","Exception")
+   ,edge("experiments::Compiler::Examples::RascalExtraction","util::Reflective")
+   ,edge("experiments::Compiler::Examples::RascalExtraction","util::Benchmark")
+   ,edge("IO","Exception"),edge("List","IO")
+   ,edge("List","Map"),edge("ValueIO","Type"),edge("ValueIO","Exception")
+   ,edge("ParseTree","Type"),edge("ParseTree","Exception")
+   ,edge("util::Benchmark","Exception"),edge("experiments::Compiler::Examples::RascalExtraction","ParseTree")
+   ,edge("experiments::Compiler::Examples::RascalExtraction","ValueIO")
+   ,edge("experiments::Compiler::Examples::RascalExtraction","IO")
+   ,edge("Map","Exception"),edge("util::Reflective","lang::rascal::syntax::Rascal")
+   ,edge("lang::rascal::syntax::Rascal","Exception"),edge("util::Reflective","Message")
+   ,edge("List","Exception"),edge("ParseTree","Message"),edge("Type","Exception")
+   ,edge("util::Benchmark","IO"),edge("experiments::Compiler::Examples::RascalExtraction","Exception")
+   ,edge("Message","Exception"),edge("Type","List"),edge("util::Reflective","ParseTree")
+   ,edge("util::Reflective","IO"),edge("experiments::Compiler::Examples::RascalExtraction","lang::rascal::syntax::Rascal")
+   ,edge("ParseTree","List")],options=graphOptions()),align=<0.0,0.0>,lineWidth=0)); 
+
+   void tg()= render(g(), size=<600, 600>, align = centerMid);
