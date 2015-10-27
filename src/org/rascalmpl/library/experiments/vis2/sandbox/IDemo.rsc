@@ -354,9 +354,9 @@ Figure flipflop() {
       return r;
       }
  
- void randomString() {     
+ void randomString() {  
       style("input", fillColor = "lightgrey");
-      attr("input", disabled = true);
+      disable("input"); 
       currentString=setCell("A", false)+
                     setCell("B", false)+
                     setCell("C", false);
@@ -380,15 +380,15 @@ Figure flipflop() {
           ,
           box(size=<50, 50>, id = "boxx", fillColor = "yellow"
              , event = on("message", void(str e, str n, str v) {
-                       if (attr("input").disabled) {
+                       if (isDisabled("input")) {
                           setCell("A", true);
                           setCell("B", true);
-                          setCell("C", true);  
+                          setCell("C", true); 
+                          enable("input"); 
                           timer("boxx", delay=delay2, command = "timeout");
                           }
                         else {
-                          clearValueProperty("input");
-                          attr("input", disabled = false);
+                          clearValueProperty("input");           
                           style("input", fillColor = "white");
                           }
                           }
@@ -437,3 +437,19 @@ Figure flipflop() {
       );
   
   
+  Figure tip() {
+       Figure r = overlay(figs = [box(size=<50, 50>, fillColor = "yellow"
+           , event = on(["mouseenter","mouseout"]
+           , void(str e, str n, str v) {
+                switch(e) {
+                    case "mouseenter": style("overlay", visibility = "visible");
+                    case "mouseout": style("overlay", visibility = "hidden");
+                    }
+              }
+            )        
+           ) , at(50, 0, circle(id="overlay", fig = text("Hallo"), fillColor = "red", visibility = "hidden"))]
+          );
+       return r;
+       }
+       
+ void ttip() {render(tip());}

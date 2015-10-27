@@ -31,7 +31,7 @@ public list[Chart] exampleSteden() {
    }
    
 public Figure steden(int width = 400, int height = 400) {  
-            Figure f = combochart(charts = exampleSteden(), tickLabels = true,  tooltipColumn = 2, 
+            Figure f = comboChart(charts = exampleSteden(), tickLabels = true,  tooltipColumn = 2, 
            	    options = chartOptions(
            		hAxis = axis(title="Extend", slantedText = true, slantedTextAngle=90), 
            		vAxis = axis(title="Population"),
