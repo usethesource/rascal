@@ -686,7 +686,7 @@ str on(str ev, str proc) {
 int getTextWidth(Figure f, str s) {
      if (f.width>=0) return f.width;
      int fw =  f.fontSize<0?12:f.fontSize;
-     return size(s)*fw;
+     return toInt(size(s)*fw);
      }
  
 int getTextHeight(Figure f) {
@@ -810,10 +810,10 @@ IFigure _googlechart(str cmd, str id, Figure f) {
        return ifigure(id, []);
     }
     
- str getDotOpt(Figure f, str s, Figure g) {
+ str getNodePropertyOpt(Figure f, str s, Figure g) {
     str r =  (emptyFigure():=g)?",{":",{shape:\"<g.id>\",label:\"\"";
-    if ((f.nodeProp[s]?)) {
-        map[str, value] m = getKeywordParameters(f.nodeProp[s]);
+    if ((f.nodeProperty[s]?)) {
+        map[str, value] m = getKeywordParameters(f.nodeProperty[s]);
         for (t<-m) {
            r+=",<t>:<vl(m[t])>,";
            }       
@@ -859,7 +859,7 @@ str getEdgeOpt(Edge s) {
     // str r = getGraphOpt(g);
     str r = "var g = new dagreD3.graphlib.Graph().setGraph(<getGraphOpt(g)>);";
     r +="
-     '<for(s<-g.nodes){> g.setNode(\"<s[0]>\"<getDotOpt(g, s[0], s[1])>);<}>
+     '<for(s<-g.nodes){> g.setNode(\"<s[0]>\"<getNodePropertyOpt(g, s[0], s[1])>);<}>
      ";
     r+="
      '<for(s:edge(from, to)<-g.edges)
@@ -1117,7 +1117,8 @@ bool hasInnerCircle(Figure f)  {
         'd3.select(\"#<id>_svg\")
         '<attr("width", toInt(f.grow*f.width))><attr("height", toInt(f.grow*f.height))>     
         '<!isEmpty(f.tooltip)?
-        ".append(\"svg:title\").text(\""+f.tooltip+"\")":"">
+        ".append(\"svg:title\").text(\""+
+              replaceAll(replaceAll(f.tooltip,"\n", "\\n"),"\"","\\\"") +"\")":"">
         ';
         ";
       } 
@@ -2168,12 +2169,12 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
         case strInput():  return _strInput(f.id, f, addSvgTag);
         case choiceInput():  return _choiceInput(f.id, f, addSvgTag);
         case checkboxInput():  return _checkboxInput(f.id, f, addSvgTag);
-        case combochart():  return _googlechart("ComboChart", f.id, f);
-        case piechart():  return _googlechart("PieChart", f.id, f);
-        case candlestickchart():  return _googlechart("CandlestickChart", f.id, f);
-        case linechart():  return _googlechart("LineChart", f.id, f);
-        case scatterchart():  return _googlechart("ScatterChart", f.id, f);
-        case areachart():  return _googlechart("AreaChart", f.id, f);
+        case comboChart():  return _googlechart("ComboChart", f.id, f);
+        case pieChart():  return _googlechart("PieChart", f.id, f);
+        case candlestickChart():  return _googlechart("CandlestickChart", f.id, f);
+        case lineChart():  return _googlechart("LineChart", f.id, f);
+        case scatterChart():  return _googlechart("ScatterChart", f.id, f);
+        case areaChart():  return _googlechart("AreaChart", f.id, f);
         case graph(): {
               list[IFigure] ifs = [_translate(q, addSvgTag = true)|q<-[n[1]|n<-f.nodes]];
               IFigure r =
@@ -2192,8 +2193,8 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
               // println(fs);
               list[IFigure] ifs = [_translate(q, addSvgTag = true)|q<-fs];
               map[str, tuple[int, int]] m = (getId(g): <getWidth(g), getHeight(g)>|IFigure g<-ifs);
-              list[Vertex] vs  = treeLayout(f, m,  f.sX, f.sY, f.rasterHeight, f.cityblock,
-              xSeparation=f.xSeparation, ySeparation=f.ySeparation, orientation = f.orientation);
+              list[Vertex] vs  = treeLayout(f, m,  f.sX, f.sY, f.rasterHeight, f.manhattan,
+              xSeparation=f.xSep, ySeparation=f.ySep, orientation = f.orientation);
               tuple[int ,int] dim = computeDim(fs, m);
               vs  = vertexUpdate(vs, f.orientation, dim[0], dim[1]);
               fs = treeUpdate(fs, m, f.orientation, dim[0], dim[1]);  
@@ -2207,7 +2208,7 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
               IFigure r =
                _overlay("<f.id>_ov", f 
                 , [_shape(f.id, shape(vs, id = f.id, width = f.width, height = f.height, yReverse = false
-                   ,lineColor=f.pathColor))]
+                   ,lineColor=f.pathColor, fillColor="none"))]
                  + 
                 ifs
                 );
