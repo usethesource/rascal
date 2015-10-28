@@ -14,15 +14,14 @@
 package org.rascalmpl.interpreter.control_exceptions;
 
 import java.io.IOException;
-import java.net.URI;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.io.StandardTextWriter;
 
 /**
  * This class is for representing all run-time exceptions in Rascal.

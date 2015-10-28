@@ -2,6 +2,7 @@ module experiments::vis2::sandbox::IDemo
 import experiments::vis2::sandbox::FigureServer;
 import experiments::vis2::sandbox::Figure;
 import Prelude;
+import util::Math;
 
 str current = "white";
 
@@ -10,7 +11,7 @@ Figure butt() = hcat(figs= [
     
     )
     , box(size=<50, 50>
-        , fig=label("teun", id="teun"
+        , fig=text("teun", id="teun"
         , fillColor = "yellow"      
         ) 
        , id = "mies"
@@ -35,20 +36,27 @@ void tbutt()= render(butt(), debug = false);
 
 void tfbutt(loc l)= writeFile(l, toHtmlString(butt(), debug = false));
 
+void click(str e, str n, str v) = println(n);
+
+Figure lay() = tree(box(fig=buttonInput("click", size=<40, 40>, event=on(click))), [ box(size=<80, 80>, 
+      fig = buttonInput("click", size=<40, 40>, event=on(click)))]);
+
+void tlay() = render(lay());
+
 Figure counter() = hcat(figs= [
     buttonInput("Incr", id = "aap"
     , event = on("click", 
     void (str e, str n, str v) {  
-       str t1 = textLabel("mies1").text;
+       str t1 = textProperty("mies1").text;
        int d1 = isEmpty(t1)?0:toInt(t1);
-       str t2 = textLabel("mies2").text;
+       str t2 = textProperty("mies2").text;
        int d2 = isEmpty(t2)?0:toInt(t2);
        if (d1%2==0) style("box1", fillColor="red"); 
               else style("box1", fillColor="green");
        if (d2%2==0) style("box2", fillColor="green"); 
               else style("box2", fillColor="red");
-       textLabel("mies1", text="<d1+1>");
-       textLabel("mies2", text="<d2-1>");
+       textProperty("mies1", text="<d1+1>");
+       textProperty("mies2", text="<d2-1>");
        attr("box3", width = 25);
        }
     )
@@ -56,16 +64,16 @@ Figure counter() = hcat(figs= [
     , buttonInput("Decr", id = "noot"
     , event = on("click", 
     void (str e, str n, str v) {
-       str t1 = textLabel("mies1").text;
+       str t1 = textProperty("mies1").text;
        int d1 = isEmpty(t1)?0:toInt(t1);
-       str t2 = textLabel("mies2").text;
+       str t2 = textProperty("mies2").text;
        int d2 = isEmpty(t2)?0:toInt(t2);
        if (d1%2==0) style("box1", fillColor="red"); 
               else style("box1", fillColor="green");
        if (d2%2==0) style("box2", fillColor="green"); 
               else style("box2", fillColor="red");
-       textLabel("mies1", text="<d1-1>");
-       textLabel("mies2", text="<d2+1>");
+       textProperty("mies1", text="<d1-1>");
+       textProperty("mies2", text="<d2+1>");
        attr("box3", width=50);
        }
     )
@@ -163,15 +171,18 @@ Figure range() = vcat(
             }))
             , 
             box(size=<200, 200>, fillColor = "antiquewhite"
-            , fig = overlay(size=<100, 100>, lineWidth = 1, grow = 1.0, id="aap", figs=[
-                   box(fillColor= "red", size=<50, 50>),                
-                   box(fillColor="yellow", size=<20, 20>)
-                   ,text("Hallo")]
-              )
+            , fig = 
+                 // overlay(size=<100, 100>, lineWidth = 1, grow = 1.0, id="aap", figs=[
+                   circle(fillColor= "red", r = 100,  grow= 1.0, align = centerMid, id = "aap"              
+                   ,fig = box(fillColor="yellow", fig = text("Hello"), size=<50, 50>)
+                   )
+            //      ]
+            //  )
             )
             ,
             buttonInput("push", event = on ("click", void(str e, str n, str v) {
-                println(property("q", \value = 2));
+                property("q", \value=2); 
+                attr("aap", grow = 2);    
                }))
             ]
 
@@ -226,13 +237,13 @@ str bufa = "";
 
 void update(str e, str n, str v) {
     buf+=v;
-    textLabel("display",text= buf);
+    textProperty("display",text= buf);
     }
 
 void clear(str e, str n, str v) {
     bufa = buf;
     buf=""; 
-    clearTextLabel("display");
+    clearTextProperty("display");
     }
     
 void op(str e, str n, str v) {
@@ -244,7 +255,7 @@ void op(str e, str n, str v) {
         case "*": buf = "<d1*d2>";
         case "/": buf = "<d1/d2>";
     }
-    textLabel("display",text= buf);
+    textProperty("display",text= buf);
     }
 
 list[list[Figure]] buttonArr() {
@@ -274,3 +285,171 @@ Figure pocket() {
      }
      
 void tpocket() = render(pocket());
+
+str currentColor = "blue";
+bool animating = false;
+
+Figure flipflop() {
+     animating = false;
+     return          
+     hcat(figs=[
+          box(size=<100, 50>, id = "animate", fillColor = "antiquewhite"
+          , event = on(["message","click"], 
+           void(str e, str n, str v) {
+                if (e=="message") {
+                if (currentColor  == "blue") {
+                     style("animate", fillColor = "red");
+                     currentColor = "red";
+                     style("vis", visibility = "visible");
+                     }
+                else {
+                     style("animate", fillColor = "blue");
+                     currentColor = "blue";
+                     style("vis", visibility = "hidden");
+                     } 
+                } 
+                if (e=="click") {
+                    if (animating==false) {
+                    timer("animate", delay=500, command = "start");
+                    animating = true;           
+                    }
+               else {
+                   timer("animate", command = "finish");
+                   animating = false;                
+                   }    
+               }       
+           })
+       )
+       ,
+       box(size=<80, 80>, fillColor = "antiqueWhite", fig = box(id = "vis", size = <60, 60> , fillColor="yellow",
+            fig = text("Hallo")))
+       ]);
+       }
+           
+  void tflipflop() = render(flipflop());
+  
+  void fflipflop() = writeFile(|file:///ufs/bertl/html/u.html|, toHtmlString(flipflop()));
+  
+  str bg = "antiqueWhite";
+   
+  Figure tx(str id) = text("", id = id, size=<20, 20>, fontWeight="bold", fillColor = bg);
+  
+  str abc = toUpperCase("abcdefghijklmnopqrstuvwxyz");
+  
+  str currentString = "";
+  
+  int delay1 = 200;
+  
+  int delay2 = 500;
+  
+  str setCell(str s, bool empty) {
+      str r = "";
+      if (empty) clearTextProperty(s);
+      else 
+        {
+         r = abc[arbInt(26)];
+         textProperty(s, text = r);
+         style(s, fillColor = bg);
+         }
+      return r;
+      }
+ 
+ void randomString() {  
+      style("input", fillColor = "lightgrey");
+      disable("input"); 
+      currentString=setCell("A", false)+
+                    setCell("B", false)+
+                    setCell("C", false);
+                  // wait
+      timer("boxx", delay = delay1, command = "timeout"); 
+      }
+ 
+  Figure memory() {  
+         currentString = ""; 
+         return vcat(figs= [hcat(borderStyle="ridge",borderWidth=2, hgap = 5, id = "hcat"
+                  , figs = [tx("A"), tx("B"), tx("C")]
+                  , event = on("click", void(str e, str n, str v) {println("H");})
+                )
+               ,strInput(size=<100,20>, id = "input", \value=" ", event=on(
+               void(str e, str n, str v) {
+                  style("boxx", fillColor = (toUpperCase(v)==currentString?"green":"red"));
+                  property("input", \value="input");
+                  randomString();              
+                  }
+                ))
+          ,
+          box(size=<50, 50>, id = "boxx", fillColor = "yellow"
+             , event = on("message", void(str e, str n, str v) {
+                       if (isDisabled("input")) {
+                          setCell("A", true);
+                          setCell("B", true);
+                          setCell("C", true); 
+                          enable("input"); 
+                          timer("boxx", delay=delay2, command = "timeout");
+                          }
+                        else {
+                          clearValueProperty("input");           
+                          style("input", fillColor = "white");
+                          }
+                          }
+                       ))
+          ,rangeInput(id= "p1", low= 200, high=  2000,  step = 100, 
+              \value =  delay1,
+              event = on("change", void(str e, str n, int v) {
+                   delay1 = v;
+                   })            
+              )
+          ,rangeInput(id= "p2", low= 200, high=  2000,  step = 100, 
+              \value =  delay2,
+              event = on("change", void(str e, str n, int v) {
+                   delay2 = v;
+                   })            
+              )
+          ]);
+          }
+  
+  void tmemory() {render(memory(), event = on(void(str e, str n, str v){randomString();}));}
+  
+  void fmemory() = writeFile(|file:///ufs/bertl/html/u.html|, toHtmlString(memory()));
+  
+  
+  num phi  = PI()/2;
+ 
+  
+  Figure ring() = circle(id="c", r=180, fillColor = "blue", event = on(["message", "click"],
+      void(str e, str n, str v){
+         if (e=="message") {
+             int N = 100; 
+             num x =  (100-20)*sin(phi); 
+             int R = (100)+ toInt(x); 
+             num d = 1-(sin(phi)+1)/2;
+             attr("c", r = R); 
+             style("c", fillOpacity=d);
+             phi = phi + PI()/N;
+             if (phi>=2*PI()) phi = 0;
+             }
+         else {println("stop");timer("c", delay=10, command = "finish");}
+         }
+      ));
+  
+  void tring() = render(ring()
+      ,event = on(void(str e, str n, str v){timer("c", delay=10, command = "start");})
+      );
+  
+  
+  Figure tip() {
+       Figure r = overlay(figs = [box(size=<50, 50>, fillColor = "yellow"
+           , event = on(["mouseenter","mouseout"]
+           , void(str e, str n, str v) {
+                switch(e) {
+                    case "mouseenter": style("overlay", visibility = "visible");
+                    case "mouseout": style("overlay", visibility = "hidden");
+                    }
+              }
+            )        
+           ) , at(50, 0, circle(id="overlay", fig = text("Hallo"), fillColor = "red", visibility = "hidden"))]
+          );
+       return r;
+       }
+       
+ void ttip() {render(tip());}

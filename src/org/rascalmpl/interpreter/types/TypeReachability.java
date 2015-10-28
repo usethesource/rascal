@@ -14,9 +14,9 @@ package org.rascalmpl.interpreter.types;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 
 public class TypeReachability {
 	public static boolean mayOccurIn(Type small, Type large, Environment env) {

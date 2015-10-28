@@ -69,11 +69,13 @@ list[Vertex] innerGridV(int n) {
      }
 
 list[Vertex] innerSchoolPlot1() {
-     return [move(10, i), line(10-i, 10)|i<-[0,0.5..10]];
+     num s =0.5;
+     return [move(10, i), line(10-i, 10)|i<-[s,s+0.5..10]];
      }
      
 list[Vertex] innerSchoolPlot2() {
-     return [move(i, 0), line(0, 10-i)|i<-[0,0.5..10]];
+     num s = 0.5;
+     return [move(i, 0), line(0, 10-i)|i<-[s,s+0.5..10]];
      }
      
 Figure tst0() = circle(padding=<30, 30, 30, 30>, lineWidth = 2, fillColor = "yellow", lineColor = "red", fig= box(fillColor = "lightblue",
@@ -103,21 +105,22 @@ Figure schoolPlot() {
      } 
 
 Figure simpleGrid(Figure f) {
-     return overlay(fillColor="none", width = 400, height = 400, figs=[box(lineWidth=2, lineColor="black"
-        , fig=shape(innerGridV(10)+innerGridH(10) 
+     return overlay(fillColor="none", width = 400, height = 400, figs=[
+        // box(lineWidth=0, lineColor="black", fig=
+          shape(innerGridV(10)+innerGridH(10) 
              ,size=<398, 398>, scaleX=<<0,1>,<0,400>>, scaleY=<<0,1>,<0,400>>, fillColor = "none",
               lineColor = "lightgrey")
-        , fillColor = "none")
+       // , fillColor = "none")
         , f
         ]
      );
      }
      
 Figure labeled(Figure g) {
-     return hcat(
+     return hcat(lineWidth = 0, 
         figs = [
            vcat(figs=gridLabelY(), padding=<0,0,0,20>)
-           , vcat(lineWidth = 0, figs = [g, hcat(figs = gridLabelX())])
+           , vcat(lineWidth = 0, figs = [box(fig=g, lineWidth=1), hcat(figs = gridLabelX())])
            ]);
      }
      
@@ -501,7 +504,7 @@ void tflower() = render(flower());
 Figure cell(str s, int r = 15) = 
      circle(
          lineColor = "black", fillColor = "antiquewhite",
-          r = r, id = s   , fig = label(s, fontWeight="bold")
+          r = r, id = s   , fig = text(s, fontWeight="bold")
          ,event=on(["mouseenter", "mouseleave"], void(str e, str n, str v){
             if (e=="mouseleave")
            style(n, fillColor="antiquewhite");
@@ -510,9 +513,9 @@ Figure cell(str s, int r = 15) =
         }));
    
 public Figure wirth() {
-   Figure r = box(fig = 
+   Figure r = 
        tree(
-         box(fig=label("A", size=<15, 15>,fontWeight="bold" ), fillColor="salmon", lineWidth= 0, size=<100, 35>, rounded= <25, 25>), [
+         box(fig=text("A", size=<15, 15>,fontWeight="bold" ), fillColor="salmon", lineWidth= 0, size=<100, 35>, rounded= <25, 25>), [
            tree(cell("B"), [
               tree(cell("D"), [cell("I")])
               ,tree(cell("E"),
@@ -524,7 +527,8 @@ public Figure wirth() {
               ,tree(cell("H"), [ cell("P")])           
               ])
             ]
-          )
+          ,
+          manhattan = true, pathColor = "green", orientation = downTop()
        );
    return r;         
    }

@@ -12,15 +12,15 @@
 package org.rascalmpl.library.vis.figure.interaction;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.library.vis.figure.FigureFactory;
 import org.rascalmpl.library.vis.figure.combine.LayoutProxy;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.properties.PropertyValue;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.NameResolver;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IValue;
 
 public class ComputeFigure extends LayoutProxy {
 	

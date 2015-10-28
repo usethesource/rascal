@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class Literal extends AbstractAST {
   public Literal(ISourceLocation src, IConstructor node) {
@@ -139,7 +139,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 233 + 577 * booleanLiteral.hashCode() ; 
+      return 577 + 643 * booleanLiteral.hashCode() ; 
     } 
   
     
@@ -213,7 +213,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 643 + 631 * dateTimeLiteral.hashCode() ; 
+      return 631 + 173 * dateTimeLiteral.hashCode() ; 
     } 
   
     
@@ -287,7 +287,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 173 + 103 * integerLiteral.hashCode() ; 
+      return 103 + 257 * integerLiteral.hashCode() ; 
     } 
   
     
@@ -361,7 +361,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 257 + 283 * locationLiteral.hashCode() ; 
+      return 283 + 521 * locationLiteral.hashCode() ; 
     } 
   
     
@@ -435,7 +435,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 521 + 127 * rationalLiteral.hashCode() ; 
+      return 127 + 89 * rationalLiteral.hashCode() ; 
     } 
   
     
@@ -509,7 +509,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 89 + 739 * realLiteral.hashCode() ; 
+      return 739 + 547 * realLiteral.hashCode() ; 
     } 
   
     
@@ -583,7 +583,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 547 + 3 * regExpLiteral.hashCode() ; 
+      return 3 + 373 * regExpLiteral.hashCode() ; 
     } 
   
     
@@ -657,7 +657,7 @@ public abstract class Literal extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 373 + 31 * stringLiteral.hashCode() ; 
+      return 31 + 283 * stringLiteral.hashCode() ; 
     } 
   
     

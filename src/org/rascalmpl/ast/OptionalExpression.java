@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class OptionalExpression extends AbstractAST {
   public OptionalExpression(ISourceLocation src, IConstructor node) {
@@ -90,7 +90,7 @@ public abstract class OptionalExpression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 673 + 557 * expression.hashCode() ; 
+      return 557 + 601 * expression.hashCode() ; 
     } 
   
     
@@ -154,7 +154,7 @@ public abstract class OptionalExpression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 601 ; 
+      return 19 ; 
     } 
   
     	

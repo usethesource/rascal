@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class Renaming extends AbstractAST {
   public Renaming(ISourceLocation src, IConstructor node) {
@@ -107,7 +107,7 @@ public abstract class Renaming extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 233 + 419 * from.hashCode() + 599 * to.hashCode() ; 
+      return 419 + 599 * from.hashCode() + 881 * to.hashCode() ; 
     } 
   
     

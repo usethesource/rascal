@@ -14,11 +14,6 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.BooleanLiteral;
 import org.rascalmpl.ast.DateTimeLiteral;
 import org.rascalmpl.ast.IntegerLiteral;
@@ -38,6 +33,11 @@ import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public abstract class Literal extends org.rascalmpl.ast.Literal {
 

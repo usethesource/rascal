@@ -84,9 +84,9 @@ public Symbol convertStructuredType(StructuredType st) {
             l = convertTypeArgList(tas);
             if (size(l) == 1) {
 				if (\label(_,ltype) := l[0]) {
-					return \list(ltype)[errinfo={ warning("Field name ignored", st@\loc) }];
+					return makeListType(ltype)[errinfo = { warning("Field name ignored", st@\loc) }];
 				} else {
-					return \list(l[0]);
+					return makeListType(l[0]);
 				}            
             } else {
             	return \list(Symbol::\void())[errinfo={ error("Non-well-formed type, type should have one type argument",st@\loc) }]; 
@@ -97,9 +97,9 @@ public Symbol convertStructuredType(StructuredType st) {
             l = convertTypeArgList(tas);
             if (size(l) == 1) {
 				if (\label(_,ltype) := l[0]) {
-					return \set(ltype)[errinfo={ warning("Field name ignored", st@\loc) }];
+					return makeSetType(ltype)[errinfo = { warning("Field name ignored", st@\loc) }];
 				} else {
-					return \set(l[0]);
+					return makeSetType(l[0]);
 				}            
             } else {
             	return \set(Symbol::\void())[errinfo={ error("Non-well-formed type, type should have one type argument",st@\loc) }]; 

@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class Replacement extends AbstractAST {
   public Replacement(ISourceLocation src, IConstructor node) {
@@ -109,7 +109,7 @@ public abstract class Replacement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 881 + 3 * replacementExpression.hashCode() + 293 * conditions.hashCode() ; 
+      return 3 + 293 * replacementExpression.hashCode() + 281 * conditions.hashCode() ; 
     } 
   
     
@@ -192,7 +192,7 @@ public abstract class Replacement extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 281 + 433 * replacementExpression.hashCode() ; 
+      return 433 + 283 * replacementExpression.hashCode() ; 
     } 
   
     

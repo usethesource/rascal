@@ -21,9 +21,9 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.NavigableMap;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.uri.FileTree;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
+import org.rascalmpl.value.ISourceLocation;
 
 /**
  * This resolver is used for example for the scheme "test-modules", which amongst others 

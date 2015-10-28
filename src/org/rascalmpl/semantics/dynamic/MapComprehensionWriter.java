@@ -1,11 +1,11 @@
 package org.rascalmpl.semantics.dynamic;
 
-import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.value.IMapWriter;
+import org.rascalmpl.value.IValue;
 
 public class MapComprehensionWriter extends ComprehensionWriter {
 

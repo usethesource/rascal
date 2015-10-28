@@ -316,16 +316,12 @@ private MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <E
 					]   );
 }
                     
-private MuExp translateStringLiteral(s: (StringLiteral)`<StringConstant constant>`) {
-	//println("RascalExpression::translateStringLiteral constant = <constant>");
-	v = muCon(readTextValueString(removeMargins("<constant>")));
-	//println("RascalExpression::translateStringLiteral <s>, <v>");
-	return v;
-}	
+private MuExp translateStringLiteral(s: (StringLiteral)`<StringConstant constant>`) =
+	muCon(readTextValueString(removeMargins("<constant>")));
 
 // --- translateExpInStringLiteral
 
-private list[MuExp] translateExpInStringLiteral(str indent, Expression expression){
+private list[MuExp] translateExpInStringLiteral(str indent, Expression expression){   
     if(indent == ""){
     	return [ muCallPrim3("template_add", [translate(expression)], expression@\loc)];
     }	
@@ -341,7 +337,7 @@ private str removeMargins(str s) {
 		return s;
 	} else {
 		res = visit(s) { case /^[ \t]*\\?'/m => ""  /*case /^[ \t]+$/m => ""*/};
-		//println("RascalExpression::removeMargins: <s> =\> <res>");
+	    //println("RascalExpression::removeMargins: <s> =\> <res>");
 		return res;
 	}
 }
@@ -353,20 +349,30 @@ private str computeIndent(str s) {
    return isEmpty(lines) ? "" : left("", size(lines[-1]));
 } 
 
-private str computeIndent(PreStringChars pre) = computeIndent(removeMargins(deescape("<pre>"[1..-1])));
-private str computeIndent(MidStringChars mid) = computeIndent(removeMargins(deescape("<mid>"[1..-1])));
+private str computeIndent(PreStringChars pre) = computeIndent(removeMargins(/*deescape(*/"<pre>"[1..-1]/*)*/));
+private str computeIndent(MidStringChars mid) = computeIndent(removeMargins(/*deescape(*/"<mid>"[1..-1]/*)*/));
 
 private list[MuExp] translatePreChars(PreStringChars pre) {
-   spre = removeMargins(deescape("<pre>"[1..-1]));
+   spre = removeMargins("<pre>"[1..-1]);
    return "<spre>" == "" ? [] : [ muCon(deescape(spre)) ];
 }	
 
 private list[MuExp] translateMidChars(MidStringChars mid) {
-  smid = removeMargins(deescape("<mid>"[1..-1]));
+  smid = removeMargins("<mid>"[1..-1]);
   return "<mid>" == "" ? [] : [ muCallPrim3("template_add", [ muCon(deescape(smid)) ], mid@\loc) ];	//?
 }
 
-str deescape(str s)  = visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t]>/m => c };
+str deescape(str s)  { 
+    res = visit(s) { 
+        case /^\\<c: [\" \' \< \> \\]>/ => c
+        case /^\\t/ => "\t"
+        case /^\\n/ => "\n"
+        case /^\\u<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
+        case /^\\U<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
+        case /^\\a<hex:[0-7][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
+        }; 
+    return res;
+}
                      
 /* Recap of relevant rules from Rascal grammar:
 
@@ -391,7 +397,7 @@ str deescape(str s)  = visit(s) { case /\\<c: [\" \' \< \> \\ b f n r t]>/m => c
 // --- translateMiddle
 
 public list[MuExp] translateMiddle(str indent, (StringMiddle) `<MidStringChars mid>`) {
-	mids = removeMargins(deescape("<mid>"[1..-1]));
+	mids = removeMargins("<mid>"[1..-1]);
 	return mids == "" ? [] : [ muCallPrim3("template_add", [muCon(deescape(mids))], mid@\loc) ];	// ?
 }
 
@@ -423,7 +429,7 @@ private list[MuExp] translateTail(str indent, s: (StringTail) `<MidStringChars m
 }
 	
 private list[MuExp] translateTail(str indent, (StringTail) `<PostStringChars post>`) {
-  content = removeMargins(deescape("<post>"[1..-1]));
+  content = removeMargins("<post>"[1..-1]);
   return size(content) == 0 ? [] : [muCallPrim3("template_add", [ muCon(deescape(content)) ], post@\loc)];
 }
 
@@ -874,7 +880,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	reachable = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
 	//println("reachableTypesInVisit: <reachable>");
 	
-	descriptor = muCallMuPrim("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())]);
+	descriptor = muCallPrim3("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())], \visit.subject@\loc);
 	
 	bool direction = true;
 	bool progress = true;
@@ -1612,14 +1618,27 @@ MuExp translate (e:(Expression) `<Expression expression> [ <OptionalExpression o
 MuExp translate (e:(Expression) `<Expression expression> [ <OptionalExpression optFirst> , <Expression second> .. <OptionalExpression optLast> ]`) =
 	translateSlice(expression, optFirst, second, optLast);
 
-private MuExp translateSlice(Expression expression, OptionalExpression optFirst, OptionalExpression optLast) =
-    muCallPrim3("<getOuterType(expression)>_slice", [ translate(expression), translateOpt(optFirst), muCon("false"), translateOpt(optLast) ], expression@\loc);
+private MuExp translateSlice(Expression expression, OptionalExpression optFirst, OptionalExpression optLast) {
+    ot = getOuterType(expression);
+
+    if(ot in {"iter", "iter-star", "iter-star-seps", "iter-seps"}){
+        min_size = contains(ot, "star") ? 0 : 1;
+        return muCallPrim3("concrete_list_slice", [ translate(expression), translateOpt(optFirst), muCon("false"), translateOpt(optLast), muCon(min_size) ], expression@\loc);
+    }
+    return muCallPrim3("<ot>_slice", [ translate(expression), translateOpt(optFirst), muCon("false"), translateOpt(optLast) ], expression@\loc);
+}
 
 public MuExp translateOpt(OptionalExpression optExp) =
     optExp is noExpression ? muCon("false") : translate(optExp.expression);
 
-private MuExp translateSlice(Expression expression, OptionalExpression optFirst, Expression second, OptionalExpression optLast) =
-    muCallPrim3("<getOuterType(expression)>_slice", [  translate(expression), translateOpt(optFirst), translate(second), translateOpt(optLast) ], expression@\loc);
+private MuExp translateSlice(Expression expression, OptionalExpression optFirst, Expression second, OptionalExpression optLast) {
+    ot = getOuterType(expression);
+    if(ot in {"iter", "iter-star", "iter-star-seps", "iter-seps"}){
+        min_size = contains(ot, "star") ? 0 : 1;
+        return muCallPrim3("concrete_list_slice", [ translate(expression), translateOpt(optFirst), translate(second), translateOpt(optLast), muCon(min_size) ], expression@\loc);
+    }
+    return muCallPrim3("<ot>_slice", [  translate(expression), translateOpt(optFirst), translate(second), translateOpt(optLast) ], expression@\loc);
+}
 
 // -- field access expression ---------------------------------------
 
@@ -1680,7 +1699,10 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
     }
     fcode = [(f is index) ? muCon(toInt("<f>")) : muCon(indexOf(fieldNames, unescape("<f>"))) | f <- fields];
     //fcode = [(f is index) ? muCon(toInt("<f>")) : muCon("<f>") | f <- fields];
-    return muCallPrim3("<getOuterType(expression)>_field_project", [ translate(expression), *fcode], e@\loc);
+    ot = getOuterType(expression);
+    if(ot == "list") ot = "lrel"; else if(ot == "set") ot = "rel";
+    
+    return muCallPrim3("<ot>_field_project", [ translate(expression), *fcode], e@\loc);
 }
 
 // -- set annotation expression -------------------------------------
@@ -1692,7 +1714,7 @@ MuExp translate (e:(Expression) `<Expression expression> [ @ <Name name> = <Expr
 
 // -- get annotation expression -------------------------------------
 
-MuExp translate (e:(Expression) `<Expression expression> @ <Name name>`) =
+MuExp translate (e:(Expression) `<Expression expression>@<Name name>`) =
     muCallPrim3("annotation_get", [translate(expression), muCon(unescape("<name>"))], e@\loc);
 
 // -- is expression --------------------------------------------------
@@ -1744,22 +1766,27 @@ MuExp translate(e:(Expression) `<Expression argument> ?`) =
 
 private MuExp translateIsDefined(Expression exp){
 	switch(exp){
+	
 		case (Expression) `( <Expression exp1> )`:
 			return translateIsDefined(exp1);
+			
 		case (Expression) `<Expression exp1> [ <{Expression ","}+ subscripts> ]`: 
 		    if(getOuterType(exp1) notin {"rel", "lrel", "nonterminal"}){
 			 return translateSubscript(exp, true);
 			} else {
 			 fail;
 			}
-		case (Expression) `<Expression expression> @ <Name name>`:
+			
+		case (Expression) `<Expression expression>@<Name name>`:
     		return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_annotation_get", [translate(expression), muCon(unescape("<name>"))], exp@\loc), muCon(0)]);
+		
 		case (Expression) `<Expression expression> . <Name field>`:
 		    if(getOuterType(expression) notin {"tuple"}){
 		       return muCallMuPrim("subscript_array_int", [ muCallPrim3("is_defined_<getOuterType(expression)>_field_access_get", [translate(expression), muCon(unescape("<field>"))], exp@\loc), muCon(0)]);
 		    } else {
 		      fail;
 		    }
+		    
 		default:
     		return translateIfDefinedOtherwise(muBlock([ translate(exp), muCon(true) ]),  muCon(false), exp@\loc);
     }
@@ -1769,9 +1796,11 @@ private MuExp translateIsDefined(Expression exp){
 
 MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) {
 	switch(lhs){
+	
 		case (Expression) `<Expression exp1> [ <{Expression ","}+ subscripts> ]`: 
 			return translateSubscriptIsDefinedElse(lhs, rhs);
-		case (Expression) `<Expression expression> @ <Name name>`: {
+			
+		case (Expression) `<Expression expression>@<Name name>`: {
 			str fuid = topFunctionScope();
     		str varname = asTmp(nextLabel());
     		return muBlock([
@@ -1781,7 +1810,8 @@ MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) {
     						[muCallMuPrim("subscript_array_int", [muTmp(varname,fuid), muCon(1)])],
     						[translate(rhs)])
     			  ]);
-    		}	
+    		}
+    			
     	case (Expression) `<Expression expression> . <Name field>`:	{
     	   str fuid = topFunctionScope();
            str varname = asTmp(nextLabel());
@@ -1792,7 +1822,8 @@ MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) {
                             [muCallMuPrim("subscript_array_int", [muTmp(varname,fuid), muCon(1)])],
                             [translate(rhs)])
                   ]);
-            }      		
+            }   
+               		
 		default:
     		return translateIfDefinedOtherwise(translate(lhs), translate(rhs), e@\loc);
 	}

@@ -13,18 +13,18 @@
   *******************************************************************************/
  
 data F = f() | f(int n) | g(int n) | deep(F f);
-anno int F @ pos;
+anno int F@pos;
 data AN = an(int n);
   	
 // boolannotations
   		
 test bool boolannotations1() = f() [@pos=1] == f();
-test bool boolannotations2() = f() [@pos=1] @ pos == 1;
-test bool boolannotations3() = f() [@pos=1] [@pos=2] @ pos == 2;
+test bool boolannotations2() = f() [@pos=1]@pos == 1;
+test bool boolannotations3() = f() [@pos=1][@pos=2]@pos == 2;
   		
 test bool boolannotations4() = f(5) [@pos=1] == f(5);
-test bool boolannotations5() = f(5) [@pos=1] @ pos == 1;
-test bool boolannotations6() = f(5) [@pos=1] [@pos=2] @ pos == 2;
+test bool boolannotations5() = f(5) [@pos=1]@pos == 1;
+test bool boolannotations6() = f(5) [@pos=1][@pos=2]@pos == 2;
   		
 test bool boolannotations7() = deep(f(5) [@pos=1]) == deep(f(5));
 test bool boolannotations8() = f(5) [@pos=1] == f(5) [@pos=2];	

@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.value.IValue;
 
 public class TraverseResult {
 	/*

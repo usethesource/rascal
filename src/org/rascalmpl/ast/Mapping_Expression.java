@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class Mapping_Expression extends AbstractAST {
   public Mapping_Expression(ISourceLocation src, IConstructor node) {
@@ -107,7 +107,7 @@ public abstract class Mapping_Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 937 + 631 * from.hashCode() + 797 * to.hashCode() ; 
+      return 631 + 797 * from.hashCode() + 239 * to.hashCode() ; 
     } 
   
     

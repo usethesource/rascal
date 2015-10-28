@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class LocationLiteral extends AbstractAST {
   public LocationLiteral(ISourceLocation src, IConstructor node) {
@@ -107,7 +107,7 @@ public abstract class LocationLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 691 + 479 * protocolPart.hashCode() + 89 * pathPart.hashCode() ; 
+      return 479 + 89 * protocolPart.hashCode() + 937 * pathPart.hashCode() ; 
     } 
   
     

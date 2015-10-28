@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class FunctionDeclaration extends AbstractAST {
   public FunctionDeclaration(ISourceLocation src, IConstructor node) {
@@ -145,7 +145,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 571 + 211 * tags.hashCode() + 727 * visibility.hashCode() + 251 * signature.hashCode() ; 
+      return 211 + 727 * tags.hashCode() + 251 * visibility.hashCode() + 131 * signature.hashCode() ; 
     } 
   
     
@@ -279,7 +279,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 131 + 811 * tags.hashCode() + 199 * visibility.hashCode() + 5 * signature.hashCode() + 157 * expression.hashCode() + 389 * conditions.hashCode() ; 
+      return 811 + 199 * tags.hashCode() + 5 * visibility.hashCode() + 157 * signature.hashCode() + 389 * expression.hashCode() + 163 * conditions.hashCode() ; 
     } 
   
     
@@ -419,7 +419,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 163 + 163 * tags.hashCode() + 71 * visibility.hashCode() + 503 * signature.hashCode() + 31 * body.hashCode() ; 
+      return 163 + 71 * tags.hashCode() + 503 * visibility.hashCode() + 31 * signature.hashCode() + 181 * body.hashCode() ; 
     } 
   
     
@@ -550,7 +550,7 @@ public abstract class FunctionDeclaration extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 181 + 313 * tags.hashCode() + 463 * visibility.hashCode() + 257 * signature.hashCode() + 211 * expression.hashCode() ; 
+      return 313 + 463 * tags.hashCode() + 257 * visibility.hashCode() + 211 * signature.hashCode() + 179 * expression.hashCode() ; 
     } 
   
     

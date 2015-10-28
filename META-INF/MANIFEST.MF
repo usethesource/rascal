@@ -7,6 +7,7 @@ Bundle-Name: rascal
 Bundle-SymbolicName: rascal;singleton:=true
 Bundle-Version: 0.8.0.qualifier
 Export-Package: 
+ jline,
  org.rascalmpl.ast,
  org.rascalmpl.checker,
  org.rascalmpl.debug,
@@ -62,6 +63,7 @@ Export-Package:
  org.rascalmpl.parser.gtd.stack.filter.precede,
  org.rascalmpl.parser.gtd.util,
  org.rascalmpl.parser.uptr,
+ org.rascalmpl.parser.uptr.action,
  org.rascalmpl.repl,
  org.rascalmpl.semantics.dynamic,
  org.rascalmpl.tasks,
@@ -76,8 +78,18 @@ Export-Package:
  org.rascalmpl.values,
  org.rascalmpl.values.uptr,
  org.rascalmpl.values.uptr.visitors,
- jline
-Require-Bundle: org.eclipse.imp.pdb.values,
+ org.rascalmpl.value,
+ org.rascalmpl.value.exceptions,
+ org.rascalmpl.value.impl,
+ org.rascalmpl.value.impl.fast,
+ org.rascalmpl.value.impl.persistent,
+ org.rascalmpl.value.impl.primitive,
+ org.rascalmpl.value.impl.reference,
+ org.rascalmpl.value.io,
+ org.rascalmpl.value.type,
+ org.rascalmpl.value.util,
+ org.rascalmpl.value.visitors
+Require-Bundle: 
  org.eclipse.swt,
  org.objectweb.asm;bundle-version="4.0.0",
  org.apache.commons.math,
@@ -111,4 +123,6 @@ Bundle-ClassPath: lib/snakeyaml-1.11.jar,
  lib/fst-1.34.jar,
  lib/caffeine-1.2.0.jar,
  lib/jline-2.13.jar,
+ lib/capsule-0.1.0.jar,
+ lib/value-0.5.0.jar,
  .

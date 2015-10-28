@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class Field extends AbstractAST {
   public Field(ISourceLocation src, IConstructor node) {
@@ -97,7 +97,7 @@ public abstract class Field extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 97 + 101 * fieldIndex.hashCode() ; 
+      return 101 + 467 * fieldIndex.hashCode() ; 
     } 
   
     
@@ -171,7 +171,7 @@ public abstract class Field extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 467 + 89 * fieldName.hashCode() ; 
+      return 89 + 727 * fieldName.hashCode() ; 
     } 
   
     

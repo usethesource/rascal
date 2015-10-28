@@ -18,22 +18,24 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IAnnotatable;
-import org.eclipse.imp.pdb.facts.IExternalValue;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
-import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
+import org.rascalmpl.value.IAnnotatable;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IExternalValue;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.value.exceptions.IllegalOperationException;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.visitors.IValueVisitor;
 
 public class ComposedFunctionResult extends Result<IValue> implements IExternalValue, ICallableValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
@@ -222,7 +224,6 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 				
 		@Override
 		public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
-			Failure f1 = null;
 			try {
 				try {
 					return getRight().call(argTypes, argValues, keyArgValues);
@@ -271,5 +272,10 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	  throw new IllegalOperationException(
         "Cannot be viewed as with keyword parameters", getType());
 	}
+	
+	@Override
+	public IConstructor encodeAsConstructor() {
+		throw new UnsupportedOperationException("Not implemented.");
+	}	
 	
 }

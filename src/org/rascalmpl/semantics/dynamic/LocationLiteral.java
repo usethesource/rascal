@@ -16,15 +16,15 @@ package org.rascalmpl.semantics.dynamic;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.ast.PathPart;
 import org.rascalmpl.ast.ProtocolPart;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
 
 public abstract class LocationLiteral extends org.rascalmpl.ast.LocationLiteral {
 

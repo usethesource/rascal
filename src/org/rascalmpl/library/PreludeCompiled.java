@@ -6,27 +6,27 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ICallableCompiledValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.IMapWriter;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.StandardTextWriter;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -287,12 +287,12 @@ public class PreludeCompiled extends Prelude {
 	
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input);
 	public IValue parse(IValue start, ISourceLocation input, RascalExecutionContext rex) {
-		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null);
+		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null, rex);
 	}
 
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin);
 	public IValue parse(IValue start, IString input, RascalExecutionContext rex) {
-		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null);
+		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null, rex);
 	}
 	
 	private TypeStore typeStore = new TypeStore();

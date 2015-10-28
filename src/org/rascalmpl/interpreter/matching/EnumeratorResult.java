@@ -17,12 +17,12 @@ package org.rascalmpl.interpreter.matching;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public class EnumeratorResult extends BasicBooleanResult {
 	private IMatchingResult pat;

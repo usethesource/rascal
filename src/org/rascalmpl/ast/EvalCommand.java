@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class EvalCommand extends AbstractAST {
   public EvalCommand(ISourceLocation src, IConstructor node) {
@@ -198,6 +198,61 @@ public abstract class EvalCommand extends AbstractAST {
     }
             
   }
+  public boolean isOutput() {
+    return false;
+  }
+
+  static public class Output extends EvalCommand {
+    // Production: sig("Output",[],breakable=false)
+  
+    
+  
+    public Output(ISourceLocation src, IConstructor node ) {
+      super(src, node);
+      
+    }
+  
+    @Override
+    public boolean isOutput() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitEvalCommandOutput(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Output)) {
+        return false;
+      }        
+      Output tmp = (Output) o;
+      return true ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 647 ; 
+    } 
+  
+    	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null );
+    }
+            
+  }
   public boolean isStatement() {
     return false;
   }
@@ -252,7 +307,7 @@ public abstract class EvalCommand extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 647 + 157 * statement.hashCode() ; 
+      return 157 + 83 * statement.hashCode() ; 
     } 
   
     

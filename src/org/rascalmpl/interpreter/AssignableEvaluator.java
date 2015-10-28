@@ -16,8 +16,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Assignable;
 import org.rascalmpl.ast.Assignment;
@@ -28,6 +26,8 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.TypeFactory;
 
 
 /**
@@ -41,7 +41,7 @@ public class AssignableEvaluator {
     private Result<IValue> value;
     private final Environment env;
     private final IEvaluator<Result<IValue>> eval;
-	private static final TypeFactory tf = org.eclipse.imp.pdb.facts.type.TypeFactory.getInstance();
+	private static final TypeFactory tf = org.rascalmpl.value.type.TypeFactory.getInstance();
     
 	public AssignableEvaluator(Environment env, Assignment operator, Result<IValue> value, IEvaluator<Result<IValue>> eval) {
 		if(operator == null || operator.isDefault())

@@ -1211,10 +1211,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
     	if (!isIntType(t3)) failures += makeFailType("The last slice index must be of type int", elast@\loc);
     }
     
-    res = makeFailType("Slices can only be used on lists, strings, and nodes", exp@\loc);
-    
-	if (isListType(t1) || isStrType(t1)) {
-		res = t1;	
+    res = makeFailType("Slices can only be used on (concrete) lists, strings, and nodes", exp@\loc);
+
+	if (isListType(t1) || isStrType(t1) || isNonTerminalIterType(t1)) {
+		res = t1;
 	} else if (isNodeType(t1)) {
 		res = \list(Symbol::\value());
 	}
@@ -1246,13 +1246,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
     	if (!isIntType(t4)) failures += makeFailType("The last slice index must be of type int", elast@\loc);
     }
 
-    res = makeFailType("Slices can only be used on lists, strings, and nodes", exp@\loc);
+    res = makeFailType("Slices can only be used on (concrete) lists, strings, and nodes", exp@\loc);
     
-	if (isListType(t1) || isStrType(t1)) {
-		res = t1;	
-	} else if (isNodeType(t1)) {
-		res = \list(Symbol::\value());
-	}
+	if (isListType(t1) || isStrType(t1) || isNonTerminalIterType(t1)) {
+        res = t1;
+    } else if (isNodeType(t1)) {
+        res = \list(Symbol::\value());
+    }
 	
 	if (isFailType(res) || size(failures) > 0)
 		return markLocationFailed(c, exp@\loc, failures + res);
@@ -1494,6 +1494,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> \< <{Fiel
 
     // Get back the fields as a tuple, if this is one of the allowed subscripting types.
     Symbol rt = Symbol::\void();
+
     if (isRelType(t1)) {
         rt = getRelElementType(t1);
     } else if (isListRelType(t1)) {
@@ -1594,7 +1595,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ @ <Name
 }
 
 @doc{Check the types of Rascal expressions: Get Annotation (DONE)}
-public CheckResult checkExp(Expression exp:(Expression)`<Expression e> @ <Name n>`, Configuration c) {
+public CheckResult checkExp(Expression exp:(Expression)`<Expression e>@<Name n>`, Configuration c) {
     < c, t1 > = checkExp(e, c);
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
     if (isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) {
@@ -5248,7 +5249,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`\< <{Assignable
 }
 
 @doc{Extract a tree representation of the pattern and perform basic checks: Annotation (DONE)}
-public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar> @ <Name an>`, bool top, Configuration c) {
+public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>@<Name an>`, bool top, Configuration c) {
     // First, build the tree for the receiver and convert the annotation name into something
     // we can use below.
     < c, atree > = buildAssignableTree(ar, false, c);
@@ -5744,7 +5745,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
 }
 
 @doc{Check the type of the components of a declaration: Annotation}
-public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> anno <Type annoType> <Type onType> @ <Name n>;`, bool descend, Configuration c) {
+public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> anno <Type annoType> <Type onType>@<Name n>;`, bool descend, Configuration c) {
     // NOTE: We ignore descend here. There is nothing that is done here that should be deferred until
     // later in declaration processing.
     
@@ -5813,27 +5814,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
     return c;
 }
 
-@doc{Check the type of the components of a declaration: DataAbstract}
-public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> data <UserType ut>;`, bool descend, Configuration c) {
-    // NOTE: We ignore descend here. There is nothing that is done here that should be deferred until
-    // later in declaration processing.
-    if (decl@\loc notin c.definitions<1>) {
-        // TODO: Check for convert errors
-        < c, utype > = convertAndExpandUserType(ut,c);
-        
-        // Extract the name and parameters
-        utypeName = getUserTypeName(utype);
-        utypeParams = getUserTypeParameters(utype);
-        
-        // Add the ADT into the type environment
-        c = addADT(c,RSimpleName(utypeName),getVis(vis),decl@\loc,\adt(utypeName,utypeParams));
-    }
-
-	// TODO: We may need to descend here to properly handle parameters, although this may not
-	// be necessary since ADTs other than Tree cannot be used as bounds    
-    return c;
-}
-
+@doc{Compute the keyword param relation for a list of keyword params; this contains names, types, and initializing expressions.}
 public tuple[Configuration, KeywordParamRel] calculateKeywordParamRel(Configuration c, list[KeywordFormal] kfl, bool typesOnly=false) {
 	KeywordParamRel kprel = [ ];
 	for (KeywordFormal kf: (KeywordFormal)`<Type kt> <Name kn> = <Expression ke>` <- kfl) {
@@ -5848,6 +5829,38 @@ public tuple[Configuration, KeywordParamRel] calculateKeywordParamRel(Configurat
 		kprel += < kfName, kfType, ke >;
 	}
 	return < c, kprel >;
+}
+
+@doc{Check the type of the components of a declaration: DataAbstract}
+public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> data <UserType ut> <CommonKeywordParameters commonParams>;`, bool descend, Configuration c) {
+    // NOTE: We ignore descend here. There is nothing that is done here that should be deferred until
+    // later in declaration processing.
+    if (decl@\loc notin c.definitions<1>) {
+        // TODO: Check for convert errors
+        < c, utype > = convertAndExpandUserType(ut,c);
+        
+        // Extract the name and parameters
+        utypeName = getUserTypeName(utype);
+        utypeParams = getUserTypeParameters(utype);
+        
+        // Add the ADT into the type environment
+        c = addADT(c,RSimpleName(utypeName),getVis(vis),decl@\loc,\adt(utypeName,utypeParams),[]);
+    }
+
+	// If we descend, we also want to add keyword params.
+	if (descend && size(invert(c.definitions)[decl@\loc]) > 0 && c.store[getOneFrom(invert(c.definitions)[decl@\loc])] is datatype) {
+		adtId = getOneFrom(invert(c.definitions)[decl@\loc]);
+
+		commonParamList = [ ];
+		if ((CommonKeywordParameters)`( <{KeywordFormal ","}+ kfs> )` := commonParams) commonParamList = [ kfi | kfi <- kfs ];
+		< c, ckfrel > = calculateKeywordParamRel(c, commonParamList, typesOnly = true);
+	
+		if (size(ckfrel) > 0) {
+			c = updateCommonKeywordParams(c, adtId, ckfrel, decl@\loc);
+		}	
+	}
+
+    return c;
 }
 
 @doc{Check the type of the components of a declaration: Data}
@@ -5866,21 +5879,28 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
 		// be necessary since ADTs other than Tree cannot be used as bounds    
 		utypeParams = getUserTypeParameters(utype);
 
-		// Add the ADT into the type environment
-		c = addADT(c,RSimpleName(utypeName),getVis(vis),decl@\loc,\adt(utypeName,utypeParams));
+		// Add the ADT into the type environment. Note that we don't add the keyword params
+		// yet, since the types of these params may depend on other ADTs that we haven't yet
+		// declared.
+		c = addADT(c,RSimpleName(utypeName),getVis(vis),decl@\loc,\adt(utypeName,utypeParams),[]);
 	}
 
-	// If we descend, we also want to add the constructors; if not, we are just adding the ADT into 
-	// the type environment. We get the adt type out of the store by looking up the definition from
-	// this location. Check to make sure it is there -- if there was an error adding the ADT, there
+	// If we descend, we also want to add the constructors and keyword params; if not, we are just adding
+	// the ADT into the type environment. We get the adt type out of the store by looking up the definition
+	// from this location. Check to make sure it is there -- if there was an error adding the ADT, there
 	// may not be a datatype definition at this location.
 	if (descend && size(invert(c.definitions)[decl@\loc]) > 0 && c.store[getOneFrom(invert(c.definitions)[decl@\loc])] is datatype) {
 		adtId = getOneFrom(invert(c.definitions)[decl@\loc]);
 		adtType = c.store[adtId].rtype;
 
-		// Get back information on the common keyword parameters
+		// Get back information on the common keyword parameters and add them into this data declaration.
 		commonParamList = [ ];
 		if ((CommonKeywordParameters)`( <{KeywordFormal ","}+ kfs> )` := commonParams) commonParamList = [ kfi | kfi <- kfs ];
+		< c, ckfrel > = calculateKeywordParamRel(c, commonParamList, typesOnly = true);
+		
+		if (size(ckfrel) > 0) {
+			c = updateCommonKeywordParams(c, adtId, ckfrel, decl@\loc);
+		}	
 						
 		// Now add all the constructors
 		// TODO: Check here for overlap problems
@@ -5899,13 +5919,12 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
 			kfl = [ ];
 			if ((KeywordFormals)`<OptionalComma _> <{KeywordFormal ","}+ keywordFormalList>` := keywordArgs)
 				kfl = [ ka | ka <- keywordFormalList ];
-			< c, ckfrel > = calculateKeywordParamRel(c, commonParamList, typesOnly = true);
 			< c, kfrel > = calculateKeywordParamRel(c, kfl, typesOnly = true);
 			if (size(failures) > 0) {
 				c = addScopeError(c, "Errors present in constructor parameters, cannot add constructor to scope", vr@\loc);
 				c.messages += getFailures(collapseFailTypes(failures));
 			} else { 
-				c = addConstructor(c, cn, vr@\loc, Symbol::\cons(adtType,getSimpleName(cn),targs), ckfrel, kfrel);
+				c = addConstructor(c, cn, vr@\loc, Symbol::\cons(adtType,getSimpleName(cn),targs), kfrel);
 			}       
 		}
 	}
@@ -5917,13 +5936,22 @@ public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration
 	commonParamList = [ ];
 	if ((CommonKeywordParameters)`( <{KeywordFormal ","}+ kfs> )` := commonParams) commonParamList = [ kfi | kfi <- kfs ];
 
+	cCons = enterBlock(c, decl@\loc);
+	if (size(commonParamList) > 0) {
+		for (KeywordFormal kfi <- commonParamList) {
+			< cCons, kfT > = convertAndExpandType(kfi.\type, cCons);
+			< cCons, _ > = calculateKeywordParamRel(cCons, [ kfi ], typesOnly = false ); 
+			cCons = addLocalVariable(cCons, convertName(kfi.name), false, kfi@\loc, kfT);
+		}
+	}
+	
 	for (Variant vr:(Variant)`<Name vn> ( < {TypeArg ","}* vargs > <KeywordFormals keywordArgs>)` <- vs) {
 		kfl = [ ];
 		if ((KeywordFormals)`<OptionalComma _> <{KeywordFormal ","}+ keywordFormalList>` := keywordArgs)
 			kfl = [ ka | ka <- keywordFormalList ];
 
 		if ((size(kfl) + size(commonParamList)) > 0) {
-			cSig = enterSignature(c, vr@\loc);
+			cSig = enterSignature(cCons, vr@\loc);
 			for (varg <- vargs, varg is named) { 
 				< cSig, vargT > = convertAndExpandType(varg.\type, cSig);
 				vargN = convertName(varg.name);
@@ -5938,9 +5966,11 @@ public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration
 			//< cSig, ckfrel > = calculateKeywordParamRel(cSig, commonParamList, typesOnly = false);
 			//< cSig, kfrel > = calculateKeywordParamRel(cSig, kfl, typesOnly = false);
 			
-			c = leaveSignature(cSig, c);
+			cCons = leaveSignature(cSig, cCons);
 		}
 	}
+	
+	c = exitBlock(cCons, c);
 
 	return c;
 }
@@ -6325,60 +6355,7 @@ public bool isVarArgs(Signature sig:(Signature)`<FunctionModifiers mds> <Type t>
 public bool isVarArgs(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> ( <Formals fmls> ... )`) = true;
 public bool isVarArgs(Signature sig:(Signature)`<FunctionModifiers mds> <Type t> <Name n> ( <Formals fmls> ... <KeywordFormals kfmls>)`) = true;
 
-//
-// TODO: The code for importing signature items duplicates a fair amount of the declaration
-// code. Refactor this to prevent duplication.
-//
-@doc{Import a signature item: Alias}
-public Configuration importAlias(RName aliasName, UserType aliasType, Type aliasedType, loc at, Vis vis, bool descend, Configuration c) {
-    // If we are not descending, we just record the name in the type environment. If
-    // we are descending, we also process the type parameters and the aliased type.
-    if (!descend) {
-        c = addAlias(c,aliasName,vis,at,\alias(prettyPrintName(aliasName),[],Symbol::\void()));
-    } else {
-        aliasId = getOneFrom(invert(c.definitions)[at]);
-        < c, utype > = convertAndExpandUserType(aliasType, c);
-        utypeParams = getUserTypeParameters(utype);
-        < c, rt > = convertAndExpandType(aliasedType,c);
-        c.store[aliasId].rtype = \alias(prettyPrintName(aliasName), utypeParams, rt);
-    }
-    return c;
-}
-
-@doc{Import a signature item: Function}
-public Configuration importFunction(RName functionName, Signature sig, loc at, Vis vis, Configuration c) {
-    // This looks confusing, but is actually fairly simple. We build a new configuration with a modified
-    // name environment that only includes constructors. This is done because the function parameters can
-    // refer to existing constructors, but not to existing functions or variables. We then add the function
-    // into the environment and process the function signature, calculating the type. Finally, we add the
-    // function using the original environment, ensuring we don't actually lose the name info and/or add
-    // parameter names into scope.
-    // NOTE: There is no descend option here. Instead we process imports of function and variable names
-    // from top to bottom, and don't descend into them at any point.
-    throwsTypes = [ ];
-    for ( ttype <- getFunctionThrows(sig)) { 
-        < c, ttypeC > = convertAndExpandThrowType(ttype, c); 
-        if(isFailType(ttypeC)) {
-        	c.messages = c.messages + getFailures(ttypeC);
-        }
-        throwsTypes += ttypeC; 
-    }
-    set[Modifier] modifiers = getModifiers(sig);
-    //cFun = c[fcvEnv = ( ename : c.fcvEnv[ename] | ename <- c.fcvEnv<0>, constructor(_,_,_,_,_) := c.store[c.fcvEnv[ename]]
-    //																	|| production(_,_,_,_) := c.store[c.fcvEnv[ename]]
-    //																	// constructor names may be overloaded 
-    //																	|| overload(_,_) := c.store[c.fcvEnv[ename]] )];
-    c = addFunction(c, functionName, Symbol::\func(Symbol::\void(),[]), ( ), modifiers, isVarArgs(sig), vis, throwsTypes, at, isDeferred=true);
-    definedId = getOneFrom(invert(c.definitions)[at]);
-    c.deferredSignatures[definedId] = sig;
- //   < cFun, tFun > = processSignature(sig, cFun);
- //   if(isFailType(tFun)) c.messages = c.messages + getFailures(tFun);
-	//< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun);
-	//for (kpt <- keywordParams<1>, isFailType(kpt)) c.messages = c.messages + getFailures(kpt);
- //   c = addFunction(c, functionName, tFun, keywordParams, modifiers, isVarArgs(sig), vis, throwsTypes, at);
-    return c;
-}
-
+// TODO: We should not need to call this anymore since we no longer use signatures. Verify this is true.
 public Configuration finalizeFunctionImport(Configuration c, RName functionName) {
 	Configuration finalizeItem(Configuration c, int itemId) {
 		if (itemId notin c.deferredSignatures) {
@@ -6441,45 +6418,11 @@ public Configuration finalizeFunctionImport(Configuration c, RName functionName)
 	return c;
 }
 
-@doc{Import a signature item: Variable}
-public Configuration importVariable(RName variableName, Type variableType, loc at, Vis vis, Configuration c) {
-    < c, rt > = convertAndExpandType(variableType,c);
-    return addTopLevelVariable(c, variableName, false, vis, at, rt);                        
-}
-
-@doc{Import a signature item: ADT}
-public Configuration importADT(RName adtName, UserType adtType, loc at, Vis vis, bool descend, Configuration c) {
-    // If we are not descending, we just record the name in the type environment. If
-    // we are descending, we also process the type and keyword parameters.
-    if (!descend) {
-        c = addADT(c,adtName,vis,at,\adt(prettyPrintName(adtName),[]));
-    } else if (size(invert(c.definitions)[at]) > 0 && c.store[getOneFrom(invert(c.definitions)[at])] is datatype) {
-        adtId = getOneFrom(invert(c.definitions)[at]);
-        < c, utype > = convertAndExpandUserType(adtType,c);
-        utypeParams = getUserTypeParameters(utype);
-        c.store[adtId].rtype = \adt(prettyPrintName(adtName),utypeParams);
-    }
-    return c;
-}
-
 public Configuration importNonterminal(RName sort, Symbol sym, loc at, Configuration c) {
   c = addNonterminal(c, sort, at, sym); // TODO: something with descend?
   //id = getOneFrom(invert(c.definitions)[at]); // TODO: ??
   //c.store[id].rtype = sym;
   return c;
-}
-
-@doc{Import a signature item: Constructor}
-public Configuration importConstructor(RName conName, UserType adtType, list[TypeArg] argTypes, list[KeywordFormal] commonParams, list[KeywordFormal] keywordParams, loc adtAt, loc at, Vis vis, Configuration c) {
-    // NOTE: We do not have a separate descend stage. Instead, we just add these after the types (aliases
-    // and ADTs) have already been added. These are added before functions, though, since they may be
-    // used in the function parameters.
-    rt = c.store[getOneFrom(invert(c.definitions)[adtAt])].rtype;
-    list[Symbol] targs = [ ];
-    for (varg <- argTypes) { < c, vargT > = convertAndExpandTypeArg(varg, c); targs = targs + vargT; } 
-	< c, ckfrel > = calculateKeywordParamRel(c, commonParams);	    
-	< c, kfrel > = calculateKeywordParamRel(c, keywordParams);	    
-    return addConstructor(c, conName, at, Symbol::\cons(rt,getSimpleName(conName),targs), ckfrel, kfrel);         
 }
 
 @doc{Import a signature item: Production}
@@ -6503,34 +6446,6 @@ public Configuration importProduction(Production prod, loc at, Configuration c, 
     	} else {
     		c = addProduction(c, RSimpleName(""), at, p, registerName=registerName);
     	} 
-    }
-    return c;
-}
-
-@doc{Import a signature item: Annotation}
-public Configuration importAnnotation(RName annName, Type annType, Type onType, loc at, Vis vis, Configuration c) {
-    // NOTE: We also do not descend here. We just process these once, after all the types have been added.
-    < c, atype > = convertAndExpandType(annType,c);
-    < c, otype > = convertAndExpandType(onType,c);
-    if(isFailType(atype)) {
-        	c.messages = c.messages + getFailures(atype);
-        }
-    if(isFailType(otype)) {
-        c.messages = c.messages + getFailures(otype);
-    }
-    return addAnnotation(c,annName,atype,otype,vis,at);
-}
-
-@doc{Import a signature item: Tag}
-public Configuration importTag(RName tagName, TagKind tagKind, list[Symbol] taggedTypes, loc at, Vis vis, bool descend, Configuration c) {
-    // If we are not descending, we just add the tag name into the environment. If we
-    // are descending, we process all the types in the tag (the "tagged types") as well.
-    if (!descend) {
-        c = addTag(c, tagKind, tagName, { }, vis, at);
-    } else {
-        tagId = getOneFrom(invert(c.definitions)[at]);
-        set[Symbol] typeset = toSet(taggedTypes);
-        c.store[tagId].onTypes = typeset;
     }
     return c;
 }
@@ -6578,47 +6493,6 @@ public set[RName] getDeclarationNames(Declaration decl:(Declaration)`<Tags tags>
 }
 
 public default set[RName] getDeclarationNames(Declaration d) = { };
-
-public Configuration startModuleImportAndReset(Configuration c, RSignature sig, RName modName, int moduleId, bool extendingImport) {
-	cOrig = c;
-
-	c = startModuleImport(c, sig, modName, moduleId, extendingImport);
-	
-	c.labelEnv = cOrig.labelEnv; 
-	c.fcvEnv = cOrig.fcvEnv; 
-	c.typeEnv = cOrig.typeEnv; 
-	c.annotationEnv = cOrig.annotationEnv; 
-	c.tagEnv = cOrig.tagEnv;
-	
-	return c;
-}
-
-public Configuration startModuleImport(Configuration c, RSignature sig, RName modName, int moduleId, bool extendingImport) {
-	c.stack = moduleId + c.stack;
-	c.importing = true;
-	
-	// We first import type information without descending into the declarations, to
-	// ensure it is globally visible (since one type could be used inside another)
-	for (item <- sig.datatypes) 
-		c = importADT(item.adtName, item.adtType, item.at, publicVis(), false, c);
-	for (item <- sig.aliases) 
-		c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), false, c);
-	for (item <- sig.tags) 
-		c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), false, c);
-	for (item <- sig.lexicalNonterminals + sig.contextfreeNonterminals + sig.layoutNonterminals + sig.keywordNonterminals)
-		c = importNonterminal(item.sortName, item.sort, item.at, c);
-
-	c.stack = tail(c.stack);
-	c.importing = false;
-	
-	// Save the info for the module and then reset the various environments back to how they
-	// started. We will use this info later in a merge process to determine what is actually
-	// visible in the current module.
-	minfo = modInfo(modName, c.labelEnv, c.fcvEnv, c.typeEnv, c.annotationEnv, c.tagEnv);
-	c.moduleInfo[modName] = minfo;
-
-	return c;
-}
 
 public Configuration loadConfigurationTypesAndReset(Configuration c, Configuration d, RName mName, set[RName] toImport, set[RName] allImports) {
 	cOrig = c;
@@ -6673,10 +6547,11 @@ public Configuration loadConfigurationTypes(Configuration c, Configuration d, RN
 			loadedIds = loadedIds + itemId;
 		} else if (itemId in filteredIds) {
 			switch(av) {
-				case datatype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
+				case datatype(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, set[loc] ats) : {
 					itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
+					kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
 					for (at <- ats) {
-						c = addADT(c, name, itemVis, at, rtype);
+						c = addADT(c, name, itemVis, at, rtype, kpList);
 					}
 					loadedIds = loadedIds + itemId;
 				}
@@ -6772,7 +6647,7 @@ public Configuration loadConfigurationCons(Configuration c, Configuration d, RNa
 				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) : {
 					//println("Loading constructor <prettyPrintName(name)> from module <prettyPrintName(mName)>");
 					kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
-					c = addConstructor(c, name, at, rtype, [], kpList);
+					c = addConstructor(c, name, at, rtype, kpList);
 					loadedIds = loadedIds + itemId;
 				}
 				
@@ -6872,10 +6747,11 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 					loadedIds = loadedIds + itemId;
 				}
 				
-				case datatype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
+				case datatype(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, set[loc] ats) : {
 					itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
+					kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
 					for (at <- ats) {
-						c = addADT(c, name, itemVis, at, rtype, updateType=updateTypes);
+						c = addADT(c, name, itemVis, at, rtype, kpList, updateType=updateTypes);
 					}
 					loadedIds = loadedIds + itemId;
 				}
@@ -6889,7 +6765,7 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 				
 				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) : {
 					kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
-					c = addConstructor(c, name, at, rtype, [], kpList);
+					c = addConstructor(c, name, at, rtype, kpList);
 					loadedIds = loadedIds + itemId;
 				}
 				
@@ -6920,10 +6796,11 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 		
 	void loadTransType(int itemId) {
 		AbstractValue av = d.store[itemId];
-		if (datatype(RName name, Symbol rtype, int containedIn, set[loc] ats) := av) {		
+		if (datatype(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, set[loc] ats) := av) {		
 			itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
+			kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
 			for (at <- ats) {
-				c = addADT(c, name, itemVis, at, rtype, registerName = false);
+				c = addADT(c, name, itemVis, at, rtype, kpList, registerName = false);
 			}
 			loadedIds = loadedIds + itemId;
 		}
@@ -6933,7 +6810,7 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 		AbstractValue av = d.store[itemId];
 		if (constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) := av) {
 			kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
-			c = addConstructor(c, name, at, rtype, [], kpList, registerName = false);
+			c = addConstructor(c, name, at, rtype, kpList, registerName = false);
 			loadedIds = loadedIds + itemId;
 		}
 	}
@@ -7017,86 +6894,6 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 		c = popModule(c);
 	}
 	
-	return c;
-}
-
-public Configuration resumeModuleImportAndReset(Configuration c, RSignature sig, RName modName, int moduleId, bool extendingImport) {
-	cOrig = c;
-
-	c = resumeModuleImport(c, sig, modName, moduleId, extendingImport);
-	
-	c.labelEnv = cOrig.labelEnv; 
-	c.fcvEnv = cOrig.fcvEnv; 
-	c.typeEnv = cOrig.typeEnv; 
-	c.annotationEnv = cOrig.annotationEnv; 
-	c.tagEnv = cOrig.tagEnv;
-	
-	return c;
-}
-
-public Configuration resumeModuleImport(Configuration c, RSignature sig, RName modName, int moduleId, bool extendingImport) {
-	c.stack = moduleId + c.stack;
-	c.importing = true;
-	
-	// Now we start descending into the various declarations, using the type information
-	// we already added into the environments.
-	for (item <- sig.datatypes)
-		c = importADT(item.adtName, item.adtType, item.at, publicVis(), true, c);
-
-	// TODO: Do we still need to do this? This is done in case we have aliases defined in
-	// terms of other aliases, defined in terms of other aliases, etc, but I think this is
-	// now handled in the logic in importAlias for working with the aliased type.
-	bool modified = true;
-	definitions = invert(c.definitions);
-	while(modified) {
-		modified = false;
-		for(item <- sig.aliases) {
-			int aliasId = getOneFrom(definitions[item.at]);
-			Symbol t = c.store[aliasId].rtype;
-			c = importAlias(item.aliasName, item.aliasType, item.aliasedType, item.at, publicVis(), true, c);
-			if(t != c.store[aliasId].rtype) {
-				modified = true;
-			}
-		}
-	}
-
-	for (item <- sig.tags)
-		c = importTag(item.tagName, item.tagKind, item.taggedTypes, item.at, publicVis(), true, c);
-
-	for (item <- sig.publicConstructors) 
-		c = importConstructor(item.conName, item.adtType, item.argTypes, item.commonParams, item.keywordParams, item.adtAt, item.at, publicVis(), c);
-
-	for (item <- sig.publicProductions) {
-		<p,c> = resolveProduction(item.prod, item.at, c, true);
-		item.prod = p;
-		c = importProduction(item, c);
-	}
-
-	for (item <- sig.publicVariables)
-		c = importVariable(item.variableName, item.variableType, item.at, publicVis(), c);
-	for (item <- sig.publicFunctions)
-		c = importFunction(item.functionName, item.sig, item.at, publicVis(), c);
-	for (item <- sig.annotations)
-		c = importAnnotation(item.annName, item.annType, item.onType, item.at, publicVis(), c);
-
-	// If we extend a module we also can bring in private variables and functions. If not don't
-	// bother, since they aren't visible anyway.
-	if (extendingImport) {
-		for (item <- sig.privateVariables)
-			c = importVariable(item.variableName, item.variableType, item.at, privateVis(), c);
-		for (item <- sig.privateFunctions)
-			c = importFunction(item.functionName, item.sig, item.at, privateVis(), c);
-	}
-
-	c.stack = tail(c.stack);
-	c.importing = false;
-	
-	// Save the info for the module and then reset the various environments back to how they
-	// started. We will use this info later in a merge process to determine what is actually
-	// visible in the current module.
-	minfo = modInfo(modName, c.labelEnv, c.fcvEnv, c.typeEnv, c.annotationEnv, c.tagEnv);
-	c.moduleInfo[modName] = minfo;
-
 	return c;
 }
 
@@ -7685,7 +7482,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						names = names + decl;
 						varNamesToDeclare = varNamesToDeclare + getDeclarationNames(decl);
 					}
-					case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : 
+					case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _>@<Name _>;` : 
 						annotations = annotations + decl;
 					case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : 
 						aliases = aliases + decl;
@@ -7748,7 +7545,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			// Next, introduce names into the environment
 			for (t <- names) ci = checkDeclaration(t,false,ci);
 	
-			// Reprocess the constructors, checking keyword parameters (which can use functions, other constructors, etc)
+			// Reprocess the constructors and ADTs, checking keyword parameters (which can use functions, other constructors, etc)
 			for (t <- typesAndTags) ci = checkConstructorKeywordParams(t,ci);
 	
 			// Process the names
@@ -7856,7 +7653,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						names = names + decl;
 						varNamesToDeclare = varNamesToDeclare + getDeclarationNames(decl);
 					}
-					case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : 
+					case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _>@<Name _>;` : 
 						annotations = annotations + decl;
 					case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : 
 						aliases = aliases + decl;
@@ -7940,7 +7737,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						names = names + decl;
 						varNamesToDeclare = varNamesToDeclare + getDeclarationNames(decl);
 					}
-					case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _> @ <Name _>;` : 
+					case (Declaration)`<Tags _> <Visibility _> anno <Type _> <Type _>@<Name _>;` : 
 						annotations = annotations + decl;
 					case (Declaration)`<Tags _> <Visibility _> alias <UserType _> = <Type _> ;` : 
 						aliases = aliases + decl;
@@ -8950,7 +8747,7 @@ public Module check(Module m) {
         set[loc] toAdd = { };
         if (overload(items,_) := c.store[i]) {
             toAdd = { c.store[itm].at | itm <- items };
-        } else if (datatype(_,_,_,ats) := c.store[i]) {
+        } else if (datatype(_,_,_,_,ats) := c.store[i]) {
             toAdd = ats;
         } else if (sorttype(_,_,_,ats) := c.store[i]) {
            toAdd = ats;

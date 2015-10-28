@@ -15,26 +15,22 @@ import experiments::vis2::sandbox::Figure;
 
 data TreeNode  = treenode(str id, int width, int height, 
     list[TreeNode] branches, int x=0, int y=0,
-    EDGE left=<0,[]>, EDGE right= <0,[]>);
-
-
-list[int] leftOffset =  [];
-list[int] rightOffset = [];
+    int left=0, int right=0);
 
 int MIN = 0;
 
 map[str, TreeNode] m = ();
 
-
 alias EDGE = tuple[int yPosition, list[int] offset]; 
+
+list[tuple[EDGE left, EDGE right]] z = [];
 
 data FigTree = br(Figure root, list[FigTree] figs)|lf(Figure root);
 
-TreeNode convertFigure(Figure f, map[str, tuple[int, int]] m, int scaleX = 5, int scaleY = 5) {
+TreeNode convertFigure(Figure f, map[str, tuple[int, int]] m, int scaleX = 1, int scaleY = 5) {
      if (tree(Figure root, Figures figs):=f) {
            root.width = m[root.id][0];
            root.height = m[root.id][1];
-       // println("Convert: <root.width>");
        return treenode(f.root.id, root.width/scaleX+1, root.height/scaleY+1,
        [convertFigure(b, m)|Figure b<-figs]);
        }
@@ -43,46 +39,127 @@ TreeNode convertFigure(Figure f, map[str, tuple[int, int]] m, int scaleX = 5, in
     return treenode(f.id, f.width/scaleX+1, f.height/scaleY+1, []);
     }
     
-void makeMap(TreeNode t) {
+str makeMap(TreeNode t) {
    innermost visit(t) {
        case u:treenode(_, _,_,_): m+=(u.id:u);
        }
+   return t.id;
    }
+   
+list[tuple[str, tuple[int, int], int, int, tuple[int, int]]] makeInfo(TreeNode t, int sY) {
+   list[tuple[str, tuple[int, int],  int, int, tuple[int, int]]] r =[];
+   innermost visit(t) {
+       case u:treenode(_, _,_,_): r+=<u.id, <u.x, u.y/sY>, z[u.left].left.yPosition, z[u.right].right.yPosition,
+       <z[u.left].left.offset[z[u.left].left.yPosition]
+       ,z[u.right].right.offset[z[u.right].right.yPosition]>>;
+       }
+   return r;
+   }
+   
+bool isDisjunct(TreeNode n1, TreeNode n2) {
+     bool r =  (n1.y+n1.height<n2.y ||  n2.y+n2.height < n1.y)
+                 || (n1.x + (n1.width+n2.width)/2 < n2.x || n2.x + (n1.width+n2.width)/2 < n1.x);             
+     if (!r)  {
+        println("Error: <<n1.id, n1.x, n1.y, n1.width, n1.height>> <<n2.id, n2.x, n2.y, n2.width, n2.height>>");    
+        }
+      //else
+      //  println("Continue: <<n1.id, n1.x, n1.y, n1.width, n1.height>> <<n2.id, n2.x, n2.y, n2.width, n2.height>>");   
+     return r;
+     } 
+     
+ public bool isDisjunct() {  
+    bool disjunct = true;
+    list[TreeNode] leaves = [m[d]|d<-m, isEmpty(m[d].branches)];
+    for (int i<-[0..size(leaves)]) {
+       for (int j<-[0..i])
+             disjunct = disjunct && isDisjunct(leaves[j], leaves[i]);
+        }
+    return disjunct;
+    }     
 
-list[Vertex] treeLayout(Figure f, map[str, tuple[int, int]] m, 
-    int scaleX, int scaleY, int height, int xSeparation = 5, int ySeparation = 10) {
-    TreeNode z = convertFigure(f, m, scaleX=scaleX, scaleY=scaleY);
-    // println(z);
-    TreeNode r = layoutTree(z, height, scaleX=scaleX, scaleY=scaleY
-    , xSeparation = xSeparation, ySeparation = ySeparation);
+list[Vertex] treeLayout(Figure f, map[str, tuple[int, int]] y, 
+    int scaleX, int scaleY, int height, bool cityblock, int xSeparation = 5, int ySeparation = 10) {
+    z = [];
+    TreeNode c = convertFigure(f, y, scaleX=scaleX, scaleY=scaleY);
+    TreeNode r = layoutTree(c, height, scaleX=scaleX, scaleY=scaleY
+    , xSeparation = xSeparation, ySeparation = ySeparation, orientation = f.orientation, cityblock = f.manhattan);  
+    m = ();  
+    MIN = 0;
     makeMap(r);
-    // println([x|x<-m]);
-    list[Vertex] q = display(r, []);
+    // list[tuple[str, tuple[int, int], int, int, tuple[int, int]]] b = makeInfo(r, f.sY);
+    //      for (d<-b) println(d);  
+     if (!isDisjunct()) { 
+		  println("WRONG Tree");
+		  }
+    list[Vertex] q = display(r, [], cityblock);
     // println(q);
     return q;
     }
+    
 
-Figures treeUpdate(Figures fs,  map[str, tuple[int, int]] q) {
+   
+tuple[int, int] orient(Orientation orientation, int x, int y, int w, int h, int maxW, int maxH) {
+    switch (orientation) {
+        case topDown(): return <x-w/2, y-h/2>;
+        case downTop(): return <(x-w/2), maxH-(y+h/2)>;
+        case leftRight():return <y-w/2, x-h/2>;
+        case rightLeft():return <maxW-(y+w/2), (x-h/2)>;
+        }
+    return <0, 0>;
+    }
+  
+tuple[int, int] computeDim(Figures fs, map[str, tuple[int, int]] q) { 
+    int maxWidth = 0;
+    int maxHeight = 0;
+    for (Figure f<-fs) {
+        int w = m[f.id].x+q[f.id][0]/2;
+        if (w >maxWidth) maxWidth = w;
+        int h = m[f.id].y+q[f.id][1]/2;
+        if (h >maxHeight) maxHeight = h;
+        }
+    return <maxWidth, maxHeight>;
+    }
+
+Figures treeUpdate(Figures fs,  map[str, tuple[int, int]] q, Orientation orientation,
+    int maxWidth, int maxHeight) {  
     Figures r = []; 
     for (Figure f<-fs) {
        f.width = q[f.id][0];
        f.height = q[f.id][1];
-       // println("treeupdate: <f.width>");
-       // f.width=  f.width/5; f.height = 0;
-       f.at = <m[f.id].x-f.width/2, m[f.id].y-f.height/2>;
+       f.at = orient(orientation, m[f.id].x, m[f.id].y,f.width, f.height, maxWidth, maxHeight);
        r+=[f];
        }
     return r;
     }
     
-
+list[Vertex] vertexUpdate(list[Vertex] v, Orientation orientation
+    , int maxWidth, int maxHeight) { 
+    return [vertexUpdate(x, orientation, maxWidth, maxHeight)|x<-v];
+    } 
+    
+Vertex vertexUpdate(Vertex v, Orientation orientation,int maxWidth, int maxHeight) {
+   switch(v) {
+        case move(int x, int y): {
+             tuple[int, int] r = 
+               orient(orientation, x, y, 0, 0, maxWidth, maxHeight);
+               return move(r[0], r[1]);
+          }
+        case line(int x, int y): {
+             tuple[int, int] r = 
+               orient(orientation, x, y, 0, 0, maxWidth, maxHeight);
+               return line(r[0], r[1]);
+          }
+       }
+    }
 
 public void main () {
-   Figure b = tree(box(size=<50, 50>, fillColor = "none", lineWidth = 1)
-     ,[box(size=<60, 60>, lineWidth = 1)
-     , circle(r=50, fillColor = "none", lineWidth = 1)
-      ]);
-   // render(wirth());
+   Figure b() = tree( box(size=<50, 50>, fillColor = "none", lineWidth = 1)
+     ,[box(size=<60, 150>, lineWidth = 1, fillColor="none")
+     // , circle(r=50, fillColor = "none", lineWidth = 1)
+     , box(size=<60, 60>, lineWidth = 1, fillColor="none")
+      ], orientation = downTop());
+   // writeFile(|file:///ufs/bertl/html/u.html|, toHtmlString(b()));
+   render(b());
    }
    
 // blz 190 
@@ -101,9 +178,10 @@ public void main () {
 //    // writeFile(|file:///ufs/bertl/html/u.html|, toHtmlString(dtree(r)));
 //    }
 
-void printT(TreeNode t) {
-    innermost visit(t) {
-       case u:treenode(_,_,_): println("<u.x>, <u.y>  <u.width> <u.height>");
+TreeNode mirror(TreeNode t) {
+    // println("Mirror");
+    return visit(t) {
+       case treenode(str id,int width, int height, list[TreeNode] branches)=> treenode(id, height, width, branches)
        }
     }
     
@@ -112,42 +190,62 @@ Figure dtree(TreeNode t) = shape(display(t, [])
   , size=<400, 400>, yReverse= false
    );
     
-list[Vertex] display(TreeNode t, list[Vertex] v) {
-    for (b<-t.branches) v= display(b, v+[move(t.x, t.y),line(b.x, b.y)]);
+list[Vertex] display(TreeNode t, list[Vertex] v, bool cityblock) {
+    if (cityblock)
+      // for (b<-t.branches) v= display(b, v+[move(t.x, t.y),line(t.x, b.y), line(b.x, b.y)], cityblock);
+      for (b<-t.branches) v= display(b, v+[move(t.x, t.y),line(t.x, (t.y+b.y)/2),
+          line(b.x, (t.y+b.y)/2), line(b.x, b.y)], cityblock);
+    else
+      for (b<-t.branches) v= display(b, v+[move(t.x, t.y),line(b.x, b.y)], cityblock);
     return v;
     }
     
 TreeNode absoluteX(TreeNode t, int x, int scaleX, int scaleY) {
-    // println("NODE1: <t.width> <x> <t.x>");
+    // println("NODE1: <t.width> <x> <t.x>  <scaleX>");
     t.x += x;
     if (t.x-t.width<MIN) MIN = t.x-t.width;
     // println("NODE2: <t.width> <t.x>");
     t.branches = [absoluteX(b, t.x, scaleX, scaleY)|b<-t.branches];
     t.x= (t.x-MIN)*scaleX;
     t.y = t.y*scaleY;
+    t.width = (t.width-1)*scaleX;
+    t.height = t.height*scaleY;
     return t;
     }
     
-TreeNode layoutTree(TreeNode t, int height, int scaleX=5, int scaleY = 5,
-      int ySeparation = 10, int xSeparation = 5) {
-      leftOffset =  [0|int i<-[0..height]];
-      rightOffset =  [0|int i<-[0..height]];
-      m = ();
-      MIN = 0;
-      return absoluteX(doShapeTree(t, ySeparation, ySeparation, xSeparation),0 , scaleX, scaleY);
+TreeNode layoutTree(TreeNode t, int height, int scaleX=1, int scaleY = 5,
+      int ySeparation = 10, int xSeparation = 5, Orientation orientation = topDown()
+      ,bool cityblock = false) {
+      // println(orientation);
+      if (orientation==leftRight() || orientation == rightLeft()) t = mirror(t);
+      return absoluteX(doShapeTree(t, height, ySeparation, ySeparation, xSeparation, cityblock),0 , scaleX, scaleY);
    }
+   
+int roundX(list[TreeNode] outline) {
+    int d = last(outline).x/2;
+    int e = 0;
+    int i = 0;
+    while (e<d) {
+         e += outline[i].x;
+         i = i + 1;
+         }
+    if (i>0) i = i -1;
+    return outline[i].x;
+    }
 
-TreeNode doShapeTree(TreeNode t, int yPosition, int ySeparation, xSeparation) {
-      t.left = <0, leftOffset>;
-      t.right = <0, rightOffset>;
+TreeNode doShapeTree(TreeNode t, int height, int yPosition, int ySeparation, int xSeparation, bool cityblock) {
+      // println("doShapeTree <t.id>");
+      // println("xSep: <xSeparation>");
       t.x = 0;
       if (isEmpty(t.branches)) {
-          t.left.yPosition = yPosition + t.height-1;
-          t.right.yPosition = yPosition + t.height-1;
+           t.left = size(z);
+           t.right = size(z);
+           z = z  +[<<yPosition + t.height-1, [0|int i<-[0..height]]>
+                    ,<yPosition + t.height-1, [0|int i<-[0..height]]>>];
           }
       else {
-        list[TreeNode] outline = [doShapeTree(b, yPosition+t.height+ySeparation
-            , ySeparation, xSeparation)
+        list[TreeNode] outline = [doShapeTree(b, height, yPosition+t.height+ySeparation
+            , ySeparation, xSeparation, cityblock)
              |b<-t.branches];
         t.left = outline[0].left;
         t.right = outline[0].right;
@@ -155,43 +253,43 @@ TreeNode doShapeTree(TreeNode t, int yPosition, int ySeparation, xSeparation) {
         int i  = 1;
         /* Overlap */
         for (b<-tail(outline)) {
-            int overlap = 0;
-            // println("QQQ:<yPosition+t.height+Y_SEPARATION> <min([b.left.yPosition, t.right.yPosition])>");
+            int overlap = 0;   
             for (int j<-[yPosition+t.height+ySeparation..
-                    min([/*b.left.yPosition,*/ t.right.yPosition])]) {
-                      overlap = max([overlap, b.left.offset[j]+t.right.offset[j]])+0;
-                      // println("Q:overlap <overlap>  <b.left.offset[j]> <t.right.offset[j]>");
-                      }
-            // println("overlap=<overlap>");   
-            outline[i].x = overlap+xSeparation;         
-           /* Adjust left outline */
-           for (int j <- [t.left.yPosition+1 .. b.left.yPosition]) {
-                t.left.offset[j] = b.left.offset[j] - outline[i].x;
-            }
-            // t.left.yPosition = max([b.left.yPosition, t.left.yPosition]);
+                    min([z[b.left].left.yPosition, z[t.right].right.yPosition])+1]) {
+                    overlap = max([overlap, z[b.left].left.offset[j]+z[t.right].right.offset[j]]);
+                    }    
+           outline[i].x = overlap+xSeparation; 
+            /* Adjust left outline */
+           if (z[t.left].left.yPosition+1 < z[b.left].left.yPosition+1)
+           for (int j <- [z[t.left].left.yPosition+1 .. z[b.left].left.yPosition+1]) {
+                z[t.left].left.offset[j] = z[b.left].left.offset[j] - outline[i].x;
+            }   
             /* Adjust right outline */
-            for (int j <- [yPosition .. b.right.yPosition]) {
-                t.right.offset[j] = b.right.offset[j]+ outline[i].x;
-                // println("right:<t.right.offset[j]>");
+            if (yPosition+1 < z[b.right].right.yPosition+1)
+            for (int j <- [yPosition .. z[b.right].right.yPosition+1]) {
+                z[t.right].right.offset[j] = z[b.right].right.offset[j]+ outline[i].x;              
             }
-            t.right.yPosition = max([b.right.yPosition, t.right.yPosition]);
+             z[t.left].left.yPosition = max([z[b.left].left.yPosition, z[t.left].left.yPosition]);
+             z[t.right].right.yPosition= max([z[b.right].right.yPosition, z[t.right].right.yPosition]);
+                   
           i=i+1;
-       }
+       }  
        if (!isEmpty(outline)) {
-           int centre = last(outline).x/2;
+           int centre = cityblock?roundX(outline):last(outline).x/2;
            for (int i<-[0..size(outline)]) {         
-              outline[i].x -= centre;  
-              // println("outline:<outline[i].x> <outline[i].width>");         
+              outline[i].x -= centre;         
               }
-           for (int i<-[yPosition..t.left.yPosition+1]) t.left.offset[i] += centre;
-           for (int i<-[yPosition..t.right.yPosition+1]) t.right.offset[i] -= centre;
+           // println("Check: <yPosition+t.height>\<<z[t.left].left.offset[z[t.left].left.yPosition]>");
+           for (int i<-[yPosition,yPosition+1..z[t.left].left.yPosition+1]) z[t.left].left.offset[i] += centre;
+           for (int i<-[yPosition,yPosition+1..z[t.right].right.yPosition+1]) z[t.right].right.offset[i] -= centre;
            t.branches = outline;
-           }     
+           } 
       }
       for (int i<-[yPosition-ySeparation..yPosition+t.height]) {
-         t.left.offset[i] =t.width/2;
-         t.right.offset[i] =(t.width+1)/2;
-         }   
+         z[t.left].left.offset[i] = (t.width)/2;
+         z[t.right].right.offset[i] =(t.width+1)/2;
+         } 
+      
       t.y = yPosition;
       return t;
        

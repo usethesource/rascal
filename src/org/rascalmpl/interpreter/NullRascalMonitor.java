@@ -13,8 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.value.ISourceLocation;
 
 public class NullRascalMonitor implements IRascalMonitor {
 	@Override

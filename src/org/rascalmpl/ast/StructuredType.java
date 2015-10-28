@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class StructuredType extends AbstractAST {
   public StructuredType(ISourceLocation src, IConstructor node) {
@@ -109,7 +109,7 @@ public abstract class StructuredType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 653 + 73 * basicType.hashCode() + 991 * arguments.hashCode() ; 
+      return 73 + 991 * basicType.hashCode() + 911 * arguments.hashCode() ; 
     } 
   
     

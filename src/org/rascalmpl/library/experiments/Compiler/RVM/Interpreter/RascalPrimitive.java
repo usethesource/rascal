@@ -13,32 +13,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IDateTime;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.INumber;
-import org.eclipse.imp.pdb.facts.IRational;
-import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISetRelation;
-import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.exceptions.InvalidDateTimeException;
-import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext but not by the methods called here
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
@@ -47,6 +21,32 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Desce
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IDateTime;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListRelation;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.IMapWriter;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.INumber;
+import org.rascalmpl.value.IRational;
+import org.rascalmpl.value.IReal;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetRelation;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.ITuple;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.exceptions.InvalidDateTimeException;
+import org.rascalmpl.value.type.ITypeVisitor;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -72,7 +72,8 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * 
  * and returns a new stack pointer (an index in 'stack'). 
  * 
- * 'execute' is only allowed to make modifications to the stack.
+ * 'execute' is only allowed to make modifications to the stack and usually returns an IValue
+ * on top of the stack.
  *
  * This enumeration is organized in the following sections:
  * - Creation of values and some utilities on them (~ line 90)
@@ -95,7 +96,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  *   one or more type parameters, still a single translation is generated that 
  *   is shared across all type instantiations of the parameters. Under those circumstances,
  *   there is no static knowldege of the argument types of these primitives and they have to
- *   determined at run-time.
+ *   be determined at run-time.
  * 
  */
 
@@ -6597,7 +6598,7 @@ public enum RascalPrimitive {
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
 			assert arity == 2;
 			//stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
-			stack[sp - 2] = vf.bool($subtype((Type) stack[sp - 2], (Type) stack[sp - 1], rex));
+			stack[sp - 2] = vf.bool(rex.isSubtypeOf((Type) stack[sp - 2], (Type) stack[sp - 1]));
 			return sp - 1;
 		}
 	},
@@ -6613,7 +6614,7 @@ public enum RascalPrimitive {
 			assert arity == 2;
 
 			//stack[sp - 2] = vf.bool(((IValue) stack[sp - 2]).getType().isSubtypeOf((Type) stack[sp - 1]));
-			stack[sp - 2] = vf.bool($subtype(((IValue) stack[sp - 2]).getType(), (Type) stack[sp - 1], rex));
+			stack[sp - 2] = vf.bool(rex.isSubtypeOf(((IValue) stack[sp - 2]).getType(), (Type) stack[sp - 1]));
 			return sp - 1;
 		}
 	},
@@ -6922,7 +6923,7 @@ public enum RascalPrimitive {
 				
 				Function getDefaults = rex.getCompanionDefaultsFunction(consName, tp);
 				
-				if(getDefaults != null){
+				if(getDefaults != RVM.noCompanionFunction){
 					IValue[] posArgs = new IValue[cons.arity()];
 					for(int i = 0; i < cons.arity(); i++){
 						posArgs[i] = cons.get(i);
@@ -8086,7 +8087,7 @@ public enum RascalPrimitive {
 
 	/**
 	 * Create list slice
-	 * [ ... IList s, IInteger from, IInteger by, IInteger to] => [ ..., new IList with slice elements ]
+	 * [ ... IList lst, IInteger from, IInteger by, IInteger to] => [ ..., new IList with slice elements ]
 	 */
 	list_slice {
 		@Override
@@ -8101,7 +8102,7 @@ public enum RascalPrimitive {
 
 	/**
 	 * Create str slice
-	 * [ ... IString s s, IInteger from, IInteger by, IInteger to] => [ ..., new IString with slice elements ]
+	 * [ ... IString s, IInteger from, IInteger by, IInteger to] => [ ..., new IString with slice elements ]
 	 */
 	str_slice {
 		@Override
@@ -8116,7 +8117,7 @@ public enum RascalPrimitive {
 
 	/**
 	 * Create node slice
-	 * [ ... INode s s, IInteger from, IInteger by, IInteger to] => [ ..., new INode with slice elements as args ]
+	 * [ ... INode node, IInteger from, IInteger by, IInteger to] => [ ..., new INode with slice elements as args ]
 	 */
 	node_slice {
 		@Override
@@ -8126,6 +8127,61 @@ public enum RascalPrimitive {
 			INode node = (INode) stack[sp - 4];
 			int nd_arity = node.arity();
 			stack[sp - 4] = $makeSlice(node, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), nd_arity, currentFrame));
+			return sp - 3;
+		}
+	},
+	
+	/**
+	 * Create concrete list slice
+	 * [ ... ITree tree, IInteger from, IInteger by, IInteger to] => [ ..., new INode with slice elements as args ]
+	 */
+	concrete_list_slice {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 5;
+
+			ITree tree = (ITree) stack[sp - 5];
+			IList elems = TreeAdapter.getArgs(tree);
+			int len = elems.length();
+			int sep_count = TreeAdapter.getSeparatorCount(tree);
+			int list_length = (len == 0) ? 0 : ((sep_count == 0 ? len : 1 + len/(1 + sep_count)));
+			int min_length =  $getInt((IValue) stack[sp - 1]);
+			stack[sp - 5] = $makeSlice(tree, sep_count, min_length, $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), list_length, currentFrame));
+			if(stack[sp - 5] == null){
+				throw RascalRuntimeException.illegalArgument(tree, currentFrame, "sliced value should have length of at least " + min_length);
+			}
+			return sp - 4;
+		}
+	},
+	
+	/**
+	 * Create nonterminal slice
+	 * [ ... ITree tree, IInteger from, IInteger by, IInteger to] => [ ..., new INode with slice elements as args ]
+	 */
+	nonterminal_slice {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 4;
+
+			ITree tree = (ITree) stack[sp - 4];
+			int tree_arity = TreeAdapter.getArgs(tree).length();
+			stack[sp - 4] = $makeSlice(tree, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), tree_arity, currentFrame));
+			return sp - 3;
+		}
+	},
+	
+	/**
+	 * Create lexical slice
+	 * [ ... ITree tree, IInteger from, IInteger by, IInteger to] => [ ..., new INode with slice elements as args ]
+	 */
+	lex_slice {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 4;
+
+			ITree tree = (ITree) stack[sp - 4];
+			int tree_arity = TreeAdapter.getArgs(tree).length();
+			stack[sp - 4] = $makeSlice(tree, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), tree_arity, currentFrame));
 			return sp - 3;
 		}
 	},
@@ -8285,7 +8341,7 @@ public enum RascalPrimitive {
 				return sp - 4;
 			}
 			IConstructor type_cons = ((IConstructor) stack[sp - 1]);
-			TypeReifier typeReifier = new TypeReifier(vf);          // TODO: relatio n with global?******
+			TypeReifier typeReifier = new TypeReifier(vf);          // TODO: relation with global?******
 			Type argType = typeReifier.valueToType(type_cons);
 			IMap definitions = (IMap) type_cons.get("definitions");
 
@@ -8314,6 +8370,9 @@ public enum RascalPrimitive {
 				}
 				try {
 					//System.err.println("Before executing test " + fun);
+//					for(String fname : rex.getRVM().functionMap.keySet()){
+//						if(fname.contains("companion")) System.err.println("testreport_add: " + fname);
+//					}
 					IValue res = (IValue) rex.getRVM().executeFunction(fun, args, null); 
 					//System.err.println("After executing test " + fun);
 					passed = ((IBool) res).getValue();
@@ -8731,28 +8790,85 @@ public enum RascalPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
 			assert arity == 2;
+			
+			// TODO: old code
 
-			// TODO: this code can be optimized and simplified via TreeAdapter
+//			ITree appl = (ITree) stack[sp - 2];
+//			IList appl_args = (IList) appl.get("args");
+//			IConstructor prod = (IConstructor) appl.getProduction();
+//			IConstructor symbol = $removeLabel((IConstructor) prod.get("def"));
+//			int delta = $getIterDelta(symbol);
+//			if(delta < 0){
+//				if(appl_args.length() == 1){
+//					IConstructor child = (IConstructor) appl_args.get(0);
+//					prod = (IConstructor) child.get("prod");
+//					symbol = $removeLabel((IConstructor) prod.get("def"));
+//					appl_args = (IList) child.get(1);
+//					delta = $getIterDelta(symbol);
+//					if(delta < 0){
+//						throw new CompilerError("subscript not supported on " + symbol, currentFrame);
+//					}
+//				}
+//			}
+//			int index = ((IInteger) stack[sp - 1]).intValue();
+//			stack[sp - 2] = appl_args.get(index * delta);
+//			return sp - 1;
+			
+			// TODO: new code
+			
+			ITree tree =  (ITree) stack[sp - 2];
+			if(!TreeAdapter.isList(tree) && TreeAdapter.isInjectionOrSingleton(tree)){
+				tree = (ITree) TreeAdapter.getArgs(tree).get(0);
+			}
+			if(!TreeAdapter.isList(tree)){
+				throw new CompilerError("subscript not supported on " + TreeAdapter.getProduction(tree), currentFrame);
+			}
 
-			ITree appl = (ITree) stack[sp - 2];
-			IList appl_args = (IList) appl.get("args");
-			IConstructor prod = (IConstructor) appl.getProduction();
-			IConstructor symbol = $removeLabel((IConstructor) prod.get("def"));
-			int delta = $getIterDelta(symbol);
-			if(delta < 0){
-				if(appl_args.length() == 1){
-					IConstructor child = (IConstructor) appl_args.get(0);
-					prod = (IConstructor) child.get("prod");
-					symbol = $removeLabel((IConstructor) prod.get("def"));
-					appl_args = (IList) child.get(1);
-					delta = $getIterDelta(symbol);
-					if(delta < 0){
-						throw new CompilerError("subscript not supported on " + symbol, currentFrame);
-					}
-				}
+			IList elems = TreeAdapter.getArgs(tree);
+			int phys_length = elems.length();
+			int sep_count = TreeAdapter.getSeparatorCount(tree);
+			int log_length = (phys_length == 0) ? 0 : ((sep_count == 0 ? phys_length : 1 + phys_length/(1 + sep_count)));
+
+			int index = ((IInteger) stack[sp - 1]).intValue();
+			if(index < 0){
+				index = log_length + index;
+			}
+			if(index < 0 || index >= log_length){
+				throw RascalRuntimeException.indexOutOfBounds((IInteger) stack[sp - 1], currentFrame);
+			}
+			IValue result = elems.get(index * (sep_count + 1));
+			if(result == null){
+				throw RascalRuntimeException.indexOutOfBounds((IInteger) stack[sp - 1], currentFrame);
+			}
+
+			stack[sp - 2] = result;
+			return sp - 1;
+		}
+	},
+	
+	/**
+	 * Get argument with given index from lexical
+	 * 
+	 * [ ..., ITree tree, IInteger idx ] => [ ..., tree[idx] ]
+	 */
+	lex_subscript_int {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 2;
+			
+			ITree tree =  (ITree) stack[sp - 2];
+			if(!TreeAdapter.isList(tree) && TreeAdapter.isInjectionOrSingleton(tree)){
+				tree = (ITree) TreeAdapter.getArgs(tree).get(0);
+			}
+			if(!TreeAdapter.isList(tree)){
+				throw new CompilerError("subscript not supported on " + TreeAdapter.getProduction(tree), currentFrame);
 			}
 			int index = ((IInteger) stack[sp - 1]).intValue();
-			stack[sp - 2] = appl_args.get(index * delta);
+			int delta = 1;
+			if(TreeAdapter.isSeparatedList(tree)){
+				delta = TreeAdapter.getSeparatorCount(tree) + 1;
+			}
+			stack[sp - 2] = TreeAdapter.getArgs(tree).get(index * delta);
 			return sp - 1;
 		}
 	},
@@ -8850,7 +8966,11 @@ public enum RascalPrimitive {
 			IValue val = (IValue) stack[sp - 2];
 			String label = ((IString) stack[sp - 1]).getValue();
 			try {
-
+				Map<String, IValue> annos = val.asAnnotatable().getAnnotations();
+//				System.err.println("ANNOTATIONS:");
+//				for(String key : annos.keySet()){
+//					System.err.println(key + ": " + annos.get(key));
+//				}
 				stack[sp - 2] = val.asAnnotatable().getAnnotation(label);
 
 				if(stack[sp - 2] == null) {
@@ -8942,6 +9062,33 @@ public enum RascalPrimitive {
 			stack[sp - 2] = descriptor.shouldDescentInConcreteValue(subject);
 			return sp - 1;
 		}
+	},
+	
+	/**
+	 * Create a descendant descriptor given
+	 * - a unique id
+	 * - symbolset (converted from ISet of values to HashSet of Types, symbols and Productions)
+	 * - concreteMatch, indicates a concrete or abstract match
+	 * - definitions needed for type reifier
+	 * 
+	 * [ ISet symbolset, IBool concreteMatch, IMap definitions] => DescendantDescriptor
+	 */
+	make_descendant_descriptor {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 4;
+			IString id = (IString) stack[sp - 4];
+			DescendantDescriptor desc = rex.getDescendantDescriptorMap().get(id);
+			if(desc == null){
+				ISet symbolset = (ISet) stack[sp - 3];
+				IBool concreteMatch = (IBool) stack[sp - 2];
+				IMap definitions = (IMap) stack[sp - 1];
+				desc = new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
+				rex.getDescendantDescriptorMap().put(id,  desc);
+			}
+			stack[sp - 4] = desc;
+			return sp - 3;
+		};
 	},
 
 	/************************************************************************************************/
@@ -9037,15 +9184,15 @@ public enum RascalPrimitive {
 			IValue source = (IValue) stack[sp - 1];
 			if(source.getType().isString()){
 				IString s = (IString) source;
-				stack[sp - 3] = rex.getParsingTools().parse(module_name, type, s, currentFrame.src, currentFrame);
+				stack[sp - 3] = rex.getParsingTools().parse(module_name, type, s, currentFrame.src, currentFrame, rex);
 			} else {
 				ISourceLocation s = (ISourceLocation) source;
-				stack[sp - 3] = rex.getParsingTools().parse(module_name, type, s, currentFrame);
+				stack[sp - 3] = rex.getParsingTools().parse(module_name, type, s, currentFrame, rex);
 			}
 			return sp - 2;
 		}
-
 	},
+	
 	/**
 	 * memoize result of executing a function for given parameters
 	 * 
@@ -9070,6 +9217,104 @@ public enum RascalPrimitive {
 	            fun.memoization = new SoftReference<>(cache);
 			}
 			cache.storeResult(args, (Map<String,IValue>)currentFrame.stack[nformals - 1], result);
+			return sp;
+		}
+	},
+	
+	/************************************************************************************************/
+	/*				Keyword-related (former) MuPrimitives that need access to rex					*/
+	/* NOTE: these primitives violate the convention that all RascalPrimitives return an IValue		*/
+	/************************************************************************************************/
+	
+	/**
+	 * Given a constructor or node get an array consisting of
+	 * - node/constructor name 
+	 * - positional arguments 
+	 * - keyword parameters collected in a mmap	
+	 * 
+	 * [ ..., node ] => [ ..., array ]
+	 */
+	get_name_and_children_and_keyword_mmap {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 1;
+			INode v = (INode) stack[sp - 1];
+			int cons_arity = v.arity();
+			Object[] elems = new Object[cons_arity + 2];
+			elems[0] = vf.string(v.getName());
+			for (int i = 0; i < cons_arity; i++) {
+				elems[i + 1] = v.get(i);
+			}
+			elems[cons_arity + 1] = $getAllKeywordParameters(v, rex);
+			stack[sp - 1] = elems;
+			return sp;
+		}	
+	},
+	
+	/**
+	 * Given a constructor or node get an array consisting of
+	 * - positional arguments 
+	 * - keyword parameters collected in a mmap	
+	 * 
+	 * [ ..., node ] => [ ..., array ]
+	 */
+	get_children_and_keyword_mmap {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 1;
+			INode v = (INode) stack[sp - 1];
+			int cons_arity = v.arity();
+			Object[] elems = new Object[cons_arity + 1];
+			for (int i = 0; i < cons_arity; i++) {
+			  elems[i] = v.get(i);
+			}
+			elems[cons_arity] = $getAllKeywordParameters(v, rex);
+			stack[sp - 1] = elems;
+			return sp;
+		}
+	},
+	
+	/**
+	 * Given a constructor or node get an array consisting of
+	 * - keyword parameters collected in a mmap
+	 * 
+	 * [ ..., node ] => [ ..., mmap ]
+	 */
+	get_keyword_mmap {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 1;
+			INode v = (INode) stack[sp - 1];
+			stack[sp - 1] = $getAllKeywordParameters(v, rex);
+			return sp;
+		}
+	},
+	
+	/**
+	 * Given a constructor or node get an array consisting of
+	 * - its positional arguments 
+	 * - the values of its keyword arguments
+	 * 
+	 * [ ... node ] => [ ..., array ]
+	 */
+	get_children_and_keyword_values {
+		@Override
+		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity == 1;
+			INode v = (INode) stack[sp - 1];
+			int cons_arity = v.arity();
+			Map<String, IValue> m = $getAllKeywordParameters(v, rex);
+
+			int kw_arity = m.size();
+			Object[] elems = new Object[cons_arity + kw_arity];
+			for (int i = 0; i < cons_arity; i++) {
+			  elems[i] = v.get(i);
+			}
+			int j = cons_arity;
+			for(IValue val : m.values()){
+				elems[j++] = val;
+			}
+			stack[sp - 1] = elems;
 			return sp;
 		}
 	}
@@ -9116,6 +9361,7 @@ public enum RascalPrimitive {
 	private static final IMap emptyMap = vf.mapWriter().done();
 	private static final IList emptyList = vf.listWriter().done();
 	private static final ISet emptySet = vf.setWriter().done();
+
 	public static final IBool Rascal_TRUE =  ValueFactoryFactory.getValueFactory().bool(true);
 	public static final IBool Rascal_FALSE =  ValueFactoryFactory.getValueFactory().bool(false);
 	
@@ -9613,6 +9859,7 @@ public enum RascalPrimitive {
 
 	public SliceDescriptor $makeSliceDescriptor(Integer first, Integer second, Integer end, int len, Frame currentFrame) {
 
+
 		int firstIndex = 0;
 		int secondIndex = 1;
 		int endIndex = len;
@@ -9647,7 +9894,10 @@ public enum RascalPrimitive {
 			firstIndex = secondIndex = endIndex = 0;
 		} else if(endIndex > len){
 			endIndex = len;
-		}
+		} 
+//		else if(endIndex == -1){
+//			endIndex = 0;
+//		}
 
 		return new SliceDescriptor(firstIndex, secondIndex, endIndex);
 	}
@@ -9784,6 +10034,46 @@ public enum RascalPrimitive {
 
 		return w.done();
 	}
+	
+	public IConstructor $makeSlice(final ITree tree, final int separatorCount, final int minLength, final SliceDescriptor sd){
+		IListWriter w = vf.listWriter();
+
+		IList elems = TreeAdapter.getArgs(tree);
+		
+		int increment = sd.second - sd.first;
+		if(sd.first == sd.end){
+			// nothing to be done
+		} else
+			if(sd.first <= sd.end){
+				for(int i = sd.first; i >= 0 && i < sd.end; i += increment){
+					int base_i = i * (separatorCount + 1);
+					w.append(elems.get(base_i));
+					if(i < sd.end - increment){
+						for(int k = 1; k <= separatorCount; k++){
+							w.append(elems.get(base_i + k));
+						}
+					}
+				}
+			} else {
+				for(int j = sd.first; j >= 0 && j > sd.end && j < elems.length(); j += increment){
+					int base_j = j * (separatorCount + 1);
+					w.append(elems.get(base_j));
+					if(j > sd.end && j > 0){
+						for(int k = 1; k <= separatorCount; k++){
+							w.append(elems.get(base_j - k));
+						}
+					}
+				}
+			}
+		
+		IConstructor prod = TreeAdapter.getProduction(tree);
+		IList new_elems = w.done();
+		if(new_elems.length() < minLength){
+			return null;
+		}
+		IConstructor result = vf.constructor(RascalValueFactory.Tree_Appl, prod, new_elems);
+		return result;
+	}
 
 	private static boolean $isTree(final IValue v){
 		return v.getType().isSubtypeOf(RascalValueFactory.Tree); 
@@ -9799,12 +10089,6 @@ public enum RascalPrimitive {
 			return 4;
 		}
 		return -1;
-	}
-
-	private static IConstructor $removeLabel(final IConstructor cons){
-		if(cons.getName().equals("label"))
-			return (IConstructor) cons.get(1);
-		return cons;
 	}
 
 	public String $unescape(final String s) {
@@ -9875,8 +10159,6 @@ public enum RascalPrimitive {
 		}
 		return val.toString();
 	}
-
-	//static HashMap<Type,IConstructor> type2symbolCache = new HashMap<Type,IConstructor>();
 
 	/**
 	 * @param t the given type
@@ -10032,23 +10314,54 @@ public enum RascalPrimitive {
 		rex.getType2SymbolCache().put(t, result);
 		return result;
 	}
+	
+	private static Map<String,IValue> $getAllKeywordParameters(IValue v, RascalExecutionContext rex){
+		Type tp = v.getType();
+		
+		if(tp.isAbstractData()){
+			IConstructor cons = (IConstructor) v;
+			if(cons.mayHaveKeywordParameters()){
+				Map<String, IValue> setKwArgs =  cons.asWithKeywordParameters().getParameters();
+				String consName = cons.getName();
+				Function getDefaults = rex.getCompanionDefaultsFunction(consName, tp);
+				if(getDefaults != RVM.noCompanionFunction){
+					IValue[] posArgs = new IValue[cons.arity()];
+					for(int i = 0; i < cons.arity(); i++){
+						posArgs[i] = cons.get(i);
+					}
+					
+					@SuppressWarnings("unchecked")
+					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeFunction(getDefaults, posArgs, setKwArgs);
 
-	boolean $subtype(final Type t1, final Type t2, final RascalExecutionContext rex){
-		Map<Type,Boolean> t2map = rex.getSubtypeCache().get(t1);
-		if(t2map == null){
-			boolean sub = t1.isSubtypeOf(t2);
-			t2map = new HashMap<Type,Boolean>();
-			t2map.put(t2, sub);
-			rex.getSubtypeCache().put(t1, t2map);
-			return sub;
+					HashMap<String, IValue> allKwArgs = new HashMap<>(defaults.size());
+					for(String key : defaults.keySet()){
+						IValue val = setKwArgs.get(key);
+						if(val != null){
+							allKwArgs.put(key,  val);
+						} else {
+							allKwArgs.put(key, defaults.get(key).getValue());
+						}
+					}
+					//System.err.println(", returns " + allKwArgs);
+					
+					return allKwArgs;
+					
+				}
+			} else {
+				return RVM.emptyKeywordMap;
+			}
 		}
-		Boolean res = t2map.get(t2);
-		if(res == null){
-			boolean sub = t1.isSubtypeOf(t2);
-			t2map.put(t2,  sub);
-			return sub;
+		
+		if(tp.isNode()){
+			INode nd = (INode) v;
+			if(nd.mayHaveKeywordParameters()){
+				return nd.asWithKeywordParameters().getParameters();
+			} else {
+				return RVM.emptyKeywordMap;
+			}
 		}
-		return res.booleanValue();
+		
+		throw new CompilerError("getAllKeywordParameters");
 	}
 }
 

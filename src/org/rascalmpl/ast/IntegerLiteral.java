@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class IntegerLiteral extends AbstractAST {
   public IntegerLiteral(ISourceLocation src, IConstructor node) {
@@ -104,7 +104,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 271 + 331 * decimal.hashCode() ; 
+      return 331 + 17 * decimal.hashCode() ; 
     } 
   
     
@@ -178,7 +178,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 17 + 401 * hex.hashCode() ; 
+      return 401 + 313 * hex.hashCode() ; 
     } 
   
     
@@ -252,7 +252,7 @@ public abstract class IntegerLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 313 + 449 * octal.hashCode() ; 
+      return 449 + 463 * octal.hashCode() ; 
     } 
   
     

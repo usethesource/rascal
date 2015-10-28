@@ -13,8 +13,8 @@ package org.rascalmpl.debug;
 
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.interpreter.result.IRascalResult;
+import org.rascalmpl.value.ISourceLocation;
 
 public interface IRascalFrame {
     /**

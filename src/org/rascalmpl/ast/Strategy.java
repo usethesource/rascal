@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class Strategy extends AbstractAST {
   public Strategy(ISourceLocation src, IConstructor node) {
@@ -73,7 +73,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 593 ; 
+      return 109 ; 
     } 
   
     	
@@ -128,7 +128,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 109 ; 
+      return 53 ; 
     } 
   
     	
@@ -183,7 +183,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 53 ; 
+      return 839 ; 
     } 
   
     	
@@ -238,7 +238,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 839 ; 
+      return 389 ; 
     } 
   
     	
@@ -293,7 +293,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 389 ; 
+      return 229 ; 
     } 
   
     	
@@ -348,7 +348,7 @@ public abstract class Strategy extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 229 ; 
+      return 157 ; 
     } 
   
     	

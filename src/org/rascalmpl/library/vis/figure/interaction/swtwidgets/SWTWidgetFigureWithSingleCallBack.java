@@ -12,11 +12,11 @@
 
 package org.rascalmpl.library.vis.figure.interaction.swtwidgets;
 
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.swt.widgets.Control;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.ICallbackEnv;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.value.IValue;
 
 public abstract class SWTWidgetFigureWithSingleCallBack<WidgetType extends Control> extends SWTWidgetFigure<WidgetType>{
 

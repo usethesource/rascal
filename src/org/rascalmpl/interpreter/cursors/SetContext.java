@@ -1,7 +1,7 @@
 package org.rascalmpl.interpreter.cursors;
 
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.IValue;
 
 public class SetContext extends Context {
 	private final Context ctx;

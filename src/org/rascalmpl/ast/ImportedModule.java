@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class ImportedModule extends AbstractAST {
   public ImportedModule(ISourceLocation src, IConstructor node) {
@@ -114,7 +114,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 151 + 397 * name.hashCode() + 137 * actuals.hashCode() ; 
+      return 397 + 137 * name.hashCode() + 811 * actuals.hashCode() ; 
     } 
   
     
@@ -217,7 +217,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 811 + 709 * name.hashCode() + 167 * actuals.hashCode() + 53 * renamings.hashCode() ; 
+      return 709 + 167 * name.hashCode() + 53 * actuals.hashCode() + 463 * renamings.hashCode() ; 
     } 
   
     
@@ -309,7 +309,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 463 + 127 * name.hashCode() ; 
+      return 127 + 67 * name.hashCode() ; 
     } 
   
     
@@ -393,7 +393,7 @@ public abstract class ImportedModule extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 67 + 643 * name.hashCode() + 229 * renamings.hashCode() ; 
+      return 643 + 229 * name.hashCode() + 271 * renamings.hashCode() ; 
     } 
   
     

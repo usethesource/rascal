@@ -16,7 +16,7 @@ package org.rascalmpl.uri;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.ISourceLocation;
 
 public class StandardOutputURIResolver implements ISourceLocationOutput {
 

@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class TypeArg extends AbstractAST {
   public TypeArg(ISourceLocation src, IConstructor node) {
@@ -97,7 +97,7 @@ public abstract class TypeArg extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 797 + 787 * type.hashCode() ; 
+      return 787 + 397 * type.hashCode() ; 
     } 
   
     
@@ -181,7 +181,7 @@ public abstract class TypeArg extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 397 + 191 * type.hashCode() + 977 * name.hashCode() ; 
+      return 191 + 977 * type.hashCode() + 173 * name.hashCode() ; 
     } 
   
     

@@ -20,18 +20,19 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.IAnnotatable;
-import org.eclipse.imp.pdb.facts.IExternalValue;
-import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
-import org.eclipse.imp.pdb.facts.exceptions.IllegalOperationException;
-import org.eclipse.imp.pdb.facts.type.ExternalType;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.tasks.IDependencyListener.Change;
 import org.rascalmpl.tasks.facts.AbstractFact;
+import org.rascalmpl.value.IAnnotatable;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IExternalValue;
+import org.rascalmpl.value.ITuple;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.value.exceptions.IllegalOperationException;
+import org.rascalmpl.value.type.ExternalType;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.visitors.IValueVisitor;
 
 public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternalValue,
 IExpirationListener<IValue> {
@@ -401,20 +402,24 @@ IExpirationListener<IValue> {
 
 	@Override
 	public IAnnotatable<? extends IValue> asAnnotatable() {
-		throw new IllegalOperationException(
-				"Cannot be viewed as annotatable.", getType());
+		throw new IllegalOperationException("Cannot be viewed as annotatable.", getType());
 	}
-	
-	 @Override
-   public boolean mayHaveKeywordParameters() {
-     return false;
-   }
+
+	@Override
+	public boolean mayHaveKeywordParameters() {
+		return false;
+	}
+
+	@Override
+	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+		throw new IllegalOperationException("Cannot be viewed as with keyword parameters", getType());
+	}
+
+	@Override
+	public IConstructor encodeAsConstructor() {
+		throw new UnsupportedOperationException("Not implemented.");
+	}
    
-   @Override
-   public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-     throw new IllegalOperationException(
-         "Cannot be viewed as with keyword parameters", getType());
-   }
 }
 
 class Key {

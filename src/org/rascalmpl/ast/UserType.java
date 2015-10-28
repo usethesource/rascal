@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class UserType extends AbstractAST {
   public UserType(ISourceLocation src, IConstructor node) {
@@ -97,7 +97,7 @@ public abstract class UserType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 809 + 109 * name.hashCode() ; 
+      return 109 + 373 * name.hashCode() ; 
     } 
   
     
@@ -183,7 +183,7 @@ public abstract class UserType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 373 + 449 * name.hashCode() + 571 * parameters.hashCode() ; 
+      return 449 + 571 * name.hashCode() + 467 * parameters.hashCode() ; 
     } 
   
     

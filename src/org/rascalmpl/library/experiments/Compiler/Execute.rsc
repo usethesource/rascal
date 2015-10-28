@@ -297,7 +297,7 @@ value execute(RVMModule mainModule, map[str,value] keywordArguments = (), bool d
     return execute(merged, keywordArguments=keywordArguments, debug=debug, testsuite=testsuite,recompile=recompile,profile=profile,trackCalls=trackCalls,coverage=coverage,useJVM=useJVM,serialize=serialize,verbose=verbose,bindir=bindir);             
 }
 
-value execute(loc rascalSource, map[str,value] keywordArguments = (), bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|){
+value execute(loc rascalSource, map[str,value] keywordArguments = (), bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=false, bool verbose = false, loc bindir = |home:///bin|){
    if(!recompile){
       executable = RVMExecutableLocation(rascalSource, bindir);
       compressed = RVMExecutableCompressedLocation(rascalSource, bindir);
@@ -312,7 +312,7 @@ value execute(loc rascalSource, map[str,value] keywordArguments = (), bool debug
    }
    startTime = cpuTime();
    mainModule = compile(rascalSource, verbose=verbose, bindir=bindir);
-   println("Compiling: <(cpuTime() - startTime)/1000000> ms");
+   //println("Compiling: <(cpuTime() - startTime)/1000000> ms");
    //<cfg, mainModule> = compile(rascalSource, bindir=bindir);
    startTime = cpuTime();
    v = execute(mainModule, keywordArguments=keywordArguments, debug=debug, testsuite=testsuite, profile=profile, verbose=verbose, bindir=bindir, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize);
@@ -320,10 +320,10 @@ value execute(loc rascalSource, map[str,value] keywordArguments = (), bool debug
    return v;
 }
 
-RVMProgram compileAndLink(loc rascalSource,  bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|){
+RVMProgram compileAndLink(str moduleName, bool useJVM=false, bool serialize=false, bool verbose = false, loc bindir = |home:///bin|){
    startTime = cpuTime();
-   mainModule = compile(rascalSource, verbose=verbose, bindir=bindir);
-   println("Compiling: <(cpuTime() - startTime)/1000000> ms");
+   mainModule = compile(getModuleLocation(moduleName), verbose=verbose, bindir=bindir);
+   //println("Compiling: <(cpuTime() - startTime)/1000000> ms");
    start_linking = cpuTime();   
    merged = mergeImports(mainModule, verbose=verbose, useJVM=useJVM, bindir=bindir, serialize=serialize);
    link_time = cpuTime() - start_linking;
@@ -331,23 +331,16 @@ RVMProgram compileAndLink(loc rascalSource,  bool useJVM=false, bool serialize=t
    return merged;
 }
 
-
-//value executeBinary(loc executable, list[value] arguments, bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM = false, bool verbose = true, loc bindir = |home:///bin|){
-//  if(exists(executable)){
-//     if(verbose) println("Using <executable>");
-//     <v, t> = executeProgram(executable, arguments, debug, testsuite, profile, trackCalls, coverage, useJVM);
-//    
-//     if(!testsuite && verbose){
-//        println("Result = <v>, [execute: <t> msec]");
-//     }  
-//     return v;
-//  }
-//}
-
-//value execute_and_time(loc rascalSource, list[value] arguments, bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls=false,  bool coverage=false, bool useJVM=false, bool serialize=false, bool verbose = true, loc bindir = |home:///bin|){
-//   mainModule = compile(rascalSource, bindir=bindir);
-//   return execute(mainModule, arguments, debug=debug, testsuite=testsuite, profile=profile, verbose = verbose, bindir = bindir, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize);
-//}
+RVMProgram compileAndLinkIncremental(loc rascalSource, bool reuseConfig, bool useJVM=false, bool serialize=false, bool verbose = false, loc bindir = |home:///bin|){
+   startTime = cpuTime();
+   mainModule = compileIncremental(rascalSource, reuseConfig, verbose=verbose, bindir=bindir);
+   //println("Compiling: <(cpuTime() - startTime)/1000000> ms");
+   start_linking = cpuTime();   
+   merged = mergeImports(mainModule, verbose=verbose, useJVM=useJVM, bindir=bindir, serialize=serialize);
+   link_time = cpuTime() - start_linking;
+   println("linking: <link_time/1000000> msec");
+   return merged;
+}
 
 value executeTests(loc rascalSource){
    mainModule = compile(rascalSource);

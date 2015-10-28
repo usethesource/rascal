@@ -16,8 +16,8 @@ package org.rascalmpl.interpreter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.value.ISourceLocation;
 
 public class ConsoleRascalMonitor implements IRascalMonitor {
 	PrintWriter out;
