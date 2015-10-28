@@ -238,10 +238,8 @@ public data Figure(
 // Charts
 	| combochart(list[Chart] charts =[], ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
-	| combochart(GoogleData googleData, ChartOptions options = chartOptions())
-	| piechart(XYLabeledData xyLabeledData, ChartOptions options = chartOptions(), bool tickLabels = false,
-	  int tooltipColumn = 1)
-	| piechart(GoogleData googleData, ChartOptions options = chartOptions())
+	| combochart(GoogleData googleData=[], ChartOptions options = chartOptions())
+	| piechart(GoogleData googleData =[], ChartOptions options = chartOptions())
 	| linechart(XYLabeledData xyLabeledData, ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
 	| linechart(XYData xyData, ChartOptions options = chartOptions(), bool tickLabels = false,
@@ -251,6 +249,9 @@ public data Figure(
 	   int tooltipColumn = 1)
 	| scatterchart(XYData xyData, ChartOptions options = chartOptions(), bool tickLabels = false,
 	   int tooltipColumn = 1)
+	| areachart(XYData xyData, ChartOptions options = chartOptions(), bool tickLabels = false,
+	   int tooltipColumn = 1)
+    | areachart(GoogleData googleData ,  ChartOptions options = chartOptions())
 	| scatterchart(GoogleData googleData, ChartOptions options = chartOptions())
 	| barchart(XYLabeledData xyLabeledData , ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
@@ -259,10 +260,9 @@ public data Figure(
 	  int tooltipColumn = 1)
 	| candlestickchart(BoxLabeledData boxLabeledData , BoxHeader header, ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
-	| candlestickchart(GoogleData googleData, ChartOptions options = chartOptions())
-    | areachart(GoogleData googleData ,  ChartOptions options = chartOptions())
-    | sankey(GoogleData googleData ,  ChartOptions options = chartOptions())
-// Graphs
+	| candlestickchart(GoogleData googleData, ChartOptions options = chartOptions())	
+    // | sankey(GoogleData googleData ,  ChartOptions options = chartOptions())
+    // Graphs
 
    | graph(lrel[str, Figure] nodes = [], Figures edges = [], str orientation = "topDown", int nodeSep = 50, int edgeSep=10, int layerSep= 30, str flavor="layeredGraph")
    | edge(str from, str to, str label)

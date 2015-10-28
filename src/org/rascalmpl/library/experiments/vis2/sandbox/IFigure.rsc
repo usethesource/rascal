@@ -70,6 +70,7 @@ public map[str, list[IFigure] ] defs = ();
 
 IFigure fig;
 
+
 // ----------------------------------------------------------------------------------------
 
 public void setDebug(bool b) {
@@ -792,7 +793,7 @@ str drawVisualization(str fname, str json) {
     }
     
 str vl(value v) {
-    if (str s:=v) return "\"<v>\"";
+    if (str s:=v) return "\"<toLowerCase(s)>\"";
     return v;
     }
     
@@ -833,7 +834,7 @@ IFigure _googlechart(str cmd, str id, Figure f) {
     }
     
 str getGraphOpt(Figure g) {
-   map[str, value] m = getKeywordParameters(g.options);
+   map[str, value] m = getKeywordParameters(g.graphOptions);
    str r =  "{style:\"fill:none\", ";
    if (!isEmpty(m)) {
         for (t<-m) {
@@ -2065,10 +2066,10 @@ Figure cL(Figure parent, Figure child) {
     }
 
 Figure pL(Figure f) {
-     if (isEmpty(f.id)) {
-         f.id = "i<occur>";
-         occur = occur + 1; 
-         }
+         if (isEmpty(f.id)) {
+              f.id = "i<occur>";
+              occur = occur + 1; 
+              }
      figMap[f.id] = f;
      return f;
      }
@@ -2211,7 +2212,7 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
               // println(fs);
               list[IFigure] ifs = [_translate(q, addSvgTag = true)|q<-fs];
               map[str, tuple[int, int]] m = (getId(g): <getWidth(g), getHeight(g)>|IFigure g<-ifs);
-              list[Vertex] vs  = treeLayout(f, m,  f.sX, f.sY, f.rasterHeight, f.manhattan,
+              list[Vertex] vs  = treeLayout(f, m,  1, f.shrink, f.rasterHeight, f.manhattan,
               xSeparation=f.xSep, ySeparation=f.ySep, orientation = f.orientation);
               tuple[int ,int] dim = computeDim(fs, m);
               vs  = vertexUpdate(vs, f.orientation, dim[0], dim[1]);

@@ -89,7 +89,8 @@ Figure model() = graph([<"a", mbox("Figure")>
                         
 void tmodel()= render(model(), align = centerMid);
 
-Figure g() = box(fig=box(align = centerRight, fig=graph(nodeProperty=(),width=1000,height=1000,nodes=
+
+Figure g() = box(fig=box(size=<1000, 4000>, align = centerRight, fig=graph(size=<0,0>,nodeProperty=(),width=1000,height=1000,nodes=
    [<"Exception",box(tooltip="Exception",fig=text("Exception",fontSize=12))>
    ,<"experiments::Compiler::Examples::RascalExtraction",box(tooltip="experiments::Compiler::Examples::RascalExtraction",fig=text("RascalExtraction",fontSize=12))>
    ,<"IO",box(tooltip="IO",fig=text("IO",fontSize=12))>

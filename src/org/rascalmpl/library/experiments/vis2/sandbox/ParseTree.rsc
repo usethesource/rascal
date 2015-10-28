@@ -56,9 +56,11 @@ public void renderParsetree(Tree t){
     render(f);
 }
 
+
 int w  =20;
 
 Figure bx(str s, str color)  = box(size=<10, 10>, tooltip = s, fillColor = color, lineWidth = 0);
+
 
 public Figure visParsetree(Tree t){
   // println(t);

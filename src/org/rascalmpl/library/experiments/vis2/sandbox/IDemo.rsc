@@ -438,17 +438,20 @@ Figure flipflop() {
   
   
   Figure tip() {
-       Figure r = overlay(figs = [box(size=<50, 50>, fillColor = "yellow"
+       Figure b = box(size=<50, 50>, fillColor = "yellow", id = "aap"
            , event = on(["mouseenter","mouseout"]
            , void(str e, str n, str v) {
                 switch(e) {
-                    case "mouseenter": style("overlay", visibility = "visible");
-                    case "mouseout": style("overlay", visibility = "hidden");
+                    case "mouseenter": style("aap_overlay", visibility = "visible");
+                    case "mouseout": style("aap_overlay", visibility = "hidden");
                     }
               }
             )        
-           ) , at(50, 0, circle(id="overlay", fig = text("Hallo"), fillColor = "red", visibility = "hidden"))]
-          );
+           );
+       Figure r = overlay(figs = [b 
+       ,at(50, 0, circle(id="aap_overlay", fig = text("Hallo"), fillColor = "red", visibility = "hidden"))]
+       )
+        ;
        return r;
        }
        
