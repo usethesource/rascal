@@ -777,10 +777,6 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 		return c;
 	}
 
-	if (adtId != 2) {
-		whatever = 10;
-	}
-
 	keywordParamMap = ( pn : pt | <pn,pt,_> <- keywordParams);
 
 	// Now, process the arguments. This performs several consistency checks, namely:
@@ -800,9 +796,6 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 						c = addScopeError(c,"Field name <fn> cannot be repeated in the same constructor", l);
 					} else {
 						seenAlready = seenAlready + fn;
-						if (adtId != 2) {
-							whatever = 10;
-						}
 						if (<adtId,fn> in c.adtFields) {
 							if (RSimpleName(fn) in c.store[adtId].keywordParams) {
 								c = addScopeError(c,"Field <fn> already defined as a keyword parameter on type <prettyPrintName(c.store[adtId].name)>",l);
