@@ -7286,8 +7286,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 				; // TODO: Add a warning here, this means we are importing something that we cannot find
 			}
 		} catch ex: {
-		    chloc1 = getModuleLocation(prettyPrintName(imn));
-		    println("<prettyPrintName(imn)>: <chloc1>, <ex>");
+		    //chloc1 = getModuleLocation(prettyPrintName(imn));
+		    //println("<prettyPrintName(imn)>: <chloc1>, <ex>");
 			c = addScopeError(c, "Cannot import module <prettyPrintName(imn)>", md@\loc);
 		}
 	}
