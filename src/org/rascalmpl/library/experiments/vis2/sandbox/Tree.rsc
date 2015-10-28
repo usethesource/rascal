@@ -82,7 +82,7 @@ list[Vertex] treeLayout(Figure f, map[str, tuple[int, int]] y,
     z = [];
     TreeNode c = convertFigure(f, y, scaleX=scaleX, scaleY=scaleY);
     TreeNode r = layoutTree(c, height, scaleX=scaleX, scaleY=scaleY
-    , xSeparation = xSeparation, ySeparation = ySeparation, orientation = f.orientation);  
+    , xSeparation = xSeparation, ySeparation = ySeparation, orientation = f.orientation, cityblock = f.manhattan);  
     m = ();  
     MIN = 0;
     makeMap(r);
@@ -193,7 +193,8 @@ Figure dtree(TreeNode t) = shape(display(t, [])
 list[Vertex] display(TreeNode t, list[Vertex] v, bool cityblock) {
     if (cityblock)
       // for (b<-t.branches) v= display(b, v+[move(t.x, t.y),line(t.x, b.y), line(b.x, b.y)], cityblock);
-      for (b<-t.branches) v= display(b, v+[move(t.x, t.y),line(b.x, t.y), line(b.x, b.y)], cityblock);
+      for (b<-t.branches) v= display(b, v+[move(t.x, t.y),line(t.x, (t.y+b.y)/2),
+          line(b.x, (t.y+b.y)/2), line(b.x, b.y)], cityblock);
     else
       for (b<-t.branches) v= display(b, v+[move(t.x, t.y),line(b.x, b.y)], cityblock);
     return v;
@@ -213,13 +214,26 @@ TreeNode absoluteX(TreeNode t, int x, int scaleX, int scaleY) {
     }
     
 TreeNode layoutTree(TreeNode t, int height, int scaleX=1, int scaleY = 5,
-      int ySeparation = 10, int xSeparation = 5, Orientation orientation = topDown()) {
+      int ySeparation = 10, int xSeparation = 5, Orientation orientation = topDown()
+      ,bool cityblock = false) {
       // println(orientation);
       if (orientation==leftRight() || orientation == rightLeft()) t = mirror(t);
-      return absoluteX(doShapeTree(t, height, ySeparation, ySeparation, xSeparation),0 , scaleX, scaleY);
+      return absoluteX(doShapeTree(t, height, ySeparation, ySeparation, xSeparation, cityblock),0 , scaleX, scaleY);
    }
+   
+int roundX(list[TreeNode] outline) {
+    int d = last(outline).x/2;
+    int e = 0;
+    int i = 0;
+    while (e<d) {
+         e += outline[i].x;
+         i = i + 1;
+         }
+    if (i>0) i = i -1;
+    return outline[i].x;
+    }
 
-TreeNode doShapeTree(TreeNode t, int height, int yPosition, int ySeparation, int xSeparation) {
+TreeNode doShapeTree(TreeNode t, int height, int yPosition, int ySeparation, int xSeparation, bool cityblock) {
       // println("doShapeTree <t.id>");
       // println("xSep: <xSeparation>");
       t.x = 0;
@@ -231,7 +245,7 @@ TreeNode doShapeTree(TreeNode t, int height, int yPosition, int ySeparation, int
           }
       else {
         list[TreeNode] outline = [doShapeTree(b, height, yPosition+t.height+ySeparation
-            , ySeparation, xSeparation)
+            , ySeparation, xSeparation, cityblock)
              |b<-t.branches];
         t.left = outline[0].left;
         t.right = outline[0].right;
@@ -261,7 +275,7 @@ TreeNode doShapeTree(TreeNode t, int height, int yPosition, int ySeparation, int
           i=i+1;
        }  
        if (!isEmpty(outline)) {
-           int centre = last(outline).x/2;
+           int centre = cityblock?roundX(outline):last(outline).x/2;
            for (int i<-[0..size(outline)]) {         
               outline[i].x -= centre;         
               }
