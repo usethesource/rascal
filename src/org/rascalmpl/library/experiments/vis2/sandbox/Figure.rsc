@@ -320,8 +320,7 @@ public data Figure(
    | graph(list[tuple[str, Figure]] nodes = [], list[Edge] edges = [], map[str, NodeProperty] nodeProperty = (), 
      GraphOptions options = graphOptions())
  
-// Trees
-	| tree(Figure root, list[Figure] figs, int sX=1, int sY=5, int rasterHeight=250
+   | tree(Figure root, list[Figure] figs, int sX=1, int sY=5, int rasterHeight=150
 	       ,int xSep = 1, int ySep = 2, str pathColor = "black"
 	       ,Orientation orientation = topDown()
 	       ,bool manhattan=false)
