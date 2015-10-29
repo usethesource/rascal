@@ -73,7 +73,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	private final ParsingTools parsingTools; 
 	Stack<String> indentStack = new Stack<String>();
-	final HashMap<Type,IConstructor> type2symbolCache = new HashMap<Type,IConstructor>();
+	//final HashMap<Type,IConstructor> type2symbolCache = new HashMap<Type,IConstructor>();
+	private Cache<Type, IConstructor> type2symbolCache = Caffeine.newBuilder().build();
+	
 	StringBuilder templateBuilder = null;
 	private final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
 	private IListWriter test_results;
@@ -200,7 +202,11 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	public Stack<String> getIndentStack() { return indentStack; }
 	
-	public HashMap<Type,IConstructor> getType2SymbolCache(){ return type2symbolCache; }
+	//public HashMap<Type,IConstructor> getType2SymbolCache(){ return type2symbolCache; }
+	
+	public IConstructor type2Symbol(final Type t){
+		return type2symbolCache.get(t, k -> RascalPrimitive.$type2symbol(t));
+	}
 	
 	HashMap<IString,DescendantDescriptor> getDescendantDescriptorMap() {
 		return descendantDescriptorMap;
@@ -209,9 +215,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private Cache<Type[], Boolean> subtypeCache = Caffeine.newBuilder().build();
 	
 	public boolean isSubtypeOf(Type t1, Type t2){
-		Type[] key = new Type[] { t1, t2};
-		
-		return subtypeCache.get(key, k -> t1.isSubtypeOf(t2));
+		return t1.isSubtypeOf(t2);
+//		Type[] key = new Type[] { t1, t2};
+//		
+//		return subtypeCache.get(key, k -> t1.isSubtypeOf(t2));
 	}
 	
 	StringBuilder getTemplateBuilder() { return templateBuilder; }
