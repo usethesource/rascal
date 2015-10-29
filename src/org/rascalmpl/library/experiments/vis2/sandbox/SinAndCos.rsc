@@ -30,7 +30,7 @@ Figure sinAndCos(){
                 legend = legend(position="top")
         	    );
         // println(adt2json(options));
-        	return combochart(charts=[
+        	return comboChart(charts=[
         	       line([<x, round(sin(x/1),0.1)>     | x <- [0.0, 1.0 .. 11.0]], name="Sine Wave")
         		   , line([<x, round(0.5 * cos(x/1), 0.01), "<x>"> | x <- [0.0, 1.0 .. 11.0]], name ="Cosine Wave",
         		       lineWidth = 0, pointSize = 3)

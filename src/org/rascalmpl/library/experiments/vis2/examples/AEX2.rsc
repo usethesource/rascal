@@ -9,7 +9,8 @@ import lang::json::IO;
 alias AexData =  lrel[str date , num open, num high , num low, num close, num volume, num adjusted];
 // alias AexData = lrel[value date , value open, value high , value low, value close, value volume, value adjusted];
 
-loc location = |file:///ufs/bertl/YAHOO-INDEX_AEX.csv|;
+// loc location = |std://experiments/vis2/data/YAHOO-INDEX_AEX.csv|;
+loc location = |project://rascal/src/org/rascalmpl/library/experiments/vis2/data/YAHOO-INDEX_AEX.csv|;
 
 int n = 8;
 int m = 10;
@@ -44,6 +45,7 @@ public void aex2() {
      GoogleData d = [["date", "close", "open"]]+
      //      [[printDate(h,"Y-w"), d2v[h].open, d2v[incrementDays(h, 4)].close] |h<-idx]; 
      [*[[printDate(h,"Y/M"), d2v[nextMonth(h, d2v)].close, d2v[h].open]|int i <-[1..13], datetime h :=firstMonth(j, i, d2v)]|j<-[2012, 2013, 2014]];
+     // [*[["a" , d2v[nextMonth(h, d2v)].close, d2v[h].open]|int i <-[1..13], datetime h :=firstMonth(j, i, d2v)]|j<-[2012, 2013]];
      ex("aex2", areachart(d,
       options = chartOptions(
             width = 800, height = 400, hAxis = axis(direction=1), pointSize = 1)));

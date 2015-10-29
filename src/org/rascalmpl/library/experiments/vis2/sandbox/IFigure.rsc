@@ -70,6 +70,7 @@ public map[str, list[IFigure] ] defs = ();
 
 IFigure fig;
 
+
 // ----------------------------------------------------------------------------------------
 
 public void setDebug(bool b) {
@@ -90,7 +91,7 @@ void _setStyle(str id, Style v) {state[widget[id].seq].v.style = v;}
 
 Text _getText(str id) = state[widget[id].seq].v.text;
 
-Property _getProperty(str id) = state[widget[id].seq].v.property;
+Property _getProperty(str id) { return state[widget[id].seq].v.property;}
 
 void _setProperty(str id, Property v) {state[widget[id].seq].v.property = v;}
 
@@ -106,6 +107,8 @@ void addState(Figure f) {
     if (choiceInput():=f)
          property.\value = f.\value;
     if (rangeInput():=f)
+         property.\value = f.\value;
+    if (strInput():=f)
          property.\value = f.\value;
     if (checkboxInput():=f) 
          if (map[str, bool] s2b := f.\value)
@@ -200,7 +203,8 @@ str getIntro() {
         '\<script src=\"http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.min.js\"\>\</script\>
         '<google> 
         '\<script\>
-         '    var timer = {};
+        '    var timer = {};
+        '    var timeout = {};
         '    function CR(evt, ev, id, v ) {
         '       evt = evt || window.event;
         '       if (evt.keyCode == 13 && v) {
@@ -213,7 +217,8 @@ str getIntro() {
         '       v=v.replace(\"/\",\"^div\");
         '    } 
         '    askServer(\"<getSite()>/getValue/\"+ev+\"/\"+id+\"/\"+v, {},
-        '            function(t) {              
+        '            function(t) {   
+        '                // alert(JSON.stringify(t));         
         '                for (var d in t) {
         '                   var e = d3.select(\"#\"+d); 
         '                   for (var i in t[d][\"text\"]) {
@@ -221,24 +226,29 @@ str getIntro() {
         '                        if (i==\"html\") e=e.html(t[d][\"text\"][i]);
         '                        }
         '                   for (var i in t[d][\"attr\"]) {
-        '                        if (i!=\"grow\")
+        '                        if (i!=\"grow\" && i!=\"disabled\")
         '                        e=e.attr(i, t[d][\"attr\"][i]);
+        '                        if (i==\"disabled\") e=e.attr(i, t[d][\"attr\"][i]?true:null);
+        '                        }
+        '                   for (var i in t[d][\"property\"]) {
+        '                        e=e.property(i, t[d][\"property\"][i]);
         '                        }
         '                   for (var i in t[d][\"timer\"]) {
-        '                        
-        '                        var q = doTimerFunction(\"message\", d);
+        '                        var q =  doFunction(\"message\", d);
         '                        if (i==\"command\") { 
         '                              if (t[d][\"timer\"][i]==\"start\") {
-        '                                    // e=e.attr(\"visibility\", \"visible\");  
-        '                                    // q();
-        '                                    // alert(t[d][\"timer\"][\"delay\"]);  
         '                                    if (timer[d]!=null) clearInterval(timer[d]);                                
         '                                    timer[d] = setInterval(q, t[d][\"timer\"][\"delay\"]); 
         '                                    }
         '                              if (t[d][\"timer\"][i]==\"finish\") {
         '                                  // e=e.attr(\"visibility\", \"hidden\"); 
-        '                                  clearInterval(timer[d]); 
+        '                                  if (timeout[d]!=null) clearTimeout(timeout[d]);
+        '                                  if (timer[d]!=null) clearInterval(timer[d]); 
         '                              }
+        '                              if (t[d][\"timer\"][i]==\"timeout\") {
+        '                                    if (timeout[d]!=null) clearTimeout(timeout[d]);                             
+        '                                    timeout[d]= setTimeout(q, t[d][\"timer\"][\"delay\"]); 
+        '                                    }
         '                        }
         '                   }
         '                   var svg = t[d][\"style\"][\"svg\"];
@@ -299,7 +309,8 @@ str getIntro() {
            <for (d<-markerScript) {> <d> <}>
            <for (d<-widgetOrder) {> <widget[d].script> <}>
            <for (d<-reverse(adjust)) {> <d> <}>
-           <for (d<-googleChart) {> <d> <}>        
+           <for (d<-googleChart) {> <d> <}> 
+           doFunction(\"load\", \"figureArea\")();     
        ' }
        ' onload=initFunction;
        '\</script\>
@@ -314,7 +325,7 @@ str getIntro() {
 	}
 	
 list[Figure] getChildren(Figure f) {
-   if (box():=f || ellipse() := f || circle():= f || ngon():=f) return [f.fig];
+   if (box():=f || ellipse() := f || circle():= f || ngon():=f) return f.fig ==emptyFigure()?[]:[f.fig];
    if (hcat():=f || vcat():= f) return f.figs;
    if (grid():=f) return [*g|g<-f.figArray];
    return [];
@@ -439,11 +450,9 @@ private loc site = startFigureServer();
 
 private str getSite() = "<site>"[1 .. -1];
 
-
-      
 public void _render(IFigure fig1, int width = 400, int height = 400, 
      Alignment align = centerMid, int lineWidth = -1, 
-     str fillColor = "none", str lineColor = "black", bool display = true)
+     str fillColor = "none", str lineColor = "black", bool display = true, Event event = on(nullCallback))
      {
      screenWidth = width;
      screenHeight = height;
@@ -453,9 +462,9 @@ public void _render(IFigure fig1, int width = 400, int height = 400,
     // println(getWidth(fig1));
     str endtag = endTag();   
     // '<style("border","0px solid black")>  
-    widget[id] = <null, seq, id, begintag, endtag, 
+    widget[id] = <getCallback(event), seq, id, begintag, endtag, 
         "
-        'd3.select(\"#<id>\")     
+        'd3.select(\"#<id>\")   
         '<stylePx("width", width)><style("height", width)>
         '<style("border-width",lineWidth)>
         ;       
@@ -544,6 +553,15 @@ num getLineOpacity(Figure f) {
     while (c<0) {
         f = figMap[parentMap[f.id]];
         c = f.lineOpacity;
+        }
+   return c;
+  }
+  
+str getVisibility(Figure f) {
+    str c = f.visibility;
+    while (isEmpty(c)) {
+        f = figMap[parentMap[f.id]];
+        c = f.visibility;
         }
    return c;
   }
@@ -678,7 +696,7 @@ str on(str ev, str proc) {
 int getTextWidth(Figure f, str s) {
      if (f.width>=0) return f.width;
      int fw =  f.fontSize<0?12:f.fontSize;
-     return size(s)*fw;
+     return toInt(size(s)*fw);
      }
  
 int getTextHeight(Figure f) {
@@ -722,6 +740,7 @@ IFigure _text(str id, bool fo, Figure f, str s) {
         '<style("font-style", f.fontStyle)>
         '<style("font-family", f.fontFamily)>
         '<style("font-weight", f.fontWeight)>
+        '<style("visibility", getVisibility(f))>
         '<fo?style("color", f.fontColor):style("fill", f.fontColor)>
         '<fo?"":attr("y", getTextY(f))+attr("x", getTextX(f, s))> 
         '<fo?"":style("text-anchor", "middle")> 
@@ -774,7 +793,7 @@ str drawVisualization(str fname, str json) {
     }
     
 str vl(value v) {
-    if (str s:=v) return "\"<v>\"";
+    if (str s:=v) return "\"<toLowerCase(s)>\"";
     return v;
     }
     
@@ -802,10 +821,10 @@ IFigure _googlechart(str cmd, str id, Figure f) {
        return ifigure(id, []);
     }
     
- str getDotOpt(Figure f, str s, Figure g) {
+ str getNodePropertyOpt(Figure f, str s, Figure g) {
     str r =  (emptyFigure():=g)?",{":",{shape:\"<g.id>\",label:\"\"";
-    if ((f.nodeProp[s]?)) {
-        map[str, value] m = getKeywordParameters(f.nodeProp[s]);
+    if ((f.nodeProperty[s]?)) {
+        map[str, value] m = getKeywordParameters(f.nodeProperty[s]);
         for (t<-m) {
            r+=",<t>:<vl(m[t])>,";
            }       
@@ -815,7 +834,7 @@ IFigure _googlechart(str cmd, str id, Figure f) {
     }
     
 str getGraphOpt(Figure g) {
-   map[str, value] m = getKeywordParameters(g.options);
+   map[str, value] m = getKeywordParameters(g.graphOptions);
    str r =  "{style:\"fill:none\", ";
    if (!isEmpty(m)) {
         for (t<-m) {
@@ -851,7 +870,7 @@ str getEdgeOpt(Edge s) {
     // str r = getGraphOpt(g);
     str r = "var g = new dagreD3.graphlib.Graph().setGraph(<getGraphOpt(g)>);";
     r +="
-     '<for(s<-g.nodes){> g.setNode(\"<s[0]>\"<getDotOpt(g, s[0], s[1])>);<}>
+     '<for(s<-g.nodes){> g.setNode(\"<s[0]>\"<getNodePropertyOpt(g, s[0], s[1])>);<}>
      ";
     r+="
      '<for(s:edge(from, to)<-g.edges)
@@ -915,8 +934,11 @@ str addShape(Figure s) {
     'var render = new dagreD3.render();
   
     '<body>
-    'render(inner, g);
     
+    '// inner.attr(\"transform\", \"translate([-1000, 0])\");
+    'inner.attr(\"x\", \"500\");
+    'render(inner, g);
+    ' var initialScale = 0.75
     ' g.nodes().forEach(function(v) {
     '     var n = g.node(v);
     '     var id = n.shape;
@@ -924,7 +946,9 @@ str addShape(Figure s) {
     '     var height = parseInt(d3.select(\"#\"+id).attr(\"height\"));
     '    d3.select(\"#\"+id+\"_svg\")<attr1("x", "Math.floor(n.x-width/2)")><attr1("y", "Math.floor(n.y-height/2)")>;
     '     });
+    ' console.log(g.graph().width);
     '}
+    
     "; 
     }
       
@@ -947,6 +971,7 @@ str addShape(Figure s) {
         " 
         'd3.select(\"#<id>\")
         '<attrPx("width", width)><attrPx("height", height)>
+        '// <attrPx("x", 100)><attrPx("y", 0)>
         ';     
         '<drawGraph(fname, id, trGraph(f))>
         "
@@ -1104,12 +1129,14 @@ bool hasInnerCircle(Figure f)  {
         '<style("fill", "<getFillColor(f)>")> 
         '<style("stroke-dasharray", cv(f.lineDashing))> 
         '<style("fill-opacity", getFillOpacity(f))> 
-        '<style("stroke-opacity", getLineOpacity(f))>   
+        '<style("stroke-opacity", getLineOpacity(f))>  
+        '<style("visibility", getVisibility(f))> 
         ';       
         'd3.select(\"#<id>_svg\")
         '<attr("width", toInt(f.grow*f.width))><attr("height", toInt(f.grow*f.height))>     
         '<!isEmpty(f.tooltip)?
-        ".append(\"svg:title\").text(\""+f.tooltip+"\")":"">
+        ".append(\"svg:title\").text(\""+
+              replaceAll(replaceAll(f.tooltip,"\n", "\\n"),"\"","\\\"") +"\")":"">
         ';
         ";
       } 
@@ -1573,7 +1600,7 @@ IFigure _buttonInput(str id, Figure f, str txt, bool addSvgTag) {
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>\"/\> 
+         "\<svg id=\"<id>_svg\"\> 
          '\<foreignObject id=\"<id>_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
          }
        begintag+="                    
@@ -1802,6 +1829,7 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
         widget[id] = <null, seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\") 
+        '<on(f)>
         '<stylePx("width", width)><stylePx("height", height)>
         '<attrPx("width", width)><attrPx("height", height)>      
         '<debugStyle()> 
@@ -2017,6 +2045,7 @@ Figure addMarker(Figure f, str id, Figure g) {
      if (g.fillOpacity<0) g.fillOpacity = 1.0;
      if (isEmpty(g.fillColor)) g.fillColor="none";
      if (isEmpty(g.lineColor)) g.lineColor = "black";
+     if (isEmpty(g.visibility)) g.visibility = "visible";
      list[IFigure] fs = (defs[f.id]?)?defs[f.id]:[];
      buildParentTree(g);
      // println("addMarker:<g.id> <g.lineWidth>");
@@ -2037,10 +2066,10 @@ Figure cL(Figure parent, Figure child) {
     }
 
 Figure pL(Figure f) {
-     if (isEmpty(f.id)) {
-         f.id = "i<occur>";
-         occur = occur + 1; 
-         }
+         if (isEmpty(f.id)) {
+              f.id = "i<occur>";
+              occur = occur + 1; 
+              }
      figMap[f.id] = f;
      return f;
      }
@@ -2159,12 +2188,12 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
         case strInput():  return _strInput(f.id, f, addSvgTag);
         case choiceInput():  return _choiceInput(f.id, f, addSvgTag);
         case checkboxInput():  return _checkboxInput(f.id, f, addSvgTag);
-        case combochart():  return _googlechart("ComboChart", f.id, f);
-        case piechart():  return _googlechart("PieChart", f.id, f);
-        case candlestickchart():  return _googlechart("CandlestickChart", f.id, f);
-        case linechart():  return _googlechart("LineChart", f.id, f);
-        case scatterchart():  return _googlechart("ScatterChart", f.id, f);
-        case areachart():  return _googlechart("AreaChart", f.id, f);
+        case comboChart():  return _googlechart("ComboChart", f.id, f);
+        case pieChart():  return _googlechart("PieChart", f.id, f);
+        case candlestickChart():  return _googlechart("CandlestickChart", f.id, f);
+        case lineChart():  return _googlechart("LineChart", f.id, f);
+        case scatterChart():  return _googlechart("ScatterChart", f.id, f);
+        case areaChart():  return _googlechart("AreaChart", f.id, f);
         case graph(): {
               list[IFigure] ifs = [_translate(q, addSvgTag = true)|q<-[n[1]|n<-f.nodes]];
               IFigure r =
@@ -2183,8 +2212,8 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
               // println(fs);
               list[IFigure] ifs = [_translate(q, addSvgTag = true)|q<-fs];
               map[str, tuple[int, int]] m = (getId(g): <getWidth(g), getHeight(g)>|IFigure g<-ifs);
-              list[Vertex] vs  = treeLayout(f, m,  f.sX, f.sY, f.rasterHeight, f.cityblock,
-              xSeparation=f.xSeparation, ySeparation=f.ySeparation, orientation = f.orientation);
+              list[Vertex] vs  = treeLayout(f, m,  1, f.shrink, f.rasterHeight, f.manhattan,
+              xSeparation=f.xSep, ySeparation=f.ySep, orientation = f.orientation);
               tuple[int ,int] dim = computeDim(fs, m);
               vs  = vertexUpdate(vs, f.orientation, dim[0], dim[1]);
               fs = treeUpdate(fs, m, f.orientation, dim[0], dim[1]);  
@@ -2198,7 +2227,7 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
               IFigure r =
                _overlay("<f.id>_ov", f 
                 , [_shape(f.id, shape(vs, id = f.id, width = f.width, height = f.height, yReverse = false
-                   ,lineColor=f.pathColor))]
+                   ,lineColor=f.pathColor, fillColor="none"))]
                  + 
                 ifs
                 );
@@ -2220,7 +2249,8 @@ list[Figure] treeToList(Figure f) {
 public void _render(Figure fig1, int width = 400, int height = 400, 
      Alignment align = centerMid, tuple[int, int] size = <0, 0>,
      str fillColor = "white", str lineColor = "black", 
-     int lineWidth = 1, bool display = true, num lineOpacity = 1.0, num fillOpacity = 1.0)
+     int lineWidth = 1, bool display = true, num lineOpacity = 1.0, num fillOpacity = 1.0
+     , Event event = on(nullCallback))
      {
         
         id = 0;
@@ -2242,6 +2272,7 @@ public void _render(Figure fig1, int width = 400, int height = 400,
         h.lineColor = lineColor;
         h.lineOpacity = lineOpacity;
         h.fillOpacity = fillOpacity;
+        h.visibility = "visible";
         h.align = align;
         h.id = "figureArea";
         figMap[h.id] = h;
@@ -2251,7 +2282,7 @@ public void _render(Figure fig1, int width = 400, int height = 400,
         IFigure f = _translate(fig1, align = align, forceHtml = true);
         addState(fig1);
         _render(f , width = screenWidth, height = screenHeight, align = align, fillColor = fillColor, lineColor = lineColor,
-        lineWidth = lineWidth, display = display);
+        lineWidth = lineWidth, display = display, event = event);
      }
   
  //public void main() {
