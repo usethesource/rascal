@@ -9,7 +9,7 @@ import lang::java::m3::Registry;
 // import lang::java::m3::AST;
 import lang::java::jdt::m3::AST; 
 import Prelude;
-import lang::dot::Dot;
+// import lang::dot::Dot;
 
 void ex(str title, Figure f){
 	render(title, f);
@@ -29,7 +29,7 @@ public XYLabeledData initialize(loc project) {
 
 
 public void sizeNproc() {
-    loc f = |project://dotplugin|;
+    loc f = |project://DotPlugin|;
     XYLabeledData r = initialize(f); 
     ChartOptions options = chartOptions(
     title= f.authority, 
@@ -74,7 +74,9 @@ str getPackageName(Declaration package) {
     }
     
 public list[list[value]] getImportGraph() {
-    loc project = |project://ambidexter|;
+    println("aap");
+    loc project = |project://dotplugin|;
+    println(project);
     //M3 model = createM3FromEclipseProject(project);
     //rel[loc, loc] t = declaredMethods(model);
     //set[str] names = {getName(getMethodASTEclipse(u, model= model))|u<-range(t)};

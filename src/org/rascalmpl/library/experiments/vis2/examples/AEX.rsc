@@ -28,19 +28,19 @@ BoxHeader t(Header r) {
     return <"","","","","","">;
     }
     
-public void aex() {
-   Header w = readCSV(#Header, location, header=false);
+public Figure aex() {
+   // Header w = readCSV(#Header, location, header=false);
    Trade v = readCSV(#Trade, location, header=true); 
     BoxLabeledData d = [<printDate(h,"E:\tMM-dd"), e.low, e.open, e.close, e.high,
     "open: <e.open>\nclose: <e.close>\nlow:\t<e.low>\nhigh:\t<e.high>"
     >|e<-v  
           , datetime h := parseDate(e.date,  "yyyy-MM-dd")
           ];
-   ex("aex", candlestickchart(d, t(w)
+   return candlestickchart(d, t(w)
    , options = chartOptions(candlestick=candlestick(
       risingColor=candlestickColor(fill="green")
    , fallingColor=candlestickColor(fill="red")), hAxis = axis(direction=-1))
-   , width = 400, height = 400));
+   , width = 400, height = 400);
    }
    
 map[str, value] adt2map(node t) {

@@ -74,6 +74,6 @@ public Figure nederland(int idx, int width = 400, int height = 400) {
                 , is3D = true
                 );
                 
-    Figure f = piechart(googleData= exampleNederland(idx), options = options(idx));               
+    Figure f = pieChart(googleData= exampleNederland(idx), options = options(idx));               
     return f;                 
    }

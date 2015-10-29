@@ -20,6 +20,13 @@ void ex(str title, Figure f){
 //}
 
 // single box
+public Figure newEllipse(str lc, Figure el) {
+      return at(0, 0, ellipse(rx = 10, ry = 10, lineColor= lc, lineWidth = 20, fillColor = "white", padding=<10,10,10,10>, 
+      fig = el));
+      }
+public Figure ellipseA = (at(0, 0, ellipse(rx=100, ry=75, lineWidth=20, padding=<10,10,10,10>,
+lineColor="silver", fillColor = "yellow"))|newEllipse(e, it)| e<-["red"/*,"blue" ,"grey","magenta"*/]);
+void tellipseA()  {render("aap", ellipseA);}
 
 public Figure box0 = box();
 void tbox0(){ ex("box0", box0); }
@@ -36,13 +43,13 @@ void tbox3(){ ex("box3", box3); }
 // Nested box
 
 Figure WB = box(fillColor="white", size=<50,100>);
-Figure RB = box(fillColor="red", size=<20,20>);
+Figure RB = box(fillColor="red", size=<2000,2000>);
 
 public Figure box4 =  box(fig=WB, fillColor="blue", size=<200,200>);
 void tbox4(){ ex("box4", box4); } 
 
-public Figure box5 = box(fig=WB, fillColor="blue", size=<200,200>, align=topLeft);
-void tbox5(){ ex("box5", box5); } 
+public Figure box5 = box(tfig=WB, fillColor="blue", size=<200,200>, align=topLeft);
+void tbox5(){ ex("box5", box5, debug = false); } 
 
 public Figure box6 = box( fig=WB, fillColor="blue", size=<200,200>, align=topRight);
 void tbox6(){ ex("box6", box6); } 
@@ -53,7 +60,7 @@ void tbox7(){ ex("box7", box7); }
 public Figure box8 = box(fig=WB, fillColor="blue", size=<200,200>, align=bottomLeft);
 void tbox8(){ ex("box8", box8); } 
 
-public Figure box9 = box(fig=WB, fillColor="lightblue", size=<200,200>, gap=<10,10>, align=topLeft);
+public Figure box9 = box(fig=WB, fillColor="lightblue", size=<200,200>, gap=<20,10>, align=topLeft);
 void tbox9(){ ex("box9", box9); } 
 
 public Figure box10 = box(fig=WB, fillColor="lightblue", size=<200,200>, gap=<10,10>, align=topRight);
@@ -90,7 +97,7 @@ public Figure box20 = box(fig=box(lineWidth=20, lineColor="silver", lineOpacity=
 void tbox20(){ ex("box20", box20); }
 
 public Figure box21 = box(fig=box(lineWidth=20, lineColor="silver", lineOpacity=0.5, size=<200,200>), lineColor="red", lineWidth=15);
-void tbox21(){ ex("box21", box21); }
+void tbox21(){ ex("box21", rotate(50, box21)); }
 
 void boxes(){
 	ex("boxes", grid(gap=<10,10>,
@@ -120,7 +127,7 @@ public Figure ellipse4 = box(lineColor="red", fig=ellipse(cx=100, cy=100, rx=100
 void tellipse4(){ ex("ellipse4", ellipse4); }
 
 public Figure ellipse5 = box(lineColor="red", fig=ellipse(cx=100, cy=100, rx=100, ry=75, lineWidth=10, lineColor="silver", lineOpacity=0.5));
-void tellipse5(){ ex("ellipse5", ellipse5); }
+void tellipse5(){ ex("ellipse5", ellipse5, debug = false); }
 
 public Figure ellipse6 = box(lineColor="red", lineWidth=15, fig=ellipse(cx=100, cy=100, rx=100, ry=75, lineWidth=10, lineColor="silver", lineOpacity=0.5));
 void tellipse6(){ ex("ellipse6", ellipse6); }
@@ -286,7 +293,7 @@ void tshape7(){	ex("shape7", shape7); }
 
 // SVG Essentials, p95.
 
-public Figure fillRule1 = grid(fillColor="yellow",
+public Figure fillRule1 = grid(fillColor="antiquewhite",
 						figArray=[ [ shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
 					                      shapeClosed=true, fillRule="nonzero", fillColor = "grey"),
 					           
@@ -406,7 +413,7 @@ void thflex5(){ ex("hflex5", hflex5); }
 
 	
 void hcats(){
-	ex("hcats", grid(gap=<10,10>,
+	ex("hcats", grid(gap=<10,10>, borderWidth = 2, borderStyle="solid", 
 	                 figArray=[
 							[hcat1, hcat2, hcat3, hcat4, box_hcat1],
 							[box_hcat2,box_hcat3,box_hcat4,box_hcat5],
@@ -516,13 +523,14 @@ void tvflex5(){	ex("vflex5", vflex5);
 
 void hvflex1(){
 	ex("hvflex1", hcat(size=<600,600>,
-					   figs= [ vcat(width=200, height=300,
+					   figs= [ 
+					          vcat(width=200, height=300,
 	                                figs= [ 
 	                                       box(fillColor="red"), 
 				                           box(fillColor="green", width=50), 
 				                           box(fillColor="blue")
 				                          ]),
-				               vcat(//size = <400,400>,
+				               vcat(size = <400,400>,
 					               figs = [ box(fillColor="yellow", height=50), 
 				                            box(fillColor="purple"), 
 				                            box(fillColor="orange")
@@ -1250,6 +1258,9 @@ void choice1(){
 					});
 }
 
+public Figure ngon40 = ngon(r = 100, n = 6, fillColor="blue", align = bottomRight, fig=box(size=<125,90>, fillColor="yellow"));
+void tngon40(){ ex("ngon40", ngon40); }
+
 void choice2(){
 	render("choice2", #CHOICE, CHOICE(0),  Figure (str event, str utag, CHOICE m) {
 			return
@@ -1270,12 +1281,12 @@ data SLIDER = SLIDER(int SLIDER);
 
 void slider1(){
 	render("slider1", #SLIDER, SLIDER(50), Figure (str event, str utag, SLIDER m) {
-			return
+			return rotate(50, 
 			vcat(figs=[ hcat(figs=[text("0"), rangeInput(low=0,high=100,step=5, event=on("change", bind(m.SLIDER)), size=<150,50>), text("100")]),
 			
 				   text(m.SLIDER, size=<150,50>,fontSize=30)
 	             ],			  
-				 gap=<10,20>);
+				 gap=<10,20>));
 				 });
 }
 
@@ -1392,5 +1403,14 @@ void allExamples(){
 	rotates();
 	scales();
 }
+
+public Figure tst0() = ellipse(
+                            ,fillColor = "antiqueWhite"
+                            ,lineWidth = 8, lineColor = "red"
+                            ,fig = ellipse(rx = 50, ry = 60, fillColor = "yellow")
+                            );
+  
+public void tst() = ex("tst", tst0());                          
+                            
 
 
