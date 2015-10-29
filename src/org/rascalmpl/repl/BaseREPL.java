@@ -87,13 +87,19 @@ public abstract class BaseREPL {
             reader.addCompleter(new Completer(){
                 @Override
                 public int complete(String buffer, int cursor, List<CharSequence> candidates) {
-                    CompletionResult res = completeFragment(buffer, cursor);
-                    candidates.clear();
-                    if (res != null && res.getOffset() > -1 && !res.getSuggestions().isEmpty()) {
-                        candidates.addAll(res.getSuggestions());
-                        return res.getOffset();
+                    try {
+                        CompletionResult res = completeFragment(buffer, cursor);
+                        candidates.clear();
+                        if (res != null && res.getOffset() > -1 && !res.getSuggestions().isEmpty()) {
+                            candidates.addAll(res.getSuggestions());
+                            return res.getOffset();
+                        }
+                        return -1;
                     }
-                    return -1;
+                    catch(Throwable t) {
+                        // the completer should never fail, this breaks jline
+                        return -1;
+                    }
                 }
             });
             if (reader.getCompletionHandler() instanceof CandidateListCompletionHandler) {
