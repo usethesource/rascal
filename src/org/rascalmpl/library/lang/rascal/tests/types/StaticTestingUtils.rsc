@@ -21,6 +21,8 @@ import lang::rascal::types::CheckTypes;
 import lang::rascal::types::CheckerConfig;
 import lang::rascal::\syntax::Rascal;
 
+PathConfig testingConfig = pathConfig(srcPath=[|test-modules:///|, |std:///|]);
+
 str abbrev(str s) { return size(s) < 120 ? s : "<s[0..117]> ..."; }
 
 bool matches(str subject, str pat){
@@ -30,7 +32,7 @@ bool matches(str subject, str pat){
 }
 
 bool check(str stmts, list[str] expected, list[str] importedModules = [], list[str] initialDecls = []){
-     errors = getAllMessages(checkStatementsString(stmts, importedModules=importedModules, initialDecls=initialDecls));
+     errors = getAllMessages(checkStatementsString(stmts, testingConfig, importedModules=importedModules, initialDecls=initialDecls));
      println(errors);
      for(eitem <- errors, str exp <- expected){
          if(matches(eitem.msg, exp))
@@ -40,7 +42,7 @@ bool check(str stmts, list[str] expected, list[str] importedModules = [], list[s
 }
 
 bool checkOK(str stmts, list[str] importedModules = [], list[str] initialDecls = []){
-     errors = getFailureMessages(checkStatementsString(stmts, importedModules=importedModules, initialDecls=initialDecls));
+     errors = getFailureMessages(checkStatementsString(stmts, testingConfig, importedModules=importedModules, initialDecls=initialDecls));
      println(errors);
      if(size(errors) == 0)
         return true;
@@ -48,7 +50,7 @@ bool checkOK(str stmts, list[str] importedModules = [], list[str] initialDecls =
 }
 
 bool checkModuleOK(loc moduleToCheck){
-	c = newConfiguration();							// Copied from checkStatementsString
+	c = newConfiguration(testingConfig);							// Copied from checkStatementsString
 	try {
 		pt = parse(#start[Module], moduleToCheck);
 		if (pt has top && Module m := pt.top) {

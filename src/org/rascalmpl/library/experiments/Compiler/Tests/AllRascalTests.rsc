@@ -14,25 +14,25 @@ import util::Reflective;
 
 
 private list[str] basicTests = [
-"Booleans",					// OK
-"Equality",					// OK
-"Functions",				// OK
-"Integers",                 // OK
-"IO",						// OK
-"IsDefined",				// OK
-"ListRelations",			// OK
-"Lists",                    // OK
-"Locations",			    // OK
-"Maps",						// OK
-"Matching",					// OK
-"Memoization",
-"Nodes",					// OK
-"Overloading",
-"Relations"	,				// OK
-"Sets",						// OK
-"SolvedIssues",				// OK
-"Strings" , 				// OK
-"Tuples"					// OK					
+	"Booleans",
+	"Equality",
+	"Functions",
+	"Integers",
+	"IO",
+	"IsDefined",
+	"ListRelations",
+	"Lists",
+	"Locations",
+	"Maps",
+	"Matching",
+	"Memoization",
+	"Nodes",
+	"Overloading",
+	"Relations"	,
+	"Sets",
+	"SolvedIssues",
+	"Strings",
+	"Tuples"					
 ];
 
 
@@ -98,11 +98,11 @@ private list[str] libraryTests = [
 "StringTests",			    // OK
 "TypeTests",
 "ValueIOTests",
-"analysis/graphs/GraphTests",
-"analysis/statistics/DescriptiveTests",
-"analysis/statistics/RangeUtils",
-"lang/csv/CSVIOTests",      // OK
-"lang/json/JSONIOTests"    // OK
+"analysis::graphs::GraphTests",
+"analysis::statistics::DescriptiveTests",
+"analysis::statistics::RangeUtils",
+"lang::csv::CSVIOTests",      // OK
+"lang::json::JSONIOTests"    // OK
 ];
 
 private list[str] importTests = [
@@ -158,59 +158,59 @@ private list[str] typeTests = [
 
 private list[str] files_with_tests =
 [
-"demo/basic/Ackermann",                             // OK
-"demo/basic/Bubble",                                // OK
-"demo/basic/Factorial",                             // OK
-"demo/common/Calls",                                // OK
-"demo/common/ColoredTrees",                         // OK
-"demo/common/CountConstructors",                    // OK
-"demo/common/Cycles",                               // OK
-"demo/common/Derivative",                           // OK
-"demo/common/Lift",                                 // OK
-"demo/common/StringTemplate",                       // OK
-"demo/common/Trans",                                // OK
-"demo/common/WordReplacement",                      // OK
-"demo/common/WordCount/CountInLine1",               // OK
-"demo/common/WordCount/CountInLine2",               // OK
-"demo/common/WordCount/CountInLine3",               // OK
-"demo/common/WordCount/WordCount",                  // OK
-"demo/Dominators",                                  // OK
-"demo/lang/Exp/Abstract/Eval",                      // OK
-"demo/lang/Exp/Combined/Automatic/Eval",            // OK
-"demo/lang/Exp/Combined/Manual/Eval",               // OK
-"demo/lang/Exp/Concrete/NoLayout/Eval",             // OK
-"demo/lang/Exp/Concrete/WithLayout/Eval",           // OK
-"demo/lang/Func/Test",                              // OK
-"demo/lang/Lisra/Test",                             // OK
-"demo/McCabe",                                      // OK
-"demo/ReachingDefs",                                // OK
-"demo/Slicing",                                     // OK
-"demo/Uninit",                                      // OK
-"lang/rascal/format/Escape",                        // OK
-"lang/rascal/format/Grammar",                       // OK
-"lang/rascal/grammar/Lookahead",                    // OK
-"lang/rascal/grammar/tests/ParserGeneratorTests",   // ok
-"lang/rascal/grammar/tests/PicoGrammar",            // ok
-"lang/rascal/grammar/tests/CGrammar",            	// ok
-"lang/rascal/grammar/tests/CharactersTests", 		// OK
-"lang/rascal/grammar/tests/LiteralsTests", 			// 5 fail
-"lang/rascal/grammar/tests/LookaheadTests",         // OK
-"lang/rascal/grammar/tests/RascalGrammar",          // ok
-"lang/rascal/syntax/tests/ConcreteSyntax",          // OK
-"lang/rascal/syntax/tests/ExpressionGrammars",      // OK
-"lang/rascal/syntax/tests/ImplodeTests",            // 4 fail
-"lang/rascal/syntax/tests/KnownIssues",             // OK
-//"lang/rascal/syntax/tests/ParsingRegressionTests",  // OK
-"lang/rascal/meta/ModuleInfoTests",  
-"lang/rascal/syntax/tests/PreBootstrap",            // OK
-"lang/rascal/syntax/tests/SolvedIssues",            // OK
-"lang/rascal/types/tests/AbstractKindTests",		// OK
-"lang/rascal/types/tests/AbstractNameTests",		// OK
-//"lang/rascal/types/tests/TypeInstantiationTests",
-"lang/rascal/types/tests/UtilTests",				// OK
-"lang/yaml/Model",                                  // Error
-"util/PriorityQueue",                               // OK
-"util/UUID"                                         // OK
+"demo::basic::Ackermann",                             // OK
+"demo::basic::Bubble",                                // OK
+"demo::basic::Factorial",                             // OK
+"demo::common::Calls",                                // OK
+"demo::common::ColoredTrees",                         // OK
+"demo::common::CountConstructors",                    // OK
+"demo::common::Cycles",                               // OK
+"demo::common::Derivative",                           // OK
+"demo::common::Lift",                                 // OK
+"demo::common::StringTemplate",                       // OK
+"demo::common::Trans",                                // OK
+"demo::common::WordReplacement",                      // OK
+"demo::common::WordCount::CountInLine1",               // OK
+"demo::common::WordCount::CountInLine2",               // OK
+"demo::common::WordCount::CountInLine3",               // OK
+"demo::common::WordCount::WordCount",                  // OK
+"demo::Dominators",                                  // OK
+"demo::lang::Exp::Abstract::Eval",                      // OK
+"demo::lang::Exp::Combined::Automatic::Eval",            // OK
+"demo::lang::Exp::Combined::Manual::Eval",               // OK
+"demo::lang::Exp::Concrete::NoLayout::Eval",             // OK
+"demo::lang::Exp::Concrete::WithLayout::Eval",           // OK
+"demo::lang::Func::Test",                              // OK
+"demo::lang::Lisra::Test",                             // OK
+"demo::McCabe",                                      // OK
+"demo::ReachingDefs",                                // OK
+"demo::Slicing",                                     // OK
+"demo::Uninit",                                      // OK
+"lang::rascal::format::Escape",                        // OK
+"lang::rascal::format::Grammar",                       // OK
+"lang::rascal::grammar::Lookahead",                    // OK
+"lang::rascal::grammar::tests::ParserGeneratorTests",   // ok
+"lang::rascal::grammar::tests::PicoGrammar",            // ok
+"lang::rascal::grammar::tests::CGrammar",            	// ok
+"lang::rascal::grammar::tests::CharactersTests", 		// OK
+"lang::rascal::grammar::tests::LiteralsTests", 			// 5 fail
+"lang::rascal::grammar::tests::LookaheadTests",         // OK
+"lang::rascal::grammar::tests::RascalGrammar",          // ok
+"lang::rascal::syntax::tests::ConcreteSyntax",          // OK
+"lang::rascal::syntax::tests::ExpressionGrammars",      // OK
+"lang::rascal::syntax::tests::ImplodeTests",            // 4 fail
+"lang::rascal::syntax::tests::KnownIssues",             // OK
+//"lang::rascal::syntax::tests::ParsingRegressionTests",  // OK
+"lang::rascal::meta::ModuleInfoTests",  
+"lang::rascal::syntax::tests::PreBootstrap",            // OK
+"lang::rascal::syntax::tests::SolvedIssues",            // OK
+"lang::rascal::types::tests::AbstractKindTests",		// OK
+"lang::rascal::types::tests::AbstractNameTests",		// OK
+//"lang::rascal::types::tests::TypeInstantiationTests",
+"lang::rascal::types::tests::UtilTests",				// OK
+"lang::yaml::Model",                                  // Error
+"util::PriorityQueue",                               // OK
+"util::UUID"                                         // OK
 ];
 
 private list[str] reachability_tests = [
@@ -226,18 +226,20 @@ private list[str] reachability_tests = [
 "VisitTests"	
 ];
 
-private lrel[loc,str] crashes = [];
-private lrel[loc,str] partial_results = [];
+private lrel[str,str] crashes = [];
+private lrel[str,str] partial_results = [];
 
-lrel[loc,int,str] runTests(list[str] names, loc base){
+lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg){
  all_test_results = [];
  for(tst <- names){
-      prog = base + (tst + ".rsc");
+      prog = base == "" ? tst : (base + "::" + tst);
       for(str ext <- ["sig", "sigs", "tc", "rvm.gz", "rvm.ser.gz"]){
-      	try { remove(getDerivedLocation(prog, ext)); } catch:;
+       if(<true, l> := getDerivedReadLoc(prog, ext, pcfg)){
+          remove(l);
+       }
       }
       try {
-	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, recompile=false, testsuite=true, bindir=|home:///bin|)){
+	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, pcfg, recompile=false, testsuite=true)){
 	         s = makeTestSummary(test_results);
 	         println("TESTING <prog>: <s>");
 	         partial_results += <prog, s>;
@@ -266,16 +268,15 @@ value allRascalTests(){
   crashes = [];
   partial_results = [];
   all_results = [];
-   
-  //all_results += runTests(reachability_tests, |std:///lang/rascal/tests/functionality|);
-  // 
-  all_results += runTests(functionalityTests, |std:///lang/rascal/tests/functionality|);
-  all_results += runTests(basicTests, |std:///lang/rascal/tests/basic|);
-  all_results += runTests(libraryTests, |std:///lang/rascal/tests/library|);
-  all_results += runTests(importTests, |std:///lang/rascal/tests/imports|);
-  all_results += runTests(extendTests, |std:///lang/rascal/tests/extends|);  
-  all_results += runTests(files_with_tests, |std:///|);
-  all_results += runTests(typeTests, |std:///lang/rascal/tests/types|);
+  
+  pcfg = pathConfig();
+  all_results += runTests(functionalityTests, "lang::rascal::tests::functionality", pcfg);
+  all_results += runTests(basicTests, "lang::rascal::tests::basic", pcfg);
+  all_results += runTests(libraryTests, "lang::rascal::tests::library", pcfg);
+  all_results += runTests(importTests, "lang::rascal::tests::imports", pcfg);
+  all_results += runTests(extendTests, "lang::rascal::tests::extends", pcfg);  
+  all_results += runTests(files_with_tests, "", pcfg);
+  all_results += runTests(typeTests, "lang::rascal::tests::types", pcfg);
    
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");
