@@ -578,7 +578,10 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	    if (functionType.hasKeywordParameters()) {
 	        for (String kwparam : functionType.getKeywordParameterTypes().getFieldNames()){
 	            Type kwType = functionType.getKeywordParameterType(kwparam);
+	            String isSetName = makeIsSetKeywordParameterName(kwparam);
 	
+	            env.declareVariable(TF.boolType(), isSetName);
+	            
 	            if (keyArgValues.containsKey(kwparam)){
 	                IValue r = keyArgValues.get(kwparam);
 	
@@ -588,16 +591,22 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	                env.declareVariable(kwType, kwparam);
 	                env.storeVariable(kwparam, ResultFactory.makeResult(kwType, r, ctx));
+	                env.storeVariable(isSetName, ResultFactory.makeResult(TF.boolType(), getValueFactory().bool(true), ctx));
 	            } 
 	            else {
 	                env.declareVariable(kwType, kwparam);
 	                Expression def = getKeywordParameterDefaults().get(kwparam);
 	                Result<IValue> kwResult = def.interpret(eval);
 	                env.storeVariable(kwparam, kwResult);
+	                env.storeVariable(isSetName, ResultFactory.makeResult(TF.boolType(), getValueFactory().bool(false), ctx));
 	            }
 	        }
 	    }
 	    // TODO: what if the caller provides more arguments then are declared? They are
 	    // silently lost here.
+	}
+
+	public static String makeIsSetKeywordParameterName(String kwparam) {
+		return "$" + kwparam + "isSet";
 	}
 }
