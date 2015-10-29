@@ -68,7 +68,7 @@ data AbstractValue
     | closure(Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at)
     | \module(RName name, loc at)
     | overload(set[int] items, Symbol rtype)
-    | datatype(RName name, Symbol rtype, int containedIn, set[loc] ats)
+    | datatype(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, set[loc] ats)
     | sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats)
     | constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at)
     | production(RName name, Symbol rtype, int containedIn, Production p, loc at)
@@ -483,7 +483,7 @@ public Configuration addImportedAnnotation(Configuration c, RName n, int annId) 
 }
 
 @doc{Add a user-defined ADT into the configuration}
-public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Symbol rt, bool registerName=true, bool updateType=false) {
+public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Symbol rt, KeywordParamRel keywordParams, bool registerName=true, bool updateType=false) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
@@ -498,7 +498,7 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 		
 		itemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
-		c.store[itemId] = datatype(n,rt,moduleId,{ l });
+		c.store[itemId] = datatype(n, rt, ( ), moduleId, { l });
 		c.definitions = c.definitions + < itemId, l >;
 		c.globalAdtMap[n] = itemId;
 		return itemId;
@@ -547,6 +547,44 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 		}
 	}
 	
+	// Handle adding/updating the keyword parameters, assuming the current ADT is actually in the ADT map. Note that
+	// we add these even if we couldn't add the ADT above (e.g., if it conflicted with an alias); this prevents a
+	// cascade of errors further in the program based on uses of the keyword parameters, which otherwise would be missing.
+	if (n in c.globalAdtMap) {
+		c = updateCommonKeywordParams(c, c.globalAdtMap[n], keywordParams, l);
+	}
+	 
+	return c;
+}
+
+@doc{Update the common keyword parameters associated with an ADT, checking for conflicts.}
+public Configuration updateCommonKeywordParams(Configuration c, int itemId, KeywordParamRel keywordParams, loc at) {
+	keywordParamMap = ( pn : pt | <pn,pt,_> <- keywordParams);
+
+	if (c.store[itemId] is datatype) {
+		item = c.store[itemId];
+		currentParams = item.keywordParams;
+		for (kpName <- keywordParamMap) {
+			if (kpName in currentParams) {
+				currentParamType = currentParams[kpName];
+				if (!equivalent(currentParamType, keywordParamMap[kpName])) {
+					c = addScopeError(c, "Keyword parameter <prettyPrintName(kpName)> for datatype <prettyPrintName(item.name)> already has type <prettyPrintType(currentParamType)>, cannot redefine to <prettyPrintType(keywordParamMap[kpName])>", at);
+				}
+			} else {
+				pnAsString = prettyPrintName(kpName);
+				if ( < itemId, pnAsString > in c.adtFields) {
+					c = addScopeError(c, "An existing parameter <pnAsString> has already been defined for this datatype", at); 
+				} else {
+					currentParams[kpName] = keywordParamMap[kpName];
+					c.dataKeywordDefaults += { < itemId, kpName, kpValue > | < kpName, _, kpValue > <- keywordParams };
+					c.adtFields[< itemId, pnAsString >] = keywordParamMap[kpName];
+				}  
+			}
+		}
+		c.store[itemId].keywordParams = currentParams;
+	} else {
+		throw "Expected a datatype, but instead found <c.store[itemId]>";
+	}
 	return c;
 }
 
@@ -724,7 +762,7 @@ public Configuration addImportedAlias(Configuration c, RName n, int itemId, bool
 }
 
 @doc{Add a constructor into the configuration}
-public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, KeywordParamRel commonParams, KeywordParamRel keywordParams, bool registerName=true) {
+public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, KeywordParamRel keywordParams, bool registerName=true) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
@@ -760,9 +798,13 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 					} else {
 						seenAlready = seenAlready + fn;
 						if (<adtId,fn> in c.adtFields) {
-							aft = c.adtFields[<adtId,fn>];
-							if (!equivalent(ft, aft)) {
-								c = addScopeError(c,"Field <fn> already defined as type <prettyPrintType(aft)> on datatype <prettyPrintName(adtName)>, cannot redefine to type <prettyPrintType(ft)>",l);
+							if (RSimpleName(fn) in c.store[adtId].keywordParams) {
+								c = addScopeError(c,"Field <fn> already defined as a keyword parameter on type <prettyPrintName(c.store[adtId].name)>",l);
+							} else {
+								aft = c.adtFields[<adtId,fn>];
+								if (!equivalent(ft, aft)) {
+									c = addScopeError(c,"Field <fn> already defined as type <prettyPrintType(aft)> on datatype <prettyPrintName(adtName)>, cannot redefine to type <prettyPrintType(ft)>",l);
+								}
 							}
 						} else {
 							c.adtFields[<adtId,fn>] = ft;
@@ -773,30 +815,8 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 		}
 	}
 
-	rel[RName pname, Symbol ptype, Expression pinit] consolidatedParams = { };
-	
 	set[str] paramsSeen = { };
-	for (kp:<pn,pt,pe> <- commonParams) {
-		pnAsString = prettyPrintName(pn);
-		if (pnAsString in seenAlready) {
-			c = addScopeError(c,"Common keyword parameter <pnAsString> has the same name as a regular field in the current constructor", l);
-		} else if (pnAsString in paramsSeen) {
-			c = addScopeError(c,"Common keyword parameter <pnAsString> occurs more than once in the same ADT definition", l); 
-		} else {
-			paramsSeen = paramsSeen + pnAsString;
-			consolidatedParams += kp;
-			if (<adtId,pnAsString> in c.adtFields) {
-				aft = c.adtFields[<adtId,pnAsString>];
-				if (!equivalent(pt, aft)) {
-					c = addScopeError(c,"Field <pnAsString> already defined as type <prettyPrintType(aft)> on datatype <prettyPrintName(adtName)>, cannot redefine to type <prettyPrintType(pt)>",l);
-				}
-			} else {
-				c.adtFields[<adtId,pnAsString>] = pt;
-			}
-		}
-	}    
-
-	paramsSeen = { };
+	
 	for (kp:<pn,pt,pe> <- keywordParams) {
 		pnAsString = prettyPrintName(pn);
 		if (pnAsString in seenAlready) {
@@ -805,7 +825,6 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 			c = addScopeError(c,"Keyword parameter <pnAsString> occurs more than once in the same ADT definition", l); 
 		} else {
 			paramsSeen = paramsSeen + pnAsString;
-			consolidatedParams = { kp2 | kp2:<pn2,pt2,pe2> <- consolidatedParams, pn2 != pn } + kp;
 			if (<adtId,pnAsString> in c.adtFields) {
 				aft = c.adtFields[<adtId,pnAsString>];
 				if (!equivalent(pt, aft)) {
@@ -867,14 +886,14 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 		
 		// NOTE: This will pick one if we have multiple types for the same name, but we will have already issued
 		// a warning above...
-		keywordParamMap = ( pn : pt | pn <- consolidatedParams<0>, pt := getOneFrom(consolidatedParams[pn]<0>) );
+		keywordParamMap = ( pn : pt | pn <- keywordParams<0>, pt := getOneFrom(keywordParams[pn]<0>) );
 		
 		constructorItem = constructor(n,rt,keywordParamMap,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
 		c.store[constructorItemId] = constructorItem;
 		c.definitions = c.definitions + < constructorItemId, l >;
 		c.adtConstructors = c.adtConstructors + < adtId, constructorItemId >;
 
-		c.dataKeywordDefaults = c.dataKeywordDefaults + { < constructorItemId, cp, pe > | <cp,pt,pe> <- consolidatedParams };
+		c.dataKeywordDefaults = c.dataKeywordDefaults + { < constructorItemId, cp, pe > | <cp,pt,pe> <- keywordParams };
 
 		if (registerName) {
 			addConstructorItem(n, constructorItemId);
