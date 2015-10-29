@@ -2052,9 +2052,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-
 			org.rascalmpl.ast.QualifiedName name = this.getQualifiedName();
-//			Type signature = TF.tupleType(new Type[0]);
 
 			Result<IValue> r = eval.getEvaluator().getCurrentEnvt().getSimpleVariable(name);
 
@@ -2115,9 +2113,21 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
 			org.rascalmpl.ast.QualifiedName name = this.getQualifiedName();
-			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
-			__eval.warning("deprecated feature: run-time check on variable initialization", getLocation());
-			return org.rascalmpl.interpreter.result.ResultFactory.bool(variable.getValue() != null, __eval);
+			String fullName = Names.fullName(name);
+			Result<IValue> variable = __eval.getCurrentEnvt().getSimpleVariable(AbstractFunction.makeIsSetKeywordParameterName(fullName));
+			
+			if (variable == null || variable.getValue() == null) {
+				variable = __eval.getCurrentEnvt().getVariable(name);
+				__eval.warning("deprecated feature: run-time check on variable initialization", getLocation());
+				return org.rascalmpl.interpreter.result.ResultFactory.bool(variable.getValue() != null, __eval);
+				
+				// TODO: replace above by this
+				// it was not a keyword parameter
+                // throw new UndeclaredKeywordParameter(__eval.getCurrentEnvt().getName(), fullName, this);
+			}
+			else {
+				return ResultFactory.bool(((IBool) variable.getValue()).getValue(), __eval);
+			}
 		}
 
 		@Override
