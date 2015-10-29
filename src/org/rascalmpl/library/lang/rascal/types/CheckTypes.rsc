@@ -7375,48 +7375,69 @@ public Configuration loadImportedFVNames(Configuration c, set[RName] varNamesToD
 	return c;
 }
 
-loc cachedConfig(loc src, loc bindir) = getDerivedLocation(src, "tc", bindir = bindir);
-loc cachedDate(loc src, loc bindir) = getDerivedLocation(src, "sig", bindir = bindir);
-loc cachedDateMap(loc src, loc bindir) = getDerivedLocation(src, "sigs", bindir = bindir);
+tuple[bool, loc] cachedConfigReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "tc", pcfg);
+loc cachedConfigWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "tc", pcfg);
 
-datetime getCachedDate(loc src, loc bindir) = readBinaryValueFile(#datetime, cachedDate(src,bindir));
+tuple[bool,loc] cachedDateReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "sig", pcfg);
+loc cachedDateWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "sig", pcfg);
 
-Configuration getCachedConfig(loc src, loc bindir) = readBinaryValueFile(#Configuration, cachedConfig(src,bindir));
-map[RName,datetime] getCachedDateMap(loc src, loc bindir) = readBinaryValueFile(#map[RName,datetime], cachedDateMap(src,bindir));
+tuple[bool,loc] cachedDateMapReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "sigs", pcfg);
+loc cachedDateMapWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "sigs", pcfg);
 
-void writeCachedDate(loc src, loc bindir, datetime dateval) {
-	l = cachedDate(src,bindir);
+datetime getCachedDate(str qualifiedModuleName, PathConfig pcfg) {
+    if(<true, l> := cachedDateReadLoc(qualifiedModuleName,pcfg)){
+       return readBinaryValueFile(#datetime, l);
+    }
+    throw "getCachedDate: no date found for <qualifiedModuleName>";
+}
+
+Configuration getCachedConfig(str qualifiedModuleName, PathConfig pcfg) {
+    if(<true, l> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
+       return readBinaryValueFile(#Configuration, l);
+    }
+    throw "getCachedConfig: no config found for <qualifiedModuleName>";
+}    
+    
+map[RName,datetime] getCachedDateMap(str qualifiedModuleName, PathConfig pcfg){
+    if(<true, l> := cachedDateMapReadLoc(qualifiedModuleName,pcfg)){
+       return readBinaryValueFile(#map[RName,datetime], l);
+    }
+    throw "getCachedDateMap: no DateMap found for <qualifiedModuleName>";
+} 
+
+void writeCachedDate(str qualifiedModuleName, PathConfig pcfg, datetime dateval) {
+	l = cachedDateWriteLoc(qualifiedModuleName,pcfg);
 	if (!exists(l.parent)) mkDirectory(l.parent);
 	writeBinaryValueFile(l, dateval, compression=false); 
 }
-void writeCachedConfig(loc src, loc bindir, Configuration c) {
-	l = cachedConfig(src,bindir); 
+void writeCachedConfig(str qualifiedModuleName, PathConfig pcfg, Configuration c) {
+	l = cachedConfigWriteLoc(qualifiedModuleName, pcfg); 
 	if (!exists(l.parent)) mkDirectory(l.parent);
 	writeBinaryValueFile(l, c, compression=false); 
 }
-void writeCachedDateMap(loc src, loc bindir, map[RName,datetime] m) {
-	l = cachedDateMap(src,bindir); 
+void writeCachedDateMap(str qualifiedModuleName, PathConfig pcfg, map[RName,datetime] m) {
+	l = cachedDateMapWriteLoc(qualifiedModuleName, pcfg); 
 	if (!exists(l.parent)) mkDirectory(l.parent);
 	writeBinaryValueFile(l, m, compression=false); 
 }
 
-void clearDirtyModules(loc src, loc bindir, bool transitive=true) {
-    if(exists(cachedConfig(src,bindir))){
-		Configuration c = getCachedConfig(src, bindir);
+void clearDirtyModules(str qualifiedModuleName, PathConfig pcfg, bool transitive=true) {
+    if(<true, l> := cachedConfigReadLoc(qualifiedModuleName, pcfg)){
+		Configuration c = getCachedConfig(qualifiedModuleName, pcfg);
 		c.dirtyModules = { };
-		writeCachedConfig(src, bindir, c);
+		writeCachedConfig(qualifiedModuleName, pcfg, c);
 		
 		if (transitive) {
-			reachableModuleLocations = { getModuleLocation(prettyPrintName(mn)) | mn <- carrier(c.importGraph) } - src;
-			for (l <- reachableModuleLocations) {
-				writeCachedConfig(l, bindir, getCachedConfig(l, bindir)[dirtyModules={}]);
+			reachableModules = { prettyPrintName(mn) | mn <- carrier(c.importGraph) } - qualifiedModuleName;
+			for (qmname <- reachableModules) {
+				writeCachedConfig(qmname, pcfg, getCachedConfig(qmname, pcfg)[dirtyModules={}]);
 			}
 		}
 	}
 }
 
-public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {
-	return checkModule(md, (md@\loc).top, c, bindir=bindir, forceCheck=forceCheck, verbose=verbose);
+public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, Configuration c, bool forceCheck = false, bool verbose = false) {
+	return checkModule(md, (md@\loc).top, c, forceCheck=forceCheck, verbose=verbose);
 }
 
 data IGComponent = singleton(RName item) | component(set[RName] items);
@@ -7470,10 +7491,11 @@ public rel[RName mname, bool isext] getDefaultImports() {
 }
 
 @doc{Check a given module, including loading the imports and extends items for the module.}
-public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, loc moduleLoc, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {	
+public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, loc moduleLoc, Configuration c, bool forceCheck = false, bool verbose = false) {	
 	// Load the module import graph; this is needed to see if any module we import, directly or indirectly,
 	// has changed, in which case we need to recheck the modules on paths with changed modules
-	< ig, infomap > = getImportGraphAndInfo(md, defaultImports=getDefaultImports(),bindir=bindir);
+	pcfg = c.pathConfiguration;
+	< ig, infomap > = getImportGraphAndInfo(md, pcfg, defaultImports=getDefaultImports());
 	c.importGraph = ig;
 	
 	// Get back last modified dates for the various modules we import; these are not the cached dates
@@ -7482,7 +7504,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	map[RName,loc] moduleLocations = ( );
 	for (imn <- carrier(ig)) {
 		try {
-			chloc = getModuleLocation(prettyPrintName(imn));
+			chloc = getModuleLocation(prettyPrintName(imn), pcfg);
 			moduleLocations[imn] = chloc;
 			if (exists(chloc)) {
 				currentDates[imn] = lastModified(chloc);
@@ -7490,8 +7512,6 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 				; // TODO: Add a warning here, this means we are importing something that we cannot find
 			}
 		} catch ex: {
-		    chloc1 = getModuleLocation(prettyPrintName(imn));
-		    println("<prettyPrintName(imn)>: <chloc1>, <ex>");
 			c = addScopeError(c, "Cannot import module <prettyPrintName(imn)>", md@\loc);
 		}
 	}
@@ -7508,10 +7528,11 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	map[RName,map[RName,datetime]] moduleDates = ( );
 	for (wl <- carrier(ig), wl in moduleLocations) {
 		if (verbose) println("Checking for date map for <prettyPrintName(wl)>");
+		dependency = prettyPrintName(wl);
 		dependencyLoc = moduleLocations[wl];
 		moduleLocations[wl] = dependencyLoc;
-		if (exists(dependencyLoc) && exists(cachedDateMap(dependencyLoc, bindir))) {
-			moduleDates[wl] = getCachedDateMap(dependencyLoc, bindir);
+		if (exists(dependencyLoc) && <true, dateMapLoc> := cachedDateMapReadLoc(dependency, pcfg)) {
+			moduleDates[wl] = getCachedDateMap(dependency, pcfg);
 		}
 	}
 		
@@ -7521,19 +7542,20 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	dirtyModules = { };
 	for (wl <- carrier(ig), wl in moduleLocations) {
 		try {
+		    dependency = prettyPrintName(wl);
 			dependencyLoc = moduleLocations[wl];
-			if (!exists(cachedConfig(dependencyLoc, bindir))) {
+			if (<false, _> := cachedConfigReadLoc(dependency, pcfg)) {
 				// If we don't have a saved config for the module, we need to
 				// check it and save the config.
 				if (verbose) println("No config exists for module <prettyPrintName(wl)>");
 				dirtyModules = dirtyModules + wl;
-			} else if (!exists(cachedDate(dependencyLoc, bindir))) {
+			} else if (<false, _> := cachedDateReadLoc(dependency, pcfg)) {
 				// If we don't have a saved date for the module, it hasn't been checked
 				// before or the has info was deleted, so we need to check it now. 
 				if (verbose) println("No cached date exists for module <prettyPrintName(wl)>");
 				dirtyModules = dirtyModules + wl;
 			} else {
-				existingDate = getCachedDate(dependencyLoc, bindir);
+				existingDate = getCachedDate(dependency, pcfg);
 				if (wl in currentDates) {
 					modifiedDate = currentDates[wl];
 					if (existingDate != modifiedDate) {
@@ -7586,8 +7608,9 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	modifiedDate = now();
 	if (exists(moduleLoc)) {
 		modifiedDate = lastModified(moduleLoc); 
-		if (isEmpty(c.dirtyModules) && !forceCheck && exists(cachedDate(moduleLoc, bindir)) && getCachedDate(moduleLoc, bindir) == modifiedDate && exists(cachedConfig(moduleLoc, bindir))) {
-			return getCachedConfig(moduleLoc, bindir);
+		mname = prettyPrintName(moduleName);
+		if (isEmpty(c.dirtyModules) && !forceCheck && <true, _> := cachedDateReadLoc(mname, pcfg) && getCachedDate(mname, pcfg) == modifiedDate && <true, _> := cachedConfigReadLoc(mname, pcfg)) {
+			return getCachedConfig(mname, pcfg);
 		}
 	}
 		
@@ -7596,7 +7619,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	moduleTrees = ( moduleName : md );
 	for (mn <- c.dirtyModules, mn != moduleName ) {
 		try {
-			t = parse(#start[Module], getModuleLocation(prettyPrintName(mn)));    
+			t = parse(#start[Module], getModuleLocation(prettyPrintName(mn), pcfg));    
 			if (t has top && lang::rascal::\syntax::Rascal::Module m := t.top) {
 				moduleTrees[mn] = m;
 			}
@@ -7626,7 +7649,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	igComponents = directedConnectedComponents(moduleName, ig);
 
 	// Set up initial configurations for all the modules we need to recheck	
-	map[RName,Configuration] workingConfigs = ( moduleName : c ) + ( mn : newConfiguration() | mn <- c.dirtyModules, mn != moduleName);
+	map[RName,Configuration] workingConfigs = ( moduleName : c ) + ( mn : newConfiguration(c.pathConfiguration) | mn <- c.dirtyModules, mn != moduleName);
 	map[RName,int] moduleIds = ( );
 	for (mn <- workingConfigs) {
 		c = workingConfigs[mn];
@@ -7651,7 +7674,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	}	
 
 	// Load configs for the modules that we do not need to re-check
-	map[RName,Configuration] existingConfigs = ( wl : getCachedConfig(getModuleLocation(prettyPrintName(wl)),bindir) | wl <- carrier(ig), wl in moduleLocations, wl notin c.dirtyModules, exists(cachedConfig(getModuleLocation(prettyPrintName(wl)),bindir)) );
+	map[RName,Configuration] existingConfigs = ( wl : getCachedConfig(prettyPrintName(wl),pcfg) | wl <- carrier(ig), wl in moduleLocations, wl notin c.dirtyModules, <true, _> := cachedConfigReadLoc(prettyPrintName(wl),pcfg) );
 	
 	Configuration fullyCheckSingleModule(Configuration ci, RName itemName) {
 		// Using the checked type information, load in the info for each module
@@ -8078,9 +8101,10 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	for (mn <- moduleLocations, mn in workingConfigs) {
 		// Note: This writes more than we need of the hashes. We should probably use domainX to remove non-reachable modules.
 		if (exists(moduleLocations[mn])) {
-			writeCachedDate(moduleLocations[mn], bindir, currentDates[mn]);
-			writeCachedConfig(moduleLocations[mn], bindir, workingConfigs[mn]);
-			writeCachedDateMap(moduleLocations[mn], bindir, currentDates);
+		    ppmn = prettyPrintName(mn);
+			writeCachedDate(ppmn, pcfg, currentDates[mn]);
+			writeCachedConfig(ppmn, pcfg, workingConfigs[mn]);
+			writeCachedDateMap(ppmn, pcfg, currentDates);
 		}
 	}
 			
@@ -8929,24 +8953,25 @@ public anno map[loc,str] Module@docStrings;
 public anno map[loc,set[loc]] Module@docLinks;
 
 
-public Configuration checkAndReturnConfig(str mpath, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {
-	return checkAndReturnConfig(getModuleLocation(mpath), bindir=bindir, forceCheck=forceCheck, verbose=verbose);
+public Configuration checkAndReturnConfig(str mpath, PathConfig pcfg, bool forceCheck = false, bool verbose = false) {
+	return checkAndReturnConfig(mpath, pcfg, forceCheck=forceCheck, verbose=verbose);
 }
 
-public Configuration checkAndReturnConfig(loc l, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {
-    c = newConfiguration();
+public Configuration checkAndReturnConfig(str qualifiedModuleName, PathConfig pcfg, bool forceCheck = false, bool verbose = false) {
+    c = newConfiguration(pcfg);
+    l = getModuleLocation(qualifiedModuleName, pcfg);
 	t = parse(#start[Module], l);    
     //try {
 		if (t has top && Module m := t.top)
-			c = checkModule(m, l, c, bindir=bindir, forceCheck=forceCheck, verbose=verbose);
+			c = checkModule(m, l, c, forceCheck=forceCheck, verbose=verbose);
 	//} catch v : {
 	//	c.messages = {error("Encountered error checking module <l>:<v>", t@\loc)};
 	//}
 	return c;
 }
 
-public Module check(Module m) {
-    c = newConfiguration();
+public Module check(Module m, PathConfig pcfg) {
+    c = newConfiguration(pcfg);
     c = checkModule(m, c);
 
     //| overload(set[int] items, Symbol rtype)

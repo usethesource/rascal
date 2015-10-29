@@ -132,10 +132,11 @@ data Configuration = config(set[Message] messages,
                             set[RName] unimportedNames,
                             bool importing,
                             rel[RName,RName] importGraph,
-                            set[RName] dirtyModules
+                            set[RName] dirtyModules,
+                            PathConfig pathConfiguration
                            );
 
-public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false,{},{});
+public Configuration newConfiguration(PathConfig pcfg) = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false,{},{}, pcfg);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 

@@ -24,19 +24,26 @@ import ValueIO;
 
 data CachedImportInfo = ciInfo(datetime dt, ImportsInfo ii);
 
-public loc cachedImports(loc src, loc bindir) = getDerivedLocation(src, "imps", bindir = bindir);
+public tuple[bool,loc] cachedImportsReadLoc(str qualfiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualfiedModuleName, "imps", pcfg);
+public loc cachedImportsWriteLoc(str qualfiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualfiedModuleName, "imps", pcfg);
 
-public CachedImportInfo getCachedImports(loc src, loc bindir) = readBinaryValueFile(#CachedImportInfo, cachedImports(src,bindir));
 
-public void writeCachedImports(loc src, loc bindir, datetime dt, ImportsInfo imps) {
-	l = cachedImports(src,bindir);
+public CachedImportInfo getCachedImports(str qualfiedModuleName, PathConfig pcfg) {
+    if(<true, l> := cachedImportsReadLoc(qualfiedModuleName,pcfg)){
+       return readBinaryValueFile(#CachedImportInfo, l);
+    }
+    throw "getCachedImports: no CachedImports found for <qualfiedModuleName>";
+}    
+
+public void writeCachedImports(str qualfiedModuleName, PathConfig pcfg, datetime dt, ImportsInfo imps) {
+	l = cachedImportsWriteLoc(qualfiedModuleName, pcfg);
 	if (!exists(l.parent)) mkDirectory(l.parent);
 	writeBinaryValueFile(l, ciInfo(dt,imps), compression=false); 
 }
 
 alias ImportGraph = Graph[RName];
 
-public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndInfo(Module m, bool removeExtends=false, rel[RName mname, bool isext] defaultImports={}, loc bindir = |home:///bin|) {
+public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndInfo(Module m, PathConfig pcfg, bool removeExtends=false, rel[RName mname, bool isext] defaultImports={}) {
 	// Set up the imports for the "top" module
 	mname = convertName(m.header.name);
 	minfoMap = ( mname : getImports(m) );
@@ -50,10 +57,10 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 		}
 	}
 	
-	return getImportGraphAndInfo(mname, minfoMap, removeExtends=removeExtends, defaultImports=defaultImports, bindir=bindir);
+	return getImportGraphAndInfo(mname, minfoMap, pcfg, removeExtends=removeExtends, defaultImports=defaultImports);
 }
 
-public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndInfo(RName mname, map[RName,ImportsInfo] minfoMap, bool removeExtends=false, rel[RName mname, bool isext] defaultImports={}, loc bindir = |home:///bin|) {
+public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndInfo(RName mname, map[RName,ImportsInfo] minfoMap, PathConfig pcfg, bool removeExtends=false, rel[RName mname, bool isext] defaultImports={}) {
 	// Build an initial worklist based on the imports of module mname
 	worklist = { convertNameString(wli) | wli <- (minfoMap[mname].importedModules + minfoMap[mname].extendedModules) };
 	set[RName] worked = { mname };
@@ -62,10 +69,11 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 	while (!isEmpty(worklist)) {
 		< wlName, worklist > = takeOneFrom(worklist);
 		try {
-			wlLoc = getModuleLocation(prettyPrintName(wlName));
+		    ppWlName = prettyPrintName(wlName);
+			wlLoc = getModuleLocation(ppWlName,pcfg);
 					
-			if (exists(cachedImports(wlLoc,bindir))) {
-				ci = getCachedImports(wlLoc, bindir);
+			if (<true, _> := cachedImportsReadLoc(ppWlName,pcfg)) {
+				ci = getCachedImports(ppWlName, pcfg);
 				if (ci.dt == lastModified(wlLoc)) {
 					minfoMap[wlName] = ci.ii;
 				}
@@ -73,7 +81,7 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 			
 			if (wlName notin minfoMap) {
 				dt = lastModified(wlLoc);
-				pt = getModuleParseTree(prettyPrintName(wlName));
+				pt = getModuleParseTree(ppWlName, pcfg);
 				if (Module mImp := pt.top) {
 					minfoMap[wlName] = getImports(mImp);
 
@@ -85,7 +93,7 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 						}
 					}
 
-					writeCachedImports(wlLoc, bindir, dt, minfoMap[wlName]); 
+					writeCachedImports(ppWlName, pcfg, dt, minfoMap[wlName]); 
 				} else {
 					throw "Unexpected parse, pt is not a module";
 				}
