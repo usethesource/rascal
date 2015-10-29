@@ -12,10 +12,10 @@
 
 package org.rascalmpl.library.vis.properties;
 
-import org.eclipse.imp.pdb.facts.IValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
 import org.rascalmpl.library.vis.util.RascalToJavaValueConverters.Convert;
+import org.rascalmpl.value.IValue;
 
 public  class ComputedValue<PropType> extends PropertyValue<PropType> {
 		

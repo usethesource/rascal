@@ -19,7 +19,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.Runner;
@@ -36,6 +35,7 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalJUnitTestRunner extends Runner {

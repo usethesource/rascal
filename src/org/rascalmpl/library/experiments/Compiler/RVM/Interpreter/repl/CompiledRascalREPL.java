@@ -14,10 +14,6 @@ import java.util.Collection;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import jline.Terminal;
-
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.IRascalResult;
@@ -26,6 +22,10 @@ import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
+
+import jline.Terminal;
 
 public abstract class CompiledRascalREPL extends BaseRascalREPL {
 
@@ -44,6 +44,26 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   
   public boolean getMeasureCommandTime() {
     return measureCommandTime;
+  }
+  
+  @Override
+  protected void cancelRunningCommandRequested() {
+      // TODO: interrupt the RVM interpreter or the running compiler. After the intteruption be ready for new commands
+      // reminder: this method is called from a different thread.
+      // don't wait for the interruption to happen, that will cause deadlocks, just trigger a flag or something like it
+  }
+  
+  @Override
+  protected void terminateRequested() {
+      // TODO: stop the RVM interpreted or the running compiler, don't worry about the state afterward.
+      // reminder: this method is called from a different thread.
+      // don't wait for the interruption to happen, that will cause deadlocks, just trigger a flag or something like it
+  }
+  
+  @Override
+  protected void stackTraceRequested() {
+      // TODO: print current stack trace, without stopping  the running code.
+      // reminder: this method is called from a different thread.
   }
 
   @Override

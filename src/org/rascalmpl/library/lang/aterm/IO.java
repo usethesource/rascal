@@ -19,19 +19,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.io.ATermReader;
-import org.eclipse.imp.pdb.facts.io.ATermWriter;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.io.ATermReader;
+import org.rascalmpl.value.io.ATermWriter;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeStore;
 
 public class IO {
 	private final IValueFactory values;

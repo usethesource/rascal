@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class Label extends AbstractAST {
   public Label(ISourceLocation src, IConstructor node) {
@@ -90,7 +90,7 @@ public abstract class Label extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 577 + 653 * name.hashCode() ; 
+      return 653 + 701 * name.hashCode() ; 
     } 
   
     
@@ -154,7 +154,7 @@ public abstract class Label extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 701 ; 
+      return 233 ; 
     } 
   
     	

@@ -4,7 +4,9 @@ import Exception;
 import util::Math;
 import List;
 
-<<<<<<< HEAD
+syntax As = "a"* as;
+syntax Bs = {"b" ","}* bs;
+
 test bool isDefined1() {
 	str trace = "";
 	map[int,str] m = (0 : "0", 1 : "1", 2 : "2");
@@ -54,10 +56,7 @@ test bool isDefined2() {
 	trace += " <x>";
 	
 	return trace == "2 Did not find the key 3; 1; 3";
-=======
-syntax As = "a"* as;
-
-syntax Bs = {"b" ","}* bs;
+}
 
 // Concrete lists
 
@@ -229,6 +228,7 @@ test bool isDefinedRel1(){
     return ({<1, "a">, <2, "b">}[0])?;
 }
 
+@ignoreCompiler{Already detected by type checker}
 @expected{UnsupportedSubscriptArity}
 test bool isDefinedRel2(){
     return !({<1, "a">, <2, "b">}[1,2,3])?;
@@ -250,6 +250,7 @@ test bool isDefinedLRel1(){
     return ([<1, "a">, <2, "b">][0])?;
 }
 
+@ignoreCompiler{Already detected by type checker}
 @expected{UnsupportedSubscriptArity}
 test bool isDefinedLRel2(){
     return !([<1, "a">, <2, "b">][1,2,3])?;
@@ -308,7 +309,7 @@ test bool tst() { int x = 10; y = x ? 1; return y == 10; }
 // Annotations
 
 data F = f3() | f3(int n) | g(int n) | deep(F f);
-anno int F @ pos;
+anno int F@pos;
 
 test bool isDefinedAnno1() = (f3()[@pos=1])@pos?;
 
@@ -320,20 +321,20 @@ test bool isDefinedAnno4() = ((f3())@pos ? 10) == 10;
 
 test bool isDefinedAnno5(){
     X = f3(); 
-    X @ pos ? 0 += 1;
+    X@pos ? 0 += 1;
     return X@pos == 1;
 }
 
 test bool isDefinedAnno6(){
     X = f3()[@pos=1];
-    X @ pos ? 0 += 1;
+    X@pos ? 0 += 1;
     return X@pos == 2;
 }
 
 test bool isDefinedAnno7(){
     X = f3(); 
-    X @ pos ?= 3;
-    if(X @ pos != 3) return false;
+    X@pos ?= 3;
+    if(X@pos != 3) return false;
     return true;
 }
 
@@ -359,8 +360,8 @@ test bool isDefined11() {
 
 test bool isDefinedAnno8(){
     X = f3()[@pos = 1]; 
-    X @ pos ?= 3;
-    return X @ pos == 1;
+    X@pos ?= 3;
+    return X@pos == 1;
 }
 
 test bool isDefinedAnno9() = f3()[@pos = 1] has pos;

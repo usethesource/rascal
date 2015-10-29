@@ -19,13 +19,6 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.PreludeCompiled;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
@@ -39,6 +32,13 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -108,22 +108,6 @@ public class ReflectiveCompiled extends Reflective {
 				throw RascalRuntimeException.io(values.string(e.getMessage()), null);
 			}
 		});
-//		IValue tree = parseModuleCache.get(key);
-//		if(tree != null){
-//			//System.err.println("parseModule (from loc), use cached result " + key);
-//			return tree;
-//		}	
-//
-//		IActionExecutor<ITree> actions = new NoActionExecutor();	
-
-//		try {
-//			IValue tree = new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(rex.resolveSourceLocation(loc)), actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
-////			parseModuleCache.put(key, tree);
-//			//System.err.println("parseModule (from loc), cache new tree " + key);
-//			return tree;
-//		} catch (IOException e) {
-//			throw RascalRuntimeException.io(values.string(e.getMessage()), null);
-//		}
 	}
 	
 	public IValue parseModule(IString str, ISourceLocation loc,  RascalExecutionContext rex) {

@@ -6,23 +6,24 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-import jline.TerminalFactory;
-
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.ITuple;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
+
+import jline.TerminalFactory;
 
 public class TermREPL {
 
@@ -57,6 +58,30 @@ public class TermREPL {
             this.currentPrompt = ((IString)repl.get("prompt")).getValue();
             assert stdout != null;
             stdout.println(((IString)repl.get("welcome")).getValue());
+        }
+        
+        @Override
+        protected void cancelRunningCommandRequested() {
+            ctx.interrupt();
+        }
+        
+        @Override
+        protected void terminateRequested() {
+            ctx.interrupt();
+        }
+        
+        
+        @Override
+        protected void stackTraceRequested() {
+            StackTrace trace = ctx.getStackTrace();
+            Writer err = ctx.getStdErr();
+            try {
+                err.write("Current stack trace:\n");
+                err.write(trace.toLinkedString());
+                err.flush();
+            }
+            catch (IOException e) {
+            } 
         }
 
 

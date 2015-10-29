@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.rascalmpl.library.experiments.Compiler.Rascal2muRascal;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
@@ -23,24 +22,23 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.rascalmpl.library.cobra.RandomType;
 import org.rascalmpl.library.cobra.util.RandomUtil;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
-import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.IMapWriter;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.ITypeVisitor;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /*

@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class KeywordArgument_Expression extends AbstractAST {
   public KeywordArgument_Expression(ISourceLocation src, IConstructor node) {
@@ -107,7 +107,7 @@ public abstract class KeywordArgument_Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 463 + 971 * name.hashCode() + 179 * expression.hashCode() ; 
+      return 971 + 179 * name.hashCode() + 229 * expression.hashCode() ; 
     } 
   
     

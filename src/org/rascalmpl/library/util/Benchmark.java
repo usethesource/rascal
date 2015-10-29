@@ -12,9 +12,9 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.Timing;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 
 public class Benchmark {
 	private final IValueFactory values;

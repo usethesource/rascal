@@ -11,8 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.staticErrors;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.value.ISourceLocation;
 
 public class UninitializedPatternMatch extends StaticError {
 	private static final long serialVersionUID = -1128833651256940542L;

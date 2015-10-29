@@ -90,11 +90,15 @@ void _setStyle(str id, Style v) {state[widget[id].seq].v.style = v;}
 
 Text _getText(str id) = state[widget[id].seq].v.text;
 
-Property _getProperty(str id) = state[widget[id].seq].v.property;
+Property _getProperty(str id) { return state[widget[id].seq].v.property;}
 
 void _setProperty(str id, Property v) {state[widget[id].seq].v.property = v;}
 
 void _setText(str id, Text v) {state[widget[id].seq].v.text = v;}
+
+void _setTimer(str id, Timer v) {state[widget[id].seq].v.timer = v;}
+
+Timer _getTimer(str id) = state[widget[id].seq].v.timer;
 
 void addState(Figure f) {
     Attr attr = attr(grow = f.grow);
@@ -102,6 +106,8 @@ void addState(Figure f) {
     if (choiceInput():=f)
          property.\value = f.\value;
     if (rangeInput():=f)
+         property.\value = f.\value;
+    if (strInput():=f)
          property.\value = f.\value;
     if (checkboxInput():=f) 
          if (map[str, bool] s2b := f.\value)
@@ -113,7 +119,8 @@ void addState(Figure f) {
        lineOpacity = getLineOpacity(f), fillOpacity= getFillOpacity(f),
        visibility = f.visibility);
     Text text = text();
-    Prop prop = <attr, style, property, text >;
+    Timer timer = timer();
+    Prop prop = <attr, style, property, text, timer >;
     seq=seq+1;
     state += <f.id, prop >;
     old+= prop;
@@ -177,6 +184,9 @@ str getIntro() {
         'body {
         '    font: 300 14px \'Helvetica Neue\', Helvetica;
         ' }
+        'pre {
+        '    text-align:left;
+        ' }
         '.node rect {
         ' stroke: #333;
         ' fill: #fff;
@@ -192,6 +202,8 @@ str getIntro() {
         '\<script src=\"http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.min.js\"\>\</script\>
         '<google> 
         '\<script\>
+        '    var timer = {};
+        '    var timeout = {};
         '    function CR(evt, ev, id, v ) {
         '       evt = evt || window.event;
         '       if (evt.keyCode == 13 && v) {
@@ -204,16 +216,40 @@ str getIntro() {
         '       v=v.replace(\"/\",\"^div\");
         '    } 
         '    askServer(\"<getSite()>/getValue/\"+ev+\"/\"+id+\"/\"+v, {},
-        '            function(t) {              
+        '            function(t) {   
+        '                // alert(JSON.stringify(t));         
         '                for (var d in t) {
         '                   var e = d3.select(\"#\"+d); 
         '                   for (var i in t[d][\"text\"]) {
-        '                        e=e.text(t[d][\"text\"][i]);
+        '                        if (i==\"text\") e=e.text(t[d][\"text\"][i]);
+        '                        if (i==\"html\") e=e.html(t[d][\"text\"][i]);
         '                        }
         '                   for (var i in t[d][\"attr\"]) {
-        '                        if (i!=\"grow\")
+        '                        if (i!=\"grow\" && i!=\"disabled\")
         '                        e=e.attr(i, t[d][\"attr\"][i]);
+        '                        if (i==\"disabled\") e=e.attr(i, t[d][\"attr\"][i]?true:null);
         '                        }
+        '                   for (var i in t[d][\"property\"]) {
+        '                        e=e.property(i, t[d][\"property\"][i]);
+        '                        }
+        '                   for (var i in t[d][\"timer\"]) {
+        '                        var q =  doFunction(\"message\", d);
+        '                        if (i==\"command\") { 
+        '                              if (t[d][\"timer\"][i]==\"start\") {
+        '                                    if (timer[d]!=null) clearInterval(timer[d]);                                
+        '                                    timer[d] = setInterval(q, t[d][\"timer\"][\"delay\"]); 
+        '                                    }
+        '                              if (t[d][\"timer\"][i]==\"finish\") {
+        '                                  // e=e.attr(\"visibility\", \"hidden\"); 
+        '                                  if (timeout[d]!=null) clearTimeout(timeout[d]);
+        '                                  if (timer[d]!=null) clearInterval(timer[d]); 
+        '                              }
+        '                              if (t[d][\"timer\"][i]==\"timeout\") {
+        '                                    if (timeout[d]!=null) clearTimeout(timeout[d]);                             
+        '                                    timeout[d]= setTimeout(q, t[d][\"timer\"][\"delay\"]); 
+        '                                    }
+        '                        }
+        '                   }
         '                   var svg = t[d][\"style\"][\"svg\"];
         '                   for (var i in t[d][\"style\"]) {
         '                        e=e.style(svgStyle(i, svg), t[d][\"style\"][i]);
@@ -235,11 +271,21 @@ str getIntro() {
         '                  // e.style(\"background\", \"\"+t[d]);
         '                   }
         '                   for (var d in t) {
-        '                         var e = d3.select(\"#\"+d+\"_g\"); 
+        '                         
         '                         for (var i in t[d][\"attr\"]) {
         '                              if (i==\"grow\") {
+        '                                 var a = d3.select(\"#\"+d);
+        '                                 var w = parseInt(a.attr(\"width\"));
+        '                                 var h = parseInt(a.attr(\"height\"));
+        '                                 var cx1 =  -(w/2);
+        '                                 var cy1 =  -(h/2);
+        '                                 var cx2 =  (w/2);
+        '                                 var cy2 =  (h/2);
+        '                                 var e = d3.select(\"#\"+d+\"_g\");
         '                                 var s = \"scale(\"+t[d][\"attr\"][i]+\")\";
-        '                                 e=e.attr(\"transform\", s);
+        '                                 var t1= \"translate(\"+cx1+\",\"+cy1+\")\";
+        '                                 var t2= \"translate(\"+cx2+\",\"+cy2+\")\";
+        '                                 e=e.attr(\"transform\", t2+s+t1);
         '                              }
         '                        }
         '                     }
@@ -251,11 +297,19 @@ str getIntro() {
         '     ask(ev, id, v);
         '   };
         ' }
+        '  function doTimerFunction(ev, id) { 
+        '    return function() {  
+        '     ask(ev, id, \"\");
+        '     var e = d3.select(\"#\"+id); 
+        '     return  e.attr(\"visibility\")==\"hidden\";
+        '   };
+        ' }
        ' function initFunction() {
            <for (d<-markerScript) {> <d> <}>
            <for (d<-widgetOrder) {> <widget[d].script> <}>
            <for (d<-reverse(adjust)) {> <d> <}>
-           <for (d<-googleChart) {> <d> <}>        
+           <for (d<-googleChart) {> <d> <}> 
+           doFunction(\"load\", \"figureArea\")();     
        ' }
        ' onload=initFunction;
        '\</script\>
@@ -265,11 +319,21 @@ str getIntro() {
        '\</body\>     
 		'\</html\>
 		";
-    println(res);
+    // println(res);
 	return res;
 	}
 	
+list[Figure] getChildren(Figure f) {
+   if (box():=f || ellipse() := f || circle():= f || ngon():=f) return f.fig ==emptyFigure()?[]:[f.fig];
+   if (hcat():=f || vcat():= f) return f.figs;
+   if (grid():=f) return [*g|g<-f.figArray];
+   return [];
+   }
    
+list[str] getDescendants(str id) {
+   list[Figure] h = getChildren(figMap[id]); 
+   return [x.id|x<-h]+[*getDescendants(x.id)|x<-h];
+   }
 
 Response page(get(), /^\/$/, map[str,str] _) { 
 	return response(getIntro());
@@ -285,13 +349,20 @@ bool isGrow(Figure f) {
    // println(getKeywordParameters(f)["grow"]?);
    return getKeywordParameters(f)["grow"]?;
    }
+   
+bool isRotate(Figure f) {
+   // println(getKeywordParameters(f)["grow"]?);
+   return getKeywordParameters(f)["rotate"]?;
+   }
     
 map[str, value] makeMap(Prop p) {
    map[str, value] attr = getKeywordParameters(p.attr);
    map[str, value] style = getKeywordParameters(p.style);
    map[str, value] property = getKeywordParameters(p.property);
    map[str, value] text = getKeywordParameters(p.text);  
-   return ("attr":attr, "style":style,"property":property, "text":text);
+   map[str, value] timer = getKeywordParameters(p.timer); 
+   return ("attr":attr, "style":style,"property":property
+          ,"text":text, "timer":timer);
    }
    
 list[bool] toFlags(str v)  {
@@ -378,11 +449,9 @@ private loc site = startFigureServer();
 
 private str getSite() = "<site>"[1 .. -1];
 
-
-      
 public void _render(IFigure fig1, int width = 400, int height = 400, 
      Alignment align = centerMid, int lineWidth = -1, 
-     str fillColor = "none", str lineColor = "black", bool display = true)
+     str fillColor = "none", str lineColor = "black", bool display = true, Event event = on(nullCallback))
      {
      screenWidth = width;
      screenHeight = height;
@@ -390,12 +459,13 @@ public void _render(IFigure fig1, int width = 400, int height = 400,
      
     str begintag= beginTag(id, align);
     // println(getWidth(fig1));
-    str endtag = endTag();    
-    widget[id] = <null, seq, id, begintag, endtag, 
+    str endtag = endTag();   
+    // '<style("border","0px solid black")>  
+    widget[id] = <getCallback(event), seq, id, begintag, endtag, 
         "
-        'd3.select(\"#<id>\")<style("border","1px solid black")> 
+        'd3.select(\"#<id>\")   
         '<stylePx("width", width)><style("height", width)>
-        '<style("stroke-width",lineWidth)>
+        '<style("border-width",lineWidth)>
         ;       
         "
        , width, height, width, height, 0, 0, align, 1, "", false, false >;
@@ -482,6 +552,15 @@ num getLineOpacity(Figure f) {
     while (c<0) {
         f = figMap[parentMap[f.id]];
         c = f.lineOpacity;
+        }
+   return c;
+  }
+  
+str getVisibility(Figure f) {
+    str c = f.visibility;
+    while (isEmpty(c)) {
+        f = figMap[parentMap[f.id]];
+        c = f.visibility;
         }
    return c;
   }
@@ -592,6 +671,14 @@ str attr(str key, real v) {
     return ".attr(\"<key>\",\"<precision(v, 1)>\")";
     }
     
+str html(str v, bool fo, bool nl2br) {
+    if (isEmpty(v)) return "";
+    str s = "\"<replaceAll(v,"\n", "\\n")>\"";
+    if (fo && nl2br) 
+        s = "nl2br(<s>)";
+    return fo?".html(<s>)":".text(<s>)";
+    }
+    
 //    '<on(getEvent(f.event), "doFunction(\"<getEvent(f.event)>\", \"<id>\")")> 
     
 str on(Figure f) {
@@ -608,7 +695,7 @@ str on(str ev, str proc) {
 int getTextWidth(Figure f, str s) {
      if (f.width>=0) return f.width;
      int fw =  f.fontSize<0?12:f.fontSize;
-     return size(s)*fw;
+     return toInt(size(s)*fw);
      }
  
 int getTextHeight(Figure f) {
@@ -642,7 +729,6 @@ IFigure _text(str id, bool fo, Figure f, str s) {
     Alignment align =  width<0?topLeft:f.align;
     // str endtag = addSvgTag?"\</text\>":"\</div\>"; 
     str endtag = fo?"\</div\>":"\</text\>\</svg\>";
-    // 
     widget[id] = <null, seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")
@@ -653,11 +739,12 @@ IFigure _text(str id, bool fo, Figure f, str s) {
         '<style("font-style", f.fontStyle)>
         '<style("font-family", f.fontFamily)>
         '<style("font-weight", f.fontWeight)>
-        '<style("color", f.fontColor)>
+        '<style("visibility", getVisibility(f))>
+        '<fo?style("color", f.fontColor):style("fill", f.fontColor)>
         '<fo?"":attr("y", getTextY(f))+attr("x", getTextX(f, s))> 
         '<fo?"":style("text-anchor", "middle")> 
         '<fo?"":attr("pointer-events", "none")>
-        '.text(\"<s>\") 
+        '<html(s, fo, f.nl2br)>
         ';"
         , getTextWidth(f, s), getTextHeight(f), getAtX(f), getAtY(f), 0, 0, align, getLineWidth(f), getLineColor(f), f.sizeFromParent, true >;
        addState(f);
@@ -733,10 +820,10 @@ IFigure _googlechart(str cmd, str id, Figure f) {
        return ifigure(id, []);
     }
     
- str getDotOpt(Figure f, str s, Figure g) {
+ str getNodePropertyOpt(Figure f, str s, Figure g) {
     str r =  (emptyFigure():=g)?",{":",{shape:\"<g.id>\",label:\"\"";
-    if ((f.nodeProp[s]?)) {
-        map[str, value] m = getKeywordParameters(f.nodeProp[s]);
+    if ((f.nodeProperty[s]?)) {
+        map[str, value] m = getKeywordParameters(f.nodeProperty[s]);
         for (t<-m) {
            r+=",<t>:<vl(m[t])>,";
            }       
@@ -782,7 +869,7 @@ str getEdgeOpt(Edge s) {
     // str r = getGraphOpt(g);
     str r = "var g = new dagreD3.graphlib.Graph().setGraph(<getGraphOpt(g)>);";
     r +="
-     '<for(s<-g.nodes){> g.setNode(\"<s[0]>\"<getDotOpt(g, s[0], s[1])>);<}>
+     '<for(s<-g.nodes){> g.setNode(\"<s[0]>\"<getNodePropertyOpt(g, s[0], s[1])>);<}>
      ";
     r+="
      '<for(s:edge(from, to)<-g.edges)
@@ -846,8 +933,11 @@ str addShape(Figure s) {
     'var render = new dagreD3.render();
   
     '<body>
-    'render(inner, g);
     
+    '// inner.attr(\"transform\", \"translate([-1000, 0])\");
+    'inner.attr(\"x\", \"500\");
+    'render(inner, g);
+    ' var initialScale = 0.75
     ' g.nodes().forEach(function(v) {
     '     var n = g.node(v);
     '     var id = n.shape;
@@ -855,7 +945,9 @@ str addShape(Figure s) {
     '     var height = parseInt(d3.select(\"#\"+id).attr(\"height\"));
     '    d3.select(\"#\"+id+\"_svg\")<attr1("x", "Math.floor(n.x-width/2)")><attr1("y", "Math.floor(n.y-height/2)")>;
     '     });
+    ' console.log(g.graph().width);
     '}
+    
     "; 
     }
       
@@ -878,6 +970,7 @@ str addShape(Figure s) {
         " 
         'd3.select(\"#<id>\")
         '<attrPx("width", width)><attrPx("height", height)>
+        '// <attrPx("x", 100)><attrPx("y", 0)>
         ';     
         '<drawGraph(fname, id, trGraph(f))>
         "
@@ -945,9 +1038,9 @@ int getLy(IFigure f) {
     }  
    
 str beginRotate(Figure f) {
-    
-    if (f.rotate[0]==0) return "";
+    if (!isRotate(f)) return "";
     if (f.rotate[1]<0 && f.rotate[2]<0) {  
+        if (f.width<0  || f.height<0) return "\<g\>";
         f.rotate[1] = (f.width)/2;
         f.rotate[2] = (f.height)/2;
         // println("cx: <f.rotate[1]>  cy: <f.rotate[2]>");
@@ -955,11 +1048,17 @@ str beginRotate(Figure f) {
         }
     }
   
-str endRotate(Figure f) =  f.rotate[0]==0?"":"\</g\>";
+str endRotate(Figure f) =  !isRotate(f)? "":"\</g\>";
 
 str beginScale(Figure f) {   
     if (!isGrow(f)) return "";
-    return "\<g id = \"<f.id>_g\" transform=\"scale(<f.grow>)\" \>";
+    if (f.width<0 || f.height<0)
+       return "\<g id = \"<f.id>_g\" transform=\"scale(<f.grow>)\" \>";
+    else {
+        int x =0;  // f.width/2; is dependent of environment
+        int y =0; //f.height/2;
+        return "\<g id = \"<f.id>_g\" transform=\"translate(<-x>, <-y>) scale(<f.grow>) translate(<x>, <y>)\"\>";
+        }
     }
   
 str endScale(Figure f) =  isGrow(f)?"\</g\>":"";
@@ -991,7 +1090,7 @@ bool hasInnerCircle(Figure f)  {
            if (f.width<0) f.width = getWidth(fig)+lw+getAtX(fig)+hPadding(f);
            if (f.height<0) f.height = getHeight(fig)+lw+getAtY(fig)+vPadding(f);
            }
-      if (emptyFigure():=f.fig || label(_):=f.fig) fo = false;
+      if (emptyFigure():=f.fig || text(_):=f.fig) fo = false;
       // println("<id>: align = <lw> <f.align> <0.5-f.align[0]>  <offset> getAtX(fig)=<getAtX(fig)>");  
       str begintag= 
          "\<svg <moveAt(fo, f)> xmlns = \'http://www.w3.org/2000/svg\' id=\"<id>_svg\"\> <beginScale(f)> <beginRotate(f)> 
@@ -1029,12 +1128,14 @@ bool hasInnerCircle(Figure f)  {
         '<style("fill", "<getFillColor(f)>")> 
         '<style("stroke-dasharray", cv(f.lineDashing))> 
         '<style("fill-opacity", getFillOpacity(f))> 
-        '<style("stroke-opacity", getLineOpacity(f))>   
+        '<style("stroke-opacity", getLineOpacity(f))>  
+        '<style("visibility", getVisibility(f))> 
         ';       
         'd3.select(\"#<id>_svg\")
         '<attr("width", toInt(f.grow*f.width))><attr("height", toInt(f.grow*f.height))>     
         '<!isEmpty(f.tooltip)?
-        ".append(\"svg:title\").text(\""+f.tooltip+"\")":"">
+        ".append(\"svg:title\").text(\""+
+              replaceAll(replaceAll(f.tooltip,"\n", "\\n"),"\"","\\\"") +"\")":"">
         ';
         ";
       } 
@@ -1060,7 +1161,7 @@ bool hasInnerCircle(Figure f)  {
     int hpad = hPadding(f);
     int vpad = vPadding(f);
     str g = ""; 
-    if (label(_):=f.fig) {
+    if (text(_):=f.fig) {
        int fw =  (f.fig.fontSize<0?12:f.fig.fontSize);
        int w = f.width/2; 
        int h =  f.height/2;
@@ -1095,7 +1196,7 @@ num cyL(Figure f) =
  IFigure _ellipse(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(), Alignment align = <0.5, 0.5>) {
       int lw = getLineWidth(f);    
       str tg = "";
-      if (emptyFigure():=f.fig || label(_):=f.fig) fo = false;
+      if (emptyFigure():=f.fig || text(_):=f.fig) fo = false;
       switch (f) {
           case ellipse(): {tg = "ellipse"; 
                            if (f.width>=0 && f.rx<0) f.rx = (f.width-lw)/2;
@@ -1394,7 +1495,7 @@ str beginRotateNgon(Figure f) {
                  
 IFigure _ngon(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(), Alignment align = <0.5, 0.5>) {
        int lw = getLineWidth(f);
-       if (emptyFigure():=f.fig || label(_):=f.fig) fo = false;
+       if (emptyFigure():=f.fig || text(_):=f.fig) fo = false;
        if (f.r<0 || getAtX(fig)>0 || getAtY(fig)>0 || f.rotate[0]!=0) f.align = centerMid;
        bool b  = false;             
        int d = max([getWidth(fig), getHeight(fig)]);
@@ -1483,7 +1584,8 @@ IFigure _overlay(str id, Figure f, IFigure fig1...) {
         ;<}> 
         <for (q<-fig1){> 
          '<getSizeFromParent(q)?"adjustFrame(\"<getId(q)>\", <f.width>, <f.height>);":"">
-         <}>  
+         '<}> 
+         'd3.select(\"#<id>\")<style("stroke-width", 0)>; 
         "
         , f.width, f.height, getAtX(f), getAtY(f), lx, ly, f.align, getLineWidth(f), getLineColor(f), f.sizeFromParent, true >;
        addState(f);
@@ -1497,7 +1599,7 @@ IFigure _buttonInput(str id, Figure f, str txt, bool addSvgTag) {
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>\"/\> 
+         "\<svg id=\"<id>_svg\"\> 
          '\<foreignObject id=\"<id>_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
          }
        begintag+="                    
@@ -1726,9 +1828,10 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
         widget[id] = <null, seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\") 
+        '<on(f)>
         '<stylePx("width", width)><stylePx("height", height)>
         '<attrPx("width", width)><attrPx("height", height)>      
-        '<debugStyle()>
+        '<debugStyle()> 
         '<style("background-color", "<getFillColor(f)>")> 
         '<style("border-spacing", "<f.hgap> <f.vgap>")> 
         '<style("stroke-width",getLineWidth(f))>
@@ -1941,6 +2044,7 @@ Figure addMarker(Figure f, str id, Figure g) {
      if (g.fillOpacity<0) g.fillOpacity = 1.0;
      if (isEmpty(g.fillColor)) g.fillColor="none";
      if (isEmpty(g.lineColor)) g.lineColor = "black";
+     if (isEmpty(g.visibility)) g.visibility = "visible";
      list[IFigure] fs = (defs[f.id]?)?defs[f.id]:[];
      buildParentTree(g);
      // println("addMarker:<g.id> <g.lineWidth>");
@@ -2001,7 +2105,7 @@ void buildParentTree(Figure f) {
     
  
 IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = false,
-    bool fo = true) {
+    bool fo = true, bool forceHtml = false) {
     if (f.size != <0, 0>) {
        f.width = f.size[0];
        f.height = f.size[1];
@@ -2033,16 +2137,17 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
                        return _shape(f.id, f);
                        }
         case ngon():  return _ngon(f.id, fo, f, fig = _translate(f.fig, align = nA(f, f.fig), fo = fo), align = align);
-        case text(value s): {if (str t:=s) return _text(f.id, fo, f, t);
+        case htmlText(value s): {if (str t:=s) return _text(f.id, fo, f, t);
                             return iemptyFigure();
                             } 
-        case label(value s): {if (str t:=s) return _text(f.id, false, f, t);
+        /* Only inside svg figure, not on top, hcat, vcat or grid  */
+        case text(value s): {if (str t:=s) return _text(f.id, forceHtml, f, t);
                             return iemptyFigure();
                             } 
         case image():  return _img(f.id,   f, addSvgTag,  align = align);                
-        case hcat(): return _hcat(f.id, f, addSvgTag, [_translate(q, align = f.align)|q<-f.figs]
+        case hcat(): return _hcat(f.id, f, addSvgTag, [_translate(q, align = f.align, forceHtml = true)|q<-f.figs]
             );
-        case vcat(): return _vcat(f.id, f, addSvgTag, [_translate(q, align = f.align)|q<-f.figs]
+        case vcat(): return _vcat(f.id, f, addSvgTag, [_translate(q, align = f.align, forceHtml = true)|q<-f.figs]
          );
          
         case overlay(): { 
@@ -2051,7 +2156,7 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
               return r;
               }
               
-        case grid(): return _grid(f.id, f, addSvgTag, figArray= [[_translate(q, align = f.align)|q<-e]|e<-f.figArray]
+        case grid(): return _grid(f.id, f, addSvgTag, figArray= [[_translate(q, align = f.align, forceHtml = true)|q<-e]|e<-f.figArray]
         );
         case at(int x, int y, Figure fig): {
                      fig.rotate = f.rotate;
@@ -2082,19 +2187,19 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
         case strInput():  return _strInput(f.id, f, addSvgTag);
         case choiceInput():  return _choiceInput(f.id, f, addSvgTag);
         case checkboxInput():  return _checkboxInput(f.id, f, addSvgTag);
-        case combochart():  return _googlechart("ComboChart", f.id, f);
-        case piechart():  return _googlechart("PieChart", f.id, f);
-        case candlestickchart():  return _googlechart("CandlestickChart", f.id, f);
-        case linechart():  return _googlechart("LineChart", f.id, f);
-        case scatterchart():  return _googlechart("ScatterChart", f.id, f);
-        case areachart():  return _googlechart("AreaChart", f.id, f);
+        case comboChart():  return _googlechart("ComboChart", f.id, f);
+        case pieChart():  return _googlechart("PieChart", f.id, f);
+        case candlestickChart():  return _googlechart("CandlestickChart", f.id, f);
+        case lineChart():  return _googlechart("LineChart", f.id, f);
+        case scatterChart():  return _googlechart("ScatterChart", f.id, f);
+        case areaChart():  return _googlechart("AreaChart", f.id, f);
         case graph(): {
               list[IFigure] ifs = [_translate(q, addSvgTag = true)|q<-[n[1]|n<-f.nodes]];
               IFigure r =
                _overlay("<f.id>_ov", f 
-                , [_graph(f.id, f, [getId(i)|i<-ifs])]
-                 + 
-                ifs
+                , 
+                [_graph(f.id, f, [getId(i)|i<-ifs])] 
+                +ifs
                 );
                return r;        
         }
@@ -2105,18 +2210,23 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
              
               // println(fs);
               list[IFigure] ifs = [_translate(q, addSvgTag = true)|q<-fs];
-              map[str, tuple[int, int]] m = (getId(f): <getWidth(f), getHeight(f)>|IFigure f<-ifs);
-              list[Vertex] vs  = treeLayout(f, m, f.scaleX, f.scaleY, f.rasterHeight
-              , xSeparation=f.xSeparation, ySeparation=f.ySeparation);
-              fs = treeUpdate(fs, m);  
+              map[str, tuple[int, int]] m = (getId(g): <getWidth(g), getHeight(g)>|IFigure g<-ifs);
+              list[Vertex] vs  = treeLayout(f, m,  f.sX, f.sY, f.rasterHeight, f.manhattan,
+              xSeparation=f.xSep, ySeparation=f.ySep, orientation = f.orientation);
+              tuple[int ,int] dim = computeDim(fs, m);
+              vs  = vertexUpdate(vs, f.orientation, dim[0], dim[1]);
+              fs = treeUpdate(fs, m, f.orientation, dim[0], dim[1]);  
               for (Figure f<-fs) {
                   widget[f.id].x =  f.at[0];
                   widget[f.id].y =  f.at[1];
                   }
+              if (f.width<0 && min([g.width|g<-fs])>=0) f.width = max([toInt(g.at[0])+g.width|g<-fs]);
+              if (f.height<0 && min([g.height|g<-fs])>=0) f.height = max([toInt(g.at[1])+g.height|g<-fs]);
               // println(m);
               IFigure r =
                _overlay("<f.id>_ov", f 
-                , [_shape(f.id, shape(vs, id = f.id, width = f.width, height = f.height, yReverse = false))]
+                , [_shape(f.id, shape(vs, id = f.id, width = f.width, height = f.height, yReverse = false
+                   ,lineColor=f.pathColor, fillColor="none"))]
                  + 
                 ifs
                 );
@@ -2138,7 +2248,8 @@ list[Figure] treeToList(Figure f) {
 public void _render(Figure fig1, int width = 400, int height = 400, 
      Alignment align = centerMid, tuple[int, int] size = <0, 0>,
      str fillColor = "white", str lineColor = "black", 
-     int lineWidth = 1, bool display = true, num lineOpacity = 1.0, num fillOpacity = 1.0)
+     int lineWidth = 1, bool display = true, num lineOpacity = 1.0, num fillOpacity = 1.0
+     , Event event = on(nullCallback))
      {
         
         id = 0;
@@ -2160,16 +2271,17 @@ public void _render(Figure fig1, int width = 400, int height = 400,
         h.lineColor = lineColor;
         h.lineOpacity = lineOpacity;
         h.fillOpacity = fillOpacity;
+        h.visibility = "visible";
         h.align = align;
         h.id = "figureArea";
         figMap[h.id] = h;
         fig1= buildFigMap(fig1);
         parentMap[fig1.id] = h.id; 
         buildParentTree(fig1);
-        IFigure f = _translate(fig1, align = align);
+        IFigure f = _translate(fig1, align = align, forceHtml = true);
         addState(fig1);
         _render(f , width = screenWidth, height = screenHeight, align = align, fillColor = fillColor, lineColor = lineColor,
-        lineWidth = lineWidth, display = display);
+        lineWidth = lineWidth, display = display, event = event);
      }
   
  //public void main() {

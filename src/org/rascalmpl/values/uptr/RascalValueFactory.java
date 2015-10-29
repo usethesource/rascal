@@ -17,39 +17,39 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
-import org.eclipse.imp.pdb.facts.IAnnotatable;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IExternalValue;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListRelation;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.IWithKeywordParameters;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
-import org.eclipse.imp.pdb.facts.impl.AbstractDefaultAnnotatable;
-import org.eclipse.imp.pdb.facts.impl.AbstractDefaultWithKeywordParameters;
-import org.eclipse.imp.pdb.facts.impl.AbstractValueFactoryAdapter;
-import org.eclipse.imp.pdb.facts.impl.AnnotatedConstructorFacade;
-import org.eclipse.imp.pdb.facts.impl.ConstructorWithKeywordParametersFacade;
-import org.eclipse.imp.pdb.facts.impl.persistent.ValueFactory;
-import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.eclipse.imp.pdb.facts.util.AbstractSpecialisedImmutableMap;
-import org.eclipse.imp.pdb.facts.util.ImmutableMap;
-import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.value.IAnnotatable;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IExternalValue;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListRelation;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.exceptions.UndeclaredFieldException;
+import org.rascalmpl.value.impl.AbstractDefaultAnnotatable;
+import org.rascalmpl.value.impl.AbstractDefaultWithKeywordParameters;
+import org.rascalmpl.value.impl.AbstractValueFactoryAdapter;
+import org.rascalmpl.value.impl.AnnotatedConstructorFacade;
+import org.rascalmpl.value.impl.persistent.ValueFactory;
+import org.rascalmpl.value.io.StandardTextReader;
+import org.rascalmpl.value.io.StandardTextWriter;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.value.visitors.IValueVisitor;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
+
+import io.usethesource.capsule.AbstractSpecialisedImmutableMap;
+import io.usethesource.capsule.ImmutableMap;
 
 /**
  * The RascalValueFactory extends a given IValueFactory with the Rascal-specific builtin
@@ -229,20 +229,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final IValue Attribute_Assoc_Non_Assoc = bootFactory.constructor(Attr_Assoc, bootFactory.constructor(Associativity_NonAssoc));
 	public static final IValue Attribute_Assoc_Assoc = bootFactory.constructor(Attr_Assoc, bootFactory.constructor(Associativity_Assoc));
 	public static final IValue Attribute_Bracket = bootFactory.constructor(Attr_Bracket);
-	
-	@Deprecated
-	/** Will be replaced by keyword parameter "origin" */
-	public static final String Location = "loc";
-	@Deprecated
-	/** Will be removed completely */
-	public static final String Length = "len";
-	
-	static {
-		uptr.declareAnnotation(Tree, Location, tf.sourceLocationType());
-		uptr.declareAnnotation(Tree, Length, tf.integerType());
-	}
-
-	
 	
 	/** nested class for thread safe singleton allocation */
 	static private class InstanceHolder {
@@ -647,7 +633,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
+		public IWithKeywordParameters<ITree> asWithKeywordParameters() {
 			throw new UnsupportedOperationException();
 		}
 	}
@@ -827,7 +813,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
+		public IWithKeywordParameters<ITree> asWithKeywordParameters() {
 			throw new UnsupportedOperationException();
 		}
 	}
@@ -1017,11 +1003,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
-			 return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
+		public IWithKeywordParameters<ITree> asWithKeywordParameters() {
+			 return new AbstractDefaultWithKeywordParameters<ITree>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
 				    @Override
-				    protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
-				      return new ConstructorWithKeywordParametersFacade(content, parameters);
+				    protected ITree wrap(ITree content, ImmutableMap<String, IValue> parameters) {
+				    	return new AnnotatedCharFacade(content, parameters);
 				    }
 			 }; 
 		}
@@ -1223,11 +1209,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
-			 return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
+		public IWithKeywordParameters<ITree> asWithKeywordParameters() {
+			 return new AbstractDefaultWithKeywordParameters<ITree>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
 				    @Override
-				    protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
-				      return new ConstructorWithKeywordParametersFacade(content, parameters);
+				    protected ITree wrap(ITree content, ImmutableMap<String, IValue> parameters) {
+				      return new AnnotatedAmbFacade(content, parameters);
 				    }
 			 }; 
 		}
@@ -1608,11 +1594,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
-			 return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
+		public IWithKeywordParameters<ITree> asWithKeywordParameters() {
+			 return new AbstractDefaultWithKeywordParameters<ITree>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
 				    @Override
-				    protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
-				      return new ConstructorWithKeywordParametersFacade(content, parameters);
+				    protected ITree wrap(ITree content, ImmutableMap<String, IValue> parameters) {
+				      return new AnnotatedApplFacade(content, parameters);
 				    }
 			 }; 
 		}

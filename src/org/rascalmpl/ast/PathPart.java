@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class PathPart extends AbstractAST {
   public PathPart(ISourceLocation src, IConstructor node) {
@@ -131,7 +131,7 @@ public abstract class PathPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 857 + 383 * pre.hashCode() + 853 * expression.hashCode() + 743 * tail.hashCode() ; 
+      return 383 + 853 * pre.hashCode() + 743 * expression.hashCode() + 331 * tail.hashCode() ; 
     } 
   
     
@@ -223,7 +223,7 @@ public abstract class PathPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 331 + 967 * pathChars.hashCode() ; 
+      return 967 + 257 * pathChars.hashCode() ; 
     } 
   
     

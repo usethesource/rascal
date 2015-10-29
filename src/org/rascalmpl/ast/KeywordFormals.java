@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class KeywordFormals extends AbstractAST {
   public KeywordFormals(ISourceLocation src, IConstructor node) {
@@ -109,7 +109,7 @@ public abstract class KeywordFormals extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 421 + 941 * optionalComma.hashCode() + 307 * keywordFormalList.hashCode() ; 
+      return 941 + 307 * optionalComma.hashCode() + 941 * keywordFormalList.hashCode() ; 
     } 
   
     
@@ -182,7 +182,7 @@ public abstract class KeywordFormals extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 941 ; 
+      return 631 ; 
     } 
   
     	

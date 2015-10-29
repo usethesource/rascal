@@ -7,11 +7,11 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.swt;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public interface ICallbackEnv {
 	public IEvaluatorContext getRascalContext();

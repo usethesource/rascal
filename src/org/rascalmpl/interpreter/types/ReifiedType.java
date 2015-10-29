@@ -13,11 +13,11 @@ package org.rascalmpl.interpreter.types;
 
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAnnotationException;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**

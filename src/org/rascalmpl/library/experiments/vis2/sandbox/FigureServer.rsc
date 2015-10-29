@@ -5,11 +5,12 @@ import Prelude;
 
 public void render(Figure fig1, int width = 400, int height = 400, 
      Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>,
-     str fillColor = "white", str lineColor = "black", bool debug = false, bool display = true)
+     str fillColor = "white", str lineColor = "black", bool debug = false, bool display = true, 
+     Event event = on(nullCallback))
      {
      setDebug(debug);
      _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
-     lineColor = lineColor, size = size);
+     lineColor = lineColor, size = size, event = event);
      // println(toString());
      }
        
@@ -34,7 +35,13 @@ public Style style(str id, str fillColor="", str lineColor="", int lineWidth = -
      if (lineOpacity>=0) v.lineOpacity = lineOpacity;
      if (!isEmpty(fillColor)) v.fillColor = fillColor;
      if (!isEmpty(lineColor)) v.lineColor = lineColor;
-     if (!isEmpty(visibility)) v.visibility = visibility;
+     if (!isEmpty(visibility)) {
+           v.visibility = visibility;
+           list[str] xs = getDescendants(id);
+           for (x<-xs) {
+              style(x, visibility = visibility);
+             }
+             }
      _setStyle(id, v);
      return v;
      }
@@ -45,15 +52,30 @@ bool isEmptyValue(value v) {
     }
      
 public Attr attr(str id, int width = -1, int height = -1, int r = -1
-     , num grow = 1.0) {
+     , num grow = 1.0, bool disabled = false) {
      Attr v = _getAttr(id);
      if (width!=-1) v.width = width;
      if (height!=-1) v.height = height;
      if (grow>=0) v.grow = grow;    
      if (r!=-1) v.r = r;
+     // if (disabled?) v.disabled= disabled;
      _setAttr(id, v);
      return v;
      }
+     
+public void disable(str id) {
+     Attr v = _getAttr(id);
+     v.disabled = true;
+     _setAttr(id, v);
+     }
+     
+public void enable(str id) {
+     Attr v = _getAttr(id);
+     v.disabled = false;
+     _setAttr(id, v);
+     }
+
+public bool isDisabled(str id) = _getAttr(id).disabled;
      
 public Property property(str id, value \value = "") {
     Property v = _getProperty(id);
@@ -61,19 +83,36 @@ public Property property(str id, value \value = "") {
      _setProperty(id, v);
      return v;
     }
-
-public Text textLabel(str id, str text = "") {
-     Text v = _getText(id);
-     if (!isEmpty(text)) v.text = text;
-     _setText(id, v);
+    
+public Property clearValueProperty(str id) {
+     Property v = _getProperty(id);
+     v.\value = "";
+     _setProperty(id, v);
      //  println(v);
      return v;
      }
+
+public Text textProperty(str id, str text = "", str html = "") {
+     Text v = _getText(id);
+     if (!isEmpty(text)) v.text = text;
+     if (!isEmpty(html)) v.html = html;
+     _setText(id, v);
+     // println(v);
+     return v;
+     }
      
-public Text clearTextLabel(str id) {
+public Text clearTextProperty(str id) {
      Text v = _getText(id);
      v.text = "";
      _setText(id, v);
      //  println(v);
      return v;
      }
+     
+public Timer timer(str id, int delay = -1, str command = "") {
+    Timer t = _getTimer(id);
+    if (delay>=0) t.delay = delay;
+    if (!isEmpty(command)) t.command = command;
+     _setTimer(id, t);
+     return t;
+    }

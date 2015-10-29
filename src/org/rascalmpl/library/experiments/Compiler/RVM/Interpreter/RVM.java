@@ -15,27 +15,6 @@ import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.regex.Matcher;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IDateTime;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.INumber;
-import org.eclipse.imp.pdb.facts.IRational;
-import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -53,6 +32,27 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Trave
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.PROGRESS;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.REBUILD;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IDateTime;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.IMapWriter;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.INumber;
+import org.rascalmpl.value.IRational;
+import org.rascalmpl.value.IReal;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.ITuple;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 
 
 public class RVM implements java.io.Serializable {
@@ -68,7 +68,7 @@ public class RVM implements java.io.Serializable {
 	private final IString NONE; 
 	
 	private boolean debug = false;
-	private final boolean profileRascalPrimtives = false;
+	private final boolean profileRascalPrimitives = false;
 	private final boolean profileMuPrimitives = false;
 	private boolean ocall_debug = false;
 	private boolean trackCalls = false;
@@ -83,11 +83,13 @@ public class RVM implements java.io.Serializable {
 	private final ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
 	
+	final static Function noCompanionFunction = new Function("noCompanionFunction", null, null, 0, 0, false, null, 0, false, 0, 0, null, null, 0);
+	
 	private final Map<IValue, IValue> moduleVariables;
 	PrintWriter stdout;
 	PrintWriter stderr;
 	
-	private final HashMap<String, IValue> emptyKeywordMap = new HashMap<>(0);
+	protected static final HashMap<String, IValue> emptyKeywordMap = new HashMap<>(0);
 	
 	//private Frame currentFrame;	// used for profiling
 	private ILocationCollector locationCollector;
@@ -131,7 +133,7 @@ public class RVM implements java.io.Serializable {
 		}  
 	};
 
-	public RVM(RVMExecutable rrs, RascalExecutionContext rex) {
+	public RVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
 		
 		this.rex = rex;
 		rex.setRVM(this);
@@ -152,21 +154,30 @@ public class RVM implements java.io.Serializable {
 		Rascal_FALSE = vf.bool(false);
 		NONE = vf.string("$nothing$");
 		
-		this.functionMap = rrs.getFunctionMap();
-		this.functionStore = rrs.getFunctionStore();
+		this.functionMap = rvmExec.getFunctionMap();
+		this.functionStore = rvmExec.getFunctionStore();
 		
-		this.constructorMap = rrs.getConstructorMap();
-		this.constructorStore = rrs.getConstructorStore();
+		this.constructorMap = rvmExec.getConstructorMap();
+		this.constructorStore = rvmExec.getConstructorStore();
 
-		this.resolver = rrs.getResolver();
-		this.overloadedStore = rrs.getOverloadedStore();
+		this.resolver = rvmExec.getResolver();
+		this.overloadedStore = rvmExec.getOverloadedStore();
 		
 		moduleVariables = new HashMap<IValue,IValue>();
 
 		Opcode.init(stdout, rex.getProfile());
 		
-		this.locationCollector = NullLocationCollector.getInstance();
-					
+		this.locationCollector = NullLocationCollector.getInstance();			
+	}
+	
+	public static RVM readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex){
+		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
+		return ExecutionTools.initializedRVM(rvmExecutable, rex);
+	}
+	
+	public static IValue readFromFileAndExecuteProgram(ISourceLocation rvmBinaryLocation, IMap keywordArguments, RascalExecutionContext rex){
+		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
+		return ExecutionTools.executeProgram(rvmExecutable, keywordArguments, rex);
 	}
 	
 	URIResolverRegistry getResolverRegistry() { return URIResolverRegistry.getInstance(); }
@@ -353,10 +364,13 @@ public class RVM implements java.io.Serializable {
 	public Function getCompanionDefaultsFunction(String name, Type ftype){
 		all:
 			for(Function f : functionStore){
-				if(f.name.contains("companion-defaults") && f.name.contains("::" + name + "(")){
+				//if(f.name.contains("companion")) System.err.println("getCompanionDefaultsFunction " + f.name);
+				if(f.name.contains("companion-defaults") && 
+						f.name.contains("::" + name + "(")){
 					FunctionType ft = (FunctionType) f.ftype;
 					if(ftype.getAbstractDataType().equals(ft.getReturnType())){
 						if(ftype.isAbstractData()){
+							System.err.println("getCompanionDefaultsFunction1: " + name + ", " + ftype);
 							return f;
 						}
 						if(ftype.getFieldTypes().getArity() == ft.getArgumentTypes().getArity()){
@@ -365,17 +379,19 @@ public class RVM implements java.io.Serializable {
 									continue all;
 								}
 							}
+							System.err.println("getCompanionDefaultsFunction2: " + name + ", " + ftype);
 							return f;
 						}
 					}
 				}
 			}
-	return null;
+	System.err.println("getCompanionDefaultsFunction3: " + name + ", " + ftype);
+	return noCompanionFunction;
 	}
 	
 	public Function getFunction(String name, Type returnType, Type argumentTypes){
 		for(Function f : functionStore){
-			if(f.name.contains("/" + name + "(")){
+			if(f.name.contains("/" + name + "(") && f.ftype instanceof FunctionType){
 				FunctionType ft = (FunctionType) f.ftype;
 				if(returnType.equals(ft.getReturnType()) &&
 				   argumentTypes.equals(ft.getArgumentTypes())){
@@ -410,6 +426,10 @@ public class RVM implements java.io.Serializable {
 	 * @return
 	 */
 	public Object executeFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs){
+		
+//		for(String fname : functionMap.keySet()){
+//			if(fname.contains("companion")) System.err.println("executeFunction: " + func.name + "companion found: " + fname);
+//		}
 		// Assumption here is that the function called is not a nested one
 		// and does not use global variables
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
@@ -1006,8 +1026,8 @@ public class RVM implements java.io.Serializable {
 				case Opcode.OP_LOADEMPTYKWMAP:
 					// TODO: use unique copy of emptyKeywordMap and delay creation of new copy to assignment
 					// to keyword parameter
-					stack[sp++] = emptyKeywordMap;
-					//stack[sp++] = new HashMap<String,IValue>();
+					//stack[sp++] = emptyKeywordMap;
+					stack[sp++] = new HashMap<String,IValue>();
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_CALLMUPRIM:	
@@ -1678,6 +1698,12 @@ public class RVM implements java.io.Serializable {
 					stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
 					sp--;
 					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_VALUESUBTYPE:
+					Type reqType = cf.function.typeConstantStore[CodeBlock.fetchArg1(instruction)];
+					//stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isSubtypeOf(reqType));
+					stack[sp - 1] = vf.bool(rex.isSubtypeOf(((IValue) stack[sp - 1]).getType(), reqType));
+					continue NEXT_INSTRUCTION;
 								
 				case Opcode.OP_LABEL:
 					throw new CompilerError("LABEL instruction at runtime", cf);
@@ -1903,11 +1929,7 @@ public class RVM implements java.io.Serializable {
 			for(int i = arity - 1; i >= 0; i--){
 				parameters[i] = stack[sp - arity - kwMaps + i];
 			}
-//			int i = 0;
-//			while(i < arity){
-//				parameters[i] = stack[sp - arity - kwMaps + i];
-//				i++;
-//			}
+
 			if(kwArity > 0){
 				@SuppressWarnings("unchecked")
 				Map<String, IValue> kwMap = (Map<String, IValue>) stack[sp - 2];
@@ -1922,17 +1944,6 @@ public class RVM implements java.io.Serializable {
 					}
 					parameters[i] = val;
 				}
-				
-//				int i = arity;
-//				while(i < arity + kwArity){
-//					String key = keywordTypes.getFieldName(i - arity);
-//					IValue val = kwMap.get(key);
-//					if(val == null){
-//						val = kwDefaultMap.get(key).getValue();
-//					}
-//					parameters[i] = val;
-//					i++;
-//				}
 			}
 			
 			if(reflect == 1) {
@@ -1974,6 +1985,8 @@ public class RVM implements java.io.Serializable {
 			"org.rascalmpl.library.lang.csv.IOCompiled.writeCSV",
 			"org.rascalmpl.library.lang.json.IOCompiled.fromJSON",
 			
+			"org.rascalmpl.library.PreludeCompiled.delAnnotation",
+			"org.rascalmpl.library.PreludeCompiled.delAnnotations",
 			"org.rascalmpl.library.PreludeCompiled.implode",
 			"org.rascalmpl.library.PreludeCompiled.parse",
 			"org.rascalmpl.library.PreludeCompiled.print",
@@ -2093,92 +2106,92 @@ public class RVM implements java.io.Serializable {
 		}
 		
 		@Override
-		public Class<?> visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
+		public Class<?> visitBool(org.rascalmpl.value.type.Type boolType) {
 			return IBool.class;
 		}
 
 		@Override
-		public Class<?> visitReal(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitReal(org.rascalmpl.value.type.Type type) {
 			return IReal.class;
 		}
 
 		@Override
-		public Class<?> visitInteger(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitInteger(org.rascalmpl.value.type.Type type) {
 			return IInteger.class;
 		}
 		
 		@Override
-		public Class<?> visitRational(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitRational(org.rascalmpl.value.type.Type type) {
 			return IRational.class;
 		}
 		
 		@Override
-		public Class<?> visitNumber(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitNumber(org.rascalmpl.value.type.Type type) {
 			return INumber.class;
 		}
 
 		@Override
-		public Class<?> visitList(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitList(org.rascalmpl.value.type.Type type) {
 			return IList.class;
 		}
 
 		@Override
-		public Class<?> visitMap(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitMap(org.rascalmpl.value.type.Type type) {
 			return IMap.class;
 		}
 
 		@Override
-		public Class<?> visitAlias(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitAlias(org.rascalmpl.value.type.Type type) {
 			return type.getAliased().accept(this);
 		}
 
 		@Override
-		public Class<?> visitAbstractData(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitAbstractData(org.rascalmpl.value.type.Type type) {
 			return IConstructor.class;
 		}
 
 		@Override
-		public Class<?> visitSet(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitSet(org.rascalmpl.value.type.Type type) {
 			return ISet.class;
 		}
 
 		@Override
-		public Class<?> visitSourceLocation(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitSourceLocation(org.rascalmpl.value.type.Type type) {
 			return ISourceLocation.class;
 		}
 
 		@Override
-		public Class<?> visitString(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitString(org.rascalmpl.value.type.Type type) {
 			return IString.class;
 		}
 
 		@Override
-		public Class<?> visitNode(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitNode(org.rascalmpl.value.type.Type type) {
 			return INode.class;
 		}
 
 		@Override
-		public Class<?> visitConstructor(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitConstructor(org.rascalmpl.value.type.Type type) {
 			return IConstructor.class;
 		}
 
 		@Override
-		public Class<?> visitTuple(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitTuple(org.rascalmpl.value.type.Type type) {
 			return ITuple.class;
 		}
 
 		@Override
-		public Class<?> visitValue(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitValue(org.rascalmpl.value.type.Type type) {
 			return IValue.class;
 		}
 
 		@Override
-		public Class<?> visitVoid(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitVoid(org.rascalmpl.value.type.Type type) {
 			return null;
 		}
 
 		@Override
-		public Class<?> visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
+		public Class<?> visitParameter(org.rascalmpl.value.type.Type parameterType) {
 			return parameterType.getBound().accept(this);
 		}
 

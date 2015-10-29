@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class SyntaxDefinition extends AbstractAST {
   public SyntaxDefinition(ISourceLocation src, IConstructor node) {
@@ -121,7 +121,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 443 + 11 * defined.hashCode() + 389 * production.hashCode() ; 
+      return 11 + 389 * defined.hashCode() + 229 * production.hashCode() ; 
     } 
   
     
@@ -224,7 +224,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 229 + 193 * start.hashCode() + 617 * defined.hashCode() + 521 * production.hashCode() ; 
+      return 193 + 617 * start.hashCode() + 521 * defined.hashCode() + 269 * production.hashCode() ; 
     } 
   
     
@@ -336,7 +336,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 269 + 839 * vis.hashCode() + 743 * defined.hashCode() + 751 * production.hashCode() ; 
+      return 839 + 743 * vis.hashCode() + 751 * defined.hashCode() + 241 * production.hashCode() ; 
     } 
   
     
@@ -438,7 +438,7 @@ public abstract class SyntaxDefinition extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 241 + 911 * defined.hashCode() + 827 * production.hashCode() ; 
+      return 911 + 827 * defined.hashCode() + 29 * production.hashCode() ; 
     } 
   
     

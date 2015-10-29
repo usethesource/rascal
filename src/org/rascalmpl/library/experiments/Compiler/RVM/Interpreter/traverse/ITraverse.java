@@ -1,6 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse;
 
-import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.value.IValue;
 
 public interface ITraverse {
 

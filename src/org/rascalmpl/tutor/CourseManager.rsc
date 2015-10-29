@@ -227,7 +227,7 @@ public str validateAnswer1(map[str,str] params){
   ConceptName cpid = params["concept"];
   QuestionName qid = params["exercise"];
     
-  answer = trim(params["answer"]) ? "";
+  answer = trim(params["answer"] ? "");
   expr = params["exp"] ? "";
   cheat = params["cheat"] ? "no";
 	another = params["another"] ? "no";

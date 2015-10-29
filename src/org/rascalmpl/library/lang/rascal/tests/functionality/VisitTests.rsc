@@ -597,7 +597,7 @@ test bool order4()= order(h1(f1(1),g1([h1(f1(2),f1(3)),f1(4),f1(5)]))) == [1,2,3
 
 data NODE = nd(NODE left, NODE right) | leaf(int n);
 
-anno int NODE @ pos;
+anno int NODE@pos;
 
 NODE N1 = nd(leaf(0)[@pos=0], leaf(1)[@pos=1])[@pos=2];
 
@@ -656,7 +656,7 @@ public &T delAnnotationsRec2(&T v) = visit(v) {
      case node n: { insert delAnnotations(n); }
   };
 
-anno int NODE @ pos;
+anno int NODE@pos;
 
 public NODE A1 = leaf(3);
 public NODE A2 = leaf(3)[@pos = 1];

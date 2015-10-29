@@ -40,20 +40,6 @@ import java.util.Stack;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.io.StandardTextReader;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
@@ -111,6 +97,20 @@ import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.io.StandardTextReader;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -119,14 +119,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	private final IValueFactory vf; // sharable
 	private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
-	protected Environment currentEnvt; // not sharable
+	protected volatile Environment currentEnvt; // not sharable
  
 	private final GlobalEnvironment heap; // shareable if frozen
 	private final Configuration config = new Configuration();
 	/**
 	 * True if an interrupt has been signalled and we should abort execution
 	 */
-	private boolean interrupt = false;
+	private volatile boolean interrupt = false;
 
 	private final JavaBridge javaBridge; // TODO: sharable if synchronized
 

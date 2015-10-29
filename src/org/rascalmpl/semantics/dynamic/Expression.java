@@ -22,18 +22,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.exceptions.FactParseError;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.KeywordArgument_Expression;
 import org.rascalmpl.ast.KeywordArguments_Expression;
@@ -51,6 +39,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.AndResult;
 import org.rascalmpl.interpreter.matching.AntiPattern;
@@ -100,6 +89,18 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.IMapWriter;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.exceptions.FactParseError;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -1614,7 +1615,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				IValue keyValue = result.get(keyResult.getValue());
 				if (keyValue != null) {
 					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
-							.MultipleKey(keyValue, mapping.getFrom(), __eval
+							.MultipleKey(keyResult.getValue(), mapping.getFrom(), __eval
 									.getStackTrace());
 				}
 

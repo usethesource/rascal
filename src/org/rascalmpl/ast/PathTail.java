@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class PathTail extends AbstractAST {
   public PathTail(ISourceLocation src, IConstructor node) {
@@ -131,7 +131,7 @@ public abstract class PathTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 257 + 2 * mid.hashCode() + 709 * expression.hashCode() + 499 * tail.hashCode() ; 
+      return 2 + 709 * mid.hashCode() + 499 * expression.hashCode() + 991 * tail.hashCode() ; 
     } 
   
     
@@ -223,7 +223,7 @@ public abstract class PathTail extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 991 + 653 * post.hashCode() ; 
+      return 653 + 557 * post.hashCode() ; 
     } 
   
     

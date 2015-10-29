@@ -13,11 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Expression.Anti;
 import org.rascalmpl.ast.Expression.CallOrTree;
@@ -31,6 +26,11 @@ import org.rascalmpl.ast.QualifiedName.Default;
 import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.semantics.dynamic.Expression.Set;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {

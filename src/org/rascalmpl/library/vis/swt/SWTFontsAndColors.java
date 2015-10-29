@@ -7,10 +7,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.vis.swt;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Font;
@@ -19,6 +15,10 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Display;
 import org.rascalmpl.library.vis.graphics.FontStyle;
 import org.rascalmpl.library.vis.util.FigureColorUtils;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class SWTFontsAndColors {

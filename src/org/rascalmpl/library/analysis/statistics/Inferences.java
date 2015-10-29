@@ -15,13 +15,13 @@ import org.apache.commons.math.stat.inference.ChiSquareTestImpl;
 import org.apache.commons.math.stat.inference.OneWayAnovaImpl;
 import org.apache.commons.math.stat.inference.TTestImpl;
 import org.apache.commons.math.stat.ranking.NaturalRanking;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.INumber;
-import org.eclipse.imp.pdb.facts.IReal;
-import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.INumber;
+import org.rascalmpl.value.IReal;
+import org.rascalmpl.value.ITuple;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 
 public class Inferences {
 	private final IValueFactory values;

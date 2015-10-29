@@ -11,13 +11,13 @@
  *******************************************************************************/
 package org.rascalmpl.library.vis.figure.interaction.swtwidgets;
 
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.rascalmpl.library.vis.properties.PropertyManager;
 import org.rascalmpl.library.vis.swt.IFigureConstructionEnv;
+import org.rascalmpl.value.IValue;
 
 public class Button extends SWTWidgetFigureWithSingleCallBack<org.eclipse.swt.widgets.Button> {
 

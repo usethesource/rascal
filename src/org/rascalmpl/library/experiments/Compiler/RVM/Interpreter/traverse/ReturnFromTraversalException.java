@@ -1,6 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse;
 
-import org.eclipse.imp.pdb.facts.IValue;
+import org.rascalmpl.value.IValue;
 
 class ReturnFromTraversalException extends RuntimeException {
 	private final static long serialVersionUID = -5118318371303187359L;

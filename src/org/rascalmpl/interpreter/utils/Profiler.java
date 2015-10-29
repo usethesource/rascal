@@ -21,13 +21,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 class Count {

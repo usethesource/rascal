@@ -17,13 +17,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.jdom2.Attribute;
 import org.jdom2.CDATA;
 import org.jdom2.Comment;
@@ -38,6 +31,13 @@ import org.jdom2.Text;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 
 public class DOM {
 	private final IValueFactory vf;

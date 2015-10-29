@@ -13,7 +13,7 @@ package org.rascalmpl.debug;
 
 import java.util.function.IntSupplier;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.ISourceLocation;
 
 /**
  * Interface for suspending an program interpretation.

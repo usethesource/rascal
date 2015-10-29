@@ -2,14 +2,14 @@ package org.rascalmpl.parser.uptr;
 
 import java.net.URI;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.ISetWriter;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.out.INodeConstructorFactory;
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;

@@ -43,32 +43,32 @@ public Alignment bottomLeft   	= <0.0, 1.0>;
 public Alignment bottomMid 		= <0.5, 1.0>;
 public Alignment bottomRight	= <1.0, 1.0>;
 
+
+data Orientation =
+		leftRight()
+	|	rightLeft()
+	| 	topDown()
+	|	downTop();
+
 // Events and bindings for input elements
-
-
+alias StrCallBack = void(str,str,str);
+alias RealCallBack = void(str,str,real);
+alias IntCallBack = void(str,str,int);
 
 data Event 
-	= on(void(str, str, str) callBackS)
-	| on(void(str, str, real) callBackR)
-	| on(void(str, str, int) callBackI)
-	| on(str eventName, void(str, str, str) callbackS)
-	| on(str eventName, void(str, str, real) callbackR)
-	| on(str eventName, void(str, str, int) callbackI)
-	| on(list[str] eventList, void(str, str, str) callbackS)
-	| on(list[str] eventList, void(str, str, real) callbackR)
-	| on(list[str] eventList, void(str, str, int) callbackI)
+	= on(StrCallBack strCallBack)
+	| on(RealCallBack realCallBack)
+	| on(IntCallBack intCallBack)
+	| on(str eventName, StrCallBack strCallBack)
+	| on(str eventName, RealCallBack realCallBack)
+	| on(str eventName, IntCallBack intCallBack)
+	| on(list[str] eventList, StrCallBack strCallBack)
+	| on(list[str] eventList, RealCallBack realCallBack)
+	| on(list[str] eventList,IntCallBack intCallBack)
 	;
 		
 //alias Cursor[&T] = &T;
 
-data Bind
-    = bind(value accessor)
-    | bind(value accessor, value val)
-//    | delete(Cursor[&T] accessor)
-//    | add(Cursor[&T] accessor, value(value model))
-	;
-
-// Data formats for various chart elements
 
 alias XYData 			= lrel[num x, num y];
 
@@ -84,11 +84,6 @@ alias GoogleData     = list[list[value]];
 
 /* Dataype belonging to candlesticks */
 
-alias BoxData     = lrel[str date,  num low , num open, num close, num high];
-
-alias BoxLabeledData     = lrel[str date,  num low , num open, num close, num high, str tooltip];
-
-alias BoxHeader = tuple[str, str, str, str, str];
 	
 //data Margin = margin(int left = 0, int right = 0, int top = 0, int bottom = 0);
 
@@ -120,18 +115,25 @@ public alias Figures = list[Figure];
 
 public num nullFunction(list[num] x) { return 0;}
 
-void nullCallback(str x, str y, str z) = "";
+void nullCallback(str x, str y, str z) {return;}
 
 public data Attr (
     int width = -1,
     int height =  -1,
     int r = -1,
-    num grow = 1.0  
+    num grow = 1.0,
+    bool disabled = false 
     ) = attr();
     
 public data Property (
      value \value = ""
     ) = property();
+    
+public data Timer (
+     int delay = -1,
+     str command = ""
+     // ,str mark = ""
+    ) = timer();
     
 public data Style (	
     bool svg = false,
@@ -147,11 +149,13 @@ public data Style (
     
     
 public data Text (		
-    str text = ""  
+    str text = "",
+    str html = ""  
     ) = text();
     
+    
 public alias Prop =
-    tuple[Attr attr, Style style,  Property property, Text text];
+    tuple[Attr attr, Style style,  Property property, Text text, Timer timer];
     
     
 public data Figure(
@@ -211,8 +215,8 @@ public data Figure(
 
 // atomic primitivesreturn [[z] +[*((c[z]?)?c[z]:"null")|c<-m]|z<-x];
 	
-   | text(value text)		    			// text label html
-   | label(value text)		    			// text label svg
+   | htmlText(value text, bool nl2br = true)		    			// text label html
+   | text(value text, bool nl2br = true)		    			// text label svg
    | markdown(value text)					// text with markdown markup (TODO: make flavor of text?)
    | math(value text)						// text with latex markup
    
@@ -236,7 +240,7 @@ public data Figure(
             Rescale scaleX = <<0,1>, <0, 1>>,
    			Rescale scaleY = <<0,1>, <0, 1>>)
    
-   | shape(Vertices vertices, 				// Arbitrary shape
+   | shape(list[Vertex] vertices, 				// Arbitrary shape
    			bool shapeConnected = true, 	// Connect vertices with line/curve
    			bool shapeClosed = false, 		// Make a closed shape
    			bool shapeCurved = false, 		// Connect vertices with a spline
@@ -252,10 +256,10 @@ public data Figure(
 
 // Figure composers
                    
-   | hcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "black") 					// horizontal and vertical concatenation
-   | vcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "black") 					// horizontal and vertical concatenation 
+   | hcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "") 					// horizontal and vertical concatenation
+   | vcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "") 					// horizontal and vertical concatenation 
    | overlay(Figures figs=[])				// overlay (stacked) comAlignment
-   | grid(list[Figures] figArray = [[]], str borderStyle="solid", int borderWidth=0, str borderColor = "black") 	// grid of figures
+   | grid(list[Figures] figArray = [[]], str borderStyle="solid", int borderWidth=0, str borderColor = "") 	// grid of figures
 
 // Figure transformations
 
@@ -292,7 +296,7 @@ public data Figure(
    
 // Visibility control elements
 
-   | visible(bool condition=true, Figure fig = emptyFigure())
+  // | visible(bool condition=true, Figure fig = emptyFigure())
    
    | choice(int selection = 0, Figures figs = [])
   
@@ -303,22 +307,23 @@ public data Figure(
 
 
 // Charts
-	| combochart(list[Chart] charts =[],  ChartOptions options = chartOptions(), bool tickLabels = false,
+	| comboChart(list[Chart] charts =[],  ChartOptions options = chartOptions(), bool tickLabels = false,
 	  int tooltipColumn = 1)
-    | linechart(GoogleData googleData = [], XYData xyData = [], ChartOptions options = chartOptions())
-    | areachart(GoogleData googleData = [], XYData xyData = [], ChartOptions options = chartOptions())
-	| scatterchart(GoogleData googleData = [], XYData xyData = [], ChartOptions options = chartOptions())
-	| candlestickchart(GoogleData googleData =[], ChartOptions options = chartOptions())
-	| piechart(GoogleData googleData = [],  ChartOptions options = chartOptions())
+    | lineChart(GoogleData googleData = [], XYData xyData = [], ChartOptions options = chartOptions())
+    | areaChart(GoogleData googleData = [], XYData xyData = [], ChartOptions options = chartOptions())
+	| scatterChart(GoogleData googleData = [], XYData xyData = [], ChartOptions options = chartOptions())
+	| candlestickChart(GoogleData googleData =[], ChartOptions options = chartOptions())
+	| pieChart(GoogleData googleData = [],  ChartOptions options = chartOptions())
 // Graphs
 // Must be used as innerfigure in box(fig=..., align = topLeft). 
 // Advised is to use the function graph(nodes, edges)
-   | graph(list[tuple[str, Figure]] nodes = [], list[Edge] edges = [], map[str, Dot] nodeProp = (), 
+   | graph(list[tuple[str, Figure]] nodes = [], list[Edge] edges = [], map[str, NodeProperty] nodeProperty = (), 
      GraphOptions options = graphOptions())
  
-// Trees
-	| tree(Figure root, Figures figs, int scaleX=5, int scaleY=5, int rasterHeight=100
-	       ,int xSeparation = 5, int ySeparation = 10)
+   | tree(Figure root, list[Figure] figs, int sX=1, int sY=5, int rasterHeight=150
+	       ,int xSep = 1, int ySep = 2, str pathColor = "black"
+	       ,Orientation orientation = topDown()
+	       ,bool manhattan=false)
    ;
    
 data GraphOptions = graphOptions(
@@ -326,7 +331,7 @@ data GraphOptions = graphOptions(
         
     );
  
-data Dot = dot(str shape="",str labelStyle="", str style = "", str label="");
+data NodeProperty = nodeProperty(str shape="",str labelStyle="", str style = "", str label="");
 
 data Edge = edge(str from, str to, str label = "", str lineInterpolate="basis"
      ,str lineColor = "" ,str labelStyle="", str arrowStyle = "");
@@ -585,10 +590,10 @@ public Figure idNgon(num r) = ngon(r= r, lineWidth = 0, fillColor = "none");
 public Figure idRect(int width, int height) = rect(width = width, height = height, lineWidth = 0, fillColor = "none");
 
 public Figure graph(list[tuple[str, Figure]] n, list[Edge] e, tuple[int, int] size=<0,0>, int width = -1, int height = -1,
-   int lineWidth = 1) =  
-   box(fig = graph(nodes = n, edges = e,
-               nodeProp = (), size = size, width = width, height = height,
-               options = graphOptions()), align = topLeft, lineWidth = lineWidth);
+   int lineWidth = 1, GraphOptions options = graphOptions()) =  
+   box(fig = graph(nodes = n, edges = e, lineWidth = lineWidth, 
+               nodeProperty = (), size = size, width = width, height = height,
+               options = options), align = topLeft, lineWidth = 0);
                
 public Figure overlayBox(int width, int height, list[Figure] figs) {
       list[Figure] b = [box(width = width, height = height, fig = f, fillColor="none", align = centerMid)|Figure f<-figs];

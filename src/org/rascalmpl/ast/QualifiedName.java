@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class QualifiedName extends AbstractAST {
   public QualifiedName(ISourceLocation src, IConstructor node) {
@@ -92,7 +92,7 @@ public abstract class QualifiedName extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 331 + 223 * names.hashCode() ; 
+      return 223 + 499 * names.hashCode() ; 
     } 
   
     

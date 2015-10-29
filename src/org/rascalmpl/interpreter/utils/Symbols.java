@@ -15,12 +15,6 @@ package org.rascalmpl.interpreter.utils;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.rascalmpl.ast.CaseInsensitiveStringConstant;
 import org.rascalmpl.ast.Char;
 import org.rascalmpl.ast.Class;
@@ -30,6 +24,12 @@ import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Type;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 

@@ -22,12 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeRedeclaredException;
-import org.eclipse.imp.pdb.facts.exceptions.RedeclaredFieldNameException;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.Declaration.Alias;
 import org.rascalmpl.ast.Declaration.Data;
@@ -51,6 +45,12 @@ import org.rascalmpl.interpreter.staticErrors.RedeclaredType;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.exceptions.FactTypeDeclarationException;
+import org.rascalmpl.value.exceptions.FactTypeRedeclaredException;
+import org.rascalmpl.value.exceptions.RedeclaredFieldNameException;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 
 public class TypeDeclarationEvaluator {
 	private Evaluator eval;
@@ -145,7 +145,7 @@ public class TypeDeclarationEvaluator {
 							env.getStore().declareKeywordParameter(cons.getConstructorType(), label, kwType.getFieldType(label));
 						}
 					}
-				} catch (org.eclipse.imp.pdb.facts.exceptions.RedeclaredConstructorException e) {
+				} catch (org.rascalmpl.value.exceptions.RedeclaredConstructorException e) {
 					throw new RedeclaredType(altName, var);
 				} catch (RedeclaredFieldNameException e) {
 					throw new RedeclaredField(e.getMessage(), var);

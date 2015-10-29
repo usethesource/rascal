@@ -10,19 +10,19 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.value.type.TypeFactory;
 
 
 public class TypedMultiVariablePattern extends TypedVariablePattern {
 
-	public TypedMultiVariablePattern(IEvaluatorContext ctx, Expression x, org.eclipse.imp.pdb.facts.type.Type type, org.rascalmpl.ast.Name name) {
+	public TypedMultiVariablePattern(IEvaluatorContext ctx, Expression x, org.rascalmpl.value.type.Type type, org.rascalmpl.ast.Name name) {
 		super(ctx, x, type, name);		
 	}
 	
-	public TypedMultiVariablePattern(IEvaluatorContext ctx, Expression x, org.eclipse.imp.pdb.facts.type.Type type, String name) {
+	public TypedMultiVariablePattern(IEvaluatorContext ctx, Expression x, org.rascalmpl.value.type.Type type, String name) {
 		super(ctx, x, type, name);
 	}
 	

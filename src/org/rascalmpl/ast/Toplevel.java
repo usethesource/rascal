@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class Toplevel extends AbstractAST {
   public Toplevel(ISourceLocation src, IConstructor node) {
@@ -90,7 +90,7 @@ public abstract class Toplevel extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 661 + 499 * declaration.hashCode() ; 
+      return 499 + 769 * declaration.hashCode() ; 
     } 
   
     

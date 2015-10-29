@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class FunctionType extends AbstractAST {
   public FunctionType(ISourceLocation src, IConstructor node) {
@@ -109,7 +109,7 @@ public abstract class FunctionType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 877 + 599 * type.hashCode() + 281 * arguments.hashCode() ; 
+      return 599 + 281 * type.hashCode() + 43 * arguments.hashCode() ; 
     } 
   
     

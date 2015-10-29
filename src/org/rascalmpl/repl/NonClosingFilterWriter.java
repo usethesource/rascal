@@ -7,13 +7,13 @@ import java.io.Writer;
 
 public abstract class NonClosingFilterWriter extends FilterWriter {
 
-  protected NonClosingFilterWriter(Writer out) {
-    super(out);
-  }
+    protected NonClosingFilterWriter(Writer out) {
+        super(out);
+    }
 
-  @Override
-  public void close() throws IOException {
-  }
-  
+    @Override
+    public void close() throws IOException {
+    }
+
 
 }

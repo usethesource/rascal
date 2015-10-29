@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class ProdModifier extends AbstractAST {
   public ProdModifier(ISourceLocation src, IConstructor node) {
@@ -97,7 +97,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 157 + 139 * associativity.hashCode() ; 
+      return 139 + 193 * associativity.hashCode() ; 
     } 
   
     
@@ -161,7 +161,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 193 ; 
+      return 859 ; 
     } 
   
     	
@@ -226,7 +226,7 @@ public abstract class ProdModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 859 + 3 * tag.hashCode() ; 
+      return 3 + 701 * tag.hashCode() ; 
     } 
   
     

@@ -27,11 +27,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.IBool;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.junit.After;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -41,6 +36,11 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 

@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class Visit extends AbstractAST {
   public Visit(ISourceLocation src, IConstructor node) {
@@ -116,7 +116,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 293 + 421 * subject.hashCode() + 467 * cases.hashCode() ; 
+      return 421 + 467 * subject.hashCode() + 181 * cases.hashCode() ; 
     } 
   
     
@@ -221,7 +221,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 181 + 383 * strategy.hashCode() + 263 * subject.hashCode() + 463 * cases.hashCode() ; 
+      return 383 + 263 * strategy.hashCode() + 463 * subject.hashCode() + 223 * cases.hashCode() ; 
     } 
   
     

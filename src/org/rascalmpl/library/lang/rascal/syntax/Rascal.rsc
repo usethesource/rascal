@@ -220,7 +220,7 @@ syntax Expression
 	| fieldUpdate  : Expression expression "[" Name key "=" Expression replacement "]" 
 	| fieldProject : Expression expression!transitiveClosure!transitiveReflexiveClosure!isDefined "\<" {Field ","}+ fields "\>" 
 	| setAnnotation: Expression expression "[" "@" Name name "=" Expression value "]" 
-    | getAnnotation: Expression expression "@" Name name 
+    | getAnnotation: Expression expression >> "@" "@" Name name 
 	| is           : Expression expression "is" Name name
 	| has          : Expression expression "has" Name name
 	| transitiveClosure: Expression argument "+" !>> "="
@@ -535,9 +535,9 @@ start syntax EvalCommand
   ;
  
 lexical Output   
-  = @category="Result" result: "⇨" ![\n\r]* [\n] 
-  | @category="StdOut" stdout: ^ "≫" ![\n\r]* [\n]
-  | @category="StdErr" stderr: ^ "⚠" ![\n\r]* [\n]
+  = @category="Result" resultOutput: "⇨" ![\n\r]* [\n] 
+  | @category="StdOut" stdoutOutput: ^ "≫" ![\n\r]* [\n]
+  | @category="StdErr" stderrOutput: ^ "⚠" ![\n\r]* [\n]
   ;
   
 start syntax Command
@@ -881,7 +881,7 @@ syntax Pattern
 syntax Tag
 	= @Folded @category="Comment" \default   : "@" Name name TagString contents 
 	| @Folded @category="Comment" empty     : "@" Name name 
-	| @Folded @category="Comment" expression: "@" Name name "=" Expression expression ;
+	| @Folded @category="Comment" expression: "@" Name name "=" Expression expression !>> "@";
 
 syntax ModuleActuals
 	= \default: "[" {Type ","}+ types "]" ;

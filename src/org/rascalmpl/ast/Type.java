@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 
 public abstract class Type extends AbstractAST {
   public Type(ISourceLocation src, IConstructor node) {
@@ -139,7 +139,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 769 + 163 * basic.hashCode() ; 
+      return 163 + 641 * basic.hashCode() ; 
     } 
   
     
@@ -213,7 +213,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 641 + 313 * type.hashCode() ; 
+      return 313 + 509 * type.hashCode() ; 
     } 
   
     
@@ -287,7 +287,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 509 + 563 * function.hashCode() ; 
+      return 563 + 149 * function.hashCode() ; 
     } 
   
     
@@ -361,7 +361,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 149 + 431 * selector.hashCode() ; 
+      return 431 + 67 * selector.hashCode() ; 
     } 
   
     
@@ -435,7 +435,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 67 + 19 * structured.hashCode() ; 
+      return 19 + 181 * structured.hashCode() ; 
     } 
   
     
@@ -509,7 +509,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 181 + 599 * symbol.hashCode() ; 
+      return 599 + 101 * symbol.hashCode() ; 
     } 
   
     
@@ -583,7 +583,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 101 + 421 * user.hashCode() ; 
+      return 421 + 277 * user.hashCode() ; 
     } 
   
     
@@ -657,7 +657,7 @@ public abstract class Type extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 277 + 487 * typeVar.hashCode() ; 
+      return 487 + 797 * typeVar.hashCode() ; 
     } 
   
     

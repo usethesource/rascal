@@ -13,9 +13,9 @@ package org.rascalmpl.interpreter.result;
 
 import java.util.ArrayList;
 
-import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.type.Type;
 
 public class ConcatStringResult extends StringResult {
 	private final int length;

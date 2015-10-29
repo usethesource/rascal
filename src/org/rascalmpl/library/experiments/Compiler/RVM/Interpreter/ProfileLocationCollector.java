@@ -2,8 +2,8 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISourceLocation;
 
 public class ProfileLocationCollector implements ILocationCollector, ILocationReporter<IList> {
 

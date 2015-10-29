@@ -16,11 +16,11 @@ package org.rascalmpl.interpreter.matching;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.value.type.Type;
 
 /* package */ class MapPattern extends AbstractMatchingResult {
 	private java.util.List<IMatchingResult> children;

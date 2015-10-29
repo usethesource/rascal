@@ -1,5 +1,17 @@
 module experiments::Compiler::Examples::Tst6
 
-data F1 = f1(int N, int M = 10, bool B = false) | f1(str S);
+import List;
 
-test bool matchADTwithKeywords5() = f1(1, M=X)             := f1(1, B=false, M=20) && X == 20;
+syntax A = a: "a";
+
+syntax X = "plus" {A ","}+ l1 | "star" {A ","}* l2;
+
+layout W = [\ ]*;
+
+int f({A ","}* l) = size([y | A y <- l]);
+
+test bool plusToStar() = f(([X] "plus a,a").l1) == 2;
+
+data IG = ig(int z = 1);
+
+test bool ignoreKeywordParameter2() = ig(z=1) := ig();

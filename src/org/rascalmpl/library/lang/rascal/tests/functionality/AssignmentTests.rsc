@@ -93,7 +93,6 @@ test bool testADT33() { D d = intfield(5); d.i *= 3; return d == intfield(15); }
 test bool testADT34() { D d = intfield(6); d.i /= 3; return d == intfield(2); }
   	
 data F = f() | f(int n) | g(int n) | deep(F f);
- 
 data F(int pos = 0);
   
 // testAnnotations
@@ -137,7 +136,6 @@ test bool testKwParams2() {
   return X.kw1 == 2;
 }
 
-
 test bool isKeyDefined1(value key, int val) {
   m = ();
   m[key]?val += 1;
@@ -145,40 +143,71 @@ test bool isKeyDefined1(value key, int val) {
   return m[key] == val + 2;
 }
 
+@ignoreCompiler{Exception differs}
 @expected{UninitializedVariable}
 test bool testUnInitAssignment1() {
-  m = ();
+  map[int,int] m = ();
+  m[0] += 1;
+}
+
+@ignoreInterpreter{Exception differs}
+@expected{NoSuchKey}
+test bool testUnInitAssignment1() {
+  map[int,int] m = ();
   m[0] += 1;
 }
 
 test bool testInitAssignment1() {
-  m = ();
+ map[int,int]  m = ();
   m[0]?0 += 1;
   return m[0] == 1;
 }
 
-
+@ignoreCompiler{Exception differs}
 @expected{UninitializedVariable}
 test bool testUnInitAssignment2() {
-  m = ();
+  map[int,int] m = ();
   m[0] -= 1;
 }
 
+@ignoreInterpreter{Exception differs}
+@expected{NoSuchKey}
+test bool testUnInitAssignment2() {
+  map[int,int] m = ();
+  m[0] -= 1;
+}
+
+@ignoreCompiler{Exception differs}
 @expected{UninitializedVariable}
 test bool testUnInitAssignment3() {
-  m = ();
+  map[int,int] m = ();
   m[0] *= 1;
 }
 
+@ignoreInterpreter{Exception differs}
+@expected{NoSuchKey}
+test bool testUnInitAssignment3() {
+  map[int,int] m = ();
+  m[0] *= 1;
+}
+
+@ignoreCompiler{Exception differs}
 @expected{UninitializedVariable}
 test bool testUnInitAssignment4() {
-  m = ();
+  map[int,int]m = ();
+  m[0] /= 1;
+}
+
+@ignoreInterpreter{Exception differs}
+@expected{NoSuchKey}
+test bool testUnInitAssignment4() {
+  map[int,int]m = ();
   m[0] /= 1;
 }
 
 @expected{IndexOutOfBounds}
 test bool testUnInitAssignment5() {
-  m = [];
+  list[int] m = [];
   m[0] += 1;
 }
 
