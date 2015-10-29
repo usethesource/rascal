@@ -36,7 +36,7 @@ public Figure genTree(int leafChance,int hGap, int vGap, int minDepth,int maxDep
 	int nr = arbInt(maxKids-minKids) + minKids;	
 	return tree(root,
 		[ genTree(leafChance,hGap, vGap, minDepth-1,maxDepth-1,minKids,maxKids,minX,minY,maxX,maxY) | i <- [0..nr+1]]
-		, manhattan = cityblock, orientation = orientation, xSep = hGap, ySep= vGap
+		, cityblock = cityblock, orientation = orientation, xSeparation = hGap, ySeparation = vGap
 		);	
 }
 
@@ -59,10 +59,10 @@ public Figure genTrees(int leafChance,int hGap, int vGap, int minDepth,int maxDe
 	   // println("nr = <nr>");
 	   r = tree(root,
 		[ genTree(leafChance,hGap, vGap, minDepth-1,maxDepth-1,minKids,maxKids,minX,minY,maxX,maxY) | int j <- [0..nr+1]]
-		, manhattan = cityblock, orientation = orientation, xSep = hGap, ySep = vGap
+		, cityblock = cityblock, orientation = orientation, xSeparation = hGap, ySeparation = vGap
 		);
 		// println(m);
-		treeLayout(r, m, r.sX, r.sY, r.rasterHeight, r.manhattan);
+		treeLayout(r, m, r.sX, r.sY, r.rasterHeight, r.cityblock);
 		// println("genTrees");
 		if (!isDisjunct()) {
 		     println("WRONG GENTREES <i>");
