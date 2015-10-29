@@ -16,7 +16,7 @@ import util::Math;
 import IO;
 
 test bool createDate_simple(int x)  = // parameter is here to force our random test framework to execute this test function multiple times
-	x > 0 ==> (date.year == year && date.month == month && date.day == day)
+	date.year == year && date.month == month && date.day == day
 	when 
 		int year := genYear() &&
 		int month := genMonth() &&
