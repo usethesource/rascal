@@ -25,7 +25,7 @@ import lang::rascal::\syntax::Rascal;
 import util::UUID;
 import util::Math;
 
-public CheckResult checkStatementsString(str statementsString, list[str] importedModules = [], list[str] initialDecls = [], list[str] syntaxDecls = []) {
+public CheckResult checkStatementsString(str statementsString, PathConfig pcfg, list[str] importedModules = [], list[str] initialDecls = [], list[str] syntaxDecls = []) {
     str modName = "CheckStatementsString";
     
 	str moduleToCheck =
@@ -40,7 +40,7 @@ public CheckResult checkStatementsString(str statementsString, list[str] importe
     moduleLoc = |test-modules:///<modName>.rsc|;
     writeFile(moduleLoc, moduleToCheck);
 
-	c = newConfiguration();
+	c = newConfiguration(pcfg);
 	try {
 		pt = parseModuleWithSpaces(moduleLoc);
 
