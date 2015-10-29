@@ -117,3 +117,11 @@ public void vennDiagram(){
 		ellipse(text("C"),bottom(),shrink(0.6),fillColor(color("blue",0.6)))
 		]));
 }
+
+public Figure tst0() = ellipse( ellipse(width(200), height(150), lineWidth(8), lineColor("green"), fillColor("yellow"))
+      ,lineWidth(10), lineColor ("red"), fillColor("blue")
+      ,std(resizable(false))
+     );
+    
+public void tst() = render(tst0()); 
+ 
