@@ -65,14 +65,18 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  	);
    	 
    	 // Constructor functions are generated in case of constructors with keyword parameters
-     // (this enables evaluation of potentially non-constant default expressions and semantics of implicit keyword arguments)                       
-     for(int uid <- config.store, AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, 0, _) := config.store[uid], !isEmpty(config.dataKeywordDefaults[uid])) {
+     // (this enables evaluation of potentially non-constant default expressions and semantics of implicit keyword arguments)                     
+     for(int uid <- config.store, AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, 0, _) := config.store[uid], allKwFields := getAllDataKeywordFields(uid), !isEmpty(allKwFields)) {
          // ***Note: the keywordParams field excludes the common keyword parameters 
+         println("*** Creating companion for <uid>");
+         
          map[RName,Symbol] allKeywordParams = ();
-         for(<RName rname, _> <- config.dataKeywordDefaults[uid]) { // All the keyword parameters
-             int adt = toMapUnique(invert(config.adtConstructors))[uid];
-             allKeywordParams[rname] = config.adtFields[<adt,getSimpleName(rname)>];
-         }
+         //for(str fieldName <- allKwFields /*config.dataKeywordDefaults[uid]*/) { // All the keyword parameters
+         //    int adt = toMapUnique(invert(config.adtConstructors))[uid];
+         //    allKeywordParams[RSimpleName(fieldName)] = config.adtFields[<adt,fieldName>];
+         //    println("fieldName =  <fieldName>, allKeywordParams = <allKeywordParams>");
+         //}
+         allKeywordParams = getAllDataKeywordFieldsAndTypes(uid);
          
          // Create companion for construction
          
@@ -87,7 +91,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
          MuExp body = muReturn1(muCall(muConstr(uid2str[uid]), [ muVar("<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
                                                                + [ muVar("kwparams", fuid, size(\type.parameters)),
                                                                    muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),allKeywordParams[rname]) | rname <- allKeywordParams ])) 
-                                                               ]));                             
+                                                               ]));                          
          leaveFunctionScope();
          addFunctionToModule(muFunction(fuid, name.name, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid,nformals, nformals + 1, false, true, |std:///|, [], (), false, 0, 0, body));                                             
      
@@ -101,8 +105,12 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
          enterFunctionScope(fuidDefaults);
          
          list[MuExp] kwps = [ muAssign("map_of_default_values", fuidDefaults, defaults_pos, muCallMuPrim("make_mmap_str_entry",[])) ];
-         for(RName kwf <- allKeywordParams) {
-             if(Expression kw_default_expr := getOneFrom(config.dataKeywordDefaults[uid,kwf])){
+         allKwDefaults = getAllDataKeywordDefaults(uid);
+         println("allKeywordParams: <allKeywordParams>");
+         println("allKwDefaults: <allKwDefaults>");
+         for(RName kwf <- allKwDefaults) {
+            println("+++ <kwf>: <allKwDefaults[kwf]?"UNDEFINED">");
+             if(Expression kw_default_expr := allKwDefaults[kwf] /*getOneFrom(config.dataKeywordDefaults[uid,kwf])*/){
                  kwps += muCallMuPrim("mmap_str_entry_add_entry_type_ivalue", 
                                       [ muVar("map_of_default_values",fuidDefaults,defaults_pos), 
                                         muCon("<getSimpleName(kwf)>"), 
@@ -114,6 +122,8 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
          }
          
          MuExp bodyDefaults =  muBlock(kwps + [ muReturn1(muVar("map_of_default_values",fuidDefaults,defaults_pos)) ]);
+         
+         //iprintln(bodyDefaults);
          
          leaveFunctionScope();
          addFunctionToModule(muFunction(fuidDefaults, name.name, ftype, (addrDefaults.fuid in moduleNames) ? "" : addrDefaults.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefaults));                                             
