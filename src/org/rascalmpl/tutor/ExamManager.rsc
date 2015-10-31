@@ -160,7 +160,7 @@ void createReview(){
 	      }
 	  }   
   }
-  writeCSV(reviews, resultsDir + "Review.csv", ("separator" : ";"));
+  writeCSV(reviews, resultsDir + "Review.csv", separator = ";");
   
   println("*** create GoodAnswers ***");
   rel[str Question, str Expected] good = {};
@@ -168,7 +168,7 @@ void createReview(){
       ga = (goodAnswers[q])? ? intercalate(" OR ", toList(goodAnswers[q])) : "";
       good += {<q, ga>};
   }
-  writeCSV(good , resultsDir + "GoodAnswers.csv", ("separator" : ";"));
+  writeCSV(good , resultsDir + "GoodAnswers.csv", separator = ";");
 }
 
 public set[examResult] update(str cn){
