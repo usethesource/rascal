@@ -375,6 +375,29 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
   return markLocationType(c, exp@\loc, rt);
 }
 
+public tuple[Configuration,KeywordParamMap] getConstructorKeywordParams(Configuration c, int itemId, loc at) {
+	if (! (c.store[itemId] is constructor) ) {
+		c = addScopeError(c, "Item <itemId> is not a constructor", at);
+		return < c, ( ) >;
+	} 
+	
+	adtIdSet = invert(c.adtConstructors)[itemId];
+	if (size(adtIdSet) == 1) {
+		adtId = getOneFrom(adtIdSet);
+		if (adtId == 847) {
+			println("Found it");
+		}
+		adtParams = c.store[adtId].keywordParams;
+		consParams = c.store[itemId].keywordParams;
+		typeParams = consParams + domainX(adtParams, consParams<0>);
+		return < c, typeParams >;
+	} else {
+		c = addScopeError(c, "No ADT is associated with constructor <prettyPrintName(c.store[itemId].name)>", at);
+	}
+	
+	return < c, ( ) >; 
+}
+
 @doc{Check the types of Rascal expressions: CallOrTree}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expression ","}* eps> <KeywordArguments[Expression] keywordArguments> )`, Configuration c) {
     // check for failures
@@ -386,7 +409,11 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
     usedItems = invert(c.uses)[e@\loc];
     usedItems = { ui | ui <- usedItems, !(c.store[ui] is overload)} + { uii | ui <- usedItems, c.store[ui] is overload, uii <- c.store[ui].items };
     rel[Symbol,KeywordParamMap] functionKP = { < c.store[ui].rtype, c.store[ui].keywordParams > | ui <- usedItems, c.store[ui] is function };
-    rel[Symbol,KeywordParamMap] constructorKP = { < c.store[ui].rtype, c.store[ui].keywordParams > | ui <- usedItems, c.store[ui] is constructor };
+    rel[Symbol,KeywordParamMap] constructorKP = { };
+    for (ui <- usedItems, c.store[ui] is constructor) {
+    	< c, consParams > = getConstructorKeywordParams(c, ui, e@\loc);
+    	constructorKP = constructorKP + < c.store[ui].rtype, consParams >;
+    }
      
     if (isFailType(t1)) failures += t1;
     list[Symbol] tl = [];
@@ -526,8 +553,16 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         				kpm = instantiatedKP;
         			}
                  	if (false notin { subtypeOrOverload(tl[idx],args[idx]) | (idx <- index(epsList)) }) {
-                 		if (size(kl<0> - kpm<0>) > 0) {
-                 			failureReasons += "Unknown keyword parameters passed: <intercalate(",",[prettyPrintName(kpname)|kpname<-(kl<0>-kpm<0>)])>";
+                 		unknownKP = kl<0>-kpm<0>;
+                 		if (size(unknownKP) > 0) {
+                 			kpAsUpper = ( toUpperCase(prettyPrintName(kpmi)) : prettyPrintName(kpmi) | kpmi <- kpm<0> );
+                 			for (kpname <- unknownKP) {
+                 				if (toUpperCase(prettyPrintName(kpname)) in kpAsUpper) {
+                 					failureReasons += "Unknown keyword parameter passed: <prettyPrintName(kpname)>, did you mean <kpAsUpper[toUpperCase(prettyPrintName(kpname))]>?";
+                 				} else {
+                 					failureReasons += "Unknown keyword parameter passed: <prettyPrintName(kpname)>";
+                 				}
+                 			}
                  		} else {
                  			kpFailures = { kpname | kpname <- kl<0>, !subtypeOrOverload(kl[kpname],kpm[kpname]) };
                  			if (size(kpFailures) > 0) {
@@ -566,8 +601,16 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
                         Symbol varArgsType = getListElementType(last(args));
                         if (size(fixedPart) == 0 || all(idx <- index(fixedPart), subtypeOrOverload(fixedPart[idx],fixedArgs[idx]))) {
                             if ( (size(varPart) == 0 ) || (size(varPart) == 1 && subtypeOrOverload(varPart[0],last(args))) || (all(idx2 <- index(varPart),subtypeOrOverload(varPart[idx2],varArgsType))) ) {
-		                 		if (size(kl<0> - kpm<0>) > 0) {
-		                 			failureReasons += "Unknown keyword parameters passed: <intercalate(",",[prettyPrintName(kpname)|kpname<-(kl<0>-kpm<0>)])>";
+		                 		unknownKP = kl<0>-kpm<0>;
+		                 		if (size(unknownKP) > 0) {
+		                 			kpAsUpper = ( toUpperCase(prettyPrintName(kpmi)) : prettyPrintName(kpmi) | kpmi <- kpm<0> );
+		                 			for (kpname <- unknownKP) {
+		                 				if (toUpperCase(prettyPrintName(kpname)) in kpAsUpper) {
+		                 					failureReasons += "Unknown keyword parameter passed: <prettyPrintName(kpname)>, did you mean <kpAsUpper[toUpperCase(prettyPrintName(kpname))]>?";
+		                 				} else {
+		                 					failureReasons += "Unknown keyword parameter passed: <prettyPrintName(kpname)>";
+		                 				}
+		                 			}
 		                 		} else {
 		                 			kpFailures = { kpname | kpname <- kl<0>, !subtypeOrOverload(kl[kpname],kpm[kpname]) };
 		                 			if (size(kpFailures) > 0) {
@@ -600,8 +643,16 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         for (a <- alts, isConstructorType(a), kpm <- ( (!isEmpty(constructorKP[a])) ? constructorKP[a] : { ( ) })) {
             list[Symbol] args = getConstructorArgumentTypes(a);
             if ( (size(epsList) == size(args) && size(epsList) == 0) || (size(epsList) == size(args) && false notin { subtype(tl[idx],args[idx]) | idx <- index(epsList) }) ) {
-	     		if (size(kl<0> - kpm<0>) > 0) {
-	     			failureReasons += "Unknown keyword parameters passed: <intercalate(",",[prettyPrintName(kpname)|kpname<-(kl<0>-kpm<0>)])>";
+	     		unknownKP = kl<0>-kpm<0>;
+	     		if (size(unknownKP) > 0) {
+	     			kpAsUpper = ( toUpperCase(prettyPrintName(kpmi)) : prettyPrintName(kpmi) | kpmi <- kpm<0> );
+	     			for (kpname <- unknownKP) {
+	     				if (toUpperCase(prettyPrintName(kpname)) in kpAsUpper) {
+	     					failureReasons += "Unknown keyword parameter passed: <prettyPrintName(kpname)>, did you mean <kpAsUpper[toUpperCase(prettyPrintName(kpname))]>?";
+	     				} else {
+	     					failureReasons += "Unknown keyword parameter passed: <prettyPrintName(kpname)>";
+	     				}
+	     			}
 	     		} else {
 	     			kpFailures = { kpname | kpname <- kl<0>, !subtypeOrOverload(kl[kpname],kpm[kpname]) };
 	     			if (size(kpFailures) > 0) {
@@ -3552,7 +3603,12 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                         
 					    usedItems = invert(c.uses)[ph@at];
 					    usedItems = { ui | ui <- usedItems, !(c.store[ui] is overload)} + { uii | ui <- usedItems, c.store[ui] is overload, uii <- c.store[ui].items };
-					    rel[Symbol,KeywordParamMap] constructorKP = { < c.store[ui].rtype, c.store[ui].keywordParams > | ui <- usedItems, c.store[ui] is constructor };
+
+					    rel[Symbol,KeywordParamMap] constructorKP = { };
+					    for (ui <- usedItems, c.store[ui] is constructor) {
+					    	< c, consParams > = getConstructorKeywordParams(c, ui, ptn@at);
+					    	constructorKP = constructorKP + < c.store[ui].rtype, consParams >;
+					    }
 
                         //if (size(pargs) == 0) {
                         //    // if we have no arguments, then all the alternatives could match
@@ -8749,9 +8805,9 @@ public anno map[loc,str] Module@docStrings;
 public anno map[loc,set[loc]] Module@docLinks;
 
 
-public Configuration checkAndReturnConfig(str mpath, PathConfig pcfg, bool forceCheck = false, bool verbose = false) {
-	return checkAndReturnConfig(mpath, pcfg, forceCheck=forceCheck, verbose=verbose);
-}
+//public Configuration checkAndReturnConfig(str mpath, PathConfig pcfg, bool forceCheck = false, bool verbose = false) {
+//	return checkAndReturnConfig(mpath, pcfg, forceCheck=forceCheck, verbose=verbose);
+//}
 
 public Configuration checkAndReturnConfig(str qualifiedModuleName, PathConfig pcfg, bool forceCheck = false, bool verbose = false) {
     c = newConfiguration(pcfg);
@@ -8943,6 +8999,7 @@ public Symbol undefer(Symbol t) {
 	};
 }
 
+// TODO: We probably don't need this anymore, verify and remove
 @doc{Resolve any user types that were given on imported items; these types may have relied on imports themselves.}
 public Configuration resolveDeferredTypes(Configuration c, int itemId) {
 	av = c.store[itemId];
