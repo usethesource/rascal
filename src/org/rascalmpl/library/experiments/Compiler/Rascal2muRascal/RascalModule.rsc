@@ -111,6 +111,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
          for(RName kwf <- allKwDefaults) {
             println("+++ <kwf>: <allKwDefaults[kwf]?"UNDEFINED">");
              if(Expression kw_default_expr := allKwDefaults[kwf] /*getOneFrom(config.dataKeywordDefaults[uid,kwf])*/){
+                 println("kw_default_expr: <kw_default_expr>");
                  kwps += muCallMuPrim("mmap_str_entry_add_entry_type_ivalue", 
                                       [ muVar("map_of_default_values",fuidDefaults,defaults_pos), 
                                         muCon("<getSimpleName(kwf)>"), 
@@ -119,6 +120,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
              } else {
               throw "Keyword default expression for <kwf> of incorrect type";
              }
+             println("+++ done");
          }
          
          MuExp bodyDefaults =  muBlock(kwps + [ muReturn1(muVar("map_of_default_values",fuidDefaults,defaults_pos)) ]);

@@ -333,7 +333,7 @@ void extractScopes(Configuration c){
 		     } 
     	}
         case variable(_,_,_,inScope,src):  { 
-        	 //println("<uid>: <item>");
+        	 println("<uid>: <item>");
 			 variables += {uid};
 			 declares += {<inScope, uid>};
 			 loc2uid[src] = uid;
@@ -552,6 +552,7 @@ void extractScopes(Configuration c){
         }
         // Filter all the keyword variables (parameters) within the function scope
         decls_kwp = sort([ uid | UID uid <- declares[innerScopes], variable(RName name,_,_,_,_) := config.store[uid], name in keywordParams ]);
+        println("^^^ adding <decls_kwp>");
         for(int i <- index(decls_kwp)) {
             keywordParameters += decls_kwp[i];
             uid2addr[decls_kwp[i]] = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
@@ -597,7 +598,12 @@ void extractScopes(Configuration c){
                     uid2addr[decls_non_kwp[i]] = <fuid_str, i>;
                 }
                 // Filter all the keyword variables (parameters) within the function scope
-                decls_kwp = sort([ uid | UID uid <- declares[innerScopes], variable(RName name,_,_,_,_) := config.store[uid], name in keywordParams + domain(dataKeywordParams) ]);
+                println("keywordParams = <keywordParams>");
+                println("domain(dataKeywordParams): <domain(dataKeywordParams)>");
+                println("declares[innerScopes]: <declares[innerScopes]>");
+                println("keywordParams + domain(dataKeywordParams): <keywordParams + domain(dataKeywordParams)>");
+                decls_kwp = sort([ uid | UID uid <- declares[innerScopes], variable(RName name,_,_,_,_) := config.store[uid], name in domain(keywordParams) + domain(dataKeywordParams) ]);
+                println("^^^ adding <decls_kwp>");
                 for(int i <- index(decls_kwp)) {
                     keywordParameters += decls_kwp[i];
                     uid2addr[decls_kwp[i]] = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
@@ -1170,12 +1176,12 @@ public list[UID] accessibleAlts(list[UID] uids, loc luse){
 MuExp mkVar(str name, loc l) {
   //////l = normalize(l);
   //name = unescape(name);
-  //println("mkVar: <name>, <l>");
+  println("mkVar: <name>, <l>");
   uid = getLoc2uid(l);
-  //println("uid = <uid>");
+  println("uid = <uid>");
   //iprintln(uid2addr);
   tuple[str fuid,int pos] addr = uid2addr[uid];
-  //println("addr = <addr>");
+  println("addr = <addr>");
   
   // Pass all the functions through the overloading resolution
   if(uid in functions || uid in constructors || uid in ofunctions) {
