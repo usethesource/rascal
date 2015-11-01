@@ -74,35 +74,44 @@ public java loc getModuleLocation(str modulePath);
 public java loc getSearchPathLocation(str filePath);
 
 data PathConfig =
-     pathConfig(list[loc] srcPath = [|std:///|],
-                list[loc] libPath = [|std:///|],
-                loc binDir = |home:///bin/|,
-                loc bootDir = |boot+compressed:///|
+     pathConfig(list[loc] srcPath = [|std:///|],        // List of directories to search for source files
+                list[loc] libPath = [|std:///|],        // List of directories to search source or derived files
+                list[loc] projectPath = [],             // List of directories to search for source or derived files in projects
+                                                        // Note: each directory should include the project name as last path element
+                loc binDir = |home:///bin/|,            // Global directory for derived files outside projects
+                loc bootDir = |boot+compressed:///|     // Directory with Rascal boot files
                );
                  
 str makeFileName(str qualifiedModuleName, str extension = "rsc") = replaceAll(qualifiedModuleName, "::", "/") + "." + extension;
 
 loc getSearchPathLoc(str filePath, PathConfig pcfg){
-    for(loc l <- pcfg.srcPath + pcfg.libPath){
-        p = l + filePath;
-        if(exists(p)){
-            //println("getModuleLocation <qualifiedModuleName> =\> <p>");
-            return p;
+    for(loc dir <- pcfg.srcPath + pcfg.libPath){
+        fileLoc = dir + filePath;
+        if(exists(fileLoc)){
+            //println("getModuleLocation <qualifiedModuleName> =\> <fileLoc>");
+            return fileLoc;
         }
     }
-    throw "<filePath> not found";
+    throw "Module with path <filePath> not found";
 }
 
 loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
     fileName = makeFileName(qualifiedModuleName);
-    for(loc l <- pcfg.srcPath){
-        p = l + fileName;
-        if(exists(p)){
-            //println("getModuleLocation <qualifiedModuleName> =\> <p>");
-            return p;
+    for(loc dir <- pcfg.projectPath){
+        fileLoc = dir + ("src/" + fileName);
+        if(exists(fileLoc)){
+            println("getModuleLocation <qualifiedModuleName> =\> <fileLoc>");
+            return fileLoc;
         }
     }
-    throw "<qualifiedModuleName> not found";
+    for(loc dir <- pcfg.srcPath){
+        fileLoc = dir + fileName;
+        if(exists(fileLoc)){
+            //println("getModuleLocation <qualifiedModuleName> =\> <fileLoc>");
+            return fileLoc;
+        }
+    }
+    throw "Module <qualifiedModuleName> not found";
 }
 
 str getModuleName(loc moduleLoc,  PathConfig pcfg){
@@ -111,9 +120,23 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     if(!endsWith(modulePath, "rsc")){
         throw "Not a Rascal source file: <moduleLoc>";
     }
-    for(loc l <- pcfg.srcPath){
-        if(startsWith(modulePath, l.path) && moduleLoc.scheme == l.scheme){
-           moduleName = replaceFirst(modulePath, l.path, "");
+    if(moduleLoc.scheme == "project"){
+        for(loc dir <- pcfg.projectPath && dir.file == moduleLoc.authority){
+            dir.path = dir.path + "/" + modulePath;
+     
+            println("modulePath = <modulePath>, dir = <dir>");
+            if(exists(dir)){ 
+               moduleName = replaceFirst(modulePath, "/src/", "");
+               moduleName = replaceLast(moduleName, ".rsc", "");
+               moduleName = replaceAll(moduleName, "/", "::");
+               return moduleName;
+            }
+        }
+        throw "No module name found for <moduleLoc>";
+    }
+    for(loc dir <- pcfg.srcPath){
+        if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme){
+           moduleName = replaceFirst(modulePath, dir.path, "");
            moduleName = replaceLast(moduleName, ".rsc", "");
            moduleName = replaceAll(moduleName, "/", "::");
            return moduleName;
@@ -122,17 +145,17 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     throw "No module name found for <moduleLoc>";
 }
 
-bool isDefinedInSearchPath(str filePath, list[loc] searchPath, bool compressed){
-    for(loc d <- searchPath){
-        if(compressed){
-           d.scheme = "compressed+" + d.scheme;
-        }
-        if(exists(d + filePath)){
-            return true;
-        }
-    }
-    return false;
-}
+//bool isDefinedInSearchPath(str filePath, list[loc] searchPath, bool compressed){
+//    for(loc d <- searchPath){
+//        if(compressed){
+//           d.scheme = "compressed+" + d.scheme;
+//        }
+//        if(exists(d + filePath)){
+//            return true;
+//        }
+//    }
+//    return false;
+//}
 
 @doc{   
 Synopsis: Derive a location from a given module name for reading
@@ -162,27 +185,44 @@ from locations in different, configurable, directories.
 tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathConfig pcfg, set[str] srcExtensions = {"rsc", "mu"}){
     fileName = makeFileName(qualifiedModuleName, extension=extension);
     //println("getDerivedReadLoc: <fileName>");
-    compressed = endsWith(extension, "gz");
+   
     if(extension in srcExtensions){
-       if(isDefinedInSearchPath(fileName, pcfg.srcPath, compressed)){
-          loc d = pcfg.binDir;
-          if(compressed){
-             d.scheme = "compressed+" + d.scheme;
-          }
-          loc p = d + fileName;
-          //println("getDerivedReadLoc: <qualifiedModuleName>, <extension> =\> <p>");
-          return <true, p>;
+       for(loc dir <- pcfg.projectPath){    // In a project directory?
+           fileLoc = dir + ("src/" + fileName);
+           if(exists(fileLoc)){
+              println("getDerivedReadLoc <qualifiedModuleName> =\> <fileLoc>");
+              return <true, fileLoc>;
+           }
+       }
+       for(loc dir <- pcfg.srcPath){        // In a source directory?
+           fileLoc = dir + filePath;
+           if(exists(dir + filePath)){
+             //println("getDerivedReadLoc: <qualifiedModuleName>, <extension> =\> <pfileLoc");
+             return <true, fileLoc>;
+           }
        }
     } else {
       // A binary (possibly library) module
-      for(loc l <- pcfg.binDir + pcfg.libPath){
-        if(compressed){
-           l.scheme = "compressed+" + l.scheme;
-        }
-        p = l + fileName;
-        if(exists(p)){
-            //println("getDerivedReadLoc: <qualifiedModuleName>, <extension> =\> <p>");
-            return <true, p>;
+      compressed = endsWith(extension, "gz");
+      for(loc dir <- pcfg.projectPath){     // In a project directory
+           fileLoc = dir + ("bin/" + fileName);
+           if(exists(fileLoc)){
+              if(compressed){
+                 fileLoc.scheme = "compressed+" + fileLoc.scheme;
+              }
+              println("getDerivedReadLoc <qualifiedModuleName> =\> <fileLoc>");
+              return <true, fileLoc>;
+           }
+      }
+      for(loc dir <- pcfg.binDir + pcfg.libPath){   // In a bin or lib directory?
+       
+        fileLoc = dir + fileName;
+        if(exists(fileLoc)){
+           if(compressed){
+              fileLoc.scheme = "compressed+" + fileLoc.scheme;
+           }
+           //println("getDerivedReadLoc: <qualifiedModuleName>, <extension> =\> <fileLoc>");
+           return <true, fileLoc>;
         }
       }
     }
@@ -216,14 +256,30 @@ loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, 
     if(extension in srcExtensions){
         throw "Cannot derive writable location for module <qualifiedModuleName> with extension <extension>";
     }
-    fileName = makeFileName(qualifiedModuleName, extension=extension);
-    d = pcfg.binDir;
-    if(endsWith(extension, "gz")){
-       d.scheme = "compressed+" + d.scheme;
+    fileNameSrc = makeFileName(qualifiedModuleName);
+    fileNameBin = makeFileName(qualifiedModuleName, extension=extension);
+    compressed = endsWith(extension, "gz");
+    
+    for(loc dir <- pcfg.projectPath){
+        fileLocSrc = dir + ("src/" + fileNameSrc);
+        if(exists(fileLocSrc)){
+           loc fileLocBin = dir + ("bin/" + fileNameBin);
+           if(compressed){
+              fileLocBin.scheme = "compressed+" + fileLocBin.scheme;
+           }
+        
+           println("getDerivedWriteLoc <qualifiedModuleName> =\> <fileLocBin>");
+           return fileLocBin;
+        }
     }
-    result = d + fileName;
-    //println("getDerivedWriteLoc: <qualifiedModuleName>, <extension> =\> <result>");
-    return result;
+    
+    bindir = pcfg.binDir;
+    if(compressed){
+       bindir.scheme = "compressed+" + bindir.scheme;
+    }
+    fileLocBin = bindir + fileNameBin;
+    //println("getDerivedWriteLoc: <qualifiedModuleName>, <extension> =\> <fileLocBin>");
+    return fileLocBin;
 }
 
 @doc{Is the current Rascal code executed by the compiler or the interpreter?}
