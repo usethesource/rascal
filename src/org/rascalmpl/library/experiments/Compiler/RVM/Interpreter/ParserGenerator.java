@@ -54,7 +54,7 @@ public class ParserGenerator {
 	private Function createHoleFunction;
 	private static final String packageName = "org.rascalmpl.java.parser.object";
 	private static final boolean debug = false;
-	private static final boolean useCompiledParserGenerator = true;
+	private static final boolean useCompiledParserGenerator = false;
 
 	public ParserGenerator(RascalExecutionContext rex) {
 		this.vf = rex.getValueFactory();
