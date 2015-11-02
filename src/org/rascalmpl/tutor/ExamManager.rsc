@@ -173,10 +173,10 @@ void createReview(){
 
 public set[examResult] update(str cn){
   scores = readSubmissionsAgain(cn);
-  reviews = readCSV(#set[reviewType], (resultsDir) + "Review.csv", ("separator" : ";"));
+  reviews = readCSV(#set[reviewType], (resultsDir) + "Review.csv", separator = ";");
   println("reviews = <typeOf(reviews)>: <reviews>");
   
-  rel[str Question, str Expected]good = readCSV(#rel[str Question, str Expected], (resultsDir) + "GoodAnswers.csv", ("separator" : ";"));
+  rel[str Question, str Expected]good = readCSV(#rel[str Question, str Expected], (resultsDir) + "GoodAnswers.csv", separator = ";");
   println("good = <typeOf(good)>: <good>");
   goodAnswers = (q : {e} | <q, e> <- good);
   
