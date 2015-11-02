@@ -70,7 +70,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
+import org.rascalmpl.interpreter.staticErrors.ArgumentMismatch;
 import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
@@ -527,7 +527,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					res = function.call(types, actuals, kwActuals);
 				}
 				catch (MatchFailed e) {
-				  throw new ArgumentsMismatch(function, types, this);
+				  throw new ArgumentMismatch(function, types, this);
 				}
 				return res;
 			}

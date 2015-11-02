@@ -3,7 +3,7 @@ package org.rascalmpl.interpreter.utils;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
+import org.rascalmpl.interpreter.staticErrors.ArgumentMismatch;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFunction;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IValue;
@@ -30,7 +30,7 @@ public final class NormalFormValueFactory extends AbstractValueFactoryAdapter {
     try {
       return (IConstructor) ctx.getEvaluator().call(cons.getAbstractDataType().getName(), cons.getName());
     }
-    catch (UndeclaredFunction | ArgumentsMismatch e) {
+    catch (UndeclaredFunction | ArgumentMismatch e) {
       // TODO this makes this very robust, but also may hide issues. Not sure what is best here yet.
       return adapted.constructor(cons);
     }
@@ -41,7 +41,7 @@ public final class NormalFormValueFactory extends AbstractValueFactoryAdapter {
     try {
       return (IConstructor) ctx.getEvaluator().call(cons.getAbstractDataType().getName(), cons.getName(), children);
     }
-    catch (UndeclaredFunction | ArgumentsMismatch e) {
+    catch (UndeclaredFunction | ArgumentMismatch e) {
       // TODO this makes this very robust, but also may hide issues. Not sure what is best here yet.
       return adapted.constructor(cons, children);
     }
@@ -54,7 +54,7 @@ public final class NormalFormValueFactory extends AbstractValueFactoryAdapter {
       IConstructor result = (IConstructor) ctx.getEvaluator().call(cons.getAbstractDataType().getName(), cons.getName(), children);
       return result.asAnnotatable().setAnnotations(annotations);
     }
-    catch (UndeclaredFunction | ArgumentsMismatch e) {
+    catch (UndeclaredFunction | ArgumentMismatch e) {
       // TODO this makes this very robust, but also may hide issues. Not sure what is best here yet.
       return adapted.constructor(cons, annotations, children);
     }

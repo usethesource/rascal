@@ -36,7 +36,7 @@ import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;
 import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
+import org.rascalmpl.interpreter.staticErrors.ArgumentMismatch;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
@@ -351,7 +351,7 @@ public class TraversalEvaluator {
 		    QualifiedName n = Names.toQualifiedName(cons.getType().getName(), cons.getName(), null);
 		    rcons = (IConstructor) eval.call(n, kwParams != null ? kwParams : Collections.<String,IValue>emptyMap(), args);
 		  }
-		  catch (UndeclaredFunction | UndeclaredModule | ArgumentsMismatch e) {
+		  catch (UndeclaredFunction | UndeclaredModule | ArgumentMismatch e) {
 		    // This may happen when visiting data constructors dynamically which are not 
 		    // defined in the current scope. For example, when data was serialized and the format
 		    // has changed in the meantime, or when a generic function from a library calls visit.
