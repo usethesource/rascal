@@ -17,7 +17,7 @@ import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
+import org.rascalmpl.interpreter.staticErrors.ArgumentMismatch;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
@@ -128,7 +128,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
 					
 				return (ITree) result.getValue();
 			}
-			catch (ArgumentsMismatch e) {
+			catch (ArgumentMismatch e) {
 				return ambCluster;
 			}
 		}
