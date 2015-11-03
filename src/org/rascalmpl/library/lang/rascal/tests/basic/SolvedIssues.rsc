@@ -42,7 +42,3 @@ test bool inferKWparamType() {
 // https://github.com/cwi-swat/rascal/issues/885
 test bool checkComparableOnElementsBreak() = [<[],_,_>,_] := [<[],false,1>,<[3],false,3>];
 
-// https://github.com/cwi-swat/rascal/issues/886
-@ignoreCompiler
-//@expect=UnsupportedOperation
-test bool noTupleSplice() = [<[<19,0,_*>],false,_>] := [<[<19,0,1>], true, 1>];
