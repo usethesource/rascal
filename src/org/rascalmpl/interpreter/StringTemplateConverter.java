@@ -28,7 +28,6 @@ import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.StringLiteral.Default;
 import org.rascalmpl.ast.StringPart;
-import org.rascalmpl.ast.StringPart.Characters;
 import org.rascalmpl.ast.StringPart.Hole;
 import org.rascalmpl.ast.StringPart.Margin;
 import org.rascalmpl.interpreter.result.Result;
@@ -119,6 +118,8 @@ public class StringTemplateConverter {
 			Result<IValue> result = this.getStatement().interpret(__eval);
 			
 			String content = toString(result.getValue());
+			
+			target.appendString(indent);
 			
 			for (int i = 0; i < content.length(); i++) {
 				int ch = content.charAt(i);
@@ -213,8 +214,8 @@ public class StringTemplateConverter {
 			stats.addAll(body(x.getBody()));
 			stats.addAll(x.getPostStats());
 			
-			return ASTBuilder.makeStat("DoWhile", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), 
-					makeBlock(x.getLocation(), stats) , x.getCondition());
+			return single(ASTBuilder.makeStat("DoWhile", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), 
+					makeBlock(x.getLocation(), stats) , x.getCondition()));
 		}
 		
 		public List<Statement> visitStringPartFor(org.rascalmpl.ast.StringPart.For x) {
@@ -224,8 +225,8 @@ public class StringTemplateConverter {
 			stats.addAll(body(x.getBody()));
 			stats.addAll(x.getPostStats());
 			
-			return ASTBuilder.makeStat("For", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), x.getGenerators(), 
-					makeBlock(x.getLocation(), stats));
+			return single(ASTBuilder.makeStat("For", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), x.getGenerators(), 
+					makeBlock(x.getLocation(), stats)));
 		};
 		
 		private List<Statement> single(Statement s) {
@@ -251,8 +252,8 @@ public class StringTemplateConverter {
 			stats.addAll(x.getPreStats());
 			stats.addAll(body(x.getBody()));
 
-			return ASTBuilder.makeStat("IfThen", x.getLocation(), ASTBuilder.make("Label", "Empty", x.getLocation()), x.getConditions(), 
-					makeBlock(x.getLocation(), stats));
+			return single(ASTBuilder.makeStat("IfThen", x.getLocation(), ASTBuilder.make("Label", "Empty", x.getLocation()), x.getConditions(), 
+					makeBlock(x.getLocation(), stats)));
 		}
 		
 		@Override
@@ -268,8 +269,8 @@ public class StringTemplateConverter {
 			stats.addAll(body(x.getElseBody()));
 			elseStats.addAll(x.getPostStatsElse());
 
-			return ASTBuilder.makeStat("IfThenElse", x.getLocation(), ASTBuilder.make("Label","Empty",x.getLocation()), 
-					x.getConditions(), makeBlock(x.getLocation(), stats), makeBlock(x.getLocation(), elseStats));
+			return single(ASTBuilder.makeStat("IfThenElse", x.getLocation(), ASTBuilder.make("Label","Empty",x.getLocation()), 
+					x.getConditions(), makeBlock(x.getLocation(), stats), makeBlock(x.getLocation(), elseStats)));
 		}
 		
 		@Override
@@ -280,8 +281,8 @@ public class StringTemplateConverter {
 			stats.addAll(body(x.getBody()));
 			stats.addAll(x.getPostStats());
 			
-			return ASTBuilder.makeStat("While", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), Collections.singletonList(x.getCondition()), 
-					makeBlock(x.getLocation(), stats));
+			return single(ASTBuilder.makeStat("While", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), Collections.singletonList(x.getCondition()), 
+					makeBlock(x.getLocation(), stats)));
 		}
 		
 		@Override
