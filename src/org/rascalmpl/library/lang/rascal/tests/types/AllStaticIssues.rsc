@@ -389,3 +389,6 @@ test bool Issue550(){
 // https://github.com/cwi-swat/rascal/issues/563
 
 test bool Issue563() = uninitialized("int x; x + 5;");
+
+test bool Issue886() = unexpectedType("[\<[\<19,0,_*\>],false,_\>] := [\<[\<19,0,1\>], true, 1\>]");
+
