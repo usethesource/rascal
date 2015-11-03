@@ -99,12 +99,12 @@ void inspect(str qualifiedModuleName,   // nameof Rascal source module
           bool listing = false,         // show instruction listing
           bool linked = false           // inspect the fully linked version of the program
           ){
-    rvmLoc = linked ? RVMExecutableCompressedReadLocation(qualifiedModuleName, pcfg) : RVMModuleReadLocation(qualifiedModuleName, pcfg);
+    <e, rvmLoc> = linked ? RVMExecutableCompressedReadLoc(qualifiedModuleName, pcfg) : RVMModuleReadLoc(qualifiedModuleName, pcfg);
     println("rvmLoc = <rvmLoc>");
     RVMModule p;
     listing = listing || line >= 0;
     try {
-    	if(rvmLoc == bindir + "/src/org/rascalmpl/library/experiments/Compiler/muRascal2RVM/Library.rvm.gz"){
+    	if(qualifiedModuleName == "experiments/Compiler/muRascal2RVM/Library"){
     		decls = readBinaryValueFile(#list[Declaration], rvmLoc);
     		p = rvmModule("Library",        // name
     		  (),                           // module_tags

@@ -22,6 +22,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.type.Type;
@@ -59,6 +60,11 @@ public class TuplePattern extends AbstractMatchingResult {
 		for (int i = 0; i < children.size(); i += 1){
 			IValue childValue = treeSubject.get(i);
 			IMatchingResult child = children.get(i);
+			
+			if (child instanceof MultiVariablePattern) {
+				throw new UnsupportedOperation("splice operator in a tuple match", getAST());
+			}
+			
 			child.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
 			hasNext = child.hasNext();
 			if (!hasNext) {
