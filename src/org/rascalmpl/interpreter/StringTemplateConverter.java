@@ -236,8 +236,8 @@ public class StringTemplateConverter {
 		public List<Statement> visitStringPartMargin(Margin x) {
 			// a margin sets the new indentation level
 			indentation = indent(x.getIndent());
-			// otherwise the margin is ignored
-			return Collections.emptyList();
+			// otherwise the margin is ignored and we add a newline
+			return single(new ConstAppend(x.getLocation(), makeTarget(x.getLocation()), "\n", ""));
 		}
 		
 		@Override

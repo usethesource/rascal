@@ -818,6 +818,8 @@ public interface IASTVisitor<T> {
 
   public T visitStringCharacterLexical(StringCharacter.Lexical x);
 
+  public T visitStringCharactersLexical(StringCharacters.Lexical x);
+
   public T visitTagStringLexical(TagString.Lexical x);
 
   public T visitTimePartNoTZLexical(TimePartNoTZ.Lexical x);

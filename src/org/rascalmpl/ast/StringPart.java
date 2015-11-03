@@ -81,13 +81,6 @@ public abstract class StringPart extends AbstractAST {
   public java.util.List<org.rascalmpl.ast.Statement> getPreStatsThen() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasCharacters() {
-    return false;
-  }
-
-  public java.util.List<org.rascalmpl.ast.StringCharacter> getCharacters() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasBody() {
     return false;
   }
@@ -137,6 +130,13 @@ public abstract class StringPart extends AbstractAST {
   public org.rascalmpl.ast.KeywordArguments_Expression getKeywordArguments() {
     throw new UnsupportedOperationException();
   }
+  public boolean hasCharacters() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.StringCharacters getCharacters() {
+    throw new UnsupportedOperationException();
+  }
 
   
 
@@ -146,12 +146,12 @@ public abstract class StringPart extends AbstractAST {
   }
 
   static public class Characters extends StringPart {
-    // Production: sig("Characters",[arg("java.util.List\<org.rascalmpl.ast.StringCharacter\>","characters")],breakable=false)
+    // Production: sig("Characters",[arg("org.rascalmpl.ast.StringCharacters","characters")],breakable=false)
   
     
-    private final java.util.List<org.rascalmpl.ast.StringCharacter> characters;
+    private final org.rascalmpl.ast.StringCharacters characters;
   
-    public Characters(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.StringCharacter> characters) {
+    public Characters(ISourceLocation src, IConstructor node , org.rascalmpl.ast.StringCharacters characters) {
       super(src, node);
       
       this.characters = characters;
@@ -174,16 +174,14 @@ public abstract class StringPart extends AbstractAST {
       }
       ISourceLocation $l;
       
-      for (AbstractAST $elem : characters) {
-        $l = $elem.getLocation();
-        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
-          $elem.addForLineNumber($line, $result);
-        }
-        if ($l.getBeginLine() > $line) {
-          return;
-        }
-  
+      $l = characters.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        characters.addForLineNumber($line, $result);
       }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
     }
   
     @Override
@@ -202,7 +200,7 @@ public abstract class StringPart extends AbstractAST {
   
     
     @Override
-    public java.util.List<org.rascalmpl.ast.StringCharacter> getCharacters() {
+    public org.rascalmpl.ast.StringCharacters getCharacters() {
       return this.characters;
     }
   

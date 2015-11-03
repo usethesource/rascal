@@ -551,7 +551,7 @@ layout NoLayout
 syntax StringPart
   = \hole      : "\<" Expression arg KeywordArguments[Expression] keywordArguments  "\>"
   | \margin    : "\n" NoLayout Indentation margin  NoLayout "\'" NoLayout Indentation indent 
-  | \characters: StringCharacter+ characters !>> ![\>\"\n]
+  | \characters: StringCharacters characters 
   | \ifThen    : "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStats "\>" NoLayout StringPart* body NoLayout "\<" "}" "\>" 
   | \ifThenElse: "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen "\>" NoLayout StringPart* body NoLayout "\<" Statement* postStatsThen "}" 
                       "else" "{"  Statement* preStatsElse "\>" NoLayout StringPart* elseBody NoLayout "\<" Statement* postStatsElse "}" "\>" 
@@ -559,6 +559,8 @@ syntax StringPart
   | \doWhile   : "\<" "do"    "{" Statement* preStats "\>" NoLayout StringPart* body NoLayout "\<" Statement* postStats  "}" "while" "(" Expression condition ")" "\>"
   | \while     : "\<" "while" "(" Expression condition ")" "{" Statement* preStats "\>" NoLayout StringPart* body  NoLayout "\<" Statement* postStats"}" "\>" 
   ;
+
+lexical StringCharacters = StringCharacter+ chars !>> ![\" \' \< \> \\ \n];
 
 lexical Indentation
   = [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* !>> [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]
