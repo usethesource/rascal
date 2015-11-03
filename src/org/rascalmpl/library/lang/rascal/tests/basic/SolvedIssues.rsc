@@ -37,3 +37,6 @@ test bool inferKWparamType() {
     return false;
   }
 }  
+
+// https://github.com/cwi-swat/rascal/issues/885
+test bool checkComparableOnElementsBreak() = [<[],_,_>,_] := [<[],false,1>,<[3],false,3>];
