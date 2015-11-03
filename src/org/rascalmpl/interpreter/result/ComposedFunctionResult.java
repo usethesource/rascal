@@ -26,7 +26,7 @@ import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.ArgumentsMismatch;
+import org.rascalmpl.interpreter.staticErrors.ArgumentMismatch;
 import org.rascalmpl.value.IAnnotatable;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IExternalValue;
@@ -236,7 +236,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 			} 
 			catch (MatchFailed e) {
 				List<AbstractFunction> candidates = Arrays.<AbstractFunction>asList((AbstractFunction) getLeft(), (AbstractFunction) getRight());
-        throw new ArgumentsMismatch("+ composition", candidates, argTypes, ctx.getCurrentAST());
+        throw new ArgumentMismatch("+ composition", candidates, argTypes, ctx.getCurrentAST());
 			} 
 			catch(Failure f2) {
 				throw new Failure("Both functions in the '+' composition have failed:\n " 

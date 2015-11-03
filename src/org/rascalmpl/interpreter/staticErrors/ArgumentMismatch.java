@@ -23,20 +23,20 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 
-public class ArgumentsMismatch extends StaticError {
+public class ArgumentMismatch extends StaticError {
 	private static final long serialVersionUID = -641438732779898646L;
 
-	public ArgumentsMismatch(String name,
+	public ArgumentMismatch(String name,
 			List<AbstractFunction> candidates, Type[] argTypes,
 			AbstractAST ast) {
 		super(computeMessage(name, candidates, argTypes), ast);
 	}
 	
-	public ArgumentsMismatch(String message, AbstractAST ast) {
+	public ArgumentMismatch(String message, AbstractAST ast) {
 		super(message, ast);
 	}
 
-	public ArgumentsMismatch(Result<IValue> function, Type[] argTypes, AbstractAST caller) {
+	public ArgumentMismatch(Result<IValue> function, Type[] argTypes, AbstractAST caller) {
     super(computeMessage(function, argTypes), caller);
   }
 

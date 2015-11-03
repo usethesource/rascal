@@ -118,7 +118,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
 //					
 //				return (IConstructor) result.getValue();
 //			}
-//			catch (ArgumentsMismatch e) {
+//			catch (ArgumentMismatch e) {
 //				return ambCluster;
 //			}
 //		}
