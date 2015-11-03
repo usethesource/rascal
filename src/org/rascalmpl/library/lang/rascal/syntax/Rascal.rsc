@@ -539,9 +539,9 @@ syntax Visibility
 	
 syntax StringLiteral 
   = \default: "\"" NoLayout 
-                   Indentation indent !>> [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]
+                   Indentation indent 
                    NoLayout 
-                   StringPart* body NoLayout  
+                   {StringPart NoLayout}* body NoLayout  
               "\"";
 
 layout NoLayout 
@@ -550,8 +550,8 @@ layout NoLayout
 
 syntax StringPart
   = \hole      : "\<" Expression arg KeywordArguments[Expression] keywordArguments  "\>"
-  | \margin    : "\n" NoLayout Indentation margin  NoLayout "\'" NoLayout Indentation indent
-  | \characters: StringCharacter+ characters 
+  | \margin    : "\n" NoLayout Indentation margin  NoLayout "\'" NoLayout Indentation indent 
+  | \characters: StringCharacter+ characters !>> ![\>\"\n]
   | \ifThen    : "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStats "\>" NoLayout StringPart* body NoLayout "\<" "}" "\>" 
   | \ifThenElse: "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen "\>" NoLayout StringPart* body NoLayout "\<" Statement* postStatsThen "}" 
                       "else" "{"  Statement* preStatsElse "\>" NoLayout StringPart* elseBody NoLayout "\<" Statement* postStatsElse "}" "\>" 
@@ -561,7 +561,7 @@ syntax StringPart
   ;
 
 lexical Indentation
-  = [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]*
+  = [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* !>> [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]
   ;
   
 lexical Comment

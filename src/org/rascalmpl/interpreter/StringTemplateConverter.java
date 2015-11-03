@@ -285,7 +285,7 @@ public class StringTemplateConverter {
 		}
 		
 		@Override
-		public List<Statement> visitStringPartCharacters(Characters x) {
+		public List<Statement> visitStringPartCharacters(org.rascalmpl.ast.StringPart.Characters x) {
 			// characters are only recognized after the current indent, so they do not contribute
 			// to the indentation. This means that if there are characters here, they will not influence the indent.
 			// literal has to be indented with as much as the current indent
