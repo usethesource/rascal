@@ -25,73 +25,50 @@ public abstract class StringLiteral extends AbstractAST {
   }
 
   
-  public boolean hasExpression() {
+  public boolean hasBody() {
     return false;
   }
 
-  public org.rascalmpl.ast.Expression getExpression() {
+  public java.util.List<org.rascalmpl.ast.StringPart> getBody() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasPre() {
+  public boolean hasIndent() {
     return false;
   }
 
-  public org.rascalmpl.ast.PreStringChars getPre() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasConstant() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.StringConstant getConstant() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasTail() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.StringTail getTail() {
-    throw new UnsupportedOperationException();
-  }
-  public boolean hasTemplate() {
-    return false;
-  }
-
-  public org.rascalmpl.ast.StringTemplate getTemplate() {
+  public org.rascalmpl.ast.Indentation getIndent() {
     throw new UnsupportedOperationException();
   }
 
   
 
   
-  public boolean isInterpolated() {
+  public boolean isDefault() {
     return false;
   }
 
-  static public class Interpolated extends StringLiteral {
-    // Production: sig("Interpolated",[arg("org.rascalmpl.ast.PreStringChars","pre"),arg("org.rascalmpl.ast.Expression","expression"),arg("org.rascalmpl.ast.StringTail","tail")],breakable=false)
+  static public class Default extends StringLiteral {
+    // Production: sig("Default",[arg("org.rascalmpl.ast.Indentation","indent"),arg("java.util.List\<org.rascalmpl.ast.StringPart\>","body")],breakable=false)
   
     
-    private final org.rascalmpl.ast.PreStringChars pre;
-    private final org.rascalmpl.ast.Expression expression;
-    private final org.rascalmpl.ast.StringTail tail;
+    private final org.rascalmpl.ast.Indentation indent;
+    private final java.util.List<org.rascalmpl.ast.StringPart> body;
   
-    public Interpolated(ISourceLocation src, IConstructor node , org.rascalmpl.ast.PreStringChars pre,  org.rascalmpl.ast.Expression expression,  org.rascalmpl.ast.StringTail tail) {
+    public Default(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Indentation indent,  java.util.List<org.rascalmpl.ast.StringPart> body) {
       super(src, node);
       
-      this.pre = pre;
-      this.expression = expression;
-      this.tail = tail;
+      this.indent = indent;
+      this.body = body;
     }
   
     @Override
-    public boolean isInterpolated() { 
+    public boolean isDefault() { 
       return true; 
     }
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStringLiteralInterpolated(this);
+      return visitor.visitStringLiteralDefault(this);
     }
   
     @Override
@@ -101,264 +78,63 @@ public abstract class StringLiteral extends AbstractAST {
       }
       ISourceLocation $l;
       
-      $l = pre.getLocation();
+      $l = indent.getLocation();
       if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
-        pre.addForLineNumber($line, $result);
+        indent.addForLineNumber($line, $result);
       }
       if ($l.getBeginLine() > $line) {
         return;
       }
       
-      $l = expression.getLocation();
-      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
-        expression.addForLineNumber($line, $result);
+      for (AbstractAST $elem : body) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
       }
-      if ($l.getBeginLine() > $line) {
-        return;
-      }
-      
-      $l = tail.getLocation();
-      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
-        tail.addForLineNumber($line, $result);
-      }
-      if ($l.getBeginLine() > $line) {
-        return;
-      }
-      
     }
   
     @Override
     public boolean equals(Object o) {
-      if (!(o instanceof Interpolated)) {
+      if (!(o instanceof Default)) {
         return false;
       }        
-      Interpolated tmp = (Interpolated) o;
-      return true && tmp.pre.equals(this.pre) && tmp.expression.equals(this.expression) && tmp.tail.equals(this.tail) ; 
+      Default tmp = (Default) o;
+      return true && tmp.indent.equals(this.indent) && tmp.body.equals(this.body) ; 
     }
    
     @Override
     public int hashCode() {
-      return 283 + 947 * pre.hashCode() + 541 * expression.hashCode() + 103 * tail.hashCode() ; 
+      return 283 + 947 * indent.hashCode() + 541 * body.hashCode() ; 
     } 
   
     
     @Override
-    public org.rascalmpl.ast.PreStringChars getPre() {
-      return this.pre;
+    public org.rascalmpl.ast.Indentation getIndent() {
+      return this.indent;
     }
   
     @Override
-    public boolean hasPre() {
+    public boolean hasIndent() {
       return true;
     }
     @Override
-    public org.rascalmpl.ast.Expression getExpression() {
-      return this.expression;
+    public java.util.List<org.rascalmpl.ast.StringPart> getBody() {
+      return this.body;
     }
   
     @Override
-    public boolean hasExpression() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.StringTail getTail() {
-      return this.tail;
-    }
-  
-    @Override
-    public boolean hasTail() {
+    public boolean hasBody() {
       return true;
     }	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null , clone(pre), clone(expression), clone(tail));
-    }
-            
-  }
-  public boolean isNonInterpolated() {
-    return false;
-  }
-
-  static public class NonInterpolated extends StringLiteral {
-    // Production: sig("NonInterpolated",[arg("org.rascalmpl.ast.StringConstant","constant")],breakable=false)
-  
-    
-    private final org.rascalmpl.ast.StringConstant constant;
-  
-    public NonInterpolated(ISourceLocation src, IConstructor node , org.rascalmpl.ast.StringConstant constant) {
-      super(src, node);
-      
-      this.constant = constant;
-    }
-  
-    @Override
-    public boolean isNonInterpolated() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStringLiteralNonInterpolated(this);
-    }
-  
-    @Override
-    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
-      if (getLocation().getBeginLine() == $line) {
-        $result.add(this);
-      }
-      ISourceLocation $l;
-      
-      $l = constant.getLocation();
-      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
-        constant.addForLineNumber($line, $result);
-      }
-      if ($l.getBeginLine() > $line) {
-        return;
-      }
-      
-    }
-  
-    @Override
-    public boolean equals(Object o) {
-      if (!(o instanceof NonInterpolated)) {
-        return false;
-      }        
-      NonInterpolated tmp = (NonInterpolated) o;
-      return true && tmp.constant.equals(this.constant) ; 
-    }
-   
-    @Override
-    public int hashCode() {
-      return 619 + 421 * constant.hashCode() ; 
-    } 
-  
-    
-    @Override
-    public org.rascalmpl.ast.StringConstant getConstant() {
-      return this.constant;
-    }
-  
-    @Override
-    public boolean hasConstant() {
-      return true;
-    }	
-  
-    @Override
-    public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null , clone(constant));
-    }
-            
-  }
-  public boolean isTemplate() {
-    return false;
-  }
-
-  static public class Template extends StringLiteral {
-    // Production: sig("Template",[arg("org.rascalmpl.ast.PreStringChars","pre"),arg("org.rascalmpl.ast.StringTemplate","template"),arg("org.rascalmpl.ast.StringTail","tail")],breakable=false)
-  
-    
-    private final org.rascalmpl.ast.PreStringChars pre;
-    private final org.rascalmpl.ast.StringTemplate template;
-    private final org.rascalmpl.ast.StringTail tail;
-  
-    public Template(ISourceLocation src, IConstructor node , org.rascalmpl.ast.PreStringChars pre,  org.rascalmpl.ast.StringTemplate template,  org.rascalmpl.ast.StringTail tail) {
-      super(src, node);
-      
-      this.pre = pre;
-      this.template = template;
-      this.tail = tail;
-    }
-  
-    @Override
-    public boolean isTemplate() { 
-      return true; 
-    }
-  
-    @Override
-    public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStringLiteralTemplate(this);
-    }
-  
-    @Override
-    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
-      if (getLocation().getBeginLine() == $line) {
-        $result.add(this);
-      }
-      ISourceLocation $l;
-      
-      $l = pre.getLocation();
-      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
-        pre.addForLineNumber($line, $result);
-      }
-      if ($l.getBeginLine() > $line) {
-        return;
-      }
-      
-      $l = template.getLocation();
-      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
-        template.addForLineNumber($line, $result);
-      }
-      if ($l.getBeginLine() > $line) {
-        return;
-      }
-      
-      $l = tail.getLocation();
-      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
-        tail.addForLineNumber($line, $result);
-      }
-      if ($l.getBeginLine() > $line) {
-        return;
-      }
-      
-    }
-  
-    @Override
-    public boolean equals(Object o) {
-      if (!(o instanceof Template)) {
-        return false;
-      }        
-      Template tmp = (Template) o;
-      return true && tmp.pre.equals(this.pre) && tmp.template.equals(this.template) && tmp.tail.equals(this.tail) ; 
-    }
-   
-    @Override
-    public int hashCode() {
-      return 541 + 509 * pre.hashCode() + 941 * template.hashCode() + 653 * tail.hashCode() ; 
-    } 
-  
-    
-    @Override
-    public org.rascalmpl.ast.PreStringChars getPre() {
-      return this.pre;
-    }
-  
-    @Override
-    public boolean hasPre() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.StringTemplate getTemplate() {
-      return this.template;
-    }
-  
-    @Override
-    public boolean hasTemplate() {
-      return true;
-    }
-    @Override
-    public org.rascalmpl.ast.StringTail getTail() {
-      return this.tail;
-    }
-  
-    @Override
-    public boolean hasTail() {
-      return true;
-    }	
-  
-    @Override
-    public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null , clone(pre), clone(template), clone(tail));
+      return newInstance(getClass(), src, (IConstructor) null , clone(indent), clone(body));
     }
             
   }

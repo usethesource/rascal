@@ -219,7 +219,6 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 	}
 
 	static public class String extends org.rascalmpl.ast.Literal.String {
-
 		private final Statement stat;
 
 		public String(ISourceLocation __param1, IConstructor tree, StringLiteral __param2) {
@@ -250,26 +249,12 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 			}
 			
 			return ResultFactory.makeResult(TF.stringType(), list.get(0), __eval);
-			
-//			// todo: concat not needed anymore, because of appendString in Accumulator.
-//			// list is always non-empty
-//			Result<IValue> s = ResultFactory.makeResult(TF.stringType(),
-//					list.get(0), __eval);
-//
-//			// lazy concat! 
-//			for (int i = 1; i < list.length(); i++) {
-//				IString str = (IString) list.get(i);
-//				s = s.add(ResultFactory.makeResult(TF.stringType(), str, __eval));
-//			}
-
-//			return s;
 		}
 
 		@Override
 		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
 			return TF.stringType();
 		}
-
 	}
 
 	public Literal(ISourceLocation __param1, IConstructor tree) {

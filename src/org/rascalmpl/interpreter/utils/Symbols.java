@@ -20,7 +20,8 @@ import org.rascalmpl.ast.Char;
 import org.rascalmpl.ast.Class;
 import org.rascalmpl.ast.Nonterminal;
 import org.rascalmpl.ast.Range;
-import org.rascalmpl.ast.StringConstant;
+import org.rascalmpl.ast.StringLiteral;
+import org.rascalmpl.ast.StringPart;
 import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Type;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
@@ -185,61 +186,13 @@ public class Symbols {
 		throw new RuntimeException("Symbol has unknown type: "+ symbol);
 	}
 
-	private static IValue literal2Symbol(StringConstant sep) {
-		String lit = ((StringConstant.Lexical) sep).getString();
-		StringBuilder builder = new StringBuilder(lit.length());
+	private static IValue literal2Symbol(StringLiteral sep) {
+		List<StringPart> parts = sep.getBody();
+		StringBuilder builder = new StringBuilder(parts.size());
 		
-		// TODO: did we deal with all escapes here? probably not!
-		for (int i = 1; i < lit.length() - 1; i++) {
-			if (lit.charAt(i) == '\\') {
-				i++;
-				switch (lit.charAt(i)) {
-				case 'b':
-					builder.append('\b');
-					break;
-				case 'f':
-					builder.append('\f');
-					break;
-				case 'n':
-					builder.append('\n');
-					break;
-				case 't':
-					builder.append('\t');
-					break;
-				case 'r':
-					builder.append('\r');
-					break;
-				case '\\':
-					builder.append('\\');
-					break;
-				case '\"':
-					builder.append('\"');
-					break;
-				case '>':
-					builder.append('>');
-					break;
-				case '<':
-					builder.append('<');
-					break;
-				case '\'':
-					builder.append('\'');
-					break;
-				case 'u':
-					while (lit.charAt(i++) == 'u');
-					builder.append((char) Integer.decode("0x" + lit.substring(i, i+4)).intValue());
-					i+=4;
-					break;
-				default:
-					// octal escape
-					int a = lit.charAt(i++);
-					int b = lit.charAt(i++);
-					int c = lit.charAt(i);
-					builder.append( (char) (100 * a + 10 * b + c));	
-				}
-			}
-			else {
-				builder.append(lit.charAt(i));
-			}
+		for (StringPart part : parts) {
+			assert part.isCharacters();
+			builder.append(part.interpret(null));
 		}
 		
 		return factory.constructor(RascalValueFactory.Symbol_Lit, factory.string(builder.toString()));

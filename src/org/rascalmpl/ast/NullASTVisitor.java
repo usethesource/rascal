@@ -1197,59 +1197,39 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitStringLiteralInterpolated(StringLiteral.Interpolated x) { 
+  public T visitStringLiteralDefault(StringLiteral.Default x) { 
     return null; 
   }
 
-  public T visitStringLiteralNonInterpolated(StringLiteral.NonInterpolated x) { 
+  public T visitStringPartCharacters(StringPart.Characters x) { 
     return null; 
   }
 
-  public T visitStringLiteralTemplate(StringLiteral.Template x) { 
+  public T visitStringPartDoWhile(StringPart.DoWhile x) { 
     return null; 
   }
 
-  public T visitStringMiddleInterpolated(StringMiddle.Interpolated x) { 
+  public T visitStringPartFor(StringPart.For x) { 
     return null; 
   }
 
-  public T visitStringMiddleMid(StringMiddle.Mid x) { 
+  public T visitStringPartHole(StringPart.Hole x) { 
     return null; 
   }
 
-  public T visitStringMiddleTemplate(StringMiddle.Template x) { 
+  public T visitStringPartIfThen(StringPart.IfThen x) { 
     return null; 
   }
 
-  public T visitStringTailMidInterpolated(StringTail.MidInterpolated x) { 
+  public T visitStringPartIfThenElse(StringPart.IfThenElse x) { 
     return null; 
   }
 
-  public T visitStringTailMidTemplate(StringTail.MidTemplate x) { 
+  public T visitStringPartMargin(StringPart.Margin x) { 
     return null; 
   }
 
-  public T visitStringTailPost(StringTail.Post x) { 
-    return null; 
-  }
-
-  public T visitStringTemplateDoWhile(StringTemplate.DoWhile x) { 
-    return null; 
-  }
-
-  public T visitStringTemplateFor(StringTemplate.For x) { 
-    return null; 
-  }
-
-  public T visitStringTemplateIfThen(StringTemplate.IfThen x) { 
-    return null; 
-  }
-
-  public T visitStringTemplateIfThenElse(StringTemplate.IfThenElse x) { 
-    return null; 
-  }
-
-  public T visitStringTemplateWhile(StringTemplate.While x) { 
+  public T visitStringPartWhile(StringPart.While x) { 
     return null; 
   }
 
@@ -1534,6 +1514,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitIndentationLexical(Indentation.Lexical x) { 
+    return null; 
+  }
+
   public T visitJustDateLexical(JustDate.Lexical x) { 
     return null; 
   }
@@ -1551,10 +1535,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitMidProtocolCharsLexical(MidProtocolChars.Lexical x) { 
-    return null; 
-  }
-
-  public T visitMidStringCharsLexical(MidStringChars.Lexical x) { 
     return null; 
   }
 
@@ -1602,19 +1582,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitPostStringCharsLexical(PostStringChars.Lexical x) { 
-    return null; 
-  }
-
   public T visitPrePathCharsLexical(PrePathChars.Lexical x) { 
     return null; 
   }
 
   public T visitPreProtocolCharsLexical(PreProtocolChars.Lexical x) { 
-    return null; 
-  }
-
-  public T visitPreStringCharsLexical(PreStringChars.Lexical x) { 
     return null; 
   }
 
@@ -1643,10 +1615,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
   }
 
   public T visitStringCharacterLexical(StringCharacter.Lexical x) { 
-    return null; 
-  }
-
-  public T visitStringConstantLexical(StringConstant.Lexical x) { 
     return null; 
   }
 

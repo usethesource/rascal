@@ -41,7 +41,7 @@ public Symbol sym2symbol(Sym sym) {
       return Symbol::sort("<n>");
     case \start(Nonterminal n) : 
       return Symbol::\start(sort("<n>"));
-    case literal(StringConstant l): 
+    case literal(StringLiteral l): 
       return Symbol::lit(unescape(l));
     case caseInsensitiveLiteral(CaseInsensitiveStringConstant l): 
       return Symbol::cilit(unescape(l));

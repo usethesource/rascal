@@ -106,7 +106,7 @@ syntax Sym
 	| labeled: Sym symbol NonterminalLabel label
 // literals 
 	| characterClass: Class charClass 
-	| literal: StringConstant string 
+	| literal: StringLiteral string  // note this has too many things in it, like templates, which should statically be disallowed.
 	| caseInsensitiveLiteral: CaseInsensitiveStringConstant cistring
 // regular expressions
 	| iter: Sym symbol "+" 
@@ -299,16 +299,6 @@ syntax ProtocolPart
 	= nonInterpolated: ProtocolChars protocolChars 
 	| interpolated: PreProtocolChars pre Expression expression ProtocolTail tail ;
 
-syntax StringTemplate
-	= ifThen    : "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" 
-	| ifThenElse: "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen StringMiddle thenString Statement* postStatsThen "}" "else" "{" Statement* preStatsElse StringMiddle elseString Statement* postStatsElse "}" 
-	| \for       : "for"   "(" {Expression ","}+ generators ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" 
-	| doWhile   : "do"    "{" Statement* preStats StringMiddle body Statement* postStats "}" "while" "(" Expression condition ")" 
-	| \while     : "while" "(" Expression condition ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" ;
-
-lexical PreStringChars
-	= @category="Constant" [\"] StringCharacter* [\<] ;
-
 lexical CaseInsensitiveStringConstant
 	= @category="Constant" "\'" StringCharacter* chars "\'" ;
 
@@ -371,11 +361,6 @@ syntax Assignable
 	| \tuple             : "\<" {Assignable ","}+ elements "\>" 
 	| annotation        : Assignable receiver "@" Name annotation  ;
 
-lexical StringConstant
-	= @category="Constant" "\"" StringCharacter* chars "\"" ;
-
-
-
 syntax Assoc
 	= associative: "assoc" 
 	| left: "left" 
@@ -393,17 +378,13 @@ syntax DataTarget
 lexical StringCharacter
 	= "\\" [\" \' \< \> \\ b f n r t] 
 	| UnicodeEscape 
-	| ![\" \' \< \> \\]
-	| [\n][\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* [\'] // margin 
+	| ![\" \' \< \> \\ \n]
 	;
 
 lexical JustTime
 	= "$T" TimePartNoTZ !>> [+\-] "$"
 	| "$T" TimePartNoTZ TimeZonePart "$"
 	;
-
-lexical MidStringChars
-	= @category="Constant" [\>] StringCharacter* [\<] ;
 
 lexical ProtocolChars
 	= [|] URLChars "://" !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000];
@@ -484,11 +465,6 @@ syntax ShellCommand
 	| listModules: "modules" 
 	| clear: "clear";
 
-syntax StringMiddle
-	= mid: MidStringChars mid 
-	| template: MidStringChars mid StringTemplate template StringMiddle tail 
-	| interpolated: MidStringChars mid Expression expression StringMiddle tail ;
-
 syntax QualifiedName
 	= \default: {Name "::"}+ names !>> "::" ;
 
@@ -498,16 +474,11 @@ lexical RationalLiteral
    ;
 
 lexical DecimalIntegerLiteral
-	= "0" !>> [0-9 A-Z _ a-z] 
+	= [0] !>> [0-9 A-Z _ a-z] 
 	| [1-9] [0-9]* !>> [0-9 A-Z _ a-z] ;
 
 syntax DataTypeSelector
 	= selector: QualifiedName sort "." Name production ;
-
-syntax StringTail
-	= midInterpolated: MidStringChars mid Expression expression StringTail tail 
-	| post: PostStringChars post 
-	| midTemplate: MidStringChars mid StringTemplate template StringTail tail ;
 
 syntax PatternWithAction
 	= replacing: Pattern pattern "=\>" Replacement replacement 
@@ -565,12 +536,34 @@ syntax Visibility
 	= \private: "private" 
 	| \default: 
 	| \public: "public" ;
+	
+syntax StringLiteral 
+  = \default: "\"" NoLayout 
+                   Indentation indent !>> [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]
+                   NoLayout 
+                   StringPart* body NoLayout  
+              "\"";
 
-syntax StringLiteral
-	= template: PreStringChars pre StringTemplate template StringTail tail 
-	| interpolated: PreStringChars pre Expression expression StringTail tail 
-	| nonInterpolated: StringConstant constant ;
+layout NoLayout 
+  = @manual nothing:
+  ;
 
+syntax StringPart
+  = \hole      : "\<" Expression arg KeywordArguments[Expression] keywordArguments  "\>"
+  | \margin    : "\n" NoLayout Indentation margin  NoLayout "\'" NoLayout Indentation indent
+  | \characters: StringCharacter+ characters 
+  | \ifThen    : "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStats "\>" NoLayout StringPart* body NoLayout "\<" "}" "\>" 
+  | \ifThenElse: "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen "\>" NoLayout StringPart* body NoLayout "\<" Statement* postStatsThen "}" 
+                      "else" "{"  Statement* preStatsElse "\>" NoLayout StringPart* elseBody NoLayout "\<" Statement* postStatsElse "}" "\>" 
+  | \for       : "\<" "for"   "(" {Expression ","}+ generators ")" "{" Statement* preStats "\>" NoLayout StringPart* body NoLayout "\<" Statement* postStats "}" "\>" 
+  | \doWhile   : "\<" "do"    "{" Statement* preStats "\>" NoLayout StringPart* body NoLayout "\<" Statement* postStats  "}" "while" "(" Expression condition ")" "\>"
+  | \while     : "\<" "while" "(" Expression condition ")" "{" Statement* preStats "\>" NoLayout StringPart* body  NoLayout "\<" Statement* postStats"}" "\>" 
+  ;
+
+lexical Indentation
+  = [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]*
+  ;
+  
 lexical Comment
 	= @category="Comment" "/*" (![*] | [*] !>> [/])* "*/" 
 	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
@@ -786,9 +779,6 @@ syntax ProdModifier
 
 syntax Toplevel
 	= givenVisibility: Declaration declaration ;
-
-lexical PostStringChars
-	= @category="Constant" [\>] StringCharacter* [\"] ;
 
 lexical HexIntegerLiteral
 	= [0] [X x] [0-9 A-F a-f]+ !>> [0-9 A-Z _ a-z] ;

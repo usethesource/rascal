@@ -56,6 +56,30 @@ public class Accumulator {
 		}
 		builder.append(s.getValue());
 	}
+	
+	// For string templates.
+	public void appendString(String s) {
+		if (builder == null) {
+			builder = new StringBuilder(); 
+		}
+		builder.append(s);
+	}
+
+	// For string templates.
+	public void appendString(StringBuilder s) {
+		if (builder == null) {
+			builder = new StringBuilder(); 
+		}
+		builder.append(s);
+	}
+	
+	public void appendCodePoint(int ch) {
+		if (builder == null) {
+			builder = new StringBuilder();
+		}
+		
+		builder.appendCodePoint(ch);
+	}
 
 	
 	public IList done() {
@@ -71,6 +95,8 @@ public class Accumulator {
 	protected IValueFactory getFactory() {
 		return factory;
 	}
+
+	
 	
 	
 }

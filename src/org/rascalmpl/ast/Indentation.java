@@ -19,14 +19,14 @@ package org.rascalmpl.ast;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISourceLocation;
 
-public abstract class StringConstant extends AbstractAST {
-  public StringConstant(ISourceLocation src, IConstructor node) {
+public abstract class Indentation extends AbstractAST {
+  public Indentation(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
   }
 
   
 
-  static public class Lexical extends StringConstant {
+  static public class Lexical extends Indentation {
   private final java.lang.String string;
   public Lexical(ISourceLocation src, IConstructor node, java.lang.String string) {
     super(src, node);
@@ -63,7 +63,7 @@ public abstract class StringConstant extends AbstractAST {
     return string;
   }
   public <T> T accept(IASTVisitor<T> v) {
-    return v.visitStringConstantLexical(this);
+    return v.visitIndentationLexical(this);
   }
 }
 

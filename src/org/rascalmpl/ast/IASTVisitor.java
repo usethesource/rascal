@@ -607,33 +607,23 @@ public interface IASTVisitor<T> {
 
   public T visitStrategyTopDownBreak(Strategy.TopDownBreak x);
 
-  public T visitStringLiteralInterpolated(StringLiteral.Interpolated x);
+  public T visitStringLiteralDefault(StringLiteral.Default x);
 
-  public T visitStringLiteralNonInterpolated(StringLiteral.NonInterpolated x);
+  public T visitStringPartCharacters(StringPart.Characters x);
 
-  public T visitStringLiteralTemplate(StringLiteral.Template x);
+  public T visitStringPartDoWhile(StringPart.DoWhile x);
 
-  public T visitStringMiddleInterpolated(StringMiddle.Interpolated x);
+  public T visitStringPartFor(StringPart.For x);
 
-  public T visitStringMiddleMid(StringMiddle.Mid x);
+  public T visitStringPartHole(StringPart.Hole x);
 
-  public T visitStringMiddleTemplate(StringMiddle.Template x);
+  public T visitStringPartIfThen(StringPart.IfThen x);
 
-  public T visitStringTailMidInterpolated(StringTail.MidInterpolated x);
+  public T visitStringPartIfThenElse(StringPart.IfThenElse x);
 
-  public T visitStringTailMidTemplate(StringTail.MidTemplate x);
+  public T visitStringPartMargin(StringPart.Margin x);
 
-  public T visitStringTailPost(StringTail.Post x);
-
-  public T visitStringTemplateDoWhile(StringTemplate.DoWhile x);
-
-  public T visitStringTemplateFor(StringTemplate.For x);
-
-  public T visitStringTemplateIfThen(StringTemplate.IfThen x);
-
-  public T visitStringTemplateIfThenElse(StringTemplate.IfThenElse x);
-
-  public T visitStringTemplateWhile(StringTemplate.While x);
+  public T visitStringPartWhile(StringPart.While x);
 
   public T visitStructuredTypeDefault(StructuredType.Default x);
 
@@ -776,6 +766,8 @@ public interface IASTVisitor<T> {
 
   public T visitHexIntegerLiteralLexical(HexIntegerLiteral.Lexical x);
 
+  public T visitIndentationLexical(Indentation.Lexical x);
+
   public T visitJustDateLexical(JustDate.Lexical x);
 
   public T visitJustTimeLexical(JustTime.Lexical x);
@@ -785,8 +777,6 @@ public interface IASTVisitor<T> {
   public T visitMidPathCharsLexical(MidPathChars.Lexical x);
 
   public T visitMidProtocolCharsLexical(MidProtocolChars.Lexical x);
-
-  public T visitMidStringCharsLexical(MidStringChars.Lexical x);
 
   public T visitNameLexical(Name.Lexical x);
 
@@ -810,13 +800,9 @@ public interface IASTVisitor<T> {
 
   public T visitPostProtocolCharsLexical(PostProtocolChars.Lexical x);
 
-  public T visitPostStringCharsLexical(PostStringChars.Lexical x);
-
   public T visitPrePathCharsLexical(PrePathChars.Lexical x);
 
   public T visitPreProtocolCharsLexical(PreProtocolChars.Lexical x);
-
-  public T visitPreStringCharsLexical(PreStringChars.Lexical x);
 
   public T visitProtocolCharsLexical(ProtocolChars.Lexical x);
 
@@ -831,8 +817,6 @@ public interface IASTVisitor<T> {
   public T visitRegExpModifierLexical(RegExpModifier.Lexical x);
 
   public T visitStringCharacterLexical(StringCharacter.Lexical x);
-
-  public T visitStringConstantLexical(StringConstant.Lexical x);
 
   public T visitTagStringLexical(TagString.Lexical x);
 

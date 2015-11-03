@@ -19,8 +19,8 @@ package org.rascalmpl.ast;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISourceLocation;
 
-public abstract class StringTemplate extends AbstractAST {
-  public StringTemplate(ISourceLocation src, IConstructor node) {
+public abstract class StringPart extends AbstractAST {
+  public StringPart(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
   }
 
@@ -81,6 +81,34 @@ public abstract class StringTemplate extends AbstractAST {
   public java.util.List<org.rascalmpl.ast.Statement> getPreStatsThen() {
     throw new UnsupportedOperationException();
   }
+  public boolean hasCharacters() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.StringCharacter> getCharacters() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasBody() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.StringPart> getBody() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasElseBody() {
+    return false;
+  }
+
+  public java.util.List<org.rascalmpl.ast.StringPart> getElseBody() {
+    throw new UnsupportedOperationException();
+  }
+  public boolean hasArg() {
+    return false;
+  }
+
+  public org.rascalmpl.ast.Expression getArg() {
+    throw new UnsupportedOperationException();
+  }
   public boolean hasCondition() {
     return false;
   }
@@ -88,45 +116,121 @@ public abstract class StringTemplate extends AbstractAST {
   public org.rascalmpl.ast.Expression getCondition() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasBody() {
+  public boolean hasIndent() {
     return false;
   }
 
-  public org.rascalmpl.ast.StringMiddle getBody() {
+  public org.rascalmpl.ast.Indentation getIndent() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasElseString() {
+  public boolean hasMargin() {
     return false;
   }
 
-  public org.rascalmpl.ast.StringMiddle getElseString() {
+  public org.rascalmpl.ast.Indentation getMargin() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasThenString() {
+  public boolean hasKeywordArguments() {
     return false;
   }
 
-  public org.rascalmpl.ast.StringMiddle getThenString() {
+  public org.rascalmpl.ast.KeywordArguments_Expression getKeywordArguments() {
     throw new UnsupportedOperationException();
   }
 
   
 
   
+  public boolean isCharacters() {
+    return false;
+  }
+
+  static public class Characters extends StringPart {
+    // Production: sig("Characters",[arg("java.util.List\<org.rascalmpl.ast.StringCharacter\>","characters")],breakable=false)
+  
+    
+    private final java.util.List<org.rascalmpl.ast.StringCharacter> characters;
+  
+    public Characters(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.StringCharacter> characters) {
+      super(src, node);
+      
+      this.characters = characters;
+    }
+  
+    @Override
+    public boolean isCharacters() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitStringPartCharacters(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : characters) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Characters)) {
+        return false;
+      }        
+      Characters tmp = (Characters) o;
+      return true && tmp.characters.equals(this.characters) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 103 + 619 * characters.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public java.util.List<org.rascalmpl.ast.StringCharacter> getCharacters() {
+      return this.characters;
+    }
+  
+    @Override
+    public boolean hasCharacters() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(characters));
+    }
+            
+  }
   public boolean isDoWhile() {
     return false;
   }
 
-  static public class DoWhile extends StringTemplate {
-    // Production: sig("DoWhile",[arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("org.rascalmpl.ast.StringMiddle","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats"),arg("org.rascalmpl.ast.Expression","condition")],breakable=false)
+  static public class DoWhile extends StringPart {
+    // Production: sig("DoWhile",[arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("java.util.List\<org.rascalmpl.ast.StringPart\>","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats"),arg("org.rascalmpl.ast.Expression","condition")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Statement> preStats;
-    private final org.rascalmpl.ast.StringMiddle body;
+    private final java.util.List<org.rascalmpl.ast.StringPart> body;
     private final java.util.List<org.rascalmpl.ast.Statement> postStats;
     private final org.rascalmpl.ast.Expression condition;
   
-    public DoWhile(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats,  org.rascalmpl.ast.Expression condition) {
+    public DoWhile(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Statement> preStats,  java.util.List<org.rascalmpl.ast.StringPart> body,  java.util.List<org.rascalmpl.ast.Statement> postStats,  org.rascalmpl.ast.Expression condition) {
       super(src, node);
       
       this.preStats = preStats;
@@ -142,7 +246,7 @@ public abstract class StringTemplate extends AbstractAST {
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStringTemplateDoWhile(this);
+      return visitor.visitStringPartDoWhile(this);
     }
   
     @Override
@@ -162,14 +266,16 @@ public abstract class StringTemplate extends AbstractAST {
         }
   
       }
-      $l = body.getLocation();
-      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
-        body.addForLineNumber($line, $result);
+      for (AbstractAST $elem : body) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
       }
-      if ($l.getBeginLine() > $line) {
-        return;
-      }
-      
       for (AbstractAST $elem : postStats) {
         $l = $elem.getLocation();
         if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
@@ -201,7 +307,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 347 + 73 * preStats.hashCode() + 181 * body.hashCode() + 499 * postStats.hashCode() + 227 * condition.hashCode() ; 
+      return 421 + 541 * preStats.hashCode() + 509 * body.hashCode() + 941 * postStats.hashCode() + 653 * condition.hashCode() ; 
     } 
   
     
@@ -215,7 +321,7 @@ public abstract class StringTemplate extends AbstractAST {
       return true;
     }
     @Override
-    public org.rascalmpl.ast.StringMiddle getBody() {
+    public java.util.List<org.rascalmpl.ast.StringPart> getBody() {
       return this.body;
     }
   
@@ -252,16 +358,16 @@ public abstract class StringTemplate extends AbstractAST {
     return false;
   }
 
-  static public class For extends StringTemplate {
-    // Production: sig("For",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("org.rascalmpl.ast.StringMiddle","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats")],breakable=false)
+  static public class For extends StringPart {
+    // Production: sig("For",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","generators"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("java.util.List\<org.rascalmpl.ast.StringPart\>","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> generators;
     private final java.util.List<org.rascalmpl.ast.Statement> preStats;
-    private final org.rascalmpl.ast.StringMiddle body;
+    private final java.util.List<org.rascalmpl.ast.StringPart> body;
     private final java.util.List<org.rascalmpl.ast.Statement> postStats;
   
-    public For(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> generators,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
+    public For(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> generators,  java.util.List<org.rascalmpl.ast.Statement> preStats,  java.util.List<org.rascalmpl.ast.StringPart> body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
       super(src, node);
       
       this.generators = generators;
@@ -277,7 +383,7 @@ public abstract class StringTemplate extends AbstractAST {
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStringTemplateFor(this);
+      return visitor.visitStringPartFor(this);
     }
   
     @Override
@@ -307,14 +413,16 @@ public abstract class StringTemplate extends AbstractAST {
         }
   
       }
-      $l = body.getLocation();
-      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
-        body.addForLineNumber($line, $result);
+      for (AbstractAST $elem : body) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
       }
-      if ($l.getBeginLine() > $line) {
-        return;
-      }
-      
       for (AbstractAST $elem : postStats) {
         $l = $elem.getLocation();
         if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
@@ -338,7 +446,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 389 + 479 * generators.hashCode() + 103 * preStats.hashCode() + 859 * body.hashCode() + 163 * postStats.hashCode() ; 
+      return 13 + 787 * generators.hashCode() + 37 * preStats.hashCode() + 131 * body.hashCode() + 331 * postStats.hashCode() ; 
     } 
   
     
@@ -361,7 +469,7 @@ public abstract class StringTemplate extends AbstractAST {
       return true;
     }
     @Override
-    public org.rascalmpl.ast.StringMiddle getBody() {
+    public java.util.List<org.rascalmpl.ast.StringPart> getBody() {
       return this.body;
     }
   
@@ -385,26 +493,117 @@ public abstract class StringTemplate extends AbstractAST {
     }
             
   }
+  public boolean isHole() {
+    return false;
+  }
+
+  static public class Hole extends StringPart {
+    // Production: sig("Hole",[arg("org.rascalmpl.ast.Expression","arg"),arg("org.rascalmpl.ast.KeywordArguments_Expression","keywordArguments")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Expression arg;
+    private final org.rascalmpl.ast.KeywordArguments_Expression keywordArguments;
+  
+    public Hole(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression arg,  org.rascalmpl.ast.KeywordArguments_Expression keywordArguments) {
+      super(src, node);
+      
+      this.arg = arg;
+      this.keywordArguments = keywordArguments;
+    }
+  
+    @Override
+    public boolean isHole() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitStringPartHole(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = arg.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        arg.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = keywordArguments.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        keywordArguments.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Hole)) {
+        return false;
+      }        
+      Hole tmp = (Hole) o;
+      return true && tmp.arg.equals(this.arg) && tmp.keywordArguments.equals(this.keywordArguments) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 521 + 839 * arg.hashCode() + 191 * keywordArguments.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getArg() {
+      return this.arg;
+    }
+  
+    @Override
+    public boolean hasArg() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.KeywordArguments_Expression getKeywordArguments() {
+      return this.keywordArguments;
+    }
+  
+    @Override
+    public boolean hasKeywordArguments() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(arg), clone(keywordArguments));
+    }
+            
+  }
   public boolean isIfThen() {
     return false;
   }
 
-  static public class IfThen extends StringTemplate {
-    // Production: sig("IfThen",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("org.rascalmpl.ast.StringMiddle","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats")],breakable=false)
+  static public class IfThen extends StringPart {
+    // Production: sig("IfThen",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("java.util.List\<org.rascalmpl.ast.StringPart\>","body")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> conditions;
     private final java.util.List<org.rascalmpl.ast.Statement> preStats;
-    private final org.rascalmpl.ast.StringMiddle body;
-    private final java.util.List<org.rascalmpl.ast.Statement> postStats;
+    private final java.util.List<org.rascalmpl.ast.StringPart> body;
   
-    public IfThen(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> conditions,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
+    public IfThen(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> conditions,  java.util.List<org.rascalmpl.ast.Statement> preStats,  java.util.List<org.rascalmpl.ast.StringPart> body) {
       super(src, node);
       
       this.conditions = conditions;
       this.preStats = preStats;
       this.body = body;
-      this.postStats = postStats;
     }
   
     @Override
@@ -414,7 +613,7 @@ public abstract class StringTemplate extends AbstractAST {
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStringTemplateIfThen(this);
+      return visitor.visitStringPartIfThen(this);
     }
   
     @Override
@@ -444,15 +643,7 @@ public abstract class StringTemplate extends AbstractAST {
         }
   
       }
-      $l = body.getLocation();
-      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
-        body.addForLineNumber($line, $result);
-      }
-      if ($l.getBeginLine() > $line) {
-        return;
-      }
-      
-      for (AbstractAST $elem : postStats) {
+      for (AbstractAST $elem : body) {
         $l = $elem.getLocation();
         if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
@@ -470,12 +661,12 @@ public abstract class StringTemplate extends AbstractAST {
         return false;
       }        
       IfThen tmp = (IfThen) o;
-      return true && tmp.conditions.equals(this.conditions) && tmp.preStats.equals(this.preStats) && tmp.body.equals(this.body) && tmp.postStats.equals(this.postStats) ; 
+      return true && tmp.conditions.equals(this.conditions) && tmp.preStats.equals(this.preStats) && tmp.body.equals(this.body) ; 
     }
    
     @Override
     public int hashCode() {
-      return 739 + 821 * conditions.hashCode() + 977 * preStats.hashCode() + 677 * body.hashCode() + 11 * postStats.hashCode() ; 
+      return 599 + 109 * conditions.hashCode() + 977 * preStats.hashCode() + 2 * body.hashCode() ; 
     } 
   
     
@@ -498,27 +689,18 @@ public abstract class StringTemplate extends AbstractAST {
       return true;
     }
     @Override
-    public org.rascalmpl.ast.StringMiddle getBody() {
+    public java.util.List<org.rascalmpl.ast.StringPart> getBody() {
       return this.body;
     }
   
     @Override
     public boolean hasBody() {
       return true;
-    }
-    @Override
-    public java.util.List<org.rascalmpl.ast.Statement> getPostStats() {
-      return this.postStats;
-    }
-  
-    @Override
-    public boolean hasPostStats() {
-      return true;
     }	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null , clone(conditions), clone(preStats), clone(body), clone(postStats));
+      return newInstance(getClass(), src, (IConstructor) null , clone(conditions), clone(preStats), clone(body));
     }
             
   }
@@ -526,27 +708,27 @@ public abstract class StringTemplate extends AbstractAST {
     return false;
   }
 
-  static public class IfThenElse extends StringTemplate {
-    // Production: sig("IfThenElse",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStatsThen"),arg("org.rascalmpl.ast.StringMiddle","thenString"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStatsThen"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStatsElse"),arg("org.rascalmpl.ast.StringMiddle","elseString"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStatsElse")],breakable=false)
+  static public class IfThenElse extends StringPart {
+    // Production: sig("IfThenElse",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStatsThen"),arg("java.util.List\<org.rascalmpl.ast.StringPart\>","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStatsThen"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStatsElse"),arg("java.util.List\<org.rascalmpl.ast.StringPart\>","elseBody"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStatsElse")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> conditions;
     private final java.util.List<org.rascalmpl.ast.Statement> preStatsThen;
-    private final org.rascalmpl.ast.StringMiddle thenString;
+    private final java.util.List<org.rascalmpl.ast.StringPart> body;
     private final java.util.List<org.rascalmpl.ast.Statement> postStatsThen;
     private final java.util.List<org.rascalmpl.ast.Statement> preStatsElse;
-    private final org.rascalmpl.ast.StringMiddle elseString;
+    private final java.util.List<org.rascalmpl.ast.StringPart> elseBody;
     private final java.util.List<org.rascalmpl.ast.Statement> postStatsElse;
   
-    public IfThenElse(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> conditions,  java.util.List<org.rascalmpl.ast.Statement> preStatsThen,  org.rascalmpl.ast.StringMiddle thenString,  java.util.List<org.rascalmpl.ast.Statement> postStatsThen,  java.util.List<org.rascalmpl.ast.Statement> preStatsElse,  org.rascalmpl.ast.StringMiddle elseString,  java.util.List<org.rascalmpl.ast.Statement> postStatsElse) {
+    public IfThenElse(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> conditions,  java.util.List<org.rascalmpl.ast.Statement> preStatsThen,  java.util.List<org.rascalmpl.ast.StringPart> body,  java.util.List<org.rascalmpl.ast.Statement> postStatsThen,  java.util.List<org.rascalmpl.ast.Statement> preStatsElse,  java.util.List<org.rascalmpl.ast.StringPart> elseBody,  java.util.List<org.rascalmpl.ast.Statement> postStatsElse) {
       super(src, node);
       
       this.conditions = conditions;
       this.preStatsThen = preStatsThen;
-      this.thenString = thenString;
+      this.body = body;
       this.postStatsThen = postStatsThen;
       this.preStatsElse = preStatsElse;
-      this.elseString = elseString;
+      this.elseBody = elseBody;
       this.postStatsElse = postStatsElse;
     }
   
@@ -557,7 +739,7 @@ public abstract class StringTemplate extends AbstractAST {
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStringTemplateIfThenElse(this);
+      return visitor.visitStringPartIfThenElse(this);
     }
   
     @Override
@@ -587,14 +769,16 @@ public abstract class StringTemplate extends AbstractAST {
         }
   
       }
-      $l = thenString.getLocation();
-      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
-        thenString.addForLineNumber($line, $result);
+      for (AbstractAST $elem : body) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
       }
-      if ($l.getBeginLine() > $line) {
-        return;
-      }
-      
       for (AbstractAST $elem : postStatsThen) {
         $l = $elem.getLocation();
         if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
@@ -615,14 +799,16 @@ public abstract class StringTemplate extends AbstractAST {
         }
   
       }
-      $l = elseString.getLocation();
-      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
-        elseString.addForLineNumber($line, $result);
+      for (AbstractAST $elem : elseBody) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
       }
-      if ($l.getBeginLine() > $line) {
-        return;
-      }
-      
       for (AbstractAST $elem : postStatsElse) {
         $l = $elem.getLocation();
         if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
@@ -641,12 +827,12 @@ public abstract class StringTemplate extends AbstractAST {
         return false;
       }        
       IfThenElse tmp = (IfThenElse) o;
-      return true && tmp.conditions.equals(this.conditions) && tmp.preStatsThen.equals(this.preStatsThen) && tmp.thenString.equals(this.thenString) && tmp.postStatsThen.equals(this.postStatsThen) && tmp.preStatsElse.equals(this.preStatsElse) && tmp.elseString.equals(this.elseString) && tmp.postStatsElse.equals(this.postStatsElse) ; 
+      return true && tmp.conditions.equals(this.conditions) && tmp.preStatsThen.equals(this.preStatsThen) && tmp.body.equals(this.body) && tmp.postStatsThen.equals(this.postStatsThen) && tmp.preStatsElse.equals(this.preStatsElse) && tmp.elseBody.equals(this.elseBody) && tmp.postStatsElse.equals(this.postStatsElse) ; 
     }
    
     @Override
     public int hashCode() {
-      return 691 + 71 * conditions.hashCode() + 181 * preStatsThen.hashCode() + 199 * thenString.hashCode() + 787 * postStatsThen.hashCode() + 193 * preStatsElse.hashCode() + 199 * elseString.hashCode() + 389 * postStatsElse.hashCode() ; 
+      return 947 + 281 * conditions.hashCode() + 409 * preStatsThen.hashCode() + 97 * body.hashCode() + 607 * postStatsThen.hashCode() + 547 * preStatsElse.hashCode() + 283 * elseBody.hashCode() + 757 * postStatsElse.hashCode() ; 
     } 
   
     
@@ -669,12 +855,12 @@ public abstract class StringTemplate extends AbstractAST {
       return true;
     }
     @Override
-    public org.rascalmpl.ast.StringMiddle getThenString() {
-      return this.thenString;
+    public java.util.List<org.rascalmpl.ast.StringPart> getBody() {
+      return this.body;
     }
   
     @Override
-    public boolean hasThenString() {
+    public boolean hasBody() {
       return true;
     }
     @Override
@@ -696,12 +882,12 @@ public abstract class StringTemplate extends AbstractAST {
       return true;
     }
     @Override
-    public org.rascalmpl.ast.StringMiddle getElseString() {
-      return this.elseString;
+    public java.util.List<org.rascalmpl.ast.StringPart> getElseBody() {
+      return this.elseBody;
     }
   
     @Override
-    public boolean hasElseString() {
+    public boolean hasElseBody() {
       return true;
     }
     @Override
@@ -716,7 +902,100 @@ public abstract class StringTemplate extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null , clone(conditions), clone(preStatsThen), clone(thenString), clone(postStatsThen), clone(preStatsElse), clone(elseString), clone(postStatsElse));
+      return newInstance(getClass(), src, (IConstructor) null , clone(conditions), clone(preStatsThen), clone(body), clone(postStatsThen), clone(preStatsElse), clone(elseBody), clone(postStatsElse));
+    }
+            
+  }
+  public boolean isMargin() {
+    return false;
+  }
+
+  static public class Margin extends StringPart {
+    // Production: sig("Margin",[arg("org.rascalmpl.ast.Indentation","margin"),arg("org.rascalmpl.ast.Indentation","indent")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Indentation margin;
+    private final org.rascalmpl.ast.Indentation indent;
+  
+    public Margin(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Indentation margin,  org.rascalmpl.ast.Indentation indent) {
+      super(src, node);
+      
+      this.margin = margin;
+      this.indent = indent;
+    }
+  
+    @Override
+    public boolean isMargin() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitStringPartMargin(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = margin.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        margin.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = indent.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        indent.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Margin)) {
+        return false;
+      }        
+      Margin tmp = (Margin) o;
+      return true && tmp.margin.equals(this.margin) && tmp.indent.equals(this.indent) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 347 + 73 * margin.hashCode() + 181 * indent.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Indentation getMargin() {
+      return this.margin;
+    }
+  
+    @Override
+    public boolean hasMargin() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Indentation getIndent() {
+      return this.indent;
+    }
+  
+    @Override
+    public boolean hasIndent() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(margin), clone(indent));
     }
             
   }
@@ -724,16 +1003,16 @@ public abstract class StringTemplate extends AbstractAST {
     return false;
   }
 
-  static public class While extends StringTemplate {
-    // Production: sig("While",[arg("org.rascalmpl.ast.Expression","condition"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("org.rascalmpl.ast.StringMiddle","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats")],breakable=false)
+  static public class While extends StringPart {
+    // Production: sig("While",[arg("org.rascalmpl.ast.Expression","condition"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("java.util.List\<org.rascalmpl.ast.StringPart\>","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats")],breakable=false)
   
     
     private final org.rascalmpl.ast.Expression condition;
     private final java.util.List<org.rascalmpl.ast.Statement> preStats;
-    private final org.rascalmpl.ast.StringMiddle body;
+    private final java.util.List<org.rascalmpl.ast.StringPart> body;
     private final java.util.List<org.rascalmpl.ast.Statement> postStats;
   
-    public While(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression condition,  java.util.List<org.rascalmpl.ast.Statement> preStats,  org.rascalmpl.ast.StringMiddle body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
+    public While(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression condition,  java.util.List<org.rascalmpl.ast.Statement> preStats,  java.util.List<org.rascalmpl.ast.StringPart> body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
       super(src, node);
       
       this.condition = condition;
@@ -749,7 +1028,7 @@ public abstract class StringTemplate extends AbstractAST {
   
     @Override
     public <T> T accept(IASTVisitor<T> visitor) {
-      return visitor.visitStringTemplateWhile(this);
+      return visitor.visitStringPartWhile(this);
     }
   
     @Override
@@ -777,14 +1056,16 @@ public abstract class StringTemplate extends AbstractAST {
         }
   
       }
-      $l = body.getLocation();
-      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
-        body.addForLineNumber($line, $result);
+      for (AbstractAST $elem : body) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
       }
-      if ($l.getBeginLine() > $line) {
-        return;
-      }
-      
       for (AbstractAST $elem : postStats) {
         $l = $elem.getLocation();
         if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
@@ -808,7 +1089,7 @@ public abstract class StringTemplate extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 281 + 389 * condition.hashCode() + 683 * preStats.hashCode() + 577 * body.hashCode() + 653 * postStats.hashCode() ; 
+      return 499 + 227 * condition.hashCode() + 389 * preStats.hashCode() + 479 * body.hashCode() + 103 * postStats.hashCode() ; 
     } 
   
     
@@ -831,7 +1112,7 @@ public abstract class StringTemplate extends AbstractAST {
       return true;
     }
     @Override
-    public org.rascalmpl.ast.StringMiddle getBody() {
+    public java.util.List<org.rascalmpl.ast.StringPart> getBody() {
       return this.body;
     }
   

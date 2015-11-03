@@ -25,7 +25,6 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.PatternWithAction;
 import org.rascalmpl.ast.Replacement;
 import org.rascalmpl.ast.Statement;
-import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.Insert;
@@ -41,6 +40,7 @@ import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.INode;
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IString;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -341,8 +341,7 @@ public class Cases  {
 			if (name.isQualifiedName()) {
 				key = ((QualifiedName.Default) name.getQualifiedName()).lastName();
 			} else if (name.isLiteral()) {
-				StringConstant constant = name.getLiteral().getStringLiteral().getConstant();
-				key = StringUtils.unescapeBase(StringUtils.unquote(((StringConstant.Lexical) constant).getString()));
+				key = ((IString) name.getLiteral().getStringLiteral().interpret(null).getValue()).getValue();
 			}
 
 			List<DefaultBlock> same = table.get(key);
