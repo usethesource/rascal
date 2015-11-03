@@ -225,12 +225,7 @@ public class ListPattern extends AbstractMatchingResult  {
                 hasNext = false;
                 return;
               }
-            } else {
-              if(!(varType instanceof NonTerminalType) && !(varType.comparable(staticListSubjectElementType))) {
-                hasNext = false;
-                return;
-              }
-            }
+            } 
           }
         }
       } 
@@ -302,14 +297,7 @@ public class ListPattern extends AbstractMatchingResult  {
           System.err.println("List: child " + child);
           System.err.println("List: child is a" + child.getClass());
         }
-        Type childType = child.getType(env, null);
-
-        // TODO: pattern matching should be specialized such that matching appl(prod...)'s does not
-        // need to use list matching on the fixed arity children of the application of a production
-        if(!(childType instanceof NonTerminalType) && !childType.comparable(staticListSubjectElementType)){
-          hasNext = false;
-          return;
-        }
+        
         java.util.List<IVarPattern> childVars = child.getVariables();
         if(!childVars.isEmpty()){
           for(IVarPattern vp : childVars){ // TODO: This does not profit from extra information
