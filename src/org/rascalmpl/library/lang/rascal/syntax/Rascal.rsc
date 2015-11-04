@@ -560,7 +560,7 @@ syntax StringPart
   | \while     : "\<" "while" "(" Expression condition ")" "{" Statement* preStats "\>" NoLayout StringPart* body  NoLayout "\<" Statement* postStats"}" "\>" 
   ;
 
-lexical StringCharacters = StringCharacter+ chars !>> ![\" \' \< \> \\ \n];
+lexical StringCharacters = StringCharacter+ chars !>> ![\" \' \< \> \n];
 
 lexical Indentation
   = [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* !>> [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]
