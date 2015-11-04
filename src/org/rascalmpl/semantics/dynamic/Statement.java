@@ -523,9 +523,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				__eval.unwind(old);
 			}
 			return result;
-
 		}
-
 	}
 
 	static public class FunctionDeclaration extends
@@ -538,12 +536,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
 			
 			return this.getFunctionDeclaration().interpret(__eval);
-
 		}
 
 	}
