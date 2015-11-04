@@ -31,6 +31,7 @@ import org.rascalmpl.ast.StringPart;
 import org.rascalmpl.ast.StringPart.Hole;
 import org.rascalmpl.ast.StringPart.Margin;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISourceLocation;
@@ -245,6 +246,10 @@ public class StringTemplateConverter {
 			return Arrays.asList(new Statement[] { s });
 		}
 		
+		private List<Expression> single(Expression s) {
+			return Arrays.asList(new Expression[] { s });
+		}
+		
 		@Override
 		public List<Statement> visitStringPartMargin(Margin x) {
 			// a margin sets the new indentation level
@@ -255,7 +260,8 @@ public class StringTemplateConverter {
 		
 		@Override
 		public List<Statement> visitStringPartHole(Hole x) {
-			return single(new IndentingAppend(x.getLocation(), makeTarget(x.getLocation()), makeStatExpr(x.getArg()), indentation));
+			Expression call = ASTBuilder.makeExp("CallOrTree", x.getLocation(), ASTBuilder.makeExp("QualifiedName", x.getLocation(), Names.toQualifiedName("format", x.getLocation())), single(x.getArg()), x.getKeywordArguments());
+			return single(new IndentingAppend(x.getLocation(), makeTarget(x.getLocation()), makeStatExpr(call), indentation));
 		}
 		
 		@Override
@@ -263,6 +269,7 @@ public class StringTemplateConverter {
 			List<Statement> stats = new ArrayList<Statement>();
 			stats.addAll(x.getPreStats());
 			stats.addAll(body(x.getBody()));
+			stats.addAll(x.getPostStats());
 
 			return single(ASTBuilder.makeStat("IfThen", x.getLocation(), ASTBuilder.make("Label", "Empty", x.getLocation()), x.getConditions(), 
 					makeBlock(x.getLocation(), stats)));
