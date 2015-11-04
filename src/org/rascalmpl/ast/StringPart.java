@@ -589,19 +589,21 @@ public abstract class StringPart extends AbstractAST {
   }
 
   static public class IfThen extends StringPart {
-    // Production: sig("IfThen",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("java.util.List\<org.rascalmpl.ast.StringPart\>","body")],breakable=false)
+    // Production: sig("IfThen",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","conditions"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","preStats"),arg("java.util.List\<org.rascalmpl.ast.StringPart\>","body"),arg("java.util.List\<org.rascalmpl.ast.Statement\>","postStats")],breakable=false)
   
     
     private final java.util.List<org.rascalmpl.ast.Expression> conditions;
     private final java.util.List<org.rascalmpl.ast.Statement> preStats;
     private final java.util.List<org.rascalmpl.ast.StringPart> body;
+    private final java.util.List<org.rascalmpl.ast.Statement> postStats;
   
-    public IfThen(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> conditions,  java.util.List<org.rascalmpl.ast.Statement> preStats,  java.util.List<org.rascalmpl.ast.StringPart> body) {
+    public IfThen(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> conditions,  java.util.List<org.rascalmpl.ast.Statement> preStats,  java.util.List<org.rascalmpl.ast.StringPart> body,  java.util.List<org.rascalmpl.ast.Statement> postStats) {
       super(src, node);
       
       this.conditions = conditions;
       this.preStats = preStats;
       this.body = body;
+      this.postStats = postStats;
     }
   
     @Override
@@ -651,6 +653,16 @@ public abstract class StringPart extends AbstractAST {
         }
   
       }
+      for (AbstractAST $elem : postStats) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
     }
   
     @Override
@@ -659,12 +671,12 @@ public abstract class StringPart extends AbstractAST {
         return false;
       }        
       IfThen tmp = (IfThen) o;
-      return true && tmp.conditions.equals(this.conditions) && tmp.preStats.equals(this.preStats) && tmp.body.equals(this.body) ; 
+      return true && tmp.conditions.equals(this.conditions) && tmp.preStats.equals(this.preStats) && tmp.body.equals(this.body) && tmp.postStats.equals(this.postStats) ; 
     }
    
     @Override
     public int hashCode() {
-      return 599 + 109 * conditions.hashCode() + 977 * preStats.hashCode() + 2 * body.hashCode() ; 
+      return 599 + 109 * conditions.hashCode() + 977 * preStats.hashCode() + 2 * body.hashCode() + 947 * postStats.hashCode() ; 
     } 
   
     
@@ -694,11 +706,20 @@ public abstract class StringPart extends AbstractAST {
     @Override
     public boolean hasBody() {
       return true;
+    }
+    @Override
+    public java.util.List<org.rascalmpl.ast.Statement> getPostStats() {
+      return this.postStats;
+    }
+  
+    @Override
+    public boolean hasPostStats() {
+      return true;
     }	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null , clone(conditions), clone(preStats), clone(body));
+      return newInstance(getClass(), src, (IConstructor) null , clone(conditions), clone(preStats), clone(body), clone(postStats));
     }
             
   }
@@ -830,7 +851,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 947 + 281 * conditions.hashCode() + 409 * preStatsThen.hashCode() + 97 * body.hashCode() + 607 * postStatsThen.hashCode() + 547 * preStatsElse.hashCode() + 283 * elseBody.hashCode() + 757 * postStatsElse.hashCode() ; 
+      return 281 + 409 * conditions.hashCode() + 97 * preStatsThen.hashCode() + 607 * body.hashCode() + 547 * postStatsThen.hashCode() + 283 * preStatsElse.hashCode() + 757 * elseBody.hashCode() + 347 * postStatsElse.hashCode() ; 
     } 
   
     
@@ -968,7 +989,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 347 + 73 * margin.hashCode() + 181 * indent.hashCode() ; 
+      return 73 + 181 * margin.hashCode() + 499 * indent.hashCode() ; 
     } 
   
     
@@ -1087,7 +1108,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 499 + 227 * condition.hashCode() + 389 * preStats.hashCode() + 479 * body.hashCode() + 103 * postStats.hashCode() ; 
+      return 227 + 389 * condition.hashCode() + 479 * preStats.hashCode() + 103 * body.hashCode() + 859 * postStats.hashCode() ; 
     } 
   
     

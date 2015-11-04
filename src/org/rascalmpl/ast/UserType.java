@@ -97,7 +97,7 @@ public abstract class UserType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 431 + 67 * name.hashCode() ; 
+      return 67 + 19 * name.hashCode() ; 
     } 
   
     
@@ -183,7 +183,7 @@ public abstract class UserType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 181 * name.hashCode() + 599 * parameters.hashCode() ; 
+      return 181 + 599 * name.hashCode() + 101 * parameters.hashCode() ; 
     } 
   
     

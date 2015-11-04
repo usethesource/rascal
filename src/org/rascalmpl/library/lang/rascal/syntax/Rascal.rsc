@@ -538,11 +538,7 @@ syntax Visibility
 	| \public: "public" ;
 	
 syntax StringLiteral 
-  = \default: "\"" NoLayout 
-                   Indentation indent 
-                   NoLayout 
-                   {StringPart NoLayout}* body NoLayout  
-              "\"";
+  = \default: "\"" NoLayout Indentation indent NoLayout  {StringPart NoLayout}* body NoLayout "\"";
 
 layout NoLayout 
   = @manual nothing:
@@ -552,12 +548,12 @@ syntax StringPart
   = \hole      : "\<" Expression arg KeywordArguments[Expression] keywordArguments  "\>"
   | \margin    : "\n" NoLayout Indentation margin  NoLayout "\'" NoLayout Indentation indent 
   | \characters: StringCharacters characters 
-  | \ifThen    : "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStats "\>" NoLayout StringPart* body NoLayout "\<" "}" "\>" 
-  | \ifThenElse: "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen "\>" NoLayout StringPart* body NoLayout "\<" Statement* postStatsThen "}" 
-                      "else" "{"  Statement* preStatsElse "\>" NoLayout StringPart* elseBody NoLayout "\<" Statement* postStatsElse "}" "\>" 
-  | \for       : "\<" "for"   "(" {Expression ","}+ generators ")" "{" Statement* preStats "\>" NoLayout StringPart* body NoLayout "\<" Statement* postStats "}" "\>" 
-  | \doWhile   : "\<" "do"    "{" Statement* preStats "\>" NoLayout StringPart* body NoLayout "\<" Statement* postStats  "}" "while" "(" Expression condition ")" "\>"
-  | \while     : "\<" "while" "(" Expression condition ")" "{" Statement* preStats "\>" NoLayout StringPart* body  NoLayout "\<" Statement* postStats"}" "\>" 
+  | \ifThen    : "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStats "}" "\>" 
+  | \ifThenElse: "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStatsThen "}" 
+                      "else"  "{"  Statement* preStatsElse "\>" NoLayout {StringPart NoLayout}* elseBody NoLayout "\<" Statement* postStatsElse "}" "\>" 
+  | \for       : "\<" "for"   "(" {Expression ","}+ generators ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStats "}" "\>" 
+  | \doWhile   : "\<" "do"    "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStats  "}" "while" "(" Expression condition ")" "\>"
+  | \while     : "\<" "while" "(" Expression condition ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body  NoLayout "\<" Statement* postStats"}" "\>" 
   ;
 
 lexical StringCharacters = StringCharacter+ chars !>> ![\" \' \< \> \n];
