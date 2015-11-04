@@ -9273,22 +9273,23 @@ public enum RascalPrimitive {
 			return sp;
 		}
 	},
-	
-	/**
-	 * Given a constructor or node get an array consisting of
-	 * - keyword parameters collected in a mmap
-	 * 
-	 * [ ..., node ] => [ ..., mmap ]
-	 */
-	get_keyword_mmap {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			INode v = (INode) stack[sp - 1];
-			stack[sp - 1] = $getAllKeywordParameters(v, rex);
-			return sp;
-		}
-	},
+
+// TODO: remove from implode
+//	/**
+//	 * Given a constructor or node get an array consisting of
+//	 * - keyword parameters collected in a mmap
+//	 * 
+//	 * [ ..., node ] => [ ..., mmap ]
+//	 */
+//	get_keyword_mmap {
+//		@Override
+//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+//			assert arity == 1;
+//			INode v = (INode) stack[sp - 1];
+//			stack[sp - 1] = $getAllKeywordParameters(v, rex);
+//			return sp;
+//		}
+//	},
 	
 	/**
 	 * Given a constructor or node get an array consisting of
