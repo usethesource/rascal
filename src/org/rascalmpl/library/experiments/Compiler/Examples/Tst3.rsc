@@ -1,5 +1,6 @@
 module experiments::Compiler::Examples::Tst3
 
-import List;
+import experiments::Compiler::Examples::Tst1;
+import experiments::Compiler::Examples::Tst2;
 
-value main() { L = [1,2,3]; return size(L); }
+value main() = d2(50).a;
