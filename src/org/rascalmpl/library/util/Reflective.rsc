@@ -195,9 +195,9 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
            }
        }
        for(loc dir <- pcfg.srcPath){        // In a source directory?
-           fileLoc = dir + filePath;
-           if(exists(dir + filePath)){
-             //println("getDerivedReadLoc: <qualifiedModuleName>, <extension> =\> <pfileLoc");
+           fileLoc = dir + fileName;
+           if(exists(fileLoc)){
+             //println("getDerivedReadLoc: <qualifiedModuleName>, <extension> =\> <fileLoc");
              return <true, fileLoc>;
            }
        }
