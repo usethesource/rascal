@@ -976,7 +976,8 @@ private set[int] idsForName(Configuration c, RName n) {
 
 @doc{Add a production into the configuration.}
 public Configuration addProduction(Configuration c, RName n, loc l, Production prod, bool registerName=true) {
-	assert ( (prod.def is label && prod.def.symbol has name) || ( !(prod.def is label) && prod.def has name ) || prod.def is \start);
+     assert ( (prod.def is label && prod.def.symbol has name) || ( !(prod.def is label) && prod.def has name ) || prod.def is \start) :
+	        "addProduction: <prod>";
  
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
