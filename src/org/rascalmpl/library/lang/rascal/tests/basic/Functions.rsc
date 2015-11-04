@@ -2,6 +2,7 @@ module lang::rascal::tests::basic::Functions
 
 import List;
 import Node;
+import String;
 
 data B = and(B lhs, B rhs) | or(B lhs, B rhs) | t() | f();
 

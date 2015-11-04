@@ -1195,7 +1195,7 @@ public (&T <:num) sum(list[(&T <:num)] _:[]) {
 		"For the emtpy list it is not possible to decide the correct precision to return.\n
 		'If you want to call sum on empty lists, use sum([0.000]+lst) or sum([0r] +lst) or sum([0]+lst) 
 		'to make the list non-empty and indicate the required precision for the sum of the empty list
-		");
+		'");
 }
 @doc{
 Synopsis: Sum the elements of a list.

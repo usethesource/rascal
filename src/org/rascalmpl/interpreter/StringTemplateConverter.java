@@ -193,14 +193,26 @@ public class StringTemplateConverter {
 		@Override
 		public List<Statement> visitStringLiteralDefault(Default x) {
 			indentation = indent(x.getIndent());
-			return body(x.getBody());
+			List<StringPart> b = x.getBody();
+			
+			List<Statement> result = new LinkedList<>();
+			result.add(new ConstAppend(x.getLocation(), makeTarget(x.getLocation()), "", indentation));
+			result.addAll(body(b));
+			return result;
 		}
 		
 		private List<Statement> body(List<StringPart> body) {
 			List<Statement> result = new LinkedList<>();
 			
+			int i = 0;
 			for (StringPart part : body) {
 				result.addAll(part.accept(this));
+				
+				// normally indentation is collected to be appended later to the next element, 
+				// but if its the last part we need to handle the corner case here where there is no following element
+				if (i++ == body.size() - 1 && part.isMargin()) {
+					result.add(new ConstAppend(part.getLocation(), makeTarget(part.getLocation()), "", indentation));
+				}
 			}
 			
 			return result;
@@ -289,8 +301,10 @@ public class StringTemplateConverter {
 		public List<Statement> visitStringPartCharacters(org.rascalmpl.ast.StringPart.Characters x) {
 			// characters are only recognized after the current indent, so they do not contribute
 			// to the indentation. This means that if there are characters here, they will not influence the indent.
-			// literal has to be indented with as much as the current indent
-			return single(new ConstAppend(x.getLocation(), makeTarget(x.getLocation()), ((IString) x.interpret(null).getValue()).getValue(), indentation));
+			// literal has to be indented with as much as the current indent.
+			String tmp = indentation;
+			indentation = "";
+			return single(new ConstAppend(x.getLocation(), makeTarget(x.getLocation()), ((IString) x.interpret(null).getValue()).getValue(), tmp));
 		}
 	}
 }

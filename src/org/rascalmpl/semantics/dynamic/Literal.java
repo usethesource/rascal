@@ -234,18 +234,20 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			Result<IValue> value = stat.interpret(__eval);
+			
 			if (!value.getType().isList()) {
-				throw new ImplementationError(
-						"template eval returns non-list");
+				throw new ImplementationError("template eval returns non-list");
 			}
+			
 			IList list = (IList) value.getValue();
-			if (list.length() == 0) {
-				System.out.println("bla");
-			}
 
-			if (!list.get(0).getType().isString()) {
-				throw new ImplementationError(
-						"template eval returns list with non-string");
+			if (list.length() == 0) {
+				throw new ImplementationError("empty list from template eval");
+//				return ResultFactory.makeResult(TF.stringType(), VF.string(""), __eval);
+			}
+			
+			if (!list.getElementType().isString()) {
+				throw new ImplementationError("template eval returns list with non-string elements");
 			}
 			
 			return ResultFactory.makeResult(TF.stringType(), list.get(0), __eval);
