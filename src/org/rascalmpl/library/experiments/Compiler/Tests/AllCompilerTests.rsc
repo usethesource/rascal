@@ -46,7 +46,7 @@ lrel[loc,int,str] runTests(list[str] names, loc base){
  for(str tst <- names){
       prog = base + (tst + ".rsc");
       for(str ext <- [/*"sig", "sigs", "tc"*/ "rvm.gz", "rvm.ser.gz"]){
-      	try { remove(getDerivedLocation(prog, ext)); } catch:;
+      	try { remove(getDerivedReadLocation(prog, ext)); } catch:;
       }
       try {
 	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, recompile=false, testsuite=true, debug=false, bindir=|home:///bin|)){

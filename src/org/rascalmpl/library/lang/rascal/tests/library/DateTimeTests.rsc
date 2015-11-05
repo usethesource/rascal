@@ -15,19 +15,12 @@ import Boolean;
 import util::Math;
 import IO;
 
-test bool createDate_simple(int x)  = // parameter is here to force our random test framework to execute this test function multiple times
-	date.year == year && date.month == month && date.day == day
+test bool createDate_sampled(datetime gen)  =
+		date.year == gen.year && date.month == gen.month && date.day == gen.day
 	when 
-		int year := genYear() &&
-		int month := genMonth() &&
-		int day := genDay(month, year) && 
-		date := createDate(year, month, day);
-	
-/* helper functions to generate correct input for tests */
-private int genYear() = arbInt(10000);
-private int genMonth() = 1 + arbInt(12);
-private int genDay(int month, int year) = 1 + arbInt(
-	month == 2 ? (isLeapYear(year) ? 29 : 28) :
-	month in [1,3,5,7,8,10,12] ? 31 : 30);
-private bool isLeapYear(int y) = y % 4 == 0 ? (y % 100 == 0 ? y % 400 == 0 : true) : false; 
-	
+		date := createDate(gen.year, gen.month, gen.day);
+
+test bool createTime_sampled(datetime gen) =
+        time.hour == gen.hour && time.minute == gen.minute && time.second == gen.second && time.millisecond == gen.millisecond
+	when
+		time := createTime(gen.hour, gen.minute, gen.second, gen.millisecond);

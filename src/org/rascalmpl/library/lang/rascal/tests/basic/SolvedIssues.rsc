@@ -6,6 +6,7 @@ This is just to make sure the bugs are not re-introduced accidentally.
 module lang::rascal::tests::basic::SolvedIssues
 
 import List;
+import Exception;
 
 test bool emptySetEquals(set[value] x, set[value] y) = x - x == y - y;
 
@@ -37,3 +38,7 @@ test bool inferKWparamType() {
     return false;
   }
 }  
+
+// https://github.com/cwi-swat/rascal/issues/885
+test bool checkComparableOnElementsBreak() = [<[],_,_>,_] := [<[],false,1>,<[3],false,3>];
+

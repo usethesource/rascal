@@ -63,16 +63,14 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  	  containedIn == 0, 
    	  	  config.store[containedIn].at.path == at.path // needed due to the handling of 'extend' by the type checker
    	  	);
+   	  	
    	 
    	 // Constructor functions are generated in case of constructors with keyword parameters
-     // (this enables evaluation of potentially non-constant default expressions and semantics of implicit keyword arguments)                       
-     for(int uid <- config.store, AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, 0, _) := config.store[uid], !isEmpty(config.dataKeywordDefaults[uid])) {
-         // ***Note: the keywordParams field excludes the common keyword parameters 
-         map[RName,Symbol] allKeywordParams = ();
-         for(<RName rname, _> <- config.dataKeywordDefaults[uid]) { // All the keyword parameters
-             int adt = toMapUnique(invert(config.adtConstructors))[uid];
-             allKeywordParams[rname] = config.adtFields[<adt,getSimpleName(rname)>];
-         }
+     // (this enables evaluation of potentially non-constant default expressions and semantics of implicit keyword arguments)                     
+     for(int uid <- config.store, AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, 0, _) := config.store[uid], allKwFields := getAllKeywordFields(uid), !isEmpty(allKwFields)) {
+        //println("*** Creating companion for <uid>");
+         
+         map[RName,Symbol] allKWFieldsAndTypes = getAllKeywordFieldsAndTypes(uid);
          
          // Create companion for construction
          
@@ -82,38 +80,51 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
          int nformals = size(\type.parameters) + 1;
          int defaults_pos = nformals;
         
+         //println("enter function scope <fuid>");
          enterFunctionScope(fuid);
          
          MuExp body = muReturn1(muCall(muConstr(uid2str[uid]), [ muVar("<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
                                                                + [ muVar("kwparams", fuid, size(\type.parameters)),
-                                                                   muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),allKeywordParams[rname]) | rname <- allKeywordParams ])) 
-                                                               ]));                             
+                                                                   muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),allKWFieldsAndTypes[rname]) | rname <- allKWFieldsAndTypes ])) 
+                                                               ]));                          
+         //iprintln(body);
          leaveFunctionScope();
          addFunctionToModule(muFunction(fuid, name.name, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid,nformals, nformals + 1, false, true, |std:///|, [], (), false, 0, 0, body));                                             
      
         // Create companion for computing defaults
+        
+         //println("*** Creating defaults companion for <uid>");
         
          str fuidDefaults = getCompanionDefaultsForUID(uid);
 
          tuple[str fuid,int pos] addrDefaults = uid2addr[uid];
          addrDefaults.fuid = fuidDefaults;
          
+         //println("enter function scope <fuidDefaults>");
          enterFunctionScope(fuidDefaults);
          
          list[MuExp] kwps = [ muAssign("map_of_default_values", fuidDefaults, defaults_pos, muCallMuPrim("make_mmap_str_entry",[])) ];
-         for(RName kwf <- allKeywordParams) {
-             if(Expression kw_default_expr := getOneFrom(config.dataKeywordDefaults[uid,kwf])){
+         allKWFieldsAndDefaults = getAllKeywordFieldDefaults(uid);
+        
+         //println("allKWFieldsAndDefaults: <allKWFieldsAndDefaults>");
+         for(RName kwf <- allKWFieldsAndDefaults) {
+           // println("+++ <kwf>: <allKWFieldsAndDefaults[kwf]?"UNDEFINED">");
+             if(Expression kw_default_expr := allKWFieldsAndDefaults[kwf] /*getOneFrom(config.dataKeywordDefaults[uid,kwf])*/){
+                 //println("kw_default_expr: <kw_default_expr>");
                  kwps += muCallMuPrim("mmap_str_entry_add_entry_type_ivalue", 
                                       [ muVar("map_of_default_values",fuidDefaults,defaults_pos), 
                                         muCon("<getSimpleName(kwf)>"), 
-                                        muCallMuPrim("make_mentry_type_ivalue", [ muTypeCon(allKeywordParams[kwf]), 
+                                        muCallMuPrim("make_mentry_type_ivalue", [ muTypeCon(allKWFieldsAndTypes[kwf]), 
                                                                                   translate(kw_default_expr) ]) ]);
              } else {
               throw "Keyword default expression for <kwf> of incorrect type";
              }
+             //println("+++ done");
          }
          
          MuExp bodyDefaults =  muBlock(kwps + [ muReturn1(muVar("map_of_default_values",fuidDefaults,defaults_pos)) ]);
+         
+         //iprintln(bodyDefaults);
          
          leaveFunctionScope();
          addFunctionToModule(muFunction(fuidDefaults, name.name, ftype, (addrDefaults.fuid in moduleNames) ? "" : addrDefaults.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefaults));                                             
@@ -135,8 +146,8 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  		[ uid2str[fuid] | int fuid <- of.fuids, isFunction(fuid) && !isDefaultFunction(fuid) ] 
    	  		+ [ uid2str[fuid] | int fuid <- of.fuids, isDefaultFunction(fuid) ]
    	  		  // Replace call to a constructor with call to the constructor companion function if the constructor has keyword parameters
-   	  		  + [ getCompanionForUID(fuid) | int fuid <- of.fuids, isConstructor(fuid), !isEmpty(config.dataKeywordDefaults[fuid]) ],
-   	  		[ uid2str[fuid] | int fuid <- of.fuids, isConstructor(fuid), isEmpty(config.dataKeywordDefaults[fuid])]
+   	  		  + [ getCompanionForUID(fuid) | int fuid <- of.fuids, isConstructor(fuid), !isEmpty(getAllKeywordFields(fuid))/*config.dataKeywordDefaults[fuid])*/ ],
+   	  		[ uid2str[fuid] | int fuid <- of.fuids, isConstructor(fuid), isEmpty(getAllKeywordFields(fuid)/*config.dataKeywordDefaults[fuid]*/)]
    	  	  > 
    	  	| tuple[str name, Symbol funType, str scopeIn, list[int] fuids] of <- getOverloadedFunctions() 
    	  	];  

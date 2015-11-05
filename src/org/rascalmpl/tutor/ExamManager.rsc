@@ -160,7 +160,7 @@ void createReview(){
 	      }
 	  }   
   }
-  writeCSV(reviews, resultsDir + "Review.csv", ("separator" : ";"));
+  writeCSV(reviews, resultsDir + "Review.csv", separator = ";");
   
   println("*** create GoodAnswers ***");
   rel[str Question, str Expected] good = {};
@@ -168,15 +168,15 @@ void createReview(){
       ga = (goodAnswers[q])? ? intercalate(" OR ", toList(goodAnswers[q])) : "";
       good += {<q, ga>};
   }
-  writeCSV(good , resultsDir + "GoodAnswers.csv", ("separator" : ";"));
+  writeCSV(good , resultsDir + "GoodAnswers.csv", separator = ";");
 }
 
 public set[examResult] update(str cn){
   scores = readSubmissionsAgain(cn);
-  reviews = readCSV(#set[reviewType], (resultsDir) + "Review.csv", ("separator" : ";"));
+  reviews = readCSV(#set[reviewType], (resultsDir) + "Review.csv", separator = ";");
   println("reviews = <typeOf(reviews)>: <reviews>");
   
-  rel[str Question, str Expected]good = readCSV(#rel[str Question, str Expected], (resultsDir) + "GoodAnswers.csv", ("separator" : ";"));
+  rel[str Question, str Expected]good = readCSV(#rel[str Question, str Expected], (resultsDir) + "GoodAnswers.csv", separator = ";");
   println("good = <typeOf(good)>: <good>");
   goodAnswers = (q : {e} | <q, e> <- good);
   

@@ -640,7 +640,7 @@ public class RVM implements java.io.Serializable {
 				return sp;
 			}
 		}
-		throw new CompilerError("LOADVAR cannot find matching scope: " + varScope, cf);
+		throw new CompilerError("LOADVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	int LOADVARREF(int varScope, int pos, Frame cf, Object[] stack, int sp){
@@ -654,7 +654,7 @@ public class RVM implements java.io.Serializable {
 				return sp;
 			}
 		}
-		throw new CompilerError("LOADVARREF cannot find matching scope: " + varScope, cf);
+		throw new CompilerError("LOADVARREF cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	int LOADVARDEREF(int varScope, int pos, Frame cf, Object[] stack, int sp){
@@ -681,7 +681,7 @@ public class RVM implements java.io.Serializable {
 				return sp;
 			}
 		}
-		throw new CompilerError("STOREVAR cannot find matching scope: " + varScope, cf);
+		throw new CompilerError("STOREVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	int UNWRAPTHROWNVAR(int varScope, int pos, Frame cf, Object[] stack, int sp){
@@ -708,7 +708,7 @@ public class RVM implements java.io.Serializable {
 				return sp;
 			}
 		}
-		throw new CompilerError("STOREVARDEREF cannot find matching scope: " + varScope, cf);
+		throw new CompilerError("STOREVARDEREF cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -739,7 +739,7 @@ public class RVM implements java.io.Serializable {
 				}
 			}
 		}				
-		throw new CompilerError("LOADVARKWP cannot find matching scope: " + varScope, cf);
+		throw new CompilerError("LOADVARKWP cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -778,7 +778,7 @@ public class RVM implements java.io.Serializable {
 				}
 			}
 		}				
-		throw new CompilerError("STOREVARKWP cannot find matching scope: " + varScope, cf);
+		throw new CompilerError("STOREVARKWP cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	@SuppressWarnings("unchecked")
 	int LOADLOCKWP(String name, Frame cf, Object[] stack, int sp){
@@ -813,12 +813,12 @@ public class RVM implements java.io.Serializable {
 
 		java.util.Map<String,IValue> kwargs;
 		Type type = (Type) stack[--sp];
-		if(type.getArity() > 0){
+		//if(type.getArity() > 0){
 			// Constructors with keyword parameters
 			kwargs = (java.util.Map<String,IValue>) stack[--sp];
-		} else {
-			kwargs = new HashMap<String,IValue>();
-		}
+		//} else {
+		//	kwargs = new HashMap<String,IValue>();
+		//}
 
 		for(int i = 0; i < constructor.getArity(); i++) {
 			args[constructor.getArity() - 1 - i] = (IValue) stack[--sp];
