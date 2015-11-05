@@ -6660,7 +6660,7 @@ public enum RascalPrimitive {
 			assert arity == 2;
 
 			Type type = (Type) stack[sp - 2];
-			stack[sp - 2] = $type2symbol(type, rex);
+			stack[sp - 2] = $type2symbol(type);
 			return sp - 1;
 		}
 	},
@@ -9273,22 +9273,23 @@ public enum RascalPrimitive {
 			return sp;
 		}
 	},
-	
-	/**
-	 * Given a constructor or node get an array consisting of
-	 * - keyword parameters collected in a mmap
-	 * 
-	 * [ ..., node ] => [ ..., mmap ]
-	 */
-	get_keyword_mmap {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			INode v = (INode) stack[sp - 1];
-			stack[sp - 1] = $getAllKeywordParameters(v, rex);
-			return sp;
-		}
-	},
+
+// TODO: remove from implode
+//	/**
+//	 * Given a constructor or node get an array consisting of
+//	 * - keyword parameters collected in a mmap
+//	 * 
+//	 * [ ..., node ] => [ ..., mmap ]
+//	 */
+//	get_keyword_mmap {
+//		@Override
+//		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+//			assert arity == 1;
+//			INode v = (INode) stack[sp - 1];
+//			stack[sp - 1] = $getAllKeywordParameters(v, rex);
+//			return sp;
+//		}
+//	},
 	
 	/**
 	 * Given a constructor or node get an array consisting of
@@ -10164,12 +10165,12 @@ public enum RascalPrimitive {
 	 * @param t the given type
 	 * @return t converted to a symbol
 	 */
-	private static IConstructor $type2symbol(final Type t, final RascalExecutionContext rex){
-		IConstructor result = rex.getType2SymbolCache().get(t);
-		if(result != null){
-			return result;
-		}
-		result = t.accept(new ITypeVisitor<IConstructor,RuntimeException>() {
+	static IConstructor $type2symbol(final Type t){
+//		IConstructor result = rex.getType2SymbolCache().get(t);
+//		if(result != null){
+//			return result;
+//		}
+		IConstructor result = t.accept(new ITypeVisitor<IConstructor,RuntimeException>() {
 
 			@Override
 			public IConstructor visitReal(final Type type) throws RuntimeException {
@@ -10311,7 +10312,7 @@ public enum RascalPrimitive {
 
 		});
 
-		rex.getType2SymbolCache().put(t, result);
+		//rex.getType2SymbolCache().put(t, result);
 		return result;
 	}
 	

@@ -18,17 +18,18 @@ module lang::rascal::boot::Kernel
 import experiments::Compiler::RVM::AST;
 import experiments::Compiler::Compile;
 import experiments::Compiler::Execute;
+import util::Reflective;
 //import experiments::Compiler::Inspect;
 
-RVMModule compile(loc moduleLoc, bool verbose = false, loc bindir = |home:///bin|) =
-    experiments::Compiler::Compile::compile(moduleLoc, verbose = verbose, bindir = bindir);
+RVMModule compile(str moduleName, PathConfig pcfg, bool verbose = false) =
+    experiments::Compiler::Compile::compile(moduleName, pcfg, verbose = verbose);
     
-RVMProgram compileAndLink(str moduleName, bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|) =
-     experiments::Compiler::Execute::compileAndLink(moduleName, useJVM=useJVM, serialize=serialize, verbose = verbose, bindir = bindir);
+RVMProgram compileAndLink(str moduleName,  PathConfig pcfg, bool useJVM=false, bool serialize=true, bool verbose = false) =
+     experiments::Compiler::Execute::compileAndLink(moduleName, pcfg, useJVM=useJVM, serialize=serialize, verbose = verbose);
 
-RVMProgram compileAndLinkIncremental(loc rascalSource,  bool reuseConfig, bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|) =
-     experiments::Compiler::Execute::compileAndLinkIncremental(rascalSource, reuseConfig, useJVM=useJVM, serialize=serialize, verbose = verbose, bindir = bindir);
+RVMProgram compileAndLinkIncremental(str moduleName,  bool reuseConfig, PathConfig pcfg, bool useJVM=false, bool serialize=true, bool verbose = false) =
+     experiments::Compiler::Execute::compileAndLinkIncremental(moduleName, reuseConfig, pcfg, useJVM=useJVM, serialize=serialize, verbose = verbose);
     
-value execute(loc rascalSource, map[str,value] keywordArguments = (), bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=true, bool verbose = false, loc bindir = |home:///bin|)
+value execute(str moduleName, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=true, bool verbose = false)
      =
-     experiments::Compiler::Execute::execute(rascalSource, keywordArguments = keywordArguments, debug=debug, testsuite=testsuite, recompile=recompile, profile=profile, trackCalls= trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize, verbose = verbose, bindir = bindir);
+     experiments::Compiler::Execute::execute(moduleName, pcfg, keywordArguments = keywordArguments, debug=debug, testsuite=testsuite, recompile=recompile, profile=profile, trackCalls= trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize, verbose = verbose);
