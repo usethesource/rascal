@@ -212,7 +212,7 @@ public data Figure(
 		Event event = on(nullCallback),
 		
 		// Tooltip
-		str tooltip = ""
+		value tooltip = ""
 	) =
 	
 	emptyFigure()
@@ -570,7 +570,10 @@ list[list[value]] joinData(list[Chart] charts, bool tickLabels, int tooltipColum
       }
    }
    
-
+public Figure svg(Figure f) {
+    /*if (f.lineWidth<0) */ {f.lineWidth = 1; f.lineColor="black";}
+    return box(lineWidth = 0, fillColor = "none", fig = f);
+    }
   
    
 public map[str, value] adt2map(node t) {

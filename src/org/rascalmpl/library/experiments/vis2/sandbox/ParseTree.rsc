@@ -122,10 +122,29 @@ private str getChars(list[Tree] trees){
 //return mouseOver(box(text(s), grow(1.2), resizable(false), fillColor("yellow")));
 //}
 
+Figure tip(str s) = // box(visibility="hidden", fillColor="green", fig=
+      svg(grid(figArray=[
+     [box(size=<10, 10>, fillColor="beige")
+     ,box(size=<10, 15>, fillColor="antiquewhite")
+     ]
+     ,
+     [box(size=<15, 10>, fillColor="pink")
+     ,box(size=<10, 10>, fillColor="yellow")
+     ]
+     ]))
+     // )
+     ;
+     
+
+     
+
 public void tree2(){
    render(tree(ellipse(size=<60,60>, fillColor="green", tooltip = "Ellipse A"),
-       [ ellipse(size = <90,90>, fillColor="red", tooltip = "Ellipse B"),
-         ellipse(size = <120,120>, fillColor="blue", tooltip = "Ellipse C"),
+       [ ellipse(size = <90,90>, id="aap", fillColor="red", tooltip = circle(r=20, fillColor="green"
+          ,fig = emptyFigure())
+          , event = on(["click"],  void(str e, str n, str v) {println("H");})
+          ),
+         ellipse(size = <120,120>, fillColor="blue", tooltip = tip("Ellipse C")),
          ellipse(size = <150,150>, fillColor="purple", tooltip = "Ellipse D"),
          ellipse(size = <180,180>, fillColor="lightblue", tooltip = "Ellipse E"),
          box(size = <60,60>, fillColor="orange", tooltip = "Box
@@ -136,6 +155,40 @@ public void tree2(){
          ellipse(size = <60,60>, fillColor="white", tooltip = "Ellipse J")
        ],  gap=<30,30>,  lineWidth=2, fillColor="antiqueWhite", rasterHeight = 250, manhattan=true, ySep = 30)); 
 }
+
+Figure c(int r, str color) = circle(r=r, fillColor = color);
+Figure qq1() = svg(tree(c(10,"red"),[c(20, "blue"), c(25, "green")], lineWidth = 1, lineColor = "black"
+    ));
+Figure qq2() = svg(tree(c(30,"magenta"),[c(10, "beige"), tree(c(25, "gold"), [box(size=<20, 20>, fillColor = "yellow")])]
+, lineWidth = 1, lineColor = "black"
+    ));
+
+public Figure tst() { 
+    Figure r = hcat(figs = [
+        box(size=<150, 150> , fillColor = "antiquewhite", id = "aap"
+        ,tooltip = qq1()      
+             )
+      
+    
+       ,
+       box(size=<200, 200> , fillColor = "blue", id = "noot"
+         ,tooltip = qq2()
+          // ,event = on("mouseenter", void(str e, str n, str v) { println(e);})
+        ) 
+       ]);
+    return r;
+    }
+    
+public void ftst(loc l) { 
+   writeFile(l, toHtmlString(tst()));
+   }
+
+public void ttst() = render(tst());
+
+public Figure simple() =  box(size=<100, 100>, fillColor = "antiquewhite",
+     tooltip = box(size=<100, 100>, fig = circle(r=30, fillColor = "red")));
+     
+public void tsimple() = render(simple());
 
 void main() {
     Program p = parse(#Program, input);

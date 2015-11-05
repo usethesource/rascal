@@ -46,6 +46,8 @@ public Style style(str id, str fillColor="", str lineColor="", int lineWidth = -
      return v;
      }
 
+
+
 bool isEmptyValue(value v) {
     if (str x:=v) return isEmpty(x);
     return false;
