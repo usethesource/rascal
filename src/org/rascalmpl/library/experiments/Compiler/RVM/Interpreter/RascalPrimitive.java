@@ -6919,7 +6919,7 @@ public enum RascalPrimitive {
 					}
 				}
 				
-				// Final resort: an unset default field with a computed value?
+				// Next resort: an unset default field with a computed value?
 				
 				Function getDefaults = rex.getCompanionDefaultsFunction(consName, tp);
 				
@@ -6939,6 +6939,23 @@ public enum RascalPrimitive {
 						return sp - 2;
 					}
 				}
+				
+				// Final resort: an unset common data field with a computed value?
+				
+				Function getFieldDefault = rex.getCompanionFieldDefaultFunction(fieldName, tp);
+				
+				if(getFieldDefault !=  RVM.noCompanionFunction){
+					IValue[] posArgs = new IValue[0];
+
+					Map<String, IValue> kwArgs = cons.asWithKeywordParameters().getParameters();
+
+					IValue defaultValue = (IValue) rex.getRVM().executeFunction(getFieldDefault, posArgs, kwArgs);
+				
+					stack[sp - 3] = defaultValue;
+					return sp - 2;
+				}
+					
+					
 				
 				throw RascalRuntimeException.noSuchField(fieldName, currentFrame);
 			} catch(FactTypeUseException e) {
