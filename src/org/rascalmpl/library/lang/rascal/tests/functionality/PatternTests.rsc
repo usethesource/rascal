@@ -807,7 +807,6 @@ test bool matchADTwithKeywords2() = f1(1, M=10)             := f1(1);
 test bool matchADTwithKeywords3() = f1(1, B=false, M=10)    := f1(1);
 test bool matchADTwithKeywords4() = f1(1, M=20)             := f1(1, B=false, M=20);
   		
-@ignoreCompiler{Not yet implemented in typechecker}
 test bool matchADTwithKeywords5() = f1(1, M=X)             := f1(1, B=false, M=20) && X == 20;
   	
 //	matchNode
@@ -845,7 +844,6 @@ test bool matchNodeWithKeywords13() ="f1"(1, M=10, B=false)!:= "f1"(1, B=false, 
 test bool matchNodeWithKeywords14() ="f1"(1, M=_, B=false)  := "f1"(1, B=false, M=20);
 test bool matchNodeWithKeywords15() ="f1"(_, M=20, B=false) := "f1"(1, B=false, M=20);
   		
-@ignoreCompiler{Not yet implemented in typechecker}
 test bool matchNodeWithKeywords16() = "f1"(1, M=X) := "f1"(1, B=false, M=20) && X == 20;
   	
 //	matchSet1
@@ -1478,10 +1476,10 @@ test bool matchVariableBecomesEquality1() {int N = 5; return N : 3 !:= 3 && N !=
 
 test bool matchVariableBecomesEquality2() {int N = 3; return N : 3 := 3 && N == 3;}
   		
-@ignoreCompiler{Not yet implemented in typechecker}
+@ignoreCompiler{Typechecker canot determine pattern type}
 test bool doubleVariableBecomes1() = !(([N : 3, N : 4] := [3,4]) && N == 3);
 
-@ignoreCompiler{Not yet implemented in typechecker}
+@ignoreCompiler{Typechecker canot determine pattern type}
 test bool doubleVariableBecomes2() = [N : 3, N : 3] := [3,3] && N == 3;
   	
 // antiPattern

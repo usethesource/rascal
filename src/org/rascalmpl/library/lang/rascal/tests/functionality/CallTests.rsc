@@ -394,19 +394,14 @@ test bool keywordMatchTest13() =point1(_, _, colors=[*_,*X,*_,*X, *_]) := point1
 data Expr(int depth = 0) = id(str x);
 data Expr(int width = 1) = number(num n);
 
-@ignoreCompiler{Cannot be handled by type checker}
 test bool genericKwParams1() = number(1).depth == 0;
 
-@ignoreCompiler{Cannot be handled by type checker}
 test bool genericKwParams2() = id("tommie").width == 1;
 
-@ignoreCompiler{Cannot be handled by type checker}
 test bool genericKwParamsBack1() = number(1).q == 4;
 
 data Expr(int p = 2, int q = 2 * p) = a(Expr l, Expr r, int z = p * q);
 
-@ignoreCompiler{Cannot be handled by type checker}
 test bool genericKwParams3() = a(id("x"), id("y")).z == 8;
 
-@ignoreCompiler{Cannot be handled by type checker}
 test bool genericKwParams4() = a(id("x"),id("y"),p = 3).z == 18;
