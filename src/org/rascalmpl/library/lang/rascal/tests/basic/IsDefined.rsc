@@ -155,7 +155,7 @@ test bool isDefinedTuple1(){
     return tup.n?;
 }
 
-@ignoreCompiler{Contains type error: Field x does not exist on type tuple[int n, str s]}
+@ignoreCompiler{Already detected by type checker: Field x does not exist on type tuple[int n, str s]}
 @expected{UndeclaredField}
 test bool isDefinedTuple3(){
     tuple[int n, str s] tup = <0, "a">;
@@ -242,13 +242,10 @@ test bool isDefinedNode3() = "aap"(noot=1).noot?;
 
 test bool isDefinedNode4() = !("aap"(boot=1).noot?);
 
-@ignoreCompiler{Extend type checker to allow this}
 test bool hasNode1() = "aap"(noot=1) has noot;
 
-@ignoreCompiler{Extend type checker to allow this}
 test bool hasNode2() = !("aap"(boot=1) has noot);
 
-@ignoreCompiler{Extend type checker to allow this}
 test bool hasNode3() = !("aap"() has noot);
 
 test bool tst() { int x = 10; y = x ? 1; return y == 10; }
