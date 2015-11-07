@@ -1735,6 +1735,7 @@ MuExp translate (e:(Expression) `<Expression expression> has <Name name>`) {
     	case "lex":		op = "nonterminal";
     	case "nonterminal":
     					op = "nonterminal";
+    	case "node":    op = "node";
     	default:
      		return muCon(hasField(getType(expression@\loc), unescape("<name>")));		
     }
