@@ -285,7 +285,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
            );
 }
 
-value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, 
+value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false,
                                     bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
                                     bool coverage = false, bool useJVM = false, bool serialize=false, bool verbose = false){
     //<existsExec, exec> = RVMExecutableWriteLoc(program.main_module.name, pcfg);
@@ -295,7 +295,7 @@ value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArgumen
     v = executeProgram(RVMExecutableCompressedWriteLoc(program.main_module.name, pcfg),
                            program,
                            keywordArguments, 
-                           debug, 
+                           debugRVM, 
                            testsuite, 
                            profile, 
                            trackCalls, 
@@ -305,25 +305,25 @@ value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArgumen
    return v;                            
 }
 
-value execute(RVMModule mainModule, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, 
+value execute(RVMModule mainModule, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false,
                                     bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
                                     bool coverage = false, bool useJVM = false, bool serialize=false, bool verbose = false){
     start_linking = cpuTime();   
     merged = mergeImports(mainModule, pcfg, verbose=verbose, useJVM=useJVM);
     link_time = cpuTime() - start_linking;
     println("linking: <link_time/1000000> msec");
-    return execute(merged, pcfg, keywordArguments=keywordArguments, debug=debug, testsuite=testsuite,recompile=recompile,profile=profile,trackCalls=trackCalls,coverage=coverage,useJVM=useJVM,serialize=serialize,verbose=verbose);             
+    return execute(merged, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=testsuite,recompile=recompile,profile=profile,trackCalls=trackCalls,coverage=coverage,useJVM=useJVM,serialize=serialize,verbose=verbose);             
 }
-value execute(loc moduleLoc, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=false, bool verbose = false) =
-    execute(getModuleName(moduleLoc, pcfg), pcfg, keywordArguments = keywordArguments, debug=debug, testsuite=testsuite, profile=profile, trackCalls=trackCalls, coverage=coverage,useJVM=useJVM,serialize=serialize,verbose=verbose);
+value execute(loc moduleLoc, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=false, bool verbose = false) =
+    execute(getModuleName(moduleLoc, pcfg), pcfg, keywordArguments = keywordArguments, debug=debug, debugRBM=debugRVM, testsuite=testsuite, profile=profile, trackCalls=trackCalls, coverage=coverage,useJVM=useJVM,serialize=serialize,verbose=verbose);
 
 
-value execute(str qualifiedModuleName, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=false, bool verbose = false){
+value execute(str qualifiedModuleName, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=false, bool verbose = false){
    if(!recompile){
       //executable = RVMExecutableLoc(qualifiedModuleName, pcfg);
       if(<true, compressed> := RVMExecutableCompressedReadLoc(qualifiedModuleName, pcfg)){
          if(verbose) println("Using <compressed>");
-         v = executeProgram(compressed, keywordArguments, debug, testsuite, profile, trackCalls, coverage, useJVM);
+         v = executeProgram(compressed, keywordArguments, debugRVM, testsuite, profile, trackCalls, coverage, useJVM);
          if(!testsuite && verbose){
             println("Result = <v>");
          }  
@@ -335,7 +335,7 @@ value execute(str qualifiedModuleName, PathConfig pcfg, map[str,value] keywordAr
    //println("Compiling: <(cpuTime() - startTime)/1000000> ms");
    //<cfg, mainModule> = compile(rascalSource, bindir=bindir);
    startTime = cpuTime();
-   v = execute(mainModule, pcfg, keywordArguments=keywordArguments, debug=debug, testsuite=testsuite, profile=profile, verbose=verbose, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize);
+   v = execute(mainModule, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=testsuite, profile=profile, verbose=verbose, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize);
    println("Executing: <(cpuTime() - startTime)/1000000> ms");
    return v;
 }
