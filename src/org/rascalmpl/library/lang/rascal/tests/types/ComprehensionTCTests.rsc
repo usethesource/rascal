@@ -36,6 +36,6 @@ test bool emptyTupleGeneratorError1() = cannotMatch("{\<X,Y\> | \<int X, int Y\>
   	
 test bool emptyTupleGeneratorError2() = cannotMatch("{\<X,Y\> | \<int X, int Y\> \<- []} == {};");  	
   
-test bool emptyTupleGeneratorError3() = cannotMatch("{\<X,Y\> | int X \<- {}, int Y \<- {}} == {};");  // TODO:?	
+test bool emptyTupleGeneratorError3() = checkOK("{\<X,Y\> | int X \<- {}, int Y \<- {}} == {};");	
    
-test bool emptyTupleGeneratorError4() = cannotMatch("{\<X,Y\> | int X \<- [], int Y \<- []} == {};");  // TODO:?	
+test bool emptyTupleGeneratorError4() = checkOK("{\<X,Y\> | int X \<- [], int Y \<- []} == {};");	

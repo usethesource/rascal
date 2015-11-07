@@ -20,11 +20,11 @@ test bool keywordError1() = argumentMismatch("incr(delta=3);", initialDecls = ["
   	
 test bool keywordError2() = argumentMismatch("incr(1,3);", initialDecls = ["int incr(int x, int delta=1) = x + delta;"]);  	
 
-test bool keywordError3() = argumentMismatch("incr(1,delta=\"a\");", initialDecls = ["int incr(int x, int delta=1) = x + delta;"]);  // TODO
+test bool keywordError3() = argumentMismatch("incr(1,delta=\"a\");", initialDecls = ["int incr(int x, int delta=1) = x + delta;"]);
 
-test bool keywordError4() = argumentMismatch("incr(3,d=5);", initialDecls = ["int incr(int x, int delta=1) = x + delta;"]);  	   // TODO
+test bool keywordError4() = argumentMismatch("incr(3,d=5);", initialDecls = ["int incr(int x, int delta=1) = x + delta;"]);
   
-test bool keywordError5() = argumentMismatch("add1(3,delta=5);", initialDecls = ["int add1(int x) = x + 1;"]);  	                    // TODO
+test bool keywordError5() = argumentMismatch("add1(3,delta=5);", initialDecls = ["int add1(int x) = x + 1;"]);
   	data D = d(int x, int y = 3);
   	
 test bool keywordInConstructorError1() = argumentMismatch("d1();", initialDecls = ["data D = d(int x, int y = 3);", "data D1 = d1(int x);"]);  	
@@ -33,11 +33,11 @@ test bool keywordInConstructorError2() = argumentMismatch("d(y=4);", initialDecl
 
 test bool keywordInConstructorError3() = argumentMismatch("d(1,4);", initialDecls = ["data D = d(int x, int y = 3);", "data D1 = d1(int x);"]);  	
   	
-test bool keywordInConstructorError4() = argumentMismatch("d(1,y=\"a\");", initialDecls = ["data D = d(int x, int y = 3);", "data D1 = d1(int x);"]);  // TODO	
+test bool keywordInConstructorError4() = argumentMismatch("d(1,y=\"a\");", initialDecls = ["data D = d(int x, int y = 3);", "data D1 = d1(int x);"]);
 
-test bool keywordInConstructorError5() = argumentMismatch("d(1,z=4);", initialDecls = ["data D = d(int x, int y = 3);", "data D1 = d1(int x);"]);  	// TODO
+test bool keywordInConstructorError5() = argumentMismatch("d(1,z=4);", initialDecls = ["data D = d(int x, int y = 3);", "data D1 = d1(int x);"]);
   	
-test bool keywordInConstructorError6() = argumentMismatch("d1(1,y=4);", initialDecls = ["data D = d(int x, int y = 3);", "data D1 = d1(int x);"]);  	// TODO
+test bool keywordInConstructorError6() = argumentMismatch("d1(1,y=4);", initialDecls = ["data D = d(int x, int y = 3);", "data D1 = d1(int x);"]);
 
 test bool functionParameter() = 
 	checkOK("testSimp(SET(\"a\"), simp);",

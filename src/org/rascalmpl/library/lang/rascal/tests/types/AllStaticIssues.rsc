@@ -351,7 +351,7 @@ test bool Issue503(){
 // https://github.com/cwi-swat/rascal/issues/504
 
 test bool Issue504() =
-	redeclaredVariable("true;", initialDecls = ["alias INT = int;", "alias INT = int;"]);
+	checkOK("true;", initialDecls = ["alias INT = int;", "alias INT = int;"]);
 	
 	
 // https://github.com/cwi-swat/rascal/issues/547
