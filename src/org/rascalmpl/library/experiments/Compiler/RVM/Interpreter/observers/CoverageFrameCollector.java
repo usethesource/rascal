@@ -1,27 +1,28 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers;
 
 import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class CoverageLocationCollector implements ILocationCollector, ILocationReporter<ISet> {
+public class CoverageFrameCollector implements IFrameObserver, IFrameReporter<ISet> {
 
 	private final HashSet<ISourceLocation> data;
 	
-	public CoverageLocationCollector(){
+	public CoverageFrameCollector(){
 		this.data = new HashSet<ISourceLocation>();
 	}
 	
 	@Override
-	public void registerLocation(ISourceLocation src) {
+	public void observe(Frame frame) {
 		//System.err.println("registerLocation: " + src);
-		data.add(src);
+		data.add(frame.src);
 		//System.err.println("data:"  + data);
 	}
 	
