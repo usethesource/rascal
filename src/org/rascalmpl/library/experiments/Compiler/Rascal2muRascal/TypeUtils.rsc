@@ -694,7 +694,7 @@ lrel[RName,value] getAllKeywordFieldDefaults(UID cuid){
         result = toList(config.dataKeywordDefaults[uid_adt] +  config.dataKeywordDefaults[cuid]);
         result = sort(result, bool(tuple[RName,value] a, tuple[RName,value] b) { return Expression aExp := a[1] && Expression bExp := b[1] && aExp@\loc.offset < bExp@\loc.offset; });
     }
-    println("getAllKeywordDefaults(<cuid>) =\> <result>");
+    //println("getAllKeywordDefaults(<cuid>) =\> <result>");
     return result;
 }  
 
@@ -914,7 +914,7 @@ map[str, map[str, value]] getConstantConstructorDefaultExpressions(loc location)
 
 map[str, set[str]] getAllConstructorFields(loc location){
     tp = getType(location);
-    println("getAllConstructorFields: <tp>, <constructorFields[tp]>");
+    //println("getAllConstructorFields: <tp>, <constructorFields[tp]>");
     return constructorFields[tp] ? ();
 }
 
@@ -976,13 +976,8 @@ str getCompanionForUID(UID uid) = uid2str[uid] + "::companion";
 str getCompanionDefaultsForUID(UID uid) = uid2str[uid] + "::companion-defaults";
 
 
-str getCompanionDefaultsForUIDandField(UID uid, str fld) {
-    srep = uid2str[uid];
-    
-    srep = srep[findFirst(srep, "/adt(") + 1 .. ];
-    srep = srep[0 .. findLast(srep, "::")];
-    
-    return srep + "::<fld>-companion-default";
+str getCompanionDefaultsForADTandField(str ADTName, str fld) {
+    return "<ADTName>::<fld>-companion-default";
 }
 
 

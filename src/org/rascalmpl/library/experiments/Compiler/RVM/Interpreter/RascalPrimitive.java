@@ -6942,7 +6942,7 @@ public enum RascalPrimitive {
 				
 				// Final resort: an unset common data field with a computed value?
 				
-				Function getFieldDefault = rex.getCompanionFieldDefaultFunction(fieldName, tp);
+				Function getFieldDefault = rex.getCompanionFieldDefaultFunction(tp.getAbstractDataType(), fieldName);
 				
 				if(getFieldDefault !=  RVM.noCompanionFunction){
 					IValue[] posArgs = new IValue[0];

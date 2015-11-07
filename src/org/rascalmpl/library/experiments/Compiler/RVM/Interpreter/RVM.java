@@ -389,15 +389,14 @@ public class RVM implements java.io.Serializable {
 	return noCompanionFunction;
 	}
 	
-	public Function getCompanionFieldDefaultFunction(String fieldName, Type ftype){
-		String key = fieldName + "-companion-default";
-		all:
-			for(Function f : functionStore){
-				if(f.name.endsWith(key)){ // TODO add test on ADT
-					return f;
-				}
+	public Function getCompanionFieldDefaultFunction(Type adtType, String fieldName){
+		String key = adtType.toString() + "::" + fieldName + "-companion-default";
+		for(Function f : functionStore){
+			if(f.name.equals(key)){
+				return f;
 			}
-	return noCompanionFunction;
+		}
+		return noCompanionFunction;
 	}
 	
 	public Function getFunction(String name, Type returnType, Type argumentTypes){
