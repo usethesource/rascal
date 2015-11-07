@@ -241,8 +241,12 @@ public class RascalExecutionContext implements IRascalMonitor {
 		return result;
 	}
 	
-	public Function getCompanionFieldDefaultFunction(String fieldName, Type ftype){
-		return rvm.getCompanionFieldDefaultFunction(fieldName, ftype);
+	private Cache<String, Function> companionFieldDefaultFunctionCache = Caffeine.newBuilder().build();
+	
+	public Function getCompanionFieldDefaultFunction(Type adtType, String fieldName){
+		String key = adtType.toString() + fieldName;
+		Function result = companionFieldDefaultFunctionCache.get(key, k -> rvm.getCompanionFieldDefaultFunction(adtType, fieldName));
+		return result;
 	}
 	
 	public void clearCaches(){

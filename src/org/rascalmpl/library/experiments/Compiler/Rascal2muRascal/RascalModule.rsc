@@ -130,7 +130,7 @@ void generateCompanions(Configuration config, bool verbose = true){
    // This enables evaluation of potentially non-constant default expressions and semantics of implicit keyword arguments
                 
    for(int uid <- config.store, AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, 0, constructorLoc) := config.store[uid], allKwFields := getAllKeywordFields(uid), !isEmpty(allKwFields)) {
-       println("*** Creating companion for <uid>");
+       //println("*** Creating companion for <uid>");
          
        map[RName,Symbol] allKWFieldsAndTypes = getAllKeywordFieldsAndTypes(uid);
         
@@ -144,7 +144,7 @@ void generateCompanions(Configuration config, bool verbose = true){
        int nformals = size(\type.parameters) + 1;
        int defaults_pos = nformals;
         
-       println("enter function scope <fuid>");
+       //println("enter function scope <fuid>");
        enterFunctionScope(fuid);
          
        MuExp body = muReturn1(muCall(muConstr(uid2str[uid]), [ muVar("<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
@@ -158,7 +158,7 @@ void generateCompanions(Configuration config, bool verbose = true){
         * Create companion for computing the values of defaults
         */
         
-       println("*** Creating defaults companion for <uid>");
+       //println("*** Creating defaults companion for <uid>");
         
        str fuidDefaults = getCompanionDefaultsForUID(uid);
 
@@ -190,21 +190,21 @@ void generateCompanions(Configuration config, bool verbose = true){
         * Create companions for each common keyword field
         */
          
-       println("**** Create companions per common data field");
-       println("Number of default fields: <size(allKWFieldsAndDefaults)>");
+       //println("**** Create companions per common data field");
+       //println("Number of default fields: <size(allKWFieldsAndDefaults)>");
        
        dataKWFieldsAndDefaults = [<kwf, defaultExpr> | <kwf, defaultVal> <- allKWFieldsAndDefaults, 
                                                       Expression defaultExpr := defaultVal,
                                                       !(defaultExpr@\loc < constructorLoc)];
        
       
-       println("Number of datadefault fields: <size(dataKWFieldsAndDefaults)>"); 
+       //println("Number of datadefault fields: <size(dataKWFieldsAndDefaults)>"); 
        for(int i <- index(dataKWFieldsAndDefaults)){
            for(int j <- [0 .. i+1]){
                <mainKwf, mainDefaultVal> = dataKWFieldsAndDefaults[j];
 
-               println("<i>, <j>: <mainKwf>");
-               str fuidDefault = getCompanionDefaultsForUIDandField(uid, prettyPrintName(mainKwf));
+               //println("<i>, <j>: <mainKwf>");
+               str fuidDefault = getCompanionDefaultsForADTandField(getADTName(getConstructorResultType(\type)), prettyPrintName(mainKwf));
                if(fuidDefault in seenCommonDataFields) continue;
                
                seenCommonDataFields += fuidDefault;
@@ -214,8 +214,10 @@ void generateCompanions(Configuration config, bool verbose = true){
                nformals = 1;      // the keyword map
                defaults_pos = nformals;
          
-               println("**** enter scope <fuidDefault>");
+               //println("**** enter scope <fuidDefault>");
                enterFunctionScope(fuidDefault);
+               
+               ftype = Symbol::func(allKWFieldsAndTypes[mainKwf], [ Symbol::\void() ]);
                
                kwps = [ muAssign("map_of_default_values", fuidDefault, defaults_pos, muCallMuPrim("make_mmap_str_entry",[])) ];
                  
@@ -236,7 +238,7 @@ void generateCompanions(Configuration config, bool verbose = true){
          
                MuExp bodyDefault =  muBlock(kwps);
          
-               iprintln(bodyDefault);
+               //iprintln(bodyDefault);
          
                leaveFunctionScope();
                addFunctionToModule(muFunction(fuidDefault, prettyPrintName(mainKwf), ftype, (addrDefault.fuid in moduleNames) ? "" : addrDefault.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefault));                                             
