@@ -6842,7 +6842,7 @@ public enum RascalPrimitive {
 				stack[sp - 2] = Rascal_TRUE;
 			} else {
 				if(nd.isAnnotatable()){
-					stack[sp - 3] = nd.asAnnotatable().getAnnotation(fieldName) == null ? Rascal_FALSE : Rascal_TRUE;
+					stack[sp - 2] = nd.asAnnotatable().getAnnotation(fieldName) == null ? Rascal_FALSE : Rascal_TRUE;
 				} else {
 				   stack[sp - 2] = Rascal_FALSE;
 				}
