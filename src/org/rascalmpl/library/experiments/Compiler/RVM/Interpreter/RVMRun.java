@@ -22,6 +22,8 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.NullFrameObserver;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IDateTime;
@@ -113,7 +115,7 @@ public class RVMRun extends RVM {
 	public RascalExecutionContext rex;
 	private boolean trackCalls;
 	private boolean finalized;
-	protected ILocationCollector locationCollector;
+	protected IFrameObserver locationCollector;
 
 //	public IEvaluatorContext getEvaluatorContext() {
 //		return rex.getEvaluatorContext();
@@ -195,7 +197,7 @@ public class RVMRun extends RVM {
 		
 		Opcode.init(stdout, rex.getProfile());
 
-		this.locationCollector = NullLocationCollector.getInstance();
+		this.locationCollector = NullFrameObserver.getInstance();
 
 	}
 

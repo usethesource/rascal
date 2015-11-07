@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers;
 
 import java.io.PrintWriter;
 import java.util.Comparator;
@@ -56,16 +56,16 @@ class Count {
 }
 
 public class Profiler extends Thread {
-	private final ProfileLocationCollector collector;
+	private final ProfileFrameCollector collector;
 	private final HashMap<ISourceLocation,Count> data;
 	private volatile boolean running;
 	private final long resolution = 1;
 	
-	public Profiler(ProfileLocationCollector collector){
+	public Profiler(ProfileFrameCollector collector){
 		this(collector, new HashMap<ISourceLocation,Count>());
 	}
 	
-	public Profiler(ProfileLocationCollector collector, HashMap<ISourceLocation,Count> data) {
+	public Profiler(ProfileFrameCollector collector, HashMap<ISourceLocation,Count> data) {
 		this.collector = collector;
 		this.data = data;
 		running = true;

@@ -1,23 +1,24 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers;
 
 import java.io.PrintWriter;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
 
-public class ProfileLocationCollector implements ILocationCollector, ILocationReporter<IList> {
+public class ProfileFrameCollector implements IFrameObserver, IFrameReporter<IList> {
 
 	private volatile ISourceLocation src;
 	
 	private Profiler profiler;
 	
-	public ProfileLocationCollector(){
+	public ProfileFrameCollector(){
 		profiler = new Profiler(this);
 	}
 	
 	@Override
-	public void registerLocation(ISourceLocation src) {
-		this.src = src;
+	public void observe(Frame frame) {
+		this.src = frame.src;
 	}
 
 	public ISourceLocation getLocation() {

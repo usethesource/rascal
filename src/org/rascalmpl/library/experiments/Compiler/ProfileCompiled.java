@@ -1,13 +1,13 @@
 package org.rascalmpl.library.experiments.Compiler;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ProfileLocationCollector;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.ProfileFrameCollector;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IValueFactory;
 
 public class ProfileCompiled extends Profile {
 	
-	private static ProfileLocationCollector profileCollector;
+	private static ProfileFrameCollector profileCollector;
 	
 	public ProfileCompiled(IValueFactory values){
 		super(values);
@@ -15,7 +15,7 @@ public class ProfileCompiled extends Profile {
 	
 	public void startProfile(RascalExecutionContext rex){
 		if(profileCollector == null){
-			profileCollector = new ProfileLocationCollector();
+			profileCollector = new ProfileFrameCollector();
 			profileCollector.start();
 		} else {
 			profileCollector.restart();

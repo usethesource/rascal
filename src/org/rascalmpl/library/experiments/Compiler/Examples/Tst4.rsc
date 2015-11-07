@@ -1,3 +1,4 @@
 module experiments::Compiler::Examples::Tst4
+
+value main() = "aap"() has noot;
  
-bool main() {1; }

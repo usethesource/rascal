@@ -25,6 +25,8 @@ import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.NullFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.DIRECTION;
@@ -91,8 +93,7 @@ public class RVM implements java.io.Serializable {
 	
 	protected static final HashMap<String, IValue> emptyKeywordMap = new HashMap<>(0);
 	
-	//private Frame currentFrame;	// used for profiling
-	private ILocationCollector locationCollector;
+	private IFrameObserver frameObserver;
 		
 	// Management of active coroutines
 	Stack<Coroutine> activeCoroutines = new Stack<>();
@@ -167,7 +168,7 @@ public class RVM implements java.io.Serializable {
 
 		Opcode.init(stdout, rex.getProfile());
 		
-		this.locationCollector = NullLocationCollector.getInstance();			
+		this.frameObserver = NullFrameObserver.getInstance();			
 	}
 	
 	public static RVM readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex){
@@ -194,16 +195,16 @@ public class RVM implements java.io.Serializable {
 	
 	//IEvaluatorContext getEvaluatorContext() { return rex.getEvaluatorContext(); }
 	
-	public void setLocationCollector(ILocationCollector collector){
-		this.locationCollector = collector;
+	public void setLocationCollector(IFrameObserver collector){
+		this.frameObserver = collector;
 	}
 	
-	public ILocationCollector getLocationCollector(){
-		return locationCollector;
+	public IFrameObserver getLocationCollector(){
+		return frameObserver;
 	}
 	
 	public void resetLocationCollector(){
-		this.locationCollector = NullLocationCollector.getInstance();
+		this.frameObserver = NullFrameObserver.getInstance();
 	}
 	
 	/**
@@ -1228,7 +1229,7 @@ public class RVM implements java.io.Serializable {
 					arity = CodeBlock.fetchArg2(instruction);
 					
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
-					locationCollector.registerLocation(cf.src);
+					frameObserver.observe(cf);
 					cf.sp = sp;
 					cf.pc = pc;
 					
@@ -1620,7 +1621,7 @@ public class RVM implements java.io.Serializable {
 				case Opcode.OP_CALLPRIM:
 					arity = CodeBlock.fetchArg2(instruction);
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
-					locationCollector.registerLocation(cf.src);
+					frameObserver.observe(cf);
 					try {
 						//sp1 = sp;
 						n = CodeBlock.fetchArg1(instruction);
@@ -1735,7 +1736,7 @@ public class RVM implements java.io.Serializable {
 					Object obj = stack[--sp];
 					thrown = null;
 					cf.src = (ISourceLocation) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
-					locationCollector.registerLocation(cf.src);
+					frameObserver.observe(cf);
 					if(obj instanceof IValue) {
 						//stacktrace = new ArrayList<Frame>();
 						//stacktrace.add(cf);

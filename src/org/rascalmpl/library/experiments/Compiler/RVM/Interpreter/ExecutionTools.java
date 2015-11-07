@@ -6,6 +6,8 @@ import java.util.HashMap;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CoverageFrameCollector;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.ProfileFrameCollector;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -162,9 +164,9 @@ public class ExecutionTools {
 			RascalPrimitive.exit(rex);
 			Opcode.exit();
 			if(rex.getProfile()){
-				((ProfileLocationCollector) rvm.getLocationCollector()).report(rvm.getStdOut());
+				((ProfileFrameCollector) rvm.getLocationCollector()).report(rvm.getStdOut());
 			} else if(rex.getCoverage()){
-				((CoverageLocationCollector) rvm.getLocationCollector()).report(rvm.getStdOut());
+				((CoverageFrameCollector) rvm.getLocationCollector()).report(rvm.getStdOut());
 			}
 			
 			//System.out.println("Executing: " + (now - start)/1000000 + "ms");
@@ -184,16 +186,16 @@ public class ExecutionTools {
 		
 		RVM rvm = rex.getUseJVM() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
 		
-		ProfileLocationCollector profilingCollector = null;
-		CoverageLocationCollector coverageCollector = null;
+		ProfileFrameCollector profilingCollector = null;
+		CoverageFrameCollector coverageCollector = null;
 		
 		if(rex.getProfile()){
-			profilingCollector = new ProfileLocationCollector();
+			profilingCollector = new ProfileFrameCollector();
 			rvm.setLocationCollector(profilingCollector);
 			profilingCollector.start();
 	
 		} else if(rex.getCoverage()){
-			coverageCollector = new CoverageLocationCollector();
+			coverageCollector = new CoverageFrameCollector();
 			rvm.setLocationCollector(coverageCollector);
 		}
 		

@@ -1,13 +1,13 @@
 package org.rascalmpl.library.experiments.Compiler;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CoverageLocationCollector;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CoverageFrameCollector;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.IValueFactory;
 
 public class CoverageCompiled extends Coverage {
 	
-	private static CoverageLocationCollector coverageCollector;
+	private static CoverageFrameCollector coverageCollector;
 	
 	public CoverageCompiled(IValueFactory values){
 		super(values);
@@ -15,7 +15,7 @@ public class CoverageCompiled extends Coverage {
 	
 	public void startCoverage(RascalExecutionContext rex){
 		if(coverageCollector == null){
-			coverageCollector = new CoverageLocationCollector();
+			coverageCollector = new CoverageFrameCollector();
 		}
 		rex.getRVM().setLocationCollector(coverageCollector);
 		//System.err.println("startCoverage");
