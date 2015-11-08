@@ -167,6 +167,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
     // In the environment with the parameters, check the body of the closure.
 	< cFun, st > = checkStatementSequence([ssi | ssi <- ss], cFun);
     
+    // TODO: We need an actual check to ensure return is defined along all
+    // paths, but for now we just check to see if the type of the ending
+    // expression is a subtype of the return type.
+    if (!subtype(st,rt)) {
+    	cFun = addScopeError(cFun, "The type of the final statement, <prettyPrintType(st)>, must be a subtype of the declared return type, <prettyPrintType(rt)>", exp@\loc);
+    }
+    
     // Now, recover the environment active before the call, removing any names
     // added by the closure (e.g., for parameters) from the environment. This
     // also cleans up any parts of the configuration altered to invoke a
@@ -6352,7 +6359,19 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         cFun.labelStack = labelStackItem(rn, functionLabel(), Symbol::\void()) + cFun.labelStack;
 
         if ((FunctionBody)`{ <Statement* ss> }` := body) {
-			< cFun, tStmt > = checkStatementSequence([ssi | ssi <- ss], cFun);
+        	bodyStatements = [ssi | ssi <- ss];
+			< cFun, tStmt > = checkStatementSequence(bodyStatements, cFun);
+			
+		    // Basic check for returns: if we have a non-void return type and the sequence
+		    // is empty, flag this as an error
+		    if (!isVoidType(cFun.expectedReturnType) && isEmpty(bodyStatements)) {
+		    	cFun = addScopeError(cFun, "Cannot use a non-void return type with an empty function body", fd@\loc);
+		    }
+		    
+		    if (!isEmpty(bodyStatements) && !subtype(tStmt, cFun.expectedReturnType)) {
+		    	cFun = addScopeError(cFun, "The type of the final statement, <prettyPrintType(tStmt)>, must be a subtype of the declared return type, <prettyPrintType(cFun.expectedReturnType)>", fd@\loc);
+		    }
+			
         }
 
         cFun.labelStack = tail(cFun.labelStack);
