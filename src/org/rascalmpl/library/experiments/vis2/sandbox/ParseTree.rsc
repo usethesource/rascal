@@ -18,6 +18,7 @@ import experiments::vis2::sandbox::Figure;
 import experiments::vis2::sandbox::FigureServer;
 import demo::lang::Pico::Load;
 import demo::lang::Pico::Syntax;
+import experiments::vis2::sandbox::Steden;
 
 import ParseTree;
 import IO;
@@ -123,7 +124,8 @@ private str getChars(list[Tree] trees){
 //}
 
 Figure tip(str s) = // box(visibility="hidden", fillColor="green", fig=
-      svg(grid(figArray=[
+      // svg(
+      grid(figArray=[
      [box(size=<10, 10>, fillColor="beige")
      ,box(size=<10, 15>, fillColor="antiquewhite")
      ]
@@ -131,7 +133,7 @@ Figure tip(str s) = // box(visibility="hidden", fillColor="green", fig=
      [box(size=<15, 10>, fillColor="pink")
      ,box(size=<10, 10>, fillColor="yellow")
      ]
-     ]))
+     ])
      // )
      ;
      
@@ -140,13 +142,13 @@ Figure tip(str s) = // box(visibility="hidden", fillColor="green", fig=
 
 public void tree2(){
    render(tree(ellipse(size=<60,60>, fillColor="green", tooltip = "Ellipse A"),
-       [ ellipse(size = <90,90>, id="aap", fillColor="red", tooltip = circle(r=20, fillColor="green"
+       [ ellipse(size = <90,90>, id="aap", fillColor="red", tooltip = circle(r=60, fillColor="green"
           ,fig = emptyFigure())
           , event = on(["click"],  void(str e, str n, str v) {println("H");})
           ),
          ellipse(size = <120,120>, fillColor="blue", tooltip = tip("Ellipse C")),
-         ellipse(size = <150,150>, fillColor="purple", tooltip = "Ellipse D"),
-         ellipse(size = <180,180>, fillColor="lightblue", tooltip = "Ellipse E"),
+         ellipse(size = <150,150>, fillColor="purple", tooltip = qq1()),
+         ellipse(size = <180,180>, fillColor="lightblue", tooltip = qq1()),
          box(size = <60,60>, fillColor="orange", tooltip = "Box
                                                             F"),
          box(size = <60,60>, fillColor="brown", tooltip = "Box\nG"),
@@ -157,22 +159,20 @@ public void tree2(){
 }
 
 Figure c(int r, str color) = circle(r=r, fillColor = color);
-Figure qq1() = svg(tree(c(10,"red"),[c(20, "blue"), c(25, "green")], lineWidth = 1, lineColor = "black"
-    ));
-Figure qq2() = svg(tree(c(30,"magenta"),[c(10, "beige"), tree(c(25, "gold"), [box(size=<20, 20>, fillColor = "yellow")])]
-, lineWidth = 1, lineColor = "black"
-    ));
+Figure qq1() = steden();
+// tree(c(10,"red"),[c(20, "blue"), c(25, "green")], lineWidth = 1, lineColor = "black");
+Figure qq2() = tree(c(30,"magenta"),[c(10, "beige"), tree(c(25, "gold"), [box(size=<20, 20>, fillColor = "yellow")])]
+lineColor = "black"
+    );
 
 public Figure tst() { 
     Figure r = hcat(figs = [
-        box(size=<150, 150> , fillColor = "antiquewhite", id = "aap"
-        ,tooltip = qq1()      
-             )
-      
-    
-       ,
-       box(size=<200, 200> , fillColor = "blue", id = "noot"
-         ,tooltip = qq2()
+        box(size=<200, 200> , fillColor = "antiquewhite", id = "mies"
+        ,tooltip = qq2()   
+             )    
+      ,
+       box(size=<650, 650> , fillColor = "blue", id = "aap"
+         ,tooltip = qq1()
           // ,event = on("mouseenter", void(str e, str n, str v) { println(e);})
         ) 
        ]);
@@ -183,7 +183,10 @@ public void ftst(loc l) {
    writeFile(l, toHtmlString(tst()));
    }
 
-public void ttst() = render(tst());
+public void ttst() = render(tst()
+   //, event = on("load"
+   //  , void(str e, str n, str v){style("steden", visibility="hidden");})
+   );
 
 public Figure simple() =  box(size=<100, 100>, fillColor = "antiquewhite",
      tooltip = box(size=<100, 100>, fig = circle(r=30, fillColor = "red")));
