@@ -1,7 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
-
 public class NullFrameObserver implements IFrameObserver {
 	
 	private static final NullFrameObserver instance = new NullFrameObserver();
@@ -12,6 +10,4 @@ public class NullFrameObserver implements IFrameObserver {
 		return instance;
 	}
 
-	public void observe(Frame frame) {
-	}
 }

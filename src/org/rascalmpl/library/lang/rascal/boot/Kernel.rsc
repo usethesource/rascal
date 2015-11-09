@@ -27,8 +27,8 @@ RVMModule compile(str moduleName, PathConfig pcfg, bool verbose = false) =
 RVMProgram compileAndLink(str moduleName,  PathConfig pcfg, bool useJVM=false, bool serialize=true, bool verbose = false) =
      experiments::Compiler::Execute::compileAndLink(moduleName, pcfg, useJVM=useJVM, serialize=serialize, verbose = verbose);
 
-RVMProgram compileAndLinkIncremental(str moduleName,  bool reuseConfig, PathConfig pcfg, bool useJVM=false, bool serialize=true, bool verbose = false) =
-     experiments::Compiler::Execute::compileAndLinkIncremental(moduleName, reuseConfig, pcfg, useJVM=useJVM, serialize=serialize, verbose = verbose);
+RVMProgram compileAndLinkIncremental(str moduleName,  bool reuseConfig, bool useJVM=false, bool serialize=true, bool verbose = false) =
+     experiments::Compiler::Execute::compileAndLinkIncremental(moduleName, reuseConfig, useJVM=useJVM, serialize=serialize, verbose = verbose);
     
 value execute(str moduleName, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=true, bool verbose = false)
      =

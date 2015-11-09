@@ -56,31 +56,35 @@ class Count {
 }
 
 public class Profiler extends Thread {
-	private final ProfileFrameCollector collector;
+	private final ProfileFrameObserver collector;
 	private final HashMap<ISourceLocation,Count> data;
 	private volatile boolean running;
+	private volatile boolean collecting;
 	private final long resolution = 1;
 	
-	public Profiler(ProfileFrameCollector collector){
+	public Profiler(ProfileFrameObserver collector){
 		this(collector, new HashMap<ISourceLocation,Count>());
 	}
 	
-	public Profiler(ProfileFrameCollector collector, HashMap<ISourceLocation,Count> data) {
+	public Profiler(ProfileFrameObserver collector, HashMap<ISourceLocation,Count> data) {
 		this.collector = collector;
 		this.data = data;
 		running = true;
+		collecting = true;
 	}
 
 	@Override
 	public void run(){
 		while(running){
-			ISourceLocation src = collector.getLocation();
-			if(src != null){
-				Count currentCount = data.get(src);
-				if(currentCount == null)
-					data.put(src, new Count());
-				else
-					currentCount.increment();
+			if(collecting){
+				ISourceLocation src = collector.getLocation();
+				if(src != null){
+					Count currentCount = data.get(src);
+					if(currentCount == null)
+						data.put(src, new Count());
+					else
+						currentCount.increment();
+				}
 			}
 			try {
 				sleep(resolution);
@@ -89,6 +93,14 @@ public class Profiler extends Thread {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void stopCollecting(){
+		collecting = false;
+	}
+	
+	public void startCollecting(){
+		collecting = true;
 	}
 	
 	public void pleaseStop(){

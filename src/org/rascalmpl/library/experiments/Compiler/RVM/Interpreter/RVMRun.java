@@ -168,7 +168,7 @@ public class RVMRun extends RVM {
 		this.classLoaders = rex.getClassLoaders();
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
-		this.debug = rex.getDebug();
+		this.debug = rex.getDebugRVM();
 		this.trackCalls = rex.getTrackCalls();
 		this.finalized = false;
 
@@ -357,7 +357,7 @@ public class RVMRun extends RVM {
 		Thrown oldthrown = thrown;
 
 		Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
-		root.sp = func.function.nlocals;
+		root.sp = func.function.getNlocals();
 
 		// Pass the program arguments to main
 		for (int i = 0; i < args.length; i++) {
@@ -1126,7 +1126,7 @@ public class RVMRun extends RVM {
 
 		root.stack[0] = vf.list(args); // pass the program argument to
 		root.stack[1] = vf.mapWriter().done();
-		root.sp = func.nlocals;
+		root.sp = func.getNlocals();
 
 		Object result = dynRun(n, root);
 		return result;
