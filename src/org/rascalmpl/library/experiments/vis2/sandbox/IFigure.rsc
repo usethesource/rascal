@@ -67,6 +67,9 @@ public list[str] googleChart = [];
 
 public list[str] markerScript = [];
 
+public list[str] tooltip_id = [];
+
+
 public map[str, list[IFigure] ] defs = ();
 
 IFigure fig;
@@ -104,46 +107,85 @@ Timer _getTimer(str id) = state[widget[id].seq].v.timer;
 
 bool isOverlay(Figure f) = overlay():=f || tree(_, _):=f|| graph():=f;
 
+bool needsSvg(Figure f) = vcat():=f || hcat():=f || grid():=f
+|| comboChart():=f || lineChart():=f || scatterChart():=f
+|| pieChart():=f || candlestickChart():=f || pieChart():=f
+|| areaChart():=f || tree(_,_):=f
+;
+
 Figure makeOverlay(Figure f) {
     // println("makeOverlay <f>");
     if (f==emptyFigure()) return f;
+    // println("Help");
     value v = f.tooltip; 
     if (Figure g:=v && g!=emptyFigure()) {
-           println("Help");
            return overlay(figs=[f]);          
            }
     return f;
     }
     
-Figure cQ(Figure f, Figure g) {f.fig = g; return f;}
+Figure cQ(Figure f, Figure g) { 
+   if (g!=emptyFigure()) {
+       f.fig = g;
+       }
+   return f;
+   }
     
 Figure cQ(Figure f, list[Figure] fs) {f.figs = fs; return f;}
 
 Figure cQ(Figure f, list[list[Figure]] fs) {
-    println(f.figArray);
+    // println(f.figArray);
     f.figArray = fs; return f;
+    }
+    
+Figures cQ(Figures figs) {
+    Figures r = [];
+    // println("cQ: <figs>");
+    for (Figure f<-figs) {
+        value v = f.tooltip;
+        if (Figure g := v && g !=emptyFigure()) {
+            if (/*(f.size[0]>0 && f.size[1]>0) || */ needsSvg(g)) f.tooltip = svg(g, size=f.size);
+            }
+        r += f;
+        }
+    return r;
+    }
+    
+ Figure cQ(Figure f) {
+     value v = f.tooltip;
+    if (Figure g := v && g !=emptyFigure()) {
+            if (/*(f.size[0]>0 && f.size[1]>0) ||*/ needsSvg(g)) f.tooltip = svg(g, size=f.size);
+         }
+    return f;
     }
 
 Figure extendFig(Figure f) { 
     Figure h = visit(f) {
-        // case g:box() => cQ(g, makeOverlay(g.fig))
+        case g:box() => cQ(g, makeOverlay(g.fig))
         case g:frame() => cQ(g, makeOverlay(g.fig))
-        // case g:ellipse() => cQ(g, makeOverlay(g.fig))
+        case g:ellipse() => cQ(g, makeOverlay(g.fig))
         case g:circle() => cQ(g, makeOverlay(g.fig))
-        // case g:circle() => g
         case g:ngon() => cQ(g, makeOverlay(g.fig))
         case g:hcat() => cQ(g, [makeOverlay(q)|Figure q<-g.figs])
         case g:vcat() => cQ(g, [makeOverlay(q)|Figure q<-g.figs])
-        // case g:grid() => cQ(g, [[makeOverlay(q)|Figure q<-e]|Figure e<-g.figArray])
-        // case g:grid() => cQ(g, g.figArray)
+        case g:grid() => cQ(g, [[makeOverlay(q)|Figure q<-e]|Figures e<-g.figArray])
+        
         //case g:at(_, _, fg):  cL(g, fg); 
         //case g:atX(_, fg):  cL(g, fg); 
         //case g:atY(_, fg):  cL(g, fg)
         //case g:rotate(_, fg):  cL(g, fg); 
         // case g:rotate(_, _, _, fg):  cL(g, fg); 
         };
-        if (!isOverlay(h)) return makeOverlay(h); else 
-        return h;
+        if (!isOverlay(h)) h = makeOverlay(h); 
+        return visit(h) {
+            case g:tree(Figure root, Figures figs)=>tree(cQ(root), cQ(figs)
+                 ,xSep = g.xSep, ySep = g.ySep, pathColor = g.pathColor,
+	          orientation = g.orientation
+	          ,manhattan=g.manhattan
+// For memory management
+	          , shrink=g.shrink, rasterHeight=g.rasterHeight)
+            case g:overlay() => overlay(figs=cQ(g.figs))
+            }
     }
 
 void addState(Figure f) {
@@ -181,7 +223,9 @@ public void clearWidget() {
     seq = 0; occur = 0;
     old =[];
     state = [];
+    tooltip_id = [];
     }
+    
               
 str visitFig(IFigure fig) {
     if (ifigure(str id, list[IFigure] f):= fig) {
@@ -434,6 +478,10 @@ list[bool] toFlags(str v)  {
    return r;
    }
    
+void hideTooltips() {
+   for (str s<-tooltip_id) hide(s);
+   }
+   
 void callCallback(str e, str n, str v) {
    v = replaceAll(v,"^plus","+");
    v = replaceAll(v,"^div","/");
@@ -516,6 +564,18 @@ private loc site = startFigureServer();
 
 private str getSite() = "<site>"[1 .. -1];
 
+value getRenderCallback(Event event) {return void(str e, str n, str v) {
+    hideTooltips(); /*getCallback(event)(e, n, v);*/
+    value q = getCallback(event);
+    switch (q) {
+       case void(str, str, str) f: f(e, n, v);
+       case void(str, str, int) f: f(e, n, toInt(v));
+       case void(str, str, real) f: f(e, n, toReal(v));
+       }
+     }; 
+ }
+
+
 public void _render(IFigure fig1, int width = 400, int height = 400, 
      Alignment align = centerMid, int lineWidth = -1, 
      str fillColor = "none", str lineColor = "black", bool display = true, Event event = on(nullCallback))
@@ -528,7 +588,7 @@ public void _render(IFigure fig1, int width = 400, int height = 400,
     // println(getWidth(fig1));
     str endtag = endTag();   
     // '<style("border","0px solid black")>  
-    widget[id] = <getCallback(event), seq, id, begintag, endtag, 
+    widget[id] = <getRenderCallback(event), seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")   
         '<stylePx("width", width)><style("height", width)>
@@ -1216,7 +1276,7 @@ bool hasInnerCircle(Figure f)  {
         'd3.select(\"#<id>_svg\")
         '<attr("width", toInt(f.grow*f.width))><attr("height", toInt(f.grow*f.height))>     
         '<tooltip>
-        '<endsWith(id,"_tooltip")?attr("pointer-events", "none"):"">
+        '<findFirst(id,"_tooltip")>=0?attr("pointer-events", "none"):"">
         ';
         ";
       } 
@@ -2157,7 +2217,7 @@ Figure cL(Figure parent, Figure child) {
     }
 
 Figure pL(Figure f) {
-         // println("PL:<f>");
+         // println("PL:<f.id>");
          if (f==emptyFigure()) return f;
          if (isEmpty(f.id)) {
               f.id = "i<occur>";
@@ -2166,7 +2226,9 @@ Figure pL(Figure f) {
          value v = f.tooltip;
          if (Figure g:= v && g!=emptyFigure()) { 
               g.id = "<f.id>_tooltip";
-              g.visibility = "hidden";
+              // println("PL hide:<g.id>");
+              // g.visibility = "hidden";
+              tooltip_id += g.id;
               figMap[g.id] = g;      
               f.tooltip = g;
               }
@@ -2177,6 +2239,7 @@ Figure pL(Figure f) {
 
 Figure buildFigMap(Figure f) {  
     return  visit(f) {
+       // case emptyFigure() => emptyFigure()
        case Figure g => pL(g)
     }  
    }
@@ -2211,10 +2274,12 @@ Figure hide(Figure f) { f.visibility = "hidden"; return f;}
 list[IFigure] tooltips(list[Figure] fs) {
               // println("tooltips");
               list[Figure] tt = [hide(g)
-                  |Figure f<-fs, value v := f.tooltip, Figure g := v, g!=emptyFigure()];  
+                  |Figure f<-fs, value v := f.tooltip, Figure g := v, g!=emptyFigure()]; 
+              // println([x|Figure x<-tt]); 
               list[IFigure] tfs = [_translate(q, addSvgTag = true)|Figure q<-tt];
               for (Figure f<-fs) {
                   if (widget["<f.id>_tooltip"]?)  {
+                     println("<f.id>_tooltip");
                      if (f.width<0) f.width = f.size[0];
                      if (f.height<0) f.height = f.size[1];
                      widget["<f.id>_tooltip"].x =  f.at[0]/*+f.width*/;
@@ -2343,13 +2408,6 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
                   widget[f.id].x =  f.at[0];
                   widget[f.id].y =  f.at[1];
                   }
- //             for (Figure f<-fs) {
- //                 if (widget["<f.id>_tooltip"]?)  {
- //                    widget["<f.id>_tooltip"].x =  f.at[0]+f.width;
- //                    widget["<f.id>_tooltip"].y =  f.at[1];
- //                    }
- //                 }
-              // list[IFigure] tfs = tooltips(fs);
               if (f.width<0 && min([g.width|g<-fs])>=0) f.width = max([toInt(g.at[0])+g.width|g<-fs]);
               if (f.height<0 && min([g.height|g<-fs])>=0) f.height = max([toInt(g.at[1])+g.height|g<-fs]);
               // println(m
