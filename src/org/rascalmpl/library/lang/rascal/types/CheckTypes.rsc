@@ -170,7 +170,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
     // TODO: We need an actual check to ensure return is defined along all
     // paths, but for now we just check to see if the type of the ending
     // expression is a subtype of the return type.
-    if (!subtype(st,rt)) {
+    if (!isVoidType(rt) && !subtype(st,rt)) {
     	cFun = addScopeError(cFun, "The type of the final statement, <prettyPrintType(st)>, must be a subtype of the declared return type, <prettyPrintType(rt)>", exp@\loc);
     }
     
@@ -581,10 +581,20 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
                     		}
                     	} 
                     } else {
-                    	failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+                    	stillInferred = [ idx | idx <- index(tl), isInferredType(tl[idx]) ];
+                    	if (isEmpty(stillInferred)) {
+                    		failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+                    	} else {
+                    		failureReasons += "Could not compute types of parameters at position<(size(stillInferred)>1) ? "s" : "">: <intercalate(",",["<idx>"|idx<-stillInferred])>";
+                    	}
                     }
                 } else {
-                    failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+                	stillInferred = [ idx | idx <- index(tl), isInferredType(tl[idx]) ];
+                	if (isEmpty(stillInferred)) {
+                		failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+                	} else {
+                		failureReasons += "Could not compute types of parameters at position<(size(stillInferred)>1) ? "s" : "">: <intercalate(",",["<idx>"|idx<-stillInferred])>";
+                	}
                 }
             } else {
                 if (size(epsList) >= size(args)-1) {
@@ -629,10 +639,20 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 		                    		}
 		                    	}
                             } else {
-                                failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+		                    	stillInferred = [ idx | idx <- index(tl), isInferredType(tl[idx]) ];
+		                    	if (isEmpty(stillInferred)) {
+		                    		failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+		                    	} else {
+		                    		failureReasons += "Could not compute types of parameters at position<(size(stillInferred)>1) ? "s" : "">: <intercalate(",",["<idx>"|idx<-stillInferred])>";
+		                    	}
                             }
                         } else {
-                            failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+	                    	stillInferred = [ idx | idx <- index(tl), isInferredType(tl[idx]) ];
+	                    	if (isEmpty(stillInferred)) {
+	                    		failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+	                    	} else {
+	                    		failureReasons += "Could not compute types of parameters at position<(size(stillInferred)>1) ? "s" : "">: <intercalate(",",["<idx>"|idx<-stillInferred])>";
+	                    	}
                         }
                     }
                 }
@@ -6368,7 +6388,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 		    	cFun = addScopeError(cFun, "Cannot use a non-void return type with an empty function body", fd@\loc);
 		    }
 		    
-		    if (!isEmpty(bodyStatements) && !subtype(tStmt, cFun.expectedReturnType)) {
+		    if (!isVoidType(cFun.expectedReturnType) && !isEmpty(bodyStatements) && !subtype(tStmt, cFun.expectedReturnType)) {
 		    	cFun = addScopeError(cFun, "The type of the final statement, <prettyPrintType(tStmt)>, must be a subtype of the declared return type, <prettyPrintType(cFun.expectedReturnType)>", fd@\loc);
 		    }
 			
