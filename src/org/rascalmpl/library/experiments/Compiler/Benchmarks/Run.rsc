@@ -155,7 +155,7 @@ void initialize(int n){
 
 void precompile(list[str] jobs) {
   for(job <- jobs) {
-      execute(base + (job + ".rsc"), recompile=true, serialize=true);
+      execute(base + (job + ".rsc"), pathConfig(), recompile=true, serialize=true);
   }
 }
 
@@ -181,7 +181,7 @@ void runCompiled(str job) {
   measurementsCompiled[job] =
 	  for(int i <- [0 .. nsamples]){
 		  t1 = cpuTime();
-		  v = execute(base + (job + ".rsc"));
+		  v = execute(base + (job + ".rsc"), pathConfig());
 		  t2 = cpuTime();
 		  append (t2 - t1)/1000000;
 	  }
