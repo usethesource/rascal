@@ -154,6 +154,7 @@ lang::rascal::\syntax::Rascal::Declaration getMain(lang::rascal::\syntax::Rascal
 }
 
 Module removeMain((Module) `<Header h> <Toplevel* pre> <Toplevel _>`) = (Module) `<Header h> <Toplevel* pre>`;
+default Module removeMain(Module m) = m;
 
 Configuration previousConfig;
 

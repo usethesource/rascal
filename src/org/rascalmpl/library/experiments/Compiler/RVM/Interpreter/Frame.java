@@ -81,7 +81,7 @@ public class Frame {
 			frame.stack[i] = stack[sp - arity + i];
 		}
 		this.sp = sp - arity;
-		frame.sp = f.nlocals;
+		frame.sp = f.getNlocals();
 		return frame;
 	}
 	
@@ -107,7 +107,7 @@ public class Frame {
 			frame.stack[frame.sp++] = stack[sp - arity + i];
 		}
 		this.sp = sp - arity;
-		frame.sp = f.nlocals;
+		frame.sp = f.getNlocals();
 		return frame;
 	}
 	
@@ -142,7 +142,7 @@ public class Frame {
 		}
 		if(arity == 0) {
 			this.sp = sp;
-			frame.sp = frame.function.nlocals;
+			frame.sp = frame.function.getNlocals();
 			return frame;
 		}
 		this.sp = frame.pushFunctionArguments(arity, this.stack, sp);
@@ -182,7 +182,7 @@ public class Frame {
 			assert stack[start + arity - 1] instanceof HashMap<?, ?>;
 			this.stack[this.sp++] = stack[start + arity - 1]; // The keyword arguments
 		}		
-		this.sp = function.nlocals;
+		this.sp = function.getNlocals();
 		return start;
 	}
 	
@@ -261,7 +261,7 @@ public class Frame {
 		stdout.println(indent().append(this.toString())); stdout.flush();
 	}
 	
-	public void printBack(PrintWriter stdout, Object rval){
+	public void printLeave(PrintWriter stdout, Object rval){
 		stdout.println(indent()./*append("\uE007 ").*/append(this.function.getPrintableName()).append(" returns ").append(rval == null ? "null" : abbrev(rval.toString()))); stdout.flush();
 	}
 	

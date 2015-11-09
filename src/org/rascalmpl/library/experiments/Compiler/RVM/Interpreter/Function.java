@@ -41,7 +41,7 @@ public class Function implements Serializable {
 	String funIn;
 	int scopeIn = -1;
 	int nformals;
-	int nlocals;
+	private int nlocals;
 	boolean isDefault;
 	int maxstack;
 	public CodeBlock codeblock;
@@ -90,7 +90,7 @@ public class Function implements Serializable {
 		this.ftype = ftype;
 		this.funIn = funIn;
 		this.nformals = nformals;
-		this.nlocals = nlocals;
+		this.setNlocals(nlocals);
 		this.isDefault = isDefault;
 		this.localNames = localNames;
 		this.maxstack = maxstack;
@@ -111,7 +111,7 @@ public class Function implements Serializable {
 		this.ftype = ftype;
 		this.funIn = funIn;
 		this.nformals = nformals;
-		this.nlocals = nlocals;
+		this.setNlocals(nlocals);
 		this.isDefault = isDefault;
 		this.localNames = localNames;
 		this.maxstack = maxstack;
@@ -175,7 +175,7 @@ public class Function implements Serializable {
 				types[i] = codeblock.getTypeConstantIndex(type);
 				handlers[i] = codeblock.getLabelPC(handler);	
 				fromSPs[i] = fromSP;
-				fromSPsCorrected[i] = fromSP + nlocals;
+				fromSPsCorrected[i] = fromSP + getNlocals();
 				fromLabels[i] = from;
 				toLabels[i] = to;
 				handlerLabels[i] = handler;			
@@ -203,13 +203,21 @@ public class Function implements Serializable {
 	}
 	
 	public int getFromSP(){
-		return nlocals + fromSPs[lastHandler];
+		return getNlocals() + fromSPs[lastHandler];
 	}
 	
 	public String getName() {
 		return name;
 	}
 	
+	public int getNlocals() {
+		return nlocals;
+	}
+
+	public void setNlocals(int nlocals) {
+		this.nlocals = nlocals;
+	}
+
 	public String getPrintableName(){
 		int from = name.lastIndexOf("/")+1;
 		int to = name.indexOf("(", from);
@@ -280,7 +288,7 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		out.writeObject(fun.nformals);
 
 		// int nlocals;
-		out.writeObject(fun.nlocals);
+		out.writeObject(fun.getNlocals());
 
 		// boolean isDefault;
 		out.writeObject(fun.isDefault);

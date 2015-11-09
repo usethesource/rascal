@@ -3,22 +3,36 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers;
 import java.io.PrintWriter;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
 
-public class ProfileFrameCollector implements IFrameObserver, IFrameReporter<IList> {
+public class ProfileFrameObserver implements IFrameObserver {
 
+	private final PrintWriter stdout;
 	private volatile ISourceLocation src;
 	
 	private Profiler profiler;
 	
-	public ProfileFrameCollector(){
+	public ProfileFrameObserver(PrintWriter stdout){
+		this.stdout = stdout;
 		profiler = new Profiler(this);
+		profiler.start();
 	}
 	
 	@Override
 	public void observe(Frame frame) {
 		this.src = frame.src;
+	}
+	
+	@Override
+	public void stopObserving() {
+		profiler.stopCollecting();
+	}
+
+	@Override
+	public void startObserving() {
+		profiler.startCollecting();
 	}
 
 	public ISourceLocation getLocation() {
@@ -38,14 +52,15 @@ public class ProfileFrameCollector implements IFrameObserver, IFrameReporter<ILi
 	}
 
 	@Override
-	public void report(IList data, PrintWriter out) {
+	public void report(IList data) {
 		profiler.pleaseStop();
-		profiler.report(out);
+		profiler.report(stdout);
 	}
 	
-	public void report(PrintWriter out) {
+	@Override
+	public void report() {
 		profiler.pleaseStop();
-		profiler.report(out);
+		profiler.report(stdout);
 	}
 
 	@Override
@@ -54,5 +69,4 @@ public class ProfileFrameCollector implements IFrameObserver, IFrameReporter<ILi
 		IList data = profiler.getProfile();
 		return data;
 	}
-
 }

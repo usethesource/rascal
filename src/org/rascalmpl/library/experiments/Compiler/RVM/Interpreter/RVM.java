@@ -69,11 +69,9 @@ public class RVM implements java.io.Serializable {
 	private final IBool Rascal_FALSE;
 	private final IString NONE; 
 	
-	private boolean debug = false;
 	private final boolean profileRascalPrimitives = false;
 	private final boolean profileMuPrimitives = false;
 	private boolean ocall_debug = false;
-	private boolean trackCalls = false;
 	
 	final ArrayList<Function> functionStore;
 	protected final Map<String, Integer> functionMap;
@@ -93,7 +91,7 @@ public class RVM implements java.io.Serializable {
 	
 	protected static final HashMap<String, IValue> emptyKeywordMap = new HashMap<>(0);
 	
-	private IFrameObserver frameObserver;
+	private final IFrameObserver frameObserver;
 		
 	// Management of active coroutines
 	Stack<Coroutine> activeCoroutines = new Stack<>();
@@ -148,8 +146,6 @@ public class RVM implements java.io.Serializable {
 		this.classLoaders = rex.getClassLoaders();
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
-		this.debug = rex.getDebug();
-		this.trackCalls = rex.getTrackCalls();
 		
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
@@ -168,7 +164,8 @@ public class RVM implements java.io.Serializable {
 
 		Opcode.init(stdout, rex.getProfile());
 		
-		this.frameObserver = NullFrameObserver.getInstance();			
+		IFrameObserver observer = rex.getFrameObserver(); 
+		this.frameObserver = (observer == null) ? NullFrameObserver.getInstance() : observer;		
 	}
 	
 	public static RVM readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex){
@@ -195,17 +192,17 @@ public class RVM implements java.io.Serializable {
 	
 	//IEvaluatorContext getEvaluatorContext() { return rex.getEvaluatorContext(); }
 	
-	public void setLocationCollector(IFrameObserver collector){
-		this.frameObserver = collector;
-	}
+//	public void setFrameObserver(IFrameObserver observer){	// TODO remove
+//		this.frameObserver = observer;
+//	}
 	
-	public IFrameObserver getLocationCollector(){
+	public IFrameObserver getFrameObserver(){
 		return frameObserver;
 	}
 	
-	public void resetLocationCollector(){
-		this.frameObserver = NullFrameObserver.getInstance();
-	}
+//	public void resetFrameObserver(){						// TODO remove
+//		this.frameObserver = NullFrameObserver.getInstance();
+//	}
 	
 	/**
 	 * Narrow an Object as occurring on the RVM runtime stack to an IValue that can be returned.
@@ -330,7 +327,7 @@ public class RVM implements java.io.Serializable {
 		//throw new CompilerError("asString cannot convert: " + o);
 	}
 	
-	private String asString(Object o, int w){
+	public String asString(Object o, int w){
 		String repr = asString(o);
 		return (repr.length() < w) ? repr : repr.substring(0, w) + "...";
 	}
@@ -580,23 +577,9 @@ public class RVM implements java.io.Serializable {
 			throw (Thrown) o;
 		}
 		IValue res = narrow(o);
-//		if(debug) {
-//			stdout.println("TRACE:");
-//			stdout.println(getTrace());
-//		}
+
 		rex.setCurrentModuleName(oldModuleName);
 		return res;
-	}
-	
-	void print_step(int pc, Object[] stack, int sp, Frame cf){
-		int startpc = pc - 1;
-		stdout.printf("[%03d] %s, scope %d\n", startpc, cf.function.name, cf.scopeId);
-		
-		for (int i = 0; i < sp; i++) {
-			stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i], 40));
-		}
-		stdout.printf("%5s %s\n" , "", cf.function.codeblock.toString(startpc));
-		stdout.flush();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -874,20 +857,13 @@ public class RVM implements java.io.Serializable {
 	}
 	
 	private Object executeProgram(Frame root, Frame cf) {
-		//long start = Timing.getCpuTime();
-		//trackCalls = true;
-		Object res = executeProgram(root, cf, null);
-		//long duration = (Timing.getCpuTime() - start)/1000000;
-		//if(duration > 50){
-		//	System.out.println("executeProgram: " + cf.function.name + " " + duration + " ms");
-		//}
-		return res;
+		return executeProgram(root, cf, null);
 	}
 	
 	@SuppressWarnings("unchecked")
 	private Object executeProgram(final Frame root, Frame cf, OverloadedFunctionInstanceCall c_ofun_call) {
 		Object[] stack = cf.stack;		                              	// current stack
-		int sp = cf.function.nlocals;				                  	// current stack pointer
+		int sp = cf.function.getNlocals();				                  	// current stack pointer
 		long [] instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
 		int pc = 0;				                                      	// current program counter
 		int postOp = 0;													// postprocessing operator (following main switch)
@@ -906,7 +882,7 @@ public class RVM implements java.io.Serializable {
 		}
 		//OverloadedFunctionInstanceCall c_ofun_call = null;
 		
-		if(trackCalls) { cf.printEnter(stdout); stdout.flush(); }
+		frameObserver.enter(cf);
 		
 		try {
 			NEXT_INSTRUCTION: while (true) {
@@ -931,9 +907,7 @@ public class RVM implements java.io.Serializable {
 				
 				//ocall_debug = cf.function.name.contains("subtype") || cf.function.name.contains("comparable") ;
 				
-				if (debug){
-					print_step(pc, stack, sp, cf);
-				}
+				frameObserver.observeRVM(this, cf, pc, stack, sp);
 				
 				String name;
 				INSTRUCTION: switch (op) {
@@ -1054,10 +1028,12 @@ public class RVM implements java.io.Serializable {
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_JMP:
+					frameObserver.observe(cf);
 					pc = CodeBlock.fetchArg1(instruction);
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_JMPTRUE:
+					frameObserver.observe(cf);
 					if (((IBool) stack[sp - 1]).getValue()) {
 						pc = CodeBlock.fetchArg1(instruction);
 					}
@@ -1065,6 +1041,7 @@ public class RVM implements java.io.Serializable {
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_JMPFALSE:
+					frameObserver.observe(cf);
 					if (!((IBool) stack[sp - 1]).getValue()) {
 						pc = CodeBlock.fetchArg1(instruction);
 					}
@@ -1085,6 +1062,7 @@ public class RVM implements java.io.Serializable {
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_SWITCH:
+					frameObserver.observe(cf);
 					val = (IValue) stack[--sp];
 					IMap caseLabels = (IMap) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					int caseDefault = CodeBlock.fetchArg2(instruction);
@@ -1113,7 +1091,7 @@ public class RVM implements java.io.Serializable {
 				
 				case Opcode.OP_STORELOC:
 					pos = CodeBlock.fetchArg1(instruction);
-					assert pos < cf.function.nlocals : "STORELOC: pos larger that nlocals at " + cf.src;
+					assert pos < cf.function.getNlocals() : "STORELOC: pos larger that nlocals at " + cf.src;
 					stack[pos] = stack[sp - 1];
 					continue NEXT_INSTRUCTION;
 					
@@ -1173,7 +1151,7 @@ public class RVM implements java.io.Serializable {
 										
 				case Opcode.OP_CALLDYN:				
 				case Opcode.OP_CALL:
-					
+					frameObserver.observe(cf);
 					// In case of CALLDYN, the stack top value of type 'Type' leads to a constructor call
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof Type) {
 						Type constr = (Type) stack[--sp];
@@ -1215,7 +1193,7 @@ public class RVM implements java.io.Serializable {
 						throw new CompilerError("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]), cf);
 					}
 					
-					if(trackCalls) { cf.printEnter(stdout); stdout.flush();}
+					frameObserver.enter(cf);
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
@@ -1247,7 +1225,7 @@ public class RVM implements java.io.Serializable {
 							stack = cf.stack;
 							sp = cf.sp;
 							pc = cf.pc;
-							if(trackCalls) { cf.printEnter(stdout); stdout.flush();}
+							frameObserver.enter(cf);;
 							continue NEXT_INSTRUCTION;
 						}
 					 	// 2. OverloadedFunctionInstance due to named Rascal functions
@@ -1282,7 +1260,7 @@ public class RVM implements java.io.Serializable {
 						if(ocall_debug){ stdout.println("		" + "try alternative: " + frame.function.name); stdout.flush();}
 
 						cf = frame;
-						if(trackCalls) { cf.printEnter(stdout); stdout.flush(); }
+						frameObserver.enter(cf);
 						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
 						sp = cf.sp;
@@ -1355,6 +1333,7 @@ public class RVM implements java.io.Serializable {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_VISIT:
+					frameObserver.observe(cf);
 					boolean direction = ((IBool) cf.function.constantStore[CodeBlock.fetchArg1(instruction)]).getValue();
 					boolean progress = ((IBool) cf.function.constantStore[CodeBlock.fetchArg2(instruction)]).getValue();
 					boolean fixedpoint = ((IBool) cf.function.constantStore[(int)instructions[pc++]]).getValue();
@@ -1371,6 +1350,7 @@ public class RVM implements java.io.Serializable {
 				case Opcode.OP_RETURN0:
 				case Opcode.OP_RETURN1:
 					
+					frameObserver.observe(cf);
 					// Overloading specific
 					if(c_ofun_call != null && cf.previousCallFrame == c_ofun_call.cf) {
 						ocalls.pop();
@@ -1397,8 +1377,8 @@ public class RVM implements java.io.Serializable {
 							rval = stack[sp - 1];
 						}
 					}
-					assert sp == ((op == Opcode.OP_RETURN0) ? cf.function.nlocals : cf.function.nlocals + 1)
-							: "On return from " + cf.function.name + ": " + (sp - cf.function.nlocals) + " spurious stack elements";
+					assert sp == ((op == Opcode.OP_RETURN0) ? cf.function.getNlocals() : cf.function.getNlocals() + 1)
+							: "On return from " + cf.function.name + ": " + (sp - cf.function.getNlocals()) + " spurious stack elements";
 					
 					// if the current frame is the frame of a top active coroutine, 
 					// then pop this coroutine from the stack of active coroutines
@@ -1407,7 +1387,7 @@ public class RVM implements java.io.Serializable {
 						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 					}
 					
-					if(trackCalls) { cf.printBack(stdout, rval); }
+					frameObserver.leave(cf, rval);
 					cf = cf.previousCallFrame;
 					
 					if(cf == null) {
@@ -1645,7 +1625,7 @@ public class RVM implements java.io.Serializable {
 				
 				case Opcode.OP_UNWRAPTHROWNLOC: {
 					pos = CodeBlock.fetchArg1(instruction);
-					assert pos < cf.function.nlocals : "UNWRAPTHROWNLOC: pos larger that nlocals at " + cf.src;
+					assert pos < cf.function.getNlocals() : "UNWRAPTHROWNLOC: pos larger that nlocals at " + cf.src;
 					stack[pos] = ((Thrown) stack[--sp]).value;
 					continue NEXT_INSTRUCTION;
 				}
@@ -1720,12 +1700,6 @@ public class RVM implements java.io.Serializable {
 					throw new CompilerError("LABEL instruction at runtime", cf);
 					
 				case Opcode.OP_HALT:
-					if (debug) {
-						stdout.println("Program halted:");
-						for (int i = 0; i < sp; i++) {
-							stdout.println(i + ": " + stack[i]);
-						}
-					}
 					return stack[sp - 1];
 
 				case Opcode.OP_PRINTLN:
@@ -1792,8 +1766,8 @@ public class RVM implements java.io.Serializable {
 					
 					rval = stack[sp - 1];
 
-					assert sp ==  cf.function.nlocals + 1
-							: "On return from " + cf.function.name + ": " + (sp - cf.function.nlocals) + " spurious stack elements";
+					assert sp ==  cf.function.getNlocals() + 1
+							: "On return from " + cf.function.name + ": " + (sp - cf.function.getNlocals()) + " spurious stack elements";
 					
 					// if the current frame is the frame of a top active coroutine, 
 					// then pop this coroutine from the stack of active coroutines
@@ -1802,7 +1776,7 @@ public class RVM implements java.io.Serializable {
 						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 					}
 					
-					if(trackCalls) { cf.printBack(stdout, rval); }
+					frameObserver.leave(cf,  rval);
 					cf = cf.previousCallFrame;
 					
 					if(cf == null) {

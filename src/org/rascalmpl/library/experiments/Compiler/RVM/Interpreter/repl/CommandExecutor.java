@@ -44,14 +44,18 @@ public class CommandExecutor {
 	private PrintWriter stderr;
 	private final IValueFactory vf;
 	private ISourceLocation compilerBinaryLocation;
+	private String consoleInputName = "ConsoleInput";
 	private ISourceLocation consoleInputLocation;
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
 	private final Prelude prelude;
 	private RVM rvmCompiler;
-	private final Function compileAndLink;
+	private final Function compileAndLinkIncremental;
+	
+	private RascalREPLDebugger debugger = new RascalREPLDebugger();
 	
 	boolean debug;
+	boolean debugRVM;
 	boolean testsuite;
 	boolean profile;
 	boolean trackCalls;
@@ -78,12 +82,13 @@ public class CommandExecutor {
 		try {
 			compilerBinaryLocation = vf.sourceLocation("compressed+boot", "", "Kernel.rvm.ser.gz");
 			//compilerBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/lang/rascal/boot/Kernel.rvm.ser.gz");
-			consoleInputLocation = vf.sourceLocation("test-modules", "", "/ConsoleInput.rsc");
+			consoleInputLocation = vf.sourceLocation("test-modules", "", consoleInputName + ".rsc");
 			
 		} catch (URISyntaxException e) {
 			throw new RuntimeException("Cannot initialize: " + e.getMessage());
 		}
 		debug = false;
+		debugRVM = false;
 		testsuite = false;
 		profile = false;
 		trackCalls = false;
@@ -101,17 +106,25 @@ public class CommandExecutor {
 		w.put(vf.string(shellModuleName), CompiledRascalShellModuleTags);
 		IMap moduleTags = w.done();
 		
-		RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, false, false, /*profile*/false, false, false, false, null, null);
+		RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, false, false, false, /*profile*/false, false, false, false, null, null, null);
 		rex.setCurrentModuleName(shellModuleName);
 		
 		rvmCompiler = RVM.readFromFileAndInitialize(compilerBinaryLocation, rex);
 		
 		TypeFactory tf = TypeFactory.getInstance();
-		compileAndLink = rvmCompiler.getFunction("compileAndLinkIncremental", tf.abstractDataType(new TypeStore(), "RVMProgram"), tf.tupleType(tf.sourceLocationType(), tf.boolType()));
-		if(compileAndLink == null){
-			throw new RuntimeException("Cannot find compileAndLink function");
+		compileAndLinkIncremental = rvmCompiler.getFunction("compileAndLinkIncremental", 
+															tf.abstractDataType(new TypeStore(), "RVMProgram"), 
+															tf.tupleType(tf.stringType(), 
+																		 tf.boolType()
+																		 //tf.abstractDataType(new TypeStore(), "PathConfig")
+																		 ));
+		if(compileAndLinkIncremental == null){
+			throw new RuntimeException("Cannot find compileAndLinkIncremental function");
 		}
-		compileArgs = new IValue[] {consoleInputLocation, vf.bool(true)};
+		
+		
+		
+		compileArgs = new IValue[] {vf.string(consoleInputName), vf.bool(true)};
 		
 		imports = new ArrayList<String>();
 		syntaxDefinitions = new ArrayList<String>();
@@ -145,10 +158,10 @@ public class CommandExecutor {
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			compileArgs[1] = vf.bool(onlyMainChanged);
-			IConstructor consoleRVMProgram = (IConstructor) rvmCompiler.executeFunction(compileAndLink, compileArgs, makeCompileKwParams());
+			IConstructor consoleRVMProgram = (IConstructor) rvmCompiler.executeFunction(compileAndLinkIncremental, compileArgs, makeCompileKwParams());
 			rvmConsoleExecutable = ExecutionTools.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(useJVM));
 			
-			RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, testsuite, profile, trackCalls, coverage, useJVM, null, null);
+			RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, null, debugger, null);
 			rex.setCurrentModuleName(shellModuleName);
 			IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
 			lastRvmConsoleExecutable = rvmConsoleExecutable;
@@ -406,8 +419,8 @@ public class CommandExecutor {
 				coverage = getBooleanValue(val);
 				return report(name + " set to "  + coverage);
 				
-			case "debug":
-				debug = getBooleanValue(val);
+			case "debugRVM":
+				debugRVM = getBooleanValue(val);
 				return report(name + " set to "  + coverage);
 				
 			case "testsuite":
