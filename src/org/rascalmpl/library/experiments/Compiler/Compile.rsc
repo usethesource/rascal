@@ -26,38 +26,44 @@ import lang::rascal::types::AbstractName;
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
 
-loc RVMModuleLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.gz", bindir = bindir, compressed=true); //(bindir + src.path)[extension="rvm"];
+tuple[bool,loc] RVMModuleReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "rvm.gz", pcfg);
 
-loc RVMExecutableLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.ser.gz", bindir = bindir, compressed=true); //(bindir + src.path)[extension="rvm.ser.xz"];
-loc RVMExecutableCompressedLocation(loc src, loc bindir) = getDerivedLocation(src, "rvm.ser.gz", bindir = bindir, compressed=true); //(bindir + src.path)[extension="rvm.ser.xz"];
+loc RVMModuleWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "rvm.gz", pcfg);
+
+tuple[bool,loc] RVMExecutableReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "rvm.ser.gz", pcfg); 
+
+tuple[bool,loc] RVMExecutableCompressedReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "rvm.ser.gz", pcfg); 
+
+loc RVMExecutableCompressedWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "rvm.ser.gz", pcfg);
+
+tuple[bool,loc] MuModuleReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "mu", pcfg); 
+loc MuModuleWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "mu", pcfg);
+
+tuple[bool,loc] ConfigReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "tc", pcfg);
 
 
-loc MuModuleLocation(loc src, loc bindir) = getDerivedLocation(src, "mu", bindir = bindir); //(bindir + src.path)[extension="mu"];
-
-loc ConfigLocation(loc src, loc bindir) = getDerivedLocation(src, "tc", bindir = bindir);
-
-
-bool validRVM(loc src, loc bindir = |home:///bin|){
-	rvmLoc = RVMModuleLocation(src, bindir);
+bool validRVM(str qualifiedModuleName, PathConfig pcfg){
+	<existsRvmLoc, rvmLoc> = RVMModuleReadLoc(qualifiedModuleName, pcfg);
 	//println("exists(<rvmLoc>): <exists(rvmLoc)>");
 	//println("lastModified(<rvmLoc>) \>= lastModified(<src>): <lastModified(rvmLoc) >= lastModified(src)>");
-	res = exists(rvmLoc) && lastModified(rvmLoc) >= lastModified(src);
+	res = existsRvmLoc && lastModified(rvmLoc) >= lastModified(getModuleLocation(qualifiedModuleName, pcfg));
 	//println("validRVM(<src>) =\> <res>");
 	return res;
 }
 
-tuple[Configuration, RVMModule] compile1(loc moduleLoc, bool verbose = true, loc bindir = |home:///bin|){
+tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcfg, bool verbose = true){
 
 	Configuration config;
     lang::rascal::\syntax::Rascal::Module M;
     int check_time;
     int comp_time;
+    loc moduleLoc = getModuleLocation(qualifiedModuleName, pcfg);
    	try {
    	    if(verbose) println("rascal2rvm: Parsing and checking <moduleLoc>");
    	    start_checking = cpuTime();
    		//M = parse(#start[Module], moduleLoc).top;
    		M = parseModuleGetTop(moduleLoc);
-   	    config  = checkModule(M, newConfiguration()/*, verbose=verbose, bindir=bindir*/);
+   	    config  = checkModule(M, newConfiguration(pcfg));
    	    check_time = (cpuTime() - start_checking)/1000000;
    	} catch e: {
    	    throw e;
@@ -70,7 +76,7 @@ tuple[Configuration, RVMModule] compile1(loc moduleLoc, bool verbose = true, loc
    	    return <config, rvmMod>;
    	}
    	
-   	rvmModuleLoc = RVMModuleLocation(moduleLoc, bindir);
+   	rvmModuleLoc = RVMModuleWriteLoc(qualifiedModuleName, pcfg);
    	
     if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
     start_comp = cpuTime();
@@ -87,15 +93,18 @@ tuple[Configuration, RVMModule] compile1(loc moduleLoc, bool verbose = true, loc
     return <config, rvmMod>;  
 }	
 
-RVMModule compile(str moduleName, bool verbose = false, loc bindir = |home:///bin|){
-    return compile(getModuleLocation(moduleName), verbose=verbose, bindir=bindir);
-}
+//RVMModule compile(str qualifiedModuleName, PathConfig pcfg, bool verbose = false){
+//    return compile(qualifiedModuleName, pcfg, verbose=verbose);
+//}
 
 @doc{Compile a Rascal source module (given at a location) to RVM}
+RVMModule compile(loc moduleLoc, PathConfig pcfg, bool verbose = false) =
+    compile(getModuleName(moduleLoc, pcfg), pcfg, verbose = verbose);
 
-RVMModule compile(loc moduleLoc, bool verbose = false, loc bindir = |home:///bin|){
+@doc{Compile a Rascal source module (given at a location) to RVM}
+RVMModule compile(str qualifiedModuleName, PathConfig pcfg, bool verbose = false){
 
-	<cfg, rvmMod> = compile1(moduleLoc, verbose=verbose, bindir=bindir);
+	<cfg, rvmMod> = compile1(qualifiedModuleName, pcfg, verbose=verbose);
    
    	errors = [ e | e:error(_,_) <- cfg.messages];
    	warnings = [ w | w:warning(_,_) <- cfg.messages ];
@@ -105,32 +114,30 @@ RVMModule compile(loc moduleLoc, bool verbose = false, loc bindir = |home:///bin
    	}
    	messages = {};
    	
-   	dirtyModulesLoc = { getModuleLocation(prettyPrintName(dirty)) | dirty <- cfg.dirtyModules };
+   	dirtyModules = { prettyPrintName(dirty) | dirty <- cfg.dirtyModules };
    
    	if(verbose){
    	   for(<m1, m2> <- cfg.importGraph){
    		   println("<prettyPrintName(m1)> imports <prettyPrintName(m2)>");
    	   }
    	}
-   	
-   	//importedByStar = invert(cfg.importGraph)*;
    	  	
-   	allDependencies = { getModuleLocation(prettyPrintName(rname)) | rname <- carrier(cfg.importGraph) } - moduleLoc;
+   	allDependencies = { prettyPrintName(rname) | rname <- carrier(cfg.importGraph) } - qualifiedModuleName;
    	
     for(dependency <- allDependencies){
-        if(dependency in dirtyModulesLoc || !validRVM(dependency)){
-    	   <cfg1, rvmMod1> = compile1(dependency, bindir=bindir);
+        if(dependency in dirtyModules || !validRVM(dependency, pcfg)){
+    	   <cfg1, rvmMod1> = compile1(dependency, pcfg);
     	   messages += cfg1.messages;
         }
     }
-   
-   	clearDirtyModules(moduleLoc, bindir);
+    
+   	//clearDirtyModules(qualifiedModuleName, pcfg);
    	
    	errors = [ e | e:error(_,_) <- messages];
     warnings = [ w | w:warning(_,_) <- messages ];
     
     if(size(errors) > 0) {
-        return errorRVMModule(rvmMod.name, messages, moduleLoc);
+        return errorRVMModule(rvmMod.name, messages, getModuleLocation(qualifiedModuleName, pcfg));
     }
     
    	return rvmMod ;
@@ -147,23 +154,26 @@ lang::rascal::\syntax::Rascal::Declaration getMain(lang::rascal::\syntax::Rascal
 }
 
 Module removeMain((Module) `<Header h> <Toplevel* pre> <Toplevel _>`) = (Module) `<Header h> <Toplevel* pre>`;
+default Module removeMain(Module m) = m;
 
 Configuration previousConfig;
 
-tuple[Configuration, RVMModule] compile1Incremental(loc moduleLoc, bool reuseConfig, bool verbose = true, loc bindir = |home:///bin|){
+tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, bool verbose = true){
 
     Configuration config;
     lang::rascal::\syntax::Rascal::Module M;
     int check_time;
     int comp_time;
+    moduleLoc = getModuleLocation(qualifiedModuleName, pcfg);
     try {
+        moduleLoc = getModuleLocation(qualifiedModuleName, pcfg);
         if(verbose) println("rascal2rvm: Parsing and incremental checking <moduleLoc>");
         start_checking = cpuTime();
         //M = parse(#start[Module], moduleLoc).top;
         M = parseModuleGetTop(moduleLoc);
         if(!reuseConfig || !previousConfig?){
             M1 = removeMain(M);
-            previousConfig = checkModule(M1, newConfiguration());
+            previousConfig = checkModule(M1, newConfiguration(pcfg));
             previousConfig.stack = [0]; // make sure we are in the module scope
         }
         mainDecl = getMain(M);
@@ -183,7 +193,7 @@ tuple[Configuration, RVMModule] compile1Incremental(loc moduleLoc, bool reuseCon
         return <config, rvmMod>;
     }
     
-    rvmModuleLoc = RVMModuleLocation(moduleLoc, bindir);
+    rvmModuleLoc = RVMModuleWriteLoc(qualifiedModuleName, pcfg);
     
     if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
     start_comp = cpuTime();
@@ -200,9 +210,9 @@ tuple[Configuration, RVMModule] compile1Incremental(loc moduleLoc, bool reuseCon
     return <config, rvmMod>;  
 }  
 
-RVMModule compileIncremental(loc moduleLoc, bool reuseConfig, bool verbose = false, loc bindir = |home:///bin|){
+RVMModule compileIncremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, bool verbose = false){
 
-    <cfg, rvmMod> = compile1Incremental(moduleLoc, reuseConfig, verbose=verbose, bindir=bindir);
+    <cfg, rvmMod> = compile1Incremental(qualifiedModuleName, reuseConfig, pcfg, verbose=verbose);
    
     return rvmMod;
 }    

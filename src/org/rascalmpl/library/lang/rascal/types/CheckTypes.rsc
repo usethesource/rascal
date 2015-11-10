@@ -167,6 +167,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
     // In the environment with the parameters, check the body of the closure.
 	< cFun, st > = checkStatementSequence([ssi | ssi <- ss], cFun);
     
+    // TODO: We need an actual check to ensure return is defined along all
+    // paths, but for now we just check to see if the type of the ending
+    // expression is a subtype of the return type.
+    if (!isVoidType(rt) && !subtype(st,rt)) {
+    	cFun = addScopeError(cFun, "The type of the final statement, <prettyPrintType(st)>, must be a subtype of the declared return type, <prettyPrintType(rt)>", exp@\loc);
+    }
+    
     // Now, recover the environment active before the call, removing any names
     // added by the closure (e.g., for parameters) from the environment. This
     // also cleans up any parts of the configuration altered to invoke a
@@ -375,6 +382,29 @@ public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, 
   return markLocationType(c, exp@\loc, rt);
 }
 
+public tuple[Configuration,KeywordParamMap] getConstructorKeywordParams(Configuration c, int itemId, loc at) {
+	if (! (c.store[itemId] is constructor) ) {
+		c = addScopeError(c, "Item <itemId> is not a constructor", at);
+		return < c, ( ) >;
+	} 
+	
+	adtIdSet = invert(c.adtConstructors)[itemId];
+	if (size(adtIdSet) == 1) {
+		adtId = getOneFrom(adtIdSet);
+		if (adtId == 847) {
+			println("Found it");
+		}
+		adtParams = c.store[adtId].keywordParams;
+		consParams = c.store[itemId].keywordParams;
+		typeParams = consParams + domainX(adtParams, consParams<0>);
+		return < c, typeParams >;
+	} else {
+		c = addScopeError(c, "No ADT is associated with constructor <prettyPrintName(c.store[itemId].name)>", at);
+	}
+	
+	return < c, ( ) >; 
+}
+
 @doc{Check the types of Rascal expressions: CallOrTree}
 public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expression ","}* eps> <KeywordArguments[Expression] keywordArguments> )`, Configuration c) {
     // check for failures
@@ -386,7 +416,11 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
     usedItems = invert(c.uses)[e@\loc];
     usedItems = { ui | ui <- usedItems, !(c.store[ui] is overload)} + { uii | ui <- usedItems, c.store[ui] is overload, uii <- c.store[ui].items };
     rel[Symbol,KeywordParamMap] functionKP = { < c.store[ui].rtype, c.store[ui].keywordParams > | ui <- usedItems, c.store[ui] is function };
-    rel[Symbol,KeywordParamMap] constructorKP = { < c.store[ui].rtype, c.store[ui].keywordParams > | ui <- usedItems, c.store[ui] is constructor };
+    rel[Symbol,KeywordParamMap] constructorKP = { };
+    for (ui <- usedItems, c.store[ui] is constructor) {
+    	< c, consParams > = getConstructorKeywordParams(c, ui, e@\loc);
+    	constructorKP = constructorKP + < c.store[ui].rtype, consParams >;
+    }
      
     if (isFailType(t1)) failures += t1;
     list[Symbol] tl = [];
@@ -526,8 +560,16 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         				kpm = instantiatedKP;
         			}
                  	if (false notin { subtypeOrOverload(tl[idx],args[idx]) | (idx <- index(epsList)) }) {
-                 		if (size(kl<0> - kpm<0>) > 0) {
-                 			failureReasons += "Unknown keyword parameters passed: <intercalate(",",[prettyPrintName(kpname)|kpname<-(kl<0>-kpm<0>)])>";
+                 		unknownKP = kl<0>-kpm<0>;
+                 		if (size(unknownKP) > 0) {
+                 			kpAsUpper = ( toUpperCase(prettyPrintName(kpmi)) : prettyPrintName(kpmi) | kpmi <- kpm<0> );
+                 			for (kpname <- unknownKP) {
+                 				if (toUpperCase(prettyPrintName(kpname)) in kpAsUpper) {
+                 					failureReasons += "Unknown keyword parameter passed: <prettyPrintName(kpname)>, did you mean <kpAsUpper[toUpperCase(prettyPrintName(kpname))]>?";
+                 				} else {
+                 					failureReasons += "Unknown keyword parameter passed: <prettyPrintName(kpname)>";
+                 				}
+                 			}
                  		} else {
                  			kpFailures = { kpname | kpname <- kl<0>, !subtypeOrOverload(kl[kpname],kpm[kpname]) };
                  			if (size(kpFailures) > 0) {
@@ -539,10 +581,20 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
                     		}
                     	} 
                     } else {
-                    	failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+                    	stillInferred = [ idx | idx <- index(tl), isInferredType(tl[idx]) ];
+                    	if (isEmpty(stillInferred)) {
+                    		failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+                    	} else {
+                    		failureReasons += "Could not compute types of parameters at position<(size(stillInferred)>1) ? "s" : "">: <intercalate(",",["<idx>"|idx<-stillInferred])>";
+                    	}
                     }
                 } else {
-                    failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+                	stillInferred = [ idx | idx <- index(tl), isInferredType(tl[idx]) ];
+                	if (isEmpty(stillInferred)) {
+                		failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+                	} else {
+                		failureReasons += "Could not compute types of parameters at position<(size(stillInferred)>1) ? "s" : "">: <intercalate(",",["<idx>"|idx<-stillInferred])>";
+                	}
                 }
             } else {
                 if (size(epsList) >= size(args)-1) {
@@ -566,8 +618,16 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
                         Symbol varArgsType = getListElementType(last(args));
                         if (size(fixedPart) == 0 || all(idx <- index(fixedPart), subtypeOrOverload(fixedPart[idx],fixedArgs[idx]))) {
                             if ( (size(varPart) == 0 ) || (size(varPart) == 1 && subtypeOrOverload(varPart[0],last(args))) || (all(idx2 <- index(varPart),subtypeOrOverload(varPart[idx2],varArgsType))) ) {
-		                 		if (size(kl<0> - kpm<0>) > 0) {
-		                 			failureReasons += "Unknown keyword parameters passed: <intercalate(",",[prettyPrintName(kpname)|kpname<-(kl<0>-kpm<0>)])>";
+		                 		unknownKP = kl<0>-kpm<0>;
+		                 		if (size(unknownKP) > 0) {
+		                 			kpAsUpper = ( toUpperCase(prettyPrintName(kpmi)) : prettyPrintName(kpmi) | kpmi <- kpm<0> );
+		                 			for (kpname <- unknownKP) {
+		                 				if (toUpperCase(prettyPrintName(kpname)) in kpAsUpper) {
+		                 					failureReasons += "Unknown keyword parameter passed: <prettyPrintName(kpname)>, did you mean <kpAsUpper[toUpperCase(prettyPrintName(kpname))]>?";
+		                 				} else {
+		                 					failureReasons += "Unknown keyword parameter passed: <prettyPrintName(kpname)>";
+		                 				}
+		                 			}
 		                 		} else {
 		                 			kpFailures = { kpname | kpname <- kl<0>, !subtypeOrOverload(kl[kpname],kpm[kpname]) };
 		                 			if (size(kpFailures) > 0) {
@@ -579,10 +639,20 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 		                    		}
 		                    	}
                             } else {
-                                failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+		                    	stillInferred = [ idx | idx <- index(tl), isInferredType(tl[idx]) ];
+		                    	if (isEmpty(stillInferred)) {
+		                    		failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+		                    	} else {
+		                    		failureReasons += "Could not compute types of parameters at position<(size(stillInferred)>1) ? "s" : "">: <intercalate(",",["<idx>"|idx<-stillInferred])>";
+		                    	}
                             }
                         } else {
-                            failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+	                    	stillInferred = [ idx | idx <- index(tl), isInferredType(tl[idx]) ];
+	                    	if (isEmpty(stillInferred)) {
+	                    		failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+	                    	} else {
+	                    		failureReasons += "Could not compute types of parameters at position<(size(stillInferred)>1) ? "s" : "">: <intercalate(",",["<idx>"|idx<-stillInferred])>";
+	                    	}
                         }
                     }
                 }
@@ -600,8 +670,16 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         for (a <- alts, isConstructorType(a), kpm <- ( (!isEmpty(constructorKP[a])) ? constructorKP[a] : { ( ) })) {
             list[Symbol] args = getConstructorArgumentTypes(a);
             if ( (size(epsList) == size(args) && size(epsList) == 0) || (size(epsList) == size(args) && false notin { subtype(tl[idx],args[idx]) | idx <- index(epsList) }) ) {
-	     		if (size(kl<0> - kpm<0>) > 0) {
-	     			failureReasons += "Unknown keyword parameters passed: <intercalate(",",[prettyPrintName(kpname)|kpname<-(kl<0>-kpm<0>)])>";
+	     		unknownKP = kl<0>-kpm<0>;
+	     		if (size(unknownKP) > 0) {
+	     			kpAsUpper = ( toUpperCase(prettyPrintName(kpmi)) : prettyPrintName(kpmi) | kpmi <- kpm<0> );
+	     			for (kpname <- unknownKP) {
+	     				if (toUpperCase(prettyPrintName(kpname)) in kpAsUpper) {
+	     					failureReasons += "Unknown keyword parameter passed: <prettyPrintName(kpname)>, did you mean <kpAsUpper[toUpperCase(prettyPrintName(kpname))]>?";
+	     				} else {
+	     					failureReasons += "Unknown keyword parameter passed: <prettyPrintName(kpname)>";
+	     				}
+	     			}
 	     		} else {
 	     			kpFailures = { kpname | kpname <- kl<0>, !subtypeOrOverload(kl[kpname],kpm[kpname]) };
 	     			if (size(kpFailures) > 0) {
@@ -1643,8 +1721,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> has <Name
     < cHas, t1 > = checkExp(e, cHas);
     c = needNewScope ? exitBooleanScope(cHas, c) : cHas;
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
-    if (isRelType(t1) || isListRelType(t1) || isTupleType(t1) || isADTType(t1) || isNonTerminalType(t1)) return markLocationType(c,exp@\loc,Symbol::\bool());
-    return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected relation, tuple, or ADT types, found <prettyPrintType(t1)>", e@\loc));
+    if (isRelType(t1) || isListRelType(t1) || isTupleType(t1) || isADTType(t1) || isNonTerminalType(t1) || isNodeType(t1)) return markLocationType(c,exp@\loc,Symbol::\bool());
+    return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected relation, tuple, node or ADT types, found <prettyPrintType(t1)>", e@\loc));
 }
 
 @doc{Check the types of Rascal expressions: Transitive Closure (DONE)}
@@ -3550,7 +3628,12 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                         
 					    usedItems = invert(c.uses)[ph.at];
 					    usedItems = { ui | ui <- usedItems, !(c.store[ui] is overload)} + { uii | ui <- usedItems, c.store[ui] is overload, uii <- c.store[ui].items };
-					    rel[Symbol,KeywordParamMap] constructorKP = { < c.store[ui].rtype, c.store[ui].keywordParams > | ui <- usedItems, c.store[ui] is constructor };
+
+					    rel[Symbol,KeywordParamMap] constructorKP = { };
+					    for (ui <- usedItems, c.store[ui] is constructor) {
+					    	< c, consParams > = getConstructorKeywordParams(c, ui, ptn@at);
+					    	constructorKP = constructorKP + < c.store[ui].rtype, consParams >;
+					    }
 
                         //if (size(pargs) == 0) {
                         //    // if we have no arguments, then all the alternatives could match
@@ -6284,7 +6367,19 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         cFun.labelStack = labelStackItem(rn, functionLabel(), Symbol::\void()) + cFun.labelStack;
 
         if ((FunctionBody)`{ <Statement* ss> }` := body) {
-			< cFun, tStmt > = checkStatementSequence([ssi | ssi <- ss], cFun);
+        	bodyStatements = [ssi | ssi <- ss];
+			< cFun, tStmt > = checkStatementSequence(bodyStatements, cFun);
+			
+		    // Basic check for returns: if we have a non-void return type and the sequence
+		    // is empty, flag this as an error
+		    if (!isVoidType(cFun.expectedReturnType) && isEmpty(bodyStatements)) {
+		    	cFun = addScopeError(cFun, "Cannot use a non-void return type with an empty function body", fd@\loc);
+		    }
+		    
+		    if (!isVoidType(cFun.expectedReturnType) && !isEmpty(bodyStatements) && !subtype(tStmt, cFun.expectedReturnType)) {
+		    	cFun = addScopeError(cFun, "The type of the final statement, <prettyPrintType(tStmt)>, must be a subtype of the declared return type, <prettyPrintType(cFun.expectedReturnType)>", fd@\loc);
+		    }
+			
         }
 
         cFun.labelStack = tail(cFun.labelStack);
@@ -7159,48 +7254,69 @@ public Configuration loadImportedFVNames(Configuration c, set[RName] varNamesToD
 	return c;
 }
 
-loc cachedConfig(loc src, loc bindir) = getDerivedLocation(src, "tc", bindir = bindir);
-loc cachedDate(loc src, loc bindir) = getDerivedLocation(src, "sig", bindir = bindir);
-loc cachedDateMap(loc src, loc bindir) = getDerivedLocation(src, "sigs", bindir = bindir);
+tuple[bool, loc] cachedConfigReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "tc", pcfg);
+loc cachedConfigWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "tc", pcfg);
 
-datetime getCachedDate(loc src, loc bindir) = readBinaryValueFile(#datetime, cachedDate(src,bindir));
+tuple[bool,loc] cachedDateReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "sig", pcfg);
+loc cachedDateWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "sig", pcfg);
 
-Configuration getCachedConfig(loc src, loc bindir) = readBinaryValueFile(#Configuration, cachedConfig(src,bindir));
-map[RName,datetime] getCachedDateMap(loc src, loc bindir) = readBinaryValueFile(#map[RName,datetime], cachedDateMap(src,bindir));
+tuple[bool,loc] cachedDateMapReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "sigs", pcfg);
+loc cachedDateMapWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "sigs", pcfg);
 
-void writeCachedDate(loc src, loc bindir, datetime dateval) {
-	l = cachedDate(src,bindir);
+datetime getCachedDate(str qualifiedModuleName, PathConfig pcfg) {
+    if(<true, l> := cachedDateReadLoc(qualifiedModuleName,pcfg)){
+       return readBinaryValueFile(#datetime, l);
+    }
+    throw "getCachedDate: no date found for <qualifiedModuleName>";
+}
+
+Configuration getCachedConfig(str qualifiedModuleName, PathConfig pcfg) {
+    if(<true, l> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
+       return readBinaryValueFile(#Configuration, l);
+    }
+    throw "getCachedConfig: no config found for <qualifiedModuleName>";
+}    
+    
+map[RName,datetime] getCachedDateMap(str qualifiedModuleName, PathConfig pcfg){
+    if(<true, l> := cachedDateMapReadLoc(qualifiedModuleName,pcfg)){
+       return readBinaryValueFile(#map[RName,datetime], l);
+    }
+    throw "getCachedDateMap: no DateMap found for <qualifiedModuleName>";
+} 
+
+void writeCachedDate(str qualifiedModuleName, PathConfig pcfg, datetime dateval) {
+	l = cachedDateWriteLoc(qualifiedModuleName,pcfg);
 	if (!exists(l.parent)) mkDirectory(l.parent);
 	writeBinaryValueFile(l, dateval, compression=false); 
 }
-void writeCachedConfig(loc src, loc bindir, Configuration c) {
-	l = cachedConfig(src,bindir); 
+void writeCachedConfig(str qualifiedModuleName, PathConfig pcfg, Configuration c) {
+	l = cachedConfigWriteLoc(qualifiedModuleName, pcfg); 
 	if (!exists(l.parent)) mkDirectory(l.parent);
 	writeBinaryValueFile(l, c, compression=false); 
 }
-void writeCachedDateMap(loc src, loc bindir, map[RName,datetime] m) {
-	l = cachedDateMap(src,bindir); 
+void writeCachedDateMap(str qualifiedModuleName, PathConfig pcfg, map[RName,datetime] m) {
+	l = cachedDateMapWriteLoc(qualifiedModuleName, pcfg); 
 	if (!exists(l.parent)) mkDirectory(l.parent);
 	writeBinaryValueFile(l, m, compression=false); 
 }
 
-void clearDirtyModules(loc src, loc bindir, bool transitive=true) {
-    if(exists(cachedConfig(src,bindir))){
-		Configuration c = getCachedConfig(src, bindir);
+void clearDirtyModules(str qualifiedModuleName, PathConfig pcfg, bool transitive=true) {
+    if(<true, l> := cachedConfigReadLoc(qualifiedModuleName, pcfg)){
+		Configuration c = getCachedConfig(qualifiedModuleName, pcfg);
 		c.dirtyModules = { };
-		writeCachedConfig(src, bindir, c);
+		writeCachedConfig(qualifiedModuleName, pcfg, c);
 		
 		if (transitive) {
-			reachableModuleLocations = { getModuleLocation(prettyPrintName(mn)) | mn <- carrier(c.importGraph) } - src;
-			for (l <- reachableModuleLocations) {
-				writeCachedConfig(l, bindir, getCachedConfig(l, bindir)[dirtyModules={}]);
+			reachableModules = { prettyPrintName(mn) | mn <- carrier(c.importGraph) } - qualifiedModuleName;
+			for (qmname <- reachableModules) {
+				writeCachedConfig(qmname, pcfg, getCachedConfig(qmname, pcfg)[dirtyModules={}]);
 			}
 		}
 	}
 }
 
-public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {
-	return checkModule(md, (md@\loc).top, c, bindir=bindir, forceCheck=forceCheck);
+public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, Configuration c, bool forceCheck = false, bool verbose = false) {
+	return checkModule(md, (md@\loc).top, c, forceCheck=forceCheck, verbose=verbose);
 }
 
 data IGComponent = singleton(RName item) | component(set[RName] items);
@@ -7254,10 +7370,11 @@ public rel[RName mname, bool isext] getDefaultImports() {
 }
 
 @doc{Check a given module, including loading the imports and extends items for the module.}
-public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, loc moduleLoc, Configuration c, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {	
+public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Module)`<Header header> <Body body>`, loc moduleLoc, Configuration c, bool forceCheck = false, bool verbose = false) {	
 	// Load the module import graph; this is needed to see if any module we import, directly or indirectly,
 	// has changed, in which case we need to recheck the modules on paths with changed modules
-	< ig, infomap > = getImportGraphAndInfo(md, defaultImports=getDefaultImports(),bindir=bindir);
+	pcfg = c.pathConfiguration;
+	< ig, infomap > = getImportGraphAndInfo(md, pcfg, defaultImports=getDefaultImports());
 	c.importGraph = ig;
 	
 	// Get back last modified dates for the various modules we import; these are not the cached dates
@@ -7266,7 +7383,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	map[RName,loc] moduleLocations = ( );
 	for (imn <- carrier(ig)) {
 		try {
-			chloc = getModuleLocation(prettyPrintName(imn));
+			chloc = getModuleLocation(prettyPrintName(imn), pcfg);
 			moduleLocations[imn] = chloc;
 			if (exists(chloc)) {
 				currentDates[imn] = lastModified(chloc);
@@ -7274,8 +7391,6 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 				; // TODO: Add a warning here, this means we are importing something that we cannot find
 			}
 		} catch ex: {
-		    chloc1 = getModuleLocation(prettyPrintName(imn));
-		    println("<prettyPrintName(imn)>: <chloc1>, <ex>");
 			c = addScopeError(c, "Cannot import module <prettyPrintName(imn)>", md@\loc);
 		}
 	}
@@ -7292,10 +7407,11 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	map[RName,map[RName,datetime]] moduleDates = ( );
 	for (wl <- carrier(ig), wl in moduleLocations) {
 		if (verbose) println("Checking for date map for <prettyPrintName(wl)>");
+		dependency = prettyPrintName(wl);
 		dependencyLoc = moduleLocations[wl];
 		moduleLocations[wl] = dependencyLoc;
-		if (exists(dependencyLoc) && exists(cachedDateMap(dependencyLoc, bindir))) {
-			moduleDates[wl] = getCachedDateMap(dependencyLoc, bindir);
+		if (exists(dependencyLoc) && <true, dateMapLoc> := cachedDateMapReadLoc(dependency, pcfg)) {
+			moduleDates[wl] = getCachedDateMap(dependency, pcfg);
 		}
 	}
 		
@@ -7305,19 +7421,20 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	dirtyModules = { };
 	for (wl <- carrier(ig), wl in moduleLocations) {
 		try {
+		    dependency = prettyPrintName(wl);
 			dependencyLoc = moduleLocations[wl];
-			if (!exists(cachedConfig(dependencyLoc, bindir))) {
+			if (<false, _> := cachedConfigReadLoc(dependency, pcfg)) {
 				// If we don't have a saved config for the module, we need to
 				// check it and save the config.
 				if (verbose) println("No config exists for module <prettyPrintName(wl)>");
 				dirtyModules = dirtyModules + wl;
-			} else if (!exists(cachedDate(dependencyLoc, bindir))) {
+			} else if (<false, _> := cachedDateReadLoc(dependency, pcfg)) {
 				// If we don't have a saved date for the module, it hasn't been checked
 				// before or the has info was deleted, so we need to check it now. 
 				if (verbose) println("No cached date exists for module <prettyPrintName(wl)>");
 				dirtyModules = dirtyModules + wl;
 			} else {
-				existingDate = getCachedDate(dependencyLoc, bindir);
+				existingDate = getCachedDate(dependency, pcfg);
 				if (wl in currentDates) {
 					modifiedDate = currentDates[wl];
 					if (existingDate != modifiedDate) {
@@ -7370,8 +7487,9 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	modifiedDate = now();
 	if (exists(moduleLoc)) {
 		modifiedDate = lastModified(moduleLoc); 
-		if (isEmpty(c.dirtyModules) && !forceCheck && exists(cachedDate(moduleLoc, bindir)) && getCachedDate(moduleLoc, bindir) == modifiedDate && exists(cachedConfig(moduleLoc, bindir))) {
-			return getCachedConfig(moduleLoc, bindir);
+		mname = prettyPrintName(moduleName);
+		if (isEmpty(c.dirtyModules) && !forceCheck && <true, _> := cachedDateReadLoc(mname, pcfg) && getCachedDate(mname, pcfg) == modifiedDate && <true, _> := cachedConfigReadLoc(mname, pcfg)) {
+			return getCachedConfig(mname, pcfg);
 		}
 	}
 		
@@ -7380,7 +7498,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	moduleTrees = ( moduleName : md );
 	for (mn <- c.dirtyModules, mn != moduleName ) {
 		try {
-			t = parse(#start[Module], getModuleLocation(prettyPrintName(mn)));    
+			t = parse(#start[Module], getModuleLocation(prettyPrintName(mn), pcfg));    
 			if (t has top && lang::rascal::\syntax::Rascal::Module m := t.top) {
 				moduleTrees[mn] = m;
 			}
@@ -7410,7 +7528,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	igComponents = directedConnectedComponents(moduleName, ig);
 
 	// Set up initial configurations for all the modules we need to recheck	
-	map[RName,Configuration] workingConfigs = ( moduleName : c ) + ( mn : newConfiguration() | mn <- c.dirtyModules, mn != moduleName);
+	map[RName,Configuration] workingConfigs = ( moduleName : c ) + ( mn : newConfiguration(c.pathConfiguration) | mn <- c.dirtyModules, mn != moduleName);
 	map[RName,int] moduleIds = ( );
 	for (mn <- workingConfigs) {
 		c = workingConfigs[mn];
@@ -7435,7 +7553,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	}	
 
 	// Load configs for the modules that we do not need to re-check
-	map[RName,Configuration] existingConfigs = ( wl : getCachedConfig(getModuleLocation(prettyPrintName(wl)),bindir) | wl <- carrier(ig), wl in moduleLocations, wl notin c.dirtyModules, exists(cachedConfig(getModuleLocation(prettyPrintName(wl)),bindir)) );
+	map[RName,Configuration] existingConfigs = ( wl : getCachedConfig(prettyPrintName(wl),pcfg) | wl <- carrier(ig), wl in moduleLocations, wl notin c.dirtyModules, <true, _> := cachedConfigReadLoc(prettyPrintName(wl),pcfg) );
 	
 	Configuration fullyCheckSingleModule(Configuration ci, RName itemName) {
 		// Using the checked type information, load in the info for each module
@@ -7863,9 +7981,10 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	for (mn <- moduleLocations, mn in workingConfigs) {
 		// Note: This writes more than we need of the hashes. We should probably use domainX to remove non-reachable modules.
 		if (exists(moduleLocations[mn])) {
-			writeCachedDate(moduleLocations[mn], bindir, currentDates[mn]);
-			writeCachedConfig(moduleLocations[mn], bindir, workingConfigs[mn]);
-			writeCachedDateMap(moduleLocations[mn], bindir, currentDates);
+		    ppmn = prettyPrintName(mn);
+			writeCachedDate(ppmn, pcfg, currentDates[mn]);
+			writeCachedConfig(ppmn, pcfg, workingConfigs[mn]);
+			writeCachedDateMap(ppmn, pcfg, currentDates);
 		}
 	}
 			
@@ -8718,24 +8837,25 @@ data Module(map[loc,str] docStrings = ());
 data Module(map[loc,set[loc]] docLinks = ());
 
 
-public Configuration checkAndReturnConfig(str mpath, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {
-	return checkAndReturnConfig(getModuleLocation(mpath), bindir=bindir, forceCheck=forceCheck, verbose=verbose);
-}
+//public Configuration checkAndReturnConfig(str mpath, PathConfig pcfg, bool forceCheck = false, bool verbose = false) {
+//	return checkAndReturnConfig(mpath, pcfg, forceCheck=forceCheck, verbose=verbose);
+//}
 
-public Configuration checkAndReturnConfig(loc l, loc bindir = |home:///bin|, bool forceCheck = false, bool verbose = false) {
-    c = newConfiguration();
+public Configuration checkAndReturnConfig(str qualifiedModuleName, PathConfig pcfg, bool forceCheck = false, bool verbose = false) {
+    c = newConfiguration(pcfg);
+    l = getModuleLocation(qualifiedModuleName, pcfg);
 	t = parse(#start[Module], l);    
     //try {
 		if (t has top && Module m := t.top)
-			c = checkModule(m, l, c, bindir=bindir, forceCheck=forceCheck, verbose=verbose);
+			c = checkModule(m, l, c, forceCheck=forceCheck, verbose=verbose);
 	//} catch v : {
 	//	c.messages = {error("Encountered error checking module <l>:<v>", t@\loc)};
 	//}
 	return c;
 }
 
-public Module check(Module m) {
-    c = newConfiguration();
+public Module check(Module m, PathConfig pcfg) {
+    c = newConfiguration(pcfg);
     c = checkModule(m, c);
 
     //| overload(set[int] items, Symbol rtype)
@@ -8911,6 +9031,7 @@ public Symbol undefer(Symbol t) {
 	};
 }
 
+// TODO: We probably don't need this anymore, verify and remove
 @doc{Resolve any user types that were given on imported items; these types may have relied on imports themselves.}
 public Configuration resolveDeferredTypes(Configuration c, int itemId) {
 	av = c.store[itemId];

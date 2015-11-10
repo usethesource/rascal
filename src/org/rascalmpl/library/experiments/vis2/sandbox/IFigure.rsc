@@ -17,6 +17,7 @@ import util::HtmlDisplay;
 import util::Math;
 import experiments::vis2::sandbox::Figure;
 import experiments::vis2::sandbox::Tree;
+import experiments::vis2::sandbox::Utilities;
 
 private loc base = |std:///experiments/vis2/sandbox|;
 
@@ -66,9 +67,13 @@ public list[str] googleChart = [];
 
 public list[str] markerScript = [];
 
+public list[str] tooltip_id = [];
+
+
 public map[str, list[IFigure] ] defs = ();
 
 IFigure fig;
+
 
 // ----------------------------------------------------------------------------------------
 
@@ -100,6 +105,89 @@ void _setTimer(str id, Timer v) {state[widget[id].seq].v.timer = v;}
 
 Timer _getTimer(str id) = state[widget[id].seq].v.timer;
 
+bool isOverlay(Figure f) = overlay():=f || tree(_, _):=f|| graph():=f;
+
+bool needsSvg(Figure f) = vcat():=f || hcat():=f || grid():=f
+|| comboChart():=f || lineChart():=f || scatterChart():=f
+|| pieChart():=f || candlestickChart():=f || pieChart():=f
+|| areaChart():=f || tree(_,_):=f
+;
+
+Figure makeOverlay(Figure f) {
+    // println("makeOverlay <f>");
+    if (f==emptyFigure()) return f;
+    // println("Help");
+    value v = f.tooltip; 
+    if (Figure g:=v && g!=emptyFigure()) {
+           return overlay(figs=[f]);          
+           }
+    return f;
+    }
+    
+Figure cQ(Figure f, Figure g) { 
+   if (g!=emptyFigure()) {
+       f.fig = g;
+       }
+   return f;
+   }
+    
+Figure cQ(Figure f, list[Figure] fs) {f.figs = fs; return f;}
+
+Figure cQ(Figure f, list[list[Figure]] fs) {
+    // println(f.figArray);
+    f.figArray = fs; return f;
+    }
+    
+Figures cQ(Figures figs) {
+    Figures r = [];
+    // println("cQ: <figs>");
+    for (Figure f<-figs) {
+        value v = f.tooltip;
+        if (Figure g := v && g !=emptyFigure()) {
+            if (/*(f.size[0]>0 && f.size[1]>0) || */ needsSvg(g)) f.tooltip = svg(g, size=f.size);
+            }
+        r += f;
+        }
+    return r;
+    }
+    
+ Figure cQ(Figure f) {
+     value v = f.tooltip;
+    if (Figure g := v && g !=emptyFigure()) {
+            if (/*(f.size[0]>0 && f.size[1]>0) ||*/ needsSvg(g)) f.tooltip = svg(g, size=f.size);
+         }
+    return f;
+    }
+
+Figure extendFig(Figure f) { 
+    Figure h = visit(f) {
+        case g:box() => cQ(g, makeOverlay(g.fig))
+        case g:frame() => cQ(g, makeOverlay(g.fig))
+        case g:ellipse() => cQ(g, makeOverlay(g.fig))
+        case g:circle() => cQ(g, makeOverlay(g.fig))
+        case g:ngon() => cQ(g, makeOverlay(g.fig))
+        case g:hcat() => cQ(g, [makeOverlay(q)|Figure q<-g.figs])
+        case g:vcat() => cQ(g, [makeOverlay(q)|Figure q<-g.figs])
+        case g:grid() => cQ(g, [[makeOverlay(q)|Figure q<-e]|Figures e<-g.figArray])
+        
+        //case g:at(_, _, fg):  cL(g, fg); 
+        //case g:atX(_, fg):  cL(g, fg); 
+        //case g:atY(_, fg):  cL(g, fg)
+        //case g:rotate(_, fg):  cL(g, fg); 
+        // case g:rotate(_, _, _, fg):  cL(g, fg); 
+        };
+        if (!isOverlay(h)) h = makeOverlay(h); 
+        return visit(h) {
+            case g:tree(Figure root, Figures figs)=>tree(cQ(root), cQ(figs)
+                 ,xSep = g.xSep, ySep = g.ySep, pathColor = g.pathColor,
+	          orientation = g.orientation
+	          ,manhattan=g.manhattan
+// For memory management
+	          , shrink=g.shrink, rasterHeight=g.rasterHeight)
+            case g:overlay() => overlay(figs=cQ(g.figs))
+            }
+    }
+
 void addState(Figure f) {
     Attr attr = attr(grow = f.grow);
     Property property = property();
@@ -117,7 +205,7 @@ void addState(Figure f) {
     Style style = style(fillColor=getFillColor(f)
        ,lineColor =getLineColor(f), lineWidth = getLineWidth(f),
        lineOpacity = getLineOpacity(f), fillOpacity= getFillOpacity(f),
-       visibility = f.visibility);
+       visibility = getVisibility(f));
     Text text = text();
     Timer timer = timer();
     Prop prop = <attr, style, property, text, timer >;
@@ -133,7 +221,11 @@ public void clearWidget() {
     defs=(); 
     parentMap=(); figMap = ();
     seq = 0; occur = 0;
+    old =[];
+    state = [];
+    tooltip_id = [];
     }
+    
               
 str visitFig(IFigure fig) {
     if (ifigure(str id, list[IFigure] f):= fig) {
@@ -220,6 +312,7 @@ str getIntro() {
         '                // alert(JSON.stringify(t));         
         '                for (var d in t) {
         '                   var e = d3.select(\"#\"+d); 
+        '                   // alert(d);
         '                   for (var i in t[d][\"text\"]) {
         '                        if (i==\"text\") e=e.text(t[d][\"text\"][i]);
         '                        if (i==\"html\") e=e.html(t[d][\"text\"][i]);
@@ -251,7 +344,7 @@ str getIntro() {
         '                        }
         '                   }
         '                   var svg = t[d][\"style\"][\"svg\"];
-        '                   for (var i in t[d][\"style\"]) {
+        '                   for (var i in t[d][\"style\"]) {                       
         '                        e=e.style(svgStyle(i, svg), t[d][\"style\"][i]);
         '                        } 
         '                   for (var i in t[d][\"property\"]) {
@@ -270,18 +363,20 @@ str getIntro() {
         '                   // e.text(t[d]);
         '                  // e.style(\"background\", \"\"+t[d]);
         '                   }
-        '                   for (var d in t) {
-        '                         
+        '                   for (var d in t) {      
         '                         for (var i in t[d][\"attr\"]) {
         '                              if (i==\"grow\") {
         '                                 var a = d3.select(\"#\"+d);
+        '                                 // alert(\"#\"+d);
         '                                 var w = parseInt(a.attr(\"width\"));
         '                                 var h = parseInt(a.attr(\"height\"));
         '                                 var cx1 =  -(w/2);
         '                                 var cy1 =  -(h/2);
         '                                 var cx2 =  (w/2);
         '                                 var cy2 =  (h/2);
+       
         '                                 var e = d3.select(\"#\"+d+\"_g\");
+        '                                 
         '                                 var s = \"scale(\"+t[d][\"attr\"][i]+\")\";
         '                                 var t1= \"translate(\"+cx1+\",\"+cy1+\")\";
         '                                 var t2= \"translate(\"+cx2+\",\"+cy2+\")\";
@@ -305,12 +400,14 @@ str getIntro() {
         '   };
         ' }
        ' function initFunction() {
+          
            <for (d<-markerScript) {> <d> <}>
            <for (d<-widgetOrder) {> <widget[d].script> <}>
            <for (d<-reverse(adjust)) {> <d> <}>
            <for (d<-googleChart) {> <d> <}> 
            doFunction(\"load\", \"figureArea\")();     
        ' }
+       ' d3.selectAll(\"table\").remove();
        ' onload=initFunction;
        '\</script\>
        '\</head\>
@@ -326,6 +423,14 @@ str getIntro() {
 list[Figure] getChildren(Figure f) {
    if (box():=f || ellipse() := f || circle():= f || ngon():=f) return f.fig ==emptyFigure()?[]:[f.fig];
    if (hcat():=f || vcat():= f) return f.figs;
+   if (tree(_, _):=f) {
+         list[Figure] r = [];
+         visit(f) {
+             case tree(g, _): r+=g; 
+             case Figure h: r+=h; 
+             }
+         return r;
+         }
    if (grid():=f) return [*g|g<-f.figArray];
    return [];
    }
@@ -373,21 +478,25 @@ list[bool] toFlags(str v)  {
    return r;
    }
    
+void hideTooltips() {
+   for (str s<-tooltip_id) hide(s);
+   }
+   
 void callCallback(str e, str n, str v) {
    v = replaceAll(v,"^plus","+");
    v = replaceAll(v,"^div","/");
-   if (choiceInput():=figMap[n]) { 
+   Figure f = figMap[n];
+   if (choiceInput():=f) { 
      Property a = _getProperty(n);
      a.\value= v;
      _setProperty(n, a);
      old[widget[n].seq].property = a;
      }
-   if (checkboxInput():=figMap[n]) { 
+   if (checkboxInput():=f) { 
      Property a = _getProperty(n);
      value q = a.\value;
      if (map[str, bool] b := q) {
         int  d = toInt(v);
-        Figure f = figMap[n];
         if (d<0) b[f.choices[-d-1]] = false;
         else b[f.choices[d-1]] = true;
         // println(b);
@@ -396,12 +505,18 @@ void callCallback(str e, str n, str v) {
         old[widget[n].seq].property = a;
         }
      }
-   if (rangeInput():=figMap[n]) { 
+   if (rangeInput():=f) { 
      Property a = _getProperty(n);
      a.\value = toReal(v);
      _setProperty(n, a);
      old[widget[n].seq].property = a;
      }
+   value z = f.tooltip;
+   if (Figure g := z && g !=emptyFigure()) {
+      if (e=="mouseenter") {visible("<f.id>_tooltip"); return;}
+      else
+      if (e=="mouseleave") {hide("<f.id>_tooltip"); return;} 
+   }
    value q = widget[n].f;
    switch (q) {
        case void(str, str, str) f: f(e, n, v);
@@ -449,6 +564,18 @@ private loc site = startFigureServer();
 
 private str getSite() = "<site>"[1 .. -1];
 
+value getRenderCallback(Event event) {return void(str e, str n, str v) {
+    hideTooltips(); /*getCallback(event)(e, n, v);*/
+    value q = getCallback(event);
+    switch (q) {
+       case void(str, str, str) f: f(e, n, v);
+       case void(str, str, int) f: f(e, n, toInt(v));
+       case void(str, str, real) f: f(e, n, toReal(v));
+       }
+     }; 
+ }
+
+
 public void _render(IFigure fig1, int width = 400, int height = 400, 
      Alignment align = centerMid, int lineWidth = -1, 
      str fillColor = "none", str lineColor = "black", bool display = true, Event event = on(nullCallback))
@@ -461,7 +588,7 @@ public void _render(IFigure fig1, int width = 400, int height = 400,
     // println(getWidth(fig1));
     str endtag = endTag();   
     // '<style("border","0px solid black")>  
-    widget[id] = <getCallback(event), seq, id, begintag, endtag, 
+    widget[id] = <getRenderCallback(event), seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")   
         '<stylePx("width", width)><style("height", width)>
@@ -682,9 +809,17 @@ str html(str v, bool fo, bool nl2br) {
 //    '<on(getEvent(f.event), "doFunction(\"<getEvent(f.event)>\", \"<id>\")")> 
     
 str on(Figure f) {
-    return on(getEvent(f.event), "doFunction(\"<getEvent(f.event)>\", \"<f.id>\")")
-    +"<for(str e<- getEvents(f.event)){><on(e, "doFunction(\"<e>\", \"<f.id>\")")><}>";
-    }
+    list[str] events = getEvents(f.event) + getEvent(f.event);
+    value v = f.tooltip;
+    if (Figure g:= v && g != emptyFigure()) {
+         if (indexOf(events, "mousenter") < 0) 
+                 events = events + "mouseenter";
+         if (indexOf(events, "mouseleave") < 0) 
+                 events = events + "mouseleave";
+         }
+    return 
+    "<for(str e<- events){><on(e, "doFunction(\"<e>\", \"<f.id>\")")><}>";
+   }
         
 str on(str ev, str proc) {
     if (isEmpty(ev)) return "";
@@ -792,7 +927,7 @@ str drawVisualization(str fname, str json) {
     }
     
 str vl(value v) {
-    if (str s:=v) return "\"<v>\"";
+    if (str s:=v) return "\"<toLowerCase(s)>\"";
     return v;
     }
     
@@ -833,7 +968,7 @@ IFigure _googlechart(str cmd, str id, Figure f) {
     }
     
 str getGraphOpt(Figure g) {
-   map[str, value] m = getKeywordParameters(g.options);
+   map[str, value] m = getKeywordParameters(g.graphOptions);
    str r =  "{style:\"fill:none\", ";
    if (!isEmpty(m)) {
         for (t<-m) {
@@ -1122,6 +1257,13 @@ bool hasInnerCircle(Figure f)  {
        } 
  
  str styleInsideSvgOverlay(str id, Figure f) {
+      str tooltip = "";
+      // if (endsWith(id, "_tooltip")) println(id);
+      if (str s := f.tooltip) {
+            if (!isEmpty(s)) 
+                 tooltip = ".append(\"svg:title\").text(\""+
+                 replaceAll(replaceAll(s,"\n", "\\n"),"\"","\\\"") +"\")";
+            }
       return " 
         '<style("stroke-width",getLineWidth(f))>
         '<style("stroke","<getLineColor(f)>")>
@@ -1129,13 +1271,12 @@ bool hasInnerCircle(Figure f)  {
         '<style("stroke-dasharray", cv(f.lineDashing))> 
         '<style("fill-opacity", getFillOpacity(f))> 
         '<style("stroke-opacity", getLineOpacity(f))>  
-        '<style("visibility", getVisibility(f))> 
+        '<style("visibility", getVisibility(f))>     
         ';       
         'd3.select(\"#<id>_svg\")
         '<attr("width", toInt(f.grow*f.width))><attr("height", toInt(f.grow*f.height))>     
-        '<!isEmpty(f.tooltip)?
-        ".append(\"svg:title\").text(\""+
-              replaceAll(replaceAll(f.tooltip,"\n", "\\n"),"\"","\\\"") +"\")":"">
+        '<tooltip>
+        '<findFirst(id,"_tooltip")>=0?attr("pointer-events", "none"):"">
         ';
         ";
       } 
@@ -1560,7 +1701,9 @@ str _padding(tuple[int, int, int, int] p) {
 
 bool isSvg(str s) =  startsWith(s, "\<svg");
    
-IFigure _overlay(str id, Figure f, IFigure fig1...) {
+IFigure _overlay(str id, Figure f, list[Figure] figs, IFigure fig1...) {
+       list[IFigure] tfs = tooltips(figs); 
+       fig1 = fig1+tfs;
        int lw = getLineWidth(f)<0?0:getLineWidth(f); 
        // if (f.lineWidth<0) f.lineWidth = 0;  
        if (f.width<0 && min([getWidth(g)|g<-fig1])>=0) f.width = max([getAtX(g)+getWidth(g)|g<-fig1]);
@@ -1835,6 +1978,7 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
         '<style("background-color", "<getFillColor(f)>")> 
         '<style("border-spacing", "<f.hgap> <f.vgap>")> 
         '<style("stroke-width",getLineWidth(f))>
+        '<style("visibility", getVisibility(f))>
         '<_padding(f.padding)>     
         ;   
         "
@@ -1871,7 +2015,12 @@ IFigure _vcat(str id, Figure f,  bool addSvgTag, IFigure fig1...) {
         '<attr("fill",getFillColor(f))><attr("stroke",getLineColor(f))>
         '<style("border-spacing", "<f.hgap> <f.vgap>")>
         '<style("stroke-width",getLineWidth(f))>
-        '<_padding(f.padding)> 
+        '<debugStyle()> 
+        '<style("background-color", "<getFillColor(f)>")> 
+        '<style("border-spacing", "<f.hgap> <f.vgap>")> 
+        '<style("stroke-width",getLineWidth(f))>
+        '<style("visibility", getVisibility(f))>
+        '<_padding(f.padding)>   
         ;
         ", width, height, getAtX(f), getAtY(f), 0, 0, f.align, getLineWidth(f), getLineColor(f)
          , f.sizeFromParent, false >;
@@ -1920,6 +2069,7 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
          '<style("background-color", "<getFillColor(f)>")>
          '<style("border-spacing", "<f.hgap> <f.vgap>")>
          '<style("stroke-width",getLineWidth(f))>
+         '<style("visibility", getVisibility(f))>
          '<_padding(f.padding)> 
          '<debugStyle()>; 
         ", f.width, f.height, getAtX(f), getAtY(f), 0, 0, f.align, getLineWidth(f), getLineColor(f)
@@ -2061,20 +2211,35 @@ Alignment nA(Figure f, Figure fig) =
      
 Figure cL(Figure parent, Figure child) { 
     if (!isEmpty(child.id)) parentMap[child.id] = parent.id; 
+    value v = parent.tooltip; 
+    if (Figure h:=v && h!=emptyFigure()) parentMap[h.id] = parent.id;
     return child;
     }
 
 Figure pL(Figure f) {
-     if (isEmpty(f.id)) {
-         f.id = "i<occur>";
-         occur = occur + 1; 
-         }
+         // println("PL:<f.id>");
+         if (f==emptyFigure()) return f;
+         if (isEmpty(f.id)) {
+              f.id = "i<occur>";
+              occur = occur + 1; 
+              }
+         value v = f.tooltip;
+         if (Figure g:= v && g!=emptyFigure()) { 
+              g.id = "<f.id>_tooltip";
+              // println("PL hide:<g.id>");
+              // g.visibility = "hidden";
+              tooltip_id += g.id;
+              figMap[g.id] = g;      
+              f.tooltip = g;
+              }
      figMap[f.id] = f;
      return f;
      }
+     
 
 Figure buildFigMap(Figure f) {  
-    return visit(f) {
+    return  visit(f) {
+       // case emptyFigure() => emptyFigure()
        case Figure g => pL(g)
     }  
    }
@@ -2082,19 +2247,20 @@ Figure buildFigMap(Figure f) {
 Figure getParentFig(Figure f) = figMap[parentMap[f.id]]; 
 
 void buildParentTree(Figure f) {
+    // println(f);
     visit(f) {
         case g:box(): cL(g, g.fig);
         case g:frame():cL(g, g.fig);
         case g:ellipse():cL(g, g.fig);
         case g:circle():cL(g, g.fig);
-        case g:ngon():{cL(g, g.fig);}
+        case g:ngon():cL(g, g.fig);
         case g:hcat(): for (q<-g.figs) cL(g, q);
         case g:vcat(): for (q<-g.figs) cL(g, q);
-        case g:grid(): for (e<-g.figArray) for (q<-e) cL(g, q);
-        case g:overlay(): for (q<-g.figs) cL(g, q); 
+        case g:grid(): for (e<-g.figArray) for (q<-e) cL(g, q);    
         case g:at(_, _, fg):  cL(g, fg); 
         case g:atX(_, fg):  cL(g, fg); 
         case g:atY(_, fg):  cL(g, fg);
+        case g:overlay(): for (q<-g.figs) cL(g, q); 
         case g:graph():  for (q<-g.nodes) cL(g, q[1]);
         case g:tree(Figure root, Figures figs): {cL(g,root); for (q<-figs) cL(g, q);}
         case g:rotate(_, fg):  cL(g, fg); 
@@ -2102,7 +2268,27 @@ void buildParentTree(Figure f) {
         }  
         return; 
     } 
-    
+ 
+Figure hide(Figure f) { f.visibility = "hidden"; return f;} 
+
+list[IFigure] tooltips(list[Figure] fs) {
+              // println("tooltips");
+              list[Figure] tt = [hide(g)
+                  |Figure f<-fs, value v := f.tooltip, Figure g := v, g!=emptyFigure()]; 
+              // println([x|Figure x<-tt]); 
+              list[IFigure] tfs = [_translate(q, addSvgTag = true)|Figure q<-tt];
+              for (Figure f<-fs) {
+                  if (widget["<f.id>_tooltip"]?)  {
+                     println("<f.id>_tooltip");
+                     if (f.width<0) f.width = f.size[0];
+                     if (f.height<0) f.height = f.size[1];
+                     widget["<f.id>_tooltip"].x =  f.at[0]/*+f.width*/;
+                     widget["<f.id>_tooltip"].y =  f.at[1];
+                     }
+                  }
+              return tfs;
+ }
+              
  
 IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = false,
     bool fo = true, bool forceHtml = false) {
@@ -2151,8 +2337,8 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
          );
          
         case overlay(): { 
-              IFigure r = _overlay(f.id, f, [_translate(q, addSvgTag = true, fo = !isGrow(f))|q<-f.figs]);
-              // return _rect("<f.id>_box", fo, f, fig = r, align = topLeft); 
+              // list[IFigure] tfs = tooltips(f.figs);
+              IFigure r = _overlay(f.id, f, f.figs, [_translate(q, addSvgTag = true, fo = !isGrow(f))|q<-f.figs]);    
               return r;
               }
               
@@ -2196,7 +2382,7 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
         case graph(): {
               list[IFigure] ifs = [_translate(q, addSvgTag = true)|q<-[n[1]|n<-f.nodes]];
               IFigure r =
-               _overlay("<f.id>_ov", f 
+               _overlay("<f.id>_ov", f , []
                 , 
                 [_graph(f.id, f, [getId(i)|i<-ifs])] 
                 +ifs
@@ -2205,30 +2391,35 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
         }
         case tree(Figure root, Figures figs): {  
               list[Figure] fs = treeToList(f);
+            //  list[Figure] tooltips = [hide(g)
+            //      |Figure f<-fs, Figure g := f.tooltip, g!=emptyFigure()];         
               // println(fs);
-             //  println(f.id);
-             
-              // println(fs);
-              list[IFigure] ifs = [_translate(q, addSvgTag = true)|q<-fs];
+              list[IFigure] ifs = [_translate(q, addSvgTag = true)|Figure q<-fs];
+              // list[IFigure] tfs = [_translate(q, addSvgTag = true)|Figure q<-tooltips];
+              
               map[str, tuple[int, int]] m = (getId(g): <getWidth(g), getHeight(g)>|IFigure g<-ifs);
-              list[Vertex] vs  = treeLayout(f, m,  f.sX, f.sY, f.rasterHeight, f.manhattan,
+              list[Vertex] vs  = treeLayout(f, m,  1, f.shrink, f.rasterHeight, f.manhattan,
               xSeparation=f.xSep, ySeparation=f.ySep, orientation = f.orientation);
               tuple[int ,int] dim = computeDim(fs, m);
               vs  = vertexUpdate(vs, f.orientation, dim[0], dim[1]);
-              fs = treeUpdate(fs, m, f.orientation, dim[0], dim[1]);  
+              fs = treeUpdate(fs, m, f.orientation, dim[0], dim[1]); 
+              f.figs = fs;
               for (Figure f<-fs) {
                   widget[f.id].x =  f.at[0];
                   widget[f.id].y =  f.at[1];
                   }
               if (f.width<0 && min([g.width|g<-fs])>=0) f.width = max([toInt(g.at[0])+g.width|g<-fs]);
               if (f.height<0 && min([g.height|g<-fs])>=0) f.height = max([toInt(g.at[1])+g.height|g<-fs]);
-              // println(m);
+              // println(m
               IFigure r =
-               _overlay("<f.id>_ov", f 
-                , [_shape(f.id, shape(vs, id = f.id, width = f.width, height = f.height, yReverse = false
-                   ,lineColor=f.pathColor, fillColor="none"))]
+               _overlay("<f.id>_ov", f, f.figs
+                , [_shape("<f.id>", shape(vs, id = "<f.id>", width = f.width, height = f.height, yReverse = false
+                   ,lineColor=f.pathColor, lineWidth = f.lineWidth, fillColor="none"
+                   , visibility = f.visibility))]
                  + 
                 ifs
+               //  +
+                // tfs
                 );
                return r;        
         }
@@ -2275,6 +2466,7 @@ public void _render(Figure fig1, int width = 400, int height = 400,
         h.align = align;
         h.id = "figureArea";
         figMap[h.id] = h;
+        fig1 = extendFig(fig1);
         fig1= buildFigMap(fig1);
         parentMap[fig1.id] = h.id; 
         buildParentTree(fig1);

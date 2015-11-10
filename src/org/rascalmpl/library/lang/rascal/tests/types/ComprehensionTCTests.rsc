@@ -35,3 +35,7 @@ test bool NoLeakFromNextGenerator2() = undeclaredVariable(" [\<N,M\> | int N \<-
 test bool emptyTupleGeneratorError1() = cannotMatch("{\<X,Y\> | \<int X, int Y\> \<- {}} == {};");  	
   	
 test bool emptyTupleGeneratorError2() = cannotMatch("{\<X,Y\> | \<int X, int Y\> \<- []} == {};");  	
+  
+test bool emptyTupleGeneratorError3() = checkOK("{\<X,Y\> | int X \<- {}, int Y \<- {}} == {};");	
+   
+test bool emptyTupleGeneratorError4() = checkOK("{\<X,Y\> | int X \<- [], int Y \<- []} == {};");	

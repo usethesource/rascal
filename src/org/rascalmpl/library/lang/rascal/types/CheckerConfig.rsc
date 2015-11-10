@@ -132,10 +132,11 @@ data Configuration = config(set[Message] messages,
                             set[RName] unimportedNames,
                             bool importing,
                             rel[RName,RName] importGraph,
-                            set[RName] dirtyModules
+                            set[RName] dirtyModules,
+                            PathConfig pathConfiguration
                            );
 
-public Configuration newConfiguration() = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false,{},{});
+public Configuration newConfiguration(PathConfig pcfg) = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false,{},{}, pcfg);
 
 public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
 
@@ -789,10 +790,6 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 		return c;
 	}
 
-	if (adtId != 2) {
-		whatever = 10;
-	}
-
 	keywordParamMap = ( pn : pt | <pn,pt,_> <- keywordParams);
 
 	// Now, process the arguments. This performs several consistency checks, namely:
@@ -812,9 +809,6 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 						c = addScopeError(c,"Field name <fn> cannot be repeated in the same constructor", l);
 					} else {
 						seenAlready = seenAlready + fn;
-						if (adtId != 2) {
-							whatever = 10;
-						}
 						if (<adtId,fn> in c.adtFields) {
 							if (RSimpleName(fn) in c.store[adtId].keywordParams) {
 								c = addScopeError(c,"Field <fn> already defined as a keyword parameter on type <prettyPrintName(c.store[adtId].name)>",l);
@@ -1000,8 +994,8 @@ private set[int] idsForName(Configuration c, RName n) {
 
 @doc{Add a production into the configuration.}
 public Configuration addProduction(Configuration c, RName n, loc l, Production prod, bool registerName=true) {
-    
-	assert ( (prod.def is label && prod.def.symbol has name) || ( !(prod.def is label) && prod.def has name ) || prod.def is \start);
+     assert ( (prod.def is label && prod.def.symbol has name) || ( !(prod.def is label) && prod.def has name ) || prod.def is \start) :
+	        "addProduction: <prod>";
  
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;

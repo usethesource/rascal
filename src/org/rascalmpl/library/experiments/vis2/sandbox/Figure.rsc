@@ -82,6 +82,7 @@ alias XYLabeledData     = lrel[num xx, num yy, str label];
 
 alias GoogleData     = list[list[value]];	
 
+
 /* Dataype belonging to candlesticks */
 
 	
@@ -157,10 +158,14 @@ public data Text (
 public alias Prop =
     tuple[Attr attr, Style style,  Property property, Text text, Timer timer];
     
+ 
+// public str strEmpty() {return "";}
+    
     
 public data Figure(
         // Naming
         str id = "",
+        // Fid fid = strEmpty,
         str visibility = "", 
 		// Dimensions and Alignmenting
 		
@@ -207,7 +212,7 @@ public data Figure(
 		Event event = on(nullCallback),
 		
 		// Tooltip
-		str tooltip = ""
+		value tooltip = ""
 	) =
 	
 	emptyFigure()
@@ -318,16 +323,18 @@ public data Figure(
 // Must be used as innerfigure in box(fig=..., align = topLeft). 
 // Advised is to use the function graph(nodes, edges)
    | graph(list[tuple[str, Figure]] nodes = [], list[Edge] edges = [], map[str, NodeProperty] nodeProperty = (), 
-     GraphOptions options = graphOptions())
+     GraphOptions graphOptions = graphOptions())
  
-   | tree(Figure root, list[Figure] figs, int sX=1, int sY=5, int rasterHeight=150
+   | tree(Figure root, list[Figure] figs
 	       ,int xSep = 1, int ySep = 2, str pathColor = "black"
 	       ,Orientation orientation = topDown()
-	       ,bool manhattan=false)
+	       ,bool manhattan=false
+// For memory management
+	       , int shrink=5, int rasterHeight=150)
    ;
    
 data GraphOptions = graphOptions(
-    str orientation = "topDown", int nodesep = 50, int edgesep=10, int layersep= 30, str flavor="layeredGraph"
+    str orientation = "topDown", int nodeSep = 50, int edgeSep=10, int layerSep= 30, str flavor="layeredGraph"
         
     );
  
@@ -562,6 +569,13 @@ list[list[value]] joinData(list[Chart] charts, bool tickLabels, int tooltipColum
            [[lab[z]] +[*((c.\data[z]?)?c.\data[z]:"null")|c<-m]|z<-x];
       }
    }
+   
+public Figure svg(Figure f, tuple[int, int] size = <0, 0>) {
+    /*if (f.lineWidth<0) */ {f.lineWidth = 1; f.lineColor="black";}
+    Figure r = box(size=size, lineWidth = 0, fillColor = "none", fig = f);
+    // println(r);
+    return r;
+    }
   
    
 public map[str, value] adt2map(node t) {
@@ -589,11 +603,12 @@ public Figure idNgon(num r) = ngon(r= r, lineWidth = 0, fillColor = "none");
 
 public Figure idRect(int width, int height) = rect(width = width, height = height, lineWidth = 0, fillColor = "none");
 
+/* options must be renamed to graphOptions */
 public Figure graph(list[tuple[str, Figure]] n, list[Edge] e, tuple[int, int] size=<0,0>, int width = -1, int height = -1,
    int lineWidth = 1, GraphOptions options = graphOptions()) =  
    box(fig = graph(nodes = n, edges = e, lineWidth = lineWidth, 
                nodeProperty = (), size = size, width = width, height = height,
-               options = options), align = topLeft, lineWidth = 0);
+               graphOptions = options), align = topLeft, lineWidth = 0);
                
 public Figure overlayBox(int width, int height, list[Figure] figs) {
       list[Figure] b = [box(width = width, height = height, fig = f, fillColor="none", align = centerMid)|Figure f<-figs];
@@ -611,7 +626,8 @@ public Figure plot(Points xy, Rescale x, Rescale y, bool shapeCurved = true
       lineColor = lineColor, lineWidth = lineWidth, fillColor = fillColor,
       width = width, height = height, fillEvenOdd = fillEvenOdd);
       }
-      
+
+ 
 
 public list[str] colors = 
 ["aliceblue",

@@ -168,7 +168,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
      commandLineOptions.add("profiling"); 
      commandLineOptions.add("tracing"); 
      commandLineOptions.add("coverage"); 
-     commandLineOptions.add("debug"); 
+     commandLineOptions.add("debugRVM"); 
      commandLineOptions.add("testsuite"); 
   }
   @Override

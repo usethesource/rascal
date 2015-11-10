@@ -21,6 +21,8 @@ import lang::rascal::types::CheckTypes;
 import lang::rascal::types::CheckerConfig;
 import lang::rascal::\syntax::Rascal;
 
+PathConfig testingConfig = pathConfig(srcPath=[|test-modules:///|, |std:///|]);
+
 str abbrev(str s) { return size(s) < 120 ? s : "<s[0..117]> ..."; }
 
 bool matches(str subject, str pat){
@@ -30,7 +32,8 @@ bool matches(str subject, str pat){
 }
 
 bool check(str stmts, list[str] expected, list[str] importedModules = [], list[str] initialDecls = []){
-     errors = getAllMessages(checkStatementsString(stmts, importedModules=importedModules, initialDecls=initialDecls));
+     errors = getAllMessages(checkStatementsString(stmts, testingConfig, importedModules=importedModules, initialDecls=initialDecls));
+     println(errors);
      for(eitem <- errors, str exp <- expected){
          if(matches(eitem.msg, exp))
                return true;          
@@ -39,29 +42,30 @@ bool check(str stmts, list[str] expected, list[str] importedModules = [], list[s
 }
 
 bool checkOK(str stmts, list[str] importedModules = [], list[str] initialDecls = []){
-     errors = getFailureMessages(checkStatementsString(stmts, importedModules=importedModules, initialDecls=initialDecls));
+     errors = getFailureMessages(checkStatementsString(stmts, testingConfig, importedModules=importedModules, initialDecls=initialDecls));
+     println(errors);
      if(size(errors) == 0)
         return true;
      throw abbrev("<errors>");
 }
 
 bool checkModuleOK(loc moduleToCheck){
-	  c = newConfiguration();							// Copied from checkStatementsString
-	  try {
-		      pt = parse(#start[Module], moduleToCheck);
-		      if (pt has top && lang::rascal::\syntax::Rascal::Module m := pt.top) {
-			          c = checkModule(m, c);
-		      } else {
-			          c = addScopeError(c, "Unexpected parse result for module to check: <pt>", moduleToCheck); 
-		      }
-	  } catch perror : {
-		      c = addScopeError(c, "Could not parse and prepare config for base module to check: <perror>", moduleToCheck);
-	  }
-  
-  errors = c.messages;
-  if(size(errors) == 0)
-      return true;
-  throw abbrev("<errors>");
+	c = newConfiguration(testingConfig);							// Copied from checkStatementsString
+	try {
+		pt = parse(#start[Module], moduleToCheck);
+		if (pt has top && Module m := pt.top) {
+			c = checkModule(m, c);
+		} else {
+			c = addScopeError(c, "Unexpected parse result for module to check: <pt>", moduleToCheck); 
+		}
+	} catch perror : {
+		c = addScopeError(c, "Could not parse and prepare config for base module to check: <perror>", moduleToCheck);
+	}
+     errors = c.messages;
+     println(errors);
+     if(size(errors) == 0)
+        return true;
+     throw abbrev("<errors>");
 }
 
 bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
@@ -129,7 +133,7 @@ bool argumentMismatch(str stmts, list[str] importedModules = [], list[str] initi
 		"Function of type _ cannot be called with argument types _", 
 		"Constructor of type _ cannot be built with argument types _",
 		"Keyword parameter of type _ cannot be assigned argument of type _",
-		"Unknown keyword parameters passed: _"
+		"Unknown keyword parameter passed: _"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
 bool redeclaredVariable(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 

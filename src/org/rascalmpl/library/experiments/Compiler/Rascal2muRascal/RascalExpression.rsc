@@ -45,9 +45,9 @@ import experiments::Compiler::RVM::Interpreter::ParsingTools;
 /*********************************************************************/
 /*                  Auxiliary functions                              */
 /*********************************************************************/
-
-int size_keywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) = 
-    (keywordArguments is \default) ? size([kw | /*KeywordArgument[Expression]*/ kw <- keywordArguments.keywordArgumentList]) : 0;
+//TODO: remove since unused
+//int size_keywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) = 
+//    (keywordArguments is \default) ? size([kw | /*KeywordArgument[Expression]*/ kw <- keywordArguments.keywordArgumentList]) : 0;
 
 // Produce a multi-valued or backtrack-free Boolean expression
 MuExp makeBoolExp(str operator, list[MuExp] exps, loc src) {
@@ -641,7 +641,7 @@ private MuExp translateConcreteParsed(Tree e, loc src){
            translated_elems = muCallPrim3("list_create", translated_args, my_src);
         }
         return muCallPrim3("annotation_set", [muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
-                                                    [muCon(prod), translated_elems, muTypeCon(Symbol::\void())]),
+                                                    [muCon(prod), translated_elems, muCallMuPrim("make_mmap", []), muTypeCon(Symbol::\void())]),
         								     muCon("loc"), 
         								     muCon(my_src)], e@\loc);
         //return muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
@@ -1735,6 +1735,7 @@ MuExp translate (e:(Expression) `<Expression expression> has <Name name>`) {
     	case "lex":		op = "nonterminal";
     	case "nonterminal":
     					op = "nonterminal";
+    	case "node":    op = "node";
     	default:
      		return muCon(hasField(getType(expression@\loc), unescape("<name>")));		
     }

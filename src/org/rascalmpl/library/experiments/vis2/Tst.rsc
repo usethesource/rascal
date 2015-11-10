@@ -1,24 +1,20 @@
 module experiments::vis2::Tst
 
 import Prelude;
-import lang::json::IO;
-import experiments::vis2::Figure;
-import experiments::vis2::FigureServer; 
+import util::Math;
 
+alias dummy = str;
 
-void ex(str title, Figure f){
-	render(title, f);
-}
-
- // writeFile(|file:///ufs/bertl/aap.txt|, d);
-
-//public void main() 
-//     d = [["\<"]];
-//     println("aap:<toJSON(d)>");
-//     }
+data D(dummy aap="") = a(dummy z, int sX=5)|q(str y, int sY = 7)|r(value \value);
 
 public void main() {
-   ex("aap", scatterchart([<1,2>,<3, 3>]
-   //, options = chartOptions(pointSize=10)
-   ));
+   D d = q("aap");
+   switch (d) {
+      case q(str v): println(d.sY);
+      }
+   println(d.sY);
+   // for (int i<-[0..10]) {
+   //   D d = arbReal()<.5?q(3):r("OK");
+   //   if (str v :=d.\value) println(v); else println("Also OK");
+   //   }
    }

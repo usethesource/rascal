@@ -348,6 +348,12 @@ test bool Issue503(){
 	return checkOK("true;", importedModules=["M1", "M2"]);
 }
 
+// https://github.com/cwi-swat/rascal/issues/504
+
+test bool Issue504() =
+	checkOK("true;", initialDecls = ["alias INT = int;", "alias INT = int;"]);
+	
+	
 // https://github.com/cwi-swat/rascal/issues/547
 
 test bool Issue547(){												
@@ -383,3 +389,8 @@ test bool Issue550(){
 // https://github.com/cwi-swat/rascal/issues/563
 
 test bool Issue563() = uninitialized("int x; x + 5;");
+
+// commented out because I don't know how to fix the test. It should not be allowed
+// to use * in a tuple pattern
+//test bool Issue886() = unexpectedType("[\<[\<19,0,_*\>],false,_\>] := [\<[\<19,0,1\>], true, 1\>]");
+

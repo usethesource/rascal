@@ -336,7 +336,7 @@ public class ParsingTools {
 	 
 	  // Rascal library function (interpreter version)
 	  public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx){
-		  RascalExecutionContext rex = new RascalExecutionContext(vf, new PrintWriter(ctx.getStdOut()), new PrintWriter(ctx.getStdErr()), null, null, null, false, false, false, false, false, false, null, ctx.getEvaluator().getRascalResolver());
+		  RascalExecutionContext rex = new RascalExecutionContext(vf, new PrintWriter(ctx.getStdOut()), new PrintWriter(ctx.getStdErr()), null, null, null, false, false, false, false, false, false, false, null, null, ctx.getEvaluator().getRascalResolver());
 		  return parseFragment1(name, start, tree, loc, grammar, rex);
 	  }
 		

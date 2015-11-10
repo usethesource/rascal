@@ -1,17 +1,12 @@
 module experiments::Compiler::Examples::Tst6
 
-import List;
+import IO;
 
-syntax A = a: "a";
+int f(int n) = n;
 
-syntax X = "plus" {A ","}+ l1 | "star" {A ","}* l2;
-
-layout W = [\ ]*;
-
-int f({A ","}* l) = size([y | A y <- l]);
-
-test bool plusToStar() = f(([X] "plus a,a").l1) == 2;
-
-data IG = ig(int z = 1);
-
-test bool ignoreKeywordParameter2() = ig(z=1) := ig();
+value main6(){
+    x = 42;
+    println(x);
+    y = f(x) + 10;
+    return y;
+}

@@ -1,13 +1,13 @@
 package org.rascalmpl.library.experiments.Compiler;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ProfileLocationCollector;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.ProfileFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IValueFactory;
 
 public class ProfileCompiled extends Profile {
 	
-	private static ProfileLocationCollector profileCollector;
+	private ProfileFrameObserver profileCollector;
 	
 	public ProfileCompiled(IValueFactory values){
 		super(values);
@@ -15,32 +15,27 @@ public class ProfileCompiled extends Profile {
 	
 	public void startProfile(RascalExecutionContext rex){
 		if(profileCollector == null){
-			profileCollector = new ProfileLocationCollector();
-			profileCollector.start();
-		} else {
-			profileCollector.restart();
+			profileCollector = new ProfileFrameObserver(rex.getStdOut());
 		}
-		rex.getRVM().setLocationCollector(profileCollector);
+		profileCollector.startObserving();
 	}
 	
 	public void stopProfile(RascalExecutionContext rex){
-		profileCollector.stop();
-		rex.getRVM().resetLocationCollector();
+		profileCollector.stopObserving();
 	}
 	
 	public IList getProfile(RascalExecutionContext rex){
 		assert profileCollector != null: "startProfile not called before getProfile";
-		IList res = ProfileCompiled.profileCollector.getData();
-		rex.getRVM().resetLocationCollector();
-		profileCollector = null;
+		IList res = profileCollector.getData();
+		profileCollector.stopObserving();
 		return res;
 	}
 	
 	public void reportProfile(RascalExecutionContext rex){
-		profileCollector.report(rex.getStdOut());
+		profileCollector.report();
 	}
 	
 	public void reportProfile(IList profileData, RascalExecutionContext rex){
-		profileCollector.report(profileData, rex.getStdOut());
+		profileCollector.report(profileData);
 	}
 }
