@@ -170,6 +170,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 			} else {
 				setFrameObserver(NullFrameObserver.getInstance());
 			}
+		} else {
+			setFrameObserver(frameObserver);
 		}
 		
 		parsingTools = new ParsingTools(vf);

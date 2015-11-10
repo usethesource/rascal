@@ -68,10 +68,10 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 
   @Override
   protected void initialize(Writer stdout, Writer stderr) {
-    executor = constructExecutor(stdout, stderr);
+    executor = constructCommandExecutor(new PrintWriter(stdout), new PrintWriter(stderr));
   }
   
-  protected abstract CommandExecutor constructExecutor(Writer stdout, Writer stderr);
+  protected abstract CommandExecutor constructCommandExecutor(PrintWriter stdout, PrintWriter stderr);
   
   @Override
   protected PrintWriter getErrorWriter() {
