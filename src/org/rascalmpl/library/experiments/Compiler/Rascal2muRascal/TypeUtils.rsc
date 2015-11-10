@@ -265,6 +265,7 @@ int getScopeSize(str fuid) =
       // TODO: invertUnique is a proper choice; 
       //       the following is a workaround to the current handling of 'extend' by the type checker
       set[UID] uids = invert(uid2str)[fuid];
+      //println("getScopeSize(<fuid>): <uids>");
       assert size({ config.store[uid] | UID uid <- uids }) == 1: "getScopeSize";
       size(uid2type[getOneFrom(uids)].parameters); 
     }
