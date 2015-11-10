@@ -153,8 +153,16 @@ lang::rascal::\syntax::Rascal::Declaration getMain(lang::rascal::\syntax::Rascal
     throw "Cannot match toplevels";
 }
 
-Module removeMain((Module) `<Header h> <Toplevel* pre> <Toplevel _>`) = (Module) `<Header h> <Toplevel* pre>`;
-default Module removeMain(Module m) = m;
+Module removeMain(m: (Module) `<Header h> <Toplevel* pre> <Toplevel _>`) {
+    res = (Module) `<Header h> <Toplevel* pre>`;
+    println("removeMain: <m> returns <res>");
+    return res;
+}
+
+default Module removeMain(lang::rascal::\syntax::Rascal::Module m) {
+    println("removeMain: <m> return (unmodified) <m>");
+    return m;
+}
 
 Configuration previousConfig;
 

@@ -1,5 +1,10 @@
 module experiments::Compiler::Examples::Tst1
   
-data D(int a = 10, int b = 2 * a) = d1(int x, int y = x + a + b) | d2();
+int inc(int n, int delta = 1) = n + delta;
 
-value main() = d1(20).y;
+list[int] rev(list[int] lst) {
+    if(lst == [])
+       return lst;
+    hd = lst[0];
+    return rev(lst[1..]) + hd;
+}
