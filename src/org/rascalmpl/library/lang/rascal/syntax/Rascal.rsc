@@ -376,9 +376,9 @@ syntax DataTarget
 	| labeled: Name label ":" ;
 
 lexical StringCharacter
-	= "\\" [\" \' \< \> \\ b f n r t] 
+	= "\\" [~ \" \' \< \> \\ b f n r t] 
 	| UnicodeEscape 
-	| ![\" \' \< \> \\ \n]
+	| ![~ \" \' \< \> \\ \n]
 	;
 
 lexical JustTime
@@ -545,15 +545,28 @@ layout NoLayout
   ;
 
 syntax StringPart
-  = \hole      : "\<" Expression arg KeywordArguments[Expression] keywordArguments  "\>"
-  | \margin    : "\n" NoLayout Indentation margin  NoLayout "\'" NoLayout Indentation indent 
-  | \characters: StringCharacters characters 
-  | \ifThen    : "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStats "}" "\>" 
-  | \ifThenElse: "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStatsThen "}" 
+  = \var          : "~" NoLayout QualifiedName variable 
+  | \expr         : "~(" Expression result KeywordArguments[Expression] keywordArguments ")"
+  | \comp         : "~(" Expression result KeywordArguments[Expression] keywordArguments "|" {Expression ","}+ generators ")"
+  | \sepcomp      : "~(" Expression result KeywordArguments[Expression] keywordArguments "," Expression sep "|" {Expression ","}+ generators ")"
+  | \ifThen2      : "~if"    "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "~}"
+  | \ifThenElse2  : "~if"    "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "~}" "else" "{" NoLayout {StringPart NoLayout}* elseBody NoLayout "~}"
+  | \while2       : "~while" "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "~}"
+  | \for2         : "~for"   "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "~}"
+  | \forsep       : "~for"   "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "~" NoLayout {StringPart NoLayout}* sepBody NoLayout "~}"
+  | \margin       : "\n" NoLayout Indentation margin  NoLayout "\'" NoLayout Indentation indent 
+  | \characters   : StringCharacters characters
+  ;
+  
+// deprecated  
+syntax StringPart   
+  = @deprecated \hole      : "\<" Expression arg KeywordArguments[Expression] keywordArguments  "\>"
+  | @deprecated \ifThen    : "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStats "}" "\>" 
+  | @deprecated \ifThenElse: "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStatsThen "}" 
                       "else"  "{"  Statement* preStatsElse "\>" NoLayout {StringPart NoLayout}* elseBody NoLayout "\<" Statement* postStatsElse "}" "\>" 
-  | \for       : "\<" "for"   "(" {Expression ","}+ generators ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStats "}" "\>" 
-  | \doWhile   : "\<" "do"    "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStats  "}" "while" "(" Expression condition ")" "\>"
-  | \while     : "\<" "while" "(" Expression condition ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body  NoLayout "\<" Statement* postStats"}" "\>" 
+  | @deprecated \for       : "\<" "for"   "(" {Expression ","}+ generators ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStats "}" "\>" 
+  | @deprecated \doWhile   : "\<" "do"    "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStats  "}" "while" "(" Expression condition ")" "\>"
+  | @deprecated \while     : "\<" "while" "(" Expression condition ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body  NoLayout "\<" Statement* postStats"}" "\>" 
   ;
 
 lexical StringCharacters = StringCharacter+ chars !>> ![\" \' \< \> \n];
@@ -810,8 +823,8 @@ syntax BasicType
 	;
 
 lexical Char
-	= @category="Constant" "\\" [\  \" \' \- \< \> \[ \\ \] b f n r t] 
-	| @category="Constant" ![\  \" \' \- \< \> \[ \\ \]] 
+	= @category="Constant" "\\" [\  ~ \" \' \- \< \> \[ \\ \] b f n r t] 
+	| @category="Constant" ![\  ~ \" \' \- \< \> \[ \\ \]] 
 	| @category="Constant" UnicodeEscape 
     ; 
     

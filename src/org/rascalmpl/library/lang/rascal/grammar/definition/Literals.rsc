@@ -39,8 +39,9 @@ list[Symbol] cistr2syms(str x) {
 
 public str unescape(CaseInsensitiveStringConstant s) = "<for (StringCharacter ch <- s.chars) {><character(ch)><}>";
 
-public str unescape(StringConstant s) = "<for (StringCharacter ch <- s.chars) {><character(ch)><}>";
-
+public str unescape(StringLiteral s) 
+  = "<for (StringPart part <- s.body, part has characters, ch <- part.characters.chars) {><character(ch)><}>";
+   
 public str character(StringCharacter c) {
   switch (c) {
     case [StringCharacter] /^<ch:[^"'\\\>\<]>/        : return "<ch>";
