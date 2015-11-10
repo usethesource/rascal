@@ -265,4 +265,11 @@ public class Frame {
 		stdout.println(indent()./*append("\uE007 ").*/append(this.function.getPrintableName()).append(" returns ").append(rval == null ? "null" : abbrev(rval.toString()))); stdout.flush();
 	}
 	
+	public String getWhere(){
+		int begin = this.src.getBeginLine();
+		int end = this.src.getBeginLine();
+		String line = begin == end ? String.valueOf(begin) : (begin + "-" + end);
+		return this.function.getPrintableName() + ":" + line;
+	}
+	
 }

@@ -52,7 +52,7 @@ public class CommandExecutor {
 	private RVM rvmCompiler;
 	private final Function compileAndLinkIncremental;
 	
-	private RascalREPLDebugger debugger = new RascalREPLDebugger();
+	private DebugREPLFrameObserver debugObserver;
 	
 	boolean debug;
 	boolean debugRVM;
@@ -95,7 +95,6 @@ public class CommandExecutor {
 		coverage = false;
 		useJVM = false;
 		verbose = false;
-		
 		serialize = false;
 		
 		IMapWriter w = vf.mapWriter();
@@ -106,7 +105,7 @@ public class CommandExecutor {
 		w.put(vf.string(shellModuleName), CompiledRascalShellModuleTags);
 		IMap moduleTags = w.done();
 		
-		RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, false, false, false, /*profile*/false, false, false, false, null, null, null);
+		RascalExecutionContext rex = new RascalExecutionContext(vf, this.stdout, this.stderr, moduleTags, null, null, false, false, false, /*profile*/false, false, false, false, null, null, null);
 		rex.setCurrentModuleName(shellModuleName);
 		
 		rvmCompiler = RVM.readFromFileAndInitialize(compilerBinaryLocation, rex);
@@ -129,6 +128,10 @@ public class CommandExecutor {
 		imports = new ArrayList<String>();
 		syntaxDefinitions = new ArrayList<String>();
 		declarations = new ArrayList<String>();
+	}
+	
+	public void setDebugObserver(DebugREPLFrameObserver observer){
+		this.debugObserver = observer;
 	}
 	
 	private Map<String, IValue> makeCompileKwParams(){
@@ -155,13 +158,14 @@ public class CommandExecutor {
 		}
 		w.append(main);
 		String modString = w.toString();
+		//System.err.println(modString);
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			compileArgs[1] = vf.bool(onlyMainChanged);
 			IConstructor consoleRVMProgram = (IConstructor) rvmCompiler.executeFunction(compileAndLinkIncremental, compileArgs, makeCompileKwParams());
 			rvmConsoleExecutable = ExecutionTools.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(useJVM));
 			
-			RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, null, debugger, null);
+			RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, null, debugObserver, null);
 			rex.setCurrentModuleName(shellModuleName);
 			IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
 			lastRvmConsoleExecutable = rvmConsoleExecutable;
@@ -432,35 +436,40 @@ public class CommandExecutor {
 			}
 	
 		case "help":
-			stdout.println("Help for the compiler-based Rascal command shell.");
-			stdout.println();
-			stdout.println("RascalShell commands:");
-			stdout.println("    :help                    Prints this message");
-			stdout.println("    :quit or EOF             Quits the shell");
-			stdout.println("    :declarations            Lists all declarations");
-			//stdout.println(":edit <modulename>         Opens an editor for that module");
-			stdout.println("    :modules                 Lists all imported modules");
-			//stdout.println(":test                      Runs all unit tests currently loaded");
-			//stdout.println(":unimport <modulename>     Undo an import");
-			//stdout.println(":undeclare <name>          Undeclares a variable or function introduced in the shell");
-			//stdout.println(":history                   Print the command history");
-			stdout.println("    :clear                   Clears the console");
-			stdout.println("    :set <option> <expr>     Sets a RascalShell option to value");
-			stdout.println("    e.g. :set profiling true");
-			stdout.println("         :set tracing false");
-			stdout.println();
-			stdout.println("Keyboard essentials:");
-			stdout.println("    <UP>                     Previous command in history");
-			stdout.println("    <DOWN>                   Next command in history");
-			stdout.println("    <CTRL>r                  Backward search in history");
-			stdout.println("    <CTRL>s                  Forward search in history");
-			stdout.println("    <TAB>                    Complete previous word");
-			stdout.println("    <CTRL>a                  Move cursor to begin of line");
-			stdout.println("    <CTRL>e                  Move cursor to end of line");
-			stdout.println("    <CTRL>k                  Kill remainder of line after cursor");
-			stdout.println("    <CTRL>l                  Clear screen");
-			stdout.println();
-			stdout.println("Further help: XXX");
+			String[] helpText = {
+					"Help for the compiler-based Rascal command shell.",
+					"",
+					"RascalShell commands:",
+					"    :help                    Prints this message",
+					"    :quit or EOF             Quits this Rascal command shell",
+					"    :declarations            Lists all declarations",
+					//":edit <modulename>         Opens an editor for that module",
+					"    :modules                 Lists all imported modules",
+					//":test                      Runs all unit tests currently loaded",
+					//":unimport <modulename>     Undo an import",
+					//":undeclare <name>          Undeclares a variable or function introduced in the shell",
+					//":history                   Print the command history",
+					"    :clear                   Clears the console",
+					"    :set <option> <expr>     Sets a RascalShell option to value",
+					"    e.g. :set profiling true",
+					"         :set tracing false",
+					"",
+					"Keyboard essentials:",
+					"    <UP>                     Previous command in history",
+					"    <DOWN>                   Next command in history",
+					"    <CTRL>r                  Backward search in history",
+					"    <CTRL>s                  Forward search in history",
+					"    <TAB>                    Complete previous word",
+					"    <CTRL>a                  Move cursor to begin of line",
+					"    <CTRL>e                  Move cursor to end of line",
+					"    <CTRL>k                  Kill remainder of line after cursor",
+					"    <CTRL>l                  Clear screen",
+					"",
+					"Further help: XXX"
+				};
+			for(String line : helpText){
+				stdout.println(line);;
+			}
 			break;
 			
 		case "listDeclarations":
