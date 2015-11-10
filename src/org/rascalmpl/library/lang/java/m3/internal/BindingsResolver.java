@@ -12,7 +12,9 @@ package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
@@ -230,6 +232,7 @@ public class BindingsResolver {
 	}
 	
 	public IConstructor resolveType(IBinding binding, boolean isDeclaration) {
+		System.err.println("resolving " + binding);
 		IConstructor result = unresolvedSym();
 		if (binding != null) {
 			ISourceLocation uri = resolveBinding(binding);
@@ -307,6 +310,8 @@ public class BindingsResolver {
     return values.constructor(cons);
   }
 
+  private Set<ITypeBinding> wildCardBoundsVisited = new HashSet<>();
+  
    private IConstructor computeTypeSymbol(ISourceLocation decl, ITypeBinding binding, boolean isDeclaration) {
     if (binding.isPrimitive()) {
       return primitiveSymbol(binding.getName());
@@ -349,7 +354,19 @@ public class BindingsResolver {
         return captureSymbol(unboundedSym(), resolveType(wildcard, isDeclaration));
       }
       else {
-        return captureSymbol(boundSymbol(typeBounds, isDeclaration, true), resolveType(wildcard, isDeclaration));
+    	  // the type graph has cycles in case of abstract classes which extend some wildcard like class X extends ? extends Enum<?>.
+    	  // we fix this by recording the bounds on the stack and if we end up in a binding which we are already resolving we bail out.
+    	  for (ITypeBinding b : typeBounds) {
+    		  if (wildCardBoundsVisited.contains(b)) {
+    			  return captureSymbol(unboundedSym(), resolveType(wildcard, isDeclaration));
+    		  }
+    		  wildCardBoundsVisited.add(b);
+    	  }
+         IConstructor res = captureSymbol(boundSymbol(typeBounds, isDeclaration, true), resolveType(wildcard, isDeclaration));
+         for (ITypeBinding b : typeBounds) {
+        	 wildCardBoundsVisited.remove(b);
+         }
+         return res;
       }
     }
     else if (binding.isInterface()) {
@@ -369,9 +386,15 @@ public class BindingsResolver {
     return values.constructor(cons, boundSymbol);
   }
 
+  static int stackdepth =0;
   private IConstructor boundSymbol(ITypeBinding[] bound, boolean isDeclaration, boolean isUpperbound) {
 	// Assumption: Anything appearing in a bound symbol is not a declaration
-    IList boundSym = computeTypes(bound, false);
+	  stackdepth++;
+	  IList boundSym = computeTypes(bound, false);
+	  if (stackdepth > 5) {
+		  System.err.println("100!");
+	  }
+	  stackdepth--;
     
     org.rascalmpl.value.type.Type boundType = store.lookupAbstractDataType("Bound");
     
