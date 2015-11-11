@@ -2,10 +2,14 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import org.rascalmpl.interpreter.types.FunctionType;  // TODO: remove import: NO
+import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -270,6 +274,25 @@ public class Frame {
 		int end = this.src.getBeginLine();
 		String line = begin == end ? String.valueOf(begin) : (begin + "-" + end);
 		return this.function.getPrintableName() + ":" + line;
+	}
+	
+	public void printVars(PrintWriter stdout){
+		Iterator<Entry<IValue, IValue>> iter = function.localNames.entryIterator();
+		while(iter.hasNext()){
+			Entry<IValue, IValue> entry = iter.next();
+			String varName = ((IString) entry.getValue()).getValue();
+			int varPos = ((IInteger) entry.getKey()).intValue();
+			stdout.println("\t" + varName + ": " + stack[varPos]);
+		}
+		if(stack[function.nformals-1] instanceof HashMap<?, ?>){
+			HashMap<String,IValue> kwParams = (HashMap<String,IValue>)stack[function.nformals-1];
+			for(String kwParam : kwParams.keySet()){
+				IValue v = kwParams.get(kwParam);
+				if(v != null){
+					stdout.println("\t" + kwParam + "=" + kwParams.get(kwParam));
+				}
+			}
+		}
 	}
 	
 }
