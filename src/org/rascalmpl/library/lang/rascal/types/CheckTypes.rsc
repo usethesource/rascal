@@ -170,9 +170,9 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
     // TODO: We need an actual check to ensure return is defined along all
     // paths, but for now we just check to see if the type of the ending
     // expression is a subtype of the return type.
-    if (!isVoidType(rt) && !subtype(st,rt)) {
-    	cFun = addScopeError(cFun, "The type of the final statement, <prettyPrintType(st)>, must be a subtype of the declared return type, <prettyPrintType(rt)>", exp@\loc);
-    }
+    //if (!isVoidType(rt) && !subtype(st,rt)) {
+    //	cFun = addScopeError(cFun, "The type of the final statement, <prettyPrintType(st)>, must be a subtype of the declared return type, <prettyPrintType(rt)>", exp@\loc);
+    //}
     
     // Now, recover the environment active before the call, removing any names
     // added by the closure (e.g., for parameters) from the environment. This
@@ -6384,13 +6384,13 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 			
 		    // Basic check for returns: if we have a non-void return type and the sequence
 		    // is empty, flag this as an error
-		    if (!isVoidType(cFun.expectedReturnType) && isEmpty(bodyStatements)) {
-		    	cFun = addScopeError(cFun, "Cannot use a non-void return type with an empty function body", fd@\loc);
-		    }
+		    //if (!isVoidType(cFun.expectedReturnType) && isEmpty(bodyStatements)) {
+		    //	cFun = addScopeError(cFun, "Cannot use a non-void return type with an empty function body", fd@\loc);
+		    //}
 		    
-		    if (!isVoidType(cFun.expectedReturnType) && !isEmpty(bodyStatements) && !subtype(tStmt, cFun.expectedReturnType)) {
-		    	cFun = addScopeError(cFun, "The type of the final statement, <prettyPrintType(tStmt)>, must be a subtype of the declared return type, <prettyPrintType(cFun.expectedReturnType)>", fd@\loc);
-		    }
+		    //if (!isVoidType(cFun.expectedReturnType) && !isEmpty(bodyStatements) && !subtype(tStmt, cFun.expectedReturnType)) {
+		    //	cFun = addScopeError(cFun, "The type of the final statement, <prettyPrintType(tStmt)>, must be a subtype of the declared return type, <prettyPrintType(cFun.expectedReturnType)>", fd@\loc);
+		    //}
 			
         }
 
