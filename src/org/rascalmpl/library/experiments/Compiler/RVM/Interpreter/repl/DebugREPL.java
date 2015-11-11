@@ -2,23 +2,18 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -32,7 +27,7 @@ public class DebugREPL extends BaseREPL{
 	private String currentPrompt;
 	private Frame currentFrame;
 	private final Frame startFrame;
-	private final String listingIndent = "    ";
+	private final String listingIndent = "\t";
 	private final boolean autoList = true;
 	private final int listWindow = 5;
 	
@@ -108,6 +103,10 @@ public class DebugREPL extends BaseREPL{
 			printStack();
 			break;
 			
+		case "v": case "vars":
+			currentFrame.printVars(stdout);
+			break;
+			
 		case "": 
 			stop();
 			throw new InterruptedException();
@@ -120,19 +119,22 @@ public class DebugREPL extends BaseREPL{
 	
 	private void printHelp(){
 		String[] lines = {
-			"h(elp)   this help text",
-			"u(p)     move up to previous call frame",
-			"d(own)   move down to next call frame",
-			"v(ars)   show values of local variables",
-			"w(here)  show current location",
-			"s(tack)  print stack trace",
-			"         (empty line) continue execution",
-			"b(break) manage break points:",
-			"         break        list current break points",
-			"         break <lino> set breakpoint at line <lino> in current module",
-			"         break <name> set breakpoint at start of function <name>",
-			"         break <name> <lino>",
-			"                      set breakpoint at line <lino> in function <name>",
+			"h(elp)    this help text",
+			"u(p)      move up to newer call frame",
+			"d(own)    move down to older call frame",
+			"v(ars)    show values of local variables",
+			"w(here)   show current location",
+			"s(tack)   print stack trace",
+			"r(eturn)  execute until the current function’s return is encountered",
+			"          (empty line) continue execution",
+			"b(break)  manage break points:",
+			"          b         list current break points",
+			"          b <lino>  set breakpoint at line <lino> in current module",
+			"          b <name>  set breakpoint at start of function <name>",
+			"          b <name> <lino>",
+			"                    set breakpoint at line <lino> in function <name>",
+			"c(lear) <bpno>",
+			"          clear breakpoint with index <bpno>"
 		};
 		for(String line : lines){
 			stdout.println(line);
@@ -161,26 +163,27 @@ public class DebugREPL extends BaseREPL{
 					String line;
 					int lino = 1;
 					while ((line = buf.readLine()) != null) {
+						String prefix = String.format("%4d", lino) + listingIndent;
 						if(srcBegin == lino){
 							String before = line.substring(0, src.getBeginColumn());
 							if(srcBegin == srcEnd){
 								String middle = line.substring(src.getBeginColumn(), src.getEndColumn());
 								String after = line.substring(src.getEndColumn());
-								stdout.println(listingIndent + before + PRETTY_PROMPT_PREFIX + middle + PRETTY_PROMPT_POSTFIX + after);
+								stdout.println(prefix + before + PRETTY_PROMPT_PREFIX + middle + PRETTY_PROMPT_POSTFIX + after);
 							} else {
 								String after = line.substring(src.getBeginColumn());
-								stdout.println(listingIndent + before + PRETTY_PROMPT_PREFIX + after + PRETTY_PROMPT_POSTFIX);
+								stdout.println(prefix + before + PRETTY_PROMPT_PREFIX + after + PRETTY_PROMPT_POSTFIX);
 							}
 						} else if(srcEnd == lino){
 							String before = line.substring(0, src.getEndColumn());
 							String after = line.substring(src.getEndColumn());
-							stdout.println(listingIndent + PRETTY_PROMPT_PREFIX + before + PRETTY_PROMPT_POSTFIX + after);
+							stdout.println(prefix + PRETTY_PROMPT_PREFIX + before + PRETTY_PROMPT_POSTFIX + after);
 						} else
 						if(lino >= fileBegin && lino <= fileEnd){
 							if(lino >= srcBegin && lino <= srcEnd){
-								stdout.println(listingIndent + PRETTY_PROMPT_PREFIX + line + PRETTY_PROMPT_POSTFIX);
+								stdout.println(prefix + PRETTY_PROMPT_PREFIX + line + PRETTY_PROMPT_POSTFIX);
 							} else {
-								stdout.println(listingIndent + line);
+								stdout.println(prefix + line);
 							}
 						}
 						lino++;
