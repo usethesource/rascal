@@ -48,16 +48,12 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   
   @Override
   protected void cancelRunningCommandRequested() {
-      // TODO: interrupt the RVM interpreter or the running compiler. After the intteruption be ready for new commands
-      // reminder: this method is called from a different thread.
-      // don't wait for the interruption to happen, that will cause deadlocks, just trigger a flag or something like it
+ 	  stop();
   }
   
   @Override
   protected void terminateRequested() {
-      // TODO: stop the RVM interpreted or the running compiler, don't worry about the state afterward.
-      // reminder: this method is called from a different thread.
-      // don't wait for the interruption to happen, that will cause deadlocks, just trigger a flag or something like it
+      stop();
   }
   
   @Override

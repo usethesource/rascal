@@ -282,7 +282,10 @@ public class Frame {
 			Entry<IValue, IValue> entry = iter.next();
 			String varName = ((IString) entry.getValue()).getValue();
 			int varPos = ((IInteger) entry.getKey()).intValue();
-			stdout.println("\t" + varName + ": " + stack[varPos]);
+			Object v = stack[varPos];
+			if(v != null && !varName.equals("map_of_default_values")){
+					stdout.println("\t" + varName + ": " + v);
+			}
 		}
 		if(stack[function.nformals-1] instanceof HashMap<?, ?>){
 			HashMap<String,IValue> kwParams = (HashMap<String,IValue>)stack[function.nformals-1];

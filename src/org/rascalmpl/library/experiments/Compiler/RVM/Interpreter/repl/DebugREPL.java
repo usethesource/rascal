@@ -127,7 +127,7 @@ public class DebugREPL extends BaseREPL{
 			"s(tack)   print stack trace",
 			"r(eturn)  execute until the current function’s return is encountered",
 			"          (empty line) continue execution",
-			"b(break)  manage break points:",
+			"b(reak)   manage break points:",
 			"          b         list current break points",
 			"          b <lino>  set breakpoint at line <lino> in current module",
 			"          b <name>  set breakpoint at start of function <name>",
