@@ -73,8 +73,8 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
 
     @Override
     public void stop() {
-        super.stop();
         eval.interrupt();
+        super.stop();
     }
 
     @Override

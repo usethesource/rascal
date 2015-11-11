@@ -70,6 +70,12 @@ public class TermREPL {
             ctx.interrupt();
         }
         
+        @Override
+        public void stop() {
+            ctx.interrupt();
+            super.stop();
+        }
+        
         
         @Override
         protected void stackTraceRequested() {
