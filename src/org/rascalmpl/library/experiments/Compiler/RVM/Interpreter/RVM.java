@@ -188,21 +188,11 @@ public class RVM implements java.io.Serializable {
 	
 	Configuration getConfiguration() { return rex.getConfiguration(); }
 	
-	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }
-	
-	//IEvaluatorContext getEvaluatorContext() { return rex.getEvaluatorContext(); }
-	
-//	public void setFrameObserver(IFrameObserver observer){	// TODO remove
-//		this.frameObserver = observer;
-//	}
+	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }	
 	
 	public IFrameObserver getFrameObserver(){
 		return frameObserver;
 	}
-	
-//	public void resetFrameObserver(){						// TODO remove
-//		this.frameObserver = NullFrameObserver.getInstance();
-//	}
 	
 	/**
 	 * Narrow an Object as occurring on the RVM runtime stack to an IValue that can be returned.
@@ -1028,12 +1018,10 @@ public class RVM implements java.io.Serializable {
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_JMP:
-					frameObserver.observe(cf);
 					pc = CodeBlock.fetchArg1(instruction);
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_JMPTRUE:
-					frameObserver.observe(cf);
 					if (((IBool) stack[sp - 1]).getValue()) {
 						pc = CodeBlock.fetchArg1(instruction);
 					}
@@ -1041,7 +1029,6 @@ public class RVM implements java.io.Serializable {
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_JMPFALSE:
-					frameObserver.observe(cf);
 					if (!((IBool) stack[sp - 1]).getValue()) {
 						pc = CodeBlock.fetchArg1(instruction);
 					}
@@ -1062,7 +1049,6 @@ public class RVM implements java.io.Serializable {
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_SWITCH:
-					frameObserver.observe(cf);
 					val = (IValue) stack[--sp];
 					IMap caseLabels = (IMap) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					int caseDefault = CodeBlock.fetchArg2(instruction);
@@ -1125,7 +1111,9 @@ public class RVM implements java.io.Serializable {
 				case Opcode.OP_LOADVAR:
 					 sp = LOADVAR(CodeBlock.fetchArg1(instruction), 
 							 	  CodeBlock.fetchArg2(instruction), cf, stack, sp);
-					 if(stack[sp - 1] == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+					 if(stack[sp - 1] == null){ 
+						 postOp = Opcode.POSTOP_CHECKUNDEF; break; 
+					 }
 					 continue NEXT_INSTRUCTION;
 					 
 				case Opcode.OP_LOADVARREF: 
@@ -1134,7 +1122,9 @@ public class RVM implements java.io.Serializable {
 				
 				case Opcode.OP_LOADVARDEREF: 
 					sp = LOADVARDEREF(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), cf, stack, sp);
-					if(stack[sp - 1] == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+					if(stack[sp - 1] == null){ 
+						postOp = Opcode.POSTOP_CHECKUNDEF; break;
+					}
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_STOREVAR:
@@ -1333,7 +1323,6 @@ public class RVM implements java.io.Serializable {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_VISIT:
-					frameObserver.observe(cf);
 					boolean direction = ((IBool) cf.function.constantStore[CodeBlock.fetchArg1(instruction)]).getValue();
 					boolean progress = ((IBool) cf.function.constantStore[CodeBlock.fetchArg2(instruction)]).getValue();
 					boolean fixedpoint = ((IBool) cf.function.constantStore[(int)instructions[pc++]]).getValue();
@@ -1350,7 +1339,6 @@ public class RVM implements java.io.Serializable {
 				case Opcode.OP_RETURN0:
 				case Opcode.OP_RETURN1:
 					
-					frameObserver.observe(cf);
 					// Overloading specific
 					if(c_ofun_call != null && cf.previousCallFrame == c_ofun_call.cf) {
 						ocalls.pop();

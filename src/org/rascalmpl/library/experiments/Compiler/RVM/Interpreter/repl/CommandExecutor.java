@@ -158,7 +158,9 @@ public class CommandExecutor {
 		}
 		w.append(main);
 		String modString = w.toString();
-		//System.err.println(modString);
+		System.err.println("----------------------");
+		System.err.println(modString);
+		System.err.println("----------------------");
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			compileArgs[1] = vf.bool(onlyMainChanged);

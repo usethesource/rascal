@@ -153,14 +153,20 @@ lang::rascal::\syntax::Rascal::Declaration getMain(lang::rascal::\syntax::Rascal
     throw "Cannot match toplevels";
 }
 
-Module removeMain(m: (Module) `<Header h> <Toplevel* pre> <Toplevel _>`) {
-    res = (Module) `<Header h> <Toplevel* pre>`;
-    println("removeMain: <m> returns <res>");
-    return res;
-}
+//Module removeMain(m: (Module) `<Header h> <Toplevel* pre> <Toplevel mn>`) {
+//    res = (Module) `<Header h> <Toplevel* pre>`;
+//    println("removeMain:\n====\n<m>\n=== returns\n<res>\n====");
+//    return res;
+//}
 
-default Module removeMain(lang::rascal::\syntax::Rascal::Module m) {
-    println("removeMain: <m> return (unmodified) <m>");
+Module removeMain(lang::rascal::\syntax::Rascal::Module m) {
+    if(m2: (Module) `<Header h> <Toplevel* pre> <Toplevel mn>` := m){
+       res = (Module) `<Header h> <Toplevel* pre>`;
+       println("removeMain:\n====\n<m>\n=== returns\n<res>\n====");
+       return res;
+    }
+
+    println("removeMain\n====\n<m>\n=== returns (unmodified)");
     return m;
 }
 
@@ -180,7 +186,7 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
         //M = parse(#start[Module], moduleLoc).top;
         M = parseModuleGetTop(moduleLoc);
         if(!reuseConfig || !previousConfig?){
-            M1 = removeMain(M);
+             lang::rascal::\syntax::Rascal::Module M1 = removeMain(M);
             previousConfig = checkModule(M1, newConfiguration(pcfg));
             previousConfig.stack = [0]; // make sure we are in the module scope
         }
