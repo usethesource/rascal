@@ -165,7 +165,7 @@ Module removeMain(lang::rascal::\syntax::Rascal::Module m) {
        println("removeMain:\n====\n<m>\n=== returns\n<res>\n====");
        return res;
     }
-
+    throw "removeMain: no main found";
     println("removeMain\n====\n<m>\n=== returns (unmodified)");
     return m;
 }
@@ -186,14 +186,14 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
         //M = parse(#start[Module], moduleLoc).top;
         M = parseModuleGetTop(moduleLoc);
         if(!reuseConfig || !previousConfig?){
-             lang::rascal::\syntax::Rascal::Module M1 = removeMain(M);
+            lang::rascal::\syntax::Rascal::Module M1 = removeMain(M);
             previousConfig = checkModule(M1, newConfiguration(pcfg));
             previousConfig.stack = [0]; // make sure we are in the module scope
         }
         mainDecl = getMain(M);
         println("<mainDecl>");
         
-        config  = checkDeclaration(mainDecl, true, previousConfig /*, verbose=verbose, bindir=bindir*/);
+        config  = checkDeclaration(mainDecl, true, previousConfig);
         println("checkDeclaration: done");
         check_time = (cpuTime() - start_checking)/1000000;
     } catch e: {
