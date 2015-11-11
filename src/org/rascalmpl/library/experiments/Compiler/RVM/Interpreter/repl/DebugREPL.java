@@ -220,12 +220,12 @@ public class DebugREPL extends BaseREPL{
 
 	@Override
 	protected void cancelRunningCommandRequested() {
-		// TODO Auto-generated method stub
+	    stop();
 	}
 
 	@Override
 	protected void terminateRequested() {
-		// TODO Auto-generated method stub
+	    stop();
 	}
 
 	@Override
