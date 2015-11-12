@@ -23,6 +23,6 @@ public class ValueSubtype extends Instruction {
 //			codeEmittor.emitDebugCall(opcode.name());
 //			codeEmittor.emitCallWithArgsSSFIII("insnCHECKARGTYPEANDCOPY",pos1,type,pos2,debug);
 //		}
-//		codeEmittor.emitInlineCheckArgTypeAndCopy(pos1,type,pos2,debug) ;
+		codeEmittor.emitInlineValueSubtype(type, debug) ;
 	}
 }
