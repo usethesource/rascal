@@ -32,9 +32,9 @@ public class Visit extends Instruction {
 		
 	}
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
-		if ( debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
+//		if ( debug ) 
+//			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlinePop(debug);	// TODO
+		codeEmittor.emitInlineVisit(debug);
 	}
 }
