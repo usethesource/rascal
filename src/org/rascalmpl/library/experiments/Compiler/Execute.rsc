@@ -27,9 +27,13 @@ import util::Reflective;
 
 private loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compiler/muRascal2RVM/Library.mu", pcfg);
 
-private str MuLibrary() = "experiments::Compiler::muRascal2RVM::library";
+private str MuLibrary() = "experiments::Compiler::muRascal2RVM::Library";
 
-tuple[bool, loc] getMuLibraryCompiledReadLoc(PathConfig pcfg) = getDerivedReadLoc(MuLibrary(), "rvm.gz", pcfg);
+tuple[bool, loc] getMuLibraryCompiledReadLoc(PathConfig pcfg) {
+    //muLib = |compressed+boot:///Library.rvm.gz|;
+    //return <exists(muLib), muLib>;
+    return getDerivedReadLoc(MuLibrary(), "rvm.gz", pcfg);
+}
 
 loc getMuLibraryCompiledWriteLoc(PathConfig pcfg) = getDerivedWriteLoc(MuLibrary(), "rvm.gz", pcfg);
 
@@ -145,8 +149,8 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
    // Read the muLibrary, recompile if necessary
    //println("MuLibrary: <MuLibrary>");
    <existsMuLibraryCompiled, MuLibraryCompiled>  = getMuLibraryCompiledReadLoc(pcfg);
-   //println("MuLibraryCompiled: <MuLibraryCompiled>");
-   if(existsMuLibraryCompiled && lastModified(MuLibraryCompiled) > lastModified(MuLibraryLoc(pcfg))){
+   println("MuLibraryCompiled: <existsMuLibraryCompiled>, <MuLibraryCompiled>, <MuLibraryCompiled.scheme>");
+   if(existsMuLibraryCompiled && (MuLibraryCompiled.scheme == "compressed+boot" || lastModified(MuLibraryCompiled) > lastModified(MuLibraryLoc(pcfg)))){
       try {
            imported_declarations = readBinaryValueFile(#list[experiments::Compiler::RVM::AST::Declaration], MuLibraryCompiled);
            // Temporary work around related to issue #343

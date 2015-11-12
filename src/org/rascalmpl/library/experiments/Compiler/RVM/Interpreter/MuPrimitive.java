@@ -154,14 +154,19 @@ public enum MuPrimitive {
 		@Override
 		public int execute(final Object[] stack, final int sp, final int arity) {
 			assert arity == 2;
+			//Object org = stack[sp - 2];
 			if (stack[sp - 2] instanceof IValue	&& (stack[sp - 1] instanceof IValue)) {
 				stack[sp - 2] = vf.bool(((IValue) stack[sp - 2]).isEqual(((IValue) stack[sp - 1])));
 			} else if (stack[sp - 2] instanceof Type && (stack[sp - 1] instanceof Type)) {
 				stack[sp - 2] = vf.bool(((Type) stack[sp - 2]) == ((Type) stack[sp - 1]));
-			} else
+			} else {
 				throw new CompilerError("MuPrimitive equal -- not defined on "
 						+ stack[sp - 2].getClass() + " and "
 						+ stack[sp - 1].getClass());
+			}
+//			if(org instanceof IValue && ((IValue)org).getType().isAbstractData() &&  ((IBool)stack[sp-2]).getValue()){
+//				System.err.println("not equal: " + org + " and " + stack[sp - 1]);
+//			}
 			return sp - 1;
 		};
 	},
@@ -1969,6 +1974,18 @@ public enum MuPrimitive {
 		};
 	},
 	
+//	/**
+//	 * Size of IString
+//	 * 
+//	 * [ ..., IString ] => [ ..., mint ]
+//	 */
+//	size_str1 {
+//		@Override
+//		public Object execute1(Object arg_1) {
+//			return ((IString) arg_1).length();
+//		};
+//	},
+	
 	/**
 	 * Size of ITuple
 	 * 
@@ -2319,9 +2336,12 @@ public enum MuPrimitive {
 	}
 	
 	public int execute(final Object[] stack, final int sp, final int arity) {
-		System.err.println("Not implemented mufunction");
-		return 0;
+		throw new CompilerError("Not implemented muFunction");
 	}
+	
+//	public Object execute1(Object arg_1) {
+//		throw new CompilerError("Not implemented muFunction");
+//	}
 	
 	public static void recordTime(int n, long duration){
 		timeSpent[n] += duration;
