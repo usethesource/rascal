@@ -295,7 +295,7 @@ public Figure vennDiagram0() = overlay(
           ,frame(align = topRight,
              fig = ellipse(width=200, height = 100, fillColor = "green",fillOpacity = 0.7))
           ,frame(align = bottomMid,
-             fig = ellipse(width=200, height = 100, fillColor = "blue", fillOpacity = 0.7))
+            fig = ellipse(width=200, height = 100, fillColor = "blue", fillOpacity = 0.7))
      ]
      );
      

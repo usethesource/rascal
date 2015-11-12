@@ -1,6 +1,7 @@
 module experiments::vis2::sandbox::Graph
 import experiments::vis2::sandbox::FigureServer;
 import experiments::vis2::sandbox::Figure; 
+import experiments::vis2::sandbox::Steden; 
 import Prelude;
 
 public Figure fsm(){
@@ -55,17 +56,31 @@ void ftshape1(loc f){writeFile(f, toHtmlString(shape1));}
 Figure gbox1()= box(lineWidth = 1, size=<60, 60>, 
    fig =  
         box(fig = text("aap"), fillColor="antiquewhite"
-        ), fillColor = "lightblue");
+        ), fillColor = "lightblue", tooltip = box(size=<15, 15>));
 Figure grap() = graph([
 <"a", gbox1()>
-, <"b", box(fig=text("noot"), rounded=<15, 15>, fillColor = "antiquewhite")>
-, <"c", ellipse(padding=<0, 15, 0, 15>, grow=1.0, id=  "aap", fig = text("HALLO"), fillColor = "pink")>
+, <"b", box(id = "ttip", size=<60, 60>, /*fig=text("noot"),*/ rounded=<15, 15>, fillColor = "antiquewhite"
+       ,tooltip= 
+         at(10, 10, 
+         box(size=<20, 20>, fillColor = "gold"), width = 10)
+        )
+        >
+, <"c", box(/*grow=1.0,*/ id=  "ap"// , fig = text("HALLO")
+, fillColor = "pink", size=<50, 50>
+// , tooltip=box(size=<50, 50>, fillColor="blue")
+ , tooltip=at(40, 40, svg(steden()))
+)>
 // , <"d", ngon(n=3, r= 30, size=<50, 50>, fillColor = "lightgreen")>
 ]
 , [edge("a", "b", lineInterpolate="basis"), edge("b","c", lineInterpolate="basis"), edge("c", "a", lineInterpolate="basis")
 
 // , edge("d", "a")
 ], width = 150, height = 300);
+
+void tgrap() = render(grap());
+
+void fgrap(loc l) = writeFile(l, toHtmlString(grap()));
+
 
 void tgraph()= render(hcat(hgap=5, figs = [gbox1(), box(grow=1.0,  fig=grap())
    , rangeInput(low = 0.0, val = 1.0, high = 2.0, step=0.1, event=on("change", void(str e, str n, real v)

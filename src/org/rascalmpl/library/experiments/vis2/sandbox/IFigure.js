@@ -85,7 +85,6 @@ function askServer(path, parameters, callback) {
     var height = document.getElementById(id1).getBoundingClientRect().height+lw+vpad;
     if  (d.attr("width")!=null) width = d.attr("width");
     if  (d.attr("height")!=null) height = d.attr("height");
-    // alert(d.node().nodeName);
     var c = d3.select("#"+id1);
     if (c.node().nodeName == "ellipse" || c.node().nodeName == "circle"
                                        || c.node().nodeName == "path")
