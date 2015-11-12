@@ -288,6 +288,7 @@ public class Frame {
 			}
 		}
 		if(stack[function.nformals-1] instanceof HashMap<?, ?>){
+			@SuppressWarnings("unchecked")
 			HashMap<String,IValue> kwParams = (HashMap<String,IValue>)stack[function.nformals-1];
 			for(String kwParam : kwParams.keySet()){
 				IValue v = kwParams.get(kwParam);

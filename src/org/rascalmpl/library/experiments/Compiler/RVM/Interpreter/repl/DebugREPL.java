@@ -32,12 +32,14 @@ public class DebugREPL extends BaseREPL{
 	private final int listWindow = 5;
 	
 	private boolean firstPrompt = true;
+	private final BreakPointManager breakPointManager;
 
-	public DebugREPL(Frame frame, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException{
-		super(stdin, stdout, prettyPrompt, allowColors, file, terminal);
+	public DebugREPL(Frame frame, BreakPointManager breakPointManager, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException{
+		super(stdin, stdout, prettyPrompt, allowColors, new File(file.getAbsolutePath() + "-debug"), terminal);
 		this.currentFrame = frame;
 		this.startFrame = frame;
 		setPrompt();
+		this.breakPointManager = breakPointManager;
 	}
 	
 	@Override
@@ -52,7 +54,7 @@ public class DebugREPL extends BaseREPL{
 	}
 	
 	private void setPrompt(){
-		currentPrompt = currentFrame.getWhere() + ">";
+		currentPrompt = "at " + currentFrame.getWhere() + ">";
 	}
 
 	@Override
@@ -63,7 +65,9 @@ public class DebugREPL extends BaseREPL{
 //		}
 //		firstPrompt = false;
 		
-		switch(line){
+		String[] words = line.split(" ");
+		switch(words[0]){
+		
 		case "h": case "help":
 			printHelp(); 
 			break;
@@ -107,9 +111,19 @@ public class DebugREPL extends BaseREPL{
 			currentFrame.printVars(stdout);
 			break;
 			
-		case "": 
+		case "n": case "next":
 			stop();
 			throw new InterruptedException();
+			
+		case "": 
+			printListing(listWindow);
+			break;
+			
+		case "b": case "break":
+			if(words.length == 1){
+				breakPointManager.printBreakPoints(stdout);
+			}
+			break;
 			
 		default:
 			stderr.println("'" + line + "' not recognized");
@@ -124,9 +138,10 @@ public class DebugREPL extends BaseREPL{
 			"d(own)    move down to older call frame",
 			"v(ars)    show values of local variables",
 			"w(here)   show current location",
+			"n(ext)    execute until next break point",
 			"s(tack)   print stack trace",
 			"r(eturn)  execute until the current function’s return is encountered",
-			"          (empty line) continue execution",
+			"l(isting) (or empty line) print lines around current breakpoint",
 			"b(reak)   manage break points:",
 			"          b         list current break points",
 			"          b <lino>  set breakpoint at line <lino> in current module",

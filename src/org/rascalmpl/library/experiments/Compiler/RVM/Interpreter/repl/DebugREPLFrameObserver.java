@@ -18,18 +18,20 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	private final OutputStream stdout;
 	private final File historyFile;
 	private final Terminal terminal;
+	private final BreakPointManager breakPointManager;
 	
 	public DebugREPLFrameObserver(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException{
 		this.stdin = stdin;
 		this.stdout = stdout;
 		this.historyFile = file;
 		this.terminal = terminal;
+		this.breakPointManager = new BreakPointManager();
 	}
 	
 	@Override
 	public void observe(Frame frame) {
 		try {
-			new DebugREPL(frame, stdin, stdout, true, true, historyFile, terminal).run();
+			new DebugREPL(frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
