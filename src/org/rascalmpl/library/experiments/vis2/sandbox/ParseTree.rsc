@@ -142,13 +142,19 @@ Figure tip(str s) = // box(visibility="hidden", fillColor="green", fig=
 
 public void tree2(){
    render(tree(ellipse(size=<60,60>, fillColor="green", tooltip = "Ellipse A"),
-       [ ellipse(size = <90,90>, id="aap", fillColor="red", tooltip = circle(r=60, fillColor="green"
-          ,fig = emptyFigure())
+       [ ellipse(size = <90,90>, id="aap", fillColor="red", tooltip = at(0, 0, circle(r=60, fillColor="green"
+          ,fig = emptyFigure()))
           , event = on(["click"],  void(str e, str n, str v) {println("H");})
           ),
          ellipse(size = <120,120>, fillColor="blue", tooltip = tip("Ellipse C")),
-         ellipse(size = <150,150>, fillColor="purple", tooltip = qq1()),
-         ellipse(size = <180,180>, fillColor="lightblue", tooltip = qq1()),
+         ellipse(size = <150,150>, fillColor="purple"
+         , tooltip = qq1()
+         ),
+         ellipse(size = <180,180>, fillColor="lightblue", tooltip = 
+             // box(fillColor="red", size=<10, 10>)   
+             svg(steden())
+                 )
+             ,
          box(size = <60,60>, fillColor="orange", tooltip = "Box
                                                             F"),
          box(size = <60,60>, fillColor="brown", tooltip = "Box\nG"),
@@ -159,7 +165,7 @@ public void tree2(){
 }
 
 Figure c(int r, str color) = circle(r=r, fillColor = color);
-Figure qq1() = steden();
+Figure qq1() = svg(steden());
 // tree(c(10,"red"),[c(20, "blue"), c(25, "green")], lineWidth = 1, lineColor = "black");
 Figure qq2() = tree(c(30,"magenta"),[c(10, "beige"), tree(c(25, "gold"), [box(size=<20, 20>, fillColor = "yellow")])]
 lineColor = "black"
@@ -172,7 +178,7 @@ public Figure tst() {
              )    
       ,
        box(size=<650, 650> , fillColor = "blue", id = "aap"
-         ,tooltip = qq1()
+         ,tooltip = steden()
           // ,event = on("mouseenter", void(str e, str n, str v) { println(e);})
         ) 
        ]);
@@ -188,10 +194,31 @@ public void ttst() = render(tst()
    //  , void(str e, str n, str v){style("steden", visibility="hidden");})
    );
 
-public Figure simple() =  box(size=<100, 100>, fillColor = "antiquewhite",
-     tooltip = box(size=<100, 100>, fig = circle(r=30, fillColor = "red")));
+public Figure simple() =  tree(
+     box(size=<50, 40>, tooltip = at(10, 10, box(size=<20, 100>, fillColor="red"))),
+     [box(size=<50, 50>, fillColor = "antiquewhite",
+         tooltip=vcat(figs=[text("H", fontWeight="bold", fontColor="green")])
+    
+     // , fig = circle(r=30, fillColor = "red")
+     // , fig = steden()
+     ),
+     box(size=<150, 150>, fillColor = "whiteSmoke"
+      // ,tooltip = hcat(figs=[steden()])
+      , tooltip = vcat(figs=[
+         circle(r=20, fillColor="red")
+        ,box(size=<100, 100>, fillColor = "yellow")
+        ]
+       )    
+     )    
+     ]
+     , ySep = 20
+     );
      
 public void tsimple() = render(simple());
+
+public void fsimple(loc l) { 
+   writeFile(l, toHtmlString(simple()));
+   }
 
 void main() {
     Program p = parse(#Program, input);
