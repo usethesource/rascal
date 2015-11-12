@@ -75,7 +75,8 @@ public java loc getSearchPathLocation(str filePath);
 
 data PathConfig =
      pathConfig(list[loc] srcPath = [|std:///|],        // List of directories to search for source files
-                list[loc] libPath = [|std:///|],        // List of directories to search source or derived files
+                list[loc] libPath = [|boot:///|, |std:///|],        
+                                                        // List of directories to search source for derived files
                 list[loc] projectPath = [],             // List of directories to search for source or derived files in projects
                                                         // Note: each directory should include the project name as last path element
                 loc binDir = |home:///bin/|,            // Global directory for derived files outside projects
