@@ -493,7 +493,7 @@ guard
 {
 	var args = get_children(iSubject),
 	    cpat;
-	println("MATCH_CONCRETE_TREE", args[0], prod);
+	//println("MATCH_CONCRETE_TREE", args[0], prod);
 	if(equal(args[0], prod)){
 		 cpat = create(pat, args[1])
     	 while(next(cpat)) {

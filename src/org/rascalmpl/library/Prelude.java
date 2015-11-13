@@ -972,7 +972,7 @@ public class Prelude {
 	}
 
 	public IValue exists(ISourceLocation sloc) {
-		System.err.println("exists: " + sloc);
+		//System.err.println("exists: " + sloc);
 		return values.bool(URIResolverRegistry.getInstance().exists(sloc));
 	}
 	
