@@ -516,16 +516,6 @@ public class RVM implements java.io.Serializable {
 		}
 		return narrow(o); 
 	}
-			
-//	private String trace = "";
-//	
-//	public String getTrace() {
-//		return trace;
-//	}
-//	
-//	public void appendToTrace(String trace) {
-//		this.trace = this.trace + trace + "\n";
-//	}
 	
 	public String findVarName(Frame cf, int s, int pos){
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
@@ -1007,15 +997,26 @@ public class RVM implements java.io.Serializable {
 				
 				case Opcode.OP_CALLMUPRIM:	
 					int n = CodeBlock.fetchArg1(instruction);
-//					if(profileMuPrimitives){
-//						long start = System.nanoTime();
-//						sp = MuPrimitive.values[n].execute(stack, sp, CodeBlock.fetchArg2(instruction));
-//						MuPrimitive.recordTime(n, System.nanoTime() - start);
-//					} else {
-						sp = MuPrimitive.values[n].execute(stack, sp, CodeBlock.fetchArg2(instruction));
-//					}
+					sp = MuPrimitive.values[n].execute(stack, sp, CodeBlock.fetchArg2(instruction));
 					assert stack[sp - 1] != null: "MuPrimitive returns null";
 					continue NEXT_INSTRUCTION;
+				
+				case Opcode.OP_CALLMUPRIM0:	
+					stack[sp++] = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute0();
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_CALLMUPRIM1:	
+					stack[sp - 1] = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute1(stack[sp - 1]);
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_CALLMUPRIM2:	
+					stack[sp - 2] = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute2(stack[sp - 2], stack[sp - 1]);
+					sp--;
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_CALLMUPRIMN:
+					sp = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].executeN(stack, sp, CodeBlock.fetchArg2(instruction));
+					continue NEXT_INSTRUCTION;	
 				
 				case Opcode.OP_JMP:
 					pc = CodeBlock.fetchArg1(instruction);

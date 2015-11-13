@@ -856,6 +856,23 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				codeblock.VALUESUBTYPE(symbolToType((IConstructor) instruction.get("type")));
 				break;
 				
+			case "CALLMUPRIM0":
+				codeblock.CALLMUPRIM0(MuPrimitive.valueOf(getStrField(instruction, "name")));
+				break;
+				
+			case "CALLMUPRIM1":
+				codeblock.CALLMUPRIM1(MuPrimitive.valueOf(getStrField(instruction, "name")));
+				break;
+				
+			case "CALLMUPRIM2":
+				codeblock.CALLMUPRIM2(MuPrimitive.valueOf(getStrField(instruction, "name")));
+				break;
+				
+			case "CALLMUPRIMN":
+				codeblock.CALLMUPRIMN(MuPrimitive.valueOf(getStrField(instruction, "name")), 
+									 getIntField(instruction, "arity"));
+				break;	
+				
 			default:
 				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);
 			}
