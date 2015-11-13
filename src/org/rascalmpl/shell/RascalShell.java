@@ -52,10 +52,15 @@ public class RascalShell  {
         try {
             ShellRunner runner; 
             if (mf.hasManifest(RascalShell.class) && mf.hasMainModule(RascalShell.class)) {
-                runner = new ManifestRunner(mf, new PrintWriter(System.out), new PrintWriter(System.err));
+                runner = new ManifestRunner(mf, new PrintWriter(System.out), new PrintWriter(System.err, true));
             } 
             else if (args.length > 0) {
-                runner = new ModuleRunner(new PrintWriter(System.out), new PrintWriter(System.err));
+                if (args[0].equals("-compile")) {
+                    runner = new CompileRunner(new PrintWriter(System.out), new PrintWriter(System.err, true));
+                }
+                else {
+                    runner = new ModuleRunner(new PrintWriter(System.out), new PrintWriter(System.err, true));
+                }
             } 
             else {
                 runner = new REPLRunner(System.in, System.out);
