@@ -135,6 +135,10 @@ public data Instruction =
 		| OCALLDYN(Symbol types, int arity, loc src)// Call a *Rascal* function on stack
 		
 		| CALLMUPRIM(str name, int arity)			// Call a muRascal primitive (see Compiler.RVM.Interpreter.MuPrimitive)
+		| CALLMUPRIM0(str name)                     // Call a muRascal primitive, arity 0 (see Compiler.RVM.Interpreter.MuPrimitive)
+		| CALLMUPRIM1(str name)                     // Call a muRascal primitive, arity 1 (see Compiler.RVM.Interpreter.MuPrimitive)
+		| CALLMUPRIM2(str name)                     // Call a muRascal primitive, arity 2 (see Compiler.RVM.Interpreter.MuPrimitive)
+		| CALLMUPRIMN(str name, int arity)          // Call a muRascal primitive, arity arity (see Compiler.RVM.Interpreter.MuPrimitive)
 		| CALLPRIM(str name, int arity, loc src)	// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
 		| CALLJAVA(str name, str class, 
 		           Symbol parameterTypes,

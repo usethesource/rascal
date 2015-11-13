@@ -99,7 +99,11 @@ public enum Opcode {
 	VISIT               (81,    3),
 	CHECKMEMO			(82,	1),
 	LOADEMPTYKWMAP      (83, 	1),
-	VALUESUBTYPE		(84,	1)
+	VALUESUBTYPE		(84,	1),
+	CALLMUPRIM0         (85,    1),
+	CALLMUPRIM1			(86,    1),
+	CALLMUPRIM2			(87,    1),
+	CALLMUPRIMN			(88,    1)
 	;
 	
 	
@@ -200,6 +204,10 @@ public enum Opcode {
 	static public final int OP_CHECKMEMO = 82;
 	static public final int OP_LOADEMPTYKWMAP = 83;
 	static public final int OP_VALUESUBTYPE = 84;
+	static public final int OP_CALLMUPRIM0 = 85;
+	static public final int OP_CALLMUPRIM1 = 86;
+	static public final int OP_CALLMUPRIM2 = 87;
+	static public final int OP_CALLMUPRIMN = 88;
 	
 	/*
 	 * Meta-instructions that are generated dynamically during execution and
@@ -534,6 +542,16 @@ public enum Opcode {
 			
 		case VALUESUBTYPE:
 			return "VALUESUBTYPE " + cb.getConstantType(arg1) ;
+			
+		case CALLMUPRIM0:
+			return "CALLMUPRIM0 " + MuPrimitive.fromInteger(arg1).name();
+		case CALLMUPRIM1:
+			return "CALLMUPRIM1 " + MuPrimitive.fromInteger(arg1).name();
+		case CALLMUPRIM2:
+			return "CALLMUPRIM2 " + MuPrimitive.fromInteger(arg1).name();
+		case CALLMUPRIMN:
+			return "CALLMUPRIMN " + MuPrimitive.fromInteger(arg1).name() +  ", " 
+				     + arg2;
 				
 		default:
 			break;

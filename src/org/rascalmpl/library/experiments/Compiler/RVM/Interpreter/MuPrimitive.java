@@ -75,10 +75,8 @@ public enum MuPrimitive {
 	 */
 	addition_mint_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = ((int) stack[sp - 2]) + ((int) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return (int) arg_2 + ((int) arg_1);
 		};
 	},
 
@@ -89,7 +87,7 @@ public enum MuPrimitive {
 	 */
 	assign_subscript_array_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
+		public int executeN(final Object[] stack, final int sp, final int arity) {
 			assert arity == 3;
 			Object[] ar = (Object[]) stack[sp - 3];
 			int index = ((int) stack[sp - 2]);
@@ -106,12 +104,10 @@ public enum MuPrimitive {
 	 */
 	check_arg_type {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			Type argType = ((IValue) stack[sp - 2]).getType();
-			Type paramType = ((Type) stack[sp - 1]);
-			stack[sp - 2] = vf.bool(argType.isSubtypeOf(paramType));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			Type argType = ((IValue) arg_2).getType();
+			Type paramType = ((Type) arg_1);
+			return vf.bool(argType.isSubtypeOf(paramType));
 		};
 	},
 	
@@ -123,10 +119,8 @@ public enum MuPrimitive {
 	 */
 	division_mint_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = ((int) stack[sp - 2]) / ((int) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return ((int) arg_2) / ((int) arg_1);
 		};
 	},
 	
@@ -137,10 +131,8 @@ public enum MuPrimitive {
 	 */
 	equal_mint_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((int) stack[sp - 2]) == ((int) stack[sp - 1]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return vf.bool(((int) arg_2) == ((int) arg_1));
 		};
 	},
 	
@@ -152,22 +144,19 @@ public enum MuPrimitive {
 	 */
 	equal {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			//Object org = stack[sp - 2];
-			if (stack[sp - 2] instanceof IValue	&& (stack[sp - 1] instanceof IValue)) {
-				stack[sp - 2] = vf.bool(((IValue) stack[sp - 2]).isEqual(((IValue) stack[sp - 1])));
-			} else if (stack[sp - 2] instanceof Type && (stack[sp - 1] instanceof Type)) {
-				stack[sp - 2] = vf.bool(((Type) stack[sp - 2]) == ((Type) stack[sp - 1]));
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			if (arg_2 instanceof IValue	&& (arg_1 instanceof IValue)) {
+				return vf.bool(((IValue) arg_2).isEqual(((IValue) arg_1)));
+			} else if (arg_2 instanceof Type && (arg_1 instanceof Type)) {
+				return vf.bool(((Type) arg_2) == ((Type) arg_1));
 			} else {
 				throw new CompilerError("MuPrimitive equal -- not defined on "
-						+ stack[sp - 2].getClass() + " and "
-						+ stack[sp - 1].getClass());
+						+ arg_2.getClass() + " and "
+						+ arg_1.getClass());
 			}
-//			if(org instanceof IValue && ((IValue)org).getType().isAbstractData() &&  ((IBool)stack[sp-2]).getValue()){
-//				System.err.println("not equal: " + org + " and " + stack[sp - 1]);
+//			if(org instanceof IValue && ((IValue)arg_2).getType().isAbstractData() &&  ((IBool)arg_2).getValue()){
+//				System.err.println("not equal: " + arg_2 + " and " + arg_1);
 //			}
-			return sp - 1;
 		};
 	},
 	
@@ -180,21 +169,18 @@ public enum MuPrimitive {
 	equal_set_mset {
 		@Override
 		@SuppressWarnings("unchecked")
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			ISet set = (ISet) stack[sp - 2];
-			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
-			stack[sp - 2] = RascalPrimitive.Rascal_FALSE;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			ISet set = (ISet) arg_2;
+			HashSet<IValue> mset = (HashSet<IValue>) arg_1;
 			if (set.size() != mset.size()) {
-				return sp - 1;
+				return RascalPrimitive.Rascal_FALSE;
 			}
 			for (IValue v : set) {
 				if (!mset.contains(v)) {
-					return sp - 1;
+					return RascalPrimitive.Rascal_FALSE;
 				}
 			}
-			stack[sp - 2] = RascalPrimitive.Rascal_TRUE;
-			return sp - 1;
+			return RascalPrimitive.Rascal_TRUE;
 		};
 	},
 
@@ -204,15 +190,13 @@ public enum MuPrimitive {
 	 */
 	get_children {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			INode nd = (INode) stack[sp - 1];
+		public Object execute1(final Object arg_1) {
+			INode nd = (INode) arg_1;
 			Object[] elems = new Object[nd.arity()];
 			for (int i = 0; i < nd.arity(); i++) {
 				elems[i] = nd.get(i);
 			}
-			stack[sp - 1] = elems;
-			return sp;
+			return elems;
 		};
 	},
 	
@@ -225,9 +209,8 @@ public enum MuPrimitive {
 	 */
 	get_children_without_layout_or_separators_with_keyword_map {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			IConstructor cons = (IConstructor) stack[sp - 1];
+		public Object execute1(final Object arg_1) {
+			IConstructor cons = (IConstructor) arg_1;
 			
 			// TODO use TreeAdapter.getNonLayoutArgs(cons);
 			IConstructor prod = (IConstructor) cons.get(0);
@@ -253,8 +236,7 @@ public enum MuPrimitive {
 				}
 			}
 			elems[non_lit_len] = RVM.emptyKeywordMap;
-			stack[sp - 1] = elems;
-			return sp;
+			return elems;
 		}
 	},
 	
@@ -267,9 +249,8 @@ public enum MuPrimitive {
 	 */
 	get_children_without_layout_or_separators_without_keyword_map {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			IConstructor cons = (IConstructor) stack[sp - 1];
+		public Object execute1(final Object arg_1) {
+			IConstructor cons = (IConstructor) arg_1;
 			
 			// TODO use TreeAdapter.getNonLayoutArgs(cons);
 			IConstructor prod = (IConstructor) cons.get(0);
@@ -294,8 +275,7 @@ public enum MuPrimitive {
 					elems[j++] = args.get(i);
 				}
 			}
-			stack[sp - 1] = elems;
-			return sp;
+			return elems;
 		}
 	},
 	
@@ -308,12 +288,10 @@ public enum MuPrimitive {
 	get_mmap {
 		@SuppressWarnings("unchecked")
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			Map<String,IValue> m = (Map<String,IValue>) stack[sp - 2];
-			String key = (String) stack[sp - 1];
-			stack[sp - 2] = m.get(key);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			Map<String,IValue> m = (Map<String,IValue>) arg_2;
+			String key = (String) arg_1;
+			return m.get(key);
 		};
 	},
 	
@@ -325,11 +303,9 @@ public enum MuPrimitive {
 	
 	get_name {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			INode nd = (INode) stack[sp - 1];
-			stack[sp - 1] = vf.string(nd.getName());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			INode nd = (INode) arg_1;
+			return vf.string(nd.getName());
 		};
 	},
 	
@@ -343,9 +319,9 @@ public enum MuPrimitive {
 //	 */
 //	get_name_and_children_and_keyword_mmap {
 //		@Override
-//		public int execute(final Object[] stack, final int sp, final int arity) {
+//		public Object execute2(final Object arg_2, final Object arg_1) {
 //			assert arity == 1;
-//			INode v = (INode) stack[sp - 1];
+//			INode v = (INode) arg_1;
 //			int cons_arity = v.arity();
 //			Object[] elems = new Object[cons_arity + 2];
 //			elems[0] = vf.string(v.getName());
@@ -353,7 +329,7 @@ public enum MuPrimitive {
 //			  elems[i + 1] = v.get(i);
 //			}
 //			elems[cons_arity + 1] = $getAllKeywordParameters(v);
-//			stack[sp - 1] = elems;
+//			return elems;
 //			return sp;
 //		};
 //	},
@@ -367,17 +343,15 @@ public enum MuPrimitive {
 	 */
 	get_name_and_children {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			INode v = (INode) stack[sp - 1];
+		public Object execute1(final Object arg_1) {
+			INode v = (INode) arg_1;
 			int cons_arity = v.arity();
 			Object[] elems = new Object[cons_arity + 1];
 			elems[0] = vf.string(v.getName());
 			for (int i = 0; i < cons_arity; i++) {
 			  elems[i + 1] = v.get(i);
 			}
-			stack[sp - 1] = elems;
-			return sp;
+			return elems;
 		};
 	},
 	
@@ -390,16 +364,16 @@ public enum MuPrimitive {
 //	 */
 //	get_children_and_keyword_mmap {
 //		@Override
-//		public int execute(final Object[] stack, final int sp, final int arity) {
+//		public Object execute2(final Object arg_2, final Object arg_1) {
 //			assert arity == 1;
-//			INode v = (INode) stack[sp - 1];
+//			INode v = (INode) arg_1;
 //			int cons_arity = v.arity();
 //			Object[] elems = new Object[cons_arity + 1];
 //			for (int i = 0; i < cons_arity; i++) {
 //			  elems[i] = v.get(i);
 //			}
 //			elems[cons_arity] = $getAllKeywordParameters(v);
-//			stack[sp - 1] = elems;
+//			return elems;
 //			return sp;
 //		};
 //	},
@@ -412,10 +386,10 @@ public enum MuPrimitive {
 //	 */
 //	get_keyword_mmap {
 //		@Override
-//		public int execute(final Object[] stack, final int sp, final int arity) {
+//		public Object execute2(final Object arg_2, final Object arg_1) {
 //			assert arity == 1;
-//			INode v = (INode) stack[sp - 1];
-//			stack[sp - 1] = $getAllKeywordParameters(v);
+//			INode v = (INode) arg_1;
+//			return $getAllKeywordParameters(v);
 //			return sp;
 //		};
 //	},
@@ -427,18 +401,16 @@ public enum MuPrimitive {
 	 */
 	get_keys_mmap {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
+		public Object execute1(final Object arg_1) {
 			@SuppressWarnings("unchecked")
-			Map<String,IValue> mmap = (Map<String,IValue>) stack[sp - 1];
+			Map<String,IValue> mmap = (Map<String,IValue>) arg_1;
 			int len = mmap.size();
 			String[] keys = new String[len];
 			int i = 0;
 			for(String key : mmap.keySet()){
 				keys[i++] = key;
 			}
-			stack[sp - 1] = keys;
-			return sp;
+			return keys;
 		};
 	},
 
@@ -453,17 +425,15 @@ public enum MuPrimitive {
 	 */
 	make_keyword_mmap {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			String[] keywords = (String[]) stack[sp - 2];
-			Object[] values = (Object[]) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			String[] keywords = (String[]) arg_2;
+			Object[] values = (Object[]) arg_1;
 			assert keywords.length == values.length;
 			Map<String,IValue> mmap = new HashMap<String,IValue>(keywords.length);
 			for(int i = 0; i< keywords.length; i++){
 				mmap.put(keywords[i], (IValue) values[i]);
 			}
-			stack[sp - 2] = mmap;
-			return sp - 1;
+			return mmap;
 		};
 	},
 	
@@ -476,9 +446,9 @@ public enum MuPrimitive {
 //	 */
 //	get_children_and_keyword_values {
 //		@Override
-//		public int execute(final Object[] stack, final int sp, final int arity) {
+//		public Object execute2(final Object arg_2, final Object arg_1) {
 //			assert arity == 1;
-//			INode v = (INode) stack[sp - 1];
+//			INode v = (INode) arg_1;
 //			int cons_arity = v.arity();
 //			Map<String, IValue> m = $getAllKeywordParameters(v);
 //
@@ -491,7 +461,7 @@ public enum MuPrimitive {
 //			for(IValue val : m.values()){
 //				elems[j++] = val;
 //			}
-//			stack[sp - 1] = elems;
+//			return elems;
 //			return sp;
 //		};
 //	},
@@ -503,16 +473,14 @@ public enum MuPrimitive {
 	 */
 	get_tuple_elements {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			ITuple tup = (ITuple) stack[sp - 1];
+		public Object execute1(final Object arg_1) {
+			ITuple tup = (ITuple) arg_1;
 			int nelem = tup.arity();
 			Object[] elems = new Object[nelem];
 			for (int i = 0; i < nelem; i++) {
 				elems[i] = tup.get(i);
 			}
-			stack[sp - 1] = elems;
-			return sp;
+			return elems;
 		};
 	},
 	
@@ -524,10 +492,8 @@ public enum MuPrimitive {
 	 */
 	greater_equal_mint_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((int) stack[sp - 2]) >= ((int) stack[sp - 1]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return vf.bool(((int) arg_2) >= ((int) arg_1));
 		};
 	},
 	
@@ -539,10 +505,8 @@ public enum MuPrimitive {
 	 */
 	greater_mint_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((int) stack[sp - 2]) > ((int) stack[sp - 1]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return vf.bool(((int) arg_2) > ((int) arg_1));
 		};
 	},
 
@@ -554,22 +518,19 @@ public enum MuPrimitive {
 	// TODO rename to more parse tree specific?
 	has_label {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			IValue v = (IValue) stack[sp - 2];
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			IValue v = (IValue) arg_2;
 			Type vt = v.getType();
-			String label_name = ((IString) stack[sp - 1]).getValue();
+			String label_name = ((IString) arg_1).getValue();
 			
 			if (isNonTerminalType(vt)) {
 				ITree cons = (ITree) v;
 				if (TreeAdapter.isAppl(cons)) {
 					String treeLabel = TreeAdapter.getConstructorName(cons);
-					stack[sp - 2] = (treeLabel != null && label_name.equals(treeLabel)) ? RascalPrimitive.Rascal_TRUE : RascalPrimitive.Rascal_FALSE;
-					return sp - 1;
+					return (treeLabel != null && label_name.equals(treeLabel)) ? RascalPrimitive.Rascal_TRUE : RascalPrimitive.Rascal_FALSE;
 				}
 			}
-			stack[sp - 2] = RascalPrimitive.Rascal_FALSE;
-			return sp - 1;
+			return RascalPrimitive.Rascal_FALSE;
 		}
 	},
 	
@@ -582,10 +543,8 @@ public enum MuPrimitive {
 	// TODO: move to RascalPrimitive?
 	implies_mbool_mbool {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = ((IBool) stack[sp - 2]).implies((IBool) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return ((IBool) arg_2).implies((IBool) arg_1);
 		};
 	},
 	
@@ -597,11 +556,9 @@ public enum MuPrimitive {
 	 */
 	is_defined {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			Reference ref = (Reference) stack[sp - 1];
-			stack[sp - 1] = vf.bool(ref.isDefined());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			Reference ref = (Reference) arg_1;
+			return vf.bool(ref.isDefined());
 		};
 	},
 	
@@ -614,10 +571,8 @@ public enum MuPrimitive {
 	is_element_mset {
 		@Override
 		@SuppressWarnings("unchecked")
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((HashSet<IValue>) stack[sp - 1]).contains((IValue) stack[sp - 2]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return vf.bool(((HashSet<IValue>) arg_1).contains((IValue) arg_2));
 		};
 	},
 	
@@ -631,10 +586,8 @@ public enum MuPrimitive {
 	 */
 	is_bool {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isBool());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return vf.bool(((IValue) arg_1).getType().isBool());
 		};
 	},
 	
@@ -646,12 +599,10 @@ public enum MuPrimitive {
 	 */
 	is_constructor {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			Type t = ((IValue) stack[sp - 1]).getType();
+		public Object execute1(final Object arg_1) {
+			Type t = ((IValue) arg_1).getType();
 			// TODO: review if is_constructor still needs true on parse trees
-			stack[sp - 1] = vf.bool(t.isAbstractData() || isNonTerminalType(t));
-			return sp;
+			return vf.bool(t.isAbstractData() || isNonTerminalType(t));
 		}
 	},
 	
@@ -663,10 +614,8 @@ public enum MuPrimitive {
 	 */
 	is_datetime {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isDateTime());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return vf.bool(((IValue) arg_1).getType().isDateTime());
 		};
 	},
 	
@@ -678,10 +627,8 @@ public enum MuPrimitive {
 	 */
 	is_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isInteger());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return vf.bool(((IValue) arg_1).getType().isInteger());
 		};
 	},
 	
@@ -693,10 +640,8 @@ public enum MuPrimitive {
 	 */
 	is_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isList());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return vf.bool(((IValue) arg_1).getType().isList());
 		};
 	},
 	
@@ -708,10 +653,8 @@ public enum MuPrimitive {
 	 */
 	is_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isListRelation());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return vf.bool(((IValue) arg_1).getType().isListRelation());
 		};
 	},
 	
@@ -723,10 +666,8 @@ public enum MuPrimitive {
 	 */
 	is_loc {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isSourceLocation());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return vf.bool(((IValue) arg_1).getType().isSourceLocation());
 		};
 	},
 	
@@ -738,10 +679,8 @@ public enum MuPrimitive {
 	 */
 	is_map {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isMap());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return vf.bool(((IValue) arg_1).getType().isMap());
 		};
 	},
 	
@@ -753,10 +692,8 @@ public enum MuPrimitive {
 	 */
 	is_mmap {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(stack[sp - 1] instanceof Map);
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return vf.bool(arg_1 instanceof Map);
 		};
 	},
 	
@@ -768,10 +705,8 @@ public enum MuPrimitive {
 	 */
 	is_node {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isNode());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return vf.bool(((IValue) arg_1).getType().isNode());
 		};
 	},
 	
@@ -783,10 +718,8 @@ public enum MuPrimitive {
 	 */
 	is_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isNumber());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return vf.bool(((IValue) arg_1).getType().isNumber());
 		};
 	},
 	
@@ -798,10 +731,8 @@ public enum MuPrimitive {
 	 */
 	is_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isReal());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return vf.bool(((IValue) arg_1).getType().isReal());
 		};
 	},
 	
@@ -813,10 +744,8 @@ public enum MuPrimitive {
 	 */
 	is_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isRational());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return vf.bool(((IValue) arg_1).getType().isRational());
 		};
 	},
 	
@@ -828,10 +757,8 @@ public enum MuPrimitive {
 	 */
 	is_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 2] = vf.bool(((IValue) stack[sp - 1]).getType().isRelation());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return vf.bool(((IValue) arg_1).getType().isRelation());
 		};
 	},
 	
@@ -843,10 +770,8 @@ public enum MuPrimitive {
 	 */
 	is_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isSet());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return vf.bool(((IValue) arg_1).getType().isSet());
 		};
 	},
 	
@@ -858,10 +783,8 @@ public enum MuPrimitive {
 	 */
 	is_str {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isString());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return vf.bool(((IValue) arg_1).getType().isString());
 		};
 	},
 	
@@ -873,10 +796,8 @@ public enum MuPrimitive {
 	 */
 	is_tuple {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isTuple());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return vf.bool(((IValue) arg_1).getType().isTuple());
 		};
 	},
 	
@@ -888,15 +809,13 @@ public enum MuPrimitive {
 	 */
 	keys_map {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			IMap map = ((IMap) stack[sp - 1]);
+		public Object execute1(final Object arg_1) {
+			IMap map = ((IMap) arg_1);
 			IListWriter writer = vf.listWriter();
 			for (IValue key : map) {
 				writer.append(key);
 			}
-			stack[sp - 1] = writer.done();
-			return sp;
+			return writer.done();
 		};
 	},
 	
@@ -908,15 +827,13 @@ public enum MuPrimitive {
 	 */
 	values_map {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			IMap map = ((IMap) stack[sp - 1]);
+		public Object execute1(final Object arg_1) {
+			IMap map = ((IMap) arg_1);
 			IListWriter writer = vf.listWriter();
 			for (IValue key : map) {
 				writer.append(map.get(key));
 			}
-			stack[sp - 1] = writer.done();
-			return sp;
+			return writer.done();
 		};
 	},
 	
@@ -928,10 +845,8 @@ public enum MuPrimitive {
 	 */
 	less_equal_mint_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((int) stack[sp - 2]) <= ((int) stack[sp - 1]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return vf.bool(((int) arg_2) <= ((int) arg_1));
 		};
 	},
 	
@@ -943,16 +858,14 @@ public enum MuPrimitive {
 	 */
 	less_mint_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((int) stack[sp - 2]) < ((int) stack[sp - 1]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return vf.bool(((int) arg_2) < ((int) arg_1));
 		};
 	},
 	
 	make_iarray {	// TODO replace by make_array?
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
+		public int executeN(final Object[] stack, final int sp, final int arity) {
 			assert arity >= 0;
 
 			IValue[] ar = new IValue[arity];
@@ -967,11 +880,9 @@ public enum MuPrimitive {
 	
 	make_iarray_of_size {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			int len = ((int) stack[sp - 1]);
-			stack[sp - 1] = new IValue[len];
-			return sp;
+		public Object execute1(final Object arg_1) {
+			int len = ((int) arg_1);
+			return new IValue[len];
 		};
 	},
 	
@@ -983,7 +894,7 @@ public enum MuPrimitive {
 	 */
 	make_array {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
+		public int executeN(final Object[] stack, final int sp, final int arity) {
 			assert arity >= 0;
 
 			Object[] ar = new Object[arity];
@@ -1005,11 +916,9 @@ public enum MuPrimitive {
 	 */
 	make_array_of_size {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			int len = ((int) stack[sp - 1]);
-			stack[sp - 1] = new Object[len];
-			return sp;
+		public Object execute1(final Object arg_1) {
+			int len = ((int) arg_1);
+			return new Object[len];
 		};
 	},	
 	
@@ -1025,14 +934,14 @@ public enum MuPrimitive {
 //	// TODO: move to RascalPrimitive?
 //	make_descendant_descriptor {
 //		@Override
-//		public int execute(final Object[] stack, final int sp, final int arity) {
+//		public Object execute2(final Object arg_2, final Object arg_1) {
 //			assert arity == 4;
 //			IString id = (IString) stack[sp - 4];
 //			DescendantDescriptor desc = descendantDescriptorMap.get(id);
 //			if(desc == null){
 //				ISet symbolset = (ISet) stack[sp - 3];
-//				IBool concreteMatch = (IBool) stack[sp - 2];
-//				IMap definitions = (IMap) stack[sp - 1];
+//				IBool concreteMatch = (IBool) arg_2;
+//				IMap definitions = (IMap) arg_1;
 //				desc = new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
 //				descendantDescriptorMap.put(id,  desc);
 //			}
@@ -1049,11 +958,9 @@ public enum MuPrimitive {
 	 */
 	make_mset {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 0;
+		public Object execute0() {
 			HashSet<IValue> mset = new HashSet<IValue>();
-			stack[sp] = mset;
-			return sp + 1;
+			return mset;
 		};
 	},
 	
@@ -1064,10 +971,8 @@ public enum MuPrimitive {
 	 */
 	make_mmap_str_entry {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 0;
-			stack[sp] = new HashMap<String, Map.Entry<Type, IValue>>();
-			return sp + 1;
+		public Object execute0() {
+			return new HashMap<String, Map.Entry<Type, IValue>>();
 		};
 	}, 
 	
@@ -1079,10 +984,8 @@ public enum MuPrimitive {
 	 */
 	make_mentry_type_ivalue {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = new AbstractMap.SimpleEntry<Type, IValue>((Type) stack[sp - 2], (IValue) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return new AbstractMap.SimpleEntry<Type, IValue>((Type) arg_2, (IValue) arg_1);
 		};
 	},
 	
@@ -1093,7 +996,7 @@ public enum MuPrimitive {
 	 */
 	make_mmap {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
+		public int executeN(final Object[] stack, final int sp, final int arity) {
 			assert arity >= 0;
 			
 			if(arity == 0){
@@ -1121,7 +1024,7 @@ public enum MuPrimitive {
 	 */
 	copy_and_update_keyword_mmap {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
+		public int executeN(final Object[] stack, final int sp, final int arity) {
 			assert arity >= 1;
 			
 			int defPos = ((IInteger) stack[sp - arity]).intValue();
@@ -1155,68 +1058,56 @@ public enum MuPrimitive {
 	mmap_contains_key {
 		@SuppressWarnings("unchecked")
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			Map<String,IValue> m = (Map<String,IValue>) stack[sp - 2];
-			String key = ((String) stack[sp - 1]);
-			stack[sp - 2] = vf.bool(m.containsKey(key));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			Map<String,IValue> m = (Map<String,IValue>) arg_2;
+			String key = ((String) arg_1);
+			return vf.bool(m.containsKey(key));
 		};
 	},
 	
 	make_iterator {
 		@SuppressWarnings("unchecked")
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			Object iteratee = stack[sp - 1];
+		public Object execute1(final Object arg_1) {
+			Object iteratee = arg_1;
 			if(iteratee instanceof Object[]){
-				stack[sp - 1] = new ArrayIterator<Object>((Object[]) iteratee);
+				return new ArrayIterator<Object>((Object[]) iteratee);
 			} else 
 			if(iteratee instanceof AnnotatedAmbFacade){
-					stack[sp - 1] = ((AnnotatedAmbFacade) iteratee).getAlternatives().iterator();
+					return ((AnnotatedAmbFacade) iteratee).getAlternatives().iterator();
 			} else
 			if(iteratee instanceof AnnotatedConstructorFacade){
-				stack[sp - 1] = ((AnnotatedConstructorFacade) iteratee).getChildren().iterator();
+				return ((AnnotatedConstructorFacade) iteratee).getChildren().iterator();
 			} else {
-				stack[sp - 1] = ((Iterable<IValue>) iteratee).iterator();
+				return ((Iterable<IValue>) iteratee).iterator();
 			}
-			
-			return sp;
 		};
 	},
 	
 	make_descendant_iterator{
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			IValue iteratee = (IValue) stack[sp - 2];
-			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
-			stack[sp - 2] = new DescendantMatchIterator(iteratee, descriptor);
-			
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			IValue iteratee = (IValue) arg_2;
+			DescendantDescriptor descriptor = (DescendantDescriptor) arg_1;
+			return new DescendantMatchIterator(iteratee, descriptor);
 		};
 	},
 	
 	iterator_hasNext {
 		@SuppressWarnings("unchecked")
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			Iterator<IValue> iter = (Iterator<IValue>) stack[sp - 1];
-			stack[sp - 1] = vf.bool(iter.hasNext());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			Iterator<IValue> iter = (Iterator<IValue>) arg_1;
+			return vf.bool(iter.hasNext());
 		};
 	},
 	
 	iterator_next {
 		@SuppressWarnings("unchecked")
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			Iterator<IValue> iter = (Iterator<IValue>) stack[sp - 1];
-			stack[sp - 1] = iter.next();
-			return sp;
+		public Object execute1(final Object arg_1) {
+			Iterator<IValue> iter = (Iterator<IValue>) arg_1;
+			return iter.next();
 		};
 	},
 	
@@ -1228,12 +1119,10 @@ public enum MuPrimitive {
 	 */
 	min_mint_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			int x = ((int) stack[sp - 2]);
-			int y = ((int) stack[sp - 1]);
-			stack[sp - 2] = x < y ? x : y;
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			int x = ((int) arg_2);
+			int y = ((int) arg_1);
+			return x < y ? x : y;
 		};
 	},
 	
@@ -1245,12 +1134,10 @@ public enum MuPrimitive {
 	 */
 	max_mint_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			int x = ((int) stack[sp - 2]);
-			int y = ((int) stack[sp - 1]);
-			stack[sp - 2] = x > y ? x : y;
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			int x = ((int) arg_2);
+			int y = ((int) arg_1);
+			return x > y ? x : y;
 		};
 	},
 	
@@ -1262,12 +1149,11 @@ public enum MuPrimitive {
 	 */
 	mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			if(stack[sp - 1] instanceof IInteger){
-				stack[sp - 1] = ((IInteger) stack[sp - 1]).intValue();
+		public Object execute1(final Object arg_1) {
+			if(arg_1 instanceof IInteger){
+				return ((IInteger) arg_1).intValue();
 			}
-			return sp;
+		return arg_1;
 		};
 	},
 	
@@ -1279,12 +1165,11 @@ public enum MuPrimitive {
 	 */
 	mstr {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			if(stack[sp - 1] instanceof IString){
-				stack[sp - 1] = ((IString) stack[sp - 1]).getValue();
+		public Object execute1(final Object arg_1) {
+			if(arg_1 instanceof IString){
+				return ((IString) arg_1).getValue();
 			}
-			return sp;
+			return arg_1;
 		};
 	},
 	
@@ -1296,11 +1181,8 @@ public enum MuPrimitive {
 	 */
 	modulo_mint_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = ((int) stack[sp - 2])
-					% ((int) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return ((int) arg_2) % ((int) arg_1);
 		};
 	},
 	
@@ -1312,17 +1194,15 @@ public enum MuPrimitive {
 	 */
 	mset {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			ISet set = ((ISet) stack[sp - 1]);
+		public Object execute1(final Object arg_1) {
+			ISet set = ((ISet) arg_1);
 			int n = set.size();
 			HashSet<IValue> mset = n > 0 ? new HashSet<IValue>(n)
-					: emptyMset;
+					                     : emptyMset;
 			for (IValue v : set) {
 				mset.add(v);
 			}
-			stack[sp - 1] = mset;
-			return sp;
+			return mset;
 		};
 	},
 	
@@ -1333,20 +1213,18 @@ public enum MuPrimitive {
 	 */
 	mset_set_subtract_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			ISet set1 = ((ISet) stack[sp - 2]);
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			ISet set1 = ((ISet) arg_2);
 			int n = set1.size();
-			ISet set2 = ((ISet) stack[sp - 1]);
+			ISet set2 = ((ISet) arg_1);
 			HashSet<IValue> mset = n > 0 ? new HashSet<IValue>(n)
-					: emptyMset;
+					                     : emptyMset;
 			for (IValue v : set1) {
 				if(!set2.contains(v)){
 					mset.add(v);
 				}
 			}
-			stack[sp - 2] = mset;
-			return sp - 1;
+			return mset;
 		};
 	},
 	
@@ -1358,10 +1236,8 @@ public enum MuPrimitive {
 	 */
 	mset_empty() {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 0;
-			stack[sp] = emptyMset;
-			return sp + 1;
+		public Object execute0() {
+			return emptyMset;
 		};
 	},
 	
@@ -1374,15 +1250,13 @@ public enum MuPrimitive {
 	mset2list {
 		@Override
 		@SuppressWarnings("unchecked")
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+		public Object execute1(final Object arg_1) {
+			HashSet<IValue> mset = (HashSet<IValue>) arg_1;
 			IListWriter writer = vf.listWriter();
 			for (IValue elem : mset) {
 				writer.append(elem);
 			}
-			stack[sp - 1] = writer.done();
-			return sp;
+			return writer.done();
 		};
 	},
 	
@@ -1395,16 +1269,14 @@ public enum MuPrimitive {
 	mset_destructive_add_elm {
 		@Override
 		@SuppressWarnings("unchecked")
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			HashSet<IValue> mset = (HashSet<IValue>) arg_2;
 			if(mset == emptyMset){
 				mset = (HashSet<IValue>) emptyMset.clone();
 			}
-			IValue elm = ((IValue) stack[sp - 1]);
+			IValue elm = ((IValue) arg_1);
 			mset.add(elm);
-			stack[sp - 2] = mset;
-			return sp - 1;
+			return mset;
 		};
 	},
 	
@@ -1417,17 +1289,15 @@ public enum MuPrimitive {
 	mset_destructive_add_mset {
 		@Override
 		@SuppressWarnings("unchecked")
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			HashSet<IValue> lhs = (HashSet<IValue>) stack[sp - 2];
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			HashSet<IValue> lhs = (HashSet<IValue>) arg_2;
 			if(lhs == emptyMset){
 				lhs = (HashSet<IValue>) emptyMset.clone();
 			}
 			// lhs = (HashSet<IValue>) lhs.clone();
-			HashSet<IValue> rhs = (HashSet<IValue>) stack[sp - 1];
+			HashSet<IValue> rhs = (HashSet<IValue>) arg_1;
 			lhs.addAll(rhs);
-			stack[sp - 2] = lhs;
-			return sp - 1;
+			return lhs;
 		};
 	},
 	
@@ -1439,7 +1309,7 @@ public enum MuPrimitive {
 	mmap_str_entry_add_entry_type_ivalue {
 		@Override
 		@SuppressWarnings("unchecked")
-		public int execute(final Object[] stack, final int sp, final int arity) {
+		public int executeN(final Object[] stack, final int sp, final int arity) {
 			assert arity == 3;
 			/*stack[sp - 3] = */((Map<String, Map.Entry<Type, IValue>>) stack[sp - 3])
 					.put(((IString) stack[sp - 2]).getValue(),
@@ -1456,11 +1326,8 @@ public enum MuPrimitive {
 	 */
 	multiplication_mint_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = ((int) stack[sp - 2])
-					* ((int) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return ((int) arg_2) * ((int) arg_1);
 		};
 	},
 	
@@ -1473,15 +1340,13 @@ public enum MuPrimitive {
 	mset_destructive_subtract_mset {
 		@Override
 		@SuppressWarnings("unchecked")
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			HashSet<IValue> lhs = (HashSet<IValue>) stack[sp - 2];
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			HashSet<IValue> lhs = (HashSet<IValue>) arg_2;
 			// lhs = (HashSet<IValue>) lhs.clone();
-			HashSet<IValue> rhs = (HashSet<IValue>) stack[sp - 1];
+			HashSet<IValue> rhs = (HashSet<IValue>) arg_1;
 
 			lhs.removeAll(rhs);
-			stack[sp - 2] = lhs;
-			return sp - 1;
+			return lhs;
 		};
 	},
 	
@@ -1494,14 +1359,12 @@ public enum MuPrimitive {
 	mset_subtract_mset {
 		@Override
 		@SuppressWarnings("unchecked")
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			HashSet<IValue> lhs = (HashSet<IValue>) stack[sp - 2];
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			HashSet<IValue> lhs = (HashSet<IValue>) arg_2;
 			lhs = (HashSet<IValue>) lhs.clone();
-			HashSet<IValue> rhs = (HashSet<IValue>) stack[sp - 1];
+			HashSet<IValue> rhs = (HashSet<IValue>) arg_1;
 			lhs.removeAll(rhs);
-			stack[sp - 2] = lhs;
-			return sp - 1;
+			return lhs;
 		};
 	},
 	
@@ -1514,16 +1377,14 @@ public enum MuPrimitive {
 	mset_destructive_subtract_set {
 		@Override
 		@SuppressWarnings("unchecked")
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			HashSet<IValue> mset = (HashSet<IValue>) arg_2;
 			mset = (HashSet<IValue>) mset.clone();
-			ISet set = ((ISet) stack[sp - 1]);
+			ISet set = ((ISet) arg_1);
 			for (IValue v : set) {
 				mset.remove(v);
 			}
-			stack[sp - 2] = mset;
-			return sp - 1;
+			return mset;
 		};
 	},
 	
@@ -1536,16 +1397,14 @@ public enum MuPrimitive {
 	mset_subtract_set {
 		@Override
 		@SuppressWarnings("unchecked")
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			HashSet<IValue> mset = (HashSet<IValue>) arg_2;
 			mset = (HashSet<IValue>) mset.clone();
-			ISet set = ((ISet) stack[sp - 1]);
+			ISet set = ((ISet) arg_1);
 			for (IValue v : set) {
 				mset.remove(v);
 			}
-			stack[sp - 2] = mset;
-			return sp - 1;
+			return mset;
 		};
 	},
 	
@@ -1558,13 +1417,11 @@ public enum MuPrimitive {
 	mset_destructive_subtract_elm {
 		@Override
 		@SuppressWarnings("unchecked")
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
-			IValue elm = ((IValue) stack[sp - 1]);
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			HashSet<IValue> mset = (HashSet<IValue>) arg_2;
+			IValue elm = ((IValue) arg_1);
 			mset.remove(elm);
-			stack[sp - 2] = mset;
-			return sp - 1;
+			return mset;
 		};
 	},
 	
@@ -1577,14 +1434,12 @@ public enum MuPrimitive {
 	mset_subtract_elm {
 		@Override
 		@SuppressWarnings("unchecked")
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 2];
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			HashSet<IValue> mset = (HashSet<IValue>) arg_2;
 			mset = (HashSet<IValue>) mset.clone();
-			IValue elm = ((IValue) stack[sp - 1]);
+			IValue elm = ((IValue) arg_1);
 			mset.remove(elm);
-			stack[sp - 2] = mset;
-			return sp - 1;
+			return mset;
 		};
 	},
 	
@@ -1596,10 +1451,8 @@ public enum MuPrimitive {
 	 */
 	not_equal_mint_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((int) stack[sp - 2]) != ((int) stack[sp - 1]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return vf.bool(((int) arg_2) != ((int) arg_1));
 		};
 	},
 	
@@ -1612,10 +1465,8 @@ public enum MuPrimitive {
 	// TODO: move to RascalPrimitive?
 	not_mbool {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = ((IBool) stack[sp - 1]).not();
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return ((IBool) arg_1).not();
 		};
 	},
 	
@@ -1626,7 +1477,7 @@ public enum MuPrimitive {
 	 */
 	occurs_list_list_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
+		public int executeN(final Object[] stack, final int sp, final int arity) {
 			assert arity == 3;
 			IList sublist = ((IList) stack[sp - 3]);
 			int nsub = sublist.length();
@@ -1651,10 +1502,8 @@ public enum MuPrimitive {
 	
 	one_dot_zero {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 0;
-			stack[sp] = vf.real("1.0");
-			return sp + 1;
+		public Object execute1(final Object arg_1) { // Actually zero args, but muRascal does not permit that
+			return vf.real("1.0");
 		};
 	},
 	
@@ -1668,10 +1517,8 @@ public enum MuPrimitive {
 	// TODO: move to RascalPrimitive?
 	or_mbool_mbool {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = ((IBool) stack[sp - 2]).or((IBool) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return ((IBool) arg_2).or((IBool) arg_1);
 		};
 	},
 	
@@ -1683,16 +1530,14 @@ public enum MuPrimitive {
 	 */
 	power_mint_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			int n1 = ((int) stack[sp - 2]);
-			int n2 = ((int) stack[sp - 1]);
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			int n1 = ((int) arg_2);
+			int n2 = ((int) arg_1);
 			int pow = 1;
 			for (int i = 0; i < n2; i++) {
 				pow *= n1;
 			}
-			stack[sp - 2] = pow;
-			return sp - 1;
+			return pow;
 		};
 	},
 	
@@ -1703,10 +1548,8 @@ public enum MuPrimitive {
 	 */
 	rint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = vf.integer((int) stack[sp - 1]);
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return vf.integer((int) arg_1);
 		};
 	},
 	
@@ -1719,10 +1562,9 @@ public enum MuPrimitive {
 	 */
 	regexp_compile {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			String RegExpAsString = ((IString) stack[sp - 2]).getValue();
-			IValue isubject = (IValue) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			String RegExpAsString = ((IString) arg_2).getValue();
+			IValue isubject = (IValue) arg_1;
 			String subject;
 			if(isubject instanceof IString){
 				subject =  ((IString) isubject).getValue();
@@ -1739,8 +1581,7 @@ public enum MuPrimitive {
 			//System.err.println("regexp_compile: \"" + RegExpAsString + "\" and \"" + subject + "\" len = " + subject.length());
 			try {
 				Pattern pat = Pattern.compile(RegExpAsString, Pattern.UNICODE_CHARACTER_CLASS);
-				stack[sp - 2] = pat.matcher(subject);
-				return sp - 1;
+				return pat.matcher(subject);
 			} catch (PatternSyntaxException e) {
 				//throw new CompilerError("Syntax error in regular expression: " + RegExpAsString);
 				//TODO: change to something like:
@@ -1756,11 +1597,9 @@ public enum MuPrimitive {
 	 */
 	regexp_begin {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			Matcher matcher = (Matcher) stack[sp - 1];
-			stack[sp - 1] = matcher.start(); //vf.integer(matcher.start());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			Matcher matcher = (Matcher) arg_1;
+			return matcher.start(); //vf.integer(matcher.start());
 		};
 	},
 	
@@ -1771,11 +1610,9 @@ public enum MuPrimitive {
 	 */
 	regexp_end {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			Matcher matcher = (Matcher) stack[sp - 1];
-			stack[sp - 1] = matcher.end(); //vf.integer(matcher.end());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			Matcher matcher = (Matcher) arg_1;
+			return matcher.end(); //vf.integer(matcher.end());
 		};
 	},
 	
@@ -1786,11 +1623,9 @@ public enum MuPrimitive {
 	 */
 	regexp_find {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			Matcher matcher = (Matcher) stack[sp - 1];
-			stack[sp - 1] = vf.bool(matcher.find());
-			return sp;
+		public Object execute1(final Object arg_1) {
+			Matcher matcher = (Matcher) arg_1;
+			return vf.bool(matcher.find());
 		};
 	},
 	
@@ -1802,12 +1637,12 @@ public enum MuPrimitive {
 	 */
 	regexp_set_region {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
+		public int executeN(final Object[] stack, final int sp, final int arity) {
 			assert arity == 3;
 			Matcher matcher = (Matcher) stack[sp - 3];
 			int start = ((int) stack[sp - 2]);
 			int end = ((int) stack[sp - 1]);
-			stack[sp - 1] = matcher.region(start, end);
+			stack[sp - 3] = matcher.region(start, end);
 			return sp - 2;
 		};
 	},
@@ -1819,12 +1654,10 @@ public enum MuPrimitive {
 	 */
 	regexp_group {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			Matcher matcher = (Matcher) stack[sp - 2];
-			int idx = (int) stack[sp - 1];
-			stack[sp - 2] = vf.string(matcher.group(idx));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			Matcher matcher = (Matcher) arg_2;
+			int idx = (int) arg_1;
+			return vf.string(matcher.group(idx));
 		};
 	},
 	
@@ -1836,15 +1669,13 @@ public enum MuPrimitive {
 	set {
 		@Override
 		@SuppressWarnings("unchecked")
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+		public Object execute1(final Object arg_1) {
+			HashSet<IValue> mset = (HashSet<IValue>) arg_1;
 			ISetWriter w = vf.setWriter();
 			for (IValue v : mset) {
 				w.insert(v);
 			}
-			stack[sp - 1] = w.done();
-			return sp;
+			return w.done();
 		};
 	},
 	
@@ -1855,15 +1686,13 @@ public enum MuPrimitive {
 	 */
 	set2list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			ISet set = (ISet) stack[sp - 1];
+		public Object execute1(final Object arg_1) {
+			ISet set = (ISet) arg_1;
 			IListWriter writer = vf.listWriter();
 			for (IValue elem : set) {
 				writer.append(elem);
 			}
-			stack[sp - 1] = writer.done();
-			return sp;
+			return writer.done();
 		};
 	},
 	
@@ -1875,18 +1704,15 @@ public enum MuPrimitive {
 	set_is_subset_of_mset {
 		@Override
 		@SuppressWarnings("unchecked")
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			ISet subset = ((ISet) stack[sp - 2]);
-			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			ISet subset = ((ISet) arg_2);
+			HashSet<IValue> mset = (HashSet<IValue>) arg_1;
 			for (IValue v : subset) {
 				if (!mset.contains(v)) {
-					stack[sp - 2] = RascalPrimitive.Rascal_FALSE;
-					return sp - 1;
+					return RascalPrimitive.Rascal_FALSE;
 				}
 			}
-			stack[sp - 2] = RascalPrimitive.Rascal_TRUE;
-			return sp - 1;
+			return RascalPrimitive.Rascal_TRUE;
 		};
 	},
 	
@@ -1897,10 +1723,8 @@ public enum MuPrimitive {
 	 */
 	size_array {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = ((Object[]) stack[sp - 1]).length;
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return ((Object[]) arg_1).length;
 		};
 	},
 	
@@ -1911,10 +1735,8 @@ public enum MuPrimitive {
 	 */
 	size_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = ((IList) stack[sp - 1]).length();
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return ((IList) arg_1).length();
 		};
 	},
 	
@@ -1925,10 +1747,8 @@ public enum MuPrimitive {
 	 */
 	size_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = ((ISet) stack[sp - 1]).size();
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return ((ISet) arg_1).size();
 		};
 	},
 	
@@ -1939,10 +1759,8 @@ public enum MuPrimitive {
 	 */
 	size_mset {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = ((HashSet<?>) stack[sp - 1]).size();
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return ((HashSet<?>) arg_1).size();
 		};
 	},
 	
@@ -1953,10 +1771,8 @@ public enum MuPrimitive {
 	 */
 	size_map {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = ((IMap) stack[sp - 1]).size();
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return ((IMap) arg_1).size();
 		};
 	},
 	
@@ -1967,24 +1783,10 @@ public enum MuPrimitive {
 	 */
 	size_str {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = ((IString) stack[sp - 1]).length();
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return ((IString) arg_1).length();
 		};
 	},
-	
-//	/**
-//	 * Size of IString
-//	 * 
-//	 * [ ..., IString ] => [ ..., mint ]
-//	 */
-//	size_str1 {
-//		@Override
-//		public Object execute1(Object arg_1) {
-//			return ((IString) arg_1).length();
-//		};
-//	},
 	
 	/**
 	 * Size of ITuple
@@ -1993,10 +1795,8 @@ public enum MuPrimitive {
 	 */
 	size_tuple {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			stack[sp - 1] = ((ITuple) stack[sp - 1]).arity();
-			return sp;
+		public Object execute1(final Object arg_1) {
+			return ((ITuple) arg_1).arity();
 		};
 	},
 	
@@ -2007,24 +1807,23 @@ public enum MuPrimitive {
 	 */
 	size {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			if (stack[sp - 1] instanceof IString) {
-				stack[sp - 1] = ((IString) stack[sp - 1]).length();
-			} else if (stack[sp - 1] instanceof IConstructor) {
-				stack[sp - 1] = ((IConstructor) stack[sp - 1]).arity();
-			} else if (stack[sp - 1] instanceof INode) {
-				stack[sp - 1] = ((INode) stack[sp - 1]).arity();
-			} else if (stack[sp - 1] instanceof IList) {
-				stack[sp - 1] = ((IList) stack[sp - 1]).length();
-			} else if (stack[sp - 1] instanceof ISet) {
-				stack[sp - 1] = ((ISet) stack[sp - 1]).size();
-			} else if (stack[sp - 1] instanceof IMap) {
-				stack[sp - 1] = ((IMap) stack[sp - 1]).size();
-			} else if (stack[sp - 1] instanceof ITuple) {
-				stack[sp - 1] = ((ITuple) stack[sp - 1]).arity();
+		public Object execute1(final Object arg_1) {
+			if (arg_1 instanceof IString) {
+				return ((IString) arg_1).length();
+			} else if (arg_1 instanceof IConstructor) {
+				return ((IConstructor) arg_1).arity();
+			} else if (arg_1 instanceof INode) {
+				return ((INode) arg_1).arity();
+			} else if (arg_1 instanceof IList) {
+				return ((IList) arg_1).length();
+			} else if (arg_1 instanceof ISet) {
+				return ((ISet) arg_1).size();
+			} else if (arg_1 instanceof IMap) {
+				return ((IMap) arg_1).size();
+			} else if (arg_1 instanceof ITuple) {
+				return ((ITuple) arg_1).arity();
 			}
-			return sp;
+			return 0;			// TODO?
 		};
 	},
 	
@@ -2036,7 +1835,7 @@ public enum MuPrimitive {
 	 */
 	starts_with {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
+		public int executeN(final Object[] stack, final int sp, final int arity) {
 			assert arity == 3;
 			IList sublist = (IList) stack[sp - 3];
 			IList list = (IList) stack[sp - 2];
@@ -2062,7 +1861,7 @@ public enum MuPrimitive {
 	 */
 	sublist_list_mint_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
+		public int executeN(final Object[] stack, final int sp, final int arity) {
 			assert arity == 3;
 			IList lst = (IList) stack[sp - 3];
 			int offset = ((int) stack[sp - 2]);
@@ -2080,10 +1879,8 @@ public enum MuPrimitive {
 	 */
 	subscript_array_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = ((Object[]) stack[sp - 2])[((int) stack[sp - 1])];
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return ((Object[]) arg_2)[((int) arg_1)];
 		};
 	},
 	
@@ -2095,10 +1892,8 @@ public enum MuPrimitive {
 	 */
 	subscript_array_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = ((Object[]) stack[sp - 2])[((IInteger) stack[sp - 1]).intValue()];
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return ((Object[]) arg_2)[((IInteger) arg_1).intValue()];
 		};
 	},
 	
@@ -2109,10 +1904,8 @@ public enum MuPrimitive {
 	 */
 	subscript_list_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = ((IList) stack[sp - 2]).get((int) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return ((IList) arg_2).get((int) arg_1);
 		};
 	},
 	
@@ -2123,10 +1916,8 @@ public enum MuPrimitive {
 	 */
 	subscript_tuple_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = ((ITuple) stack[sp - 2]).get((int) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return ((ITuple) arg_2).get((int) arg_1);
 		};
 	},
 	
@@ -2139,7 +1930,7 @@ public enum MuPrimitive {
 	 */
 	substring_str_mint_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
+		public int executeN(final Object[] stack, final int sp, final int arity) {
 			assert arity == 3;
 			IString subject = ((IString)  stack[sp - 3]);
 			int start = ((int)  stack[sp - 2]);
@@ -2156,7 +1947,7 @@ public enum MuPrimitive {
 	 */
 	is_tail_str_str_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
+		public int executeN(final Object[] stack, final int sp, final int arity) {
 			assert arity == 3;
 			IString subject = ((IString)  stack[sp - 3]);
 			IString substr = ((IString)  stack[sp - 2]);
@@ -2177,10 +1968,8 @@ public enum MuPrimitive {
 	 */
 	subtraction_mint_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = ((int) stack[sp - 2]) - ((int) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return ((int) arg_2) - ((int) arg_1);
 		};
 	},
 	
@@ -2191,10 +1980,8 @@ public enum MuPrimitive {
 	 */
 	subtype {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return vf.bool(((Type) arg_2).isSubtypeOf((Type) arg_1));
 		};
 	},
 	
@@ -2205,14 +1992,12 @@ public enum MuPrimitive {
 	 */
 	typeOf {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			if (stack[sp - 1] instanceof Integer) {
-				stack[sp - 1] = TypeFactory.getInstance().integerType();
+		public Object execute1(final Object arg_1) {
+			if (arg_1 instanceof Integer) {
+				return TypeFactory.getInstance().integerType();
 			} else {
-				stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+				return ((IValue) arg_1).getType();
 			}
-			return sp;
 		};
 	},
 	
@@ -2224,17 +2009,16 @@ public enum MuPrimitive {
 	typeOfMset {
 		@SuppressWarnings("unchecked")
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			if (stack[sp - 1] instanceof HashSet) {
-				HashSet<IValue> mset =  (HashSet<IValue>) stack[sp - 1];
+		public Object execute1(final Object arg_1) {
+			if (arg_1 instanceof HashSet) {
+				HashSet<IValue> mset =  (HashSet<IValue>) arg_1;
 				Type elmType = TypeFactory.getInstance().voidType();
 				for (IValue elm : mset) {
 					elmType = elm.getType().lub(elmType);
 				}
-				stack[sp - 1] = TypeFactory.getInstance().setType(elmType);
+				return TypeFactory.getInstance().setType(elmType);
 			}
-			return sp;
+			throw new CompilerError("typeOfMset");
 		};
 	},
 	
@@ -2246,12 +2030,11 @@ public enum MuPrimitive {
 	 */
 	undefine {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			Reference ref = (Reference) stack[sp - 1];
-			stack[sp - 1] = ref.getValue();
+		public Object execute1(final Object arg_1) {
+			Reference ref = (Reference) arg_1;
+			Object val = ref.getValue();
 			ref.undefine();
-			return sp;
+			return val;
 		};
 	},
 	
@@ -2263,10 +2046,8 @@ public enum MuPrimitive {
 	 */
 	product_mint_mint {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
-			stack[sp - 2] = ((int) stack[sp - 2]) * ((int) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1) {
+			return ((int) arg_2) * ((int) arg_1);
 		};
 	},
 	/**
@@ -2277,13 +2058,11 @@ public enum MuPrimitive {
 	 */
 	make_subject {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1) {
 			Object[] subject = new Object[2];
-			subject[0] = stack[sp - 2];
-			subject[1] = stack[sp - 1];
-			stack[sp - 2] = subject;
-			return sp - 1;
+			subject[0] = arg_2;
+			subject[1] = arg_1;
+			return subject;
 		};
 	},
 	/**
@@ -2294,24 +2073,20 @@ public enum MuPrimitive {
 	 */
 	accept_list_match {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity) {
-			assert arity == 1;
-			Object[] subject = (Object[]) stack[sp - 1];
+		public Object execute1(final Object arg_1) {
+			Object[] subject = (Object[]) arg_1;
 			IList listSubject = (IList) subject[0];
 			int cursor = (int) subject[1];
 			int len = listSubject.length();
 			if(cursor == len){
-				stack[sp - 1] = RascalPrimitive.Rascal_TRUE;
-				return sp;
+				return RascalPrimitive.Rascal_TRUE;
 			}
 			for(int i = cursor; i < len; i++){				// Check whether only nullables follow
 				if(!$is_nullable(listSubject.get(i))){		// TODO maybe better to make a separate accept for the concrete case
-					stack[sp - 1] = RascalPrimitive.Rascal_FALSE;
-					return sp;
+					return RascalPrimitive.Rascal_FALSE;
 				}
 			}
-			stack[sp - 1] = RascalPrimitive.Rascal_TRUE;
-			return sp;
+			return RascalPrimitive.Rascal_TRUE;
 		};
 	}
 	
@@ -2339,9 +2114,21 @@ public enum MuPrimitive {
 		throw new CompilerError("Not implemented muFunction");
 	}
 	
-//	public Object execute1(Object arg_1) {
-//		throw new CompilerError("Not implemented muFunction");
-//	}
+	public Object execute0() {
+		throw new CompilerError("Not implemented muFunction");
+	}
+	
+	public Object execute1(final Object arg_1) {
+		throw new CompilerError("Not implemented muFunction");
+	}
+	
+	public Object execute2(final Object arg_2, final Object arg_1) {
+		throw new CompilerError("Not implemented muFunction");
+	}
+	
+	public int executeN(final Object[] stack, final int sp, final int arity) {
+		throw new CompilerError("Not implemented muFunction");
+	}
 	
 	public static void recordTime(int n, long duration){
 		timeSpent[n] += duration;

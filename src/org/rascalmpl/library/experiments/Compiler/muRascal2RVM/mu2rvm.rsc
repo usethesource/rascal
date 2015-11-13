@@ -516,7 +516,19 @@ INS tr(muCallMuPrim("and_mbool_mbool", list[MuExp] args)) = [*tr(args), ANDBOOL(
 INS tr(muCallMuPrim("check_arg_type_and_copy", [muCon(int pos1), muTypeCon(Symbol tp), muCon(int pos2)])) = [CHECKARGTYPEANDCOPY(pos1, tp, pos2)];
 INS tr(muCallMuPrim("make_mmap", [])) = [ LOADEMPTYKWMAP() ];
 
-default INS tr(muCallMuPrim(str name, list[MuExp] args)) = [*tr(args), CALLMUPRIM(name, size(args))];
+Instruction mkCALLMUPRIM(str name, int n) {
+    if(name in {"make_array", "make_mmap", "copy_and_update_keyword_mmap"}){ // varyadic MuPrimtives
+        return CALLMUPRIMN(name, n);
+    }
+    switch(n){
+        case 0: return CALLMUPRIM0(name);
+        case 1: return CALLMUPRIM1(name);
+        case 2: return CALLMUPRIM2(name);
+        default: return CALLMUPRIMN(name, n);
+   }
+}
+    
+default INS tr(muCallMuPrim(str name, list[MuExp] args)) = [*tr(args), mkCALLMUPRIM(name, size(args))];
 
 default INS tr(muCallJava(str name, str class, Symbol parameterTypes, Symbol keywordTypes, int reflect, list[MuExp] args)) = 
 	[ *tr(args), CALLJAVA(name, class, parameterTypes, keywordTypes, reflect) ];
