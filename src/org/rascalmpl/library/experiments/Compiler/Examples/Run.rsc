@@ -2,6 +2,7 @@ module experiments::Compiler::Examples::Run
 
 import Prelude;
 import experiments::Compiler::Execute;
+import util::Reflective;
 
 import experiments::Compiler::Examples::Bottles;
 import experiments::Compiler::Examples::Fac;
@@ -16,7 +17,7 @@ import experiments::Compiler::Examples::RascalExtraction;
 loc base = |std:///experiments/Compiler/Examples/|;
 
 value demo(str example bool debug = false, bool testsuite=false, bool recompile=true, bool profile=false) =
-  execute(base + (example + ".rsc"), debug=debug, testsuite=testsuite, recompile=recompile, profile=profile);
+  execute(base + (example + ".rsc"), pathConfig(), debug=debug, testsuite=testsuite, recompile=recompile, profile=profile);
 
 test bool tst() = demo("Bottles") == experiments::Compiler::Examples::Bottles::main();
 test bool tst() = demo("Fac") == experiments::Compiler::Examples::Fac::main();

@@ -1,12 +1,9 @@
 module experiments::Compiler::Examples::Tst6
 
-import IO;
+data D = d(int n);
 
-int f(int n) = n;
+anno int D@a;
 
 value main6(){
-    x = 42;
-    println(x);
-    y = f(x) + 10;
-    return y;
+    return d(1)[@a=12] == d(1)[@a=13];
 }
