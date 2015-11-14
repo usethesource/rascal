@@ -140,7 +140,7 @@ syntax Exp  =
 			| non-assoc preIs:			Exp lhs [\ ]<< "is" >>[\ ] TConst typeName
 			
 			> preAssignSubscript:       Exp exp1 NoNLList "[" Exp index "]" "=" Exp exp2
-			| preAssignLocList:			"[" Identifier!fvar!rvar id1 "," Identifier!fvar!rvar id2 "]" "=" Exp exp
+			//| preAssignLocList:			"[" Identifier!fvar!rvar id1 "," Identifier!fvar!rvar id2 "]" "=" Exp exp
 			
 			| preAssignLoc: 			Identifier!fvar id "=" Exp exp
 			| preAssign: 				FunNamePart+ funNames Identifier!fvar id "=" Exp exp
@@ -174,12 +174,6 @@ syntax Exp  =
 			| muYield0: 					() () "yield"
 			
 			| muExhaust:                "exhaust"
-			
-			// delimited continuations (experimental feature)
-			//| preContLoc:               "cont"
-			//| preContVar:               FunNamePart+ funNames "cont"
-			//| muReset:                  "reset" "(" Exp fun ")"
-			//| muShift:                  "shift" "(" Exp ebody ")"
 			
 			// call-by-reference: expressions that return a value location
 			| preLocRef:     			"ref" Identifier!fvar!rvar id

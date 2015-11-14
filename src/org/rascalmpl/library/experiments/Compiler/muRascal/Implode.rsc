@@ -162,11 +162,7 @@ private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, i
                case preVar(fvar(str var))                                           			=> { if(!isGlobalNonOverloadedFunction(var)) { throw "Function or coroutine <var> has not been declared!"; } muFun1(getUidOfGlobalNonOverloadedFunction(var)); }
      	       case preVar(Identifier id) 														=> muVar(id.var,uid,vardefs[uid][id.var])
      	       case preVar(lrel[str,int] funNames1, Identifier id)        						=> muVar(id.var,getUID(modName,funNames1),vardefs[getUID(modName,funNames1)][id.var])
-     	       // Specific to delimited continuations (experimental)
- //    	       case preContLoc()                                                                => muContVar(uid)
- //    	       case preContVar(lrel[str,int] funNames1)                                         => muContVar(getUID(modName,funNames1)) 
-     	       //case preAssignLocList(Identifier id1, Identifier id2, MuExp exp1) 				=> muCallMuPrim("assign_pair", [muInt(vardefs[uid][id1.var]), muInt(vardefs[uid][id2.var]), exp1])
-     	       
+    	       
      	       case preAssignLoc(Identifier id, MuExp exp1) 									=> muAssign(id.var,uid,vardefs[uid][id.var], exp1)
      	       case preAssign(lrel[str,int] funNames1, 
      	       				  Identifier id, MuExp exp1)                  						=> muAssign(id.var,getUID(modName,funNames1),vardefs[getUID(modName,funNames1)][id.var],exp1)
@@ -234,7 +230,6 @@ private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, i
 			   case muCall(preVar(mvar("get_name_and_children_and_keyword_mmap")), [exp1])		=> muCallPrim3("get_name_and_children_and_keyword_mmap", [exp1], exp1@\location)
 			   case muCall(preVar(mvar("get_name_and_children")), [exp1])                       => muCallMuPrim("get_name_and_children", [exp1])
 			   case muCall(preVar(mvar("get_children_and_keyword_values")), [exp1])				=> muCallPrim3("get_children_and_keyword_values", [exp1], exp1@\location)
-			   case muCall(preVar(mvar("get_keyword_mmap")), [exp1])							=> muCallPrim3("get_keyword_mmap", [exp1], exp1@\location)
 			   case muCall(preVar(mvar("make_keyword_mmap")), [exp1, exp2])					    => muCallMuPrim("make_keyword_mmap", [exp1, exp2])
 			   case muCall(preVar(mvar("get_keys_mmap")), [exp1])								=> muCallMuPrim("get_keys_mmap", [exp1])
  			   case muCall(preVar(mvar("get_children_without_layout_or_separators_with_keyword_map")), [exp1])	=> muCallMuPrim("get_children_without_layout_or_separators_with_keyword_map", [exp1])

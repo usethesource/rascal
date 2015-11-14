@@ -262,15 +262,12 @@ public data MuExp =
             | preTypeCon(str txt)
             | preVar(Identifier id)
             | preVar(lrel[str name,int formals] funNames, Identifier id)
-            // Specific to delimited continuations (experimental)
-            | preContLoc()
-            | preContVar(lrel[str,int] funNames)
             | preFunNN(str modName, str name, int nformals)
             | preFunN(lrel[str,int] funNames, str name, int nformals)
             | preList(list[MuExp] exps)
             | preAssignLoc(Identifier id, MuExp exp)
             | preAssign(lrel[str,int] funNames, Identifier id, MuExp exp)
-            | preAssignLocList(Identifier id1, Identifier id2, MuExp exp)
+       
             | preIfthen(MuExp cond, list[MuExp] thenPart, bool comma)
             
             | preMuCallPrim1(str name)                                // Call a Rascal primitive function (with empty list of arguments)

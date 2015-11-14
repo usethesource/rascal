@@ -995,12 +995,6 @@ public class RVM implements java.io.Serializable {
 					stack[sp++] = new HashMap<String,IValue>();
 					continue NEXT_INSTRUCTION;
 				
-				case Opcode.OP_CALLMUPRIM:	
-					int n = CodeBlock.fetchArg1(instruction);
-					sp = MuPrimitive.values[n].execute(stack, sp, CodeBlock.fetchArg2(instruction));
-					assert stack[sp - 1] != null: "MuPrimitive returns null";
-					continue NEXT_INSTRUCTION;
-				
 				case Opcode.OP_CALLMUPRIM0:	
 					stack[sp++] = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute0();
 					continue NEXT_INSTRUCTION;
@@ -1588,28 +1582,57 @@ public class RVM implements java.io.Serializable {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CALLPRIM:
+				case Opcode.OP_CALLPRIMN:
 					arity = CodeBlock.fetchArg2(instruction);
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
 					frameObserver.observe(cf);
 					try {
-						//sp1 = sp;
-						n = CodeBlock.fetchArg1(instruction);
-//						if(profileRascalPrimtives){
-//							long start = System.nanoTime();
-//							sp = RascalPrimitive.values[n].execute(stack, sp, arity, cf);
-//							RascalPrimitive.recordTime(n, System.nanoTime() - start);
-//						} else {
-							sp = RascalPrimitive.values[n].execute(stack, sp, arity, cf, rex);
-//						}
-						//assert sp == sp1 - arity + 1;
+						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].executeN(stack, sp, CodeBlock.fetchArg2(instruction), cf, rex);
 					} catch (Thrown exception) {
 						thrown = exception;
-						//thrown.stacktrace.add(cf);
 						sp = sp - arity;
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; 
 						break INSTRUCTION;
 					}
+					continue NEXT_INSTRUCTION;
 					
+				case Opcode.OP_CALLPRIM0:
+					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
+					frameObserver.observe(cf);
+					try {
+						stack[sp++] = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute0(cf, rex);
+					} catch (Thrown exception) {
+						thrown = exception;
+						postOp = Opcode.POSTOP_HANDLEEXCEPTION; 
+						break INSTRUCTION;
+					}
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_CALLPRIM1:
+					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
+					frameObserver.observe(cf);
+					try {
+						stack[sp - 1] = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute1(stack[sp - 1], cf, rex);
+					} catch (Thrown exception) {
+						thrown = exception;
+						sp = sp - 1;
+						postOp = Opcode.POSTOP_HANDLEEXCEPTION; 
+						break INSTRUCTION;
+					}
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_CALLPRIM2:
+					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
+					frameObserver.observe(cf);
+					try {
+						stack[sp - 2] = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute2(stack[sp - 2], stack[sp - 1], cf, rex);
+						sp--;
+					} catch (Thrown exception) {
+						thrown = exception;
+						sp = sp - 2;
+						postOp = Opcode.POSTOP_HANDLEEXCEPTION; 
+						break INSTRUCTION;
+					}
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_UNWRAPTHROWNLOC: {
