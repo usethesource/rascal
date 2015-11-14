@@ -20,6 +20,10 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.C
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim2;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrimN;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim0;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim1;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim2;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrimN;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckArgTypeAndCopy;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckMemo;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
@@ -519,6 +523,22 @@ public class CodeBlock implements Serializable {
 	
 	public CodeBlock CALLMUPRIMN (MuPrimitive muprim, int arity){
 		return add(new CallMuPrimN(this, muprim, arity));
+	}
+	
+	public CodeBlock CALLPRIM0 (RascalPrimitive prim, ISourceLocation src){
+		return add(new CallPrim0(this, prim, src));
+	}
+	
+	public CodeBlock CALLPRIM1 (RascalPrimitive prim, ISourceLocation src){
+		return add(new CallPrim1(this, prim, src));
+	}
+	
+	public CodeBlock CALLPRIM2 (RascalPrimitive prim, ISourceLocation src){
+		return add(new CallPrim2(this, prim, src));
+	}
+	
+	public CodeBlock CALLPRIMN (RascalPrimitive prim, int arity, ISourceLocation src){
+		return add(new CallPrimN(this, prim, arity, src));
 	}
 	
 	public CodeBlock LOADFUN (String fuid){

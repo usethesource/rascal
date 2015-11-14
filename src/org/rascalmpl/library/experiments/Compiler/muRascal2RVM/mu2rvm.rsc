@@ -500,8 +500,24 @@ INS tr(muCallPrim3("typeOf", list[MuExp] args, loc src)) = [*tr(args), TYPEOF()]
 INS tr(muCallPrim3("check_memo", list[MuExp] args, loc src)) = [CHECKMEMO()];
 INS tr(muCallPrim3("subtype_value_type", [exp1,  muTypeCon(Symbol tp)], loc src)) = [*tr(exp1), VALUESUBTYPE(tp)];
 
+Instruction mkCALLPRIM(str name, int n, loc src) {
+    if(name in {"node_create", "list_create", "set_create", "tuple_create", "map_create", 
+                "listwriter_add", "setwriter_add", "mapwriter_add", "str_add_str", "template_open",
+                "tuple_field_project", "adt_field_update", "rel_field_project", "lrel_field_project", "map_field_project",
+                "list_slice_replace", "list_slice_add", "list_slice_subtract", "list_slice_product", "list_slice_divide", 
+                "list_slice_intersect", "str_slice_replace", "node_slice_replace", "list_slice", 
+                "rel_subscript", "lrel_subscript" }){ // varyadic MuPrimitives
+        return CALLPRIMN(name, n, src);
+    }
+    switch(n){
+        case 0: return CALLPRIM0(name, src);
+        case 1: return CALLPRIM1(name,src);
+        case 2: return CALLPRIM2(name,src);
+        default: return CALLPRIMN(name, n, src);
+   }
+}
 
-default INS tr(muCallPrim3(str name, list[MuExp] args, loc src)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args), src)];
+default INS tr(muCallPrim3(str name, list[MuExp] args, loc src)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), mkCALLPRIM(name, size(args), src)];
 
 // Calls to MuRascal primitives that are directly translated to RVM instructions
 

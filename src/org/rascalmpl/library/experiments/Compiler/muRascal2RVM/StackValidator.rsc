@@ -272,6 +272,15 @@ int simulate(CALLMUPRIMN(str name, int arity), int sp)  = sp - arity + 1;
 
 int simulate(CALLPRIM(str name, int arity, loc src), 
 			 int sp) 									= sp - arity + 1;
+
+int simulate(CALLPRIM0(str name, loc src), int sp)      = sp + 1;
+int simulate(CALLPRIM1(str name, loc src), int sp)      = sp;
+int simulate(CALLPRIM2(str name, loc src), int sp)      = sp - 1;
+             			 
+int simulate(CALLPRIMN(str name, int arity, loc src), 
+             int sp)                                    = sp - arity + 1;
+			 
+			 
 int simulate(CALLJAVA(str name, str class, 
 		           Symbol parameterTypes,
 		           Symbol keywordTypes,

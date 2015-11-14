@@ -103,7 +103,12 @@ public enum Opcode {
 	CALLMUPRIM0         (85,    1),
 	CALLMUPRIM1			(86,    1),
 	CALLMUPRIM2			(87,    1),
-	CALLMUPRIMN			(88,    1)
+	CALLMUPRIMN			(88,    1),
+	
+	CALLPRIM0         	(89,    2),
+	CALLPRIM1			(90,    2),
+	CALLPRIM2			(91,    2),
+	CALLPRIMN			(92,    2)
 	;
 	
 	
@@ -208,6 +213,11 @@ public enum Opcode {
 	static public final int OP_CALLMUPRIM1 = 86;
 	static public final int OP_CALLMUPRIM2 = 87;
 	static public final int OP_CALLMUPRIMN = 88;
+	
+	static public final int OP_CALLPRIM0 = 89;
+	static public final int OP_CALLPRIM1 = 90;
+	static public final int OP_CALLPRIM2 = 91;
+	static public final int OP_CALLPRIMN = 92;
 	
 	/*
 	 * Meta-instructions that are generated dynamically during execution and
@@ -552,7 +562,21 @@ public enum Opcode {
 		case CALLMUPRIMN:
 			return "CALLMUPRIMN " + MuPrimitive.fromInteger(arg1).name() +  ", " 
 				     + arg2;
-				
+		case CALLPRIM0:
+			return "CALLPRIM0 " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
+							    + cb.getConstantValue(cb.finalCode[pc + 1]);
+		case CALLPRIM1:
+			return "CALLPRIM1 " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
+							    + cb.getConstantValue(cb.finalCode[pc + 1]);
+		case CALLPRIM2:
+			return "CALLPRIM2 " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
+							    + cb.getConstantValue(cb.finalCode[pc + 1]);
+			
+		case CALLPRIMN:
+			return "CALLPRIMN " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
+							   + arg2 + ", "
+							   + cb.getConstantValue(cb.finalCode[pc + 1]);
+
 		default:
 			break;
 		}	

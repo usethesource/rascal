@@ -871,7 +871,27 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			case "CALLMUPRIMN":
 				codeblock.CALLMUPRIMN(MuPrimitive.valueOf(getStrField(instruction, "name")), 
 									 getIntField(instruction, "arity"));
-				break;	
+				break;
+			
+			case "CALLPRIM0":
+				codeblock.CALLPRIM0(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getLocField(instruction, "src"));
+				break;
+				
+			case "CALLPRIM1":
+				codeblock.CALLPRIM1(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getLocField(instruction, "src"));
+				break;
+			case "CALLPRIM2":
+				codeblock.CALLPRIM2(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getLocField(instruction, "src"));
+				break;
+				
+			case "CALLPRIMN":
+				codeblock.CALLPRIMN(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getIntField(instruction, "arity"), 
+								   getLocField(instruction, "src"));
+				break;
 				
 			default:
 				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);
