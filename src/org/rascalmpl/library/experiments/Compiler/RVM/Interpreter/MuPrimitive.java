@@ -309,31 +309,6 @@ public enum MuPrimitive {
 		};
 	},
 	
-//	/**
-//	 * Given a constructor or node get an array consisting of
-//	 * - node/constructor name 
-//	 * - positional arguments 
-//	 * - keyword parameters collected in a mmap	
-//	 * 
-//	 * [ ..., node ] => [ ..., array ]
-//	 */
-//	get_name_and_children_and_keyword_mmap {
-//		@Override
-//		public Object execute2(final Object arg_2, final Object arg_1) {
-//			assert arity == 1;
-//			INode v = (INode) arg_1;
-//			int cons_arity = v.arity();
-//			Object[] elems = new Object[cons_arity + 2];
-//			elems[0] = vf.string(v.getName());
-//			for (int i = 0; i < cons_arity; i++) {
-//			  elems[i + 1] = v.get(i);
-//			}
-//			elems[cons_arity + 1] = $getAllKeywordParameters(v);
-//			return elems;
-//			return sp;
-//		};
-//	},
-	
 	/**
 	 * Given a constructor or node get an array consisting of
 	 * - node/constructor name 
@@ -354,45 +329,6 @@ public enum MuPrimitive {
 			return elems;
 		};
 	},
-	
-//	/**
-//	 * Given a constructor or node get an array consisting of
-//	 * - positional arguments 
-//	 * - keyword parameters collected in a mmap	
-//	 * 
-//	 * [ ..., node ] => [ ..., array ]
-//	 */
-//	get_children_and_keyword_mmap {
-//		@Override
-//		public Object execute2(final Object arg_2, final Object arg_1) {
-//			assert arity == 1;
-//			INode v = (INode) arg_1;
-//			int cons_arity = v.arity();
-//			Object[] elems = new Object[cons_arity + 1];
-//			for (int i = 0; i < cons_arity; i++) {
-//			  elems[i] = v.get(i);
-//			}
-//			elems[cons_arity] = $getAllKeywordParameters(v);
-//			return elems;
-//			return sp;
-//		};
-//	},
-//	
-//	/**
-//	 * Given a constructor or node get an array consisting of
-//	 * - keyword parameters collected in a mmap
-//	 * 
-//	 * [ ..., node ] => [ ..., mmap ]
-//	 */
-//	get_keyword_mmap {
-//		@Override
-//		public Object execute2(final Object arg_2, final Object arg_1) {
-//			assert arity == 1;
-//			INode v = (INode) arg_1;
-//			return $getAllKeywordParameters(v);
-//			return sp;
-//		};
-//	},
 	
 	/**
 	 * Given a mmap, return its keys as array
@@ -436,35 +372,6 @@ public enum MuPrimitive {
 			return mmap;
 		};
 	},
-	
-//	/**
-//	 * Given a constructor or node get an array consisting of
-//	 * - its positional arguments 
-//	 * - the values of its keyword arguments
-//	 * 
-//	 * [ ... node ] => [ ..., array ]
-//	 */
-//	get_children_and_keyword_values {
-//		@Override
-//		public Object execute2(final Object arg_2, final Object arg_1) {
-//			assert arity == 1;
-//			INode v = (INode) arg_1;
-//			int cons_arity = v.arity();
-//			Map<String, IValue> m = $getAllKeywordParameters(v);
-//
-//			int kw_arity = m.size();
-//			Object[] elems = new Object[cons_arity + kw_arity];
-//			for (int i = 0; i < cons_arity; i++) {
-//			  elems[i] = v.get(i);
-//			}
-//			int j = cons_arity;
-//			for(IValue val : m.values()){
-//				elems[j++] = val;
-//			}
-//			return elems;
-//			return sp;
-//		};
-//	},
 	
 	/**
 	 * Given a tuple, get an array consisting of its elements
@@ -921,34 +828,6 @@ public enum MuPrimitive {
 			return new Object[len];
 		};
 	},	
-	
-//	/**
-//	 * Create a descendant descriptor given
-//	 * - a unique id
-//	 * - symbolset (converted from ISet of values to HashSet of Types, symbols and Productions)
-//	 * - concreteMatch, indicates a concrete or abstract match
-//	 * - definitions needed for type reifier
-//	 * 
-//	 * [ ISet symbolset, IBool concreteMatch, IMap definitions] => DescendantDescriptor
-//	 */
-//	// TODO: move to RascalPrimitive?
-//	make_descendant_descriptor {
-//		@Override
-//		public Object execute2(final Object arg_2, final Object arg_1) {
-//			assert arity == 4;
-//			IString id = (IString) stack[sp - 4];
-//			DescendantDescriptor desc = descendantDescriptorMap.get(id);
-//			if(desc == null){
-//				ISet symbolset = (ISet) stack[sp - 3];
-//				IBool concreteMatch = (IBool) arg_2;
-//				IMap definitions = (IMap) arg_1;
-//				desc = new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
-//				descendantDescriptorMap.put(id,  desc);
-//			}
-//			stack[sp - 4] = desc;
-//			return sp - 3;
-//		};
-//	},
 	
 	/**
 	 * Make a new mset
@@ -2111,23 +1990,23 @@ public enum MuPrimitive {
 	}
 	
 	public int execute(final Object[] stack, final int sp, final int arity) {
-		throw new CompilerError("Not implemented muFunction");
+		throw new CompilerError("Not implemented MuPrimitive");
 	}
 	
 	public Object execute0() {
-		throw new CompilerError("Not implemented muFunction");
+		throw new CompilerError("Not implemented MuPrimitive");
 	}
 	
 	public Object execute1(final Object arg_1) {
-		throw new CompilerError("Not implemented muFunction");
+		throw new CompilerError("Not implemented MuPrimitive");
 	}
 	
 	public Object execute2(final Object arg_2, final Object arg_1) {
-		throw new CompilerError("Not implemented muFunction");
+		throw new CompilerError("Not implemented MuPrimitive");
 	}
 	
 	public int executeN(final Object[] stack, final int sp, final int arity) {
-		throw new CompilerError("Not implemented muFunction");
+		throw new CompilerError("Not implemented MuPrimitive");
 	}
 	
 	public static void recordTime(int n, long duration){
