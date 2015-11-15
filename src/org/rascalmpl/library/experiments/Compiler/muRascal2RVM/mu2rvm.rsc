@@ -12,7 +12,6 @@ import String;
 import ToString;
 import experiments::Compiler::RVM::AST;
 
-import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
 
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
