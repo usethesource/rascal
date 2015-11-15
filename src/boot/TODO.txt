@@ -8,5 +8,4 @@ Already in src/boot:
 
 Potential:
 - Generated Java code for Rascal Parser
-- Generated Java code for muRascal Parser?
 - Compiled Rascal standard library
