@@ -162,16 +162,16 @@ public class CommandExecutor {
 		}
 		w.append(main);
 		String modString = w.toString();
-		System.err.println("----------------------");
-		System.err.println(modString);
-		System.err.println("----------------------");
+//		System.err.println("----------------------");
+//		System.err.println(modString);
+//		System.err.println("----------------------");
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			compileArgs[1] = vf.bool(onlyMainChanged);
 			IConstructor consoleRVMProgram = (IConstructor) rvmCompiler.executeFunction(compileAndLinkIncremental, compileArgs, makeCompileKwParams());
 			rvmConsoleExecutable = ExecutionTools.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(useJVM));
 			
-			RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, null, debugObserver, null);
+			RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, null, debug ? debugObserver : null, null);
 			rex.setCurrentModuleName(shellModuleName);
 			IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
 			lastRvmConsoleExecutable = rvmConsoleExecutable;
@@ -431,11 +431,15 @@ public class CommandExecutor {
 				
 			case "debugRVM":
 				debugRVM = getBooleanValue(val);
-				return report(name + " set to "  + coverage);
+				return report(name + " set to "  + debugRVM);
+				
+			case "debug":
+				debug = getBooleanValue(val);
+				return report(name + " set to "  + debug);
 				
 			case "testsuite":
 				testsuite = getBooleanValue(val);
-				return report(name + " set to "  + coverage);
+				return report(name + " set to "  + testsuite);
 				
 			default:
 				return report("Unrecognized option : " + name);
@@ -457,8 +461,10 @@ public class CommandExecutor {
 					//":history                   Print the command history",
 					"    :clear                   Clears the console",
 					"    :set <option> <expr>     Sets a RascalShell option to value",
-					"    e.g. :set profiling true",
-					"         :set tracing false",
+					"    e.g. :set profile true",
+					"         :set trace false",
+					"         :set debug true",
+					"         :set debugRVM true",
 					"",
 					"Keyboard essentials:",
 					"    <UP>                     Previous command in history",
