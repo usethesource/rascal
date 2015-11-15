@@ -56,7 +56,7 @@ public class ParserGenerator {
 	private static final boolean debug = false;
 	private static final boolean useCompiledParserGenerator = true;
 
-	public ParserGenerator(RascalExecutionContext rex) {
+	public ParserGenerator(RascalExecutionContext rex) throws IOException {
 		this.vf = rex.getValueFactory();
 		this.tf = TypeFactory.getInstance();
 		this.bridge = new JavaBridge(rex.getClassLoaders(), rex.getValueFactory(), rex.getConfiguration());

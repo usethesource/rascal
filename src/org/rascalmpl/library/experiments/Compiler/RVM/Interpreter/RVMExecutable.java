@@ -224,7 +224,7 @@ public class RVMExecutable implements Serializable{
 		}
 	}
 	
-	public void write(ISourceLocation rvmExecutable){		
+	public void write(ISourceLocation rvmExecutable) throws IOException{		
 		OutputStream fileOut;
 		
 		TypeStore typeStore = new TypeStore(RascalValueFactory.getStore());
@@ -236,7 +236,7 @@ public class RVMExecutable implements Serializable{
 		FSTFunctionSerializer.initSerialization(vf, typeStore);
 		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
 
-		try {
+		//try {
 			ISourceLocation compOut = rvmExecutable;
 			fileOut = URIResolverRegistry.getInstance().getOutputStream(compOut, false);
 			FSTObjectOutput out = new FSTObjectOutput(fileOut, RVMLoader.conf);
@@ -244,16 +244,17 @@ public class RVMExecutable implements Serializable{
 			out.writeObject(this);
 			out.close();
 			System.out.println("Writing: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+			
+//		} catch (FileNotFoundException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} 
 	}
 	
-	public static RVMExecutable read(ISourceLocation rvmExecutable) {
+	public static RVMExecutable read(ISourceLocation rvmExecutable) throws IOException {
 		RVMExecutable executable = null;
 		
 		vf = ValueFactoryFactory.getValueFactory();
@@ -276,15 +277,11 @@ public class RVMExecutable implements Serializable{
 			in.close();
 			in = null;
 			System.out.println("Reading: " + compIn.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
-		} catch (IOException i) {
-			i.printStackTrace();
-
 		} catch (ClassNotFoundException c) {
-			System.out.println("Class not found: " + c.getMessage());
-			c.printStackTrace();
+			throw new IOException("Class not found: " + c.getMessage());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new IOException(e.getMessage());
 		} 
 		finally {
 			if(in != null){

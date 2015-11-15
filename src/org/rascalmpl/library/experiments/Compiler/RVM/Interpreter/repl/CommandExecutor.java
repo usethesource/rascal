@@ -108,7 +108,11 @@ public class CommandExecutor {
 		RascalExecutionContext rex = new RascalExecutionContext(vf, this.stdout, this.stderr, moduleTags, null, null, false, false, false, /*profile*/false, false, false, false, null, null, null);
 		rex.setCurrentModuleName(shellModuleName);
 		
-		rvmCompiler = RVM.readFromFileAndInitialize(compilerBinaryLocation, rex);
+		try {
+			rvmCompiler = RVM.readFromFileAndInitialize(compilerBinaryLocation, rex);
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot initialize: " + e.getMessage());
+		}
 		
 		TypeFactory tf = TypeFactory.getInstance();
 		compileAndLinkIncremental = rvmCompiler.getFunction("compileAndLinkIncremental", 
