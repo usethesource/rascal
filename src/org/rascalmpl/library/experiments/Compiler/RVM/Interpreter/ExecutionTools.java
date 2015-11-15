@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 
@@ -66,7 +67,7 @@ public class ExecutionTools {
 					 ISourceLocation rvmProgramLoc,
 					 IConstructor rvmProgram,
 					 IBool useJVM	
-    ) {
+    ) throws IOException {
 		
 		return load(
 					rvmProgramLoc,
@@ -78,7 +79,7 @@ public class ExecutionTools {
 	
 	// Read a RVMExecutable from file
 	
-	public static RVMExecutable load(ISourceLocation rvmExecutableLoc) {
+	public static RVMExecutable load(ISourceLocation rvmExecutableLoc) throws IOException {
 		return RVMExecutable.read(rvmExecutableLoc);
 	}
 	
@@ -89,7 +90,7 @@ public class ExecutionTools {
 			 	IConstructor rvmProgram,
 			 	IBool useJVM, 
 			 	IBool serialize
-	) {
+	) throws IOException {
 
 		TypeStore typeStore = new TypeStore();
 		RVMLoader loader = new RVMLoader(vf, typeStore);

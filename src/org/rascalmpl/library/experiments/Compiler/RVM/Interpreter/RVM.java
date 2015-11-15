@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Constructor;
@@ -168,12 +169,12 @@ public class RVM implements java.io.Serializable {
 		this.frameObserver = (observer == null) ? NullFrameObserver.getInstance() : observer;		
 	}
 	
-	public static RVM readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex){
+	public static RVM readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex) throws IOException{
 		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
 		return ExecutionTools.initializedRVM(rvmExecutable, rex);
 	}
 	
-	public static IValue readFromFileAndExecuteProgram(ISourceLocation rvmBinaryLocation, IMap keywordArguments, RascalExecutionContext rex){
+	public static IValue readFromFileAndExecuteProgram(ISourceLocation rvmBinaryLocation, IMap keywordArguments, RascalExecutionContext rex) throws Exception{
 		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
 		return ExecutionTools.executeProgram(rvmExecutable, keywordArguments, rex);
 	}
