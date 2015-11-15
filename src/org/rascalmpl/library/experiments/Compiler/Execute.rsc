@@ -19,10 +19,12 @@ import experiments::Compiler::muRascal::Load;
 import experiments::Compiler::RVM::AST;   // Strange: using import here, gives RVMModule not defined errors later on
 import experiments::Compiler::RVM::ExecuteProgram;
 import experiments::Compiler::Compile;
+//import experiments::Compiler::CompileIncremental;
 
 import experiments::Compiler::muRascal2RVM::mu2rvm;
 import experiments::Compiler::muRascal2RVM::StackValidator; // TODO: hide these two
 import experiments::Compiler::muRascal2RVM::PeepHole;
+
 import util::Reflective;
 
 private loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compiler/muRascal2RVM/Library.mu", pcfg);

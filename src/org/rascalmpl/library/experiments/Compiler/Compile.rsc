@@ -162,11 +162,10 @@ lang::rascal::\syntax::Rascal::Declaration getMain(lang::rascal::\syntax::Rascal
 Module removeMain(lang::rascal::\syntax::Rascal::Module m) {
     if(m2: (Module) `<Header h> <Toplevel* pre> <Toplevel mn>` := m){
        res = (Module) `<Header h> <Toplevel* pre>`;
-       println("removeMain:\n====\n<m>\n=== returns\n<res>\n====");
+       //println("removeMain:\n====\n<m>\n=== returns\n<res>\n====");
        return res;
     }
     throw "removeMain: no main found";
-    println("removeMain\n====\n<m>\n=== returns (unmodified)");
     return m;
 }
 
@@ -191,10 +190,10 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
             previousConfig.stack = [0]; // make sure we are in the module scope
         }
         mainDecl = getMain(M);
-        println("<mainDecl>");
+        //println("<mainDecl>");
         
         config  = checkDeclaration(mainDecl, true, previousConfig);
-        println("checkDeclaration: done");
+        //println("checkDeclaration: done");
         check_time = (cpuTime() - start_checking)/1000000;
     } catch e: {
         throw e;
