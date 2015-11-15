@@ -27,14 +27,14 @@ import experiments::Compiler::muRascal2RVM::PeepHole;
 
 import util::Reflective;
 
-private loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compiler/muRascal2RVM/Library.mu", pcfg);
+private loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compiler/muRascal2RVM/MuLibrary.mu", pcfg);
 
-private str MuLibrary() = "experiments::Compiler::muRascal2RVM::Library";
+private str MuLibrary() = "experiments::Compiler::muRascal2RVM::MuLibrary";
 
 tuple[bool, loc] getMuLibraryCompiledReadLoc(PathConfig pcfg) {
-    //muLib = |compressed+boot:///Library.rvm.gz|;
-    //return <exists(muLib), muLib>;
-    return getDerivedReadLoc(MuLibrary(), "rvm.gz", pcfg);
+    muLib = |compressed+boot:///MuLibrary.rvm.gz|;
+    return <exists(muLib), muLib>;
+    //return getDerivedReadLoc(MuLibrary(), "rvm.gz", pcfg);
 }
 
 loc getMuLibraryCompiledWriteLoc(PathConfig pcfg) = getDerivedWriteLoc(MuLibrary(), "rvm.gz", pcfg);
