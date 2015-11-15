@@ -1,5 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.IOException;
+
 import org.rascalmpl.interpreter.IEvaluatorContext;  // TODO: remove import? NOT YET: Only used as argument of reflective library function
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
@@ -29,7 +31,7 @@ public class ExecuteProgram {
 			IBool useJVM,
 			IBool serialize, 
 			IEvaluatorContext ctx
-			) {
+			) throws IOException {
 
 		RVMExecutable executable = ExecutionTools.load(rvmProgramLoc, rvmProgram, useJVM, serialize);
 
@@ -53,7 +55,7 @@ public class ExecuteProgram {
 			IBool useJVM,
 			IBool serialize, 
 			RascalExecutionContext rex
-			) {
+			) throws IOException {
 
 		RVMExecutable executable = ExecutionTools.load(rvmProgramLoc, rvmProgram, useJVM, serialize);
 
@@ -75,7 +77,7 @@ public class ExecuteProgram {
 			IBool coverage,
 			IBool useJVM,
 			IEvaluatorContext ctx
-			) {
+			) throws IOException {
 
 		RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc);
 		RascalExecutionContext rex = ExecutionTools.makeRex(executable, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, ctx.getEvaluator().getRascalResolver());
@@ -96,7 +98,7 @@ public class ExecuteProgram {
 			IBool coverage,
 			IBool useJVM,
 			RascalExecutionContext rex
-			) {
+			) throws IOException {
 		RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc);
 		RascalExecutionContext rex2 = ExecutionTools.makeRex(executable, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, rex.getRascalSearchPath());
 		return ExecutionTools.executeProgram(executable, keywordArguments, rex2);

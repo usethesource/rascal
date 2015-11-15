@@ -37,7 +37,12 @@ public class Execute extends Command {
 		
 		RascalExecutionContext rex = new RascalExecutionContext("Execute", vf, System.out, System.err);
 		
-		RVM.readFromFileAndExecuteProgram(findBinary(mainModule.getValue()), null, rex);
+		try {
+			RVM.readFromFileAndExecuteProgram(findBinary(mainModule.getValue()), null, rex);
+		} catch (Exception e) {
+			System.err.println("Cannot initialize: " + e.getMessage());
+			System.exit(-1);
+		}
 		
 	}
 }
