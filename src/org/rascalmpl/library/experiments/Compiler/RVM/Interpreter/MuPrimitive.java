@@ -154,9 +154,6 @@ public enum MuPrimitive {
 						+ arg_2.getClass() + " and "
 						+ arg_1.getClass());
 			}
-//			if(org instanceof IValue && ((IValue)arg_2).getType().isAbstractData() &&  ((IBool)arg_2).getValue()){
-//				System.err.println("not equal: " + arg_2 + " and " + arg_1);
-//			}
 		};
 	},
 	
