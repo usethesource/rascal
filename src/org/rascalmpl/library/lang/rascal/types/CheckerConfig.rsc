@@ -692,8 +692,10 @@ public Configuration addImportedNonterminal(Configuration c, RName n, int itemId
 		if (n is RSimpleName && addFullName) {
 			c.typeEnv[appendName(moduleName, n)] = itemId;
 		}
-	} else if (c.store[c.typeEnv[n]] is datatype || c.store[c.typeEnv[n]] is \alias) {
-		c = addScopeError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", c.store[itemId].at);
+	} else if (c.store[c.typeEnv[n]] is datatype){
+	    c = addScopeError(c, "An adt named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", getOneFrom(c.store[itemId].ats));
+	} else if(c.store[c.typeEnv[n]] is \alias) {
+		c = addScopeError(c, "An alias named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", c.store[itemId].at);
 	}
 	
 	return c;
