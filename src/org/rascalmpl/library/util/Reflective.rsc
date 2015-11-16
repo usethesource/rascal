@@ -279,7 +279,7 @@ loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, 
        bindir.scheme = "compressed+" + bindir.scheme;
     }
     fileLocBin = bindir + fileNameBin;
-    println("getDerivedWriteLoc: <qualifiedModuleName>, <extension> =\> <fileLocBin>");
+    //println("getDerivedWriteLoc: <qualifiedModuleName>, <extension> =\> <fileLocBin>");
     return fileLocBin;
 }
 
