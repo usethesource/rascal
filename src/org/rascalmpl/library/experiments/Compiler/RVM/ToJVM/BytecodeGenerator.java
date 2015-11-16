@@ -37,17 +37,18 @@ public class BytecodeGenerator implements Opcodes {
 
 	// Locations of the variables in a compiled RVM function.
 	public static final int THIS = 0;
-	public static final int CF = 1;
-	public static final int SP = 2;
-	public static final int STACK = 3;
+	public static final int CF = 1;				// Current frame
+	public static final int SP = 2;				// Stack pointer
+	public static final int STACK = 3;			// Stack
 	public static final int LBOOL = 4;
 	public static final int LVAL = 5;
 	public static final int LCOROUTINE = 6;
 	public static final int LPREVFRAME = 7;
 	public static final int EXCEPTION = 8;
-	public static final int CS = 9;
-	public static final int TS = 10;
+	public static final int CS = 9;				// Constant store
+	public static final int TS = 10;			// Type constant store
 	public static final int TMPOBJECT = 11;
+	public static final int REX = 201;			// Rascal Execution Environment
 
 	byte[] endCode = null;
 	
@@ -413,7 +414,7 @@ public class BytecodeGenerator implements Opcodes {
 		Label target = getNamedLabel(targetLabel);
 
 		mv.visitIincInsn(SP, -1);
-		mv.visitVarInsn(ALOAD, 3);
+		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitInsn(AALOAD);
 		mv.visitMethodInsn(INVOKEINTERFACE, "org/rascalmpl/value/IBool", "getValue", "()Z",true);
@@ -882,12 +883,86 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
 		mv.visitVarInsn(ISTORE, SP);
 	}
-
+	
 	/**
-	 * Emits a inline version of the CallMUPrime instructions. Uses a direct call to the static enum execute method.
+	 * Emits a inline version of the CallMUPrim0 instruction. Uses a direct call to the static enum execute method.
 	 * 
 	 */
-	public void emitInlineCallMuPrime(MuPrimitive muprim, int arity, boolean debug) {
+	public void emitInlineCallMuPrim0(MuPrimitive muprim, boolean debug) {
+		if (!emit)
+			return;
+
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive;");
+	
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", "execute0", "()Ljava/lang/Object;",false);
+		mv.visitInsn(AASTORE);
+		mv.visitIincInsn(SP, 1);
+	}
+	
+	/**
+	 * Emits a inline version of the CallMUPrim1 instruction. Uses a direct call to the static enum execute method.
+	 * 
+	 */
+	public void emitInlineCallMuPrim1(MuPrimitive muprim, boolean debug) {
+		if (!emit)
+			return;
+
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive;");
+		
+		mv.visitVarInsn(ALOAD, STACK);		// arg_1
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", "execute1", "(Ljava/lang/Object;)Ljava/lang/Object;",false);
+		
+		mv.visitInsn(AASTORE);
+		mv.visitIincInsn(SP, 1);
+	}
+	
+	/**
+	 * Emits a inline version of the CallMUPrim1 instruction. Uses a direct call to the static enum execute method.
+	 * 
+	 */
+	public void emitInlineCallMuPrim2(MuPrimitive muprim, boolean debug) {
+		if (!emit)
+			return;
+
+		mv.visitIincInsn(SP, -2);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive;");
+		
+		mv.visitVarInsn(ALOAD, STACK);		// arg_2
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		
+		mv.visitIincInsn(SP, 1);
+		
+		mv.visitVarInsn(ALOAD, STACK);		// arg_1
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", "execute2", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",false);
+		
+		mv.visitInsn(AASTORE);
+	}
+
+	/**
+	 * Emits a inline version of the CallMUPrim instructions. Uses a direct call to the static enum execute method.
+	 * 
+	 */
+	public void emitInlineCallMuPrimN(MuPrimitive muprim, int arity, boolean debug) {
 		if (!emit)
 			return;
 
@@ -902,8 +977,96 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", "execute", "([Ljava/lang/Object;II)I",false);
 		mv.visitVarInsn(ISTORE, SP);
 	}
-
-	public void emitInlineCallPrime(RascalPrimitive prim, int arity, boolean debug) {
+	
+	/**
+	 * Emits a inline version of the CallPrim0 instruction. Uses a direct call to the static enum execute method.
+	 * 
+	 */
+	public void emitInlineCallPrim0(RascalPrimitive prim, boolean debug) {
+		if (!emit)
+			return;
+		
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
+		
+		mv.visitVarInsn(ALOAD, CF);
+		mv.visitInsn(ACONST_NULL); // mv.visitVarInsn(ALOAD, REX); // <-----------
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "execute0",
+				"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)Ljava/lang/Object;",false);
+		
+		mv.visitInsn(AASTORE);
+		mv.visitIincInsn(SP, 1);
+	}
+	
+	/**
+	 * Emits a inline version of the CallPrim1 instruction. Uses a direct call to the static enum execute method.
+	 * 
+	 */
+	public void emitInlineCallPrim1(RascalPrimitive prim, boolean debug) {
+		if (!emit)
+			return;
+		
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
+		
+		mv.visitVarInsn(ALOAD, STACK);	// arg_1
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		
+		mv.visitVarInsn(ALOAD, CF);
+		mv.visitInsn(ACONST_NULL); // mv.visitVarInsn(ALOAD, REX);	// <-----------
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "execute1",
+				"(Ljava/lang/Object;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)Ljava/lang/Object;",false);
+		
+		mv.visitInsn(AASTORE);
+		mv.visitIincInsn(SP, 1);
+	}
+	
+	/**
+	 * Emits a inline version of the CallPrim1 instruction. Uses a direct call to the static enum execute method.
+	 * 
+	 */
+	public void emitInlineCallPrim2(RascalPrimitive prim, boolean debug) {
+		if (!emit)
+			return;
+		
+		mv.visitIincInsn(SP, -2);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
+		
+		mv.visitVarInsn(ALOAD, STACK);		// arg_2
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		
+		mv.visitIincInsn(SP, 1);
+		
+		mv.visitVarInsn(ALOAD, STACK);		// arg_1
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		
+		mv.visitVarInsn(ALOAD, CF);
+		mv.visitInsn(ACONST_NULL); // mv.visitVarInsn(ALOAD, REX);	// <-----------
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "execute2",
+				"(Ljava/lang/Object;Ljava/lang/Object;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)Ljava/lang/Object;",false);
+		
+		mv.visitInsn(AASTORE);
+	}
+	
+	/**
+	 * Emits a inline version of the CallPrimN instructions. Uses a direct call to the static enum execute method.
+	 * 
+	 */
+	public void emitInlineCallPrimN(RascalPrimitive prim, int arity, boolean debug) {
 		if (!emit)
 			return;
 
@@ -916,8 +1079,9 @@ public class BytecodeGenerator implements Opcodes {
 		emitIntValue(arity);
 
 		mv.visitVarInsn(ALOAD, CF);
-		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "execute",
-				"([Ljava/lang/Object;IILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)I",false);
+		mv.visitInsn(ACONST_NULL); // mv.visitVarInsn(ALOAD, REX);	// <-----------
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "executeN",
+				"([Ljava/lang/Object;IILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)I",false);
 		mv.visitVarInsn(ISTORE, SP);
 	}
 
@@ -1519,7 +1683,13 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineLoadEmptyKwMap(boolean debug) {
-		throw new CompilerError("LoadEmptyKwMap not implemented");
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitTypeInsn(NEW, "java/util/HashMap");
+		mv.visitInsn(DUP);
+		mv.visitMethodInsn(INVOKESPECIAL, "java/util/HashMap", "<init>", "()V",false);
+		mv.visitInsn(AASTORE);
+		mv.visitIincInsn(SP, 1);
 	}
 
 	public void emitInlineCheckMemo(boolean debug) {
