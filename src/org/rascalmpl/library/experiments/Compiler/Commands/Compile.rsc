@@ -1,10 +1,12 @@
 module experiments::Compiler::Commands::Compile
 
+import String;
 import IO;
 import ParseTree;
-import experiments::Compiler::Compile;
+import util::Reflective;
+import experiments::Compiler::Execute;
 
-layout L = [\ ]+ !>> [\ ];
+layout L = [\ ]* !>> [\ ];
 
 start syntax CompileArgs 
     = "rascalc" Option* options ModuleName* modulesToCompile;
@@ -25,7 +27,7 @@ lexical ModuleName
     ;
 
 lexical NamePart 
-    = ([A-Za-z_][A-Za-z0-9_]) !>> [A-Za-z0-9_];
+    = ([A-Za-z_][A-Za-z0-9_]*) !>> [A-Za-z0-9_];
     
 lexical Path 
     = normal: (![ \t\n\"\'\\] | ("\\" ![])) * !>> ![ \t\n\"\'\\]
@@ -38,10 +40,21 @@ default loc toLocation(Path p) = toLocation("<p>");
 
 loc toLocation(/^<fullPath:[\/].*>$/) = |file:///| + fullPath;
 default loc toLocation(str relativePath) = |cwd:///| + relativePath;
+
+str getModuleName(ModuleName mn) {
+    result = "<mn>";
+    if (mn is rascalName) {
+        return result;
+    }
+    if (startsWith(result, "/")) {
+        result = result[1..];
+    }
+    return replaceAll(result, "/", "::")[..-4];
+}
     
 int compile(str commandLine) {
     try {
-        t = ([start[Syntax]]commandLine).top;
+        t = ([start[CompileArgs]]commandLine).top;
         if ((Option)`--help` <- t.options) {
             printHelp();
             return 0;
@@ -51,7 +64,7 @@ int compile(str commandLine) {
             return 0;
         }
         else if (_ <- t.modulesToCompile) {
-            pcfg = PathConfig();
+            pcfg = pathConfig();
             pcfg.libPath = [ toLocation(p) | (Option)`--libPath <Path p>` <- t.options ] + pcfg.libPath;
             if ((Option)`--srcPath <Path _>` <- t.options) {
                 pcfg.srcPath = [ toLocation(p) | (Option)`--srcPath <Path p>` <- t.options ] + pcfg.srcPath;
@@ -81,7 +94,7 @@ int compile(str commandLine) {
     catch e: {
         println("Something went wrong:");
         println(e);
-        printHelp();
+        return 2;
     }
 }
 
