@@ -52,12 +52,12 @@ int compile(str commandLine) {
         }
         else if (_ <- t.modulesToCompile) {
             pcfg = PathConfig();
-            pcfg.libPath += [ toLocation(p) | (Option)`--libPath <Path p>` <- t.options ];
+            pcfg.libPath = [ toLocation(p) | (Option)`--libPath <Path p>` <- t.options ] + pcfg.libPath;
             if ((Option)`--srcPath <Path _>` <- t.options) {
-                pcfg.srcPath += [ toLocation(p) | (Option)`--srcPath <Path p>` <- t.options ];
+                pcfg.srcPath = [ toLocation(p) | (Option)`--srcPath <Path p>` <- t.options ] + pcfg.srcPath;
             }
             else {
-                pcfg.srcPath += |cwd:///|;
+                pcfg.srcPath = [|cwd:///|, *pcfg.srcPath];
             }
             if ((Option)`--binDir <Path p>` <- t.options) {
                 pcfg.binDir = toLocation(p);
