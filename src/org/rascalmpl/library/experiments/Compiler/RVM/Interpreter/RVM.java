@@ -1582,7 +1582,6 @@ public class RVM implements java.io.Serializable {
 					stack[sp++] = Rascal_FALSE; // 'Exhaust' has to always return FALSE, i.e., signal a failure;
 					continue NEXT_INSTRUCTION;
 					
-				case Opcode.OP_CALLPRIM:
 				case Opcode.OP_CALLPRIMN:
 					arity = CodeBlock.fetchArg2(instruction);
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];

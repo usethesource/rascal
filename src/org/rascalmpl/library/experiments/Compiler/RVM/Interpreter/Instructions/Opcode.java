@@ -21,7 +21,7 @@ public enum Opcode {
 	STOREVAR 			(3, 	1),
 	STORELOC 			(4, 	1),
 	CALL 				(5, 	1),
-	CALLPRIM	 		(6, 	2),
+//	CALLPRIM	 		(6, 	2),
 	RETURN1 			(7, 	1),
 	JMP 				(8, 	1),
 	JMPTRUE 			(9, 	1),
@@ -49,7 +49,7 @@ public enum Opcode {
 	CALLCONSTR			(31,	1),
 	LOAD_NESTED_FUN		(32, 	1),
 	LOADTYPE			(33,	1),
-	CALLMUPRIM			(34,	1),
+//	CALLMUPRIM			(34,	1),
 	LOADBOOL			(35,	1),
 	LOADINT				(36,	1),
 	FAILRETURN			(37, 	1),
@@ -130,7 +130,7 @@ public enum Opcode {
 	static public final int OP_STOREVAR= 3;
 	static public final int OP_STORELOC = 4;
 	static public final int OP_CALL = 5;
-	static public final int OP_CALLPRIM = 6;
+//	static public final int OP_CALLPRIM = 6;
 	static public final int OP_RETURN1 = 7;
 	static public final int OP_JMP = 8;
 	static public final int OP_JMPTRUE = 9;
@@ -158,7 +158,7 @@ public enum Opcode {
 	static public final int OP_CALLCONSTR = 31;
 	static public final int OP_LOAD_NESTED_FUN = 32;
 	static public final int OP_LOADTYPE = 33;
-	static public final int OP_CALLMUPRIM = 34;
+//	static public final int OP_CALLMUPRIM = 34;
 	static public final int OP_LOADBOOL = 35;
 	static public final int OP_LOADINT = 36;
 	static public final int OP_FAILRETURN = 37;
@@ -300,11 +300,6 @@ public enum Opcode {
 			return "CALL " + cb.getFunctionName(arg1)  + ", " 
 						   + arg2;
 			
-		case CALLPRIM:
-			return "CALLPRIM " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
-							   + arg2 + ", "
-							   + cb.getConstantValue(cb.finalCode[pc + 1]);
-			
 		case RETURN1:
 			return "RETURN1 " + arg1;
 			
@@ -391,10 +386,6 @@ public enum Opcode {
 			
 		case LOADTYPE:
 			return "LOADTYPE " + arg1;
-			
-		case CALLMUPRIM:
-			return "CALLMUPRIM " + MuPrimitive.fromInteger(arg1).name() +  ", " 
-							     + arg2;
 			
 		case LOADBOOL:
 			return "LOADBOOL " + (arg1 == 1);

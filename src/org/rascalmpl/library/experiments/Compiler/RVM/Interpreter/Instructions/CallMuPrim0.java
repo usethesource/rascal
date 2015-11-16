@@ -24,6 +24,6 @@ public class CallMuPrim0 extends Instruction {
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
-		codeEmittor.emitInlineCallMuPrime(muprim, 0, debug);
+		codeEmittor.emitInlineCallMuPrim0(muprim, debug);
 	}
 }
