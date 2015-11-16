@@ -557,17 +557,6 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				codeblock = codeblock.LABEL(getStrField(instruction, "label"));
 				break;
 
-			case "CALLPRIM":
-				codeblock.CALLPRIM(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
-								   getIntField(instruction, "arity"), 
-								   getLocField(instruction, "src"));
-				break;
-
-			case "CALLMUPRIM":
-				codeblock.CALLMUPRIM(MuPrimitive.valueOf(getStrField(instruction, "name")), 
-									 getIntField(instruction, "arity"));
-				break;
-
 			case "CALL":
 				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"),++continuationPoints);
 				break;

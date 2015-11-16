@@ -1986,9 +1986,9 @@ public enum MuPrimitive {
 		return t.isExternalType() && ((RascalType) t).isNonterminal();
 	}
 	
-	public int execute(final Object[] stack, final int sp, final int arity) {
-		throw new CompilerError("Not implemented MuPrimitive");
-	}
+//	public int execute(final Object[] stack, final int sp, final int arity) {
+//		throw new CompilerError("Not implemented MuPrimitive");
+//	}
 	
 	public Object execute0() {
 		throw new CompilerError("Not implemented MuPrimitive");

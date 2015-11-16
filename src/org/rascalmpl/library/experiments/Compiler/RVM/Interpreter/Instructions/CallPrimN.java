@@ -24,10 +24,11 @@ public class CallPrimN extends Instruction {
 		codeblock.addCode2(opcode.getOpcode(), prim.ordinal(), arity);
 		codeblock.addCode(codeblock.getConstantIndex(src));
 	}
+	
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 
-		codeEmittor.emitInlineCallPrime(prim, arity, debug); 
+		codeEmittor.emitInlineCallPrimN(prim, arity, debug); 
 	}
 }

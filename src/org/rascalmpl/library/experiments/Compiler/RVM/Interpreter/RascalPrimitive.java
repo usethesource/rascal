@@ -8506,9 +8506,9 @@ public enum RascalPrimitive {
 	 * @param rex			the current RascalExecutionContext
 	 * @return				new value for stack pointer (sp)
 	 */
-	public int execute(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
-		throw new CompilerError("Not implemented RascalPrimitive");
-	}
+//	public int execute(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
+//		throw new CompilerError("Not implemented RascalPrimitive");
+//	}
 	public Object execute0(Frame currentFrame, RascalExecutionContext rex) {
 		throw new CompilerError("Not implemented RascalPrimitive");
 	}

@@ -14,12 +14,10 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.C
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallConstr;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallJava;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim1;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim2;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrimN;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim1;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim2;
@@ -499,14 +497,6 @@ public class CodeBlock implements Serializable {
 			getConstantIndex(vf.string(fuid));
 		}
 		return add(new StoreVar(this, fuid, pos));
-	}
-	
-	public CodeBlock CALLPRIM (RascalPrimitive prim, int arity, ISourceLocation src){
-		return add(new CallPrim(this, prim, arity, src));
-	}
-	
-	public CodeBlock CALLMUPRIM (MuPrimitive muprim, int arity){
-		return add(new CallMuPrim(this, muprim, arity));
 	}
 	
 	public CodeBlock CALLMUPRIM0 (MuPrimitive muprim){
