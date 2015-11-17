@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -262,16 +262,24 @@ public class URIUtil {
 	
 	public static ISourceLocation getChildLocation(ISourceLocation loc, String child) {
 		String childPath = loc.getPath();
+		String scheme = loc.getScheme();
+		
 		if (childPath == null || childPath.isEmpty()) {
 			childPath = "/";
 		}
 		else if (!childPath.endsWith("/")) {
-			childPath += "/";
+			if (childPath.endsWith(".jar")) {
+				scheme = "jar+" + scheme;
+				childPath += "!/";
+			} else {
+				childPath += "/";
+			}
 		}
+		
 		childPath += child;
 
 		try {
-			return vf.sourceLocation(loc.getScheme(), getCorrectAuthority(loc), childPath, loc.hasQuery() ? loc.getQuery() : null, loc.hasFragment() ? loc.getFragment() : null);
+			return vf.sourceLocation(scheme, getCorrectAuthority(loc), childPath, loc.hasQuery() ? loc.getQuery() : null, loc.hasFragment() ? loc.getFragment() : null);
 		} catch (URISyntaxException e) {
 			assert false;
 			return loc;
