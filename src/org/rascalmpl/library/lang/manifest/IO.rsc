@@ -15,8 +15,8 @@ java map[str key, str val] readManifest(loc input);
 
 @doc{reads a manifest and converts the resulting map to keyword parameters for the given type}
 (&T <: node) readManifest(type[&T<:node] t, loc input) {
-   value convert(\list(Symbol _), str i) = [trim(x) | x <- split(",", i)];
-   value convert(\set(Symbol _), str i) = [trim(x) | x <- split(",", i)];
+   value convert(\list(\str()), str i) = [trim(x) | x <- split(",", i)];
+   value convert(\set(\str()), str i) = [trim(x) | x <- split(",", i)];
    default value convert(Symbol _, str i) = i;
    
    m = readManifest(input);
