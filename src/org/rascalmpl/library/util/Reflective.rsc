@@ -85,7 +85,7 @@ data PathConfig
               );
 
 data RascalManifest
-  = manifest(
+  = rascalManifest(
       str \Main-Module = "Plugin",
       str \Main-Function = "main", 
       list[str] Source = ["src"],
@@ -93,7 +93,20 @@ data RascalManifest
       list[str] \Required-Libraries = [],
       list[str] \Required-Dependencies = []
     ); 
-        
+
+data JavaBundleManifest
+  = javaManifest(
+      str \Manifest-Version = "",
+      str \Bundle-SymbolicName = "",
+      str \Bundle-RequiredExecutionEnvironment = "JavaSE-1.8",
+      list[str] \Require-Bundle = [],
+      str \Bundle-Version = "0.0.0.qualifier",
+      list[str] \Export-Package = [],
+      str \Bundle-Vendor = "",
+      str \Bundle-Name = "",
+      list[str] \Bundle-ClassPath = [],
+      list[str] \Import-Package = [] 
+    );        
             
 loc metafile(loc l) = l + "META-INF/RASCAL.MF";
 
