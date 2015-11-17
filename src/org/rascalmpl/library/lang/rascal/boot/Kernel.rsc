@@ -18,6 +18,8 @@ module lang::rascal::boot::Kernel
 import experiments::Compiler::RVM::AST;
 import experiments::Compiler::Compile;
 import experiments::Compiler::Execute;
+import experiments::Compiler::Commands::Rascalc;
+import experiments::Compiler::Commands::Rascal;
 import util::Reflective;
 //import experiments::Compiler::Inspect;
 
@@ -33,3 +35,9 @@ RVMProgram compileAndLinkIncremental(str moduleName,  bool reuseConfig, bool use
 value execute(str moduleName, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=true, bool verbose = false)
      =
      experiments::Compiler::Execute::execute(moduleName, pcfg, keywordArguments = keywordArguments, debug=debug, testsuite=testsuite, recompile=recompile, profile=profile, trackCalls= trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize, verbose = verbose);
+
+
+int rascalc(str commandLine) = experiments::Compiler::Commands::Rascalc::rascalc(commandLine);
+
+value rascal(str commandLine) = experiments::Compiler::Commands::Rascal::rascal(commandLine);
+     
