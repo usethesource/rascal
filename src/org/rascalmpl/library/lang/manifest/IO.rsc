@@ -1,3 +1,8 @@
+@doc{
+  Jar Manifest files are a kind of property files typically stored inside Jar files.
+  They contain meta information about the other files stored in the jar file.
+} 
+@author{Jurgen Vinju}
 module lang::manifest::IO
 
 import Type;
