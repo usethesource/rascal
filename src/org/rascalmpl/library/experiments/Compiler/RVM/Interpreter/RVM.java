@@ -359,7 +359,7 @@ public class RVM implements java.io.Serializable {
 					FunctionType ft = (FunctionType) f.ftype;
 					if(ftype.getAbstractDataType().equals(ft.getReturnType())){
 						if(ftype.isAbstractData()){
-							System.err.println("getCompanionDefaultsFunction1: " + name + ", " + ftype);
+							//System.err.println("getCompanionDefaultsFunction1: " + name + ", " + ftype);
 							return f;
 						}
 						if(ftype.getFieldTypes().getArity() == ft.getArgumentTypes().getArity()){
@@ -368,13 +368,13 @@ public class RVM implements java.io.Serializable {
 									continue all;
 								}
 							}
-							System.err.println("getCompanionDefaultsFunction2: " + name + ", " + ftype);
+							//System.err.println("getCompanionDefaultsFunction2: " + name + ", " + ftype);
 							return f;
 						}
 					}
 				}
 			}
-	System.err.println("getCompanionDefaultsFunction3: " + name + ", " + ftype);
+	//System.err.println("getCompanionDefaultsFunction3: " + name + ", " + ftype);
 	return noCompanionFunction;
 	}
 	
