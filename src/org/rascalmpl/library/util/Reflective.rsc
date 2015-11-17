@@ -18,6 +18,7 @@ import ParseTree;
 import IO;
 import String;
 import lang::rascal::\syntax::Rascal;
+import lang::manifest::IO;
 
 public Tree getModuleParseTree(str modulePath) {
     return parseModule(getModuleLocation(modulePath));
@@ -73,16 +74,53 @@ public java loc getModuleLocation(str modulePath);
 @reflect{Uses Evaluator to resolve a path name in the Rascal search path}
 public java loc getSearchPathLocation(str filePath);
 
-data PathConfig =
-     pathConfig(list[loc] srcPath = [|std:///|],        // List of directories to search for source files
-                list[loc] libPath = [|boot:///stdlib|, |std:///|],        
+data PathConfig 
+  = pathConfig(list[loc] srcPath = [|std:///|],        // List of directories to search for source files
+               list[loc] libPath = [|boot:///stdlib|, |std:///|],        
                                                         // List of directories to search source for derived files
-                list[loc] projectPath = [],             // List of directories to search for source or derived files in projects
+               list[loc] projectPath = [],             // List of directories to search for source or derived files in projects
                                                         // Note: each directory should include the project name as last path element
-                loc binDir = |home:///bin/|,            // Global directory for derived files outside projects
-                loc bootDir = |boot+compressed:///|     // Directory with Rascal boot files
-               );
-                 
+               loc binDir = |home:///bin/|,            // Global directory for derived files outside projects
+               loc bootDir = |boot+compressed:///|     // Directory with Rascal boot files
+              );
+
+data RascalManifest
+  = manifest(
+      str \Main-Module = "Plugin",
+      str \Main-Function = "main", 
+      list[str] Source = ["src"],
+      str Bin = "bin",
+      list[str] \Required-Libraries = [],
+      list[str] \Required-Dependencies = []
+    ); 
+        
+            
+loc metafile(loc l) = l + "META-INF/RASCAL.MF";
+
+@doc{
+  Converts a PathConfig and replaces all references to roots of projects or bundles
+  by the folders which are nested under these roots as configured in their respective
+  META-INF/RASCAL.MF files.
+}
+PathConfig applyManifests(PathConfig cfg) {
+   mf = (l:readManifest(#RascalManifest, metafile(l)) | l <- cfg.srcPath + cfg.libPath + [cfg.binDir], exists(metafile(l)));
+
+   list[loc] expandSrcPath(loc p) = [ p + s | s <- mf[p].Source] when mf[p]?;
+   default list[loc] expandSrcPath(loc p, str _) = [p];
+   
+   list[loc] expandLibPath(loc p) = [ p + s | s <- mf[p].\Required-Libraries] when mf[p]?;
+   default list[loc] expandLibPath(loc p, str _) = [p];
+    
+   loc expandBinDir(loc p) = p + mf[p].Bin when mf[p];
+   default loc expandBinDir(loc p) = p;
+   
+   cfg.srcPath = [*expandSrcPath(p) | p <- cfg.srcPath];
+   cfg.libPath = [*expandLibPath(p) | p <- cfg.libPath];
+   cfg.binDir  = expandBinDir(cfg.binDir);
+   
+   return cfg;
+}
+
 str makeFileName(str qualifiedModuleName, str extension = "rsc") = replaceAll(qualifiedModuleName, "::", "/") + "." + extension;
 
 loc getSearchPathLoc(str filePath, PathConfig pcfg){
@@ -279,7 +317,7 @@ loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, 
        bindir.scheme = "compressed+" + bindir.scheme;
     }
     fileLocBin = bindir + fileNameBin;
-    //println("getDerivedWriteLoc: <qualifiedModuleName>, <extension> =\> <fileLocBin>");
+    println("getDerivedWriteLoc: <qualifiedModuleName>, <extension> =\> <fileLocBin>");
     return fileLocBin;
 }
 
