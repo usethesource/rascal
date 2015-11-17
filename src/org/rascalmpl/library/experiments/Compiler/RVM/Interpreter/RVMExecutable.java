@@ -1,6 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -236,22 +235,13 @@ public class RVMExecutable implements Serializable{
 		FSTFunctionSerializer.initSerialization(vf, typeStore);
 		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
 
-		//try {
-			ISourceLocation compOut = rvmExecutable;
-			fileOut = URIResolverRegistry.getInstance().getOutputStream(compOut, false);
-			FSTObjectOutput out = new FSTObjectOutput(fileOut, RVMLoader.conf);
-			long before = Timing.getCpuTime();
-			out.writeObject(this);
-			out.close();
-			System.out.println("Writing: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
-			
-//		} catch (FileNotFoundException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} 
+		ISourceLocation compOut = rvmExecutable;
+		fileOut = URIResolverRegistry.getInstance().getOutputStream(compOut, false);
+		FSTObjectOutput out = new FSTObjectOutput(fileOut, RVMLoader.conf);
+		long before = Timing.getCpuTime();
+		out.writeObject(this);
+		out.close();
+		System.out.println("Writing: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 	}
 	
 	public static RVMExecutable read(ISourceLocation rvmExecutable) throws IOException {
