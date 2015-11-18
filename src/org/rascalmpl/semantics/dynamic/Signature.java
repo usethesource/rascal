@@ -12,6 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.rascalmpl.ast.FunctionModifiers;
@@ -23,6 +25,8 @@ import org.rascalmpl.interpreter.TypeDeclarationEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
@@ -30,6 +34,32 @@ import org.rascalmpl.value.type.Type;
 
 public abstract class Signature extends org.rascalmpl.ast.Signature {
 
+	static public class Test extends NoThrows {
+		public Test(ISourceLocation src, IConstructor node, Name name, Parameters parameters) {
+			super(src, 
+					node, 
+					ASTBuilder.make("FunctionModifiers", "Modifierlist", src, Arrays.asList(ASTBuilder.make("FunctionModifier", "Test", src))), 
+					ASTBuilder.make("Type", "Basic", src,
+							ASTBuilder.make("BasicType",  "Bool", src)
+							), 
+					name, 
+					parameters);
+		}
+	}
+	
+	static public class Format extends NoThrows {
+		public Format(ISourceLocation src, IConstructor node, Parameters parameters) {
+			super(src, 
+					node, 
+					ASTBuilder.make("FunctionModifiers", "Modifierlist", src, Collections.emptyList()), 
+					ASTBuilder.make("Type", "Basic", src,
+							ASTBuilder.make("BasicType",  "Value", src)
+							), 
+					Names.toName("format", src), 
+					parameters);
+		}
+	}
+		
 	static public class NoThrows extends org.rascalmpl.ast.Signature.NoThrows {
 
 		public NoThrows(ISourceLocation __param1, IConstructor tree,FunctionModifiers __param3, org.rascalmpl.ast.Type __param2,
