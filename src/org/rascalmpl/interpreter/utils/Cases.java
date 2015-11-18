@@ -25,7 +25,9 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.PatternWithAction;
 import org.rascalmpl.ast.Replacement;
 import org.rascalmpl.ast.Statement;
+import org.rascalmpl.ast.StringLiteral;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.Insert;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
@@ -36,6 +38,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.semantics.dynamic.QualifiedName;
+import org.rascalmpl.semantics.dynamic.StringPart;
 import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.INode;
@@ -341,7 +344,16 @@ public class Cases  {
 			if (name.isQualifiedName()) {
 				key = ((QualifiedName.Default) name.getQualifiedName()).lastName();
 			} else if (name.isLiteral()) {
-				key = ((IString) name.getLiteral().getStringLiteral().interpret(null).getValue()).getValue();
+				StringLiteral lit = name.getLiteral().getStringLiteral();
+				key = ((IString) lit.getIndent().interpret(null).getValue()).getValue();
+				for (org.rascalmpl.ast.StringPart p : lit.getBody()) {
+					if (p.isCharacters()) {
+						key += ((IString) p.getCharacters().interpret(null).getValue()).getValue();
+					}
+					else {
+						throw new NotYetImplemented("non-constant node name in patterns");
+					}
+				}
 			}
 
 			List<DefaultBlock> same = table.get(key);

@@ -394,6 +394,7 @@ public class ASTBuilder {
 	}
 
 	private static ImplementationError unexpectedError(Throwable e) {
+		e.printStackTrace();
 		return new ImplementationError("Unexpected error in AST construction: " + e, e);
 	}
 
