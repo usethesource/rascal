@@ -787,11 +787,16 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, bool isMemo, int i
     }
    }
    pat = formals[0];
+   
    if(pat is literal){
      // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
       ifname = nextLabel();
       enterBacktrackingScope(ifname);
-      exp = muIfelse(ifname,muCallMuPrim("equal", [ muVar("<i>",topFunctionScope(),i), translate(pat.literal) ]),
+      
+      patTest =  pat.literal is regExp ? muMulti(muApply(translatePat(pat, getType(pat@\loc)), [muVar("<i>",topFunctionScope(),i) ]))
+                                       : muCallMuPrim("equal", [ muVar("<i>",topFunctionScope(),i), translate(pat.literal) ]);
+      
+      exp = muIfelse(ifname, patTest,
                    [ translateFormals(tail(formals), isVarArgs, isMemo, i + 1, kwps, body, when_conditions, src) ],
                    [ muFailReturn() ]
                   );
