@@ -24,6 +24,7 @@ import java.util.jar.Manifest;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.experiments.Compiler.Commands.Rascal;
 import org.rascalmpl.library.experiments.Compiler.Commands.RascalC;
+import org.rascalmpl.shell.compiled.CompiledREPLRunner;
 
 
 public class RascalShell  {
@@ -66,13 +67,17 @@ public class RascalShell  {
                         }
                     };
                 }
-                if (args[0].equals("--rascal")) {
+                else if (args[0].equals("--rascal")) {
                     runner = new ShellRunner() {
                         @Override
                         public void run(String[] args) throws IOException {
                             Rascal.main(Arrays.copyOfRange(args, 1, args.length));
                         }
                     };
+                }
+                else if (args[0].equals("--compiledREPL")) {
+                    runner = new CompiledREPLRunner(System.in, System.out);
+                    
                 }
                 else {
                     runner = new ModuleRunner(new PrintWriter(System.out), new PrintWriter(System.err, true));
