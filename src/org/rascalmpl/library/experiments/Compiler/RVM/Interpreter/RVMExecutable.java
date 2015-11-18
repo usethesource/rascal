@@ -213,7 +213,7 @@ public class RVMExecutable implements Serializable{
 			codeEmittor.buildClass(packageName,className,debug) ;
 
 			jvmByteCode = codeEmittor.finalizeCode();
-			fullyQualifiedName = codeEmittor.finalName().replace('/', '.') ;
+			fullyQualifiedDottedName = fullyQualifiedName = codeEmittor.finalName().replace('/', '.') ;
 			
 			// TODO: REMOVE for debug purposes only
 			codeEmittor.dump("/tmp/RVMRunner.class");
