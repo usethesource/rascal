@@ -283,7 +283,19 @@ test bool  dispatchTest3() {
     int f((XYZ) `z`) = 3;
   		
     return [f((XYZ)`x`),f((XYZ)`y`),f((XYZ)`z`)] == [1,2,3];
-}	
+}
+
+test bool  dispatchTest4() { 
+	int f(/[a-z]+/) = 1;
+    int f(/[0-9]+/) = 2;
+    return f("abc") == 1 && f("123") == 2;
+}
+
+test bool  dispatchTest5() { 
+    str f(/X<v:[a-z]+>Y/) = v;
+    str f(/X<v:[0-9]+>Y/) = v;
+    return f("XabcY") == "abc" && f("X123Y") == "123";
+}
 
 // Indirect calls
 
