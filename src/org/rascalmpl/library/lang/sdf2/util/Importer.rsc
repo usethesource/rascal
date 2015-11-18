@@ -2,7 +2,7 @@ module lang::sdf2::util::Importer
 
 import lang::sdf2::util::Load;
 import lang::sdf2::util::SDF2Grammar;
-import lang::rascal::format::Grammar;
+import lang::rascal::\format::Grammar;
 import lang::rascal::grammar::definition::Modules;
 
 @resource{sdf}

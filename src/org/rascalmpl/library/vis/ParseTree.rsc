@@ -10,8 +10,8 @@ module vis::ParseTree
 
 // Visualization of ParseTrees
 
-import lang::rascal::format::Grammar;
-import lang::rascal::format::Escape;
+import lang::rascal::\format::Grammar;
+import lang::rascal::\format::Escape;
 import vis::Figure;
 import vis::Render;
 import vis::KeySym;

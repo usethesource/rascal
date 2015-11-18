@@ -22,7 +22,7 @@ import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Regular;
 import lang::rascal::grammar::definition::Symbols;
-import lang::rascal::format::Escape;
+import lang::rascal::\format::Escape;
 
 public Grammar addHoles(Grammar object) = compose(object, grammar({}, holes(object)));
 

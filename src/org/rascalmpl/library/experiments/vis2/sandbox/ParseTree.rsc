@@ -12,8 +12,8 @@ module experiments::vis2::sandbox::ParseTree
 
 // Visualization of ParseTrees
 
-import lang::rascal::format::Grammar;
-import lang::rascal::format::Escape;
+import lang::rascal::\format::Grammar;
+import lang::rascal::\format::Escape;
 import experiments::vis2::sandbox::Figure;
 import experiments::vis2::sandbox::FigureServer;
 import demo::lang::Pico::Load;
