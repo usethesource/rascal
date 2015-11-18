@@ -109,7 +109,7 @@ public abstract class StringLiteral extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 283 + 947 * indent.hashCode() + 541 * body.hashCode() ; 
+      return 421 + 541 * indent.hashCode() + 509 * body.hashCode() ; 
     } 
   
     

@@ -95,7 +95,10 @@ lexical PathChars
 
 syntax Signature
 	= withThrows: FunctionModifiers modifiers Type type  Name name Parameters parameters "throws" {Type ","}+ exceptions 
-	| noThrows: FunctionModifiers modifiers Type type  Name name Parameters parameters ;
+	| noThrows: FunctionModifiers modifiers Type type  Name name Parameters parameters 
+	| \test: "test" Name name Parameters parameters 
+	| \format: "format" Parameters parameters 
+	;
 
 syntax Sym
 // named non-terminals
@@ -665,6 +668,7 @@ keyword RascalKeywords
 	| "num" 
 	| "node" 
 	| "finally" 
+	| "format"
 	| "private" 
 	| "real" 
 	| "list" 
@@ -774,6 +778,7 @@ syntax FunctionDeclaration
 	| @Foldable @breakable{expression} expression: Tags tags Visibility visibility Signature signature "=" Expression expression ";"
 	| @Foldable @breakable{expression,conditions} conditional: Tags tags Visibility visibility Signature signature "=" Expression expression "when" {Expression ","}+ conditions ";"
 	| @Foldable \default: Tags tags Visibility visibility Signature signature FunctionBody body ;
+	
 
 lexical PreProtocolChars
 	= "|" URLChars "\<" ;

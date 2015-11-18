@@ -533,7 +533,11 @@ public interface IASTVisitor<T> {
 
   public T visitShellCommandUnimport(ShellCommand.Unimport x);
 
+  public T visitSignatureFormat(Signature.Format x);
+
   public T visitSignatureNoThrows(Signature.NoThrows x);
+
+  public T visitSignatureTest(Signature.Test x);
 
   public T visitSignatureWithThrows(Signature.WithThrows x);
 

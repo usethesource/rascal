@@ -1049,7 +1049,15 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitSignatureFormat(Signature.Format x) { 
+    return null; 
+  }
+
   public T visitSignatureNoThrows(Signature.NoThrows x) { 
+    return null; 
+  }
+
+  public T visitSignatureTest(Signature.Test x) { 
     return null; 
   }
 

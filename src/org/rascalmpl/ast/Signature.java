@@ -64,6 +64,80 @@ public abstract class Signature extends AbstractAST {
   
 
   
+  public boolean isFormat() {
+    return false;
+  }
+
+  static public class Format extends Signature {
+    // Production: sig("Format",[arg("org.rascalmpl.ast.Parameters","parameters")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Parameters parameters;
+  
+    public Format(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Parameters parameters) {
+      super(src, node);
+      
+      this.parameters = parameters;
+    }
+  
+    @Override
+    public boolean isFormat() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSignatureFormat(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = parameters.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        parameters.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Format)) {
+        return false;
+      }        
+      Format tmp = (Format) o;
+      return true && tmp.parameters.equals(this.parameters) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 113 + 659 * parameters.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Parameters getParameters() {
+      return this.parameters;
+    }
+  
+    @Override
+    public boolean hasParameters() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(parameters));
+    }
+            
+  }
   public boolean isNoThrows() {
     return false;
   }
@@ -148,7 +222,7 @@ public abstract class Signature extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 113 + 659 * modifiers.hashCode() + 113 * type.hashCode() + 163 * name.hashCode() + 491 * parameters.hashCode() ; 
+      return 113 + 163 * modifiers.hashCode() + 491 * type.hashCode() + 887 * name.hashCode() + 547 * parameters.hashCode() ; 
     } 
   
     
@@ -192,6 +266,99 @@ public abstract class Signature extends AbstractAST {
     @Override
     public Object clone()  {
       return newInstance(getClass(), src, (IConstructor) null , clone(modifiers), clone(type), clone(name), clone(parameters));
+    }
+            
+  }
+  public boolean isTest() {
+    return false;
+  }
+
+  static public class Test extends Signature {
+    // Production: sig("Test",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Parameters","parameters")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Name name;
+    private final org.rascalmpl.ast.Parameters parameters;
+  
+    public Test(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters) {
+      super(src, node);
+      
+      this.name = name;
+      this.parameters = parameters;
+    }
+  
+    @Override
+    public boolean isTest() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitSignatureTest(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = name.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        name.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+      $l = parameters.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        parameters.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Test)) {
+        return false;
+      }        
+      Test tmp = (Test) o;
+      return true && tmp.name.equals(this.name) && tmp.parameters.equals(this.parameters) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 293 + 997 * name.hashCode() + 881 * parameters.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Name getName() {
+      return this.name;
+    }
+  
+    @Override
+    public boolean hasName() {
+      return true;
+    }
+    @Override
+    public org.rascalmpl.ast.Parameters getParameters() {
+      return this.parameters;
+    }
+  
+    @Override
+    public boolean hasParameters() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(parameters));
     }
             
   }
@@ -291,7 +458,7 @@ public abstract class Signature extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 887 + 547 * modifiers.hashCode() + 293 * type.hashCode() + 997 * name.hashCode() + 881 * parameters.hashCode() + 313 * exceptions.hashCode() ; 
+      return 313 + 127 * modifiers.hashCode() + 823 * type.hashCode() + 757 * name.hashCode() + 89 * parameters.hashCode() + 619 * exceptions.hashCode() ; 
     } 
   
     
