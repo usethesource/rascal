@@ -163,7 +163,7 @@ Figure demoFig() = grid(figArray=[
             ]);
                   
 void demo() = render(demoFig(),
-     width = 800, height = 1800);
+     width = 800, height = 1800, resizable = false);
      
  void fdemo(loc l) {
       // println(schoolPlot());
@@ -470,7 +470,8 @@ Figure demo15()= ov();
 list[Figure] rgbFigs = [box(fillColor="red",size=<50,100>), box(fillColor="green", size=<200,200>), box(fillColor="blue",  size=<10,10>)];
 
 public Figure hcat11() = 
-       box(padding=<0, 0, 0, 0>, lineWidth = 10, fillColor = "antiquewhite", lineColor = "blue"
+       box(padding=<0, 0, 0, 0>, lineWidth = 10 , resizable = false
+       , fillColor = "antiquewhite", lineColor = "blue"
        ,fig= ellipse(padding=<0, 0, 0, 0>
              ,fig=hcat(lineWidth=2, lineColor="brown", figs=rgbFigs) 
              // ,size=<100, 50>

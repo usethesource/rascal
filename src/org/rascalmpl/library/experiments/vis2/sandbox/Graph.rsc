@@ -49,26 +49,37 @@ public void tfsm() = render(fsm());
 
 public void ffsm(loc l) = writeFile(l, toHtmlString(fsm()));
 
-public Figure shape1 = shape([line(100,100), line(100,200), line(200,200)], 
-    shapeClosed=true, startMarker=box(lineWidth=1, size=<50, 50>, fig = circle(r=20, fillColor="red"), fillColor="antiqueWhite"));
-void tshape1(){	render(shape1); }
-void ftshape1(loc f){writeFile(f, toHtmlString(shape1));}
-Figure gbox1()= box(lineWidth = 1, size=<60, 60>, 
-   fig =  
-        box(fig = text("aap"), fillColor="antiquewhite"
-        ), fillColor = "lightblue", tooltip = box(size=<15, 15>));
+public Figure tree1() = tree(box(fillColor="red", size=<10, 10>), [box(size=<5, 5>)]);
+
+public Figure shape1() = 
+svg(shape([line(100,100), line(100,200), line(200,200)], 
+    shapeClosed=true, startMarker=box(lineWidth=1, size=<50, 50>, fig = circle(r=3, fillColor="red"), fillColor="antiqueWhite")));
+void tshape1(){	render(shape1()); }
+void ftshape1(loc f){writeFile(f, toHtmlString(shape1()));}
+Figure gbox1()= overlay(figs=[
+          box(id="touch", fillColor="whitesmoke", lineWidth = 1, size=<60, 60>,
+               tooltip = tree(box(fillColor="red", size=<15, 15>),
+                     [box(fillColor="blue", size=<10, 10>)]))
+          ,box(id="inner", fillColor="yellow", size=<25, 25>)]
+        )
+        ;
+
+void tgbox1() = render(gbox1());
+
 Figure grap() = graph([
 <"a", gbox1()>
-, <"b", box(id = "ttip", size=<60, 60>, /*fig=text("noot"),*/ rounded=<15, 15>, fillColor = "antiquewhite"
-       ,tooltip= 
-         at(10, 10, 
-         box(size=<20, 20>, fillColor = "gold"), width = 10)
-        )
+, <"b"
+     // , overlay(figs=[
+         , box(id = "ttip", size=<60, 60> 
+          ,tooltip= tree1() 
+          // , tooltip = box(size=<100, 100>)
+          , fig = text("Hallo")
+       ,  rounded=<15, 15>, fillColor = "antiquewhite")
         >
 , <"c", box(/*grow=1.0,*/ id=  "ap"// , fig = text("HALLO")
 , fillColor = "pink", size=<50, 50>
 // , tooltip=box(size=<50, 50>, fillColor="blue")
- , tooltip=at(40, 40, svg(steden()))
+    , tooltip=svg(steden())
 )>
 // , <"d", ngon(n=3, r= 30, size=<50, 50>, fillColor = "lightgreen")>
 ]

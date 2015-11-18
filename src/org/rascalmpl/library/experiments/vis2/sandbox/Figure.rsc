@@ -179,6 +179,10 @@ public data Figure(
 		Rotate rotate =<0, -1, -1>, 
 		Alignment align = <0.5, 0.5>, // TODO should be middle,
 		num grow = 1.0,
+		num shrink = 1.0, 
+		num hshrink = 1.0, 
+		num vshrink = 1.0, 
+		bool resizable = true,
 		tuple[int,int] gap = <0,0>,
 		int hgap = 0,
 		int vgap = 0,
@@ -330,7 +334,7 @@ public data Figure(
 	       ,Orientation orientation = topDown()
 	       ,bool manhattan=false
 // For memory management
-	       , int shrink=5, int rasterHeight=150)
+	       , int refinement=5, int rasterHeight=150)
    ;
    
 data GraphOptions = graphOptions(

@@ -174,7 +174,7 @@ lineColor = "black"
 public Figure tst() { 
     Figure r = hcat(figs = [
         box(size=<200, 200> , fillColor = "antiquewhite", id = "mies"
-        ,tooltip = qq2()   
+        ,fig=box(size=<100, 100> ,tooltip = qq2())   
              )    
       ,
        box(size=<650, 650> , fillColor = "blue", id = "aap"

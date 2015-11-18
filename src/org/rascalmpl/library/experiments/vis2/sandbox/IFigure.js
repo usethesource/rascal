@@ -53,12 +53,18 @@ ajax.post = function(url, data, callback, sync) {
 };
 
 
-function askServer(path, parameters, callback) {
+function askServer(path, parameters, timer, timeout, callback) {
 	ajax.post(path, parameters, function(responseText){
 		try { 
             var res = JSON.parse(responseText);      
             callback(res);
         } catch (e) {
+            for (d in timer) {
+                clearInterval(timer[d]); 
+                }
+            if (d in timeout) {
+                clearTimeout(timeout[d]);
+                }
             alert(e.message + ", on figure " + responseText);
         }
 	});
@@ -81,8 +87,11 @@ function askServer(path, parameters, callback) {
  function adjust0(id0, id1, lw, hpad, vpad) { 
     var d = d3.select("#"+id0);
     var lw0 = parseInt(d3.select("#"+id1).style("stroke-width"));
-    var width = document.getElementById(id1).getBoundingClientRect().width+lw+hpad;
-    var height = document.getElementById(id1).getBoundingClientRect().height+lw+vpad;
+    var width = document.getElementById(id1).getBoundingClientRect().width;
+    var height = document.getElementById(id1).getBoundingClientRect().height;
+    if (width==0 || height == 0) return;
+    width = width + lw +hpad;
+    height = height + lw + vpad;
     if  (d.attr("width")!=null) width = d.attr("width");
     if  (d.attr("height")!=null) height = d.attr("height");
     var c = d3.select("#"+id1);
@@ -100,7 +109,8 @@ function askServer(path, parameters, callback) {
                     d.attr("cx", r+lw/2).attr("cy", r+lw/2)
                      .attr("r", r); 
                     width = 2*r+lw;
-                    height = 2*r+lw;               
+                    height = 2*r+lw; 
+                    d3.select("#"+id0).attr("width",width).attr("height",height);                  
                     break;
         case "ellipse":  
                     var rx = rxL(width/2, height/2);
@@ -108,7 +118,8 @@ function askServer(path, parameters, callback) {
                     d.attr("cx", rx+lw/2).attr("cy", ry+lw/2)
                      .attr("rx", rx).attr("ry", ry); 
                      width = 2*rx + lw;
-                     height= 2*ry + lw;               
+                     height= 2*ry + lw;
+                    d3.select("#"+id0).attr("width",width).attr("height",height);               
                     break; 
         };
     d3.select("#"+id0+"_fo_table").style("width",width).style("height",height);
@@ -116,7 +127,7 @@ function askServer(path, parameters, callback) {
     d3.select("#"+id0+"_svg").attr("width",width).attr("height",height);
    }
    
-   function adjust1(id0, width, height, lw, hpad, vpad) { 
+   function adjust1(id0, width, height, lw, hpad, vpad, hshrink, vshrink) { 
     var d = d3.select("#"+id0);
     // alert("adjust1: "+id0+" "+d.node().nodeName+" "+width+" "+height);
     if (d.node().nodeName=="TABLE") {
@@ -129,20 +140,24 @@ function askServer(path, parameters, callback) {
               d.attr("height", height);
               }
           return;
-          }
+          } 
     if  (d.attr("width")!=null) width = d.attr("width");
     if  (d.attr("height")!=null) height = d.attr("height");
+    var w = width * hshrink;
+    var h = height* vshrink;
     switch (d.node().nodeName) {
         case "rect": 
-                   d.attr("width",width).attr("height",height).
+                   d.attr("width",w).attr("height",h).
                    attr("x",0).attr("y", 0); 
                    break;
         case "circle":               
                     if (d.attr("r")==null) { 
-                        var side =  Math.max(width, height);          
+                        var side =  Math.max(width, height); 
+                        var side1 =  Math.max(w, h);         
+                        var r1 = side1/2;
                         var r = side/2;
                         d.attr("cx", r+lw/2).attr("cy", r+lw/2)
-                        .attr("r", r);
+                        .attr("r", r1);
                         width = 2*r+lw;
                         height = 2*r+lw;
                         } 
@@ -152,8 +167,10 @@ function askServer(path, parameters, callback) {
                     if ((d.attr("rx")==null) && (d.attr("ry")==null)) {
                         var rx = rxL(width/2, height/2);
                         var ry = ryL(width/2, height/2);
+                        var rx1 = rxL(w/2, h/2);
+                        var ry1 = ryL(w/2, h/2);
                         d.attr("cx", rx+lw/2).attr("cy", ry+lw/2)
-                        .attr("rx", rx).attr("ry", ry); 
+                        .attr("rx", rx1).attr("ry", ry1); 
                      width = 2*rx + lw;
                      height= 2*ry + lw;               
                      }                            
@@ -213,7 +230,8 @@ function askServer(path, parameters, callback) {
    function defH(v) {return (getVal(v, "height")!=null);}
    
    function adjustTableW(clients, id1, lw, hpad, vpad) {
-         
+         var hshrink = 1;
+         var vshrink = 1;  
          var c = d3.select("#"+id1);
          var width = c.attr("width");
          var height = c.attr("height");
@@ -226,11 +244,13 @@ function askServer(path, parameters, callback) {
          var h = parseInt(height); 
          // alert("adjustTableW:"+id1+" "+aUndefWH);  
          for (var i=0;i<aUndefWH.length;i++) {
-             adjust1(aUndefWH[i], w, h, lw, hpad, vpad);
+             adjust1(aUndefWH[i], w, h, lw, hpad, vpad, hshrink, vshrink);
              }
          }
    
    function adjustTableH(clients, id1, lw, hpad, vpad) {
+         var hshrink = 1;
+         var vshrink = 1;  
          var c = d3.select("#"+id1);
          var width = c.attr("width");
          var height = c.attr("height");
@@ -242,7 +262,7 @@ function askServer(path, parameters, callback) {
          var h = (parseInt(height)-sDefH)/nH;
          var w = parseInt(width); 
          for (var i=0;i<aUndefWH.length;i++)
-             adjust1(aUndefWH[i], w, h, lw, hpad, vpad);
+             adjust1(aUndefWH[i], w, h, lw, hpad, vpad, hshrink, vshrink);
          }
          
         function getMaxOfArray(numArray) {
@@ -257,7 +277,9 @@ function askServer(path, parameters, callback) {
       return a[0].map(function (_, c) { return a.map(function (r) { return r[c]; }); });
    }
          
-   function adjustTableWH(clients, id1, lw, hpad, vpad) {       
+   function adjustTableWH(clients, id1, lw, hpad, vpad) { 
+         var hshrink = 1;
+         var vshrink = 1;      
          var c = d3.select("#"+id1);
          var width = c.attr("width");
          var height = c.attr("height");
@@ -283,18 +305,44 @@ function askServer(path, parameters, callback) {
          // alert("adjustTableW:"+id1+" "+aUndefWH);
          for (var i =0;i<aUndefWH.length;i++) {
          for (var j=0;j<aUndefWH[i].length;j++) {
-             adjust1(aUndefWH[i][j], w, h, lw, hpad, vpad);
+             adjust1(aUndefWH[i][j], w, h, lw, hpad, vpad, hshrink, vshrink);
              }
            }
          }
-   
-   function adjustFrame(id0, width, height) {
+         
+         
+ function adjustFrame(id0, width, height) {
        d3.select("#"+id0).attr("width",width).attr("height",height);
        d3.select("#"+id0+"_fo_table").style("width",width).style("height",height);
        d3.select("#"+id0+"_fo").attr("width",width).attr("height",height);
        d3.select("#"+id0+"_svg").attr("width",width).attr("height",height);
        }
-   
+         
+  
+  
+   function adjustBox(id0, id1, hshrink, vshrink) { 
+       // alert("adjustBox");
+       var width = document.getElementById(id1).getBoundingClientRect().width;
+       var height = document.getElementById(id1).getBoundingClientRect().height;
+       // alert(width);
+       // alert(height);
+       if (width==null||height==null) return;
+       //alert(id1);
+       //alert(d3.select("#"+id0).attr("width"));
+       //alert(d3.select("#"+id0).attr("height"));
+       if (d3.select("#"+id0).attr("width")!=null && 
+            d3.select("#"+id0).attr("height")!=null) return;
+       //alert(hshrink);
+       width = parseInt(width)*parseFloat(hshrink); 
+       height = parseInt(height)*parseFloat(vshrink);
+       // alert(id1+":width:"+width+" id:"+id0);
+       d3.select("#"+id0).attr("width",width).attr("height",height);
+       // d3.select("#"+id0).style("width",width).style("height",height);
+       d3.select("#"+id0+"_fo_table").style("width",width).style("height",height);
+       d3.select("#"+id0+"_fo").attr("width",width).attr("height",height);
+       d3.select("#"+id0+"_svg").attr("width",width).attr("height",height);
+       }
+ 
 function isObject (item) {
   return (typeof item === "object" && !Array.isArray(item) && item !== null);
   } 
