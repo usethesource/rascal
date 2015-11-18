@@ -22,11 +22,11 @@ import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
-import de.ruedigermoeller.serialization.FSTBasicObjectSerializer;
-import de.ruedigermoeller.serialization.FSTClazzInfo;
-import de.ruedigermoeller.serialization.FSTClazzInfo.FSTFieldInfo;
-import de.ruedigermoeller.serialization.FSTObjectInput;
-import de.ruedigermoeller.serialization.FSTObjectOutput;
+import org.nustaq.serialization.FSTBasicObjectSerializer;
+import org.nustaq.serialization.FSTClazzInfo;
+import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
+import org.nustaq.serialization.FSTObjectInput;
+import org.nustaq.serialization.FSTObjectOutput;
 
 /**
  * FSTSerializableIValue acts as a serializer and wrapper for IValues
@@ -44,11 +44,11 @@ public class FSTSerializableIValue extends FSTBasicObjectSerializer implements S
 	private transient static TypeReifier tr;
 	private transient static ByteArrayOutputStream byteStream;
 
-	private static BinaryValueWriter binaryWriter;
+	private transient static BinaryValueWriter binaryWriter;
 
-	private static BinaryValueReader binaryReader;
+	private transient static BinaryValueReader binaryReader;
 
-	private static Type valueType;
+	private transient static Type valueType;
 
 	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
 		vf = vfactory;

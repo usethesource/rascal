@@ -124,7 +124,7 @@ PathConfig applyManifests(PathConfig cfg) {
    list[loc] expandLibPath(loc p) = [ p + s | s <- mf[p].\Required-Libraries] when mf[p]?;
    default list[loc] expandLibPath(loc p, str _) = [p];
     
-   loc expandBinDir(loc p) = p + mf[p].Bin when mf[p];
+   loc expandBinDir(loc p) = p + mf[p].Bin when mf[p]?;
    default loc expandBinDir(loc p) = p;
    
    cfg.srcPath = [*expandSrcPath(p) | p <- cfg.srcPath];
@@ -323,7 +323,7 @@ loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, 
               fileLocBin.scheme = "compressed+" + fileLocBin.scheme;
            }
         
-           println("getDerivedWriteLoc <qualifiedModuleName> =\> <fileLocBin>");
+           //println("getDerivedWriteLoc <qualifiedModuleName> =\> <fileLocBin>");
            return fileLocBin;
         }
     }
@@ -333,7 +333,7 @@ loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, 
        bindir.scheme = "compressed+" + bindir.scheme;
     }
     fileLocBin = bindir + fileNameBin;
-    println("getDerivedWriteLoc: <qualifiedModuleName>, <extension> =\> <fileLocBin>");
+    //println("getDerivedWriteLoc: <qualifiedModuleName>, <extension> =\> <fileLocBin>");
     return fileLocBin;
 }
 

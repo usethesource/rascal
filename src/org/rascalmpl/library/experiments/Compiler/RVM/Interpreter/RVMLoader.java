@@ -23,7 +23,7 @@ import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
-import de.ruedigermoeller.serialization.FSTConfiguration;
+import org.nustaq.serialization.FSTConfiguration;
 
 public class RVMLoader {
 	
