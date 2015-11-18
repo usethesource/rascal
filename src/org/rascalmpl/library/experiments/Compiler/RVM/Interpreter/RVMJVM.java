@@ -10,7 +10,7 @@ import org.rascalmpl.value.IValue;
 
 public class RVMJVM extends RVM {
 
-	RVMExecutable rrs;
+	RVMExecutable rvmExec;
 	RascalExecutionContext rex;
 	byte[] generatedRunner = null;
 	String generatedName = null;
@@ -22,16 +22,16 @@ public class RVMJVM extends RVM {
 	private static final long serialVersionUID = -3447489546163673435L;
 
 	/**
-	 * @param rrs
+	 * @param rvmExec
 	 * @param rex
 	 */
-	public RVMJVM(RVMExecutable rrs, RascalExecutionContext rex) {
-		super(rrs, rex);
-		//if (rrs instanceof RVMJVMExecutable) {
-			generatedRunner = rrs.getJvmByteCode();
-			generatedName = rrs.getFullyQualifiedDottedName();
+	public RVMJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
+		super(rvmExec, rex);
+		//if (rvmExec instanceof RVMJVMExecutable) {
+			generatedRunner = rvmExec.getJvmByteCode();
+			generatedName = rvmExec.getFullyQualifiedDottedName();
 		//}
-		this.rrs = rrs;
+		this.rvmExec = rvmExec;
 		this.rex = rex;
 		try {
 			createRunner();
@@ -62,9 +62,9 @@ public class RVMJVM extends RVM {
 
 			Constructor<?>[] cons = generatedClass.getConstructors();
 
-			runner = (RVMRun) cons[0].newInstance(rrs, rex);
-			// Inject is obsolete the constructor holds rrs.
-			runner.inject(rrs.getFunctionStore(), rrs.getConstructorStore(), RVMExecutable.store, rrs.getFunctionMap());
+			runner = (RVMRun) cons[0].newInstance(rvmExec, rex);
+			// Inject is obsolete the constructor holds rvmExec.
+			runner.inject(rvmExec.getFunctionStore(), rvmExec.getConstructorStore(), RVMExecutable.store, rvmExec.getFunctionMap());
 
 		} catch (Exception e) {
 			e.printStackTrace();
