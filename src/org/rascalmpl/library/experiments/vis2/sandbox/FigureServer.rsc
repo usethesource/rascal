@@ -6,21 +6,25 @@ import Prelude;
 public void render(Figure fig1, int width = 400, int height = 400, 
      Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>,
      str fillColor = "white", str lineColor = "black", bool debug = false, bool display = true, 
-     Event event = on(nullCallback))
+     Event event = on(nullCallback), int borderWidth = -1, bool resizable = true)
      {
      setDebug(debug);
      _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
-     lineColor = lineColor, size = size, event = event);
+     lineColor = lineColor, size = size, event = event
+     , borderWidth = borderWidth, resizable = resizable);
      // println(toString());
      }
        
 public str toHtmlString(Figure fig1, int width = 400, int height = 400, 
      Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>,
-     str fillColor = "white", str lineColor = "black", bool debug = false)
+     str fillColor = "white", str lineColor = "black", bool debug = false
+     , int borderWidth = -1, bool resizable = true)
      {
      setDebug(debug);
      _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
-     lineColor = lineColor, size = size, display = false);
+     lineColor = lineColor, size = size, display = false
+     , borderWidth = borderWidth, resizable = resizable
+     );
      // return "aap";
      return getIntro();
      }
