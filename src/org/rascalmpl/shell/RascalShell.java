@@ -17,10 +17,13 @@ package org.rascalmpl.shell;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
 
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.library.experiments.Compiler.Commands.Rascal;
+import org.rascalmpl.library.experiments.Compiler.Commands.RascalC;
 
 
 public class RascalShell  {
@@ -55,8 +58,21 @@ public class RascalShell  {
                 runner = new ManifestRunner(mf, new PrintWriter(System.out), new PrintWriter(System.err, true));
             } 
             else if (args.length > 0) {
-                if (args[0].equals("-compile")) {
-                    runner = new CompileRunner(new PrintWriter(System.out), new PrintWriter(System.err, true));
+                if (args[0].equals("--rascalc")) {
+                    runner = new ShellRunner() {
+                        @Override
+                        public void run(String[] args) throws IOException {
+                            RascalC.main(Arrays.copyOfRange(args, 1, args.length));
+                        }
+                    };
+                }
+                if (args[0].equals("--rascal")) {
+                    runner = new ShellRunner() {
+                        @Override
+                        public void run(String[] args) throws IOException {
+                            Rascal.main(Arrays.copyOfRange(args, 1, args.length));
+                        }
+                    };
                 }
                 else {
                     runner = new ModuleRunner(new PrintWriter(System.out), new PrintWriter(System.err, true));
