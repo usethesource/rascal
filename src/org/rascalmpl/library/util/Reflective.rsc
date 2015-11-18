@@ -124,7 +124,7 @@ PathConfig applyManifests(PathConfig cfg) {
    list[loc] expandLibPath(loc p) = [ p + s | s <- mf[p].\Required-Libraries] when mf[p]?;
    default list[loc] expandLibPath(loc p, str _) = [p];
     
-   loc expandBinDir(loc p) = p + mf[p].Bin when mf[p];
+   loc expandBinDir(loc p) = p + mf[p].Bin when mf[p]?;
    default loc expandBinDir(loc p) = p;
    
    cfg.srcPath = [*expandSrcPath(p) | p <- cfg.srcPath];
