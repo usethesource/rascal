@@ -181,8 +181,10 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	 * the functions from the candidates list, in order to preserve shadowing rules!
 	 */
 	private void addAll(List<AbstractFunction> container, List<AbstractFunction> candidates, boolean nonDefault) {
-		Map<String, List<AbstractFunction>> constructors = new HashMap<String,List<AbstractFunction>>();
-		Map<IConstructor, List<AbstractFunction>> productions = new HashMap<IConstructor, List<AbstractFunction>>();
+		@SuppressWarnings("unchecked")
+		Map<String, List<AbstractFunction>>[] constructors = new Map[10];
+		@SuppressWarnings("unchecked")
+		Map<IConstructor, List<AbstractFunction>>[] productions = new Map[10];
 		List<AbstractFunction> other = new LinkedList<AbstractFunction>();
 
 
@@ -200,28 +202,33 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 			if (func.isPatternDispatched()) {
 				// this one is already hashed, but we might find more to add to that map in the next round
 				Map<String, List<AbstractFunction>> funcMap = ((AbstractPatternDispatchedFunction) func).getMap();
+				int pos = func.getIndexedArgumentPosition();
+				
 				for (String key : funcMap.keySet()) {
-					addFuncsToMap(constructors, funcMap.get(key), key);
+					addFuncsToMap(pos, constructors, funcMap.get(key), key);
 				}
 			}
 			else if (func.isConcretePatternDispatched()) {
 				// this one is already hashed, but we might find more to add to that map in the next round
 				Map<IConstructor, List<AbstractFunction>> funcMap = ((ConcretePatternDispatchedFunction) func).getMap();
+				int pos = func.getIndexedArgumentPosition();
+				
 				for (IConstructor key : funcMap.keySet()) {
-					addProdsToMap(productions, funcMap.get(key), key);
+					addProdsToMap(pos, productions, funcMap.get(key), key);
 				}
 			}
 			else {
 				// a new function definition, that may be hashable
-				label = func.getFirstOutermostConstructorLabel();
-				prod = func.getFirstOutermostProduction();
+				int pos = func.getIndexedArgumentPosition();
+				label = func.getIndexedLabel();
+				prod = func.getIndexedProduction();
 
 				if (label != null) {
 					// we found another one to hash
-					addFuncToMap(constructors, func, label);
+					addFuncToMap(pos, constructors, func, label);
 				}
 				else if (prod != null) {
-					addProdToMap(productions, func, prod);
+					addProdToMap(pos, productions, func, prod);
 				}
 				else {
 					other.add(func);
@@ -229,51 +236,73 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 			}
 		}
 
-		if (!constructors.isEmpty()) {
-			container.add(new AbstractPatternDispatchedFunction(ctx.getEvaluator(), name, type, constructors));
+		for (int i = 0; i < constructors.length; i++) {
+			if (constructors[i] != null && !constructors[i].isEmpty()) {
+				container.add(new AbstractPatternDispatchedFunction(ctx.getEvaluator(), i, name, type, constructors[i]));
+			}
 		}
-		if (!productions.isEmpty()) {
-			container.add(new ConcretePatternDispatchedFunction(ctx.getEvaluator(), name, type, productions));
+		
+		
+		for (int i = 0; i < productions.length; i++) {
+			if (productions[i] != null && !productions[i].isEmpty()) {
+				container.add(new ConcretePatternDispatchedFunction(ctx.getEvaluator(), i, name, type, productions[i]));
+			}
 		}
+		
 		container.addAll(other);
 	}
 
-	private void addFuncToMap(Map<String, List<AbstractFunction>> map,
+	private void addFuncToMap(int pos, Map<String, List<AbstractFunction>>[] map,
 			AbstractFunction func, String label) {
-		List<AbstractFunction> l = map.get(label);
+		if (map[pos] == null) {
+			map[pos] = new HashMap<>();
+		}
+		
+		List<AbstractFunction> l = map[pos].get(label);
 		if (l == null) {
 			l = new LinkedList<AbstractFunction>();
-			map.put(label, l);
+			map[pos].put(label, l);
 		}
 		l.add(func);
 	}
 
-	private void addProdToMap(Map<IConstructor, List<AbstractFunction>> map,
+	private void addProdToMap(int pos, Map<IConstructor, List<AbstractFunction>>[] map,
 			AbstractFunction func, IConstructor label) {
-		List<AbstractFunction> l = map.get(label);
+		if (map[pos] == null) {
+			map[pos] = new HashMap<>();
+		}
+		
+		List<AbstractFunction> l = map[pos].get(label);
 		if (l == null) {
 			l = new LinkedList<AbstractFunction>();
-			map.put(label, l);
+			map[pos].put(label, l);
 		}
 		l.add(func);
 	}
 
-	private void addFuncsToMap(Map<String, List<AbstractFunction>> map,
+	private void addFuncsToMap(int pos, Map<String, List<AbstractFunction>>[] map,
 			List<AbstractFunction> funcs, String label) {
-		List<AbstractFunction> l = map.get(label);
+		if (map[pos] == null) {
+			map[pos] = new HashMap<>();
+		}
+		
+		List<AbstractFunction> l = map[pos].get(label);
 		if (l == null) {
 			l = new LinkedList<AbstractFunction>();
-			map.put(label, l);
+			map[pos].put(label, l);
 		}
 		l.addAll(funcs);
 	}
 
-	private void addProdsToMap(Map<IConstructor, List<AbstractFunction>> map,
-			List<AbstractFunction> funcs, IConstructor label) {
-		List<AbstractFunction> l = map.get(label);
+	private void addProdsToMap(int pos, Map<IConstructor, List<AbstractFunction>>[] map, List<AbstractFunction> funcs, IConstructor label) {
+		if (map[pos] == null) {
+			map[pos] = new HashMap<>();
+		}
+		
+		List<AbstractFunction> l = map[pos].get(label);
 		if (l == null) {
 			l = new LinkedList<AbstractFunction>();
-			map.put(label, l);
+			map[pos].put(label, l);
 		}
 		l.addAll(funcs);
 	}

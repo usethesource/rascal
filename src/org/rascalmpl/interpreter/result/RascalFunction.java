@@ -68,8 +68,9 @@ public class RascalFunction extends NamedFunction {
 	private final boolean isVoidFunction;
 	private final Stack<Accumulator> accumulators;
 	private final List<Expression> formals;
-	private final String firstOutermostLabel;
-	private final IConstructor firstOutermostProduction;
+	private final int indexedPosition;
+	private final String indexedLabel;
+	private final IConstructor indexedProduction;
 	private final List<KeywordFormal> initializers;
 	
 	public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
@@ -102,11 +103,13 @@ public class RascalFunction extends NamedFunction {
 		this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
 		this.accumulators = (Stack<Accumulator>) accumulators.clone();
 		this.formals = cacheFormals();
-		this.firstOutermostLabel = computeFirstOutermostLabel(ast);
-		this.firstOutermostProduction = computeFirstOutermostProduction(ast);
+		this.indexedPosition = computeIndexedPosition(ast);
+		this.indexedLabel = computeIndexedLabel(indexedPosition, ast);
+		this.indexedProduction = computeIndexedProduction(indexedPosition, ast);
 		this.initializers = initializers;
 	}
 	
+
 	@Override
 	public RascalFunction cloneInto(Environment env) {
 		AbstractAST clone = cloneAst();
@@ -125,7 +128,8 @@ public class RascalFunction extends NamedFunction {
 		return getAst().clone(body);
 	}
 	
-	private String computeFirstOutermostLabel(AbstractAST ast) {
+	
+	private String computeIndexedLabel(int pos, AbstractAST ast) {
 		return ast.accept(new NullASTVisitor<String>() {
 			@Override
 			public String visitFunctionDeclarationDefault(Default x) {
@@ -150,8 +154,8 @@ public class RascalFunction extends NamedFunction {
 			}
 			
 			private String processFormals(List<Expression> formals) {
-				if (formals.size() > 0) {
-					Expression first = formals.get(0);
+				if (formals.size() > pos) {
+					Expression first = formals.get(pos);
 					
 					if (first.isAsType()) {
 						first = first.getArgument();
@@ -172,13 +176,18 @@ public class RascalFunction extends NamedFunction {
 
 
 	@Override
-	public String getFirstOutermostConstructorLabel() {
-		return firstOutermostLabel;
+	public String getIndexedLabel() {
+		return indexedLabel;
 	}
 	
 	@Override
-	public IConstructor getFirstOutermostProduction() {
-		return firstOutermostProduction;
+	public int getIndexedArgumentPosition() {
+		return indexedPosition;
+	}
+	
+	@Override
+	public IConstructor getIndexedProduction() {
+		return indexedProduction;
 	}
 	
 	private List<Expression> cacheFormals() throws ImplementationError {
@@ -430,7 +439,7 @@ public class RascalFunction extends NamedFunction {
 	}
 
 
-	private IConstructor computeFirstOutermostProduction(AbstractAST ast) {
+	private IConstructor computeIndexedProduction(int pos, AbstractAST ast) {
 		return ast.accept(new NullASTVisitor<IConstructor>() {
 			@Override
 			public IConstructor visitFunctionDeclarationDefault(Default x) {
@@ -455,8 +464,8 @@ public class RascalFunction extends NamedFunction {
 			}
 			
 			private IConstructor processFormals(List<Expression> formals) {
-				if (formals.size() > 0) {
-					Expression first = formals.get(0);
+				if (formals.size() > pos) {
+					Expression first = formals.get(pos);
 					
 					if (first.isAsType()) {
 						first = first.getArgument();

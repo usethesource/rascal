@@ -149,11 +149,15 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return null;
 	}
 
-	public String getFirstOutermostConstructorLabel() {
+	public String getIndexedLabel() {
 		return null;
 	}
 	
-	public IConstructor getFirstOutermostProduction() {
+	public int getIndexedArgumentPosition() {
+		return -1;
+	}
+	
+	public IConstructor getIndexedProduction() {
 		return null;
 	}
 	
