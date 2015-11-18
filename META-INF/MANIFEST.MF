@@ -21,6 +21,7 @@ Export-Package:
  org.rascalmpl.interpreter.types,
  org.rascalmpl.interpreter.utils,
  org.rascalmpl.library,
+ org.rascalmpl.library.experiments.Compiler.Commands,
  org.rascalmpl.library.experiments.Compiler.RVM.Interpreter,
  org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl,
  org.rascalmpl.library.experiments.resource,
