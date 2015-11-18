@@ -43,18 +43,25 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 	private final int arity;
 	private final boolean isStatic;
 	private final String name;
+	private final int index;
 
-	public AbstractPatternDispatchedFunction(IEvaluator<Result<IValue>> eval, String name, Type type, Map<String, List<AbstractFunction>> alternatives) {
+	public AbstractPatternDispatchedFunction(IEvaluator<Result<IValue>> eval, int index, String name, Type type, Map<String, List<AbstractFunction>> alternatives) {
 		super(null, eval
 				, (FunctionType) RascalTypeFactory.getInstance().functionType(TypeFactory.getInstance().voidType()
 						, TypeFactory.getInstance().voidType(), TF.voidType())
 						, Collections.<KeywordFormal>emptyList() // can we get away with this?
-						, checkVarArgs(alternatives), null); 
+						, checkVarArgs(alternatives), null);
+		this.index = index;
 		this.type = type;
 		this.alternatives = alternatives;
 		this.arity = minArity(alternatives);
 		this.isStatic = checkStatic(alternatives);
 		this.name = name;
+	}
+	
+	@Override
+	public int getIndexedArgumentPosition() {
+		return index;
 	}
 	
 	@Override
@@ -67,7 +74,7 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 			}
 			newAlts.put(name, alts);
 		}
-		return new AbstractPatternDispatchedFunction(getEval(), name, type, newAlts);
+		return new AbstractPatternDispatchedFunction(getEval(), index, name, type, newAlts);
 	}
 	
 	@Override
@@ -167,12 +174,12 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
   public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
     String label = null;
     
-    if (argTypes.length == 0) {
+    if (argTypes.length < index) {
       throw new MatchFailed();
     }
     
-    if (argTypes[0].isAbstractData() || argTypes[0].isConstructor()) {
-      IConstructor cons = (IConstructor) argValues[0];
+    if (argTypes[index].isAbstractData() || argTypes[index].isConstructor()) {
+      IConstructor cons = (IConstructor) argValues[index];
       label = cons.getConstructorType().getName();
       List<AbstractFunction> funcs = alternatives.get(label);
       
