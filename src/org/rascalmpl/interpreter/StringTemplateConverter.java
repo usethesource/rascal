@@ -252,7 +252,7 @@ public class StringTemplateConverter {
 		
 		@Override
 		public List<Statement> visitStringPartVar(Var x) {
-			Expression call = ASTBuilder.makeExp("CallOrTree", x.getLocation(), ASTBuilder.makeExp("QualifiedName", x.getLocation(), Names.toQualifiedName("format", x.getLocation())), single(ASTBuilder.makeExp("QualifiedName", x.getLocation(), x.getVariable())), x.getKeywordArguments());
+			Expression call = ASTBuilder.makeExp("CallOrTree", x.getLocation(), ASTBuilder.makeExp("QualifiedName", x.getLocation(), Names.toQualifiedName("format", x.getLocation())), single(ASTBuilder.makeExp("QualifiedName", x.getLocation(), x.getVariable())), ASTBuilder.make("KeywordArguments_Expression", "None", x.getLocation()));
 			return single(new IndentingAppend(x.getLocation(), makeTarget(x.getLocation()), makeStatExpr(call), indentation));	
 		}
 		
