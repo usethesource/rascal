@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Constructor;
@@ -25,6 +26,8 @@ import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.NullFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.DIRECTION;
@@ -67,11 +70,9 @@ public class RVM implements java.io.Serializable {
 	private final IBool Rascal_FALSE;
 	private final IString NONE; 
 	
-	private boolean debug = false;
 	private final boolean profileRascalPrimitives = false;
 	private final boolean profileMuPrimitives = false;
 	private boolean ocall_debug = false;
-	private boolean trackCalls = false;
 	
 	final ArrayList<Function> functionStore;
 	protected final Map<String, Integer> functionMap;
@@ -91,8 +92,7 @@ public class RVM implements java.io.Serializable {
 	
 	protected static final HashMap<String, IValue> emptyKeywordMap = new HashMap<>(0);
 	
-	//private Frame currentFrame;	// used for profiling
-	private ILocationCollector locationCollector;
+	private final IFrameObserver frameObserver;
 		
 	// Management of active coroutines
 	Stack<Coroutine> activeCoroutines = new Stack<>();
@@ -147,8 +147,6 @@ public class RVM implements java.io.Serializable {
 		this.classLoaders = rex.getClassLoaders();
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
-		this.debug = rex.getDebug();
-		this.trackCalls = rex.getTrackCalls();
 		
 		Rascal_TRUE = vf.bool(true);
 		Rascal_FALSE = vf.bool(false);
@@ -167,15 +165,16 @@ public class RVM implements java.io.Serializable {
 
 		Opcode.init(stdout, rex.getProfile());
 		
-		this.locationCollector = NullLocationCollector.getInstance();			
+		IFrameObserver observer = rex.getFrameObserver(); 
+		this.frameObserver = (observer == null) ? NullFrameObserver.getInstance() : observer;		
 	}
 	
-	public static RVM readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex){
+	public static RVM readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex) throws IOException{
 		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
 		return ExecutionTools.initializedRVM(rvmExecutable, rex);
 	}
 	
-	public static IValue readFromFileAndExecuteProgram(ISourceLocation rvmBinaryLocation, IMap keywordArguments, RascalExecutionContext rex){
+	public static IValue readFromFileAndExecuteProgram(ISourceLocation rvmBinaryLocation, IMap keywordArguments, RascalExecutionContext rex) throws Exception{
 		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
 		return ExecutionTools.executeProgram(rvmExecutable, keywordArguments, rex);
 	}
@@ -190,20 +189,10 @@ public class RVM implements java.io.Serializable {
 	
 	Configuration getConfiguration() { return rex.getConfiguration(); }
 	
-	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }
+	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }	
 	
-	//IEvaluatorContext getEvaluatorContext() { return rex.getEvaluatorContext(); }
-	
-	public void setLocationCollector(ILocationCollector collector){
-		this.locationCollector = collector;
-	}
-	
-	public ILocationCollector getLocationCollector(){
-		return locationCollector;
-	}
-	
-	public void resetLocationCollector(){
-		this.locationCollector = NullLocationCollector.getInstance();
+	public IFrameObserver getFrameObserver(){
+		return frameObserver;
 	}
 	
 	/**
@@ -329,7 +318,7 @@ public class RVM implements java.io.Serializable {
 		//throw new CompilerError("asString cannot convert: " + o);
 	}
 	
-	private String asString(Object o, int w){
+	public String asString(Object o, int w){
 		String repr = asString(o);
 		return (repr.length() < w) ? repr : repr.substring(0, w) + "...";
 	}
@@ -370,7 +359,7 @@ public class RVM implements java.io.Serializable {
 					FunctionType ft = (FunctionType) f.ftype;
 					if(ftype.getAbstractDataType().equals(ft.getReturnType())){
 						if(ftype.isAbstractData()){
-							System.err.println("getCompanionDefaultsFunction1: " + name + ", " + ftype);
+							//System.err.println("getCompanionDefaultsFunction1: " + name + ", " + ftype);
 							return f;
 						}
 						if(ftype.getFieldTypes().getArity() == ft.getArgumentTypes().getArity()){
@@ -379,14 +368,24 @@ public class RVM implements java.io.Serializable {
 									continue all;
 								}
 							}
-							System.err.println("getCompanionDefaultsFunction2: " + name + ", " + ftype);
+							//System.err.println("getCompanionDefaultsFunction2: " + name + ", " + ftype);
 							return f;
 						}
 					}
 				}
 			}
-	System.err.println("getCompanionDefaultsFunction3: " + name + ", " + ftype);
+	//System.err.println("getCompanionDefaultsFunction3: " + name + ", " + ftype);
 	return noCompanionFunction;
+	}
+	
+	public Function getCompanionFieldDefaultFunction(Type adtType, String fieldName){
+		String key = adtType.toString() + "::" + fieldName + "-companion-default";
+		for(Function f : functionStore){
+			if(f.name.equals(key)){
+				return f;
+			}
+		}
+		return noCompanionFunction;
 	}
 	
 	public Function getFunction(String name, Type returnType, Type argumentTypes){
@@ -518,16 +517,6 @@ public class RVM implements java.io.Serializable {
 		}
 		return narrow(o); 
 	}
-			
-//	private String trace = "";
-//	
-//	public String getTrace() {
-//		return trace;
-//	}
-//	
-//	public void appendToTrace(String trace) {
-//		this.trace = this.trace + trace + "\n";
-//	}
 	
 	public String findVarName(Frame cf, int s, int pos){
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
@@ -569,23 +558,9 @@ public class RVM implements java.io.Serializable {
 			throw (Thrown) o;
 		}
 		IValue res = narrow(o);
-//		if(debug) {
-//			stdout.println("TRACE:");
-//			stdout.println(getTrace());
-//		}
+
 		rex.setCurrentModuleName(oldModuleName);
 		return res;
-	}
-	
-	void print_step(int pc, Object[] stack, int sp, Frame cf){
-		int startpc = pc - 1;
-		stdout.printf("[%03d] %s, scope %d\n", startpc, cf.function.name, cf.scopeId);
-		
-		for (int i = 0; i < sp; i++) {
-			stdout.println("\t   " + (i < cf.function.nlocals ? "*" : " ") + i + ": " + asString(stack[i], 40));
-		}
-		stdout.printf("%5s %s\n" , "", cf.function.codeblock.toString(startpc));
-		stdout.flush();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -640,7 +615,7 @@ public class RVM implements java.io.Serializable {
 				return sp;
 			}
 		}
-		throw new CompilerError("LOADVAR cannot find matching scope: " + varScope, cf);
+		throw new CompilerError("LOADVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	int LOADVARREF(int varScope, int pos, Frame cf, Object[] stack, int sp){
@@ -654,7 +629,7 @@ public class RVM implements java.io.Serializable {
 				return sp;
 			}
 		}
-		throw new CompilerError("LOADVARREF cannot find matching scope: " + varScope, cf);
+		throw new CompilerError("LOADVARREF cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	int LOADVARDEREF(int varScope, int pos, Frame cf, Object[] stack, int sp){
@@ -681,7 +656,7 @@ public class RVM implements java.io.Serializable {
 				return sp;
 			}
 		}
-		throw new CompilerError("STOREVAR cannot find matching scope: " + varScope, cf);
+		throw new CompilerError("STOREVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	int UNWRAPTHROWNVAR(int varScope, int pos, Frame cf, Object[] stack, int sp){
@@ -708,7 +683,7 @@ public class RVM implements java.io.Serializable {
 				return sp;
 			}
 		}
-		throw new CompilerError("STOREVARDEREF cannot find matching scope: " + varScope, cf);
+		throw new CompilerError("STOREVARDEREF cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -739,7 +714,7 @@ public class RVM implements java.io.Serializable {
 				}
 			}
 		}				
-		throw new CompilerError("LOADVARKWP cannot find matching scope: " + varScope, cf);
+		throw new CompilerError("LOADVARKWP cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -778,7 +753,7 @@ public class RVM implements java.io.Serializable {
 				}
 			}
 		}				
-		throw new CompilerError("STOREVARKWP cannot find matching scope: " + varScope, cf);
+		throw new CompilerError("STOREVARKWP cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	@SuppressWarnings("unchecked")
 	int LOADLOCKWP(String name, Frame cf, Object[] stack, int sp){
@@ -813,12 +788,12 @@ public class RVM implements java.io.Serializable {
 
 		java.util.Map<String,IValue> kwargs;
 		Type type = (Type) stack[--sp];
-		if(type.getArity() > 0){
+		//if(type.getArity() > 0){
 			// Constructors with keyword parameters
 			kwargs = (java.util.Map<String,IValue>) stack[--sp];
-		} else {
-			kwargs = new HashMap<String,IValue>();
-		}
+		//} else {
+		//	kwargs = new HashMap<String,IValue>();
+		//}
 
 		for(int i = 0; i < constructor.getArity(); i++) {
 			args[constructor.getArity() - 1 - i] = (IValue) stack[--sp];
@@ -863,20 +838,13 @@ public class RVM implements java.io.Serializable {
 	}
 	
 	private Object executeProgram(Frame root, Frame cf) {
-		//long start = Timing.getCpuTime();
-		//trackCalls = true;
-		Object res = executeProgram(root, cf, null);
-		//long duration = (Timing.getCpuTime() - start)/1000000;
-		//if(duration > 50){
-		//	System.out.println("executeProgram: " + cf.function.name + " " + duration + " ms");
-		//}
-		return res;
+		return executeProgram(root, cf, null);
 	}
 	
 	@SuppressWarnings("unchecked")
 	private Object executeProgram(final Frame root, Frame cf, OverloadedFunctionInstanceCall c_ofun_call) {
 		Object[] stack = cf.stack;		                              	// current stack
-		int sp = cf.function.nlocals;				                  	// current stack pointer
+		int sp = cf.function.getNlocals();				                  	// current stack pointer
 		long [] instructions = cf.function.codeblock.getInstructions(); 	// current instruction sequence
 		int pc = 0;				                                      	// current program counter
 		int postOp = 0;													// postprocessing operator (following main switch)
@@ -895,7 +863,7 @@ public class RVM implements java.io.Serializable {
 		}
 		//OverloadedFunctionInstanceCall c_ofun_call = null;
 		
-		if(trackCalls) { cf.printEnter(stdout); stdout.flush(); }
+		frameObserver.enter(cf);
 		
 		try {
 			NEXT_INSTRUCTION: while (true) {
@@ -920,9 +888,7 @@ public class RVM implements java.io.Serializable {
 				
 				//ocall_debug = cf.function.name.contains("subtype") || cf.function.name.contains("comparable") ;
 				
-				if (debug){
-					print_step(pc, stack, sp, cf);
-				}
+				frameObserver.observeRVM(this, cf, pc, stack, sp);
 				
 				String name;
 				INSTRUCTION: switch (op) {
@@ -1030,17 +996,22 @@ public class RVM implements java.io.Serializable {
 					stack[sp++] = new HashMap<String,IValue>();
 					continue NEXT_INSTRUCTION;
 				
-				case Opcode.OP_CALLMUPRIM:	
-					int n = CodeBlock.fetchArg1(instruction);
-//					if(profileMuPrimitives){
-//						long start = System.nanoTime();
-//						sp = MuPrimitive.values[n].execute(stack, sp, CodeBlock.fetchArg2(instruction));
-//						MuPrimitive.recordTime(n, System.nanoTime() - start);
-//					} else {
-						sp = MuPrimitive.values[n].execute(stack, sp, CodeBlock.fetchArg2(instruction));
-//					}
-					assert stack[sp - 1] != null: "MuPrimitive returns null";
+				case Opcode.OP_CALLMUPRIM0:	
+					stack[sp++] = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute0();
 					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_CALLMUPRIM1:	
+					stack[sp - 1] = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute1(stack[sp - 1]);
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_CALLMUPRIM2:	
+					stack[sp - 2] = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute2(stack[sp - 2], stack[sp - 1]);
+					sp--;
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_CALLMUPRIMN:
+					sp = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].executeN(stack, sp, CodeBlock.fetchArg2(instruction));
+					continue NEXT_INSTRUCTION;	
 				
 				case Opcode.OP_JMP:
 					pc = CodeBlock.fetchArg1(instruction);
@@ -1102,7 +1073,7 @@ public class RVM implements java.io.Serializable {
 				
 				case Opcode.OP_STORELOC:
 					pos = CodeBlock.fetchArg1(instruction);
-					assert pos < cf.function.nlocals : "STORELOC: pos larger that nlocals at " + cf.src;
+					assert pos < cf.function.getNlocals() : "STORELOC: pos larger that nlocals at " + cf.src;
 					stack[pos] = stack[sp - 1];
 					continue NEXT_INSTRUCTION;
 					
@@ -1136,7 +1107,9 @@ public class RVM implements java.io.Serializable {
 				case Opcode.OP_LOADVAR:
 					 sp = LOADVAR(CodeBlock.fetchArg1(instruction), 
 							 	  CodeBlock.fetchArg2(instruction), cf, stack, sp);
-					 if(stack[sp - 1] == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+					 if(stack[sp - 1] == null){ 
+						 postOp = Opcode.POSTOP_CHECKUNDEF; break; 
+					 }
 					 continue NEXT_INSTRUCTION;
 					 
 				case Opcode.OP_LOADVARREF: 
@@ -1145,7 +1118,9 @@ public class RVM implements java.io.Serializable {
 				
 				case Opcode.OP_LOADVARDEREF: 
 					sp = LOADVARDEREF(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), cf, stack, sp);
-					if(stack[sp - 1] == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+					if(stack[sp - 1] == null){ 
+						postOp = Opcode.POSTOP_CHECKUNDEF; break;
+					}
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_STOREVAR:
@@ -1162,7 +1137,7 @@ public class RVM implements java.io.Serializable {
 										
 				case Opcode.OP_CALLDYN:				
 				case Opcode.OP_CALL:
-					
+					frameObserver.observe(cf);
 					// In case of CALLDYN, the stack top value of type 'Type' leads to a constructor call
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof Type) {
 						Type constr = (Type) stack[--sp];
@@ -1204,7 +1179,7 @@ public class RVM implements java.io.Serializable {
 						throw new CompilerError("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]), cf);
 					}
 					
-					if(trackCalls) { cf.printEnter(stdout); stdout.flush();}
+					frameObserver.enter(cf);
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
@@ -1218,7 +1193,7 @@ public class RVM implements java.io.Serializable {
 					arity = CodeBlock.fetchArg2(instruction);
 					
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
-					locationCollector.registerLocation(cf.src);
+					frameObserver.observe(cf);
 					cf.sp = sp;
 					cf.pc = pc;
 					
@@ -1236,7 +1211,7 @@ public class RVM implements java.io.Serializable {
 							stack = cf.stack;
 							sp = cf.sp;
 							pc = cf.pc;
-							if(trackCalls) { cf.printEnter(stdout); stdout.flush();}
+							frameObserver.enter(cf);;
 							continue NEXT_INSTRUCTION;
 						}
 					 	// 2. OverloadedFunctionInstance due to named Rascal functions
@@ -1271,7 +1246,7 @@ public class RVM implements java.io.Serializable {
 						if(ocall_debug){ stdout.println("		" + "try alternative: " + frame.function.name); stdout.flush();}
 
 						cf = frame;
-						if(trackCalls) { cf.printEnter(stdout); stdout.flush(); }
+						frameObserver.enter(cf);
 						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
 						sp = cf.sp;
@@ -1386,8 +1361,8 @@ public class RVM implements java.io.Serializable {
 							rval = stack[sp - 1];
 						}
 					}
-					assert sp == ((op == Opcode.OP_RETURN0) ? cf.function.nlocals : cf.function.nlocals + 1)
-							: "On return from " + cf.function.name + ": " + (sp - cf.function.nlocals) + " spurious stack elements";
+					assert sp == ((op == Opcode.OP_RETURN0) ? cf.function.getNlocals() : cf.function.getNlocals() + 1)
+							: "On return from " + cf.function.name + ": " + (sp - cf.function.getNlocals()) + " spurious stack elements";
 					
 					// if the current frame is the frame of a top active coroutine, 
 					// then pop this coroutine from the stack of active coroutines
@@ -1396,7 +1371,7 @@ public class RVM implements java.io.Serializable {
 						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 					}
 					
-					if(trackCalls) { cf.printBack(stdout, rval); }
+					frameObserver.leave(cf, rval);
 					cf = cf.previousCallFrame;
 					
 					if(cf == null) {
@@ -1607,34 +1582,62 @@ public class RVM implements java.io.Serializable {
 					stack[sp++] = Rascal_FALSE; // 'Exhaust' has to always return FALSE, i.e., signal a failure;
 					continue NEXT_INSTRUCTION;
 					
-				case Opcode.OP_CALLPRIM:
+				case Opcode.OP_CALLPRIMN:
 					arity = CodeBlock.fetchArg2(instruction);
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
-					locationCollector.registerLocation(cf.src);
+					frameObserver.observe(cf);
 					try {
-						//sp1 = sp;
-						n = CodeBlock.fetchArg1(instruction);
-//						if(profileRascalPrimtives){
-//							long start = System.nanoTime();
-//							sp = RascalPrimitive.values[n].execute(stack, sp, arity, cf);
-//							RascalPrimitive.recordTime(n, System.nanoTime() - start);
-//						} else {
-							sp = RascalPrimitive.values[n].execute(stack, sp, arity, cf, rex);
-//						}
-						//assert sp == sp1 - arity + 1;
+						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].executeN(stack, sp, CodeBlock.fetchArg2(instruction), cf, rex);
 					} catch (Thrown exception) {
 						thrown = exception;
-						//thrown.stacktrace.add(cf);
 						sp = sp - arity;
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; 
 						break INSTRUCTION;
 					}
+					continue NEXT_INSTRUCTION;
 					
+				case Opcode.OP_CALLPRIM0:
+					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
+					frameObserver.observe(cf);
+					try {
+						stack[sp++] = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute0(cf, rex);
+					} catch (Thrown exception) {
+						thrown = exception;
+						postOp = Opcode.POSTOP_HANDLEEXCEPTION; 
+						break INSTRUCTION;
+					}
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_CALLPRIM1:
+					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
+					frameObserver.observe(cf);
+					try {
+						stack[sp - 1] = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute1(stack[sp - 1], cf, rex);
+					} catch (Thrown exception) {
+						thrown = exception;
+						sp = sp - 1;
+						postOp = Opcode.POSTOP_HANDLEEXCEPTION; 
+						break INSTRUCTION;
+					}
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_CALLPRIM2:
+					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
+					frameObserver.observe(cf);
+					try {
+						stack[sp - 2] = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute2(stack[sp - 2], stack[sp - 1], cf, rex);
+						sp--;
+					} catch (Thrown exception) {
+						thrown = exception;
+						sp = sp - 2;
+						postOp = Opcode.POSTOP_HANDLEEXCEPTION; 
+						break INSTRUCTION;
+					}
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_UNWRAPTHROWNLOC: {
 					pos = CodeBlock.fetchArg1(instruction);
-					assert pos < cf.function.nlocals : "UNWRAPTHROWNLOC: pos larger that nlocals at " + cf.src;
+					assert pos < cf.function.getNlocals() : "UNWRAPTHROWNLOC: pos larger that nlocals at " + cf.src;
 					stack[pos] = ((Thrown) stack[--sp]).value;
 					continue NEXT_INSTRUCTION;
 				}
@@ -1709,12 +1712,6 @@ public class RVM implements java.io.Serializable {
 					throw new CompilerError("LABEL instruction at runtime", cf);
 					
 				case Opcode.OP_HALT:
-					if (debug) {
-						stdout.println("Program halted:");
-						for (int i = 0; i < sp; i++) {
-							stdout.println(i + ": " + stack[i]);
-						}
-					}
 					return stack[sp - 1];
 
 				case Opcode.OP_PRINTLN:
@@ -1725,7 +1722,7 @@ public class RVM implements java.io.Serializable {
 					Object obj = stack[--sp];
 					thrown = null;
 					cf.src = (ISourceLocation) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
-					locationCollector.registerLocation(cf.src);
+					frameObserver.observe(cf);
 					if(obj instanceof IValue) {
 						//stacktrace = new ArrayList<Frame>();
 						//stacktrace.add(cf);
@@ -1781,8 +1778,8 @@ public class RVM implements java.io.Serializable {
 					
 					rval = stack[sp - 1];
 
-					assert sp ==  cf.function.nlocals + 1
-							: "On return from " + cf.function.name + ": " + (sp - cf.function.nlocals) + " spurious stack elements";
+					assert sp ==  cf.function.getNlocals() + 1
+							: "On return from " + cf.function.name + ": " + (sp - cf.function.getNlocals()) + " spurious stack elements";
 					
 					// if the current frame is the frame of a top active coroutine, 
 					// then pop this coroutine from the stack of active coroutines
@@ -1791,7 +1788,7 @@ public class RVM implements java.io.Serializable {
 						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 					}
 					
-					if(trackCalls) { cf.printBack(stdout, rval); }
+					frameObserver.leave(cf,  rval);
 					cf = cf.previousCallFrame;
 					
 					if(cf == null) {

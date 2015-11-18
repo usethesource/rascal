@@ -99,6 +99,9 @@ public class NotifieableInputStream extends InputStream {
     public int read() throws IOException {
         Byte result = null;
         while ((result = queue.poll()) == null) {
+            if (closed) {
+                return -1;
+            }
             try {
                 newData.tryAcquire(10, TimeUnit.MILLISECONDS);
             }
@@ -111,9 +114,6 @@ public class NotifieableInputStream extends InputStream {
                 if (throwCopy != null) {
                     throw throwCopy;
                 }
-            }
-            if (closed) {
-                return -1;
             }
         }
         return (result & 0xFF);

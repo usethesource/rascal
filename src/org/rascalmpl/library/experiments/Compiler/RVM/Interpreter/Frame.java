@@ -2,10 +2,14 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import org.rascalmpl.interpreter.types.FunctionType;  // TODO: remove import: NO
+import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -81,7 +85,7 @@ public class Frame {
 			frame.stack[i] = stack[sp - arity + i];
 		}
 		this.sp = sp - arity;
-		frame.sp = f.nlocals;
+		frame.sp = f.getNlocals();
 		return frame;
 	}
 	
@@ -107,7 +111,7 @@ public class Frame {
 			frame.stack[frame.sp++] = stack[sp - arity + i];
 		}
 		this.sp = sp - arity;
-		frame.sp = f.nlocals;
+		frame.sp = f.getNlocals();
 		return frame;
 	}
 	
@@ -142,7 +146,7 @@ public class Frame {
 		}
 		if(arity == 0) {
 			this.sp = sp;
-			frame.sp = frame.function.nlocals;
+			frame.sp = frame.function.getNlocals();
 			return frame;
 		}
 		this.sp = frame.pushFunctionArguments(arity, this.stack, sp);
@@ -182,7 +186,7 @@ public class Frame {
 			assert stack[start + arity - 1] instanceof HashMap<?, ?>;
 			this.stack[this.sp++] = stack[start + arity - 1]; // The keyword arguments
 		}		
-		this.sp = function.nlocals;
+		this.sp = function.getNlocals();
 		return start;
 	}
 	
@@ -261,8 +265,38 @@ public class Frame {
 		stdout.println(indent().append(this.toString())); stdout.flush();
 	}
 	
-	public void printBack(PrintWriter stdout, Object rval){
+	public void printLeave(PrintWriter stdout, Object rval){
 		stdout.println(indent()./*append("\uE007 ").*/append(this.function.getPrintableName()).append(" returns ").append(rval == null ? "null" : abbrev(rval.toString()))); stdout.flush();
+	}
+	
+	public String getWhere(){
+		int begin = this.src.getBeginLine();
+		int end = this.src.getBeginLine();
+		String line = begin == end ? String.valueOf(begin) : (begin + "-" + end);
+		return this.function.getPrintableName() + ":" + line;
+	}
+	
+	public void printVars(PrintWriter stdout){
+		Iterator<Entry<IValue, IValue>> iter = function.localNames.entryIterator();
+		while(iter.hasNext()){
+			Entry<IValue, IValue> entry = iter.next();
+			String varName = ((IString) entry.getValue()).getValue();
+			int varPos = ((IInteger) entry.getKey()).intValue();
+			Object v = stack[varPos];
+			if(v != null && !varName.equals("map_of_default_values")){
+					stdout.println("\t" + varName + ": " + v);
+			}
+		}
+		if(stack[function.nformals-1] instanceof HashMap<?, ?>){
+			@SuppressWarnings("unchecked")
+			HashMap<String,IValue> kwParams = (HashMap<String,IValue>)stack[function.nformals-1];
+			for(String kwParam : kwParams.keySet()){
+				IValue v = kwParams.get(kwParam);
+				if(v != null){
+					stdout.println("\t" + kwParam + "=" + kwParams.get(kwParam));
+				}
+			}
+		}
 	}
 	
 }

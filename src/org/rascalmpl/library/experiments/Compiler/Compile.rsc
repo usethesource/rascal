@@ -153,7 +153,21 @@ lang::rascal::\syntax::Rascal::Declaration getMain(lang::rascal::\syntax::Rascal
     throw "Cannot match toplevels";
 }
 
-Module removeMain((Module) `<Header h> <Toplevel* pre> <Toplevel _>`) = (Module) `<Header h> <Toplevel* pre>`;
+//Module removeMain(m: (Module) `<Header h> <Toplevel* pre> <Toplevel mn>`) {
+//    res = (Module) `<Header h> <Toplevel* pre>`;
+//    println("removeMain:\n====\n<m>\n=== returns\n<res>\n====");
+//    return res;
+//}
+
+Module removeMain(lang::rascal::\syntax::Rascal::Module m) {
+    if(m2: (Module) `<Header h> <Toplevel* pre> <Toplevel mn>` := m){
+       res = (Module) `<Header h> <Toplevel* pre>`;
+       //println("removeMain:\n====\n<m>\n=== returns\n<res>\n====");
+       return res;
+    }
+    throw "removeMain: no main found";
+    return m;
+}
 
 Configuration previousConfig;
 
@@ -171,15 +185,15 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
         //M = parse(#start[Module], moduleLoc).top;
         M = parseModuleGetTop(moduleLoc);
         if(!reuseConfig || !previousConfig?){
-            M1 = removeMain(M);
+            lang::rascal::\syntax::Rascal::Module M1 = removeMain(M);
             previousConfig = checkModule(M1, newConfiguration(pcfg));
             previousConfig.stack = [0]; // make sure we are in the module scope
         }
         mainDecl = getMain(M);
-        println("<mainDecl>");
+        //println("<mainDecl>");
         
-        config  = checkDeclaration(mainDecl, true, previousConfig /*, verbose=verbose, bindir=bindir*/);
-        println("checkDeclaration: done");
+        config  = checkDeclaration(mainDecl, true, previousConfig);
+        //println("checkDeclaration: done");
         check_time = (cpuTime() - start_checking)/1000000;
     } catch e: {
         throw e;

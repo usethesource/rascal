@@ -1,11 +1,18 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CallTrackingObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CoverageFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.DebugFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.NullFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.ProfileFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.RVMTrackingObserver;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -31,11 +38,11 @@ public class ExecutionTools {
 	public static RascalExecutionContext makeRex(
 					RVMExecutable rvmExecutable,
 					IBool debug, 
+					IBool debugRVM, 
 					IBool testsuite, 
 					IBool profile, 
 					IBool trackCalls, 
-					IBool coverage, 
-					IBool useJVM, RascalSearchPath rascalSearchPath
+					IBool coverage, IBool useJVM, RascalSearchPath rascalSearchPath
 	) {
 		return new RascalExecutionContext(
 					vf, 
@@ -44,14 +51,15 @@ public class ExecutionTools {
 				   	rvmExecutable.getModuleTags(), 
 				   	rvmExecutable.getSymbolDefinitions(),
 				   	new TypeStore(), 
-				   	debug.getValue(), 
+				   	debug.getValue(),
+				   	debugRVM.getValue(), 
 				   	testsuite.getValue(), 
 				   	profile.getValue(), 
 				   	trackCalls.getValue(), 
 				   	coverage.getValue(), 
 				   	useJVM.getValue(), 
 				   	null, 
-				   	rascalSearchPath);
+				   	null, rascalSearchPath);
 	}
 	
 	
@@ -59,7 +67,7 @@ public class ExecutionTools {
 					 ISourceLocation rvmProgramLoc,
 					 IConstructor rvmProgram,
 					 IBool useJVM	
-    ) {
+    ) throws IOException {
 		
 		return load(
 					rvmProgramLoc,
@@ -71,7 +79,7 @@ public class ExecutionTools {
 	
 	// Read a RVMExecutable from file
 	
-	public static RVMExecutable load(ISourceLocation rvmExecutableLoc) {
+	public static RVMExecutable load(ISourceLocation rvmExecutableLoc) throws IOException {
 		return RVMExecutable.read(rvmExecutableLoc);
 	}
 	
@@ -82,7 +90,7 @@ public class ExecutionTools {
 			 	IConstructor rvmProgram,
 			 	IBool useJVM, 
 			 	IBool serialize
-	) {
+	) throws IOException {
 
 		TypeStore typeStore = new TypeStore();
 		RVMLoader loader = new RVMLoader(vf, typeStore);
@@ -161,11 +169,8 @@ public class ExecutionTools {
 			MuPrimitive.exit(rvm.getStdOut());
 			RascalPrimitive.exit(rex);
 			Opcode.exit();
-			if(rex.getProfile()){
-				((ProfileLocationCollector) rvm.getLocationCollector()).report(rvm.getStdOut());
-			} else if(rex.getCoverage()){
-				((CoverageLocationCollector) rvm.getLocationCollector()).report(rvm.getStdOut());
-			}
+			rvm.getFrameObserver().report();
+
 			
 			//System.out.println("Executing: " + (now - start)/1000000 + "ms");
 			return (IValue) result;
@@ -181,21 +186,23 @@ public class ExecutionTools {
 	 * @return				an initialized RVM instance
 	 */
 	 public static RVM initializedRVM(RVMExecutable executable, RascalExecutionContext rex){
+
+//		 if(rex.getProfile()){
+//			 rex.setFrameObserver(new ProfileFrameObserver(rex.getStdOut()));
+//		 } else if(rex.getCoverage()){
+//			 rex.setFrameObserver(new CoverageFrameObserver(rex.getStdOut()));
+//		 } else if(rex.getDebug()){
+//			 rex.setFrameObserver(new DebugFrameObserver(rex.getStdOut()));
+//		 } else if(rex.getTrackCalls()){
+//			 rex.setFrameObserver(new CallTrackingObserver(rex.getStdOut()));
+//		 } else if(rex.getDebugRVM()){
+//			 rex.setFrameObserver(new RVMTrackingObserver(rex.getStdOut()));
+//		 } else {
+//			 rex.setFrameObserver(NullFrameObserver.getInstance());
+//		 }
 		
 		RVM rvm = rex.getUseJVM() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
 		
-		ProfileLocationCollector profilingCollector = null;
-		CoverageLocationCollector coverageCollector = null;
-		
-		if(rex.getProfile()){
-			profilingCollector = new ProfileLocationCollector();
-			rvm.setLocationCollector(profilingCollector);
-			profilingCollector.start();
-	
-		} else if(rex.getCoverage()){
-			coverageCollector = new CoverageLocationCollector();
-			rvm.setLocationCollector(coverageCollector);
-		}
 		
 		// Execute initializers of imported modules
 		for(String initializer: executable.getInitializers()){

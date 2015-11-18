@@ -54,9 +54,9 @@ public class ParserGenerator {
 	private Function createHoleFunction;
 	private static final String packageName = "org.rascalmpl.java.parser.object";
 	private static final boolean debug = false;
-	private static final boolean useCompiledParserGenerator = false;
+	private static final boolean useCompiledParserGenerator = true;
 
-	public ParserGenerator(RascalExecutionContext rex) {
+	public ParserGenerator(RascalExecutionContext rex) throws IOException {
 		this.vf = rex.getValueFactory();
 		this.tf = TypeFactory.getInstance();
 		this.bridge = new JavaBridge(rex.getClassLoaders(), rex.getValueFactory(), rex.getConfiguration());
@@ -122,60 +122,7 @@ public class ParserGenerator {
 //		return evaluator.call("diagnose", parseForest);
 //	}
 	
-//	/**
-//	 * Generate a parser from a Rascal syntax definition (a set of production rules).
-//	 * 
-//	 * @param monitor a progress monitor; this method will contribute 100 work units
-//	 * @param loc     a location for error reporting
-//	 * @param name    the name of the parser for use in code generation and for later reference
-//	 * @param imports a set of syntax definitions (which are imports in the Rascal grammar)
-//	 * @return
-//	 */
-//	@SuppressWarnings("unchecked")
-//	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
-//		monitor.startJob("Compiled -- Generating parser: " + name, 100, 90);
-//
-//		try {
-//			monitor.event("Importing and normalizing grammar:" + name, 30);
-//			IConstructor grammar = convertMapToGrammar(definition);
-//			debugOutput(grammar.toString(), System.getProperty("java.io.tmpdir") + "/grammar.trm");
-//			String normName = name.replaceAll("::", "_");
-//			monitor.event("Generating java source code for parser: " + name,30);
-//			IString classString = vf.string("");
-//			if(fullyCompiled){
-//				
-//			} else {
-//				classString = (IString) evaluator.call(monitor, "generateObjectParser", vf.string(packageName), vf.string(normName), grammar);
-//			}
-//			debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
-//			monitor.event("Compiling generated java code: " + name, 30);
-//			Class<IGTD<IConstructor, ITree, ISourceLocation>> p = bridge.compileJava(loc, packageName + "." + normName, getClass(), classString.getValue());
-//
-//			String className = normName;
-//			Class<?> clazz;
-//			for (ClassLoader cl: evaluator.getClassLoaders()) {
-//				try {
-//					clazz = cl.loadClass(className);
-//					return (Class<IGTD<IConstructor, ITree, ISourceLocation>>) clazz.newInstance();
-//
-//				} catch (ClassNotFoundException e) {
-//					continue;
-//				} catch (InstantiationException e) {
-//					throw new CompilerError("could not instantiate " + className + " to valid IGTD parser: " + e.getMessage());
-//				} catch (IllegalAccessException e) {
-//					throw new CompilerError("not allowed to instantiate " + className + " to valid IGTD parser: " + e.getMessage());
-//				}
-//			}
-//			throw new CompilerError("class for cached parser " + className + " could not be found");
-//
-//		}  catch (ClassCastException e) {
-//			throw new CompilerError("parser generator:" + e.getMessage() + ", " + e);
-//		} catch (Throw e) {
-//			throw new CompilerError("parser generator: " + e.getMessage() + e.getTrace());
-//		} finally {
-//			monitor.endJob(true);
-//		}
-//	}
+
 
 //	/**
 //	 * Uses the user defined syntax definitions to generate a parser for Rascal that can deal

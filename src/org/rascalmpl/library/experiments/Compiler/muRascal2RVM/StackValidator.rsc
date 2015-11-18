@@ -265,8 +265,22 @@ int simulate(OCALL(str fuid, int arity, loc src),
 int simulate(OCALLDYN(Symbol types, int arity, loc src), 
 			 int sp) 									= sp - 1 - arity + 1;
 int simulate(CALLMUPRIM(str name, int arity), int sp) 	= sp - arity + 1;
+int simulate(CALLMUPRIM0(str name), int sp)             = sp + 1;
+int simulate(CALLMUPRIM1(str name), int sp)             = sp;
+int simulate(CALLMUPRIM2(str name), int sp)             = sp - 1;
+int simulate(CALLMUPRIMN(str name, int arity), int sp)  = sp - arity + 1;
+
 int simulate(CALLPRIM(str name, int arity, loc src), 
 			 int sp) 									= sp - arity + 1;
+
+int simulate(CALLPRIM0(str name, loc src), int sp)      = sp + 1;
+int simulate(CALLPRIM1(str name, loc src), int sp)      = sp;
+int simulate(CALLPRIM2(str name, loc src), int sp)      = sp - 1;
+             			 
+int simulate(CALLPRIMN(str name, int arity, loc src), 
+             int sp)                                    = sp - arity + 1;
+			 
+			 
 int simulate(CALLJAVA(str name, str class, 
 		           Symbol parameterTypes,
 		           Symbol keywordTypes,

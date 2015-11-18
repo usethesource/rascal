@@ -56,7 +56,10 @@ public abstract class BaseREPL {
 
     private BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, PersistentHistory history, Terminal terminal) throws IOException {
         this.originalStdOut = stdout;
-        reader = new ConsoleReader(new NotifieableInputStream(stdin, new byte[] { CANCEL_RUNNING_COMMAND, STOP_REPL, STACK_TRACE }, (Byte b) -> handleEscape(b)), stdout, terminal);
+        if (!(stdin instanceof NotifieableInputStream) && !(stdin.getClass().getCanonicalName().contains("jline"))) {
+            stdin = new NotifieableInputStream(stdin, new byte[] { CANCEL_RUNNING_COMMAND, STOP_REPL, STACK_TRACE }, (Byte b) -> handleEscape(b));
+        }
+        reader = new ConsoleReader(stdin, stdout, terminal);
         if (history != null) {
             this.history = history;
             reader.setHistory(history);
@@ -177,8 +180,8 @@ public abstract class BaseREPL {
     protected abstract void stackTraceRequested();
 
     private String previousPrompt = "";
-    private static final String PRETTY_PROMPT_PREFIX = Ansi.ansi().reset().bold().toString();
-    private static final String PRETTY_PROMPT_POSTFIX = Ansi.ansi().boldOff().reset().toString();
+    protected static final String PRETTY_PROMPT_PREFIX = Ansi.ansi().reset().bold().toString();
+    protected static final String PRETTY_PROMPT_POSTFIX = Ansi.ansi().boldOff().reset().toString();
 
     protected void updatePrompt() {
         String newPrompt = getPrompt();

@@ -113,7 +113,7 @@ public enum RascalPrimitive {
 	 */
 	constructor {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 			Type type = (Type) stack[sp - 3]; 
 			IValue[] args = (IValue[]) stack[sp - 2];
@@ -132,7 +132,7 @@ public enum RascalPrimitive {
 	 */
 	node {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 			String name = ((IString) stack[sp - 3]).getValue(); 
 			IValue[] args = (IValue[]) stack[sp - 2];
@@ -151,7 +151,7 @@ public enum RascalPrimitive {
 	node_create {
 		@SuppressWarnings("unchecked")
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 1;
 
 			String name = ((IString) stack[sp - arity]).getValue();
@@ -172,11 +172,9 @@ public enum RascalPrimitive {
 	 */
 	list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IValue[] args = (IValue[]) stack[sp - 1];
-			stack[sp - 1] = args.length == 0 ? emptyList : vf.list(args);
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue[] args = (IValue[]) arg_1;
+			return (args.length == 0) ? emptyList : vf.list(args);
 		}
 	},
 	
@@ -187,7 +185,7 @@ public enum RascalPrimitive {
 	 */
 	list_create {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 0;
 
 			if(arity == 0){
@@ -214,10 +212,8 @@ public enum RascalPrimitive {
 	 */	
 	list_size {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = vf.integer(((IList) stack[sp - 1]).length());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.integer(((IList) arg_1).length());
 		}
 	},
 	
@@ -228,7 +224,7 @@ public enum RascalPrimitive {
 	 */
 	sublist {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 			IList lst = (IList) stack[sp - 3];
 			int offset = ((IInteger) stack[sp - 2]).intValue();
@@ -246,11 +242,9 @@ public enum RascalPrimitive {
 	 */
 	lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IValue[] args = (IValue[]) stack[sp - 1];
-			stack[sp - 1] = args.length == 0 ? emptyList : vf.list(args);
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue[] args = (IValue[]) arg_1;
+			return (args.length == 0) ? emptyList : vf.list(args);
 		}
 	},
 
@@ -262,11 +256,9 @@ public enum RascalPrimitive {
 	 */
 	set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IValue[] args = (IValue[]) stack[sp - 1];
-			stack[sp - 1] = args.length == 0 ? emptySet : vf.set(args);
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue[] args = (IValue[]) arg_1;
+			return (args.length == 0) ? emptySet : vf.set(args);
 		}
 	},
 	
@@ -277,7 +269,7 @@ public enum RascalPrimitive {
 	 */
 	set_create {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 0;
 
 			if(arity == 0){
@@ -305,14 +297,11 @@ public enum RascalPrimitive {
 	 */
 	set2elm {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			ISet set = (ISet) stack[sp - 1];
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet set = (ISet) arg_1;
 			if(set.size() != 1)
 				throw new CompilerError("set2elm: set should have a single element", rex.getStdErr(), currentFrame);
-			IValue elm = set.iterator().next();
-			stack[sp - 1] = elm;
-			return sp;
+			return set.iterator().next();
 		}
 	},
 
@@ -323,11 +312,9 @@ public enum RascalPrimitive {
 	 */	
 	set_size {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			ISet set = (ISet) stack[sp - 1];		
-			stack[sp - 1] = vf.integer(set.size());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet set = (ISet) arg_1;		
+			return vf.integer(set.size());
 		}
 	},
 
@@ -339,11 +326,9 @@ public enum RascalPrimitive {
 	 */
 	rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IValue[] args = (IValue[]) stack[sp - 1];
-			stack[sp - 1] = args.length == 0 ? emptySet : vf.set(args);
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue[] args = (IValue[]) arg_1;
+			return (args.length == 0) ? emptySet : vf.set(args);
 		}
 	},
 
@@ -355,11 +340,9 @@ public enum RascalPrimitive {
 	 */
 	tuple {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IValue[] args = (IValue[]) stack[sp - 1];
-			stack[sp - 1] = vf.tuple(args);
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue[] args = (IValue[]) arg_1;
+			return vf.tuple(args);
 		}
 	},
 	
@@ -370,7 +353,7 @@ public enum RascalPrimitive {
 	 */
 	tuple_create {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 0;
 			IValue[] elems = new IValue[arity];
 
@@ -390,7 +373,7 @@ public enum RascalPrimitive {
 	 */
 	map_create {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 0;
 
 			if(arity == 0){
@@ -416,13 +399,11 @@ public enum RascalPrimitive {
 	 */
 	loc_create {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IString uri = ((IString) stack[sp - 1]);
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IString uri = ((IString) arg_1);
 
 			try {
-				stack[sp - 1] = vf.sourceLocation(URIUtil.createFromEncoded(uri.getValue()));
-				return sp;
+				return vf.sourceLocation(URIUtil.createFromEncoded(uri.getValue()));
 			} 
 			catch (URISyntaxException e) {
 				// this is actually an unexpected run-time exception since Rascal prevents you from 
@@ -438,7 +419,7 @@ public enum RascalPrimitive {
 	 */
 	loc_with_offset_create {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 5;
 			ISourceLocation loc = (ISourceLocation) stack[sp - arity];
 			int offset = ((IInteger) stack [sp - arity + 1]).intValue();
@@ -464,13 +445,11 @@ public enum RascalPrimitive {
 	 */
 	appl_create {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IValue prod = (IValue) stack[sp - 2];
-			IValue args = (IValue) stack[sp -1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue prod = (IValue) arg_2;
+			IValue args = (IValue) arg_1;
 
-			stack[sp - 2] = vf.constructor(RascalValueFactory.Tree_Appl, prod, args);
-			return sp - 1;
+			return vf.constructor(RascalValueFactory.Tree_Appl, prod, args);
 		}
 	},
 
@@ -481,11 +460,10 @@ public enum RascalPrimitive {
 	 */
 	reifiedType_create {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 
-			IConstructor type_cons = (IConstructor) stack[sp - 2];
-			IMap idefinitions = (IMap) stack[sp - 1];
+			IConstructor type_cons = (IConstructor) arg_2;
+			IMap idefinitions = (IMap) arg_1;
 			TypeReifier typeReifier = new TypeReifier(vf);
 
 			Type type = typeReifier.symbolToType(type_cons, idefinitions);
@@ -493,9 +471,7 @@ public enum RascalPrimitive {
 			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
 			bindings.put(RascalValueFactory.TypeParam, type);
 
-			stack[sp - 2] = vf.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), type_cons, idefinitions);
-
-			return sp - 1;
+			return vf.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), type_cons, idefinitions);
 		}
 	},
 
@@ -505,11 +481,9 @@ public enum RascalPrimitive {
 
 	listwriter_open {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 0;	// For now, later type can be added
-			IListWriter writer = vf.listWriter();
-			stack[sp] = writer;
-			return sp + 1;
+		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
+			// For now, later type can be added
+			return vf.listWriter();
 		}
 	},
 
@@ -521,7 +495,7 @@ public enum RascalPrimitive {
 	 */
 	listwriter_add {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity > 0;
 			IListWriter writer = (IListWriter) stack[sp - arity];
 			for(int i = arity - 1; i > 0; i--){
@@ -533,21 +507,18 @@ public enum RascalPrimitive {
 
 	listwriter_close {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IListWriter writer = (IListWriter) stack[sp - 1];
-			stack[sp - 1] = writer.done();
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IListWriter writer = (IListWriter) arg_1;
+			return writer.done();
+			
 		}
 	},
 
 	setwriter_open {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 0;	// For now, later type can be added
-			ISetWriter writer = vf.setWriter();
-			stack[sp] = writer;
-			return sp + 1;
+		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
+			// For now, later type can be added
+			return vf.setWriter();
 		}
 	},
 
@@ -559,7 +530,7 @@ public enum RascalPrimitive {
 	 */
 	setwriter_add {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity > 0;
 			ISetWriter writer = (ISetWriter) stack[sp - arity];
 			for(int i = arity - 1; i > 0; i--){
@@ -571,21 +542,17 @@ public enum RascalPrimitive {
 
 	setwriter_close {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			ISetWriter writer = (ISetWriter) stack[sp - 1];
-			stack[sp - 1] = writer.done();
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISetWriter writer = (ISetWriter) arg_1;
+			return writer.done();
 		}
 	},
 
 	mapwriter_open {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 0;	// For now, later type can be added
-			IMapWriter writer = vf.mapWriter();
-			stack[sp] = writer;
-			return sp + 1;
+		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
+			// For now, later type can be added
+			return vf.mapWriter();
 		}
 	},
 
@@ -597,7 +564,7 @@ public enum RascalPrimitive {
 	 */
 	mapwriter_add {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 			IMapWriter writer = (IMapWriter) stack[sp - 3];
 			writer.insert(vf.tuple((IValue) stack[sp - 2], (IValue) stack[sp - 1]));
@@ -607,11 +574,9 @@ public enum RascalPrimitive {
 
 	mapwriter_close {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IMapWriter writer = (IMapWriter) stack[sp - 1];
-			stack[sp - 1] = writer.done();
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IMapWriter writer = (IMapWriter) arg_1;
+			return writer.done();
 		}
 	},
 
@@ -622,10 +587,8 @@ public enum RascalPrimitive {
 	 */
 	stringwriter_open {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 0;
-			stack[sp] = new StringBuilder();
-			return sp + 1;
+		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
+			return new StringBuilder();
 		}
 	},
 
@@ -636,18 +599,16 @@ public enum RascalPrimitive {
 	 */
 	stringwriter_add {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			StringBuilder b = (StringBuilder) stack[sp - 2];
-			IValue v = ((IValue) stack[sp - 1]);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			StringBuilder b = (StringBuilder) arg_2;
+			IValue v = ((IValue) arg_1);
 			String s;
 			if(v.getType().isString()){
 				s = ((IString) v).getValue();
 			} else {
 				s = v.toString();
 			}
-			stack[sp - 2] = b.append(s);
-			return sp - 1;
+			return b.append(s);
 		}
 	},
 
@@ -658,11 +619,9 @@ public enum RascalPrimitive {
 	 */
 	stringwriter_close {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			StringBuilder b = (StringBuilder) stack[sp - 1];
-			stack[sp - 1] = vf.string(b.toString());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			StringBuilder b = (StringBuilder) arg_1;
+			return vf.string(b.toString());
 		}
 	},
 
@@ -728,139 +687,138 @@ public enum RascalPrimitive {
 	 */
 	add {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IValue lhs = ((IValue) stack[sp - 2]);
-			IValue rhs = ((IValue) stack[sp - 1]);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue lhs = ((IValue) arg_2);
+			IValue rhs = ((IValue) arg_1);
 			ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
 			ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
 			switch (lhsType) {
 			case INT:
 				switch (rhsType) {
 				case INT:
-					return int_add_int.execute(stack, sp, arity, currentFrame, rex);
+					return int_add_int.execute2(lhs, rhs, currentFrame, rex);
 				case NUM:
-					return int_add_num.execute(stack, sp, arity, currentFrame, rex);
+					return int_add_num.execute2(lhs, rhs, currentFrame, rex);
 				case REAL:
-					return int_add_real.execute(stack, sp, arity, currentFrame, rex);
+					return int_add_real.execute2(lhs, rhs, currentFrame, rex);
 				case RAT:
-					return int_add_rat.execute(stack, sp, arity, currentFrame, rex);
+					return int_add_rat.execute2(lhs, rhs, currentFrame, rex);
 				case LIST:
-					return elm_add_list.execute(stack, sp, arity, currentFrame, rex);
+					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				case SET:
-					return elm_add_list.execute(stack, sp, arity, currentFrame, rex);
+					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case NUM:
 				switch (rhsType) {
 				case INT:
-					return num_add_int.execute(stack, sp, arity, currentFrame, rex);
+					return num_add_int.execute2(lhs, rhs, currentFrame, rex);
 				case NUM:
-					return num_add_num.execute(stack, sp, arity, currentFrame, rex);
+					return num_add_num.execute2(lhs, rhs, currentFrame, rex);
 				case REAL:
-					return num_add_real.execute(stack, sp, arity, currentFrame, rex);
+					return num_add_real.execute2(lhs, rhs, currentFrame, rex);
 				case RAT:
-					return num_add_rat.execute(stack, sp, arity, currentFrame, rex);
+					return num_add_rat.execute2(lhs, rhs, currentFrame, rex);
 				case LIST:
-					return elm_add_list.execute(stack, sp, arity, currentFrame, rex);
+					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				case SET:
-					return elm_add_list.execute(stack, sp, arity, currentFrame, rex);
+					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case REAL:
 				switch (rhsType) {
 				case INT:
-					return real_add_int.execute(stack, sp, arity, currentFrame, rex);
+					return real_add_int.execute2(lhs, rhs, currentFrame, rex);
 				case NUM:
-					return real_add_num.execute(stack, sp, arity, currentFrame, rex);
+					return real_add_num.execute2(lhs, rhs, currentFrame, rex);
 				case REAL:
-					return real_add_real.execute(stack, sp, arity, currentFrame, rex);
+					return real_add_real.execute2(lhs, rhs, currentFrame, rex);
 				case RAT:
-					return real_add_rat.execute(stack, sp, arity, currentFrame, rex);
+					return real_add_rat.execute2(lhs, rhs, currentFrame, rex);
 				case LIST:
-					return elm_add_list.execute(stack, sp, arity, currentFrame, rex);
+					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				case SET:
-					return elm_add_list.execute(stack, sp, arity, currentFrame, rex);
+					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case RAT:
 				switch (rhsType) {
 				case INT:
-					return rat_add_int.execute(stack, sp, arity, currentFrame, rex);
+					return rat_add_int.execute2(lhs, rhs, currentFrame, rex);
 				case NUM:
-					return rat_add_num.execute(stack, sp, arity, currentFrame, rex);
+					return rat_add_num.execute2(lhs, rhs, currentFrame, rex);
 				case REAL:
-					return rat_add_real.execute(stack, sp, arity, currentFrame, rex);
+					return rat_add_real.execute2(lhs, rhs, currentFrame, rex);
 				case RAT:
-					return rat_add_rat.execute(stack, sp, arity, currentFrame, rex);
+					return rat_add_rat.execute2(lhs, rhs, currentFrame, rex);
 				case LIST:
-					return elm_add_list.execute(stack, sp, arity, currentFrame, rex);
+					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				case SET:
-					return elm_add_list.execute(stack, sp, arity, currentFrame, rex);
+					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case SET:
-				return set_add_elm.execute(stack, sp, arity, currentFrame, rex);
+				return set_add_elm.execute2(lhs, rhs, currentFrame, rex);
 				
 			case LIST:
-				return list_add_elm.execute(stack, sp, arity, currentFrame, rex);
+				return list_add_elm.execute2(lhs, rhs, currentFrame, rex);
 
 			case LOC:
 				switch (rhsType) {
 				case STR:
-					return loc_add_str.execute(stack, sp, arity, currentFrame, rex);
+					return loc_add_str.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case LREL:
 				switch (rhsType) {
 				case LIST:
-					return lrel_add_list.execute(stack, sp, arity, currentFrame, rex);
+					return lrel_add_list.execute2(lhs, rhs, currentFrame, rex);
 				case LREL:
-					return lrel_add_lrel.execute(stack, sp, arity, currentFrame, rex);
+					return lrel_add_lrel.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case MAP:
 				switch (rhsType) {
 				case MAP:
-					return map_add_map.execute(stack, sp, arity, currentFrame, rex);
+					return map_add_map.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case REL:
 				switch (rhsType) {
 				case SET:
-					return rel_add_set.execute(stack, sp, arity, currentFrame, rex);
+					return rel_add_set.execute2(lhs, rhs, currentFrame, rex);
 				case REL:
-					return rel_add_rel.execute(stack, sp, arity, currentFrame, rex);
+					return rel_add_rel.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case STR:
 				switch (rhsType) {
 				case STR:
-					return str_add_str.execute(stack, sp, arity, currentFrame, rex);
+					return str_add_str.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case TUPLE:
 				switch (rhsType) {
 				case TUPLE:
-					return tuple_add_tuple.execute(stack, sp, arity, currentFrame, rex);
+					return tuple_add_tuple.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			default:
 				switch (rhsType) {
 				case SET:
-					return elm_add_set.execute(stack, sp, arity, currentFrame, rex);
+					return elm_add_set.execute2(lhs, rhs, currentFrame, rex);
 				case LIST:
-					return elm_add_list.execute(stack, sp, arity, currentFrame, rex);
+					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
@@ -875,10 +833,8 @@ public enum RascalPrimitive {
 	 */
 	int_add_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).add((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).add((IInteger) arg_1);
 		}
 	},
 
@@ -889,10 +845,8 @@ public enum RascalPrimitive {
 	 */
 	int_add_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).add((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).add((INumber) arg_1);
 		}
 	},
 
@@ -903,10 +857,8 @@ public enum RascalPrimitive {
 	 */
 	int_add_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).add((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).add((IRational) arg_1);
 		}
 	},
 
@@ -917,10 +869,8 @@ public enum RascalPrimitive {
 	 */
 	int_add_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).add((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).add((IReal) arg_1);
 		}
 	},
 
@@ -931,10 +881,8 @@ public enum RascalPrimitive {
 	 */
 	num_add_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).add((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).add((IInteger) arg_1);
 		}
 	},
 	/**
@@ -944,10 +892,8 @@ public enum RascalPrimitive {
 	 */
 	num_add_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).add((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).add((INumber) arg_1);
 		}
 	},
 
@@ -958,10 +904,8 @@ public enum RascalPrimitive {
 	 */
 	num_add_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).add((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).add((IRational) arg_1);
 		}
 	},
 
@@ -972,10 +916,8 @@ public enum RascalPrimitive {
 	 */
 	num_add_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).add((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).add((IReal) arg_1);
 		}
 	},
 
@@ -986,10 +928,8 @@ public enum RascalPrimitive {
 	 */
 	rat_add_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).add((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).add((IInteger) arg_1);
 		}
 	},
 
@@ -1000,10 +940,8 @@ public enum RascalPrimitive {
 	 */
 	rat_add_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).add((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).add((INumber) arg_1);
 		}
 	},
 	/**
@@ -1013,10 +951,8 @@ public enum RascalPrimitive {
 	 */
 	rat_add_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).add((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).add((IRational) arg_1);
 		}
 	},
 
@@ -1027,10 +963,8 @@ public enum RascalPrimitive {
 	 */
 	rat_add_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).add((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).add((IReal) arg_1);
 		}
 	},
 
@@ -1041,10 +975,8 @@ public enum RascalPrimitive {
 	 */
 	real_add_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).add((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).add((INumber) arg_1);
 		}
 	},
 
@@ -1055,10 +987,8 @@ public enum RascalPrimitive {
 	 */
 	real_add_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).add((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).add((IInteger) arg_1);
 		}
 	},
 	/**
@@ -1068,10 +998,8 @@ public enum RascalPrimitive {
 	 */
 	real_add_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).add((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).add((IReal) arg_1);
 		}
 	},
 
@@ -1082,10 +1010,8 @@ public enum RascalPrimitive {
 	 */
 	real_add_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).add((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).add((IRational) arg_1);
 		}
 	},
 
@@ -1099,10 +1025,8 @@ public enum RascalPrimitive {
 
 	list_add_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IList) stack[sp - 2]).concat((IList) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IList) arg_2).concat((IList) arg_1);
 		}
 	},
 
@@ -1113,10 +1037,8 @@ public enum RascalPrimitive {
 	 */
 	list_add_elm {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IList) stack[sp - 2]).append((IValue) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IList) arg_2).append((IValue) arg_1);
 		}
 	},
 
@@ -1127,10 +1049,8 @@ public enum RascalPrimitive {
 	 */
 	elm_add_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IList) stack[sp - 1]).insert((IValue) stack[sp - 2]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IList) arg_1).insert((IValue) arg_2);
 		}
 	},
 
@@ -1141,8 +1061,8 @@ public enum RascalPrimitive {
 	 */
 	list_add_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return list_add_list.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return list_add_list.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -1153,8 +1073,8 @@ public enum RascalPrimitive {
 	 */
 	lrel_add_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return list_add_list.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return list_add_list.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -1165,8 +1085,8 @@ public enum RascalPrimitive {
 	 */
 	lrel_add_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return list_add_list.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return list_add_list.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -1177,8 +1097,8 @@ public enum RascalPrimitive {
 	 */
 	lrel_add_elm {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return list_add_elm.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return list_add_elm.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -1189,8 +1109,8 @@ public enum RascalPrimitive {
 	 */
 	elm_add_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return elm_add_list.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return elm_add_list.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -1201,18 +1121,16 @@ public enum RascalPrimitive {
 	 */
 	loc_add_str {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ISourceLocation sloc = (ISourceLocation) stack[sp - 2];
-			String s = ((IString) stack[sp - 1]).getValue();
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISourceLocation sloc = (ISourceLocation) arg_2;
+			String s = ((IString) arg_1).getValue();
 
 			String path = sloc.hasPath() ? sloc.getPath() : "";
 			if(!path.endsWith("/")){
 				path = path + "/";
 			}
 			path = path.concat(s);
-			stack[sp - 2 ] = $loc_field_update(sloc, "path", vf.string(path), currentFrame);
-			return sp - 1;
+			return $loc_field_update(sloc, "path", vf.string(path), currentFrame);
 		}
 	},
 
@@ -1223,10 +1141,8 @@ public enum RascalPrimitive {
 	 */
 	map_add_map {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IMap) stack[sp - 2]).join((IMap) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IMap) arg_2).join((IMap) arg_1);
 		}
 	},
 
@@ -1237,10 +1153,8 @@ public enum RascalPrimitive {
 	 */
 	set_add_elm {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((ISet) stack[sp - 2]).insert((IValue) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((ISet) arg_2).insert((IValue) arg_1);
 		}
 	},
 
@@ -1251,10 +1165,8 @@ public enum RascalPrimitive {
 	 */
 	elm_add_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((ISet) stack[sp - 1]).insert((IValue) stack[sp - 2]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((ISet) arg_1).insert((IValue) arg_2);
 		}
 	},
 
@@ -1265,10 +1177,8 @@ public enum RascalPrimitive {
 	 */
 	set_add_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((ISet) stack[sp - 2]).union((ISet) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((ISet) arg_2).union((ISet) arg_1);
 		}
 	},
 
@@ -1279,8 +1189,8 @@ public enum RascalPrimitive {
 	 */
 	set_add_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return set_add_set.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return set_add_set.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -1291,10 +1201,8 @@ public enum RascalPrimitive {
 	 */
 	rel_add_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((ISet) stack[sp - 2]).union((ISet) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((ISet) arg_2).union((ISet) arg_1);
 		}
 	},
 
@@ -1305,8 +1213,8 @@ public enum RascalPrimitive {
 	 */
 	rel_add_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return set_add_set.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return set_add_set.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -1317,8 +1225,8 @@ public enum RascalPrimitive {
 	 */
 	rel_add_elm {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return set_add_elm.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return set_add_elm.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -1329,8 +1237,8 @@ public enum RascalPrimitive {
 	 */
 	elm_add_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return elm_add_set.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return elm_add_set.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -1341,7 +1249,7 @@ public enum RascalPrimitive {
 	 */
 	str_add_str {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 2;
 			if(arity == 2){
 				stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
@@ -1365,10 +1273,9 @@ public enum RascalPrimitive {
 
 	tuple_add_tuple {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ITuple t1 = (ITuple) stack[sp - 2];
-			ITuple t2 = (ITuple) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ITuple t1 = (ITuple) arg_2;
+			ITuple t2 = (ITuple) arg_1;
 			int len1 = t1.arity();
 			int len2 = t2.arity();
 			IValue elems[] = new IValue[len1 + len2];
@@ -1376,8 +1283,7 @@ public enum RascalPrimitive {
 				elems[i] = t1.get(i);
 			for(int i = 0; i < len2; i++)
 				elems[len1 + i] = t2.get(i);
-			stack[sp - 2] = vf.tuple(elems);
-			return sp - 1;
+			return vf.tuple(elems);
 		}
 	},
 
@@ -1399,62 +1305,61 @@ public enum RascalPrimitive {
 	 */
 	subtract {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IValue lhs = ((IValue) stack[sp - 2]);
-			IValue rhs = ((IValue) stack[sp - 1]);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue lhs = ((IValue) arg_2);
+			IValue rhs = ((IValue) arg_1);
 			ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
 			ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
 			switch (lhsType) {
 			case INT:
 				switch (rhsType) {
 				case INT:
-					return int_subtract_int.execute(stack, sp, arity, currentFrame, rex);
+					return int_subtract_int.execute2(lhs, rhs, currentFrame, rex);
 				case NUM:
-					return int_subtract_num.execute(stack, sp, arity, currentFrame, rex);
+					return int_subtract_num.execute2(lhs, rhs, currentFrame, rex);
 				case REAL:
-					return int_subtract_real.execute(stack, sp, arity, currentFrame, rex);
+					return int_subtract_real.execute2(lhs, rhs, currentFrame, rex);
 				case RAT:
-					return int_subtract_rat.execute(stack, sp, arity, currentFrame, rex);
+					return int_subtract_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
 				}
 			case NUM:
 				switch (rhsType) {
 				case INT:
-					return num_subtract_int.execute(stack, sp, arity, currentFrame, rex);
+					return num_subtract_int.execute2(lhs, rhs, currentFrame, rex);
 				case NUM:
-					return num_subtract_num.execute(stack, sp, arity, currentFrame, rex);
+					return num_subtract_num.execute2(lhs, rhs, currentFrame, rex);
 				case REAL:
-					return num_subtract_real.execute(stack, sp, arity, currentFrame, rex);
+					return num_subtract_real.execute2(lhs, rhs, currentFrame, rex);
 				case RAT:
-					return num_subtract_rat.execute(stack, sp, arity, currentFrame, rex);
+					return num_subtract_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
 				}
 			case REAL:
 				switch (rhsType) {
 				case INT:
-					return real_subtract_int.execute(stack, sp, arity, currentFrame, rex);
+					return real_subtract_int.execute2(lhs, rhs, currentFrame, rex);
 				case NUM:
-					return real_subtract_num.execute(stack, sp, arity, currentFrame, rex);
+					return real_subtract_num.execute2(lhs, rhs, currentFrame, rex);
 				case REAL:
-					return real_subtract_real.execute(stack, sp, arity, currentFrame, rex);
+					return real_subtract_real.execute2(lhs, rhs, currentFrame, rex);
 				case RAT:
-					return real_subtract_rat.execute(stack, sp, arity, currentFrame, rex);
+					return real_subtract_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
 				}
 			case RAT:
 				switch (rhsType) {
 				case INT:
-					return rat_subtract_int.execute(stack, sp, arity, currentFrame, rex);
+					return rat_subtract_int.execute2(lhs, rhs, currentFrame, rex);
 				case NUM:
-					return rat_subtract_num.execute(stack, sp, arity, currentFrame, rex);
+					return rat_subtract_num.execute2(lhs, rhs, currentFrame, rex);
 				case REAL:
-					return rat_subtract_real.execute(stack, sp, arity, currentFrame, rex);
+					return rat_subtract_real.execute2(lhs, rhs, currentFrame, rex);
 				case RAT:
-					return rat_subtract_rat.execute(stack, sp, arity, currentFrame, rex);
+					return rat_subtract_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
 				}
@@ -1471,10 +1376,8 @@ public enum RascalPrimitive {
 	 */
 	int_subtract_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).subtract((IInteger) arg_1);
 		}
 	},
 
@@ -1485,10 +1388,8 @@ public enum RascalPrimitive {
 	 */
 	int_subtract_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).subtract((INumber) arg_1);
 		}
 	},
 
@@ -1499,10 +1400,8 @@ public enum RascalPrimitive {
 	 */
 	int_subtract_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).subtract((IRational) arg_1);
 		}
 	},
 
@@ -1513,10 +1412,8 @@ public enum RascalPrimitive {
 	 */
 	int_subtract_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).subtract((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).subtract((IReal) arg_1);
 		}	
 	},
 
@@ -1527,10 +1424,8 @@ public enum RascalPrimitive {
 	 */
 	num_subtract_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).subtract((IInteger) arg_1);
 		}
 	},
 
@@ -1541,10 +1436,8 @@ public enum RascalPrimitive {
 	 */
 	num_subtract_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).subtract((INumber) arg_1);
 		}
 	},
 
@@ -1555,10 +1448,8 @@ public enum RascalPrimitive {
 	 */
 	num_subtract_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).subtract((IRational) arg_1);
 		}
 	},
 
@@ -1569,10 +1460,8 @@ public enum RascalPrimitive {
 	 */
 	num_subtract_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).subtract((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).subtract((IReal) arg_1);
 		}
 	},
 
@@ -1583,10 +1472,8 @@ public enum RascalPrimitive {
 	 */
 	rat_subtract_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).subtract((IInteger) arg_1);
 		}
 	},
 
@@ -1597,10 +1484,8 @@ public enum RascalPrimitive {
 	 */
 	rat_subtract_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).subtract((INumber) arg_1);
 		}
 	},
 
@@ -1611,10 +1496,8 @@ public enum RascalPrimitive {
 	 */
 	rat_subtract_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).subtract((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).subtract((IRational) arg_1);
 		}
 	},
 
@@ -1625,10 +1508,8 @@ public enum RascalPrimitive {
 	 */
 	rat_subtract_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).subtract((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).subtract((IReal) arg_1);
 		}	
 	},
 
@@ -1639,10 +1520,8 @@ public enum RascalPrimitive {
 	 */
 	real_subtract_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).subtract((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).subtract((INumber) arg_1);
 		}
 	},
 
@@ -1653,10 +1532,8 @@ public enum RascalPrimitive {
 	 */
 	real_subtract_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).subtract((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).subtract((IInteger) arg_1);
 		}
 	},
 
@@ -1667,10 +1544,8 @@ public enum RascalPrimitive {
 	 */
 	real_subtract_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).subtract((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).subtract((IReal) arg_1);
 		}
 	},
 
@@ -1681,10 +1556,8 @@ public enum RascalPrimitive {
 	 */
 	real_subtract_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).subtract((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).subtract((IRational) arg_1);
 		}
 	},
 
@@ -1695,10 +1568,8 @@ public enum RascalPrimitive {
 	 */
 	list_subtract_elm {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IList) stack[sp - 2]).delete((IValue) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IList) arg_2).delete((IValue) arg_1);
 		}
 	},
 
@@ -1709,10 +1580,8 @@ public enum RascalPrimitive {
 	 */
 	list_subtract_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IList) stack[sp - 2]).subtract((IList) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IList) arg_2).subtract((IList) arg_1);
 		}
 	},
 
@@ -1723,8 +1592,8 @@ public enum RascalPrimitive {
 	 */
 	list_subtract_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return list_subtract_list.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return list_subtract_list.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -1735,8 +1604,8 @@ public enum RascalPrimitive {
 	 */
 	lrel_subtract_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return list_subtract_list.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return list_subtract_list.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -1747,8 +1616,8 @@ public enum RascalPrimitive {
 	 */
 	lrel_subtract_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return list_subtract_list.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return list_subtract_list.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -1759,8 +1628,8 @@ public enum RascalPrimitive {
 	 */
 	lrel_subtract_elm {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return list_subtract_elm.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return list_subtract_elm.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -1771,10 +1640,8 @@ public enum RascalPrimitive {
 	 */
 	map_subtract_map {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IMap) stack[sp - 2]).remove((IMap) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IMap) arg_2).remove((IMap) arg_1);
 		}
 	},
 
@@ -1785,8 +1652,8 @@ public enum RascalPrimitive {
 	 */
 	rel_subtract_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return set_subtract_set.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return set_subtract_set.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -1797,8 +1664,8 @@ public enum RascalPrimitive {
 	 */
 	rel_subtract_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return set_subtract_set.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return set_subtract_set.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -1809,8 +1676,8 @@ public enum RascalPrimitive {
 	 */
 	rel_subtract_elm {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return set_subtract_elm.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return set_subtract_elm.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -1821,10 +1688,8 @@ public enum RascalPrimitive {
 	 */
 	set_subtract_elm {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((ISet) stack[sp - 2]).delete((IValue) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((ISet) arg_2).delete((IValue) arg_1);
 		}
 	},
 
@@ -1835,10 +1700,8 @@ public enum RascalPrimitive {
 	 */
 	set_subtract_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((ISet) stack[sp - 2]).subtract((ISet) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((ISet) arg_2).subtract((ISet) arg_1);
 		}
 	},
 
@@ -1849,8 +1712,8 @@ public enum RascalPrimitive {
 	 */
 	set_subtract_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return set_subtract_set.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return set_subtract_set.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},	
 
@@ -1874,62 +1737,61 @@ public enum RascalPrimitive {
 	 */
 	product {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IValue lhs = ((IValue) stack[sp - 2]);
-			IValue rhs = ((IValue) stack[sp - 1]);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue lhs = ((IValue) arg_2);
+			IValue rhs = ((IValue) arg_1);
 			ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
 			ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
 			switch (lhsType) {
 			case INT:
 				switch (rhsType) {
 				case INT:
-					return int_product_int.execute(stack, sp, arity, currentFrame, rex);
+					return int_product_int.execute2(lhs, rhs, currentFrame, rex);
 				case NUM:
-					return int_product_num.execute(stack, sp, arity, currentFrame, rex);
+					return int_product_num.execute2(lhs, rhs, currentFrame, rex);
 				case REAL:
-					return int_product_real.execute(stack, sp, arity, currentFrame, rex);
+					return int_product_real.execute2(lhs, rhs, currentFrame, rex);
 				case RAT:
-					return int_product_rat.execute(stack, sp, arity, currentFrame, rex);
+					return int_product_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case NUM:
 				switch (rhsType) {
 				case INT:
-					return num_product_int.execute(stack, sp, arity, currentFrame, rex);
+					return num_product_int.execute2(lhs, rhs, currentFrame, rex);
 				case NUM:
-					return num_product_num.execute(stack, sp, arity, currentFrame, rex);
+					return num_product_num.execute2(lhs, rhs, currentFrame, rex);
 				case REAL:
-					return num_product_real.execute(stack, sp, arity, currentFrame, rex);
+					return num_product_real.execute2(lhs, rhs, currentFrame, rex);
 				case RAT:
-					return num_product_rat.execute(stack, sp, arity, currentFrame, rex);
+					return num_product_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case REAL:
 				switch (rhsType) {
 				case INT:
-					return real_product_int.execute(stack, sp, arity, currentFrame, rex);
+					return real_product_int.execute2(lhs, rhs, currentFrame, rex);
 				case NUM:
-					return real_product_num.execute(stack, sp, arity, currentFrame, rex);
+					return real_product_num.execute2(lhs, rhs, currentFrame, rex);
 				case REAL:
-					return real_product_real.execute(stack, sp, arity, currentFrame, rex);
+					return real_product_real.execute2(lhs, rhs, currentFrame, rex);
 				case RAT:
-					return real_product_rat.execute(stack, sp, arity, currentFrame, rex);
+					return real_product_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case RAT:
 				switch (rhsType) {
 				case INT:
-					return rat_product_int.execute(stack, sp, arity, currentFrame, rex);
+					return rat_product_int.execute2(lhs, rhs, currentFrame, rex);
 				case NUM:
-					return rat_product_num.execute(stack, sp, arity, currentFrame, rex);
+					return rat_product_num.execute2(lhs, rhs, currentFrame, rex);
 				case REAL:
-					return rat_product_real.execute(stack, sp, arity, currentFrame, rex);
+					return rat_product_real.execute2(lhs, rhs, currentFrame, rex);
 				case RAT:
-					return rat_product_rat.execute(stack, sp, arity, currentFrame, rex);
+					return rat_product_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
@@ -1946,10 +1808,8 @@ public enum RascalPrimitive {
 	 */
 	int_product_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).multiply((IInteger) arg_1);
 		}
 	},
 
@@ -1960,10 +1820,8 @@ public enum RascalPrimitive {
 	 */
 	int_product_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).multiply((INumber) arg_1);
 		}
 	},
 
@@ -1974,10 +1832,8 @@ public enum RascalPrimitive {
 	 */
 	int_product_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).multiply((IRational) arg_1);
 		}
 	},
 
@@ -1988,10 +1844,8 @@ public enum RascalPrimitive {
 	 */
 	int_product_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).multiply((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).multiply((IReal) arg_1);
 		}
 	},
 
@@ -2002,10 +1856,8 @@ public enum RascalPrimitive {
 	 */
 	num_product_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).multiply((IInteger) arg_1);
 		}
 	},
 
@@ -2016,10 +1868,8 @@ public enum RascalPrimitive {
 	 */
 	num_product_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).multiply((INumber) arg_1);
 		}
 	},
 
@@ -2030,10 +1880,8 @@ public enum RascalPrimitive {
 	 */
 	num_product_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).multiply((IRational) arg_1);
 		}
 	},
 
@@ -2044,10 +1892,8 @@ public enum RascalPrimitive {
 	 */
 	num_product_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).multiply((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).multiply((IReal) arg_1);
 		}	
 	},
 
@@ -2058,10 +1904,8 @@ public enum RascalPrimitive {
 	 */
 	rat_product_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).multiply((IInteger) arg_1);
 		}
 	},
 
@@ -2072,10 +1916,8 @@ public enum RascalPrimitive {
 	 */
 	rat_product_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).multiply((INumber) arg_1);
 		}
 	},
 
@@ -2086,10 +1928,8 @@ public enum RascalPrimitive {
 	 */
 	rat_product_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).multiply((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).multiply((IRational) arg_1);
 		}
 	},
 
@@ -2100,10 +1940,8 @@ public enum RascalPrimitive {
 	 */
 	rat_product_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).multiply((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).multiply((IReal) arg_1);
 		}
 	},
 
@@ -2114,10 +1952,8 @@ public enum RascalPrimitive {
 	 */
 	real_product_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).multiply((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).multiply((INumber) arg_1);
 		}
 	},
 
@@ -2128,10 +1964,8 @@ public enum RascalPrimitive {
 	 */
 	real_product_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).multiply((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).multiply((IInteger) arg_1);
 		}
 	},
 
@@ -2142,10 +1976,8 @@ public enum RascalPrimitive {
 	 */
 	real_product_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).multiply((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).multiply((IReal) arg_1);
 		}
 	},
 
@@ -2156,10 +1988,8 @@ public enum RascalPrimitive {
 	 */
 	real_product_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).multiply((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).multiply((IRational) arg_1);
 		}
 	},
 
@@ -2170,18 +2000,16 @@ public enum RascalPrimitive {
 	 */
 	list_product_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IList left = (IList) stack[sp - 2];
-			IList right = (IList) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IList left = (IList) arg_2;
+			IList right = (IList) arg_1;
 			IListWriter w = vf.listWriter();
 			for(IValue l : left){
 				for(IValue r : right){
 					w.append(vf.tuple(l,r));
 				}
 			}
-			stack[sp - 2] = w.done();
-			return sp - 1;
+			return w.done();
 		}
 	},
 
@@ -2192,8 +2020,8 @@ public enum RascalPrimitive {
 	 */
 	lrel_product_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return list_product_list.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return list_product_list.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -2204,18 +2032,16 @@ public enum RascalPrimitive {
 	 */
 	set_product_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ISet left = (ISet) stack[sp - 2];
-			ISet right = (ISet) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet left = (ISet) arg_2;
+			ISet right = (ISet) arg_1;
 			ISetWriter w = vf.setWriter();
 			for(IValue l : left){
 				for(IValue r : right){
 					w.insert(vf.tuple(l,r));
 				}
 			}
-			stack[sp - 2] = w.done();
-			return sp - 1;
+			return w.done();
 		}
 	},
 
@@ -2226,8 +2052,8 @@ public enum RascalPrimitive {
 	 */
 	rel_product_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return set_product_set.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return set_product_set.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -2241,11 +2067,11 @@ public enum RascalPrimitive {
 	 */
 	remainder {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			IValue lhs = ((IValue) stack[sp - 2]);
-			IValue rhs = ((IValue) stack[sp - 1]);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue lhs = ((IValue) arg_2);
+			IValue rhs = ((IValue) arg_1);
 			if(lhs.getType().isInteger() && rhs.getType().isInteger()){
-				return int_remainder_int.execute(stack, sp, arity, currentFrame, rex);
+				return int_remainder_int.execute2(lhs, rhs, currentFrame, rex);
 			}
 			throw new CompilerError("remainder: unexpected type combination" + lhs.getType() + " and " + rhs.getType(), currentFrame);
 		}
@@ -2258,10 +2084,8 @@ public enum RascalPrimitive {
 	 */
 	int_remainder_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).remainder((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).remainder((IInteger) arg_1);
 		}
 	},
 
@@ -2283,18 +2107,18 @@ public enum RascalPrimitive {
 	 */
 	compose {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 
-			IValue left = (IValue) stack[sp - 2];
+			IValue left = (IValue) arg_2;
 			Type leftType = left.getType();
+			IValue right = (IValue) arg_1;
 			switch (ToplevelType.getToplevelType(leftType)) {
 			case LREL:
-				return lrel_compose_lrel.execute(stack, sp, arity, currentFrame, rex);
+				return lrel_compose_lrel.execute2(left, right, currentFrame, rex);
 			case REL:
-				return rel_compose_rel.execute(stack, sp, arity, currentFrame, rex);
+				return rel_compose_rel.execute2(left, right, currentFrame, rex);
 			case MAP:
-				return map_compose_map.execute(stack, sp, arity, currentFrame, rex);
+				return map_compose_map.execute2(left, right, currentFrame, rex);
 			default:
 				throw new CompilerError("RascalPrimtive compose: unexpected type " + leftType, rex.getStdErr(), currentFrame);
 			}
@@ -2308,13 +2132,11 @@ public enum RascalPrimitive {
 	 */
 	lrel_compose_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 
-			IListRelation<IList> left = ((IList) stack[sp - 2]).asRelation();
-			IListRelation<IList> right = ((IList) stack[sp - 1]).asRelation();
-			stack[sp - 2] = left.compose(right);
-			return sp - 1;
+			IListRelation<IList> left = ((IList) arg_2).asRelation();
+			IListRelation<IList> right = ((IList) arg_1).asRelation();
+			return left.compose(right);
 		}
 	},
 
@@ -2326,12 +2148,10 @@ public enum RascalPrimitive {
 	 */
 	rel_compose_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ISetRelation<ISet> left = ((ISet) stack[sp - 2]).asRelation();
-			ISetRelation<ISet> right = ((ISet) stack[sp - 1]).asRelation();
-			stack[sp - 2] = left.compose(right);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISetRelation<ISet> left = ((ISet) arg_2).asRelation();
+			ISetRelation<ISet> right = ((ISet) arg_1).asRelation();
+			return left.compose(right);
 		}
 	},
 
@@ -2342,10 +2162,8 @@ public enum RascalPrimitive {
 	 */
 	map_compose_map {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IMap) stack[sp - 2]).compose((IMap) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IMap) arg_2).compose((IMap) arg_1);
 		}
 	},
 
@@ -2360,11 +2178,11 @@ public enum RascalPrimitive {
 	 */
 	mod {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			IValue lhs = ((IValue) stack[sp - 2]);
-			IValue rhs = ((IValue) stack[sp - 1]);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue lhs = ((IValue) arg_2);
+			IValue rhs = ((IValue) arg_1);
 			if(lhs.getType().isInteger() && rhs.getType().isInteger()){
-				return int_mod_int.execute(stack, sp, arity, currentFrame, rex);
+				return int_mod_int.execute2(lhs, rhs, currentFrame, rex);
 			}
 			throw new CompilerError("RascalPrimitive mod: unexpected type combination" + lhs.getType() + " and " + rhs.getType(), rex.getStdErr(), currentFrame);
 		}
@@ -2377,10 +2195,8 @@ public enum RascalPrimitive {
 	 */
 	int_mod_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).mod((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).mod((IInteger) arg_1);
 		}
 	},
 
@@ -2398,62 +2214,61 @@ public enum RascalPrimitive {
 
 	divide {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IValue lhs = ((IValue) stack[sp - 2]);
-			IValue rhs = ((IValue) stack[sp - 1]);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue lhs = ((IValue) arg_2);
+			IValue rhs = ((IValue) arg_1);
 			ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
 			ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
 			switch (lhsType) {
 			case INT:
 				switch (rhsType) {
 				case INT:
-					return int_divide_int.execute(stack, sp, arity, currentFrame, rex);
+					return int_divide_int.execute2(lhs, rhs, currentFrame, rex);
 				case NUM:
-					return int_divide_num.execute(stack, sp, arity, currentFrame, rex);
+					return int_divide_num.execute2(lhs, rhs, currentFrame, rex);
 				case REAL:
-					return int_divide_real.execute(stack, sp, arity, currentFrame, rex);
+					return int_divide_real.execute2(lhs, rhs, currentFrame, rex);
 				case RAT:
-					return int_divide_rat.execute(stack, sp, arity, currentFrame, rex);
+					return int_divide_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case NUM:
 				switch (rhsType) {
 				case INT:
-					return num_divide_int.execute(stack, sp, arity, currentFrame, rex);
+					return num_divide_int.execute2(lhs, rhs, currentFrame, rex);
 				case NUM:
-					return num_divide_num.execute(stack, sp, arity, currentFrame, rex);
+					return num_divide_num.execute2(lhs, rhs, currentFrame, rex);
 				case REAL:
-					return num_divide_real.execute(stack, sp, arity, currentFrame, rex);
+					return num_divide_real.execute2(lhs, rhs, currentFrame, rex);
 				case RAT:
-					return num_divide_rat.execute(stack, sp, arity, currentFrame, rex);
+					return num_divide_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case REAL:
 				switch (rhsType) {
 				case INT:
-					return real_divide_int.execute(stack, sp, arity, currentFrame, rex);
+					return real_divide_int.execute2(lhs, rhs, currentFrame, rex);
 				case NUM:
-					return real_divide_num.execute(stack, sp, arity, currentFrame, rex);
+					return real_divide_num.execute2(lhs, rhs, currentFrame, rex);
 				case REAL:
-					return real_divide_real.execute(stack, sp, arity, currentFrame, rex);
+					return real_divide_real.execute2(lhs, rhs, currentFrame, rex);
 				case RAT:
-					return real_divide_rat.execute(stack, sp, arity, currentFrame, rex);
+					return real_divide_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case RAT:
 				switch (rhsType) {
 				case INT:
-					return rat_divide_int.execute(stack, sp, arity, currentFrame, rex);
+					return rat_divide_int.execute2(lhs, rhs, currentFrame, rex);
 				case NUM:
-					return rat_divide_num.execute(stack, sp, arity, currentFrame, rex);
+					return rat_divide_num.execute2(lhs, rhs, currentFrame, rex);
 				case REAL:
-					return rat_divide_real.execute(stack, sp, arity, currentFrame, rex);
+					return rat_divide_real.execute2(lhs, rhs, currentFrame, rex);
 				case RAT:
-					return rat_divide_rat.execute(stack, sp, arity, currentFrame, rex);
+					return rat_divide_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
 					throw new CompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
@@ -2470,11 +2285,9 @@ public enum RascalPrimitive {
 	 */
 	int_divide_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IInteger) stack[sp - 1]);
-				return sp - 1;
+				return ((IInteger) arg_2).divide((IInteger) arg_1);
 			} catch(ArithmeticException e) {
 				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
 			}
@@ -2488,11 +2301,9 @@ public enum RascalPrimitive {
 	 */
 	int_divide_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
-				return sp - 1;
+				return ((IInteger) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
 				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
 			}
@@ -2506,11 +2317,9 @@ public enum RascalPrimitive {
 	 */
 	int_divide_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IRational) stack[sp - 1]);
-				return sp - 1;
+				return ((IInteger) arg_2).divide((IRational) arg_1);
 			} catch(ArithmeticException e) {
 				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
 			}
@@ -2524,11 +2333,9 @@ public enum RascalPrimitive {
 	 */
 	int_divide_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				stack[sp - 2] = ((IInteger) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
-				return sp - 1;
+				return ((IInteger) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
 				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
 			}
@@ -2542,11 +2349,9 @@ public enum RascalPrimitive {
 	 */
 	num_divide_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IInteger) stack[sp - 1], vf.getPrecision());
-				return sp - 1;
+				return ((INumber) arg_2).divide((IInteger) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
 				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
 			}
@@ -2560,11 +2365,9 @@ public enum RascalPrimitive {
 	 */
 	num_divide_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				stack[sp - 2] = ((INumber) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
-				return sp - 1;
+				return ((INumber) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
 				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
 			}
@@ -2578,11 +2381,9 @@ public enum RascalPrimitive {
 	 */
 	num_divide_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IRational) stack[sp - 1], vf.getPrecision());
-				return sp - 1;
+				return ((INumber) arg_2).divide((IRational) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
 				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
 			}
@@ -2596,11 +2397,9 @@ public enum RascalPrimitive {
 	 */
 	num_divide_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				stack[sp - 2] = ((INumber) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
-				return sp - 1;
+				return ((INumber) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
 				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
 			}
@@ -2614,11 +2413,9 @@ public enum RascalPrimitive {
 	 */
 	rat_divide_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IInteger) stack[sp - 1]);
-				return sp - 1;
+				return ((IRational) arg_2).divide((IInteger) arg_1);
 			} catch(ArithmeticException e) {
 				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
 			}
@@ -2632,11 +2429,9 @@ public enum RascalPrimitive {
 	 */
 	rat_divide_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				stack[sp - 2] = ((IRational) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
-				return sp - 1;
+				return ((IRational) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
 				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
 			}
@@ -2650,11 +2445,9 @@ public enum RascalPrimitive {
 	 */
 	rat_divide_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IRational) stack[sp - 1]);
-				return sp - 1;
+				return ((IRational) arg_2).divide((IRational) arg_1);
 			} catch(ArithmeticException e) {
 				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
 			}
@@ -2668,11 +2461,9 @@ public enum RascalPrimitive {
 	 */
 	rat_divide_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				stack[sp - 2] = ((IRational) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
-				return sp - 1;
+				return ((IRational) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
 				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
 			}
@@ -2686,11 +2477,9 @@ public enum RascalPrimitive {
 	 */
 	real_divide_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				stack[sp - 2] = ((IReal) stack[sp - 2]).divide((INumber) stack[sp - 1], vf.getPrecision());
-				return sp - 1;
+				return ((IReal) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
 				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
 			}
@@ -2704,11 +2493,9 @@ public enum RascalPrimitive {
 	 */
 	real_divide_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IInteger) stack[sp - 1], vf.getPrecision());
-				return sp - 1;
+				return ((IReal) arg_2).divide((IInteger) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
 				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
 			}
@@ -2722,11 +2509,9 @@ public enum RascalPrimitive {
 	 */
 	real_divide_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IReal) stack[sp - 1], vf.getPrecision());
-				return sp - 1;
+				return ((IReal) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
 				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
 			}
@@ -2740,18 +2525,14 @@ public enum RascalPrimitive {
 	 */
 	real_divide_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				stack[sp - 2] = ((IReal) stack[sp - 2]).divide((IRational) stack[sp - 1], vf.getPrecision());
-				return sp - 1;
+				return ((IReal) arg_2).divide((IRational) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
 				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
 			}
 		}
 	},
-
-
 
 	/*
 	 * equal
@@ -2765,10 +2546,8 @@ public enum RascalPrimitive {
 
 	int_equal_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).equal((IInteger) arg_1);
 		}
 	},
 
@@ -2779,10 +2558,8 @@ public enum RascalPrimitive {
 	 */
 	int_equal_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).equal((INumber) arg_1);
 		}
 	},
 
@@ -2793,10 +2570,8 @@ public enum RascalPrimitive {
 	 */
 	int_equal_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).equal((IRational) arg_1);
 		}
 	},
 
@@ -2807,10 +2582,8 @@ public enum RascalPrimitive {
 	 */
 	int_equal_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).equal((IReal) arg_1);
 		}
 	},
 
@@ -2821,10 +2594,8 @@ public enum RascalPrimitive {
 	 */
 	num_equal_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).equal((IInteger) arg_1);
 		}
 	},
 
@@ -2835,10 +2606,8 @@ public enum RascalPrimitive {
 	 */
 	num_equal_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).equal((INumber) arg_1);
 		}
 	},
 
@@ -2849,10 +2618,8 @@ public enum RascalPrimitive {
 	 */
 	num_equal_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).equal((IRational) arg_1);
 		}
 	},
 
@@ -2863,10 +2630,8 @@ public enum RascalPrimitive {
 	 */
 	num_equal_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).equal((IReal) arg_1);
 		}
 	},
 
@@ -2877,10 +2642,8 @@ public enum RascalPrimitive {
 	 */
 	real_equal_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).equal((IInteger) arg_1);
 		}
 	},
 
@@ -2892,10 +2655,8 @@ public enum RascalPrimitive {
 	 */
 	real_equal_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).equal((INumber) arg_1);
 		}
 	},
 
@@ -2907,10 +2668,8 @@ public enum RascalPrimitive {
 	 */
 	real_equal_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).equal((IRational) arg_1);
 		}
 	},
 
@@ -2921,10 +2680,8 @@ public enum RascalPrimitive {
 	 */
 	real_equal_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).equal((IReal) arg_1);
 		}
 	},
 
@@ -2935,10 +2692,8 @@ public enum RascalPrimitive {
 	 */
 	rat_equal_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).equal((IInteger) arg_1);
 		}
 	},
 
@@ -2949,10 +2704,8 @@ public enum RascalPrimitive {
 	 */
 	rat_equal_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).equal((INumber) arg_1);
 		}
 	},
 
@@ -2963,10 +2716,8 @@ public enum RascalPrimitive {
 	 */
 	rat_equal_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).equal((IRational) arg_1);
 		}
 	},
 
@@ -2977,10 +2728,8 @@ public enum RascalPrimitive {
 	 */
 	rat_equal_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).equal((IReal) arg_1);
 		}
 	},
 
@@ -2992,24 +2741,21 @@ public enum RascalPrimitive {
 
 	node_equal_node {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			INode leftNode = (INode) stack[sp - 2];
-			INode rightNode = (INode) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			INode leftNode = (INode) arg_2;
+			INode rightNode = (INode) arg_1;
 			int leftArity = leftNode.arity();
 			int rightArity = rightNode.arity();
-			stack[sp - 2] = Rascal_FALSE;
 
 			if(leftArity != rightArity || !leftNode.getName().equals(rightNode.getName())){
-				return sp - 1;
+				return Rascal_FALSE;
 			}
 			for(int i = 0; i < leftArity; i++){
 				if(!$equal(leftNode.get(i), rightNode.get(i), currentFrame, rex).getValue()){
-					return sp - 1;
+					return Rascal_FALSE;
 				}
 			}
-			stack[sp - 2] = Rascal_TRUE;
-			return sp - 1;
+			return Rascal_TRUE;
 		}
 	},
 
@@ -3027,17 +2773,15 @@ public enum RascalPrimitive {
 	 */
 	equal {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IValue left = (IValue)stack[sp - 2];
-			IValue right = (IValue)stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue left = (IValue)arg_2;
+			IValue right = (IValue)arg_1;
 			if(left.getType().isNumber() && right.getType().isNumber()){
-				return num_equal_num.execute(stack, sp, arity, currentFrame, rex);
+				return num_equal_num.execute2(left,right, currentFrame, rex);
 			} else if(left.getType().isNode() && right.getType().isNode()){
-				return node_equal_node.execute(stack, sp, arity, currentFrame, rex);
+				return node_equal_node.execute2(left, right, currentFrame, rex);
 			} else {
-				stack[sp - 2] = vf.bool(left.isEqual(right));
-				return sp - 1;
+				return vf.bool(left.isEqual(right));
 			}
 		}
 	},
@@ -3049,10 +2793,8 @@ public enum RascalPrimitive {
 	 */
 	type_equal_type {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((Type) stack[sp - 2]) == ((Type) stack[sp - 1]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((Type) arg_2) == ((Type) arg_1));
 		}		
 	},
 
@@ -3066,10 +2808,8 @@ public enum RascalPrimitive {
 	 */
 	int_greater_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).greater((IInteger) arg_1);
 		}
 	},
 
@@ -3080,10 +2820,8 @@ public enum RascalPrimitive {
 	 */
 	int_greater_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).greater((INumber) arg_1);
 		}
 	},
 
@@ -3094,10 +2832,8 @@ public enum RascalPrimitive {
 	 */
 	int_greater_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).greater((IRational) arg_1);
 		}
 	},
 
@@ -3108,10 +2844,8 @@ public enum RascalPrimitive {
 	 */
 	int_greater_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greater((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).greater((IReal) arg_1);
 		}
 	},
 
@@ -3122,10 +2856,8 @@ public enum RascalPrimitive {
 	 */
 	num_greater_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).greater((IInteger) arg_1);
 		}
 	},
 
@@ -3137,10 +2869,8 @@ public enum RascalPrimitive {
 	 */
 	num_greater_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).greater((INumber) arg_1);
 		}
 	},
 
@@ -3151,10 +2881,8 @@ public enum RascalPrimitive {
 	 */
 	num_greater_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).greater((IRational) arg_1);
 		}
 	},
 
@@ -3166,10 +2894,8 @@ public enum RascalPrimitive {
 	 */
 	num_greater_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greater((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).greater((IReal) arg_1);
 		}
 	},	
 
@@ -3180,10 +2906,8 @@ public enum RascalPrimitive {
 	 */
 	rat_greater_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).greater((IInteger) arg_1);
 		}
 	},
 
@@ -3194,10 +2918,8 @@ public enum RascalPrimitive {
 	 */
 	rat_greater_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).greater((INumber) arg_1);
 		}
 	},
 
@@ -3208,10 +2930,8 @@ public enum RascalPrimitive {
 	 */
 	rat_greater_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).greater((IRational) arg_1);
 		}
 	},
 
@@ -3222,10 +2942,8 @@ public enum RascalPrimitive {
 	 */
 	rat_greater_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greater((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).greater((IReal) arg_1);
 		}
 	},
 
@@ -3236,10 +2954,8 @@ public enum RascalPrimitive {
 	 */
 	real_greater_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).greater((INumber) arg_1);
 		}
 	},
 
@@ -3250,10 +2966,8 @@ public enum RascalPrimitive {
 	 */
 	real_greater_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).greater((IInteger) arg_1);
 		}
 	},
 
@@ -3264,10 +2978,8 @@ public enum RascalPrimitive {
 	 */
 	real_greater_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).greater((IReal) arg_1);
 		}
 	},
 
@@ -3278,10 +2990,8 @@ public enum RascalPrimitive {
 	 */
 	real_greater_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greater((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).greater((IRational) arg_1);
 		}
 	},
 
@@ -3293,10 +3003,8 @@ public enum RascalPrimitive {
 
 	greater {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			int spnew = lessequal.execute(stack, sp, arity, currentFrame, rex);
-			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
-			return spnew;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IBool) lessequal.execute2(arg_2, arg_1, currentFrame, rex)).not();
 		}
 	},
 
@@ -3307,9 +3015,8 @@ public enum RascalPrimitive {
 	 */
 	adt_greater_adt {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			return node_greater_node.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return node_greater_node.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -3321,10 +3028,8 @@ public enum RascalPrimitive {
 
 	bool_greater_bool {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IBool) stack[sp - 2]).and(((IBool) stack[sp - 1]).not());
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IBool) arg_2).and(((IBool) arg_1).not());
 		}
 	},
 
@@ -3335,10 +3040,8 @@ public enum RascalPrimitive {
 	 */
 	datetime_greater_datetime {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == 1);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IDateTime) arg_2).compareTo((IDateTime) arg_1) == 1);
 		}
 	},
 
@@ -3349,10 +3052,8 @@ public enum RascalPrimitive {
 	 */
 	list_greater_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			int spnew = list_lessequal_list.execute(stack, sp, arity, currentFrame, rex);
-			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
-			return spnew;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IBool) list_lessequal_list.execute2(arg_2, arg_1, currentFrame, rex)).not();
 		}
 	},
 
@@ -3363,10 +3064,8 @@ public enum RascalPrimitive {
 	 */
 	lrel_greater_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			int spnew = list_lessequal_list.execute(stack, sp, arity, currentFrame, rex);
-			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
-			return spnew;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IBool) list_lessequal_list.execute2(arg_2, arg_1, currentFrame, rex)).not();
 		}
 	},
 
@@ -3377,10 +3076,8 @@ public enum RascalPrimitive {
 	 */
 	loc_greater_loc {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			int spnew = loc_lessequal_loc.execute(stack, sp, arity, currentFrame, rex);
-			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
-			return spnew;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IBool) loc_lessequal_loc.execute2(arg_2, arg_1, currentFrame, rex)).not();
 		}
 	},
 
@@ -3391,13 +3088,11 @@ public enum RascalPrimitive {
 	 */
 	map_greater_map {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IMap left = (IMap) stack[sp - 2];
-			IMap right = (IMap) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IMap left = (IMap) arg_2;
+			IMap right = (IMap) arg_1;
 
-			stack[sp - 2] = vf.bool(right.isSubMap(left) && !left.isSubMap(right));
-			return sp - 1;
+			return vf.bool(right.isSubMap(left) && !left.isSubMap(right));
 		}
 	},
 
@@ -3408,10 +3103,8 @@ public enum RascalPrimitive {
 	 */
 	node_greater_node {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			int newsp = node_lessequal_node.execute(stack, sp, arity, currentFrame, rex);
-			stack[newsp - 1] = ((IBool)stack[newsp - 1]).not();
-			return newsp;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IBool) node_lessequal_node.execute2(arg_2, arg_1, currentFrame, rex)).not();
 		}
 	},
 
@@ -3422,10 +3115,8 @@ public enum RascalPrimitive {
 	 */
 	set_greater_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((ISet) stack[sp - 1]).isSubsetOf((ISet) stack[sp - 2]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((ISet) arg_1).isSubsetOf((ISet) arg_2));
 		}
 	},
 
@@ -3436,10 +3127,8 @@ public enum RascalPrimitive {
 	 */
 	rel_greater_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((ISet) stack[sp - 1]).isSubsetOf((ISet) stack[sp - 2]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((ISet) arg_1).isSubsetOf((ISet) arg_2));
 		}
 	},
 
@@ -3450,10 +3139,8 @@ public enum RascalPrimitive {
 	 */
 	str_greater_str {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((IString) stack[sp - 2]).compare((IString) stack[sp - 1]) == 1);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IString) arg_2).compare((IString) arg_1) == 1);
 		}
 	},
 
@@ -3464,10 +3151,8 @@ public enum RascalPrimitive {
 	 */
 	tuple_greater_tuple {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			int spnew = tuple_lessequal_tuple.execute(stack, sp, arity, currentFrame, rex);
-			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
-			return spnew;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IBool) tuple_lessequal_tuple.execute2(arg_2, arg_1, currentFrame, rex)).not();
 		}
 	},
 	
@@ -3480,10 +3165,8 @@ public enum RascalPrimitive {
 	 */
 	int_greaterequal_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).greaterEqual((IInteger) arg_1);
 		}
 	},
 
@@ -3494,10 +3177,8 @@ public enum RascalPrimitive {
 	 */
 	int_greaterequal_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).greaterEqual((INumber) arg_1);
 		}
 	},
 
@@ -3508,10 +3189,8 @@ public enum RascalPrimitive {
 	 */
 	int_greaterequal_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).greaterEqual((IRational) arg_1);
 		}
 	},
 
@@ -3522,10 +3201,8 @@ public enum RascalPrimitive {
 	 */
 	int_greaterequal_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).greaterEqual((IReal) arg_1);
 		}
 	},
 
@@ -3536,10 +3213,8 @@ public enum RascalPrimitive {
 	 */
 	num_greaterequal_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).greaterEqual((IInteger) arg_1);
 		}
 	},
 
@@ -3550,10 +3225,8 @@ public enum RascalPrimitive {
 	 */
 	num_greaterequal_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).greaterEqual((INumber) arg_1);
 		}
 	},
 
@@ -3564,10 +3237,8 @@ public enum RascalPrimitive {
 	 */
 	num_greaterequal_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).greaterEqual((IRational) arg_1);
 		}
 	},
 
@@ -3578,10 +3249,8 @@ public enum RascalPrimitive {
 	 */
 	num_greaterequal_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).greaterEqual((IReal) arg_1);
 		}
 	},
 
@@ -3592,10 +3261,8 @@ public enum RascalPrimitive {
 	 */
 	rat_greaterequal_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).greaterEqual((IInteger) arg_1);
 		}
 	},
 
@@ -3606,10 +3273,8 @@ public enum RascalPrimitive {
 	 */
 	rat_greaterequal_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).greaterEqual((INumber) arg_1);
 		}
 	},
 
@@ -3620,10 +3285,8 @@ public enum RascalPrimitive {
 	 */
 	rat_greaterequal_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).greaterEqual((IRational) arg_1);
 		}
 	},
 
@@ -3634,10 +3297,8 @@ public enum RascalPrimitive {
 	 */
 	rat_greaterequal_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).greaterEqual((IReal) arg_1);
 		}
 	},
 
@@ -3648,10 +3309,8 @@ public enum RascalPrimitive {
 	 */
 	real_greaterequal_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).greaterEqual((INumber) arg_1);
 		}
 	},
 
@@ -3662,10 +3321,8 @@ public enum RascalPrimitive {
 	 */
 	real_greaterequal_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).greaterEqual((IInteger) arg_1);
 		}
 	},
 
@@ -3676,10 +3333,8 @@ public enum RascalPrimitive {
 	 */
 	real_greaterequal_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).greaterEqual((IReal) arg_1);
 		}
 	},
 	/**
@@ -3689,10 +3344,8 @@ public enum RascalPrimitive {
 	 */
 	real_greaterequal_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).greaterEqual((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).greaterEqual((IRational) arg_1);
 		}
 	},
 
@@ -3703,10 +3356,8 @@ public enum RascalPrimitive {
 	 */
 	greaterequal {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			int spnew = less.execute(stack, sp, arity, currentFrame, rex);
-			stack[sp - 2] = ((IBool) stack[sp - 2]).not();
-			return spnew;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IBool) less.execute2(arg_2, arg_1, currentFrame, rex)).not();
 		}
 	},
 
@@ -3717,9 +3368,8 @@ public enum RascalPrimitive {
 	 */
 	adt_greaterequal_adt {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			return node_greaterequal_node.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return node_greaterequal_node.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -3730,12 +3380,10 @@ public enum RascalPrimitive {
 	 */
 	bool_greaterequal_bool {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			boolean left = ((IBool) stack[sp - 2]).getValue();
-			boolean right = ((IBool) stack[sp - 1]).getValue();
-			stack[sp - 2] = vf.bool((left && !right) || (left == right));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			boolean left = ((IBool) arg_2).getValue();
+			boolean right = ((IBool) arg_1).getValue();
+			return vf.bool((left && !right) || (left == right));
 		}
 	},
 
@@ -3746,10 +3394,8 @@ public enum RascalPrimitive {
 	 */
 	datetime_greaterequal_datetime {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == 1);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IDateTime) arg_2).compareTo((IDateTime) arg_1) == 1);
 		}
 	},
 
@@ -3760,10 +3406,8 @@ public enum RascalPrimitive {
 	 */
 	list_greaterequal_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			int spnew = list_less_list.execute(stack, sp, arity, currentFrame, rex);
-			stack[sp - 2] = ((IBool)stack[sp - 2]).not();
-			return spnew;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IBool) list_less_list.execute2(arg_2, arg_1, currentFrame, rex)).not();
 		}
 	},
 
@@ -3774,10 +3418,8 @@ public enum RascalPrimitive {
 	 */
 	lrel_greaterequal_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			int spnew = list_less_list.execute(stack, sp, arity, currentFrame, rex);
-			stack[sp - 2] = ((IBool)stack[sp - 2]).not();
-			return spnew;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IBool) list_less_list.execute2(arg_2, arg_1, currentFrame, rex)).not();
 		}
 	},
 
@@ -3788,10 +3430,8 @@ public enum RascalPrimitive {
 	 */
 	loc_greaterequal_loc {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			int spnew = loc_less_loc.execute(stack, sp, arity, currentFrame, rex);
-			stack[sp - 2] = ((IBool)stack[sp - 2]).not();
-			return spnew;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IBool) loc_less_loc.execute2(arg_2, arg_1, currentFrame, rex)).not();
 		}
 	},
 
@@ -3802,10 +3442,8 @@ public enum RascalPrimitive {
 	 */
 	node_greaterequal_node {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			int newsp = node_less_node.execute(stack, sp, arity, currentFrame, rex);
-			stack[newsp - 1] = ((IBool)stack[newsp - 1]).not();
-			return newsp;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IBool) node_less_node.execute2(arg_2, arg_1, currentFrame, rex)).not();
 		}
 	},
 
@@ -3816,12 +3454,10 @@ public enum RascalPrimitive {
 	 */
 	map_greaterequal_map {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IMap left = (IMap) stack[sp - 2];
-			IMap right = (IMap) stack[sp - 1];
-			stack[sp - 2] = vf.bool(right.isSubMap(left));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IMap left = (IMap) arg_2;
+			IMap right = (IMap) arg_1;
+			return vf.bool(right.isSubMap(left));
 		}
 	},
 
@@ -3832,12 +3468,10 @@ public enum RascalPrimitive {
 	 */
 	set_greaterequal_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ISet left = (ISet) stack[sp - 2];
-			ISet right = (ISet) stack[sp - 1];
-			stack[sp - 2] = vf.bool(left.isEqual(right) || right.isSubsetOf(left));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet left = (ISet) arg_2;
+			ISet right = (ISet) arg_1;
+			return vf.bool(left.isEqual(right) || right.isSubsetOf(left));
 		}
 	},
 
@@ -3848,12 +3482,10 @@ public enum RascalPrimitive {
 	 */
 	rel_greaterequal_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ISet left = (ISet) stack[sp - 2];
-			ISet right = (ISet) stack[sp - 1];
-			stack[sp - 2] = vf.bool(left.isEqual(right) || right.isSubsetOf(left));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet left = (ISet) arg_2;
+			ISet right = (ISet) arg_1;
+			return vf.bool(left.isEqual(right) || right.isSubsetOf(left));
 		}
 	},
 
@@ -3864,11 +3496,9 @@ public enum RascalPrimitive {
 	 */
 	str_greaterequal_str {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
-			stack[sp - 2] = vf.bool(c == 0 || c == 1);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			int c = ((IString) arg_2).compare((IString) arg_1);
+			return vf.bool(c == 0 || c == 1);
 		}
 	},
 
@@ -3879,10 +3509,8 @@ public enum RascalPrimitive {
 	 */
 	tuple_greaterequal_tuple {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			int spnew = tuple_less_tuple.execute(stack, sp, arity, currentFrame, rex);
-			stack[sp - 2] = ((IBool)stack[sp - 2]).not();
-			return spnew;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IBool) tuple_less_tuple.execute2(arg_2, arg_1, currentFrame, rex)).not();
 		}
 	},
 
@@ -3906,35 +3534,34 @@ public enum RascalPrimitive {
 
 	intersect {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 
-			IValue left = (IValue) stack[sp - 2];
+			IValue left = (IValue) arg_2;
 			Type leftType = left.getType();
-			IValue right = (IValue) stack[sp - 2];
+			IValue right = (IValue) arg_1;
 			Type rightType = right.getType();
 
 			switch (ToplevelType.getToplevelType(leftType)) {
 			case LIST:
 				switch (ToplevelType.getToplevelType(rightType)) {
 				case LIST:
-					return list_intersect_list.execute(stack, sp, arity, currentFrame, rex);
+					return list_intersect_list.execute2(left, right, currentFrame, rex);
 				case LREL:
-					return list_intersect_lrel.execute(stack, sp, arity, currentFrame, rex);
+					return list_intersect_lrel.execute2(left, right, currentFrame, rex);
 				default:
 					throw new CompilerError("intersect: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 				}
 			case SET:
 				switch (ToplevelType.getToplevelType(rightType)) {
 				case SET:
-					return set_intersect_set.execute(stack, sp, arity, currentFrame, rex);
+					return set_intersect_set.execute2(left, right, currentFrame, rex);
 				case REL:
-					return set_intersect_rel.execute(stack, sp, arity, currentFrame, rex);
+					return set_intersect_rel.execute2(left, right, currentFrame, rex);
 				default:
 					throw new CompilerError("intersect: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 				}
 			case MAP:
-				return map_intersect_map.execute(stack, sp, arity, currentFrame, rex);
+				return map_intersect_map.execute2(left, right, currentFrame, rex);
 
 			default:
 				throw new CompilerError("intersect: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
@@ -3949,10 +3576,8 @@ public enum RascalPrimitive {
 	 */
 	list_intersect_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IList) stack[sp - 2]).intersect((IList) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IList) arg_2).intersect((IList) arg_1);
 		}
 	},
 
@@ -3963,8 +3588,8 @@ public enum RascalPrimitive {
 	 */
 	list_intersect_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return list_intersect_list.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return list_intersect_list.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -3975,8 +3600,8 @@ public enum RascalPrimitive {
 	 */
 	lrel_intersect_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return list_intersect_list.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return list_intersect_list.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -3987,8 +3612,8 @@ public enum RascalPrimitive {
 	 */
 	lrel_intersect_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return list_intersect_list.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return list_intersect_list.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -3999,10 +3624,8 @@ public enum RascalPrimitive {
 	 */
 	map_intersect_map {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IMap) stack[sp - 2]).common((IMap) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IMap) arg_2).common((IMap) arg_1);
 		}
 	},
 
@@ -4013,8 +3636,8 @@ public enum RascalPrimitive {
 	 */
 	rel_intersect_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return set_intersect_set.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return set_intersect_set.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -4025,8 +3648,8 @@ public enum RascalPrimitive {
 	 */
 	rel_intersect_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return set_intersect_set.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return set_intersect_set.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -4037,10 +3660,8 @@ public enum RascalPrimitive {
 	 */
 	set_intersect_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((ISet) stack[sp - 2]).intersect((ISet) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((ISet) arg_2).intersect((ISet) arg_1);
 		}
 	},
 
@@ -4051,8 +3672,8 @@ public enum RascalPrimitive {
 	 */
 	set_intersect_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return set_intersect_set.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return set_intersect_set.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -4069,25 +3690,24 @@ public enum RascalPrimitive {
 	 */
 	in {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 
-			IValue left = (IValue) stack[sp - 2];
+			IValue left = (IValue) arg_2;
 			Type leftType = left.getType();
-			IValue right = (IValue) stack[sp - 2];
+			IValue right = (IValue) arg_1;
 			Type rightType = right.getType();
 
 			switch (ToplevelType.getToplevelType(leftType)) {
 			case LIST:
-				return elm_in_list.execute(stack, sp, arity, currentFrame, rex);
+				return elm_in_list.execute2(left, right, currentFrame, rex);
 			case LREL:
-				return elm_in_lrel.execute(stack, sp, arity, currentFrame, rex);
+				return elm_in_lrel.execute2(left, right, currentFrame, rex);
 			case SET:
-				return elm_in_set.execute(stack, sp, arity, currentFrame, rex);
+				return elm_in_set.execute2(left, right, currentFrame, rex);
 			case REL:
-				return elm_in_rel.execute(stack, sp, arity, currentFrame, rex);
+				return elm_in_rel.execute2(left, right, currentFrame, rex);
 			case MAP:
-				return elm_in_map.execute(stack, sp, arity, currentFrame, rex);
+				return elm_in_map.execute2(left, right, currentFrame, rex);
 			default:
 				throw new CompilerError("in: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 			}
@@ -4101,12 +3721,9 @@ public enum RascalPrimitive {
 	 */
 	elm_in_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IList) arg_1).contains((IValue) arg_2));
 		}
-
 	},
 
 	/**
@@ -4116,8 +3733,8 @@ public enum RascalPrimitive {
 	 */
 	elm_in_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return elm_in_list.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return elm_in_list.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 
 	},
@@ -4129,10 +3746,8 @@ public enum RascalPrimitive {
 	 */
 	elm_in_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((ISet) stack[sp - 1]).contains((IValue) stack[sp - 2]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((ISet) arg_1).contains((IValue) arg_2));
 		}
 
 	},
@@ -4144,8 +3759,8 @@ public enum RascalPrimitive {
 	 */
 	elm_in_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return elm_in_set.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return elm_in_set.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 
 	},
@@ -4157,10 +3772,8 @@ public enum RascalPrimitive {
 	 */
 	elm_in_map {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((IMap) stack[sp - 1]).containsKey((IValue) stack[sp - 2]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IMap) arg_1).containsKey((IValue) arg_2));
 		}
 	},
 
@@ -4176,25 +3789,24 @@ public enum RascalPrimitive {
 	 */
 	notin {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 
-			IValue left = (IValue) stack[sp - 2];
+			IValue left = (IValue) arg_2;
 			Type leftType = left.getType();
-			IValue right = (IValue) stack[sp - 2];
+			IValue right = (IValue) arg_1;
 			Type rightType = right.getType();
 
 			switch (ToplevelType.getToplevelType(leftType)) {
 			case LIST:
-				return elm_notin_list.execute(stack, sp, arity, currentFrame, rex);
+				return elm_notin_list.execute2(left, right, currentFrame, rex);
 			case LREL:
-				return elm_notin_lrel.execute(stack, sp, arity, currentFrame, rex);
+				return elm_notin_lrel.execute2(left, right, currentFrame, rex);
 			case SET:
-				return elm_notin_set.execute(stack, sp, arity, currentFrame, rex);
+				return elm_notin_set.execute2(left, right, currentFrame, rex);
 			case REL:
-				return elm_notin_rel.execute(stack, sp, arity, currentFrame, rex);
+				return elm_notin_rel.execute2(left, right, currentFrame, rex);
 			case MAP:
-				return elm_notin_map.execute(stack, sp, arity, currentFrame, rex);
+				return elm_notin_map.execute2(left, right, currentFrame, rex);
 			default:
 				throw new CompilerError("notin: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 			}
@@ -4208,10 +3820,8 @@ public enum RascalPrimitive {
 	 */	
 	elm_notin_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(!((IList) stack[sp - 1]).contains((IValue) stack[sp - 2]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(!((IList) arg_1).contains((IValue) arg_2));
 		}
 	},
 
@@ -4222,8 +3832,8 @@ public enum RascalPrimitive {
 	 */	
 	elm_notin_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return elm_notin_list.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return elm_notin_list.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -4234,10 +3844,8 @@ public enum RascalPrimitive {
 	 */	
 	elm_notin_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(!((ISet) stack[sp - 1]).contains((IValue) stack[sp - 2]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(!((ISet) arg_1).contains((IValue) arg_2));
 		}
 	},
 
@@ -4248,8 +3856,8 @@ public enum RascalPrimitive {
 	 */	
 	elm_notin_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return elm_notin_set.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return elm_notin_set.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -4260,10 +3868,8 @@ public enum RascalPrimitive {
 	 */	
 	elm_notin_map {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(!((IMap) stack[sp - 1]).containsKey((IValue) stack[sp - 2]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(!((IMap) arg_1).containsKey((IValue) arg_2));
 		}
 	},
 	
@@ -4276,12 +3882,11 @@ public enum RascalPrimitive {
 	 */
 	non_negative {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			if(((IInteger)stack[sp -1]).intValue() < 0){
-				throw RascalRuntimeException.indexOutOfBounds(((IInteger)stack[sp -1]), currentFrame);
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			if(((IInteger)arg_1).intValue() < 0){
+				throw RascalRuntimeException.indexOutOfBounds(((IInteger)arg_1), currentFrame);
 			}
-			return sp;
+			return Rascal_TRUE;
 		}
 	},
 
@@ -4293,39 +3898,38 @@ public enum RascalPrimitive {
 	
 	join {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-
-			IValue left = (IValue) stack[sp - 2];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+	
+			IValue left = (IValue) arg_2;
 			Type leftType = left.getType();
-			IValue right = (IValue) stack[sp - 2];
+			IValue right = (IValue) arg_1;
 			Type rightType = right.getType();
 
 			switch (ToplevelType.getToplevelType(leftType)) {
 			case LIST:
 				switch (ToplevelType.getToplevelType(rightType)) {
 				case LIST:
-					return list_join_list.execute(stack, sp, arity, currentFrame, rex);
+					return list_join_list.execute2(left, right, currentFrame, rex);
 				case LREL:
-					return list_join_lrel.execute(stack, sp, arity, currentFrame, rex);
+					return list_join_lrel.execute2(left, right, currentFrame, rex);
 				default:
 					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 				}
 			case LREL:
 				switch (ToplevelType.getToplevelType(rightType)) {
 				case LIST:
-					return lrel_join_list.execute(stack, sp, arity, currentFrame, rex);
+					return lrel_join_list.execute2(left, right, currentFrame, rex);
 				case LREL:
-					return lrel_join_lrel.execute(stack, sp, arity, currentFrame, rex);
+					return lrel_join_lrel.execute2(left, right, currentFrame, rex);
 				default:
 					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 				}
 			case SET:
 				switch (ToplevelType.getToplevelType(rightType)) {
 				case SET:
-					return set_join_set.execute(stack, sp, arity, currentFrame, rex);
+					return set_join_set.execute2(left, right, currentFrame, rex);
 				case REL:
-					return set_join_rel.execute(stack, sp, arity, currentFrame, rex);
+					return set_join_rel.execute2(left, right, currentFrame, rex);
 				default:
 					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 				}
@@ -4333,9 +3937,9 @@ public enum RascalPrimitive {
 			case REL:
 				switch (ToplevelType.getToplevelType(rightType)) {
 				case SET:
-					return rel_join_set.execute(stack, sp, arity, currentFrame, rex);
+					return rel_join_set.execute2(left, right, currentFrame, rex);
 				case REL:
-					return rel_join_rel.execute(stack, sp, arity, currentFrame, rex);
+					return rel_join_rel.execute2(left, right, currentFrame, rex);
 				default:
 					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 				}
@@ -4352,8 +3956,8 @@ public enum RascalPrimitive {
 	 */
 	list_join_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return list_product_list.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return list_product_list.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -4363,17 +3967,14 @@ public enum RascalPrimitive {
 	 */
 	list_join_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IList left = (IList) stack[sp - 2];
-			IList right = (IList) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IList left = (IList) arg_2;
+			IList right = (IList) arg_1;
 			if(left.length() == 0){
-				stack[sp - 2] = left;
-				return sp -1;
+				return left;
 			}
 			if(right.length() == 0){
-				stack[sp - 2] = right;
-				return sp -1;
+				return right;
 			}
 			Type rightType = right.get(0).getType();
 			assert rightType.isTuple();
@@ -4391,8 +3992,7 @@ public enum RascalPrimitive {
 					w.append(vf.tuple(fieldValues));
 				}
 			}
-			stack[sp - 2] = w.done();
-			return sp - 1;
+			return w.done();
 		}
 	},
 
@@ -4402,17 +4002,14 @@ public enum RascalPrimitive {
 	 */
 	lrel_join_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IList left = (IList) stack[sp - 2];
-			IList right = (IList) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IList left = (IList) arg_2;
+			IList right = (IList) arg_1;
 			if(left.length() == 0){
-				stack[sp - 2] = left;
-				return sp -1;
+				return left;
 			}
 			if(right.length() == 0){
-				stack[sp - 2] = right;
-				return sp -1;
+				return right;
 			}
 			Type leftType = left.get(0).getType();
 			Type rightType = right.get(0).getType();
@@ -4435,8 +4032,7 @@ public enum RascalPrimitive {
 					w.append(vf.tuple(fieldValues));
 				}
 			}
-			stack[sp - 2] = w.done();
-			return sp - 1;
+			return w.done();
 		}
 	},
 
@@ -4446,17 +4042,14 @@ public enum RascalPrimitive {
 	 */
 	lrel_join_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IList left = (IList) stack[sp - 2];
-			IList right = (IList) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IList left = (IList) arg_2;
+			IList right = (IList) arg_1;
 			if(left.length() == 0){
-				stack[sp - 2] = left;
-				return sp -1;
+				return left;
 			}
 			if(right.length() == 0){
-				stack[sp - 2] = right;
-				return sp -1;
+				return right;
 			}
 			Type leftType = left.get(0).getType();
 			assert leftType.isTuple();
@@ -4474,8 +4067,7 @@ public enum RascalPrimitive {
 					w.append(vf.tuple(fieldValues));
 				}
 			}
-			stack[sp - 2] = w.done();
-			return sp - 1;
+			return w.done();
 		}
 	},
 
@@ -4485,8 +4077,8 @@ public enum RascalPrimitive {
 	 */
 	set_join_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			return set_product_set.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return set_product_set.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -4496,17 +4088,14 @@ public enum RascalPrimitive {
 	 */
 	set_join_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ISet left = (ISet) stack[sp - 2];
-			ISet right = (ISet) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet left = (ISet) arg_2;
+			ISet right = (ISet) arg_1;
 			if(left.size() == 0){
-				stack[sp - 2] = left;
-				return sp -1;
+				return left;
 			}
 			if(right.size() == 0){
-				stack[sp - 2] = right;
-				return sp -1;
+				return right;
 			}
 			Type rightType = right.getElementType();
 			assert rightType.isTuple();
@@ -4524,8 +4113,7 @@ public enum RascalPrimitive {
 					w.insert(vf.tuple(fieldValues));
 				}
 			}
-			stack[sp - 2] = w.done();
-			return sp - 1;
+			return w.done();
 		}
 	},
 
@@ -4535,17 +4123,14 @@ public enum RascalPrimitive {
 	 */
 	rel_join_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ISet left = (ISet) stack[sp - 2];
-			ISet right = (ISet) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet left = (ISet) arg_2;
+			ISet right = (ISet) arg_1;
 			if(left.size() == 0){
-				stack[sp - 2] = left;
-				return sp -1;
+				return left;
 			}
 			if(right.size() == 0){
-				stack[sp - 2] = right;
-				return sp -1;
+				return right;
 			}
 			Type leftType = left.getElementType();
 			Type rightType = right.getElementType();
@@ -4568,8 +4153,7 @@ public enum RascalPrimitive {
 					w.insert(vf.tuple(fieldValues));
 				}
 			}
-			stack[sp - 2] = w.done();
-			return sp - 1;
+			return w.done();
 		}
 	},
 
@@ -4579,17 +4163,14 @@ public enum RascalPrimitive {
 	 */
 	rel_join_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ISet left = (ISet) stack[sp - 2];
-			ISet right = (ISet) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet left = (ISet) arg_2;
+			ISet right = (ISet) arg_1;
 			if(left.size() == 0){
-				stack[sp - 2] = left;
-				return sp -1;
+				return left;
 			}
 			if(right.size() == 0){
-				stack[sp - 2] = right;
-				return sp -1;
+				return right;
 			}
 			Type leftType = left.getElementType();
 			assert leftType.isTuple();
@@ -4607,8 +4188,7 @@ public enum RascalPrimitive {
 					w.insert(vf.tuple(fieldValues));
 				}
 			}
-			stack[sp - 2] = w.done();
-			return sp - 1;
+			return w.done();
 		}
 	},
 
@@ -4625,47 +4205,46 @@ public enum RascalPrimitive {
 	 */
 	less {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 
-			Type leftType = ((IValue) stack[sp - 2]).getType();
-			Type rightType = ((IValue) stack[sp - 1]).getType();
+			IValue left = (IValue) arg_2;
+			IValue right = (IValue) arg_1;
+			Type leftType = left.getType();
+			Type rightType = right.getType();
 
 			if (leftType.isSubtypeOf(tf.numberType()) && rightType.isSubtypeOf(tf.numberType())) {
-				return num_less_num.execute(stack, sp, arity, currentFrame, rex);
+				return num_less_num.execute2(left, right, currentFrame, rex);
 			}
 
 			if(!leftType.comparable(rightType)){
-				stack[sp - 2] = Rascal_FALSE;
-				return sp - 1;
+				return Rascal_FALSE;
 			}
-
 
 			switch (ToplevelType.getToplevelType(leftType)) {
 			// TODO: is this really faster than a TypeVisitor?? No because getTopLevelType includes a TypeVisitor itself.
 			case BOOL:
-				return bool_less_bool.execute(stack, sp, arity, currentFrame, rex);
+				return bool_less_bool.execute2(left, right, currentFrame, rex);
 			case STR:
-				return str_less_str.execute(stack, sp, arity, currentFrame, rex);
+				return str_less_str.execute2(left, right, currentFrame, rex);
 			case DATETIME:
-				return datetime_less_datetime.execute(stack, sp, arity, currentFrame, rex);
+				return datetime_less_datetime.execute2(left, right, currentFrame, rex);
 			case LOC:
-				return loc_less_loc.execute(stack, sp, arity, currentFrame, rex);
+				return loc_less_loc.execute2(left, right, currentFrame, rex);
 			case LIST:
 			case LREL:
-				return list_less_list.execute(stack, sp, arity, currentFrame, rex);
+				return list_less_list.execute2(left, right, currentFrame, rex);
 			case SET:
 			case REL:
-				return set_less_set.execute(stack, sp, arity, currentFrame, rex);
+				return set_less_set.execute2(left, right, currentFrame, rex);
 			case MAP:
-				return map_less_map.execute(stack, sp, arity, currentFrame, rex);
+				return map_less_map.execute2(left, right, currentFrame, rex);
 			case CONSTRUCTOR:
 			case NODE:
-				return node_less_node.execute(stack, sp, arity, currentFrame, rex);
+				return node_less_node.execute2(left, right, currentFrame, rex);
 			case ADT:
-				return adt_less_adt.execute(stack, sp, 2, currentFrame, rex);
+				return adt_less_adt.execute2(left, right, currentFrame, rex);
 			case TUPLE:
-				return tuple_less_tuple.execute(stack, sp, arity, currentFrame, rex);
+				return tuple_less_tuple.execute2(left, right, currentFrame, rex);
 			default:
 				throw new CompilerError("less: unexpected type " + leftType, rex.getStdErr(), currentFrame);
 			}
@@ -4679,10 +4258,8 @@ public enum RascalPrimitive {
 	 */
 	int_less_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).less((IInteger) arg_1);
 		}
 	},
 
@@ -4693,10 +4270,8 @@ public enum RascalPrimitive {
 	 */
 	int_less_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).less((INumber) arg_1);
 		}
 	},
 
@@ -4707,10 +4282,8 @@ public enum RascalPrimitive {
 	 */
 	int_less_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).less((IRational) arg_1);
 		}
 	},
 
@@ -4721,10 +4294,8 @@ public enum RascalPrimitive {
 	 */
 	int_less_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).less((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).less((IReal) arg_1);
 		}
 	},
 
@@ -4735,10 +4306,8 @@ public enum RascalPrimitive {
 	 */
 	num_less_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).less((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).less((IInteger) arg_1);
 		}
 	},
 
@@ -4749,10 +4318,8 @@ public enum RascalPrimitive {
 	 */
 	num_less_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).less((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).less((INumber) arg_1);
 		}
 	},
 
@@ -4763,10 +4330,8 @@ public enum RascalPrimitive {
 	 */
 	num_less_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).less((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).less((IRational) arg_1);
 		}
 	},
 
@@ -4777,10 +4342,8 @@ public enum RascalPrimitive {
 	 */
 	num_less_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).less((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).less((IReal) arg_1);
 		}
 	},
 
@@ -4791,10 +4354,8 @@ public enum RascalPrimitive {
 	 */
 	rat_less_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).less((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).less((IInteger) arg_1);
 		}
 	},
 
@@ -4805,10 +4366,8 @@ public enum RascalPrimitive {
 	 */
 	rat_less_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).less((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).less((INumber) arg_1);
 		}
 	},
 
@@ -4819,10 +4378,8 @@ public enum RascalPrimitive {
 	 */
 	rat_less_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).less((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).less((IRational) arg_1);
 		}
 	},
 
@@ -4833,10 +4390,8 @@ public enum RascalPrimitive {
 	 */
 	rat_less_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).less((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).less((IReal) arg_1);
 		}
 	},
 
@@ -4847,10 +4402,8 @@ public enum RascalPrimitive {
 	 */
 	real_less_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).less((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).less((INumber) arg_1);
 		}
 	},
 
@@ -4861,10 +4414,8 @@ public enum RascalPrimitive {
 	 */
 	real_less_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).less((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).less((IInteger) arg_1);
 		}
 	},
 
@@ -4875,10 +4426,8 @@ public enum RascalPrimitive {
 	 */
 	real_less_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).less((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).less((IReal) arg_1);
 		}
 	},
 
@@ -4889,10 +4438,8 @@ public enum RascalPrimitive {
 	 */
 	real_less_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).less((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).less((IRational) arg_1);
 		}
 	},
 
@@ -4903,9 +4450,8 @@ public enum RascalPrimitive {
 	 */
 	adt_less_adt {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			return node_less_node.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return node_less_node.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -4916,21 +4462,19 @@ public enum RascalPrimitive {
 	 */
 	bool_less_bool {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			boolean left = ((IBool) stack[sp - 2]).getValue();
-			boolean right = ((IBool) stack[sp - 1]).getValue();
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			boolean left = ((IBool) arg_2).getValue();
+			boolean right = ((IBool) arg_1).getValue();
 
-			stack[sp - 2] = vf.bool(!left && right);
-			return sp - 1;
+			return vf.bool(!left && right);
 		}
 	},
 	//		bool_or_bool {
 	//			@Override
-	//			public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+	//			public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 	//				assert arity == 2;
-	//				boolean left = ((IBool) stack[sp - 2]).getValue();
-	//				boolean right = ((IBool) stack[sp - 1]).getValue();
+	//				boolean left = ((IBool) arg_2).getValue();
+	//				boolean right = ((IBool) arg_1).getValue();
 	//
 	//				stack[sp - 2] = vf.bool(left || right);
 	//				return sp - 1;
@@ -4944,10 +4488,8 @@ public enum RascalPrimitive {
 	 */
 	datetime_less_datetime {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]) == -1);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IDateTime) arg_2).compareTo((IDateTime) arg_1) == -1);
 		}
 	},
 
@@ -4958,12 +4500,10 @@ public enum RascalPrimitive {
 	 */
 	list_less_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IList left = (IList) stack[sp - 2];
-			IList right = (IList) stack[sp - 1];
-			stack[sp - 2] = $list_less_list(left, right);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IList left = (IList) arg_2;
+			IList right = (IList) arg_1;
+			return $list_less_list(left, right);
 		}
 	},
 
@@ -4974,12 +4514,10 @@ public enum RascalPrimitive {
 	 */
 	lrel_less_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IList left = (IList) stack[sp - 2];
-			IList right = (IList) stack[sp - 1];
-			stack[sp - 2] = $list_less_list(left, right);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IList left = (IList) arg_2;
+			IList right = (IList) arg_1;
+			return $list_less_list(left, right);
 		}
 	},
 
@@ -4990,19 +4528,16 @@ public enum RascalPrimitive {
 	 */
 	loc_less_loc {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ISourceLocation left = (ISourceLocation) stack[sp - 2];
-			ISourceLocation right = (ISourceLocation) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISourceLocation left = (ISourceLocation) arg_2;
+			ISourceLocation right = (ISourceLocation) arg_1;
 
 			int compare = left.top().toString().compareTo(right.top().toString());
 			if (compare < 0) {
-				stack[sp - 2] = Rascal_TRUE;
-				return sp - 1;
+				return Rascal_TRUE;
 			}
 			else if (compare > 0) {
-				stack[sp - 2] = Rascal_FALSE;
-				return sp - 1;
+				return Rascal_FALSE;
 			}
 
 			// but the uri's are the same
@@ -5010,8 +4545,7 @@ public enum RascalPrimitive {
 
 			if (left.hasOffsetLength()) {
 				if (!right.hasOffsetLength()) {
-					stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
+					return Rascal_FALSE;
 				}
 
 				int roffset = right.getOffset();
@@ -5020,22 +4554,18 @@ public enum RascalPrimitive {
 				int llen = left.getLength();
 
 				if (loffset == roffset) {
-					stack[sp - 2] = vf.bool(llen < rlen);
-					return sp - 1;
+					return vf.bool(llen < rlen);
 				}
-				stack[sp - 2] = vf.bool(roffset < loffset && roffset + rlen >= loffset + llen);
-				return sp - 1;
+				return vf.bool(roffset < loffset && roffset + rlen >= loffset + llen);
 			}
 			else if (compare == 0) {
-				stack[sp - 2] = Rascal_FALSE;
-				return sp - 1;
+				return Rascal_FALSE;
 			}
 
 			if (!right.hasOffsetLength()) {
 				throw new CompilerError("offset length missing", rex.getStdErr(), currentFrame);
 			}
-			stack[sp - 2] = Rascal_FALSE;
-			return sp - 1;
+			return Rascal_FALSE;
 		}
 	},
 
@@ -5046,13 +4576,10 @@ public enum RascalPrimitive {
 	 */
 	map_less_map {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IMap left = ((IMap) stack[sp - 2]);
-			IMap right = ((IMap) stack[sp - 1]);
-
-			stack[sp - 2] = vf.bool(left.isSubMap(right) && !right.isSubMap(left));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IMap left = ((IMap) arg_2);
+			IMap right = ((IMap) arg_1);
+			return vf.bool(left.isSubMap(right) && !right.isSubMap(left));
 		}
 	},
 
@@ -5063,21 +4590,18 @@ public enum RascalPrimitive {
 	 */
 	node_less_node {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			INode left = (INode) stack[sp - 2];
-			INode right = (INode) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			INode left = (INode) arg_2;
+			INode right = (INode) arg_1;
 
 			int compare = left.getName().compareTo(right.getName());
 
 			if (compare <= -1) {
-				stack[sp - 2] = Rascal_TRUE;
-				return sp - 1;
+				return Rascal_TRUE;
 			}
 
 			if (compare >= 1){
-				stack[sp - 2] = Rascal_FALSE;
-				return sp - 1;
+				return Rascal_FALSE;
 			}
 
 			// if the names are not ordered, then we order lexicographically on the arguments:
@@ -5085,75 +4609,60 @@ public enum RascalPrimitive {
 			int leftArity = left.arity();
 			int rightArity = right.arity();
 
-			Object[] fakeStack = new Object[2];
-			fakeStack[0] = Rascal_FALSE;
+			Object result =  Rascal_FALSE;
 			for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
-
-				fakeStack[0] = left.get(i);
-				fakeStack[1] = right.get(i);
+				
 				if(leftArity < rightArity || i < leftArity - 1)
-					lessequal.execute(fakeStack, 2, 2, currentFrame, rex);
+					result = lessequal.execute2(left.get(i), right.get(i), currentFrame, rex);
 				else
-					less.execute(fakeStack, 2, 2, currentFrame, rex);
+					result = less.execute2(left.get(i), right.get(i), currentFrame, rex);
 
-				if(!((IBool)fakeStack[0]).getValue()){
-					stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
+				if(!((IBool)result).getValue()){
+					return Rascal_FALSE;
 				}
 			}
 
 			if (!left.mayHaveKeywordParameters() && !right.mayHaveKeywordParameters()) {
 				if (left.asAnnotatable().hasAnnotations() || right.asAnnotatable().hasAnnotations()) {
 					// bail out 
-					stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
+					return Rascal_FALSE;
 				}
 			}
 
 			if (!left.asWithKeywordParameters().hasParameters() && right.asWithKeywordParameters().hasParameters()) {
-				stack[sp - 2] = Rascal_TRUE;
-				return sp - 1;
+				return Rascal_TRUE;
 			}
 
 			if (left.asWithKeywordParameters().hasParameters() && !right.asWithKeywordParameters().hasParameters()) {
-				stack[sp - 2] = Rascal_FALSE;
-				return sp - 1;
+				return Rascal_FALSE;
 			}
 
 			if (left.asWithKeywordParameters().hasParameters() && right.asWithKeywordParameters().hasParameters()) {
 				Map<String, IValue> paramsLeft = left.asWithKeywordParameters().getParameters();
 				Map<String, IValue> paramsRight = right.asWithKeywordParameters().getParameters();
 				if (paramsLeft.size() < paramsRight.size()) {
-					stack[sp - 2] = Rascal_TRUE;
-					return sp - 1;
+					return Rascal_TRUE;
 				}
 				if (paramsLeft.size() > paramsRight.size()) {
-					stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
+					return Rascal_FALSE;
 				}
 				if (paramsRight.keySet().containsAll(paramsLeft.keySet()) && !paramsRight.keySet().equals(paramsLeft.keySet())) {
-					stack[sp - 2] = Rascal_TRUE;
-					return sp - 1;
+					return Rascal_TRUE;
 				}
 				if (paramsLeft.keySet().containsAll(paramsLeft.keySet()) && !paramsRight.keySet().equals(paramsLeft.keySet())) {
-					stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
+					return Rascal_FALSE;
 				}
 				//assert paramsLeft.keySet().equals(paramsRight.keySet());
 				for (String k: paramsLeft.keySet()) {
-					fakeStack[0] = paramsLeft.get(k);
-					fakeStack[1] = paramsRight.get(k);
-					less.execute(fakeStack, 2, 2, currentFrame, rex);
+					result = less.execute2(paramsLeft.get(k), paramsRight.get(k), currentFrame, rex);
 
-					if(!((IBool)fakeStack[0]).getValue()){
-						stack[sp - 2] = Rascal_FALSE;
-						return sp - 1;
+					if(!((IBool)result).getValue()){
+						return Rascal_FALSE;
 					}
 				}
 			}
 
-			stack[sp - 2] = vf.bool((leftArity < rightArity) || ((IBool)fakeStack[0]).getValue());
-			return sp - 1;
+			return vf.bool((leftArity < rightArity) || ((IBool)result).getValue());
 		}
 	},
 
@@ -5164,12 +4673,10 @@ public enum RascalPrimitive {
 	 */
 	set_less_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ISet lhs = (ISet) stack[sp - 2];
-			ISet rhs = (ISet) stack[sp - 1];
-			stack[sp - 2] = vf.bool(!lhs.isEqual(rhs) && lhs.isSubsetOf(rhs));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet lhs = (ISet) arg_2;
+			ISet rhs = (ISet) arg_1;
+			return vf.bool(!lhs.isEqual(rhs) && lhs.isSubsetOf(rhs));
 		}
 	},
 
@@ -5180,12 +4687,10 @@ public enum RascalPrimitive {
 	 */
 	rel_less_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ISet lhs = (ISet) stack[sp - 2];
-			ISet rhs = (ISet) stack[sp - 1];
-			stack[sp - 2] = vf.bool(!lhs.isEqual(rhs) && lhs.isSubsetOf(rhs));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet lhs = (ISet) arg_2;
+			ISet rhs = (ISet) arg_1;
+			return vf.bool(!lhs.isEqual(rhs) && lhs.isSubsetOf(rhs));
 		}
 	},
 
@@ -5196,11 +4701,9 @@ public enum RascalPrimitive {
 	 */
 	str_less_str {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
-			stack[sp - 2] = vf.bool(c == -1);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			int c = ((IString) arg_2).compare((IString) arg_1);
+			return vf.bool(c == -1);
 		}
 	},
 
@@ -5211,29 +4714,25 @@ public enum RascalPrimitive {
 	 */
 	tuple_less_tuple {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			ITuple left = (ITuple)stack[sp - 2];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ITuple left = (ITuple)arg_2;
 			int leftArity = left.arity();
-			ITuple right = (ITuple)stack[sp - 1];
+			ITuple right = (ITuple)arg_1;
 			int rightArity = right.arity();
 
-			Object[] fakeStack = new Object[2];
 			for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
-				fakeStack[0] = left.get(i);
-				fakeStack[1] = right.get(i);
+				Object result;
 				if(leftArity < rightArity || i < leftArity - 1)
-					equal.execute(fakeStack, 2, 2, currentFrame, rex);
+					result = equal.execute2(left.get(i), right.get(i), currentFrame, rex);
 				else
-					less.execute(fakeStack, 2, 2, currentFrame, rex);
+					result =less.execute2(left.get(i), right.get(i), currentFrame, rex);
 
-				if(!((IBool)fakeStack[0]).getValue()){
-					stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
+				if(!((IBool)result).getValue()){
+					return Rascal_FALSE;
 				}
 			}
 
-			stack[sp - 2] = vf.bool(leftArity <= rightArity);
-			return sp - 1;
+			return vf.bool(leftArity <= rightArity);
 		}
 	},
 
@@ -5250,50 +4749,50 @@ public enum RascalPrimitive {
 	 */
 	lessequal {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 
-			Type leftType = ((IValue) stack[sp - 2]).getType();
-			Type rightType = ((IValue) stack[sp - 1]).getType();
+			IValue left = (IValue) arg_2;
+			IValue right = (IValue) arg_1;
+			Type leftType = ((IValue) arg_2).getType();
+			Type rightType = ((IValue) arg_1).getType();
 
 			if (leftType.isSubtypeOf(tf.numberType()) && rightType.isSubtypeOf(tf.numberType())) {
-				return num_lessequal_num.execute(stack, sp, arity, currentFrame, rex);
+				return num_lessequal_num.execute2(left, right, currentFrame, rex);
 			}
 
 			if(!leftType.comparable(rightType)){
-				stack[sp - 2] = Rascal_FALSE;
-				return sp - 1;
+				return Rascal_FALSE;
 			}
 
 			switch (ToplevelType.getToplevelType(leftType)) {
 
 			case BOOL:
-				return bool_lessequal_bool.execute(stack, sp, arity, currentFrame, rex);
+				return bool_lessequal_bool.execute2(left, right, currentFrame, rex);
 
 			case STR:
-				return str_lessequal_str.execute(stack, sp, arity, currentFrame, rex);
+				return str_lessequal_str.execute2(left, right, currentFrame, rex);
 
 			case DATETIME:
-				return datetime_lessequal_datetime.execute(stack, sp, arity, currentFrame, rex);
+				return datetime_lessequal_datetime.execute2(left, right, currentFrame, rex);
 
 			case LOC:
-				return loc_lessequal_loc.execute(stack, sp, arity, currentFrame, rex);
+				return loc_lessequal_loc.execute2(left, right, currentFrame, rex);
 
 			case LIST:
 			case LREL:
-				return list_lessequal_list.execute(stack, sp, arity, currentFrame, rex);
+				return list_lessequal_list.execute2(left, right, currentFrame, rex);
 			case SET:
 			case REL:
-				return set_lessequal_set.execute(stack, sp, arity, currentFrame, rex);
+				return set_lessequal_set.execute2(left, right, currentFrame, rex);
 			case MAP:
-				return map_lessequal_map.execute(stack, sp, arity, currentFrame, rex);
+				return map_lessequal_map.execute2(left, right, currentFrame, rex);
 			case CONSTRUCTOR:
 			case NODE:
-				return node_lessequal_node.execute(stack, sp, arity, currentFrame, rex);
+				return node_lessequal_node.execute2(left, right, currentFrame, rex);
 			case ADT:
-				return adt_lessequal_adt.execute(stack, sp, 2, currentFrame, rex);
+				return adt_lessequal_adt.execute2(left, right, currentFrame, rex);
 			case TUPLE:
-				return tuple_lessequal_tuple.execute(stack, sp, arity, currentFrame, rex);
+				return tuple_lessequal_tuple.execute2(left, right, currentFrame, rex);
 			default:
 				throw new CompilerError("lessequal: unexpected type " + leftType, rex.getStdErr(), currentFrame);
 			}
@@ -5307,10 +4806,8 @@ public enum RascalPrimitive {
 	 */
 	int_lessequal_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).lessEqual((IInteger) arg_1);
 		}
 	},
 
@@ -5321,10 +4818,8 @@ public enum RascalPrimitive {
 	 */
 	int_lessequal_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).lessEqual((INumber) arg_1);
 		}
 	},
 
@@ -5335,10 +4830,8 @@ public enum RascalPrimitive {
 	 */
 	int_lessequal_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).lessEqual((IRational) arg_1);
 		}
 	},
 
@@ -5349,10 +4842,8 @@ public enum RascalPrimitive {
 	 */
 	int_lessequal_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).lessEqual((IReal) arg_1);
 		}
 	},
 
@@ -5363,10 +4854,8 @@ public enum RascalPrimitive {
 	 */
 	num_lessequal_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).lessEqual((IInteger) arg_1);
 		}
 	},
 
@@ -5377,10 +4866,8 @@ public enum RascalPrimitive {
 	 */
 	num_lessequal_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).lessEqual((INumber) arg_1);
 		}
 	},
 
@@ -5391,10 +4878,8 @@ public enum RascalPrimitive {
 	 */
 	num_lessequal_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).lessEqual((IRational) arg_1);
 		}
 	},
 
@@ -5405,10 +4890,8 @@ public enum RascalPrimitive {
 	 */
 	num_lessequal_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).lessEqual((IReal) arg_1);
 		}
 	},
 
@@ -5419,10 +4902,8 @@ public enum RascalPrimitive {
 	 */
 	rat_lessequal_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).lessEqual((IInteger) arg_1);
 		}
 	},
 
@@ -5433,10 +4914,8 @@ public enum RascalPrimitive {
 	 */
 	rat_lessequal_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).lessEqual((INumber) arg_1);
 		}
 	},
 
@@ -5447,10 +4926,8 @@ public enum RascalPrimitive {
 	 */
 	rat_lessequal_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).lessEqual((IRational) arg_1);
 		}
 	},
 
@@ -5461,10 +4938,8 @@ public enum RascalPrimitive {
 	 */
 	rat_lessequal_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).lessEqual((IReal) arg_1);
 		}
 	},
 
@@ -5475,10 +4950,8 @@ public enum RascalPrimitive {
 	 */
 	real_lessequal_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((INumber) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).lessEqual((INumber) arg_1);
 		}
 	},
 
@@ -5490,10 +4963,8 @@ public enum RascalPrimitive {
 	 */
 	real_lessequal_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IInteger) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).lessEqual((IInteger) arg_1);
 		}
 	},
 
@@ -5504,10 +4975,8 @@ public enum RascalPrimitive {
 	 */
 	real_lessequal_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IReal) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).lessEqual((IReal) arg_1);
 		}
 	},
 
@@ -5518,10 +4987,8 @@ public enum RascalPrimitive {
 	 */
 	real_lessequal_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).lessEqual((IRational) stack[sp - 1]);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).lessEqual((IRational) arg_1);
 		}
 	},
 
@@ -5532,9 +4999,8 @@ public enum RascalPrimitive {
 	 */
 	adt_lessequal_adt {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			return node_lessequal_node.execute(stack, sp, arity, currentFrame, rex);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return node_lessequal_node.execute2(arg_2, arg_1, currentFrame, rex);
 		}
 	},
 
@@ -5545,13 +5011,11 @@ public enum RascalPrimitive {
 	 */
 	bool_lessequal_bool {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			boolean left = ((IBool) stack[sp - 2]).getValue();
-			boolean right = ((IBool) stack[sp - 1]).getValue();
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			boolean left = ((IBool) arg_2).getValue();
+			boolean right = ((IBool) arg_1).getValue();
 
-			stack[sp - 2] = vf.bool((!left && right) || (left == right));
-			return sp - 1;
+			return vf.bool((!left && right) || (left == right));
 		}
 	},
 
@@ -5562,11 +5026,9 @@ public enum RascalPrimitive {
 	 */
 	datetime_lessequal_datetime {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			int c = ((IDateTime) stack[sp - 2]).compareTo((IDateTime) stack[sp - 1]);
-			stack[sp - 2] =  vf.bool(c == -1 || c == 0);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			int c = ((IDateTime) arg_2).compareTo((IDateTime) arg_1);
+			return  vf.bool(c == -1 || c == 0);
 		}
 	},
 
@@ -5577,13 +5039,11 @@ public enum RascalPrimitive {
 	 */
 	list_lessequal_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IList left = (IList) stack[sp - 2];
-			IList right = (IList) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IList left = (IList) arg_2;
+			IList right = (IList) arg_1;
 
-			stack[sp - 2] = $list_lessequal_list(left, right);
-			return sp - 1;
+			return $list_lessequal_list(left, right);
 		}
 	},
 
@@ -5594,13 +5054,11 @@ public enum RascalPrimitive {
 	 */
 	lrel_lessequal_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IList left = (IList) stack[sp - 2];
-			IList right = (IList) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IList left = (IList) arg_2;
+			IList right = (IList) arg_1;
 
-			stack[sp - 2] = $list_lessequal_list(left, right);
-			return sp - 1;
+			return $list_lessequal_list(left, right);
 		}
 
 	},
@@ -5612,19 +5070,16 @@ public enum RascalPrimitive {
 	 */
 	loc_lessequal_loc {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ISourceLocation left = (ISourceLocation) stack[sp - 2];
-			ISourceLocation right = (ISourceLocation) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISourceLocation left = (ISourceLocation) arg_2;
+			ISourceLocation right = (ISourceLocation) arg_1;
 
 			int compare = left.top().toString().compareTo(right.top().toString());
 			if (compare < 0) {
-				stack[sp - 2] = Rascal_TRUE;
-				return sp - 1;
+				return Rascal_TRUE;
 			}
 			else if (compare > 0) {
-				stack[sp - 2] = Rascal_FALSE;
-				return sp - 1;
+				return Rascal_FALSE;
 			}
 
 			// but the uri's are the same
@@ -5632,8 +5087,7 @@ public enum RascalPrimitive {
 
 			if (left.hasOffsetLength()) {
 				if (!right.hasOffsetLength()) {
-					stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
+					return Rascal_FALSE;
 				}
 
 				int roffset = right.getOffset();
@@ -5642,22 +5096,18 @@ public enum RascalPrimitive {
 				int llen = left.getLength();
 
 				if (loffset == roffset) {
-					stack[sp - 2] = vf.bool(llen <= rlen);
-					return sp - 1;
+					return vf.bool(llen <= rlen);
 				}
-				stack[sp - 2] = vf.bool(roffset < loffset && roffset + rlen >= loffset + llen);
-				return sp - 1;
+				return vf.bool(roffset < loffset && roffset + rlen >= loffset + llen);
 			}
 			else if (compare == 0) {
-				stack[sp - 2] = Rascal_TRUE;
-				return sp - 1;
+				return Rascal_TRUE;
 			}
 
 			if (!right.hasOffsetLength()) {
 				throw new CompilerError("missing offset length", rex.getStdErr(), currentFrame);
 			}
-			stack[sp - 2] = Rascal_FALSE;
-			return sp - 1;
+			return Rascal_FALSE;
 		}
 	},
 
@@ -5668,12 +5118,10 @@ public enum RascalPrimitive {
 	 */
 	map_lessequal_map {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IMap left = (IMap) stack[sp - 2];
-			IMap right = (IMap) stack[sp - 1];
-			stack[sp - 2] = vf.bool(left.isSubMap(right));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IMap left = (IMap) arg_2;
+			IMap right = (IMap) arg_1;
+			return vf.bool(left.isSubMap(right));
 		}
 	},
 
@@ -5684,21 +5132,18 @@ public enum RascalPrimitive {
 	 */
 	node_lessequal_node {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			INode left = (INode) stack[sp - 2];
-			INode right = (INode) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			INode left = (INode) arg_2;
+			INode right = (INode) arg_1;
 
 			int compare = left.getName().compareTo(right.getName());
 
 			if (compare <= -1) {
-				stack[sp - 2] = Rascal_TRUE;
-				return sp - 1;
+				return Rascal_TRUE;
 			}
 
 			if (compare >= 1){
-				stack[sp - 2] = Rascal_FALSE;
-				return sp - 1;
+				return Rascal_FALSE;
 			}
 
 			// if the names are not ordered, then we order lexicographically on the arguments:
@@ -5708,12 +5153,10 @@ public enum RascalPrimitive {
 
 			for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
 				if(!$lessequal(left.get(i), right.get(i), currentFrame, rex).getValue()){
-					stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
+					return Rascal_FALSE;
 				}
 			}
-			stack[sp - 2] = vf.bool(leftArity <= rightArity);
-			return sp - 1;
+			return vf.bool(leftArity <= rightArity);
 		}
 	},
 
@@ -5724,12 +5167,10 @@ public enum RascalPrimitive {
 	 */
 	set_lessequal_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ISet left = (ISet) stack[sp - 2];
-			ISet right = (ISet) stack[sp - 1];
-			stack[sp - 2] = vf.bool(left.size() == 0 || left.isEqual(right) || left.isSubsetOf(right));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet left = (ISet) arg_2;
+			ISet right = (ISet) arg_1;
+			return vf.bool(left.size() == 0 || left.isEqual(right) || left.isSubsetOf(right));
 		}	
 	},
 
@@ -5740,12 +5181,10 @@ public enum RascalPrimitive {
 	 */
 	rel_lessequal_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ISet left = (ISet) stack[sp - 2];
-			ISet right = (ISet) stack[sp - 1];
-			stack[sp - 2] = vf.bool(left.isEqual(right) || left.isSubsetOf(right));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet left = (ISet) arg_2;
+			ISet right = (ISet) arg_1;
+			return vf.bool(left.isEqual(right) || left.isSubsetOf(right));
 		}	
 	},
 
@@ -5756,11 +5195,9 @@ public enum RascalPrimitive {
 	 */
 	str_lessequal_str {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			int c = ((IString) stack[sp - 2]).compare((IString) stack[sp - 1]);
-			stack[sp - 2] = vf.bool(c == -1 || c == 0);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			int c = ((IString) arg_2).compare((IString) arg_1);
+			return vf.bool(c == -1 || c == 0);
 		}
 	},
 
@@ -5771,21 +5208,19 @@ public enum RascalPrimitive {
 	 */
 	tuple_lessequal_tuple {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			ITuple left = (ITuple)stack[sp - 2];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ITuple left = (ITuple)arg_2;
 			int leftArity = left.arity();
-			ITuple right = (ITuple)stack[sp - 1];
+			ITuple right = (ITuple)arg_1;
 			int rightArity = right.arity();
 
 			for (int i = 0; i < Math.min(leftArity, rightArity); i++) {			
 				if(!$lessequal(left.get(i), right.get(i), currentFrame, rex).getValue()){
-					stack[sp - 2] = Rascal_FALSE;
-					return sp - 1;
+					return Rascal_FALSE;
 				}
 			}
 
-			stack[sp - 2] = vf.bool(leftArity <= rightArity);
-			return sp - 1;
+			return vf.bool(leftArity <= rightArity);
 		}
 	},
 
@@ -5803,15 +5238,14 @@ public enum RascalPrimitive {
 	 */
 	transitive_closure {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IValue lhs = (IValue) stack[sp - 1];
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue lhs = (IValue) arg_1;
 			Type lhsType = lhs.getType();
 			if(lhsType.isListRelation()){
-				return lrel_transitive_closure.execute(stack, sp, arity, currentFrame, rex);
+				return lrel_transitive_closure.execute1(arg_1, currentFrame, rex);
 			}
 			if(lhsType.isRelation()){
-				return rel_transitive_closure.execute(stack, sp, arity, currentFrame, rex);
+				return rel_transitive_closure.execute1(arg_1, currentFrame, rex);
 			}
 			throw new CompilerError("transitive_closure: unexpected type " + lhsType, currentFrame);
 		}
@@ -5825,11 +5259,9 @@ public enum RascalPrimitive {
 	 */
 	lrel_transitive_closure {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IListRelation<IList> left = ((IList) stack[sp - 1]).asRelation();
-			stack[sp - 1] = left.closure();
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IListRelation<IList> left = ((IList) arg_1).asRelation();
+			return left.closure();
 		}
 	},
 
@@ -5840,11 +5272,9 @@ public enum RascalPrimitive {
 	 */
 	rel_transitive_closure {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			ISetRelation<ISet> left = ((ISet) stack[sp - 1]).asRelation();
-			stack[sp - 1] = left.closure();
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISetRelation<ISet> left = ((ISet) arg_1).asRelation();
+			return left.closure();
 		}
 	},
 
@@ -5859,15 +5289,14 @@ public enum RascalPrimitive {
 	 */
 	transitive_reflexive_closure {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IValue lhs = (IValue) stack[sp - 1];
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue lhs = (IValue) arg_1;
 			Type lhsType = lhs.getType();
 			if(lhsType.isListRelation()){
-				return lrel_transitive_reflexive_closure.execute(stack, sp, arity, currentFrame, rex);
+				return lrel_transitive_reflexive_closure.execute1(arg_1, currentFrame, rex);
 			}
 			if(lhsType.isRelation()){
-				return rel_transitive_reflexive_closure.execute(stack, sp, arity, currentFrame, rex);
+				return rel_transitive_reflexive_closure.execute1(arg_1, currentFrame, rex);
 			}
 			throw new CompilerError("transitive_closure: unexpected type " + lhsType, currentFrame);
 		}
@@ -5880,11 +5309,9 @@ public enum RascalPrimitive {
 	 */
 	lrel_transitive_reflexive_closure {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IListRelation<IList> left = ((IList) stack[sp - 1]).asRelation();
-			stack[sp - 1] = left.closureStar();
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IListRelation<IList> left = ((IList) arg_1).asRelation();
+			return left.closureStar();
 		}
 
 	},
@@ -5896,11 +5323,9 @@ public enum RascalPrimitive {
 	 */
 	rel_transitive_reflexive_closure {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			ISetRelation<ISet> left = ((ISet) stack[sp - 1]).asRelation();
-			stack[sp - 1] = left.closureStar();
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISetRelation<ISet> left = ((ISet) arg_1).asRelation();
+			return left.closureStar();
 		}
 	},
 
@@ -5915,10 +5340,8 @@ public enum RascalPrimitive {
 	 */
 	notequal {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = vf.bool(!((IValue) stack[sp - 2]).isEqual((IValue) stack[sp - 1]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(!((IValue) arg_2).isEqual((IValue) arg_1));
 		}
 	},
 
@@ -5929,10 +5352,8 @@ public enum RascalPrimitive {
 	 */
 	int_notequal_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IInteger) stack[sp - 1]).not();
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).equal((IInteger) arg_1).not();
 		}
 	},
 
@@ -5943,10 +5364,8 @@ public enum RascalPrimitive {
 	 */
 	int_notequal_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).equal((INumber) arg_1).not();
 		}
 	},
 
@@ -5957,10 +5376,8 @@ public enum RascalPrimitive {
 	 */
 	int_notequal_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IRational) stack[sp - 1]).not();
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).equal((IRational) arg_1).not();
 		}
 	},
 
@@ -5971,10 +5388,8 @@ public enum RascalPrimitive {
 	 */
 	int_notequal_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IInteger) stack[sp - 2]).equal((IReal) stack[sp - 1]).not();
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_2).equal((IReal) arg_1).not();
 		}
 	},
 
@@ -5985,10 +5400,8 @@ public enum RascalPrimitive {
 	 */
 	num_notequal_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IInteger) stack[sp - 1]).not();
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).equal((IInteger) arg_1).not();
 		}
 	},
 
@@ -5999,10 +5412,8 @@ public enum RascalPrimitive {
 	 */
 	num_notequal_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).equal((INumber) arg_1).not();
 		}
 	},
 
@@ -6013,10 +5424,8 @@ public enum RascalPrimitive {
 	 */
 	num_notequal_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IRational) stack[sp - 1]).not();
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).equal((IRational) arg_1).not();
 		}
 	},
 
@@ -6027,10 +5436,8 @@ public enum RascalPrimitive {
 	 */
 	num_notequal_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((INumber) stack[sp - 2]).equal((IReal) stack[sp - 1]).not();
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_2).equal((IReal) arg_1).not();
 		}
 	},
 
@@ -6041,10 +5448,8 @@ public enum RascalPrimitive {
 	 */
 	real_notequal_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IInteger) stack[sp - 1]).not();
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).equal((IInteger) arg_1).not();
 		}
 	},
 
@@ -6055,10 +5460,8 @@ public enum RascalPrimitive {
 	 */
 	real_notequal_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).equal((INumber) arg_1).not();
 		}
 	},
 
@@ -6069,10 +5472,8 @@ public enum RascalPrimitive {
 	 */
 	real_notequal_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IRational) stack[sp - 1]).not();
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).equal((IRational) arg_1).not();
 		}
 	},
 
@@ -6083,10 +5484,8 @@ public enum RascalPrimitive {
 	 */
 	real_notequal_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IReal) stack[sp - 2]).equal((IReal) stack[sp - 1]).not();
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_2).equal((IReal) arg_1).not();
 		}
 	},
 
@@ -6097,10 +5496,8 @@ public enum RascalPrimitive {
 	 */
 	rat_notequal_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IInteger) stack[sp - 1]).not();
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).equal((IInteger) arg_1).not();
 		}
 	},
 
@@ -6111,10 +5508,8 @@ public enum RascalPrimitive {
 	 */
 	rat_notequal_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((INumber) stack[sp - 1]).not();
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).equal((INumber) arg_1).not();
 		}
 	},
 
@@ -6125,10 +5520,8 @@ public enum RascalPrimitive {
 	 */
 	rat_notequal_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IRational) stack[sp - 1]).not();
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).equal((IRational) arg_1).not();
 		}
 	},
 
@@ -6139,14 +5532,10 @@ public enum RascalPrimitive {
 	 */
 	rat_notequal_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IRational) stack[sp - 2]).equal((IReal) stack[sp - 1]).not();
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_2).equal((IReal) arg_1).not();
 		}
 	},
-
-
 
 	/**
 	 * negative on arbitrary value
@@ -6161,20 +5550,18 @@ public enum RascalPrimitive {
 	 */
 	negative {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 
-			IValue left = (IValue) stack[sp - 1];
+			IValue left = (IValue) arg_1;
 			Type leftType = left.getType();
 
 			switch (ToplevelType.getToplevelType(leftType)) {
-			case INT: return negative_int.execute(stack, sp, arity, currentFrame, rex);
-			case NUM: return negative_num.execute(stack, sp, arity, currentFrame, rex);
-			case REAL: return negative_real.execute(stack, sp, arity, currentFrame, rex);
-			case RAT: return negative_rat.execute(stack, sp, arity, currentFrame, rex);
+			case INT: return negative_int.execute1(left, currentFrame, rex);
+			case NUM: return negative_num.execute1(left, currentFrame, rex);
+			case REAL: return negative_real.execute1(left, currentFrame, rex);
+			case RAT: return negative_rat.execute1(left, currentFrame, rex);
 			default:
 				throw new CompilerError("negative: unexpected type " + leftType, currentFrame);
-
 			}
 		}
 	},
@@ -6186,10 +5573,8 @@ public enum RascalPrimitive {
 	 */
 	negative_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = ((IInteger) stack[sp - 1]).negate();
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IInteger) arg_1).negate();
 		}
 	},
 
@@ -6200,10 +5585,8 @@ public enum RascalPrimitive {
 	 */
 	negative_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = ((IReal) stack[sp - 1]).negate();
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IReal) arg_1).negate();
 		}
 	},
 
@@ -6214,10 +5597,8 @@ public enum RascalPrimitive {
 	 */
 	negative_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = ((IRational) stack[sp - 1]).negate();
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((IRational) arg_1).negate();
 		}
 	},
 
@@ -6228,10 +5609,8 @@ public enum RascalPrimitive {
 	 */
 	negative_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = ((INumber) stack[sp - 1]).negate();
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_1).negate();
 		}
 	},
 
@@ -6246,12 +5625,10 @@ public enum RascalPrimitive {
 	 */
 	is {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IValue val  = (IValue) stack[sp - 2];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue val  = (IValue) arg_2;
 			Type tp = val.getType();
-			String name = ((IString) stack[sp - 1]).getValue();
-			stack[sp - 2] = Rascal_FALSE;
+			String name = ((IString) arg_1).getValue();
 			if(tp.isAbstractData()){
 				if(tp.getName().equals("Tree")){
 					IConstructor cons = (IConstructor) val;
@@ -6259,7 +5636,7 @@ public enum RascalPrimitive {
 						IConstructor prod = (IConstructor) cons.get(0);
 						IConstructor def = (IConstructor) prod.get(0);
 						if(def.getName().equals("label")){
-							stack[sp - 2] = vf.bool(((IString) def.get(0)).getValue().equals(name));
+							return vf.bool(((IString) def.get(0)).getValue().equals(name));
 						}
 					}
 				} else {
@@ -6267,16 +5644,16 @@ public enum RascalPrimitive {
 					if(consName.startsWith("\\")){
 						consName = consName.substring(1);
 					}
-					stack[sp - 2] = vf.bool(consName.equals(name));
+					return vf.bool(consName.equals(name));
 				}
 			} else if(tp.isNode()){
 				String nodeName = ((INode) val).getName();
 				if(nodeName.startsWith("\\")){
 					nodeName = nodeName.substring(1);
 				}
-				stack[sp - 2] = vf.bool(nodeName.equals(name));
+				return vf.bool(nodeName.equals(name));
 			} 
-			return sp - 1;
+			return Rascal_FALSE;
 		}
 	},
 
@@ -6287,10 +5664,8 @@ public enum RascalPrimitive {
 	 */
 	is_bool {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isBool());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IValue) arg_1).getType().isBool());
 		}
 
 	},
@@ -6302,10 +5677,8 @@ public enum RascalPrimitive {
 	 */
 	is_datetime {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isDateTime());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IValue) arg_1).getType().isDateTime());
 		}
 	},
 
@@ -6316,10 +5689,8 @@ public enum RascalPrimitive {
 	 */
 	is_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isInteger());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IValue) arg_1).getType().isInteger());
 		}
 	},
 
@@ -6330,10 +5701,8 @@ public enum RascalPrimitive {
 	 */
 	is_list {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isList());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IValue) arg_1).getType().isList());
 		}
 	},
 
@@ -6344,10 +5713,8 @@ public enum RascalPrimitive {
 	 */
 	is_loc {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isSourceLocation());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IValue) arg_1).getType().isSourceLocation());
 		}
 	},
 
@@ -6358,10 +5725,8 @@ public enum RascalPrimitive {
 	 */
 	is_lrel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isListRelation());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IValue) arg_1).getType().isListRelation());
 		}
 
 	},
@@ -6373,10 +5738,8 @@ public enum RascalPrimitive {
 	 */
 	is_map {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isMap());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IValue) arg_1).getType().isMap());
 		}
 
 	},
@@ -6388,10 +5751,8 @@ public enum RascalPrimitive {
 	 */
 	is_node {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isNode());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IValue) arg_1).getType().isNode());
 		}
 
 	},
@@ -6403,10 +5764,8 @@ public enum RascalPrimitive {
 	 */
 	is_num {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isNumber());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IValue) arg_1).getType().isNumber());
 		}
 	},
 
@@ -6417,10 +5776,8 @@ public enum RascalPrimitive {
 	 */
 	is_rat {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isRational());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IValue) arg_1).getType().isRational());
 		}
 	},
 
@@ -6431,10 +5788,8 @@ public enum RascalPrimitive {
 	 */
 	is_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isReal());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IValue) arg_1).getType().isReal());
 		}
 	},
 
@@ -6445,10 +5800,8 @@ public enum RascalPrimitive {
 	 */
 	is_rel {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isRelation());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IValue) arg_1).getType().isRelation());
 		}
 	},
 
@@ -6459,10 +5812,8 @@ public enum RascalPrimitive {
 	 */
 	is_set {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isSet());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IValue) arg_1).getType().isSet());
 		}
 	},
 
@@ -6473,10 +5824,8 @@ public enum RascalPrimitive {
 	 */
 	is_str {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isString());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IValue) arg_1).getType().isString());
 		}
 	},
 
@@ -6487,10 +5836,8 @@ public enum RascalPrimitive {
 	 */
 	is_tuple {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isTuple());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IValue) arg_1).getType().isTuple());
 		}	
 	},
 
@@ -6501,11 +5848,9 @@ public enum RascalPrimitive {
 	 */
 	is_appl {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			Object treeSubject = stack[sp - 1];
-			stack[sp - 1] = vf.bool(treeSubject instanceof ITree && TreeAdapter.isAppl((ITree) treeSubject));
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			Object treeSubject = arg_1;
+			return vf.bool(treeSubject instanceof ITree && TreeAdapter.isAppl((ITree) treeSubject));
 		}	
 	},
 
@@ -6516,11 +5861,9 @@ public enum RascalPrimitive {
 	 */
 	is_amb {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			Object treeSubject = stack[sp - 1];
-			stack[sp - 1] = vf.bool(treeSubject instanceof ITree && TreeAdapter.isAmb((ITree) treeSubject));
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			Object treeSubject = arg_1;
+			return vf.bool(treeSubject instanceof ITree && TreeAdapter.isAmb((ITree) treeSubject));
 		}	
 	},
 
@@ -6531,12 +5874,10 @@ public enum RascalPrimitive {
 	 */
 	is_layout {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IValue treeSubject = (IValue) stack[sp - 1];
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue treeSubject = (IValue) arg_1;
 			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLayout((ITree)treeSubject));
-			return sp;
+			return vf.bool(subjectType.isAbstractData() && TreeAdapter.isLayout((ITree)treeSubject));
 		}	
 	},
 
@@ -6547,12 +5888,10 @@ public enum RascalPrimitive {
 	 */
 	is_concretelist {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IValue treeSubject = (IValue) stack[sp - 1];
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue treeSubject = (IValue) arg_1;
 			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && (TreeAdapter.isList((ITree)treeSubject) || TreeAdapter.isOpt((ITree)treeSubject)));
-			return sp;
+			return vf.bool(subjectType.isAbstractData() && (TreeAdapter.isList((ITree)treeSubject) || TreeAdapter.isOpt((ITree)treeSubject)));
 		}	
 	},
 
@@ -6563,12 +5902,10 @@ public enum RascalPrimitive {
 	 */
 	is_lexical {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IValue treeSubject = (IValue) stack[sp - 1];
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue treeSubject = (IValue) arg_1;
 			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isLexical((ITree)treeSubject));
-			return sp;
+			return vf.bool(subjectType.isAbstractData() && TreeAdapter.isLexical((ITree)treeSubject));
 		}	
 	},
 
@@ -6579,12 +5916,10 @@ public enum RascalPrimitive {
 	 */
 	is_char {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IValue treeSubject = (IValue) stack[sp - 1];
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue treeSubject = (IValue) arg_1;
 			Type subjectType = treeSubject.getType();
-			stack[sp - 1] = vf.bool(subjectType.isAbstractData() && TreeAdapter.isChar((ITree)treeSubject));
-			return sp;
+			return vf.bool(subjectType.isAbstractData() && TreeAdapter.isChar((ITree)treeSubject));
 		}	
 	},
 
@@ -6595,11 +5930,9 @@ public enum RascalPrimitive {
 	 */
 	subtype {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			//stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
-			stack[sp - 2] = vf.bool(rex.isSubtypeOf((Type) stack[sp - 2], (Type) stack[sp - 1]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			//return vf.bool(((Type) arg_2).isSubtypeOf((Type) arg_1));
+			return vf.bool(rex.isSubtypeOf((Type) arg_2, (Type) arg_1));
 		}
 	},
 
@@ -6610,12 +5943,9 @@ public enum RascalPrimitive {
 	 */
 	subtype_value_type {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-
-			//stack[sp - 2] = vf.bool(((IValue) stack[sp - 2]).getType().isSubtypeOf((Type) stack[sp - 1]));
-			stack[sp - 2] = vf.bool(rex.isSubtypeOf(((IValue) stack[sp - 2]).getType(), (Type) stack[sp - 1]));
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			//return vf.bool(((IValue) arg_2).getType().isSubtypeOf((Type) arg_1));
+			return vf.bool(rex.isSubtypeOf(((IValue) arg_2).getType(), (Type) arg_1));
 		}
 	},
 
@@ -6627,22 +5957,20 @@ public enum RascalPrimitive {
 	@SuppressWarnings("unchecked")
 	typeOf {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			if(stack[sp - 1] instanceof HashSet<?>){	// For the benefit of set matching
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			if(arg_1 instanceof HashSet<?>){	// For the benefit of set matching
 				// Move to muPrimitives?
-				HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+				HashSet<IValue> mset = (HashSet<IValue>) arg_1;
 				if(mset.isEmpty()){
-					stack[sp - 1] = tf.setType(tf.voidType());
+					return tf.setType(tf.voidType());
 				} else {
 					IValue v = mset.iterator().next();		// TODO: this is incorrect for set[value]!
-					stack[sp - 1] = tf.setType(v.getType());
+					return tf.setType(v.getType());
 				}
 
 			} else {
-				stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+				return ((IValue) arg_1).getType();
 			}
-			return sp;
 		}
 	},
 
@@ -6656,12 +5984,9 @@ public enum RascalPrimitive {
 
 	type2symbol {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-
-			Type type = (Type) stack[sp - 2];
-			stack[sp - 2] = $type2symbol(type);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			Type type = (Type) arg_2;
+			return $type2symbol(type);
 		}
 	},
 
@@ -6672,11 +5997,9 @@ public enum RascalPrimitive {
 	 */
 	elementTypeOf {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			Type tp = (Type) stack[sp - 1];
-			stack[sp - 1] = tp.getElementType();
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			Type tp = (Type) arg_1;
+			return tp.getElementType();
 		}
 	},
 
@@ -6697,7 +6020,7 @@ public enum RascalPrimitive {
 	 */
 	template_open {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity <= 1;
 			String pre = "";
 			if(arity == 1){
@@ -6722,12 +6045,10 @@ public enum RascalPrimitive {
 	 */
 	template_indent {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			String ind = ((IString) stack[sp - 1]).getValue();
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			String ind = ((IString) arg_1).getValue();
 			$indent(ind, rex);
-			stack[sp - 1] = vf.string("");
-			return sp;
+			return vf.string("");
 		}
 	},
 
@@ -6738,12 +6059,10 @@ public enum RascalPrimitive {
 	 */
 	template_unindent {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			String ind = ((IString) stack[sp - 1]).getValue();
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			String ind = ((IString) arg_1).getValue();
 			$unindent(ind, rex);
-			stack[sp - 1] = vf.string("");
-			return sp;
+			return vf.string("");
 		}
 	},
 
@@ -6754,15 +6073,12 @@ public enum RascalPrimitive {
 	 */
 	template_add {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-
-			IString iarg_s = vf.string($value_to_string(stack[sp - 1], currentFrame));
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IString iarg_s = vf.string($value_to_string(arg_1, currentFrame));
 			String arg_s = $removeMargins(iarg_s, rex).getValue();
 
 			rex.getTemplateBuilder().append(arg_s);
-			stack[sp - 1] = vf.string("");
-			return sp;
+			return vf.string("");
 		}
 	},
 
@@ -6773,13 +6089,12 @@ public enum RascalPrimitive {
 	 */
 	template_close {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 0;
+		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
 			$popIndent(rex);
-			stack[sp] = vf.string(rex.getTemplateBuilder().toString());
+			IString result = vf.string(rex.getTemplateBuilder().toString());
 			StringBuilder templateBuilder = rex.getTemplateBuilderStack().pop();
 			rex.setTemplateBuilder(templateBuilder);
-			return sp + 1;
+			return result;
 		}
 	},
 
@@ -6794,7 +6109,7 @@ public enum RascalPrimitive {
 	 */
 	adt_has_field {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 			IConstructor cons = (IConstructor) stack[sp - 3];
 			IString field = ((IString) stack[sp - 2]);
@@ -6833,21 +6148,19 @@ public enum RascalPrimitive {
 	 */
 	node_has_field {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			INode nd = (INode) stack[sp - 2];
-			IString field = ((IString) stack[sp - 1]);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			INode nd = (INode) arg_2;
+			IString field = ((IString) arg_1);
 			String fieldName = field.getValue();
 			if ((nd.mayHaveKeywordParameters() && nd.asWithKeywordParameters().getParameter(fieldName) != null)){
-				stack[sp - 2] = Rascal_TRUE;
+				return Rascal_TRUE;
 			} else {
 				if(nd.isAnnotatable()){
-					stack[sp - 3] = nd.asAnnotatable().getAnnotation(fieldName) == null ? Rascal_FALSE : Rascal_TRUE;
+					return nd.asAnnotatable().getAnnotation(fieldName) == null ? Rascal_FALSE : Rascal_TRUE;
 				} else {
-				   stack[sp - 2] = Rascal_FALSE;
+				   return Rascal_FALSE;
 				}
 			}
-			return sp - 1;
 		}
 	},
 
@@ -6858,7 +6171,7 @@ public enum RascalPrimitive {
 	 */
 	adt_field_access {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 			IConstructor cons = (IConstructor) stack[sp - 3];
 			IString field = ((IString) stack[sp - 2]);
@@ -6919,7 +6232,7 @@ public enum RascalPrimitive {
 					}
 				}
 				
-				// Final resort: an unset default field with a computed value?
+				// Next resort: an unset default field with a computed value?
 				
 				Function getDefaults = rex.getCompanionDefaultsFunction(consName, tp);
 				
@@ -6940,6 +6253,21 @@ public enum RascalPrimitive {
 					}
 				}
 				
+				// Final resort: an unset common data field with a computed value?
+				
+				Function getFieldDefault = rex.getCompanionFieldDefaultFunction(tp.getAbstractDataType(), fieldName);
+				
+				if(getFieldDefault !=  RVM.noCompanionFunction){
+					IValue[] posArgs = new IValue[0];
+
+					Map<String, IValue> kwArgs = cons.asWithKeywordParameters().getParameters();
+
+					IValue defaultValue = (IValue) rex.getRVM().executeFunction(getFieldDefault, posArgs, kwArgs);
+				
+					stack[sp - 3] = defaultValue;
+					return sp - 2;
+				}
+				
 				throw RascalRuntimeException.noSuchField(fieldName, currentFrame);
 			} catch(FactTypeUseException e) {
 				throw RascalRuntimeException.noSuchField(fieldName, currentFrame);
@@ -6956,10 +6284,9 @@ public enum RascalPrimitive {
 	 */
 	is_defined_adt_field_access_get {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IConstructor cons = (IConstructor) stack[sp - 2];
-			IString field = ((IString) stack[sp - 1]);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IConstructor cons = (IConstructor) arg_2;
+			IString field = ((IString) arg_1);
 			String fieldName = field.getValue();
 			Type tp = cons.getConstructorType();
 			
@@ -6971,8 +6298,7 @@ public enum RascalPrimitive {
 					temp_array_of_2[0] = Rascal_TRUE;
 					int fld_index = tp.getFieldIndex(fieldName);
 					temp_array_of_2[1] = cons.get(fld_index);
-					stack[sp - 2] = temp_array_of_2;
-					return sp - 1;
+					return temp_array_of_2;
 				} 
 				
 				// A default field that was set?
@@ -6984,8 +6310,7 @@ public enum RascalPrimitive {
 				if(v != null){
 					temp_array_of_2[0] = Rascal_TRUE;
 					temp_array_of_2[1] = v;
-					stack[sp - 2] = temp_array_of_2;
-					return sp - 1;
+					return temp_array_of_2;
 				}
 				
 				// TODO jurgen rewrite to ITree API
@@ -7002,8 +6327,7 @@ public enum RascalPrimitive {
 								if(((IString) arg.get(0)).equals(field)){
 									temp_array_of_2[0] = Rascal_TRUE;
 									temp_array_of_2[1] = appl_args.get(i);
-									stack[sp - 2] =  temp_array_of_2;
-									return sp - 1;
+									return  temp_array_of_2;
 								}
 							}
 						}
@@ -7016,8 +6340,7 @@ public enum RascalPrimitive {
 				
 			}
 			temp_array_of_2[0] = Rascal_FALSE;
-			stack[sp - 2] = temp_array_of_2;
-			return sp - 1;
+			return temp_array_of_2;
 		}
 	},
 	
@@ -7029,10 +6352,9 @@ public enum RascalPrimitive {
 	 */
 	is_defined_node_field_access_get {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			INode nd = (INode) stack[sp - 2];
-			IString field = ((IString) stack[sp - 1]);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			INode nd = (INode) arg_2;
+			IString field = ((IString) arg_1);
 			String fieldName = field.getValue();
 			
 			try {
@@ -7046,8 +6368,7 @@ public enum RascalPrimitive {
 				if(v != null){
 					temp_array_of_2[0] = Rascal_TRUE;
 					temp_array_of_2[1] = v;
-					stack[sp - 2] = temp_array_of_2;
-					return sp - 1;
+					return temp_array_of_2;
 				}
 				
 			// Final resort: an unset default field: fall through and return false
@@ -7056,8 +6377,7 @@ public enum RascalPrimitive {
 				
 			}
 			temp_array_of_2[0] = Rascal_FALSE;
-			stack[sp - 2] = temp_array_of_2;
-			return sp - 1;
+			return temp_array_of_2;
 		}
 	},
 	
@@ -7068,10 +6388,9 @@ public enum RascalPrimitive {
 	 */
 	datetime_field_access {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IDateTime dt = ((IDateTime) stack[sp - 2]);
-			String field = ((IString) stack[sp - 1]).getValue();
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IDateTime dt = ((IDateTime) arg_2);
+			String field = ((IString) arg_1).getValue();
 			IValue v;
 			try {
 				switch (field) {
@@ -7163,8 +6482,7 @@ public enum RascalPrimitive {
 				default:
 					throw RascalRuntimeException.noSuchField(field, currentFrame);
 				}
-				stack[sp - 2] = v;
-				return sp - 1;
+				return v;
 
 			} catch (InvalidDateTimeException e) {
 				throw RascalRuntimeException.illegalArgument(dt, currentFrame, e.getMessage());
@@ -7179,7 +6497,7 @@ public enum RascalPrimitive {
 	 */
 	datetime_field_update {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 			IDateTime dt = ((IDateTime) stack[sp - 3]);
 			String field = ((IString) stack[sp - 2]).getValue();
@@ -7294,10 +6612,9 @@ public enum RascalPrimitive {
 	loc_field_access {
 		@SuppressWarnings("deprecation")
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ISourceLocation sloc = ((ISourceLocation) stack[sp - 2]);
-			String field = ((IString) stack[sp - 1]).getValue();
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISourceLocation sloc = ((ISourceLocation) arg_2);
+			String field = ((IString) arg_1).getValue();
 			IValue v;
 			switch (field) {
 
@@ -7462,8 +6779,7 @@ public enum RascalPrimitive {
 				throw RascalRuntimeException.noSuchField(field, currentFrame);
 			}
 
-			stack[sp - 2] = v;
-			return sp - 1;
+			return v;
 		}
 	},
 
@@ -7474,7 +6790,7 @@ public enum RascalPrimitive {
 	 */
 	loc_field_update {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 			ISourceLocation sloc = ((ISourceLocation) stack[sp - 3]);
 			String field = ((IString) stack[sp - 2]).getValue();
@@ -7492,11 +6808,9 @@ public enum RascalPrimitive {
 	lrel_field_access {
 		@SuppressWarnings("deprecation")
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IListRelation<IList> left = ((IList) stack[sp - 2]).asRelation();
-			stack[sp - 2] = left.projectByFieldNames(((IString) stack[sp - 1]).getValue());
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IListRelation<IList> left = ((IList) arg_2).asRelation();
+			return left.projectByFieldNames(((IString) arg_1).getValue());
 		}
 	},
 
@@ -7508,24 +6822,20 @@ public enum RascalPrimitive {
 	rel_field_access {
 		@SuppressWarnings("deprecation")
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ISetRelation<ISet> left = ((ISet) stack[sp - 2]).asRelation();
-			stack[sp - 2] = left.projectByFieldNames(((IString) stack[sp - 1]).getValue());
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISetRelation<ISet> left = ((ISet) arg_2).asRelation();
+			return left.projectByFieldNames(((IString) arg_1).getValue());
 		}
 	},
 
-	// TODO
+	// TODO document this
 
 	reified_field_access {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IConstructor reified = (IConstructor) stack[sp - 2];
-			String field = ((IString) stack[sp - 1]).getValue();
-			stack[sp - 2] = reified.get(field);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IConstructor reified = (IConstructor) arg_2;
+			String field = ((IString) arg_1).getValue();
+			return reified.get(field);
 		}
 	},
 
@@ -7536,19 +6846,17 @@ public enum RascalPrimitive {
 	 */
 	nonterminal_field_access {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 
-			ITree appl = (ITree) stack[sp - 2];
-			IString field = ((IString) stack[sp - 1]);
+			ITree appl = (ITree) arg_2;
+			IString field = ((IString) arg_1);
 			IList appl_args = (IList) appl.get("args");	// TODO getArgs() gives UnsupportedOperation
 
 			// Note: the "args" fields is used to access the arguments of concrete lists
 			// So far, there has been no need to support other fields but more fields might
 			// be added here.
 			if(field.getValue().equals("args")){
-				stack[sp - 2] = appl_args;
-				return sp - 1;
+				return appl_args;
 			}
 			IConstructor prod = appl.getProduction();
 			IList prod_symbols = (IList) prod.get("symbols");
@@ -7562,8 +6870,7 @@ public enum RascalPrimitive {
 
 				if(arg.getConstructorType() == RascalValueFactory.Symbol_Label){
 					if(((IString) arg.get(0)).equals(field)){
-						stack[sp - 2] = appl_args.get(i);
-						return sp - 1;
+						return appl_args.get(i);
 					}
 				}
 			}
@@ -7579,7 +6886,7 @@ public enum RascalPrimitive {
 	 */
 	nonterminal_field_update {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 
 			ITree appl = (ITree) stack[sp - 3];
@@ -7591,7 +6898,7 @@ public enum RascalPrimitive {
 			//			// So far, there has been no need to support other fields but more fields might
 			//			// be added here.
 			//			if(field.getValue().equals("args")){
-			//				stack[sp - 2] = appl_args;
+			//				return appl_args;
 			//				return sp - 1;
 			//			}
 			IConstructor prod = appl.getProduction();
@@ -7624,10 +6931,9 @@ public enum RascalPrimitive {
 	 */
 	nonterminal_has_field {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ITree appl = (ITree) stack[sp - 2];
-			IString field = ((IString) stack[sp - 1]);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ITree appl = (ITree) arg_2;
+			IString field = ((IString) arg_1);
 			IConstructor prod = appl.getProduction();
 			IList prod_symbols = (IList) prod.get("symbols");
 			int n = prod_symbols.length();
@@ -7639,16 +6945,13 @@ public enum RascalPrimitive {
 				}
 				if(arg.getConstructorType() == RascalValueFactory.Symbol_Label){
 					if(((IString) arg.get(0)).equals(field)){
-						stack[sp - 2] = Rascal_TRUE;
-						return sp - 1;
+						return Rascal_TRUE;
 					}
 				}
 			}
-			stack[sp - 2] = Rascal_FALSE;
-			return sp - 1;
+			return Rascal_FALSE;
 		}
 	},
-
 	
 	/**
 	 * Get value of a named field of a tuple
@@ -7658,10 +6961,8 @@ public enum RascalPrimitive {
 	tuple_field_access {
 		@SuppressWarnings("deprecation")
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((ITuple) stack[sp - 2]).get(((IString) stack[sp - 1]).getValue());
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((ITuple) arg_2).get(((IString) arg_1).getValue());
 		}
 	},
 
@@ -7674,7 +6975,7 @@ public enum RascalPrimitive {
 	tuple_field_update {
 		@SuppressWarnings("deprecation")
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 			stack[sp - 3] = ((ITuple) stack[sp - 3]).set(((IString) stack[sp - 2]).getValue(), (IValue) stack[sp - 1]);
 			return sp - 2;
@@ -7689,7 +6990,7 @@ public enum RascalPrimitive {
 	tuple_field_project {
 		@SuppressWarnings("deprecation")
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 2;
 			ITuple tup = (ITuple) stack[sp - arity];
 			IValue [] newFields = new IValue[arity - 1];
@@ -7710,7 +7011,7 @@ public enum RascalPrimitive {
 	 */
 	adt_field_update {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 			IConstructor cons = (IConstructor) stack[sp - 3];
 			IString field = ((IString) stack[sp - 2]);
@@ -7746,7 +7047,7 @@ public enum RascalPrimitive {
 	 */
 	rel_field_project {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 2;
 			ISet rel = (ISet) stack[sp - arity];
 			int indexArity = arity - 1;
@@ -7775,7 +7076,7 @@ public enum RascalPrimitive {
 	 */
 	lrel_field_project {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 2;
 			IList lrel = (IList) stack[sp - arity];
 			int indexArity = arity - 1;
@@ -7804,7 +7105,7 @@ public enum RascalPrimitive {
 	 */
 	map_field_project {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 2;
 			IMap map = (IMap) stack[sp - arity];
 			int indexArity = arity - 1;
@@ -7840,11 +7141,9 @@ public enum RascalPrimitive {
 
 	get_nonlayout_args {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IValue treeSubject = (IValue) stack[sp - 1];
-			stack[sp - 1] = TreeAdapter.getNonLayoutArgs((ITree)treeSubject);
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue treeSubject = (IValue) arg_1;
+			return TreeAdapter.getNonLayoutArgs((ITree)treeSubject);
 		}	
 	},
 
@@ -7855,11 +7154,9 @@ public enum RascalPrimitive {
 	 */
 	get_appl_args {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IValue treeSubject = (IValue) stack[sp - 1];
-			stack[sp - 1] = TreeAdapter.getArgs((ITree)treeSubject);
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue treeSubject = (IValue) arg_1;
+			return TreeAdapter.getArgs((ITree)treeSubject);
 		}	
 	},
 
@@ -7870,11 +7167,9 @@ public enum RascalPrimitive {
 	 */
 	get_amb_alternatives {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			ITree treeSubject = (ITree) stack[sp - 1];
-			stack[sp - 1] = TreeAdapter.getAlternatives(treeSubject);
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ITree treeSubject = (ITree) arg_1;
+			return TreeAdapter.getAlternatives(treeSubject);
 		}	
 	},
 
@@ -7885,9 +7180,8 @@ public enum RascalPrimitive {
 	 */
 	get_concrete_list_elements {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			ITree treeSubject = (ITree) stack[sp - 1];
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ITree treeSubject = (ITree) arg_1;
 			if (!(TreeAdapter.isList(treeSubject) || TreeAdapter.isOpt(treeSubject))) {			// Fixes TreeAdapter.getListASTArgs for the case of lexical list in concrete context
 				throw new ImplementationError(
 						"This is not a context-free list production: " + treeSubject);
@@ -7923,8 +7217,7 @@ public enum RascalPrimitive {
 				// skip layout and/or separators
 				i += delta;
 			}
-			stack[sp - 1] = writer.done();
-			return sp;
+			return writer.done();
 		}	
 	},
 
@@ -7935,15 +7228,13 @@ public enum RascalPrimitive {
 	 */
 	strip_lexical {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IConstructor lexSubject = (IConstructor) stack[sp - 1];
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IConstructor lexSubject = (IConstructor) arg_1;
 			if(lexSubject.getName().equals("conditional")){
 				lexSubject = (IConstructor) lexSubject.get("symbol");
 			}
 
-			stack[sp - 1] = lexSubject;
-			return sp;
+			return lexSubject;
 		}	
 	},
 
@@ -7954,11 +7245,9 @@ public enum RascalPrimitive {
 	 */
 	get_tree_type_as_symbol {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IValue treeSubject = (IValue) stack[sp - 1];
-			stack[sp - 1] = TreeAdapter.getType((ITree)treeSubject);
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue treeSubject = (IValue) arg_1;
+			return TreeAdapter.getType((ITree)treeSubject);
 		}	
 	},
 
@@ -7969,18 +7258,13 @@ public enum RascalPrimitive {
 	 */
 	get_tree_type_as_type {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IValue treeSubject = (IValue) stack[sp - 1];
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue treeSubject = (IValue) arg_1;
 			IConstructor symbol = TreeAdapter.getType((ITree)treeSubject);
 			String typeName = ((IString)symbol.get(0)).getValue();
-			stack[sp - 1] = 
-					vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(typeName));
-			return sp;
+			return vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(typeName));
 		}	
 	},
-
-
 
 	/************************************************************************************************/
 	/*					Slices																		*/
@@ -7992,7 +7276,7 @@ public enum RascalPrimitive {
 	 */
 	list_slice_replace {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			return $list_slice_operator(stack, sp, arity, SliceOperator.replace(), currentFrame, rex);
 		}
 	},
@@ -8003,7 +7287,7 @@ public enum RascalPrimitive {
 	 */
 	list_slice_add {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			return $list_slice_operator(stack, sp, arity, SliceOperator.add(), currentFrame, rex);
 		}
 	},
@@ -8014,7 +7298,7 @@ public enum RascalPrimitive {
 	 */
 	list_slice_subtract {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			return $list_slice_operator(stack, sp, arity, SliceOperator.subtract(), currentFrame, rex);
 		}
 	},
@@ -8025,7 +7309,7 @@ public enum RascalPrimitive {
 	 */
 	list_slice_product {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			return $list_slice_operator(stack, sp, arity, SliceOperator.product(), currentFrame, rex);
 		}
 	},
@@ -8036,7 +7320,7 @@ public enum RascalPrimitive {
 	 */
 	list_slice_divide {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			return $list_slice_operator(stack, sp, arity, SliceOperator.divide(), currentFrame, rex);
 		}
 	},
@@ -8047,7 +7331,7 @@ public enum RascalPrimitive {
 	 */
 	list_slice_intersect {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			return $list_slice_operator(stack, sp, arity, SliceOperator.intersect(), currentFrame, rex);
 		}
 	},
@@ -8058,7 +7342,7 @@ public enum RascalPrimitive {
 	 */
 	str_slice_replace {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 5;
 			IString str = (IString) stack[sp - 5];
 			SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), str.length(), currentFrame);
@@ -8074,7 +7358,7 @@ public enum RascalPrimitive {
 	 */
 	node_slice_replace {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 5;
 			INode node = (INode) stack[sp - 5];
 			int nd_arity = node.arity();
@@ -8091,7 +7375,7 @@ public enum RascalPrimitive {
 	 */
 	list_slice {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 4;
 
 			IList lst = (IList) stack[sp - 4];
@@ -8106,7 +7390,7 @@ public enum RascalPrimitive {
 	 */
 	str_slice {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 4;
 
 			IString str = (IString) stack[sp - 4];
@@ -8121,7 +7405,7 @@ public enum RascalPrimitive {
 	 */
 	node_slice {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 4;
 
 			INode node = (INode) stack[sp - 4];
@@ -8137,7 +7421,7 @@ public enum RascalPrimitive {
 	 */
 	concrete_list_slice {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 5;
 
 			ITree tree = (ITree) stack[sp - 5];
@@ -8160,7 +7444,7 @@ public enum RascalPrimitive {
 	 */
 	nonterminal_slice {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 4;
 
 			ITree tree = (ITree) stack[sp - 4];
@@ -8176,7 +7460,7 @@ public enum RascalPrimitive {
 	 */
 	lex_slice {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 4;
 
 			ITree tree = (ITree) stack[sp - 4];
@@ -8193,24 +7477,22 @@ public enum RascalPrimitive {
 	 */
 	listwriter_splice {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IListWriter writer = (IListWriter)stack[sp - 2];
-			if(stack[sp - 1] instanceof IList){
-				IList lst = (IList) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IListWriter writer = (IListWriter)arg_2;
+			if(arg_1 instanceof IList){
+				IList lst = (IList) arg_1;
 				for(IValue v : lst){
 					writer.append(v);
 				}
-			} else if(stack[sp - 1] instanceof ISet){
-				ISet set = (ISet) stack[sp - 1];
+			} else if(arg_1 instanceof ISet){
+				ISet set = (ISet) arg_1;
 				for(IValue v : set){
 					writer.append(v);
 				}
 			} else {
-				writer.append((IValue) stack[sp - 1]);
+				writer.append((IValue) arg_1);
 			}
-			stack[sp - 2] = writer;
-			return sp - 1;
+			return writer;
 		}
 	},
 
@@ -8221,24 +7503,22 @@ public enum RascalPrimitive {
 	 */
 	setwriter_splice {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ISetWriter writer = (ISetWriter)stack[sp - 2];
-			if(stack[sp - 1] instanceof IList){
-				IList lst = (IList) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISetWriter writer = (ISetWriter)arg_2;
+			if(arg_1 instanceof IList){
+				IList lst = (IList) arg_1;
 				for(IValue v : lst){
 					writer.insert(v);
 				}
-			} else if(stack[sp - 1] instanceof ISet){
-				ISet set = (ISet) stack[sp - 1];
+			} else if(arg_1 instanceof ISet){
+				ISet set = (ISet) arg_1;
 				for(IValue v : set){
 					writer.insert(v);
 				}
 			} else {
-				writer.insert((IValue) stack[sp - 1]);
+				writer.insert((IValue) arg_1);
 			}
-			stack[sp - 2] = writer;
-			return sp - 1;
+			return writer;
 		}
 	},
 
@@ -8249,10 +7529,9 @@ public enum RascalPrimitive {
 	 */
 	listwriter_splice_concrete_list_var {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IListWriter writer = (IListWriter)stack[sp - 2];
-			IConstructor nonterm = (IConstructor) stack[sp - 1];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IListWriter writer = (IListWriter)arg_2;
+			IConstructor nonterm = (IConstructor) arg_1;
 			//			stdout.println("nonterm = " + nonterm);
 
 			IList nonterm_args = (IList) nonterm.get("args");
@@ -8276,13 +7555,9 @@ public enum RascalPrimitive {
 				}
 			}
 
-			stack[sp - 2] = writer;
-			return sp - 1;
+			return writer;
 		}
 	},
-
-	
-
 
 	/************************************************************************************************/
 	/*					Test reports																*/
@@ -8295,12 +7570,10 @@ public enum RascalPrimitive {
 	 */
 	testreport_open {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 0;
+		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
 			rex.setTestResults(vf.listWriter());
 			//***** typeReifier = new TypeReifier(vf);
-			stack[sp] = null;
-			return sp + 1;
+			return null;
 		}
 	},
 
@@ -8311,11 +7584,9 @@ public enum RascalPrimitive {
 	 */
 	testreport_close {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 0;
+		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
 			rex.getTestResultListener().done();
-			stack[sp] = rex.getTestResults().done();
-			return sp + 1;
+			return rex.getTestResults().done();
 		}
 	},
 
@@ -8326,7 +7597,7 @@ public enum RascalPrimitive {
 	 */
 	testreport_add {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 5; 
 
 			String fun = ((IString) stack[sp - 5]).getValue();
@@ -8420,16 +7691,14 @@ public enum RascalPrimitive {
 	 */
 	adt_subscript_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IConstructor cons =  (IConstructor) stack[sp - 2];
-			int idx = ((IInteger) stack[sp - 1]).intValue();
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IConstructor cons =  (IConstructor) arg_2;
+			int idx = ((IInteger) arg_1).intValue();
 			try {
-				stack[sp - 2] = cons.get((idx >= 0) ? idx : (cons.arity() + idx));
+				return cons.get((idx >= 0) ? idx : (cons.arity() + idx));
 			} catch(IndexOutOfBoundsException e) {
-				throw RascalRuntimeException.indexOutOfBounds((IInteger) stack[sp - 1], currentFrame);
+				throw RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame);
 			}
-			return sp - 1;
 		}
 	},
 
@@ -8440,18 +7709,16 @@ public enum RascalPrimitive {
 	 */
 	is_defined_adt_subscript_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IConstructor cons =  (IConstructor) stack[sp - 2];
-			int idx = ((IInteger) stack[sp - 1]).intValue();
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IConstructor cons =  (IConstructor) arg_2;
+			int idx = ((IInteger) arg_1).intValue();
 			try {
 				temp_array_of_2[1] = cons.get((idx >= 0) ? idx : (cons.arity() + idx));
 				temp_array_of_2[0] = Rascal_TRUE;
 			} catch(IndexOutOfBoundsException e) {
 				temp_array_of_2[0] = Rascal_FALSE;
 			}
-			stack[sp - 2] = temp_array_of_2;
-			return sp - 1;
+			return temp_array_of_2;
 		}
 	},
 
@@ -8462,19 +7729,17 @@ public enum RascalPrimitive {
 	 */
 	node_subscript_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			INode node =  (INode) stack[sp - 2];
-			int idx = ((IInteger) stack[sp - 1]).intValue();
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			INode node =  (INode) arg_2;
+			int idx = ((IInteger) arg_1).intValue();
 			try {
 				if(idx < 0){
 					idx =  node.arity() + idx;
 				}
-				stack[sp - 2] = node.get(idx);  
+				return node.get(idx);  
 			} catch(IndexOutOfBoundsException e) {
-				throw RascalRuntimeException.indexOutOfBounds((IInteger) stack[sp - 1], currentFrame);
+				throw RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame);
 			}
-			return sp - 1;
 		}
 	},
 
@@ -8485,10 +7750,9 @@ public enum RascalPrimitive {
 	 */
 	is_defined_node_subscript_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			INode node =  (INode) stack[sp - 2];
-			int idx = ((IInteger) stack[sp - 1]).intValue();
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			INode node =  (INode) arg_2;
+			int idx = ((IInteger) arg_1).intValue();
 			try {
 				if(idx < 0){
 					idx =  node.arity() + idx;
@@ -8498,8 +7762,7 @@ public enum RascalPrimitive {
 			} catch(IndexOutOfBoundsException e) {
 				temp_array_of_2[0] = Rascal_FALSE;
 			}
-			stack[sp - 2] = temp_array_of_2;
-			return sp - 1;
+			return temp_array_of_2;
 		}
 	},
 
@@ -8510,16 +7773,14 @@ public enum RascalPrimitive {
 	 */
 	list_subscript_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IList lst = ((IList) stack[sp - 2]);
-			int idx = ((IInteger) stack[sp - 1]).intValue();
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IList lst = ((IList) arg_2);
+			int idx = ((IInteger) arg_1).intValue();
 			try {
-				stack[sp - 2] = lst.get((idx >= 0) ? idx : (lst.length() + idx));
+				return lst.get((idx >= 0) ? idx : (lst.length() + idx));
 			} catch(IndexOutOfBoundsException e) {
-				throw RascalRuntimeException.indexOutOfBounds((IInteger) stack[sp - 1], currentFrame);
+				throw RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame);
 			}
-			return sp - 1;
 		}
 	},
 
@@ -8530,18 +7791,16 @@ public enum RascalPrimitive {
 	 */
 	is_defined_list_subscript_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IList lst = ((IList) stack[sp - 2]);
-			int idx = ((IInteger) stack[sp - 1]).intValue();
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IList lst = ((IList) arg_2);
+			int idx = ((IInteger) arg_1).intValue();
 			try {
 				temp_array_of_2[0] = Rascal_TRUE;
 				temp_array_of_2[1] = lst.get((idx >= 0) ? idx : (lst.length() + idx));
 			} catch(IndexOutOfBoundsException e) {
 				temp_array_of_2[0] = Rascal_FALSE;
 			}
-			stack[sp - 2] = temp_array_of_2;
-			return sp - 1;
+			return temp_array_of_2;
 		}
 	},
 
@@ -8552,17 +7811,16 @@ public enum RascalPrimitive {
 	 */
 	map_subscript {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			stack[sp - 2] = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
-			if(stack[sp - 2] == null) {
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue result = ((IMap) arg_2).get((IValue) arg_1);
+			if(result == null) {
 				//				stdout.println("EXCEPTION NoSuchKey at: " + currentFrame.src);
 				//				for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
 				//					stdout.println("\t" + f.toString());
 				//				}
-				throw RascalRuntimeException.noSuchKey((IValue) stack[sp - 1], currentFrame);
+				throw RascalRuntimeException.noSuchKey((IValue) arg_1, currentFrame);
 			}
-			return sp - 1;
+			return result;
 		}
 	},
 
@@ -8573,13 +7831,11 @@ public enum RascalPrimitive {
 	 */
 	is_defined_map_subscript {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			Object v = ((IMap) stack[sp - 2]).get((IValue) stack[sp - 1]);
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			Object v = ((IMap) arg_2).get((IValue) arg_1);
 			temp_array_of_2[0] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
 			temp_array_of_2[1] = v;
-			stack[sp - 2] = temp_array_of_2;
-			return sp - 1;
+			return temp_array_of_2;
 		}
 	},
 
@@ -8590,17 +7846,15 @@ public enum RascalPrimitive {
 	 */
 	str_subscript_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IString str = ((IString) stack[sp - 2]);
-			int idx = ((IInteger) stack[sp - 1]).intValue();
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IString str = ((IString) arg_2);
+			int idx = ((IInteger) arg_1).intValue();
 			try {
-				stack[sp - 2] = (idx >= 0) ? str.substring(idx, idx+1)
-						: str.substring(str.length() + idx, str.length() + idx + 1);
+				return (idx >= 0) ? str.substring(idx, idx+1)
+						          : str.substring(str.length() + idx, str.length() + idx + 1);
 			} catch(IndexOutOfBoundsException e) {
-				throw RascalRuntimeException.indexOutOfBounds((IInteger) stack[sp - 1], currentFrame);
+				throw RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame);
 			}
-			return sp - 1;
 		}
 	},
 
@@ -8611,10 +7865,9 @@ public enum RascalPrimitive {
 	 */
 	is_defined_str_subscript_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IString str = ((IString) stack[sp - 2]);
-			int idx = ((IInteger) stack[sp - 1]).intValue();
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IString str = ((IString) arg_2);
+			int idx = ((IInteger) arg_1).intValue();
 			try {
 				temp_array_of_2[0] = Rascal_TRUE;
 				temp_array_of_2[1] = (idx >= 0) ? str.substring(idx, idx+1)
@@ -8622,8 +7875,7 @@ public enum RascalPrimitive {
 			} catch(IndexOutOfBoundsException e) {
 				temp_array_of_2[0] = Rascal_FALSE;
 			}
-			stack[sp - 2] = temp_array_of_2;
-			return sp - 1;
+			return temp_array_of_2;
 		}
 	},
 
@@ -8634,16 +7886,14 @@ public enum RascalPrimitive {
 	 */
 	tuple_subscript_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ITuple tup = (ITuple) stack[sp - 2];
-			int idx = ((IInteger) stack[sp - 1]).intValue();
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ITuple tup = (ITuple) arg_2;
+			int idx = ((IInteger) arg_1).intValue();
 			try {
-				stack[sp - 2] = tup.get((idx >= 0) ? idx : tup.arity() + idx);
+				return tup.get((idx >= 0) ? idx : tup.arity() + idx);
 			} catch(IndexOutOfBoundsException e) {
-				throw RascalRuntimeException.indexOutOfBounds((IInteger) stack[sp - 1], currentFrame);
+				throw RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame);
 			}
-			return sp - 1;
 		}
 	},
 
@@ -8654,18 +7904,16 @@ public enum RascalPrimitive {
 	 */
 	is_defined_tuple_subscript_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			ITuple tup = (ITuple) stack[sp - 2];
-			int idx = ((IInteger) stack[sp - 1]).intValue();
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ITuple tup = (ITuple) arg_2;
+			int idx = ((IInteger) arg_1).intValue();
 			try {
 				temp_array_of_2[0] = Rascal_TRUE;
 				temp_array_of_2[1] = tup.get((idx >= 0) ? idx : tup.arity() + idx);
 			} catch(IndexOutOfBoundsException e) {
 				temp_array_of_2[0] = Rascal_FALSE;
 			}
-			stack[sp - 2] = temp_array_of_2;
-			return sp - 1;
+			return temp_array_of_2;
 		}
 	},
 
@@ -8676,7 +7924,7 @@ public enum RascalPrimitive {
 	 */
 	rel_subscript {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 2;
 			ISet rel = ((ISet) stack[sp - arity]);
 			if(rel.isEmpty()){
@@ -8732,7 +7980,7 @@ public enum RascalPrimitive {
 	 */
 	lrel_subscript {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 2;
 			IList lrel = ((IList) stack[sp - arity]);
 			if(lrel.isEmpty()){
@@ -8788,35 +8036,8 @@ public enum RascalPrimitive {
 	 */
 	nonterminal_subscript_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			
-			// TODO: old code
-
-//			ITree appl = (ITree) stack[sp - 2];
-//			IList appl_args = (IList) appl.get("args");
-//			IConstructor prod = (IConstructor) appl.getProduction();
-//			IConstructor symbol = $removeLabel((IConstructor) prod.get("def"));
-//			int delta = $getIterDelta(symbol);
-//			if(delta < 0){
-//				if(appl_args.length() == 1){
-//					IConstructor child = (IConstructor) appl_args.get(0);
-//					prod = (IConstructor) child.get("prod");
-//					symbol = $removeLabel((IConstructor) prod.get("def"));
-//					appl_args = (IList) child.get(1);
-//					delta = $getIterDelta(symbol);
-//					if(delta < 0){
-//						throw new CompilerError("subscript not supported on " + symbol, currentFrame);
-//					}
-//				}
-//			}
-//			int index = ((IInteger) stack[sp - 1]).intValue();
-//			stack[sp - 2] = appl_args.get(index * delta);
-//			return sp - 1;
-			
-			// TODO: new code
-			
-			ITree tree =  (ITree) stack[sp - 2];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {			
+			ITree tree =  (ITree) arg_2;
 			if(!TreeAdapter.isList(tree) && TreeAdapter.isInjectionOrSingleton(tree)){
 				tree = (ITree) TreeAdapter.getArgs(tree).get(0);
 			}
@@ -8829,20 +8050,19 @@ public enum RascalPrimitive {
 			int sep_count = TreeAdapter.getSeparatorCount(tree);
 			int log_length = (phys_length == 0) ? 0 : ((sep_count == 0 ? phys_length : 1 + phys_length/(1 + sep_count)));
 
-			int index = ((IInteger) stack[sp - 1]).intValue();
+			int index = ((IInteger) arg_1).intValue();
 			if(index < 0){
 				index = log_length + index;
 			}
 			if(index < 0 || index >= log_length){
-				throw RascalRuntimeException.indexOutOfBounds((IInteger) stack[sp - 1], currentFrame);
+				throw RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame);
 			}
 			IValue result = elems.get(index * (sep_count + 1));
 			if(result == null){
-				throw RascalRuntimeException.indexOutOfBounds((IInteger) stack[sp - 1], currentFrame);
+				throw RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame);
 			}
 
-			stack[sp - 2] = result;
-			return sp - 1;
+			return result;
 		}
 	},
 	
@@ -8853,23 +8073,20 @@ public enum RascalPrimitive {
 	 */
 	lex_subscript_int {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			
-			ITree tree =  (ITree) stack[sp - 2];
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ITree tree =  (ITree) arg_2;
 			if(!TreeAdapter.isList(tree) && TreeAdapter.isInjectionOrSingleton(tree)){
 				tree = (ITree) TreeAdapter.getArgs(tree).get(0);
 			}
 			if(!TreeAdapter.isList(tree)){
 				throw new CompilerError("subscript not supported on " + TreeAdapter.getProduction(tree), currentFrame);
 			}
-			int index = ((IInteger) stack[sp - 1]).intValue();
+			int index = ((IInteger) arg_1).intValue();
 			int delta = 1;
 			if(TreeAdapter.isSeparatedList(tree)){
 				delta = TreeAdapter.getSeparatorCount(tree) + 1;
 			}
-			stack[sp - 2] = TreeAdapter.getArgs(tree).get(index * delta);
-			return sp - 1;
+			return TreeAdapter.getArgs(tree).get(index * delta);
 		}
 	},
 
@@ -8884,7 +8101,7 @@ public enum RascalPrimitive {
 	 */
 	adt_update {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 			IConstructor cons = (IConstructor) stack[sp - 3];
 			String field = ((IString) stack[sp - 2]).getValue();
@@ -8900,7 +8117,7 @@ public enum RascalPrimitive {
 	 */
 	list_update {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 			IList lst = (IList) stack[sp - 3];
 			int n = ((IInteger) stack[sp - 2]).intValue();
@@ -8920,7 +8137,7 @@ public enum RascalPrimitive {
 	 */
 	map_update {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 			IMap map = (IMap) stack[sp - 3];
 			IValue key = (IValue) stack[sp - 2];
@@ -8936,7 +8153,7 @@ public enum RascalPrimitive {
 	 */
 	tuple_update {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 			ITuple tup = (ITuple) stack[sp - 3];
 			int n = ((IInteger) stack[sp - 2]).intValue();
@@ -8961,22 +8178,16 @@ public enum RascalPrimitive {
 	annotation_get {
 		@SuppressWarnings("deprecation")
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IValue val = (IValue) stack[sp - 2];
-			String label = ((IString) stack[sp - 1]).getValue();
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue val = (IValue) arg_2;
+			String label = ((IString) arg_1).getValue();
 			try {
-				Map<String, IValue> annos = val.asAnnotatable().getAnnotations();
-//				System.err.println("ANNOTATIONS:");
-//				for(String key : annos.keySet()){
-//					System.err.println(key + ": " + annos.get(key));
-//				}
-				stack[sp - 2] = val.asAnnotatable().getAnnotation(label);
+				IValue result = val.asAnnotatable().getAnnotation(label);
 
-				if(stack[sp - 2] == null) {
+				if(result == null) {
 					throw RascalRuntimeException.noSuchAnnotation(label, currentFrame);
 				}
-				return sp - 1;
+				return result;
 			} catch (FactTypeUseException e) {
 				throw RascalRuntimeException.noSuchAnnotation(label, currentFrame);
 			}
@@ -8991,10 +8202,9 @@ public enum RascalPrimitive {
 	is_defined_annotation_get {
 		@SuppressWarnings("deprecation")
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-			IValue val = (IValue) stack[sp - 2];
-			String label = ((IString) stack[sp - 1]).getValue();
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue val = (IValue) arg_2;
+			String label = ((IString) arg_1).getValue();
 			try {
 				IValue v = val.asAnnotatable().getAnnotation(label);
 				temp_array_of_2[0] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
@@ -9002,8 +8212,7 @@ public enum RascalPrimitive {
 			} catch (FactTypeUseException e) {
 				temp_array_of_2[0] = Rascal_FALSE;
 			}
-			stack[sp - 2] = temp_array_of_2;
-			return sp - 1;
+			return temp_array_of_2;
 		}
 	},
 
@@ -9015,7 +8224,7 @@ public enum RascalPrimitive {
 	annotation_set {
 		@SuppressWarnings("deprecation")
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 			IValue val = (IValue) stack[sp - 3];
 			String label = ((IString) stack[sp - 2]).getValue();
@@ -9024,7 +8233,6 @@ public enum RascalPrimitive {
 			return sp - 2;
 		}
 	},
-
 
 	/**********************************************************************************************/
 	/*			Type reachability for descendant match       									  */
@@ -9037,13 +8245,10 @@ public enum RascalPrimitive {
 	 */
 	should_descent_in_abstract {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-
-			IValue subject = (IValue) stack[sp - 2];
-			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
-			stack[sp - 2] = descriptor.shouldDescentInAbstractValue(subject);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue subject = (IValue) arg_2;
+			DescendantDescriptor descriptor = (DescendantDescriptor) arg_1;
+			return descriptor.shouldDescentInAbstractValue(subject);
 		}
 	},
 
@@ -9054,13 +8259,10 @@ public enum RascalPrimitive {
 	 */
 	should_descent_in_concrete {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 2;
-
-			ITree subject = (ITree) stack[sp - 2];
-			DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
-			stack[sp - 2] = descriptor.shouldDescentInConcreteValue(subject);
-			return sp - 1;
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ITree subject = (ITree) arg_2;
+			DescendantDescriptor descriptor = (DescendantDescriptor) arg_1;
+			return descriptor.shouldDescentInConcreteValue(subject);
 		}
 	},
 	
@@ -9075,7 +8277,7 @@ public enum RascalPrimitive {
 	 */
 	make_descendant_descriptor {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 4;
 			IString id = (IString) stack[sp - 4];
 			DescendantDescriptor desc = rex.getDescendantDescriptorMap().get(id);
@@ -9103,9 +8305,8 @@ public enum RascalPrimitive {
 	 */
 	assert_fails {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IString message = (IString) stack[sp - 1];
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IString message = (IString) arg_1;
 			rex.getStdOut().println("Assertion failed" + message + " at " + currentFrame.src);
 			throw RascalRuntimeException.assertionFailed(message, currentFrame.src,  currentFrame);
 		}
@@ -9119,9 +8320,8 @@ public enum RascalPrimitive {
 
 	str_escape_for_regexp {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			IValue v = ((IValue) stack[sp - 1]);
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			IValue v = ((IValue) arg_1);
 			String s;
 			if(v.getType().isString()){
 				s = ((IString) v).getValue();
@@ -9137,8 +8337,7 @@ public enum RascalPrimitive {
 				}
 				b.append(ch);
 			}
-			stack[sp - 1] = vf.string(b.toString());
-			return sp;
+			return vf.string(b.toString());
 		}
 	},
 
@@ -9149,10 +8348,8 @@ public enum RascalPrimitive {
 	 */
 	value_to_string {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = vf.string($value_to_string(stack[sp - 1], currentFrame));
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.string($value_to_string(arg_1, currentFrame));
 		}
 	},
 
@@ -9163,10 +8360,8 @@ public enum RascalPrimitive {
 	 */
 	num_to_real {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			stack[sp - 1] = ((INumber) stack[sp - 1]).toReal(vf.getPrecision());
-			return sp;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return ((INumber) arg_1).toReal(vf.getPrecision());
 		}
 	},
 
@@ -9177,7 +8372,7 @@ public enum RascalPrimitive {
 	 */
 	parse {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 			IString module_name = (IString) stack[sp - 3];
 			IConstructor type = (IConstructor) stack[sp - 2];
@@ -9201,10 +8396,9 @@ public enum RascalPrimitive {
 	memoize {
 		@SuppressWarnings("unchecked")
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			
-			IValue result = (IValue) stack[sp - 1];
+			IValue result = (IValue) arg_1;
 			Function fun = currentFrame.function;
 			int nformals = fun.nformals;
 			IValue[] args = new IValue[nformals - 1];
@@ -9217,13 +8411,14 @@ public enum RascalPrimitive {
 	            fun.memoization = new SoftReference<>(cache);
 			}
 			cache.storeResult(args, (Map<String,IValue>)currentFrame.stack[nformals - 1], result);
-			return sp;
+			return result;
 		}
 	},
 	
 	/************************************************************************************************/
 	/*				Keyword-related (former) MuPrimitives that need access to rex					*/
-	/* NOTE: these primitives violate the convention that all RascalPrimitives return an IValue		*/
+	/* NOTE: these primitives violate the convention that all RascalPrimitives return an IValue     */
+	/*       Reason: they need access to keyword parameter handling									*/
 	/************************************************************************************************/
 	
 	/**
@@ -9236,9 +8431,8 @@ public enum RascalPrimitive {
 	 */
 	get_name_and_children_and_keyword_mmap {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			INode v = (INode) stack[sp - 1];
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			INode v = (INode) arg_1;
 			int cons_arity = v.arity();
 			Object[] elems = new Object[cons_arity + 2];
 			elems[0] = vf.string(v.getName());
@@ -9246,8 +8440,7 @@ public enum RascalPrimitive {
 				elems[i + 1] = v.get(i);
 			}
 			elems[cons_arity + 1] = $getAllKeywordParameters(v, rex);
-			stack[sp - 1] = elems;
-			return sp;
+			return elems;
 		}	
 	},
 	
@@ -9260,33 +8453,15 @@ public enum RascalPrimitive {
 	 */
 	get_children_and_keyword_mmap {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			INode v = (INode) stack[sp - 1];
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			INode v = (INode) arg_1;
 			int cons_arity = v.arity();
 			Object[] elems = new Object[cons_arity + 1];
 			for (int i = 0; i < cons_arity; i++) {
 			  elems[i] = v.get(i);
 			}
 			elems[cons_arity] = $getAllKeywordParameters(v, rex);
-			stack[sp - 1] = elems;
-			return sp;
-		}
-	},
-	
-	/**
-	 * Given a constructor or node get an array consisting of
-	 * - keyword parameters collected in a mmap
-	 * 
-	 * [ ..., node ] => [ ..., mmap ]
-	 */
-	get_keyword_mmap {
-		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			INode v = (INode) stack[sp - 1];
-			stack[sp - 1] = $getAllKeywordParameters(v, rex);
-			return sp;
+			return elems;
 		}
 	},
 	
@@ -9299,9 +8474,8 @@ public enum RascalPrimitive {
 	 */
 	get_children_and_keyword_values {
 		@Override
-		public int execute(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity == 1;
-			INode v = (INode) stack[sp - 1];
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			INode v = (INode) arg_1;
 			int cons_arity = v.arity();
 			Map<String, IValue> m = $getAllKeywordParameters(v, rex);
 
@@ -9314,8 +8488,7 @@ public enum RascalPrimitive {
 			for(IValue val : m.values()){
 				elems[j++] = val;
 			}
-			stack[sp - 1] = elems;
-			return sp;
+			return elems;
 		}
 	}
 	;
@@ -9333,7 +8506,23 @@ public enum RascalPrimitive {
 	 * @param rex			the current RascalExecutionContext
 	 * @return				new value for stack pointer (sp)
 	 */
-	public abstract int execute(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) ;
+//	public int execute(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
+//		throw new CompilerError("Not implemented RascalPrimitive");
+//	}
+	public Object execute0(Frame currentFrame, RascalExecutionContext rex) {
+		throw new CompilerError("Not implemented RascalPrimitive");
+	}
+	public Object execute1(Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
+		throw new CompilerError("Not implemented RascalPrimitive");
+	}
+	
+	public Object execute2(Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
+		throw new CompilerError("Not implemented RascalPrimitive");
+	}
+
+	public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
+		throw new CompilerError("Not implemented RascalPrimitive");
+	}
 
 	/**
 	 * Array of all RascalPrimitives
@@ -9778,59 +8967,32 @@ public enum RascalPrimitive {
 	}
 
 	static IValue $add(final IValue left, final IValue right, final Frame currentFrame, final RascalExecutionContext rex){
-		Object[] fakeStack = new Object[2];
-		fakeStack[0] = left;
-		fakeStack[1] = right;
-		add.execute(fakeStack, 2, 2, currentFrame, rex);
-		return (IValue)fakeStack[0];
+		return (IValue) add.execute2(left, right, currentFrame, rex);
 	}
 
 	static IValue $subtract(final IValue left, final IValue right, final Frame currentFrame, final RascalExecutionContext rex){
-		Object[] fakeStack = new Object[2];
-		fakeStack[0] = left;
-		fakeStack[1] = right;
-		subtract.execute(fakeStack, 2, 2, currentFrame, rex);
-		return (IValue)fakeStack[0];
+		return (IValue) subtract.execute2(left, right, currentFrame, rex);
 	}
 
 	static IValue $product(final IValue left, final IValue right, final Frame currentFrame, final RascalExecutionContext rex){
-		Object[] fakeStack = new Object[2];
-		fakeStack[0] = left;
-		fakeStack[1] = right;
-		product.execute(fakeStack, 2, 2, currentFrame, rex);
-		return (IValue)fakeStack[0];
+		return (IValue) product.execute2(left, right, currentFrame, rex);
 	}
 
 	static IValue $divide(final IValue left, final IValue right, final Frame currentFrame, final RascalExecutionContext rex){
-		Object[] fakeStack = new Object[2];
-		fakeStack[0] = left;
-		fakeStack[1] = right;
-		divide.execute(fakeStack, 2, 2, currentFrame, rex);
-		return (IValue)fakeStack[0];
+		return (IValue) divide.execute2(left, right, currentFrame, rex);
 	}
 
 	static IValue $intersect(final IValue left, final IValue right, final Frame currentFrame, final RascalExecutionContext rex){
-		Object[] fakeStack = new Object[2];
-		fakeStack[0] = left;
-		fakeStack[1] = right;
-		intersect.execute(fakeStack, 2, 2, currentFrame, rex);
-		return (IValue)fakeStack[0];
+		return (IValue) intersect.execute2(left, right, currentFrame, rex);
 	}
 
 	private static IBool $equal(final IValue left, final IValue right, final Frame currentFrame, final RascalExecutionContext rex){
-		Object[] fakeStack = new Object[2];
-		fakeStack[0] = left;
-		fakeStack[1] = right;
-		equal.execute(fakeStack, 2, 2, currentFrame, rex);
-		return (IBool)fakeStack[0];
+		return (IBool) equal.execute2(left, right, currentFrame, rex);
+	
 	}
 
 	private static IBool $lessequal(final IValue left, final IValue right, final Frame currentFrame, final RascalExecutionContext rex){
-		Object[] fakeStack = new Object[2];
-		fakeStack[0] = left;
-		fakeStack[1] = right;
-		lessequal.execute(fakeStack, 2, 2, currentFrame, rex);
-		return (IBool)fakeStack[0];
+		return (IBool) lessequal.execute2(left, right, currentFrame, rex);
 	}
 
 	private static IBool $list_lessequal_list(IList left, IList right) {
@@ -10165,10 +9327,6 @@ public enum RascalPrimitive {
 	 * @return t converted to a symbol
 	 */
 	static IConstructor $type2symbol(final Type t){
-//		IConstructor result = rex.getType2SymbolCache().get(t);
-//		if(result != null){
-//			return result;
-//		}
 		IConstructor result = t.accept(new ITypeVisitor<IConstructor,RuntimeException>() {
 
 			@Override

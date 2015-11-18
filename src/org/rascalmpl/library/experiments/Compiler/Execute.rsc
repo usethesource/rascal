@@ -16,20 +16,22 @@ import DateTime;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::muRascal::Load;
 
-import experiments::Compiler::RVM::AST;   // Strange: using import here, gives RVMModule not defined errors later on
+import experiments::Compiler::RVM::AST;
 import experiments::Compiler::RVM::ExecuteProgram;
 import experiments::Compiler::Compile;
 
 import experiments::Compiler::muRascal2RVM::mu2rvm;
-import experiments::Compiler::muRascal2RVM::StackValidator; // TODO: hide these two
-import experiments::Compiler::muRascal2RVM::PeepHole;
 import util::Reflective;
 
-private loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compiler/muRascal2RVM/Library.mu", pcfg);
+private loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compiler/muRascal2RVM/MuLibrary.mu", pcfg);
 
-private str MuLibrary() = "experiments::Compiler::muRascal2RVM::library";
+private str MuLibrary() = "experiments::Compiler::muRascal2RVM::MuLibrary";
 
-tuple[bool, loc] getMuLibraryCompiledReadLoc(PathConfig pcfg) = getDerivedReadLoc(MuLibrary(), "rvm.gz", pcfg);
+tuple[bool, loc] getMuLibraryCompiledReadLoc(PathConfig pcfg) {
+    muLib = |compressed+boot:///MuLibrary.rvm.gz|;
+    return <exists(muLib), muLib>;
+    //return getDerivedReadLoc(MuLibrary(), "rvm.gz", pcfg);
+}
 
 loc getMuLibraryCompiledWriteLoc(PathConfig pcfg) = getDerivedWriteLoc(MuLibrary(), "rvm.gz", pcfg);
 
@@ -45,8 +47,6 @@ loc getMergedImportsWriteLoc(str mainQualifiedName, PathConfig pcfg){
 
 alias Resolved = tuple[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors];
 
-//private map[loc,tuple[datetime modified, RVMModule rvmModule]] importCache = ();
-
 RVMModule getImport(loc importedLoc){
     return getImport1(importedLoc, lastModified(importedLoc));
 }
@@ -54,29 +54,6 @@ RVMModule getImport(loc importedLoc){
 @memo
 RVMModule getImport1(loc importedLoc, datetime lastModified){
     return readBinaryValueFile(#RVMModule, importedLoc);
-}
- 
-list[experiments::Compiler::RVM::AST::Declaration] parseMuLibrary(PathConfig pcfg, bool verbose = false){
-    if(verbose) println("execute: Recompiling library <basename(MuLibraryLoc(pcfg))>.mu");
-    MuLibraryCompiled = getMuLibraryCompiledWriteLoc(pcfg);
-    libModule = load(MuLibraryLoc(pcfg));
-    functions = [];
- 
-    for(fun <- libModule.functions) {
-        setFunctionScope(fun.qname);
-        set_nlocals(fun.nlocals);
-        body = peephole(tr(fun.body));
-        <maxSP, exceptions> = validate(fun.src, body, []);
-        required_frame_size = get_nlocals() + maxSP;
-        functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun. uqname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body, [])
-                                          : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), (), false, false, false, fun.src, required_frame_size, 
-                                                     false, 0, 0, body, []);
-    }
-  
-    writeBinaryValueFile(MuLibraryCompiled, functions);
-    if(verbose) println("execute: Writing compiled version of library <MuLibraryCompiled>");
-    
-    return functions; 
 }
 
 bool valid(loc mergedImportsLoc, RVMModule mergedProgram, RVMModule program, PathConfig pcfg){
@@ -142,21 +119,18 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
            }
    }
    
-   // Read the muLibrary, recompile if necessary
-   //println("MuLibrary: <MuLibrary>");
+   // Read the muLibrary
    <existsMuLibraryCompiled, MuLibraryCompiled>  = getMuLibraryCompiledReadLoc(pcfg);
-   //println("MuLibraryCompiled: <MuLibraryCompiled>");
-   if(existsMuLibraryCompiled && lastModified(MuLibraryCompiled) > lastModified(MuLibraryLoc(pcfg))){
-      try {
+   println("MuLibraryCompiled: <existsMuLibraryCompiled>, <MuLibraryCompiled>, <MuLibraryCompiled.scheme>");
+   if(existsMuLibraryCompiled){
+       try {
            imported_declarations = readBinaryValueFile(#list[experiments::Compiler::RVM::AST::Declaration], MuLibraryCompiled);
            // Temporary work around related to issue #343
            imported_declarations = visit(imported_declarations) { case type[value] t : { insert type(t.symbol,t.definitions); }}
            if(verbose) println("execute: Using compiled library version <MuLibraryCompiled>");
       } catch: {
-           imported_declarations = parseMuLibrary(pcfg, verbose=verbose);
+           throw "Cannot read <MuLibraryCompiled>";
       }
-   } else {
-     imported_declarations = parseMuLibrary(pcfg, verbose=verbose);
    }
    
    rel[str,str] extending_modules = {};
@@ -276,7 +250,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
    mainModule.resolver = ( ofname : mainModule.resolver[ofname] + pos_delta | str ofname <- mainModule.resolver );
    
    
-  return rvmProgram(mainModule,
+   return rvmProgram(mainModule,
            imported_moduleTags,
            imported_types,
            imported_declarations,
@@ -285,17 +259,18 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
            );
 }
 
-value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, 
-                                    bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
-                                    bool coverage = false, bool useJVM = false, bool serialize=false, bool verbose = false){
-    //<existsExec, exec> = RVMExecutableWriteLoc(program.main_module.name, pcfg);
-    //if(!existsExec){
-    //    throw "Executable for <program.main_module.name> not found";
-    //}
-    v = executeProgram(RVMExecutableCompressedWriteLoc(program.main_module.name, pcfg),
+value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false,
+                                  bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
+                                  bool coverage = false, bool useJVM = false, bool serialize=false, bool verbose = false){
+   //<existsExec, exec> = RVMExecutableWriteLoc(program.main_module.name, pcfg);
+   //if(!existsExec){
+   //    throw "Executable for <program.main_module.name> not found";
+   //}
+   v = executeProgram(RVMExecutableCompressedWriteLoc(program.main_module.name, pcfg),
                            program,
-                           keywordArguments, 
+                           keywordArguments,
                            debug, 
+                           debugRVM, 
                            testsuite, 
                            profile, 
                            trackCalls, 
@@ -305,25 +280,24 @@ value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArgumen
    return v;                            
 }
 
-value execute(RVMModule mainModule, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, 
+value execute(RVMModule mainModule, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false,
                                     bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
                                     bool coverage = false, bool useJVM = false, bool serialize=false, bool verbose = false){
-    start_linking = cpuTime();   
-    merged = mergeImports(mainModule, pcfg, verbose=verbose, useJVM=useJVM);
-    link_time = cpuTime() - start_linking;
-    println("linking: <link_time/1000000> msec");
-    return execute(merged, pcfg, keywordArguments=keywordArguments, debug=debug, testsuite=testsuite,recompile=recompile,profile=profile,trackCalls=trackCalls,coverage=coverage,useJVM=useJVM,serialize=serialize,verbose=verbose);             
+   start_linking = cpuTime();   
+   merged = mergeImports(mainModule, pcfg, verbose=verbose, useJVM=useJVM);
+   link_time = cpuTime() - start_linking;
+   println("linking: <link_time/1000000> msec");
+   return execute(merged, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=testsuite,recompile=recompile,profile=profile,trackCalls=trackCalls,coverage=coverage,useJVM=useJVM,serialize=serialize,verbose=verbose);             
 }
-value execute(loc moduleLoc, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=false, bool verbose = false) =
-    execute(getModuleName(moduleLoc, pcfg), pcfg, keywordArguments = keywordArguments, debug=debug, testsuite=testsuite, profile=profile, trackCalls=trackCalls, coverage=coverage,useJVM=useJVM,serialize=serialize,verbose=verbose);
+value execute(loc moduleLoc, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=false, bool verbose = false) =
+   execute(getModuleName(moduleLoc, pcfg), pcfg, keywordArguments = keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=testsuite, profile=profile, trackCalls=trackCalls, coverage=coverage,useJVM=useJVM,serialize=serialize,verbose=verbose);
 
 
-value execute(str qualifiedModuleName, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=false, bool verbose = false){
+value execute(str qualifiedModuleName, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=false, bool verbose = false){
    if(!recompile){
-      //executable = RVMExecutableLoc(qualifiedModuleName, pcfg);
       if(<true, compressed> := RVMExecutableCompressedReadLoc(qualifiedModuleName, pcfg)){
          if(verbose) println("Using <compressed>");
-         v = executeProgram(compressed, keywordArguments, debug, testsuite, profile, trackCalls, coverage, useJVM);
+         v = executeProgram(compressed, keywordArguments, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM);
          if(!testsuite && verbose){
             println("Result = <v>");
          }  
@@ -333,9 +307,8 @@ value execute(str qualifiedModuleName, PathConfig pcfg, map[str,value] keywordAr
    startTime = cpuTime();
    mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose);
    //println("Compiling: <(cpuTime() - startTime)/1000000> ms");
-   //<cfg, mainModule> = compile(rascalSource, bindir=bindir);
    startTime = cpuTime();
-   v = execute(mainModule, pcfg, keywordArguments=keywordArguments, debug=debug, testsuite=testsuite, profile=profile, verbose=verbose, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize);
+   v = execute(mainModule, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=testsuite, profile=profile, verbose=verbose, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize);
    println("Executing: <(cpuTime() - startTime)/1000000> ms");
    return v;
 }
@@ -351,8 +324,9 @@ RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool useJVM=
    return merged;
 }
 
-RVMProgram compileAndLinkIncremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, bool useJVM=false, bool serialize=false, bool verbose = false){
+RVMProgram compileAndLinkIncremental(str qualifiedModuleName, bool reuseConfig, bool useJVM=false, bool serialize=false, bool verbose = false){
    startTime = cpuTime();
+   pcfg = pathConfig(srcPath=[|std:///|, |test-modules:///|]);
    mainModule = compileIncremental(qualifiedModuleName, reuseConfig, pcfg, verbose=verbose);
    //println("Compiling: <(cpuTime() - startTime)/1000000> ms");
    start_linking = cpuTime();   
@@ -361,11 +335,6 @@ RVMProgram compileAndLinkIncremental(str qualifiedModuleName, bool reuseConfig, 
    println("linking: <link_time/1000000> msec");
    return merged;
 }
-
-//value executeTests(loc rascalSource){
-//   mainModule = compile(rascalSource);
-//   return execute(mainModule, testsuite=true);
-//}
 
 str makeTestSummary(lrel[loc,int,str] test_results) = "<size(test_results)> tests executed; < size(test_results[_,0])> failed; < size(test_results[_,2])> ignored";
 

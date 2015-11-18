@@ -888,8 +888,10 @@ default Symbol stripStart(Symbol s) = s;
 // Note that a callOrTree pattern always requires a visit of the production to inspect labeled fields and is etherefore
 // NOT a concrete pattern
 
-bool isConcretePattern(Pattern p) = 
-	isNonTerminalType(getType(p@\loc)) && !(p is callOrTree);
+bool isConcretePattern(Pattern p) {
+    tp = getType(p@\loc);
+    return isNonTerminalType(tp) && !(p is callOrTree) && Symbol::sort(_) := tp;
+}  
 	
 bool isConcreteType(Symbol subjectType) =
 	(  isNonTerminalType(subjectType)

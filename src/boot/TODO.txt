@@ -1,0 +1,11 @@
+Files that are needed during boot:
+
+Already in src/boot:
+
+- Compiled Rascal standard library
+- ParserGenerator
+- Compiled MuLibrary
+- Kernel (execution kernel)
+
+Potential:
+- Generated Java code for Rascal Parser

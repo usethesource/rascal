@@ -21,7 +21,7 @@ public enum Opcode {
 	STOREVAR 			(3, 	1),
 	STORELOC 			(4, 	1),
 	CALL 				(5, 	1),
-	CALLPRIM	 		(6, 	2),
+//	CALLPRIM	 		(6, 	2),
 	RETURN1 			(7, 	1),
 	JMP 				(8, 	1),
 	JMPTRUE 			(9, 	1),
@@ -49,7 +49,7 @@ public enum Opcode {
 	CALLCONSTR			(31,	1),
 	LOAD_NESTED_FUN		(32, 	1),
 	LOADTYPE			(33,	1),
-	CALLMUPRIM			(34,	1),
+//	CALLMUPRIM			(34,	1),
 	LOADBOOL			(35,	1),
 	LOADINT				(36,	1),
 	FAILRETURN			(37, 	1),
@@ -99,7 +99,16 @@ public enum Opcode {
 	VISIT               (81,    3),
 	CHECKMEMO			(82,	1),
 	LOADEMPTYKWMAP      (83, 	1),
-	VALUESUBTYPE		(84,	1)
+	VALUESUBTYPE		(84,	1),
+	CALLMUPRIM0         (85,    1),
+	CALLMUPRIM1			(86,    1),
+	CALLMUPRIM2			(87,    1),
+	CALLMUPRIMN			(88,    1),
+	
+	CALLPRIM0         	(89,    2),
+	CALLPRIM1			(90,    2),
+	CALLPRIM2			(91,    2),
+	CALLPRIMN			(92,    2)
 	;
 	
 	
@@ -121,7 +130,7 @@ public enum Opcode {
 	static public final int OP_STOREVAR= 3;
 	static public final int OP_STORELOC = 4;
 	static public final int OP_CALL = 5;
-	static public final int OP_CALLPRIM = 6;
+//	static public final int OP_CALLPRIM = 6;
 	static public final int OP_RETURN1 = 7;
 	static public final int OP_JMP = 8;
 	static public final int OP_JMPTRUE = 9;
@@ -149,7 +158,7 @@ public enum Opcode {
 	static public final int OP_CALLCONSTR = 31;
 	static public final int OP_LOAD_NESTED_FUN = 32;
 	static public final int OP_LOADTYPE = 33;
-	static public final int OP_CALLMUPRIM = 34;
+//	static public final int OP_CALLMUPRIM = 34;
 	static public final int OP_LOADBOOL = 35;
 	static public final int OP_LOADINT = 36;
 	static public final int OP_FAILRETURN = 37;
@@ -200,6 +209,15 @@ public enum Opcode {
 	static public final int OP_CHECKMEMO = 82;
 	static public final int OP_LOADEMPTYKWMAP = 83;
 	static public final int OP_VALUESUBTYPE = 84;
+	static public final int OP_CALLMUPRIM0 = 85;
+	static public final int OP_CALLMUPRIM1 = 86;
+	static public final int OP_CALLMUPRIM2 = 87;
+	static public final int OP_CALLMUPRIMN = 88;
+	
+	static public final int OP_CALLPRIM0 = 89;
+	static public final int OP_CALLPRIM1 = 90;
+	static public final int OP_CALLPRIM2 = 91;
+	static public final int OP_CALLPRIMN = 92;
 	
 	/*
 	 * Meta-instructions that are generated dynamically during execution and
@@ -281,11 +299,6 @@ public enum Opcode {
 		case CALL:
 			return "CALL " + cb.getFunctionName(arg1)  + ", " 
 						   + arg2;
-			
-		case CALLPRIM:
-			return "CALLPRIM " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
-							   + arg2 + ", "
-							   + cb.getConstantValue(cb.finalCode[pc + 1]);
 			
 		case RETURN1:
 			return "RETURN1 " + arg1;
@@ -373,10 +386,6 @@ public enum Opcode {
 			
 		case LOADTYPE:
 			return "LOADTYPE " + arg1;
-			
-		case CALLMUPRIM:
-			return "CALLMUPRIM " + MuPrimitive.fromInteger(arg1).name() +  ", " 
-							     + arg2;
 			
 		case LOADBOOL:
 			return "LOADBOOL " + (arg1 == 1);
@@ -534,7 +543,31 @@ public enum Opcode {
 			
 		case VALUESUBTYPE:
 			return "VALUESUBTYPE " + cb.getConstantType(arg1) ;
-				
+			
+		case CALLMUPRIM0:
+			return "CALLMUPRIM0 " + MuPrimitive.fromInteger(arg1).name();
+		case CALLMUPRIM1:
+			return "CALLMUPRIM1 " + MuPrimitive.fromInteger(arg1).name();
+		case CALLMUPRIM2:
+			return "CALLMUPRIM2 " + MuPrimitive.fromInteger(arg1).name();
+		case CALLMUPRIMN:
+			return "CALLMUPRIMN " + MuPrimitive.fromInteger(arg1).name() +  ", " 
+				     + arg2;
+		case CALLPRIM0:
+			return "CALLPRIM0 " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
+							    + cb.getConstantValue(cb.finalCode[pc + 1]);
+		case CALLPRIM1:
+			return "CALLPRIM1 " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
+							    + cb.getConstantValue(cb.finalCode[pc + 1]);
+		case CALLPRIM2:
+			return "CALLPRIM2 " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
+							    + cb.getConstantValue(cb.finalCode[pc + 1]);
+			
+		case CALLPRIMN:
+			return "CALLPRIMN " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
+							   + arg2 + ", "
+							   + cb.getConstantValue(cb.finalCode[pc + 1]);
+
 		default:
 			break;
 		}	

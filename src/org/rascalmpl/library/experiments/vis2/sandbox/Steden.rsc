@@ -40,6 +40,8 @@ public Figure steden(int width = 400, int height = 400) {
            		width=width,
                 height=height,
                 animation= animation(startup = true, easing = "in", duration = 500),
-                legend = legend(position="top")));
+                legend = legend(position="top")), width = width, height = height);
+            println("comboChart <f.width> <f.height>");
+             // f.width = width; f.height = height;
              return f;          
    }

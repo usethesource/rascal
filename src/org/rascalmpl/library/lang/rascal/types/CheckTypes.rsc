@@ -167,6 +167,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
     // In the environment with the parameters, check the body of the closure.
 	< cFun, st > = checkStatementSequence([ssi | ssi <- ss], cFun);
     
+    // TODO: We need an actual check to ensure return is defined along all
+    // paths, but for now we just check to see if the type of the ending
+    // expression is a subtype of the return type.
+    //if (!isVoidType(rt) && !subtype(st,rt)) {
+    //	cFun = addScopeError(cFun, "The type of the final statement, <prettyPrintType(st)>, must be a subtype of the declared return type, <prettyPrintType(rt)>", exp@\loc);
+    //}
+    
     // Now, recover the environment active before the call, removing any names
     // added by the closure (e.g., for parameters) from the environment. This
     // also cleans up any parts of the configuration altered to invoke a
@@ -574,10 +581,20 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
                     		}
                     	} 
                     } else {
-                    	failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+                    	stillInferred = [ idx | idx <- index(tl), isInferredType(tl[idx]) ];
+                    	if (isEmpty(stillInferred)) {
+                    		failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+                    	} else {
+                    		failureReasons += "Could not compute types of parameters at position<(size(stillInferred)>1) ? "s" : "">: <intercalate(",",["<idx>"|idx<-stillInferred])>";
+                    	}
                     }
                 } else {
-                    failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+                	stillInferred = [ idx | idx <- index(tl), isInferredType(tl[idx]) ];
+                	if (isEmpty(stillInferred)) {
+                		failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+                	} else {
+                		failureReasons += "Could not compute types of parameters at position<(size(stillInferred)>1) ? "s" : "">: <intercalate(",",["<idx>"|idx<-stillInferred])>";
+                	}
                 }
             } else {
                 if (size(epsList) >= size(args)-1) {
@@ -622,10 +639,20 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 		                    		}
 		                    	}
                             } else {
-                                failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+		                    	stillInferred = [ idx | idx <- index(tl), isInferredType(tl[idx]) ];
+		                    	if (isEmpty(stillInferred)) {
+		                    		failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+		                    	} else {
+		                    		failureReasons += "Could not compute types of parameters at position<(size(stillInferred)>1) ? "s" : "">: <intercalate(",",["<idx>"|idx<-stillInferred])>";
+		                    	}
                             }
                         } else {
-                            failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+	                    	stillInferred = [ idx | idx <- index(tl), isInferredType(tl[idx]) ];
+	                    	if (isEmpty(stillInferred)) {
+	                    		failureReasons += "Function of type <prettyPrintType(a)> cannot be called with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+	                    	} else {
+	                    		failureReasons += "Could not compute types of parameters at position<(size(stillInferred)>1) ? "s" : "">: <intercalate(",",["<idx>"|idx<-stillInferred])>";
+	                    	}
                         }
                     }
                 }
@@ -1694,8 +1721,8 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> has <Name
     < cHas, t1 > = checkExp(e, cHas);
     c = needNewScope ? exitBooleanScope(cHas, c) : cHas;
     if (isFailType(t1)) return markLocationFailed(c,exp@\loc,t1);
-    if (isRelType(t1) || isListRelType(t1) || isTupleType(t1) || isADTType(t1) || isNonTerminalType(t1)) return markLocationType(c,exp@\loc,Symbol::\bool());
-    return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected relation, tuple, or ADT types, found <prettyPrintType(t1)>", e@\loc));
+    if (isRelType(t1) || isListRelType(t1) || isTupleType(t1) || isADTType(t1) || isNonTerminalType(t1) || isNodeType(t1)) return markLocationType(c,exp@\loc,Symbol::\bool());
+    return markLocationFailed(c,exp@\loc,makeFailType("Invalid type: expected relation, tuple, node or ADT types, found <prettyPrintType(t1)>", e@\loc));
 }
 
 @doc{Check the types of Rascal expressions: Transitive Closure (DONE)}
@@ -6352,7 +6379,19 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         cFun.labelStack = labelStackItem(rn, functionLabel(), Symbol::\void()) + cFun.labelStack;
 
         if ((FunctionBody)`{ <Statement* ss> }` := body) {
-			< cFun, tStmt > = checkStatementSequence([ssi | ssi <- ss], cFun);
+        	bodyStatements = [ssi | ssi <- ss];
+			< cFun, tStmt > = checkStatementSequence(bodyStatements, cFun);
+			
+		    // Basic check for returns: if we have a non-void return type and the sequence
+		    // is empty, flag this as an error
+		    //if (!isVoidType(cFun.expectedReturnType) && isEmpty(bodyStatements)) {
+		    //	cFun = addScopeError(cFun, "Cannot use a non-void return type with an empty function body", fd@\loc);
+		    //}
+		    
+		    //if (!isVoidType(cFun.expectedReturnType) && !isEmpty(bodyStatements) && !subtype(tStmt, cFun.expectedReturnType)) {
+		    //	cFun = addScopeError(cFun, "The type of the final statement, <prettyPrintType(tStmt)>, must be a subtype of the declared return type, <prettyPrintType(cFun.expectedReturnType)>", fd@\loc);
+		    //}
+			
         }
 
         cFun.labelStack = tail(cFun.labelStack);

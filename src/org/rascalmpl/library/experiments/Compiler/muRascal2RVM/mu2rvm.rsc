@@ -12,7 +12,6 @@ import String;
 import ToString;
 import experiments::Compiler::RVM::AST;
 
-import experiments::Compiler::muRascal::Syntax;
 import experiments::Compiler::muRascal::AST;
 
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
@@ -500,8 +499,24 @@ INS tr(muCallPrim3("typeOf", list[MuExp] args, loc src)) = [*tr(args), TYPEOF()]
 INS tr(muCallPrim3("check_memo", list[MuExp] args, loc src)) = [CHECKMEMO()];
 INS tr(muCallPrim3("subtype_value_type", [exp1,  muTypeCon(Symbol tp)], loc src)) = [*tr(exp1), VALUESUBTYPE(tp)];
 
+Instruction mkCALLPRIM(str name, int n, loc src) {
+    if(name in {"node_create", "list_create", "set_create", "tuple_create", "map_create", 
+                "listwriter_add", "setwriter_add", "mapwriter_add", "str_add_str", "template_open",
+                "tuple_field_project", "adt_field_update", "rel_field_project", "lrel_field_project", "map_field_project",
+                "list_slice_replace", "list_slice_add", "list_slice_subtract", "list_slice_product", "list_slice_divide", 
+                "list_slice_intersect", "str_slice_replace", "node_slice_replace", "list_slice", 
+                "rel_subscript", "lrel_subscript" }){ // varyadic MuPrimitives
+        return CALLPRIMN(name, n, src);
+    }
+    switch(n){
+        case 0: return CALLPRIM0(name, src);
+        case 1: return CALLPRIM1(name,src);
+        case 2: return CALLPRIM2(name,src);
+        default: return CALLPRIMN(name, n, src);
+   }
+}
 
-default INS tr(muCallPrim3(str name, list[MuExp] args, loc src)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), CALLPRIM(name, size(args), src)];
+default INS tr(muCallPrim3(str name, list[MuExp] args, loc src)) = (name == "println") ? [*tr(args), PRINTLN(size(args))] : [*tr(args), mkCALLPRIM(name, size(args), src)];
 
 // Calls to MuRascal primitives that are directly translated to RVM instructions
 
@@ -516,7 +531,19 @@ INS tr(muCallMuPrim("and_mbool_mbool", list[MuExp] args)) = [*tr(args), ANDBOOL(
 INS tr(muCallMuPrim("check_arg_type_and_copy", [muCon(int pos1), muTypeCon(Symbol tp), muCon(int pos2)])) = [CHECKARGTYPEANDCOPY(pos1, tp, pos2)];
 INS tr(muCallMuPrim("make_mmap", [])) = [ LOADEMPTYKWMAP() ];
 
-default INS tr(muCallMuPrim(str name, list[MuExp] args)) = [*tr(args), CALLMUPRIM(name, size(args))];
+Instruction mkCALLMUPRIM(str name, int n) {
+    if(name in {"make_array", "make_mmap", "copy_and_update_keyword_mmap"}){ // varyadic MuPrimtives
+        return CALLMUPRIMN(name, n);
+    }
+    switch(n){
+        case 0: return CALLMUPRIM0(name);
+        case 1: return CALLMUPRIM1(name);
+        case 2: return CALLMUPRIM2(name);
+        default: return CALLMUPRIMN(name, n);
+   }
+}
+    
+default INS tr(muCallMuPrim(str name, list[MuExp] args)) = [*tr(args), mkCALLMUPRIM(name, size(args))];
 
 default INS tr(muCallJava(str name, str class, Symbol parameterTypes, Symbol keywordTypes, int reflect, list[MuExp] args)) = 
 	[ *tr(args), CALLJAVA(name, class, parameterTypes, keywordTypes, reflect) ];

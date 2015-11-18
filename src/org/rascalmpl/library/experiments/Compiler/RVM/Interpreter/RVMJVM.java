@@ -84,10 +84,9 @@ public class RVMJVM extends RVM {
 				throw new RuntimeException("PANIC: No function " + uid_main + " found");
 			}
 
-			if (main_function.nformals != 2) { // List of IValues and empty map of
-												// keyword parameters
-				throw new RuntimeException("PANIC: function " + uid_main + " should have two arguments");
-			}
+//			if (main_function.nformals != 1) { // Empty map of keyword parameters
+//				throw new RuntimeException("PANIC: function " + uid_main + " should have one argument");
+//			}
 
 			Object o = null;
 

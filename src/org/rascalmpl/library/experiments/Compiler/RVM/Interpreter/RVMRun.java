@@ -22,6 +22,8 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.NullFrameObserver;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IDateTime;
@@ -113,7 +115,7 @@ public class RVMRun extends RVM {
 	public RascalExecutionContext rex;
 	private boolean trackCalls;
 	private boolean finalized;
-	protected ILocationCollector locationCollector;
+	protected IFrameObserver locationCollector;
 
 //	public IEvaluatorContext getEvaluatorContext() {
 //		return rex.getEvaluatorContext();
@@ -166,7 +168,7 @@ public class RVMRun extends RVM {
 		this.classLoaders = rex.getClassLoaders();
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
-		this.debug = rex.getDebug();
+		this.debug = rex.getDebugRVM();
 		this.trackCalls = rex.getTrackCalls();
 		this.finalized = false;
 
@@ -195,7 +197,7 @@ public class RVMRun extends RVM {
 		
 		Opcode.init(stdout, rex.getProfile());
 
-		this.locationCollector = NullLocationCollector.getInstance();
+		this.locationCollector = NullFrameObserver.getInstance();
 
 	}
 
@@ -355,7 +357,7 @@ public class RVMRun extends RVM {
 		Thrown oldthrown = thrown;
 
 		Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
-		root.sp = func.function.nlocals;
+		root.sp = func.function.getNlocals();
 
 		// Pass the program arguments to main
 		for (int i = 0; i < args.length; i++) {
@@ -1124,7 +1126,7 @@ public class RVMRun extends RVM {
 
 		root.stack[0] = vf.list(args); // pass the program argument to
 		root.stack[1] = vf.mapWriter().done();
-		root.sp = func.nlocals;
+		root.sp = func.getNlocals();
 
 		Object result = dynRun(n, root);
 		return result;

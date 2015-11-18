@@ -972,6 +972,7 @@ public class Prelude {
 	}
 
 	public IValue exists(ISourceLocation sloc) {
+		//System.err.println("exists: " + sloc);
 		return values.bool(URIResolverRegistry.getInstance().exists(sloc));
 	}
 	
@@ -3336,6 +3337,7 @@ public class Prelude {
 	}
 	
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc){
+		//System.err.println("readBinaryFile: " + loc);
 		TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
@@ -3351,6 +3353,7 @@ public class Prelude {
 	}
 	
 	public IValue readTextValueFile(IValue type, ISourceLocation loc){
+		//System.err.println("readTextValueFile: " + loc);
 	  	TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		

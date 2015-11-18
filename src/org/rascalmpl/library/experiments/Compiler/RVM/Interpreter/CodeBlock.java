@@ -14,8 +14,14 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.C
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallConstr;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallDyn;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallJava;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim0;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim1;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim2;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrimN;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim0;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim1;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim2;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrimN;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckArgTypeAndCopy;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckMemo;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
@@ -493,12 +499,36 @@ public class CodeBlock implements Serializable {
 		return add(new StoreVar(this, fuid, pos));
 	}
 	
-	public CodeBlock CALLPRIM (RascalPrimitive prim, int arity, ISourceLocation src){
-		return add(new CallPrim(this, prim, arity, src));
+	public CodeBlock CALLMUPRIM0 (MuPrimitive muprim){
+		return add(new CallMuPrim0(this, muprim));
 	}
 	
-	public CodeBlock CALLMUPRIM (MuPrimitive muprim, int arity){
-		return add(new CallMuPrim(this, muprim, arity));
+	public CodeBlock CALLMUPRIM1 (MuPrimitive muprim){
+		return add(new CallMuPrim1(this, muprim));
+	}
+	
+	public CodeBlock CALLMUPRIM2 (MuPrimitive muprim){
+		return add(new CallMuPrim2(this, muprim));
+	}
+	
+	public CodeBlock CALLMUPRIMN (MuPrimitive muprim, int arity){
+		return add(new CallMuPrimN(this, muprim, arity));
+	}
+	
+	public CodeBlock CALLPRIM0 (RascalPrimitive prim, ISourceLocation src){
+		return add(new CallPrim0(this, prim, src));
+	}
+	
+	public CodeBlock CALLPRIM1 (RascalPrimitive prim, ISourceLocation src){
+		return add(new CallPrim1(this, prim, src));
+	}
+	
+	public CodeBlock CALLPRIM2 (RascalPrimitive prim, ISourceLocation src){
+		return add(new CallPrim2(this, prim, src));
+	}
+	
+	public CodeBlock CALLPRIMN (RascalPrimitive prim, int arity, ISourceLocation src){
+		return add(new CallPrimN(this, prim, arity, src));
 	}
 	
 	public CodeBlock LOADFUN (String fuid){

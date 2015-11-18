@@ -420,7 +420,7 @@ void config(str qualifiedModuleName,                // name of Rascal source mod
        
        if(hasMatches(c.deferredSignatures, select)) { println("deferredSignatures:"); for(uid <- sort(domain(c.deferredSignatures))) printSelected(uid, c.deferredSignatures[uid], select); }
        if(hasMatches(c.unimportedNames, select)) { println("unimportedNames:"); for(uid <- sort(c.unimportedNames)) printSelected(uid, select); }
-       if(c.importGraph != {}) { println("importGraph:"); for(<nm1, nm2> <- c.importGraph) println("\t\<<prettyPrintName(nm1)>, <prettyPrintName(nm2)>\>"); }
+       /*if(c.importGraph != {})*/ { println("importGraph:"); for(<nm1, nm2> <- c.importGraph) println("\t\<<prettyPrintName(nm1)>, <prettyPrintName(nm2)>\>"); }
        if(c.dirtyModules != {}) { println("dirtyModules:"); for(dirty <- c.dirtyModules) println("\t<prettyPrintName(dirty)>"); }
 	} else {
 	   println("Config file does not exist");
@@ -430,7 +430,7 @@ void config(str qualifiedModuleName,                // name of Rascal source mod
 void importGraph(str qualifiedModuleName,  // name of Rascal source module
             PathConfig pcfg = pathConfig()){
     
-    config(qualifiedModuleName);
+    //config(qualifiedModuleName);
     if(<true, cloc> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
        Configuration c = readBinaryValueFile(#Configuration, cloc); 
         
@@ -438,7 +438,7 @@ void importGraph(str qualifiedModuleName,  // name of Rascal source module
 	    if(c.importGraph != {}) {
 	        modules = [<prettyPrintName(nm), box(fig=text(getSimpleName(nm), fontSize=12), tooltip=prettyPrintName(nm))> | nm <- carrier(c.importGraph)];
 	        edges = [edge(prettyPrintName(nm1), prettyPrintName(nm2)) | <nm1, nm2> <- c.importGraph];
-	        g = box(fig=graph(modules, edges, width = 3000, height = 1000, lineWidth=1, options=graphOptions(nodesep=50,layersep=50, edgesep=50)));
+	        g = box(fig=graph(modules, edges, width = 3000, height = 1000, lineWidth=1, graphOptions=graphOptions(nodeSep=50,layerSep=50, edgeSep=50)));
 	        println(g);
 	        render(g);
 	    } else {

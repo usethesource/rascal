@@ -19,6 +19,13 @@ import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CallTrackingObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CoverageFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.DebugFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.NullFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.ProfileFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.RVMTrackingObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
@@ -56,10 +63,12 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final IValueFactory vf;
 	private final TypeStore typeStore;
 	private final boolean debug;
+	private final boolean debugRVM;
 	private final boolean testsuite;
 	private final boolean profile;
 	private final boolean trackCalls;
 	private final ITestResultListener testResultListener;
+	private IFrameObserver frameObserver;
 	private final IMap symbol_definitions;
 	private RascalSearchPath rascalSearchPath;
 	
@@ -93,7 +102,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 			String moduleName, 
 			IValueFactory vf, 
 			PrintWriter out, PrintWriter err) {
-		this(vf, out, err, null, null, null, false, false, false, false, false, false, null, null);
+		this(vf, out, err, null, null, null, false, false, false, false, false, false, false, null, null, null);
 		setCurrentModuleName(moduleName);
 	}
 	
@@ -103,14 +112,16 @@ public class RascalExecutionContext implements IRascalMonitor {
 			PrintWriter stderr, 
 			IMap moduleTags, 
 			IMap symbol_definitions, 
-			TypeStore typeStore, 
+			TypeStore typeStore,
 			boolean debug, 
+			boolean debugRVM, 
 			boolean testsuite, 
 			boolean profile, 
 			boolean trackCalls, 
 			boolean coverage, 
 			boolean useJVM, 
 			ITestResultListener testResultListener, 
+			IFrameObserver frameObserver,
 			RascalSearchPath rascalSearchPath
 	){
 		
@@ -119,7 +130,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.symbol_definitions = symbol_definitions;
 		this.typeStore = typeStore == null ? new TypeStore() : typeStore;
 		this.debug = debug;
+		this.debugRVM = debugRVM;
 		this.testsuite = testsuite;
+	
 		this.profile = profile;
 		this.coverage = coverage;
 		this.useJVM = useJVM;
@@ -142,6 +155,25 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.classLoaders = new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader()));
 		this.testResultListener = (testResultListener == null) ? (ITestResultListener) new DefaultTestResultListener(stderr)
 															  : testResultListener;
+		
+		if(frameObserver == null){
+			if(profile){
+				setFrameObserver(new ProfileFrameObserver(stdout));
+			} else if(coverage){
+				setFrameObserver(new CoverageFrameObserver(stdout));
+			} else if(debug){
+				setFrameObserver(new DebugFrameObserver(stdout));
+			} else if(trackCalls){
+				setFrameObserver(new CallTrackingObserver(stdout));
+			} else if(debugRVM){
+				setFrameObserver(new RVMTrackingObserver(stdout));
+			} else {
+				setFrameObserver(NullFrameObserver.getInstance());
+			}
+		} else {
+			setFrameObserver(frameObserver);
+		}
+		
 		parsingTools = new ParsingTools(vf);
 	}
 
@@ -158,6 +190,16 @@ public class RascalExecutionContext implements IRascalMonitor {
 	}
 	
 	boolean getDebug() { return debug; }
+	
+	IFrameObserver getFrameObserver(){
+		return frameObserver;
+	}
+	
+	void setFrameObserver(IFrameObserver observer){
+		frameObserver = observer;
+	}
+	
+	boolean getDebugRVM() { return debugRVM; }
 	
 	boolean getTestSuite() { return testsuite; }
 	
@@ -238,6 +280,14 @@ public class RascalExecutionContext implements IRascalMonitor {
 		
 		Function result = companionDefaultFunctionCache.get(key, k -> rvm.getCompanionDefaultsFunction(name, ftype));
 		//System.err.println("RascalExecutionContext.getCompanionDefaultsFunction: " + key + " => " + result.name);
+		return result;
+	}
+	
+	private Cache<String, Function> companionFieldDefaultFunctionCache = Caffeine.newBuilder().build();
+	
+	public Function getCompanionFieldDefaultFunction(Type adtType, String fieldName){
+		String key = adtType.toString() + fieldName;
+		Function result = companionFieldDefaultFunctionCache.get(key, k -> rvm.getCompanionFieldDefaultFunction(adtType, fieldName));
 		return result;
 	}
 	

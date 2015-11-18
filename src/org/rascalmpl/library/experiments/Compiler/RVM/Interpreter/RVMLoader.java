@@ -557,17 +557,6 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				codeblock = codeblock.LABEL(getStrField(instruction, "label"));
 				break;
 
-			case "CALLPRIM":
-				codeblock.CALLPRIM(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
-								   getIntField(instruction, "arity"), 
-								   getLocField(instruction, "src"));
-				break;
-
-			case "CALLMUPRIM":
-				codeblock.CALLMUPRIM(MuPrimitive.valueOf(getStrField(instruction, "name")), 
-									 getIntField(instruction, "arity"));
-				break;
-
 			case "CALL":
 				codeblock.CALL(getStrField(instruction, "fuid"), getIntField(instruction, "arity"),++continuationPoints);
 				break;
@@ -854,6 +843,43 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				
 			case "VALUESUBTYPE":
 				codeblock.VALUESUBTYPE(symbolToType((IConstructor) instruction.get("type")));
+				break;
+				
+			case "CALLMUPRIM0":
+				codeblock.CALLMUPRIM0(MuPrimitive.valueOf(getStrField(instruction, "name")));
+				break;
+				
+			case "CALLMUPRIM1":
+				codeblock.CALLMUPRIM1(MuPrimitive.valueOf(getStrField(instruction, "name")));
+				break;
+				
+			case "CALLMUPRIM2":
+				codeblock.CALLMUPRIM2(MuPrimitive.valueOf(getStrField(instruction, "name")));
+				break;
+				
+			case "CALLMUPRIMN":
+				codeblock.CALLMUPRIMN(MuPrimitive.valueOf(getStrField(instruction, "name")), 
+									 getIntField(instruction, "arity"));
+				break;
+			
+			case "CALLPRIM0":
+				codeblock.CALLPRIM0(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getLocField(instruction, "src"));
+				break;
+				
+			case "CALLPRIM1":
+				codeblock.CALLPRIM1(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getLocField(instruction, "src"));
+				break;
+			case "CALLPRIM2":
+				codeblock.CALLPRIM2(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getLocField(instruction, "src"));
+				break;
+				
+			case "CALLPRIMN":
+				codeblock.CALLPRIMN(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getIntField(instruction, "arity"), 
+								   getLocField(instruction, "src"));
 				break;
 				
 			default:
