@@ -44,11 +44,11 @@ public class FSTSerializableIValue extends FSTBasicObjectSerializer implements S
 	private transient static TypeReifier tr;
 	private transient static ByteArrayOutputStream byteStream;
 
-	private static BinaryValueWriter binaryWriter;
+	private transient static BinaryValueWriter binaryWriter;
 
-	private static BinaryValueReader binaryReader;
+	private transient static BinaryValueReader binaryReader;
 
-	private static Type valueType;
+	private transient static Type valueType;
 
 	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
 		vf = vfactory;
