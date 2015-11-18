@@ -1201,7 +1201,15 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitStringPartBlock(StringPart.Block x) { 
+    return null; 
+  }
+
   public T visitStringPartCharacters(StringPart.Characters x) { 
+    return null; 
+  }
+
+  public T visitStringPartComp(StringPart.Comp x) { 
     return null; 
   }
 
@@ -1209,7 +1217,19 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitStringPartExpr(StringPart.Expr x) { 
+    return null; 
+  }
+
   public T visitStringPartFor(StringPart.For x) { 
+    return null; 
+  }
+
+  public T visitStringPartFor2(StringPart.For2 x) { 
+    return null; 
+  }
+
+  public T visitStringPartForsep(StringPart.Forsep x) { 
     return null; 
   }
 
@@ -1221,7 +1241,15 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitStringPartIfThen2(StringPart.IfThen2 x) { 
+    return null; 
+  }
+
   public T visitStringPartIfThenElse(StringPart.IfThenElse x) { 
+    return null; 
+  }
+
+  public T visitStringPartIfThenElse2(StringPart.IfThenElse2 x) { 
     return null; 
   }
 
@@ -1229,7 +1257,19 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitStringPartSepcomp(StringPart.Sepcomp x) { 
+    return null; 
+  }
+
+  public T visitStringPartVar(StringPart.Var x) { 
+    return null; 
+  }
+
   public T visitStringPartWhile(StringPart.While x) { 
+    return null; 
+  }
+
+  public T visitStringPartWhile2(StringPart.While2 x) { 
     return null; 
   }
 

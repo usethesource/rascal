@@ -609,21 +609,41 @@ public interface IASTVisitor<T> {
 
   public T visitStringLiteralDefault(StringLiteral.Default x);
 
+  public T visitStringPartBlock(StringPart.Block x);
+
   public T visitStringPartCharacters(StringPart.Characters x);
+
+  public T visitStringPartComp(StringPart.Comp x);
 
   public T visitStringPartDoWhile(StringPart.DoWhile x);
 
+  public T visitStringPartExpr(StringPart.Expr x);
+
   public T visitStringPartFor(StringPart.For x);
+
+  public T visitStringPartFor2(StringPart.For2 x);
+
+  public T visitStringPartForsep(StringPart.Forsep x);
 
   public T visitStringPartHole(StringPart.Hole x);
 
   public T visitStringPartIfThen(StringPart.IfThen x);
 
+  public T visitStringPartIfThen2(StringPart.IfThen2 x);
+
   public T visitStringPartIfThenElse(StringPart.IfThenElse x);
+
+  public T visitStringPartIfThenElse2(StringPart.IfThenElse2 x);
 
   public T visitStringPartMargin(StringPart.Margin x);
 
+  public T visitStringPartSepcomp(StringPart.Sepcomp x);
+
+  public T visitStringPartVar(StringPart.Var x);
+
   public T visitStringPartWhile(StringPart.While x);
+
+  public T visitStringPartWhile2(StringPart.While2 x);
 
   public T visitStructuredTypeDefault(StructuredType.Default x);
 

@@ -28,8 +28,18 @@ import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.StringLiteral.Default;
 import org.rascalmpl.ast.StringPart;
+import org.rascalmpl.ast.StringPart.Block;
+import org.rascalmpl.ast.StringPart.Comp;
+import org.rascalmpl.ast.StringPart.Expr;
+import org.rascalmpl.ast.StringPart.For2;
+import org.rascalmpl.ast.StringPart.Forsep;
 import org.rascalmpl.ast.StringPart.Hole;
+import org.rascalmpl.ast.StringPart.IfThen2;
+import org.rascalmpl.ast.StringPart.IfThenElse2;
 import org.rascalmpl.ast.StringPart.Margin;
+import org.rascalmpl.ast.StringPart.Sepcomp;
+import org.rascalmpl.ast.StringPart.Var;
+import org.rascalmpl.ast.StringPart.While2;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
@@ -225,6 +235,7 @@ public class StringTemplateConverter {
 			return Arrays.asList(new Expression[] { s });
 		}
 		
+		
 		@Override
 		public List<Statement> visitStringPartMargin(Margin x) {
 			// a margin sets the new indentation level
@@ -237,6 +248,100 @@ public class StringTemplateConverter {
 		public List<Statement> visitStringPartHole(Hole x) {
 			Expression call = ASTBuilder.makeExp("CallOrTree", x.getLocation(), ASTBuilder.makeExp("QualifiedName", x.getLocation(), Names.toQualifiedName("format", x.getLocation())), single(x.getArg()), x.getKeywordArguments());
 			return single(new IndentingAppend(x.getLocation(), makeTarget(x.getLocation()), makeStatExpr(call), indentation));
+		}
+		
+		@Override
+		public List<Statement> visitStringPartVar(Var x) {
+			Expression call = ASTBuilder.makeExp("CallOrTree", x.getLocation(), ASTBuilder.makeExp("QualifiedName", x.getLocation(), Names.toQualifiedName("format", x.getLocation())), single(ASTBuilder.makeExp("QualifiedName", x.getLocation(), x.getVariable())), x.getKeywordArguments());
+			return single(new IndentingAppend(x.getLocation(), makeTarget(x.getLocation()), makeStatExpr(call), indentation));	
+		}
+		
+		@Override
+		public List<Statement> visitStringPartExpr(Expr x) {
+			Expression call = ASTBuilder.makeExp("CallOrTree", x.getLocation(), ASTBuilder.makeExp("QualifiedName", x.getLocation(), Names.toQualifiedName("format", x.getLocation())), single(x.getResult()), x.getKeywordArguments());
+			return single(new IndentingAppend(x.getLocation(), makeTarget(x.getLocation()), makeStatExpr(call), indentation));
+		}
+		
+		@Override
+		public List<Statement> visitStringPartBlock(Block x) {
+			return x.getStatements();
+		}
+		
+		@Override
+		public List<Statement> visitStringPartComp(Comp x) {
+			List<Statement> stats = new ArrayList<Statement>();
+			
+			Expression call = ASTBuilder.makeExp("CallOrTree", x.getLocation(), ASTBuilder.makeExp("QualifiedName", x.getLocation(), Names.toQualifiedName("format", x.getLocation())), single(x.getResult()), x.getKeywordArguments());
+			stats.add(makeStatExpr(call));
+			
+			return single(ASTBuilder.makeStat("For", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), x.getGenerators(), 
+					makeBlock(x.getLocation(), stats)));
+		}
+		
+		@Override
+		public List<Statement> visitStringPartFor2(For2 x) {
+			List<Statement> stats = new ArrayList<Statement>();
+			stats.addAll(body(x.getBody()));
+			return single(ASTBuilder.makeStat("For", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), x.getConditions(), 
+					makeBlock(x.getLocation(), stats)));
+		}
+		
+		@Override
+		public List<Statement> visitStringPartForsep(Forsep x) {
+			List<Statement> stats = new ArrayList<Statement>();
+			
+			stats.addAll(body(x.getBody()));
+			
+			// TODO: this one has to be conditional; only when a next element will be printed
+			// or undone.
+			stats.addAll(body(x.getSepBody()));
+			
+			return single(ASTBuilder.makeStat("For", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), x.getConditions(), 
+					makeBlock(x.getLocation(), stats)));
+		}
+		
+		@Override
+		public List<Statement> visitStringPartIfThen2(IfThen2 x) {
+			List<Statement> stats = new ArrayList<Statement>();
+			stats.addAll(body(x.getBody()));
+			return single(ASTBuilder.makeStat("IfThen", x.getLocation(), ASTBuilder.make("Label", "Empty", x.getLocation()), x.getConditions(), 
+					makeBlock(x.getLocation(), stats)));
+		}
+		
+		@Override
+		public List<Statement> visitStringPartIfThenElse2(IfThenElse2 x) {
+			List<Statement> stats = new ArrayList<>();
+			stats.addAll(body(x.getBody()));
+			
+			List<Statement> elseStats = new ArrayList<>();
+			stats.addAll(body(x.getElseBody()));
+
+			return single(ASTBuilder.makeStat("IfThenElse", x.getLocation(), ASTBuilder.make("Label","Empty",x.getLocation()), 
+					x.getConditions(), makeBlock(x.getLocation(), stats), makeBlock(x.getLocation(), elseStats)));
+		}
+		
+		@Override
+		public List<Statement> visitStringPartWhile2(While2 x) {
+			List<Statement> stats = new ArrayList<Statement>();
+			stats.addAll(body(x.getBody()));
+			
+			return single(ASTBuilder.makeStat("While", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), Collections.singletonList(x.getCondition()), 
+					makeBlock(x.getLocation(), stats)));
+		}
+		
+		@Override
+		public List<Statement> visitStringPartSepcomp(Sepcomp x) {
+			List<Statement> stats = new ArrayList<Statement>();
+			
+			Expression call = ASTBuilder.makeExp("CallOrTree", x.getLocation(), ASTBuilder.makeExp("QualifiedName", x.getLocation(), Names.toQualifiedName("format", x.getLocation())), single(x.getResult()), x.getKeywordArguments());
+			stats.add(makeStatExpr(call));
+			
+			// TODO: this has to become conditional
+			Expression sepcall = ASTBuilder.makeExp("CallOrTree", x.getLocation(), ASTBuilder.makeExp("QualifiedName", x.getLocation(), Names.toQualifiedName("format", x.getLocation())), single(x.getSep()), x.getKeywordArguments());
+			stats.add(makeStatExpr(sepcall));
+			
+			return single(ASTBuilder.makeStat("For", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), x.getGenerators(), 
+					makeBlock(x.getLocation(), stats)));
 		}
 		
 		@Override

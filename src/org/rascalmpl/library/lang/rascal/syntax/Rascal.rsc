@@ -547,6 +547,7 @@ layout NoLayout
 syntax StringPart
   = \var          : "~" NoLayout QualifiedName variable 
   | \expr         : "~(" Expression result KeywordArguments[Expression] keywordArguments ")"
+  | \block        : "~{" Statement+ statements "}"
   | \comp         : "~(" Expression result KeywordArguments[Expression] keywordArguments "|" {Expression ","}+ generators ")"
   | \sepcomp      : "~(" Expression result KeywordArguments[Expression] keywordArguments "," Expression sep "|" {Expression ","}+ generators ")"
   | \ifThen2      : "~if"    "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "~}"
