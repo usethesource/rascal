@@ -256,11 +256,6 @@ public class StringTemplateConverter {
 			return Arrays.asList(new Statement[] { s });
 		}
 		
-		private List<Expression> single(Expression s) {
-			return Arrays.asList(new Expression[] { s });
-		}
-		
-		
 		@Override
 		public List<Statement> visitStringPartMargin(Margin x) {
 			// a margin sets the new indentation level

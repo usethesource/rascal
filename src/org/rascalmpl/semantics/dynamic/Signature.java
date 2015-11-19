@@ -53,7 +53,7 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 					node, 
 					ASTBuilder.make("FunctionModifiers", "Modifierlist", src, Collections.emptyList()), 
 					ASTBuilder.make("Type", "Basic", src,
-							ASTBuilder.make("BasicType",  "Value", src)
+							ASTBuilder.make("BasicType",  "String", src)
 							), 
 					Names.toName("format", src), 
 					parameters);
