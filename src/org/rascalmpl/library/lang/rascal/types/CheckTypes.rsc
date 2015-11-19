@@ -8894,16 +8894,20 @@ public Module check(Module m, PathConfig pcfg) {
             [@docLinks = docLinks];
 }
 
-public default Module check(Tree t) {
+public default Module check(Tree t, PathConfig pcfg) {
 	if (t has top && Module m := t.top)
-		return check(m);
+		return check(m, pcfg);
 	else
 		throw "Cannot check arbitrary trees";
 }
 
+public default Module check(Tree t) {
+	return check(t, pathConfig());
+}
+
 public default start[Module] check(loc l) {
   m = parse(#start[Module], l);
-  m.top = check(m.top);
+  m.top = check(m.top, pathConfig());
   m@docLinks = m.top@docLinks;
   m@docStrings = m.top@docStrings;
   return m;
