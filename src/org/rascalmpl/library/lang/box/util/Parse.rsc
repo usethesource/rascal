@@ -47,7 +47,7 @@ Box getUserDefined(Tree q) {
            if ((AlignmentOptions) `( <{AlignmentOption ","}* at> )`:=alignments) {
              list[Tree] as = getA(at);
              Box b = annotateBox(A(getArgs(boxs)),getA(s));
-             b@format = ["<al>"|Tree t<-as,AlignmentOption al:=t];
+             b@\format = ["<al>"|Tree t<-as,AlignmentOption al:=t];
              return b;
              }
       case (BoxOperator) `R`: return R(getArgs(boxs));

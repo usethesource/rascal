@@ -30,14 +30,14 @@ node outline(Form f) {
  }
  
  void addCond(Expr c) {
-   cs += ["cond"()[@label=format(c)][@\loc=c@location]];
+   cs += ["cond"()[@label=\format(c)][@\loc=c@location]];
  }
  
  top-down visit (f) {
    case q:question(_, _, _): addQuestion(q);
    case q:computed(_, _, _, e): {
      addQuestion(q);
-     es += ["expr"()[@label=format(e)][@\loc=e@location]];
+     es += ["expr"()[@label=\format(e)][@\loc=e@location]];
    }
    case ifThen(c, _):  addCond(c); 
    case ifThenElse(c, _, _): addCond(c); 

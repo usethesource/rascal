@@ -23,6 +23,7 @@ import java.util.List;
 import org.rascalmpl.ast.DataTarget;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Indentation;
+import org.rascalmpl.ast.KeywordArguments_Expression;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.Statement;
@@ -40,7 +41,10 @@ import org.rascalmpl.ast.StringPart.Margin;
 import org.rascalmpl.ast.StringPart.Sepcomp;
 import org.rascalmpl.ast.StringPart.Var;
 import org.rascalmpl.ast.StringPart.While2;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.ArgumentMismatch;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.value.IConstructor;
@@ -53,6 +57,27 @@ import org.rascalmpl.values.uptr.TreeAdapter;
   
 public class StringTemplateConverter {
 	private static int labelCounter = 0;
+	
+	private static class CallFormat extends org.rascalmpl.semantics.dynamic.Expression.CallOrTree {
+		private final Expression arg;
+
+		public CallFormat(ISourceLocation src, Expression arg, KeywordArguments_Expression kwargs) {
+			super(src, null, ASTBuilder.makeExp("QualifiedName", src, Names.toQualifiedName("format", src)), Arrays.asList(arg), kwargs);
+			this.arg = arg;
+		}
+		
+		@Override
+		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
+			try {
+				return super.interpret(eval);
+			}
+			catch (MatchFailed | ArgumentMismatch e) {
+				// in case there is no matching format function, we simply yield using the builtin formatting guidelines
+				return ResultFactory.makeResult(TF.stringType(), VF.string(yield(arg.interpret(eval).getValue())), eval);
+			}
+		}
+		
+	}
 	
 	private static class ConstAppend extends org.rascalmpl.semantics.dynamic.Statement.Append {
 		protected final String str;
@@ -103,7 +128,7 @@ public class StringTemplateConverter {
 				result = this.getStatement().interpret(__eval);
 			}
 			
-			String content = toString(result.getValue());
+			String content = yield(result.getValue());
 			
 			target.appendString(indent);
 			
@@ -117,23 +142,23 @@ public class StringTemplateConverter {
 
 			return result;
 		}
-		
-		private String toString(IValue value) {
-			if (value.getType().isSubtypeOf(RascalValueFactory.Tree)) {
-				return TreeAdapter.yield((IConstructor) value);
-			}
-			else if (value.getType().isSubtypeOf(RascalValueFactory.Type)) {
-				return SymbolAdapter.toString((IConstructor) ((IConstructor) value).get("symbol"), false);
-			}
-			else if (value.getType().isString()) {
-				return (((IString) value).getValue());
-			} 
-			else {
-				return value.toString();
-			}
-		}
 	}
 
+	private static String yield(IValue value) {
+		if (value.getType().isSubtypeOf(RascalValueFactory.Tree)) {
+			return TreeAdapter.yield((IConstructor) value);
+		}
+		else if (value.getType().isSubtypeOf(RascalValueFactory.Type)) {
+			return SymbolAdapter.toString((IConstructor) ((IConstructor) value).get("symbol"), false);
+		}
+		else if (value.getType().isString()) {
+			return (((IString) value).getValue());
+		} 
+		else {
+			return value.toString();
+		}
+	}
+	
 	private static Statement surroundWithSingleIterForLoop(ISourceLocation loc, Name label, List<Statement> stats) {
 		Name dummy = ASTBuilder.make("Name","Lexical",loc, "_");
 		Expression var = ASTBuilder.make("Expression","QualifiedName",loc, ASTBuilder.make("QualifiedName", loc, Arrays.asList(dummy)));
@@ -246,19 +271,19 @@ public class StringTemplateConverter {
 		
 		@Override
 		public List<Statement> visitStringPartHole(Hole x) {
-			Expression call = ASTBuilder.makeExp("CallOrTree", x.getLocation(), ASTBuilder.makeExp("QualifiedName", x.getLocation(), Names.toQualifiedName("format", x.getLocation())), single(x.getArg()), x.getKeywordArguments());
+			Expression call = new CallFormat(x.getLocation(), x.getArg(), x.getKeywordArguments());
 			return single(new IndentingAppend(x.getLocation(), makeTarget(x.getLocation()), makeStatExpr(call), indentation));
 		}
 		
 		@Override
 		public List<Statement> visitStringPartVar(Var x) {
-			Expression call = ASTBuilder.makeExp("CallOrTree", x.getLocation(), ASTBuilder.makeExp("QualifiedName", x.getLocation(), Names.toQualifiedName("format", x.getLocation())), single(ASTBuilder.makeExp("QualifiedName", x.getLocation(), x.getVariable())), ASTBuilder.make("KeywordArguments_Expression", "None", x.getLocation()));
+			Expression call = new CallFormat(x.getLocation(), ASTBuilder.makeExp("QualifiedName", x.getLocation(), x.getVariable()), ASTBuilder.make("KeywordArguments_Expression", "None", x.getLocation()));
 			return single(new IndentingAppend(x.getLocation(), makeTarget(x.getLocation()), makeStatExpr(call), indentation));	
 		}
 		
 		@Override
 		public List<Statement> visitStringPartExpr(Expr x) {
-			Expression call = ASTBuilder.makeExp("CallOrTree", x.getLocation(), ASTBuilder.makeExp("QualifiedName", x.getLocation(), Names.toQualifiedName("format", x.getLocation())), single(x.getResult()), x.getKeywordArguments());
+			Expression call = new CallFormat(x.getLocation(), x.getResult(), x.getKeywordArguments());
 			return single(new IndentingAppend(x.getLocation(), makeTarget(x.getLocation()), makeStatExpr(call), indentation));
 		}
 		
@@ -271,7 +296,7 @@ public class StringTemplateConverter {
 		public List<Statement> visitStringPartComp(Comp x) {
 			List<Statement> stats = new ArrayList<Statement>();
 			
-			Expression call = ASTBuilder.makeExp("CallOrTree", x.getLocation(), ASTBuilder.makeExp("QualifiedName", x.getLocation(), Names.toQualifiedName("format", x.getLocation())), single(x.getResult()), x.getKeywordArguments());
+			Expression call = new CallFormat(x.getLocation(), x.getResult(), x.getKeywordArguments());
 			stats.add(makeStatExpr(call));
 			
 			return single(ASTBuilder.makeStat("For", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), x.getGenerators(), 
@@ -333,11 +358,11 @@ public class StringTemplateConverter {
 		public List<Statement> visitStringPartSepcomp(Sepcomp x) {
 			List<Statement> stats = new ArrayList<Statement>();
 			
-			Expression call = ASTBuilder.makeExp("CallOrTree", x.getLocation(), ASTBuilder.makeExp("QualifiedName", x.getLocation(), Names.toQualifiedName("format", x.getLocation())), single(x.getResult()), x.getKeywordArguments());
+			Expression call = new CallFormat(x.getLocation(), x.getResult(), x.getKeywordArguments());
 			stats.add(makeStatExpr(call));
 			
 			// TODO: this has to become conditional
-			Expression sepcall = ASTBuilder.makeExp("CallOrTree", x.getLocation(), ASTBuilder.makeExp("QualifiedName", x.getLocation(), Names.toQualifiedName("format", x.getLocation())), single(x.getSep()), x.getKeywordArguments());
+			Expression sepcall = new CallFormat(x.getLocation(), x.getSep(), x.getKeywordArguments());
 			stats.add(makeStatExpr(sepcall));
 			
 			return single(ASTBuilder.makeStat("For", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), x.getGenerators(), 

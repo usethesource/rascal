@@ -34,12 +34,12 @@ center("abc", 10, "x");
 
 public str center(str s, int n)
 {
-  return format(s, "center", n, " ");
+  return \format(s, "center", n, " ");
 }
 
 public str center(str s, int n, str pad)
 {
-  return format(s, "center", n, pad);
+  return \format(s, "center", n, pad);
 }
 
 @doc{
@@ -217,12 +217,12 @@ left("abc", 10, "x");
 }
 public str left(str s, int n)
 {
-  return format(s, "left", n, " ");
+  return \format(s, "left", n, " ");
 }
 
 public str left(str s, int n, str pad)
 {
-  return format(s, "left", n, pad);
+  return \format(s, "left", n, pad);
 }
 
 @doc{
@@ -331,12 +331,12 @@ right("abc", 10, "x");
 }
 public str right(str s, int n)
 {
-  return format(s, "right", n, " ");
+  return \format(s, "right", n, " ");
 }
 
 public str right(str s, int n, str pad)
 {
-  return format(s, "right", n, pad);
+  return \format(s, "right", n, pad);
 }
 
 
@@ -549,7 +549,7 @@ public java str wrap(str src, int wrapLength);
  * Used to implement:left, center and right above.
  */ 
 @javaClass{org.rascalmpl.library.Prelude}
-private java str format(str s, str dir, int n, str pad);
+private java str \format(str s, str dir, int n, str pad);
 
 @doc{
 Synopsis: Determine if a string matches the given (Java-syntax) regular expression.

@@ -22,7 +22,7 @@ public data VEGA =  vega(list[AXE] axes=[], list[SCALE] scales=[],
                          list[int] viewport = []);
 
 public data AXE =   axe(str scale = "", str \type= "", map[str, value]  properties = (), str title=""
-, bool grid = false, str format = "", str orient = "", int tickSize = 99999, 
+, bool grid = false, str \format = "", str orient = "", int tickSize = 99999, 
   int tickPadding = 99999, int ticks = 99999, list[value] values = [],
   int offset = 99999, int titleOffset = 99999);
 
@@ -48,7 +48,7 @@ public data SCALE = scale(str name = "", str \type = "", DOMAIN domain = ref(), 
              
 public data LEGEND = legend(str size = "", str shape = "", str fill = "",
                      str stroke = "", str orient = "", str title = "", 
-                     str format = "", list[str] values = [], 
+                     str \format = "", list[str] values = [], 
                      map[str, value] properties = ());
 
 JSON Object(map[str, JSON] m) {
@@ -75,7 +75,7 @@ JSON toJson(RANGE range) {
 JSON toJson(AXE axe) {
          return Object(("scale":toJson(axe.scale), "type":toJson(axe.\type),
          "properties": propToJson(axe.properties), "title":toJson(axe.title)
-         , "grid":toJson(axe.grid), "orient":toJson(axe.orient), "format":toJson(axe.format)
+         , "grid":toJson(axe.grid), "orient":toJson(axe.orient), "format":toJson(axe.\format)
          , "tickSize":toJson(axe.tickSize,99999), "tickPadding":toJson(axe.tickPadding,99999)
          , "ticks":toJson(axe.ticks, 99999), "values":toJson(axe.values)
          , "offset":toJson(axe.offset, 99999), "titleOffset":toJson(axe.titleOffset, 99999)
@@ -130,7 +130,7 @@ JSON toJson(LEGEND legend) {
             "stroke": toJson(legend.stroke), 
             "orient": toJson(legend.orient), 
             "title": toJson(legend.title), 
-            "format": toJson(legend.format), 
+            "format": toJson(legend.\format), 
             "values": toJson(legend.values), 
             "properties": propToJson(legend.properties)));       
         }
@@ -370,7 +370,7 @@ MARK dupMark(MARK template, str key, str val, bool line) {
            
 VEGA update(VEGA r, bool grid = false, 
     map[str, str] title =  (), map[str, str] legends = (),
-    map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = (),   
+    map[str, str] \format = (), map[str, int] ticks = (), map[str, list[str]] values = (),   
     map[str, TICKLABELS] tickLabels = (),
     map[str, str] interpolate = (),  map[str, str] shape = (), 
     list[str] palette = color12, list[str] groupOrder = [],
@@ -379,14 +379,14 @@ VEGA update(VEGA r, bool grid = false,
     {     
         AXE ax = getAxe(r, "x"); 
         if (title["x"]?) ax.title = title["x"];
-        if (format["x"]?) ax.format = format["x"];
+        if (\format["x"]?) ax.\format = \format["x"];
         if (values["x"]?) ax.values = values["x"];
         if (ticks["x"]?) ax.ticks = ticks["x"];
         ax.grid = grid;
         if (tickLabels["x"]?) ax.properties += _tickLabels("x", tickLabels["x"]);           
         AXE ay = getAxe(r, "y");
         if (title["y"]?) ay.title = title["y"];
-        if (format["y"]?) ay.format = format["y"];
+        if (\format["y"]?) ay.\format = \format["y"];
         if (values["y"]?) ay.values = values["y"];
         if (ticks["y"]?) ay.ticks = ticks["y"];
         ay.grid = grid;  

@@ -34,16 +34,16 @@ options  oDefault = ("h":1,"v":0, "i":2, "t":10);
 
 @doc{Print boxes}   
 public void fprint(Box b) {
-  print(format(b));
+  print(\format(b));
 }
 
 @doc{Print boxes followed by newline}
 public void fprintln(Box b) {
-  println(format(b));
+  println(\format(b));
 }
 
 @doc{Converts boxes into a string} 
-public str format(Box b) {
+public str \format(Box b) {
   box2textmap=();
   text t = box2text(b);
   return "<for (l <- t) {><l>\n<}>";
@@ -98,7 +98,7 @@ alias   foptions = map[str, list[str]];
 map[Box, text] box2textmap=();
 
 
-anno list[str] Box@format;
+anno list[str] Box@\format;
 
 
 text vv(text a, text b) {
@@ -381,7 +381,7 @@ text O(Box b, Box c, options opts, int m) {
      if ((b@vs)?) {opts["v"] = b@vs;}
      if ((b@is)?) {opts["i"] = b@is;}
      foptions f =();
-     if ((b@format)?) {f["f"] = b@format;}
+     if ((b@\format)?) {f["f"] = b@\format;}
      text t = QQ(b, c, opts, f, m);
      opts["h"]=h;
      opts["v"]=v;
@@ -427,12 +427,12 @@ text AA(list[Box] bl, Box c ,options opts, foptions f, int m) {
      list[Box] vargs = [];
      for (list[Box] bl2 <- r) {
          list[int]  mw = mw0;
-         list[str] format =format0;
+         list[str] \format =format0;
          list[Box] hargs = [];
          for (Box b<- bl2) {
                 int width = b@width;
-                str f_str = !isEmpty(format)?head(format):"l";
-                if (!isEmpty(format)) format = tail(format);
+                str f_str = !isEmpty(\format)?head(\format):"l";
+                if (!isEmpty(\format)) \format = tail(\format);
                 max_width = head(mw);
                 mw=tail(mw);
                 int h= opts["h"];
@@ -630,7 +630,7 @@ void tst() {
   Box  b2 = R([L("def"), L("hg")]);
   Box  b3 = R([L("ijkl"), L("m")]);
   Box b = A([b1, b2, b3]);
-  b@format=["c","c"];
+  b@\format=["c","c"];
   /*
   Box b = V([L("a"), V([L("b"), L("c")])@vs=0)@vs=1;
   fprintln(b);

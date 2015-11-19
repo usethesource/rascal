@@ -186,8 +186,8 @@ private list[str] files_with_tests =
 "demo::ReachingDefs",                                // OK
 "demo::Slicing",                                     // OK
 "demo::Uninit",                                      // OK
-"lang::rascal::format::Escape",                        // OK
-"lang::rascal::format::Grammar",                       // OK
+"lang::rascal::\format::Escape",                        // OK
+"lang::rascal::\format::Grammar",                       // OK
 "lang::rascal::grammar::Lookahead",                    // OK
 "lang::rascal::grammar::tests::ParserGeneratorTests",   // ok
 "lang::rascal::grammar::tests::PicoGrammar",            // ok

@@ -117,13 +117,13 @@ VEGA  _stackedBar = vega(
  public VEGA() stackedBar(bool grid = false, 
     map[str, str] title = (), map[str, str] legends = (), list[str] palette =[],
     map[str, TICKLABELS] tickLabels =  ()
-    , map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = ()
+    , map[str, str] \format = (), map[str, int] ticks = (), map[str, list[str]] values = ()
     , list[str] groupOrder = [], num gap = 99999
     ) {
     return VEGA() {
         return update(_stackedBar, grid = grid, title = title, legends = legends,
         tickLabels = tickLabels,  palette = palette
-        , format = format, ticks = ticks, values = values, groupOrder = groupOrder
+        , \format = \format, ticks = ticks, values = values, groupOrder = groupOrder
         , offset = gap
         );
         };
@@ -227,13 +227,13 @@ VEGA  _histogram = vega(
  public VEGA() histogram(bool grid = false, 
     map[str, str] title = (), map[str, str] legends = (), list[str] palette =[],
     map[str, TICKLABELS] tickLabels =  ()
-    , map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = ()
+    , map[str, str] \format = (), map[str, int] ticks = (), map[str, list[str]] values = ()
     , list[str] groupOrder = [], num gap = 99999
     ) {
     return VEGA() {
         return update(_histogram, grid = grid, title = title, legends = legends,
         tickLabels = tickLabels,  palette = palette
-        , format = format, ticks = ticks, values = values, groupOrder = groupOrder
+        , \format = \format, ticks = ticks, values = values, groupOrder = groupOrder
         , offset = gap
         );
         };
@@ -313,11 +313,11 @@ VEGA  _histogram = vega(
     map[str, str] title = (), map[str, str] legends = ()
     ,map[str, TICKLABELS] tickLabels = ()
     , list[str] palette = []
-    , map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = ()
+    , map[str, str] \format = (), map[str, int] ticks = (), map[str, list[str]] values = ()
     ) {
     return VEGA() {return update(_stackedArea, grid = grid, title = title, legends = legends,
         tickLabels = tickLabels,  palette = palette
-        , format = format, ticks = ticks, values = values
+        , \format = \format, ticks = ticks, values = values
         );};
     }
     
@@ -412,12 +412,12 @@ public VEGA() groupedBar(bool grid = false,
     map[str, str] title = (), map[str, str] legends = ()
     ,map[str, TICKLABELS] tickLabels = ()
     , list[str] palette = []
-    , map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = ()
+    , map[str, str] \format = (), map[str, int] ticks = (), map[str, list[str]] values = ()
     ) {
     return VEGA() {
         return update(_groupedBar, grid = grid, title = title, legends = legends
         ,tickLabels = tickLabels,  palette = palette
-        , format = format, ticks = ticks, values = values
+        , \format = \format, ticks = ticks, values = values
         );
         };
     }
@@ -485,14 +485,14 @@ VEGA  _linePlot =
     map[str, str] title = (), map[str, str] legends = ()
     ,list[str] palette = []
     ,map[str, TICKLABELS] tickLabels =  ()
-    ,map[str, str] format = (), map[str, int] ticks = (), map[str, list[str]] values = () 
+    ,map[str, str] \format = (), map[str, int] ticks = (), map[str, list[str]] values = () 
     ,map[str, str] interpolate = (),map[str, str] shape = () 
     ) {
     return VEGA() {
         return update(_linePlot, grid = grid, title = title
          ,legends = legends
          ,tickLabels = tickLabels,  palette = palette
-         ,format = format, ticks = ticks, values = values
+         ,\format = \format, ticks = ticks, values = values
          ,interpolate = interpolate, shape = shape
         );
         };

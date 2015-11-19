@@ -10,7 +10,7 @@ Box H(value xs..., int hs = 0) = h(xs, hs);
 Box V(value xs..., int vs = 1) = v(xs, vs);
 Box I(value xs..., int vs = 1, int is = 2) = i(xs, vs, is);
 
-str format(Box b) {
+str \format(Box b) {
   str out = "";
   void write(str x) {
     out += x;
