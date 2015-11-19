@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -69,6 +69,8 @@ public class StringTemplateConverter {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			try {
+				// TODO: this can turn into an infinite loop if the argument contains an interpolated string with the unchanged argument in it.
+				// need a fix for this.
 				return super.interpret(eval);
 			}
 			catch (MatchFailed | ArgumentMismatch e) {
@@ -76,7 +78,6 @@ public class StringTemplateConverter {
 				return ResultFactory.makeResult(TF.stringType(), VF.string(yield(arg.interpret(eval).getValue())), eval);
 			}
 		}
-		
 	}
 	
 	private static class ConstAppend extends org.rascalmpl.semantics.dynamic.Statement.Append {
@@ -119,6 +120,9 @@ public class StringTemplateConverter {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			Accumulator target = getTarget(__eval);
 			Result<IValue> result;
+			
+			// TODO: if the expression is equal to the first parameter of the surrounding format function, then we should not call format again
+			// to avoid infinite recursion. Don't know how to do that yet.
 			
 			if (__eval.getCurrentEnvt().getVariable(Names.toName("format", getLocation())) == null) {
 				// no format function in scope, reverting to the argument of the call
