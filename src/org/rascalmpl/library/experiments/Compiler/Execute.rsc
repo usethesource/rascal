@@ -94,10 +94,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
    set[Message] messages = mainModule.messages;
    
    if(any(msg <- messages, error(_,_) := msg)){
-        for(msg <- messages){
-            println(msg);
-        }
-        throw messages;
+       return errorRVMProgram(mainModule);        
    }
    
    if(<true, mergedImportsLoc> := getMergedImportsReadLoc(mainModule.name, pcfg)){
@@ -219,10 +216,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
    processImports(mainModule);
   
    if(any(msg <- messages, error(_,_) := msg)){
-        for(e: error(_,_) <- messages){
-            println(e);
-        }
-        throw "Cannot execute due to compilation errors";
+        return errorRVMProgram(messages);
    }
    
    rvmMergedImports =
@@ -262,10 +256,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
 value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false,
                                   bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
                                   bool coverage = false, bool useJVM = false, bool serialize=false, bool verbose = false){
-   //<existsExec, exec> = RVMExecutableWriteLoc(program.main_module.name, pcfg);
-   //if(!existsExec){
-   //    throw "Executable for <program.main_module.name> not found";
-   //}
+
    v = executeProgram(RVMExecutableCompressedWriteLoc(program.main_module.name, pcfg),
                            program,
                            keywordArguments,

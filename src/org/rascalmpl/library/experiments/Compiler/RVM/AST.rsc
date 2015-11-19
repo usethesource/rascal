@@ -79,6 +79,8 @@ public data RVMProgram =
                 )
          ;
 
+RVMProgram errorRVMProgram(RVMModule rvmModule) = rvmProgram(rvmModule, (), (), [], (), []);
+RVMProgram errorRVMProgram(set[Message] messages) = rvmProgram(errorRVMModule("XXX", messages, |unknown:///|), (), (), [], (), []);
 
 public data Instruction =
           LOADBOOL(bool bval)						// Push a (Java) boolean
