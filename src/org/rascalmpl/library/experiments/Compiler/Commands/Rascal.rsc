@@ -2,6 +2,7 @@ module experiments::Compiler::Commands::Rascal
 
 import String;
 import IO;
+import ValueIO;
 import ParseTree;
 import util::Reflective;
 import experiments::Compiler::Execute;
@@ -47,7 +48,7 @@ lexical NamePart
     = ([A-Za-z_][A-Za-z0-9_]*) !>> [A-Za-z0-9_];
     
 lexical Path 
-    = normal: (![ \t\n\"\'\\] | ("\\" ![])) * !>> ![ \t\n\"\'\\]
+    = normal: (![\ \t\"\\] | ("\\" ![])) * !>> ![\ \t\"\\]
     | quoted: [\"] InsideQuote [\"]
     ;
 lexical InsideQuote = ![\"]*;
@@ -55,6 +56,7 @@ lexical InsideQuote = ![\"]*;
 loc toLocation((Path)`"<InsideQuote inside>"`) = toLocation("<inside>");
 default loc toLocation(Path p) = toLocation("<p>");
 
+loc toLocation(/^<locPath:[|].*[|]>$/) = readTextValueString(#loc, locPath);
 loc toLocation(/^<fullPath:[\/].*>$/) = |file:///| + fullPath;
 default loc toLocation(str relativePath) = |cwd:///| + relativePath;
 
