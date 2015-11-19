@@ -77,6 +77,8 @@ public class CommandExecutor {
 
 	private IValue[] compileArgs;
 	
+	private boolean forceRecompilation = false;
+	
 	public CommandExecutor(PrintWriter stdout, PrintWriter stderr) {
 		this.stdout = stdout;
 		this.stderr = stderr; 
@@ -170,7 +172,7 @@ public class CommandExecutor {
 //		System.err.println("----------------------");
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
-			compileArgs[1] = vf.bool(onlyMainChanged);
+			compileArgs[1] = vf.bool(onlyMainChanged && !forceRecompilation);
 			IConstructor consoleRVMProgram = (IConstructor) rvmCompiler.executeFunction(compileAndLinkIncremental, compileArgs, makeCompileKwParams());
 			IConstructor main_module = (IConstructor) consoleRVMProgram.get("main_module");
 			ISet messages = (ISet) main_module.get("messages");
@@ -181,6 +183,7 @@ public class CommandExecutor {
 				rex.setCurrentModuleName(shellModuleName);
 				IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
 				lastRvmConsoleExecutable = rvmConsoleExecutable;
+				forceRecompilation = false;
 				return val;
 			} else {
 				for(IValue m : messages){
@@ -366,10 +369,12 @@ public class CommandExecutor {
 				result = executeModule("\nvalue main() = true;\n", false);
 				if(result == null){
 					imports.remove(impName);
+					forceRecompilation = true;
 				}
 				return result;
 			} catch (Exception e){
 				imports.remove(impName);
+				forceRecompilation = true;
 				return null;
 			}
 		}
@@ -379,10 +384,12 @@ public class CommandExecutor {
 				result = executeModule("\nvalue main() = true;\n", false);
 				if(result == null){
 					syntaxDefinitions.remove(src);
+					forceRecompilation = true;
 				}
 				return result;
 			} catch (Exception e){
 				syntaxDefinitions.remove(src);
+				forceRecompilation = true;
 				return null;
 			}
 		}
@@ -408,6 +415,7 @@ public class CommandExecutor {
 					return executeModule("\nvalue main() = " + name + ";\n", false);
 				} catch (Exception e){
 					this.variables.remove(name);
+					forceRecompilation = true;
 					return null;
 				}
 			} else {
@@ -421,6 +429,7 @@ public class CommandExecutor {
 			return executeModule("\nvalue main() = true;\n", false);
 		} catch (Exception e){
 			declarations.remove(src);
+			forceRecompilation = true;
 			return null;
 		}
 	}
