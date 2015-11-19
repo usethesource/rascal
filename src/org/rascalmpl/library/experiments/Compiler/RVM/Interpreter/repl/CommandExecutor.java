@@ -28,7 +28,9 @@ import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IMapWriter;
+import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
@@ -45,6 +47,7 @@ public class CommandExecutor {
 	private final IValueFactory vf;
 	private ISourceLocation compilerBinaryLocation;
 	private String consoleInputName = "ConsoleInput";
+	private String consoleInputPath = "/ConsoleInput.rsc";
 	private ISourceLocation consoleInputLocation;
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
@@ -169,14 +172,35 @@ public class CommandExecutor {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			compileArgs[1] = vf.bool(onlyMainChanged);
 			IConstructor consoleRVMProgram = (IConstructor) rvmCompiler.executeFunction(compileAndLinkIncremental, compileArgs, makeCompileKwParams());
-			rvmConsoleExecutable = ExecutionTools.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(useJVM));
-			
-			RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, null, debug ? debugObserver : null, null);
-			rex.setCurrentModuleName(shellModuleName);
-			IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
-			lastRvmConsoleExecutable = rvmConsoleExecutable;
-			return val;
-		} catch (Exception e){
+			IConstructor main_module = (IConstructor) consoleRVMProgram.get("main_module");
+			ISet messages = (ISet) main_module.get("messages");
+			if(messages.isEmpty()){
+				rvmConsoleExecutable = ExecutionTools.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(useJVM));
+
+				RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, null, debug ? debugObserver : null, null);
+				rex.setCurrentModuleName(shellModuleName);
+				IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
+				lastRvmConsoleExecutable = rvmConsoleExecutable;
+				return val;
+			} else {
+				for(IValue m : messages){
+					IConstructor msg = (IConstructor) m;
+					String txt = ((IString)msg.get("msg")).getValue();
+					ISourceLocation src = (ISourceLocation)msg.get("at");
+					String hint = " AT " + src.toString();
+					if(src.getPath().equals(consoleInputPath)){
+						int offset = src.getOffset();
+						hint = " IN " + modString.substring(offset, offset + src.getLength());
+					}
+					stderr.println(txt + hint);
+				}
+				return null;
+			}
+		} catch (Thrown e){
+			stderr.println(e.getMessage());
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
 			stderr.println(e.getMessage());
 			e.printStackTrace();
 			return null;
@@ -331,6 +355,7 @@ public class CommandExecutor {
 	}
 	
 	public IValue evalImport(String src, ITree imp) throws FactTypeUseException, IOException{
+		IValue result;
 		if(is(imp, "default")){
 			String impName = unparse(get(get(imp, "module"), "name"));
 			if(imports.contains(impName)){
@@ -338,7 +363,11 @@ public class CommandExecutor {
 			}
 			imports.add(impName);
 			try {
-				return executeModule("\nvalue main() = true;\n", false);
+				result = executeModule("\nvalue main() = true;\n", false);
+				if(result == null){
+					imports.remove(impName);
+				}
+				return result;
 			} catch (Exception e){
 				imports.remove(impName);
 				return null;
@@ -347,7 +376,11 @@ public class CommandExecutor {
 		if(is(imp, "syntax")){
 			syntaxDefinitions.add(src);
 			try {
-				return executeModule("\nvalue main() = true;\n", false);
+				result = executeModule("\nvalue main() = true;\n", false);
+				if(result == null){
+					syntaxDefinitions.remove(src);
+				}
+				return result;
 			} catch (Exception e){
 				syntaxDefinitions.remove(src);
 				return null;

@@ -6,13 +6,25 @@ import org.rascalmpl.interpreter.IEvaluatorContext;  // TODO: remove import? NOT
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 
+
 public class ExecuteProgram {
 
 	public ExecuteProgram(IValueFactory vf) {
+	}
+	
+	private boolean checkErrors(IConstructor rvmProgram) throws IOException{
+		IConstructor main_module = (IConstructor) rvmProgram.get("main_module");
+		ISet messages = (ISet) main_module.get("messages");
+		for(IValue m : messages){
+			if(((IConstructor) m).getName().equals("error"))
+				throw new IOException("Cannot execute program with errors: " + messages.toString());
+		}
+		return false;
 	}
 	
 	// Library function to execute a RVMProgram
@@ -33,6 +45,8 @@ public class ExecuteProgram {
 			IEvaluatorContext ctx
 			) throws IOException {
 
+		checkErrors(rvmProgram);
+		
 		RVMExecutable executable = ExecutionTools.load(rvmProgramLoc, rvmProgram, useJVM, serialize);
 
 		RascalExecutionContext rex = ExecutionTools.makeRex(executable, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, ctx.getEvaluator().getRascalResolver());
@@ -57,6 +71,8 @@ public class ExecuteProgram {
 			RascalExecutionContext rex
 			) throws IOException {
 
+		checkErrors(rvmProgram);
+		
 		RVMExecutable executable = ExecutionTools.load(rvmProgramLoc, rvmProgram, useJVM, serialize);
 
 		RascalExecutionContext rex2 = ExecutionTools.makeRex(executable, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, rex.getRascalSearchPath());
