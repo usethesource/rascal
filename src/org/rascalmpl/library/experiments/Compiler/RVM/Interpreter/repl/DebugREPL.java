@@ -1,22 +1,15 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Reader;
 import java.io.Writer;
-import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
-import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 import jline.Terminal;
 
@@ -27,11 +20,8 @@ public class DebugREPL extends BaseREPL{
 	private String currentPrompt;
 	private Frame currentFrame;
 	private final Frame startFrame;
-	private final String listingIndent = "\t";
-	private final boolean autoList = true;
 	private final int listWindow = 5;
-	
-	private boolean firstPrompt = true;
+
 	private final BreakPointManager breakPointManager;
 
 	public DebugREPL(Frame frame, BreakPointManager breakPointManager, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException{
@@ -40,6 +30,7 @@ public class DebugREPL extends BaseREPL{
 		this.startFrame = frame;
 		setPrompt();
 		this.breakPointManager = breakPointManager;
+		this.breakPointManager.setStdOut(this.stdout);
 	}
 	
 	@Override
@@ -60,20 +51,12 @@ public class DebugREPL extends BaseREPL{
 	@Override
 	protected void handleInput(String line) throws InterruptedException {
 		setPrompt();
-//		if(firstPrompt && autoList){
-//			printListing(listWindow);
-//		}
-//		firstPrompt = false;
 		
 		String[] words = line.split(" ");
 		switch(words[0]){
 		
 		case "h": case "help":
 			printHelp(); 
-			break;
-			
-		case "w":  case "where":
-			stdout.println(currentFrame.getWhere());
 			break;
 			
 		case "d": case "down":
@@ -100,10 +83,10 @@ public class DebugREPL extends BaseREPL{
 			break;
 			
 		case "l": case "listing":
-			printListing(listWindow);
+			breakPointManager.listingDirective(currentFrame, words);
 			break;
 			
-		case "s": case "stack":
+		case "w": case "where":
 			printStack();
 			break;
 			
@@ -111,17 +94,33 @@ public class DebugREPL extends BaseREPL{
 			currentFrame.printVars(stdout);
 			break;
 			
+		case "s": case "step":
+			breakPointManager.setStepMode(true);
+			stop();
+			throw new InterruptedException();
+			
 		case "n": case "next":
+			breakPointManager.setStepMode(false);
 			stop();
 			throw new InterruptedException();
 			
 		case "": 
-			printListing(listWindow);
+			//breakPointManager.printListing(currentFrame, listWindow);
 			break;
 			
 		case "b": case "break":
-			if(words.length == 1){
-				breakPointManager.printBreakPoints(stdout);
+			try {
+				breakPointManager.breakDirective(currentFrame, words);
+			} catch(NumberFormatException e){
+				stderr.println("break requires integer arguments");
+			}
+			break;
+			
+		case "cl": case "clear":
+			try {
+				breakPointManager.clearDirective(currentFrame, words);
+			} catch(NumberFormatException e){
+				stderr.println("clear requires integer arguments");
 			}
 			break;
 			
@@ -137,18 +136,19 @@ public class DebugREPL extends BaseREPL{
 			"u(p)      move up to newer call frame",
 			"d(own)    move down to older call frame",
 			"v(ars)    show values of local variables",
-			"w(here)   show current location",
+			"w(here)   print stack trace",
 			"n(ext)    execute until next break point",
-			"s(tack)   print stack trace",
+			"s(tep)    execute but stop at the first possible occasion",
 			"r(eturn)  execute until the current function’s return is encountered",
-			"l(isting) (or empty line) print lines around current breakpoint",
+			"l(isting) print lines around current breakpoint",
 			"b(reak)   manage break points:",
 			"          b         list current break points",
 			"          b <lino>  set breakpoint at line <lino> in current module",
 			"          b <name>  set breakpoint at start of function <name>",
 			"          b <name> <lino>",
 			"                    set breakpoint at line <lino> in function <name>",
-			"c(lear) <bpno>",
+			"c(ontinue) continue execution until a breakpoint is encountered",
+			"cl(ear) <bpno>",
 			"          clear breakpoint with index <bpno>"
 		};
 		for(String line : lines){
@@ -159,57 +159,6 @@ public class DebugREPL extends BaseREPL{
 	private void printStack(){
 		for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
 			stdout.println("\t" + f.toString());
-		}
-	}
-	
-	private void printListing(int delta){
-		ISourceLocation src = currentFrame.src;
-		int srcBegin = src.getBeginLine();
-		int srcEnd = src.getEndLine();
-		
-		int fileBegin = Math.max(1, srcBegin - delta);
-		int fileEnd = srcEnd + delta;
-		
-		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-		try {
-			ISourceLocation srcFile = vf.sourceLocation(src.getScheme(), "", src.getPath());
-			try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(srcFile)) {
-				try (BufferedReader buf = new BufferedReader(reader)) {
-					String line;
-					int lino = 1;
-					while ((line = buf.readLine()) != null) {
-						String prefix = String.format("%4d", lino) + listingIndent;
-						if(srcBegin == lino){
-							String before = line.substring(0, src.getBeginColumn());
-							if(srcBegin == srcEnd){
-								String middle = line.substring(src.getBeginColumn(), src.getEndColumn());
-								String after = line.substring(src.getEndColumn());
-								stdout.println(prefix + before + PRETTY_PROMPT_PREFIX + middle + PRETTY_PROMPT_POSTFIX + after);
-							} else {
-								String after = line.substring(src.getBeginColumn());
-								stdout.println(prefix + before + PRETTY_PROMPT_PREFIX + after + PRETTY_PROMPT_POSTFIX);
-							}
-						} else if(srcEnd == lino){
-							String before = line.substring(0, src.getEndColumn());
-							String after = line.substring(src.getEndColumn());
-							stdout.println(prefix + PRETTY_PROMPT_PREFIX + before + PRETTY_PROMPT_POSTFIX + after);
-						} else
-						if(lino >= fileBegin && lino <= fileEnd){
-							if(lino >= srcBegin && lino <= srcEnd){
-								stdout.println(prefix + PRETTY_PROMPT_PREFIX + line + PRETTY_PROMPT_POSTFIX);
-							} else {
-								stdout.println(prefix + line);
-							}
-						}
-						lino++;
-					}
-				}
-			}
-			catch(Exception e){
-				stderr.println("Cannot read source file");
-			}
-		} catch (URISyntaxException e){
-			stderr.println("Cannot create URI for source file");
 		}
 	}
 

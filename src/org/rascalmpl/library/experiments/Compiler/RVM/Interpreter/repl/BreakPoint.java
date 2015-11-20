@@ -27,7 +27,7 @@ public abstract class BreakPoint {
 		this.enabled = enabled;
 	}
 	
-	boolean containedIn(ISourceLocation a, ISourceLocation b	){
+	boolean containedIn(ISourceLocation a, ISourceLocation b){
 		if(a.getPath().equals(b.getPath())){
 			int aBeginLine = a.getBeginLine();
 			int aEndLine = a.getEndLine();
@@ -41,9 +41,20 @@ public abstract class BreakPoint {
 		}
 		return false;
 	}
+	boolean containedIn(String path, int lino, ISourceLocation b){
+		if(path.equals(b.getPath())){
+			if(b.getBeginLine() == lino){
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	
 	abstract void println(PrintWriter stdout);
 	abstract boolean matchOnObserve(Frame frame);
 	abstract boolean matchOnEnter(Frame frame);
 	abstract boolean matchOnLeave(Frame frame);
+	
+	abstract void reset();
 }

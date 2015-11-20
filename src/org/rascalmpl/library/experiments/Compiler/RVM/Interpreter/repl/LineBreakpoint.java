@@ -5,34 +5,36 @@ import java.io.PrintWriter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.value.ISourceLocation;
 
-public class SourceLocationBreakpoint extends BreakPoint {
-	private final ISourceLocation loc;
+public class LineBreakpoint extends BreakPoint {
+	private final String path;
+	private final int lino;
 	
-	SourceLocationBreakpoint(int id, ISourceLocation loc){
+	LineBreakpoint(int id, String path, int lino){
 		super(id);
-		this.loc = loc;
+		this.path = path;
+		this.lino = lino;
 	}
 	
 	@Override
-	void reset() { }
+	void reset () { }
 	
 	@Override
 	void println(PrintWriter stdout){
-		stdout.println(id + "\t" + isEnabled() + "\t" + loc);
+		stdout.println(id + "\t" + isEnabled() + "\t" + path + ":" + lino);
 	}
 	
 	@Override
 	public boolean matchOnObserve(Frame frame) {
-		return containedIn(loc, frame.src);
+		return containedIn(path, lino, frame.src);
 	}
 
 	@Override
 	public boolean matchOnEnter(Frame frame) {
-		return containedIn(loc, frame.src);
+		return containedIn(path, lino, frame.src);
 	}
 
 	@Override
 	public boolean matchOnLeave(Frame frame) {
-		return containedIn(loc, frame.src);
+		return containedIn(path, lino, frame.src);
 	}
 }

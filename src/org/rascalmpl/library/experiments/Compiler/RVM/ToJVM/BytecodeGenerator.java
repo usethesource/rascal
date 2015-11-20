@@ -36,18 +36,26 @@ import org.rascalmpl.value.io.StandardTextWriter;
 public class BytecodeGenerator implements Opcodes {
 
 	// Locations of the variables in a compiled RVM function.
+	
+	// Common local variables
 	public static final int THIS = 0;
 	public static final int CF = 1;				// Current frame
-	public static final int SP = 2;				// Stack pointer
-	public static final int STACK = 3;			// Stack
-	public static final int LBOOL = 4;
-	public static final int LVAL = 5;
-	public static final int LCOROUTINE = 6;
-	public static final int LPREVFRAME = 7;
+	public static final int SP = 2;				// RVM stack pointer: int sp
+	public static final int STACK = 3;			// RVM stack: Object stack[]
+	
+	// Local variables in coroutines
+	
+	public static final int LBOOL = 4;			// Boolean variable used in guard code
+	public static final int LVAL = 5;			// Local IValue
+	public static final int LCOROUTINE = 6;		// Local corotuine instance
+	public static final int LPREVFRAME = 7;		// 
 	public static final int EXCEPTION = 8;
+	
+	// Only needed when function needed constant store or type store
 	public static final int CS = 9;				// Constant store
 	public static final int TS = 10;			// Type constant store
-	public static final int TMPOBJECT = 11;
+	
+	public static final int TMPOBJECT = 11;		// Scratch location
 
 	byte[] endCode = null;
 	
@@ -58,15 +66,17 @@ public class BytecodeGenerator implements Opcodes {
 	private String packageName = null;
 	private String fullClassName = null;
 
-	private String[] funcArray = null;
-	private boolean emit = true;
+	private String[] funcArray = null;			// List of compiler-generated function names
+	private boolean emit = true;				// TODO: remove
 
+	// Administration per function
 	private HashMap<String, Label> labelMap = new HashMap<String, Label>();
-	private Set<String> catchTargetLabels = new HashSet<String>();
+	private Set<String> catchTargetLabels = new HashSet<String>();			
 	private Set<String> storeCreators = new HashSet<String>();
 	private Map<String, ExceptionLine> catchTargets = new HashMap<String, ExceptionLine>();
-	private Label[] hotEntryLabels = null;
-	private Label exitLabel = null;
+	private Label[] hotEntryLabels = null;		// entry labels for coroutines
+	private Label exitLabel = null;				// special case for labels without code
+												// TODO: peephole optimizer now removes them; can disappear?
 
 	ArrayList<Function> functionStore;
 	ArrayList<OverloadedFunction> overloadedStore;
@@ -174,6 +184,9 @@ public class BytecodeGenerator implements Opcodes {
 		return o;
 	}
 
+	/*
+	 * Generate the constructor method for the generated class
+	 */
 	public void emitConstructor(OverloadedFunction[] overloadedStore) {
 		if (!emit)
 			return;
@@ -191,7 +204,7 @@ public class BytecodeGenerator implements Opcodes {
 
 		// Serialize/Deserialize overloadedStore.
 		try {
-			mv.visitVarInsn(ALOAD, 0);
+			mv.visitVarInsn(ALOAD, THIS);
 			
 			emitStringValue(anySerialize(overloadedStore));		
 			
@@ -212,6 +225,9 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitEnd();
 	}
 
+	/*
+	 * Generate the complete class
+	 */
 	public void emitClass(String pName, String cName) {
 		if (!emit)
 			return;
@@ -225,6 +241,9 @@ public class BytecodeGenerator implements Opcodes {
 		cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, fullClassName, null, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", null);
 	}
 
+	/*
+	 * Generate constant and/or type stores when present (per function)
+	 */
 	public void emitStoreInitializer(Function f) {
 
 		// Create the statics to contain a functions constantStore and typeConstantStore (Why static?)
@@ -309,6 +328,9 @@ public class BytecodeGenerator implements Opcodes {
 		storeCreators.add("init_" + NameMangler.mangle(f.getName()));
 	}
 
+	/*
+	 * Generate a method for each Rascal function
+	 */
 	public void emitMethod(Function f, boolean debug) {
 
 		if (!emit)
@@ -324,6 +346,9 @@ public class BytecodeGenerator implements Opcodes {
 
 		emitExceptionTable(f.fromLabels, f.toLabels, f.fromSPsCorrected, f.types, f.handlerLabels);
 
+		/*
+		 * Fetch sp, stack from current frame and assign to local variable
+		 */
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
 		mv.visitVarInsn(ISTORE, SP);
@@ -331,14 +356,19 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "stack", "[Ljava/lang/Object;");
 		mv.visitVarInsn(ASTORE, STACK);
 
+		/*
+		 * Fetch constant store from current frame and (when present) assign to local variable
+		 */
 		if (f.constantStore.length != 0) {
 			mv.visitVarInsn(ALOAD, CF);
 			mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "function",
 					"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;");
 			mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "constantStore", "[Lorg/rascalmpl/value/IValue;");
 			mv.visitVarInsn(ASTORE, CS);
-
 		}
+		/*
+		 * Fetch type store from current frame and (when present) assign to local variable
+		 */
 
 		if (f.typeConstantStore.length != 0) {
 			mv.visitVarInsn(ALOAD, CF);
@@ -347,8 +377,10 @@ public class BytecodeGenerator implements Opcodes {
 			mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function", "typeConstantStore", "[Lorg/rascalmpl/value/type/Type;");
 			mv.visitVarInsn(ASTORE, TS);
 		}
-		// end experiment
 
+		/*
+		 * Handle coroutine
+		 */
 		if (f.continuationPoints != 0) {
 			hotEntryLabels = new Label[f.continuationPoints + 1]; // Add entry 0
 			exitLabel = new Label();
@@ -376,29 +408,29 @@ public class BytecodeGenerator implements Opcodes {
 		}
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
-
-		//emitStoreInitializer(f);
-
 	}
 
-	public void closeMethod() {
-		if (!emit)
-			return;
-
-		// This label should never be reached, it is
-		// placed to
-		// keep JVM verifier happy. (Reason: code generated
-		// by the compiler jumps sometimes to a non existing
-		// location)
-		if (exitLabel != null) {
-			mv.visitLabel(exitLabel);
-			mv.visitVarInsn(ALOAD, THIS);
-			mv.visitFieldInsn(GETFIELD, fullClassName, "PANIC", "Lorg/rascalmpl/value/IString;");
-			mv.visitInsn(ARETURN);
-		}
-		mv.visitMaxs(0, 0);
-		mv.visitEnd();
-	}
+//	/*
+//	 * End of method generation for a single Rascal function
+//	 */
+//	public void closeMethod() {
+//		if (!emit)
+//			return;
+//
+//		// This label should never be reached, it is
+//		// placed to
+//		// keep JVM verifier happy. (Reason: code generated
+//		// by the compiler jumps sometimes to a non existing
+//		// location)
+//		if (exitLabel != null) {
+//			mv.visitLabel(exitLabel);
+//			mv.visitVarInsn(ALOAD, THIS);
+//			mv.visitFieldInsn(GETFIELD, fullClassName, "PANIC", "Lorg/rascalmpl/value/IString;");
+//			mv.visitInsn(ARETURN);
+//		}
+//		mv.visitMaxs(0, 0);
+//		mv.visitEnd();
+//	}
 
 	public void emitJMP(String targetLabel) {
 		if (!emit)
@@ -913,7 +945,7 @@ public class BytecodeGenerator implements Opcodes {
 
 		mv.visitIincInsn(SP, -1);			// sp -= 1
 		mv.visitVarInsn(ALOAD, STACK);		// stack
-		mv.visitVarInsn(ILOAD, SP);			//sp
+		mv.visitVarInsn(ILOAD, SP);			// sp
 		
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive;");
@@ -938,7 +970,7 @@ public class BytecodeGenerator implements Opcodes {
 
 		mv.visitIincInsn(SP, -2);			// sp -= 2
 		mv.visitVarInsn(ALOAD, STACK);		// stack
-		mv.visitVarInsn(ILOAD, SP);			//sp
+		mv.visitVarInsn(ILOAD, SP);			// sp
 		
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive;");

@@ -180,8 +180,8 @@ public abstract class BaseREPL {
     protected abstract void stackTraceRequested();
 
     private String previousPrompt = "";
-    protected static final String PRETTY_PROMPT_PREFIX = Ansi.ansi().reset().bold().toString();
-    protected static final String PRETTY_PROMPT_POSTFIX = Ansi.ansi().boldOff().reset().toString();
+    public static final String PRETTY_PROMPT_PREFIX = Ansi.ansi().reset().bold().toString();
+    public static final String PRETTY_PROMPT_POSTFIX = Ansi.ansi().boldOff().reset().toString();
 
     protected void updatePrompt() {
         String newPrompt = getPrompt();
