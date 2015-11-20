@@ -295,7 +295,7 @@ value execute(str qualifiedModuleName, PathConfig pcfg, map[str,value] keywordAr
          }  
          return v;
       }
-      throw "Executable not found, compile first or used recompile=true";
+      throw "Executable not found, compile first or use recompile=true";
    }
    startTime = cpuTime();
    mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose);
