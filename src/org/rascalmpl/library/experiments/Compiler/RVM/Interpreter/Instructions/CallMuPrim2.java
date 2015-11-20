@@ -14,7 +14,7 @@ public class CallMuPrim2 extends Instruction {
 	}
 
 	public String toString() {
-		return "CALLMUPRIM " + muprim;
+		return "CALLMUPRIM2 " + muprim;
 	}
 
 	public void generate() {
