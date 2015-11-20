@@ -58,9 +58,9 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 
 
-public class RVM implements java.io.Serializable {
+public class RVM /*implements java.io.Serializable*/ {
 
-	private static final long serialVersionUID = 2178453095307370332L;
+	//private static final long serialVersionUID = 2178453095307370332L;
 	
 	public final IValueFactory vf;
 
