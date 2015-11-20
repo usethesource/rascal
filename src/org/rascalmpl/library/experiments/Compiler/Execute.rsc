@@ -275,7 +275,7 @@ value execute(RVMModule mainModule, PathConfig pcfg, map[str,value] keywordArgum
                                     bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
                                     bool coverage = false, bool useJVM = false, bool serialize=false, bool verbose = false){
    start_linking = cpuTime();   
-   merged = mergeImports(mainModule, pcfg, verbose=verbose, useJVM=useJVM);
+   merged = mergeImports(mainModule, pcfg, verbose=verbose, serialize=serialize, useJVM=useJVM);
    link_time = cpuTime() - start_linking;
    println("linking: <link_time/1000000> msec");
    return execute(merged, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=testsuite,recompile=recompile,profile=profile,trackCalls=trackCalls,coverage=coverage,useJVM=useJVM,serialize=serialize,verbose=verbose);             

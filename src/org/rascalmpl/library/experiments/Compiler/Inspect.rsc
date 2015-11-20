@@ -104,7 +104,7 @@ void inspect(str qualifiedModuleName,   // nameof Rascal source module
     RVMModule p;
     listing = listing || line >= 0;
     try {
-    	if(qualifiedModuleName == "experiments/Compiler/muRascal2RVM/Library"){
+    	if(qualifiedModuleName == "experiments/Compiler/muRascal2RVM/MuLibrary"){
     		decls = readBinaryValueFile(#list[Declaration], rvmLoc);
     		p = rvmModule("Library",        // name
     		  (),                           // module_tags
