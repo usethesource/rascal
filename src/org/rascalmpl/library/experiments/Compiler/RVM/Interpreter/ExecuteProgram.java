@@ -13,8 +13,11 @@ import org.rascalmpl.value.IValueFactory;
 
 
 public class ExecuteProgram {
+	IValueFactory vf;
+	
 
 	public ExecuteProgram(IValueFactory vf) {
+		this.vf =vf;
 	}
 	
 	private boolean checkErrors(IConstructor rvmProgram) throws IOException{
@@ -25,6 +28,19 @@ public class ExecuteProgram {
 				throw new IOException("Cannot execute program with errors: " + messages.toString());
 		}
 		return false;
+	}
+	
+	// Library function to serialize a RVMProgram
+
+	public void serializeProgram(
+			ISourceLocation rvmProgramLoc,
+			IConstructor rvmProgram,
+			IBool useJVM
+			) throws IOException {
+
+		checkErrors(rvmProgram);
+
+		ExecutionTools.load(rvmProgramLoc, rvmProgram, useJVM, vf.bool(true));
 	}
 	
 	// Library function to execute a RVMProgram

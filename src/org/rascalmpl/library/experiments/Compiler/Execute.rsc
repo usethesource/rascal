@@ -238,6 +238,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
    //if(serialize){ 
       mergedImportsLoc = getMergedImportsWriteLoc(mainModule.name, pcfg);       
       writeBinaryValueFile(mergedImportsLoc, rvmMergedImports);
+      
    //}
    
    pos_delta = size(imported_overloaded_functions);
@@ -307,11 +308,15 @@ value execute(str qualifiedModuleName, PathConfig pcfg, map[str,value] keywordAr
 RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool useJVM=false, bool serialize=false, bool verbose = false){
    startTime = cpuTime();
    mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose);
-   //println("Compiling: <(cpuTime() - startTime)/1000000> ms");
+   println("Compiling: <(cpuTime() - startTime)/1000000> ms");
    start_linking = cpuTime();   
    merged = mergeImports(mainModule, pcfg, verbose=verbose, useJVM=useJVM, serialize=serialize);
    link_time = cpuTime() - start_linking;
    println("linking: <link_time/1000000> msec");
+   if(serialize){
+      mergedLoc = getDerivedWriteLoc(mainModule.name, "rvm.ser.gz", pcfg);       
+      serializeProgram(mergedLoc, merged, useJVM);
+   }
    return merged;
 }
 

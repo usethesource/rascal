@@ -3,6 +3,12 @@ module experiments::Compiler::RVM::ExecuteProgram
 import experiments::Compiler::RVM::AST;
 
 import Type;
+
+@javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram}
+public java value serializeProgram(
+                    loc rvmProgramLoc,
+                    RVMProgram rvmProgram,
+                    bool useJVM);
                                             
 @javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram}
 @reflect{Uses execution context}

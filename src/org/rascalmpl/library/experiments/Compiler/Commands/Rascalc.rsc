@@ -90,6 +90,7 @@ int rascalc(str commandLine) {
                 if(nolinking){
                    compile(moduleName, pcfg, verbose = verbose);
                 } else {
+                   println("compiling and linking: <moduleName>");
                    compileAndLink(moduleName, pcfg, useJVM = useJVM, serialize=true, verbose = verbose);
                 }
             }
