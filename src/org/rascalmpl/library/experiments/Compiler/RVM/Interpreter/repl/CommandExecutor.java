@@ -47,7 +47,7 @@ public class CommandExecutor {
 	private final IValueFactory vf;
 	private ISourceLocation compilerBinaryLocation;
 	private String consoleInputName = "ConsoleInput";
-	private String consoleInputPath = "/ConsoleInput.rsc";
+	static String consoleInputPath = "/ConsoleInput.rsc";
 	private ISourceLocation consoleInputLocation;
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
@@ -137,6 +137,8 @@ public class CommandExecutor {
 		imports = new ArrayList<String>();
 		syntaxDefinitions = new ArrayList<String>();
 		declarations = new ArrayList<String>();
+		stderr.println("Type ':help' for information or ':quit' to leave");
+	
 	}
 	
 	public void setDebugObserver(DebugREPLFrameObserver observer){
@@ -178,7 +180,8 @@ public class CommandExecutor {
 			ISet messages = (ISet) main_module.get("messages");
 			if(messages.isEmpty()){
 				rvmConsoleExecutable = ExecutionTools.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(useJVM));
-
+			
+				debugObserver.reset();
 				RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, null, debug ? debugObserver : null, null);
 				rex.setCurrentModuleName(shellModuleName);
 				IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
@@ -193,9 +196,10 @@ public class CommandExecutor {
 					String hint = " AT " + src.toString();
 					if(src.getPath().equals(consoleInputPath)){
 						int offset = src.getOffset();
-						hint = " IN " + modString.substring(offset, offset + src.getLength());
+						String subarea = modString.substring(offset, offset + src.getLength());
+						hint = subarea.matches("[a-zA-Z0-9]+") ? "" : " IN '" + subarea + "'";
 					}
-					stderr.println(txt + hint);
+					stderr.println("[error] " + txt + hint);
 				}
 				return null;
 			}
@@ -398,7 +402,7 @@ public class CommandExecutor {
 	}
 	
 	public IValue evalDeclaration(String src, ITree cmd) throws FactTypeUseException, IOException{
-		
+		IValue result;
 		if(is(cmd, "variable")){
 			ITree type = get(cmd, "type");
 			ITree variables = get(cmd, "variables");
@@ -412,7 +416,12 @@ public class CommandExecutor {
 				String initial = unparse(get(var, "initial"));
 				declareVar(unparse(type), name, initial);
 				try {
-					return executeModule("\nvalue main() = " + name + ";\n", false);
+					result = executeModule("\nvalue main() = " + name + ";\n", false);
+					if(result == null){
+						this.variables.remove(name);
+						forceRecompilation = true;
+					}
+					return result;
 				} catch (Exception e){
 					this.variables.remove(name);
 					forceRecompilation = true;
@@ -426,7 +435,12 @@ public class CommandExecutor {
 		declarations.add(src);
 	
 		try {
-			return executeModule("\nvalue main() = true;\n", false);
+			result =  executeModule("\nvalue main() = true;\n", false);
+			if(result == null){
+				declarations.remove(src);
+				forceRecompilation = true;
+			}
+			return result;
 		} catch (Exception e){
 			declarations.remove(src);
 			forceRecompilation = true;
@@ -488,6 +502,7 @@ public class CommandExecutor {
 			}
 	
 		case "help":
+			//TODO Add here for example credits, copyright, license
 			String[] helpText = {
 					"Help for the compiler-based Rascal command shell.",
 					"",
@@ -501,7 +516,7 @@ public class CommandExecutor {
 					//":unimport <modulename>     Undo an import",
 					//":undeclare <name>          Undeclares a variable or function introduced in the shell",
 					//":history                   Print the command history",
-					"    :clear                   Clears the console",
+					"    :clear                   Clears all imports and declarations",
 					"    :set <option> <expr>     Sets a RascalShell option to value",
 					"    e.g. :set profile true",
 					"         :set trace false",

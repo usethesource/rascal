@@ -25,17 +25,46 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 		this.stdout = stdout;
 		this.historyFile = file;
 		this.terminal = terminal;
-		this.breakPointManager = new BreakPointManager();
+		this.breakPointManager = new BreakPointManager(new PrintWriter(stdout));
+	}
+	
+	void reset(){
+		if(breakPointManager != null){
+			breakPointManager.reset();
+		}
 	}
 	
 	@Override
 	public void observe(Frame frame) {
 		try {
-			new DebugREPL(frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
+			if(breakPointManager.matchOnObserve(frame)){
+				new DebugREPL(frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
+			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+	
+//	@Override
+//	public void enter(Frame frame) {
+//		try {
+//			if(breakPointManager.matchOnObserve(frame)){
+//				new DebugREPL(frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
+//			}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
+//	
+//	@Override
+//	public void leave(Frame frame, Object rval) {
+//		try {
+//			if(breakPointManager.matchOnObserve(frame)){
+//				new DebugREPL(frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
+//			}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
 	
 }
