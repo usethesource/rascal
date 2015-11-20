@@ -19,7 +19,7 @@ public class RVMJVM extends RVM {
 	/*
 	 * 
 	 */
-	private static final long serialVersionUID = -3447489546163673435L;
+	//private static final long serialVersionUID = -3447489546163673435L;
 
 	/**
 	 * @param rvmExec
