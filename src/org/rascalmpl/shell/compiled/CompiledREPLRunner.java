@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
+import org.rascalmpl.library.experiments.Compiler.Commands.PathConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.DebugREPLFrameObserver;
@@ -17,9 +18,9 @@ public class CompiledREPLRunner extends CompiledRascalREPL  implements ShellRunn
 	
 	private final DebugREPLFrameObserver debugObserver;
 	
-	public CompiledREPLRunner(InputStream stdin, OutputStream stdout) throws IOException {
-		super(stdin, stdout, true, true, getHistoryFile(), TerminalFactory.get());
-		debugObserver = new DebugREPLFrameObserver(reader.getInput(), stdout, true, true, getHistoryFile(), TerminalFactory.get());
+	public CompiledREPLRunner(InputStream stdin, OutputStream stdout, PathConfig pcfg) throws IOException {
+		super(stdin, stdout, true, true, getHistoryFile(), TerminalFactory.get(), pcfg);
+		debugObserver = new DebugREPLFrameObserver(reader.getInput(), stdout, true, true, getHistoryFile(), TerminalFactory.get(), new PathConfig());
 		executor.setDebugObserver(debugObserver);
 		setMeasureCommandTime(true);
 	}

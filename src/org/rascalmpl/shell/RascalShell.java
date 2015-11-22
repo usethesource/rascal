@@ -76,7 +76,7 @@ public class RascalShell  {
                     };
                 }
                 else if (args[0].equals("--compiledREPL")) {
-                    runner = new CompiledREPLRunner(System.in, System.out);
+                    runner = new CompiledREPLRunner(System.in, System.out, null);
                     
                 }
                 else {

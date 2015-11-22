@@ -7,6 +7,7 @@ import java.util.Enumeration;
 import java.util.jar.Manifest;
 
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.library.experiments.Compiler.Commands.PathConfig;
 import org.rascalmpl.shell.ManifestRunner;
 import org.rascalmpl.shell.ModuleRunner;
 import org.rascalmpl.shell.ShellRunner;
@@ -37,7 +38,6 @@ public class CompiledRascalShell  {
   public static void main(String[] args) throws IOException {
     printVersionNumber();
     RascalManifest mf = new RascalManifest();
-    System.err.println("CompiledRascalShell");
     try {
       ShellRunner runner; 
       if (mf.hasManifest(CompiledRascalShell.class) && mf.hasMainModule(CompiledRascalShell.class)) {
@@ -47,7 +47,7 @@ public class CompiledRascalShell  {
         runner = new ModuleRunner(new PrintWriter(System.out), new PrintWriter(System.err));
       } 
       else {
-        runner = new CompiledREPLRunner(System.in, System.out);
+        runner = new CompiledREPLRunner(System.in, System.out, new PathConfig());
       }
       runner.run(args);
 
