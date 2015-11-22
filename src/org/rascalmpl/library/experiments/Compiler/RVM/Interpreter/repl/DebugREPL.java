@@ -13,6 +13,20 @@ import org.rascalmpl.repl.CompletionResult;
 
 import jline.Terminal;
 
+/*
+ * Shopping list of ideas for the Rascal debugger.
+ * 
+ * - The result of ech command is now printed as 'type : value'; making the type optional (config option)
+ * - Save the result of the previous command in a fixed variable like 'it' that can be used in the next command.
+ * - User-addition to blacklisted files in which we never break.
+ * - break in exceptions
+ * - conditional breakpoints.
+ * - give stack frames an id and allow up/down to a specific frame
+ * - print more info per frame.
+ * - resolve clean/clear
+ * 
+ */
+
 public class DebugREPL extends BaseREPL{
 
 	private PrintWriter stdout;
@@ -20,7 +34,7 @@ public class DebugREPL extends BaseREPL{
 	private String currentPrompt;
 	private Frame currentFrame;
 	private final Frame startFrame;
-	private final int listWindow = 5;
+	private String previousCommand;
 
 	private final BreakPointManager breakPointManager;
 
@@ -31,6 +45,7 @@ public class DebugREPL extends BaseREPL{
 		setPrompt();
 		this.breakPointManager = breakPointManager;
 		this.breakPointManager.setStdOut(this.stdout);
+		previousCommand = null;
 	}
 	
 	@Override
@@ -100,12 +115,14 @@ public class DebugREPL extends BaseREPL{
 			throw new InterruptedException();
 			
 		case "n": case "next":
-			breakPointManager.setStepMode(false);
+			breakPointManager.setNextMode(currentFrame);
 			stop();
 			throw new InterruptedException();
 			
 		case "": 
-			//breakPointManager.printListing(currentFrame, listWindow);
+			if(previousCommand != null){
+				handleInput(previousCommand);
+			}
 			break;
 			
 		case "b": case "break":
@@ -118,15 +135,27 @@ public class DebugREPL extends BaseREPL{
 			
 		case "cl": case "clear":
 			try {
-				breakPointManager.clearDirective(currentFrame, words);
+				breakPointManager.clearDirective(words);
 			} catch(NumberFormatException e){
 				stderr.println("clear requires integer arguments");
 			}
 			break;
 			
+		case "r": case "return":
+			breakPointManager.returnDirective(currentFrame, words);
+			stop();
+			throw new InterruptedException();
+			
+		case "c": case "cont": case "continue":
+			stop();
+			throw new InterruptedException();
+			
 		default:
 			stderr.println("'" + line + "' not recognized");
-			break;
+			return;
+		}
+		if(!line.isEmpty()){
+			previousCommand = line;
 		}
 	}
 	
@@ -149,7 +178,8 @@ public class DebugREPL extends BaseREPL{
 			"                    set breakpoint at line <lino> in function <name>",
 			"c(ontinue) continue execution until a breakpoint is encountered",
 			"cl(ear) <bpno>",
-			"          clear breakpoint with index <bpno>"
+			"          clear breakpoint with index <bpno>",
+			"          (empty line) repeat previous command"
 		};
 		for(String line : lines){
 			stdout.println(line);

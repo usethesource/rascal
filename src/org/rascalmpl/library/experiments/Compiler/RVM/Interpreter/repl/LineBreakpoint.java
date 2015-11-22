@@ -3,7 +3,6 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl;
 import java.io.PrintWriter;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
-import org.rascalmpl.value.ISourceLocation;
 
 public class LineBreakpoint extends BreakPoint {
 	private final String path;
@@ -20,21 +19,21 @@ public class LineBreakpoint extends BreakPoint {
 	
 	@Override
 	void println(PrintWriter stdout){
-		stdout.println(id + "\t" + isEnabled() + "\t" + path + ":" + lino);
+		stdout.println(id + "\t" + isEnabled() + "\tLine\t" + path + ":" + lino);
 	}
 	
 	@Override
 	public boolean matchOnObserve(Frame frame) {
-		return containedIn(path, lino, frame.src);
+		return shouldBreakAt(path, lino, frame.src);
 	}
 
 	@Override
 	public boolean matchOnEnter(Frame frame) {
-		return containedIn(path, lino, frame.src);
+		return shouldBreakAt(path, lino, frame.src);
 	}
 
 	@Override
 	public boolean matchOnLeave(Frame frame) {
-		return containedIn(path, lino, frame.src);
+		return shouldBreakAt(path, lino, frame.src);
 	}
 }
