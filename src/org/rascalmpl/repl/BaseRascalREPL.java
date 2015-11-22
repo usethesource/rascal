@@ -166,14 +166,18 @@ public abstract class BaseRascalREPL extends BaseREPL {
      * @return strings that can be set
      */
     protected abstract SortedSet<String> getCommandLineOptions();
-    protected abstract Collection<String> completePartialIdentifier(String qualifier, String identifier);
+    protected abstract Collection<String> completePartialIdentifier(String line, int cursor, String qualifier, String identifier);
     protected abstract Collection<String> completeModule(String qualifier, String partialModuleName);
+    
+    protected boolean isREPLCommand(String line){
+    	return line.startsWith(":");
+    }
 
     @Override
     protected CompletionResult completeFragment(String line, int cursor) {
         if (currentState == State.FRESH) {
             String trimmedLine = line.trim();
-            if (trimmedLine.startsWith(":")) {
+            if (isREPLCommand(trimmedLine)) {
                 return completeREPLCommand(line, cursor);
             }
             if (trimmedLine.startsWith("import ") || trimmedLine.startsWith("extend ")) {
@@ -187,13 +191,13 @@ public abstract class BaseRascalREPL extends BaseREPL {
         return completeIdentifier(line, cursor);
     }
 
-    private CompletionResult completeIdentifier(String line, int cursor) {
+    protected CompletionResult completeIdentifier(String line, int cursor) {
         OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(line, cursor);
         if (identifier != null) {
             String[] qualified = StringUtils.splitQualifiedName(unescapeKeywords(identifier.term));
             String qualifier = qualified.length == 2 ? qualified[0] : "";
             String qualifee = qualified.length == 2 ? qualified[1] : qualified[0];
-            Collection<String> suggestions = completePartialIdentifier(qualifier, qualifee);
+            Collection<String> suggestions = completePartialIdentifier(line, cursor, qualifier, qualifee);
             if (suggestions != null && ! suggestions.isEmpty()) {
                 return new CompletionResult(identifier.offset, escapeKeywords(suggestions));
             }
@@ -351,7 +355,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
         }
     }
 
-    private CompletionResult completeModule(String line, int cursor) {
+    protected CompletionResult completeModule(String line, int cursor) {
         OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(line, line.length());
         if (identifier != null) {
             String[] qualified = StringUtils.splitQualifiedName(unescapeKeywords(identifier.term));
@@ -365,9 +369,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
         return null;
     }
 
-
-
-    private CompletionResult completeREPLCommand(String line, int cursor) {
+    protected CompletionResult completeREPLCommand(String line, int cursor) {
         return RascalCommandCompletion.complete(line, cursor, getCommandLineOptions(), (l,i) -> completeIdentifier(l,i), (l,i) -> completeModule(l,i));
     }
 }
