@@ -309,6 +309,19 @@ public class RVMExecutable implements Serializable{
 		return completer;
 	}
 	
+	public NameCompleter completePartialModuleIdentifier(NameCompleter completer, String partialIdentifier) {
+		if (partialIdentifier == null || partialIdentifier.isEmpty()) {
+			throw new IllegalArgumentException("The behavior with empty string is undefined.");
+		}
+		if (partialIdentifier.startsWith("\\")) {
+			partialIdentifier = partialIdentifier.substring(1);
+		}
+		
+		
+
+		return completer;
+	}
+	
 	public boolean comparable(RVMExecutable other){
 		
 		//boolean nameOk = this.getModuleName().equals(other.getModuleName());
