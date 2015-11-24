@@ -4,24 +4,24 @@ import java.io.PrintWriter;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 
-public class FunctionLineBreakpoint extends BreakPoint {
-	private final String functionName;
+public class ModuleLineBreakpoint extends BreakPoint {
+	private final String modulePath;
 	private final int lino;
 	
-	FunctionLineBreakpoint(int id, String functionName, int lino){
+	ModuleLineBreakpoint(int id, String modulePath, int lino){
 		super(id);
-		this.functionName = functionName;
+		this.modulePath = modulePath;
 		this.lino = lino;
 	}
 	
 	@Override
 	void println(PrintWriter stdout){
-		stdout.println(id + "\t" + isEnabled() + "\tFunctionLine\t" + functionName + ":" + lino);
+		stdout.println(id + "\t" + isEnabled() + "\tModule\t" + modulePath + ":" + lino);
 	}
 	
 	@Override
 	public boolean matchOnObserve(Frame frame) {		
-		return frame.function.getPrintableName().equals(functionName) &&
+		return frame.src.getPath().equals(modulePath) &&
 		       shouldBreakAt(lino, frame.src);
 	}
 
