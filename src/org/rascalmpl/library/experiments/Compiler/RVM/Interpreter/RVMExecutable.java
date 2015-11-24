@@ -213,7 +213,7 @@ public class RVMExecutable implements Serializable{
 			codeEmittor.buildClass(packageName,className,debug) ;
 
 			jvmByteCode = codeEmittor.finalizeCode();
-			fullyQualifiedName = codeEmittor.finalName().replace('/', '.') ;
+			fullyQualifiedDottedName = fullyQualifiedName = codeEmittor.finalName().replace('/', '.') ;
 			
 			// TODO: REMOVE for debug purposes only
 			codeEmittor.dump("/tmp/RVMRunner.class");
@@ -305,6 +305,19 @@ public class RVMExecutable implements Serializable{
 //		for(IValue modVar : moduleVariables.keySet()){
 //			completer.add(modVar.toString(), partialIdentifier);
 //		}
+
+		return completer;
+	}
+	
+	public NameCompleter completePartialModuleIdentifier(NameCompleter completer, String partialIdentifier) {
+		if (partialIdentifier == null || partialIdentifier.isEmpty()) {
+			throw new IllegalArgumentException("The behavior with empty string is undefined.");
+		}
+		if (partialIdentifier.startsWith("\\")) {
+			partialIdentifier = partialIdentifier.substring(1);
+		}
+		
+		
 
 		return completer;
 	}

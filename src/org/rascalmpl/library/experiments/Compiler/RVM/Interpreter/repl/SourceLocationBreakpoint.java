@@ -14,6 +14,9 @@ public class SourceLocationBreakpoint extends BreakPoint {
 	}
 	
 	@Override
+	void reset() { }
+	
+	@Override
 	void println(PrintWriter stdout){
 		stdout.println(id + "\t" + isEnabled() + "\t" + loc);
 	}

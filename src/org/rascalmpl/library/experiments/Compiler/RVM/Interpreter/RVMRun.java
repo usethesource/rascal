@@ -154,8 +154,8 @@ public class RVMRun extends RVM {
 		return rex;
 	}
 
-	public RVMRun(RVMExecutable rrs, RascalExecutionContext rex) {
-		super(rrs, rex);
+	public RVMRun(RVMExecutable rvmExec, RascalExecutionContext rex) {
+		super(rvmExec, rex);
 
 		this.vf = rex.getValueFactory();
 		tf = TypeFactory.getInstance();

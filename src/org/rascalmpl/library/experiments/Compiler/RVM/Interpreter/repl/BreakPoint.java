@@ -27,23 +27,32 @@ public abstract class BreakPoint {
 		this.enabled = enabled;
 	}
 	
-	boolean containedIn(ISourceLocation a, ISourceLocation b	){
-		if(a.getPath().equals(b.getPath())){
-			int aBeginLine = a.getBeginLine();
-			int aEndLine = a.getEndLine();
+	boolean containedIn(ISourceLocation requiredSrc, ISourceLocation currentSrc){
+		if(requiredSrc.getPath().equals(currentSrc.getPath())){
+			int aBeginLine = requiredSrc.getBeginLine();
+			int aEndLine = requiredSrc.getEndLine();
 			
-			if(aBeginLine >= b.getBeginLine() && aEndLine <= b.getEndLine()){
+			if(aBeginLine >= currentSrc.getBeginLine() && aEndLine <= currentSrc.getEndLine()){
 				if (aBeginLine == aEndLine){					
-					return a.getBeginColumn() >= b.getBeginColumn() && a.getEndColumn() <= b.getEndColumn();
+					return requiredSrc.getBeginColumn() >= currentSrc.getBeginColumn() && requiredSrc.getEndColumn() <= currentSrc.getEndColumn();
 				}
 				return true;
 			}
 		}
 		return false;
 	}
+	boolean shouldBreakAt(String path, int lino, ISourceLocation currentSrc){
+		return path.equals(currentSrc.getPath()) && currentSrc.getBeginLine() == lino;
+	}
+	
+	boolean shouldBreakAt(int lino, ISourceLocation currentSrc){
+		return lino == currentSrc.getBeginLine();
+	}
 	
 	abstract void println(PrintWriter stdout);
 	abstract boolean matchOnObserve(Frame frame);
 	abstract boolean matchOnEnter(Frame frame);
 	abstract boolean matchOnLeave(Frame frame);
+	
+	abstract void reset();
 }

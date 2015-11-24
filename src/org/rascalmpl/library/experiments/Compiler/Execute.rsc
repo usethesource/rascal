@@ -94,10 +94,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
    set[Message] messages = mainModule.messages;
    
    if(any(msg <- messages, error(_,_) := msg)){
-        for(msg <- messages){
-            println(msg);
-        }
-        throw messages;
+       return errorRVMProgram(mainModule);        
    }
    
    if(<true, mergedImportsLoc> := getMergedImportsReadLoc(mainModule.name, pcfg)){
@@ -219,10 +216,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
    processImports(mainModule);
   
    if(any(msg <- messages, error(_,_) := msg)){
-        for(e: error(_,_) <- messages){
-            println(e);
-        }
-        throw "Cannot execute due to compilation errors";
+        return errorRVMProgram(messages);
    }
    
    rvmMergedImports =
@@ -244,6 +238,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
    //if(serialize){ 
       mergedImportsLoc = getMergedImportsWriteLoc(mainModule.name, pcfg);       
       writeBinaryValueFile(mergedImportsLoc, rvmMergedImports);
+      
    //}
    
    pos_delta = size(imported_overloaded_functions);
@@ -262,10 +257,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
 value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false,
                                   bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
                                   bool coverage = false, bool useJVM = false, bool serialize=false, bool verbose = false){
-   //<existsExec, exec> = RVMExecutableWriteLoc(program.main_module.name, pcfg);
-   //if(!existsExec){
-   //    throw "Executable for <program.main_module.name> not found";
-   //}
+
    v = executeProgram(RVMExecutableCompressedWriteLoc(program.main_module.name, pcfg),
                            program,
                            keywordArguments,
@@ -284,7 +276,7 @@ value execute(RVMModule mainModule, PathConfig pcfg, map[str,value] keywordArgum
                                     bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
                                     bool coverage = false, bool useJVM = false, bool serialize=false, bool verbose = false){
    start_linking = cpuTime();   
-   merged = mergeImports(mainModule, pcfg, verbose=verbose, useJVM=useJVM);
+   merged = mergeImports(mainModule, pcfg, verbose=verbose, serialize=serialize, useJVM=useJVM);
    link_time = cpuTime() - start_linking;
    println("linking: <link_time/1000000> msec");
    return execute(merged, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=testsuite,recompile=recompile,profile=profile,trackCalls=trackCalls,coverage=coverage,useJVM=useJVM,serialize=serialize,verbose=verbose);             
@@ -303,6 +295,7 @@ value execute(str qualifiedModuleName, PathConfig pcfg, map[str,value] keywordAr
          }  
          return v;
       }
+      throw "Executable not found, compile first or use recompile=true";
    }
    startTime = cpuTime();
    mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose);
@@ -316,11 +309,15 @@ value execute(str qualifiedModuleName, PathConfig pcfg, map[str,value] keywordAr
 RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool useJVM=false, bool serialize=false, bool verbose = false){
    startTime = cpuTime();
    mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose);
-   //println("Compiling: <(cpuTime() - startTime)/1000000> ms");
+   if(verbose) println("Compiling: <(cpuTime() - startTime)/1000000> ms");
    start_linking = cpuTime();   
    merged = mergeImports(mainModule, pcfg, verbose=verbose, useJVM=useJVM, serialize=serialize);
    link_time = cpuTime() - start_linking;
-   println("linking: <link_time/1000000> msec");
+   if(verbose) println("linking: <link_time/1000000> msec");
+   if(serialize){
+      mergedLoc = getDerivedWriteLoc(mainModule.name, "rvm.ser.gz", pcfg);       
+      serializeProgram(mergedLoc, merged, useJVM);
+   }
    return merged;
 }
 

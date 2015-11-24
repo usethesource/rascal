@@ -71,12 +71,13 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
    
+    rvmModuleLoc = RVMModuleWriteLoc(qualifiedModuleName, pcfg);
+    
    	if(size(errors) > 0) {
    		rvmMod = errorRVMModule("<M.header.name>", config.messages, moduleLoc);
+   		writeBinaryValueFile(rvmModuleLoc, rvmMod);
    	    return <config, rvmMod>;
    	}
-   	
-   	rvmModuleLoc = RVMModuleWriteLoc(qualifiedModuleName, pcfg);
    	
     if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
     start_comp = cpuTime();
@@ -87,9 +88,6 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
     println("Compiling <moduleLoc>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
     if(verbose) println("compile: Writing RVMModule <rvmModuleLoc>");
     writeBinaryValueFile(rvmModuleLoc, rvmMod);
-    for(msg <- rvmMod.messages){
-        println(msg);
-    }
     return <config, rvmMod>;  
 }	
 
@@ -103,44 +101,54 @@ RVMModule compile(loc moduleLoc, PathConfig pcfg, bool verbose = false) =
 
 @doc{Compile a Rascal source module (given at a location) to RVM}
 RVMModule compile(str qualifiedModuleName, PathConfig pcfg, bool verbose = false){
-
 	<cfg, rvmMod> = compile1(qualifiedModuleName, pcfg, verbose=verbose);
+	rvmMod1 = recompileDependencies(qualifiedModuleName, rvmMod, cfg, pcfg, verbose=verbose);
+	errors = [ e | e:error(_,_) <- rvmMod1.messages];
+    warnings = [ w | w:warning(_,_) <- rvmMod1.messages ];
+    for(msg <- rvmMod1.messages){
+        if(error(txt, src) := msg) println("[error] <txt> at <src>");
+        if(warning(txt, src) := msg) println("[warning] <txt> at <src>");
+        if(info(txt, src) := msg) println("[info] <txt> at <src>");
+    }
+    return rvmMod;
+}
+
+RVMModule recompileDependencies(str qualifiedModuleName, RVMModule rvmMod, Configuration cfg, PathConfig pcfg, bool verbose = false){
+    errors = [ e | e:error(_,_) <- cfg.messages];
+    warnings = [ w | w:warning(_,_) <- cfg.messages ];
    
-   	errors = [ e | e:error(_,_) <- cfg.messages];
-   	warnings = [ w | w:warning(_,_) <- cfg.messages ];
+    if(size(errors) > 0) {
+        return rvmMod;
+    }
+    messages = {};
+    
+    dirtyModules = { prettyPrintName(dirty) | dirty <- cfg.dirtyModules };
    
-   	if(size(errors) > 0) {
-   	    return rvmMod;
-   	}
-   	messages = {};
-   	
-   	dirtyModules = { prettyPrintName(dirty) | dirty <- cfg.dirtyModules };
-   
-   	if(verbose){
-   	   for(<m1, m2> <- cfg.importGraph){
-   		   println("<prettyPrintName(m1)> imports <prettyPrintName(m2)>");
-   	   }
-   	}
-   	  	
-   	allDependencies = { prettyPrintName(rname) | rname <- carrier(cfg.importGraph) } - qualifiedModuleName;
-   	
+    if(verbose){
+       for(<m1, m2> <- cfg.importGraph){
+           println("<prettyPrintName(m1)> imports <prettyPrintName(m2)>");
+       }
+    }
+        
+    allDependencies = { prettyPrintName(rname) | rname <- carrier(cfg.importGraph) } - qualifiedModuleName;
+    
     for(dependency <- allDependencies){
         if(dependency in dirtyModules || !validRVM(dependency, pcfg)){
-    	   <cfg1, rvmMod1> = compile1(dependency, pcfg);
-    	   messages += cfg1.messages;
+           <cfg1, rvmMod1> = compile1(dependency, pcfg);
+           messages += cfg1.messages;
         }
     }
     
-   	//clearDirtyModules(qualifiedModuleName, pcfg);
-   	
-   	errors = [ e | e:error(_,_) <- messages];
+    //clearDirtyModules(qualifiedModuleName, pcfg);
+    
+    errors = [ e | e:error(_,_) <- messages];
     warnings = [ w | w:warning(_,_) <- messages ];
     
     if(size(errors) > 0) {
         return errorRVMModule(rvmMod.name, messages, getModuleLocation(qualifiedModuleName, pcfg));
     }
     
-   	return rvmMod ;
+    return rvmMod ;
 }
 
 // Assumption: main declaration is the last one
@@ -217,15 +225,11 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
     println("Compiling <moduleLoc>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
     if(verbose) println("compile: Writing RVMModule <rvmModuleLoc>");
     writeBinaryValueFile(rvmModuleLoc, rvmMod);
-    for(msg <- rvmMod.messages){
-        println(msg);
-    }
+   
     return <config, rvmMod>;  
 }  
 
 RVMModule compileIncremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, bool verbose = false){
-
     <cfg, rvmMod> = compile1Incremental(qualifiedModuleName, reuseConfig, pcfg, verbose=verbose);
-   
-    return rvmMod;
+    return recompileDependencies(qualifiedModuleName, rvmMod, cfg, pcfg, verbose=verbose);
 }    
