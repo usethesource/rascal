@@ -13,26 +13,13 @@ public class FunctionEnterBreakpoint extends BreakPoint {
 		this.functionName = functionName;
 	}
 	
-	@Override void reset(){
-	}
-	
 	@Override
 	void println(PrintWriter stdout){
 		stdout.println(id + "\t" + isEnabled() + "\tEnter\t" + functionName);
 	}
 	
 	@Override
-	public boolean matchOnObserve(Frame frame) {
-		return false;
-	}
-
-	@Override
 	public boolean matchOnEnter(Frame frame) {
 		return frame.function.getPrintableName().equals(functionName);
-	}
-
-	@Override
-	public boolean matchOnLeave(Frame frame) {
-		return false;
 	}
 }

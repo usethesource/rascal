@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
@@ -47,6 +48,7 @@ public class CommandExecutor {
 	private ISourceLocation compilerBinaryLocation;
 	private String consoleInputName = "ConsoleInput";
 	static String consoleInputPath = "/ConsoleInput.rsc";
+	static String muLibraryPath = "/experiments/Compiler/muRascal2RVM/MuLibrary.mu";
 	private ISourceLocation consoleInputLocation;
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
@@ -67,7 +69,7 @@ public class CommandExecutor {
 	boolean serialize;
 	
 	private ArrayList<String> imports;
-	private ArrayList<String> syntaxDefinitions;
+	private HashMap<String,String> syntaxDefinitions;
 	private ArrayList<String> declarations;	
 	
 	private HashMap<String, Variable> variables = new HashMap<String, Variable>();
@@ -134,7 +136,7 @@ public class CommandExecutor {
 		compileArgs = new IValue[] {vf.string(consoleInputName), vf.bool(true)};
 		
 		imports = new ArrayList<String>();
-		syntaxDefinitions = new ArrayList<String>();
+		syntaxDefinitions = new HashMap<>();
 		declarations = new ArrayList<String>();
 		stderr.println("Type 'help' for information or 'quit' to leave");
 	
@@ -156,8 +158,8 @@ public class CommandExecutor {
 		for(String imp : imports){
 			w.append("import ").append(imp).append(";\n");
 		}
-		for(String syn : syntaxDefinitions){
-			w.append(syn);
+		for(String syn : syntaxDefinitions.keySet()){
+			w.append(syntaxDefinitions.get(syn));
 		}
 		for(String decl : declarations){
 			w.append(decl);
@@ -330,7 +332,7 @@ public class CommandExecutor {
 					var.value = val.toString();
 					return val;
 				} else {
-					return report("Variable " + name + " should be declared first");
+					return report("Variable '" + name + "' should be declared first using '<type> " + name + " = <expression>'");
 				}
 			}
 			return report("Assignable is not supported supported");
@@ -381,16 +383,19 @@ public class CommandExecutor {
 			}
 		}
 		if(is(imp, "syntax")){
-			syntaxDefinitions.add(src);
+			StringWriter w = new StringWriter();
+			TreeAdapter.unparse(get(get(imp, "syntax"), "defined"), w);
+			String name = w.toString();
+			syntaxDefinitions.put(name, src);
 			try {
 				result = executeModule("\nvalue main() = true;\n", false);
 				if(result == null){
-					syntaxDefinitions.remove(src);
+					syntaxDefinitions.remove(name);
 					forceRecompilation = true;
 				}
 				return result;
 			} catch (Exception e){
-				syntaxDefinitions.remove(src);
+				syntaxDefinitions.remove(name);
 				forceRecompilation = true;
 				return null;
 			}
@@ -430,6 +435,7 @@ public class CommandExecutor {
 			}
 		}
 		
+		// TODO handle here data, dataAbstract and function
 		declarations.add(src);
 	
 		try {
@@ -509,8 +515,8 @@ public class CommandExecutor {
 			if(syntaxDefinitions.isEmpty() && declarations.isEmpty() && variables.isEmpty()){
 				System.err.println("No declarations");
 			} else {
-				for(String syn : syntaxDefinitions){
-					System.err.println(syn);
+				for(String synName : syntaxDefinitions.keySet()){
+					System.err.println(syntaxDefinitions.get(synName));
 				}
 
 				for(String decl : declarations){
@@ -536,15 +542,26 @@ public class CommandExecutor {
 			break;
 			
 		case "unimport":
-			// TODO unimport specific module
-			imports = new ArrayList<String>();
+			if(words.length > 1){
+				for(int i = 1; i <words.length; i++){
+					imports.remove(words[i]);
+				}
+			} else {
+				imports = new ArrayList<String>();
+			}
 			break;
 			
 		case "undeclare":
-			// TODO remove specific declaration
-			declarations = new ArrayList<String>();
-			syntaxDefinitions = new ArrayList<String>();
-			variables =  new HashMap<String, Variable>();
+			if(words.length > 1){
+				for(int i = 1; i <words.length; i++){
+					variables.remove(words[i]);
+					syntaxDefinitions.remove(words[i]);
+				}
+			} else {
+				variables =  new HashMap<>();
+				declarations = new ArrayList<>();
+				syntaxDefinitions = new HashMap<>();
+			}
 			break;
 		
 		case "break":
@@ -631,6 +648,32 @@ public class CommandExecutor {
 			return lastRvmConsoleExecutable.completePartialIdentifier(new NameCompleter(), term).getResult();
 		}
 		return null;
+	}
+	
+	public Collection<String> completeDeclaredIdentifier(String term) {
+		TreeSet<String> result = null;
+		for(String var : variables.keySet()){
+			if(var.startsWith(term)){
+				if(result == null){
+			    	 result = new TreeSet<String>();
+			     }
+				result.add(var);
+			}
+		}
+		return result;
+	}
+	
+	public Collection<String> completeImportedIdentifier(String term) {
+		TreeSet<String> result = null;
+		for(String mod : imports){
+			if(mod.startsWith(term)){
+				if(result == null){
+			    	 result = new TreeSet<String>();
+			     }
+				result.add(mod);
+			}
+		}
+		return result;
 	}
 }
 

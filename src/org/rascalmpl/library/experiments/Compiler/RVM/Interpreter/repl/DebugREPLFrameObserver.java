@@ -69,7 +69,7 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	@Override
 	public void leave(Frame frame, Object rval) {
 		try {
-			if(breakPointManager.matchOnLeave(frame)){
+			if(breakPointManager.matchOnLeave(frame, rval)){
 				new DebugREPL(frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
 			}
 		} catch (IOException e) {

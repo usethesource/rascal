@@ -17,6 +17,7 @@ int g (int m){
 }
 
 bool h(){
-    return [1, *n, 10] := [1,2,3,10];
+    if([1, *n, m, 10] := [1,2,3,10], m > 2) return true;
+    return false;
 
 }

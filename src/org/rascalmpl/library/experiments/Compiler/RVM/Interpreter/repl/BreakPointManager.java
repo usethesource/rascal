@@ -16,11 +16,17 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class BreakPointManager {
+	
+	enum DEBUG_MODE { STEP, SKIP, NEXT, BREAK, RETURN };
+	
 	private List<BreakPoint> breakpoints;
 	int uid;
-	boolean stepMode;
-	Frame nextFrame = null;
 	
+	DEBUG_MODE mode = DEBUG_MODE.BREAK;
+	
+	Frame currentFrame = null;  // next mode, only break in current function
+	Frame returnFrame = null;	// only break on return from this frame
+
 	private PrintWriter stdout;
 	private final PathConfig pcfg;
 	
@@ -33,20 +39,18 @@ public class BreakPointManager {
 		this.pcfg = pcfg;
 		breakpoints = new ArrayList<>();
 		uid = 1;
-		stepMode = true;
 	}
 	
 	void reset(){
-		nextFrame = null;
-		stepMode = false;
-		for(BreakPoint breakpoint : breakpoints){
-			breakpoint.reset();
-		}
+		mode =  DEBUG_MODE.BREAK;
+		currentFrame = null;
+		returnFrame = null;
 	}
 	
 	private boolean isBlackListed(Frame frame){
-		return frame.src.getPath().equals(CommandExecutor.consoleInputPath) ||
-			   frame.function.getPrintableName().endsWith("_init");
+		return frame == null || frame.src.getPath().equals(CommandExecutor.consoleInputPath) ||
+			   frame.function.getPrintableName().endsWith("_init") ||
+			   frame.src.getPath().equals(CommandExecutor.muLibraryPath);
 	}
 	
 	void setStdOut(PrintWriter stdout){
@@ -57,14 +61,27 @@ public class BreakPointManager {
 		this.autoList = autoList;
 	}
 	
-	void setStepMode(boolean stepMode){
-		this.stepMode = stepMode;
-		this.nextFrame = null;
+	void setBreakMode(Frame frame){
+		if(mode == DEBUG_MODE.RETURN){
+			return;
+		}
+		mode = DEBUG_MODE.BREAK;
+		this.currentFrame = null;
+	}
+	
+	void setStepMode(Frame frame){
+		mode = isBlackListed(frame) ?  DEBUG_MODE.SKIP : DEBUG_MODE.STEP;
+		this.currentFrame = null;
 	}
 	
 	void setNextMode(Frame currentFrame){
-		stepMode = false;
-		this.nextFrame = currentFrame;
+		mode = DEBUG_MODE.NEXT;
+		this.currentFrame = currentFrame;
+	}
+	
+	void setReturnMode(Frame currentFrame){
+		mode = DEBUG_MODE.RETURN;
+		this.returnFrame = currentFrame;
 	}
 	
 	boolean hasEnabledBreakPoints(){
@@ -76,41 +93,156 @@ public class BreakPointManager {
 		return false;
 	}
 	
-	void breakDirective(Frame currentFrame, String[] args) throws NumberFormatException {
-		if(args.length == 1){						// break
-			printBreakPoints(stdout);	
-			return;
+	boolean doAutoList(Frame frame){
+		if(autoList){
+			listingDirective(frame, defaultListingDelta);
 		}
-		if(args.length == 2){						// break <lino>
-			if(args[1].matches("[0-9]+")){
-				int lino = Integer.parseInt(args[1]);
-				String path = currentFrame.src.getPath();
-				
-				add(new LineBreakpoint(uid++, path, lino));
-			} else {								// break <functionName>
-				add(new FunctionEnterBreakpoint(uid++, args[1]));
-			}	
-		} else if(args.length == 3){				// break <function> <lino>
-			add(new FunctionLineBreakpoint(uid++, args[1], Integer.parseInt(args[2])));
+		return true;
+	}
+	
+	/****************************************************************/
+	/*				Handle all frame events							*/
+	/****************************************************************/
+	
+	boolean matchOnObserve(Frame frame){
+		switch(mode){
+		
+		case STEP:
+			return doAutoList(frame);
+			
+		case SKIP:
+			return false;
+		
+		case NEXT:
+			if(frame != currentFrame){
+				return false;
+			}
+			return doAutoList(frame);
+			
+		case RETURN:
+			return false;
+			
+		case BREAK:
+			for(BreakPoint bp : breakpoints){
+				if(bp.matchOnObserve(frame)){
+					return doAutoList(frame);
+				}	
+			}
+		}
+		return false;
+	}
+	
+	boolean matchOnEnter(Frame frame){
+		switch(mode){
+		
+		case STEP:
+			if(isBlackListed(frame)){
+				mode = DEBUG_MODE.SKIP;
+				return false;
+			}
+			
+		case SKIP:
+			if(!isBlackListed(frame)){
+				mode = DEBUG_MODE.STEP;
+				return doAutoList(frame);
+			}
+			return false;
+	
+		case NEXT:
+			return false;
+			
+		case RETURN:
+			return false;
+			
+		case BREAK:
+			for(BreakPoint bp : breakpoints){
+				if(bp.matchOnEnter(frame)){
+					return doAutoList(frame);
+				}	
+			}
+		}
+		return false;
+	}
+	
+	boolean matchOnLeave(Frame frame, Object rval){
+		
+		switch(mode){
+		
+		case STEP:
+			if(isBlackListed(frame.previousCallFrame)){
+				mode = DEBUG_MODE.SKIP;
+			}
+			return doAutoList(frame);
+			
+		case SKIP:
+			if(!isBlackListed(frame.previousCallFrame)){
+				mode = DEBUG_MODE.STEP;
+			}
+			return false;
+		
+		case NEXT:
+			return false;
+			
+		case RETURN:
+			if(returnFrame == frame){
+				returnFrame = null;
+				mode = DEBUG_MODE.BREAK;
+				if(autoList){
+					listingDirective(frame, defaultListingDelta);
+				}
+				stdout.println(BaseREPL.PRETTY_PROMPT_PREFIX  + "Function " + frame.function.getPrintableName() + " will return: " + rval +  BaseREPL.PRETTY_PROMPT_POSTFIX);
+				stdout.flush();
+				return true;
+			}
+			return false;
+			
+		case BREAK:
+			for(BreakPoint bp : breakpoints){
+				if(bp.matchOnLeave(frame)){
+					return doAutoList(frame);
+				}	
+			}
+		}
+		return false;
+	}
+	
+	/****************************************************************/
+	/*				Handle all debug directives						*/
+	/****************************************************************/
+	
+	// break directive during debug mode
+	void breakDirective(Frame frame, String[] args) throws NumberFormatException {
+		if(args.length == 2 && args[1].matches("[0-9]+")){	// break <lino>
+			int lino = Integer.parseInt(args[1]);
+			String path = frame.src.getPath();
+			add(new LineBreakpoint(uid++, path, lino));
+		} else {
+			breakDirective(args);
 		}
 	}
 	
+	// break directive outside debug mode
 	void breakDirective(String[] args) throws NumberFormatException {
-		if(args.length == 1){						// break
+		if(args.length == 1){								// break
 			printBreakPoints(stdout);
 			return;
 		}
-		if(args.length == 2){						// break <functionName>
+		if(args.length == 2){								// break <functionName>
 			add(new FunctionEnterBreakpoint(uid++, args[1]));
 		}
-		if(args.length == 3){						// break <function> <lino>
-			int lino = Integer.parseInt(args[2]);
-			add(new FunctionLineBreakpoint(uid++, args[1], lino));
+		if(args.length == 3){								// break <moduleName> <lino>
+			ISourceLocation modSrc = pcfg.getRascalResolver().resolveModule(args[1]);
+			if(modSrc != null){
+				add(new LineBreakpoint(uid++, modSrc.getPath(), Integer.parseInt(args[2])));
+			} else {
+				stdout.println("Module " + args[1] + " not found");
+				stdout.flush();
+			}
 		}
 	}
 	
-	void returnDirective(Frame currentFrame, String[] args){
-		add(new FunctionLeaveBreakpoint(uid++, currentFrame.function.getPrintableName()));
+	void returnDirective(Frame frame, String[] args){
+		setReturnMode(frame);
 	}
 	
 	void clearDirective(String[] args) throws NumberFormatException {
@@ -132,6 +264,20 @@ public class BreakPointManager {
 			}
 		breakpoints = newBreakpoints;
 	}
+	
+	void listingDirective(Frame frame, String[] args){
+		int delta = defaultListingDelta;
+		if(args.length > 1){
+			try {
+				delta = Integer.parseInt(args[1]);
+			} catch(NumberFormatException e){
+				// use the default value
+			}
+		}
+		listingDirective(frame, delta);
+	}
+	
+	// private helper functions
 
 	private void add(BreakPoint breakpoint){
 		breakpoints.add(breakpoint);
@@ -149,132 +295,52 @@ public class BreakPointManager {
 		stdout.flush();
 	}
 	
-	boolean matchOnObserve(Frame frame){
-		if(isBlackListed(frame)){
-			return false;
-		}
-		if(stepMode){
-			if(autoList){
-				listingDirective(frame, defaultListingDelta);
-			}
-			return true;
-		}
-		if(nextFrame != null && frame != nextFrame){
-			return false;
-		}
-		for(BreakPoint bp : breakpoints){
-			if(bp.matchOnLeave(frame)){
-				if(autoList){
-					listingDirective(frame, defaultListingDelta);
-				}
-				return true;
-			}
-		}
-		for(BreakPoint bp : breakpoints){
-			if(bp.matchOnObserve(frame)){
-				if(autoList){
-					listingDirective(frame, defaultListingDelta);
-				}
-				return true;
-			}	
-		}
-		return false;
-	}
 	
-	boolean matchOnEnter(Frame frame){
-		if(isBlackListed(frame)){
-			return false;
-		}
-		if(nextFrame != null && frame != nextFrame){
-			return false;
-		}
-		if(stepMode){
-			if(autoList){
-				listingDirective(frame, defaultListingDelta);
-			}
-			return true;
-		}
-		for(BreakPoint bp : breakpoints){
-			if(bp.matchOnEnter(frame)){
-				if(autoList){
-					listingDirective(frame, defaultListingDelta);
-				}
-				return true;
-			}	
-		}
-		return false;
-	}
 	
-	boolean matchOnLeave(Frame frame){
-		if(isBlackListed(frame)){
-			return false;
-		}
-		if(nextFrame != null && frame != nextFrame){
-			return false;
-		}
-		if(stepMode){
-			if(autoList){
-				listingDirective(frame, defaultListingDelta);
-			}
-			return true;
-		}
-		for(BreakPoint bp : breakpoints){
-			if(bp.matchOnLeave(frame)){
-				if(autoList){
-					listingDirective(frame, defaultListingDelta);
-				}
-				return true;
-			}	
-		}
-		return false;
-	}
-	
-	void listingDirective(Frame currentFrame, String[] args){
-		int delta = defaultListingDelta;
-		if(args.length > 1){
-			try {
-				delta = Integer.parseInt(args[1]);
-			} catch(NumberFormatException e){
-				// use the default value
-			}
-		}
-		listingDirective(currentFrame, delta);
-	}
-	
-	private void listingDirective(Frame currentFrame, int delta){
-		ISourceLocation src = currentFrame.src;
-		int srcBegin = src.getBeginLine();
-		int srcEnd = src.getEndLine();
+	private void listingDirective(Frame frame, int delta){
+		ISourceLocation breakpointSrc = frame.src;
+		int breakpointSrcBegin = breakpointSrc.getBeginLine();
+		int breakpointSrcEnd = breakpointSrc.getEndLine();
 		
-		int fileBegin = Math.max(1, srcBegin - delta);
-		int fileEnd = srcEnd + delta;
+		int windowBegin;
+		int windowEnd;
+		
+		ISourceLocation functionSrc = frame.function.src;
+		if(functionSrc.getEndLine() - functionSrc.getBeginLine() <= 2 * delta + 1){
+			windowBegin = functionSrc.getBeginLine();
+			windowEnd = functionSrc.getEndLine();
+		} else {
+			
+			windowBegin = Math.max(1, breakpointSrcBegin - delta);
+			windowEnd = breakpointSrcEnd + delta;
+		}
 		
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		try {
-			ISourceLocation srcFile = vf.sourceLocation(src.getScheme(), "", src.getPath());
+			ISourceLocation srcFile = vf.sourceLocation(breakpointSrc.getScheme(), "", breakpointSrc.getPath());
 			try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(srcFile)) {
 				try (BufferedReader buf = new BufferedReader(reader)) {
 					String line;
 					int lino = 1;
 					while ((line = buf.readLine()) != null) {
 						String prefix = String.format("%4d", lino) + listingIndent;
-						if(srcBegin == lino){
-							String before = line.substring(0, src.getBeginColumn());
-							if(srcBegin == srcEnd){
-								String middle = line.substring(src.getBeginColumn(), src.getEndColumn());
-								String after = line.substring(src.getEndColumn());
+						if(breakpointSrcBegin == lino){
+							String before = line.substring(0, breakpointSrc.getBeginColumn());
+							if(breakpointSrcBegin == breakpointSrcEnd){
+								String middle = line.substring(breakpointSrc.getBeginColumn(), breakpointSrc.getEndColumn());
+								String after = line.substring(breakpointSrc.getEndColumn());
 								stdout.println(prefix + before + BaseREPL.PRETTY_PROMPT_PREFIX + middle + BaseREPL.PRETTY_PROMPT_POSTFIX + after);
 							} else {
-								String after = line.substring(src.getBeginColumn());
+								String after = line.substring(breakpointSrc.getBeginColumn());
 								stdout.println(prefix + before + BaseREPL.PRETTY_PROMPT_PREFIX + after + BaseREPL.PRETTY_PROMPT_POSTFIX);
 							}
-						} else if(srcEnd == lino){
-							String before = line.substring(0, src.getEndColumn());
-							String after = line.substring(src.getEndColumn());
+						} else if(breakpointSrcEnd == lino){
+							String before = line.substring(0, breakpointSrc.getEndColumn());
+							String after = line.substring(breakpointSrc.getEndColumn());
 							stdout.println(prefix + BaseREPL.PRETTY_PROMPT_PREFIX + before + BaseREPL.PRETTY_PROMPT_POSTFIX + after);
 						} else
-						if(lino >= fileBegin && lino <= fileEnd){
-							if(lino >= srcBegin && lino <= srcEnd){
+						if(lino >= windowBegin && lino <= windowEnd){
+							if(lino >= breakpointSrcBegin && lino <= breakpointSrcEnd){
 								stdout.println(prefix + BaseREPL.PRETTY_PROMPT_PREFIX + line + BaseREPL.PRETTY_PROMPT_POSTFIX);
 							} else {
 								stdout.println(prefix + line);
@@ -282,15 +348,15 @@ public class BreakPointManager {
 						}
 						lino++;
 					}
-					stdout.flush();
 				}
 			}
 			catch(Exception e){
-				stdout.println("Cannot read source file");
+				stdout.println("Cannot create listing: " + e.getMessage());
 			}
 		} catch (URISyntaxException e){
 			stdout.println("Cannot create URI for source file");
 		}
+		stdout.flush();
 	}
 	
 	

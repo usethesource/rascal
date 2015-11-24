@@ -15,9 +15,6 @@ public class LineBreakpoint extends BreakPoint {
 	}
 	
 	@Override
-	void reset () { }
-	
-	@Override
 	void println(PrintWriter stdout){
 		stdout.println(id + "\t" + isEnabled() + "\tLine\t" + path + ":" + lino);
 	}
