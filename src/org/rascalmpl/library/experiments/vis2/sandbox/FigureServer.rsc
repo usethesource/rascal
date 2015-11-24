@@ -3,15 +3,16 @@ import experiments::vis2::sandbox::Figure;
 import experiments::vis2::sandbox::IFigure;
 import Prelude;
 
-public void render(Figure fig1, int width = 400, int height = 400, 
+public void render(Figure fig1, int width = 800, int height = 800, 
      Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>,
-     str fillColor = "white", str lineColor = "black", bool debug = false, bool display = true, 
+     str fillColor = "none", str lineColor = "black", bool debug = false, bool display = true, 
      Event event = on(nullCallback), int borderWidth = -1, bool resizable = true)
      {
+     println("render:<size?>");
      setDebug(debug);
      _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
      lineColor = lineColor, size = size, event = event
-     , borderWidth = borderWidth, resizable = resizable);
+     , borderWidth = borderWidth, resizable = resizable, defined = (width? && height?)||(size?));
      // println(toString());
      }
        
@@ -32,8 +33,9 @@ public str toHtmlString(Figure fig1, int width = 400, int height = 400,
 
 public Style style(str id, str fillColor="", str lineColor="", int lineWidth = -1,
      num fillOpacity = -1.0, num lineOpacity = -1.0, str visibility = "") {
-     Style v = _getStyle(id);
-     v.svg = isSvg(id);
+     str idx = child(id);
+     Style v = _getStyle(idx);
+     v.svg = isSvg(idx);
      if (lineWidth!=-1) v.lineWidth = lineWidth;
      if (fillOpacity>=0) v.fillOpacity = fillOpacity;
      if (lineOpacity>=0) v.lineOpacity = lineOpacity;
@@ -41,12 +43,12 @@ public Style style(str id, str fillColor="", str lineColor="", int lineWidth = -
      if (!isEmpty(lineColor)) v.lineColor = lineColor;
      if (!isEmpty(visibility)) {
            v.visibility = visibility;
-           list[str] xs = getDescendants(id);
+           list[str] xs = getDescendants(idx);
            for (x<-xs) {
               style(x, visibility = visibility);
              }
              }
-     _setStyle(id, v);
+     _setStyle(idx, v);
      return v;
      }
 
@@ -59,13 +61,14 @@ bool isEmptyValue(value v) {
      
 public Attr attr(str id, int width = -1, int height = -1, int r = -1
      , num grow = 1.0, bool disabled = false) {
-     Attr v = _getAttr(id);
+     str idx = child(id);
+     Attr v = _getAttr(idx);
      if (width!=-1) v.width = width;
      if (height!=-1) v.height = height;
      if (grow>=0) v.grow = grow;    
      if (r!=-1) v.r = r;
      // if (disabled?) v.disabled= disabled;
-     _setAttr(id, v);
+     _setAttr(idx, v);
      return v;
      }
      
@@ -84,41 +87,46 @@ public void enable(str id) {
 public bool isDisabled(str id) = _getAttr(id).disabled;
      
 public Property property(str id, value \value = "") {
-    Property v = _getProperty(id);
+    str idx = child(id);
+    Property v = _getProperty(idx);
     if (!isEmptyValue(\value)) v.\value = \value;
-     _setProperty(id, v);
+     _setProperty(idx, v);
      return v;
     }
     
 public Property clearValueProperty(str id) {
-     Property v = _getProperty(id);
+     str idx = child(id);
+     Property v = _getProperty(idx);
      v.\value = "";
-     _setProperty(id, v);
+     _setProperty(idx, v);
      //  println(v);
      return v;
      }
 
 public Text textProperty(str id, str text = "", str html = "") {
-     Text v = _getText(id);
+     str idx = child(id);
+     Text v = _getText(idx);
      if (!isEmpty(text)) v.text = text;
      if (!isEmpty(html)) v.html = html;
-     _setText(id, v);
+     _setText(idx, v);
      // println(v);
      return v;
      }
      
 public Text clearTextProperty(str id) {
-     Text v = _getText(id);
+     str idx = child(id);
+     Text v = _getText(idx);
      v.text = "";
-     _setText(id, v);
+     _setText(idx, v);
      //  println(v);
      return v;
      }
      
 public Timer timer(str id, int delay = -1, str command = "") {
-    Timer t = _getTimer(id);
+    str idx = child(id);
+    Timer t = _getTimer(idx);
     if (delay>=0) t.delay = delay;
     if (!isEmpty(command)) t.command = command;
-     _setTimer(id, t);
+     _setTimer(idx, t);
      return t;
     }

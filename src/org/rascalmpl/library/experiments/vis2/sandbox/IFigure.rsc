@@ -85,25 +85,50 @@ public bool isSvg(str id) = widget[id].svg;
 
 public void null(str event, str id, value val ){return;}
 
-Attr _getAttr(str id) = state[widget[id].seq].v.attr;
+str child(str id1) {
+    // println("QQQ:<id1>");
+    list[str] s = split("#", id1);
+    //  println("QQQ1:<s>");
+    IFigure z;
+    top-down visit(fig) {
+        case IFigure g:ifigure(str id ,_): {
+             if (id == s[0])  z = g;
+             }
+        };
+     for (str d<-tail(s)) {
+             int v = toInt(d);
+              // println("HELP <v> A<z>");
+              if (ifigure(_, list[IFigure] childq):=z) {
+                 z = childq[v];
+                 }          
+              } 
+    // println("QQ: <z.id>");
+    return z.id;
+    }
+    
+Attr _getAttr(str id) = state[widget[child(id)].seq].v.attr;
 
-void _setAttr(str id, Attr v) {state[widget[id].seq].v.attr = v;}
+void _setAttr(str id, Attr v) {
+    state[widget[child(id)].seq].v.attr = v;
+    }
 
-Style _getStyle(str id) = state[widget[id].seq].v.style;
+Style _getStyle(str id) = state[widget[child(id)].seq].v.style;
 
-void _setStyle(str id, Style v) {state[widget[id].seq].v.style = v;}
+void _setStyle(str id, Style v) {state[widget[child(id)].seq].v.style = v;}
 
-Text _getText(str id) = state[widget[id].seq].v.text;
+Text _getText(str id) = state[widget[child(id)].seq].v.text;
 
 Property _getProperty(str id) { return state[widget[id].seq].v.property;}
 
 void _setProperty(str id, Property v) {state[widget[id].seq].v.property = v;}
 
-void _setText(str id, Text v) {state[widget[id].seq].v.text = v;}
+void _setText(str id, Text v) {state[widget[child(id)].seq].v.text = v;}
 
 void _setTimer(str id, Timer v) {state[widget[id].seq].v.timer = v;}
 
 Timer _getTimer(str id) = state[widget[id].seq].v.timer;
+
+bool hasInnerFigure(Figure f) = box():=f || ellipse() := f || circle():= f || ngon():=f;
 
 bool isOverlay(Figure f) = overlay():=f || tree(_, _):=f|| graph():=f;
 
@@ -308,6 +333,8 @@ str getIntro() {
         '\<script src=\"http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.min.js\"\>\</script\>
         '<google> 
         '\<script\>
+        ' var screenWidth = 0;
+        ' var screenHeight = 0;
         '    var timer = {};
         '    var timeout = {};
         '    function CR(evt, ev, id, v ) {
@@ -413,13 +440,13 @@ str getIntro() {
         '     return  e.attr(\"visibility\")==\"hidden\";
         '   };
         ' }
-       ' function initFunction() {
-          
-           <for (d<-markerScript) {> <d> <}>
-           <for (d<-widgetOrder) {> <widget[d].script> <}>
-           <for (d<-reverse(adjust)) {> <d> <}>
-           <for (d<-googleChart) {> <d> <}> 
-           doFunction(\"load\", \"figureArea\")();     
+        ' function initFunction() {
+        '  alertSize();
+        '  <for (d<-markerScript) {> <d> <}>
+        '  <for (d<-widgetOrder) {> <widget[d].script> <}>
+        '  <for (d<-reverse(adjust)) {> <d> <}>
+        '  <for (d<-googleChart) {> <d> <}> 
+        '   doFunction(\"load\", \"figureArea\")();     
        ' }
        ' d3.selectAll(\"table\").remove();
        ' onload=initFunction;
@@ -525,18 +552,18 @@ void callCallback(str e, str n, str v) {
      _setProperty(n, a);
      old[widget[n].seq].property = a;
      }
-   value z = f.tooltip;
-   if (Figure g := z && g !=emptyFigure()) {
-      if (e=="mouseenter") {visible("<f.id>_tooltip"); return;}
-      else
-      if (e=="mouseleave") {hide("<f.id>_tooltip"); return;} 
-   }
+   value z = f.tooltip; 
    value q = widget[n].f;
    switch (q) {
        case void(str, str, str) f: f(e, n, v);
        case void(str, str, int) f: f(e, n, toInt(v));
        case void(str, str, real) f: f(e, n, toReal(v));
        }
+   if (Figure g := z && g !=emptyFigure()) {
+      if (e=="mouseenter") {visible("<f.id>_tooltip"); return;}
+      else
+      if (e=="mouseleave") {hide("<f.id>_tooltip"); return;} 
+   }
    }
 
 Response page(post(), /^\/getValue\/<ev:[a-zA-Z0-9_]+>\/<name:[a-zA-Z0-9_]+>\/<v:.*>/, map[str, str] parameters) {
@@ -590,26 +617,27 @@ value getRenderCallback(Event event) {return void(str e, str n, str v) {
  }
 
 
-public void _render(IFigure fig1, int width = 400, int height = 400, 
+public void _render(IFigure fig1, int width = 800, int height = 800, 
      Alignment align = centerMid, int lineWidth = -1, 
      str fillColor = "none", str lineColor = "black", bool display = true, Event event = on(nullCallback),
-     bool resizable = true)
+     bool resizable = true, bool defined = true)
      {
      screenWidth = width;
      screenHeight = height;
      str id = "figureArea";
     str begintag= beginTag(id, align);
-    // println(getWidth(fig1));
+    println(fillColor);
     str endtag = endTag();
     // '<style("border","0px solid black")>  
     // 
     widget[id] = <getRenderCallback(event), seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")   
-        '<stylePx("width", width)><style("height", width)>
-        
+        '<defined?stylePx("width", width):style1("width", "screenWidth")>
+        '<defined?style("height", height):style1("height", "screenHeight")>    
         '<style("border","0px solid black")> 
         '<style("border-width",lineWidth)>
+        '<style("background", fillColor)>
         ;       
         "
        , width, height, width, height, 0, 0, align, 1, "", false, false >;
@@ -786,6 +814,11 @@ str style(str key, str v) {
     if (isEmpty(v)) return "";
     return ".style(\"<key>\",\"<v>\")";
     }
+    
+str style1(str key, str v) {
+    if (isEmpty(v)) return "";
+    return ".style(\"<key>\",<v>)";
+    }    
     
 str style(str key, num v) {
     if (v<0) return "";
@@ -1253,13 +1286,15 @@ bool hasInnerCircle(Figure f)  {
   
  str moveAt(bool fo, Figure f) = fo?"":"x=<getAtX(f)> y=<getAtY(f)>";
  
- str adjustBox(IFigure fig, str id) =  "adjustBox(\"<getId(fig)>\", \"<id>\", <getHshrink(fig)>, <getVshrink(fig)>);\n";
+ str adjustBox(IFigure fig, str id) =  
+   "adjustBox(\"<getId(fig)>\", \"<id>\", <getHshrink(fig)>, <getVshrink(fig)>
+   ', <getLineWidth(fig)>);\n";
          
  IFigure _rect(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(), Alignment align = <0, 0>) {    
       int lw = getLineWidth(f);  
       if (getAtX(fig)>0 || getAtY(fig)>0) f.align = topLeft;
-      if ((f.width<0 || f.height<0) && (getWidth(fig)<0 || getHeight(fig)<0)) 
-                      f.align = centerMid;
+      // if ((f.width<0 || f.height<0) && (getWidth(fig)<0 || getHeight(fig)<0)) 
+      //               f.align = centerMid;
       int offset1 = round((0.5-f.align[0])*lw);
       int offset2 = round((0.5-f.align[1])*lw);
       if (getWidth(fig)>0 && getHeight(fig)>0){
@@ -1292,8 +1327,10 @@ bool hasInnerCircle(Figure f)  {
           toInt(f.grow*getLineWidth(f)), getLineColor(f), f.sizeFromParent, true >;
        addState(f);
        widgetOrder+= id;
-       if (fig!=iemptyFigure() && getResizable(f) && (getWidth(fig)<0 || getHeight(fig)<0))
+       if (fig!=iemptyFigure() && getResizable(f) && (getWidth(fig)<0 || getHeight(fig)<0)
+       )
           adjust+= adjustBox(fig, id); 
+         
        return ifigure(id, [fig]);
        } 
        
@@ -1388,7 +1425,7 @@ num cyL(Figure f) =
           case ellipse(): {tg = "ellipse"; 
                            if (f.width>=0 && f.rx<0) f.rx = (f.width-lw)/2;
                            if (f.height>=0 && f.ry<0) f.ry = (f.height-lw)/2;
-                           if (f.rx<0 || f.ry<0 || getAtX(fig)>0 || getAtY(fig)>0) f.align = centerMid; 
+                          // if (f.rx<0 || f.ry<0 || getAtX(fig)>0 || getAtY(fig)>0) f.align = centerMid; 
                            bool bx  = false;          
                            if (f.rx<0 && getWidth(fig)>=0) {
                               f.rx = getAtX(fig)+(getWidth(fig)+lw+hPadding(f))/2.0;
@@ -1418,8 +1455,8 @@ num cyL(Figure f) =
                            }
           case circle(): {tg = "circle";
                           if (f.width>=0 && f.height>=0 && f.r<0) 
-                                       f.r = (max[f.width, f.height]-lw)/2;
-                          if (f.r<0 || getAtX(fig)>0 || getAtY(fig)>0) f.align = centerMid; 
+                                       f.r = (max([f.width, f.height])-lw)/2;
+                          // if (f.r<0 || getAtX(fig)>0 || getAtY(fig)>0) f.align = centerMid; 
                           bool b  = false;             
                           int d = max([getWidth(fig), getHeight(fig)]);
                           if (f.r<0 && d>=0) {
@@ -1784,6 +1821,10 @@ IFigure _overlay(str id, Figure f, list[Figure] figs, IFigure fig1...) {
         "
         , f.width, f.height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f), f.sizeFromParent, true >;
        addState(f);
+       if (getResizable(f)) {
+           adjust+=  "adjustOverlay("+figCalls(fig1)+", \"<id>\", <getLineWidth(f)<0?0:-getLineWidth(f)>, 
+            <-hPadding(f)>, <-vPadding(f)>);\n";
+         }
        widgetOrder+= id;
        return ifigure(id ,fig1);
        }
@@ -2031,16 +2072,29 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
         '<style("border-spacing", "<f.hgap> <f.vgap>")> 
         '<style("stroke-width",getLineWidth(f))>
         '<style("visibility", getVisibility(f))>
-        '<_padding(f.padding)>     
-        ;   
+        '<_padding(f.padding)>      
+        ;
+        'adjustTable(\"<id>\", <figCalls(fig1)>);      
         "
         , width, height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f)
         , f.sizeFromParent, false >;
        addState(f);
        widgetOrder+= id;
-       adjust+=  "adjustTableW(<[getId(c)|c<-fig1]>, \"<id>\", <getLineWidth(f)<0?0:-getLineWidth(f)>, 
+       adjust+=  "adjustTableW("+figCalls(fig1)+", \"<id>\", <getLineWidth(f)<0?0:-getLineWidth(f)>, 
                <-hPadding(f)>, <-vPadding(f)>);\n";
        return ifigure(id ,[td("<id>_<getId(g)>", f, g, width, height)| g<-fig1]);
+       }
+       
+str figCall(IFigure f) = "fig(\"<getId(f)>\", <getHshrink(f)>, <getVshrink(f)>, <getLineWidth(f)>)";
+
+str figCalls(list[IFigure] fs) {
+       if (isEmpty(fs)) return "[]";
+       return "[<figCall(head(fs))><for(f<-tail(fs)){>,<figCall(f)><}>]";
+       }
+       
+str figCallArray(list[list[IFigure]] fs) {
+       if (isEmpty(fs)) return "[]";
+       return "[<figCalls(head(fs))><for(f<-tail(fs)){>,<figCalls(f)><}>]";
        }
        
 IFigure _vcat(str id, Figure f,  bool addSvgTag, IFigure fig1...) {
@@ -2074,12 +2128,13 @@ IFigure _vcat(str id, Figure f,  bool addSvgTag, IFigure fig1...) {
         '<style("visibility", getVisibility(f))>
         '<_padding(f.padding)>   
         ;
+        'adjustTable(\"<id>\", <figCalls(fig1)>); 
         ", width, height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f)
          , f.sizeFromParent, false >;
        
        addState(f);
        widgetOrder+= id;
-       adjust+=  "adjustTableH(<[getId(c)|c<-fig1]>, \"<id>\", <getLineWidth(f)<0?0:-getLineWidth(f)>, 
+       adjust+=  "adjustTableH("+figCalls(fig1)+", \"<id>\", <getLineWidth(f)<0?0:-getLineWidth(f)>, 
           <-hPadding(f)>, <-vPadding(f)>);\n"; 
        return ifigure(id, [td("<id>_<getId(g)>", f, g,  width, height, tr = true)| g<-fig1]);
        }
@@ -2123,14 +2178,15 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
          '<style("stroke-width",getLineWidth(f))>
          '<style("visibility", getVisibility(f))>
          '<_padding(f.padding)> 
-         '<debugStyle()>; 
+         '<debugStyle()>;
+         'adjustTableWH1(\"<id>\", <figCallArray(figArray)>);  
         ", f.width, f.height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f)
          , f.sizeFromParent, false >;      
        addState(f);
        widgetOrder+= id;
        list[tuple[list[IFigure] f, int idx]] fig1 = [<figArray[i], i>|int i<-[0..size(figArray)]];
-       adjust+=  "adjustTableWH(<[[getId(d)|d<-c] | c<-figArray]>, \"<id>\", <-getLineWidth(f)>, 
-         <-hPadding(f)>, <-vPadding(f)>);\n";
+       adjust+=  "adjustTableWH(<figCallArray(figArray)>, \"<id>\", <-getLineWidth(f)>, 
+          <-hPadding(f)>, <-vPadding(f)>);\n";
        return ifigure(id, [tr("<id>_<g.idx>", f, f.width, f.height, g.f ) | g<-fig1]);
        }      
    
@@ -2528,7 +2584,8 @@ public void _render(Figure fig1, int width = 400, int height = 400,
      Alignment align = centerMid, tuple[int, int] size = <0, 0>,
      str fillColor = "white", str lineColor = "black", 
      int lineWidth = 1, bool display = true, num lineOpacity = 1.0, num fillOpacity = 1.0
-     , Event event = on(nullCallback), int borderWidth = -1, bool resizable = true)
+     , Event event = on(nullCallback), int borderWidth = -1, bool resizable = true,
+     bool defined = true)
      {    
         id = 0;
         screenHeight = height;
@@ -2571,7 +2628,8 @@ public void _render(Figure fig1, int width = 400, int height = 400,
         IFigure f = _translate(fig1, align = align, forceHtml = true);
         addState(fig1);
         _render(f , width = screenWidth, height = screenHeight, align = align, fillColor = fillColor, lineColor = lineColor,
-        lineWidth = borderWidth, display = display, event = event, resizable = resizable);
+        lineWidth = borderWidth, display = display, event = event, resizable = resizable,
+        defined = defined);
      }
   
  //public void main() {
