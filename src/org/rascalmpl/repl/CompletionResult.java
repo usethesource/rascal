@@ -16,4 +16,12 @@ public class CompletionResult {
     public Collection<String> getSuggestions() {
         return suggestions;
     }
+    
+    public CompletionResult joinWith(CompletionResult other){
+    	if(offset != other.offset){
+    		throw new RuntimeException("Cannot join CompletionResults with different offset");
+    	}
+    	suggestions.addAll(other.getSuggestions());
+    	return new CompletionResult(offset, suggestions);
+    }
 }
