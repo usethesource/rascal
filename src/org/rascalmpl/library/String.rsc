@@ -543,7 +543,6 @@ Description:
 @javaClass{org.rascalmpl.library.Prelude}
 public java str wrap(str src, int wrapLength);
 
-
 /* 
  * Return string of length n, with s placed according to dir (left/center/right) and padded with pad.
  * Used to implement:left, center and right above.

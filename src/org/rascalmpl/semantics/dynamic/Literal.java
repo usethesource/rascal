@@ -241,9 +241,9 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 			
 			IList list = (IList) value.getValue();
 
+			
 			if (list.length() == 0) {
-				throw new ImplementationError("empty list from template eval");
-//				return ResultFactory.makeResult(TF.stringType(), VF.string(""), __eval);
+				return ResultFactory.makeResult(TF.stringType(), VF.string(""), __eval);
 			}
 			
 			if (!list.getElementType().isString()) {

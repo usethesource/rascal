@@ -72,8 +72,6 @@ public class StringTemplateConverter {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			try {
-				// TODO: this can turn into an infinite loop if the argument contains an interpolated string with the unchanged argument in it.
-				// need a fix for this.
 				return super.interpret(eval);
 			}
 			catch (MatchFailed | ArgumentMismatch | UndeclaredVariable e) {
@@ -203,7 +201,7 @@ public class StringTemplateConverter {
 			List<StringPart> b = x.getBody();
 			
 			List<Statement> result = new LinkedList<>();
-			result.add(new ConstAppend(x.getLocation(), makeTarget(x.getLocation()), "", indentation));
+//			result.add(new ConstAppend(x.getLocation(), makeTarget(x.getLocation()), "", indentation));
 			result.addAll(body(b));
 			return result;
 		}
