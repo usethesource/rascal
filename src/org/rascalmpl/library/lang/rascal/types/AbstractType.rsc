@@ -303,6 +303,7 @@ public list[str] getRelFieldNames(Symbol t) {
 @doc{Get the fields of a relation.}
 public list[Symbol] getRelFields(Symbol t) {
     if (\rel(tls) := unwrapType(t)) return tls;
+    if (\set(\tuple(tls)) := unwrapType(t)) return tls;
     throw "getRelFields given non-Relation type <prettyPrintType(t)>";
 }
 
@@ -329,6 +330,7 @@ public list[str] getListRelFieldNames(Symbol t) {
 @doc{Get the fields of a list relation.}
 public list[Symbol] getListRelFields(Symbol t) {
     if (\lrel(tls) := unwrapType(t)) return tls;
+    if (\list(\tuple(tls)) := unwrapType(t)) return tls;
     throw "getListRelFields given non-List-Relation type <prettyPrintType(t)>";
 }
 
