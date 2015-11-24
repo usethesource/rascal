@@ -1899,6 +1899,154 @@ public abstract class StringPart extends AbstractAST {
     }
             
   }
+  public boolean isTerminalExpr() {
+    return false;
+  }
+
+  static public class TerminalExpr extends StringPart {
+    // Production: sig("TerminalExpr",[arg("org.rascalmpl.ast.Expression","result")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.Expression result;
+  
+    public TerminalExpr(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Expression result) {
+      super(src, node);
+      
+      this.result = result;
+    }
+  
+    @Override
+    public boolean isTerminalExpr() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitStringPartTerminalExpr(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = result.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        result.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof TerminalExpr)) {
+        return false;
+      }        
+      TerminalExpr tmp = (TerminalExpr) o;
+      return true && tmp.result.equals(this.result) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 839 + 577 * result.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.Expression getResult() {
+      return this.result;
+    }
+  
+    @Override
+    public boolean hasResult() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(result));
+    }
+            
+  }
+  public boolean isTerminalVar() {
+    return false;
+  }
+
+  static public class TerminalVar extends StringPart {
+    // Production: sig("TerminalVar",[arg("org.rascalmpl.ast.QualifiedName","variable")],breakable=false)
+  
+    
+    private final org.rascalmpl.ast.QualifiedName variable;
+  
+    public TerminalVar(ISourceLocation src, IConstructor node , org.rascalmpl.ast.QualifiedName variable) {
+      super(src, node);
+      
+      this.variable = variable;
+    }
+  
+    @Override
+    public boolean isTerminalVar() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitStringPartTerminalVar(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      $l = variable.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        variable.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof TerminalVar)) {
+        return false;
+      }        
+      TerminalVar tmp = (TerminalVar) o;
+      return true && tmp.variable.equals(this.variable) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 41 + 809 * variable.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public org.rascalmpl.ast.QualifiedName getVariable() {
+      return this.variable;
+    }
+  
+    @Override
+    public boolean hasVariable() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(variable));
+    }
+            
+  }
   public boolean isVar() {
     return false;
   }
@@ -1953,7 +2101,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 839 + 577 * variable.hashCode() ; 
+      return 821 + 821 * variable.hashCode() ; 
     } 
   
     
@@ -2063,7 +2211,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 41 + 809 * condition.hashCode() + 821 * preStats.hashCode() + 821 * body.hashCode() + 59 * postStats.hashCode() ; 
+      return 59 + 139 * condition.hashCode() + 233 * preStats.hashCode() + 331 * body.hashCode() + 359 * postStats.hashCode() ; 
     } 
   
     
@@ -2178,7 +2326,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 139 + 233 * conditions.hashCode() + 331 * body.hashCode() ; 
+      return 151 + 311 * conditions.hashCode() + 73 * body.hashCode() ; 
     } 
   
     

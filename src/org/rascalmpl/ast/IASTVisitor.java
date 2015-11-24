@@ -643,6 +643,10 @@ public interface IASTVisitor<T> {
 
   public T visitStringPartSepcomp(StringPart.Sepcomp x);
 
+  public T visitStringPartTerminalExpr(StringPart.TerminalExpr x);
+
+  public T visitStringPartTerminalVar(StringPart.TerminalVar x);
+
   public T visitStringPartVar(StringPart.Var x);
 
   public T visitStringPartWhile(StringPart.While x);

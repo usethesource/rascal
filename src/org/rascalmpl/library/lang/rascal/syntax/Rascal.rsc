@@ -380,9 +380,9 @@ syntax DataTarget
 	| labeled: Name label ":" ;
 
 lexical StringCharacter
-	= "\\" [\~ \" \' \< \> \\ b f n r t] 
+	= "\\" [~ \" \' \< \> \\ b f n r t] 
 	| UnicodeEscape 
-	| ![\~ \" \' \< \> \\ \n]
+	| ![~ \" \' \< \> \\ \n]
 	;
 
 lexical JustTime
@@ -549,16 +549,18 @@ layout NoLayout
   ;
 
 syntax StringPart
-  = \var          : "\~" NoLayout QualifiedName variable 
-  | \expr         : "\~(" Expression result KeywordArguments[Expression] keywordArguments ")"
-  | \block        : "\~{" Statement+ statements "}"
-  | \comp         : "\~(" Expression result KeywordArguments[Expression] keywordArguments "|" {Expression ","}+ generators ")"
-  | \sepcomp      : "\~(" Expression result KeywordArguments[Expression] keywordArguments "," Expression sep "|" {Expression ","}+ generators ")"
-  | \ifThen2      : "\~if"    "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "\~}"
-  | \ifThenElse2  : "\~if"    "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "\~}" "else" "{" NoLayout {StringPart NoLayout}* elseBody NoLayout "\~}"
-  | \while2       : "\~while" "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "\~}"
-  | \for2         : "\~for"   "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "\~}"
-  | \forsep       : "\~for"   "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "\~\~" NoLayout {StringPart NoLayout}* sepBody NoLayout "\~}"
+  = \var          : "~" NoLayout QualifiedName variable 
+  | \terminalVar  : "~~" NoLayout QualifiedName variable
+  | \expr         : "~(" Expression result KeywordArguments[Expression] keywordArguments ")"
+  | \terminalExpr : "~~(" Expression result ")"
+  | \block        : "~{" Statement+ statements "}"
+  | \comp         : "~(" Expression result KeywordArguments[Expression] keywordArguments "|" {Expression ","}+ generators ")"
+  | \sepcomp      : "~(" Expression result KeywordArguments[Expression] keywordArguments "," Expression sep "|" {Expression ","}+ generators ")"
+  | \ifThen2      : "~if"    "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "~}"
+  | \ifThenElse2  : "~if"    "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "~}" "else" "{" NoLayout {StringPart NoLayout}* elseBody NoLayout "~}"
+  | \while2       : "~while" "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "~}"
+  | \for2         : "~for"   "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "~}"
+  | \forsep       : "~for"   "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "~}" "sep" "{" NoLayout {StringPart NoLayout}* sepBody NoLayout "~}"
   | \margin       : "\n" NoLayout Indentation margin  NoLayout "\'" NoLayout Indentation indent 
   | \characters   : StringCharacters characters
   ;
@@ -574,7 +576,7 @@ syntax StringPart
   | @deprecated \while     : "\<" "while" "(" Expression condition ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body  NoLayout "\<" Statement* postStats"}" "\>" 
   ;
 
-lexical StringCharacters = StringCharacter+ chars !>> ![\" \' \< \> \n \~];
+lexical StringCharacters = StringCharacter+ chars !>> ![\" \' \< \> \n ~];
 
 lexical Indentation
   = [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* !>> [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]
@@ -830,8 +832,8 @@ syntax BasicType
 	;
 
 lexical Char
-	= @category="Constant" "\\" [\  \~ \" \' \- \< \> \[ \\ \] b f n r t] 
-	| @category="Constant" ![\  \~ \" \' \- \< \> \[ \\ \]] 
+	= @category="Constant" "\\" [\  ~ \" \' \- \< \> \[ \\ \] b f n r t] 
+	| @category="Constant" ![\  ~ \" \' \- \< \> \[ \\ \]] 
 	| @category="Constant" UnicodeEscape 
     ; 
     

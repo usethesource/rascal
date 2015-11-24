@@ -39,12 +39,15 @@ import org.rascalmpl.ast.StringPart.IfThen2;
 import org.rascalmpl.ast.StringPart.IfThenElse2;
 import org.rascalmpl.ast.StringPart.Margin;
 import org.rascalmpl.ast.StringPart.Sepcomp;
+import org.rascalmpl.ast.StringPart.TerminalExpr;
+import org.rascalmpl.ast.StringPart.TerminalVar;
 import org.rascalmpl.ast.StringPart.Var;
 import org.rascalmpl.ast.StringPart.While2;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.ArgumentMismatch;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.value.IConstructor;
@@ -73,7 +76,7 @@ public class StringTemplateConverter {
 				// need a fix for this.
 				return super.interpret(eval);
 			}
-			catch (MatchFailed | ArgumentMismatch e) {
+			catch (MatchFailed | ArgumentMismatch | UndeclaredVariable e) {
 				// in case there is no matching format function, we simply yield using the builtin formatting guidelines
 				return ResultFactory.makeResult(TF.stringType(), VF.string(yield(arg.interpret(eval).getValue())), eval);
 			}
@@ -119,19 +122,8 @@ public class StringTemplateConverter {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			Accumulator target = getTarget(__eval);
-			Result<IValue> result;
 			
-			// TODO: if the expression is equal to the first parameter of the surrounding format function, then we should not call format again
-			// to avoid infinite recursion. Don't know how to do that yet.
-			
-			if (__eval.getCurrentEnvt().getVariable(Names.toName("format", getLocation())) == null) {
-				// no format function in scope, reverting to the argument of the call
-				result = makeStatExpr(getStatement().getExpression().getArguments().get(0)).interpret(__eval);
-			}
-			else {
-				result = this.getStatement().interpret(__eval);
-			}
-			
+			Result<IValue> result = getStatement().interpret(__eval);
 			String content = yield(result.getValue());
 			
 			target.appendString(indent);
@@ -281,8 +273,22 @@ public class StringTemplateConverter {
 		}
 		
 		@Override
+		public List<Statement> visitStringPartTerminalVar(TerminalVar x) {
+			// this one does not call "format"
+			Expression call = ASTBuilder.makeExp("QualifiedName", x.getLocation(), x.getVariable());
+			return single(new IndentingAppend(x.getLocation(), makeTarget(x.getLocation()), makeStatExpr(call), indentation));
+		}
+		
+		@Override
 		public List<Statement> visitStringPartExpr(Expr x) {
 			Expression call = new CallFormat(x.getLocation(), x.getResult(), x.getKeywordArguments());
+			return single(new IndentingAppend(x.getLocation(), makeTarget(x.getLocation()), makeStatExpr(call), indentation));
+		}
+		
+		@Override
+		public List<Statement> visitStringPartTerminalExpr(TerminalExpr x) {
+			// this one does not call "format"
+			Expression call = x.getResult();
 			return single(new IndentingAppend(x.getLocation(), makeTarget(x.getLocation()), makeStatExpr(call), indentation));
 		}
 		
@@ -349,7 +355,7 @@ public class StringTemplateConverter {
 			List<Statement> stats = new ArrayList<Statement>();
 			stats.addAll(body(x.getBody()));
 			
-			return single(ASTBuilder.makeStat("While", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), Collections.singletonList(x.getCondition()), 
+			return single(ASTBuilder.makeStat("While", x.getLocation(), ASTBuilder.make("Label","Empty", x.getLocation()), x.getConditions(), 
 					makeBlock(x.getLocation(), stats)));
 		}
 		

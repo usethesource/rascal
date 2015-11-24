@@ -1269,6 +1269,14 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
+  public T visitStringPartTerminalExpr(StringPart.TerminalExpr x) { 
+    return null; 
+  }
+
+  public T visitStringPartTerminalVar(StringPart.TerminalVar x) { 
+    return null; 
+  }
+
   public T visitStringPartVar(StringPart.Var x) { 
     return null; 
   }
