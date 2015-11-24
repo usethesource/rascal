@@ -281,44 +281,60 @@ MuExp translate((Literal) `<StringLiteral n>`) =
 
 /* Recap of relevant rules from Rascal grammar:
 
-   syntax StringLiteral
-        = template: PreStringChars pre StringTemplate template StringTail tail 
-	   | interpolated: PreStringChars pre Expression expression StringTail tail 
-	   | nonInterpolated: StringConstant constant ;
-	
-   lexical PreStringChars
-	   = [\"] StringCharacter* [\<] ;
-	
-   lexical MidStringChars
-	   =  [\>] StringCharacter* [\<] ;
-	
-   lexical PostStringChars
-	   = @category="Constant" [\>] StringCharacter* [\"] ;
+syntax StringLiteral 
+  = \default: "\"" NoLayout Indentation indent NoLayout  {StringPart NoLayout}* body NoLayout "\"";
+
+layout NoLayout 
+  = @manual nothing:
+  ;
+
+syntax StringPart
+  = \var          : "\~" NoLayout QualifiedName variable 
+  | \expr         : "\~(" Expression result KeywordArguments[Expression] keywordArguments ")"
+  | \block        : "\~{" Statement+ statements "}"
+  | \comp         : "\~(" Expression result KeywordArguments[Expression] keywordArguments "|" {Expression ","}+ generators ")"
+  | \sepcomp      : "\~(" Expression result KeywordArguments[Expression] keywordArguments "," Expression sep "|" {Expression ","}+ generators ")"
+  | \ifThen2      : "\~if"    "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "\~}"
+  | \ifThenElse2  : "\~if"    "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "\~}" "else" "{" NoLayout {StringPart NoLayout}* elseBody NoLayout "\~}"
+  | \while2       : "\~while" "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "\~}"
+  | \for2         : "\~for"   "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "\~}"
+  | \forsep       : "\~for"   "(" {Expression ","}+ conditions ")" "{" NoLayout {StringPart NoLayout}* body NoLayout "\~\~" NoLayout {StringPart NoLayout}* sepBody NoLayout "\~}"
+  | \margin       : "\n" NoLayout Indentation margin  NoLayout "\'" NoLayout Indentation indent 
+  | \characters   : StringCharacters characters
+  ;
+  
+// deprecated  
+syntax StringPart   
+  = @deprecated \hole      : "\<" Expression arg KeywordArguments[Expression] keywordArguments  "\>"
+  | @deprecated \ifThen    : "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStats "}" "\>" 
+  | @deprecated \ifThenElse: "\<" "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStatsThen "}" 
+                      "else"  "{"  Statement* preStatsElse "\>" NoLayout {StringPart NoLayout}* elseBody NoLayout "\<" Statement* postStatsElse "}" "\>" 
+  | @deprecated \for       : "\<" "for"   "(" {Expression ","}+ generators ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStats "}" "\>" 
+  | @deprecated \doWhile   : "\<" "do"    "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body NoLayout "\<" Statement* postStats  "}" "while" "(" Expression condition ")" "\>"
+  | @deprecated \while     : "\<" "while" "(" Expression condition ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body  NoLayout "\<" Statement* postStats"}" "\>" 
+  ;
+
+lexical StringCharacters = StringCharacter+ chars !>> ![\" \' \< \> \n \~];
+
+lexical Indentation
+  = [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* !>> [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]
+  ;
+  
 */	
 
 // -- translateStringLiteral
 
-private MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <StringTemplate template> <StringTail tail>`) {
-    preIndent = computeIndent(pre);
-	return muBlock( [ muCallPrim3("template_open", translatePreChars(pre), pre@\loc),
-                      *translateTemplate(preIndent, template),
-                      *translateTail(preIndent, tail),
-                      muCallPrim3("template_close", [], tail@\loc)
-                    ]);
-}
-    
-private MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <Expression expression> <StringTail tail>`) {
-    preIndent = computeIndent(pre);
-    return muBlock( [ muCallPrim3("template_open", translatePreChars(pre), pre@\loc),
-    				  *translateExpInStringLiteral(preIndent, expression),
-    				  *translateTail(preIndent, tail),
-    				  muCallPrim3("template_close", [], tail@\loc)
-					]   );
-}
-                    
-private MuExp translateStringLiteral(s: (StringLiteral)`<StringConstant constant>`) =
-	muCon(readTextValueString(removeMargins("<constant>")));
+// a constant single line string is special cased
+private MuExp translateStringLiteral(StringLiteral l : \default(Indentation indent, [StringCharacters body])) 
+    = muCon("<indent><body>");
 
+// in general we create a template processing loop
+default  MuExp translateStringLiteral(StringLiteral l) 
+    = muBlock( [ muCallPrim3("template_open", [], l@\loc),
+                      *translateBody(indent, body),
+                      muCallPrim3("template_close", [], l@\loc)
+                    ]);
+    
 // --- translateExpInStringLiteral
 
 private list[MuExp] translateExpInStringLiteral(str indent, Expression expression){   
@@ -332,35 +348,18 @@ private list[MuExp] translateExpInStringLiteral(str indent, Expression expressio
 }
 // --- removeMargins
 
-private str removeMargins(str s) {
-	if(findFirst(s, "\n") < 0){
-		return s;
-	} else {
-		res = visit(s) { case /^[ \t]*\\?'/m => ""  /*case /^[ \t]+$/m => ""*/};
-	    //println("RascalExpression::removeMargins: <s> =\> <res>");
-		return res;
-	}
-}
-
 // --- computeIndent 
 
-private str computeIndent(str s) {
-   lines = split("\n", removeMargins(s)); 
-   return isEmpty(lines) ? "" : left("", size(lines[-1]));
-} 
 
-private str computeIndent(PreStringChars pre) = computeIndent(removeMargins(/*deescape(*/"<pre>"[1..-1]/*)*/));
-private str computeIndent(MidStringChars mid) = computeIndent(removeMargins(/*deescape(*/"<mid>"[1..-1]/*)*/));
-
-private list[MuExp] translatePreChars(PreStringChars pre) {
-   spre = removeMargins("<pre>"[1..-1]);
-   return "<spre>" == "" ? [] : [ muCon(deescape(spre)) ];
-}	
-
-private list[MuExp] translateMidChars(MidStringChars mid) {
-  smid = removeMargins("<mid>"[1..-1]);
-  return "<mid>" == "" ? [] : [ muCallPrim3("template_add", [ muCon(deescape(smid)) ], mid@\loc) ];	//?
-}
+//private list[MuExp] translatePreChars(PreStringChars pre) {
+//   spre = removeMargins("<pre>"[1..-1]);
+//   return "<spre>" == "" ? [] : [ muCon(deescape(spre)) ];
+//}	
+//
+//private list[MuExp] translateMidChars(MidStringChars mid) {
+//  smid = removeMargins("<mid>"[1..-1]);
+//  return "<mid>" == "" ? [] : [ muCallPrim3("template_add", [ muCon(deescape(smid)) ], mid@\loc) ];	//?
+//}
 
 str deescape(str s)  { 
     res = visit(s) { 
@@ -374,80 +373,6 @@ str deescape(str s)  {
     return res;
 }
                      
-/* Recap of relevant rules from Rascal grammar:
-
-   syntax StringTemplate
-	   = ifThen    : "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" 
-	   | ifThenElse: "if"    "(" {Expression ","}+ conditions ")" "{" Statement* preStatsThen StringMiddle thenString Statement* postStatsThen "}" "else" "{" Statement* preStatsElse StringMiddle elseString Statement* postStatsElse "}" 
-	   | \for       : "for"   "(" {Expression ","}+ generators ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" 
-	   | doWhile   : "do"    "{" Statement* preStats StringMiddle body Statement* postStats "}" "while" "(" Expression condition ")" 
-	   | \while     : "while" "(" Expression condition ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" ;
-	
-   syntax StringMiddle
-	   = mid: MidStringChars mid 
-	   | template: MidStringChars mid StringTemplate template StringMiddle tail 
-	   | interpolated: MidStringChars mid Expression expression StringMiddle tail ;
-	
-   syntax StringTail
-        = midInterpolated: MidStringChars mid Expression expression StringTail tail 
-        | post: PostStringChars post 
-        | midTemplate: MidStringChars mid StringTemplate template StringTail tail ;
-*/
-
-// --- translateMiddle
-
-public list[MuExp] translateMiddle(str indent, (StringMiddle) `<MidStringChars mid>`) {
-	mids = removeMargins("<mid>"[1..-1]);
-	return mids == "" ? [] : [ muCallPrim3("template_add", [muCon(deescape(mids))], mid@\loc) ];	// ?
-}
-
-public list[MuExp] translateMiddle(str indent, s: (StringMiddle) `<MidStringChars mid> <StringTemplate template> <StringMiddle tail>`) {
-	midIndent = computeIndent(mid);
-    return [ *translateMidChars(mid),
-   			 *translateTemplate(indent + midIndent, template),
-   			 *translateMiddle(indent, tail)
-   		   ];
-   	}
-
-public list[MuExp] translateMiddle(str indent, s: (StringMiddle) `<MidStringChars mid> <Expression expression> <StringMiddle tail>`) {
-	midIndent = computeIndent(mid);
-    return [ *translateMidChars(mid),
-    		 *translateExpInStringLiteral(midIndent, expression),
-             *translateMiddle(indent + midIndent, tail)
-           ];
-}
-
-// --- translateTail
-
-private list[MuExp] translateTail(str indent, s: (StringTail) `<MidStringChars mid> <Expression expression> <StringTail tail>`) {
-    midIndent = computeIndent(mid);
-    return [ muBlock( [ *translateMidChars(mid),
-    					*translateExpInStringLiteral(midIndent, expression),
-                        *translateTail(indent + midIndent, tail)
-                    ])
-           ];
-}
-	
-private list[MuExp] translateTail(str indent, (StringTail) `<PostStringChars post>`) {
-  content = removeMargins("<post>"[1..-1]);
-  return size(content) == 0 ? [] : [muCallPrim3("template_add", [ muCon(deescape(content)) ], post@\loc)];
-}
-
-private list[MuExp] translateTail(str indent, s: (StringTail) `<MidStringChars mid> <StringTemplate template> <StringTail tail>`) {
-    midIndent = computeIndent(mid);
-    return [ muBlock( [ *translateMidChars(mid),
-                        *translateTemplate(indent + midIndent, template),
-                        *translateTail(indent + midIndent,tail)
-                    ])
-           ];
- } 
- 
- // --- translateTemplate 
- 
- private list[MuExp] translateTemplate(str indent, Expression expression){
- 	return translateExpInStringLiteral(indent, expression);
- }
- 
 // -- location literal  ----------------------------------------------
 
 MuExp translate((Literal) `<LocationLiteral src>`) = 
