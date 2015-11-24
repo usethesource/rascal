@@ -48,14 +48,14 @@ void tdemo2(){ render(rotate(45, frame(fig=demo2())), align = centerRight, debug
 
 
 public Figure newEllipse(str lc, Figure el) {
-      return at(0, 0, ellipse(align = topLeft, lineColor= lc, lineWidth = 19, 
+      return at(0, 0, ellipse(lineColor= lc, lineWidth = 19, 
            fillColor = "white", padding=<0,0,0,0>, 
       fig = el));
       }
 public Figure demo3() = (idEllipse(100, 75) |newEllipse(e, 
       it)| e<-["red","blue" ,"grey","magenta", "brown", "green"]);
       
-void tdemo3()  {render(demo3(), debug = false, align = topLeft);}
+void tdemo3()  {render(demo3(), debug = false);}
 // ---------------------------------------------------------------------------
 
 list[Vertex] innerGridH(int n) {
@@ -121,7 +121,7 @@ Figure labeled(Figure g) {
         figs = [
            vcat(figs=gridLabelY(), padding=<0,0,0,20>)
            , vcat(lineWidth = 0, figs = [box(fig=g, lineWidth=1), hcat(figs = gridLabelX())])
-           ]);
+           ], resizable = false);
      }
      
  list[Figure] gridLabelX() {
@@ -325,6 +325,7 @@ Figure plotg(num(num) g, list[num] d) {
      
 num(num) gg(num a) = num(num x) {return a*x*x;};
 
+
 num g1(num x) = x*x;
 
 Figure demo7() = plotg(gg(0.5), [-1,-0.9..1.1]);
@@ -470,7 +471,7 @@ Figure demo15()= ov();
 list[Figure] rgbFigs = [box(fillColor="red",size=<50,100>), box(fillColor="green", size=<200,200>), box(fillColor="blue",  size=<10,10>)];
 
 public Figure hcat11() = 
-       box(padding=<0, 0, 0, 0>, lineWidth = 10 , resizable = false
+       box(padding=<0, 0, 0, 0>, lineWidth = 10 , resizable = true
        , fillColor = "antiquewhite", lineColor = "blue"
        ,fig= ellipse(padding=<0, 0, 0, 0>
              ,fig=hcat(lineWidth=2, lineColor="brown", figs=rgbFigs) 
@@ -481,7 +482,7 @@ public Figure hcat11() =
 ;
 
 void tfhcat11(loc l)= writeFile(l,
-     toHtmlString(hcat11, debug = false));
+     toHtmlString(hcat11(), debug = false));
 void thcat11(){ render(hcat11(), debug = false);}
 
 Figure demo16()= hcat11();
@@ -500,7 +501,7 @@ void tbig() = render(big());
 
 Figure demo18() = flower();
 
-void tflower() = render(flower());
+void tflower() = render(flower(), size=<800, 800>);
 
 Figure cell(str s, int r = 15) = 
      circle(

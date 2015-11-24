@@ -1,4 +1,6 @@
 var ajax = {};
+alertSize();
+// window.alert( 'Height = ' + screenHeight );
 ajax.x = function() {
     if (typeof XMLHttpRequest !== 'undefined') {
         return new XMLHttpRequest();  
@@ -70,6 +72,26 @@ function askServer(path, parameters, timer, timeout, callback) {
 	});
    }
    
+ function alertSize() {
+    if(typeof(window.innerWidth) == 'number') {
+        // Non-IE
+        screenWidth = window.innerWidth-50;
+        screenHeight = window.innerHeight-50;
+    } 
+    else if(document.documentElement && (document.documentElement.clientWidth || document.documentElement.clientHeight)) {
+        // IE 6+ in 'standards compliant mode'
+        screenWidth = document.documentElement.clientWidth;
+        screenHeight = document.documentElement.clientHeight;
+    } 
+    else if(document.body && (document.body.clientWidth || document.body.clientHeight)) {
+        // IE 4 compatible
+        screenWidth = document.body.clientWidth;
+        screenHeight = document.body.clientHeight;
+    }
+
+   
+}
+   
  rxL= function(rx, ry) {return rx * Math.sqrt(rx*rx+ry*ry)/ry;};
  ryL= function(rx, ry) {return ry * Math.sqrt(rx*rx+ry*ry)/rx;};
  
@@ -110,7 +132,7 @@ function askServer(path, parameters, timer, timeout, callback) {
                      .attr("r", r); 
                     width = 2*r+lw;
                     height = 2*r+lw; 
-                    d3.select("#"+id0).attr("width",width).attr("height",height);                  
+                    d.attr("width",width).attr("height",height);                  
                     break;
         case "ellipse":  
                     var rx = rxL(width/2, height/2);
@@ -119,7 +141,7 @@ function askServer(path, parameters, timer, timeout, callback) {
                      .attr("rx", rx).attr("ry", ry); 
                      width = 2*rx + lw;
                      height= 2*ry + lw;
-                    d3.select("#"+id0).attr("width",width).attr("height",height);               
+                    d.attr("width",width).attr("height",height);               
                     break; 
         };
     d3.select("#"+id0+"_fo_table").style("width",width).style("height",height);
@@ -127,8 +149,8 @@ function askServer(path, parameters, timer, timeout, callback) {
     d3.select("#"+id0+"_svg").attr("width",width).attr("height",height);
    }
    
-   function adjust1(id0, width, height, lw, hpad, vpad, hshrink, vshrink) { 
-    var d = d3.select("#"+id0);
+   function adjust1(id, f, width, height, hpad, vpad) { 
+    var d = d3.select("#"+f.id);
     // alert("adjust1: "+id0+" "+d.node().nodeName+" "+width+" "+height);
     if (d.node().nodeName=="TABLE") {
           if (d.attr("width")==null) {
@@ -143,47 +165,64 @@ function askServer(path, parameters, timer, timeout, callback) {
           } 
     if  (d.attr("width")!=null) width = d.attr("width");
     if  (d.attr("height")!=null) height = d.attr("height");
-    var w = width * hshrink;
-    var h = height* vshrink;
+    var w = width * f.hshrink;
+    var h = height* f.vshrink;
     switch (d.node().nodeName) {
         case "rect": 
+         
                    d.attr("width",w).attr("height",h).
                    attr("x",0).attr("y", 0); 
                    break;
         case "circle":               
                     if (d.attr("r")==null) { 
-                        var side =  Math.max(width, height); 
-                        var side1 =  Math.max(w, h);         
-                        var r1 = side1/2;
-                        var r = side/2;
-                        d.attr("cx", r+lw/2).attr("cy", r+lw/2)
+                        var side =  Math.min(width, height); 
+                        var side1 =  Math.min(w, h);
+                        width = side;
+                        height = side; 
+                        w = side1;
+                        h = side1;        
+                        var r1 = (side1-f.lw)/2-1;
+                        d.attr("cx", side1/2).attr("cy", side1/2)
                         .attr("r", r1);
-                        width = 2*r+lw;
-                        height = 2*r+lw;
+                        width = side;
+                        height = side;
+                        d.attr("width",w).attr("height",h);
                         } 
                                            
                     break;
         case "ellipse":
                     if ((d.attr("rx")==null) && (d.attr("ry")==null)) {
-                        var rx = rxL(width/2, height/2);
-                        var ry = ryL(width/2, height/2);
-                        var rx1 = rxL(w/2, h/2);
-                        var ry1 = ryL(w/2, h/2);
-                        d.attr("cx", rx+lw/2).attr("cy", ry+lw/2)
+                        //var rx = rxL(width/2, height/2);
+                        //var ry = ryL(width/2, height/2);
+                        //var rx1 = rxL(w/2, h/2);
+                        //var ry1 = ryL(w/2, h/2);
+                        var rx1 = (w-f.lw)/2;
+                        var ry1 = (h-f.lw)/2;
+                        d.attr("cx", w/2).attr("cy", h/2)
                         .attr("rx", rx1).attr("ry", ry1); 
-                     width = 2*rx + lw;
-                     height= 2*ry + lw;               
+                      d.attr("width",w).attr("height",h);
+                     //width = 2*rx + lw;
+                     //height= 2*ry + lw;               
                      }                            
                     break; 
         };
-    // d3.select("#"+id0").style("width",width).style("height",height);
-    // d3.select("#"+id0+"_fo_table").style("width",""+width+"px").style("height",""+height+"px");
-    d3.select("#"+id0+"_fo").attr("width",""+width+"px").attr("height",""+height+"px");
-    d3.select("#"+id0+"_svg").attr("width",""+width+"px").attr("height",""+height+"px");
+    // alert(width);
+    // d3.select("#"+f.id").style("width",width).style("height",height);
+    d3.select("#"+f.id+"_fo_table").style("width",""+w+"px").style("height",""+h+"px");
+    d3.select("#"+f.id+"_fo").attr("width",""+w+"px").attr("height",""+h+"px");
+    d3.select("#"+f.id+"_svg").attr("width",""+w+"px").attr("height",""+h+"px");
+    d3.select("#"+id+"_"+f.id).style("width",""+width+"px").style("height",""+height+"px");
+    d3.select("#"+id+"_"+f.id).attr("pointer-events", "none");
+    d3.select("#"+f.id+"_fo_table").attr("pointer-events", "none");
    }
    
-   function getVal(id0, key) {
-      var d = d3.select("#"+id0);
+   function fig(id, hshrink, vshrink, lw) {
+        return {id:id, hshrink:hshrink, vshrink: vshrink, lw: lw};
+        }
+   
+   function getVal(f, key) {
+      // alert("aap");
+      var d = d3.select("#"+f.id);
       
       if (d.node().nodeName=="TABLE") {
           // alert(""+id0+" "+d.node().nodeName+" "+key+" :"+d.attr(key));  
@@ -229,28 +268,80 @@ function askServer(path, parameters, timer, timeout, callback) {
    
    function defH(v) {return (getVal(v, "height")!=null);}
    
-   function adjustTableW(clients, id1, lw, hpad, vpad) {
-         var hshrink = 1;
-         var vshrink = 1;  
+   function adjustTable(id1, clients) { 
+       var aUndefWH = clients.filter(undefWH);
+       if (aUndefWH.length==0) {
+            var width = document.getElementById(id1).getBoundingClientRect().width;
+            var height = document.getElementById(id1).getBoundingClientRect().height;
+            d3.select("#"+id1).attr("width",""+width+"px").attr("height",""+height+"px");
+            }
+       }
+       
+   function adjustTableWH1(id1, clients) { 
+         var aUndefWH = clients.map(function(i) {return i.filter(undefWH);}); 
+         if (aUndefWH.length==0) {
+            var width = document.getElementById(id1).getBoundingClientRect().width;
+            var height = document.getElementById(id1).getBoundingClientRect().height;
+            d3.select("#"+id1).attr("width",""+width+"px").attr("height",""+height+"px");
+            }
+       }
+       
+   function adjustOverlay(clients, id1, lw, hpad, vpad) { 
+         // alert("adjust");
          var c = d3.select("#"+id1);
          var width = c.attr("width");
          var height = c.attr("height");
+         // alert(id1);
          if (width==null||height==null) return;
+         
+         var aUndefWH = clients.filter(undefWH);
+         var w = parseInt(width);
+         var h = parseInt(height); 
+         // alert(aUndefWH.length);
+         for (var i=0;i<aUndefWH.length;i++) {
+             id1, adjust1(id1, aUndefWH[i], w, h,  hpad, vpad);
+             }
+         width = 0; height = 0;
+         var isEmpty = false;
+         for (var i=0;i<clients.length;i++) {
+            var d = d3.select("#"+clients[i].id);
+            var e = d3.select("#"+clients[i].id+"_svg");
+            if (!e.empty()) {
+               w = parseInt(d.attr("width"))+ parseInt(e.attr("x"));
+               h = parseInt(d.attr("height"))+ parseInt(e.attr("y"));
+               if (w>width) width = w;
+               if (h>height) height = h;
+               } 
+            else isEmpty = true;      
+            }
+         if (!isEmpty) {
+             c.attr("width", width).attr("height", height);
+             c = d3.select("#"+id1+"_svg");
+             c.attr("width", width).attr("height", height);
+             }     
+         }
+        
+   function adjustTableW(clients, id1, lw, hpad, vpad) { 
+         var c = d3.select("#"+id1);
+         var width = c.attr("width");
+         var height = c.attr("height");
+         // alert(id1);
+         if (width==null||height==null) return;
+         
          var aUndefW = clients.filter(undefW);
          var aUndefWH = clients.filter(undefWH);
          var sDefW = sumWidth(clients.filter(defW));
          var nW = aUndefW.length; 
          var w = (parseInt(width)-sDefW)/nW;
          var h = parseInt(height); 
-         // alert("adjustTableW:"+id1+" "+aUndefWH);  
+         // alert("adjustTableW:"+id1+" "+aUndefWH); 
+         // lw  =10; 
          for (var i=0;i<aUndefWH.length;i++) {
-             adjust1(aUndefWH[i], w, h, lw, hpad, vpad, hshrink, vshrink);
+             id1, adjust1(id1, aUndefWH[i], w, h,  hpad, vpad);
              }
          }
    
-   function adjustTableH(clients, id1, lw, hpad, vpad) {
-         var hshrink = 1;
-         var vshrink = 1;  
+   function adjustTableH(clients, id1, lw, hpad, vpad) { 
          var c = d3.select("#"+id1);
          var width = c.attr("width");
          var height = c.attr("height");
@@ -262,7 +353,7 @@ function askServer(path, parameters, timer, timeout, callback) {
          var h = (parseInt(height)-sDefH)/nH;
          var w = parseInt(width); 
          for (var i=0;i<aUndefWH.length;i++)
-             adjust1(aUndefWH[i], w, h, lw, hpad, vpad, hshrink, vshrink);
+             adjust1(id1, aUndefWH[i], w, h, hpad, vpad);
          }
          
         function getMaxOfArray(numArray) {
@@ -272,22 +363,37 @@ function askServer(path, parameters, timer, timeout, callback) {
     function getMinOfArray(numArray) {
              return Math.min.apply(null, numArray);
          }
-              
-   function transpose(a) {
-      return a[0].map(function (_, c) { return a.map(function (r) { return r[c]; }); });
-   }
+  
+ function transpose(original) { 
+     var ncols = 0;
+     for (var i = 0; i < original.length; ++i) {   
+           if (original[i].length>ncols) ncols = original[i].length;
+           } 
+     var copy  = new Array(ncols);
+     for (var i = 0; i < ncols; ++i) {
+        copy[i] = new Array();
+        }
+     for (var i = 0; i < original.length; ++i) {
+        for (var j = 0; j < original[i].length; ++j) {
+            copy[j].push(original[i][j]);
+         }
+      }      
+      return copy;
+}
+
          
    function adjustTableWH(clients, id1, lw, hpad, vpad) { 
-         var hshrink = 1;
-         var vshrink = 1;      
          var c = d3.select("#"+id1);
          var width = c.attr("width");
          var height = c.attr("height");
          clients1 = transpose(clients);
-         if (width==null||height==null) return;   
-         var aUndefW = clients.map(function(i) {return i.filter(undefW);});
+         if (width==null||height==null) return;  
+         var aUndefW = clients.map(function(i) {return i.filter(undefW);}); 
+        
          var aUndefH = clients1.map(function(i) {return i.filter(undefH);});
-         var aUndefWH = clients.map(function(i) {return i.filter(undefWH);});
+         // alert("adjustWHJ");  
+         var aUndefWH = clients.map(function(i) {return i.filter(undefWH);}); 
+         
          var sDefW = 
              aUndefW.length<clients.length?Math.max(parseInt(width)/clients1.length
              ,getMaxOfArray(clients.map(function(i) {return sumWidth(i.filter(defW));}))
@@ -303,9 +409,11 @@ function askServer(path, parameters, timer, timeout, callback) {
          var w = (parseInt(width)-sDefW)/nW;
          var h = (parseInt(height)-sDefH)/nH;
          // alert("adjustTableW:"+id1+" "+aUndefWH);
+         // alert(w);
+         // alert(h);
          for (var i =0;i<aUndefWH.length;i++) {
          for (var j=0;j<aUndefWH[i].length;j++) {
-             adjust1(aUndefWH[i][j], w, h, lw, hpad, vpad, hshrink, vshrink);
+             adjust1(id1, aUndefWH[i][j], w, h,  hpad, vpad);
              }
            }
          }
@@ -320,27 +428,18 @@ function askServer(path, parameters, timer, timeout, callback) {
          
   
   
-   function adjustBox(id0, id1, hshrink, vshrink) { 
-       // alert("adjustBox");
+   function adjustBox(id0, id1, hshrink, vshrink, lw) { 
+       // alert("adjustBox:"+id0+":"+d3.select("#"+id0).attr("width"));
+       if (d3.select("#"+id0).attr("width")!=null && 
+            d3.select("#"+id0).attr("height")!=null) return;
        var width = document.getElementById(id1).getBoundingClientRect().width;
        var height = document.getElementById(id1).getBoundingClientRect().height;
        // alert(width);
        // alert(height);
        if (width==null||height==null) return;
-       //alert(id1);
-       //alert(d3.select("#"+id0).attr("width"));
-       //alert(d3.select("#"+id0).attr("height"));
-       if (d3.select("#"+id0).attr("width")!=null && 
-            d3.select("#"+id0).attr("height")!=null) return;
-       //alert(hshrink);
        width = parseInt(width)*parseFloat(hshrink); 
        height = parseInt(height)*parseFloat(vshrink);
-       // alert(id1+":width:"+width+" id:"+id0);
-       d3.select("#"+id0).attr("width",width).attr("height",height);
-       // d3.select("#"+id0).style("width",width).style("height",height);
-       d3.select("#"+id0+"_fo_table").style("width",width).style("height",height);
-       d3.select("#"+id0+"_fo").attr("width",width).attr("height",height);
-       d3.select("#"+id0+"_svg").attr("width",width).attr("height",height);
+       adjust1(id1, {id:id0, hshrink:hshrink, vshrink:vshrink, lw:lw}, width, height,  0, 0);
        }
  
 function isObject (item) {

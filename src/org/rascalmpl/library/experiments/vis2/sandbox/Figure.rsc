@@ -576,6 +576,7 @@ list[list[value]] joinData(list[Chart] charts, bool tickLabels, int tooltipColum
    
 public Figure svg(Figure f, tuple[int, int] size = <0, 0>) {
     /*if (f.lineWidth<0) */ {f.lineWidth = 1; f.lineColor="black";}
+    // f.id = "#_box";
     Figure r = box(size=size, lineWidth = 0, fillColor = "none", fig = f);
     // println(r);
     return r;
