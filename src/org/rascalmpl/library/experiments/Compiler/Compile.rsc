@@ -41,6 +41,16 @@ loc MuModuleWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWrite
 
 tuple[bool,loc] ConfigReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "tc", pcfg);
 
+tuple[bool,loc] getMergedImportsReadLoc(str mainQualifiedName, PathConfig pcfg){
+    merged_imports_qname = mainQualifiedName + "_imports";
+    return getDerivedReadLoc(merged_imports_qname, "rvm.gz", pcfg);
+}
+
+loc getMergedImportsWriteLoc(str mainQualifiedName, PathConfig pcfg){
+    merged_imports_qname = mainQualifiedName + "_imports";
+    return getDerivedWriteLoc(merged_imports_qname, "rvm.gz", pcfg);
+}
+
 
 bool validRVM(str qualifiedModuleName, PathConfig pcfg){
 	<existsRvmLoc, rvmLoc> = RVMModuleReadLoc(qualifiedModuleName, pcfg);
@@ -132,14 +142,16 @@ RVMModule recompileDependencies(str qualifiedModuleName, RVMModule rvmMod, Confi
         
     allDependencies = { prettyPrintName(rname) | rname <- carrier(cfg.importGraph) } - qualifiedModuleName;
     
+    bool atLeastOneRecompiled = false;
     for(dependency <- allDependencies){
         if(dependency in dirtyModules || !validRVM(dependency, pcfg)){
            <cfg1, rvmMod1> = compile1(dependency, pcfg);
+           atLeastOneRecompiled = true;
            messages += cfg1.messages;
         }
     }
     
-    //clearDirtyModules(qualifiedModuleName, pcfg);
+    clearDirtyModules(qualifiedModuleName, pcfg);
     
     errors = [ e | e:error(_,_) <- messages];
     warnings = [ w | w:warning(_,_) <- messages ];
@@ -147,7 +159,16 @@ RVMModule recompileDependencies(str qualifiedModuleName, RVMModule rvmMod, Confi
     if(size(errors) > 0) {
         return errorRVMModule(rvmMod.name, messages, getModuleLocation(qualifiedModuleName, pcfg));
     }
-    
+    if(atLeastOneRecompiled){
+       mergedLoc = getMergedImportsWriteLoc(qualifiedModuleName, pcfg);
+       try {
+           println("Removing <mergedLoc>");
+           remove(mergedLoc);
+       } catch e: {
+           println("Could not remove <mergedLoc>: <e>");
+        }
+    }
+   
     return rvmMod ;
 }
 
@@ -170,7 +191,7 @@ lang::rascal::\syntax::Rascal::Declaration getMain(lang::rascal::\syntax::Rascal
 Module removeMain(lang::rascal::\syntax::Rascal::Module m) {
     if(m2: (Module) `<Header h> <Toplevel* pre> <Toplevel mn>` := m){
        res = (Module) `<Header h> <Toplevel* pre>`;
-       //println("removeMain:\n====\n<m>\n=== returns\n<res>\n====");
+       println("removeMain:\n====\n<m>\n=== returns\n<res>\n====");
        return res;
     }
     throw "removeMain: no main found";

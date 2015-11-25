@@ -1,4 +1,6 @@
 module experiments::Compiler::Examples::Tst4
 
-value main() = "aap"() has noot;
+import experiments::Compiler::Examples::Tst3;
+
+value main() = 42;
  

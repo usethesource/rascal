@@ -1,9 +1,11 @@
 module experiments::Compiler::Examples::Tst6
+//import IO;
+//import Type;
+import List;
+//import DateTime;
 
-data D = d(int n);
+import experiments::Compiler::Execute;
 
-anno int D@a;
+// Percentage of succeeded tests, see spreadsheet TestOverview.ods
 
-value main6(){
-    return d(1)[@a=12] == d(1)[@a=13];
-}
+public int XYZ = 3;
