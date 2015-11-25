@@ -342,7 +342,7 @@ public class StringTemplateConverter {
 			stats.addAll(body(x.getBody()));
 			
 			List<Statement> elseStats = new ArrayList<>();
-			stats.addAll(body(x.getElseBody()));
+			elseStats.addAll(body(x.getElseBody()));
 
 			return single(ASTBuilder.makeStat("IfThenElse", x.getLocation(), ASTBuilder.make("Label","Empty",x.getLocation()), 
 					x.getConditions(), makeBlock(x.getLocation(), stats), makeBlock(x.getLocation(), elseStats)));
@@ -393,7 +393,7 @@ public class StringTemplateConverter {
 			
 			List<Statement> elseStats = new ArrayList<>();
 			elseStats.addAll(x.getPreStatsElse());
-			stats.addAll(body(x.getElseBody()));
+			elseStats.addAll(body(x.getElseBody()));
 			elseStats.addAll(x.getPostStatsElse());
 
 			return single(ASTBuilder.makeStat("IfThenElse", x.getLocation(), ASTBuilder.make("Label","Empty",x.getLocation()), 

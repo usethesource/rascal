@@ -232,7 +232,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 941 + 653 * statements.hashCode() ; 
+      return 13 + 787 * statements.hashCode() ; 
     } 
   
     
@@ -306,7 +306,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 13 + 787 * characters.hashCode() ; 
+      return 37 + 131 * characters.hashCode() ; 
     } 
   
     
@@ -402,7 +402,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 37 + 131 * result.hashCode() + 331 * keywordArguments.hashCode() + 521 * generators.hashCode() ; 
+      return 331 + 521 * result.hashCode() + 839 * keywordArguments.hashCode() + 191 * generators.hashCode() ; 
     } 
   
     
@@ -530,7 +530,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 839 + 191 * preStats.hashCode() + 599 * body.hashCode() + 109 * postStats.hashCode() + 977 * condition.hashCode() ; 
+      return 599 + 109 * preStats.hashCode() + 977 * body.hashCode() + 2 * postStats.hashCode() + 947 * condition.hashCode() ; 
     } 
   
     
@@ -641,7 +641,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 2 + 947 * result.hashCode() + 281 * keywordArguments.hashCode() ; 
+      return 281 + 409 * result.hashCode() + 97 * keywordArguments.hashCode() ; 
     } 
   
     
@@ -762,7 +762,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 409 + 97 * generators.hashCode() + 607 * preStats.hashCode() + 547 * body.hashCode() + 283 * postStats.hashCode() ; 
+      return 607 + 547 * generators.hashCode() + 283 * preStats.hashCode() + 757 * body.hashCode() + 347 * postStats.hashCode() ; 
     } 
   
     
@@ -877,7 +877,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 757 + 347 * conditions.hashCode() + 73 * body.hashCode() ; 
+      return 73 + 181 * conditions.hashCode() + 499 * body.hashCode() ; 
     } 
   
     
@@ -986,7 +986,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 181 + 499 * conditions.hashCode() + 227 * body.hashCode() + 389 * sepBody.hashCode() ; 
+      return 227 + 389 * conditions.hashCode() + 479 * body.hashCode() + 103 * sepBody.hashCode() ; 
     } 
   
     
@@ -1088,7 +1088,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 479 + 103 * arg.hashCode() + 859 * keywordArguments.hashCode() ; 
+      return 859 + 163 * arg.hashCode() + 739 * keywordArguments.hashCode() ; 
     } 
   
     
@@ -1209,7 +1209,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 163 + 739 * conditions.hashCode() + 821 * preStats.hashCode() + 977 * body.hashCode() + 677 * postStats.hashCode() ; 
+      return 821 + 977 * conditions.hashCode() + 677 * preStats.hashCode() + 11 * body.hashCode() + 691 * postStats.hashCode() ; 
     } 
   
     
@@ -1324,7 +1324,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 11 + 691 * conditions.hashCode() + 71 * body.hashCode() ; 
+      return 71 + 181 * conditions.hashCode() + 199 * body.hashCode() ; 
     } 
   
     
@@ -1481,7 +1481,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 181 + 199 * conditions.hashCode() + 787 * preStatsThen.hashCode() + 193 * body.hashCode() + 199 * postStatsThen.hashCode() + 389 * preStatsElse.hashCode() + 281 * elseBody.hashCode() + 389 * postStatsElse.hashCode() ; 
+      return 787 + 193 * conditions.hashCode() + 199 * preStatsThen.hashCode() + 389 * body.hashCode() + 281 * postStatsThen.hashCode() + 389 * preStatsElse.hashCode() + 683 * elseBody.hashCode() + 577 * postStatsElse.hashCode() ; 
     } 
   
     
@@ -1635,7 +1635,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 683 + 577 * conditions.hashCode() + 653 * body.hashCode() + 73 * elseBody.hashCode() ; 
+      return 653 + 73 * conditions.hashCode() + 991 * body.hashCode() + 911 * elseBody.hashCode() ; 
     } 
   
     
@@ -1737,7 +1737,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 991 + 911 * margin.hashCode() + 379 * indent.hashCode() ; 
+      return 379 + 811 * margin.hashCode() + 373 * indent.hashCode() ; 
     } 
   
     
@@ -1852,7 +1852,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 811 + 373 * result.hashCode() + 83 * keywordArguments.hashCode() + 71 * sep.hashCode() + 683 * generators.hashCode() ; 
+      return 83 + 71 * result.hashCode() + 683 * keywordArguments.hashCode() + 839 * sep.hashCode() + 577 * generators.hashCode() ; 
     } 
   
     
@@ -1953,7 +1953,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 839 + 577 * result.hashCode() ; 
+      return 41 + 809 * result.hashCode() ; 
     } 
   
     
@@ -2027,7 +2027,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 41 + 809 * variable.hashCode() ; 
+      return 821 + 821 * variable.hashCode() ; 
     } 
   
     
@@ -2101,7 +2101,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 821 + 821 * variable.hashCode() ; 
+      return 59 + 139 * variable.hashCode() ; 
     } 
   
     
@@ -2211,7 +2211,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 59 + 139 * condition.hashCode() + 233 * preStats.hashCode() + 331 * body.hashCode() + 359 * postStats.hashCode() ; 
+      return 233 + 331 * condition.hashCode() + 359 * preStats.hashCode() + 151 * body.hashCode() + 311 * postStats.hashCode() ; 
     } 
   
     
@@ -2326,7 +2326,7 @@ public abstract class StringPart extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 151 + 311 * conditions.hashCode() + 73 * body.hashCode() ; 
+      return 73 + 619 * conditions.hashCode() + 5 * body.hashCode() ; 
     } 
   
     

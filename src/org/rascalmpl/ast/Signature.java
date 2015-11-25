@@ -69,14 +69,16 @@ public abstract class Signature extends AbstractAST {
   }
 
   static public class Format extends Signature {
-    // Production: sig("Format",[arg("org.rascalmpl.ast.Parameters","parameters")],breakable=false)
+    // Production: sig("Format",[arg("org.rascalmpl.ast.FunctionModifiers","modifiers"),arg("org.rascalmpl.ast.Parameters","parameters")],breakable=false)
   
     
+    private final org.rascalmpl.ast.FunctionModifiers modifiers;
     private final org.rascalmpl.ast.Parameters parameters;
   
-    public Format(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Parameters parameters) {
+    public Format(ISourceLocation src, IConstructor node , org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Parameters parameters) {
       super(src, node);
       
+      this.modifiers = modifiers;
       this.parameters = parameters;
     }
   
@@ -97,6 +99,14 @@ public abstract class Signature extends AbstractAST {
       }
       ISourceLocation $l;
       
+      $l = modifiers.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        modifiers.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
+      
       $l = parameters.getLocation();
       if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
         parameters.addForLineNumber($line, $result);
@@ -113,15 +123,24 @@ public abstract class Signature extends AbstractAST {
         return false;
       }        
       Format tmp = (Format) o;
-      return true && tmp.parameters.equals(this.parameters) ; 
+      return true && tmp.modifiers.equals(this.modifiers) && tmp.parameters.equals(this.parameters) ; 
     }
    
     @Override
     public int hashCode() {
-      return 113 + 659 * parameters.hashCode() ; 
+      return 113 + 659 * modifiers.hashCode() + 113 * parameters.hashCode() ; 
     } 
   
     
+    @Override
+    public org.rascalmpl.ast.FunctionModifiers getModifiers() {
+      return this.modifiers;
+    }
+  
+    @Override
+    public boolean hasModifiers() {
+      return true;
+    }
     @Override
     public org.rascalmpl.ast.Parameters getParameters() {
       return this.parameters;
@@ -134,7 +153,7 @@ public abstract class Signature extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null , clone(parameters));
+      return newInstance(getClass(), src, (IConstructor) null , clone(modifiers), clone(parameters));
     }
             
   }
@@ -222,7 +241,7 @@ public abstract class Signature extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 113 + 163 * modifiers.hashCode() + 491 * type.hashCode() + 887 * name.hashCode() + 547 * parameters.hashCode() ; 
+      return 163 + 491 * modifiers.hashCode() + 887 * type.hashCode() + 547 * name.hashCode() + 293 * parameters.hashCode() ; 
     } 
   
     
@@ -274,15 +293,17 @@ public abstract class Signature extends AbstractAST {
   }
 
   static public class Test extends Signature {
-    // Production: sig("Test",[arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Parameters","parameters")],breakable=false)
+    // Production: sig("Test",[arg("org.rascalmpl.ast.FunctionModifiers","modifiers"),arg("org.rascalmpl.ast.Name","name"),arg("org.rascalmpl.ast.Parameters","parameters")],breakable=false)
   
     
+    private final org.rascalmpl.ast.FunctionModifiers modifiers;
     private final org.rascalmpl.ast.Name name;
     private final org.rascalmpl.ast.Parameters parameters;
   
-    public Test(ISourceLocation src, IConstructor node , org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters) {
+    public Test(ISourceLocation src, IConstructor node , org.rascalmpl.ast.FunctionModifiers modifiers,  org.rascalmpl.ast.Name name,  org.rascalmpl.ast.Parameters parameters) {
       super(src, node);
       
+      this.modifiers = modifiers;
       this.name = name;
       this.parameters = parameters;
     }
@@ -303,6 +324,14 @@ public abstract class Signature extends AbstractAST {
         $result.add(this);
       }
       ISourceLocation $l;
+      
+      $l = modifiers.getLocation();
+      if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+        modifiers.addForLineNumber($line, $result);
+      }
+      if ($l.getBeginLine() > $line) {
+        return;
+      }
       
       $l = name.getLocation();
       if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
@@ -328,15 +357,24 @@ public abstract class Signature extends AbstractAST {
         return false;
       }        
       Test tmp = (Test) o;
-      return true && tmp.name.equals(this.name) && tmp.parameters.equals(this.parameters) ; 
+      return true && tmp.modifiers.equals(this.modifiers) && tmp.name.equals(this.name) && tmp.parameters.equals(this.parameters) ; 
     }
    
     @Override
     public int hashCode() {
-      return 293 + 997 * name.hashCode() + 881 * parameters.hashCode() ; 
+      return 997 + 881 * modifiers.hashCode() + 313 * name.hashCode() + 127 * parameters.hashCode() ; 
     } 
   
     
+    @Override
+    public org.rascalmpl.ast.FunctionModifiers getModifiers() {
+      return this.modifiers;
+    }
+  
+    @Override
+    public boolean hasModifiers() {
+      return true;
+    }
     @Override
     public org.rascalmpl.ast.Name getName() {
       return this.name;
@@ -358,7 +396,7 @@ public abstract class Signature extends AbstractAST {
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null , clone(name), clone(parameters));
+      return newInstance(getClass(), src, (IConstructor) null , clone(modifiers), clone(name), clone(parameters));
     }
             
   }
@@ -458,7 +496,7 @@ public abstract class Signature extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 313 + 127 * modifiers.hashCode() + 823 * type.hashCode() + 757 * name.hashCode() + 89 * parameters.hashCode() + 619 * exceptions.hashCode() ; 
+      return 823 + 757 * modifiers.hashCode() + 89 * type.hashCode() + 619 * name.hashCode() + 401 * parameters.hashCode() + 463 * exceptions.hashCode() ; 
     } 
   
     

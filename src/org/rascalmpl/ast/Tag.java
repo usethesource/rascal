@@ -114,7 +114,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 19 + 181 * name.hashCode() + 599 * contents.hashCode() ; 
+      return 599 + 101 * name.hashCode() + 421 * contents.hashCode() ; 
     } 
   
     
@@ -197,7 +197,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 101 + 421 * name.hashCode() ; 
+      return 277 + 487 * name.hashCode() ; 
     } 
   
     
@@ -281,7 +281,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 277 + 487 * name.hashCode() + 797 * expression.hashCode() ; 
+      return 797 + 787 * name.hashCode() + 397 * expression.hashCode() ; 
     } 
   
     

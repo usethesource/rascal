@@ -116,7 +116,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 101 + 17 * subject.hashCode() + 797 * cases.hashCode() ; 
+      return 797 + 499 * subject.hashCode() + 347 * cases.hashCode() ; 
     } 
   
     
@@ -221,7 +221,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 499 + 347 * strategy.hashCode() + 947 * subject.hashCode() + 571 * cases.hashCode() ; 
+      return 947 + 571 * strategy.hashCode() + 907 * subject.hashCode() + 173 * cases.hashCode() ; 
     } 
   
     

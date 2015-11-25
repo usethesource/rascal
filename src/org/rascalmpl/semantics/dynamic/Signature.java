@@ -12,10 +12,10 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.FunctionModifiers;
 import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Name;
@@ -34,11 +34,19 @@ import org.rascalmpl.value.type.Type;
 
 public abstract class Signature extends org.rascalmpl.ast.Signature {
 
+	private static FunctionModifiers addMod(FunctionModifiers base, FunctionModifier addition) {
+		List<FunctionModifier> l = new ArrayList<>(base.getModifiers().size() + 1);
+		l.addAll(base.getModifiers());
+		l.add(addition);
+		
+		return ASTBuilder.make("FunctionModifiers", "Modifierlist", base.getLocation(), l);
+	}
+	
 	static public class Test extends NoThrows {
-		public Test(ISourceLocation src, IConstructor node, Name name, Parameters parameters) {
+		public Test(ISourceLocation src, IConstructor node, FunctionModifiers mods, Name name, Parameters parameters) {
 			super(src, 
 					node, 
-					ASTBuilder.make("FunctionModifiers", "Modifierlist", src, Arrays.asList(ASTBuilder.make("FunctionModifier", "Test", src))), 
+					addMod(mods, ASTBuilder.make("FunctionModifier", "Test", src)),
 					ASTBuilder.make("Type", "Basic", src,
 							ASTBuilder.make("BasicType",  "Bool", src)
 							), 
@@ -48,10 +56,10 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 	}
 	
 	static public class Format extends NoThrows {
-		public Format(ISourceLocation src, IConstructor node, Parameters parameters) {
+		public Format(ISourceLocation src, IConstructor node, FunctionModifiers mods, Parameters parameters) {
 			super(src, 
 					node, 
-					ASTBuilder.make("FunctionModifiers", "Modifierlist", src, Collections.emptyList()), 
+					mods, 
 					ASTBuilder.make("Type", "Basic", src,
 							ASTBuilder.make("BasicType",  "String", src)
 							), 

@@ -97,8 +97,8 @@ lexical PathChars
 syntax Signature
 	= withThrows: FunctionModifiers modifiers Type type  Name name Parameters parameters "throws" {Type ","}+ exceptions 
 	| noThrows: FunctionModifiers modifiers Type type  Name name Parameters parameters 
-	| \test: "test" Name name Parameters parameters 
-	| \format: "format" Parameters parameters 
+	| \test: FunctionModifiers modifiers "test" Name name Parameters parameters 
+	| \format: FunctionModifiers modifiers "format" Parameters parameters 
 	;
 
 syntax Sym
@@ -576,7 +576,7 @@ syntax StringPart
   | @deprecated \while     : "\<" "while" "(" Expression condition ")" "{" Statement* preStats "\>" NoLayout {StringPart NoLayout}* body  NoLayout "\<" Statement* postStats"}" "\>" 
   ;
 
-lexical StringCharacters = StringCharacter+ chars !>> ![\" \' \< \> \n ~];
+lexical StringCharacters = @category="Constant" StringCharacter+ chars !>> ![\" \' \< \> \n ~];
 
 lexical Indentation
   = [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* !>> [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]
