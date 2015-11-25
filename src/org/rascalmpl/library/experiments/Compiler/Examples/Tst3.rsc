@@ -1,4 +1,4 @@
 module experiments::Compiler::Examples::Tst3
   
 
-value main() = 42;
+int XYZ = 39;

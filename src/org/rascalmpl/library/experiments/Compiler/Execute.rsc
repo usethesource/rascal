@@ -35,15 +35,15 @@ tuple[bool, loc] getMuLibraryCompiledReadLoc(PathConfig pcfg) {
 
 loc getMuLibraryCompiledWriteLoc(PathConfig pcfg) = getDerivedWriteLoc(MuLibrary(), "rvm.gz", pcfg);
 
-tuple[bool,loc] getMergedImportsReadLoc(str mainQualifiedName, PathConfig pcfg){
-    merged_imports_qname = mainQualifiedName + "_imports";
-    return getDerivedReadLoc(merged_imports_qname, "rvm.gz", pcfg);
-}
-
-loc getMergedImportsWriteLoc(str mainQualifiedName, PathConfig pcfg){
-    merged_imports_qname = mainQualifiedName + "_imports";
-    return getDerivedWriteLoc(merged_imports_qname, "rvm.gz", pcfg);
-}
+//tuple[bool,loc] getMergedImportsReadLoc(str mainQualifiedName, PathConfig pcfg){
+//    merged_imports_qname = mainQualifiedName + "_imports";
+//    return getDerivedReadLoc(merged_imports_qname, "rvm.gz", pcfg);
+//}
+//
+//loc getMergedImportsWriteLoc(str mainQualifiedName, PathConfig pcfg){
+//    merged_imports_qname = mainQualifiedName + "_imports";
+//    return getDerivedWriteLoc(merged_imports_qname, "rvm.gz", pcfg);
+//}
 
 alias Resolved = tuple[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors];
 
