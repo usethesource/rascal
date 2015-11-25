@@ -284,7 +284,7 @@ public class ParsingTools {
 	private ParserGenerator parserGenerator;
 	
 	public ParserGenerator getParserGenerator(RascalExecutionContext rex) throws IOException {
-		rex.startJob("Compiled -- Loading parser generator", 40);
+		//rex.startJob("Compiled -- Loading parser generator", 40);
 		if(parserGenerator == null ){
 		  if (isBootstrapper()) {
 		     throw new CompilerError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
@@ -292,7 +292,7 @@ public class ParsingTools {
 		 
 		  parserGenerator = new ParserGenerator(rex);
 		}
-		rex.endJob(true);
+		//rex.endJob(true);
 		return parserGenerator;
 	}
 	
