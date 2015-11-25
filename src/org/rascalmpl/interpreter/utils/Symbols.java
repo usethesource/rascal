@@ -142,6 +142,10 @@ public class Symbols {
 			}
 		}
 		
+		if (symbol.isEmpty()) {
+			return factory.constructor(RascalValueFactory.Symbol_Empty);
+		}
+		
 		if(symbol.isSequence()){
 			List<Sym> symbols = symbol.getSequence();
 			IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_LayoutX, factory.string(layout));
