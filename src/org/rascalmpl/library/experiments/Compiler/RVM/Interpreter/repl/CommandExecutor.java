@@ -78,7 +78,7 @@ public class CommandExecutor {
 
 	private IValue[] compileArgs;
 	
-	private boolean forceRecompilation = false;
+	private boolean forceRecompilation = true;
 	
 	public CommandExecutor(PrintWriter stdout, PrintWriter stderr) {
 		this.stdout = stdout;
@@ -170,12 +170,14 @@ public class CommandExecutor {
 		}
 		w.append(main);
 		String modString = w.toString();
-//		System.err.println("----------------------");
-//		System.err.println(modString);
-//		System.err.println("----------------------");
+		System.err.println("----------------------");
+		System.err.println(modString);
+		System.err.println("----------------------");
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			compileArgs[1] = vf.bool(onlyMainChanged && !forceRecompilation);
+			
+			System.err.println("reuseConfig = " + compileArgs[1]);
 			IConstructor consoleRVMProgram = (IConstructor) rvmCompiler.executeFunction(compileAndLinkIncremental, compileArgs, makeCompileKwParams());
 			IConstructor main_module = (IConstructor) consoleRVMProgram.get("main_module");
 			ISet messages = (ISet) main_module.get("messages");
@@ -316,6 +318,7 @@ public class CommandExecutor {
 			try {
 				return executeModule("\nvalue main() = " + innerExp + ";\n", true);
 			} catch (Exception e){
+				forceRecompilation = true;
 				return null;
 			}
 			
@@ -329,8 +332,11 @@ public class CommandExecutor {
 				Variable var = variables.get(name);
 				if(var != null){
 					IValue val = executeModule("\nvalue main() { " + src + "}\n", true);
-					var.value = val.toString();
-					return val;
+					if(val != null){
+						var.value = val.toString();
+						return val;
+					}
+					return null;
 				} else {
 					return report("Variable '" + name + "' should be declared first using '<type> " + name + " = <expression>'");
 				}
@@ -370,11 +376,13 @@ public class CommandExecutor {
 			}
 			imports.add(impName);
 			try {
+				forceRecompilation = true;
 				result = executeModule("\nvalue main() = true;\n", false);
 				if(result == null){
 					imports.remove(impName);
 					forceRecompilation = true;
 				}
+				
 				return result;
 			} catch (Exception e){
 				imports.remove(impName);
@@ -419,6 +427,7 @@ public class CommandExecutor {
 				String initial = unparse(get(var, "initial"));
 				declareVar(unparse(type), name, initial);
 				try {
+					forceRecompilation = true;
 					result = executeModule("\nvalue main() = " + name + ";\n", false);
 					if(result == null){
 						this.variables.remove(name);
