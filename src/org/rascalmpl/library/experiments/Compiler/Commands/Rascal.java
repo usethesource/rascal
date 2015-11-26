@@ -5,7 +5,7 @@ import org.rascalmpl.value.type.TypeFactory;
 public class Rascal {
 
     public static void main(String[] args) {
-        Command.main(args, "rascal", TypeFactory.getInstance().valueType());
+        Command.main(args, "rascal", TypeFactory.getInstance().valueType(), false);
     }
 
 }

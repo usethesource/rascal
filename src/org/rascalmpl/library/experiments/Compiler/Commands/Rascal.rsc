@@ -13,9 +13,7 @@ start syntax CompileArgs
     = Option* options ModuleName moduleToCompile CommandArgument* commandArguments;
 
 syntax Option 
-    = "--srcPath" Path path
-    | "--libPath" Path path
-    | "--binDir" Path path
+    = "--binDir" Path path
     | "--jvm"
     | "--verbose"
     | "--version"
@@ -83,14 +81,7 @@ value rascal(str commandLine) {
             return 0;
         }
         else {
-            pcfg = pathConfig();
-            pcfg.libPath = [ toLocation(p) | (Option)`--libPath <Path p>` <- t.options ] + pcfg.libPath;
-            if ((Option)`--srcPath <Path _>` <- t.options) {
-                pcfg.srcPath = [ toLocation(p) | (Option)`--srcPath <Path p>` <- t.options ] + pcfg.srcPath;
-            }
-            else {
-                pcfg.srcPath = [|cwd:///|, *pcfg.srcPath];
-            }
+            pcfg = pathConfig(libPath = [], srcPath = [], bootDir = []);
             if ((Option)`--binDir <Path p>` <- t.options) {
                 pcfg.binDir = toLocation(p);
             }
@@ -127,12 +118,8 @@ void printHelp() {
     println("Usage: rascal [OPTION] ModulesToCompile");
     println("Compile and link one or more modules, the compiler will automatically compile all dependencies.");
     println("Options:");
-    println("--srcPath path");
-    println("\tAdd new source path, use multiple --srcPaths for multiple paths");
-    println("--libPath path");
-    println("\tAdd new lib paths, use multiple --libPaths for multiple paths");
     println("--binDir directory");
-    println("\tSet the target directory for the bin files");
+    println("\tSet the source directory for the executables files");
     println("--jvm");
     println("\tUse the JVM implemementation of the RVM");
     println("--verbose");

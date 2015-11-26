@@ -17,6 +17,7 @@ syntax Option
     = "--srcPath" Path path
     | "--libPath" Path path
     | "--binDir" Path path
+    | "--bootDir" Path path
     | "--nolinking"
     | "--jvm"
     | "--verbose"
@@ -78,6 +79,9 @@ int rascalc(str commandLine) {
             }
             if ((Option)`--binDir <Path p>` <- t.options) {
                 pcfg.binDir = toLocation(p);
+            }
+            if ((Option)`--bootDir <Path p>` <- t.options) {
+                pcfg.bootDir = toLocation(p);
             }
 
             bool verbose = (Option)`--verbose` <- t.options;
