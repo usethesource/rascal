@@ -11,6 +11,7 @@ import java.util.List;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -20,7 +21,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Command {
 	
-    public static void main(String[] args, String programName, Type returnType, Boolean swallowProfileFlag) {
+    public static void main(String[] args, String programName, Type returnType, boolean swallowProfileFlag) {
 	    boolean verbose = false;
 	    for (String a : args) {
 	        verbose |= a.equals("--verbose");
@@ -67,7 +68,10 @@ public class Command {
 	    }
 		
 		PrintWriter out = new PrintWriter(System.out);
-        RascalExecutionContext rex = new RascalExecutionContext("rascal", vf, out, new PrintWriter(System.err, true), profile);
+        RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, out, new PrintWriter(System.err, true))
+                .setProfiling(profile)
+                .forModule(programName)
+                .build();
 
 		if (verbose) {
 		    System.err.println("Loading rvm kernel");
