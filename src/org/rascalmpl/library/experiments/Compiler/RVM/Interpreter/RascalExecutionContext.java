@@ -105,6 +105,14 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this(vf, out, err, null, null, null, false, false, false, false, false, false, false, null, null, null);
 		setCurrentModuleName(moduleName);
 	}
+
+	public RascalExecutionContext(
+			String moduleName, 
+			IValueFactory vf, 
+			PrintWriter out, PrintWriter err, boolean profile) {
+		this(vf, out, err, null, null, null, false, false, false, profile, false, false, false, null, null, null);
+		setCurrentModuleName(moduleName);
+	}
 	
 	public RascalExecutionContext(
 			IValueFactory vf, 
