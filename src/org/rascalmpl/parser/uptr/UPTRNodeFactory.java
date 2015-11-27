@@ -2,6 +2,7 @@ package org.rascalmpl.parser.uptr;
 
 import java.net.URI;
 
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.out.INodeConstructorFactory;
 import org.rascalmpl.parser.gtd.util.ArrayList;
@@ -18,9 +19,11 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLocation>{
 	private final static RascalValueFactory VF = (RascalValueFactory) ValueFactoryFactory.getValueFactory();
+	private boolean allowAmb;
 	
-	public UPTRNodeFactory(){
+	public UPTRNodeFactory(boolean allowAmbiguity){
 		super();
+		this.allowAmb = allowAmbiguity;
 	}
 
 	public ITree createCharNode(int charNumber){
@@ -53,25 +56,30 @@ public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLo
 		
 	}
 	
-	private static ITree buildAmbiguityNode(ArrayList<ITree> alternatives){
+	private static ITree buildAmbiguityNode(ArrayList<ITree> alternatives, boolean allowAmb){
 		ISetWriter ambSublist = VF.setWriter();
 		for(int i = alternatives.size() - 1; i >= 0; --i){
 			ambSublist.insert(alternatives.get(i));
 		}
 		
-		return VF.amb(ambSublist.done());
+		if (allowAmb) {
+			return VF.amb(ambSublist.done());
+		}
+		else {
+			throw new Ambiguous(VF.amb(ambSublist.done()));
+		}
 	}
 
 	public ITree createAmbiguityNode(ArrayList<ITree> alternatives){
-		return buildAmbiguityNode(alternatives);
+		return buildAmbiguityNode(alternatives, allowAmb);
 	}
 
 	public ITree createSubListAmbiguityNode(ArrayList<ITree> alternatives){
-		return buildAmbiguityNode(alternatives);
+		return buildAmbiguityNode(alternatives, allowAmb);
 	}
 
 	public ITree createListAmbiguityNode(ArrayList<ITree> alternatives){
-		return buildAmbiguityNode(alternatives);
+		return buildAmbiguityNode(alternatives, allowAmb);
 	}
 	
 	private static ITree buildCycle(int depth, Object production){

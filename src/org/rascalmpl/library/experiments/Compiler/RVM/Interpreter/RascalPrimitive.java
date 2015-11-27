@@ -8376,13 +8376,13 @@ public enum RascalPrimitive {
 			assert arity == 3;
 			IString module_name = (IString) stack[sp - 3];
 			IConstructor type = (IConstructor) stack[sp - 2];
-			IValue source = (IValue) stack[sp - 1];
+			IValue source = (IValue) stack[sp - 1]; 
 			if(source.getType().isString()){
 				IString s = (IString) source;
-				stack[sp - 3] = rex.getParsingTools().parse(module_name, type, s, currentFrame.src, currentFrame, rex);
+				stack[sp - 3] = rex.getParsingTools().parse(module_name, type, s, currentFrame.src, true, currentFrame, rex);
 			} else {
 				ISourceLocation s = (ISourceLocation) source;
-				stack[sp - 3] = rex.getParsingTools().parse(module_name, type, s, currentFrame, rex);
+				stack[sp - 3] = rex.getParsingTools().parse(module_name, type, s, true, currentFrame, rex);
 			}
 			return sp - 2;
 		}

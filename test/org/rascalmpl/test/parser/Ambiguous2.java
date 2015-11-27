@@ -107,7 +107,7 @@ public class Ambiguous2 extends SGTDBF<IConstructor, ITree, ISourceLocation> imp
 	}
 	
 	public ITree executeParser(){
-		return parse(NONTERMINAL_START_S, null, "bab".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+		return parse(NONTERMINAL_START_S, null, "bab".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 	}
 	
 	public IValue getExpectedResult() throws IOException{

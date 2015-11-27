@@ -374,7 +374,7 @@ public abstract class Import {
       eval.startJob("Parsing " + location, 10);
       eval.event("initial parse");
 
-      ITree tree = new RascalParser().parse(Parser.START_MODULE, location.getURI(), data, actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+      ITree tree = new RascalParser().parse(Parser.START_MODULE, location.getURI(), data, actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
   
       if (TreeAdapter.isAmb(tree)) {
         // Ambiguity is dealt with elsewhere
@@ -566,7 +566,7 @@ public abstract class Import {
     try {
       String parserMethodName = eval.getParserGenerator().getParserMethodName(symTree);
       DefaultNodeFlattener<IConstructor, ITree, ISourceLocation> converter = new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>();
-      UPTRNodeFactory nodeFactory = new UPTRNodeFactory();
+      UPTRNodeFactory nodeFactory = new UPTRNodeFactory(true);
     
       SortedMap<Integer,Integer> corrections = new TreeMap<>();
       char[] input = replaceAntiQuotesByHoles(eval, lit, antiquotes, corrections);

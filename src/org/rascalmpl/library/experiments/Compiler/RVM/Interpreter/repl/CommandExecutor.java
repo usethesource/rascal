@@ -635,7 +635,7 @@ public class CommandExecutor {
 	ITree parseCommand(String command, ISourceLocation location) {
 		//__setInterrupt(false);
 		IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
-		ITree tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+		ITree tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 
 		//		if (!noBacktickOutsideStringConstant(command)) {
 		//		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());

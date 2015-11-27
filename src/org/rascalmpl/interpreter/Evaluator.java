@@ -666,7 +666,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	
 	@Override	
-	public ITree parseObject(IConstructor startSort, IMap robust, ISourceLocation location, char[] input){
+	public ITree parseObject(IConstructor startSort, IMap robust, ISourceLocation location, char[] input,  boolean allowAmbiguity) {
 		IGTD<IConstructor, ITree, ISourceLocation> parser = getObjectParser(location);
 		String name = "";
 		if (SymbolAdapter.isStartSort(startSort)) {
@@ -685,7 +685,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		__setInterrupt(false);
 		IActionExecutor<ITree> exec = new RascalFunctionActionExecutor(this);
 		 
-		return (ITree) parser.parse(name, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(), (IRecoverer<IConstructor>) null);
+		return (ITree) parser.parse(name, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(allowAmbiguity), (IRecoverer<IConstructor>) null);
 	}
 	
 	/**
@@ -719,12 +719,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 
 	@Override
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, ISourceLocation location){
+	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, ISourceLocation location,  boolean allowAmbiguity){
 		IRascalMonitor old = setMonitor(monitor);
 		
 		try {
 			char[] input = getResourceContent(location);
-			return parseObject(startSort, robust, location, input);
+			return parseObject(startSort, robust, location, input, allowAmbiguity);
 		}
 		catch(IOException ioex){
 			throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
@@ -735,20 +735,21 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	@Override
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input){
+	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input, boolean allowAmbiguity) {
 		IRascalMonitor old = setMonitor(monitor);
-		try{
-			return parseObject(startSort, robust, URIUtil.invalidLocation(), input.toCharArray());
-		}finally{
+		try {
+			return parseObject(startSort, robust, URIUtil.invalidLocation(), input.toCharArray(), allowAmbiguity);
+		}
+		finally {
 			setMonitor(old);
 		}
 	}
 	
 	@Override
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input, ISourceLocation loc){
+	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input, ISourceLocation loc,  boolean allowAmbiguity) {
 		IRascalMonitor old = setMonitor(monitor);
 		try{
-			return parseObject(startSort, robust, loc, input.toCharArray());
+			return parseObject(startSort, robust, loc, input.toCharArray(), allowAmbiguity);
 		}finally{
 			setMonitor(old);
 		}
@@ -937,7 +938,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private Result<IValue> eval(String command, ISourceLocation location) throws ImplementationError {
 		__setInterrupt(false);
 		IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
-		ITree tree = new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+		ITree tree = new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
 		if (!noBacktickOutsideStringConstant(command)) {
 			tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
@@ -958,7 +959,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		ITree tree;
 		
 		IActionExecutor<ITree> actionExecutor = new NoActionExecutor();
-		tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+		tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 	
 	  if (!noBacktickOutsideStringConstant(command)) {
 	    tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
@@ -1008,7 +1009,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	private ITree parseCommand(String command, ISourceLocation location) {
 		__setInterrupt(false);
     IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
-    ITree tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+    ITree tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
 		if (!noBacktickOutsideStringConstant(command)) {
 		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
@@ -1023,13 +1024,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		try {
 			__setInterrupt(false);
 		  IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
-		  ITree tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+		  ITree tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
   
-			if (!noBacktickOutsideStringConstant(commands)) {
+		  if (!noBacktickOutsideStringConstant(commands)) {
 			  tree = parseFragments(this, tree, location, getCurrentModuleEnvironment());
-			}
-			
-			return tree;
+		  }
+
+		  return tree;
 		}
 		finally {
 			setMonitor(old);
