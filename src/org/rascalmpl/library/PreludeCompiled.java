@@ -286,13 +286,13 @@ public class PreludeCompiled extends Prelude {
 	// end of sorting functions
 	
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input);
-	public IValue parse(IValue start, ISourceLocation input, RascalExecutionContext rex) {
-		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null, rex);
+	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, RascalExecutionContext rex) {
+		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, allowAmbiguity.getValue(), null, rex);
 	}
 
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin);
-	public IValue parse(IValue start, IString input, RascalExecutionContext rex) {
-		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null, rex);
+	public IValue parse(IValue start, IString input, IBool allowAmbiguity, RascalExecutionContext rex) {
+		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, allowAmbiguity.getValue(), null, rex);
 	}
 	
 	private TypeStore typeStore = new TypeStore();

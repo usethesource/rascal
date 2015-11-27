@@ -11,19 +11,19 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.asserts;
 
-import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 
 public final class Ambiguous extends AssertionError {
 	private static final long serialVersionUID = -8740312542969306482L;
 	private final ISourceLocation loc;
-	private final IConstructor tree;
+	private final ITree tree;
 
-	public Ambiguous(IConstructor tree) {
+	public Ambiguous(ITree tree) {
 		super("Ambiguous code (internal error), " + TreeAdapter.yield(tree, 100));
-		this.loc = (ISourceLocation) tree.asAnnotatable().getAnnotation("loc");
+		this.loc = (ISourceLocation) TreeAdapter.getAlternatives(tree).iterator().next().asAnnotatable().getAnnotation("loc");
 		this.tree = tree;
 	}
 	
@@ -37,7 +37,7 @@ public final class Ambiguous extends AssertionError {
 		return loc;
 	}
 	
-	public IConstructor getTree() {
+	public ITree getTree() {
 		return tree;
 	}
 }

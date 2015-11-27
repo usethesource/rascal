@@ -276,7 +276,7 @@ catch ParseError(loc l): {
 }
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{uses information about syntax definitions at call site}
-public java &T<:Tree parse(type[&T<:Tree] begin, str input);
+public java &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false);
 
 //@experimental
 //@javaClass{org.rascalmpl.library.Prelude}
@@ -285,11 +285,11 @@ public java &T<:Tree parse(type[&T<:Tree] begin, str input);
 
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{uses information about syntax definitions at call site}
-public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin);
+public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false);
 
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{uses information about syntax definitions at call site}
-public java &T<:Tree parse(type[&T<:Tree] begin, loc input);
+public java &T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false);
 
 @doc{
 Synopsis: Yield the string of characters that form the leafs of the given parse tree.

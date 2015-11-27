@@ -101,7 +101,7 @@ public class ReflectiveCompiled extends Reflective {
 			IActionExecutor<ITree> actions = new NoActionExecutor();	
 
 			try {
-				ITree tree = new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(rex.resolveSourceLocation(loc)), actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+				ITree tree = new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(rex.resolveSourceLocation(loc)), actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 				System.err.println("parseModule (from loc), cache new tree " + key);
 				return tree;
 			} catch (IOException e) {

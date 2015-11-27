@@ -84,7 +84,7 @@ public class SeparatedStarList extends SGTDBF<IConstructor, ITree, ISourceLocati
 	}
 	
 	public ITree executeParser(){
-		return parse(NONTERMINAL_START_S, null, "ababa".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+		return parse(NONTERMINAL_START_S, null, "ababa".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 	}
 	
 	public IValue getExpectedResult() throws IOException{
