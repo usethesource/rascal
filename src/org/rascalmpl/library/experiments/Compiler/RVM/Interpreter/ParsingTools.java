@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;				// TODO: remove import: YES
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.types.NonTerminalType;			// remove import: NO
 import org.rascalmpl.interpreter.types.ReifiedType;				// remove import: NO
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
@@ -160,6 +161,12 @@ public class ParsingTools {
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = vf.sourceLocation(vf.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
 			throw RascalRuntimeException.parseError(errorLoc, currentFrame);
+		}
+		catch (Ambiguous e) {
+			ITree tree = e.getTree();
+			throw RascalRuntimeException.ambiguity(e.getLocation(), 
+					vf.string(SymbolAdapter.toString(TreeAdapter.getType(tree), false)), 
+					vf.string(TreeAdapter.yield(tree)), currentFrame);
 		}
 		catch (UndeclaredNonTerminalException e){
 			throw new CompilerError("Undeclared non-terminal: " + e.getName() + ", " + e.getClassName(), currentFrame);
