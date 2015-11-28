@@ -151,7 +151,7 @@ RVMModule recompileDependencies(str qualifiedModuleName, RVMModule rvmMod, Confi
         }
     }
     
-    clearDirtyModules(qualifiedModuleName, pcfg);
+    //clearDirtyModules(qualifiedModuleName, pcfg);
     
     errors = [ e | e:error(_,_) <- messages];
     warnings = [ w | w:warning(_,_) <- messages ];
