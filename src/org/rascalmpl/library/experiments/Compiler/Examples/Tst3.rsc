@@ -1,4 +1,6 @@
 module experiments::Compiler::Examples::Tst3
   
+import experiments::Compiler::Examples::Tst2;
+import experiments::Compiler::Examples::Tst4;
 
-int XYZ = 39;
+int Y = 2;
