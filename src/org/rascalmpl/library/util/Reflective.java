@@ -310,6 +310,14 @@ public class Reflective {
 		return values.string(idiff("", oldVal, newVal));
 	}
 	
+	private String preview(IValue v){
+		String s = v.toString();
+		if(s.length() < 80){
+			return s;
+		}
+		return s.substring(0, 76) + " ...";
+	}
+	
 	protected String idiff(String indent, IValue oldVal, IValue newVal){
 		
 		if(!oldVal.getType().equals(newVal.getType())){
@@ -336,7 +344,8 @@ public class Reflective {
 			String ldiff = (ov.length() == nv.length()) ? "" : ("size " + ov.length() + " vs " +  nv.length() + "; ");
 			for(int i = 0; i < ov.length() && i < nv.length(); i++){
 				if(!ov.get(i).equals(nv.get(i))){
-					return indent + ldiff + "diff at list index " + i + ":\n" + idiff(indent + " ", ov.get(i), nv.get(i));
+					return indent + ldiff + "diff at list index " + i + ": " + preview(ov) + "\n"
+				                  +  idiff(indent + " ", ov.get(i), nv.get(i));
 				}
 			}
 		}
@@ -345,7 +354,8 @@ public class Reflective {
 			ITuple nv = (ITuple) newVal;
 			for(int i = 0; i < ov.arity(); i++){
 				if(!ov.get(i).equals(nv.get(i))){
-					return indent + "diff at tuple index " + i + ":\n" + idiff(indent + " ", ov.get(i), nv.get(i));
+					return indent + "diff at tuple index " + i + ": " + preview(ov) + "\n"
+				                  + idiff(indent + " ", ov.get(i), nv.get(i));
 				}
 			}
 		}
@@ -406,7 +416,7 @@ public class Reflective {
 			}
 			for(int i = 0; i < oldArity; i++){
 				if(!ov.get(i).equals(nv.get(i))){
-					return indent + "diff at arg " + i + " for function symbol " + oldName + ":\n" + idiff(indent + " ", ov.get(i), nv.get(i));
+					return indent + "diff at arg " + i + " for function symbol " + oldName + ": " + preview(ov) + "\n" + idiff(indent + " ", ov.get(i), nv.get(i));
 				}
 			}
 		}
