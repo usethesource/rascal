@@ -42,9 +42,20 @@ lexical InsideQuote = ![\"]*;
 loc toLocation((Path)`"<InsideQuote inside>"`) = toLocation("<inside>");
 default loc toLocation(Path p) = toLocation("<p>");
 
-loc toLocation(/^<locPath:[|].*[|]>$/) = readTextValueString(#loc, locPath);
-loc toLocation(/^<fullPath:[\/].*>$/) = |file:///| + fullPath;
-default loc toLocation(str relativePath) = |cwd:///| + relativePath;
+//loc toLocation(/^<locPath:[|].*[|]>$/) = readTextValueString(#loc, locPath);
+//loc toLocation(/^[\/]<fullPath:.*>$/) = |file:///| + fullPath;
+//default loc toLocation(str relativePath) = |cwd:///| + relativePath;
+
+loc toLocation(str path){
+    println("toLocation: <path>");
+    if(/^<locPath:[|].*[|]>$/ := path){
+       return readTextValueString(#loc, locPath);
+    }
+    if(/^[\/]<fullPath:.*>$/ := path){
+       return |file:///| + fullPath;
+    }
+    return |cwd:///| + path;
+}
 
 str getModuleName(ModuleName mn) {
     result = "<mn>";
@@ -88,10 +99,14 @@ int rascalc(str commandLine) {
             bool useJVM = (Option)`--jvm` <- t.options;
             bool nolinking = (Option)`--nolinking` <- t.options;
 
+            println("srcPath: <pcfg.srcPath>");
+            println("libPath: <pcfg.libPath>");
+            println("binDir: <pcfg.binDir>");
             for (m <- t.modulesToCompile) {
                 moduleName = getModuleName(m);
-                println("compiling: <moduleName>");
+               
                 if(nolinking){
+                   println("compiling: <moduleName>");
                    compile(moduleName, pcfg, verbose = verbose);
                 } else {
                    println("compiling and linking: <moduleName>");
