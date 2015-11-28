@@ -1232,7 +1232,7 @@ MuExp mkVar(str name, loc l) {
     // Get the function uids of an overloaded function
     //println("config.store[<uid>] = <config.store[uid]>");
     list[int] ofuids = (uid in functions || uid in constructors) ? [uid] : sortOverloadedFunctions(config.store[uid].items);
-    //println("ofuids = <ofuids>");
+    //println("@@@ mkVar: <name>, <l>, ofuids = <ofuids>");
     //for(nnuid <- ofuids){
     //	println("<nnuid>: <config.store[nnuid]>");
     //}
