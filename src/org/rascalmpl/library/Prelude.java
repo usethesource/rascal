@@ -125,6 +125,8 @@ public class Prelude {
 	protected final IValueFactory values;
 	private final Random random;
 	
+	private final boolean trackReadWrite = false;
+	
 	public Prelude(IValueFactory values){
 		super();
 		
@@ -1038,6 +1040,7 @@ public class Prelude {
 	} 
 	
 	public IValue readFile(ISourceLocation sloc){
+		if(trackReadWrite) System.err.println("readFile: " + sloc);
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc);){
 			return consumeInputStream(reader);
 		} 
@@ -1050,6 +1053,7 @@ public class Prelude {
 	}
 	
 	public IString readFileEnc(ISourceLocation sloc, IString charset){
+		if(trackReadWrite) System.err.println("readFileEnc: " + sloc);
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc, charset.getValue())){
 			return consumeInputStream(reader);
 		} 
@@ -1117,6 +1121,7 @@ public class Prelude {
 	}
 	
 	private void writeFile(ISourceLocation sloc, IList V, boolean append){
+		if(trackReadWrite) System.err.println("writeFile: " + sloc);
 		IString charset = values.string("UTF8");
 		if (append) {
 			charset = detectCharSet(sloc);
@@ -1263,6 +1268,7 @@ public class Prelude {
 	}
 	
 	public IList readFileLines(ISourceLocation sloc){
+		if(trackReadWrite) System.err.println("readFileLines: " + sloc);
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc)) {
 			return consumeInputStreamLines(reader);
 		}
@@ -1278,6 +1284,7 @@ public class Prelude {
 	}
 	
 	public IList readFileLinesEnc(ISourceLocation sloc, IString charset){
+		if(trackReadWrite) System.err.println("readFileLinesEnc: " + sloc);
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc,charset.getValue())) {
 			return consumeInputStreamLines(reader);
 		}
@@ -1304,6 +1311,8 @@ public class Prelude {
 	}
 	
 	public IList readFileBytes(ISourceLocation sloc) {
+		
+		if(trackReadWrite) System.err.println("readFileBytes: " + sloc);
 		IListWriter w = values.listWriter();
 		
 		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc)) {
@@ -3342,7 +3351,10 @@ public class Prelude {
 	}
 	
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc){
-		//System.err.println("readBinaryFile: " + loc);
+		if(trackReadWrite) System.err.println("readBinaryValueFile: " + loc);
+		if(loc.getScheme().equals("home")){
+			System.err.println("");
+		}
 		TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
@@ -3350,15 +3362,17 @@ public class Prelude {
 			return new BinaryValueReader().read(values, store, start, in);
 		}
 		catch (IOException e) {
+			System.err.println("readBinaryValueFile: " + loc + " throws " + e.getMessage());
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 		catch (Exception e) {
+			System.err.println("readBinaryValueFile: " + loc + " throws " + e.getMessage());
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
 	
 	public IValue readTextValueFile(IValue type, ISourceLocation loc){
-		//System.err.println("readTextValueFile: " + loc);
+		if(trackReadWrite) System.err.println("readTextValueFile: " + loc);
 	  	TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
@@ -3386,6 +3400,7 @@ public class Prelude {
 	}
 	
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression){
+    	if(trackReadWrite) System.err.println("writeBinaryValueFile: " + loc);
 		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
 			new BinaryValueWriter().write(value, out, compression.getValue());
 		}
@@ -3395,6 +3410,7 @@ public class Prelude {
 	}
 	
 	public void writeTextValueFile(ISourceLocation loc, IValue value){
+		if(trackReadWrite) System.err.println("writeTextValueFile: " + loc);
 		try (Writer out = new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), StandardCharsets.UTF_8)) {
 			new StandardTextWriter().write(value, out);
 		}
