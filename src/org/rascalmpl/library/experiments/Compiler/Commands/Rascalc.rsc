@@ -39,22 +39,33 @@ lexical Path
     ;
 lexical InsideQuote = ![\"]*;
     
-loc toLocation((Path)`"<InsideQuote inside>"`) = toLocation("<inside>");
-default loc toLocation(Path p) = toLocation("<p>");
+loc toLocation((Path)`"<InsideQuote inside>"`) = toLocation1("<inside>");
+default loc toLocation(Path p) = toLocation1("<p>");
 
+// TODO: the following code does not work in the compiled compiler
 //loc toLocation(/^<locPath:[|].*[|]>$/) = readTextValueString(#loc, locPath);
 //loc toLocation(/^[\/]<fullPath:.*>$/) = |file:///| + fullPath;
 //default loc toLocation(str relativePath) = |cwd:///| + relativePath;
 
-loc toLocation(str path){
-    println("toLocation: <path>");
-    if(/^<locPath:[|].*[|]>$/ := path){
-       return readTextValueString(#loc, locPath);
+//loc toLocation(str path){
+//    println("toLocation: <path>");
+//    if(/^<locPath:[|].*[|]>$/ := path){
+//       return readTextValueString(#loc, locPath);
+//    }
+//    if(/^[\/]<fullPath:.*>$/ := path){
+//       return |file:///| + fullPath;
+//    }
+//    return |cwd:///| + path;
+//}
+
+loc toLocation1(str path){
+    if(path[0] == "|"){
+       return readTextValueString(#loc, path);
     }
-    if(/^[\/]<fullPath:.*>$/ := path){
-       return |file:///| + fullPath;
+    if(path[0] == "/"){
+       return |file:///| + path[1..];
     }
-    return |cwd:///| + path;
+    return  |cwd:///| + path;
 }
 
 str getModuleName(ModuleName mn) {
