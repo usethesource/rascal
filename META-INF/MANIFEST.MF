@@ -24,6 +24,7 @@ Export-Package:
  org.rascalmpl.library.experiments.Compiler.Commands,
  org.rascalmpl.library.experiments.Compiler.RVM.Interpreter,
  org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl,
+ org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug,
  org.rascalmpl.library.experiments.resource,
  org.rascalmpl.library.experiments.resource.resources,
  org.rascalmpl.library.experiments.resource.resources.file,
@@ -76,9 +77,6 @@ Export-Package:
  org.rascalmpl.uri.jar,
  org.rascalmpl.uri.libraries,
  org.rascalmpl.uri.remote,
- org.rascalmpl.values,
- org.rascalmpl.values.uptr,
- org.rascalmpl.values.uptr.visitors,
  org.rascalmpl.value,
  org.rascalmpl.value.exceptions,
  org.rascalmpl.value.impl,
@@ -89,7 +87,10 @@ Export-Package:
  org.rascalmpl.value.io,
  org.rascalmpl.value.type,
  org.rascalmpl.value.util,
- org.rascalmpl.value.visitors
+ org.rascalmpl.value.visitors,
+ org.rascalmpl.values,
+ org.rascalmpl.values.uptr,
+ org.rascalmpl.values.uptr.visitors
 Require-Bundle: 
  org.eclipse.swt,
  org.objectweb.asm;bundle-version="4.0.0",
