@@ -19,6 +19,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.help.HelpManager;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
@@ -48,8 +50,8 @@ public class CommandExecutor {
 	private final IValueFactory vf;
 	private ISourceLocation compilerBinaryLocation;
 	private String consoleInputName = "ConsoleInput";
-	static String consoleInputPath = "/ConsoleInput.rsc";
-	static String muLibraryPath = "/experiments/Compiler/muRascal2RVM/MuLibrary.mu";
+	public static String consoleInputPath = "/ConsoleInput.rsc";
+	public static String muLibraryPath = "/experiments/Compiler/muRascal2RVM/MuLibrary.mu";
 	private ISourceLocation consoleInputLocation;
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
@@ -179,14 +181,14 @@ public class CommandExecutor {
 		}
 		w.append(main);
 		String modString = w.toString();
-		System.err.println("----------------------");
-		System.err.println(modString);
-		System.err.println("----------------------");
+//		System.err.println("----------------------");
+//		System.err.println(modString);
+//		System.err.println("----------------------");
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			compileArgs[1] = vf.bool(onlyMainChanged && !forceRecompilation);
 			
-			System.err.println("reuseConfig = " + compileArgs[1]);
+//			System.err.println("reuseConfig = " + compileArgs[1]);
 			IConstructor consoleRVMProgram = (IConstructor) rvmCompiler.executeFunction(compileAndLinkIncremental, compileArgs, makeCompileKwParams());
 			IConstructor main_module = (IConstructor) consoleRVMProgram.get("main_module");
 			ISet messages = (ISet) main_module.get("messages");
