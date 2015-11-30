@@ -54,9 +54,20 @@ lexical InsideQuote = ![\"]*;
 loc toLocation((Path)`"<InsideQuote inside>"`) = toLocation("<inside>");
 default loc toLocation(Path p) = toLocation("<p>");
 
-loc toLocation(/^<locPath:[|].*[|]>$/) = readTextValueString(#loc, locPath);
-loc toLocation(/^<fullPath:[\/].*>$/) = |file:///| + fullPath;
-default loc toLocation(str relativePath) = |cwd:///| + relativePath;
+//loc toLocation(/^<locPath:[|].*[|]>$/) = readTextValueString(#loc, locPath);
+//loc toLocation(/^<fullPath:[\/].*>$/) = |file:///| + fullPath;
+//default loc toLocation(str relativePath) = |cwd:///| + relativePath;
+
+loc toLocation(str path){
+
+    if(path[0] == "|"){
+         return readTextValueString(#loc, path[1..-1]);
+    }
+    if(path[0] == "/"){
+        return |file:///| + path[1..];
+    }
+    return |cwd:///| + path;
+}
 
 str getModuleName(ModuleName mn) {
     result = "<mn>";
@@ -81,7 +92,7 @@ value rascal(str commandLine) {
             return 0;
         }
         else {
-            pcfg = pathConfig(libPath = [], srcPath = [], bootDir = []);
+            pcfg = pathConfig(libPath = [], srcPath = [], bootDir = |boot:///|);
             if ((Option)`--binDir <Path p>` <- t.options) {
                 pcfg.binDir = toLocation(p);
             }
