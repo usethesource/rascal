@@ -1,27 +1,27 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl;
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug;
 
 import java.io.PrintWriter;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 
-public class ModuleLineBreakpoint extends BreakPoint {
-	private final String modulePath;
+public class FunctionLineBreakpoint extends BreakPoint {
+	private final String functionName;
 	private final int lino;
 	
-	ModuleLineBreakpoint(int id, String modulePath, int lino){
+	FunctionLineBreakpoint(int id, String functionName, int lino){
 		super(id);
-		this.modulePath = modulePath;
+		this.functionName = functionName;
 		this.lino = lino;
 	}
 	
 	@Override
 	void println(PrintWriter stdout){
-		stdout.println(id + "\t" + isEnabled() + "\tModule\t" + modulePath + ":" + lino);
+		stdout.println(id + "\t" + isEnabled() + "\tFunctionLine\t" + functionName + ":" + lino);
 	}
 	
 	@Override
 	public boolean matchOnObserve(Frame frame) {		
-		return frame.src.getPath().equals(modulePath) &&
+		return frame.function.getPrintableName().equals(functionName) &&
 		       shouldBreakAt(lino, frame.src);
 	}
 

@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl;
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.rascalmpl.library.experiments.Compiler.Commands.PathConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.ISourceLocation;
@@ -222,7 +223,7 @@ public class BreakPointManager {
 	}
 	
 	// break directive outside debug mode
-	void breakDirective(String[] args) throws NumberFormatException {
+	public void breakDirective(String[] args) throws NumberFormatException {
 		if(args.length == 1){								// break
 			printBreakPoints(stdout);
 			return;
@@ -245,7 +246,7 @@ public class BreakPointManager {
 		setReturnMode(frame);
 	}
 	
-	void clearDirective(String[] args) throws NumberFormatException {
+	public void clearDirective(String[] args) throws NumberFormatException {
 		if(args.length == 1){
 			breakpoints = new ArrayList<BreakPoint>();
 			return;

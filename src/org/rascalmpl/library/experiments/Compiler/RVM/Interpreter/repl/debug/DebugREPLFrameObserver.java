@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl;
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,11 +35,11 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 		}
 	}
 	
-	BreakPointManager getBreakPointManager(){
+	public BreakPointManager getBreakPointManager(){
 		return breakPointManager;
 	}
 	
-	DebugREPLFrameObserver getObserverWhenActiveBreakpoints(){
+	public DebugREPLFrameObserver getObserverWhenActiveBreakpoints(){
 		breakPointManager.reset();
 		return breakPointManager.hasEnabledBreakPoints() ? this : null;
 	}
