@@ -59,6 +59,8 @@ public class CommandExecutor {
 	
 	private DebugREPLFrameObserver debugObserver;
 	
+	private HelpManager helpManager;
+	
 	boolean debug;
 	boolean debugRVM;
 	boolean testsuite;
@@ -143,6 +145,8 @@ public class CommandExecutor {
 		imports = new ArrayList<String>();
 		syntaxDefinitions = new HashMap<>();
 		declarations = new ArrayList<String>();
+		
+		helpManager = new HelpManager(stdout, stderr);
 		stderr.println("Type 'help' for information or 'quit' to leave");
 	
 	}
@@ -522,7 +526,7 @@ public class CommandExecutor {
 			}
 	
 		case "help":
-			printHelp(words);
+			helpManager.printHelp(words);
 			break;
 			
 		case "declarations":
@@ -591,51 +595,7 @@ public class CommandExecutor {
 		return null;
 	}	
 	
-	void printHelp(String[] words){
-		//TODO Add here for example credits, copyright, license
-		String[] helpText = {
-				"Help for the compiler-based RascalShell.",
-				"",
-				"RascalShell commands:",
-				"    quit or EOF            Quit this RascalShell",
-				"    declarations           List all declarations",
-				"    modules                List all imported modules",
-				"    undeclare <name>       Remove declaration of <name>",
-				"    unimport <name>        Remove import of module <name>",
-				"    set <option> <value>   Set RascalShell <option> to <value>",
-				"    e.g. set profile true",
-				"         set trace false",
-				"         set coverage true",
-				"",
-				"Debugging commands:",
-				"    break                  List current break points",
-				"    break <name>           Breakpoint at start of function <name>",
-				"    break <name> <lino>    Breakpoint in function <name> at line <lino>",
-				"    cl(ear) <bpno>         Clear breakpoint with index <bpno>",
-				"",
-				"Keyboard essentials:",
-				"    <UP>                   Previous command in history",
-				"    <DOWN>                 Next command in history",
-				"    <CTRL>r                Backward search in history",
-				"    <CTRL>s                Forward search in history",
-				"    <TAB>                  Complete previous word",
-				"    <CTRL>a                Move cursor to begin of line",
-				"    <CTRL>e                Move cursor to end of line",
-				"    <CTRL>k                Kill remainder of line after cursor",
-				"    <CTRL>l                Clear screen",
-				"",
-				"Further help: XXX"
-				//":edit <modulename>         Opens an editor for that module",
-				//":test                      Runs all unit tests currently loaded",
-				//":unimport <modulename>     Undo an import",
-				//":undeclare <name>          Undeclares a variable or function introduced in the shell",
-				//":history                   Print the command history",
-				
-		};
-		for(String line : helpText){
-			stdout.println(line);
-		}
-	}
+
 	
 	ITree parseCommand(String command, ISourceLocation location) {
 		//__setInterrupt(false);
