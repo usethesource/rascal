@@ -47,7 +47,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 		  // General commands
 		  "help", "set", "declarations", "modules", "unimport", "undeclare", "quit",
 		  // Debugging commands
-		  "break", "enable", "disable", "clear"
+		  "break", "enable", "disable", "clear",
 	  	};
 	  	SHELL_VERBS = new TreeSet<String>(Arrays.asList(shellVerbValues));
   }
