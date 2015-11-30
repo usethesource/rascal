@@ -12,24 +12,42 @@ import experiments::Compiler::CompileMuLibrary;
 
 import experiments::Compiler::Commands::Rascalc;
 
-tuple[set[loc] differ, set[loc] mising] compare(loc iloc){
-    ival = readBinaryValueFile(#value, iloc);
-    cloc = iloc.path = "c" + iloc.path[2..];
-    
-    if(exists(cloc)){
-        cval = readBinaryValueFile(#value, cloc);
-        res = diff(ival, cval);
-        if(res == "no diff"){
-           return <{}, {}>;
-        } else  {
-            println("<iloc>: <res>");
-            return <{iloc}, {}>;
-        }
-    } else {
-        println("<iloc>: <cloc> does not exist");
+tuple[set[loc] differ, set[loc] missing] compare(loc given_loc){
+   if(contains(given_loc.path, "ibin/")){
+       iloc = given_loc;
+       cloc = iloc[path = replaceFirst(iloc.path, "ibin/", "cbin/")];
+       return compare(iloc, cloc);
+   } else if(contains(given_loc.path, "cbin/")){
+       cloc = given_loc;
+       iloc = cloc.path[path=replaceFirst(cloc.path, "cbin/", "ibin/")];
+       return compare(iloc, cloc);
+   }
+   throw "No ibin/ or cbin/ found in <given_loc>";
+}
+
+tuple[set[loc] differ, set[loc] missing] compare(loc iloc, loc cloc){
+
+    if(!exists(iloc)){
+        println("MISSING: <iloc>");
         return <{}, {iloc}>;
     }
+    if(!exists(cloc)){
+      println("MISSING: <cloc>");
+       return <{}, {cloc}>;
+    }
+   
+    ival = readBinaryValueFile(#value, iloc);
+    cval = readBinaryValueFile(#value, cloc);
+    
+    res = diff(ival, cval);
+    if(res == "no diff"){
+       return <{}, {}>;
+    } else  {
+       println("<iloc>,<cloc>: <res>");
+       return <{iloc}, {}>;
+    }
 }
+
 void main(){
     loc ibin = |compressed+home:///ibin|;
     loc cbin = |compressed+home:///cbin|;
@@ -49,7 +67,7 @@ void main(){
     
     println("\n+++++++++++++++++++++++++++++++\n");
     
-    println("Number of foles: <size(files(ibin))>");
+    println("Number of files: <size(files(ibin))>");
     
     println("Different: <size(differ)>");
     for(d <- differ) println("\t<d>");
