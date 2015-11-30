@@ -9,6 +9,7 @@ import String;
 import ParseTree;
 
 import util::Reflective;
+import experiments::Compiler::Commands::Rascalc;
 
 // Percentage of succeeded tests, see spreadsheet TestOverview.ods
 
@@ -239,7 +240,8 @@ lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg){
        }
       }
       try {
-	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, pcfg, recompile=true, testsuite=true)){
+          rascalc("--binDir <pcfg.binDir> <prog>");
+	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, pcfg, recompile=false, testsuite=true)){
 	         s = makeTestSummary(test_results);
 	         println("TESTING <prog>: <s>");
 	         partial_results += <prog, s>;
@@ -269,7 +271,7 @@ value allRascalTests(){
   partial_results = [];
   all_results = [];
   
-  pcfg = pathConfig();
+  pcfg = pathConfig(binDir=|home:///cbin|);
   all_results += runTests(functionalityTests, "lang::rascal::tests::functionality", pcfg);
   all_results += runTests(basicTests, "lang::rascal::tests::basic", pcfg);
   all_results += runTests(libraryTests, "lang::rascal::tests::library", pcfg);
