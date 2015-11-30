@@ -190,7 +190,7 @@ function initNavigation() {
 function attachDisqus(page) {
 	$('#disqus_thread').remove(); // to avoid concatenating the following again
         $('#editMenuFooter').remove(); // remove legacy (is in generated code)
-	$("#conceptPane").after("<p id="disqus_thread">Your feedback is much appreciated. Please report (your suspicion of) errors in the documentation or bugs in the implementation at <a href="https://github.com/cwi-swat/rascal/issues">github issues</a>. If you have any question on how to program something with Rascal or its libraries, then next to this documentation site <a href="http://stackoverflow.com/questions/tagged/rascal">stackoverflow.com</a> is the place to find answers.</p>")
+	$("#conceptPane").after("<p id=\"disqus_thread\">Your feedback is much appreciated. Please report (your suspicion of) errors in the documentation or bugs in the implementation at <a href=\"https://github.com/cwi-swat/rascal/issues\">github issues</a>. If you have any question on how to program something with Rascal or its libraries, then next to this documentation site <a href=\"http://stackoverflow.com/questions/tagged/rascal\">stackoverflow.com</a> is the place to find answers.</p>")
 }
 
 function finishLoad() {
