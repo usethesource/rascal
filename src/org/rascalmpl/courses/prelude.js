@@ -194,12 +194,7 @@ function attachDisqus(page) {
 	$('#disqus_thread').remove();
 	disqus_identifier = page;
 	disqus_url = "http://tutor.rascal-mpl.org" + page;
-	$("#conceptPane").after("<div id=\"disqus_thread\" style=\"clear:both\"></div>"); // insert disqus div
-	(function() {
-		var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-		dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
-		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-	})();
+	$("#conceptPane").after("<p>Your feedback is much appreciated. Please report (your suspicion of) errors in the documentation or bugs in the implementation at <a href="https://github.com/cwi-swat/rascal/issues">github issues</a>. If you have any question on how to program something with Rascal or its libraries, then next to this documentation site <a href="http://stackoverflow.com/questions/tagged/rascal">stackoverflow.com</a> is the place to find answers.</p>")
 }
 
 function finishLoad() {
