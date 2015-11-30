@@ -101,7 +101,7 @@ bool hasMatches(map[&K,&KV] m, Query query) = !isEmpty(m) && evalQuery(m, query)
 
 
 void inspect(str qualifiedModuleName,   // nameof Rascal source module
-          loc pcfg = pathConfig(),      // location where binaries are stored
+          PathConfig pcfg = pathConfig(),// path configuration where binaries are stored
           Query select = none(),        // select function names to be shown
           int line = -1,                // select line of function to be shown
           bool listing = false,         // show instruction listing
