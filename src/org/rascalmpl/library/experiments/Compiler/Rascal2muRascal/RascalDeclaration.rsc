@@ -219,6 +219,8 @@ public map[str,str] translateTags(Tags tags){
    m = ();
    for(tg <- tags.tags){
      str name = "<tg.name>";
+     if(name == "doc" || name == "license")
+       continue;
      if(tg is \default){
         cont = "<tg.contents>"[1 .. -1];
         m[name] = name == "javaClass" ? resolveLibOverriding(cont) : cont;
