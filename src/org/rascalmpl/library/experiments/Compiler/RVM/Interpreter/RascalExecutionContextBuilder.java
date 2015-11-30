@@ -7,6 +7,7 @@ import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.TypeStore;
 
@@ -33,6 +34,7 @@ public class RascalExecutionContextBuilder {
 	private IMap symbolDefinitions = null ;
 	private IMap moduleTags = null;
 	private IFrameObserver frameObserver = null;
+	private ISourceLocation logLocation = null;
 	private RascalSearchPath rascalSearchPath = null;
 	
 	
@@ -66,6 +68,9 @@ public class RascalExecutionContextBuilder {
 	    RascalExecutionContext result = new RascalExecutionContext(vf, stdout, stderr, moduleTags, symbolDefinitions, typeStore, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, testResultListener, frameObserver, rascalSearchPath);
 	    if (this.moduleName != null) {
 	        result.setCurrentModuleName(moduleName);
+	    }
+	    if(this.logLocation != null){
+	    	result.setLogLocation(logLocation);
 	    }
 	    return result;
 	}
