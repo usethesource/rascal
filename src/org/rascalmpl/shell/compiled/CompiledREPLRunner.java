@@ -9,8 +9,8 @@ import java.io.PrintWriter;
 import org.rascalmpl.library.experiments.Compiler.Commands.PathConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.DebugREPLFrameObserver;
 import org.rascalmpl.shell.ShellRunner;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
 
 import jline.TerminalFactory;
 
