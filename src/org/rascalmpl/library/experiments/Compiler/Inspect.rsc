@@ -404,52 +404,57 @@ set[loc] getFunctionLocations(
 str config(str qualifiedModuleName,                // name of Rascal source module
             PathConfig pcfg = pathConfig(),
             Query select = none()){
+            
    if(<true, cloc> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
-       Configuration c = readBinaryValueFile(#Configuration, cloc);
-       
-       res = "";
-       
-       if(hasMatches(c.messages, select)) { res += "messages:\n"; for(msg <- c.messages) res += "\t<msg>\n"; }
-       
-       if(hasMatches(c.locationTypes, select)) { res += "locationTypes:\n"; for(l <- c.locationTypes) res += getSelected(l, c.locationTypes[l], select); }
-	   if(containsSelected(c.expectedReturnType, select)) { res += "expectedReturnType:\n"; res += getSelected(c.expectedReturnType, select); }
-       if(hasMatches(c.labelEnv, select)) { res += "labelEnv:\n"; for(nm <- c.labelEnv) res += getSelected(nm, c.labelEnv[nm], select); }
-       
-       if(hasMatches(c.fcvEnv, select)) { res += "fcvEnv:\n"; for(nm <- c.fcvEnv) res += getSelected(prettyPrintName(nm), c.fcvEnv[nm], select); }
-       
-       if(hasMatches(c.typeEnv, select)) { res += "typeEnv:\n"; for(nm <- c.typeEnv) res += getSelected(nm, c.typeEnv[nm], select); }
-       if(hasMatches(c.modEnv, select)) {  res += "modEnv:\n"; for(nm <- c.modEnv)printSelected(nm, c.modEnv[nm], select); }
-       if(hasMatches(c.annotationEnv, select)) {  res += "annotationEnv:\n"; for(nm <- c.annotationEnv) res += getSelected(nm, c.annotationEnv[nm], select); }
-       if(hasMatches(c.tagEnv, select)) {  res += "tagEnv:\n"; for(nm <- c.tagEnv) res += getSelected(nm, c.tagEnv[nm], select); }
-       if(hasMatches(c.visibilities, select)) {  res += "visibilities:\n"; for(uid <- c.visibilities)  res += getSelected(uid, c.visibilities[uid], select); }
-       if(hasMatches(c.store, select)) {  res += "store:\n"; for(uid <- sort(domain(c.store)))  res += getSelected(uid, c.store[uid], select); }
-       if(hasMatches(c.grammar, select)) {  res += "grammar:\n"; for(uid <- sort(domain(c.grammar)))  res += getSelected(uid, c.grammar[uid], select); }
-       if(hasMatches(c.starts, select)) {  res += "starts:\n";  res += getSelected(c.starts, select); }
-       if(hasMatches(c.adtFields, select)) {  res += "adtFields:\n"; for(is <- sort(domain(c.adtFields)))  res += getSelected(is, c.adtFields[is], select); }
-       if(hasMatches(c.nonterminalFields, select)) {  res += "nonterminalFields:\n"; for(is <- sort(domain(c.nonterminalFields)))  res += getSelected(is, c.nonterminalFields[is], select); }
-       if(hasMatches(c.functionModifiers, select)) {  res += "functionModifiers:\n"; for(uid <- sort(domain(c.functionModifiers)))  res += getSelected(uid, c.functionModifiers[uid], select); }
-       if(hasMatches(c.definitions, select)) {  res += "definitions:\n"; for(uid <- sort(domain(c.definitions)))  res += getSelected(uid, c.definitions[uid], select); }
-       if(hasMatches(c.uses, select)) {  res += "uses:\n"; for(uid <- sort(domain(c.uses)))  res += getSelected(uid, c.uses[uid], select); }
-       if(hasMatches(c.narrowedUses, select)) {  res += "narrowedUses:\n"; for(uid <- sort(domain(c.narrowedUses)))  res += getSelected(uid, c.narrowedUses[uid], select); }
-       if(hasMatches(c.usedIn, select)) {  res += "usedIn:\n"; for(uid <- sort(domain(c.usedIn)))  res += getSelected(uid, c.usedIn[uid], select); }
-       if(hasMatches(c.adtConstructors, select)) {  res += "adtConstructors:\n"; for(uid <- sort(domain(c.adtConstructors)))  res += getSelected(uid, c.adtConstructors[uid], select); }
-       if(hasMatches(c.nonterminalConstructors, select)) {  res += "nonterminalConstructors:\n"; for(uid <- sort(domain(c.nonterminalConstructors)))  res += getSelected(uid,c.nonterminalConstructors[uid], select); }
-       if(hasMatches(c.keywordDefaults, select)) {  res += "keywordDefaults:\n"; for(uid <- sort(domain(c.keywordDefaults)))  res += getSelected(uid, c.keywordDefaults[uid], select); }
-       if(hasMatches(c.dataKeywordDefaults, select)) {  res += "dataKeywordDefaults:\n"; for(uid <- sort(domain(c.dataKeywordDefaults)))  res += getSelected(uid, c.dataKeywordDefaults[uid], select); }
-       if(hasMatches(c.tvarBounds, select)) {  res += "tvarBounds:\n"; for(uid <- sort(domain(c.tvarBounds)))  res += getSelected(uid, c.tvarBounds[uid], select); }
-       if(hasMatches(c.moduleInfo, select)) {  res += "moduleInfo:\n"; for(uid <- sort(domain(c.moduleInfo)))  res += getSelected(uid, c.moduleInfo[uid], select); }
-       if(hasMatches(c.globalAdtMap, select)) {  res += "globalAdtMap:\n"; for(uid <- sort(domain(c.globalAdtMap)))  res += getSelected(prettyPrintName(uid), c.globalAdtMap[uid], select); }
-       
-       if(hasMatches(c.globalSortMap, select)) {  res += "globalSortMap:\n"; for(uid <- sort(domain(c.globalSortMap)))  res += getSelected(prettyPrintName(uid), c.globalSortMap[uid], select); }
-       
-       if(hasMatches(c.deferredSignatures, select)) {  res += "deferredSignatures:\n"; for(uid <- sort(domain(c.deferredSignatures)))  res += getSelected(uid, c.deferredSignatures[uid], select); }
-       if(hasMatches(c.unimportedNames, select)) {  res += "unimportedNames:\n"; for(uid <- sort(c.unimportedNames))  res += getSelected(uid, select); }
-       /*if(c.importGraph != {})*/ {  res += "importGraph:\n"; for(<nm1, nm2> <- c.importGraph) res += "\t\<<prettyPrintName(nm1)>, <prettyPrintName(nm2)>\>"; }
-       if(c.dirtyModules != {}) { res += "dirtyModules:\n"; for(dirty <- c.dirtyModules) res += "\t<prettyPrintName(dirty)>"; }
-       return res;
-	} else {
-	   return "Config file does not exist";
-	}
+      return config(cloc,  select=select);
+   } else {
+       return "Config file does not exist: <cloc>";
+    }
+}
+            
+str config(loc cloc,  Query select = none()){
+   Configuration c = readBinaryValueFile(#Configuration, cloc);
+   
+   res = "";
+   
+   if(hasMatches(c.messages, select)) { res += "messages:\n"; for(msg <- c.messages) res += "\t<msg>\n"; }
+   
+   if(hasMatches(c.locationTypes, select)) { res += "locationTypes:\n"; for(l <- c.locationTypes) res += getSelected(l, c.locationTypes[l], select); }
+   if(containsSelected(c.expectedReturnType, select)) { res += "expectedReturnType:\n"; res += getSelected(c.expectedReturnType, select); }
+   if(hasMatches(c.labelEnv, select)) { res += "labelEnv:\n"; for(nm <- c.labelEnv) res += getSelected(nm, c.labelEnv[nm], select); }
+   
+   if(hasMatches(c.fcvEnv, select)) { res += "fcvEnv:\n"; for(nm <- c.fcvEnv) res += getSelected(prettyPrintName(nm), c.fcvEnv[nm], select); }
+   
+   if(hasMatches(c.typeEnv, select)) { res += "typeEnv:\n"; for(nm <- c.typeEnv) res += getSelected(nm, c.typeEnv[nm], select); }
+   if(hasMatches(c.modEnv, select)) {  res += "modEnv:\n"; for(nm <- c.modEnv)printSelected(nm, c.modEnv[nm], select); }
+   if(hasMatches(c.annotationEnv, select)) {  res += "annotationEnv:\n"; for(nm <- c.annotationEnv) res += getSelected(nm, c.annotationEnv[nm], select); }
+   if(hasMatches(c.tagEnv, select)) {  res += "tagEnv:\n"; for(nm <- c.tagEnv) res += getSelected(nm, c.tagEnv[nm], select); }
+   if(hasMatches(c.visibilities, select)) {  res += "visibilities:\n"; for(uid <- c.visibilities)  res += getSelected(uid, c.visibilities[uid], select); }
+   if(hasMatches(c.store, select)) {  res += "store:\n"; for(uid <- sort(domain(c.store)))  res += getSelected(uid, c.store[uid], select); }
+   if(hasMatches(c.grammar, select)) {  res += "grammar:\n"; for(uid <- sort(domain(c.grammar)))  res += getSelected(uid, c.grammar[uid], select); }
+   if(hasMatches(c.starts, select)) {  res += "starts:\n";  res += getSelected(c.starts, select); }
+   if(hasMatches(c.adtFields, select)) {  res += "adtFields:\n"; for(is <- sort(domain(c.adtFields)))  res += getSelected(is, c.adtFields[is], select); }
+   if(hasMatches(c.nonterminalFields, select)) {  res += "nonterminalFields:\n"; for(is <- sort(domain(c.nonterminalFields)))  res += getSelected(is, c.nonterminalFields[is], select); }
+   if(hasMatches(c.functionModifiers, select)) {  res += "functionModifiers:\n"; for(uid <- sort(domain(c.functionModifiers)))  res += getSelected(uid, c.functionModifiers[uid], select); }
+   if(hasMatches(c.definitions, select)) {  res += "definitions:\n"; for(uid <- sort(domain(c.definitions)))  res += getSelected(uid, c.definitions[uid], select); }
+   if(hasMatches(c.uses, select)) {  res += "uses:\n"; for(uid <- sort(domain(c.uses)))  res += getSelected(uid, c.uses[uid], select); }
+   if(hasMatches(c.narrowedUses, select)) {  res += "narrowedUses:\n"; for(uid <- sort(domain(c.narrowedUses)))  res += getSelected(uid, c.narrowedUses[uid], select); }
+   if(hasMatches(c.usedIn, select)) {  res += "usedIn:\n"; for(uid <- sort(domain(c.usedIn)))  res += getSelected(uid, c.usedIn[uid], select); }
+   if(hasMatches(c.adtConstructors, select)) {  res += "adtConstructors:\n"; for(uid <- sort(domain(c.adtConstructors)))  res += getSelected(uid, c.adtConstructors[uid], select); }
+   if(hasMatches(c.nonterminalConstructors, select)) {  res += "nonterminalConstructors:\n"; for(uid <- sort(domain(c.nonterminalConstructors)))  res += getSelected(uid,c.nonterminalConstructors[uid], select); }
+   if(hasMatches(c.keywordDefaults, select)) {  res += "keywordDefaults:\n"; for(uid <- sort(domain(c.keywordDefaults)))  res += getSelected(uid, c.keywordDefaults[uid], select); }
+   if(hasMatches(c.dataKeywordDefaults, select)) {  res += "dataKeywordDefaults:\n"; for(uid <- sort(domain(c.dataKeywordDefaults)))  res += getSelected(uid, c.dataKeywordDefaults[uid], select); }
+   if(hasMatches(c.tvarBounds, select)) {  res += "tvarBounds:\n"; for(uid <- sort(domain(c.tvarBounds)))  res += getSelected(uid, c.tvarBounds[uid], select); }
+   if(hasMatches(c.moduleInfo, select)) {  res += "moduleInfo:\n"; for(uid <- sort(domain(c.moduleInfo)))  res += getSelected(uid, c.moduleInfo[uid], select); }
+   if(hasMatches(c.globalAdtMap, select)) {  res += "globalAdtMap:\n"; for(uid <- sort(domain(c.globalAdtMap)))  res += getSelected(prettyPrintName(uid), c.globalAdtMap[uid], select); }
+   
+   if(hasMatches(c.globalSortMap, select)) {  res += "globalSortMap:\n"; for(uid <- sort(domain(c.globalSortMap)))  res += getSelected(prettyPrintName(uid), c.globalSortMap[uid], select); }
+   
+   if(hasMatches(c.deferredSignatures, select)) {  res += "deferredSignatures:\n"; for(uid <- sort(domain(c.deferredSignatures)))  res += getSelected(uid, c.deferredSignatures[uid], select); }
+   if(hasMatches(c.unimportedNames, select)) {  res += "unimportedNames:\n"; for(uid <- sort(c.unimportedNames))  res += getSelected(uid, select); }
+   /*if(c.importGraph != {})*/ {  res += "importGraph:\n"; for(<nm1, nm2> <- c.importGraph) res += "\t\<<prettyPrintName(nm1)>, <prettyPrintName(nm2)>\>"; }
+   if(c.dirtyModules != {}) { res += "dirtyModules:\n"; for(dirty <- c.dirtyModules) res += "\t<prettyPrintName(dirty)>"; }
+   return res;
 }
 
 void importGraph(str qualifiedModuleName,  // name of Rascal source module
