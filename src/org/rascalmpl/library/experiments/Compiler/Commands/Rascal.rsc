@@ -51,22 +51,21 @@ lexical Path
     ;
 lexical InsideQuote = ![\"]*;
     
-loc toLocation((Path)`"<InsideQuote inside>"`) = toLocation("<inside>");
+loc toLocation((Path)`"<InsideQuote inside>"`) = toLocation1("<inside>");
 default loc toLocation(Path p) = toLocation("<p>");
 
 //loc toLocation(/^<locPath:[|].*[|]>$/) = readTextValueString(#loc, locPath);
 //loc toLocation(/^<fullPath:[\/].*>$/) = |file:///| + fullPath;
 //default loc toLocation(str relativePath) = |cwd:///| + relativePath;
 
-loc toLocation(str path){
-
+loc toLocation1(str path){
     if(path[0] == "|"){
-         return readTextValueString(#loc, path[1..-1]);
+       return readTextValueString(#loc, path);
     }
     if(path[0] == "/"){
-        return |file:///| + path[1..];
+       return |file:///| + path[1..];
     }
-    return |cwd:///| + path;
+    return  |cwd:///| + path;
 }
 
 str getModuleName(ModuleName mn) {
