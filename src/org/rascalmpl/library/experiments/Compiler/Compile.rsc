@@ -191,7 +191,7 @@ lang::rascal::\syntax::Rascal::Declaration getMain(lang::rascal::\syntax::Rascal
 Module removeMain(lang::rascal::\syntax::Rascal::Module m) {
     if(m2: (Module) `<Header h> <Toplevel* pre> <Toplevel mn>` := m){
        res = (Module) `<Header h> <Toplevel* pre>`;
-       println("removeMain:\n====\n<m>\n=== returns\n<res>\n====");
+       //println("removeMain:\n====\n<m>\n=== returns\n<res>\n====");
        return res;
     }
     throw "removeMain: no main found";
