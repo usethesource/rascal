@@ -13,7 +13,7 @@ x Change main convention from "value main(list[value] args)" to value "main()"
 Still to be implemented:
 x memo functions
 - resources
-- keyword parameters across imports (needs infor from type checker)
+x keyword parameters across imports (needs infor from type checker)
 - ignored tests are not even compiled, but keep a count of ignored tests for test reporting
 
 Bootstrapping
@@ -34,6 +34,7 @@ x Detach the execute command from the interpreter and make it stand alone
 
 Code improvement
 - TypeUtils and TypeReifier are ready for a rewrite
+- Reuse rascal::grammar::Module for grammar normalization and code refactoring
 - Overall code cleanup.
 - Overal consistency check on naming of primitives in RascalPrimitive and MuPrimitive
 
