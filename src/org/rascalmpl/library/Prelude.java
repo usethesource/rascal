@@ -3029,7 +3029,7 @@ public class Prelude {
 			return values.integer(bi.toString());
 		}
 		catch (NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(null, null);
+			throw RuntimeExceptionFactory.illegalArgument(s, null, null, e.getMessage());
 		}
 	}
 	
