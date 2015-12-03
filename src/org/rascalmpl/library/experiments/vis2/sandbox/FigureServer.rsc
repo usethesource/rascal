@@ -60,12 +60,12 @@ bool isEmptyValue(value v) {
     }
      
 public Attr attr(str id, int width = -1, int height = -1, int r = -1
-     , num grow = 1.0, bool disabled = false) {
+     , num bigger = 1.0, bool disabled = false) {
      str idx = child(id);
      Attr v = _getAttr(idx);
      if (width!=-1) v.width = width;
      if (height!=-1) v.height = height;
-     if (grow>=0) v.grow = grow;    
+     if (bigger>=0) v.bigger = bigger;    
      if (r!=-1) v.r = r;
      // if (disabled?) v.disabled= disabled;
      _setAttr(idx, v);
