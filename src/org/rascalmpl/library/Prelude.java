@@ -3352,9 +3352,7 @@ public class Prelude {
 	
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc){
 		if(trackReadWrite) System.err.println("readBinaryValueFile: " + loc);
-		if(loc.getScheme().equals("home")){
-			System.err.println("");
-		}
+
 		TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
