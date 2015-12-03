@@ -122,7 +122,7 @@ public data Attr (
     int width = -1,
     int height =  -1,
     int r = -1,
-    num grow = 1.0,
+    num bigger = 1.0,
     bool disabled = false 
     ) = attr();
     
@@ -178,10 +178,13 @@ public data Figure(
 		Position at = <0,0>,
 		Rotate rotate =<0, -1, -1>, 
 		Alignment align = <0.5, 0.5>, // TODO should be middle,
-		num grow = 1.0,
+		num bigger = 1.0,
 		num shrink = 1.0, 
 		num hshrink = 1.0, 
 		num vshrink = 1.0, 
+		num grow = 1.0, 
+		num hgrow = 1.0, 
+		num vgrow = 1.0, 
 		bool resizable = true,
 		tuple[int,int] gap = <0,0>,
 		int hgap = 0,
@@ -239,7 +242,7 @@ public data Figure(
    
    | circle(num cx = -1, num cy = -1, num r=-1, Figure fig=emptyFigure())
    
-   | ngon(int n=3, num r=-1, Figure fig=emptyFigure(),
+   | ngon(int n=3, num r=-1, int angle = 0, Figure fig=emptyFigure(),
         Rescale scaleX = <<0,1>, <0, 1>>,
    	    Rescale scaleY = <<0,1>, <0, 1>>
      )	// regular polygon
@@ -254,7 +257,7 @@ public data Figure(
    			bool shapeClosed = false, 		// Make a closed shape
    			bool shapeCurved = false, 		// Connect vertices with a spline
    			bool fillEvenOdd = true,
-   			bool yReverse = true,		// The fill rule to be used. (TODO: remove?)
+   			bool yReverse = true,		
    			Rescale scaleX = <<0,1>, <0, 1>>,
    			Rescale scaleY = <<0,1>, <0, 1>>,
    			Figure startMarker=emptyFigure(),
@@ -778,4 +781,11 @@ public list[str] colors =
             "yellowgreen"
         ];
         
-   
+ public str randomColor() =  colors[arbInt(size(colors))];
+ 
+ 
+ Figure(Figure , str ) self(Figure g) {return 
+              Figure(Figure f, value c) {g.fig = f; return g;}
+              ;}
+ 
+// Figure() self(Figure(str c) f) {Figure g = f(c); g.fig = f(c); return Figure() {return g;};}

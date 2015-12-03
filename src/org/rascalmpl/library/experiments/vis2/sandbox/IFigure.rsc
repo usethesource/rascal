@@ -74,6 +74,18 @@ public map[str, list[IFigure] ] defs = ();
 
 IFigure fig;
 
+int getN(IFigure fig1) = getN(getId(fig1));
+
+int getN(Figure fig1) = (Figure g:ngon():= fig1)?g.n:0;
+
+int getN(str id) = (figMap[id]?)?((Figure g:ngon():=figMap[id])?g.n:0):0;
+
+int getAngle(IFigure fig1) = getAngle(getId(fig1));
+
+int getAngle(str id) = (figMap[id]?)?((Figure g:ngon():=figMap[id])?g.angle:0):0;
+
+int getAngle(Figure fig1) = (Figure g:ngon():= fig1)?g.angle:0;
+
 
 // ----------------------------------------------------------------------------------------
 
@@ -223,12 +235,14 @@ Figure extendFig(Figure f) {
 	          ,manhattan=g.manhattan
 // For memory management
 	          , refinement=g.refinement, rasterHeight=g.rasterHeight)
-            case g:overlay() => overlay(figs=cQ(g.figs), size = g.size )
+            case g:overlay() => overlay(id = g.id, figs=cQ(g.figs)
+            , size = g.size, width =g.width, height = g.height
+            , lineWidth = g.lineWidth, align = g.align )
             }
     }
 
 void addState(Figure f) {
-    Attr attr = attr(grow = f.grow);
+    Attr attr = attr(bigger = f.bigger);
     Property property = property();
     if (choiceInput():=f)
          property.\value = f.\value;
@@ -359,7 +373,7 @@ str getIntro() {
         '                        if (i==\"html\") e=e.html(t[d][\"text\"][i]);
         '                        }
         '                   for (var i in t[d][\"attr\"]) {
-        '                        if (i!=\"grow\" && i!=\"disabled\")
+        '                        if (i!=\"bigger\" && i!=\"disabled\")
         '                        e=e.attr(i, t[d][\"attr\"][i]);
         '                        if (i==\"disabled\") e=e.attr(i, t[d][\"attr\"][i]?true:null);
         '                        }
@@ -406,7 +420,7 @@ str getIntro() {
         '                   }
         '                   for (var d in t) {      
         '                         for (var i in t[d][\"attr\"]) {
-        '                              if (i==\"grow\") {
+        '                              if (i==\"bigger\") {
         '                                 var a = d3.select(\"#\"+d);
         '                                 // alert(\"#\"+d);
         '                                 var w = parseInt(a.attr(\"width\"));
@@ -492,12 +506,12 @@ list[State] diffNewOld() {
     }
     
 bool isGrow(Figure f) {
-   // println(getKeywordParameters(f)["grow"]?);
-   return getKeywordParameters(f)["grow"]?;
+   // println(getKeywordParameters(f)["bigger"]?);
+   return getKeywordParameters(f)["bigger"]?;
    }
    
 bool isRotate(Figure f) {
-   // println(getKeywordParameters(f)["grow"]?);
+   // println(getKeywordParameters(f)["bigger"]?);
    return getKeywordParameters(f)["rotate"]?;
    }
     
@@ -645,7 +659,8 @@ public void _render(IFigure fig1, int width = 800, int height = 800,
        widgetOrder += id;
     // println("QQQ:<getWidth(fig1)> <getId(fig1)>");
     if (resizable && (getWidth(fig1)<0 || getHeight(fig1)<0))
-       adjust+=  "adjustBox(\"<getId(fig1)>\", \"<id>\", <getHshrink(fig1)>, <getVshrink(fig1)>);\n";
+       // adjust+=  "adjustBox(\"<getId(fig1)>\", \"<id>\", <getHshrink(fig1)>, <getVshrink(fig1)>);\n";
+        adjust+=adjustBox(fig1, id, getN(fig1), getAngle(fig1));
     fig = ifigure(id, [fig1]);
     println("site=<site>");
 	if (display) htmlDisplay(site);
@@ -897,8 +912,8 @@ int getTextWidth(Figure f, str s) {
  
 int getTextHeight(Figure f) {
    if (f.height>=0) return f.height;
-   int fw =  (f.fontSize<0?12:f.fontSize)+5;
-   return fw;
+   num fw =  (f.fontSize<0?12:f.fontSize)*1.2;
+   return toInt(fw);
    }
    
 int getTextX(Figure f, str s) {
@@ -932,13 +947,13 @@ IFigure _text(str id, bool fo, Figure f, str s) {
         '<debugStyle()>
         '<fo?style("background-color", "<f.fillColor>"):"">
         '<stylePx("width", width)><stylePx("height", height)>
+        '<attrPx("width", width)><attrPx("height", height)>
         '<stylePx("font-size", f.fontSize)>
         '<style("font-style", f.fontStyle)>
         '<style("font-family", f.fontFamily)>
         '<style("font-weight", f.fontWeight)>
         '<style("visibility", getVisibility(f))>
         '<fo?style("color", f.fontColor):style("fill", f.fontColor)>
-        '<fo?"":attr("y", getTextY(f))+attr("x", getTextX(f, s))> 
         '<fo?"":style("text-anchor", "middle")> 
         '<fo?"":attr("pointer-events", "none")>
         '<html(s, fo, f.nl2br)>
@@ -1261,11 +1276,11 @@ str endRotate(Figure f) =  !isRotate(f)? "":"\</g\>";
 str beginScale(Figure f) {   
     if (!isGrow(f)) return "";
     if (f.width<0 || f.height<0)
-       return "\<g id = \"<f.id>_g\" transform=\"scale(<f.grow>)\" \>";
+       return "\<g id = \"<f.id>_g\" transform=\"scale(<f.bigger>)\" \>";
     else {
         int x =0;  // f.width/2; is dependent of environment
         int y =0; //f.height/2;
-        return "\<g id = \"<f.id>_g\" transform=\"translate(<-x>, <-y>) scale(<f.grow>) translate(<x>, <y>)\"\>";
+        return "\<g id = \"<f.id>_g\" transform=\"translate(<-x>, <-y>) scale(<f.bigger>) translate(<x>, <y>)\"\>";
         }
     }
   
@@ -1286,9 +1301,11 @@ bool hasInnerCircle(Figure f)  {
   
  str moveAt(bool fo, Figure f) = fo?"":"x=<getAtX(f)> y=<getAtY(f)>";
  
- str adjustBox(IFigure fig, str id) =  
+ str adjustBox(IFigure fig, str id, int n, int angle) =  
    "adjustBox(\"<getId(fig)>\", \"<id>\", <getHshrink(fig)>, <getVshrink(fig)>
-   ', <getLineWidth(fig)>);\n";
+   ', <getLineWidth(fig)>, <n>, <angle>);\n";
+   
+ str adjustBox(IFigure fig, str id) = adjustBox(fig, id, 0, 0);
          
  IFigure _rect(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(), Alignment align = <0, 0>) {    
       int lw = getLineWidth(f);  
@@ -1297,10 +1314,10 @@ bool hasInnerCircle(Figure f)  {
       //               f.align = centerMid;
       int offset1 = round((0.5-f.align[0])*lw);
       int offset2 = round((0.5-f.align[1])*lw);
-      if (getWidth(fig)>0 && getHeight(fig)>0){
-           if (f.width<0) f.width = getWidth(fig)+lw+getAtX(fig)+hPadding(f);
-           if (f.height<0) f.height = getHeight(fig)+lw+getAtY(fig)+vPadding(f);
-           }
+      //if (getWidth(fig)>0 && getHeight(fig)>0){
+      //    if (f.width<0) f.width = getWidth(fig)+lw+getAtX(fig)+hPadding(f);
+      //    if (f.height<0) f.height = getHeight(fig)+lw+getAtY(fig)+vPadding(f);
+      //  }
       if (emptyFigure():=f.fig || text(_):=f.fig) fo = false;
       // println("<id>: align = <lw> <f.align> <0.5-f.align[0]>  <offset> getAtX(fig)=<getAtX(fig)>");  
       str begintag= 
@@ -1323,13 +1340,13 @@ bool hasInnerCircle(Figure f)  {
         '<attr("rx", f.rounded[0])><attr("ry", f.rounded[1])> 
         '<attr("width", width)><attr("height", height)>
         '<styleInsideSvg(id, f, fig)>
-        ",toInt(f.grow*f.width), toInt(f.grow*f.height), getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, 
-          toInt(f.grow*getLineWidth(f)), getLineColor(f), f.sizeFromParent, true >;
+        ",toInt(f.bigger*f.width), toInt(f.bigger*f.height), getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, 
+          toInt(f.bigger*getLineWidth(f)), getLineColor(f), f.sizeFromParent, true >;
        addState(f);
        widgetOrder+= id;
        if (fig!=iemptyFigure() && getResizable(f) && (getWidth(fig)<0 || getHeight(fig)<0)
        )
-          adjust+= adjustBox(fig, id); 
+          adjust+= adjustBox(fig, id, getN(fig), getAngle(fig)); 
          
        return ifigure(id, [fig]);
        } 
@@ -1356,7 +1373,7 @@ bool hasInnerCircle(Figure f)  {
         '<style("visibility", getVisibility(f))>     
         ';       
         'd3.select(\"#<id>_svg\")
-        '<attr("width", toInt(f.grow*f.width))><attr("height", toInt(f.grow*f.height))>     
+        '<attr("width", toInt(f.bigger*f.width))><attr("height", toInt(f.bigger*f.height))>     
         '<tooltip>
         '<findFirst(id,"_tooltip")>=0?attr("pointer-events", "none"):"">
         ';
@@ -1371,7 +1388,7 @@ bool hasInnerCircle(Figure f)  {
  
  str styleInsideSvg(str id, Figure f,  IFigure fig) {  
     int x  =getAtX(fig);
-    int y = getAtX(fig);
+    int y = getAtY(fig);
     int lw = getLineWidth(f);
     int width = f.width;
     int height = f.height;  
@@ -1389,7 +1406,7 @@ bool hasInnerCircle(Figure f)  {
        int w = f.width/2; 
        int h =  f.height/2;
        g = "d3.select(\"#<fig.id>\")<attr("x", w)><attr("y", h+fw/2)>;";
-       }   
+       }
     return styleInsideSvgOverlay(id, f) +
         "    
         'd3.select(\"#<id>_fo\")
@@ -1404,18 +1421,20 @@ bool hasInnerCircle(Figure f)  {
         ';
         '<g>
         "
-        + ((!isEmpty(getId(fig))&& f.width<0)?"adjust0(\"<id>\", \"<getId(fig)>\", <lw>, <hpad>, <vpad>);\n":"")
+        + ((!isEmpty(getId(fig))&& f.width<0)?"adjust0(<figCall(f,getAtX(fig),getAtY(fig))>, \"<getId(fig)>\", <lw>, <hpad>, <vpad>);\n":"")
         ;     
       }
-
+/*
 num rxL(num rx, num ry) = rx * sqrt(rx*rx+ry*ry)/ry;
 
 num ryL(num rx, num ry) = ry * sqrt(rx*rx+ry*ry)/rx;
+*/
          
 num cxL(Figure f) =  
       (((ellipse():=f)?(f.rx):(f.r)) + (getLineWidth(f)>=0?(getLineWidth(f))/2.0:0));
 num cyL(Figure f) =  
       (((ellipse():=f)?(f.ry):(f.r)) + (getLineWidth(f)>=0?(getLineWidth(f))/2.0:0));
+
      
  IFigure _ellipse(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(), Alignment align = <0.5, 0.5>) {
       int lw = getLineWidth(f);    
@@ -1424,50 +1443,13 @@ num cyL(Figure f) =
       switch (f) {
           case ellipse(): {tg = "ellipse"; 
                            if (f.width>=0 && f.rx<0) f.rx = (f.width-lw)/2;
-                           if (f.height>=0 && f.ry<0) f.ry = (f.height-lw)/2;
-                          // if (f.rx<0 || f.ry<0 || getAtX(fig)>0 || getAtY(fig)>0) f.align = centerMid; 
-                           bool bx  = false;          
-                           if (f.rx<0 && getWidth(fig)>=0) {
-                              f.rx = getAtX(fig)+(getWidth(fig)+lw+hPadding(f))/2.0;
-                              bx = true;
-                              }
-                           bool by  = false; 
-                           if (f.ry<0 && getHeight(fig)>=0) {
-                              f.ry = getAtY(fig)+(getHeight(fig)+lw+vPadding(f))/2.0;
-                              by = true;
-                              }
-                           if (!hasInnerCircle(f)&& (bx || by)) { 
-                              num rx = f.rx; num ry = f.ry;
-                              if (bx) {
-                                  rx -= hPadding(f);
-                                  f.rx = rxL(rx, ry);
-                                  f.rx+= hPadding(f);
-                                  }
-                              if (by) {
-                                  ry -= vPadding(f);
-                                  f.ry = ryL(rx, ry);
-                                  f.ry+= vPadding(f);
-                                  }
-                              }
-               
+                           if (f.height>=0 && f.ry<0) f.ry = (f.height-lw)/2;    
                            if (f.width<0 && f.rx>=0) f.width= round(f.rx*2+lw);
-                           if (f.height<0 && f.ry>=0) f.height = round(f.ry*2+lw);                         
+                           if (f.height<0 && f.ry>=0) f.height = round(f.ry*2+lw);                   
                            }
           case circle(): {tg = "circle";
                           if (f.width>=0 && f.height>=0 && f.r<0) 
                                        f.r = (max([f.width, f.height])-lw)/2;
-                          // if (f.r<0 || getAtX(fig)>0 || getAtY(fig)>0) f.align = centerMid; 
-                          bool b  = false;             
-                          int d = max([getWidth(fig), getHeight(fig)]);
-                          if (f.r<0 && d>=0) {
-                               f.r = max([getAtX(fig),getAtY(fig)])+
-                                     (d+lw+max([hPadding(f), vPadding(f)]))/2.0;
-                               b = true;
-                               }
-                          if (!hasInnerCircle(f)&& b) { 
-                              num r = f.r - max([hPadding(f), vPadding(f)]);
-                              f.r = rxL(r, r)+ max([hPadding(f), vPadding(f)]);
-                              }
                           if (f.width<0 && f.r>=0) f.width= round(f.r*2+lw);
                           if (f.height<0 && f.r>=0) f.height = round(f.r*2+lw);                 
                           }
@@ -1502,7 +1484,7 @@ num cyL(Figure f) =
        addState(f);
        widgetOrder+= id;
        if (fig!=iemptyFigure() && getResizable(f) && (getWidth(fig)<0 || getHeight(fig)<0))
-          adjust+= adjustBox(fig, id); 
+          adjust+= adjustBox(fig, id, getN(fig), getAngle(fig)); 
        return ifigure(id, [fig]);
        }
        
@@ -1520,15 +1502,17 @@ str toP(num d) {
         return toP(d, <<0,1>, <0, 1>>);
         }
       
-str translatePoints(Figure f, Rescale scaleX, Rescale scaleY) {
+str translatePoints(Figure f, Rescale scaleX, Rescale scaleY, int x, int y) {
        Points p;
+       if (f.r<0) return "";
        if (polygon():=f) {
            p = f.points;         
        }
-       if (ngon():=f) {
-            int lw = corner(f)/2;
-             num angle = 2 * PI() / f.n;
-             p  = [<f.r+lw+f.r*cos(i*angle), f.r+lw+f.r*sin(i*angle)>|int i<-[0..f.n]];
+       if (g:ngon():=f) {
+            // int lw = corner(g)/2;
+             num angle = 2 * PI() / g.n;
+             num z = g.angle/360.0*2*PI();
+             p  = [<x+g.r*cos(z+i*angle), y+g.r*sin(z+i*angle)>|int i<-[0..g.n]];
              }
        return "<toP(p[0][0], scaleX)>, <toP(p[0][1], scaleY)>" + 
             "<for(t<-tail(p)){> <toP(t[0], scaleX)> , <toP(t[1], scaleY)> <}>";
@@ -1548,9 +1532,10 @@ int corner(Figure f) {
     }
     
 int corner(int n, int lineWidth) {
-     num angle = PI() - 2 * PI() / n;
+     // num angle = PI() - 2 * PI() / n;
+     num angle = 2 * PI() / n;
      int lw = lineWidth<0?0:lineWidth;
-     return toInt(lw/sin(0.5*angle));
+     return toInt(lw/cos(0.5*angle));
     }  
    
 
@@ -1600,7 +1585,7 @@ IFigure _polygon(str id, Figure f,  IFigure fig = iemptyFigure()) {
         "  
         'd3.select(\"#<id>\")
         '<on(getEvent(f.event), "doFunction(\"<getEvent(f.event)>\", \"<id>\")")>
-        '<attr("points", translatePoints(f, f.scaleX, f.scaleY))>
+        '<attr("points", translatePoints(f, f.scaleX, f.scaleY, 0, 0))>
         '<style("fill-rule", f.fillEvenOdd?"evenodd":"nonzero")>
         '<styleInsideSvgOverlay(id, f)>
         ", f.width, f.height, getAtX(f), getAtY(f),  f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f)
@@ -1624,6 +1609,7 @@ int getPathWidth(Figure f) {
          }
 
 int getPathHeight(Figure f) {
+
          if (shape(list[Vertex] vs):= f) {
              if (f.height>=0) return f.height;
              return screenHeight;
@@ -1700,6 +1686,7 @@ IFigure _shape(str id, Figure f,  IFigure fig = iemptyFigure()) {
         '<style("marker-mid", mS(f.midMarker, "url(#m_<id>_mid)"))>
         '<style("marker-end",  mS(f.endMarker,"url(#m_<id>_end)"))>
         '<style("fill-rule", f.fillEvenOdd?"evenodd":"nonzero")>
+        '<attr("width",  f.width)><attr("height",  f.height)>
         '<styleInsideSvgOverlay(id, f)>
         ", f.width, f.height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f)
          , f.sizeFromParent, true >;
@@ -1722,22 +1709,18 @@ str beginRotateNgon(Figure f) {
 IFigure _ngon(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(), Alignment align = <0.5, 0.5>) {
        int lw = getLineWidth(f);
        if (emptyFigure():=f.fig || text(_):=f.fig) fo = false;
-       if (f.r<0 || getAtX(fig)>0 || getAtY(fig)>0 || f.rotate[0]!=0) f.align = centerMid;
-       bool b  = false;             
-       int d = max([getWidth(fig), getHeight(fig)]);
+       if (f.r<0 || getAtX(fig)>0 || getAtY(fig)>0 || f.rotate[0]!=0) f.align = centerMid;          
        if (fig==iemptyFigure()) fo = false;
-       if (f.r<0 && d>=0) {
-                f.r = max([getAtX(fig),getAtY(fig)])+
-                (d+lw+max([hPadding(f), vPadding(f)]))/2.0;
-                b = true;
-                }
-       if (!hasInnerCircle(f)&& b) { 
-             num r = f.r - max([hPadding(f), vPadding(f)]);
-             f.r = rxL(r, r);
-             f.r += max([hPadding(f), vPadding(f)]);
+       if (f.r<0 && f.height>0 &&f.width>0) {
+             int d = min([f.height, f.width]);
+             f.r = (d - corner(f))/2;
+             f.height = d;
+             f.width = d;
              }
-       if (f.width<0 && f.r>=0) f.width= round(f.r*2+lw);
-       if (f.height<0 && f.r>=0) f.height = round(f.r*2+lw);
+       else {
+           if (f.width<0 && f.r>=0) f.width= round(2*f.r+corner(f));
+           if (f.height<0 && f.r>=0) f.height = round(2*f.r+corner(f));
+           }
        str begintag = "";
        begintag+=
          "\<svg <moveAt(fo, f)> id=\"<id>_svg\"\><beginScale(f)><beginRotateNgon(f)>\<rect id=\"<id>_rect\"/\> <extraCircle(id, f)>\<polygon id=\"<id>\"/\>        
@@ -1757,7 +1740,7 @@ IFigure _ngon(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(), Alignmen
         
         'd3.select(\"#<id>\")
         '<on(f)>
-        '<attr("points", translatePoints(f, f.scaleX, f.scaleY))> 
+        '<attr("points", translatePoints(f, f.scaleX, f.scaleY, toInt(f.width/2), toInt(f.height/2)))> 
         '<attr("width", f.width)><attr("height", f.height)>
         '<styleInsideSvg(id, f, fig)>
         ", f.width, f.height, getAtX(f), getAtY(f),  f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f)
@@ -1765,7 +1748,7 @@ IFigure _ngon(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(), Alignmen
        addState(f);
        widgetOrder+= id;
        if (fig!=iemptyFigure() && getResizable(f) && (getWidth(fig)<0 || getHeight(fig)<0))
-          adjust+= adjustBox(fig, id); 
+          adjust+= adjustBox(fig, id, getN(fig), getAngle(fig)); 
        return ifigure(id, [fig]);
        }
  
@@ -2085,7 +2068,11 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
        return ifigure(id ,[td("<id>_<getId(g)>", f, g, width, height)| g<-fig1]);
        }
        
-str figCall(IFigure f) = "fig(\"<getId(f)>\", <getHshrink(f)>, <getVshrink(f)>, <getLineWidth(f)>)";
+str figCall(IFigure f) = 
+"figShrink(\"<getId(f)>\", <getHshrink(f)>, <getVshrink(f)>, <getLineWidth(f)>, <getN(getId(f))>, <getAngle(getId(f))>)";
+
+str figCall(Figure f, int x, int y) = 
+"figGrow(\"<f.id>\", <f.hgrow>, <f.vgrow>, <getLineWidth(f)>, <getN(f)>, <getAngle(f)>,<x>, <y>)";
 
 str figCalls(list[IFigure] fs) {
        if (isEmpty(fs)) return "[]";
@@ -2434,6 +2421,10 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
             f.hshrink = f.shrink;
             f.vshrink = f.shrink;
             }
+    if (f.grow?) {
+            f.hgrow = f.grow;
+            f.vgrow = f.grow;
+            }
     // if (f.cellWidth<0) f.cellWidth = f.width;
     // if (f.cellHeight<0) f.cellHeight = f.height;
     switch(f) {
@@ -2621,6 +2612,10 @@ public void _render(Figure fig1, int width = 400, int height = 400,
         if (fig1.shrink?) {
             fig1.hshrink = fig1.shrink;
             fig1.vshrink = fig1.shrink;
+            }
+        if (fig1.grow?) {
+            fig1.hgrow = fig1.grow;
+            fig1.vgrow = fig1.grow;
             }
         fig1= buildFigMap(fig1);
         parentMap[fig1.id] = h.id; 

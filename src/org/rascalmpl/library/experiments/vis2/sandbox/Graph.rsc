@@ -6,13 +6,13 @@ import Prelude;
 
 public Figure fsm(){
     // Figure b(str label) = emptyFigure();
-	Figure b(str label) =  box( fig=text(label, fontWeight="bold"), fillColor="whitesmoke", rounded=<5,5>, padding=<0,6, 0, 6>, tooltip = label);
+	Figure b(str label) =  box( fig=text(label, fontWeight="bold"), fillColor="whitesmoke", rounded=<5,5>/*, padding=<0,6, 0, 6>*/, tooltip = label);
     states = [ 	
-                <"CLOSED", 		ngon(n=6, r = 40, fig=text("CLOSED", fontWeight="bold"), fillColor="#f77", rounded=<5,5>, padding=<0, 5,0, 5>, tooltip = "CLOSED")>, 
+                <"CLOSED", 		ngon(n=6, r = 40, fig=text("CLOSED", fontWeight="bold"), fillColor="#f77", rounded=<5,5>, padding=<5, 30,0, 30>, tooltip = "CLOSED")>, 
     			<"LISTEN", 		b("LISTEN")>,
     			<"SYN RCVD", 	b("SYN RCVD")>,
 				<"SYN SENT", 	b("SYN SENT")>,
-                <"ESTAB",	 	box(size=<100, 30>, fig=text("ESTAB",fontWeight="bold"), fillColor="#7f7", rounded=<5,5>, padding=<0, 5,0, 5>, tooltip = "ESTAB")>,
+                <"ESTAB",	 	box(width=100, height = 30, fig=text("ESTAB",fontWeight="bold"), fillColor="#7f7", rounded=<5,5>, padding=<15, 5,5, 15>, tooltip = "ESTAB")>,
                 <"FINWAIT-1", 	b("FINWAIT-1")>,
                 <"CLOSE WAIT", 	box(size=<120, 30>, fig=text("CLOSE WAIT",fontWeight="bold"), fillColor="antiquewhite", lineDashing=[1,1,1,1],  rounded=<5,5>, padding=<0, 5,0, 5>, tooltip = "CLOSE_WAIT")>,
                 <"FINWAIT-2", 	b("FINWAIT-2")>,    

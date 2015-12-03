@@ -92,8 +92,18 @@ function askServer(path, parameters, timer, timeout, callback) {
    
 }
    
- rxL= function(rx, ry) {return rx * Math.sqrt(rx*rx+ry*ry)/ry;};
- ryL= function(rx, ry) {return ry * Math.sqrt(rx*rx+ry*ry)/rx;};
+ rxL= function(rx, ry) {return rx /* * Math.sqrt(rx*rx+ry*ry)/ry*/;};
+ ryL= function(rx, ry) {return ry /* * Math.sqrt(rx*rx+ry*ry)/rx*/;};
+ 
+ function corner(n, lineWidth) {
+     if (n==0) return lineWidth;
+     // var angle = Math.PI - 2 * Math.PI / n;
+     angle = Math.PI/n;
+     var lw = lineWidth<0?0:lineWidth;
+     // alert(lw/Math.sin(angle))
+     // return lw;
+     return lw/Math.cos(angle);
+    }  
  
  function svgStyle(s, svg) {
      switch (s) {
@@ -106,48 +116,90 @@ function askServer(path, parameters, timer, timeout, callback) {
      return s;
      }
  
- function adjust0(id0, id1, lw, hpad, vpad) { 
-    var d = d3.select("#"+id0);
-    var lw0 = parseInt(d3.select("#"+id1).style("stroke-width"));
+ function adjust0(f, id1, lw, hpad, vpad) { 
+    
+    var to = d3.select("#"+f.id);
+    var from = d3.select("#"+id1); 
+    var lw0 = parseInt(from.style("stroke-width"));
     var width = document.getElementById(id1).getBoundingClientRect().width;
     var height = document.getElementById(id1).getBoundingClientRect().height;
+    // alert("adjust0:"+width);
+    if  (from.attr("width")!=null) width = parseInt(from.attr("width"));
+    if  (from.attr("height")!=null) height = parseInt(from.attr("height"));
+    // alert("adjust0:"+width);
     if (width==0 || height == 0) return;
-    width = width + lw +hpad;
-    height = height + lw + vpad;
-    if  (d.attr("width")!=null) width = d.attr("width");
-    if  (d.attr("height")!=null) height = d.attr("height");
-    var c = d3.select("#"+id1);
-    if (c.node().nodeName == "ellipse" || c.node().nodeName == "circle"
-                                       || c.node().nodeName == "path")
+    width = width*f.hgrow + lw +hpad+f.x;
+    height = height*f.vgrow + lw + vpad+f.y;
+    if (from.node().nodeName=="text") {
+            from.attr("x", width/2);
+            from.attr("y", height/2);
+            from.attr("dy", ".3em");
+            }
+    if (from.node().nodeName == "ellipse" || from.node().nodeName == "circle"
+                                       || from.node().nodeName == "path" 
+    // from.node().nodeName=="polygon"
+     )
         {width += lw0; height += lw0;}
-    switch (d.node().nodeName) {
+    switch (to.node().nodeName) {
         case "rect": 
-                   d.attr("width",width).attr("height",height).
-                   attr("x",0).attr("y", 0); 
+                   to.attr("width",width).attr("height",height).
+                   attr("x",0).attr("y", 0);
                    break;
         case "circle":  
                     var side =  Math.max(width, height);           
-                    var r = side/2;
-                    d.attr("cx", r+lw/2).attr("cy", r+lw/2)
+                    var r = (side-lw)/2;
+                    to.attr("cx", r+lw/2).attr("cy", r+lw/2)
                      .attr("r", r); 
                     width = 2*r+lw;
                     height = 2*r+lw; 
-                    d.attr("width",width).attr("height",height);                  
+                    to.attr("width",width).attr("height",height);                  
                     break;
-        case "ellipse":  
-                    var rx = rxL(width/2, height/2);
-                    var ry = ryL(width/2, height/2);
-                    d.attr("cx", rx+lw/2).attr("cy", ry+lw/2)
+        case "ellipse": 
+                    var rx = (width-lw)/2;
+                    var ry = (height-lw)/2;
+                    // alert("rx="+width+" ry="+height+" "+rx+" " + ry);
+                    to.attr("cx", rx+lw/2).attr("cy", ry+lw/2)
                      .attr("rx", rx).attr("ry", ry); 
                      width = 2*rx + lw;
                      height= 2*ry + lw;
-                    d.attr("width",width).attr("height",height);               
+                    to.attr("width",width).attr("height",height);               
                     break; 
+        case "polygon":           
+                    if (to.attr("r")==null) { 
+                        var side =  Math.max(width, height); 
+                        width = side+corner(f.n, f.lw);
+                        height = side+corner(f.n, f.lw);   
+                        var r = side/2;
+                        to.attr("points",
+                        translatePoints(f, r, width/2, height/2).map(function(a) {
+                             return [a.x, a.y].join(",");
+                             }
+                        ).join(" ")
+                        );
+                        to.attr("width",width).attr("height",height);
+                        var e = d3.select("#"+f.id+"_circle");
+                        e.attr("cx", width/2).attr("cy", height/2)
+                        .attr("r", r);
+                        e.attr("width",width).attr("height",height);
+                        }                                     
+                    break;
         };
-    d3.select("#"+id0+"_fo_table").style("width",width).style("height",height);
-    d3.select("#"+id0+"_fo").attr("width",width).attr("height",height);
-    d3.select("#"+id0+"_svg").attr("width",width).attr("height",height);
+    d3.select("#"+f.id+"_fo_table").style("width",width).style("height",height);
+    d3.select("#"+f.id+"_fo").attr("width",width).attr("height",height);
+    d3.select("#"+f.id+"_svg").attr("width",width).attr("height",height);
    }
+   
+   function translatePoints(f, r, x, y) {
+         var q = new Array();
+         //  alert(f.angle);
+         var p = f.angle/360.0*2*Math.PI;
+         // alert(p);
+         var angl = 2 * Math.PI / f.n;
+         for (var i=0;i<f.n;i++) {
+             q.push({"x":x+r*Math.cos(p+i*angl), "y":y+r*Math.sin(p+i*angl)});
+             }
+       return q;
+       }
    
    function adjust1(id, f, width, height, hpad, vpad) { 
     var d = d3.select("#"+f.id);
@@ -163,10 +215,10 @@ function askServer(path, parameters, timer, timeout, callback) {
               }
           return;
           } 
-    if  (d.attr("width")!=null) width = d.attr("width");
-    if  (d.attr("height")!=null) height = d.attr("height");
+    if  (d.attr("width")!=null) width = parseInt(d.attr("width"));
+    if  (d.attr("height")!=null) height = parseInt(d.attr("height"));
     var w = width * f.hshrink;
-    var h = height* f.vshrink;
+    var h = height* f.vshrink; 
     switch (d.node().nodeName) {
         case "rect": 
          
@@ -189,6 +241,29 @@ function askServer(path, parameters, timer, timeout, callback) {
                         d.attr("width",w).attr("height",h);
                         } 
                                            
+                    break;
+        case "polygon":             
+                    if (d.attr("r")==null) {   
+                        var side =  Math.min(width, height); 
+                        var side1 =  Math.min(w, h);
+                        w = side1;
+                        h = side1;    
+                        var r1 = (side1/2)-corner(f.n, f.lw);
+                        // alert(f.angle);
+                        d.attr("points",
+                        translatePoints(f, r1, side1/2, side1/2).map(function(a) {
+                             return [a.x, a.y].join(",");
+                             }
+                        ).join(" ")
+                        );
+                        d.attr("width",w).attr("height",h);
+                        var e = d3.select("#"+f.id+"_circle");
+                        e.attr("cx", side1/2).attr("cy", side1/2)
+                        .attr("r", r1);
+                        width = side;
+                        height = side;
+                        e.attr("width",w).attr("height",h);
+                        }                                     
                     break;
         case "ellipse":
                     if ((d.attr("rx")==null) && (d.attr("ry")==null)) {
@@ -216,8 +291,13 @@ function askServer(path, parameters, timer, timeout, callback) {
     d3.select("#"+f.id+"_fo_table").attr("pointer-events", "none");
    }
    
-   function fig(id, hshrink, vshrink, lw) {
-        return {id:id, hshrink:hshrink, vshrink: vshrink, lw: lw};
+   function figShrink(id, hshrink, vshrink, lw, n, angle) {
+        // alert("fig");
+        return {id:id, hshrink:hshrink, vshrink: vshrink, lw: lw, n: n, angle: angle};
+        }
+        
+  function figGrow(id, hgrow, vgrow, lw, n, angle, x, y) {
+        return {id:id, hgrow:hgrow, vgrow: vgrow, lw: lw, n: n, angle: angle, x: x, y: y};
         }
    
    function getVal(f, key) {
@@ -428,18 +508,21 @@ function askServer(path, parameters, timer, timeout, callback) {
          
   
   
-   function adjustBox(id0, id1, hshrink, vshrink, lw) { 
-       // alert("adjustBox:"+id0+":"+d3.select("#"+id0).attr("width"));
-       if (d3.select("#"+id0).attr("width")!=null && 
-            d3.select("#"+id0).attr("height")!=null) return;
+   function adjustBox(id0, id1, hshrink, vshrink, lw, n, angle) { 
+       //alert("adjustBox:"+id1+":"+d3.select("#"+id1).node().nodeName);
+       // alert(d3.select("#"+id0).attr("width"));
+       var to = d3.select("#"+id0);
+       if (to.attr("width")!=null && to.attr("height")!=null) return;
+       var from = d3.select("#"+id1);
        var width = document.getElementById(id1).getBoundingClientRect().width;
+       if (from.attr("width")!=null) width = from.attr("width");
        var height = document.getElementById(id1).getBoundingClientRect().height;
-       // alert(width);
+       if (from.attr("height")!=null) height = from.attr("height");
+       
        // alert(height);
        if (width==null||height==null) return;
-       width = parseInt(width)*parseFloat(hshrink); 
-       height = parseInt(height)*parseFloat(vshrink);
-       adjust1(id1, {id:id0, hshrink:hshrink, vshrink:vshrink, lw:lw}, width, height,  0, 0);
+       // alert(width);
+       adjust1(id1, {id:id0, hshrink:hshrink, vshrink:vshrink, lw:lw, n:n, angle: angle}, width, height,  0, 0);
        }
  
 function isObject (item) {
