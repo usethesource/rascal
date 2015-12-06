@@ -390,7 +390,7 @@ public tuple[Configuration,KeywordParamMap] getConstructorKeywordParams(Configur
 	
 	adtIdSet = invert(c.adtConstructors)[itemId];
 	if (size(adtIdSet) == 1) {
-		adtId = getOneFrom(adtIdSet);
+		adtId = getFirstFrom(adtIdSet);
 		if (adtId == 847) {
 			println("Found it");
 		}
@@ -797,7 +797,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 		} 
 		
 		if (size(constructorMatches) == 1) {
-            rt = getOneFrom(constructorMatches);
+            rt = getFirstFrom(constructorMatches);
             if (typeContainsTypeVars(rt)) {
                 // If the constructor is parametric, we need to calculate the actual types of the
                 // parameters and make sure they fall within the proper bounds.
@@ -826,7 +826,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         }
 
 		if (size(productionMatches) == 1) {
-            rt = getOneFrom(productionMatches);
+            rt = getFirstFrom(productionMatches);
             if (typeContainsTypeVars(rt)) {
                 // If the production is parametric, we need to calculate the actual types of the
                 // parameters and getProductionArgumentTypes sure they fall within the proper bounds.
@@ -870,7 +870,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         	return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in production", exp@\loc));
         } else {
         	if (size(finalNonDefaultMatches) == 1) {
-        		finalMatch = getOneFrom(finalNonDefaultMatches);
+        		finalMatch = getFirstFrom(finalNonDefaultMatches);
 				< c, rtp > = markLocationType(c,e@\loc,finalMatch);
         		if (isFunctionType(finalMatch)) {
         			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is function, comparable(c.store[ui].rtype,finalMatch) };
@@ -882,7 +882,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 					return markLocationFailed(c,exp@\loc,makeFailType("Unexpected match, should have had a function type, instead found <prettyPrintType(finalMatch)>", exp@\loc));
 				}
         	} else if (size(finalDefaultMatches) == 1) {
-				finalMatch = getOneFrom(finalDefaultMatches);
+				finalMatch = getFirstFrom(finalDefaultMatches);
 				< c, rtp > = markLocationType(c,e@\loc,finalMatch);
 				if (isFunctionType(finalMatch)) {
         			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is function, comparable(c.store[ui].rtype,finalMatch) };
@@ -907,10 +907,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				// Make sure the defaults function, constructor, and production variants have the same return type, else we
 				// have a conflict.
 				functionMatches = filterSet(finalDefaultMatches, isFunctionType);
-				functionVariant = getOneFrom(functionMatches);
+				functionVariant = getFirstFrom(functionMatches);
 				constructorMatches = filterSet(finalDefaultMatches, isConstructorType);
 				productionMatches = filterSet(finalDefaultMatches, isProductionType);
-				nonFunctionResult = (size(constructorMatches) > 0) ? getConstructorResultType(getOneFrom(constructorMatches)) : getProductionSortType(getOneFrom(productionMatches));
+				nonFunctionResult = (size(constructorMatches) > 0) ? getConstructorResultType(getFirstFrom(constructorMatches)) : getProductionSortType(getFirstFrom(productionMatches));
 				
 				if (!equivalent(getFunctionReturnType(functionVariant),nonFunctionResult)) {
 					// TODO: This should also result in an error on the function
@@ -1654,7 +1654,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ @ <Name
 		        
 		    aTypes = { c.store[annId].rtype | annId <- annIds, subtype(t1,c.store[annId].onType) };
 	        if (size(aTypes) > 0) {
-	            aType = getOneFrom(aTypes); // This should be sufficient, insert logic should keep this to one
+	            aType = getFirstFrom(aTypes); // This should be sufficient, insert logic should keep this to one
 	            if (isFailType(aType)) {
 	                return markLocationFailed(c,exp@\loc,aType);
 	            } else {
@@ -1689,7 +1689,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e>@<Name n>`
 		        
 		    aTypes = { c.store[annId].rtype | annId <- annIds, subtype(t1,c.store[annId].onType) };
 	        if (size(aTypes) > 0) {
-	            aType = getOneFrom(aTypes); // This should be sufficient, insert logic should keep this to one
+	            aType = getFirstFrom(aTypes); // This should be sufficient, insert logic should keep this to one
 	            if (isFailType(aType)) {
 	                return markLocationFailed(c,exp@\loc,aType);
 	            } else {
@@ -1942,7 +1942,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> o <Expre
     		ft = makeFailType("The functions cannot be composed", exp@\loc);
     		return markLocationFailed(c, exp@\loc, ft);
     	} else if (size(newFunTypes) == 1) {
-    		return markLocationType(c, exp@\loc, getOneFrom(newFunTypes));
+    		return markLocationType(c, exp@\loc, getFirstFrom(newFunTypes));
     	} else {
     		// TODO: Do we need to keep track of defaults through all this? If so, do we compose default
     		// and non-default functions?
@@ -3740,8 +3740,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             // Push the binding back down the tree with the information in the constructor type; if
                             // this doesn't cause errors, save the updated children back into the tree, along with
                             // the match type
-                            Symbol matchType = getOneFrom(matches<0>);
-                            KeywordParamMap matchParams = getOneFrom(matches<1>);
+                            Symbol matchType = getFirstFrom(matches<0>);
+                            KeywordParamMap matchParams = getFirstFrom(matches<1>);
                             KeywordParamMap justUsedParams = domainR(matchParams,kpargs<0>);
                             bool cannotInstantiate = false;
 
@@ -3779,9 +3779,9 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                 }
                                 //if (size(subjects) == 1) {
                                 //	try {
-                                //		bindings = match(matchType, getOneFrom(subjects),bindings);
+                                //		bindings = match(matchType, getFirstFrom(subjects),bindings);
                                 //	} catch : {
-                                //        insert updateRT(ptn[head=ph[@rtype=matchType]], makeFailType("Cannot instantiate pattern type <prettyPrintType(matchType)> with subject type <prettyPrintType(getOneFrom(subjects))>", ptn@at));
+                                //        insert updateRT(ptn[head=ph[@rtype=matchType]], makeFailType("Cannot instantiate pattern type <prettyPrintType(matchType)> with subject type <prettyPrintType(getFirstFrom(subjects))>", ptn@at));
                                 //        cannotInstantiate = true;                                  	                                	
                                 //	}
                                 //}
@@ -3856,7 +3856,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
         }
         
         if (size(subjects) == 1 || (pt@typeHint)?) {
-        	bindType = (size(subjects) == 1) ? getOneFrom(subjects) : pt@typeHint;
+        	bindType = (size(subjects) == 1) ? getFirstFrom(subjects) : pt@typeHint;
             try {
                 < c, pt > = bind(pt, bindType, c);
                 // Why do this? Because we want to bind at least once, and the first bind could
@@ -4965,7 +4965,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`global <Type t> <{Qualif
 private Configuration addMissingAssignableNames(Configuration c, Assignable a, loc errorLoc) {
 	introducedNames = getIntroducedNames(a);
 	for (n <- introducedNames<0>, n notin c.fcvEnv) {
-		l = getOneFrom(introducedNames[n]);
+		l = getFirstFrom(introducedNames[n]);
 		c = addLocalVariable(c, n, false, l, makeFailTypeAsWarning("Error at location <errorLoc> prevented computation of type",l));
 	}
 	return c;
@@ -5377,7 +5377,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
 		     
 		    aTypes = { c.store[annId].rtype | annId <- annIds, subtype(atree@atype,c.store[annId].onType) };
 	        if (size(aTypes) > 0) {
-	            aType = getOneFrom(aTypes);
+	            aType = getFirstFrom(aTypes);
 	            return < c, annotationNode(atree,aname)[@atype=aType][@at=assn@\loc] >;
 	        }
         } else {
@@ -5649,7 +5649,7 @@ public ATResult bindAssignable(AssignableTree atree:variableNode(RName name), Sy
     // an ADT type (with fields) to a node type (without fields).
     
     if (RSimpleName("_") == name) {
-        varId = getOneFrom(atree@defs);
+        varId = getFirstFrom(atree@defs);
         Symbol currentType = c.store[varId].rtype;
         if (isInferredType(currentType)) {
             c.store[varId].rtype = st;
@@ -5880,7 +5880,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
     // If we can descend, process the aliased type as well, assigning it into
     // the alias.
     if (descend) {
-        aliasId = getOneFrom(invert(c.definitions)[decl@\loc]);
+        aliasId = getFirstFrom(invert(c.definitions)[decl@\loc]);
         aliasType = c.store[aliasId].rtype;
         // TODO: Check for convert errors
         < c, aliasedType > = convertAndExpandType(t,c);
@@ -5943,8 +5943,8 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
     }
 
 	// If we descend, we also want to add keyword params.
-	if (descend && size(invert(c.definitions)[decl@\loc]) > 0 && c.store[getOneFrom(invert(c.definitions)[decl@\loc])] is datatype) {
-		adtId = getOneFrom(invert(c.definitions)[decl@\loc]);
+	if (descend && size(invert(c.definitions)[decl@\loc]) > 0 && c.store[getFirstFrom(invert(c.definitions)[decl@\loc])] is datatype) {
+		adtId = getFirstFrom(invert(c.definitions)[decl@\loc]);
 
 		commonParamList = [ ];
 		if ((CommonKeywordParameters)`( <{KeywordFormal ","}+ kfs> )` := commonParams) commonParamList = [ kfi | kfi <- kfs ];
@@ -5984,8 +5984,8 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
 	// the ADT into the type environment. We get the adt type out of the store by looking up the definition
 	// from this location. Check to make sure it is there -- if there was an error adding the ADT, there
 	// may not be a datatype definition at this location.
-	if (descend && size(invert(c.definitions)[decl@\loc]) > 0 && c.store[getOneFrom(invert(c.definitions)[decl@\loc])] is datatype) {
-		adtId = getOneFrom(invert(c.definitions)[decl@\loc]);
+	if (descend && size(invert(c.definitions)[decl@\loc]) > 0 && c.store[getFirstFrom(invert(c.definitions)[decl@\loc])] is datatype) {
+		adtId = getFirstFrom(invert(c.definitions)[decl@\loc]);
 		adtType = c.store[adtId].rtype;
 
 		// Get back information on the common keyword parameters and add them into this data declaration.
@@ -6127,7 +6127,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 	    
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
-	    funId = getOneFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
+	    funId = getFirstFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
 	    cFun.stack = funId + cFun.stack;
 	    
         < cFun, tFun > = processSignature(sig, cFun);
@@ -6145,7 +6145,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
    
-    funId = getOneFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
+    funId = getFirstFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
     c.stack = funId + c.stack;
     
     // Normally we would now descend into the body. Here we don't have one.
@@ -6188,7 +6188,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
-	    funId = getOneFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
+	    funId = getFirstFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
 	    cFun.stack = funId + cFun.stack;
 
         < cFun, tFun > = processSignature(sig, cFun);
@@ -6204,7 +6204,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
     
-    funId = getOneFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
+    funId = getFirstFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
     c.stack = funId + c.stack;
     
     if (descend) {
@@ -6259,7 +6259,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
-	    funId = getOneFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
+	    funId = getFirstFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
 	    cFun.stack = funId + cFun.stack;
 
         < cFun, tFun > = processSignature(sig, cFun);
@@ -6275,7 +6275,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
 
-    funId = getOneFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
+    funId = getFirstFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
     c.stack = funId + c.stack;
     
     if (descend) {
@@ -6342,7 +6342,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
-	    funId = getOneFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
+	    funId = getFirstFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
 	    cFun.stack = funId + cFun.stack;
 
         < cFun, tFun > = processSignature(sig, cFun);
@@ -6358,7 +6358,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
 
-    funId = getOneFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
+    funId = getFirstFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
     c.stack = funId + c.stack;
     
     if (descend) {
@@ -6527,7 +6527,7 @@ public Configuration finalizeFunctionImport(Configuration c, RName functionName)
 
 public Configuration importNonterminal(RName sort, Symbol sym, loc at, Configuration c) {
   c = addNonterminal(c, sort, at, sym); // TODO: something with descend?
-  //id = getOneFrom(invert(c.definitions)[at]); // TODO: ??
+  //id = getFirstFrom(invert(c.definitions)[at]); // TODO: ??
   //c.store[id].rtype = sym;
   return c;
 }
@@ -6973,10 +6973,10 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	// scope.
 	for (itemId <- d.typeEnv<1>, itemId in filteredIds, d.store[itemId] is sorttype, itemId in d.grammar) {
 		itemToLoad = d.store[itemId];
-		c = importProduction(d.grammar[itemId], getOneFrom(d.store[itemId].ats), c);
+		c = importProduction(d.grammar[itemId], getFirstFrom(d.store[itemId].ats), c);
 	}
 	for (itemId <- notLoadedSorts, itemId in d.grammar) {
-		c = importProduction(d.grammar[itemId], getOneFrom(d.store[itemId].ats), c, registerName=false);
+		c = importProduction(d.grammar[itemId], getFirstFrom(d.store[itemId].ats), c, registerName=false);
 	}
 	
 	notLoadedConstructors = { di | di <- d.store<0>, d.store[di] is constructor } - loadedIds;
@@ -7096,9 +7096,9 @@ public Configuration loadImportedTypesAndTags(Configuration c, set[RName] import
 		aliasIds = justAliases[an];
 		aliasTypes = { c.store[aid].rtype | aid <- aliasIds };
 		if (size(aliasTypes) == 1) {
-			c = addImportedAlias(c, an, getOneFrom(aliasIds));
+			c = addImportedAlias(c, an, getFirstFrom(aliasIds));
 		} else {
-			c = addScopeError(c, "Could not import alias <prettyPrintName(an)>, multiple inconsistent definitions were found", c.store[getOneFrom(aliasIds)].at);
+			c = addScopeError(c, "Could not import alias <prettyPrintName(an)>, multiple inconsistent definitions were found", c.store[getFirstFrom(aliasIds)].at);
 		}
 	}
 	
@@ -7345,7 +7345,7 @@ public Graph[IGComponent] directedConnectedComponents(RName entryNode, ImportGra
 		if (firstIter) {
 			firstIter = false;
 		} else {
-			currentNode = getOneFrom(allNodes);
+			currentNode = getFirstFrom(allNodes);
 		} 
 		allNodes = allNodes - currentNode;
 			
@@ -7643,7 +7643,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			while(modified) {
 				modified = false;
 				for(t <- aliases) {
-					int aliasId = getOneFrom(definitions[t@\loc]);
+					int aliasId = getFirstFrom(definitions[t@\loc]);
 					Symbol aliasedType = ci.store[aliasId].rtype;
 					ci = checkDeclaration(t,true,ci);
 					if(aliasedType != ci.store[aliasId].rtype) {
@@ -7810,7 +7810,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			while(modified) {
 				modified = false;
 				for(t <- aliases) {
-					int aliasId = getOneFrom(definitions[t@\loc]);
+					int aliasId = getFirstFrom(definitions[t@\loc]);
 					Symbol aliasedType = ci.store[aliasId].rtype;
 					ci = checkDeclaration(t,true,ci);
 					if(aliasedType != ci.store[aliasId].rtype) {
@@ -8307,7 +8307,7 @@ public Configuration checkCase(Case cs:(Case)`default : <Statement stmt>`, Symbo
 private Configuration addMissingPatternNames(Configuration c, Pattern p, loc sourceLoc) {
 	introducedNames = getPatternNames(p);
 	for (n <- introducedNames<0>, n notin c.fcvEnv) {
-		l = getOneFrom(introducedNames[n]);
+		l = getFirstFrom(introducedNames[n]);
 		c = addLocalVariable(c, n, false, l, makeFailTypeAsWarning("Error at location <sourceLoc> prevented computation of type",l));
 	}
 	return c;
@@ -9079,7 +9079,7 @@ public Configuration resolveDeferredTypes(Configuration c, int itemId) {
 			c = resolveDeferredTypes(c, oi);
 		}
 		if (hasDeferredTypes(av.rtype)) {
-			< c, rt > = expandType(undefer(av.rtype), c.store[getOneFrom(av.items)].at, c);
+			< c, rt > = expandType(undefer(av.rtype), c.store[getFirstFrom(av.items)].at, c);
 			c.store[itemId].rtype = rt;
 		}
 	} else if (av is constructor) {
