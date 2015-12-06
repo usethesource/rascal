@@ -75,6 +75,15 @@ test: getOneFrom(<L>)
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T getOneFrom(set[&T] st) throws EmptySet;
 
+@doc{
+Synopsis: Get first element from a set.
+
+Description: As opposed to [$Set/getOneFrom], this function always returns the same
+element of a set.
+}
+public &T getFirstFrom(set[&T] st) throws EmptySet {
+   return toList(st)[0];
+}
 
 @doc{
 Synopsis: Group elements in a set given an equivalence function.
