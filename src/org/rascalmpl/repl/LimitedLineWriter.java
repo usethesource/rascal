@@ -8,10 +8,10 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedExcepti
 
 public class LimitedLineWriter extends NonClosingFilterWriter {
 
-    private final int limit;
+    private final long limit;
     private int written;
 
-    public LimitedLineWriter(Writer out, int limit) {
+    public LimitedLineWriter(Writer out, long limit) {
         super(out);
         this.limit = limit;
         written = 0;
