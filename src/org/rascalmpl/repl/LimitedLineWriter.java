@@ -3,6 +3,8 @@ package org.rascalmpl.repl;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+
 
 public class LimitedLineWriter extends NonClosingFilterWriter {
 
@@ -17,7 +19,7 @@ public class LimitedLineWriter extends NonClosingFilterWriter {
     @Override
     public void write(int c) throws IOException {
         if (written == limit) {
-            return;
+            throw new IOLimitReachedException();
         }
         out.write(c);
         if (c == '\n' || c == '\r') {
@@ -30,7 +32,7 @@ public class LimitedLineWriter extends NonClosingFilterWriter {
     @Override
     public void write(char[] cbuf, int off, int len) throws IOException {
         if (written == limit) {
-            return;
+            throw new IOLimitReachedException();
         }
         len = calculateNewLength(cbuf, off, len);
         out.write(cbuf, off, len);
@@ -68,7 +70,7 @@ public class LimitedLineWriter extends NonClosingFilterWriter {
     @Override
     public void write(String str, int off, int len) throws IOException {
         if (written == limit) {
-            return;
+            throw new IOLimitReachedException();
         }
         len = calculateNewLength(str, off, len);
         out.write(str, off, len);

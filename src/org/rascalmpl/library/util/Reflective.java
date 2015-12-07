@@ -30,6 +30,7 @@ import org.rascalmpl.interpreter.load.SourceLocationListContributor;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
@@ -154,6 +155,9 @@ public class Reflective {
 	      try (Writer wrt = new LimitedWriter(out, CHAR_LIMIT)) {
 	    	  singleLinePrettyPrinter.write(value, wrt);
 	      }
+	      catch (IOLimitReachedException e) {
+	          // ignore since this is what we wanted
+	      }
 	    }
 	    else {
 	    	out.print(type.toString());
@@ -161,6 +165,9 @@ public class Reflective {
 	    	// limit both the lines and the characters
 	    	try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out,LINE_LIMIT), CHAR_LIMIT)) {
 	    		indentedPrettyPrinter.write(value, wrt);
+	    	}
+	    	catch (IOLimitReachedException e) {
+	    	    // ignore since this is what we wanted
 	    	}
 	    }
 	    out.flush();

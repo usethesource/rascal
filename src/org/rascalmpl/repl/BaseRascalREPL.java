@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.interpreter.result.IRascalResult;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
@@ -149,6 +150,9 @@ public abstract class BaseRascalREPL extends BaseREPL {
             // limit both the lines and the characters
             try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
                 indentedPrettyPrinter.write(value, wrt);
+            }
+            catch (IOLimitReachedException e) {
+                // ignore since this is what we wanted
             }
         }
         out.println();
