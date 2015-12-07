@@ -73,10 +73,13 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
+import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
@@ -876,16 +879,31 @@ public class Prelude {
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public void iprint(IValue arg, IEvaluatorContext eval){
+	public void iprint(IValue arg, IInteger lineLimit, IEvaluatorContext eval){
 		StandardTextWriter w = new StandardTextWriter(true, 2);
+		Writer output = eval.getStdOut();
+		if (lineLimit.signum() > 0) {
+		    output = new LimitedLineWriter(output, lineLimit.longValue());
+		}
 		
 		try {
-			w.write(arg, eval.getStdOut());
+		    w.write(arg, output);
 		} 
+	    catch (IOLimitReachedException e) {
+	        // ignore, it's what we wanted
+	    }
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string("Could not print indented value"), eval.getCurrentAST(), eval.getStackTrace());
+			RuntimeExceptionFactory.io(values.string("Could not print indented value"), eval.getCurrentAST(), eval.getStackTrace());
 		}
 		finally {
+		    if (output != eval.getStdOut()) {
+		        try {
+		            output.flush();
+                    output.close();
+                }
+                catch (IOException e) {
+                }
+		    }
 			eval.getStdOut().flush();
 		}
 	}
@@ -904,19 +922,10 @@ public class Prelude {
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public void iprintln(IValue arg, IEvaluatorContext eval){
-		StandardTextWriter w = new StandardTextWriter(true, 2);
-		
-		try {
-			w.write(arg, eval.getStdOut());
-			eval.getStdOut().println();
-		} 
-		catch (IOException e) {
-			RuntimeExceptionFactory.io(values.string("Could not print indented value"), eval.getCurrentAST(), eval.getStackTrace());
-		}
-		finally {
-			eval.getStdOut().flush();
-		}
+	public void iprintln(IValue arg, IInteger lineLimit, IEvaluatorContext eval){
+	    iprint(arg, lineLimit, eval);
+	    eval.getStdOut().println();
+	    eval.getStdOut().flush();
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
