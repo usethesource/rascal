@@ -82,6 +82,10 @@ test bool rootPath()  = |tmp://X|.path == "/";
 test bool rootPath3() = |tmp:///|.path == "/";
 test bool rootPath4() = |tmp://X/|.path == "/";
 
+test bool top0(loc x) = x.top == x.top.top;
+test bool top1(loc x) = "<x.top>" == "|" + x.uri + "|";
+test bool top2(loc x) = toLocation(x.uri) == x.top;
+
 @ignore
 test bool splicePathEncoded()         = str x := " " && |tmp:///<x>.rsc| == |tmp:///| + "<x>.rsc";
 @ignore
