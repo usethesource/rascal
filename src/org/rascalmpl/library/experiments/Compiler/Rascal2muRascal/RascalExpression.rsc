@@ -150,7 +150,7 @@ private MuExp translateComposeFunction(Expression e){
      nargs = size(resType.parameters);
      comp_ftype = resType;
   } else {
-     nargs = size(getOneFrom(resType.overloads).parameters);
+     nargs = size(getFirstFrom(resType.overloads).parameters);
      for(t <- resType.overloads){
          if(size(t.parameters) != nargs){
             throw "cannot handle composition/overloading for different arities";
@@ -1363,7 +1363,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                matches(t);
                //println("ALT: <t> ftype: <ftype>");
            }
-           throw "ERROR in overloading resolution: <ftype>; <expression@\loc>";
+           throw "ERROR in overloading resolution: <expression>; <ftype>; <expression@\loc>";
        }
        
        if(size(resolved) == 1 && (isEmpty(args) || all(muCon(_) <- args))){
