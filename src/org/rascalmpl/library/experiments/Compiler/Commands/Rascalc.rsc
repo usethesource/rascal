@@ -24,6 +24,24 @@ syntax Option
     | "--verbose"
     | "--version"
     | "--help"
+    | fallback: FallbackOption option >> [\-]
+    | fallback: FallbackOption option !>> [\-] Path path
+    ;
+    
+lexical FallbackOption
+    = "--" [a-zA-Z]+ !>> [a-zA-Z] \ ArgumentNames;
+    
+keyword ArgumentNames
+    = "srcPath"
+    | "libPath"
+    | "binDir"
+    | "bootDir"
+    | "noLinking"
+    | "noDefaults"
+    | "jvm"
+    | "verbose"
+    | "version"
+    | "help"
     ;
 
 lexical ModuleName 
@@ -82,8 +100,13 @@ str getModuleName(ModuleName mn) {
     
 int rascalc(str commandLine) {
     try {
-        t = ([start[CompileArgs]]commandLine).top;
-        if ((Option)`--help` <- t.options) {
+        t = parse(#start[CompileArgs], commandLine).top;
+        if (fb <- t.options, fb is fallback) {
+            println("error, <fb> is not a recognized option"); 
+            printHelp();
+            return 1;
+        }
+        else if ((Option)`--help` <- t.options) {
             printHelp();
             return 0;
         }
@@ -153,6 +176,15 @@ int rascalc(str commandLine) {
             printHelp();
             return 1;
         }
+    }
+    catch ParseError(loc l): {
+        println("Parsing the command line failed:");
+        println(commandLine);
+        print(("" | it + " " | _ <- [0..l.begin.column]));
+        println(("" | it + "^" | _ <- [l.begin.column..l.end.column]));
+        print(("" | it + " " | _ <- [0..l.begin.column]));
+        println("around this point");
+        return 1;
     }
     catch e: {
         println("Something went wrong:");
