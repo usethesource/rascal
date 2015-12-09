@@ -72,7 +72,7 @@ lexical Path
 lexical InsideQuote = ![\"]*;
     
 loc toLocation((Path)`"<InsideQuote inside>"`) = toLocation1("<inside>");
-default loc toLocation(Path p) = toLocation("<p>");
+default loc toLocation(Path p) = toLocation1("<p>");
 
 //loc toLocation(/^<locPath:[|].*[|]>$/) = readTextValueString(#loc, locPath);
 //loc toLocation(/^<fullPath:[\/].*>$/) = |file:///| + fullPath;
@@ -100,6 +100,7 @@ str getModuleName(ModuleName mn) {
 }
     
 value rascal(str commandLine) {
+    println("rascal <commandLine>");
     try {
         t = ([start[CompileArgs]]commandLine).top;
         if (fb <- t.options, fb is fallback) {
@@ -134,12 +135,20 @@ value rascal(str commandLine) {
             moduleName = getModuleName(t.moduleToCompile);
             
             args = ("<argName>" : "<argValue>" | (CommandArgument) `--<ArgName argName> <ArgValue argValue>` <- t.commandArguments);
+            println("bootDir: <pcfg.bootDir>");
+            println("srcPath: <pcfg.srcPath>");
+            println("libPath: <pcfg.libPath>");
+            println("binDir: <pcfg.binDir>");
             println("executing: <moduleName> <args>");
-            return execute(moduleName, pcfg, keywordArguments = args,
+            result = execute(moduleName, pcfg, keywordArguments = args,
                                        useJVM = useJVM, serialize=serialize, verbose = verbose,
                                        debug = debug, debugRVM = debugRVM, testsuite = testsuite, 
                                        profile = profile, trackCalls = trackCalls, coverage = coverage
                           );
+            if(testsuite){
+                return printTestReport(result);
+            }
+            return result;
         }
     }
     catch ParseError(loc l): {
