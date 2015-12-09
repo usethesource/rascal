@@ -7814,10 +7814,11 @@ public enum RascalPrimitive {
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			IValue result = ((IMap) arg_2).get((IValue) arg_1);
 			if(result == null) {
-				//				stdout.println("EXCEPTION NoSuchKey at: " + currentFrame.src);
-				//				for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
-				//					stdout.println("\t" + f.toString());
-				//				}
+				System.err.println("EXCEPTION NoSuchKey at: " + currentFrame.src);
+				System.err.println("containsKey: " + ((IMap) arg_2).containsKey((IValue) arg_1));
+				for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
+					System.err.println("\t" + f.toString());
+				}
 				throw RascalRuntimeException.noSuchKey((IValue) arg_1, currentFrame);
 			}
 			return result;
