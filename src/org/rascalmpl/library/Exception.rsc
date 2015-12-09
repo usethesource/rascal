@@ -47,7 +47,8 @@ println(N);
 }
 
 data RuntimeException = 
-       ArithmeticException(str message)
+       Ambiguity(loc location, str nonterminal, str sentence)
+     | ArithmeticException(str message)
      | AssertionFailed() 
      | AssertionFailed(str label)
      | EmptyList()
