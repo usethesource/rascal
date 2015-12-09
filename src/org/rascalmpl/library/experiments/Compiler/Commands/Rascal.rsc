@@ -25,6 +25,26 @@ syntax Option
     | "--trackCalls"
     | "--coverage"
     | "--serialize"
+    | fallback: FallbackOption option >> [\-]
+    | fallback: FallbackOption option !>> [\-] Path path
+    ;
+    
+lexical FallbackOption
+    = "--" [a-zA-Z]+ !>> [a-zA-Z] \ ArgumentNames;
+    
+keyword ArgumentNames
+    = "binDir"
+    | "jvm"
+    | "verbose"
+    | "version"
+    | "help"
+    | "debug"
+    | "debugRVM"
+    | "testsuite"
+    | "profile"
+    | "trackCalls"
+    | "coverage"
+    | "serialize"
     ;
 
 syntax CommandArgument
@@ -82,7 +102,12 @@ str getModuleName(ModuleName mn) {
 value rascal(str commandLine) {
     try {
         t = ([start[CompileArgs]]commandLine).top;
-        if ((Option)`--help` <- t.options) {
+        if (fb <- t.options, fb is fallback) {
+            println("error, <fb> is not a recognized option"); 
+            printHelp();
+            return 1;
+        }
+        else if ((Option)`--help` <- t.options) {
             printHelp();
             return 0;
         }
@@ -116,6 +141,15 @@ value rascal(str commandLine) {
                                        profile = profile, trackCalls = trackCalls, coverage = coverage
                           );
         }
+    }
+    catch ParseError(loc l): {
+        println("Parsing the command line failed:");
+        println(commandLine);
+        print(("" | it + " " | _ <- [0..l.begin.column]));
+        println(("" | it + "^" | _ <- [l.begin.column..l.end.column]));
+        print(("" | it + " " | _ <- [0..l.begin.column]));
+        println("around this point");
+        return 1;
     }
     catch e: {
         println("Something went wrong:");
