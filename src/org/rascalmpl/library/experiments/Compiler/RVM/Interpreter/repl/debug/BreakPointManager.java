@@ -1,20 +1,35 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Attribute;
+import org.fusesource.jansi.Ansi.Color;
 import org.rascalmpl.library.experiments.Compiler.Commands.PathConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.highlighter.RascalHighlighter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
+import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.parser.Parser;
+import org.rascalmpl.parser.gtd.io.InputConverter;
+import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.uptr.UPTRNodeFactory;
+import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class BreakPointManager {
 	
@@ -24,6 +39,11 @@ public class BreakPointManager {
 	int uid;
 	
 	DEBUG_MODE mode = DEBUG_MODE.BREAK;
+	
+	private final String FAINT_ON = Ansi.ansi().a(Attribute.INTENSITY_FAINT).toString();
+	private final String FAINT_OFF = Ansi.ansi().a(Attribute.INTENSITY_BOLD_OFF).toString();
+	
+	
 	
 	Frame currentFrame = null;  // next mode, only break in current function
 	Frame returnFrame = null;	// only break on return from this frame
@@ -35,11 +55,18 @@ public class BreakPointManager {
 	private boolean autoList = true;
 	private final int defaultListingDelta = 5;
 	
+	RascalHighlighter highlighter;
+	
 	BreakPointManager(PrintWriter stdout, PathConfig pcfg){
 		this.stdout = stdout;
 		this.pcfg = pcfg;
 		breakpoints = new ArrayList<>();
 		uid = 1;
+		highlighter = new RascalHighlighter()
+				.setKeywordMarkup(Ansi.ansi().bold().toString(), 
+							      Ansi.ansi().boldOff().toString())
+				.setCommentMarkup(Ansi.ansi().fg(Ansi.Color.GREEN).toString(), 
+						          Ansi.ansi().fg(Ansi.Color.BLACK).toString());
 	}
 	
 	void reset(){
@@ -319,47 +346,41 @@ public class BreakPointManager {
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		try {
 			ISourceLocation srcFile = vf.sourceLocation(breakpointSrc.getScheme(), "", breakpointSrc.getPath());
-			try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(srcFile)) {
-				try (BufferedReader buf = new BufferedReader(reader)) {
-					String line;
-					int lino = 1;
-					while ((line = buf.readLine()) != null) {
-						String prefix = String.format("%4d", lino) + listingIndent;
-						if(breakpointSrcBegin == lino){
-							String before = line.substring(0, breakpointSrc.getBeginColumn());
-							if(breakpointSrcBegin == breakpointSrcEnd){
-								String middle = line.substring(breakpointSrc.getBeginColumn(), breakpointSrc.getEndColumn());
-								String after = line.substring(breakpointSrc.getEndColumn());
-								stdout.println(prefix + before + BaseREPL.PRETTY_PROMPT_PREFIX + middle + BaseREPL.PRETTY_PROMPT_POSTFIX + after);
-							} else {
-								String after = line.substring(breakpointSrc.getBeginColumn());
-								stdout.println(prefix + before + BaseREPL.PRETTY_PROMPT_PREFIX + after + BaseREPL.PRETTY_PROMPT_POSTFIX);
-							}
-						} else if(breakpointSrcEnd == lino){
-							String before = line.substring(0, breakpointSrc.getEndColumn());
-							String after = line.substring(breakpointSrc.getEndColumn());
-							stdout.println(prefix + BaseREPL.PRETTY_PROMPT_PREFIX + before + BaseREPL.PRETTY_PROMPT_POSTFIX + after);
-						} else
-						if(lino >= windowBegin && lino <= windowEnd){
-							if(lino >= breakpointSrcBegin && lino <= breakpointSrcEnd){
-								stdout.println(prefix + BaseREPL.PRETTY_PROMPT_PREFIX + line + BaseREPL.PRETTY_PROMPT_POSTFIX);
-							} else {
-								stdout.println(prefix + line);
-							}
-						}
-						lino++;
-					}
-				}
+			ITree parseTree = new RascalParser().parse(Parser.START_MODULE, srcFile.getURI(), getResourceContent(srcFile), new NoActionExecutor() , new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+			
+			StringWriter sw = new StringWriter();
+			TreeAdapter.unparseWithFocus(parseTree, sw, breakpointSrc);
+			
+			String[] lines = sw.toString().split("\n");
+			
+			for(int lino = windowBegin; lino <= windowEnd; lino++){
+				stdout.println(FAINT_ON + String.format("%4d", lino) + FAINT_OFF + listingIndent + lines[lino - 1]);
 			}
-			catch(Exception e){
-				stdout.println("Cannot create listing: " + e.getMessage());
-			}
+
 		} catch (URISyntaxException e){
 			stdout.println("Cannot create URI for source file");
+		} catch (IOException e) {
+			stdout.println("Cannot read source file");
 		}
 		stdout.flush();
 	}
 	
-	
+	private char[] getResourceContent(ISourceLocation location) throws IOException{
+		char[] data;
+		Reader textStream = null;
+		
+		URIResolverRegistry resolverRegistry = URIResolverRegistry.getInstance();
+		try {
+			textStream = resolverRegistry.getCharacterReader(location);
+			data = InputConverter.toChar(textStream);
+		}
+		finally{
+			if(textStream != null){
+				textStream.close();
+			}
+		}
+		
+		return data;
+	}
 
 }
