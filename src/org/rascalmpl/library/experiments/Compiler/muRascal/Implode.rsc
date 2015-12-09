@@ -82,7 +82,7 @@ bool isGlobalNonOverloadedFunction(str name) {
 
 str getUidOfGlobalNonOverloadedFunction(str name) {
 	if(isGlobalNonOverloadedFunction(name)) {
-		return getOneFrom(global_functions[name]);
+		return getFirstFrom(global_functions[name]);
 	}
 	throw "The function <name> does not exist!";
 }
