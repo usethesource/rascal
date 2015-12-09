@@ -12,17 +12,17 @@ import experiments::Compiler::CompileMuLibrary;
 
 import experiments::Compiler::Commands::Rascalc;
 
-tuple[set[loc] differ, set[loc] missing] compare(loc given_loc){
-   if(contains(given_loc.path, "ibin/")){
+tuple[set[loc] differ, set[loc] missing] compare(loc given_loc, str ibin, str cbin){
+   if(contains(given_loc.path, ibin)){
        iloc = given_loc;
-       cloc = iloc[path = replaceFirst(iloc.path, "ibin/", "cbin/")];
+       cloc = iloc[path = replaceFirst(iloc.path, ibin, cbin)];
        return compare(iloc, cloc);
-   } else if(contains(given_loc.path, "cbin/")){
+   } else if(contains(given_loc.path, cbin)){
        cloc = given_loc;
-       iloc = cloc.path[path=replaceFirst(cloc.path, "cbin/", "ibin/")];
+       iloc = cloc.path[path=replaceFirst(cloc.path, cbin, ibin)];
        return compare(iloc, cloc);
    }
-   throw "No ibin/ or cbin/ found in <given_loc>";
+   throw "No <ibin> or <cbin> found in <given_loc>";
 }
 
 tuple[set[loc] differ, set[loc] missing] compare(loc iloc, loc cloc){
@@ -48,16 +48,15 @@ tuple[set[loc] differ, set[loc] missing] compare(loc iloc, loc cloc){
     }
 }
 
-void main(){
-    loc ibin = |compressed+home:///ibin|;
-    loc cbin = |compressed+home:///cbin|;
-    
+void compareAll(str ibin, str cbin){
+    loc ibinDir = |compressed+home:///| + ibin;
+    loc cbinDir = |compressed+home:///| + cbin;
     serialized = {};
     differ = {};
     missing = {};
-    for(loc iloc <- files(ibin), iloc.extension == "gz"){
+    for(loc iloc <- files(ibinDir), iloc.extension == "gz"){
         if(!contains(iloc.path, ".ser.")){
-           <d, m> = compare(iloc);
+           <d, m> = compare(iloc, ibin, cbin);
            differ += d;
            missing += m;
         } else {
@@ -67,7 +66,7 @@ void main(){
     
     println("\n+++++++++++++++++++++++++++++++\n");
     
-    println("Number of files: <size(files(ibin))>");
+    println("Number of files: <size(files(ibinDir))>");
     
     println("Different: <size(differ)>");
     for(d <- differ) println("\t<d>");
@@ -137,21 +136,38 @@ void report(str msg){
 
 // Where happiness begins
 
-value build(loc IDEST, loc CDEST){
+void build1(loc IDEST, loc CDEST){
      ISTDLIB = IDEST + "stdlib";
      CSTDLIB = CDEST + "stdlib";
      i_pcfg = pathConfig(srcPath=[|std:///|], binDir=ISTDLIB, libPath=[ISTDLIB]);
      c_pcfg = pathConfig(srcPath=[|std:///|], binDir=CSTDLIB, libPath=[CSTDLIB]);
      
-     report("Compiling standard library modules");
+     report("build1: compiling standard library modules");
      for(moduleName <- libraryModules + ["lang::rascal::grammar::ParserGenerator","lang::rascal::boot::Kernel"] ){
          compile(moduleName, i_pcfg, recompile=true, verbose=true);
          rascalc("--srcPath <c_pcfg.srcPath> --libPath <c_pcfg.libPath> --binDir <c_pcfg.binDir> <moduleName>");
      }
+}
+
+void build2(){
+    
+    C1BIN = "/Users/paulklint/c1bin/";
+    C2BIN = "/Users/paulklint/c2bin/";
+    
+    C1STDLIB = C1BIN + "stdlib";
+    C2STDLIB = C2BIN + "stdlib";
+    
+    pgen_kernel = ["lang::rascal::grammar::ParserGenerator","lang::rascal::boot::Kernel"];
+    
+    rascalc("--noDefaults -noLinking --srcPath |std:///| --libPath <C1STDLIB> --binDir <C1STDLIB> <for(moduleName <- libraryModules){> <moduleName><}>");
+    
+    rascalc("--noDefaults --srcPath |std:///| --libPath <C1STDLIB> --binDir <C1STDLIB> <for(moduleName <- pgen_kernel){> <moduleName><}>");
      
-    return true;
+    rascalc("--kernel <C1STDLIB>/lang/rascal/boot/Kernel.rvm.ser.gz --noDefaults --noLinking --srcPath |std:///| --libPath <C2STDLIB> --binDir <C2STDLIB><for(moduleName <- libraryModules){> <moduleName><}>");
+    
+    rascalc("--kernel <C1STDLIB>/lang/rascal/boot/Kernel.rvm.ser.gz --noDefaults --srcPath |std:///| --libPath <C2STDLIB> --binDir <C2STDLIB><for(moduleName <- pgen_kernel){> <moduleName><}>");
 }
 
 value build(){
-    return build(|file:///Users/paulklint/ibin/|, |file:///Users/paulklint/cbin/|);
+    return build(|file:///Users/paulklint/ibin/|, |file:///Users/paulklint/c1bin/|);
 }
