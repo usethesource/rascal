@@ -99,6 +99,7 @@ str getModuleName(ModuleName mn) {
 }
     
 int rascalc(str commandLine) {
+    println("rascalc <commandLine>");
     try {
         t = parse(#start[CompileArgs], commandLine).top;
         if (fb <- t.options, fb is fallback) {
@@ -156,9 +157,11 @@ int rascalc(str commandLine) {
             bool useJVM = (Option)`--jvm` <- t.options;
             bool nolinking = (Option)`--noLinking` <- t.options;
 
+            println("bootDir: <pcfg.bootDir>");
             println("srcPath: <pcfg.srcPath>");
             println("libPath: <pcfg.libPath>");
             println("binDir: <pcfg.binDir>");
+           
             for (m <- t.modulesToCompile) {
                 moduleName = getModuleName(m);
                
