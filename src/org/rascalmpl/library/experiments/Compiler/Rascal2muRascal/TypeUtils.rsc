@@ -266,8 +266,19 @@ int getScopeSize(str fuid) =
       //       the following is a workaround to the current handling of 'extend' by the type checker
       set[UID] uids = invert(uid2str)[fuid];
       //println("getScopeSize(<fuid>): <uids>");
-      assert size({ config.store[uid] | UID uid <- uids }) == 1: "getScopeSize";
-      size(uid2type[getOneFrom(uids)].parameters); 
+      
+      nparams = size(uid2type[getFirstFrom(uids)].parameters);
+      if(size(uids) != 1){
+        for(uid <- uids){
+            if(size(uid2type[uid].parameters) != nparams){
+              println("uids = <uids>");
+               throw "getScopeSize: different arities for <fuid>";
+            }
+        }
+      }
+      
+      //assert size({ config.store[uid] | UID uid <- uids }) == 1: "getScopeSize";
+      nparams;
     }
     + size({ pos | int pos <- range(uid2addr)[fuid], pos != -1 })
     + 2 // '+ 2' accounts for keyword arguments and default values of keyword parameters 
