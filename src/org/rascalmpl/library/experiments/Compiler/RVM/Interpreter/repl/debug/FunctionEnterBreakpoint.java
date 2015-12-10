@@ -15,11 +15,11 @@ public class FunctionEnterBreakpoint extends BreakPoint {
 	
 	@Override
 	void println(PrintWriter stdout){
-		stdout.println(id + "\t" + isEnabled() + "\tEnter\t" + functionName);
+		stdout.println(id + "\t" + isEnabled() + "\tEnter\t" + ignore + "\t" + functionName);
 	}
 	
 	@Override
 	public boolean matchOnEnter(Frame frame) {
-		return frame.function.getPrintableName().equals(functionName);
+		return enabled &&  ignoreOrBreak(frame.function.getPrintableName().equals(functionName));
 	}
 }

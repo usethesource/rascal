@@ -44,7 +44,6 @@ public class BreakPointManager {
 	private final String FAINT_OFF = Ansi.ansi().a(Attribute.INTENSITY_BOLD_OFF).toString();
 	
 	
-	
 	Frame currentFrame = null;  // next mode, only break in current function
 	Frame returnFrame = null;	// only break on return from this frame
 
@@ -128,11 +127,23 @@ public class BreakPointManager {
 		return true;
 	}
 	
+	BreakPoint getBreakPoint(int reqId){
+		for(BreakPoint breakpoint : breakpoints){
+			if(breakpoint.id == reqId){
+				return breakpoint;
+			}
+		}
+		return null;
+	}
+	
 	/****************************************************************/
 	/*				Handle all frame events							*/
 	/****************************************************************/
 	
 	boolean matchOnObserve(Frame frame){
+		if(!frame.src.hasLineColumn()){
+			return false;
+		}
 		switch(mode){
 		
 		case STEP:
@@ -161,6 +172,9 @@ public class BreakPointManager {
 	}
 	
 	boolean matchOnEnter(Frame frame){
+		if(!frame.src.hasLineColumn()){
+			return false;
+		}
 		switch(mode){
 		
 		case STEP:
@@ -193,7 +207,9 @@ public class BreakPointManager {
 	}
 	
 	boolean matchOnLeave(Frame frame, Object rval){
-		
+		if(!frame.src.hasLineColumn()){
+			return false;
+		}
 		switch(mode){
 		
 		case STEP:
@@ -269,6 +285,24 @@ public class BreakPointManager {
 		}
 	}
 	
+	public void ignoreDirective(String[] args)  throws NumberFormatException {
+		int ignoreCnt = 0;
+		if(args.length == 3){
+			ignoreCnt = Integer.parseInt(args[2]);
+		}
+		if(args.length == 2 || args.length == 3){
+			int bkpt = Integer.parseInt(args[1]);
+			BreakPoint breakpoint = getBreakPoint(bkpt);
+			if(breakpoint != null){
+				breakpoint.setIgnore(ignoreCnt);
+				return;
+			}
+			stdout.println("Breakpoint #" + bkpt + " is not defined");
+			return;
+		}
+		stdout.println("ignore requires 1 or 2 arguments");
+	}
+	
 	void returnDirective(Frame frame, String[] args){
 		setReturnMode(frame);
 	}
@@ -293,6 +327,31 @@ public class BreakPointManager {
 		breakpoints = newBreakpoints;
 	}
 	
+	public void enableDirective(String[] args) throws NumberFormatException {
+		setEnabled(args, true);
+	}
+	
+	public void disableDirective(String[] args) throws NumberFormatException {
+		setEnabled(args, false);
+	}
+	
+	private void setEnabled(String[] args, boolean enabled) throws NumberFormatException {
+		if(args.length == 1){
+			for(BreakPoint breakpoint : breakpoints){
+				breakpoint.setEnabled(enabled);
+			}
+			return;
+		}
+		for(BreakPoint breakpoint : breakpoints){
+			for(int i = 1; i < args.length; i++){
+				int bpno = Integer.parseInt(args[i]);
+				if(breakpoint.getId() == bpno){
+					breakpoint.setEnabled(enabled);
+				}
+			}
+		}
+	}
+	
 	void listingDirective(Frame frame, String[] args){
 		int delta = defaultListingDelta;
 		if(args.length > 1){
@@ -311,11 +370,15 @@ public class BreakPointManager {
 		breakpoints.add(breakpoint);
 	}
 	
+	protected void printBreakPointsHeader(PrintWriter stdout){
+		stdout.println("Id\tEnabled\tKind\tIgnore\tDetails");
+	}
+	
 	private void printBreakPoints(PrintWriter stdout){
 		if(breakpoints.isEmpty()){
 			stdout.println("No breakpoints");
 		} else {
-			stdout.println("Id\tEnabled\tKind\tDetails");
+			printBreakPointsHeader(stdout);
 			for(BreakPoint breakpoint : breakpoints){
 				breakpoint.println(stdout);
 			}
@@ -323,24 +386,27 @@ public class BreakPointManager {
 		stdout.flush();
 	}
 	
-	
-	
 	private void listingDirective(Frame frame, int delta){
 		ISourceLocation breakpointSrc = frame.src;
 		int breakpointSrcBegin = breakpointSrc.getBeginLine();
 		int breakpointSrcEnd = breakpointSrc.getEndLine();
 		
+		int breakpointDelta = breakpointSrcEnd - breakpointSrcBegin;
+		
 		int windowBegin;
 		int windowEnd;
+		int windowSize = 2 * delta + 1;
 		
 		ISourceLocation functionSrc = frame.function.src;
-		if(functionSrc.getEndLine() - functionSrc.getBeginLine() <= 2 * delta + 1){
+		if(functionSrc.getEndLine() - functionSrc.getBeginLine() <= windowSize){
 			windowBegin = functionSrc.getBeginLine();
 			windowEnd = functionSrc.getEndLine();
-		} else {
-			
+		} else if(breakpointDelta <=  windowSize){
 			windowBegin = Math.max(1, breakpointSrcBegin - delta);
 			windowEnd = breakpointSrcEnd + delta;
+		} else {
+			windowBegin = breakpointSrcBegin - 2;
+			windowEnd = breakpointSrcBegin + windowSize - 2;
 		}
 		
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();

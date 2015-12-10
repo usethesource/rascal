@@ -16,13 +16,12 @@ public class ModuleLineBreakpoint extends BreakPoint {
 	
 	@Override
 	void println(PrintWriter stdout){
-		stdout.println(id + "\t" + isEnabled() + "\tModule\t" + modulePath + ":" + lino);
+		stdout.println(id + "\t" + isEnabled() + "\tModule\t" + ignore + "\t" + modulePath + ":" + lino);
 	}
 	
 	@Override
 	public boolean matchOnObserve(Frame frame) {		
-		return frame.src.getPath().equals(modulePath) &&
-		       shouldBreakAt(lino, frame.src);
+		return enabled && ignoreOrBreak(frame.src.getPath().equals(modulePath) && shouldBreakAt(lino, frame.src));
 	}
 
 	@Override

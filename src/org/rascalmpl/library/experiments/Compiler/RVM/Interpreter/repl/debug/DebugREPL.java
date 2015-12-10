@@ -11,6 +11,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
+import org.rascalmpl.value.IValue;
 
 import jline.Terminal;
 
@@ -120,6 +121,10 @@ public class DebugREPL extends BaseREPL{
 			stop();
 			throw new InterruptedException();
 			
+		case "q": case "quit":
+			stop();
+			throw new InterruptedException("quit");
+			
 		case "": 
 			if(previousCommand != null){
 				handleInput(previousCommand);
@@ -151,9 +156,29 @@ public class DebugREPL extends BaseREPL{
 			breakPointManager.setBreakMode(currentFrame);
 			stop();
 			throw new InterruptedException();
+		
+		case "p": case "print":
+			stdout.println(EvalExpr.eval(words[1], currentFrame));
+		break;
+		
+		case "i": case "ignore":
+			breakPointManager.ignoreDirective(words);
+			break;
+		case "enable":
+			breakPointManager.enableDirective(words);
+			break;
+			
+		case "disable":
+			breakPointManager.disableDirective(words);
+			break;
 			
 		default:
-			stderr.println("'" + line + "' not recognized");
+			IValue v = EvalExpr.eval(words[0], currentFrame);
+			if(v != null){
+				stdout.println(v);
+			} else {
+			    stderr.println("'" + line + "' not recognized (or variable has undefined value)");
+			}
 			return;
 		}
 		if(!line.isEmpty()){
@@ -163,25 +188,31 @@ public class DebugREPL extends BaseREPL{
 	
 	private void printHelp(){
 		String[] lines = {
-			"h(elp)    this help text",
-			"u(p)      move up to newer call frame",
-			"d(own)    move down to older call frame",
-			"v(ars)    show values of local variables",
-			"w(here)   print stack trace",
-			"n(ext)    execute until next break point",
-			"s(tep)    execute but stop at the first possible occasion",
-			"r(eturn)  execute until the current function’s return is encountered",
-			"l(isting) print lines around current breakpoint",
-			"b(reak)   manage break points:",
-			"          b         list current break points",
-			"          b <lino>  set breakpoint at line <lino> in current module",
-			"          b <name>  set breakpoint at start of function <name>",
-			"          b <name> <lino>",
-			"                    set breakpoint at line <lino> in function <name>",
-			"c(ontinue) continue execution until a breakpoint is encountered",
-			"cl(ear) <bpno>",
-			"          clear breakpoint with index <bpno>",
-			"          (empty line) repeat previous command"
+			"h(elp)          this help text",
+			"u(p)            move up to newer call frame",
+			"d(own)          move down to older call frame",
+			"v(ars)          show values of local variables",
+			"w(here)         print stack trace",
+			"n(ext)          execute until next break point",
+			"s(tep)          execute but stop at the first possible occasion",
+			"r(eturn)        execute until the current function’s return is encountered",
+			"l(isting)       print lines around current breakpoint",
+			"b(reak)         manage break points:",
+			"                b         list current break points",
+			"                b <lino>  set breakpoint at line <lino> in current module",
+			"                b <module> <lino>",
+			"                          set breakpoint at line <lino> in <module>",
+			"                b <name>  set breakpoint at start of function <name>",
+			"c(ontinue)      continue execution until a breakpoint is encountered",
+			"cl(ear) <bpnoa> clear breakpoints <bpnos> (empty list clears all)",
+			"i(gnore) <bpno> <n>",
+			"                ignore breakpoint <bpno> <n> times",
+			"<empty line>    repeat previous command",
+			"p(rint) <expr>  print value of <expr>",
+			"<expr>          print value of <expr>",
+			"                (use p <expr> for variables that overlap with one of the above commands)",
+			"enable <bnpos>  enable breakpoints <bpnos> (empty list enables all)",
+			"disable <bpnos> disable breakpoints <bpnos> (empty list disables all)"
 		};
 		for(String line : lines){
 			stdout.println(line);
@@ -190,7 +221,7 @@ public class DebugREPL extends BaseREPL{
 	
 	private void printStack(){
 		for(Frame f = currentFrame; f != null & !f.src.getPath().equals(CommandExecutor.consoleInputPath); f = f.previousCallFrame) {
-			stdout.println("\t" + f.toString());
+			stdout.println("\t" + f.toString() + "\t" + f.src);
 		}
 	}
 
