@@ -67,7 +67,7 @@ public class ParsingTools {
 	 * @param parser		The generated parser class
 	 */
 	private void storeObjectParser(String moduleName, IValue start, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser) {
-		stderr.println("Compiled -- Storing parser for " + moduleName /*+ "/" + start*/);
+		//stderr.println("Compiled -- Storing parser for " + moduleName /*+ "/" + start*/);
 		parsers.put(start, parser);
 	}
 
@@ -79,7 +79,7 @@ public class ParsingTools {
 	 */
 	private Class<IGTD<IConstructor, ITree, ISourceLocation>> getObjectParser(String moduleName, IValue start) {
 		Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = parsers.get(start);
-		stderr.println("Compiled -- Retrieving parser for " + moduleName + /* "/" + start + */ ((parser == null) ? " fails" : " succeeds"));
+		//stderr.println("Compiled -- Retrieving parser for " + moduleName + /* "/" + start + */ ((parser == null) ? " fails" : " succeeds"));
 		return parser;
 	}
 	
@@ -322,7 +322,7 @@ public class ParsingTools {
 
 	    if (parser == null || force) {
 	      String parserName = name; // .replaceAll("::", ".");
-	      stderr.println("Compiled -- getParser: name = " + name);
+	      //stderr.println("Compiled -- getParser: name = " + name);
 	      parser = pg.getNewParser(rex.getMonitor(), loc, parserName, definitions, rex);
 	      storeObjectParser(name, start, parser);
 	    }
