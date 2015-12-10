@@ -6382,6 +6382,27 @@ public enum RascalPrimitive {
 	},
 	
 	/**
+	 * Is a named field of a location defined?
+	 * 
+	 * [ ..., ISourceLocation nd, IString fieldName ] => [ ..., bool ]
+	 */
+//	is_defined_loc_field_access_get {
+//		@Override
+//		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+//
+//			try {
+//				temp_array_of_2[0] = Rascal_TRUE;
+//				temp_array_of_2[1] = loc_field_access.execute2(arg_2, arg_1, currentFrame, rex);;
+//				return temp_array_of_2;
+//
+//			} catch(Exception e) {
+//				temp_array_of_2[0] = Rascal_FALSE;
+//			}
+//			return temp_array_of_2;
+//		}
+//	},
+	
+	/**
 	 * Retrieve value of named field of datetime value
 	 * 
 	 * [ ..., IDateTime dt, IString fieldName ] => [ ..., IValue value of field fieldName ]
@@ -7814,11 +7835,11 @@ public enum RascalPrimitive {
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			IValue result = ((IMap) arg_2).get((IValue) arg_1);
 			if(result == null) {
-				System.err.println("EXCEPTION NoSuchKey at: " + currentFrame.src);
-				System.err.println("containsKey: " + ((IMap) arg_2).containsKey((IValue) arg_1));
-				for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
-					System.err.println("\t" + f.toString());
-				}
+//				System.err.println("EXCEPTION NoSuchKey at: " + currentFrame.src);
+//				System.err.println("containsKey: " + ((IMap) arg_2).containsKey((IValue) arg_1));
+//				for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
+//					System.err.println("\t" + f.toString());
+//				}
 				throw RascalRuntimeException.noSuchKey((IValue) arg_1, currentFrame);
 			}
 			return result;
