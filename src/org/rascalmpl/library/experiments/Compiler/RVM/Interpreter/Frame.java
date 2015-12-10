@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.rascalmpl.interpreter.types.FunctionType;  // TODO: remove import: NO
@@ -300,6 +301,34 @@ public class Frame {
 				}
 			}
 		}
+	}
+	
+	public Map<String, IValue> getVars(){
+		HashMap<String, IValue> vars = new HashMap<>();
+		Iterator<Entry<IValue, IValue>> iter = function.localNames.entryIterator();
+		while(iter.hasNext()){
+			Entry<IValue, IValue> entry = iter.next();
+			String varName = ((IString) entry.getValue()).getValue();
+			int varPos = ((IInteger) entry.getKey()).intValue();
+			Object v = stack[varPos];
+			if(v != null && !varName.equals("map_of_default_values")){
+				if(varName.matches("[0-9]+")){
+					varName = "arg " + varName;
+				}
+				vars.put(varName,  (IValue) v);
+			}
+		}
+		if(stack[function.nformals-1] instanceof HashMap<?, ?>){
+			@SuppressWarnings("unchecked")
+			HashMap<String,IValue> kwParams = (HashMap<String,IValue>)stack[function.nformals-1];
+			for(String kwParam : kwParams.keySet()){
+				IValue v = kwParams.get(kwParam);
+				if(v != null){
+					vars.put(kwParam,  kwParams.get(kwParam));
+				}
+			}
+		}
+		return vars;
 	}
 	
 }
