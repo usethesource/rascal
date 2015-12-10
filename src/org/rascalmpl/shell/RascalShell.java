@@ -24,6 +24,7 @@ import java.util.jar.Manifest;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.experiments.Compiler.Commands.Rascal;
 import org.rascalmpl.library.experiments.Compiler.Commands.RascalC;
+import org.rascalmpl.library.experiments.Compiler.Commands.RascalTests;
 import org.rascalmpl.shell.compiled.CompiledREPLRunner;
 
 
@@ -72,6 +73,14 @@ public class RascalShell  {
                         @Override
                         public void run(String[] args) throws IOException {
                             Rascal.main(Arrays.copyOfRange(args, 1, args.length));
+                        }
+                    };
+                }
+                else if (args[0].equals("--rascalTests")) {
+                    runner = new ShellRunner() {
+                        @Override
+                        public void run(String[] args) throws IOException {
+                            RascalTests.main(Arrays.copyOfRange(args, 1, args.length));
                         }
                     };
                 }
