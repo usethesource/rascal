@@ -17,7 +17,9 @@ syntax Option
     = "--srcPath" Path path
     | "--libPath" Path path
     | "--binDir" Path path
-    | "--nolinking"
+    | "--bootDir" Path path
+    | "--noLinking"
+    | "--noDefaults"
     | "--jvm"
     | "--verbose"
     | "--version"
@@ -38,12 +40,34 @@ lexical Path
     ;
 lexical InsideQuote = ![\"]*;
     
-loc toLocation((Path)`"<InsideQuote inside>"`) = toLocation("<inside>");
-default loc toLocation(Path p) = toLocation("<p>");
+loc toLocation((Path)`"<InsideQuote inside>"`) = toLocation1("<inside>");
+default loc toLocation(Path p) = toLocation1("<p>");
 
-loc toLocation(/^<locPath:[|].*[|]>$/) = readTextValueString(#loc, locPath);
-loc toLocation(/^<fullPath:[\/].*>$/) = |file:///| + fullPath;
-default loc toLocation(str relativePath) = |cwd:///| + relativePath;
+// TODO: the following code does not work in the compiled compiler
+//loc toLocation(/^<locPath:[|].*[|]>$/) = readTextValueString(#loc, locPath);
+//loc toLocation(/^[\/]<fullPath:.*>$/) = |file:///| + fullPath;
+//default loc toLocation(str relativePath) = |cwd:///| + relativePath;
+
+//loc toLocation(str path){
+//    println("toLocation: <path>");
+//    if(/^<locPath:[|].*[|]>$/ := path){
+//       return readTextValueString(#loc, locPath);
+//    }
+//    if(/^[\/]<fullPath:.*>$/ := path){
+//       return |file:///| + fullPath;
+//    }
+//    return |cwd:///| + path;
+//}
+
+loc toLocation1(str path){
+    if(path[0] == "|"){
+       return readTextValueString(#loc, path);
+    }
+    if(path[0] == "/"){
+       return |file:///| + path[1..];
+    }
+    return  |cwd:///| + path;
+}
 
 str getModuleName(ModuleName mn) {
     result = "<mn>";
@@ -69,6 +93,28 @@ int rascalc(str commandLine) {
         }
         else if (_ <- t.modulesToCompile) {
             pcfg = pathConfig();
+            if ((Option)`--noDefaults` <- t.options) {
+                if ((Option)`--binDir <Path _>` <- t.options) {
+                    pcfg.binDir = |incorrect:///|;
+                }
+                else {
+                    println("A bindir is needed when there are no defaults");
+                    return 1;
+                }
+                 
+                if ((Option)`--srcPath <Path _>` <- t.options) {
+                    pcfg.srcPath = [];
+                }
+                else {
+                    println("At least one srcPath is needed when there are no defaults");
+                    return 1;
+                }
+                if ((Option)`--bootDir <Path _>` <- t.options) {
+                    pcfg.bootDir = |incorrect:///|;
+                }
+                // lib path can be empty, do not need to check it
+                pcfg.libPath = [];
+            }
             pcfg.libPath = [ toLocation(p) | (Option)`--libPath <Path p>` <- t.options ] + pcfg.libPath;
             if ((Option)`--srcPath <Path _>` <- t.options) {
                 pcfg.srcPath = [ toLocation(p) | (Option)`--srcPath <Path p>` <- t.options ] + pcfg.srcPath;
@@ -79,22 +125,29 @@ int rascalc(str commandLine) {
             if ((Option)`--binDir <Path p>` <- t.options) {
                 pcfg.binDir = toLocation(p);
             }
+            if ((Option)`--bootDir <Path p>` <- t.options) {
+                pcfg.bootDir = toLocation(p);
+            }
 
             bool verbose = (Option)`--verbose` <- t.options;
             bool useJVM = (Option)`--jvm` <- t.options;
-            bool nolinking = (Option)`--nolinking` <- t.options;
+            bool nolinking = (Option)`--noLinking` <- t.options;
 
+            println("srcPath: <pcfg.srcPath>");
+            println("libPath: <pcfg.libPath>");
+            println("binDir: <pcfg.binDir>");
             for (m <- t.modulesToCompile) {
                 moduleName = getModuleName(m);
-                println("compiling: <moduleName>");
+               
                 if(nolinking){
+                   println("compiling: <moduleName>");
                    compile(moduleName, pcfg, verbose = verbose);
                 } else {
                    println("compiling and linking: <moduleName>");
                    compileAndLink(moduleName, pcfg, useJVM = useJVM, serialize=true, verbose = verbose);
                 }
             }
-            return 1;
+            return 0;
         }
         else {
             printHelp();
@@ -118,6 +171,12 @@ void printHelp() {
     println("\tAdd new lib paths, use multiple --libPaths for multiple paths");
     println("--binDir directory");
     println("\tSet the target directory for the bin files");
+    println("--bootDir directory");
+    println("\tSet the source directory for the boot files");
+    println("--noLinking");
+    println("\tOnly compile, don\'t link");
+    println("--noDefaults");
+    println("\tDo not use defaults for the srcPaths, libPaths and binDirs");
     println("--jvm");
     println("\tUse the JVM implemementation of the RVM");
     println("--verbose");

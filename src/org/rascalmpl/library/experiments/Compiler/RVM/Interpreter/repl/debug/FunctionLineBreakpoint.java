@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl;
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug;
 
 import java.io.PrintWriter;
 
@@ -13,9 +13,6 @@ public class FunctionLineBreakpoint extends BreakPoint {
 		this.functionName = functionName;
 		this.lino = lino;
 	}
-	
-	@Override
-	void reset () { }
 	
 	@Override
 	void println(PrintWriter stdout){

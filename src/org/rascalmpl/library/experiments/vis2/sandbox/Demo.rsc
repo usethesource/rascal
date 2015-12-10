@@ -15,14 +15,14 @@ void ex(str title, Figure b, bool debug = false) = render(b, debug = debug, alig
 // --------------------------------------------------------------------------
 
 public Figure newNgon(str lc, Figure el) {
-      return at(0, 0, ngon(n =7,  align = topLeft, lineColor= lc, 
+      return at(0, 0, ngon(n = 5,  grow=1, align = topLeft, lineColor= lc, 
              lineWidth = 20, fillColor = "white", padding=<0,0,0,0>, 
       fig = el));
       }
 
 public Figure demo1() = (idNgon(50) |newNgon(e, it)| 
               e<-["antiquewhite", "yellow", "red","blue" ,"grey","magenta"]);
-void tdemo1()  {render(rotate(30, demo1()), debug = false, align = centerMid);}
+void tdemo1()  {render(demo1(), debug = false, align = centerMid);}
 
 // --------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ public Figure demo2() = (
           )
            |newBox(e, 
           it)| e<-["green", "red", "blue", "grey", "magenta", "brown"]);
-void tdemo2(){ render(rotate(45, frame(fig=demo2())), align = centerRight, debug = false); }
+void tdemo2(){ render(demo2(), align = centerRight, debug = false); }
 
  void tfdemo2(loc l) {
       // println(schoolPlot());
@@ -48,14 +48,14 @@ void tdemo2(){ render(rotate(45, frame(fig=demo2())), align = centerRight, debug
 
 
 public Figure newEllipse(str lc, Figure el) {
-      return at(0, 0, ellipse(align = topLeft, lineColor= lc, lineWidth = 19, 
+      return at(0, 0, ellipse(lineColor= lc, lineWidth = 19, 
            fillColor = "white", padding=<0,0,0,0>, 
       fig = el));
       }
 public Figure demo3() = (idEllipse(100, 75) |newEllipse(e, 
       it)| e<-["red","blue" ,"grey","magenta", "brown", "green"]);
       
-void tdemo3()  {render(demo3(), debug = false, align = topLeft);}
+void tdemo3()  {render(demo3(), debug = false);}
 // ---------------------------------------------------------------------------
 
 list[Vertex] innerGridH(int n) {
@@ -91,11 +91,13 @@ Figure schoolPlot() {
      return  overlay(lineWidth=1, width = 400, height = 400, figs = [
         shape(innerSchoolPlot1()+innerSchoolPlot2(), fillColor = "none",
         scaleX=<<0,10>,<0,400>>, scaleY=<<0,10>,<400,0>>, width = 400, height = 400, 
-        lineColor = "blue"), 
-        circle(r=40, cx = 200, cy = 200, fillColor = "yellow"
+        lineColor = "blue")
+         , 
+       circle(r=40, cx = 200, cy = 200, fillColor = "yellow"
         ,lineWidth = 10, lineColor = "red", lineOpacity=0.5, fillOpacity=0.5, fig = text("Hello")
         )
-        ,at(50, 50, circle(lineWidth=10, lineColor= "red", fillColor = "none",  padding=<10, 10, 10, 10>, fig= at(0,0, 
+        ,
+        at(50, 50, circle(lineWidth=10, lineColor= "red", fillColor = "none",  padding=<10, 10, 10, 10>, fig= at(0,0, 
              box(width=50, height = 50, fillColor = "antiquewhite")
              )))
         ,at(250, 250, circle(lineWidth=10, fillColor="none", lineColor="brown", padding=<5, 5, 5, 5>
@@ -109,7 +111,7 @@ Figure simpleGrid(Figure f) {
         // box(lineWidth=0, lineColor="black", fig=
           shape(innerGridV(10)+innerGridH(10) 
              ,size=<398, 398>, scaleX=<<0,1>,<0,400>>, scaleY=<<0,1>,<0,400>>, fillColor = "none",
-              lineColor = "lightgrey")
+              lineColor = "lightgrey", lineWidth = 1)
        // , fillColor = "none")
         , f
         ]
@@ -120,8 +122,9 @@ Figure labeled(Figure g) {
      return hcat(lineWidth = 0, 
         figs = [
            vcat(figs=gridLabelY(), padding=<0,0,0,20>)
-           , vcat(lineWidth = 0, figs = [box(fig=g, lineWidth=1), hcat(figs = gridLabelX())])
-           ]);
+           , vcat(lineWidth = 0, figs = [g,
+           hcat(figs = gridLabelX())])
+           ], resizable = false);
      }
      
  list[Figure] gridLabelX() {
@@ -136,7 +139,9 @@ Figure labeled(Figure g) {
     return labeled(simpleGrid(f));   
     }
     
- Figure demo4() = labeledGrid(schoolPlot());
+ Figure demo4() = labeledGrid(simpleGrid(schoolPlot()));
+ 
+ // Figure demo4() = simpleGrid(schoolPlot());
     
  void tfdemo4(loc l) {
       // println(schoolPlot());
@@ -325,6 +330,7 @@ Figure plotg(num(num) g, list[num] d) {
      
 num(num) gg(num a) = num(num x) {return a*x*x;};
 
+
 num g1(num x) = x*x;
 
 Figure demo7() = plotg(gg(0.5), [-1,-0.9..1.1]);
@@ -470,29 +476,32 @@ Figure demo15()= ov();
 list[Figure] rgbFigs = [box(fillColor="red",size=<50,100>), box(fillColor="green", size=<200,200>), box(fillColor="blue",  size=<10,10>)];
 
 public Figure hcat11() = 
-       box(padding=<0, 0, 0, 0>, lineWidth = 10 , resizable = false
+       box(padding=<0, 0, 0, 0>, lineWidth = 10 , resizable = true
        , fillColor = "antiquewhite", lineColor = "blue"
        ,fig= ellipse(padding=<0, 0, 0, 0>
              ,fig=hcat(lineWidth=2, lineColor="brown", figs=rgbFigs) 
              // ,size=<100, 50>
-       ,lineWidth = 10, lineColor= "yellow", fillColor="lightgrey",align = centerMid
+       ,lineWidth = 10, lineColor= "yellow", grow = 1.5, fillColor="lightgrey",align = centerMid
        )
  )
 ;
 
+void thcat11() = render(hcat11());
+
 void tfhcat11(loc l)= writeFile(l,
-     toHtmlString(hcat11, debug = false));
-void thcat11(){ render(hcat11(), debug = false);}
+     toHtmlString(hcat11(), debug = false));
+
+
 
 Figure demo16()= hcat11();
 
 
-Figure bigger(num grow) = circle(r=30, fig = 
+Figure bigg(num bigger) = circle(r=30, fig = 
     box(size=<40, 10>, fig= rotate(-30, ngon(n=3, r=3, lineWidth=0, fillColor= "white")), 
         fillColor="antiquewhite", lineWidth = 2, lineColor="brown"),
-    fillColor = "beige", lineColor = "green", grow = grow);
+    fillColor = "beige", lineColor = "green", bigger = bigger);
 
-Figure big() = vcat(figs = [bigger(1.0), bigger(1.5), bigger(2)]);
+Figure big() = vcat(figs = [bigg(1.0), bigg(1.5), bigg(2)]);
 
 Figure demo17() = big();
 
@@ -500,7 +509,7 @@ void tbig() = render(big());
 
 Figure demo18() = flower();
 
-void tflower() = render(flower());
+void tflower() = render(flower(), size=<800, 800>);
 
 Figure cell(str s, int r = 15) = 
      circle(

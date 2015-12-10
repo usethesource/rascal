@@ -1,13 +1,17 @@
 package org.rascalmpl.library.experiments.Compiler.Commands;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -17,7 +21,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Command {
 	
-    public static void main(String[] args, String programName, Type returnType) {
+    public static void main(String[] args, String programName, Type returnType, boolean swallowProfileFlag) {
 	    boolean verbose = false;
 	    for (String a : args) {
 	        verbose |= a.equals("--verbose");
@@ -44,8 +48,30 @@ public class Command {
 			System.err.println("Cannot construct path too kernel: " + e.getMessage());
 			System.exit(-1);
 	    }
+	    boolean profile = false;
+	    if (swallowProfileFlag) {
+	        List<String> newArgs = new ArrayList<>();
+	    	for (String a: args) {
+	    	    if (a.equals("--profile")) {
+	    	       profile = true; 
+	    	    }
+	    	    else {
+	    	        newArgs.add(a);
+	    	    }
+	    	}
+	    	if (profile) {
+	    	    args = newArgs.toArray(new String[]{});
+	    	    if (verbose) {
+	    	        System.err.println("profiling the whole command runner");
+	    	    }
+	    	}
+	    }
 		
-		RascalExecutionContext rex = new RascalExecutionContext("rascal", vf, System.out, System.err);
+		PrintWriter out = new PrintWriter(System.out);
+        RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, out, new PrintWriter(System.err, true))
+                .setProfiling(profile)
+                .forModule(programName)
+                .build();
 
 		if (verbose) {
 		    System.err.println("Loading rvm kernel");
@@ -78,11 +104,15 @@ public class Command {
 		    argsAsOne += a;
 		}
 		try {
+		    
 		    Object result  = rvmKernel.executeFunction(programToRun, new IValue[]{ vf.string(argsAsOne) }, new HashMap<>());
+		    out.flush();
 		    System.out.println("Result: " + result.toString());
+		    System.out.flush();
 		    System.exit(0);
 		}
 		catch (Exception e) {
+		    out.flush();
 			System.err.println("rascal failed: " + e.getMessage());
 			System.exit(-1);
 		}

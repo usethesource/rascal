@@ -1286,7 +1286,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
            for(int alt <- of.alts) {
                t = uid2type[alt];
                matches(t);
-               println("ALT: <t> ftype: <ftype>");
+               //println("ALT: <t> ftype: <ftype>");
            }
            throw "ERROR in overloading resolution: <ftype>; <expression@\loc>";
        }

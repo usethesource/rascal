@@ -30,12 +30,14 @@ module lang::rascal::boot::BuildBootFiles
 /********************************************************************************/
 
 import IO;
+import ValueIO;
 import String;
 import util::Reflective;
 import util::FileSystem;
 import experiments::Compiler::Execute;
 import experiments::Compiler::Compile;
 import experiments::Compiler::CompileMuLibrary; 
+import experiments::Compiler::Rascal2Info::Collect;
 
 loc BOOT = |file:///Users/paulklint/git/rascal/src/boot/|;
 loc SHELLSCRIPT = |file:///Users/paulklint/install.sh|;
@@ -125,8 +127,13 @@ value main(){
      
      commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg);
      commands += serialize("lang::rascal::boot::Kernel", pcfg);
+     
+     info = collectInfo(libraryModules, pcfg);
+     l = getDerivedWriteLoc("StdLib.info", "gz", pcfg);
+     println("l = <l>");
+     writeBinaryValueFile(l, info);
     
-    writeFile(SHELLSCRIPT, commands);
-    report("Commands written to <SHELLSCRIPT>");
-    return true;
+     writeFile(SHELLSCRIPT, commands);
+     report("Commands written to <SHELLSCRIPT>");
+     return true;
 }

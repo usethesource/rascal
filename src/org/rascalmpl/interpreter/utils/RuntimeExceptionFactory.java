@@ -24,6 +24,8 @@ import org.rascalmpl.ast.LocationLiteral.Default;
 import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
@@ -33,6 +35,7 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * This class defines and implements all dynamic (run-time) exceptions that
@@ -72,6 +75,7 @@ public class RuntimeExceptionFactory {
 	public static final Type NoSuchAnnotation = TF.constructor(TS, Exception, "NoSuchAnnotation", TF.stringType(), "label");
 	public static final Type NoSuchField = TF.constructor(TS, Exception, "NoSuchField", TF.stringType(), "label");
 	public static final Type ParseError = TF.constructor(TS, Exception, "ParseError", TF.sourceLocationType(), "location");
+	public static final Type Ambiguity = TF.constructor(TS, Exception, "Ambiguity", TF.sourceLocationType(), "location", TF.stringType(), "nonterminal", TF.stringType(), "sentence");
 	public static final Type IllegalIdentifier = TF.constructor(TS, Exception, "IllegalIdentifier", TF.stringType(), "name");
 	public static final Type IllegalChar = TF.constructor(TS, Exception, "IllegalCharacter", TF.integerType(), "character");
 	public static final Type SchemeNotSupported = TF.constructor(TS, Exception, "SchemeNotSupported", TF.sourceLocationType(), "location");
@@ -237,6 +241,10 @@ public class RuntimeExceptionFactory {
 	
 	public static Throw parseError(ISourceLocation loc, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(ParseError, loc), ast, trace);
+	}
+	
+	public static Throw ambiguity(ISourceLocation loc, IString type, IString string, AbstractAST ast, StackTrace trace) {
+		return new Throw(VF.constructor(Ambiguity, loc, type, string), ast, trace);
 	}
 	
 	public static Throw pathNotFound(ISourceLocation loc, AbstractAST ast, StackTrace trace) {

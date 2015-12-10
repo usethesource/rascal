@@ -42,10 +42,12 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   
   static {
 	  	String[] shellVerbValues = {
+	  	  // Rascal declarations captured by RascalShell
+	  	  //"import",
 		  // General commands
 		  "help", "set", "declarations", "modules", "unimport", "undeclare", "quit",
 		  // Debugging commands
-		  "break", "enable", "disable", "clear"
+		  "break", "enable", "disable", "clear",
 	  	};
 	  	SHELL_VERBS = new TreeSet<String>(Arrays.asList(shellVerbValues));
   }
@@ -194,6 +196,11 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 	  //    }
   }
 
+//  @Override
+//  protected boolean printSpaceAfterFullCompletion() {
+//      return true;
+//  }
+  
   @Override
   protected Collection<String> completeModule(String qualifier, String partialModuleName) {
       List<String> entries = pcfg.listModuleEntries(qualifier);
@@ -246,7 +253,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   
   @Override
   protected CompletionResult completeREPLCommand(String line, int cursor) {
-      return RascalCommandCompletion.complete(line, cursor, commandLineOptions, (l,i) -> completeIdentifier(l,i), (l,i) -> completeModule(l,i));
+      return RascalCommandCompletion.complete(line, cursor, commandLineOptions, (l,i) -> completeIdentifier(l,i).joinWith(completeModule(l, i)), (l,i) -> completeModule(l,i), executor);
   }
   
 }

@@ -2,16 +2,20 @@ package org.rascalmpl.library;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ICallableCompiledValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
+import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.IMap;
@@ -89,33 +93,39 @@ public class PreludeCompiled extends Prelude {
         }
     }
     
-	public void iprint(IValue arg, RascalExecutionContext rex){
+	public void iprint(IValue arg, IInteger lineLimit, RascalExecutionContext rex){
 		StandardTextWriter w = new StandardTextWriter(true, 2);
+		Writer output = rex.getStdOut();
+		if (lineLimit.signum() > 0) {
+		    output = new LimitedLineWriter(output, lineLimit.longValue());
+		}
 		
 		try {
-			w.write(arg, rex.getStdOut());
+			w.write(arg, output);
 		} 
+		catch (IOLimitReachedException e) {
+		    // ignore since we wanted this
+		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string("Could not print indented value"), null, null);
 		}
 		finally {
+		    if (output != rex.getStdOut()) {
+		        try {
+                    output.flush();
+                    output.close();
+                }
+                catch (IOException e) {
+                }
+		    }
 			rex.getStdOut().flush();
 		}
 	}
 	
-	public void iprintln(IValue arg, RascalExecutionContext rex){
-		StandardTextWriter w = new StandardTextWriter(true, 2);
-		
-		try {
-			w.write(arg, rex.getStdOut());
-			rex.getStdOut().println();
-		} 
-		catch (IOException e) {
-			RuntimeExceptionFactory.io(values.string("Could not print indented value"),null, null);
-		}
-		finally {
-			rex.getStdOut().flush();
-		}
+	public void iprintln(IValue arg, IInteger lineLimit, RascalExecutionContext rex){
+	    iprint(arg, lineLimit, rex);
+		rex.getStdOut().println();
+		rex.getStdOut().flush();
 	}
 	
 	public void println(RascalExecutionContext rex) {
@@ -286,13 +296,13 @@ public class PreludeCompiled extends Prelude {
 	// end of sorting functions
 	
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input);
-	public IValue parse(IValue start, ISourceLocation input, RascalExecutionContext rex) {
-		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null, rex);
+	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, RascalExecutionContext rex) {
+		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, allowAmbiguity.getValue(), null, rex);
 	}
 
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin);
-	public IValue parse(IValue start, IString input, RascalExecutionContext rex) {
-		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, null, rex);
+	public IValue parse(IValue start, IString input, IBool allowAmbiguity, RascalExecutionContext rex) {
+		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, allowAmbiguity.getValue(), null, rex);
 	}
 	
 	private TypeStore typeStore = new TypeStore();

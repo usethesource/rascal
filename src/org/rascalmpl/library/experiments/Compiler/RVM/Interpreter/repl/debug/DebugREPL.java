@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl;
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
 
@@ -110,9 +111,9 @@ public class DebugREPL extends BaseREPL{
 			break;
 			
 		case "s": case "step":
-			breakPointManager.setStepMode(true);
+			breakPointManager.setStepMode(currentFrame);
 			stop();
-			throw new InterruptedException();
+			throw new InterruptedException();			
 			
 		case "n": case "next":
 			breakPointManager.setNextMode(currentFrame);
@@ -147,6 +148,7 @@ public class DebugREPL extends BaseREPL{
 			throw new InterruptedException();
 			
 		case "c": case "cont": case "continue":
+			breakPointManager.setBreakMode(currentFrame);
 			stop();
 			throw new InterruptedException();
 			
@@ -187,7 +189,7 @@ public class DebugREPL extends BaseREPL{
 	}
 	
 	private void printStack(){
-		for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
+		for(Frame f = currentFrame; f != null & !f.src.getPath().equals(CommandExecutor.consoleInputPath); f = f.previousCallFrame) {
 			stdout.println("\t" + f.toString());
 		}
 	}

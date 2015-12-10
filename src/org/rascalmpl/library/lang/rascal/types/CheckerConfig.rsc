@@ -196,7 +196,7 @@ public bool fcvExists(Configuration c, RName n) = n in c.fcvEnv;
 
 @doc{Get the container in which the given item is defined.}
 public int definingContainer(Configuration c, int i) {
-	if (c.store[i] is overload) return definingContainer(c, getOneFrom(c.store[i].items));
+	if (c.store[i] is overload) return definingContainer(c, getFirstFrom(c.store[i].items));
     cid = c.store[i].containedIn;
     if (c.store[cid] is \module || c.store[cid] is function || c.store[cid] is closure) return cid;
     return definingContainer(c,cid);
@@ -215,7 +215,7 @@ private int getContainedIn(Configuration c, AbstractValue av) {
 	if (av has containedIn) return av.containedIn;
 	// NOTE: This assumes that overloads are all defined at the same level (all at the top
 	// of a module, for instance), or this won't work properly at the calling site.
-	if (av is overload) return getContainedIn(c, c.store[getOneFrom(av.items)]);
+	if (av is overload) return getContainedIn(c, c.store[getFirstFrom(av.items)]);
 	return head(c.stack);
 }
 
@@ -246,7 +246,7 @@ public tuple[Configuration,Symbol] checkTVarBound(Configuration c, loc l, Symbol
     			// are internally consistent
     			nonequiv = { < bnd1, bnd2 > | bnd1 <- wBounds<0>, bnd2 <- wBounds<0>, !equivalent(bnd1,bnd2) };
     			if (size(nonequiv) > 0) {
-    				< bnd1, bnd2 > = getOneFrom(nonequiv);
+    				< bnd1, bnd2 > = getFirstFrom(nonequiv);
     				c = addScopeError(c, "Non-equivalent bounds are given for &<n>, e.g. <prettyPrintType(bnd1)> and <prettyPrintType(bnd2)>", l);
     				
     				// We had non-equivalent bounds; we just lub them all and set that as the bound to use going forward, which
@@ -256,7 +256,7 @@ public tuple[Configuration,Symbol] checkTVarBound(Configuration c, loc l, Symbol
     				c.tvarBounds[n] = lubbed;
 	    		} else {
 	    			// All the bounds were equivalent; we just pick one at random and save it
-	    			c.tvarBounds[n] = getOneFrom(wBounds<0>);
+	    			c.tvarBounds[n] = getFirstFrom(wBounds<0>);
 	    		}
     		}
     	}
@@ -282,7 +282,7 @@ public Configuration addTopLevelVariable(Configuration c, RName n, bool inf, Vis
 
 		existingDefs = invert(c.definitions)[l];
 		if (!isEmpty(existingDefs)) {
-			varId = getOneFrom(existingDefs);
+			varId = getFirstFrom(existingDefs);
 		} else {
 			c.nextLoc = varId + 1;
 			c.store[varId] = variable(n,rt,inf,head(c.stack),l);
@@ -386,7 +386,7 @@ public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol r
 
 	int insertAnnotation() {
 		existingDefs = invert(c.definitions)[l];
-		if (!isEmpty(existingDefs)) return getOneFrom(existingDefs);
+		if (!isEmpty(existingDefs)) return getFirstFrom(existingDefs);
 
 		annId = c.nextLoc;
 		c.store[annId] = annotation(n,rt,rtOn,moduleId,l);
@@ -433,7 +433,7 @@ public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol r
 						firstTimeThrough = false;
 					}
 				} else {
-					c.definitions = c.definitions + < getOneFrom(onComparableTypes), l >;
+					c.definitions = c.definitions + < getFirstFrom(onComparableTypes), l >;
 				}
 			}
 		}
@@ -494,7 +494,7 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 		}
 		
 		existingDefs = invert(c.definitions)[l];
-		if (!isEmpty(existingDefs)) return getOneFrom(existingDefs);
+		if (!isEmpty(existingDefs)) return getFirstFrom(existingDefs);
 		
 		itemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
@@ -693,7 +693,7 @@ public Configuration addImportedNonterminal(Configuration c, RName n, int itemId
 			c.typeEnv[appendName(moduleName, n)] = itemId;
 		}
 	} else if (c.store[c.typeEnv[n]] is datatype){
-	    c = addScopeError(c, "An adt named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", getOneFrom(c.store[itemId].ats));
+	    c = addScopeError(c, "An adt named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", getFirstFrom(c.store[itemId].ats));
 	} else if(c.store[c.typeEnv[n]] is \alias) {
 		c = addScopeError(c, "An alias named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", c.store[itemId].at);
 	}
@@ -709,7 +709,7 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 	
 	int addAliasAux() {
 		existingDefs = invert(c.definitions)[l];
-		if (!isEmpty(existingDefs)) return getOneFrom(existingDefs);
+		if (!isEmpty(existingDefs)) return getFirstFrom(existingDefs);
 
 		itemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
@@ -888,7 +888,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 		
 		// NOTE: This will pick one if we have multiple types for the same name, but we will have already issued
 		// a warning above...
-		keywordParamMap = ( pn : pt | pn <- keywordParams<0>, pt := getOneFrom(keywordParams[pn]<0>) );
+		keywordParamMap = ( pn : pt | pn <- keywordParams<0>, pt := getFirstFrom(keywordParams[pn]<0>) );
 		
 		constructorItem = constructor(n,rt,keywordParamMap,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
 		c.store[constructorItemId] = constructorItem;
@@ -1256,7 +1256,7 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
 	functionId = c.nextLoc;
 	existingDefs = invert(c.definitions)[l];
 	if (!isEmpty(existingDefs)) {
-		functionId = getOneFrom(existingDefs);
+		functionId = getFirstFrom(existingDefs);
 	} else {
 		c.nextLoc = c.nextLoc + 1;
 		c.store[functionId] = functionItem;

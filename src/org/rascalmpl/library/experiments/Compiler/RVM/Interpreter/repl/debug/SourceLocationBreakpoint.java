@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl;
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug;
 
 import java.io.PrintWriter;
 
@@ -12,9 +12,6 @@ public class SourceLocationBreakpoint extends BreakPoint {
 		super(id);
 		this.loc = loc;
 	}
-	
-	@Override
-	void reset() { }
 	
 	@Override
 	void println(PrintWriter stdout){

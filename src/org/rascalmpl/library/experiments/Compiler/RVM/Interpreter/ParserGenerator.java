@@ -99,7 +99,7 @@ public class ParserGenerator {
 
 			IRascalMonitor monitor = rex.getMonitor();
 
-			monitor.startJob("Compiled -- Loading parser generator, 2", 100, 139);
+			monitor.startJob("Compiled -- Loading interpreted parser generator, 2", 100, 139);
 			try {
 				evaluator.doImport(monitor, "lang::rascal::grammar::ParserGenerator");
 				evaluator.doImport(monitor, "lang::rascal::grammar::ConcreteSyntax");

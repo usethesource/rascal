@@ -12,143 +12,143 @@ Tijs van der Storm - CWI (storm@cwi.nl)
 module lang::javascript::saner::Syntax
 
 start syntax Source 
-  = source: Statement*
+  = source: Statement* statements
   ;
 
 syntax Statement 
-  = varDecl: VarDecl
+  = varDecl: VarDecl varDecl
   | empty: ";"
-  | block: "{" Statement* "}" 
-  | expression: Expression!function ";"
+  | block: "{" Statement* statements "}" 
+  | expression: Expression!function expression ";"
   
   // Block level things
-  | function: Function
-  | ifThen: "if" "(" Expression cond ")" Statement () !>> "else" 
-  | ifThenElse: "if" "(" Expression cond ")" Statement "else" Statement
-  | doWhile: "do" Statement "while" "(" Expression cond ")" ";"
-  | whileDo: "while" "(" Expression cond ")" Statement
-  | forDo: "for" "(" {Expression ","}* ";" {Expression ","}* conds ";" {Expression ","}* ops ")" Statement
-  | forDoDeclarations: "for" "(" "var" {VariableDeclarationNoIn ","}+ ";" {Expression ","}* conds ";" {Expression ","}* ops ")" Statement  
-  | forIn: "for" "(" Expression var "in" Expression obj ")" Statement
-  | forInDeclaration: "for" "(" "var" Id "in" Expression obj ")" Statement
-  | with: "with" "(" Expression scope ")" Statement
+  | function: Function function
+  | ifThen: "if" "(" Expression cond ")" Statement body () !>> "else" 
+  | ifThenElse: "if" "(" Expression cond ")" Statement body "else" Statement elseBody
+  | doWhile: "do" Statement body "while" "(" Expression cond ")" ";"
+  | whileDo: "while" "(" Expression cond ")" Statement body
+  | forDo: "for" "(" {Expression ","}* inits ";" {Expression ","}* conds ";" {Expression ","}* ops ")" Statement body
+  | forDoDeclarations: "for" "(" "var" {VariableDeclarationNoIn ","}+ decls ";" {Expression ","}* conds ";" {Expression ","}* ops ")" Statement body  
+  | forIn: "for" "(" Expression var "in" Expression obj ")" Statement body
+  | forInDeclaration: "for" "(" "var" Id var "in" Expression obj ")" Statement body
+  | with: "with" "(" Expression scope ")" Statement body
 
   // Non local control flow
-  | returnExp: "return"  Expression exp ";"
+  | returnExp: "return"  Expression result ";"
   | returnNoExp: "return" ";"
-  | throwExp: "throw" Expression expression ";"
+  | throwExp: "throw" Expression result ";"
   | throwNoExp: "throw" ";"
-  | continueLabel: "continue" Id ";"
+  | continueLabel: "continue" Id label ";"
   | continueNoLabel: "continue" ";"
-  | breakLabel: "break" Id ";"
+  | breakLabel: "break" Id label ";"
   | breakNoLabel: "break" ";"
   | debugger: "debugger" ";"
-  | labeled: Id ":" Statement
+  | labeled: Id label ":" Statement statement
  
   | switchCase: "switch" "(" Expression cond ")" "{" CaseClause* clauses "}"
-  | tryCatch: "try" Statement "catch" "(" Id ")" Statement
-  | tryFinally: "try" Statement "finally" Statement
-  | tryCatchFinally: "try" Statement "catch" "(" Id ")" Statement "finally" Statement
+  | tryCatch: "try" Statement body "catch" "(" Id var ")" Statement catchBody
+  | tryFinally: "try" Statement body "finally" Statement finallyBody
+  | tryCatchFinally: "try" Statement body "catch" "(" Id var ")" Statement catchBody "finally" Statement finallyBody
   ;
 
 syntax VariableDeclaration 
-  = init: Id id "=" Expression exp
+  = init: Id id "=" Expression init
   | nonInit: Id id
   ;
 
 syntax VariableDeclarationNoIn
-  = init: Id id "=" Expression!inn exp
+  = init: Id id "=" Expression!inn init
   | nonInit: Id id
   ;
 
 
 syntax CaseClause 
-  = caseOf: "case" Expression ":" Statement*
-  | defaultCase: "default" ":" Statement*
+  = caseOf: "case" Expression guard ":" Statement* body
+  | defaultCase: "default" ":" Statement* body
   ;
    
 syntax Function
-  = "function" Id name "(" {Id ","}* parameters ")" "{" Statement* "}"
-  | "function" "(" {Id ","}* parameters ")" "{" Statement* "}"
+  = "function" Id name "(" {Id ","}* parameters ")" "{" Statement* statements "}"
+  | "function" "(" {Id ","}* parameters ")" "{" Statement* statements "}"
   ;
 
 // Todo: Check associativity https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence
 // Todo: Right now you can put any type of Expression on the lhs of a variableAssignment like: 5 = y; We only want to do this for a few cases however
 // Rather than exclude everything other than those cases it would be much easier to whitelist the few that ARE allowed.
 syntax Expression
-  = array: "[" {Expression ","}*  ","? "]"
-  | objectDefinition:"{" {PropertyAssignment ","}* ","? "}"
+  = array: "[" {Expression ","}* elements  ","? "]"
+  | objectDefinition:"{" {PropertyAssignment ","}* properties ","? "}"
   | this: "this"
-  | var: Id 
-  | literal: Literal
-  | bracket \bracket: "(" Expression ")" 
-  | function: Function
-  > property: Expression "." Id 
-  | call: Expression "(" { Expression ","}* ")" 
-  | member: Expression "[" Expression "]" 
-  > new: "new" Expression
-  > postIncr: Expression "++"
-  | postDec: Expression "--"
-  > delete: "delete" Expression
-  | typeof: "typeof" Expression
-  | preIncr: "++" Expression
-  | preDecr: "--" Expression
-  | prefixPlus: "+" !>> [+=] Expression
-  | prefixMin: "-" !>> [\-=] Expression
-  | binNeg: "~" Expression
-  | not: "!" !>> [=] Expression
+  | var: Id name
+  | literal: Literal literal
+  | bracket \bracket: "(" Expression arg ")" 
+  | function: Function function
+  > property: Expression obj "." Id field 
+  | call: Expression func "(" { Expression ","}* args ")" 
+  | member: Expression obj "[" Expression field "]" 
+  > new: "new" Expression cons
+  > postIncr: Expression arg "++"
+  | postDec: Expression arg "--"
+  > delete: "delete" Expression arg
+  | typeof: "typeof" Expression arg
+  | preIncr: "++" Expression arg
+  | preDecr: "--" Expression arg
+  | prefixPlus: "+" !>> [+=] Expression arg
+  | prefixMin: "-" !>> [\-=] Expression arg
+  | binNeg: "~" Expression arg
+  | not: "!" !>> [=] Expression arg
   >
   left (
-      mul: Expression "*" !>> [*=] Expression
-    | div: Expression "/" !>> [/=] Expression
-    | rem: Expression "%" !>> [%=] Expression
+      mul: Expression lhs "*" !>> [*=] Expression rhs
+    | div: Expression lhs "/" !>> [/=] Expression rhs
+    | rem: Expression lhs "%" !>> [%=] Expression rhs
   )
   >
   left (
-      add: Expression "+" !>> [+=]  Expression
-    | sub: Expression "-" !>> [\-=] Expression
+      add: Expression lhs "+" !>> [+=]  Expression rhs
+    | sub: Expression lhs "-" !>> [\-=] Expression rhs
   )
   > // right???
   left (
-      shl: Expression "\<\<" Expression
-    | shr: Expression "\>\>" !>> [\>] Expression
-    | shrr: Expression "\>\>\>" Expression
+      shl: Expression lhs "\<\<" Expression rhs
+    | shr: Expression lhs "\>\>" !>> [\>] Expression rhs
+    | shrr: Expression lhs "\>\>\>" Expression rhs
   )
   >
   non-assoc (
-      lt: Expression "\<" Expression
-    | leq: Expression "\<=" Expression
-    | gt: Expression "\>" Expression
-    | geq: Expression "\>=" Expression
-    | instanceof: Expression "instanceof" Expression
-    | inn: Expression "in" Expression
+      lt: Expression lhs "\<" Expression rhs
+    | leq: Expression lhs "\<=" Expression rhs
+    | gt: Expression lhs "\>" Expression rhs
+    | geq: Expression lhs "\>=" Expression rhs
+    | instanceof: Expression lhs "instanceof" Expression rhs
+    | inn: Expression lhs "in" Expression rhs
   )
   >
   right (
-      eqq: Expression "===" Expression
-    | neqq: Expression "!==" Expression
-    | eq: Expression "==" !>> [=] Expression 
-    | neq: Expression "!=" !>> [=] Expression
+      eqq: Expression lhs "===" Expression rhs
+    | neqq: Expression lhs "!==" Expression rhs
+    | eq: Expression lhs "==" !>> [=] Expression rhs
+    | neq: Expression lhs "!=" !>> [=] Expression rhs
   )
-  > right binAnd: Expression "&" !>> [&=] Expression
-  > right binXor: Expression "^" !>> [=] Expression
-  > right binOr: Expression "|" !>> [|=] Expression
-  > left and: Expression "&&" Expression
-  > left or: Expression "||" Expression
-  > cond: Expression!cond "?" Expression!cond ":" Expression
+  > right binAnd: Expression lhs "&" !>> [&=] Expression rhs
+  > right binXor: Expression lhs "^" !>> [=] Expression rhs
+  > right binOr: Expression lhs "|" !>> [|=] Expression rhs
+  > left and: Expression lhs "&&" Expression rhs
+  > left or: Expression lhs "||" Expression rhs
+  > cond: Expression!cond cond "?" Expression!cond then ":" Expression elseExp
   > right (
-      assign: Expression "=" !>> ([=][=]?) Expression
-    | assignMul: Expression "*=" Expression
-    | assignDiv: Expression "/=" Expression
-    | assignRem: Expression "%=" Expression
-    | assignAdd: Expression "+=" Expression
-    | assignSub: Expression "-=" Expression
-    | assignShl: Expression "\<\<=" Expression
-    | assignShr: Expression "\>\>=" Expression
-    | assignShrr: Expression "\>\>\>=" Expression
-    | assignBinAnd: Expression "&=" Expression
-    | assignBinXor: Expression "^=" Expression
-    | assignBinOr: Expression "|=" Expression
+      assign: Expression lhs "=" !>> ([=][=]?) Expression rhs
+    | assignMul: Expression lhs "*=" Expression rhs
+    | assignDiv: Expression lhs "/=" Expression rhs
+    | assignRem: Expression lhs "%=" Expression rhs
+    | assignAdd: Expression lhs "+=" Expression rhs
+    | assignSub: Expression lhs "-=" Expression rhs
+    | assignShl: Expression lhs "\<\<=" Expression rhs
+    | assignShr: Expression lhs "\>\>=" Expression rhs
+    | assignShrr: Expression lhs "\>\>\>=" Expression rhs
+    | assignBinAnd: Expression lhs "&=" Expression rhs
+    | assignBinXor: Expression lhs "^=" Expression rhs
+    | assignBinOr: Expression lhs "|=" Expression rhs
   )
   ;
   
@@ -159,34 +159,34 @@ syntax VarDecl
   
 
 syntax PropertyName
- = Id
- | String
- | Numeric
+ = id: Id name
+ | string: String key
+ | numeric: Numeric numeric
  ;
 
 syntax PropertyAssignment
-  = property: PropertyName ":" Expression
-  | "get" PropertyName "(" ")" "{" Statement* "}"
-  | "set" PropertyName "(" Id ")" "{" Statement* "}"
+  = property: PropertyName name ":" Expression value
+  | get: "get" PropertyName name "(" ")" "{" Statement* body "}"
+  | \set: "set" PropertyName name "(" Id x ")" "{" Statement* body "}"
   ;
 
 
 syntax Literal
- = "null"
- | Boolean
- | Numeric
- | String
- | RegularExpression
+ = null: "null"
+ | boolean: Boolean bool
+ | numeric: Numeric num
+ | string: String str
+ | regexp: RegularExpression regexp
  ;
 
 syntax Boolean
-  = "true"
-  | "false"
+  = t: "true"
+  | f: "false"
   ;
 
 syntax Numeric
-  = [a-zA-Z$_0-9] !<< Decimal
-  | [a-zA-Z$_0-9] !<< HexInteger
+  = decimal: [a-zA-Z$_0-9] !<< Decimal decimal
+  | hexadecimal: [a-zA-Z$_0-9] !<< HexInteger hexInt
   ;
 
 lexical Decimal
@@ -267,7 +267,7 @@ lexical HexEscapeSequence
   = [x] HexDigit HexDigit
   ;
 
-syntax UnicodeEscapeSequence
+lexical UnicodeEscapeSequence
   = "u" HexDigit HexDigit HexDigit HexDigit
   ;
 

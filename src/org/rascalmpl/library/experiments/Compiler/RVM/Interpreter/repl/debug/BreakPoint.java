@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl;
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug;
 
 import java.io.PrintWriter;
 
@@ -49,10 +49,11 @@ public abstract class BreakPoint {
 		return lino == currentSrc.getBeginLine();
 	}
 	
-	abstract void println(PrintWriter stdout);
-	abstract boolean matchOnObserve(Frame frame);
-	abstract boolean matchOnEnter(Frame frame);
-	abstract boolean matchOnLeave(Frame frame);
+    void println(PrintWriter stdout) { stdout.println("println should be redefined"); }
+    
+	boolean matchOnObserve(Frame frame) { return false; }
 	
-	abstract void reset();
+	boolean matchOnEnter(Frame frame) { return false; }
+	
+	boolean matchOnLeave(Frame frame) { return false; }
 }

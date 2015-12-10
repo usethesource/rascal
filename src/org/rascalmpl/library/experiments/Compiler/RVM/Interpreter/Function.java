@@ -72,7 +72,7 @@ public class Function implements Serializable {
 
 	boolean isVarArgs = false;
 
-	ISourceLocation src;			
+	public ISourceLocation src;			
 	IMap localNames;
 	
 	// transient fields 

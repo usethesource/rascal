@@ -30,6 +30,7 @@ import org.rascalmpl.interpreter.load.SourceLocationListContributor;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
@@ -154,6 +155,9 @@ public class Reflective {
 	      try (Writer wrt = new LimitedWriter(out, CHAR_LIMIT)) {
 	    	  singleLinePrettyPrinter.write(value, wrt);
 	      }
+	      catch (IOLimitReachedException e) {
+	          // ignore since this is what we wanted
+	      }
 	    }
 	    else {
 	    	out.print(type.toString());
@@ -161,6 +165,9 @@ public class Reflective {
 	    	// limit both the lines and the characters
 	    	try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out,LINE_LIMIT), CHAR_LIMIT)) {
 	    		indentedPrettyPrinter.write(value, wrt);
+	    	}
+	    	catch (IOLimitReachedException e) {
+	    	    // ignore since this is what we wanted
 	    	}
 	    }
 	    out.flush();
@@ -310,6 +317,14 @@ public class Reflective {
 		return values.string(idiff("", oldVal, newVal));
 	}
 	
+	private String preview(IValue v){
+		String s = v.toString();
+		if(s.length() < 80){
+			return s;
+		}
+		return s.substring(0, 76) + " ...";
+	}
+	
 	protected String idiff(String indent, IValue oldVal, IValue newVal){
 		
 		if(!oldVal.getType().equals(newVal.getType())){
@@ -324,7 +339,7 @@ public class Reflective {
 			String ldiff = (ov.length() == nv.length()) ? "" : ("string length " + ov.length() + " vs " +  nv.length() + "; ");
 			for(int i = 0; i < ov.length() && i < nv.length(); i++){
 				if(ov.charAt(i) != nv.charAt(i)){
-					return indent + ldiff + "diff at index " + i + ": " + ov.charAt(i) + " vs " + nv.charAt(i) + "\n" +
+					return indent + ldiff + "diff at index " + i + " in " + preview(ov) + ": " + ov.charAt(i) + " vs " + nv.charAt(i) + "\n" +
 						   indent + "old: " + ov + "\n" +
 						   indent + "new: " + nv;
 				}
@@ -336,7 +351,8 @@ public class Reflective {
 			String ldiff = (ov.length() == nv.length()) ? "" : ("size " + ov.length() + " vs " +  nv.length() + "; ");
 			for(int i = 0; i < ov.length() && i < nv.length(); i++){
 				if(!ov.get(i).equals(nv.get(i))){
-					return indent + ldiff + "diff at list index " + i + ":\n" + idiff(indent + " ", ov.get(i), nv.get(i));
+					return indent + ldiff + "diff at index " + i + " in list " + preview(ov) + ":\n"
+				                  +  idiff(indent + " ", ov.get(i), nv.get(i));
 				}
 			}
 		}
@@ -345,7 +361,8 @@ public class Reflective {
 			ITuple nv = (ITuple) newVal;
 			for(int i = 0; i < ov.arity(); i++){
 				if(!ov.get(i).equals(nv.get(i))){
-					return indent + "diff at tuple index " + i + ":\n" + idiff(indent + " ", ov.get(i), nv.get(i));
+					return indent + "diff at index " + i + " in tuple " + preview(ov) + ":\n"
+				                  + idiff(indent + " ", ov.get(i), nv.get(i));
 				}
 			}
 		}
@@ -355,10 +372,10 @@ public class Reflective {
 			String ldiff = (ov.size() == nv.size()) ? "" : ("size " + ov.size() + " vs " +  nv.size() + "; ");
 			
 			ISet diff1 = ov.subtract(nv);
-			String msg1 = diff1.size() == 0 ? "" : "only in old: " + diff1 + "; ";
+			String msg1 = diff1.size() == 0 ? "" : indent + "only in old set: " + diff1 + "\n"; //"; ";
 			ISet diff2 = nv.subtract(ov);
-			String msg2 = diff2.size() == 0 ? "" : "only in new: " + diff2;
-			return ldiff + msg1 + msg2;
+			String msg2 = diff2.size() == 0 ? "" : indent + "only in new set: " + diff2;
+			return ldiff + msg1 + msg2 + "\n";
 		}
 		
 		if(oldVal.getType().isMap()){
@@ -381,13 +398,13 @@ public class Reflective {
 					continue;
 				}
 				if(!ov.get(key).equals(nv.get(key))){
-					diffVal += " key " + key + ":\n" + idiff(indent + " ", ov.get(key), nv.get(key));
+					diffVal += " value for key " + key + " in map " + preview(ov) + ":\n" + idiff(indent + " ", ov.get(key), nv.get(key));
 				}
 			}
 				
-			String msg1 = onlyInOld.length() == 0 ? "" : "keys only in old:" + onlyInOld + "; ";
-			String msg2 = onlyInNew.length() == 0 ? "" : "keys only in new:" + onlyInNew + "; ";
-			String msg3 = diffVal.length() == 0 ? "" : "diff at" + diffVal + "; ";
+			String msg1 = onlyInOld.length() == 0 ? "" : "keys only in old map:" + onlyInOld + "; ";
+			String msg2 = onlyInNew.length() == 0 ? "" : "keys only in new map:" + onlyInNew + "; ";
+			String msg3 = diffVal.length() == 0 ? "" : "diff at" + diffVal; // + "; ";
 			return indent + ldiff + msg1 + msg2 + msg3;
 		}
 		
@@ -406,7 +423,12 @@ public class Reflective {
 			}
 			for(int i = 0; i < oldArity; i++){
 				if(!ov.get(i).equals(nv.get(i))){
-					return indent + "diff at arg " + i + " for function symbol " + oldName + ":\n" + idiff(indent + " ", ov.get(i), nv.get(i));
+					String argId = Integer.toString(i);
+					if(ov instanceof IConstructor){
+						IConstructor cov = (IConstructor) ov;
+						argId = cov.getChildrenTypes().getFieldName(i);
+					}
+					return indent + "diff at arg " + argId + " for function symbol " + oldName + ": " + preview(ov) + "\n" + idiff(indent + " ", ov.get(i), nv.get(i));
 				}
 			}
 		}

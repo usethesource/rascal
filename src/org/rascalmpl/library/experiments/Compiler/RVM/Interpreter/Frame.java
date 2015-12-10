@@ -284,6 +284,9 @@ public class Frame {
 			int varPos = ((IInteger) entry.getKey()).intValue();
 			Object v = stack[varPos];
 			if(v != null && !varName.equals("map_of_default_values")){
+				    if(varName.matches("[0-9]+")){
+				    	varName = "arg " + varName;
+				    }
 					stdout.println("\t" + varName + ": " + v);
 			}
 		}

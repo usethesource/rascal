@@ -70,7 +70,7 @@ public class Alternative1 extends SGTDBF<IConstructor, ITree, ISourceLocation> i
 	}
 	
 	public ITree executeParser(){
-		return parse(NONTERMINAL_START_S, null, "abd".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+		return parse(NONTERMINAL_START_S, null, "abd".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 	}
 	
 	public IValue getExpectedResult() throws IOException{
