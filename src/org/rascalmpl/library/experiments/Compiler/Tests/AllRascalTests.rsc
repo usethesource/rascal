@@ -240,7 +240,7 @@ lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg){
        }
       }
       try {
-          rascalc("--binDir <pcfg.binDir> <prog>");
+          rascalc("--binDir <pcfg.binDir> --libPath <pcfg.libPath> <prog>");
 	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, pcfg, recompile=false, testsuite=true)){
 	         s = makeTestSummary(test_results);
 	         println("TESTING <prog>: <s>");
@@ -271,7 +271,7 @@ value allRascalTests(){
   partial_results = [];
   all_results = [];
   
-  pcfg = pathConfig(binDir=|home:///cbin|);
+  pcfg = pathConfig(binDir=|home:///c1bin|, libPath=[|home:///c1bin|]);
   all_results += runTests(functionalityTests, "lang::rascal::tests::functionality", pcfg);
   all_results += runTests(basicTests, "lang::rascal::tests::basic", pcfg);
   all_results += runTests(libraryTests, "lang::rascal::tests::library", pcfg);

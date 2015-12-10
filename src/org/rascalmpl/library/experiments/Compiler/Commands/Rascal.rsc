@@ -157,7 +157,7 @@ value rascal(str commandLine) {
         print(("" | it + " " | _ <- [0..l.begin.column]));
         println(("" | it + "^" | _ <- [l.begin.column..l.end.column]));
         print(("" | it + " " | _ <- [0..l.begin.column]));
-        println("around this point");
+        println("| around this point");
         return 1;
     }
     catch e: {
