@@ -15,21 +15,21 @@ public class SourceLocationBreakpoint extends BreakPoint {
 	
 	@Override
 	void println(PrintWriter stdout){
-		stdout.println(id + "\t" + isEnabled() + "\t" + loc);
+		stdout.println(id + "\t" + isEnabled() + "Line\t" + ignore + "\t" + loc);
 	}
 	
 	@Override
 	public boolean matchOnObserve(Frame frame) {
-		return containedIn(loc, frame.src);
+		return enabled && ignoreOrBreak(containedIn(loc, frame.src));
 	}
 
 	@Override
 	public boolean matchOnEnter(Frame frame) {
-		return containedIn(loc, frame.src);
+		return matchOnObserve(frame);
 	}
 
 	@Override
 	public boolean matchOnLeave(Frame frame) {
-		return containedIn(loc, frame.src);
+		return matchOnObserve(frame);
 	}
 }

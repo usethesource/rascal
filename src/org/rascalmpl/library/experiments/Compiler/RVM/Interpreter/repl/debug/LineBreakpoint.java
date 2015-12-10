@@ -16,21 +16,21 @@ public class LineBreakpoint extends BreakPoint {
 	
 	@Override
 	void println(PrintWriter stdout){
-		stdout.println(id + "\t" + isEnabled() + "\tLine\t" + path + ":" + lino);
+		stdout.println(id + "\t" + isEnabled() + "\tLine\t" + ignore + "\t" + path + ":" + lino);
 	}
 	
 	@Override
 	public boolean matchOnObserve(Frame frame) {
-		return shouldBreakAt(path, lino, frame.src);
+		return enabled && ignoreOrBreak(shouldBreakAt(path, lino, frame.src));
 	}
 
 	@Override
 	public boolean matchOnEnter(Frame frame) {
-		return shouldBreakAt(path, lino, frame.src);
+		return matchOnObserve(frame);
 	}
 
 	@Override
 	public boolean matchOnLeave(Frame frame) {
-		return shouldBreakAt(path, lino, frame.src);
+		return matchOnObserve(frame);
 	}
 }

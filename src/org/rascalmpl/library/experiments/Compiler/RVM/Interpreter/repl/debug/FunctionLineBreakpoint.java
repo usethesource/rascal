@@ -16,13 +16,12 @@ public class FunctionLineBreakpoint extends BreakPoint {
 	
 	@Override
 	void println(PrintWriter stdout){
-		stdout.println(id + "\t" + isEnabled() + "\tFunctionLine\t" + functionName + ":" + lino);
+		stdout.println(id + "\t" + isEnabled() + "\tFunctionLine\t" + ignore + "\t" + functionName + ":" + lino);
 	}
 	
 	@Override
 	public boolean matchOnObserve(Frame frame) {		
-		return frame.function.getPrintableName().equals(functionName) &&
-		       shouldBreakAt(lino, frame.src);
+		return enabled && ignoreOrBreak(frame.function.getPrintableName().equals(functionName) && shouldBreakAt(lino, frame.src));
 	}
 
 	@Override

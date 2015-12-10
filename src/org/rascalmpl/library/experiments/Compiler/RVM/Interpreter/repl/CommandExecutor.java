@@ -591,8 +591,19 @@ public class CommandExecutor {
 		case "clear":
 			debugObserver.getBreakPointManager().clearDirective(words);
 			break;
-		}
 		
+		case "ignore":
+			debugObserver.getBreakPointManager().ignoreDirective(words);
+			break;
+			
+		case "enable":
+			debugObserver.getBreakPointManager().enableDirective(words);
+			break;
+		
+		case "disable":
+			debugObserver.getBreakPointManager().disableDirective(words);
+			break;
+		}
 		stdout.flush();
 		return null;
 	}	

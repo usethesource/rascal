@@ -8,6 +8,7 @@ import org.rascalmpl.value.ISourceLocation;
 public abstract class BreakPoint {
 	protected boolean enabled;
 	protected int id;
+	protected int ignore = 0;
 	
 	public BreakPoint(int id){
 		this.id = id;
@@ -20,9 +21,14 @@ public abstract class BreakPoint {
 		this.id = id;
 	}
 	
+	void setIgnore(int ignore){
+		this.ignore = ignore;
+	}
+	
 	boolean isEnabled(){
 		return enabled;
 	}
+	
 	void setEnabled(boolean enabled){
 		this.enabled = enabled;
 	}
@@ -41,12 +47,24 @@ public abstract class BreakPoint {
 		}
 		return false;
 	}
+	
 	boolean shouldBreakAt(String path, int lino, ISourceLocation currentSrc){
 		return path.equals(currentSrc.getPath()) && currentSrc.getBeginLine() == lino;
 	}
 	
 	boolean shouldBreakAt(int lino, ISourceLocation currentSrc){
 		return lino == currentSrc.getBeginLine();
+	}
+	
+	boolean ignoreOrBreak(boolean breakCondition){
+		if(breakCondition){
+			if(ignore == 0){
+				return true;
+			}
+			ignore--;
+			return false;
+		}
+		return false;
 	}
 	
     void println(PrintWriter stdout) { stdout.println("println should be redefined"); }
