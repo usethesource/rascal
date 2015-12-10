@@ -20,6 +20,7 @@ import experiments::Compiler::Compile;
 import experiments::Compiler::Execute;
 import experiments::Compiler::Commands::Rascalc;
 import experiments::Compiler::Commands::Rascal;
+import experiments::Compiler::Commands::RascalTests;
 import util::Reflective;
 //import experiments::Compiler::Inspect;
 
@@ -36,8 +37,13 @@ value execute(str moduleName, PathConfig pcfg, map[str,value] keywordArguments =
      =
      experiments::Compiler::Execute::execute(moduleName, pcfg, keywordArguments = keywordArguments, debug=debug, testsuite=testsuite, recompile=recompile, profile=profile, trackCalls= trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize, verbose = verbose);
 
+value rascalTests(list[str] qualifiedModuleNames, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=false, bool verbose = false)
+     =
+     experiments::Compiler::Execute::rascalTests(qualifiedModuleNames, pcfg, keywordArguments = keywordArguments, debug=debug, recompile=recompile, profile=profile, trackCalls= trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize, verbose = verbose);
 
 int rascalc(str commandLine) = experiments::Compiler::Commands::Rascalc::rascalc(commandLine);
 
 value rascal(str commandLine) = experiments::Compiler::Commands::Rascal::rascal(commandLine);
+
+value rascalTests(str commandLine) = experiments::Compiler::Commands::RascalTests::rascalTests(commandLine);
      
