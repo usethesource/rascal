@@ -4,9 +4,12 @@ import String;
 import IO;
 import ValueIO;
 import ParseTree;
+import Message;
 import util::Reflective;
 import experiments::Compiler::Compile;
 import experiments::Compiler::Execute;
+
+import experiments::Compiler::RVM::AST;
 
 layout L = [\ \t]* !>> [\ \t];
 
@@ -162,18 +165,26 @@ int rascalc(str commandLine) {
             println("libPath: <pcfg.libPath>");
             println("binDir: <pcfg.binDir>");
            
+            set[Message] messages = {};
             for (m <- t.modulesToCompile) {
                 moduleName = getModuleName(m);
                
                 if(nolinking){
                    println("compiling: <moduleName>");
-                   compile(moduleName, pcfg, verbose = verbose);
+                   RVMModule rvmModule = compile(moduleName, pcfg, verbose = verbose);
+                   messages += rvmModule.messages;
                 } else {
                    println("compiling and linking: <moduleName>");
-                   compileAndLink(moduleName, pcfg, useJVM = useJVM, serialize=true, verbose = verbose);
+                   RVMProgram rvmProgram = compileAndLink(moduleName, pcfg, useJVM = useJVM, serialize=true, verbose = verbose);
+                   messages += rvmProgram.main_module.messages;
                 }
             }
-            return 0;
+            
+            for (Message msg <- messages) {
+                println(msg);
+            }
+   
+            return error(_,_) <- messages ? 2 : 0;
         }
         else {
             printHelp();
@@ -186,7 +197,7 @@ int rascalc(str commandLine) {
         print(("" | it + " " | _ <- [0..l.begin.column]));
         println(("" | it + "^" | _ <- [l.begin.column..l.end.column]));
         print(("" | it + " " | _ <- [0..l.begin.column]));
-        println("around this point");
+        println("| around this point");
         return 1;
     }
     catch e: {

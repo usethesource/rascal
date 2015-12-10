@@ -306,6 +306,27 @@ value execute(str qualifiedModuleName, PathConfig pcfg, map[str,value] keywordAr
    return v;
 }
 
+value rascalTests(list[str] qualifiedModuleNames, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=false, bool verbose = false){
+   lrel[loc,int,str] all_test_results = [];
+   value v;
+   
+   for(qualifiedModuleName <- qualifiedModuleNames){
+       if(!recompile && <true, compressed> := RVMExecutableCompressedReadLoc(qualifiedModuleName, pcfg)){
+           if(verbose) println("Using <compressed>");
+           v = executeProgram(compressed, keywordArguments, debug, debugRVM, true, profile, trackCalls, coverage, useJVM);
+       } else {
+           mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose);
+           v = execute(mainModule, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=true, profile=profile, verbose=verbose, trackCalls=trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize);
+       }
+       if(lrel[loc,int,str] test_results := v){
+          all_test_results += test_results;
+       } else {
+          throw "cannot extract test results for <qualifiedModuleName>: <v>";
+       }
+   }
+   return printTestReport(all_test_results);
+}
+
 RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool useJVM=false, bool serialize=false, bool verbose = false){
    startTime = cpuTime();
    mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose);
