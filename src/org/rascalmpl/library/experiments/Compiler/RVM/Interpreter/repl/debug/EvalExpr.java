@@ -71,13 +71,14 @@ public class EvalExpr {
 				if(matcher.end("subscript1") > 0){
 					base = subscript(base, baseValue(matcher.group("subscript1"), currentFrame));
 				}
-				if(matcher.end("field1") > 0){
+				else if(matcher.end("field1") > 0){
 					base = select(base, matcher.group("field1"));
 				}
+				
 				if(matcher.end("subscript2") > 0){
 					base = subscript(base, baseValue(matcher.group("subscript2"), currentFrame));
 				}
-				if(matcher.end("field2") > 0){
+				else if(matcher.end("field2") > 0){
 					base = select(base, matcher.group("field2"));
 				}
 				return base;

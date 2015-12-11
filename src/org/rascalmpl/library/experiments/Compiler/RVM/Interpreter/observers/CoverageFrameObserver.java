@@ -27,12 +27,13 @@ public class CoverageFrameObserver implements IFrameObserver {
 	}
 	
 	@Override
-	public void observe(Frame frame) {
+	public boolean observe(Frame frame) {
 		if(collecting){
 			//System.err.println("observe: " + frame.src);
 			data.add(frame.src);
 			//System.err.println("data:"  + data);
 		}
+		return true;
 	}
 	
 	@Override

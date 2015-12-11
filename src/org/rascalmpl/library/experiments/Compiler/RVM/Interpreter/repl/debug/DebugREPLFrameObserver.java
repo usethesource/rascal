@@ -45,7 +45,7 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	}
 	
 	@Override
-	public void observe(Frame frame) {
+	public boolean observe(Frame frame) {
 		try {
 			if(breakPointManager.matchOnObserve(frame)){
 				new DebugREPL(frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
@@ -53,10 +53,11 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return breakPointManager.shouldContinue();
 	}
 	
 	@Override
-	public void enter(Frame frame) {
+	public boolean enter(Frame frame) {
 		try {
 			if(breakPointManager.matchOnEnter(frame)){
 				new DebugREPL(frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
@@ -64,10 +65,11 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return breakPointManager.shouldContinue();
 	}
 	
 	@Override
-	public void leave(Frame frame, Object rval) {
+	public boolean leave(Frame frame, Object rval) {
 		try {
 			if(breakPointManager.matchOnLeave(frame, rval)){
 				new DebugREPL(frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
@@ -75,6 +77,7 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return breakPointManager.shouldContinue();
 	}
 	
 }
