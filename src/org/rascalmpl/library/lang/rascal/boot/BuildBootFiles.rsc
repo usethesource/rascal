@@ -106,7 +106,7 @@ void report(str msg){
 
 // Where happiness begins
 
-value main(){
+value build(){
      BOOTSTDLIB = BOOT + "stdlib";
      pcfg = pathConfig(srcPath=[|std:///|], binDir=BOOTSTDLIB, libPath=[BOOTSTDLIB]);
      
@@ -137,3 +137,5 @@ value main(){
      report("Commands written to <SHELLSCRIPT>");
      return true;
 }
+
+value main() = build();

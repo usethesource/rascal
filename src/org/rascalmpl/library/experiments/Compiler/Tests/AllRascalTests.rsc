@@ -272,13 +272,13 @@ value allRascalTests(){
   all_results = [];
   
   pcfg = pathConfig(binDir=|home:///c1bin|, libPath=[|home:///c1bin|]);
-  all_results += runTests(functionalityTests, "lang::rascal::tests::functionality", pcfg);
+  //all_results += runTests(functionalityTests, "lang::rascal::tests::functionality", pcfg);
   all_results += runTests(basicTests, "lang::rascal::tests::basic", pcfg);
-  all_results += runTests(libraryTests, "lang::rascal::tests::library", pcfg);
-  all_results += runTests(importTests, "lang::rascal::tests::imports", pcfg);
-  all_results += runTests(extendTests, "lang::rascal::tests::extends", pcfg);  
-  all_results += runTests(files_with_tests, "", pcfg);
-  all_results += runTests(typeTests, "lang::rascal::tests::types", pcfg);
+  //all_results += runTests(libraryTests, "lang::rascal::tests::library", pcfg);
+  //all_results += runTests(importTests, "lang::rascal::tests::imports", pcfg);
+  //all_results += runTests(extendTests, "lang::rascal::tests::extends", pcfg);  
+  //all_results += runTests(files_with_tests, "", pcfg);
+  //all_results += runTests(typeTests, "lang::rascal::tests::types", pcfg);
    
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");
