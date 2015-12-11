@@ -38,6 +38,8 @@ public class BreakPointManager {
 	private List<BreakPoint> breakpoints;
 	int uid;
 	
+	private boolean shouldQuit= false;
+	
 	DEBUG_MODE mode = DEBUG_MODE.BREAK;
 	
 	private final String FAINT_ON = Ansi.ansi().a(Attribute.INTENSITY_FAINT).toString();
@@ -77,7 +79,7 @@ public class BreakPointManager {
 	private boolean isBlackListed(Frame frame){
 		return frame == null || frame.src.getPath().equals(CommandExecutor.consoleInputPath) ||
 			   frame.function.getPrintableName().endsWith("_init") ||
-			   frame.src.getPath().equals(CommandExecutor.muLibraryPath);
+			   frame.src.getPath().endsWith(".mu");
 	}
 	
 	void setStdOut(PrintWriter stdout){
@@ -134,6 +136,14 @@ public class BreakPointManager {
 			}
 		}
 		return null;
+	}
+	
+	void requestQuit(){
+		shouldQuit = true;
+	}
+	
+	boolean shouldContinue(){
+		return !shouldQuit;
 	}
 	
 	/****************************************************************/
@@ -411,14 +421,19 @@ public class BreakPointManager {
 		
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		try {
+			String[] lines;
 			ISourceLocation srcFile = vf.sourceLocation(breakpointSrc.getScheme(), "", breakpointSrc.getPath());
-			ITree parseTree = new RascalParser().parse(Parser.START_MODULE, srcFile.getURI(), getResourceContent(srcFile), new NoActionExecutor() , new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
-			
-			StringWriter sw = new StringWriter();
-			TreeAdapter.unparseWithFocus(parseTree, sw, breakpointSrc);
-			
-			String[] lines = sw.toString().split("\n");
-			
+			if(breakpointSrc.getPath().endsWith(".rsc")){
+				//A Rascal source file, parse and highlight
+				ITree parseTree = new RascalParser().parse(Parser.START_MODULE, srcFile.getURI(), getResourceContent(srcFile), new NoActionExecutor() , new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+				StringWriter sw = new StringWriter();
+				TreeAdapter.unparseWithFocus(parseTree, sw, breakpointSrc);
+				lines = sw.toString().split("\n");
+			} else {
+				// Something else (muRascal), no highlighting
+				lines = getResourceContent(srcFile).toString().split("\n");
+			}
+
 			for(int lino = windowBegin; lino <= windowEnd; lino++){
 				stdout.println(FAINT_ON + String.format("%4d", lino) + FAINT_OFF + listingIndent + lines[lino - 1]);
 			}

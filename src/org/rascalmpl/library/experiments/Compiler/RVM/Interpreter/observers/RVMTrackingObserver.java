@@ -14,7 +14,7 @@ public class RVMTrackingObserver implements IFrameObserver {
 	}
 
 	@Override
-	public void observeRVM(RVM rvm, Frame frame, int pc, Object[] stack, int sp) {
+	public boolean observeRVM(RVM rvm, Frame frame, int pc, Object[] stack, int sp) {
 		int startpc = pc - 1;
 		stdout.printf("[%03d] %s, scope %d\n", startpc, frame.function.getName(), frame.scopeId);
 		
@@ -23,6 +23,7 @@ public class RVMTrackingObserver implements IFrameObserver {
 		}
 		stdout.printf("%5s %s\n" , "", frame.function.codeblock.toString(startpc));
 		stdout.flush();
+		return true;
 	}
 
 }

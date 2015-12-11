@@ -122,6 +122,7 @@ public class DebugREPL extends BaseREPL{
 			throw new InterruptedException();
 			
 		case "q": case "quit":
+			breakPointManager.requestQuit();
 			stop();
 			throw new InterruptedException("quit");
 			
@@ -159,11 +160,12 @@ public class DebugREPL extends BaseREPL{
 		
 		case "p": case "print":
 			stdout.println(EvalExpr.eval(words[1], currentFrame));
-		break;
+			break;
 		
 		case "i": case "ignore":
 			breakPointManager.ignoreDirective(words);
 			break;
+			
 		case "enable":
 			breakPointManager.enableDirective(words);
 			break;
@@ -188,31 +190,31 @@ public class DebugREPL extends BaseREPL{
 	
 	private void printHelp(){
 		String[] lines = {
-			"h(elp)          this help text",
-			"u(p)            move up to newer call frame",
-			"d(own)          move down to older call frame",
-			"v(ars)          show values of local variables",
-			"w(here)         print stack trace",
-			"n(ext)          execute until next break point",
-			"s(tep)          execute but stop at the first possible occasion",
-			"r(eturn)        execute until the current function’s return is encountered",
-			"l(isting)       print lines around current breakpoint",
-			"b(reak)         manage break points:",
-			"                b         list current break points",
-			"                b <lino>  set breakpoint at line <lino> in current module",
-			"                b <module> <lino>",
-			"                          set breakpoint at line <lino> in <module>",
-			"                b <name>  set breakpoint at start of function <name>",
-			"c(ontinue)      continue execution until a breakpoint is encountered",
-			"cl(ear) <bpnoa> clear breakpoints <bpnos> (empty list clears all)",
-			"i(gnore) <bpno> <n>",
-			"                ignore breakpoint <bpno> <n> times",
-			"<empty line>    repeat previous command",
-			"p(rint) <expr>  print value of <expr>",
-			"<expr>          print value of <expr>",
-			"                (use p <expr> for variables that overlap with one of the above commands)",
-			"enable <bnpos>  enable breakpoints <bpnos> (empty list enables all)",
-			"disable <bpnos> disable breakpoints <bpnos> (empty list disables all)"
+			"h(elp)           This help text",
+			"u(p)             Move up to newer call frame",
+			"d(own)           Move down to older call frame",
+			"v(ars)           Show values of local variables",
+			"w(here)          Print stack trace",
+			"n(ext)           Execute until next break point",
+			"s(tep)           Execute but stop at the first possible occasion",
+			"r(eturn)         Execute until the current function’s return is encountered",
+			"l(isting)        Print lines around current breakpoint",
+			"b(reak)          Manage break points:",
+			"                 b          List current break points",
+			"                 b <lino>   Set breakpoint at line <lino> in current module",
+			"                 b <module> <lino>",
+			"                            Set breakpoint at line <lino> in <module>",
+			"                 b <name>   Set breakpoint at start of function <name>",
+			"c(ontinue)       Continue execution until a breakpoint is encountered",
+			"cl(ear) <bpnos>  Clear breakpoints <bpnos> (empty list clears all)",
+			"i(gnore) <bpno> <count>",
+			"                 Ignore breakpoint <bpno> for <count> times",
+			"<empty line>     Repeat previous command",
+			"p(rint) <expr>   Print value of <expr>",
+			"<expr>           Print value of <expr>",
+			"                 (use p <expr> for variables that overlap with one of the above commands)",
+			"enable <bnpos>   Enable breakpoints <bpnos> (empty list enables all)",
+			"disable <bpnos>  Disable breakpoints <bpnos> (empty list disables all)"
 		};
 		for(String line : lines){
 			stdout.println(line);

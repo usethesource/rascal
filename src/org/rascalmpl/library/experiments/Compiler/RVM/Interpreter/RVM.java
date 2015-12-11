@@ -1137,7 +1137,9 @@ public class RVM /*implements java.io.Serializable*/ {
 										
 				case Opcode.OP_CALLDYN:				
 				case Opcode.OP_CALL:
-					frameObserver.observe(cf);
+					if(!frameObserver.observe(cf)){
+						return Rascal_FALSE;
+					}
 					// In case of CALLDYN, the stack top value of type 'Type' leads to a constructor call
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof Type) {
 						Type constr = (Type) stack[--sp];
@@ -1193,7 +1195,9 @@ public class RVM /*implements java.io.Serializable*/ {
 					arity = CodeBlock.fetchArg2(instruction);
 					
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
-					frameObserver.observe(cf);
+					if(!frameObserver.observe(cf)){
+						return Rascal_FALSE;
+					}
 					cf.sp = sp;
 					cf.pc = pc;
 					
@@ -1585,7 +1589,9 @@ public class RVM /*implements java.io.Serializable*/ {
 				case Opcode.OP_CALLPRIMN:
 					arity = CodeBlock.fetchArg2(instruction);
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
-					frameObserver.observe(cf);
+					if(!frameObserver.observe(cf)){
+						return Rascal_FALSE;
+					}
 					try {
 						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].executeN(stack, sp, CodeBlock.fetchArg2(instruction), cf, rex);
 					} catch (Thrown exception) {
@@ -1598,7 +1604,9 @@ public class RVM /*implements java.io.Serializable*/ {
 					
 				case Opcode.OP_CALLPRIM0:
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
-					frameObserver.observe(cf);
+					if(!frameObserver.observe(cf)){
+						return Rascal_FALSE;
+					}
 					try {
 						stack[sp++] = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute0(cf, rex);
 					} catch (Thrown exception) {
@@ -1610,7 +1618,9 @@ public class RVM /*implements java.io.Serializable*/ {
 					
 				case Opcode.OP_CALLPRIM1:
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
-					frameObserver.observe(cf);
+					if(!frameObserver.observe(cf)){
+						return Rascal_FALSE;
+					}
 					try {
 						stack[sp - 1] = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute1(stack[sp - 1], cf, rex);
 					} catch (Thrown exception) {
@@ -1623,7 +1633,9 @@ public class RVM /*implements java.io.Serializable*/ {
 					
 				case Opcode.OP_CALLPRIM2:
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
-					frameObserver.observe(cf);
+					if(!frameObserver.observe(cf)){
+						return Rascal_FALSE;
+					}
 					try {
 						stack[sp - 2] = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute2(stack[sp - 2], stack[sp - 1], cf, rex);
 						sp--;
@@ -1722,7 +1734,9 @@ public class RVM /*implements java.io.Serializable*/ {
 					Object obj = stack[--sp];
 					thrown = null;
 					cf.src = (ISourceLocation) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
-					frameObserver.observe(cf);
+					if(!frameObserver.observe(cf)){
+						return Rascal_FALSE;
+					}
 					if(obj instanceof IValue) {
 						//stacktrace = new ArrayList<Frame>();
 						//stacktrace.add(cf);

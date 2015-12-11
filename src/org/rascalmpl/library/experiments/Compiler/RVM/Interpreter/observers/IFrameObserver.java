@@ -17,12 +17,12 @@ public interface IFrameObserver {
 	
 	default void report(IList data) { }
 	
-	default void observe(Frame frame) { }
+	default boolean observe(Frame frame) { return true; }
 	
-	default void observeRVM(RVM rvm, Frame frame, int pc, Object[] stack, int sp) { }
+	default boolean observeRVM(RVM rvm, Frame frame, int pc, Object[] stack, int sp) { return true; }
 	
-	default void enter(Frame frame) { }
+	default boolean enter(Frame frame) { return true; }
 	
-	default void leave(Frame frame, Object rval) { }
+	default boolean leave(Frame frame, Object rval) { return true; }
 	
 }

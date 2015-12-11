@@ -21,8 +21,9 @@ public class ProfileFrameObserver implements IFrameObserver {
 	}
 	
 	@Override
-	public void observe(Frame frame) {
+	public boolean observe(Frame frame) {
 		this.src = frame.src;
+		return true;
 	}
 	
 	@Override

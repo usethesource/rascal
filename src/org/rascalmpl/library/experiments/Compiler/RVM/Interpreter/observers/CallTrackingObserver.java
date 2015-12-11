@@ -13,13 +13,15 @@ public class CallTrackingObserver implements IFrameObserver {
 	}
 
 	@Override
-	public void enter(Frame frame) {
+	public boolean enter(Frame frame) {
 		frame.printEnter(stdout); 
 		stdout.flush();
+		return true;
 	}
 
 	@Override
-	public void leave(Frame frame, Object rval) {
+	public boolean leave(Frame frame, Object rval) {
 		 frame.printLeave(stdout, rval);
+		 return true;
 	}
 }

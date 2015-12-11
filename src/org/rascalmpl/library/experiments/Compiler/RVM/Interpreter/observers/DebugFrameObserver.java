@@ -13,8 +13,9 @@ public class DebugFrameObserver implements IFrameObserver {
 	}
 	
 	@Override
-	public void observe(Frame frame) {
+	public boolean observe(Frame frame) {
 		stdout.println("observe: " + frame.src);
+		return true;
 	}
 	
 }
