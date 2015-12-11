@@ -648,7 +648,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	public IValue call(QualifiedName qualifiedName, Map<String,IValue> kwArgs, IValue... args) {
-		OverloadedFunction func = (OverloadedFunction) getCurrentEnvt().getVariable(qualifiedName);
+		ICallableValue func = (ICallableValue) getCurrentEnvt().getVariable(qualifiedName);
 		Type[] types = new Type[args.length];
 
 		int i = 0;
