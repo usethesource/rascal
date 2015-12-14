@@ -1575,6 +1575,9 @@ private MuExp translateSubscript(Expression e:(Expression) `<Expression exp> [ <
     if(ot in {"sort", "iter", "iter-star", "iter-seps", "iter-star-seps"}){
        op = "nonterminal_subscript_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
     } else
+    if(ot == "set"){
+       op = "rel_subscript";
+    } else
     if(ot notin {"map", "rel", "lrel"}) {
        op += "_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
     } else 
