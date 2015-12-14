@@ -146,7 +146,7 @@ value rascal(str commandLine) {
                                        profile = profile, trackCalls = trackCalls, coverage = coverage
                           );
             if(testsuite){
-                return printTestReport(result);
+                return printTestReport(result, []);
             }
             return result;
         }

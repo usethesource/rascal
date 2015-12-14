@@ -108,7 +108,7 @@ str getModuleName(ModuleName mn) {
 }
     
 int rascalTests(str commandLine) {
-    println("testsuite <commandLine>");
+    println("rascalTests <commandLine>");
     try {
         t = parse(#start[CompileArgs], commandLine).top;
         if (fb <- t.options, fb is fallback) {
