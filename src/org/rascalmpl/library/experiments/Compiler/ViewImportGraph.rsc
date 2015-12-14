@@ -316,16 +316,16 @@ str baseName(str qualifiedName){
 }
 
 Figure makeToolTip(str qualifiedName){
-    imports = [ text(baseName(nm), fontSize=11, fontColor="black") | nm <- importGraph[qualifiedName]];
-    return box(fig=vcat(figs=imports, grow=1.2), grow=1.2, fillColor="white");
-    //return box(fig=text(qualifiedName, fontSize=14, fontColor="green"), fillColor="orange", grow=1.2) ;
+    //imports = [ text(baseName(nm), fontSize=11, fontColor="black") | nm <- importGraph[qualifiedName]];
+    //return box(fig=vcat(figs=imports, grow=1.2), grow=1.2, fillColor="white");
+    return box(fig=text(qualifiedName, fontSize=14, fontColor="green"), fillColor="orange", grow=1.2) ;
 }
 
 void viewImportGraph(){
 
     modules = [<nm, box(fig=text(baseName(nm), fontSize=11, fontColor="white"), fillColor = "black", tooltip=makeToolTip(nm))> | nm <- carrier(importGraph), nm notin exclude];
     edges = [edge(nm2, nm1) | <nm1, nm2> <- importGraph, nm1 notin exclude, nm2 notin exclude];
-    g = box(fig=graph(modules, edges, width = 8000, height = 1000, lineWidth=1, graphOptions=graphOptions(nodeSep=0,layerSep=50, edgeSep=0)));
+    g = box(width = 8000, height = 1000, resizable=false, fig=graph(modules, edges, width = 8000, height = 1000, lineWidth=1, graphOptions=graphOptions(nodeSep=0,layerSep=50, edgeSep=0)));
     render(g); 
  }
  
