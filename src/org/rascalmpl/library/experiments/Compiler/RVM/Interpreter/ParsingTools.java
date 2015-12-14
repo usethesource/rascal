@@ -63,7 +63,7 @@ public class ParsingTools {
 	/** 
 	 * Store a generated and compiled parser.
 	 * @param moduleName	Name of module in which grammar is defined
-	 * @param start TODO
+	 * @param start 		The start nonterminal
 	 * @param parser		The generated parser class
 	 */
 	private void storeObjectParser(String moduleName, IValue start, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser) {
@@ -74,7 +74,7 @@ public class ParsingTools {
 	/**
 	 * Retrieve a generated and compiled parser
 	 * @param moduleName	Name of module in which grammar is defined
-	 * @param start TODO
+	 * @param start 		The start symbol
 	 * @return				The generated parser class or NULL
 	 */
 	private Class<IGTD<IConstructor, ITree, ISourceLocation>> getObjectParser(String moduleName, IValue start) {
@@ -93,10 +93,10 @@ public class ParsingTools {
 	
 	/**
 	 * Parse text from a string
-	 * @param start		Start symbol
-	 * @param input		Text to be parsed as string
-	 * @param currentFrame TODO
-	 * @param rex TODO
+	 * @param start			Start symbol
+	 * @param input			Text to be parsed as string
+	 * @param currentFrame	Frame that calls parse function
+	 * @param rex 			RascalExecutionContext
 	 * @return ParseTree or Exception
 	 */
 	public IValue parse(IString moduleName, IValue start, IString input, boolean allowAmbiguity, Frame currentFrame, RascalExecutionContext rex) {
@@ -105,11 +105,11 @@ public class ParsingTools {
 	
 	/**
 	 * Parse text from a string
-	 * @param start		Start symbol
-	 * @param input		Text to be parsed as string
-	 * @param location	Location of that text
-	 * @param currentFrame TODO
-	 * @param rex TODO
+	 * @param start			Start symbol
+	 * @param input			Text to be parsed as string
+	 * @param location		Location of that text
+	 * @param currentFrame 	Frame that calls parse function
+	 * @param rex 			RascalExecutionContext
 	 * @return ParseTree or Exception
 	 */
 	public IValue parse(IString moduleName, IValue start, IString input, ISourceLocation location, boolean allowAmbiguity, Frame currentFrame, RascalExecutionContext rex) {
@@ -118,11 +118,11 @@ public class ParsingTools {
 	
 	/**
 	 * Parse text at a location
-	 * @param moduleName Name of module in which grammar is defined
-	 * @param start		Start symbol
-	 * @param currentFrame TODO
-	 * @param rex TODO
-	 * @param input		To be parsed as location
+	 * @param moduleName 	Name of module in which grammar is defined
+	 * @param start			Start symbol
+	 * @param currentFrame 	Frame that calls parse function
+	 * @param rex 			RascalExecutionContext
+	 * @param input			To be parsed as location
 	 * @return ParseTree or Exception
 	 */
 	public IValue parse(IString moduleName, IValue start, ISourceLocation location, boolean allowAmbiguity, Frame currentFrame, RascalExecutionContext rex) {
@@ -146,7 +146,7 @@ public class ParsingTools {
 	 * @param location		Location where input text comes from
 	 * @param input			Input text as char array
 	 * @param currentFrame 	Stacktrace of calling context
-	 * @param rex TODO
+	 * @param rex 			RascalExecutionContext
 	 * @return
 	 */
 	public IValue parse(IString moduleName, IValue start, IMap robust, ISourceLocation location, char[] input, boolean allowAmbiguity, Frame currentFrame, RascalExecutionContext rex) {
@@ -210,7 +210,7 @@ public class ParsingTools {
 	 * @param location		Location where input text comes from
 	 * @param input			Actual input text as char array
 	 * @param syntax		Syntax as map[Symbol,Production]
-	 * @param rex TODO
+	 * @param rex 			RascalExecutionContext
 	 * @return				ParseTree or Exception
 	 * @throws IOException 
 	 */
@@ -356,7 +356,13 @@ public class ParsingTools {
 	/**
 	 * This function will reconstruct a parse tree of a single nested concrete syntax fragment
 	 * that has been parsed and its original flat literal string is replaced by a fully structured parse tree.
-	 * @param rex TODO
+	 * @param moduleName	Name of module in which grammar is defined
+	 * @param start			Start symbol
+	 * @param tree			Paree tree to be reconstructed
+	 * @param uri			Location where input text comes from
+	 * @param syntax		Syntax as map[Symbol,Production]
+	 * @param rex 			RascalExecutionContext
+	 * @return				ParseTree or Exception
 	 * @throws IOException 
 	 * 
 	 */
