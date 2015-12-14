@@ -67,7 +67,7 @@ public Attr attr(str id, int width = -1, int height = -1, int r = -1
      if (height!=-1) v.height = height;
      if (bigger>=0) v.bigger = bigger;    
      if (r!=-1) v.r = r;
-     // if (disabled?) v.disabled= disabled;
+     if (disabled?) v.disabled= disabled;
      _setAttr(idx, v);
      return v;
      }
@@ -130,3 +130,4 @@ public Timer timer(str id, int delay = -1, str command = "") {
      _setTimer(idx, t);
      return t;
     }
+    

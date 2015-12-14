@@ -13,6 +13,9 @@ import util::Math;
 import Prelude;
 import lang::json::IO;
 
+int occur = 0;
+
+void initFigure() { occur = 0;}
 
 /* Properties */
 
@@ -222,7 +225,7 @@ public data Figure(
 		value tooltip = ""
 	) =
 	
-	emptyFigure()
+	emptyFigure(int seq = 0)
   
 
 // atomic primitivesreturn [[z] +[*((c[z]?)?c[z]:"null")|c<-m]|z<-x];
@@ -288,7 +291,7 @@ public data Figure(
 
 // Input elements
 
-   | buttonInput(str txt)
+   | buttonInput(str txt, bool disabled=false,  value \value = "")
    | checkboxInput(list[str] choices = ["0"], value \value = ())
    | choiceInput(list[str] choices = ["0"], value \value = choices[0])
    | colorInput()
@@ -348,7 +351,7 @@ data GraphOptions = graphOptions(
 data NodeProperty = nodeProperty(str shape="",str labelStyle="", str style = "", str label="");
 
 data Edge = edge(str from, str to, str label = "", str lineInterpolate="basis"
-     ,str lineColor = "" ,str labelStyle="", str arrowStyle = "");
+     ,str lineColor = "" ,str labelStyle="", str arrowStyle = "", str id = "");
   
 data ChartArea ( 
      value left = "",
@@ -616,7 +619,8 @@ public Figure graph(list[tuple[str, Figure]] n, list[Edge] e, tuple[int, int] si
    int lineWidth = 1, GraphOptions options = graphOptions()) =  
    box(fig = graph(nodes = n, edges = e, lineWidth = lineWidth, 
                nodeProperty = (), size = size, width = width, height = height,
-               graphOptions = options), align = topLeft, lineWidth = 0);
+               graphOptions = options)
+               , align = topLeft, lineWidth = 0,  size=<1000, 1200>);
                
 public Figure overlayBox(int width, int height, list[Figure] figs) {
       list[Figure] b = [box(width = width, height = height, fig = f, fillColor="none", align = centerMid)|Figure f<-figs];
@@ -787,5 +791,16 @@ public list[str] colors =
  Figure(Figure , str ) self(Figure g) {return 
               Figure(Figure f, value c) {g.fig = f; return g;}
               ;}
+              
+public str newName() {
+  occur+=1;
+  return "myName<occur>";
+  }
+  
+public str newId() {
+  occur+=1;
+  return "myName<occur>";
+  }
+              
  
 // Figure() self(Figure(str c) f) {Figure g = f(c); g.fig = f(c); return Figure() {return g;};}
