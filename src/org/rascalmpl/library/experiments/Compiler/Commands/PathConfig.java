@@ -30,11 +30,11 @@ public class PathConfig {
 
 		try {
 			ISourceLocation std = vf.sourceLocation("std", "", "");
-			ISourceLocation bootStdLib = vf.sourceLocation("boot", "", "stdlib");
+			//ISourceLocation bootStdLib = vf.sourceLocation("boot", "", "stdlib");
 
 			srcPath = Arrays.asList(std);
-			libPath = Arrays.asList(bootStdLib, std);
-			binDir = vf.sourceLocation("home", "", "bin");
+			binDir = vf.sourceLocation("home", "", "c1bin/stdlib");
+			libPath = Arrays.asList(binDir);
 			bootDir = vf.sourceLocation("boot+compressed", "", "");
 
 		} catch (URISyntaxException e) {
