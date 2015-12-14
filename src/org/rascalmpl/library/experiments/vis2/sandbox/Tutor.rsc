@@ -41,7 +41,7 @@ Figures  tut() =
        ,lineWidth= 6,lineColor="blue"
        )
  // 5
-   ,ngon(n=5 ,fig = 
+   ,ngon(n=5 ,grow= 1.5, fig = 
          ngon(n=5, r=50,  fillColor="green" ,lineColor="red"
              )
         ,lineWidth=16,lineColor="blue"
@@ -49,7 +49,7 @@ Figures  tut() =
  // 6 
    ,box(grow=1.8,lineWidth = 4, fig=text("Hallo",  fontSize=12))
 // 7 
-   ,ellipse(fig=
+   ,ellipse(grow = 1.5, fig=
             ellipse(rx=100, ry=50, fillColor="green"
                    ,lineColor="red"
                    )
@@ -160,14 +160,14 @@ public void ex5() = render1(
       ,fillColor = "antiqueWhite");
       
  
- Figure elFig(num shrink) {
+ Figure elFig(num shrink, bool tt) {
      // println(shrink);
      return 
        ellipse(shrink = shrink, fillColor =  randomColor(),   lineWidth = 2  
        ,fig=box(shrink=0.6, align = centerMid, 
             fig=
              circle( shrink = 0.8, fillColor=randomColor(), lineWidth = 0 
-             , tooltip = box(fig=htmlText("", size=<50, 20>, fontSize=10), fillColor="antiqueWhite") 
+             , tooltip = tt?box(fig=htmlText("", size=<50, 20>, fontSize=10), fillColor="antiqueWhite"):emptyFigure() 
              ,event = on("mouseenter", void(str e, str n, str v) {
               textProperty("<n>_tooltip#0", text= style(n).fillColor);      
               })       
@@ -178,13 +178,13 @@ public void ex5() = render1(
        ;
      }
  
- Figures elFigs(int n) = n>0?
-    [elFig(1-i/(2*n))|num i<-[0,1..n]]
-   :[elFig(1-i/(2*-n))|num i<-[-n-1,-n-2..-1]];
+ Figures elFigs(int n, bool tt) = n>0?
+    [elFig(1-i/(2*n), tt)|num i<-[0,1..n]]
+   :[elFig(1-i/(2*-n), tt)|num i<-[-n,-n-1..0]];
+   
+public Figure shrink(bool tt) = grid(figArray=[elFigs(5, tt), elFigs(-5, tt)], align = centerMid, borderWidth=1);
  
- public void ex6() = render1(
-  grid(figArray=[elFigs(5), elFigs(-5)], align = centerMid, borderWidth=1)
-  );
+public void ex6() = render1(hcat(figs=[grid(figArray=[[shrink(true)]])]));
  
 public void ex7() = render(ngon(n = 6, angle = 0, fillOpacity=0.5
   ,fig = ngon(n=6, shrink = 0.8, angle=0, fillOpacity=0.5, fillColor = "yellow")
@@ -225,6 +225,80 @@ public void fex6(loc l) = writeFile(l, toHtmlString(
 ));
 
 
-Figure _tst()= vcat(lineWidth = 1, figs = [overlay(id="aap", figs=[overlay(figs=[box(size=<100, 100>)])], size=<400, 400>)]);
+Figure _tst()= vcat(lineWidth = 1, figs = [overlay(id="aap", figs=[overlay(figs=[box(size=<100, 100>)])])]);
 
 void tst() = render(_tst());
+
+
+Figure triangle(int angle) = ngon(n=3, size=<50, 50>, angle = angle, fillColor = "yellow");
+
+Figure _star() = grid(vgap=0, hgap= 0, figArray=[
+       [emptyFigure(), triangle(-90), emptyFigure()]
+      ,[triangle(180), box(size=<50, 50>, fillColor="red"), triangle(0)]
+      ,[emptyFigure(), triangle(90), emptyFigure()]
+       ]);
+
+public void star()= render(_star());
+
+Figure place(str fill) = box(size=<25, 25>, fillColor = fill);
+
+
+Figure _tetris1() = 
+       grid( vgap=0, hgap= 0
+       , 
+       figArray=[
+       [place("blue"), emptyFigure()]
+      ,[place("blue"), emptyFigure()]
+      ,[place("blue"), place("blue")]
+       ]);
+       
+Figure emptFigure() = box(size=<10, 10>);
+       
+Figure _tetris2() = 
+       grid(vgap=0, hgap= 0,
+       figArray=[
+       [emptyFigure(), place("blue")]
+      ,[emptyFigure(), place("blue")]
+      ,[place("blue"), place("blue")]
+       ]);
+       
+Figure _tetris3() = 
+       grid(vgap=0, hgap= 0,
+       figArray=[
+       [place("red"), place("red")]
+      ,[place("red"), place("red")]
+       ]);
+       
+Figure _tetris4() = 
+       grid(vgap=0, hgap= 0,
+       figArray=[
+       [place("yellow"), place("yellow"), place("yellow")]
+      ,[emptyFigure(), place("yellow"), emptyFigure()]
+       ]);
+       
+Figure _tetris5() = 
+       grid(vgap=0, hgap= 0, 
+       figArray=[
+       [emptyFigure(), place("darkmagenta"), place("darkmagenta")]
+      ,[place("darkmagenta"), place("darkmagenta"), emptyFigure()]
+       ]);
+       
+Figure _tetris6() = 
+       grid(vgap=0, hgap= 0, 
+       figArray=[
+       [place("brown")]
+      ,[place("brown")]
+      ,[place("brown")]
+      ,[place("brown")]
+       ]);
+       
+public Figure tetris() = hcat(borderStyle="ridge", borderWidth = 4, 
+lineWidth = 1, align = bottomRight, 
+figs=[_tetris1(), _tetris2(), _tetris3(), _tetris4(), _tetris5(), _tetris6()]);
+       
+public void tetris1() = render(tetris());
+
+public void ftetris1(loc l) = writeFile(l, toHtmlString(
+    grid(hgap=4, vgap = 4, id="aap", figArray=[[_tetris1(),  _tetris2()]])
+));
+

@@ -6,6 +6,7 @@ import experiments::vis2::sandbox::Nederland;
 import experiments::vis2::sandbox::SinAndCos;
 import experiments::vis2::sandbox::AEX;
 import experiments::vis2::sandbox::Graph;
+import experiments::vis2::sandbox::Tutor;
 import experiments::vis2::sandbox::Flower;
 import util::Math;
 import Prelude;
@@ -78,7 +79,7 @@ list[Vertex] innerSchoolPlot2() {
      return [move(i, 0), line(0, 10-i)|i<-[s,s+0.5..10]];
      }
      
-Figure tst0() = circle(padding=<30, 30, 30, 30>, lineWidth = 2, fillColor = "yellow", lineColor = "red", fig= box(fillColor = "lightblue",
+Figure tst0() = circle(padding=<22, 22, 22, 22>, lineWidth = 2, fillColor = "yellow", lineColor = "red", fig= box(fillColor = "lightblue",
         width = 100, height = 100, lineWidth = 4, lineColor = "blue"));
         
 void tst() = render(tst0()); 
@@ -155,24 +156,27 @@ Figure labeled(Figure g) {
       }
    
       
-Figure demoFig() = grid(figArray=[
-            [demo1(), demo2()]
-             , [demo3() , demo4()]
-             , [demo5(), demo6()]
-             , [demo7(), demo8()]
+Figure demoFig() = grid(vgap=4, figArray=[
+              [demo1(), demo2()]
+             ,[demo3() , demo4()]
+             ,[demo5(), demo6()]
+             ,[demo7(), demo8()]
              ,[demo9(), demo10()]          
              ,[demo15(), demo13()]
-             ,[demo14(), demo11()]
+             ,[demo14(),demo11()]
              ,[demo16(), demo17()]
              ,[demo18(), demo19()]
+             ,[tetris(), box(fig=shrink(false), size=<400, 400>, resizable=true)]
             ]);
+            
+ void tshrink() = render(box(fig=shrink(false), size=<400, 400>));
                   
 void demo() = render(demoFig(),
      width = 800, height = 1800, resizable = false);
      
  void fdemo(loc l) {
       // println(schoolPlot());
-      writeFile(l, toHtmlString(demoFig(), debug = false, width = 800, height = 800));
+      writeFile(l, toHtmlString(demoFig(), debug = false, resizable = false, width = 800, height = 1800));
       }
 
 
@@ -405,7 +409,7 @@ list[tuple[str, Figure]] flagNodes = [<"nl", dutch()>, <"be", belgium()>
                  
 Figure gflags() = graph(flagNodes, flagEdges, size=<300, 600>);
 
-void tgflags() = render(gflags(), align =  centerMid);
+void tgflags() = render(box(fig=gflags(), size=<400, 400>, align =  centerMid));
 
 void ftgflags(loc l) = writeFile(l, toHtmlString(gflags()));
    
@@ -415,7 +419,7 @@ Figure demo9() = steden();
 
 Figure demo10() = sinAndCos();   
 
-Figure demo11() = gflags(); 
+Figure demo11() = box(fig=gflags(), size=<400, 400>); 
 
 Figure demo12() = nederland(7); 
 

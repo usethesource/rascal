@@ -4,48 +4,93 @@ import experiments::vis2::sandbox::Figure;
 import experiments::vis2::sandbox::Steden; 
 import Prelude;
 
+str current = "";
+list[Edge] edges = [];
+list[Edge] out = [];
+list[tuple[str, Figure]] states = [];
+map[str, Figure] lab2f = ();
+Figures buttons =[]; 
+
 public Figure fsm(){
-    // Figure b(str label) = emptyFigure();
-	Figure b(str label) =  box( fig=text(label, fontWeight="bold"), fillColor="whitesmoke", rounded=<5,5>/*, padding=<0,6, 0, 6>*/, tooltip = label);
+	Figure b(str label) =  box( fig=text(label, fontWeight="bold"), fillColor="whitesmoke", rounded=<5,5>, padding=<0,6, 0, 6>, tooltip = label
+	                                          ,id = newName());	                                          
     states = [ 	
-                <"CLOSED", 		ngon(n=6, r = 40, fig=text("CLOSED", fontWeight="bold"), fillColor="#f77", rounded=<5,5>, padding=<5, 30,0, 30>, tooltip = "CLOSED")>, 
+                <"CLOSED", 		ngon(n=6, r = 40, fig=text("CLOSED", fontWeight="bold"), fillColor="#f77", rounded=<5,5>, padding=<0, 5,0, 5>, tooltip = "CLOSED", id = newName())>, 
     			<"LISTEN", 		b("LISTEN")>,
     			<"SYN RCVD", 	b("SYN RCVD")>,
 				<"SYN SENT", 	b("SYN SENT")>,
-                <"ESTAB",	 	box(width=100, height = 30, fig=text("ESTAB",fontWeight="bold"), fillColor="#7f7", rounded=<5,5>, padding=<15, 5,5, 15>, tooltip = "ESTAB")>,
+                <"ESTAB",	 	box(size=<100, 30>, fig=text("ESTAB",fontWeight="bold"), fillColor="#7f7", rounded=<5,5>, padding=<0, 5,0, 5>, tooltip = "ESTAB", id = newName())>,
                 <"FINWAIT-1", 	b("FINWAIT-1")>,
-                <"CLOSE WAIT", 	box(size=<120, 30>, fig=text("CLOSE WAIT",fontWeight="bold"), fillColor="antiquewhite", lineDashing=[1,1,1,1],  rounded=<5,5>, padding=<0, 5,0, 5>, tooltip = "CLOSE_WAIT")>,
+                <"CLOSE WAIT", 	box(size=<120, 30>, fig=text("CLOSE WAIT",fontWeight="bold"), fillColor="antiquewhite", lineDashing=[1,1,1,1],  rounded=<5,5>, padding=<0, 5,0, 5>, tooltip = "CLOSE_WAIT"
+                , id = newName())>,
                 <"FINWAIT-2", 	b("FINWAIT-2")>,    
                 <"CLOSING", b("CLOSING")>,
                 <"LAST-ACK", b("LAST-ACK")>,
                 <"TIME WAIT", b("TIME WAIT")>
                 ];
  	
-    edges = [	edge("CLOSED", 		"LISTEN",  	 label="open", labelStyle="font-style:italic"),
-    			edge("LISTEN",		"SYN RCVD",  label="rcv SYN", labelStyle="font-style:italic"),
-    			edge("LISTEN",		"SYN SENT",  label="send", labelStyle="font-style:italic"),
-    			edge("LISTEN",		"CLOSED",    label="close", labelStyle="font-style:italic"),
-    			edge("SYN RCVD", 	"FINWAIT-1", label="close", labelStyle="font-style:italic"),
-    			edge("SYN RCVD", 	"ESTAB",     label="rcv ACK of SYN", labelStyle="font-style:italic"),
-    			edge("SYN SENT",   	"SYN RCVD",  label="rcv SYN", labelStyle="font-style:italic"),
-   				edge("SYN SENT",   	"ESTAB",     label="rcv SYN, ACK", labelStyle="font-style:italic"),
-    			edge("SYN SENT",   	"CLOSED",    label="close", labelStyle="font-style:italic"),
-    			edge("ESTAB", 		"FINWAIT-1", label="close", labelStyle="font-style:italic"),
-    			edge("ESTAB", 		"CLOSE WAIT",label= "rcv FIN", labelStyle="font-style:italic"),
-    			edge("FINWAIT-1",  	"FINWAIT-2",  label="rcv ACK of FIN", labelStyle="font-style:italic"),
-    			edge("FINWAIT-1",  	"CLOSING",    label="rcv FIN", labelStyle="font-style:italic"),
-    			edge("CLOSE WAIT", 	"LAST-ACK",  label="close", labelStyle="font-style:italic"),
-    			edge("FINWAIT-2",  	"TIME WAIT",  label="rcv FIN", labelStyle="font-style:italic"),
-    			edge("CLOSING",    	"TIME WAIT",  label="rcv ACK of FIN", labelStyle="font-style:italic"),
-    			edge("LAST-ACK",   	"CLOSED",     label="rcv ACK of FIN", lineColor="green", labelStyle="font-style:italic"),
-    			edge("TIME WAIT",  	"CLOSED",     label="timeout=2MSL", labelStyle="font-style:italic")
+    edges = [	edge("CLOSED", 		"LISTEN",  	 label="open", labelStyle="font-style:italic", id = newName()), 
+    			edge("LISTEN",		"SYN RCVD",  label="rcv SYN", labelStyle="font-style:italic", id = newName()),
+    			edge("LISTEN",		"SYN SENT",  label="send", labelStyle="font-style:italic", id = newName()),
+    			edge("LISTEN",		"CLOSED",    label="close", labelStyle="font-style:italic", id = newName()),
+    			edge("SYN RCVD", 	"FINWAIT-1", label="close", labelStyle="font-style:italic", id = newName()),
+    			edge("SYN RCVD", 	"ESTAB",     label="rcv ACK of SYN", labelStyle="font-style:italic", id = newName()),
+    			edge("SYN SENT",   	"SYN RCVD",  label="rcv SYN", labelStyle="font-style:italic", id = newName()),
+   				edge("SYN SENT",   	"ESTAB",     label="rcv SYN, ACK", labelStyle="font-style:italic", id = newName()),
+    			edge("SYN SENT",   	"CLOSED",    label="close", labelStyle="font-style:italic", id = newName()),
+    			edge("ESTAB", 		"FINWAIT-1", label="close", labelStyle="font-style:italic", id = newName()),
+    			edge("ESTAB", 		"CLOSE WAIT",label= "rcv FIN", labelStyle="font-style:italic", id = newName()),
+    			edge("FINWAIT-1",  	"FINWAIT-2",  label="rcv ACK of FIN", labelStyle="font-style:italic", id = newName()),
+    			edge("FINWAIT-1",  	"CLOSING",    label="rcv FIN", labelStyle="font-style:italic", id = newName()),
+    			edge("CLOSE WAIT", 	"LAST-ACK",  label="close", labelStyle="font-style:italic", id = newName()),
+    			edge("FINWAIT-2",  	"TIME WAIT",  label="rcv FIN", labelStyle="font-style:italic", id = newName()),
+    			edge("CLOSING",    	"TIME WAIT",  label="rcv ACK of FIN", labelStyle="font-style:italic", id = newName()),
+    			edge("LAST-ACK",   	"CLOSED",     label="rcv ACK of FIN", lineColor="green", labelStyle="font-style:italic", id = newName()),
+    			edge("TIME WAIT",  	"CLOSED",     label="timeout=2MSL", labelStyle="font-style:italic", id = newName())
   			];
-    // edges=[];	
-  	return graph(states, edges, width = 700, height = 900);
+    lab2f = (v[0]:v[1]|v<-states);
+  	return graph(nodes=states, edges=edges, width = 700, height = 900);
 }
 
 
-public void tfsm() = render(fsm());
+
+Figure _bfsm() {
+    Figure f = fsm();
+    if (g:graph():=f) {
+        current = lab2f[states[0][0]].id;
+        buttons = [buttonInput("", width = 200, height = 25, disabled = true, id = newName()
+        ,event = on("click", void(str ev, str n, str v)(int q) {
+             return void(str ev, str n, str v) {
+             style(lab2f[out[q].from].id, fillColor="whitesmoke");
+             style(lab2f[out[q].to].id, fillColor="#f77");
+             current=lab2f[out[q].to].id;
+              for (Figure b<-buttons) {
+                  attr(b.id, disabled = true);
+                  style(b.id, visibility = "hidden");
+                  }
+             out = [e|Edge e<-edges, lab2f[e.from].id==current]; 
+             for (int i<-[0..size(out)]) {
+                  attr(buttons[i].id, disabled = false);
+                  style(buttons[i].id, visibility = "visible");
+                  textProperty(buttons[i].id, \text=out[i].label);
+                  }
+       };}(i))
+        )|int i <-[0..10]];
+        Figure g = vcat(figs = buttons, height = 200, width = 200);
+        return hcat(vgap = 0, align = topLeft, borderWidth  =4, borderStyle="ridge", figs=[g , f]);
+        }
+  }
+
+
+public void bfsm() = render(_bfsm(), event = on("load", void(str ev, str n, str v){
+   out = [e|Edge e<-edges, lab2f[e.from].id==current]; 
+   int i = 0;
+   for (Edge e<-out) {
+      attr(buttons[i].id, disabled = false);
+      textProperty(buttons[i].id, \text = e.label);
+      i = i+1;
+      }
+   }));
 
 public void ffsm(loc l) = writeFile(l, toHtmlString(fsm()));
 
@@ -72,7 +117,6 @@ Figure grap() = graph([
      // , overlay(figs=[
          , box(id = "ttip", size=<60, 60> 
           ,tooltip= tree1() 
-          // , tooltip = box(size=<100, 100>)
           , fig = text("Hallo")
        ,  rounded=<15, 15>, fillColor = "antiquewhite")
         >

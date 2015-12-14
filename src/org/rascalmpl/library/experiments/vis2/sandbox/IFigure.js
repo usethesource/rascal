@@ -102,7 +102,7 @@ function askServer(path, parameters, timer, timeout, callback) {
      var lw = lineWidth<0?0:lineWidth;
      // alert(lw/Math.sin(angle))
      // return lw;
-     return lw/Math.cos(angle);
+     return lw/Math.cos(angle)+1;
     }  
  
  function svgStyle(s, svg) {
@@ -202,16 +202,17 @@ function askServer(path, parameters, timer, timeout, callback) {
        }
    
    function adjust1(id, f, width, height, hpad, vpad) { 
+    if (f.id=="emptyFigure") return;
     var d = d3.select("#"+f.id);
     // alert("adjust1: "+id0+" "+d.node().nodeName+" "+width+" "+height);
     if (d.node().nodeName=="TABLE") {
           if (d.attr("width")==null) {
-             d.style("width", width);
-             d.attr("width", width);
+             d.style("width", parseInt(width));
+             d.attr("width", parseInt(width));
              }
           if (d.attr("height")==null) { 
-              d.style("height", height);
-              d.attr("height", height);
+              d.style("height", parseInt(height));
+              d.attr("height", parseInt(height));
               }
           return;
           } 
@@ -301,7 +302,8 @@ function askServer(path, parameters, timer, timeout, callback) {
         }
    
    function getVal(f, key) {
-      // alert("aap");
+      // alert(f.id);
+      if (f.id=="emptyFigure") return 0;
       var d = d3.select("#"+f.id);
       
       if (d.node().nodeName=="TABLE") {
@@ -358,7 +360,7 @@ function askServer(path, parameters, timer, timeout, callback) {
        }
        
    function adjustTableWH1(id1, clients) { 
-         var aUndefWH = clients.map(function(i) {return i.filter(undefWH);}); 
+         var aUndefWH = clients.filter(function(i) {return i.filter(undefWH).length!=0;}); 
          if (aUndefWH.length==0) {
             var width = document.getElementById(id1).getBoundingClientRect().width;
             var height = document.getElementById(id1).getBoundingClientRect().height;
@@ -509,8 +511,8 @@ function askServer(path, parameters, timer, timeout, callback) {
   
   
    function adjustBox(id0, id1, hshrink, vshrink, lw, n, angle) { 
-       //alert("adjustBox:"+id1+":"+d3.select("#"+id1).node().nodeName);
-       // alert(d3.select("#"+id0).attr("width"));
+       // alert("adjustBox:"+id1+":"+d3.select("#"+id1).node().nodeName);
+       // alert(""+id0+" "+d3.select("#"+id0).attr("width"));
        var to = d3.select("#"+id0);
        if (to.attr("width")!=null && to.attr("height")!=null) return;
        var from = d3.select("#"+id1);
