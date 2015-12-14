@@ -38,18 +38,22 @@ list[str] examplesTests = [
 ];
 
 
-lrel[loc,str] crashes = [];
-lrel[loc,str] partial_results = [];
+lrel[str,str] crashes = [];
+lrel[str,str] partial_results = [];
 
-lrel[loc,int,str] runTests(list[str] names, loc base){
+lrel[loc,int,str] runTests(list[str] names, str base){
+ pcfg = pathConfig(srcPath=[|test-modules:///|, |std:///|], binDir=|home:///c1bin|, libPath=[|home:///c1bin|]);
  all_test_results = [];
  for(str tst <- names){
-      prog = base + (tst + ".rsc");
+      //prog = base + (tst + ".rsc");
+      prog = base + "::" + tst;
       for(str ext <- [/*"sig", "sigs", "tc"*/ "rvm.gz", "rvm.ser.gz"]){
-      	try { remove(getDerivedReadLocation(prog, ext)); } catch:;
+       if(<true, l> := getDerivedReadLoc(prog, ext, pcfg)){
+          remove(l);
+       }
       }
       try {
-	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, pcfg, recompile=false, testsuite=true, debug=false)){
+	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, pcfg, recompile=true, testsuite=true, debug=false)){
 	         s = makeTestSummary(test_results);
 	         println("TESTING <prog>: <s>");
 	         partial_results += <prog, s>;
@@ -77,8 +81,8 @@ value main(){
   partial_results = [];
   all_results = [];
    
-  all_results += runTests(compilerTests, |std:///experiments/Compiler/Tests/|);
-  all_results += runTests(examplesTests, |std:///experiments/Compiler/Examples/|);
+  all_results += runTests(compilerTests, "experiments::Compiler::Tests");
+  all_results += runTests(examplesTests, "experiments::Compiler::Examples");
  
    
   println("TESTS RUN AT <timestamp>");
@@ -87,7 +91,7 @@ value main(){
       println("<prog>: <s>");
   
   println("\nFailed/IGNORED TESTS:");
-  printTestReport(all_results);
+  printTestReport(all_results, []);
   
   if(size(crashes) > 0){
      println("\nCRASHED TESTS:");
