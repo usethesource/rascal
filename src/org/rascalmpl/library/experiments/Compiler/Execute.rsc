@@ -308,9 +308,12 @@ value execute(str qualifiedModuleName, PathConfig pcfg, map[str,value] keywordAr
 
 value rascalTests(list[str] qualifiedModuleNames, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=false, bool verbose = false){
    lrel[loc,int,str] all_test_results = [];
+   
+   exceptions = [];
    value v;
    
    for(qualifiedModuleName <- qualifiedModuleNames){
+       try {
        if(!recompile && <true, compressed> := RVMExecutableCompressedReadLoc(qualifiedModuleName, pcfg)){
            if(verbose) println("Using <compressed>");
            v = executeProgram(compressed, keywordArguments, debug, debugRVM, true, profile, trackCalls, coverage, useJVM);
@@ -323,8 +326,11 @@ value rascalTests(list[str] qualifiedModuleNames, PathConfig pcfg, map[str,value
        } else {
           throw "cannot extract test results for <qualifiedModuleName>: <v>";
        }
+       } catch e: {
+         exceptions += "<qualifiedModuleName>: <e>";
+       }
    }
-   return printTestReport(all_test_results);
+   return printTestReport(all_test_results, exceptions);
 }
 
 RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool useJVM=false, bool serialize=false, bool verbose = false){
@@ -344,19 +350,19 @@ RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool useJVM=
 
 RVMProgram compileAndLinkIncremental(str qualifiedModuleName, bool reuseConfig, bool useJVM=false, bool serialize=false, bool verbose = false){
    startTime = cpuTime();
-   pcfg = pathConfig(srcPath=[|std:///|, |test-modules:///|]);
+   pcfg = pathConfig(srcPath=[|std:///|, |test-modules:///|], binDir=|home:///bin-console|, libPath=[|home:///bin-console|]);
    mainModule = compileIncremental(qualifiedModuleName, reuseConfig, pcfg, verbose=verbose);
    //println("Compiling: <(cpuTime() - startTime)/1000000> ms");
-   start_linking = cpuTime();   
+   //start_linking = cpuTime();   
    merged = mergeImports(mainModule, pcfg, verbose=verbose, useJVM=useJVM, serialize=serialize);
-   link_time = cpuTime() - start_linking;
-   println("linking: <link_time/1000000> msec");
+   //link_time = cpuTime() - start_linking;
+   //println("linking: <link_time/1000000> msec");
    return merged;
 }
 
 str makeTestSummary(lrel[loc,int,str] test_results) = "<size(test_results)> tests executed; < size(test_results[_,0])> failed; < size(test_results[_,2])> ignored";
 
-bool printTestReport(value results){
+bool printTestReport(value results, list[value] exceptions){
   if(lrel[loc,int,str] test_results := results){
       failed = test_results[_,0];
       if(size(failed) > 0){
@@ -372,6 +378,13 @@ bool printTestReport(value results){
               println("<l>: IGNORED");
           }
       }
+      if(size(exceptions) > 0){
+         println("\nEXCEPTIONS:");
+         for(exc <- exceptions){
+             println(exc);
+         }
+      }
+      
       println("\nTEST SUMMARY: " + makeTestSummary(test_results));
       return size(failed) == 0;
   } else {
