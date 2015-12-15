@@ -86,7 +86,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	private final ParsingTools parsingTools; 
 	Stack<String> indentStack = new Stack<String>();
-	//final HashMap<Type,IConstructor> type2symbolCache = new HashMap<Type,IConstructor>();
 	private Cache<Type, IConstructor> type2symbolCache = Caffeine.newBuilder().build();
 	
 	StringBuilder templateBuilder = null;
@@ -262,8 +261,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 	//public HashMap<Type,IConstructor> getType2SymbolCache(){ return type2symbolCache; }
 	
 	public IConstructor type2Symbol(final Type t){
-		return  RascalPrimitive.$type2symbol(t);
-		//return type2symbolCache.get(t, k -> RascalPrimitive.$type2symbol(t));
+		//return  RascalPrimitive.$type2symbol(t);
+		return type2symbolCache.get(t, k -> RascalPrimitive.$type2symbol(t));
 	}
 	
 	HashMap<IString,DescendantDescriptor> getDescendantDescriptorMap() {
@@ -273,10 +272,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private Cache<Type[], Boolean> subtypeCache = Caffeine.newBuilder().build();
 	
 	public boolean isSubtypeOf(Type t1, Type t2){
-		return t1.isSubtypeOf(t2);
-//		Type[] key = new Type[] { t1, t2};
-//		
-//		return subtypeCache.get(key, k -> t1.isSubtypeOf(t2));
+		//return t1.isSubtypeOf(t2);
+		Type[] key = new Type[] { t1, t2};
+		
+		return subtypeCache.get(key, k -> t1.isSubtypeOf(t2));
 	}
 	
 	StringBuilder getTemplateBuilder() { return templateBuilder; }
@@ -294,21 +293,21 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public Function getCompanionDefaultsFunction(String name, Type ftype){
 		String key = name + ftype;
 		
-		return  rvm.getCompanionDefaultsFunction(name, ftype);
+		//return  rvm.getCompanionDefaultsFunction(name, ftype);
 		
-		//Function result = companionDefaultFunctionCache.get(key, k -> rvm.getCompanionDefaultsFunction(name, ftype));
+		Function result = companionDefaultFunctionCache.get(key, k -> rvm.getCompanionDefaultsFunction(name, ftype));
 		//System.err.println("RascalExecutionContext.getCompanionDefaultsFunction: " + key + " => " + result.name);
-		//return result;
+		return result;
 	}
 	
 	private Cache<String, Function> companionFieldDefaultFunctionCache = Caffeine.newBuilder().build();
 	
 	public Function getCompanionFieldDefaultFunction(Type adtType, String fieldName){
-		return rvm.getCompanionFieldDefaultFunction(adtType, fieldName);
+		//return rvm.getCompanionFieldDefaultFunction(adtType, fieldName);
 		
-//		String key = adtType.toString() + fieldName;
-//		Function result = companionFieldDefaultFunctionCache.get(key, k -> rvm.getCompanionFieldDefaultFunction(adtType, fieldName));
-//		return result;
+		String key = adtType.toString() + fieldName;
+		Function result = companionFieldDefaultFunctionCache.get(key, k -> rvm.getCompanionFieldDefaultFunction(adtType, fieldName));
+		return result;
 	}
 	
 	public void clearCaches(){
