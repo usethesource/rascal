@@ -47,7 +47,7 @@ public Style style(str id, str fillColor="", str lineColor="", int lineWidth = -
            for (x<-xs) {
               style(x, visibility = visibility);
              }
-             }
+            }
      _setStyle(idx, v);
      return v;
      }
