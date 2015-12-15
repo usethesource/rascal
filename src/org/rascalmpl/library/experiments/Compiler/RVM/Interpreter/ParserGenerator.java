@@ -117,37 +117,6 @@ public class ParserGenerator {
 			}
 		}
 	}
-	
-//	public IValue diagnoseAmbiguity(IConstructor parseForest) {
-//		return evaluator.call("diagnose", parseForest);
-//	}
-	
-
-
-//	/**
-//	 * Uses the user defined syntax definitions to generate a parser for Rascal that can deal
-//	 * with embedded concrete syntax fragments
-//	 * 
-//	 * Note that this method works under the assumption that a normal parser was generated before!
-//	 * The class that this parser generates will inherit from that previously generated parser.
-//	 * @param rex TODO
-//	 */
-//	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getRascalParser(ISourceLocation loc, String name, IMap definition, IGTD<IConstructor, IConstructor, ISourceLocation> objectParser, RascalExecutionContext rex) {
-//		try {
-//			rex.event("Importing and normalizing grammar: " + name, 10);
-//			IConstructor grammar = convertMapToGrammar(definition);
-//			String normName = name.replaceAll("::", "_");
-//			rex.event("Generating java source code for Rascal parser:" + name, 10);
-//			IString classString = (IString) evaluator.call(rex.getMonitor(), "generateMetaParser", vf.string(packageName), vf.string("$Rascal_" + normName), vf.string(packageName + "." + normName), grammar);
-//			debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/metaParser.java");
-//			rex.event("compiling generated java code: " + name, 10);
-//			return bridge.compileJava(loc, packageName + ".$Rascal_" + normName, objectParser.getClass(), classString.getValue());
-//		}  catch (ClassCastException e) {
-//			throw new CompilerError("meta parser generator:" + e.getMessage() + e);
-//		} catch (Throw e) {
-//			throw new CompilerError("meta parser generator: " + e.getMessage() + e.getTrace());
-//		}
-//	}
 
 	private void debugOutput(String classString, String file) {
 		if (debug) {

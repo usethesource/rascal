@@ -43,48 +43,26 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 public class ParsingTools {
 
 	private IValueFactory vf;
-	private PrintWriter stderr;
-	private HashMap<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parsers;
+	private Cache<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parsers;
 	
 	public ParsingTools(IValueFactory vf){
 		super();
 		this.vf = vf;
-		stderr = new PrintWriter(System.err);
-		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>>();
+		parsers = Caffeine.newBuilder().build();
 	}
 	
 	public void reset(){
-		parsers = new HashMap<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>>();
-	}
-	
-	/** 
-	 * Store a generated and compiled parser.
-	 * @param moduleName	Name of module in which grammar is defined
-	 * @param start 		The start nonterminal
-	 * @param parser		The generated parser class
-	 */
-	private void storeObjectParser(String moduleName, IValue start, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser) {
-		//stderr.println("Compiled -- Storing parser for " + moduleName /*+ "/" + start*/);
-		parsers.put(start, parser);
-	}
-
-	/**
-	 * Retrieve a generated and compiled parser
-	 * @param moduleName	Name of module in which grammar is defined
-	 * @param start 		The start symbol
-	 * @return				The generated parser class or NULL
-	 */
-	private Class<IGTD<IConstructor, ITree, ISourceLocation>> getObjectParser(String moduleName, IValue start) {
-		Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = parsers.get(start);
-		//stderr.println("Compiled -- Retrieving parser for " + moduleName + /* "/" + start + */ ((parser == null) ? " fails" : " succeeds"));
-		return parser;
+		parsers = Caffeine.newBuilder().build();
 	}
 	
 	private IGTD<IConstructor, ITree, ISourceLocation> getObjectParser(IString moduleName, IValue start, ISourceLocation loc, IMap syntax, RascalExecutionContext rex) throws IOException{
-		return getParser(moduleName.getValue(), start, loc, false, syntax, rex);
+		return getParser(moduleName.getValue(), start, loc, syntax, rex);
 	}
 
 	private boolean isBootstrapper() {
@@ -238,10 +216,8 @@ public class ParsingTools {
 	      Class<?> clazz;
 	      for (ClassLoader cl: rex.getClassLoaders()) {
 	        try {
-	          //stderr.println("Trying classloader: " + cl);
 	          clazz = cl.loadClass(className);
 	          parser =  (IGTD<IConstructor, ITree, ISourceLocation>) clazz.newInstance();
-	          //stderr.println("succeeded!");
 	          break;
 	        } catch (ClassNotFoundException e) {
 	          continue;
@@ -309,23 +285,15 @@ public class ParsingTools {
 		}
 	}
 	  
-	  public IGTD<IConstructor, ITree, ISourceLocation> getParser(String name, IValue start, ISourceLocation loc, boolean force, IMap syntax, RascalExecutionContext rex) throws IOException {
+	  public IGTD<IConstructor, ITree, ISourceLocation> getParser(String name, IValue start, ISourceLocation loc, IMap syntax, RascalExecutionContext rex) throws IOException {
 
 		if(getBootstrap(name, rex)){
-			//stderr.println("Compiled -- getParser: " + name + " returns RascalParser");
 			return new RascalParser();
 		}
 	    ParserGenerator pg = getParserGenerator(rex);
 	    IMap definitions = syntax;
 	    
-	    Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = getObjectParser(name, start);
-
-	    if (parser == null || force) {
-	      String parserName = name; // .replaceAll("::", ".");
-	      //stderr.println("Compiled -- getParser: name = " + name);
-	      parser = pg.getNewParser(rex.getMonitor(), loc, parserName, definitions, rex);
-	      storeObjectParser(name, start, parser);
-	    }
+	    Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = parsers.get(start, k -> pg.getNewParser(rex.getMonitor(), loc, name, definitions, rex));
 
 	    try {
 	      return parser.newInstance();
@@ -380,7 +348,7 @@ public class ParsingTools {
 	    ITree lit = TreeAdapter.getArg((ITree) tree, "parts");
 	    Map<String, ITree> antiquotes = new HashMap<String,ITree>();
 	    
-	    IGTD<IConstructor, ITree, ISourceLocation> parser = getBootstrap(name.getValue(), rex) ? new RascalParser() : getParser(name.getValue(), start, TreeAdapter.getLocation((ITree) tree), false, grammar, rex);
+	    IGTD<IConstructor, ITree, ISourceLocation> parser = getBootstrap(name.getValue(), rex) ? new RascalParser() : getParser(name.getValue(), start, TreeAdapter.getLocation((ITree) tree), grammar, rex);
 	    
 	    try {
 	      String parserMethodName = getParserGenerator(rex).getParserMethodName(symTree, rex);
