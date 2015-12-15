@@ -127,7 +127,7 @@ public class Prelude {
 	protected final IValueFactory values;
 	private final Random random;
 	
-	private final boolean trackReadWrite = true;
+	private final boolean trackReadWrite = false;
 	
 	public Prelude(IValueFactory values){
 		super();
