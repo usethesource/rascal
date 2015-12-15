@@ -118,7 +118,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
    
    // Read the muLibrary
    <existsMuLibraryCompiled, MuLibraryCompiled>  = getMuLibraryCompiledReadLoc(pcfg);
-   println("MuLibraryCompiled: <existsMuLibraryCompiled>, <MuLibraryCompiled>, <MuLibraryCompiled.scheme>");
+
    if(existsMuLibraryCompiled){
        try {
            imported_declarations = readBinaryValueFile(#list[experiments::Compiler::RVM::AST::Declaration], MuLibraryCompiled);
