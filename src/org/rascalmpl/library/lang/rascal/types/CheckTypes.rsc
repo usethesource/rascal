@@ -7989,6 +7989,24 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		}
 	}
 	
+	// Synchronize the 'importGraph' and 'dirtyModules' fields in all modules of a component
+	for (wlItem <- worklist) {
+	     if (component(itemNames) := wlItem){
+	         newImportGraph = {};
+	         newDirtyModules = {};
+	         for (itemName <- itemNames, itemName in workingConfigs) {
+	           newImportGraph = newImportGraph + workingConfigs[itemName].importGraph;
+	           newDirtyModules = newDirtyModules + workingConfigs[itemName].dirtyModules;
+	         }
+	         for (itemName <- itemNames, itemName in workingConfigs) {
+	            newConfig = workingConfigs[itemName];
+	            newConfig.importGraph = newImportGraph;
+	            newConfig.dirtyModules = newDirtyModules;
+	            workingConfigs[itemName] = newConfig;
+	         }
+	     }
+	}
+	
 	for (mn <- moduleLocations, mn in workingConfigs) {
 		// Note: This writes more than we need of the hashes. We should probably use domainX to remove non-reachable modules.
 		if (exists(moduleLocations[mn])) {
