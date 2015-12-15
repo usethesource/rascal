@@ -426,7 +426,7 @@ str config(loc cloc,  Query select = none()){
    if(hasMatches(c.fcvEnv, select)) { res += "fcvEnv:\n"; for(nm <- c.fcvEnv) res += getSelected(prettyPrintName(nm), c.fcvEnv[nm], select); }
    
    if(hasMatches(c.typeEnv, select)) { res += "typeEnv:\n"; for(nm <- c.typeEnv) res += getSelected(nm, c.typeEnv[nm], select); }
-   if(hasMatches(c.modEnv, select)) {  res += "modEnv:\n"; for(nm <- c.modEnv)printSelected(nm, c.modEnv[nm], select); }
+   if(hasMatches(c.modEnv, select)) {  res += "modEnv:\n"; for(nm <- c.modEnv)getSelected(nm, c.modEnv[nm], select); }
    if(hasMatches(c.annotationEnv, select)) {  res += "annotationEnv:\n"; for(nm <- c.annotationEnv) res += getSelected(nm, c.annotationEnv[nm], select); }
    if(hasMatches(c.tagEnv, select)) {  res += "tagEnv:\n"; for(nm <- c.tagEnv) res += getSelected(nm, c.tagEnv[nm], select); }
    if(hasMatches(c.visibilities, select)) {  res += "visibilities:\n"; for(uid <- c.visibilities)  res += getSelected(uid, c.visibilities[uid], select); }
@@ -452,8 +452,8 @@ str config(loc cloc,  Query select = none()){
    
    if(hasMatches(c.deferredSignatures, select)) {  res += "deferredSignatures:\n"; for(uid <- sort(domain(c.deferredSignatures)))  res += getSelected(uid, c.deferredSignatures[uid], select); }
    if(hasMatches(c.unimportedNames, select)) {  res += "unimportedNames:\n"; for(uid <- sort(c.unimportedNames))  res += getSelected(uid, select); }
-   /*if(c.importGraph != {})*/ {  res += "importGraph:\n"; for(<nm1, nm2> <- c.importGraph) res += "\t\<<prettyPrintName(nm1)>, <prettyPrintName(nm2)>\>"; }
-   if(c.dirtyModules != {}) { res += "dirtyModules:\n"; for(dirty <- c.dirtyModules) res += "\t<prettyPrintName(dirty)>"; }
+   if(c.importGraph != {}) {  res += "importGraph:\n"; for(<nm1, nm2> <- c.importGraph) res += "\t\<<prettyPrintName(nm1)>, <prettyPrintName(nm2)>\>\n"; }
+   if(c.dirtyModules != {}) { res += "dirtyModules:\n"; for(dirty <- c.dirtyModules) res += "\t<prettyPrintName(dirty)>\n"; }
    return res;
 }
 
