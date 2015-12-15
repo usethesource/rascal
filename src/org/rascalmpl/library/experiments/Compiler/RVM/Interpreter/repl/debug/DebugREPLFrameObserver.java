@@ -11,7 +11,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 
 import jline.Terminal;
-import jline.console.ConsoleReader;
 
 public class DebugREPLFrameObserver implements IFrameObserver {
 
