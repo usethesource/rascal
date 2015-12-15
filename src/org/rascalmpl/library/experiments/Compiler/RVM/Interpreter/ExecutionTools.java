@@ -7,12 +7,6 @@ import java.util.HashMap;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CallTrackingObserver;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CoverageFrameObserver;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.DebugFrameObserver;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.NullFrameObserver;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.ProfileFrameObserver;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.RVMTrackingObserver;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -186,20 +180,6 @@ public class ExecutionTools {
 	 * @return				an initialized RVM instance
 	 */
 	 public static RVM initializedRVM(RVMExecutable executable, RascalExecutionContext rex){
-
-//		 if(rex.getProfile()){
-//			 rex.setFrameObserver(new ProfileFrameObserver(rex.getStdOut()));
-//		 } else if(rex.getCoverage()){
-//			 rex.setFrameObserver(new CoverageFrameObserver(rex.getStdOut()));
-//		 } else if(rex.getDebug()){
-//			 rex.setFrameObserver(new DebugFrameObserver(rex.getStdOut()));
-//		 } else if(rex.getTrackCalls()){
-//			 rex.setFrameObserver(new CallTrackingObserver(rex.getStdOut()));
-//		 } else if(rex.getDebugRVM()){
-//			 rex.setFrameObserver(new RVMTrackingObserver(rex.getStdOut()));
-//		 } else {
-//			 rex.setFrameObserver(NullFrameObserver.getInstance());
-//		 }
 		
 		RVM rvm = rex.getUseJVM() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
 		
