@@ -111,7 +111,7 @@ Figure gbox1()= overlay(figs=[
 
 void tgbox1() = render(gbox1());
 
-Figure grap() = graph([
+Figure grap() = graph(nodes=[
 <"a", gbox1()>
 , <"b"
      // , overlay(figs=[
@@ -127,7 +127,7 @@ Figure grap() = graph([
 )>
 // , <"d", ngon(n=3, r= 30, size=<50, 50>, fillColor = "lightgreen")>
 ]
-, [edge("a", "b", lineInterpolate="basis"), edge("b","c", lineInterpolate="basis"), edge("c", "a", lineInterpolate="basis")
+, edges=[edge("a", "b"/*, lineInterpolate="basis"*/), edge("b","c", lineInterpolate="basis"), edge("c", "a", lineInterpolate="basis")
 
 // , edge("d", "a")
 ], width = 150, height = 300);
@@ -148,31 +148,45 @@ void tgraph()= render(hcat(hgap=5, figs = [gbox1(), box(grow=1.0,  fig=grap())
 
 void fgraph(loc l) = writeFile(l, toHtmlString(hcat(hgap=5, figs = [gbox1(), grap()])));
 
-Figure mbox(str txt) = box(lineWidth = 1, rounded=<5, 5>,size=<100, 50>, fig=text(txt), tooltip = txt);
+value tri(bool tt) = tt?vcat(size=<100, 30>, figs=[text("aap"), text("noot")]):box(fig=text("noot"));
 
-Figure model() = graph([<"a", mbox("Figure")>
-                       , <"b", box(lineWidth = 0, rounded=<15, 15>,size=<100, 60>, fig=
-                              vcat(vgap=0, borderWidth = 4, borderColor="grey", borderStyle="ridge", figs = [text("IFigure")
-                                  , hcat(borderWidth = 1, hgap = 6, figs = [text("id"), text("ref")])]))>
-                       ,  <"c", mbox("Widget")>], [edge("a", "b"), edge("b", "c")]
+Figure mbox(str txt, bool tt) = box(lineWidth = 1, fillColor="yellow", rounded=<5, 5>,size=<100, 50>/*, fig=text(txt)*/
+    , tooltip = tri(tt), id = newId());
+
+Figure model() = graph([<"a", mbox("Figure", true)>
+                       
+                       , <"b"
+                       //, vcat(size=<100, 100>, vgap=0, borderWidth = 4, borderColor="grey", borderStyle="ridge", figs = 
+                       //         [htmlText("IFigure", size=<50, 20>)
+                       //             ,hcat(borderWidth = 1, hgap = 6
+                       //             , figs = [htmlText("id", size=<50,20>), htmlText("ref", size=<50,20>)])])                      
+                       //             >
+                       ,mbox("This", true)>
+                       , <"c", mbox("Widget", true)>                 
+                       ]
+                       , [edge("a", "b"), edge("b", "c")]
                        , width = 150, height = 300, lineWidth = 0, align = centerMid);
                         
 void tmodel()= render(model(), align = centerMid);
 
+Figure t(str s) = box(fig=text(s, fontSize=20, fontColor="green"), fillColor = "yellow");
 
-Figure g() = box(fig=box(size=<1000, 4000>, align = centerRight, fig=graph(size=<0,0>,nodeProperty=(),width=1000,height=1000,nodes=
-   [<"Exception",box(tooltip="Exception",fig=text("Exception",fontSize=12))>
-   ,<"experiments::Compiler::Examples::RascalExtraction",box(tooltip="experiments::Compiler::Examples::RascalExtraction",fig=text("RascalExtraction",fontSize=12))>
-   ,<"IO",box(tooltip="IO",fig=text("IO",fontSize=12))>
-   ,<"Message",box(tooltip="Message",fig=text("Message",fontSize=12))>
-   ,<"Type",box(tooltip="Type",fig=text("Type",fontSize=12))>
-   ,<"Map",box(tooltip="Map",fig=text("Map",fontSize=12))>
-   ,<"ParseTree",box(tooltip="ParseTree",fig=text("ParseTree",fontSize=12))>
-   ,<"util::Benchmark",box(tooltip="util::Benchmark",fig=text("Benchmark",fontSize=12))>
-   ,<"util::Reflective",box(tooltip="util::Reflective",fig=text("Reflective",fontSize=12))>
-   ,<"ValueIO",box(tooltip="ValueIO",fig=text("ValueIO",fontSize=12))>
-   ,<"List",box(tooltip="List",fig=text("List",fontSize=12))>
-   ,<"lang::rascal::syntax::Rascal",box(tooltip="lang::rascal::syntax::Rascal",fig=text("Rascal",fontSize=12))>]
+
+Figure g() = box(size=<1000, 1000>, align = centerRight, fig=
+   graph(nodeProperty=(),width=1000,height=1000,nodes=
+   [<"Exception",box(tooltip=t("Exception"), fig = text("Exception", fontColor="blue", fontSize=20))>
+   ,<"experiments::Compiler::Examples::RascalExtraction",box(tooltip=t("experiments::Compiler::Examples::RascalExtraction"),fig=text("RascalExtraction",fontSize=12))>
+   ,<"IO",box(tooltip=t("IO"),fig=text("IO",fontSize=12))>
+   ,<"Message",box(tooltip=t("Message"),fig=text("Message",fontSize=12))>
+   ,<"Type",box(tooltip=t("Type"),fig=text("Type",fontSize=12))>
+   ,<"Map",box(tooltip=t("Map"),fig=text("Map",fontSize=12))>
+  ,<"ParseTree",box(tooltip=t("ParseTree"),fig=text("ParseTree",fontSize=12))>
+   ,<"util::Benchmark",box(tooltip=t("util::Benchmark"),fig=text("Benchmark",fontSize=12))>
+  ,<"util::Reflective",box(tooltip=t("util::Reflective"),fig=text("Reflective",fontSize=12))>
+  ,<"ValueIO",box(tooltip=t("ValueIO"),fig=text("ValueIO",fontSize=12))>
+  ,<"List",box(tooltip=t("List"),fig=text("List",fontSize=12))>
+  ,<"lang::rascal::syntax::Rascal",box(tooltip=t("lang::rascal::syntax::Rascal"),fig=text("Rascal",fontSize=12))>
+    ]
    ,lineWidth=1
    ,edges=[
     edge("util::Reflective","Exception")
@@ -190,6 +204,7 @@ Figure g() = box(fig=box(size=<1000, 4000>, align = centerRight, fig=graph(size=
    ,edge("util::Benchmark","IO"),edge("experiments::Compiler::Examples::RascalExtraction","Exception")
    ,edge("Message","Exception"),edge("Type","List"),edge("util::Reflective","ParseTree")
    ,edge("util::Reflective","IO"),edge("experiments::Compiler::Examples::RascalExtraction","lang::rascal::syntax::Rascal")
-   ,edge("ParseTree","List")],options=graphOptions()),align=<0.0,0.0>,lineWidth=0)); 
+   ,edge("ParseTree","List")
+   ],options=graphOptions()),align=<0.0,0.0>,lineWidth=0); 
 
-   void tg()= render(g(), size=<600, 600>, align = centerMid);
+   void tg()= render(g(), size=<1000, 1000>, align = centerMid);

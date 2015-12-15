@@ -25,6 +25,9 @@ public void render1(Figure f, str fillColor = "none", Alignment align = <0.5, 0.
 );
 
 
+public void tut1()= render(box());
+
+
 Figures  tut() =
 // 0
    [box(lineColor="green", lineWidth=16) 
@@ -302,3 +305,8 @@ public void ftetris1(loc l) = writeFile(l, toHtmlString(
     grid(hgap=4, vgap = 4, id="aap", figArray=[[_tetris1(),  _tetris2()]])
 ));
 
+public Figure tip() = box(size=<150, 150>, tooltip = box(size=<50, 50>,resizable=false), resizable=false);
+
+public void ttip() = render(tip());
+
+public void ftip(loc l) = writeFile(l, toHtmlString(tip()));
