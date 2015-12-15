@@ -47,6 +47,9 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 public class ReflectiveCompiled extends Reflective {
 	
 	private final PreludeCompiled preludeCompiled;
+	private final int parsedModuleCacheSize = 30;
+	Cache<String, IValue> parsedModuleCache = Caffeine.newBuilder().maximumSize(parsedModuleCacheSize).build();
+	
 
 	public ReflectiveCompiled(IValueFactory values){
 		super(values);
@@ -90,14 +93,10 @@ public class ReflectiveCompiled extends Reflective {
 		}
 	}
 	
-	//Map<String, IValue> parseModuleCache = new HashMap<>();
-	
-	Cache<String, IValue> cache = Caffeine.newBuilder().build();
-	
 	public IValue parseModule(ISourceLocation loc,  RascalExecutionContext rex) {
 		
 		String key = loc.toString() + lastModified(loc).toString();
-		return cache.get(key, k -> {
+		return parsedModuleCache.get(key, k -> {
 			IActionExecutor<ITree> actions = new NoActionExecutor();	
 
 			try {
