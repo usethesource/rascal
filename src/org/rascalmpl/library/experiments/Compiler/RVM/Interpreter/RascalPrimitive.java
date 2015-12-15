@@ -8302,15 +8302,30 @@ public enum RascalPrimitive {
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 4;
 			IString id = (IString) stack[sp - 4];
-			DescendantDescriptor desc = rex.getDescendantDescriptorMap().get(id);
-			if(desc == null){
-				ISet symbolset = (ISet) stack[sp - 3];
-				IBool concreteMatch = (IBool) stack[sp - 2];
-				IMap definitions = (IMap) stack[sp - 1];
-				desc = new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
-				rex.getDescendantDescriptorMap().put(id,  desc);
-			}
-			stack[sp - 4] = desc;
+			
+//			DescendantDescriptor desc = rex.getDescendantDescriptorMap().get(id, k-> {
+//				ISet symbolset = (ISet) stack[sp - 3];
+//				IBool concreteMatch = (IBool) stack[sp - 2];
+//				IMap definitions = (IMap) stack[sp - 1];
+//				return new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
+//			});
+
+			
+//			DescendantDescriptor desc = rex.getDescendantDescriptorMap().get(id);
+//			if(desc == null){
+//				ISet symbolset = (ISet) stack[sp - 3];
+//				IBool concreteMatch = (IBool) stack[sp - 2];
+//				IMap definitions = (IMap) stack[sp - 1];
+//				desc = new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
+//				rex.getDescendantDescriptorMap().put(id,  desc);
+//			}
+			stack[sp - 4] = rex.getDescendantDescriptorCache()
+					.get(id, k -> {
+						ISet symbolset = (ISet) stack[sp - 3];
+						IBool concreteMatch = (IBool) stack[sp - 2];
+						IMap definitions = (IMap) stack[sp - 1];
+						return new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
+					});
 			return sp - 3;
 		};
 	},
