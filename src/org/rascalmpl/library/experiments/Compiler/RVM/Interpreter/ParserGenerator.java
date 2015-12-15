@@ -27,7 +27,6 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;				// TODO: remove impor
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;	// remove import: NO
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.JavaBridge;					// remove import: NO
-import org.rascalmpl.library.Prelude;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMap;
