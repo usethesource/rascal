@@ -1,6 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -11,7 +10,6 @@ import java.util.List;
 
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
-import org.fusesource.jansi.Ansi.Color;
 import org.rascalmpl.library.experiments.Compiler.Commands.PathConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.highlighter.RascalHighlighter;
