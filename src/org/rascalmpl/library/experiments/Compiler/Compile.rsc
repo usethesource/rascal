@@ -133,10 +133,12 @@ RVMModule recompileDependencies(str qualifiedModuleName, RVMModule rvmMod, Confi
     messages = {};
     
     dirtyModules = { prettyPrintName(dirty) | dirty <- cfg.dirtyModules };
-   
+    //println("dirtyModules:");
+    //for(m1 <- dirtyModules) println("\t<m1>");
     if(verbose){
+       println("importGraph:");
        for(<m1, m2> <- cfg.importGraph){
-           println("<prettyPrintName(m1)> imports <prettyPrintName(m2)>");
+           println("\t<prettyPrintName(m1)> imports <prettyPrintName(m2)>");
        }
     }
         
@@ -151,7 +153,7 @@ RVMModule recompileDependencies(str qualifiedModuleName, RVMModule rvmMod, Confi
         }
     }
     
-    //clearDirtyModules(qualifiedModuleName, pcfg);
+    clearDirtyModules(qualifiedModuleName, pcfg);
     
     errors = [ e | e:error(_,_) <- messages];
     warnings = [ w | w:warning(_,_) <- messages ];
