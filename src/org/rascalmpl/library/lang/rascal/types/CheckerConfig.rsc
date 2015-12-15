@@ -274,6 +274,13 @@ public tuple[Configuration,Symbol] checkTVarBound(Configuration c, loc l, Symbol
 public Configuration addTopLevelVariable(Configuration c, RName n, bool inf, Vis visibility, loc l, Symbol rt) {
 	moduleId = head([i | i <- c.stack, c.store[i] is \module]);
 	moduleName = c.store[moduleId].name;
+	
+	if (n in c.fcvEnv){
+      if(c.store[c.fcvEnv[n]].at == l){
+         c = addScopeInfo(c, "addTopLevelVariable: not adding <n> from same location", l);
+         return c;
+      }
+    }
 
 	< c, rt > = checkTVarBound(c, l, rt);
 
