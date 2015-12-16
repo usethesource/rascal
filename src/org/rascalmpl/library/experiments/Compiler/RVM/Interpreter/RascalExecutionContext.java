@@ -29,6 +29,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.Null
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.ProfileFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.RVMTrackingObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
+import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
@@ -41,6 +42,7 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.values.uptr.ITree;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -82,23 +84,32 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private boolean useJVM;
 	private final IMap moduleTags;
 	
+	private Cache<Type[], Boolean> subtypeCache;
 	private final int subtypeCacheSize = 200;
+	
 	private final int type2symbolCacheSize = 100;
 	private final int descendantDescriptorCacheSize = 50;
+	
+	private Cache<String, Function> companionDefaultFunctionCache;
 	private final int companionDefaultFunctionCacheSize = 100;
+	
+	private Cache<String, Function> companionFieldDefaultFunctionCache;
 	private final int companionFieldDefaultFunctionCacheSize = 100;
+	
+	private Cache<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache;
+	private final int parserCacheSize = 30;
 	
 	// State for RascalPrimitive
 	
 	private final ParsingTools parsingTools; 
 	Stack<String> indentStack = new Stack<String>();
-	private Cache<Type, IConstructor> type2symbolCache = Caffeine.newBuilder().maximumSize(type2symbolCacheSize).build();
+	private Cache<Type, IConstructor> type2symbolCache;
 	
 	StringBuilder templateBuilder = null;
 	private final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
 	private IListWriter test_results;
 	
-	private Cache<IString, DescendantDescriptor> descendantDescriptorCache = Caffeine.newBuilder().maximumSize(descendantDescriptorCacheSize).build();
+	private Cache<IString, DescendantDescriptor> descendantDescriptorCache;
 	
 	public RascalExecutionContext(
 			String moduleName, 
@@ -195,10 +206,32 @@ public class RascalExecutionContext implements IRascalMonitor {
 		}
 		
 		parsingTools = new ParsingTools(vf);
+		createCaches(true);
+	}
+	
+	private void createCaches(boolean enabled){
+		type2symbolCache = Caffeine.newBuilder().maximumSize(enabled ? type2symbolCacheSize : 0).build();
+		descendantDescriptorCache = Caffeine.newBuilder().maximumSize(enabled ? descendantDescriptorCacheSize : 0).build();
+		subtypeCache = Caffeine.newBuilder().maximumSize(enabled ? subtypeCacheSize : 0).build();
+		companionDefaultFunctionCache = Caffeine.newBuilder().maximumSize(enabled ? companionDefaultFunctionCacheSize : 0).build();
+		companionFieldDefaultFunctionCache = Caffeine.newBuilder().maximumSize(enabled ? companionFieldDefaultFunctionCacheSize : 0).build();
+		parserCache = Caffeine.newBuilder().maximumSize(enabled ? parserCacheSize : 0).build();
+	}
+	
+	public void clearCaches(){
+		createCaches(true);
+	}
+	
+	public void noCaches(){
+		createCaches(false);
 	}
 
 	public ParsingTools getParsingTools(){
 		return parsingTools;
+	}
+	
+	public Cache<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> getParserCache(){
+		return parserCache;
 	}
 	
 	IValueFactory getValueFactory(){ return vf; }
@@ -269,11 +302,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 		return type2symbolCache.get(t, k -> RascalPrimitive.$type2symbol(t));
 	}
 	
-	 Cache<IString, DescendantDescriptor> getDescendantDescriptorCache() {
+	Cache<IString, DescendantDescriptor> getDescendantDescriptorCache() {
 		return descendantDescriptorCache;
 	}
-	
-	private Cache<Type[], Boolean> subtypeCache = Caffeine.newBuilder().maximumSize(subtypeCacheSize).build();
 	
 	public boolean isSubtypeOf(Type t1, Type t2){
 		//return t1.isSubtypeOf(t2);
@@ -292,8 +323,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	void setTestResults(IListWriter writer) { test_results = writer; }
 	
-	private Cache<String, Function> companionDefaultFunctionCache = Caffeine.newBuilder().maximumSize(companionDefaultFunctionCacheSize).build();
-	
 	public Function getCompanionDefaultsFunction(String name, Type ftype){
 		String key = name + ftype;
 		
@@ -304,20 +333,12 @@ public class RascalExecutionContext implements IRascalMonitor {
 		return result;
 	}
 	
-	private Cache<String, Function> companionFieldDefaultFunctionCache = Caffeine.newBuilder().maximumSize(companionFieldDefaultFunctionCacheSize).build();
-	
 	public Function getCompanionFieldDefaultFunction(Type adtType, String fieldName){
 		//return rvm.getCompanionFieldDefaultFunction(adtType, fieldName);
 		
 		String key = adtType.toString() + fieldName;
 		Function result = companionFieldDefaultFunctionCache.get(key, k -> rvm.getCompanionFieldDefaultFunction(adtType, fieldName));
 		return result;
-	}
-	
-	public void clearCaches(){
-		companionDefaultFunctionCache = Caffeine.newBuilder().maximumSize(companionDefaultFunctionCacheSize).build();
-		companionFieldDefaultFunctionCache = Caffeine.newBuilder().maximumSize(companionFieldDefaultFunctionCacheSize).build();
-		subtypeCache = Caffeine.newBuilder().maximumSize(subtypeCacheSize).build();
 	}
 	
 	boolean bootstrapParser(String moduleName){
