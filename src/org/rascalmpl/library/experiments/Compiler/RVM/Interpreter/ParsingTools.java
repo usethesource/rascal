@@ -49,18 +49,18 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 public class ParsingTools {
 
 	private IValueFactory vf;
-	private Cache<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache;
-	private final int parserCacheSize = 30;
+//	private Cache<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache;
+//	private final int parserCacheSize = 30;
 	
 	public ParsingTools(IValueFactory vf){
 		super();
 		this.vf = vf;
-		parserCache = Caffeine.newBuilder().maximumSize(parserCacheSize).build();
+//		parserCache = Caffeine.newBuilder().maximumSize(parserCacheSize).build();
 	}
 	
-	public void reset(){
-		parserCache.invalidateAll();
-	}
+//	public void reset(){
+//		parserCache.invalidateAll();
+//	}
 	
 	private IGTD<IConstructor, ITree, ISourceLocation> getObjectParser(IString moduleName, IValue start, ISourceLocation loc, IMap syntax, RascalExecutionContext rex) throws IOException{
 		return getParser(moduleName.getValue(), start, loc, syntax, rex);
@@ -294,7 +294,7 @@ public class ParsingTools {
 	    ParserGenerator pg = getParserGenerator(rex);
 	    IMap definitions = syntax;
 	    
-	    Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = parserCache.get(start, k -> pg.getNewParser(rex.getMonitor(), loc, name, definitions, rex));
+	    Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = rex.getParserCache().get(start, k -> pg.getNewParser(rex.getMonitor(), loc, name, definitions, rex));
 
 	    try {
 	      return parser.newInstance();
