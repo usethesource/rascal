@@ -352,11 +352,18 @@ function askServer(path, parameters, timer, timeout, callback) {
    
    function adjustTable(id1, clients) { 
        var aUndefWH = clients.filter(undefWH);
-       if (aUndefWH.length==0) {
-            var width = document.getElementById(id1).getBoundingClientRect().width;
-            var height = document.getElementById(id1).getBoundingClientRect().height;
-            d3.select("#"+id1).attr("width",""+width+"px").attr("height",""+height+"px");
-            }
+       var width = d3.select("#"+id1).attr("width");
+       var height = d3.select("#"+id1).attr("height");
+       if ((height==null || width == null) && aUndefWH.length==0) {
+            width = document.getElementById(id1).getBoundingClientRect().width;
+            height = document.getElementById(id1).getBoundingClientRect().height;
+            d3.select("#"+id1).attr("width",""+width+"px").attr("height",""+height+"px");     
+           } else {
+             width = parseInt(width);
+             height = parseInt(height);
+           }
+           d3.select("#"+id1+"_fo").attr("width",""+width+"px").attr("height",""+height+"px");
+           d3.select("#"+id1+"_svg").attr("width",""+width+"px").attr("height",""+height+"px");
        }
        
    function adjustTableWH1(id1, clients) { 
