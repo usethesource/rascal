@@ -7538,6 +7538,9 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 
 	// Compute a new import graph, with cycles collapsed into connected components.
 	igComponents = directedConnectedComponents(moduleName, ig);
+	
+	// This map indicates whether the given module name is part of a connected component (true) or not (false).
+	inComponent = ( mn : true | component(mns) <- carrier(igComponents), mn <- mns) + ( mn : false | singleton(mn) <- carrier(igComponents) );  
 
 	// Set up initial configurations for all the modules we need to recheck	
 	map[RName,Configuration] workingConfigs = ( moduleName : c ) + ( mn : newConfiguration(c.pathConfiguration) | mn <- c.dirtyModules, mn != moduleName);
@@ -7547,6 +7550,24 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		c = addModule(c, mn, moduleTrees[mn]@\loc);
 		moduleIds[mn] = head(c.stack);
 		c = popModule(c);
+		
+		// Compute the import graph for the module mn. If this is moduleName, we already assigned
+		// the import graph above so we don't need to repeat the calculation here.
+		if (mn != moduleName) {
+			// Compute the include graph for this specific module. We start with just the
+			// direct includes, and then build up the graph until it stabilizes
+			subgraph = { < mn, mn2 > | < mn, mn2 > <- ig };
+			solve(subgraph) {
+				subgraph = subgraph + { < mn2, mn3 > | mn2 <- subgraph<1>, <mn2, mn3 > <- ig };
+			}
+			c.importGraph = subgraph;
+			
+			// We also compute the dirty modules for just this module. This is just those
+			// dirty modules that are part of reachable, so we don't include those that
+			// are not imported (again, directly or indirectly) by mn.
+			c.dirtyModules = (dirtyModules + igRev[dirtyModules]) & carrier(c.importGraph);
+		}
+
 		workingConfigs[mn] = c;
 	}
 	
@@ -7990,22 +8011,22 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	}
 	
 	// Synchronize the 'importGraph' and 'dirtyModules' fields in all modules of a component
-	for (wlItem <- worklist) {
-	     if (component(itemNames) := wlItem){
-	         newImportGraph = {};
-	         newDirtyModules = {};
-	         for (itemName <- itemNames, itemName in workingConfigs) {
-	           newImportGraph = newImportGraph + workingConfigs[itemName].importGraph;
-	           newDirtyModules = newDirtyModules + workingConfigs[itemName].dirtyModules;
-	         }
-	         for (itemName <- itemNames, itemName in workingConfigs) {
-	            newConfig = workingConfigs[itemName];
-	            newConfig.importGraph = newImportGraph;
-	            newConfig.dirtyModules = newDirtyModules;
-	            workingConfigs[itemName] = newConfig;
-	         }
-	     }
-	}
+	//for (wlItem <- worklist) {
+	//     if (component(itemNames) := wlItem){
+	//         newImportGraph = {};
+	//         newDirtyModules = {};
+	//         for (itemName <- itemNames, itemName in workingConfigs) {
+	//           newImportGraph = newImportGraph + workingConfigs[itemName].importGraph;
+	//           newDirtyModules = newDirtyModules + workingConfigs[itemName].dirtyModules;
+	//         }
+	//         for (itemName <- itemNames, itemName in workingConfigs) {
+	//            newConfig = workingConfigs[itemName];
+	//            newConfig.importGraph = newImportGraph;
+	//            newConfig.dirtyModules = newDirtyModules;
+	//            workingConfigs[itemName] = newConfig;
+	//         }
+	//     }
+	//}
 	
 	for (mn <- moduleLocations, mn in workingConfigs) {
 		// Note: This writes more than we need of the hashes. We should probably use domainX to remove non-reachable modules.
