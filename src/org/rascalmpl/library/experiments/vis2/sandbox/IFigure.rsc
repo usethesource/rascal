@@ -369,6 +369,11 @@ str getIntro() {
         '                // alert(JSON.stringify(t));         
         '                for (var d in t) {
         '                   var e = d3.select(\"#\"+d); 
+         '                  var svg = t[d][\"style\"][\"svg\"];
+        '                   for (var i in t[d][\"style\"]) {  
+        '                        // if (i==\"visibility\") alert(\"\"+d+\" \"+t[d][\"style\"][i]);                 
+        '                        e=e.style(svgStyle(i, svg), t[d][\"style\"][i]);
+        '                        }
         '                   // alert(d);
         '                   for (var i in t[d][\"text\"]) {
         '                        if (i==\"text\") e=e.text(t[d][\"text\"][i]);
@@ -400,10 +405,7 @@ str getIntro() {
         '                                    }
         '                        }
         '                   }
-        '                   var svg = t[d][\"style\"][\"svg\"];
-        '                   for (var i in t[d][\"style\"]) {                       
-        '                        e=e.style(svgStyle(i, svg), t[d][\"style\"][i]);
-        '                        } 
+       
         '                   for (var i in t[d][\"property\"]) {
         '                        var v = t[d][\"property\"][i];
         '                        e=e.property(i, v);           
@@ -898,7 +900,7 @@ str on(Figure f) {
     list[str] events = getEvents(f.event) + getEvent(f.event);
     value v = f.tooltip;
     if (Figure g:= v && g != emptyFigure()) {
-         if (indexOf(events, "mousenter") < 0) 
+         if (indexOf(events, "mouseenter") < 0) 
                  events = events + "mouseenter";
          if (indexOf(events, "mouseleave") < 0) 
                  events = events + "mouseleave";
@@ -1020,9 +1022,10 @@ str drawVisualization(str fname, str json) {
     ";  
     }
     
-str vl(value v) {
+value vl(value v) {
     if (str s:=v) return "\"<toLowerCase(s)>\"";
-    return v;
+    if (int d:=v) return d;
+    return "";
     }
     
 IFigure _googlechart(str cmd, str id, Figure f) {
@@ -1787,7 +1790,7 @@ str _padding(tuple[int, int, int, int] p) {
 bool isSvg(str s) =  startsWith(s, "\<svg");
    
 IFigure _overlay(str id, Figure f, list[Figure] figs, IFigure fig1...) {
-       list[IFigure] tfs = tooltips(figs); 
+       list[IFigure] tfs = tooltips(figs);
        fig1 = fig1+tfs;
        int lw = getLineWidth(f)<0?0:getLineWidth(f); 
        // if (f.lineWidth<0) f.lineWidth = 0;  
@@ -1811,8 +1814,8 @@ IFigure _overlay(str id, Figure f, list[Figure] figs, IFigure fig1...) {
         '  <attr("pointer-events", "none")>    
         ';<}> 
         '<for (q<-tfs){> 
-        '  d3.select(\"#<getId(q)>_fo\")<attrPx("x", getAtX(q))><attrPx("y", getAtY(q))>
-        '  <attr("pointer-events", "none")>       
+        '  //d3.select(\"#<getId(q)>_fo\")<attrPx("x", getAtX(q))><attrPx("y", getAtY(q))>
+        '  //<attr("pointer-events", "none")>       
         ';<}> 
         <for (q<-fig1){> 
          '<getSizeFromParent(q)?"adjustFrame(\"<getId(q)>\", <f.width>, <f.height>);":"">
@@ -2109,7 +2112,7 @@ IFigure _vcat(str id, Figure f,  bool addSvgTag, IFigure fig1...) {
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\"\> x=0 y=0 \<rect id=\"<id>_rect\"/\> 
+         "\<svg id=\"<id>_svg\" x=0 y=0 \> \<rect id=\"<id>_rect\"/\> 
          '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
          }
        begintag+="                 
@@ -2421,18 +2424,38 @@ void buildParentTree(Figure f) {
  
 Figure hide(Figure f) { f.visibility = "hidden"; return f;} 
 
+Figure withoutAt(Figure f) {
+       switch(f) {
+            case at(_, _, Figure g): return g;
+            case atX(_, Figure g): return g;
+            case aty(_, Figure g): return g;
+            }
+       return f;
+       }
+       
+ tuple[int, int] fromAt(Figure f) {
+       switch(f) {
+            case at(int x,int y , _): return <x+toInt(f.at[0]), y+toInt(f.at[1])>;
+            case atX(int x, _): return <x+toInt(f.at[0]),toInt(f.at[1])>;
+            case atY(int y, _): return <toInt(f.at[0]), y+toInt(f.at[1])>;
+            }
+       return <toInt(f.at[0]), toInt(f.at[1])>;
+       }
+       
+
 list[IFigure] tooltips(list[Figure] fs) {
-              // println("tooltips");
               list[Figure] tt = [g
-                  |Figure f<-fs, value v := f.tooltip, Figure g := v, g!=emptyFigure()]; 
+                  |Figure f<-fs, value v := withoutAt(f).tooltip, Figure g := v, g!=emptyFigure()]; 
               list[IFigure] tfs = [_translate(q, addSvgTag = true)|Figure q<-tt];
               for (Figure f<-fs) {
-                  if (widget["<f.id>_tooltip"]?)  {
-                     // println("<f.id>_tooltip");
+                  tuple[int, int] a = fromAt(f);
+                  Figure g = withoutAt(f);
+                  // println("<g>");
+                  if (widget["<g.id>_tooltip"]?)  {
                      if (f.width<0) f.width = f.size[0];
                      if (f.height<0) f.height = f.size[1];
-                     widget["<f.id>_tooltip"].x +=  f.at[0]/*+f.width*/;
-                     widget["<f.id>_tooltip"].y +=  f.at[1];
+                     widget["<g.id>_tooltip"].x +=  a[0]/*+f.width*/;
+                     widget["<g.id>_tooltip"].y +=  a[1];
                      }
                   }
               return tfs;

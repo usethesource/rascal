@@ -351,7 +351,8 @@ data GraphOptions = graphOptions(
 data NodeProperty = nodeProperty(str shape="",str labelStyle="", str style = "", str label="");
 
 data Edge = edge(str from, str to, str label = "", str lineInterpolate="basis"
-     ,str lineColor = "" ,str labelStyle="", str arrowStyle = "", str id = "");
+     ,str lineColor = "" ,str labelStyle="", str arrowStyle = "", str id = "",
+     str labelPos= "r", int labelOffset = 10);
   
 data ChartArea ( 
      value left = "",
