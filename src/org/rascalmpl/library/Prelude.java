@@ -2072,7 +2072,7 @@ public class Prelude {
 	public void generate(IValue grammar, IEvaluatorContext ctx) {
 		IguanaParserGenerator pg = ((Evaluator) ctx).getIguanaParserGenerator();
 		Grammar g = pg.generateGrammar(new NullRascalMonitor(), "TODO", (IMap) ((IConstructor) grammar).get("definitions"));
-		System.out.println(g.getConstructorCode());
+		// System.out.println(g.getConstructorCode());
 	}
 	
 	public void generate(IValue grammar, IString input, ISourceLocation loc, IEvaluatorContext ctx) {
@@ -2130,7 +2130,7 @@ public class Prelude {
 			writer.println("    public void test() {");
 			writer.println("         Grammar grammar =");
 			writer.println();
-			writer.println(g.getConstructorCode() + ";");
+			// writer.println(g.getConstructorCode() + ";");
 			writer.println();
 			writer.println("         DesugarAlignAndOffside desugarAlignAndOffside = new DesugarAlignAndOffside();");
 			writer.println("         desugarAlignAndOffside.doAlign();");

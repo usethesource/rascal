@@ -49,12 +49,8 @@ import org.iguana.grammar.symbol.Align;
 import org.iguana.grammar.symbol.Associativity;
 import org.iguana.grammar.symbol.AssociativityGroup;
 import org.iguana.grammar.symbol.Block;
-import org.iguana.grammar.symbol.Character;
-import org.iguana.grammar.symbol.CharacterRange;
 import org.iguana.grammar.symbol.Code;
 import org.iguana.grammar.symbol.Conditional;
-import org.iguana.grammar.symbol.EOF;
-import org.iguana.grammar.symbol.Epsilon;
 import org.iguana.grammar.symbol.IfThen;
 import org.iguana.grammar.symbol.IfThenElse;
 import org.iguana.grammar.symbol.Ignore;
@@ -71,13 +67,12 @@ import org.iguana.grammar.symbol.Terminal;
 import org.iguana.grammar.symbol.Terminal.Category;
 import org.iguana.grammar.symbol.While;
 import org.iguana.grammar.transformation.EBNFToBNF;
-import org.iguana.regex.Alt;
-import org.iguana.regex.Opt;
-import org.iguana.regex.Plus;
+import org.iguana.regex.CharacterRange;
+import org.iguana.regex.EOF;
+import org.iguana.regex.Epsilon;
 import org.iguana.regex.RegularExpression;
-import org.iguana.regex.Sequence;
-import org.iguana.regex.Star;
 import org.iguana.traversal.ISymbolVisitor;
+import org.iguana.traversal.RegularExpressionVisitor;
 import org.rascalmpl.ast.BooleanLiteral.Lexical;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Expression.And;
@@ -349,12 +344,14 @@ public class RascalToIguanaGrammarConverter {
 		IConstructor choice = (IConstructor) definitions.get(constructor);
 		ISet alts = (ISet) choice.get("alternatives");
 		IConstructor alt = (IConstructor) alts.iterator().next();
-		List<Symbol> symbols = getSymbolList((IList) alt.get("symbols"));
+		List<RegularExpression> symbols = getRegexList((IList) alt.get("symbols"));
 
+		// Category.REGEX is temporarily needed to track the origin of regular expressions, 
+		// as getName() may also refer to the string representation.
 		if (symbols.size() == 1)
-			return Terminal.builder((RegularExpression) symbols.get(0)).setCategory(Category.REGEX).setName(getName(constructor)).build();
+			return Terminal.builder(symbols.get(0)).setCategory(Category.REGEX).setName(getName(constructor)).build();
 		else 
-			return Terminal.builder(Sequence.from(symbols)).setCategory(Category.REGEX).setName(getName(constructor)).build();
+			return Terminal.builder(org.iguana.regex.Sequence.from(symbols)).setCategory(Category.REGEX).setName(getName(constructor)).build();
 	}
 	
 	private List<Rule> computeEnds(IValue nonterminal, IMap definitions) {
@@ -757,6 +754,22 @@ public class RascalToIguanaGrammarConverter {
 		return result;
 	}
 	
+	private List<RegularExpression> getRegexList(ISet rhs) {
+		List<RegularExpression> result = new ArrayList<>();
+
+		Iterator<IValue> it = rhs.iterator();
+		while (it.hasNext()) {
+			IConstructor current = (IConstructor) it.next();
+			RegularExpression symbol = getRegex(current);
+			
+			if (symbol != null) {
+				result.add(symbol);
+			}
+		}
+		
+		return result;
+	}
+	
 	private List<Symbol> getSymbolList(IList rhs) {
 		
 		List<Symbol> result = new ArrayList<>();
@@ -773,6 +786,46 @@ public class RascalToIguanaGrammarConverter {
 		}
 		
 		return result;
+	}
+	
+    private List<RegularExpression> getRegexList(IList rhs) {
+		
+		List<RegularExpression> result = new ArrayList<>();
+		
+		for(int i = 0; i < rhs.length(); i++) {
+			
+			IConstructor current = (IConstructor) rhs.get(i);
+			
+			RegularExpression symbol = getRegex(current);
+			
+			if (symbol != null) {
+				result.add(symbol);
+			}
+		}
+		
+		return result;
+	}
+	
+	private RegularExpression getRegex(IConstructor symbol) {
+		switch (symbol.getName()) {
+			case "char-class":
+				return getCharacterClass(symbol);
+			case "lit":
+				return org.iguana.regex.Sequence.from(getString(symbol));
+			case "iter":
+				return org.iguana.regex.Plus.from(getRegex(getSymbolCons(symbol)));
+			case "iter-star":
+				return org.iguana.regex.Star.from(getRegex(getSymbolCons(symbol)));
+			case "opt":
+				return org.iguana.regex.Opt.from(getRegex(getSymbolCons(symbol)));
+			case "alt":
+				return org.iguana.regex.Alt.from(getRegexList(getAlternatives(symbol)));
+			case "seq":
+				return org.iguana.regex.Sequence.from(getRegexList(getSymbols(symbol)));
+			case "empty":
+				return Epsilon.getInstance();
+		}
+		return null;
 	}
 
 	private Symbol getSymbol(IConstructor symbol) {
@@ -794,10 +847,10 @@ public class RascalToIguanaGrammarConverter {
 				return nonterminal;
 
 			case "char-class":
-				return getCharacterClass(symbol);
+				return Terminal.from(getRegex(symbol));
 				
 			case "lit":
-				Terminal terminal = Terminal.from(Sequence.from(getString(symbol)));
+				Terminal terminal = Terminal.from(org.iguana.regex.Sequence.from(getString(symbol)));
 				if (keywords.contains(terminal))
 					return terminal.copyBuilder().setCategory(Category.KEYWORD).build();
 				return terminal;
@@ -806,25 +859,25 @@ public class RascalToIguanaGrammarConverter {
 				return getSymbol(getSymbolCons(symbol)).copyBuilder().setLabel(getLabel(symbol)).build();
 	
 			case "iter":
-				return Plus.from(getSymbol(getSymbolCons(symbol)));
+				return org.iguana.grammar.symbol.Plus.from(getSymbol(getSymbolCons(symbol)));
 	
 			case "iter-seps":
-				return Plus.builder(getSymbol(getSymbolCons(symbol))).addSeparators(getSymbolList(getSeparators(symbol))).build();
+				return org.iguana.grammar.symbol.Plus.builder(getSymbol(getSymbolCons(symbol))).addSeparators(getSymbolList(getSeparators(symbol))).build();
 	
 			case "iter-star":
-				return Star.from(getSymbol(getSymbolCons(symbol)));
+				return org.iguana.grammar.symbol.Star.from(getSymbol(getSymbolCons(symbol)));
 	
 			case "iter-star-seps":
-				return Star.builder(getSymbol(getSymbolCons(symbol))).addSeparators(getSymbolList(getSeparators(symbol))).build();
+				return org.iguana.grammar.symbol.Star.builder(getSymbol(getSymbolCons(symbol))).addSeparators(getSymbolList(getSeparators(symbol))).build();
 	
 			case "opt":
-				return Opt.from(getSymbol(getSymbolCons(symbol)));
+				return org.iguana.grammar.symbol.Opt.from(getSymbol(getSymbolCons(symbol)));
 	
 			case "alt":
-				return Alt.from(getSymbolList(getAlternatives(symbol)));
+				return org.iguana.grammar.symbol.Alt.from(getSymbolList(getAlternatives(symbol)));
 	
 			case "seq":
-				return Sequence.from(getSymbolList(getSymbols(symbol)));
+				return org.iguana.grammar.symbol.Sequence.from(getSymbolList(getSymbols(symbol)));
 	
 			case "start":
 				return Nonterminal.withName("start[" + SymbolAdapter.toString(getSymbolCons(symbol), true) + "]");
@@ -844,7 +897,7 @@ public class RascalToIguanaGrammarConverter {
 							.build();
 				
 			case "empty":
-				return Epsilon.getInstance();
+				return Terminal.epsilon();
 				
 			case "token":
 				return tokens.computeIfAbsent(symbol, c -> getTokenDefinition(c, definitions));
@@ -896,8 +949,8 @@ public class RascalToIguanaGrammarConverter {
 		}
 	}
 
-	private Alt<CharacterRange> getCharacterClass(IConstructor symbol) {
-		return Alt.builder(buildRanges(symbol)).build();
+	private org.iguana.regex.Alt<CharacterRange> getCharacterClass(IConstructor symbol) {
+		return org.iguana.regex.Alt.builder(buildRanges(symbol)).build();
 	}
 	
 	private Set<Condition> getPostConditions(IConstructor symbol) {
@@ -952,7 +1005,7 @@ public class RascalToIguanaGrammarConverter {
 				list.add((RegularExpression) getSymbol(c));
 			}
 			
-			RegularExpression regex = Alt.from(list);
+			RegularExpression regex = org.iguana.regex.Alt.from(list);
 			
 			set.add(RegularExpressionCondition.notMatch(regex));
 		}
@@ -1434,7 +1487,7 @@ public class RascalToIguanaGrammarConverter {
 		
 	}
 	
-	private static class IsRecursive implements ISymbolVisitor<Boolean> {
+	private static class IsRecursive implements ISymbolVisitor<Boolean>, RegularExpressionVisitor<Boolean> {
 		
 		private final Recursion recursion;
 		private final Nonterminal head;
@@ -1476,7 +1529,7 @@ public class RascalToIguanaGrammarConverter {
 		}
 
 		@Override
-		public Boolean visit(Character symbol) {
+		public Boolean visit(org.iguana.regex.Character symbol) {
 			return false;
 		}
 
@@ -1563,19 +1616,19 @@ public class RascalToIguanaGrammarConverter {
 		}
 
 		@Override
-		public <E extends Symbol> Boolean visit(Alt<E> symbol) {
+		public <E extends Symbol> Boolean visit(org.iguana.grammar.symbol.Alt<E> symbol) {
 			System.out.println("Warning: indirect recursion isn't yet supported for (.|.).");
 			return false;
 		}
 
 		@Override
-		public Boolean visit(Opt symbol) {
+		public Boolean visit(org.iguana.grammar.symbol.Opt symbol) {
 			System.out.println("Warning: indirect recursion isn't yet supported for options.");
 			return false;
 		}
 
 		@Override
-		public Boolean visit(Plus symbol) {
+		public Boolean visit(org.iguana.grammar.symbol.Plus symbol) {
 			
 			if (recursion == Recursion.LEFT_REC || recursion == Recursion.RIGHT_REC) {
 				
@@ -1606,7 +1659,7 @@ public class RascalToIguanaGrammarConverter {
 		}
 
 		@Override
-		public <E extends Symbol> Boolean visit(Sequence<E> symbol) {
+		public <E extends Symbol> Boolean visit(org.iguana.grammar.symbol.Sequence<E> symbol) {
 			
 			if (recursion == Recursion.LEFT_REC || recursion == Recursion.RIGHT_REC) {
 				
@@ -1644,7 +1697,7 @@ public class RascalToIguanaGrammarConverter {
 		}
 
 		@Override
-		public Boolean visit(Star symbol) {
+		public Boolean visit(org.iguana.grammar.symbol.Star symbol) {
 			
 			if (recursion == Recursion.LEFT_REC || recursion == Recursion.RIGHT_REC) { // TODO: not good, there should be also left and right ends
 				
@@ -1674,6 +1727,31 @@ public class RascalToIguanaGrammarConverter {
 				if (set != null && set.contains(head.getName()))
 					return true;
 			}
+			return false;
+		}
+
+		@Override
+		public Boolean visit(org.iguana.regex.Star s) {
+			return false;
+		}
+
+		@Override
+		public Boolean visit(org.iguana.regex.Plus p) {
+			return false;
+		}
+
+		@Override
+		public Boolean visit(org.iguana.regex.Opt o) {
+			return false;
+		}
+
+		@Override
+		public <E extends RegularExpression> Boolean visit(org.iguana.regex.Alt<E> alt) {
+			return false;
+		}
+
+		@Override
+		public <E extends RegularExpression> Boolean visit(org.iguana.regex.Sequence<E> seq) {
 			return false;
 		}
 		
