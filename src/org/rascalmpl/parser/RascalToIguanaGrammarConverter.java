@@ -964,20 +964,20 @@ public class RascalToIguanaGrammarConverter {
 			
 				case "not-follow":
 					IConstructor notFollow = getSymbolCons((IConstructor) condition);
-					set.add(RegularExpressionCondition.notFollow((RegularExpression) getSymbol(notFollow)));
+					set.add(RegularExpressionCondition.notFollow(getRegex(notFollow)));
 					break;
 					
                 case "far-not-follow":
-                    set.add(RegularExpressionCondition.notFollowIgnoreLayout((RegularExpression) getSymbol(getSymbolCons((IConstructor) condition))));
+                    set.add(RegularExpressionCondition.notFollowIgnoreLayout(getRegex(getSymbolCons((IConstructor) condition))));
                     break;
                     
                 case "far-follow":
-                    set.add(RegularExpressionCondition.followIgnoreLayout((RegularExpression) getSymbol(getSymbolCons((IConstructor) condition))));
+                    set.add(RegularExpressionCondition.followIgnoreLayout(getRegex(getSymbolCons((IConstructor) condition))));
                     break;	
 	
 				case "follow":
 					IConstructor follow = getSymbolCons((IConstructor) condition);
-					set.add(RegularExpressionCondition.follow((RegularExpression) getSymbol(follow)));
+					set.add(RegularExpressionCondition.follow(getRegex(follow)));
 					break;
 	
 				case "delete":
@@ -1023,7 +1023,7 @@ public class RascalToIguanaGrammarConverter {
 	
 				case "not-precede":
 					IConstructor notPrecede = getSymbolCons((IConstructor) condition);
-					set.add(RegularExpressionCondition.notPrecede((RegularExpression) getSymbol(notPrecede)));
+					set.add(RegularExpressionCondition.notPrecede(getRegex(notPrecede)));
 					break;
 	
 				case "start-of-line":
@@ -1032,7 +1032,7 @@ public class RascalToIguanaGrammarConverter {
 	
 				case "precede":
 					IConstructor precede = getSymbolCons((IConstructor) condition);
-					set.add(RegularExpressionCondition.precede((RegularExpression) getSymbol(precede)));
+					set.add(RegularExpressionCondition.precede(getRegex(precede)));
 					break;
 				}
 		}
