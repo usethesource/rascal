@@ -133,9 +133,11 @@ RVMModule recompileDependencies(str qualifiedModuleName, RVMModule rvmMod, Confi
     messages = {};
     
     dirtyModules = { prettyPrintName(dirty) | dirty <- cfg.dirtyModules };
-    //println("dirtyModules:");
-    //for(m1 <- dirtyModules) println("\t<m1>");
+   
     if(verbose){
+       println("dirtyModules:");
+       for(m1 <- dirtyModules) println("\t<m1>");
+       
        println("importGraph:");
        for(<m1, m2> <- cfg.importGraph){
            println("\t<prettyPrintName(m1)> imports <prettyPrintName(m2)>");
