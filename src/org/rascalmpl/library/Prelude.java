@@ -2635,6 +2635,8 @@ public class Prelude {
 	}
 	
 	public IMap index(ISet s) {
+		// TODO this code is wrong since it does not ignore annotations
+		// on the keys at it should do.
 		Map<IValue, ISetWriter> map = new HashMap<IValue, ISetWriter>(s.size());
 		
 		for (IValue t : s) {
