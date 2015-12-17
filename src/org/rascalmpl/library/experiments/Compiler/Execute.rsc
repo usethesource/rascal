@@ -246,7 +246,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
    
    
    return rvmProgram(mainModule,
-           imported_moduleTags,
+           imported_moduleTags + mainModule.module_tags,
            imported_types,
            imported_declarations,
            imported_overloading_resolvers,
