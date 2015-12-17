@@ -2,6 +2,12 @@ module experiments::Compiler::ViewImportGraph
 
 import String;
 import Relation;
+import Set;
+import IO;
+
+import util::Reflective;
+import lang::rascal::types::CheckTypes;
+
 import experiments::vis2::sandbox::Figure;
 import experiments::vis2::sandbox::FigureServer;
 
@@ -325,8 +331,23 @@ void viewImportGraph(){
 
     modules = [<nm, box(fig=text(baseName(nm), fontSize=11, fontColor="white"), fillColor = "black", tooltip=makeToolTip(nm))> | nm <- carrier(importGraph), nm notin exclude];
     edges = [edge(nm2, nm1) | <nm1, nm2> <- importGraph, nm1 notin exclude, nm2 notin exclude];
-    g = box(width = 8000, height = 1000, resizable=false, fig=graph(modules, edges, width = 8000, height = 1000, lineWidth=1, graphOptions=graphOptions(nodeSep=0,layerSep=50, edgeSep=0)));
+    g = box(width = 8000, height = 1000, fig=graph(modules, edges, width = 8000, height = 1000, lineWidth=1, graphOptions=graphOptions(nodeSep=0,layerSep=50, edgeSep=0)));
     render(g); 
  }
  
  void main() { viewImportGraph(); }
+ 
+ void checkImportGraph(){
+    modules = carrier(importGraph);
+    C1BIN=pathConfig(binDir=|home:///c1bin|, libPath=[|home:///c1bin|]);
+    for(m <- modules){
+        try {
+            ig = getCachedConfig(m, C1BIN).importGraph;
+            if(size(ig) == 0){
+                println("+++empty imports+++ <m>");
+            }
+        } catch e: {
+            println("---not found --- <e>");
+        }
+    }
+ }
