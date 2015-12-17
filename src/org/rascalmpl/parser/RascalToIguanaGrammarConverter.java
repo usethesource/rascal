@@ -1002,7 +1002,7 @@ public class RascalToIguanaGrammarConverter {
 			
 			List<RegularExpression> list = new ArrayList<>();
 			for(IConstructor c : deleteList) {
-				list.add((RegularExpression) getSymbol(c));
+				list.add(getRegex(c));
 			}
 			
 			RegularExpression regex = org.iguana.regex.Alt.from(list);
