@@ -408,7 +408,7 @@ str config(str qualifiedModuleName,                // name of Rascal source modu
    if(<true, cloc> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
       return config(cloc,  select=select);
    } else {
-       return "Config file does not exist: <cloc>";
+       return "Config file does not exist for: <qualifiedModuleName>";
     }
 }
             
