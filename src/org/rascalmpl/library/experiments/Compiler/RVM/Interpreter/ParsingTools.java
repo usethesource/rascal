@@ -28,6 +28,7 @@ import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.INode;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISetWriter;
@@ -43,24 +44,14 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-
 public class ParsingTools {
 
 	private IValueFactory vf;
-//	private Cache<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache;
-//	private final int parserCacheSize = 30;
 	
 	public ParsingTools(IValueFactory vf){
 		super();
 		this.vf = vf;
-//		parserCache = Caffeine.newBuilder().maximumSize(parserCacheSize).build();
 	}
-	
-//	public void reset(){
-//		parserCache.invalidateAll();
-//	}
 	
 	private IGTD<IConstructor, ITree, ISourceLocation> getObjectParser(IString moduleName, IValue start, ISourceLocation loc, IMap syntax, RascalExecutionContext rex) throws IOException{
 		return getParser(moduleName.getValue(), start, loc, syntax, rex);
@@ -211,7 +202,7 @@ public class ParsingTools {
 		initializeRecovery(robust, lookaheads, robustProds);
 		
 		//__setInterrupt(false);
-		IActionExecutor<ITree> exec = new RascalFunctionActionExecutor(rex);  // TODO: remove CTX
+		IActionExecutor<ITree> exec = new RascalFunctionActionExecutor(rex);
 		
 	      String className = name;
 	      Class<?> clazz;
@@ -312,13 +303,16 @@ public class ParsingTools {
 	  }
 	 
 	  // Rascal library function (interpreter version)
-	  public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx) throws IOException{
-		  RascalExecutionContext rex = new RascalExecutionContext(vf, new PrintWriter(ctx.getStdOut()), new PrintWriter(ctx.getStdErr()), null, null, null, false, false, false, false, false, false, false, null, null, ctx.getEvaluator().getRascalResolver());
+	  public ITree parseFragment(IString name, IMap moduleTags, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx) throws IOException{
+		  IMapWriter w = vf.mapWriter();
+		  w.insert(vf.tuple(name, moduleTags));
+		  RascalExecutionContext rex = new RascalExecutionContext(vf, new PrintWriter(ctx.getStdOut()), new PrintWriter(ctx.getStdErr()), w.done(), null, null, false, false, false, false, false, false, false, null, null, ctx.getEvaluator().getRascalResolver());
 		  return parseFragment1(name, start, tree, loc, grammar, rex);
 	  }
 		
 	  // Rascal library function (compiler version)
-	  public ITree parseFragment(IString name, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex) throws IOException{ 
+	  // TODO moduleTags is only needed in interpreted version
+	  public ITree parseFragment(IString name, IMap moduleTags, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex) throws IOException{ 
 		  return parseFragment1(name, start, tree, loc, grammar, rex);
 	  }
 	
