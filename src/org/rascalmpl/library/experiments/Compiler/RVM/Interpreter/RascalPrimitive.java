@@ -410,6 +410,9 @@ public enum RascalPrimitive {
 				// creating non-encoded 
 				throw RascalRuntimeException.malformedURI(uri.getValue(), currentFrame);
 			}
+			catch (UnsupportedOperationException e) {
+				throw RascalRuntimeException.malformedURI(uri.getValue() + ":" + e.getMessage(), currentFrame);
+			}
 		}
 	},
 
@@ -6793,7 +6796,7 @@ public enum RascalPrimitive {
 				break;
 
 			case "top":
-				v = vf.sourceLocation(sloc.getURI());
+				v = sloc.top();
 				break;
 
 			default:
