@@ -46,6 +46,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
       resetModuleInfo();
       module_name = "<M.header.name>";
       setModuleName(module_name);
+      setModuleTags(translateTags(M.header.tags));
       if(verbose) println("r2mu: entering ... <module_name>");
    	  
    	  // Extract scoping information available from the configuration returned by the type checker  
@@ -92,7 +93,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  	];  
    	  
    	  return muModule(modName,
-   	  				  translateTags(M.header.tags),
+   	  				  getModuleTags(),
    	                  config.messages, 
    	  				  getImportsInModule(),
    	  				  getExtendsInModule(), 
