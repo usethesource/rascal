@@ -47,6 +47,7 @@ public abstract class LocationLiteral extends org.rascalmpl.ast.LocationLiteral 
 
 			try {
 				URI url = URIUtil.createFromEncoded(uri);
+				
 				ISourceLocation r = __eval.__getVf().sourceLocation(url);
 				
 				return org.rascalmpl.interpreter.result.ResultFactory
@@ -55,8 +56,10 @@ public abstract class LocationLiteral extends org.rascalmpl.ast.LocationLiteral 
 			} catch (URISyntaxException e) {
 				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
 						.malformedURI(uri, this, __eval.getStackTrace());
+			} catch (UnsupportedOperationException e) {
+				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+				.malformedURI(uri + ":" + e.getMessage(), this, __eval.getStackTrace());
 			}
-
 		}
 
 	}

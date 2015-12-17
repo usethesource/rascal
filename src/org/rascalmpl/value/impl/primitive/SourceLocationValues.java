@@ -112,6 +112,10 @@ import org.rascalmpl.value.visitors.IValueVisitor;
         };
 	
 	/*package*/ static ISourceLocation newSourceLocation(URI uri) throws URISyntaxException {
+		if (uri.isOpaque()) {
+			throw new UnsupportedOperationException("Opaque URI schemes are not supported; the scheme-specific part must start with a / character.");
+		}
+		
 		try {
 			// lock around the location cache, except if it takes to long to lock, then just skip the cache
 			if (locationCacheLock.tryLock(10, TimeUnit.MILLISECONDS)) {

@@ -8,10 +8,6 @@ import java.util.regex.Pattern;
  * Not supported: in URI class, scheme is case insensitive, but this is already kinda broken, since on windows & osx, so should path's be.
  */
 /*package*/ class SourceLocationURIValues {
-	static IURI newURI(URI base) throws URISyntaxException  {
-		return newURI(base.getScheme(), base.getAuthority(),base.getPath(), base.getQuery(), base.getFragment());
-	}
-
 	private static final Pattern schemePattern = Pattern.compile("[A-Za-z][A-Za-z0-9+\\-.]*");
 	private static final Pattern doubleSlashes = Pattern.compile("//+");
 	static IURI newURI(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException  {
