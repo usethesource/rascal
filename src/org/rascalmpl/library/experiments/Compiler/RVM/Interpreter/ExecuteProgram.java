@@ -7,6 +7,7 @@ import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -23,9 +24,14 @@ public class ExecuteProgram {
 	private boolean checkErrors(IConstructor rvmProgram) throws IOException{
 		IConstructor main_module = (IConstructor) rvmProgram.get("main_module");
 		ISet messages = (ISet) main_module.get("messages");
+		ISetWriter w = vf.setWriter();
 		for(IValue m : messages){
 			if(((IConstructor) m).getName().equals("error"))
-				throw new IOException("Cannot execute program with errors: " + messages.toString());
+				w.insert(m);	
+		}
+		ISet errors = w.done();
+		if(errors.size() > 0){
+			throw new IOException("Cannot execute program with errors: " + errors.toString());
 		}
 		return false;
 	}
