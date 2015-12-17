@@ -41,15 +41,9 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-
 public class ReflectiveCompiled extends Reflective {
 	
-	private final PreludeCompiled preludeCompiled;
-	private final int parsedModuleCacheSize = 30;
-	Cache<String, IValue> parsedModuleCache = Caffeine.newBuilder().maximumSize(parsedModuleCacheSize).build();
-	
+	private final PreludeCompiled preludeCompiled;	
 
 	public ReflectiveCompiled(IValueFactory values){
 		super(values);
@@ -96,7 +90,7 @@ public class ReflectiveCompiled extends Reflective {
 	public IValue parseModule(ISourceLocation loc,  RascalExecutionContext rex) {
 		
 		String key = loc.toString() + lastModified(loc).toString();
-		return parsedModuleCache.get(key, k -> {
+		return rex.getParsedModuleCache().get(key, k -> {
 			IActionExecutor<ITree> actions = new NoActionExecutor();	
 
 			try {
