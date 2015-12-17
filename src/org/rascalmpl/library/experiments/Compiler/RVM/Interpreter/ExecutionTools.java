@@ -19,6 +19,8 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import com.github.benmanes.caffeine.cache.Cache;
+
 public class ExecutionTools {
 
 	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
@@ -165,7 +167,7 @@ public class ExecutionTools {
 			Opcode.exit();
 			rvm.getFrameObserver().report();
 
-			
+			//rex.printCacheStats();
 			//System.out.println("Executing: " + (now - start)/1000000 + "ms");
 			return (IValue) result;
 			
