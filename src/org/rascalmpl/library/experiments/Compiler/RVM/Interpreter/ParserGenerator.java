@@ -79,7 +79,8 @@ public class ParserGenerator {
 			}
 
 			newGenerateFunction = rex2.getRVM().getFunction("newGenerate", tf.stringType(), 
-					tf.tupleType(tf.stringType(), tf.stringType(), tf.abstractDataType(rex.getTypeStore(), "Grammar")));
+					 										tf.tupleType(tf.stringType(), tf.stringType(), 
+					 										tf.abstractDataType(rex.getTypeStore(), "Grammar")));
 			if(newGenerateFunction == null){
 				throw new CompilerError("Function newGenerate not found");
 			}
