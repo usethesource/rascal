@@ -313,14 +313,18 @@ public void ftip(loc l) = writeFile(l, toHtmlString(tip()));
 
 // public Figure tipf() = box(size=<50, 50>, fillColor=  "red", visibility = "visible");
 
-public Figure tipf() = vcat(size=<40, 40>, figs=[text("aap", size=<40, 20>), text("noot", size=<40, 20>)]);
+public Figure tipf() = vcat(fillColor="grey", figs=[text("aap", size=<40, 20>, fontColor="black"), text("noot", size=<40, 20>)]);
 
 public Figure tipi() = box(size=<100, 100>, fillColor="yellow", tooltip=tipf());
 
-public Figure tipk() = box(size=<100, 100>, fillColor="yellow");
+public Figure tipk() = box(size=<50, 50>, fillColor="red");
 
-public Figure tipo() = overlay(figs=[at(0, 0, tipi()), at(20, 20, tipi())]);
+public Figure tipo() = overlay(figs=[at(0, 0, tipi()), at(100, 100, tipi())], resizable=false);
+
+public Figure tipg() = graph(size=<300, 300>, nodes=[<"A", tipi()>, <"B", tipi()>], edges=[edge("A","B")]);
 
 public void ttipo() = render(tipo());
+
+public void ttipg() = render(tipg());
 
 public void ftipo(loc l) = writeFile(l, toHtmlString(tipo()));

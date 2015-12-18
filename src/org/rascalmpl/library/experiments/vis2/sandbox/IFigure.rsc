@@ -960,7 +960,7 @@ IFigure _text(str id, bool fo, Figure f, str s) {
         "
         'd3.select(\"#<id>\")
         '<debugStyle()>
-        '<fo?style("background-color", "<f.fillColor>"):"">
+        '// <fo?style("background-color", "<f.fillColor>"):"">
         '<stylePx("width", width)><stylePx("height", height)>
         '<attrPx("width", width)><attrPx("height", height)>
         '<stylePx("font-size", f.fontSize)>
@@ -1174,13 +1174,18 @@ str addShape(Figure s) {
     '     var width = parseInt(d3.select(\"#\"+id).attr(\"width\"));
     '     var height = parseInt(d3.select(\"#\"+id).attr(\"height\"))-1;
     '     d3.select(\"#\"+id+\"_svg\")<attr1("x", "Math.floor(n.x-width/2+offset)")><attr1("y", "Math.floor(n.y-height/2)")>;
-    '     d3.select(\"#\"+id+\"_ov_svg\")<attr1("x", "Math.floor(n.x-width/2+offset)")><attr1("y", "Math.floor(n.y-height/2+offset)")>;
+    '     d3.select(\"#\"+id+\"_outer_fo\")<attr1("x", "Math.floor(n.x-width/2+offset)")><attr1("y", "Math.floor(n.y-height/2+offset)")>;  
     '     var tooltip = d3.select(\"#\"+id+\"_tooltip_svg\");
     '     if (!tooltip.empty()) {
     '         var x = parseInt(tooltip.attr(\"x\"))+offset;
     '         var y = parseInt(tooltip.attr(\"y\"));
-    '         d3.select(\"#\"+id+\"_tooltip_svg\")<attr1("x", "x+Math.floor(n.x-width/2)")><attr1("y", "y+Math.floor(n.y-height/2)")>;
-    '         d3.select(\"#\"+id+\"_tooltip_fo\") <attr1("x", "x+Math.floor(n.x-width/2)")><attr1("y", "y+Math.floor(n.y-height/2)")>;
+    '         tooltip<attr1("x", "x+Math.floor(n.x-width/2)")><attr1("y", "y+Math.floor(n.y-height/2)")>;
+    '      }
+    '     tooltip = d3.select(\"#\"+id+\"_tooltip_outer_fo\");
+    '     if (!tooltip.empty()) {
+    '        var x = parseInt(tooltip.attr(\"x\"))+offset;
+    '        var y = parseInt(tooltip.attr(\"y\"));
+    '        tooltip<attr1("x", "x+Math.floor(n.x-width/2)")><attr1("y", "y+Math.floor(n.y-height/2)")>;  
     '       }
     '     });
     ' console.log(g.graph().width);
@@ -1813,9 +1818,9 @@ IFigure _overlay(str id, Figure f, list[Figure] figs, IFigure fig1...) {
         '  d3.select(\"#<getId(q)>_svg\")<attrPx("x", getAtX(q))><attrPx("y", getAtY(q))>
         '  <attr("pointer-events", "none")>    
         ';<}> 
-        '<for (q<-tfs){> 
-        '  //d3.select(\"#<getId(q)>_fo\")<attrPx("x", getAtX(q))><attrPx("y", getAtY(q))>
-        '  //<attr("pointer-events", "none")>       
+        '<for (q<-fig1){> 
+        '  d3.select(\"#<getId(q)>_outer_fo\")<attrPx("x", getAtX(q))><attrPx("y", getAtY(q))>
+        '  <attr("pointer-events", "none")>     
         ';<}> 
         <for (q<-fig1){> 
          '<getSizeFromParent(q)?"adjustFrame(\"<getId(q)>\", <f.width>, <f.height>);":"">
@@ -2050,8 +2055,8 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>_rect\"/\> 
-         '\<foreignObject id=\"<id>_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         // "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>_rect\"/\> 
+         "\<foreignObject id=\"<id>_outer_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
          }
        begintag+="                    
             '\<table id=\"<id>\" cellspacing=\"0\" cellpadding=\"0\"\>
@@ -2063,7 +2068,7 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
             "
             ;
        if (addSvgTag) {
-            endtag += "\</foreignObject\>\</svg\>"; 
+            endtag += "\</foreignObject\>"; 
             }
          //   '\<p\>\</p/\>
         widget[id] = <null, seq, id, begintag, endtag, 
@@ -2108,19 +2113,19 @@ str figCallArray(list[list[IFigure]] fs) {
        
 IFigure _vcat(str id, Figure f,  bool addSvgTag, IFigure fig1...) {
        int width = f.width;
-       int height = f.height; 
+       int height = f.height;
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\" x=0 y=0 \> \<rect id=\"<id>_rect\"/\> 
-         '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         // "\<svg id=\"<id>_svg\" x=0 y=0 \> \<rect id=\"<id>_rect\"/\> 
+         "\<foreignObject id=\"<id>_outer_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
          }
        begintag+="                 
             '\<table id=\"<id>\" cellspacing=\"0\" cellpadding=\"0\"\>"
            ;
        str endtag="\</table\>";
        if (addSvgTag) {
-            endtag += "\</foreignObject\>\</svg\>"; 
+            endtag += "\</foreignObject\>"; 
             }
         widget[id] = <null, seq, id, begintag, endtag, 
         "
@@ -2171,8 +2176,8 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>_rect\"/\> 
-         '\<foreignObject id=\"<id>_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         // "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>_rect\"/\> 
+         "\<foreignObject id=\"<id>_outer_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
          }
        begintag+="                    
             '\<table id=\"<id>\" cellspacing=\"0\" cellpadding=\"0\"\>
@@ -2181,7 +2186,7 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
             '\</table\>
             ";
        if (addSvgTag) {
-            endtag += "\</foreignObject\>\</svg\>"; 
+            endtag += "\</foreignObject\>"; 
             }
         widget[id] = <null, seq, id, begintag, endtag, 
         "
@@ -2445,12 +2450,11 @@ Figure withoutAt(Figure f) {
 
 list[IFigure] tooltips(list[Figure] fs) {
               list[Figure] tt = [g
-                  |Figure f<-fs, value v := withoutAt(f).tooltip, Figure g := v, g!=emptyFigure()]; 
+                  |Figure f<-fs, value v := withoutAt(f).tooltip, Figure g := v, g!=emptyFigure()];
               list[IFigure] tfs = [_translate(q, addSvgTag = true)|Figure q<-tt];
               for (Figure f<-fs) {
                   tuple[int, int] a = fromAt(f);
                   Figure g = withoutAt(f);
-                  // println("<g>");
                   if (widget["<g.id>_tooltip"]?)  {
                      if (f.width<0) f.width = f.size[0];
                      if (f.height<0) f.height = f.size[1];
