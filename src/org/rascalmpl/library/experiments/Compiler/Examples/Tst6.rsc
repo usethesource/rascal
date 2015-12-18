@@ -1,5 +1,12 @@
+@bootstrapParser
 module experiments::Compiler::Examples::Tst6
 
-extend experiments::Compiler::Examples::Tst5;
+import ParseTree;
+import lang::rascal::\syntax::Rascal;
 
-value main() = x;
+int cntAlt(Prod p){
+    switch(p){
+      case (Prod) `<Prod lhs> | <Prod rhs>`: return cntAlt(lhs) + cntAlt(rhs);
+    }
+   return 1;
+}
