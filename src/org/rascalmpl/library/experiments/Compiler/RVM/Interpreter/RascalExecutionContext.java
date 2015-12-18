@@ -101,7 +101,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final int parserCacheSize = 30;
 	
 	Cache<String, IValue> parsedModuleCache;
-	private final int parsedModuleCacheSize = 30;
+	private final int parsedModuleCacheSize = 0;
 	
 	// State for RascalPrimitive
 	
@@ -210,7 +210,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		}
 		
 		parsingTools = new ParsingTools(vf);
-		createCaches(true);
+		createCaches(false);
 	}
 	
 	// Cache related methods
