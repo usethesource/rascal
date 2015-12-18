@@ -358,11 +358,11 @@ function askServer(path, parameters, timer, timeout, callback) {
             width = document.getElementById(id1).getBoundingClientRect().width;
             height = document.getElementById(id1).getBoundingClientRect().height;
             d3.select("#"+id1).attr("width",""+width+"px").attr("height",""+height+"px");     
-           } else {
+           } else {     
              width = parseInt(width);
              height = parseInt(height);
            }
-           d3.select("#"+id1+"_fo").attr("width",""+width+"px").attr("height",""+height+"px");
+           d3.select("#"+id1+"_outer_fo").attr("width",""+width+"px").attr("height",""+height+"px")
            d3.select("#"+id1+"_svg").attr("width",""+width+"px").attr("height",""+height+"px");
        }
        
