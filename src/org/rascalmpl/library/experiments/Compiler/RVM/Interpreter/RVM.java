@@ -1863,6 +1863,7 @@ public class RVM /*implements java.io.Serializable*/ {
 //						stdout.println("\t" + f.toString());
 //					}
 //					stdout.flush();
+					frameObserver.exception(cf, thrown);
 					return thrown;
 				}
 				
