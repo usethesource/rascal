@@ -1,3 +1,4 @@
+@bootstrapParser
 module lang::rascal::tests::types::StatementTCTests
 /*******************************************************************************
  * Copyright (c) 2009-2015 CWI
