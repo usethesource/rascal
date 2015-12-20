@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug;
 import java.io.PrintWriter;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.value.ISourceLocation;
 
 public abstract class BreakPoint {
@@ -74,4 +75,6 @@ public abstract class BreakPoint {
 	boolean matchOnEnter(Frame frame) { return false; }
 	
 	boolean matchOnLeave(Frame frame) { return false; }
+	
+	boolean matchOnException(Frame frame, Thrown thrown) { return true; }
 }

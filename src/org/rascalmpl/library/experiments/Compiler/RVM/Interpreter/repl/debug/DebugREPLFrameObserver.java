@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 
 import org.rascalmpl.library.experiments.Compiler.Commands.PathConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 
 import jline.Terminal;
@@ -40,7 +41,8 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	
 	public DebugREPLFrameObserver getObserverWhenActiveBreakpoints(){
 		breakPointManager.reset();
-		return breakPointManager.hasEnabledBreakPoints() ? this : null;
+		return this;
+		//return breakPointManager.hasEnabledBreakPoints() ? this : null;
 	}
 	
 	@Override
@@ -71,6 +73,18 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	public boolean leave(Frame frame, Object rval) {
 		try {
 			if(breakPointManager.matchOnLeave(frame, rval)){
+				new DebugREPL(frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return breakPointManager.shouldContinue();
+	}
+	
+	@Override
+	public boolean exception(Frame frame, Thrown thrown){
+		try {
+			if(breakPointManager.matchOnException(frame, thrown)){
 				new DebugREPL(frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
 			}
 		} catch (IOException e) {
