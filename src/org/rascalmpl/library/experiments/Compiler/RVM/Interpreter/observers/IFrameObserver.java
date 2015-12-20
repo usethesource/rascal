@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -25,4 +26,5 @@ public interface IFrameObserver {
 	
 	default boolean leave(Frame frame, Object rval) { return true; }
 	
+	default boolean exception(Frame frame, Thrown thrown) { return false; }
 }
