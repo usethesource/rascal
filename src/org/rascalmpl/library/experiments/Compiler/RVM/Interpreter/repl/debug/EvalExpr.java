@@ -29,6 +29,7 @@ public class EvalExpr {
 	private static final Pattern exprPat = Pattern.compile(expr);
 	
     
+	
 	private static IValue baseValue(String base, Frame currentFrame){
 		if(base.matches("[0-9]+")){
 			return vf.integer(Integer.valueOf(base));
@@ -36,8 +37,20 @@ public class EvalExpr {
 		if(base.startsWith("\"")){
 			return vf.string(base.substring(1, base.length()-1));
 		}
-		return currentFrame.getVars().get(base);
+		return getVar(base, currentFrame);
 	}
+	
+	private static IValue getVar(String base, Frame currentFrame){
+		for(Frame f = currentFrame; f != null; f = f.previousCallFrame){
+			IValue val = f.getVars().get(base);
+			if(val != null){
+				return val;
+			}
+		}
+		return null;
+	}
+	
+	
 	private static IValue subscript(IValue base, IValue index){
 		if(base.getType().isList()){
 			IList lst = (IList) base;
