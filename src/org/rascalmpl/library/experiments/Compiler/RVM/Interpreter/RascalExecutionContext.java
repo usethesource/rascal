@@ -210,7 +210,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		}
 		
 		parsingTools = new ParsingTools(vf);
-		createCaches(false);
+		createCaches(true);
 	}
 	
 	// Cache related methods
