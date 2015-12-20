@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -10,13 +11,17 @@ import java.util.List;
 
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.Commands.PathConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.highlighter.RascalHighlighter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.io.InputConverter;
+import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
@@ -24,10 +29,14 @@ import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 public class BreakPointManager {
 	
@@ -42,7 +51,8 @@ public class BreakPointManager {
 	
 	private final String FAINT_ON = Ansi.ansi().a(Attribute.INTENSITY_FAINT).toString();
 	private final String FAINT_OFF = Ansi.ansi().a(Attribute.INTENSITY_BOLD_OFF).toString();
-	
+	private final String RED_ON = Ansi.ansi().fg(Ansi.Color.RED).toString();
+	private final String RED_OFF = Ansi.ansi().fg(Ansi.Color.BLACK).toString();
 	
 	Frame currentFrame = null;  // next mode, only break in current function
 	Frame returnFrame = null;	// only break on return from this frame
@@ -56,6 +66,9 @@ public class BreakPointManager {
 	
 	RascalHighlighter highlighter;
 	
+	Cache<String, IValue> parsedModuleCache;
+	IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	
 	BreakPointManager(PrintWriter stdout, PathConfig pcfg){
 		this.stdout = stdout;
 		this.pcfg = pcfg;
@@ -66,6 +79,10 @@ public class BreakPointManager {
 							      Ansi.ansi().boldOff().toString())
 				.setCommentMarkup(Ansi.ansi().fg(Ansi.Color.GREEN).toString(), 
 						          Ansi.ansi().fg(Ansi.Color.BLACK).toString());
+		parsedModuleCache = Caffeine.newBuilder()
+			    .weakValues()
+				.maximumSize(5)
+				.build();
 	}
 	
 	void reset(){
@@ -258,6 +275,13 @@ public class BreakPointManager {
 		return false;
 	}
 	
+	boolean matchOnException(Frame frame, Thrown thrown){
+		stdout.print(RED_ON);
+		thrown.printStackTrace(stdout);
+		stdout.print(RED_OFF);
+		return doAutoList(frame);
+	}
+	
 	/****************************************************************/
 	/*				Handle all debug directives						*/
 	/****************************************************************/
@@ -423,7 +447,7 @@ public class BreakPointManager {
 			ISourceLocation srcFile = vf.sourceLocation(breakpointSrc.getScheme(), "", breakpointSrc.getPath());
 			if(breakpointSrc.getPath().endsWith(".rsc")){
 				//A Rascal source file, parse and highlight
-				ITree parseTree = new RascalParser().parse(Parser.START_MODULE, srcFile.getURI(), getResourceContent(srcFile), new NoActionExecutor() , new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+				ITree parseTree = getParsedModule(srcFile);
 				StringWriter sw = new StringWriter();
 				TreeAdapter.unparseWithFocus(parseTree, sw, breakpointSrc);
 				lines = sw.toString().split("\n");
@@ -442,6 +466,30 @@ public class BreakPointManager {
 			stdout.println("Cannot read source file");
 		}
 		stdout.flush();
+	}
+	
+	private IValue lastModified(ISourceLocation sloc) {
+		try {
+			return vf.datetime(URIResolverRegistry.getInstance().lastModified(sloc));
+		} catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
+		}
+	}
+	
+	private ITree getParsedModule(ISourceLocation loc){
+		String key = loc.toString() + lastModified(loc).toString();
+		return (ITree) parsedModuleCache.get(key, k -> {
+
+			try {
+				ITree tree = new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(loc), new NoActionExecutor() , new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
+				return tree;
+			} catch (IOException e) {
+				throw RascalRuntimeException.io(vf.string(e.getMessage()), null);
+			}
+		});
 	}
 	
 	private char[] getResourceContent(ISourceLocation location) throws IOException{
