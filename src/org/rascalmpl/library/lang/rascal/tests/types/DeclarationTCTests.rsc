@@ -1,3 +1,4 @@
+@bootstrapParser
 module lang::rascal::tests::types::DeclarationTCTests
 
 import lang::rascal::tests::types::StaticTestingUtils;
