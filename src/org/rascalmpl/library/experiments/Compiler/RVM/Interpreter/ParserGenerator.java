@@ -46,39 +46,48 @@ public class ParserGenerator {
 	private final JavaBridge bridge;
 	private final IValueFactory vf;
 	private final TypeFactory tf;
-	private ISourceLocation parserGeneratorBinaryLocation;
-	private RVM rvmParserGenerator;
+	private static ISourceLocation parserGeneratorBinaryLocation;
+	private static RVM rvmParserGenerator;
 	private Function getParserMethodNameFunction;
 	private Function newGenerateFunction;
 	private Function createHoleFunction;
 	private static final String packageName = "org.rascalmpl.java.parser.object";
 	private static final boolean debug = false;
 	private static final boolean useCompiledParserGenerator = true;
+	
+	static {
+		if(useCompiledParserGenerator){
+			try {
+				parserGeneratorBinaryLocation = ValueFactoryFactory.getValueFactory().sourceLocation("compressed+boot", "", "ParserGenerator.rvm.ser.gz");
+				//parserGeneratorBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/lang/rascal/grammar/ParserGenerator.rvm.ser.gz");
+
+			} catch (URISyntaxException e) {
+				throw new RuntimeException("Cannot initialize: " + e.getMessage());
+			}
+			RascalExecutionContext rex2 = new RascalExecutionContext("$parsergenerator$", ValueFactoryFactory.getValueFactory(), System.out, System.err);
+		
+			try {
+				rvmParserGenerator = RVM.readFromFileAndInitialize(parserGeneratorBinaryLocation, rex2);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 
 	public ParserGenerator(RascalExecutionContext rex) throws IOException {
 		this.vf = rex.getValueFactory();
 		this.tf = TypeFactory.getInstance();
 		this.bridge = new JavaBridge(rex.getClassLoaders(), rex.getValueFactory(), rex.getConfiguration());
 
-		if(useCompiledParserGenerator){
-			try {
-				parserGeneratorBinaryLocation = vf.sourceLocation("compressed+boot", "", "ParserGenerator.rvm.ser.gz");
-				//parserGeneratorBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/lang/rascal/grammar/ParserGenerator.rvm.ser.gz");
-
-			} catch (URISyntaxException e) {
-				throw new RuntimeException("Cannot initialize: " + e.getMessage());
-			}
-			RascalExecutionContext rex2 = new RascalExecutionContext("$parsergenerator$", vf, rex.getStdOut(), rex.getStdErr());
-		
-			rvmParserGenerator = RVM.readFromFileAndInitialize(parserGeneratorBinaryLocation, rex2);
-			
+		if(useCompiledParserGenerator){			
 			Type symSort = RascalTypeFactory.getInstance().nonTerminalType(vf.constructor(RascalValueFactory.Symbol_Sort, vf.string("Sym")));
 			getParserMethodNameFunction = rvmParserGenerator.getFunction("getParserMethodName", tf.stringType(), tf.tupleType(symSort));
 			if(getParserMethodNameFunction == null){
 				throw new CompilerError("Function getParserMethodName not found");
 			}
 
-			newGenerateFunction = rex2.getRVM().getFunction("newGenerate", tf.stringType(), 
+			newGenerateFunction = rvmParserGenerator.getFunction("newGenerate", tf.stringType(), 
 					 										tf.tupleType(tf.stringType(), tf.stringType(), 
 					 										tf.abstractDataType(rex.getTypeStore(), "Grammar")));
 			if(newGenerateFunction == null){
