@@ -278,14 +278,14 @@ public class ParsingTools {
 	}
 	  
 	  public IGTD<IConstructor, ITree, ISourceLocation> getParser(String name, IValue start, ISourceLocation loc, IMap syntax, RascalExecutionContext rex) throws IOException {
-
+		String startAsString = start.toString();
+        System.err.println("getParser: " + name + ", bootstrapParser = " + getBootstrap(name, rex) + ", start = " + startAsString.substring(0,Math.min(startAsString.length(),  50)));
 		if(getBootstrap(name, rex)){
 			return new RascalParser();
 		}
 	    ParserGenerator pg = getParserGenerator(rex);
-	    IMap definitions = syntax;
 	    
-	    Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = rex.getParserCache().get(start, k -> pg.getNewParser(rex.getMonitor(), loc, name, definitions, rex));
+	    Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = rex.getParserCache().get(syntax, k -> pg.getNewParser(rex.getMonitor(), loc, name, syntax, rex));
 
 	    try {
 	      return parser.newInstance();
