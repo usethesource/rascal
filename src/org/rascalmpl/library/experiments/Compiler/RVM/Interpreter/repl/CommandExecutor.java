@@ -84,6 +84,7 @@ public class CommandExecutor {
 	private IValue[] compileArgs;
 	
 	private boolean forceRecompilation = true;
+	private IMap moduleTags;
 	
 	public CommandExecutor(PrintWriter stdout, PrintWriter stderr) {
 		this.stdout = stdout;
@@ -114,9 +115,9 @@ public class CommandExecutor {
 		
 		w = vf.mapWriter();
 		w.put(vf.string(shellModuleName), CompiledRascalShellModuleTags);
-		IMap moduleTags = w.done();
+		w.put(vf.string(consoleInputName), CompiledRascalShellModuleTags);
+		moduleTags = w.done();
 		
-//		RascalExecutionContext rex = new RascalExecutionContext(vf, this.stdout, this.stderr, moduleTags, null, null, false, false, false, /*profile*/false, false, false, false, null, null, null);
 		RascalExecutionContext rex = 
 				RascalExecutionContextBuilder.normalContext(vf, this.stdout, this.stderr)
 					.withModuleTags(moduleTags)
@@ -195,7 +196,7 @@ public class CommandExecutor {
 			if(messages.isEmpty()){
 				rvmConsoleExecutable = ExecutionTools.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(useJVM));
 		
-				RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, null, null, null, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, null, debugObserver.getObserverWhenActiveBreakpoints(), null);
+				RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, null, debugObserver.getObserverWhenActiveBreakpoints(), null);
 				rex.setCurrentModuleName(shellModuleName);
 				IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
 				lastRvmConsoleExecutable = rvmConsoleExecutable;
