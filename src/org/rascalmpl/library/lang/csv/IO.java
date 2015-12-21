@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -264,6 +265,7 @@ public class IO {
 	}
 
 	private void parseRecordFields(final String[] fields, final Type[] expectedTypes, TypeStore store, IValue[] result, boolean replaceEmpty, final IEvaluatorContext ctx) throws IOException  {
+	    Prelude prelude = new Prelude(values);
 		for (int i=0; i < fields.length; i++) {
 			final String field = fields[i];
 			final Type currentType = expectedTypes[i];
@@ -339,6 +341,16 @@ public class IO {
 					    else {
 					        // it is an actual string
 					        result[i] = values.string(field);
+					    }
+					}
+					else if (currentType.isDateTime()) {
+					    try {
+					        // lets be a bit more flexible than rascal's string reader is.
+					        // 2012-06-24T00:59:56Z
+					        result[i] = prelude.parseDateTime(values.string(field), values.string("yyyy-MM-dd'T'HH:mm:ss'Z'"));
+					    }
+					    catch (Throwable th) {
+					        throw RuntimeExceptionFactory.illegalTypeArgument("Invalid datetime: \"" + field + "\" (" + th.getMessage() + ")", ctx.getCurrentAST(), ctx.getStackTrace());
 					    }
 					}
 					else {
