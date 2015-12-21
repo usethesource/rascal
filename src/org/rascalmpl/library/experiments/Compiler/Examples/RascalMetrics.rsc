@@ -17,7 +17,9 @@ int cntAlt(Prod p){
    return 1;
 }
 
-value main(){
+value main(){ measure(); }
+
+value measure(){
 
      //moduleLoc = |std:///lang/rascal/syntax/Rascal.rsc|;
     moduleLoc = |std:///experiments/Compiler/RVM/AST.rsc|;
