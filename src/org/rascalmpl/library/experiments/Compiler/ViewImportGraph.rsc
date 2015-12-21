@@ -3,6 +3,7 @@ module experiments::Compiler::ViewImportGraph
 import String;
 import Relation;
 import Set;
+import List;
 import IO;
 
 import util::Reflective;
@@ -321,19 +322,40 @@ str baseName(str qualifiedName){
     return n > 0 ? qualifiedName[n+2 ..] : qualifiedName;
 }
 
+//Figure makeToolTip(str qualifiedName){
+//    imports = [ text(baseName(nm), fontSize=11, fontColor="black") | nm <- importGraph[qualifiedName]];
+//    return vcat(figs=imports), fillColor= "white", grow=1.2);
+//    //return box(fig=text(qualifiedName, fontSize=14, fontColor="black"), fillColor="lightgrey", grow=1.1) ;
+//}
+
 Figure makeToolTip(str qualifiedName){
-    //imports = [ text(baseName(nm), fontSize=11, fontColor="black") | nm <- importGraph[qualifiedName]];
-    //return box(fig=vcat(figs=imports, grow=1.2), grow=1.2, fillColor="white");
-    return box(fig=text(qualifiedName, fontSize=14, fontColor="green"), fillColor="orange", grow=1.2) ;
+   imports = [ text(baseName(nm), fontSize=11,  fontColor="black") | nm <- importGraph[qualifiedName]];
+   // imports = [ text("aap", fontSize=12,  fontColor="black")];
+   // return box(fig=vcat(figs=imports, grow=1.2), grow=1.2, fillColor="white");
+  return vcat(borderWidth = 4, fillColor="antiquewhite", borderStyle="ridge", size=<100, size(imports)*22>,  figs=imports);
+  // return box(fig=text(qualifiedName, fontSize=14, fontColor="green"), fillColor="orange", grow=1.2) ;
 }
 
-void viewImportGraph(){
+//void viewImportGraph(){
+//
+//    modules = [<nm, box(fig=text(baseName(nm), fontSize=12, fontColor="white"),  rounded=<10,10>, grow=1.1, fillColor = "black", tooltip=makeToolTip(nm))> | nm <- carrier(importGraph), nm notin exclude];
+//    edges = [edge(nm2, nm1) | <nm1, nm2> <- importGraph, nm1 notin exclude, nm2 notin exclude];
+//    g = graph(nodes=modules, edges=edges, width = 3500, height = 600, lineWidth=1, graphOptions=graphOptions(nodeSep=20,layerSep=50, edgeSep=20));
+//    render(g); 
+// }
+ 
+ void viewImportGraph(){
 
-    modules = [<nm, box(fig=text(baseName(nm), fontSize=11, fontColor="white"), fillColor = "black", tooltip=makeToolTip(nm))> | nm <- carrier(importGraph), nm notin exclude];
-    edges = [edge(nm2, nm1) | <nm1, nm2> <- importGraph, nm1 notin exclude, nm2 notin exclude];
-    g = box(width = 8000, height = 1000, fig=graph(modules, edges, width = 8000, height = 1000, lineWidth=1, graphOptions=graphOptions(nodeSep=0,layerSep=50, edgeSep=0)));
-    render(g); 
- }
+   modules = [<nm, box(grow=1.5, rounded = <10, 10>, fig=text(baseName(nm), fontSize=12, fontColor="white"), fillColor = "black"
+    , tooltip=makeToolTip(nm)
+   )> | nm <- carrier(importGraph), nm notin exclude];
+   edges = [edge(nm2, nm1, lineColor="grey") | <nm1, nm2> <- importGraph, nm1 notin exclude, nm2 notin exclude];
+   // println(edges);
+   g = graph(nodes=modules, edges=edges, width = 5000, height = 1000, lineWidth=1
+    , graphOptions=graphOptions(nodeSep=20,layerSep=50, edgeSep=20)
+   );
+   render(g); 
+}
  
  void main() { viewImportGraph(); }
  
