@@ -27,6 +27,7 @@ syntax Option
     | "--verbose"
     | "--version"
     | "--help"
+    | "--trackCalls"
     | fallback: FallbackOption option >> [\-]
     | fallback: FallbackOption option !>> [\-] Path path
     ;
@@ -45,6 +46,7 @@ keyword ArgumentNames
     | "verbose"
     | "version"
     | "help"
+    | "trackCalls"
     ;
 
 lexical ModuleName 
