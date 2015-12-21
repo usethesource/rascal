@@ -21,7 +21,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Command {
 	
-    public static void main(String[] args, String programName, Type returnType, boolean swallowProfileFlag) {
+    public static void main(String[] args, String programName, Type returnType, boolean swallowProfileAndTrackCallsFlag) {
 	    boolean verbose = false;
 	    for (String a : args) {
 	        verbose |= a.equals("--verbose");
@@ -49,11 +49,15 @@ public class Command {
 			System.exit(-1);
 	    }
 	    boolean profile = false;
-	    if (swallowProfileFlag) {
+	    boolean trackCalls = false;
+	    if (swallowProfileAndTrackCallsFlag) {
 	        List<String> newArgs = new ArrayList<>();
 	    	for (String a: args) {
 	    	    if (a.equals("--profile")) {
 	    	       profile = true; 
+	    	    }
+	    	    else if(a.equals("--trackCalls")){
+	    	    	trackCalls = true;
 	    	    }
 	    	    else {
 	    	        newArgs.add(a);
@@ -70,6 +74,7 @@ public class Command {
 		PrintWriter out = new PrintWriter(System.out);
         RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, out, new PrintWriter(System.err, true))
                 .setProfiling(profile)
+                .setTrackCalls(trackCalls)
                 .forModule(programName)
                 .build();
 
