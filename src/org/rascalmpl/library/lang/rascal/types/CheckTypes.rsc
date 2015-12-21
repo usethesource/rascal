@@ -7064,7 +7064,8 @@ public Configuration loadImportedTypesAndTags(Configuration c, set[RName] import
 
 	// Build relations with info on all types, sorts, and aliases; ignore tags for now since we
 	// don't use them anyway, but TODO: if we start using tags, add support here... 
-	name2id = { < tn, c.moduleInfo[mn].typeEnv[tn] > | mn <- importedModules, tn <- c.moduleInfo[mn].typeEnv };
+	assert importedModules <= domain(c.moduleInfo): "loadImportedTypesAndTags, no moduleInfo for <importedModules - domain(c.moduleInfo)>";
+	name2id = { < tn, c.moduleInfo[mn].typeEnv[tn] > | mn <- importedModules, mn in c.moduleInfo, tn <- c.moduleInfo[mn].typeEnv };
 	
 	justTypes = { < tn, ti > | < tn, ti > <- name2id, c.store[ti] is datatype };
 	typeNames = justTypes<0>;
@@ -7109,6 +7110,7 @@ public Configuration loadImportedAnnotations(Configuration c, set[RName] importe
 	// TODO: Add info messages about names that were not imported into scope?
 
 	// Build relation with info on all annotations 
+	assert importedModules <= domain(c.moduleInfo): "loadImportedAnnotations, no moduleInfo for <importedModules - domain(c.moduleInfo)>";
 	name2id = { < an, c.moduleInfo[mn].annotationEnv[an] > | mn <- importedModules, an <- c.moduleInfo[mn].annotationEnv };
 
 	// We try to bring in all annotations, since they should all come in; this may
@@ -7128,6 +7130,7 @@ public Configuration loadImportedNames(Configuration c, set[RName] varNamesToDec
 	// TODO: Handle scope
 	
 	// Build relations with info on all functions, constructors, productions, and vars 
+	assert importedModules <= domain(c.moduleInfo): "loadImportedNames, no moduleInfo for <importedModules - domain(c.moduleInfo)>";
 	name2id = { < tn, c.moduleInfo[mn].fcvEnv[tn] > | mn <- importedModules, tn <- c.moduleInfo[mn].fcvEnv };
 	overloadIds = { < tn, oid > | < tn, tid > <- name2id, c.store[tid] is overload, oid <- c.store[tid].items };
 	
@@ -7188,6 +7191,7 @@ public Configuration loadImportedCPNames(Configuration c, set[RName] varNamesToD
 	// TODO: Handle scope
 	
 	// Build relations with info on all functions, constructors, productions, and vars 
+	assert importedModules <= domain(c.moduleInfo): "loadImportedCPNames, no moduleInfo for <importedModules - domain(c.moduleInfo)>";
 	name2id = { < tn, c.moduleInfo[mn].fcvEnv[tn] > | mn <- importedModules, tn <- c.moduleInfo[mn].fcvEnv };
 	overloadIds = { < tn, oid > | < tn, tid > <- name2id, c.store[tid] is overload, oid <- c.store[tid].items };
 	
@@ -7235,6 +7239,7 @@ public Configuration loadImportedFVNames(Configuration c, set[RName] varNamesToD
 	// TODO: Handle scope
 	
 	// Build relations with info on all functions, constructors, productions, and vars 
+	assert importedModules <= domain(c.moduleInfo): "loadImportedFVNames, no moduleInfo for <importedModules - domain(c.moduleInfo)>";
 	name2id = { < tn, c.moduleInfo[mn].fcvEnv[tn] > | mn <- importedModules, tn <- c.moduleInfo[mn].fcvEnv };
 	overloadIds = { < tn, oid > | < tn, tid > <- name2id, c.store[tid] is overload, oid <- c.store[tid].items };
 	
@@ -7591,6 +7596,15 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	Configuration fullyCheckSingleModule(Configuration ci, RName itemName) {
 		// Using the checked type information, load in the info for each module
 		for (wl <- allImports[itemName], wl in moduleLocations) {
+		     if(wl notin existingConfigs){
+		        println("*** fullyCheckSingleModule, checking <itemName>, <wl> not in existingConfigs");
+		        if(wl in workingConfigs){
+		           println("*** fullyCheckSingleModule, <wl> found in workingConfigs");
+		           existingConfigs[wl] = workingConfigs[wl];
+		        } else {
+		           continue;
+		        }
+		     }
 			ci = loadConfigurationAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
 		}
 			
@@ -7712,6 +7726,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		// Load in the configurations for modules that are not in the same connected component (so they do not
 		// depend on the results of checking the current module) 
 		for (wl <- allImports[itemName], wl notin componentMembers, wl in moduleLocations) {
+		    assert wl in existingConfigs : "checkSingleModuleThroughAliases, <wl>";
 			ci = loadConfigurationAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
 		}
 			
@@ -7765,6 +7780,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		// Load in the configurations of the modules in the connected component. At this point, this will just
 		// load type information.
 		for (wl <- allImports[itemName], wl in componentMembers, wl != itemName, wl in moduleLocations) {
+		    assert wl in existingConfigs: "checkSingleModulePastAliases, <wl>";
 			ci = loadConfigurationTypesAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
 		}
 			
@@ -7863,6 +7879,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		// Load in the configurations of the modules in the connected component. At this point, this will just
 		// load information on constructors and productions.
 		for (wl <- allImports[itemName], wl in componentMembers, wl != itemName, wl in moduleLocations) {
+		    assert wl in existingConfigs: "checkSingleModuleNamesOnly, <wl>";
 			if (verbose) println("Loading constructors into module <prettyPrintName(itemName)>");
 			ci = loadConfigurationConsAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
 		}
@@ -7922,6 +7939,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		// Using the checked type information, load in the info for each module. This will replace the already
 		// loaded info, and will include functions, variables, etc that are exported from the module.
 		for (wl <- allImports[itemName], wl in componentMembers, wl in moduleLocations) {
+		     assert wl in existingConfigs: "checkSingleModuleAndFinalize, <wl>";
 			ci = loadConfigurationAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName], updateTypes=true);
 		}
 			
