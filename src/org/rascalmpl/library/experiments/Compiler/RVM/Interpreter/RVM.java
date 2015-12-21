@@ -1589,9 +1589,7 @@ public class RVM /*implements java.io.Serializable*/ {
 				case Opcode.OP_CALLPRIMN:
 					arity = CodeBlock.fetchArg2(instruction);
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
-					if(!frameObserver.observe(cf)){
-						return Rascal_FALSE;
-					}
+					frameObserver.observe(cf);
 					try {
 						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].executeN(stack, sp, CodeBlock.fetchArg2(instruction), cf, rex);
 					} catch (Thrown exception) {
@@ -1604,9 +1602,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					
 				case Opcode.OP_CALLPRIM0:
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
-					if(!frameObserver.observe(cf)){
-						return Rascal_FALSE;
-					}
+					frameObserver.observe(cf);
 					try {
 						stack[sp++] = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute0(cf, rex);
 					} catch (Thrown exception) {
@@ -1618,9 +1614,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					
 				case Opcode.OP_CALLPRIM1:
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
-					if(!frameObserver.observe(cf)){
-						return Rascal_FALSE;
-					}
+					frameObserver.observe(cf);
 					try {
 						stack[sp - 1] = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute1(stack[sp - 1], cf, rex);
 					} catch (Thrown exception) {
@@ -1633,9 +1627,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					
 				case Opcode.OP_CALLPRIM2:
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
-					if(!frameObserver.observe(cf)){
-						return Rascal_FALSE;
-					}
+					frameObserver.observe(cf);
 					try {
 						stack[sp - 2] = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute2(stack[sp - 2], stack[sp - 1], cf, rex);
 						sp--;
@@ -1734,9 +1726,8 @@ public class RVM /*implements java.io.Serializable*/ {
 					Object obj = stack[--sp];
 					thrown = null;
 					cf.src = (ISourceLocation) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
-					if(!frameObserver.observe(cf)){
-						return Rascal_FALSE;
-					}
+					frameObserver.observe(cf);
+					
 					if(obj instanceof IValue) {
 						//stacktrace = new ArrayList<Frame>();
 						//stacktrace.add(cf);
@@ -1802,7 +1793,9 @@ public class RVM /*implements java.io.Serializable*/ {
 						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 					}
 					
-					frameObserver.leave(cf,  rval);
+					if(!frameObserver.leave(cf,  rval)){
+						return Rascal_FALSE;
+					}
 					cf = cf.previousCallFrame;
 					
 					if(cf == null) {
@@ -1863,8 +1856,11 @@ public class RVM /*implements java.io.Serializable*/ {
 //						stdout.println("\t" + f.toString());
 //					}
 //					stdout.flush();
-					frameObserver.exception(cf, thrown);
-					return thrown;
+					if(frameObserver.exception(cf, thrown)){
+						continue NEXT_INSTRUCTION;
+					} else {
+						return thrown;
+					}
 				}
 				
 			}
