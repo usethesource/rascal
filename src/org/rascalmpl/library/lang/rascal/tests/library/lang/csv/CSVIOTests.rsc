@@ -53,6 +53,16 @@ bool readWrite(type[&T] returnType, set[&T1] dt) {
 	};
 }
 
+test bool csvBooleanInfer() {
+    writeFile(targetFile, "col1,col2\nTRUE,True");
+    return readCSV(targetFile) == {<true, true>};
+}
+
+test bool csvBoolean() {
+    writeFile(targetFile, "col1,col2\nTRUE,True");
+    return readCSV(#rel[bool col1, bool col2], targetFile) == {<true, true>};
+}
+
 test bool csvWithLoc(rel[loc first, int second] dt) = readWrite(dt);
 test bool csvWithStr(rel[str first, int second] dt) = readWrite(dt);
 test bool csvWithList(rel[list[&T] first, int second] dt) = readWrite(dt);
