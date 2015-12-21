@@ -19,6 +19,8 @@ int f(int n) {
 int g (int m){
     z = m + f(m);
     y = z * 2;
+    [0,1,2,3][5];
+    y/0;
     return f(m);
 }
 
