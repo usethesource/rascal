@@ -164,6 +164,25 @@ public class CommandExecutor {
 		return w;
 	}
 	
+	private boolean noErrors(String modString, ISet messages){
+		boolean errorFree = true;
+		for(IValue m : messages){
+			IConstructor msg = (IConstructor) m;
+			String msgKind = msg.getName();
+			errorFree &= !msgKind.equals("error");
+			String txt = ((IString)msg.get("msg")).getValue();
+			ISourceLocation src = (ISourceLocation)msg.get("at");
+			String hint = " AT " + src.toString();
+			if(src.getPath().equals(consoleInputPath)){
+				int offset = src.getOffset();
+				String subarea = modString.substring(offset, offset + src.getLength());
+				hint = subarea.matches("[a-zA-Z0-9]+") ? "" : " IN '" + subarea + "'";
+			}
+			(msgKind.equals("error") ? stderr : stdout).println("[" + msgKind + "] " + txt + hint);
+		}
+		return errorFree;
+	}
+	
 	IValue executeModule(String main, boolean onlyMainChanged){
 		StringWriter w = new StringWriter();
 		w.append("@bootstrapParser module ConsoleInput\n");
@@ -193,7 +212,7 @@ public class CommandExecutor {
 			IConstructor consoleRVMProgram = (IConstructor) rvmCompiler.executeFunction(compileAndLinkIncremental, compileArgs, makeCompileKwParams());
 			IConstructor main_module = (IConstructor) consoleRVMProgram.get("main_module");
 			ISet messages = (ISet) main_module.get("messages");
-			if(messages.isEmpty()){
+			if(noErrors(modString, messages)){
 				rvmConsoleExecutable = ExecutionTools.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(useJVM));
 		
 				RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, null, debugObserver.getObserverWhenActiveBreakpoints(), null);
@@ -203,18 +222,6 @@ public class CommandExecutor {
 				forceRecompilation = false;
 				return val;
 			} else {
-				for(IValue m : messages){
-					IConstructor msg = (IConstructor) m;
-					String txt = ((IString)msg.get("msg")).getValue();
-					ISourceLocation src = (ISourceLocation)msg.get("at");
-					String hint = " AT " + src.toString();
-					if(src.getPath().equals(consoleInputPath)){
-						int offset = src.getOffset();
-						String subarea = modString.substring(offset, offset + src.getLength());
-						hint = subarea.matches("[a-zA-Z0-9]+") ? "" : " IN '" + subarea + "'";
-					}
-					stderr.println("[error] " + txt + hint);
-				}
 				return null;
 			}
 		} catch (Thrown e){
