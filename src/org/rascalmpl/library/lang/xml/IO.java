@@ -62,6 +62,11 @@ public class IO {
     private INode toNode(Reader characterReader, boolean trim) throws IOException {
         try {
             XMLReader reader = XMLReaders.NONVALIDATING.createXMLReader();
+            // XML reader reads the DTD to findout what is is reading at the moment.
+            // this can mean if will download the full xhtml1 dtd with nested dtd's
+            // everytime you try to parse a xhtml. (takes about 60 seconds for this to finish)
+            // Or in general any other dtd that is hosted on the internet.
+            // The following "hack" always returns an empty stream for any DTD requested.
             reader.setEntityResolver(new EntityResolver() {
                 public InputSource resolveEntity(String pid, String sid) throws SAXException {
                     return new InputSource(new ByteArrayInputStream(new byte[] {}));
