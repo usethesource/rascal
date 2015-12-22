@@ -62,11 +62,12 @@ public class IO {
     private INode toNode(Reader characterReader, boolean trim) throws IOException {
         try {
             XMLReader reader = XMLReaders.NONVALIDATING.createXMLReader();
-            // XML reader reads the DTD to findout what is is reading at the moment.
-            // this can mean if will download the full xhtml1 dtd with nested dtd's
-            // everytime you try to parse a xhtml. (takes about 60 seconds for this to finish)
+            // XML reader reads the DTD to findout what it is reading at the moment.
+            // this can mean if will download the full XHTML DTD with nested DTD's
+            // everytime you try to parse a XHTML. (takes about 60 seconds for this to finish)
             // Or in general any other dtd that is hosted on the internet.
             // The following "hack" always returns an empty stream for any DTD requested.
+            // Which works for most cases.
             reader.setEntityResolver(new EntityResolver() {
                 public InputSource resolveEntity(String pid, String sid) throws SAXException {
                     return new InputSource(new ByteArrayInputStream(new byte[] {}));
@@ -88,7 +89,7 @@ public class IO {
         } catch (final SAXNotSupportedException|SAXNotRecognizedException e) {
         }
         try {
-            reader.setProperty(JDOMConstants.SAX_PROPERTY_LEXICAL_HANDLER, reader.getContentHandler());
+            reader.setProperty(JDOMConstants.SAX_PROPERTY_LEXICAL_HANDLER_ALT, reader.getContentHandler());
         } catch (final SAXNotSupportedException|SAXNotRecognizedException e) {
         }
     }
