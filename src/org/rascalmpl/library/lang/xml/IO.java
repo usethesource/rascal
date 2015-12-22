@@ -1,5 +1,6 @@
 package org.rascalmpl.library.lang.xml;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -23,6 +24,7 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
+import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
@@ -60,6 +62,11 @@ public class IO {
     private INode toNode(Reader characterReader, boolean trim) throws IOException {
         try {
             XMLReader reader = XMLReaders.NONVALIDATING.createXMLReader();
+            reader.setEntityResolver(new EntityResolver() {
+                public InputSource resolveEntity(String pid, String sid) throws SAXException {
+                    return new InputSource(new ByteArrayInputStream(new byte[] {}));
+                }
+            });
             reader.setContentHandler(new ParseToRascalNode(trim));
             addExtraContentHandlers(reader);
             reader.parse(new InputSource(characterReader));
