@@ -335,9 +335,12 @@ RVMModule mu2rvm(muModule(str module_name,
   // Specific to delimited continuations (experimental)
   funMap = funMap + shiftClosures;
   
-  res = rvmModule(module_name, (module_name: tags), messages, imports, extends, types, symbol_definitions, toList(range(funMap)), [], resolver, overloaded_functions, importGraph, src);
+  res = rvmModule(module_name, (module_name: tags), messages, imports, extends, types, symbol_definitions, orderedDeclarations(funMap), [], resolver, overloaded_functions, importGraph, src);
   return res;
 }
+
+list[Declaration] orderedDeclarations(map[str,Declaration] funMap) =
+    [ funMap[fname] | fname <- sort(toList(domain(funMap))) ];
 
 /*********************************************************************/
 /*      Translate lists of muRascal expressions                      */
