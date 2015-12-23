@@ -80,11 +80,11 @@ public class RascalJUnitTestRunner extends Runner {
 		this.prefix = prefix;
 	}
 	
-	static protected String computeTestName(String name, ISourceLocation loc) {
+	public static String computeTestName(String name, ISourceLocation loc) {
 		return name + ": <" + loc.getOffset() +"," + loc.getLength() +">";
 	}
 	
-	static protected List<String> getRecursiveModuleList(ISourceLocation root) throws IOException {
+	public static List<String> getRecursiveModuleList(ISourceLocation root) throws IOException {
 		List<String> result = new ArrayList<>();
 		Queue<ISourceLocation> todo = new LinkedList<>();
 		todo.add(root);

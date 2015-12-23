@@ -103,6 +103,8 @@ public class TestEvaluator {
             catch(Throwable e){
                 testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
             }
+            eval.getStdOut().flush();
+            eval.getStdErr().flush();
         }
         testResultListener.done();
     }
