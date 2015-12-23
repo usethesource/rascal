@@ -74,7 +74,7 @@
 				<configuration>
 					<argLine>
                   		-ea
-						-Xmx4g
+						-Xmx2g
 						-Xss128m
 						-Dfile.encoding=UTF-8
 					</argLine>
