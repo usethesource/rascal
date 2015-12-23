@@ -29,13 +29,13 @@ void tdemo1()  {render(demo1(), debug = false, align = centerMid);}
 
 public Figure newBox(str lc, Figure el) {
       return at(10, 10, box(align = topLeft, lineColor= lc, 
-             fillColor = "white", fig = el), lineWidth = 20);
+             fillColor = "white", fig = el, lineWidth = 20));
       }
 public Figure demo2() = (
-         rotate(0, 
+         // rotate(0, 
            at(10, 10, box(size=<50, 200> , align = bottomRight, 
              lineColor="grey", fillColor = "yellow", lineOpacity=1.0))
-          )
+         //  )
            |newBox(e, 
           it)| e<-["green", "red", "blue", "grey", "magenta", "brown"]);
 void tdemo2(){ render(demo2(), align = centerRight, debug = false); }
