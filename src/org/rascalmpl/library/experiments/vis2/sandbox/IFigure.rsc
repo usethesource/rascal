@@ -212,15 +212,11 @@ Figure extendFig(Figure f) {
         case g:ellipse() => cQ(g, makeOverlay(g.fig))
         case g:circle() => cQ(g, makeOverlay(g.fig))
         case g:ngon() => cQ(g, makeOverlay(g.fig))
-        case g:hcat() => cQ(g, [makeOverlay(q)|Figure q<-g.figs])
-        case g:vcat() => cQ(g, [makeOverlay(q)|Figure q<-g.figs])
-        case g:grid() => cQ(g, [[makeOverlay(q)|Figure q<-e]|Figures e<-g.figArray])
         case g:graph() => cQ(g, [<q[0], makeOverlayTree(q[1])>|tuple[str, Figure] q<-g.nodes])
-        // case g:at(_, _, fg):  
-        //case g:atX(_, fg):  cL(g, fg); 
-        //case g:atY(_, fg):  cL(g, fg)
-        //case g:rotate(_, fg):  cL(g, fg); 
-        // case g:rotate(_, _, _, fg):  cL(g, fg); 
+        case g:at(int x, int y, Figure fg)=> at(x, y, extendFig(fg))
+        case g:atX(int x, _, Figure fg)=> at(x, 0, extendFig(fg))
+        case g:atY(_, int y, Figure fg)=> at(0, y, extendFig(fg))
+        case g:rotate(int alpha, fg) => rotate(alpha, extendFig(fg)) 
         };
         if (!isOverlay(h)) h = makeOverlay(h); 
         return visit(h) {
@@ -635,7 +631,7 @@ value getRenderCallback(Event event) {return void(str e, str n, str v) {
 
 
 public void _render(IFigure fig1, int width = 800, int height = 800, 
-     Alignment align = centerMid, int lineWidth = -1, 
+     Alignment align = centerMid, int borderWidth = -1, str borderStyle="", str borderColor = "",
      str fillColor = "none", str lineColor = "black", bool display = true, Event event = on(nullCallback),
      bool resizable = true, bool defined = true)
      {
@@ -646,14 +642,17 @@ public void _render(IFigure fig1, int width = 800, int height = 800,
     str begintag= beginTag(id, align);
     str endtag = endTag();
     // '<style("border","0px solid black")>  
-    // 
+    //
+    println(borderStyle); 
     widget[id] = <(display?getRenderCallback(event):null), seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")   
         '<defined?stylePx("width", width):style1("width", "screenWidth")>
         '<defined?style("height", height):style1("height", "screenHeight")>    
         '<style("border","0px solid black")> 
-        '<style("border-width",lineWidth)>
+        '<style("border-width",borderWidth)>
+        '<style("border-style",borderStyle)>
+        '<style("border-color",borderColor)>
         '<style("background", fillColor)>
         ;       
         "
@@ -951,6 +950,8 @@ IFigure _text(str id, bool fo, Figure f, str s) {
     "\<svg <moveAt(fo, f)> id=\"<id>_svg\"\> \<text id=\"<id>\"\>";
     int width = f.width;
     int height = f.height;
+    if (width<0) width = getTextWidth(f, s);
+    if (height<0) height =  getTextHeight(f);
     Alignment align =  width<0?topLeft:f.align;
     // str endtag = addSvgTag?"\</text\>":"\</div\>"; 
     str endtag = fo?"\</div\>":"\</text\>\</svg\>";
@@ -968,6 +969,9 @@ IFigure _text(str id, bool fo, Figure f, str s) {
         '<style("font-family", f.fontFamily)>
         '<style("font-weight", f.fontWeight)>
         '<style("visibility", getVisibility(f))>
+        '<attr("x", width/2)>
+        '<attr("y", height/2)>
+        '// <attr("dy", ".3em")>
         '<fo?style("color", f.fontColor):(style("fill", f.fillColor)+style("stroke",f.lineColor))>
         '<fo?"":style("text-anchor", "middle")> 
         '<attr("pointer-events", "none")>
@@ -977,7 +981,7 @@ IFigure _text(str id, bool fo, Figure f, str s) {
         '<fo?"":attr("pointer-events", "none")>
         ;
         "
-        , getTextWidth(f, s), getTextHeight(f), getAtX(f), getAtY(f), f.hshrink, f.vshrink, align, getLineWidth(f), getLineColor(f), f.sizeFromParent, true >;
+        , width, height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, align, getLineWidth(f), getLineColor(f), f.sizeFromParent, true >;
        addState(f);
        widgetOrder+= id;
        return ifigure(id, []);
@@ -1478,8 +1482,8 @@ num cyL(Figure f) =
                           }
           } 
         if (f.cx>0 || f.cy>0) {
-           int x = f.at[0]+round(f.cx)-round((ellipse():=f)?f.rx:f.r)-lw/2;
-           int y=  f.at[1]+round(f.cy)-round((ellipse():=f)?f.ry:f.r)-lw/2;
+           num x = f.at[0]+f.cx-((ellipse():=f)?f.rx:f.r)-lw/2;
+           num y=  f.at[1]+f.cy-((ellipse():=f)?f.ry:f.r)-lw/2;
            f.at = <x, y>;
            }
        str begintag =
@@ -1798,7 +1802,7 @@ IFigure _overlay(str id, Figure f, list[Figure] figs, IFigure fig1...) {
        list[IFigure] tfs = tooltips(figs);
        fig1 = fig1+tfs;
        int lw = getLineWidth(f)<0?0:getLineWidth(f); 
-       // if (f.lineWidth<0) f.lineWidth = 0;  
+       // if (f.lineWidth<0) f.lineWidth = 0; 
        if (f.width<0 && min([getWidth(g)|g<-fig1])>=0) f.width = max([getAtX(g)+getWidth(g)|g<-fig1]);
        if (f.height<0 && min([getHeight(g)|g<-fig1])>=0) f.height = max([getAtY(g)+getHeight(g)|g<-fig1]);
        str begintag =
@@ -1806,7 +1810,6 @@ IFigure _overlay(str id, Figure f, list[Figure] figs, IFigure fig1...) {
        str endtag="<endRotate(f)><endScale(f)>\</svg\>";
        int width = f.width;
        int height = f.height;
-       
          //   '\<p\>\</p/\>
         widget[id] = <null, seq, id, begintag, endtag, 
         "
@@ -2632,7 +2635,8 @@ public void _render(Figure fig1, int width = 400, int height = 400,
      Alignment align = centerMid, tuple[int, int] size = <0, 0>,
      str fillColor = "white", str lineColor = "black", 
      int lineWidth = 1, bool display = true, num lineOpacity = 1.0, num fillOpacity = 1.0
-     , Event event = on(nullCallback), int borderWidth = -1, bool resizable = true,
+     , Event event = on(nullCallback), int borderWidth = -1, str borderStyle= "", str borderColor = ""
+     , bool resizable = true,
      bool defined = true)
      {    
         id = 0;
@@ -2649,7 +2653,7 @@ public void _render(Figure fig1, int width = 400, int height = 400,
              align = topLeft; 
              }  
         Figure h = emptyFigure();
-        h.lineWidth = lineWidth;
+        h.lineWidth = lineWidth<0?1:lineWidth;
         h.fillColor = fillColor;
         h.lineColor = lineColor;
         h.lineOpacity = lineOpacity;
@@ -2678,7 +2682,8 @@ public void _render(Figure fig1, int width = 400, int height = 400,
         IFigure f = _translate(fig1, align = align, forceHtml = true);
         addState(fig1);
         _render(f , width = screenWidth, height = screenHeight, align = align, fillColor = fillColor, lineColor = lineColor,
-        lineWidth = borderWidth, display = display, event = event, resizable = resizable,
+        borderWidth = borderWidth, borderStyle = borderStyle, borderColor = borderColor, display = display, event = event
+        , resizable = resizable,
         defined = defined);
      }
   

@@ -6,25 +6,27 @@ import Prelude;
 public void render(Figure fig1, int width = 800, int height = 800, 
      Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>,
      str fillColor = "none", str lineColor = "black", bool debug = false, bool display = true, 
-     Event event = on(nullCallback), int borderWidth = -1, bool resizable = true)
+     Event event = on(nullCallback), int borderWidth = -1, str borderStyle = "", str borderColor = ""
+     ,int lineWidth = -1, bool resizable = true)
      {
      println("render:<size?>");
      setDebug(debug);
-     _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
-     lineColor = lineColor, size = size, event = event
-     , borderWidth = borderWidth, resizable = resizable, defined = (width? && height?)||(size?));
+     _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor
+     , lineColor = lineColor, lineWidth = lineWidth, size = size, event = event
+     , borderWidth = borderWidth, borderStyle = borderStyle, borderColor=borderColor
+     , resizable = resizable, defined = (width? && height?)||(size?));
      // println(toString());
      }
        
 public str toHtmlString(Figure fig1, int width = 400, int height = 400, 
      Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>,
      str fillColor = "white", str lineColor = "black", bool debug = false
-     , int borderWidth = -1, bool resizable = true)
+     , int borderWidth = -1,  str borderColor = "", str borderStyle = "", bool resizable = true)
      {
      setDebug(debug);
      _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
      lineColor = lineColor, size = size, display = false
-     , borderWidth = borderWidth, resizable = resizable
+     , borderWidth = borderWidth, borderWidth = borderWidth, borderStyle = borderStyle, resizable = resizable
      );
      // return "aap";
      return getIntro();

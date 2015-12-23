@@ -328,3 +328,11 @@ public void ttipo() = render(tipo());
 public void ttipg() = render(tipg());
 
 public void ftipo(loc l) = writeFile(l, toHtmlString(tipo()));
+
+public void twrong()=render(at(10, 10,  box(size=<50, 50>, fillColor = "white", tooltip=box(size=<20, 20>, fillColor="red"))));
+
+public Figure txt() = overlay(figs=[box(fig = circle(r=30), tooltip = text( "noot")), text("mies")]);
+
+public void ttxt() = render(txt(), borderWidth=1);
+
+public void ftxt(loc l) = writeFile(l, toHtmlString(txt()));
