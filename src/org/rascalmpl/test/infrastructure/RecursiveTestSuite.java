@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2012 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,24 +27,34 @@ public class RecursiveTestSuite extends Suite {
 		super(setupClass, getClasses(setupClass));
 	}
 
+
 	private static Class<?>[] getClasses(Class<?> setupClass) {
 		List<Class<?>> result = new ArrayList<Class<?>>();
 		if (setupClass.isAnnotationPresent(RecursiveTest.class)) {
-	        String packageName = setupClass.getPackage().getName();
-	        String path = setupClass.getProtectionDomain().getCodeSource().getLocation().getFile();
-	        path = path + packageName.replace('.', File.separatorChar);
-			String[] directories = setupClass.getAnnotation(RecursiveTest.class).value();
-			for (String dir: directories) {
-				findTestClasses(setupClass.getPackage(), new File(path + File.separatorChar + dir), result);
-			}
+		    String[] directories = setupClass.getAnnotation(RecursiveTest.class).value();
+	        addClassesFromDirectories(setupClass, result, directories, true);
+		}
+		if (setupClass.isAnnotationPresent(RecursiveJavaOnlyTest.class)) {
+		    String[] directories = setupClass.getAnnotation(RecursiveJavaOnlyTest.class).value();
+	        addClassesFromDirectories(setupClass, result, directories, false);
 		}
 		return result.toArray(new Class<?>[0]);
 	}
 
-	private static void findTestClasses(Package root, File path, List<Class<?>> result) {
+    private static void addClassesFromDirectories(Class<?> setupClass, List<Class<?>> result, String[] directories,
+            boolean includeRascalTests) {
+        String packageName = setupClass.getPackage().getName();
+        String path = setupClass.getProtectionDomain().getCodeSource().getLocation().getFile();
+        path = path + packageName.replace('.', File.separatorChar);
+        for (String dir: directories) {
+        	findTestClasses(setupClass.getPackage(), new File(path + File.separatorChar + dir), includeRascalTests, result);
+        }
+    }
+
+	private static void findTestClasses(Package root, File path, boolean includeRascalTests, List<Class<?>> result) {
 		for (File f : path.listFiles()) {
 			if (f.isDirectory()) {
-				findTestClasses(root, f, result);
+				findTestClasses(root, f, includeRascalTests, result);
 			}
 			else if (f.getName().endsWith(".class")) {
 				// check if the Class has @Test methods
@@ -54,8 +64,10 @@ public class RecursiveTestSuite extends Suite {
 				try {
 					Class<?> currentClass = Class.forName(className);
 					
-					if (currentClass.isAnnotationPresent(RascalJUnitTestPrefix.class)) {
-						result.add(currentClass);
+					if (currentClass.isAnnotationPresent(RascalJUnitTestPrefix.class) || currentClass.isAnnotationPresent(RecursiveRascalParallelTest.class)) {
+					    if (includeRascalTests) {
+					        result.add(currentClass);
+					    }
 					}
 					else {
 						for (Method m: currentClass.getMethods()) {
