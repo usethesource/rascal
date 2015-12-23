@@ -16,7 +16,7 @@ public class MemoizationTests extends TestFramework {
 	    try {
 	        final ArrayList<Object[]> allocations = new ArrayList<Object[]>();
 	        while(true)
-	            allocations.add( new Object[(int) Runtime.getRuntime().maxMemory()] );
+	            allocations.add( new Object[(int) Math.min(Integer.MAX_VALUE, Runtime.getRuntime().maxMemory())] );
 	    } catch( OutOfMemoryError e ) {
 	        // great!
 	    }
