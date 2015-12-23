@@ -734,22 +734,6 @@ private MuExp translateBoolClosure(Expression e){
 
 }
 
-// -- enumerator with range expression ------------------------------
-
-MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> .. <Expression last> ]`) {
-    kind = getOuterType(first) == "int" && getOuterType(last) == "int" ? "_INT" : "";
-    elmType = kind != "" ? \list(Symbol::\int()) : \list(Symbol::\num());
-    return muMulti(muApply(mkCallToLibFun("Library", "RANGE<kind>"), [ translatePat(pat, elmType), translate(first), translate(last)]));
- }
-
-// -- enumerator with range and step expression ---------------------
-    
-MuExp translate (e:(Expression) `<Pattern pat> \<- [ <Expression first> , <Expression second> .. <Expression last> ]`) {
-     kind = getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int" ? "_INT" : "";
-     elmType = kind != "" ? \list(Symbol::\int()) : \list(Symbol::\num());
-     return muMulti(muApply(mkCallToLibFun("Library", "RANGE_STEP<kind>"), [ translatePat(pat, elmType), translate(first), translate(second), translate(last)]));
-}
-
 // -- range expression ----------------------------------------------
 
 MuExp translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) {
@@ -1705,7 +1689,12 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
     ot = getOuterType(expression);
     if(ot == "list") ot = "lrel"; else if(ot == "set") ot = "rel";
     
-    return muCallPrim3("<ot>_field_project", [ translate(expression), *fcode], e@\loc);
+    res =  muCallPrim3("<ot>_field_project", [ translate(expression), *fcode], e@\loc);
+    println("*** Field project <e>, <e@\loc>:");
+    iprintln(e);
+    println("*** Translation:");
+    iprintln(res);
+    return res;
 }
 
 // -- set annotation expression -------------------------------------
@@ -1986,27 +1975,38 @@ MuExp translate(e:(Expression) `<Pattern pat> !:= <Expression rhs>`) =
 MuExp translate(e:(Expression) `<Pattern pat> := <Expression exp>`) =
     translateMatch(e);
 
-// -- enumerate expression ------------------------------------------
-
-MuExp translate(e:(Expression) `<QualifiedName name> \<- <Expression exp>`) {
-    <fuid, pos> = getVariableScope("<name>", name@\loc);
-    return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN"), [muVarRef("<name>", fuid, pos), translate(exp)]));
-}
-
-MuExp translate(e:(Expression) `<Type tp> <Name name> \<- <Expression exp>`) {
-    <fuid, pos> = getVariableScope("<name>", name@\loc);
-    elemType = translateType(tp);
-    generatorType = getType(exp@\loc);
-    if(generatorType == \list(elemType) || generatorType == \set(elemType)){
+MuExp translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`) {
+    // enumerator with range expression
+    if((Expression) `[ <Expression first> .. <Expression last> ]` := exp){
+       kind = getOuterType(first) == "int" && getOuterType(last) == "int" ? "_INT" : "";
+       elmType = kind != "" ? \list(Symbol::\int()) : \list(Symbol::\num());
+       return muMulti(muApply(mkCallToLibFun("Library", "RANGE<kind>"), [ translatePat(pat, elmType), translate(first), translate(last)]));
+    }
+    // enumerator with range and step expression
+    if((Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]` := exp){
+       kind = getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int" ? "_INT" : "";
+       elmType = kind != "" ? \list(Symbol::\int()) : \list(Symbol::\num());
+       return muMulti(muApply(mkCallToLibFun("Library", "RANGE_STEP<kind>"), [ translatePat(pat, elmType), translate(first), translate(second), translate(last)]));
+    }
+    
+    if((Pattern) `<QualifiedName name>` := pat){
+       <fuid, pos> = getVariableScope("<name>", name@\loc);
        return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN"), [muVarRef("<name>", fuid, pos), translate(exp)]));
     }
-    return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_CHECK_AND_ASSIGN"), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos), translate(exp)]));
-}
+    if((Pattern) `<Type tp> <Name name>` := pat){
+       <fuid, pos> = getVariableScope("<name>", name@\loc);
+       elemType = translateType(tp);
+       generatorType = getType(exp@\loc);
+       if(generatorType == \list(elemType) || generatorType == \set(elemType)){
+          return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN"), [muVarRef("<name>", fuid, pos), translate(exp)]));
+       }
+       return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_CHECK_AND_ASSIGN"), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos), translate(exp)]));
+    }
 
-MuExp translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`) {
     elmType = getElementType(getType(exp@\loc));
     return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_MATCH"), [translatePat(pat, elmType), translate(exp)]));
 }
+
 // -- implies expression --------------------------------------------
 
 MuExp translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`) =
