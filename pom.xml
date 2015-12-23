@@ -74,12 +74,12 @@
 				<configuration>
 					<argLine>
                   		-ea
-						-Xmx1g
+						-Xmx4g
 						-Xss128m
 						-Dfile.encoding=UTF-8
 					</argLine>
 					<includes>
-						<include>**/org/rascalmpl/test/AllSuite.java</include>
+						<include>**/org/rascalmpl/test/AllSuiteParallel.java</include>
 					</includes>
 				</configuration>
 			</plugin>
