@@ -42,13 +42,15 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * Rascal modules can be tested separatly from each other. This runner includes all modules and nested modules and runs them spread over a workpool
- * The size of the workpool is determined by the amount of memory (1 worker per 300MB) with a max of the available processors -1 (keep one free for GC stuff)
+ * The size of the workppol is limited by to following:
+ * - 1 worker per 300MB available memory (-Xmx)
+ * - only as much workers as there are cpu's (-1 to keep room for the GC)
+ * - a maximum of 4 since after that the cache misses in the interpreter hurt more than we get benefit
  * @author Davy Landman
  *
  */
 public class RascalJUnitParallelRecursiveTestRunner extends Runner {
-    // either the amount of processors is the limit, or the available memory (every evaluator should have around 300MB)
-    private final int numberOfWorkers = Math.max(0, Math.min(Runtime.getRuntime().availableProcessors() - 1,  (int)(Runtime.getRuntime().maxMemory()/ 1024*1024*300)));
+    private final int numberOfWorkers = Math.max(0, Math.min(4,Math.min(Runtime.getRuntime().availableProcessors() - 1,  (int)(Runtime.getRuntime().maxMemory()/ 1024*1024*300))));
     private final Semaphore importsCompleted = new Semaphore(0);
     private final Semaphore waitForRunning = new Semaphore(0);
     private final Semaphore workersCompleted = new Semaphore(0);
@@ -189,8 +191,16 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             try {
                 if (waitForRunSignal()) {
                     for (Description mod: testModules) {
+                        long start = System.nanoTime();
                         TestEvaluator runner = new TestEvaluator(evaluator, new Listener(mod));
                         runner.test(mod.getDisplayName());
+                        long stop = System.nanoTime();
+                        long duration = (stop - start) / 1000_000;
+                        if (duration > 10_000) {
+                            // longer that 10s
+                            System.err.println("Testing module " + mod.getClassName() + " took: " + duration + "ms");
+                            System.err.flush();
+                        }
                         stdout.flush();
                         stderr.flush();
                     }
