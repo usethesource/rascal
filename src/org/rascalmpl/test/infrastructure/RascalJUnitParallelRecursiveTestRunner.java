@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
@@ -23,7 +22,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.junit.runner.Description;
 import org.junit.runner.Result;
@@ -57,7 +55,8 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
     private final Semaphore waitForRunning = new Semaphore(0);
     private final Semaphore workersCompleted = new Semaphore(0);
 
-    private final Queue<String> prefixes = new ConcurrentLinkedQueue<>();
+    private final String[] prefixes;
+    private final Queue<String> modules = new ConcurrentLinkedQueue<>();
     private final Queue<Description> descriptions = new ConcurrentLinkedQueue<>();
     private final Queue<Consumer<RunNotifier>> results = new ConcurrentLinkedQueue<>();
 
@@ -70,21 +69,23 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
         System.out.println("Runnig parallel test with " + numberOfWorkers + " runners");
         System.out.flush();
         rootName = clazz.getName();
-        for (String pref: clazz.getAnnotation(RecursiveRascalParallelTest.class).value()) {
-            prefixes.add(pref);
-        }
+        this.prefixes = clazz.getAnnotation(RecursiveRascalParallelTest.class).value();
     }
 
 
     @Override
     public Description getDescription() {
         if (rootDesc == null) {
+            long start = System.nanoTime();
+            fillModuleWorkList();
+            long stop = System.nanoTime();
+            reportTime("Iterating modules", start, stop);
             startModuleTesters();
 
-            long start = System.nanoTime();
+            start = System.nanoTime();
             rootDesc = Description.createSuiteDescription(rootName);
             processIncomingModuleDescriptions(rootDesc);
-            long stop = System.nanoTime();
+            stop = System.nanoTime();
             reportTime("Importing modules, looking for tests", start, stop);
             assert descriptions.isEmpty();
         }
@@ -133,15 +134,16 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
     }
 
 
-    private Iterable<String> getModulesInPrefix(String prefix) {
-        try {
-            return RascalJUnitTestRunner.getRecursiveModuleList(VF.sourceLocation("std", "", "/" + prefix.replaceAll("::", "/")))
-                    .stream()
-                    .map(m -> prefix + "::" + m)
-                    .collect(Collectors.toList());
-        }
-        catch (IOException | URISyntaxException e) {
-            return new ArrayList<>();
+    private void fillModuleWorkList() {
+        for (String prefix: prefixes) {
+            try {
+                RascalJUnitTestRunner.getRecursiveModuleList(VF.sourceLocation("std", "", "/" + prefix.replaceAll("::", "/")))
+                .stream()
+                .map(m -> prefix + "::" + m)
+                .forEach(m -> modules.add(m));
+            }
+            catch (IOException | URISyntaxException e) {
+            }
         }
     }
 
@@ -220,31 +222,29 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
         }
 
         private void processModules() {
-            String prefix;
+            String module;
             try {
-                while ((prefix = prefixes.poll()) != null) {
-                    for (String module: getModulesInPrefix(prefix)) {
-                        try {
-                            evaluator.doImport(new NullRascalMonitor(), module);
+                while ((module = modules.poll()) != null) {
+                    try {
+                        evaluator.doImport(new NullRascalMonitor(), module);
+                    }
+                    catch (Throwable e) {
+                        synchronized(System.err) {
+                            System.err.println("Could not import " + module + " for testing...");
+                            System.err.println(e.getMessage());
+                            e.printStackTrace(System.err);
                         }
-                        catch (Throwable e) {
-                            synchronized(System.err) {
-                                System.err.println("Could not import " + module + " for testing...");
-                                System.err.println(e.getMessage());
-                                e.printStackTrace(System.err);
-                            }
-                            continue;
-                        }
+                        continue;
+                    }
 
-                        ModuleEnvironment moduleEnv = heap.getModule(module.replaceAll("\\\\",""));
-                        if (!moduleEnv.getTests().isEmpty()) {
-                            Description modDesc = Description.createSuiteDescription(module);
-                            for (AbstractFunction f : moduleEnv.getTests()) {
-                                modDesc.addChild(Description.createTestDescription(getClass(), RascalJUnitTestRunner.computeTestName(f.getName(), f.getAst().getLocation())));
-                            }
-                            descriptions.add(modDesc);
-                            testModules.add(modDesc);
+                    ModuleEnvironment moduleEnv = heap.getModule(module.replaceAll("\\\\",""));
+                    if (!moduleEnv.getTests().isEmpty()) {
+                        Description modDesc = Description.createSuiteDescription(module);
+                        for (AbstractFunction f : moduleEnv.getTests()) {
+                            modDesc.addChild(Description.createTestDescription(getClass(), RascalJUnitTestRunner.computeTestName(f.getName(), f.getAst().getLocation())));
                         }
+                        descriptions.add(modDesc);
+                        testModules.add(modDesc);
                     }
                 }
                 // let's shuffle them
