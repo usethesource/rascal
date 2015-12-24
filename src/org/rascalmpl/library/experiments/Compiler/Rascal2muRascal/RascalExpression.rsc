@@ -1220,7 +1220,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    // Now overloading resolution...
    ftype = getType(expression@\loc); // Get the type of a receiver
                                      // and a version with type parameters uniquely renamed
-   
+   //println("ftype : <ftype>");
    if(isOverloadedFunction(receiver) && hasOverloadingResolver(receiver.fuid)){
        // Get the types of arguments
        list[Symbol] targs = [ getType(arg@\loc) | arg <- arguments ];
@@ -1244,6 +1244,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        															  match_void(tps1, tps2);
        
        bool match_void([], []) = true;
+       default bool match_void([Symbol s1, *Symbol tps1], [Symbol s2, *Symbol tps2]) = s1 == s2 && match_void(tps1, tps2);
        default bool match_void(list[Symbol] _, list[Symbol] _) = false;
        
        
@@ -1265,6 +1266,9 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        		}
        		upar = upar[0 .. i + 1] + dpar[-1];
        	}
+       	
+       	//println("subtype(<upar>, <dpar>) : <subtype(upar, dpar)>");
+       	//println("match_void(<upar>, <dpar>) : <match_void(upar, dpar)>");
        	return subtype(upar, dpar) || match_void(upar, dpar);
        }
        
@@ -1298,8 +1302,10 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                        println("WARNING: Cannot match <ftype> against <t> for location: <expression@\loc>! <err>");
                    }
                }
+               //println("function_subtype(<ftype>, <t>); : <function_subtype(ftype, t)>");
                return function_subtype(ftype, t);
-           }           
+           }
+             
            if(isOverloadedType(ftype)) {
                if(/parameter(_,_) := t) { // In case of polymorphic function types
                    for(Symbol alt <- (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype))) {
@@ -1326,6 +1332,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
                    }
                    return false;
            	   }
+           	   //println("sup \<- <getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)>");
                return any(Symbol sup <- (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)), subtype(t.parameters, sup.parameters)); // TODO function_subtype
            }
            throw "Unexpected type <ftype> of call receiver expression";
@@ -1337,6 +1344,8 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
            if(matches(t)) {
            	   //println("alt <alt> matches");
                resolved += alt;
+           } else {
+               ;//println("alt <alt> does not match");
            }
        }
        
@@ -1357,7 +1366,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        		} 
        		catch "NotConstant":  /* pass */;
        }
-       	addOverloadedFunctionAndResolver(ofqname, <of.name, ftype, of.fuid,resolved>);      
+       	addOverloadedFunctionAndResolver(ofqname, <of.name, ftype, of.fuid, resolved>);      
        	return muOCall3(muOFun(ofqname), args + [ kwargs ], e@\loc);
    }
    if(isOverloadedFunction(receiver) && !hasOverloadingResolver(receiver.fuid)) {
@@ -1633,7 +1642,8 @@ MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
    tp = getType(expression@\loc);
  
    if(isTupleType(tp) || isRelType(tp) || isListRelType(tp) || isMapType(tp)) {
-       return translate((Expression)`<Expression expression> \< <Name field> \>`);
+       //return translate((Expression)`<Expression expression> \< <Name field> \>`);
+       return translateProject(expression, [(Field)`<Name field>`], e@\loc);
    }
    if(isNonTerminalType(tp)){
       return muCallPrim3("nonterminal_field_access", [ translate(expression), muCon(unescape("<field>")) ], e@\loc);
@@ -1670,8 +1680,10 @@ MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Express
 }
 
 // -- field project expression --------------------------------------
+MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields> \>`) =
+  translateProject(expression, [f | f <- fields], e@\loc);
 
-MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields> \>`) {
+MuExp translateProject(Expression expression, list[Field] fields, loc src){
     tp = getType(expression@\loc); 
     list[str] fieldNames = [];
     if(isRelType(tp)){
@@ -1689,12 +1701,7 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
     ot = getOuterType(expression);
     if(ot == "list") ot = "lrel"; else if(ot == "set") ot = "rel";
     
-    res =  muCallPrim3("<ot>_field_project", [ translate(expression), *fcode], e@\loc);
-    println("*** Field project <e>, <e@\loc>:");
-    iprintln(e);
-    println("*** Translation:");
-    iprintln(res);
-    return res;
+    return muCallPrim3("<ot>_field_project", [ translate(expression), *fcode], src);
 }
 
 // -- set annotation expression -------------------------------------
