@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.test.infrastructure;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
@@ -37,7 +36,6 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -227,9 +225,6 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             String module;
             try {
                 while ((module = modules.poll()) != null) {
-                    if (!containsTest(module)) {
-                        continue;
-                    }
                     try {
                         evaluator.doImport(new NullRascalMonitor(), module);
                     }
@@ -257,20 +252,6 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             }
             finally {
                 importsCompleted.release();
-            }
-        }
-
-        private boolean containsTest(String module) {
-            try (BufferedReader moduleBody = new BufferedReader(URIResolverRegistry.getInstance().getCharacterReader(VF.sourceLocation("std", "", "/" + module.replaceAll("::", "/").replace("\\", "") + ".rsc")))) {
-                String line;
-                while ((line = moduleBody.readLine()) != null) {
-                    if (line.contains("test bool")) {
-                        return true;
-                    }
-                }
-                return false;
-            } catch (URISyntaxException | IOException e) {
-                return false;
             }
         }
 
