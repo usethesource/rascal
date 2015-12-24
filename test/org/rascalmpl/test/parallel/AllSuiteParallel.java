@@ -10,8 +10,7 @@ import org.rascalmpl.test.infrastructure.RecursiveRascalParallelTest;
     "lang::rascal::tests::extends", 
     "lang::rascal::tests::functionality", 
     "lang::rascal::tests::imports",
-    "lang::rascal::tests::library",
-    "lang::rascal::syntax::tests"
+    "lang::rascal::tests::library"
     })
 public class AllSuiteParallel {
 }
