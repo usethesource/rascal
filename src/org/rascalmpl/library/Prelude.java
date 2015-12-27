@@ -3185,10 +3185,12 @@ public class Prelude {
 	}
 	
 	public IValue replaceAll(IString str, IString find, IString replacement){
-		StringBuilder b = new StringBuilder(str.length() * 2); 
-		
-		int iLength = str.length();
 		int fLength = find.length();
+		if(fLength == 0){
+			return str;
+		}
+		int iLength = str.length();
+		StringBuilder b = new StringBuilder(iLength * 2); 
 		int i = 0;
 		boolean matched = false;
 		while(i < iLength){
@@ -3205,11 +3207,13 @@ public class Prelude {
 	}
 	
 	public IValue replaceFirst(IString str, IString find, IString replacement){
-		StringBuilder b = new StringBuilder(str.length() * 2); 
-
-		int iLength = str.length();
 		int fLength = find.length();
-		
+		if(fLength == 0){
+			return str;
+		}
+		int iLength = str.length();
+		StringBuilder b = new StringBuilder(iLength * 2); 
+
 		int i = 0;
 		boolean matched = false;
 		while(i < iLength){
@@ -3227,10 +3231,12 @@ public class Prelude {
 	}
 	
 	public IValue replaceLast(IString str, IString find, IString replacement){
-		StringBuilder b = new StringBuilder(str.length() * 2); 
-
-		int iLength = str.length();
 		int fLength = find.length();
+		if(fLength == 0){
+			return str;
+		}
+		int iLength = str.length();
+		StringBuilder b = new StringBuilder(iLength * 2); 
 		
 		int i = iLength - fLength;
 		while(i >= 0){
