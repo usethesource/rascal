@@ -172,6 +172,10 @@ public class BreakPointManager {
 		switch(mode){
 		
 		case STEP:
+			if(isBlackListed(frame)){
+				mode = DEBUG_MODE.SKIP;
+				return false;
+			}
 			return doAutoList(frame);
 			
 		case SKIP:
@@ -207,6 +211,7 @@ public class BreakPointManager {
 				mode = DEBUG_MODE.SKIP;
 				return false;
 			}
+			return doAutoList(frame);
 			
 		case SKIP:
 			if(!isBlackListed(frame)){
