@@ -222,7 +222,7 @@ public class DebugREPL extends BaseREPL{
 	}
 	
 	private void printStack(){
-		for(Frame f = currentFrame; f != null & !f.src.getPath().equals(CommandExecutor.consoleInputPath); f = f.previousCallFrame) {
+		for(Frame f = currentFrame; f != null && !f.src.getPath().equals(CommandExecutor.consoleInputPath); f = f.previousCallFrame) {
 			stdout.println("\t" + f.toString() + "\t" + f.src);
 		}
 	}
