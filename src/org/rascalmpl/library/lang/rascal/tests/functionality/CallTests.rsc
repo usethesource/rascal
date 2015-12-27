@@ -417,3 +417,39 @@ data Expr(int p = 2, int q = 2 * p) = a(Expr l, Expr r, int z = p * q);
 test bool genericKwParams3() = a(id("x"), id("y")).z == 8;
 
 test bool genericKwParams4() = a(id("x"),id("y"),p = 3).z == 18;
+
+// defaults
+
+int f01n(0) = 10;
+int f01n(1) = 11;
+default int f01n(int n) = 100;
+
+test bool f01n1() = f01n(0) == 10;
+test bool f01n2() = f01n(1) == 11;
+test bool f01n3() = f01n(2) == 100;
+
+data E = e0() | e1(int n);
+
+E trans("e0", []) = e0();
+default E trans(str _, list[value] vals) = e1(0);
+
+test bool trans1() = trans("e0", []) == e0();
+test bool trans2() = trans("abc", []) == e1(0);
+test bool trans3() = trans("abc", [1,2]) == e1(0);
+
+int translateConstantCall(str name, list[value] args) =
+    tcc(name, args);
+
+private int tcc("value", []) = 0;
+private int tcc("value", list[int] L) = 1 when size(L) == 1;
+private int tcc("value", list[int] L) = 2 when size(L) == 2;
+
+private default int tcc(str name, list[value] args) { return -1;}
+
+test bool tcc1() = translateConstantCall("value", []) == 0;
+test bool tcc2() = translateConstantCall("value", [1]) == 1;
+test bool tcc3() = translateConstantCall("value", [1, 2]) == 2;
+test bool tcc4() = translateConstantCall("xxx", []) == -1;
+test bool tcc4() = translateConstantCall("xxx", [1]) == -1;
+
+
