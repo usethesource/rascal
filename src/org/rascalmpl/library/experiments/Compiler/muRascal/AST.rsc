@@ -251,7 +251,7 @@ public data Guard = preGuard1(MuExp exp)
 public data Function =				
                preFunction(lrel[str,int] funNames, str name, list[Identifier] formals, 
                            lrel[list[VarDecl] vardecls, str s] locals, list[MuExp] body, bool comma)
-             | preCoroutine(lrel[str s,int i] funNames, str name, list[Identifier] formals, 
+             | preCoroutine(lrel[str,int] funNames, str name, list[Identifier] formals, 
                             list[Guard] guard, lrel[list[VarDecl] vardecls, str s] locals, list[MuExp] body, bool comma)
           ;
 
