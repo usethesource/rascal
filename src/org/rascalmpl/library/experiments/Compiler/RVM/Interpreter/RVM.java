@@ -864,31 +864,16 @@ public class RVM /*implements java.io.Serializable*/ {
 		//OverloadedFunctionInstanceCall c_ofun_call = null;
 		
 		frameObserver.enter(cf);
-		
+		 
 		try {
 			NEXT_INSTRUCTION: while (true) {
 				
-//				assert pc >= 0 && pc < instructions.length : "Illegal pc value: " + pc + " at " + cf.src;
-//				assert sp >= cf.function.nlocals :           "sp value is " + sp + " (should be at least " + cf.function.nlocals +  ") at " + cf.src;
-//				assert cf.function.isCoroutine || 
-//				       cf.function.name.contains("Library/") ||
-//				       cf.function.name.contains("/RASCAL_ALL") ||
-//				       cf.function.name.contains("/PHI") ||
-//				       cf.function.name.contains("/GEN_") ||
-//				       cf.function.name.contains("/ALL_") ||
-//				       cf.function.name.contains("/OR_") ||
-//				       cf.function.name.contains("/IMPLICATION_") ||
-//				       cf.function.name.contains("/EQUIVALENCE_") ||
-//				       cf.function.name.contains("/closure") ||
-//				       cf.stack[cf.function.nformals - 1] instanceof HashMap<?,?>:
-//															 "HashMap with keyword parameters expected, got " + cf.stack[cf.function.nformals - 1];
+				
+				frameObserver.observeRVM(this, cf, pc, stack, sp);
 				
 				instruction = instructions[pc++];
 				op = CodeBlock.fetchOp(instruction);
 				
-				//ocall_debug = cf.function.name.contains("subtype") || cf.function.name.contains("comparable") ;
-				
-				frameObserver.observeRVM(this, cf, pc, stack, sp);
 				
 				String name;
 				INSTRUCTION: switch (op) {
