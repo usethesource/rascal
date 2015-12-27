@@ -87,10 +87,14 @@ public str typedBinaryOp(str lot, str op, str rot) {
   if(lot == "value" || rot == "value" || lot == "parameter" || rot == "parameter" || lot == "void" || rot == "void"){
      return op;
   }
-  if(isContainerType(lot))
-     return areCompatibleContainerTypes({lot, rot}) ? "<lot>_<op>_<rot>" : "<lot>_<op>_elm";
-  else
-     return isContainerType(rot) ? "elm_<op>_<rot>" : "<lot>_<op>_<rot>";
+  if(isContainerType(lot)){
+     if(areCompatibleContainerTypes({lot, rot})){
+       return op in {"join", "compose"} ? "<lot>_<op>_<rot>" : "<reduceContainerType(lot)>_<op>_<reduceContainerType(rot)>";
+     } else {
+       return "<reduceContainerType(lot)>_<op>_elm";
+     }
+  } else
+     return isContainerType(rot) ? "elm_<op>_<reduceContainerType(rot)>" : "<reduceContainerType(lot)>_<op>_<reduceContainerType(rot)>";
 }
 
 private MuExp infix(str op, Expression e) = 
