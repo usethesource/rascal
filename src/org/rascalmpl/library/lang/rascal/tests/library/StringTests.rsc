@@ -105,7 +105,8 @@ test bool left11() = left("ab", 5, "-+") == "ab-+-";
 test bool left12() = left("ab", 6, "-+") == "ab-+-+";
   		
 // replaceAll
-  
+
+test bool replaceAll0() = replaceAll("a", "", "A") == "a"; 
 test bool replaceAll1() = replaceAll("a", "a", "A") == "A";
 test bool replaceAll2() = replaceAll("a", "x", "X") == "a";
 test bool replaceAll3() = replaceAll("a", "aa", "A") == "a";
@@ -116,7 +117,8 @@ test bool replaceAll6() = replaceAll("abracadabra", "a", "AA") == "AAbrAAcAAdAAb
 test bool replaceAll7() = replaceAll("abracadabra", "ab", "AB") == "ABracadABra";
   	
 // replaceFirst
-  
+
+test bool replaceFirst0() = replaceFirst("a", "", "A") == "a";   
 test bool replaceFirst1() = replaceFirst("a", "a", "A") == "A";
 test bool replaceFirst2() = replaceFirst("a", "x", "X") == "a";
 test bool replaceFirst3() = replaceFirst("a", "aa", "A") == "a";
@@ -125,7 +127,7 @@ test bool replaceFirst5() = replaceFirst("abracadabra", "a", "AA") == "AAbracada
 test bool replaceFirst6() = replaceFirst("abracadabra", "ab", "AB") == "ABracadabra";
   	
 // replaceLast
-  
+test bool replaceLast0() = replaceLast("a", "", "A") == "a";   
 test bool replaceLast1() = replaceLast("a", "a", "A") == "A";
 test bool replaceLast2() = replaceLast("a", "x", "X") == "a";
 test bool replaceLast3() = replaceLast("a", "aa", "A") == "a";
