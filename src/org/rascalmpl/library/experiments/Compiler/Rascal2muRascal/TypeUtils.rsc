@@ -305,8 +305,8 @@ void extractScopes(Configuration c){
 	// - uid2type
 	// - uid2str
 
-   //config = visit (c) { case loc l => normalize(l) };
    config = c;
+
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
       //println("<uid>: <item>");
