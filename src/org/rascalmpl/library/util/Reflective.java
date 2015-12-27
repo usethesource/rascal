@@ -345,6 +345,10 @@ public class Reflective {
 				}
 			}
 		}
+		if(oldVal.getType().isSourceLocation()){
+			return indent + "old " + oldVal + "\n" +
+		           indent + "new " + newVal;
+		}
 		if(oldVal.getType().isList()){
 			IList ov = (IList) oldVal;
 			IList nv = (IList) newVal;
@@ -386,25 +390,50 @@ public class Reflective {
 			IMap all = ov.join(nv);
 			
 			String onlyInOld = "";
+			String onlyInOldCurrent = "";
 			String onlyInNew = "";
+			String onlyInNewCurrent = "";
 			String diffVal = "";
+			String diffValCurrent = "";
+			int nDiff = 0;
 			for(IValue key : all){
 				if(!nv.containsKey(key)){
-					onlyInOld += " " + key;
+					if(onlyInOldCurrent.length() > 80){
+						onlyInOld += onlyInOldCurrent + "\n" + indent + key;
+						onlyInOldCurrent = "";
+					} else {
+					  onlyInOldCurrent += " " + key;
+					}
 					continue;
 				}
 				if(!ov.containsKey(key)){
-					onlyInNew += " " + key;
+					if(onlyInNewCurrent.length() > 80){
+						onlyInNew += onlyInNewCurrent + "\n" + indent + key;
+						onlyInNewCurrent = "";
+					} else {
+					  onlyInNewCurrent += " " + key;
+					}
 					continue;
 				}
 				if(!ov.get(key).equals(nv.get(key))){
-					diffVal += " value for key " + key + " in map " + preview(ov) + ":\n" + idiff(indent + " ", ov.get(key), nv.get(key));
+					if(nDiff < 10){
+						if(diffValCurrent.length() > 80){
+							diffVal += diffValCurrent + "\n" + indent + key;
+							diffValCurrent = "";
+						} else {
+							diffValCurrent += " " + key;
+						}
+						nDiff++;
+					}
 				}
 			}
-				
+			
+			onlyInOld += onlyInOldCurrent;
+			onlyInNew += onlyInNewCurrent;
+			diffVal += diffValCurrent;
 			String msg1 = onlyInOld.length() == 0 ? "" : "keys only in old map:" + onlyInOld + "; ";
 			String msg2 = onlyInNew.length() == 0 ? "" : "keys only in new map:" + onlyInNew + "; ";
-			String msg3 = diffVal.length() == 0 ? "" : "diff at" + diffVal; // + "; ";
+			String msg3 = diffVal.length() == 0 ? "" : "some keys with different values:" + diffVal;
 			return indent + ldiff + msg1 + msg2 + msg3;
 		}
 		
