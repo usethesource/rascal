@@ -182,8 +182,46 @@ test bool less(map[&K, &V] A, map[&K, &V] B) = (A != B + A) ==> A < (B + A);
 test bool greatereq(map[&K, &V] A, map[&K, &V] B)  = (B + A) >= A;
 test bool greater(map[int, str] A, map[int, str] B)  = A<0> & B<0> == {} ==> B <= A || (B + A) > A;
 
-test bool intKeyHandling(){
+test bool intKeyHandling1(){
     N = 10000;
     m = (i : i | int i <- [0..N]);
-    return size(m) == N && size(domain(m)) == N && size(range(m)) == N;
+    return size(m) == N && size(domain(m)) == N && size(range(m)) == N && domain(m) == range(m);
 }
+
+test bool intKeyHandling2(){
+    N = 10000;
+    m = (i : i | int i <- [0..N]);
+    return all(int i <- [0..N], i in m, m[i] == i);
+}
+
+test bool intKeyHandling3(){
+    N = 10000;
+    m = (i : i | int i <- [0..N]);
+    for(int i <- [0..N]){
+       m[i] = 2*i;
+    }
+    return size(m) == N && size(domain(m)) == N && size(range(m)) == N && all(int i <- [0..N], i in m, m[i] == 2*i);
+}
+
+test bool intKeyHandling4(){
+    N = 10000;
+    m = ("X<i>Y" : "X<i>Y" | int i <- [0..N]);
+    return size(m) == N && size(domain(m)) == N && size(range(m)) == N && domain(m) == range(m);
+}
+
+test bool intKeyHandling5(){
+    N = 10000;
+    m = ("X<i>Y" : "X<i>Y" | int i <- [0..N]);
+    return  all(int i <- [0..N], "X<i>Y" in m, m["X<i>Y"] == "X<i>Y");
+}
+
+test bool intKeyHandling6(){
+    N = 10000;
+    m = ("X<i>Y" : "X<i>Y" | int i <- [0..N]);
+    for(int i <- [0..N]){
+       m["X<i>Y"] = "XX<i>YY";
+    }
+    return size(m) == N && size(domain(m)) == N && size(range(m)) == N && all(int i <- [0..N], "X<i>Y" in m, m["X<i>Y"] == "XX<i>YY");
+}
+
+
