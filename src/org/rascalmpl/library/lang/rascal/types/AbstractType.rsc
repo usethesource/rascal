@@ -39,6 +39,14 @@ public anno Symbol Tree@rtype;
 @doc{Annotations to hold the location at which a type is declared.}
 public anno loc Symbol@at; 
 
+Symbol normalizeType(Symbol s){
+   return
+    visit(s){
+        case Symbol::\list(Symbol::\tuple(list[Symbol] tls)) => Symbol::\lrel(tls)
+        case Symbol::\set(Symbol::\tuple(list[Symbol] tls))  => Symbol::\rel(tls)
+   }
+}
+
 @doc{Pretty printer for Rascal abstract types.}
 public str prettyPrintType(Symbol::\int()) = "int";
 public str prettyPrintType(Symbol::\bool()) = "bool";
@@ -146,7 +154,12 @@ public Symbol makeDateTimeType() = Symbol::\datetime();
 @doc{Create a new set type, given the element type of the set.}
 public Symbol makeSetType(Symbol elementType) {
     return isTupleType(elementType) ? makeRelTypeFromTuple(elementType) : Symbol::\set(elementType);
-}    
+}
+
+@doc{Create a new list type, given the element type of the list.}
+public Symbol makeListType(Symbol elementType) {
+    return isTupleType(elementType) ? makeListRelTypeFromTuple(elementType) : Symbol::\list(elementType);
+}       
 
 @doc{Create a new rel type, given the element types of the fields. Check any given labels for consistency.}
 public Symbol makeRelType(Symbol elementTypes...) {
@@ -179,11 +192,6 @@ public Symbol makeTupleType(Symbol elementTypes...) {
 		return \tuple(elementTypes);
 	else
 		throw "For tuple types, either all fields much be given a distinct label or no fields should be labeled."; 
-}
-
-@doc{Create a new list type, given the element type of the list.}
-public Symbol makeListType(Symbol elementType) {
-    return isTupleType(elementType) ? makeListRelTypeFromTuple(elementType) : Symbol::\list(elementType);
 }
 
 @doc{Create a new map type, given the types of the domain and range. Check to make sure field names are used consistently.}
