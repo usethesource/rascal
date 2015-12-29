@@ -193,7 +193,7 @@ public CheckResult checkExp(Expression exp:(Expression)`[ <Expression ef> , <Exp
     < c, t3 > = checkExp(el, c);
 
     if (!isFailType(t1) && !isFailType(t2) && !isFailType(t3) && subtype(t1,Symbol::\num()) && subtype(t2,Symbol::\num()) && subtype(t3,Symbol::\num())) {
-        return markLocationType(c,exp@\loc,\list(lubList([t1,t2,t3])));
+        return markLocationType(c,exp@\loc,makeListType(lubList([t1,t2,t3])));
     } else {
         if (!isFailType(t1) && !subtype(t1,Symbol::\num())) t1 = makeFailType("Invalid type: expected numeric type, found <prettyPrintType(t1)>", ef@\loc);
         if (!isFailType(t2) && !subtype(t2,Symbol::\num())) t2 = makeFailType("Invalid type: expected numeric type, found <prettyPrintType(t2)>", es@\loc);
@@ -1042,7 +1042,7 @@ public CheckResult checkExp(Expression exp:(Expression)`{ <{Expression ","}* es>
     list[Symbol] tl = [ Symbol::\void() ];
     for (e <- es) { < c, t1 > = checkExp(e,c); tl += t1; }
     if (all(t <- tl, !isFailType(t))) {
-        return markLocationType(c, exp@\loc, \set(lubList(tl)));
+        return markLocationType(c, exp@\loc, makeSetType(lubList(tl)));
     } else {
         return markLocationFailed(c, exp@\loc, {t|t<-tl});
     }
@@ -1053,7 +1053,7 @@ public CheckResult checkExp(Expression exp:(Expression)`[ <{Expression ","}* es>
     list[Symbol] tl = [ Symbol::\void() ];
     for (e <- es) { < c, t1 > = checkExp(e,c); tl += t1; }
     if (all(t <- tl, !isFailType(t))) {
-        return markLocationType(c, exp@\loc, \list(lubList(tl)));
+        return markLocationType(c, exp@\loc, makeListType(lubList(tl)));
     } else {
         return markLocationFailed(c, exp@\loc, {t|t<-tl});
     }
@@ -1071,7 +1071,7 @@ public CheckResult checkExp(Expression exp:(Expression)`[ <Expression ef> .. <Ex
     < c, t2 > = checkExp(el, c);
     
     if (!isFailType(t1) && !isFailType(t2) && subtype(t1,Symbol::\num()) && subtype(t2,Symbol::\num())) {
-        return markLocationType(c,exp@\loc,\list(lubList([t1,t2])));
+        return markLocationType(c,exp@\loc,makeListType(lubList([t1,t2])));
     } else {
         if (!subtype(t1,Symbol::\num())) t1 = makeFailType("Invalid type: expected numeric type, found <prettyPrintType(t1)>", ef@\loc);
         if (!subtype(t2,Symbol::\num())) t2 = makeFailType("Invalid type: expected numeric type, found <prettyPrintType(t2)>", el@\loc);
@@ -1196,13 +1196,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("For a relation with arity <size(getRelFields(t1))> you can have at most <size(getRelFields(t1))-1> subscripts",exp@\loc));
         else {
             relFields = getRelFields(t1);
-            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],\set(relFields[idx]))) };
+            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],makeSetType(relFields[idx]))) };
             if (size(failures) > 0) {
                 return markLocationFailed(c,exp@\loc,failures);
             } else if ((size(relFields) - size(tl)) == 1) {
             	rftype = last(relFields);
             	if (\label(_,rft) := rftype) rftype = rft; 
-                return markLocationType(c,exp@\loc,\set(rftype));
+                return markLocationType(c,exp@\loc,makeSetType(rftype));
             } else {
                 return markLocationType(c,exp@\loc,\rel(tail(relFields,size(relFields)-size(tl))));
             }
@@ -1212,13 +1212,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("For a list relation with arity <size(getListRelFields(t1))> you can have at most <size(getListRelFields(t1))-1> subscripts",exp@\loc));
         else {
             relFields = getListRelFields(t1);
-            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],\set(relFields[idx]))) };
+            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],makeSetType(relFields[idx]))) };
             if (size(failures) > 0) {
                 return markLocationFailed(c,exp@\loc,failures);
             } else if ((size(relFields) - size(tl)) == 1) {
             	rftype = last(relFields);
             	if (\label(_,rft) := rftype) rftype = rft; 
-                return markLocationType(c,exp@\loc,\list(rftype));
+                return markLocationType(c,exp@\loc,makeListType(rftype));
             } else {
                 return markLocationType(c,exp@\loc,\lrel(tail(relFields,size(relFields)-size(tl))));
             }
@@ -1294,7 +1294,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
 	if (isListType(t1) || isStrType(t1) || isNonTerminalIterType(t1)) {
 		res = t1;
 	} else if (isNodeType(t1)) {
-		res = \list(Symbol::\value());
+		res = makeListType(Symbol::\value());
 	}
 	
 	if (isFailType(res) || size(failures) > 0)
@@ -1329,7 +1329,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
 	if (isListType(t1) || isStrType(t1) || isNonTerminalIterType(t1)) {
         res = t1;
     } else if (isNodeType(t1)) {
-        res = \list(Symbol::\value());
+        res = makeListType(Symbol::\value());
     }
 	
 	if (isFailType(res) || size(failures) > 0)
@@ -1358,7 +1358,7 @@ private map[Symbol,map[str,Symbol]] fieldMap =
           "top" : Symbol::\loc(),
           "parent" : Symbol::\loc(),
           "file" : \str(), 
-          "ls" : \list(Symbol::\loc()), 
+          "ls" : makeListType(Symbol::\loc()), 
           "extension" : \str(),
           "params" : \map(\str(),\str())
         ),
@@ -1400,13 +1400,13 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
     } else if (isRelType(t1)) {
         rt = getRelElementType(t1);
         if (tupleHasField(rt, fAsString))
-            return \set(getTupleFieldType(rt, fAsString));
+            return makeSetType(getTupleFieldType(rt, fAsString));
         else
             return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
     } else if (isListRelType(t1)) {
         rt = getListRelElementType(t1);
         if (tupleHasField(rt, fAsString))
-            return \list(getTupleFieldType(rt, fAsString));
+            return makeListType(getTupleFieldType(rt, fAsString));
         else
             return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
     } else if (isMapType(t1)) {
@@ -1622,13 +1622,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> \< <{Fiel
 	
     if (isRelType(t1)) {
         if (size(subscripts) > 1) return markLocationType(c, exp@\loc, \rel(subscripts));
-        return markLocationType(c, exp@\loc, \set(head(subscripts)));
+        return markLocationType(c, exp@\loc, makeSetType(head(subscripts)));
     } else if (isListRelType(t1)) {
         if (size(subscripts) > 1) return markLocationType(c, exp@\loc, \lrel(subscripts));
-        return markLocationType(c, exp@\loc, \list(head(subscripts)));
+        return markLocationType(c, exp@\loc, makeListType(head(subscripts)));
     } else if (isMapType(t1)) {
         if (size(subscripts) > 1) return markLocationType(c, exp@\loc, \rel(subscripts));
-        return markLocationType(c, exp@\loc, \set(head(subscripts)));
+        return markLocationType(c, exp@\loc, makeSetType(head(subscripts)));
     } else if (isTupleType(t1)) {
         if (size(subscripts) > 1) return markLocationType(c, exp@\loc, \tuple(subscripts));
         return markLocationType(c, exp@\loc, head(subscripts));
@@ -1966,7 +1966,7 @@ Symbol computeProductType(Symbol t1, Symbol t2, loc l) {
         return numericArithTypes(t1, t2);
     
     if (isListType(t1) && isListType(t2))
-        return \list(\tuple([getListElementType(t1),getListElementType(t2)]));
+        return makeListType(\tuple([getListElementType(t1),getListElementType(t2)]));
     if (isRelType(t1) && isRelType(t2))
         return \rel([getRelElementType(t1),getRelElementType(t2)]);
     if (isListRelType(t1) && isListRelType(t2))
@@ -2130,23 +2130,23 @@ Symbol computeAdditionType(Symbol t1, Symbol t2, loc l) {
         return lub(t1,t2);
     
     if (isListType(t1) && !isContainerType(t2))
-        return \list(lub(getListElementType(t1),t2));
+        return makeListType(lub(getListElementType(t1),t2));
     if (isSetType(t1) && !isContainerType(t2)) // Covers relations too
-        return \set(lub(getSetElementType(t1),t2));
+        return makeSetType(lub(getSetElementType(t1),t2));
     if (isBagType(t1) && !isContainerType(t2))
         return \bag(lub(getBagElementType(t1),t2));
         
     if (isListType(t2) && !isContainerType(t1))
-        return \list(lub(t1,getListElementType(t2)));
+        return makeListType(lub(t1,getListElementType(t2)));
     if (isSetType(t2) && !isContainerType(t1)) // Covers relations too
-        return \set(lub(t1,getSetElementType(t2)));
+        return makeSetType(lub(t1,getSetElementType(t2)));
     if (isBagType(t2) && !isContainerType(t1))
         return \bag(lub(t1,getBagElementType(t2)));
         
     if (isListType(t1))
-        return \list(lub(getListElementType(t1),t2));
+        return makeListType(lub(getListElementType(t1),t2));
     if (isSetType(t1)) // Covers relations too
-        return \set(lub(getSetElementType(t1),t2));
+        return makeSetType(lub(getSetElementType(t1),t2));
     if (isBagType(t1))
         return \bag(lub(getBagElementType(t1),t2));
         
@@ -2234,7 +2234,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \<\< <Ex
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 
 	if (isListType(t1)) {
-		return markLocationType(c, exp@\loc, \list(lub(getListElementType(t1),t2)));
+		return markLocationType(c, exp@\loc, makeListType(lub(getListElementType(t1),t2)));
 	}
 
     return markLocationFailed(c, exp@\loc, makeFailType("Expected a list type, not type <prettyPrintType(t1)>", e1@\loc));
@@ -2247,7 +2247,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \>\> <Ex
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 
 	if (isListType(t2)) {
-		return markLocationType(c, exp@\loc, \list(lub(getListElementType(t2),t1)));
+		return markLocationType(c, exp@\loc, makeListType(lub(getListElementType(t2),t1)));
 	}
 
     return markLocationFailed(c, exp@\loc, makeFailType("Expected a list type, not type <prettyPrintType(t2)>", e2@\loc));
@@ -2891,11 +2891,11 @@ public CheckResult checkFormals((Formals)`<{Pattern ","}* ps>`, bool isVarArgs, 
         < c, t > = calculatePatternType(patterns[idx], c);
         if (size(patterns) == (idx + 1) && isVarArgs && !isFailType(t)) {
         	if ((Pattern)`<Type pt> <Name pn>` := patterns[idx]) {
-        		c.store[c.fcvEnv[convertName(pn)]].rtype = \list(t);
+        		c.store[c.fcvEnv[convertName(pn)]].rtype = makeListType(t);
         	} else if (!isFailType(t)) {
         		t = makeFailType("A var-args parameter must be a type name followed by a variable name", patterns[idx]@\loc);
         	}
-        	formals += \list(t);
+        	formals += makeListType(t);
         } else {
         	formals += t;
         }
@@ -3243,14 +3243,14 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	        	for (idx <- index(ptns)) {
 	        		if (spliceNodePlus(n,_,rt,nid) := ptns[idx] || spliceNodeStar(n,_,rt,nid) := ptns[idx]) {
 		                if (RSimpleName("_") == n) {
-	                        c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
+	                        c = addUnnamedVariable(c, ptns[idx]@at, makeSetType(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
 		                } else {
 		                	// TODO: Do we want to issue a warning here if the same name is used multiple times? Probably, although a pass
 		                	// over the pattern tree may be a better way to do this (this would only catch cases at the same level of
 		                	// a set pattern or, below, a list pattern)
-		                    c = addLocalVariable(c, n, false, ptns[idx]@at, \set(rt));
+		                    c = addLocalVariable(c, n, false, ptns[idx]@at, makeSetType(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][@rtype = rt];
 		                } 
@@ -3258,13 +3258,13 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 		                if (RSimpleName("_") == n) {
 		                    rt = \inferred(c.uniqueify);
 		                    c.uniqueify = c.uniqueify + 1;
-		                    c = addUnnamedVariable(c, ptns[idx]@at, \set(rt));
+		                    c = addUnnamedVariable(c, ptns[idx]@at, makeSetType(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
 		                } else if (!fcvExists(c, n)) {
 		                    rt = \inferred(c.uniqueify);
 		                    c.uniqueify = c.uniqueify + 1;
-		                    c = addLocalVariable(c, n, true, ptns[idx]@at, \set(rt));
+		                    c = addLocalVariable(c, n, true, ptns[idx]@at, makeSetType(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][@rtype = rt];
 		                } else {
@@ -3293,11 +3293,11 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	        	for (idx <- index(ptns)) {
 	        		if (spliceNodePlus(n,_,rt,nid) := ptns[idx] || spliceNodeStar(n,_,rt,nid) := ptns[idx]) {
 		                if (RSimpleName("_") == n) {
-	                        c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
+	                        c = addUnnamedVariable(c, ptns[idx]@at, makeListType(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
 		                } else {
-		                    c = addLocalVariable(c, n, false, ptns[idx]@at, \list(rt));
+		                    c = addLocalVariable(c, n, false, ptns[idx]@at, makeListType(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][@rtype = rt];
 		                } 
@@ -3305,13 +3305,13 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 		                if (RSimpleName("_") == n) {
 		                    rt = \inferred(c.uniqueify);
 		                    c.uniqueify = c.uniqueify + 1;
-		                    c = addUnnamedVariable(c, ptns[idx]@at, \list(rt));
+		                    c = addUnnamedVariable(c, ptns[idx]@at, makeListType(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][@rtype = rt][@defs = { c.nextLoc - 1 }];
 		                } else if (!fcvExists(c, n)) {
 		                    rt = \inferred(c.uniqueify);
 		                    c.uniqueify = c.uniqueify + 1;
-		                    c = addLocalVariable(c, n, true, ptns[idx]@at, \list(rt));
+		                    c = addLocalVariable(c, n, true, ptns[idx]@at, makeListType(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][@rtype = rt];
 		                } else {
@@ -3530,16 +3530,16 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
         // pattern tree towards the root. This gives us a way to use the types assigned to
         // names, literals, etc to find the final types of other patterns.
         pt = bottom-up visit(pt) {
-            case ptn:setNode([]) => updateRT(ptn, \set(Symbol::\void()))
+            case ptn:setNode([]) => updateRT(ptn, makeSetType(Symbol::\void()))
             
-            case ptn:setNode(ptns) => updateRT(ptn,\set(lubList([pti@rtype | pti <- ptns]))) 
+            case ptn:setNode(ptns) => updateRT(ptn,makeSetType(lubList([pti@rtype | pti <- ptns]))) 
                                       when all(idx <- index(ptns), (ptns[idx]@rtype)?, concreteType(ptns[idx]@rtype))
                                       
-            case ptn:listNode([]) => updateRT(ptn, \list(Symbol::\void()))
+            case ptn:listNode([]) => updateRT(ptn, makeListType(Symbol::\void()))
             
             case ptn:listNode(ptns) : {
             	if (all(idx <- index(ptns), (ptns[idx]@rtype)?, concreteType(ptns[idx]@rtype))) {
-            		insert(updateRT(ptn,\list(lubList([pti@rtype | pti <- ptns]))));
+            		insert(updateRT(ptn,makeListType(lubList([pti@rtype | pti <- ptns]))));
             	} 
 			}
                                       
@@ -4040,16 +4040,16 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
             Symbol currentType = c.store[nid].rtype;
             if (c.store[nid].inferred) {
                 if (isSetType(currentType) && isInferredType(getSetElementType(currentType))) {
-                    c.store[nid].rtype = \set(rt);
+                    c.store[nid].rtype = makeSetType(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isListType(currentType) && isInferredType(getListElementType(currentType))) {
-                    c.store[nid].rtype = \list(rt);
+                    c.store[nid].rtype = makeListType(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isSetType(currentType)) {
-                    c.store[nid].rtype = \set(lub(getSetElementType(currentType), rt));
+                    c.store[nid].rtype = makeSetType(lub(getSetElementType(currentType), rt));
                     return < c, pt[@rtype = getSetElementType(c.store[nid].rtype)] >;
                 } else if (isListType(currentType)) {
-                    c.store[nid].rtype = \list(lub(getListElementType(currentType), rt));
+                    c.store[nid].rtype = makeListType(lub(getListElementType(currentType), rt));
                     return < c, pt[@rtype = getListElementType(c.store[nid].rtype)] >;
                 }
             } else {
@@ -4077,16 +4077,16 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         	Symbol currentType = c.store[nid].rtype;
             if (c.store[nid].inferred) {
                 if (isSetType(currentType) && isInferredType(getSetElementType(currentType))) {
-                    c.store[nid].rtype = \set(rt);
+                    c.store[nid].rtype = makeSetType(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isListType(currentType) && isInferredType(getListElementType(currentType))) {
-                    c.store[nid].rtype = \list(rt);
+                    c.store[nid].rtype = makeListType(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isSetType(currentType)) {
-                    c.store[nid].rtype = \set(lub(getSetElementType(currentType), rt));
+                    c.store[nid].rtype = makeSetType(lub(getSetElementType(currentType), rt));
                     return < c, pt[@rtype = getSetElementType(c.store[nid].rtype)] >;
                 } else if (isListType(currentType)) {
-                    c.store[nid].rtype = \list(lub(getListElementType(currentType), rt));
+                    c.store[nid].rtype = makeListType(lub(getListElementType(currentType), rt));
                     return < c, pt[@rtype = getListElementType(c.store[nid].rtype)] >;
                 }
             } else {
@@ -4137,16 +4137,16 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         	Symbol currentType = c.store[nid].rtype;
             if (c.store[nid].inferred) {
                 if (isSetType(currentType) && isInferredType(getSetElementType(currentType))) {
-                    c.store[nid].rtype = \set(rt);
+                    c.store[nid].rtype = makeSetType(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isListType(currentType) && isInferredType(getListElementType(currentType))) {
-                    c.store[nid].rtype = \list(rt);
+                    c.store[nid].rtype = makeListType(rt);
                     return < c, pt[@rtype = rt] >;
                 } else if (isSetType(currentType)) {
-                    c.store[nid].rtype = \set(lub(getSetElementType(currentType), rt));
+                    c.store[nid].rtype = makeSetType(lub(getSetElementType(currentType), rt));
                     return < c, pt[@rtype = getSetElementType(c.store[nid].rtype)] >;
                 } else if (isListType(currentType)) {
-                    c.store[nid].rtype = \list(lub(getListElementType(currentType), rt));
+                    c.store[nid].rtype = makeListType(lub(getListElementType(currentType), rt));
                     return < c, pt[@rtype = getListElementType(c.store[nid].rtype)] >;
                 }
             } else {
@@ -4494,7 +4494,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> while ( <{Ex
     if (size(failures) > 0)
         return markLocationFailed(c, stmt@\loc, failures);
     else
-        return markLocationType(c, stmt@\loc, \list(loopElementType)); 
+        return markLocationType(c, stmt@\loc, makeListType(loopElementType)); 
 }
 
 @doc{Check the type of Rascal statements: DoWhile}
@@ -4565,7 +4565,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> do <Statemen
     if (size(failures) > 0)
         return markLocationFailed(c, stmt@\loc, failures);
     else
-        return markLocationType(c, stmt@\loc, \list(loopElementType)); 
+        return markLocationType(c, stmt@\loc, makeListType(loopElementType)); 
 }   
 
 @doc{Check the type of Rascal statements: For}
@@ -4642,7 +4642,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> for ( <{Expr
     if (size(failures) > 0)
         return markLocationFailed(c, stmt@\loc, failures);
     else
-        return markLocationType(c, stmt@\loc, \list(loopElementType)); 
+        return markLocationType(c, stmt@\loc, makeListType(loopElementType)); 
 }
 
 @doc{Check the type of Rascal statements: IfThen (DONE)}
@@ -5591,7 +5591,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable 
 
 @doc{General function to calculate the type of an append.}
 Symbol computeAppendType(Symbol t1, Symbol t2, loc l) {
-    if (isListType(t1)) return \list(lub(getListElementType(t1),t2));
+    if (isListType(t1)) return makeListType(lub(getListElementType(t1),t2));
     return makeFailType("Append not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l);
 }
 
@@ -5676,7 +5676,7 @@ public ATResult bindAssignable(AssignableTree atree:variableNode(RName name), Sy
 public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree receiver, Symbol stype), Symbol st, Configuration c) {
     
     if (isListType(receiver@atype)) { 
-        < c, receiver > = bindAssignable(receiver, \list(lub(st,getListElementType(receiver@atype))), c);
+        < c, receiver > = bindAssignable(receiver, makeListType(lub(st,getListElementType(receiver@atype))), c);
         return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=getListElementType(receiver@atype)] >;
     } else if (isNodeType(receiver@atype)) {
         < c, receiver > = bindAssignable(receiver, Symbol::\node(), c);
@@ -8279,7 +8279,7 @@ public CheckResult checkComprehension(Comprehension cmp:(Comprehension)`{ <{Expr
     if (size(failures) > 0)
         return markLocationFailed(c, cmp@\loc, failures);
     else
-        return markLocationType(c, cmp@\loc, \set(lubList(elementTypes)));
+        return markLocationType(c, cmp@\loc, makeSetType(lubList(elementTypes)));
 }
 
 @doc{Check the types of Rascal comprehensions: Map (DONE)}
@@ -8347,7 +8347,7 @@ public CheckResult checkComprehension(Comprehension cmp:(Comprehension)`[ <{Expr
     if (size(failures) > 0)
         return markLocationFailed(c, cmp@\loc, failures);
     else
-        return markLocationType(c, cmp@\loc, \list(lubList(elementTypes)));
+        return markLocationType(c, cmp@\loc, makeListType(lubList(elementTypes)));
 }
 
 @doc{Check the type of Rascal cases: PatternWithAction (DONE)}
