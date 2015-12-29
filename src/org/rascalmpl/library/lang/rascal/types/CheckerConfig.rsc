@@ -138,13 +138,14 @@ data Configuration = config(set[Message] messages,
 
 public Configuration newConfiguration(PathConfig pcfg) = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false,{},{}, pcfg);
 
-public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
+public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c; // c[timings = c.timings + timing(m,s,e)];
 
 public set[&T] filterSet(set[&T] xs, bool (&T) f) = { x | x <- xs, f(x) };
 
 @doc{Add a new location type.}
 public CheckResult markLocationType(Configuration c, loc l, Symbol t) {
     if (isFailType(t)) return markLocationFailed(c, l, t);
+    t = normalizeType(t);
     c.locationTypes[l] = t;
     return < c, t >;
 }
@@ -274,6 +275,7 @@ public tuple[Configuration,Symbol] checkTVarBound(Configuration c, loc l, Symbol
 public Configuration addTopLevelVariable(Configuration c, RName n, bool inf, Vis visibility, loc l, Symbol rt) {
 	moduleId = head([i | i <- c.stack, c.store[i] is \module]);
 	moduleName = c.store[moduleId].name;
+	rt = normalizeType(rt);
 	
 	if (n in c.fcvEnv){
       if(c.store[c.fcvEnv[n]].at == l){
@@ -342,7 +344,8 @@ public Configuration addLocalVariable(Configuration c, RName n, bool inf, loc l,
 	moduleName = c.store[moduleId].name;
 
 	< c, rt > = checkTVarBound(c, l, rt);
-
+    rt = normalizeType(rt);
+    
 	int insertVariable() {
 		varId = c.nextLoc;
 		c.store[varId] = variable(n,rt,inf,head(c.stack),l);
@@ -390,6 +393,8 @@ public Configuration addUnnamedVariable(Configuration c, loc l, Symbol rt) {
 public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol rtOn, Vis visibility, loc l) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
+	rt = normalizeType(rt);
+	rtOn = normalizeType(rtOn);
 
 	int insertAnnotation() {
 		existingDefs = invert(c.definitions)[l];
@@ -713,6 +718,7 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
+	rt = normalizeType(rt);
 	
 	int addAliasAux() {
 		existingDefs = invert(c.definitions)[l];
@@ -778,6 +784,9 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 
 	adtName = RSimpleName(rt.\adt.name);
 	fullAdtName = appendName(moduleName, adtName);
+	
+	rt = normalizeType(rt);
+	keywordParams = visit(keywordParams) { case Symbol sym => normalizeType(sym) };
 	
 	adtId = 0;
 	if (adtName in c.globalAdtMap) {
@@ -1232,6 +1241,7 @@ public Configuration popModule(Configuration c) {
 
 @doc{Add a closure into the configuration.}
 public Configuration addClosure(Configuration c, Symbol rt, KeywordParamMap keywordParams, loc l) {
+    rt = normalizeType(rt);
     c.store[c.nextLoc] = closure(rt,keywordParams, head(c.stack),l);
     c.definitions = c.definitions + < c.nextLoc, l >;
     c.stack = c.nextLoc + c.stack;
@@ -1253,6 +1263,7 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
     // TODO: Along with the overlaps, see if we are bringing the same function in along multiple paths
     // and, if so, don't add a new entry for it. For now, we just get back multiple entries, which
     // is fine.
+    rt = normalizeType(rt);
     rt@isVarArgs = isVarArgs;
     currentModuleId = head([i | i <- c.stack, \module(_,_) := c.store[i]]);
 
