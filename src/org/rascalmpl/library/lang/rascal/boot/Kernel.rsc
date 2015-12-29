@@ -1,5 +1,5 @@
 module lang::rascal::boot::Kernel
-
+ 
 /*
  * The Kernel module collects all Rascal modules that are needed
  * to compile and execute Rascal programs.
@@ -10,40 +10,10 @@ module lang::rascal::boot::Kernel
  * An up-to-date, compiled version of the Kernel should always reside in the /boot directory 
  * of the Rascal project
  */
- 
- 
-// TODO: it would make sense to use extend here, however compiler does not handle that properly.
 
+extend experiments::Compiler::Compile;
+extend experiments::Compiler::Execute;
 
-import experiments::Compiler::RVM::AST;
-import experiments::Compiler::Compile;
-import experiments::Compiler::Execute;
-import experiments::Compiler::Commands::Rascalc;
-import experiments::Compiler::Commands::Rascal;
-import experiments::Compiler::Commands::RascalTests;
-import util::Reflective;
-//import experiments::Compiler::Inspect;
-
-RVMModule compile(str moduleName, PathConfig pcfg, bool verbose = false) =
-    experiments::Compiler::Compile::compile(moduleName, pcfg, verbose = verbose);
-    
-RVMProgram compileAndLink(str moduleName,  PathConfig pcfg, bool useJVM=false, bool serialize=true, bool verbose = false) =
-     experiments::Compiler::Execute::compileAndLink(moduleName, pcfg, useJVM=useJVM, serialize=serialize, verbose = verbose);
-
-RVMProgram compileAndLinkIncremental(str moduleName,  bool reuseConfig, bool useJVM=false, bool serialize=true, bool verbose = false) =
-     experiments::Compiler::Execute::compileAndLinkIncremental(moduleName, reuseConfig, useJVM=useJVM, serialize=serialize, verbose = verbose);
-    
-value execute(str moduleName, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=true, bool verbose = false)
-     =
-     experiments::Compiler::Execute::execute(moduleName, pcfg, keywordArguments = keywordArguments, debug=debug, testsuite=testsuite, recompile=recompile, profile=profile, trackCalls= trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize, verbose = verbose);
-
-value rascalTests(list[str] qualifiedModuleNames, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool recompile=false, bool profile=false, bool trackCalls= false,  bool coverage=false, bool useJVM=false, bool serialize=false, bool verbose = false)
-     =
-     experiments::Compiler::Execute::rascalTests(qualifiedModuleNames, pcfg, keywordArguments = keywordArguments, debug=debug, recompile=recompile, profile=profile, trackCalls= trackCalls, coverage=coverage, useJVM=useJVM, serialize=serialize, verbose = verbose);
-
-int rascalc(str commandLine) = experiments::Compiler::Commands::Rascalc::rascalc(commandLine);
-
-value rascal(str commandLine) = experiments::Compiler::Commands::Rascal::rascal(commandLine);
-
-value rascalTests(str commandLine) = experiments::Compiler::Commands::RascalTests::rascalTests(commandLine);
-     
+extend experiments::Compiler::Commands::Rascalc;
+extend experiments::Compiler::Commands::Rascal;
+extend experiments::Compiler::Commands::RascalTests;
