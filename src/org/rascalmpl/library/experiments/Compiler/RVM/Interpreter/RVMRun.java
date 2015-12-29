@@ -47,6 +47,7 @@ import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class RVMRun extends RVM {
 
@@ -87,7 +88,7 @@ public class RVMRun extends RVM {
 //	protected ArrayList<OverloadedFunction> overloadedStore;
 	protected OverloadedFunction[] overloadedStore;
 
-	private TypeStore typeStore = new TypeStore();
+	private TypeStore typeStore = RascalValueFactory.getStore(); // new TypeStore();
 	private final Types types;
 
 	protected ArrayList<Type> constructorStore;

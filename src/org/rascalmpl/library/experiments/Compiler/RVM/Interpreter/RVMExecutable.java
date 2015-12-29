@@ -226,7 +226,7 @@ public class RVMExecutable implements Serializable{
 	public void write(ISourceLocation rvmExecutable) throws IOException{		
 		OutputStream fileOut;
 		
-		TypeStore typeStore = new TypeStore(RascalValueFactory.getStore());
+		TypeStore typeStore = RascalValueFactory.getStore(); //new TypeStore(RascalValueFactory.getStore());
 		
 		FSTSerializableType.initSerialization(vf, typeStore);
 		FSTSerializableIValue.initSerialization(vf, typeStore);
@@ -248,7 +248,7 @@ public class RVMExecutable implements Serializable{
 		RVMExecutable executable = null;
 		
 		vf = ValueFactoryFactory.getValueFactory();
-		TypeStore typeStore = new TypeStore(RascalValueFactory.getStore());
+		TypeStore typeStore = RascalValueFactory.getStore(); //new TypeStore(RascalValueFactory.getStore());
 		
 		FSTSerializableType.initSerialization(vf, typeStore);
 		FSTSerializableIValue.initSerialization(vf, typeStore);

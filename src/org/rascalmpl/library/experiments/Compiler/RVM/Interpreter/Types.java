@@ -33,7 +33,7 @@ public class Types {
 	
 	public IValue typeToValue(Type t, RascalExecutionContext rex) {
 		
-		TypeStore store = new TypeStore();
+		TypeStore store = RascalValueFactory.getStore(); //new TypeStore();
 		IMap definitions = rex.getSymbolDefinitions();
 		TypeReifier tr = new TypeReifier(vf);
 		tr.declareAbstractDataTypes(definitions, store);
