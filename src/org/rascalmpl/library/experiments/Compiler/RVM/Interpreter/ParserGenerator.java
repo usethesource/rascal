@@ -152,7 +152,7 @@ public class ParserGenerator {
 	
 	public IConstructor convertMapToGrammar(IMap definition) {
 		TypeFactory TF = TypeFactory.getInstance();
-		TypeStore TS = new TypeStore();
+		TypeStore TS = RascalValueFactory.getStore(); //new TypeStore();
 		Type Grammar = TF.abstractDataType(TS, "Grammar");
 		Type Symbol = TF.abstractDataType(TS, "Symbol");
 		Type Production = TF.abstractDataType(TS, "Production");

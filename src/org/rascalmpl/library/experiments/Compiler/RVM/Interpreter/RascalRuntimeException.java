@@ -12,13 +12,14 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class RascalRuntimeException {
 	
 	private static TypeFactory TF = TypeFactory.getInstance();
 	private static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
-	public static final TypeStore TS = new TypeStore();
+	public static final TypeStore TS = RascalValueFactory.getStore(); //new TypeStore();
 	public static final Type Exception = TF.abstractDataType(TS, "RuntimeException");
 	
 	public static final Type StackOverflow = TF.constructor(TS, Exception, "StackOverflow");
