@@ -159,7 +159,7 @@ INS finallyBlock = [];
 list[EEntry] exceptionTable = [];
 
 // Specific to delimited continuations (experimental)
-public map[str,Declaration] shiftClosures = ();
+public map[str,RVMDeclaration] shiftClosures = ();
 
 private int shiftCounter = -1;
 
@@ -339,7 +339,7 @@ RVMModule mu2rvm(muModule(str module_name,
   return res;
 }
 
-list[Declaration] orderedDeclarations(map[str,Declaration] funMap) =
+list[RVMDeclaration] orderedDeclarations(map[str,RVMDeclaration] funMap) =
     [ funMap[fname] | fname <- sort(toList(domain(funMap))) ];
 
 /*********************************************************************/

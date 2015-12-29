@@ -88,7 +88,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
                         
    map[str,map[str,str]] imported_moduleTags = ();
    map[str,Symbol] imported_types = ();
-   list[experiments::Compiler::RVM::AST::Declaration] imported_declarations = [];
+   list[RVMDeclaration] imported_declarations = [];
    lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] imported_overloaded_functions = [];
    map[str,int] imported_overloading_resolvers = ();
    set[Message] messages = mainModule.messages;
@@ -121,13 +121,15 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
 
    if(existsMuLibraryCompiled){
        try {
-           imported_declarations = readBinaryValueFile(#list[experiments::Compiler::RVM::AST::Declaration], MuLibraryCompiled);
+           imported_declarations = readBinaryValueFile(#list[RVMDeclaration], MuLibraryCompiled);
            // Temporary work around related to issue #343
            imported_declarations = visit(imported_declarations) { case type[value] t : { insert type(t.symbol,t.definitions); }}
            if(verbose) println("execute: Using compiled library version <MuLibraryCompiled>");
       } catch: {
            throw "Cannot read <MuLibraryCompiled>";
       }
+   } else {
+      throw "<MuLibraryCompiled> does not exist";
    }
    
    rel[str,str] extending_modules = {};
@@ -184,7 +186,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool useJVM = fal
         return res;
    }
    
-   void resolve_module_extensions(str importName, list[experiments::Compiler::RVM::AST::Declaration] imported_declarations, list[experiments::Compiler::RVM::AST::Declaration] new_declarations){
+   void resolve_module_extensions(str importName, list[RVMDeclaration] imported_declarations, list[RVMDeclaration] new_declarations){
         
        for(decl <- new_declarations){
           //println("resolve_module_extensions: <decl>");

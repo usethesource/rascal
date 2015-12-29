@@ -129,7 +129,7 @@ void inspect(str qualifiedModuleName,   // nameof Rascal source module
     listing = listing || line >= 0;
     try {
     	if(contains(rvmLoc.path, "experiments/Compiler/muRascal2RVM/MuLibrary")){
-    		decls = readBinaryValueFile(#list[Declaration], rvmLoc);
+    		decls = readBinaryValueFile(#list[RVMDeclaration], rvmLoc);
     		p = rvmModule("Library",        // name
     		  (),                           // module_tags
 		      {},                           // messages
@@ -268,7 +268,7 @@ void printOverloaded(lrel[str name, Symbol funType, str scope, list[str] ofuncti
 	}
 }
 
-void printDecl(Declaration d){
+void printDecl(RVMDeclaration d){
     if(d is FUNCTION){
         println("\tFUNCTION <d.uqname>, <d.qname>, <d.ftype>");
         print("\t\tisPublic=<d.isPublic>, isDefault=<d.isDefault>, ");
