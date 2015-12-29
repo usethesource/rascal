@@ -142,10 +142,10 @@ private void invalidInstantiation() {
 @doc{Instantiate type parameters found inside the types.}
 public Symbol instantiate(Symbol t:\void(), Bindings bindings) = t;
 public Symbol instantiate(Symbol::\label(str x, Symbol t), Bindings bindings) = Symbol::\label(x, instantiate(t,bindings));
-public Symbol instantiate(Symbol::\set(Symbol et), Bindings bindings) = Symbol::\set(instantiate(et,bindings));
+public Symbol instantiate(Symbol::\set(Symbol et), Bindings bindings) = makeSetType(instantiate(et,bindings));
 public Symbol instantiate(Symbol::\rel(list[Symbol] ets), Bindings bindings) = Symbol::\rel([ instantiate(et,bindings) | et <- ets ]);
 public Symbol instantiate(Symbol::\tuple(list[Symbol] ets), Bindings bindings) = Symbol::\tuple([ instantiate(et,bindings) | et <- ets ]);
-public Symbol instantiate(Symbol::\list(Symbol et), Bindings bindings) = Symbol::\list(instantiate(et,bindings));
+public Symbol instantiate(Symbol::\list(Symbol et), Bindings bindings) = makeListType(instantiate(et,bindings));
 public Symbol instantiate(Symbol::\lrel(list[Symbol] ets), Bindings bindings) = Symbol::\lrel([ instantiate(et,bindings) | et <- ets ]);
 public Symbol instantiate(Symbol::\map(Symbol md, Symbol mr), Bindings bindings) = Symbol::\map(instantiate(md,bindings), instantiate(mr,bindings));
 public Symbol instantiate(Symbol::\bag(Symbol et), Bindings bindings) = Symbol::\bag(instantiate(et,bindings));
