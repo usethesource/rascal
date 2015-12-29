@@ -12,7 +12,7 @@ import ParseTree;
  
 // Declarations for functions and coroutines
 
-public data Declaration = 
+public data RVMDeclaration = 
 		  FUNCTION(str qname,
 		  		   str uqname, 
 		  		   Symbol ftype, 
@@ -55,7 +55,7 @@ public data RVMModule =
 			  list[str] extends,
               map[str,Symbol] types, 
               map[Symbol, Production] symbol_definitions,
-              list[Declaration] declarations, // map[str, Declaration] declarations, 
+              list[RVMDeclaration] declarations, // map[str, Declaration] declarations, 
               list[Instruction] initialization, 
               map[str,int] resolver, 
               lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] overloaded_functions,
@@ -73,7 +73,7 @@ public data RVMProgram =
                 RVMModule  main_module,
                 map[str, map[str,str]] imported_module_tags,
                 map[str,Symbol] imported_types,
-                list[Declaration] imported_declarations,
+                list[RVMDeclaration] imported_declarations,
                  map[str,int] imported_overloading_resolvers,
                 lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] imported_overloaded_functions
                 )
