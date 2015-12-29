@@ -3,6 +3,7 @@ module experiments::Compiler::CompileMuLibrary
 import IO;
 import ValueIO;
 import util::Reflective;
+import String;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::muRascal::Load;
 import experiments::Compiler::RVM::AST;
@@ -17,11 +18,12 @@ private str MuLibrary() = "experiments::Compiler::muRascal2RVM::MuLibrary";
 
 loc getMuLibraryCompiledWriteLoc(PathConfig pcfg) = getDerivedWriteLoc(MuLibrary(), "rvm.gz", pcfg);
 
-list[experiments::Compiler::RVM::AST::Declaration] compileMuLibrary(PathConfig pcfg, bool verbose = false){
+list[RVMDeclaration] compileMuLibrary(PathConfig pcfg, bool verbose = false){
+    str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
     if(verbose) println("execute: Recompiling library <basename(MuLibraryLoc(pcfg))>.mu");
     MuLibraryCompiled = getMuLibraryCompiledWriteLoc(pcfg);
     libModule = load(MuLibraryLoc(pcfg));
-    functions = [];
+    list[RVMDeclaration] functions = [];
  
     for(fun <- libModule.functions) {
         setFunctionScope(fun.qname);
