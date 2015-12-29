@@ -93,9 +93,9 @@ list[str] libraryModules =
 
 str serialize(str moduleName, PathConfig pcfg){
      report("Compiling <moduleName>");
-     execute(moduleName, pcfg, recompile=true, serialize=true);
+     execute(moduleName, pcfg, recompile=true, verbose=true, serialize=true);
      serialized = getDerivedWriteLoc(moduleName, "rvm.ser.gz", pcfg);
-     return "mv <serialized.path> <(pcfg.binDir.parent + serialized.file).path>\n";
+     return "cp <serialized.path> <(pcfg.binDir.parent + serialized.file).path>\n";
 }
 
 // Fancy reporting
@@ -104,7 +104,23 @@ void report(str msg){
     println("**** <msg> ****");
 }
 
-// Where happiness begins
+// Build the MuLibrary separately.
+// Danger: when running 'build' it uses the currently installed MuLibrary.
+// After serious changes to that library it is therefore necessary to first
+// build the MuLibrary, install it, end then do the complete build.
+
+void buildMuLibrary(PathConfig pcfg){
+     commands = "#!/bin/sh\n";
+     report("Compiling MuLibrary");
+     compileMuLibrary(pcfg, verbose=true);
+     muLib = getMuLibraryCompiledWriteLoc(pcfg);
+     commands += "cp <muLib.path> <(pcfg.binDir.parent + muLib.file).path>\n";
+     writeFile(SHELLSCRIPT, commands);
+     report("Commands written to <SHELLSCRIPT>");
+}
+
+// Build MuLibrary, standard library, ParserGenerator and Kernel
+// Maybe run buildMuLibrary first!
 
 value build(){
      BOOTSTDLIB = BOOT + "stdlib";
@@ -116,9 +132,9 @@ value build(){
      commands = "#!/bin/sh\n";
      
      report("Compiling MuLibrary");
-     compileMuLibrary(pcfg);
+     compileMuLibrary(pcfg, verbose=true);
      muLib = getMuLibraryCompiledWriteLoc(pcfg);
-     commands += "mv <muLib.path> <(pcfg.binDir.parent + muLib.file).path>\n";
+     commands += "cp <muLib.path> <(pcfg.binDir.parent + muLib.file).path>\n";
      
      report("Compiling standard library modules");
      for(moduleName <- libraryModules){
@@ -126,7 +142,10 @@ value build(){
      }
      
      commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg);
+     //commands += serialize("experiments::Compiler::Compile", pcfg);
+     //commands += serialize("experiments::Compiler::Execute", pcfg);
      commands += serialize("lang::rascal::boot::Kernel", pcfg);
+     //commands += serialize("lang::rascal::boot::Commands", pcfg);
      
      info = collectInfo(libraryModules, pcfg);
      l = getDerivedWriteLoc("StdLib.info", "gz", pcfg);
