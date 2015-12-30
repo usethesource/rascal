@@ -284,11 +284,11 @@ public class Frame {
 			String varName = ((IString) entry.getValue()).getValue();
 			int varPos = ((IInteger) entry.getKey()).intValue();
 			Object v = stack[varPos];
-			if(v != null && !varName.equals("map_of_default_values")){
+			if(v != null && !varName.equals("map_of_default_values") && v instanceof IValue){
 				    if(varName.matches("[0-9]+")){
 				    	varName = "arg " + varName;
 				    }
-					stdout.println("\t" + varName + ": " + v);
+					stdout.println("\t" + varName + ": " + RascalPrimitive.$value2string((IValue) v));
 			}
 		}
 		if(stack[function.nformals-1] instanceof HashMap<?, ?>){
@@ -297,7 +297,7 @@ public class Frame {
 			for(String kwParam : kwParams.keySet()){
 				IValue v = kwParams.get(kwParam);
 				if(v != null){
-					stdout.println("\t" + kwParam + "=" + kwParams.get(kwParam));
+					stdout.println("\t" + kwParam + "=" + RascalPrimitive.$value2string(v));
 				}
 			}
 		}
