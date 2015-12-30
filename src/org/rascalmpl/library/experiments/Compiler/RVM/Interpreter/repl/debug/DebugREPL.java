@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
@@ -159,7 +160,7 @@ public class DebugREPL extends BaseREPL{
 			throw new InterruptedException();
 		
 		case "p": case "print":
-			stdout.println(EvalExpr.eval(words[1], currentFrame));
+			stdout.println(RascalPrimitive.$value2string(EvalExpr.eval(words[1], currentFrame)));
 			break;
 		
 		case "i": case "ignore":
