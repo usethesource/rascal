@@ -178,25 +178,15 @@ RVMModule recompileDependencies(str qualifiedModuleName, RVMModule rvmMod, Confi
 
 // Assumption: main declaration is the last one
 lang::rascal::\syntax::Rascal::Declaration getMain(lang::rascal::\syntax::Rascal::Module m){
-    if(appl(regular(Symbol def), list[Tree] args) := m.body.toplevels){
-       if(Toplevel tl := args[-1]){
-          return tl.declaration;
-       }
+    if(m2: (Module) `<Header h> <Toplevel* pre> <Toplevel tl_main>` := m){
+       return tl_main.declaration;
     }
-    throw "Cannot match toplevels";
+    throw "getMain: cannot match toplevels";
 }
-
-//Module removeMain(m: (Module) `<Header h> <Toplevel* pre> <Toplevel mn>`) {
-//    res = (Module) `<Header h> <Toplevel* pre>`;
-//    println("removeMain:\n====\n<m>\n=== returns\n<res>\n====");
-//    return res;
-//}
 
 Module removeMain(lang::rascal::\syntax::Rascal::Module m) {
     if(m2: (Module) `<Header h> <Toplevel* pre> <Toplevel mn>` := m){
-       res = (Module) `<Header h> <Toplevel* pre>`;
-       //println("removeMain:\n====\n<m>\n=== returns\n<res>\n====");
-       return res;
+       return (Module) `<Header h> <Toplevel* pre>`;
     }
     throw "removeMain: no main found";
     return m;
