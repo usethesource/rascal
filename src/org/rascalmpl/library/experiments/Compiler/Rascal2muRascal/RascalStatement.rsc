@@ -13,6 +13,7 @@ import util::Reflective;
 import lang::rascal::\syntax::Rascal;
 
 import lang::rascal::types::CheckerConfig;
+import lang::rascal::types::AbstractType;
 
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::ModuleInfo;
