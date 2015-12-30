@@ -19,6 +19,8 @@ import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::Rascal2muRascal::ModuleInfo; // just in case
 import lang::rascal::types::CheckerConfig; // just in case
 
+import lang::rascal::types::AbstractType;
+
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
 
 
@@ -526,7 +528,7 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    int nKwArgs = (keywordArguments is none) ? 0 : size([kw | kw <- keywordArguments.keywordArgumentList]);
    
    noKwParams = nKwArgs == 0 ? "_NO_KEYWORD_PARAMS" : "";
-   concreteMatch = isNonTerminalType(subjectType) ? "_CONCRETE" : "";
+   concreteMatch = isConcretePattern(p) && isNonTerminalType(subjectType) ? "_CONCRETE" : "";
    
    argCode = [ translatePat(pat, Symbol::\value()) | pat <- arguments ];
    if(nKwArgs > 0){
