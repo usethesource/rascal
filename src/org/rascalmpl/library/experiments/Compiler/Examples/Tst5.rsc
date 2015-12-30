@@ -1,3 +1,6 @@
 module experiments::Compiler::Examples::Tst5
+ 
+import lang::rascal::types::AbstractType;
+import ParseTree;
 
-public int x = 10;
+value f() = isNonTerminalType(\iter-star(sort("Toplevel")));
