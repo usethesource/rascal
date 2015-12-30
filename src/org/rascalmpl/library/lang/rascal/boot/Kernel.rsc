@@ -14,6 +14,6 @@ module lang::rascal::boot::Kernel
 extend experiments::Compiler::Compile;
 extend experiments::Compiler::Execute;
 
-extend experiments::Compiler::Commands::Rascalc;
-extend experiments::Compiler::Commands::Rascal;
-extend experiments::Compiler::Commands::RascalTests;
+//extend experiments::Compiler::Commands::Rascalc;
+//extend experiments::Compiler::Commands::Rascal;
+//extend experiments::Compiler::Commands::RascalTests;
