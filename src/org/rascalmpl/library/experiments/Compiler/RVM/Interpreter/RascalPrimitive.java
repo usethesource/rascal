@@ -9343,7 +9343,7 @@ public enum RascalPrimitive {
 		return res;
 	}
 
-	private static String $value2string(final IValue val){
+	public static String $value2string(final IValue val){
 		if(val.getType().isString()){
 			return ((IString) val).getValue();
 		}
