@@ -21,7 +21,6 @@ import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.uri.classloaders.PathConfigClassLoader;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
@@ -54,17 +53,13 @@ public class ParsingTools {
 	private final int parserCacheSize = 30;
 	private final boolean paserCacheEnabled = true;
 
-    private final PathConfigClassLoader classloader;
-
-
     /**
      * @param vf    required to build parse trees
      * @param pcfg  required to load the generated code of the parser with the appropriate class loader
      */
-	public ParsingTools(IValueFactory vf, PathConfig pcfg){
+	public ParsingTools(IValueFactory vf){
 		super();
 		this.vf = vf;
-		this.classloader = new PathConfigClassLoader(pcfg, getClass().getClassLoader());
 		parserCache = Caffeine.newBuilder()
 			    .weakValues()
 				.maximumSize(paserCacheEnabled ? parserCacheSize : 0)
@@ -271,12 +266,10 @@ public class ParsingTools {
 	      try {
 	          rex = RascalExecutionContextBuilder.normalContext(new PathConfig(), ctx.getStdOut(), ctx.getStdErr())
 	              .withModuleTags(w.done())
-//	              .customSearchPath(ctx.getEvaluator().getRascalResolver())
 	              .build();
 	      }
 	      catch (URISyntaxException e) {
-	          // TODO Auto-generated catch block
-	          e.printStackTrace();
+	         throw new IOException(e);
 	      }
 
 	      rex.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
@@ -292,7 +285,6 @@ public class ParsingTools {
           
 	      RascalExecutionContext rex2 = RascalExecutionContextBuilder.normalContext(rex.getPathConfig(), rex.getStdOut(), rex.getStdErr())
 	              .withModuleTags(w.done())
-//	              .customSearchPath(rex.getRascalSearchPath())
 	              .build();
 	      
 		  return parseFragment1(name, start, tree, loc, grammar, rex2);

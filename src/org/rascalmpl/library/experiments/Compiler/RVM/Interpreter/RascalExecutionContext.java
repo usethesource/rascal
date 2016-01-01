@@ -169,7 +169,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	    setFrameObserver(frameObserver);
 	  }
 
-	  parsingTools = new ParsingTools(vf, pcfg);
+	  parsingTools = new ParsingTools(vf);
 	}
 	
 	private String javaCompilerPathAsString(IList javaCompilerPath) {
