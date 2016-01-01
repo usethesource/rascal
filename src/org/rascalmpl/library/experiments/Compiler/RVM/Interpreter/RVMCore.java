@@ -36,6 +36,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Trave
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.FIXEDPOINT;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.PROGRESS;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.REBUILD;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IDateTime;
@@ -99,8 +100,8 @@ public abstract class RVMCore {
 
 	public Map<IValue, IValue> moduleVariables;
 	
-	private final Map<Class<?>, Object> instanceCache;
-	private final Map<String, Class<?>> classCache;
+	protected final Map<Class<?>, Object> instanceCache;
+	protected final Map<String, Class<?>> classCache;
 
 	private final Types types;
 	
@@ -1058,6 +1059,7 @@ public abstract class RVMCore {
 		catch(ClassNotFoundException | NoClassDefFoundError e1) {
 			throw new CompilerError("Class " + className + " not found", e1);
 		}
+		
 	}
 	
 	public Object getJavaClassInstance(Class<?> clazz){

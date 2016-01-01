@@ -55,6 +55,23 @@ public class RVMJVM extends RVMCore {
 	}
 	
 	@Override
+	public Class<?> getJavaClass(String className) {
+	    Class<?> clazz = classCache.get(className);
+	    if(clazz != null){
+	        return clazz;
+	    }
+
+	    try {
+	        clazz = generatedClassInstance.getClass().getClassLoader().loadClass(className);
+	        classCache.put(className, clazz);
+	        return clazz;
+	    } 
+	    catch(ClassNotFoundException | NoClassDefFoundError e1) {
+	        throw new CompilerError("Class " + className + " not found", e1);
+	    }
+	}
+	
+	@Override
 	public void setFrameObserver(IFrameObserver observer){
 	    generatedClassInstance.frameObserver = this.frameObserver = observer;
 	    this.rex.setFrameObserver(observer);
