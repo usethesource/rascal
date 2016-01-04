@@ -9,7 +9,6 @@ import String;
 import ParseTree;
 
 import util::Reflective;
-import experiments::Compiler::Commands::Rascalc;
 
 // Percentage of succeeded tests, see spreadsheet TestOverview.ods
 
@@ -240,7 +239,6 @@ lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg){
       // }
       //}
       try {
-          rascalc("--binDir <pcfg.binDir> --libPath <pcfg.libPath> <prog>");
 	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, pcfg, recompile=true, testsuite=true)){
 	         s = makeTestSummary(test_results);
 	         println("TESTING <prog>: <s>");
@@ -263,9 +261,9 @@ lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg){
   return all_test_results;
 }
   
-value main() = allRascalTests(binDir=|home:///c2bin|);
+value main() = allRascalTests(binDir=|home:///bin-tests-comp|);
   
-value allRascalTests(loc binDir=|home:///c1bin|){
+value allRascalTests(loc binDir=|home:///bin-tests-intp|){
   
   println("Using binDir = <binDir>");
   timestamp = now();
@@ -281,7 +279,7 @@ value allRascalTests(loc binDir=|home:///c1bin|){
   all_results += runTests(importTests, "lang::rascal::tests::imports", pcfg);
   all_results += runTests(extendTests, "lang::rascal::tests::extends", pcfg);  
   all_results += runTests(files_with_tests, "", pcfg);
-  //all_results += runTests(typeTests, "lang::rascal::tests::types", pcfg);
+  all_results += runTests(typeTests, "lang::rascal::tests::types", pcfg);
    
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");
