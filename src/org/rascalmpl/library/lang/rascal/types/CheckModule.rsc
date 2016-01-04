@@ -67,7 +67,7 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 	
 	// Get the imports of everything transitively reachable through m
 	while (!isEmpty(worklist)) {
-		< wlName, worklist > = takeOneFrom(worklist);
+		< wlName, worklist > = takeFirstFrom(worklist);
 		try {
 		    ppWlName = prettyPrintName(wlName);
 			wlLoc = getModuleLocation(ppWlName,pcfg);
