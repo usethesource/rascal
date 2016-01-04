@@ -1252,6 +1252,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        default bool match_void(list[Symbol] _, list[Symbol] _) = false;
        
        
+       // TODO: now that we use comparable instead of subtype this code can be simplified
        // match function use and def, taking varargs into account
        bool function_subtype(Symbol fuse, Symbol fdef){
        	list[Symbol] upar = fuse.parameters;
@@ -1273,7 +1274,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        	
        	//println("subtype(<upar>, <dpar>) : <subtype(upar, dpar)>");
        	//println("match_void(<upar>, <dpar>) : <match_void(upar, dpar)>");
-       	return subtype(upar, dpar) || match_void(upar, dpar);
+       	return size(dpar) == size(upar) && (size(dpar) == 0 || all(i <- index(dpar), comparable(dpar[i], upar[i])));              //comparable(upar, dpar) || match_void(upar, dpar);
        }
        
        bool matches(Symbol t) {
