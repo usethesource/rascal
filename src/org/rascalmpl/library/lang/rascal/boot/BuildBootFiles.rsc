@@ -93,7 +93,7 @@ list[str] libraryModules =
 
 str serialize(str moduleName, PathConfig pcfg){
      report("Compiling <moduleName>");
-     execute(moduleName, pcfg, recompile=true, verbose=true, serialize=true);
+     compileAndLink(moduleName, pcfg, verbose=true);
      serialized = getDerivedWriteLoc(moduleName, "rvm.ser.gz", pcfg);
      return "cp <serialized.path> <(pcfg.binDir.parent + serialized.file).path>\n";
 }
@@ -142,10 +142,7 @@ value build(){
      }
      
      commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg);
-     //commands += serialize("experiments::Compiler::Compile", pcfg);
-     //commands += serialize("experiments::Compiler::Execute", pcfg);
      commands += serialize("lang::rascal::boot::Kernel", pcfg);
-     //commands += serialize("lang::rascal::boot::Commands", pcfg);
      
      info = collectInfo(libraryModules, pcfg);
      l = getDerivedWriteLoc("StdLib.info", "gz", pcfg);
