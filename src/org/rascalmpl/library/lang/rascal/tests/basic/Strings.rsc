@@ -216,7 +216,7 @@ test bool tstLeft1_s(str S) { l = left(S, size(S) + 1); return startsWith(l, S) 
 test bool tstLeft2_s(str S) { l = left(S, size(S) + 1, "x"); return startsWith(l, S) && endsWith(l, "x"); }
 
 bool areOverlapping(str s1, str s2) = 
-    s1 == s2 || findAll(s1 + s2, s2) != [s1] || findAll(s2 + s1, s1) != [s2];
+    s1 == s2 || findAll(s1 + s2, s2) != [size(s1)] || findAll(s2 + s1, s1) != [size(s2)];
 
 test bool tstReplaceAll(str S1, str S2, str S3) {
   if(areOverlapping(S1, S2)) return true;
