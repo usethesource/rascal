@@ -7,20 +7,27 @@ import Set;
 import util::Reflective;
 import util::FileSystem;
 import experiments::Compiler::RVM::AST;
+import lang::rascal::types::CheckerConfig;
 
 tuple[set[loc] differ, set[loc] missing] compare(loc iloc, loc cloc){
 
     if(!exists(iloc)){
-        println("MISSING: <iloc>");
-        return <{}, {iloc}>;
+       return <{}, {iloc}>;
     }
     if(!exists(cloc)){
-      println("MISSING: <cloc>");
        return <{}, {cloc}>;
     }
    
     ival = readBinaryValueFile(#value, iloc);
     cval = readBinaryValueFile(#value, cloc);
+    
+    if(Configuration iconf := ival && Configuration cconf := cval){
+      iconf.pathConfiguration = pathConfig();
+      cconf.pathConfiguration = pathConfig();
+      ival = iconf;
+      cval = cconf;
+    }
+    
     
     res = diff(ival, cval);
     if(res == "no diff"){
@@ -31,19 +38,18 @@ tuple[set[loc] differ, set[loc] missing] compare(loc iloc, loc cloc){
     }
 }
 
-void compareAll(str cbin, str extension = "gz"){
-    str bootStdLib = "Users/paulklint/git/rascal/src/boot/stdlib";
+void compareAll(str other, str base = "Users/paulklint/git/rascal/src/boot/stdlib", str extension = "gz"){
     
-    loc bootDir = (extension == "gz" ? |compressed+file:///| : |file:///|) + bootStdLib;
-    loc cbinDir = (extension == "gz" ?  |compressed+home:///| : |home:///|) + cbin;
-    str cbinDirPath = cbinDir.path;
+    loc baseDir = (extension == "gz" ? |compressed+file:///| : |file:///|) + base;
+    loc otherDir = (extension == "gz" ?  |compressed+home:///| : |home:///|) + other;
+    str otherDirPath = otherDir.path;
     serialized = {};
     differ = {};
     missing = {};
-    for(loc cloc <- files(cbinDir), cloc.extension == extension){
+    for(loc cloc <- files(otherDir), cloc.extension == extension){
         if(!contains(cloc.path, ".ser.")){
-           filePath = cloc.path[findFirst(cloc.path, cbinDir.path) + size(cbinDirPath) .. ];
-           <d, m> = compare(bootDir + filePath, cbinDir + filePath);
+           filePath = cloc.path[findFirst(cloc.path, otherDir.path) + size(otherDirPath) .. ];
+           <d, m> = compare(baseDir + filePath, otherDir + filePath);
            differ += d;
            missing += m;
         } else {
@@ -53,7 +59,7 @@ void compareAll(str cbin, str extension = "gz"){
     
     println("\n+++++++++++++++++++++++++++++++\n");
     
-    println("Number of files: <size(files(cbinDir))>");
+    println("Number of files: <size(files(otherDir))>");
     
     println("Different: <size(differ)>");
     for(d <- differ) println("\t<d>");
@@ -65,13 +71,13 @@ void compareAll(str cbin, str extension = "gz"){
     for(m <- missing) println("\t<m>");
 }
 
-void allMessages(str cbin){
-    str bootStdLib = "Users/paulklint/git/rascal/src/boot/stdlib";
+void allMessages(str other){
+    str base = "Users/paulklint/git/rascal/src/boot/stdlib";
    
-    loc cbinDir =  |compressed+home:///| + cbin;
-    str cbinDirPath = cbinDir.path;
+    loc otherDir =  |compressed+home:///| + other;
+    str otherDirPath = otherDir.path;
     
-    for(loc cloc <- files(cbinDir), cloc.extension == "gz"){
+    for(loc cloc <- files(otherDir), cloc.extension == "gz"){
         if(!contains(cloc.path, ".ser.")){
            rvmMod = readBinaryValueFile(#RVMModule, cloc);
            messages = rvmMod.messages;
