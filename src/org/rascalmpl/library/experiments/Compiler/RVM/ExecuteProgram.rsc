@@ -8,7 +8,7 @@ import Type;
 public java value serializeProgram(
                     loc rvmProgramLoc,
                     RVMProgram rvmProgram,
-                    bool useJVM);
+                    bool jvm);
                                             
 @javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram}
 @reflect{Uses execution context}
@@ -22,8 +22,7 @@ public java value executeProgram(
 					bool profile,
 					bool trackCalls,
 					bool coverage,
-					bool useJVM,
-					bool serialize);	
+					bool jvm);	
 										    
 										    
 @javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram}
@@ -37,4 +36,4 @@ public java value executeProgram(
 					bool profile,
 					bool trackCalls,
 					bool coverage,
-					bool useJVM);
+					bool jvm);

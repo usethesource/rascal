@@ -28,7 +28,7 @@ public class RascalExecutionContextBuilder {
 	private boolean profile = false;
 	private boolean trackCalls = false;
 	private boolean coverage = false;
-	private boolean useJVM = false;
+	private boolean jvm = false;
 	private TypeStore typeStore = null;
 
 	private IMap symbolDefinitions = null ;
@@ -65,7 +65,7 @@ public class RascalExecutionContextBuilder {
 	
 	public RascalExecutionContext build() {
 	    this.build = true;
-	    RascalExecutionContext result = new RascalExecutionContext(vf, stdout, stderr, moduleTags, symbolDefinitions, typeStore, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, testResultListener, frameObserver, rascalSearchPath);
+	    RascalExecutionContext result = new RascalExecutionContext(vf, stdout, stderr, moduleTags, symbolDefinitions, typeStore, debug, debugRVM, testsuite, profile, trackCalls, coverage, jvm, testResultListener, frameObserver, rascalSearchPath);
 	    if (this.moduleName != null) {
 	        result.setCurrentModuleName(moduleName);
 	    }
@@ -104,9 +104,9 @@ public class RascalExecutionContextBuilder {
         return this;
     }
 	
-	public RascalExecutionContextBuilder setUseJVM(boolean useJVM) {
+	public RascalExecutionContextBuilder setJVM(boolean jvm) {
 	    assert !build;
-        this.useJVM = useJVM;
+        this.jvm = jvm;
         return this;
     }
 	
@@ -179,10 +179,10 @@ public class RascalExecutionContextBuilder {
     }
 	
 	/**
-	 *  short hand for .setUseJVM(true)
+	 *  short hand for .setJVM(true)
 	 */
 	public RascalExecutionContextBuilder runningInJVM() {
 	    assert !build;
-	    return setUseJVM(true);
+	    return setJVM(true);
 	}
 }

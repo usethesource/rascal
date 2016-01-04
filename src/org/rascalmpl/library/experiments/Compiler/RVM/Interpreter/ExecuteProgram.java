@@ -41,12 +41,12 @@ public class ExecuteProgram {
 	public void serializeProgram(
 			ISourceLocation rvmProgramLoc,
 			IConstructor rvmProgram,
-			IBool useJVM
+			IBool jvm
 			) throws IOException {
 
 		checkErrors(rvmProgram);
 
-		ExecutionTools.load(rvmProgramLoc, rvmProgram, useJVM, vf.bool(true));
+		ExecutionTools.load(rvmProgramLoc, rvmProgram, jvm);
 	}
 	
 	// Library function to execute a RVMProgram
@@ -62,16 +62,15 @@ public class ExecuteProgram {
 			IBool profile, 
 			IBool trackCalls, 
 			IBool coverage,
-			IBool useJVM,
-			IBool serialize, 
+			IBool jvm,
 			IEvaluatorContext ctx
 			) throws IOException {
 
 		checkErrors(rvmProgram);
 		
-		RVMExecutable executable = ExecutionTools.load(rvmProgramLoc, rvmProgram, useJVM, serialize);
+		RVMExecutable executable = ExecutionTools.load(rvmProgramLoc, rvmProgram, jvm);
 
-		RascalExecutionContext rex = ExecutionTools.makeRex(executable, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, ctx.getEvaluator().getRascalResolver());
+		RascalExecutionContext rex = ExecutionTools.makeRex(executable, debug, debugRVM, testsuite, profile, trackCalls, coverage, jvm, ctx.getEvaluator().getRascalResolver());
 		return ExecutionTools.executeProgram(executable, keywordArguments, rex);
 	}
 
@@ -88,16 +87,15 @@ public class ExecuteProgram {
 			IBool profile, 
 			IBool trackCalls, 
 			IBool coverage,
-			IBool useJVM,
-			IBool serialize, 
+			IBool jvm, 
 			RascalExecutionContext rex
 			) throws IOException {
 
 		checkErrors(rvmProgram);
 		
-		RVMExecutable executable = ExecutionTools.load(rvmProgramLoc, rvmProgram, useJVM, serialize);
+		RVMExecutable executable = ExecutionTools.load(rvmProgramLoc, rvmProgram, jvm);
 
-		RascalExecutionContext rex2 = ExecutionTools.makeRex(executable, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, rex.getRascalSearchPath());
+		RascalExecutionContext rex2 = ExecutionTools.makeRex(executable, debug, debugRVM, testsuite, profile, trackCalls, coverage, jvm, rex.getRascalSearchPath());
 		return ExecutionTools.executeProgram(executable, keywordArguments, rex2);
 	}
 
@@ -113,12 +111,12 @@ public class ExecuteProgram {
 			IBool profile, 
 			IBool trackCalls, 
 			IBool coverage,
-			IBool useJVM,
+			IBool jvm,
 			IEvaluatorContext ctx
 			) throws IOException {
 
 		RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc);
-		RascalExecutionContext rex = ExecutionTools.makeRex(executable, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, ctx.getEvaluator().getRascalResolver());
+		RascalExecutionContext rex = ExecutionTools.makeRex(executable, debug, debugRVM, testsuite, profile, trackCalls, coverage, jvm, ctx.getEvaluator().getRascalResolver());
 		return ExecutionTools.executeProgram(executable, keywordArguments, rex);
 		}
 		
@@ -134,11 +132,11 @@ public class ExecuteProgram {
 			IBool profile, 
 			IBool trackCalls, 
 			IBool coverage,
-			IBool useJVM,
+			IBool jvm,
 			RascalExecutionContext rex
 			) throws IOException {
 		RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc);
-		RascalExecutionContext rex2 = ExecutionTools.makeRex(executable, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, rex.getRascalSearchPath());
+		RascalExecutionContext rex2 = ExecutionTools.makeRex(executable, debug, debugRVM, testsuite, profile, trackCalls, coverage, jvm, rex.getRascalSearchPath());
 		return ExecutionTools.executeProgram(executable, keywordArguments, rex2);
 	}
 
