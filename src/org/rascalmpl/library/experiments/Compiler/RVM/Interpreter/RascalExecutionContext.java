@@ -83,7 +83,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private String currentModuleName;
 	private RVM rvm;
 	private boolean coverage;
-	private boolean useJVM;
+	private boolean jvm;
 	private final IMap moduleTags;
 	
 	private Cache<Type[], Boolean> subtypeCache;
@@ -144,7 +144,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 			boolean profile, 
 			boolean trackCalls, 
 			boolean coverage, 
-			boolean useJVM, 
+			boolean jvm, 
 			ITestResultListener testResultListener, 
 			IFrameObserver frameObserver,
 			RascalSearchPath rascalSearchPath
@@ -160,7 +160,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 		this.profile = profile;
 		this.coverage = coverage;
-		this.useJVM = useJVM;
+		this.jvm = jvm;
 		this.trackCalls = trackCalls;
 		
 		currentModuleName = "UNDEFINED";
@@ -376,7 +376,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	boolean getCoverage(){ return coverage; }
 	
-	boolean getUseJVM() { return useJVM; }
+	boolean getJVM() { return jvm; }
 	
 	boolean getTrackCalls() { return trackCalls; }
 	

@@ -425,10 +425,6 @@ public class RVM /*implements java.io.Serializable*/ {
 	 * @return
 	 */
 	public Object executeFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs){
-		
-//		for(String fname : functionMap.keySet()){
-//			if(fname.contains("companion")) System.err.println("executeFunction: " + func.name + "companion found: " + fname);
-//		}
 		// Assumption here is that the function called is not a nested one
 		// and does not use global variables
 		Frame root = new Frame(func.scopeId, null, func.maxstack, func);

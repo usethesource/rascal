@@ -92,7 +92,7 @@ public class RVMExecutable implements Serializable{
 			String uid_module_main_testsuite,
 			TypeStore ts,
 			IValueFactory vfactory, 
-			boolean useJVM
+			boolean jvm
 			){
 		
 		this.module_name = module_name;
@@ -117,7 +117,7 @@ public class RVMExecutable implements Serializable{
 		
 		vf = vfactory;
 		store = ts;
-		if(useJVM){
+		if(jvm){
 			buildRunnerByteCode(false, false);
 		}
 	}
@@ -270,7 +270,7 @@ public class RVMExecutable implements Serializable{
 		} catch (ClassNotFoundException c) {
 			throw new IOException("Class not found: " + c.getMessage());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
 			throw new IOException(e.getMessage());
 		} 
 		finally {

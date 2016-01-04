@@ -297,7 +297,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 //				 IList imported_functions,
 //				 IList imported_overloaded_functions,
 //				 IMap imported_overloading_resolvers,
-				 boolean useJVM) {
+				 boolean jvm) {
 		
 		long start = Timing.getCpuTime();
 		
@@ -449,7 +449,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 								 uid_module_main_testsuite,
 								 typeStore,
 								 vf,
-								 useJVM);
+								 jvm);
 	}
 	
 	/*

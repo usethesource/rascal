@@ -38,7 +38,7 @@ public class ExecutionTools {
 					IBool testsuite, 
 					IBool profile, 
 					IBool trackCalls, 
-					IBool coverage, IBool useJVM, RascalSearchPath rascalSearchPath
+					IBool coverage, IBool jvm, RascalSearchPath rascalSearchPath
 	) {
 		return new RascalExecutionContext(
 					vf, 
@@ -53,7 +53,7 @@ public class ExecutionTools {
 				   	profile.getValue(), 
 				   	trackCalls.getValue(), 
 				   	coverage.getValue(), 
-				   	useJVM.getValue(), 
+				   	jvm.getValue(), 
 				   	null, 
 				   	null, rascalSearchPath);
 	}
@@ -62,14 +62,13 @@ public class ExecutionTools {
 	public static RVMExecutable loadProgram(
 					 ISourceLocation rvmProgramLoc,
 					 IConstructor rvmProgram,
-					 IBool useJVM	
+					 IBool jvm	
     ) throws IOException {
 		
 		return load(
 					rvmProgramLoc,
 				    rvmProgram, 
-				    useJVM,
-				    vf.bool(false)
+				    jvm
 				    );
 	}
 	
@@ -84,16 +83,14 @@ public class ExecutionTools {
 	public static RVMExecutable load(
 			 	ISourceLocation rvmProgramLoc,
 			 	IConstructor rvmProgram,
-			 	IBool useJVM, 
-			 	IBool serialize
+			 	IBool jvm
 	) throws IOException {
 
 		TypeStore typeStore = new TypeStore();
 		RVMLoader loader = new RVMLoader(vf, typeStore);
-		RVMExecutable executable = loader.load(rvmProgram,	useJVM.getValue());
+		RVMExecutable executable = loader.load(rvmProgram,	jvm.getValue());
 		
-		if(serialize.getValue()){
-			executable.write(rvmProgramLoc);			
+		executable.write(rvmProgramLoc);			
 
 //			/*** Consistency checking after read: TODO: REMOVE THIS WHEN STABLE*/
 //			RVMLinked executable2 = RVMLinked.read(linkedRVM);
@@ -103,12 +100,11 @@ public class ExecutionTools {
 //
 //			//TODO: Use the serialized version for testing purposes only
 //			executable = executable2;
-		}
 		return executable;
 	}
 		
 	public static IValue executeProgram(RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){
-		RVM rvm = rex.getUseJVM() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
+		RVM rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
 		
 		rvm = initializedRVM(executable, rex);
 		
@@ -183,7 +179,7 @@ public class ExecutionTools {
 	 */
 	 public static RVM initializedRVM(RVMExecutable executable, RascalExecutionContext rex){
 		
-		RVM rvm = rex.getUseJVM() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
+		RVM rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
 		
 		
 		// Execute initializers of imported modules

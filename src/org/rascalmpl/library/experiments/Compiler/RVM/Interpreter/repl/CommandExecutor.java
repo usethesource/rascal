@@ -69,7 +69,7 @@ public class CommandExecutor {
 	boolean profile;
 	boolean trackCalls;
 	boolean coverage;
-	boolean useJVM;
+	boolean jvm;
 	boolean verbose;
 	boolean serialize;
 	
@@ -105,7 +105,7 @@ public class CommandExecutor {
 		profile = false;
 		trackCalls = false;
 		coverage = false;
-		useJVM = false;
+		jvm = false;
 		verbose = false;
 		serialize = false;
 		
@@ -213,9 +213,9 @@ public class CommandExecutor {
 			IConstructor main_module = (IConstructor) consoleRVMProgram.get("main_module");
 			ISet messages = (ISet) main_module.get("messages");
 			if(noErrors(modString, messages)){
-				rvmConsoleExecutable = ExecutionTools.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(useJVM));
+				rvmConsoleExecutable = ExecutionTools.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(jvm));
 		
-				RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, debug, debugRVM, testsuite, profile, trackCalls, coverage, useJVM, null, debugObserver.getObserverWhenActiveBreakpoints(), null);
+				RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, debug, debugRVM, testsuite, profile, trackCalls, coverage, jvm, null, debugObserver.getObserverWhenActiveBreakpoints(), null);
 				rex.setCurrentModuleName(shellModuleName);
 				IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
 				lastRvmConsoleExecutable = rvmConsoleExecutable;
