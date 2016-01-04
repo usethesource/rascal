@@ -211,12 +211,13 @@ public class BreakPointManager {
 				mode = DEBUG_MODE.SKIP;
 				return false;
 			}
-			return doAutoList(frame);
+			//return doAutoList(frame);
+			return false;
 			
 		case SKIP:
 			if(!isBlackListed(frame)){
 				mode = DEBUG_MODE.STEP;
-				return doAutoList(frame);
+				//return doAutoList(frame);
 			}
 			return false;
 	
@@ -229,7 +230,8 @@ public class BreakPointManager {
 		case BREAK:
 			for(BreakPoint bp : breakpoints){
 				if(bp.matchOnEnter(frame)){
-					return doAutoList(frame);
+					mode = DEBUG_MODE.STEP;
+					//return doAutoList(frame);
 				}	
 			}
 		}
