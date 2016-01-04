@@ -505,7 +505,21 @@ takeOneFrom({1, 2, 3, 4});
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java tuple[&T, set[&T]] takeOneFrom(set[&T] st) throws EmptySet;
-  
+ 
+ @doc{
+Synopsis: Remove "first" element from a set, returns the element and a set without that element.
+
+Description: As opposed to [$Set/takeOneFrom], this function always returns the same
+element of a set.
+}
+public tuple[&T, set[&T]] takeFirstFrom(set[&T] st) throws EmptySet {
+   if(isEmpty(st)){
+      throw EmptySet();
+   }
+   lst = toList(st);
+   return <lst[0], toSet(tail(lst))>;
+}
+ 
 @doc{
 Synopsis: Convert a set to a list.
 
