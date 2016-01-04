@@ -123,6 +123,10 @@ RVMModule compile(str qualifiedModuleName, PathConfig pcfg, bool verbose = false
     return rvmMod;
 }
 
+RVMModule compile(str qualifiedModuleName, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir, bool verbose = false){
+    return compile(qualifiedModuleName, pathConfig(srcPath=srcPath, libPath=libPath, bootDir=bootDir, binDir=binDir), verbose=verbose);
+}
+
 RVMModule recompileDependencies(str qualifiedModuleName, RVMModule rvmMod, Configuration cfg, PathConfig pcfg, bool verbose = false){
     errors = [ e | e:error(_,_) <- cfg.messages];
     warnings = [ w | w:warning(_,_) <- cfg.messages ];
