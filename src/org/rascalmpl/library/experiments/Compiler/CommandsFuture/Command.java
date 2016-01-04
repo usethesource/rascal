@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.Commands;
+package org.rascalmpl.library.experiments.Compiler.CommandsFuture;
 
 import java.io.File;
 import java.io.PrintWriter;
