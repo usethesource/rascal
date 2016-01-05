@@ -1143,10 +1143,10 @@ bool preferInnerScope(int n, int m) {
      if(nContainers != {} && mContainers == {}) { // non-global global
        res = true; //mContainer in nContainers;
      } else {							  // non-global non-global 
-       res =  nContainer in mContainers;// && mContainer notin nContainers;
+        res =  nContainer in mContainers || n < m;// && mContainer notin nContainers;
      }
 	funInnerScopes[key] = res;
-	//println("preferInnerScope <key> =\> <res>");
+	//println("preferInnerScope: <key> =\> <res>");
 	return res;
 }
 
