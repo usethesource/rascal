@@ -25,12 +25,12 @@ public class RascalTests {
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		CommandOptions cmdOpts = new CommandOptions();
 		cmdOpts
-				.dirOption("kernel", 		cmdOpts.getDefaultKernelLocation(), "Rascal Kernel file to be used")
+				.locOption("kernel", 		cmdOpts.getDefaultKernelLocation(), "Rascal Kernel file to be used")
 				.pathOption("srcPath", 		cmdOpts.getDefaultStdPath(), 		"Add new source path, use multiple --srcPaths for multiple paths")
-				.pathOption("libPath", 		(co) -> vf.list(co.getCommandDirOption("binDir")),
+				.pathOption("libPath", 		(co) -> vf.list(co.getCommandLocOption("binDir")),
 																				"Add new lib paths, use multiple --libPaths for multiple paths")
-				.dirOption("bootDir", 		cmdOpts.getDefaultBootLocation(), 	"Rascal boot directory")
-				.dirOption("binDir", 		(co) -> co.requiredDir("binDir"),	"Directory for Rascal binaries")
+				.locOption("bootDir", 		cmdOpts.getDefaultBootLocation(), 	"Rascal boot directory")
+				.locOption("binDir", 		(co) -> co.requiredDir("binDir"),	"Directory for Rascal binaries")
 				.boolOption("help", 		false, 								"Print help message for this command")
 				.boolOption("trackCalls", 	false, 								"Print Rascal functions during execution of compiler")
 				.boolOption("profile", 		false, 								"Profile execution of compiler")
@@ -71,9 +71,9 @@ public class RascalTests {
 				cmdOpts.getRascalModules(),
 				cmdOpts.getCommandPathOption("srcPath"),
 				cmdOpts.getCommandPathOption("libPath"),
-				cmdOpts.getCommandDirOption("bootDir"),
-				cmdOpts.getCommandDirOption("binDir"),
+				cmdOpts.getCommandLocOption("bootDir"),
+				cmdOpts.getCommandLocOption("binDir"),
 		};
-		rvmKernel.executeFunction(rascalTestsFunction, mainWithPostionalArgs, cmdOpts.getMainOptions());
+		rvmKernel.executeFunction(rascalTestsFunction, mainWithPostionalArgs, cmdOpts.getModuleOptions());
 	}
 }

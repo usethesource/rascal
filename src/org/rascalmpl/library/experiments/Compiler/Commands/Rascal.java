@@ -40,10 +40,10 @@ public class Rascal {
 		
 		CommandOptions cmdOpts = new CommandOptions();
 		cmdOpts
-				.dirOption("kernel", 		cmdOpts.getDefaultKernelLocation(), "Rascal Kernel file")
-				.pathOption("libPath", 		(co) -> vf.list(co.getCommandDirOption("binDir")),
+				.locOption("kernel", 		cmdOpts.getDefaultKernelLocation(), "Rascal Kernel file")
+				.pathOption("libPath", 		(co) -> vf.list(co.getCommandLocOption("binDir")),
 																				"Add new lib paths, use multiple --libPaths for multiple paths")
-				.dirOption("binDir", 		(co) -> co.requiredDir("binDir"), 	"Directory for Rascal binaries")
+				.locOption("binDir", 		(co) -> co.requiredDir("binDir"), 	"Directory for Rascal binaries")
 				.boolOption("jvm", 			false, 								"Generate JVM code")
 				.boolOption("verbose", 		false, 								"Print compilation steps")
 				.boolOption("help", 		false, 								"Print help message for this command")
@@ -58,9 +58,9 @@ public class Rascal {
                 .forModule(cmdOpts.getRascalModule().getValue())
                 .build();
 		
-		ISourceLocation binary = findBinary(cmdOpts.getCommandDirOption("binDir"), cmdOpts.getRascalModule().getValue());
+		ISourceLocation binary = findBinary(cmdOpts.getCommandLocOption("binDir"), cmdOpts.getRascalModule().getValue());
 		try {
-			System.out.println(RVM.readFromFileAndExecuteProgram(binary, cmdOpts.getMainOptionsAsIMap(), rex));
+			System.out.println(RVM.readFromFileAndExecuteProgram(binary, cmdOpts.getModuleOptionsAsIMap(), rex));
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("rascal: cannot execute program: " + e.getMessage());

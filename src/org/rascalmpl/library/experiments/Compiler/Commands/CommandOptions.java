@@ -25,7 +25,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * There two classes of options: for the command itself and for the
- * Rascal module when executed
+ * Rascal module(s) when compiled, executed or tested
  *
  */
 enum OptionClass {COMMAND, MAIN};
@@ -52,7 +52,7 @@ public class CommandOptions {
 	
 	private String commandName;
 	
-	CommandOptions(){
+	public CommandOptions(){
 		tf = TypeFactory.getInstance();
 		vf = ValueFactoryFactory.getValueFactory();
 		commandOptions = new Options();
@@ -60,148 +60,341 @@ public class CommandOptions {
 		rascalModules = vf.list();
 		rascalModuleHelp = "Rascal Module";
 	}
-
+	
+	/****************************************************************************/
+	/*			Bool options													*/
+	/****************************************************************************/
+	
 	/**
-	 * Convert a textual source locations that is either 
-	 * - a slash-separated path, or
-	 * - a Rascal source location enclosed between | and |.
-	 * 
-	 * @param loc	string representation of a location
-	 * @return 		the loc converted to a source location value
+	 * Declare a bool option (a single boolean value)
+	 * @param name of option
+	 * @param defaultValue as a bool value
+	 * @param helpText
+	 * @return this
 	 */
-	ISourceLocation convertLoc(String loc){
-		if(loc.startsWith("|") && loc.endsWith("|")){
-			TypeStore store = new TypeStore();
-			Type start = TypeFactory.getInstance().sourceLocationType();
-
-			try (StringReader in = new StringReader(loc)) {
-				return (ISourceLocation) new StandardTextReader().read(vf, store, start, in);
-			} 
-			catch (FactTypeUseException e) {
-				printUsageAndExit(e.getMessage());
-			} 
-			catch (IOException e) {
-				printUsageAndExit(e.getMessage());
-			}
-		} else {
-			return vf.sourceLocation(loc);
-		}
-		return null;
+	public CommandOptions boolOption(String name, boolean defaultValue, String helpText){
+		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.BOOL, name, vf.bool(defaultValue), helpText));
+		return this;
+	}
+	
+	/**
+	 * Declare a bool option (a single boolean value)
+	 * @param name of option
+	 * @param defaultValue as a function that returns a bool value
+	 * @param helpText
+	 * @return this
+	 */
+	public CommandOptions boolOption(String name, Function<CommandOptions, Boolean> defaultValue, String helpText){
+		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.BOOL, name, defaultValue, helpText));
+		return this;
 	}
 
-	CommandOptions rascalModule(String helpText){
+	/**
+	 * Get the value of a bool option from the command options
+	 * @param name
+	 * @return value of option
+	 */
+	public boolean getCommandBoolOption(String name){
+		return ((IBool) commandOptions.get(OptionType.BOOL, name)).getValue();
+	}
+
+	/**
+	 * Get the value of a bool option from the module options
+	 * @param name
+	 * @return value of option
+	 */
+	public boolean getModuleBoolOption(String name){
+		return ((IBool) moduleOptions.get(OptionType.BOOL, name)).getValue();
+	}
+	
+	/****************************************************************************/
+	/*			String options													*/
+	/****************************************************************************/
+
+	/**
+	 * Declare a string option (a single string value)
+	 * @param name of option
+	 * @param defaultValue as a string value
+	 * @param helpText
+	 * @return this
+	 */
+	public CommandOptions stringOption(String name, String defaultValue, String helpText){
+		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.STR, name, vf.string(defaultValue), helpText));
+		return this;
+	}
+	
+	/**
+	 * Declare a string option (a single string value)
+	 * @param name of option
+	 * @param defaultValue as a function that returns a string value
+	 * @param helpText
+	 * @return this
+	 */
+	public CommandOptions stringOption(String name, Function<CommandOptions, String> defaultValue, String helpText){
+		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.STR, name, defaultValue, helpText));
+		return this;
+	}
+
+	/**
+	 * Get the value of a string option from the command options
+	 * @param name
+	 * @return value of option
+	 */
+	public String getCommandStringOption(String name){
+		return ((IString) commandOptions.get(OptionType.STR, name)).getValue();
+	}
+
+	/**
+	 * Get the value of a string option from the module options
+	 * @param name
+	 * @return value of option
+	 */
+	public String getModuleStringOption(String name){
+		return ((IString) moduleOptions.get(OptionType.STR, name)).getValue();
+	}
+	
+	/****************************************************************************/
+	/*			Loc options														*/
+	/****************************************************************************/
+
+	/**
+	 * Declare a loc option (a single location)
+	 * @param name of option
+	 * @param defaultValue as a location
+	 * @param helpText
+	 * @return this
+	 */
+	public CommandOptions locOption(String name, ISourceLocation defaultValue, String helpText){
+		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.LOC, name, defaultValue, helpText));
+		return this;
+	}
+	
+	/**
+	 * Declare a loc option (a single location)
+	 * @param name of option
+	 * @param defaultValue as a function that returns a location
+	 * @param helpText
+	 * @return this
+	 */
+	public CommandOptions locOption(String name, Function<CommandOptions, ISourceLocation> defaultValue, String helpText){
+		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.LOC, name, defaultValue, helpText));
+		return this;
+	}
+
+	/**
+	 * Get the value of a loc option from the command options
+	 * @param name
+	 * @return value of option
+	 */
+	public ISourceLocation getCommandLocOption(String name){
+		return (ISourceLocation) commandOptions.get(OptionType.LOC, name);
+	}
+
+	/**
+	 * Get the value of a loc option from the module options
+	 * @param name
+	 * @return value of option
+	 */
+	public ISourceLocation getModuleLocOption(String name){
+		return (ISourceLocation) moduleOptions.get(OptionType.LOC, name);
+	}
+	
+	/****************************************************************************/
+	/*			Path options													*/
+	/****************************************************************************/
+
+	/**
+	 * Declare a path option (a list of locations)
+	 * @param name of option
+	 * @param defaultValue as a list of locations
+	 * @param helpText
+	 * @return this
+	 */
+	public CommandOptions pathOption(String name, IList defaultValue, String helpText){
+		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.PATH, name, defaultValue, helpText));
+		return this;
+	}
+	
+	/**
+	 * Declare a path option (a list of locations)
+	 * @param name of option
+	 * @param defaultValue as a function that returns a list of locations
+	 * @param helpText
+	 * @return this
+	 */
+	public CommandOptions pathOption(String name, Function<CommandOptions, IList> defaultValue, String helpText){
+		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.PATH, name, defaultValue, helpText));
+		return this;
+	}
+
+	/**
+	 * Get the value of a path option from the command options
+	 * @param name
+	 * @return value of option
+	 */
+	public IList getCommandPathOption(String name){
+		return (IList) commandOptions.get(OptionType.PATH, name);
+	}
+
+	/**
+	 * Get the value of a path option from the module options
+	 * @param name
+	 * @return value of option
+	 */
+	public IList getModulePathOption(String name){
+		return (IList) moduleOptions.get(OptionType.PATH, name);
+	}
+
+	/****************************************************************************/
+	/*			Module argument(s)												*/
+	/****************************************************************************/
+	
+	/**
+	 * Command has one Rascal Module as argument
+	 * @param helpText
+	 * @return this
+	 */
+	public CommandOptions rascalModule(String helpText){
 		singleModule = true;
 		inCommandOptions = false;
 		rascalModuleHelp = helpText;
 		return this;
 	}
 	
-	CommandOptions rascalModules(String helpText){
+	/**
+	 * Get the name of the single Rascal module argument of the command
+	 * @return module name
+	 */
+	public IString getRascalModule(){
+		return (IString) rascalModules.get(0);
+	}
+	
+	/**
+	 * Command has one or more Rascal Modules as argument
+	 * @param helpText
+	 * @return this
+	 */
+	public CommandOptions rascalModules(String helpText){
 		singleModule = false;
 		inCommandOptions = false;
 		rascalModuleHelp = helpText;
 		return this;
 	}
 
-	CommandOptions pathOption(String name, IList defaultValue, String helpText){
-		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.PATH, name, defaultValue, helpText));
-		return this;
-	}
-	
-	CommandOptions pathOption(String name, Function<CommandOptions, IList> defaultValue, String helpText){
-		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.PATH, name, defaultValue, helpText));
-		return this;
-	}
-
-	IList getCommandPathOption(String name){
-		return (IList) commandOptions.get(OptionType.PATH, name);
-	}
-
-	IList getMainPathOption(String name){
-		return (IList) moduleOptions.get(OptionType.PATH, name);
-	}
-
-	CommandOptions dirOption(String name, ISourceLocation defaultValue, String helpText){
-		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.LOC, name, defaultValue, helpText));
-		return this;
-	}
-	
-	CommandOptions dirOption(String name, Function<CommandOptions, ISourceLocation> defaultValue, String helpText){
-		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.LOC, name, defaultValue, helpText));
-		return this;
-	}
-
-	ISourceLocation getCommandDirOption(String name){
-		return (ISourceLocation) commandOptions.get(OptionType.LOC, name);
-	}
-
-	ISourceLocation getMainDirOption(String name){
-		return (ISourceLocation) moduleOptions.get(OptionType.LOC, name);
-	}
-
-	CommandOptions boolOption(String name, boolean defaultValue, String helpText){
-		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.BOOL, name, vf.bool(defaultValue), helpText));
-		return this;
-	}
-	
-	CommandOptions boolOption(String name, Function<CommandOptions, Boolean> defaultValue, String helpText){
-		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.BOOL, name, defaultValue, helpText));
-		return this;
-	}
-
-	boolean getCommandBoolOption(String name){
-		return ((IBool) commandOptions.get(OptionType.BOOL, name)).getValue();
-	}
-
-	boolean getMainBoolOption(String name){
-		return ((IBool) moduleOptions.get(OptionType.BOOL, name)).getValue();
-	}
-
-	CommandOptions stringOption(String name, String defaultValue, String helpText){
-		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.STR, name, vf.string(defaultValue), helpText));
-		return this;
-	}
-	
-	CommandOptions stringOption(String name, Function<CommandOptions, String> defaultValue, String helpText){
-		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.STR, name, defaultValue, helpText));
-		return this;
-	}
-
-	String getCommandStringOption(String name){
-		return ((IString) commandOptions.get(OptionType.STR, name)).getValue();
-	}
-
-	String getMainStringOption(String name){
-		return ((IString) moduleOptions.get(OptionType.STR, name)).getValue();
-	}
-
-	IString getRascalModule(){
-		return (IString) rascalModules.get(0);
-	}
-	
+	/**
+	 * Get the names of the Rascal module arguments of the command
+	 * @return list of module names
+	 */
 	IList getRascalModules(){
 		return rascalModules;
 	}
-
-	Map<String,IValue> getMainOptions(){
-		HashMap<String, IValue> mainOptionsMap = new HashMap<>();
-		for(Option option : moduleOptions){
-			mainOptionsMap.put(option.name, option.currentValue);
+	
+	/****************************************************************************/
+	/*			Processing of all command line arguments						*/
+	/****************************************************************************/
+	
+	private String getOptionValue(String[] args, int i){
+		if(i >= args.length - 1 || args[i + 1].startsWith("--")){
+			printUsageAndExit("Missing value for option " + args[i]);
+			return "";
 		}
-		return mainOptionsMap;
+		return args[i + 1];
+	}
+
+	/**
+	 * Handle command line options 
+	 * @param commandName of command that is being executed
+	 * @param list of options and values
+	 */
+	public void handleArgs(String name, String[] args){
+		vf = ValueFactoryFactory.getValueFactory();
+		commandName = name;
+		boolean mainSeen = false;
+		Options currentOptions;
+		int i = 0;
+		while(i < args.length){
+			if(args[i].startsWith("--")){
+				String option = args[i].substring(2, args[i].length());
+				currentOptions = !mainSeen ? commandOptions : moduleOptions;
+
+				if(currentOptions.contains(OptionType.BOOL, option)){
+					currentOptions.set(OptionType.BOOL, option, vf.bool(true));
+					i += 1;
+				} else {
+					if(currentOptions.contains(OptionType.STR, option)){
+						currentOptions.set(OptionType.STR, option, vf.string(getOptionValue(args, i)));
+					} else if(currentOptions.contains(OptionType.PATH, option)){
+						ISourceLocation newLoc = convertLoc(getOptionValue(args, i));
+						currentOptions.update(OptionType.PATH, option, (current) -> current == null ? vf.list(newLoc) : ((IList) current).append(newLoc));
+					} else if(currentOptions.contains(OptionType.LOC, option)){
+						currentOptions.set(OptionType.LOC, option, convertLoc(getOptionValue(args, i)));
+					} else {
+						printUsageAndExit("Unknown command option " + args[i]);
+						return;
+					}
+					i += 2;
+				}
+			} else {
+				rascalModules = rascalModules.append(vf.string(args[i]));
+				mainSeen = true;
+				i++;
+			}
+		}
+
+		if(commandOptions.hasNonDefaultValue(OptionType.BOOL, "help")){
+			help();
+			System.exit(0);
+		}
+		checkDefaults();
+		
+		if(rascalModules.length() == 0){
+			printUsageAndExit("Missing Rascal module" + (singleModule ? "" : "s"));
+		} else if(rascalModules.length() > 1 && singleModule){
+			printUsageAndExit("Duplicate modules defined: " + rascalModules);
+		}
 	}
 	
-	IMap getMainOptionsAsIMap(){
-		IMapWriter w = vf.mapWriter();
-		for(Option option : moduleOptions){
-			w.put(vf.string(option.name), option.currentValue);
-		}
-		return w.done();
+	/****************************************************************************/
+	/*			(Utilities for) consistency checking							*/
+	/****************************************************************************/
+	
+	public IBool requiredBool(String name){
+		printUsageAndExit("Value required for " + name);
+		return null;
 	}
+	
+	public IString requiredString(String name){
+		printUsageAndExit("Value required for " + name);
+		return null;
+	}
+	
+	public ISourceLocation requiredDir(String name){
+		printUsageAndExit("Value required for " + name);
+		return null;
+	}
+	
+	public IList requiredPath(String name){
+		printUsageAndExit("Value required for " + name);
+		return null;
+	}
+
+	private void checkDefaults(){
+		for(Option option : commandOptions){
+			option.checkDefault(this);
+		}
+		for(Option option : moduleOptions){
+			option.checkDefault(this);
+		}
+	}
+	
+	/****************************************************************************/
+	/*			Usage and help generation										*/
+	/****************************************************************************/
+	
 	/**
-	 * Print usage of the command
+	 * Print usage of the command and exit
 	 * 
-	 * @param msg	optional error message
+	 * @param msg	error message
 	 */
 	
 	private void printUsageAndExit(String msg){
@@ -209,6 +402,10 @@ public class CommandOptions {
 		System.exit(-1);
 	}
 	
+	/**
+	 * @param msg	error message
+	 * @return the usage string for the command
+	 */
 	private String usage(String msg){
 		StringBuffer w = new StringBuffer();
 		if(!msg.isEmpty()){
@@ -254,23 +451,57 @@ public class CommandOptions {
 		System.exit(-1);
 	}
 	
-	IBool requiredBool(String name){
-		printUsageAndExit("Value required for " + name);
-		return null;
+	/****************************************************************************/
+	/*			Convenience methods												*/
+	/****************************************************************************/
+	
+	/**
+	 * @return all module options as a Java Map
+	 */
+	public Map<String,IValue> getModuleOptions(){
+		HashMap<String, IValue> mainOptionsMap = new HashMap<>();
+		for(Option option : moduleOptions){
+			mainOptionsMap.put(option.name, option.currentValue);
+		}
+		return mainOptionsMap;
 	}
 	
-	IString requiredString(String name){
-		printUsageAndExit("Value required for " + name);
-		return null;
+	/**
+	 * @return all module options as an IMap
+	 */
+	public IMap getModuleOptionsAsIMap(){
+		IMapWriter w = vf.mapWriter();
+		for(Option option : moduleOptions){
+			w.put(vf.string(option.name), option.currentValue);
+		}
+		return w.done();
 	}
 	
-	ISourceLocation requiredDir(String name){
-		printUsageAndExit("Value required for " + name);
-		return null;
-	}
-	
-	IList requiredPath(String name){
-		printUsageAndExit("Value required for " + name);
+	/**
+	 * Convert a textual source locations that is either 
+	 * - a slash-separated path, or
+	 * - a Rascal source location enclosed between | and |.
+	 * 
+	 * @param loc	string representation of a location
+	 * @return 		the loc converted to a source location value
+	 */
+	ISourceLocation convertLoc(String loc){
+		if(loc.startsWith("|") && loc.endsWith("|")){
+			TypeStore store = new TypeStore();
+			Type start = TypeFactory.getInstance().sourceLocationType();
+
+			try (StringReader in = new StringReader(loc)) {
+				return (ISourceLocation) new StandardTextReader().read(vf, store, start, in);
+			} 
+			catch (FactTypeUseException e) {
+				printUsageAndExit(e.getMessage());
+			} 
+			catch (IOException e) {
+				printUsageAndExit(e.getMessage());
+			}
+		} else {
+			return vf.sourceLocation(loc);
+		}
 		return null;
 	}
 
@@ -305,76 +536,6 @@ public class CommandOptions {
 		}
 	}
 
-	private void checkDefaults(){
-		for(Option option : commandOptions){
-			option.checkDefault(this);
-		}
-		for(Option option : moduleOptions){
-			option.checkDefault(this);
-		}
-	}
-	
-	private String getOptionValue(String[] args, int i){
-		if(i >= args.length - 1 || args[i + 1].startsWith("--")){
-			printUsageAndExit("Missing value for option " + args[i]);
-			return "";
-		}
-		return args[i + 1];
-	}
-
-	/**
-	 * Handle command line options 
-	 * @param commandName of command that is being executed
-	 * @param list of options and values
-	 */
-	protected void handleArgs(String name, String[] args){
-		vf = ValueFactoryFactory.getValueFactory();
-		commandName = name;
-		boolean mainSeen = false;
-		Options currentOptions;
-		int i = 0;
-		while(i < args.length){
-			if(args[i].startsWith("--")){
-				String option = args[i].substring(2, args[i].length());
-				currentOptions = !mainSeen ? commandOptions : moduleOptions;
-
-				if(currentOptions.provides(OptionType.BOOL, option)){
-					currentOptions.set(OptionType.BOOL, option, vf.bool(true));
-					i += 1;
-				} else {
-					if(currentOptions.provides(OptionType.STR, option)){
-						currentOptions.set(OptionType.STR, option, vf.string(getOptionValue(args, i)));
-					} else if(currentOptions.provides(OptionType.PATH, option)){
-						ISourceLocation newLoc = convertLoc(getOptionValue(args, i));
-						currentOptions.update(OptionType.PATH, option, (current) -> current == null ? vf.list(newLoc) : ((IList) current).append(newLoc));
-					} else if(currentOptions.provides(OptionType.LOC, option)){
-						currentOptions.set(OptionType.LOC, option, convertLoc(getOptionValue(args, i)));
-					} else {
-						printUsageAndExit("Unknown command option " + args[i]);
-						return;
-					}
-					i += 2;
-				}
-			} else {
-				rascalModules = rascalModules.append(vf.string(args[i]));
-				mainSeen = true;
-				i++;
-			}
-		}
-
-		checkDefaults();
-		
-		if(getCommandBoolOption("help")){
-			help();
-			System.exit(0);
-		}
-		
-		if(rascalModules.length() == 0){
-			printUsageAndExit("Missing Rascal module" + (singleModule ? "" : "s"));
-		} else if(rascalModules.length() > 1 && singleModule){
-			printUsageAndExit("Duplicate modules defined: " + rascalModules);
-		}
-	}
 }
 
 class Option {
@@ -470,7 +631,16 @@ class Options implements Iterable<Option>{
 		throw new RuntimeException("Option " + name + " has not been declared");
 	}
 	
-	public boolean provides(OptionType optionType, String name){
+	public boolean hasNonDefaultValue(OptionType optionType, String name) {
+		for(Option option : options){
+			if(option.provides(optionType, name)){
+				return option.currentValue != null;
+			}
+		}
+		return false;
+	}
+	
+	public boolean contains(OptionType optionType, String name){
 		for(Option option : options){
 			if(option.provides(optionType, name)){
 				return true;
