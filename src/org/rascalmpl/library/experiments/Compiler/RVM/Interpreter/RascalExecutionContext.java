@@ -183,26 +183,26 @@ public class RascalExecutionContext implements IRascalMonitor {
 		
 		if(frameObserver == null){
 			if(profile){
-				setFrameObserver(new ProfileFrameObserver(stdout));
+				setFrameObserver(new ProfileFrameObserver(this));
 			} else if(coverage){
-				setFrameObserver(new CoverageFrameObserver(stdout));
+				setFrameObserver(new CoverageFrameObserver(this));
 			} else if(debug){
-				setFrameObserver(new DebugFrameObserver(stdout));
+				setFrameObserver(new DebugFrameObserver(this));
 			} else if(trackCalls){
 				if(logLocation != null){
 					URIResolverRegistry reg = URIResolverRegistry.getInstance();
 					try {
 						OutputStream outStream = reg.getOutputStream(logLocation, false);
-						setFrameObserver(new CallTrackingObserver(new PrintWriter(outStream))); 
+						setFrameObserver(new CallTrackingObserver(this)); 
 					} catch (IOException e) {
 						throw new RuntimeException("Cannot create log file: " + e.getMessage());
 					}
 					
 				} else {
-					setFrameObserver(new CallTrackingObserver(stdout));
+					setFrameObserver(new CallTrackingObserver(this));
 				}
 			} else if(debugRVM){
-				setFrameObserver(new RVMTrackingObserver(stdout));
+				setFrameObserver(new RVMTrackingObserver(this));
 			} else {
 				setFrameObserver(NullFrameObserver.getInstance());
 			}
@@ -218,7 +218,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	
 	private void createCaches(boolean enabled){
-		
 		type2symbolCache = Caffeine.newBuilder()
 //				.weakKeys()
 			    .weakValues()
@@ -271,8 +270,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public void noCaches(){
 		createCaches(false);
 	}
-	
-	
 	
 	public void printCacheStat(String name, Cache<?,?> cache){
 		CacheStats s = cache.stats();
@@ -383,7 +380,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public RVM getRVM(){ return rvm; }
 	
 	protected void setRVM(RVM rvm){ 
-		this.rvm = rvm; 
+		this.rvm = rvm;
+		if(frameObserver != null){
+			frameObserver.setRVM(rvm);
+		}
 	}
 	
 	public void addClassLoader(ClassLoader loader) {

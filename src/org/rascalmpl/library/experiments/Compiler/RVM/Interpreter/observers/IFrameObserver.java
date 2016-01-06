@@ -18,6 +18,10 @@ public interface IFrameObserver {
 	
 	default void report(IList data) { }
 	
+	default void setRVM(RVM rvm) { }
+	
+	default RVM getRVM() { throw new RuntimeException("No access to RVM availabe"); }
+	
 	default boolean observe(Frame frame) { return true; }
 	
 	default boolean observeRVM(RVM rvm, Frame frame, int pc, Object[] stack, int sp) { return true; }
