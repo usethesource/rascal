@@ -4,13 +4,14 @@ import java.io.PrintWriter;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 
 public class RVMTrackingObserver implements IFrameObserver {
 	
 	private final PrintWriter stdout;
 
-	public RVMTrackingObserver(PrintWriter stdout){
-		this.stdout = stdout;
+	public RVMTrackingObserver(RascalExecutionContext rex){
+		this.stdout = rex.getStdOut();
 	}
 
 	@Override

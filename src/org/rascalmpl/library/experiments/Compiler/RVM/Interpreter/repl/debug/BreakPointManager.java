@@ -21,7 +21,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandEx
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.io.InputConverter;
-import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;

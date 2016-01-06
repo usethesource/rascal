@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 
 import org.rascalmpl.library.experiments.Compiler.Commands.PathConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 
@@ -20,6 +21,8 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	private final File historyFile;
 	private final Terminal terminal;
 	private final BreakPointManager breakPointManager;
+	
+	private RVM rvm;
 	
 	public DebugREPLFrameObserver(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal, PathConfig pcfg) throws IOException{
 		this.stdin = stdin;
@@ -45,11 +48,19 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 		//return breakPointManager.hasEnabledBreakPoints() ? this : null;
 	}
 	
+	@Override public void setRVM(RVM rvm){
+		this.rvm = rvm;
+	}
+	
+	@Override public RVM getRVM(){
+		return rvm;
+	}
+	
 	@Override
 	public boolean observe(Frame frame) {
 		try {
 			if(breakPointManager.matchOnObserve(frame)){
-				new DebugREPL(frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
+				new DebugREPL(rvm, frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -61,7 +72,7 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	public boolean enter(Frame frame) {
 		try {
 			if(breakPointManager.matchOnEnter(frame)){
-				new DebugREPL(frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
+				new DebugREPL(rvm, frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -73,7 +84,7 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	public boolean leave(Frame frame, Object rval) {
 		try {
 			if(breakPointManager.matchOnLeave(frame, rval)){
-				new DebugREPL(frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
+				new DebugREPL(rvm, frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -85,7 +96,7 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	public boolean exception(Frame frame, Thrown thrown){
 		try {
 			if(breakPointManager.matchOnException(frame, thrown)){
-				new DebugREPL(frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
+				new DebugREPL(rvm, frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

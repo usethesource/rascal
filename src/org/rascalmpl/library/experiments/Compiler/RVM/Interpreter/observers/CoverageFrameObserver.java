@@ -6,6 +6,7 @@ import java.util.Iterator;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.ISet;
@@ -20,8 +21,8 @@ public class CoverageFrameObserver implements IFrameObserver {
 	private final HashSet<ISourceLocation> data;
 	private boolean collecting;
 	
-	public CoverageFrameObserver(PrintWriter stdout){
-		this.stdout = stdout;
+	public CoverageFrameObserver(RascalExecutionContext rex){
+		this.stdout = rex.getStdOut();
 		this.data = new HashSet<ISourceLocation>();
 		collecting = true;
 	}

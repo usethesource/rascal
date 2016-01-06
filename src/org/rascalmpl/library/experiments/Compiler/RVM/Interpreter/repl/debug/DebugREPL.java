@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.repl.BaseREPL;
@@ -38,11 +39,13 @@ public class DebugREPL extends BaseREPL{
 	private Frame currentFrame;
 	private final Frame startFrame;
 	private String previousCommand;
+	private final RVM rvm;
 
 	private final BreakPointManager breakPointManager;
 
-	public DebugREPL(Frame frame, BreakPointManager breakPointManager, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException{
+	public DebugREPL(RVM rvm, Frame frame, BreakPointManager breakPointManager, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException{
 		super(stdin, stdout, prettyPrompt, allowColors, new File(file.getAbsolutePath() + "-debug"), terminal);
+		this.rvm = rvm;
 		this.currentFrame = frame;
 		this.startFrame = frame;
 		setPrompt();
@@ -160,7 +163,7 @@ public class DebugREPL extends BaseREPL{
 			throw new InterruptedException();
 		
 		case "p": case "print":
-			stdout.println(RascalPrimitive.$value2string(EvalExpr.eval(words[1], currentFrame)));
+			stdout.println(RascalPrimitive.$value2string(EvalExpr.eval(words[1], rvm, currentFrame)));
 			break;
 		
 		case "i": case "ignore":
@@ -176,7 +179,7 @@ public class DebugREPL extends BaseREPL{
 			break;
 			
 		default:
-			IValue v = EvalExpr.eval(words[0], currentFrame);
+			IValue v = EvalExpr.eval(words[0], rvm, currentFrame);
 			if(v != null){
 				stdout.println(v);
 			} else {
