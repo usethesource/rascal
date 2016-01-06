@@ -195,6 +195,8 @@ public class RVM /*implements java.io.Serializable*/ {
 		return frameObserver;
 	}
 	
+	public Map<IValue, IValue> getModuleVariables() { return moduleVariables; }
+	
 	/**
 	 * Narrow an Object as occurring on the RVM runtime stack to an IValue that can be returned.
 	 * Note that various non-IValues can occur:

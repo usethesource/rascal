@@ -19,8 +19,6 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-import com.github.benmanes.caffeine.cache.Cache;
-
 public class ExecutionTools {
 
 	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();

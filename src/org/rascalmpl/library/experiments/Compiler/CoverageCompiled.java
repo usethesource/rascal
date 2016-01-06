@@ -16,7 +16,7 @@ public class CoverageCompiled extends Coverage {
 	
 	public void startCoverage(RascalExecutionContext rex){
 		if(coverageObserver == null){
-			coverageObserver = new CoverageFrameObserver(rex.getStdOut());
+			coverageObserver = new CoverageFrameObserver(null);
 		}
 		coverageObserver.startObserving();
 	}
