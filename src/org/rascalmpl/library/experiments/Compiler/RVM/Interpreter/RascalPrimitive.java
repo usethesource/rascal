@@ -5301,7 +5301,7 @@ public enum RascalPrimitive {
 			if(lhsType.isRelation()){
 				return rel_transitive_reflexive_closure.execute1(arg_1, currentFrame, rex);
 			}
-			throw new CompilerError("transitive_closure: unexpected type " + lhsType, currentFrame);
+			throw new CompilerError("transitive_reflexive_closure: unexpected type " + lhsType, currentFrame);
 		}
 	},
 
