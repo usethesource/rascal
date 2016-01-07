@@ -16,13 +16,10 @@ import experiments::Compiler::Rascal2muRascal::RascalType;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
-import experiments::Compiler::Rascal2muRascal::ModuleInfo; // just in case
-import lang::rascal::types::CheckerConfig; // just in case
 
 import lang::rascal::types::AbstractType;
 
 import experiments::Compiler::Rascal2muRascal::RascalExpression;
-
 
 import experiments::Compiler::RVM::Interpreter::ParsingTools;
 
