@@ -21,6 +21,7 @@ import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::muRascal2RVM::mu2rvm;
 
 import lang::rascal::types::TestChecker;
+import lang::rascal::types::CheckerConfig;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 
