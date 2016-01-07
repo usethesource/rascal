@@ -459,7 +459,7 @@ MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <B
                             muCallMuPrim("and_mbool_mbool", [muTmp(change,fuid), muCallPrim3("int_greater_int", [muTmp(iterations,fuid), muCon(0)], bound@\loc) ]), 
                             [ muAssignTmp(change, fuid, muCon(false)),
                             *[ muAssignTmp(tmps[i], fuid, varCode[i]) | int i <- index(varCode) ],
-                              muAssignTmp(result, fuid, translate(body)),
+                              muAssignTmp(result, fuid, translateLoopBody(body)),
                               *[ muIfelse(nextLabel("notequal-vars"), muCallPrim3("notequal", [muTmp(tmps[i],fuid), varCode[i]], bound@\loc), [muAssignTmp(change,fuid,muCon(true))], []) 
                  			   | int i <- index(varCode)
                  			   ],
