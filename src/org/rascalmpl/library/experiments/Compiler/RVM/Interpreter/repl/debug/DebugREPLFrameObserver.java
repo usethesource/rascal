@@ -6,11 +6,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
-import org.rascalmpl.library.experiments.Compiler.Commands.PathConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
+import org.rascalmpl.library.util.PathConfig;
 
 import jline.Terminal;
 
