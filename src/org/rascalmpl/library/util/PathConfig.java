@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.Commands;
+package org.rascalmpl.library.util;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -7,9 +7,7 @@ import java.util.List;
 
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
