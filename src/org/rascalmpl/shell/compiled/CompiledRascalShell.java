@@ -7,7 +7,7 @@ import java.util.Enumeration;
 import java.util.jar.Manifest;
 
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.library.experiments.Compiler.Commands.PathConfig;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.shell.ManifestRunner;
 import org.rascalmpl.shell.ModuleRunner;
 import org.rascalmpl.shell.ShellRunner;
