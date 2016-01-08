@@ -23,7 +23,9 @@ tuple[set[loc] differ, set[loc] missing] compare(loc iloc, loc cloc){
     
     if(Configuration iconf := ival && Configuration cconf := cval){
       iconf.pathConfiguration = pathConfig();
+      iconf.dirtyModules = {};
       cconf.pathConfiguration = pathConfig();
+      cconf.dirtyModules = {};
       ival = iconf;
       cval = cconf;
     }

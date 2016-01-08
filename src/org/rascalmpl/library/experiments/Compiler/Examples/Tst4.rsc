@@ -1,10 +1,17 @@
 module experiments::Compiler::Examples::Tst4
 
-import experiments::Compiler::Rascal2muRascal::ParseModule;
-import util::Reflective;
-import lang::rascal::types::CheckerConfig;
-import lang::rascal::types::CheckTypes;
-
-Configuration doCheck(loc mloc){
-    return checkModule(parseModuleGetTop(mloc), newConfiguration(pathConfig()));
-}
+value removeIdPairs(rel[int,int] inp){
+   res = inp;
+   solve(res) {
+        if ( { < a, b >, < b, b >, c* } := res ) res = { *c, < a, b > };
+    }
+    return res;
+ }
+ 
+ test bool removeIdPairs1() = removeIdPairs({}) == {};
+ test bool removeIdPairs2() = removeIdPairs({<1,2>,<2,3>}) == {<1,2>,<2,3>};
+ test bool removeIdPairs3() = removeIdPairs({<1,2>,<2,3>,<2,2>}) == {<1,2>,<2,3>};
+ test bool removeIdPairs4() = removeIdPairs({<1,2>,<2,2>,<2,3>,<3,3>}) == {<1,2>,<2,3>};
+ test bool removeIdPairs5() = removeIdPairs({<2,2>,<1,2>,<2,2>,<2,3>,<3,3>}) == {<1,2>,<2,3>};
+ test bool removeIdPairs6() = removeIdPairs({<2,2>,<3,3>,<1,2>,<2,2>,<2,3>,<3,3>}) == {<1,2>,<2,3>};
+ 
