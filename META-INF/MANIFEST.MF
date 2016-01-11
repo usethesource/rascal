@@ -127,5 +127,5 @@ Bundle-ClassPath: lib/snakeyaml-1.11.jar,
  lib/caffeine-1.2.0.jar,
  lib/jline-2.13.jar,
  lib/capsule-0.1.0.jar,
- lib/value-0.5.0.jar,
+ lib/value-0.5.1.jar,
  .

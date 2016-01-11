@@ -104,7 +104,7 @@
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
 			<artifactId>value</artifactId>
-			<version>0.5.0</version>
+			<version>0.5.1</version>
 		</dependency>
 		<dependency>
 			<groupId>io.usethesource</groupId>
