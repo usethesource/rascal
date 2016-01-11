@@ -46,10 +46,12 @@ public Style style(str id, str fillColor="", str lineColor="", int lineWidth = -
      if (!isEmpty(visibility)) {
            v.visibility = visibility;
            list[str] xs = getDescendants(idx);
+          
            for (x<-xs) {
               style(x, visibility = visibility);
              }
             }
+     // println("style:<idx> <visibility>");
      _setStyle(idx, v);
      return v;
      }
