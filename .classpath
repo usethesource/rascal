@@ -35,6 +35,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/fst-2.42-onejar.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commonmark-0.3.0.jar"/>
 	<classpathentry kind="lib" path="lib/capsule-0.1.0.jar"/>
-	<classpathentry kind="lib" path="lib/value-0.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/value-0.5.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
