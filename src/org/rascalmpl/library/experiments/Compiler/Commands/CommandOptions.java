@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
@@ -478,8 +479,8 @@ public class CommandOptions {
 	}
 	
 	/**
-	 * Convert a textual source locations that is either 
-	 * - a slash-separated path, or
+	 * Convert a textual source locations that is either:
+	 * - a slash-separated path (absolute or relative)
 	 * - a Rascal source location enclosed between | and |.
 	 * 
 	 * @param loc	string representation of a location
@@ -500,7 +501,7 @@ public class CommandOptions {
 				printUsageAndExit(e.getMessage());
 			}
 		} else {
-			return vf.sourceLocation(loc);
+			return URIUtil.correctLocation(loc.startsWith("/") ? "file" : "cwd", "", loc);
 		}
 		return null;
 	}
