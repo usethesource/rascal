@@ -148,24 +148,28 @@ void tgraph()= render(hcat(hgap=5, figs = [gbox1(), box(grow=1.0,  fig=grap())
 
 void fgraph(loc l) = writeFile(l, toHtmlString(hcat(hgap=5, figs = [gbox1(), grap()])));
 
-value tri(bool tt) = tt?vcat(size=<100, 30>, figs=[text("aap"), text("noot")]):box(fig=text("noot"));
+// Figure tri(bool tt) = tt?vcat(figs=[text("aap"), text("noot")]):box(fig=text("noot", fontColor="black"));
 
-Figure mbox(str txt, bool tt) = box(lineWidth = 1, fillColor="yellow", rounded=<5, 5>,size=<100, 50>/*, fig=text(txt)*/
-    , tooltip = tri(tt), id = newId());
+Figure tri(bool tt) = //box(fig=
+hcat(figs=[box(fig=text("aap"))])
+// )
+;
 
-Figure model() = graph([<"a", mbox("Figure", true)>
-                       
-                       , <"b"
-                       //, vcat(size=<100, 100>, vgap=0, borderWidth = 4, borderColor="grey", borderStyle="ridge", figs = 
-                       //         [htmlText("IFigure", size=<50, 20>)
-                       //             ,hcat(borderWidth = 1, hgap = 6
-                       //             , figs = [htmlText("id", size=<50,20>), htmlText("ref", size=<50,20>)])])                      
-                       //             >
-                       ,mbox("This", true)>
+// Figure tri(bool tt) = box(fig=text("aap"));
+
+Figure mbox(str txt, bool tt) =box(fig=
+vcat(figs=[box(fillColor="yellow", grow = 3.0, lineWidth = 2, fig=text(txt)
+   
+  , id = newId())]) , tooltip = tri(tt)
+)
+;
+
+Figure model() = graph([<"a", mbox("Figure", false)>                    
+                       , <"b",mbox("This", true)>
                        , <"c", mbox("Widget", true)>                 
                        ]
                        , [edge("a", "b"), edge("b", "c")]
-                       , width = 150, height = 300, lineWidth = 0, align = centerMid);
+                       , width = 250, height = 300, lineWidth = 0, align = centerMid);
                         
 void tmodel()= render(model(), align = centerMid);
 
@@ -208,3 +212,22 @@ Figure g() = box(size=<1000, 1000>, align = centerRight, fig=
    ],options=graphOptions()),align=<0.0,0.0>,lineWidth=0); 
 
    void tg()= render(g(), size=<1000, 1000>, align = centerMid);
+   
+   Figure k33() {
+        list[tuple[str, Figure]] nodes = [<"<i>", circle(r=15, fig=text("<i>"))>|int i<-[0..6]];
+        list[Edge] edges = [edge("0","3", lineInterpolate="step-after"), edge("0", "4"), edge("0", "5")
+                           ,edge("1","3"), edge("1", "4"),  edge("1", "5")
+                           ,edge("2","3"), edge("2", "4"), edge("2", "5")
+                           ];
+       return graph(nodes=nodes, edges=edges, size=<500, 500>);                        
+       }
+  
+ void tk33()= render(k33(), size=<1000, 1000>, align = centerMid);  
+ 
+ Figure  g1() = graph( [<"a",hcat(figs=[box(size=<25, 25>)])>, <"b",box("B", 14, "red", 1.2, "beige")>], [edge("a", "b")], size=<200, 200>);
+ 
+ public void tg1() = render(g1());
+ 
+ 
+ 
+ 

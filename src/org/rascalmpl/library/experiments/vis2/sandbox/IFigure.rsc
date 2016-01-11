@@ -100,6 +100,8 @@ public bool isSvg(str id) = widget[id].svg;
 
 public void null(str event, str id, value val ){return;}
 
+bool isPassive(Figure f) = f.event==noEvent()  && isEmptyTooltip(f.tooltip);
+
 str child(str id1) {
     if (findFirst(id1,"#") < 1) return id1;
     list[str] s = split("#", id1);
@@ -144,8 +146,8 @@ bool hasInnerFigure(Figure f) = box():=f || ellipse() := f || circle():= f || ng
 
 bool isOverlay(Figure f) = overlay():=f || tree(_, _):=f|| graph():=f;
 
-bool needsSvg(Figure f) = vcat():=f || hcat():=f || grid():=f
-|| comboChart():=f || lineChart():=f || scatterChart():=f
+bool needsSvg(Figure f) = // vcat():=f || hcat():=f || grid():=f
+comboChart():=f || lineChart():=f || scatterChart():=f
 || pieChart():=f || candlestickChart():=f || pieChart():=f
 || areaChart():=f || tree(_,_):=f
 ;
@@ -367,7 +369,11 @@ str getIntro() {
         '                   var e = d3.select(\"#\"+d); 
          '                  var svg = t[d][\"style\"][\"svg\"];
         '                   for (var i in t[d][\"style\"]) {  
-        '                        // if (i==\"visibility\") alert(\"\"+d+\" \"+t[d][\"style\"][i]);                 
+        '                        // if (i==\"visibility\") alert(\"\"+d+\" \"+t[d][\"style\"][i]); 
+        '                        if (i==\"visibility\") {
+        '                           d3.select(\"#\"+d+\"_outer_fo\").style(i, t[d][\"style\"][i]);
+        '                           d3.select(\"#\"+d+\"_svg\").style(i, t[d][\"style\"][i]);                           
+        '                        }                
         '                        e=e.style(svgStyle(i, svg), t[d][\"style\"][i]);
         '                        }
         '                   // alert(d);
@@ -469,8 +475,7 @@ str getIntro() {
        '\<body\>
        ' <visitFig(fig)>      
        '\</body\>     
-		'\</html\>
-		";
+		'\</html\>\n";
     // println(res);
 	return res;
 	}
@@ -632,7 +637,7 @@ value getRenderCallback(Event event) {return void(str e, str n, str v) {
 
 public void _render(IFigure fig1, int width = 800, int height = 800, 
      Alignment align = centerMid, int borderWidth = -1, str borderStyle="", str borderColor = "",
-     str fillColor = "none", str lineColor = "black", bool display = true, Event event = on(nullCallback),
+     str fillColor = "none", str lineColor = "black", bool display = true, Event event = noEvent(),
      bool resizable = true, bool defined = true)
      {
      screenWidth = width;
@@ -950,13 +955,13 @@ IFigure _text(str id, bool fo, Figure f, str s) {
     "\<svg <moveAt(fo, f)> id=\"<id>_svg\"\> \<text id=\"<id>\"\>";
     int width = f.width;
     int height = f.height;
-    if (width<0) width = getTextWidth(f, s);
-    if (height<0) height =  getTextHeight(f);
-    Alignment align =  width<0?topLeft:f.align;
-    // str endtag = addSvgTag?"\</text\>":"\</div\>"; 
+    //if (width<0) width = getTextWidth(f, s);
+    //if (height<0) height = getTextHeight(f);
+    Alignment align =  width<0?topLeft:f.align; 
     str endtag = fo?"\</div\>":"\</text\>\</svg\>";
-    f.fillColor = f.fontColor;
-    f.lineColor = f.fontColor;
+    f.fillColor = isEmpty(f.fontColor)?"black":f.fontColor;
+    // f.lineColor = f.fontColor;
+    f.lineWidth = 0;
     widget[id] = <null, seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")
@@ -969,10 +974,7 @@ IFigure _text(str id, bool fo, Figure f, str s) {
         '<style("font-family", f.fontFamily)>
         '<style("font-weight", f.fontWeight)>
         '<style("visibility", getVisibility(f))>
-        '<attr("x", width/2)>
-        '<attr("y", height/2)>
-        '// <attr("dy", ".3em")>
-        '<fo?style("color", f.fontColor):(style("fill", f.fillColor)+style("stroke",f.lineColor))>
+        '<fo?style("color", f.fontColor):(style("fill", f.fillColor))>
         '<fo?"":style("text-anchor", "middle")> 
         '<attr("pointer-events", "none")>
         '<html(s, fo, f.nl2br)>
@@ -1178,19 +1180,12 @@ str addShape(Figure s) {
     '     var width = parseInt(d3.select(\"#\"+id).attr(\"width\"));
     '     var height = parseInt(d3.select(\"#\"+id).attr(\"height\"))-1;
     '     d3.select(\"#\"+id+\"_svg\")<attr1("x", "Math.floor(n.x-width/2+offset)")><attr1("y", "Math.floor(n.y-height/2)")>;
-    '     d3.select(\"#\"+id+\"_outer_fo\")<attr1("x", "Math.floor(n.x-width/2+offset)")><attr1("y", "Math.floor(n.y-height/2+offset)")>;  
     '     var tooltip = d3.select(\"#\"+id+\"_tooltip_svg\");
     '     if (!tooltip.empty()) {
     '         var x = parseInt(tooltip.attr(\"x\"))+offset;
     '         var y = parseInt(tooltip.attr(\"y\"));
     '         tooltip<attr1("x", "x+Math.floor(n.x-width/2)")><attr1("y", "y+Math.floor(n.y-height/2)")>;
     '      }
-    '     tooltip = d3.select(\"#\"+id+\"_tooltip_outer_fo\");
-    '     if (!tooltip.empty()) {
-    '        var x = parseInt(tooltip.attr(\"x\"))+offset;
-    '        var y = parseInt(tooltip.attr(\"y\"));
-    '        tooltip<attr1("x", "x+Math.floor(n.x-width/2)")><attr1("y", "y+Math.floor(n.y-height/2)")>;  
-    '       }
     '     });
     ' console.log(g.graph().width);
     '}   
@@ -1393,8 +1388,8 @@ bool hasInnerCircle(Figure f)  {
         '<style("fill-opacity", getFillOpacity(f))> 
         '<style("stroke-opacity", getLineOpacity(f))>  
         '<style("visibility", getVisibility(f))> 
-        '<attr("pointer-events", "all")> 
-        '<findFirst(id,"_tooltip")>=0?attr("pointer-events", "none"):"">    
+        '<isPassive(f)?attr("pointer-events", "none"):attr("pointer-events", "all")> 
+        '//<findFirst(id,"_tooltip")>=0?attr("pointer-events", "none"):"">    
         ';       
         'd3.select(\"#<id>_svg\")
         '<attr("width", toInt(f.bigger*f.width))><attr("height", toInt(f.bigger*f.height))>
@@ -2055,11 +2050,11 @@ int heightDefCells(list[IFigure] fig1) {
 IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
        int width = f.width;
        int height = f.height; 
+       // println("hcat <addSvgTag>");
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         // "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>_rect\"/\> 
-         "\<foreignObject id=\"<id>_outer_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
          }
        begintag+="                    
             '\<table id=\"<id>\" cellspacing=\"0\" cellpadding=\"0\"\>
@@ -2071,7 +2066,7 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
             "
             ;
        if (addSvgTag) {
-            endtag += "\</foreignObject\>"; 
+            endtag += "\</foreignObject\>\</svg\>"; 
             }
          //   '\<p\>\</p/\>
         widget[id] = <null, seq, id, begintag, endtag, 
@@ -2120,15 +2115,14 @@ IFigure _vcat(str id, Figure f,  bool addSvgTag, IFigure fig1...) {
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         // "\<svg id=\"<id>_svg\" x=0 y=0 \> \<rect id=\"<id>_rect\"/\> 
-         "\<foreignObject id=\"<id>_outer_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
          }
        begintag+="                 
             '\<table id=\"<id>\" cellspacing=\"0\" cellpadding=\"0\"\>"
            ;
        str endtag="\</table\>";
        if (addSvgTag) {
-            endtag += "\</foreignObject\>"; 
+            endtag += "\</foreignObject\>\</svg\>"; 
             }
         widget[id] = <null, seq, id, begintag, endtag, 
         "
@@ -2179,8 +2173,7 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         // "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>_rect\"/\> 
-         "\<foreignObject id=\"<id>_outer_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         "\<svg id=\"<id>_svg\"\>\<foreignObject id=\"<id>_outer_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
          }
        begintag+="                    
             '\<table id=\"<id>\" cellspacing=\"0\" cellpadding=\"0\"\>
@@ -2189,7 +2182,7 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
             '\</table\>
             ";
        if (addSvgTag) {
-            endtag += "\</foreignObject\>"; 
+            endtag += "\</foreignObject\>\</svg\>"; 
             }
         widget[id] = <null, seq, id, begintag, endtag, 
         "
@@ -2635,7 +2628,7 @@ public void _render(Figure fig1, int width = 400, int height = 400,
      Alignment align = centerMid, tuple[int, int] size = <0, 0>,
      str fillColor = "white", str lineColor = "black", 
      int lineWidth = 1, bool display = true, num lineOpacity = 1.0, num fillOpacity = 1.0
-     , Event event = on(nullCallback), int borderWidth = -1, str borderStyle= "", str borderColor = ""
+     , Event event = noEvent(), int borderWidth = -1, str borderStyle= "", str borderColor = ""
      , bool resizable = true,
      bool defined = true)
      {    

@@ -1,8 +1,7 @@
 module experiments::vis2::sandbox::Tutor
 import experiments::vis2::sandbox::FigureServer;
 import experiments::vis2::sandbox::Figure;
-import util::Eval;
-// import util::Math;
+
 import Prelude;
 
 Figure title(Figure f) {

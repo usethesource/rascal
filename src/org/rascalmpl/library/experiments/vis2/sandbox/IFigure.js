@@ -351,12 +351,16 @@ function askServer(path, parameters, timer, timeout, callback) {
    function defH(v) {return (getVal(v, "height")!=null);}
    
    function adjustTable(id1, clients) { 
+       // alert("adjustTable");
        var aUndefWH = clients.filter(undefWH);
        var width = d3.select("#"+id1).attr("width");
-       var height = d3.select("#"+id1).attr("height");
+       var height = d3.select("#"+id1).attr("height");   
        if ((height==null || width == null) && aUndefWH.length==0) {
             width = document.getElementById(id1).getBoundingClientRect().width;
+            // width = d3.select("#"+id1).node().getBoundingClientRect().width
+            // alert(width);
             height = document.getElementById(id1).getBoundingClientRect().height;
+            // alert(height);
             d3.select("#"+id1).attr("width",""+width+"px").attr("height",""+height+"px");     
            } else {     
              width = parseInt(width);

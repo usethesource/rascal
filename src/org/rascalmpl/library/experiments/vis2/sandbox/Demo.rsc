@@ -123,7 +123,7 @@ Figure labeled(Figure g) {
      return hcat(lineWidth = 0, 
         figs = [
            vcat(figs=gridLabelY(), padding=<0,0,0,20>)
-           , vcat(lineWidth = 0, figs = [g,
+           , vcat(lineWidth = 0, figs = [box(fig=g, lineWidth=1),
            hcat(figs = gridLabelX())])
            ], resizable = false);
      }

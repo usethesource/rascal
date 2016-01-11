@@ -12,11 +12,23 @@ num cosI(int d) =  cos((toReal(d)/180)*PI());
 public list[Vertex] rline(int teta, int p, int n) {
     Vertex  p1 = move(-n*100*sinI(teta), n*100*cosI(teta));
     Vertex  p2 = line(n*100*sinI(teta), -n*100*cosI(teta));
-    if (p!=0) {
-         num x = teta==0?p: p/sinI(teta);
-         num y = teta==90?p: p/cosI(teta);
-         p1 = move(-n*x, (1+n)*y);  
-         p2 = line((1+n)*x, -n*y); 
+    // println(teta);
+    if (p!=0) {  
+         if (teta==0) {
+              p1 = move(p, -n*100);
+              p2 = line(p, n*100);
+              }
+         else
+         if (teta==90) {
+              p1 = move(-n*100, p);
+              p2 = line(n*100, p);
+              }
+         else {
+            num x = p/sinI(teta);
+            num y = p/cosI(teta);
+            p1 = move(-n*x, (1+n)*y);  
+            p2 = line((1+n)*x, -n*y); 
+            }
          }
     return [p1, p2];
     }
@@ -28,10 +40,10 @@ int flipInt() = flip()?1:-1;
 int p  = 100;
     
 public Figure rl() = overlay(figs=[circle(r=p, cx = 200, cy = 200, lineColor="red")
-        , shape( rline(arbInt(180), flipInt()*arbInt(p+1), 500)
+        , shape( rline(arbInt(180), flipInt()*p/*arbInt(p+1)*/, 500)
         , scaleX=<<-200, 200>, <0, 400>>
         , scaleY=<<-200, 200>, <0, 400>>
         , size=<400, 400>
-        )|int i<-[0, 1 .. 100]]);
+        )|int i<-[0, 1 .. 500]]);
 
 public void prl() {Figure f = rl(); render(f, borderWidth = 10, borderStyle = "ridge", borderColor = "grey", size=<400, 400>);}
