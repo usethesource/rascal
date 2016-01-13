@@ -214,6 +214,8 @@ test bool setComprehensionNested4()  = { *{X + y | int y <- [1..X+1], X < 2} | i
 test bool setComprehensionNested5()  = { {X + y | int y <- [1..X+1], X > 2} | int X <- [1,2,3]} == {{}, {4,5,6}};
 test bool setComprehensionNested6()  = { *{X + y | int y <- [1..X+1], X > 2} | int X <- [1,2,3]} == {4, 5, 6};
   	
+test bool setComprehensionNestedGenerator() = { y | <x, y> <- {<a, 10*a> | a <- [1,2,3]}, y > 10 } == {20, 30};
+
 // emptySetGeneratorError
   
 test bool emptySetGeneratorError3()  = [ X | int X <- {} ] == [];
@@ -341,6 +343,8 @@ test bool listComprehensionNested4()  = [ *[y | int y <- [0..X+1], X < 2] | int 
 test bool listComprehensionNested5()  = [ [y | int y <- [0..X+1], X > 2] | int X <- [1,2,3]] == [[], [], [0,1,2,3]];
 test bool listComprehensionNested6()  = [ *[y | int y <- [0..X+1], X > 2] | int X <- [1,2,3]] == [0,1,2,3];
   	
+test bool listComprehensionNestedGenerator() = [ y | <x, y> <- [<a, 10*a> | a <- [1,2,3]], y > 10 ] == [20, 30];
+
 // emptyTupleGenerator
 
 // @ignoreCompiler{Type checker rejects this} test bool emptyTupleGeneratorError1() = {<X,Y> | <int X, int Y> <- {}} == {} ;
@@ -401,6 +405,9 @@ test bool mapComprehensionNested1()  = ( X: (2 * X + y : y | int y <- [1..X+1]) 
 test bool mapComprehensionNested2()  = ( X: (2 * X + y : y | int y <- [1..X+1], X < 2) | int X <- [1,2,3] ) == (1:(3:1), 2:(), 3:());
 test bool mapComprehensionNested3()  = ( X: (2 * X + y : y | int y <- [1..X+1], X > 2) | int X <- [1,2,3] ) == (1:(),2:(),3:(7:1,8:2,9:3));
   
+  
+ test bool mapComprehensionNestedGenerator() = (x : y | <x, y> <- {<a, 10*a> | a <- [1,2,3]}, y > 10 ) == (2 : 20, 3 : 30);
+ 
 data TREE = i(int N) | f(TREE a,TREE b) | g(TREE a, TREE b);
   	
 // nodeGenerator()
