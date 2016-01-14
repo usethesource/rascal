@@ -176,8 +176,8 @@ public data MuExp =
            // Multi-expressions
           
           | muBlock(list[MuExp] exps)  							// A list of expressions, only last value remains
-          | muBlockWithTmps(lrel[str name, str fuid] tmps, list[MuExp] exps)
-                                                                // A block with scoped temporary variables
+          | muBlockWithTmps(lrel[str name, str fuid] tmps, lrel[str name, str fuid] tmpRefs, list[MuExp] exps)
+                                                                // A block with scoped temporary variables and temporaries used as reference
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
           | muOne1(MuExp exp)                                   // Expression that always produces only the first value
           //| muOne2(list[MuExp] exps)							// Compute one result for a list of boolean expressions
