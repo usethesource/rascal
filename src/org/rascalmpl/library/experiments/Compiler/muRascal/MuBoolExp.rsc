@@ -237,7 +237,7 @@ private tuple[MuExp,list[MuFunction]] generateMuCode("OR", str fuid, list[MuExp]
 private tuple[MuExp,list[MuFunction]] generateMuCode("IMPLICATION", str fuid, list[MuExp] exps, list[bool] backtrackfree, loc src) {
     list[MuFunction] functions = [];
     str impl_uid = "<fuid>/IMPLICATION_<getNextAll()>(0)";
-    localvars = [ muVar("c_<i>", impl_uid, i) | int i <- index(exps) ];
+    localTmps = [ muTmp("c_<i>", impl_uid) | int i <- index(exps) ];
     list[MuExp] body = [ muYield0() ];
     bool first = true;
     int k = size(exps);
@@ -250,7 +250,7 @@ private tuple[MuExp,list[MuFunction]] generateMuCode("IMPLICATION", str fuid, li
                    ];
         } else {
             body = [ muAssign("hasNext", impl_uid, k, muCon(false)),
-                     muAssign("c_<j>", impl_uid, j, muCreate1(exps[j])), muWhile(nextLabel(), muNext1(localvars[j]), [ muAssign("hasNext", impl_uid, k, muCon(true)) ] + body), 
+                     muAssignTmp("c_<j>", impl_uid, muCreate1(exps[j])), muWhile(nextLabel(), muNext1(localTmps[j]), [ muAssign("hasNext", impl_uid, k, muCon(true)) ] + body), 
                      first ? muCon(222) : muIfelse(nextLabel(),muCallMuPrim("not_mbool",[ muVar("hasNext", impl_uid, k) ]),[ muYield0() ],[ muCon(222) ])
                    ];
         }
@@ -258,14 +258,14 @@ private tuple[MuExp,list[MuFunction]] generateMuCode("IMPLICATION", str fuid, li
         k = k + 1;
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    functions += muCoroutine(impl_uid, "IMPLICATION", fuid, 0, k, src, [], muBlock(body));
+    functions += muCoroutine(impl_uid, "IMPLICATION", fuid, 0, k, src, [], muBlockWithTmps([ <nm, fd> |  muTmp(nm,fd) <- localTmps ], body));
     return <muMulti(muApply(muFun2(impl_uid, fuid),[])),functions>;
 }
 
 private tuple[MuExp,list[MuFunction]] generateMuCode("EQUIVALENCE", str fuid, list[MuExp] exps, list[bool] backtrackfree, loc src) {
     list[MuFunction] functions = [];
     str equiv_uid = "<fuid>/EQUIVALENCE_<getNextAll()>(0)";
-    localvars = [ muVar("c_<i>", equiv_uid, i) | int i <- index(exps) ];
+    localTmps = [ muTmp("c_<i>", equiv_uid) | int i <- index(exps) ];
     list[MuExp] body = [ muYield0() ];
     bool first = true;
     int k = size(exps);
@@ -278,7 +278,7 @@ private tuple[MuExp,list[MuFunction]] generateMuCode("EQUIVALENCE", str fuid, li
                    ];
         } else {
             body = [ muAssign("hasNext", equiv_uid, k, muCon(false)),
-                     muAssign("c_<j>", equiv_uid, j, muCreate1(exps[j])), muWhile(nextLabel(), muNext1(localvars[j]), [ muAssign("hasNext", equiv_uid, k, muCon(true)) ] + body), 
+                     muAssignTmp("c_<j>", equiv_uid, muCreate1(exps[j])), muWhile(nextLabel(), muNext1(localTmps[j]), [ muAssign("hasNext", equiv_uid, k, muCon(true)) ] + body), 
                      first ? muCon(222) : muIfelse(nextLabel(),muCallMuPrim("not_mbool",[ muVar("hasNext", equiv_uid, k) ]),[ muIfelse(nextLabel(), muCallMuPrim("not_mbool",[ backtrackfree[j + 1] ? newLabels(exps[j + 1]) : muNext1(muCreate1(newLabels(exps[j + 1]))) ]), [ muYield0() ], [ muCon(222) ]) ],[ muCon(222) ]) 
                    ];
         }
@@ -286,7 +286,7 @@ private tuple[MuExp,list[MuFunction]] generateMuCode("EQUIVALENCE", str fuid, li
         k = k + 1;
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    functions += muCoroutine(equiv_uid, "EQUIVALENCE", fuid, 0, k, src, [], muBlock(body));
+    functions += muCoroutine(equiv_uid, "EQUIVALENCE", fuid, 0, k, src, [], muBlockWithTmps([ <nm, fd> |  muTmp(nm,fd) <- localTmps ], body));
     return <muMulti(muApply(muFun2(equiv_uid, fuid), [])),functions>;
 }
 
