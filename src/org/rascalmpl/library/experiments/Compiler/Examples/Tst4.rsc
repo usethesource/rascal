@@ -1,17 +1,19 @@
 module experiments::Compiler::Examples::Tst4
 
-value removeIdPairs(rel[int,int] inp){
-   res = inp;
-   solve(res) {
-        if ( { < a, b >, < b, b >, c* } := res ) res = { *c, < a, b > };
-    }
+import Boolean;
+import List;
+
+// Merge two lists without keeping their order.
+public list[&T] mergeUnOrderedX(list[&T] A, list[&T] B) {
+   res = [];
+   while(!(isEmpty(A) && isEmpty(B))){
+            if(arbBool() && size(A) > 0){
+               <x, A> = takeOneFrom(A);
+               res = res + [x];
+            } else if(size(B) > 0){
+               <x, B> = takeOneFrom(B);
+               res = res + [x];
+            };
+           }
     return res;
- }
- 
- test bool removeIdPairs1() = removeIdPairs({}) == {};
- test bool removeIdPairs2() = removeIdPairs({<1,2>,<2,3>}) == {<1,2>,<2,3>};
- test bool removeIdPairs3() = removeIdPairs({<1,2>,<2,3>,<2,2>}) == {<1,2>,<2,3>};
- test bool removeIdPairs4() = removeIdPairs({<1,2>,<2,2>,<2,3>,<3,3>}) == {<1,2>,<2,3>};
- test bool removeIdPairs5() = removeIdPairs({<2,2>,<1,2>,<2,2>,<2,3>,<3,3>}) == {<1,2>,<2,3>};
- test bool removeIdPairs6() = removeIdPairs({<2,2>,<3,3>,<1,2>,<2,2>,<2,3>,<3,3>}) == {<1,2>,<2,3>};
- 
+}
