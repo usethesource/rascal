@@ -131,7 +131,10 @@ private int getTmp(str name, str fuid){
    if([*int prev, int n] := temporaries[name,fuid]){
       return n;
    }
-   throw "Unknown temp <name>, <fuid>";    
+   println("*** Unknown temp <name>, <fuid> ***");
+   n = createTmp(name, fuid);
+   return n >= 0 ? n : -n;
+   //throw "Unknown temp <name>, <fuid>";    
 }
 
 private void destroyTmp(str name, str fuid){
