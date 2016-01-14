@@ -540,17 +540,23 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				codeblock.LOADLOC(getIntField(instruction, "pos"));
 				break;
 				
-			case "LOADCONT":
-				codeblock.LOADCONT(getStrField(instruction, "fuid"));
-				break;
 
 			case "STOREVAR":
 				codeblock.STOREVAR(getStrField(instruction, "fuid"), 
 								   getIntField(instruction, "pos"));
 				break;
+				
+			case "RESETVAR":
+				codeblock.RESETVAR(getStrField(instruction, "fuid"), 
+								   getIntField(instruction, "pos"));
+				break;
 
 			case "STORELOC":
 				codeblock.STORELOC(getIntField(instruction, "pos"));
+				break;
+				
+			case "RESETLOC":
+				codeblock.RESETLOC(getIntField(instruction, "pos"));
 				break;
 
 			case "LABEL":
@@ -610,10 +616,6 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			case "CREATEDYN":
 				codeblock.CREATEDYN(getIntField(instruction, "arity"));
 				break;
-				
-			case "RESET":
-				codeblock.RESET();
-				break;
 
 			case "NEXT0":
 				codeblock.NEXT0();
@@ -629,10 +631,6 @@ static FSTCodeBlockSerializer codeblockSerializer;
 
 			case "YIELD1":
 				codeblock.YIELD1(getIntField(instruction, "arity"),++continuationPoints);
-				break;
-				
-			case "SHIFT":
-				codeblock.SHIFT();
 				break;
 
 			case "PRINTLN":
