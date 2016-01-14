@@ -159,7 +159,9 @@ tuple[MuExp, list[MuExp]] processRegExpLiteral(e: (RegExpLiteral) `/<RegExp* rex
    if(size(fragment) > 0){
       fragmentCode += muCon(fragment);
    }
-   buildRegExp = muBlock(muAssignTmp(swriter, fuid, muCallPrim3("stringwriter_open", [], e@\loc)) + 
+   buildRegExp = muBlockWithTmps(
+                       [<swriter, fuid>],
+                       muAssignTmp(swriter, fuid, muCallPrim3("stringwriter_open", [], e@\loc)) + 
                        [ muCallPrim3("stringwriter_add", [muTmp(swriter,fuid), exp], e@\loc) | exp <- fragmentCode ] +
                        muCallPrim3("stringwriter_close", [muTmp(swriter,fuid)], e@\loc));
    return  <buildRegExp, varrefs>;   
