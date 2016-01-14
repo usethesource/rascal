@@ -13,7 +13,11 @@ module lang::rascal::boot::BuildBootFiles
 /* - Adjust BOOT, where the compiled boot files will be stored                  */
 /* - Adjust SHELLSCRIPT, a simple shell script that will overwrite the current  */
 /*   boot files for Kernel, MuLibrary and ParserGenerator                       */
-/* - main()                                                                     */
+/* [ Optional steps only needed when muLibrary or RVM have been changed:        */
+/*   - buildMuLibrary()                                                         */
+/*   - execute SHELLSCRIPT                                                      */
+/* ]                                                                            */
+/* - build() (or main() if you prefer)                                          */
 /* - if all went well: execute SHELLSCRIPT                                      */
 /*                                                                              */
 /* The final structure of BOOT will be:                                         */
@@ -26,7 +30,7 @@ module lang::rascal::boot::BuildBootFiles
 /* TODO:                                                                        */
 /* - Add generated Java code for Rascal Parser (at the moment we reuse          */
 /*   org.rascalmpl.library.lang.rascal.syntax.RascalParser                      */
-/* - Better handling of BOOT and SHELLSCRIPT (keyword parameters of main?       */
+/* - Better handling of BOOT and SHELLSCRIPT (keyword parameters of main)?       */
 /********************************************************************************/
 
 import IO;
