@@ -109,7 +109,9 @@ void report(str msg){
 // After serious changes to that library it is therefore necessary to first
 // build the MuLibrary, install it, end then do the complete build.
 
-void buildMuLibrary(PathConfig pcfg){
+void buildMuLibrary(){
+     BOOTSTDLIB = BOOT + "stdlib";
+     pcfg = pathConfig(srcPath=[|std:///|], binDir=BOOTSTDLIB, libPath=[BOOTSTDLIB]);
      commands = "#!/bin/sh\n";
      report("Compiling MuLibrary");
      compileMuLibrary(pcfg, verbose=true);
