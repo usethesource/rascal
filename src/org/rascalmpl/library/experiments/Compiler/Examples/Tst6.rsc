@@ -1,8 +1,11 @@
 module experiments::Compiler::Examples::Tst6
 
-int X1 = 1;
-int X2 = 2;
+import String;
 
-int f() = X1;
+list[str] removeEmptyLines(str s) =
+    [ line | line <- split("\n", s), /^[ \t]*$/ !:= line];
+    
 
-value main() = f();
+value main() = removeEmptyLines("abc\n\ndef\n");
+
+//value main(){ int n = 3; return (/<x:<n>>/ := "3" && x == "3");}

@@ -309,14 +309,16 @@ void listDecls(RVMModule p, Query select, int line, bool listing){
 }
 
 void statistics(loc root = |std:///|,
-                loc bindir = |home:///bin|,
+                PathConfig pcfg = pathConfig(),
                 bool printMessages = false
                 ){
-    allFiles = find(root, "rsc");
+    allFiles = find(root, "gz");
+    println(allFiles);
     
     nfunctions = 0;
     ncoroutines = 0;
     ninstructions = 0;
+    locals = ();
   
     messages = [];
     missing = {};
@@ -327,7 +329,7 @@ void statistics(loc root = |std:///|,
     }
     
     for(f <- allFiles){
-        rvmLoc = RVMModuleLocation(f, bindir);
+        rvmLoc = f;
         try {
             p = readBinaryValueFile(#RVMModule, rvmLoc);
             if(size(p.messages) == 0 || all(msg <- p.messages, msg is warning)){
@@ -343,9 +345,10 @@ void statistics(loc root = |std:///|,
         	} 
            
             for(decl <- p.declarations){
-                if(decl is FUNCTION)
+                if(decl is FUNCTION){
                     nfunctions += 1;
-                else {
+                    locals[decl.name] = decl.nlocals;
+                } else {
                     ncoroutines += 1;
                 }
                 ninstructions += size(decl.instructions);
