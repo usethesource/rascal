@@ -235,6 +235,7 @@ int simulate(LOADOFUN(str fuid), int sp) 				= sp + 1;
 int simulate(LOADLOC(int pos), int sp) 					= sp + 1;
 int simulate(STORELOC(int pos), int sp) 				= sp;
 int simulate(RESETLOCS(list[int] positions), int sp) 	= sp + 1;
+int simulate(RESETLOC(int pos), int sp)                 = sp;
 
 int simulate(LOADLOCKWP(str name), int sp) 				= sp + 1;
 int simulate(STORELOCKWP(str name), int sp) 			= sp;
@@ -243,6 +244,7 @@ int simulate(UNWRAPTHROWNVAR(str fuid, int pos),
 			 int sp) 									= sp;
 int simulate(LOADVAR(str fuid, int pos) , int sp) 		= sp + 1;
 int simulate(STOREVAR(str fuid, int pos), int sp) 		= sp;
+int simulate(RESETVAR(str fuid, int pos), int sp)       = sp;
 int simulate(LOADVARKWP(str fuid, str name), int sp) 	= sp + 1;
 int simulate(STOREVARKWP(str fuid, str name), int sp) 	= sp;
 int simulate(LOADMODULEVAR(str fuid), int sp) 			= sp + 1;
