@@ -216,6 +216,8 @@ test bool setComprehensionNested6()  = { *{X + y | int y <- [1..X+1], X > 2} | i
   	
 test bool setComprehensionNestedGenerator() = { y | <x, y> <- {<a, 10*a> | a <- [1,2,3]}, y > 10 } == {20, 30};
 
+test bool setComprehensionNestedRange() = { i | int i <- [10..12] } == {10, 11};
+
 // emptySetGeneratorError
   
 test bool emptySetGeneratorError3()  = [ X | int X <- {} ] == [];
@@ -344,6 +346,8 @@ test bool listComprehensionNested5()  = [ [y | int y <- [0..X+1], X > 2] | int X
 test bool listComprehensionNested6()  = [ *[y | int y <- [0..X+1], X > 2] | int X <- [1,2,3]] == [0,1,2,3];
   	
 test bool listComprehensionNestedGenerator() = [ y | <x, y> <- [<a, 10*a> | a <- [1,2,3]], y > 10 ] == [20, 30];
+
+test bool setComprehensionNestedRange() = [ i | int i <- [10..12] ] == [10..12];
 
 // emptyTupleGenerator
 
