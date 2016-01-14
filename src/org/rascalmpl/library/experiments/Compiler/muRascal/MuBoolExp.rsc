@@ -258,7 +258,7 @@ private tuple[MuExp,list[MuFunction]] generateMuCode("IMPLICATION", str fuid, li
         k = k + 1;
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    functions += muCoroutine(impl_uid, "IMPLICATION", fuid, 0, k, src, [], muBlockWithTmps([ <nm, fd> |  muTmp(nm,fd) <- localTmps ], body));
+    functions += muCoroutine(impl_uid, "IMPLICATION", fuid, 0, k, src, [], muBlockWithTmps([ <nm, fd> |  muTmp(nm,fd) <- localTmps ], [], body));
     return <muMulti(muApply(muFun2(impl_uid, fuid),[])),functions>;
 }
 
@@ -286,7 +286,7 @@ private tuple[MuExp,list[MuFunction]] generateMuCode("EQUIVALENCE", str fuid, li
         k = k + 1;
     }
     body = [ muGuard(muCon(true)) ] + body + [ muExhaust() ];
-    functions += muCoroutine(equiv_uid, "EQUIVALENCE", fuid, 0, k, src, [], muBlockWithTmps([ <nm, fd> |  muTmp(nm,fd) <- localTmps ], body));
+    functions += muCoroutine(equiv_uid, "EQUIVALENCE", fuid, 0, k, src, [], muBlockWithTmps([ <nm, fd> |  muTmp(nm,fd) <- localTmps ], [], body));
     return <muMulti(muApply(muFun2(equiv_uid, fuid), [])),functions>;
 }
 
