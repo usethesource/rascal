@@ -42,7 +42,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.L
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadBool;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCon;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadConstr;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCont;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadEmptyKwMap;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadFun;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadInt;
@@ -74,11 +73,11 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.O
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Pop;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Println;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Reset;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ResetLoc;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ResetLocs;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ResetVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return1;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Shift;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLoc;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocKwp;
@@ -481,6 +480,10 @@ public class CodeBlock implements Serializable {
 		}
 	}
 	
+	public CodeBlock RESETLOC (int pos){
+		return add(new ResetLoc(this, pos));
+	}
+	
 	public CodeBlock STORELOC (int pos){
 		return add(new StoreLoc(this, pos));
 	}
@@ -497,6 +500,13 @@ public class CodeBlock implements Serializable {
 			getConstantIndex(vf.string(fuid));
 		}
 		return add(new StoreVar(this, fuid, pos));
+	}
+	
+	public CodeBlock RESETVAR (String fuid, int pos){
+		if(pos == -1){
+			getConstantIndex(vf.string(fuid));
+		}
+		return add(new ResetVar(this, fuid, pos));
 	}
 	
 	public CodeBlock CALLMUPRIM0 (MuPrimitive muprim){
@@ -725,18 +735,6 @@ public class CodeBlock implements Serializable {
 	
 	public CodeBlock APPLYDYN(int arity) {
 		return add(new ApplyDyn(this, arity));
-	}
-	
-	public CodeBlock LOADCONT(String fuid) {
-		return add(new LoadCont(this, fuid));
-	}
-	
-	public CodeBlock RESET() {
-		return add(new Reset(this));
-	}
-	
-	public CodeBlock SHIFT() {
-		return add(new Shift(this));
 	}
 	
 	public CodeBlock SWITCH(IMap caseLabels, String caseDefault, boolean useConcreteFingerprint) {

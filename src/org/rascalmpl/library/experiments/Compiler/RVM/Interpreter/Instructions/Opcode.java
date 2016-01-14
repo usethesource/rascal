@@ -89,24 +89,24 @@ public enum Opcode {
 	UNWRAPTHROWNVAR     (71,    1),
 	APPLY               (72,    1),
 	APPLYDYN            (73,    1),
-	LOADCONT            (74,    1),
-	RESET               (75,    1),
-	SHIFT               (76,    1),
-	SWITCH   			(77,	2),
-	RESETLOCS			(78,	1),
-	VISIT               (79,    3),
-	CHECKMEMO			(80,	1),
-	LOADEMPTYKWMAP      (81, 	1),
-	VALUESUBTYPE		(82,	1),
-	CALLMUPRIM0         (83,    1),
-	CALLMUPRIM1			(84,    1),
-	CALLMUPRIM2			(85,    1),
-	CALLMUPRIMN			(86,    1),
+
+	SWITCH   			(74,	2),
+	RESETLOC 			(75,    1),
+	RESETVAR			(76,	1),
+	VISIT               (77,    3),
+	CHECKMEMO			(78,	1),
+	LOADEMPTYKWMAP      (79, 	1),
+	VALUESUBTYPE		(80,	1),
+	CALLMUPRIM0         (81,    1),
+	CALLMUPRIM1			(82,    1),
+	CALLMUPRIM2			(83,    1),
+	CALLMUPRIMN			(84,    1),
 	
-	CALLPRIM0         	(87,    2),
-	CALLPRIM1			(88,    2),
-	CALLPRIM2			(89,    2),
-	CALLPRIMN			(90,    2)
+	CALLPRIM0         	(85,    2),
+	CALLPRIM1			(86,    2),
+	CALLPRIM2			(87,    2),
+	CALLPRIMN			(88,    2),
+	RESETLOCS			(89,	1),
 	;
 	
 	
@@ -196,24 +196,26 @@ public enum Opcode {
 	static public final int OP_UNWRAPTHROWNVAR = 71;
 	static public final int OP_APPLY = 72;
 	static public final int OP_APPLYDYN = 73;
-	static public final int OP_LOADCONT = 74;
-	static public final int OP_RESET = 75;
-	static public final int OP_SHIFT = 76;
-	static public final int OP_SWITCH = 77;
-	static public final int OP_RESETLOCS = 78;
-	static public final int OP_VISIT = 79;
-	static public final int OP_CHECKMEMO = 80;
-	static public final int OP_LOADEMPTYKWMAP = 81;
-	static public final int OP_VALUESUBTYPE = 82;
-	static public final int OP_CALLMUPRIM0 = 83;
-	static public final int OP_CALLMUPRIM1 = 84;
-	static public final int OP_CALLMUPRIM2 = 85;
-	static public final int OP_CALLMUPRIMN = 86;
 	
-	static public final int OP_CALLPRIM0 = 87;
-	static public final int OP_CALLPRIM1 = 88;
-	static public final int OP_CALLPRIM2 = 89;
-	static public final int OP_CALLPRIMN = 90;
+	static public final int OP_SWITCH = 74;
+	static public final int OP_RESETLOC = 75;
+	static public final int OP_RESETVAR = 76;
+	
+	static public final int OP_VISIT = 77;
+	static public final int OP_CHECKMEMO = 78;
+	static public final int OP_LOADEMPTYKWMAP = 79;
+	static public final int OP_VALUESUBTYPE = 80;
+	static public final int OP_CALLMUPRIM0 = 81;
+	static public final int OP_CALLMUPRIM1 = 82;
+	static public final int OP_CALLMUPRIM2 = 83;
+	static public final int OP_CALLMUPRIMN = 84;
+	
+	static public final int OP_CALLPRIM0 = 85;
+	static public final int OP_CALLPRIM1 = 86;
+	static public final int OP_CALLPRIM2 = 87;
+	static public final int OP_CALLPRIMN = 88;
+	
+	static public final int OP_RESETLOCS = 89;
 	
 	/*
 	 * Meta-instructions that are generated dynamically during execution and
@@ -509,15 +511,6 @@ public enum Opcode {
 		case APPLYDYN:
 			return "APPLYDYN " + arg1;
 			
-		case LOADCONT:
-			return "LOADCONT " + arg1;
-		
-		case RESET:
-			return "RESET";
-			
-		case SHIFT:
-			return "SHIFT";
-			
 		case SWITCH:
 			return "SWITCH " + cb.getConstantValue(arg1) + ", " 
 							 + arg2 + ", "
@@ -525,6 +518,13 @@ public enum Opcode {
 			
 		case RESETLOCS:
 			return "RESETLOCS " + cb.getConstantValue(arg1);
+			
+		case RESETLOC:
+			return "RESETLOC " + arg1;
+			
+		case RESETVAR:
+			return "RESETVAR " + arg1 + ", " 
+						       + arg2;
 			
 		case VISIT:
 			return "VISIT bottomUp=" 	+ cb.getConstantValue(arg1) + ", " +

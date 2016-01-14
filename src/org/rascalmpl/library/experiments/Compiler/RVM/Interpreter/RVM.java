@@ -657,6 +657,22 @@ public class RVM /*implements java.io.Serializable*/ {
 		throw new CompilerError("STOREVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
+	int RESETVAR(int varScope, int pos, Frame cf, Object[] stack, int sp){
+		if(CodeBlock.isMaxArg2(pos)){
+			IValue mvar = cf.function.constantStore[varScope];
+			moduleVariables.put(mvar, null);
+			return sp;
+		}
+		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) {
+			if (fr.scopeId == varScope) {
+				// TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues
+				fr.stack[pos] = null;
+				return sp;
+			}
+		}
+		throw new CompilerError("RESETVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
+	}
+	
 	int UNWRAPTHROWNVAR(int varScope, int pos, Frame cf, Object[] stack, int sp){
 		if(CodeBlock.isMaxArg2(pos)){
 			IValue mvar = cf.function.constantStore[varScope];
@@ -956,6 +972,10 @@ public class RVM /*implements java.io.Serializable*/ {
 					stack[sp++] = Rascal_TRUE;
 					continue NEXT_INSTRUCTION;
 					
+				case Opcode.OP_RESETLOC:	
+					stack[CodeBlock.fetchArg1(instruction)] = null;
+					continue NEXT_INSTRUCTION;
+					
 				case Opcode.OP_LOADBOOL:
 					stack[sp++] = CodeBlock.fetchArg1(instruction) == 1 ? Rascal_TRUE : Rascal_FALSE;
 					continue NEXT_INSTRUCTION;
@@ -1095,6 +1115,11 @@ public class RVM /*implements java.io.Serializable*/ {
 					 }
 					 continue NEXT_INSTRUCTION;
 					 
+				case Opcode.OP_RESETVAR:
+					sp = RESETVAR(CodeBlock.fetchArg1(instruction), 
+						 	      CodeBlock.fetchArg2(instruction), cf, stack, sp);
+					continue NEXT_INSTRUCTION;
+					
 				case Opcode.OP_LOADVARREF: 
 					sp = LOADVARREF(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), cf, stack, sp);
 					continue NEXT_INSTRUCTION;
