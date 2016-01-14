@@ -100,6 +100,7 @@ public data Instruction =
 		| LOADLOC(int pos)							// Push value of local variable
 		| STORELOC(int pos)							// Store value on top-of-stack in the local variable (value remains on stack)
 		| RESETLOCS(list[int] positions)			// Reset selected local variables to undefined (null)
+		| RESETLOC(int pos)                         // Reset a local variable to undefined (null)
 				
 		| LOADLOCKWP(str name)                      // Load value of a keyword parameter
 		| STORELOCKWP(str name)                     // Store value on top-of-stack in the keyword parameter (value remains on stack)
@@ -109,6 +110,7 @@ public data Instruction =
 	   	
 		| LOADVAR(str fuid, int pos)                // Push a variable from an outer scope
 		| STOREVAR(str fuid, int pos)               // Store value on top-of-stack in variable in surrounding scope (value remains on stack)
+		| RESETVAR(str fuid, int pos)               // Reset a variable form an outer scope to undefined (null)
 		
 		| LOADVARKWP(str fuid, str name)            // Load a keyword parameter from an outer scope
 		| STOREVARKWP(str fuid, str name)           // Store value on top-of-stack in the keyword parameter of a surrounding scope (value remains on stack)
@@ -204,11 +206,6 @@ public data Instruction =
 		| SUBTYPE()									// Subtype between top two Types on the stack
 		| CHECKARGTYPEANDCOPY(
 			int pos1, Symbol \type, int pos2)		// Check the type of argument at pos1 and assign to pos2
-		
-		// Delimited continuations (experimental)
-		| LOADCONT(str fuid)
-		| RESET()
-		| SHIFT()
 		
 		// Visit
 		| VISIT(bool direction, bool fixedpoint, 
