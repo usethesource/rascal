@@ -6215,11 +6215,11 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         funType = c.store[funId].rtype;
         cFun = prepareFunctionBodyEnv(c);
         if (!isFailType(funType)) {
-            cFun = setExpectedReturn(c, getFunctionReturnType(funType));
+            cFun = setExpectedReturn(cFun, getFunctionReturnType(funType));
         } else {
             // If we couldn't calculate the function type, use value here so we don't also
             // get errors on the return type not matching.
-            cFun = setExpectedReturn(c, Symbol::\value());
+            cFun = setExpectedReturn(cFun, Symbol::\value());
         }
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=false);
@@ -6286,9 +6286,9 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         funType = c.store[funId].rtype;
         cFun = prepareFunctionBodyEnv(c);
         if (!isFailType(funType)) {
-            cFun = setExpectedReturn(c, getFunctionReturnType(funType));
+            cFun = setExpectedReturn(cFun, getFunctionReturnType(funType));
         } else {
-            cFun = setExpectedReturn(c, Symbol::\value());
+            cFun = setExpectedReturn(cFun, Symbol::\value());
         }
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=false);
@@ -6369,9 +6369,9 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         funType = c.store[funId].rtype;
         cFun = prepareFunctionBodyEnv(c);
         if (!isFailType(funType)) {
-            cFun = setExpectedReturn(c, getFunctionReturnType(funType));
+            cFun = setExpectedReturn(cFun, getFunctionReturnType(funType));
         } else {
-            cFun = setExpectedReturn(c, Symbol::\value());
+            cFun = setExpectedReturn(cFun, Symbol::\value());
         }
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=false);        
@@ -8485,7 +8485,7 @@ public Configuration addAppendTypeInfo(Configuration c, Symbol t, RName rn, set[
     }
     
     if (size(possibleIndexes) == 0) {
-        c = addScopeError(c, "Cannot add append information, no valid surrounding context found", l);
+        c = addScopeError(c, "Cannot append, no valid surrounding context found", l);
     } else {
         c.labelStack[possibleIndexes[0]].labelType = lub(c.labelStack[possibleIndexes[0]].labelType, t);
     }
