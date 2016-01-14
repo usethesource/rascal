@@ -37,12 +37,33 @@ public void setFunctionScope(str scopeId){
 
 private map[str,int] nlocal = ();						// number of local per scope
 
+private map[str,int] minNlocal = ();   
+
 private map[str,str] scopeIn = ();						// scope nesting
 
 int get_nlocals() = nlocal[functionScope];		
 
 void set_nlocals(int n) {
 	nlocal[functionScope] = n;
+}
+
+void init(){
+    nlabel = -1;
+    functionScope = "";
+    surroundingFunctionScope = "";
+    nlocal = ();
+    minNLOcal = ();
+    scopeIn = ();
+    localNames = ();
+    temporaries = [];
+    //temporaries = ();
+    tryBlocks = [];
+    finallyBlocks = [];
+    catchAsPartOfTryBlocks = [];
+    catchBlocks = [[]];
+    currentCatchBlock = 0;
+    finallyBlock = [];
+    exceptionTable = [];
 }
 
 // Map names of <fuid, pos> pairs to local variable names ; Note this info could also be collected in Rascal2muRascal
@@ -75,20 +96,67 @@ private int newLocal() {
 private int newLocal(str fuid) {
     n = nlocal[fuid];
     nlocal[fuid] = n + 1;
+    //println("newLocal:  nlocal[<fuid> = <nlocal[fuid]>");
     return n;
 }
 
 // Manage temporaries
+private lrel[str name, str fuid, int pos] temporaries = [];
 
-private map[tuple[str,str],int] temporaries = ();
 private str asUnwrappedThrown(str name) = name + "_unwrapped";
 
+private int createTmp(str name, str fuid){
+   newTmp = minNlocal[fuid] + size(temporaries[_,fuid]);
+   
+   if(newTmp < nlocal[fuid]){ // Can we reuse a tmp?
+      temporaries += <name, fuid, newTmp>;
+      return newTmp;
+   } else {                    // No, create a new tmp
+      newTmp = newLocal(fuid);
+      temporaries += <name,fuid, newTmp>;
+      return -newTmp;  // Return negative to signal a freshly allocated tmp
+   }
+}
+
+private int createTmpCoRo(str fuid){
+    co = createTmp("CORO", fuid);
+    return co >= 0 ? co : -co;
+}
+
+private void destroyTmpCoRo(str fuid){
+    destroyTmp("CORO", fuid);
+}
+
 private int getTmp(str name, str fuid){
-   if(temporaries[<name,fuid>]?)
-   		return temporaries[<name,fuid>];
-   n = newLocal(fuid);
-   temporaries[<name,fuid>] = n;
-   return n;		
+   if([*int prev, int n] := temporaries[name,fuid]){
+      return n;
+   }
+   throw "Unknown temp <name>, <fuid>";    
+}
+
+private void destroyTmp(str name, str fuid){
+    if(fuid != functionScope) return;
+    if([*int prev, int n] := temporaries[name,fuid]){
+       temporaries -= <name, fuid, n>; 
+       return;
+    }
+    throw "Non-existing temp <name>, <fuid>";     
+}
+
+INS tr(muBlockWithTmps(lrel[str name, str fuid] tmps, lrel[str name, str fuid] tmpRefs, list[MuExp] exps)) {
+    // Create ordinary tmps (they are always initialized in the generated code)
+    for(<nm, fd> <- tmps){
+        createTmp(nm, fd);
+    }
+    
+    // Create tmps that are used as reference (they may need to be reset here)
+    resetCode = [ fd == functionScope ? RESETLOC(pos) : RESETVAR(fd, pos) | <nm, fd> <- tmpRefs, int pos := createTmp(nm, fd) , pos >= 0 ];
+    
+    code = resetCode +  tr(muBlock(exps));
+    for(<nm, fd> <- tmps + tmpRefs){
+        destroyTmp(nm, fd);
+    }
+    return code;
 }
 
 // Does an expression produce a value? (needed for cleaning up the stack)
@@ -158,20 +226,6 @@ INS finallyBlock = [];
 // As we use label names to mark try blocks (excluding 'catch' clauses)
 list[EEntry] exceptionTable = [];
 
-// Specific to delimited continuations (experimental)
-public map[str,RVMDeclaration] shiftClosures = ();
-
-private int shiftCounter = -1;
-
-int getShiftCounter() {
-    shiftCounter += 1;
-    return shiftCounter;
-}
-
-void resetShiftCounter() {
-    shiftCounter = -1;
-}
-
 /*********************************************************************/
 /*      Translate a muRascal module                                  */
 /*********************************************************************/
@@ -195,6 +249,7 @@ RVMModule mu2rvm(muModule(str module_name,
                   bool listing=false,
                   bool verbose=true){
  
+  init();
   if(any(m <- messages, error(_,_) := m)){
     return errorRVMModule(module_name, messages, src);
   }
@@ -212,18 +267,8 @@ RVMModule mu2rvm(muModule(str module_name,
   nlabel = -1;
   nlocal =   ( fun.qname : fun.nlocals | MuFunction fun <- functions ) 
            + ( module_init_fun : 2 + size(variables) + nlocals_in_initializations); 	// Initialization function, 2 for arguments
-  temporaries = ();
-  
-  // Specific to delimited continuations (experimental)
-  resetShiftCounter();
-  shiftClosures = ();
-  
-  // Due to nesting, pre-compute positions of temporaries
-  visit(<initializations,functions>) {
-      case muTmp(str id, str fuid): getTmp(id,fuid);
-      case muTmpRef(str id, str fuid): getTmp(id,fuid);
-      case muAssignTmp(str id, str fuid, _): getTmp(id,fuid);
-  }
+  minNlocal = nlocal;
+  temporaries = [];
     
   if(verbose) println("mu2rvm: Compiling module <module_name>");
   
@@ -240,8 +285,11 @@ RVMModule mu2rvm(muModule(str module_name,
     
     // Append catch blocks to the end of the function body code
     // code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
+    //println(functionScope);
+    //iprintln(fun.body);
     
     code = tr(fun.body);
+    
     //if(!contains(fun.qname, "_testsuite")){
     	code = peephole(code);
     //}
@@ -332,9 +380,6 @@ RVMModule mu2rvm(muModule(str module_name,
   	 module_init_testsuite = getFUID(module_name,"#module_init_testsuite",ftype,0);
   }
   
-  // Specific to delimited continuations (experimental)
-  funMap = funMap + shiftClosures;
-  
   res = rvmModule(module_name, (module_name: tags), messages, imports, extends, types, symbol_definitions, orderedDeclarations(funMap), [], resolver, overloaded_functions, importGraph, src);
   return res;
 }
@@ -376,6 +421,7 @@ INS trvoidblock(list[MuExp] exps){
 
 INS tr(muBlock([MuExp exp])) = tr(exp);
 default INS tr(muBlock(list[MuExp] exps)) = trblock(exps);
+
 
 
 /*********************************************************************/
@@ -575,23 +621,6 @@ INS tr(muCreate1(MuExp exp)) = [ *tr(exp), CREATEDYN(0) ];
 INS tr(muCreate2(muFun1(str fuid), list[MuExp] args)) = [ *tr(args), CREATE(fuid, size(args)) ];
 INS tr(muCreate2(MuExp coro, list[MuExp] args)) = [ *tr(args), *tr(coro),  CREATEDYN(size(args)) ];  // order! 
 
-// Delimited continuations (experimental)
-// INS tr(muCreate(MuExp exp)) = tr(muReset(exp));
-// INS tr(muCreate(MuExp coro, list[MuExp] args)) = tr(muReset(muApply(coro,args)));  // order!
-
-//INS tr(muContVar(str fuid)) = [ LOADCONT(fuid) ];
-//INS tr(muReset(MuExp fun)) = [ *tr(fun), RESET() ];
-//INS tr(muShift(MuExp body)) {
-//    str fuid = functionScope + "/shift_<getShiftCounter()>(1)";
-//    prevFunctionScope = functionScope;
-//    functionScope = fuid;
-//    shiftClosures += ( fuid : FUNCTION(fuid, Symbol::func(Symbol::\value(),[Symbol::\value()]), functionScope, 1, 1, false, |unknown:///|, estimate_stack_size(body), 
-//										 false, 0, 0,
-//                                       [ *tr(visit(body) { case muContVar(prevFunctionScope) => muContVar(fuid) }), RETURN1(1) ], []) );
-//    functionScope = prevFunctionScope; 
-//    return [ LOAD_NESTED_FUN(fuid, functionScope), SHIFT() ];
-//}
-
 INS tr(muNext1(MuExp coro)) = [*tr(coro), NEXT0()];
 INS tr(muNext2(MuExp coro, list[MuExp] args)) = [*tr(args), *tr(coro),  NEXT1()]; // order!
 
@@ -611,6 +640,7 @@ INS tr(muThrow(MuExp exp, loc src)) = [ *tr(exp), THROW(src) ];
 Symbol filterExceptionType(Symbol s) = s == adt("RuntimeException",[]) ? Symbol::\value() : s;
 
 INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
+    
 	// Mark the begin and end of the 'try' and 'catch' blocks
 	str tryLab = nextLabel();
 	str catchLab = nextLabel();
@@ -671,12 +701,18 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 		exceptionTable += <currentCatchAsPartOfTryBlock.ranges, filterExceptionType(currentCatchAsPartOfTryBlock.\type), currentCatchAsPartOfTryBlock.\catch, currentCatchAsPartOfTryBlock.\finally>;
 		leaveCatchAsPartOfTryBlocks();
 	}
-	
+
 	return code;
 }
 
-void trMuCatch(muCatch(str id, str fuid, Symbol \type, MuExp exp), str from, str fromAsPartOfTryBlock, str to, str jmpto) {
+void trMuCatch(m: muCatch(str id, str fuid, Symbol \type, MuExp exp), str from, str fromAsPartOfTryBlock, str to, str jmpto) {
     
+    //println("trMuCatch:");
+    //println("catchBlocks = <catchBlocks>");
+    //println("currentCatchBlock = <currentCatchBlock>");
+    //iprintln(m);
+    createTmp(id, fuid);
+    createTmp(asUnwrappedThrown(id), fuid);
 	oldCatchBlocks = catchBlocks;
 	oldCurrentCatchBlock = currentCatchBlock;
 	currentCatchBlock = size(catchBlocks);
@@ -716,8 +752,12 @@ void trMuCatch(muCatch(str id, str fuid, Symbol \type, MuExp exp), str from, str
 	currentCatchBlock = oldCurrentCatchBlock;
 	
 	// 'catchBlock' is always non-empty 
+	//println("currentCatchBlock = <currentCatchBlock>");
+	//println("catchBlocks = <catchBlocks>");
+	
 	catchBlocks[currentCatchBlock] = [ LABEL(fromAsPartOfTryBlock), *catchBlocks[currentCatchBlock], *catchBlock ];
-		
+    destroyTmp(id, fuid);
+    destroyTmp(asUnwrappedThrown(id), fuid);
 }
 
 // TODO: Re-think the way empty 'finally' blocks are translated
@@ -794,13 +834,18 @@ INS tr(muIfelse(str label, MuExp cond, list[MuExp] thenPart, list[MuExp] elsePar
     };
     elseLab = mkElse(label);
     continueLab = mkContinue(label);
-    return [ *tr_cond(cond, nextLabel(), mkFail(label), elseLab), 
-             *(isEmpty(thenPart) ? [LOADCON(111)] : trblock(thenPart)),
-             JMP(continueLab), 
-             LABEL(elseLab),
-             *(isEmpty(elsePart) ? [LOADCON(222)] : trblock(elsePart)),
-             LABEL(continueLab)
-           ];
+    coro = needsCoRo(cond) ? createTmpCoRo(functionScope) : -1;
+    res = [ *tr_cond(cond, coro, nextLabel(), mkFail(label), elseLab), 
+            *(isEmpty(thenPart) ? [LOADCON(111)] : trblock(thenPart)),
+            JMP(continueLab), 
+            LABEL(elseLab),
+            *(isEmpty(elsePart) ? [LOADCON(222)] : trblock(elsePart)),
+            LABEL(continueLab)
+          ];
+    if(coro > 0){
+       destroyTmpCoRo(functionScope);
+    }
+    return res;
 }
 
 // While
@@ -812,11 +857,16 @@ INS tr(muWhile(str label, MuExp cond, list[MuExp] body)) {
     continueLab = mkContinue(label);
     failLab = mkFail(label);
     breakLab = mkBreak(label);
-    return [ *tr_cond(cond, continueLab, failLab, breakLab), 	 					
-    		 *trvoidblock(body),			
-    		 JMP(continueLab),
-    		 LABEL(breakLab)		
-    		];
+    coro = needsCoRo(cond) ? createTmpCoRo(functionScope) : -1;
+    res = [ *tr_cond(cond, coro, continueLab, failLab, breakLab), 	 					
+    		*trvoidblock(body),			
+    		JMP(continueLab),
+    		LABEL(breakLab)		
+    	  ];
+    if(coro > 0){
+       destroyTmpCoRo(functionScope);
+    }
+    return res;
 }
 
 INS tr(muBreak(str label)) = [ JMP(mkBreak(label)) ];
@@ -900,7 +950,7 @@ default INS tr(MuExp e) { throw "mu2rvm: Unknown node in the muRascal AST: <e>";
 
 // muOne: explore one successful evaluation
 
-INS tr_cond(muOne1(MuExp exp), str continueLab, str failLab, str falseLab) =
+INS tr_cond(muOne1(MuExp exp), int coro, str continueLab, str failLab, str falseLab) =
       [ LABEL(continueLab), LABEL(failLab) ]
     + [ *tr(exp), 
         CREATEDYN(0), 
@@ -910,19 +960,22 @@ INS tr_cond(muOne1(MuExp exp), str continueLab, str failLab, str falseLab) =
 
 // muMulti: explore all successful evaluations
 
-INS tr_cond(muMulti(MuExp exp), str continueLab, str failLab, str falseLab) {
-    co = newLocal();
-    return [ *tr(exp),
+INS tr_cond(muMulti(MuExp exp), int coro, str continueLab, str failLab, str falseLab) {
+    res =  [ *tr(exp),
              CREATEDYN(0),
-             STORELOC(co),
+             STORELOC(coro),
              POP(),
              *[ LABEL(continueLab), LABEL(failLab) ],
-             LOADLOC(co),
+             LOADLOC(coro),
              NEXT0(),
              JMPFALSE(falseLab)
            ];
+     return res;
 }
 
-default INS tr_cond(MuExp exp, str continueLab, str failLab, str falseLab) 
+default INS tr_cond(MuExp exp, int coro, str continueLab, str failLab, str falseLab) 
 	= [ JMP(continueLab), LABEL(failLab), JMP(falseLab), LABEL(continueLab), *tr(exp), JMPFALSE(falseLab) ];
     
+
+bool needsCoRo(muMulti(MuExp exp)) = true;
+default bool needsCoRo(MuExp _) = false;

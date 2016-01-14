@@ -89,7 +89,7 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
     leaveBacktrackingScope();
     leaveBacktrackingScope();
     leaveLoop();
-    return muBlockWithTmps([ < tmp, fuid > ], code);
+    return muBlockWithTmps([ < tmp, fuid > ], [ ], code);
 }
 
 list[MuExp] resetBlockVars(Statement body){
@@ -153,7 +153,7 @@ MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expre
     leaveBacktrackingScope();
     leaveBacktrackingScope();
     leaveLoop();
-    return muBlockWithTmps( [ <tmp, fuid> ], code);
+    return muBlockWithTmps( [ <tmp, fuid> ], [ ], code);
 }
 
 MuExp translateTemplate(str indent, s: (StringTemplate) `do { < Statement* preStats> <StringMiddle body> <Statement* postStats> } while ( <Expression condition> )`) {
@@ -193,7 +193,7 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
            ];
     leaveBacktrackingScope();
     leaveLoop();
-    return muBlockWithTmps([ <tmp, fuid> ], code);
+    return muBlockWithTmps([ <tmp, fuid> ],[ ], code);
 }
 
 // An (unprecise) check on the occurrence of nested append statements
@@ -296,6 +296,7 @@ MuExp translateSwitch(s: (Statement) `<Label label> switch ( <Expression express
     return 
        muBlockWithTmps(
           [ <switchval, fuid> ],
+          [ ],
           [ muSwitch(muAssignTmp(switchval,fuid,translate(expression)), useConcreteFingerprint, case_code, default_code, muTmp(switchval, fuid))
           ]);
 }
@@ -463,11 +464,12 @@ MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <B
    varTmps = [ nextTmp("<var>") | var <- variables ];
    
    return muBlockWithTmps(
-                   [ <varTmps[i], fuid> | int i <- index(varTmps) ] + 
-                   [ <iterations, fuid>,
+                  [ <varTmps[i], fuid> | int i <- index(varTmps) ] + 
+                  [ <iterations, fuid>,
                      <change, fuid>,
                      <result, fuid> 
                   ],
+                  [ ],
                   [ muAssignTmp(iterations, fuid, (bound is empty) ? muCon(1000000) : translate(bound.expression)),
     				muCallPrim3("non_negative", [muTmp(iterations,fuid)], bound@\loc),
                     muAssignTmp(change, fuid, muCon(true)),
@@ -510,6 +512,7 @@ MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers>`) {
              [ <varname, fuid>,
                <asUnwrappedThrown(varname), fuid>
              ],
+             [ ],
              [ muTry(translate(body), bigCatch, muBlock([]))
              ]);
     
@@ -536,6 +539,7 @@ MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <
 	       [ <varname, fuid>,
 	         <asUnwrappedThrown(varname), fuid>
 	       ] + tryCatch.tmps,
+	       [ ] + tryCatch.tmpRefs,
 	       [ muTry(muTry(tryCatch.exps[0].exp, tryCatch.exps[0].\catch, muBlock([])), 
 				 muCatch(varname, fuid, Symbol::\value(), muBlock([finallyExp, muThrow(muTmp(varname,fuid), finallyBody@\loc)])), 
 				 finallyExp)
@@ -654,7 +658,8 @@ MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, str operat
     str tmp_name = nextTmp();
  
     return muBlockWithTmps(
-              [<tmp_name, fuid>],
+              [ <tmp_name, fuid> ],
+              [ ],
               muAssignTmp(tmp_name, fuid, applyOperator(operator, a, rhs_type, rhs)) + 
               [ assignTo(elems[i], "=", rhs_type, muCallPrim3("tuple_subscript_int", [muTmp(tmp_name,fuid), muCon(i)], a@\loc) )
               | i <- [0 .. nelems]
@@ -668,7 +673,8 @@ MuExp assignTo(a: (Assignable) `<Name name> ( <{Assignable ","}+ arguments> )`, 
     str tmp_name = nextTmp();
    
     return muBlockWithTmps(
-              [<tmp_name, fuid>], 
+              [ <tmp_name, fuid> ], 
+              [ ],
               muAssignTmp(tmp_name, fuid, applyOperator(operator, a, rhs_type, rhs)) + 
               [ assignTo(elems[i], "=", rhs_type, muCallPrim3("adt_subscript_int", [muTmp(tmp_name,fuid), muCon(i)], a@\loc) )
               | i <- [0 .. nelems]
@@ -742,7 +748,7 @@ MuExp translate(s: (Statement) `return <Statement statement>`) {
 	if(hasFinally()) {
 	    str fuid = topFunctionScope();
 		str varname = asTmp(nextLabel());
-		return muBlockWithTmps([ <varname, fuid> ], [ muAssignTmp(varname, fuid, translate(statement)), muReturn1(muTmp(varname,fuid)) ]);
+		return muBlockWithTmps([ <varname, fuid> ], [ ], [ muAssignTmp(varname, fuid, translate(statement)), muReturn1(muTmp(varname,fuid)) ]);
 	} 
 	return muReturn1(translate(statement));
 }
