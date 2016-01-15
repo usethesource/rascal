@@ -15,6 +15,7 @@ package org.rascalmpl.uri.libraries;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -95,17 +96,14 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 			throws IOException {
 		File file = get(uri);
 		if (file == null) {
-			System.err.println(this + " getInputStream: null");
-			throw new IOException();
+			throw new FileNotFoundException();
 		}
-		//System.err.println(this + " getInputStream: " + uri + "?" + file.lastModified);
 		return new ByteArrayInputStream(file.contents);
 	}
 
 	@Override
 	public OutputStream getOutputStream(ISourceLocation uri, boolean append)
 			throws IOException {
-		//System.err.println(this + " getOutputStream " + uri);
 		return new ByteArrayOutputStream() {
 			@Override
 			public void close() throws IOException {
@@ -116,7 +114,6 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 				    fileSystem.getFileSystem().put(uri.getPath(), file);
 				}
 				file.newContent(this.toByteArray());
-				//System.err.println(this + " getOutputStream.close " + uri + "?" + file.lastModified);
 			}
 		};
 	}
@@ -125,7 +122,7 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 	public long lastModified(ISourceLocation uri) throws IOException {
 		File file = get(uri);
 		if (file == null) {
-			throw new IOException();
+			throw new FileNotFoundException();
 		}
 		return file.lastModified;
 	}
