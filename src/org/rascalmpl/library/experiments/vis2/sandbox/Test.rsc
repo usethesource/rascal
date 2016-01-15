@@ -9,8 +9,8 @@ import Prelude;
 
       
  Figures tst(bool include) = 
-                 [box(50,50,"green", include=include),
-                 box("Hallo", 20, "darkred", 1.7, "antiquewhite", include = include)
+                 [box(50,50,"green", include=include)   
+                 , box("Hallo", 20, "darkred", 1.7, "antiquewhite", include = include)
                  ,box(box(50, 50,"red", 8, "gold"),topLeft,1.0,"antiquewhite", 8, "blue", include=include)
                  ,box(box(50, 50,"red"),topLeft,1.5,"antiquewhite", include = include)
                  ,box(box(50, 50,"red"),centerMid,1.5,"antiquewhite", include = include)
@@ -23,6 +23,7 @@ import Prelude;
                  ,hcat([box(30, 30, "blue"), box(50, 50, "yellow"), box(70, 70, "red")], bottomRight,0, include = include)
                  ,hcat(200, 70, [box(1.0, "blue"), box(0.5, "yellow"), box(1.0, "red")], bottomLeft,0,  include = include)
                  ,vcat(200, 70, [box(1.0, "blue"), box(0.5, "yellow"), box(1.0, "red")], bottomLeft,0,  include = include)
+                 ,vcat(["a","bb","ccc"], 14, "blue", topRight, 1, include=include)
                  ,grid(200, 70, [[box(0.5, "blue")], [box(0.3, "yellow"), box(0.5, "red")]], bottomLeft,0,  0, include = include)
                  ,grid(200, 70, [[box(0.5, "blue")], [box(0.3, "yellow"), box(0.5, "red")]], centerMid,0,  0, include = include)
                  ,graph(200, 200, [box("aap",14, "blue", 1.6, "beige"), box("noot",14, "red", 1.6, "beige")],[<0, 1>]
