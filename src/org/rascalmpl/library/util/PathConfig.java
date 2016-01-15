@@ -2,13 +2,16 @@ package org.rascalmpl.library.util;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -55,6 +58,26 @@ public class PathConfig {
 		makeRascalSearchPath();
 	}
 	
+	List<ISourceLocation> convertPath(IList path){
+		List<ISourceLocation> result = new ArrayList<>();
+		for(IValue p : path){
+			if(p instanceof ISourceLocation){
+				result.add((ISourceLocation) p);
+			} else {
+				throw new RuntimeException("Path should contain source locations and not " + p.getClass().getName());
+			}
+		}
+		return result;
+	}
+	
+	public PathConfig(IList srcPath, IList libPath, ISourceLocation binDir, ISourceLocation bootDir){
+		this.srcPath = convertPath(srcPath);
+		this.libPath = convertPath(libPath);
+		this.binDir = binDir;
+		this.bootDir = bootDir;
+		makeRascalSearchPath();
+	}
+	
 	String makeFileName(String qualifiedModuleName) {
 		return makeFileName(qualifiedModuleName, "rsc");
 	}
@@ -70,7 +93,7 @@ public class PathConfig {
 		return qualifiedModuleName.replaceAll("::", "/") + "." + extension;
 	}
 	
-	public RascalSearchPath getRascalResolver(){
+	public RascalSearchPath getRascalSearchPath(){
 		return rascalSearchPath;
 	}
 

@@ -6,9 +6,11 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IList;
@@ -510,7 +512,7 @@ public class CommandOptions {
 		try {
 			return vf.sourceLocation("std", "", "");
 		} catch (URISyntaxException e) {
-			printUsageAndExit("Cannot create default locations: " + e.getMessage());
+			printUsageAndExit("Cannot create default location: " + e.getMessage());
 			return null;
 		}
 	}
@@ -519,11 +521,12 @@ public class CommandOptions {
 		return vf.list(getDefaultStdLocation());
 	}
 
-	public ISourceLocation getDefaultKernelLocation(){
+	public ISourceLocation getKernelLocation(){
 		try {
-			return vf.sourceLocation("compressed+boot", "", "Kernel.rvm.ser.gz");
+			ISourceLocation bootDir = getCommandLocOption("bootDir");
+			return vf.sourceLocation("compressed+" + bootDir.getScheme(), "", bootDir.getPath() + "Kernel.rvm.ser.gz");
 		} catch (URISyntaxException e) {
-			printUsageAndExit("Cannot create default locations: " + e.getMessage());
+			printUsageAndExit("Cannot create default location: " + e.getMessage());
 			return null;
 		}
 	}
@@ -532,9 +535,16 @@ public class CommandOptions {
 		try {
 			return vf.sourceLocation("boot", "", "");
 		} catch (URISyntaxException e) {
-			printUsageAndExit("Cannot create default locations: " + e.getMessage());
+			printUsageAndExit("Cannot create default location: " + e.getMessage());
 			return null;
 		}
+	}
+	
+	public PathConfig getPathConfig(){
+		return new PathConfig(getCommandPathOption("srcPath"),
+							  getCommandPathOption("libPath"),
+							  getCommandLocOption("binDir"),
+							  getCommandLocOption("bootDir"));
 	}
 
 }

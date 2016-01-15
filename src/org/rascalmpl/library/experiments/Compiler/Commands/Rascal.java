@@ -40,9 +40,9 @@ public class Rascal {
 		
 		CommandOptions cmdOpts = new CommandOptions();
 		cmdOpts
-				.locOption("kernel", 		cmdOpts.getDefaultKernelLocation(), "Rascal Kernel file")
 				.pathOption("libPath", 		(co) -> vf.list(co.getCommandLocOption("binDir")),
 																				"Add new lib paths, use multiple --libPaths for multiple paths")
+				.locOption("bootDir", 		cmdOpts.getDefaultBootLocation(), 	"Rascal boot directory")
 				.locOption("binDir", 		(co) -> co.requiredDir("binDir"), 	"Directory for Rascal binaries")
 				.boolOption("jvm", 			false, 								"Generate JVM code")
 				.boolOption("verbose", 		false, 								"Print compilation steps")
