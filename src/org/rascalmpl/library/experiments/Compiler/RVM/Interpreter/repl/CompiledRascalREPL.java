@@ -207,7 +207,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
       if (entries != null && entries.size() > 0) {
           if (entries.contains(partialModuleName)) {
               // we have a full directory name (at least the option)
-              List<String> subEntries = pcfg.getRascalResolver().listModuleEntries(qualifier + "::" + partialModuleName);
+              List<String> subEntries = pcfg.getRascalSearchPath().listModuleEntries(qualifier + "::" + partialModuleName);
               if (subEntries != null) {
                   entries.remove(partialModuleName);
                   subEntries.forEach(e -> entries.add(partialModuleName + "::" + e));

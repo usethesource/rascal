@@ -25,8 +25,7 @@ public class RascalTests {
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		CommandOptions cmdOpts = new CommandOptions();
 		cmdOpts
-				.locOption("kernel", 		cmdOpts.getDefaultKernelLocation(), "Rascal Kernel file to be used")
-				.pathOption("srcPath", 		cmdOpts.getDefaultStdPath(), 		"Add new source path, use multiple --srcPaths for multiple paths")
+				.pathOption("srcPath", 		cmdOpts.getDefaultStdPath(), 		"Add (absolute!) source path, use multiple --srcPaths for multiple paths")
 				.pathOption("libPath", 		(co) -> vf.list(co.getCommandLocOption("binDir")),
 																				"Add new lib paths, use multiple --libPaths for multiple paths")
 				.locOption("bootDir", 		cmdOpts.getDefaultBootLocation(), 	"Rascal boot directory")
@@ -40,6 +39,7 @@ public class RascalTests {
 				.handleArgs("rascalTests", args);
 		
 		RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), new PrintWriter(System.out, true), new PrintWriter(System.err, true))
+				.customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
 				.setTrackCalls(cmdOpts.getCommandBoolOption("trackCalls"))
                 .setProfiling(cmdOpts.getCommandBoolOption("profile"))
                 .setJVM(cmdOpts.getCommandBoolOption("jvm"))
@@ -48,7 +48,7 @@ public class RascalTests {
 		
 		RVM rvmKernel = null;
 		try {
-			rvmKernel = RVM.readFromFileAndInitialize(cmdOpts.getDefaultKernelLocation(), rex);
+			rvmKernel = RVM.readFromFileAndInitialize(cmdOpts.getKernelLocation(), rex);
 		} catch (Exception e) {
 			System.err.println("Cannot initialize kernel: " + e.getMessage());
 			System.exit(-1);
