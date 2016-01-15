@@ -24,8 +24,7 @@ public class Rascal {
 		try {
 			return vf.sourceLocation("compressed+" + binDir.getScheme(), binDir.getAuthority(), sw.toString());
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 			System.exit(-1);
 			return null;
 		}
@@ -38,19 +37,29 @@ public class Rascal {
 	 */
 	public static void main(String[] args) {
 		
-		CommandOptions cmdOpts = new CommandOptions();
+		CommandOptions cmdOpts = new CommandOptions("rascal");
 		cmdOpts
-				.pathOption("libPath", 		(co) -> vf.list(co.getCommandLocOption("binDir")),
-																				"Add new lib paths, use multiple --libPaths for multiple paths")
-				.locOption("bootDir", 		cmdOpts.getDefaultBootLocation(), 	"Rascal boot directory")
-				.locOption("binDir", 		(co) -> co.requiredDir("binDir"), 	"Directory for Rascal binaries")
-				.boolOption("jvm", 			false, 								"Generate JVM code")
-				.boolOption("verbose", 		false, 								"Print compilation steps")
-				.boolOption("help", 		false, 								"Print help message for this command")
-				.boolOption("trackCalls", 	false, 								"Print Rascal functions during execution")
-				.boolOption("profile", 		false, 								"Profile execution of Rascal program")
-				.rascalModule("RascalModule::main() to be executed")
-				.handleArgs("rascalc", args);
+			.pathOption("libPath")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binDir")))
+										.help("Add new lib paths, use multiple --libPaths for multiple paths")
+										
+			.locOption("bootDir") 		.locDefault(cmdOpts.getDefaultBootLocation())
+										.help("Rascal boot directory")
+										
+			.locOption("binDir") 		.help("Directory for Rascal binaries")
+										
+			.boolOption("jvm") 			.help("Generate JVM code")
+			
+			.boolOption("verbose")		.help("Print compilation steps")
+			
+			.boolOption("help")			.help("Print help message for this command")
+			
+			.boolOption("trackCalls")	.help("Print Rascal functions during execution")
+			
+			.boolOption("profile")		.help("Profile execution of Rascal program")
+			
+			.rascalModule("RascalModule::main() to be executed")
+			
+			.handleArgs(args);
 		
 		RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), new PrintWriter(System.out, true), new PrintWriter(System.err, true))
 				.setTrackCalls(cmdOpts.getCommandBoolOption("trackCalls"))

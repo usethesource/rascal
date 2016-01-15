@@ -10,7 +10,6 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalTests {
@@ -23,20 +22,34 @@ public class RascalTests {
 	public static void main(String[] args) {
 		
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-		CommandOptions cmdOpts = new CommandOptions();
+		CommandOptions cmdOpts = new CommandOptions("rascalTests");
 		cmdOpts
-				.pathOption("srcPath", 		cmdOpts.getDefaultStdPath(), 		"Add (absolute!) source path, use multiple --srcPaths for multiple paths")
-				.pathOption("libPath", 		(co) -> vf.list(co.getCommandLocOption("binDir")),
-																				"Add new lib paths, use multiple --libPaths for multiple paths")
-				.locOption("bootDir", 		cmdOpts.getDefaultBootLocation(), 	"Rascal boot directory")
-				.locOption("binDir", 		(co) -> co.requiredDir("binDir"),	"Directory for Rascal binaries")
-				.boolOption("help", 		false, 								"Print help message for this command")
-				.boolOption("trackCalls", 	false, 								"Print Rascal functions during execution of compiler")
-				.boolOption("profile", 		false, 								"Profile execution of compiler")
-				.boolOption("jvm", 			false, 								"Generate JVM code")
-				.boolOption("verbose", 		false, 								"Make the compiler verbose")
-				.rascalModules("Rascal modules with tests")
-				.handleArgs("rascalTests", args);
+			.pathOption("srcPath")		.pathDefault(cmdOpts.getDefaultStdPath().isEmpty() ? vf.list(cmdOpts.getDefaultStdPath()) : cmdOpts.getDefaultStdPath())
+										.respectNoDefaults()
+										.help("Add (absolute!) source path, use multiple --srcPaths for multiple paths")
+		
+			.pathOption("libPath")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binDir")))
+										.respectNoDefaults()
+										.help("Add new lib path, use multiple --libPaths for multiple paths")
+		
+			.locOption("bootDir")		.locDefault(cmdOpts.getDefaultBootLocation())
+										.help("Rascal boot directory")
+		
+			.locOption("binDir") 		.help("Directory for Rascal binaries")
+			
+			.boolOption("help") 		.help("Print help message for this command")
+			
+			.boolOption("trackCalls")	.help("Print Rascal functions during execution of compiler")
+			
+			.boolOption("profile")		.help("Profile execution of compiler")
+			
+			.boolOption("jvm")			.help("Generate JVM code")
+			
+			.boolOption("verbose")		.help("Make the compiler verbose")
+			
+			.rascalModules("Rascal modules with tests")
+			
+			.handleArgs(args);
 		
 		RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), new PrintWriter(System.out, true), new PrintWriter(System.err, true))
 				.customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())

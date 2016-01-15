@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.Commands;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.io.StandardTextReader;
 import org.rascalmpl.value.type.Type;
@@ -27,19 +29,48 @@ import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
- * There two classes of options: for the command itself and for the
- * Rascal module(s) when compiled, executed or tested
- *
- */
-enum OptionClass {COMMAND, MAIN};
-
-
-/**
  * Option values can have the foloowing types;
  *
  */
 enum OptionType {INT, STR, BOOL, PATH, LOC};
 
+/**
+ * Create CommandOptions for a main program.
+ * 
+ * A command option is one of
+ * <ul>
+ * <li>boolean: --optionName
+ * <li>string:  --optionName stringValue 
+ * <li>loc:     --optionName sourceLocationValue
+ * <li>path:    --optionName sourceLocationValue
+ *                   sourceLocationValue are either (quoted) Rascal source locations or file path names
+ *                   multiple path options of the same name accumulate to a list of source locations
+ * </ul>
+ * Command options define properties for the initialized and configuration of the command.
+ * <p>
+ * A moduleName is a qualified Rascal module name. A command can have 1 or more than one modules names.
+ * <p>
+ * A command looks like this:
+ * <p>
+ * commandName commandOptions* moduleName+ moduleOptions*
+ * <p>
+ * A module option looks the same as a command option but is associated with the module(s) given in the command.
+ * CommandOptions provides a fluent interface to create options of the above type, e.g. intOption, boolOption, etc.
+ * Each option is created by a sequence starting with the option creation and ending with the associated help message for that option.
+ * In between, defaults can be set and omitted defaults have sensible values.
+ * <p>
+ *<code>
+ * CommandOptions opts = new CommandOptions("commandName");
+ * <p>
+ * opts.intOption("X").intDefault(42).help("X is a very good option")
+ * <p>
+ *     .boolOption("Y).help("and Y too!")
+ *     <p>
+ *     .rascalModule("Module to analyze")
+ *     <p>
+ *     .handleArgs(args); // the string arguments coming from the command line
+ * </code>
+ */
 public class CommandOptions {
 
 	protected TypeFactory tf;
@@ -55,13 +86,19 @@ public class CommandOptions {
 	
 	private String commandName;
 	
-	public CommandOptions(){
+	public CommandOptions(String commandName){
+		this.commandName = commandName;
 		tf = TypeFactory.getInstance();
 		vf = ValueFactoryFactory.getValueFactory();
 		commandOptions = new Options();
 		moduleOptions = new Options();
 		rascalModules = vf.list();
 		rascalModuleHelp = "Rascal Module";
+	}
+	
+	public CommandOptions addOption(Option option){
+		(inCommandOptions ? commandOptions : moduleOptions).add(option);
+		return this;
 	}
 	
 	/****************************************************************************/
@@ -71,25 +108,10 @@ public class CommandOptions {
 	/**
 	 * Declare a bool option (a single boolean value)
 	 * @param name of option
-	 * @param defaultValue as a bool value
-	 * @param helpText
-	 * @return this
+	 * @return OptionBuilder
 	 */
-	public CommandOptions boolOption(String name, boolean defaultValue, String helpText){
-		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.BOOL, name, vf.bool(defaultValue), helpText));
-		return this;
-	}
-	
-	/**
-	 * Declare a bool option (a single boolean value)
-	 * @param name of option
-	 * @param defaultValue as a function that returns a bool value
-	 * @param helpText
-	 * @return this
-	 */
-	public CommandOptions boolOption(String name, Function<CommandOptions, Boolean> defaultValue, String helpText){
-		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.BOOL, name, defaultValue, helpText));
-		return this;
+	public OptionBuilder boolOption(String name){
+		return new OptionBuilder(this, OptionType.BOOL, name);
 	}
 
 	/**
@@ -117,25 +139,10 @@ public class CommandOptions {
 	/**
 	 * Declare a string option (a single string value)
 	 * @param name of option
-	 * @param defaultValue as a string value
-	 * @param helpText
-	 * @return this
+	 * @return OptionBuilder
 	 */
-	public CommandOptions stringOption(String name, String defaultValue, String helpText){
-		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.STR, name, vf.string(defaultValue), helpText));
-		return this;
-	}
-	
-	/**
-	 * Declare a string option (a single string value)
-	 * @param name of option
-	 * @param defaultValue as a function that returns a string value
-	 * @param helpText
-	 * @return this
-	 */
-	public CommandOptions stringOption(String name, Function<CommandOptions, String> defaultValue, String helpText){
-		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.STR, name, defaultValue, helpText));
-		return this;
+	public OptionBuilder strOption(String name){
+		return new OptionBuilder(this, OptionType.STR, name);
 	}
 
 	/**
@@ -163,25 +170,10 @@ public class CommandOptions {
 	/**
 	 * Declare a loc option (a single location)
 	 * @param name of option
-	 * @param defaultValue as a location
-	 * @param helpText
-	 * @return this
+	 * @return OptionBuilder
 	 */
-	public CommandOptions locOption(String name, ISourceLocation defaultValue, String helpText){
-		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.LOC, name, defaultValue, helpText));
-		return this;
-	}
-	
-	/**
-	 * Declare a loc option (a single location)
-	 * @param name of option
-	 * @param defaultValue as a function that returns a location
-	 * @param helpText
-	 * @return this
-	 */
-	public CommandOptions locOption(String name, Function<CommandOptions, ISourceLocation> defaultValue, String helpText){
-		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.LOC, name, defaultValue, helpText));
-		return this;
+	public OptionBuilder locOption(String name){
+		return new OptionBuilder(this, OptionType.LOC, name);
 	}
 
 	/**
@@ -209,25 +201,10 @@ public class CommandOptions {
 	/**
 	 * Declare a path option (a list of locations)
 	 * @param name of option
-	 * @param defaultValue as a list of locations
-	 * @param helpText
-	 * @return this
+	 * @return OptionBuilder
 	 */
-	public CommandOptions pathOption(String name, IList defaultValue, String helpText){
-		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.PATH, name, defaultValue, helpText));
-		return this;
-	}
-	
-	/**
-	 * Declare a path option (a list of locations)
-	 * @param name of option
-	 * @param defaultValue as a function that returns a list of locations
-	 * @param helpText
-	 * @return this
-	 */
-	public CommandOptions pathOption(String name, Function<CommandOptions, IList> defaultValue, String helpText){
-		(inCommandOptions ? commandOptions : moduleOptions).add(new Option(OptionType.PATH, name, defaultValue, helpText));
-		return this;
+	public OptionBuilder pathOption(String name){
+		return new OptionBuilder(this, OptionType.PATH, name);
 	}
 
 	/**
@@ -254,8 +231,8 @@ public class CommandOptions {
 	
 	/**
 	 * Command has one Rascal Module as argument
-	 * @param helpText
-	 * @return this
+	 * @param helpText describes the role of the single module argument
+	 * @return this CommandOptions
 	 */
 	public CommandOptions rascalModule(String helpText){
 		singleModule = true;
@@ -274,8 +251,8 @@ public class CommandOptions {
 	
 	/**
 	 * Command has one or more Rascal Modules as argument
-	 * @param helpText
-	 * @return this
+	 * @param helpText describes the role of the one or more module arguments
+	 * @return this CommandOptions
 	 */
 	public CommandOptions rascalModules(String helpText){
 		singleModule = false;
@@ -305,13 +282,11 @@ public class CommandOptions {
 	}
 
 	/**
-	 * Handle command line options 
-	 * @param commandName of command that is being executed
-	 * @param list of options and values
+	 * Handle command line options and create help and usage info
+	 * @param args a list of options and their values
 	 */
-	public void handleArgs(String name, String[] args){
+	public void handleArgs(String[] args){
 		vf = ValueFactoryFactory.getValueFactory();
-		commandName = name;
 		boolean mainSeen = false;
 		Options currentOptions;
 		int i = 0;
@@ -343,7 +318,24 @@ public class CommandOptions {
 				i++;
 			}
 		}
+		
+		String ndHelp = noDefaultsHelpText();
 
+		if(commandOptions.contains(OptionType.BOOL, "noDefaults")){
+			if(!ndHelp.isEmpty()){
+				for(Option option : commandOptions){
+					if(option.name.equals("noDefaults")){
+						option.helpText = ndHelp;
+					}
+				}
+			}
+			
+		} else {
+			if(!ndHelp.isEmpty()){
+				commandOptions.add(new Option(OptionType.BOOL, "noDefaults", vf.bool(false), null, false, ndHelp));
+			}
+		}
+		
 		if(commandOptions.hasNonDefaultValue(OptionType.BOOL, "help")){
 			help();
 			System.exit(0);
@@ -360,26 +352,6 @@ public class CommandOptions {
 	/****************************************************************************/
 	/*			(Utilities for) consistency checking							*/
 	/****************************************************************************/
-	
-	public IBool requiredBool(String name){
-		printUsageAndExit("Value required for " + name);
-		return null;
-	}
-	
-	public IString requiredString(String name){
-		printUsageAndExit("Value required for " + name);
-		return null;
-	}
-	
-	public ISourceLocation requiredDir(String name){
-		printUsageAndExit("Value required for " + name);
-		return null;
-	}
-	
-	public IList requiredPath(String name){
-		printUsageAndExit("Value required for " + name);
-		return null;
-	}
 
 	private void checkDefaults(){
 		for(Option option : commandOptions){
@@ -436,6 +408,22 @@ public class CommandOptions {
 				w.append("\n").append(indent);
 			}
 			w.append(option.help());
+		}
+		return w.toString();
+	}
+	
+	private String noDefaultsHelpText(){
+		List<String> respectNoDefaults = commandOptions.getAllRespectNoDefaults();
+		respectNoDefaults.addAll(moduleOptions.getAllRespectNoDefaults());
+		if(respectNoDefaults.isEmpty()){
+			return "";
+		}
+		StringWriter w = new StringWriter();
+		w.append("Forbid use of default values for");
+		String sep = " ";
+		for(String name : respectNoDefaults){
+			w.append(sep).append(name);
+			sep = ", ";
 		}
 		return w.toString();
 	}
@@ -549,23 +537,176 @@ public class CommandOptions {
 
 }
 
-class Option {
+class  OptionBuilder {
+	CommandOptions commandOptions;
+	IValueFactory vf;
 	OptionType optionType;
 	String name;
-	IValue currentValue;
-	Object defaultValue;
-	String helpText;
+	private IValue initialValue;
+	private Object defaultValue;
+	private boolean mayForceNoDefault;
 	
-	Option(OptionType optionType, String name, Object defaultValue, String helpText){
+	OptionBuilder(CommandOptions commandOptions, OptionType optionType, String name){
+		this.commandOptions = commandOptions;
+		this.vf = commandOptions.vf;
 		this.optionType = optionType;
 		this.name = name;
+		switch(optionType){
+		case INT: initialValue = vf.integer(0) ; break;
+		case STR: initialValue = vf.string(""); break;
+		case LOC: initialValue = null; break;
+		case PATH:initialValue = vf.list(); break;
+		case BOOL:initialValue = vf.bool(false);
+		}
+	}
+	
+	void check(OptionType ot){
+		if(optionType != ot){
+			throw new RuntimeException("Default value required of type " + ot.toString().toLowerCase());
+		}
+	}
+	
+	/**
+	 * @param defaultValue for a boolean option
+	 * @return this OptionBuilder
+	 */
+	OptionBuilder boolDefault(boolean defaultValue){
+		check(OptionType.BOOL);
+		this.defaultValue = commandOptions.vf.bool(defaultValue);
+		return this;
+	}
+	
+	/**
+	 * @param defaultValue for a boolean option as a function that returns a bool value
+	 * @return this OptionBuilder
+	 */
+	OptionBuilder boolDefault(Function<CommandOptions, Boolean> defaultValue){
+		check(OptionType.BOOL);
 		this.defaultValue = defaultValue;
+		return this;
+	}
+	
+	/**
+	 * @param defaultValue for an int option
+	 * @return this OptionBuilder
+	 */
+	OptionBuilder intDefault(int defaultValue){
+		check(OptionType.INT);
+		this.defaultValue = commandOptions.vf.integer(defaultValue);
+		return this;
+	}
+	
+	/**
+	 * @param defaultValue for an int option as a function that returns an int value
+	 * @return this OptionBuilder
+	 */
+	OptionBuilder intDefault(Function<CommandOptions, Integer> defaultValue){
+		check(OptionType.INT);
+		this.defaultValue = defaultValue;
+		return this;
+	}
+	
+	/**
+	 * @param defaultValue for a str option
+	 * @return this OptionBuilder
+	 */
+	OptionBuilder strDefault(String defaultValue){
+		check(OptionType.STR);
+		this.defaultValue = commandOptions.vf.string(defaultValue);
+		return this;
+	}
+	
+	/**
+	 * @param defaultValue for a str option as a function that returns a str value
+	 * @return this OptionBuilder
+	 */
+	OptionBuilder strDefault(Function<CommandOptions, String> defaultValue){
+		check(OptionType.STR);
+		this.defaultValue = defaultValue;
+		return this;
+	}
+	
+	/**
+	 * @param defaultValue for a loc option
+	 * @return this OptionBuilder
+	 */
+	OptionBuilder locDefault(ISourceLocation defaultValue){
+		check(OptionType.LOC);
+		this.defaultValue = defaultValue;
+		return this;
+	}
+	
+	/**
+	 * @param defaultValue for a loc option as a function that returns a loc value
+	 * @return this OptionBuilder
+	 */
+	OptionBuilder locDefault(Function<CommandOptions, ISourceLocation> defaultValue){
+		check(OptionType.LOC);
+		this.defaultValue = defaultValue;
+		return this;
+	}
+	
+	/**
+	 * @param defaultValue for a path option
+	 * @return this OptionBuilder
+	 */
+	OptionBuilder pathDefault(IList defaultValue){
+		check(OptionType.PATH);
+		this.defaultValue = defaultValue;
+		return this;
+	}
+	
+	/**
+	 * @param defaultValue for a path option as a function that returns a list of locs
+	 * @return this OptionBuilder
+	 */
+	OptionBuilder pathDefault(Function<CommandOptions, IList> defaultValue){
+		check(OptionType.PATH);
+		this.defaultValue = defaultValue;
+		return this;
+	}
+	
+	/**
+	 * If "noDefaults" is set, the value of this option may not depend on its default but should be explicitly set
+	 * @return this OptionBuilder
+	 */
+	OptionBuilder respectNoDefaults(){
+		this.mayForceNoDefault = true;
+		return this;
+	}
+	
+	/**
+	 * 
+	 * @param helpText defines help text for the current option and ends its definition
+	 * @return CommandOptions and can therefore be used in the fluent interface of CommandOptions
+	 */
+	CommandOptions help(String helpText){
+		return commandOptions.addOption(new Option(optionType, name, initialValue, defaultValue, mayForceNoDefault, helpText));
+	}
+}
+
+class Option {
+	final OptionType optionType;
+	final String name;
+	IValue initialValue;
+	IValue currentValue;
+	final Object defaultValue;
+	final boolean respectsNoDefaults;
+	String helpText;
+	
+	Option(OptionType optionType, String name, IValue initialValue, Object defaultValue, boolean respectsNoDefaults, String helpText){
+		this.optionType = optionType;
+		this.name = name;
+		this.initialValue = initialValue;
+		this.currentValue = initialValue;
+		this.defaultValue = defaultValue;
+		this.respectsNoDefaults = respectsNoDefaults;
 		this.helpText = helpText;
 	}
 	
 	public boolean set(OptionType optionType, String name, IValue newValue){
 		if(this.optionType == optionType && this.name.equals(name)){
-			if(currentValue == null){
+			if(currentValue == initialValue){
 				currentValue = newValue;
 				return true;
 			}
@@ -575,6 +716,9 @@ class Option {
 	
 	public boolean update(OptionType optionType, String name, Function<IValue, IValue> updater) {
 		if(this.optionType == optionType && this.name.equals(name)){
+			if(currentValue == null){
+				currentValue = initialValue;
+			}
 			currentValue = updater.apply(currentValue);
 			return true;
 		}
@@ -595,17 +739,24 @@ class Option {
 		return null;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public boolean checkDefault(CommandOptions commandOptions){
-		if(currentValue == null){
-			if(defaultValue == null){
+		boolean noDefaults = commandOptions.getCommandBoolOption("noDefaults");
+		if(currentValue == initialValue){
+			if(noDefaults && respectsNoDefaults){
 				throw new RuntimeException("Option " + name + " requires a value");
 			}
-			// TODO: type check needed
-			if(defaultValue instanceof Function<?,?>){
-				currentValue = ((Function<CommandOptions,IValue>) defaultValue).apply(commandOptions);
-			}  else {
-			   currentValue = (IValue) defaultValue;
+			if(defaultValue != null){
+				// type check has been done at creation
+				if(defaultValue instanceof Function<?,?>){
+					currentValue = ((Function<CommandOptions,IValue>) defaultValue).apply(commandOptions);
+				}  else {
+					currentValue = (IValue) defaultValue;
+				}
 			}
+		}
+		if(currentValue == null){
+			throw new RuntimeException("Option " + name + " requires a value");
 		}
 		return true;
 	}
@@ -645,7 +796,7 @@ class Options implements Iterable<Option>{
 	public boolean hasNonDefaultValue(OptionType optionType, String name) {
 		for(Option option : options){
 			if(option.provides(optionType, name)){
-				return option.currentValue != null;
+				return option.currentValue != option.initialValue;
 			}
 		}
 		return false;
@@ -676,6 +827,16 @@ class Options implements Iterable<Option>{
 		    }
 		}
 		throw new RuntimeException("Option " + name + " could not be updated");
+	}
+	
+	public List<String> getAllRespectNoDefaults(){
+		List<String> result = new ArrayList<>();
+		for(Option option : options){
+			if(option.respectsNoDefaults){
+				result.add(option.name);
+			}
+		}
+		return result;
 	}
 
 	@Override
