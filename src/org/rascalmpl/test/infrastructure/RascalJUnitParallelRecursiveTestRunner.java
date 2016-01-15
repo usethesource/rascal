@@ -50,7 +50,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  *
  */
 public class RascalJUnitParallelRecursiveTestRunner extends Runner {
-    private final int numberOfWorkers = Math.max(0, Math.min(8,Math.min(Runtime.getRuntime().availableProcessors() - 1,  (int)(Runtime.getRuntime().maxMemory()/ 1024*1024*300))));
+    private final int numberOfWorkers = Math.max(0, Math.min(4,Math.min(Runtime.getRuntime().availableProcessors() - 1,  (int)(Runtime.getRuntime().maxMemory()/ 1024*1024*300))));
     private final Semaphore importsCompleted = new Semaphore(0);
     private final Semaphore waitForRunning = new Semaphore(0);
     private final Semaphore workersCompleted = new Semaphore(0);
