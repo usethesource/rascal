@@ -36,12 +36,11 @@ public class RascalC {
 			.locOption("bootDir")		.locDefault(cmdOpts.getDefaultBootLocation())
 										.help("Rascal boot directory")
 										
-			.locOption("binDir") 		.help("Directory for Rascal binaries")
-				 
-			.boolOption("noLinking")	.intDefault(10).help("Do not link compiled modules")
-			
-			.boolOption("noDefaults") 	.help("Do not use defaults for srcPath, libPath and binDir")
-			
+			.locOption("binDir") 		.respectNoDefaults()
+										.help("Directory for Rascal binaries")
+										
+			.boolOption("noLinking")	.help("Do not link compiled modules")
+						
 			.boolOption("help") 		.help("Print help message for this command")
 			
 			.boolOption("trackCalls") 	.help("Print Rascal functions during execution of compiler")
