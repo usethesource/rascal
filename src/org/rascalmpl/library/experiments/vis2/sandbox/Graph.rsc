@@ -4,17 +4,18 @@ import experiments::vis2::sandbox::Figure;
 import experiments::vis2::sandbox::Steden; 
 import Prelude;
 
-str current = "";
-list[Edge] edges = [];
-list[Edge] out = [];
-list[tuple[str, Figure]] states = [];
-map[str, Figure] lab2f = ();
-Figures buttons =[]; 
+
+//list[Edge] edges = [];
+// list[Edge] out = [];
+// list[tuple[str, Figure]] states = [];
+
+// Figures buttons =[]; 
 
 public Figure fsm(){
 	Figure b(str label) =  box( fig=text(label, fontWeight="bold"), fillColor="whitesmoke", rounded=<5,5>, padding=<0,6, 0, 6>, tooltip = label
-	                                          ,id = newName());	                                          
-    states = [ 	
+	                                          ,id = newName()
+	                                          );	                                          
+    list[tuple[str, Figure]] states = [ 	
                 <"CLOSED", 		ngon(n=6, r = 40, fig=text("CLOSED", fontWeight="bold"), fillColor="#f77", rounded=<5,5>, padding=<0, 5,0, 5>, tooltip = "CLOSED", id = newName())>, 
     			<"LISTEN", 		b("LISTEN")>,
     			<"SYN RCVD", 	b("SYN RCVD")>,
@@ -29,7 +30,7 @@ public Figure fsm(){
                 <"TIME WAIT", b("TIME WAIT")>
                 ];
  	
-    edges = [	edge("CLOSED", 		"LISTEN",  	 label="open", labelStyle="font-style:italic", id = newName()), 
+    list[Edge] edges = [	edge("CLOSED", 		"LISTEN",  	 label="open", labelStyle="font-style:italic", id = newName()), 
     			edge("LISTEN",		"SYN RCVD",  label="rcv SYN", labelStyle="font-style:italic", id = newName()),
     			edge("LISTEN",		"SYN SENT",  label="send", labelStyle="font-style:italic", id = newName()),
     			edge("LISTEN",		"CLOSED",    label="close", labelStyle="font-style:italic", id = newName()),
@@ -48,49 +49,16 @@ public Figure fsm(){
     			edge("LAST-ACK",   	"CLOSED",     label="rcv ACK of FIN", lineColor="green", labelStyle="font-style:italic", id = newName()),
     			edge("TIME WAIT",  	"CLOSED",     label="timeout=2MSL", labelStyle="font-style:italic", id = newName())
   			];
-    lab2f = (v[0]:v[1]|v<-states);
   	return graph(nodes=states, edges=edges, width = 700, height = 900);
 }
 
 
 
-Figure _bfsm() {
-    Figure f = fsm();
-    if (g:graph():=f) {
-        current = lab2f[states[0][0]].id;
-        buttons = [buttonInput("", width = 200, height = 25, disabled = true, id = newName()
-        ,event = on("click", void(str ev, str n, str v)(int q) {
-             return void(str ev, str n, str v) {
-             style(lab2f[out[q].from].id, fillColor="whitesmoke");
-             style(lab2f[out[q].to].id, fillColor="#f77");
-             current=lab2f[out[q].to].id;
-              for (Figure b<-buttons) {
-                  attr(b.id, disabled = true);
-                  style(b.id, visibility = "hidden");
-                  }
-             out = [e|Edge e<-edges, lab2f[e.from].id==current]; 
-             for (int i<-[0..size(out)]) {
-                  attr(buttons[i].id, disabled = false);
-                  style(buttons[i].id, visibility = "visible");
-                  textProperty(buttons[i].id, \text=out[i].label);
-                  }
-       };}(i))
-        )|int i <-[0..10]];
-        Figure g = vcat(figs = buttons, height = 200, width = 200);
-        return hcat(vgap = 0, align = topLeft, borderWidth  =4, borderStyle="ridge", figs=[g , f]);
-        }
-  }
+  
+Figure _bfsm() {Figure f = fsm(); return finalStateMachine(f, f.nodes[0][0]);}
 
 
-public void bfsm() = render(_bfsm(), event = on("load", void(str ev, str n, str v){
-   out = [e|Edge e<-edges, lab2f[e.from].id==current]; 
-   int i = 0;
-   for (Edge e<-out) {
-      attr(buttons[i].id, disabled = false);
-      textProperty(buttons[i].id, \text = e.label);
-      i = i+1;
-      }
-   }));
+public void bfsm() = render(_bfsm());
 
 public void ffsm(loc l) = writeFile(l, toHtmlString(fsm()));
 
@@ -222,7 +190,9 @@ Figure g() = box(size=<1000, 1000>, align = centerRight, fig=
        return graph(nodes=nodes, edges=edges, size=<500, 500>);                        
        }
   
- void tk33()= render(k33(), size=<1000, 1000>, align = centerMid);  
+ void tk33()= render(k33(), size=<1000, 1000>, align = centerMid); 
+ 
+ void fk33(loc l) = writeFile(l, toHtmlString(k33())); 
  
  Figure  g1() = graph( [<"a",hcat(figs=[box(size=<25, 25>)])>, <"b",box("B", 14, "red", 1.2, "beige")>], [edge("a", "b")], size=<200, 200>);
  

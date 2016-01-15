@@ -332,7 +332,7 @@ public data Figure(
 // Must be used as innerfigure in box(fig=..., align = topLeft). 
 // Advised is to use the function graph(nodes, edges)
    | graph(list[tuple[str, Figure]] nodes = [], list[Edge] edges = [], map[str, NodeProperty] nodeProperty = (), 
-     GraphOptions graphOptions = graphOptions())
+     GraphOptions graphOptions = graphOptions(), map[str, str] figId=())
  
    | tree(Figure root, list[Figure] figs
 	       ,int xSep = 1, int ySep = 2, str pathColor = "black"
@@ -350,7 +350,7 @@ data GraphOptions = graphOptions(
 data NodeProperty = nodeProperty(str shape="",str labelStyle="", str style = "", str label="");
 
 data Edge = edge(str from, str to, str label = "", str lineInterpolate="basis" // linear, step-before, step-after
-     ,str lineColor = "" ,str labelStyle="", str arrowStyle = "", str id = "",
+     ,str lineColor = "" ,str labelStyle="", str arrowheadStyle = "", str id = "",
      str labelPos= "r", int labelOffset = 10);
   
 data ChartArea ( 
@@ -531,7 +531,7 @@ str nameA(Alignment a) {
     }
 
 // Dimensions of nodes in tree must be known in advance    
-Figure pnode(str s, str t) = box(size=<size(s)*10, 20>, fillColor="whitesmoke", fig=text(s, fontSize=12)
+Figure pnode(str s, str t) = box(size=<size(s)*10, (size(findAll(s,"\n"))+1)*20>, fillColor="whitesmoke", fig=text(s, fontSize=12)
                , tooltip=  at(5, 15, box(t, 12, "blue", 1.2, "white")));
               
 Figure rnode(str s) = box(size=<size(s)*12, 20>,fillColor="antiquewhite", fig=htmlText(s, fontSize=14));
@@ -561,17 +561,14 @@ Figure treeF(Figure f) {
         if (m["lineColor"]?) r += pnode("<f.lineColor>","lineColor");
         return tr(rnode("box"), r);
         }
-    if (hcat():=f) {
-        Figures s= [treeF(x)|x<-f.figs];
+    if (vcat():=f || hcat():=f) {
+        Figures s= [((text(str q):=x)?pnode(q, "content"):treeF(x))|x<-f.figs];
+        if (m["fontSize"]?) r += pnode("<f.fontSize>", "fontSize");  
+        if (m["fontColor"]?) r += pnode("<f.fontColor>", "contColor");  
         if (m["align"]?) r+= pnode(nameA(f.align),"align");
+        if (m["vgap"]?) r+= pnode("<f.vgap>","vgap");
         if (m["hgap"]?) r+= pnode("<f.hgap>","hgap");
-        return tr(rnode("hcat"), [tr(pnode("figs","figs"), s)]+r);
-        }
-    if (vcat():=f) {
-        Figures s= [treeF(x)|x<-f.figs];
-        if (m["align"]?) r+= pnode(nameA(f.align),"align");
-        if (m["vgap"]?) r+= pnode("<f.hgap>","vgap");
-        return tr(rnode("vcat"), [tr(pnode("figs","figs"), s)]+r);
+        return tr(rnode(getName(f)), [tr(pnode("figs","figs"), s)]+r);
         }
     if (grid():=f) {
         Figures u =[];
@@ -618,19 +615,16 @@ str nameF(Figure f) {
         if (m["lineColor"]?)r += "<f.lineColor>";     
         return "box(<intercalate(",", r)>)";
         }
-    if (hcat():=f) {
-        list[str] s= [nameF(x)|x<-f.figs];
+    if (vcat():=f || hcat():=f) {
+        list[str] s= [
+            ((text(str q):=x)?q:nameF(x))|x<-f.figs];
         r+= "[<intercalate(",", s)>]";
-        if (m["align"]?) r+= nameA(f.align);
-        if (m["hgap"]?) r+= "<f.hgap>";
-        return "hcat(<intercalate(",", r)>)";
-        }
-    if (vcat():=f) {
-        list[str] s= [nameF(x)|x<-f.figs];
-        r+= "[<intercalate(",", s)>]";
+        if (m["fontSize"]?) r += "<f.fontSize>";  
+        if (m["fontColor"]?) r += "<f.fontColor>";  
         if (m["align"]?) r+= nameA(f.align);
         if (m["vgap"]?) r+= "<f.vgap>";
-        return "vcat(<intercalate(",", r)>)";
+        if (m["hgap"]?) r+= "<f.hgap>";
+        return "<getName(f)>(<intercalate(",", r)>)";
         }
     if (grid():=f) {
         list[str] u =[];
@@ -719,11 +713,17 @@ public Figure hcat(list[Figure] f,Alignment align, int hgap,  bool include = fal
 public Figure hcat(int width, int height, list[Figure] f, Alignment align, int hgap,  bool include = false) = 
      incl(include, hcat(width=width, height = height, figs= f, align = align, hgap = hgap));
      
+public Figure hcat(list[str] ts, int fontSize, str fontColor, Alignment align, int hgap,  bool include = false) = 
+     incl(include, hcat(figs= [text(s, fontSize=fontSize, fontColor=fontColor)|str s<-ts], align = align, hgap = hgap));
+     
 public Figure vcat(list[Figure] f,Alignment align, int vgap,  bool include = false) = 
      incl(include, vcat(figs= f, align = align, vgap = vgap));
      
 public Figure vcat(int width, int height, list[Figure] f, Alignment align, int vgap,  bool include = false) = 
      incl(include, vcat(width=width, height = height, figs= f, align = align, vgap = vgap));
+     
+public Figure vcat(list[str] ts, int fontSize, str fontColor, Alignment align, int vgap,  bool include = false) = 
+     incl(include, vcat(figs= [text(s, fontSize=fontSize, fontColor=fontColor)|str s<-ts], align = align, vgap = vgap));
      
 public Figure grid(list[list[Figure]] f,Alignment align, int hgap,  int vgap, bool include = false) = 
      incl(include, grid(figArray= f, align = align, hgap = hgap));

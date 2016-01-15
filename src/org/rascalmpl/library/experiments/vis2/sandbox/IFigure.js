@@ -130,11 +130,6 @@ function askServer(path, parameters, timer, timeout, callback) {
     if (width==0 || height == 0) return;
     width = width*f.hgrow + lw +hpad+f.x;
     height = height*f.vgrow + lw + vpad+f.y;
-    if (from.node().nodeName=="text") {
-            from.attr("x", width/2);
-            from.attr("y", height/2);
-            from.attr("dy", ".3em");
-            }
     if (from.node().nodeName == "ellipse" || from.node().nodeName == "circle"
                                        || from.node().nodeName == "path" 
     // from.node().nodeName=="polygon"
@@ -349,6 +344,13 @@ function askServer(path, parameters, timer, timeout, callback) {
    function defW(v) {return (getVal(v, "width")!=null);}
    
    function defH(v) {return (getVal(v, "height")!=null);}
+   
+   function adjustText(id1) {
+          var width = document.getElementById(id1).getBoundingClientRect().width;
+          var height = document.getElementById(id1).getBoundingClientRect().height;  
+          d3.select("#"+id1).attr("width",""+width+"px").attr("height",""+height+"px")
+             .attr("x", width/2).attr("y", height/2).attr("dy",".3em"); 
+          }
    
    function adjustTable(id1, clients) { 
        // alert("adjustTable");

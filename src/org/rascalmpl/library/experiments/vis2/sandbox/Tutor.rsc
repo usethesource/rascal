@@ -23,8 +23,10 @@ public void render1(Figure f, str fillColor = "none", Alignment align = <0.5, 0.
 , fillColor = fillColor, align = align, size = size
 );
 
+Figure _tut1()= box(size=<50, 50>, fillColor="green", event=on("load", void(str e, str n, str v){println("OK");}));
+public void tut1()= render(_tut1());
 
-public void tut1()= render(box());
+void ftut1(loc f) = writeFile(f, toHtmlString(_tut1()));
 
 
 Figures  tut() =
@@ -335,3 +337,14 @@ public Figure txt() = overlay(figs=[box(fig = circle(r=30), tooltip = text( "noo
 public void ttxt() = render(txt(), borderWidth=1);
 
 public void ftxt(loc l) = writeFile(l, toHtmlString(txt()));
+
+public Figure cat() = vcat(figs=[text("aap"), text("noot"), text("mies")]);
+
+public void tcat() = render(cat());
+
+public Figure tx() = graph([<"a", ellipse(grow = 1.5, fig=text("aap"))>], [], size=<200, 200>);
+
+public void ttx() = render(tx());
+
+public void ftx(loc l) = writeFile(l, toHtmlString(tx()));
+
