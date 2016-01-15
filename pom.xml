@@ -58,6 +58,37 @@
 		</testResources>
 
 		<plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <executable>java</executable>
+                            <classpathScope>compile</classpathScope>
+                            <workingDirectory>target/classes/</workingDirectory>-->
+                            <arguments>
+                                <argument>-Xmx2G</argument>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>org.rascalmpl.library.experiments.Compiler.Commands.RascalC</argument>
+                                <argument>--srcPath</argument>
+                                <argument>|std:///|</argument>
+                                <argument>--binDir</argument>
+                                <argument>org/rascalmpl/library/</argument>
+                                <argument>--noLinking</argument>
+                                <argument>Prelude</argument>
+                            </arguments>    
+                        </configuration>
+                        <id>compile-rascal-library</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
