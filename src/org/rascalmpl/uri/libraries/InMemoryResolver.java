@@ -104,18 +104,27 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 	@Override
 	public OutputStream getOutputStream(ISourceLocation uri, boolean append)
 			throws IOException {
-		return new ByteArrayOutputStream() {
+		ByteArrayOutputStream result = new ByteArrayOutputStream() {
 			@Override
 			public void close() throws IOException {
-				super.close();
 				File file = get(uri);
 				if (file == null) {
 				    file = new File();
 				    fileSystem.getFileSystem().put(uri.getPath(), file);
 				}
 				file.newContent(this.toByteArray());
+				super.close();
 			}
 		};
+	    if (append) {
+			File file = get(uri);
+			if (file == null) {
+			    throw new FileNotFoundException();
+			}
+			// load data to write, makes the closing code simpler
+			result.write(file.contents);
+	    }
+	    return result;
 	}
 	
 	@Override
