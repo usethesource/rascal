@@ -114,7 +114,7 @@ test bool setAnnotations3() = setAnnotations(leaf(3), ("pos": 1, "label":"a"))@l
 /*TODO: clean up tmp */
 
 private bool textWriteRead(type[&T] typ, str termString, value termValue){
-   tmp = |tmp:///xxx|; 
+   tmp = |test-temp:///xxx-node.test|; 
    writeFile(tmp, termString);
    try {
         if(readTextValueFile(typ, tmp) == termValue) return true;

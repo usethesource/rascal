@@ -28,8 +28,8 @@ alias Y = int;
 /*TODO: cleanup generated files as in Java version */
 
 private bool  binaryWriteRead(type[&T] typ, value exp) {
-   writeBinaryValueFile(|tmp:///xxx|,exp);
-   if (&T N := readBinaryValueFile(|tmp:///xxx|) && N == exp) return true;
+   writeBinaryValueFile(|test-temp:///value-io.test|,exp);
+   if (&T N := readBinaryValueFile(|test-temp:///value-io.test|) && N == exp) return true;
    return false;
    }
    
@@ -64,14 +64,14 @@ test bool binParamAliasListInt() = binaryWriteRead(#X[int], [1]);
 test bool binParamAliasInt() = binaryWriteRead(#Y, 1);
  
 private bool textWriteRead(type[&T] typ, value exp) {
-   writeTextValueFile(|tmp:///xxx|,exp);
-   if (&T N := readTextValueFile(|tmp:///xxx|) && N == exp) return true;
+   writeTextValueFile(|test-temp:///value-io2.temp|,exp);
+   if (&T N := readTextValueFile(|test-temp:///value-io2.temp|) && N == exp) return true;
    return false;
    }
    
 private bool textWriteRead1(type[&T] typ, value exp) {
-   writeTextValueFile(|tmp:///xxx|,exp);
-   if (&T N := readTextValueFile(typ, |tmp:///xxx|) && N == exp) return true;
+   writeTextValueFile(|test-temp:///value-io2.temp|,exp);
+   if (&T N := readTextValueFile(typ, |test-temp:///value-io2.temp|) && N == exp) return true;
    return false;
    }
    
@@ -118,8 +118,8 @@ test bool tupleBinary(tuple[value,value,value] v) = binaryWriteRead(#tuple[value
 test bool numBinary(num v) = binaryWriteRead(#num, v);
 
 test bool disablingCompressionWorks(value v) {
-   writeBinaryValueFile(|tmp:///xxx|,v, compression=false);
-   return readBinaryValueFile(|tmp:///xxx|) == v;
+   writeBinaryValueFile(|test-temp:///compression-off.test|,v, compression=false);
+   return readBinaryValueFile(|test-temp:///compression-off.test|) == v;
 }
 
 data NestedValue
@@ -132,17 +132,17 @@ data NestedValue
 test bool disablingCompressionWorksWithSharedValues(set[NestedValue] a, set[NestedValue] b, NestedValue c, value d) {
 	lab = [a,b];
 	joined = <a,b,inAList(lab), inASet({a,c}), inAList([lab, d])>;
-   writeBinaryValueFile(|tmp:///xxx|, joined, compression=false);
-   return readBinaryValueFile(|tmp:///xxx|) == joined;
+   writeBinaryValueFile(|test-temp:///compression-shared.test|, joined, compression=false);
+   return readBinaryValueFile(|test-temp:///compression-shared.test|) == joined;
 }
 
 test bool writingParseTreeWorks() {
 	t = getModuleParseTree("lang::rascal::syntax::Rascal");
-	writeBinaryValueFile(|tmp:///xxx|, t);
-	return readBinaryValueFile(|tmp:///xxx|) == t;
+	writeBinaryValueFile(|test-temp:///parsetree1|, t);
+	return readBinaryValueFile(|test-temp:///parsetree1|) == t;
 }
 test bool writingParseTreeWorksWithoutCompression() {
 	t = getModuleParseTree("lang::rascal::syntax::Rascal");
-	writeBinaryValueFile(|tmp:///xxx|, t, compression=false);
-	return readBinaryValueFile(|tmp:///xxx|) == t;
+	writeBinaryValueFile(|test-temp:///parsetree1|, t, compression=false);
+	return readBinaryValueFile(|test-temp:///parsetree1|) == t;
 }
