@@ -5,7 +5,7 @@ import String;
 import IO;
 import ValueIO;
 
-private loc aFile = |tmp:///rascal-test/wr.txt|;
+private loc aFile = |test-temp:///basic-io.txt|;
 
 test bool writeReadFile(str content) {
   if (size(content) == 0 || content[0] == "\a00") return true;
@@ -89,8 +89,8 @@ test bool readOffsetMiddle(str a, str b, str c) {
 }
 
 test bool md5Hash(){
-	writeFileEnc(|home:///wr.txt|, encodingNames[utf8()], "abc\n123\n!@#$%\n");
-	return md5HashFile(|home:///wr.txt|) == "931210fcfae2c4979e5d51a264648b82";
+	writeFileEnc(|test-temp:///basic-io-md5.txt|, encodingNames[utf8()], "abc\n123\n!@#$%\n");
+	return md5HashFile(|test-temp:///basic-io-md5.txt|) == "931210fcfae2c4979e5d51a264648b82";
 }
 
 data Compression 
