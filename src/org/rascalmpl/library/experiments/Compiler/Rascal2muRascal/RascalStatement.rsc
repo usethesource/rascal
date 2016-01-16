@@ -76,20 +76,27 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
     str fuid = topFunctionScope();
     whilename = getLabel(label);
     ifname = nextLabel();
-    tmp = asTmp(whilename);
+    usesAppend = containsAppend(body);
+    tmp = usesAppend ? asTmp(whilename) : "NOTMP";
     enterLoop(whilename,fuid);
     enterBacktrackingScope(whilename);
     enterBacktrackingScope(ifname);
-    code = [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open", [], s@\loc)),
-             muWhile(whilename, muCon(true), [ muIfelse(ifname, makeBoolExp("ALL", [ translate(c) | c <- conditions ], s@\loc), 
-                                                                [ visit(translateLoopBody(body)) { case muFail(whileName) => muFail(ifname) } ], 
-                                                                [ muBreak(whilename) ]) ]),
-             muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], s@\loc)
-           ];
+    
+    loopBody = muWhile(whilename, muCon(true), [ muIfelse(ifname, makeBoolExp("ALL", [ translate(c) | c <- conditions ], s@\loc), 
+                                                                  [ visit(translateLoopBody(body)) { case muFail(whileName) => muFail(ifname) } ], 
+                                                                  [ muBreak(whilename) ]) ]);
+                                                                
+    code = usesAppend ? muBlockWithTmps([ < tmp, fuid > ], 
+                                        [ ], 
+                                        [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open", [], s@\loc)),
+                                          loopBody,
+                                          muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], s@\loc)
+                                        ])
+                      : muBlock([ loopBody, muCon([]) ]);
     leaveBacktrackingScope();
     leaveBacktrackingScope();
     leaveLoop();
-    return muBlockWithTmps([ < tmp, fuid > ], [ ], code);
+    return code;
 }
 
 list[MuExp] resetBlockVars(Statement body){
@@ -138,22 +145,29 @@ MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expre
     str fuid = topFunctionScope();
     doname = getLabel(label);
     ifname = nextLabel();
-    tmp = asTmp(doname);
+    usesAppend = containsAppend(body);
+    tmp = usesAppend ? asTmp(doname) : "NOTMP";
     enterLoop(doname,fuid);
     enterBacktrackingScope(doname);
     enterBacktrackingScope(ifname);
-    code = [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open", [], s@\loc)), 
-             muWhile(doname, muCon(true), [ 
+           
+    loopBody = muWhile(doname, muCon(true), [ 
                 visit(translateLoopBody(body)) { case muFail(doname) => muFail(ifname) }, 
                 muIfelse(ifname, makeBoolExp("ALL", [ translate(condition) ], condition@\loc), 
                                  [ muContinue(doname) ], 
-                                 [ muBreak(doname) ]) ]),
-             muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], s@\loc)
-           ];
+                                 [ muBreak(doname) ]) ]);
+    
+    code = usesAppend ? muBlockWithTmps( [ <tmp, fuid> ], [ ],
+                                         [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open", [], s@\loc)), 
+                                           loopBody,
+                                           muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], s@\loc)
+                                         ])
+                      : muBlock([ loopBody, muCon([]) ]);
+                          
     leaveBacktrackingScope();
     leaveBacktrackingScope();
     leaveLoop();
-    return muBlockWithTmps( [ <tmp, fuid> ], [ ], code);
+    return code;
 }
 
 MuExp translateTemplate(str indent, s: (StringTemplate) `do { < Statement* preStats> <StringMiddle body> <Statement* postStats> } while ( <Expression condition> )`) {
@@ -183,17 +197,23 @@ MuExp translateTemplate(str indent, s: (StringTemplate) `do { < Statement* preSt
 MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generators> ) <Statement body>`) {
     str fuid = topFunctionScope();
     forname = getLabel(label);
-    tmp = asTmp(forname);
+    usesAppend = containsAppend(body);
+    tmp = usesAppend ? asTmp(forname) : "NOTMP";
     enterLoop(forname,fuid);
     enterBacktrackingScope(forname);
-    code = [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open", [], s@\loc)),
-             muWhile(forname, makeMultiValuedBoolExp("ALL",[ translate(c) | c <-generators ], s@\loc), 
-                              [ translateLoopBody(body) ]),
-             muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], s@\loc)
-           ];
+    
+    loopBody =  muWhile(forname, makeMultiValuedBoolExp("ALL",[ translate(c) | c <-generators ], s@\loc), 
+                                 [ translateLoopBody(body) ]);
+                              
+    code = usesAppend ? muBlockWithTmps([ <tmp, fuid> ], [ ],
+                                        [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open", [], s@\loc)),
+                                          loopBody,
+                                          muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], s@\loc)
+                                        ])
+                      : muBlock([ loopBody, muCon([]) ]);
     leaveBacktrackingScope();
     leaveLoop();
-    return muBlockWithTmps([ <tmp, fuid> ],[ ], code);
+    return code;
 }
 
 // An (unprecise) check on the occurrence of nested append statements
