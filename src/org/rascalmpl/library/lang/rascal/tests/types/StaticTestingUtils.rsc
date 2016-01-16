@@ -162,6 +162,11 @@ bool missingModule(str stmts, list[str] importedModules = [], list[str] initialD
 		"Could not parse and prepare config for base module to check: IO"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
+bool illegalUse(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
+    check(stmts, [
+        "Cannot append, no valid surrounding context found"
+    ], importedModules=importedModules, initialDecls=initialDecls);
+
 	
 void makeModule(str name, str body){
 	mloc = |test-modules:///<name>.rsc|;
