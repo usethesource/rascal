@@ -165,6 +165,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
 	cFun.store[head(cFun.stack)].keywordParams = keywordParams;
 	    
     // In the environment with the parameters, check the body of the closure.
+    cFun = prepareFunctionBodyEnv(cFun);
 	< cFun, st > = checkStatementSequence([ssi | ssi <- ss], cFun);
     
     // TODO: We need an actual check to ensure return is defined along all
@@ -231,6 +232,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Parameters ps> { <State
 	cFun.store[head(cFun.stack)].keywordParams = keywordParams;
     
     // In the environment with the parameters, check the body of the closure.
+    cFun = prepareFunctionBodyEnv(cFun);
 	< cFun, t1 > = checkStatementSequence([ssi | ssi <- ss], cFun);
     
     // Now, recover the environment active before the call, removing any names
