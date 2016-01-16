@@ -196,10 +196,11 @@ test bool testAppend3() {
     return res1 + res2 == [0, 1];
 }
 
-test bool testAppend4() {
-    res = for(x <- [1,2,3,4]) { int f() { append x; return 4; }; append f(); };
-    return res == [1,4,2,4,3,4,4,4];
-}
+// We no longer allow dynamically scoped appends
+//test bool testAppend4() {
+//    res = for(x <- [1,2,3,4]) { int f() { append x; return 4; }; append f(); };
+//    return res == [1,4,2,4,3,4,4,4];
+//}
 
 // ifThen
   
