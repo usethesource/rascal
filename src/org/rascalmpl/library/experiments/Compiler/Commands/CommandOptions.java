@@ -81,7 +81,7 @@ public class CommandOptions {
 	private IList rascalModules;
 	private String rascalModuleHelp;
 	
-	private Options commandOptions;
+	protected Options commandOptions;
 	private Options moduleOptions;
 	
 	private String commandName;
@@ -741,7 +741,7 @@ class Option {
 	
 	@SuppressWarnings("unchecked")
 	public boolean checkDefault(CommandOptions commandOptions){
-		boolean noDefaults = commandOptions.getCommandBoolOption("noDefaults");
+		boolean noDefaults = commandOptions.commandOptions.contains(OptionType.BOOL, "noDefaults") && commandOptions.getCommandBoolOption("noDefaults");
 		if(currentValue == initialValue){
 			if(noDefaults && respectsNoDefaults){
 				throw new RuntimeException("Option " + name + " requires a value");
