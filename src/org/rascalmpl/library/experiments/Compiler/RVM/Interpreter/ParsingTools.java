@@ -44,13 +44,28 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 public class ParsingTools {
 
 	private IValueFactory vf;
 	
+	//TODO this cache can move to RascalexecutionContext once we are fully boostrapped and independent of the Interpreter:
+	// reason: parseFragment called from the interpreter creates a new REX and destrouys caching.
+	private Cache<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache;
+	private final int parserCacheSize = 30;
+	private final boolean paserCacheEnabled = true;
+	
 	public ParsingTools(IValueFactory vf){
 		super();
 		this.vf = vf;
+		parserCache = Caffeine.newBuilder()
+//				.weakKeys()
+			    .weakValues()
+//			    .recordStats()
+				.maximumSize(paserCacheEnabled ? parserCacheSize : 0)
+				.build();
 	}
 	
 	private IGTD<IConstructor, ITree, ISourceLocation> getObjectParser(IString moduleName, IValue start, ISourceLocation loc, IMap syntax, RascalExecutionContext rex) throws IOException{
@@ -284,8 +299,8 @@ public class ParsingTools {
 			return new RascalParser();
 		}
 	    ParserGenerator pg = getParserGenerator(rex);
-	    
-	    Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = rex.getParserCache().get(syntax, k -> pg.getNewParser(rex.getMonitor(), loc, name, syntax, rex));
+	   
+	    Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = parserCache.get(syntax, k -> pg.getNewParser(rex.getMonitor(), loc, name, syntax, rex));
 
 	    try {
 	      return parser.newInstance();
