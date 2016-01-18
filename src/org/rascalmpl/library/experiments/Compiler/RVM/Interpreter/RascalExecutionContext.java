@@ -98,11 +98,11 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private Cache<String, Function> companionFieldDefaultFunctionCache;
 	private final int companionFieldDefaultFunctionCacheSize = 100;
 	
-	private Cache<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache;
-	private final int parserCacheSize = 30;
+//	private Cache<String,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache;
+//	private final int parserCacheSize = 30;
 	
 	Cache<String, IValue> parsedModuleCache;
-	private final int parsedModuleCacheSize = 0;
+	private final int parsedModuleCacheSize = 10;
 	
 	// State for RascalPrimitive
 	
@@ -248,12 +248,12 @@ public class RascalExecutionContext implements IRascalMonitor {
 //			    .recordStats()
 				.maximumSize(enabled ? companionFieldDefaultFunctionCacheSize : 0)
 				.build();
-		parserCache = Caffeine.newBuilder()
-//				.weakKeys()
-			    .weakValues()
-//			    .recordStats()
-				.maximumSize(enabled ? parserCacheSize : 0)
-				.build();
+//		parserCache = Caffeine.newBuilder()
+////				.weakKeys()
+//			    .weakValues()
+////			    .recordStats()
+//				.maximumSize(enabled ? parserCacheSize : 0)
+//				.build();
 		
 		parsedModuleCache = Caffeine.newBuilder()
 //				.weakKeys()
@@ -297,7 +297,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		printCacheStat("subtypeCache", subtypeCache);
 		printCacheStat("companionDefaultFunctionCache", companionDefaultFunctionCache);
 		printCacheStat("companionFieldDefaultFunctionCache", companionFieldDefaultFunctionCache);
-		printCacheStat("parserCache", parserCache);
+//		printCacheStat("parserCache", parserCache);
 		printCacheStat("parsedModuleCache", parsedModuleCache);
 	}
 
@@ -305,9 +305,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 		return parsingTools;
 	}
 	
-	public Cache<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> getParserCache(){
-		return parserCache;
-	}
+//	public Cache<String,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> getParserCache(){
+//		return parserCache;
+//	}
 	
 	public Cache<String, IValue> getParsedModuleCache() {
 		return parsedModuleCache;
@@ -454,10 +454,12 @@ public class RascalExecutionContext implements IRascalMonitor {
 	}
 
 	public void startJob(String name, int workShare, int totalWork) {
-		if (monitor != null)
+		if (monitor != null){
 			monitor.startJob(name, workShare, totalWork);
-		stdout.println(name);
-		stdout.flush();
+		} else {
+			stdout.println(name);
+			stdout.flush();
+		}
 	}
 	
 	public void startJob(String name, int totalWork) {
@@ -466,10 +468,12 @@ public class RascalExecutionContext implements IRascalMonitor {
 	}
 	
 	public void startJob(String name) {
-		if (monitor != null)
+		if (monitor != null){
 			monitor.startJob(name);
-		stdout.println(name);
-		stdout.flush();
+		} else {
+			stdout.println(name);
+			stdout.flush();
+		}
 	}
 		
 	public void todo(int work) {
