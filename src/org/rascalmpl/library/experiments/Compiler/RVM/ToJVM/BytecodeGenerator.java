@@ -1613,6 +1613,16 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ATHROW);
 
 	}
+	
+	public void emitInlineResetLoc(int position, boolean debug) {
+		if (!emit)
+			return;
+		
+		mv.visitVarInsn(ALOAD, STACK);
+		emitIntValue(position);
+		mv.visitInsn(ACONST_NULL);
+		mv.visitInsn(AASTORE);
+	}
 
 	public void emitInlineResetLocs(int positions, IValue constantValues, boolean debug) {
 		if (!emit)
@@ -1631,11 +1641,11 @@ public class BytecodeGenerator implements Opcodes {
 			mv.visitInsn(AASTORE);
 		}
 		mv.visitInsn(AASTORE);
-		mv.visitVarInsn(ALOAD, STACK);
-		mv.visitVarInsn(ILOAD, SP);
-		mv.visitIincInsn(SP, 1);
-		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/rascalmpl/value/IBool;");
-		mv.visitInsn(AASTORE);
+//		mv.visitVarInsn(ALOAD, STACK);
+//		mv.visitVarInsn(ILOAD, SP);
+//		mv.visitIincInsn(SP, 1);
+//		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/rascalmpl/value/IBool;");
+//		mv.visitInsn(AASTORE);
 	}
 
 	private class ExceptionLine {
