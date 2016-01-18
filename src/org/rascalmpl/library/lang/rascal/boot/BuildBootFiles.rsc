@@ -132,20 +132,20 @@ value build(){
      BOOTSTDLIB = BOOT + "stdlib";
      pcfg = pathConfig(srcPath=[|std:///|], binDir=BOOTSTDLIB, libPath=[BOOTSTDLIB]);
      
-     report("Removing current compiled standard library <BOOTSTDLIB>");
-     remove(BOOTSTDLIB);
+     //report("Removing current compiled standard library <BOOTSTDLIB>");
+     //remove(BOOTSTDLIB);
      
      commands = "#!/bin/sh\n";
      
-     report("Compiling MuLibrary");
-     compileMuLibrary(pcfg, verbose=true);
-     muLib = getMuLibraryCompiledWriteLoc(pcfg);
-     commands += "cp <muLib.path> <(pcfg.binDir.parent + muLib.file).path>\n";
-     
-     report("Compiling standard library modules");
-     for(moduleName <- libraryModules){
-         compile(moduleName, pcfg, recompile=true, verbose=true);
-     }
+     //report("Compiling MuLibrary");
+     //compileMuLibrary(pcfg, verbose=true);
+     //muLib = getMuLibraryCompiledWriteLoc(pcfg);
+     //commands += "cp <muLib.path> <(pcfg.binDir.parent + muLib.file).path>\n";
+     //
+     //report("Compiling standard library modules");
+     //for(moduleName <- libraryModules){
+     //    compile(moduleName, pcfg, recompile=true, verbose=true);
+     //}
      
      commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg);
      commands += serialize("lang::rascal::boot::Kernel", pcfg);

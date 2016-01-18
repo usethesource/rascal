@@ -8,7 +8,7 @@ import String;
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import util::Reflective;
-import experiments::Compiler::Rascal2muRascal::ParseModule;
+//import experiments::Compiler::Rascal2muRascal::ParseModule;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 
 
@@ -39,7 +39,7 @@ set[DeclarationInfo] collectInfo(loc moduleLoc, PathConfig pcfg){
     Configuration config;
     try {
         println("collectInfo: <moduleLoc>");
-        M = parseModuleGetTop(moduleLoc);
+        M = parseModule(moduleLoc);
         config  = checkModule(M, newConfiguration(pcfg));
         resetModuleInfo();
       

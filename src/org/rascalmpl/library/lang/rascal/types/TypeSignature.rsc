@@ -197,7 +197,7 @@ private RSignature addImports(Import* imports, RSignature sig, set[RName] visite
 		mn = getNameOfImportedModule(im);
 		if (mn notin visitedAlready) {
 			visitedAlready = visitedAlready + mn;
-			sig = mergeSignatures(sig, getModuleSignature(getModuleParseTree(prettyPrintName(mn)), visitedAlready), true);
+			sig = mergeSignatures(sig, getModuleSignature(parseNamedModuleWithSpaces(prettyPrintName(mn)), visitedAlready), true);
 		}
 	}
 	return sig;

@@ -137,12 +137,12 @@ test bool disablingCompressionWorksWithSharedValues(set[NestedValue] a, set[Nest
 }
 
 test bool writingParseTreeWorks() {
-	t = getModuleParseTree("lang::rascal::syntax::Rascal");
+	t = parseNamedModuleWithSpaces("lang::rascal::syntax::Rascal");
 	writeBinaryValueFile(|test-temp:///parsetree1|, t);
 	return readBinaryValueFile(|test-temp:///parsetree1|) == t;
 }
 test bool writingParseTreeWorksWithoutCompression() {
-	t = getModuleParseTree("lang::rascal::syntax::Rascal");
+	t = parseNamedModuleWithSpaces("lang::rascal::syntax::Rascal");
 	writeBinaryValueFile(|test-temp:///parsetree1|, t, compression=false);
 	return readBinaryValueFile(|test-temp:///parsetree1|) == t;
 }

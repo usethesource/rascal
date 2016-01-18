@@ -12,7 +12,7 @@ import Map;
 import Relation;
 
 import lang::rascal::\syntax::Rascal;
-import experiments::Compiler::Rascal2muRascal::ParseModule;
+//import experiments::Compiler::Rascal2muRascal::ParseModule;
 import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::RVM::AST;
 
@@ -73,7 +73,7 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
    	    if(verbose) println("rascal2rvm: Parsing and checking <moduleLoc>");
    	    start_checking = cpuTime();
    		//M = parse(#start[Module], moduleLoc).top;
-   		M = parseModuleGetTop(moduleLoc);
+   		M = parseModule(moduleLoc);
    	    config  = checkModule(M, newConfiguration(pcfg));
    	    check_time = (cpuTime() - start_checking)/1000000;
    	} catch e: {
@@ -211,7 +211,7 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
         if(verbose) println("rascal2rvm: Parsing and incremental checking <moduleLoc>");
         start_checking = cpuTime();
         //M = parse(#start[Module], moduleLoc).top;
-        M = parseModuleGetTop(moduleLoc);
+        M = parseModule(moduleLoc);
         if(!reuseConfig || !previousConfig?){
             lang::rascal::\syntax::Rascal::Module M1 = removeMain(M);
             previousConfig = checkModule(M1, newConfiguration(pcfg));

@@ -348,7 +348,7 @@ public abstract class Import {
   }
   
   private static Module buildModule(ISourceLocation uri, ModuleEnvironment env,  IEvaluator<Result<IValue>> eval) throws IOException {
-	ITree tree = eval.parseModule(eval, uri);
+	ITree tree = eval.parseModuleAndFragments(eval, uri);
     return getBuilder().buildModule(tree);
   }
   
@@ -366,7 +366,7 @@ public abstract class Import {
     current.setSyntaxDefined(current.definesSyntax() || module.definesSyntax());
   }
   
-  public static ITree parseModule(char[] data, ISourceLocation location, IEvaluator<Result<IValue>> eval){
+  public static ITree parseModuleAndFragments(char[] data, ISourceLocation location, IEvaluator<Result<IValue>> eval){
     eval.__setInterrupt(false);
     IActionExecutor<ITree> actions = new NoActionExecutor();
 
