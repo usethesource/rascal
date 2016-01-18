@@ -20,14 +20,6 @@ import String;
 import lang::rascal::\syntax::Rascal;
 import lang::manifest::IO;
 
-public Tree getModuleParseTree(str modulePath) {
-    return parseModule(getModuleLocation(modulePath));
-}
-
-public Tree getModuleParseTree(str modulePath, PathConfig pcfg) {
-    return parseModule(getModuleLocation(modulePath, pcfg));
-}
-
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to evaluate}
 public java lrel[str result, str out, str err] evalCommands(list[str] command, loc org);
@@ -43,28 +35,33 @@ public java Tree parseCommands(str commands, loc location);
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to access the Rascal module parser}
 @doc{This parses a module from a string, in its own evaluator context}
-public java Tree parseModule(str moduleContent, loc location);
+public java Tree parseModuleAndFragments(str moduleContent, loc location);
 
-
-lang::rascal::\syntax::Rascal::Module parseModuleAndGetTop(loc moduleLoc){
-    tree = parseModule(moduleLoc);
-    if(tree has top){
-        tree = tree.top;
-    }
-    if(lang::rascal::\syntax::Rascal::Module M := tree){
-        return M;
-    }
-    throw tree;
-}
 
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to access the Rascal module parser}
 @doc{This parses a module on the search path, and loads it into the current evaluator including all of its imported modules}
-public java Tree parseModule(loc location);
+public java Tree parseModuleAndFragments(loc location);
 
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to access the Rascal module parser}
-public java Tree parseModule(loc location, list[loc] searchPath);
+public java Tree parseModuleAndFragments(loc location, list[loc] searchPath);
+
+@javaClass{org.rascalmpl.library.util.Reflective}
+@doc{Just parse a module at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading) }
+public java lang::rascal::\syntax::Rascal::Module parseModule(loc location);
+
+public start[Module] parseNamedModuleWithSpaces(str modulePath) {
+    return parseModuleWithSpaces(getModuleLocation(modulePath));
+}
+
+public start[Module] parseNamedModuleWithSpaces(str modulePath, PathConfig pcfg) {
+    return parseModuleWithSpaces(getModuleLocation(modulePath, pcfg));
+}
+
+@javaClass{org.rascalmpl.library.util.Reflective}
+@doc{Parse a module (including surounding spaces) at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading) }
+public java start[Module] parseModuleWithSpaces(loc location);
 
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to resolve a module name in the Rascal search path}
