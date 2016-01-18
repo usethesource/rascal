@@ -30,7 +30,7 @@ import lang::rascal::types::AbstractType;
 import lang::rascal::types::ConvertType;
 import lang::rascal::types::TypeSignature;
 import lang::rascal::types::TypeInstantiation;
-import lang::rascal::checker::ParserHelper;
+//import lang::rascal::checker::ParserHelper;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::meta::ModuleInfo;
 import lang::rascal::types::Util;
@@ -7517,10 +7517,11 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	moduleTrees = ( moduleName : md );
 	for (mn <- c.dirtyModules, mn != moduleName ) {
 		try {
-			t = parse(#start[Module], getModuleLocation(prettyPrintName(mn), pcfg));    
-			if (t has top && lang::rascal::\syntax::Rascal::Module m := t.top) {
-				moduleTrees[mn] = m;
-			}
+			//t = parse(#start[Module], getModuleLocation(prettyPrintName(mn), pcfg));    
+			//if (t has top && lang::rascal::\syntax::Rascal::Module m := t.top) {
+			//	moduleTrees[mn] = m;
+			//}
+			moduleTrees[mn] = parseModule(getModuleLocation(prettyPrintName(mn), pcfg));
 		} catch _ : {
 			if (verbose) println("ERROR: Could not parse module <prettyPrintName(mn)>, cannot continue with type checking!");
 			c = addScopeError(c, "Could not parse module <prettyPrintName(mn)>, cannot continue with type checking!", md@\loc);
@@ -8910,9 +8911,10 @@ public anno map[loc,set[loc]] Module@docLinks;
 public Configuration checkAndReturnConfig(str qualifiedModuleName, PathConfig pcfg, bool forceCheck = false, bool verbose = false) {
     c = newConfiguration(pcfg);
     l = getModuleLocation(qualifiedModuleName, pcfg);
-	t = parse(#start[Module], l);    
+	//t = parse(#start[Module], l); 
+	m = parseModule(l);   
     //try {
-		if (t has top && Module m := t.top)
+		//if (t has top && Module m := t.top)
 			c = checkModule(m, l, c, forceCheck=forceCheck, verbose=verbose);
 	//} catch v : {
 	//	c.messages = {error("Encountered error checking module <l>:<v>", t@\loc)};
@@ -8965,7 +8967,8 @@ public default Module check(Tree t) {
 }
 
 public default start[Module] check(loc l) {
-  m = parse(#start[Module], l);
+  //m = parse(#start[Module], l);
+  m = parseModuleWithSpaces(l);
   m.top = check(m.top, pathConfig());
   m@docLinks = m.top@docLinks;
   m@docStrings = m.top@docStrings;

@@ -81,7 +81,8 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 			
 			if (wlName notin minfoMap) {
 				dt = lastModified(wlLoc);
-				pt = getModuleParseTree(ppWlName, pcfg);
+				//pt = getModuleParseTree(ppWlName, pcfg);
+				pt = parseNamedModuleWithSpaces(ppWlName, pcfg);
 				if (Module mImp := pt.top) {
 					minfoMap[wlName] = getImports(mImp);
 
@@ -95,7 +96,7 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 
 					writeCachedImports(ppWlName, pcfg, dt, minfoMap[wlName]); 
 				} else {
-					throw "Unexpected parse, pt is not a module";
+					throw "Unexpected pars, pt is not a module";
 				}
 			}
 		} catch x : {

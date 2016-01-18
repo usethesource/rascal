@@ -15,6 +15,7 @@ package org.rascalmpl.library.util;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
@@ -33,9 +34,19 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
+import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.parser.Parser;
+import org.rascalmpl.parser.gtd.io.InputConverter;
+import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.uptr.UPTRNodeFactory;
+import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.repl.LimitedWriter;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
@@ -53,6 +64,7 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.StandardTextWriter;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -187,10 +199,10 @@ public class Reflective {
 	}
 	
 	// REFLECT -- copy in ReflectiveCompiled
-	public IValue parseModule(ISourceLocation loc, IEvaluatorContext ctx) {
+	public IValue parseModuleAndFragments(ISourceLocation loc, IEvaluatorContext ctx) {
 		try {
 			Evaluator ownEvaluator = getPrivateEvaluator(ctx);
-			return ownEvaluator.parseModule(ownEvaluator.getMonitor(), loc);
+			return ownEvaluator.parseModuleAndFragments(ownEvaluator.getMonitor(), loc);
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -222,13 +234,13 @@ public class Reflective {
 	}
 	
 	// REFLECT -- copy in ReflectiveCompiled
-	public IValue parseModule(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
+	public IValue parseModuleAndFragments(IString str, ISourceLocation loc, IEvaluatorContext ctx) {
 		Evaluator ownEvaluator = getPrivateEvaluator(ctx);
-		return ownEvaluator.parseModule(ownEvaluator.getMonitor(), str.getValue().toCharArray(), loc);
+		return ownEvaluator.parseModuleAndFragments(ownEvaluator.getMonitor(), str.getValue().toCharArray(), loc);
 	}
 	
 	// REFLECT -- copy in ReflectiveCompiled
-	public IValue parseModule(ISourceLocation loc, final IList searchPath, IEvaluatorContext ctx) {
+	public IValue parseModuleAndFragments(ISourceLocation loc, final IList searchPath, IEvaluatorContext ctx) {
     final Evaluator ownEvaluator = getPrivateEvaluator(ctx);
 
     // add the given locations to the search path
@@ -236,7 +248,7 @@ public class Reflective {
     ownEvaluator.addRascalSearchPathContributor(contrib);
     
     try { 
-      return ownEvaluator.parseModule(ownEvaluator.getMonitor(), loc);
+      return ownEvaluator.parseModuleAndFragments(ownEvaluator.getMonitor(), loc);
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
     }
@@ -247,6 +259,43 @@ public class Reflective {
       ownEvaluator.removeSearchPathContributor(contrib);
     }
   }
+	
+	private char[] getResourceContent(ISourceLocation location) throws IOException{
+		char[] data;
+		Reader textStream = null;
+		
+		URIResolverRegistry resolverRegistry = URIResolverRegistry.getInstance();
+		try {
+			textStream = resolverRegistry.getCharacterReader(location);
+			data = InputConverter.toChar(textStream);
+		}
+		finally{
+			if(textStream != null){
+				textStream.close();
+			}
+		}
+		
+		return data;
+	}
+	
+	public IValue parseModule(ISourceLocation loc) {
+		ITree tree = (ITree) parseModuleWithSpaces(loc);	
+		if (TreeAdapter.isAmb(tree)) {
+			return tree;
+		}
+
+		ITree top = TreeAdapter.getStartTop(tree);
+		return top;
+	}
+	
+	public IValue parseModuleWithSpaces(ISourceLocation loc) {
+		IActionExecutor<ITree> actions = new NoActionExecutor();	
+		try {
+			return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(loc), actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
+		} catch (IOException e) {
+			throw RascalRuntimeException.io(values.string(e.getMessage()), null);
+		}
+	}
 	
 	// REFLECT -- copy in ReflectiveCompiled
 	public IValue getModuleLocation(IString modulePath, IEvaluatorContext ctx) {
