@@ -1006,7 +1006,7 @@ public class BytecodeGenerator implements Opcodes {
 
 		emitIntValue(arity);				// arity
 
-		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", "execute", "([Ljava/lang/Object;II)I",false);
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", "executeN", "([Ljava/lang/Object;II)I",false);
 		mv.visitVarInsn(ISTORE, SP);		// sp = callMuPrimN(stach, sp, arity)
 	}
 	
@@ -1716,7 +1716,7 @@ public class BytecodeGenerator implements Opcodes {
 
 		for (Function f : functionStore) {
 			emitMethod(f, debug);
-			System.out.println(f.toString() );
+			//System.out.println(f.toString() );
 		}
 
 		
