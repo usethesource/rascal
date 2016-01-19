@@ -141,6 +141,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			f.funId = index ;
 		} else {
 			functionStore.set(index, f);
+			f.funId = index ;
 		}
 		//System.out.println("declareFunction: " + index + "  => " + f.getName());
 	}
@@ -290,14 +291,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		}
 	}
 	
-	public RVMExecutable load(
-				 IConstructor program,
-//				 IMap imported_module_tags,
-//				 IMap imported_types,
-//				 IList imported_functions,
-//				 IList imported_overloaded_functions,
-//				 IMap imported_overloading_resolvers,
-				 boolean jvm) {
+	public RVMExecutable load(IConstructor program, boolean jvm) {
 		
 		long start = Timing.getCpuTime();
 		
