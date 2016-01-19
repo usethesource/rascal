@@ -341,6 +341,9 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 
 		// int lastHandler = -1;
 		out.writeObject(fun.lastHandler);
+		
+		//public Integer funId; 
+		out.writeObject(fun.funId);
 
 		// boolean isCoroutine = false;
 		out.writeObject(fun.isCoroutine);
@@ -442,6 +445,9 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 
 		// int lastHandler = -1;
 		Integer lastHandler = (Integer) in.readObject();
+		
+		//public Integer funId; 
+		Integer funId = (Integer) in.readObject();
 
 		// boolean isCoroutine = false;
 		Boolean isCoroutine = (Boolean) in.readObject();
@@ -461,10 +467,11 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		// int continuationPoints
 		Integer continuationPoints = (Integer) in.readObject();
 		
-		return new Function(name, ftype, funIn, nformals, nlocals, isDefault, localNames, maxstack, concreteArg, abstractFingerprint, concreteFingerprint, 
+		Function func = new Function(name, ftype, funIn, nformals, nlocals, isDefault, localNames, maxstack, concreteArg, abstractFingerprint, concreteFingerprint, 
 				codeblock, src, scopeIn, constantStore, typeConstantStore,
 				froms, tos, types, handlers, fromSPs, lastHandler, scopeId,
 				isCoroutine, refs, isVarArgs, continuationPoints);
-	
+		func.funId = funId;
+		return func;
 	}
 }
