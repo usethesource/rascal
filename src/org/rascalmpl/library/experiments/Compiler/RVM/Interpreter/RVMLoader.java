@@ -524,6 +524,10 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			case "LOADCON":
 				codeblock.LOADCON(instruction.get("val"));
 				break;
+				
+			case "PUSHCON":
+				codeblock.PUSHCON(instruction.get("val"));
+				break;
 
 			case "LOADVAR":
 				codeblock.LOADVAR(getStrField(instruction, "fuid"), 
@@ -532,6 +536,10 @@ static FSTCodeBlockSerializer codeblockSerializer;
 
 			case "LOADLOC":
 				codeblock.LOADLOC(getIntField(instruction, "pos"));
+				break;
+				
+			case "PUSHLOC":
+				codeblock.PUSHLOC(getIntField(instruction, "pos"));
 				break;
 				
 
@@ -872,6 +880,14 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				codeblock.CALLPRIMN(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
 								   getIntField(instruction, "arity"), 
 								   getLocField(instruction, "src"));
+				break;
+			
+			case "POPACCU":
+				codeblock.POPACCU();
+				break;
+				
+			case "PUSHACCU":
+				codeblock.PUSHACCU();
 				break;
 				
 			default:

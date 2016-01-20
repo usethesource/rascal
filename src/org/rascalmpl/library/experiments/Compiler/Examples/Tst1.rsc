@@ -1,5 +1,5 @@
 module experiments::Compiler::Examples::Tst1
 
-int f(int n) = 2 * n;
+int ident(int n) = n;
 
-value main() = f(1);
+value main() = ident(13);

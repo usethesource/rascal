@@ -8,6 +8,6 @@ int fac(int n) = (n <= 1) ? 1 : n * fac(n-1);
 //    return fac(toInt(n));
 //} 
 
-int main() = fac(24); 
+int main() = fac(100000); 
 
 test bool tfac() = fac(24) == 620448401733239439360000;
