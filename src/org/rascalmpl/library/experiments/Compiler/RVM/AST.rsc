@@ -83,9 +83,11 @@ RVMProgram errorRVMProgram(RVMModule rvmModule) = rvmProgram(rvmModule, (), (), 
 RVMProgram errorRVMProgram(set[Message] messages) = rvmProgram(errorRVMModule("XXX", messages, |unknown:///|), (), (), [], (), []);
 
 public data Instruction =
+
           LOADBOOL(bool bval)						// Push a (Java) boolean
         | LOADINT(int nval)  						// Push a (Java) integer
-	   	| LOADCON(value val)						// Push an IValue
+	   	| LOADCON(value val)						// Load an IValue in accu
+	   	| PUSHCON(value val)                        // Push an IValue
 	   	| LOADTREE(Tree tree)						// Unused, but forces Tree to be part of the type RVMModule
 	   												// This is necessary to guarantee correct (de)serialization and can be removed
 	   												// when (de)serialization has been improved.
@@ -97,7 +99,11 @@ public data Instruction =
 		
 		| LOADOFUN(str fuid)                        // Push a named *Rascal function
 		
-		| LOADLOC(int pos)							// Push value of local variable
+		| PUSHACCU()                                // Push accumulator on the stack
+		| POPACCU()                                 // Load top of stack in accumulator; pop the stack
+		
+		| LOADLOC(int pos)                          // Load value of local varibale in accu
+		| PUSHLOC(int pos)							// Push value of local variable
 		| STORELOC(int pos)							// Store value on top-of-stack in the local variable (value remains on stack)
 		| RESETLOCS(list[int] positions)			// Reset selected local variables to undefined (null)
 		| RESETLOC(int pos)                         // Reset a local variable to undefined (null)

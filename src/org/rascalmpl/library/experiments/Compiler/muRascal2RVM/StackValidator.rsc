@@ -14,7 +14,7 @@ import ParseTree;
 import util::Math;
 import experiments::Compiler::muRascal::AST;
 
-bool debug = false;
+bool debug = true;
 
 /*
  * Compute stack offset and validate their usage:
@@ -133,9 +133,13 @@ private bool isBlockEndInstruction(Instruction ins) =
 
 tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validate(loc src, list[Instruction] instructions,  lrel[str from, str to, Symbol \type, str target, int fromSP] exceptions) {
 
+    return <30, exceptions>;
+    
 	if(isEmpty(instructions)){
 		return <1, exceptions>;	// Allow a single constant to be pushed in _init and _testsuite functions
 	}
+	println(src);
+	iprintln(instructions);
 
 	blocks = makeBlocks(instructions);
 	label2block = (lbl : blk | blk <- blocks, LABEL(lbl) := blocks[blk][0]);
@@ -214,8 +218,8 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 
 int simulate(LABEL(str label), int sp) 					= sp;
 int simulate(JMP(str label), int sp) 					= sp;
-int simulate(JMPTRUE(str label), int sp) 				= sp - 1;
-int simulate(JMPFALSE(str label), int sp) 				= sp - 1;
+int simulate(JMPTRUE(str label), int sp) 				= sp;
+int simulate(JMPFALSE(str label), int sp) 				= sp;
 int simulate(TYPESWITCH(list[str] labels), int sp) 		= sp - 1;
 int simulate(SWITCH(map[int,str] caseLabels, 
 				   str caseDefault, 
@@ -223,16 +227,22 @@ int simulate(SWITCH(map[int,str] caseLabels,
 		     int sp) 									= sp - 1;
 int simulate(JMPINDEXED(list[str] labels), int sp) 		= sp - 1;
 
-int simulate(LOADBOOL(bool bval), int sp) 				= sp + 1;
-int simulate(LOADINT(int nval), int sp) 				= sp + 1;
-int simulate(LOADCON(value val), int sp) 				= sp + 1;
-int simulate(LOADTYPE(Symbol \type), int sp) 			= sp + 1;
+int simulate(LOADBOOL(bool bval), int sp) 				= sp;
+int simulate(LOADINT(int nval), int sp) 				= sp;
+int simulate(LOADCON(value val), int sp) 				= sp;
+int simulate(PUSHCON(value val), int sp)                = sp + 1;
+int simulate(LOADTYPE(Symbol \type), int sp) 			= sp;
+
+int simulate(PUSHACCU(), int sp)                       = sp + 1;
+int simulate(POPACCU(), int sp)                        = sp - 1;
+
 int simulate(LOADFUN(str fuid), int sp) 				= sp + 1;
 int simulate(LOAD_NESTED_FUN(str fuid, str scopeIn), 
 			 int sp) 									= sp + 1;
 int simulate(LOADCONSTR(str fuid), int sp) 				= sp + 1;
 int simulate(LOADOFUN(str fuid), int sp) 				= sp + 1;
-int simulate(LOADLOC(int pos), int sp) 					= sp + 1;
+int simulate(LOADLOC(int pos), int sp) 					= sp;
+int simulate(PUSHLOC(int pos), int sp)                  = sp + 1;
 int simulate(STORELOC(int pos), int sp) 				= sp;
 int simulate(RESETLOCS(list[int] positions), int sp) 	= sp + 1;
 int simulate(RESETLOC(int pos), int sp)                 = sp;
@@ -242,7 +252,7 @@ int simulate(STORELOCKWP(str name), int sp) 			= sp;
 int simulate(UNWRAPTHROWNLOC(int pos), int sp) 			= sp;
 int simulate(UNWRAPTHROWNVAR(str fuid, int pos),
 			 int sp) 									= sp;
-int simulate(LOADVAR(str fuid, int pos) , int sp) 		= sp + 1;
+int simulate(LOADVAR(str fuid, int pos) , int sp) 		= sp;
 int simulate(STOREVAR(str fuid, int pos), int sp) 		= sp;
 int simulate(RESETVAR(str fuid, int pos), int sp)       = sp;
 int simulate(LOADVARKWP(str fuid, str name), int sp) 	= sp + 1;
@@ -327,8 +337,6 @@ int simulate(TYPEOF(), int sp) 							= sp;
 int simulate(SUBTYPE(), int sp) 						= sp - 1;
 int simulate(CHECKARGTYPEANDCOPY(
 			int pos1, Symbol \type, int pos2), int sp)	= sp + 1;
-int simulate(LOADBOOL(bool bval), int sp) 				= sp + 1;
-int simulate(LOADBOOL(bool bval), int sp) 				= sp + 1;
 
 int simulate(VISIT(bool direction, bool fixedpoint, 
                    bool progress, bool rebuild),

@@ -107,6 +107,10 @@ public enum Opcode {
 	CALLPRIM2			(87,    2),
 	CALLPRIMN			(88,    2),
 	RESETLOCS			(89,	1),
+	PUSHACCU            (90,	1),
+	POPACCU				(91,    1),
+	PUSHLOC				(92,	1),
+	PUSHCON				(93,	1)
 	;
 	
 	
@@ -216,6 +220,12 @@ public enum Opcode {
 	static public final int OP_CALLPRIMN = 88;
 	
 	static public final int OP_RESETLOCS = 89;
+	static public final int OP_PUSHACCU = 90;
+	static public final int OP_POPACCU = 91;
+	
+	static public final int OP_PUSHLOC = 92;
+	static public final int OP_PUSHCON = 93;
+	
 	
 	/*
 	 * Meta-instructions that are generated dynamically during execution and
@@ -280,12 +290,18 @@ public enum Opcode {
 		case LOADCON:
 			return "LOADCON " + cb.getConstantValue(arg1);
 			
+		case PUSHCON:
+			return "PUSHCON " + cb.getConstantValue(arg1);	
+			
 		case LOADVAR:
 			return "LOADVAR " + arg1 + ", " 
 						      + arg2;
 			
 		case LOADLOC:
 			return "LOADLOC " + arg1;
+			
+		case PUSHLOC:
+			return "PUSHLOC " + arg1;
 			
 		case STOREVAR:
 			return "STOREVAR " + arg1 + ", " 
@@ -563,7 +579,11 @@ public enum Opcode {
 			return "CALLPRIMN " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
 							   + arg2 + ", "
 							   + cb.getConstantValue(cb.finalCode[pc + 1]);
-
+		case PUSHACCU:
+				return "PUSHACCU";
+		case POPACCU:
+			return "POPACCU";
+			
 		default:
 			break;
 		}	

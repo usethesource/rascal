@@ -39,6 +39,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.J
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpTrue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Label;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LessInt;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.PopAccu;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadBool;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCon;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadConstr;
@@ -78,6 +79,9 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.R
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ResetVar;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return0;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return1;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.PushAccu;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.PushCon;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.PushLoc;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLoc;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocDeref;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocKwp;
@@ -439,6 +443,10 @@ public class CodeBlock implements Serializable {
 		return add(new LoadCon(this, getConstantIndex(val)));
 	}
 	
+	public CodeBlock PUSHCON(IValue val){
+		return add(new PushCon(this, getConstantIndex(val)));
+	}
+	
 	public CodeBlock LOADBOOL(boolean bool){
 		return add(new LoadBool(this, bool));
 	}
@@ -478,6 +486,10 @@ public class CodeBlock implements Serializable {
 		default:
 			return add(new LoadLoc(this, pos));
 		}
+	}
+	
+	public CodeBlock PUSHLOC (int pos){
+		return add(new PushLoc(this, pos));
 	}
 	
 	public CodeBlock RESETLOC (int pos){
@@ -764,6 +776,16 @@ public class CodeBlock implements Serializable {
 	public CodeBlock VALUESUBTYPE(Type type){
 		return add(new ValueSubtype(this, getTypeConstantIndex(type)));
 	}
+	
+	public CodeBlock PUSHACCU(){
+		return add(new PushAccu(this));
+	}
+	
+	
+	public CodeBlock POPACCU(){
+		return add(new PopAccu(this));
+	}
+	
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {
 		this.functionMap = codeMap;

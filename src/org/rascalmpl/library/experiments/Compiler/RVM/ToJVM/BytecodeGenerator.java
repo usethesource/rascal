@@ -713,6 +713,10 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(AALOAD);
 		mv.visitInsn(AASTORE);
 	}
+	
+	public void emitInlinePushConOrType(int n, boolean conOrType, boolean debug) { 
+		// TODO
+	}
 
 	public void emitInlinePop(boolean debug) {
 		if (!emit)
@@ -1756,5 +1760,20 @@ public class BytecodeGenerator implements Opcodes {
 
 	public void emitInlineVisit(boolean debug) {
 		throw new CompilerError("Visit not implemented");
+	}
+
+	public void emitInlinePopAccu(boolean debug) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void emitInlinePushAccu(boolean debug) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void emitInlinePushLoc(int pos, boolean debug) {
+		// TODO Auto-generated method stub
+		
 	}
 }

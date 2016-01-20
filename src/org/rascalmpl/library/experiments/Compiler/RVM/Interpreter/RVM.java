@@ -870,6 +870,8 @@ public class RVM /*implements java.io.Serializable*/ {
 		int op;
 		Object rval;
 		
+		Object accu = null;
+		
 		// Overloading specific
 		Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
 		if(c_ofun_call != null){
@@ -883,7 +885,7 @@ public class RVM /*implements java.io.Serializable*/ {
 			NEXT_INSTRUCTION: while (true) {
 				
 				
-				frameObserver.observeRVM(this, cf, pc, stack, sp);
+				frameObserver.observeRVM(this, cf, pc, stack, sp, accu);
 				
 				instruction = instructions[pc++];
 				op = CodeBlock.fetchOp(instruction);
@@ -891,6 +893,14 @@ public class RVM /*implements java.io.Serializable*/ {
 				
 				String name;
 				INSTRUCTION: switch (op) {
+				
+				case Opcode.OP_PUSHACCU:
+					stack[sp++] = accu;
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_POPACCU:
+					accu = stack[--sp];
+					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_POP:
 					sp--;
@@ -900,69 +910,77 @@ public class RVM /*implements java.io.Serializable*/ {
 //					assert 0 < cf.function.nlocals : "LOADLOC0: pos larger that nlocals at " + cf.src;
 //					assert stack[0] != null: "Local variable 0 is null";
 					Object oval = stack[0]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
-					stack[sp++] = oval; continue NEXT_INSTRUCTION;
+					accu = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC1:
 //					assert 1 < cf.function.nlocals : "LOADLOC1: pos larger that nlocals at " + cf.src;
 //					assert stack[1] != null: "Local variable 1 is null";
 					oval = stack[1]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
-					stack[sp++] = oval; continue NEXT_INSTRUCTION; 
+					accu = oval; continue NEXT_INSTRUCTION; 
 					
 				case Opcode.OP_LOADLOC2:
 //					assert 2 < cf.function.nlocals : "LOADLOC2: pos larger that nlocals at " + cf.src;
 //					assert stack[2] != null: "Local variable 2 is null";
 					oval = stack[2]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
-					stack[sp++] = oval; continue NEXT_INSTRUCTION; 
+					accu = oval; continue NEXT_INSTRUCTION; 
 					
 				case Opcode.OP_LOADLOC3:
 //					assert 3 < cf.function.nlocals : "LOADLOC3: pos larger that nlocals at " + cf.src;
 //					assert stack[3] != null: "Local variable 3 is null";
 					oval = stack[3]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
-					stack[sp++] = oval; continue NEXT_INSTRUCTION;
+					accu = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC4:
 //					assert 4 < cf.function.nlocals : "LOADLOC4: pos larger that nlocals at " + cf.src;
 //					assert stack[4] != null: "Local variable 4 is null";
 					oval = stack[4]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
-					stack[sp++] = oval; continue NEXT_INSTRUCTION;
+					accu = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC5:
 //					assert 5 < cf.function.nlocals : "LOADLOC5: pos larger that nlocals at " + cf.src;
 //					assert stack[5] != null: "Local variable 5 is null";
 					oval = stack[5]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
-					stack[sp++] = oval; continue NEXT_INSTRUCTION;
+					accu = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC6:
 //					assert 6 < cf.function.nlocals : "LOADLOC6: pos larger that nlocals at " + cf.src;
 //					assert stack[6] != null: "Local variable 6 is null";
 					oval = stack[6]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
-					stack[sp++] = oval; continue NEXT_INSTRUCTION;
+					accu = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC7:
 //					assert 7 < cf.function.nlocals : "LOADLOC7: pos larger that nlocals at " + cf.src;
 //					assert stack[7] != null: "Local variable 7 is null";
 					oval = stack[7]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
-					stack[sp++] = oval; continue NEXT_INSTRUCTION;
+					accu = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC8:
 //					assert 8 < cf.function.nlocals : "LOADLOC8: pos larger that nlocals at " + cf.src;
 //					assert stack[8] != null: "Local variable 8 is null";
 					oval = stack[8]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
-					stack[sp++] = oval; continue NEXT_INSTRUCTION;
+					accu = oval; continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADLOC9:
 //					assert 9 < cf.function.nlocals : "LOADLOC9: pos larger that nlocals at " + cf.src;
 //					assert stack[9] != null: "Local variable 9 is null";
 					oval = stack[9]; // if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
-					stack[sp++] = oval; continue NEXT_INSTRUCTION;
+					accu = oval; continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_LOADLOC:
 					pos = CodeBlock.fetchArg1(instruction);
 //					assert pos < cf.function.nlocals : "LOADLOC: pos larger that nlocals at " + cf.src;
 //					assert stack[pos] != null: "Local variable " + pos + " is null";
 					oval = stack[pos]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
-					stack[sp++] = oval;
+					accu = oval;
 					continue NEXT_INSTRUCTION;
+				
+				case Opcode.OP_PUSHLOC:
+					pos = CodeBlock.fetchArg1(instruction);
+//					assert pos < cf.function.nlocals : "LOADLOC: pos larger that nlocals at " + cf.src;
+//					assert stack[pos] != null: "Local variable " + pos + " is null";
+					oval = stack[pos]; //if(oval == null){ postOp = Opcode.POSTOP_CHECKUNDEF; break; }
+					stack[sp++] = oval;
+					continue NEXT_INSTRUCTION;	
 					
 				case Opcode.OP_RESETLOCS:
 					IList positions = (IList) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
@@ -977,14 +995,18 @@ public class RVM /*implements java.io.Serializable*/ {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADBOOL:
-					stack[sp++] = CodeBlock.fetchArg1(instruction) == 1 ? Rascal_TRUE : Rascal_FALSE;
+					accu = CodeBlock.fetchArg1(instruction) == 1 ? Rascal_TRUE : Rascal_FALSE;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADINT:
-					stack[sp++] = CodeBlock.fetchArg1(instruction);
+					accu = CodeBlock.fetchArg1(instruction);
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADCON:
+					accu = cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_PUSHCON:
 					stack[sp++] = cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					continue NEXT_INSTRUCTION;
 					
@@ -1000,20 +1022,21 @@ public class RVM /*implements java.io.Serializable*/ {
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_CALLMUPRIM0:	
-					stack[sp++] = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute0();
+					accu = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute0();
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CALLMUPRIM1:	
-					stack[sp - 1] = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute1(stack[sp - 1]);
+					accu = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute1(accu);
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CALLMUPRIM2:	
-					stack[sp - 2] = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute2(stack[sp - 2], stack[sp - 1]);
+					accu = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].execute2(stack[sp - 1], accu);
 					sp--;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CALLMUPRIMN:
 					sp = MuPrimitive.values[CodeBlock.fetchArg1(instruction)].executeN(stack, sp, CodeBlock.fetchArg2(instruction));
+					accu = stack[--sp];
 					continue NEXT_INSTRUCTION;	
 				
 				case Opcode.OP_JMP:
@@ -1021,17 +1044,15 @@ public class RVM /*implements java.io.Serializable*/ {
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_JMPTRUE:
-					if (((IBool) stack[sp - 1]).getValue()) {
+					if (((IBool) accu).getValue()) {
 						pc = CodeBlock.fetchArg1(instruction);
 					}
-					sp--;
 					continue NEXT_INSTRUCTION;
 
 				case Opcode.OP_JMPFALSE:
-					if (!((IBool) stack[sp - 1]).getValue()) {
+					if (!((IBool) accu).getValue()) {
 						pc = CodeBlock.fetchArg1(instruction);
 					}
-					sp--;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_TYPESWITCH:
@@ -1077,12 +1098,12 @@ public class RVM /*implements java.io.Serializable*/ {
 				case Opcode.OP_STORELOC:
 					pos = CodeBlock.fetchArg1(instruction);
 					assert pos < cf.function.getNlocals() : "STORELOC: pos larger that nlocals at " + cf.src;
-					stack[pos] = stack[sp - 1];
+					stack[pos] = accu;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_STORELOCDEREF:
 					Reference ref = (Reference) stack[CodeBlock.fetchArg1(instruction)];
-					ref.stack[ref.pos] = stack[sp - 1]; // TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues    
+					ref.stack[ref.pos] = accu; // TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues    
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_LOADFUN:
@@ -1287,7 +1308,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					
 					if(argType.isSubtypeOf(paramType)){
 						stack[pos2] = stack[pos];
-						stack[sp++] = vf.bool(true);
+						accu = vf.bool(true);
 						continue NEXT_INSTRUCTION;
 					}
 					if(argType instanceof RascalType){
@@ -1295,12 +1316,12 @@ public class RVM /*implements java.io.Serializable*/ {
 						RascalType ptype = (RascalType) paramType;
 						if(ptype.isNonterminal() &&  atype.isSubtypeOfNonTerminal(ptype)){
 							stack[pos2] = stack[pos];
-							stack[sp++] = vf.bool(true);
+							accu = vf.bool(true);
 							continue NEXT_INSTRUCTION;
 						}
 					}
 						
-					stack[sp++] = vf.bool(false);
+					accu = vf.bool(false);
 					//System.out.println("OP_CHECKARGTYPEANDCOPY: " + argType + ", " + paramType + " => false");
 					continue NEXT_INSTRUCTION;
 					
@@ -1370,7 +1391,7 @@ public class RVM /*implements java.io.Serializable*/ {
 								}
 							}
 						} else {
-							rval = stack[sp - 1];
+							rval = accu = stack[sp - 1];
 						}
 					}
 					assert sp == ((op == Opcode.OP_RETURN0) ? cf.function.getNlocals() : cf.function.getNlocals() + 1)
@@ -1600,6 +1621,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					frameObserver.observe(cf);
 					try {
 						sp = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].executeN(stack, sp, CodeBlock.fetchArg2(instruction), cf, rex);
+						accu = stack[--sp];
 					} catch (Thrown exception) {
 						thrown = exception;
 						sp = sp - arity;
@@ -1612,7 +1634,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
 					frameObserver.observe(cf);
 					try {
-						stack[sp++] = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute0(cf, rex);
+						accu = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute0(cf, rex);
 					} catch (Thrown exception) {
 						thrown = exception;
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; 
@@ -1624,7 +1646,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
 					frameObserver.observe(cf);
 					try {
-						stack[sp - 1] = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute1(stack[sp - 1], cf, rex);
+						accu = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute1(accu, cf, rex);
 					} catch (Thrown exception) {
 						thrown = exception;
 						sp = sp - 1;
@@ -1637,7 +1659,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					cf.src = (ISourceLocation) cf.function.constantStore[(int) instructions[pc++]];
 					frameObserver.observe(cf);
 					try {
-						stack[sp - 2] = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute2(stack[sp - 2], stack[sp - 1], cf, rex);
+						accu = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute2(stack[sp - 1], accu, cf, rex);
 						sp--;
 					} catch (Thrown exception) {
 						thrown = exception;
