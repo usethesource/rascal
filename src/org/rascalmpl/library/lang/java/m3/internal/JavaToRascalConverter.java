@@ -77,14 +77,6 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		messages = values.listWriter();
 	}
 	
-	public void set(CompilationUnit compilUnit) {
-		this.compilUnit = compilUnit;
-	}
-	
-	public void set(ISourceLocation loc) {
-		this.loc = loc;
-	}
-	
 	protected ISourceLocation resolveBinding(String packageComponent) {
 		ISourceLocation packageBinding = new BindingsResolver(typeStore, locationCache, this.collectBindings) {
 			public ISourceLocation resolveBinding(String packageC) {
@@ -318,4 +310,10 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 			listW.insert(message);
 		}
 	}
+	
+    public void convert(CompilationUnit root, ASTNode node, ISourceLocation loc) {
+        this.compilUnit = root;
+        this.loc = loc;
+        node.accept(this);
+    }
 }

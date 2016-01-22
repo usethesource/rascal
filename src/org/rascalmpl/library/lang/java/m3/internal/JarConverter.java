@@ -65,6 +65,7 @@ public class JarConverter extends M3Converter {
   @SuppressWarnings("unchecked")
   public void convert(ISourceLocation jarLoc, IEvaluatorContext ctx) {
 
+      this.loc = jarLoc;
     this.jarFile = extractJarName(jarLoc);
     this.ClassFile = extractClassName(jarLoc);
     this.LogPath = this.ClassFile.replace(".class", "");

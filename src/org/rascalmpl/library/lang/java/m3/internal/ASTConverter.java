@@ -1268,4 +1268,5 @@ public class ASTConverter extends JavaToRascalConverter {
 		
 		return false;
 	}
+
 }
