@@ -67,11 +67,13 @@ public class BindingsResolver {
 	private final Map<ISourceLocation, Integer> initializerCounter = new HashMap<ISourceLocation, Integer>();
 	private final Map<Initializer, ISourceLocation> initializerLookUp = new HashMap<>();
 	
-  private org.rascalmpl.value.type.Type typeSymbol;
+    private org.rascalmpl.value.type.Type typeSymbol;
+    private final Map<String, ISourceLocation> locationCache;
 	
-	BindingsResolver(final TypeStore store, boolean collectBindings) {
+	BindingsResolver(final TypeStore store, Map<String, ISourceLocation> cache, boolean collectBindings) {
 		this.collectBindings = collectBindings;
 		this.store = store;
+		this.locationCache = cache;
 	}
 	
 	public ISourceLocation resolveBinding(ASTNode node) {
@@ -158,8 +160,8 @@ public class BindingsResolver {
 		String key = resolvedBinding.getKey();
 		// Binding keys for initializers are not unique so we always force them to be recomputed
 		if (!(parentNode instanceof Initializer)) {
-			if (EclipseJavaCompiler.cache.containsKey(key)) {
-				return EclipseJavaCompiler.cache.get(key);
+			if (locationCache.containsKey(key)) {
+				return locationCache.get(key);
 			}
 		}
 		String qualifiedName = parentBinding.getPath();
@@ -176,7 +178,7 @@ public class BindingsResolver {
 		
 		// FIXME: May not be variable only!!!
 		ISourceLocation childBinding = makeBinding("java+variable", null, qualifiedName.concat(thisNode.getName().getIdentifier()));
-		EclipseJavaCompiler.cache.put(key, childBinding);
+		locationCache.put(key, childBinding);
 		return childBinding;
 	}
 	
@@ -202,15 +204,15 @@ public class BindingsResolver {
 	    }
 		initializerCounter.put(parent, initCounter);
 		String key = "";
-		for (String storedKey: EclipseJavaCompiler.cache.keySet()) {
-			if (EclipseJavaCompiler.cache.get(storedKey).equals(parent)) {
+		for (String storedKey: locationCache.keySet()) {
+			if (locationCache.get(storedKey).equals(parent)) {
 				key = storedKey;
 				break;
 			}
 		}
 		key += "$initializer" + initCounter;
 		ISourceLocation result = makeBinding("java+initializer", null, parent.getPath() + "$initializer" + initCounter);
-		EclipseJavaCompiler.cache.put(key, result);
+		locationCache.put(key, result);
 		initializerLookUp.put(node, result);
 		return result;
 	}
@@ -449,8 +451,8 @@ public class BindingsResolver {
 		if (binding == null) {
 			return makeBinding("unresolved", null, null);
 		}
-		if (EclipseJavaCompiler.cache.containsKey(binding.getKey()))
-			return EclipseJavaCompiler.cache.get(binding.getKey());
+		if (locationCache.containsKey(binding.getKey()))
+			return locationCache.get(binding.getKey());
 		String signature = resolveBinding(binding.getDeclaringClass()).getPath();
 		if (!signature.isEmpty()) {
 	      signature = signature.concat("/");
@@ -477,7 +479,7 @@ public class BindingsResolver {
 	      scheme = "java+method";
 	    }
 		ISourceLocation result = makeBinding(scheme, null, signature);
-		EclipseJavaCompiler.cache.put(binding.getKey(), result);
+		locationCache.put(binding.getKey(), result);
 		return result;
 	}
 	
@@ -485,10 +487,10 @@ public class BindingsResolver {
 		if (binding == null) {
 	      return makeBinding("unresolved", null, null);
 	    }
-		if (EclipseJavaCompiler.cache.containsKey(binding.getKey()))
-			return EclipseJavaCompiler.cache.get(binding.getKey());
+		if (locationCache.containsKey(binding.getKey()))
+			return locationCache.get(binding.getKey());
 		ISourceLocation result = makeBinding("java+package", null, binding.getName().replaceAll("\\.", "/"));
-		EclipseJavaCompiler.cache.put(binding.getKey(), result);
+		locationCache.put(binding.getKey(), result);
 		return result;
 	}
 	
@@ -498,8 +500,8 @@ public class BindingsResolver {
 	            return makeBinding("unresolved", null, null);
 	        }
 
-	        if (EclipseJavaCompiler.cache.containsKey(binding.getKey())) {
-	            return EclipseJavaCompiler.cache.get(binding.getKey());
+	        if (locationCache.containsKey(binding.getKey())) {
+	            return locationCache.get(binding.getKey());
 	        }
 
 	        String scheme = binding.isInterface() ? "java+interface" : "java+class";
@@ -567,7 +569,7 @@ public class BindingsResolver {
 	            scheme = "java+anonymousClass";
 	        }
 	        ISourceLocation result = makeBinding(scheme, null, qualifiedName.replaceAll("\\.", "/"));
-	        EclipseJavaCompiler.cache.put(binding.getKey(), result);
+	        locationCache.put(binding.getKey(), result);
 	        return result;
 		}
         catch (@SuppressWarnings("restriction") org.eclipse.jdt.internal.compiler.problem.AbortCompilation e) {
@@ -601,8 +603,8 @@ public class BindingsResolver {
 	    	return makeBinding("unresolved", null, null);
 	    }
 		
-		if (EclipseJavaCompiler.cache.containsKey(binding.getKey()))
-			return EclipseJavaCompiler.cache.get(binding.getKey());
+		if (locationCache.containsKey(binding.getKey()))
+			return locationCache.get(binding.getKey());
 		
 		String bindingKey = binding.getKey();
 		String[] bindingKeys = bindingKey.split("#");
@@ -626,7 +628,7 @@ public class BindingsResolver {
 	    }
 		
 		ISourceLocation result = makeBinding(scheme, null, qualifiedName.concat(binding.getName()));
-		EclipseJavaCompiler.cache.put(binding.getKey(), result);
+		locationCache.put(binding.getKey(), result);
 		return result;
 	}
 	

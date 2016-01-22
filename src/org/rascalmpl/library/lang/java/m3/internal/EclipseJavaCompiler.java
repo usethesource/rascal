@@ -17,11 +17,10 @@ package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -30,6 +29,7 @@ import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IBool;
@@ -44,41 +44,16 @@ import org.rascalmpl.value.type.TypeStore;
 @SuppressWarnings("rawtypes")
 public class EclipseJavaCompiler {
     protected final IValueFactory VF;
-    private List<String> classPathEntries;
-    private List<String> sourcePathEntries;
-    public static HashMap<String, ISourceLocation> cache = new HashMap<>();
 
     public EclipseJavaCompiler(IValueFactory vf) {
         this.VF = vf;
-        this.classPathEntries = new ArrayList<String>();
-        this.sourcePathEntries = new ArrayList<String>();
-    }
-
-    public void setEnvironmentOptions(ISet classPaths, ISet sourcePaths, IEvaluatorContext eval) throws IOException {
-        EclipseJavaCompiler.cache.clear();
-        classPathEntries.clear();
-        sourcePathEntries.clear();
-        for (IValue path : classPaths) {
-            if (!((ISourceLocation) path).getScheme().equals("file")) {
-                throw new IOException("all classpath entries must have the file:/// scheme: " + path);
-            }
-            classPathEntries.add(((ISourceLocation) path).getPath());
-        }
-
-        for (IValue path : sourcePaths) {
-            if (!((ISourceLocation) path).getScheme().equals("file")) {
-                throw new IOException("all sourcepath entries must have the file:/// scheme: " + path);
-            }
-            sourcePathEntries.add(((ISourceLocation) path).getPath());
-        }
-
     }
 
     public IValue createM3FromJarClass(ISourceLocation jarLoc, IEvaluatorContext eval) {
         TypeStore store = new TypeStore();
         store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
         store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-        JarConverter converter = new JarConverter(store);
+        JarConverter converter = new JarConverter(store, new HashMap<>());
         converter.set(jarLoc);
         converter.convert(jarLoc, eval);
 
@@ -87,15 +62,16 @@ public class EclipseJavaCompiler {
 
     public IValue createM3sFromFiles(ISet files, ISet sourcePath, ISet classPath, IString javaVersion, IEvaluatorContext eval) {
         try {
+            Map<String, ISourceLocation> cache = new HashMap<>();
             ISetWriter result = VF.setWriter();
             for (IValue file: files) {
                 ISourceLocation loc = (ISourceLocation) file;
-                CompilationUnit cu = this.getCompilationUnit(loc.getPath(), getFileContents(loc, eval), true, javaVersion);
+                CompilationUnit cu = this.getCompilationUnit(loc.getPath(), getFileContents(loc, eval), true, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
 
                 TypeStore store = new TypeStore();
                 store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
                 store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-                SourceConverter converter = new SourceConverter(store);
+                SourceConverter converter = new SourceConverter(store, cache);
 
                 converter.set(cu);
                 converter.set(loc);
@@ -116,14 +92,27 @@ public class EclipseJavaCompiler {
         }
     }
 
-    public IValue createM3FromString(ISourceLocation loc, IString contents, IString javaVersion, IEvaluatorContext eval) {
+    private String[] translatePaths(ISet paths) {
+        String[] result = new String[paths.size()];
+        int i = 0;
+        for (IValue p : paths) {
+            ISourceLocation loc = (ISourceLocation)p;
+            if (!loc.getScheme().equals("file")) {
+                throw RascalRuntimeException.io(VF.string("all classpath entries must have the file:/// scheme: " + loc), null);
+            }
+            result[i++] = loc.getPath();
+        }
+        return result;
+    }
+
+    public IValue createM3FromString(ISourceLocation loc, IString contents, ISet sourcePath, ISet classPath, IString javaVersion, IEvaluatorContext eval) {
         try {
-            CompilationUnit cu = this.getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), true, javaVersion);
+            CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), true, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
 
             TypeStore store = new TypeStore();
             store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
             store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-            SourceConverter converter = new SourceConverter(store);
+            SourceConverter converter = new SourceConverter(store, new HashMap<>());
 
             converter.set(cu);
             converter.set(loc);
@@ -147,14 +136,15 @@ public class EclipseJavaCompiler {
     public IValue createAstsFromFiles(ISet files, IBool collectBindings, ISet sourcePath, ISet classPath, IString javaVersion,
             IEvaluatorContext eval) {
         try {
+            Map<String, ISourceLocation> cache = new HashMap<>();
             ISetWriter result = VF.setWriter();
             for (IValue file: files) {
                 ISourceLocation loc = (ISourceLocation) file;
-                CompilationUnit cu = getCompilationUnit(loc.getPath(), getFileContents(loc, eval), collectBindings.getValue(), javaVersion);
+                CompilationUnit cu = getCompilationUnit(loc.getPath(), getFileContents(loc, eval), collectBindings.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
 
                 TypeStore store = new TypeStore();
                 store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-                ASTConverter converter = new ASTConverter(store, collectBindings.getValue());
+                ASTConverter converter = new ASTConverter(store, cache, collectBindings.getValue());
 
                 converter.set(cu);
                 converter.set(loc);
@@ -173,11 +163,11 @@ public class EclipseJavaCompiler {
     public IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings,ISet sourcePath, ISet classPath, IString javaVersion,
             IEvaluatorContext eval) {
         try {
-            CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), collectBindings.getValue(), javaVersion);
+            CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), collectBindings.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
 
             TypeStore store = new TypeStore();
             store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-            ASTConverter converter = new ASTConverter(store, collectBindings.getValue());
+            ASTConverter converter = new ASTConverter(store, new HashMap<>(), collectBindings.getValue());
 
             converter.set(cu);
             converter.set(loc);
@@ -190,7 +180,7 @@ public class EclipseJavaCompiler {
         }
     }
 
-    protected CompilationUnit getCompilationUnit(String unitName, char[] contents, boolean resolveBindings, IString javaVersion) 
+    protected CompilationUnit getCompilationUnit(String unitName, char[] contents, boolean resolveBindings, IString javaVersion, String[] sourcePath, String[] classPath) 
             throws IOException {
         ASTParser parser = ASTParser.newParser(AST.JLS4);
         parser.setUnitName(unitName);
@@ -207,8 +197,7 @@ public class EclipseJavaCompiler {
 
         parser.setCompilerOptions(options);
 
-        parser.setEnvironment(classPathEntries.toArray(new String[classPathEntries.size()]),
-                sourcePathEntries.toArray(new String[sourcePathEntries.size()]), null, true);
+        parser.setEnvironment(classPath, sourcePath, null, true);
 
         CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 
