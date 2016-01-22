@@ -17,20 +17,25 @@
 package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.FileASTRequestor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.parser.gtd.io.InputConverter;
+import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.ISet;
@@ -97,7 +102,7 @@ public class EclipseJavaCompiler {
         for (IValue p : paths) {
             ISourceLocation loc = (ISourceLocation)p;
             if (!loc.getScheme().equals("file")) {
-                throw RascalRuntimeException.io(VF.string("all classpath entries must have the file:/// scheme: " + loc), null);
+                throw RascalRuntimeException.io(VF.string("all path entries must have the file:/// scheme: " + loc), null);
             }
             result[i++] = loc.getPath();
         }
@@ -126,17 +131,52 @@ public class EclipseJavaCompiler {
         try {
             TypeStore store = new TypeStore();
             store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-
-            Map<String, ISourceLocation> cache = new HashMap<>();
-            ISetWriter result = VF.setWriter();
-            for (IValue file: files) {
-                ISourceLocation loc = (ISourceLocation) file;
-                CompilationUnit cu = getCompilationUnit(loc.getPath(), getFileContents(loc, eval), collectBindings.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
-                result.insert(convertToAST(collectBindings, cache, loc, cu, store));
+            
+            boolean allFilePaths = true;
+            for (IValue f : files) {
+                allFilePaths &= ((ISourceLocation)f).getScheme().equals("file");
             }
-            return result.done();
+            if (allFilePaths) {
+                Map<String, ISourceLocation> pathLookup = new HashMap<>();
+                String[] paths = new String[files.size()];
+                String[] encodings = new String[files.size()];
+                int i = 0;
+                for (IValue p : files) {
+                    ISourceLocation loc = (ISourceLocation)p;
+                    paths[i] = loc.getPath();
+                    pathLookup.put(loc.getPath(), loc);
+                    encodings[i] = guessEncoding(loc);
+                    i++;
+                }
+
+                Map<String, ISourceLocation> cache = new HashMap<>();
+                ISetWriter result = VF.setWriter();
+                getCompilationUnits(paths, encodings, collectBindings.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath), (loc, ast) -> {
+                    result.insert(convertToAST(collectBindings, cache, pathLookup.get(loc), ast, store));
+                });
+                return result.done();
+            }
+            else {
+                Map<String, ISourceLocation> cache = new HashMap<>();
+                ISetWriter result = VF.setWriter();
+                for (IValue file: files) {
+                    ISourceLocation loc = (ISourceLocation) file;
+                    CompilationUnit cu = getCompilationUnit(loc.getPath(), getFileContents(loc, eval), collectBindings.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
+                    result.insert(convertToAST(collectBindings, cache, loc, cu, store));
+                }
+                return result.done();
+            }
         } catch (IOException e) {
             throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
+        }
+    }
+
+    private String guessEncoding(ISourceLocation loc) {
+        try (InputStream file = URIResolverRegistry.getInstance().getInputStream(loc)) {
+            return UnicodeDetector.estimateCharset(file).name();
+        }
+        catch (Throwable _) {
+            return null;
         }
     }
 
@@ -162,13 +202,30 @@ public class EclipseJavaCompiler {
             throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
         }
     }
+    
+    
+    protected void getCompilationUnits(String[] fileNames, String[] encodings, boolean resolveBindings, IString javaVersion, String[] sourcePath, String[] classPath, final BiConsumer<String, CompilationUnit> consumeASTs) {
+        ASTParser parser = constructASTParser(resolveBindings, javaVersion, sourcePath, classPath);
+        parser.createASTs(fileNames, encodings, new String[0], new FileASTRequestor() {
+            @Override
+            public void acceptAST(String sourceFilePath, CompilationUnit ast) {
+                consumeASTs.accept(sourceFilePath, ast);
+            }
+        }, null);
+    }
+    
 
     protected CompilationUnit getCompilationUnit(String unitName, char[] contents, boolean resolveBindings, IString javaVersion, String[] sourcePath, String[] classPath) 
             throws IOException {
-        ASTParser parser = ASTParser.newParser(AST.JLS4);
+        ASTParser parser = constructASTParser(resolveBindings, javaVersion, sourcePath, classPath);
         parser.setUnitName(unitName);
-        parser.setResolveBindings(resolveBindings);
         parser.setSource(contents);
+        return (CompilationUnit) parser.createAST(null);
+    }
+
+    private ASTParser constructASTParser(boolean resolveBindings, IString javaVersion, String[] sourcePath, String[] classPath) {
+        ASTParser parser = ASTParser.newParser(AST.JLS4);
+        parser.setResolveBindings(resolveBindings);
         parser.setBindingsRecovery(true);
         parser.setStatementsRecovery(true);
 
@@ -181,10 +238,7 @@ public class EclipseJavaCompiler {
         parser.setCompilerOptions(options);
 
         parser.setEnvironment(classPath, sourcePath, null, true);
-
-        CompilationUnit cu = (CompilationUnit) parser.createAST(null);
-
-        return cu;
+        return parser;
     }
 
     private char[] getFileContents(ISourceLocation loc, IEvaluatorContext ctx) throws IOException {
