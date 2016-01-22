@@ -82,7 +82,7 @@ public class EclipseJavaCompiler {
         }
     }
 
-    private IValue convertToM3(TypeStore store, Map<String, ISourceLocation> cache, ISourceLocation loc,
+    protected IValue convertToM3(TypeStore store, Map<String, ISourceLocation> cache, ISourceLocation loc,
             CompilationUnit cu) {
         SourceConverter converter = new SourceConverter(store, cache);
         converter.convert(cu, cu, loc);
@@ -96,7 +96,7 @@ public class EclipseJavaCompiler {
         return converter.getModel(true);
     }
 
-    private String[] translatePaths(ISet paths) {
+    protected String[] translatePaths(ISet paths) {
         String[] result = new String[paths.size()];
         int i = 0;
         for (IValue p : paths) {
@@ -171,7 +171,7 @@ public class EclipseJavaCompiler {
         }
     }
 
-    private String guessEncoding(ISourceLocation loc) {
+    protected String guessEncoding(ISourceLocation loc) {
         try (InputStream file = URIResolverRegistry.getInstance().getInputStream(loc)) {
             return UnicodeDetector.estimateCharset(file).name();
         }
@@ -180,7 +180,7 @@ public class EclipseJavaCompiler {
         }
     }
 
-    private IValue convertToAST(IBool collectBindings, Map<String, ISourceLocation> cache, ISourceLocation loc,
+    protected IValue convertToAST(IBool collectBindings, Map<String, ISourceLocation> cache, ISourceLocation loc,
             CompilationUnit cu, TypeStore store) {
         ASTConverter converter = new ASTConverter(store, cache, collectBindings.getValue());
         converter.convert(cu, cu, loc);
@@ -223,7 +223,7 @@ public class EclipseJavaCompiler {
         return (CompilationUnit) parser.createAST(null);
     }
 
-    private ASTParser constructASTParser(boolean resolveBindings, IString javaVersion, String[] sourcePath, String[] classPath) {
+    protected ASTParser constructASTParser(boolean resolveBindings, IString javaVersion, String[] sourcePath, String[] classPath) {
         ASTParser parser = ASTParser.newParser(AST.JLS4);
         parser.setResolveBindings(resolveBindings);
         parser.setBindingsRecovery(true);
@@ -241,7 +241,7 @@ public class EclipseJavaCompiler {
         return parser;
     }
 
-    private char[] getFileContents(ISourceLocation loc, IEvaluatorContext ctx) throws IOException {
+    protected char[] getFileContents(ISourceLocation loc, IEvaluatorContext ctx) throws IOException {
         char[] data;
         Reader textStream = null;
 
