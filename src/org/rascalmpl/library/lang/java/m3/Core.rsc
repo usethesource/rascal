@@ -58,9 +58,17 @@ public M3 link(M3 projectModel, set[M3] libraryModels) {
   }
 }
 
+public M3 createM3FromFile(loc file, set[loc] sourcePath = {}, set[loc] classPath = {}, str javaVersion = "1.7") {
+    result = createM3sFromFiles({file}, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion);
+    if ({oneResult} := result) {
+        return oneResult;
+    }
+    throw "Unexpected number of M3s returned for <file>";
+}
+
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
-public java M3 createM3FromFile(loc file, str javaVersion = "1.7");
+public java set[M3] createM3sFromFiles(set[loc] files, set[loc] sourcePath = {}, set[loc] classPath = {}, str javaVersion = "1.7");
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
@@ -70,35 +78,22 @@ public java M3 createM3FromString(loc fileName, str contents, str javaVersion = 
 @reflect
 public java M3 createM3FromJarClass(loc jarClass);
 
-map[loc, map[loc, Declaration]] methodASTs = ();
-
 @doc{
 Synopsis: globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
 }
-public M3 createM3FromDirectory(loc project, map[str, str] dependencyUpdateSites = (), str javaVersion = "1.7") {
+public M3 createM3FromDirectory(loc project, str javaVersion = "1.7") {
     if (!(isDirectory(project))) {
       throw "<project> is not a valid directory";
     }
     
     classPaths = find(project, "jar");
     sourcePaths = getPaths(project, "java");
-    setEnvironmentOptions(classPaths, findRoots(sourcePaths));
-    m3s = { *createM3FromFile(f, javaVersion = javaVersion) | sp <- sourcePaths, loc f <- find(sp, "java") };
+    m3s = composeJavaM3(project, createM3FromFiles({*find(sp, "java") | sp <- sourcePaths}, sourcePath = findRoots(sourcePaths), classPath = classPath, javaVersion = javaVersion));
     M3 result = composeJavaM3(project, m3s);
     registerProject(project, result);
     return result;
 }
 
-public Declaration getMethodAST(loc methodLoc, M3 model = m3(|unknown:///|)) {
-  if (isEmpty(model)) {
-    model = getModelContaining(methodLoc);
-  }
-  if (model.id notin methodASTs) {
-    methodASTs[model.id] = ( d@decl : d |/Declaration d := createAstsFromDirectory(model.id, true), d is method || d is constructor);
-  }
-  try return methodASTs[model.id][methodLoc];
-  catch: throw "Method <methodLoc> not found in any model";
-}
 
 public M3 createM3FromJar(loc jarFile) {
     str jarName = substring(jarFile.path, 0, findFirst(jarFile.path, "!"));

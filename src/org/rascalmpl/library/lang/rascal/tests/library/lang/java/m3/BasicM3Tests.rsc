@@ -17,8 +17,7 @@ public set[Declaration] getSnakesAndLaddersASTs() {
     if (rootPath.scheme == "file") {
         libPath = {rootPath + "jexample-4.5-391.jar"};
         srcPath = {rootPath + "/src/"};
-        setEnvironmentOptions(libPath, srcPath);
-        return { createAstFromFile(f, true, javaVersion = "1.7") | loc f <- find(rootPath + "/src/", "java") };
+        return createAstsFromFiles(find(rootPath + "/src/", "java"), true, sourcePath = srcPath, classPath = libPath, javaVersion ="1.7");
     }
     return {};
 }
@@ -29,8 +28,7 @@ public M3 getSnakesAndLaddersM3() {
     if (rootPath.scheme == "file") {
         libPath = {rootPath + "jexample-4.5-391.jar"};
         srcPath = {rootPath + "/src/"};
-        setEnvironmentOptions(libPath, srcPath);
-        return composeJavaM3(|project://SnakesAndLadders/|, { *createM3FromFile(f, javaVersion = "1.7") | loc f <- find(rootPath +"/src/", "java") });
+        return composeJavaM3(|project://SnakesAndLadders/|, createM3sFromFiles(find(rootPath +"/src/", "java"),sourcePath = srcPath, classPath = libPath, javaVersion ="1.7"));
     }
     return {};
 }

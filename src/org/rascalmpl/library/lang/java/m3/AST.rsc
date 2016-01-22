@@ -158,10 +158,6 @@ set[loc] getPaths(loc dir, str suffix) {
    return find(dir, containsFile);
 }
 
-@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
-@reflect
-java void setEnvironmentOptions(set[loc] classPathEntries, set[loc] sourcePathEntries);
-
 @memo
 set[loc] findRoots(set[loc] folders) {
   set[loc] result = {};
@@ -203,16 +199,29 @@ Synopsis: Creates AST from a file
 
 Description: useful for analyzing raw source code on disk, but if you have an Eclipse project you should have a look at [lang/java/jdt/m3] instead.
 }
+public Declaration createAstFromFile(loc file, bool collectBindings, set[loc] sourcePath = {}, set[loc] classPath = {}, str javaVersion = "1.7") {
+    result = createAstsFromFiles({file}, collectBindings, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion);
+    if ({oneResult} := result) {
+        return oneResult;
+    }
+    throw "Unexpected number of ASTs returned from <file>";
+}
+
+@doc{
+Synopsis: Creates AST from a file
+
+Description: useful for analyzing raw source code on disk, but if you have an Eclipse project you should have a look at [lang/java/jdt/m3] instead.
+}
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
-public java Declaration createAstFromFile(loc file, bool collectBindings, str javaVersion = "1.7");
+public java set[Declaration] createAstsFromFiles(set[loc] file, bool collectBindings, set[loc] sourcePath = {}, set[loc] classPath = {}, str javaVersion = "1.7");
 
 @doc{
   Creates ASTs from an input string
 }
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
-public java Declaration createAstFromString(loc fileName, str source, bool collectBinding, str javaVersion = "1.7");
+public java Declaration createAstFromString(loc fileName, str source, bool collectBinding, set[loc] sourcePath = {}, set[loc] classPath = {}, str javaVersion = "1.7");
 
 @doc{Creates ASTs from a project}
 public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, str javaVersion = "1.7" ) {
@@ -222,6 +231,5 @@ public set[Declaration] createAstsFromDirectory(loc project, bool collectBinding
     
     classPaths = find(project, "jar");
     sourcePaths = getPaths(project, "java");
-    setEnvironmentOptions(classPaths, findRoots(sourcePaths));
-    return { createAstFromFile(f, collectBindings, javaVersion = javaVersion) | sp <- sourcePaths, loc f <- find(sp, "java") };
+    return createAstsFromFiles({ *find(sp, "java") | sp <- sourcePaths}, collectBindings, sourcePath = findRoots(sourcePaths), classPath = classPath, javaVersion = javaVersion);;
 }
