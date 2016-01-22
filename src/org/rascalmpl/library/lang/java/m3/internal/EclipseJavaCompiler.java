@@ -34,6 +34,7 @@ import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
@@ -84,8 +85,11 @@ public class EclipseJavaCompiler {
       return converter.getModel(false);
   }
 
-  public IValue createM3FromFile(ISourceLocation loc, IString javaVersion, IEvaluatorContext eval) {
+  public IValue createM3sFromFiles(ISet files, ISet sourcePath, ISet classPath, IString javaVersion, IEvaluatorContext eval) {
     try {
+        ISetWriter result = VF.setWriter();
+        for (IValue file: files) {
+            ISourceLocation loc = (ISourceLocation) file;
       CompilationUnit cu = this.getCompilationUnit(loc.getPath(), getFileContents(loc, eval), true, javaVersion);
 
       TypeStore store = new TypeStore();
@@ -104,7 +108,9 @@ public class EclipseJavaCompiler {
         comment.accept(converter);
       }
       
-      return converter.getModel(true);
+      result.insert(converter.getModel(true));
+        }
+        return result.done();
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
     }
@@ -138,9 +144,12 @@ public class EclipseJavaCompiler {
   /*
    * Creates Rascal ASTs for Java source files
    */
-  public IValue createAstFromFile(ISourceLocation loc, IBool collectBindings, IString javaVersion,
+  public IValue createAstsFromFiles(ISet files, IBool collectBindings, ISet sourcePath, ISet classPath, IString javaVersion,
       IEvaluatorContext eval) {
     try {
+        ISetWriter result = VF.setWriter();
+        for (IValue file: files) {
+            ISourceLocation loc = (ISourceLocation) file;
       CompilationUnit cu = getCompilationUnit(loc.getPath(), getFileContents(loc, eval), collectBindings.getValue(), javaVersion);
 
       TypeStore store = new TypeStore();
@@ -152,13 +161,16 @@ public class EclipseJavaCompiler {
       cu.accept(converter);
       
       converter.insertCompilationUnitMessages(true, null);
-      return converter.getValue();
+      result.insert(converter.getValue());
+        }
+        return result.done();
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
     }
   }
+
   
-  public IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings, IString javaVersion,
+  public IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings,ISet sourcePath, ISet classPath, IString javaVersion,
 		  IEvaluatorContext eval) {
 	  try {
 	      CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), collectBindings.getValue(), javaVersion);
