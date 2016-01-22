@@ -20,6 +20,7 @@ package org.rascalmpl.library.lang.java.m3.internal;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jdt.core.Signature;
 import org.objectweb.asm.ClassReader;
@@ -48,8 +49,8 @@ public class JarConverter extends M3Converter {
   private String className;
   private boolean classIsEnum;
 
-  JarConverter(TypeStore typeStore) {
-    super(typeStore);
+  JarConverter(TypeStore typeStore, Map<String, ISourceLocation> cache) {
+    super(typeStore, cache);
   }
 
   private String extractJarName(ISourceLocation jarLoc) {

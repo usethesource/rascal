@@ -2,6 +2,7 @@ package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.util.Stack;
 
+import org.rascalmpl.ast.Comprehension.Map;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISetWriter;
@@ -40,8 +41,8 @@ public abstract class M3Converter extends JavaToRascalConverter {
 	protected final org.rascalmpl.value.type.Type CONSTRUCTOR_M3;
 	
 	@SuppressWarnings("deprecation")
-	M3Converter(final TypeStore typeStore) {
-		super(typeStore, true);
+	M3Converter(final TypeStore typeStore, java.util.Map<String, ISourceLocation> cache) {
+		super(typeStore, cache, true);
 		this.DATATYPE_M3_NODE_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_M3_NODE);
 		TypeFactory tf = TypeFactory.getInstance();
     this.CONSTRUCTOR_M3= this.typeStore.lookupConstructor(DATATYPE_M3_NODE_TYPE, "m3", tf.tupleType(tf.sourceLocationType()));

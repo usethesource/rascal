@@ -1,6 +1,7 @@
 package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -110,8 +111,8 @@ public class ASTConverter extends JavaToRascalConverter {
 	 * Type parameters need to come out of annotations
 	 * calls may need to be broken up into superconstructor, constructor, supermethod, method calls or separate them in bindings
 	 */
-	public ASTConverter(final TypeStore typeStore, boolean collectBindings) {
-		super(typeStore, collectBindings);
+	public ASTConverter(final TypeStore typeStore, Map<String, ISourceLocation> cache, boolean collectBindings) {
+		super(typeStore, cache, collectBindings);
 	}
 	
 	public void postVisit(ASTNode node) {

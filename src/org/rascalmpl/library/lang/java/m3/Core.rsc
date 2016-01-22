@@ -72,7 +72,7 @@ public java set[M3] createM3sFromFiles(set[loc] files, set[loc] sourcePath = {},
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
-public java M3 createM3FromString(loc fileName, str contents, str javaVersion = "1.7");
+public java M3 createM3FromString(loc fileName, str contents, set[loc] sourcePath = {}, set[loc] classPath = {}, str javaVersion = "1.7");
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
