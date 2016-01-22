@@ -12,6 +12,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
+ *   * Davy Landman - Davy.Landman@cwi.nl (CWI)
  *******************************************************************************/
 package org.rascalmpl.library.lang.java.m3.internal;
 
@@ -19,7 +20,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
@@ -41,7 +41,6 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.TypeStore;
 
-@SuppressWarnings("rawtypes")
 public class EclipseJavaCompiler {
     protected final IValueFactory VF;
 
@@ -54,42 +53,42 @@ public class EclipseJavaCompiler {
         store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
         store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
         JarConverter converter = new JarConverter(store, new HashMap<>());
-        converter.set(jarLoc);
         converter.convert(jarLoc, eval);
-
         return converter.getModel(false);
     }
 
     public IValue createM3sFromFiles(ISet files, ISet sourcePath, ISet classPath, IString javaVersion, IEvaluatorContext eval) {
         try {
+            TypeStore store = new TypeStore();
+            store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
+            store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
+
             Map<String, ISourceLocation> cache = new HashMap<>();
             ISetWriter result = VF.setWriter();
             for (IValue file: files) {
                 ISourceLocation loc = (ISourceLocation) file;
                 CompilationUnit cu = this.getCompilationUnit(loc.getPath(), getFileContents(loc, eval), true, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
 
-                TypeStore store = new TypeStore();
-                store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
-                store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-                SourceConverter converter = new SourceConverter(store, cache);
-
-                converter.set(cu);
-                converter.set(loc);
-                cu.accept(converter);
-                for (Iterator it = cu.getCommentList().iterator(); it.hasNext();) {
-                    Comment comment = (Comment) it.next();
-                    // Issue 720: changed condition to only visit comments without a parent (includes line, block and misplaced javadoc comments).
-                    if (comment.getParent() != null)
-                        continue;
-                    comment.accept(converter);
-                }
-
-                result.insert(converter.getModel(true));
+                result.insert(convertToM3(store, cache, loc, cu));
             }
             return result.done();
         } catch (IOException e) {
             throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
         }
+    }
+
+    private IValue convertToM3(TypeStore store, Map<String, ISourceLocation> cache, ISourceLocation loc,
+            CompilationUnit cu) {
+        SourceConverter converter = new SourceConverter(store, cache);
+        converter.convert(cu, cu, loc);
+        for (Object cm: cu.getCommentList()) {
+            Comment comment = (Comment)cm;
+            // Issue 720: changed condition to only visit comments without a parent (includes line, block and misplaced javadoc comments).
+            if (comment.getParent() != null)
+                continue;
+            converter.convert(cu, comment, loc);
+        }
+        return converter.getModel(true);
     }
 
     private String[] translatePaths(ISet paths) {
@@ -112,19 +111,8 @@ public class EclipseJavaCompiler {
             TypeStore store = new TypeStore();
             store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
             store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-            SourceConverter converter = new SourceConverter(store, new HashMap<>());
 
-            converter.set(cu);
-            converter.set(loc);
-            cu.accept(converter);
-            for (Iterator it = cu.getCommentList().iterator(); it.hasNext();) {
-                Comment comment = (Comment) it.next();
-                if (comment.getParent() != null)
-                    continue;
-                comment.accept(converter);
-            }
-
-            return converter.getModel(true);
+            return convertToM3(store, new HashMap<>(), loc, cu);
         } catch (IOException e) {
             throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
         }
@@ -146,9 +134,7 @@ public class EclipseJavaCompiler {
                 store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
                 ASTConverter converter = new ASTConverter(store, cache, collectBindings.getValue());
 
-                converter.set(cu);
-                converter.set(loc);
-                cu.accept(converter);
+                converter.convert(cu, cu, loc);
 
                 converter.insertCompilationUnitMessages(true, null);
                 result.insert(converter.getValue());
@@ -168,11 +154,7 @@ public class EclipseJavaCompiler {
             TypeStore store = new TypeStore();
             store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
             ASTConverter converter = new ASTConverter(store, new HashMap<>(), collectBindings.getValue());
-
-            converter.set(cu);
-            converter.set(loc);
-            cu.accept(converter);
-
+            converter.convert(cu, cu, loc);
             converter.insertCompilationUnitMessages(true, null);
             return converter.getValue();
         } catch (IOException e) {
