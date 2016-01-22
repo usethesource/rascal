@@ -124,25 +124,28 @@ public class EclipseJavaCompiler {
     public IValue createAstsFromFiles(ISet files, IBool collectBindings, ISet sourcePath, ISet classPath, IString javaVersion,
             IEvaluatorContext eval) {
         try {
+            TypeStore store = new TypeStore();
+            store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
+
             Map<String, ISourceLocation> cache = new HashMap<>();
             ISetWriter result = VF.setWriter();
             for (IValue file: files) {
                 ISourceLocation loc = (ISourceLocation) file;
                 CompilationUnit cu = getCompilationUnit(loc.getPath(), getFileContents(loc, eval), collectBindings.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
-
-                TypeStore store = new TypeStore();
-                store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-                ASTConverter converter = new ASTConverter(store, cache, collectBindings.getValue());
-
-                converter.convert(cu, cu, loc);
-
-                converter.insertCompilationUnitMessages(true, null);
-                result.insert(converter.getValue());
+                result.insert(convertToAST(collectBindings, cache, loc, cu, store));
             }
             return result.done();
         } catch (IOException e) {
             throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
         }
+    }
+
+    private IValue convertToAST(IBool collectBindings, Map<String, ISourceLocation> cache, ISourceLocation loc,
+            CompilationUnit cu, TypeStore store) {
+        ASTConverter converter = new ASTConverter(store, cache, collectBindings.getValue());
+        converter.convert(cu, cu, loc);
+        converter.insertCompilationUnitMessages(true, null);
+        return converter.getValue();
     }
 
 
@@ -153,10 +156,8 @@ public class EclipseJavaCompiler {
 
             TypeStore store = new TypeStore();
             store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-            ASTConverter converter = new ASTConverter(store, new HashMap<>(), collectBindings.getValue());
-            converter.convert(cu, cu, loc);
-            converter.insertCompilationUnitMessages(true, null);
-            return converter.getValue();
+
+            return convertToAST(collectBindings, new HashMap<>(), loc, cu, store);
         } catch (IOException e) {
             throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
         }
