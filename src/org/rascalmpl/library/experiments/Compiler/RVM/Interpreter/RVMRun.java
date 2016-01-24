@@ -1636,13 +1636,13 @@ public class RVMRun extends RVM {
 		}
 	}
 
-	public static void debugCALLMUPRIM(String insName, Frame lcf, int lsp) {
-		if (!silent) {
-			System.out.println(insName);
-			if (lcf == null)
-				throw new RuntimeException();
-		}
-	}
+//	public static void debugCALLMUPRIM(String insName, Frame lcf, int lsp) {
+//		if (!silent) {
+//			System.out.println(insName);
+//			if (lcf == null)
+//				throw new RuntimeException();
+//		}
+//	}
 
 	public static void debugJMP(String insName, Frame lcf, int lsp) {
 		if (!silent) {
@@ -1972,13 +1972,13 @@ public class RVMRun extends RVM {
 		}
 	}
 
-	public static void debugCALLPRIM(String insName, Frame lcf, int lsp) {
-		if (!silent) {
-			System.out.println(insName);
-			if (lcf == null)
-				throw new RuntimeException();
-		}
-	}
+//	public static void debugCALLPRIM(String insName, Frame lcf, int lsp) {
+//		if (!silent) {
+//			System.out.println(insName);
+//			if (lcf == null)
+//				throw new RuntimeException();
+//		}
+//	}
 
 	public static void debugSUBSCRIPTARRAY(String insName, Frame lcf, int lsp) {
 		if (!silent) {

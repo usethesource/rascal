@@ -831,7 +831,7 @@ public class CodeBlock implements Serializable {
     void listing(String fname){
     	int pc = 0;
     	while(pc < finalCode.length){
-    		Opcode opc = Opcode.fromInteger((int) finalCode[pc]);
+    		Opcode opc = Opcode.fromInteger(fetchOp((int) finalCode[pc]));
     		System.out.println(fname + "[" + pc +"]: " + Opcode.toString(this, opc, pc));
     		pc += opc.getPcIncrement();
     	}

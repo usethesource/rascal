@@ -143,6 +143,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			functionStore.set(index, f);
 			f.funId = index ;
 		}
+		
 		//System.out.println("declareFunction: " + index + "  => " + f.getName());
 	}
 	
@@ -489,7 +490,6 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		int continuationPoints = 0 ;
 		Type ftype = isCoroutine ? tf.voidType() : symbolToType((IConstructor) declaration.get("ftype"));
 		
-		//System.err.println("loadInstructions: " + name + ": ftype = " + ftype + ", declaration = " + declaration);
 		
 		String scopeIn = ((IString) declaration.get("scopeIn")).getValue();
 //		if(scopeIn.equals("")) {
@@ -541,7 +541,6 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			case "PUSHLOC":
 				codeblock.PUSHLOC(getIntField(instruction, "pos"));
 				break;
-				
 
 			case "STOREVAR":
 				codeblock.STOREVAR(getStrField(instruction, "fuid"), 

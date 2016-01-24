@@ -1,5 +1,8 @@
 module experiments::Compiler::Examples::Tst1
 
-int ident(int n) = n;
+import experiments::Compiler::Execute;
+import ParseTree;
 
-value main() = ident(13);
+import util::Reflective;
+
+value main() = execute("lang::rascal::tests::basic::Booleans", pathConfig(binDir=|home:///bin|, libPath=[|home:///bin|]), recompile=true);

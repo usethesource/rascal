@@ -29,6 +29,11 @@ list[RVMDeclaration] compileMuLibrary(PathConfig pcfg, bool verbose = false){
         setFunctionScope(fun.qname);
         set_nlocals(fun.nlocals);
         body = peephole(tr(fun.body));
+        if(fun.qname == "Library/RANGE_INT"){
+            println(fun.qname);
+            iprintln(fun.body);
+            iprintln(body);
+        }
         <maxSP, exceptions> = validate(fun.src, body, []);
         required_frame_size = get_nlocals() + maxSP;
         functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun. uqname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body, [])

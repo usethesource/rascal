@@ -121,8 +121,8 @@ public data Instruction =
 		| LOADVARKWP(str fuid, str name)            // Load a keyword parameter from an outer scope
 		| STOREVARKWP(str fuid, str name)           // Store value on top-of-stack in the keyword parameter of a surrounding scope (value remains on stack)
 
-		| LOADMODULEVAR(str fuid)          			// Push a variable from a global module scope
-		| STOREMODULEVAR(str fuid)         			// Store value on  top-of-stack in variable in global module scope (value remains on stack)
+//		| LOADMODULEVAR(str fuid)          			// Push a variable from a global module scope
+//		| STOREMODULEVAR(str fuid)         			// Store value on  top-of-stack in variable in global module scope (value remains on stack)
 		
 		| LOADLOCREF(int pos)						// Push a reference to a local variable
 		| LOADLOCDEREF(int pos)						// Push value of a local variable identified by reference on stack 
@@ -144,7 +144,7 @@ public data Instruction =
 		| OCALL(str fuid, int arity, loc src)		// Call a named *Rascal* function
 		| OCALLDYN(Symbol types, int arity, loc src)// Call a *Rascal* function on stack
 		
-		| CALLMUPRIM(str name, int arity)			// Call a muRascal primitive (see Compiler.RVM.Interpreter.MuPrimitive) 
+//		| CALLMUPRIM(str name, int arity)			// Call a muRascal primitive (see Compiler.RVM.Interpreter.MuPrimitive) 
 		                                           /*OBSOLETE*/
 		
 		| CALLMUPRIM0(str name)                     // Call a muRascal primitive, arity 0 (see Compiler.RVM.Interpreter.MuPrimitive)
@@ -152,7 +152,7 @@ public data Instruction =
 		| CALLMUPRIM2(str name)                     // Call a muRascal primitive, arity 2 (see Compiler.RVM.Interpreter.MuPrimitive)
 		| CALLMUPRIMN(str name, int arity)          // Call a muRascal primitive, arity arity (see Compiler.RVM.Interpreter.MuPrimitive)
 		
-		| CALLPRIM(str name, int arity, loc src)	// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
+//		| CALLPRIM(str name, int arity, loc src)	// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
 		                                              /*OBSOLETE*/
 		| CALLPRIM0(str name, loc src)              // Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
 		| CALLPRIM1(str name, loc src)              // Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
