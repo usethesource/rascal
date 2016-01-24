@@ -11,6 +11,7 @@ import experiments::Compiler::RVM::AST;
 alias INS = list[Instruction];
 
 INS peephole(INS instructions) {
+    //return instructions;
 	return peephole1(instructions, false); // when bprintln("**** peephole length <size(instructions)>");
 }
 

@@ -641,17 +641,17 @@ public class RVM /*implements java.io.Serializable*/ {
 		throw new CompilerError("LOADVARDEREF cannot find matching scope: " + varScope, cf);
 	}
 	
-	int STOREVAR(int varScope, int pos, Frame cf, Object[] stack, int sp){
+	void STOREVAR(int varScope, int pos, Frame cf, Object accu){
 		if(CodeBlock.isMaxArg2(pos)){
 			IValue mvar = cf.function.constantStore[varScope];
-			moduleVariables.put(mvar, (IValue)stack[sp -1]);
-			return sp;
+			moduleVariables.put(mvar, (IValue)accu);
+			return;
 		}
 		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == varScope) {
 				// TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues
-				fr.stack[pos] = stack[sp - 1];
-				return sp;
+				fr.stack[pos] = accu;
+				return;
 			}
 		}
 		throw new CompilerError("STOREVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
@@ -884,14 +884,13 @@ public class RVM /*implements java.io.Serializable*/ {
 		try {
 			NEXT_INSTRUCTION: while (true) {
 				
-				
 				frameObserver.observeRVM(this, cf, pc, stack, sp, accu);
 				
 				instruction = instructions[pc++];
 				op = CodeBlock.fetchOp(instruction);
 				
-				
 				String name;
+				
 				INSTRUCTION: switch (op) {
 				
 				case Opcode.OP_PUSHACCU:
@@ -987,7 +986,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					for(IValue v : positions){
 						stack[((IInteger) v).intValue()] = null;
 					}
-					stack[sp++] = Rascal_TRUE;
+					//stack[sp++] = Rascal_TRUE;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_RESETLOC:	
@@ -1103,7 +1102,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					
 				case Opcode.OP_STORELOCDEREF:
 					Reference ref = (Reference) stack[CodeBlock.fetchArg1(instruction)];
-					ref.stack[ref.pos] = accu; // TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues    
+					ref.stack[ref.pos] = stack[sp - 1]; // TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues    
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_LOADFUN:
@@ -1134,6 +1133,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					 if(stack[sp - 1] == null){ 
 						 postOp = Opcode.POSTOP_CHECKUNDEF; break; 
 					 }
+					 accu = stack[--sp];
 					 continue NEXT_INSTRUCTION;
 					 
 				case Opcode.OP_RESETVAR:
@@ -1153,7 +1153,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_STOREVAR:
-					sp = STOREVAR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), cf, stack, sp);
+					STOREVAR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), cf, accu);
 					continue NEXT_INSTRUCTION;
 						
 				case Opcode.OP_STOREVARDEREF:
@@ -1391,7 +1391,7 @@ public class RVM /*implements java.io.Serializable*/ {
 								}
 							}
 						} else {
-							rval = accu = stack[sp - 1];
+							rval = stack[sp - 1];
 						}
 					}
 					assert sp == ((op == Opcode.OP_RETURN0) ? cf.function.getNlocals() : cf.function.getNlocals() + 1)
@@ -1649,7 +1649,6 @@ public class RVM /*implements java.io.Serializable*/ {
 						accu = RascalPrimitive.values[CodeBlock.fetchArg1(instruction)].execute1(accu, cf, rex);
 					} catch (Thrown exception) {
 						thrown = exception;
-						sp = sp - 1;
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; 
 						break INSTRUCTION;
 					}
@@ -1663,7 +1662,7 @@ public class RVM /*implements java.io.Serializable*/ {
 						sp--;
 					} catch (Thrown exception) {
 						thrown = exception;
-						sp = sp - 2;
+						sp = sp - 1;
 						postOp = Opcode.POSTOP_HANDLEEXCEPTION; 
 						break INSTRUCTION;
 					}
@@ -1683,63 +1682,63 @@ public class RVM /*implements java.io.Serializable*/ {
 				// Some specialized MuPrimitives
 					
 				case Opcode.OP_SUBSCRIPTARRAY:
-					stack[sp - 2] = ((Object[]) stack[sp - 2])[((Integer) stack[sp - 1])];
+					accu = ((Object[]) stack[sp - 1])[((Integer) accu)];
 					sp--;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_SUBSCRIPTLIST:
-					stack[sp - 2] = ((IList) stack[sp - 2]).get((Integer) stack[sp - 1]);
+					accu = ((IList) stack[sp - 1]).get((Integer) accu);
 					sp--;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LESSINT:
-					stack[sp - 2] = vf.bool(((Integer) stack[sp - 2]) < ((Integer) stack[sp - 1]));
+					accu = vf.bool(((Integer) stack[sp - 1]) < ((Integer) accu));
 					sp--;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_GREATEREQUALINT:
-					stack[sp - 2] = vf.bool(((Integer) stack[sp - 2]) >= ((Integer) stack[sp - 1]));
+					accu = vf.bool(((Integer) stack[sp - 1]) >= ((Integer) accu));
 					sp--;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_ADDINT:
-					stack[sp - 2] = ((Integer) stack[sp - 2]) + ((Integer) stack[sp - 1]);
+					accu = ((Integer) stack[sp - 1]) + ((Integer) accu);
 					sp--;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_SUBTRACTINT:
-					stack[sp - 2] = ((Integer) stack[sp - 2]) - ((Integer) stack[sp - 1]);
+					accu = ((Integer) stack[sp - 1]) - ((Integer) accu);
 					sp--;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_ANDBOOL:
-					stack[sp - 2] = ((IBool) stack[sp - 2]).and((IBool) stack[sp - 1]);
+					accu = ((IBool) stack[sp - 1]).and((IBool) accu);
 					sp--;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_TYPEOF:
-					if(stack[sp - 1] instanceof HashSet<?>){	// For the benefit of set matching
-						HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+					if(accu instanceof HashSet<?>){	// For the benefit of set matching
+						HashSet<IValue> mset = (HashSet<IValue>) accu;
 						if(mset.isEmpty()){
-							stack[sp - 1] = tf.setType(tf.voidType());
+							accu = tf.setType(tf.voidType());
 						} else {
 							IValue v = mset.iterator().next();
-							stack[sp - 1] = tf.setType(v.getType());
+							accu = tf.setType(v.getType());
 						}
 					} else {
-						stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+						accu = ((IValue) accu).getType();
 					}
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_SUBTYPE:
-					stack[sp - 2] = vf.bool(((Type) stack[sp - 2]).isSubtypeOf((Type) stack[sp - 1]));
+					accu = vf.bool(((Type) stack[sp - 1]).isSubtypeOf((Type) accu));
 					sp--;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_VALUESUBTYPE:
 					Type reqType = cf.function.typeConstantStore[CodeBlock.fetchArg1(instruction)];
 					//stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isSubtypeOf(reqType));
-					stack[sp - 1] = vf.bool(rex.isSubtypeOf(((IValue) stack[sp - 1]).getType(), reqType));
+					accu = vf.bool(rex.isSubtypeOf(((IValue) accu).getType(), reqType));
 					continue NEXT_INSTRUCTION;
 								
 				case Opcode.OP_LABEL:

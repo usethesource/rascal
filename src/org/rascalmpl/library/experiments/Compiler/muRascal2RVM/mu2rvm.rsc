@@ -180,7 +180,7 @@ bool producesValue(muGuard(_)) = false;
 //bool producesValue(muYield0()) = false;
 //bool producesValue(muExhaust()) = false;
 
-bool producesValue(muNext1(MuExp coro)) = false;
+//bool producesValue(muNext1(MuExp coro)) = false;
 default bool producesValue(MuExp exp) = true;
 
 // Management needed to compute exception tables
@@ -290,14 +290,15 @@ RVMModule mu2rvm(muModule(str module_name,
     
     // Append catch blocks to the end of the function body code
     // code = tr(fun.body) + [ *catchBlock | INS catchBlock <- catchBlocks ];
-    println(functionScope);
-    iprintln(fun.body);
     
-    code = tr(fun.body);
+    //println(functionScope);
+    //iprintln(fun.body);
     
-    //if(!contains(fun.qname, "_testsuite")){
-    	code = peephole(code);
-    //}
+    code = tr(fun.body, stack());
+    
+   
+    code = peephole(code);
+
     
     catchBlockCode = [ *catchBlock | INS catchBlock <- catchBlocks ];
     
@@ -423,8 +424,9 @@ INS plug(var(fuid, pos1), local(pos2)) = [LOADVAR(fuid, pos1), STORELOC(pos2) ];
 INS plug(var(fuid, pos), nowhere()) = [ ];
 
 INS plug(stack(), accu()) = [ POPACCU() ];
+INS plug(stack(), nowhere()) = [ POP() ];
 
-INS plug(_, nowhere()) = [];
+INS plug(Dest d, nowhere()) = [];
 
 /*********************************************************************/
 /*      Translate lists of muRascal expressions                      */
@@ -441,11 +443,11 @@ INS trblock(list[MuExp] exps, Dest d) {
      return plug(con(666), d); // TODO: throw "Non void block cannot be empty";
   }
   ins = [*tr_and_pop(exp) | exp <- exps[0..-1]];
-  ins += tr(exps[-1], accu());
+  ins += tr(exps[-1], d);
   if(!producesValue(exps[-1])){
-  	ins += PUSHCON(666);
+  	ins += plug(con(666), d);
   }
-  return ins + plug(accu(), d);
+  return ins;
 }
 
 //default INS trblock(MuExp exp) = tr(exp);
@@ -458,6 +460,7 @@ INS trvoidblock(list[MuExp] exps){
 }
 
 INS tr(muBlock([MuExp exp]), Dest d) = tr(exp, d);
+
 default INS tr(muBlock(list[MuExp] exps), Dest d) = trblock(exps, d);
 
 
@@ -465,13 +468,13 @@ default INS tr(muBlock(list[MuExp] exps), Dest d) = trblock(exps, d);
 /*      Translate a single muRascal expression                       */
 /*********************************************************************/
 
-INS tr(MuExp exp) = tr(exp, accu());
+INS tr(MuExp exp) = tr(exp, stack());
 
 // Literals and type constants
 
 INS tr(muBool(bool b), Dest d) = plug(con(b), d); //LOADBOOL(b) + plug(accu(), d);
 
-INS tr(muInt(int n), Dest d) = plug(con(n), d); //LOADINT(n) + plug(stack(), d);
+INS tr(muInt(int n), Dest d) = LOADINT(n) + plug(accu(), d);
 
 /*default*/ INS tr(muCon(value c), Dest d) = plug(con(c), d);
 
@@ -522,9 +525,9 @@ INS tr(muAssignVarDeref(str id, str fuid, int pos, MuExp exp), Dest d) = [ *tr(e
 INS tr(muAssign(str id, str fuid, int pos, MuExp exp), Dest d) { 
      if(fuid == functionScope){
         localNames[pos] = id; 
-        return [ *tr(exp, accu()), STORELOC(pos) ];
+        return [ *tr(exp, accu()), STORELOC(pos), *plug(accu(), d) ];
      } else {
-        return [*tr(exp, accu()), STOREVAR(fuid, pos)];
+        return [*tr(exp, accu()), STOREVAR(fuid, pos), *plug(accu(), d) ];
      }
 }     
 INS tr(muAssignLoc(str id, int pos, MuExp exp), Dest d) { 
@@ -533,8 +536,8 @@ INS tr(muAssignLoc(str id, int pos, MuExp exp), Dest d) {
 }
 INS tr(muAssignTmp(str id, str fuid, MuExp exp), Dest d) = [*tr(exp, accu()), fuid == functionScope ? STORELOC(getTmp(id,fuid)) : STOREVAR(fuid,getTmp(id,fuid)) ] + plug(accu(), d);
 
-INS tr(muAssignLocKwp(str name, MuExp exp)) = [ *tr(exp), STORELOCKWP(name) ];
-INS tr(muAssignKwp(str fuid, str name, MuExp exp)) = [ *tr(exp), fuid == functionScope ? STORELOCKWP(name) : STOREVARKWP(fuid,name) ] + plug(accu(), d);
+INS tr(muAssignLocKwp(str name, MuExp exp), Dest d) = [ *tr(exp, stack()), STORELOCKWP(name) ];
+INS tr(muAssignKwp(str fuid, str name, MuExp exp), Dest d) = [ *tr(exp, stack()), fuid == functionScope ? STORELOCKWP(name) : STOREVARKWP(fuid,name) ] + plug(stack(), d);
 
 // Calls
 
@@ -553,16 +556,17 @@ default INS tr(muCall(MuExp fun, list[MuExp] args), Dest d) = [*tr(args), *tr(fu
 INS tr(muApply(muFun1(str fuid), []), Dest d) = [ LOADFUN(fuid), *plug(stack(), d) ];
 INS tr(muApply(muFun1(str fuid), list[MuExp] args), Dest d) = [ *tr(args), APPLY(fuid, size(args)), *plug(stack(), d) ];
 INS tr(muApply(muConstr(str fuid), list[MuExp] args), Dest d) { throw "Partial application is not supported for constructor calls!"; }
-INS tr(muApply(muFun2(str fuid, str scopeIn), []), Dest d) = [ LOAD_NESTED_FUN(fuid, scopeIn) *plug(stack(), d) ];
+INS tr(muApply(muFun2(str fuid, str scopeIn), []), Dest d) = [ LOAD_NESTED_FUN(fuid, scopeIn), *plug(stack(), d) ];
 default INS tr(muApply(MuExp fun, list[MuExp] args), Dest d) = [ *tr(args), *tr(fun, stack()), APPLYDYN(size(args)), *plug(stack(), d)  ];
 
 // Rascal functions
 
-INS tr(muOCall3(muOFun(str fuid), list[MuExp] args, loc src), Dest d) = [*tr(args), OCALL(fuid, size(args), src), *plug(stack(), d)];
+INS tr(muOCall3(muOFun(str fuid), list[MuExp] args, loc src), Dest d) = 
+    [*tr(args), OCALL(fuid, size(args), src), *plug(stack(), d)];
 
 INS tr(muOCall4(MuExp fun, Symbol types, list[MuExp] args, loc src), Dest d) 
 	= [ *tr(args),
-	    *tr(fun), 
+	    *tr(fun, stack()), 
 		OCALLDYN(types, size(args), src),
 		*plug(stack(), d)
       ];
@@ -577,18 +581,26 @@ INS tr(muVisit(bool direction, bool fixedpoint, bool progress, bool rebuild, MuE
 	    *tr(refBegin, stack()),
 	    *tr(refEnd, stack()),
 	    *tr(descriptor, stack()),
-	    VISIT(direction, fixedpoint, progress, rebuild)
+	    VISIT(direction, fixedpoint, progress, rebuild),
 	    *plug(stack(), d)
 	  ];
 
 
 // Calls to Rascal primitives that are directly translated to RVM instructions
 
-INS tr(muCallPrim3("println", list[MuExp] args, loc src)) = [*tr(args), PRINTLN(size(args))];
-INS tr(muCallPrim3("subtype", list[MuExp] args, loc src)) = [*tr(args), SUBTYPE()];
-INS tr(muCallPrim3("typeOf", list[MuExp] args, loc src)) = [*tr(args), TYPEOF()];
-INS tr(muCallPrim3("check_memo", list[MuExp] args, loc src)) = [CHECKMEMO()];
-INS tr(muCallPrim3("subtype_value_type", [exp1,  muTypeCon(Symbol tp)], loc src)) = [*tr(exp1), VALUESUBTYPE(tp)];
+INS tr(muCallPrim3("println", list[MuExp] args, loc src), Dest d) = [*tr(args), PRINTLN(size(args))];
+
+INS tr(muCallPrim3("subtype", list[MuExp] args, loc src), Dest d) = 
+    [*tr(args[0], stack()),*tr(args[1], accu()), SUBTYPE(), *plug(accu(), d)];
+    
+INS tr(muCallPrim3("typeOf", list[MuExp] args, loc src), Dest d) = 
+    [*tr(args[0], accu()), TYPEOF(), *plug(accu(), d)];
+    
+INS tr(muCallPrim3("check_memo", list[MuExp] args, loc src), Dest d) = 
+    [CHECKMEMO(), *plug(accu(), d)];
+
+INS tr(muCallPrim3("subtype_value_type", [exp1,  muTypeCon(Symbol tp)], loc src), Dest d) = 
+    [*tr(exp1, accu()), VALUESUBTYPE(tp), *plug(accu(), d)];
 
 default INS tr(muCallPrim3(str name, list[MuExp] args, loc src), Dest d) {
   n = size(args);
@@ -598,7 +610,7 @@ default INS tr(muCallPrim3(str name, list[MuExp] args, loc src), Dest d) {
                 "list_slice_replace", "list_slice_add", "list_slice_subtract", "list_slice_product", "list_slice_divide", 
                 "list_slice_intersect", "str_slice_replace", "node_slice_replace", "list_slice", 
                 "rel_subscript", "lrel_subscript" }){ // varyadic MuPrimitives
-        return [*tr(args), CALLPRIMN(name, n, src), *plug(stack(), d)];
+        return [*tr(args), CALLPRIMN(name, n, src), *plug(accu(), d)];
     }
     
     switch(n){
@@ -611,22 +623,41 @@ default INS tr(muCallPrim3(str name, list[MuExp] args, loc src), Dest d) {
 
 // Calls to MuRascal primitives that are directly translated to RVM instructions
 
-INS tr(muCallMuPrim("println", list[MuExp] args)) = [*tr(args), PRINTLN(size(args))];
-INS tr(muCallMuPrim("subscript_array_mint", list[MuExp] args)) = [*tr(args), SUBSCRIPTARRAY()];
-INS tr(muCallMuPrim("subscript_list_mint", list[MuExp] args)) = [*tr(args), SUBSCRIPTLIST()];
-INS tr(muCallMuPrim("less_mint_mint", list[MuExp] args)) = [*tr(args), LESSINT()];
-INS tr(muCallMuPrim("greater_equal_mint_mint", list[MuExp] args)) = [*tr(args), GREATEREQUALINT()];
-INS tr(muCallMuPrim("addition_mint_mint", list[MuExp] args)) = [*tr(args), ADDINT()];
-INS tr(muCallMuPrim("subtraction_mint_mint", list[MuExp] args)) = [*tr(args), SUBTRACTINT()];
-INS tr(muCallMuPrim("and_mbool_mbool", list[MuExp] args)) = [*tr(args), ANDBOOL()];
-INS tr(muCallMuPrim("check_arg_type_and_copy", [muCon(int pos1), muTypeCon(Symbol tp), muCon(int pos2)]), Dest d) = CHECKARGTYPEANDCOPY(pos1, tp, pos2) + plug(accu(), d);
+INS tr(muCallMuPrim("println", list[MuExp] args), Dest d) = [*tr(args), PRINTLN(size(args))];
+INS tr(muCallMuPrim("subscript_array_mint", list[MuExp] args), Dest d) = 
+    [*tr(args[0], stack()),*tr(args[1], accu()), SUBSCRIPTARRAY(), *plug(accu(), d)];
+    
+INS tr(muCallMuPrim("subscript_list_mint", list[MuExp] args), Dest d) = 
+    [*tr(args[0], stack()), *tr(args[1], accu()), SUBSCRIPTLIST(), *plug(accu(), d)];
+    
+//INS tr(muCallMuPrim("less_mint_mint", list[MuExp] args), Dest d) {
+//    res = [*tr(args[0], stack()), *tr(args[1], accu()), LESSINT(), *plug(accu(), d)];
+//    println(res);
+//    return res;
+//}    
+INS tr(muCallMuPrim("greater_equal_mint_mint", list[MuExp] args), Dest d) = 
+    [*tr(args[0], stack()), *tr(args[1], accu()), GREATEREQUALINT(), *plug(accu(), d)];
+
+INS tr(muCallMuPrim("addition_mint_mint", list[MuExp] args), Dest d) = 
+    [*tr(args[0], stack()), *tr(args[1], accu()), ADDINT(), *plug(accu(), d)];
+    
+INS tr(muCallMuPrim("subtraction_mint_mint", list[MuExp] args), Dest d) = 
+    [*tr(args[0], stack()), *tr(args[1], accu()), SUBTRACTINT(), *plug(accu(), d)];
+    
+INS tr(muCallMuPrim("and_mbool_mbool", list[MuExp] args), Dest d) = 
+    [*tr(args[0], stack()), *tr(args[1], accu()), ANDBOOL(), *plug(accu(), d)];
+
+INS tr(muCallMuPrim("check_arg_type_and_copy", [muCon(int pos1), muTypeCon(Symbol tp), muCon(int pos2)]), Dest d) = 
+    CHECKARGTYPEANDCOPY(pos1, tp, pos2) + plug(accu(), d);
+    
 INS tr(muCallMuPrim("make_mmap", []), Dest d) =  LOADEMPTYKWMAP() + plug(stack(), d);
     
-default INS tr(muCallMuPrim(str name, list[MuExp] args), Dest d) { // = [*tr(args), mkCALLMUPRIM(name, size(args))];
+default INS tr(muCallMuPrim(str name, list[MuExp] args), Dest d) {
+   n = size(args);
    if(name in {"make_array", "make_mmap", "copy_and_update_keyword_mmap"}){ // varyadic MuPrimtives
         return [*tr(args), CALLMUPRIMN(name, n), *plug(accu(), d)];
     }
-    n = size(args);
+    
     switch(n){
         case 0: return CALLMUPRIM0(name) + plug(accu(), d);
         case 1: return [*tr(args[0], accu()), CALLMUPRIM1(name), *plug(accu(), d)];
@@ -635,8 +666,8 @@ default INS tr(muCallMuPrim(str name, list[MuExp] args), Dest d) { // = [*tr(arg
    }
 }
 
-default INS tr(muCallJava(str name, str class, Symbol parameterTypes, Symbol keywordTypes, int reflect, list[MuExp] args)) = 
-	[ *tr(args), CALLJAVA(name, class, parameterTypes, keywordTypes, reflect) ];
+default INS tr(muCallJava(str name, str class, Symbol parameterTypes, Symbol keywordTypes, int reflect, list[MuExp] args), Dest d) = 
+	[ *tr(args), CALLJAVA(name, class, parameterTypes, keywordTypes, reflect), *plug(stack(), d) ];
 
 // Return
 
@@ -672,16 +703,16 @@ INS tr(muYield2(MuExp exp, list[MuExp] exps), Dest d) = [ *tr(exp, stack()), *tr
 
 INS tr(experiments::Compiler::muRascal::AST::muExhaust(), Dest d) = [ EXHAUST() ];
 
-INS tr(muGuard(MuExp exp), Dest d) = [ *tr(exp, stack()), GUARD(), *plug(stack(), d) ];
+INS tr(muGuard(MuExp exp), Dest d) = [ *tr(exp, stack()), GUARD() ];
 
 // Exceptions
 
-INS tr(muThrow(MuExp exp, loc src)) = [ *tr(exp), THROW(src) ];
+INS tr(muThrow(MuExp exp, loc src), Dest d) = [ *tr(exp, stack()), THROW(src) ];
 
 // Temporary fix for Issue #781
 Symbol filterExceptionType(Symbol s) = s == adt("RuntimeException",[]) ? Symbol::\value() : s;
 
-INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
+INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally), Dest d) {
     
 	// Mark the begin and end of the 'try' and 'catch' blocks
 	str tryLab = nextLabel();
@@ -708,7 +739,7 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	enterTry(try_from, try_to, \catch.\type, catch_from, \finally); 
 	
 	// Translate the 'try' block; inlining 'finally' blocks where necessary
-	code = [ LABEL(try_from), *tr(exp) ];
+	code = [ LABEL(try_from), *tr(exp, d) ];
 	
 	oldFinallyBlocks = finallyBlocks;
 	leaveFinally();
@@ -730,7 +761,7 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 	tryBlocks = catchAsPartOfTryBlocks;
 	finallyBlocks = oldFinallyBlocks;
 	
-	trMuCatch(\catch, catch_from, catchAsPartOfTry_from, catch_to, try_to);
+	trMuCatch(\catch, catch_from, catchAsPartOfTry_from, catch_to, try_to, d);
 		
 	// Restore 'try' block environment
 	catchAsPartOfTryBlocks = tryBlocks;
@@ -744,10 +775,10 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) {
 		leaveCatchAsPartOfTryBlocks();
 	}
 
-	return code;
+	return code;// + plug(stack(), d);
 }
 
-void trMuCatch(m: muCatch(str id, str fuid, Symbol \type, MuExp exp), str from, str fromAsPartOfTryBlock, str to, str jmpto) {
+void trMuCatch(m: muCatch(str id, str fuid, Symbol \type, MuExp exp), str from, str fromAsPartOfTryBlock, str to, str jmpto, Dest d) {
     
     //println("trMuCatch:");
     //println("catchBlocks = <catchBlocks>");
@@ -774,12 +805,13 @@ void trMuCatch(m: muCatch(str id, str fuid, Symbol \type, MuExp exp), str from, 
 	} else {
 		catchBlock = [ LABEL(from), 
 					   // store a thrown value
-					   fuid == functionScope ? STORELOC(getTmp(id,fuid)) : STOREVAR(fuid,getTmp(id,fuid)), POP(),
+					   POPACCU(),
+					   fuid == functionScope ? STORELOC(getTmp(id,fuid)) : STOREVAR(fuid,getTmp(id,fuid)),
 					   // load a thrown value,
-					   fuid == functionScope ? LOADLOC(getTmp(id,fuid))  : LOADVAR(fuid,getTmp(id,fuid)),
+					   fuid == functionScope ? LOADLOC(getTmp(id,fuid))  : LOADVAR(fuid,getTmp(id,fuid)), PUSHACCU(),
 					   // unwrap it and store the unwrapped one in a separate local variable 
 					   fuid == functionScope ? UNWRAPTHROWNLOC(getTmp(asUnwrappedThrown(id),fuid)) : UNWRAPTHROWNVAR(fuid,getTmp(asUnwrappedThrown(id),fuid)),
-					   *tr(exp), LABEL(to), JMP(jmpto) ];
+					   *tr(exp, d), LABEL(to), JMP(jmpto) ];
 	}
 	
 	if(!isEmpty(catchBlocks[currentCatchBlock])) {
@@ -942,11 +974,11 @@ INS tr(muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuEx
    }
    INS defaultCode = tr(defaultExp, stack());
    if(defaultCode == []){
-   		defaultCode = [LOADCON(666)];
+   		defaultCode = [PUSHCON(666)];
    }
    if(size(cases) > 0){ 
-   		caseCode += [LABEL(defaultLab), JMPTRUE(continueLab), *defaultCode, POP() ];
-   		return [ LOADCON(false), *tr(exp, stack()), SWITCH(labels, defaultLab, useConcreteFingerprint), *caseCode, LABEL(continueLab), *tr(result, d) ];
+   		caseCode += [LABEL(defaultLab), POPACCU(), JMPTRUE(continueLab), *defaultCode, POP() ];
+   		return [ PUSHCON(false), *tr(exp, stack()), SWITCH(labels, defaultLab, useConcreteFingerprint), *caseCode, LABEL(continueLab), *tr(result, d) ];
    	} else {
    		return [ *tr(exp, stack()), POP(), *defaultCode, POP(), *tr(result, d) ];
    	}	
@@ -1008,10 +1040,12 @@ INS tr_cond(muOne1(MuExp exp), int coro, str continueLab, str failLab, str false
 INS tr_cond(muMulti(MuExp exp), int coro, str continueLab, str failLab, str falseLab) {
     res =  [ *tr(exp, stack()),
              CREATEDYN(0),
+             POPACCU(),
              STORELOC(coro),
-             POP(),
+            // POP(),
              *[ LABEL(continueLab), LABEL(failLab) ],
              LOADLOC(coro),
+             PUSHACCU(),
              NEXT0(),
              *plug(stack(), accu()),
              JMPFALSE(falseLab)
@@ -1020,7 +1054,7 @@ INS tr_cond(muMulti(MuExp exp), int coro, str continueLab, str failLab, str fals
 }
 
 default INS tr_cond(MuExp exp, int coro, str continueLab, str failLab, str falseLab) 
-	= [ JMP(continueLab), LABEL(failLab), JMP(falseLab), LABEL(continueLab), *tr(exp), JMPFALSE(falseLab) ];
+	= [ JMP(continueLab), LABEL(failLab), JMP(falseLab), LABEL(continueLab), *tr(exp, accu()), JMPFALSE(falseLab) ];
     
 
 bool needsCoRo(muMulti(MuExp exp)) = true;
