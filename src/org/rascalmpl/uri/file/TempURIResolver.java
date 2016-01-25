@@ -11,17 +11,47 @@
 *******************************************************************************/
 package org.rascalmpl.uri.file;
 
-import org.rascalmpl.value.ISourceLocation;
+import java.net.URISyntaxException;
 
-public class TempURIResolver extends FileURIResolver {
+import org.rascalmpl.uri.ILogicalSourceLocationResolver;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
+
+public class TempURIResolver implements ILogicalSourceLocationResolver {
+    
+    private final IValueFactory VF;
+    private final ISourceLocation root;
+
+    public TempURIResolver() {
+        VF = ValueFactoryFactory.getValueFactory();
+        ISourceLocation rootFinalHack = null;
+        try {
+            rootFinalHack = VF.sourceLocation("file", "", System.getProperty("java.io.tmpdir") + "/");
+        }
+        catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        root = rootFinalHack;
+    }
+    
 	@Override
 	public String scheme() {
 		return "tmp";
 	}
-	
-	@Override
-	protected String getPath(ISourceLocation uri) {
-		String path = super.getPath(uri);
-		return System.getProperty("java.io.tmpdir") + (path.startsWith("/") ? path : ("/" + path));
-	}
+
+    @Override
+    public ISourceLocation resolve(ISourceLocation input) {
+        String path = input.getPath();
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+        return URIUtil.getChildLocation(root, path);
+    }
+
+    @Override
+    public String authority() {
+        return "";
+    }
 }
