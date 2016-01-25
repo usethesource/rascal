@@ -100,13 +100,26 @@ public class EclipseJavaCompiler {
         String[] result = new String[paths.size()];
         int i = 0;
         for (IValue p : paths) {
-            ISourceLocation loc = (ISourceLocation)p;
+            ISourceLocation loc = safeResolve((ISourceLocation)p);
             if (!loc.getScheme().equals("file")) {
-                throw RascalRuntimeException.io(VF.string("all path entries must have the file:/// scheme: " + loc), null);
+                throw RascalRuntimeException.io(VF.string("all path entries must have (or resolve to) the file:/// scheme: " + loc), null);
             }
             result[i++] = loc.getPath();
         }
         return result;
+    }
+
+    private ISourceLocation safeResolve(ISourceLocation loc) {
+        try {
+            ISourceLocation result = URIResolverRegistry.getInstance().logicalToPhysical(loc);
+            if (result != null) {
+                return result;
+            }
+            return loc;
+        }
+        catch (IOException e) {
+            return loc;
+        }
     }
 
     public IValue createM3FromString(ISourceLocation loc, IString contents, ISet sourcePath, ISet classPath, IString javaVersion, IEvaluatorContext eval) {
@@ -134,7 +147,7 @@ public class EclipseJavaCompiler {
             
             boolean allFilePaths = true;
             for (IValue f : files) {
-                allFilePaths &= ((ISourceLocation)f).getScheme().equals("file");
+                allFilePaths &= safeResolve((ISourceLocation)f).getScheme().equals("file");
             }
             if (allFilePaths) {
                 Map<String, ISourceLocation> pathLookup = new HashMap<>();
@@ -143,8 +156,8 @@ public class EclipseJavaCompiler {
                 int i = 0;
                 for (IValue p : files) {
                     ISourceLocation loc = (ISourceLocation)p;
-                    paths[i] = loc.getPath();
-                    pathLookup.put(loc.getPath(), loc);
+                    paths[i] = safeResolve(loc).getPath();
+                    pathLookup.put(paths[i], loc);
                     encodings[i] = guessEncoding(loc);
                     i++;
                 }
@@ -172,10 +185,16 @@ public class EclipseJavaCompiler {
     }
 
     protected String guessEncoding(ISourceLocation loc) {
-        try (InputStream file = URIResolverRegistry.getInstance().getInputStream(loc)) {
-            return UnicodeDetector.estimateCharset(file).name();
+        try {
+            Charset result = URIResolverRegistry.getInstance().getCharset(loc);
+            if (result != null) {
+                return result.name();
+            }
+            try (InputStream file = URIResolverRegistry.getInstance().getInputStream(loc)) {
+                return UnicodeDetector.estimateCharset(file).name();
+            }
         }
-        catch (Throwable _) {
+        catch (Throwable x) {
             return null;
         }
     }
