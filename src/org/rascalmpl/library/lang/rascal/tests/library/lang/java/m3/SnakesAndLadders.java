@@ -23,12 +23,14 @@ public class SnakesAndLadders {
     public ISourceLocation getSnakesAndLaddersPath() {
 
         try {
-            File tempRoot = new File(System.getProperty("java.io.tmpdir") + "/snakes-ladders/");
-            if (new File(tempRoot, ".project").exists()) {
-                return URIUtil.createFileLocation(tempRoot.getAbsolutePath());
+            URIResolverRegistry reg = URIResolverRegistry.getInstance();
+            ISourceLocation tempRoot = URIUtil.correctLocation("tmp", "", "/snakes-ladders/");
+            File expandedTempFolder = new File(reg.logicalToPhysical(tempRoot).getPath());
+            if (new File(expandedTempFolder, ".project").exists()) {
+                expandedTempFolder.deleteOnExit();
+                return tempRoot;
             }
 
-            URIResolverRegistry reg = URIResolverRegistry.getInstance();
             ISourceLocation sourceRoot = vf.sourceLocation("testdata", "", "example-project/p2-SnakesAndLadders/");
             Queue<ISourceLocation> toCopy = new LinkedList<>();
             toCopy.add(sourceRoot);
@@ -40,10 +42,11 @@ public class SnakesAndLadders {
                     }
                 }
                 else {
-                    copyFile(reg, sourceRoot, current, tempRoot);
+                    copyFile(reg, sourceRoot, current, expandedTempFolder);
                 }
             }
-            return URIUtil.createFileLocation(tempRoot.getAbsolutePath());
+            expandedTempFolder.deleteOnExit();
+            return tempRoot;
         }
         catch (Throwable e) {
             // null pointers etc all result in the same, invalid locations
@@ -65,6 +68,9 @@ public class SnakesAndLadders {
                 while ((read= from.read(buffer)) > 0 ) {
                     to.write(buffer, 0, read);
                 }
+            }
+            finally {
+                targetPath.deleteOnExit();
             }
         }
     }
