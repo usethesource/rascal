@@ -10,7 +10,9 @@ import java.util.Queue;
 
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 
 public class SnakesAndLadders {
@@ -18,6 +20,10 @@ public class SnakesAndLadders {
 
     public SnakesAndLadders(IValueFactory vf) {
         this.vf = vf;
+    }
+    
+    public IBool equalAnnotations(IValue a, IValue b) {
+        return vf.bool(a.equals(b));
     }
 
     public ISourceLocation getSnakesAndLaddersPath() {
