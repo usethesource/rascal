@@ -69,6 +69,7 @@ public class BindingsResolver {
 	
     private org.rascalmpl.value.type.Type typeSymbol;
     private final Map<String, ISourceLocation> locationCache;
+    private final boolean debug = false;
 	
 	BindingsResolver(final TypeStore store, Map<String, ISourceLocation> cache, boolean collectBindings) {
 		this.collectBindings = collectBindings;
@@ -234,7 +235,9 @@ public class BindingsResolver {
 	}
 	
 	public IConstructor resolveType(IBinding binding, boolean isDeclaration) {
-		System.err.println("resolving " + binding);
+	    if (debug) {
+	        System.err.println("resolving " + binding);
+	    }
 		IConstructor result = unresolvedSym();
 		if (binding != null) {
 			ISourceLocation uri = resolveBinding(binding);
@@ -515,8 +518,10 @@ public class BindingsResolver {
 	                qualifiedName = resolveBinding(binding.getDeclaringClass()).getPath();
 	            }
 	            else {
-	                System.err.println("No defining class or method for " + binding.getClass().getCanonicalName());
-	                System.err.println("Most probably anonymous class in initializer");
+	                if (debug) {
+	                    System.err.println("No defining class or method for " + binding.getClass().getCanonicalName());
+	                    System.err.println("Most probably anonymous class in initializer");
+	                }
 	            }
 	        }
 
