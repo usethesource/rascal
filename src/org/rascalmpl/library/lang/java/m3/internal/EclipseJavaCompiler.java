@@ -67,41 +67,58 @@ public class EclipseJavaCompiler {
             TypeStore store = new TypeStore();
             store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
             store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
+            Map<String, ISourceLocation> cache = new HashMap<>();
+            ISetWriter result = VF.setWriter();
+            buildCompilationUnits(files, true, sourcePath, classPath, javaVersion, (loc, cu) -> {
+                    result.insert(convertToM3(store, cache, loc, cu));
+            });
+            return result.done();
+        } catch (IOException e) {
+            throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
+        }
+    }
 
-            boolean allFilePaths = true;
-            for (IValue f : files) {
-                allFilePaths &= safeResolve((ISourceLocation)f).getScheme().equals("file");
-            }
-            if (allFilePaths) {
-                Map<String, ISourceLocation> pathLookup = new HashMap<>();
-                String[] paths = new String[files.size()];
-                String[] encodings = new String[files.size()];
-                int i = 0;
-                for (IValue p : files) {
-                    ISourceLocation loc = (ISourceLocation)p;
-                    paths[i] = safeResolve(loc).getPath();
-                    pathLookup.put(paths[i], loc);
-                    encodings[i] = guessEncoding(loc);
-                    i++;
-                }
+    public IValue createM3FromString(ISourceLocation loc, IString contents, ISet sourcePath, ISet classPath, IString javaVersion, IEvaluatorContext eval) {
+        try {
+            CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), true, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
 
-                Map<String, ISourceLocation> cache = new HashMap<>();
-                ISetWriter result = VF.setWriter();
-                getCompilationUnits(paths, encodings, true, javaVersion, translatePaths(sourcePath), translatePaths(classPath), (loc, ast) -> {
-                    result.insert(convertToM3(store, cache, pathLookup.get(loc), ast));
-                });
-                return result.done();
-            }
-            else {
-                Map<String, ISourceLocation> cache = new HashMap<>();
-                ISetWriter result = VF.setWriter();
-                for (IValue file: files) {
-                    ISourceLocation loc = (ISourceLocation) file;
-                    CompilationUnit cu = getCompilationUnit(loc.getPath(), getFileContents(loc, eval), true, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
-                result.insert(convertToM3(store, cache, loc, cu));
-                }
-                return result.done();
-            }
+            TypeStore store = new TypeStore();
+            store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
+            store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
+
+            return convertToM3(store, new HashMap<>(), loc, cu);
+        } catch (IOException e) {
+            throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
+        }
+    }
+
+    public IValue createAstsFromFiles(ISet files, IBool collectBindings, ISet sourcePath, ISet classPath, IString javaVersion,
+            IEvaluatorContext eval) {
+        try {
+            TypeStore store = new TypeStore();
+            store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
+            
+            Map<String, ISourceLocation> cache = new HashMap<>();
+            ISetWriter result = VF.setWriter();
+
+            buildCompilationUnits(files, collectBindings.getValue(), sourcePath, classPath, javaVersion, (loc, cu) -> {
+                result.insert(convertToAST(collectBindings, cache, loc, cu, store));
+            });
+            return result.done();
+        } catch (IOException e) {
+            throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
+        }
+    }
+
+    public IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings,ISet sourcePath, ISet classPath, IString javaVersion,
+            IEvaluatorContext eval) {
+        try {
+            CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), collectBindings.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
+
+            TypeStore store = new TypeStore();
+            store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
+
+            return convertToAST(collectBindings, new HashMap<>(), loc, cu, store);
         } catch (IOException e) {
             throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
         }
@@ -119,6 +136,42 @@ public class EclipseJavaCompiler {
             converter.convert(cu, comment, loc);
         }
         return converter.getModel(true);
+    }
+    
+    protected void buildCompilationUnits(ISet files, boolean resolveBindings, ISet sourcePath, ISet classPath, IString javaVersion, BiConsumer<ISourceLocation, CompilationUnit> buildNotifier) throws IOException {
+        boolean fastPath = true;
+        for (IValue f : files) {
+            fastPath &= safeResolve((ISourceLocation)f).getScheme().equals("file");
+        }
+        if (fastPath) {
+            Map<String, ISourceLocation> reversePathLookup = new HashMap<>();
+            String[] absolutePaths = new String[files.size()];
+            String[] encodings = new String[absolutePaths.length];
+            int i = 0;
+            for (IValue p : files) {
+                ISourceLocation loc = (ISourceLocation)p;
+
+                absolutePaths[i] = safeResolve(loc).getPath();
+                reversePathLookup.put(absolutePaths[i], loc);
+                encodings[i] = guessEncoding(loc);
+                i++;
+            }
+
+            ASTParser parser = constructASTParser(resolveBindings, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
+            parser.createASTs(absolutePaths, encodings, new String[0], new FileASTRequestor() {
+                @Override
+                public void acceptAST(String sourceFilePath, CompilationUnit ast) {
+                    buildNotifier.accept(reversePathLookup.get(sourceFilePath), ast);
+                }
+            }, null);
+        }
+        else {
+            for (IValue file: files) {
+                ISourceLocation loc = (ISourceLocation) file;
+                CompilationUnit cu = getCompilationUnit(loc.getPath(), getFileContents(loc), true, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
+                buildNotifier.accept(loc, cu);
+            }
+        }
     }
 
     protected String[] translatePaths(ISet paths) {
@@ -147,68 +200,6 @@ public class EclipseJavaCompiler {
         }
     }
 
-    public IValue createM3FromString(ISourceLocation loc, IString contents, ISet sourcePath, ISet classPath, IString javaVersion, IEvaluatorContext eval) {
-        try {
-            CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), true, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
-
-            TypeStore store = new TypeStore();
-            store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
-            store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-
-            return convertToM3(store, new HashMap<>(), loc, cu);
-        } catch (IOException e) {
-            throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
-        }
-    }
-
-    /*
-     * Creates Rascal ASTs for Java source files
-     */
-    public IValue createAstsFromFiles(ISet files, IBool collectBindings, ISet sourcePath, ISet classPath, IString javaVersion,
-            IEvaluatorContext eval) {
-        try {
-            TypeStore store = new TypeStore();
-            store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-            
-            boolean allFilePaths = true;
-            for (IValue f : files) {
-                allFilePaths &= safeResolve((ISourceLocation)f).getScheme().equals("file");
-            }
-            if (allFilePaths) {
-                Map<String, ISourceLocation> pathLookup = new HashMap<>();
-                String[] paths = new String[files.size()];
-                String[] encodings = new String[files.size()];
-                int i = 0;
-                for (IValue p : files) {
-                    ISourceLocation loc = (ISourceLocation)p;
-                    paths[i] = safeResolve(loc).getPath();
-                    pathLookup.put(paths[i], loc);
-                    encodings[i] = guessEncoding(loc);
-                    i++;
-                }
-
-                Map<String, ISourceLocation> cache = new HashMap<>();
-                ISetWriter result = VF.setWriter();
-                getCompilationUnits(paths, encodings, collectBindings.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath), (loc, ast) -> {
-                    result.insert(convertToAST(collectBindings, cache, pathLookup.get(loc), ast, store));
-                });
-                return result.done();
-            }
-            else {
-                Map<String, ISourceLocation> cache = new HashMap<>();
-                ISetWriter result = VF.setWriter();
-                for (IValue file: files) {
-                    ISourceLocation loc = (ISourceLocation) file;
-                    CompilationUnit cu = getCompilationUnit(loc.getPath(), getFileContents(loc, eval), collectBindings.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
-                    result.insert(convertToAST(collectBindings, cache, loc, cu, store));
-                }
-                return result.done();
-            }
-        } catch (IOException e) {
-            throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
-        }
-    }
-
     protected String guessEncoding(ISourceLocation loc) {
         try {
             Charset result = URIResolverRegistry.getInstance().getCharset(loc);
@@ -224,41 +215,6 @@ public class EclipseJavaCompiler {
         }
     }
 
-    protected IValue convertToAST(IBool collectBindings, Map<String, ISourceLocation> cache, ISourceLocation loc,
-            CompilationUnit cu, TypeStore store) {
-        ASTConverter converter = new ASTConverter(store, cache, collectBindings.getValue());
-        converter.convert(cu, cu, loc);
-        converter.insertCompilationUnitMessages(true, null);
-        return converter.getValue();
-    }
-
-
-    public IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings,ISet sourcePath, ISet classPath, IString javaVersion,
-            IEvaluatorContext eval) {
-        try {
-            CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), collectBindings.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
-
-            TypeStore store = new TypeStore();
-            store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-
-            return convertToAST(collectBindings, new HashMap<>(), loc, cu, store);
-        } catch (IOException e) {
-            throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
-        }
-    }
-    
-    
-    protected void getCompilationUnits(String[] fileNames, String[] encodings, boolean resolveBindings, IString javaVersion, String[] sourcePath, String[] classPath, final BiConsumer<String, CompilationUnit> consumeASTs) {
-        ASTParser parser = constructASTParser(resolveBindings, javaVersion, sourcePath, classPath);
-        parser.createASTs(fileNames, encodings, new String[0], new FileASTRequestor() {
-            @Override
-            public void acceptAST(String sourceFilePath, CompilationUnit ast) {
-                consumeASTs.accept(sourceFilePath, ast);
-            }
-        }, null);
-    }
-    
-
     protected CompilationUnit getCompilationUnit(String unitName, char[] contents, boolean resolveBindings, IString javaVersion, String[] sourcePath, String[] classPath) 
             throws IOException {
         ASTParser parser = constructASTParser(resolveBindings, javaVersion, sourcePath, classPath);
@@ -267,6 +223,14 @@ public class EclipseJavaCompiler {
         return (CompilationUnit) parser.createAST(null);
     }
 
+    protected IValue convertToAST(IBool collectBindings, Map<String, ISourceLocation> cache, ISourceLocation loc,
+            CompilationUnit cu, TypeStore store) {
+        ASTConverter converter = new ASTConverter(store, cache, collectBindings.getValue());
+        converter.convert(cu, cu, loc);
+        converter.insertCompilationUnitMessages(true, null);
+        return converter.getValue();
+    }
+    
     protected ASTParser constructASTParser(boolean resolveBindings, IString javaVersion, String[] sourcePath, String[] classPath) {
         ASTParser parser = ASTParser.newParser(AST.JLS4);
         parser.setResolveBindings(resolveBindings);
@@ -285,18 +249,9 @@ public class EclipseJavaCompiler {
         return parser;
     }
 
-    protected char[] getFileContents(ISourceLocation loc, IEvaluatorContext ctx) throws IOException {
-        char[] data;
-        Reader textStream = null;
-
-        try {
-            textStream = URIResolverRegistry.getInstance().getCharacterReader(loc);
-            data = InputConverter.toChar(textStream);
-        } finally {
-            if (textStream != null) {
-                textStream.close();
-            }
+    protected char[] getFileContents(ISourceLocation loc) throws IOException {
+        try (Reader textStream = URIResolverRegistry.getInstance().getCharacterReader(loc)) {
+            return InputConverter.toChar(textStream);
         }
-        return data;
     }
 }
