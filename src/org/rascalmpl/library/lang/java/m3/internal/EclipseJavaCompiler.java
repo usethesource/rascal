@@ -68,15 +68,40 @@ public class EclipseJavaCompiler {
             store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
             store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
 
-            Map<String, ISourceLocation> cache = new HashMap<>();
-            ISetWriter result = VF.setWriter();
-            for (IValue file: files) {
-                ISourceLocation loc = (ISourceLocation) file;
-                CompilationUnit cu = this.getCompilationUnit(loc.getPath(), getFileContents(loc, eval), true, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
-
-                result.insert(convertToM3(store, cache, loc, cu));
+            boolean allFilePaths = true;
+            for (IValue f : files) {
+                allFilePaths &= safeResolve((ISourceLocation)f).getScheme().equals("file");
             }
-            return result.done();
+            if (allFilePaths) {
+                Map<String, ISourceLocation> pathLookup = new HashMap<>();
+                String[] paths = new String[files.size()];
+                String[] encodings = new String[files.size()];
+                int i = 0;
+                for (IValue p : files) {
+                    ISourceLocation loc = (ISourceLocation)p;
+                    paths[i] = safeResolve(loc).getPath();
+                    pathLookup.put(paths[i], loc);
+                    encodings[i] = guessEncoding(loc);
+                    i++;
+                }
+
+                Map<String, ISourceLocation> cache = new HashMap<>();
+                ISetWriter result = VF.setWriter();
+                getCompilationUnits(paths, encodings, true, javaVersion, translatePaths(sourcePath), translatePaths(classPath), (loc, ast) -> {
+                    result.insert(convertToM3(store, cache, pathLookup.get(loc), ast));
+                });
+                return result.done();
+            }
+            else {
+                Map<String, ISourceLocation> cache = new HashMap<>();
+                ISetWriter result = VF.setWriter();
+                for (IValue file: files) {
+                    ISourceLocation loc = (ISourceLocation) file;
+                    CompilationUnit cu = getCompilationUnit(loc.getPath(), getFileContents(loc, eval), true, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
+                result.insert(convertToM3(store, cache, loc, cu));
+                }
+                return result.done();
+            }
         } catch (IOException e) {
             throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
         }
