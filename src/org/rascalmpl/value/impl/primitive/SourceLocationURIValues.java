@@ -83,7 +83,7 @@ import java.util.regex.Pattern;
 	
 	
 	private static String nullifyIfEmpty(String str) {
-	    if (str == null | str.isEmpty()) {
+	    if (str == null || str.isEmpty()) {
 	        return null;
 	    }
         return str;
