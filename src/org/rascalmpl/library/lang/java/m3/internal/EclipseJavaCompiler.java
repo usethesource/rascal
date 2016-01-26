@@ -150,6 +150,12 @@ public class EclipseJavaCompiler {
             int i = 0;
             for (IValue p : files) {
                 ISourceLocation loc = (ISourceLocation)p;
+                if (!URIResolverRegistry.getInstance().isFile(loc)) {
+                    throw RuntimeExceptionFactory.io(VF.string("" + loc  + " is not a file"), null, null);
+                }
+                if (!URIResolverRegistry.getInstance().exists(loc)) {
+                    throw RuntimeExceptionFactory.io(VF.string("" + loc  + " doesn't exist"), null, null);
+                }
 
                 absolutePaths[i] = safeResolve(loc).getPath();
                 reversePathLookup.put(absolutePaths[i], loc);

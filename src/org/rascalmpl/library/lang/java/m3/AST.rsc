@@ -231,5 +231,5 @@ public set[Declaration] createAstsFromDirectory(loc project, bool collectBinding
     
     classPaths = find(project, "jar");
     sourcePaths = getPaths(project, "java");
-    return createAstsFromFiles({ *find(sp, "java") | sp <- sourcePaths}, collectBindings, sourcePath = findRoots(sourcePaths), classPath = classPaths, javaVersion = javaVersion);;
+    return createAstsFromFiles({ p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, collectBindings, sourcePath = findRoots(sourcePaths), classPath = classPaths, javaVersion = javaVersion);;
 }
