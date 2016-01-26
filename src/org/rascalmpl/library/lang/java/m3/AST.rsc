@@ -229,7 +229,7 @@ public set[Declaration] createAstsFromDirectory(loc project, bool collectBinding
       throw "<project> is not a valid directory";
     }
     
-    classPaths = find(project, "jar");
+    classPaths = { j | j <- find(project, "jar"), isFile(j) };
     sourcePaths = getPaths(project, "java");
     return createAstsFromFiles({ p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, collectBindings, sourcePath = findRoots(sourcePaths), classPath = classPaths, javaVersion = javaVersion);;
 }
