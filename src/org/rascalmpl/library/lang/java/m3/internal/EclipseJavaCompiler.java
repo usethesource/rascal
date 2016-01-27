@@ -38,6 +38,8 @@ import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ISourceLocation;
@@ -62,14 +64,14 @@ public class EclipseJavaCompiler {
         return converter.getModel(false);
     }
 
-    public IValue createM3sFromFiles(ISet files, ISet sourcePath, ISet classPath, IString javaVersion, IEvaluatorContext eval) {
+    public IValue createM3sFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
         try {
             TypeStore store = new TypeStore();
             store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
             store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
             Map<String, ISourceLocation> cache = new HashMap<>();
             ISetWriter result = VF.setWriter();
-            buildCompilationUnits(files, true, sourcePath, classPath, javaVersion, (loc, cu) -> {
+            buildCompilationUnits(files, true, errorRecovery.getValue(), sourcePath, classPath, javaVersion, (loc, cu) -> {
                     result.insert(convertToM3(store, cache, loc, cu));
             });
             return result.done();
@@ -78,9 +80,9 @@ public class EclipseJavaCompiler {
         }
     }
 
-    public IValue createM3FromString(ISourceLocation loc, IString contents, ISet sourcePath, ISet classPath, IString javaVersion, IEvaluatorContext eval) {
+    public IValue createM3FromString(ISourceLocation loc, IString contents, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
         try {
-            CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), true, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
+            CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), true, errorRecovery.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
 
             TypeStore store = new TypeStore();
             store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
@@ -92,7 +94,7 @@ public class EclipseJavaCompiler {
         }
     }
 
-    public IValue createAstsFromFiles(ISet files, IBool collectBindings, ISet sourcePath, ISet classPath, IString javaVersion,
+    public IValue createAstsFromFiles(ISet files, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion,
             IEvaluatorContext eval) {
         try {
             TypeStore store = new TypeStore();
@@ -101,7 +103,7 @@ public class EclipseJavaCompiler {
             Map<String, ISourceLocation> cache = new HashMap<>();
             ISetWriter result = VF.setWriter();
 
-            buildCompilationUnits(files, collectBindings.getValue(), sourcePath, classPath, javaVersion, (loc, cu) -> {
+            buildCompilationUnits(files, collectBindings.getValue(), errorRecovery.getValue(), sourcePath, classPath, javaVersion, (loc, cu) -> {
                 result.insert(convertToAST(collectBindings, cache, loc, cu, store));
             });
             return result.done();
@@ -110,10 +112,10 @@ public class EclipseJavaCompiler {
         }
     }
 
-    public IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings,ISet sourcePath, ISet classPath, IString javaVersion,
+    public IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion,
             IEvaluatorContext eval) {
         try {
-            CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), collectBindings.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
+            CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), collectBindings.getValue(), errorRecovery.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
 
             TypeStore store = new TypeStore();
             store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
@@ -138,7 +140,7 @@ public class EclipseJavaCompiler {
         return converter.getModel(true);
     }
     
-    protected void buildCompilationUnits(ISet files, boolean resolveBindings, ISet sourcePath, ISet classPath, IString javaVersion, BiConsumer<ISourceLocation, CompilationUnit> buildNotifier) throws IOException {
+    protected void buildCompilationUnits(ISet files, boolean resolveBindings, boolean errorRecovery, IList sourcePath, IList classPath, IString javaVersion, BiConsumer<ISourceLocation, CompilationUnit> buildNotifier) throws IOException {
         boolean fastPath = true;
         for (IValue f : files) {
             fastPath &= safeResolve((ISourceLocation)f).getScheme().equals("file");
@@ -163,7 +165,7 @@ public class EclipseJavaCompiler {
                 i++;
             }
 
-            ASTParser parser = constructASTParser(resolveBindings, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
+            ASTParser parser = constructASTParser(resolveBindings, errorRecovery, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
             parser.createASTs(absolutePaths, encodings, new String[0], new FileASTRequestor() {
                 @Override
                 public void acceptAST(String sourceFilePath, CompilationUnit ast) {
@@ -174,14 +176,14 @@ public class EclipseJavaCompiler {
         else {
             for (IValue file: files) {
                 ISourceLocation loc = (ISourceLocation) file;
-                CompilationUnit cu = getCompilationUnit(loc.getPath(), getFileContents(loc), true, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
+                CompilationUnit cu = getCompilationUnit(loc.getPath(), getFileContents(loc), resolveBindings, errorRecovery, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
                 buildNotifier.accept(loc, cu);
             }
         }
     }
 
-    protected String[] translatePaths(ISet paths) {
-        String[] result = new String[paths.size()];
+    protected String[] translatePaths(IList paths) {
+        String[] result = new String[paths.length()];
         int i = 0;
         for (IValue p : paths) {
             ISourceLocation loc = safeResolve((ISourceLocation)p);
@@ -221,9 +223,9 @@ public class EclipseJavaCompiler {
         }
     }
 
-    protected CompilationUnit getCompilationUnit(String unitName, char[] contents, boolean resolveBindings, IString javaVersion, String[] sourcePath, String[] classPath) 
+    protected CompilationUnit getCompilationUnit(String unitName, char[] contents, boolean resolveBindings, boolean errorRecovery, IString javaVersion, String[] sourcePath, String[] classPath) 
             throws IOException {
-        ASTParser parser = constructASTParser(resolveBindings, javaVersion, sourcePath, classPath);
+        ASTParser parser = constructASTParser(resolveBindings, errorRecovery, javaVersion, sourcePath, classPath);
         parser.setUnitName(unitName);
         parser.setSource(contents);
         return (CompilationUnit) parser.createAST(null);
@@ -237,11 +239,11 @@ public class EclipseJavaCompiler {
         return converter.getValue();
     }
     
-    protected ASTParser constructASTParser(boolean resolveBindings, IString javaVersion, String[] sourcePath, String[] classPath) {
+    protected ASTParser constructASTParser(boolean resolveBindings, boolean errorRecovery, IString javaVersion, String[] sourcePath, String[] classPath) {
         ASTParser parser = ASTParser.newParser(AST.JLS4);
         parser.setResolveBindings(resolveBindings);
         parser.setBindingsRecovery(true);
-        parser.setStatementsRecovery(true);
+        parser.setStatementsRecovery(errorRecovery);
 
         Hashtable<String, String> options = new Hashtable<String, String>();
 

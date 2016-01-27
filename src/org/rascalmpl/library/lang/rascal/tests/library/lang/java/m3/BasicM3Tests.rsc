@@ -12,15 +12,15 @@ public java loc getSnakesAndLaddersPath();
 
 public set[Declaration] getSnakesAndLaddersASTs() {
     rootPath = getSnakesAndLaddersPath();
-    libPath = {rootPath + "jexample-4.5-391.jar"};
-    srcPath = {rootPath + "/src/"};
+    libPath = [rootPath + "jexample-4.5-391.jar"];
+    srcPath = [rootPath + "/src/"];
     return createAstsFromFiles(find(rootPath + "/src/", "java"), true, sourcePath = srcPath, classPath = libPath, javaVersion ="1.7");
 }
 
 public M3 getSnakesAndLaddersM3() {
     rootPath = getSnakesAndLaddersPath();
-    libPath = {rootPath + "jexample-4.5-391.jar"};
-    srcPath = {rootPath + "/src/"};
+    libPath = [rootPath + "jexample-4.5-391.jar"];
+    srcPath = [rootPath + "/src/"];
     return composeJavaM3(|project://SnakesAndLadders/|, createM3sFromFiles(find(rootPath +"/src/", "java"),sourcePath = srcPath, classPath = libPath, javaVersion ="1.7"));
 }
 

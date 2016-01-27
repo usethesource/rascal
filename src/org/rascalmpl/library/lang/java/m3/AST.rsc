@@ -159,29 +159,29 @@ set[loc] getPaths(loc dir, str suffix) {
 }
 
 @memo
-set[loc] findRoots(set[loc] folders) {
-  set[loc] result = {};
+list[loc] findRoots(list[loc] folders) {
+  list[loc] result = [];
   for (folder <- folders) {
     // only consult one java file per package tree
     top-down-break visit (crawl(folder)) {
       case directory(d, contents): {
-        set[loc] roots = {};
+        list[loc] roots = [];
         for (file(f) <- contents, toLowerCase(f.extension) == "java") {
           try {
             for (/package<p:[^;]*>;/ := readFile(f)) {
               packagedepth = size(split(".", trim(p)));
-              roots += { d[path = intercalate("/", split("/", d.path)[..-packagedepth])] };
+              roots += [ d[path = intercalate("/", split("/", d.path)[..-packagedepth])] ];
             }
             
             if (roots == {}) { // no package declaration means d is a root 
-              roots += { d }; 
+              roots += [ d ]; 
             }
             
             break;            
           } catch: ;          
         }
         
-        if (roots != {}) {
+        if (roots != []) {
           result += roots;
         }
         else {
@@ -199,8 +199,8 @@ Synopsis: Creates AST from a file
 
 Description: useful for analyzing raw source code on disk, but if you have an Eclipse project you should have a look at [lang/java/jdt/m3] instead.
 }
-public Declaration createAstFromFile(loc file, bool collectBindings, set[loc] sourcePath = {}, set[loc] classPath = {}, str javaVersion = "1.7") {
-    result = createAstsFromFiles({file}, collectBindings, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion);
+public Declaration createAstFromFile(loc file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7") {
+    result = createAstsFromFiles({file}, collectBindings, errorRecovery = errorRecovery, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion);
     if ({oneResult} := result) {
         return oneResult;
     }
@@ -214,22 +214,22 @@ Description: useful for analyzing raw source code on disk, but if you have an Ec
 }
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
-public java set[Declaration] createAstsFromFiles(set[loc] file, bool collectBindings, set[loc] sourcePath = {}, set[loc] classPath = {}, str javaVersion = "1.7");
+public java set[Declaration] createAstsFromFiles(set[loc] file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
 
 @doc{
   Creates ASTs from an input string
 }
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
-public java Declaration createAstFromString(loc fileName, str source, bool collectBinding, set[loc] sourcePath = {}, set[loc] classPath = {}, str javaVersion = "1.7");
+public java Declaration createAstFromString(loc fileName, str source, bool collectBinding, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
 
 @doc{Creates ASTs from a project}
-public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, str javaVersion = "1.7" ) {
+public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, bool errorRecovery = false, str javaVersion = "1.7" ) {
     if (!(isDirectory(project))) {
       throw "<project> is not a valid directory";
     }
     
-    classPaths = { j | j <- find(project, "jar"), isFile(j) };
-    sourcePaths = getPaths(project, "java");
-    return createAstsFromFiles({ p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, collectBindings, sourcePath = findRoots(sourcePaths), classPath = classPaths, javaVersion = javaVersion);;
+    classPaths = [ j | j <- find(project, "jar"), isFile(j) ];
+    sourcePaths = [*getPaths(project, "java")];
+    return createAstsFromFiles({ p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, collectBindings, sourcePath = findRoots(sourcePaths), classPath = classPaths, errorRecovery = errorRecovery, javaVersion = javaVersion);;
 }
