@@ -58,8 +58,8 @@ public M3 link(M3 projectModel, set[M3] libraryModels) {
   }
 }
 
-public M3 createM3FromFile(loc file, set[loc] sourcePath = {}, set[loc] classPath = {}, str javaVersion = "1.7") {
-    result = createM3sFromFiles({file}, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion);
+public M3 createM3FromFile(loc file, bool errorRecovery = false, list[loc] sourcePath = {}, list[loc] classPath = {}, str javaVersion = "1.7") {
+    result = createM3sFromFiles({file}, errorRecovery = errorRecovery, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion);
     if ({oneResult} := result) {
         return oneResult;
     }
@@ -68,11 +68,11 @@ public M3 createM3FromFile(loc file, set[loc] sourcePath = {}, set[loc] classPat
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
-public java set[M3] createM3sFromFiles(set[loc] files, set[loc] sourcePath = {}, set[loc] classPath = {}, str javaVersion = "1.7");
+public java set[M3] createM3sFromFiles(set[loc] files, bool errorRecovery = false, list[loc] sourcePath = {}, list[loc] classPath = {}, str javaVersion = "1.7");
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
-public java M3 createM3FromString(loc fileName, str contents, set[loc] sourcePath = {}, set[loc] classPath = {}, str javaVersion = "1.7");
+public java M3 createM3FromString(loc fileName, str contents, bool errorRecovery = false, list[loc] sourcePath = {}, list[loc] classPath = {}, str javaVersion = "1.7");
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
@@ -81,14 +81,14 @@ public java M3 createM3FromJarClass(loc jarClass);
 @doc{
 Synopsis: globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
 }
-public M3 createM3FromDirectory(loc project, str javaVersion = "1.7") {
+public M3 createM3FromDirectory(loc project, bool errorRecovery = false, str javaVersion = "1.7") {
     if (!(isDirectory(project))) {
       throw "<project> is not a valid directory";
     }
     
-    classPaths = { j | j <- find(project, "jar"), isFile(j) };
+    classPaths = [ j | j <- find(project, "jar"), isFile(j) ];
     sourcePaths = getPaths(project, "java");
-    m3s = composeJavaM3(project, createM3FromFiles({p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, sourcePath = findRoots(sourcePaths), classPath = classPath, javaVersion = javaVersion));
+    m3s = composeJavaM3(project, createM3FromFiles({p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, errorRecovery = errorRecovery, sourcePath = findRoots(sourcePaths), classPath = classPath, javaVersion = javaVersion));
     M3 result = composeJavaM3(project, m3s);
     registerProject(project, result);
     return result;
