@@ -86,7 +86,15 @@ public M3 createM3FromDirectory(loc project, bool errorRecovery = false, str jav
       throw "<project> is not a valid directory";
     }
     
-    classPaths = [ j | j <- find(project, "jar"), isFile(j) ];
+    list[loc] classPaths = [];
+    set[str] seen = {};
+    for (j <- find(project, "jar"), isFile(j)) {
+        hash = md5HashFile(j);
+        if (!(hash in seen)) {
+            classPaths += j;
+            seen += hash;
+        }
+    }
     sourcePaths = getPaths(project, "java");
     M3 result = composeJavaM3(project, createM3sFromFiles({p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, errorRecovery = errorRecovery, sourcePath = findRoots([*sourcePaths]), classPath = classPaths, javaVersion = javaVersion));
     registerProject(project, result);
