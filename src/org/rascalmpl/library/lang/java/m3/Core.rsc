@@ -88,8 +88,7 @@ public M3 createM3FromDirectory(loc project, bool errorRecovery = false, str jav
     
     classPaths = [ j | j <- find(project, "jar"), isFile(j) ];
     sourcePaths = getPaths(project, "java");
-    m3s = composeJavaM3(project, createM3sFromFiles({p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, errorRecovery = errorRecovery, sourcePath = findRoots([*sourcePaths]), classPath = classPaths, javaVersion = javaVersion));
-    M3 result = composeJavaM3(project, m3s);
+    M3 result = composeJavaM3(project, createM3sFromFiles({p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, errorRecovery = errorRecovery, sourcePath = findRoots([*sourcePaths]), classPath = classPaths, javaVersion = javaVersion));
     registerProject(project, result);
     return result;
 }
