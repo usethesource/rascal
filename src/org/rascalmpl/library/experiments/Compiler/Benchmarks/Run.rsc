@@ -179,12 +179,12 @@ void runAll(list[str] jobs){
 
 void runCompiled(str job) {
   measurementsCompiled[job] =
-      for(int i <- [0 .. nsamples]){
-          t1 = cpuTime();
-          v = execute("<base>::<job>", pathConfig());
-          t2 = cpuTime();
-          append (t2 - t1)/1000000;
-      }
+	  for(int i <- [0 .. nsamples]){
+		  t1 = cpuTime();
+		  v = execute("<base>::<job>", pathConfig());
+		  t2 = cpuTime();
+		  append (t2 - t1)/1000000;
+	  }
 }
 
 void runInterpreted(str job) {  
