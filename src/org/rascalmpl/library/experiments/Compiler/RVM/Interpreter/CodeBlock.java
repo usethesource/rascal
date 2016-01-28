@@ -6,102 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AddInt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AndBool;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Apply;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ApplyDyn;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Call;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallConstr;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallDyn;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallJava;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim0;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim1;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim2;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrimN;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim0;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim1;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim2;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrimN;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckArgTypeAndCopy;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckMemo;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Exhaust;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FailReturn;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FilterReturn;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.GreaterEqualInt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Guard;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Halt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Instruction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Jmp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpFalse;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpIndexed;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpTrue;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Label;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LessInt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.PopAccu;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadBool;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCon;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadConstr;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadEmptyKwMap;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadFun;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadInt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc0;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc1;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc2;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc3;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc4;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc5;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc6;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc7;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc8;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc9;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocDeref;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocKwp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocRef;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadNestedFun;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadOFun;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadType;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVar;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDeref;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarKwp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next0;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next1;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.OCall;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.OCallDyn;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Pop;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Println;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ResetLoc;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ResetLocs;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ResetVar;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return0;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return1;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.PushAccu;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.PushCon;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.PushLoc;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLoc;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocDeref;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocKwp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVar;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarDeref;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarKwp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubType;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptArray;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptList;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubtractInt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Switch;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Throw;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeOf;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownLoc;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ValueSubtype;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Visit;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.*;
 import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
@@ -507,6 +412,13 @@ public class CodeBlock implements Serializable {
 		return add(new LoadVar(this, fuid, pos));
 	}
 	
+	public CodeBlock PUSHVAR(String fuid, int pos){
+		if(pos == -1){
+			getConstantIndex(vf.string(fuid));
+		}
+		return add(new PushVar(this, fuid, pos));
+	}
+	
 	public CodeBlock STOREVAR (String fuid, int pos){
 		if(pos == -1){
 			getConstantIndex(vf.string(fuid));
@@ -524,33 +436,64 @@ public class CodeBlock implements Serializable {
 	public CodeBlock CALLMUPRIM0 (MuPrimitive muprim){
 		return add(new CallMuPrim0(this, muprim));
 	}
+	public CodeBlock PUSHCALLMUPRIM0 (MuPrimitive muprim){
+		return add(new PushCallMuPrim0(this, muprim));
+	}
 	
 	public CodeBlock CALLMUPRIM1 (MuPrimitive muprim){
 		return add(new CallMuPrim1(this, muprim));
+	}
+	
+	public CodeBlock PUSHCALLMUPRIM1 (MuPrimitive muprim){
+		return add(new PushCallMuPrim1(this, muprim));
 	}
 	
 	public CodeBlock CALLMUPRIM2 (MuPrimitive muprim){
 		return add(new CallMuPrim2(this, muprim));
 	}
 	
+	public CodeBlock PUSHCALLMUPRIM2 (MuPrimitive muprim){
+		return add(new PushCallMuPrim2(this, muprim));
+	}
+	
 	public CodeBlock CALLMUPRIMN (MuPrimitive muprim, int arity){
 		return add(new CallMuPrimN(this, muprim, arity));
+	}
+	
+	public CodeBlock PUSHCALLMUPRIMN (MuPrimitive muprim, int arity){
+		return add(new PushCallMuPrimN(this, muprim, arity));
 	}
 	
 	public CodeBlock CALLPRIM0 (RascalPrimitive prim, ISourceLocation src){
 		return add(new CallPrim0(this, prim, src));
 	}
 	
+	public CodeBlock PUSHCALLPRIM0 (RascalPrimitive prim, ISourceLocation src){
+		return add(new PushCallPrim0(this, prim, src));
+	}
+	
 	public CodeBlock CALLPRIM1 (RascalPrimitive prim, ISourceLocation src){
 		return add(new CallPrim1(this, prim, src));
+	}
+	
+	public CodeBlock PUSHCALLPRIM1 (RascalPrimitive prim, ISourceLocation src){
+		return add(new PushCallPrim1(this, prim, src));
 	}
 	
 	public CodeBlock CALLPRIM2 (RascalPrimitive prim, ISourceLocation src){
 		return add(new CallPrim2(this, prim, src));
 	}
 	
+	public CodeBlock PUSHCALLPRIM2 (RascalPrimitive prim, ISourceLocation src){
+		return add(new PushCallPrim2(this, prim, src));
+	}
+	
 	public CodeBlock CALLPRIMN (RascalPrimitive prim, int arity, ISourceLocation src){
 		return add(new CallPrimN(this, prim, arity, src));
+	}
+	
+	public CodeBlock PUSHCALLPRIMN (RascalPrimitive prim, int arity, ISourceLocation src){
+		return add(new PushCallPrimN(this, prim, arity, src));
 	}
 	
 	public CodeBlock LOADFUN (String fuid){
@@ -593,16 +536,32 @@ public class CodeBlock implements Serializable {
 		return add(new LoadLocRef(this, pos));
 	}
 	
+	public CodeBlock PUSHLOCREF(int pos) {
+		return add(new PushLocRef(this, pos));
+	}
+	
 	public CodeBlock LOADVARREF(String fuid, int pos) {
 		return add(new LoadVarRef(this, fuid, pos));
+	}
+	
+	public CodeBlock PUSHVARREF(String fuid, int pos) {
+		return add(new PushVarRef(this, fuid, pos));
 	}
 	
 	public CodeBlock LOADLOCDEREF(int pos) {
 		return add(new LoadLocDeref(this, pos));
 	}
 	
+	public CodeBlock PUSHLOCDEREF(int pos) {
+		return add(new PushLocDeref(this, pos));
+	}
+	
 	public CodeBlock LOADVARDEREF(String fuid, int pos) {
 		return add(new LoadVarDeref(this, fuid, pos));
+	}
+	
+	public CodeBlock PUSHVARDEREF(String fuid, int pos) {
+		return add(new PushVarDeref(this, fuid, pos));
 	}
 	
 	public CodeBlock STORELOCDEREF(int pos) {
@@ -627,6 +586,10 @@ public class CodeBlock implements Serializable {
 	
 	public CodeBlock LOADTYPE(Type type) {
 		return add(new LoadType(this, getTypeConstantIndex(type)));
+	}
+	
+	public CodeBlock PUSHTYPE(Type type) {
+		return add(new PushType(this, getTypeConstantIndex(type)));
 	}
 	
 	public CodeBlock FAILRETURN(){
@@ -717,16 +680,24 @@ public class CodeBlock implements Serializable {
 		return add(new CheckArgTypeAndCopy(this, pos1, getTypeConstantIndex(type), pos2));
 	}
 		
-	public CodeBlock JMPINDEXED(IList labels){
-		return add(new JmpIndexed(this, labels));
-	}
+//	public CodeBlock JMPINDEXED(IList labels){
+//		return add(new JmpIndexed(this, labels));
+//	}
 	
 	public CodeBlock LOADLOCKWP(String name) {
 		return add(new LoadLocKwp(this, name));
 	}
 	
+	public CodeBlock PUSHLOCKWP(String name) {
+		return add(new PushLocKwp(this, name));
+	}
+	
 	public CodeBlock LOADVARKWP(String fuid, String name) {
 		return add(new LoadVarKwp(this, fuid, name));
+	}
+	
+	public CodeBlock PUSHVARKWP(String fuid, String name) {
+		return add(new PushVarKwp(this, fuid, name));
 	}
 	
 	public CodeBlock STORELOCKWP(String name) {

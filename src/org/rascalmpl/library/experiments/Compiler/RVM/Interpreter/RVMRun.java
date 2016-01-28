@@ -2116,13 +2116,13 @@ public class RVMRun extends RVM {
 		}
 	}
 
-	public static void debugJMPINDEXED(String insName, Frame lcf, int lsp) {
-		if (!silent) {
-			System.out.println(insName);
-			if (lcf == null)
-				throw new RuntimeException();
-		}
-	}
+//	public static void debugJMPINDEXED(String insName, Frame lcf, int lsp) {
+//		if (!silent) {
+//			System.out.println(insName);
+//			if (lcf == null)
+//				throw new RuntimeException();
+//		}
+//	}
 
 	public static void debugLOADCONT(String insName, Frame lcf, int lsp) {
 		if (!silent) {

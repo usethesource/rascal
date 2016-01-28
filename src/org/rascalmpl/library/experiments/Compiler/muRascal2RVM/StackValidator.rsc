@@ -216,22 +216,22 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 
 alias Effect = tuple[int sp, bool accu];
 
-Effect simulate(LABEL(str label), int sp) 					= <sp, false>; 
-Effect simulate(JMP(str label), int sp) 					= <sp, false>; 
-Effect simulate(JMPTRUE(str label), int sp) 				= <sp, false>; 
-Effect simulate(JMPFALSE(str label), int sp) 				= <sp, false>; 
+Effect simulate(LABEL(str label), int sp) 					= <sp,     false>; 
+Effect simulate(JMP(str label), int sp) 					= <sp,     false>; 
+Effect simulate(JMPTRUE(str label), int sp) 				= <sp,     false>; 
+Effect simulate(JMPFALSE(str label), int sp) 				= <sp,     false>; 
 Effect simulate(TYPESWITCH(list[str] labels), int sp) 		= <sp - 1, false>; 
 Effect simulate(SWITCH(map[int,str] caseLabels, 
 				   str caseDefault, 
 				   bool useConcreteFingerprint), 
 		     int sp) 									    = <sp - 1, false>; 
-Effect simulate(JMPINDEXED(list[str] labels), int sp) 		= <sp - 1, false>; 
 
-Effect simulate(LOADBOOL(bool bval), int sp) 				= <sp, true>; 
-Effect simulate(LOADINT(int nval), int sp) 				    = <sp, true>; 
-Effect simulate(LOADCON(value val), int sp) 				= <sp, true>; 
+Effect simulate(LOADBOOL(bool bval), int sp) 				= <sp,     true>; 
+Effect simulate(LOADINT(int nval), int sp) 				    = <sp,     true>; 
+Effect simulate(LOADCON(value val), int sp) 				= <sp,     true>; 
 Effect simulate(PUSHCON(value val), int sp)                 = <sp + 1, false>;
-Effect simulate(LOADTYPE(Symbol \type), int sp) 			= <sp + 1, false>; 
+Effect simulate(LOADTYPE(Symbol \type), int sp) 			= <sp,     true>; 
+Effect simulate(PUSHTYPE(Symbol \type), int sp)             = <sp + 1, false>; 
 
 Effect simulate(PUSHACCU(), int sp)                         = <sp + 1, false>;
 Effect simulate(POPACCU(), int sp)                          = <sp - 1, true>; 
@@ -241,31 +241,36 @@ Effect simulate(LOAD_NESTED_FUN(str fuid, str scopeIn),
 			 int sp) 									    = <sp + 1, false>;
 Effect simulate(LOADCONSTR(str fuid), int sp) 				= <sp + 1, false>;
 Effect simulate(LOADOFUN(str fuid), int sp) 				= <sp + 1, false>;
-Effect simulate(LOADLOC(int pos), int sp) 					= <sp, true>; 
+Effect simulate(LOADLOC(int pos), int sp) 					= <sp,     true>; 
 Effect simulate(PUSHLOC(int pos), int sp)                   = <sp + 1, false>;
-Effect simulate(STORELOC(int pos), int sp) 				    = <sp, false>; 
-Effect simulate(RESETLOCS(list[int] positions), int sp) 	= <sp, false>;
-Effect simulate(RESETLOC(int pos), int sp)                  = <sp, false>; 
+Effect simulate(STORELOC(int pos), int sp) 				    = <sp,     false>; 
+Effect simulate(RESETLOCS(list[int] positions), int sp) 	= <sp,     false>;
+Effect simulate(RESETLOC(int pos), int sp)                  = <sp,     false>; 
 
-Effect simulate(LOADLOCKWP(str name), int sp) 				= <sp + 1, false>;
-Effect simulate(STORELOCKWP(str name), int sp) 			    = <sp, false>; 
-Effect simulate(UNWRAPTHROWNLOC(int pos), int sp) 			= <sp, false>; 
+Effect simulate(LOADLOCKWP(str name), int sp) 				= <sp,     true>;
+Effect simulate(PUSHLOCKWP(str name), int sp)               = <sp + 1, false>;
+Effect simulate(STORELOCKWP(str name), int sp) 			    = <sp,     false>; 
+Effect simulate(UNWRAPTHROWNLOC(int pos), int sp) 			= <sp,     false>; 
 Effect simulate(UNWRAPTHROWNVAR(str fuid, int pos),
-			 int sp) 									    = <sp, false>; 
-Effect simulate(LOADVAR(str fuid, int pos) , int sp) 		= <sp, true>; 
-Effect simulate(STOREVAR(str fuid, int pos), int sp) 		= <sp, false>; 
-Effect simulate(RESETVAR(str fuid, int pos), int sp)        = <sp, false>; 
-Effect simulate(LOADVARKWP(str fuid, str name), int sp) 	= <sp + 1, false>;
-Effect simulate(STOREVARKWP(str fuid, str name), int sp) 	= <sp, false>; 
-//Effect simulate(LOADMODULEVAR(str fuid), int sp) 			= <sp + 1, false>;
+			 int sp) 									    = <sp,     false>; 
+Effect simulate(LOADVAR(str fuid, int pos) , int sp) 		= <sp,     true>; 
+Effect simulate(PUSHVAR(str fuid, int pos) , int sp)        = <sp + 1, false>; 
+Effect simulate(STOREVAR(str fuid, int pos), int sp) 		= <sp,     false>; 
+Effect simulate(RESETVAR(str fuid, int pos), int sp)        = <sp,     false>; 
+Effect simulate(LOADVARKWP(str fuid, str name), int sp) 	= <sp,     true>;
+Effect simulate(PUSHVARKWP(str fuid, str name), int sp)     = <sp + 1, false>;
+Effect simulate(STOREVARKWP(str fuid, str name), int sp) 	= <sp,     false>; 
 
-//Effect simulate(STOREMODULEVAR(str fuid), int sp) 			= <sp, false>; 
-Effect simulate(LOADLOCREF(int pos), int sp) 				= <sp + 1, false>;
-Effect simulate(LOADLOCDEREF(int pos), int sp) 			    = <sp + 1, false>;
-Effect simulate(STORELOCDEREF(int pos), int sp) 			= <sp, false>; 
-Effect simulate(LOADVARREF(str fuid, int pos), int sp) 	    = <sp + 1, false>;
-Effect simulate(LOADVARDEREF(str fuid, int pos), int sp) 	= <sp + 1, false>;
-Effect simulate(STOREVARDEREF(str fuid, int pos), int sp) 	= <sp, false>; 
+Effect simulate(LOADLOCREF(int pos), int sp) 				= <sp,     true>;
+Effect simulate(PUSHLOCREF(int pos), int sp)                = <sp + 1, false>;
+Effect simulate(LOADLOCDEREF(int pos), int sp) 			    = <sp,     true>;
+Effect simulate(PUSHLOCDEREF(int pos), int sp)              = <sp + 1, false>;
+Effect simulate(STORELOCDEREF(int pos), int sp) 			= <sp,     false>; 
+Effect simulate(LOADVARREF(str fuid, int pos), int sp) 	    = <sp,     true>;
+Effect simulate(PUSHVARREF(str fuid, int pos), int sp)      = <sp + 1, false>;
+Effect simulate(LOADVARDEREF(str fuid, int pos), int sp) 	= <sp,     true>;
+Effect simulate(PUSHVARDEREF(str fuid, int pos), int sp)    = <sp + 1, false>;
+Effect simulate(STOREVARDEREF(str fuid, int pos), int sp) 	= <sp,     false>; 
 Effect simulate(CALL(str fuid, int arity), int sp) 		    = <sp - arity + 1, false>;
 
 Effect simulate(CALLDYN(int arity), int sp) 				= <sp - 1 - arity + 1, false>;
@@ -276,22 +281,28 @@ Effect simulate(OCALL(str fuid, int arity, loc src),
 			 int sp) 									    = <sp - arity + 1, false>;
 Effect simulate(OCALLDYN(Symbol types, int arity, loc src), 
 			 int sp) 									    = <sp - 1 - arity + 1, false>;
-//Effect simulate(CALLMUPRIM(str name, int arity), int sp) 	= <sp - arity + 1, false>;
-Effect simulate(CALLMUPRIM0(str name), int sp)              = <sp, true>;
-Effect simulate(CALLMUPRIM1(str name), int sp)              = <sp, true>; 
+Effect simulate(CALLMUPRIM0(str name), int sp)              = <sp,     true>;
+Effect simulate(CALLMUPRIM1(str name), int sp)              = <sp,     true>; 
 Effect simulate(CALLMUPRIM2(str name), int sp)              = <sp - 1, true>; 
 Effect simulate(CALLMUPRIMN(str name, int arity), int sp)   = <sp - arity, true>;
 
-//Effect simulate(CALLPRIM(str name, int arity, loc src), 
-//			 int sp) 									    = <sp - arity + 1, false>;
+Effect simulate(PUSHCALLMUPRIM0(str name), int sp)          = <sp + 1, false>;
+Effect simulate(PUSHCALLMUPRIM1(str name), int sp)          = <sp + 1, false>; 
+Effect simulate(PUSHCALLMUPRIM2(str name), int sp)          = <sp,     false>; 
+Effect simulate(PUSHCALLMUPRIMN(str name, int arity), int sp)   = <sp - arity + 1, false>;
 
-Effect simulate(CALLPRIM0(str name, loc src), int sp)       = <sp, true>;
-Effect simulate(CALLPRIM1(str name, loc src), int sp)       = <sp, true>; 
+Effect simulate(CALLPRIM0(str name, loc src), int sp)       = <sp,     true>;
+Effect simulate(CALLPRIM1(str name, loc src), int sp)       = <sp,     true>; 
 Effect simulate(CALLPRIM2(str name, loc src), int sp)       = <sp - 1, true>; 
              			 
 Effect simulate(CALLPRIMN(str name, int arity, loc src), 
              int sp)                                        = <sp - arity, true>;
-			 
+
+Effect simulate(PUSHCALLPRIM0(str name, loc src), int sp)   = <sp + 1, false>;
+Effect simulate(PUSHCALLPRIM1(str name, loc src), int sp)   = <sp + 1, false>; 
+Effect simulate(PUSHCALLPRIM2(str name, loc src), int sp)   = <sp,     false>; 	
+Effect simulate(PUSHCALLPRIMN(str name, int arity, loc src), 
+             int sp)                                        = <sp - arity + 1, false>;		 
 			 
 Effect simulate(CALLJAVA(str name, str class, 
 		           Symbol parameterTypes,
@@ -308,33 +319,34 @@ Effect simulate(CALLJAVA(str name, str class,
 	throw "CALLJAVA: cannot match <parameterTypes>";
 }
 	
-Effect simulate(RETURN0(), int sp) 						    = <sp, false>; 
+Effect simulate(RETURN0(), int sp) 						    = <sp,     false>; 
 Effect simulate(RETURN1(int arity), int sp) 				= <sp - arity, false>;
 
-Effect simulate(FAILRETURN(), int sp) 						= <sp, false>; 
-Effect simulate(FILTERRETURN(), int sp) 					= <sp, false>; 
+Effect simulate(FAILRETURN(), int sp) 						= <sp,     false>; 
+Effect simulate(FILTERRETURN(), int sp) 					= <sp,     false>; 
 Effect simulate(THROW(loc src), int sp) 					= <sp + 2, false>;		// TODO Check This.
 
 Effect simulate(CREATE(str fuid, int arity) , int sp)		= <sp - arity + 1, false>;
 Effect simulate(CREATEDYN(int arity), int sp) 				= <sp - 1 - arity + 1, false>;
-Effect simulate(NEXT0(), int sp) 							= <sp, false>; 
+Effect simulate(NEXT0(), int sp) 							= <sp,     false>; 
 Effect simulate(NEXT1(), int sp) 							= <sp - 1, false>; 
 Effect simulate(YIELD0(), int sp) 							= <sp + 1, false>;
 Effect simulate(YIELD1(int arity), int sp) 				    = <sp - arity + 1, false>;
-Effect simulate(EXHAUST(), int sp) 						    = <sp, false>; 
+Effect simulate(EXHAUST(), int sp) 						    = <sp,     false>; 
 Effect simulate(GUARD(), int sp)							= <sp - 1, false>; 
 Effect simulate(PRINTLN(int arity), int sp) 				= <sp - arity + 1, false>;
 Effect simulate(POP(), int sp) 							    = <sp - 1, false>; 
-Effect simulate(HALT(), int sp) 							= <sp, false>; 
-Effect simulate(SUBSCRIPTARRAY(), int sp) 					= <sp - 1, false>; 
-Effect simulate(SUBSCRIPTLIST(), int sp) 					= <sp - 1, false>; 
-Effect simulate(LESSINT()	, int sp)						= <sp - 1, false>; 
-Effect simulate(GREATEREQUALINT(), int sp) 				    = <sp - 1, false>; 
-Effect simulate(ADDINT(), int sp) 							= <sp - 1, false>; 
-Effect simulate(SUBTRACTINT(), int sp) 					    = <sp - 1, false>; 
-Effect simulate(ANDBOOL(), int sp) 						    = <sp - 1, false>; 
-Effect simulate(TYPEOF(), int sp) 							= <sp, false>; 
-Effect simulate(SUBTYPE(), int sp) 						    = <sp - 1, false>; 
+Effect simulate(HALT(), int sp) 							= <sp,     false>; 
+Effect simulate(SUBSCRIPTARRAY(), int sp) 					= <sp - 1, true>; 
+Effect simulate(SUBSCRIPTLIST(), int sp) 					= <sp - 1, true>; 
+Effect simulate(LESSINT()	, int sp)						= <sp - 1, true>; 
+Effect simulate(GREATEREQUALINT(), int sp) 				    = <sp - 1, true>; 
+Effect simulate(ADDINT(), int sp) 							= <sp - 1, true>; 
+Effect simulate(SUBTRACTINT(), int sp) 					    = <sp - 1, true>; 
+Effect simulate(ANDBOOL(), int sp) 						    = <sp - 1, true>; 
+Effect simulate(TYPEOF(), int sp) 							= <sp,     true>; 
+Effect simulate(SUBTYPE(), int sp) 						    = <sp - 1, true>; 
+Effect simulate(VALUESUBTYPE(Symbol \type), int sp)         = <sp,     true>; 
 Effect simulate(CHECKARGTYPEANDCOPY(
 			int pos1, Symbol \type, int pos2), int sp)	    = <sp, false>; 
 

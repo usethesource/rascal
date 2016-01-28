@@ -91,7 +91,8 @@ public data Instruction =
 	   	| LOADTREE(Tree tree)						// Unused, but forces Tree to be part of the type RVMModule
 	   												// This is necessary to guarantee correct (de)serialization and can be removed
 	   												// when (de)serialization has been improved.
-	   	| LOADTYPE(Symbol \type)					// Push a type constant
+	   	| LOADTYPE(Symbol \type)					// Load a type constant in accu
+	   	| PUSHTYPE(Symbol \type)                    // Push a type constant
 	   	
 	   	| LOADFUN(str fuid)                         // Push a named *muRascal function
 		| LOAD_NESTED_FUN(str fuid, str scopeIn)    // Push a named nested *muRascal function of a named inner *muRascal function
@@ -108,28 +109,32 @@ public data Instruction =
 		| RESETLOCS(list[int] positions)			// Reset selected local variables to undefined (null)
 		| RESETLOC(int pos)                         // Reset a local variable to undefined (null)
 				
-		| LOADLOCKWP(str name)                      // Load value of a keyword parameter
+		| LOADLOCKWP(str name)                      // Load value of a keyword parameter in accu
+		| PUSHLOCKWP(str name)                      // Push value of a keyword parameter
 		| STORELOCKWP(str name)                     // Store value on top-of-stack in the keyword parameter (value remains on stack)
 		
 		| UNWRAPTHROWNLOC(int pos)                  // Unwrap a thrown value on top-of-stack, and store the unwrapped value in the local variable (value removed from the stack)
 		| UNWRAPTHROWNVAR(str fuid, int pos)        // Unwrap a thrown value on top-of-stack, and store the unwrapped value in the variable (value removed from the stack)
 	   	
-		| LOADVAR(str fuid, int pos)                // Push a variable from an outer scope
+		| LOADVAR(str fuid, int pos)                // Load a variable from an outer scope in accu
+		| PUSHVAR(str fuid, int pos)                // Push a variable from an outer scope
 		| STOREVAR(str fuid, int pos)               // Store value on top-of-stack in variable in surrounding scope (value remains on stack)
 		| RESETVAR(str fuid, int pos)               // Reset a variable form an outer scope to undefined (null)
 		
-		| LOADVARKWP(str fuid, str name)            // Load a keyword parameter from an outer scope
+		| LOADVARKWP(str fuid, str name)            // Load a keyword parameter from an outer scope in accu
+		| PUSHVARKWP(str fuid, str name)            // Push a keyword parameter from an outer scope
 		| STOREVARKWP(str fuid, str name)           // Store value on top-of-stack in the keyword parameter of a surrounding scope (value remains on stack)
-
-//		| LOADMODULEVAR(str fuid)          			// Push a variable from a global module scope
-//		| STOREMODULEVAR(str fuid)         			// Store value on  top-of-stack in variable in global module scope (value remains on stack)
 		
-		| LOADLOCREF(int pos)						// Push a reference to a local variable
-		| LOADLOCDEREF(int pos)						// Push value of a local variable identified by reference on stack 
+		| LOADLOCREF(int pos)						// Load a reference to a local variable in accu
+		| PUSHLOCREF(int pos)                       // Push a reference to a local variable
+		| LOADLOCDEREF(int pos)						// Load value of a local variable identified by reference in accu
+		| PUSHLOCDEREF(int pos)                     // Push value of a local variable identified by reference on stack 
 		| STORELOCDEREF(int pos)					// Store value at stack[sp - 2] in local variable identified by reference at stack[sp -1] (value remains on stack)
 			
-		| LOADVARREF(str fuid, int pos)			    // Push a reference to a variable in a surrounding scope
-		| LOADVARDEREF(str fuid, int pos)           // Push value of a variable in outer scope identified by reference on stack 
+		| LOADVARREF(str fuid, int pos)			    // Load a reference to a variable in a surrounding scope in accu
+		| PUSHVARREF(str fuid, int pos)             // Push a reference to a variable in a surrounding scope
+		| LOADVARDEREF(str fuid, int pos)           // Load value of a variable in outer scope identified by reference in accu
+		| PUSHVARDEREF(str fuid, int pos)           // Push value of a variable in outer scope identified by reference on stack 
 		| STOREVARDEREF(str fuid, int pos)          // Store value at stack[sp - 2] in outer variable identified by reference at stack[sp -1] (value remains on stack)		
 		
 		| CALL(str fuid, int arity)					// Call a named *muRascal* function
@@ -147,17 +152,25 @@ public data Instruction =
 //		| CALLMUPRIM(str name, int arity)			// Call a muRascal primitive (see Compiler.RVM.Interpreter.MuPrimitive) 
 		                                           /*OBSOLETE*/
 		
-		| CALLMUPRIM0(str name)                     // Call a muRascal primitive, arity 0 (see Compiler.RVM.Interpreter.MuPrimitive)
-		| CALLMUPRIM1(str name)                     // Call a muRascal primitive, arity 1 (see Compiler.RVM.Interpreter.MuPrimitive)
-		| CALLMUPRIM2(str name)                     // Call a muRascal primitive, arity 2 (see Compiler.RVM.Interpreter.MuPrimitive)
-		| CALLMUPRIMN(str name, int arity)          // Call a muRascal primitive, arity arity (see Compiler.RVM.Interpreter.MuPrimitive)
+		| CALLMUPRIM0(str name)                     // Call a muRascal primitive, arity 0, result in accu
+		| CALLMUPRIM1(str name)                     // Call a muRascal primitive, arity 1, result in accu 
+		| CALLMUPRIM2(str name)                     // Call a muRascal primitive, arity 2, result in accu
+		| CALLMUPRIMN(str name, int arity)          // Call a muRascal primitive, arity arity, result in accu
 		
-//		| CALLPRIM(str name, int arity, loc src)	// Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
-		                                              /*OBSOLETE*/
-		| CALLPRIM0(str name, loc src)              // Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
-		| CALLPRIM1(str name, loc src)              // Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
-		| CALLPRIM2(str name, loc src)              // Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
-		| CALLPRIMN(str name, int arity, loc src)  // Call a Rascal primitive (see Compiler.RVM.Interpreter.RascalPrimitive)
+		| PUSHCALLMUPRIM0(str name)                 // Call a muRascal primitive, arity 0, push result on stack
+        | PUSHCALLMUPRIM1(str name)                 // Call a muRascal primitive, arity 1, push result on stack
+        | PUSHCALLMUPRIM2(str name)                 // Call a muRascal primitive, arity 2, push result on stack
+        | PUSHCALLMUPRIMN(str name, int arity)      // Call a muRascal primitive, arity arity, push result on stack
+		
+		| CALLPRIM0(str name, loc src)              // Call a Rascal primitive, result in accu
+		| CALLPRIM1(str name, loc src)              // Call a Rascal primitive, result in accu
+		| CALLPRIM2(str name, loc src)              // Call a Rascal primitive, result in accu
+		| CALLPRIMN(str name, int arity, loc src)   // Call a Rascal primitive, result in accu
+		
+		| PUSHCALLPRIM0(str name, loc src)          // Call a Rascal primitive, push result on stack
+        | PUSHCALLPRIM1(str name, loc src)          // Call a Rascal primitive, push result on stack
+        | PUSHCALLPRIM2(str name, loc src)          // Call a Rascal primitive, push result on stack
+        | PUSHCALLPRIMN(str name, int arity, loc src)  // Call a Rascal primitive, push result on stack
 		
 		
 		| CALLJAVA(str name, str class, 
@@ -182,9 +195,7 @@ public data Instruction =
 										 			// Switch on arbitrary value. Takes the "fingerprint" of the value on the stack, 
 													// finds associated label in map and jumps to it. When 	useConcreteFingerprint is true, fingerprints are computed based
 													// non-terminals rather than Tree constructors		
-													
-		| JMPINDEXED(list[str] labels)				// Computed jump. Takes an integer i from the stack and jumps to the i-th label in the list
-		
+															
 		| CREATE(str fuid, int arity)               // Creates a co-routine instance 
 		| CREATEDYN(int arity)					    // Creates a co-routine instance from the co-routine on top-of-stack.
 		| NEXT0()									// Next operation (without argument) on co-routine on top-of-stack
