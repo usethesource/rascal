@@ -533,6 +533,11 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				codeblock.LOADVAR(getStrField(instruction, "fuid"), 
 								  getIntField(instruction, "pos"));
 				break;
+				
+			case "PUSHVAR":
+				codeblock.PUSHVAR(getStrField(instruction, "fuid"), 
+								  getIntField(instruction, "pos"));
+				break;
 
 			case "LOADLOC":
 				codeblock.LOADLOC(getIntField(instruction, "pos"));
@@ -645,18 +650,36 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			case "LOADLOCREF":
 				codeblock.LOADLOCREF(getIntField(instruction, "pos"));
 				break;
+				
+			case "PUSHLOCREF":
+				codeblock.PUSHLOCREF(getIntField(instruction, "pos"));
+				break;
 
 			case "LOADVARREF":
 				codeblock.LOADVARREF(getStrField(instruction, "fuid"), 
+									 getIntField(instruction, "pos"));
+				break;
+				
+			case "PUSHVARREF":
+				codeblock.PUSHVARREF(getStrField(instruction, "fuid"), 
 									 getIntField(instruction, "pos"));
 				break;
 
 			case "LOADLOCDEREF":
 				codeblock.LOADLOCDEREF(getIntField(instruction, "pos"));
 				break;
+				
+			case "PUSHLOCDEREF":
+				codeblock.PUSHLOCDEREF(getIntField(instruction, "pos"));
+				break;
 
 			case "LOADVARDEREF":
 				codeblock.LOADVARDEREF(getStrField(instruction, "fuid"), 
+									   getIntField(instruction, "pos"));
+				break;
+				
+			case "PUSHVARDEREF":
+				codeblock.PUSHVARDEREF(getStrField(instruction, "fuid"), 
 									   getIntField(instruction, "pos"));
 				break;
 
@@ -686,6 +709,11 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			case "LOADTYPE":
 				codeblock.LOADTYPE(symbolToType((IConstructor) instruction.get("type")));
 				break;
+				
+			case "PUSHTYPE":
+				codeblock.PUSHTYPE(symbolToType((IConstructor) instruction.get("type")));
+				break;
+				
 			case "LOADBOOL":
 				codeblock.LOADBOOL(getBooleanField(instruction, "bval"));
 				break;
@@ -788,16 +816,25 @@ static FSTCodeBlockSerializer codeblockSerializer;
 									  getIntField(instruction, "pos2"));
 				break;
 				
-			case "JMPINDEXED":
-				codeblock.JMPINDEXED((IList)instruction.get("labels"));
-				break;
+//			case "JMPINDEXED":
+//				codeblock.JMPINDEXED((IList)instruction.get("labels"));
+//				break;
 				
 			case "LOADLOCKWP":
 				codeblock.LOADLOCKWP(getStrField(instruction, "name"));
 				break;
 				
+			case "PUSHLOCKWP":
+				codeblock.PUSHLOCKWP(getStrField(instruction, "name"));
+				break;
+				
 			case "LOADVARKWP":
 				codeblock.LOADVARKWP(getStrField(instruction, "fuid"), 
+									 getStrField(instruction, "name"));
+				break;
+				
+			case "PUSHVARKWP":
+				codeblock.PUSHVARKWP(getStrField(instruction, "fuid"), 
 									 getStrField(instruction, "name"));
 				break;
 				
@@ -848,16 +885,33 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				codeblock.CALLMUPRIM0(MuPrimitive.valueOf(getStrField(instruction, "name")));
 				break;
 				
+			case "PUSHCALLMUPRIM0":
+				codeblock.PUSHCALLMUPRIM0(MuPrimitive.valueOf(getStrField(instruction, "name")));
+				break;
+				
 			case "CALLMUPRIM1":
 				codeblock.CALLMUPRIM1(MuPrimitive.valueOf(getStrField(instruction, "name")));
+				break;
+				
+			case "PUSHCALLMUPRIM1":
+				codeblock.PUSHCALLMUPRIM1(MuPrimitive.valueOf(getStrField(instruction, "name")));
 				break;
 				
 			case "CALLMUPRIM2":
 				codeblock.CALLMUPRIM2(MuPrimitive.valueOf(getStrField(instruction, "name")));
 				break;
 				
+			case "PUSHCALLMUPRIM2":
+				codeblock.PUSHCALLMUPRIM2(MuPrimitive.valueOf(getStrField(instruction, "name")));
+				break;
+				
 			case "CALLMUPRIMN":
 				codeblock.CALLMUPRIMN(MuPrimitive.valueOf(getStrField(instruction, "name")), 
+									 getIntField(instruction, "arity"));
+				break;
+				
+			case "PUSHCALLMUPRIMN":
+				codeblock.PUSHCALLMUPRIMN(MuPrimitive.valueOf(getStrField(instruction, "name")), 
 									 getIntField(instruction, "arity"));
 				break;
 			
@@ -866,17 +920,39 @@ static FSTCodeBlockSerializer codeblockSerializer;
 								   getLocField(instruction, "src"));
 				break;
 				
+			case "PUSHCALLPRIM0":
+				codeblock.PUSHCALLPRIM0(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getLocField(instruction, "src"));
+				break;
+				
 			case "CALLPRIM1":
 				codeblock.CALLPRIM1(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
 								   getLocField(instruction, "src"));
 				break;
+				
+			case "PUSHCALLPRIM1":
+				codeblock.PUSHCALLPRIM1(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getLocField(instruction, "src"));
+				break;
+				
 			case "CALLPRIM2":
 				codeblock.CALLPRIM2(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
 								   getLocField(instruction, "src"));
 				break;
 				
+			case "PUSHCALLPRIM2":
+				codeblock.PUSHCALLPRIM2(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getLocField(instruction, "src"));
+				break;
+				
 			case "CALLPRIMN":
 				codeblock.CALLPRIMN(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getIntField(instruction, "arity"), 
+								   getLocField(instruction, "src"));
+				break;
+				
+			case "PUSHCALLPRIMN":
+				codeblock.PUSHCALLPRIMN(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
 								   getIntField(instruction, "arity"), 
 								   getLocField(instruction, "src"));
 				break;

@@ -24,7 +24,7 @@ INS peephole1(INS instructions, bool isSplit){
 }
 
 private INS peephole2(INS instructions, bool isSplit){
-  	//println("**** peephole length <size(instructions)>");
+  println("**** peephole length <size(instructions)>");
   
   // Peephole-ing a fixed point problem multiple steps for debugging.
   // -- Maybe disable could be slow --
@@ -40,19 +40,18 @@ private INS peephole2(INS instructions, bool isSplit){
         result = jumps_to_jumps(result);
         result = jumps_to_returns(result);
     }
-//  println("**** peephole removed <size(instructions) - size(result)> instructions (from <size(instructions)>) in <loopcount> iterations");
-//  iprintln(instructions);
-//  iprintln(result4);
+    println("**** peephole removed <size(instructions) - size(result)> instructions (from <size(instructions)>) in <loopcount> iterations");
+    println("BEFORE:");
+    iprintln(instructions);
+    println("AFTER:");
+    iprintln(result);
     return result;
 }
 
 // Redundant_stores, loads and jmps
 
-INS redundant_stores([ LOADCON(_), POP(),  *Instruction rest ] ) = 
-	redundant_stores(rest);
-	
-//INS redundant_stores([ LOADCON(true), GUARD(),  *Instruction rest] ) =
-//    redundant_stores(rest); 
+//INS redundant_stores([ LOADCON(_), POP(),  *Instruction rest ] ) = 
+//	redundant_stores(rest);
 
 INS redundant_stores([ JMP(p), LABEL(p),  *Instruction rest ] ) =
 	[LABEL(p), *redundant_stores(rest)];
@@ -60,11 +59,11 @@ INS redundant_stores([ JMP(p), LABEL(p),  *Instruction rest ] ) =
 INS redundant_stores([ LOADCON(true), JMPFALSE(_),  *Instruction rest] ) =
 	redundant_stores(rest);
 
-INS redundant_stores([ STOREVAR(v,p),  LOADVAR(v,p),  *Instruction rest] ) =
-	[STOREVAR(v,p), *redundant_stores(rest)];   
-
-INS redundant_stores([ STORELOC(int p), LOADLOC(p),  *Instruction rest] ) =
-    [STORELOC(p), *redundant_stores(rest)]; 
+//INS redundant_stores([ STOREVAR(v,p),  LOADVAR(v,p),  *Instruction rest] ) =
+//	[STOREVAR(v,p), *redundant_stores(rest)];   
+//
+//INS redundant_stores([ STORELOC(int p), LOADLOC(p),  *Instruction rest] ) =
+//    [STORELOC(p), *redundant_stores(rest)]; 
 
 
     
@@ -109,7 +108,6 @@ INS unused_labels([ *Instruction instructions ]){
        case JMPFALSE(lab): used += lab;
        case JMPTRUE(lab): used += lab;
        case TYPESWITCH(labs): used += toSet(labs);
-       case JMPINDEXED(labs): used += toSet(labs);
        case SWITCH(labs, def, useConcreteFingerprint): used += range(labs) + def;
     };
     return 

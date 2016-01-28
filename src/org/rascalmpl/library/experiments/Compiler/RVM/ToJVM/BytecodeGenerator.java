@@ -1776,4 +1776,44 @@ public class BytecodeGenerator implements Opcodes {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public void emitInlinePushCallMuPrim0(MuPrimitive muprim, boolean debug) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void emitInlinePushCallMuPrim1(MuPrimitive muprim, boolean debug) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void emitInlinePushCallMuPrim2(MuPrimitive muprim, boolean debug) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void emitInlinePushCallMuPrimN(MuPrimitive muprim, int arity, boolean debug) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void emitInlinePushCallPrim0(RascalPrimitive prim, boolean debug) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void emitInlinePushCallPrim1(RascalPrimitive prim, boolean debug) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void emitInlinePushCallPrim2(RascalPrimitive prim, boolean debug) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void emitInlinePushCallPrimN(RascalPrimitive prim, int arity, boolean debug) {
+		// TODO Auto-generated method stub
+		
+	}
 }
