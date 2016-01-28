@@ -124,7 +124,7 @@ public abstract class FileTree {
     if (throwMe != null) {
       throw throwMe;
     }
-    if (!path.endsWith("/")) {
+    if (!path.endsWith("/") && !path.isEmpty()) {
       path += "/";
     }
 
