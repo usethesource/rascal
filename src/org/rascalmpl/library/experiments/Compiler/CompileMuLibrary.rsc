@@ -10,7 +10,7 @@ import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::muRascal2RVM::mu2rvm;
 import experiments::Compiler::muRascal2RVM::StackValidator; // TODO: hide these two
-import experiments::Compiler::muRascal2RVM::PeepHole;
+//import experiments::Compiler::muRascal2RVM::PeepHole;
 
 private loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compiler/muRascal2RVM/MuLibrary.mu", pcfg);
 
@@ -28,7 +28,7 @@ list[RVMDeclaration] compileMuLibrary(PathConfig pcfg, bool verbose = false){
     for(fun <- libModule.functions) {
         setFunctionScope(fun.qname);
         set_nlocals(fun.nlocals);
-        body = peephole(tr(fun.body));
+        body = tr(fun.body, stack(), returnDest());
         if(fun.qname == "Library/RANGE_INT"){
             println(fun.qname);
             iprintln(fun.body);
