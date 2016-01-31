@@ -159,6 +159,14 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 	    if(debug)println("update <blk>, <successor>, <sp>");
 		if(stackAtEntry[successor]?){
 			if(stackAtEntry[successor] != sp){
+			    println("graph:          <graph>");
+                println("stackAtEntry:   <stackAtEntry>");
+                println("stackAtExit:    <stackAtExit>");
+                println("maxSPBlock:     <maxSPBlock>");
+                println("maxSPPath:      <maxSPPath>");
+                //println("maxStack:       <maxStack>");
+                println("label2block:    <label2block>");
+                println("exceptions:     <exceptions>");
 				throw("Inconsistent stackAtEntry for <src>, from block <blk> to <successor>: <stackAtEntry[successor]> versus <sp>");
 			}
 			maxSPPath[successor] = max(max(maxSPPath[blk], sp + maxSPBlock[successor]), maxSPPath[successor]);
