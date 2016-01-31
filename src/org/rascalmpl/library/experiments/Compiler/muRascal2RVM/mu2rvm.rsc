@@ -17,7 +17,6 @@ import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::muRascal2RVM::ToplevelType;
-//import experiments::Compiler::muRascal2RVM::PeepHole;
 import experiments::Compiler::muRascal2RVM::StackValidator;
 
 
@@ -499,7 +498,10 @@ Instruction jmp(returnDest()) = RETURN1(1);
 
 Instruction jmpfalse(labelDest(name)) { usedLabels += name; return JMPFALSE(name); }
 
+
+Instruction jmptrue(returnDest()) = RETURN1(1);
 Instruction jmptrue(labelDest(name)) { usedLabels += name; return JMPTRUE(name); }
+default Instruction jmptrue(CDest c) { throw "jmptrue to <c>"; }
 
 
 /*********************************************************************/
@@ -548,6 +550,10 @@ INS tr_and_pop(muBlock([])) = [];
 default INS tr_and_pop(MuExp exp, CDest c) = tr(exp, nowhere(), c);
 
 INS trblock(list[MuExp] exps, Dest d, CDest c) {
+  
+  if(d == nowhere() && size(exps) > 0 && muCon(_) := exps[-1]){
+    exps = exps[0..-1];
+  }
   if(size(exps) == 0){
      return plug(con(666), d); // TODO: throw "Non void block cannot be empty";
   }
@@ -555,12 +561,16 @@ INS trblock(list[MuExp] exps, Dest d, CDest c) {
   for(exp <- exps[0..-1]){
         seq = nextSeqLabel();
         code = tr_and_pop(exp, labelDest(seq));
+        if(size(code) > 0 && (code[-1] == JMP(seq) || code[-1] == JMPTRUE(seq) || code[-1] == JMPFALSE(seq))){
+           code = code[0..-1];
+        }
         ins += seq in usedLabels ? [ *code, LABEL(seq) ] : code;
   }
   ins += tr(exps[-1], d, c);
   if(!producesValue(exps[-1])){
     ins += plug(con(666), d);
   }
+  //println("trblock, <c>"); iprintln(exps); iprintln(ins);
   return ins;
 }
 
@@ -1063,13 +1073,16 @@ INS tr(muIfelse(str label, MuExp cond, list[MuExp] thenPart, list[MuExp] elsePar
     elseLab = mkElse(label);
     //continueLab = mkContinue(label);
     coro = needsCoRo(cond) ? createTmpCoRo(functionScope) : -1;
-    res = [ *tr_cond(cond, coro, nextLabel(), failLab, labelDest(elseLab)), 
-            *(isEmpty(thenPart) ? plug(con(111), d) : trblock(thenPart, d, c)),
-            //JMP(continueLab), 
+    
+    thenPartCode = trblock(thenPart, d, c);
+    elsePartCode = trblock(elsePart, d, c);
+    res = elsePartCode == [] 
+          ? [*tr_cond(cond, coro, nextLabel(), failLab, c), *thenPartCode/*, jmp(c)*/ ]
+          : [ *tr_cond(cond, coro, nextLabel(), failLab, labelDest(elseLab)), 
+            *thenPartCode,
             jmp(c),
             LABEL(elseLab),
-            *(isEmpty(elsePart) ? plug(con(222), d) : trblock(elsePart, d, c))
-            //LABEL(continueLab)
+            *elsePartCode
           ];
     if(coro > 0){
        destroyTmpCoRo(functionScope);
@@ -1120,21 +1133,30 @@ INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp), Dest d
 INS tr(muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuExp defaultExp, MuExp result), Dest d, CDest c){
    defaultLab = nextLabel();
    continueLab = mkContinue(defaultLab);
-   
+   //println("**** muSwitch: <d>, <c>");
+   //println("result = <result>");
    labels = ();
    caseCode =  [];
    for(cs <- cases){
         caseLab = defaultLab + "_<cs.fingerprint>";
         labels[cs.fingerprint] = caseLab;
-        caseCode += [ LABEL(caseLab), POP(), *tr_arg_stack(cs.exp), JMP(defaultLab) ];
+        case1 = [ LABEL(caseLab), /*POP(),*/ *tr_arg_accu(cs.exp), JMPFALSE(defaultLab), *(d == nowhere() ? [ ] : tr(result, d, c)) , jmp(c)];
+        //println("case1"); iprintln(cs.exp); iprintln(case1);
+        caseCode += case1;
    }
    INS defaultCode = tr(defaultExp, nowhere(), labelDest(continueLab));
-   if(defaultCode == []){
-        defaultCode = [PUSHCON(666)];
-   }
+   //if(defaultCode == []){
+   //     defaultCode = [PUSHCON(666)];
+   //}
+   
+   //println("defaultCode"); iprintln(defaultCode);
    if(size(cases) > 0){ 
-        caseCode += [LABEL(defaultLab), POPACCU(), JMPTRUE(continueLab), *defaultCode ];
-        return [ PUSHCON(false), *tr_arg_stack(exp), SWITCH(labels, defaultLab, useConcreteFingerprint), *caseCode, LABEL(continueLab), *tr(result, d, c) ];
+        caseCode += [LABEL(defaultLab),  *defaultCode ];
+        //if(caseCode[-1] == JMPTRUE(continueLab) || caseCode[-1] == JMPFALSE(continueLab)){
+        //    println("***************!!!");
+        //    caseCode = caseCode[0..-1];
+        //}
+        return [ *tr_arg_stack(exp), SWITCH(labels, defaultLab, useConcreteFingerprint), *caseCode, LABEL(continueLab), *(d == nowhere() ? [ ] : tr(result, d, c)) ];
     } else {
         return [ *tr_arg_nowhere(exp), *defaultCode, LABEL(continueLab), *tr(result, d, c) ];
     }   
