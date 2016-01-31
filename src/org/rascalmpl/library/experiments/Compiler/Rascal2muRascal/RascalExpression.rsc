@@ -1032,7 +1032,7 @@ private MuExp translateStatementInVisitCase(str fuid, Statement stat){
     				                                  [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
 		                                                muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)),      				          
     				                                    muReturn1(muVar("replacement", fuid, replacementPos)) ],
-    				                                  [ muCon(666) ])
+    				                                  [ /*muCon(666)*/ ])
     				                       ]);
     				     }
 					
@@ -1066,9 +1066,9 @@ private map[int, MuExp]  addPatternWithActionCode(str fuid, Symbol subjectType, 
     				                               [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
 		                                             muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)),      				          
     				                                 replacementReturn(muVar("replacement", fuid, replacementPos)) ],
-    				                               [ muCon(666) ])
+    				                               [ /*muCon(666)*/ ])
     				                     ], 
-    				                     [ muCon(777) ]),  
+    				                     [ /*muCon(777)*/ ]),  
     				            table[key] ? replacementReturn(muVar("iSubject", fuid, iSubjectPos))
     				          ]);
     	leaveBacktrackingScope();
@@ -1081,7 +1081,7 @@ private map[int, MuExp]  addPatternWithActionCode(str fuid, Symbol subjectType, 
 		if(!(muBlock([]) := \case)) {
 			cbody += \case;
 		}
-		table[key] = muBlock([ muIfelse(ifname, makeBoolExp("ALL",[ cond ], pwa.pattern@\loc), cbody, [ muCon(666) ]),
+		table[key] = muBlock([ muIfelse(ifname, makeBoolExp("ALL",[ cond ], pwa.pattern@\loc), cbody, [ /*muCon(666)*/ ]),
 		                       table[key] ? replacementReturn(muVar("iSubject", fuid, iSubjectPos))
 		                     ]);
     	leaveBacktrackingScope();
