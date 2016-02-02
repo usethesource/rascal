@@ -58,16 +58,19 @@ alias StrCallBack = void(str,str,str);
 alias RealCallBack = void(str,str,real);
 alias IntCallBack = void(str,str,int);
 
-data Event 
+// alias InputType = tuple[str lab, str f];
+
+
+data Event
 	= on(StrCallBack strCallBack)
 	| on(RealCallBack realCallBack)
 	| on(IntCallBack intCallBack)
 	| on(str eventName, StrCallBack strCallBack)
-	| on(str eventName, RealCallBack realCallBack)
+	| on(str eventName, RealCallBack realCallBack) 
 	| on(str eventName, IntCallBack intCallBack)
 	| on(list[str] eventList, StrCallBack strCallBack)
 	| on(list[str] eventList, RealCallBack realCallBack)
-	| on(list[str] eventList,IntCallBack intCallBack)
+	| on(list[str] eventList, IntCallBack intCallBack)
 	| noEvent()
 	;
 		
@@ -139,6 +142,7 @@ public data Timer (
      str command = ""
      // ,str mark = ""
     ) = timer();
+    
     
 public data Style (	
     bool svg = false,
