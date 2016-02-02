@@ -110,6 +110,15 @@ test bool setAnnotations3() = setAnnotations(leaf(3), ("pos": 1, "label":"a"))@l
 // unsetRec TODO
 
 
+// kw args
+
+data KNODE(int x = 2) = z() | y();
+
+test bool setKW1() = setKeywordParameters(z(), ("x" : 4)) == z(x=4);
+test bool setKW2() = setKeywordParameters(z(x=3), ("x" : 4)) == z(x=4);
+test bool setKW2() = setKeywordParameters(z(x=3), ("x" : 4)).x == 4;
+
+
 
 /*TODO: clean up tmp */
 
