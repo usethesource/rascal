@@ -2032,6 +2032,17 @@ public class Prelude {
 		return w.done();
 	}
 	
+	public INode setKeywordParameters(INode node, IMap kwargs) {
+		if (node.isAnnotatable()) {
+		    node = node.asAnnotatable().removeAnnotations();
+		}
+
+		Map<String,IValue> map = new HashMap<java.lang.String,IValue>();
+		kwargs.entryIterator().forEachRemaining((kv) -> map.put(((IString)kv.getKey()).getValue(), kv.getValue()));
+		return node.asWithKeywordParameters().setParameters(map);
+	    
+	}
+	
 	public INode setAnnotations(INode node, IMap annotations) {
 		java.util.Map<java.lang.String,IValue> map = new HashMap<java.lang.String,IValue>();
 		
