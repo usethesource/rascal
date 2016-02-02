@@ -58,6 +58,7 @@ ajax.post = function(url, data, callback, sync) {
 function askServer(path, parameters, timer, timeout, callback) {
 	ajax.post(path, parameters, function(responseText){
 		try { 
+		    // alert(responseText);
             var res = JSON.parse(responseText);      
             callback(res);
         } catch (e) {
@@ -547,5 +548,13 @@ function isObject (item) {
 function nl2br (str, is_xhtml) {
      var breakTag = (is_xhtml || typeof is_xhtml === 'undefined') ? '<br />' : '<br>';
      return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + breakTag + '$2');
-  }    
+  }  
+  
+function diagClose(e, id) {
+    e.preventDefault();
+    document.querySelector('dialog').close();
+}   ;
+  
+  
+   
   

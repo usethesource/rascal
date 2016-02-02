@@ -15,6 +15,7 @@ import util::Webserver;
 import lang::json::IO;
 import util::HtmlDisplay;
 import util::Math;
+
 import experiments::vis2::sandbox::Figure;
 import experiments::vis2::sandbox::Tree;
 import experiments::vis2::sandbox::Utilities;
@@ -30,6 +31,7 @@ alias Elm = tuple[value f, int seq, str id, str begintag, str endtag, str script
 // Map which stores the widget info
 
 public map[str, Elm] widget = (); 
+
 
 bool _display = true;
 
@@ -76,6 +78,7 @@ public list[str] markerScript = [];
 
 public list[str] tooltip_id = [];
 
+public map[str, tuple[str, str]] dialog = ();
 
 public map[str, list[IFigure] ] defs = ();
 
@@ -102,7 +105,13 @@ public void setDebug(bool b) {
    
 public bool isSvg(str id) = widget[id].svg;
 
-public void null(str event, str id, value val ){return;}
+public void null(str event, str id, str val ){return;}
+
+tuple[str, str] prompt = <"", "">;
+
+str alert = "";
+
+list[tuple[str id, str lab, str val]] labval=[];
 
 bool isPassive(Figure f) = f.event==noEvent()  && isEmptyTooltip(f.tooltip);
 
@@ -143,6 +152,16 @@ Property _getProperty(str id) {return state[widget[id].seq].v.property;}
 void _setProperty(str id, Property v) {state[widget[id].seq].v.property = v;}
 
 void _setText(str id, Text v) {state[widget[child(id)].seq].v.text = v;}
+
+void _setPrompt(tuple[str, str] p) {prompt = p;}
+
+void _setAlert(str a) {alert= a;}
+
+str  _getPromptStr(str tg)= dialog[tg][1];
+
+void _setPrompt(list[tuple[str, str , str]] xs) {
+      labval = xs;
+      }
 
 void _setTimer(str id, Timer v) {state[widget[id].seq].v.timer = v;}
 
@@ -276,11 +295,15 @@ public void clearWidget() {
     widget = (); widgetOrder = [];adjust=[]; googleChart=[]; loadCalls = [];
     markerScript = [];
     defs=(); 
+    dialog = ();
     parentMap=(); figMap = ();extraGraphData=();
     seq = 0; occur = 0;
     old =[];
+    prompt  = <"", "">;
+    alert = "";
     state = [];
     tooltip_id = [];
+    labval = [];
     initFigure();
     _display = true;
     }
@@ -317,6 +340,7 @@ str visitDefs(str id, bool orient) {
     }
     return "";
     }
+    
  
 
 str google = "\<script src=\'https://www.google.com/jsapi?autoload={
@@ -372,29 +396,37 @@ str getIntro() {
         '            function(t) {   
         '                // alert(JSON.stringify(t));         
         '                for (var d in t) {
-        '                   var e = d3.select(\"#\"+d); 
-         '                  var svg = t[d][\"style\"][\"svg\"];
-        '                   for (var i in t[d][\"style\"]) {  
-        '                        // if (i==\"visibility\") alert(\"\"+d+\" \"+t[d][\"style\"][i]); 
+        '                  // alert(JSON.stringify(d));
+        '                  var e = d3.select(\"#\"+d); 
+        '                  var style = t[d][\"style\"];
+        '                  if (style!=null) {
+        '                  var svg = style[\"svg\"];
+        '                   for (var i in style) {  
+        '                        // if (i==\"visibility\") alert(\"\"+d+\" \"+style[i]); 
         '                        if (i==\"visibility\") {
-        '                           d3.select(\"#\"+d+\"_outer_fo\").style(i, t[d][\"style\"][i]);
-        '                           d3.select(\"#\"+d+\"_svg\").style(i, t[d][\"style\"][i]);                           
-        '                        }                
-        '                        e=e.style(svgStyle(i, svg), t[d][\"style\"][i]);
+        '                           d3.select(\"#\"+d+\"_outer_fo\").style(i, style[i]);
+        '                           d3.select(\"#\"+d+\"_svg\").style(i, style[i]);                           
+        '                        }              
+        '                        e=e.style(svgStyle(i, svg), style[i]);
         '                        }
+        '                   }
         '                   // alert(d);
+        '                   if (t[d][\"text\"]!=null) 
         '                   for (var i in t[d][\"text\"]) {
         '                        if (i==\"text\") e=e.text(t[d][\"text\"][i]);
         '                        if (i==\"html\") e=e.html(t[d][\"text\"][i]);
         '                        }
+        '                   if (t[d][\"attr\"]!=null)
         '                   for (var i in t[d][\"attr\"]) {
         '                        if (i!=\"bigger\" && i!=\"disabled\")
         '                        e=e.attr(i, t[d][\"attr\"][i]);
         '                        if (i==\"disabled\") e=e.attr(i, t[d][\"attr\"][i]?true:null);
         '                        }
+        '                   if (t[d][\"property\"]!=null)
         '                   for (var i in t[d][\"property\"]) {
         '                        e=e.property(i, t[d][\"property\"][i]);
         '                        }
+        '                   if (t[d][\"timer\"]!=null)
         '                   for (var i in t[d][\"timer\"]) {
         '                        var q =  doFunction(\"message\", d);
         '                        if (i==\"command\") { 
@@ -413,7 +445,18 @@ str getIntro() {
         '                                    }
         '                        }
         '                   }
-       
+        '                   var lab = t[d][\"prompt\"];
+        '                   if (lab!=null && lab!=\"\") {
+        '                             var v = prompt(lab, \"\");
+        '                             if (v==null) return;
+        '                             var q =   promptFunction(\"prompt\", d, v);
+        '                             setTimeout(q, 100);
+        '                      }
+        '                   var a = t[d][\"alert\"];
+        '                   if (a!=null && a!=\"\") {
+        '                             alert(a);                   
+        '                      }
+        '                   if (t[d][\"property\"]!=null)
         '                   for (var i in t[d][\"property\"]) {
         '                        var v = t[d][\"property\"][i];
         '                        e=e.property(i, v);           
@@ -459,6 +502,11 @@ str getIntro() {
         '     ask(ev, id, v);
         '   };
         ' }
+        '  function promptFunction(ev, id, v) { 
+        '    return function() {  
+        '     ask(ev, id, v);
+        '   };
+        ' }
         '  function doTimerFunction(ev, id) { 
         '    return function() {  
         '     ask(ev, id, \"\");
@@ -480,7 +528,7 @@ str getIntro() {
        '\</script\>
        '\</head\>
        '\<body\>
-       ' <visitFig(fig)>      
+       '<visitFig(fig)>      
        '\</body\>     
 		'\</html\>\n";
     // println(res);
@@ -549,61 +597,92 @@ void hideTooltips() {
    for (str s<-tooltip_id) hide(s);
    }
    
-void callCallback(str e, str n, str v) {
+void assign(str v) {  
+   // println("Assign <v>");
+   // println(labval);
+   dialog[labval[0][0]]=<labval[0][1],v>;
+   labval = tail(labval); 
+   }
    
-   v = replaceAll(v,"^plus","+");
-   v = replaceAll(v,"^div","/");
-   Figure f = figMap[n];
-   if (choiceInput():=f) { 
-     Property a = _getProperty(n);
-     a.\value= v;
-     _setProperty(n, a);
-     old[widget[n].seq].property = a;
-     }
-   if (checkboxInput():=f) { 
-     Property a = _getProperty(n);
-     value q = a.\value;
-     if (map[str, bool] b := q) {
-        int  d = toInt(v);
-        if (d<0) b[f.choices[-d-1]] = false;
-        else b[f.choices[d-1]] = true;
-        // println(b);
-        a.\value = b;
-       _setProperty(n, a);
-        old[widget[n].seq].property = a;
-        }
-     }
-   if (rangeInput():=f) { 
-     Property a = _getProperty(n);
-     a.\value = toReal(v);
-     _setProperty(n, a);
-     old[widget[n].seq].property = a;
-     }
-   value z = f.tooltip; 
+void invokeF(str e, str n, str v) {
    value q = widget[n].f;
    switch (q) {
        case void(str, str, str) f: f(e, n, v);
        case void(str, str, int) f: f(e, n, toInt(v));
        case void(str, str, real) f: f(e, n, toReal(v));
        }
-   if (Figure g := z && g !=emptyFigure()) {
-      if (e=="mouseenter") {visible("<f.id>_tooltip"); return;}
-      else
-      if (e=="mouseleave") {hide("<f.id>_tooltip"); return;} 
+    }
+ 
+void callCallback(str e, str n, str v) { 
+    // println("HELP0 <e> <n> <dialog>");
+   if (e=="prompt")  assign(v);
+   if (isEmpty(labval)) {
+     // println("Go on"); 
+     v = replaceAll(v,"^plus","+");
+     v = replaceAll(v,"^div","/");
+     Figure f = figMap[n];
+     if (choiceInput():=f) { 
+       Property a = _getProperty(n);
+       a.\value= v;
+       _setProperty(n, a);
+       old[widget[n].seq].property = a;
+       }
+     if (checkboxInput():=f) { 
+       Property a = _getProperty(n);
+       value q = a.\value;
+       if (map[str, bool] b := q) {
+          int  d = toInt(v);
+          if (d<0) b[f.choices[-d-1]] = false;
+          else b[f.choices[d-1]] = true;
+          a.\value = b;
+         _setProperty(n, a);
+          old[widget[n].seq].property = a;
+          }
+       }
+     if (rangeInput():=f) { 
+       Property a = _getProperty(n);
+       a.\value = toReal(v);
+       _setProperty(n, a);
+       old[widget[n].seq].property = a;
+       }
+       value z = f.tooltip; 
+       invokeF(e, n, v);
+      if (Figure g := z && g !=emptyFigure()) {
+         if (e=="mouseenter") {visible("<f.id>_tooltip"); return;}
+         else
+          if (e=="mouseleave") {hide("<f.id>_tooltip"); return;} 
+      }
+     }
+    if (!isEmpty(labval)) {   
+       _setPrompt(<labval[0][1], labval[0][2]>); 
+       return; 
+       } 
    }
-   }
-
 Response page(post(), /^\/getValue\/<ev:[a-zA-Z0-9_]+>\/<name:[a-zA-Z0-9_]+>\/<v:.*>/, map[str, str] parameters) {
 	// println("post: getValue: <name>, <parameters>");
 	// widget[name].f(ev, name, v);  // !!! The callback will be called
+	str lab = name;
 	callCallback(ev, name, v);
 	list[State] changed = diffNewOld();
 	map[str, Prop] c = toMapUnique(changed);	
 	map[str, map[str, value]] d = (s:makeMap(c[s])|s<-c);
+	if (!isEmpty(alert)) {
+      if (d[name]?)
+	    d[name]["alert"]=alert;
+	  else
+	    d[name] = ("alert":alert);
+	  alert = "";
+	  }
 	// println(d);
+	str g = prompt[0]=="undefined"?"":prompt[0];
+	if (d[name]?)
+	    d[name]["prompt"]=g;
+	else
+	    d[name] = ("prompt":g);
 	str res = toJSON(d, true);
 	// println(res);
 	old = [s.v|s<-state];
+	prompt = <"", "">;
 	return response("<res>");
 }
 
@@ -826,6 +905,7 @@ value getCallback(Event e) {
     if (on(_, void(str, str, real) callback):=e) return callback;  
     return null; 
     }
+    
        
 str getEvent(Event e) {
     if (on(str eventName, _):=e) return eventName;
@@ -978,7 +1058,8 @@ IFigure _text(str id, bool inHtml, Figure f, str s) {
     Alignment align =  width<0?topLeft:f.align; 
     str endtag = isHtml?"\</div\>":"\</text\>\</svg\>";
     if (!inHtml && isHtml) endtag += "\</foreignObject\>";
-    f.fillColor = isEmpty(f.fontColor)?"black":f.fontColor;
+    if (!isHtml)
+          f.fillColor = isEmpty(f.fontColor)?"black":f.fontColor;
     // f.lineColor = f.fontColor;
     f.lineWidth = 0;
     widget[id] = <null, seq, id, begintag, endtag, 
@@ -2059,7 +2140,49 @@ int widthDefCells(list[IFigure] fig1) {
 int heightDefCells(list[IFigure] fig1) {
      if (isEmpty(fig1)) return 0;
      return sum([0]+[getHeight(q)|q<-fig1,getHeight(q)>=0]);
-     }    
+     } 
+     
+ IFigure _dialog(str id, Figure f, bool addSvgTag, IFigure fig1) {
+       int width = f.width;
+       int height = f.height; 
+       // println("hcat <addSvgTag>");
+       str begintag = "";
+       if (addSvgTag) {
+          begintag+=
+         "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\" x=0 y=0, width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         }
+       begintag+="                    
+            '\<dialog open\>
+            "
+            ;
+       str endtag="
+            '\</dialog\>
+            "
+            ;
+       if (addSvgTag) {
+            endtag += "\</foreignObject\>\</svg\>"; 
+            }
+         //   '\<p\>\</p/\>
+        widget[id] = <null, seq, id, begintag, endtag, 
+        "
+        'd3.select(\"#<id>\") 
+        '<on(f)>
+        '<stylePx("width", width)><stylePx("height", height)>
+        '<attrPx("width", width)><attrPx("height", height)>      
+        '<debugStyle()> 
+        '<style("background-color", "<getFillColor(f)>")> 
+        '<style("border-spacing", "<f.hgap> <f.vgap>")> 
+        '<style("stroke-width",getLineWidth(f))>
+        '// <style("visibility", getVisibility(f))>
+        '<_padding(f.padding)>      
+        ; 
+        "
+        , width, height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f)
+        , f.sizeFromParent, false >;
+       addState(f);
+       widgetOrder+= id;
+       return ifigure(id ,[fig1]);
+       }   
                 
 IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
        int width = f.width;
@@ -2369,6 +2492,9 @@ Figure pL(Figure f) {
               f.id = "i<occur>";
               occur = occur + 1; 
               }
+         //if (!isEmpty(f.event.inputs)) {
+          //   prompt[f.id] = f.event.inputs;
+          //   }
          value v = f.tooltip;
          if (Figure g:= v && g!=emptyFigure()) { 
               if (at(int x, int y, Figure h):=g) {
@@ -2638,7 +2764,8 @@ list[Figure] treeToList(Figure f) {
         case g:rotate(_, _, _, fg):  isEmpty(fg);
         }
         return false;
-     }   
+     }  
+     
     
 public void _render(Figure fig1, int width = 400, int height = 400, 
      Alignment align = centerMid, tuple[int, int] size = <0, 0>,

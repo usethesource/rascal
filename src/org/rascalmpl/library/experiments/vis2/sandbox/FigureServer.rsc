@@ -135,7 +135,20 @@ public Timer timer(str id, int delay = -1, str command = "") {
      return t;
     }
     
+//public void setPrompt(str lab, StrCallBack f) {
+//  _setPrompt(<lab, f>);
+ //  }
+   
+public str getPromptStr(str tg) = _getPromptStr(tg);
+
+public int getPromptInt(str tg) = toInt(_getPromptStr(tg));
+
+void setPrompt(list[tuple[str id, str lab, str val]] p) = _setPrompt( p);
+
+void setAlert(str a) = _setAlert(a);
+    
 public map[str, str] getIdFig(Figure f) = _getIdFig(f);
+
 
 Figure finalStateMachine(Figure f, str initialState) {
     str current = initialState;
@@ -182,61 +195,5 @@ Figure finalStateMachine(Figure f, str initialState) {
         }
   }
   
-  str getLabel(tuple[str, Figure] n) {
-        if (text(str s):=n[1].fig) return s;
-        return "";
-        }
   
-  str getLabel(Figure f, str id) {  
-        return getLabel(head([p|p<-f.nodes, p[0]==id]));
-        }   
-  
-  
-  Figure finalStateMachine2(Figure f, str initialState) {
-    str current = initialState;
-    f.id = newId(); 
-    if (g:graph():=f) {    
-        g.event = on("load", void(str ev, str n, str v){
-               map[str, str] q = getIdFig(f);   
-               list[Edge] out = [e|Edge e<-g.edges, e.from==current]; 
-               int i = 0;
-               for (Figure b<-buttons) {
-                  attr(b.id, disabled = true);
-                  style(b.id, visibility = "hidden");
-                  }
-               for (Edge e<-out) {
-                  attr(buttons[i].id, disabled = false);
-                  style(buttons[i].id, visibility = "visible");
-                  textProperty(buttons[i].id, \text = getLabel(f, e.to));
-                  i = i+1;
-               }
-         });
-        Figures buttons = [buttonInput("", width = 200, height = 25, disabled = true, id = newName()
-        ,event = on("click", void(str ev, str n, str v)(int p) {
-             return void(str ev, str n, str v) {
-              map[str, str] q = getIdFig(f);  
-             style(q[current], fillColor="whitesmoke");    
-             list[Edge] out = [e|Edge e<-g.edges, e.from==current];
-             str last = current;
-             current=out[p].to; 
-             out = [e|Edge e<-g.edges, e.from==current];
-             if (isEmpty(out)) current = last;
-                else current=out[0].to; 
-             out = [e|Edge e<-g.edges, e.from==current];    
-             style(q[current], fillColor="#f77");
-             for (Figure b<-buttons) {
-                  attr(b.id, disabled = true);
-                  style(b.id, visibility = "hidden");
-                  }
-             for (int i<-[0..size(out)]) {
-                  attr(buttons[i].id, disabled = false);
-                  style(buttons[i].id, visibility = "visible");
-                  textProperty(buttons[i].id, \text=getLabel(f, out[i].to));
-                  }
-       };}(i))
-        )|int i <-[0..10]];
-        Figure z = vcat(figs = buttons, height = 200, width = 200);
-        return hcat(vgap = 0, align = topLeft, borderWidth  =4, borderStyle="ridge", figs=[z , g]);
-        }
-  }
     

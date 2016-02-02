@@ -23,7 +23,24 @@ public void render1(Figure f, str fillColor = "none", Alignment align = <0.5, 0.
 , fillColor = fillColor, align = align, size = size
 );
 
-Figure _tut1()= box(size=<50, 50>, fillColor="green", event=on("load", void(str e, str n, str v){println("OK");}));
+Figure _tut1()= box(size=<50, 50>, fillColor="green", event=on("click", void(str e, str n, str v){
+   if (e=="click") {
+     println("start: <e>");
+      style(n, fillColor="red");
+      setPrompt([<"aap", "noot", "mies">, <"bert", "mark", "jeroen">]);
+      // setAlert("Dag dag");
+      return;
+      }
+    println("Dit:<getPromptStr("aap")> <e>");
+   // setPrompt("Hello", void(str e, str n, str v) {
+   //   style(n, fillColor=v); 
+   //   println(n);
+   //   setPrompt("Dag", void(str e, str n, str v) {style(n, fillColor=v);});
+   //   }
+   //);
+    }
+)
+);
 public void tut1()= render(_tut1());
 
 void ftut1(loc f) = writeFile(f, toHtmlString(_tut1()));
