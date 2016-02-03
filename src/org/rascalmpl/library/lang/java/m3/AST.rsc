@@ -173,7 +173,7 @@ list[loc] findRoots(list[loc] folders) {
               roots += [ d[path = intercalate("/", split("/", d.path)[..-packagedepth])] ];
             }
             
-            if (roots == {}) { // no package declaration means d is a root 
+            if (roots == []) { // no package declaration means d is a root 
               roots += [ d ]; 
             }
             
