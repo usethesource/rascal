@@ -16,6 +16,7 @@
  *******************************************************************************/
 package org.rascalmpl.library.lang.java.m3.internal;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -159,7 +160,7 @@ public class EclipseJavaCompiler {
                     throw RuntimeExceptionFactory.io(VF.string("" + loc  + " doesn't exist"), null, null);
                 }
 
-                absolutePaths[i] = safeResolve(loc).getPath();
+                absolutePaths[i] = new File(safeResolve(loc).getPath()).getAbsolutePath();
                 reversePathLookup.put(absolutePaths[i], loc);
                 encodings[i] = guessEncoding(loc);
                 i++;
@@ -190,7 +191,7 @@ public class EclipseJavaCompiler {
             if (!loc.getScheme().equals("file")) {
                 throw RascalRuntimeException.io(VF.string("all path entries must have (or resolve to) the file:/// scheme: " + loc), null);
             }
-            result[i++] = loc.getPath();
+            result[i++] = new File(loc.getPath()).getAbsolutePath();
         }
         return result;
     }
