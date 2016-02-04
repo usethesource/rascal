@@ -36,7 +36,7 @@ private INS peephole2(INS instructions, bool isSplit){
         if(!isSplit){
         	result = unused_labels(result);
         }
-        result = redundant_stores(result);
+        //result = redundant_stores(result);
         result = jumps_to_jumps(result);
         result = jumps_to_returns(result);
     }
@@ -47,30 +47,6 @@ private INS peephole2(INS instructions, bool isSplit){
     iprintln(result);
     return result;
 }
-
-// Redundant_stores, loads and jmps
-
-//INS redundant_stores([ LOADCON(_), POP(),  *Instruction rest ] ) = 
-//	redundant_stores(rest);
-
-INS redundant_stores([ JMP(p), LABEL(p),  *Instruction rest ] ) =
-	[LABEL(p), *redundant_stores(rest)];
-
-INS redundant_stores([ LOADCON(true), JMPFALSE(_),  *Instruction rest] ) =
-	redundant_stores(rest);
-
-//INS redundant_stores([ STOREVAR(v,p),  LOADVAR(v,p),  *Instruction rest] ) =
-//	[STOREVAR(v,p), *redundant_stores(rest)];   
-//
-//INS redundant_stores([ STORELOC(int p), LOADLOC(p),  *Instruction rest] ) =
-//    [STORELOC(p), *redundant_stores(rest)]; 
-
-
-    
-INS redundant_stores([]) = [];
-
-default INS redundant_stores([Instruction ins, *Instruction rest]) = 
-	[ins, *redundant_stores(rest)];
 
 // Jumps_to_jumps
 
