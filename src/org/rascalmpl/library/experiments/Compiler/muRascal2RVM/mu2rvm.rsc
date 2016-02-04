@@ -614,7 +614,7 @@ INS tr(muTypeCon(Symbol sym), Dest d, CDest c) = LOADTYPE(sym) + plug(accu(), d)
 
 // muRascal functions
 
-INS tr(muFun1(str fuid), Dest d, CDest c) = LOADFUN(fuid) + plug(stack(), d);
+INS tr(muFun1(str fuid), Dest d, CDest c) = PUSH_ROOT_FUN(fuid) + plug(stack(), d);
 INS tr(muFun2(str fuid, str scopeIn), Dest d, CDest c) = LOAD_NESTED_FUN(fuid, scopeIn) + plug(stack(), d);
 
 // Rascal functions
@@ -694,7 +694,7 @@ default INS trMuCall(MuExp fun, list[MuExp] args, Dest d, CDest c) = [*tr_args_s
 
  INS tr(muApply(MuExp fun, list[MuExp] args), Dest d, CDest c) = trMuApply(fun, args, d, c);
  
-INS trMuApply(muFun1(str fuid), list[MuExp] args: [], Dest d, CDest c) = [ LOADFUN(fuid), *plug(stack(), d) ];
+INS trMuApply(muFun1(str fuid), list[MuExp] args: [], Dest d, CDest c) = [ PUSH_ROOT_FUN(fuid), *plug(stack(), d) ];
 
 INS trMuApply(muFun1(str fuid), list[MuExp] args, Dest d, CDest c) = [ *tr_args_stack(args), APPLY(fuid, size(args)), *plug(stack(), d) ];
 

@@ -496,8 +496,8 @@ public class CodeBlock implements Serializable {
 		return add(new PushCallPrimN(this, prim, arity, src));
 	}
 	
-	public CodeBlock LOADFUN (String fuid){
-		return add(new LoadFun(this, fuid));
+	public CodeBlock PUSH_ROOT_FUN (String fuid){
+		return add(new PushRootFun(this, fuid));
 	}
 	
 	public CodeBlock CALLDYN(int arity, int ctpt){

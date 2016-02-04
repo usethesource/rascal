@@ -1122,7 +1122,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					ref.stack[ref.pos] = accu; // TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues    
 					continue NEXT_INSTRUCTION;
 				
-				case Opcode.OP_LOADFUN:
+				case Opcode.OP_PUSH_ROOT_FUN:
 					// Loads functions that are defined at the root
 					stack[sp++] = new FunctionInstance(functionStore.get(CodeBlock.fetchArg1(instruction)), root, this);
 					continue NEXT_INSTRUCTION;

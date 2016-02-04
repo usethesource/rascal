@@ -29,7 +29,7 @@ public enum Opcode {
 	HALT 				(11, 	1),
 	POP 				(12, 	1),
 	CALLDYN				(13,	1),
-	LOADFUN				(14,	1), // TODO: to be renamed to LOAD_ROOT_FUN
+	PUSH_ROOT_FUN		(14,	1),
 	NEXT0				(15,	1),
 	NEXT1				(16,	1),
 	YIELD0				(17,	1),
@@ -158,7 +158,7 @@ public enum Opcode {
 	static public final int OP_HALT = 11;
 	static public final int OP_POP = 12;
 	static public final int OP_CALLDYN = 13;
-	static public final int OP_LOADFUN = 14;	
+	static public final int OP_PUSH_ROOT_FUN = 14;	
 	static public final int OP_NEXT0 = 15;
 	static public final int OP_NEXT1 = 16;
 	static public final int OP_YIELD0 = 17;
@@ -375,8 +375,8 @@ public enum Opcode {
 		case CALLDYN:
 			return "CALLDYN " + arg1;
 			
-		case LOADFUN:
-			return "LOADFUN " + cb.getFunctionName(arg1) ;
+		case PUSH_ROOT_FUN:
+			return "PUSH_ROOT_FUN " + cb.getFunctionName(arg1) ;
 			
 		case NEXT0:
 			return "NEXT0";

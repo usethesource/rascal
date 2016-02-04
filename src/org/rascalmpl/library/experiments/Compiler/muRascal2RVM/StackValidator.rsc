@@ -246,7 +246,7 @@ Effect simulate(PUSHTYPE(Symbol \type), int sp)             = <sp + 1, false>;
 Effect simulate(PUSHACCU(), int sp)                         = <sp + 1, false>;
 Effect simulate(POPACCU(), int sp)                          = <sp - 1, true>; 
 
-Effect simulate(LOADFUN(str fuid), int sp) 				    = <sp + 1, false>;
+Effect simulate(PUSH_ROOT_FUN(str fuid), int sp) 				    = <sp + 1, false>;
 Effect simulate(LOAD_NESTED_FUN(str fuid, str scopeIn), 
 			 int sp) 									    = <sp + 1, false>;
 Effect simulate(PUSHCONSTR(str fuid), int sp) 				= <sp + 1, false>;

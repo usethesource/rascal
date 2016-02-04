@@ -586,8 +586,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				codeblock.APPLYDYN(getIntField(instruction, "arity"));
 				break;
 
-			case "LOADFUN":
-				codeblock.LOADFUN(getStrField(instruction, "fuid"));
+			case "PUSH_ROOT_FUN":
+				codeblock.PUSH_ROOT_FUN(getStrField(instruction, "fuid"));
 				break;
 
 			case "RETURN0":
