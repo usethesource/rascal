@@ -119,7 +119,7 @@ tuple[MuExp, list[MuExp]] processRegExpLiteral(e: (RegExpLiteral) `/<RegExp* rex
    i = 0;
    while(i < len){
       r = lrexps[i];
-      //println("lregex[<i>]: <r>\nfragmentCode = <fragmentCode>");
+      //println("lregex[<i>]: <r>\nfragment = <fragment>\nfragmentCode = <fragmentCode>");
       if("<r>" == "\\"){
          fragment += "\\" + (i < len  - 1 ? "<lrexps[i + 1]>" : "");
          i += 2;

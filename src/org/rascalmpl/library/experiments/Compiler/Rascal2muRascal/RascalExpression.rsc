@@ -1127,7 +1127,7 @@ private MuExp translateVisitCases(str fuid, Symbol subjectType, bool useConcrete
                                                                      				 ]) 
                                           : muVar("iSubject", fuid, iSubjectPos)
                                           ;
-   return muSwitch(fetchSubject, useConcreteFingerprint, case_code, default_code, muVar("iSubject", fuid, iSubjectPos));
+   return muSwitch(fetchSubject, useConcreteFingerprint, case_code, default_code/*, muVar("iSubject", fuid, iSubjectPos)*/);
 	
 }
 

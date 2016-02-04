@@ -317,7 +317,7 @@ MuExp translateSwitch(s: (Statement) `<Label label> switch ( <Expression express
        muBlockWithTmps(
           [ <switchval, fuid> ],
           [ ],
-          [ muSwitch(muAssignTmp(switchval,fuid,translate(expression)), useConcreteFingerprint, case_code, default_code, muTmp(switchval, fuid))
+          [ muSwitch(muAssignTmp(switchval,fuid,translate(expression)), useConcreteFingerprint, case_code, default_code/*, muBlock([ ]*/ /*muTmp(switchval, fuid)*/ )
           ]);
 }
 
@@ -360,8 +360,10 @@ map[int, MuExp] addPatternWithActionCode(str switchval, str fuid, bool useConcre
 	          ? muCallPrim3("equal", [translate(pwa.pattern.literal), muTmp(switchval,fuid)], pwa@\loc)
 	   		  : muMulti(muApply(translatePat(pwa.pattern, Symbol::\value()), [ muTmp(switchval,fuid) ]));
 	   table[key] = muIfelse(ifname, cond, 
-	                         { enterBacktrackingScope(ifname); [ muAssignTmp(switchval, fuid, translate(pwa.statement)), muCon(true)]; }, 
-	                         { leaveBacktrackingScope(); [ table[key] ?  muCon(false)]; }); 
+	                         { enterBacktrackingScope(ifname); [ translate(pwa.statement) ]; }, 
+	                          { leaveBacktrackingScope(); [ table[key] ?  muEndCase()]; }); 
+	                         //{ enterBacktrackingScope(ifname); [ muAssignTmp(switchval, fuid, translate(pwa.statement)), muCon(true)]; }, 
+	                         //{ leaveBacktrackingScope(); [ table[key] ?  muCon(false)]; }); 
 	 } else {
 	   throw "Replacement not allowed in switch statement";
 	 }
@@ -373,7 +375,7 @@ private int fingerprintDefault = 0; //getFingerprint("default", false);
 tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, bool useConcreteFingerprint, list[Case] cases) {
   map[int,MuExp] table = ();		// label + generated code per case
   
-  default_code = muAssignTmp(switchval, fuid, muCon(777));	// default code for default case
+  default_code = muBlock([]); //muAssignTmp(switchval, fuid, muCon(777));	// default code for default case
    
   for(c <- reverse(cases)){
 	  if(c is patternWithAction){
@@ -383,7 +385,7 @@ tuple[list[MuCase], MuExp] translateSwitchCases(str switchval, str fuid, bool us
 	       table = addPatternWithActionCode(switchval, fuid, useConcreteFingerprint, pwa, table, key);
 	    }
 	  } else {
-	       default_code = muBlock([muAssignTmp(switchval, fuid, translate(c.statement)), muCon(true)]);
+	       default_code = translate(c.statement); //muBlock([muAssignTmp(switchval, fuid, translate(c.statement)), muCon(true)]);
 	  }
    }
    default_table = (fingerprintDefault : default_code);
