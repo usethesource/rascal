@@ -697,8 +697,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 										getStrField(instruction, "scopeIn"));
 				break;
 
-			case "LOADCONSTR":
-				codeblock.LOADCONSTR(getStrField(instruction, "fuid"));
+			case "PUSHCONSTR":
+				codeblock.PUSHCONSTR(getStrField(instruction, "fuid"));
 				break;
 
 			case "CALLCONSTR":

@@ -621,7 +621,7 @@ INS tr(muFun2(str fuid, str scopeIn), Dest d, CDest c) = LOAD_NESTED_FUN(fuid, s
 
 INS tr(muOFun(str fuid), Dest d, CDest c) = LOADOFUN(fuid) + plug(stack(), d);
 
-INS tr(muConstr(str fuid), Dest d, CDest c) = LOADCONSTR(fuid) + plug(stack(), d);
+INS tr(muConstr(str fuid), Dest d, CDest c) = PUSHCONSTR(fuid) + plug(stack(), d);
 
 // Variables and assignment
 
