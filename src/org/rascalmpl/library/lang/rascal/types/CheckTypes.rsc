@@ -6072,6 +6072,23 @@ public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration
 	return c;
 }
 
+public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> data <UserType ut> <CommonKeywordParameters commonParams>;`, Configuration c) {
+	commonParamList = [ ];
+	if ((CommonKeywordParameters)`( <{KeywordFormal ","}+ kfs> )` := commonParams) commonParamList = [ kfi | kfi <- kfs ];
+
+	cCons = enterBlock(c, decl@\loc);
+	if (size(commonParamList) > 0) {
+		for (KeywordFormal kfi <- commonParamList) {
+			< cCons, kfT > = convertAndExpandType(kfi.\type, cCons);
+			< cCons, _ > = calculateKeywordParamRel(cCons, [ kfi ], typesOnly = false ); 
+			cCons = addLocalVariable(cCons, convertName(kfi.name), false, kfi@\loc, kfT);
+		}
+	}
+	c = exitBlock(cCons, c);
+
+	return c;
+}
+
 public default Configuration checkConstructorKeywordParams(Declaration decl, Configuration c) = c;
 
 @doc{Check the type of the components of a declaration: Function}
@@ -7658,6 +7675,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
 						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
+						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<FunctionDeclaration _>` : { 
@@ -7763,6 +7782,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						aliases = aliases + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
 						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
+						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 				}
@@ -7829,6 +7850,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 					case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
@@ -7915,6 +7938,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
 						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
+						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<FunctionDeclaration _>` : { 
@@ -7968,6 +7993,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 					case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
