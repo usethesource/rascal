@@ -39,6 +39,7 @@ import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactParseError;
+import org.rascalmpl.value.exceptions.RedeclaredConstructorException;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
@@ -887,7 +888,18 @@ public class BinaryReader{
 		
 		Type adtType = doReadType();
 		
-		return tf.constructorFromTuple(typeStore, adtType, name, fieldTypes);
+		try {
+		    return tf.constructorFromTuple(typeStore, adtType, name, fieldTypes);
+		}
+		catch (RedeclaredConstructorException e) {
+		    adtType = typeStore.lookupAbstractDataType(adtType.getName());
+		    for (Type candidate: typeStore.lookupConstructor(adtType, name)) {
+		        if (candidate.getFieldTypes().equivalent(fieldTypes)) {
+		            return candidate;
+		        }
+		    }
+		    throw e;
+		}
 	}
 
 	private Type readKeywordedConstructorType() throws IOException{
