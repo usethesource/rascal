@@ -156,7 +156,7 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 	maxSPPath    = (0: maxSPBlock[0]);
 	
 	void update(int blk, int successor, int sp){
-	    if(debug)println("update <blk>, <successor>, <sp>");
+	    //if(debug)println("update <blk>, <successor>, <sp>");
 		if(stackAtEntry[successor]?){
 			if(stackAtEntry[successor] != sp){
 			    println("graph:          <graph>");
@@ -167,7 +167,9 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
                 //println("maxStack:       <maxStack>");
                 println("label2block:    <label2block>");
                 println("exceptions:     <exceptions>");
-				throw("Inconsistent stackAtEntry for <src>, from block <blk> to <successor>: <stackAtEntry[successor]> versus <sp>");
+                b2l = invertUnique(label2block);
+				throw("Inconsistent stackAtEntry at <src>, from block <blk> (<b2l[blk]?blk>) to <successor> (<b2l[successor]?successor>): <stackAtEntry[successor]> versus <sp> 
+				      '(all links to <b2l[successor]>: <for(b <- invert(graph)[successor]){><b2l[b]?b> <}>)");
 			}
 			maxSPPath[successor] = max(max(maxSPPath[blk], sp + maxSPBlock[successor]), maxSPPath[successor]);
 		} else {
