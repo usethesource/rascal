@@ -150,8 +150,9 @@ public data MuExp =
           
           | muTypeSwitch(MuExp exp, list[MuTypeCase] type_cases, MuExp \default)  		// switch over cases for specific type
          	
-          | muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuExp defaultExp, MuExp result)		// switch over cases for specific value
+          | muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuExp defaultExp)		// switch over cases for specific value
           
+          | muEndCase()                                         // Marks the exit point of a case
 		  | muBreak(str label)									// Break statement
 		  | muContinue(str label)								// Continue statement
 		  | muFail(str label)									// Fail statement
