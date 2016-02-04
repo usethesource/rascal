@@ -8965,11 +8965,14 @@ public default Module check(Tree t, PathConfig pcfg) {
 public default Module check(Tree t) {
 	return check(t, pathConfig());
 }
-
 public default start[Module] check(loc l) {
+	return check(l, pathConfig());
+}
+
+public default start[Module] check(loc l, PathConfig pcfg) {
   //m = parse(#start[Module], l);
   m = parseModuleWithSpaces(l);
-  m.top = check(m.top, pathConfig());
+  m.top = check(m.top, pcfg);
   m@docLinks = m.top@docLinks;
   m@docStrings = m.top@docStrings;
   return m;
