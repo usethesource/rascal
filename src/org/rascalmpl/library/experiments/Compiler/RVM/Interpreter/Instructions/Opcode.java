@@ -44,7 +44,7 @@ public enum Opcode {
 	LOADVARDEREF		(26,	1),
 	STORELOCDEREF		(27,	1),
 	STOREVARDEREF		(28,	1),
-	LOADCONSTR			(29,	1),
+	PUSHCONSTR			(29,	1),
 	CALLCONSTR			(30,	1),
 	LOAD_NESTED_FUN		(31, 	1),
 	LOADTYPE			(32,	1),
@@ -173,7 +173,7 @@ public enum Opcode {
 	static public final int OP_LOADVARDEREF = 26;
 	static public final int OP_STORELOCDEREF = 27;
 	static public final int OP_STOREVARDEREF = 28;
-	static public final int OP_LOADCONSTR = 29;
+	static public final int OP_PUSHCONSTR = 29;
 	static public final int OP_CALLCONSTR = 30;
 	static public final int OP_LOAD_NESTED_FUN = 31;
 	static public final int OP_LOADTYPE = 32;
@@ -436,8 +436,8 @@ public enum Opcode {
 			return "STOREVARDEREF " + arg1 + ", " 
 									+ arg2;
 			
-		case LOADCONSTR:
-			return "LOADCONSTR " + arg1;
+		case PUSHCONSTR:
+			return "PUSHCONSTR " + arg1;
 		
 		case CALLCONSTR:
 			return "CALLCONSTR " + arg1 + ", " 

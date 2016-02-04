@@ -572,8 +572,8 @@ public class CodeBlock implements Serializable {
 		return add(new StoreVarDeref(this, fuid, pos));
 	}
 	
-	public CodeBlock LOADCONSTR(String name) {
-		return add(new LoadConstr(this, name));
+	public CodeBlock PUSHCONSTR(String name) {
+		return add(new PushConstr(this, name));
 	}
 	
 	public CodeBlock CALLCONSTR(String name, int arity/*, ISourceLocation src*/) {

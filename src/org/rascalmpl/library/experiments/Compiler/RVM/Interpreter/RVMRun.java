@@ -805,7 +805,7 @@ public class RVMRun extends RVM {
 		return sp;
 	}
 
-	public int insnLOADCONSTR(Object[] stack, int sp, int construct) {
+	public int insnPUSHCONSTR(Object[] stack, int sp, int construct) {
 		Type constructor = constructorStore.get(construct);
 		stack[sp++] = constructor;
 		return sp;
@@ -1748,7 +1748,7 @@ public class RVMRun extends RVM {
 		}
 	}
 
-	public static void debugLOADCONSTR(String insName, Frame lcf, int lsp) {
+	public static void debugPUSHCONSTR(String insName, Frame lcf, int lsp) {
 		if (!silent) {
 			System.out.println(insName);
 			if (lcf == null)

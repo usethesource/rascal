@@ -1139,7 +1139,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					                               : OverloadedFunctionInstance.computeOverloadedFunctionInstance(of.functions, of.constructors, cf, of.scopeIn, functionStore, constructorStore, this);
 					continue NEXT_INSTRUCTION;
 				
-				case Opcode.OP_LOADCONSTR:
+				case Opcode.OP_PUSHCONSTR:
 					Type constructor = constructorStore.get(CodeBlock.fetchArg1(instruction));  
 					stack[sp++] = constructor;
 					continue NEXT_INSTRUCTION;
