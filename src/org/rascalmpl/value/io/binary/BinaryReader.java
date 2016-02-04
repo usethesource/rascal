@@ -894,7 +894,7 @@ public class BinaryReader{
 		catch (RedeclaredConstructorException e) {
 		    adtType = typeStore.lookupAbstractDataType(adtType.getName());
 		    for (Type candidate: typeStore.lookupConstructor(adtType, name)) {
-		        if (candidate.getFieldTypes().equivalent(fieldTypes)) {
+		        if (fieldTypes.isSubtypeOf(candidate.getFieldTypes())) {
 		            return candidate;
 		        }
 		    }
