@@ -793,7 +793,7 @@ public class RVMRun extends RVM {
 		return sp;
 	}
 
-	public int insnLOAD_NESTED_FUN(Object[] stack, int sp, Frame cf, int fun, int scopeIn) {
+	public int insnPUSH_NESTED_FUN(Object[] stack, int sp, Frame cf, int fun, int scopeIn) {
 		stack[sp++] = FunctionInstance.computeFunctionInstance(functionStore.get(fun), cf, scopeIn, this);
 		return sp;
 	}
@@ -1732,7 +1732,7 @@ public class RVMRun extends RVM {
 		}
 	}
 
-	public static void debugLOAD_NESTED_FUN(String insName, Frame lcf, int lsp) {
+	public static void debugPUSH_NESTED_FUN(String insName, Frame lcf, int lsp) {
 		if (!silent) {
 			System.out.println(insName);
 			if (lcf == null)

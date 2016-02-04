@@ -1740,7 +1740,7 @@ public class BytecodeGenerator implements Opcodes {
 		return fullClassName;
 	}
 
-	public void emitInlineLoadEmptyKwMap(boolean debug) {
+	public void emitInlinePushEmptyKwMap(boolean debug) {
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitTypeInsn(NEW, "java/util/HashMap");

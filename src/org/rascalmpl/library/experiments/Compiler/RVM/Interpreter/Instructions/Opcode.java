@@ -46,7 +46,7 @@ public enum Opcode {
 	STOREVARDEREF		(28,	1),
 	PUSHCONSTR			(29,	1),
 	CALLCONSTR			(30,	1),
-	LOAD_NESTED_FUN		(31, 	1),
+	PUSH_NESTED_FUN		(31, 	1),
 	LOADTYPE			(32,	1),
 	LOADBOOL			(33,	1),
 	LOADINT				(34,	1),
@@ -95,7 +95,7 @@ public enum Opcode {
 	RESETVAR			(76,	1),
 	VISIT               (77,    3),
 	CHECKMEMO			(78,	1),
-	LOADEMPTYKWMAP      (79, 	1),
+	PUSHEMPTYKWMAP      (79, 	1),
 	VALUESUBTYPE		(80,	1),
 	CALLMUPRIM0         (81,    1),
 	CALLMUPRIM1			(82,    1),
@@ -175,7 +175,7 @@ public enum Opcode {
 	static public final int OP_STOREVARDEREF = 28;
 	static public final int OP_PUSHCONSTR = 29;
 	static public final int OP_CALLCONSTR = 30;
-	static public final int OP_LOAD_NESTED_FUN = 31;
+	static public final int OP_PUSH_NESTED_FUN = 31;
 	static public final int OP_LOADTYPE = 32;
 	static public final int OP_LOADBOOL = 33;
 	static public final int OP_LOADINT = 34;
@@ -225,7 +225,7 @@ public enum Opcode {
 	
 	static public final int OP_VISIT = 77;
 	static public final int OP_CHECKMEMO = 78;
-	static public final int OP_LOADEMPTYKWMAP = 79;
+	static public final int OP_PUSHEMPTYKWMAP = 79;
 	static public final int OP_VALUESUBTYPE = 80;
 	static public final int OP_CALLMUPRIM0 = 81;
 	static public final int OP_CALLMUPRIM1 = 82;
@@ -443,8 +443,8 @@ public enum Opcode {
 			return "CALLCONSTR " + arg1 + ", " 
 								 + arg2  /*+ ", " + cb.getConstantValue(cb.finalCode[pc + 1])*/ ;
 		
-		case LOAD_NESTED_FUN:
-			return "LOAD_NESTED_FUN " + arg1 + ", " 
+		case PUSH_NESTED_FUN:
+			return "PUSH_NESTED_FUN " + arg1 + ", " 
 									  + arg2;
 			
 		case LOADTYPE:
@@ -608,8 +608,8 @@ public enum Opcode {
 		case CHECKMEMO:
 				return "CHECKMEMO";
 				
-		case LOADEMPTYKWMAP:
-			return "LOADEMPTYKWMAP";
+		case PUSHEMPTYKWMAP:
+			return "PUSHEMPTYKWMAP";
 			
 		case VALUESUBTYPE:
 			return "VALUESUBTYPE " + cb.getConstantType(arg1) ;

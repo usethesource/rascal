@@ -3,13 +3,13 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
-public class LoadEmptyKwMap extends Instruction {
+public class PushEmptyKwMap extends Instruction {
 	
-	public LoadEmptyKwMap(CodeBlock cb) {
-		super(cb, Opcode.LOADEMPTYKWMAP);
+	public PushEmptyKwMap(CodeBlock cb) {
+		super(cb, Opcode.PUSHEMPTYKWMAP);
 	}
 
-	public String toString() { return "LOADEMPTYKWMAP"; }
+	public String toString() { return "PUSHEMPTYKWMAP"; }
 	
 	public void generate(){
 		codeblock.addCode(opcode.getOpcode());
@@ -19,6 +19,6 @@ public class LoadEmptyKwMap extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlineLoadEmptyKwMap(debug);
+		codeEmittor.emitInlinePushEmptyKwMap(debug);
 	}
 }

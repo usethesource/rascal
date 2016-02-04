@@ -95,7 +95,7 @@ public data Instruction =
 	   	| PUSHTYPE(Symbol \type)                    // Push a type constant
 	   	
 	   	| PUSH_ROOT_FUN(str fuid)                   // Push a named *muRascal function
-		| LOAD_NESTED_FUN(str fuid, str scopeIn)    // Push a named nested *muRascal function of a named inner *muRascal function
+		| PUSH_NESTED_FUN(str fuid, str scopeIn)    // Push a named nested *muRascal function of a named inner *muRascal function
 		| PUSHCONSTR(str fuid)						// Push a constructor function
 		
 		| PUSHOFUN(str fuid)                        // Push a named *Rascal function
@@ -229,7 +229,7 @@ public data Instruction =
 		        bool progress, bool rebuild)		// Visit expression
 		        
 		| CHECKMEMO()								// Check args of memo function
-		| LOADEMPTYKWMAP()                          // Load an empty keyword map
+		| PUSHEMPTYKWMAP()                          // Push an empty keyword map
 		| VALUESUBTYPE(Symbol \type)                // Check that type of top element is subtype of given type
 ;
 	
