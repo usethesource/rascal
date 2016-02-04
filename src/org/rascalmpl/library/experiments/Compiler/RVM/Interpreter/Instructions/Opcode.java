@@ -51,7 +51,7 @@ public enum Opcode {
 	LOADBOOL			(33,	1),
 	LOADINT				(34,	1),
 	FAILRETURN			(35, 	1),
-	LOADOFUN        	(36,    1),
+	PUSHOFUN        	(36,    1),
 	OCALL           	(37,    2),
 	OCALLDYN	    	(38,	2),
 	CALLJAVA        	(39,    6),
@@ -180,7 +180,7 @@ public enum Opcode {
 	static public final int OP_LOADBOOL = 33;
 	static public final int OP_LOADINT = 34;
 	static public final int OP_FAILRETURN = 35;
-	static public final int OP_LOADOFUN = 36;
+	static public final int OP_PUSHOFUN = 36;
 	static public final int OP_OCALL = 37;
 	static public final int OP_OCALLDYN = 38;
 	static public final int OP_CALLJAVA = 39;
@@ -462,7 +462,7 @@ public enum Opcode {
 		case FAILRETURN:
 			return "FAILRETURN";
 			
-		case LOADOFUN:
+		case PUSHOFUN:
 			return "LOADOFUN " + cb.getOverloadedFunctionName(arg1);
 			
 		case OCALL:

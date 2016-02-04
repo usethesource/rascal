@@ -596,8 +596,8 @@ public class CodeBlock implements Serializable {
 		return add(new FailReturn(this));
 	}
 	
-	public CodeBlock LOADOFUN(String fuid) {
-		return add(new LoadOFun(this, fuid));
+	public CodeBlock PUSHOFUN(String fuid) {
+		return add(new PushOFun(this, fuid));
 	}
 	
 	public CodeBlock OCALL(String fuid, int arity, ISourceLocation src) {

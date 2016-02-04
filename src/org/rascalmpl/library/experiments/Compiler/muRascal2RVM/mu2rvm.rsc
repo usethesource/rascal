@@ -619,7 +619,7 @@ INS tr(muFun2(str fuid, str scopeIn), Dest d, CDest c) = LOAD_NESTED_FUN(fuid, s
 
 // Rascal functions
 
-INS tr(muOFun(str fuid), Dest d, CDest c) = LOADOFUN(fuid) + plug(stack(), d);
+INS tr(muOFun(str fuid), Dest d, CDest c) = PUSHOFUN(fuid) + plug(stack(), d);
 
 INS tr(muConstr(str fuid), Dest d, CDest c) = PUSHCONSTR(fuid) + plug(stack(), d);
 

@@ -798,7 +798,7 @@ public class RVMRun extends RVM {
 		return sp;
 	}
 
-	public int insnLOADOFUN(Object[] stack, int sp, Frame cf, int ofun) {
+	public int insnPUSHOFUN(Object[] stack, int sp, Frame cf, int ofun) {
 		OverloadedFunction of = overloadedStore[ofun];
 		stack[sp++] = of.scopeIn == -1 ? new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this) : OverloadedFunctionInstance
 				.computeOverloadedFunctionInstance(of.functions, of.constructors, cf, of.scopeIn, functionStore, constructorStore, this);
@@ -1740,7 +1740,7 @@ public class RVMRun extends RVM {
 		}
 	}
 
-	public static void debugLOADOFUN(String insName, Frame lcf, int lsp) {
+	public static void debugPUSHOFUN(String insName, Frame lcf, int lsp) {
 		if (!silent) {
 			System.out.println(insName);
 			if (lcf == null)
