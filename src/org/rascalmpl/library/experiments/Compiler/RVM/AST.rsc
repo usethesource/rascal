@@ -94,7 +94,7 @@ public data Instruction =
 	   	| LOADTYPE(Symbol \type)					// Load a type constant in accu
 	   	| PUSHTYPE(Symbol \type)                    // Push a type constant
 	   	
-	   	| LOADFUN(str fuid)                         // Push a named *muRascal function
+	   	| PUSH_ROOT_FUN(str fuid)                   // Push a named *muRascal function
 		| LOAD_NESTED_FUN(str fuid, str scopeIn)    // Push a named nested *muRascal function of a named inner *muRascal function
 		| PUSHCONSTR(str fuid)						// Push a constructor function
 		

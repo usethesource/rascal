@@ -3,16 +3,16 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
-public class LoadFun extends Instruction {
+public class PushRootFun extends Instruction {
 
 	final String fuid;
 	
-	public LoadFun(CodeBlock ins, String fuid){
-		super(ins, Opcode.LOADFUN);
+	public PushRootFun(CodeBlock ins, String fuid){
+		super(ins, Opcode.PUSH_ROOT_FUN);
 		this.fuid = fuid;
 	}
 	
-	public String toString() { return "LOADFUN " + fuid + "[" + codeblock.getFunctionIndex(fuid) + "]"; }
+	public String toString() { return "PUSH_ROOT_FUN " + fuid + "[" + codeblock.getFunctionIndex(fuid) + "]"; }
 	
 	public void generate(){
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getFunctionIndex(fuid));
@@ -22,6 +22,6 @@ public class LoadFun extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 	
-		codeEmittor.emitCallWithArgsSSI("insnLOADFUN", codeblock.getFunctionIndex(fuid),debug);
+		codeEmittor.emitCallWithArgsSSI("insnPUSH_ROOT_FUN", codeblock.getFunctionIndex(fuid),debug);
 	}
 }

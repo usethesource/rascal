@@ -788,7 +788,7 @@ public class RVMRun extends RVM {
 		ref.stack[ref.pos] = stack[sp - 1];
 	}
 
-	public int insnLOADFUN(Object[] stack, int sp, int fun) {
+	public int insnPUSH_ROOT_FUN(Object[] stack, int sp, int fun) {
 		stack[sp++] = new FunctionInstance(functionStore.get(fun), root, this);
 		return sp;
 	}
@@ -1724,7 +1724,7 @@ public class RVMRun extends RVM {
 		}
 	}
 
-	public static void debugLOADFUN(String insName, Frame lcf, int lsp) {
+	public static void debugPUSH_ROOT_FUN(String insName, Frame lcf, int lsp) {
 		if (!silent) {
 			System.out.println(insName);
 			if (lcf == null)
