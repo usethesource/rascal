@@ -615,7 +615,7 @@ INS tr(muTypeCon(Symbol sym), Dest d, CDest c) = LOADTYPE(sym) + plug(accu(), d)
 // muRascal functions
 
 INS tr(muFun1(str fuid), Dest d, CDest c) = PUSH_ROOT_FUN(fuid) + plug(stack(), d);
-INS tr(muFun2(str fuid, str scopeIn), Dest d, CDest c) = LOAD_NESTED_FUN(fuid, scopeIn) + plug(stack(), d);
+INS tr(muFun2(str fuid, str scopeIn), Dest d, CDest c) = PUSH_NESTED_FUN(fuid, scopeIn) + plug(stack(), d);
 
 // Rascal functions
 
@@ -700,7 +700,7 @@ INS trMuApply(muFun1(str fuid), list[MuExp] args, Dest d, CDest c) = [ *tr_args_
 
 INS trMuApply(muConstr(str fuid), list[MuExp] args, Dest d, CDest c) { throw "Partial application is not supported for constructor calls!"; }
 
-INS trMuApply(muFun2(str fuid, str scopeIn), list[MuExp] args: [], Dest d, CDest c) = [ LOAD_NESTED_FUN(fuid, scopeIn), *plug(stack(), d) ];
+INS trMuApply(muFun2(str fuid, str scopeIn), list[MuExp] args: [], Dest d, CDest c) = [ PUSH_NESTED_FUN(fuid, scopeIn), *plug(stack(), d) ];
 
 default INS trMuApply(MuExp fun, list[MuExp] args, Dest d, CDest c) = [ *tr_args_stack(args), *tr_arg_stack(fun), APPLYDYN(size(args)), *plug(stack(), d)  ];
 
@@ -806,7 +806,7 @@ INS trMuCallMuPrim("and_mbool_mbool", list[MuExp] args, Dest d, CDest c) =
 INS trMuCallMuPrim("check_arg_type_and_copy", [muCon(int pos1), muTypeCon(Symbol tp), muCon(int pos2)], Dest d, CDest c) = 
     CHECKARGTYPEANDCOPY(pos1, tp, pos2) + plug(accu(), d);
     
-INS trMuCallMuPrim("make_mmap", [], Dest d, CDest c) =  LOADEMPTYKWMAP() + plug(stack(), d);
+INS trMuCallMuPrim("make_mmap", [], Dest d, CDest c) =  PUSHEMPTYKWMAP() + plug(stack(), d);
     
 default INS trMuCallMuPrim(str name, list[MuExp] args, Dest d, CDest c) {
    n = size(args);

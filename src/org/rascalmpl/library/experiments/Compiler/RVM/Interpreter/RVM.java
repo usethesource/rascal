@@ -1005,7 +1005,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					stack[sp++] = new Reference(stack, CodeBlock.fetchArg1(instruction));
 					continue NEXT_INSTRUCTION;
 					
-				case Opcode.OP_LOADEMPTYKWMAP:
+				case Opcode.OP_PUSHEMPTYKWMAP:
 					// TODO: use unique copy of emptyKeywordMap and delay creation of new copy to assignment
 					// to keyword parameter
 					//stack[sp++] = emptyKeywordMap;
@@ -1127,7 +1127,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					stack[sp++] = new FunctionInstance(functionStore.get(CodeBlock.fetchArg1(instruction)), root, this);
 					continue NEXT_INSTRUCTION;
 					
-				case Opcode.OP_LOAD_NESTED_FUN: { 
+				case Opcode.OP_PUSH_NESTED_FUN: { 
 					// Loads nested functions and closures (anonymous nested functions)
 					stack[sp++] = FunctionInstance.computeFunctionInstance(functionStore.get(CodeBlock.fetchArg1(instruction)), cf, CodeBlock.fetchArg2(instruction), this);
 					continue NEXT_INSTRUCTION;

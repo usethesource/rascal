@@ -580,8 +580,8 @@ public class CodeBlock implements Serializable {
 		return add(new CallConstr(this, name, arity/*, src*/));
 	}
 	
-	public CodeBlock LOADNESTEDFUN(String fuid, String scopeIn) {
-		return add(new LoadNestedFun(this, fuid, scopeIn));
+	public CodeBlock PUSHNESTEDFUN(String fuid, String scopeIn) {
+		return add(new PushNestedFun(this, fuid, scopeIn));
 	}
 	
 	public CodeBlock LOADTYPE(Type type) {
@@ -740,8 +740,8 @@ public class CodeBlock implements Serializable {
 		return add(new CheckMemo(this));
 	}
 	
-	public CodeBlock LOADEMPTYKWMAP(){
-		return add(new LoadEmptyKwMap(this));
+	public CodeBlock PUSHEMPTYKWMAP(){
+		return add(new PushEmptyKwMap(this));
 	}
 	
 	public CodeBlock VALUESUBTYPE(Type type){

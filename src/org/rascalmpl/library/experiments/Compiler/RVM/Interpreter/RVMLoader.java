@@ -692,8 +692,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 										getIntField(instruction, "pos"));
 				break;
 
-			case "LOAD_NESTED_FUN":
-				codeblock.LOADNESTEDFUN(getStrField(instruction, "fuid"), 
+			case "PUSH_NESTED_FUN":
+				codeblock.PUSHNESTEDFUN(getStrField(instruction, "fuid"), 
 										getStrField(instruction, "scopeIn"));
 				break;
 
@@ -873,8 +873,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				codeblock.CHECKMEMO();
 				break;
 				
-			case "LOADEMPTYKWMAP":
-				codeblock.LOADEMPTYKWMAP();
+			case "PUSHEMPTYKWMAP":
+				codeblock.PUSHEMPTYKWMAP();
 				break;
 				
 			case "VALUESUBTYPE":

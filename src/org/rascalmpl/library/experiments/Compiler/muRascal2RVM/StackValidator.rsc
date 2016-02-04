@@ -247,7 +247,7 @@ Effect simulate(PUSHACCU(), int sp)                         = <sp + 1, false>;
 Effect simulate(POPACCU(), int sp)                          = <sp - 1, true>; 
 
 Effect simulate(PUSH_ROOT_FUN(str fuid), int sp) 				    = <sp + 1, false>;
-Effect simulate(LOAD_NESTED_FUN(str fuid, str scopeIn), 
+Effect simulate(PUSH_NESTED_FUN(str fuid, str scopeIn), 
 			 int sp) 									    = <sp + 1, false>;
 Effect simulate(PUSHCONSTR(str fuid), int sp) 				= <sp + 1, false>;
 Effect simulate(PUSHOFUN(str fuid), int sp) 				= <sp + 1, false>;
@@ -364,7 +364,7 @@ Effect simulate(VISIT(bool direction, bool fixedpoint,
                    bool progress, bool rebuild),
                    int sp)          					    = <sp - 8 + 1, false>;
 Effect simulate(CHECKMEMO(), int sp)    					= <sp + 1, false>;
-Effect simulate(LOADEMPTYKWMAP(), int sp)                   = <sp + 1, false>;
+Effect simulate(PUSHEMPTYKWMAP(), int sp)                   = <sp + 1, false>;
 
 /*
 // Simulate the effect of each RVM instruction on availability of variables
