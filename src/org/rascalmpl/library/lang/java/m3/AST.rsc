@@ -69,7 +69,7 @@ data Expression
     | \this()
     | \this(Expression thisExpression)
     | \super()
-    | \declarationExpression(Declaration decl)
+    | \declarationExpression(Declaration declaration)
     | \infix(Expression lhs, str operator, Expression rhs)
     | \postfix(Expression operand, str operator)
     | \prefix(str operator, Expression operand)
