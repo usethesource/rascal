@@ -171,6 +171,8 @@ public TypeNameInfo extractTypeNames(Module m) {
 			dataNames = dataNames + convertName(user.name);
 		} else if ((Declaration)`<Tags _> <Visibility _> data <UserType ut> <CommonKeywordParameters ckps> = <{Variant "|"}+ _>;` := ti.declaration) {
 			dataNames = dataNames + convertName(ut.name);
+		} else if ((Declaration)`<Tags _> <Visibility _> data <UserType ut> <CommonKeywordParameters ckps>;` := ti.declaration) {
+			dataNames = dataNames + convertName(ut.name);
 		} else if ((Declaration)`<Tags _> <Visibility _> alias <UserType ut> = <Type base>;` := ti.declaration) {
 			aliasNames = aliasNames + convertName(ut.name);
 		} 
