@@ -19,6 +19,7 @@ import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::muRascal2RVM::ToplevelType;
 import experiments::Compiler::muRascal2RVM::StackValidator;
 
+//import experiments::Compiler::muRascal2RVM::PeepHole;
 
 alias INS = list[Instruction];
 
@@ -294,12 +295,14 @@ RVMModule mu2rvm(muModule(str module_name,
     //println(functionScope);
     //iprintln(fun.body);
     
-    code = tr(fun.body, stack(), returnDest());
+    code = tr(fun.body, nowhere(), returnDest());
 
      // Append catch blocks to the end of the function body code
     catchBlockCode = [ *catchBlock | INS catchBlock <- catchBlocks ];
     
     code = code /*+ [LABEL("FAIL_<fun.uqname>"), FAILRETURN()]*/ + catchBlockCode;
+    
+    //code = peephole(code);
     
     //iprintln(code);
     
@@ -503,6 +506,16 @@ Instruction jmptrue(returnDest()) = RETURN1(1);
 Instruction jmptrue(labelDest(name)) { usedLabels += name; return JMPTRUE(name); }
 default Instruction jmptrue(CDest c) { throw "jmptrue to <c>"; }
 
+INS appendJmp(INS instructions, Instruction jmpIns){
+    if(size(instructions) == 0){
+        return [ jmpIns ];
+    }
+    lastIns = instructions[-1];
+    if(RETURN1(_) := lastIns){
+        return instructions;
+    }
+    return instructions + jmpIns;
+}
 
 /*********************************************************************/
 /*      Translate lists of muRascal expressions                      */
@@ -521,6 +534,8 @@ INS tr_arg_stack(MuExp exp) = tr_arg(exp, stack());
 INS tr_arg_accu(MuExp exp) = tr_arg(exp, accu());
 
 INS tr_arg_nowhere(MuExp exp) = tr_arg(exp, nowhere());
+
+INS tr_arg_return(MuExp exp) = tr(exp, stack(), returnDest());
 
 INS tr_args_stack(list[MuExp] exps){
     ins = [];
@@ -827,7 +842,7 @@ INS tr(muReturn1(MuExp exp), Dest d, CDest c) {
         inlineMuFinally(d, c);
         return [*finallyBlock, *tr_arg_stack(exp), RETURN1(1)];
     }
-    return [*tr_arg_stack(exp), RETURN1(1)];
+    return [*tr_arg_return(exp), RETURN1(1)];
 }
 INS tr(muReturn2(MuExp exp, list[MuExp] exps), Dest d, CDest c)
     = [*tr_args_stack(exp + exps), RETURN1(size(exps) + 1)];
@@ -1071,19 +1086,21 @@ INS tr(muIfelse(str label, MuExp cond, list[MuExp] thenPart, list[MuExp] elsePar
     
     failLab = containsFail(thenPart) || containsFail(elsePart) ? mkFail(label) : "";
     elseLab = mkElse(label);
-    //continueLab = mkContinue(label);
+
     coro = needsCoRo(cond) ? createTmpCoRo(functionScope) : -1;
     
     thenPartCode = trblock(thenPart, d, c);
     elsePartCode = trblock(elsePart, d, c);
     res = elsePartCode == [] 
-          ? [*tr_cond(cond, coro, nextLabel(), failLab, c), *thenPartCode/*, jmp(c)*/ ]
-          : [ *tr_cond(cond, coro, nextLabel(), failLab, labelDest(elseLab)), 
-            *thenPartCode,
-            jmp(c),
-            LABEL(elseLab),
-            *elsePartCode
-          ];
+          ? [ *tr_cond(cond, coro, nextLabel(), failLab, c), *thenPartCode ]
+          : (([JMP(lab)] := elsePartCode)
+            ? [ *tr_cond(cond, coro, nextLabel(), failLab, labelDest(lab)), 
+                *appendJmp(thenPartCode, jmp(c)) ]
+            :  [ *tr_cond(cond, coro, nextLabel(), failLab, labelDest(elseLab)), 
+                 *appendJmp(thenPartCode, jmp(c)),
+                 LABEL(elseLab),
+                 *elsePartCode
+               ]);
     if(coro > 0){
        destroyTmpCoRo(functionScope);
     }
@@ -1112,9 +1129,10 @@ INS tr(muWhile(str label, MuExp cond, list[MuExp] body), Dest d, CDest c) {
 }
 
 INS tr(muBreak(str label), Dest d, CDest c) = [ jmp(labelDest(mkBreak(label))) ];
-INS tr(muContinue(str label), Dest d, CDest c) = [ jmp(labelDest(mkContinue(label))) ];
-INS tr(muFail(str label), Dest d, CDest c) = [ JMP(mkFail(label)) /*jmp(labelDest(mkFail(label)))*/ ];
 
+INS tr(muContinue(str label), Dest d, CDest c) = [ jmp(labelDest(mkContinue(label))) ];
+
+INS tr(muFail(str label), Dest d, CDest c) = [ JMP(mkFail(label)) /*jmp(labelDest(mkFail(label)))*/ ];
 
 INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp), Dest d, CDest c){
    defaultLab = nextLabel();
@@ -1129,36 +1147,40 @@ INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp), Dest d
    caseCode += [LABEL(defaultLab), *tr_arg_stack(defaultExp), JMP(continueLab) ];
    return [ *tr_arg_stack(exp), TYPESWITCH(labels), *caseCode, LABEL(continueLab) ];
 }
-    
-INS tr(muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuExp defaultExp, MuExp result), Dest d, CDest c){
+
+// muSwitch
+// Each case contains a muExp in which the exit points are marked with muCaseEnd() (or a return and then nothing special
+// is needed).
+// First translate muCaseEnd to the auxiliary muJmpDefault (in order to make the name of the default label known
+// during the translation of the case).
+
+data MuExp = muJmpDefault(CDest cont);
+
+INS tr(muJmpDefault(CDest cont), Dest d, CDest c) = [jmp(cont)];
+
+INS tr(muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuExp defaultExp), Dest d, CDest c){
    defaultLab = nextLabel();
-   continueLab = mkContinue(defaultLab);
-   //println("**** muSwitch: <d>, <c>");
-   //println("result = <result>");
    labels = ();
    caseCode =  [];
+   
+   INS defaultCode = tr(defaultExp, d, c);
+   
    for(cs <- cases){
         caseLab = defaultLab + "_<cs.fingerprint>";
         labels[cs.fingerprint] = caseLab;
-        case1 = [ LABEL(caseLab), /*POP(),*/ *tr_arg_accu(cs.exp), JMPFALSE(defaultLab), *(d == nowhere() ? [ ] : tr(result, d, c)) , jmp(c)];
-        //println("case1"); iprintln(cs.exp); iprintln(case1);
-        caseCode += case1;
+        caseExp = visit(cs.exp){ case muEndCase() => muJmpDefault(isEmpty(defaultCode) ? c : labelDest(defaultLab)) };
+        caseCode += [ LABEL(caseLab), *appendJmp(tr(caseExp, d, c), jmp(c)) ];
    }
-   INS defaultCode = tr(defaultExp, nowhere(), labelDest(continueLab));
-   //if(defaultCode == []){
-   //     defaultCode = [PUSHCON(666)];
-   //}
-   
-   //println("defaultCode"); iprintln(defaultCode);
+  
    if(size(cases) > 0){ 
+        if(caseCode[-1] == JMP(defaultLab)){
+            caseCode = caseCode[0..-1];
+        }
         caseCode += [LABEL(defaultLab),  *defaultCode ];
-        //if(caseCode[-1] == JMPTRUE(continueLab) || caseCode[-1] == JMPFALSE(continueLab)){
-        //    println("***************!!!");
-        //    caseCode = caseCode[0..-1];
-        //}
-        return [ *tr_arg_stack(exp), SWITCH(labels, defaultLab, useConcreteFingerprint), *caseCode, LABEL(continueLab), *(d == nowhere() ? [ ] : tr(result, d, c)) ];
+       
+        return [ *tr_arg_stack(exp), SWITCH(labels, defaultLab, useConcreteFingerprint), *caseCode ];
     } else {
-        return [ *tr_arg_nowhere(exp), *defaultCode, LABEL(continueLab), *tr(result, d, c) ];
+        return [ *tr_arg_nowhere(exp), *defaultCode ];
     }   
 }
 

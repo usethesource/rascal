@@ -873,7 +873,7 @@ public class RVM /*implements java.io.Serializable*/ {
 		try {
 			NEXT_INSTRUCTION: while (true) {
 				
-				frameObserver.observeRVM(this, cf, pc, stack, sp, accu);
+				// frameObserver.observeRVM(this, cf, pc, stack, sp, accu);
 				
 				instruction = instructions[pc++];
 				op = CodeBlock.fetchOp(instruction);
