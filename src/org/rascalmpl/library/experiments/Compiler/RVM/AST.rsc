@@ -98,7 +98,7 @@ public data Instruction =
 		| LOAD_NESTED_FUN(str fuid, str scopeIn)    // Push a named nested *muRascal function of a named inner *muRascal function
 		| PUSHCONSTR(str fuid)						// Push a constructor function
 		
-		| LOADOFUN(str fuid)                        // Push a named *Rascal function
+		| PUSHOFUN(str fuid)                        // Push a named *Rascal function
 		
 		| PUSHACCU()                                // Push accumulator on the stack
 		| POPACCU()                                 // Load top of stack in accumulator; pop the stack

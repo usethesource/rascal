@@ -250,7 +250,7 @@ Effect simulate(LOADFUN(str fuid), int sp) 				    = <sp + 1, false>;
 Effect simulate(LOAD_NESTED_FUN(str fuid, str scopeIn), 
 			 int sp) 									    = <sp + 1, false>;
 Effect simulate(PUSHCONSTR(str fuid), int sp) 				= <sp + 1, false>;
-Effect simulate(LOADOFUN(str fuid), int sp) 				= <sp + 1, false>;
+Effect simulate(PUSHOFUN(str fuid), int sp) 				= <sp + 1, false>;
 Effect simulate(LOADLOC(int pos), int sp) 					= <sp,     true>; 
 Effect simulate(PUSHLOC(int pos), int sp)                   = <sp + 1, false>;
 Effect simulate(STORELOC(int pos), int sp) 				    = <sp,     false>; 

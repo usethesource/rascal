@@ -726,8 +726,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				codeblock.FAILRETURN();
 				break;
 
-			case "LOADOFUN" :
-				codeblock.LOADOFUN(getStrField(instruction, "fuid"));
+			case "PUSHOFUN" :
+				codeblock.PUSHOFUN(getStrField(instruction, "fuid"));
 				break;
 
 			case "OCALL" :
