@@ -982,7 +982,7 @@ str text(str v, bool html) {
     if (isEmpty(v)) return "";
     str s = "\"<replaceAll(v,"\n", "\\n")>\"";
     if (html) {
-        s = "nl2br(<s>)";
+        // s = "nl2br(<s>)";
         return ".html(<s>)";
         }
     else 
@@ -1621,10 +1621,10 @@ str toP(num d) {
       
 str translatePoints(Figure f, Rescale scaleX, Rescale scaleY, int x, int y) {
        Points p;
-       if (f.r<0) return "";
        if (polygon():=f) {
            p = f.points;         
        }
+       else if (f.r<0) return "";
        if (g:ngon():=f) {
             // int lw = corner(g)/2;
              num angle = 2 * PI() / g.n;
@@ -1857,7 +1857,7 @@ IFigure _ngon(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(0), Alignme
         
         'd3.select(\"#<id>\")
         '<on(f)>
-        '<attr("points", translatePoints(f, f.scaleX, f.scaleY, toInt(f.width/2), toInt(f.height/2)))> 
+        '<f.width>=0?attr("points", translatePoints(f, f.scaleX, f.scaleY, toInt(f.width/2), toInt(f.height/2))):""> 
         '<attr("width", f.width)><attr("height", f.height)>
         '<styleInsideSvg(id, f, fig)>
         ", f.width, f.height, getAtX(f), getAtY(f),  f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f)
@@ -1925,8 +1925,7 @@ IFigure _overlay(str id, Figure f, list[Figure] figs, IFigure fig1...) {
         , f.width, f.height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f), f.sizeFromParent, true >;
        addState(f);
        if (getResizable(f)) {
-           adjust+=  "adjustOverlay("+figCalls(fig1)+", \"<id>\", <getLineWidth(f)<0?0:-getLineWidth(f)>, 
-            <-hPadding(f)>, <-vPadding(f)>);\n";
+           adjust+=  "adjustOverlay("+figCalls(fig1)+", \"<id>\", <getLineWidth(f)<0?0:-getLineWidth(f)>,   <-hPadding(f)>, <-vPadding(f)>);\n";
          }
        widgetOrder+= id;
        return ifigure(id ,fig1);
