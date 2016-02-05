@@ -46,6 +46,7 @@ public void tut1()= render(_tut1());
 void ftut1(loc f) = writeFile(f, toHtmlString(_tut1()));
 
 
+
 Figures  tut() =
 // 0
    [box(lineColor="green", lineWidth=16) 
@@ -184,17 +185,17 @@ public void ex5() = render1(
  Figure elFig(num shrink, bool tt) {
      // println(shrink);
      return 
-       ellipse(shrink = shrink, fillColor =  randomColor(),   lineWidth = 2  
+       ellipse(shrink = shrink, fillColor =  pickColor(),   lineWidth = 2  
        ,fig=box(shrink=0.6, align = centerMid, 
             fig=
-             circle( shrink = 0.8, fillColor=randomColor(), lineWidth = 0 
+             circle( shrink = 0.8, fillColor=pickColor(), lineWidth = 0 
              , tooltip = tt?box(fig=htmlText("", size=<50, 20>, fontSize=10), fillColor="antiqueWhite"):emptyFigure() 
              ,event = on("mouseenter", void(str e, str n, str v) {
               textProperty("<n>_tooltip#0", text= style(n).fillColor);      
               })       
               
           ) 
-          , fillColor=randomColor())
+          , fillColor=pickColor())
        )  
        ;
      }
@@ -203,7 +204,7 @@ public void ex5() = render1(
     [elFig(1-i/(2*n), tt)|num i<-[0,1..n]]
    :[elFig(1-i/(2*-n), tt)|num i<-[-n,-n-1..0]];
    
-public Figure shrink(bool tt) = grid(figArray=[elFigs(5, tt), elFigs(-5, tt)], align = centerMid, borderWidth=1);
+public Figure shrink(bool tt) {resetColor();return grid(figArray=[elFigs(5, tt), elFigs(-5, tt)], align = centerMid, borderWidth=1);}
  
 public void ex6() = render1(hcat(figs=[grid(figArray=[[shrink(true)]])]));
  
@@ -364,4 +365,9 @@ public Figure tx() = graph([<"a", ellipse(grow = 1.5, fig=text("aap"))>], [], si
 public void ttx() = render(tx());
 
 public void ftx(loc l) = writeFile(l, toHtmlString(tx()));
+
+public Figure sec(int width, int height) = polygon(points=[<0, 0.5>, <0.5, 0>, <1, 0.5>, <0.5, 1>], scaleX=<<0, 1>, <0, width>>, scaleY=<<0, 1>, <0, height>>, fillColor="beige");
+
+public void tsec() = render(sec(400, 200));
+
 

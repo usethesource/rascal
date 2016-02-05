@@ -828,10 +828,7 @@ list[list[value]] joinData(list[Chart] charts, bool tickLabels, int tooltipColum
    }
    
 public Figure svg(Figure f, tuple[int, int] size = <0, 0>) {
-    /*if (f.lineWidth<0) */ {f.lineWidth = 1; f.lineColor="black";}
-    // f.id = "#_box";
     Figure r = box(size=size, lineWidth = 0, fillColor = "none", fig = f);
-    // println(r);
     return r;
     }
   
@@ -871,7 +868,13 @@ public Figure plot(Points xy, Rescale x, Rescale y, bool shapeCurved = true
       width = width, height = height, fillEvenOdd = fillEvenOdd);
       }
 
- 
+
+int currentColor = 0;
+
+public void resetColor() {currentColor = 0;} 
+
+public str pickColor() {currentColor = (currentColor+5)%size(colors); return colors[currentColor];}
+
 
 public list[str] colors = 
 ["aliceblue",

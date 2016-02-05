@@ -200,7 +200,7 @@ function askServer(path, parameters, timer, timeout, callback) {
    function adjust1(id, f, width, height, hpad, vpad) { 
     if (f.id=="emptyFigure") return;
     var d = d3.select("#"+f.id);
-    // alert("adjust1: "+id0+" "+d.node().nodeName+" "+width+" "+height);
+    // alert("adjust1:"+ d.node().nodeName+" "+width+" "+height);
     if (d.node().nodeName=="TABLE") {
           if (d.attr("width")==null) {
              d.style("width", parseInt(width));
@@ -239,8 +239,9 @@ function askServer(path, parameters, timer, timeout, callback) {
                         } 
                                            
                     break;
-        case "polygon":             
-                    if (d.attr("r")==null) {   
+        case "polygon":   
+                    // alert(d.attr("points"));          
+                    if (d.attr("r")==null && d.attr("points")==null) {   
                         var side =  Math.min(width, height); 
                         var side1 =  Math.min(w, h);
                         w = side1;
@@ -387,16 +388,16 @@ function askServer(path, parameters, timer, timeout, callback) {
          var c = d3.select("#"+id1);
          var width = c.attr("width");
          var height = c.attr("height");
-         // alert(id1);
-         if (width==null||height==null) return;
          
+         if (width==null||height==null) return;
          var aUndefWH = clients.filter(undefWH);
          var w = parseInt(width);
          var h = parseInt(height); 
          // alert(aUndefWH.length);
-         for (var i=0;i<aUndefWH.length;i++) {
-             id1, adjust1(id1, aUndefWH[i], w, h,  hpad, vpad);
-             }
+          
+          for (var i=0;i<aUndefWH.length;i++) {
+            adjust1(id1, aUndefWH[i], w, h,  hpad, vpad);
+           }
          width = 0; height = 0;
          var isEmpty = false;
          for (var i=0;i<clients.length;i++) {
@@ -410,11 +411,12 @@ function askServer(path, parameters, timer, timeout, callback) {
                } 
             else isEmpty = true;      
             }
+         if (width == 0 || height == 0) return;
          if (!isEmpty) {
-             c.attr("width", width).attr("height", height);
-             c = d3.select("#"+id1+"_svg");
-             c.attr("width", width).attr("height", height);
-             }     
+            c.attr("width", width).attr("height", height);
+            c = d3.select("#"+id1+"_svg");
+            c.attr("width", width).attr("height", height);
+            }     
          }
         
    function adjustTableW(clients, id1, lw, hpad, vpad) { 
@@ -433,7 +435,7 @@ function askServer(path, parameters, timer, timeout, callback) {
          // alert("adjustTableW:"+id1+" "+aUndefWH); 
          // lw  =10; 
          for (var i=0;i<aUndefWH.length;i++) {
-             id1, adjust1(id1, aUndefWH[i], w, h,  hpad, vpad);
+             adjust1(id1, aUndefWH[i], w, h,  hpad, vpad);
              }
          }
    
