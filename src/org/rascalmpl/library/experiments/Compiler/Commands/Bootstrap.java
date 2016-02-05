@@ -104,7 +104,7 @@ public class Bootstrap {
             Path phase1Kernel = compilePhase(1, phase0Runtime, tmpDir, phase0Kernel, sourceFolder);
             Path phase2Kernel = compilePhase(2, phase0Runtime, tmpDir, phase1Kernel, sourceFolder);
             Path phase3Kernel = compilePhase(3, classpath, phase2Kernel, tmpDir, phase2Kernel, sourceFolder, false);
-            Path phase4Kernel = compilePhase(3, classpath, phase3Kernel, tmpDir, phase2Kernel, sourceFolder, true);
+            Path phase4Kernel = compilePhase(4, classpath, phase3Kernel, tmpDir, phase2Kernel, sourceFolder, true);
 
             Files.copy(phase4Kernel, targetFolder.resolve(BOOT_KERNEL_PATH));
         } 
