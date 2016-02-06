@@ -562,7 +562,9 @@ public class RVM /*implements java.io.Serializable*/ {
 	}
 	
 	@SuppressWarnings("unchecked")
-	int CHECKMEMO(Function fun, Object[] stack, int sp){;
+	int CHECKMEMO(Frame cf, Object[] stack, int sp){;
+	
+	    Function fun = cf.function;
 		MemoizationCache<IValue> cache = fun.memoization == null ? null : fun.memoization.get();
 		if(cache == null){
 			cache = new MemoizationCache<>();
@@ -600,6 +602,10 @@ public class RVM /*implements java.io.Serializable*/ {
 		sp -= 7;
 		// Trick: we return a negative sp to force a function return;
 		return ((IBool)refLeaveVisit.getValue()).getValue() ? -sp : sp;
+	}
+	
+	Object VALUESUBTYPE(Type reqType, Object accu){
+		return vf.bool(rex.isSubtypeOf(((IValue) accu).getType(), reqType));
 	}
 	
 	Object LOADVAR(int varScope, int pos, Frame cf){
@@ -873,7 +879,7 @@ public class RVM /*implements java.io.Serializable*/ {
 		try {
 			NEXT_INSTRUCTION: while (true) {
 				
-				// frameObserver.observeRVM(this, cf, pc, stack, sp, accu);
+				frameObserver.observeRVM(this, cf, pc, stack, sp, accu);
 				
 				instruction = instructions[pc++];
 				op = CodeBlock.fetchOp(instruction);
@@ -1821,9 +1827,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_VALUESUBTYPE:
-					Type reqType = cf.function.typeConstantStore[CodeBlock.fetchArg1(instruction)];
-					//stack[sp - 1] = vf.bool(((IValue) stack[sp - 1]).getType().isSubtypeOf(reqType));
-					accu = vf.bool(rex.isSubtypeOf(((IValue) accu).getType(), reqType));
+					accu = VALUESUBTYPE(cf.function.typeConstantStore[CodeBlock.fetchArg1(instruction)], accu);
 					continue NEXT_INSTRUCTION;
 								
 				case Opcode.OP_LABEL:
@@ -1888,7 +1892,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CHECKMEMO:
-					sp = CHECKMEMO(cf.function, stack, sp);
+					sp = CHECKMEMO(cf, stack, sp);
 					if(sp > 0){
 						continue NEXT_INSTRUCTION;
 					}
