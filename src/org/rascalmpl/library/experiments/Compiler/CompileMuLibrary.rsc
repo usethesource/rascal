@@ -10,7 +10,7 @@ import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::muRascal2RVM::mu2rvm;
 import experiments::Compiler::muRascal2RVM::StackValidator; // TODO: hide these two
-//import experiments::Compiler::muRascal2RVM::PeepHole;
+import experiments::Compiler::muRascal2RVM::PeepHole;
 
 private loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compiler/muRascal2RVM/MuLibrary.mu", pcfg);
 
@@ -28,7 +28,7 @@ list[RVMDeclaration] compileMuLibrary(PathConfig pcfg, bool verbose = false){
     for(fun <- libModule.functions) {
         setFunctionScope(fun.qname);
         set_nlocals(fun.nlocals);
-        body = tr(fun.body, stack(), returnDest());
+        body = peephole(tr(fun.body, stack(), returnDest()));
         <maxSP, exceptions> = validate(fun.src, body, []);
         required_frame_size = get_nlocals() + maxSP;
         functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun. uqname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body, [])
