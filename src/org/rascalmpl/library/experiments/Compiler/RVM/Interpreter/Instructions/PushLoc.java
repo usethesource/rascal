@@ -22,6 +22,6 @@ public class PushLoc extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlinePushLoc(pos,debug);
+		codeEmittor.emitInlinePushLocN(pos,debug);
 	}
 }

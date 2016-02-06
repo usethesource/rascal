@@ -22,6 +22,6 @@ public class LoadLocKwp extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSSFI("insnLOADLOCKWP" , codeblock.getConstantIndex(codeblock.vf.string(name)),debug);
+		codeEmittor.emitCallWithArgsSSFI_A("insnLOADLOCKWP" , codeblock.getConstantIndex(codeblock.vf.string(name)),debug);
 	}
 }

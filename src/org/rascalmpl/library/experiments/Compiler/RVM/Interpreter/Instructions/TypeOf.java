@@ -12,6 +12,6 @@ public class TypeOf extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitVoidCallWithArgsSS("insnTYPEOF",debug);
+		codeEmittor.emitCallWithArgsA_A("insnTYPEOF");
 	}
 }

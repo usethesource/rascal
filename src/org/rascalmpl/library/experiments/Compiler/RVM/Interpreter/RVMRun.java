@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
+import java.lang.ref.SoftReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,9 +22,16 @@ import javax.xml.bind.DatatypeConverter;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.NullFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.DIRECTION;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.FIXEDPOINT;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.PROGRESS;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.REBUILD;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IDateTime;
@@ -742,27 +750,38 @@ public class RVMRun extends RVM {
 		this.functionMap = functionMap2;
 	}
 
-	public int insnLOADBOOLTRUE(Object[] stack, int sp) {
-		stack[sp++] = Rascal_TRUE;
-		return sp;
-	}
+//	public void insnPUSHBOOLTRUE(Object[] stack, int sp) {
+//		stack[sp++] = Rascal_TRUE;
+//	}
+//	
+//	public Object insnLOADBOOLTRUE(Object[] stack, int sp) {
+//		return Rascal_TRUE;
+//		
+//	}
+//
+//	public void insnPUSHBOOLFALSE(Object[] stack, int sp) {
+//		stack[sp++] = Rascal_FALSE;
+//	}
+//	
+//	public Object insnLOADBOOLFALSE(Object[] stack, int sp) {
+//		return Rascal_FALSE;
+//	}
+//
+//	public int insnLOADINT(Object[] stack, int sp, int i) {
+//		stack[sp++] = i;
+//		return sp;
+//	}
 
-	public int insnLOADBOOLFALSE(Object[] stack, int sp) {
-		stack[sp++] = Rascal_FALSE;
-		return sp;
-	}
+//	public int insnLOADCON(Object[] stack, int sp, Frame cf, int arg1) {
+//		stack[sp++] = cf.function.constantStore[arg1];
+//		return sp;
+//	}
 
-	public int insnLOADINT(Object[] stack, int sp, int i) {
-		stack[sp++] = i;
-		return sp;
+	public Object insnLOADLOCREF(Object[] lstack, int args1) {
+		return new Reference(lstack, args1);
 	}
-
-	public int insnLOADCON(Object[] stack, int sp, Frame cf, int arg1) {
-		stack[sp++] = cf.function.constantStore[arg1];
-		return sp;
-	}
-
-	public int insnLOADLOCREF(Object[] lstack, int lsp, int args1) {
+	
+	public int insnPUSHLOCREF(Object[] lstack, int lsp, int args1) {
 		lstack[lsp++] = new Reference(lstack, args1);
 		return lsp;
 	}
@@ -772,7 +791,12 @@ public class RVMRun extends RVM {
 		return sp;
 	}
 
-	public int insnLOADLOCDEREF(Object[] stack, int sp, int loc) {
+	public Object insnLOADLOCDEREF(Object[] stack, int loc) {
+		Reference ref = (Reference) stack[loc];
+		return ref.stack[ref.pos];
+	}
+	
+	public int insnPUSHLOCDEREF(Object[] stack, int sp, int loc) {
 		Reference ref = (Reference) stack[loc];
 		stack[sp++] = ref.stack[ref.pos];
 		return sp;
@@ -811,11 +835,25 @@ public class RVMRun extends RVM {
 		return sp;
 	}
 
-	public int insnLOADVARmax(Object[] stack, int sp, Frame cf, int scopeid) {
-			stack[sp++] = moduleVariables.get(cf.function.constantStore[scopeid]);
-			return sp;
+	public Object insnLOADVARmax(Frame cf, int scopeid) {
+			return moduleVariables.get(cf.function.constantStore[scopeid]);
 	}
-	public int insnLOADVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos) {
+	
+	public int insnPUSHVARmax(Object[] stack, int sp, Frame cf, int scopeid) {
+		stack[sp++] =  moduleVariables.get(cf.function.constantStore[scopeid]);
+		return sp;
+	}
+	
+	public Object insnLOADVAR(Frame cf, int scopeid, int pos) {
+		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+			if (fr.scopeId == scopeid) {
+				return fr.stack[pos];
+			}
+		}
+		throw new RuntimeException("insnLOADVAR cannot find matching scope: " + scopeid);
+	}
+	
+	public int insnPUSHVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos) {
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == scopeid) {
 				stack[sp++] = fr.stack[pos];
@@ -825,7 +863,20 @@ public class RVMRun extends RVM {
 		throw new RuntimeException("insnLOADVAR cannot find matching scope: " + scopeid);
 	}
 
-	public int insnLOADVARREF(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxarg2) {
+	public Object insnLOADVARREF(Frame cf, int scopeid, int pos, boolean maxarg2) {
+		if (maxarg2) {
+			return moduleVariables.get(cf.function.constantStore[scopeid]);
+		}
+
+		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+			if (fr.scopeId == scopeid) {
+				return new Reference(fr.stack, pos);
+			}
+		}
+		throw new RuntimeException("LOADVARREF cannot find matching scope: " + scopeid);
+	}
+	
+	public int insnPUSHVARREF(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxarg2) {
 		if (maxarg2) {
 			stack[sp++] = moduleVariables.get(cf.function.constantStore[scopeid]);
 			return sp;
@@ -840,7 +891,17 @@ public class RVMRun extends RVM {
 		throw new RuntimeException("LOADVARREF cannot find matching scope: " + scopeid);
 	}
 
-	public int insnLOADVARDEREF(Object[] stack, int sp, Frame cf, int scopeid, int pos) {
+	public Object insnLOADVARDEREF(Frame cf, int scopeid, int pos) {
+		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+			if (fr.scopeId == scopeid) {
+				Reference ref = (Reference) fr.stack[pos];
+				return ref.stack[ref.pos];
+			}
+		}
+		throw new RuntimeException("LOADVARDEREF cannot find matching scope: " + scopeid);
+	}
+	
+	public int insnPUSHVARDEREF(Object[] stack, int sp, Frame cf, int scopeid, int pos) {
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == scopeid) {
 				Reference ref = (Reference) fr.stack[pos];
@@ -970,81 +1031,64 @@ public class RVMRun extends RVM {
 		return sp;
 	}
 
-	public int insnSUBSCRIPTARRAY(Object[] stack, int sp) {
-		sp--;
-		stack[sp - 1] = ((Object[]) stack[sp - 1])[((Integer) stack[sp])];
-		return sp;
+	public Object insnSUBSCRIPTARRAY(Object arg_2, Object arg_1) {
+		return ((Object[]) arg_2)[((Integer) arg_1)];
 	}
 
-	public int insnSUBSCRIPTLIST(Object[] stack, int sp) {
-		sp--;
-		stack[sp - 1] = ((IList) stack[sp - 1]).get((Integer) stack[sp]);
-		return sp;
+	public Object insnSUBSCRIPTLIST(Object arg_2, Object arg_1) {
+		return ((IList) arg_2).get((Integer) arg_1);
 	}
 
-	public int insnLESSINT(Object[] stack, int sp) {
-		sp--;
-		stack[sp - 1] = ((Integer) stack[sp - 1]) < ((Integer) stack[sp]) ? Rascal_TRUE : Rascal_FALSE;
-		return sp;
+	public Object insnLESSINT(Object arg_2, Object arg_1) {
+		return ((Integer) arg_2) < ((Integer) arg_1) ? Rascal_TRUE : Rascal_FALSE;
 	}
 
-	public int insnGREATEREQUALINT(Object[] stack, int sp) {
-		sp--;
-		stack[sp - 1] = ((Integer) stack[sp - 1]) >= ((Integer) stack[sp]) ? Rascal_TRUE : Rascal_FALSE;
-		return sp;
+	public Object insnGREATEREQUALINT(Object arg_2, Object arg_1) {
+		return ((Integer) arg_2) >= ((Integer) arg_1) ? Rascal_TRUE : Rascal_FALSE;
 	}
 
-	public int insnADDINT(Object[] stack, int sp) {
-		sp--;
-		stack[sp - 1] = ((Integer) stack[sp - 1]) + ((Integer) stack[sp]);
-		return sp;
+	public Object insnADDINT(Object arg_2, Object arg_1) {
+		return  ((Integer) arg_2) + ((Integer) arg_1);
 	}
 
-	public int insnSUBTRACTINT(Object[] stack, int sp) {
-		sp--;
-		stack[sp - 1] = ((Integer) stack[sp - 1]) - ((Integer) stack[sp]);
-		return sp;
+	public Object insnSUBTRACTINT(Object arg_2, Object arg_1) {
+		return ((Integer) arg_2) - ((Integer) arg_1);
 	}
 
-	public int insnANDBOOL(Object[] stack, int sp) {
-		sp--;
-		stack[sp - 1] = ((IBool) stack[sp - 1]).and((IBool) stack[sp]);
-		return sp;
+	public Object insnANDBOOL(Object arg_2, Object arg_1) {
+		return ((IBool) arg_2).and((IBool) arg_1);
 	}
 
-	public void insnTYPEOF(Object[] stack, int sp) {
-		if (stack[sp - 1] instanceof HashSet<?>) { // For the benefit of set
+	public Object insnTYPEOF(Object arg_1) {
+		if (arg_1 instanceof HashSet<?>) { // For the benefit of set
 													// matching
 			@SuppressWarnings("unchecked")
-			HashSet<IValue> mset = (HashSet<IValue>) stack[sp - 1];
+			HashSet<IValue> mset = (HashSet<IValue>) arg_1;
 			if (mset.isEmpty()) {
-				stack[sp - 1] = tf.setType(tf.voidType());
+				return tf.setType(tf.voidType());
 			} else {
 				IValue v = mset.iterator().next();
-				stack[sp - 1] = tf.setType(v.getType());
+				return tf.setType(v.getType());
 			}
 		} else {
-			stack[sp - 1] = ((IValue) stack[sp - 1]).getType();
+			return ((IValue) arg_1).getType();
 		}
 	}
 
-	public int insnSUBTYPE(Object[] stack, int sp) {
-		sp--;
-		stack[sp - 1] = vf.bool(((Type) stack[sp - 1]).isSubtypeOf((Type) stack[sp]));
-		return sp;
+	public Object insnSUBTYPE(Object arg_2, Object arg_1) {
+		return vf.bool(((Type) arg_2).isSubtypeOf((Type) arg_1));
 	}
 
-	public int insnCHECKARGTYPEANDCOPY(Object[] lstack, int lsp, Frame cof, int loc, int type, int toLoc) {
+	public Object insnCHECKARGTYPEANDCOPY(Object[] lstack, int lsp, Frame cof, int loc, int type, int toLoc) {
 		Type argType = ((IValue) lstack[loc]).getType();
 		Type paramType = cof.function.typeConstantStore[type];
 
 		if (argType.isSubtypeOf(paramType)) {
 			lstack[toLoc] = lstack[loc];
-			lstack[lsp++] = Rascal_TRUE;
+			return Rascal_TRUE;
 		} else {
-			lstack[lsp++] = Rascal_FALSE;
+			return Rascal_FALSE;
 		}
-		return lsp;
 	}
 
 	public void insnLABEL() {
@@ -1072,7 +1116,24 @@ public class RVMRun extends RVM {
 		return sp;
 	}
 
-	public int insnLOADLOCKWP(Object[] stack, int sp, Frame cf, int constant) {
+	public Object insnLOADLOCKWP(Object[] stack, int sp, Frame cf, int constant) {
+		IString name = (IString) cf.function.codeblock.getConstantValue(constant);
+		@SuppressWarnings("unchecked")
+		Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
+		Map.Entry<Type, IValue> defaultValue = defaults.get(name.getValue());
+		for (Frame f = cf; f != null; f = f.previousCallFrame) {
+			IMap kargs = (IMap) f.stack[f.function.nformals - 1];
+			if (kargs.containsKey(name)) {
+				IValue val = kargs.get(name);
+				if (val.getType().isSubtypeOf(defaultValue.getKey())) {
+					return val;
+				}
+			}
+		}
+		return defaultValue.getValue();
+	}
+	
+	public int insnPUSHLOCKWP(Object[] stack, int sp, Frame cf, int constant) {
 		IString name = (IString) cf.function.codeblock.getConstantValue(constant);
 		@SuppressWarnings("unchecked")
 		Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
@@ -1091,7 +1152,7 @@ public class RVMRun extends RVM {
 		return sp;
 	}
 
-	public void insnLOADVARKWP() {
+	public void insnLOADVARKWP() {	// TODO
 		return;
 	}
 
@@ -1102,22 +1163,22 @@ public class RVMRun extends RVM {
 		stack[cf.function.nformals - 1] = kargs.put(name, val);
 	}
 
-	public void insnSTOREVARKWP() {
+	public void insnSTOREVARKWP() {	// TODO
 		return;
 	}
 
-	public int insnLOADCONT(Object[] stack, int sp, Frame cf, int scopeid) {
-		assert stack[0] instanceof Coroutine;
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-			if (fr.scopeId == scopeid) {
-				// TODO: unsafe in general case (the coroutine object should be
-				// copied)
-				stack[sp++] = fr.stack[0];
-				return sp;
-			}
-		}
-		throw new RuntimeException("LOADCONT cannot find matching scope: " + scopeid);
-	}
+//	public int insnLOADCONT(Object[] stack, int sp, Frame cf, int scopeid) {
+//		assert stack[0] instanceof Coroutine;
+//		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+//			if (fr.scopeId == scopeid) {
+//				// TODO: unsafe in general case (the coroutine object should be
+//				// copied)
+//				stack[sp++] = fr.stack[0];
+//				return sp;
+//			}
+//		}
+//		throw new RuntimeException("LOADCONT cannot find matching scope: " + scopeid);
+//	}
 
 	// / JVM Helper methods
 	public Object dynRun(String fname, IValue[] args) {
@@ -1177,6 +1238,49 @@ public class RVMRun extends RVM {
 			cof.previousCallFrame.stack[cof.previousCallFrame.sp++] = rval;
 		}
 		return rval;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public int jvmCHECKMEMO(Frame cf, Object[] stack, int sp){;
+	
+	    Function fun = cf.function;
+		MemoizationCache<IValue> cache = fun.memoization == null ? null : fun.memoization.get();
+		if(cache == null){
+			cache = new MemoizationCache<>();
+			fun.memoization = new SoftReference<>(cache);
+		}
+		int nformals = fun.nformals;
+		IValue[] args = new IValue[nformals - 1];
+		for(int i = 0; i < nformals - 1; i++){
+			args[i] = (IValue) stack[i];
+		}
+
+		IValue result = cache.getStoredResult(args, (Map<String,IValue>)stack[nformals - 1]);
+		if(result == null){
+			return sp + 1;
+		}
+		stack[sp++] = result;
+		return -sp;					// Trick: we return a negative sp to force a function return;
+	}
+	
+	public int jvmVISIT(boolean direction,  boolean progress, boolean fixedpoint, boolean rebuild, Object[] stack, int sp){
+		FunctionInstance phi = (FunctionInstance)stack[sp - 8];
+		IValue subject = (IValue) stack[sp - 7];
+		Reference refMatched = (Reference) stack[sp - 6];
+		Reference refChanged = (Reference) stack[sp - 5];
+		Reference refLeaveVisit = (Reference) stack[sp - 4];
+		Reference refBegin = (Reference) stack[sp - 3];
+		Reference refEnd = (Reference) stack[sp - 2];
+		DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
+		DIRECTION tr_direction = direction ? DIRECTION.BottomUp : DIRECTION.TopDown;
+		PROGRESS tr_progress = progress ? PROGRESS.Continuing : PROGRESS.Breaking;
+		FIXEDPOINT tr_fixedpoint = fixedpoint ? FIXEDPOINT.Yes : FIXEDPOINT.No;
+		REBUILD tr_rebuild = rebuild ? REBUILD.Yes :REBUILD.No;
+		IValue res = new Traverse(vf).traverse(tr_direction, tr_progress, tr_fixedpoint, tr_rebuild, subject, phi, refMatched, refChanged, refLeaveVisit, refBegin, refEnd, this, descriptor);
+		stack[sp - 8] = res;
+		sp -= 7;
+		// Trick: we return a negative sp to force a function return;
+		return ((IBool)refLeaveVisit.getValue()).getValue() ? -sp : sp;
 	}
 
 	public int jvmCREATE(Object[] stock, int lsp, Frame lcf, int fun, int arity) {
@@ -2115,14 +2219,6 @@ public class RVMRun extends RVM {
 				throw new RuntimeException();
 		}
 	}
-
-//	public static void debugJMPINDEXED(String insName, Frame lcf, int lsp) {
-//		if (!silent) {
-//			System.out.println(insName);
-//			if (lcf == null)
-//				throw new RuntimeException();
-//		}
-//	}
 
 	public static void debugLOADCONT(String insName, Frame lcf, int lsp) {
 		if (!silent) {

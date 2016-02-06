@@ -29,6 +29,6 @@ public class LoadVarDeref extends Instruction {
 
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid);
 
-		codeEmittor.emitCallWithArgsSSFII("insnLOADVARDEREF", what, pos,debug);
+		codeEmittor.emitCallWithArgsFII_A("insnLOADVARDEREF", what, pos,debug);
 	}
 }

@@ -24,5 +24,7 @@ public class LoadVarKwp extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		codeEmittor.emitDebugCall(opcode.name());
+		
+		// TODO
     }
 }

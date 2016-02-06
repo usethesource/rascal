@@ -333,6 +333,9 @@ public enum Opcode {
 		case LOADVAR:
 			return "LOADVAR " + arg1 + ", " 
 						      + arg2;
+		case PUSHVAR:
+			return "PUSHVAR " + arg1 + ", " 
+						      + arg2;
 			
 		case LOADLOC:
 			return "LOADLOC " + arg1;

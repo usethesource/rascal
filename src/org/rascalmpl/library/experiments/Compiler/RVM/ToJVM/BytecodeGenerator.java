@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import java.util.TreeMap;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
@@ -47,7 +49,7 @@ public class BytecodeGenerator implements Opcodes {
 	
 	public static final int LBOOL = 4;			// Boolean variable used in guard code
 	public static final int LVAL = 5;			// Local IValue
-	public static final int LCOROUTINE = 6;		// Local corotuine instance
+	public static final int LCOROUTINE = 6;		// Local coroutine instance
 	public static final int LPREVFRAME = 7;		// 
 	public static final int EXCEPTION = 8;
 	
@@ -56,6 +58,8 @@ public class BytecodeGenerator implements Opcodes {
 	public static final int TS = 10;			// Type constant store
 	
 	public static final int TMPOBJECT = 11;		// Scratch location
+	
+	public static final int ACCU = 12;			// accumulator
 
 	byte[] endCode = null;
 	
@@ -236,9 +240,13 @@ public class BytecodeGenerator implements Opcodes {
 		this.packageName = pName;
 		this.fullClassName = packageName.replace('.', '/') + "/" + className;
 		//this.fullClassName = "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRunner";
-		cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+		cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES /* ClassWriter.COMPUTE_MAXS*/);
 
 		cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, fullClassName, null, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", null);
+//		StringWriter sw = new StringWriter();
+//		PrintWriter pw = new PrintWriter(sw);
+//		CheckClassAdapter.verify(new ClassReader(cw.toByteArray()), false, pw);
+//		System.err.println(sw.toString());
 	}
 
 	/*
@@ -332,7 +340,6 @@ public class BytecodeGenerator implements Opcodes {
 	 * Generate a method for each Rascal function
 	 */
 	public void emitMethod(Function f, boolean debug) {
-
 		if (!emit)
 			return;
 
@@ -444,10 +451,7 @@ public class BytecodeGenerator implements Opcodes {
 			return;
 		Label target = getNamedLabel(targetLabel);
 
-		mv.visitIincInsn(SP, -1);
-		mv.visitVarInsn(ALOAD, STACK);
-		mv.visitVarInsn(ILOAD, SP);
-		mv.visitInsn(AALOAD);
+		mv.visitVarInsn(ALOAD, ACCU);
 		mv.visitMethodInsn(INVOKEINTERFACE, "org/rascalmpl/value/IBool", "getValue", "()Z",true);
 		if (tf)
 			mv.visitJumpInsn(IFNE, target);
@@ -521,6 +525,59 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/rascalmpl/value/IString;");
 		mv.visitInsn(ARETURN);
 	}
+	
+	
+	public void emitInlineVisit(boolean direction, boolean progress, boolean fixedpoint, boolean rebuild, boolean debug) {
+		if(!emit)
+			return;
+		
+		Label returnLabel = new Label();
+		Label continueLabel = new Label();
+		
+		mv.visitVarInsn(ALOAD, THIS);
+		emitIntValue(direction ? 1 : 0);
+		emitIntValue(progress ? 1 : 0);
+		emitIntValue(fixedpoint ? 1 : 0);
+		emitIntValue(rebuild ? 1 : 0);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "jvmVISIT", "(ZZZZ[Ljava/lang/Object;I)I",false);
+		mv.visitInsn(DUP);
+		mv.visitJumpInsn(IFLE, returnLabel);
+		
+		mv.visitVarInsn(ISTORE, SP);
+		mv.visitJumpInsn(GOTO, continueLabel);
+		
+		mv.visitLabel(returnLabel);
+		mv.visitInsn(INEG);
+		mv.visitVarInsn(ISTORE, SP);
+		emitInlineReturn(1, debug);
+		
+		mv.visitLabel(continueLabel);
+	}
+	
+	public void emitInlineCheckMemo(boolean debug) {
+		Label returnLabel = new Label();
+		Label continueLabel = new Label();
+		mv.visitVarInsn(ALOAD, THIS);
+		mv.visitVarInsn(ALOAD, CF);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "jvmCHECKMEMO", "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;[Ljava/lang/Object;I)I",false);
+		mv.visitInsn(DUP);
+		mv.visitJumpInsn(IFLE, returnLabel);
+		
+		mv.visitVarInsn(ISTORE, SP);
+		mv.visitJumpInsn(GOTO, continueLabel);
+		
+		mv.visitLabel(returnLabel);
+		mv.visitInsn(INEG);
+		mv.visitVarInsn(ISTORE, SP);
+		emitInlineReturn(1, debug);
+		
+		mv.visitLabel(continueLabel);
+	}
+	
 
 	public void emitInlineFailreturn() {
 		if (!emit)
@@ -683,7 +740,17 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitLabel(hotEntryLabels[hotEntryPoint]);
 	}
 
-	public void emitInlineLoadLocN(int n, boolean debug) {
+	public void emitInlineLoadLocN(int pos, boolean debug) {
+		if (!emit)
+			return;
+
+		mv.visitVarInsn(ALOAD, STACK);
+		emitIntValue(pos);
+		mv.visitInsn(AALOAD);
+		mv.visitVarInsn(ASTORE, ACCU);
+	}
+	
+	public void emitInlinePushLocN(int pos, boolean debug) {
 		if (!emit)
 			return;
 
@@ -691,13 +758,27 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitIincInsn(SP, 1);
 		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(n);
+		emitIntValue(pos);
 		mv.visitInsn(AALOAD);
 		mv.visitInsn(AASTORE);
 	}
 
 	// Experimemtal local copy of constantStore and typeConstantStore probably needed in final version.
 	public void emitInlineLoadConOrType(int n, boolean conOrType, boolean debug) {
+		if (!emit)
+			return;
+
+		if (conOrType)
+			mv.visitVarInsn(ALOAD, CS);
+		else
+			mv.visitVarInsn(ALOAD, TS);
+
+		emitIntValue(n);
+		mv.visitInsn(AALOAD);
+		mv.visitVarInsn(ASTORE, ACCU);
+	}
+	
+	public void emitInlinePushConOrType(int n, boolean conOrType, boolean debug) { 
 		if (!emit)
 			return;
 		mv.visitVarInsn(ALOAD, STACK);
@@ -713,10 +794,6 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(AALOAD);
 		mv.visitInsn(AASTORE);
 	}
-	
-	public void emitInlinePushConOrType(int n, boolean conOrType, boolean debug) { 
-		// TODO
-	}
 
 	public void emitInlinePop(boolean debug) {
 		if (!emit)
@@ -730,11 +807,7 @@ public class BytecodeGenerator implements Opcodes {
 
 		mv.visitVarInsn(ALOAD, STACK);
 		emitIntValue(loc);
-		mv.visitVarInsn(ALOAD, STACK);
-		mv.visitVarInsn(ILOAD, SP);
-		mv.visitInsn(ICONST_1);
-		mv.visitInsn(ISUB);
-		mv.visitInsn(AALOAD);
+		mv.visitVarInsn(ALOAD, ACCU);
 		mv.visitInsn(AASTORE);
 	}
 
@@ -923,10 +996,11 @@ public class BytecodeGenerator implements Opcodes {
 	 * Emits a inline version of the CallMUPrim0 instruction. Uses a direct call to the static enum execute method.
 	 * 
 	 */
-	public void emitInlineCallMuPrim0(MuPrimitive muprim, boolean debug) {
+	
+	public void emitInlinePushCallMuPrim0(MuPrimitive muprim, boolean debug) {
 		if (!emit)
 			return;
-
+		
 		mv.visitVarInsn(ALOAD, STACK);		// stack
 		mv.visitVarInsn(ILOAD, SP);			// sp
 		
@@ -935,15 +1009,61 @@ public class BytecodeGenerator implements Opcodes {
 	
 		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", "execute0", "()Ljava/lang/Object;",false);
 		mv.visitInsn(AASTORE);				// stack[sp] = callMuPrim0()
-		
 		mv.visitIincInsn(SP, 1);			// sp += 1
+	}
+	
+	public void emitInlineCallMuPrim0(MuPrimitive muprim, boolean debug) {
+		if (!emit)
+			return;
+		
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive;");
+	
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", "execute0", "()Ljava/lang/Object;",false);
+		mv.visitVarInsn(ASTORE, ACCU);		// accu = callMuPrim0()
 	}
 	
 	/**
 	 * Emits a inline version of the CallMUPrim1 instruction. Uses a direct call to the static enum execute method.
 	 * 
 	 */
+	public void emitInlinePushCallMuPrim1(MuPrimitive muprim, boolean debug) {
+		if (!emit)
+			return;
+		
+		mv.visitVarInsn(ALOAD, STACK);		// stack
+		mv.visitVarInsn(ILOAD, SP);			// sp
+		
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive;");
+		
+		mv.visitVarInsn(ALOAD, ACCU);		// arg_1 from accu
+		
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", "execute1", "(Ljava/lang/Object;)Ljava/lang/Object;",false);
+		
+		mv.visitInsn(AASTORE);				// stack[sp] = callMuPrim1(arg_1)
+		mv.visitIincInsn(SP, 1);			// sp += 1
+	}
+	
 	public void emitInlineCallMuPrim1(MuPrimitive muprim, boolean debug) {
+		if (!emit)
+			return;
+
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive;");
+		
+		mv.visitVarInsn(ALOAD, ACCU);		// arg_1 from accu
+		
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", "execute1", "(Ljava/lang/Object;)Ljava/lang/Object;",false);
+		
+		mv.visitVarInsn(ASTORE, ACCU);		// accu = callMuPrim1(arg_1)
+	}
+	
+	/**
+	 * Emits a inline version of the CallMUPrim1 instruction. Uses a direct call to the static enum execute method.
+	 * 
+	 */
+	public void emitInlinePushCallMuPrim2(MuPrimitive muprim, boolean debug) {
 		if (!emit)
 			return;
 
@@ -954,27 +1074,24 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive;");
 		
-		mv.visitVarInsn(ALOAD, STACK);		// arg_1
+		mv.visitVarInsn(ALOAD, STACK);		// arg_2
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitInsn(AALOAD);
 		
-		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", "execute1", "(Ljava/lang/Object;)Ljava/lang/Object;",false);
+		mv.visitVarInsn(ALOAD, ACCU);		// arg_1 from accu
 		
-		mv.visitInsn(AASTORE);				// stack[sp] = callMuPrim1(arg_1)
-		mv.visitIincInsn(SP, 1);			// sp += 1
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", "execute2", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",false);
+		
+		mv.visitInsn(AASTORE);				// stack[sp] = callMuPrim2(arg_2, arg_1)
+		mv.visitIincInsn(SP, 1);			// sp++
+		
 	}
 	
-	/**
-	 * Emits a inline version of the CallMUPrim1 instruction. Uses a direct call to the static enum execute method.
-	 * 
-	 */
 	public void emitInlineCallMuPrim2(MuPrimitive muprim, boolean debug) {
 		if (!emit)
 			return;
 
-		mv.visitIincInsn(SP, -2);			// sp -= 2
-		mv.visitVarInsn(ALOAD, STACK);		// stack
-		mv.visitVarInsn(ILOAD, SP);			// sp
+		mv.visitIincInsn(SP, -1);			// sp -= 1
 		
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive;");
@@ -983,22 +1100,19 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitInsn(AALOAD);
 		
-		mv.visitIincInsn(SP, 1);
-		
-		mv.visitVarInsn(ALOAD, STACK);		// arg_1
-		mv.visitVarInsn(ILOAD, SP);
-		mv.visitInsn(AALOAD);
+		mv.visitVarInsn(ALOAD, ACCU);		// arg_1 from accu
 		
 		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", "execute2", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",false);
 		
-		mv.visitInsn(AASTORE);				// stack[sp] = callMuPrim2(arg_2, arg_1)
+		mv.visitVarInsn(ASTORE, ACCU);		// accu = callMuPrim2(arg_2, arg_1)
 	}
+
 
 	/**
 	 * Emits a inline version of the CallMUPrim instructions. Uses a direct call to the static enum execute method.
 	 * 
 	 */
-	public void emitInlineCallMuPrimN(MuPrimitive muprim, int arity, boolean debug) {
+	public void emitInlinePushCallMuPrimN(MuPrimitive muprim, int arity, boolean debug) {
 		if (!emit)
 			return;
 
@@ -1014,11 +1128,35 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ISTORE, SP);		// sp = callMuPrimN(stach, sp, arity)
 	}
 	
+	public void emitInlineCallMuPrimN(MuPrimitive muprim, int arity, boolean debug) {
+		if (!emit)
+			return;
+
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive;");
+
+		mv.visitVarInsn(ALOAD, STACK);		// stack
+		mv.visitVarInsn(ILOAD, SP);			// sp
+
+		emitIntValue(arity);				// arity
+
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", "executeN", "([Ljava/lang/Object;II)I",false);
+											// sp = callMuPrimN(stack, sp, arity)
+		mv.visitInsn(ICONST_M1);
+		mv.visitInsn(IADD);					// sp--
+		mv.visitVarInsn(ISTORE, SP);		// sp = callMuPrimN(stack, sp, arity) - 1
+		
+		mv.visitVarInsn(ALOAD, STACK);		// stack
+		mv.visitVarInsn(ILOAD, SP);			// sp
+		mv.visitInsn(AALOAD);
+		mv.visitVarInsn(ASTORE, ACCU);		// accu = stack[--sp];
+	}
+	
 	/**
 	 * Emits a inline version of the CallPrim0 instruction. Uses a direct call to the static enum execute method.
 	 * 
 	 */
-	public void emitInlineCallPrim0(RascalPrimitive prim, boolean debug) {
+	public void emitInlinePushCallPrim0(RascalPrimitive prim, boolean debug) {
 		if (!emit)
 			return;
 		
@@ -1040,11 +1178,77 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitIincInsn(SP, 1);			// sp += 1
 	}
 	
+	public void emitInlineCallPrim0(RascalPrimitive prim, boolean debug) {
+		if (!emit)
+			return;
+		
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
+		
+		mv.visitVarInsn(ALOAD, CF);			// currentFrame
+		
+		mv.visitVarInsn(ALOAD, 0);			// rex
+		mv.visitFieldInsn(GETFIELD, fullClassName, "rex", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;");
+
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "execute0",
+				"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)Ljava/lang/Object;",false);
+		
+		mv.visitVarInsn(ASTORE, ACCU);		// accu = callPrim0()
+	}
+	
 	/**
 	 * Emits a inline version of the CallPrim1 instruction. Uses a direct call to the static enum execute method.
 	 * 
 	 */
+	public void emitInlinePushCallPrim1(RascalPrimitive prim, boolean debug) {
+		if (!emit)
+			return;
+		
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
+		
+		mv.visitVarInsn(ALOAD, ACCU);	// arg_1 from accu
+		
+		mv.visitVarInsn(ALOAD, CF);		// currentFrame
+
+		mv.visitVarInsn(ALOAD, 0);		// rex
+		mv.visitFieldInsn(GETFIELD, fullClassName, "rex", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;");
+
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "execute1",
+				"(Ljava/lang/Object;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)Ljava/lang/Object;",false);
+		
+		mv.visitInsn(AASTORE);			// stack[sp++] = callPrim1(arg_1)
+		mv.visitIincInsn(SP, 1);
+	}
+	
 	public void emitInlineCallPrim1(RascalPrimitive prim, boolean debug) {
+		if (!emit)
+			return;
+		
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
+		
+		mv.visitVarInsn(ALOAD, ACCU);	// arg_1 from accu
+		
+		mv.visitVarInsn(ALOAD, CF);		// currentFrame
+
+		mv.visitVarInsn(ALOAD, 0);		// rex
+		mv.visitFieldInsn(GETFIELD, fullClassName, "rex", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;");
+
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "execute1",
+				"(Ljava/lang/Object;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)Ljava/lang/Object;",false);
+		
+		mv.visitVarInsn(ASTORE, ACCU);		// accu = callPrim1(arg_1)
+	}
+	
+	/**
+	 * Emits a inline version of the CallPrim1 instruction. Uses a direct call to the static enum execute method.
+	 * 
+	 */
+	public void emitInlinePushCallPrim2(RascalPrimitive prim, boolean debug) {
 		if (!emit)
 			return;
 		
@@ -1055,63 +1259,55 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
 		
-		mv.visitVarInsn(ALOAD, STACK);	// arg_1
+		mv.visitVarInsn(ALOAD, STACK);	// arg_2
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitInsn(AALOAD);
+		
+		mv.visitVarInsn(ALOAD, ACCU);	// arg_1 from accu
 		
 		mv.visitVarInsn(ALOAD, CF);		// currentFrame
 
 		mv.visitVarInsn(ALOAD, 0);		// rex
-		mv.visitFieldInsn(GETFIELD, fullClassName, "rex", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;");
-
-		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "execute1",
-				"(Ljava/lang/Object;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)Ljava/lang/Object;",false);
-		
-		mv.visitInsn(AASTORE);
-		mv.visitIincInsn(SP, 1);
-	}
-	
-	/**
-	 * Emits a inline version of the CallPrim1 instruction. Uses a direct call to the static enum execute method.
-	 * 
-	 */
-	public void emitInlineCallPrim2(RascalPrimitive prim, boolean debug) {
-		if (!emit)
-			return;
-		
-		mv.visitIincInsn(SP, -2);
-		mv.visitVarInsn(ALOAD, STACK);
-		mv.visitVarInsn(ILOAD, SP);
-		
-		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
-				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
-		
-		mv.visitVarInsn(ALOAD, STACK);		// arg_2
-		mv.visitVarInsn(ILOAD, SP);
-		mv.visitInsn(AALOAD);
-		
-		mv.visitIincInsn(SP, 1);
-		
-		mv.visitVarInsn(ALOAD, STACK);		// arg_1
-		mv.visitVarInsn(ILOAD, SP);
-		mv.visitInsn(AALOAD);
-		
-		mv.visitVarInsn(ALOAD, CF);			// currentFrame
-
-		mv.visitVarInsn(ALOAD, 0);			// rex
 		mv.visitFieldInsn(GETFIELD, fullClassName, "rex", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;");
 		
 		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "execute2",
 				"(Ljava/lang/Object;Ljava/lang/Object;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)Ljava/lang/Object;",false);
 		
 		mv.visitInsn(AASTORE);
+		mv.visitIincInsn(SP, 1);
+	}
+	
+	public void emitInlineCallPrim2(RascalPrimitive prim, boolean debug) {
+		if (!emit)
+			return;
+		
+		mv.visitIincInsn(SP, -1);
+		
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
+		
+		mv.visitVarInsn(ALOAD, STACK);	// arg_2
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		
+		mv.visitVarInsn(ALOAD, ACCU);	// arg_1 from accu
+		
+		mv.visitVarInsn(ALOAD, CF);		// currentFrame
+
+		mv.visitVarInsn(ALOAD, 0);		// rex
+		mv.visitFieldInsn(GETFIELD, fullClassName, "rex", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;");
+		
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "execute2",
+				"(Ljava/lang/Object;Ljava/lang/Object;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)Ljava/lang/Object;",false);
+		
+		mv.visitVarInsn(ASTORE, ACCU);	// accu = CallPrim2(arg_2, arg_1)
 	}
 	
 	/**
 	 * Emits a inline version of the CallPrimN instructions. Uses a direct call to the static enum execute method.
 	 * 
 	 */
-	public void emitInlineCallPrimN(RascalPrimitive prim, int arity, boolean debug) {
+	public void emitInlinePushCallPrimN(RascalPrimitive prim, int arity, boolean debug) {
 		if (!emit)
 			return;
 
@@ -1132,22 +1328,76 @@ public class BytecodeGenerator implements Opcodes {
 				"([Ljava/lang/Object;IILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)I",false);
 		mv.visitVarInsn(ISTORE, SP);
 	}
+	
+	public void emitInlineCallPrimN(RascalPrimitive prim, int arity, boolean debug) {
+		if (!emit)
+			return;
+
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
+
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+
+		emitIntValue(arity);
+
+		mv.visitVarInsn(ALOAD, CF);
+		
+		mv.visitVarInsn(ALOAD, 0);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "rex", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;");
+		
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", "executeN",
+				"([Ljava/lang/Object;IILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)I",false);
+		
+		mv.visitInsn(ICONST_M1);
+		mv.visitInsn(IADD);					// sp--
+		mv.visitVarInsn(ISTORE, SP);		// sp = callPrimN(stack, sp, arity, cf, rex) - 1
+		
+		mv.visitVarInsn(ALOAD, STACK);		// stack
+		mv.visitVarInsn(ILOAD, SP);			// sp
+		mv.visitInsn(AALOAD);
+		mv.visitVarInsn(ASTORE, ACCU);		// accu = stack[--sp];
+	}
 
 	public void emitInlineLoadBool(boolean b, boolean debug) {
 		if (!emit)
 			return;
 
-		mv.visitVarInsn(ALOAD, STACK);
-		mv.visitVarInsn(ILOAD, SP);
-		mv.visitIincInsn(SP, 1);
 		if (b) {
 			mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/rascalmpl/value/IBool;");
 		} else {
 			mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_FALSE", "Lorg/rascalmpl/value/IBool;");
 		}
-		mv.visitInsn(AASTORE);
+		mv.visitVarInsn(ASTORE, ACCU);		// accu = bool;
 	}
-
+	
+	public void emitCallWithArgsA_A(String fname) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, THIS);
+		
+		mv.visitVarInsn(ALOAD, ACCU);	// arg_1 from accu
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(Ljava/lang/Object;)Ljava/lang/Object;",false);
+		mv.visitVarInsn(ASTORE, ACCU);
+	}
+	
+	public void emitCallWithArgsSA_A(String fname) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, THIS);
+		
+		mv.visitIincInsn(SP, -1);		// sp--
+		
+		mv.visitVarInsn(ALOAD, STACK);	// arg_2
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		
+		mv.visitVarInsn(ALOAD, ACCU);	// arg_1 from accu
+		
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",false);
+		mv.visitVarInsn(ASTORE, ACCU);
+	}
+	
 	public void emitCallWithArgsSS(String fname) {
 		if (!emit)
 			return;
@@ -1168,6 +1418,16 @@ public class BytecodeGenerator implements Opcodes {
 		emitIntValue(i);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;II)I",false);
 		mv.visitVarInsn(ISTORE, SP);
+	}
+	
+	public void emitCallWithArgsSI_A(String fname, int i, boolean dbg) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, THIS);
+		mv.visitVarInsn(ALOAD, STACK);
+		emitIntValue(i);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;I)Ljava/lang/Object;",false);
+		mv.visitVarInsn(ASTORE, ACCU);
 	}
 
 	public void emitCallWithArgsSSII(String fname, int i, int j, boolean dbg) {
@@ -1201,13 +1461,39 @@ public class BytecodeGenerator implements Opcodes {
 			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK); // Stack
-		mv.visitVarInsn(ILOAD, SP); // Stack
+		mv.visitVarInsn(ILOAD, SP); // sp
 		mv.visitVarInsn(ALOAD, CF); // CF
 
 		emitIntValue(i); // I
 
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;I)I",false);
 		mv.visitVarInsn(ISTORE, SP);
+	}
+	
+	public void emitCallWithArgsFI_A(String fname, int i, boolean dbg) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, THIS);
+		mv.visitVarInsn(ALOAD, CF); // CF
+
+		emitIntValue(i); // I
+
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;I)Ljava/lang/Object;",false);
+		mv.visitVarInsn(ASTORE, ACCU);
+	}
+	
+	public void emitCallWithArgsSSFI_A(String fname, int i, boolean dbg) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, THIS);
+		mv.visitVarInsn(ALOAD, STACK); // Stack
+		mv.visitVarInsn(ILOAD, SP); // Stack
+		mv.visitVarInsn(ALOAD, CF); // CF
+
+		emitIntValue(i); // I
+
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;I)Ljava/lang/Object;",false);
+		mv.visitVarInsn(ASTORE, ACCU);
 	}
 
 	public void emitCallWithArgsSSFIII(String fname, int i, int j, int k, boolean dbg) {
@@ -1224,6 +1510,22 @@ public class BytecodeGenerator implements Opcodes {
 
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;III)I",false);
 		mv.visitVarInsn(ISTORE, SP);
+	}
+	
+	public void emitCallWithArgsSSFIII_A(String fname, int i, int j, int k, boolean dbg) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, THIS);
+		mv.visitVarInsn(ALOAD, STACK); // Stack
+		mv.visitVarInsn(ILOAD, SP); // sp
+		mv.visitVarInsn(ALOAD, CF); // CF
+
+		emitIntValue(i); // I
+		emitIntValue(j); // I
+		emitIntValue(k); // I
+
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;III)Ljava/lang/Object;",false);
+		mv.visitVarInsn(ASTORE, ACCU);
 	}
 
 	public void emitVoidCallWithArgsSSI(String fname, int i, boolean dbg) {
@@ -1250,6 +1552,20 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;II)I",false);
 		mv.visitVarInsn(ISTORE, SP);
 	}
+	
+	public void emitCallWithArgsFII_A(String fname, int i, int j, boolean dcode) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, THIS);
+		
+		mv.visitVarInsn(ALOAD, 1); // CF
+
+		emitIntValue(i); // I
+		emitIntValue(j); // I
+
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;II)Ljava/lang/Object;",false);
+		mv.visitVarInsn(ASTORE, ACCU);
+	}
 
 	public void emitCallWithArgsSSFIIZ(String fname, int what, int pos, boolean b, boolean dcode) {
 		if (!emit)
@@ -1269,6 +1585,24 @@ public class BytecodeGenerator implements Opcodes {
 
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;IIZ)I",false);
 		mv.visitVarInsn(ISTORE, SP);
+	}
+	
+	public void emitCallWithArgsFIIZ_A(String fname, int what, int pos, boolean b, boolean dcode) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, THIS);
+		mv.visitVarInsn(ALOAD, CF); // CF
+
+		emitIntValue(what); // I
+		emitIntValue(pos); // I
+
+		if (b)
+			mv.visitInsn(ICONST_1);
+		else
+			mv.visitInsn(ICONST_0);
+
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;IIZ)I",false);
+		mv.visitVarInsn(ASTORE, ACCU);
 	}
 
 	public void emitVoidCallWithArgsSSFIIZ(String fname, int what, int pos, boolean b, boolean dcode) {
@@ -1530,12 +1864,9 @@ public class BytecodeGenerator implements Opcodes {
 		if (!emit)
 			return;
 
-		mv.visitVarInsn(ALOAD, STACK);
-		mv.visitVarInsn(ILOAD, SP);
-		mv.visitIincInsn(SP, 1);
 		emitIntValue(nval);
 		mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;",false);
-		mv.visitInsn(AASTORE);
+		mv.visitVarInsn(ASTORE, ACCU);
 	}
 
 	private void emitExceptionTable(String[] fromLabels, String[] toLabels, int[] fromSp, int[] types, String[] handlerLabels) {
@@ -1699,18 +2030,14 @@ public class BytecodeGenerator implements Opcodes {
 
 		mv.visitInsn(AALOAD);
 		mv.visitInsn(AASTORE);
-		mv.visitVarInsn(ALOAD, STACK);
-		mv.visitVarInsn(ILOAD, SP);
-		mv.visitIincInsn(SP, 1);
+		
 		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/rascalmpl/value/IBool;");
-		mv.visitInsn(AASTORE);
+		mv.visitVarInsn(ASTORE, ACCU);
 		mv.visitJumpInsn(GOTO, l5);
+		
 		mv.visitLabel(l1);
-		mv.visitVarInsn(ALOAD, STACK);
-		mv.visitVarInsn(ILOAD, SP);
-		mv.visitIincInsn(SP, 1);
 		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_FALSE", "Lorg/rascalmpl/value/IBool;");
-		mv.visitInsn(AASTORE);
+		mv.visitVarInsn(ASTORE, ACCU);
 		mv.visitLabel(l5);
 	}
 
@@ -1750,70 +2077,30 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitIincInsn(SP, 1);
 	}
 
-	public void emitInlineCheckMemo(boolean debug) {
-		throw new CompilerError("CheckMemo not implemented");
-	}
-
 	public void emitInlineValueSubtype(int type, boolean debug) {
-		throw new CompilerError("ValueSubtype not implemented");
-	}
-
-	public void emitInlineVisit(boolean debug) {
-		throw new CompilerError("Visit not implemented");
+		
+		mv.visitVarInsn(ALOAD, THIS);
+		mv.visitVarInsn(ALOAD, TS);
+		emitIntValue(type);
+		mv.visitInsn(AALOAD);
+		mv.visitVarInsn(ASTORE, ACCU);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "jvmVALUESUBTYPE", "(Lorg/rascalmpl/value/type/Type;Ljava/lang/Object;)Ljava/lang/Object;",false);
+		mv.visitVarInsn(ILOAD, SP);
 	}
 
 	public void emitInlinePopAccu(boolean debug) {
-		// TODO Auto-generated method stub
-		
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		mv.visitVarInsn(ASTORE, ACCU);
 	}
 
 	public void emitInlinePushAccu(boolean debug) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void emitInlinePushLoc(int pos, boolean debug) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void emitInlinePushCallMuPrim0(MuPrimitive muprim, boolean debug) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void emitInlinePushCallMuPrim1(MuPrimitive muprim, boolean debug) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void emitInlinePushCallMuPrim2(MuPrimitive muprim, boolean debug) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void emitInlinePushCallMuPrimN(MuPrimitive muprim, int arity, boolean debug) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void emitInlinePushCallPrim0(RascalPrimitive prim, boolean debug) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void emitInlinePushCallPrim1(RascalPrimitive prim, boolean debug) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void emitInlinePushCallPrim2(RascalPrimitive prim, boolean debug) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void emitInlinePushCallPrimN(RascalPrimitive prim, int arity, boolean debug) {
-		// TODO Auto-generated method stub
-		
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitVarInsn(ALOAD, ACCU);
+		mv.visitInsn(AASTORE);
+		mv.visitIincInsn(SP, 1);
 	}
 }
