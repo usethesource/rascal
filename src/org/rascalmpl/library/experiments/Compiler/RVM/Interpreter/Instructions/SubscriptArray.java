@@ -12,6 +12,6 @@ public class SubscriptArray extends Instruction {
 		if ( debug) 
 			codeEmittor.emitDebugCall(opcode.name());
 
-		codeEmittor.emitCallWithArgsSS("insnSUBSCRIPTARRAY");
+		codeEmittor.emitCallWithArgsSA_A("insnSUBSCRIPTARRAY");
 	}
 }
