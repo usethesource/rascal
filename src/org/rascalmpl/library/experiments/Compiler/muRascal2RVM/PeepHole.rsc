@@ -24,7 +24,7 @@ INS peephole1(INS instructions, bool isSplit){
 }
 
 private INS peephole2(INS instructions, bool isSplit){
-  println("**** peephole length <size(instructions)>");
+  //println("**** peephole length <size(instructions)>");
   
   // Peephole-ing a fixed point problem multiple steps for debugging.
   // -- Maybe disable could be slow --
@@ -40,11 +40,11 @@ private INS peephole2(INS instructions, bool isSplit){
         result = jumps_to_jumps(result);
         result = jumps_to_returns(result);
     }
-    println("**** peephole removed <size(instructions) - size(result)> instructions (from <size(instructions)>) in <loopcount> iterations");
-    println("BEFORE:");
-    iprintln(instructions);
-    println("AFTER:");
-    iprintln(result);
+    //println("**** peephole removed <size(instructions) - size(result)> instructions (from <size(instructions)>) in <loopcount> iterations");
+    //println("BEFORE:");
+    //iprintln(instructions);
+    //println("AFTER:");
+    //iprintln(result);
     return result;
 }
 
