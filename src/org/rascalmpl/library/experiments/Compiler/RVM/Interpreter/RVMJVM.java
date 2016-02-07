@@ -14,7 +14,7 @@ public class RVMJVM extends RVM {
 	RascalExecutionContext rex;
 	byte[] generatedRunner = null;
 	String generatedName = null;
-	RVMRun runner = null;
+	RVMonJVM runner = null;
 
 	/*
 	 * 
@@ -62,7 +62,7 @@ public class RVMJVM extends RVM {
 
 			Constructor<?>[] cons = generatedClass.getConstructors();
 
-			runner = (RVMRun) cons[0].newInstance(rvmExec, rex);
+			runner = (RVMonJVM) cons[0].newInstance(rvmExec, rex);
 			// Inject is obsolete the constructor holds rvmExec.
 			runner.inject(rvmExec.getFunctionStore(), rvmExec.getConstructorStore(), RVMExecutable.store, rvmExec.getFunctionMap());
 

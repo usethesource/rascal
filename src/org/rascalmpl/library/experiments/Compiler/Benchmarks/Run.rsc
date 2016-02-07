@@ -131,11 +131,11 @@ alias Analysis = tuple[str job, num speedup, num sdev, num cmean, num cdev, num 
 
 // Run all benchmarks
 
-list[Analysis] run_benchmarks(int n, list[str] jobs){
+list[Analysis] run_benchmarks(int n, list[str] jobs, bool jvm=false){
   initialize(n);
   jobs = sort(jobs);
-  precompile(jobs);
-  runAll(jobs);
+  precompile(jobs, jvm=jvm);
+  runAll(jobs, jvm=jvm);
   results = analyze_all(jobs);
   report(results);
   report_latex(results);
@@ -153,17 +153,17 @@ void initialize(int n){
   } catch _: println("MeasurementsInterpreted.value not found, measurements will be repeated");
 }
 
-void precompile(list[str] jobs) {
+void precompile(list[str] jobs, bool jvm=false) {
   for(job <- jobs) {
-      compileAndLink("<base>::<job>", pathConfig());
+      compileAndLink("<base>::<job>", pathConfig(), jvm=jvm);
   }
 }
 
-void runAll(list[str] jobs){
+void runAll(list[str] jobs, bool jvm=false){
    for(int i <- index(jobs)){
        job = jobs[i];
        println("**** Run compiled: <job> (<i+1>/<size(jobs)>)");
-       runCompiled(job);
+       runCompiled(job, jvm=jvm);
    }
   
    for(int i <- index(jobs)){
@@ -177,11 +177,11 @@ void runAll(list[str] jobs){
    }
 }
 
-void runCompiled(str job) {
+void runCompiled(str job, bool jvm=false) {
   measurementsCompiled[job] =
 	  for(int i <- [0 .. nsamples]){
 		  t1 = cpuTime();
-		  v = execute("<base>::<job>", pathConfig());
+		  v = execute("<base>::<job>", pathConfig(), jvm=jvm);
 		  t2 = cpuTime();
 		  append (t2 - t1)/1000000;
 	  }
@@ -273,68 +273,68 @@ void report_latex(list[Analysis] results){
 // Various combinations of benchmarking jobs
 
 void main(){
-  run_benchmarks(10, toList(domain(jobs)));
+  run_benchmarks(10, toList(domain(jobs)), jvm=jvm);
 }
 
-void main_visit(){
-    run_benchmarks(10, ["BVisit1","BVisit2","BVisit3","BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"]); 
+void main_visit(bool jvm=false){
+    run_benchmarks(10, ["BVisit1","BVisit2","BVisit3","BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"], jvm=jvm); 
 }
 
-void main_fac(){
-    run_benchmarks(10, ["BFac"]);   
+void main_fac(bool jvm=false){
+    run_benchmarks(10, ["BFac"], jvm=jvm);   
 }
 
-void main_fib(){
-    run_benchmarks(10, ["BFib"]);   
+void main_fib(bool jvm=false){
+    run_benchmarks(10, ["BFib"], jvm=jvm);   
 }
 
-void main_marriage(){
-    run_benchmarks(10, ["BMarriage"]);   
+void main_marriage(bool jvm=false){
+    run_benchmarks(10, ["BMarriage"], jvm=jvm);   
 }
 
-void main_sudoku(){
-    run_benchmarks(10, ["BSudoku"]);   
+void main_sudoku(bool jvm=false){
+    run_benchmarks(10, ["BSudoku"], jvm=jvm);   
 }
 
-void main_template(){
-    run_benchmarks(10, ["BTemplate"]);   
+void main_template(bool jvm=false){
+    run_benchmarks(10, ["BTemplate"], jvm=jvm);   
 }
 
-void main_bottles(){
-    run_benchmarks(10, ["BBottles"]);   
+void main_bottles(bool jvm=false){
+    run_benchmarks(10, ["BBottles"], jvm=jvm);   
 }
 
-void main_rsf() {
-    run_benchmarks(10, ["BRSFCalls"]);   
+void main_rsf(bool jvm=false) {
+    run_benchmarks(10, ["BRSFCalls"], jvm=jvm);   
 }
 
-void main_money(){
-    run_benchmarks(10, ["BSendMoreMoney"]); 
+void main_money(bool jvm=false){
+    run_benchmarks(10, ["BSendMoreMoney"], jvm=jvm); 
 }
 
-void main_paper(){
-  main_paper1();
-  main_paper2();
+void main_paper(bool jvm=false){
+  main_paper1(jvm=jvm);
+  main_paper2(jvm=jvm);
 }
 
-void main_paper1(){
+void main_paper1(bool jvm=false){
    run_benchmarks(5, ["BCompareFor","BCompareIf","BCompareComprehension","BExceptions","BEmpty",/*"BExceptionsFinally",*/"BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
                       "BOr","BReverse1","BSet1","BSetMatch1","BSetMatch2","BSetMatch3","BWhile","BVisit1","BVisit2","BVisit3"
                      ,"BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"
-                ]);
+                ], jvm=jvm);
 }
 
-void main_paper2(){
+void main_paper2(bool jvm=false){
    run_benchmarks(5, ["BBottles","BFac","BFib","BMarriage",
                         //"BRSFCalls",
                         "BSendMoreMoney",
                         "BSendMoreMoneyNotTyped",
                         "BSudoku",
                         "BTemplate"
-                     ]);
+                     ], jvm=jvm);
 }
 
-void main_setmatch(){
-   run_benchmarks(10, ["BListMatch1", "BListMatch2", "BListMatch3", "BSetMatch1", "BSetMatch2", "BSetMatch3"]);
+void main_setmatch(bool jvm=false){
+   run_benchmarks(10, ["BListMatch1", "BListMatch2", "BListMatch3", "BSetMatch1", "BSetMatch2", "BSetMatch3"], jvm=jvm);
 }
 

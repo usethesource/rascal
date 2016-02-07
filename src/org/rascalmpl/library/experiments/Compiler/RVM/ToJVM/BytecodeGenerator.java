@@ -200,7 +200,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, 1); // rvmExec
 		mv.visitVarInsn(ALOAD, 2); // rex
-		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", "<init>",
+		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMonJVM", "<init>",
 				"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMExecutable;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)V",false);
 
 		// Serialize/Deserialize overloadedStore.
@@ -239,7 +239,7 @@ public class BytecodeGenerator implements Opcodes {
 		//this.fullClassName = "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRunner";
 		cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES /* ClassWriter.COMPUTE_MAXS*/);
 
-		cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, fullClassName, null, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRun", null);
+		cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, fullClassName, null, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMonJVM", null);
 //		StringWriter sw = new StringWriter();
 //		PrintWriter pw = new PrintWriter(sw);
 //		CheckClassAdapter.verify(new ClassReader(cw.toByteArray()), false, pw);
@@ -557,10 +557,10 @@ public class BytecodeGenerator implements Opcodes {
 		Label returnLabel = new Label();
 		Label continueLabel = new Label();
 		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitVarInsn(ALOAD, CF);
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "jvmCHECKMEMO", "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;[Ljava/lang/Object;I)I",false);
+		mv.visitVarInsn(ALOAD, CF);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "CHECKMEMO", "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)I",false);
 		mv.visitInsn(DUP);
 		mv.visitJumpInsn(IFLE, returnLabel);
 		
@@ -1484,7 +1484,7 @@ public class BytecodeGenerator implements Opcodes {
 			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK); // Stack
-		mv.visitVarInsn(ILOAD, SP); // Stack
+		mv.visitVarInsn(ILOAD, SP); // sp
 		mv.visitVarInsn(ALOAD, CF); // CF
 
 		emitIntValue(i); // I
@@ -1559,6 +1559,20 @@ public class BytecodeGenerator implements Opcodes {
 
 		emitIntValue(i); // I
 		emitIntValue(j); // I
+
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;II)Ljava/lang/Object;",false);
+		mv.visitVarInsn(ASTORE, ACCU);
+	}
+	
+	public void emitCallWithArgsICF_A(String fname, int i, int j, boolean dcode) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, THIS);
+		
+		emitIntValue(i); // I
+		emitIntValue(j); // I
+		mv.visitVarInsn(ALOAD, CF); // CF
+
 
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;II)Ljava/lang/Object;",false);
 		mv.visitVarInsn(ASTORE, ACCU);

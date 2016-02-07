@@ -56,6 +56,7 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 
 public class RVM /*implements java.io.Serializable*/ {
@@ -64,29 +65,29 @@ public class RVM /*implements java.io.Serializable*/ {
 	
 	public final IValueFactory vf;
 
-	private final TypeFactory tf;
+	protected final TypeFactory tf;
 	
-	private final IBool Rascal_TRUE;
-	private final IBool Rascal_FALSE;
+	protected final static IBool Rascal_TRUE = ValueFactoryFactory.getValueFactory().bool(true);
+	protected final static IBool Rascal_FALSE = ValueFactoryFactory.getValueFactory().bool(false);
 	private final IString NONE; 
 	
 	private final boolean profileRascalPrimitives = false;
 	private final boolean profileMuPrimitives = false;
 	private boolean ocall_debug = false;
 	
-	final ArrayList<Function> functionStore;
-	protected final Map<String, Integer> functionMap;
+	protected ArrayList<Function> functionStore;
+	protected Map<String, Integer> functionMap;
 	
 	// Function overloading
 	private final Map<String, Integer> resolver;
-	private final ArrayList<OverloadedFunction> overloadedStore;
+	protected final ArrayList<OverloadedFunction> overloadedStore;
 	
-	private final ArrayList<Type> constructorStore;
+	protected ArrayList<Type> constructorStore;
 	private final Map<String, Integer> constructorMap;
 	
 	final static Function noCompanionFunction = new Function("noCompanionFunction", null, null, 0, 0, false, null, 0, false, 0, 0, null, null, 0);
 	
-	private final Map<IValue, IValue> moduleVariables;
+	protected final Map<IValue, IValue> moduleVariables;
 	PrintWriter stdout;
 	PrintWriter stderr;
 	
@@ -98,7 +99,7 @@ public class RVM /*implements java.io.Serializable*/ {
 	Stack<Coroutine> activeCoroutines = new Stack<>();
 	Frame ccf = null; // The start frame of the current active coroutine (coroutine's main function)
 	Frame cccf = null; // The candidate coroutine's start frame; used by the guard semantics 
-	RascalExecutionContext rex;
+	protected RascalExecutionContext rex;
 	List<ClassLoader> classLoaders;
 	
 	private final Map<Class<?>, Object> instanceCache;
@@ -148,8 +149,8 @@ public class RVM /*implements java.io.Serializable*/ {
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
 		
-		Rascal_TRUE = vf.bool(true);
-		Rascal_FALSE = vf.bool(false);
+//		Rascal_TRUE = vf.bool(true);
+//		Rascal_FALSE = vf.bool(false);
 		NONE = vf.string("$nothing$");
 		
 		this.functionMap = rvmExec.getFunctionMap();
@@ -235,7 +236,7 @@ public class RVM /*implements java.io.Serializable*/ {
 	 * @return its string representation
 	 */
 	@SuppressWarnings("rawtypes")
-	private String asString(Object o){
+	protected String asString(Object o){
 		if(o == null)
 			return "null";
 		if(o instanceof Integer)
@@ -562,7 +563,7 @@ public class RVM /*implements java.io.Serializable*/ {
 	}
 	
 	@SuppressWarnings("unchecked")
-	int CHECKMEMO(Frame cf, Object[] stack, int sp){;
+	protected int CHECKMEMO(Object[] stack, int sp, Frame cf){;
 	
 	    Function fun = cf.function;
 		MemoizationCache<IValue> cache = fun.memoization == null ? null : fun.memoization.get();
@@ -1892,7 +1893,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CHECKMEMO:
-					sp = CHECKMEMO(cf, stack, sp);
+					sp = CHECKMEMO(stack, sp, cf);
 					if(sp > 0){
 						continue NEXT_INSTRUCTION;
 					}
