@@ -1,11 +1,15 @@
 module experiments::Compiler::Examples::Tst6
-
+  
 import String;
 
-list[str] removeEmptyLines(str s) =
-    [ line | line <- split("\n", s), /^[ \t]*$/ !:= line];
-    
+import IO;
+import ValueIO;
 
-value main() = removeEmptyLines("abc\n\ndef\n");
+private loc aFile = |test-temp:///basic-io.txt|;
 
-//value main(){ int n = 3; return (/<x:<n>>/ := "3" && x == "3");}
+value main(){
+  str content = "Z8UiuN";
+  if (size(content) == 0 || content[0] == "\a00") return true;
+  writeFile(aFile, content);
+  return readFile(aFile) == content;
+}
