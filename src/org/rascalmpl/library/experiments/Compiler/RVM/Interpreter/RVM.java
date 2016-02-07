@@ -658,7 +658,7 @@ public class RVM /*implements java.io.Serializable*/ {
 		throw new CompilerError("STOREVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
-	void RESETVAR(int varScope, int pos, Frame cf, Object[] stack){
+	void RESETVAR(int varScope, int pos, Frame cf){
 		if(CodeBlock.isMaxArg2(pos)){
 			IValue mvar = cf.function.constantStore[varScope];
 			moduleVariables.put(mvar, null);
@@ -1166,7 +1166,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					 continue NEXT_INSTRUCTION;
 					 
 				case Opcode.OP_RESETVAR:
-					RESETVAR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), cf, stack);
+					RESETVAR(CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), cf);
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_LOADVARREF: 

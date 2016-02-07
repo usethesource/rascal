@@ -2002,6 +2002,14 @@ public class BytecodeGenerator implements Opcodes {
 //		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/rascalmpl/value/IBool;");
 //		mv.visitInsn(AASTORE);
 	}
+	
+	public void emitInlineResetVar(int what, int pos, boolean debug) {
+		mv.visitVarInsn(ALOAD, THIS);
+		emitIntValue(what);
+		emitIntValue(pos);
+		mv.visitVarInsn(ALOAD, CF);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "jvmRESETVAR", "(IILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)V",false);
+	}
 
 	private class ExceptionLine {
 		@SuppressWarnings("unused")
@@ -2123,4 +2131,6 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(AASTORE);
 		mv.visitIincInsn(SP, 1);
 	}
+
+	
 }
