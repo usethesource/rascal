@@ -912,16 +912,17 @@ public class RVMRun extends RVM {
 		throw new RuntimeException("LOADVARDEREF cannot find matching scope: " + scopeid);
 	}
 	
-	public void insnSTOREVARmax(Object[] stack, int sp, Frame cf, int scopeid) {
+	public void insnSTOREVARmax(Frame cf, int scopeid, Object accu) {
 			IValue mvar = cf.function.constantStore[scopeid];
-			moduleVariables.put(mvar, (IValue) stack[sp - 1]);
+			moduleVariables.put(mvar, (IValue) accu);
 	}
-	public void insnSTOREVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos) {
+	
+	public void insnSTOREVAR(Frame cf, int scopeid, int pos, Object accu) {
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == scopeid) {
 				// TODO: We need to re-consider how to guarantee
 				// safe use of both Java objects and IValues
-				fr.stack[pos] = stack[sp - 1];
+				fr.stack[pos] = accu;
 				return;
 			}
 		}
