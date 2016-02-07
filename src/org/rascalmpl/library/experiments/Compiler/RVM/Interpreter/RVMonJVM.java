@@ -61,10 +61,10 @@ public class RVMonJVM extends RVM {
 	private TypeStore typeStore = RascalValueFactory.getStore();
 
 	// Management of active coroutines
-	protected Stack<Coroutine> activeCoroutines = new Stack<>();
-	protected Frame ccf = null; 	// The start frame of the current active coroutine
+	//protected Stack<Coroutine> activeCoroutines = new Stack<>();
+	//protected Frame ccf = null; 	// The start frame of the current active coroutine
 									// (coroutine's main function)
-	protected Frame cccf = null; 	// The candidate coroutine's start frame; used
+	//protected Frame cccf = null; 	// The candidate coroutine's start frame; used
 									// by the guard semantics
 
 
@@ -120,12 +120,12 @@ public class RVMonJVM extends RVM {
 	}
 
 
-	public Object insnLOADLOCREF(Object[] lstack, int args1) {
-		return new Reference(lstack, args1);
+	public Object insnLOADLOCREF(Object[] stack, int pos) {
+		return new Reference(stack, pos);
 	}
 	
-	public int insnPUSHLOCREF(Object[] lstack, int lsp, int args1) {
-		lstack[lsp++] = new Reference(lstack, args1);
+	public int insnPUSHLOCREF(Object[] stack, int lsp, int args1) {
+		stack[lsp++] = new Reference(stack, args1);
 		return lsp;
 	}
 
@@ -178,150 +178,45 @@ public class RVMonJVM extends RVM {
 		return sp;
 	}
 
-	public Object insnLOADVARmax(Frame cf, int scopeid) {
-			return moduleVariables.get(cf.function.constantStore[scopeid]);
-	}
-	
-	public int insnPUSHVARmax(Object[] stack, int sp, Frame cf, int scopeid) {
-		stack[sp++] =  moduleVariables.get(cf.function.constantStore[scopeid]);
-		return sp;
-	}
-	
-	public Object insnLOADVAR(Frame cf, int scopeid, int pos) {
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-			if (fr.scopeId == scopeid) {
-				return fr.stack[pos];
-			}
-		}
-		throw new RuntimeException("insnLOADVAR cannot find matching scope: " + scopeid);
-	}
-	
-	public int insnPUSHVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos) {
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-			if (fr.scopeId == scopeid) {
-				stack[sp++] = fr.stack[pos];
-				return sp;
-			}
-		}
-		throw new RuntimeException("insnLOADVAR cannot find matching scope: " + scopeid);
-	}
+//	public int insnUNWRAPTHROWNVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxarg2) {
+//		if (maxarg2) {
+//			IValue mvar = cf.function.constantStore[scopeid];
+//			moduleVariables.put(mvar, (IValue) stack[sp - 1]);
+//			return sp;
+//		}
+//		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+//			if (fr.scopeId == scopeid) {
+//				// TODO: We need to re-consider how to guarantee safe use of
+//				// both Java objects and IValues
+//				fr.stack[pos] = ((Thrown) stack[--sp]).value;
+//				return sp;
+//			}
+//		}
+//		throw new RuntimeException("UNWRAPTHROWNVAR cannot find matching scope: " + scopeid);
+//	}
 
-	public Object insnLOADVARREF(Frame cf, int scopeid, int pos, boolean maxarg2) {
-		if (maxarg2) {
-			return moduleVariables.get(cf.function.constantStore[scopeid]);
-		}
-
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-			if (fr.scopeId == scopeid) {
-				return new Reference(fr.stack, pos);
-			}
-		}
-		throw new RuntimeException("LOADVARREF cannot find matching scope: " + scopeid);
-	}
-	
-	public int insnPUSHVARREF(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxarg2) {
-		if (maxarg2) {
-			stack[sp++] = moduleVariables.get(cf.function.constantStore[scopeid]);
-			return sp;
-		}
-
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-			if (fr.scopeId == scopeid) {
-				stack[sp++] = new Reference(fr.stack, pos);
-				return sp;
-			}
-		}
-		throw new RuntimeException("LOADVARREF cannot find matching scope: " + scopeid);
-	}
-
-	public Object insnLOADVARDEREF(Frame cf, int scopeid, int pos) {
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-			if (fr.scopeId == scopeid) {
-				Reference ref = (Reference) fr.stack[pos];
-				return ref.stack[ref.pos];
-			}
-		}
-		throw new RuntimeException("LOADVARDEREF cannot find matching scope: " + scopeid);
-	}
-	
-	public int insnPUSHVARDEREF(Object[] stack, int sp, Frame cf, int scopeid, int pos) {
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-			if (fr.scopeId == scopeid) {
-				Reference ref = (Reference) fr.stack[pos];
-				stack[sp++] = ref.stack[ref.pos];
-				return sp;
-			}
-		}
-		throw new RuntimeException("LOADVARDEREF cannot find matching scope: " + scopeid);
-	}
-	
-	public void insnSTOREVARmax(Frame cf, int scopeid, Object accu) {
-			IValue mvar = cf.function.constantStore[scopeid];
-			moduleVariables.put(mvar, (IValue) accu);
-	}
-	
-	public void insnSTOREVAR(Frame cf, int scopeid, int pos, Object accu) {
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-			if (fr.scopeId == scopeid) {
-				// TODO: We need to re-consider how to guarantee
-				// safe use of both Java objects and IValues
-				fr.stack[pos] = accu;
-				return;
-			}
-		}
-		throw new RuntimeException("STOREVAR cannot find matching scope: " + scopeid);
-	}
-
-	public int insnUNWRAPTHROWNVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxarg2) {
-		if (maxarg2) {
-			IValue mvar = cf.function.constantStore[scopeid];
-			moduleVariables.put(mvar, (IValue) stack[sp - 1]);
-			return sp;
-		}
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-			if (fr.scopeId == scopeid) {
-				// TODO: We need to re-consider how to guarantee safe use of
-				// both Java objects and IValues
-				fr.stack[pos] = ((Thrown) stack[--sp]).value;
-				return sp;
-			}
-		}
-		throw new RuntimeException("UNWRAPTHROWNVAR cannot find matching scope: " + scopeid);
-	}
-
-	public void insnSTOREVARDEREF(Object[] stack, int sp, Frame cf, int scopeid, int pos) {
-		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-			if (fr.scopeId == scopeid) {
-				Reference ref = (Reference) fr.stack[pos];
-				ref.stack[ref.pos] = stack[sp - 1];
-				return;
-			}
-		}
-		throw new RuntimeException("STOREVARDEREF cannot find matching scope: " + scopeid);
-	}
-
-	@SuppressWarnings("unchecked")
-	public int insnCALLCONSTR(Object[] stack, int sp, int constrctr, int arity) {
-		Type constructor = constructorStore.get(constrctr);
-
-		IValue[] args = new IValue[constructor.getArity()];
-
-		java.util.Map<String, IValue> kwargs;
-		Type type = (Type) stack[--sp];
-		if (type.getArity() > 0) {
-			// Constructors with keyword parameters
-			kwargs = (java.util.Map<String, IValue>) stack[--sp];
-		} else {
-			kwargs = new HashMap<String, IValue>();
-		}
-
-		for (int i = 0; i < constructor.getArity(); i++) {
-			args[constructor.getArity() - 1 - i] = (IValue) stack[--sp];
-		}
-		stack[sp++] = vf.constructor(constructor, args, kwargs);
-
-		return sp;
-	}
+//	@SuppressWarnings("unchecked")
+//	public int insnCALLCONSTR(Object[] stack, int sp, int constrctr, int arity) {
+//		Type constructor = constructorStore.get(constrctr);
+//
+//		IValue[] args = new IValue[constructor.getArity()];
+//
+//		java.util.Map<String, IValue> kwargs;
+//		Type type = (Type) stack[--sp];
+//		if (type.getArity() > 0) {
+//			// Constructors with keyword parameters
+//			kwargs = (java.util.Map<String, IValue>) stack[--sp];
+//		} else {
+//			kwargs = new HashMap<String, IValue>();
+//		}
+//
+//		for (int i = 0; i < constructor.getArity(); i++) {
+//			args[constructor.getArity() - 1 - i] = (IValue) stack[--sp];
+//		}
+//		stack[sp++] = vf.constructor(constructor, args, kwargs);
+//
+//		return sp;
+//	}
 
 	public int insnCALLJAVA(Object[] stack, int sp, Frame cf, int m, int c, int p, int k, int r) {
 		int newsp = sp;
@@ -452,113 +347,44 @@ public class RVMonJVM extends RVM {
 		return; // TODO stack[sp - 1];
 	}
 
-	public int insnPRINTLN(Object[] stack, int sp, int arity) {
-		StringBuilder w = new StringBuilder();
-		for (int i = arity - 1; i >= 0; i--) {
-			String str = (stack[sp - 1 - i] instanceof IString) ? ((IString) stack[sp - 1 - i]).toString() : asString(stack[sp - 1 - i]);
-			w.append(str).append(" ");
-		}
-		stdout.println(w.toString());
-		sp = sp - arity + 1;
-		return sp;
-	}
-
-	@SuppressWarnings("unchecked")
-	public Object insnLOADLOCKWP(Object[] stack, int sp, Frame cf, int iname) {
-		IString name = (IString) cf.function.codeblock.getConstantValue(iname);
-		Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
-		Map.Entry<Type, IValue> defaultValue = defaults.get(name.getValue());
-		Frame f = cf;
-		
-		// TODO: UNCOMMENT TO GET KEYWORD PARAMETER PROPAGATION
-		//for(Frame f = cf; f != null; f = f.previousCallFrame) {
-			int nf = f.function.nformals;
-			if(nf > 0){								// Some generated functions have zero args, i.e. EQUIVALENCE
-				Object okargs = f.stack[nf - 1];
-				if(okargs instanceof Map<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
-					Map<String, IValue> kargs = (Map<String,IValue>) okargs;
-					if(kargs.containsKey(name)) {
-						IValue val = kargs.get(name);
-						if(val.getType().isSubtypeOf(defaultValue.getKey())) {
-							return val;
-						}
-					}
-				}
-			}
-		//}				
-		return defaultValue.getValue();
-	}
-	
-	@SuppressWarnings("unchecked")
-	public int insnPUSHLOCKWP(Object[] stack, int sp, Frame cf, int iname) {
-		IString name = (IString) cf.function.codeblock.getConstantValue(iname);
-		Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
-		Map.Entry<Type, IValue> defaultValue = defaults.get(name.getValue());
-		Frame f = cf;
-		
-		// TODO: UNCOMMENT TO GET KEYWORD PARAMETER PROPAGATION
-		//for(Frame f = cf; f != null; f = f.previousCallFrame) {
-			int nf = f.function.nformals;
-			if(nf > 0){								// Some generated functions have zero args, i.e. EQUIVALENCE
-				Object okargs = f.stack[nf - 1];
-				if(okargs instanceof Map<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
-					Map<String, IValue> kargs = (Map<String,IValue>) okargs;
-					if(kargs.containsKey(name)) {
-						IValue val = kargs.get(name);
-						if(val.getType().isSubtypeOf(defaultValue.getKey())) {
-							stack[sp++] = val;
-							return sp;
-						}
-					}
-				}
-			}
-		//}				
-		stack[sp++] = defaultValue.getValue();
-		return sp;
-	}
-
-//	public void insnLOADVARKWP() {	// TODO
-//		return;
+//	public int insnPRINTLN(Object[] stack, int sp, int arity) {
+//		StringBuilder w = new StringBuilder();
+//		for (int i = arity - 1; i >= 0; i--) {
+//			String str = (stack[sp - 1 - i] instanceof IString) ? ((IString) stack[sp - 1 - i]).toString() : asString(stack[sp - 1 - i]);
+//			w.append(str).append(" ");
+//		}
+//		stdout.println(w.toString());
+//		sp = sp - arity + 1;
+//		return sp;
 //	}
-	@SuppressWarnings("unchecked")
-	Object insnLOADVARKWP(int varScope, String name, Frame cf){
-		for(Frame f = cf.previousScope; f != null; f = f.previousCallFrame) {
-			if (f.scopeId == varScope) {	
-				if(f.function.nformals > 0){
-					Object okargs = f.stack[f.function.nformals - 1];
-					if(okargs instanceof Map<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
-						Map<String, IValue> kargs = (Map<String,IValue>) okargs;
-						if(kargs.containsKey(name)) {
-							IValue val = kargs.get(name);
-							//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
-							return val;
-							//}
-						}
-						Map<String, Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) f.stack[f.function.nformals];
-
-						if(defaults.containsKey(name)) {
-							Entry<Type, IValue> defaultValue = defaults.get(name);
-							//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
-							return defaultValue.getValue();
-							//}
-						}
-					}
-				}
-			}
-		}				
-		throw new CompilerError("LOADVARKWP cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
-	}
-
-	public void insnSTORELOCKWP(Object[] stack, int sp, Frame cf, int constant) {
-		IValue val = (IValue) stack[sp - 1];
-		IString name = (IString) cf.function.codeblock.getConstantValue(constant);
-		IMap kargs = (IMap) stack[cf.function.nformals - 1];
-		stack[cf.function.nformals - 1] = kargs.put(name, val);
-	}
-
-	public void insnSTOREVARKWP() {	// TODO
-		throw new CompilerError("insnSTOREVARKWP not yet implemented");
-	}
+	
+//	@SuppressWarnings("unchecked")
+//	public int insnPUSHLOCKWP(Object[] stack, int sp, Frame cf, int iname) {
+//		IString name = (IString) cf.function.codeblock.getConstantValue(iname);
+//		Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
+//		Map.Entry<Type, IValue> defaultValue = defaults.get(name.getValue());
+//		Frame f = cf;
+//		
+//		// TODO: UNCOMMENT TO GET KEYWORD PARAMETER PROPAGATION
+//		//for(Frame f = cf; f != null; f = f.previousCallFrame) {
+//			int nf = f.function.nformals;
+//			if(nf > 0){								// Some generated functions have zero args, i.e. EQUIVALENCE
+//				Object okargs = f.stack[nf - 1];
+//				if(okargs instanceof Map<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
+//					Map<String, IValue> kargs = (Map<String,IValue>) okargs;
+//					if(kargs.containsKey(name)) {
+//						IValue val = kargs.get(name);
+//						if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+//							stack[sp++] = val;
+//							return sp;
+//						}
+//					}
+//				}
+//			}
+//		//}				
+//		stack[sp++] = defaultValue.getValue();
+//		return sp;
+//	}
 
 	// / JVM Helper methods
 	public Object dynRun(String fname, IValue[] args) {
@@ -620,64 +446,21 @@ public class RVMonJVM extends RVM {
 		return rval;
 	}
 	
-//	@SuppressWarnings("unchecked")
-//	public int jvmCHECKMEMO(Frame cf, Object[] stack, int sp){;
-//	
-//	    Function fun = cf.function;
-//		MemoizationCache<IValue> cache = fun.memoization == null ? null : fun.memoization.get();
-//		if(cache == null){
-//			cache = new MemoizationCache<>();
-//			fun.memoization = new SoftReference<>(cache);
+//	void jvmRESETVAR(int varScope, int pos, Frame cf){
+//		if(CodeBlock.isMaxArg2(pos)){
+//			IValue mvar = cf.function.constantStore[varScope];
+//			moduleVariables.put(mvar, null);
+//			return;
 //		}
-//		int nformals = fun.nformals;
-//		IValue[] args = new IValue[nformals - 1];
-//		for(int i = 0; i < nformals - 1; i++){
-//			args[i] = (IValue) stack[i];
+//		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) {
+//			if (fr.scopeId == varScope) {
+//				// TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues
+//				fr.stack[pos] = null;
+//				return;
+//			}
 //		}
-//
-//		IValue result = cache.getStoredResult(args, (Map<String,IValue>)stack[nformals - 1]);
-//		if(result == null){
-//			return sp + 1;
-//		}
-//		stack[sp++] = result;
-//		return -sp;					// Trick: we return a negative sp to force a function return;
+//		throw new CompilerError("RESETVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 //	}
-	
-	public int jvmVISIT(boolean direction,  boolean progress, boolean fixedpoint, boolean rebuild, Object[] stack, int sp){
-		FunctionInstance phi = (FunctionInstance)stack[sp - 8];
-		IValue subject = (IValue) stack[sp - 7];
-		Reference refMatched = (Reference) stack[sp - 6];
-		Reference refChanged = (Reference) stack[sp - 5];
-		Reference refLeaveVisit = (Reference) stack[sp - 4];
-		Reference refBegin = (Reference) stack[sp - 3];
-		Reference refEnd = (Reference) stack[sp - 2];
-		DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
-		DIRECTION tr_direction = direction ? DIRECTION.BottomUp : DIRECTION.TopDown;
-		PROGRESS tr_progress = progress ? PROGRESS.Continuing : PROGRESS.Breaking;
-		FIXEDPOINT tr_fixedpoint = fixedpoint ? FIXEDPOINT.Yes : FIXEDPOINT.No;
-		REBUILD tr_rebuild = rebuild ? REBUILD.Yes :REBUILD.No;
-		IValue res = new Traverse(vf).traverse(tr_direction, tr_progress, tr_fixedpoint, tr_rebuild, subject, phi, refMatched, refChanged, refLeaveVisit, refBegin, refEnd, this, descriptor);
-		stack[sp - 8] = res;
-		sp -= 7;
-		// Trick: we return a negative sp to force a function return;
-		return ((IBool)refLeaveVisit.getValue()).getValue() ? -sp : sp;
-	}
-	
-	void jvmRESETVAR(int varScope, int pos, Frame cf){
-		if(CodeBlock.isMaxArg2(pos)){
-			IValue mvar = cf.function.constantStore[varScope];
-			moduleVariables.put(mvar, null);
-			return;
-		}
-		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) {
-			if (fr.scopeId == varScope) {
-				// TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues
-				fr.stack[pos] = null;
-				return;
-			}
-		}
-		throw new CompilerError("RESETVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
-	}
 
 	public int jvmCREATE(Object[] stock, int lsp, Frame lcf, int fun, int arity) {
 		cccf = lcf.getCoroutineFrame(functionStore.get(fun), root, arity, lsp);
@@ -995,9 +778,6 @@ public class RVMonJVM extends RVM {
 		return thrown;
 	}
 
-//	public PrintWriter getStdOut() {
-//		return rex.getStdOut();
-//	}
 
 	static boolean silent = false;
 	public static void debugPOP(String insName, Frame lcf, int lsp) {

@@ -32,9 +32,9 @@ public class LoadVar extends Instruction {
 		//codeEmittor.emitCallWithArgsSSFIIZ("insnLOADVAR", what, pos, pos == -1,debug);
 
 		if (pos == -1) {
-			codeEmittor.emitCallWithArgsFI_A("insnLOADVARmax", what, debug);
+			codeEmittor.emitCallWithArgsFI_A("LOADMODULEVAR", what, debug);
 		} else {
-			codeEmittor.emitCallWithArgsFII_A("insnLOADVAR", what, pos, debug);
+			codeEmittor.emitCallWithArgsFII_A("LOADVAR", what, pos, debug);
 		}
 
 	}

@@ -24,7 +24,6 @@ public class LoadVarKwp extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 
-
-		codeEmittor.emitCallWithArgsFII_A("insLOADVARKWP", codeblock.getFunctionIndex(fuid), codeblock.getConstantIndex(codeblock.vf.string(name)), debug);
+		codeEmittor.emitCallWithArgsFII_A("LOADVARKWP", codeblock.getFunctionIndex(fuid), codeblock.getConstantIndex(codeblock.vf.string(name)), debug);
 	}
 }

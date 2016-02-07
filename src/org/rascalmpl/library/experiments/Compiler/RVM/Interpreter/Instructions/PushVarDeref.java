@@ -29,6 +29,6 @@ public class PushVarDeref extends Instruction {
 
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid);
 
-		codeEmittor.emitCallWithArgsSSFII("insnPUSHVARDEREF", what, pos,debug);
+		codeEmittor.emitCallWithArgsSSFII("PUSHVARDEREF", what, pos, debug);
 	}
 }

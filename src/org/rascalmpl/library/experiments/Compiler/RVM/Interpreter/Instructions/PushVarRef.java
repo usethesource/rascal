@@ -28,7 +28,11 @@ public class PushVarRef extends Instruction {
 			codeEmittor.emitDebugCall(opcode.name());
 
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid) ;
-		
-		codeEmittor.emitCallWithArgsSSFIIZ("insnPUSHVARREF", what, pos, CodeBlock.isMaxArg2(pos),debug);
+
+		if (pos == -1) {
+			codeEmittor.emitCallWithArgsSSFI("PUSHVARREFMODULE", what,debug);
+		} else {
+			codeEmittor.emitCallWithArgsSSFII("PUSHVARREFSCOPED", what, pos,debug);
+		}
 	}
 }
