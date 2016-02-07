@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,13 +16,11 @@ import java.util.TreeMap;
 
 import javax.xml.bind.DatatypeConverter;
 
-import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
@@ -1638,6 +1635,19 @@ public class BytecodeGenerator implements Opcodes {
 
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;II)V",false);
 	}
+	
+	public void emitVoidCallWithArgsFIIA(String fname, int what, int pos, boolean dcode) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, THIS);
+		mv.visitVarInsn(ALOAD, CF); 
+
+		emitIntValue(what); // I
+		emitIntValue(pos); // I
+		mv.visitVarInsn(ALOAD, ACCU);
+
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;IILjava/lang/Object;)V",false);
+	}
 
 	public void emitCallWithArgsSSFIIII(String fname, int methodName, int className2, int parameterTypes, int reflect, boolean dcode) {
 		if (!emit)
@@ -1695,6 +1705,16 @@ public class BytecodeGenerator implements Opcodes {
 		emitIntValue(pos); // I
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;I)V",false);
 	}
+	
+	public void emitVoidCallWithArgsFIA(String fname, int pos, boolean dcode) {
+		if (!emit)
+			return;
+		mv.visitVarInsn(ALOAD, THIS);
+		mv.visitVarInsn(ALOAD, CF); 	// CF
+		emitIntValue(pos); 				// I
+		mv.visitVarInsn(ALOAD, ACCU);	
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;ILjava/lang/Object;)V",false);
+	}
 
 	public void emitCallWithArgsSSF(String fname, boolean dcode) {
 		if (!emit)
@@ -1735,7 +1755,7 @@ public class BytecodeGenerator implements Opcodes {
 				emitCallWithArgsSSFII("jvmOCALL", overloadedFunctionIndex, arity, dcode);
 			}
 		} else {
-			if ( functions.length == 0 )  System.err.println("Optimize OCALL for call to single constructor!!");
+			//if ( functions.length == 0 )  System.err.println("Optimize OCALL for call to single constructor!!");
 			emitCallWithArgsSSFII("jvmOCALL", overloadedFunctionIndex, arity, dcode);
 		}
 	}
