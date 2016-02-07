@@ -30,9 +30,9 @@ public class StoreVar extends Instruction {
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid);
 
 		if (pos == -1) {
-			codeEmittor.emitVoidCallWithArgsFIA("insnSTOREVARmax", what, debug);
+			codeEmittor.emitVoidCallWithArgsFIA("STOREVARMODULE", what, debug);
 		} else {
-			codeEmittor.emitVoidCallWithArgsFIIA("insnSTOREVAR", what, pos, debug);
+			codeEmittor.emitVoidCallWithArgsFIIA("STOREVARSCOPED", what, pos, debug);
 		}
 	}
 }

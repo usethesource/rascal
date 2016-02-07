@@ -28,7 +28,7 @@ public class ResetVar extends Instruction {
 			codeEmittor.emitDebugCall(opcode.name());
 		
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid);
-
-		codeEmittor.emitInlineResetVar(what, pos, debug);
+		
+		codeEmittor.emitVoidCallWithArgsFII("RESETVAR", what, pos, debug);
 	}
 }

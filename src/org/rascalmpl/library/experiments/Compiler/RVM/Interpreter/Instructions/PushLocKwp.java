@@ -22,6 +22,6 @@ public class PushLocKwp extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSSFI("insnPUSHLOCKWP" , codeblock.getConstantIndex(codeblock.vf.string(name)),debug);
+		codeEmittor.emitCallWithArgsSSFI("PUSHLOCKWP" , codeblock.getConstantIndex(codeblock.vf.string(name)),debug);
 	}
 }

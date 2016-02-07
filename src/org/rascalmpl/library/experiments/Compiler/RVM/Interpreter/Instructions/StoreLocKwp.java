@@ -22,6 +22,6 @@ public class StoreLocKwp extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitVoidCallWithArgsSSFI("insnSTORELOCKWP", codeblock.getConstantIndex(codeblock.vf.string(name)),debug);
+		codeEmittor.emitVoidCallWithArgsSFIA("STORELOCKWP", codeblock.getConstantIndex(codeblock.vf.string(name)),debug);
 	}
 }
