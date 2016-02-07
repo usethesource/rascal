@@ -1283,6 +1283,22 @@ public class RVMRun extends RVM {
 		// Trick: we return a negative sp to force a function return;
 		return ((IBool)refLeaveVisit.getValue()).getValue() ? -sp : sp;
 	}
+	
+	void jvmRESETVAR(int varScope, int pos, Frame cf){
+		if(CodeBlock.isMaxArg2(pos)){
+			IValue mvar = cf.function.constantStore[varScope];
+			moduleVariables.put(mvar, null);
+			return;
+		}
+		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) {
+			if (fr.scopeId == varScope) {
+				// TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues
+				fr.stack[pos] = null;
+				return;
+			}
+		}
+		throw new CompilerError("RESETVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
+	}
 
 	public int jvmCREATE(Object[] stock, int lsp, Frame lcf, int fun, int arity) {
 		cccf = lcf.getCoroutineFrame(functionStore.get(fun), root, arity, lsp);
