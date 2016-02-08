@@ -24,6 +24,6 @@ public class PushVarKwp extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSSFII("PUSHVARKWP", codeblock.getFunctionIndex(fuid), codeblock.getConstantIndex(codeblock.vf.string(name)), debug);
+		codeEmittor.emitCallWithArgsSSFII_S("PUSHVARKWP", codeblock.getFunctionIndex(fuid), codeblock.getConstantIndex(codeblock.vf.string(name)), debug);
     }
 }

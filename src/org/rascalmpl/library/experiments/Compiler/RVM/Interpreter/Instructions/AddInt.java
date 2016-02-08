@@ -13,6 +13,6 @@ public class AddInt extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSA_A("insnADDINT");
+		codeEmittor.emitCallWithArgsPA_A("insnADDINT");
 	}
 }

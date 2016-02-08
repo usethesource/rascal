@@ -24,7 +24,7 @@ public class LoadCon extends Instruction {
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
 		if (debug) {
 			codeEmittor.emitDebugCall(opcode.name());
-			codeEmittor.emitCallWithArgsSSFI("insnLOADCON", constant, debug);
+			codeEmittor.emitCallWithArgsSSFI_S("insnLOADCON", constant, debug);
 		}
 
 		IValue val = codeblock.getConstantValue(constant);

@@ -216,8 +216,8 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 		println("exceptions:     <exceptions>");
 	}
 	
-	return <maxStack + 1 + 1, exceptions>;  // + 1: to turn an index into a length; 
-										    // + 1 to cater for some imprecision
+	return <maxStack + 1 + 2, exceptions>;  // + 1: to turn an index into a length; 
+										    // + 2 to cater for some imprecision
 }
 
 

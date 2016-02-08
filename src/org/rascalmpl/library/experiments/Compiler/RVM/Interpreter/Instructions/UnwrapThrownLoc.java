@@ -22,6 +22,6 @@ public class UnwrapThrownLoc extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSSI("insnUNWRAPTHROWNLOC", pos, debug);
+		codeEmittor.emitCallWithArgsSSI_S("insnUNWRAPTHROWNLOC", pos, debug);
 	}
 }

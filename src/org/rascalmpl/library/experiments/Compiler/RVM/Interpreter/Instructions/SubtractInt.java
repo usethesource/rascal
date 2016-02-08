@@ -12,6 +12,6 @@ public class SubtractInt extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSA_A("insnSUBTRACTINT");
+		codeEmittor.emitCallWithArgsPA_A("insnSUBTRACTINT");
 	}
 }

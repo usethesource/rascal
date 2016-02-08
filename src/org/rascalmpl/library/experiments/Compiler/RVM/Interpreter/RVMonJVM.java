@@ -3,29 +3,17 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Stack;
 
 import javax.xml.bind.DatatypeConverter;
 
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.result.util.MemoizationCache;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.DIRECTION;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.FIXEDPOINT;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.PROGRESS;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.REBUILD;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.type.Type;
@@ -59,14 +47,6 @@ public class RVMonJVM extends RVM {
 	protected OverloadedFunction[] overloadedStore;
 
 	private TypeStore typeStore = RascalValueFactory.getStore();
-
-	// Management of active coroutines
-	//protected Stack<Coroutine> activeCoroutines = new Stack<>();
-	//protected Frame ccf = null; 	// The start frame of the current active coroutine
-									// (coroutine's main function)
-	//protected Frame cccf = null; 	// The candidate coroutine's start frame; used
-									// by the guard semantics
-
 
 	public RVMonJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
 		super(rvmExec, rex);
@@ -177,46 +157,6 @@ public class RVMonJVM extends RVM {
 		stack[sp++] = constructor;
 		return sp;
 	}
-
-//	public int insnUNWRAPTHROWNVAR(Object[] stack, int sp, Frame cf, int scopeid, int pos, boolean maxarg2) {
-//		if (maxarg2) {
-//			IValue mvar = cf.function.constantStore[scopeid];
-//			moduleVariables.put(mvar, (IValue) stack[sp - 1]);
-//			return sp;
-//		}
-//		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
-//			if (fr.scopeId == scopeid) {
-//				// TODO: We need to re-consider how to guarantee safe use of
-//				// both Java objects and IValues
-//				fr.stack[pos] = ((Thrown) stack[--sp]).value;
-//				return sp;
-//			}
-//		}
-//		throw new RuntimeException("UNWRAPTHROWNVAR cannot find matching scope: " + scopeid);
-//	}
-
-//	@SuppressWarnings("unchecked")
-//	public int insnCALLCONSTR(Object[] stack, int sp, int constrctr, int arity) {
-//		Type constructor = constructorStore.get(constrctr);
-//
-//		IValue[] args = new IValue[constructor.getArity()];
-//
-//		java.util.Map<String, IValue> kwargs;
-//		Type type = (Type) stack[--sp];
-//		if (type.getArity() > 0) {
-//			// Constructors with keyword parameters
-//			kwargs = (java.util.Map<String, IValue>) stack[--sp];
-//		} else {
-//			kwargs = new HashMap<String, IValue>();
-//		}
-//
-//		for (int i = 0; i < constructor.getArity(); i++) {
-//			args[constructor.getArity() - 1 - i] = (IValue) stack[--sp];
-//		}
-//		stack[sp++] = vf.constructor(constructor, args, kwargs);
-//
-//		return sp;
-//	}
 
 	public int insnCALLJAVA(Object[] stack, int sp, Frame cf, int m, int c, int p, int k, int r) {
 		int newsp = sp;
@@ -347,44 +287,6 @@ public class RVMonJVM extends RVM {
 		return; // TODO stack[sp - 1];
 	}
 
-//	public int insnPRINTLN(Object[] stack, int sp, int arity) {
-//		StringBuilder w = new StringBuilder();
-//		for (int i = arity - 1; i >= 0; i--) {
-//			String str = (stack[sp - 1 - i] instanceof IString) ? ((IString) stack[sp - 1 - i]).toString() : asString(stack[sp - 1 - i]);
-//			w.append(str).append(" ");
-//		}
-//		stdout.println(w.toString());
-//		sp = sp - arity + 1;
-//		return sp;
-//	}
-	
-//	@SuppressWarnings("unchecked")
-//	public int insnPUSHLOCKWP(Object[] stack, int sp, Frame cf, int iname) {
-//		IString name = (IString) cf.function.codeblock.getConstantValue(iname);
-//		Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
-//		Map.Entry<Type, IValue> defaultValue = defaults.get(name.getValue());
-//		Frame f = cf;
-//		
-//		// TODO: UNCOMMENT TO GET KEYWORD PARAMETER PROPAGATION
-//		//for(Frame f = cf; f != null; f = f.previousCallFrame) {
-//			int nf = f.function.nformals;
-//			if(nf > 0){								// Some generated functions have zero args, i.e. EQUIVALENCE
-//				Object okargs = f.stack[nf - 1];
-//				if(okargs instanceof Map<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
-//					Map<String, IValue> kargs = (Map<String,IValue>) okargs;
-//					if(kargs.containsKey(name)) {
-//						IValue val = kargs.get(name);
-//						if(val.getType().isSubtypeOf(defaultValue.getKey())) {
-//							stack[sp++] = val;
-//							return sp;
-//						}
-//					}
-//				}
-//			}
-//		//}				
-//		stack[sp++] = defaultValue.getValue();
-//		return sp;
-//	}
 
 	// / JVM Helper methods
 	public Object dynRun(String fname, IValue[] args) {
@@ -405,7 +307,7 @@ public class RVMonJVM extends RVM {
 		return PANIC;
 	}
 
-	public Object return0Helper(Object[] st0ck, int spp, Frame cof) {
+	public Object return0Helper(final Frame cof) {
 
 		Object rval = null;
 
@@ -425,7 +327,7 @@ public class RVMonJVM extends RVM {
 		return rval;
 	}
 
-	public Object return1Helper(Object[] lstack, int sop, Frame cof, int arity) {
+	public Object return1Helper(final Object[] lstack, int sop, final Frame cof, final int arity) {
 		Object rval = null;
 		if (cof.isCoroutine) {
 			rval = Rascal_TRUE;
@@ -446,21 +348,6 @@ public class RVMonJVM extends RVM {
 		return rval;
 	}
 	
-//	void jvmRESETVAR(int varScope, int pos, Frame cf){
-//		if(CodeBlock.isMaxArg2(pos)){
-//			IValue mvar = cf.function.constantStore[varScope];
-//			moduleVariables.put(mvar, null);
-//			return;
-//		}
-//		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) {
-//			if (fr.scopeId == varScope) {
-//				// TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues
-//				fr.stack[pos] = null;
-//				return;
-//			}
-//		}
-//		throw new CompilerError("RESETVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
-//	}
 
 	public int jvmCREATE(Object[] stock, int lsp, Frame lcf, int fun, int arity) {
 		cccf = lcf.getCoroutineFrame(functionStore.get(fun), root, arity, lsp);
@@ -584,7 +471,7 @@ public class RVMonJVM extends RVM {
 		rval = dynRun(fun.funId, tmp); // In a full inline version we can call the
 										// function directly (name is known).
 
-		if (rval.equals(YIELD)) {
+		if (rval == YIELD) {
 			// drop my stack
 			lcf.hotEntryPoint = ep;
 			return YIELD; // Will cause the inline call to return YIELD
@@ -640,7 +527,7 @@ public class RVMonJVM extends RVM {
 	// 3: todo after the constructor call.
 	// Problem there was 1 frame and the function failed.
 	public int jvmOCALL(Object[] stack, int sp, Frame cf, int ofun, int arity) {
-		boolean stackPointerAdjusted = false;
+//		boolean stackPointerAdjusted = false;
 
 		cf.sp = sp;
 
@@ -649,24 +536,24 @@ public class RVMonJVM extends RVM {
 	    
 		Object arg0 = stack[sp - arity];
 		ofun_call = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), cf, null, arity)  // changed root to cf
-				                            : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), of.scopeIn, null, arity);
+				                     : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), of.scopeIn, null, arity);
 		
 		Frame frame = ofun_call.nextFrame(functionStore);
 
 		while (frame != null) {
-			stackPointerAdjusted = true; // See text
+//			stackPointerAdjusted = true; // See text
 
 			// System.err.println("Function ID : " + frame.function.funId);			
 			Object rsult = dynRun(frame.function.funId, frame);
-			if (rsult.equals(NONE)) {
+			if (rsult == NONE) {
 				return cf.sp; // Alternative matched.
 			}
 			frame = ofun_call.nextFrame(functionStore);
 		}
 		Type constructor = ofun_call.nextConstructor(constructorStore);
-		if (stackPointerAdjusted == false) {
+		//if (stackPointerAdjusted == false) {
 			sp = sp - arity;
-		}
+		//}
 		stack[sp++] = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
 		cf.sp = sp;
 		return sp;
@@ -701,7 +588,7 @@ public class RVMonJVM extends RVM {
 		while (frame != null) {
 			stackPointerAdjusted = true; // See text at OCALL
 			Object rsult = dynRun(frame.function.funId, frame);
-			if (rsult.equals(NONE)) {
+			if (rsult == NONE) {
 				return lcf.sp; // Alternative matched.
 			}
 			frame = ofunCall.nextFrame(functionStore);
@@ -756,7 +643,7 @@ public class RVMonJVM extends RVM {
 
 		rval = dynRun(tmp.function.funId, tmp); // In a inline version we can call the
 												// function directly.
-		if (rval.equals(YIELD)) {
+		if (rval == YIELD) {
 			// Save reentry point
 			lcf.hotEntryPoint = ep;
 			return YIELD; // Will cause the inline call to return YIELD

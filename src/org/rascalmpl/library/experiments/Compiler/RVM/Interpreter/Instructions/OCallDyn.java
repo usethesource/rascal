@@ -28,6 +28,6 @@ public class OCallDyn extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		// TODO add source line.
-		codeEmittor.emitCallWithArgsSSFII("jvmOCALLDYN", types, arity, debug);
+		codeEmittor.emitCallWithArgsSSFII_S("jvmOCALLDYN", types, arity, debug);
 	}
 }
