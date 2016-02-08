@@ -844,8 +844,9 @@ INS tr(muReturn1(MuExp exp), Dest d, CDest c) {
     }
     return [*tr_arg_return(exp), RETURN1(1)];
 }
-INS tr(muReturn2(MuExp exp, list[MuExp] exps), Dest d, CDest c)
-    = [*tr_args_stack(exp + exps), RETURN1(size(exps) + 1)];
+
+//INS tr(muReturn2(MuExp exp, list[MuExp] exps), Dest d, CDest c)
+//    = [*tr_args_stack(exp + exps), RETURN1(size(exps) + 1)];
 
 INS tr(muFailReturn(), Dest d, CDest c) = [ FAILRETURN() ];
 
