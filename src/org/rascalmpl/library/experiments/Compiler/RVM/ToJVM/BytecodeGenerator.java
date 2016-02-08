@@ -54,9 +54,13 @@ public class BytecodeGenerator implements Opcodes {
 	public static final int CS = 9;				// Constant store
 	public static final int TS = 10;			// Type constant store
 	
-	public static final int TMPOBJECT = 11;		// Scratch location
+//	public static final int TMPOBJECT = 11;		// Scratch location
 	
 	public static final int ACCU = 12;			// accumulator
+	
+	// Arguments of the RVM constructor
+	public static final int RVM_EXEC = 1;
+	public static final int RVM_REX = 2;
 
 	byte[] endCode = null;
 	
@@ -215,8 +219,8 @@ public class BytecodeGenerator implements Opcodes {
 
 		mv.visitCode();
 		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitVarInsn(ALOAD, 1); // TODO: rvmExec
-		mv.visitVarInsn(ALOAD, 2); // TODO: rex
+		mv.visitVarInsn(ALOAD, RVM_EXEC); 
+		mv.visitVarInsn(ALOAD, RVM_REX);
 		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMonJVM", "<init>",
 				"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMExecutable;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)V",false);
 
@@ -283,7 +287,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitTypeInsn(NEW, "org/rascalmpl/value/io/StandardTextReader");
 		mv.visitInsn(DUP);
 		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/value/io/StandardTextReader", "<init>", "()V",false);
-		mv.visitVarInsn(ASTORE, 1);
+		mv.visitVarInsn(ASTORE, 1);		// TODO: NAME!
 
 		if (f.constantStore.length > 0) {
 			emitIntValue(f.constantStore.length);
@@ -303,7 +307,7 @@ public class BytecodeGenerator implements Opcodes {
 		for (int i = 0; i < f.constantStore.length; i++) {
 			mv.visitFieldInsn(GETSTATIC, fullClassName, "cs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;");
 			emitIntValue(i);
-			mv.visitVarInsn(ALOAD, 1);	// TODO
+			mv.visitVarInsn(ALOAD, 1);	// TODO: NAME!
 			mv.visitVarInsn(ALOAD, THIS);
 			mv.visitFieldInsn(GETFIELD, fullClassName, "vf", "Lorg/rascalmpl/value/IValueFactory;");
 			mv.visitTypeInsn(NEW, "java/io/StringReader");
@@ -328,9 +332,9 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitJumpInsn(GOTO, l3);
 
 		mv.visitLabel(l2);
-		mv.visitVarInsn(ASTORE, 2);	// TODO
+		mv.visitVarInsn(ASTORE, 2);	// TODO: NAME!
 		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
-		mv.visitVarInsn(ALOAD, 2);
+		mv.visitVarInsn(ALOAD, 2);	// TODO: NAME!
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Exception", "getMessage", "()Ljava/lang/String;",false);
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V",false);
 
@@ -608,12 +612,12 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitCode();
 
 		// Case switch on int at loc 1 (java stack)
-		mv.visitVarInsn(ILOAD, 1);	// TODO
+		mv.visitVarInsn(ILOAD, 1);	// TODO: NAME!
 		mv.visitTableSwitchInsn(0, nrFuncs - 1, defaultlabel, caseLabels);
 		for (int i = 0; i < nrFuncs; i++) {
 			mv.visitLabel(caseLabels[i]);
 			mv.visitVarInsn(ALOAD, THIS);
-			mv.visitVarInsn(ALOAD, 2); // TODO: BEWARE: CF in second argument differs from generated functions.
+			mv.visitVarInsn(ALOAD, 2); // TODO: NAME! BEWARE: CF in second argument differs from generated functions.
 			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, NameMangler.mangle(funcArray[i]), "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)Ljava/lang/Object;",false);
 			mv.visitInsn(ARETURN);
 		}
