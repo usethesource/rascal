@@ -58,7 +58,7 @@ public M3 link(M3 projectModel, set[M3] libraryModels) {
   }
 }
 
-public M3 createM3FromFile(loc file, bool errorRecovery = false, list[loc] sourcePath = {}, list[loc] classPath = {}, str javaVersion = "1.7") {
+public M3 createM3FromFile(loc file, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7") {
     result = createM3sFromFiles({file}, errorRecovery = errorRecovery, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion);
     if ({oneResult} := result) {
         return oneResult;
