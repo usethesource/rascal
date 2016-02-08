@@ -22,6 +22,6 @@ public class CreateDyn extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSSFI("jvmCREATEDYN", arity, debug);
+		codeEmittor.emitCallWithArgsSSFI_S("jvmCREATEDYN", arity, debug);
 	}
 }

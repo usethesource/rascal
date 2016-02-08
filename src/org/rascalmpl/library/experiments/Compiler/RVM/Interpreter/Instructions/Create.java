@@ -25,6 +25,6 @@ public class Create extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSSFII("jvmCREATE", codeblock.getFunctionIndex(fuid), arity,debug);
+		codeEmittor.emitCallWithArgsSSFII_S("jvmCREATE", codeblock.getFunctionIndex(fuid), arity,debug);
 	}
 }

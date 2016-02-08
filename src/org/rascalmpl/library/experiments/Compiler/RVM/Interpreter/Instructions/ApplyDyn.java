@@ -22,6 +22,6 @@ public class ApplyDyn extends Instruction {
 		if ( dcode ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSSI("insnAPPLYDYN", arity, dcode);
+		codeEmittor.emitCallWithArgsSSI_S("insnAPPLYDYN", arity, dcode);
 	}
 }	

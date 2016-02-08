@@ -22,6 +22,6 @@ public class PushConstr extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSSI("insnPUSHCONSTR", codeblock.getConstructorIndex(fuid),debug);
+		codeEmittor.emitCallWithArgsSSI_S("insnPUSHCONSTR", codeblock.getConstructorIndex(fuid),debug);
 	}
 }

@@ -12,6 +12,6 @@ public class AndBool extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSA_A("insnANDBOOL");
+		codeEmittor.emitCallWithArgsPA_A("insnANDBOOL");
 	}
 }

@@ -22,6 +22,6 @@ public class Println extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitVoidCallWithArgsSSI("PRINTLN", arity, debug);
+		codeEmittor.emitVoidCallWithArgsSSI_S("PRINTLN", arity, debug);
 	}
 }

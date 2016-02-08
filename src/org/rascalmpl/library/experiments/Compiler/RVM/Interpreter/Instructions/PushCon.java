@@ -24,7 +24,7 @@ public class PushCon extends Instruction {
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
 		if (debug) {
 			codeEmittor.emitDebugCall(opcode.name());
-			codeEmittor.emitCallWithArgsSSFI("insnPUSHCON", constant, debug);
+			codeEmittor.emitCallWithArgsSSFI_S("insnPUSHCON", constant, debug);
 		}
 
 		IValue val = codeblock.getConstantValue(constant);

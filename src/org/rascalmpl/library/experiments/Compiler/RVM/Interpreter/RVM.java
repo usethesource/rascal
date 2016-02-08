@@ -875,7 +875,7 @@ public class RVM /*implements java.io.Serializable*/ {
 	
 	@SuppressWarnings("unchecked")
 	protected Object LOADLOCKWP(final Object[] stack, final Frame cf, final int iname){
-		IString name = (IString) cf.function.codeblock.getConstantValue(iname);
+		String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
 
 		Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
 		Map.Entry<Type, IValue> defaultValue = defaults.get(name);
@@ -1444,14 +1444,6 @@ public class RVM /*implements java.io.Serializable*/ {
 						pc = cf.pc;
 					} else {
 						constructor = c_ofun_call_next.nextConstructor(constructorStore);
-						
-//					    if(constructor instanceof NonTerminalType){
-//								NonTerminalType nt = (NonTerminalType) constructor;
-//							IConstructor symbol = nt.getSymbol();
-//							Type parameters = (Type) symbol.get("parameters");
-//							Type attributes = (Type) symbol.get("attributes");
-//							constructor = tf.constructor(rex.getTypeStore(), Factory.Production_Default, "prod", symbol, "sort", parameters, "parameters",  attributes, "attributes");
-//						}
 						sp = sp - arity;
 						stack[sp++] = vf.constructor(constructor, c_ofun_call_next.getConstructorArguments(constructor.getArity()));
 					}

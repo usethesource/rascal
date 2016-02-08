@@ -239,7 +239,7 @@ lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg){
       // }
       //}
       try {
-	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, pcfg, recompile=true, testsuite=true, jvm=false)){
+	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, pcfg, recompile=true, testsuite=true, jvm=true)){
 	         s = makeTestSummary(test_results);
 	         println("TESTING <prog>: <s>");
 	         partial_results += <prog, s>;
@@ -279,7 +279,7 @@ value allRascalTests(loc binDir=|home:///bin-tests-intp|){
   all_results += runTests(importTests, "lang::rascal::tests::imports", pcfg);
   all_results += runTests(extendTests, "lang::rascal::tests::extends", pcfg);  
   all_results += runTests(files_with_tests, "", pcfg);
-  //all_results += runTests(typeTests, "lang::rascal::tests::types", pcfg);
+  all_results += runTests(typeTests, "lang::rascal::tests::types", pcfg);
    
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");

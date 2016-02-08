@@ -27,9 +27,9 @@ public class UnwrapThrownVar extends Instruction {
 			codeEmittor.emitDebugCall(opcode.name());
 		
 		if(pos == -1){
-			codeEmittor.emitCallWithArgsSSFI("UNWRAPTHROWNVARMODULE", codeblock.getFunctionIndex(fuid), debug); 
+			codeEmittor.emitCallWithArgsSSFI_S("UNWRAPTHROWNVARMODULE", codeblock.getFunctionIndex(fuid), debug); 
 		} else {
-			codeEmittor.emitCallWithArgsSSFII("UNWRAPTHROWNVARSCOPED", codeblock.getFunctionIndex(fuid), pos, debug); 
+			codeEmittor.emitCallWithArgsSSFII_S("UNWRAPTHROWNVARSCOPED", codeblock.getFunctionIndex(fuid), pos, debug); 
 		}
 	}
 }

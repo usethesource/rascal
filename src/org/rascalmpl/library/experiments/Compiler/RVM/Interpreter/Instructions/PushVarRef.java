@@ -30,9 +30,9 @@ public class PushVarRef extends Instruction {
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid) ;
 
 		if (pos == -1) {
-			codeEmittor.emitCallWithArgsSSFI("PUSHVARREFMODULE", what,debug);
+			codeEmittor.emitCallWithArgsSSFI_S("PUSHVARREFMODULE", what,debug);
 		} else {
-			codeEmittor.emitCallWithArgsSSFII("PUSHVARREFSCOPED", what, pos,debug);
+			codeEmittor.emitCallWithArgsSSFII_S("PUSHVARREFSCOPED", what, pos,debug);
 		}
 	}
 }

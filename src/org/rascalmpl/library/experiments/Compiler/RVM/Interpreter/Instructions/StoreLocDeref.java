@@ -22,6 +22,6 @@ public class StoreLocDeref extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitVoidCallWithArgsSSI("insnSTORELOCDEREF", pos, debug);
+		codeEmittor.emitVoidCallWithArgsSSI_S("insnSTORELOCDEREF", pos, debug);
 	}
 }
