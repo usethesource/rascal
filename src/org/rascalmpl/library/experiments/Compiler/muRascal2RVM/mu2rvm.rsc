@@ -302,7 +302,7 @@ RVMModule mu2rvm(muModule(str module_name,
     
     code = code /*+ [LABEL("FAIL_<fun.uqname>"), FAILRETURN()]*/ + catchBlockCode;
     
-    code = peephole(code);
+    //code = peephole(code);
     
     //iprintln(code);
     
