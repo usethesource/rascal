@@ -37,26 +37,24 @@ public class BytecodeGenerator implements Opcodes {
 	// Locations of the variables in a compiled RVM function.
 	
 	// Common local variables
-	public static final int THIS = 0;
+	public static final int THIS = 0;			// Current class
 	public static final int CF = 1;				// Current frame
 	public static final int SP = 2;				// RVM stack pointer: int sp
 	public static final int STACK = 3;			// RVM stack: Object stack[]
+	public static final int ACCU = 4;			// RVM accumulator: Object accu
 	
 	// Local variables in coroutines
 	
-	public static final int LBOOL = 4;			// Boolean variable used in guard code
-	public static final int LVAL = 5;			// Local IValue
-	public static final int LCOROUTINE = 6;		// Local coroutine instance
-	public static final int LPREVFRAME = 7;		// 
-	public static final int EXCEPTION = 8;
+	public static final int LBOOL = 5;			// Boolean variable used in guard code
+	public static final int LVAL = 6;			// Local IValue
+	public static final int LCOROUTINE = 7;		// Local coroutine instance
+	public static final int LPREVFRAME = 8;		// 
+	public static final int EXCEPTION = 9;
 	
 	// Only needed when function needed constant store or type store
-	public static final int CS = 9;				// Constant store
-	public static final int TS = 10;			// Type constant store
+	public static final int CS = 10;			// Constant store
+	public static final int TS = 11;			// Type constant store
 	
-//	public static final int TMPOBJECT = 11;		// Scratch location
-	
-	public static final int ACCU = 12;			// accumulator
 	
 	// Arguments of the RVM constructor
 	public static final int RVM_EXEC = 1;
