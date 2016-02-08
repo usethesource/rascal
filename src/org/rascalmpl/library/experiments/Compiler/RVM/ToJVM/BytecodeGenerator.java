@@ -68,7 +68,6 @@ public class BytecodeGenerator implements Opcodes {
 	private String fullClassName = null;
 
 	private String[] funcArray = null;			// List of compiler-generated function names
-	private boolean emit = true;				// TODO: remove
 
 	// Administration per function
 	private HashMap<String, Label> labelMap = new HashMap<String, Label>();
@@ -96,7 +95,6 @@ public class BytecodeGenerator implements Opcodes {
 
 	public BytecodeGenerator(ArrayList<Function> functionStore, ArrayList<OverloadedFunction> overloadedStore,
 			Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {
-		emit = true;
 
 		this.functionStore = functionStore;
 		this.overloadedStore = overloadedStore;
@@ -106,11 +104,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public BytecodeGenerator() {
-		emit = false;
-	}
-
-	void enableOutput(boolean flag) {
-		emit = flag;
 	}
 	
 	public void buildClass(String packageName, String className, boolean debug) {
@@ -215,8 +208,6 @@ public class BytecodeGenerator implements Opcodes {
 	 * Generate the constructor method for the generated class
 	 */
 	public void emitConstructor(OverloadedFunction[] overloadedStore) {
-		if (!emit)
-			return;
 
 		mv = cw.visitMethod(ACC_PUBLIC, "<init>",
 				"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMExecutable;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)V",
@@ -256,8 +247,6 @@ public class BytecodeGenerator implements Opcodes {
 	 * Generate the complete class
 	 */
 	public void emitClass(String pName, String cName) {
-		if (!emit)
-			return;
 
 		this.className = cName;
 		this.packageName = pName;
@@ -359,9 +348,7 @@ public class BytecodeGenerator implements Opcodes {
 	 * Generate a method for each Rascal function
 	 */
 	public void emitMethod(Function f, boolean debug) {
-		if (!emit)
-			return;
-
+	
 		labelMap.clear(); // New set of labels.
 		catchTargetLabels.clear();
 		catchTargets.clear();
@@ -459,16 +446,13 @@ public class BytecodeGenerator implements Opcodes {
 //	}
 	
 	public void emitHotEntryJumpTable(int continuationPoints, boolean debug) {
-		if (!emit)
-			return;
 
 		hotEntryLabels = new Label[continuationPoints + 1]; // Add default 0
 															// entry point.
 	}
 	
 	public byte[] finalizeCode() {
-		if (!emit)
-			return null;
+
 		if (endCode == null) {
 			cw.visitEnd();
 			endCode = cw.toByteArray();
@@ -481,15 +465,11 @@ public class BytecodeGenerator implements Opcodes {
 	/************************************************************************************************/
 
 	public void emitJMP(String targetLabel) {
-		if (!emit)
-			return;
 		Label lb = getNamedLabel(targetLabel);
 		mv.visitJumpInsn(GOTO, lb);
 	}
 
 	public void emitJMPTRUEorFALSE(boolean tf, String targetLabel, boolean debug) {
-		if (!emit)
-			return;
 		Label target = getNamedLabel(targetLabel);
 
 		mv.visitVarInsn(ALOAD, ACCU);
@@ -501,8 +481,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitLabel(String targetLabel) {
-		if (!emit)
-			return;
 		Label lb = getNamedLabel(targetLabel);
 		mv.visitLabel(lb);
 
@@ -513,8 +491,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineExhaust(boolean dcode) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
@@ -524,9 +500,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineReturn(int wReturn, boolean debug) {
-		if (!emit)
-			return;
-
 		Label normalReturn = new Label();
 		mv.visitVarInsn(ALOAD, THIS);
 
@@ -560,9 +533,6 @@ public class BytecodeGenerator implements Opcodes {
 	
 	
 	public void emitInlineVisit(boolean direction, boolean progress, boolean fixedpoint, boolean rebuild, boolean debug) {
-		if(!emit)
-			return;
-		
 		Label returnLabel = new Label();
 		Label continueLabel = new Label();
 		
@@ -612,29 +582,20 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitInlineFailreturn() {
-		if (!emit)
-			return;
-
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "FAILRETURN", "Lorg/rascalmpl/value/IString;");
 		mv.visitInsn(ARETURN);
 	}
 
 	public void emitDynDispatch(int numberOfFunctions) {
-		if (!emit)
-			return;
 		funcArray = new String[numberOfFunctions];
 	}
 
 	public void emitDynCaLL(String fname, Integer value) {
-		if (!emit)
-			return;
 		funcArray[value] = fname;
 	}
 
 	public void emitDynFinalize() {
-		if (!emit)
-			return;
 		int nrFuncs = funcArray.length;
 		Label[] caseLabels = new Label[nrFuncs];
 
@@ -669,9 +630,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineGuard(int hotEntryPoint, boolean dcode) {
-		if (!emit)
-			return;
-
 		mv.visitVarInsn(ALOAD, 1);
 		emitIntValue(hotEntryPoint);
 
@@ -773,9 +731,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineLoadLocN(int pos, boolean debug) {
-		if (!emit)
-			return;
-
 		mv.visitVarInsn(ALOAD, STACK);
 		emitIntValue(pos);
 		mv.visitInsn(AALOAD);
@@ -783,9 +738,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitInlinePushLocN(int pos, boolean debug) {
-		if (!emit)
-			return;
-
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitIincInsn(SP, 1);
@@ -797,9 +749,6 @@ public class BytecodeGenerator implements Opcodes {
 
 	// Experimemtal local copy of constantStore and typeConstantStore probably needed in final version.
 	public void emitInlineLoadConOrType(int n, boolean conOrType, boolean debug) {
-		if (!emit)
-			return;
-
 		if (conOrType)
 			mv.visitVarInsn(ALOAD, CS);
 		else
@@ -811,8 +760,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitInlinePushConOrType(int n, boolean conOrType, boolean debug) { 
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitIincInsn(SP, 1);
@@ -828,15 +775,10 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlinePop(boolean debug) {
-		if (!emit)
-			return;
 		mv.visitIincInsn(SP, -1);
 	}
 
 	public void emitInlineStoreLoc(int loc, boolean debug) {
-		if (!emit)
-			return;
-
 		mv.visitVarInsn(ALOAD, STACK);
 		emitIntValue(loc);
 		mv.visitVarInsn(ALOAD, ACCU);
@@ -844,9 +786,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineTypeSwitch(IList labels, boolean dcode) {
-		if (!emit)
-			return;
-
 		Label[] switchTable;
 
 		int nrLabels = labels.length();
@@ -869,12 +808,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitTableSwitchInsn(0, nrLabels - 1, exitLabel, switchTable);
 	}
 
-	
-
 	public void emitInlineJmpIndexed(IList labels, boolean dcode) {
-		if (!emit)
-			return;
-
 		Label[] switchTable;
 
 		int nrLabels = labels.length();
@@ -906,9 +840,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineYield(int arity, int hotEntryPoint, boolean debug) {
-		if (!emit)
-			return;
-
 		Label continueAt = new Label();
 
 		mv.visitVarInsn(ALOAD, THIS);
@@ -941,8 +872,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitPanicReturn() {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "PANIC", "Lorg/rascalmpl/value/IString;");
 		mv.visitInsn(ARETURN);
@@ -953,9 +882,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineCall(int functionIndex, int arity, int continuationPoint, boolean debug) {
-		if (!emit)
-			return;
-
 		Label l0 = new Label();
 
 		emitEntryLabel(continuationPoint);
@@ -985,9 +911,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineCalldyn(int arity, int continuationPoint, boolean debug) {
-		if (!emit)
-			return;
-
 		Label l0 = new Label();
 
 		emitEntryLabel(continuationPoint);
@@ -1024,9 +947,6 @@ public class BytecodeGenerator implements Opcodes {
 	 */
 	
 	public void emitInlinePushCallMuPrim0(MuPrimitive muprim, boolean debug) {
-		if (!emit)
-			return;
-		
 		mv.visitVarInsn(ALOAD, STACK);		// stack
 		mv.visitVarInsn(ILOAD, SP);			// sp
 		
@@ -1039,9 +959,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitInlineCallMuPrim0(MuPrimitive muprim, boolean debug) {
-		if (!emit)
-			return;
-		
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive;");
 	
@@ -1054,9 +971,6 @@ public class BytecodeGenerator implements Opcodes {
 	 * 
 	 */
 	public void emitInlinePushCallMuPrim1(MuPrimitive muprim, boolean debug) {
-		if (!emit)
-			return;
-		
 		mv.visitVarInsn(ALOAD, STACK);		// stack
 		mv.visitVarInsn(ILOAD, SP);			// sp
 		
@@ -1072,9 +986,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitInlineCallMuPrim1(MuPrimitive muprim, boolean debug) {
-		if (!emit)
-			return;
-
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive;");
 		
@@ -1090,9 +1001,6 @@ public class BytecodeGenerator implements Opcodes {
 	 * 
 	 */
 	public void emitInlinePushCallMuPrim2(MuPrimitive muprim, boolean debug) {
-		if (!emit)
-			return;
-
 		mv.visitIincInsn(SP, -1);			// sp -= 1
 		mv.visitVarInsn(ALOAD, STACK);		// stack
 		mv.visitVarInsn(ILOAD, SP);			// sp
@@ -1113,9 +1021,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitInlineCallMuPrim2(MuPrimitive muprim, boolean debug) {
-		if (!emit)
-			return;
-
 		mv.visitIincInsn(SP, -1);			// sp -= 1
 		
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
@@ -1137,9 +1042,6 @@ public class BytecodeGenerator implements Opcodes {
 	 * 
 	 */
 	public void emitInlinePushCallMuPrimN(MuPrimitive muprim, int arity, boolean debug) {
-		if (!emit)
-			return;
-
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive;");
 
@@ -1153,9 +1055,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitInlineCallMuPrimN(MuPrimitive muprim, int arity, boolean debug) {
-		if (!emit)
-			return;
-
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive;");
 
@@ -1181,9 +1080,6 @@ public class BytecodeGenerator implements Opcodes {
 	 * 
 	 */
 	public void emitInlinePushCallPrim0(RascalPrimitive prim, boolean debug) {
-		if (!emit)
-			return;
-		
 		mv.visitVarInsn(ALOAD, STACK);		// stack
 		mv.visitVarInsn(ILOAD, SP);			// sp
 		
@@ -1203,9 +1099,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitInlineCallPrim0(RascalPrimitive prim, boolean debug) {
-		if (!emit)
-			return;
-		
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
 		
@@ -1225,9 +1118,6 @@ public class BytecodeGenerator implements Opcodes {
 	 * 
 	 */
 	public void emitInlinePushCallPrim1(RascalPrimitive prim, boolean debug) {
-		if (!emit)
-			return;
-		
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
 		
@@ -1249,9 +1139,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitInlineCallPrim1(RascalPrimitive prim, boolean debug) {
-		if (!emit)
-			return;
-		
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
 		
@@ -1273,9 +1160,6 @@ public class BytecodeGenerator implements Opcodes {
 	 * 
 	 */
 	public void emitInlinePushCallPrim2(RascalPrimitive prim, boolean debug) {
-		if (!emit)
-			return;
-		
 		mv.visitIincInsn(SP, -1);
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
@@ -1302,9 +1186,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitInlineCallPrim2(RascalPrimitive prim, boolean debug) {
-		if (!emit)
-			return;
-		
 		mv.visitIincInsn(SP, -1);
 		
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
@@ -1332,9 +1213,6 @@ public class BytecodeGenerator implements Opcodes {
 	 * 
 	 */
 	public void emitInlinePushCallPrimN(RascalPrimitive prim, int arity, boolean debug) {
-		if (!emit)
-			return;
-
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
 
@@ -1354,9 +1232,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitInlineCallPrimN(RascalPrimitive prim, int arity, boolean debug) {
-		if (!emit)
-			return;
-
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
 
@@ -1384,9 +1259,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineLoadBool(boolean b, boolean debug) {
-		if (!emit)
-			return;
-
 		if (b) {
 			mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/rascalmpl/value/IBool;");
 		} else {
@@ -1402,8 +1274,6 @@ public class BytecodeGenerator implements Opcodes {
 	 * *: Rest call full ocall implementation
 	 */
 	public void emitOptimizedOcall(String fuid, int overloadedFunctionIndex, int arity, boolean dcode) {
-		if (!emit)
-			return;
 		OverloadedFunction of = overloadedStore.get(overloadedFunctionIndex);
 		int[] functions = of.getFunctions();
 		if (functions.length == 1) {
@@ -1427,7 +1297,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	private void emitOcallSingle(String funName, int fun, int arity) {
-
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitVarInsn(ALOAD, THIS);
@@ -1458,8 +1327,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void dump(String loc) {
-		if (!emit)
-			return;
 		if (endCode == null)
 			finalizeCode();
 		try {
@@ -1472,9 +1339,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineSwitch(IMap caseLabels, String caseDefault, boolean concrete, boolean debug) {
-		if (!emit)
-			return;
-
 		Map<Integer, String> jumpBlock = new TreeMap<Integer, String>(); // This map is sorted on its keys.
 
 		int nrLabels = caseLabels.size();
@@ -1520,26 +1384,18 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitGetSpfromFrame() {
-		if (!emit)
-			return;
-
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
 		mv.visitVarInsn(ISTORE, SP);
 	}
 
 	public void emitPutSpInFrame() {
-		if (!emit)
-			return;
-
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
 	}
 
 	public void emitDebugCall(String ins) {
-		if (!emit)
-			return;
 		mv.visitLdcInsn(ins);
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitVarInsn(ILOAD, SP);
@@ -1547,18 +1403,12 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineLoadInt(int nval, boolean debug) {
-		if (!emit)
-			return;
-
 		emitIntValue(nval);
 		mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;",false);
 		mv.visitVarInsn(ASTORE, ACCU);
 	}
 
 	private void emitExceptionTable(String[] fromLabels, String[] toLabels, int[] fromSp, int[] types, String[] handlerLabels) {
-		if (!emit)
-			return;
-
 		int len = handlerLabels.length;
 		for (int i = 0; i < len; i++) {
 			Label fromLabel = getNamedLabel(fromLabels[i]);
@@ -1584,8 +1434,7 @@ public class BytecodeGenerator implements Opcodes {
 		// throw e ;
 		// }
 		// .....
-		if (!emit)
-			return;
+	
 		Label noReThrow = new Label();
 
 		mv.visitVarInsn(ASTORE, EXCEPTION);
@@ -1614,13 +1463,9 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, EXCEPTION);
 		mv.visitInsn(ATHROW);
 		mv.visitLabel(noReThrow);
-
 	}
 
 	public void emitInlineThrow(boolean debug) {
-		if (!emit)
-			return;
-
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitIincInsn(SP, -1);
 		mv.visitVarInsn(ILOAD, SP);
@@ -1632,13 +1477,9 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "thrownHelper",
 				"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;[Ljava/lang/Object;I)Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown;",false);
 		mv.visitInsn(ATHROW);
-
 	}
 	
 	public void emitInlineResetLoc(int position, boolean debug) {
-		if (!emit)
-			return;
-		
 		mv.visitVarInsn(ALOAD, STACK);
 		emitIntValue(position);
 		mv.visitInsn(ACONST_NULL);
@@ -1646,9 +1487,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineResetLocs(int positions, IValue constantValues, boolean debug) {
-		if (!emit)
-			return;
-
 		IList il = (IList) constantValues;
 		for (IValue v : il) {
 			int stackPos = ((IInteger) v).intValue();
@@ -1662,11 +1500,6 @@ public class BytecodeGenerator implements Opcodes {
 			mv.visitInsn(AASTORE);
 		}
 		mv.visitInsn(AASTORE);
-//		mv.visitVarInsn(ALOAD, STACK);
-//		mv.visitVarInsn(ILOAD, SP);
-//		mv.visitIincInsn(SP, 1);
-//		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/rascalmpl/value/IBool;");
-//		mv.visitInsn(AASTORE);
 	}
 	
 	public void emitInlineResetVar(int what, int pos, boolean debug) {
@@ -1691,8 +1524,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineCheckArgTypeAndCopy(int pos1, int type, int pos2, boolean debug) {
-		if (!emit)
-			return;
 		Label l1 = new Label();
 		Label l5 = new Label();
 
@@ -1786,8 +1617,6 @@ public class BytecodeGenerator implements Opcodes {
 	/********************************************************************************************/
 	
 	public void emitCallWithArgsA_A(String fname) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		
 		mv.visitVarInsn(ALOAD, ACCU);	// arg_1 from accu
@@ -1796,8 +1625,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitCallWithArgsPA_A(String fname) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		
 		mv.visitIincInsn(SP, -1);		// sp--
@@ -1813,8 +1640,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitCallWithArgsSSI_S(String fname, int i, boolean dbg) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK);	// S
 		mv.visitVarInsn(ILOAD, SP);		// S
@@ -1824,8 +1649,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitCallWithArgsSI_A(String fname, int i, boolean dbg) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK);	// S
 		emitIntValue(i);				// I
@@ -1834,8 +1657,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitCallWithArgsSSII_S(String fname, int i, int j, boolean dbg) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK);	// S
 		mv.visitVarInsn(ILOAD, SP);		// S
@@ -1846,8 +1667,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitCallWithArgsSSFI_S(String fname, int i, boolean dbg) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK); 	// S
 		mv.visitVarInsn(ILOAD, SP); 	// S
@@ -1860,8 +1679,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitCallWithArgsFI_A(String fname, int i, boolean dbg) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, CF); 	// F
 
@@ -1872,8 +1689,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitCallWithArgsSSFI_A(String fname, int i, boolean dbg) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK); 	// S
 		mv.visitVarInsn(ILOAD, SP); 	// S
@@ -1886,8 +1701,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitCallWithArgsSFI_A(String fname, int i, boolean dbg) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK);	// S
 		mv.visitVarInsn(ALOAD, CF); 	// F
@@ -1899,8 +1712,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitCallWithArgsSSFIII_A(String fname, int i, int j, int k, boolean dbg) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK); 	// S
 		mv.visitVarInsn(ILOAD, SP); 	// S
@@ -1915,8 +1726,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitVoidCallWithArgsSSI_S(String fname, int i, boolean dbg) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK);	// S
 		mv.visitVarInsn(ILOAD, SP);		// S
@@ -1925,8 +1734,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitCallWithArgsSSFII_S(String fname, int i, int j, boolean dcode) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK); 	// S
 		mv.visitVarInsn(ILOAD, SP); 	// S
@@ -1940,8 +1747,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitCallWithArgsFII_A(String fname, int i, int j, boolean dcode) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		
 		mv.visitVarInsn(ALOAD, CF);		// F
@@ -1954,8 +1759,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitVoidCallWithArgsFIIA(String fname, int what, int pos, boolean dcode) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, CF); 	// F
 
@@ -1967,8 +1770,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitCallWithArgsSSFIIIII_S(String fname, int methodName, int className, int parameterTypes, int keywordTypes, int reflect, boolean dcode) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK); 	// S
 		mv.visitVarInsn(ILOAD, SP);		// S
@@ -1985,8 +1786,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitVoidCallWithArgsSFIA(String fname, int pos, boolean dcode) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK);	// S
 		mv.visitVarInsn(ALOAD, CF); 	// F
@@ -1996,8 +1795,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitVoidCallWithArgsFIA(String fname, int pos, boolean dcode) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, CF); 	// F
 		emitIntValue(pos); 				// I
@@ -2006,8 +1803,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitVoidCallWithArgsFII(String fname, int scope, int pos, boolean dcode) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, CF); 	// F
 		emitIntValue(scope); 			// I
@@ -2017,8 +1812,6 @@ public class BytecodeGenerator implements Opcodes {
 
 
 	public void emitCallWithArgsSSF_S(String fname, boolean dcode) {
-		if (!emit)
-			return;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK); 	// S
 		mv.visitVarInsn(ILOAD, SP);    	// S
