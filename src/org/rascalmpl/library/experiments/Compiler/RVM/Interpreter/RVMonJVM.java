@@ -306,49 +306,37 @@ public class RVMonJVM extends RVM {
 		System.out.println("Unimplemented Base called !");
 		return PANIC;
 	}
-
-	public Object return0Helper(final Frame cof) {
-
-		Object rval = null;
-
-		boolean returns = cof.isCoroutine;
-		if (returns) {
-			rval = Rascal_TRUE;
-		}
-
+	
+	public void coreturn0Helper(final Frame cof) {
 		if (cof == ccf) {
 			activeCoroutines.pop();
 			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 		}
 
-		if (returns) {
-			cof.previousCallFrame.stack[cof.previousCallFrame.sp++] = rval;
-		}
-		return rval;
+		cof.previousCallFrame.stack[cof.previousCallFrame.sp++] = Rascal_TRUE;
 	}
 
-	public Object return1Helper(final Object[] lstack, int sop, final Frame cof, final int arity) {
-		Object rval = null;
-		if (cof.isCoroutine) {
-			rval = Rascal_TRUE;
-			int[] refs = cof.function.refs;
-			if (arity != refs.length) {
-				throw new RuntimeException("Coroutine " + cof.function.name + ": arity of return (" + arity + ") unequal to number of reference parameters (" + refs.length + ")");
-			}
-			for (int i = 0; i < arity; i++) {
-				Reference ref = (Reference) lstack[refs[arity - 1 - i]];
-				ref.stack[ref.pos] = lstack[--sop];
-			}
-		} else {
-			rval = lstack[sop - 1];
-		}
+	public Object return1Helper(final Frame cof, final Object accu) {
 		if (cof.previousCallFrame != null) {
-			cof.previousCallFrame.stack[cof.previousCallFrame.sp++] = rval;
+			cof.previousCallFrame.stack[cof.previousCallFrame.sp++] = accu;
 		}
-		return rval;
+		return  accu;
 	}
 	
-
+	public void coreturn1Helper(final Object[] lstack, int sop, final Frame cof, final int arity) {
+		int[] refs = cof.function.refs;
+		if (arity != refs.length) {
+			throw new RuntimeException("Coroutine " + cof.function.name + ": arity of return (" + arity + ") unequal to number of reference parameters (" + refs.length + ")");
+		}
+		for (int i = 0; i < arity; i++) {
+			Reference ref = (Reference) lstack[refs[arity - 1 - i]];
+			ref.stack[ref.pos] = lstack[--sop];
+		}
+		if (cof.previousCallFrame != null) {
+			cof.previousCallFrame.stack[cof.previousCallFrame.sp++] = Rascal_TRUE;
+		}
+	}
+	
 	public int jvmCREATE(Object[] stock, int lsp, Frame lcf, int fun, int arity) {
 		cccf = lcf.getCoroutineFrame(functionStore.get(fun), root, arity, lsp);
 		cccf.previousCallFrame = lcf;

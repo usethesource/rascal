@@ -328,6 +328,14 @@ public class CodeBlock implements Serializable {
 		return add(new Return1(this,arity));
 	}
 	
+	public CodeBlock CORETURN0() {
+		return add(new CoReturn0(this));
+	}
+	
+	public CodeBlock CORETURN1(int arity){
+		return add(new CoReturn1(this,arity));
+	}
+	
 	public CodeBlock LABEL(String arg){
 		return add(new Label(this, arg));
 	}

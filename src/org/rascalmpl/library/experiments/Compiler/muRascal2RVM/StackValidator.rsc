@@ -78,7 +78,7 @@ private Graph[int] makeGraph(map[int, list[Instruction]]  blocks, set[str] excep
 			 graph += {<i, labels[caseLabels[cl]]> | cl <- caseLabels} + {<i, labels[caseDefault]>};
 		} else if(TYPESWITCH(list[str] caseLabels) := current[-1]){
 			 graph += {<i, labels[cl]> | cl <- caseLabels};
-		} else if(getName(current[-1]) notin {"RETURN0", "RETURN1", "EXHAUST", "FAILRETURN", "THROW"}){
+		} else if(getName(current[-1]) notin {"RETURN0", "RETURN1", "CORETURN0", "CORETURN1","EXHAUST", "FAILRETURN", "THROW"}){
 			  if(i + 1 in blockNumbers){
 			  	if(LABEL(name) := blocks[i + 1][0]){
 			  		if(name notin exceptionTargets){
@@ -123,7 +123,7 @@ private tuple[map[int,int], map[int,int]] computeStackEffects(map[int, list[Inst
 private bool isBlockStartInstruction(Instruction ins) = LABEL(_) := ins;
 
 private bool isBlockEndInstruction(Instruction ins) = 
-	getName(ins) in {"JMP", "JMPFALSE", "JMPTRUE", "RETURN0", "RETURN1", "SWITCH", "TYPESWITCH", "THROW", "FAILRETURN", "HALT", "EXHAUST"};
+	getName(ins) in {"JMP", "JMPFALSE", "JMPTRUE", "RETURN0", "RETURN1", "CORETURN0", "CORETURN1", "SWITCH", "TYPESWITCH", "THROW", "FAILRETURN", "HALT", "EXHAUST"};
 
 // Validate a list of instructions.
 // Given:
@@ -331,6 +331,9 @@ Effect simulate(CALLJAVA(str name, str class,
 	
 Effect simulate(RETURN0(), int sp) 						    = <sp,     false>; 
 Effect simulate(RETURN1(int arity), int sp) 				= <sp - arity, false>;
+
+Effect simulate(CORETURN0(), int sp)                        = <sp,     false>; 
+Effect simulate(CORETURN1(int arity), int sp)               = <sp - arity, false>;
 
 Effect simulate(FAILRETURN(), int sp) 						= <sp,     false>; 
 Effect simulate(FILTERRETURN(), int sp) 					= <sp,     false>; 
