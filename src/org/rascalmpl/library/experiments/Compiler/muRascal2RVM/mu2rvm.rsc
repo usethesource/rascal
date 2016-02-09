@@ -38,6 +38,8 @@ public void setFunctionScope(str scopeId){
     functionScope = scopeId;
 }
 
+private MuFunction currentFunction;
+
 private map[str,int] nlocal = ();                       // number of local per scope
 
 private map[str,int] minNlocal = ();   
@@ -150,8 +152,6 @@ private void destroyTmp(str name, str fuid){
     throw "Non-existing temp <name>, <fuid>";     
 }
 
-
-
 INS tr(muBlockWithTmps(lrel[str name, str fuid] tmps, lrel[str name, str fuid] tmpRefs, list[MuExp] exps), Dest d, CDest c) {
     // Create ordinary tmps (they are always initialized in the generated code)
     for(<nm, fd> <- tmps){
@@ -235,8 +235,31 @@ INS finallyBlock = [];
 // As we use label names to mark try blocks (excluding 'catch' clauses)
 list[EEntry] exceptionTable = [];
 
+
 /*********************************************************************/
-/*      Translate a muRascal module                                  */
+/*      Translate a muRascal library module                          */
+/*********************************************************************/
+
+
+list[RVMDeclaration] mulib2rvm(MuModule muLib){
+    list[RVMDeclaration] functions = [];
+    
+    for(fun <- muLib.functions) {
+        currentFunction = fun;
+        setFunctionScope(fun.qname);
+        set_nlocals(fun.nlocals);
+        body = peephole(tr(fun.body, stack(), returnDest()));
+        <maxSP, exceptions> = validate(fun.src, body, []);
+        required_frame_size = get_nlocals() + maxSP;
+        functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun. uqname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body, [])
+                                          : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), (), false, false, false, fun.src, required_frame_size, 
+                                                     false, 0, 0, body, []);
+    }
+    return functions;
+}
+
+/*********************************************************************/
+/*      Translate a (generated) muRascal module                      */
 /*********************************************************************/
 
 // Translate a muRascal module
@@ -286,6 +309,7 @@ RVMModule mu2rvm(muModule(str module_name,
   }
  
   for(fun <- functions){
+    currentFunction = fun;
     functionScope = fun.qname;
     surroundingFunctionScope = fun.scopeIn;
     localNames = ();
@@ -835,14 +859,14 @@ INS tr(muCallJava(str name, str class, Symbol parameterTypes, Symbol keywordType
 
 // Return
 
-INS tr(muReturn0(), Dest d, CDest c) = [RETURN0()];
+INS tr(muReturn0(), Dest d, CDest c) = [currentFunction is muCoroutine ? CORETURN0() : RETURN0()];
 
 INS tr(muReturn1(MuExp exp), Dest d, CDest c) {
     if(muTmp(_,_) := exp) {
         inlineMuFinally(d, c);
-        return [*finallyBlock, *tr_arg_stack(exp), RETURN1(1)];
+        return [*finallyBlock, *tr_arg_stack(exp), currentFunction is muCoroutine ? CORETURN1(1) : RETURN1(1)];
     }
-    return [*tr_arg_return(exp), RETURN1(1)];
+    return [*tr_arg_return(exp), currentFunction is muCoroutine ? CORETURN1(1) : RETURN1(1)];
 }
 
 //INS tr(muReturn2(MuExp exp, list[MuExp] exps), Dest d, CDest c)

@@ -1514,9 +1514,31 @@ public class RVM /*implements java.io.Serializable*/ {
 					sp = -sp;
 					op = Opcode.OP_RETURN1;
 					
+				case Opcode.OP_RETURN1:
+					// Overloading specific
+					if(c_ofun_call != null && cf.previousCallFrame == c_ofun_call.cf) {
+						ocalls.pop();
+						c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
+					}
+				
+					rval = stack[sp - 1];
+					
+					frameObserver.leave(cf, rval);
+					cf = cf.previousCallFrame;
+					
+					if(cf == null) {
+						return rval;
+					}
+					
+					instructions = cf.function.codeblock.getInstructions();
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
+					stack[sp++] = rval;
+					continue NEXT_INSTRUCTION;
+				
 				case Opcode.OP_FILTERRETURN:
 				case Opcode.OP_RETURN0:
-				case Opcode.OP_RETURN1:
 					
 					// Overloading specific
 					if(c_ofun_call != null && cf.previousCallFrame == c_ofun_call.cf) {
@@ -1525,44 +1547,13 @@ public class RVM /*implements java.io.Serializable*/ {
 					}
 				
 					rval = null;
-					boolean returns = cf.isCoroutine || op == Opcode.OP_RETURN1 || op == Opcode.OP_FILTERRETURN;
-					if(op == Opcode.OP_RETURN1 || cf.isCoroutine) {
-						if(cf.isCoroutine) {
-							rval = Rascal_TRUE;
-							if(op == Opcode.OP_RETURN1) {
-								arity = CodeBlock.fetchArg1(instruction);
-								int[] refs = cf.function.refs;
-								if(arity != refs.length) {
-									throw new CompilerError("Coroutine " + cf.function.name + ": arity of return (" + arity  + ") unequal to number of reference parameters (" +  refs.length + ")", cf);
-								}
-								for(int i = 0; i < arity; i++) {
-									ref = (Reference) stack[refs[arity - 1 - i]];
-									ref.stack[ref.pos] = stack[--sp];
-								}
-							}
-						} else {
-							rval = stack[sp - 1];
-						}
-					}
-					assert sp == ((op == Opcode.OP_RETURN0) ? cf.function.getNlocals() : cf.function.getNlocals() + 1)
-							: "On return from " + cf.function.name + ": " + (sp - cf.function.getNlocals()) + " spurious stack elements";
-					
-					// if the current frame is the frame of a top active coroutine, 
-					// then pop this coroutine from the stack of active coroutines
-					if(cf == ccf) {
-						activeCoroutines.pop();
-						ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
-					}
+					boolean returns = op != Opcode.OP_RETURN0;
 					
 					frameObserver.leave(cf, rval);
 					cf = cf.previousCallFrame;
 					
 					if(cf == null) {
-						if(returns) {
-							return rval; 
-						} else { 
-							return NONE;
-						}
+						return returns ? rval : NONE;
 					}
 					
 					instructions = cf.function.codeblock.getInstructions();
@@ -1572,6 +1563,43 @@ public class RVM /*implements java.io.Serializable*/ {
 					if(returns) {
 						stack[sp++] = rval;
 					}
+					continue NEXT_INSTRUCTION;
+					
+				case Opcode.OP_CORETURN0:
+				case Opcode.OP_CORETURN1:
+					
+					rval = Rascal_TRUE;
+					if(op == Opcode.OP_CORETURN1) {
+						arity = CodeBlock.fetchArg1(instruction);
+						int[] refs = cf.function.refs;
+						if(arity != refs.length) {
+							throw new CompilerError("Coroutine " + cf.function.name + ": arity of return (" + arity  + ") unequal to number of reference parameters (" +  refs.length + ")", cf);
+						}
+						for(int i = 0; i < arity; i++) {
+							ref = (Reference) stack[refs[arity - 1 - i]];
+							ref.stack[ref.pos] = stack[--sp];
+						}
+					}
+					
+					// if the current frame is the frame of a top active coroutine, 
+					// then pop this coroutine from the stack of active coroutines
+					
+					activeCoroutines.pop();
+					ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
+					
+					frameObserver.leave(cf, rval);
+					cf = cf.previousCallFrame;
+					
+					if(cf == null) {
+						return rval; 
+					}
+					
+					instructions = cf.function.codeblock.getInstructions();
+					stack = cf.stack;
+					sp = cf.sp;
+					pc = cf.pc;
+					
+					stack[sp++] = rval;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CALLJAVA:

@@ -183,6 +183,9 @@ public data Instruction =
 		| FAILRETURN()								// Failure return from function
 		| FILTERRETURN()							// Return for filter statement
 		
+		| CORETURN0()                               // Return from coroutine without value
+        | CORETURN1(int arity)                      // Return from coroutine with value
+		
 		| THROW(loc src)                            // Throws a value
 		
 		| LABEL(str label)							// Define a label (is associated with next instruction)

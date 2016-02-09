@@ -129,6 +129,9 @@ public enum Opcode {
 	PUSHCALLPRIM1		(107,    2),
 	PUSHCALLPRIM2		(108,    2),
 	PUSHCALLPRIMN		(109,    2),
+	
+	CORETURN0			(110,	1),
+	CORETURN1			(111,	1),
 	;
 	
 	
@@ -264,12 +267,15 @@ public enum Opcode {
 	static public final int OP_PUSHCALLPRIM2 = 108;
 	static public final int OP_PUSHCALLPRIMN = 109;
 	
+	static public final int OP_CORETURN0 = 110;
+	static public final int OP_CORETURN1 = 111;
+	
 	/*
 	 * Meta-instructions that are generated dynamically during execution and
 	 * will never occur in generated code.
 	 */
-	static public final int POSTOP_CHECKUNDEF = 100;
-	static public final int POSTOP_HANDLEEXCEPTION = 101;
+	static public final int POSTOP_CHECKUNDEF = 112;
+	static public final int POSTOP_HANDLEEXCEPTION = 113;
 	
 	 Opcode(int op, int pc_incr){
 		this.op = op;
@@ -353,9 +359,17 @@ public enum Opcode {
 		case CALL:
 			return "CALL " + cb.getFunctionName(arg1)  + ", " 
 						   + arg2;
+		case RETURN0:
+			return "RETURN0";
 			
 		case RETURN1:
 			return "RETURN1 " + arg1;
+			
+		case CORETURN0:
+			return "CORETURN0";
+			
+		case CORETURN1:
+			return "CORETURN1 " + arg1;
 			
 		case JMP:
 			return "JMP " + arg1;
@@ -403,8 +417,7 @@ public enum Opcode {
 		case PRINTLN:
 			return "PRINTLN " + arg1;
 		
-		case RETURN0:
-			return "RETURN0";
+		
 		
 		case LOADLOCREF:
 			return "LOADLOCREF " + arg1;

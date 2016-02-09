@@ -503,19 +503,18 @@ public class BytecodeGenerator implements Opcodes {
 
 	public void emitInlineReturn(int wReturn, boolean debug) {
 		Label normalReturn = new Label();
-		mv.visitVarInsn(ALOAD, THIS);
-
+		
 		if (wReturn == 0) {
-			mv.visitVarInsn(ALOAD, CF);
-			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "return0Helper",
-					"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)Ljava/lang/Object;",false);
+			mv.visitInsn(ACONST_NULL);
 		} else {
-			mv.visitVarInsn(ALOAD, STACK);
-			mv.visitVarInsn(ILOAD, SP);
+			mv.visitVarInsn(ALOAD, THIS);
 			mv.visitVarInsn(ALOAD, CF);
-			emitIntValue(wReturn);
+			mv.visitVarInsn(ALOAD, STACK);
+			mv.visitIincInsn(SP, -1);
+			mv.visitVarInsn(ILOAD, SP);
+			mv.visitInsn(AALOAD);
 			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "return1Helper",
-					"([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;I)Ljava/lang/Object;",false);
+					"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;Ljava/lang/Object;)Ljava/lang/Object;",false);
 		}
 
 		mv.visitVarInsn(ASTORE, LVAL);
@@ -525,6 +524,37 @@ public class BytecodeGenerator implements Opcodes {
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
 		mv.visitJumpInsn(IFNONNULL, normalReturn);
 		mv.visitVarInsn(ALOAD, LVAL);
+		mv.visitInsn(ARETURN);
+
+		mv.visitLabel(normalReturn);
+		mv.visitVarInsn(ALOAD, THIS);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/rascalmpl/value/IString;");
+		mv.visitInsn(ARETURN);
+	}
+	
+	public void emitInlineCoReturn(int wReturn, boolean debug) {
+		Label normalReturn = new Label();
+		mv.visitVarInsn(ALOAD, THIS);
+
+		if (wReturn == 0) {
+			mv.visitVarInsn(ALOAD, CF);
+			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "coreturn0Helper",
+					"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)V",false);
+		} else {
+			mv.visitVarInsn(ALOAD, STACK);
+			mv.visitVarInsn(ILOAD, SP);
+			mv.visitVarInsn(ALOAD, CF);
+			emitIntValue(wReturn);
+			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "coreturn1Helper",
+					"([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;I)V",false);
+		}
+
+		mv.visitVarInsn(ALOAD, CF);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "previousCallFrame",
+				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
+		mv.visitJumpInsn(IFNONNULL, normalReturn);
+		//mv.visitVarInsn(ALOAD, LVAL);
+		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/rascalmpl/value/IBool;");
 		mv.visitInsn(ARETURN);
 
 		mv.visitLabel(normalReturn);

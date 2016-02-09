@@ -597,6 +597,14 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			case "RETURN1":
 				codeblock.RETURN1(getIntField(instruction, "arity"));
 				break;
+				
+			case "CORETURN0":
+				codeblock.CORETURN0();
+				break;
+
+			case "CORETURN1":
+				codeblock.CORETURN1(getIntField(instruction, "arity"));
+				break;
 
 			case "JMP":
 				codeblock.JMP(getStrField(instruction, "label"));
@@ -815,10 +823,6 @@ static FSTCodeBlockSerializer codeblockSerializer;
 									  symbolToType((IConstructor) instruction.get("type")),
 									  getIntField(instruction, "pos2"));
 				break;
-				
-//			case "JMPINDEXED":
-//				codeblock.JMPINDEXED((IList)instruction.get("labels"));
-//				break;
 				
 			case "LOADLOCKWP":
 				codeblock.LOADLOCKWP(getStrField(instruction, "name"));
