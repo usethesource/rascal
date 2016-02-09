@@ -980,7 +980,8 @@ str attr(str key, real v) {
     
 str text(str v, bool html) {
     if (isEmpty(v)) return "";
-    str s = "\"<replaceAll(v,"\n", "\\n")>\"";
+    str s = replaceAll(v,"\n", "\\n");
+    s = "\"<replaceAll(s,"\"", "\\\"")>\""; 
     if (html) {
         // s = "nl2br(<s>)";
         return ".html(<s>)";
@@ -1044,7 +1045,7 @@ int getTextY(Figure f) {
      
 // void gek(str a, str b, str c) { return; }
           
-IFigure _text(str id, bool inHtml, Figure f, str s) {
+IFigure _text(str id, bool inHtml, Figure f, str s, str overflow) {
     bool isHtml = inHtml || htmlText(_):=f;
     str begintag="";
     if (!inHtml && isHtml) begintag += "\<foreignObject  id=\"<id>_fo\"\>";
@@ -1052,15 +1053,11 @@ IFigure _text(str id, bool inHtml, Figure f, str s) {
     "\<svg id=\"<id>_svg\"\> \<text id=\"<id>\"\>";
     int width = f.width;
     int height = f.height;
-    
-    //if (width<0) width = getTextWidth(f, s);
-    //if (height<0) height = getTextHeight(f);
     Alignment align =  width<0?topLeft:f.align; 
     str endtag = isHtml?"\</div\>":"\</text\>\</svg\>";
     if (!inHtml && isHtml) endtag += "\</foreignObject\>";
     if (!isHtml)
           f.fillColor = isEmpty(f.fontColor)?"black":f.fontColor;
-    // f.lineColor = f.fontColor;
     f.lineWidth = 0;
     widget[id] = <null, seq, id, begintag, endtag, 
         "
@@ -1075,6 +1072,7 @@ IFigure _text(str id, bool inHtml, Figure f, str s) {
         '<style("visibility", getVisibility(f))>
         '<isHtml?style("color", f.fontColor):(style("fill", f.fillColor))>
         '<isHtml?"":style("text-anchor", "middle")> 
+        '<isHtml?style("overflow", overflow):"">
         '<attr("pointer-events", "none")>
         '<text(s, isHtml)>
         ';
@@ -2640,11 +2638,11 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
                        return _shape(f.id, f);
                        }
         case ngon():  return _ngon(f.id, true, f, fig = _translate(f.fig, align = nA(f, f.fig), inHtml=true), align = align);
-        case htmlText(value s): {if (str t:=s) return _text(f.id, inHtml, f, t);
+        case htmlText(value s): {if (str t:=s) return _text(f.id, inHtml, f, t, f.overflow);
                             return iemptyFigure(0);
                             } 
         /* Only inside svg figure, not on top, hcat, vcat or grid  */
-        case text(value s): {if (str t:=s) return _text(f.id, inHtml, f, t);
+        case text(value s): {if (str t:=s) return _text(f.id, inHtml, f, t, f.overflow);
                             return iemptyFigure(0);
                             } 
         case image():  return _img(f.id,   f, addSvgTag,  align = align);                

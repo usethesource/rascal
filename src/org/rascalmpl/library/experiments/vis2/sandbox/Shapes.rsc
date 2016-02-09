@@ -23,14 +23,21 @@ public Figure hArrow(int width, height, str color)  {
     num d = 0.05;
     num x = 0.2;
     list[tuple[num, num]] p  = [<0, 0.5-d>, <0,0.5+d>, <1-x, 0.5+d>, <1-x, 1>, <1, 0.5>, <1-x, 0>, <1-x, 0.5-d>];
-    return box(lineWidth = 0, fig=polygon(lineWidth = 0, width = width, height = height, points=p, scaleX=<<0, 1>, <0, width>>, scaleY=<<0, 1>, <0, height>>, fillColor=color));
+    return 
+    // box(lineWidth = 0, fig=
+    polygon(lineWidth = 0, width = width, height = height, points=p, scaleX=<<0, 1>, <0, width>>, scaleY=<<0, 1>, <0, height>>, fillColor=color)
+    // )
+    ;
     }
     
 public Figure vArrow(int width, height, str color)  {
     num d = 0.05;
     num x = 0.2;
     list[tuple[num, num]] p  = [<0.5-d, 0>, <0.5+d, 0>, <0.5+d, 1-x>, <1, 1-x>, <0.5, 1>, <0, 1-x>, <0.5-d, 1-x>];
-    return box(lineWidth = 0, fig=polygon(lineWidth = 0, width = width, height = height, points=p, scaleX=<<0, 1>, <0, width>>, scaleY=<<0, 1>, <0, height>>, fillColor=color));
+    return // box(lineWidth = 0, fig=
+    polygon(lineWidth = 0, width = width, height = height, points=p, scaleX=<<0, 1>, <0, width>>, scaleY=<<0, 1>, <0, height>>, fillColor=color)
+    // )
+    ;
     }
 
 public void thArrow() = render(hArrow(100, 25, "lime"), lineWidth = 0);
