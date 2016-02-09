@@ -1,3 +1,12 @@
+@license{
+  Copyright (c) 2009-2015 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 module experiments::vis2::sandbox::Demo
 import experiments::vis2::sandbox::FigureServer;
 import experiments::vis2::sandbox::Figure;
@@ -154,30 +163,9 @@ Figure labeled(Figure g) {
       render( 
       demo4(), width = 600, height = 600, align = topLeft, debug = false);
       }
-   
       
-Figure demoFig() = grid(vgap=4, figArray=[
-              [demo1(), demo2()]
-             ,[demo3() , demo4()]
-             ,[demo5(), demo6()]
-             ,[demo7(), demo8()]
-             ,[demo9(), demo10()]          
-             ,[demo15(), demo13()]
-             ,[demo14(),demo11()]
-             ,[demo16(), demo17()]
-             ,[demo18(), demo19()]
-             ,[tetris(), box(fig=shrink(false), size=<400, 400>, resizable=true)]
-            ]);
-            
- void tshrink() = render(box(fig=shrink(false), size=<400, 400>));
-                  
-void demo() = render(demoFig(),
-     width = 800, height = 1800, resizable = false);
-     
- void fdemo(loc l) {
-      // println(schoolPlot());
-      writeFile(l, toHtmlString(demoFig(), debug = false, resizable = false, width = 800, height = 1800));
-      }
+void tshrink() = render(box(fig=shrink(false), size=<400, 400>));
+   
 
 
 Figure butt() = hcat(figs= [
@@ -484,7 +472,6 @@ public Figure hcat11() =
        , fillColor = "antiquewhite", lineColor = "blue"
        ,fig= ellipse(padding=<0, 0, 0, 0>
              ,fig=hcat(lineWidth=2, lineColor="brown", figs=rgbFigs) 
-             // ,size=<100, 50>
        ,lineWidth = 10, lineColor= "yellow", grow = 1.5, fillColor="lightgrey",align = centerMid
        )
  )
@@ -495,10 +482,7 @@ void thcat11() = render(hcat11());
 void tfhcat11(loc l)= writeFile(l,
      toHtmlString(hcat11(), debug = false));
 
-
-
 Figure demo16()= hcat11();
-
 
 Figure bigg(num bigger) = circle(r=30, fig = 
     box(size=<40, 10>, fig= rotate(-30, ngon(n=3, r=3, lineWidth=0, fillColor= "white")), 
@@ -551,3 +535,27 @@ public Figure wirth() {
 Figure demo19() = wirth();
 
 void twirth() = render(wirth());
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Figure demoFig() = grid(vgap=4, figArray=[
+              [demo1(), demo2()]
+             ,[demo3() , demo4()]
+             ,[demo5(), demo6()]
+             ,[demo7(), demo8()]
+             ,[demo9(), demo10()]          
+             ,[demo15(), demo13()]
+             ,[demo14(),demo11()]
+             ,[demo16(), demo17()]
+             ,[demo18(), demo19()]
+             ,[tetris(), box(fig=shrink(false), size=<400, 400>, resizable=true)]
+            ]);
+            
+
+                  
+void demo() = render(demoFig(),
+     width = 800, height = 1800, resizable = false);
+     
+void fdemo(loc l) {
+      writeFile(l, toHtmlString(demoFig(), debug = false, resizable = false, width = 800, height = 1800));
+      }

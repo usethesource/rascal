@@ -370,4 +370,14 @@ public Figure sec(int width, int height) = polygon(points=[<0, 0.5>, <0.5, 0>, <
 
 public void tsec() = render(sec(400, 200));
 
+Figure q(Figure f) {
+    println("<f>");
+     return vcat(figs=[
+     box(fig=text("\<pre\><f>\</pre\>", size=<400, 60>)), f]);
+     }
+
+public void tq() = render(q(box(size=<400, 400>, fillColor="green", lineColor="red")));
+
+public void ftq(loc l) = writeFile(l, toHtmlString(q()));
+
 

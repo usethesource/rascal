@@ -109,9 +109,17 @@ public Property clearValueProperty(str id) {
 
 public Text textProperty(str id, str text = "", str html = "") {
      str idx = child(id);
-     Text v = _getText(idx);
-     if (!isEmpty(text)) v.text = text;
-     if (!isEmpty(html)) v.html = html;
+     Text v = _getText(idx); 
+     if (!isEmpty(text)) {
+         text = replaceAll(text,"\n", "\\n");
+         text = "\"<replaceAll(text,"\"", "\\\"")>\"";
+         v.text = text;
+         }
+     if (!isEmpty(html)) {
+         html = replaceAll(html,"\n", "\\n");
+         html = "\"<replaceAll(html,"\"", "\\\"")>\"";
+         v.html = html;
+         }
      _setText(idx, v);
      // println(v);
      return v;
