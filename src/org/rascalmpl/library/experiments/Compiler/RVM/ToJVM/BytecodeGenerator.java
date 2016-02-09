@@ -509,10 +509,7 @@ public class BytecodeGenerator implements Opcodes {
 		} else {
 			mv.visitVarInsn(ALOAD, THIS);
 			mv.visitVarInsn(ALOAD, CF);
-			mv.visitVarInsn(ALOAD, STACK);
-			mv.visitIincInsn(SP, -1);
-			mv.visitVarInsn(ILOAD, SP);
-			mv.visitInsn(AALOAD);
+			mv.visitVarInsn(ALOAD, ACCU);
 			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "return1Helper",
 					"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;Ljava/lang/Object;)Ljava/lang/Object;",false);
 		}
@@ -586,6 +583,11 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitLabel(returnLabel);
 		mv.visitInsn(INEG);
 		mv.visitVarInsn(ISTORE, SP);
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		mv.visitVarInsn(ASTORE, ACCU);
 		emitInlineReturn(1, debug);
 		
 		mv.visitLabel(continueLabel);
@@ -608,6 +610,11 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitLabel(returnLabel);
 		mv.visitInsn(INEG);
 		mv.visitVarInsn(ISTORE, SP);
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		mv.visitVarInsn(ASTORE, ACCU);
 		emitInlineReturn(1, debug);
 		
 		mv.visitLabel(continueLabel);

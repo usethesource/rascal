@@ -595,7 +595,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				break;
 
 			case "RETURN1":
-				codeblock.RETURN1(getIntField(instruction, "arity"));
+				codeblock.RETURN1();
 				break;
 				
 			case "CORETURN0":

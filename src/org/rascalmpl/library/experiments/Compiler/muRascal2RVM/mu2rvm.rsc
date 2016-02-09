@@ -382,8 +382,8 @@ RVMModule mu2rvm(muModule(str module_name,
   funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, true, false, src, maxSP + nlocal[module_init_fun],
                                          false, 0, 0,
                                     [*code, 
-                                     PUSHCON(true),
-                                     RETURN1(1),
+                                     LOADCON(true),
+                                     RETURN1(),
                                      HALT()
                                     ],
                                     []));
@@ -521,12 +521,12 @@ data CDest =
     ;
 
 Instruction jmp(labelDest(name)) { usedLabels += name; return JMP(name); }
-Instruction jmp(returnDest()) = RETURN1(1);
+Instruction jmp(returnDest()) = RETURN1();
 
 Instruction jmpfalse(labelDest(name)) { usedLabels += name; return JMPFALSE(name); }
 
 
-Instruction jmptrue(returnDest()) = RETURN1(1);
+Instruction jmptrue(returnDest()) = RETURN1();
 Instruction jmptrue(labelDest(name)) { usedLabels += name; return JMPTRUE(name); }
 default Instruction jmptrue(CDest c) { throw "jmptrue to <c>"; }
 
@@ -535,7 +535,7 @@ INS appendJmp(INS instructions, Instruction jmpIns){
         return [ jmpIns ];
     }
     lastIns = instructions[-1];
-    if(RETURN1(_) := lastIns){
+    if(RETURN1() := lastIns){  // TODO: consider more return types
         return instructions;
     }
     return instructions + jmpIns;
@@ -559,7 +559,7 @@ INS tr_arg_accu(MuExp exp) = tr_arg(exp, accu());
 
 INS tr_arg_nowhere(MuExp exp) = tr_arg(exp, nowhere());
 
-INS tr_arg_return(MuExp exp) = tr(exp, stack(), returnDest());
+INS tr_arg_return(MuExp exp) = tr(exp, accu(), returnDest());
 
 INS tr_args_stack(list[MuExp] exps){
     ins = [];
@@ -864,13 +864,10 @@ INS tr(muReturn0(), Dest d, CDest c) = [currentFunction is muCoroutine ? CORETUR
 INS tr(muReturn1(MuExp exp), Dest d, CDest c) {
     if(muTmp(_,_) := exp) {
         inlineMuFinally(d, c);
-        return [*finallyBlock, *tr_arg_stack(exp), currentFunction is muCoroutine ? CORETURN1(1) : RETURN1(1)];
+        return [*finallyBlock, *tr_arg_accu(exp), currentFunction is muCoroutine ? CORETURN1(1) : RETURN1()];
     }
-    return [*tr_arg_return(exp), currentFunction is muCoroutine ? CORETURN1(1) : RETURN1(1)];
+    return [*tr_arg_return(exp), currentFunction is muCoroutine ? CORETURN1(1) : RETURN1()];
 }
-
-//INS tr(muReturn2(MuExp exp, list[MuExp] exps), Dest d, CDest c)
-//    = [*tr_args_stack(exp + exps), RETURN1(size(exps) + 1)];
 
 INS tr(muFailReturn(), Dest d, CDest c) = [ FAILRETURN() ];
 

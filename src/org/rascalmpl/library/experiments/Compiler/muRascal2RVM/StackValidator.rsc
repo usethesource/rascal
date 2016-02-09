@@ -180,7 +180,7 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 	}
 	
 	solve(stackAtEntry, maxSPPath){
-		for(blk <- domain(blocks)){
+		for(blk <- domain(blocks)){ 
 			if(stackAtEntry[blk]?){
 				sp = stackAtExit[blk];
 				for(successor <- graph[blk]){
@@ -330,7 +330,7 @@ Effect simulate(CALLJAVA(str name, str class,
 }
 	
 Effect simulate(RETURN0(), int sp) 						    = <sp,     false>; 
-Effect simulate(RETURN1(int arity), int sp) 				= <sp - arity, false>;
+Effect simulate(RETURN1(), int sp) 				            = <sp,     false>;
 
 Effect simulate(CORETURN0(), int sp)                        = <sp,     false>; 
 Effect simulate(CORETURN1(int arity), int sp)               = <sp - arity, false>;
