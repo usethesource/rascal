@@ -324,8 +324,8 @@ public class CodeBlock implements Serializable {
 		return add(new Return0(this));
 	}
 	
-	public CodeBlock RETURN1(int arity){
-		return add(new Return1(this,arity));
+	public CodeBlock RETURN1(){
+		return add(new Return1(this));
 	}
 	
 	public CodeBlock CORETURN0() {

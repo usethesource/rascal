@@ -1512,6 +1512,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					}
 					// Fall through to force a function return;
 					sp = -sp;
+					accu = stack[--sp];
 					op = Opcode.OP_RETURN1;
 					
 				case Opcode.OP_RETURN1:
@@ -1520,21 +1521,19 @@ public class RVM /*implements java.io.Serializable*/ {
 						ocalls.pop();
 						c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
 					}
-				
-					rval = stack[sp - 1];
 					
-					frameObserver.leave(cf, rval);
+					frameObserver.leave(cf, accu);
 					cf = cf.previousCallFrame;
 					
 					if(cf == null) {
-						return rval;
+						return accu;
 					}
 					
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
-					stack[sp++] = rval;
+					stack[sp++] = accu;
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_FILTERRETURN:

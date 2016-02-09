@@ -71,7 +71,7 @@ INS jumps_to_returns([ *Instruction ins1, LABEL(lab1), RETURN0(), *Instruction i
     [*replace_jumps_by_returns(ins1, lab1, RETURN0()), LABEL(lab1), RETURN0(), *replace_jumps_by_returns(ins2, lab1, RETURN0())];
     
 INS jumps_to_returns([ *Instruction ins1, LABEL(lab1), RETURN1(a), *Instruction ins2] ) =
-    [*replace_jumps_by_returns(ins1, lab1, RETURN1(a)), LABEL(lab1), RETURN1(a), *replace_jumps_by_returns(ins2, lab1, RETURN1(a))];
+    [*replace_jumps_by_returns(ins1, lab1, RETURN1()), LABEL(lab1), RETURN1(), *replace_jumps_by_returns(ins2, lab1, RETURN1())];
 
 default INS jumps_to_returns(INS ins) = ins;   
 
@@ -104,7 +104,7 @@ INS dead_code([ *Instruction ins ] ) {
        result += ins[i];
        if(   JMP(lab) := ins[i] 
           || RETURN0() := ins[i] 
-          || RETURN1(a) := ins[i] 
+          || RETURN1() := ins[i] 
           || FAILRETURN() := ins[i] 
           || EXHAUST() := ins[i]){
           i += 1;
