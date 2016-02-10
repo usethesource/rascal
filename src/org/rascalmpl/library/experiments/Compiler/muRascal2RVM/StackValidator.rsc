@@ -216,8 +216,8 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 		println("exceptions:     <exceptions>");
 	}
 	
-	return <maxStack + 1 + 2, exceptions>;  // + 1: to turn an index into a length; 
-										    // + 2 to cater for some imprecision
+	return <maxStack + 1 + 1, exceptions>;  // + 1: to turn an index into a length; 
+										    // + 1 to cater for some imprecision
 }
 
 
@@ -230,11 +230,11 @@ Effect simulate(LABEL(str label), int sp) 					= <sp,     false>;
 Effect simulate(JMP(str label), int sp) 					= <sp,     false>; 
 Effect simulate(JMPTRUE(str label), int sp) 				= <sp,     false>; 
 Effect simulate(JMPFALSE(str label), int sp) 				= <sp,     false>; 
-Effect simulate(TYPESWITCH(list[str] labels), int sp) 		= <sp - 1, false>; 
+Effect simulate(TYPESWITCH(list[str] labels), int sp) 		= <sp,     false>; 
 Effect simulate(SWITCH(map[int,str] caseLabels, 
 				   str caseDefault, 
 				   bool useConcreteFingerprint), 
-		     int sp) 									    = <sp - 1, false>; 
+		     int sp) 									    = <sp,     false>; 
 
 Effect simulate(LOADBOOL(bool bval), int sp) 				= <sp,     true>; 
 Effect simulate(LOADINT(int nval), int sp) 				    = <sp,     true>; 
@@ -246,7 +246,7 @@ Effect simulate(PUSHTYPE(Symbol \type), int sp)             = <sp + 1, false>;
 Effect simulate(PUSHACCU(), int sp)                         = <sp + 1, false>;
 Effect simulate(POPACCU(), int sp)                          = <sp - 1, true>; 
 
-Effect simulate(PUSH_ROOT_FUN(str fuid), int sp) 				    = <sp + 1, false>;
+Effect simulate(PUSH_ROOT_FUN(str fuid), int sp) 		    = <sp + 1, false>;
 Effect simulate(PUSH_NESTED_FUN(str fuid, str scopeIn), 
 			 int sp) 									    = <sp + 1, false>;
 Effect simulate(PUSHCONSTR(str fuid), int sp) 				= <sp + 1, false>;
@@ -281,16 +281,15 @@ Effect simulate(PUSHVARREF(str fuid, int pos), int sp)      = <sp + 1, false>;
 Effect simulate(LOADVARDEREF(str fuid, int pos), int sp) 	= <sp,     true>;
 Effect simulate(PUSHVARDEREF(str fuid, int pos), int sp)    = <sp + 1, false>;
 Effect simulate(STOREVARDEREF(str fuid, int pos), int sp) 	= <sp,     false>; 
-Effect simulate(CALL(str fuid, int arity), int sp) 		    = <sp - arity + 1, false>;
+Effect simulate(CALL(str fuid, int arity), int sp) 		    = <sp - arity, true>;
 
-Effect simulate(CALLDYN(int arity), int sp) 				= <sp - 1 - arity + 1, false>;
+Effect simulate(CALLDYN(int arity), int sp) 				= <sp - 1 - arity, true>;
 Effect simulate(APPLY(str fuid, int arity), int sp) 		= <sp - arity + 1, false>;
 Effect simulate(APPLYDYN(int arity), int sp) 				= <sp - arity - 1 + 1, false>;
-Effect simulate(CALLCONSTR(str fuid, int arity), int sp) 	= <sp - arity + 1, false>;
-Effect simulate(OCALL(str fuid, int arity, loc src), 
-			 int sp) 									    = <sp - arity + 1, false>;
+Effect simulate(CALLCONSTR(str fuid, int arity), int sp) 	= <sp - arity, true>;
+Effect simulate(OCALL(str fuid, int arity, loc src), int sp)= <sp - arity, true>;
 Effect simulate(OCALLDYN(Symbol types, int arity, loc src), 
-			 int sp) 									    = <sp - 1 - arity + 1, false>;
+			 int sp) 									    = <sp - 1 - arity, true>;
 Effect simulate(CALLMUPRIM0(str name), int sp)              = <sp,     true>;
 Effect simulate(CALLMUPRIM1(str name), int sp)              = <sp,     true>; 
 Effect simulate(CALLMUPRIM2(str name), int sp)              = <sp - 1, true>; 
@@ -339,14 +338,14 @@ Effect simulate(FAILRETURN(), int sp) 						= <sp,     false>;
 Effect simulate(FILTERRETURN(), int sp) 					= <sp,     false>; 
 Effect simulate(THROW(loc src), int sp) 					= <sp + 2, false>;		// TODO Check This.
 
-Effect simulate(CREATE(str fuid, int arity) , int sp)		= <sp - arity + 1, false>;
-Effect simulate(CREATEDYN(int arity), int sp) 				= <sp - 1 - arity + 1, false>;
-Effect simulate(NEXT0(), int sp) 							= <sp,     false>; 
-Effect simulate(NEXT1(), int sp) 							= <sp - 1, false>; 
+Effect simulate(CREATE(str fuid, int arity) , int sp)		= <sp - arity, true>;
+Effect simulate(CREATEDYN(int arity), int sp) 				= <sp - 1 - arity, true>;
+Effect simulate(NEXT0(), int sp) 							= <sp,     true>; 
+Effect simulate(NEXT1(), int sp) 							= <sp - 1, true>; 
 Effect simulate(YIELD0(), int sp) 							= <sp + 1, false>;
 Effect simulate(YIELD1(int arity), int sp) 				    = <sp - arity + 1, false>;
 Effect simulate(EXHAUST(), int sp) 						    = <sp,     false>; 
-Effect simulate(GUARD(), int sp)							= <sp - 1, false>; 
+Effect simulate(GUARD(), int sp)							= <sp,     false>; 
 Effect simulate(PRINTLN(int arity), int sp) 				= <sp - arity + 1, false>;
 Effect simulate(POP(), int sp) 							    = <sp - 1, false>; 
 Effect simulate(HALT(), int sp) 							= <sp,     false>; 
@@ -366,7 +365,7 @@ Effect simulate(CHECKARGTYPEANDCOPY(
 Effect simulate(VISIT(bool direction, bool fixedpoint, 
                    bool progress, bool rebuild),
                    int sp)          					    = <sp - 8 + 1, false>;
-Effect simulate(CHECKMEMO(), int sp)    					= <sp + 1, false>;
+Effect simulate(CHECKMEMO(), int sp)    					= <sp,     true>;
 Effect simulate(PUSHEMPTYKWMAP(), int sp)                   = <sp + 1, false>;
 
 /*

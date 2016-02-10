@@ -511,7 +511,7 @@ public enum Opcode {
 			return "FILTERRETURN";
 			
 		case EXHAUST:
-			return "TERMINATE";
+			return "EXHAUST";
 			
 		case GUARD:
 			return "GUARD";

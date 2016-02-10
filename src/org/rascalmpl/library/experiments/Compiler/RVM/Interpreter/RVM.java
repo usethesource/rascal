@@ -1002,8 +1002,6 @@ public class RVM /*implements java.io.Serializable*/ {
 				instruction = instructions[pc++];
 				op = CodeBlock.fetchOp(instruction);
 				
-				String name;
-				
 				INSTRUCTION: switch (op) {
 				
 				case Opcode.OP_PUSHACCU:
@@ -1098,7 +1096,6 @@ public class RVM /*implements java.io.Serializable*/ {
 					for(IValue v : positions){
 						stack[((IInteger) v).intValue()] = null;
 					}
-					//stack[sp++] = Rascal_TRUE;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_RESETLOC:	
@@ -1187,12 +1184,11 @@ public class RVM /*implements java.io.Serializable*/ {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_TYPESWITCH:
-					IValue val = (IValue) stack[--sp];
 					Type t = null;
-					if(val instanceof IConstructor) {
-						t = ((IConstructor) val).getConstructorType();
+					if(accu instanceof IConstructor) {
+						t = ((IConstructor) accu).getConstructorType();
 					} else {
-						t = val.getType();
+						t = ((IValue)accu).getType();
 					}
 					int labelIndex = ToplevelType.getToplevelTypeAsInt(t);
 					IList labels = (IList) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
@@ -1200,16 +1196,14 @@ public class RVM /*implements java.io.Serializable*/ {
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_SWITCH:
-					val = (IValue) stack[--sp];
 					IMap caseLabels = (IMap) cf.function.constantStore[CodeBlock.fetchArg1(instruction)];
 					int caseDefault = CodeBlock.fetchArg2(instruction);
 					boolean useConcreteFingerprint = instructions[pc++] == 1;
-					IInteger fp = vf.integer(ToplevelType.getFingerprint(val, useConcreteFingerprint));
+					IInteger fp = vf.integer(ToplevelType.getFingerprint((IValue)accu, useConcreteFingerprint));
 					
 					IInteger x = (IInteger) caseLabels.get(fp);
 					//stdout.println("SWITCH: fp = " + fp  + ", val = " + val + ", x = " + x + ", useConcreteFingerprint = " + useConcreteFingerprint);
 					if(x == null){
-							//stack[sp++] = vf.bool(false);
 							pc = caseDefault;
 					} else {
 						pc = x.intValue();
@@ -1320,6 +1314,7 @@ public class RVM /*implements java.io.Serializable*/ {
 									
 				case Opcode.OP_CALLCONSTR:
 					sp = CALLCONSTR(stack, sp, CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
+					accu = stack[--sp];
 					continue NEXT_INSTRUCTION;
 										
 				case Opcode.OP_CALLDYN:				
@@ -1336,7 +1331,7 @@ public class RVM /*implements java.io.Serializable*/ {
 							args[i] = (IValue) stack[sp - arity + i];
 						}
 						sp = sp - arity;
-						stack[sp++] = vf.constructor(constr, args);
+						accu = vf.constructor(constr, args);
 						continue NEXT_INSTRUCTION;
 					}
 					
@@ -1348,7 +1343,7 @@ public class RVM /*implements java.io.Serializable*/ {
 						if(fun_instance.next + arity < fun_instance.function.nformals) {
 							fun_instance = fun_instance.applyPartial(arity, stack, sp);
 							sp = sp - arity;
-						    stack[sp++] = fun_instance;
+						    accu = fun_instance;
 						    continue NEXT_INSTRUCTION;
 						}
 						cf = cf.getFrame(fun_instance.function, fun_instance.env, fun_instance.args, arity, sp);
@@ -1359,7 +1354,7 @@ public class RVM /*implements java.io.Serializable*/ {
 						if(arity < fun.nformals) {
 							FunctionInstance fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
 							sp = sp - arity;
-						    stack[sp++] = fun_instance;
+						    accu = fun_instance;
 						    continue NEXT_INSTRUCTION;
 						}
 						cf = cf.getFrame(fun, root, arity, sp);
@@ -1373,6 +1368,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
+					//accu = stack[--sp];	// TODO
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_OCALLDYN:
@@ -1445,7 +1441,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					} else {
 						constructor = c_ofun_call_next.nextConstructor(constructorStore);
 						sp = sp - arity;
-						stack[sp++] = vf.constructor(constructor, c_ofun_call_next.getConstructorArguments(constructor.getArity()));
+						accu = vf.constructor(constructor, c_ofun_call_next.getConstructorArguments(constructor.getArity()));
 					}
 					continue NEXT_INSTRUCTION;
 					
@@ -1495,7 +1491,7 @@ public class RVM /*implements java.io.Serializable*/ {
 						sp = cf.sp;
 						pc = cf.pc;
 						constructor = c_ofun_call.nextConstructor(constructorStore);
-						stack[sp++] = vf.constructor(constructor, c_ofun_call.getConstructorArguments(constructor.getArity()));
+						accu = vf.constructor(constructor, c_ofun_call.getConstructorArguments(constructor.getArity()));
 						ocalls.pop();
 						c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
 					}
@@ -1533,7 +1529,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
-					stack[sp++] = accu;
+					//stack[sp++] = accu;
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_FILTERRETURN:
@@ -1560,7 +1556,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					sp = cf.sp;
 					pc = cf.pc;
 					if(returns) {
-						stack[sp++] = rval;
+						accu = rval;
 					}
 					continue NEXT_INSTRUCTION;
 					
@@ -1598,7 +1594,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					sp = cf.sp;
 					pc = cf.pc;
 					
-					stack[sp++] = rval;
+					accu = rval;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CALLJAVA:
@@ -1643,8 +1639,9 @@ public class RVM /*implements java.io.Serializable*/ {
 						}
 					}
 					sp = cf.sp;
-					// Instead of suspending a coroutine instance during INIT, execute it until GUARD;
-					// Let INIT postpone creation of an actual coroutine instance (delegated to GUARD), which also implies no stack management of active coroutines until GUARD;
+					// Instead of suspending a coroutine instance during CREATE, execute it until GUARD;
+					// Let CREATE postpone creation of an actual coroutine instance (delegated to GUARD), 
+					// which also implies no stack management of active coroutines until GUARD;
 					cccf.previousCallFrame = cf;
 					
 					cf.sp = sp;
@@ -1658,10 +1655,10 @@ public class RVM /*implements java.io.Serializable*/ {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_GUARD:
-					rval = stack[sp - 1];
+					//rval = stack[sp - 1];
 					boolean precondition;
-					if(rval instanceof IBool) {
-						precondition = ((IBool) rval).getValue();
+					if(accu instanceof IBool) {
+						precondition = ((IBool) accu).getValue();
 //					} else if(rval instanceof Boolean) {
 //						precondition = (Boolean) rval;
 					} else {
@@ -1677,7 +1674,7 @@ public class RVM /*implements java.io.Serializable*/ {
 							coroutine.suspend(cf);
 						}
 						cccf = null;
-						--sp;
+						//--sp;
 						cf.pc = pc;
 						cf.sp = sp;
 						cf = prev;
@@ -1685,7 +1682,7 @@ public class RVM /*implements java.io.Serializable*/ {
 						stack = cf.stack;
 						sp = cf.sp;
 						pc = cf.pc;
-						stack[sp++] = precondition ? coroutine : exhausted;
+						accu = precondition ? coroutine : exhausted;
 						continue NEXT_INSTRUCTION;
 					}
 					
@@ -1697,10 +1694,10 @@ public class RVM /*implements java.io.Serializable*/ {
 						stack = cf.stack;
 						sp = cf.sp;
 						pc = cf.pc;
-						stack[sp++] = Rascal_FALSE;
+						accu = Rascal_FALSE;
 						continue NEXT_INSTRUCTION;
 					}
-					--sp;
+					//--sp;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_APPLY:
@@ -1713,14 +1710,13 @@ public class RVM /*implements java.io.Serializable*/ {
 					
 				case Opcode.OP_NEXT0:
 				case Opcode.OP_NEXT1:
-					Coroutine coroutine = (Coroutine) stack[--sp];
+					Coroutine coroutine = (Coroutine) accu;
 					
-					// Merged the hasNext and next semantics
 					if(!coroutine.hasNext()) {
 						if(op == Opcode.OP_NEXT1) {
 							--sp;
 						}
-						stack[sp++] = Rascal_FALSE;
+						accu = Rascal_FALSE;
 						continue NEXT_INSTRUCTION;
 					}
 					// put the coroutine onto the stack of active coroutines
@@ -1730,8 +1726,9 @@ public class RVM /*implements java.io.Serializable*/ {
 					
 					instructions = coroutine.frame.function.codeblock.getInstructions();
 				
-					coroutine.frame.stack[coroutine.frame.sp++] = 		// Always leave an entry on the stack
-							(op == Opcode.OP_NEXT1) ? stack[--sp] : null;
+					// Transmit NEXT's arg (if present) to the corresponding YIELD in the coroutine; 
+					// but always leave an entry on the stack
+					coroutine.frame.stack[coroutine.frame.sp++] = (op == Opcode.OP_NEXT1) ? stack[--sp] : null;
 					
 					cf.pc = pc;
 					cf.sp = sp;
@@ -1747,17 +1744,18 @@ public class RVM /*implements java.io.Serializable*/ {
 					coroutine = activeCoroutines.pop();
 					ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 					Frame prev = coroutine.start.previousCallFrame;
-					rval = Rascal_TRUE; // In fact, yield has to always return TRUE
+					
 					if(op == Opcode.OP_YIELD1) {
 						arity = CodeBlock.fetchArg1(instruction);
 						int[] refs = cf.function.refs; 
 						
 						if(arity != refs.length) {
-							throw new CompilerError("The 'yield' within a coroutine has to take the same number of arguments as the number of its reference parameters; arity: " + arity + "; reference parameter number: " + refs.length, cf);
+							throw new CompilerError("YIELD requires same number of arguments as the number of coroutine's reference parameters; arity: " + arity + "; reference parameter number: " + refs.length, cf);
 						}
 						
+						// Assign the reference parameters of the currently active coroutine instance
 						for(int i = 0; i < arity; i++) {
-							ref = (Reference) stack[refs[arity - 1 - i]]; // Takes the reference parameters of the top active coroutine instance
+							ref = (Reference) stack[refs[arity - 1 - i]]; 
 							ref.stack[ref.pos] = stack[--sp];
 						}
 					}
@@ -1766,13 +1764,14 @@ public class RVM /*implements java.io.Serializable*/ {
 					coroutine.suspend(cf);
 					cf = prev;
 					if(op == Opcode.OP_YIELD1 && cf == null) {
-						return rval;
+						return Rascal_TRUE;
 					}
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
-					stack[sp++] = rval;	 								// Corresponding next will always find an entry on the stack
+					accu = Rascal_TRUE;	 		// YIELD always returns TRUE to the corresponding NEXT
+					
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_EXHAUST:
@@ -1783,13 +1782,13 @@ public class RVM /*implements java.io.Serializable*/ {
 					
 					cf = cf.previousCallFrame;
 					if(cf == null) {
-						return Rascal_FALSE;    // 'Exhaust' has to always return FALSE, i.e., signal a failure;
+						return Rascal_FALSE;    // EXHAUST always returns FALSE, to the corresponding NEXT
 					}
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
-					stack[sp++] = Rascal_FALSE; // 'Exhaust' has to always return FALSE, i.e., signal a failure;
+					accu = Rascal_FALSE;  		// EXHAUST always returns FALSE, to the corresponding NEXT
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_CALLPRIMN:
@@ -2021,6 +2020,7 @@ public class RVM /*implements java.io.Serializable*/ {
 				case Opcode.OP_CHECKMEMO:
 					sp = CHECKMEMO(stack, sp, cf);
 					if(sp > 0){
+						accu = stack[--sp];
 						continue NEXT_INSTRUCTION;
 					}
 					sp = - sp;
@@ -2059,7 +2059,7 @@ public class RVM /*implements java.io.Serializable*/ {
 					stack = cf.stack;
 					sp = cf.sp;
 					pc = cf.pc;
-					stack[sp++] = rval;
+					accu = rval;
 					continue NEXT_INSTRUCTION;
 								
 				default:

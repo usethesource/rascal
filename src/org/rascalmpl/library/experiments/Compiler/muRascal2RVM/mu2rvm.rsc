@@ -634,7 +634,7 @@ INS tr(muInt(int n), Dest d, CDest c) = LOADINT(n) + plug(accu(), d);
 
 INS tr(muCon(value v), Dest d, CDest c) = plug(con(v), d);
 
-INS tr(muTypeCon(Symbol sym), Dest d, CDest c) = LOADTYPE(sym) + plug(accu(), d);
+INS tr(muTypeCon(Symbol sym), Dest d, CDest c) = d == stack() ? [PUSHTYPE(sym)] : LOADTYPE(sym) + plug(accu(), d);
 
 // muRascal functions
 
@@ -702,17 +702,17 @@ INS tr(muAssignKwp(str fuid, str name, MuExp exp), Dest d, CDest c) = [ *tr_arg_
 
 // Constructor
 
-INS tr(muCallConstr(str fuid, list[MuExp] args), Dest d, CDest c) = [ *tr_args_stack(args), CALLCONSTR(fuid, size(args)), *plug(stack(), d) ];
+INS tr(muCallConstr(str fuid, list[MuExp] args), Dest d, CDest c) = [ *tr_args_stack(args), CALLCONSTR(fuid, size(args)), *plug(accu(), d) ];
 
 // muRascal functions
 
 INS tr(muCall(MuExp fun, list[MuExp] args), Dest d, CDest c) = trMuCall(fun, args, d, c);
  
-INS trMuCall(muFun1(str fuid), list[MuExp] args, Dest d, CDest c) = [*tr_args_stack(args), CALL(fuid, size(args)), *plug(stack(), d)];
+INS trMuCall(muFun1(str fuid), list[MuExp] args, Dest d, CDest c) = [*tr_args_stack(args), CALL(fuid, size(args)), *plug(accu(), d)];
 
-INS trMuCall(muConstr(str fuid), list[MuExp] args, Dest d, CDest c) = [*tr_args_stack(args), CALLCONSTR(fuid, size(args)), *plug(stack(), d)];
+INS trMuCall(muConstr(str fuid), list[MuExp] args, Dest d, CDest c) = [*tr_args_stack(args), CALLCONSTR(fuid, size(args)), *plug(accu(), d)];
 
-default INS trMuCall(MuExp fun, list[MuExp] args, Dest d, CDest c) = [*tr_args_stack(args), *tr_arg_stack(fun), CALLDYN(size(args)), *plug(stack(), d)];
+default INS trMuCall(MuExp fun, list[MuExp] args, Dest d, CDest c) = [*tr_args_stack(args), *tr_arg_stack(fun), CALLDYN(size(args)), *plug(accu(), d)];
 
 // Partial application of muRascal functions
 
@@ -731,13 +731,13 @@ default INS trMuApply(MuExp fun, list[MuExp] args, Dest d, CDest c) = [ *tr_args
 // Rascal functions
 
 INS tr(muOCall3(muOFun(str fuid), list[MuExp] args, loc src), Dest d, CDest c) = 
-    [*tr_args_stack(args), OCALL(fuid, size(args), src), *plug(stack(), d)];
+    [*tr_args_stack(args), OCALL(fuid, size(args), src), *plug(accu(), d)];
 
 INS tr(muOCall4(MuExp fun, Symbol types, list[MuExp] args, loc src), Dest d, CDest c) 
     = [ *tr_args_stack(args),
         *tr_arg_stack(fun), 
         OCALLDYN(types, size(args), src),
-        *plug(stack(), d)
+        *plug(accu(), d)
       ];
         
 // Visit
@@ -875,13 +875,13 @@ INS tr(muFilterReturn(), Dest d, CDest c) = [ FILTERRETURN() ];
 
 // Coroutines
 
-INS tr(muCreate1(muFun1(str fuid)), Dest d, CDest c) = [ CREATE(fuid, 0), *plug(stack(), d) ];
-INS tr(muCreate1(MuExp exp), Dest d, CDest c) = [ *tr_arg_stack(exp), CREATEDYN(0), *plug(stack(), d) ];
-INS tr(muCreate2(muFun1(str fuid), list[MuExp] args), Dest d, CDest c) = [ *tr_args_stack(args), CREATE(fuid, size(args)), *plug(stack(), d) ];
-INS tr(muCreate2(MuExp coro, list[MuExp] args), Dest d, CDest c) = [ *tr_args_stack(args + coro),  CREATEDYN(size(args)), *plug(stack(), d) ];  // order! 
+INS tr(muCreate1(muFun1(str fuid)), Dest d, CDest c) = [ CREATE(fuid, 0), *plug(accu(), d) ];
+INS tr(muCreate1(MuExp exp), Dest d, CDest c) = [ *tr_arg_stack(exp), CREATEDYN(0), *plug(accu(), d) ];
+INS tr(muCreate2(muFun1(str fuid), list[MuExp] args), Dest d, CDest c) = [ *tr_args_stack(args), CREATE(fuid, size(args)), *plug(accu(), d) ];
+INS tr(muCreate2(MuExp coro, list[MuExp] args), Dest d, CDest c) = [ *tr_args_stack(args + coro),  CREATEDYN(size(args)), *plug(accu(), d) ];  // note the order! 
 
-INS tr(muNext1(MuExp coro), Dest d, CDest c) = [*tr_arg_stack(coro), NEXT0(), *plug(stack(), d)];
-INS tr(muNext2(MuExp coro, list[MuExp] args), Dest d, CDest c) = [*tr_args_stack(args + coro),  NEXT1(), *plug(stack(), d)]; // order!
+INS tr(muNext1(MuExp coro), Dest d, CDest c) = [*tr_arg_accu(coro), NEXT0(), *plug(accu(), d)];
+INS tr(muNext2(MuExp coro, list[MuExp] args), Dest d, CDest c) = [*tr_args_stack(args), *tr_arg_accu(coro),  NEXT1(), *plug(accu(), d)]; // note the order!
 
 INS tr(muYield0(), Dest d, CDest c) = [YIELD0(), *plug(stack(), d)];
 INS tr(muYield1(MuExp exp), Dest d, CDest c) = [*tr_arg_stack(exp), YIELD1(1), *plug(stack(), d)];
@@ -889,7 +889,7 @@ INS tr(muYield2(MuExp exp, list[MuExp] exps), Dest d, CDest c) = [ *tr_args_stac
 
 INS tr(experiments::Compiler::muRascal::AST::muExhaust(), Dest d, CDest c) = [ EXHAUST() ];
 
-INS tr(muGuard(MuExp exp), Dest d, CDest c) = [ *tr_arg_stack(exp), GUARD() ];
+INS tr(muGuard(MuExp exp), Dest d, CDest c) = [ *tr_arg_accu(exp), GUARD() ];
 
 // Exceptions
 
@@ -1154,7 +1154,7 @@ INS tr(muBreak(str label), Dest d, CDest c) = [ jmp(labelDest(mkBreak(label))) ]
 
 INS tr(muContinue(str label), Dest d, CDest c) = [ jmp(labelDest(mkContinue(label))) ];
 
-INS tr(muFail(str label), Dest d, CDest c) = [ JMP(mkFail(label)) /*jmp(labelDest(mkFail(label)))*/ ];
+INS tr(muFail(str label), Dest d, CDest c) = [ JMP(mkFail(label)) ];
 
 INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp), Dest d, CDest c){
    defaultLab = nextLabel();
@@ -1167,7 +1167,7 @@ INS tr(muTypeSwitch(MuExp exp, list[MuTypeCase] cases, MuExp defaultExp), Dest d
        caseCode += [ LABEL(caseLab), *tr_arg_stack(cs.exp), JMP(continueLab) ];
    };
    caseCode += [LABEL(defaultLab), *tr_arg_stack(defaultExp), JMP(continueLab) ];
-   return [ *tr_arg_stack(exp), TYPESWITCH(labels), *caseCode, LABEL(continueLab) ];
+   return [ *tr_arg_accu(exp), TYPESWITCH(labels), *caseCode, LABEL(continueLab) ];
 }
 
 // muSwitch
@@ -1200,7 +1200,7 @@ INS tr(muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuEx
         }
         caseCode += [LABEL(defaultLab),  *defaultCode ];
        
-        return [ *tr_arg_stack(exp), SWITCH(labels, defaultLab, useConcreteFingerprint), *caseCode ];
+        return [ *tr_arg_accu(exp), SWITCH(labels, defaultLab, useConcreteFingerprint), *caseCode ];
     } else {
         return [ *tr_arg_nowhere(exp), *defaultCode ];
     }   
@@ -1212,14 +1212,14 @@ INS tr(e:muMulti(MuExp exp), Dest d, CDest c) =
      [ *tr_arg_stack(exp),
        CREATEDYN(0),
        NEXT0(),
-       *plug(stack(), d)
+       *plug(accu(), d)
      ];
 
 INS tr(e:muOne1(MuExp exp), Dest d, CDest c) =
     [ *tr_arg_stack(exp),
        CREATEDYN(0),
        NEXT0(),
-      *plug(stack(), d)
+       *plug(accu(), d)
      ];
 
 // The above list of muExps is exhaustive, no other cases exist
@@ -1253,7 +1253,6 @@ INS tr_cond(muOne1(MuExp exp), int coro, str continueLab, str failLab, CDest fal
     + [ *tr_arg_stack(exp), 
         CREATEDYN(0), 
         NEXT0(), 
-        *plug(stack(), accu()),
         jmpfalse(falseDest)
       ];
 
@@ -1262,12 +1261,10 @@ INS tr_cond(muOne1(MuExp exp), int coro, str continueLab, str failLab, CDest fal
 INS tr_cond(muMulti(MuExp exp), int coro, str continueLab, str failLab, CDest falseDest) {
     res =  [ *tr(exp, stack(), falseDest),
              CREATEDYN(0),
-             POPACCU(),
              STORELOC(coro),
              *[ LABEL(continueLab), *(isEmpty(failLab) ? [] : [ LABEL(failLab)] ) ],
-             PUSHLOC(coro),
+             LOADLOC(coro),
              NEXT0(),
-             *plug(stack(), accu()),
              jmpfalse(falseDest)
            ];
      return res;
