@@ -70,7 +70,7 @@ INS replace_jumps_by_returns(INS ins, str to, Instruction ret) =
 INS jumps_to_returns([ *Instruction ins1, LABEL(lab1), RETURN0(), *Instruction ins2] ) =
     [*replace_jumps_by_returns(ins1, lab1, RETURN0()), LABEL(lab1), RETURN0(), *replace_jumps_by_returns(ins2, lab1, RETURN0())];
     
-INS jumps_to_returns([ *Instruction ins1, LABEL(lab1), RETURN1(a), *Instruction ins2] ) =
+INS jumps_to_returns([ *Instruction ins1, LABEL(lab1), RETURN1(), *Instruction ins2] ) =
     [*replace_jumps_by_returns(ins1, lab1, RETURN1()), LABEL(lab1), RETURN1(), *replace_jumps_by_returns(ins2, lab1, RETURN1())];
 
 default INS jumps_to_returns(INS ins) = ins;   
