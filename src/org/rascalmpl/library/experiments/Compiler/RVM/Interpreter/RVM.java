@@ -1253,8 +1253,8 @@ public class RVM /*implements java.io.Serializable*/ {
 				
 				case Opcode.OP_PUSHOFUN:
 					OverloadedFunction of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
-					stack[sp++] = of.scopeIn == -1 ? new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this)
-					                               : OverloadedFunctionInstance.computeOverloadedFunctionInstance(of.functions, of.constructors, cf, of.scopeIn, functionStore, constructorStore, this);
+					stack[sp++] = of.getScopeIn() == -1 ? new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this)
+					                               : OverloadedFunctionInstance.computeOverloadedFunctionInstance(of.functions, of.constructors, cf, of.getScopeIn(), functionStore, constructorStore, this);
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_PUSHCONSTR:
@@ -1407,8 +1407,8 @@ public class RVM /*implements java.io.Serializable*/ {
 					} else {
 						of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
 						Object arg0 = stack[sp - arity];
-						c_ofun_call_next = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), cf, null, arity)  // changed root to cf
-								                            : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), of.scopeIn, null, arity);
+						c_ofun_call_next = of.getScopeIn() == -1 ? new OverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), cf, null, arity)  // changed root to cf
+								                            : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), of.getScopeIn(), null, arity);
 					}
 					
 					if(ocall_debug) {

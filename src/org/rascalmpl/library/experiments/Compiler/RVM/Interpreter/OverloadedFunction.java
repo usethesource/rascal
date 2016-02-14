@@ -24,7 +24,7 @@ public class OverloadedFunction implements Serializable {
 	final int[] functions;
 	final int[] constructors;
 	final String funIn;
-	int scopeIn = -1;
+	private int scopeIn = -1;
 	boolean allConcreteFunctionArgs = false;
 	boolean allConcreteConstructorArgs = false;
 	HashMap<Integer, int[]> filteredFunctions;		// Functions and constructors filtered on fingerprint of first argument
@@ -41,7 +41,7 @@ public class OverloadedFunction implements Serializable {
 	
 	public void  finalize(final Map<String, Integer> functionMap, ArrayList<Function> functionStore){
 		if(funIn.length() > 0){ // != null) {
-			this.scopeIn = functionMap.get(funIn);
+			this.setScopeIn(functionMap.get(funIn));
 		}
 		// TODO: temp consistency tests
 		for(int fid : functions){
@@ -113,7 +113,7 @@ public class OverloadedFunction implements Serializable {
 			System.out.println("funIn differ");
 			return false;
 		}
-		if(scopeIn != other.scopeIn){
+		if(getScopeIn() != other.getScopeIn()){
 			System.out.println("scopeIn differ");
 			return false;
 		}
@@ -235,7 +235,7 @@ public class OverloadedFunction implements Serializable {
 	}
 	
 	public int getScope() {
-		return scopeIn ;
+		return getScopeIn() ;
 	}
 	
 	public String getScopeFun() {
@@ -261,6 +261,14 @@ public class OverloadedFunction implements Serializable {
 		}
 		sb.append("]");
 		return sb.toString();
+	}
+
+	public int getScopeIn() {
+		return scopeIn;
+	}
+
+	public void setScopeIn(int scopeIn) {
+		this.scopeIn = scopeIn;
 	}
 
 }

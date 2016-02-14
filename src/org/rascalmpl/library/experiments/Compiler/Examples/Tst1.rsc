@@ -2,8 +2,9 @@
 module experiments::Compiler::Examples::Tst1
 
 
-data D = d1(int n, str s) | d2(str s, bool b) | d3(list[int] l, list[int] r); 
-value main() {x = d1(1, "a"); x [-1];}
+data D = d1(int n);
+ 
+value main() = d1(10);
 
 //data ColoredTree = leaf(int N)      /*1*/
 //                 | red(ColoredTree left, ColoredTree right) 

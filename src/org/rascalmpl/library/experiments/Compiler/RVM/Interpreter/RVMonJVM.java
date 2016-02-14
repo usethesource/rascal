@@ -82,17 +82,13 @@ public class RVMonJVM extends RVM {
 		}
 
 		dynRun(func.function.funId, root);
-
-		//Object o = root.stack[root.sp-1];
-		
-		Object o = returnValue;
 		
 		thrown = oldthrown;
 
-		if (o instanceof Thrown) {
-			throw (Thrown) o;
+		if (returnValue instanceof Thrown) {
+			throw (Thrown) returnValue;
 		}
-		return narrow(o);
+		return narrow(returnValue);
 	}
 	
 	public void inject(ArrayList<Function> functionStore2, ArrayList<Type> constructorStore2, TypeStore typeStore2,
@@ -184,8 +180,8 @@ public class RVMonJVM extends RVM {
 
 	public int insnPUSHOFUN(Object[] stack, int sp, Frame cf, int ofun) {
 		OverloadedFunction of = overloadedStore[ofun];
-		stack[sp++] = of.scopeIn == -1 ? new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this) : OverloadedFunctionInstance
-				.computeOverloadedFunctionInstance(of.functions, of.constructors, cf, of.scopeIn, functionStore, constructorStore, this);
+		stack[sp++] = of.getScopeIn() == -1 ? new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this) 
+				                            : OverloadedFunctionInstance.computeOverloadedFunctionInstance(of.functions, of.constructors, cf, of.getScopeIn(), functionStore, constructorStore, this);
 		return sp;
 	}
 
@@ -195,14 +191,13 @@ public class RVMonJVM extends RVM {
 		return sp;
 	}
 
-	public int insnCALLJAVA(Object[] stack, int sp, Frame cf, int m, int c, int p, int k, int r) {
+	public int insnCALLJAVA(Object[] stack, int sp, Frame cf, int m, int c, int p, int k, int reflect) {
 		int newsp = sp;
 		String methodName = ((IString) cf.function.constantStore[m]).getValue();
 		String className = ((IString) cf.function.constantStore[c]).getValue();
 		Type parameterTypes = cf.function.typeConstantStore[p];
 		Type keywordTypes = cf.function.typeConstantStore[k];
-		int reflect = r;
-		int arity = parameterTypes.getArity();
+
 		try {
 			newsp = callJavaMethod(methodName, className, parameterTypes, keywordTypes, reflect, stack, sp);
 		} catch (Throw e) {
@@ -445,7 +440,7 @@ public class RVMonJVM extends RVM {
 		coroutine.suspended = true;
 	}
 
-	public void yield0Helper(Frame lcf, Object[] lstack, int lsp, int ep) {
+	public void yield0Helper(Frame cf, Object[] stack, int sp, int ep) {
 		// Stores a Rascal_TRUE value into the stack of the NEXT? caller.
 		// The inline yield0 does the return
 
@@ -454,45 +449,45 @@ public class RVMonJVM extends RVM {
 
 		returnValue = Rascal_TRUE;
 		
-		lcf.hotEntryPoint = ep;
-		lcf.sp = lsp;
+		cf.hotEntryPoint = ep;
+		cf.sp = sp;
 
-		coroutine.frame = lcf;
+		coroutine.frame = cf;
 		coroutine.suspended = true;
 	}
 
-	public Object callHelper(Object[] lstack, int lsp, Frame lcf, int funid, int arity, int ep) {
+	public Object callHelper(Object[] stack, int sp, Frame cf, int funid, int arity, int ep) {
 		Frame tmp;
 		Function fun;
 		Object rval;
 
-		if (lcf.hotEntryPoint != ep) {
+		if (cf.hotEntryPoint != ep) {
 			fun = functionStore.get(funid);
 			// In case of partial parameter binding
 			if (arity < fun.nformals) {
-				FunctionInstance fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, lstack, lsp);
-				lsp = lsp - arity;
+				FunctionInstance fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
+				sp = sp - arity;
 				returnValue = fun_instance;
-				lcf.sp = lsp;
+				cf.sp = sp;
 				return NONE;
 			}
-			tmp = lcf.getFrame(fun, root, arity, lsp);
-			lcf.nextFrame = tmp;
+			tmp = cf.getFrame(fun, root, arity, sp);
+			cf.nextFrame = tmp;
 		} else {
-			tmp = lcf.nextFrame;
+			tmp = cf.nextFrame;
 			fun = tmp.function;
 		}
-		tmp.previousCallFrame = lcf;
+		tmp.previousCallFrame = cf;
 
 		rval = dynRun(fun.funId, tmp); // In a full inline version we can call the
 										// function directly (name is known).
 		if (rval == YIELD) {
 			// drop my stack
-			lcf.hotEntryPoint = ep;
+			cf.hotEntryPoint = ep;
 			return YIELD; // Will cause the inline call to return YIELD
 		} else {
-			lcf.hotEntryPoint = 0;
-			lcf.nextFrame = null; // Allow GC to clean
+			cf.hotEntryPoint = 0;
+			cf.nextFrame = null; // Allow GC to clean
 			return NONE; // Inline call will continue execution
 		}
 	}
@@ -541,8 +536,8 @@ public class RVMonJVM extends RVM {
 		OverloadedFunction of = overloadedStore[ofun];
 	    
 		Object arg0 = stack[sp - arity];
-		ofun_call = of.scopeIn == -1 ? new OverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), cf, null, arity)  // changed root to cf
-				                     : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), of.scopeIn, null, arity);
+		ofun_call = of.getScopeIn() == -1 ? new OverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), cf, null, arity)  // changed root to cf
+				                          : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), of.getScopeIn(), null, arity);
 		
 		Frame frame = ofun_call.nextFrame(functionStore);
 
@@ -556,12 +551,31 @@ public class RVMonJVM extends RVM {
 		Type constructor = ofun_call.nextConstructor(constructorStore);
 		
 		sp = sp - arity;
-		
 		cf.sp = sp;
+		
 		returnValue = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
 		return returnValue;
 	}
+	
+	public Object jvmOCALLSingleConstructor(Object[] stack, int sp, Frame cf, int ofun, int arity) {
+		cf.sp = sp;
 
+		OverloadedFunction of = overloadedStore[ofun];
+	    
+		Type constructor = constructorStore.get(of.getConstructors()[0]);
+		
+		IValue[] args = new IValue[arity - 1];	// Ignore kw parameters, see OverloadedFunctionInstanceCall.getConstructorArguments
+		for(int i = 0; i < arity - 1; i++) {		
+			args[i] = (IValue) stack[sp - arity + i]; 
+		}
+		
+		sp = sp - arity;
+		cf.sp = sp;
+		
+		returnValue = vf.constructor(constructor, args);
+		return returnValue;
+	}
+	
 	public int jvmOCALLDYN(Object[] lstack, int sop, Frame lcf, int typesel, int arity) {
 		Object funcObject = lstack[--sop];
 		OverloadedFunctionInstanceCall ofunCall = null;
