@@ -20,7 +20,7 @@ public class ApplyDyn extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean dcode){
 		if ( dcode ) 
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall1(opcode.name(), arity);
 		
 		codeEmittor.emitCallWithArgsSSI_S("insnAPPLYDYN", arity, dcode);
 	}

@@ -25,8 +25,7 @@ public class CheckArgTypeAndCopy extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) {
-			codeEmittor.emitDebugCall(opcode.name());
-			codeEmittor.emitCallWithArgsSSFIII_A("insnCHECKARGTYPEANDCOPY",pos1,type,pos2,debug);
+			codeEmittor.emitDebugCall2(opcode.name(), Integer.toString(pos1), type);
 		}
 		codeEmittor.emitInlineCheckArgTypeAndCopy(pos1,type,pos2,debug) ;
 	}

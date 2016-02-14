@@ -23,7 +23,8 @@ public class PushCallMuPrim2 extends Instruction {
 	
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
 		if ( debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall1(opcode.name(), muprim.ordinal());
+		
 		codeEmittor.emitInlinePushCallMuPrim2(muprim, debug);
 	}
 }

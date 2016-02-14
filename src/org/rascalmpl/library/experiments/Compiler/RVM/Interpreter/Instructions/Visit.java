@@ -33,8 +33,8 @@ public class Visit extends Instruction {
 		
 	}
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
-//		if ( debug ) 
-//			codeEmittor.emitDebugCall(opcode.name());
+		if ( debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
 		
 		codeEmittor.emitInlineVisit(((IBool) codeblock.getConstantValue(direction)).getValue(),
 				((IBool) codeblock.getConstantValue(progress)).getValue(),

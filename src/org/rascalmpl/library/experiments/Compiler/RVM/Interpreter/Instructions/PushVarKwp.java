@@ -22,7 +22,7 @@ public class PushVarKwp extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
 		if (debug)
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall2(opcode.name(), fuid, codeblock.getConstantIndex(codeblock.vf.string(name)));
 		
 		codeEmittor.emitCallWithArgsSSFII_S("PUSHVARKWP", codeblock.getFunctionIndex(fuid), codeblock.getConstantIndex(codeblock.vf.string(name)), debug);
     }

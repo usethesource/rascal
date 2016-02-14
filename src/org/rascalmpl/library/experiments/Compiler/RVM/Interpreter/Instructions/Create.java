@@ -23,8 +23,10 @@ public class Create extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall2(opcode.name(),codeblock.getFunctionName(fuid), arity);
 		
-		codeEmittor.emitCallWithArgsSSFII_S("jvmCREATE", codeblock.getFunctionIndex(fuid), arity,debug);
+		codeEmittor.emitCallWithArgsSSFII_A("jvmCREATE", codeblock.getFunctionIndex(fuid), arity,debug);
+		codeEmittor.emitIncSP(-arity);
+		codeEmittor.emitReturnValue2ACCU();
 	}
 }

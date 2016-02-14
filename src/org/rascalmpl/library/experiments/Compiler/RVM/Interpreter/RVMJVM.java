@@ -72,6 +72,7 @@ public class RVMJVM extends RVM {
 	}
 
 	boolean useRVMInterpreter = false;
+	
 	public IValue executeProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs) {
 		if (useRVMInterpreter) {
 			return super.executeProgram(moduleName, uid_main, args, kwArgs);
@@ -91,6 +92,7 @@ public class RVMJVM extends RVM {
 			Object o = null;
 
 			o = runner.dynRun(uid_main, args);
+			o = runner.returnValue;
 			if (o != null && o instanceof Thrown) {
 				throw (Thrown) o;
 			}
@@ -99,6 +101,7 @@ public class RVMJVM extends RVM {
 	}
 
 	protected Object executeProgram(Frame root, Frame cf) {
-		return runner.dynRun(root.function.funId, root);
+		runner.dynRun(root.function.funId, root);
+		return runner.returnValue;
 	}
 }

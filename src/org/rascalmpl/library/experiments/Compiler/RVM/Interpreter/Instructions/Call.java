@@ -26,7 +26,7 @@ public class Call extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
 		if ( debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall2(opcode.name(), codeblock.getFunctionName(fuid), arity);
 		
 		codeEmittor.emitInlineCall(codeblock.getFunctionIndex(fuid), arity, continuationPoint,debug) ;
 	}
