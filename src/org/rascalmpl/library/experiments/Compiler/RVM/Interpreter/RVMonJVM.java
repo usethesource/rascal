@@ -99,55 +99,40 @@ public class RVMonJVM extends RVM {
 			Map<String, Integer> functionMap2) {
 		// TODO check if we can generate code for them.
 		this.functionStore = functionStore2;
-//		this.overloadedStore = overloadedStore2;
 		this.constructorStore = constructorStore2;
 		this.typeStore = typeStore2;
 		this.functionMap = functionMap2;
 	}
-
-	public static void printStack(Object[] stack, int sp){
-		for(int i = 0; i < sp; i++){
-			System.err.println("\t" + i + ": " + asString(stack[i]));
-		}
-	}
 	
 	static boolean verbose = true;
 	
+	private static void printFrameAndStackAndAccu(Frame cf, int sp, Object accu){
+		System.err.println(cf);
+		for(int i = 0; i < sp; i++){
+			String isLocal = i < cf.function.getNlocals() ? "*" : " ";
+			System.err.println("\t" + isLocal + i + ": " + asString(cf.stack[i]));
+		}
+
+		System.err.println("\tacc: " + asString(accu));
+	}
+	
 	public static void debugINSTRUCTION(String insName, Frame cf, int sp, Object accu){
 		if(verbose){
-			System.err.println(cf);
-			for(int i = 0; i < sp; i++){
-				String isLocal = i < cf.function.getNlocals() ? "*" : " ";
-				System.err.println("\t" + isLocal + i + ": " + asString(cf.stack[i]));
-			}
-
-			System.err.println("\tacc: " + asString(accu));
+			printFrameAndStackAndAccu(cf, sp, accu);
 			System.err.println(insName +"\n");
 		}
 	}
 	
 	public static void debugINSTRUCTION1(String insName, int arg1, Frame cf, int sp, Object accu){
 		if(verbose){
-			System.err.println(cf);
-			for(int i = 0; i < sp; i++){
-				String isLocal = i < cf.function.getNlocals() ? "*" : " ";
-				System.err.println("\t" + isLocal + i + ": " + asString(cf.stack[i]));
-			}
-
-			System.err.println("\tacc: " + asString(accu));
+			printFrameAndStackAndAccu(cf, sp, accu);
 			System.err.println(insName + " " + arg1 + "\n");
 		}
 	}
 	
 	public static void debugINSTRUCTION2(String insName, String arg1, int arg2, Frame cf, int sp, Object accu){
 		if(verbose){
-			System.err.println(cf);
-			for(int i = 0; i < sp; i++){
-				String isLocal = i < cf.function.getNlocals() ? "*" : " ";
-				System.err.println("\t" + isLocal + i + ": " + asString(cf.stack[i]));
-			}
-
-			System.err.println("\tacc: " + asString(accu));
+			printFrameAndStackAndAccu(cf, sp, accu);
 			System.err.println(insName + " " + arg1 + ", " + arg2 + "\n");
 		}
 	}
@@ -338,8 +323,8 @@ public class RVMonJVM extends RVM {
 		}
 		return; // TODO stack[sp - 1];
 	}
-
-
+	
+	
 	// / JVM Helper methods
 	public Object dynRun(String fname, IValue[] args) {
 		
@@ -365,15 +350,7 @@ public class RVMonJVM extends RVM {
 			ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 		}
 
-		returnValue = Rascal_TRUE; //cof.previousCallFrame.stack[cof.previousCallFrame.sp++] = Rascal_TRUE;
-	}
-
-	public Object return1Helper(final Frame cof, final Object accu) {
-//		if (cof.previousCallFrame != null) {
-//			cof.previousCallFrame.stack[cof.previousCallFrame.sp++] = accu;
-//		}
-		returnValue = accu;
-		return  accu;
+		returnValue = Rascal_TRUE;
 	}
 	
 	public void coreturn1Helper(final Object[] lstack, int sop, final Frame cof, final int arity) {
@@ -385,9 +362,7 @@ public class RVMonJVM extends RVM {
 			Reference ref = (Reference) lstack[refs[arity - 1 - i]];
 			ref.stack[ref.pos] = lstack[--sop];
 		}
-//		if (cof.previousCallFrame != null) {
-//			cof.previousCallFrame.stack[cof.previousCallFrame.sp++] = Rascal_TRUE;
-//		}
+
 		returnValue = Rascal_TRUE;
 	}
 	
@@ -397,7 +372,7 @@ public class RVMonJVM extends RVM {
 
 		// lcf.sp = modified by getCoroutineFrame.
 		dynRun(fun, cccf); // Run untill guard, leaves coroutine instance in stack.
-		return returnValue; //stack[--cf.sp];
+		return returnValue;
 	}
 
 	public Object jvmCREATEDYN(Object[] stack, int sp, Frame cf, int arity) {
@@ -417,8 +392,7 @@ public class RVMonJVM extends RVM {
 
 		// cf.sp = modified by getCoroutineFrame.
 		dynRun(fun_instance.function.funId, cccf);
-		Object result = returnValue; //stack[--cf.sp];
-		return result;
+		return returnValue;
 	}
 
 	public int typeSwitchHelper(final Object accu) { // stackpointer calc is done in the inline part.
@@ -456,8 +430,6 @@ public class RVMonJVM extends RVM {
 		Coroutine coroutine = activeCoroutines.pop();
 		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 
-		//coroutine.start.previousCallFrame.stack[coroutine.start.previousCallFrame.sp++] = Rascal_TRUE;
-
 		returnValue = Rascal_TRUE;
 		int[] refs = cf.function.refs;
 
@@ -480,8 +452,6 @@ public class RVMonJVM extends RVM {
 		Coroutine coroutine = activeCoroutines.pop();
 		ccf = activeCoroutines.isEmpty() ? null : activeCoroutines.peek().start;
 
-		//coroutine.start.previousCallFrame.stack[coroutine.start.previousCallFrame.sp++] = Rascal_TRUE;
-
 		returnValue = Rascal_TRUE;
 		
 		lcf.hotEntryPoint = ep;
@@ -502,7 +472,6 @@ public class RVMonJVM extends RVM {
 			if (arity < fun.nformals) {
 				FunctionInstance fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, lstack, lsp);
 				lsp = lsp - arity;
-				//lstack[lsp++] = fun_instance;
 				returnValue = fun_instance;
 				lcf.sp = lsp;
 				return NONE;
@@ -543,13 +512,11 @@ public class RVMonJVM extends RVM {
 		// Push something on the stack of the prev yielding function
 		coroutine.frame.stack[coroutine.frame.sp++] = null;
 
-		//cf.sp = sp;
-
 		coroutine.frame.previousCallFrame = cf;
 
 		dynRun(coroutine.entryFrame.function.funId, coroutine.entryFrame);
 
-		return returnValue; // cf.stack[--cf.sp]; //Rascal_TRUE;
+		return returnValue;
 	}
 
 	public Object exhaustHelper(Object[] stack, int sp, Frame cf) {
@@ -562,20 +529,12 @@ public class RVMonJVM extends RVM {
 		if (cf.previousCallFrame == null) {
 			return Rascal_FALSE;
 		}
-		//cf.previousCallFrame.stack[cf.previousCallFrame.sp++] = Rascal_FALSE; // 'Exhaust' has to always return FALSE,
+		
 		returnValue = Rascal_FALSE;
 		return NONE;// i.e., signal a failure;
 	}
 
-	// jvmOCALL has an issue
-	// There are 3 possible ways to reset the stack pointer sp
-	// 1: Done by nextFrame
-	// 2: Not done by nextFrame (there is no frame)
-	// 3: todo after the constructor call.
-	// Problem there was 1 frame and the function failed.
 	public Object jvmOCALL(Object[] stack, int sp, Frame cf, int ofun, int arity) {
-//		boolean stackPointerAdjusted = false;
-
 		cf.sp = sp;
 
 		OverloadedFunctionInstanceCall ofun_call = null;
@@ -587,25 +546,20 @@ public class RVMonJVM extends RVM {
 		
 		Frame frame = ofun_call.nextFrame(functionStore);
 
-		while (frame != null) {
-//			stackPointerAdjusted = true; // See text
-
-			// System.err.println("Function ID : " + frame.function.funId);			
+		while (frame != null) {	
 			Object rsult = dynRun(frame.function.funId, frame);
 			if (rsult == NONE) {
-				return returnValue; // stack[--cf.sp]; // Alternative matched.
+				return returnValue; // Alternative matched.
 			}
 			frame = ofun_call.nextFrame(functionStore);
 		}
 		Type constructor = ofun_call.nextConstructor(constructorStore);
-		//if (stackPointerAdjusted == false) {
-			sp = sp - arity;
-		//}
 		
-		//stack[sp++] = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
+		sp = sp - arity;
+		
 		cf.sp = sp;
 		returnValue = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
-		return returnValue; //stack[--cf.sp];
+		return returnValue;
 	}
 
 	public int jvmOCALLDYN(Object[] lstack, int sop, Frame lcf, int typesel, int arity) {
@@ -622,8 +576,7 @@ public class RVMonJVM extends RVM {
 			FunctionInstance fun_instance = (FunctionInstance) funcObject;
 			Frame frame = lcf.getFrame(fun_instance.function, fun_instance.env, arity, sop);
 			frame.previousCallFrame = lcf;
-			// stack = cf.stack;
-			// sp = cf.sp;
+			
 			dynRun(frame.function.funId, frame);
 			return lcf.sp;
 		}
@@ -646,7 +599,6 @@ public class RVMonJVM extends RVM {
 		if (stackPointerAdjusted == false) {
 			sop = sop - arity;
 		}
-		//lstack[sop++] = vf.constructor(constructor, ofunCall.getConstructorArguments(constructor.getArity()));
 		returnValue = vf.constructor(constructor, ofunCall.getConstructorArguments(constructor.getArity()));
 		lcf.sp = sop;
 		return sop;
@@ -665,7 +617,6 @@ public class RVMonJVM extends RVM {
 					args[i] = (IValue) lstack[lsp - arity + i];
 				}
 				lsp = lsp - arity;
-				//lstack[lsp++] = vf.constructor(constr, args);
 				returnValue = vf.constructor(constr, args);
 				lcf.sp = lsp;
 				return NONE; // DO not return continue execution
@@ -677,7 +628,6 @@ public class RVMonJVM extends RVM {
 				if (fun_instance.next + arity < fun_instance.function.nformals) {
 					fun_instance = fun_instance.applyPartial(arity, lstack, lsp);
 					lsp = lsp - arity;
-					//lstack[lsp++] = fun_instance;
 					returnValue = fun_instance;
 					lcf.sp = lsp;
 					return NONE;
@@ -716,9 +666,6 @@ public class RVMonJVM extends RVM {
 		}
 		return thrown;
 	}
-
-
-
 
 	public static Object anyDeserialize(String s) throws IOException, ClassNotFoundException {
 		ByteArrayInputStream bais = new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(s));

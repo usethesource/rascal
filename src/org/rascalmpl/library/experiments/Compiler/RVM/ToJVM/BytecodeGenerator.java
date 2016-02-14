@@ -40,20 +40,19 @@ public class BytecodeGenerator implements Opcodes {
 	public static final int THIS = 0;			// Current class
 	public static final int CF = 1;				// Current frame
 	public static final int SP = 2;				// RVM stack pointer: int sp
-	public static final int STACK = 3;			// RVM stack: Object stack[]
-	public static final int ACCU = 4;			// RVM accumulator: Object accu
+	public static final int ACCU = 3;			// RVM accumulator: Object accu
+	public static final int STACK = 4;			// RVM stack: Object stack[]
+
 	
 	// Local variables in coroutines
 	
 	public static final int LPRECONDITION = 5;	// Boolean variable used in guard code
-	public static final int LVAL = 6;			// Local IValue
-	public static final int LCOROUTINE = 7;		// Local coroutine instance
-	public static final int LPREVFRAME = 8;		// 
-	public static final int EXCEPTION = 9;
+	public static final int LCOROUTINE = 6;		// Local coroutine instance
+	public static final int EXCEPTION = 7;
 	
 	// Only needed when function needed constant store or type store
-	public static final int CS = 10;			// Constant store
-	public static final int TS = 11;			// Type constant store
+	public static final int CS = 8;			// Constant store
+	public static final int TS = 9;			// Type constant store
 	
 	
 	// Arguments of the RVM constructor
@@ -511,10 +510,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ARETURN);
 	}
 
-	public void emitInlineExhaust(boolean dcode) {
-//		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_FALSE", "Lorg/rascalmpl/value/IBool;");
-//		mv.visitVarInsn(ASTORE,  ACCU);
-		
+	public void emitInlineExhaust(boolean dcode) {		
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
@@ -524,35 +520,16 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineReturn(int wReturn, boolean debug) {
-		Label normalReturn = new Label();
-		
-		if (wReturn == 0) {
-			mv.visitInsn(ACONST_NULL);				// TODO: Is this necessary?
-		} 
-		else {
+		if(wReturn != 0){
 			mv.visitVarInsn(ALOAD, THIS);
-			mv.visitVarInsn(ALOAD, CF);
 			mv.visitVarInsn(ALOAD, ACCU);
-			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "return1Helper",
-					"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;Ljava/lang/Object;)Ljava/lang/Object;",false);
+			mv.visitFieldInsn(PUTFIELD, fullClassName, "returnValue", "Ljava/lang/Object;");
 		}
-
-		mv.visitVarInsn(ASTORE, LVAL);				// LVAL = return1Helper(cf, accu)
-
-		mv.visitVarInsn(ALOAD, CF);
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "previousCallFrame",
-				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-		mv.visitJumpInsn(IFNONNULL, normalReturn);	// previousCallFrame == null?
-		mv.visitVarInsn(ALOAD, LVAL);
-		mv.visitInsn(ARETURN);
-
-		mv.visitLabel(normalReturn);				// Here: previousCallFrame != null
 		
 		emitReturnNONE();
 	}
 	
 	public void emitInlineCoReturn(int wReturn, boolean debug) {
-		Label normalReturn = new Label();
 		mv.visitVarInsn(ALOAD, THIS);
 
 		if (wReturn == 0) {
@@ -568,18 +545,8 @@ public class BytecodeGenerator implements Opcodes {
 					"([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;I)V",false);
 		}
 
-		mv.visitVarInsn(ALOAD, CF);
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "previousCallFrame",
-				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-		mv.visitJumpInsn(IFNONNULL, normalReturn);
-		//mv.visitVarInsn(ALOAD, LVAL);
-		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/rascalmpl/value/IBool;");
-		mv.visitInsn(ARETURN);
-
-		mv.visitLabel(normalReturn);
 		emitReturnNONE();
 	}
-	
 	
 	public void emitInlineVisit(boolean direction, boolean progress, boolean fixedpoint, boolean rebuild, boolean debug) {
 		Label returnLabel = new Label();
@@ -701,12 +668,7 @@ public class BytecodeGenerator implements Opcodes {
 		
 		mv.visitInsn(ACONST_NULL);				// coroutine = null
 		mv.visitVarInsn(ASTORE, LCOROUTINE);
-		
-		mv.visitVarInsn(ALOAD, CF);				// prevframe = cf.previousCallFrame
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "previousCallFrame",
-				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-		mv.visitVarInsn(ASTORE, LPREVFRAME);
-		
+				
 		mv.visitVarInsn(ALOAD, THIS);			// precondition = guardHelper(accu)
 		mv.visitVarInsn(ALOAD, ACCU);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "guardHelper", "(Ljava/lang/Object;)Z",false);
@@ -789,7 +751,6 @@ public class BytecodeGenerator implements Opcodes {
 		emitReturnNONE();
 		
 		mv.visitLabel(l4);						// Here: precondition == true
-		
 		mv.visitLabel(hotEntryLabels[hotEntryPoint]);
 	}
 
@@ -870,7 +831,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public void emitInlineYield(int arity, int hotEntryPoint, boolean debug) {
-		Label continueAt = new Label();
 
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, CF);
@@ -886,14 +846,6 @@ public class BytecodeGenerator implements Opcodes {
 			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "yield0Helper", "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;[Ljava/lang/Object;II)V",false);
 		}
 		
-		mv.visitVarInsn(ALOAD, CF);
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "previousCallFrame",
-				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-		mv.visitJumpInsn(IFNONNULL, continueAt);
-		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", "Lorg/rascalmpl/value/IBool;");
-		mv.visitInsn(ARETURN);
-
-		mv.visitLabel(continueAt);
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/rascalmpl/value/IString;");
 		mv.visitInsn(ARETURN);
@@ -1447,7 +1399,6 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
 	}
-
 
 	public void emitInlineLoadInt(int nval, boolean debug) {
 		emitIntValue(nval);
