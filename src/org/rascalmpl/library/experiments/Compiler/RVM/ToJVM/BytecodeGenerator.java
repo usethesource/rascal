@@ -927,28 +927,24 @@ public class BytecodeGenerator implements Opcodes {
 
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "callHelper", "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;III)Ljava/lang/Object;",false);
 		mv.visitInsn(DUP);
+
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/rascalmpl/value/IString;");
 		mv.visitJumpInsn(IF_ACMPNE, l0);
-		
-		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "returnValue", "Ljava/lang/Object;");
-		mv.visitVarInsn(ASTORE, ACCU);
 		
 		mv.visitInsn(ARETURN);
 
 		mv.visitLabel(l0);						// result callHelper != "YIELD"
 		mv.visitInsn(POP);
+		
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
 		mv.visitVarInsn(ISTORE, SP);
 		
-		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "returnValue", "Ljava/lang/Object;");
-		mv.visitVarInsn(ASTORE, ACCU);
+		emitReturnValue2ACCU();
 	}
 	
-	public void emitInlineCalldyn(int arity, boolean debug){
+	public void emitInlineCreateDyn(int arity, boolean debug){
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK); 	// S
 		mv.visitVarInsn(ILOAD, SP); 	// S
