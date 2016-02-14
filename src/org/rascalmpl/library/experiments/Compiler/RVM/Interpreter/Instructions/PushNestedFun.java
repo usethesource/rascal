@@ -21,7 +21,7 @@ public class PushNestedFun extends Instruction {
 	}
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if (debug)
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall2(opcode.name(), codeblock.getFunctionName(fuid), codeblock.getFunctionIndex(scopeIn));
 		
 		codeEmittor.emitCallWithArgsSSFII_S("insnPUSH_NESTED_FUN", codeblock.getFunctionIndex(fuid), codeblock.getFunctionIndex(scopeIn),debug);
 	}

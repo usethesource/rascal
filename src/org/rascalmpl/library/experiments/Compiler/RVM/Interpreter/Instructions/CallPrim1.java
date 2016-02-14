@@ -24,7 +24,7 @@ public class CallPrim1 extends Instruction {
 	}
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall2(opcode.name(), prim.name(), 1);
 
 		codeEmittor.emitInlineCallPrim1(prim, debug); 
 	}

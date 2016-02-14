@@ -236,7 +236,7 @@ public class RVM /*implements java.io.Serializable*/ {
 	 * @return its string representation
 	 */
 	@SuppressWarnings("rawtypes")
-	protected String asString(Object o){
+	protected static String asString(Object o){
 		if(o == null)
 			return "null";
 		if(o instanceof Integer)
@@ -276,7 +276,7 @@ public class RVM /*implements java.io.Serializable*/ {
 			OverloadedFunctionInstance of = (OverloadedFunctionInstance) o;
 			String alts = "";
 			for(Integer fun : of.getFunctions()) {
-				alts = alts + functionStore.get(fun).getName() + "; ";
+				alts = alts + fun + "; ";
 			}
 			return "OverloadedFunction[ alts: " + alts + "]";
 		}

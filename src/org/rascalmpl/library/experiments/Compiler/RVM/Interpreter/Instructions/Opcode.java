@@ -81,7 +81,7 @@ public enum Opcode {
 	LOADLOC7			(63, 	1),
 	LOADLOC8			(64, 	1),
 	LOADLOC9			(65, 	1),
-	JMPINDEXED			(66, 	1),	//unused
+	UNUSED				(66, 	1),	//unused
 	LOADLOCKWP          (67,    1),
 	LOADVARKWP          (68,    1),
 	STORELOCKWP         (69,    1),

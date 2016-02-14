@@ -21,7 +21,7 @@ public class RVMTrackingObserver implements IFrameObserver {
 		for (int i = 0; i < sp; i++) {
 			stdout.println("\t " + (i < frame.function.getNlocals() ? "*" : " ") + i + ": " + rvm.asString(stack[i], 40));
 		}
-		stdout.println("\tacc: " + accu);
+		stdout.println("\tacc: " + rvm.asString(accu, 40));
 		stdout.printf("%5s %s\n" , "", frame.function.codeblock.toString(pc));
 		stdout.flush();
 		return true;

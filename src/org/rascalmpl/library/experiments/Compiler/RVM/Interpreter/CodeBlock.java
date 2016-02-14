@@ -174,6 +174,16 @@ public class CodeBlock implements Serializable {
 		throw new CompilerError("In function " + name + ": undefined function index " + n);
 	}
 	
+	public String getFunctionName(String name){
+		int n = getFunctionIndex(name);
+		for(String fname : functionMap.keySet()){
+			if(functionMap.get(fname) == n){
+				return fname;
+			}
+		}
+		throw new CompilerError("In function " + name + ": undefined function index " + n);
+	}
+	
 	public int getFunctionIndex(String name){
 		Integer n = functionMap.get(name);
 		if(n == null){
@@ -687,10 +697,6 @@ public class CodeBlock implements Serializable {
 	public CodeBlock CHECKARGTYPEANDCOPY(int pos1, Type type, int pos2) {
 		return add(new CheckArgTypeAndCopy(this, pos1, getTypeConstantIndex(type), pos2));
 	}
-		
-//	public CodeBlock JMPINDEXED(IList labels){
-//		return add(new JmpIndexed(this, labels));
-//	}
 	
 	public CodeBlock LOADLOCKWP(String name) {
 		return add(new LoadLocKwp(this, name));

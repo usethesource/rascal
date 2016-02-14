@@ -20,7 +20,7 @@ public class LoadType extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if (debug)
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall1(opcode.name(), type);
 		
 		codeEmittor.emitInlineLoadConOrType(type, false,  debug); 
 	}

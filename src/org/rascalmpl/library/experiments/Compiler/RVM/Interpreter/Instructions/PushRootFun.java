@@ -20,7 +20,7 @@ public class PushRootFun extends Instruction {
 	
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall2(opcode.name(), fuid, codeblock.getFunctionIndex(fuid));
 	
 		codeEmittor.emitCallWithArgsSSI_S("insnPUSH_ROOT_FUN", codeblock.getFunctionIndex(fuid),debug);
 	}

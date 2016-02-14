@@ -24,7 +24,7 @@ public class UnwrapThrownVar extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if (debug)
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall2(opcode.name(), codeblock.getFunctionName(fuid), pos);
 		
 		if(pos == -1){
 			codeEmittor.emitCallWithArgsSSFI_S("UNWRAPTHROWNVARMODULE", codeblock.getFunctionIndex(fuid), debug); 

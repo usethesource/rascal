@@ -11,6 +11,7 @@ public class LessInt extends Instruction {
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
+		
 		codeEmittor.emitCallWithArgsPA_A("insnLESSINT");
 	}
 }

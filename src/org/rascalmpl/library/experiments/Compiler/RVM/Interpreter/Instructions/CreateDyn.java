@@ -20,8 +20,9 @@ public class CreateDyn extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall1(opcode.name(), arity);
 		
-		codeEmittor.emitCallWithArgsSSFI_S("jvmCREATEDYN", arity, debug);
+		//codeEmittor.emitCallWithArgsSSFI_A("jvmCREATEDYN", arity, debug);
+		codeEmittor.emitInlineCalldyn(arity, debug);
 	}
 }

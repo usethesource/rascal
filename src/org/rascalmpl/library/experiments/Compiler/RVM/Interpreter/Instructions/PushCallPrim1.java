@@ -24,7 +24,7 @@ public class PushCallPrim1 extends Instruction {
 	}
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall1(opcode.name(), prim.ordinal());
 
 		codeEmittor.emitInlinePushCallPrim1(prim, debug); 
 	}
