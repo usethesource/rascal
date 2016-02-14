@@ -1266,10 +1266,9 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	/*
-	 * emitOptimizedOcall emits a call to a full ocall implementation or: 
-	 * 1: There is only one function emit direct call  (DONE) 
-	 * 2: There is only a constructor call constructor (TODO)
-	 * *: Rest call full ocall implementation
+	 * emitOptimizedOcall emits a call to a full ocall implementation unless: 
+	 * 1: There is only one function => emit direct call  (DONE) 
+	 * 2: There is only a constructor => call constructor (DONE)
 	 */
 	public void emitOptimizedOcall(String fuid, int overloadedFunctionIndex, int arity, boolean dcode) {
 		OverloadedFunction of = overloadedStore.get(overloadedFunctionIndex);
@@ -1278,7 +1277,7 @@ public class BytecodeGenerator implements Opcodes {
 			int[] ctors = of.getConstructors();
 			if (ctors.length == 0) {
 				Function fu = functionStore.get(functions[0]);
-				if (of.getScopeFun().equals("")) {						// TODO
+				if (of.getScopeFun().equals("")) {
 					emitOcallSingle(NameMangler.mangle(fu.getName()), functions[0], arity);
 				} else {
 					// Nested function needs link to containing frame
@@ -1293,12 +1292,15 @@ public class BytecodeGenerator implements Opcodes {
 				emitReturnValue2ACCU();
 			}
 		} else {
-			//if ( functions.length == 0 )  System.err.println("Optimize OCALL for call to single constructor!!");
-			emitCallWithArgsSSFII_A("jvmOCALL", overloadedFunctionIndex, arity, dcode);
+			if(functions.length == 0 && of.getConstructors().length == 1){
+				// Specialize for single constructor
+				emitCallWithArgsSSFII_A("jvmOCALLSingleConstructor", overloadedFunctionIndex, arity, dcode);
+			} else {
+				emitCallWithArgsSSFII_A("jvmOCALL", overloadedFunctionIndex, arity, dcode);
+			}
 			mv.visitIincInsn(SP, -arity);
 			emitReturnValue2ACCU();
 		}
-		
 	}
 
 	private void emitOcallSingle(String funName, int fun, int arity) {
@@ -1521,6 +1523,7 @@ public class BytecodeGenerator implements Opcodes {
 		}
 	}
 
+	// TODO: compare with performance of insnCHECKARGTYPEANDCOPY
 	public void emitInlineCheckArgTypeAndCopy(int pos1, int type, int pos2, boolean debug) {
 		Label l1 = new Label();
 		Label l5 = new Label();
