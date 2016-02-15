@@ -57,9 +57,9 @@ OFG buildFlowGraph(FlowProgram p)
   ;
 
 @doc{Section 2.4 [tonella]}
-OFG propagate(OFG g, rel[loc,loc] gen, rel[loc,loc] kill, bool back) {
-  OFG IN = { };
-  OFG OUT = gen + (IN - kill);
+rel[loc,&T] propagate(OFG g, rel[loc,&T] gen, rel[loc,&T] kill, bool back) {
+  rel[loc,&T] IN = { };
+  rel[loc,&T] OUT = gen + (IN - kill);
   gi = g<to,from>;
   set[loc] pred(loc n) = gi[n];
   set[loc] succ(loc n) = g[n];
