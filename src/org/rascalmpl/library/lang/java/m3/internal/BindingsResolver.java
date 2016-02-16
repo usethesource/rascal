@@ -77,7 +77,7 @@ public class BindingsResolver {
 		this.locationCache = cache;
 	}
 	
-	public ISourceLocation resolveBinding(ASTNode node) {
+	public ISourceLocation resolveBinding(ASTNode node, boolean tryHard) {
 		if (collectBindings) {
 			if (node instanceof TypeDeclaration) {
         return resolveBinding(((TypeDeclaration) node).resolveBinding());
@@ -104,7 +104,7 @@ public class BindingsResolver {
         IBinding resolveBinding = n.resolveBinding();
         ISourceLocation result = resolveBinding(resolveBinding);
         // Have to move towards parent to make the binding unique
-        if (result.getScheme() == "unresolved") {
+        if (result.getScheme() == "unresolved" && tryHard) {
         	result = resolveBinding(n.getParent(), resolveBinding, n);
         }
         return result;
@@ -149,7 +149,7 @@ public class BindingsResolver {
 	}
 	
 	private ISourceLocation resolveBinding(ASTNode parentNode, IBinding resolvedBinding, SimpleName nodeName) {
-		ISourceLocation parentBinding = resolveBinding(parentNode);
+		ISourceLocation parentBinding = resolveBinding(parentNode, false);
 		// Something has to declare it!!!
 		while(parentBinding.getScheme().equals("unknown") || parentBinding.getScheme().equals("unresolved")) {
 			if (parentNode == null) {
@@ -157,7 +157,7 @@ public class BindingsResolver {
 				return makeBinding("unresolved", null, null);
 			}
 			parentNode = parentNode.getParent();
-			parentBinding = resolveBinding(parentNode);
+			parentBinding = resolveBinding(parentNode, false);
 		}
 
 		// TODO: @ashimshahi please check this additional null check and the way we return an unresolved binding here
@@ -192,10 +192,10 @@ public class BindingsResolver {
 	
 	private ISourceLocation resolveQualifiedName(QualifiedName node) {
 		ISourceLocation parent = resolveBinding(node.getQualifier().resolveTypeBinding());
-		ISourceLocation name = resolveBinding(node.getName());
+		ISourceLocation name = resolveBinding(node.getName(), false);
 		
 		if (parent.getScheme().equals("java+array") && name.getScheme().equals("unresolved")) {
-			return makeBinding("java+field", null, resolveBinding(node.getQualifier()).getPath() + "/" + node.getName().getIdentifier());
+			return makeBinding("java+field", null, resolveBinding(node.getQualifier(), true).getPath() + "/" + node.getName().getIdentifier());
 		}
 		
 		return name;
@@ -206,7 +206,7 @@ public class BindingsResolver {
 			return initializerLookUp.get(node); 
 		}
 		int initCounter = 1;
-		ISourceLocation parent = resolveBinding(node.getParent());
+		ISourceLocation parent = resolveBinding(node.getParent(), true);
 		if (initializerCounter.containsKey(parent)) {
 	      initCounter = initializerCounter.get(parent) + 1;
 	    }
