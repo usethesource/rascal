@@ -2022,6 +2022,9 @@ public class Prelude {
 	}
 	
 	public IMap getAnnotations(INode node) {
+	    if (!node.isAnnotatable()) {
+	        return values.mapWriter().done();
+	    }
 		java.util.Map<java.lang.String,IValue> map = node.asAnnotatable().getAnnotations();
 		IMapWriter w = values.mapWriter();
 		
