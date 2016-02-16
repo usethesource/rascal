@@ -4819,22 +4819,42 @@ public CheckResult checkStmt(Statement stmt:(Statement)`fail <Target target>;`, 
 
 @doc{Check the type of Rascal statements: Break (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`break <Target target>;`, Configuration c) {
+	set[Symbol] failures = { };
+
     if ((Target)`<Name n>` := target) {
         rn = convertName(n);
         // TODO: Check to see what category the label is in?
         if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label not defined", stmt@\loc));
-    }   
-    return markLocationType(c, stmt@\loc, Symbol::\void());
+    }
+    
+    if (!labelTypeInStack(c, {forLabel(), whileLabel(), doWhileLabel()})) {
+        failures += makeFailType("Cannot break outside the scope of a for, while, or do while loop", stmt@\loc);
+    }
+
+    if (size(failures) > 0)
+        return markLocationFailed(c, stmt@\loc, failures);
+    else
+        return markLocationType(c, stmt@\loc, Symbol::\void());
 }
 
 @doc{Check the type of Rascal statements: Continue (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`continue <Target target>;`, Configuration c) {
+	set[Symbol] failures = { };
+    
     if ((Target)`<Name n>` := target) {
         rn = convertName(n);
         // TODO: Check to see what category the label is in?
         if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label not defined", stmt@\loc));
     }   
-    return markLocationType(c, stmt@\loc, Symbol::\void());
+
+    if (!labelTypeInStack(c, {forLabel(), whileLabel(), doWhileLabel()})) {
+        failures += makeFailType("Cannot continue outside the scope of a for, while, or do while loop", stmt@\loc);
+    }
+
+    if (size(failures) > 0)
+        return markLocationFailed(c, stmt@\loc, failures);
+    else
+        return markLocationType(c, stmt@\loc, Symbol::\void());
 }
 
 @doc{Check the type of Rascal statements: Filter (DONE)}
