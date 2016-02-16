@@ -875,6 +875,8 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitInlineCallMAKE_SUBJECT(){
+		emitIntValue(2);
+		mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
 		
 	}
 

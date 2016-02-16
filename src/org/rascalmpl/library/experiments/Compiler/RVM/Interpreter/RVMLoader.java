@@ -395,6 +395,16 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		IMap imported_module_tags = (IMap) program.get("imported_module_tags");
 		IConstructor main_module = (IConstructor) program.get("main_module");
 		IMap moduleTags = imported_module_tags.put(main_module.get("name"), main_module.get("module_tags"));
+		
+		String moduleName = ((IString) main_module.get("name")).getValue();
+		
+		IList extendedModules = (IList) main_module.get("extends");
+		HashSet<String> extendedModuleSet = new HashSet<>();
+		for(IValue v : extendedModules){
+			extendedModuleSet.add(((IString) v).getValue());
+		}
+		
+		boolean hasExtends = !extendedModuleSet.isEmpty();
 
 		/** Imported types */
 
@@ -454,6 +464,12 @@ static FSTCodeBlockSerializer codeblockSerializer;
 					rootWriter.insert(iname);
 					rootWriter.insert(scopeIn);
 				}
+				
+				if(hasExtends){
+					if(extendedModuleSet.contains(name.substring(0, name.indexOf("/")))){
+						rootWriter.insert(iname);
+					}
+				}
 			}
 			if (declaration.getName().contentEquals("COROUTINE")) {
 				addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
@@ -473,7 +489,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 
 		/** Declarations for main module */
 		
-		String moduleName = ((IString) main_module.get("name")).getValue();
+		
 		
 		String main = "/main()#0";
 		String main_testsuite = /*"/" + moduleName + */ "_testsuite()#0";
