@@ -132,8 +132,8 @@ value build(bool jvm=false){
      BOOTSTDLIB = BOOT + "stdlib";
      pcfg = pathConfig(srcPath=[|std:///|], binDir=BOOTSTDLIB, libPath=[BOOTSTDLIB]);
      
-     report("Removing current compiled standard library <BOOTSTDLIB>");
-     remove(BOOTSTDLIB);
+     //report("Removing current compiled standard library <BOOTSTDLIB>");
+     //remove(BOOTSTDLIB);
      
      commands = "#!/bin/sh\n";
      
