@@ -46,7 +46,11 @@ private map[str,int] minNlocal = ();
 
 private map[str,str] scopeIn = ();                      // scope nesting
 
-int get_nlocals() = nlocal[functionScope];      
+int get_nlocals() = nlocal[functionScope];     
+
+set[str] usedOverloadedFunctions = {};
+
+set[str] usedFunctions = {}; 
 
 void set_nlocals(int n) {
     nlocal[functionScope] = n;
@@ -70,6 +74,9 @@ void init(){
     currentCatchBlock = 0;
     finallyBlock = [];
     exceptionTable = [];
+    
+    usedOverloadedFunctions = {};
+    usedFunctions = {};
 }
 
 // Map names of <fuid, pos> pairs to local variable names ; Note this info could also be collected in Rascal2muRascal
@@ -248,12 +255,14 @@ list[RVMDeclaration] mulib2rvm(MuModule muLib){
         currentFunction = fun;
         setFunctionScope(fun.qname);
         set_nlocals(fun.nlocals);
+        usedOverloadedFunctions = {};
+        usedFunctions = {};
         body = peephole(tr(fun.body, stack(), returnDest()));
         <maxSP, exceptions> = validate(fun.src, body, []);
         required_frame_size = get_nlocals() + maxSP;
-        functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun. uqname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body, [])
+        functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun. uqname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body, [], usedOverloadedFunctions, usedFunctions)
                                           : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), (), false, false, false, fun.src, required_frame_size, 
-                                                     false, 0, 0, body, []);
+                                                     false, 0, 0, body, [], usedOverloadedFunctions, usedFunctions);
     }
     return functions;
 }
@@ -316,7 +325,10 @@ RVMModule mu2rvm(muModule(str module_name,
     exceptionTable = [];
     catchBlocks = [[]];
     
-    //println(functionScope);
+    usedOverloadedFunctions = {};
+    usedFunctions = {};
+   
+    //println("*** " + functionScope);
     //iprintln(fun.body);
     
     code = tr(fun.body, nowhere(), returnDest());
@@ -329,7 +341,18 @@ RVMModule mu2rvm(muModule(str module_name,
     //code = peephole(code);
     
     //iprintln(code);
-    
+    //
+    //println("Used overloaded Functions:");
+    //for(uf <- usedOverloadedFunctions){
+    //    println(uf);
+    //}
+    //
+    //println("Used non-overloaded Functions:");
+    //for(uf <- usedFunctions){
+    //    println(uf);
+    //}
+    //println("--------------------------");
+     
      lrel[str from, str to, Symbol \type, str target, int fromSP] exceptions = 
         [ <range.from, range.to, entry.\type, entry.\catch, 0>
         | tuple[lrel[str,str] ranges, Symbol \type, str \catch, MuExp _] entry <- exceptionTable,                                    
@@ -349,7 +372,9 @@ RVMModule mu2rvm(muModule(str module_name,
                                                             fun.src, 
                                                             required_frame_size, 
                                                             code, 
-                                                            exceptions))
+                                                            exceptions,
+                                                            usedOverloadedFunctions,
+                                                            usedFunctions))
                                    : (fun.qname : FUNCTION(fun.qname, 
                                                            fun.uqname, 
                                                            fun.ftype, 
@@ -366,7 +391,9 @@ RVMModule mu2rvm(muModule(str module_name,
                                                            fun.abstractFingerprint,
                                                            fun.concreteFingerprint,
                                                            code, 
-                                                           exceptions));
+                                                           exceptions,
+                                                           usedOverloadedFunctions,
+                                                           usedFunctions));
   
     if(listing){
         println("===================== <fun.qname>");
@@ -377,6 +404,8 @@ RVMModule mu2rvm(muModule(str module_name,
   }
   
   functionScope = module_init_fun;
+  usedOverloadedFunctions = {};
+  usedFunctions = {};
   code = trvoidblock(initializations, returnDest()); // compute code first since it may generate new locals!
   <maxSP, dummy_exceptions> = validate(|init:///|, code, []);
   funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, true, false, src, maxSP + nlocal[module_init_fun],
@@ -386,7 +415,7 @@ RVMModule mu2rvm(muModule(str module_name,
                                      RETURN1(),
                                      HALT()
                                     ],
-                                    []));
+                                    [], usedOverloadedFunctions, usedFunctions));
  
   if(listing){
     println("===================== INIT: (nlocals_in_initializations = <nlocals_in_initializations>):");
@@ -638,12 +667,22 @@ INS tr(muTypeCon(Symbol sym), Dest d, CDest c) = d == stack() ? [PUSHTYPE(sym)] 
 
 // muRascal functions
 
-INS tr(muFun1(str fuid), Dest d, CDest c) = PUSH_ROOT_FUN(fuid) + plug(stack(), d);
-INS tr(muFun2(str fuid, str scopeIn), Dest d, CDest c) = PUSH_NESTED_FUN(fuid, scopeIn) + plug(stack(), d);
+INS tr(muFun1(str fuid), Dest d, CDest c) {
+    usedFunctions += fuid;
+    return PUSH_ROOT_FUN(fuid) + plug(stack(), d);
+}
+
+INS tr(muFun2(str fuid, str scopeIn), Dest d, CDest c) {
+    usedFunctions += fuid;
+    return PUSH_NESTED_FUN(fuid, scopeIn) + plug(stack(), d);
+}
 
 // Rascal functions
 
-INS tr(muOFun(str fuid), Dest d, CDest c) = PUSHOFUN(fuid) + plug(stack(), d);
+INS tr(muOFun(str fuid), Dest d, CDest c) {
+    usedOverloadedFunctions += fuid;
+    return PUSHOFUN(fuid) + plug(stack(), d);
+}
 
 INS tr(muConstr(str fuid), Dest d, CDest c) = PUSHCONSTR(fuid) + plug(stack(), d);
 
@@ -708,7 +747,10 @@ INS tr(muCallConstr(str fuid, list[MuExp] args), Dest d, CDest c) = [ *tr_args_s
 
 INS tr(muCall(MuExp fun, list[MuExp] args), Dest d, CDest c) = trMuCall(fun, args, d, c);
  
-INS trMuCall(muFun1(str fuid), list[MuExp] args, Dest d, CDest c) = [*tr_args_stack(args), CALL(fuid, size(args)), *plug(accu(), d)];
+INS trMuCall(muFun1(str fuid), list[MuExp] args, Dest d, CDest c) {
+    usedFunctions += fuid;
+    return [*tr_args_stack(args), CALL(fuid, size(args)), *plug(accu(), d)];
+}
 
 INS trMuCall(muConstr(str fuid), list[MuExp] args, Dest d, CDest c) = [*tr_args_stack(args), CALLCONSTR(fuid, size(args)), *plug(accu(), d)];
 
@@ -718,20 +760,31 @@ default INS trMuCall(MuExp fun, list[MuExp] args, Dest d, CDest c) = [*tr_args_s
 
  INS tr(muApply(MuExp fun, list[MuExp] args), Dest d, CDest c) = trMuApply(fun, args, d, c);
  
-INS trMuApply(muFun1(str fuid), list[MuExp] args: [], Dest d, CDest c) = [ PUSH_ROOT_FUN(fuid), *plug(stack(), d) ];
+INS trMuApply(muFun1(str fuid), list[MuExp] args: [], Dest d, CDest c) {
+    usedFunctions += fuid;
+    return [ PUSH_ROOT_FUN(fuid), *plug(stack(), d) ];
+}
 
-INS trMuApply(muFun1(str fuid), list[MuExp] args, Dest d, CDest c) = [ *tr_args_stack(args), APPLY(fuid, size(args)), *plug(stack(), d) ];
+INS trMuApply(muFun1(str fuid), list[MuExp] args, Dest d, CDest c) {
+    usedFunctions += fuid;
+    return [ *tr_args_stack(args), APPLY(fuid, size(args)), *plug(stack(), d) ];
+}
 
 INS trMuApply(muConstr(str fuid), list[MuExp] args, Dest d, CDest c) { throw "Partial application is not supported for constructor calls!"; }
 
-INS trMuApply(muFun2(str fuid, str scopeIn), list[MuExp] args: [], Dest d, CDest c) = [ PUSH_NESTED_FUN(fuid, scopeIn), *plug(stack(), d) ];
+INS trMuApply(muFun2(str fuid, str scopeIn), list[MuExp] args: [], Dest d, CDest c) {
+    usedFunctions += fuid;
+    return [ PUSH_NESTED_FUN(fuid, scopeIn), *plug(stack(), d) ];
+}
 
 default INS trMuApply(MuExp fun, list[MuExp] args, Dest d, CDest c) = [ *tr_args_stack(args), *tr_arg_stack(fun), APPLYDYN(size(args)), *plug(stack(), d)  ];
 
 // Rascal functions
 
-INS tr(muOCall3(muOFun(str fuid), list[MuExp] args, loc src), Dest d, CDest c) = 
-    [*tr_args_stack(args), OCALL(fuid, size(args), src), *plug(accu(), d)];
+INS tr(muOCall3(muOFun(str fuid), list[MuExp] args, loc src), Dest d, CDest c) {
+    usedOverloadedFunctions += fuid;
+    return [*tr_args_stack(args), OCALL(fuid, size(args), src), *plug(accu(), d)];
+}
 
 INS tr(muOCall4(MuExp fun, Symbol types, list[MuExp] args, loc src), Dest d, CDest c) 
     = [ *tr_args_stack(args),
@@ -875,9 +928,18 @@ INS tr(muFilterReturn(), Dest d, CDest c) = [ FILTERRETURN() ];
 
 // Coroutines
 
-INS tr(muCreate1(muFun1(str fuid)), Dest d, CDest c) = [ CREATE(fuid, 0), *plug(accu(), d) ];
+INS tr(muCreate1(muFun1(str fuid)), Dest d, CDest c) {
+    usedFunctions += fuid;
+    return [ CREATE(fuid, 0), *plug(accu(), d) ];
+}
+
 INS tr(muCreate1(MuExp exp), Dest d, CDest c) = [ *tr_arg_stack(exp), CREATEDYN(0), *plug(accu(), d) ];
-INS tr(muCreate2(muFun1(str fuid), list[MuExp] args), Dest d, CDest c) = [ *tr_args_stack(args), CREATE(fuid, size(args)), *plug(accu(), d) ];
+
+INS tr(muCreate2(muFun1(str fuid), list[MuExp] args), Dest d, CDest c) {
+    usedFunctions += fuid;
+    return [ *tr_args_stack(args), CREATE(fuid, size(args)), *plug(accu(), d) ];
+}
+
 INS tr(muCreate2(MuExp coro, list[MuExp] args), Dest d, CDest c) = [ *tr_args_stack(args + coro),  CREATEDYN(size(args)), *plug(accu(), d) ];  // note the order! 
 
 INS tr(muNext1(MuExp coro), Dest d, CDest c) = [*tr_arg_accu(coro), NEXT0(), *plug(accu(), d)];

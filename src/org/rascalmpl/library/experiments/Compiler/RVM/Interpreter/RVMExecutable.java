@@ -118,7 +118,7 @@ public class RVMExecutable implements Serializable{
 		vf = vfactory;
 		store = ts;
 		if(jvm){
-			buildRunnerByteCode(false, false);
+			buildRunnerByteCode(false, true);
 		}
 	}
 	
@@ -205,8 +205,18 @@ public class RVMExecutable implements Serializable{
 	void buildRunnerByteCode(boolean profile, boolean debug) {
 		try {
 			// TODO; in the future create multiple classes with the same name as a Rascal module
-			String packageName = "org.rascalmpl.library.experiments.Compiler.RVM.Interpreter";
-			String className = "RVMRunner";
+			
+			String className;
+			String packageName = "org.rascalmpl.library";
+			
+			int n = module_name.lastIndexOf("::");
+			
+			if(n > 2){
+				className = module_name.substring(n + 2);
+				packageName +=  "." + module_name.substring(0,  n).replaceAll("::", ".");
+			} else {
+				className = module_name;
+			}
 
 			BytecodeGenerator codeEmittor = new BytecodeGenerator(functionStore, overloadedStore, functionMap, constructorMap, resolver);
 	
@@ -216,7 +226,7 @@ public class RVMExecutable implements Serializable{
 			fullyQualifiedDottedName = fullyQualifiedName = codeEmittor.finalName().replace('/', '.') ;
 			
 			// TODO: REMOVE for debug purposes only
-			codeEmittor.dump("/tmp/RVMRunner.class");
+			codeEmittor.dump("/tmp/" + className + ".class");
 			
 		} catch (Exception e) {
 			e.printStackTrace();

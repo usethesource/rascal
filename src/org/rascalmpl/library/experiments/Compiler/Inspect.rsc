@@ -278,6 +278,8 @@ void printDecl(RVMDeclaration d){
     }
     println("nformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>, scopeIn=<d.scopeIn>");
     println("\t\tsrc=<d.src>");
+    println("\t\tusedOverLoadedFunctions=<d.usedOverloadedFunctions>");
+    println("\t\tusedFunctions=<d.usedFunctions>");
     if(size(d.exceptions) > 0){
     	for(<str from, str to, Symbol \type, str target, int fromSP> <- d.exceptions){
     		println("\t\ttry: from=<from>, to=<to>, type=<\type>, target=<target>, fromSP=<fromSP>");
