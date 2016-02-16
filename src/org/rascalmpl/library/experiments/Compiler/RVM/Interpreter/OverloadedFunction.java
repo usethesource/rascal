@@ -21,7 +21,7 @@ public class OverloadedFunction implements Serializable {
 	
 	private static final long serialVersionUID = -5235184427484318482L;
 	
-	final int[] functions;
+	int[] functions;
 	final int[] constructors;
 	final String funIn;
 	private int scopeIn = -1;
@@ -39,9 +39,27 @@ public class OverloadedFunction implements Serializable {
 		this.funIn = funIn;
 	}
 	
-	public void  finalize(final Map<String, Integer> functionMap, ArrayList<Function> functionStore){
+	public void  finalize(final Map<String, Integer> functionMap, ArrayList<Function> functionStore, Map<Integer, Integer> indexMap){
 		if(funIn.length() > 0){ // != null) {
-			this.setScopeIn(functionMap.get(funIn));
+			Integer si = functionMap.get(funIn);
+			if(si == null){		// Give up, containing scope is not included in final RVM image created by loader
+				return;
+			}
+			this.setScopeIn(si);
+		}
+		int nelems = 0;
+		for(int i = 0; i < functions.length; i++){
+			Integer newIndex = indexMap.get(functions[i]);
+			if(newIndex != null){
+				functions[nelems++] = newIndex;
+			}
+		}
+		if(functions.length > nelems){
+			int[] newFunctions = new int[nelems];
+			for(int i = 0; i < nelems; i++){
+				newFunctions[i] = functions[i];
+			}
+			functions = newFunctions;
 		}
 		// TODO: temp consistency tests
 		for(int fid : functions){
@@ -49,11 +67,11 @@ public class OverloadedFunction implements Serializable {
 				System.err.println("OverloadedFunction: function outside functionStore: " + fid);
 			}
 		}
-		for(int cid : constructors){
-			if(cid < 0 || cid >= functionStore.size()){
-				System.err.println("OverloadedFunction: constructor outside functionStore: " + cid);
-			}
-		}
+//		for(int cid : constructors){
+//			if(cid < 0 || cid >= functionStore.size()){
+//				System.err.println("OverloadedFunction: constructor outside functionStore: " + cid);
+//			}
+//		}
 		filter(functionStore);
 	}
 	

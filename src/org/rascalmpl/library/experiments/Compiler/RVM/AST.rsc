@@ -29,7 +29,9 @@ public data RVMDeclaration =
 		  		   int abstractFingerprint, 
 		  		   int concreteFingerprint,
 		  		   list[Instruction] instructions,
-		  		   lrel[str from, str to, Symbol \type, str target, int fromSP] exceptions)
+		  		   lrel[str from, str to, Symbol \type, str target, int fromSP] exceptions,
+		  		   set[str] usedOverloadedFunctions,
+		  		   set[str] usedFunctions)
 		  		   
 	    | COROUTINE(str qname, 
 	                str uqname,
@@ -41,7 +43,9 @@ public data RVMDeclaration =
 		  		    loc src,
 		  		    int maxStack, 
 		  		    list[Instruction] instructions,
-		  		    lrel[str from, str to, Symbol \type, str target, int fromSP] exceptions)
+		  		    lrel[str from, str to, Symbol \type, str target, int fromSP] exceptions,
+                    set[str] usedOverloadedFunctions,
+                    set[str] usedFunctions)
 		;
 
 // A single RVMmodule is a container for declarations

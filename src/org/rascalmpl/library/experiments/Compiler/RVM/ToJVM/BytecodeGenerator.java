@@ -862,6 +862,21 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitEntryLabel(int continuationPoint) {
 		mv.visitLabel(hotEntryLabels[continuationPoint]);
 	}
+	
+	public void emitOptimizedCall(String fuid, int functionIndex, int arity, int continuationPoint, boolean debug){
+		switch(fuid){
+		case "Library/MAKE_SUBJECT":
+//		case "Library/GET_SUBJECT_LIST":
+//		case "Library/GET_SUBJECT_CURSOR":
+//		case "Library/ACCEPT_LIST_MATCH":
+		default:
+			emitInlineCall(functionIndex, arity, continuationPoint, debug);
+		}
+	}
+	
+	public void emitInlineCallMAKE_SUBJECT(){
+		
+	}
 
 	public void emitInlineCall(int functionIndex, int arity, int continuationPoint, boolean debug) {
 		Label l0 = new Label();

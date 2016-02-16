@@ -2,10 +2,14 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.value.IBool;
@@ -13,6 +17,8 @@ import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
@@ -119,6 +125,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		}
 	}
 	
+	private HashSet<String> usedFunctions = new HashSet<>();
+	
 	private Integer useFunctionName(String fname){
 		Integer index = functionMap.get(fname);
 		
@@ -127,6 +135,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			functionMap.put(fname, index);
 			functionStore.add(null);
 			//System.out.println("useFunctionName (undef): " + index + "  => " + fname);
+			usedFunctions.add(fname);
 		}
 		//System.out.println("useFunctionName: " + index + "  => " + fname);
 		return index;
@@ -264,19 +273,84 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		}
 	}
 	
-	private void finalizeInstructions(){
+	/*
+	 * Remove all unused functions from this RVM, given a set of used functions:
+	 * - Remove unused functions from functionMap and shift function indices
+	 * - The finalize in overloaded functions uses the resulting indexMap to shift and prune
+	 *   function indices in overloading vectors
+	 */
+	private HashMap<Integer,Integer> removeUnusedFunctions(ISet used){
+		int newSize = used.size();
+		ArrayList<Function> newFunctionStore = new ArrayList<Function>(newSize);
+		
+		HashMap<Integer,Integer> functionIndexMap = new HashMap<>(newSize);
+		
+		// Prune and shift functionMap and functionStore
+		
+		int shift = 0;
+		for(int i = 0; i < functionStore.size(); i++){
+			Function fn = functionStore.get(i);
+			if(!used.contains(vf.string(fn.name))){
+				functionMap.remove(fn.name);
+				shift++;
+			} else {
+				int ishifted = i - shift;
+				functionMap.put(fn.name, ishifted);
+				newFunctionStore.add(fn);
+				functionIndexMap.put(i, ishifted);
+				//System.err.println("Shift " + fn.name + " from " + i + " to " + ishifted);
+			}
+		}
+		
+		functionStore = newFunctionStore;
+
+		return functionIndexMap;
+	}
+	
+	/*
+	 * After collecting the basic use relation for all functions we have
+	 * to expand each overlaoded function to all its possible alternatives.
+	 * This can only be done in a second pass over the use relation
+	 *  when all function overloading information is available.
+	 */
+	
+	private ISet expandOverloadedFunctionUses(ISet initial){
+		ISetWriter w = vf.setWriter();
+		for(IValue v : initial){
+			ITuple tup = (ITuple) v;
+			IString left = (IString) tup.get(0);
+			IString right = (IString) tup.get(1);
+			Integer uresolver = resolver.get(right.getValue());
+		
+			if(uresolver != null){
+				// right is an overloaded function, replace by its alternatives
+				OverloadedFunction of = overloadedStore.get(uresolver);
+				for(int uuid : of.functions){
+					String nm = functionStore.get(uuid).name;
+					w.insert(vf.tuple(left, vf.string(nm)));
+				}
+			} else {
+				// otherwise, keep original tuple
+				w.insert(tup);
+			}
+		}
+		return w.done();
+	}
+	
+	private void finalizeInstructions(Map<Integer, Integer> indexMap){
 		int i = 0;
 		for(String fname : functionMap.keySet()){
 			if(functionMap.get(fname) == null){
 				System.out.println("finalizeInstructions, null for function : " + fname);
 			}
 		}
-		for(Function f : functionStore) {
+		for(String fname : functionMap.keySet()) {
+			Function f = functionStore.get(functionMap.get(fname));
 			if(f == null){
 				String nameAtIndex = "**unknown**";
-				for(String fname : functionMap.keySet()){
-					if(functionMap.get(fname) == i){
-						nameAtIndex = fname;
+				for(String fname2 : functionMap.keySet()){
+					if(functionMap.get(fname2) == i){
+						nameAtIndex = fname2;
 						break;
 					}
 				}
@@ -288,9 +362,22 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			i++;
 		}
 		for(OverloadedFunction of : overloadedStore) {
-			of.finalize(functionMap, functionStore);
+			of.finalize(functionMap, functionStore, indexMap);
 		}
 	}
+	
+	private void addFunctionUses(ISetWriter w, IString fname, ISet uses){
+		for(IValue use : uses){
+			w.insert(vf.tuple(fname, use));
+		}
+	}
+	
+	private void addOverloadedFunctionUses(ISetWriter w, IString fname, ISet uses){
+		for(IValue use : uses){
+			w.insert(vf.tuple(fname, use));
+		}
+	}
+	
 	
 	public RVMExecutable load(IConstructor program, boolean jvm) {
 		
@@ -317,7 +404,23 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			Entry<IValue, IValue> entry = entries.next();
 			declareConstructor(((IString) entry.getKey()).getValue(), (IConstructor) entry.getValue());
 		}
+		
+		/** Overloading resolution */
 
+		// Overloading resolution of imported functions
+		IMap imported_overloading_resolvers = (IMap) program.get("imported_overloading_resolvers");
+		addResolver(imported_overloading_resolvers);
+		
+		IList imported_overloaded_functions = (IList) program.get("imported_overloaded_functions");
+		fillOverloadedStore(imported_overloaded_functions);
+
+		// Overloading resolution of functions in main module
+		addResolver((IMap) main_module.get("resolver"));
+		fillOverloadedStore((IList) main_module.get("overloaded_functions"));
+
+		ISetWriter usesWriter = vf.setWriter();
+		ISetWriter rootWriter = vf.setWriter();
+		
 		/** Imported functions */
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
@@ -326,21 +429,35 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		IList imported_declarations = (IList) program.get("imported_declarations");
 		for(IValue imp : imported_declarations){
 			IConstructor declaration = (IConstructor) imp;
+			IString iname = (IString) declaration.get("qname");
+			String name = iname.getValue();
 			if (declaration.getName().contentEquals("FUNCTION")) {
-				String name = ((IString) declaration.get("qname")).getValue();
-
 				//System.out.println("IMPORTED FUNCTION: " + name);
 				
+				addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
+				addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
+
 				if(name.endsWith("_init(list(value());)#0")){
+					rootWriter.insert(iname);
 					initializers.add(name);
 				}
 				if(!name.endsWith("_testsuite(list(value());)#0")){
 					//testsuites.add(name);
 					loadInstructions(name, declaration, false);
 				}
+				if(name.contains("companion")){	// always preserve generated companion functions
+					rootWriter.insert(iname);
+				}
+				if(name.contains("closure#")){	// preserve generated closure functions and their enclosing function
+												// (this is an overapproximation and may result in preserving some unused functions)
+					IString scopeIn = (IString) declaration.get("scopeIn");
+					rootWriter.insert(iname);
+					rootWriter.insert(scopeIn);
+				}
 			}
 			if (declaration.getName().contentEquals("COROUTINE")) {
-				String name = ((IString) declaration.get("qname")).getValue();
+				addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
+				addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
 				loadInstructions(name, declaration, true);
 			}
 		}
@@ -354,7 +471,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			declareConstructor(((IString) entry.getKey()).getValue(), (IConstructor) entry.getValue());
 		}
 
-		/** Declarations for  main module */
+		/** Declarations for main module */
 		
 		String moduleName = ((IString) main_module.get("name")).getValue();
 		
@@ -375,9 +492,10 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		IList declarations = (IList) main_module.get("declarations");
 		for (IValue ideclaration : declarations) {
 			IConstructor declaration = (IConstructor) ideclaration;
+			IString iname = (IString) declaration.get("qname");
+			String name = iname.getValue();
 
 			if (declaration.getName().contentEquals("FUNCTION")) {
-				String name = ((IString) declaration.get("qname")).getValue();
 				
 				//System.out.println("FUNCTION: " + name);
 				
@@ -392,34 +510,58 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				if(name.endsWith(module_init) || name.endsWith(mu_module_init)) {
 					uid_module_init = name;					// Get module_init's uid in current module
 				}
+				
 				if(name.endsWith("_testsuite(list(value());)#0")){
 					testsuites.add(name);
 				}
+				rootWriter.insert(iname);
+				addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
+				addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
 				loadInstructions(name, declaration, false);
 			}
-
+				
 			if(declaration.getName().contentEquals("COROUTINE")) {
-				String name = ((IString) declaration.get("qname")).getValue();
+				addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
+				addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
 				loadInstructions(name, declaration, true);
 			}
 		}
-
-		/** Overloading resolution */
-
-		// Overloading resolution of imported functions
-		IMap imported_overloading_resolvers = (IMap) program.get("imported_overloading_resolvers");
-		addResolver(imported_overloading_resolvers);
 		
-		IList imported_overloaded_functions = (IList) program.get("imported_overloaded_functions");
-		fillOverloadedStore(imported_overloaded_functions);
+		ISet uses =  expandOverloadedFunctionUses(usesWriter.done());
+		
+//		System.err.println("*** Uses relation:");
+//		for(IValue v : uses){
+//			ITuple tup = (ITuple) v;
+//			System.err.println("<" + tup.get(0) + ", " + tup.get(1) + ">");
+//		}
+		
+		ISet roots = rootWriter.done();
+		
+		ISetWriter usedWriter = vf.setWriter();
+		
+		for(IValue v : roots){
+			usedWriter.insert(v);
+//			System.err.println("root: " + v);
+		}
+		
+		for(IValue v : uses.asRelation().closure()){
+			ITuple tup = (ITuple) v;
+			if(roots.contains(tup.get(0))){
+				usedWriter.insert(tup.get(1));
+			}
+		}
+		
+		ISet used = usedWriter.done();
+		
+//		for(IValue v : used){
+//			System.err.println("used: " + v);
+//		}
 
-		// Overloading resolution of functions in main module
-		addResolver((IMap) main_module.get("resolver"));
-		fillOverloadedStore((IList) main_module.get("overloaded_functions"));
-
+		HashMap<Integer, Integer> indexMap = removeUnusedFunctions(used);
+		
 		/** Finalize & validate */
 
-		finalizeInstructions();
+		finalizeInstructions(indexMap);
 
 		validateInstructionAdressingLimits();
 
