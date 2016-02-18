@@ -22,6 +22,7 @@ public class PushLocDeref extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall1(opcode.name(), pos);
 		
-		codeEmittor.emitCallWithArgsSSI_S("insnPUSHLOCDEREF", pos,debug);
+		//codeEmittor.emitCallWithArgsSSI_S("insnPUSHLOCDEREF", pos,debug);
+		codeEmittor.emitInlinePushLocDeref(pos);
 	}
 }

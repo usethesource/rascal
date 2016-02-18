@@ -28,6 +28,6 @@ public class Call extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall2(opcode.name(), codeblock.getFunctionName(fuid), arity);
 		
-		codeEmittor.emitInlineCall(codeblock.getFunctionIndex(fuid), arity, continuationPoint,debug) ;
+		codeEmittor.emitOptimizedCall(fuid, codeblock.getFunctionIndex(fuid), arity, continuationPoint,debug) ;
 	}
 }

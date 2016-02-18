@@ -142,10 +142,10 @@ value build(bool jvm=false){
      muLib = getMuLibraryCompiledWriteLoc(pcfg);
      commands += "cp <muLib.path> <(pcfg.binDir.parent + muLib.file).path>\n";
      
-     report("Compiling standard library modules");
-     for(moduleName <- libraryModules){
-         compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
-     }
+     //report("Compiling standard library modules");
+     //for(moduleName <- libraryModules){
+     //    compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
+     //}
      
      commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg, jvm=jvm);
      commands += serialize("lang::rascal::boot::Kernel", pcfg, jvm=jvm);
