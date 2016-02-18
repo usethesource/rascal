@@ -229,7 +229,7 @@ private list[str] reachability_tests = [
 private lrel[str,str] crashes = [];
 private lrel[str,str] partial_results = [];
 
-lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg){
+lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg, bool jvm=false){
  all_test_results = [];
  for(tst <- names){
       prog = base == "" ? tst : (base + "::" + tst);
@@ -239,7 +239,7 @@ lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg){
       // }
       //}
       try {
-	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, pcfg, recompile=true, testsuite=true, jvm=false)){
+	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, pcfg, recompile=true, testsuite=true, jvm=jvm)){
 	         s = makeTestSummary(test_results);
 	         println("TESTING <prog>: <s>");
 	         partial_results += <prog, s>;
@@ -261,9 +261,9 @@ lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg){
   return all_test_results;
 }
   
-value main() = allRascalTests(binDir=|home:///bin-tests-comp|);
+value main(bool jvm=false) = allRascalTests(binDir=|home:///bin-tests-comp|, jvm=jvm);
   
-value allRascalTests(loc binDir=|home:///bin-tests-intp|){
+value allRascalTests(loc binDir=|home:///bin-tests-intp|, bool jvm=false){
   
   println("Using binDir = <binDir>");
   timestamp = now();
@@ -273,13 +273,13 @@ value allRascalTests(loc binDir=|home:///bin-tests-intp|){
   
   pcfg = pathConfig(binDir=binDir, libPath=[binDir]);
   
-  all_results += runTests(basicTests, "lang::rascal::tests::basic", pcfg);
-  all_results += runTests(functionalityTests, "lang::rascal::tests::functionality", pcfg);
-  all_results += runTests(libraryTests, "lang::rascal::tests::library", pcfg);
-  all_results += runTests(importTests, "lang::rascal::tests::imports", pcfg);
-  all_results += runTests(extendTests, "lang::rascal::tests::extends", pcfg);  
-  all_results += runTests(files_with_tests, "", pcfg);
-  all_results += runTests(typeTests, "lang::rascal::tests::types", pcfg);
+  all_results += runTests(basicTests, "lang::rascal::tests::basic", pcfg, jvm=jvm);
+  all_results += runTests(functionalityTests, "lang::rascal::tests::functionality", pcfg, jvm=jvm);
+  all_results += runTests(libraryTests, "lang::rascal::tests::library", pcfg, jvm=jvm);
+  all_results += runTests(importTests, "lang::rascal::tests::imports", pcfg, jvm=jvm);
+  all_results += runTests(extendTests, "lang::rascal::tests::extends", pcfg, jvm=jvm);  
+  all_results += runTests(files_with_tests, "", pcfg, jvm=jvm);
+  all_results += runTests(typeTests, "lang::rascal::tests::types", pcfg, jvm=jvm);
    
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");

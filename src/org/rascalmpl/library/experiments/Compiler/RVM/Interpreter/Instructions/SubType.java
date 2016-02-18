@@ -12,6 +12,8 @@ public class SubType extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsPA_A("insnSUBTYPE");
+		//codeEmittor.emitCallWithArgsPA_A("insnSUBTYPE");
+		
+		codeEmittor.emitInlineSubType();
 	}
 }

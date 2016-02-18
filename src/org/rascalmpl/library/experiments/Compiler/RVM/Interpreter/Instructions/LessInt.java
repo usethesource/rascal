@@ -12,6 +12,7 @@ public class LessInt extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsPA_A("insnLESSINT");
+		//codeEmittor.emitCallWithArgsPA_A("insnLESSINT");
+		codeEmittor.emitInlineLessInt();
 	}
 }

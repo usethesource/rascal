@@ -118,7 +118,7 @@ public class RVMExecutable implements Serializable{
 		vf = vfactory;
 		store = ts;
 		if(jvm){
-			buildRunnerByteCode(false, true);
+			buildRunnerByteCode(false, false);
 		}
 	}
 	
@@ -226,7 +226,7 @@ public class RVMExecutable implements Serializable{
 			fullyQualifiedDottedName = fullyQualifiedName = codeEmittor.finalName().replace('/', '.') ;
 			
 			// TODO: REMOVE for debug purposes only
-			codeEmittor.dump("/tmp/" + className + ".class");
+			codeEmittor.dumpClass("/tmp/" + className + ".class");
 			
 		} catch (Exception e) {
 			e.printStackTrace();

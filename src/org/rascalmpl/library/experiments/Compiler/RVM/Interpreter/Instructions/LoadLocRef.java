@@ -22,6 +22,8 @@ public class LoadLocRef extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall1(opcode.name(), pos);
 		
-		codeEmittor.emitCallWithArgsSI_A("insnLOADLOCREF", pos,debug) ;
+		//codeEmittor.emitCallWithArgsSI_A("insnLOADLOCREF", pos,debug) ;
+		
+		codeEmittor.emitInlineLoadLocRef(pos);
 	}
 }

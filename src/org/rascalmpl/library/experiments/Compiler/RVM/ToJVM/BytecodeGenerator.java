@@ -47,7 +47,9 @@ public class BytecodeGenerator implements Opcodes {
 	// Local variables in coroutines
 	
 	public static final int LPRECONDITION = 5;	// Boolean variable used in guard code
-	public static final int LCOROUTINE = 6;		// Local coroutine instance
+	public static final int TMP1 = 5;			// Temp variable outside Guard code
+	public static final int LCOROUTINE = 6;		// Local coroutine instance in guard code
+	public static final int TMP2 = 6;			// Temp variable outside Guard code
 	public static final int EXCEPTION = 7;
 	
 	// Only needed when function needed constant store or type store
@@ -257,6 +259,22 @@ public class BytecodeGenerator implements Opcodes {
 
 		cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, fullClassName, null, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMonJVM", null);
 	}
+	
+	/*
+	 * Dump the code of the generated class for debugging purposes
+	 */
+	
+	public void dumpClass(String loc) {
+		if (endCode == null)
+			finalizeCode();
+		try {
+			FileOutputStream fos = new FileOutputStream(loc);
+			fos.write(endCode);
+			fos.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	/*
 	 * Generate constant and/or type stores when present (per function)
@@ -346,7 +364,7 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	/*
-	 * Generate a method for each Rascal function
+	 * Generate a method for one RVM function
 	 */
 	public void emitMethod(Function f, boolean debug) {
 	
@@ -450,13 +468,10 @@ public class BytecodeGenerator implements Opcodes {
 //	}
 	
 	public void emitHotEntryJumpTable(int continuationPoints, boolean debug) {
-
-		hotEntryLabels = new Label[continuationPoints + 1]; // Add default 0
-															// entry point.
+		hotEntryLabels = new Label[continuationPoints + 1]; // Add default 0 entry point.
 	}
 	
 	public byte[] finalizeCode() {
-
 		if (endCode == null) {
 			cw.visitEnd();
 			endCode = cw.toByteArray();
@@ -465,9 +480,9 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	/************************************************************************************************/
-	/* emitters for various instructions															*/
+	/* Utilities for instruction emitters															*/
 	/************************************************************************************************/
-
+	
 	public void emitIncSP(int n){
 		mv.visitIincInsn(SP, n);
 	}
@@ -478,10 +493,35 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ASTORE, ACCU);
 	}
 	
+	public void emitReturnNONE(){
+		mv.visitVarInsn(ALOAD, THIS);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/rascalmpl/value/IString;");
+		mv.visitInsn(ARETURN);
+	}
+	
 	public void emitJMP(String targetLabel) {
 		Label lb = getNamedLabel(targetLabel);
 		mv.visitJumpInsn(GOTO, lb);
 	}
+	
+	private void emitIntFromStack(){
+		mv.visitVarInsn(ALOAD, STACK);			// left = ((Integer) stack[--sp]).intValue()
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I", false);
+	}
+	
+	private void  emitIntFromAccu(){
+		mv.visitVarInsn(ALOAD, ACCU);			// right = ((Integer) accu).intValue()
+		mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I", false);
+	}
+	
+	/************************************************************************************************/
+	/* Emitters for various instructions															*/
+	/************************************************************************************************/
 
 	public void emitJMPTRUEorFALSE(boolean tf, String targetLabel, boolean debug) {
 		Label target = getNamedLabel(targetLabel);
@@ -504,12 +544,210 @@ public class BytecodeGenerator implements Opcodes {
 		}
 	}
 	
-	public void emitReturnNONE(){
-		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/rascalmpl/value/IString;");
-		mv.visitInsn(ARETURN);
+	// AddInt: accu = ((Integer) stack[--sp]) + ((Integer) accu)
+	 
+	public void emitInlineAddInt(){
+		emitIntFromStack();						// left int
+		emitIntFromAccu();						// right int
+		
+		mv.visitInsn(IADD);						// left + right
+		mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
+		mv.visitVarInsn(ASTORE, ACCU);
+	}
+	
+	// SubtractInt: accu = ((Integer) stack[--sp]) - ((Integer) accu)
+	
+	public void emitInlineSubtractInt(){
+		emitIntFromStack();						// left int
+		emitIntFromAccu();						// right int
+		
+		mv.visitInsn(ISUB);						// left - right
+		mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
+		mv.visitVarInsn(ASTORE, ACCU);
+	}
+	
+	// SubscriptArray: accu = ((Object[]) stack[--sp])[((Integer) accu)];
+	
+	public void emitInlineSubscriptArray(){
+		mv.visitVarInsn(ALOAD, STACK);			// left
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		mv.visitTypeInsn(CHECKCAST, "[Ljava/lang/Object;");
+		
+		emitIntFromAccu();
+		mv.visitInsn(AALOAD);
+		mv.visitVarInsn(ASTORE, ACCU);
+	}
+	
+	// SubscriptList: accu = ((IList) stack[--sp]).get((Integer) accu);
+	
+	public void emitInlineSubscriptList(){
+		mv.visitVarInsn(ALOAD, STACK);			
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		mv.visitTypeInsn(CHECKCAST, "org/rascalmpl/value/IList");
+		
+		emitIntFromAccu();
+		mv.visitMethodInsn(INVOKEINTERFACE, "org/rascalmpl/value/IList", "get", "(I)Lorg/rascalmpl/value/IValue;", true);
+		mv.visitVarInsn(ASTORE, ACCU);
+	}
+	
+	// LessInt: accu = vf.bool(((Integer) stack[--sp]) < ((Integer) accu));
+	
+	public void emitInlineLessInt(){
+		emitIntFromStack();						// left int
+		emitIntFromAccu();						// right int
+		
+		Label l1 = new Label();
+		mv.visitJumpInsn(IF_ICMPGE, l1);
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMonJVM", "Rascal_TRUE", "Lorg/rascalmpl/value/IBool;");
+		Label l2 = new Label();
+		mv.visitJumpInsn(GOTO, l2);
+		mv.visitLabel(l1);
+
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMonJVM", "Rascal_FALSE", "Lorg/rascalmpl/value/IBool;");
+		mv.visitLabel(l2);
+		mv.visitVarInsn(ASTORE, ACCU);
+	}
+	
+	// GreaterEqualInt: accu = vf.bool(((Integer) stack[--sp]) >= ((Integer) accu));
+	
+	public void emitInlineGreaterEqualInt(){
+		emitIntFromStack();						// left int
+		emitIntFromAccu();						// right int
+		
+		Label l1 = new Label();
+		mv.visitJumpInsn(IF_ICMPLT, l1);
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMonJVM", "Rascal_TRUE", "Lorg/rascalmpl/value/IBool;");
+		Label l2 = new Label();
+		mv.visitJumpInsn(GOTO, l2);
+		mv.visitLabel(l1);
+
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMonJVM", "Rascal_FALSE", "Lorg/rascalmpl/value/IBool;");
+		mv.visitLabel(l2);
+		mv.visitVarInsn(ASTORE, ACCU);
+	}
+	
+	// AndBool: accu = ((IBool) stack[--sp]).and((IBool) accu);
+	
+	public void emitInlineAndBool(){
+		mv.visitVarInsn(ALOAD, STACK);			// left = ((Integer) stack[--sp]).intValue()
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		mv.visitTypeInsn(CHECKCAST, "org/rascalmpl/value/IBool");
+		
+		mv.visitVarInsn(ALOAD, ACCU);
+		mv.visitTypeInsn(CHECKCAST, "org/rascalmpl/value/IBool");
+		mv.visitMethodInsn(INVOKEINTERFACE, "org/rascalmpl/value/IBool", "and", "(Lorg/rascalmpl/value/IBool;)Lorg/rascalmpl/value/IBool;", true);
+		mv.visitVarInsn(ASTORE, ACCU);
 	}
 
+	// SubType: accu = vf.bool(((Type) stack[--sp]).isSubtypeOf((Type) accu));
+	
+	public void emitInlineSubType(){
+		mv.visitVarInsn(ALOAD, THIS);			// left
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMonJVM", "vf", "Lorg/rascalmpl/value/IValueFactory;");
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		mv.visitTypeInsn(CHECKCAST, "org/rascalmpl/value/type/Type");
+		
+		mv.visitVarInsn(ALOAD, ACCU);			// right
+		mv.visitTypeInsn(CHECKCAST, "org/rascalmpl/value/type/Type");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/value/type/Type", "isSubtypeOf", "(Lorg/rascalmpl/value/type/Type;)Z", false);
+		mv.visitMethodInsn(INVOKEINTERFACE, "org/rascalmpl/value/IValueFactory", "bool", "(Z)Lorg/rascalmpl/value/IBool;", true);
+		mv.visitVarInsn(ASTORE, ACCU);
+	}
+	
+	// LoadLocRef: accu = new Reference(stack, pos);
+	
+	public void emitInlineLoadLocRef(int pos){
+		mv.visitTypeInsn(NEW, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Reference");
+		mv.visitInsn(DUP);
+		mv.visitVarInsn(ALOAD, STACK);
+		emitIntValue(pos);
+		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Reference", "<init>", "([Ljava/lang/Object;I)V", false);
+		mv.visitVarInsn(ASTORE, ACCU);
+	}
+	
+	// PushLocRef: stack[sp++] = new Reference(stack, pos);
+	
+	public void emitInlinePushLocRef(int pos){
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitIincInsn(SP, 1);
+		mv.visitTypeInsn(NEW, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Reference");
+		mv.visitInsn(DUP);
+		mv.visitVarInsn(ALOAD, STACK);
+		emitIntValue(pos);
+		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Reference", "<init>", "([Ljava/lang/Object;I)V", false);
+		mv.visitInsn(AASTORE);
+	}
+	
+	// LoadLocDeref:
+	//	Reference ref = (Reference) stack[pos];
+	//	accu = ref.stack[ref.pos];
+
+	public void emitInlineLoadLocDeref(int pos){
+		mv.visitVarInsn(ALOAD, STACK);
+		emitIntValue(pos);
+		mv.visitInsn(AALOAD);
+		mv.visitTypeInsn(CHECKCAST, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Reference");
+		mv.visitVarInsn(ASTORE, TMP1);
+		
+		mv.visitVarInsn(ALOAD, TMP1);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Reference", "stack", "[Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, TMP1);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Reference", "pos", "I");
+		mv.visitInsn(AALOAD);
+		mv.visitVarInsn(ASTORE, ACCU);
+	}
+	
+	// PushLocDeref:
+	// Reference ref = (Reference) stack[pos];
+	// stack[sp++] = ref.stack[ref.pos];
+	
+	public void emitInlinePushLocDeref(int pos){
+		mv.visitVarInsn(ALOAD, STACK);
+		emitIntValue(pos);
+		mv.visitInsn(AALOAD);
+		mv.visitTypeInsn(CHECKCAST, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Reference");
+		
+		mv.visitVarInsn(ASTORE, TMP1);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitIincInsn(SP, 1);
+		mv.visitVarInsn(ALOAD, TMP1);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Reference", "stack", "[Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, TMP1);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Reference", "pos", "I");
+		mv.visitInsn(AALOAD);
+		mv.visitInsn(AASTORE);
+	}
+	
+	// StoreLocDeref:
+	// Reference ref = (Reference) stack[pos];
+	// ref.stack[ref.pos] = accu;
+
+	public void emitInlineStoreLocDeref(int pos){
+		mv.visitVarInsn(ALOAD, STACK);
+		emitIntValue(pos);
+		mv.visitInsn(AALOAD);
+		mv.visitTypeInsn(CHECKCAST, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Reference");
+		mv.visitVarInsn(ASTORE, TMP1);
+		
+		mv.visitVarInsn(ALOAD, TMP1);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Reference", "stack", "[Ljava/lang/Object;");
+		mv.visitVarInsn(ALOAD, TMP1);
+		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Reference", "pos", "I");
+		mv.visitVarInsn(ALOAD, ACCU);
+		mv.visitInsn(AASTORE);
+	}
+	
 	public void emitInlineExhaust(boolean dcode) {		
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, STACK);
@@ -669,10 +907,10 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ACONST_NULL);				// coroutine = null
 		mv.visitVarInsn(ASTORE, LCOROUTINE);
 				
-		mv.visitVarInsn(ALOAD, THIS);			// precondition = guardHelper(accu)
+		mv.visitVarInsn(ALOAD, THIS);			
 		mv.visitVarInsn(ALOAD, ACCU);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "guardHelper", "(Ljava/lang/Object;)Z",false);
-		mv.visitVarInsn(ISTORE, LPRECONDITION);
+		mv.visitVarInsn(ISTORE, LPRECONDITION);	// precondition = guardHelper(accu)
 		
 		mv.visitVarInsn(ALOAD, CF);				// if(cf != cccf) goto l0
 		mv.visitVarInsn(ALOAD, THIS);
@@ -866,18 +1104,75 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitOptimizedCall(String fuid, int functionIndex, int arity, int continuationPoint, boolean debug){
 		switch(fuid){
 		case "Library/MAKE_SUBJECT":
-//		case "Library/GET_SUBJECT_LIST":
-//		case "Library/GET_SUBJECT_CURSOR":
+			emitInlineCallMAKE_SUBJECT(continuationPoint);
+			return;
+		
+		case "Library/GET_SUBJECT_LIST":
+			emitInlineCallGET_SUBJECT_LIST(continuationPoint);
+			return;
+			
+		case "Library/GET_SUBJECT_CURSOR":
+			emitInlineCallGET_SUBJECT_CURSOR(continuationPoint);
+			return;
 //		case "Library/ACCEPT_LIST_MATCH":
+//			emitInlineCallACCEPT_LIST_MATCH(continuationPoint);
+//			return;
 		default:
 			emitInlineCall(functionIndex, arity, continuationPoint, debug);
 		}
 	}
 	
-	public void emitInlineCallMAKE_SUBJECT(){
+	public void emitInlineCallMAKE_SUBJECT(int continuationPoint){
+		emitEntryLabel(continuationPoint);
 		emitIntValue(2);
 		mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
 		
+		mv.visitInsn(DUP);
+		
+		mv.visitVarInsn(ASTORE, ACCU);		// accu = new Object[2];
+		
+		mv.visitInsn(DUP);
+
+		emitIntValue(1);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		mv.visitInsn(AASTORE);				// subject[1] = stack[--sp]  == cursor
+		
+		emitIntValue(0);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		mv.visitInsn(AASTORE);				// subject[0] = stack[--sp] = subject
+	
+	}
+	
+	public void emitInlineCallGET_SUBJECT_LIST(int continuationPoint){
+		emitEntryLabel(continuationPoint);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		mv.visitTypeInsn(CHECKCAST, "[Ljava/lang/Object;");
+		emitIntValue(0);
+		mv.visitInsn(AALOAD);
+		
+		mv.visitVarInsn(ASTORE, ACCU);	
+	}
+	
+	public void emitInlineCallGET_SUBJECT_CURSOR(int continuationPoint){
+		emitEntryLabel(continuationPoint);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		mv.visitTypeInsn(CHECKCAST, "[Ljava/lang/Object;");
+		emitIntValue(1);
+		mv.visitInsn(AALOAD);
+		
+		mv.visitVarInsn(ASTORE, ACCU);	
 	}
 
 	public void emitInlineCall(int functionIndex, int arity, int continuationPoint, boolean debug) {
@@ -1352,17 +1647,7 @@ public class BytecodeGenerator implements Opcodes {
 		emitReturnValue2ACCU();
 	}
 
-	public void dump(String loc) {
-		if (endCode == null)
-			finalizeCode();
-		try {
-			FileOutputStream fos = new FileOutputStream(loc);
-			fos.write(endCode);
-			fos.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+
 
 	public void emitInlineSwitch(IMap caseLabels, String caseDefault, boolean concrete, boolean debug) {
 		Map<Integer, String> jumpBlock = new TreeMap<Integer, String>(); // This map is sorted on its keys.
@@ -1496,6 +1781,19 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(ATHROW);
 	}
 	
+	private class ExceptionLine {
+		@SuppressWarnings("unused")
+		String catchLabel;
+		int newsp;
+		int type;
+
+		public ExceptionLine(String lbl, int sp, int type) {
+			this.catchLabel = lbl;
+			this.newsp = sp;
+			this.type = type;
+		}
+	}
+	
 	public void emitInlineResetLoc(int position, boolean debug) {
 		mv.visitVarInsn(ALOAD, STACK);
 		emitIntValue(position);
@@ -1527,18 +1825,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "jvmRESETVAR", "(IILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)V",false);
 	}
 
-	private class ExceptionLine {
-		@SuppressWarnings("unused")
-		String catchLabel;
-		int newsp;
-		int type;
-
-		public ExceptionLine(String lbl, int sp, int type) {
-			this.catchLabel = lbl;
-			this.newsp = sp;
-			this.type = type;
-		}
-	}
+	
 
 	// TODO: compare with performance of insnCHECKARGTYPEANDCOPY
 	public void emitInlineCheckArgTypeAndCopy(int pos1, int type, int pos2, boolean debug) {

@@ -12,6 +12,8 @@ public class SubscriptList extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsPA_A("insnSUBSCRIPTLIST");
+		//codeEmittor.emitCallWithArgsPA_A("insnSUBSCRIPTLIST");
+		
+		codeEmittor.emitInlineSubscriptList();
 	}
 }

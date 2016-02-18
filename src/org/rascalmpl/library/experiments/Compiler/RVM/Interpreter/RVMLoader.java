@@ -295,6 +295,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				shift++;
 			} else {
 				int ishifted = i - shift;
+				fn.funId = ishifted;
 				functionMap.put(fn.name, ishifted);
 				newFunctionStore.add(fn);
 				functionIndexMap.put(i, ishifted);
@@ -464,6 +465,13 @@ static FSTCodeBlockSerializer codeblockSerializer;
 					rootWriter.insert(iname);
 					rootWriter.insert(scopeIn);
 				}
+				
+//				if(name.contains("createHole")){
+//					// This a horrible hack that, fix it!!!!!!!!!!!!!!!
+//					// This a function defined in ConcreteSyntax that is imported by ParserGenerator and is called from Java.
+//					// The better solution: add a @doNotRemove annotation.
+//					rootWriter.insert(iname);
+//				}
 				
 				if(hasExtends){
 					if(extendedModuleSet.contains(name.substring(0, name.indexOf("/")))){

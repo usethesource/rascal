@@ -12,7 +12,9 @@ public class GreaterEqualInt extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsPA_A("insnGREATEREQUALINT");
+		//codeEmittor.emitCallWithArgsPA_A("insnGREATEREQUALINT");
+		
+		codeEmittor.emitInlineGreaterEqualInt();
 		
 	}
 }
