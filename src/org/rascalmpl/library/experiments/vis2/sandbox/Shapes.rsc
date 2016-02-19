@@ -75,3 +75,5 @@ public Figure decision() {
    }
 
 public void tdecision() = render(decision());
+
+
