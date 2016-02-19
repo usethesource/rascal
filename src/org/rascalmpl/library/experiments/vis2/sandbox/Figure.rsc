@@ -87,6 +87,7 @@ alias XYLabeledData     = lrel[num xx, num yy, str label];
 
 alias GoogleData     = list[list[value]];	
 
+data DDD = ddd(str name="", int size = 0, list[DDD] children = []);
 
 //data Margin = margin(int left = 0, int right = 0, int top = 0, int bottom = 0);
 
@@ -286,7 +287,7 @@ public data Figure(
    | buttonInput(str txt, bool disabled=false,  value \value = "")
    | checkboxInput(list[str] choices = ["0"], value \value = ())
    | choiceInput(list[str] choices = ["0"], value \value = choices[0])
-   | colorInput()
+   // | colorInput()
    
    // date
    // datetime
@@ -297,7 +298,7 @@ public data Figure(
    // week
    // url
    
-   | numInput()
+  //  | numInput()
    | rangeInput(num low=0, num high=100, num step=1, value \value = 50.0)
    | strInput(int nchars=20, value \value="") 
    | choice(int selection = 0, Figures figs = [])
@@ -325,6 +326,8 @@ public data Figure(
 	       ,bool manhattan=false
 // For memory management
 	       , int refinement=5, int rasterHeight=150)
+   |d3Pack(DDD d = ddd(), str fillNode="rgb(31, 119, 180)", str fillLeaf = "ff7f0e", num fillOpacityNode=0.25, num fillOpacityLeaf=1.0)
+   |d3Treemap(DDD d = ddd())
    ;
    
 data GraphOptions = graphOptions(
@@ -794,3 +797,58 @@ public str newId() {
   occur+=1;
   return "myName<occur>";
   }
+  
+str fileName(loc l) {
+     str p = l.path;
+     int n = findLast(p, "/");
+     return substring(p, n+1, size(p));
+     }
+     
+map[str, list[list[str]]] _compact(list[list[str]] xs) { 
+    if (isEmpty(xs)) return ();  
+    map[str,  list[list[str]]] r = ();
+    for (list[str] x<-xs) {
+         list[list[str]] q = ((r[head(x)]?)? r[head(x)]+[tail(x)]:[tail(x)]);
+         r[head(x)] = q;
+         }
+    return r;
+    }
+  
+list[DDD] compact(list[list[str]] xs, map[loc, int] m, loc path) {
+    map[str, list[list[str]]] q = _compact(xs);
+    list[DDD] r = [];
+    for (str x<-q) {
+         if (isEmpty(head(q[x]))) r = r + ddd(name=substring(x, 0, findLast(x, ".")), size=m[path+x]); 
+         else r = r + ddd(name=x, children=compact(q[x], m, path +x));
+         }
+    return r;
+    }
+  
+public DDD fileMap(loc source, str suffix) {
+    list[loc] todo = [source];
+    list[loc] done = [];
+    while (!isEmpty(todo)) {
+        <elem,todo> = takeOneFrom(todo);
+        for (e <- listEntries(elem)) {
+           loc f = elem +e;
+		   if (isDirectory(f)) {
+		    // println(f);
+		   	todo += f;
+		   }
+		   else {
+		        if (endsWith(f.path, suffix))
+		        done += f;
+		   }
+	      }
+	    }
+        map[loc, int] m = (d:size(readFileLines(d))|d<-done);
+        // println(m);
+        list[list[str]] r = [];
+        for (d<-done) {
+            str p = d.path; 
+            r=r+[split("/", p)];
+            }
+        // println(r);
+        list[DDD] p = compact(r, m, source.parent);
+        return head(p);
+    }

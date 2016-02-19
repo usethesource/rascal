@@ -13,9 +13,7 @@ import experiments::vis2::sandbox::Figure;
 import experiments::vis2::sandbox::Steden;
 import experiments::vis2::sandbox::Nederland;
 import experiments::vis2::sandbox::SinAndCos;
-import experiments::vis2::sandbox::AEX;
 import experiments::vis2::sandbox::Graph;
-import experiments::vis2::sandbox::Tutor;
 import experiments::vis2::sandbox::Flower;
 import util::Math;
 import Prelude;
@@ -381,12 +379,18 @@ Figure france() = title("France", hcat(lineWidth = 0, figs=[
                      ,box(fillColor="#ED2939")
                     ]));  
                     
-void tbelgium() = render(belgium(width = 201, height = 50));
+void tbelgium() = render(grid(figArray=[[belgium(width = 201, height = 50)]]));
 
 void fbelgium(loc l) = writeFile(l, toHtmlString(belgium(width = 200, height = 50)));
                     
-Figure flags() = grid(hgap=5, vgap = 5, figArray=[[dutch(), luxembourg(), german()],[italian(), belgium(), france()]] ,
+Figure flags() = grid(hgap=5, vgap = 5, figArray=[
+                    [dutch()
+                    , luxembourg(), german()
+                    ]
+                   ,[italian(), belgium(), france()]
+                   ],
                     width = 400, height = 200);  
+                    
  
 list[tuple[str, Figure]] flagNodes = [<"nl", dutch()>, <"be", belgium()>
     , <"lu", luxembourg()>, <"de", german()>, <"fr", france()>, <"it", italian()>];
@@ -535,6 +539,91 @@ public Figure wirth() {
 Figure demo19() = wirth();
 
 void twirth() = render(wirth());
+
+Figure place(str fill) = box(size=<25, 25>, fillColor = fill);
+
+Figure elFig(num shrink, bool tt) {
+     // println(shrink);
+     return 
+       ellipse(shrink = shrink, fillColor =  pickColor(),   lineWidth = 2  
+       ,fig=box(shrink=0.6, align = centerMid, 
+            fig=
+             circle( shrink = 0.8, fillColor=pickColor(), lineWidth = 0 
+             , tooltip = tt?box(fig=htmlText("", size=<50, 20>, fontSize=10), fillColor="antiqueWhite"):emptyFigure() 
+             ,event = on("mouseenter", void(str e, str n, str v) {
+              textProperty("<n>_tooltip#0", text= style(n).fillColor);      
+              })       
+              
+          ) 
+          , fillColor=pickColor())
+       )  
+       ;
+     }
+ 
+Figures elFigs(int n, bool tt) = n>0?
+    [elFig(1-i/(2*n), tt)|num i<-[0,1..n]]
+   :[elFig(1-i/(2*-n), tt)|num i<-[-n,-n-1..0]];
+
+public Figure shrink(bool tt) {resetColor();return grid(figArray=[elFigs(5, tt), elFigs(-5, tt)], align = centerMid, borderWidth=1);}
+
+Figure _tetris1() = 
+       grid( vgap=0, hgap= 0
+       , 
+       figArray=[
+       [place("blue"), emptyFigure()]
+      ,[place("blue"), emptyFigure()]
+      ,[place("blue"), place("blue")]
+       ]);
+       
+Figure emptFigure() = box(size=<10, 10>);
+       
+Figure _tetris2() = 
+       grid(vgap=0, hgap= 0,
+       figArray=[
+       [emptyFigure(), place("blue")]
+      ,[emptyFigure(), place("blue")]
+      ,[place("blue"), place("blue")]
+       ]);
+       
+Figure _tetris3() = 
+       grid(vgap=0, hgap= 0,
+       figArray=[
+       [place("red"), place("red")]
+      ,[place("red"), place("red")]
+       ]);
+       
+Figure _tetris4() = 
+       grid(vgap=0, hgap= 0,
+       figArray=[
+       [place("yellow"), place("yellow"), place("yellow")]
+      ,[emptyFigure(), place("yellow"), emptyFigure()]
+       ]);
+       
+Figure _tetris5() = 
+       grid(vgap=0, hgap= 0, 
+       figArray=[
+       [emptyFigure(), place("darkmagenta"), place("darkmagenta")]
+      ,[place("darkmagenta"), place("darkmagenta"), emptyFigure()]
+       ]);
+       
+Figure _tetris6() = 
+       grid(vgap=0, hgap= 0, 
+       figArray=[
+       [place("brown")]
+      ,[place("brown")]
+      ,[place("brown")]
+      ,[place("brown")]
+       ]);
+       
+public Figure tetris() = hcat(borderStyle="ridge", borderWidth = 4, 
+lineWidth = 1, align = bottomRight, 
+figs=[_tetris1(), _tetris2(), _tetris3(), _tetris4(), _tetris5(), _tetris6()]);
+       
+public void tetris1() = render(tetris());
+
+public void ftetris1(loc l) = writeFile(l, toHtmlString(
+    grid(hgap=4, vgap = 4, id="aap", figArray=[[_tetris1(),  _tetris2()]])
+));
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 

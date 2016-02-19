@@ -9,7 +9,6 @@ public void render(Figure fig1, int width = 800, int height = 800,
      Event event = on(nullCallback), int borderWidth = -1, str borderStyle = "", str borderColor = ""
      ,int lineWidth = -1, bool resizable = true)
      {
-     println("render:<size?>");
      setDebug(debug);
      _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor
      , lineColor = lineColor, lineWidth = lineWidth, size = size, event = event
@@ -28,7 +27,6 @@ public str toHtmlString(Figure fig1, int width = 400, int height = 400,
      lineColor = lineColor, size = size, display = false
      , borderWidth = borderWidth, borderWidth = borderWidth, borderStyle = borderStyle, resizable = resizable
      );
-     // return "aap";
      return getIntro();
      }
 
@@ -111,17 +109,12 @@ public Text textProperty(str id, str text = "", str html = "") {
      str idx = child(id);
      Text v = _getText(idx); 
      if (!isEmpty(text)) {
-         text = replaceAll(text,"\n", "\\n");
-         text = "\"<replaceAll(text,"\"", "\\\"")>\"";
          v.text = text;
          }
      if (!isEmpty(html)) {
-         html = replaceAll(html,"\n", "\\n");
-         html = "\"<replaceAll(html,"\"", "\\\"")>\"";
          v.html = html;
          }
      _setText(idx, v);
-     // println(v);
      return v;
      }
      
@@ -142,10 +135,6 @@ public Timer timer(str id, int delay = -1, str command = "") {
      _setTimer(idx, t);
      return t;
     }
-    
-//public void setPrompt(str lab, StrCallBack f) {
-//  _setPrompt(<lab, f>);
- //  }
    
 public str getPromptStr(str tg) = _getPromptStr(tg);
 
