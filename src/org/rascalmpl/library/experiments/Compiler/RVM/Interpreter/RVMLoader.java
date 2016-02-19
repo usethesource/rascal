@@ -382,6 +382,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 	
 	public RVMExecutable load(IConstructor program, boolean jvm) {
 		
+		boolean eliminateDeadCode = true;
+		
 		long start = Timing.getCpuTime();
 		
 		functionStore = new ArrayList<Function>();
@@ -444,9 +446,6 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			String name = iname.getValue();
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				//System.out.println("IMPORTED FUNCTION: " + name);
-				
-				addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
-				addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
 
 				if(name.endsWith("_init(list(value());)#0")){
 					rootWriter.insert(iname);
@@ -456,33 +455,38 @@ static FSTCodeBlockSerializer codeblockSerializer;
 					//testsuites.add(name);
 					loadInstructions(name, declaration, false);
 				}
-				if(name.contains("companion")){	// always preserve generated companion functions
-					rootWriter.insert(iname);
-				}
-				if(name.contains("closure#")){	// preserve generated closure functions and their enclosing function
-												// (this is an overapproximation and may result in preserving some unused functions)
-					IString scopeIn = (IString) declaration.get("scopeIn");
-					rootWriter.insert(iname);
-					rootWriter.insert(scopeIn);
-				}
-				
-//				if(name.contains("createHole")){
-//					// This a horrible hack that, fix it!!!!!!!!!!!!!!!
-//					// This a function defined in ConcreteSyntax that is imported by ParserGenerator and is called from Java.
-//					// The better solution: add a @doNotRemove annotation.
-//					rootWriter.insert(iname);
-//				}
-				
-				if(hasExtends){
-					if(extendedModuleSet.contains(name.substring(0, name.indexOf("/")))){
+
+				if(eliminateDeadCode){
+
+					addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
+					addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
+
+					if(name.contains("companion")){	// always preserve generated companion functions
 						rootWriter.insert(iname);
+					}
+
+					if(name.contains("closure#")){	// preserve generated closure functions and their enclosing function
+						// (this is an overapproximation and may result in preserving some unused functions)
+						IString scopeIn = (IString) declaration.get("scopeIn");
+						rootWriter.insert(iname);
+						rootWriter.insert(scopeIn);
+					}
+
+					if(hasExtends){
+						if(extendedModuleSet.contains(name.substring(0, name.indexOf("/")))){
+							rootWriter.insert(iname);
+						}
 					}
 				}
 			}
 			if (declaration.getName().contentEquals("COROUTINE")) {
-				addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
-				addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
 				loadInstructions(name, declaration, true);
+
+				if(eliminateDeadCode){
+					addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
+					addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
+				}
+
 			}
 		}
 
@@ -496,8 +500,6 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		}
 
 		/** Declarations for main module */
-		
-		
 		
 		String main = "/main()#0";
 		String main_testsuite = /*"/" + moduleName + */ "_testsuite()#0";
@@ -538,50 +540,49 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				if(name.endsWith("_testsuite(list(value());)#0")){
 					testsuites.add(name);
 				}
-				rootWriter.insert(iname);
-				addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
-				addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
+				
 				loadInstructions(name, declaration, false);
+				
+				if(eliminateDeadCode){
+					rootWriter.insert(iname);
+					addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
+					addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
+				}
 			}
 				
 			if(declaration.getName().contentEquals("COROUTINE")) {
-				addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
-				addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
 				loadInstructions(name, declaration, true);
+				if(eliminateDeadCode){
+					addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
+					addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
+				}
 			}
 		}
 		
-		ISet uses =  expandOverloadedFunctionUses(usesWriter.done());
+		HashMap<Integer, Integer> indexMap = null;
 		
-//		System.err.println("*** Uses relation:");
-//		for(IValue v : uses){
-//			ITuple tup = (ITuple) v;
-//			System.err.println("<" + tup.get(0) + ", " + tup.get(1) + ">");
-//		}
-		
-		ISet roots = rootWriter.done();
-		
-		ISetWriter usedWriter = vf.setWriter();
-		
-		for(IValue v : roots){
-			usedWriter.insert(v);
-//			System.err.println("root: " + v);
-		}
-		
-		for(IValue v : uses.asRelation().closure()){
-			ITuple tup = (ITuple) v;
-			if(roots.contains(tup.get(0))){
-				usedWriter.insert(tup.get(1));
-			}
-		}
-		
-		ISet used = usedWriter.done();
-		
-//		for(IValue v : used){
-//			System.err.println("used: " + v);
-//		}
+		if(eliminateDeadCode){
+			ISet uses =  expandOverloadedFunctionUses(usesWriter.done());
 
-		HashMap<Integer, Integer> indexMap = removeUnusedFunctions(used);
+			ISet roots = rootWriter.done();
+
+			ISetWriter usedWriter = vf.setWriter();
+
+			for(IValue v : roots){
+				usedWriter.insert(v);
+			}
+
+			for(IValue v : uses.asRelation().closure()){
+				ITuple tup = (ITuple) v;
+				if(roots.contains(tup.get(0))){
+					usedWriter.insert(tup.get(1));
+				}
+			}
+
+			ISet used = usedWriter.done();
+
+			indexMap = removeUnusedFunctions(used);
+		}
 		
 		/** Finalize & validate */
 

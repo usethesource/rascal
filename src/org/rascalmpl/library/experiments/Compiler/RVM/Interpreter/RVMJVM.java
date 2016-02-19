@@ -16,21 +16,16 @@ public class RVMJVM extends RVM {
 	String generatedName = null;
 	RVMonJVM runner = null;
 
-	/*
-	 * 
-	 */
-	//private static final long serialVersionUID = -3447489546163673435L;
-
 	/**
 	 * @param rvmExec
 	 * @param rex
 	 */
 	public RVMJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
 		super(rvmExec, rex);
-		//if (rvmExec instanceof RVMJVMExecutable) {
-			generatedRunner = rvmExec.getJvmByteCode();
-			generatedName = rvmExec.getFullyQualifiedDottedName();
-		//}
+
+		generatedRunner = rvmExec.getJvmByteCode();
+		generatedName = rvmExec.getFullyQualifiedDottedName();
+
 		this.rvmExec = rvmExec;
 		this.rex = rex;
 		try {
@@ -39,7 +34,6 @@ public class RVMJVM extends RVM {
 		catch(Exception e) {
 			e.printStackTrace() ;
 		}
-
 	}
 
 	private void createRunner() {
@@ -63,35 +57,28 @@ public class RVMJVM extends RVM {
 			Constructor<?>[] cons = generatedClass.getConstructors();
 
 			runner = (RVMonJVM) cons[0].newInstance(rvmExec, rex);
-			// Inject is obsolete the constructor holds rvmExec.
-			runner.inject(rvmExec.getFunctionStore(), rvmExec.getConstructorStore(), RVMExecutable.store, rvmExec.getFunctionMap());
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
-	boolean useRVMInterpreter = false;
 	
 	public IValue executeProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs) {
-		if (useRVMInterpreter) {
-			return super.executeProgram(moduleName, uid_main, args, kwArgs);
-		} else {
-			rex.setCurrentModuleName(moduleName);
 
-			Function main_function = functionStore.get(functionMap.get(uid_main));
+		rex.setCurrentModuleName(moduleName);
 
-			if (main_function == null) {
-				throw new RuntimeException("PANIC: No function " + uid_main + " found");
-			}
+		Function main_function = functionStore.get(functionMap.get(uid_main));
 
-			runner.dynRun(uid_main, args);
-			Object o = runner.returnValue;
-			if (o != null && o instanceof Thrown) {
-				throw (Thrown) o;
-			}
-			return narrow(o);
+		if (main_function == null) {
+			throw new RuntimeException("PANIC: No function " + uid_main + " found");
 		}
+
+		runner.dynRun(uid_main, args);
+		Object o = runner.returnValue;
+		if (o != null && o instanceof Thrown) {
+			throw (Thrown) o;
+		}
+		return narrow(o);
 	}
 
 	protected Object executeProgram(Frame root, Frame cf) {
