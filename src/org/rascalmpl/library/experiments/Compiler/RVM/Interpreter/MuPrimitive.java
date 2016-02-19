@@ -2053,6 +2053,14 @@ public enum MuPrimitive {
 		return false;
 	}
 	
+	/*
+	 * Main program: handy to map a primitive index back to its name (e.g., in profiles!)
+	 */
+	public static void main(String[] args) {
+		int n = 102;
+		
+		System.err.println("MuPrimitive: " + fromInteger(n) + " (" + n + ")");
+	}
 }
 
 class ArrayIterator<T> implements Iterator<T> {

@@ -105,9 +105,9 @@ public class CommandExecutor {
 		profile = false;
 		trackCalls = false;
 		coverage = false;
-		jvm = false;
+		jvm = true;
 		verbose = false;
-		serialize = false;
+		serialize = true;
 		
 		IMapWriter w = vf.mapWriter();
 		w.put(vf.string("bootstrapParser"), vf.string(""));

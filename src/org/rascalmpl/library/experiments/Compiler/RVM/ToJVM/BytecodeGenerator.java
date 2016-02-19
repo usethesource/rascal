@@ -37,7 +37,7 @@ public class BytecodeGenerator implements Opcodes {
 	// Locations of the variables in a compiled RVM function.
 	
 	// Common local variables
-	public static final int THIS = 0;			// Current class
+	public static final int THIS = 0;			// Current class (generated for the top level Rascal module)
 	public static final int CF = 1;				// Current frame
 	public static final int SP = 2;				// RVM stack pointer: int sp
 	public static final int ACCU = 3;			// RVM accumulator: Object accu
@@ -106,8 +106,8 @@ public class BytecodeGenerator implements Opcodes {
 		this.constructorMap = constructorMap;
 	}
 
-	public BytecodeGenerator() {
-	}
+//	public BytecodeGenerator() {
+//	}
 	
 	public void buildClass(String packageName, String className, boolean debug) {
 
@@ -117,7 +117,6 @@ public class BytecodeGenerator implements Opcodes {
 			emitMethod(f, debug);
 			//System.out.println(f.toString() );
 		}
-
 		
 		// All functions are created create int based dispatcher
 		emitDynDispatch(functionMap.size());
@@ -444,28 +443,6 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
 	}
-
-//	/*
-//	 * End of method generation for a single Rascal function
-//	 */
-//	public void closeMethod() {
-//		if (!emit)
-//			return;
-//
-//		// This label should never be reached, it is
-//		// placed to
-//		// keep JVM verifier happy. (Reason: code generated
-//		// by the compiler jumps sometimes to a non existing
-//		// location)
-//		if (exitLabel != null) {
-//			mv.visitLabel(exitLabel);
-//			mv.visitVarInsn(ALOAD, THIS);
-//			mv.visitFieldInsn(GETFIELD, fullClassName, "PANIC", "Lorg/rascalmpl/value/IString;");
-//			mv.visitInsn(ARETURN);
-//		}
-//		mv.visitMaxs(0, 0);
-//		mv.visitEnd();
-//	}
 	
 	public void emitHotEntryJumpTable(int continuationPoints, boolean debug) {
 		hotEntryLabels = new Label[continuationPoints + 1]; // Add default 0 entry point.
@@ -1306,11 +1283,44 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ASTORE, ACCU);		// accu = callMuPrim1(arg_1)
 	}
 	
+	public void emitInlinePushCallMuPrim2(MuPrimitive muprim, boolean debug) {
+		switch(muprim.name()){
+		case "subscript_array_mint":
+			emitInlineCallMuPrim2_subscript_array_mint(debug);
+			return;
+		}
+		emitInlinePushCallMuPrim2General(muprim, debug);
+	}
+	
+	// stack[sp++] = ((Object[]) stack[sp - 1])[((int) accu)];
+	
+	public void emitInlinePushCallMuPrim2_subscript_array_mint(boolean debug){
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(ICONST_M1);
+		mv.visitInsn(IADD);	
+		mv.visitInsn(AALOAD);
+		mv.visitTypeInsn(CHECKCAST, "[Ljava/lang/Object;");
+
+		mv.visitVarInsn(ALOAD, ACCU);
+		mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I", false);
+		mv.visitInsn(AALOAD);
+
+		mv.visitInsn(AASTORE);
+		mv.visitIincInsn(SP, 1);
+	}
+	
 	/**
 	 * Emits a inline version of the CallMUPrim1 instruction. Uses a direct call to the static enum execute method.
 	 * 
 	 */
-	public void emitInlinePushCallMuPrim2(MuPrimitive muprim, boolean debug) {
+	
+	
+	public void emitInlinePushCallMuPrim2General(MuPrimitive muprim, boolean debug) {
 		mv.visitIincInsn(SP, -1);			// sp -= 1
 		mv.visitVarInsn(ALOAD, STACK);		// stack
 		mv.visitVarInsn(ILOAD, SP);			// sp
@@ -1331,6 +1341,31 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitInlineCallMuPrim2(MuPrimitive muprim, boolean debug) {
+		switch(muprim.name()){
+		case "subscript_array_mint":
+			emitInlineCallMuPrim2_subscript_array_mint(debug);
+			return;
+		}
+		emitInlineCallMuPrim2General(muprim, debug);
+	}
+	
+	// accu = ((Object[]) stack[--sp])[((int) arg_1)];
+	
+	public void emitInlineCallMuPrim2_subscript_array_mint(boolean debug){
+		mv.visitIincInsn(SP, -1);
+		mv.visitVarInsn(ALOAD, STACK);
+		mv.visitVarInsn(ILOAD, SP);
+		mv.visitInsn(AALOAD);
+		mv.visitTypeInsn(CHECKCAST, "[Ljava/lang/Object;");
+		
+		mv.visitVarInsn(ALOAD, ACCU);
+		mv.visitTypeInsn(CHECKCAST, "java/lang/Integer");
+		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Integer", "intValue", "()I", false);
+		mv.visitInsn(AALOAD);
+		mv.visitVarInsn(ASTORE, ACCU);
+	}
+	
+	public void emitInlineCallMuPrim2General(MuPrimitive muprim, boolean debug) {
 		mv.visitIincInsn(SP, -1);			// sp -= 1
 		
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/MuPrimitive", muprim.name(),
@@ -1713,16 +1748,24 @@ public class BytecodeGenerator implements Opcodes {
 	private void emitExceptionTable(String[] fromLabels, String[] toLabels, int[] fromSp, int[] types, String[] handlerLabels) {
 		int len = handlerLabels.length;
 		for (int i = 0; i < len; i++) {
-			Label fromLabel = getNamedLabel(fromLabels[i]);
-			Label toLabel = getNamedLabel(toLabels[i]);
-			Label handlerLabel = getNamedLabel(handlerLabels[i]);
+			String fromLab = fromLabels[i];		// TRY_FROM_L
+			fromLab = fromLab.substring(fromLab.lastIndexOf("_"), fromLab.length());
+			
+			String toLab = toLabels[i];			// TRY_TO_L
+			toLab = toLab.substring(toLab.lastIndexOf("_"), toLab.length());
+					
+			if(!fromLab.equals(toLab)){	// only non-empty try block
+				Label fromLabel = getNamedLabel(fromLabels[i]);
+				Label toLabel = getNamedLabel(toLabels[i]);
+				Label handlerLabel = getNamedLabel(handlerLabels[i]);
 
-			catchTargetLabels.add(handlerLabels[i]);
-			catchTargets.put(handlerLabels[i], new ExceptionLine(handlerLabels[i], fromSp[i], types[i]));
+				catchTargetLabels.add(handlerLabels[i]);
+				catchTargets.put(handlerLabels[i], new ExceptionLine(handlerLabels[i], fromSp[i], types[i]));
 
-			// System.out.println("Exceptions :" + fromLabels[i] + " to " + toLabels[i] + " to " + handlerLabels[i] );
+				// System.out.println("Exceptions :" + fromLabels[i] + " to " + toLabels[i] + " to " + handlerLabels[i] );
 
-			mv.visitTryCatchBlock(fromLabel, toLabel, handlerLabel, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown");
+				mv.visitTryCatchBlock(fromLabel, toLabel, handlerLabel, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown");
+			}
 		}
 	}
 

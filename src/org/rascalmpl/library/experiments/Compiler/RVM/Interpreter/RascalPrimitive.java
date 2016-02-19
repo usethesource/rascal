@@ -9561,6 +9561,15 @@ public enum RascalPrimitive {
 		
 		throw new CompilerError("getAllKeywordParameters");
 	}
+	
+	/*
+	 * Main program: handy to map a primitive index back to its name (e.g., in profiles!)
+	 */
+	public static void main(String[] args) {
+		int n = 364;
+		
+		System.err.println("RascalPrimitive: " + fromInteger(n) + " (" + n + ")");
+	}
 }
 
 /*

@@ -47,19 +47,21 @@ public class OverloadedFunction implements Serializable {
 			}
 			this.setScopeIn(si);
 		}
-		int nelems = 0;
-		for(int i = 0; i < functions.length; i++){
-			Integer newIndex = indexMap.get(functions[i]);
-			if(newIndex != null){
-				functions[nelems++] = newIndex;
+		if(indexMap != null){
+			int nelems = 0;
+			for(int i = 0; i < functions.length; i++){
+				Integer newIndex = indexMap.get(functions[i]);
+				if(newIndex != null){
+					functions[nelems++] = newIndex;
+				}
 			}
-		}
-		if(functions.length > nelems){
-			int[] newFunctions = new int[nelems];
-			for(int i = 0; i < nelems; i++){
-				newFunctions[i] = functions[i];
+			if(functions.length > nelems){
+				int[] newFunctions = new int[nelems];
+				for(int i = 0; i < nelems; i++){
+					newFunctions[i] = functions[i];
+				}
+				functions = newFunctions;
 			}
-			functions = newFunctions;
 		}
 		// TODO: temp consistency tests
 		for(int fid : functions){
