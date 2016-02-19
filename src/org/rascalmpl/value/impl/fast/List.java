@@ -257,8 +257,14 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 		ShareableValuesList newData = data.subList(offset, length);
 		
 		Type newElementType = TypeFactory.getInstance().voidType();
-		for(IValue el : newData)
+		for(IValue el : newData) {
+		    if (newElementType.equals(this.elementType)) {
+		        // the type can only get more specific
+		        // once we've reached the type of the whole list, we can stop lubbing.
+		        break;
+		    }
 			newElementType = newElementType.lub(el.getType());
+		}
 		
 		return new ListWriter(newElementType, newData).done();
 	}
