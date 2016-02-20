@@ -127,16 +127,24 @@ public class ShareableList<E> implements Iterable<E>{
 		}
 	}
 	
-	private static int closestPowerOfTwo(int v){
-	    // https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
-	    v--;
-	    v |= v >> 1;
-	    v |= v >> 2;
-	    v |= v >> 4;
-	    v |= v >> 8;
-	    v |= v >> 16;
-	    return v++;
+	private static int closestPowerOfTwo(int number){
+		int power = 0;
+		do{/* Nothing. */}while((1 << (++power)) < number);
+		
+		return (1 << power);
 	}
+
+// Davy's version, seems to be off by one
+//	private static int closestPowerOfTwo(int v){
+//	    // https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+//	    v--;
+//	    v |= v >> 1;
+//	    v |= v >> 2;
+//	    v |= v >> 4;
+//	    v |= v >> 8;
+//	    v |= v >> 16;
+//	    return v++;
+//	}
 	
 	/**
 	 * Removes all the elements from this list.
