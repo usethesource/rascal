@@ -610,7 +610,8 @@ public class RVM /*implements java.io.Serializable*/ {
 	}
 	
 	protected Object VALUESUBTYPE(Type reqType, Object accu){
-		return vf.bool(rex.isSubtypeOf(((IValue) accu).getType(), reqType));
+		return vf.bool(((IValue) accu).getType().isSubtypeOf(reqType));
+		//return vf.bool(rex.isSubtypeOf(((IValue) accu).getType(), reqType));
 	}
 	
 	// LOAD/PUSH VAR
