@@ -1025,8 +1025,13 @@ private MuExp translateStatementInVisitCase(str fuid, Statement stat){
 						 case muReturn1(e) => leaveVisitReturn(fuid, e)
 						 case muInsert(e): { 
 						 	ifname = nextLabel();
-						    replcond = muCallPrim3("subtype", [ muCallPrim3("typeOf", [ muVar("replacement", fuid, replacementPos) ], stat@\loc), 
-		                                                        muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], stat@\loc) ], stat@\loc);
+						    replcond = muCallPrim3("subtype_value_value", [ muVar("replacement", fuid, replacementPos),
+		                                                                    muVar("iSubject", fuid, iSubjectPos)
+		                                                                  ], stat@\loc);
+		                                                        
+		                    //replcond = muCallPrim3("subtype", [ muCallPrim3("typeOf", [ muVar("replacement", fuid, replacementPos) ], stat@\loc), 
+                      //                                          muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], stat@\loc) ], stat@\loc);
+		                                                        
 						    insert muBlock([ muAssign("replacement", fuid, replacementPos, e),
     				                         muIfelse(ifname, replcond,
     				                                  [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
@@ -1056,9 +1061,13 @@ private map[int, MuExp]  addPatternWithActionCode(str fuid, Symbol subjectType, 
 		
 		// e.g. muTypeCon(getType(pwa.pattern@\loc)) but that maybe too large.
 		
-		replcond = muCallPrim3("subtype", [ muCallPrim3("typeOf", [ muVar("replacement", fuid, replacementPos) ], pwa.replacement.replacementExpression@\loc), 
-		                                    muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], pwa@\loc) 
-		                                  ], pwa@\loc);
+		replcond = muCallPrim3("subtype_value_value", [ muVar("replacement", fuid, replacementPos), 
+		                                                muVar("iSubject", fuid, iSubjectPos)
+		                                              ], pwa@\loc);
+		//replcond = muCallPrim3("subtype", [ muCallPrim3("typeOf", [ muVar("replacement", fuid, replacementPos) ], pwa.replacement.replacementExpression@\loc), 
+  //                                          muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], pwa@\loc) 
+  //                                        ], pwa@\loc);
+		
 		                      
     	table[key] = muBlock([ muIfelse(ifname, makeBoolExp("ALL",[ cond, *conditions ], pwa.pattern@\loc), 
     				                    [ muAssign("replacement", fuid, replacementPos, replacement),
