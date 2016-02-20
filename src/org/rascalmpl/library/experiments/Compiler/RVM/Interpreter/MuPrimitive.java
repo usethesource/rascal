@@ -461,8 +461,7 @@ public enum MuPrimitive {
 	is_defined {
 		@Override
 		public Object execute1(final Object arg_1) {
-			Reference ref = (Reference) arg_1;
-			return vf.bool(ref.isDefined());
+			return vf.bool(((Reference) arg_1).isDefined());
 		};
 	},
 	
@@ -973,8 +972,7 @@ public enum MuPrimitive {
 		@SuppressWarnings("unchecked")
 		@Override
 		public Object execute1(final Object arg_1) {
-			Iterator<IValue> iter = (Iterator<IValue>) arg_1;
-			return vf.bool(iter.hasNext());
+			return vf.bool(((Iterator<IValue>) arg_1).hasNext());
 		};
 	},
 	
@@ -982,8 +980,7 @@ public enum MuPrimitive {
 		@SuppressWarnings("unchecked")
 		@Override
 		public Object execute1(final Object arg_1) {
-			Iterator<IValue> iter = (Iterator<IValue>) arg_1;
-			return iter.next();
+			return ((Iterator<IValue>) arg_1).next();
 		};
 	},
 	
@@ -1737,13 +1734,14 @@ public enum MuPrimitive {
 	 */
 	sublist_list_mint_mint {
 		@Override
-		public int executeN(final Object[] stack, final int sp, final int arity) {
+		public int executeN(final Object[] stack, int sp, final int arity) {
 			assert arity == 3;
-			IList lst = (IList) stack[sp - 3];
-			int offset = ((int) stack[sp - 2]);
-			int length = ((int) stack[sp - 1]);
-			stack[sp - 3] = lst.sublist(offset, length);
-			return sp - 2;
+			int length = ((int) stack[--sp]);
+			int offset = ((int) stack[--sp]);
+			IList lst = (IList) stack[--sp];
+			
+			stack[sp++] = lst.sublist(offset, length);
+			return sp;
 		};
 	},
 	
