@@ -117,7 +117,7 @@ map[str name,  value() job] jobs = (
 
 str base = "experiments::Compiler::Benchmarks";
 
-loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted8.value|;
+loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted12.value|;
 
 
 map[str, list[num]] measurementsCompiled = ();      // list of timings of repeated runs per job, compiled
@@ -334,7 +334,11 @@ void main_paper2(bool jvm=false){
                      ], jvm=jvm);
 }
 
+void main_listmatch(bool jvm=false){
+   run_benchmarks(10, ["BListMatch1", "BListMatch2", "BListMatch3"], jvm=jvm);
+}
+
 void main_setmatch(bool jvm=false){
-   run_benchmarks(10, ["BListMatch1", "BListMatch2", "BListMatch3", "BSetMatch1", "BSetMatch2", "BSetMatch3"], jvm=jvm);
+   run_benchmarks(10, ["BSetMatch1", "BSetMatch2", "BSetMatch3"], jvm=jvm);
 }
 
