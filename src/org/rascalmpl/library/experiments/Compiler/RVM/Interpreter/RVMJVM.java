@@ -12,9 +12,9 @@ public class RVMJVM extends RVM {
 
 	RVMExecutable rvmExec;
 	RascalExecutionContext rex;
-	byte[] generatedRunner = null;
-	String generatedName = null;
-	RVMonJVM runner = null;
+	byte[] generatedByteCode = null;
+	String generatedClassName = null;
+	RVMonJVM generatedClassInstance = null;
 
 	/**
 	 * @param rvmExec
@@ -22,21 +22,23 @@ public class RVMJVM extends RVM {
 	 */
 	public RVMJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
 		super(rvmExec, rex);
+		
+		rex.getStdErr().println("Running RVMJVM");
 
-		generatedRunner = rvmExec.getJvmByteCode();
-		generatedName = rvmExec.getFullyQualifiedDottedName();
+		generatedByteCode = rvmExec.getJvmByteCode();
+		generatedClassName = rvmExec.getFullyQualifiedDottedName();
 
 		this.rvmExec = rvmExec;
 		this.rex = rex;
 		try {
-			createRunner();
+			createGeneratedClassInstance();
 		}
 		catch(Exception e) {
 			e.printStackTrace() ;
 		}
 	}
 
-	private void createRunner() {
+	private void createGeneratedClassInstance() {
 		// Oneshot classloader
 		try {
 			Class<?> generatedClass = new ClassLoader(RVMJVM.class.getClassLoader()) {
@@ -52,17 +54,18 @@ public class RVMJVM extends RVM {
 					}
 					return null;
 				}
-			}.defineClass(generatedName, generatedRunner);
+			}.defineClass(generatedClassName, generatedByteCode);
 
 			Constructor<?>[] cons = generatedClass.getConstructors();
 
-			runner = (RVMonJVM) cons[0].newInstance(rvmExec, rex);
+			generatedClassInstance = (RVMonJVM) cons[0].newInstance(rvmExec, rex);
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
+	@Override
 	public IValue executeProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs) {
 
 		rex.setCurrentModuleName(moduleName);
@@ -73,8 +76,8 @@ public class RVMJVM extends RVM {
 			throw new RuntimeException("PANIC: No function " + uid_main + " found");
 		}
 
-		runner.dynRun(uid_main, args);
-		Object o = runner.returnValue;
+		generatedClassInstance.dynRun(uid_main, args);
+		Object o = generatedClassInstance.returnValue;
 		if (o != null && o instanceof Thrown) {
 			throw (Thrown) o;
 		}
@@ -82,7 +85,7 @@ public class RVMJVM extends RVM {
 	}
 
 	protected Object executeProgram(Frame root, Frame cf) {
-		runner.dynRun(root.function.funId, root);
-		return runner.returnValue;
+		generatedClassInstance.dynRun(root.function.funId, root);
+		return generatedClassInstance.returnValue;
 	}
 }
