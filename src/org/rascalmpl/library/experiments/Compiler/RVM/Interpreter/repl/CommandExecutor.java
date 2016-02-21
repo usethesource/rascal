@@ -122,6 +122,7 @@ public class CommandExecutor {
 				RascalExecutionContextBuilder.normalContext(vf, this.stdout, this.stderr)
 					.withModuleTags(moduleTags)
 					.forModule(shellModuleName)
+					.setJVM(true)
 					.build();
 		
 		try {
