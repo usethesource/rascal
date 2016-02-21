@@ -217,21 +217,69 @@ test bool emptyTryBlock() {
 
 // empty catch statement
 
-test bool emptyCatchStatement() {
+test bool emptyCatchStatement1() {
 	try {
 		return true;
 	} catch: ;
 	return false;
 }
 
-// empty catch block
 
-test bool emptyCatchBlock() {
+int f_using_empty_catch() {
+    x = 10;
+   try {
+         x/0;;
+    } catch: ;
+    return x;
+}
+
+test bool emptyCatchStatement2() {
+    return f_using_empty_catch() == 10;
+}
+
+// empty catch band finally lock
+
+test bool emptyCatchAndFinallyBlock() {
 	try {
 		return true;
 	} catch: ;
+	finally { ; }
 	return false;
 }
+
+int x = 0;
+
+int f_using_finally1() {
+    x = 10;
+   try {
+        return 123456;
+    } catch: ;
+    finally {
+        x = 20;
+    }
+    return -1;
+}
+
+test bool finally1(){   
+    return f_using_finally1() == 123456 && x == 20;
+}
+
+int f_using_finally2() {
+    x = 10;
+   try {
+        return 123456;
+    } catch: ;
+    finally {
+        x = 20;
+        return 789;
+    }
+    return -1;
+}
+
+test bool finally2(){   
+    return f_using_finally2() == 789 && x == 20;
+}
+
 
   
   

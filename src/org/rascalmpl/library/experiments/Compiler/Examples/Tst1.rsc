@@ -1,14 +1,32 @@
 
 module experiments::Compiler::Examples::Tst1
 
-value main(){
-    for(i <- [1 .. 10000000]){
-      res = [];
-      for([*int a, *int b] := [0,1,2,3,4,5,6,7,8,9]) x = 0;
+test bool emptyTryBlock() {
+    try {
+    ;
     }
-    return 0;
+    catch: ;
+    return return true;
 }
-  
+
+//import IO;
+//import Exception;
+//
+//int x = 0;
+//
+//
+//int FFFFF() {
+//    x = 10;
+//   try {
+//         x = x/0;
+//    } catch: ;
+//    return x;
+//}
+//
+//value main(){
+//    FFFFF() == 10;
+//}
+
   
     
  
