@@ -106,16 +106,17 @@ public class BytecodeGenerator implements Opcodes {
 		this.constructorMap = constructorMap;
 	}
 
-//	public BytecodeGenerator() {
-//	}
+	Function currentFunction;
 	
 	public void buildClass(String packageName, String className, boolean debug) {
 
 		emitClass(packageName,className);
 
 		for (Function f : functionStore) {
+			//System.err.println(f.getName());
+			currentFunction = f;
 			emitMethod(f, debug);
-			//System.out.println(f.toString() );
+			//System.err.println(f.toString() );
 		}
 		
 		// All functions are created create int based dispatcher
@@ -2110,26 +2111,28 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	private void emitExceptionTable(String[] fromLabels, String[] toLabels, int[] fromSp, int[] types, String[] handlerLabels) {
+		//System.err.println("emitExceptionTable " + toLabels + " " + fromSp + " " + types + " " + handlerLabels);;
 		int len = handlerLabels.length;
 		for (int i = 0; i < len; i++) {
-			String fromLab = fromLabels[i];		// TRY_FROM_L
-			fromLab = fromLab.substring(fromLab.lastIndexOf("_"), fromLab.length());
-			
+
+			if(fromLabels[i].startsWith("FINALLY") && toLabels[i].startsWith("FINALLY")){	// Finally clauses are expanded inline by Rascal compiler and can be ignored here
+				System.err.println("*** Skip in " + currentFunction.getName() + ": " + fromLabels[i] + " to " + toLabels[i] + " handled by " + handlerLabels[i]);
+				continue;
+			}
+
 			String toLab = toLabels[i];			// TRY_TO_L
 			toLab = toLab.substring(toLab.lastIndexOf("_"), toLab.length());
-					
-			if(!fromLab.equals(toLab)){	// only non-empty try block
-				Label fromLabel = getNamedLabel(fromLabels[i]);
-				Label toLabel = getNamedLabel(toLabels[i]);
-				Label handlerLabel = getNamedLabel(handlerLabels[i]);
 
-				catchTargetLabels.add(handlerLabels[i]);
-				catchTargets.put(handlerLabels[i], new ExceptionLine(handlerLabels[i], fromSp[i], types[i]));
+			Label fromLabel = getNamedLabel(fromLabels[i]);
+			Label toLabel = getNamedLabel(toLabels[i]);
+			Label handlerLabel = getNamedLabel(handlerLabels[i]);
 
-				// System.out.println("Exceptions :" + fromLabels[i] + " to " + toLabels[i] + " to " + handlerLabels[i] );
+			catchTargetLabels.add(handlerLabels[i]);
+			catchTargets.put(handlerLabels[i], new ExceptionLine(handlerLabels[i], fromSp[i], types[i]));
 
-				mv.visitTryCatchBlock(fromLabel, toLabel, handlerLabel, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown");
-			}
+			//System.err.println("*** Add in " + currentFunction.getName() + ": " + fromLabels[i] + " to " + toLabels[i] + " handled by " + handlerLabels[i] );
+
+			mv.visitTryCatchBlock(fromLabel, toLabel, handlerLabel, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Thrown");
 		}
 	}
 
