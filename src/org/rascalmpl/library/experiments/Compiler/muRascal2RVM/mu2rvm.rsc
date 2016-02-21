@@ -989,6 +989,10 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally), Dest d, CDest c) {
     // Translate the 'try' block; inlining 'finally' blocks where necessary
     code = [ LABEL(try_from), *tr(exp, d, labelDest(try_to)) ];
     
+    if(code == [LABEL(try_from)]){ // Avoid non-empty try blocks for the benefit of JVM byte code generation
+        code = [LABEL(try_from), LOADCON(123)];
+    }
+    
     oldFinallyBlocks = finallyBlocks;
     leaveFinally();
     
@@ -1049,7 +1053,8 @@ void trMuCatch(m: muCatch(str id, str fuid, Symbol \type, MuExp exp), str from, 
                                  entry.\type, entry.\catch, entry.\finally > | EEntry entry <- catchAsPartOfTryBlocks ];
     
     if(muBlock([]) := exp) {
-        catchBlock = [ LABEL(from), POP(), LABEL(to), JMP(jmpto) ];
+    	// Avoid empty catch block for the benefit of the JVM bytecode generator
+        catchBlock = [ LABEL(from), POP(), PUSHCON(123), POP(), LABEL(to), JMP(jmpto) ];
     } else {
         catchBlock = [ LABEL(from), 
                        // store a thrown value
