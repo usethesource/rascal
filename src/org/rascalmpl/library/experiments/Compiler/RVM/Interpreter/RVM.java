@@ -408,7 +408,7 @@ public class RVM /*implements java.io.Serializable*/ {
 	 * execute a single function, on-overloaded, function
 	 * 
 	 * @param uid_func	Internal function name
-	 * @param posArgs		Arguments
+	 * @param posArgs	Arguments
 	 * @param kwArgs	Keyword arguments
 	 * @return
 	 */
@@ -422,8 +422,8 @@ public class RVM /*implements java.io.Serializable*/ {
 	/**
 	 * execute a single function, on-overloaded, function
 	 * 
-	 * @param uid_func	Internal function name
-	 * @param posArgs		Argumens
+	 * @param func		Function instance
+	 * @param posArgs	Argumens
 	 * @param kwArgs	Keyword arguments
 	 * @return
 	 */
