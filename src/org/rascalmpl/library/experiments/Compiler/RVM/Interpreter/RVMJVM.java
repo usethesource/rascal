@@ -22,8 +22,6 @@ public class RVMJVM extends RVM {
 	 */
 	public RVMJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
 		super(rvmExec, rex);
-		
-		rex.getStdErr().println("Running RVMJVM");
 
 		generatedByteCode = rvmExec.getJvmByteCode();
 		generatedClassName = rvmExec.getFullyQualifiedDottedName();
@@ -76,6 +74,8 @@ public class RVMJVM extends RVM {
 			throw new RuntimeException("PANIC: No function " + uid_main + " found");
 		}
 
+		rex.getStdErr().println("Running RVMJVM.executeProgram: " + uid_main);
+		
 		generatedClassInstance.dynRun(uid_main, args);
 		Object o = generatedClassInstance.returnValue;
 		if (o != null && o instanceof Thrown) {

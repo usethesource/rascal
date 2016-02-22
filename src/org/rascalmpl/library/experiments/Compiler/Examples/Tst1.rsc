@@ -1,9 +1,9 @@
 
 module experiments::Compiler::Examples::Tst1
 
+import util::Reflective;
+import experiments::Compiler::Execute;
 
-int x = 123;
-
-value main() = x;
+value main() =  execute("experiments::Compiler::Examples::Fac", pathConfig(binDir=|home:///bin|, libPath=[|home:///bin|]), recompile=true, jvm=true);
     
  

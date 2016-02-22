@@ -99,7 +99,7 @@ public class CommandExecutor {
 		} catch (URISyntaxException e) {
 			throw new RuntimeException("Cannot initialize: " + e.getMessage());
 		}
-		debug = false;
+		debug = false;							// options per executed command
 		debugRVM = false;
 		testsuite = false;
 		profile = false;
@@ -122,7 +122,7 @@ public class CommandExecutor {
 				RascalExecutionContextBuilder.normalContext(vf, this.stdout, this.stderr)
 					.withModuleTags(moduleTags)
 					.forModule(shellModuleName)
-					.setJVM(true)
+					.setJVM(false)					// options for complete repl
 					.build();
 		
 		try {
