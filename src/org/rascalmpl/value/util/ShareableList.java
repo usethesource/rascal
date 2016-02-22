@@ -135,7 +135,7 @@ public class ShareableList<E> implements Iterable<E>{
 	    v |= v >> 4;
 	    v |= v >> 8;
 	    v |= v >> 16;
-	    return v++;
+	    return v + 1;
 	}
 	
 	/**
