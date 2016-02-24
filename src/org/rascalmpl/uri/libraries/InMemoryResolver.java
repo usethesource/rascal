@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.NavigableMap;
+import java.util.concurrent.ConcurrentNavigableMap;
 
 import org.rascalmpl.uri.FileTree;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
@@ -51,7 +51,7 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
     private final String scheme;
     
     private final class InMemoryFileTree extends FileTree { 
-        public NavigableMap<String, FSEntry> getFileSystem() {
+        public ConcurrentNavigableMap<String, FSEntry> getFileSystem() {
             return fs;
         }
     }
