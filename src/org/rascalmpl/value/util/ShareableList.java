@@ -129,6 +129,9 @@ public class ShareableList<E> implements Iterable<E>{
 	
 	private static int closestPowerOfTwo(int v){
 	    // https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+		if(v <= 2){
+			return 2;
+		}
 	    v--;
 	    v |= v >> 1;
 	    v |= v >> 2;
