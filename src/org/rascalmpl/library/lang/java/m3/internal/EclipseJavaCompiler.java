@@ -80,6 +80,26 @@ public class EclipseJavaCompiler {
             throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
         }
     }
+    
+    public IValue createM3sAndASTsFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
+        try {
+            TypeStore store = new TypeStore();
+            store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
+            store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
+            Map<String, ISourceLocation> cache = new HashMap<>();
+            ISetWriter m3s = VF.setWriter();
+            ISetWriter asts = VF.setWriter();
+            buildCompilationUnits(files, true, errorRecovery.getValue(), sourcePath, classPath, javaVersion, (loc, cu) -> {
+                    m3s.insert(convertToM3(store, cache, loc, cu));
+                    asts.insert(convertToAST(VF.bool(true), cache, loc, cu, store));
+            });
+            return VF.tuple(m3s.done(), asts.done());
+        } catch (IOException e) {
+            throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
+        }
+        
+    }
+
 
     public IValue createM3FromString(ISourceLocation loc, IString contents, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
         try {
