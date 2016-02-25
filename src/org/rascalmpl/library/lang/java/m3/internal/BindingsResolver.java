@@ -194,6 +194,13 @@ public class BindingsResolver {
 		ISourceLocation parent = resolveBinding(node.getQualifier().resolveTypeBinding());
 		ISourceLocation name = resolveBinding(node.getName(), false);
 		
+		if (parent.getScheme().equals("java+array")  && node.getName().isSimpleName()) {
+		    SimpleName n = (SimpleName) node.getName();
+		    if (n.getIdentifier().equals("length")) {
+		        return makeBinding("java+arrayLength", parent.getAuthority(), parent.getPath());
+		    }
+		}
+		
 		if (parent.getScheme().equals("java+array") && name.getScheme().equals("unresolved")) {
 			return makeBinding("java+field", null, resolveBinding(node.getQualifier(), true).getPath() + "/" + node.getName().getIdentifier());
 		}
