@@ -720,6 +720,9 @@ void extractConstantDefaultExpressions(){
      // TODO: the following hacks are needed to convince the interpreter of the correct type.
      constructorConstantDefaultExpressions = (adt("XXX", []) : ("xxxc1" : ("xxxf1": true, "xxxf2" : 0)));
      constructorFields = (adt("XXX", []) : ("xxxc1" : {"xxxa", "xxxb"}));
+     //constructorConstantDefaultExpressions = ();
+     //constructorFields = ();
+     
      for(cuid <- constructors){
         a_constructor = config.store[cuid];
        

@@ -13,6 +13,7 @@ import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.type.Type;
 
 public class RVMonJVM extends RVM {
@@ -76,34 +77,50 @@ public class RVMonJVM extends RVM {
 	
 	static boolean verbose = true;		// Turn debug output during JVM execution on/off
 	
+    private static final int MAXLEN = 80;
+	
+	public static String abbrev(String sval){
+		if(sval.length() > MAXLEN){
+			sval = sval.substring(0, MAXLEN) + " ...";
+		}
+		return sval;
+	}
+	
+	private static boolean interesting(Frame cf) {
+		return verbose; // && cf.function.name.contains("extractScopes");
+	}
+	
 	private static void printFrameAndStackAndAccu(Frame cf, int sp, Object accu){
 		System.err.println(cf);
+//		System.err.println("sp: " + sp);
 		for(int i = 0; i < sp; i++){
-			String isLocal = i < cf.function.getNlocals() ? "*" : " ";
-			System.err.println("\t" + isLocal + i + ": " + asString(cf.stack[i]));
+			if(cf.stack[i] != null){
+				String isLocal = i < cf.function.getNlocals() ? "*" : " ";
+				System.err.println("\t" + isLocal + i + ": " + abbrev(asString(cf.stack[i])));
+			}
 		}
 
-		System.err.println("\tacc: " + asString(accu));
+		System.err.println("\tacc: " + abbrev(asString(accu)));
 	}
 	
 	public static void debugINSTRUCTION(String insName, Frame cf, int sp, Object accu){
-		if(verbose){
+		if(interesting(cf)){
 			printFrameAndStackAndAccu(cf, sp, accu);
 			System.err.println(insName +"\n");
 		}
 	}
 	
 	public static void debugINSTRUCTION1(String insName, int arg1, Frame cf, int sp, Object accu){
-		if(verbose){
+		if(interesting(cf)){
 			printFrameAndStackAndAccu(cf, sp, accu);
 			System.err.println(insName + " " + arg1 + "\n");
 		}
 	}
 	
 	public static void debugINSTRUCTION2(String insName, String arg1, int arg2, Frame cf, int sp, Object accu){
-		if(verbose){
+		if(interesting(cf)){
 			printFrameAndStackAndAccu(cf, sp, accu);
-			System.err.println(insName + " " + arg1 + ", " + arg2 + "\n");
+			System.err.println(insName + " " + abbrev(arg1) + ", " + arg2 + "\n");
 		}
 	}
 	
@@ -114,40 +131,40 @@ public class RVMonJVM extends RVM {
 	/************************************************************************************************/
 	
 
-//	public Object insnLOADLOCREF(Object[] stack, int pos) {
-//		return new Reference(stack, pos);
-//	}
+	public Object insnLOADLOCREF(Object[] stack, int pos) {
+		return new Reference(stack, pos);
+	}
 	
-//	public int insnPUSHLOCREF(Object[] stack, int sp, int pos) {
-//		stack[sp++] = new Reference(stack, pos);
-//		return sp;
-//	}
+	public int insnPUSHLOCREF(Object[] stack, int sp, int pos) {
+		stack[sp++] = new Reference(stack, pos);
+		return sp;
+	}
 
 	public int insnLOADTYPE(Object[] stack, int sp, Frame cf, int arg1) {
 		stack[sp++] = cf.function.typeConstantStore[arg1];
 		return sp;
 	}
 
-//	public Object insnLOADLOCDEREF(Object[] stack, int pos) {
-//		Reference ref = (Reference) stack[pos];
-//		return ref.stack[ref.pos];
-//	}
+	public Object insnLOADLOCDEREF(Object[] stack, int pos) {
+		Reference ref = (Reference) stack[pos];
+		return ref.stack[ref.pos];
+	}
 	
-//	public int insnPUSHLOCDEREF(Object[] stack, int sp, int pos) {
-//		Reference ref = (Reference) stack[pos];
-//		stack[sp++] = ref.stack[ref.pos];
-//		return sp;
-//	}
+	public int insnPUSHLOCDEREF(Object[] stack, int sp, int pos) {
+		Reference ref = (Reference) stack[pos];
+		stack[sp++] = ref.stack[ref.pos];
+		return sp;
+	}
 
 	public int insnUNWRAPTHROWNLOC(Object[] stack, int sp, int target) {
 		stack[target] = ((Thrown) stack[--sp]).value;
 		return sp;
 	}
 
-//	public void insnSTORELOCDEREF(Object[] stack, int sp, int pos) {
-//		Reference ref = (Reference) stack[pos];
-//		ref.stack[ref.pos] = stack[sp - 1];
-//	}
+	public void insnSTORELOCDEREF(Object[] stack, int sp, int pos) {
+		Reference ref = (Reference) stack[pos];
+		ref.stack[ref.pos] = stack[sp - 1];
+	}
 
 	public int insnPUSH_ROOT_FUN(Object[] stack, int sp, int fun) {
 		stack[sp++] = new FunctionInstance(functionStore.get(fun), root, this);
@@ -226,33 +243,33 @@ public class RVMonJVM extends RVM {
 		return sp;
 	}
 
-//	public Object insnSUBSCRIPTARRAY(Object arg_2, Object arg_1) {
-//		return ((Object[]) arg_2)[((Integer) arg_1)];
-//	}
+	public Object insnSUBSCRIPTARRAY(Object arg_2, Object arg_1) {
+		return ((Object[]) arg_2)[((Integer) arg_1)];
+	}
 
-//	public Object insnSUBSCRIPTLIST(Object arg_2, Object arg_1) {
-//		return ((IList) arg_2).get((Integer) arg_1);
-//	}
+	public Object insnSUBSCRIPTLIST(Object arg_2, Object arg_1) {
+		return ((IList) arg_2).get((Integer) arg_1);
+	}
 
-//	public Object insnLESSINT(Object arg_2, Object arg_1) {
-//		return ((Integer) arg_2) < ((Integer) arg_1) ? Rascal_TRUE : Rascal_FALSE;
-//	}
+	public Object insnLESSINT(Object arg_2, Object arg_1) {
+		return ((Integer) arg_2) < ((Integer) arg_1) ? Rascal_TRUE : Rascal_FALSE;
+	}
 
-//	public Object insnGREATEREQUALINT(Object arg_2, Object arg_1) {
-//		return ((Integer) arg_2) >= ((Integer) arg_1) ? Rascal_TRUE : Rascal_FALSE;
-//	}
+	public Object insnGREATEREQUALINT(Object arg_2, Object arg_1) {
+		return ((Integer) arg_2) >= ((Integer) arg_1) ? Rascal_TRUE : Rascal_FALSE;
+	}
 
-//	public Object insnADDINT(Object arg_2, Object arg_1) {
-//		return  ((Integer) arg_2) + ((Integer) arg_1);
-//	}
+	public Object insnADDINT(Object arg_2, Object arg_1) {
+		return  ((Integer) arg_2) + ((Integer) arg_1);
+	}
 
-//	public Object insnSUBTRACTINT(Object arg_2, Object arg_1) {
-//		return ((Integer) arg_2) - ((Integer) arg_1);
-//	}
+	public Object insnSUBTRACTINT(Object arg_2, Object arg_1) {
+		return ((Integer) arg_2) - ((Integer) arg_1);
+	}
 
-//	public Object insnANDBOOL(Object arg_2, Object arg_1) {
-//		return ((IBool) arg_2).and((IBool) arg_1);
-//	}
+	public Object insnANDBOOL(Object arg_2, Object arg_1) {
+		return ((IBool) arg_2).and((IBool) arg_1);
+	}
 
 	public Object insnTYPEOF(Object arg_1) {
 		if (arg_1 instanceof HashSet<?>) { // For the benefit of set
@@ -270,9 +287,9 @@ public class RVMonJVM extends RVM {
 		}
 	}
 
-//	public Object insnSUBTYPE(Object arg_2, Object arg_1) {
-//		return vf.bool(((Type) arg_2).isSubtypeOf((Type) arg_1));
-//	}
+	public Object insnSUBTYPE(Object arg_2, Object arg_1) {
+		return vf.bool(((Type) arg_2).isSubtypeOf((Type) arg_1));
+	}
 
 	public Object insnCHECKARGTYPEANDCOPY(Object[] lstack, int lsp, Frame cof, int loc, int type, int toLoc) {
 		Type argType = ((IValue) lstack[loc]).getType();
@@ -307,7 +324,7 @@ public class RVMonJVM extends RVM {
 		
 		int n = functionMap.get(fname);
 		Function func = functionStore.get(n);
-		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
+		root = new Frame(func.scopeId, null, func.maxstack, func);
 
 		root.stack[0] = vf.list(args); // pass the program argument to
 		root.stack[1] = vf.mapWriter().done();
