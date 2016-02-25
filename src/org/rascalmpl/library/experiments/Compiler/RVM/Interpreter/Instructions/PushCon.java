@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
+ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
@@ -23,10 +23,10 @@ public class PushCon extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
 		if (debug) {
-			codeEmittor.emitDebugCall2(opcode.name(), codeblock.getConstantValue(constant).toString(), constant);
+			String val = codeblock.getConstantValue(constant).toString();
+			codeEmittor.emitDebugCall2(opcode.name(), val, constant);
 		}
 
-		IValue val = codeblock.getConstantValue(constant);
 		codeEmittor.emitInlinePushConOrType(constant,true,debug);
 	}
 }
