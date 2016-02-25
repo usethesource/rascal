@@ -88,4 +88,31 @@ public class RVMJVM extends RVM {
 		generatedClassInstance.dynRun(root.function.funId, root);
 		return generatedClassInstance.returnValue;
 	}
+	
+	@Override
+	public IValue executeFunction(OverloadedFunctionInstance func, IValue[] args){
+		Function firstFunc = functionStore.get(func.getFunctions()[0]); // TODO: null?
+		int arity = args.length;
+		int scopeId = func.env.scopeId;
+		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
+		root.sp = arity;
+		
+		OverloadedFunctionInstanceCall c_ofun_call_next = 
+				scopeId == -1 ? new OverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), root, null, arity)  // changed root to cf
+        					  : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), scopeId, null, arity);
+				
+		Frame cf = c_ofun_call_next.nextFrame(functionStore);
+		// Pass the program arguments to func
+		for(int i = 0; i < args.length; i++) {
+			cf.stack[i] = args[i]; 
+		}
+		cf.sp = args.length;
+		cf.previousCallFrame = null;		// ensure that func will retrun here
+		Object o = null; // = executeProgram(root, cf, /*arity,*/ /*cf.function.codeblock.getInstructions(),*/ c_ofun_call_next);
+		
+		if(o instanceof Thrown){
+			throw (Thrown) o;
+		}
+		return narrow(o); 
+	}
 }
