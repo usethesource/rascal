@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FileASTRequestor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.parser.gtd.io.InputConverter;
@@ -73,7 +74,8 @@ public class EclipseJavaCompiler {
             Map<String, ISourceLocation> cache = new HashMap<>();
             ISetWriter result = VF.setWriter();
             buildCompilationUnits(files, true, errorRecovery.getValue(), sourcePath, classPath, javaVersion, (loc, cu) -> {
-                    result.insert(convertToM3(store, cache, loc, cu));
+                checkInterrupted(eval);
+                result.insert(convertToM3(store, cache, loc, cu));
             });
             return result.done();
         } catch (IOException e) {
@@ -81,6 +83,12 @@ public class EclipseJavaCompiler {
         }
     }
     
+    private void checkInterrupted(IEvaluatorContext eval) {
+        if (eval.isInterrupted()) {
+          throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
+        }
+    }
+
     public IValue createM3sAndAstsFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
         try {
             TypeStore store = new TypeStore();
@@ -90,8 +98,9 @@ public class EclipseJavaCompiler {
             ISetWriter m3s = VF.setWriter();
             ISetWriter asts = VF.setWriter();
             buildCompilationUnits(files, true, errorRecovery.getValue(), sourcePath, classPath, javaVersion, (loc, cu) -> {
-                    m3s.insert(convertToM3(store, cache, loc, cu));
-                    asts.insert(convertToAST(VF.bool(true), cache, loc, cu, store));
+                checkInterrupted(eval);
+                m3s.insert(convertToM3(store, cache, loc, cu));
+                asts.insert(convertToAST(VF.bool(true), cache, loc, cu, store));
             });
             return VF.tuple(m3s.done(), asts.done());
         } catch (IOException e) {
@@ -125,6 +134,7 @@ public class EclipseJavaCompiler {
             ISetWriter result = VF.setWriter();
 
             buildCompilationUnits(files, collectBindings.getValue(), errorRecovery.getValue(), sourcePath, classPath, javaVersion, (loc, cu) -> {
+                checkInterrupted(eval);
                 result.insert(convertToAST(collectBindings, cache, loc, cu, store));
             });
             return result.done();
