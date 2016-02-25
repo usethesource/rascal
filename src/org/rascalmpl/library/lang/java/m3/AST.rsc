@@ -159,29 +159,29 @@ set[loc] getPaths(loc dir, str suffix) {
 }
 
 @memo
-list[loc] findRoots(list[loc] folders) {
-  list[loc] result = [];
+set[loc] findRoots(set[loc] folders) {
+  set[loc] result = {};
   for (folder <- folders) {
     // only consult one java file per package tree
     top-down-break visit (crawl(folder)) {
       case directory(d, contents): {
-        list[loc] roots = [];
+        set[loc] roots = {};
         for (file(f) <- contents, toLowerCase(f.extension) == "java") {
           try {
-            for (/package<p:[^;]*>;/ := readFile(f)) {
+            for (/package[ \t][ \t]*<p:[$0-9A-Z_a-z \t\.]*>;/ := readFile(f)) {
               packagedepth = size(split(".", trim(p)));
-              roots += [ d[path = intercalate("/", split("/", d.path)[..-packagedepth])] ];
+              roots += { d[path = intercalate("/", split("/", d.path)[..-packagedepth])] };
             }
             
-            if (roots == []) { // no package declaration means d is a root 
-              roots += [ d ]; 
+            if (roots == {}) { // no package declaration means d is a root 
+              roots += { d }; 
             }
             
             break;            
           } catch: ;          
         }
         
-        if (roots != []) {
+        if (roots != {}) {
           result += roots;
         }
         else {
@@ -230,6 +230,6 @@ public set[Declaration] createAstsFromDirectory(loc project, bool collectBinding
     }
     
     classPaths = [ j | j <- find(project, "jar"), isFile(j) ];
-    sourcePaths = [*getPaths(project, "java")];
-    return createAstsFromFiles({ p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, collectBindings, sourcePath = findRoots(sourcePaths), classPath = classPaths, errorRecovery = errorRecovery, javaVersion = javaVersion);;
+    sourcePaths = getPaths(project, "java");
+    return createAstsFromFiles({ p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, collectBindings, sourcePath = [*findRoots(sourcePaths)], classPath = classPaths, errorRecovery = errorRecovery, javaVersion = javaVersion);;
 }
