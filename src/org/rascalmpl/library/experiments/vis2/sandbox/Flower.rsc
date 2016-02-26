@@ -12,15 +12,16 @@ Vertices flowShape2(num d) {
      return [line(x+d*x*(1-x), x-d*x*(1-x))| x<-[1,0.9..0]];
      }
 
-
 Figure leaf(int a) {
          int w = 50; int h = 50;
          num d = 0.5*sqrt(2);
-         return rotate(a, box(size=<w, h>, 
+         return 
+           rotate(a, 
+           box(size=<w, h>, 
             fig = shape([move(0,0)]+flowShape1(0.5)+flowShape2(0.5)
            ,scaleX=<<0,1>,<(1-d)/2*w, (1+d)/2*w>>, scaleY=<<0,1>,<(1-d)/2*h,(1+d)/2*h>> , shapeCurved= false, fillColor= "red")
-           ,align= centerMid, fillColor = "none", lineWidth = 0));
-         // return rotate(a, box(lineWidth = 0, fig= box(lineWidth = 1, size=<w, h>, align = centerMid, fig = circle(r=10, fillColor = "red"))));
+           ,align= centerMid, fillColor = "none", lineWidth = 0)
+           );
         }
 
 Figure flower() {
@@ -35,6 +36,8 @@ Figure flower() {
     }
     
 void tflower() = render(flower(), size=<400, 400>, resize= false, borderWidth = 1);
+
+void tleaf()=render(overlay(figs=[leaf(0), at(100, 10, leaf(90))]));
 
 
 Figure scheme() =  hcat(figs=[
@@ -64,7 +67,7 @@ Figure scheme() =  hcat(figs=[
    Figure table() = vcat(vgap=0, borderStyle="ridge",  borderColor="grey", borderWidth = 1, figs = 
                         [box(size=<200, 40>, lineWidth = 0
                          , fig = text("Widget", fontWeight = "bold"))
-                         ,hcat(hgap=0,borderStyle="ridge", borderWidth = 1, figs =
+                         ,hcat(hgap=0,borderStyle="ridge", borderWidth = 4, figs =
                             [text("id1", size=<30,15>)
                             ,text("align", size=<60,15>, fontStyle = "italic")
                             ,text("width", size=<60,15>, fontStyle = "italic")
@@ -72,7 +75,7 @@ Figure scheme() =  hcat(figs=[
                             ,text("html", size=<65,15>, fontStyle = "italic")
                             ]
                             )
-                        ,hcat(hgap=0, borderStyle="ridge",  borderWidth = 1, figs =
+                        ,hcat(hgap=0, borderStyle="ridge",  borderWidth = 4, figs =
                             [text("id2", size=<60,15>, size=<30,15>)
                             ,text("align", size=<60,15>, fontStyle = "italic")
                             ,text("width", size=<60,15>, fontStyle = "italic")
@@ -80,7 +83,7 @@ Figure scheme() =  hcat(figs=[
                             ,text("html", size=<65,15>, fontStyle = "italic")
                             ]
                             )
-                        ,hcat(hgap=0,borderStyle="ridge",  borderWidth = 1, figs =
+                        ,hcat(hgap=0,borderStyle="ridge",  borderWidth = 4, figs =
                             [text("id3", size=<30,15>)
                             ,text("align", size=<60,15>, fontStyle = "italic")
                             ,text("width", size=<60,15>, fontStyle = "italic")
@@ -88,7 +91,7 @@ Figure scheme() =  hcat(figs=[
                             ,text("html", size=<65,15>, fontStyle = "italic")
                             ]
                             )
-                         ,hcat(hgap=0, borderStyle="ridge",  borderWidth = 1, figs =
+                         ,hcat(hgap=0, borderStyle="ridge",  borderWidth = 4, figs =
                             [text("id4", size=<30,15>)
                             ,text("align", size=<60,15>, fontStyle = "italic")
                             ,text("width", size=<60,15>, fontStyle = "italic")

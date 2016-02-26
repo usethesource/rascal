@@ -11,10 +11,10 @@ module experiments::vis2::sandbox::Demo
 import experiments::vis2::sandbox::FigureServer;
 import experiments::vis2::sandbox::Figure;
 import experiments::vis2::sandbox::Steden;
-import experiments::vis2::sandbox::Nederland;
 import experiments::vis2::sandbox::SinAndCos;
 import experiments::vis2::sandbox::Graph;
 import experiments::vis2::sandbox::Flower;
+import experiments::vis2::sandbox::Shapes;
 import util::Math;
 import Prelude;
 
@@ -638,12 +638,13 @@ Figure demoFig() = grid(vgap=4, figArray=[
              ,[demo16(), demo17()]
              ,[demo18(), demo19()]
              ,[tetris(), box(fig=shrink(false), size=<400, 400>, resizable=true)]
+             ,[decision(), triangle()]
             ]);
             
 
                   
 void demo() = render(demoFig(),
-     width = 800, height = 1800, resizable = false);
+     width = 800, height = 2000, resizable = false);
      
 void fdemo(loc l) {
       writeFile(l, toHtmlString(demoFig(), debug = false, resizable = false, width = 800, height = 1800));

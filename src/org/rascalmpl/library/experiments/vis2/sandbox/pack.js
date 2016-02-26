@@ -2,8 +2,8 @@
  * 
  */
 
-function  packDraw(id, root, fill_node, fill_leaf, fillopacity_node, fillopacity_leaf, stroke, stroke_width) {
-   var diameter = 960, format = d3.format(",d"); 
+function  packDraw(id, root, fill_node, fill_leaf, fillopacity_node, fillopacity_leaf, stroke, stroke_width, diameter) {
+   var format = d3.format(",d"); 
    var pack = d3.layout.pack()
     .size([diameter - 4, diameter - 4])
     .value(function(d) { return d.size; });
@@ -21,8 +21,7 @@ var svg = d3.select("#"+id).append("svg")
       .attr("class", function(d) { return d.children ? "node" : "leaf node"; })
       .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-  node.append("title")
-      .text(function(d) { return d.name + (d.children ? "" : ": " + format(d.size)); });
+  
 
   node.append("circle")
       .attr("r", function(d) { return d.r; })
@@ -31,11 +30,14 @@ var svg = d3.select("#"+id).append("svg")
       .style("stroke", stroke)
       .style("stroke-width", stroke_width)
       ;
+  
+  node.append("title")
+  .text(function(d) { return d.name + (d.children ? "" : ": " + format(d.size)); });
 
-  node.filter(function(d) { return !d.children; }).append("text")
-      .attr("dy", ".3em")
-      .style("text-anchor", "middle")
-      .text(function(d) { return d.name.substring(0, d.r / 3); });
+  // node.filter(function(d) { return !d.children; }).append("text")
+  //    .attr("dy", ".3em")
+  //    .style("text-anchor", "middle")
+  //    .text(function(d) { return d.name.substring(0, d.r / 3); });
    d3.select(self.frameElement).style("height", diameter + "px");
 
 }
@@ -44,10 +46,10 @@ var svg = d3.select("#"+id).append("svg")
 /**
 * 
 */
-function  treemapDraw(id, root) {
+function  treemapDraw(id, root, width, height) {
 	var margin = {top: 40, right: 10, bottom: 10, left: 10},
-	width = 960 - margin.left - margin.right,
-	height = 500 - margin.top - margin.bottom;
+	width = width - margin.left - margin.right,
+	height = height - margin.top - margin.bottom;
 	var color = d3.scale.category20c();
 	var treemap = d3.layout.treemap()
 	.size([width, height])
@@ -61,19 +63,21 @@ function  treemapDraw(id, root) {
 	.enter().append("g")
 	   .attr("class", function(d) { return d.children ? "node" : "leaf node"; })
 	   .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-	node.filter(function(d) { return !d.children; }).append("title")
+	 node.filter(function(d) { return !d.children; }).append("title")
 	   .text(function(d) { return d.name+":"+d.size;})
 	 ;
 	 node.append("rect").style("fill","none")
 	   .attr("width", function(d) { return Math.max(0, d.dx - 1) + "px"; })
 	   .attr("height", function(d) { return Math.max(0, d.dy - 1) + "px"; })
 	   .style("fill", function(d) { return d.children  ? color(d.name) : "none"; })
+	   .style("pointer-events","visible")
 	   .style("stroke","black")
 	   .style("stroke-width", "1")
 	   ;     
-	 node.filter(function(d) { return !d.children; }).append("text")
-	   .attr("dy", function(d) { return Math.max(0, d.dy - 1)*0.75 + "px"; })
-	   .attr("dx", function(d) { return Math.max(0, d.dx - 1)/2 + "px"; } )
-	   .style("text-anchor", "middle")
-	   .text(function(d) {return d.name.substring(0,  Math.max(0, d.dx - 1)/9); });
+	//node.filter(function(d) { return !d.children; }).append("text")
+	//   .attr("dy", function(d) { return Math.max(0, d.dy - 1)*0.75 + "px"; })
+	//   .attr("dx", function(d) { return Math.max(0, d.dx - 1)/2 + "px"; } )
+	//   .style("text-anchor", "middle")
+	//   .text(function(d) {return d.name.substring(0,  Math.max(0, d.dx - 1)/9); });
+	 
 }

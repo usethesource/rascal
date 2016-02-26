@@ -20,6 +20,7 @@ import experiments::vis2::sandbox::Figure;
 import experiments::vis2::sandbox::Tree;
 import experiments::vis2::sandbox::Utilities;
 
+
 private loc base = |std:///experiments/vis2/sandbox|;
 
 // The random accessable data element by key id belonging to a widget, like _box, _circle, _hcat. 
@@ -250,6 +251,7 @@ Figure extendFig(Figure f) {
         case g:atX(int x, _, Figure fg)=> at(x, 0, extendFig(fg))
         case g:atY(_, int y, Figure fg)=> at(0, y, extendFig(fg))
         case g:rotate(int alpha, fg) => rotate(alpha, extendFig(fg)) 
+        case g:rotate(int alpha, int x, int y, fg) => rotate(alpha, x, y, extendFig(fg)) 
         };
         if (!isOverlay(h)) h = makeOverlay(h); 
         return visit(h) {
@@ -386,8 +388,7 @@ str getIntro() {
         '\<script\>
         ' var screenWidth = 0;
         ' var screenHeight = 0;
-        '    var timer = {};
-        '    var timeout = {};
+       
         '    function CR(evt, ev, id, v ) {
         '       evt = evt || window.event;
         '       if (evt.keyCode == 13 && v) {
@@ -398,110 +399,8 @@ str getIntro() {
         '    if (v!=null) {
         '       v=v.replace(\"+\",\"^plus\");
         '       v=v.replace(\"/\",\"^div\");
-        '    } 
-        '    askServer(\"<getSite()>/getValue/\"+ev+\"/\"+id+\"/\"+v, {}, timer, timeout,
-        '            function(t) {   
-        '                // alert(JSON.stringify(t));         
-        '                for (var d in t) {
-        '                  // alert(JSON.stringify(d));
-        '                  var e = d3.select(\"#\"+d); 
-        '                  var style = t[d][\"style\"];
-        '                  if (style!=null) {
-        '                  var svg = style[\"svg\"];
-        '                   for (var i in style) {  
-        '                        // if (i==\"visibility\") alert(\"\"+d+\" \"+style[i]); 
-        '                        if (i==\"visibility\") {
-        '                           d3.select(\"#\"+d+\"_outer_fo\").style(i, style[i]);
-        '                           d3.select(\"#\"+d+\"_svg\").style(i, style[i]);                           
-        '                        }              
-        '                        e=e.style(svgStyle(i, svg), style[i]);
-        '                        }
-        '                   }
-        '                   // alert(d);
-        '                   if (t[d][\"text\"]!=null) 
-        '                   for (var i in t[d][\"text\"]) {
-        '                        if (i==\"text\") e=e.text(t[d][\"text\"][i]);
-        '                        if (i==\"html\") e=e.html(t[d][\"text\"][i]);
-        '                        }
-        '                   if (t[d][\"attr\"]!=null)
-        '                   for (var i in t[d][\"attr\"]) {
-        '                        if (i!=\"bigger\" && i!=\"disabled\")
-        '                        e=e.attr(i, t[d][\"attr\"][i]);
-        '                        if (i==\"disabled\") e=e.attr(i, t[d][\"attr\"][i]?true:null);
-        '                        }
-        '                   if (t[d][\"property\"]!=null)
-        '                   for (var i in t[d][\"property\"]) {
-        '                        e=e.property(i, t[d][\"property\"][i]);
-        '                        }
-        '                   if (t[d][\"timer\"]!=null)
-        '                   for (var i in t[d][\"timer\"]) {
-        '                        var q =  doFunction(\"message\", d);
-        '                        if (i==\"command\") { 
-        '                              if (t[d][\"timer\"][i]==\"start\") {
-        '                                    if (timer[d]!=null) clearInterval(timer[d]);                                
-        '                                    timer[d] = setInterval(q, t[d][\"timer\"][\"delay\"]); 
-        '                                    }
-        '                              if (t[d][\"timer\"][i]==\"finish\") {
-        '                                  // e=e.attr(\"visibility\", \"hidden\"); 
-        '                                  if (timeout[d]!=null) clearTimeout(timeout[d]);
-        '                                  if (timer[d]!=null) clearInterval(timer[d]); 
-        '                              }
-        '                              if (t[d][\"timer\"][i]==\"timeout\") {
-        '                                    if (timeout[d]!=null) clearTimeout(timeout[d]);                             
-        '                                    timeout[d]= setTimeout(q, t[d][\"timer\"][\"delay\"]); 
-        '                                    }
-        '                        }
-        '                   }
-        '                   var lab = t[d][\"prompt\"];
-        '                   if (lab!=null && lab!=\"\") {
-        '                             var v = prompt(lab, \"\");
-        '                             if (v==null) return;
-        '                             var q =   promptFunction(\"prompt\", d, v);
-        '                             setTimeout(q, 100);
-        '                      }
-        '                   var a = t[d][\"alert\"];
-        '                   if (a!=null && a!=\"\") {
-        '                             alert(a);                   
-        '                      }
-        '                   if (t[d][\"property\"]!=null)
-        '                   for (var i in t[d][\"property\"]) {
-        '                        var v = t[d][\"property\"][i];
-        '                        e=e.property(i, v);           
-        '                        if (i==\"value\") {
-        '                           if (isObject(v)) 
-        '                             for (name in v) {
-        '                                // alert(v[name]);
-        '                                d3.select(\"#\"+d+\"_\"+name+\"_i\").property(\"checked\", v[name]); 
-        '                             }
-        '                        else
-        '                           d3.select(\"#\"+d+\"_\"+v+\"_i\").property(\"checked\", true);
-        '                         }
-        '                        }   
-        '                   // e.text(t[d]);
-        '                  // e.style(\"background\", \"\"+t[d]);
-        '                   }
-        '                   for (var d in t) {      
-        '                         for (var i in t[d][\"attr\"]) {
-        '                              if (i==\"bigger\") {
-        '                                 var a = d3.select(\"#\"+d);
-        '                                 // alert(\"#\"+d);
-        '                                 var w = parseInt(a.attr(\"width\"));
-        '                                 var h = parseInt(a.attr(\"height\"));
-        '                                 var cx1 =  -(w/2);
-        '                                 var cy1 =  -(h/2);
-        '                                 var cx2 =  (w/2);
-        '                                 var cy2 =  (h/2);
-       
-        '                                 var e = d3.select(\"#\"+d+\"_g\");
-        '                                 
-        '                                 var s = \"scale(\"+t[d][\"attr\"][i]+\")\";
-        '                                 var t1= \"translate(\"+cx1+\",\"+cy1+\")\";
-        '                                 var t2= \"translate(\"+cx2+\",\"+cy2+\")\";
-        '                                 e=e.attr(\"transform\", t2+s+t1);
-        '                              }
-        '                        }
-        '                     }
-        '                });
+        '       } 
+        '       ask2Server(\"<getSite()>\", ev, id, v);
         '  }
         '  function doFunction(ev, id) { 
         '    return function() {  
@@ -544,7 +443,7 @@ str getIntro() {
 	
 list[Figure] getChildren(Figure f) {
    if (box():=f || ellipse() := f || circle():= f || ngon():=f) return f.fig ==emptyFigure()?[]:[f.fig];
-   if (hcat():=f || vcat():= f) return f.figs;
+   if (hcat():=f || vcat():= f) {println(f.figs); return f.figs;}
    if (tree(_, _):=f) {
          list[Figure] r = [];
          visit(f) {
@@ -562,7 +461,7 @@ list[str] getDescendants(str id) {
    return [x.id|x<-h]+[*getDescendants(x.id)|x<-h];
    }
 
-Response page(get(), /^\/$/, map[str,str] _) { 
+Response page(get(), /^\/$/, _) { 
 	return response(getIntro());
 }
 
@@ -601,7 +500,8 @@ list[bool] toFlags(str v)  {
    }
    
 void hideTooltips() {
-   for (str s<-tooltip_id) hide(s);
+   // println("HIDE TOOLTIPS: <tooltip_id>");
+   for (str s<-tooltip_id) {hide(s);}
    }
    
 void assign(str v) {  
@@ -665,6 +565,7 @@ void callCallback(str e, str n, str v) {
 Response page(post(), /^\/getValue\/<ev:[a-zA-Z0-9_]+>\/<name:[a-zA-Z0-9_]+>\/<v:.*>/, map[str, str] parameters) {
 	// println("post: getValue: <name>, <parameters>");
 	// widget[name].f(ev, name, v);  // !!! The callback will be called
+	// println(parameters);
 	str lab = name;
 	callCallback(ev, name, v);
 	list[State] changed = diffNewOld();
@@ -677,7 +578,6 @@ Response page(post(), /^\/getValue\/<ev:[a-zA-Z0-9_]+>\/<name:[a-zA-Z0-9_]+>\/<v
 	    d[name] = ("alert":alert);
 	  alert = "";
 	  }
-	// println(d);
 	str g = prompt[0]=="undefined"?"":prompt[0];
 	if (d[name]?)
 	    d[name]["prompt"]=g;
@@ -731,11 +631,11 @@ IFigure  _d3Pack(str id, Figure f, str json) {
      str begintag= beginTag(id, f.align);
      str endtag = endTag();
      str lineColor = isEmpty(f.lineColor)?f.fillNode:f.lineColor;
-     println(lineColor);
+     // println(f.diameter);
      widget[id] = <null, seq, id, begintag, endtag,
      "
      'packDraw(\"<id>_td\", <json>, <extraQuote(f.fillNode)>, <extraQuote(f.fillLeaf)>, <f.fillOpacityNode>, <f.fillOpacityLeaf>,
-     <extraQuote(lineColor)>, <f.lineWidth<0?1:f.lineWidth>);
+     <extraQuote(lineColor)>, <f.lineWidth<0?1:f.lineWidth>, <f.diameter>);
      ",  f.width, f.height, 0, 0, 1, 1, f.align, 1, "", false, false >;
      widgetOrder+= id;  
      return ifigure("<id>", []);
@@ -744,9 +644,11 @@ IFigure  _d3Pack(str id, Figure f, str json) {
 IFigure  _d3Treemap(str id, Figure f, str json) {
      str begintag= beginTag(id, f.align);
      str endtag = endTag();
+     int width = f.width<0?1200:f.width;
+     int height = f.height<0?800:f.height;
      widget[id] = <null, seq, id, begintag, endtag,
      "
-     'treemapDraw(\"<id>_td\", <json>);
+     'treemapDraw(\"<id>_td\", <json>, <width>, <height>);
      ",  f.width, f.height, 0, 0, 1, 1, f.align, 1, "", false, false >;
      widgetOrder+= id;  
      return ifigure("<id>", []);
@@ -763,7 +665,7 @@ public void _render(IFigure fig1, int width = 800, int height = 800,
      screenHeight = height;
      str id = "figureArea";
     str begintag= beginTag(id, align);
-    str endtag = endTag();
+    str endtag = endTag(); 
     widget[id] = <(display?getRenderCallback(event):null), seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")   
@@ -976,7 +878,11 @@ str stylePx(str key, int v) {
 str attrPx(str key, int v) {
     if (v<0) return "";
     return ".attr(\"<key>\",\"<v>px\")";
-    }  
+    }
+    
+str attr1Px(str key, int v) {
+    return ".attr(\"<key>\",\"<v>px\")";
+    }   
        
 str attr(str key, str v) {
     if (isEmpty(v)) return "";
@@ -1065,17 +971,26 @@ int getTextY(Figure f) {
      return fw;
      }  
           
-IFigure _text(str id, bool inHtml, Figure f, str s, str overflow) {
+IFigure _text(str id, bool inHtml, Figure f, str s, str overflow, bool addSvgTag) {
     bool isHtml = inHtml || htmlText(_):=f;
-    str begintag="";
-    if (!inHtml && isHtml) begintag += "\<foreignObject  id=\"<id>_fo\"\>";
-    begintag+=isHtml?"\<div  id=\"<id>\"\>":
-    "\<svg id=\"<id>_svg\"\> \<text id=\"<id>\"\>";
+    str begintag = "";
+    bool tagSet = false;
+    if (!isHtml || inHtml && addSvgTag) {
+          begintag+=
+         "\<svg id=\"<id>_svg\"\>";
+         tagSet = true;   
+         inHtml = false;   
+         }
+    if (!inHtml && isHtml) begintag+="\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>"; 
+    begintag+=isHtml?"\<div  id=\"<id>\"\>":"\<text id=\"<id>\"\>";
     int width = f.width;
     int height = f.height;
     Alignment align =  width<0?topLeft:f.align; 
-    str endtag = isHtml?"\</div\>":"\</text\>\</svg\>";
+    str endtag = isHtml?"\</div\>":"\</text\>";
     if (!inHtml && isHtml) endtag += "\</foreignObject\>";
+    if (tagSet) {
+         endtag+="\</svg\>"; 
+         }
     if (!isHtml)
           f.fillColor = isEmpty(f.fontColor)?"black":f.fontColor;
     f.lineWidth = 0;
@@ -1098,7 +1013,13 @@ IFigure _text(str id, bool inHtml, Figure f, str s, str overflow) {
         ';
         'd3.select(\"#<id>_svg\")
         '<isHtml?"":attr("pointer-events", "none")>
-        ;
+        '<attr("width", f.width)><attr("height", f.height)>
+        ';
+        'd3.select(\"#<id>_fo\")
+        '<attr("width", width)><attr("height", height)>
+        '<attr("pointer-events", "none")> 
+        '<debugStyle()>
+        '; 
         'adjustText(\"<id>\");  
         "
         , width, height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, align, getLineWidth(f), getLineColor(f), f.sizeFromParent, true >;
@@ -1150,12 +1071,21 @@ value vl(value v) {
     return "";
     }
     
-IFigure _googlechart(str cmd, str id, Figure f) {
-    str begintag="\<div  id=\"<id>\"\>";
+IFigure _googlechart(str cmd, str id, Figure f, bool addSvgTag) {
+    str begintag = "";
+    if (addSvgTag) {
+          begintag+=
+         "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         }
+    begintag+="\<div  id=\"<id>\"\>";
     int width = f.width;
     int height = f.height;
+    // println("googlechart: <getAtX(f)> <getAtY(f)>");
     Alignment align =  width<0?topLeft:f.align;
     str endtag = "\</div\>"; 
+    if (addSvgTag) {
+         endtag += "\</foreignObject\>\</svg\>"; 
+         }
     // println(drawVisualization(id, trChart("ComboChart", id, f)));
     str fname = "googleChart_<id>";
     googleChart+="<fname>();\n";
@@ -1165,10 +1095,10 @@ IFigure _googlechart(str cmd, str id, Figure f) {
         '<debugStyle()>
         '<style("background-color", "<getFillColor(f)>")>
         '<stylePx("width", width)><stylePx("height", height)>
-        ';
         '<drawVisualization(fname, trChart(cmd, id, f))>
-        "
-        , f.width, f.height, 0, 0, f.hshrink, f.vshrink, align, getLineWidth(f), getLineColor(f), f.sizeFromParent, false >;
+        ';    
+        "      
+        , f.width, f.height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, align, getLineWidth(f), getLineColor(f), f.sizeFromParent, false >;
        addState(f);
        widgetOrder+= id;
        return ifigure(id, []);
@@ -1386,9 +1316,9 @@ str beginRotate(Figure f) {
         if (f.width<0  || f.height<0) return "\<g\>";
         f.rotate[1] = (f.width)/2;
         f.rotate[2] = (f.height)/2;
-        // println("cx: <f.rotate[1]>  cy: <f.rotate[2]>");
-        return "\<g transform=\" rotate(<f.rotate[0]>,<f.rotate[1]>,<f.rotate[2]>)\" \>";
+        // println("cx: <f.rotate[1]>  cy: <f.rotate[2]>");    
         }
+        return "\<g transform=\" rotate(<f.rotate[0]>,<f.rotate[1]>,<f.rotate[2]>)\" \>";
     }
   
 str endRotate(Figure f) =  !isRotate(f)? "":"\</g\>";
@@ -1778,9 +1708,11 @@ IFigure _shape(str id, Figure f,  IFigure fig = iemptyFigure(0)) {
        if (f.yReverse && f.scaleY==<<0,1>,<0,1>>) f.scaleY = <<0, f.height>, <f.height, 0>>;  
        str begintag = "";
        begintag+=
-         "\<svg id=\"<id>_svg\"\><visitDefs(id, true)>\<path id=\"<id>\"/\>       
+         "\<svg id=\"<id>_svg\"\><visitDefs(id, true)><beginScale(f)> <beginRotate(f)> \<path id=\"<id>\"/\>       
          ";
-       str endtag = "\</svg\>"; 
+       str endtag = endRotate(f);  
+       endtag+=endScale(f);
+       endtag = "\</svg\>"; 
        widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")
@@ -1887,7 +1819,11 @@ IFigure _overlay(str id, Figure f, list[Figure] figs, IFigure fig1...) {
        str endtag="<endRotate(f)><endScale(f)>\</svg\>";
        int width = f.width;
        int height = f.height;
-         //   '\<p\>\</p/\>
+       /*
+       for (q<-fig1) {
+           println("overlay: <q.id> <getAtX(q)> <getAtY(q)>");
+           }
+        */
         widget[id] = <null, seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\") 
@@ -1895,11 +1831,11 @@ IFigure _overlay(str id, Figure f, list[Figure] figs, IFigure fig1...) {
         '<styleInsideSvgOverlay(id, f)>    
         ';
         '<for (q<-fig1){> 
-        '  d3.select(\"#<getId(q)>_svg\")<attrPx("x", getAtX(q))><attrPx("y", getAtY(q))>
+        '  d3.select(\"#<getId(q)>_svg\")<attr1Px("x", getAtX(q))><attr1Px("y", getAtY(q))>
         '  <attr("pointer-events", "none")>    
         ';<}> 
         '<for (q<-fig1){> 
-        '  d3.select(\"#<getId(q)>_outer_fo\")<attrPx("x", getAtX(q))><attrPx("y", getAtY(q))>
+        '  d3.select(\"#<getId(q)>_outer_fo\")<attr1Px("x", getAtX(q))><attr1Px("y", getAtY(q))>
         '  <attr("pointer-events", "none")>     
         ';<}> 
         <for (q<-fig1){> 
@@ -2476,7 +2412,7 @@ Figure pL(Figure f) {
                      h.id = "<f.id>_tooltip";
                      tooltip_id += h.id;
                      figMap[h.id] = h; 
-                     g = at(x, 0, h, id  = g.id, width=g.width);
+                    g = at(x, 0, h, id  = g.id, width=g.width);
                      }
               else
               if (atY(int y, Figure h):=g) {
@@ -2605,11 +2541,11 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
                        return _shape(f.id, f);
                        }
         case ngon():  return _ngon(f.id, true, f, fig = _translate(f.fig, align = nA(f, f.fig), inHtml=true), align = align);
-        case htmlText(value s): {if (str t:=s) return _text(f.id, inHtml, f, t, f.overflow);
+        case htmlText(value s): {if (str t:=s) return _text(f.id, inHtml, f, t, f.overflow, addSvgTag);
                             return iemptyFigure(0);
                             } 
         /* Only inside svg figure, not on top, hcat, vcat or grid  */
-        case text(value s): {if (str t:=s) return _text(f.id, inHtml, f, t, f.overflow);
+        case text(value s): {if (str t:=s) return _text(f.id, inHtml, f, t, f.overflow, addSvgTag);
                             return iemptyFigure(0);
                             } 
         case image():  return _img(f.id,   f, addSvgTag,  align = align);                
@@ -2628,23 +2564,21 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
         case at(int x, int y, Figure fig): {
                      fig.rotate = f.rotate;
                      fig.at = <x, y>; 
-                     return _translate(fig, align = align, inHtml=true);
+                     return _translate(fig, align = align, inHtml=true, addSvgTag = true);
                      }
         case atX(int x, Figure fig):	{
                     fig.rotate = f.rotate;
                     fig.at = <x, 0>; 
-                    return _translate(fig, align = align, inHtml=true);
+                    return _translate(fig, align = align, inHtml=true, addSvgTag = true);
                     }			
         case atY(int y, Figure fig):	{
                     fig.rotate = f.rotate;
                     fig.at = <0, y>; 
-                    return _translate(fig, align = align, inHtml=true);
+                    return _translate(fig, align = align, inHtml=true, addSvgTag = true);
                     }
-        //case rotate(int angle, int x, int y, Figure fig): {
-        //   // fig.at = f.at;
-        //   fig.rotate = <angle, x, y>; return _translate(fig, align = align, inHtml=true);}
+        case rotate(int angle, int x, int y, Figure fig): {
+             fig.rotate = <angle, x, y>; return _translate(fig, align = align, inHtml=true);}
         case rotate(int angle,  Figure fig): {
-           // fig.at = f.at;
            fig.rotate = <angle, -1, -1>; 
            fig.at = f.at;
            return _translate(fig, align = align, inHtml=true);
@@ -2654,12 +2588,12 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
         case strInput():  return _strInput(f.id, f, addSvgTag);
         case choiceInput():  return _choiceInput(f.id, f, addSvgTag);
         case checkboxInput():  return _checkboxInput(f.id, f, addSvgTag);
-        case comboChart():  return _googlechart("ComboChart", f.id, f);
+        case comboChart():  return _googlechart("ComboChart", f.id, f, addSvgTag);
         case pieChart():  return _googlechart("PieChart", f.id, f);
-        case candlestickChart():  return _googlechart("CandlestickChart", f.id, f);
-        case lineChart():  return _googlechart("LineChart", f.id, f);
-        case scatterChart():  return _googlechart("ScatterChart", f.id, f);
-        case areaChart():  return _googlechart("AreaChart", f.id, f);
+        case candlestickChart():  return _googlechart("CandlestickChart", f.id, f, addSvgTag);
+        case lineChart():  return _googlechart("LineChart", f.id, f, addSvgTag);
+        case scatterChart():  return _googlechart("ScatterChart", f.id, f, addSvgTag);
+        case areaChart():  return _googlechart("AreaChart", f.id, f, addSvgTag);
         case graph(): {
               Figures figs = [n[1]|n<-f.nodes];
               list[IFigure] ifs = [_translate(q, addSvgTag = true)|q<-figs];
