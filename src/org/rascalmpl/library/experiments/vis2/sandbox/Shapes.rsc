@@ -59,7 +59,7 @@ public Figure decision() {
    int w1 = 20; 
    int h0 = 40;
    int offs = h0+h1;
-   return overlay(figs=[
+   return overlay(size=<400, 600>, figs=[
                         begin(width, h0, "Lamp doesn\'t work")
                       , at((width-w1)/2, h0, vArrow(w1, h1, "brown"))
                       , at(0, offs, diamond(width, height, "Lamp\<br\> plugged in?", "lightyellow"))
@@ -76,4 +76,15 @@ public Figure decision() {
 
 public void tdecision() = render(decision());
 
+Figure triangle(int alpha) = rotate(alpha, 100, 100,  
+         shape([move(25, 34), line(25, -34), line(17, -38.2), line(17, 20), line(-17.6, 0)]
+          ,scaleX=<<-50, 50>, <0, 200>>, scaleY=<<-50, 50>, <0, 200>>
+         )
+         )
+         ;
+         
+Figure triangle() = overlay(figs=[triangle(0), triangle(120), triangle(-120)]);
+         
+void ttriangle() = render(triangle());
 
+void ftriangle(loc f) = writeFile(f, toHtmlString(triangle(0)));  

@@ -43,8 +43,9 @@ public Style style(str id, str fillColor="", str lineColor="", int lineWidth = -
      if (!isEmpty(lineColor)) v.lineColor = lineColor;
      if (!isEmpty(visibility)) {
            v.visibility = visibility;
+           // println("getDescendants: <idx>");
            list[str] xs = getDescendants(idx);
-          
+           // println(xs);
            for (x<-xs) {
               style(x, visibility = visibility);
              }

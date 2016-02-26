@@ -1,4 +1,6 @@
 var ajax = {};
+var timer = {};
+var timeout = {};
 alertSize();
 // window.alert( 'Height = ' + screenHeight );
 ajax.x = function() {
@@ -68,6 +70,113 @@ function askServer(path, parameters, timer, timeout, callback) {
 		}
 	});
 }
+
+function ask2Server(site, ev, id, v) {
+	    // alert(site);
+	    askServer(site+"/getValue/"+ev+"/"+id+"/"+v,
+		{}, timer, timeout,
+		          function(t) {   
+                      // alert(JSON.stringify(t));         
+                      for (var d in t) {
+                        // alert(JSON.stringify(d));
+                        var e = d3.select("#"+d); 
+                        var style = t[d]["style"];
+                        if (style!=null) {
+                        var svg = style["svg"];
+                         for (var i in style) {  
+                              // if (i=="visibility") alert(""+d+" "+style[i]); 
+                              if (i=="visibility") {
+                                 d3.select("#"+d+"_outer_fo").style(i, style[i]);
+                                 d3.select("#"+d+"_svg").style(i, style[i]);                           
+                              }              
+                              e=e.style(svgStyle(i, svg), style[i]);
+                              }
+                         }
+                         // alert(d);
+                         if (t[d]["text"]!=null) 
+                         for (var i in t[d]["text"]) {
+                              if (i=="text") e=e.text(t[d]["text"][i]);
+                              if (i=="html") e=e.html(t[d]["text"][i]);
+                              }
+                         if (t[d]["attr"]!=null)
+                         for (var i in t[d]["attr"]) {
+                              if (i!="bigger" && i!="disabled")
+                              e=e.attr(i, t[d]["attr"][i]);
+                              if (i=="disabled") e=e.attr(i, t[d]["attr"][i]?true:null);
+                              }
+                         if (t[d]["property"]!=null)
+                         for (var i in t[d]["property"]) {
+                              e=e.property(i, t[d]["property"][i]);
+                              }
+                         if (t[d]["timer"]!=null)
+                         for (var i in t[d]["timer"]) {
+                              var q =  doFunction("message", d);
+                              if (i=="command") { 
+                                    if (t[d]["timer"][i]=="start") {
+                                          if (timer[d]!=null) clearInterval(timer[d]);                                
+                                          timer[d] = setInterval(q, t[d]["timer"]["delay"]); 
+                                          }
+                                    if (t[d]["timer"][i]=="finish") {
+                                        // e=e.attr("visibility", "hidden"); 
+                                        if (timeout[d]!=null) clearTimeout(timeout[d]);
+                                        if (timer[d]!=null) clearInterval(timer[d]); 
+                                    }
+                                    if (t[d]["timer"][i]=="timeout") {
+                                          if (timeout[d]!=null) clearTimeout(timeout[d]);                             
+                                          timeout[d]= setTimeout(q, t[d]["timer"]["delay"]); 
+                                          }
+                              }
+                         }
+                         var lab = t[d]["prompt"];
+                         if (lab!=null && lab!="") {
+                                   var v = prompt(lab, "");
+                                   if (v==null) return;
+                                   var q =   promptFunction("prompt", d, v);
+                                   setTimeout(q, 100);
+                            }
+                         var a = t[d]["alert"];
+                         if (a!=null && a!="") {
+                                   alert(a);                   
+                            }
+                         if (t[d]["property"]!=null)
+                         for (var i in t[d]["property"]) {
+                              var v = t[d]["property"][i];
+                              e=e.property(i, v);           
+                              if (i=="value") {
+                                 if (isObject(v)) 
+                                   for (name in v) {
+                                      // alert(v[name]);
+                                      d3.select("#"+d+"_"+name+"_i").property("checked", v[name]); 
+                                   }
+                              else
+                                 d3.select("#"+d+"_"+v+"_i").property("checked", true);
+                               }
+                              }   
+                         }
+                         for (var d in t) {      
+                               for (var i in t[d]["attr"]) {
+                                    if (i=="bigger") {
+                                       var a = d3.select("#"+d);
+                                       // alert("#"+d);
+                                       var w = parseInt(a.attr("width"));
+                                       var h = parseInt(a.attr("height"));
+                                       var cx1 =  -(w/2);
+                                       var cy1 =  -(h/2);
+                                       var cx2 =  (w/2);
+                                       var cy2 =  (h/2);
+       
+                                       var e = d3.select("#"+d+"_g");
+                                       
+                                       var s = "scale("+t[d]["attr"][i]+")";
+                                       var t1= "translate("+cx1+","+cy1+")";
+                                       var t2= "translate("+cx2+","+cy2+")";
+                                       e=e.attr("transform", t2+s+t1);
+                                    }
+                              }
+                           }
+                      }
+		);
+      }
 
 function alertSize() {
 	if (typeof (window.innerWidth) == 'number') {
