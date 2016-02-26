@@ -413,7 +413,7 @@ public class ParsingTools {
 	    return b.toString().toCharArray();
 	  }
 
-	  private String createHole(ITree part, Map<String, ITree> antiquotes, RascalExecutionContext rex) throws IOException {
+	  public String createHole(ITree part, Map<String, ITree> antiquotes, RascalExecutionContext rex) throws IOException {
 	    String ph = getParserGenerator(rex).createHole(part, antiquotes.size(), rex);
 	    antiquotes.put(ph, part);
 	    return ph;

@@ -24,8 +24,12 @@ public class UnwrapThrownVar extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if (debug)
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall2(opcode.name(), codeblock.getFunctionName(fuid), pos);
 		
-		codeEmittor.emitCallWithArgsSSFIIZ("insnUNWRAPTHROWNVAR", codeblock.getFunctionIndex(fuid), pos, pos == -1,debug); 
+		if(pos == -1){
+			codeEmittor.emitCallWithArgsSSFI_S("UNWRAPTHROWNVARMODULE", codeblock.getFunctionIndex(fuid), debug); 
+		} else {
+			codeEmittor.emitCallWithArgsSSFII_S("UNWRAPTHROWNVARSCOPED", codeblock.getFunctionIndex(fuid), pos, debug); 
+		}
 	}
 }

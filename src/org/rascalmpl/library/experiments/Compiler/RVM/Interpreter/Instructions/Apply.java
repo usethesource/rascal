@@ -22,8 +22,8 @@ public class Apply extends Instruction {
 	
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall2(opcode.name(), codeblock.getFunctionName(fuid), arity);
 		
-		codeEmittor.emitCallWithArgsSSII("insnAPPLY", codeblock.getFunctionIndex(fuid), arity,debug);
+		codeEmittor.emitCallWithArgsSSII_S("insnAPPLY", codeblock.getFunctionIndex(fuid), arity,debug);
 	}
 }

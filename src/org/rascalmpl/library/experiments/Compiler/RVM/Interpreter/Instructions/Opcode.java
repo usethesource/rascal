@@ -29,7 +29,7 @@ public enum Opcode {
 	HALT 				(11, 	1),
 	POP 				(12, 	1),
 	CALLDYN				(13,	1),
-	LOADFUN				(14,	1), // TODO: to be renamed to LOAD_ROOT_FUN
+	PUSH_ROOT_FUN		(14,	1),
 	NEXT0				(15,	1),
 	NEXT1				(16,	1),
 	YIELD0				(17,	1),
@@ -44,14 +44,14 @@ public enum Opcode {
 	LOADVARDEREF		(26,	1),
 	STORELOCDEREF		(27,	1),
 	STOREVARDEREF		(28,	1),
-	LOADCONSTR			(29,	1),
+	PUSHCONSTR			(29,	1),
 	CALLCONSTR			(30,	1),
-	LOAD_NESTED_FUN		(31, 	1),
+	PUSH_NESTED_FUN		(31, 	1),
 	LOADTYPE			(32,	1),
 	LOADBOOL			(33,	1),
 	LOADINT				(34,	1),
 	FAILRETURN			(35, 	1),
-	LOADOFUN        	(36,    1),
+	PUSHOFUN        	(36,    1),
 	OCALL           	(37,    2),
 	OCALLDYN	    	(38,	2),
 	CALLJAVA        	(39,    6),
@@ -81,7 +81,7 @@ public enum Opcode {
 	LOADLOC7			(63, 	1),
 	LOADLOC8			(64, 	1),
 	LOADLOC9			(65, 	1),
-	JMPINDEXED			(66, 	1),
+	UNUSED				(66, 	1),	//unused
 	LOADLOCKWP          (67,    1),
 	LOADVARKWP          (68,    1),
 	STORELOCKWP         (69,    1),
@@ -95,7 +95,7 @@ public enum Opcode {
 	RESETVAR			(76,	1),
 	VISIT               (77,    3),
 	CHECKMEMO			(78,	1),
-	LOADEMPTYKWMAP      (79, 	1),
+	PUSHEMPTYKWMAP      (79, 	1),
 	VALUESUBTYPE		(80,	1),
 	CALLMUPRIM0         (81,    1),
 	CALLMUPRIM1			(82,    1),
@@ -107,6 +107,31 @@ public enum Opcode {
 	CALLPRIM2			(87,    2),
 	CALLPRIMN			(88,    2),
 	RESETLOCS			(89,	1),
+	PUSHACCU            (90,	1),
+	POPACCU				(91,    1),
+	PUSHLOC				(92,	1),
+	PUSHCON				(93,	1),
+	PUSHLOCREF			(94,	1),
+	PUSHTYPE			(95,	1),
+	PUSHLOCDEREF		(96,	1),
+	PUSHVAR				(97,    1),
+	PUSHVARREF          (98,    1),
+	PUSHVARDEREF	    (99,    1),
+	PUSHLOCKWP			(100,   1),
+	PUSHVARKWP          (101,   1),
+	
+	PUSHCALLMUPRIM0     (102,    1),
+	PUSHCALLMUPRIM1		(103,    1),
+	PUSHCALLMUPRIM2		(104,    1),
+	PUSHCALLMUPRIMN		(105,    1),
+	
+	PUSHCALLPRIM0       (106,    2),
+	PUSHCALLPRIM1		(107,    2),
+	PUSHCALLPRIM2		(108,    2),
+	PUSHCALLPRIMN		(109,    2),
+	
+	CORETURN0			(110,	1),
+	CORETURN1			(111,	1),
 	;
 	
 	
@@ -136,7 +161,7 @@ public enum Opcode {
 	static public final int OP_HALT = 11;
 	static public final int OP_POP = 12;
 	static public final int OP_CALLDYN = 13;
-	static public final int OP_LOADFUN = 14;	
+	static public final int OP_PUSH_ROOT_FUN = 14;	
 	static public final int OP_NEXT0 = 15;
 	static public final int OP_NEXT1 = 16;
 	static public final int OP_YIELD0 = 17;
@@ -151,14 +176,14 @@ public enum Opcode {
 	static public final int OP_LOADVARDEREF = 26;
 	static public final int OP_STORELOCDEREF = 27;
 	static public final int OP_STOREVARDEREF = 28;
-	static public final int OP_LOADCONSTR = 29;
+	static public final int OP_PUSHCONSTR = 29;
 	static public final int OP_CALLCONSTR = 30;
-	static public final int OP_LOAD_NESTED_FUN = 31;
+	static public final int OP_PUSH_NESTED_FUN = 31;
 	static public final int OP_LOADTYPE = 32;
 	static public final int OP_LOADBOOL = 33;
 	static public final int OP_LOADINT = 34;
 	static public final int OP_FAILRETURN = 35;
-	static public final int OP_LOADOFUN = 36;
+	static public final int OP_PUSHOFUN = 36;
 	static public final int OP_OCALL = 37;
 	static public final int OP_OCALLDYN = 38;
 	static public final int OP_CALLJAVA = 39;
@@ -188,7 +213,7 @@ public enum Opcode {
 	static public final int OP_LOADLOC7 = 63;
 	static public final int OP_LOADLOC8 = 64;
 	static public final int OP_LOADLOC9 = 65;
-	static public final int OP_JMPINDEXED = 66;
+/* 66 unused */
 	static public final int OP_LOADLOCKWP = 67;
 	static public final int OP_LOADVARKWP = 68;
 	static public final int OP_STORELOCKWP = 69;
@@ -203,7 +228,7 @@ public enum Opcode {
 	
 	static public final int OP_VISIT = 77;
 	static public final int OP_CHECKMEMO = 78;
-	static public final int OP_LOADEMPTYKWMAP = 79;
+	static public final int OP_PUSHEMPTYKWMAP = 79;
 	static public final int OP_VALUESUBTYPE = 80;
 	static public final int OP_CALLMUPRIM0 = 81;
 	static public final int OP_CALLMUPRIM1 = 82;
@@ -216,13 +241,41 @@ public enum Opcode {
 	static public final int OP_CALLPRIMN = 88;
 	
 	static public final int OP_RESETLOCS = 89;
+	static public final int OP_PUSHACCU = 90;
+	static public final int OP_POPACCU = 91;
+	
+	static public final int OP_PUSHLOC = 92;
+	static public final int OP_PUSHCON = 93;
+	
+	
+	static public final int OP_PUSHLOCREF = 94;
+	static public final int OP_PUSHTYPE = 95;
+	static public final int OP_PUSHLOCDEREF	= 96;
+	static public final int OP_PUSHVAR	= 97;
+	static public final int OP_PUSHVARREF = 98;
+	static public final int OP_PUSHVARDEREF	= 99;
+	static public final int OP_PUSHLOCKWP = 100;
+	static public final int OP_PUSHVARKWP = 101;	
+	
+	static public final int OP_PUSHCALLMUPRIM0 = 102;
+	static public final int OP_PUSHCALLMUPRIM1 = 103;
+	static public final int OP_PUSHCALLMUPRIM2 = 104;
+	static public final int OP_PUSHCALLMUPRIMN = 105;
+	
+	static public final int OP_PUSHCALLPRIM0 = 106;
+	static public final int OP_PUSHCALLPRIM1 = 107;
+	static public final int OP_PUSHCALLPRIM2 = 108;
+	static public final int OP_PUSHCALLPRIMN = 109;
+	
+	static public final int OP_CORETURN0 = 110;
+	static public final int OP_CORETURN1 = 111;
 	
 	/*
 	 * Meta-instructions that are generated dynamically during execution and
 	 * will never occur in generated code.
 	 */
-	static public final int POSTOP_CHECKUNDEF = 100;
-	static public final int POSTOP_HANDLEEXCEPTION = 101;
+	static public final int POSTOP_CHECKUNDEF = 112;
+	static public final int POSTOP_HANDLEEXCEPTION = 113;
 	
 	 Opcode(int op, int pc_incr){
 		this.op = op;
@@ -280,12 +333,21 @@ public enum Opcode {
 		case LOADCON:
 			return "LOADCON " + cb.getConstantValue(arg1);
 			
+		case PUSHCON:
+			return "PUSHCON " + cb.getConstantValue(arg1);	
+			
 		case LOADVAR:
 			return "LOADVAR " + arg1 + ", " 
+						      + arg2;
+		case PUSHVAR:
+			return "PUSHVAR " + arg1 + ", " 
 						      + arg2;
 			
 		case LOADLOC:
 			return "LOADLOC " + arg1;
+			
+		case PUSHLOC:
+			return "PUSHLOC " + arg1;
 			
 		case STOREVAR:
 			return "STOREVAR " + arg1 + ", " 
@@ -297,9 +359,17 @@ public enum Opcode {
 		case CALL:
 			return "CALL " + cb.getFunctionName(arg1)  + ", " 
 						   + arg2;
+		case RETURN0:
+			return "RETURN0";
 			
 		case RETURN1:
 			return "RETURN1 " + arg1;
+			
+		case CORETURN0:
+			return "CORETURN0";
+			
+		case CORETURN1:
+			return "CORETURN1 " + arg1;
 			
 		case JMP:
 			return "JMP " + arg1;
@@ -322,8 +392,8 @@ public enum Opcode {
 		case CALLDYN:
 			return "CALLDYN " + arg1;
 			
-		case LOADFUN:
-			return "LOADFUN " + cb.getFunctionName(arg1) ;
+		case PUSH_ROOT_FUN:
+			return "PUSH_ROOT_FUN " + cb.getFunctionName(arg1) ;
 			
 		case NEXT0:
 			return "NEXT0";
@@ -347,21 +417,32 @@ public enum Opcode {
 		case PRINTLN:
 			return "PRINTLN " + arg1;
 		
-		case RETURN0:
-			return "RETURN0";
+		
 		
 		case LOADLOCREF:
 			return "LOADLOCREF " + arg1;
 			
+		case PUSHLOCREF:
+			return "PUSHLOCREF " + arg1;
+			
 		case LOADVARREF:
 			return "LOADVARREF " + arg1 + ", " 
 							     + arg2;
-		
+		case PUSHVARREF:
+			return "PUSHVARREF " + arg1 + ", " 
+							     + arg2;
 		case LOADLOCDEREF:
 			return "LOADLOCDEREF " + arg1;
 			
+		case PUSHLOCDEREF:
+			return "PUSHLOCDEREF " + arg1;
+			
 		case LOADVARDEREF:
 			return "LOADVARDEREF " + arg1 + ", " 
+								   + arg2;
+			
+		case PUSHVARDEREF:
+			return "PUSHVARDEREF " + arg1 + ", " 
 								   + arg2;
 			
 		case STORELOCDEREF:
@@ -371,19 +452,22 @@ public enum Opcode {
 			return "STOREVARDEREF " + arg1 + ", " 
 									+ arg2;
 			
-		case LOADCONSTR:
-			return "LOADCONSTR " + arg1;
+		case PUSHCONSTR:
+			return "PUSHCONSTR " + arg1;
 		
 		case CALLCONSTR:
 			return "CALLCONSTR " + arg1 + ", " 
 								 + arg2  /*+ ", " + cb.getConstantValue(cb.finalCode[pc + 1])*/ ;
 		
-		case LOAD_NESTED_FUN:
-			return "LOAD_NESTED_FUN " + arg1 + ", " 
+		case PUSH_NESTED_FUN:
+			return "PUSH_NESTED_FUN " + arg1 + ", " 
 									  + arg2;
 			
 		case LOADTYPE:
 			return "LOADTYPE " + arg1;
+			
+		case PUSHTYPE:
+			return "PUSHTYPE " + arg1;
 			
 		case LOADBOOL:
 			return "LOADBOOL " + (arg1 == 1);
@@ -394,7 +478,7 @@ public enum Opcode {
 		case FAILRETURN:
 			return "FAILRETURN";
 			
-		case LOADOFUN:
+		case PUSHOFUN:
 			return "LOADOFUN " + cb.getOverloadedFunctionName(arg1);
 			
 		case OCALL:
@@ -427,7 +511,7 @@ public enum Opcode {
 			return "FILTERRETURN";
 			
 		case EXHAUST:
-			return "TERMINATE";
+			return "EXHAUST";
 			
 		case GUARD:
 			return "GUARD";
@@ -484,15 +568,21 @@ public enum Opcode {
 			return "LOADLOC8";
 		case LOADLOC9:
 			return "LOADLOC9";
-		case JMPINDEXED:
-			return "JMPINDEXED " + cb.getConstantValue(arg1);
-			
+				
 		case LOADLOCKWP:
 			return "LOADLOCKWP " + cb.getConstantValue(arg1);
+			
+		case PUSHLOCKWP:
+			return "PUSHLOCKWP " + cb.getConstantValue(arg1);
 			
 		case LOADVARKWP:
 			return "LOADVARKWP " + cb.getConstantValue(arg1) + ", " 
 								 + cb.getConstantValue(arg2);
+			
+		case PUSHVARKWP:
+			return "PUSHVARKWP " + cb.getConstantValue(arg1) + ", " 
+								 + cb.getConstantValue(arg2);
+			
 		case STORELOCKWP:
 			return "STORELOCKWP " + cb.getConstantValue(arg1);
 			
@@ -534,8 +624,8 @@ public enum Opcode {
 		case CHECKMEMO:
 				return "CHECKMEMO";
 				
-		case LOADEMPTYKWMAP:
-			return "LOADEMPTYKWMAP";
+		case PUSHEMPTYKWMAP:
+			return "PUSHEMPTYKWMAP";
 			
 		case VALUESUBTYPE:
 			return "VALUESUBTYPE " + cb.getConstantType(arg1) ;
@@ -549,6 +639,17 @@ public enum Opcode {
 		case CALLMUPRIMN:
 			return "CALLMUPRIMN " + MuPrimitive.fromInteger(arg1).name() +  ", " 
 				     + arg2;
+			
+		case PUSHCALLMUPRIM0:
+			return "PUSHCALLMUPRIM0 " + MuPrimitive.fromInteger(arg1).name();
+		case PUSHCALLMUPRIM1:
+			return "PUSHCALLMUPRIM1 " + MuPrimitive.fromInteger(arg1).name();
+		case PUSHCALLMUPRIM2:
+			return "PUSHCALLMUPRIM2 " + MuPrimitive.fromInteger(arg1).name();
+		case PUSHCALLMUPRIMN:
+			return "PUSHCALLMUPRIMN " + MuPrimitive.fromInteger(arg1).name() +  ", " 
+				     + arg2;
+		
 		case CALLPRIM0:
 			return "CALLPRIM0 " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
 							    + cb.getConstantValue(cb.finalCode[pc + 1]);
@@ -563,7 +664,26 @@ public enum Opcode {
 			return "CALLPRIMN " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
 							   + arg2 + ", "
 							   + cb.getConstantValue(cb.finalCode[pc + 1]);
-
+			
+		case PUSHCALLPRIM0:
+			return "PUSHCALLPRIM0 " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
+							    + cb.getConstantValue(cb.finalCode[pc + 1]);
+		case PUSHCALLPRIM1:
+			return "PUSHCALLPRIM1 " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
+							    + cb.getConstantValue(cb.finalCode[pc + 1]);
+		case PUSHCALLPRIM2:
+			return "PUSHCALLPRIM2 " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
+							    + cb.getConstantValue(cb.finalCode[pc + 1]);
+			
+		case PUSHCALLPRIMN:
+			return "PUSHCALLPRIMN " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
+							   + arg2 + ", "
+							   + cb.getConstantValue(cb.finalCode[pc + 1]);
+		case PUSHACCU:
+				return "PUSHACCU";
+		case POPACCU:
+			return "POPACCU";
+			
 		default:
 			break;
 		}	

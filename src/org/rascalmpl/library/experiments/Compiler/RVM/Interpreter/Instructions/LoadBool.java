@@ -19,7 +19,7 @@ public class LoadBool extends Instruction {
 	}
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall1(opcode.name(), bool ? 1 : 0);
 		
 		codeEmittor.emitInlineLoadBool(bool,debug) ;
 	}

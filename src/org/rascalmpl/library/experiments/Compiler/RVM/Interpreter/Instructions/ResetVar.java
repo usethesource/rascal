@@ -24,18 +24,11 @@ public class ResetVar extends Instruction {
 	}
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
-		if (debug)
-			codeEmittor.emitDebugCall(opcode.name());
-		
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid);
-
-		//codeEmittor.emitCallWithArgsSSFIIZ("insnLOADVAR", what, pos, pos == -1,debug);
-//TODO: adapt this!
-		if (pos == -1) {
-			codeEmittor.emitCallWithArgsSSFI("insnLOADVARmax", what, debug);
-		} else {
-			codeEmittor.emitCallWithArgsSSFII("insnLOADVAR", what, pos, debug);
-		}
-
+		
+		if (debug)
+			codeEmittor.emitDebugCall2(opcode.name(), (pos == -1) ? fuid : codeblock.getFunctionName(fuid), pos);
+		
+		codeEmittor.emitVoidCallWithArgsFII("RESETVAR", what, pos, debug);
 	}
 }

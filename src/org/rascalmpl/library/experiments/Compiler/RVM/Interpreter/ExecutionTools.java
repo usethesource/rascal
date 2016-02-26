@@ -179,6 +179,7 @@ public class ExecutionTools {
 	 */
 	 public static RVM initializedRVM(RVMExecutable executable, RascalExecutionContext rex){
 		
+		 
 		RVM rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
 		
 		

@@ -5934,23 +5934,37 @@ public enum RascalPrimitive {
 	subtype {
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			//return vf.bool(((Type) arg_2).isSubtypeOf((Type) arg_1));
-			return vf.bool(rex.isSubtypeOf((Type) arg_2, (Type) arg_1));
+			return vf.bool(((Type) arg_2).isSubtypeOf((Type) arg_1));
+			//return vf.bool(rex.isSubtypeOf((Type) arg_2, (Type) arg_1));
 		}
 	},
 
 	/**
 	 * subtype-of-value
 	 * 
-	 * [ ..., IValue v, Type t ] => [ ..., typeof(v) <: t ]
+	 * [ ..., IValue v, Type t ] => [ ..., typeOf(v) <: t ]
 	 */
 	subtype_value_type {
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			//return vf.bool(((IValue) arg_2).getType().isSubtypeOf((Type) arg_1));
-			return vf.bool(rex.isSubtypeOf(((IValue) arg_2).getType(), (Type) arg_1));
+			return vf.bool(((IValue) arg_2).getType().isSubtypeOf((Type) arg_1));
+			//return vf.bool(rex.isSubtypeOf(((IValue) arg_2).getType(), (Type) arg_1));
 		}
 	},
+	
+	/**
+	 * subtype-of-value-value
+	 * 
+	 * [ ..., IValue v1, Value v2 ] => [ ..., typeOf(v1) <: typeOf(v2) ]
+	 */
+	subtype_value_value {
+		@Override
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IValue) arg_2).getType().isSubtypeOf(((IValue) arg_1).getType()));
+			//return vf.bool(rex.isSubtypeOf(((IValue) arg_2).getType(), (Type) arg_1));
+		}
+	},
+
 
 	/**
 	 * typeOf a value
@@ -9560,6 +9574,15 @@ public enum RascalPrimitive {
 		}
 		
 		throw new CompilerError("getAllKeywordParameters");
+	}
+	
+	/*
+	 * Main program: handy to map a primitive index back to its name (e.g., in profiles!)
+	 */
+	public static void main(String[] args) {
+		int n = 364;
+		
+		System.err.println("RascalPrimitive: " + fromInteger(n) + " (" + n + ")");
 	}
 }
 
