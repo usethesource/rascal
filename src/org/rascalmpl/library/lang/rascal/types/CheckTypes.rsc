@@ -4819,22 +4819,42 @@ public CheckResult checkStmt(Statement stmt:(Statement)`fail <Target target>;`, 
 
 @doc{Check the type of Rascal statements: Break (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`break <Target target>;`, Configuration c) {
+	set[Symbol] failures = { };
+
     if ((Target)`<Name n>` := target) {
         rn = convertName(n);
         // TODO: Check to see what category the label is in?
         if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label not defined", stmt@\loc));
-    }   
-    return markLocationType(c, stmt@\loc, Symbol::\void());
+    }
+    
+    if (!labelTypeInStack(c, {forLabel(), whileLabel(), doWhileLabel()})) {
+        failures += makeFailType("Cannot break outside the scope of a for, while, or do while loop", stmt@\loc);
+    }
+
+    if (size(failures) > 0)
+        return markLocationFailed(c, stmt@\loc, failures);
+    else
+        return markLocationType(c, stmt@\loc, Symbol::\void());
 }
 
 @doc{Check the type of Rascal statements: Continue (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`continue <Target target>;`, Configuration c) {
+	set[Symbol] failures = { };
+    
     if ((Target)`<Name n>` := target) {
         rn = convertName(n);
         // TODO: Check to see what category the label is in?
         if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label not defined", stmt@\loc));
     }   
-    return markLocationType(c, stmt@\loc, Symbol::\void());
+
+    if (!labelTypeInStack(c, {forLabel(), whileLabel(), doWhileLabel()})) {
+        failures += makeFailType("Cannot continue outside the scope of a for, while, or do while loop", stmt@\loc);
+    }
+
+    if (size(failures) > 0)
+        return markLocationFailed(c, stmt@\loc, failures);
+    else
+        return markLocationType(c, stmt@\loc, Symbol::\void());
 }
 
 @doc{Check the type of Rascal statements: Filter (DONE)}
@@ -6067,6 +6087,23 @@ public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration
 		}
 	}
 	
+	c = exitBlock(cCons, c);
+
+	return c;
+}
+
+public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> data <UserType ut> <CommonKeywordParameters commonParams>;`, Configuration c) {
+	commonParamList = [ ];
+	if ((CommonKeywordParameters)`( <{KeywordFormal ","}+ kfs> )` := commonParams) commonParamList = [ kfi | kfi <- kfs ];
+
+	cCons = enterBlock(c, decl@\loc);
+	if (size(commonParamList) > 0) {
+		for (KeywordFormal kfi <- commonParamList) {
+			< cCons, kfT > = convertAndExpandType(kfi.\type, cCons);
+			< cCons, _ > = calculateKeywordParamRel(cCons, [ kfi ], typesOnly = false ); 
+			cCons = addLocalVariable(cCons, convertName(kfi.name), false, kfi@\loc, kfT);
+		}
+	}
 	c = exitBlock(cCons, c);
 
 	return c;
@@ -7658,6 +7695,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
 						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
+						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<FunctionDeclaration _>` : { 
@@ -7763,6 +7802,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						aliases = aliases + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
 						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
+						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 				}
@@ -7829,6 +7870,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 					case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
@@ -7915,6 +7958,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
 						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
+						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<FunctionDeclaration _>` : { 
@@ -7968,6 +8013,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 					case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
@@ -8965,11 +9012,14 @@ public default Module check(Tree t, PathConfig pcfg) {
 public default Module check(Tree t) {
 	return check(t, pathConfig());
 }
-
 public default start[Module] check(loc l) {
+	return check(l, pathConfig());
+}
+
+public default start[Module] check(loc l, PathConfig pcfg) {
   //m = parse(#start[Module], l);
   m = parseModuleWithSpaces(l);
-  m.top = check(m.top, pathConfig());
+  m.top = check(m.top, pcfg);
   m@docLinks = m.top@docLinks;
   m@docStrings = m.top@docStrings;
   return m;

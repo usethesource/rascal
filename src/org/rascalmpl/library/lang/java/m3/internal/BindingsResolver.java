@@ -77,7 +77,7 @@ public class BindingsResolver {
 		this.locationCache = cache;
 	}
 	
-	public ISourceLocation resolveBinding(ASTNode node) {
+	public ISourceLocation resolveBinding(ASTNode node, boolean tryHard) {
 		if (collectBindings) {
 			if (node instanceof TypeDeclaration) {
         return resolveBinding(((TypeDeclaration) node).resolveBinding());
@@ -100,7 +100,14 @@ public class BindingsResolver {
       } else if (node instanceof QualifiedName) {
         return resolveQualifiedName((QualifiedName) node);
       } else if (node instanceof SimpleName) {
-        return resolveBinding(((SimpleName) node).resolveBinding());
+    	SimpleName n = (SimpleName) node;
+        IBinding resolveBinding = n.resolveBinding();
+        ISourceLocation result = resolveBinding(resolveBinding);
+        // Have to move towards parent to make the binding unique
+        if (result.getScheme() == "unresolved" && tryHard) {
+        	result = resolveBinding(n.getParent(), resolveBinding, n);
+        }
+        return result;
       } else if (node instanceof SuperFieldAccess) {
         return resolveBinding(((SuperFieldAccess) node).resolveFieldBinding());
       } else if (node instanceof SuperMethodInvocation) {
@@ -121,10 +128,11 @@ public class BindingsResolver {
         return resolveBinding(((TypeParameter) node).resolveBinding());
       } else if (node instanceof VariableDeclaration) {
     	VariableDeclaration n = (VariableDeclaration) node;
+    	IVariableBinding bin = n.resolveBinding(); 
         ISourceLocation result = resolveBinding(n.resolveBinding());
         // Have to move towards parent to make the binding unique
         if (result.getScheme() == "unresolved") {
-        	result = resolveBinding(n.getParent(), n);
+        	result = resolveBinding(n.getParent(), bin, n.getName());
         }
         return result;
       } else if (node instanceof ConstructorInvocation) {
@@ -140,8 +148,8 @@ public class BindingsResolver {
 		return makeBinding("unknown", null, null);
 	}
 	
-	private ISourceLocation resolveBinding(ASTNode parentNode, VariableDeclaration thisNode) {
-		ISourceLocation parentBinding = resolveBinding(parentNode);
+	private ISourceLocation resolveBinding(ASTNode parentNode, IBinding resolvedBinding, SimpleName nodeName) {
+		ISourceLocation parentBinding = resolveBinding(parentNode, false);
 		// Something has to declare it!!!
 		while(parentBinding.getScheme().equals("unknown") || parentBinding.getScheme().equals("unresolved")) {
 			if (parentNode == null) {
@@ -149,11 +157,10 @@ public class BindingsResolver {
 				return makeBinding("unresolved", null, null);
 			}
 			parentNode = parentNode.getParent();
-			parentBinding = resolveBinding(parentNode);
+			parentBinding = resolveBinding(parentNode, false);
 		}
 
 		// TODO: @ashimshahi please check this additional null check and the way we return an unresolved binding here
-		IVariableBinding resolvedBinding = thisNode.resolveBinding();
 		if (resolvedBinding == null) {
 			return makeBinding("unresolved", null, null);
 		}
@@ -178,17 +185,24 @@ public class BindingsResolver {
 		}
 		
 		// FIXME: May not be variable only!!!
-		ISourceLocation childBinding = makeBinding("java+variable", null, qualifiedName.concat(thisNode.getName().getIdentifier()));
+		ISourceLocation childBinding = makeBinding("java+variable", null, qualifiedName.concat(nodeName.getIdentifier()));
 		locationCache.put(key, childBinding);
 		return childBinding;
 	}
 	
 	private ISourceLocation resolveQualifiedName(QualifiedName node) {
 		ISourceLocation parent = resolveBinding(node.getQualifier().resolveTypeBinding());
-		ISourceLocation name = resolveBinding(node.getName());
+		ISourceLocation name = resolveBinding(node.getName(), false);
+		
+		if (parent.getScheme().equals("java+array")  && node.getName().isSimpleName()) {
+		    SimpleName n = (SimpleName) node.getName();
+		    if (n.getIdentifier().equals("length")) {
+		        return makeBinding("java+arrayLength", parent.getAuthority(), parent.getPath());
+		    }
+		}
 		
 		if (parent.getScheme().equals("java+array") && name.getScheme().equals("unresolved")) {
-			return makeBinding("java+field", null, resolveBinding(node.getQualifier()).getPath() + "/" + node.getName().getIdentifier());
+			return makeBinding("java+field", null, resolveBinding(node.getQualifier(), true).getPath() + "/" + node.getName().getIdentifier());
 		}
 		
 		return name;
@@ -199,7 +213,7 @@ public class BindingsResolver {
 			return initializerLookUp.get(node); 
 		}
 		int initCounter = 1;
-		ISourceLocation parent = resolveBinding(node.getParent());
+		ISourceLocation parent = resolveBinding(node.getParent(), true);
 		if (initializerCounter.containsKey(parent)) {
 	      initCounter = initializerCounter.get(parent) + 1;
 	    }
@@ -599,6 +613,9 @@ public class BindingsResolver {
 			IMethodBinding declaringMethod = binding.getDeclaringMethod();
 			if (declaringMethod != null) {
 				qualifiedName = getPath(resolveBinding(declaringMethod));
+			}
+			else {
+			    //binding.getDeI
 			}
 		}
 		

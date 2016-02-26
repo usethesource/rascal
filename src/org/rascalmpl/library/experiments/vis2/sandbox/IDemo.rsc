@@ -6,6 +6,10 @@ import util::Math;
 
 str current = "white";
 
+Figure ft() = hcat(figs=[box(size=<150, 150>), choiceInput(size=<30, 100>)]);
+
+void tft() = render(ft());
+
 Figure butt() = hcat(figs= [
     buttonInput("Click me", id = "aap"
     
@@ -44,7 +48,7 @@ Figure lay() = tree(box(fig=buttonInput("click", size=<40, 40>, event=on(click))
 void tlay() = render(lay());
 
 Figure counter() = hcat(figs= [
-    buttonInput("Incr", id = "aap"
+    buttonInput("Incr", id = "aap", size=<50, 50>
     , event = on("click", 
     void (str e, str n, str v) {  
        str t1 = textProperty("mies1").text;
@@ -54,14 +58,14 @@ Figure counter() = hcat(figs= [
        if (d1%2==0) style("box1", fillColor="red"); 
               else style("box1", fillColor="green");
        if (d2%2==0) style("box2", fillColor="green"); 
-              else style("box2", fillColor="red");
+             else style("box2", fillColor="red");
        textProperty("mies1", text="<d1+1>");
        textProperty("mies2", text="<d2-1>");
-       attr("box3", width = 25);
+       // attr("box3", width = 25);
        }
     )
     )
-    , buttonInput("Decr", id = "noot"
+    , buttonInput("Decr", id = "noot", size=<50, 50>
     , event = on("click", 
     void (str e, str n, str v) {
        str t1 = textProperty("mies1").text;
@@ -74,13 +78,13 @@ Figure counter() = hcat(figs= [
               else style("box2", fillColor="red");
        textProperty("mies1", text="<d1-1>");
        textProperty("mies2", text="<d2+1>");
-       attr("box3", width=50);
+       // attr("box3", width=50);
        }
     )
     )
     , box(id = "box1", size=<50, 50>, fig=text("0", id = "mies1")) 
     , box(id = "box2", size=<50, 50>, fig=text("0", id = "mies2")) 
-    , box(id = "box3", width=100, height = 50) 
+    // , box(id = "box3", width=100, height = 50) 
     ]);
     
 void tcounter()= render(counter(), debug = false);
@@ -453,6 +457,20 @@ Figure flipflop() {
        )
         ;
        return r;
-       }
+       }loc jsonl =  |project://rascal|+"src";
+
+public Figure pack() {return d3Pack(d = fileMap(jsonl, ".rsc"), fillOpacityNode = 0.15, fillLeaf="lightsalmon");}
+
+public void tpack() = render(pack(), fillColor = "white");
+
+public Figure treemap() {return d3Treemap(d = fileMap(jsonl, ".rsc"), fillOpacityNode = 0.15, fillLeaf="lightsalmon");}
+
+public void ttreemap() = render(treemap(), fillColor = "white");
+
+public void fpack(loc l) = writeFile(l, toHtmlString(pack()));
+       
        
  void ttip() {render(tip());}
+ 
+ 
+ 

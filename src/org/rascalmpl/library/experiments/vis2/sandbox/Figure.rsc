@@ -58,20 +58,21 @@ alias StrCallBack = void(str,str,str);
 alias RealCallBack = void(str,str,real);
 alias IntCallBack = void(str,str,int);
 
-data Event 
+// alias InputType = tuple[str lab, str f];
+
+
+data Event
 	= on(StrCallBack strCallBack)
 	| on(RealCallBack realCallBack)
 	| on(IntCallBack intCallBack)
 	| on(str eventName, StrCallBack strCallBack)
-	| on(str eventName, RealCallBack realCallBack)
+	| on(str eventName, RealCallBack realCallBack) 
 	| on(str eventName, IntCallBack intCallBack)
 	| on(list[str] eventList, StrCallBack strCallBack)
 	| on(list[str] eventList, RealCallBack realCallBack)
-	| on(list[str] eventList,IntCallBack intCallBack)
+	| on(list[str] eventList, IntCallBack intCallBack)
 	| noEvent()
 	;
-		
-//alias Cursor[&T] = &T;
 
 
 alias XYData 			= lrel[num x, num y];
@@ -86,10 +87,8 @@ alias XYLabeledData     = lrel[num xx, num yy, str label];
 
 alias GoogleData     = list[list[value]];	
 
+data DDD = ddd(str name="", int size = 0, list[DDD] children = []);
 
-/* Dataype belonging to candlesticks */
-
-	
 //data Margin = margin(int left = 0, int right = 0, int top = 0, int bottom = 0);
 
 /*
@@ -140,6 +139,7 @@ public data Timer (
      // ,str mark = ""
     ) = timer();
     
+    
 public data Style (	
     bool svg = false,
     str visibility = "", 
@@ -169,10 +169,8 @@ public alias Prop =
 public data Figure(
         // Naming
         str id = "",
-        // Fid fid = strEmpty,
         str visibility = "", 
 		// Dimensions and Alignmenting
-		
 		tuple[int,int] size = <0,0>,
 		tuple[int, int, int, int] padding = <0, 0, 0, 0>, // left, top, right, botton 
 		int width = -1,
@@ -180,6 +178,7 @@ public data Figure(
 		Position at = <0,0>,
 		Rotate rotate =<0, -1, -1>, 
 		Alignment align = <0.5, 0.5>, // TODO should be middle,
+		
 		num bigger = 1.0,
 		num shrink = 1.0, 
 		num hshrink = 1.0, 
@@ -192,15 +191,14 @@ public data Figure(
 		int hgap = 0,
 		int vgap = 0,
         bool sizeFromParent = false,
+        
     	// Line properties
-    
 		int lineWidth = -1,			
 		str lineColor = "", 		
 		list[int] lineDashing = [],	
 		real lineOpacity = -1.0,
 	
 		// Area properties
-
 		str fillColor    = "", 			
 		real fillOpacity = -1.0,	
 		str fillRule     = "evenodd",
@@ -212,12 +210,12 @@ public data Figure(
 		str fontFamily = "",// "Helvetica, Arial, Verdana, sans-serif",
 		str fontName = "", // "Helvetica",
 		int fontSize = -1, // 12,
-		str fontStyle = "", // "normal",		// normal|italic|oblique|initial|inherit
-		str fontWeight = "",// "normal",		//normal|bold|bolder|lighter|number|initial|inherit; normal==400, bold==700
-		str fontColor = "", // "black",
-		str textDecoration	= "", //"none",	// none|underline|overline|line-through|initial|inherit
+		str fontStyle = "",  //  normal|italic|oblique|initial|inherit   
+		str fontWeight = "", // normal|bold|bolder|lighter|number|initial|inherit; normal==400, bold==700
+		str fontColor = "",  // default "black",
+		str textDecoration	= "", // none|underline|overline|line-through|initial|inherit
+		
 		// Interaction
-	
 		Event event = noEvent(),
 		
 		// Tooltip
@@ -229,8 +227,8 @@ public data Figure(
 
 // atomic primitivesreturn [[z] +[*((c[z]?)?c[z]:"null")|c<-m]|z<-x];
 	
-   | htmlText(value text, bool nl2br = true)		    			// text label html
-   | text(value text, bool nl2br = true)		    			// text label svg
+   | htmlText(value text, str overflow = "hidden")		    			// text label html
+   | text(value text, str overflow = "hidden")		    			// text label svg
    | markdown(value text)					// text with markdown markup (TODO: make flavor of text?)
    | math(value text)						// text with latex markup
    
@@ -243,11 +241,12 @@ public data Figure(
    | ellipse(num cx = -1, num cy = -1, num rx=-1, num ry=-1, Figure fig=emptyFigure())
    
    | circle(num cx = -1, num cy = -1, num r=-1, Figure fig=emptyFigure())
-   
+
+// regular polygon   
    | ngon(int n=3, num r=-1, int angle = 0, Figure fig=emptyFigure(),
         Rescale scaleX = <<0,1>, <0, 1>>,
    	    Rescale scaleY = <<0,1>, <0, 1>>
-     )	// regular polygon
+     )	
    
    | polygon(Points points=[], bool fillEvenOdd = true,
             bool yReverse = false,
@@ -272,7 +271,7 @@ public data Figure(
                    
    | hcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "") 					// horizontal and vertical concatenation
    | vcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "") 					// horizontal and vertical concatenation 
-   | overlay(Figures figs=[])				// overlay (stacked) comAlignment
+   | overlay(Figures figs=[])				
    | grid(list[Figures] figArray = [[]], str borderStyle="solid", int borderWidth=0, str borderColor = "") 	// grid of figures
 
 // Figure transformations
@@ -281,19 +280,14 @@ public data Figure(
    | atX(int x, Figure fig)				// TODO: how to handle negative values?
    | atY(int y, Figure fig)
    
-  	//TODO: avoid name clash with Math::util:scale
- //  | SCALE(num factor, Figure fig)
-   
-   // Advised to embed the figure in a frame and use that frame as argument of rotate
+// Advised to embed the figure in a frame and use that frame as argument of rotate
    | rotate(num angle, Figure fig)
    
-
 // Input elements
-
    | buttonInput(str txt, bool disabled=false,  value \value = "")
    | checkboxInput(list[str] choices = ["0"], value \value = ())
    | choiceInput(list[str] choices = ["0"], value \value = choices[0])
-   | colorInput()
+   // | colorInput()
    
    // date
    // datetime
@@ -304,14 +298,9 @@ public data Figure(
    // week
    // url
    
-   | numInput()
+  //  | numInput()
    | rangeInput(num low=0, num high=100, num step=1, value \value = 50.0)
-   | strInput(int nchars=20, value \value="")
-   
-// Visibility control elements
-
-  // | visible(bool condition=true, Figure fig = emptyFigure())
-   
+   | strInput(int nchars=20, value \value="") 
    | choice(int selection = 0, Figures figs = [])
   
 /*
@@ -328,18 +317,17 @@ public data Figure(
 	| scatterChart(GoogleData googleData = [], XYData xyData = [], ChartOptions options = chartOptions())
 	| candlestickChart(GoogleData googleData =[], ChartOptions options = chartOptions())
 	| pieChart(GoogleData googleData = [],  ChartOptions options = chartOptions())
-// Graphs
-// Must be used as innerfigure in box(fig=..., align = topLeft). 
-// Advised is to use the function graph(nodes, edges)
+
    | graph(list[tuple[str, Figure]] nodes = [], list[Edge] edges = [], map[str, NodeProperty] nodeProperty = (), 
      GraphOptions graphOptions = graphOptions(), map[str, str] figId=())
- 
    | tree(Figure root, list[Figure] figs
 	       ,int xSep = 1, int ySep = 2, str pathColor = "black"
 	       ,Orientation orientation = topDown()
 	       ,bool manhattan=false
 // For memory management
 	       , int refinement=5, int rasterHeight=150)
+   |d3Pack(DDD d = ddd(), str fillNode="rgb(31, 119, 180)", str fillLeaf = "ff7f0e", num fillOpacityNode=0.25, num fillOpacityLeaf=1.0)
+   |d3Treemap(DDD d = ddd())
    ;
    
 data GraphOptions = graphOptions(
@@ -517,229 +505,7 @@ data Chart(str name = "", str color = "", str curveType = "",
 	| bar(XYLabeledData xylabeledData)
 	;
 	
-str nameA(Alignment a) {
-    str r = "";
-    if (a[1]<0.25) r = "top";
-    else
-    if (a[1]>0.75) r = "bottom";
-    else r = "center";
-    if (a[0]<0.25) r += "Left";
-    else
-    if (a[0]>0.75) r += "Right";
-    else r += "Mid";
-    return r;
-    }
 
-// Dimensions of nodes in tree must be known in advance    
-Figure pnode(str s, str t) = box(size=<size(s)*10, (size(findAll(s,"\n"))+1)*20>, fillColor="whitesmoke", fig=text(s, fontSize=12)
-               , tooltip=  at(5, 15, box(t, 12, "blue", 1.2, "white")));
-              
-Figure rnode(str s) = box(size=<size(s)*12, 20>,fillColor="antiquewhite", fig=htmlText(s, fontSize=14));
-
-Figure tr(Figure root, Figures args) = tree(root, args, manhattan = true);
-    
-Figure treeF(Figure f) {
-    Figure root = box(5, 5, "blue");
-    Figures r =[];
-    map[str, value] m = getKeywordParameters(f);
-    if (m["width"]?) r += pnode("<f.width>","width");
-    if (m["height"]?) r += pnode("<f.height>","height"); 
-    if (box():=f) {    
-        if (m["fig"]?) 
-                 if (text(str s):=f.fig) {
-                         Figure g = f.fig; 
-                         r += pnode(s, "content");                                  
-                         r += pnode("<g.fontSize>", "fontSize");  
-                         r += pnode("<g.fontColor>", "fontColor");       
-                 } else
-                 r += treeF(f.fig);
-        if (m["align"]?) r+= pnode(nameA(f.align),"align");
-        if (m["shrink"]?) r += pnode("<f.shrink>","shrink");
-        if (m["grow"]?) r += pnode("<f.grow>","grow");
-        if (m["fillColor"]?) r += pnode("<f.fillColor>","fillColor");
-        if (m["lineWidth"]?) r += pnode("<f.lineWidth>", "lineWidth");
-        if (m["lineColor"]?) r += pnode("<f.lineColor>","lineColor");
-        return tr(rnode("box"), r);
-        }
-    if (vcat():=f || hcat():=f) {
-        Figures s= [((text(str q):=x)?pnode(q, "content"):treeF(x))|x<-f.figs];
-        if (m["fontSize"]?) r += pnode("<f.fontSize>", "fontSize");  
-        if (m["fontColor"]?) r += pnode("<f.fontColor>", "contColor");  
-        if (m["align"]?) r+= pnode(nameA(f.align),"align");
-        if (m["vgap"]?) r+= pnode("<f.vgap>","vgap");
-        if (m["hgap"]?) r+= pnode("<f.hgap>","hgap");
-        return tr(rnode(getName(f)), [tr(pnode("figs","figs"), s)]+r);
-        }
-    if (grid():=f) {
-        Figures u =[];
-        for (z<-f.figArray) {
-            Figures s= [treeF(x)|x<-z];
-            u+= tr(rnode("row"), s);
-            }
-        if (m["align"]?) r+= pnode(nameA(f.align),"align");
-        if (m["hgap"]?) r+= pnode("<f.hgap>","hgap");
-        if (m["vgap"]?) r+= pnode("<f.vgap>","vgap");
-        return tr(rnode("grid"),[tr(pnode("figArray", "figArray"), u)]+r);
-        }
-     if (graph():=f) {
-        Figures nodes = [treeF(p[1])|p<-f.nodes];
-        Figure u = tr(rnode("node"), nodes);
-        Figures edges = [rnode("\<<e.from>, <e.to>\>")|Edge e <-f.edges];
-        Figure v = tr(rnode("edge"), edges);
-        return tr(rnode("graph"), r+[u, v]);
-        }
-    return root;
-    }
-	
-str nameF(Figure f) {
-    list[str] r = [];
-    map[str, value] m = getKeywordParameters(f);
-    if (m["width"]?) r += "<f.width>";
-    if (m["height"]?) r += "<f.height>"; 
-    if (box():=f) {    
-        if (m["fig"]?) {
-                     if (text(str s):=f.fig) {
-                         Figure g = f.fig; 
-                         r += s;                                  
-                         r += "<g.fontSize>";  
-                         r += "<g.fontColor>";       
-                     }
-                     else
-                         r += nameF(f.fig);
-                     }
-        if (m["align"]?) r+= nameA(f.align);
-        if (m["shrink"]?) r += "<f.shrink>";
-        if (m["grow"]?) r += "<f.grow>";
-        if (m["fillColor"]?) r += "<f.fillColor>";
-        if (m["lineWidth"]?) r += "<f.lineWidth>";
-        if (m["lineColor"]?)r += "<f.lineColor>";     
-        return "box(<intercalate(",", r)>)";
-        }
-    if (vcat():=f || hcat():=f) {
-        list[str] s= [
-            ((text(str q):=x)?q:nameF(x))|x<-f.figs];
-        r+= "[<intercalate(",", s)>]";
-        if (m["fontSize"]?) r += "<f.fontSize>";  
-        if (m["fontColor"]?) r += "<f.fontColor>";  
-        if (m["align"]?) r+= nameA(f.align);
-        if (m["vgap"]?) r+= "<f.vgap>";
-        if (m["hgap"]?) r+= "<f.hgap>";
-        return "<getName(f)>(<intercalate(",", r)>)";
-        }
-    if (grid():=f) {
-        list[str] u =[];
-        for (z<-f.figArray) {
-            list[str] s= [nameF(x)|x<-z];
-            u+= "[<intercalate(",", s)>]";
-            }
-        r+="[<intercalate(",", u)>]";
-        if (m["align"]?) r+= nameA(f.align);
-        if (m["hgap"]?) r+= "<f.hgap>";
-        if (m["vgap"]?) r+= "<f.vgap>";
-        return "grid(<intercalate(",", r)>)";
-        }
-    if (graph():=f) {
-        list[str] nodes = [nameF(p[1])|p<-f.nodes];
-        r+= "[<intercalate(",", nodes)>]";
-        list[str] edges = ["\<<e.from>, <e.to>\>"|Edge e<-f.edges];
-        r+= "[<intercalate(",", edges)>]";
-        return "graph(<intercalate(",", r)>)";
-        }
-    return "<f>";
-    }
-
-Figure incl(bool include, Figure f, bool extra = true) =	
-	include?vcat(borderWidth = 1, borderColor="grey",
-        figs= [box(fillColor = "whitesmoke", size=<800, 30>, align = centerMid, fig=htmlText(nameF(f)
-      , fontStyle="italic", fontWeight="bold", fontColor= "darkslategray"))
-       ,box(size=<200, 100>, fig=f)]
-       + (extra?[treeF(f)]:[])
-    )
-    :
-    f
-    ;
-    
-// ---  Shortcuts 
-
-
-public Figure box(int width, int height, str fillColor, bool include = false) = incl(include,
-      box(width= width, height = height, fillColor= fillColor));
-
-public Figure box(int width, int height, str fillColor, int lineWidth, str lineColor, bool include = false) = 
-      incl(include,
-      box(width= width, height = height, fillColor= fillColor, lineWidth = lineWidth, lineColor = lineColor));
-      
-public Figure box(int width, int height, Figure fig, Alignment align, str fillColor, bool include = false) = incl(include,
-      box(width= width, height = height, fig = fig, align = align, fillColor= fillColor));
-
-public Figure box(int width, int height, Figure fig, Alignment align, str fillColor, int lineWidth, str lineColor, bool include = false) = 
-      incl(include,
-      box(width= width, height = height, fig = fig, align = align, fillColor= fillColor, lineWidth = lineWidth, lineColor = lineColor));
-      
-public Figure box(Figure fig, Alignment align, num grow,str fillColor, bool include = false) = incl(include,
-      box(fig= fig, align = align, grow = grow, fillColor = fillColor
-       ));
-
-public Figure box(Figure fig, num shrink, str fillColor, bool include = false) = incl(include,
-      box(fig= fig, shrink = shrink, fillColor = fillColor));
-
-public Figure box(Figure fig, Alignment align, num grow,str fillColor, int lineWidth, str lineColor, bool include = false) = 
-        incl(include,box(fig= fig, align = align, grow = grow, fillColor = fillColor, lineWidth = lineWidth, lineColor = lineColor
-        ));
-        
-public Figure box(num shrink, str fillColor, bool include = false) = 
-        incl(include,box(shrink = shrink, fillColor = fillColor
-        ));
-
-public Figure box(Figure fig, num shrink, str fillColor, bool include = false) = 
-        incl(include,box(fig= fig, shrink = shrink, fillColor = fillColor
-        ));
-        
-public Figure box(num shrink, str fillColor, int lineWidth, str lineColor, bool include = false) = 
-        incl(include,box(shrink = shrink, fillColor = fillColor, lineWidth = lineWidth, lineColor = lineColor
-        ));
-
-public Figure box(Figure fig, num shrink, str fillColor, int lineWidth, str lineColor, bool include = false) = 
-        incl(include,box(fig= fig, shrink = shrink, fillColor = fillColor, lineWidth = lineWidth, lineColor = lineColor
-        ));
-        
-public Figure box(str name, int fontSize, str fontColor, num grow, str fillColor, bool include = false) = incl(include,
-      box(fig= text(name, fontSize = fontSize, fontColor = fontColor), grow = grow, fillColor = fillColor //  , lineWidth = 0
-       ));
-        
-public Figure hcat(list[Figure] f,Alignment align, int hgap,  bool include = false) = 
-     incl(include, hcat(figs= f, align = align, hgap = hgap));
-     
-public Figure hcat(int width, int height, list[Figure] f, Alignment align, int hgap,  bool include = false) = 
-     incl(include, hcat(width=width, height = height, figs= f, align = align, hgap = hgap));
-     
-public Figure hcat(list[str] ts, int fontSize, str fontColor, Alignment align, int hgap,  bool include = false) = 
-     incl(include, hcat(figs= [text(s, fontSize=fontSize, fontColor=fontColor)|str s<-ts], align = align, hgap = hgap));
-     
-public Figure vcat(list[Figure] f,Alignment align, int vgap,  bool include = false) = 
-     incl(include, vcat(figs= f, align = align, vgap = vgap));
-     
-public Figure vcat(int width, int height, list[Figure] f, Alignment align, int vgap,  bool include = false) = 
-     incl(include, vcat(width=width, height = height, figs= f, align = align, vgap = vgap));
-     
-public Figure vcat(list[str] ts, int fontSize, str fontColor, Alignment align, int vgap,  bool include = false) = 
-     incl(include, vcat(figs= [text(s, fontSize=fontSize, fontColor=fontColor)|str s<-ts], align = align, vgap = vgap));
-     
-public Figure grid(list[list[Figure]] f,Alignment align, int hgap,  int vgap, bool include = false) = 
-     incl(include, grid(figArray= f, align = align, hgap = hgap));
-     
-public Figure grid(int width, int height,list[list[Figure]] f, Alignment align, int hgap,  int vgap, bool include = false) = 
-     incl(include, grid(width=width, height = height, figArray= f, align = align, hgap = hgap, vgap = vgap));
-  
-public Figure graph(int width, int height, list[Figure] nodes, list[tuple[int, int]] edges, bool include= false) {
-       list[tuple[str, Figure]] n = [];
-       for (int i<-[0..size(nodes)]) {
-            n+= <"<i>", nodes[i]>;
-            }
-       list[Edge] e = [edge("<p[0]>", "<p[1]>")|p<-edges];
-       return incl(include, graph(n, e, width = width, height = height));
-       }   
-	
 public Figure idEllipse(num rx, num ry) = ellipse(rx=rx, ry = ry, lineWidth = 0, fillColor = "none");
 
 public Figure idCircle(num r) = circle(r= r, lineWidth = 0, fillColor = "none");
@@ -757,8 +523,7 @@ public Figure graph(list[tuple[str, Figure]] n, list[Edge] e, tuple[int, int] si
                graphOptions = options)
                //, align = topLeft, lineWidth = 0,  size=<1000, 1200>)
                ;
- 
-// --- End shortcuts              	
+             	
 	
 map[str, str] getTooltipMap(int tooltipColumn) {
     str typ = tooltipColumn < 0 || tooltipColumn == 2 ? "string":"number";
@@ -824,10 +589,7 @@ list[list[value]] joinData(list[Chart] charts, bool tickLabels, int tooltipColum
    }
    
 public Figure svg(Figure f, tuple[int, int] size = <0, 0>) {
-    /*if (f.lineWidth<0) */ {f.lineWidth = 1; f.lineColor="black";}
-    // f.id = "#_box";
     Figure r = box(size=size, lineWidth = 0, fillColor = "none", fig = f);
-    // println(r);
     return r;
     }
   
@@ -867,7 +629,13 @@ public Figure plot(Points xy, Rescale x, Rescale y, bool shapeCurved = true
       width = width, height = height, fillEvenOdd = fillEvenOdd);
       }
 
- 
+
+int currentColor = 0;
+
+public void resetColor() {currentColor = 0;} 
+
+public str pickColor() {currentColor = (currentColor+5)%size(colors); return colors[currentColor];}
+
 
 public list[str] colors = 
 ["aliceblue",
@@ -1029,6 +797,58 @@ public str newId() {
   occur+=1;
   return "myName<occur>";
   }
-              
- 
-// Figure() self(Figure(str c) f) {Figure g = f(c); g.fig = f(c); return Figure() {return g;};}
+  
+str fileName(loc l) {
+     str p = l.path;
+     int n = findLast(p, "/");
+     return substring(p, n+1, size(p));
+     }
+     
+map[str, list[list[str]]] _compact(list[list[str]] xs) { 
+    if (isEmpty(xs)) return ();  
+    map[str,  list[list[str]]] r = ();
+    for (list[str] x<-xs) {
+         list[list[str]] q = ((r[head(x)]?)? r[head(x)]+[tail(x)]:[tail(x)]);
+         r[head(x)] = q;
+         }
+    return r;
+    }
+  
+list[DDD] compact(list[list[str]] xs, map[loc, int] m, loc path) {
+    map[str, list[list[str]]] q = _compact(xs);
+    list[DDD] r = [];
+    for (str x<-q) {
+         if (isEmpty(head(q[x]))) r = r + ddd(name=substring(x, 0, findLast(x, ".")), size=m[path+x]); 
+         else r = r + ddd(name=x, children=compact(q[x], m, path +x));
+         }
+    return r;
+    }
+  
+public DDD fileMap(loc source, str suffix) {
+    list[loc] todo = [source];
+    list[loc] done = [];
+    while (!isEmpty(todo)) {
+        <elem,todo> = takeOneFrom(todo);
+        for (e <- listEntries(elem)) {
+           loc f = elem +e;
+		   if (isDirectory(f)) {
+		    // println(f);
+		   	todo += f;
+		   }
+		   else {
+		        if (endsWith(f.path, suffix))
+		        done += f;
+		   }
+	      }
+	    }
+        map[loc, int] m = (d:size(readFileLines(d))|d<-done);
+        // println(m);
+        list[list[str]] r = [];
+        for (d<-done) {
+            str p = d.path; 
+            r=r+[split("/", p)];
+            }
+        // println(r);
+        list[DDD] p = compact(r, m, source.parent);
+        return head(p);
+    }

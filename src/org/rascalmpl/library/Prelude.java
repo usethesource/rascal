@@ -2022,6 +2022,9 @@ public class Prelude {
 	}
 	
 	public IMap getAnnotations(INode node) {
+	    if (!node.isAnnotatable()) {
+	        return values.mapWriter().done();
+	    }
 		java.util.Map<java.lang.String,IValue> map = node.asAnnotatable().getAnnotations();
 		IMapWriter w = values.mapWriter();
 		
@@ -2030,6 +2033,17 @@ public class Prelude {
 		}
 		
 		return w.done();
+	}
+	
+	public INode setKeywordParameters(INode node, IMap kwargs) {
+		if (node.isAnnotatable()) {
+		    node = node.asAnnotatable().removeAnnotations();
+		}
+
+		Map<String,IValue> map = new HashMap<java.lang.String,IValue>();
+		kwargs.entryIterator().forEachRemaining((kv) -> map.put(((IString)kv.getKey()).getValue(), kv.getValue()));
+		return node.asWithKeywordParameters().setParameters(map);
+	    
 	}
 	
 	public INode setAnnotations(INode node, IMap annotations) {
