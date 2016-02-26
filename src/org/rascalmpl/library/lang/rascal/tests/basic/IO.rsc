@@ -8,7 +8,7 @@ import ValueIO;
 private loc aFile = |test-temp:///basic-io.txt|;
 
 test bool writeReadFile(str content) {
-  if (size(content) == 0 || content[0] == "\a00") return true;
+  if (size(content) == 0 || any(c <- [0..size(content)], content[c] == "\a00")) return true;
   writeFile(aFile, content);
   return readFile(aFile) == content;
 }

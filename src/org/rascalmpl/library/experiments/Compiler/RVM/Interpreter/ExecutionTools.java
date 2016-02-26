@@ -31,6 +31,8 @@ public class ExecutionTools {
 	
 	public static RascalExecutionContext makeRex(
 					RVMExecutable rvmExecutable,
+					PrintWriter out,
+					PrintWriter err,
 					IBool debug, 
 					IBool debugRVM, 
 					IBool testsuite, 
@@ -40,8 +42,8 @@ public class ExecutionTools {
 	) {
 		return new RascalExecutionContext(
 					vf, 
-				   	new PrintWriter(System.out), 
-				   	new PrintWriter(System.err), 
+				   	out != null ? out : new PrintWriter(System.out), 
+				   	err != null ? err : new PrintWriter(System.err), 
 				   	rvmExecutable.getModuleTags(), 
 				   	rvmExecutable.getSymbolDefinitions(),
 				   	new TypeStore(), 

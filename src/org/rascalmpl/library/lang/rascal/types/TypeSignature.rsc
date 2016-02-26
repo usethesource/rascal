@@ -280,6 +280,11 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
 					sig.datatypes = sig.datatypes + ADTSigItem(convertName(getUserTypeRawName(typ)), typ, t@\loc);
 				}
 
+				// ADT without variants but with kw params without usage of then
+				case (Toplevel) `<Tags tgs> <Visibility vis> data <UserType typ> <CommonKeywordParameters _>;` : {
+					sig.datatypes = sig.datatypes + ADTSigItem(convertName(getUserTypeRawName(typ)), typ, t@\loc);
+				}
+
 				// ADT with variants
 				case (Toplevel) `<Tags tgs> <Visibility vis> data <UserType typ> <CommonKeywordParameters params> = <{Variant "|"}+ vars> ;` : {
 					commonParamList = [ ];

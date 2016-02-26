@@ -58,7 +58,7 @@ public M3 link(M3 projectModel, set[M3] libraryModels) {
   }
 }
 
-public M3 createM3FromFile(loc file, bool errorRecovery = false, list[loc] sourcePath = {}, list[loc] classPath = {}, str javaVersion = "1.7") {
+public M3 createM3FromFile(loc file, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7") {
     result = createM3sFromFiles({file}, errorRecovery = errorRecovery, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion);
     if ({oneResult} := result) {
         return oneResult;
@@ -68,11 +68,18 @@ public M3 createM3FromFile(loc file, bool errorRecovery = false, list[loc] sourc
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
-public java set[M3] createM3sFromFiles(set[loc] files, bool errorRecovery = false, list[loc] sourcePath = {}, list[loc] classPath = {}, str javaVersion = "1.7");
+public java set[M3] createM3sFromFiles(set[loc] files, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
+
+public M3 createM3FromFiles(loc projectName, set[loc] files, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7")
+    = composeJavaM3(projectName, createM3sFromFiles(files, errorRecovery = errorRecovery, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion));
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
-public java M3 createM3FromString(loc fileName, str contents, bool errorRecovery = false, list[loc] sourcePath = {}, list[loc] classPath = {}, str javaVersion = "1.7");
+public java tuple[set[M3], set[Declaration]] createM3sAndAstsFromFiles(set[loc] files, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
+
+@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
+@reflect
+public java M3 createM3FromString(loc fileName, str contents, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
@@ -96,7 +103,7 @@ public M3 createM3FromDirectory(loc project, bool errorRecovery = false, str jav
         }
     }
     sourcePaths = getPaths(project, "java");
-    M3 result = composeJavaM3(project, createM3sFromFiles({p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, errorRecovery = errorRecovery, sourcePath = findRoots([*sourcePaths]), classPath = classPaths, javaVersion = javaVersion));
+    M3 result = composeJavaM3(project, createM3sFromFiles({p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, errorRecovery = errorRecovery, sourcePath = [*findRoots(sourcePaths)], classPath = classPaths, javaVersion = javaVersion));
     registerProject(project, result);
     return result;
 }
@@ -176,15 +183,15 @@ public rel[loc, loc] declaredTopTypes(M3 m)
 public rel[loc, loc] declaredSubTypes(M3 m) 
   = {e | tuple[loc lhs, loc rhs] e <- m@containment, isClass(e.rhs)} - declaredTopTypes(m);
 
-@memo public set[loc] classes(M3 m) =  {e | e <- m@declarations<name>, isClass(e)};
-@memo public set[loc] interfaces(M3 m) =  {e | e <- m@declarations<name>, isInterface(e)};
-@memo public set[loc] packages(M3 m) = {e | e <- m@declarations<name>, isPackage(e)};
-@memo public set[loc] variables(M3 m) = {e | e <- m@declarations<name>, isVariable(e)};
-@memo public set[loc] parameters(M3 m)  = {e | e <- m@declarations<name>, isParameter(e)};
-@memo public set[loc] fields(M3 m) = {e | e <- m@declarations<name>, isField(e)};
-@memo public set[loc] methods(M3 m) = {e | e <- m@declarations<name>, isMethod(e)};
-@memo public set[loc] constructors(M3 m) = {e | e <- m@declarations<name>, isConstructor(e)};
-@memo public set[loc] enums(M3 m) = {e | e <- m@declarations<name>, isEnum(e)};
+@memo public set[loc] classes(M3 m) =  {e | <e,_> <- m@declarations, isClass(e)};
+@memo public set[loc] interfaces(M3 m) =  {e | <e,_> <- m@declarations, isInterface(e)};
+@memo public set[loc] packages(M3 m) = {e | <e,_> <- m@declarations, isPackage(e)};
+@memo public set[loc] variables(M3 m) = {e | <e,_> <- m@declarations, isVariable(e)};
+@memo public set[loc] parameters(M3 m)  = {e | <e,_> <- m@declarations, isParameter(e)};
+@memo public set[loc] fields(M3 m) = {e | <e,_> <- m@declarations, isField(e)};
+@memo public set[loc] methods(M3 m) = {e | <e,_> <- m@declarations, isMethod(e)};
+@memo public set[loc] constructors(M3 m) = {e | <e,_> <- m@declarations, isConstructor(e)};
+@memo public set[loc] enums(M3 m) = {e | <e,_> <- m@declarations, isEnum(e)};
 
 public set[loc] elements(M3 m, loc parent) = m@containment[parent];
 

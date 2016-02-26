@@ -16,6 +16,7 @@
  *******************************************************************************/
 package org.rascalmpl.library.lang.java.m3.internal;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -32,6 +33,7 @@ import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FileASTRequestor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.parser.gtd.io.InputConverter;
@@ -72,13 +74,41 @@ public class EclipseJavaCompiler {
             Map<String, ISourceLocation> cache = new HashMap<>();
             ISetWriter result = VF.setWriter();
             buildCompilationUnits(files, true, errorRecovery.getValue(), sourcePath, classPath, javaVersion, (loc, cu) -> {
-                    result.insert(convertToM3(store, cache, loc, cu));
+                checkInterrupted(eval);
+                result.insert(convertToM3(store, cache, loc, cu));
             });
             return result.done();
         } catch (IOException e) {
             throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
         }
     }
+    
+    private void checkInterrupted(IEvaluatorContext eval) {
+        if (eval.isInterrupted()) {
+          throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
+        }
+    }
+
+    public IValue createM3sAndAstsFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
+        try {
+            TypeStore store = new TypeStore();
+            store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
+            store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
+            Map<String, ISourceLocation> cache = new HashMap<>();
+            ISetWriter m3s = VF.setWriter();
+            ISetWriter asts = VF.setWriter();
+            buildCompilationUnits(files, true, errorRecovery.getValue(), sourcePath, classPath, javaVersion, (loc, cu) -> {
+                checkInterrupted(eval);
+                m3s.insert(convertToM3(store, cache, loc, cu));
+                asts.insert(convertToAST(VF.bool(true), cache, loc, cu, store));
+            });
+            return VF.tuple(m3s.done(), asts.done());
+        } catch (IOException e) {
+            throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
+        }
+        
+    }
+
 
     public IValue createM3FromString(ISourceLocation loc, IString contents, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
         try {
@@ -104,6 +134,7 @@ public class EclipseJavaCompiler {
             ISetWriter result = VF.setWriter();
 
             buildCompilationUnits(files, collectBindings.getValue(), errorRecovery.getValue(), sourcePath, classPath, javaVersion, (loc, cu) -> {
+                checkInterrupted(eval);
                 result.insert(convertToAST(collectBindings, cache, loc, cu, store));
             });
             return result.done();
@@ -159,7 +190,7 @@ public class EclipseJavaCompiler {
                     throw RuntimeExceptionFactory.io(VF.string("" + loc  + " doesn't exist"), null, null);
                 }
 
-                absolutePaths[i] = safeResolve(loc).getPath();
+                absolutePaths[i] = new File(safeResolve(loc).getPath()).getAbsolutePath();
                 reversePathLookup.put(absolutePaths[i], loc);
                 encodings[i] = guessEncoding(loc);
                 i++;
@@ -190,7 +221,7 @@ public class EclipseJavaCompiler {
             if (!loc.getScheme().equals("file")) {
                 throw RascalRuntimeException.io(VF.string("all path entries must have (or resolve to) the file:/// scheme: " + loc), null);
             }
-            result[i++] = loc.getPath();
+            result[i++] = new File(loc.getPath()).getAbsolutePath();
         }
         return result;
     }

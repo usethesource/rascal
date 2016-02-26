@@ -12,9 +12,7 @@ import Set;
 import List;
 import analysis::flow::ObjectFlow;
 import lang::java::m3::TypeSymbol;
-import lang::java::jdt::m3::AST;
-
-FlowProgram createOFG(loc project) = createOFG(createAstsFromEclipseProject(project, true));
+import lang::java::m3::AST;
 
 FlowProgram createOFG(set[Declaration] asts) {
   println("Getting decls");

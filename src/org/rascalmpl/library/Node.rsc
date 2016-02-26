@@ -105,6 +105,16 @@ getKeywordParameters("f"(10, "abc", height=0));
 @javaClass{org.rascalmpl.library.Prelude}
 public java map[str,value] getKeywordParameters(node T);
 
+@doc{Synopsis: Set the keyword parameters of a node.
+Examples:
+<screen>
+import Node;
+setKeywordParameters("f"(10, "abc"), ("height":0));
+</screen>
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java &T <: node setKeywordParameters(&T <: node x, map[str,value] keywordParameters);
+
 @doc{
 Synopsis: Determine the name of a node.
 
