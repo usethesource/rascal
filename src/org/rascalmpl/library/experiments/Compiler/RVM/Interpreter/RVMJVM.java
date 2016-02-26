@@ -12,14 +12,9 @@ public class RVMJVM extends RVM {
 
 	RVMExecutable rvmExec;
 	RascalExecutionContext rex;
-	byte[] generatedRunner = null;
-	String generatedName = null;
-	RVMRun runner = null;
-
-	/*
-	 * 
-	 */
-	//private static final long serialVersionUID = -3447489546163673435L;
+	byte[] generatedByteCode = null;
+	String generatedClassName = null;
+	RVMonJVM generatedClassInstance = null;
 
 	/**
 	 * @param rvmExec
@@ -27,22 +22,21 @@ public class RVMJVM extends RVM {
 	 */
 	public RVMJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
 		super(rvmExec, rex);
-		//if (rvmExec instanceof RVMJVMExecutable) {
-			generatedRunner = rvmExec.getJvmByteCode();
-			generatedName = rvmExec.getFullyQualifiedDottedName();
-		//}
+
+		generatedByteCode = rvmExec.getJvmByteCode();
+		generatedClassName = rvmExec.getFullyQualifiedDottedName();
+
 		this.rvmExec = rvmExec;
 		this.rex = rex;
 		try {
-			createRunner();
+			createGeneratedClassInstance();
 		}
 		catch(Exception e) {
 			e.printStackTrace() ;
 		}
-
 	}
 
-	private void createRunner() {
+	private void createGeneratedClassInstance() {
 		// Oneshot classloader
 		try {
 			Class<?> generatedClass = new ClassLoader(RVMJVM.class.getClassLoader()) {
@@ -58,47 +52,67 @@ public class RVMJVM extends RVM {
 					}
 					return null;
 				}
-			}.defineClass(generatedName, generatedRunner);
+			}.defineClass(generatedClassName, generatedByteCode);
 
 			Constructor<?>[] cons = generatedClass.getConstructors();
 
-			runner = (RVMRun) cons[0].newInstance(rvmExec, rex);
-			// Inject is obsolete the constructor holds rvmExec.
-			runner.inject(rvmExec.getFunctionStore(), rvmExec.getConstructorStore(), RVMExecutable.store, rvmExec.getFunctionMap());
+			generatedClassInstance = (RVMonJVM) cons[0].newInstance(rvmExec, rex);
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
-	boolean useRVMInterpreter = false;
+	
+	@Override
 	public IValue executeProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs) {
-		if (useRVMInterpreter) {
-			return super.executeProgram(moduleName, uid_main, args, kwArgs);
-		} else {
-			rex.setCurrentModuleName(moduleName);
 
-			Function main_function = functionStore.get(functionMap.get(uid_main));
+		rex.setCurrentModuleName(moduleName);
 
-			if (main_function == null) {
-				throw new RuntimeException("PANIC: No function " + uid_main + " found");
-			}
+		Function main_function = functionStore.get(functionMap.get(uid_main));
 
-//			if (main_function.nformals != 1) { // Empty map of keyword parameters
-//				throw new RuntimeException("PANIC: function " + uid_main + " should have one argument");
-//			}
-
-			Object o = null;
-
-			o = runner.dynRun(uid_main, args);
-			if (o != null && o instanceof Thrown) {
-				throw (Thrown) o;
-			}
-			return narrow(o);
+		if (main_function == null) {
+			throw new RuntimeException("PANIC: No function " + uid_main + " found");
 		}
+
+		rex.getStdErr().println("Running RVMJVM.executeProgram: " + uid_main);
+		
+		generatedClassInstance.dynRun(uid_main, args);
+		Object o = generatedClassInstance.returnValue;
+		if (o != null && o instanceof Thrown) {
+			throw (Thrown) o;
+		}
+		return narrow(o);
 	}
 
 	protected Object executeProgram(Frame root, Frame cf) {
-		return runner.dynRun(root.function.funId, root);
+		generatedClassInstance.dynRun(root.function.funId, root);
+		return generatedClassInstance.returnValue;
+	}
+	
+	@Override
+	public IValue executeFunction(OverloadedFunctionInstance func, IValue[] args){
+		Function firstFunc = functionStore.get(func.getFunctions()[0]); // TODO: null?
+		int arity = args.length;
+		int scopeId = func.env.scopeId;
+		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
+		root.sp = arity;
+		
+		OverloadedFunctionInstanceCall c_ofun_call_next = 
+				scopeId == -1 ? new OverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), root, null, arity)  // changed root to cf
+        					  : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), scopeId, null, arity);
+				
+		Frame cf = c_ofun_call_next.nextFrame(functionStore);
+		// Pass the program arguments to func
+		for(int i = 0; i < args.length; i++) {
+			cf.stack[i] = args[i]; 
+		}
+		cf.sp = args.length;
+		cf.previousCallFrame = null;		// ensure that func will retrun here
+		Object o = null; // = executeProgram(root, cf, /*arity,*/ /*cf.function.codeblock.getInstructions(),*/ c_ofun_call_next);
+		
+		if(o instanceof Thrown){
+			throw (Thrown) o;
+		}
+		return narrow(o); 
 	}
 }

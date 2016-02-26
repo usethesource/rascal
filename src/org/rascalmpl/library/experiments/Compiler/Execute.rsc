@@ -256,7 +256,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool jvm = false,
 value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false,
                                   bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
                                   bool coverage = false, bool jvm = false, bool verbose = false){
-
+   startTime = cpuTime();
    v = executeProgram(RVMExecutableCompressedWriteLoc(program.main_module.name, pcfg),
                            program,
                            keywordArguments,
@@ -267,6 +267,8 @@ value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArgumen
                            trackCalls, 
                            coverage,
                            jvm);
+ 
+   println("Executing: <(cpuTime() - startTime)/1000000> ms");
    return v;                            
 }
 
@@ -282,9 +284,10 @@ value execute(RVMModule mainModule, PathConfig pcfg, map[str,value] keywordArgum
 }
 value execute(loc moduleLoc, PathConfig pcfg, map[str,value] 
               keywordArguments = (), bool debug=false, bool debugRVM=false, bool testsuite=false, bool recompile=false, bool profile=false, 
-              bool trackCalls= false,  bool coverage=false, bool jvm=false, bool verbose = false) =
-   execute(getModuleName(moduleLoc, pcfg), pcfg, keywordArguments = keywordArguments, debug=debug, debugRVM=debugRVM, 
-           testsuite=testsuite, profile=profile, trackCalls=trackCalls, coverage=coverage,jvm=jvm,verbose=verbose);
+              bool trackCalls= false,  bool coverage=false, bool jvm=false, bool verbose = false) {
+   return execute(getModuleName(moduleLoc, pcfg), pcfg, keywordArguments = keywordArguments, debug=debug, debugRVM=debugRVM, 
+           testsuite=testsuite, profile=profile, trackCalls=trackCalls, coverage=coverage,jvm=jvm,verbose=verbose);    
+}
 
 
 value execute(str qualifiedModuleName, PathConfig pcfg, 
@@ -293,7 +296,9 @@ value execute(str qualifiedModuleName, PathConfig pcfg,
    if(!recompile){
       if(<true, compressed> := RVMExecutableCompressedReadLoc(qualifiedModuleName, pcfg)){
          if(verbose) println("Using <compressed>");
+         startTime = cpuTime();
          v = executeProgram(compressed, keywordArguments, debug, debugRVM, testsuite, profile, trackCalls, coverage, jvm);
+         println("Executing: <(cpuTime() - startTime)/1000000> ms");
          if(!testsuite && verbose){
             println("Result = <v>");
          }  
@@ -301,13 +306,8 @@ value execute(str qualifiedModuleName, PathConfig pcfg,
       }
       throw "Executable not found, compile first or use recompile=true";
    }
-   startTime = cpuTime();
    mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose);
-   //println("Compiling: <(cpuTime() - startTime)/1000000> ms");
-   startTime = cpuTime();
-   v = execute(mainModule, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=testsuite, profile=profile, verbose=verbose, trackCalls=trackCalls, coverage=coverage, jvm=jvm);
-   println("Executing: <(cpuTime() - startTime)/1000000> ms");
-   return v;
+   return execute(mainModule, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=testsuite, profile=profile, verbose=verbose, trackCalls=trackCalls, coverage=coverage, jvm=jvm);
 }
 
 value rascalTests(list[str] qualifiedModuleNames, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir, 

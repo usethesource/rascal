@@ -1025,14 +1025,19 @@ private MuExp translateStatementInVisitCase(str fuid, Statement stat){
 						 case muReturn1(e) => leaveVisitReturn(fuid, e)
 						 case muInsert(e): { 
 						 	ifname = nextLabel();
-						    replcond = muCallPrim3("subtype", [ muCallPrim3("typeOf", [ muVar("replacement", fuid, replacementPos) ], stat@\loc), 
-		                                                        muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], stat@\loc) ], stat@\loc);
+						    replcond = muCallPrim3("subtype_value_value", [ muVar("replacement", fuid, replacementPos),
+		                                                                    muVar("iSubject", fuid, iSubjectPos)
+		                                                                  ], stat@\loc);
+		                                                        
+		                    //replcond = muCallPrim3("subtype", [ muCallPrim3("typeOf", [ muVar("replacement", fuid, replacementPos) ], stat@\loc), 
+                      //                                          muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], stat@\loc) ], stat@\loc);
+		                                                        
 						    insert muBlock([ muAssign("replacement", fuid, replacementPos, e),
     				                         muIfelse(ifname, replcond,
     				                                  [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
 		                                                muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)),      				          
     				                                    muReturn1(muVar("replacement", fuid, replacementPos)) ],
-    				                                  [ muCon(666) ])
+    				                                  [ /*muCon(666)*/ ])
     				                       ]);
     				     }
 					
@@ -1056,9 +1061,13 @@ private map[int, MuExp]  addPatternWithActionCode(str fuid, Symbol subjectType, 
 		
 		// e.g. muTypeCon(getType(pwa.pattern@\loc)) but that maybe too large.
 		
-		replcond = muCallPrim3("subtype", [ muCallPrim3("typeOf", [ muVar("replacement", fuid, replacementPos) ], pwa.replacement.replacementExpression@\loc), 
-		                                    muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], pwa@\loc) 
-		                                  ], pwa@\loc);
+		replcond = muCallPrim3("subtype_value_value", [ muVar("replacement", fuid, replacementPos), 
+		                                                muVar("iSubject", fuid, iSubjectPos)
+		                                              ], pwa@\loc);
+		//replcond = muCallPrim3("subtype", [ muCallPrim3("typeOf", [ muVar("replacement", fuid, replacementPos) ], pwa.replacement.replacementExpression@\loc), 
+  //                                          muCallPrim3("typeOf", [ muVar("iSubject", fuid, iSubjectPos) ], pwa@\loc) 
+  //                                        ], pwa@\loc);
+		
 		                      
     	table[key] = muBlock([ muIfelse(ifname, makeBoolExp("ALL",[ cond, *conditions ], pwa.pattern@\loc), 
     				                    [ muAssign("replacement", fuid, replacementPos, replacement),
@@ -1066,9 +1075,9 @@ private map[int, MuExp]  addPatternWithActionCode(str fuid, Symbol subjectType, 
     				                               [ muAssignVarDeref("matched", fuid, matchedPos, muBool(true)), 
 		                                             muAssignVarDeref("hasInsert", fuid, hasInsertPos, muBool(true)),      				          
     				                                 replacementReturn(muVar("replacement", fuid, replacementPos)) ],
-    				                               [ muCon(666) ])
+    				                               [ /*muCon(666)*/ ])
     				                     ], 
-    				                     [ muCon(777) ]),  
+    				                     [ /*muCon(777)*/ ]),  
     				            table[key] ? replacementReturn(muVar("iSubject", fuid, iSubjectPos))
     				          ]);
     	leaveBacktrackingScope();
@@ -1081,7 +1090,7 @@ private map[int, MuExp]  addPatternWithActionCode(str fuid, Symbol subjectType, 
 		if(!(muBlock([]) := \case)) {
 			cbody += \case;
 		}
-		table[key] = muBlock([ muIfelse(ifname, makeBoolExp("ALL",[ cond ], pwa.pattern@\loc), cbody, [ muCon(666) ]),
+		table[key] = muBlock([ muIfelse(ifname, makeBoolExp("ALL",[ cond ], pwa.pattern@\loc), cbody, [ /*muCon(666)*/ ]),
 		                       table[key] ? replacementReturn(muVar("iSubject", fuid, iSubjectPos))
 		                     ]);
     	leaveBacktrackingScope();
@@ -1127,7 +1136,7 @@ private MuExp translateVisitCases(str fuid, Symbol subjectType, bool useConcrete
                                                                      				 ]) 
                                           : muVar("iSubject", fuid, iSubjectPos)
                                           ;
-   return muSwitch(fetchSubject, useConcreteFingerprint, case_code, default_code, muVar("iSubject", fuid, iSubjectPos));
+   return muSwitch(fetchSubject, useConcreteFingerprint, case_code, default_code/*, muVar("iSubject", fuid, iSubjectPos)*/);
 	
 }
 

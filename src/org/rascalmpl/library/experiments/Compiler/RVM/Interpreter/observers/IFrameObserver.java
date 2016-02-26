@@ -24,7 +24,7 @@ public interface IFrameObserver {
 	
 	default boolean observe(Frame frame) { return true; }
 	
-	default boolean observeRVM(RVM rvm, Frame frame, int pc, Object[] stack, int sp) { return true; }
+	default boolean observeRVM(RVM rvm, Frame frame, int pc, Object[] stack, int sp, Object accu) { return true; }
 	
 	default boolean enter(Frame frame) { return true; }
 	

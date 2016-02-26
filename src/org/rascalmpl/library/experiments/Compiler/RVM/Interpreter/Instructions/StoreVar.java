@@ -24,15 +24,15 @@ public class StoreVar extends Instruction {
 	}
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
-		if (debug)
-			codeEmittor.emitDebugCall(opcode.name());
-
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid);
+		
+		if (debug)
+			codeEmittor.emitDebugCall2(opcode.name(),  (pos == -1) ? fuid : codeblock.getFunctionName(fuid), pos);
 
 		if (pos == -1) {
-			codeEmittor.emitVoidCallWithArgsSSFI("insnSTOREVARmax", what, debug);
+			codeEmittor.emitVoidCallWithArgsFIA("STOREVARMODULE", what, debug);
 		} else {
-			codeEmittor.emitVoidCallWithArgsSSFII("insnSTOREVAR", what, pos, debug);
+			codeEmittor.emitVoidCallWithArgsFIIA("STOREVARSCOPED", what, pos, debug);
 		}
 	}
 }

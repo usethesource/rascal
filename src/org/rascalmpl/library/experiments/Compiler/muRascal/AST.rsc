@@ -122,7 +122,6 @@ public data MuExp =
  
           | muReturn0()											// Return from a function without value
           | muReturn1(MuExp exp)								// Return from a function with value
-          | muReturn2(MuExp exp, list[MuExp] exps)              // Return from a coroutine with multiple values
           
           | muFilterReturn()									// Return for filer statement
           
@@ -150,8 +149,9 @@ public data MuExp =
           
           | muTypeSwitch(MuExp exp, list[MuTypeCase] type_cases, MuExp \default)  		// switch over cases for specific type
          	
-          | muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuExp defaultExp, MuExp result)		// switch over cases for specific value
+          | muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuExp defaultExp)		// switch over cases for specific value
           
+          | muEndCase()                                         // Marks the exit point of a case
 		  | muBreak(str label)									// Break statement
 		  | muContinue(str label)								// Continue statement
 		  | muFail(str label)									// Fail statement

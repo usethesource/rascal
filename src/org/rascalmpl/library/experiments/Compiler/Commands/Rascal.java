@@ -30,6 +30,10 @@ public class Rascal {
 		}
 	}
 	
+	static {
+		double[] ZZZZ = {2.5, 3.5};
+	}
+	
 	/**
 	 * Main function for execute command: rascal
 	 * 

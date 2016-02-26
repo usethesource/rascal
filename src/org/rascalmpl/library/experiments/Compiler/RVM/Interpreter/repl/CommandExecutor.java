@@ -99,15 +99,15 @@ public class CommandExecutor {
 		} catch (URISyntaxException e) {
 			throw new RuntimeException("Cannot initialize: " + e.getMessage());
 		}
-		debug = false;
+		debug = false;							// options per executed command
 		debugRVM = false;
 		testsuite = false;
 		profile = false;
 		trackCalls = false;
 		coverage = false;
-		jvm = false;
+		jvm = true;
 		verbose = false;
-		serialize = false;
+		serialize = true;
 		
 		IMapWriter w = vf.mapWriter();
 		w.put(vf.string("bootstrapParser"), vf.string(""));
@@ -122,6 +122,7 @@ public class CommandExecutor {
 				RascalExecutionContextBuilder.normalContext(vf, this.stdout, this.stderr)
 					.withModuleTags(moduleTags)
 					.forModule(shellModuleName)
+					.setJVM(false)					// options for complete repl
 					.build();
 		
 		try {

@@ -3,16 +3,16 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
-public class LoadOFun extends Instruction {
+public class PushOFun extends Instruction {
 	
 	final String fuid;
 	
-	public LoadOFun(CodeBlock ins, String fuid) {
-		super(ins, Opcode.LOADOFUN);
+	public PushOFun(CodeBlock ins, String fuid) {
+		super(ins, Opcode.PUSHOFUN);
 		this.fuid = fuid;
 	}
 	
-	public String toString() { return "LOADOFUN " + fuid + " [ " + codeblock.getOverloadedFunctionIndex(fuid) + " ]"; }
+	public String toString() { return "PUSHOFUN " + fuid + " [ " + codeblock.getOverloadedFunctionIndex(fuid) + " ]"; }
 	
 	public void generate(){
 		codeblock.addCode1(opcode.getOpcode(), codeblock.getOverloadedFunctionIndex(fuid));
@@ -20,8 +20,8 @@ public class LoadOFun extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if (debug)
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall1(opcode.name(), codeblock.getOverloadedFunctionIndex(fuid));
 		
-		codeEmittor.emitCallWithArgsSSFI("insnLOADOFUN", codeblock.getOverloadedFunctionIndex(fuid),debug);
+		codeEmittor.emitCallWithArgsSSFI_S("insnPUSHOFUN", codeblock.getOverloadedFunctionIndex(fuid),debug);
 	}
 }

@@ -37,7 +37,7 @@ public class CallJava extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSSFIIIII("insnCALLJAVA", methodName, className, parameterTypes, keywordTypes, reflect, debug);
+		codeEmittor.emitCallWithArgsSSFIIIII_S("insnCALLJAVA", methodName, className, parameterTypes, keywordTypes, reflect, debug);
 	}
 
 }

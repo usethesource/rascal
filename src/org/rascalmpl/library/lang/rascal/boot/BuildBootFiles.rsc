@@ -95,9 +95,9 @@ list[str] libraryModules =
 
 // Compile and serialize a module and generate a command to move the result to the root of the BOOT directory
 
-str serialize(str moduleName, PathConfig pcfg){
+str serialize(str moduleName, PathConfig pcfg, bool jvm=false){
      report("Compiling <moduleName>");
-     compileAndLink(moduleName, pcfg, verbose=true);
+     compileAndLink(moduleName, pcfg, verbose=true, jvm=jvm);
      serialized = getDerivedWriteLoc(moduleName, "rvm.ser.gz", pcfg);
      return "cp <serialized.path> <(pcfg.binDir.parent + serialized.file).path>\n";
 }
@@ -128,27 +128,27 @@ void buildMuLibrary(){
 // Build MuLibrary, standard library, ParserGenerator and Kernel
 // Maybe run buildMuLibrary first!
 
-value build(){
+value build(bool jvm=false){
      BOOTSTDLIB = BOOT + "stdlib";
      pcfg = pathConfig(srcPath=[|std:///|], binDir=BOOTSTDLIB, libPath=[BOOTSTDLIB]);
      
-     //report("Removing current compiled standard library <BOOTSTDLIB>");
-     //remove(BOOTSTDLIB);
+     report("Removing current compiled standard library <BOOTSTDLIB>");
+     remove(BOOTSTDLIB);
      
      commands = "#!/bin/sh\n";
      
-     //report("Compiling MuLibrary");
-     //compileMuLibrary(pcfg, verbose=true);
-     //muLib = getMuLibraryCompiledWriteLoc(pcfg);
-     //commands += "cp <muLib.path> <(pcfg.binDir.parent + muLib.file).path>\n";
-     //
-     //report("Compiling standard library modules");
-     //for(moduleName <- libraryModules){
-     //    compile(moduleName, pcfg, recompile=true, verbose=true);
-     //}
+     report("Compiling MuLibrary");
+     compileMuLibrary(pcfg, verbose=true, jvm=jvm);
+     muLib = getMuLibraryCompiledWriteLoc(pcfg);
+     commands += "cp <muLib.path> <(pcfg.binDir.parent + muLib.file).path>\n";
      
-     commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg);
-     commands += serialize("lang::rascal::boot::Kernel", pcfg);
+     report("Compiling standard library modules");
+     for(moduleName <- libraryModules){
+         compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
+     }
+     
+     commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg, jvm=jvm);
+     commands += serialize("lang::rascal::boot::Kernel", pcfg, jvm=jvm);
      
      info = collectInfo(libraryModules, pcfg);
      l = getDerivedWriteLoc("StdLib.info", "gz", pcfg);

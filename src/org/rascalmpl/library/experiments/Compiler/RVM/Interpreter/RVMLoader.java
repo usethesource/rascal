@@ -2,10 +2,14 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.value.IBool;
@@ -13,6 +17,8 @@ import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
@@ -119,6 +125,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		}
 	}
 	
+	private HashSet<String> usedFunctions = new HashSet<>();
+	
 	private Integer useFunctionName(String fname){
 		Integer index = functionMap.get(fname);
 		
@@ -127,6 +135,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			functionMap.put(fname, index);
 			functionStore.add(null);
 			//System.out.println("useFunctionName (undef): " + index + "  => " + fname);
+			usedFunctions.add(fname);
 		}
 		//System.out.println("useFunctionName: " + index + "  => " + fname);
 		return index;
@@ -143,6 +152,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			functionStore.set(index, f);
 			f.funId = index ;
 		}
+		
 		//System.out.println("declareFunction: " + index + "  => " + f.getName());
 	}
 	
@@ -263,19 +273,85 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		}
 	}
 	
-	private void finalizeInstructions(){
+	/*
+	 * Remove all unused functions from this RVM, given a set of used functions:
+	 * - Remove unused functions from functionMap and shift function indices
+	 * - The finalize in overloaded functions uses the resulting indexMap to shift and prune
+	 *   function indices in overloading vectors
+	 */
+	private HashMap<Integer,Integer> removeUnusedFunctions(ISet used){
+		int newSize = used.size();
+		ArrayList<Function> newFunctionStore = new ArrayList<Function>(newSize);
+		
+		HashMap<Integer,Integer> functionIndexMap = new HashMap<>(newSize);
+		
+		// Prune and shift functionMap and functionStore
+		
+		int shift = 0;
+		for(int i = 0; i < functionStore.size(); i++){
+			Function fn = functionStore.get(i);
+			if(!used.contains(vf.string(fn.name))){
+				functionMap.remove(fn.name);
+				shift++;
+			} else {
+				int ishifted = i - shift;
+				fn.funId = ishifted;
+				functionMap.put(fn.name, ishifted);
+				newFunctionStore.add(fn);
+				functionIndexMap.put(i, ishifted);
+				//System.err.println("Shift " + fn.name + " from " + i + " to " + ishifted);
+			}
+		}
+		
+		functionStore = newFunctionStore;
+
+		return functionIndexMap;
+	}
+	
+	/*
+	 * After collecting the basic use relation for all functions we have
+	 * to expand each overlaoded function to all its possible alternatives.
+	 * This can only be done in a second pass over the use relation
+	 *  when all function overloading information is available.
+	 */
+	
+	private ISet expandOverloadedFunctionUses(ISet initial){
+		ISetWriter w = vf.setWriter();
+		for(IValue v : initial){
+			ITuple tup = (ITuple) v;
+			IString left = (IString) tup.get(0);
+			IString right = (IString) tup.get(1);
+			Integer uresolver = resolver.get(right.getValue());
+		
+			if(uresolver != null){
+				// right is an overloaded function, replace by its alternatives
+				OverloadedFunction of = overloadedStore.get(uresolver);
+				for(int uuid : of.functions){
+					String nm = functionStore.get(uuid).name;
+					w.insert(vf.tuple(left, vf.string(nm)));
+				}
+			} else {
+				// otherwise, keep original tuple
+				w.insert(tup);
+			}
+		}
+		return w.done();
+	}
+	
+	private void finalizeInstructions(Map<Integer, Integer> indexMap){
 		int i = 0;
 		for(String fname : functionMap.keySet()){
 			if(functionMap.get(fname) == null){
 				System.out.println("finalizeInstructions, null for function : " + fname);
 			}
 		}
-		for(Function f : functionStore) {
+		for(String fname : functionMap.keySet()) {
+			Function f = functionStore.get(functionMap.get(fname));
 			if(f == null){
 				String nameAtIndex = "**unknown**";
-				for(String fname : functionMap.keySet()){
-					if(functionMap.get(fname) == i){
-						nameAtIndex = fname;
+				for(String fname2 : functionMap.keySet()){
+					if(functionMap.get(fname2) == i){
+						nameAtIndex = fname2;
 						break;
 					}
 				}
@@ -287,11 +363,26 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			i++;
 		}
 		for(OverloadedFunction of : overloadedStore) {
-			of.finalize(functionMap, functionStore);
+			of.finalize(functionMap, functionStore, indexMap);
 		}
 	}
 	
+	private void addFunctionUses(ISetWriter w, IString fname, ISet uses){
+		for(IValue use : uses){
+			w.insert(vf.tuple(fname, use));
+		}
+	}
+	
+	private void addOverloadedFunctionUses(ISetWriter w, IString fname, ISet uses){
+		for(IValue use : uses){
+			w.insert(vf.tuple(fname, use));
+		}
+	}
+	
+	
 	public RVMExecutable load(IConstructor program, boolean jvm) {
+		
+		boolean eliminateDeadCode = true;
 		
 		long start = Timing.getCpuTime();
 		
@@ -307,6 +398,16 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		IMap imported_module_tags = (IMap) program.get("imported_module_tags");
 		IConstructor main_module = (IConstructor) program.get("main_module");
 		IMap moduleTags = imported_module_tags.put(main_module.get("name"), main_module.get("module_tags"));
+		
+		String moduleName = ((IString) main_module.get("name")).getValue();
+		
+		IList extendedModules = (IList) main_module.get("extends");
+		HashSet<String> extendedModuleSet = new HashSet<>();
+		for(IValue v : extendedModules){
+			extendedModuleSet.add(((IString) v).getValue());
+		}
+		
+		boolean hasExtends = !extendedModuleSet.isEmpty();
 
 		/** Imported types */
 
@@ -316,7 +417,23 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			Entry<IValue, IValue> entry = entries.next();
 			declareConstructor(((IString) entry.getKey()).getValue(), (IConstructor) entry.getValue());
 		}
+		
+		/** Overloading resolution */
 
+		// Overloading resolution of imported functions
+		IMap imported_overloading_resolvers = (IMap) program.get("imported_overloading_resolvers");
+		addResolver(imported_overloading_resolvers);
+		
+		IList imported_overloaded_functions = (IList) program.get("imported_overloaded_functions");
+		fillOverloadedStore(imported_overloaded_functions);
+
+		// Overloading resolution of functions in main module
+		addResolver((IMap) main_module.get("resolver"));
+		fillOverloadedStore((IList) main_module.get("overloaded_functions"));
+
+		ISetWriter usesWriter = vf.setWriter();
+		ISetWriter rootWriter = vf.setWriter();
+		
 		/** Imported functions */
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
@@ -325,22 +442,51 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		IList imported_declarations = (IList) program.get("imported_declarations");
 		for(IValue imp : imported_declarations){
 			IConstructor declaration = (IConstructor) imp;
+			IString iname = (IString) declaration.get("qname");
+			String name = iname.getValue();
 			if (declaration.getName().contentEquals("FUNCTION")) {
-				String name = ((IString) declaration.get("qname")).getValue();
-
 				//System.out.println("IMPORTED FUNCTION: " + name);
-				
+
 				if(name.endsWith("_init(list(value());)#0")){
+					rootWriter.insert(iname);
 					initializers.add(name);
 				}
 				if(!name.endsWith("_testsuite(list(value());)#0")){
 					//testsuites.add(name);
 					loadInstructions(name, declaration, false);
 				}
+
+				if(eliminateDeadCode){
+
+					addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
+					addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
+
+					if(name.contains("companion")){	// always preserve generated companion functions
+						rootWriter.insert(iname);
+					}
+
+					if(name.contains("closure#")){	// preserve generated closure functions and their enclosing function
+						// (this is an overapproximation and may result in preserving some unused functions)
+						IString scopeIn = (IString) declaration.get("scopeIn");
+						rootWriter.insert(iname);
+						rootWriter.insert(scopeIn);
+					}
+
+					if(hasExtends){
+						if(extendedModuleSet.contains(name.substring(0, name.indexOf("/")))){
+							rootWriter.insert(iname);
+						}
+					}
+				}
 			}
 			if (declaration.getName().contentEquals("COROUTINE")) {
-				String name = ((IString) declaration.get("qname")).getValue();
 				loadInstructions(name, declaration, true);
+
+				if(eliminateDeadCode){
+					addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
+					addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
+				}
+
 			}
 		}
 
@@ -353,9 +499,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			declareConstructor(((IString) entry.getKey()).getValue(), (IConstructor) entry.getValue());
 		}
 
-		/** Declarations for  main module */
-		
-		String moduleName = ((IString) main_module.get("name")).getValue();
+		/** Declarations for main module */
 		
 		String main = "/main()#0";
 		String main_testsuite = /*"/" + moduleName + */ "_testsuite()#0";
@@ -374,9 +518,10 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		IList declarations = (IList) main_module.get("declarations");
 		for (IValue ideclaration : declarations) {
 			IConstructor declaration = (IConstructor) ideclaration;
+			IString iname = (IString) declaration.get("qname");
+			String name = iname.getValue();
 
 			if (declaration.getName().contentEquals("FUNCTION")) {
-				String name = ((IString) declaration.get("qname")).getValue();
 				
 				//System.out.println("FUNCTION: " + name);
 				
@@ -391,34 +536,57 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				if(name.endsWith(module_init) || name.endsWith(mu_module_init)) {
 					uid_module_init = name;					// Get module_init's uid in current module
 				}
+				
 				if(name.endsWith("_testsuite(list(value());)#0")){
 					testsuites.add(name);
 				}
+				
 				loadInstructions(name, declaration, false);
+				
+				if(eliminateDeadCode){
+					rootWriter.insert(iname);
+					addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
+					addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
+				}
 			}
-
+				
 			if(declaration.getName().contentEquals("COROUTINE")) {
-				String name = ((IString) declaration.get("qname")).getValue();
 				loadInstructions(name, declaration, true);
+				if(eliminateDeadCode){
+					addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
+					addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
+				}
 			}
 		}
-
-		/** Overloading resolution */
-
-		// Overloading resolution of imported functions
-		IMap imported_overloading_resolvers = (IMap) program.get("imported_overloading_resolvers");
-		addResolver(imported_overloading_resolvers);
 		
-		IList imported_overloaded_functions = (IList) program.get("imported_overloaded_functions");
-		fillOverloadedStore(imported_overloaded_functions);
+		HashMap<Integer, Integer> indexMap = null;
+		
+		if(eliminateDeadCode){
+			ISet uses =  expandOverloadedFunctionUses(usesWriter.done());
 
-		// Overloading resolution of functions in main module
-		addResolver((IMap) main_module.get("resolver"));
-		fillOverloadedStore((IList) main_module.get("overloaded_functions"));
+			ISet roots = rootWriter.done();
 
+			ISetWriter usedWriter = vf.setWriter();
+
+			for(IValue v : roots){
+				usedWriter.insert(v);
+			}
+
+			for(IValue v : uses.asRelation().closure()){
+				ITuple tup = (ITuple) v;
+				if(roots.contains(tup.get(0))){
+					usedWriter.insert(tup.get(1));
+				}
+			}
+
+			ISet used = usedWriter.done();
+
+			indexMap = removeUnusedFunctions(used);
+		}
+		
 		/** Finalize & validate */
 
-		finalizeInstructions();
+		finalizeInstructions(indexMap);
 
 		validateInstructionAdressingLimits();
 
@@ -489,7 +657,6 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		int continuationPoints = 0 ;
 		Type ftype = isCoroutine ? tf.voidType() : symbolToType((IConstructor) declaration.get("ftype"));
 		
-		//System.err.println("loadInstructions: " + name + ": ftype = " + ftype + ", declaration = " + declaration);
 		
 		String scopeIn = ((IString) declaration.get("scopeIn")).getValue();
 //		if(scopeIn.equals("")) {
@@ -524,9 +691,18 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			case "LOADCON":
 				codeblock.LOADCON(instruction.get("val"));
 				break;
+				
+			case "PUSHCON":
+				codeblock.PUSHCON(instruction.get("val"));
+				break;
 
 			case "LOADVAR":
 				codeblock.LOADVAR(getStrField(instruction, "fuid"), 
+								  getIntField(instruction, "pos"));
+				break;
+				
+			case "PUSHVAR":
+				codeblock.PUSHVAR(getStrField(instruction, "fuid"), 
 								  getIntField(instruction, "pos"));
 				break;
 
@@ -534,6 +710,9 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				codeblock.LOADLOC(getIntField(instruction, "pos"));
 				break;
 				
+			case "PUSHLOC":
+				codeblock.PUSHLOC(getIntField(instruction, "pos"));
+				break;
 
 			case "STOREVAR":
 				codeblock.STOREVAR(getStrField(instruction, "fuid"), 
@@ -574,8 +753,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				codeblock.APPLYDYN(getIntField(instruction, "arity"));
 				break;
 
-			case "LOADFUN":
-				codeblock.LOADFUN(getStrField(instruction, "fuid"));
+			case "PUSH_ROOT_FUN":
+				codeblock.PUSH_ROOT_FUN(getStrField(instruction, "fuid"));
 				break;
 
 			case "RETURN0":
@@ -583,7 +762,15 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				break;
 
 			case "RETURN1":
-				codeblock.RETURN1(getIntField(instruction, "arity"));
+				codeblock.RETURN1();
+				break;
+				
+			case "CORETURN0":
+				codeblock.CORETURN0();
+				break;
+
+			case "CORETURN1":
+				codeblock.CORETURN1(getIntField(instruction, "arity"));
 				break;
 
 			case "JMP":
@@ -638,18 +825,36 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			case "LOADLOCREF":
 				codeblock.LOADLOCREF(getIntField(instruction, "pos"));
 				break;
+				
+			case "PUSHLOCREF":
+				codeblock.PUSHLOCREF(getIntField(instruction, "pos"));
+				break;
 
 			case "LOADVARREF":
 				codeblock.LOADVARREF(getStrField(instruction, "fuid"), 
+									 getIntField(instruction, "pos"));
+				break;
+				
+			case "PUSHVARREF":
+				codeblock.PUSHVARREF(getStrField(instruction, "fuid"), 
 									 getIntField(instruction, "pos"));
 				break;
 
 			case "LOADLOCDEREF":
 				codeblock.LOADLOCDEREF(getIntField(instruction, "pos"));
 				break;
+				
+			case "PUSHLOCDEREF":
+				codeblock.PUSHLOCDEREF(getIntField(instruction, "pos"));
+				break;
 
 			case "LOADVARDEREF":
 				codeblock.LOADVARDEREF(getStrField(instruction, "fuid"), 
+									   getIntField(instruction, "pos"));
+				break;
+				
+			case "PUSHVARDEREF":
+				codeblock.PUSHVARDEREF(getStrField(instruction, "fuid"), 
 									   getIntField(instruction, "pos"));
 				break;
 
@@ -662,13 +867,13 @@ static FSTCodeBlockSerializer codeblockSerializer;
 										getIntField(instruction, "pos"));
 				break;
 
-			case "LOAD_NESTED_FUN":
-				codeblock.LOADNESTEDFUN(getStrField(instruction, "fuid"), 
+			case "PUSH_NESTED_FUN":
+				codeblock.PUSHNESTEDFUN(getStrField(instruction, "fuid"), 
 										getStrField(instruction, "scopeIn"));
 				break;
 
-			case "LOADCONSTR":
-				codeblock.LOADCONSTR(getStrField(instruction, "fuid"));
+			case "PUSHCONSTR":
+				codeblock.PUSHCONSTR(getStrField(instruction, "fuid"));
 				break;
 
 			case "CALLCONSTR":
@@ -679,6 +884,11 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			case "LOADTYPE":
 				codeblock.LOADTYPE(symbolToType((IConstructor) instruction.get("type")));
 				break;
+				
+			case "PUSHTYPE":
+				codeblock.PUSHTYPE(symbolToType((IConstructor) instruction.get("type")));
+				break;
+				
 			case "LOADBOOL":
 				codeblock.LOADBOOL(getBooleanField(instruction, "bval"));
 				break;
@@ -691,8 +901,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				codeblock.FAILRETURN();
 				break;
 
-			case "LOADOFUN" :
-				codeblock.LOADOFUN(getStrField(instruction, "fuid"));
+			case "PUSHOFUN" :
+				codeblock.PUSHOFUN(getStrField(instruction, "fuid"));
 				break;
 
 			case "OCALL" :
@@ -781,16 +991,21 @@ static FSTCodeBlockSerializer codeblockSerializer;
 									  getIntField(instruction, "pos2"));
 				break;
 				
-			case "JMPINDEXED":
-				codeblock.JMPINDEXED((IList)instruction.get("labels"));
-				break;
-				
 			case "LOADLOCKWP":
 				codeblock.LOADLOCKWP(getStrField(instruction, "name"));
 				break;
 				
+			case "PUSHLOCKWP":
+				codeblock.PUSHLOCKWP(getStrField(instruction, "name"));
+				break;
+				
 			case "LOADVARKWP":
 				codeblock.LOADVARKWP(getStrField(instruction, "fuid"), 
+									 getStrField(instruction, "name"));
+				break;
+				
+			case "PUSHVARKWP":
+				codeblock.PUSHVARKWP(getStrField(instruction, "fuid"), 
 									 getStrField(instruction, "name"));
 				break;
 				
@@ -829,8 +1044,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				codeblock.CHECKMEMO();
 				break;
 				
-			case "LOADEMPTYKWMAP":
-				codeblock.LOADEMPTYKWMAP();
+			case "PUSHEMPTYKWMAP":
+				codeblock.PUSHEMPTYKWMAP();
 				break;
 				
 			case "VALUESUBTYPE":
@@ -841,16 +1056,33 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				codeblock.CALLMUPRIM0(MuPrimitive.valueOf(getStrField(instruction, "name")));
 				break;
 				
+			case "PUSHCALLMUPRIM0":
+				codeblock.PUSHCALLMUPRIM0(MuPrimitive.valueOf(getStrField(instruction, "name")));
+				break;
+				
 			case "CALLMUPRIM1":
 				codeblock.CALLMUPRIM1(MuPrimitive.valueOf(getStrField(instruction, "name")));
+				break;
+				
+			case "PUSHCALLMUPRIM1":
+				codeblock.PUSHCALLMUPRIM1(MuPrimitive.valueOf(getStrField(instruction, "name")));
 				break;
 				
 			case "CALLMUPRIM2":
 				codeblock.CALLMUPRIM2(MuPrimitive.valueOf(getStrField(instruction, "name")));
 				break;
 				
+			case "PUSHCALLMUPRIM2":
+				codeblock.PUSHCALLMUPRIM2(MuPrimitive.valueOf(getStrField(instruction, "name")));
+				break;
+				
 			case "CALLMUPRIMN":
 				codeblock.CALLMUPRIMN(MuPrimitive.valueOf(getStrField(instruction, "name")), 
+									 getIntField(instruction, "arity"));
+				break;
+				
+			case "PUSHCALLMUPRIMN":
+				codeblock.PUSHCALLMUPRIMN(MuPrimitive.valueOf(getStrField(instruction, "name")), 
 									 getIntField(instruction, "arity"));
 				break;
 			
@@ -859,12 +1091,28 @@ static FSTCodeBlockSerializer codeblockSerializer;
 								   getLocField(instruction, "src"));
 				break;
 				
+			case "PUSHCALLPRIM0":
+				codeblock.PUSHCALLPRIM0(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getLocField(instruction, "src"));
+				break;
+				
 			case "CALLPRIM1":
 				codeblock.CALLPRIM1(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
 								   getLocField(instruction, "src"));
 				break;
+				
+			case "PUSHCALLPRIM1":
+				codeblock.PUSHCALLPRIM1(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getLocField(instruction, "src"));
+				break;
+				
 			case "CALLPRIM2":
 				codeblock.CALLPRIM2(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getLocField(instruction, "src"));
+				break;
+				
+			case "PUSHCALLPRIM2":
+				codeblock.PUSHCALLPRIM2(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
 								   getLocField(instruction, "src"));
 				break;
 				
@@ -872,6 +1120,20 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				codeblock.CALLPRIMN(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
 								   getIntField(instruction, "arity"), 
 								   getLocField(instruction, "src"));
+				break;
+				
+			case "PUSHCALLPRIMN":
+				codeblock.PUSHCALLPRIMN(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
+								   getIntField(instruction, "arity"), 
+								   getLocField(instruction, "src"));
+				break;
+			
+			case "POPACCU":
+				codeblock.POPACCU();
+				break;
+				
+			case "PUSHACCU":
+				codeblock.PUSHACCU();
 				break;
 				
 			default:

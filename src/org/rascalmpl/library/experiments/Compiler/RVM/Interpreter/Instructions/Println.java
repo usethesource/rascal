@@ -20,7 +20,8 @@ public class Println extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if (debug)
-			codeEmittor.emitDebugCall(opcode.name());
-		codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall1(opcode.name(), arity);
+		
+		codeEmittor.emitVoidCallWithArgsSSI_S("PRINTLN", arity, debug);
 	}
 }

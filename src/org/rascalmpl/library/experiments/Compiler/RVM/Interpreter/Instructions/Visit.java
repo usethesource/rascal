@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
+import org.rascalmpl.value.IBool;
 
 public class Visit extends Instruction {
 
@@ -32,9 +33,12 @@ public class Visit extends Instruction {
 		
 	}
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
-//		if ( debug ) 
-//			codeEmittor.emitDebugCall(opcode.name());
+		if ( debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlineVisit(debug);
+		codeEmittor.emitInlineVisit(((IBool) codeblock.getConstantValue(direction)).getValue(),
+				((IBool) codeblock.getConstantValue(progress)).getValue(),
+				((IBool) codeblock.getConstantValue(fixedpoint)).getValue(),
+				((IBool) codeblock.getConstantValue(rebuild)).getValue(), debug);
 	}
 }

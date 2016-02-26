@@ -109,7 +109,7 @@ syntax Exp  =
 			
 			// function call and partial function application
 			| muCall: 					Exp!muReturn!muYield0!muYield1!muYield2!muExhaust exp NoNLList "(" {Exp ","}* largs0 ")"
-			| muApply:                  "bind" "(" Exp!muReturn0!muReturn1!muReturn2!muYield0!muYield1!muYield2!muExhaust exp "," {Exp ","}+ largs1 ")"
+			| muApply:                  "bind" "(" Exp!muReturn0!muReturn1!muYield0!muYield1!muYield2!muExhaust exp "," {Exp ","}+ largs1 ")"
 			
 			| preSubscript:             Exp exp NoNLList "[" Exp index "]"
 			| preList:					"[" {Exp ","}* exps0 "]"
@@ -166,7 +166,6 @@ syntax Exp  =
 			| muNext2:   				"next" "(" Exp coro "," {Exp ","}+ largs1 ")"
 			
 			> muReturn1: 				"return" NoNLList Exp exp
-			| muReturn2:                 () "return" NoNLList "(" Exp exp "," {Exp ","}+ exps1 ")"
 			| muReturn0: 				() () "return"
 			
 			| muYield1: 					"yield" NoNLList Exp exp

@@ -19,10 +19,10 @@ public class ValueSubtype extends Instruction {
 	}
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
-//		if ( debug ) {
-//			codeEmittor.emitDebugCall(opcode.name());
-//			codeEmittor.emitCallWithArgsSSFIII("insnCHECKARGTYPEANDCOPY",pos1,type,pos2,debug);
-//		}
+		
+		if ( debug ) 
+			codeEmittor.emitDebugCall(opcode.name());
+		
 		codeEmittor.emitInlineValueSubtype(type, debug) ;
 	}
 }

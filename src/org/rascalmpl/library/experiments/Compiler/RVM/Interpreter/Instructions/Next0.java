@@ -12,6 +12,7 @@ public class Next0 extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSSF("jvmNEXT0", debug);
+		codeEmittor.emitCallWithArgsFA_A("jvmNEXT0", debug);
+		//codeEmittor.emitReturnValue2ACCU();
 	}
 }
