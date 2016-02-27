@@ -279,9 +279,12 @@ private default void importModule(Import imp){
 /********************************************************************/
  
 private void generate_tests(str module_name, loc src){
-   code = muBlock([ muCallPrim3("testreport_open", [], src), *getTestsInModule(), muReturn1(muCallPrim3("testreport_close", [], src)) ]);
-   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
-   name_testsuite = "<module_name>_testsuite";
-   main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
-   addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, "" /*in the root*/, 2, 2, false, true, src, [], (), false, 0, 0, code));
+   testcode = getTestsInModule();
+   if(!isEmpty(testcode)){
+      code = muBlock([ muCallPrim3("testreport_open", [], src), *testcode, muReturn1(muCallPrim3("testreport_close", [], src)) ]);
+      ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
+      name_testsuite = "<module_name>_testsuite";
+      main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
+      addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, "" /*in the root*/, 2, 2, false, true, src, [], (), false, 0, 0, code));
+   }
 }
