@@ -213,6 +213,7 @@ public void resetScopeExtraction() {
 	loc2uid = ();
 	
 	modules = {};
+	moduleNames = {};
 	functions = {};
 	defaultFunctions = {};
 	datatypes = ();
