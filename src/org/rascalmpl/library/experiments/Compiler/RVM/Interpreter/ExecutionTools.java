@@ -130,11 +130,14 @@ public class ExecutionTools {
 		try {
 			//long start = Timing.getCpuTime();
 			IValue result = null;
+			String uid_module_init = executable.getUidModuleInit();
 			if(rex.getTestSuite()){
 				/*
 				 * Execute as testsuite
 				 */
-				rvm.executeProgram("TESTSUITE", executable.getUidModuleInit(), arguments, hmKeywordArguments);
+				if(!uid_module_init.isEmpty()){
+					rvm.executeProgram("TESTSUITE", executable.getUidModuleInit(), arguments, hmKeywordArguments);
+				}
 
 				IListWriter w = vf.listWriter();
 				int n = 0;
@@ -153,7 +156,9 @@ public class ExecutionTools {
 					throw RascalRuntimeException.noMainFunction(null);
 				}
 				String moduleName = executable.getModuleName();
-				rvm.executeProgram(moduleName, executable.getUidModuleInit(), arguments, hmKeywordArguments);
+				if(!uid_module_init.isEmpty()){
+					rvm.executeProgram(moduleName, executable.getUidModuleInit(), arguments, hmKeywordArguments);
+				}
 				//System.out.println("Initializing: " + (Timing.getCpuTime() - start)/1000000 + "ms");
 				result = rvm.executeProgram(moduleName, executable.getUidModuleMain(), arguments, hmKeywordArguments);
 			}
@@ -179,18 +184,11 @@ public class ExecutionTools {
 	 */
 	 public static RVM initializedRVM(RVMExecutable executable, RascalExecutionContext rex){
 		
-		 
 		RVM rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
-		
 		
 		// Execute initializers of imported modules
 		for(String initializer: executable.getInitializers()){
 			rvm.executeProgram("UNDEFINED", initializer, new IValue[0], null);
-		}
-		
-		if(executable.getUidModuleInit().equals("")) {
-			// TODO remove collector
-			throw new CompilerError("No module_init function found when loading RVM code!");
 		}
 		
 		return rvm;
