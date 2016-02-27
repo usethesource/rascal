@@ -408,14 +408,16 @@ RVMModule mu2rvm(muModule(str module_name,
   usedFunctions = {};
   code = trvoidblock(initializations, returnDest()); // compute code first since it may generate new locals!
   <maxSP, dummy_exceptions> = validate(|init:///|, code, []);
-  funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), false, true, false, src, maxSP + nlocal[module_init_fun],
-                                         false, 0, 0,
+  if(size(code) > 0){
+     funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), 
+                                            false, true, false, src, maxSP + nlocal[module_init_fun], false, 0, 0,
                                     [*code, 
                                      LOADCON(true),
                                      RETURN1(),
                                      HALT()
                                     ],
                                     [], usedOverloadedFunctions, usedFunctions));
+  }                                  
  
   if(listing){
     println("===================== INIT: (nlocals_in_initializations = <nlocals_in_initializations>):");
