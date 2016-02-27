@@ -224,7 +224,7 @@ public class RVMExecutable implements Serializable{
 
 			jvmByteCode = codeEmittor.finalizeCode();
 			fullyQualifiedDottedName = fullyQualifiedName = codeEmittor.finalName().replace('/', '.') ;
-			
+			System.err.println("buildRunnerByteCode: " + jvmByteCode.length + " bytes");
 			// TODO: REMOVE for debug purposes only
 			codeEmittor.dumpClass("/tmp/" + className + ".class");
 			
@@ -515,6 +515,11 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		
 		// public byte[] jvmByteCode;
 		
+		if(ex.getJvmByteCode() == null) 
+			System.err.println("byte code is null"); 
+		else 
+			System.err.println("Writing byte code: " + ex.getJvmByteCode().length + " bytes");
+		
 		out.writeObject(ex.getJvmByteCode());
 		
 		// public String fullyQualifiedName ;
@@ -603,6 +608,10 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		// public byte[] jvmByteCode;
 		
 		byte[] jvmByteCode = (byte[]) in.readObject();
+		if(jvmByteCode == null)	
+			System.err.println("byte code is null");
+		else 
+			System.err.println("Reading byte code: " + jvmByteCode.length + " bytes");
 				
 		// public String fullyQualifiedName ;
 		
