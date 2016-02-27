@@ -7,6 +7,7 @@ import Relation;
 import Map;
 import util::Benchmark;
 
+alias OFG = rel[loc from, loc to];
 
 rel[loc,&T] propagateOriginal(OFG g, rel[loc,&T] gen, rel[loc,&T] kill, bool back) {
   rel[loc,&T] IN = { };
