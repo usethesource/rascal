@@ -57,6 +57,8 @@ public class RVMJVM extends RVM {
 			Constructor<?>[] cons = generatedClass.getConstructors();
 
 			generatedClassInstance = (RVMonJVM) cons[0].newInstance(rvmExec, rex);
+			// make sure that the moduleVariables in this RVM and in the generated class are the same.
+			this.moduleVariables = generatedClassInstance.moduleVariables;
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -73,8 +75,6 @@ public class RVMJVM extends RVM {
 		if (main_function == null) {
 			throw new RuntimeException("PANIC: No function " + uid_main + " found");
 		}
-
-		rex.getStdErr().println("Running RVMJVM.executeProgram: " + uid_main);
 		
 		generatedClassInstance.dynRun(uid_main, args);
 		Object o = generatedClassInstance.returnValue;
