@@ -64,8 +64,12 @@ public class ParserGenerator {
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Cannot initialize: " + e.getMessage());
 			}
-			RascalExecutionContext rex2 = new RascalExecutionContext("$parsergenerator$", ValueFactoryFactory.getValueFactory(), System.out, System.err);
 		
+			RascalExecutionContext rex2 = 
+					RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), System.out,System.err)
+						.forModule("$parsergenerator$")
+						.setJVM(true)					// options for complete repl
+						.build();
 			try {
 				rvmParserGenerator = RVM.readFromFileAndInitialize(parserGeneratorBinaryLocation, rex2);
 			} catch (IOException e) {
