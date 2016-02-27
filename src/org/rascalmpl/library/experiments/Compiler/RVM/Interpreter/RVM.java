@@ -87,7 +87,7 @@ public class RVM /*implements java.io.Serializable*/ {
 	
 	final static Function noCompanionFunction = new Function("noCompanionFunction", null, null, 0, 0, false, null, 0, false, 0, 0, null, null, 0);
 	
-	protected final Map<IValue, IValue> moduleVariables;
+	protected Map<IValue, IValue> moduleVariables;
 	PrintWriter stdout;
 	PrintWriter stderr;
 	
