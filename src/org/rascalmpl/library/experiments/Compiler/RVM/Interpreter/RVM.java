@@ -59,10 +59,8 @@ import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
-public class RVM /*implements java.io.Serializable*/ {
+public class RVM {
 
-	//private static final long serialVersionUID = 2178453095307370332L;
-	
 	public final IValueFactory vf;
 
 	protected final TypeFactory tf;
@@ -71,8 +69,6 @@ public class RVM /*implements java.io.Serializable*/ {
 	protected final static IBool Rascal_FALSE = ValueFactoryFactory.getValueFactory().bool(false);
 	private final IString NONE; 
 	
-	private final boolean profileRascalPrimitives = false;
-	private final boolean profileMuPrimitives = false;
 	private boolean ocall_debug = false;
 	
 	protected ArrayList<Function> functionStore;
