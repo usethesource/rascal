@@ -381,6 +381,8 @@ RVMProgram compileAndLinkIncremental(str qualifiedModuleName, bool reuseConfig, 
    merged = mergeImports(mainModule, pcfg, verbose=verbose, jvm=jvm);
    //link_time = cpuTime() - start_linking;
    //println("linking: <link_time/1000000> msec");
+   mergedLoc = getDerivedWriteLoc(mainModule.name, "rvm.ser.gz", pcfg);       
+   serializeProgram(mergedLoc, merged, jvm);
    return merged;
 }
 
