@@ -71,28 +71,28 @@ public class RVMExecutable implements Serializable{
 	private String fullyQualifiedDottedName;
 	
 	public RVMExecutable(
+			ISourceLocation rvmProgramLoc,
 			final String module_name,
-			final IMap moduleTags,
 			
+			final IMap moduleTags,
 			final IMap symbol_definitions,
 			final Map<String, Integer> functionMap,
+			
 			final ArrayList<Function> functionStore,
-			
 			final Map<String, Integer> constructorMap,
-			final ArrayList<Type> constructorStore,
 	
+			final ArrayList<Type> constructorStore,
 			final Map<String, Integer> resolver,
-			final ArrayList<OverloadedFunction> overloadedStore,
 			
+			final ArrayList<OverloadedFunction> overloadedStore,
 			ArrayList<String> initializers,
 			ArrayList<String> testsuites,
 			String uid_module_init,
 			String uid_module_main,
 			String uid_module_main_testsuite,
-			TypeStore ts,
-			IValueFactory vfactory, 
-			boolean jvm
-			){
+			TypeStore ts, 
+			IValueFactory vfactory, boolean jvm
+			) throws IOException{
 		
 		this.module_name = module_name;
 		this.moduleTags = moduleTags;
@@ -117,8 +117,9 @@ public class RVMExecutable implements Serializable{
 		vf = vfactory;
 		store = ts;
 		if(jvm){
-			buildRunnerByteCode(false, false);
+			generateClassFile(rvmProgramLoc, false);
 		}
+		write(rvmProgramLoc);
 	}
 	
 	public String getModuleName() {
@@ -193,10 +194,9 @@ public class RVMExecutable implements Serializable{
 		this.fullyQualifiedDottedName = fullyQualifiedDottedName;
 	}
 
-	void buildRunnerByteCode(boolean profile, boolean debug) {
-		try {
-			// TODO; in the future create multiple classes with the same name as a Rascal module
-			
+	void generateClassFile(ISourceLocation rvmProgramLoc, boolean debug) {
+		OutputStream fileOut = null;
+		try {			
 			String className;
 			String packageName = "org.rascalmpl.library";
 			
@@ -211,16 +211,36 @@ public class RVMExecutable implements Serializable{
 
 			BytecodeGenerator codeEmittor = new BytecodeGenerator(functionStore, overloadedStore, functionMap, constructorMap, resolver);
 	
-			codeEmittor.buildClass(packageName,className,debug) ;
+			codeEmittor.buildClass(packageName, className, debug) ;
 
 			jvmByteCode = codeEmittor.finalizeCode();
+			
 			fullyQualifiedDottedName = codeEmittor.finalName().replace('/', '.') ;
-			System.err.println("buildRunnerByteCode: " + jvmByteCode.length + " bytes");
-			// TODO: REMOVE for debug purposes only
-			codeEmittor.dumpClass("/tmp/" + className + ".class");
+			
+			String targetClassScheme = rvmProgramLoc.getScheme().substring("compressed+".length());
+			
+			String targetClassPath = rvmProgramLoc.getPath();
+			targetClassPath = targetClassPath.substring(0,  targetClassPath.length() - "rvm.ser.gz".length()) + "class";
+			
+			ISourceLocation classLoc = vf.sourceLocation(targetClassScheme, "", targetClassPath);
+			
+			System.err.println("generateClassFile: " + classLoc + ", " + jvmByteCode.length + " bytes");
+			
+			fileOut = URIResolverRegistry.getInstance().getOutputStream(classLoc, false);
+			codeEmittor.dumpClass(fileOut);
+			fileOut.close();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			if(fileOut != null){
+				try {
+					fileOut.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 	
@@ -604,9 +624,9 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 	
 		String fullyQualifiedDottedName = (String) in.readObject();
 
-		RVMExecutable ex = new RVMExecutable(module_name, moduleTags, symbol_definitions, functionMap, functionStore, 
-								constructorMap, constructorStore, resolver, overloadedStore, initializers, testsuites, 
-								uid_module_init, uid_module_main, uid_module_main_testsuite, store, vf, false);
+		RVMExecutable ex = new RVMExecutable(null, module_name, moduleTags, symbol_definitions, functionMap, 
+								functionStore, constructorMap, constructorStore, resolver, overloadedStore, initializers, 
+								testsuites, uid_module_init, uid_module_main, uid_module_main_testsuite, store, vf, false);
 		ex.setJvmByteCode(jvmByteCode);
 		ex.setFullyQualifiedDottedName(fullyQualifiedDottedName);
 		

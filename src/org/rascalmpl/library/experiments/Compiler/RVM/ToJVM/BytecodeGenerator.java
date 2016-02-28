@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -264,13 +265,11 @@ public class BytecodeGenerator implements Opcodes {
 	 * Dump the code of the generated class for debugging purposes
 	 */
 	
-	public void dumpClass(String loc) {
+	public void dumpClass(OutputStream fos) {
 		if (endCode == null)
 			finalizeCode();
 		try {
-			FileOutputStream fos = new FileOutputStream(loc);
 			fos.write(endCode);
-			fos.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
