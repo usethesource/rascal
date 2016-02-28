@@ -37,7 +37,6 @@ import org.nustaq.serialization.FSTObjectOutput;
 public class RVMExecutable implements Serializable{
 
 	private static final long serialVersionUID = -8966920880207428792L;
-   
 	
 	// transient fields
 	transient static IValueFactory vf;
@@ -46,6 +45,7 @@ public class RVMExecutable implements Serializable{
 	
 	// Serializable fields
 	
+	private ISourceLocation rvmProgramLoc;
 	private String module_name;
 	private IMap moduleTags;
 	private IMap symbol_definitions;
@@ -94,6 +94,8 @@ public class RVMExecutable implements Serializable{
 			IValueFactory vfactory, boolean jvm
 			) throws IOException{
 		
+		this.rvmProgramLoc = rvmProgramLoc;
+		
 		this.module_name = module_name;
 		this.moduleTags = moduleTags;
 		this.symbol_definitions = symbol_definitions;
@@ -120,6 +122,10 @@ public class RVMExecutable implements Serializable{
 			generateClassFile(rvmProgramLoc, false);
 		}
 		write(rvmProgramLoc);
+	}
+	
+	public ISourceLocation getRvmProgramLoc(){
+		return rvmProgramLoc;
 	}
 	
 	public String getModuleName() {
@@ -226,9 +232,9 @@ public class RVMExecutable implements Serializable{
 			
 			System.err.println("generateClassFile: " + classLoc + ", " + jvmByteCode.length + " bytes");
 			
-			fileOut = URIResolverRegistry.getInstance().getOutputStream(classLoc, false);
-			codeEmittor.dumpClass(fileOut);
-			fileOut.close();
+//			fileOut = URIResolverRegistry.getInstance().getOutputStream(classLoc, false);
+//			codeEmittor.dumpClass(fileOut);
+//			fileOut.close();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -465,6 +471,10 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 
 		int n;
 		RVMExecutable ex = (RVMExecutable) toWrite;
+		
+		//private ISourceLocation rvmProgramLoc;
+		
+		out.writeObject(new FSTSerializableIValue(ex.getRvmProgramLoc()));
 
 		// public String module_name;
 
@@ -547,6 +557,10 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 	public Object instantiate(@SuppressWarnings("rawtypes") Class objectClass, FSTObjectInput in, FSTClazzInfo serializationInfo, FSTClazzInfo.FSTFieldInfo referencee, int streamPosition) throws ClassNotFoundException, IOException 
 	{
 		int n;
+		
+		// ISourceLocation rvmProgramLoc
+		
+		ISourceLocation rvmProgramLoc = (ISourceLocation) in.readObject();
 
 		// public String name;
 
@@ -624,7 +638,7 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 	
 		String fullyQualifiedDottedName = (String) in.readObject();
 
-		RVMExecutable ex = new RVMExecutable(null, module_name, moduleTags, symbol_definitions, functionMap, 
+		RVMExecutable ex = new RVMExecutable(rvmProgramLoc, module_name, moduleTags, symbol_definitions, functionMap, 
 								functionStore, constructorMap, constructorStore, resolver, overloadedStore, initializers, 
 								testsuites, uid_module_init, uid_module_main, uid_module_main_testsuite, store, vf, false);
 		ex.setJvmByteCode(jvmByteCode);
