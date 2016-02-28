@@ -7,6 +7,7 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.type.Type;
 
 public class RVMJVM extends RVM {
 
@@ -88,29 +89,31 @@ public class RVMJVM extends RVM {
 	}
 	
 	@Override
-	public IValue executeFunction(OverloadedFunctionInstance func, IValue[] args){
+	public IValue executeFunction(OverloadedFunctionInstance func, IValue[] args){		
 		Function firstFunc = functionStore.get(func.getFunctions()[0]); // TODO: null?
 		int arity = args.length;
 		int scopeId = func.env.scopeId;
 		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
-		root.sp = arity;
-		
-		OverloadedFunctionInstanceCall c_ofun_call_next = 
-				scopeId == -1 ? new OverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), root, null, arity)  // changed root to cf
-        					  : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), scopeId, null, arity);
-				
-		Frame cf = c_ofun_call_next.nextFrame(functionStore);
+
 		// Pass the program arguments to func
 		for(int i = 0; i < args.length; i++) {
-			cf.stack[i] = args[i]; 
+			root.stack[i] = args[i]; 
 		}
-		cf.sp = args.length;
-		cf.previousCallFrame = null;		// ensure that func will retrun here
-		Object o = null; // = executeProgram(root, cf, /*arity,*/ /*cf.function.codeblock.getInstructions(),*/ c_ofun_call_next);
-		
-		if(o instanceof Thrown){
-			throw (Thrown) o;
+		root.sp = args.length;
+		root.previousCallFrame = null;
+
+		OverloadedFunctionInstanceCall ofunCall = new OverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), func.env, null, arity);
+
+		Frame frame = ofunCall.nextFrame(functionStore);
+		while (frame != null) {
+			Object rsult = generatedClassInstance.dynRun(frame.function.funId, frame);
+			if (rsult == generatedClassInstance.NONE) {
+				return narrow(generatedClassInstance.returnValue); // Alternative matched.
+			}
+			frame = ofunCall.nextFrame(functionStore);
 		}
-		return narrow(o); 
+		Type constructor = ofunCall.nextConstructor(constructorStore);
+
+		return vf.constructor(constructor, ofunCall.getConstructorArguments(constructor.getArity()));
 	}
 }
