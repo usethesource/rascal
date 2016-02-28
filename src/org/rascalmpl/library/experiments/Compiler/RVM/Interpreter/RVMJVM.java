@@ -10,11 +10,10 @@ import org.rascalmpl.value.IValue;
 
 public class RVMJVM extends RVM {
 
-	RVMExecutable rvmExec;
-	RascalExecutionContext rex;
-	byte[] generatedByteCode = null;
-	String generatedClassName = null;
-	RVMonJVM generatedClassInstance = null;
+	final RVMExecutable rvmExec;
+	final byte[] generatedByteCode;
+	final String generatedClassName;
+	RVMonJVM generatedClassInstance;
 
 	/**
 	 * @param rvmExec
@@ -27,7 +26,6 @@ public class RVMJVM extends RVM {
 		generatedClassName = rvmExec.getFullyQualifiedDottedName();
 
 		this.rvmExec = rvmExec;
-		this.rex = rex;
 		try {
 			createGeneratedClassInstance();
 		}
