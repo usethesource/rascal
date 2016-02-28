@@ -68,7 +68,6 @@ public class RVMExecutable implements Serializable{
 	private String uid_module_main_testsuite;
 	
 	private byte[] jvmByteCode;
-	private String fullyQualifiedName ;
 	private String fullyQualifiedDottedName;
 	
 	public RVMExecutable(
@@ -186,14 +185,6 @@ public class RVMExecutable implements Serializable{
 		this.jvmByteCode = jvmByteCode;
 	}
 
-	String getFullyQualifiedName() {
-		return fullyQualifiedName;
-	}
-
-	void setFullyQualifiedName(String fullyQualifiedName) {
-		this.fullyQualifiedName = fullyQualifiedName;
-	}
-
 	String getFullyQualifiedDottedName() {
 		return fullyQualifiedDottedName;
 	}
@@ -223,7 +214,7 @@ public class RVMExecutable implements Serializable{
 			codeEmittor.buildClass(packageName,className,debug) ;
 
 			jvmByteCode = codeEmittor.finalizeCode();
-			fullyQualifiedDottedName = fullyQualifiedName = codeEmittor.finalName().replace('/', '.') ;
+			fullyQualifiedDottedName = codeEmittor.finalName().replace('/', '.') ;
 			System.err.println("buildRunnerByteCode: " + jvmByteCode.length + " bytes");
 			// TODO: REMOVE for debug purposes only
 			codeEmittor.dumpClass("/tmp/" + className + ".class");
@@ -522,10 +513,6 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		
 		out.writeObject(ex.getJvmByteCode());
 		
-		// public String fullyQualifiedName ;
-		
-		out.writeObject(ex.getFullyQualifiedName());
-		
 		// public String fullyQualifiedDottedName;
 		
 		out.writeObject(ex.getFullyQualifiedDottedName());
@@ -613,10 +600,6 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		else 
 			System.err.println("Reading byte code: " + jvmByteCode.length + " bytes");
 				
-		// public String fullyQualifiedName ;
-		
-		String fullyQualifiedName  = (String) in.readObject();
-				
 		// public String fullyQualifiedDottedName;
 	
 		String fullyQualifiedDottedName = (String) in.readObject();
@@ -625,7 +608,6 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 								constructorMap, constructorStore, resolver, overloadedStore, initializers, testsuites, 
 								uid_module_init, uid_module_main, uid_module_main_testsuite, store, vf, false);
 		ex.setJvmByteCode(jvmByteCode);
-		ex.setFullyQualifiedName(fullyQualifiedName);
 		ex.setFullyQualifiedDottedName(fullyQualifiedDottedName);
 		
 		return ex;
