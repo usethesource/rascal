@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -379,8 +380,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		}
 	}
 	
-	
-	public RVMExecutable load(IConstructor program, boolean jvm) {
+	public RVMExecutable load(IConstructor program, ISourceLocation rmvProgramLoc, boolean jvm) throws IOException {
 		
 		boolean eliminateDeadCode = true;
 		
@@ -595,23 +595,23 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		validateOverloading();
 
 		System.out.println("Loading: " +  (Timing.getCpuTime() - start)/1000000 + " ms");
-		return new RVMExecutable(((IString) main_module.get("name")).getValue(),
-							     moduleTags,
-								 (IMap) main_module.get("symbol_definitions"),
+		return new RVMExecutable(rmvProgramLoc,
+							     ((IString) main_module.get("name")).getValue(),
+								 moduleTags,
+								 (IMap) main_module.get("symbol_definitions"), 
 								 functionMap, 
 								 functionStore, 
-								 constructorMap, 
-								 constructorStore,	
-								 resolver, 
-								 overloadedStore,  
+								 constructorMap,	
+								 constructorStore, 
+								 resolver,  
+								 overloadedStore, 
 								 initializers, 
 								 testsuites, 
 								 uid_module_init, 
-								 uid_module_main, 
+								 uid_module_main,
 								 uid_module_main_testsuite,
 								 typeStore,
-								 vf,
-								 jvm);
+								 vf, jvm);
 	}
 	
 	/*

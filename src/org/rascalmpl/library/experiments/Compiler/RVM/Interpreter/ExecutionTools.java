@@ -88,9 +88,9 @@ public class ExecutionTools {
 
 		TypeStore typeStore = new TypeStore();
 		RVMLoader loader = new RVMLoader(vf, typeStore);
-		RVMExecutable executable = loader.load(rvmProgram,	jvm.getValue());
+		RVMExecutable executable = loader.load(rvmProgram,	rvmProgramLoc, jvm.getValue());
 		
-		executable.write(rvmProgramLoc);			
+		//executable.write(rvmProgramLoc);			
 
 //			/*** Consistency checking after read: TODO: REMOVE THIS WHEN STABLE*/
 //			RVMLinked executable2 = RVMLinked.read(linkedRVM);
