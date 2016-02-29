@@ -79,7 +79,7 @@ public class Bootstrap {
         }
         
         Path targetFolder = new File(args[arg++]).toPath();
-        if (!Files.exists(targetFolder.resolve("org/rascalmpl/library/Prelude.class"))) {
+        if (!Files.exists(targetFolder.resolve("org/rascalmpl/library/Prelude.class"))) {	// PK: PreludeCompiled
         	throw new RuntimeException("target folder " + sourceFolder + " should point to source folder of compiler library and the RVM interpreter.");
         }
         
@@ -141,8 +141,14 @@ public class Bootstrap {
     		return new String(md.digest(), "UTF8");
     	}
     }
+    
+    // PK: I don't get "Runtime" here and in other names, would "Version" or "Rascal" not be better?
+    // - existsDeployedRascal / existsDeployedVersion
+    // - kernelInRascalLocation / kernelInVersionLocation
+    // - getDeployedRascal / getDeployedVersion
+    // etc.
 
-	private static boolean existsDeployedRuntime(Path folder, String version) {
+	private static boolean existsDeployedRuntime(Path folder, String version) {	
 		try (InputStream s = deployedRuntime(version).toURL().openStream()) {
 			return s != null;
 		} catch (IOException e) {
@@ -192,6 +198,10 @@ public class Bootstrap {
 		return tmpFolder.resolve("Kernel.rvm.ser.gz");
 	}
 
+	// PK: Observations:
+	// - The MuLibrary has to be compiled as well. There is a function for that: compileMuLibrary
+	// - Where are the files of the Rascal library compiled?
+	
     private static Path compilePhase(int phase, Path workingCompiler, Path tmp, Path kernel, Path sourcePath) throws BootstrapMessage, Fixedpoint, IOException, InterruptedException {
         Path result = tmp.resolve("phase" + phase);
         result.toFile().mkdir();
