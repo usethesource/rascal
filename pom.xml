@@ -63,7 +63,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.4.0</version>
                 <executions>
-                    <execution>
+<!--                    <execution>
                         <configuration>
                             <executable>java</executable>
                             <classpathScope>compile</classpathScope>
@@ -86,7 +86,7 @@
                         <goals>
                             <goal>exec</goal>
                         </goals>
-                    </execution>
+                    </execution> -->
                 </executions>
             </plugin>
 			<plugin>
