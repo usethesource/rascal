@@ -77,56 +77,62 @@ public class BindingsResolver {
 	}
 	
 	public ISourceLocation resolveBinding(ASTNode node, boolean tryHard) {
-		if (collectBindings) {
-			if (node instanceof TypeDeclaration) {
-        return resolveBinding(((TypeDeclaration) node).resolveBinding());
-      } else if (node instanceof EnumDeclaration) {
-        return resolveBinding(((EnumDeclaration) node).resolveBinding());
-      } else if (node instanceof AnnotationTypeDeclaration) {
-        return resolveBinding(((AnnotationTypeDeclaration) node).resolveBinding());
-      } else if (node instanceof AnnotationTypeMemberDeclaration) {
-        return resolveBinding(((AnnotationTypeMemberDeclaration) node).resolveBinding());
-      } else if (node instanceof AnonymousClassDeclaration) {
-        return resolveBinding(((AnonymousClassDeclaration) node).resolveBinding());
-      } else if (node instanceof EnumConstantDeclaration) {
-        return resolveBinding(((EnumConstantDeclaration) node).resolveVariable());
-      } else if (node instanceof ClassInstanceCreation) {
-        return resolveBinding(((ClassInstanceCreation) node).resolveConstructorBinding());
-      } else if (node instanceof FieldAccess) {
-        return resolveFieldAccess((FieldAccess) node);
-      } else if (node instanceof MethodInvocation) {
-        return resolveBinding(((MethodInvocation) node).resolveMethodBinding());
-      } else if (node instanceof QualifiedName) {
-        return resolveQualifiedName((QualifiedName) node);
-      } else if (node instanceof SimpleName) {
-    	SimpleName n = (SimpleName) node;
-        IBinding resolveBinding = n.resolveBinding();
-        ISourceLocation result = resolveBinding(resolveBinding);
-        // Have to move towards parent to make the binding unique
-        if (result.getScheme() == "unresolved" && tryHard) {
-        	result = resolveBinding(n.getParent(), resolveBinding, n);
-        }
-        return result;
-      } else if (node instanceof SuperFieldAccess) {
-        return resolveBinding(((SuperFieldAccess) node).resolveFieldBinding());
-      } else if (node instanceof SuperMethodInvocation) {
-        return resolveBinding(((SuperMethodInvocation) node).resolveMethodBinding());
-//      } else if (node instanceof Expression) {
-//        return resolveBinding(((Expression) node).resolveTypeBinding());
-      } else if (node instanceof MemberRef) {
-        return resolveBinding(((MemberRef) node).resolveBinding());
-      } else if (node instanceof MethodDeclaration) {
-        return resolveBinding(((MethodDeclaration) node).resolveBinding());
-      } else if (node instanceof MethodRef) {
-        return resolveBinding(((MethodRef) node).resolveBinding());
-      } else if (node instanceof PackageDeclaration) {
-        return resolveBinding(((PackageDeclaration) node).resolveBinding());
-      } else if (node instanceof Type) {
-        return resolveBinding(((Type) node).resolveBinding());
-      } else if (node instanceof TypeParameter) {
-        return resolveBinding(((TypeParameter) node).resolveBinding());
-      } else if (node instanceof VariableDeclaration) {
-    	VariableDeclaration n = (VariableDeclaration) node;
+	    if (collectBindings) {
+	        if (node instanceof TypeDeclaration) {
+	            return resolveBinding(((TypeDeclaration) node).resolveBinding());
+	        } else if (node instanceof EnumDeclaration) {
+	            return resolveBinding(((EnumDeclaration) node).resolveBinding());
+	        } else if (node instanceof AnnotationTypeDeclaration) {
+	            return resolveBinding(((AnnotationTypeDeclaration) node).resolveBinding());
+	        } else if (node instanceof AnnotationTypeMemberDeclaration) {
+	            return resolveBinding(((AnnotationTypeMemberDeclaration) node).resolveBinding());
+	        } else if (node instanceof AnonymousClassDeclaration) {
+	            return resolveBinding(((AnonymousClassDeclaration) node).resolveBinding());
+	        } else if (node instanceof EnumConstantDeclaration) {
+	            return resolveBinding(((EnumConstantDeclaration) node).resolveVariable());
+	        } else if (node instanceof ClassInstanceCreation) {
+	            return resolveBinding(((ClassInstanceCreation) node).resolveConstructorBinding());
+	        } else if (node instanceof FieldAccess) {
+	            return resolveFieldAccess((FieldAccess) node);
+	        } else if (node instanceof MethodInvocation) {
+	            return resolveBinding(((MethodInvocation) node).resolveMethodBinding());
+	        } else if (node instanceof QualifiedName) {
+	            return resolveQualifiedName((QualifiedName) node);
+	        } else if (node instanceof SimpleName) {
+	            return resolveSimpleName(node, tryHard);
+	        } else if (node instanceof SuperFieldAccess) {
+	            return resolveBinding(((SuperFieldAccess) node).resolveFieldBinding());
+	        } else if (node instanceof SuperMethodInvocation) {
+	            return resolveBinding(((SuperMethodInvocation) node).resolveMethodBinding());
+	        } else if (node instanceof MemberRef) {
+	            return resolveBinding(((MemberRef) node).resolveBinding());
+	        } else if (node instanceof MethodDeclaration) {
+	            return resolveBinding(((MethodDeclaration) node).resolveBinding());
+	        } else if (node instanceof MethodRef) {
+	            return resolveBinding(((MethodRef) node).resolveBinding());
+	        } else if (node instanceof PackageDeclaration) {
+	            return resolveBinding(((PackageDeclaration) node).resolveBinding());
+	        } else if (node instanceof Type) {
+	            return resolveBinding(((Type) node).resolveBinding());
+	        } else if (node instanceof TypeParameter) {
+	            return resolveBinding(((TypeParameter) node).resolveBinding());
+	        } else if (node instanceof VariableDeclaration) {
+	            return resolveVariable(node);
+	        } else if (node instanceof ConstructorInvocation) {
+	            return resolveBinding(((ConstructorInvocation) node).resolveConstructorBinding());
+	        } else if (node instanceof SuperConstructorInvocation) {
+	            return resolveBinding(((SuperConstructorInvocation) node).resolveConstructorBinding());
+	        } else if (node instanceof TypeDeclarationStatement) {
+	            return resolveBinding(((TypeDeclarationStatement) node).resolveBinding());
+	        } else if (node instanceof Initializer) {
+	            return resolveInitializer((Initializer) node);
+	        }
+	    }
+	    return makeBinding("unknown", null, null);
+	}
+
+    private ISourceLocation resolveVariable(ASTNode node) {
+        VariableDeclaration n = (VariableDeclaration) node;
     	IVariableBinding bin = n.resolveBinding(); 
         ISourceLocation result = resolveBinding(n.resolveBinding());
         // Have to move towards parent to make the binding unique
@@ -134,18 +140,18 @@ public class BindingsResolver {
         	result = resolveBinding(n.getParent(), bin, n.getName());
         }
         return result;
-      } else if (node instanceof ConstructorInvocation) {
-        return resolveBinding(((ConstructorInvocation) node).resolveConstructorBinding());
-      } else if (node instanceof SuperConstructorInvocation) {
-        return resolveBinding(((SuperConstructorInvocation) node).resolveConstructorBinding());
-      } else if (node instanceof TypeDeclarationStatement) {
-        return resolveBinding(((TypeDeclarationStatement) node).resolveBinding());
-      } else if (node instanceof Initializer) {
-        return resolveInitializer((Initializer) node);
-      }
-		}
-		return makeBinding("unknown", null, null);
-	}
+    }
+
+    private ISourceLocation resolveSimpleName(ASTNode node, boolean tryHard) {
+        SimpleName n = (SimpleName) node;
+        IBinding resolveBinding = n.resolveBinding();
+        ISourceLocation result = resolveBinding(resolveBinding);
+        // Have to move towards parent to make the binding unique
+        if (result.getScheme() == "unresolved" && tryHard) {
+        	result = resolveBinding(n.getParent(), resolveBinding, n);
+        }
+        return result;
+    }
 
     private ISourceLocation resolveFieldAccess(FieldAccess node) {
         ITypeBinding tb = node.getExpression().resolveTypeBinding();
