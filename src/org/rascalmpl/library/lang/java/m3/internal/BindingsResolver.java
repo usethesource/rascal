@@ -156,7 +156,7 @@ public class BindingsResolver {
     private ISourceLocation resolveFieldAccess(FieldAccess node) {
         ITypeBinding tb = node.getExpression().resolveTypeBinding();
         
-        if (tb.isArray() && "length".equals(node.getName().getIdentifier())) {
+        if (tb != null && tb.isArray() && "length".equals(node.getName().getIdentifier())) {
             ISourceLocation arrayType = resolveBinding(tb);
             return makeBinding("java+arrayLength", arrayType.getAuthority(), arrayType.getPath());
         }
@@ -209,7 +209,7 @@ public class BindingsResolver {
 	private ISourceLocation resolveQualifiedName(QualifiedName node) {
 		ITypeBinding tb = node.getQualifier().resolveTypeBinding();
 		
-		if (tb.isArray()  && "length".equals(node.getName().getIdentifier())) {
+		if (tb != null && tb.isArray()  && "length".equals(node.getName().getIdentifier())) {
 		    ISourceLocation arrayType = resolveBinding(tb);
 		    return makeBinding("java+arrayLength", arrayType.getAuthority(), arrayType.getPath());
 		}
