@@ -53,6 +53,7 @@ public class CommandExecutor {
 	public static String consoleInputPath = "/ConsoleInput.rsc";
 	public static String muLibraryPath = "/experiments/Compiler/muRascal2RVM/MuLibrary.mu";
 	private ISourceLocation consoleInputLocation;
+	private ISourceLocation consoleBinaryLocation;
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
 	private final Prelude prelude;
@@ -95,6 +96,7 @@ public class CommandExecutor {
 			compilerBinaryLocation = vf.sourceLocation("compressed+boot", "", "Kernel.rvm.ser.gz");
 			//compilerBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/lang/rascal/boot/Kernel.rvm.ser.gz");
 			consoleInputLocation = vf.sourceLocation("test-modules", "", consoleInputName + ".rsc");
+			consoleBinaryLocation = vf.sourceLocation("compressed+test-modules", "", consoleInputName + ".rvm.ser.gz");
 			
 		} catch (URISyntaxException e) {
 			throw new RuntimeException("Cannot initialize: " + e.getMessage());
@@ -214,7 +216,7 @@ public class CommandExecutor {
 			IConstructor main_module = (IConstructor) consoleRVMProgram.get("main_module");
 			ISet messages = (ISet) main_module.get("messages");
 			if(noErrors(modString, messages)){
-				rvmConsoleExecutable = ExecutionTools.loadProgram(consoleInputLocation, consoleRVMProgram, vf.bool(jvm));
+				rvmConsoleExecutable = ExecutionTools.loadProgram(consoleBinaryLocation, consoleRVMProgram, vf.bool(jvm));
 		
 				RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, debug, debugRVM, testsuite, profile, trackCalls, coverage, jvm, null, debugObserver.getObserverWhenActiveBreakpoints(), null);
 				rex.setCurrentModuleName(shellModuleName);

@@ -45,7 +45,7 @@ public class RVMExecutable implements Serializable{
 	
 	// Serializable fields
 	
-	private ISourceLocation rvmProgramLoc;
+	//private ISourceLocation rvmProgramLoc;
 	private String module_name;
 	private IMap moduleTags;
 	private IMap symbol_definitions;
@@ -94,7 +94,7 @@ public class RVMExecutable implements Serializable{
 			IValueFactory vfactory, boolean jvm
 			) throws IOException{
 		
-		this.rvmProgramLoc = rvmProgramLoc;
+		//this.rvmProgramLoc = rvmProgramLoc;
 		
 		this.module_name = module_name;
 		this.moduleTags = moduleTags;
@@ -121,12 +121,14 @@ public class RVMExecutable implements Serializable{
 		if(jvm){
 			generateClassFile(rvmProgramLoc, false);
 		}
-		write(rvmProgramLoc);
+		if(rvmProgramLoc != null){
+			write(rvmProgramLoc);
+		}
 	}
 	
-	public ISourceLocation getRvmProgramLoc(){
-		return rvmProgramLoc;
-	}
+//	public ISourceLocation getRvmProgramLoc(){
+//		return rvmProgramLoc;
+//	}
 	
 	public String getModuleName() {
 		return module_name;
@@ -223,18 +225,20 @@ public class RVMExecutable implements Serializable{
 			
 			fullyQualifiedDottedName = codeEmittor.finalName().replace('/', '.') ;
 			
-			String targetClassScheme = rvmProgramLoc.getScheme().substring("compressed+".length());
-			
-			String targetClassPath = rvmProgramLoc.getPath();
-			targetClassPath = targetClassPath.substring(0,  targetClassPath.length() - "rvm.ser.gz".length()) + "class";
-			
-			ISourceLocation classLoc = vf.sourceLocation(targetClassScheme, "", targetClassPath);
-			
-			System.err.println("generateClassFile: " + classLoc + ", " + jvmByteCode.length + " bytes");
-			
-//			fileOut = URIResolverRegistry.getInstance().getOutputStream(classLoc, false);
-//			codeEmittor.dumpClass(fileOut);
-//			fileOut.close();
+			if(rvmProgramLoc != null){
+				String targetClassScheme = rvmProgramLoc.getScheme().substring("compressed+".length());
+
+				String targetClassPath = rvmProgramLoc.getPath();
+				targetClassPath = targetClassPath.substring(0,  targetClassPath.length() - "rvm.ser.gz".length()) + "class";
+
+				ISourceLocation classLoc = vf.sourceLocation(targetClassScheme, "", targetClassPath);
+
+				System.err.println("generateClassFile: " + classLoc + ", " + jvmByteCode.length + " bytes");
+
+				fileOut = URIResolverRegistry.getInstance().getOutputStream(classLoc, false);
+				codeEmittor.dumpClass(fileOut);
+				fileOut.close();
+			}
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -310,7 +314,7 @@ public class RVMExecutable implements Serializable{
 				}
 			}
 		}
-		executable.rvmProgramLoc = rvmExecutable;
+//		executable.rvmProgramLoc = rvmExecutable;
 		return executable;
 	}
 	
@@ -344,8 +348,6 @@ public class RVMExecutable implements Serializable{
 		if (partialIdentifier.startsWith("\\")) {
 			partialIdentifier = partialIdentifier.substring(1);
 		}
-		
-		
 
 		return completer;
 	}
@@ -475,7 +477,7 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		
 		//private ISourceLocation rvmProgramLoc;
 		
-		out.writeObject(new FSTSerializableIValue(ex.getRvmProgramLoc()));
+//		out.writeObject(new FSTSerializableIValue(ex.getRvmProgramLoc()));
 
 		// public String module_name;
 
@@ -561,7 +563,7 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		
 		// ISourceLocation rvmProgramLoc
 		
-		ISourceLocation rvmProgramLoc = (ISourceLocation) in.readObject();
+		//ISourceLocation rvmProgramLoc = (ISourceLocation) in.readObject();
 
 		// public String name;
 
@@ -639,7 +641,7 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 	
 		String fullyQualifiedDottedName = (String) in.readObject();
 
-		RVMExecutable ex = new RVMExecutable(rvmProgramLoc, module_name, moduleTags, symbol_definitions, functionMap, 
+		RVMExecutable ex = new RVMExecutable(null, module_name, moduleTags, symbol_definitions, functionMap, 
 								functionStore, constructorMap, constructorStore, resolver, overloadedStore, initializers, 
 								testsuites, uid_module_init, uid_module_main, uid_module_main_testsuite, store, vf, false);
 		ex.setJvmByteCode(jvmByteCode);
