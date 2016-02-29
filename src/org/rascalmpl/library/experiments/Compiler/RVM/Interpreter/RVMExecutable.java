@@ -310,6 +310,7 @@ public class RVMExecutable implements Serializable{
 				}
 			}
 		}
+		executable.rvmProgramLoc = rvmExecutable;
 		return executable;
 	}
 	
