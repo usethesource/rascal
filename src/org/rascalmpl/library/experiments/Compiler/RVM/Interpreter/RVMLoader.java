@@ -595,6 +595,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 		validateOverloading();
 
 		System.out.println("Loading: " +  (Timing.getCpuTime() - start)/1000000 + " ms");
+
 		return new RVMExecutable(rmvProgramLoc,
 							     ((IString) main_module.get("name")).getValue(),
 								 moduleTags,

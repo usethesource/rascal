@@ -128,32 +128,41 @@ void buildMuLibrary(){
 // Build MuLibrary, standard library, ParserGenerator and Kernel
 // Maybe run buildMuLibrary first!
 
+bool fullRebuild = false;
+
 value build(bool jvm=false){
      BOOTSTDLIB = BOOT + "stdlib";
      pcfg = pathConfig(srcPath=[|std:///|], binDir=BOOTSTDLIB, libPath=[BOOTSTDLIB]);
      
-     report("Removing current compiled standard library <BOOTSTDLIB>");
-     remove(BOOTSTDLIB);
+     if(fullRebuild){
+        report("Removing current compiled standard library <BOOTSTDLIB>");
+        remove(BOOTSTDLIB);
+     }
      
      commands = "#!/bin/sh\n";
      
-     report("Compiling MuLibrary");
-     compileMuLibrary(pcfg, verbose=true, jvm=jvm);
-     muLib = getMuLibraryCompiledWriteLoc(pcfg);
-     commands += "cp <muLib.path> <(pcfg.binDir.parent + muLib.file).path>\n";
+     if(fullRebuild){
+        report("Compiling MuLibrary");
+        compileMuLibrary(pcfg, verbose=true, jvm=jvm);
+        muLib = getMuLibraryCompiledWriteLoc(pcfg);
+        commands += "cp <muLib.path> <(pcfg.binDir.parent + muLib.file).path>\n";
      
-     report("Compiling standard library modules");
-     for(moduleName <- libraryModules){
-         compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
+        report("Compiling standard library modules");
+        for(moduleName <- libraryModules){
+            compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
+        }
      }
      
      commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg, jvm=jvm);
      commands += serialize("lang::rascal::boot::Kernel", pcfg, jvm=jvm);
      
-     info = collectInfo(libraryModules, pcfg);
-     l = getDerivedWriteLoc("StdLib.info", "gz", pcfg);
-     println("l = <l>");
-     writeBinaryValueFile(l, info);
+     if(fullRebuild){
+        info = collectInfo(libraryModules, pcfg);
+     
+        l = getDerivedWriteLoc("StdLib.info", "gz", pcfg);
+        println("l = <l>");
+        writeBinaryValueFile(l, info);
+     }
     
      writeFile(SHELLSCRIPT, commands);
      report("Commands written to <SHELLSCRIPT>");
