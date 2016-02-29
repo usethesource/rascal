@@ -46,7 +46,6 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
-import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
@@ -94,7 +93,7 @@ public class BindingsResolver {
       } else if (node instanceof ClassInstanceCreation) {
         return resolveBinding(((ClassInstanceCreation) node).resolveConstructorBinding());
       } else if (node instanceof FieldAccess) {
-        return resolveBinding(((FieldAccess) node).resolveFieldBinding());
+        return resolveFieldAccess((FieldAccess) node);
       } else if (node instanceof MethodInvocation) {
         return resolveBinding(((MethodInvocation) node).resolveMethodBinding());
       } else if (node instanceof QualifiedName) {
@@ -147,6 +146,17 @@ public class BindingsResolver {
 		}
 		return makeBinding("unknown", null, null);
 	}
+
+    private ISourceLocation resolveFieldAccess(FieldAccess node) {
+        ITypeBinding tb = node.getExpression().resolveTypeBinding();
+        
+        if (tb.isArray() && "length".equals(node.getName().getIdentifier())) {
+            ISourceLocation arrayType = resolveBinding(tb);
+            return makeBinding("java+arrayLength", arrayType.getAuthority(), arrayType.getPath());
+        }
+        
+        return resolveBinding(node.resolveFieldBinding());
+    }
 	
 	private ISourceLocation resolveBinding(ASTNode parentNode, IBinding resolvedBinding, SimpleName nodeName) {
 		ISourceLocation parentBinding = resolveBinding(parentNode, false);
@@ -191,21 +201,14 @@ public class BindingsResolver {
 	}
 	
 	private ISourceLocation resolveQualifiedName(QualifiedName node) {
-		ISourceLocation parent = resolveBinding(node.getQualifier().resolveTypeBinding());
-		ISourceLocation name = resolveBinding(node.getName(), false);
+		ITypeBinding tb = node.getQualifier().resolveTypeBinding();
 		
-		if (parent.getScheme().equals("java+array")  && node.getName().isSimpleName()) {
-		    SimpleName n = (SimpleName) node.getName();
-		    if (n.getIdentifier().equals("length")) {
-		        return makeBinding("java+arrayLength", parent.getAuthority(), parent.getPath());
-		    }
+		if (tb.isArray()  && "length".equals(node.getName().getIdentifier())) {
+		    ISourceLocation arrayType = resolveBinding(tb);
+		    return makeBinding("java+arrayLength", arrayType.getAuthority(), arrayType.getPath());
 		}
 		
-		if (parent.getScheme().equals("java+array") && name.getScheme().equals("unresolved")) {
-			return makeBinding("java+field", null, resolveBinding(node.getQualifier(), true).getPath() + "/" + node.getName().getIdentifier());
-		}
-		
-		return name;
+		return resolveBinding(node.getName(), false);
 	}
 	
 	private ISourceLocation resolveInitializer(Initializer node) {
