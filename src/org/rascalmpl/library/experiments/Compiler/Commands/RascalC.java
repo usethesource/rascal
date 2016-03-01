@@ -3,7 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.Commands;
 import java.io.PrintWriter;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMInterpreter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.value.IValue;
@@ -63,9 +63,9 @@ public class RascalC {
                 .forModule(cmdOpts.getRascalModule().getValue())
                 .build();
 		
-		RVM rvmKernel = null;
+		RVMInterpreter rvmKernel = null;
 		try {
-			rvmKernel = RVM.readFromFileAndInitialize(cmdOpts.getKernelLocation(), rex);
+			rvmKernel = RVMInterpreter.readFromFileAndInitialize(cmdOpts.getKernelLocation(), rex);
 		} catch (Exception e) {
 			System.err.println("Cannot initialize kernel: " + e.getMessage());
 			System.exit(-1);

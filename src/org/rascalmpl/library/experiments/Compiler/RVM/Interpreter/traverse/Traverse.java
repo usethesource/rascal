@@ -2,7 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMInterpreter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Reference;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -20,7 +20,7 @@ public class Traverse {
 		this.vf = vf;
 	}
 	
-	public IValue traverse(DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, REBUILD rebuild, IValue subject, FunctionInstance phi, Reference refMatched, Reference refChanged, Reference refLeaveVisit, Reference refBegin, Reference refEnd, RVM rvm, DescendantDescriptor descriptor) {
+	public IValue traverse(DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, REBUILD rebuild, IValue subject, FunctionInstance phi, Reference refMatched, Reference refChanged, Reference refLeaveVisit, Reference refBegin, Reference refEnd, RVMInterpreter rvm, DescendantDescriptor descriptor) {
 
 		refMatched.setValue(vf.bool(false));
 		refChanged.setValue(vf.bool(false));

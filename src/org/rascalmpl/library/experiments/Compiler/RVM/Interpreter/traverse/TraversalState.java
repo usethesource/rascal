@@ -2,7 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMInterpreter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Reference;
 import org.rascalmpl.value.IBool;
@@ -28,7 +28,7 @@ public class TraversalState {
 	 * 		  it on each call.
 	 */
 
-	private final RVM rvm;					// The RVM we are using
+	private final RVMInterpreter rvm;					// The RVM we are using
 	private final DescendantDescriptor descriptor; 	
 											// Describes in wich subtree to descend or not
 	private final boolean isAllwaysTrue;
@@ -49,7 +49,7 @@ public class TraversalState {
 	
 	ITraverse traverse;						// The specific traverseOnce function to be used
 
-	public TraversalState(RVM rvm, FunctionInstance phi, Reference refMatched, Reference refChanged, Reference refLeaveVisit, Reference refBegin, Reference refEnd, DescendantDescriptor descriptor) {
+	public TraversalState(RVMInterpreter rvm, FunctionInstance phi, Reference refMatched, Reference refChanged, Reference refLeaveVisit, Reference refBegin, Reference refEnd, DescendantDescriptor descriptor) {
 		this.rvm = rvm;
 		this.refMatched = refMatched;
 		this.refChanged = refChanged;
