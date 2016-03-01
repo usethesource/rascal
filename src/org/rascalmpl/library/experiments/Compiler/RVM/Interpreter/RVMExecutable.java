@@ -126,10 +126,6 @@ public class RVMExecutable implements Serializable{
 		}
 	}
 	
-//	public ISourceLocation getRvmProgramLoc(){
-//		return rvmProgramLoc;
-//	}
-	
 	public String getModuleName() {
 		return module_name;
 	}
@@ -142,11 +138,11 @@ public class RVMExecutable implements Serializable{
 		return symbol_definitions;
 	}
 
-	ArrayList<Function> getFunctionStore() {
+	public ArrayList<Function> getFunctionStore() {
 		return functionStore;
 	}
 
-	Map<String, Integer> getFunctionMap() {
+	public Map<String, Integer> getFunctionMap() {
 		return functionMap;
 	}
 
@@ -206,16 +202,21 @@ public class RVMExecutable implements Serializable{
 		OutputStream fileOut = null;
 		try {			
 			String className;
-			String packageName = "org.rascalmpl.library";
+			String packageName = ""; //"org.rascalmpl.library";
 			
 			int n = module_name.lastIndexOf("::");
 			
 			if(n > 2){
 				className = module_name.substring(n + 2);
-				packageName +=  "." + module_name.substring(0,  n).replaceAll("::", ".");
+				if(!packageName.isEmpty()){
+					packageName +=  ".";
+				}
+				packageName +=  module_name.substring(0,  n).replaceAll("::", ".");
 			} else {
 				className = module_name;
 			}
+			
+			className += "$Compiled";
 
 			BytecodeGenerator codeEmittor = new BytecodeGenerator(functionStore, overloadedStore, functionMap, constructorMap, resolver);
 	
@@ -229,7 +230,7 @@ public class RVMExecutable implements Serializable{
 				String targetClassScheme = rvmProgramLoc.getScheme().substring("compressed+".length());
 
 				String targetClassPath = rvmProgramLoc.getPath();
-				targetClassPath = targetClassPath.substring(0,  targetClassPath.length() - "rvm.ser.gz".length()) + "class";
+				targetClassPath = targetClassPath.substring(0,  targetClassPath.length() - ".rvm.ser.gz".length()) + "$Compiled.class";
 
 				ISourceLocation classLoc = vf.sourceLocation(targetClassScheme, "", targetClassPath);
 
