@@ -131,7 +131,7 @@ function ask2Server(site, ev, id, v) {
                          if (lab!=null && lab!="") {
                                    var v = prompt(lab, "");
                                    if (v==null) return;
-                                   var q =   promptFunction("prompt", d, v);
+                                   var q =   eventFunction("prompt", d, v);
                                    setTimeout(q, 100);
                             }
                          var a = t[d]["alert"];
@@ -177,6 +177,46 @@ function ask2Server(site, ev, id, v) {
                       }
 		);
       }
+
+    function CR(evt, ev, id, v ) {
+       evt = evt || window.event;
+       if (evt.keyCode == 13 && v) {
+            ask(ev, id , v);
+       }
+    }
+    
+var site;
+
+function setSite(x) {site = x;}
+    
+function ask(ev, id, v) {
+        if (v!=null) {
+           v=v.replace("+","^plus");
+           v=v.replace("/","^div");
+           } 
+           ask2Server(site, ev, id, v);
+      }
+ 
+function doFunction(ev, id) { 
+    return function() {  
+    var v = this.value;
+     ask(ev, id, v);
+   };
+ }
+
+function eventFunction(ev, id, v) { 
+    return function() {  
+     ask(ev, id, v);
+   };
+ }
+
+function doTimerFunction(ev, id) { 
+    return function() {  
+     ask(ev, id, "");
+     var e = d3.select("#"+id); 
+     return  e.attr("visibility")=="hidden";
+   };
+ }
 
 function alertSize() {
 	if (typeof (window.innerWidth) == 'number') {

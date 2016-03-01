@@ -387,39 +387,8 @@ str getIntro() {
         '<google> 
         '\<script\>
         ' var screenWidth = 0;
-        ' var screenHeight = 0;
-       
-        '    function CR(evt, ev, id, v ) {
-        '       evt = evt || window.event;
-        '       if (evt.keyCode == 13 && v) {
-        '            ask(ev, id , v);
-        '       }
-        '    }
-        '    function ask(ev, id, v) {
-        '    if (v!=null) {
-        '       v=v.replace(\"+\",\"^plus\");
-        '       v=v.replace(\"/\",\"^div\");
-        '       } 
-        '       ask2Server(\"<getSite()>\", ev, id, v);
-        '  }
-        '  function doFunction(ev, id) { 
-        '    return function() {  
-        '    var v = this.value;
-        '     ask(ev, id, v);
-        '   };
-        ' }
-        '  function promptFunction(ev, id, v) { 
-        '    return function() {  
-        '     ask(ev, id, v);
-        '   };
-        ' }
-        '  function doTimerFunction(ev, id) { 
-        '    return function() {  
-        '     ask(ev, id, \"\");
-        '     var e = d3.select(\"#\"+id); 
-        '     return  e.attr(\"visibility\")==\"hidden\";
-        '   };
-        ' }
+        ' var screenHeight = 0;  
+        ' setSite(\"<getSite()>\");    
         ' function initFunction() {
         '  alertSize();
         '  <for (d<-markerScript) {> <d> <}>
@@ -443,7 +412,7 @@ str getIntro() {
 	
 list[Figure] getChildren(Figure f) {
    if (box():=f || ellipse() := f || circle():= f || ngon():=f) return f.fig ==emptyFigure()?[]:[f.fig];
-   if (hcat():=f || vcat():= f) {println(f.figs); return f.figs;}
+   if (hcat():=f || vcat():= f) {return f.figs;}
    if (tree(_, _):=f) {
          list[Figure] r = [];
          visit(f) {
@@ -649,6 +618,19 @@ IFigure  _d3Treemap(str id, Figure f, str json) {
      widget[id] = <null, seq, id, begintag, endtag,
      "
      'treemapDraw(\"<id>_td\", <json>, <width>, <height>);
+     ",  f.width, f.height, 0, 0, 1, 1, f.align, 1, "", false, false >;
+     widgetOrder+= id;  
+     return ifigure("<id>", []);
+     }
+     
+IFigure  _d3Tree(str id, Figure f, str json) {
+     str begintag= "\<svg  xmlns = \'http://www.w3.org/2000/svg\'  id=\"<id>\"\>";
+     str endtag = "\</svg\>";
+     int width = f.width<0?1200:f.width;
+     int height = f.height<0?800:f.height;
+     widget[id] = <null, seq, id, begintag, endtag,
+     "
+     'treeDraw(\"<id>_td\", <json>, <width>, <height>);
      ",  f.width, f.height, 0, 0, 1, 1, f.align, 1, "", false, false >;
      widgetOrder+= id;  
      return ifigure("<id>", []);
@@ -1137,9 +1119,10 @@ str getEdgeOpt(Edge s) {
           }
       if (!isEmpty(m))  {  
          for (t<-m) {
-           if (t!="lineColor")
+           if (t=="lineColor")  {r+="style: \"stroke:<m[t]>;fill:none\",";continue;}
+           if (t=="label" && str q:=m[t])  {r+="<t>:\"<q>\",";continue;}
            r+="<t>:<vl(m[t])>,";
-           else r+="style: \"stroke:<m[t]>;fill:none\",";
+          
            }    
          r = replaceLast(r,",","");
          } 
@@ -1167,14 +1150,25 @@ str dagreIntersect(Figure s) {
     }
     
 str dagrePoints(f) {
+      str r = "function () {";
       if (q:ngon():=f) {
           num angle = 2 * PI() / f.n;
-          lrel[real, real] p  = [<f.r+f.r*cos(i*angle), f.r+f.r*sin(i*angle)>|int i<-[0..f.n]];
-          return 
-            replaceLast( "[<for(z<-p){> {x:<toInt(z[0])>, y: <toInt(z[1])>},<}>]",
-          ",", "");
-          }
-       return "[{x:0, y:0}, {x:width, y:0}, {x:width, y:height}, {x:0, y:height}]";
+          lrel[real, real] p  = [<f.r+f.r*cos(i*angle), f.r+f.r*sin(i*angle)>|int i<-[0..f.n]];  
+          r+= "return <replaceLast( "[<for(z<-p){> {x:<toInt(z[0])>, y: <toInt(z[1])>},<}>]", ",", "")>";
+          } else
+       if (q:ellipse():=f) {
+          r += "var rx = width/2; var ry = height/2; var n = 32; var angle= 2*Math.PI/n; var r=[];\n";
+          r += "for (var i=0;i\<n; i++) {r.push({x:rx+rx*Math.cos(i*angle), y:ry+ry*Math.sin(i*angle)});}\n";
+          r += "return r";
+          } else 
+       if (q:circle():=f) {
+          r += "var R = width/2;  var n = 32; var angle= 2*Math.PI/n; var r=[];\n";
+          r += "for (var i=0;i\<n; i++) {r.push({x:R+R*Math.cos(i*angle), y:R+R*Math.sin(i*angle)});}\n";
+          r += "return r";
+          } else 
+       r +="return [{x:0, y:0}, {x:width, y:0}, {x:width, y:height}, {x:0, y:height}]";
+       r+= ";}\n";
+       return r;
        }
        
 str addShape(Figure s) {  
@@ -1182,7 +1176,7 @@ str addShape(Figure s) {
     'render.shapes().<s.id> = function (parent, bbox, node) {
     'var width = parseInt(d3.select(\"#<s.id>\").attr(\"width\"));
     'var height = parseInt(d3.select(\"#<s.id>\").attr(\"height\"));
-    'var points = <dagrePoints(s)>;
+    'var points = <dagrePoints(s)>();
     'var dpoints = \"M \"+ points.map(function(d) { return d.x + \" \" + d.y; }).join(\" \")+\" Z\";
     'shapeSvg = parent.insert(\"path\", \":first-child\")
     ' <attr1("d", "dpoints")> 
@@ -1351,7 +1345,7 @@ bool hasInnerCircle(Figure f)  {
   
  str moveAt(bool fo, Figure f) = fo?"":"x=<getAtX(f)> y=<getAtY(f)>";
  
- str adjustBox(IFigure fig, str id, int n, int angle) =  
+ str adjustBox(IFigure fig, str id, int n, num angle) =  
    "adjustBox(\"<getId(fig)>\", \"<id>\", <getHshrink(fig)>, <getVshrink(fig)>
    ', <getLineWidth(fig)>, <n>, <angle>);\n";
    
@@ -2576,9 +2570,9 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
                     fig.at = <0, y>; 
                     return _translate(fig, align = align, inHtml=true, addSvgTag = true);
                     }
-        case rotate(int angle, int x, int y, Figure fig): {
+        case rotate(num angle, int x, int y, Figure fig): {
              fig.rotate = <angle, x, y>; return _translate(fig, align = align, inHtml=true);}
-        case rotate(int angle,  Figure fig): {
+        case rotate(num angle,  Figure fig): {
            fig.rotate = <angle, -1, -1>; 
            fig.at = f.at;
            return _translate(fig, align = align, inHtml=true);
@@ -2640,6 +2634,11 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
         case d3Treemap(): {
              str w  = toJSON(toMap(f.d),true); 
              IFigure r = _d3Treemap(f.id, f, w);
+             return r;
+             }
+        case d3Tree(): {
+             str w  = toJSON(toMap(f.d),true); 
+             IFigure r = _d3Tree(f.id, f, w);
              return r;
              }
        }

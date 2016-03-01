@@ -81,3 +81,44 @@ function  treemapDraw(id, root, width, height) {
 	//   .text(function(d) {return d.name.substring(0,  Math.max(0, d.dx - 1)/9); });
 	 
 }
+
+function  treeDraw(id, root, width, height) {
+	 var tree = d3.layout.tree()
+	    .size([300,150])
+	    .children(function(d) {return d.children;})
+	    .separation(function(a,b){
+	      return (a.width+b.width)/2+2;
+	      })
+	    ;
+	 var vis = d3.select("#"+id)
+     .attr("width", 400)
+     .attr("height", 300)
+     .append("svg:g")
+     .attr("transform", "translate(40, 0)"); // shift everything to the right
+
+	 
+	      var diagonal = d3.svg.diagonal()
+	      // change x and y (for the left to right tree)
+	      .projection(function(d) { return [d.x, d.y]; });
+	 
+	      // Preparing the data for the tree layout, convert data into an array of nodes
+	      var nodes = tree.nodes(root);
+	      // Create an array with all the links
+	      var links = tree.links(nodes);
+	 
+	      var link = vis.selectAll("pathlink")
+	      .data(links)
+	      .enter().append("svg:path")
+	      .attr("class", "link")
+	      .attr("d", diagonal)
+	 
+	      var node = vis.selectAll("g.node")
+	      .data(nodes)
+	      .enter().append("svg:g")
+	      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+	 
+	      // Add the dot at every node
+	      node.append("svg:rect")
+	      .attr("width", function(d) {return d.width;})
+	      .attr("height", function(d) {return d.height;}); 
+    }
