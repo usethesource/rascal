@@ -87,7 +87,7 @@ alias XYLabeledData     = lrel[num xx, num yy, str label];
 
 alias GoogleData     = list[list[value]];	
 
-data DDD = ddd(str name="", int size = 0, list[DDD] children = []);
+data DDD = ddd(str name="", int size = 0, list[DDD] children = [], int width =10, int height = 10);
 
 //data Margin = margin(int left = 0, int right = 0, int top = 0, int bottom = 0);
 
@@ -243,7 +243,7 @@ public data Figure(
    | circle(num cx = -1, num cy = -1, num r=-1, Figure fig=emptyFigure())
 
 // regular polygon   
-   | ngon(int n=3, num r=-1, int angle = 0, Figure fig=emptyFigure(),
+   | ngon(int n=3, num r=-1, num angle = 0, Figure fig=emptyFigure(),
         Rescale scaleX = <<0,1>, <0, 1>>,
    	    Rescale scaleY = <<0,1>, <0, 1>>
      )	
@@ -280,7 +280,7 @@ public data Figure(
    | atX(int x, Figure fig)				// TODO: how to handle negative values?
    | atY(int y, Figure fig)
    
-// Advised to embed the figure in a frame and use that frame as argument of rotate
+   | rotate(num angle, int x, int y, Figure fig)
    | rotate(num angle, Figure fig)
    
 // Input elements
@@ -326,8 +326,10 @@ public data Figure(
 	       ,bool manhattan=false
 // For memory management
 	       , int refinement=5, int rasterHeight=150)
-   |d3Pack(DDD d = ddd(), str fillNode="rgb(31, 119, 180)", str fillLeaf = "ff7f0e", num fillOpacityNode=0.25, num fillOpacityLeaf=1.0)
+   |d3Pack(DDD d = ddd(), str fillNode="rgb(31, 119, 180)", str fillLeaf = "ff7f0e", num fillOpacityNode=0.25, num fillOpacityLeaf=1.0,
+          int diameter = 960)
    |d3Treemap(DDD d = ddd())
+   |d3Tree(DDD d = ddd())
    ;
    
 data GraphOptions = graphOptions(
