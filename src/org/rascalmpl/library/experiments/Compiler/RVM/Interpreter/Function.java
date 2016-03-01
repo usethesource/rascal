@@ -39,8 +39,8 @@ public class Function implements Serializable {
 	Type ftype;
 	int scopeId;
 	String funIn;
-	int scopeIn = -1;
-	int nformals;
+	public int scopeIn = -1;
+	public int nformals;
 	private int nlocals;
 	boolean isDefault;
 	int maxstack;

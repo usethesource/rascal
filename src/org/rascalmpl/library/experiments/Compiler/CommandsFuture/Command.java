@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMInterpreter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.value.ISourceLocation;
@@ -82,9 +82,9 @@ public class Command {
 		    System.err.println("Loading rvm kernel");
 		}
 
-		RVM rvmKernel = null;
+		RVMInterpreter rvmKernel = null;
 		try {
-		    rvmKernel = RVM.readFromFileAndInitialize(kernelBinaryLocation, rex);
+		    rvmKernel = RVMInterpreter.readFromFileAndInitialize(kernelBinaryLocation, rex);
 		} catch (Exception e) {
 			System.err.println("Cannot initialize kernel: " + e.getMessage());
 			System.exit(-1);

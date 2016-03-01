@@ -6253,7 +6253,7 @@ public enum RascalPrimitive {
 				
 				Function getDefaults = rex.getCompanionDefaultsFunction(consName, tp);
 				
-				if(getDefaults != RVM.noCompanionFunction){
+				if(getDefaults != RVMInterpreter.noCompanionFunction){
 					IValue[] posArgs = new IValue[cons.arity()];
 					for(int i = 0; i < cons.arity(); i++){
 						posArgs[i] = cons.get(i);
@@ -6274,7 +6274,7 @@ public enum RascalPrimitive {
 				
 				Function getFieldDefault = rex.getCompanionFieldDefaultFunction(tp.getAbstractDataType(), fieldName);
 				
-				if(getFieldDefault !=  RVM.noCompanionFunction){
+				if(getFieldDefault !=  RVMInterpreter.noCompanionFunction){
 					IValue[] posArgs = new IValue[0];
 
 					Map<String, IValue> kwArgs = cons.asWithKeywordParameters().getParameters();
@@ -9536,7 +9536,7 @@ public enum RascalPrimitive {
 				Map<String, IValue> setKwArgs =  cons.asWithKeywordParameters().getParameters();
 				String consName = cons.getName();
 				Function getDefaults = rex.getCompanionDefaultsFunction(consName, tp);
-				if(getDefaults != RVM.noCompanionFunction){
+				if(getDefaults != RVMInterpreter.noCompanionFunction){
 					IValue[] posArgs = new IValue[cons.arity()];
 					for(int i = 0; i < cons.arity(); i++){
 						posArgs[i] = cons.get(i);
@@ -9560,7 +9560,7 @@ public enum RascalPrimitive {
 					
 				}
 			} else {
-				return RVM.emptyKeywordMap;
+				return RVMInterpreter.emptyKeywordMap;
 			}
 		}
 		
@@ -9569,7 +9569,7 @@ public enum RascalPrimitive {
 			if(nd.mayHaveKeywordParameters()){
 				return nd.asWithKeywordParameters().getParameters();
 			} else {
-				return RVM.emptyKeywordMap;
+				return RVMInterpreter.emptyKeywordMap;
 			}
 		}
 		

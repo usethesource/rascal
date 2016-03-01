@@ -18,17 +18,17 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 
 public class FunctionInstance implements ICallableCompiledValue, IExternalValue {
 	
-	final Function function;
+	public final Function function;
 	final Frame env;
-	final RVM rvm;
+	final RVMInterpreter rvm;
 	
 	/*
 	 * Records arguments in case of partial parameter binding
 	 */
 	Object[] args;
-	int next = 0;
+	public int next = 0;
 	
-	public FunctionInstance(final Function function, final Frame env, final RVM rvm) {
+	public FunctionInstance(final Function function, final Frame env, final RVMInterpreter rvm) {
 		this.function = function;
 		this.env = env;
 		this.rvm = rvm;
@@ -37,7 +37,7 @@ public class FunctionInstance implements ICallableCompiledValue, IExternalValue 
 	/**
 	 * Assumption: scopeIn != -1; 
 	 */
-	public static FunctionInstance computeFunctionInstance(final Function function, final Frame cf, final int scopeIn, final RVM rvm) {
+	public static FunctionInstance computeFunctionInstance(final Function function, final Frame cf, final int scopeIn, final RVMInterpreter rvm) {
 		assert scopeIn != -1;
 		for(Frame env = cf; env != null; env = env.previousScope) {
 			if (env.scopeId == scopeIn) {
@@ -56,7 +56,7 @@ public class FunctionInstance implements ICallableCompiledValue, IExternalValue 
 	/**
 	 * Assumption: arity <= function.nformals 
 	 */
-	public static FunctionInstance applyPartial(final Function function, final Frame env, final RVM rvm, final int arity, final Object[] stack, final int sp) {
+	public static FunctionInstance applyPartial(final Function function, final Frame env, final RVMInterpreter rvm, final int arity, final Object[] stack, final int sp) {
 		assert arity <= function.nformals;
 		FunctionInstance fun_instance = new FunctionInstance(function, env, rvm);
 		if(arity == 0) {

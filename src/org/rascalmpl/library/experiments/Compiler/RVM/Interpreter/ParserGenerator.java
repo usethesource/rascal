@@ -47,7 +47,7 @@ public class ParserGenerator {
 	private final IValueFactory vf;
 	private final TypeFactory tf;
 	private static ISourceLocation parserGeneratorBinaryLocation;
-	private static RVM rvmParserGenerator;
+	private static RVMInterpreter rvmParserGenerator;
 	private Function getParserMethodNameFunction;
 	private Function newGenerateFunction;
 	private Function createHoleFunction;
@@ -71,7 +71,7 @@ public class ParserGenerator {
 						.setJVM(true)					// options for complete repl
 						.build();
 			try {
-				rvmParserGenerator = RVM.readFromFileAndInitialize(parserGeneratorBinaryLocation, rex2);
+				rvmParserGenerator = RVMInterpreter.readFromFileAndInitialize(parserGeneratorBinaryLocation, rex2);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

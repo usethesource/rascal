@@ -382,7 +382,7 @@ public class BytecodeGenerator implements Opcodes {
 		catchTargetLabels.clear();
 		catchTargets.clear();
 
-		// Create method
+		// Create method	 TODO: make it private
 		mv = cw.visitMethod(ACC_PUBLIC, NameMangler.mangle(f.getName()), "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)Ljava/lang/Object;", null, null);
 		mv.visitCode();
 

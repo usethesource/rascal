@@ -9,7 +9,7 @@ import java.util.HashMap;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.type.Type;
 
-public class RVMJVM extends RVM {
+public class RVMJVM extends RVMInterpreter {
 
 	final RVMExecutable rvmExec;
 	final byte[] generatedByteCode;

@@ -14,7 +14,7 @@ import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NameCompleter;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMInterpreter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
@@ -57,7 +57,7 @@ public class CommandExecutor {
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
 	private final Prelude prelude;
-	private RVM rvmCompiler;
+	private RVMInterpreter rvmCompiler;
 	private final Function compileAndLinkIncremental;
 	
 	private DebugREPLFrameObserver debugObserver;
@@ -128,7 +128,7 @@ public class CommandExecutor {
 					.build();
 		
 		try {
-			rvmCompiler = RVM.readFromFileAndInitialize(compilerBinaryLocation, rex);
+			rvmCompiler = RVMInterpreter.readFromFileAndInitialize(compilerBinaryLocation, rex);
 		} catch (IOException e) {
 			throw new RuntimeException("Cannot initialize: " + e.getMessage());
 		}

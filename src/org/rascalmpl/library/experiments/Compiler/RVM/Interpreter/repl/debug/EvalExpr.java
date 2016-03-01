@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMInterpreter;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
@@ -31,7 +31,7 @@ public class EvalExpr {
 	private static final String expr = "(?<base>" + baseExpr + ")(" + subscript1 + "|" + field1 + ")?(" +  subscript2 + "|" + field2 + ")?" ;
 	private static final Pattern exprPat = Pattern.compile(expr);
 	
-	private static IValue baseValue(String base, RVM rvm, Frame currentFrame){
+	private static IValue baseValue(String base, RVMInterpreter rvm, Frame currentFrame){
 		if(base.matches("[0-9]+")){
 			return vf.integer(Integer.valueOf(base));
 		}
@@ -41,7 +41,7 @@ public class EvalExpr {
 		return getVar(base, rvm, currentFrame);
 	}
 	
-	private static IValue getVar(String base, RVM rvm, Frame currentFrame){
+	private static IValue getVar(String base, RVMInterpreter rvm, Frame currentFrame){
 		for(Frame f = currentFrame; f != null; f = f.previousCallFrame){
 			IValue val = f.getVars().get(base);
 			if(val != null){
@@ -89,7 +89,7 @@ public class EvalExpr {
 		throw new RuntimeException("select: " + base);
 	}
 	
-	static IValue eval(String expr, RVM rvm, Frame currentFrame){
+	static IValue eval(String expr, RVMInterpreter rvm, Frame currentFrame){
 		Matcher matcher = exprPat.matcher(expr);
 
 		try {

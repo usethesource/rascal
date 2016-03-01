@@ -104,7 +104,7 @@ public class ExecutionTools {
 	}
 		
 	public static IValue executeProgram(RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){
-		RVM rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
+		RVMInterpreter rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVMInterpreter(executable, rex);
 		
 		rvm = initializedRVM(executable, rex);
 		
@@ -117,7 +117,7 @@ public class ExecutionTools {
 	 * @param rex				Execution context
 	 * @return					Result of executing program with given parameters in given context
 	 */
-	public static IValue executeProgram(RVM rvm, RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){
+	public static IValue executeProgram(RVMInterpreter rvm, RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){
 		
 		IValue[] arguments = new IValue[0];
 		HashMap<String, IValue> hmKeywordArguments = new HashMap<>();
@@ -182,9 +182,9 @@ public class ExecutionTools {
 	 * @param executable	RVM exectable
 	 * @return				an initialized RVM instance
 	 */
-	 public static RVM initializedRVM(RVMExecutable executable, RascalExecutionContext rex){
+	 public static RVMInterpreter initializedRVM(RVMExecutable executable, RascalExecutionContext rex){
 		
-		RVM rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVM(executable, rex);
+		RVMInterpreter rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVMInterpreter(executable, rex);
 		
 		// Execute initializers of imported modules
 		for(String initializer: executable.getInitializers()){
