@@ -104,7 +104,7 @@ public class ExecutionTools {
 	}
 		
 	public static IValue executeProgram(RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){
-		RVMInterpreter rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVMInterpreter(executable, rex);
+		RVMCore rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVMInterpreter(executable, rex);
 		
 		rvm = initializedRVM(executable, rex);
 		
@@ -117,7 +117,7 @@ public class ExecutionTools {
 	 * @param rex				Execution context
 	 * @return					Result of executing program with given parameters in given context
 	 */
-	public static IValue executeProgram(RVMInterpreter rvm, RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){
+	public static IValue executeProgram(RVMCore rvm, RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){
 		
 		IValue[] arguments = new IValue[0];
 		HashMap<String, IValue> hmKeywordArguments = new HashMap<>();
@@ -136,7 +136,7 @@ public class ExecutionTools {
 				 * Execute as testsuite
 				 */
 				if(!uid_module_init.isEmpty()){
-					rvm.executeProgram("TESTSUITE", executable.getUidModuleInit(), arguments, hmKeywordArguments);
+					rvm.executeRVMProgram("TESTSUITE", executable.getUidModuleInit(), arguments, hmKeywordArguments);
 				}
 
 				IListWriter w = vf.listWriter();
@@ -144,7 +144,7 @@ public class ExecutionTools {
 				for(String uid_testsuite: executable.getTestSuites()){
 					rex.clearCaches();
 					//System.out.println("Testsuite: " + uid_testsuite);
-					IList test_results = (IList)rvm.executeProgram("TESTSUITE" + n++, uid_testsuite, arguments, hmKeywordArguments);
+					IList test_results = (IList)rvm.executeRVMProgram("TESTSUITE" + n++, uid_testsuite, arguments, hmKeywordArguments);
 					w.insertAll(test_results);
 				}
 				result = w.done();
@@ -157,10 +157,10 @@ public class ExecutionTools {
 				}
 				String moduleName = executable.getModuleName();
 				if(!uid_module_init.isEmpty()){
-					rvm.executeProgram(moduleName, executable.getUidModuleInit(), arguments, hmKeywordArguments);
+					rvm.executeRVMProgram(moduleName, executable.getUidModuleInit(), arguments, hmKeywordArguments);
 				}
 				//System.out.println("Initializing: " + (Timing.getCpuTime() - start)/1000000 + "ms");
-				result = rvm.executeProgram(moduleName, executable.getUidModuleMain(), arguments, hmKeywordArguments);
+				result = rvm.executeRVMProgram(moduleName, executable.getUidModuleMain(), arguments, hmKeywordArguments);
 			}
 			//long now = Timing.getCpuTime();
 			MuPrimitive.exit(rvm.getStdOut());
@@ -182,13 +182,13 @@ public class ExecutionTools {
 	 * @param executable	RVM exectable
 	 * @return				an initialized RVM instance
 	 */
-	 public static RVMInterpreter initializedRVM(RVMExecutable executable, RascalExecutionContext rex){
+	 public static RVMCore initializedRVM(RVMExecutable executable, RascalExecutionContext rex){
 		
-		RVMInterpreter rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVMInterpreter(executable, rex);
+		RVMCore rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVMInterpreter(executable, rex);
 		
 		// Execute initializers of imported modules
 		for(String initializer: executable.getInitializers()){
-			rvm.executeProgram("UNDEFINED", initializer, new IValue[0], null);
+			rvm.executeRVMProgram("UNDEFINED", initializer, new IValue[0], null);
 		}
 		
 		return rvm;

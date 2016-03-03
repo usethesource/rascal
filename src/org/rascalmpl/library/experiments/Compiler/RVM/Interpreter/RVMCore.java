@@ -1,36 +1,52 @@
-package org.rascalmpl.library.experiments.Compiler.RVM;
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Coroutine;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunctionInstance;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Reference;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
+import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.types.RascalType;
+
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IDateTime;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IMapWriter;
+import org.rascalmpl.value.INode;
+import org.rascalmpl.value.INumber;
+import org.rascalmpl.value.IRational;
+import org.rascalmpl.value.IReal;
+import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
+import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class RVMCore {
+public abstract class RVMCore {
 	public final IValueFactory vf;
 
 	protected final TypeFactory tf; 
@@ -42,6 +58,8 @@ public class RVMCore {
 	protected Map<String, Integer> functionMap;
 
 	protected ArrayList<Type> constructorStore;
+	
+	protected IFrameObserver frameObserver;
 
 	public final static Function noCompanionFunction = new Function("noCompanionFunction", null, null, 0, 0, false, null, 0, false, 0, 0, null, null, 0);
 	public static final HashMap<String, IValue> emptyKeywordMap = new HashMap<>(0);
@@ -56,6 +74,20 @@ public class RVMCore {
 	protected RascalExecutionContext rex;
 
 	public Map<IValue, IValue> moduleVariables;
+	
+	List<ClassLoader> classLoaders;
+	private final Map<Class<?>, Object> instanceCache;
+	private final Map<String, Class<?>> classCache;
+	
+	public static RVMCore readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex) throws IOException{
+		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
+		return ExecutionTools.initializedRVM(rvmExecutable, rex);
+	}
+
+	public static IValue readFromFileAndExecuteProgram(ISourceLocation rvmBinaryLocation, IMap keywordArguments, RascalExecutionContext rex) throws Exception{
+		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
+		return ExecutionTools.executeProgram(rvmExecutable, keywordArguments, rex);
+	}
 	
 	// An exhausted coroutine instance
 	public static Coroutine exhausted = new Coroutine(null) {
@@ -88,6 +120,12 @@ public class RVMCore {
 
 	public RVMCore( RascalExecutionContext rex){
 		this.rex = rex;
+		rex.setRVM(this);
+		
+		this.instanceCache = new HashMap<Class<?>, Object>();
+		this.classCache = new HashMap<String, Class<?>>();
+		this.classLoaders = rex.getClassLoaders();
+		
 		this.vf = rex.getValueFactory();
 		tf = TypeFactory.getInstance();
 		this.stdout = rex.getStdOut();
@@ -95,6 +133,132 @@ public class RVMCore {
 		NONE = vf.string("$nothing$");
 		moduleVariables = new HashMap<IValue,IValue>();
 	}
+	
+	public Map<IValue, IValue> getModuleVariables() { return moduleVariables; }
+
+	public PrintWriter getStdErr() { return rex.getStdErr(); }
+	
+	public PrintWriter getStdOut() { return rex.getStdOut(); }
+	
+	public IFrameObserver getFrameObserver() {
+		// TODO Auto-generated method stub
+		return frameObserver;
+	}
+	
+	protected String getFunctionName(int n) {
+		for(String fname : functionMap.keySet()) {
+			if(functionMap.get(fname) == n) {
+				return fname;
+			}
+		}
+		throw new CompilerError("Undefined function index " + n);
+	}
+	
+	public String findVarName(Frame cf, int s, int pos){
+		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
+			if (fr.scopeId == s) {
+				return findLocalName(fr, pos);
+			}
+		}
+		return "** unknown variable **";
+	}
+
+	public String findLocalName(Frame cf, int pos){
+		IString name =  ((IString) cf.function.localNames.get(vf.integer(pos)));
+		return (name != null) ? name.getValue() : "** unknown variable **";
+	}
+	
+	public Function getFunction(String name, Type returnType, Type argumentTypes){
+		for(Function f : functionStore){
+			if(f.name.contains("/" + name + "(") && f.ftype instanceof FunctionType){
+				FunctionType ft = (FunctionType) f.ftype;
+				if(returnType.equals(ft.getReturnType()) &&
+				   argumentTypes.equals(ft.getArgumentTypes())){
+					return f;
+				}
+			}
+		}
+		return null;
+	}
+	
+	public Function getCompanionDefaultsFunction(String name, Type ftype){
+		all:
+			for(Function f : functionStore){
+				//if(f.name.contains("companion")) System.err.println("getCompanionDefaultsFunction " + f.name);
+				if(f.name.contains("companion-defaults") && 
+						f.name.contains("::" + name + "(")){
+					FunctionType ft = (FunctionType) f.ftype;
+					if(ftype.getAbstractDataType().equals(ft.getReturnType())){
+						if(ftype.isAbstractData()){
+							//System.err.println("getCompanionDefaultsFunction1: " + name + ", " + ftype);
+							return f;
+						}
+						if(ftype.getFieldTypes().getArity() == ft.getArgumentTypes().getArity()){
+							for(int i = 0; i < ftype.getFieldTypes().getArity(); i++){
+								if(!ftype.getFieldType(i).equals(ft.getArgumentTypes().getFieldType(i))){
+									continue all;
+								}
+							}
+							//System.err.println("getCompanionDefaultsFunction2: " + name + ", " + ftype);
+							return f;
+						}
+					}
+				}
+			}
+		//System.err.println("getCompanionDefaultsFunction3: " + name + ", " + ftype);
+		return noCompanionFunction;
+	}
+	
+	public Function getCompanionFieldDefaultFunction(Type adtType, String fieldName){
+		String key = adtType.toString() + "::" + fieldName + "-companion-default";
+		for(Function f : functionStore){
+			if(f.name.equals(key)){
+				return f;
+			}
+		}
+		return noCompanionFunction;
+	}
+	
+	public Frame makeFrameForVisit(FunctionInstance func){
+		return new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
+	}
+	
+	/**
+	 * execute a single function, not-overloaded, function
+	 * 
+	 * @param uid_func	Internal function name
+	 * @param posArgs	Arguments
+	 * @param kwArgs	Keyword arguments
+	 * @return
+	 */
+	public Object executeRVMFunction(String uid_func, IValue[] posArgs, Map<String,IValue> kwArgs){
+		// Assumption here is that the function called is not a nested one
+		// and does not use global variables
+		Function func = functionStore.get(functionMap.get(uid_func));
+		return executeRVMFunction(func, posArgs, kwArgs);
+	}
+	
+	/************************************************************************************/
+	/*		Abstract methods to execute RVMFunctions and RVMPrograms					*/
+	/************************************************************************************/
+		
+	/**
+	 * execute a single function, on-overloaded, function
+	 * 
+	 * @param func		Function instance
+	 * @param posArgs	Argumens
+	 * @param kwArgs	Keyword arguments
+	 * @return
+	 */
+	abstract public Object executeRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs);
+	
+	abstract public IValue executeRVMFunction(FunctionInstance func, IValue[] args);
+	
+	abstract public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] args);
+
+	abstract public IValue executeRVMFunctionInVisit(Frame root);
+	
+	abstract public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs);
 	
 	/**
 	 * Narrow an Object as occurring on the RVM runtime stack to an IValue that can be returned.
@@ -226,7 +390,7 @@ public class RVMCore {
 	
 	/********************************************************************************/
 	/*			Auxiliary functions that implement specific instructions and are	*/
-	/*  		used by RVM interpreter and generated JVM bytecod					*/
+	/*  		used both by RVM interpreter and generated JVM bytecod				*/
 	/********************************************************************************/
 	
 	// LOAD/PUSH VAR
@@ -554,5 +718,331 @@ public class RVMCore {
 		stdout.println(w.toString());
 		sp = sp - arity + 1;
 		return sp;
+	}
+	
+	public Class<?> getJavaClass(String className){
+		Class<?> clazz = classCache.get(className);
+		if(clazz != null){
+			return clazz;
+		}
+		try {
+			clazz = this.getClass().getClassLoader().loadClass(className);
+		} catch(ClassNotFoundException e1) {
+			// If the class is not found, try other class loaders
+			for(ClassLoader loader : this.classLoaders) {
+				try {
+					clazz = loader.loadClass(className);
+					break;
+				} catch(ClassNotFoundException e2) {
+					;
+				}
+			}
+		}
+		if(clazz == null) {
+			throw new CompilerError("Class " + className + " not found");
+		}
+		classCache.put(className, clazz);
+		return clazz;
+	}
+	
+	public Object getJavaClassInstance(Class<?> clazz){
+		Object instance = instanceCache.get(clazz);
+		if (instance != null){
+			return instance;
+		}
+		try {
+			Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
+			instance = constructor.newInstance(vf);
+			instanceCache.put(clazz, instance);
+			return instance;
+		} catch (IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException | SecurityException | NoSuchMethodException e) {
+			throw new ImplementationError(e.getMessage(), e);
+		} 
+	}
+	
+	int callJavaMethod(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw, Throwable {
+		Class<?> clazz = null;
+		try {
+			clazz = getJavaClass(className);
+			Object instance = getJavaClassInstance(clazz);
+			
+			Method m = clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
+			int arity = parameterTypes.getArity();
+			int kwArity = keywordTypes.getArity();
+			int kwMaps = kwArity > 0 ? 2 : 0;
+			Object[] parameters = new Object[arity + kwArity + reflect];
+			for(int i = arity - 1; i >= 0; i--){
+				parameters[i] = stack[sp - arity - kwMaps + i];
+			}
+
+			if(kwArity > 0){
+				@SuppressWarnings("unchecked")
+				Map<String, IValue> kwMap = (Map<String, IValue>) stack[sp - 2];
+				@SuppressWarnings("unchecked")
+				Map<String, Map.Entry<Type, IValue>> kwDefaultMap = (Map<String, Map.Entry<Type, IValue>>) stack[sp - 1];
+				
+				for(int i = arity + kwArity - 1; i >= arity; i--){
+					String key = keywordTypes.getFieldName(i - arity);
+					IValue val = kwMap.get(key);
+					if(val == null){
+						val = kwDefaultMap.get(key).getValue();
+					}
+					parameters[i] = val;
+				}
+			}
+			
+			if(reflect == 1) {
+				parameters[arity + kwArity] = converted.contains(className + "." + methodName) ? this.rex : null /*this.getEvaluatorContext()*/; // TODO: remove CTX
+			}
+			stack[sp - arity - kwMaps] =  m.invoke(instance, parameters);
+			return sp - arity - kwMaps + 1;
+		} 
+		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException e) {
+			throw new CompilerError("could not call Java method", e);
+		} 
+		catch (InvocationTargetException e) {
+			if(e.getTargetException() instanceof Throw) {
+				throw (Throw) e.getTargetException();
+			}
+			if(e.getTargetException() instanceof Thrown){
+				throw (Thrown) e.getTargetException();
+			}
+			
+			throw e.getTargetException();
+//			e.printStackTrace();
+		}
+//		return sp;
+	}
+	
+	private HashSet<String> converted = new HashSet<String>(Arrays.asList(
+			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment",
+			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram.executeProgram",
+			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.startCoverage",
+			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.stopCoverage",
+			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.getCoverage",
+			"org.rascalmpl.library.experiments.Compiler.ProfileCompiled.startProfile",
+			"org.rascalmpl.library.experiments.Compiler.ProfileCompiled.stopProfile",
+			"org.rascalmpl.library.experiments.Compiler.ProfileCompiled.getProfile",
+			"org.rascalmpl.library.experiments.Compiler.ProfileCompiled.reportProfile",
+			
+			"org.rascalmpl.library.lang.csv.IOCompiled.readCSV",
+			"org.rascalmpl.library.lang.csv.IOCompiled.getCSVType",
+			"org.rascalmpl.library.lang.csv.IOCompiled.writeCSV",
+			"org.rascalmpl.library.lang.json.IOCompiled.fromJSON",
+			
+			"org.rascalmpl.library.PreludeCompiled.delAnnotation",
+			"org.rascalmpl.library.PreludeCompiled.delAnnotations",
+			"org.rascalmpl.library.PreludeCompiled.implode",
+			"org.rascalmpl.library.PreludeCompiled.parse",
+			"org.rascalmpl.library.PreludeCompiled.print",
+			"org.rascalmpl.library.PreludeCompiled.println",
+			"org.rascalmpl.library.PreludeCompiled.iprint",
+			"org.rascalmpl.library.PreludeCompiled.iprintln",
+			"org.rascalmpl.library.PreludeCompiled.rprint",
+			"org.rascalmpl.library.PreludeCompiled.rprintln",
+			"org.rascalmpl.library.PreludeCompiled.sort",
+			"org.rascalmpl.library.util.MonitorCompiled.startJob",
+			"org.rascalmpl.library.util.MonitorCompiled.event",
+			"org.rascalmpl.library.util.MonitorCompiled.endJob",
+			"org.rascalmpl.library.util.MonitorCompiled.todo",
+			"org.rascalmpl.library.util.ReflectiveCompiled.parseModule",
+			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
+			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation",
+			"org.rascalmpl.library.util.ReflectiveCompiled.inCompiledMode",
+			"org.rascalmpl.library.util.ReflectiveCompiled.diff",
+			"org.rascalmpl.library.util.ReflectiveCompiled.watch"
+
+			/*
+			 * 	TODO:
+			 * cobra::util::outputlogger::startLog
+			 * cobra::util::outputlogger::getLog
+			 * cobra::quickcheck::_quickcheck
+			 * cobra::quickcheck::arbitrary
+			 * 
+			 * experiments::resource::Resource::registerResource
+			 * experiments::resource::Resource::getTypedResource
+			 * experiments::resource::Resource::generateTypedInterfaceInternal
+			
+			 * experiments::vis2::vega::Vega::color
+			 * 
+			 * lang::aterm::IO::readTextATermFile
+			 * lang::aterm::IO::writeTextATermFile
+			 * 
+			 * lang::html::IO::readHTMLFile
+			 * 
+			 * lang::java::m3::AST::setEnvironmentOptions
+			 * lang::java::m3::AST::createAstFromFile
+			 * lang::java::m3::AST::createAstFromString
+			 * lang::java::m3::Core::createM3FromFile
+			 * lang::java::m3::Core::createM3FromFile
+			 *  lang::java::m3::Core::createM3FromJarClass
+			 *  
+			 *  lang::jvm::run::RunClassFile::runClassFile
+			 *  lang::jvm::transform::SerializeClass::serialize
+			 *  
+			 *  lang::rsf::IO::readRSF
+			 *  lang::rsf::IO::getRSFTypes
+			 *  lang::rsf::IO::readRSFRelation
+			 *  
+			 *  lang::yaml::Model::loadYAML
+			 *  lang::yaml::Model::dumpYAML
+			 *  
+			 *  resource::jdbc::JDBC::registerJDBCClass
+			 *  util::tasks::Manager
+			 *  util::Eval
+			 *  util::Monitor
+			 *  util::Reflective
+			 *  
+			 *  util::Webserver
+			 *  
+			 *  vis::Figure::color
+			 *  
+			 *  Traversal::getTraversalContext
+			 *  
+			 *  tutor::HTMLGenerator
+			 *  
+			 *  **eclipse**
+			 *  util::Editors
+			 *  util::FastPrint
+			 *  util::HtmlDisplay
+			 *  util::IDE
+			 *  util::ResourceMarkers
+			 *  vis::Render
+			 *  vis::RenderSWT
+			 *  
+			 */
+	));
+			
+	Class<?>[] makeJavaTypes(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect){
+		JavaClasses javaClasses = new JavaClasses();
+		int arity = parameterTypes.getArity();
+		int kwArity = keywordTypes.getArity();
+		Class<?>[] jtypes = new Class<?>[arity + kwArity + reflect];
+		
+		int i = 0;
+		while(i < parameterTypes.getArity()){
+			jtypes[i] = parameterTypes.getFieldType(i).accept(javaClasses);
+			i++;
+		}
+		
+		while(i < arity + kwArity){
+			jtypes[i] = keywordTypes.getFieldType(i -  arity).accept(javaClasses);
+			i++;
+		}
+		
+		if(reflect == 1) {
+			jtypes[arity + kwArity] = converted.contains(className + "." + methodName) 
+									  ? RascalExecutionContext.class 
+									  : IEvaluatorContext.class;				// TODO: remove CTX
+		}
+		return jtypes;
+	}
+
+	private static class JavaClasses extends DefaultRascalTypeVisitor<Class<?>, RuntimeException> {
+
+		public JavaClasses() {
+			super(IValue.class);
+		}
+
+		@Override
+		public Class<?> visitNonTerminal(RascalType type)
+				throws RuntimeException {
+			return IConstructor.class;
+		}
+		
+		@Override
+		public Class<?> visitBool(org.rascalmpl.value.type.Type boolType) {
+			return IBool.class;
+		}
+
+		@Override
+		public Class<?> visitReal(org.rascalmpl.value.type.Type type) {
+			return IReal.class;
+		}
+
+		@Override
+		public Class<?> visitInteger(org.rascalmpl.value.type.Type type) {
+			return IInteger.class;
+		}
+		
+		@Override
+		public Class<?> visitRational(org.rascalmpl.value.type.Type type) {
+			return IRational.class;
+		}
+		
+		@Override
+		public Class<?> visitNumber(org.rascalmpl.value.type.Type type) {
+			return INumber.class;
+		}
+
+		@Override
+		public Class<?> visitList(org.rascalmpl.value.type.Type type) {
+			return IList.class;
+		}
+
+		@Override
+		public Class<?> visitMap(org.rascalmpl.value.type.Type type) {
+			return IMap.class;
+		}
+
+		@Override
+		public Class<?> visitAlias(org.rascalmpl.value.type.Type type) {
+			return type.getAliased().accept(this);
+		}
+
+		@Override
+		public Class<?> visitAbstractData(org.rascalmpl.value.type.Type type) {
+			return IConstructor.class;
+		}
+
+		@Override
+		public Class<?> visitSet(org.rascalmpl.value.type.Type type) {
+			return ISet.class;
+		}
+
+		@Override
+		public Class<?> visitSourceLocation(org.rascalmpl.value.type.Type type) {
+			return ISourceLocation.class;
+		}
+
+		@Override
+		public Class<?> visitString(org.rascalmpl.value.type.Type type) {
+			return IString.class;
+		}
+
+		@Override
+		public Class<?> visitNode(org.rascalmpl.value.type.Type type) {
+			return INode.class;
+		}
+
+		@Override
+		public Class<?> visitConstructor(org.rascalmpl.value.type.Type type) {
+			return IConstructor.class;
+		}
+
+		@Override
+		public Class<?> visitTuple(org.rascalmpl.value.type.Type type) {
+			return ITuple.class;
+		}
+
+		@Override
+		public Class<?> visitValue(org.rascalmpl.value.type.Type type) {
+			return IValue.class;
+		}
+
+		@Override
+		public Class<?> visitVoid(org.rascalmpl.value.type.Type type) {
+			return null;
+		}
+
+		@Override
+		public Class<?> visitParameter(org.rascalmpl.value.type.Type parameterType) {
+			return parameterType.getBound().accept(this);
+		}
+
+		@Override
+		public Class<?> visitDateTime(Type type) {
+			return IDateTime.class;
+		}
 	}
 }

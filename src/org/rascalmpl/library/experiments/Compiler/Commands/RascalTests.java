@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.Commands;
 import java.io.PrintWriter;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMInterpreter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
@@ -59,9 +60,9 @@ public class RascalTests {
                 .forModule(cmdOpts.getRascalModule().getValue())
                 .build();
 		
-		RVMInterpreter rvmKernel = null;
+		RVMCore rvmKernel = null;
 		try {
-			rvmKernel = RVMInterpreter.readFromFileAndInitialize(cmdOpts.getKernelLocation(), rex);
+			rvmKernel = RVMCore.readFromFileAndInitialize(cmdOpts.getKernelLocation(), rex);
 		} catch (Exception e) {
 			System.err.println("Cannot initialize kernel: " + e.getMessage());
 			System.exit(-1);
@@ -87,6 +88,6 @@ public class RascalTests {
 				cmdOpts.getCommandLocOption("bootDir"),
 				cmdOpts.getCommandLocOption("binDir"),
 		};
-		rvmKernel.executeFunction(rascalTestsFunction, mainWithPostionalArgs, cmdOpts.getModuleOptions());
+		rvmKernel.executeRVMFunction(rascalTestsFunction, mainWithPostionalArgs, cmdOpts.getModuleOptions());
 	}
 }

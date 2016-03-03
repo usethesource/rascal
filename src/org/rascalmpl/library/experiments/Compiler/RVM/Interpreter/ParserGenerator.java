@@ -47,7 +47,7 @@ public class ParserGenerator {
 	private final IValueFactory vf;
 	private final TypeFactory tf;
 	private static ISourceLocation parserGeneratorBinaryLocation;
-	private static RVMInterpreter rvmParserGenerator;
+	private static RVMCore rvmParserGenerator;
 	private Function getParserMethodNameFunction;
 	private Function newGenerateFunction;
 	private Function createHoleFunction;
@@ -71,7 +71,7 @@ public class ParserGenerator {
 						.setJVM(true)					// options for complete repl
 						.build();
 			try {
-				rvmParserGenerator = RVMInterpreter.readFromFileAndInitialize(parserGeneratorBinaryLocation, rex2);
+				rvmParserGenerator = RVMCore.readFromFileAndInitialize(parserGeneratorBinaryLocation, rex2);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -171,7 +171,7 @@ public class ParserGenerator {
 	 */
 	public String getParserMethodName(IConstructor symbol, RascalExecutionContext rex) {
 	  if(useCompiledParserGenerator){
-		  return ((IString) rvmParserGenerator.executeFunction(getParserMethodNameFunction, new IValue[]{ symbol }, new HashMap<String, IValue>())).getValue();
+		  return ((IString) rvmParserGenerator.executeRVMFunction(getParserMethodNameFunction, new IValue[]{ symbol }, new HashMap<String, IValue>())).getValue();
 	  } else {
 		  return ((IString) evaluator.call((IRascalMonitor) null, "getParserMethodName", symbol)).getValue();
 	  }
@@ -215,7 +215,7 @@ public class ParserGenerator {
 		  rex.event("Generating java source code for parser: " + name,30);
 		  IString classString;
 		  if(useCompiledParserGenerator){
-			  classString = (IString) rvmParserGenerator.executeFunction(newGenerateFunction, new IValue[]{ vf.string(packageName), vf.string(normName), grammar }, new HashMap<String, IValue>());
+			  classString = (IString) rvmParserGenerator.executeRVMFunction(newGenerateFunction, new IValue[]{ vf.string(packageName), vf.string(normName), grammar }, new HashMap<String, IValue>());
 		  } else {
 			  classString = (IString) evaluator.call(rex.getMonitor(), "newGenerate", vf.string(packageName), vf.string(normName), grammar);
 		  }
@@ -233,7 +233,7 @@ public class ParserGenerator {
 
   public String createHole(IConstructor part, int size, RascalExecutionContext rex) {
 	  if(useCompiledParserGenerator){
-		  return ((IString) rvmParserGenerator.executeFunction(createHoleFunction, new IValue[]{ part, vf.integer(size) }, new HashMap<String, IValue>())).getValue();
+		  return ((IString) rvmParserGenerator.executeRVMFunction(createHoleFunction, new IValue[]{ part, vf.integer(size) }, new HashMap<String, IValue>())).getValue();
 	  } else {
 		  return ((IString) evaluator.call("createHole", part, vf.integer(size))).getValue();
 	  }
