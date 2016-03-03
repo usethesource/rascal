@@ -14,6 +14,7 @@ import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NameCompleter;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMInterpreter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
@@ -57,7 +58,7 @@ public class CommandExecutor {
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
 	private final Prelude prelude;
-	private RVMInterpreter rvmCompiler;
+	private RVMCore rvmCompiler;
 	private final Function compileAndLinkIncremental;
 	
 	private DebugREPLFrameObserver debugObserver;
@@ -128,7 +129,7 @@ public class CommandExecutor {
 					.build();
 		
 		try {
-			rvmCompiler = RVMInterpreter.readFromFileAndInitialize(compilerBinaryLocation, rex);
+			rvmCompiler = RVMCore.readFromFileAndInitialize(compilerBinaryLocation, rex);
 		} catch (IOException e) {
 			throw new RuntimeException("Cannot initialize: " + e.getMessage());
 		}
@@ -212,7 +213,7 @@ public class CommandExecutor {
 			compileArgs[1] = vf.bool(onlyMainChanged && !forceRecompilation);
 			
 //			System.err.println("reuseConfig = " + compileArgs[1]);
-			IConstructor consoleRVMProgram = (IConstructor) rvmCompiler.executeFunction(compileAndLinkIncremental, compileArgs, makeCompileKwParams());
+			IConstructor consoleRVMProgram = (IConstructor) rvmCompiler.executeRVMFunction(compileAndLinkIncremental, compileArgs, makeCompileKwParams());
 			IConstructor main_module = (IConstructor) consoleRVMProgram.get("main_module");
 			ISet messages = (ISet) main_module.get("messages");
 			if(noErrors(modString, messages)){

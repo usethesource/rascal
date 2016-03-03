@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMInterpreter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
@@ -39,13 +40,13 @@ public class DebugREPL extends BaseREPL{
 	private Frame currentFrame;
 	private final Frame startFrame;
 	private String previousCommand;
-	private final RVMInterpreter rvm;
+	private final RVMCore rvm;
 
 	private final BreakPointManager breakPointManager;
 
-	public DebugREPL(RVMInterpreter rvm, Frame frame, BreakPointManager breakPointManager, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException{
+	public DebugREPL(RVMCore rvm2, Frame frame, BreakPointManager breakPointManager, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException{
 		super(stdin, stdout, prettyPrompt, allowColors, new File(file.getAbsolutePath() + "-debug"), terminal);
-		this.rvm = rvm;
+		this.rvm = rvm2;
 		this.currentFrame = frame;
 		this.startFrame = frame;
 		setPrompt();

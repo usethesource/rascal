@@ -1,5 +1,15 @@
 module experiments::Compiler::Examples::Tst1
 
+import ParseTree;
+
+syntax A = "a";
+
 value main() {
- return (false || any(c <- [0..3]));
+  try {
+    parse(#A,"b");
+    return false;
+  }
+  catch value x: {
+    return true;
+  }
 }

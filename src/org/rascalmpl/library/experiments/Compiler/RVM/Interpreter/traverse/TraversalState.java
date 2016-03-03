@@ -159,7 +159,7 @@ public class TraversalState {
 		for(int i = stackStartOfOtherLocals; i < stackEnd; i++){
 			frame.stack[i] = null;
 		}
-		IValue res = rvm.executeFunctionInVisit(frame);
+		IValue res = rvm.executeRVMFunctionInVisit(frame);
 		
 		matched = getRefMatched();	// Copy values of reference variables back to fields
 		changed = getRefChanged();

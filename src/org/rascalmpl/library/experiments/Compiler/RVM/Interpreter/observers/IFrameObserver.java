@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMInterpreter;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -18,13 +18,13 @@ public interface IFrameObserver {
 	
 	default void report(IList data) { }
 	
-	default void setRVM(RVMInterpreter rvm) { }
+	default void setRVM(RVMCore rvm) { }
 	
-	default RVMInterpreter getRVM() { throw new RuntimeException("No access to RVM availabe"); }
+	default RVMCore getRVM() { throw new RuntimeException("No access to RVM availabe"); }
 	
 	default boolean observe(Frame frame) { return true; }
 	
-	default boolean observeRVM(RVMInterpreter rvm, Frame frame, int pc, Object[] stack, int sp, Object accu) { return true; }
+	default boolean observeRVM(RVMCore rvm, Frame frame, int pc, Object[] stack, int sp, Object accu) { return true; }
 	
 	default boolean enter(Frame frame) { return true; }
 	

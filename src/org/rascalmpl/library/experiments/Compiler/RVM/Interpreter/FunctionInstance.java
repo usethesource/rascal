@@ -137,7 +137,7 @@ public class FunctionInstance implements ICallableCompiledValue, IExternalValue 
 			}
 		}
 		args[i] = kwargs.done();
-		IValue rval = rvm.executeFunction(this, args);
+		IValue rval = rvm.executeRVMFunction(this, args);
 		return rval;
 	}
 

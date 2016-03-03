@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMInterpreter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
@@ -22,7 +23,7 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	private final Terminal terminal;
 	private final BreakPointManager breakPointManager;
 	
-	private RVMInterpreter rvm;
+	private RVMCore rvm;
 	
 	public DebugREPLFrameObserver(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal, PathConfig pcfg) throws IOException{
 		this.stdin = stdin;
@@ -48,11 +49,11 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 		//return breakPointManager.hasEnabledBreakPoints() ? this : null;
 	}
 	
-	@Override public void setRVM(RVMInterpreter rvm){
+	@Override public void setRVM(RVMCore rvm){
 		this.rvm = rvm;
 	}
 	
-	@Override public RVMInterpreter getRVM(){
+	@Override public RVMCore getRVM(){
 		return rvm;
 	}
 	

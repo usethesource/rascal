@@ -157,7 +157,7 @@ public IValue call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues,
 		}
 	}
 	args[i] = kwargs.done();
-	IValue rval = rvm.executeFunction(this, args);
+	IValue rval = rvm.executeRVMFunction(this, args);
 	return rval;
 }
 

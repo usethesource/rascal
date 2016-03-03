@@ -5,6 +5,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.type.Type;
@@ -65,31 +66,31 @@ public class RVMJVM extends RVMInterpreter {
 	}
 	
 	@Override
-	public IValue executeProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs) {
-
-		rex.setCurrentModuleName(moduleName);
-
-		Function main_function = functionStore.get(functionMap.get(uid_main));
-
-		if (main_function == null) {
-			throw new RuntimeException("PANIC: No function " + uid_main + " found");
-		}
+	public Object executeRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs){
+		// Assumption here is that the function called is not a nested one
+		// and does not use global variables
+		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
+		Frame cf = root;
 		
-		generatedClassInstance.dynRun(uid_main, args);
-		Object o = generatedClassInstance.returnValue;
-		if (o != null && o instanceof Thrown) {
-			throw (Thrown) o;
+		// Pass the program arguments to main
+		for(int i = 0; i < posArgs.length; i++){
+			cf.stack[i] = posArgs[i]; 
 		}
-		return narrow(o);
+		cf.stack[func.nformals-1] =  kwArgs; // new HashMap<String, IValue>();
+		cf.sp = func.getNlocals();
+		//cf.stack[func.nformals] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;
+		generatedClassInstance.dynRun(func.funId, cf);
+		
+		Object returnValue = generatedClassInstance.returnValue;
+		if(returnValue instanceof Thrown){
+			throw (Thrown) returnValue;
+		}
+		return returnValue;
 	}
 
-	protected Object executeProgram(Frame root, Frame cf) {
-		generatedClassInstance.dynRun(root.function.funId, root);
-		return generatedClassInstance.returnValue;
-	}
-	
+	// Implements abstract function for RVMonJVM
 	@Override
-	public IValue executeFunction(OverloadedFunctionInstance func, IValue[] args){		
+	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] args){		
 		Function firstFunc = functionStore.get(func.getFunctions()[0]); // TODO: null?
 		int arity = args.length;
 		int scopeId = func.env.scopeId;
@@ -107,7 +108,7 @@ public class RVMJVM extends RVMInterpreter {
 		Frame frame = ofunCall.nextFrame(functionStore);
 		while (frame != null) {
 			Object rsult = generatedClassInstance.dynRun(frame.function.funId, frame);
-			if (rsult == generatedClassInstance.NONE) {
+			if (rsult == NONE) {
 				return narrow(generatedClassInstance.returnValue); // Alternative matched.
 			}
 			frame = ofunCall.nextFrame(functionStore);
@@ -115,5 +116,30 @@ public class RVMJVM extends RVMInterpreter {
 		Type constructor = ofunCall.nextConstructor(constructorStore);
 
 		return vf.constructor(constructor, ofunCall.getConstructorArguments(constructor.getArity()));
+	}
+
+	// Implements abstract function for RVMonJVM
+	@Override
+	public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs) {
+
+		rex.setCurrentModuleName(moduleName);
+
+		Function main_function = functionStore.get(functionMap.get(uid_main));
+
+		if (main_function == null) {
+			throw new RuntimeException("PANIC: No function " + uid_main + " found");
+		}
+
+		//Thrown oldthrown = generatedClassInstance.thrown;	// <===
+		
+		generatedClassInstance.dynRun(uid_main, args);
+		
+		//generatedClassInstance.thrown = oldthrown;
+		
+		Object returnValue = generatedClassInstance.returnValue;
+		if (returnValue != null && returnValue instanceof Thrown) {
+			throw (Thrown) returnValue;
+		}
+		return narrow(returnValue);
 	}
 }

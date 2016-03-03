@@ -6262,7 +6262,7 @@ public enum RascalPrimitive {
 					Map<String, IValue> kwArgs = cons.asWithKeywordParameters().getParameters();
 
 					@SuppressWarnings("unchecked")
-					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeFunction(getDefaults, posArgs, kwArgs);
+					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeRVMFunction(getDefaults, posArgs, kwArgs);
 					Entry<Type, IValue> def = defaults.get(fieldName);
 					if(def != null){
 						stack[sp - 3] = def.getValue();
@@ -6279,7 +6279,7 @@ public enum RascalPrimitive {
 
 					Map<String, IValue> kwArgs = cons.asWithKeywordParameters().getParameters();
 
-					IValue defaultValue = (IValue) rex.getRVM().executeFunction(getFieldDefault, posArgs, kwArgs);
+					IValue defaultValue = (IValue) rex.getRVM().executeRVMFunction(getFieldDefault, posArgs, kwArgs);
 				
 					stack[sp - 3] = defaultValue;
 					return sp - 2;
@@ -7682,7 +7682,7 @@ public enum RascalPrimitive {
 //					for(String fname : rex.getRVM().functionMap.keySet()){
 //						if(fname.contains("companion")) System.err.println("testreport_add: " + fname);
 //					}
-					IValue res = (IValue) rex.getRVM().executeFunction(fun, args, null); 
+					IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null); 
 					//System.err.println("After executing test " + fun);
 					passed = ((IBool) res).getValue();
 					if(!passed){
@@ -9543,7 +9543,7 @@ public enum RascalPrimitive {
 					}
 					
 					@SuppressWarnings("unchecked")
-					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeFunction(getDefaults, posArgs, setKwArgs);
+					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeRVMFunction(getDefaults, posArgs, setKwArgs);
 
 					HashMap<String, IValue> allKwArgs = new HashMap<>(defaults.size());
 					for(String key : defaults.keySet()){

@@ -81,7 +81,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private RascalSearchPath rascalSearchPath;
 	
 	private String currentModuleName;
-	private RVMInterpreter rvm;
+	private RVMCore rvm;
 	private boolean coverage;
 	private boolean jvm;
 	private final IMap moduleTags;
@@ -377,12 +377,12 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	boolean getTrackCalls() { return trackCalls; }
 	
-	public RVMInterpreter getRVM(){ return rvm; }
+	public RVMCore getRVM(){ return rvm; }
 	
-	protected void setRVM(RVMInterpreter rvm){ 
-		this.rvm = rvm;
+	protected void setRVM(RVMCore rvmCore){ 
+		this.rvm = rvmCore;
 		if(frameObserver != null){
-			frameObserver.setRVM(rvm);
+			frameObserver.setRVM(rvmCore);
 		}
 	}
 	

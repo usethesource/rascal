@@ -15,7 +15,9 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -65,9 +67,36 @@ public class RVMonJVM extends RVMInterpreter {
 		FAILRETURN = vf.string("$failreturn$");
 		PANIC = vf.string("$panic$");
 	}
-
+	
+	/************************************************************************************/
+	/*		Implementation of abstract methods in RVMCore for RVMonJVM					*/
+	/************************************************************************************/
+	
 	@Override
-	public IValue executeFunction(FunctionInstance func, IValue[] args) {
+	public Object executeRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs){
+		// Assumption here is that the function called is not a nested one
+		// and does not use global variables
+		Frame root = new Frame(func.scopeId, null, func.maxstack, func);
+		Frame cf = root;
+		
+		// Pass the program arguments to main
+		for(int i = 0; i < posArgs.length; i++){
+			cf.stack[i] = posArgs[i]; 
+		}
+		cf.stack[func.nformals-1] =  kwArgs; // new HashMap<String, IValue>();
+		cf.sp = func.getNlocals();
+		//cf.stack[func.nformals] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;
+		
+		dynRun(func.funId, cf);
+		if(returnValue instanceof Thrown){
+			throw (Thrown) returnValue;
+		}
+		return returnValue;
+	}
+
+	// Implements abstract function for RVMonJVM
+	@Override
+	public IValue executeRVMFunction(FunctionInstance func, IValue[] args) {
 
 		Thrown oldthrown = thrown;
 
@@ -87,6 +116,73 @@ public class RVMonJVM extends RVMInterpreter {
 			throw (Thrown) returnValue;
 		}
 		return narrow(returnValue);
+	}
+	
+	// Implements abstract function for RVMonJVM
+	@Override
+	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] args){		
+		Function firstFunc = functionStore.get(func.getFunctions()[0]); // TODO: null?
+		int arity = args.length;
+		int scopeId = func.env.scopeId;
+		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
+
+		// Pass the program arguments to func
+		for(int i = 0; i < args.length; i++) {
+			root.stack[i] = args[i]; 
+		}
+		root.sp = args.length;
+		root.previousCallFrame = null;
+
+		OverloadedFunctionInstanceCall ofunCall = new OverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), func.env, null, arity);
+
+		Frame frame = ofunCall.nextFrame(functionStore);
+		while (frame != null) {
+			Object rsult = dynRun(frame.function.funId, frame);
+			if (rsult == NONE) {
+				return narrow(returnValue); // Alternative matched.
+			}
+			frame = ofunCall.nextFrame(functionStore);
+		}
+		Type constructor = ofunCall.nextConstructor(constructorStore);
+
+		return vf.constructor(constructor, ofunCall.getConstructorArguments(constructor.getArity()));
+	}
+	
+	// Implements abstract function for RVMonJVM
+	@Override
+	public IValue executeRVMFunctionInVisit(Frame root){
+		root.sp = root.function.getNlocals();	// TODO: should be done at frame creation.
+		dynRun(root.function.funId, root);
+
+		if(returnValue instanceof Thrown){
+			throw (Thrown) returnValue;
+		}
+		return (IValue) returnValue;
+		}
+	
+	// Implements abstract function for RVMonJVM
+	@Override
+	public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs) {
+
+		rex.setCurrentModuleName(moduleName);
+
+		Function main_function = functionStore.get(functionMap.get(uid_main));
+
+		if (main_function == null) {
+			throw new RuntimeException("PANIC: No function " + uid_main + " found");
+		}
+		
+		//Thrown oldthrown = thrown;	//<===
+		
+		dynRun(uid_main, args);
+		
+		//thrown = oldthrown;
+		
+		Object o = returnValue;
+		if (o != null && o instanceof Thrown) {
+			throw (Thrown) o;
+		}
+		return narrow(o);
 	}
 	
 	/********************************************************************************************/
@@ -220,10 +316,12 @@ public class RVMonJVM extends RVMInterpreter {
 		} catch (Throw e) {
 			//stacktrace.add(cf);
 			thrown = Thrown.getInstance(e.getException(), e.getLocation(), cf);
+			throw thrown; // <===
 			// postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
 		} catch (Thrown e) {
 			//stacktrace.add(cf);
 			thrown = e;
+			throw thrown;	// <===
 			// postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
 		} catch (Exception e) {
 			e.printStackTrace(stderr);
