@@ -16,6 +16,7 @@ import java.util.TreeMap;
 import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext but not by the methods called here
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
@@ -44,6 +45,7 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.InvalidDateTimeException;
+import org.rascalmpl.value.impl.util.collections.ShareableValuesHashSet;
 import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
@@ -7973,8 +7975,14 @@ public enum RascalPrimitive {
 			int indexArity = arity - 1;
 			int relArity = rel.getElementType().getArity();
 			assert indexArity < relArity ;
-			int resArity = relArity - indexArity;
+			
 			IValue[] indices = new IValue[indexArity];
+			Type subscriptType[] = new Type[indexArity];
+			boolean subscriptIsSet[] = new boolean[indexArity];
+			
+			boolean yieldSet = (relArity - indexArity) == 1;
+			Type resFieldType[] = new Type[relArity - indexArity];
+			
 			for(int i = 0; i < indexArity; i++ ){
 				indices[i] = (IValue) stack[sp - arity + i + 1];
 				if(indices[i].getType().isString()){
@@ -7982,32 +7990,61 @@ public enum RascalPrimitive {
 					if(s.equals("_"))
 						indices[i] = null;
 				}
+				subscriptType[i] = indices[i] == null ? valueType : indices[i].getType();
 			}
-			IValue[] elems = new  IValue[resArity];
-			ISetWriter w = vf.setWriter();
-			NextTuple:
-				for(IValue vtup : rel){
-					ITuple tup = (ITuple) vtup;
-					for(int i = 0; i < indexArity; i++){
-						if(indices[i] != null){
-							IValue v = tup.get(i);
-							if(indices[i].getType().isSet() && !rel.getElementType().getFieldType(i).isSet()){
-								ISet s = (ISet) indices[i];
-								if(!s.contains(v)){
-									continue NextTuple;
-								}
-							} else
-								if(!v.isEqual(indices[i])){
-									continue NextTuple;
-								}
-						}
-					}
-					for(int i = 0; i < resArity; i++){
-						elems[i] = tup.get(indexArity + i);
-					}
-					w.insert(resArity > 1 ? vf.tuple(elems) : elems[0]);
+			
+			for (int i = 0; i < relArity; i++) {
+				Type relFieldType = rel.getType().getFieldType(i);
+				if (i < indexArity) {
+					if (subscriptType[i].isSet() && 
+							relFieldType.comparable(subscriptType[i].getElementType())){
+						subscriptIsSet[i] = true;
+					} 
+					else if (indices[i] == null || relFieldType.comparable(subscriptType[i])){
+						subscriptIsSet[i] = false;
+					} 
+				} else {
+					resFieldType[i - indexArity] = relFieldType;
 				}
-			stack[sp - arity] = w.done();
+			}
+			
+			ISetWriter wset = null;
+			ISetWriter wrel = null;
+			
+			if (yieldSet){
+				wset = vf.setWriter(resFieldType[0]);
+			} else {
+				wrel = vf.relationWriter(tf.tupleType(resFieldType));
+			}
+			
+			for (IValue v : rel) {
+				ITuple tup = (ITuple)v;
+				boolean allEqual = true;
+				for(int k = 0; k < indexArity; k++){
+					if(subscriptIsSet[k] && ((indices[k] == null) ||
+							                 ((ISet) indices[k]).contains(tup.get(k)))){
+						/* ok */
+					} else if (indices[k] == null || tup.get(k).isEqual(indices[k])){
+						/* ok */
+					} else {
+						allEqual = false;
+					}
+				}
+				
+				if (allEqual) {
+					IValue args[] = new IValue[relArity - indexArity];
+					for (int i = indexArity; i < relArity; i++) {
+						args[i - indexArity] = tup.get(i);
+					}
+					if(yieldSet){
+						wset.insert(args[0]);
+					} else {
+						wrel.insert(vf.tuple(args));
+					}
+				}
+			}
+			
+			stack[sp - arity] = yieldSet ? wset.done() : wrel.done();
 			return sp - arity + 1;
 		}
 	},
@@ -8028,9 +8065,15 @@ public enum RascalPrimitive {
 			}
 			int indexArity = arity - 1;
 			int lrelArity = lrel.getElementType().getArity();
-			assert indexArity < lrelArity;
-			int resArity = lrelArity - indexArity;
+			assert indexArity < lrelArity ;
+			
 			IValue[] indices = new IValue[indexArity];
+			Type subscriptType[] = new Type[indexArity];
+			boolean subscriptIsSet[] = new boolean[indexArity];
+			
+			boolean yieldList = (lrelArity - indexArity) == 1;
+			Type resFieldType[] = new Type[lrelArity - indexArity];
+			
 			for(int i = 0; i < indexArity; i++ ){
 				indices[i] = (IValue) stack[sp - arity + i + 1];
 				if(indices[i].getType().isString()){
@@ -8038,34 +8081,109 @@ public enum RascalPrimitive {
 					if(s.equals("_"))
 						indices[i] = null;
 				}
+				subscriptType[i] = indices[i] == null ? valueType : indices[i].getType();
 			}
-			IValue[] elems = new  IValue[resArity];
-			IListWriter w = vf.listWriter();
-			NextTuple:
-				for(IValue vtup : lrel){
-					ITuple tup = (ITuple) vtup;
-					for(int i = 0; i < indexArity; i++){
-						if(indices[i] != null){
-							IValue v = tup.get(i);
-							if(indices[i].getType().isSet()){
-								ISet s = (ISet) indices[i];
-								if(!s.contains(v)){
-									continue NextTuple;
-								}
-							} else
-								if(!v.isEqual(indices[i])){
-									continue NextTuple;
-								}
-						}
-					}
-					for(int i = 0; i < resArity; i++){
-						elems[i] = tup.get(indexArity + i);
-					}
-					w.append(resArity > 1 ? vf.tuple(elems) : elems[0]);
+			
+			for (int i = 0; i < lrelArity; i++) {
+				Type relFieldType = lrel.getType().getFieldType(i);
+				if (i < indexArity) {
+					if (subscriptType[i].isSet() && 
+							relFieldType.comparable(subscriptType[i].getElementType())){
+						subscriptIsSet[i] = true;
+					} 
+					else if (indices[i] == null || relFieldType.comparable(subscriptType[i])){
+						subscriptIsSet[i] = false;
+					} 
+				} else {
+					resFieldType[i - indexArity] = relFieldType;
 				}
-			stack[sp - arity] = w.done();
+			}
+			
+			IListWriter wlist = null;
+			IListWriter wlrel = null;
+			
+			if (yieldList){
+				wlist = vf.listWriter(resFieldType[0]);
+			} else {
+				wlrel = vf.listRelationWriter(tf.tupleType(resFieldType));
+			}
+			
+			for (IValue v : lrel) {
+				ITuple tup = (ITuple)v;
+				boolean allEqual = true;
+				for(int k = 0; k < indexArity; k++){
+					if(subscriptIsSet[k] && ((indices[k] == null) ||
+							                 ((ISet) indices[k]).contains(tup.get(k)))){
+						/* ok */
+					} else if (indices[k] == null || tup.get(k).isEqual(indices[k])){
+						/* ok */
+					} else {
+						allEqual = false;
+					}
+				}
+				
+				if (allEqual) {
+					IValue args[] = new IValue[lrelArity - indexArity];
+					for (int i = indexArity; i < lrelArity; i++) {
+						args[i - indexArity] = tup.get(i);
+					}
+					if(yieldList){
+						wlist.append(args[0]);
+					} else {
+						wlrel.append(vf.tuple(args));
+					}
+				}
+			}
+			
+			stack[sp - arity] = yieldList ? wlist.done() : wlrel.done();
 			return sp - arity + 1;
 		}
+//			assert arity >= 2;
+//			IList lrel = ((IList) stack[sp - arity]);
+//			if(lrel.isEmpty()){
+//				stack[sp - arity] = lrel;
+//				return sp - arity + 1;
+//			}
+//			int indexArity = arity - 1;
+//			int lrelArity = lrel.getElementType().getArity();
+//			assert indexArity < lrelArity;
+//			int resArity = lrelArity - indexArity;
+//			IValue[] indices = new IValue[indexArity];
+//			for(int i = 0; i < indexArity; i++ ){
+//				indices[i] = (IValue) stack[sp - arity + i + 1];
+//				if(indices[i].getType().isString()){
+//					String s = ((IString) indices[i]).getValue();
+//					if(s.equals("_"))
+//						indices[i] = null;
+//				}
+//			}
+//			IValue[] elems = new  IValue[resArity];
+//			IListWriter w = vf.listWriter();
+//			NextTuple:
+//				for(IValue vtup : lrel){
+//					ITuple tup = (ITuple) vtup;
+//					for(int i = 0; i < indexArity; i++){
+//						if(indices[i] != null){
+//							IValue v = tup.get(i);
+//							if(indices[i].getType().isSet()){
+//								ISet s = (ISet) indices[i];
+//								if(!s.contains(v)){
+//									continue NextTuple;
+//								}
+//							} else
+//								if(!v.isEqual(indices[i])){
+//									continue NextTuple;
+//								}
+//						}
+//					}
+//					for(int i = 0; i < resArity; i++){
+//						elems[i] = tup.get(indexArity + i);
+//					}
+//					w.append(resArity > 1 ? vf.tuple(elems) : elems[0]);
+//				}
+//			stack[sp - arity] = w.done();
+//			return sp - arity + 1;
+//		}
 	},
 
 	/**
