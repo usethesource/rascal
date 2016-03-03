@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.Javadoc;
+import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.LineComment;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -511,6 +512,9 @@ public class SourceConverter extends M3Converter {
 			parent.getType().accept(this);
 			visitListOfModifiers(parent.modifiers());
 		} 
+		else if (parentASTNode instanceof LambdaExpression) {
+		    // TODO
+		}
 		else {
 			VariableDeclarationStatement parent = (VariableDeclarationStatement)parentASTNode;
 			parent.getType().accept(this);
