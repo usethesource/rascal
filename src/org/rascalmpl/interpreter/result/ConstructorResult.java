@@ -113,11 +113,13 @@ public class ConstructorResult extends NodeResult {
 					return makeResult(kwTypes.getFieldType(name), parameter,
 							ctx);
 				}
-			} else { // it is a normal parameter
+			} else if (consType.hasField(name)){ // it is a normal parameter
 				int index = consType.getFieldIndex(name);
 				return makeResult(consType.getFieldType(index),
 						getValue().get(index), ctx);
 			}
+			
+			throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 		} catch (UndeclaredAbstractDataTypeException e) {
 			throw new UndeclaredType(getType().toString(), ctx.getCurrentAST());
 		}
