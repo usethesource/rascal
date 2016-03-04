@@ -16,7 +16,6 @@ import java.util.TreeMap;
 import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext but not by the methods called here
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
@@ -45,7 +44,6 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.InvalidDateTimeException;
-import org.rascalmpl.value.impl.util.collections.ShareableValuesHashSet;
 import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
@@ -486,8 +484,15 @@ public enum RascalPrimitive {
 
 	listwriter_open {
 		@Override
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			Type elmType = (Type) arg_1;
+			return vf.listWriter();
+		}
+	},
+	
+	listwriter_open_any_type {
+		@Override
 		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
-			// For now, later type can be added
 			return vf.listWriter();
 		}
 	},
@@ -521,8 +526,15 @@ public enum RascalPrimitive {
 
 	setwriter_open {
 		@Override
+		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			Type elmType = (Type) arg_1;
+			return vf.setWriter();
+		}
+	},
+	
+	setwriter_open_any_type {
+		@Override
 		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
-			// For now, later type can be added
 			return vf.setWriter();
 		}
 	},
@@ -555,8 +567,17 @@ public enum RascalPrimitive {
 
 	mapwriter_open {
 		@Override
-		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
+		public Object execute2(final Object arg_2, final Object arg_1,final Frame currentFrame, final RascalExecutionContext rex) {
 			// For now, later type can be added
+			Type keyType = (Type) arg_2;
+			Type valType = (Type) arg_1;
+			return vf.mapWriter();
+		}
+	},
+	
+	mapwriter_open_any_type {
+		@Override
+		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
 			return vf.mapWriter();
 		}
 	},
@@ -2008,7 +2029,8 @@ public enum RascalPrimitive {
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			IList left = (IList) arg_2;
 			IList right = (IList) arg_1;
-			IListWriter w = vf.listWriter();
+			Type elmType = tf.tupleType(left.getElementType(), right.getElementType());
+			IListWriter w = vf.listWriter(elmType);
 			for(IValue l : left){
 				for(IValue r : right){
 					w.append(vf.tuple(l,r));
@@ -2040,7 +2062,8 @@ public enum RascalPrimitive {
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			ISet left = (ISet) arg_2;
 			ISet right = (ISet) arg_1;
-			ISetWriter w = vf.setWriter();
+			Type elmType = tf.tupleType(left.getElementType(), right.getElementType());
+			ISetWriter w = vf.setWriter(elmType);
 			for(IValue l : left){
 				for(IValue r : right){
 					w.insert(vf.tuple(l,r));
@@ -8682,18 +8705,18 @@ public enum RascalPrimitive {
 //		throw new CompilerError("Not implemented RascalPrimitive");
 //	}
 	public Object execute0(Frame currentFrame, RascalExecutionContext rex) {
-		throw new CompilerError("Not implemented RascalPrimitive");
+		throw new CompilerError("Not implemented RascalPrimitive.execute0 " + name());
 	}
 	public Object execute1(Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
-		throw new CompilerError("Not implemented RascalPrimitive");
+		throw new CompilerError("Not implemented RascalPrimitiv.execute1 " + name());
 	}
 	
 	public Object execute2(Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
-		throw new CompilerError("Not implemented RascalPrimitive");
+		throw new CompilerError("Not implemented RascalPrimitive.execute2 " + name());
 	}
 
 	public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
-		throw new CompilerError("Not implemented RascalPrimitive");
+		throw new CompilerError("Not implemented RascalPrimitive.executeN " + name());
 	}
 
 	/**
