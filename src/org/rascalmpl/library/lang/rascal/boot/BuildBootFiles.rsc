@@ -128,7 +128,7 @@ void buildMuLibrary(){
 // Build MuLibrary, standard library, ParserGenerator and Kernel
 // Maybe run buildMuLibrary first!
 
-bool fullRebuild = false;
+bool fullRebuild = true;
 
 value build(bool jvm=false){
      BOOTSTDLIB = BOOT + "stdlib";

@@ -1989,19 +1989,19 @@ public enum MuPrimitive {
 //	}
 	
 	public Object execute0() {
-		throw new CompilerError("Not implemented MuPrimitive");
+		throw new CompilerError("Not implemented MuPrimitive.execute0: " + name());
 	}
 	
 	public Object execute1(final Object arg_1) {
-		throw new CompilerError("Not implemented MuPrimitive");
+		throw new CompilerError("Not implemented MuPrimitive.execute1: " + name());
 	}
 	
 	public Object execute2(final Object arg_2, final Object arg_1) {
-		throw new CompilerError("Not implemented MuPrimitive");
+		throw new CompilerError("Not implemented MuPrimitive.execute2: " + name());
 	}
 	
 	public int executeN(final Object[] stack, final int sp, final int arity) {
-		throw new CompilerError("Not implemented MuPrimitive");
+		throw new CompilerError("Not implemented MuPrimitive.executeN: " + name());
 	}
 	
 	public static void recordTime(int n, long duration){

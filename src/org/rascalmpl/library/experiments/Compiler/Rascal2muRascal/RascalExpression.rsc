@@ -115,6 +115,9 @@ private MuExp infix_rel_lrel(str op, Expression e){
   return muCallPrim3("<lot>_<op>_<rot>", [*translate(e.lhs), *translate(e.rhs)], e@\loc);
 }
 
+private bool isStaticallyImpreciseType(Symbol tp) =
+    tp == Symbol::\void() || tp == Symbol::\value() || Symbol::\parameter(_,_) := tp;
+
 // ----------- compose: exp o exp ----------------
 
 private MuExp compose(Expression e){
@@ -636,7 +639,7 @@ private MuExp translateConcreteParsed(Tree e, loc src){
            translated_elems = muBlockWithTmps(
                                       [<writer, fuid>],
                                       [],
-                                      [ muAssignTmp(writer, fuid, muCallPrim3("listwriter_open", [], my_src)),
+                                      [ muAssignTmp(writer, fuid, muCallPrim3("listwriter_open_any_type", [], my_src)),
                                         *translated_args,
                                         muCallPrim3("listwriter_close", [muTmp(writer,fuid)], my_src) 
                                       ]);
@@ -752,13 +755,14 @@ MuExp translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) {
   patcode = muApply(mkCallToLibFun("Library","MATCH_VAR"), [muTmpRef(var,fuid)]);
 
   kind = getOuterType(first) == "int" && getOuterType(last) == "int" ? "_INT" : "";
+  elmType = getOuterType(first) == "int" && getOuterType(last) == "int" ? Symbol::\int() : Symbol::\num();
   rangecode = muMulti(muApply(mkCallToLibFun("Library", "RANGE<kind>"), [ patcode, translate(first), translate(last)]));
   
   return
     muBlockWithTmps(
     [ <writer, fuid> ],
     [ <var, fuid> ],
-    [ muAssignTmp(writer, fuid, muCallPrim3("listwriter_open", [], e@\loc)),
+    [ muAssignTmp(writer, fuid, muCallPrim3("listwriter_open", [muTypeCon(elmType)], e@\loc)),
       muWhile(loopname, makeBoolExp("ALL", [ rangecode ], e@\loc), [ muCallPrim3("listwriter_add", [muTmp(writer,fuid), muTmp(var,fuid)], e@\loc)]),
       muCallPrim3("listwriter_close", [muTmp(writer,fuid)], e@\loc) 
     ]);
@@ -775,13 +779,14 @@ MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <
   patcode = muApply(mkCallToLibFun("Library","MATCH_VAR"), [muTmpRef(var,fuid)]);
 
   kind = getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int" ? "_INT" : "";
+  elmType = getOuterType(first) == "int" && getOuterType(second) == "int" && getOuterType(last) == "int" ? Symbol::\int() : Symbol::\num();
   rangecode = muMulti(muApply(mkCallToLibFun("Library", "RANGE_STEP<kind>"), [ patcode, translate(first), translate(second), translate(last)]));
   
   return
     muBlockWithTmps(
     [ <writer, fuid> ],
     [ <var, fuid> ],
-    [ muAssignTmp(writer, fuid, muCallPrim3("listwriter_open", [], e@\loc)),
+    [ muAssignTmp(writer, fuid, muCallPrim3("listwriter_open", [muTypeCon(elmType)], e@\loc)),
       muWhile(loopname, makeBoolExp("ALL", [ rangecode ], e@\loc), [ muCallPrim3("listwriter_add", [muTmp(writer,fuid), muTmp(var,fuid)], e@\loc)]),
       muCallPrim3("listwriter_close", [muTmp(writer,fuid)], e@\loc) 
     ]);
@@ -1464,11 +1469,17 @@ private MuExp translateComprehension(c: (Comprehension) `[ <{Expression ","}+ re
     str fuid = topFunctionScope();
     loopname = nextLabel(); 
     tmp = asTmp(loopname);
+    elmType = getElementType(getType(c@\loc)); 
+    
+    listwriter_open_code = isStaticallyImpreciseType(elmType)
+                           ? muCallPrim3("listwriter_open_any_type", [], c@\loc)
+                           : muCallPrim3("listwriter_open", [muTypeCon(elmType)], c@\loc);
+    
     return
     muBlockWithTmps(
     [ <tmp, fuid> ],
     [ ],
-    [ muAssignTmp(tmp, fuid, muCallPrim3("listwriter_open", [], c@\loc)),
+    [ muAssignTmp(tmp, fuid, listwriter_open_code),
       muWhile(loopname, makeMultiValuedBoolExp("ALL",[ translate(g) | g <- generators ], c@\loc), translateComprehensionContribution("list", tmp, fuid, [r | r <- results])),
       muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], c@\loc) 
     ]);
@@ -1478,12 +1489,17 @@ private MuExp translateComprehension(c: (Comprehension) `{ <{Expression ","}+ re
     //println("translateComprehension (set): <generators>");
     str fuid = topFunctionScope();
     loopname = nextLabel(); 
-    tmp = asTmp(loopname); 
+    tmp = asTmp(loopname);
+    elmType = getElementType(getType(c@\loc)); 
+    
+    setwriter_open_code = isStaticallyImpreciseType(elmType) 
+                          ? muCallPrim3("setwriter_open_any_type", [], c@\loc)
+                          : muCallPrim3("setwriter_open", [muTypeCon(elmType)], c@\loc);
     return
     muBlockWithTmps(
     [ <tmp, fuid> ],
     [ ],
-    [ muAssignTmp(tmp, fuid, muCallPrim3("setwriter_open", [], c@\loc)),
+    [ muAssignTmp(tmp, fuid, setwriter_open_code),
       muWhile(loopname, makeMultiValuedBoolExp("ALL",[ translate(g) | g <- generators ], c@\loc), translateComprehensionContribution("set", tmp, fuid, [r | r <- results])),
       muCallPrim3("setwriter_close", [muTmp(tmp,fuid)], c@\loc) 
     ]);
@@ -1494,11 +1510,17 @@ private MuExp translateComprehension(c: (Comprehension) `(<Expression from> : <E
     str fuid = topFunctionScope();
     loopname = nextLabel(); 
     tmp = asTmp(loopname); 
+    mapType = getType(c@\loc);   
+    
+    mapwriter_open_code = isStaticallyImpreciseType(mapType.from) || isStaticallyImpreciseType(mapType.from)
+                          ? muCallPrim3("mapwriter_open_any_type", [], c@\loc)
+                          : muCallPrim3("mapwriter_open",  [muTypeCon(mapType.from), muTypeCon(mapType.to)], c@\loc);
+    
     return
     muBlockWithTmps(
     [ <tmp, fuid > ],
     [ ],
-    [ muAssignTmp(tmp, fuid, muCallPrim3("mapwriter_open", [], c@\loc)),
+    [ muAssignTmp(tmp, fuid, mapwriter_open_code),
       muWhile(loopname, makeMultiValuedBoolExp("ALL",[ translate(g) | g <- generators ], c@\loc), [muCallPrim3("mapwriter_add", [muTmp(tmp,fuid)] + [ translate(from), translate(to)], c@\loc)]), 
       muCallPrim3("mapwriter_close", [muTmp(tmp,fuid)], c@\loc) 
     ]);
@@ -1523,8 +1545,13 @@ private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
  if(containSplices(es)){
        str fuid = topFunctionScope();
        writer = nextTmp();
+       elmType = getElementType(getType(e@\loc));
+       
+       kindwriter_open_code = isStaticallyImpreciseType(elmType) 
+                              ?  muCallPrim3("<kind>writer_open_any_type", [], e@\loc)
+                              :  muCallPrim3("<kind>writer_open", [muTypeCon(elmType)], e@\loc);
        enterWriter(writer);
-       code = [ muAssignTmp(writer, fuid, muCallPrim3("<kind>writer_open", [], e@\loc)) ];
+       code = [ muAssignTmp(writer, fuid, kindwriter_open_code) ];
        for(elem <- es){
            if(elem is splice){
               code += muCallPrim3("<kind>writer_splice", [muTmp(writer,fuid), translate(elem.argument)], elem.argument@\loc);
