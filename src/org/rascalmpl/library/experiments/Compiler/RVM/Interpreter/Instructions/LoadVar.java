@@ -25,18 +25,16 @@ public class LoadVar extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
 		
-		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid);
-
 		if (pos == -1) {
 			if (debug)
 				codeEmittor.emitDebugCall2(opcode.name(), fuid, pos);
 			
-			codeEmittor.emitCallWithArgsFI_A("LOADVARMODULE", what, debug);
+			codeEmittor.emitCallWithArgsFI_A("LOADVARMODULE", codeblock.getConstantIndex(codeblock.vf.string(fuid)), debug);
 		} else {
 			if (debug)
 				codeEmittor.emitDebugCall2(opcode.name(), codeblock.getFunctionName(fuid), pos);
 			
-			codeEmittor.emitCallWithArgsFII_A("LOADVARSCOPED", what, pos, debug);
+			codeEmittor.emitCallWithArgsFII_A("LOADVARSCOPED", codeblock.getFunctionIndex(fuid), pos, debug);
 		}
 
 	}

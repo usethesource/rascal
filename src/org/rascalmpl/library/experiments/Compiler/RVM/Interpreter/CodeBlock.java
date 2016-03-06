@@ -281,42 +281,42 @@ public class CodeBlock implements Serializable {
 	public final static int maxArg2 = (int) ((1L << sizeArg2) - 1);
 	public final static int maxArg = Math.min(maxArg1,maxArg2);
 
-	public static long encode0(int op){
+	public final static long encode0(int op){
 		return op;
 	}
 	
-	public static long encode1(int op, int arg1){
+	public final static long encode1(int op, int arg1){
 		assert arg1 < (1L << sizeArg1);
 		long larg1 = arg1;
 		return (larg1 << shiftArg1) | op;
 	}
 	
-	public static long encode2(int op, int arg1, int arg2){
+	public final static long encode2(int op, int arg1, int arg2){
 		assert arg1 < (1L << sizeArg1) && arg2 < (1L << sizeArg2);
 		long larg1 = arg1;
 		long larg2 = arg2;
 		return (larg2 << shiftArg2) | (larg1 << shiftArg1) | op;
 	}
 	
-	public static int fetchOp(long instruction){
+	public final static int fetchOp(long instruction){
 		return (int) (instruction & maskOp);
 	}
 	
-	public static int fetchArg1(long instruction){
+	public final static int fetchArg1(long instruction){
 		return (int) ((instruction >> shiftArg1) & maskArg1);
 	}
 	
-	public static int fetchArg2(long instruction){
+	public final static int fetchArg2(long instruction){
 		return (int) ((instruction >> shiftArg2) & maskArg2);
 	}
 	
-	public static boolean isMaxArg1(int arg){
+	public final static boolean isMaxArg1(int arg){
 		return arg == maskArg1;
 	}
-	public static boolean isMaxArg2(int arg){
+	
+	public final static boolean isMaxArg2(int arg){
 		return arg == maskArg2;
 	}
-	
 	
 	/*
 	 * All Instructions
@@ -326,7 +326,7 @@ public class CodeBlock implements Serializable {
 		return add(new Pop(this));
 	}
 	
-	public  CodeBlock HALT(){
+	public CodeBlock HALT(){
 		return add(new Halt(this));
 	}
 	
