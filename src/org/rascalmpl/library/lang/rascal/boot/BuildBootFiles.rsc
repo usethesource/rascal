@@ -128,20 +128,21 @@ void buildMuLibrary(){
 // Build MuLibrary, standard library, ParserGenerator and Kernel
 // Maybe run buildMuLibrary first!
 
-bool fullRebuild = true;
+bool full = true;
 
-value build(bool jvm=false){
+value build(bool jvm=false, bool full = true){
+     println("build: full = <full>, jvm = <jvm>");
      BOOTSTDLIB = BOOT + "stdlib";
      pcfg = pathConfig(srcPath=[|std:///|], binDir=BOOTSTDLIB, libPath=[BOOTSTDLIB]);
      
-     if(fullRebuild){
+     if(full){
         report("Removing current compiled standard library <BOOTSTDLIB>");
         remove(BOOTSTDLIB);
      }
      
      commands = "#!/bin/sh\n";
      
-     if(fullRebuild){
+     if(full){
         report("Compiling MuLibrary");
         compileMuLibrary(pcfg, verbose=true, jvm=jvm);
         muLib = getMuLibraryCompiledWriteLoc(pcfg);
@@ -156,7 +157,7 @@ value build(bool jvm=false){
      commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg, jvm=jvm);
      commands += serialize("lang::rascal::boot::Kernel", pcfg, jvm=jvm);
      
-     if(fullRebuild){
+     if(full){
         info = collectInfo(libraryModules, pcfg);
      
         l = getDerivedWriteLoc("StdLib.info", "gz", pcfg);
