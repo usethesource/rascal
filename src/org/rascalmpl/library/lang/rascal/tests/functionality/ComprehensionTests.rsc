@@ -113,6 +113,12 @@ test bool any17()  = !(any(_ <- ()));
 test bool any18()  = any(int X <- [10,10,10], 10 := X);
 test bool any19()  = any(int X <- [10,20,30], 20 := X);
 test bool any20()  = !any(int X <- [10,20,30], 25 := X);
+
+test bool any21()  = any(int X <- [10,10,10], 10 := X) || 13 == 14;
+test bool any22()  = any(int X <- [10,10,10], 11 := X) || 13 == 13;
+test bool any23()  = any(int X <- [10,10,10], 10 := X) && 13 == 13;
+test bool any24()  = 13 == 14 || any(int X <- [10,10,10], 10 := X);
+test bool any25()  = 13 == 13 && any(int X <- [10,10,10], 10 := X);
   	
 // all
   		
@@ -160,6 +166,12 @@ test bool all22()  = all(k <- [1,2,3], (k % 2 == 0 || k % 2 == 1) ? true : false
 
 test bool all23()  = all(k <- [10,10,10], 10 := k);
 test bool all24()  = !all(k <- [10,20,30], 20 := k);
+
+test bool any25()  = all(int X <- [10,10,10], 10 := X) || 13 == 14;
+test bool any26()  = all(int X <- [10,10,10], 11 := X) || 13 == 13;
+test bool any27()  = all(int X <- [10,10,10], 10 := X) && 13 == 13;
+test bool any28()  = 13 == 14 || all(int X <- [10,10,10], 10 := X);
+test bool any29()  = 13 == 13 && all(int X <- [10,10,10], 10 := X);
   
 // setComprehension
   		
