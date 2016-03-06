@@ -2147,6 +2147,14 @@ bool backtrackFree(Expression e){
     	return false;
     case (Expression) `<Pattern pat> !:= <Expression exp>`:
     	return false;
+    case (Expression) `<Expression e1> || <Expression e2>`:
+        return backtrackFree(e1) && backtrackFree(e2);
+    case (Expression) `<Expression e1> && <Expression e2>`:
+        return backtrackFree(e1) && backtrackFree(e2);  
+    case (Expression) `<Expression e1> \<==\> <Expression e2>`:
+        return backtrackFree(e1) && backtrackFree(e2);  
+    case (Expression) `<Expression e1> ==\> <Expression e2>`:
+        return backtrackFree(e1) && backtrackFree(e2);  
     }
     return true;
 }
