@@ -4,7 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMInterpreter;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.value.ISourceLocation;
@@ -73,7 +73,7 @@ public class Rascal {
 		
 		ISourceLocation binary = findBinary(cmdOpts.getCommandLocOption("binDir"), cmdOpts.getRascalModule().getValue());
 		try {
-			System.out.println(RVMInterpreter.readFromFileAndExecuteProgram(binary, cmdOpts.getModuleOptionsAsIMap(), rex));
+			System.out.println(RVMCore.readFromFileAndExecuteProgram(binary, cmdOpts.getModuleOptionsAsIMap(), rex));
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("rascal: cannot execute program: " + e.getMessage());
