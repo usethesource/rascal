@@ -2,6 +2,8 @@ package org.rascalmpl.value.impl.primitive;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /*
@@ -89,13 +91,14 @@ import java.util.regex.Pattern;
         return str;
     }
 
+    private static final Map<String, String> INTERNED_SCHEMES = new HashMap<>();
 
     private static class BaseURI implements IURI {
 		protected final String scheme;
 		
 		
 		public BaseURI(String scheme)  {
-			this.scheme = scheme.intern();
+			this.scheme = INTERNED_SCHEMES.computeIfAbsent(scheme, s -> scheme);
 		}
 		
 
@@ -217,12 +220,13 @@ import java.util.regex.Pattern;
 
 
 
+	private static final Map<String, String> INTERNED_AUTHORIES = new HashMap<>();
 	private static class AuthorityURI extends BaseURI {
 		protected final String authority;
 		
 		public AuthorityURI(String scheme, String authority)  {
 			super(scheme);
-			this.authority = authority.intern();
+			this.authority = INTERNED_AUTHORIES.computeIfAbsent(authority, s -> authority);
 		}
 		
 		@Override
