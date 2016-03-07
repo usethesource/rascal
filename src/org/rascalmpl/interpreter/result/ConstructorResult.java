@@ -17,20 +17,27 @@ package org.rascalmpl.interpreter.result;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import java.util.Map;
+import java.util.Set;
 
+import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.ModuleEnvironment.GenericKeywordParameters;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
+import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IWithKeywordParameters;
 import org.rascalmpl.value.exceptions.UndeclaredAbstractDataTypeException;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
@@ -45,7 +52,7 @@ public class ConstructorResult extends NodeResult {
 	public IConstructor getValue() {
 		return (IConstructor) super.getValue();
 	}
-
+	
 	@Override
 	public Result<IBool> is(Name name) {
 		return ResultFactory.bool(
@@ -86,8 +93,7 @@ public class ConstructorResult extends NodeResult {
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		try {
 			Type consType = getValue().getConstructorType();
-			ConstructorFunction cons = ctx.getCurrentEnvt()
-					.getConstructorFunction(consType);
+			
 
 			if (!getType().hasField(name, store)
 					&& !getType().hasKeywordField(name, store)) {
@@ -100,18 +106,27 @@ public class ConstructorResult extends NodeResult {
 						ctx.getCurrentAST(), null);
 			}
 
-			Type kwTypes = cons != null ? cons.getKeywordArgumentTypes(ctx
-					.getCurrentEnvt()) : getTypeFactory().voidType();
-			if (kwTypes.hasField(name)) { // it's a keyword parameter
-				IValue parameter = getValue().asWithKeywordParameters()
-						.getParameter(name);
+			if (getType().hasKeywordField(name, store)) { // it's a keyword parameter
+			    Type kwType = store.getKeywordParameterType(getValue().getConstructorType(), name);
+			    if (kwType == null) {
+			        kwType = store.getKeywordParameterType(getType(), name);
+			    }
+				assert kwType != null;
+				
+			    IValue parameter = getValue().asWithKeywordParameters().getParameter(name);
 
 				if (parameter == null) {
-					return (Result<U>) cons.computeDefaultKeywordParameter(
-							name, getValue(), ctx.getCurrentEnvt());
+				    ConstructorFunction cons = ctx.getCurrentEnvt().getConstructorFunction(consType);
+				    
+				    if (cons != null) {
+				        return (Result<U>) cons.computeDefaultKeywordParameter(name, getValue(), ctx.getCurrentEnvt());
+				    }
+				    else {
+				        // The constructor is not in scope, but there might be a generic keyword parameter in scope nevertheless
+				        return (Result<U>) computeGenericDefaultKeywordParameter(name);
+				    }
 				} else {
-					return makeResult(kwTypes.getFieldType(name), parameter,
-							ctx);
+					return makeResult(kwType, parameter, ctx);
 				}
 			} else if (consType.hasField(name)){ // it is a normal parameter
 				int index = consType.getFieldIndex(name);
@@ -125,7 +140,61 @@ public class ConstructorResult extends NodeResult {
 		}
 	}
 
-	@Override
+	private Result<IValue> computeGenericDefaultKeywordParameter(String label) {
+	    Set<GenericKeywordParameters> kwps = ctx.getCurrentEnvt().lookupGenericKeywordParameters(getType());
+	    IWithKeywordParameters<? extends IConstructor> wkw = getValue().asWithKeywordParameters();
+	    Environment old = ctx.getCurrentEnvt();
+	    
+        for (GenericKeywordParameters gkw : kwps) {
+         // for hygiene's sake, each list of generic params needs to be evaluated in its declaring environment
+            Environment env = new Environment(gkw.getEnv(), URIUtil.rootLocation("initializer"), "kwp initializer");
+            
+            try {
+                ctx.setCurrentEnvt(env);
+            
+                for (KeywordFormal kwparam : gkw.getFormals()) {
+                    String name = Names.name(kwparam.getName());
+                    Type kwType = gkw.getTypes().get(name);
+                    
+                    if (kwType == null) {
+                        continue;
+                    }
+                    Result<IValue> kwResult;
+                    
+                    if (wkw.hasParameter(name)){
+                        IValue r = wkw.getParameter(name);
+                        
+                        if(!r.getType().isSubtypeOf(kwType)) {
+                            throw new UnexpectedKeywordArgumentType(name, kwType, r.getType(), ctx.getCurrentAST());
+                        }
+
+                        kwResult = ResultFactory.makeResult(kwType, r, ctx);
+                    } 
+                    else {
+                        Expression def = kwparam.getExpression();
+                        kwResult = def.interpret(ctx.getEvaluator());
+                    }
+                    
+                    if (name.equals(label)) {
+                        // we have the one we need, bail out quickly
+                        return kwResult;
+                    }
+                    else {
+                        // we may need these in case they are used in the next definition
+                        env.declareVariable(kwResult.getType(), name);
+                        env.storeVariable(name, kwResult);
+                    }
+                }
+            }
+            finally {
+                ctx.setCurrentEnvt(old);
+            }
+        }
+        
+       throw new UndeclaredField(label, getType(), ctx.getCurrentAST());
+    }
+
+    @Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(
 			String name, Result<V> repl, TypeStore store) {
 		ConstructorFunction cons = ctx.getCurrentEnvt().getConstructorFunction(

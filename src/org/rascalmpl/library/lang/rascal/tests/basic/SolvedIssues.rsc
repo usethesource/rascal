@@ -5,6 +5,7 @@ This is just to make sure the bugs are not re-introduced accidentally.
 }
 module lang::rascal::tests::basic::SolvedIssues
 
+import lang::rascal::tests::basic::modules::D;
 import List;
 import Exception;
 
@@ -44,3 +45,6 @@ test bool checkComparableOnElementsBreak() = [<[],_,_>,_] := [<[],false,1>,<[3],
 
 // https://github.com/cwi-swat/rascal/issues/930
 test bool nodeSetMatch() = { "a"(1) } := { "a"(1) };
+
+// https://github.com/cwi-swat/rascal/issues/933
+test bool keywordParametersLost933() = normal() && extended();
