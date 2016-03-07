@@ -2000,17 +2000,15 @@ public class BytecodeGenerator implements Opcodes {
 	private void emitOcallSingle(String funName, int fun, int arity) {
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, CF);
+		
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitFieldInsn(GETFIELD, fullClassName, "functionStore", "Ljava/util/ArrayList;");
-
 		emitIntValue(fun);
-
 		mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/ArrayList", "get", "(I)Ljava/lang/Object;",false);
 
 		mv.visitTypeInsn(CHECKCAST, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function");
-		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "root", "Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;");
-
+		mv.visitVarInsn(ALOAD, CF);
+		
 		emitIntValue(arity);
 		mv.visitVarInsn(ILOAD, SP);
 
