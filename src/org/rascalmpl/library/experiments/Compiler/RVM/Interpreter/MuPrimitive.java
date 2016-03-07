@@ -232,7 +232,7 @@ public enum MuPrimitive {
 					elems[j++] = args.get(i);
 				}
 			}
-			elems[non_lit_len] = RVMInterpreter.emptyKeywordMap;
+			elems[non_lit_len] = RVMCore.emptyKeywordMap;
 			return elems;
 		}
 	},
