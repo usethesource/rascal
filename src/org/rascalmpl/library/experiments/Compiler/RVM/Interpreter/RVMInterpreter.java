@@ -61,17 +61,17 @@ public class RVMInterpreter extends RVMCore {
 		this.frameObserver = (observer == null) ? NullFrameObserver.getInstance() : observer;		
 	}
 	
-	URIResolverRegistry getResolverRegistry() { return URIResolverRegistry.getInstance(); }
-	
-	IRascalMonitor getMonitor() {return rex.getMonitor();}
+//	URIResolverRegistry getResolverRegistry() { return URIResolverRegistry.getInstance(); }
+//	
+//	IRascalMonitor getMonitor() {return rex.getMonitor();}
 	
 	Configuration getConfiguration() { return rex.getConfiguration(); }
 	
-	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }	
+//	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }	
 	
-	public IFrameObserver getFrameObserver(){
-		return frameObserver;
-	}
+//	public IFrameObserver getFrameObserver(){
+//		return frameObserver;
+//	}
 	
 	private String getConstructorName(int n) {
 		for(String cname : constructorMap.keySet()) {

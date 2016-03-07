@@ -15,6 +15,7 @@ import java.util.Stack;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -23,6 +24,7 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalType;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IDateTime;
@@ -140,6 +142,12 @@ public abstract class RVMCore {
 	
 	public PrintWriter getStdOut() { return rex.getStdOut(); }
 	
+	URIResolverRegistry getResolverRegistry() { return URIResolverRegistry.getInstance(); }
+	
+	IRascalMonitor getMonitor() {return rex.getMonitor();}
+	
+	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }
+
 	public IFrameObserver getFrameObserver() {
 		// TODO Auto-generated method stub
 		return frameObserver;
@@ -224,10 +232,10 @@ public abstract class RVMCore {
 	}
 	
 	/**
-	 * execute a single function, not-overloaded, function
+	 * Execute a single, not-overloaded, function
 	 * 
 	 * @param uid_func	Internal function name
-	 * @param posArgs	Arguments
+	 * @param posArgs	Positional arguments
 	 * @param kwArgs	Keyword arguments
 	 * @return
 	 */
@@ -243,10 +251,10 @@ public abstract class RVMCore {
 	/************************************************************************************/
 		
 	/**
-	 * execute a single function, on-overloaded, function
+	 * Execute a single, not-overloaded, function
 	 * 
-	 * @param func		Function instance
-	 * @param posArgs	Argumens
+	 * @param func		Function
+	 * @param posArgs	Positional arguments
 	 * @param kwArgs	Keyword arguments
 	 * @return
 	 */
