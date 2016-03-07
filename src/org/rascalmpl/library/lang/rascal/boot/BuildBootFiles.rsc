@@ -128,9 +128,7 @@ void buildMuLibrary(){
 // Build MuLibrary, standard library, ParserGenerator and Kernel
 // Maybe run buildMuLibrary first!
 
-bool full = true;
-
-value build(bool jvm=false, bool full = true){
+value build(bool jvm=false, bool full=false){
      println("build: full = <full>, jvm = <jvm>");
      BOOTSTDLIB = BOOT + "stdlib";
      pcfg = pathConfig(srcPath=[|std:///|], binDir=BOOTSTDLIB, libPath=[BOOTSTDLIB]);
