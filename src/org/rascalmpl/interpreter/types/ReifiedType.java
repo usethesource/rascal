@@ -54,6 +54,11 @@ public class ReifiedType extends RascalType {
 	}
 	
 	@Override
+	public boolean hasKeywordField(String fieldName, TypeStore store) {
+	    return false;
+	}
+	
+	@Override
 	public boolean isParameterized() {
 		return true;
 	}
