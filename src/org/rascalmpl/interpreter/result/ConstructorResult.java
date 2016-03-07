@@ -221,6 +221,7 @@ public class ConstructorResult extends NodeResult {
 			return makeResult(getType(), getValue().asWithKeywordParameters()
 					.setParameter(name, repl.getValue()), ctx);
 		} else {
+		    // normal field
 			int index = nodeType.getFieldIndex(name);
 			Type fieldType = nodeType.getFieldType(index);
 			if (!repl.getType().isSubtypeOf(fieldType)) {
