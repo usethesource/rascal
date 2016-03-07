@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 			else if (!path.startsWith("/")) {
 				path = "/" + path;
 			}
-			if (path != null) {
+			if (path != null && path.contains("//")) {
 				// normalize double or longer slashes
 				path = doubleSlashes.matcher(path).replaceAll("/");
 			}
@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 		if (scheme == null || scheme.equals("")) {
 			throw new URISyntaxException(scheme, "scheme cannot be empty or null");
 		}
-		if (!schemePattern.matcher(scheme).matches()) {
+		if (!INTERNED_SCHEMES.containsKey(scheme)  && !schemePattern.matcher(scheme).matches()) {
 			throw new URISyntaxException(scheme, "Scheme is not a valid scheme");
 		}
 		if (authority == null) {
