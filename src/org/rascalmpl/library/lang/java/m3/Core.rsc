@@ -117,8 +117,8 @@ public M3 createM3FromJar(loc jarFile) {
 
     map[str,M3] m3Map = (classPathToStr(jc): createM3FromJarClass(jc) | /file(jc) <- crawl(jarFile), jc.extension == "class");
     
-    rel[str,str] inheritsFrom = { *{ <c.path, i.path> | <c, i> <- (m3@implements + m3@extends),
-        c.path in m3Map && i.path in m3Map } | m3 <- range(m3Map) }+;
+    rel[str,str] inheritsFrom = { *{ <c.path, i.path> | <c, i> <- (model@implements + model@extends),
+        c.path in m3Map && i.path in m3Map } | model <- range(m3Map) }+;
     
     map[str, rel[loc from,loc to]] methodOverrides = ( c: m3Map[c]@methodOverrides | c <- m3Map );
     for(<c, sc> <- inheritsFrom) {
@@ -132,14 +132,6 @@ public M3 createM3FromJar(loc jarFile) {
 }
 private str classPathToStr(loc jarClass) {
     return substring(jarClass.path,findLast(jarClass.path,"!")+1,findLast(jarClass.path,"."));
-}
-
-public M3 includeJarRelations(M3 project, set[M3] jarRels = {}) {
-  set[M3] rels = jarRels;
-  if (isEmpty(rels))
-    rels = createM3FromProjectJars(project.id);
-  
-  return composeJavaM3(project.id, rels);
 }
 
 public bool isCompilationUnit(loc entity) = entity.scheme == "java+compilationUnit";
