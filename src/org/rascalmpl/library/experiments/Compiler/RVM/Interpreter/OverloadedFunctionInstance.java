@@ -31,10 +31,10 @@ public class OverloadedFunctionInstance implements ICallableCompiledValue, IExte
 	private List<Function> functionStore;
 	private List<Type> constructorStore;
 	
-	final RVMInterpreter rvm;
+	final RVMCore rvm;
 	
 	public OverloadedFunctionInstance(final int[] functions, final int[] constructors, final Frame env, 
-									  final List<Function> functionStore, final List<Type> constructorStore, final RVMInterpreter rvm) {
+									  final List<Function> functionStore, final List<Type> constructorStore, final RVMCore rvm) {
 		this.functions = functions;
 		this.constructors = constructors;
 		this.env = env;
@@ -78,7 +78,7 @@ public class OverloadedFunctionInstance implements ICallableCompiledValue, IExte
 	 * Assumption: scopeIn != -1  
 	 */
 	public static OverloadedFunctionInstance computeOverloadedFunctionInstance(final int[] functions, final int[] constructors, final Frame cf, final int scopeIn,
-			                                                                   final List<Function> functionStore, final List<Type> constructorStore, final RVMInterpreter rvm) {
+			                                                                   final List<Function> functionStore, final List<Type> constructorStore, final RVMCore rvm) {
 		for(Frame env = cf; env != null; env = env.previousScope) {
 			if (env.scopeId == scopeIn) {
 				return new OverloadedFunctionInstance(functions, constructors, env, functionStore, constructorStore, rvm);

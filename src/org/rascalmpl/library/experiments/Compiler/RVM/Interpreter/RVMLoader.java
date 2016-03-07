@@ -3,15 +3,13 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Stream;
 
+import org.nustaq.serialization.FSTConfiguration;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
@@ -29,8 +27,6 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
-
-import org.nustaq.serialization.FSTConfiguration;
 
 public class RVMLoader {
 	
