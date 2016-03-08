@@ -88,7 +88,7 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
                                                                 
     code = usesAppend ? muBlockWithTmps([ < tmp, fuid > ], 
                                         [ ], 
-                                        [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open_any_type", [], s@\loc)),
+                                        [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open", [], s@\loc)),
                                           loopBody,
                                           muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], s@\loc)
                                         ])
@@ -158,7 +158,7 @@ MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expre
                                  [ muBreak(doname) ]) ]);
     
     code = usesAppend ? muBlockWithTmps( [ <tmp, fuid> ], [ ],
-                                         [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open_any_type", [], s@\loc)), 
+                                         [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open", [], s@\loc)), 
                                            loopBody,
                                            muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], s@\loc)
                                          ])
@@ -206,7 +206,7 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
                                  [ translateLoopBody(body) ]);
                               
     code = usesAppend ? muBlockWithTmps([ <tmp, fuid> ], [ ],
-                                        [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open_any_type", [], s@\loc)),
+                                        [ muAssignTmp(tmp,fuid,muCallPrim3("listwriter_open", [], s@\loc)),
                                           loopBody,
                                           muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], s@\loc)
                                         ])
