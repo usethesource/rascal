@@ -130,7 +130,9 @@ void generateCompanions(Configuration config, bool verbose = true){
    // Generate companion functions  constructors with keyword fields or common keyword fields     
    // This enables evaluation of potentially non-constant default expressions and semantics of implicit keyword arguments
                 
-   for(int uid <- config.store, AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, 0, constructorLoc) := config.store[uid], allKwFields := getAllKeywordFields(uid), !isEmpty(allKwFields)) {
+   for(int uid <- config.store, 
+       AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int scopeId, constructorLoc) := config.store[uid], 
+       allKwFields := getAllKeywordFields(uid), !isEmpty(allKwFields)) {
        //println("*** Creating companion for <uid>");
          
        map[RName,Symbol] allKWFieldsAndTypes = getAllKeywordFieldsAndTypes(uid);
