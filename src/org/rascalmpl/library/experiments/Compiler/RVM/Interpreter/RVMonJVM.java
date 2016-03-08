@@ -206,7 +206,7 @@ public class RVMonJVM extends RVMInterpreter {
 	}
 	
 	private static void printFrameAndStackAndAccu(Frame cf, int sp, Object accu){
-		System.err.println(cf);
+		System.err.println(cf + ", scope " + cf.scopeId);
 //		System.err.println("sp: " + sp);
 		for(int i = 0; i < sp; i++){
 			if(cf.stack[i] != null){
@@ -666,7 +666,7 @@ public class RVMonJVM extends RVMInterpreter {
 		OverloadedFunction of = overloadedStore[ofun];
 	    
 		Object arg0 = stack[sp - arity];
-		ofun_call = of.getScopeIn() == -1 ? new OverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), cf, null, arity)  // changed root to cf
+		ofun_call = of.getScopeIn() == -1 ? new OverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), cf, null, arity) 
 				                          : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), of.getScopeIn(), null, arity);
 		
 		Frame frame = ofun_call.nextFrame(functionStore);
