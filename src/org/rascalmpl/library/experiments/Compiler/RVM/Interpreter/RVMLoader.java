@@ -457,7 +457,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 					addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
 					addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
 
-					if(name.contains("companion")){	// always preserve generated companion functions
+					if(name.contains("companion")){	// always preserve generated companion and companion-defaults functions
 						rootWriter.insert(iname);
 					}
 
