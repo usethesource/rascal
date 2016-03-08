@@ -2078,7 +2078,7 @@ public class BytecodeGenerator implements Opcodes {
 		for (int i = 0; i < len; i++) {
 
 			if(fromLabels[i].startsWith("FINALLY") && toLabels[i].startsWith("FINALLY")){	// Finally clauses are expanded inline by Rascal compiler and can be ignored here
-				System.err.println("*** Skip in " + currentFunction.getName() + ": " + fromLabels[i] + " to " + toLabels[i] + " handled by " + handlerLabels[i]);
+//				System.err.println("*** Skip in " + currentFunction.getName() + ": " + fromLabels[i] + " to " + toLabels[i] + " handled by " + handlerLabels[i]);
 				continue;
 			}
 
