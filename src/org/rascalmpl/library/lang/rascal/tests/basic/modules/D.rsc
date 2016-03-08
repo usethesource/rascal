@@ -1,4 +1,4 @@
-module lang::rascal::tests::basic::modules:: D
+module lang::rascal::tests::basic::modules::D
 
 import lang::rascal::tests::basic::modules::A;
 import lang::rascal::tests::basic::modules::C; 
