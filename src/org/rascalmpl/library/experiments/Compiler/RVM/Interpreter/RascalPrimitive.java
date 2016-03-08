@@ -481,16 +481,8 @@ public enum RascalPrimitive {
 	/*****************************************************************************************************/
 	/*						Readers and writers															 */
 	/*****************************************************************************************************/
-
-	listwriter_open {
-		@Override
-		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			Type elmType = (Type) arg_1;
-			return vf.listWriter();
-		}
-	},
 	
-	listwriter_open_any_type {
+	listwriter_open {
 		@Override
 		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
 			return vf.listWriter();
@@ -523,16 +515,8 @@ public enum RascalPrimitive {
 			
 		}
 	},
-
-	setwriter_open {
-		@Override
-		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			Type elmType = (Type) arg_1;
-			return vf.setWriter();
-		}
-	},
 	
-	setwriter_open_any_type {
+	setwriter_open {
 		@Override
 		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
 			return vf.setWriter();
@@ -564,18 +548,8 @@ public enum RascalPrimitive {
 			return writer.done();
 		}
 	},
-
-	mapwriter_open {
-		@Override
-		public Object execute2(final Object arg_2, final Object arg_1,final Frame currentFrame, final RascalExecutionContext rex) {
-			// For now, later type can be added
-			Type keyType = (Type) arg_2;
-			Type valType = (Type) arg_1;
-			return vf.mapWriter();
-		}
-	},
 	
-	mapwriter_open_any_type {
+	mapwriter_open {
 		@Override
 		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
 			return vf.mapWriter();
