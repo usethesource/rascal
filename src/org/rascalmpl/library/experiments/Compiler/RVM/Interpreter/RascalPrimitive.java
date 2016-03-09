@@ -6819,6 +6819,26 @@ public enum RascalPrimitive {
 			return v;
 		}
 	},
+	/**
+	 * Is a named field of a location defined? Returns
+	 * - <true, field value> when the field exists and its value is defined
+	 * - false, _> otherwise
+	 * 
+	 * [ ..., INode nd, IString fieldName ] => [ ..., [bool, value] ]
+	 */
+	
+	is_defined_loc_field_access_get {
+		@Override
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			try {
+				temp_array_of_2[1] = loc_field_access.execute2(arg_2, arg_1, currentFrame, rex);
+				temp_array_of_2[0] = Rascal_TRUE;
+			} catch (Exception e) {
+				temp_array_of_2[0] = Rascal_FALSE;
+			}
+			return temp_array_of_2;
+		}
+	},
 
 	/**
 	 * Update value of named field of loc value
