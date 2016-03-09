@@ -69,7 +69,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  // Generate companion functions for 
    	  // (1) keyword fields in constructors
    	  // (2) common keyword fields in data declarations
-      generateCompanions(config, verbose=verbose);
+      generateCompanions(M, config, verbose=verbose);
    	 				  
    	  translateModule(M);
    	 
@@ -123,15 +123,19 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    throw "r2mu: cannot come here!";
 }
 
-void generateCompanions(Configuration config, bool verbose = true){
+void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true){
 
+   //println("generateCompanions");
+   
    set[str] seenCommonDataFields = {};  // record for which common data fields we have generated a companion
  
    // Generate companion functions  constructors with keyword fields or common keyword fields     
    // This enables evaluation of potentially non-constant default expressions and semantics of implicit keyword arguments
                 
    for(int uid <- config.store, 
-       AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int scopeId, constructorLoc) := config.store[uid], 
+       AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int scopeIn, constructorLoc) := config.store[uid], 
+       //bprintln("<uid>: <name>: <constructorLoc>, <M@\loc> <constructorLoc < M@\loc>"),
+       constructorLoc.path == M@\loc.path,
        allKwFields := getAllKeywordFields(uid), !isEmpty(allKwFields)) {
        //println("*** Creating companion for <uid>");
          
@@ -172,9 +176,10 @@ void generateCompanions(Configuration config, bool verbose = true){
        enterFunctionScope(fuidDefaults);
          
        list[MuExp] kwps = [ muAssign("map_of_default_values", fuidDefaults, defaults_pos, muCallMuPrim("make_mmap_str_entry",[])) ];
-       allKWFieldsAndDefaults = getAllKeywordFieldDefaults(uid);
+       //allKWFieldsAndDefaults = getAllKeywordFieldDefaults(uid);
+       allKWFieldsAndDefaultsInModule = getAllKeywordFieldDefaultsInModule(uid, M@\loc.path);
         
-       for(<RName kwf, value defaultVal> <- allKWFieldsAndDefaults) {
+       for(<RName kwf, value defaultVal> <- allKWFieldsAndDefaultsInModule) {
            if(Expression defaultExpr := defaultVal /*&& (defaultExpr@\loc < constructorLoc)*/){
               kwps += muCallMuPrim("mmap_str_entry_add_entry_type_ivalue", 
                                    [ muVar("map_of_default_values",fuidDefaults,defaults_pos), 
@@ -194,9 +199,9 @@ void generateCompanions(Configuration config, bool verbose = true){
         */
          
        //println("**** Create companions per common data field");
-       //println("Number of default fields: <size(allKWFieldsAndDefaults)>");
+       //println("Number of default fields: <size(allKWFieldsAndDefaultsInModule)>");
        
-       dataKWFieldsAndDefaults = [<kwf, defaultExpr> | <kwf, defaultVal> <- allKWFieldsAndDefaults, 
+       dataKWFieldsAndDefaults = [<kwf, defaultExpr> | <kwf, defaultVal> <- allKWFieldsAndDefaultsInModule, 
                                                       Expression defaultExpr := defaultVal,
                                                       !(defaultExpr@\loc < constructorLoc)];
        
