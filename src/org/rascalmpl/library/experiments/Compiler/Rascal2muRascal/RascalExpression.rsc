@@ -1817,7 +1817,7 @@ MuExp translate(e:(Expression) `<Expression argument> *`) =
 // The isDefined and isDefinedElse expression are implemented using the following strategy:
 // - try to avoid recomputation
 // - try to avoid throwing exceptions
-// This is applied to the computation of subscripts and annotation that are part of an isDefined or isDefinedElse expression.
+// This is applied to the computation of subscripts and annotations that are part of an isDefined or isDefinedElse expression.
 // The remaining cases are handled by a general scheme that selectively catches any generated exceptions.
 
 MuExp translate(e:(Expression) `<Expression argument> ?`) =
@@ -1897,6 +1897,19 @@ MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) {
 public MuExp translateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
     str fuid = topFunctionScope();
     str varname = asTmp(nextLabel());
+    
+    if(muCallPrim3("adt_field_access", args, lhs_src) := muLHS){    // field defined or keyword field set?
+       return muBlockWithTmps(
+              [ < varname, fuid > ],
+              [ ],
+              [
+               muAssignTmp(varname, fuid, muCallPrim3("is_defined_adt_field_access_get", args[0..2], lhs_src)),
+               muIfelse(nextLabel(), 
+                        muCallMuPrim("subscript_array_int",  [muTmp(varname,fuid), muCon(0)]),
+                        [muCallMuPrim("subscript_array_int", [muTmp(varname,fuid), muCon(1)])],
+                        [muRHS])
+              ]);             
+    }
     
 	// Check if evaluation of the expression throws one of a few specific exceptions;
 	// do this by checking equality of the value constructor names
