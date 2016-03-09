@@ -459,7 +459,7 @@ void extractScopes(Configuration c){
     }
     
     // Make sure that the original and the normalized location is present.
-    //for(l <- config.locationTypes){
+    //for(l <- config.Execu){
     //	config.locationTypes[l] = config.locationTypes[l];
     //}
     
@@ -651,6 +651,8 @@ void extractScopes(Configuration c){
      extractConstantDefaultExpressions();
 }
 
+// Get all the (positional and keyword) fields for a given constructor
+
 set[str] getAllFields(UID cuid){
     a_constructor = config.store[cuid];
     //println("getAllFields(<cuid>): <a_constructor>");
@@ -667,6 +669,8 @@ set[str] getAllFields(UID cuid){
     return result;
 }
 
+// Get all the keyword fields for a given constructor
+
 set[str] getAllKeywordFields(UID cuid){
     a_constructor = config.store[cuid];
     //println("getAllKeywordFields(<cuid>): <a_constructor>");
@@ -682,6 +686,7 @@ set[str] getAllKeywordFields(UID cuid){
     return result;
 } 
  
+// Get all the keyword fields and their types for a given constructor
 
 map[RName,Symbol] getAllKeywordFieldsAndTypes(UID cuid){
     a_constructor = config.store[cuid];
@@ -697,19 +702,22 @@ map[RName,Symbol] getAllKeywordFieldsAndTypes(UID cuid){
     return result;
 }
 
-lrel[RName,value] getAllKeywordFieldDefaults(UID cuid){
+// For a given constructor, get all keyword defaults defined in the current module
+
+lrel[RName,value] getAllKeywordFieldDefaultsInModule(UID cuid, str modulePath){
     a_constructor = config.store[cuid];
-    //println("getAllKeywordDefaults(<cuid>): <a_constructor>");
-    result = [];
+    //println("getAllKeywordDefaultsInModule(<cuid>): <a_constructor>, <modulePath>");
+    lrel[RName,value] result = [];
     if(a_constructor is constructor){
         its_adt = config.store[cuid].rtype.\adt;
         uid_adt = datatypes[its_adt];
-        result = toList(config.dataKeywordDefaults[uid_adt] +  config.dataKeywordDefaults[cuid]);
+        result = [ defExp | defExp <- config.dataKeywordDefaults[uid_adt], Expression e := defExp[1], e@\loc.path == modulePath] +
+                 [ defExp | defExp <- config.dataKeywordDefaults[cuid], Expression e := defExp[1], e@\loc.path == modulePath];
         result = sort(result, bool(tuple[RName,value] a, tuple[RName,value] b) { return Expression aExp := a[1] && Expression bExp := b[1] && aExp@\loc.offset < bExp@\loc.offset; });
     }
-    //println("getAllKeywordDefaults(<cuid>) =\> <result>");
+    //println("getAllKeywordDefaultsInModule(<cuid>, modulePath) =\> <result>");
     return result;
-}  
+}   
 
 // extractConstantDefaultExpressions:
 // For every ADT, for every constructor, find the default fields with constant default expression
@@ -864,7 +872,7 @@ Symbol getType(loc l) {
     	return config.locationTypes[l];
     }
     //////l = normalize(l);
-    //iprintln(config.locationTypes);
+    iprintln(config.locationTypes);
     assert config.locationTypes[l]? : "getType for <l>";
 	//println("getType(<l>) = <config.locationTypes[l]>");
 	return config.locationTypes[l];
