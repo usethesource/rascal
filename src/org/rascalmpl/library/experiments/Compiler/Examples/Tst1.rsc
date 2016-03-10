@@ -1,11 +1,16 @@
 module experiments::Compiler::Examples::Tst1
 
-data F = z(int l = 2) | u();
+import IO;
+extend lang::java::m3::AST;
+import lang::java::m3::TypeSymbol;
 
-value main() {
-  e = z();
-  e.l?=3; // set l to 3 if the field is not set, otherwise leave it
-  return e.l == 3;
+data Expression(
+    loc src = |unknown:///|, 
+    loc decl = |unresolved:///|,
+    TypeSymbol typ = unresolved() 
+);
+
+int main() {
+    return 0;
 }
-
  
