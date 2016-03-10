@@ -1,10 +1,11 @@
 module experiments::Compiler::Examples::Tst1
 
-bool anonymousFunctionComposition() {
-   return  ( int (int n) { return n + 1; }
-           o int (int n) { return n * 2; }
-           ) 
-           (10) ;
-} 
+data F = z(int l = 2) | u();
 
-value main() =  anonymousFunctionComposition();
+value main() {
+  e = z();
+  e.l?=3; // set l to 3 if the field is not set, otherwise leave it
+  return e.l == 3;
+}
+
+ 

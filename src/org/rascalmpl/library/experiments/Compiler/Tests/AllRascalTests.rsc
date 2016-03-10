@@ -19,7 +19,7 @@ private list[str] basicTests = [
 	"Functions",
 	"Integers",
 	"IO",
-//	"IsDefined",         // <============ JVM
+	"IsDefined",
 	"ListRelations",
 	"Lists",
 	"Locations",
@@ -45,7 +45,7 @@ private list[str] functionalityTests = [
 "BacktrackingTests",		// OK
 "CallTests",				// OK
 "CallTestsAux",
-"ComprehensionTests",		// OK, 3 tests fail that correspond to empty enumerations: interpreter gives false, compiler gives true.
+"ComprehensionTests",		// OK
 "ConcretePatternTests1",	// OK
 "ConcretePatternTests2",	// OK
 "ConcretePatternTests3",	// OK
