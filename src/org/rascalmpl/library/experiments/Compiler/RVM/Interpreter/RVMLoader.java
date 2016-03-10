@@ -469,7 +469,8 @@ static FSTCodeBlockSerializer codeblockSerializer;
 					}
 
 					if(hasExtends){
-						if(extendedModuleSet.contains(name.substring(0, name.indexOf("/")))){
+						int n = name.indexOf("/");
+						if(n >=0 && extendedModuleSet.contains(name.substring(0, n))){
 							rootWriter.insert(iname);
 						}
 					}
