@@ -38,82 +38,78 @@ private list[str] basicTests = [
 
 private list[str] functionalityTests = [
 
-"AccumulatingTests",		// OK
-"AliasTests",				// OK
-"AnnotationTests",			// OK
-"AssignmentTests",			// OK
-"BacktrackingTests",		// OK
-"CallTests",				// OK
+"AccumulatingTests",
+"AliasTests",
+"AnnotationTests",
+"AssignmentTests",
+"BacktrackingTests",
+"CallTests",
 "CallTestsAux",
-"ComprehensionTests",		// OK
-"ConcretePatternTests1",	// OK
-"ConcretePatternTests2",	// OK
-"ConcretePatternTests3",	// OK
-"ConcreteSubscriptAndSliceTests",   // OK
-"ConcreteSyntaxTests1",     // OK
-"ConcreteSyntaxTests2",     // OK
-"ConcreteSyntaxTests3",     // OK
-"ConcreteSyntaxTests4",     // OK
-"ConcreteTerms",			// OK
-"DataDeclarationTests",		// OK
-"DataTypeTests",			// OK
-"DeclarationTests",			// OK
-"FunctionCompositionTests",	// OK
+"ComprehensionTests",
+"ConcretePatternTests1",
+"ConcretePatternTests2",
+"ConcretePatternTests3",
+"ConcreteSubscriptAndSliceTests",
+"ConcreteSyntaxTests1",
+"ConcreteSyntaxTests2",
+"ConcreteSyntaxTests3", 
+"ConcreteSyntaxTests4",
+"ConcreteTerms",
+"DataDeclarationTests",
+"DataTypeTests",
+"DeclarationTests",
+"FunctionCompositionTests",
 "InterpolationTests",
-"KeywordParameterImportTests",    //<===========  ????
+"KeywordParameterImportTests",
 "KeywordParameterTests",
 "ParsingTests",
-"PatternTests",				// OK
+"PatternTests",
 "PatternDescendantTests",
 "PatternList3Tests",
-"ProjectionTests", 			// OK
+"ProjectionTests",
 "RangeTests",				// OK, 4 tests fail but this is due to false 1. == 1.0 comparisons.
-"ReducerTests",				// OK
-"RegExpTests",				// OK
-//"ScopeTests",				// OK OutOfMemory????
-"SetMatchTests1",           // OK
-"SetMatchTests2",           // OK
-"StatementTests",			// OK
-"SubscriptTests",			// OK
-"TryCatchTests",			// OK    				
-"VisitTests"				// OK
+"ReducerTests",
+"RegExpTests",
+//"ScopeTests",				// OK but OutOfMemory????
+"SetMatchTests1", 
+"SetMatchTests2",
+"StatementTests",
+"SubscriptTests",
+"TryCatchTests",  				
+"VisitTests"
 ];
 
 
 private list[str] libraryTests = [
-
-// OK
-
-
-"BooleanTests",			    // OK
-"IntegerTests",			    // OK
+"BooleanTests",
+"IntegerTests",
 "ListRelationTests",
-"ListTests" ,			    // OK
-"MapTests",				    // OK
-"MathTests"	,			    // OK
-"NodeTests",                // OK
-"NumberTests",			    // OK
-"RelationTests",		    // OK
-"SetTests",				    // OK
-"StringTests",			    // OK
+"ListTests",
+"MapTests",
+"MathTests",
+"NodeTests",
+"NumberTests",
+"RelationTests",
+"SetTests",
+"StringTests",
 "TypeTests",
 "ValueIOTests",
 "analysis::graphs::GraphTests",
 "analysis::statistics::DescriptiveTests",
 "analysis::statistics::RangeUtils",
-"lang::csv::CSVIOTests",      // OK
-"lang::json::JSONIOTests"    // OK
+"lang::csv::CSVIOTests",
+"lang::json::JSONIOTests"
 ];
 
 private list[str] importTests = [
-"ImportTests1",             // OK
-"ImportTests2",             // OK
-"ImportTests3",             // OK
-"ImportTests4",             // OK
-"ImportTests5",             // OK
-"ImportTests6",             // OK
-"ImportTests7",              // OK
-"ImportTests8",              // OK
+"ImportTests1", 
+"ImportTests2",
+"ImportTests3",
+"ImportTests4",
+"ImportTests5",
+"ImportTests6",
+"ImportTests7",
+"ImportTests8", 
 "ModuleInitRange"
 ];
 
@@ -133,84 +129,85 @@ private list[str] extendTests  = [
 ];
 
 private list[str] typeTests = [
-"StaticTestingUtilsTests",	// OK
-"AccumulatingTCTests",		// OK
+"StaticTestingUtilsTests",
+"AccumulatingTCTests",
 //"AliasTCTests",			// C & I: Overflow/LOOP?
-"AllStaticIssues",			// C == I : 1 fail : Issue504
-"AnnotationTCTests",		// OK
-"AssignmentTCTests",		// OK
+"AllStaticIssues",
+"AnnotationTCTests",
+"AssignmentTCTests",
 "CallTCTests",				// C == I : 1 fails callError6
-"ComprehensionTCTests",		// C == I:  2 fail: emptyTupleGeneratorError[34]
+"ComprehensionTCTests",
 			
-"DataDeclarationTCTests",	// OK
-"DataTypeTCTests",			// OK
-"DeclarationTCTests",		// OK
-"ImportTCTests",			// OK
-"PatternTCTests",			// OK
-"ProjectionTCTests",		// OK
-"RegExpTCTests",			// OK
-"ScopeTCTests",				// OK
-"StatementTCTests",			// OK
-"SubscriptTCTests",			// OK
-"VisitTCTests"				// OK
+"DataDeclarationTCTests",
+"DataTypeTCTests",
+"DeclarationTCTests",
+"ImportTCTests",
+"PatternTCTests",
+"ProjectionTCTests",
+"RegExpTCTests",
+"ScopeTCTests",
+"StatementTCTests",
+"SubscriptTCTests",
+"VisitTCTests"
 ];
 
 
 private list[str] files_with_tests =
 [
-"demo::basic::Ackermann",                             // OK
-"demo::basic::Bubble",                                // OK
-"demo::basic::Factorial",                             // OK
-"demo::common::Calls",                                // OK
-"demo::common::ColoredTrees",                         // OK
-"demo::common::CountConstructors",                    // OK
-"demo::common::Cycles",                               // OK
-"demo::common::Derivative",                           // OK
-"demo::common::Lift",                                 // OK
-"demo::common::StringTemplate",                       // OK
-"demo::common::Trans",                                // OK
-"demo::common::WordReplacement",                      // OK
-"demo::common::WordCount::CountInLine1",               // OK
-"demo::common::WordCount::CountInLine2",               // OK
-"demo::common::WordCount::CountInLine3",               // OK
-"demo::common::WordCount::WordCount",                  // OK
-"demo::Dominators",                                  // OK
-"demo::lang::Exp::Abstract::Eval",                      // OK
-"demo::lang::Exp::Combined::Automatic::Eval",            // OK
-"demo::lang::Exp::Combined::Manual::Eval",               // OK
-"demo::lang::Exp::Concrete::NoLayout::Eval",             // OK
-"demo::lang::Exp::Concrete::WithLayout::Eval",           // OK
-"demo::lang::Func::Test",                              // OK
-"demo::lang::Lisra::Test",                             // OK
-"demo::McCabe",                                      // OK
-"demo::ReachingDefs",                                // OK
-"demo::Slicing",                                     // OK
-"demo::Uninit",                                      // OK
-"lang::rascal::format::Escape",                        // OK
-"lang::rascal::format::Grammar",                       // OK
-"lang::rascal::grammar::Lookahead",                    // OK
-"lang::rascal::grammar::tests::ParserGeneratorTests",   // ok
-"lang::rascal::grammar::tests::PicoGrammar",            // ok
-"lang::rascal::grammar::tests::CGrammar",            	// ok
-"lang::rascal::grammar::tests::CharactersTests", 		// OK
-"lang::rascal::grammar::tests::LiteralsTests", 			// 5 fail
-"lang::rascal::grammar::tests::LookaheadTests",         // OK
-"lang::rascal::grammar::tests::RascalGrammar",          // ok
-"lang::rascal::syntax::tests::ConcreteSyntax",          // OK
-"lang::rascal::syntax::tests::ExpressionGrammars",      // OK
-"lang::rascal::syntax::tests::ImplodeTests",            // 4 fail
-"lang::rascal::syntax::tests::KnownIssues",             // OK
-//"lang::rascal::syntax::tests::ParsingRegressionTests",  // OK
-"lang::rascal::meta::ModuleInfoTests",  
-"lang::rascal::syntax::tests::PreBootstrap",            // OK
-"lang::rascal::syntax::tests::SolvedIssues",            // OK
-"lang::rascal::types::tests::AbstractKindTests",		// OK
-"lang::rascal::types::tests::AbstractNameTests",		// OK
-//"lang::rascal::types::tests::TypeInstantiationTests",
-"lang::rascal::types::tests::UtilTests",				// OK
-// "lang::yaml::Model",                                  // Error <============ JVM
-"util::PriorityQueue",                               // OK
-"util::UUID"                                         // OK
+"demo::basic::Ackermann",
+"demo::basic::Bubble",
+"demo::basic::Factorial",
+"demo::common::Calls",
+"demo::common::ColoredTrees",
+"demo::common::CountConstructors",
+"demo::common::Cycles",
+"demo::common::Derivative",
+"demo::common::Lift",
+"demo::common::StringTemplate",
+"demo::common::Trans",
+"demo::common::WordReplacement",
+"demo::common::WordCount::CountInLine1",
+"demo::common::WordCount::CountInLine2",
+"demo::common::WordCount::CountInLine3",
+"demo::common::WordCount::WordCount",
+"demo::Dominators", 
+"demo::lang::Exp::Abstract::Eval",
+"demo::lang::Exp::Combined::Automatic::Eval",
+"demo::lang::Exp::Combined::Manual::Eval",
+"demo::lang::Exp::Concrete::NoLayout::Eval",
+"demo::lang::Exp::Concrete::WithLayout::Eval",
+"demo::lang::Func::Test",
+"demo::lang::Lisra::Test",
+"demo::McCabe",
+"demo::ReachingDefs",
+"demo::Slicing",
+"demo::Uninit",
+"lang::rascal::format::Escape",
+"lang::rascal::format::Grammar",
+"lang::rascal::grammar::Lookahead",
+"lang::rascal::grammar::tests::ParserGeneratorTests",
+"lang::rascal::grammar::tests::PicoGrammar",
+"lang::rascal::grammar::tests::CGrammar",
+"lang::rascal::grammar::tests::CharactersTests",
+"lang::rascal::grammar::tests::LiteralsTests",
+"lang::rascal::grammar::tests::LookaheadTests",
+"lang::rascal::grammar::tests::RascalGrammar",
+"lang::rascal::syntax::tests::ConcreteSyntax",
+"lang::rascal::syntax::tests::ExpressionGrammars",
+"lang::rascal::syntax::tests::ImplodeTests",          // 4 fail
+"lang::rascal::syntax::tests::KnownIssues",
+//"lang::rascal::syntax::tests::ParsingRegressionTests",  // OK, but parses 800 files, takes too long
+"lang::rascal::meta::ModuleInfoTests",
+"lang::rascal::syntax::tests::PreBootstrap",
+"lang::rascal::syntax::tests::SolvedIssues",
+"lang::rascal::types::tests::AbstractKindTests",
+"lang::rascal::types::tests::AbstractNameTests",
+"lang::rascal::types::tests::TypeInstantiationTests", 
+"lang::rascal::types::tests::UtilTests",
+// "lang::yaml::Model",                               // Error <============ JVM
+"util::PriorityQueue",
+"util::UUID" 
+//"lang::rascal::tests::library::lang::java::m3::BasicM3Tests"  // requires jdt
 ];
 
 private list[str] reachability_tests = [
