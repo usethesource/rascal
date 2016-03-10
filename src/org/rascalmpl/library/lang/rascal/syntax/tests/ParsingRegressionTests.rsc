@@ -22,9 +22,10 @@ public bool testModules(list[loc] files, list[loc] path) {
   errors = [];
   for (f <- files) {
     event("parsing <f>");
+    println("parsing <f>");
     
     try {
-      t = parseModule(f, path);
+      t = parseModule(f);
       if (hasAmb(t)) {
         println("Ambiguity found while parsing: <f>");
         iprintln(diagnose(t));
