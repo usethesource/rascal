@@ -59,6 +59,8 @@ public class CodeBlock implements Serializable {
 	
 	public long[] finalCode;
 	
+	
+	
 	CodeBlock(String name, Map<IValue, Integer> constantMap, ArrayList<IValue> constantStore, IValue[] finalConstantStore,
 			Map<Type, Integer> typeConstantMap, ArrayList<Type> typeConstantStore, Type[] finalTypeConstantStore,
 			Map<String, Integer> functionMap, Map<String, Integer> resolver, Map<String, Integer> constructorMap, long[] finalCode
@@ -87,6 +89,10 @@ public class CodeBlock implements Serializable {
 		this.constantStore = new ArrayList<IValue>();
 		this.typeConstantMap = new HashMap<Type, Integer>();
 		this.typeConstantStore = new ArrayList<Type>();
+	}
+	
+	void clearForJVM(){
+		finalCode = new long[] {};
 	}
 	
 	public void defLabel(String label, Instruction ins){
