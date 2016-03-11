@@ -351,7 +351,7 @@ Figure luxembourg() = title("Luxembourg", vcat(lineWidth = 0,
                     ]));
                     
 Figure german() = title("Germany", vcat(lineWidth = 0,figs=[
-                     box( fillColor="#0000")
+                     box(fillColor="#000000")
                     ,box(fillColor="#D00")
                     ,box(fillColor="#FFCE00")
                     ]));
@@ -368,7 +368,7 @@ Figure  belgium(int width = -1, int height = -1) =
                      width = width, 
                      height = height,
                      figs=[
-                     box(lineWidth = 0,fillColor="#0000")
+                     box(lineWidth = 0,fillColor="#000000")
                     ,box(lineWidth = 0,fillColor="#FAE042")
                     ,box(lineWidth = 0,fillColor="#ED2939")
                     ])); 
@@ -626,8 +626,8 @@ public void ftetris1(loc l) = writeFile(l, toHtmlString(
 ));
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-Figure demoFig() = grid(vgap=4, figArray=[
+public list[list[Figure]] figures = 
+[
               [demo1(), demo2()]
              ,[demo3() , demo4()]
              ,[demo5(), demo6()]
@@ -639,13 +639,27 @@ Figure demoFig() = grid(vgap=4, figArray=[
              ,[demo18(), demo19()]
              ,[tetris(), box(fig=shrink(false), size=<400, 400>, resizable=true)]
              ,[decision(), triangle()]
-            ]);
+            ];
+            
+Figure demoFig() = grid(vgap=4, figArray=figures);
             
 
                   
 void demo() = render(demoFig(),
-     width = 800, height = 2000, resizable = false);
+     width = 1800, height = 2000, resizable = false);
      
 void fdemo(loc l) {
       writeFile(l, toHtmlString(demoFig(), debug = false, resizable = false, width = 800, height = 1800));
+      }
+      
+ Figure sb(Figure tt) {return box(size=<20, 20>, fillColor = "antiquewhite", tooltip = tt);}
+ 
+ list[Figure] sb(list[Figure] tt) {return  mapper(tt, sb);}
+ 
+ Figure summary() = grid(figArray = [[sb(x)|x<-y]|y<-figures]);
+ 
+ void tsummary()= render(summary());
+ 
+ void fsummary(loc l) {
+      writeFile(l, toHtmlString(summary()));
       }

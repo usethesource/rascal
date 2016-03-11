@@ -53,6 +53,17 @@ ajax.post = function(url, data, callback, sync) {
 	ajax.send(url, callback, 'POST', query.join('&'), sync)
 };
 
+function makeAbsoluteContext(element) {
+	  return function(x,y) {
+	    // var offset = svgDocument.getBoundingClientRect();
+	    var matrix = element.getScreenCTM();
+	    return {
+	      x: (matrix.a * x) + (matrix.c * y) + matrix.e, //- offset.left,
+	      y: (matrix.b * x) + (matrix.d * y) + matrix.f // - offset.top
+	    };
+	  };
+	}
+
 function askServer(path, parameters, timer, timeout, callback) {
 	ajax.post(path, parameters, function(responseText) {
 		try {
@@ -535,15 +546,18 @@ function adjustTable(id1, clients) {
 	var aUndefWH = clients.filter(undefWH);
 	var width = d3.select("#" + id1).attr("width");
 	var height = d3.select("#" + id1).attr("height");
+	if (width==null || height == null) {
+        width = d3.select("#" + id1).style("width");
+        height = d3.select("#" + id1).style("height");
+        }
 	if ((height == null || width == null) && aUndefWH.length == 0) {
 		width = document.getElementById(id1).getBoundingClientRect().width;
 		height = document.getElementById(id1).getBoundingClientRect().height;
 		d3.select("#" + id1).attr("width", "" + width + "px").attr("height",
 				"" + height + "px");
-	} else {
-		width = parseInt(width);
-		height = parseInt(height);
 	}
+    width = parseInt(width);
+    height = parseInt(height);
 	d3.select("#" + id1 + "_outer_fo").attr("width", "" + width + "px").attr(
 			"height", "" + height + "px")
 	d3.select("#" + id1 + "_svg").attr("width", "" + width + "px").attr(
@@ -559,6 +573,10 @@ function adjustTableWH1(id1, clients) {
 		var height = document.getElementById(id1).getBoundingClientRect().height;
 		d3.select("#" + id1).attr("width", "" + width + "px").attr("height",
 				"" + height + "px");
+		d3.select("#" + id1 + "_outer_fo").attr("width", "" + width + "px").attr(
+				"height", "" + height + "px")
+		d3.select("#" + id1 + "_svg").attr("width", "" + width + "px").attr(
+				"height", "" + height + "px");
 	}
 }
 
@@ -764,4 +782,49 @@ function diagClose(e, id) {
 	e.preventDefault();
 	document.querySelector('dialog').close();
 };
+
+function getWidth(q) {
+	var r = d3.select(q).attr("width");
+	// if (r==null|| r=="auto") r = d3.select(q).style("width");
+	return parseInt(r);
+}
+
+function getHeight(q) {
+	var r = d3.select(q).attr("height");
+	// if (r==null || r =="auto") r = d3.select(q).style("height");
+	return parseInt(r);
+}
+
+function adjust_tooltip(q) {
+	var s = d3.select("#"+q);
+	var convert = makeAbsoluteContext(s.node());   
+	var x = s.attr("x");
+    var y = s.attr("y");
+    var w = getWidth("#"+q+"_tooltip_svg");
+    var h = getHeight("#"+q+"_tooltip_svg");
+    var z = convert(x, y);
+	s.on("mouseenter", function(){
+		    d3.select("#overlay").attr("width", z.x+w);
+		    d3.select("#overlay").attr("height", z.y+h);
+		    if (d3.select("#"+q+"_tooltip_outer_fo").empty()) {
+		        d3.select("#"+q+"_tooltip_svg").attr("x", z.x).attr("y", z.y);
+	            }
+		    d3.select("#"+q+"_tooltip").style("visibility", "visible");
+		    d3.select("#"+q+"_tooltip_fo").style("visibility", "visible");
+		    });
+	s.on("mouseleave", function(){
+		    d3.select("#"+q+"_tooltip").style("visibility", "hidden");
+		    d3.select("#"+q+"_tooltip_fo").style("visibility", "hidden");
+		    });
+    var t = d3.select("#"+q+"_tooltip_svg");
+    //t.attr("x", 0).attr("y", 0);
+    // t.attr("width", 1600).attr("height", 1600);
+    var u = d3.select("#"+q+"_tooltip_outer_fo");
+    if (!u.empty()) {
+    	u.attr("x", z.x).attr("y", z.y);
+        t.attr("width", w + z.x).attr("height", h + z.y); 
+        }
+    d3.select("#"+q+"_tooltip").style("visibility", "hidden");
+	d3.select("#"+q+"_tooltip_fo").style("visibility", "hidden");
+}
 

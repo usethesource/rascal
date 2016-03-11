@@ -82,43 +82,43 @@ function  treemapDraw(id, root, width, height) {
 	 
 }
 
-function  treeDraw(id, root, width, height) {
+function  treeDraw(id, ids, root, width, height, fill, fillopacity, stroke, stroke_width) {
+	 // alert(JSON.stringify(root));
+	 var root_width = d3.select("#"+root.name+"_svg").attr("width");
+	 var root_height = d3.select("#"+root.name+"_svg").attr("height");
 	 var tree = d3.layout.tree()
-	    .size([300,150])
+	    .size([width/2,height/2])
 	    .children(function(d) {return d.children;})
-	    .separation(function(a,b){
-	      return (a.width+b.width)/2+2;
+	    .separation(function(a,b){  
+	      var awidth = d3.select("#"+a.name+"_svg").attr("width");
+	      var bwidth = d3.select("#"+b.name+"_svg").attr("width");
+	      // alert(awidth);
+	      return (awidth+bwidth)/2+2;
 	      })
 	    ;
-	 var vis = d3.select("#"+id)
-     .attr("width", 400)
-     .attr("height", 300)
-     .append("svg:g")
-     .attr("transform", "translate(40, 0)"); // shift everything to the right
-
-	 
+	 var vis = d3.select("#"+id+"_svg").attr("width", width).attr("height", height) // .append("svg:g")
+	      ;
+	      d3.select("#"+id).attr("width", width).attr("height", height); // .style("visibility","hidden");
 	      var diagonal = d3.svg.diagonal()
 	      // change x and y (for the left to right tree)
-	      .projection(function(d) { return [d.x, d.y]; });
+	      .projection(function(d) { return [d.x+root_width/2, d.y+root_height/2]; });
 	 
 	      // Preparing the data for the tree layout, convert data into an array of nodes
 	      var nodes = tree.nodes(root);
 	      // Create an array with all the links
 	      var links = tree.links(nodes);
-	 
-	      var link = vis.selectAll("pathlink")
+	      var link = vis.selectAll("path")
 	      .data(links)
-	      .enter().append("svg:path")
+	      // .enter().append("svg:path")
 	      .attr("class", "link")
-	      .attr("d", diagonal)
-	 
-	      var node = vis.selectAll("g.node")
-	      .data(nodes)
-	      .enter().append("svg:g")
-	      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-	 
-	      // Add the dot at every node
-	      node.append("svg:rect")
-	      .attr("width", function(d) {return d.width;})
-	      .attr("height", function(d) {return d.height;}); 
+	      .attr("d", diagonal);
+	      for (var i=0;i<nodes.length;i++) {
+	    	  var d = nodes[i];
+	    	  var s = "#"+d.name+"_svg";
+	    	  var width = d3.select(s).attr("width");
+	    	  var height = d3.select(s).attr("height");
+	    	  d3.select(s).attr("x", (d.x-width/2+root_width/2));  
+	    	  d3.select(s).attr("y", (d.y-height/2+root_height/2)); 
+	      }
+	      d3.selectAll(".link").style("fill","none").style("stroke","#ccc").style("stroke-width","4.5px");
     }

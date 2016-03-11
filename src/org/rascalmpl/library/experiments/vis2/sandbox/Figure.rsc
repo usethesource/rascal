@@ -329,6 +329,7 @@ public data Figure(
    |d3Pack(DDD d = ddd(), str fillNode="rgb(31, 119, 180)", str fillLeaf = "ff7f0e", num fillOpacityNode=0.25, num fillOpacityLeaf=1.0,
           int diameter = 960)
    |d3Treemap(DDD d = ddd())
+   |d3Tree(Figure root)
    |d3Tree(DDD d = ddd())
    ;
    
@@ -340,8 +341,9 @@ data GraphOptions = graphOptions(
 data NodeProperty = nodeProperty(str shape="",str labelStyle="", str style = "", str label="");
 
 data Edge = edge(str from, str to, str label = "", str lineInterpolate="basis" // linear, step-before, step-after
-     ,str lineColor = "" ,str labelStyle="", str arrowheadStyle = "", str id = "",
-     str labelPos= "r", int labelOffset = 10);
+     ,str lineColor = "" ,str labelStyle="", str arrowheadStyle = "" // normal, vee, undirected
+     , str id = "", str labelPos= "r"  // l, r, c
+     , int labelOffset = 10);
   
 data ChartArea ( 
      value left = "",

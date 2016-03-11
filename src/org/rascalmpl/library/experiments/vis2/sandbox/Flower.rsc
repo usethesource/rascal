@@ -32,7 +32,7 @@ Figure flower() {
     +at(25, 25, box(lineWidth =0, size=<2*r, 2*r>, align = centerMid, fillColor="none", fig=circle(r=0.6*r
     , fillColor = "yellow", fillOpacity=0.7, fig = circle(r=0.1*r, fillColor="green"))))
     ;
-    return overlay(size=<150, 150>, lineWidth = 0, figs=fs, resize=false);
+    return overlay(size=<150, 150>, lineWidth = 0, figs=fs);
     }
     
 void tflower() = render(flower(), size=<400, 400>, resize= false, borderWidth = 1);
