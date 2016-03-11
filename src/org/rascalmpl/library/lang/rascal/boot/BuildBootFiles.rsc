@@ -44,7 +44,8 @@ import experiments::Compiler::CompileMuLibrary;
 import experiments::Compiler::Rascal2Info::Collect;
 
 loc BOOT = |file:///Users/paulklint/git/rascal/src/boot/|;
-loc SHELLSCRIPT = |file:///Users/paulklint/install.sh|;
+loc BINBOOT = |home:///bin-boot|;
+loc SHELLSCRIPT = |home:///install.sh|;
 
 // Library modules that will be included in boot/stdlib
 
@@ -93,13 +94,21 @@ list[str] libraryModules =
     "util::Webserver"    
 ];
 
+str moduleName2Bin(str moduleName, str ext) =
+    replaceAll(moduleName, "::", "/") + "." + ext;
+
 // Compile and serialize a module and generate a command to move the result to the root of the BOOT directory
 
 str serialize(str moduleName, PathConfig pcfg, bool jvm=false){
      report("Compiling <moduleName>");
      compileAndLink(moduleName, pcfg, verbose=true, jvm=jvm);
      serialized = getDerivedWriteLoc(moduleName, "rvm.ser.gz", pcfg);
-     return "cp <serialized.path> <(pcfg.binDir.parent + serialized.file).path>\n";
+     cmd = "cp .<serialized.path> <(BOOT + moduleName2Bin(moduleName, "rvm.ser.gz")).path>\n";
+     if(jvm){
+        classLoc = getDerivedWriteLoc(moduleName + "\\$Compiled", "class", pcfg);
+        cmd += "cp .<classLoc.path> <(BOOT + moduleName2Bin(moduleName + "\\$Compiled", "class")).path>\n";
+     }
+     return cmd;
 }
 
 // Fancy reporting
@@ -114,13 +123,12 @@ void report(str msg){
 // build the MuLibrary, install it, end then do the complete build.
 
 void buildMuLibrary(){
-     BOOTSTDLIB = BOOT + "stdlib";
-     pcfg = pathConfig(srcPath=[|std:///|], binDir=BOOTSTDLIB, libPath=[BOOTSTDLIB]);
+     pcfg = pathConfig(srcPath=[|std:///|], binDir=BINBOOT, libPath=[BINBOOT]);
      commands = "#!/bin/sh\n";
      report("Compiling MuLibrary");
      compileMuLibrary(pcfg, verbose=true);
      muLib = getMuLibraryCompiledWriteLoc(pcfg);
-     commands += "cp <muLib.path> <(pcfg.binDir.parent + muLib.file).path>\n";
+     commands += "cp <muLib.path> <(BOOT + muLib.file).path>\n";
      writeFile(SHELLSCRIPT, commands);
      report("Commands written to <SHELLSCRIPT>");
 }
@@ -130,12 +138,12 @@ void buildMuLibrary(){
 
 value build(bool jvm=false, bool full=false){
      println("build: full = <full>, jvm = <jvm>");
-     BOOTSTDLIB = BOOT + "stdlib";
-     pcfg = pathConfig(srcPath=[|std:///|], binDir=BOOTSTDLIB, libPath=[BOOTSTDLIB]);
+
+     pcfg = pathConfig(srcPath=[|std:///|], binDir=BINBOOT, libPath=[BINBOOT]);
      
      if(full){
-        report("Removing current compiled standard library <BOOTSTDLIB>");
-        remove(BOOTSTDLIB);
+        report("Removing current compiled standard library <BINBOOT>");
+        remove(BINBOOT);
      }
      
      commands = "#!/bin/sh\n";
@@ -144,7 +152,7 @@ value build(bool jvm=false, bool full=false){
         report("Compiling MuLibrary");
         compileMuLibrary(pcfg, verbose=true, jvm=jvm);
         muLib = getMuLibraryCompiledWriteLoc(pcfg);
-        commands += "cp <muLib.path> <(pcfg.binDir.parent + muLib.file).path>\n";
+        commands += "cp <muLib.path> <(BOOT + muLib.file).path>\n";
      
         report("Compiling standard library modules");
         for(moduleName <- libraryModules){

@@ -58,7 +58,7 @@ public class ParserGenerator {
 	static {
 		if(useCompiledParserGenerator){
 			try {
-				parserGeneratorBinaryLocation = ValueFactoryFactory.getValueFactory().sourceLocation("compressed+boot", "", "ParserGenerator.rvm.ser.gz");
+				parserGeneratorBinaryLocation = ValueFactoryFactory.getValueFactory().sourceLocation("compressed+boot", "", "lang/rascal/grammar/ParserGenerator.rvm.ser.gz");
 				//parserGeneratorBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/lang/rascal/grammar/ParserGenerator.rvm.ser.gz");
 
 			} catch (URISyntaxException e) {

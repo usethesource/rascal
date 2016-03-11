@@ -512,7 +512,7 @@ public class CommandOptions {
 	public ISourceLocation getKernelLocation(){
 		try {
 			ISourceLocation bootDir = getCommandLocOption("bootDir");
-			return vf.sourceLocation("compressed+" + bootDir.getScheme(), "", bootDir.getPath() + "Kernel.rvm.ser.gz");
+			return vf.sourceLocation("compressed+" + bootDir.getScheme(), "", bootDir.getPath() + "lang/rascal/boot/Kernel.rvm.ser.gz");
 		} catch (URISyntaxException e) {
 			printUsageAndExit("Cannot create default location: " + e.getMessage());
 			return null;

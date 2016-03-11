@@ -3,18 +3,29 @@
  */
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.rascalmpl.uri.BootURIResolver;
+import org.rascalmpl.uri.StandardLibraryURIResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.libraries.TestModuleURIResolver;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.type.Type;
 
 public class RVMJVM extends RVMInterpreter {
 
 	final RVMExecutable rvmExec;
-	final byte[] generatedByteCode;
-	final String generatedClassName;
+//	final byte[] generatedByteCode;
+//	final String generatedClassName;
 	RVMonJVM generatedClassInstance;
 
 	/**
@@ -24,46 +35,104 @@ public class RVMJVM extends RVMInterpreter {
 	public RVMJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
 		super(rvmExec, rex);
 
-		generatedByteCode = rvmExec.getJvmByteCode();
-		generatedClassName = rvmExec.getFullyQualifiedDottedName();
+//		generatedByteCode = rvmExec.getJvmByteCode();
+//		generatedClassName = rvmExec.getFullyQualifiedDottedName();
 
 		this.rvmExec = rvmExec;
-		try {
-			createGeneratedClassInstance();
+		
+			try {
+				createGeneratedClassInstance();
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+	}
+	
+	private void createGeneratedClassInstance() throws URISyntaxException, MalformedURLException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		ClassLoader classLoader;
+		
+		ISourceLocation classLoc = rvmExec.getGeneratedClassLocation();
+		String qualifiedName = rvmExec.getGeneratedClassQualifiedName();
+		if(classLoc.getScheme().equals("boot")){
+			//classLoader = BootURIResolver.class.getClassLoader();
+			if(classLoc.getPath().contains("Kernel")){
+				qualifiedName = "lang.rascal.boot.Kernel$Compiled";
+				classLoc = vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/src/boot/");
+			} else 
+				if(classLoc.getPath().contains("ParserGenerator")){
+					qualifiedName = "lang.rascal.grammar.ParserGenerator$Compiled";
+					classLoc = vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/src/boot/");
+				} else {
+					throw new CompilerError("Unknown boot file: " + classLoc);
+				}
+			URL classURL = classLoc.getURI().toURL();
+			URL[] classUrls = { classURL };
+			classLoader = new URLClassLoader(classUrls);
+		} else if(classLoc.getScheme().equals("test-modules")){
+			classLoader = TestModuleURIResolver.class.getClassLoader();
+		} else {
+			URL classURL = classLoc.getURI().toURL();
+			URL[] classUrls = { classURL };
+			classLoader = new URLClassLoader(classUrls);
 		}
-		catch(Exception e) {
-			e.printStackTrace() ;
-		}
+    	
+    	Class<?> generatedClass = classLoader.loadClass(qualifiedName);
+    	Constructor<?>[] cons = generatedClass.getConstructors();
+    	generatedClassInstance = (RVMonJVM) (RVMonJVM) cons[0].newInstance(rvmExec, rex);
+    	this.moduleVariables = generatedClassInstance.moduleVariables;
+    	//classLoader.close();
 	}
 
-	private void createGeneratedClassInstance() {
-		// Oneshot classloader
-		try {
-			Class<?> generatedClass = new ClassLoader(RVMJVM.class.getClassLoader()) {
-				public Class<?> defineClass(String name, byte[] bytes) {
-					return super.defineClass(name, bytes, 0, bytes.length);
-				}
-
-				public Class<?> loadClass(String name) {
-					try {
-						return super.loadClass(name);
-					} catch (ClassNotFoundException e) {
-						e.printStackTrace();
-					}
-					return null;
-				}
-			}.defineClass(generatedClassName, generatedByteCode);
-
-			Constructor<?>[] cons = generatedClass.getConstructors();
-
-			generatedClassInstance = (RVMonJVM) cons[0].newInstance(rvmExec, rex);
-			// make sure that the moduleVariables in this RVM and in the generated class are the same.
-			this.moduleVariables = generatedClassInstance.moduleVariables;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//	private void createGeneratedClassInstance() {
+//		// Oneshot classloader
+//		try {
+//			Class<?> generatedClass = new ClassLoader(RVMJVM.class.getClassLoader()) {
+//				public Class<?> defineClass(String name, byte[] bytes) {
+//					return super.defineClass(name, bytes, 0, bytes.length);
+//				}
+//
+//				public Class<?> loadClass(String name) {
+//					try {
+//						return super.loadClass(name);
+//					} catch (ClassNotFoundException e) {
+//						e.printStackTrace();
+//					}
+//					return null;
+//				}
+//			}.defineClass(generatedClassName, generatedByteCode);
+//
+//			Constructor<?>[] cons = generatedClass.getConstructors();
+//
+//			generatedClassInstance = (RVMonJVM) cons[0].newInstance(rvmExec, rex);
+//			// make sure that the moduleVariables in this RVM and in the generated class are the same.
+//			this.moduleVariables = generatedClassInstance.moduleVariables;
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 	
 	@Override
 	public Object executeRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs){
