@@ -51,10 +51,20 @@ public void standard() {
         );
      } 
      
- void ttests() = render(tests()); 
+ public void ttests() = render(tests()); 
  
  public void ftests(loc l) = writeFile(l, toHtmlString(
    tests()
  ));
+ 
+ Figure simple() =  box(size=<100, 100>, fillColor ="green", tooltip = box(size=<150, 150>, fillColor= "red"));
+ 
+ public void tsimple() = render(simple());
+ 
+ public void fsimple(loc l) = writeFile(l, toHtmlString(
+   simple()
+ )); 
+ 
+ 
  
                  

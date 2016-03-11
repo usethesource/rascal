@@ -45,3 +45,5 @@ public Figure steden(int width = 400, int height = 400) {
              // f.width = width; f.height = height;
              return f;          
    }
+   
+   

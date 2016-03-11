@@ -41,16 +41,14 @@ public Style style(str id, str fillColor="", str lineColor="", int lineWidth = -
      if (lineOpacity>=0) v.lineOpacity = lineOpacity;
      if (!isEmpty(fillColor)) v.fillColor = fillColor;
      if (!isEmpty(lineColor)) v.lineColor = lineColor;
-     if (!isEmpty(visibility)) {
-           v.visibility = visibility;
-           // println("getDescendants: <idx>");
-           list[str] xs = getDescendants(idx);
-           // println(xs);
-           for (x<-xs) {
-              style(x, visibility = visibility);
-             }
-            }
-     // println("style:<idx> <visibility>");
+     // println("visibility? <idx>");
+     //if (!isEmpty(visibility)) {
+     //     v.visibility = visibility;
+     //      list[str] xs = getDescendants(idx);     
+      //     for (x<-xs) {
+     //        style(x, visibility = visibility);
+      //      }
+      //      }
      _setStyle(idx, v);
      return v;
      }
