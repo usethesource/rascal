@@ -698,6 +698,9 @@ public class ASTConverter extends JavaToRascalConverter {
 		}
 	
 		IValue body = node.getBody() == null ? null : visitChild(node.getBody()); 
+		if (body == null && constructorName.equals("constructor")) {
+		    body = constructStatementNode("empty");
+		}
 	
 		ownValue = constructDeclarationNode(constructorName, returnType, name, parameters.asList(), possibleExceptions.asList(), body);
 		setAnnotation("modifiers", extendedModifiers);
