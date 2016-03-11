@@ -94,7 +94,7 @@ public class CommandExecutor {
 		vf = ValueFactoryFactory.getValueFactory();
 		prelude = new Prelude(vf);
 		try {
-			compilerBinaryLocation = vf.sourceLocation("compressed+boot", "", "Kernel.rvm.ser.gz");
+			compilerBinaryLocation = vf.sourceLocation("compressed+boot", "", "lang/rascal/boot/Kernel.rvm.ser.gz");
 			//compilerBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/lang/rascal/boot/Kernel.rvm.ser.gz");
 			consoleInputLocation = vf.sourceLocation("test-modules", "", consoleInputName + ".rsc");
 			consoleBinaryLocation = vf.sourceLocation("compressed+test-modules", "", consoleInputName + ".rvm.ser.gz");

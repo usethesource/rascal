@@ -204,10 +204,10 @@ private list[str] files_with_tests =
 "lang::rascal::types::tests::AbstractNameTests",
 "lang::rascal::types::tests::TypeInstantiationTests", 
 "lang::rascal::types::tests::UtilTests",
-// "lang::yaml::Model",                               // Error <============ JVM
+// "lang::yaml::Model",                               // Error during reading (halts JVM version)
 "util::PriorityQueue",
 "util::UUID" 
-//"lang::rascal::tests::library::lang::java::m3::BasicM3Tests"  // requires jdt
+//"lang::rascal::tests::library::lang::java::m3::BasicM3Tests"  // requires jdt and still has ties with interpreter
 ];
 
 private list[str] reachability_tests = [

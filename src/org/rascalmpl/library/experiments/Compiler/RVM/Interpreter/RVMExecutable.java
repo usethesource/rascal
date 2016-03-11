@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,10 +43,10 @@ public class RVMExecutable implements Serializable{
 	transient static IValueFactory vf;
 	transient static TypeStore store;
 	//transient static TypeSerializer typeserializer;
+	private ISourceLocation rvmProgramLoc;
 	
 	// Serializable fields
 	
-	//private ISourceLocation rvmProgramLoc;
 	private String module_name;
 	private IMap moduleTags;
 	private IMap symbol_definitions;
@@ -67,8 +68,8 @@ public class RVMExecutable implements Serializable{
 	private String uid_module_main;
 	private String uid_module_main_testsuite;
 	
-	private byte[] jvmByteCode;
-	private String fullyQualifiedDottedName;
+	//private byte[] jvmByteCode;
+	//private String fullyQualifiedDottedName;
 	
 	public RVMExecutable(
 			ISourceLocation rvmProgramLoc,
@@ -94,7 +95,7 @@ public class RVMExecutable implements Serializable{
 			IValueFactory vfactory, boolean jvm
 			) throws IOException{
 		
-		//this.rvmProgramLoc = rvmProgramLoc;
+		this.rvmProgramLoc = rvmProgramLoc;
 		
 		this.module_name = module_name;
 		this.moduleTags = moduleTags;
@@ -119,11 +120,15 @@ public class RVMExecutable implements Serializable{
 		vf = vfactory;
 		store = ts;
 		if(jvm){
-			generateClassFile(rvmProgramLoc, false);
+			generateClassFile(false);
 		}
 		if(rvmProgramLoc != null){
 			write(rvmProgramLoc);
 		}
+	}
+	
+	public ISourceLocation getProgramLocation(){
+		return rvmProgramLoc;
 	}
 	
 	public String getModuleName() {
@@ -182,60 +187,79 @@ public class RVMExecutable implements Serializable{
 		return uid_module_main_testsuite;
 	}
 
-	byte[] getJvmByteCode() {
-		return jvmByteCode;
+//	byte[] getJvmByteCode() {
+//		return jvmByteCode;
+//	}
+
+//	void setJvmByteCode(byte[] jvmByteCode) {
+//		this.jvmByteCode = jvmByteCode;
+//	}
+
+//	String getFullyQualifiedDottedName() {
+//		return fullyQualifiedDottedName;
+//	}
+
+//	void setFullyQualifiedDottedName(String fullyQualifiedDottedName) {
+//		this.fullyQualifiedDottedName = fullyQualifiedDottedName;
+//	}
+	
+	ISourceLocation getGeneratedClassLocation() throws URISyntaxException{
+		String targetClassScheme = rvmProgramLoc.getScheme().substring("compressed+".length());
+
+		String targetClassPath = rvmProgramLoc.getPath();
+		targetClassPath = targetClassPath.substring(0,  targetClassPath.length() - ".rvm.ser.gz".length()) + "$Compiled.class";
+
+		return vf.sourceLocation(targetClassScheme, "", targetClassPath);
+	}
+	
+	private String getGeneratedPackageName(){
+		String packageName = ""; //"org.rascalmpl.library";
+		
+		int n = module_name.lastIndexOf("::");
+		
+		if(n > 2){
+			if(!packageName.isEmpty()){
+				packageName +=  ".";
+			}
+			packageName +=  module_name.substring(0,  n).replaceAll("::", ".");
+		}
+		return packageName;
+	}
+	
+	private String getGeneratedClassName(){
+		String className;
+		int n = module_name.lastIndexOf("::");
+		
+		if(n > 2){
+			className = module_name.substring(n + 2);
+		} else {
+			className = module_name;
+		}
+		
+		className += "$Compiled";
+		return className;
+	}
+	
+	String getGeneratedClassQualifiedName(){
+		String packageName = getGeneratedPackageName();
+		String className = getGeneratedClassName();
+		return packageName + (packageName.isEmpty() ? "" : ".") + className;
 	}
 
-	void setJvmByteCode(byte[] jvmByteCode) {
-		this.jvmByteCode = jvmByteCode;
-	}
-
-	String getFullyQualifiedDottedName() {
-		return fullyQualifiedDottedName;
-	}
-
-	void setFullyQualifiedDottedName(String fullyQualifiedDottedName) {
-		this.fullyQualifiedDottedName = fullyQualifiedDottedName;
-	}
-
-	void generateClassFile(ISourceLocation rvmProgramLoc, boolean debug) {
+	void generateClassFile(boolean debug) {
 		OutputStream fileOut = null;
 		try {			
-			String className;
-			String packageName = ""; //"org.rascalmpl.library";
-			
-			int n = module_name.lastIndexOf("::");
-			
-			if(n > 2){
-				className = module_name.substring(n + 2);
-				if(!packageName.isEmpty()){
-					packageName +=  ".";
-				}
-				packageName +=  module_name.substring(0,  n).replaceAll("::", ".");
-			} else {
-				className = module_name;
-			}
-			
-			className += "$Compiled";
-
 			BytecodeGenerator codeEmittor = new BytecodeGenerator(functionStore, overloadedStore, functionMap, constructorMap, resolver);
 	
-			codeEmittor.buildClass(packageName, className, debug) ;
+			codeEmittor.buildClass(getGeneratedPackageName(), getGeneratedClassName(), debug) ;
 
-			jvmByteCode = codeEmittor.finalizeCode();
+			byte[] jvmByteCode = codeEmittor.finalizeCode();
 			
-			fullyQualifiedDottedName = codeEmittor.finalName().replace('/', '.') ;
+			String fullyQualifiedDottedName = codeEmittor.finalName().replace('/', '.') ;
 			
 			if(rvmProgramLoc != null){
-				String targetClassScheme = rvmProgramLoc.getScheme().substring("compressed+".length());
-
-				String targetClassPath = rvmProgramLoc.getPath();
-				targetClassPath = targetClassPath.substring(0,  targetClassPath.length() - ".rvm.ser.gz".length()) + "$Compiled.class";
-
-				ISourceLocation classLoc = vf.sourceLocation(targetClassScheme, "", targetClassPath);
-
+				ISourceLocation classLoc = getGeneratedClassLocation();
 				System.err.println("generateClassFile: " + classLoc + ", " + jvmByteCode.length + " bytes");
-
 				fileOut = URIResolverRegistry.getInstance().getOutputStream(classLoc, false);
 				codeEmittor.dumpClass(fileOut);
 				fileOut.close();
@@ -315,7 +339,7 @@ public class RVMExecutable implements Serializable{
 				}
 			}
 		}
-//		executable.rvmProgramLoc = rvmExecutable;
+		executable.rvmProgramLoc = rvmExecutable;
 		return executable;
 	}
 	
@@ -540,16 +564,16 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		
 		// public byte[] jvmByteCode;
 		
-		if(ex.getJvmByteCode() == null) 
-			System.err.println("byte code is null"); 
-		else 
-			System.err.println("Writing byte code: " + ex.getJvmByteCode().length + " bytes");
-		
-		out.writeObject(ex.getJvmByteCode());
-		
-		// public String fullyQualifiedDottedName;
-		
-		out.writeObject(ex.getFullyQualifiedDottedName());
+//		if(ex.getJvmByteCode() == null) 
+//			System.err.println("byte code is null"); 
+//		else 
+//			System.err.println("Writing byte code: " + ex.getJvmByteCode().length + " bytes");
+//		
+//		out.writeObject(ex.getJvmByteCode());
+//		
+//		// public String fullyQualifiedDottedName;
+//		
+//		out.writeObject(ex.getFullyQualifiedDottedName());
 	}
 
 
@@ -630,23 +654,23 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 
 		String uid_module_main_testsuite = (String) in.readObject();
 		
-		// public byte[] jvmByteCode;
-		
-		byte[] jvmByteCode = (byte[]) in.readObject();
-		if(jvmByteCode == null)	
-			System.err.println("byte code is null");
-		else 
-			System.err.println("Reading byte code: " + jvmByteCode.length + " bytes");
-				
-		// public String fullyQualifiedDottedName;
-	
-		String fullyQualifiedDottedName = (String) in.readObject();
+//		// public byte[] jvmByteCode;
+//		
+//		byte[] jvmByteCode = (byte[]) in.readObject();
+//		if(jvmByteCode == null)	
+//			System.err.println("byte code is null");
+//		else 
+//			System.err.println("Reading byte code: " + jvmByteCode.length + " bytes");
+//				
+//		// public String fullyQualifiedDottedName;
+//	
+//		String fullyQualifiedDottedName = (String) in.readObject();
 
 		RVMExecutable ex = new RVMExecutable(null, module_name, moduleTags, symbol_definitions, functionMap, 
 								functionStore, constructorMap, constructorStore, resolver, overloadedStore, initializers, 
 								testsuites, uid_module_init, uid_module_main, uid_module_main_testsuite, store, vf, false);
-		ex.setJvmByteCode(jvmByteCode);
-		ex.setFullyQualifiedDottedName(fullyQualifiedDottedName);
+//		ex.setJvmByteCode(jvmByteCode);
+//		ex.setFullyQualifiedDottedName(fullyQualifiedDottedName);
 		
 		return ex;
 	
