@@ -286,9 +286,7 @@ public class BytecodeGenerator implements Opcodes {
 
 		if (exitLabel != null) {
 			mv.visitLabel(exitLabel);
-			mv.visitVarInsn(ALOAD, THIS);
-			mv.visitFieldInsn(GETFIELD, fullClassName, "PANIC", "Lorg/rascalmpl/value/IString;");
-			mv.visitInsn(ARETURN);
+			emitPanicReturn();
 		}
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
@@ -331,8 +329,10 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	private void emitReturnNONE(){
-		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/rascalmpl/value/IString;");
+//		mv.visitVarInsn(ALOAD, THIS);
+//		mv.visitFieldInsn(GETFIELD, fullClassName, "NONE", "Lorg/rascalmpl/value/IString;");
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMonJVM", "NONE", "Lorg/rascalmpl/value/IString;");
+		
 		mv.visitInsn(ARETURN);
 	}
 	
@@ -704,8 +704,9 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	public void emitInlineFailreturn() {
-		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "FAILRETURN", "Lorg/rascalmpl/value/IString;");
+//		mv.visitVarInsn(ALOAD, THIS);
+//		mv.visitFieldInsn(GETFIELD, fullClassName, "FAILRETURN", "Lorg/rascalmpl/value/IString;");
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMonJVM", "FAILRETURN", "Lorg/rascalmpl/value/IString;");
 		mv.visitInsn(ARETURN);
 	}
 
@@ -935,16 +936,19 @@ public class BytecodeGenerator implements Opcodes {
 			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "yield0Helper", "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;[Ljava/lang/Object;II)V",false);
 		}
 		
-		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/rascalmpl/value/IString;");
+//		mv.visitVarInsn(ALOAD, THIS);
+//		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/rascalmpl/value/IString;");
+		
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMonJVM", "YIELD", "Lorg/rascalmpl/value/IString;");
 		mv.visitInsn(ARETURN);
 
 		mv.visitLabel(hotEntryLabels[hotEntryPoint]);
 	}
 
 	public void emitPanicReturn() {
-		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "PANIC", "Lorg/rascalmpl/value/IString;");
+//		mv.visitVarInsn(ALOAD, THIS);
+//		mv.visitFieldInsn(GETFIELD, fullClassName, "PANIC", "Lorg/rascalmpl/value/IString;");
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMonJVM", "PANIC", "Lorg/rascalmpl/value/IString;");
 		mv.visitInsn(ARETURN);
 	}
 
@@ -1033,8 +1037,9 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "callHelper", "([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;III)Ljava/lang/Object;",false);
 		mv.visitInsn(DUP);
 
-		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/rascalmpl/value/IString;");
+//		mv.visitVarInsn(ALOAD, THIS);
+//		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/rascalmpl/value/IString;");
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMonJVM", "YIELD", "Lorg/rascalmpl/value/IString;");
 		mv.visitJumpInsn(IF_ACMPNE, l0);
 		
 		mv.visitInsn(ARETURN);
@@ -1077,8 +1082,9 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "calldynHelper",
 				"([Ljava/lang/Object;ILorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;II)Ljava/lang/Object;",false);
 		mv.visitInsn(DUP);
-		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/rascalmpl/value/IString;");
+//		mv.visitVarInsn(ALOAD, THIS);
+//		mv.visitFieldInsn(GETFIELD, fullClassName, "YIELD", "Lorg/rascalmpl/value/IString;");
+		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMonJVM", "YIELD", "Lorg/rascalmpl/value/IString;");
 		mv.visitJumpInsn(IF_ACMPNE, l0);
 		mv.visitInsn(ARETURN);
 

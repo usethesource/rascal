@@ -48,15 +48,9 @@ public class RVMInterpreter extends RVMCore {
 	/*		Implementation of abstract methods in RVMCore for RVMInterpreter			*/
 	/************************************************************************************/
 	
-	// Implements abstract function for RVM interpreter
-	/**
-	 * execute a single function, not-overloaded, function
+	/* (non-Javadoc)
 	 * Implements abstract function for RVM interpreter
-	 * 
-	 * @param func		Function instance
-	 * @param posArgs	Argumens
-	 * @param kwArgs	Keyword arguments
-	 * @return
+	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function, org.rascalmpl.value.IValue[], java.util.Map)
 	 */
 	public Object executeRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs){
 		// Assumption here is that the function called is not a nested one
@@ -77,7 +71,10 @@ public class RVMInterpreter extends RVMCore {
 		return o;
 	}
 	
-	// Implements abstract function for RVM interpreter
+	/* (non-Javadoc)
+	 * Implements abstract function for RVM interpreter
+	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance, org.rascalmpl.value.IValue[])
+	 */
 	public IValue executeRVMFunction(FunctionInstance func, IValue[] args){
 		Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
 		Frame cf = root;
@@ -105,7 +102,10 @@ public class RVMInterpreter extends RVMCore {
 		}
 	}
 	
-	// Implements abstract function for RVM interpreter
+	/* (non-Javadoc)
+	 * Implements abstract function for RVM interpreter
+	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunctionInstance, org.rascalmpl.value.IValue[])
+	 */
 	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] args){
 		Function firstFunc = functionStore[func.getFunctions()[0]]; // TODO: null?
 		int arity = args.length;
@@ -131,7 +131,10 @@ public class RVMInterpreter extends RVMCore {
 		return narrow(o); 
 	}
 	
-	// Implements abstract function for RVM interpreter
+	/* (non-Javadoc)
+	 * Implements abstract function for RVM interpreter
+	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunctionInVisit(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame)
+	 */
 	public IValue executeRVMFunctionInVisit(Frame root){		// TODO: differentiate for JVM version
 		Frame cf = root;
 		// Pass the subject argument
@@ -143,7 +146,10 @@ public class RVMInterpreter extends RVMCore {
 		return (IValue)o;
 	}
 	
-	// Implements abstract function for RVM interpreter
+	/* (non-Javadoc)
+	 *  Implements abstract function for RVM interpreter
+	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMProgram(java.lang.String, java.lang.String, org.rascalmpl.value.IValue[], java.util.HashMap)
+	 */
 	public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs) {
 		
 		String oldModuleName = rex.getCurrentModuleName();
@@ -823,7 +829,7 @@ public class RVMInterpreter extends RVMCore {
 					cf = cf.previousCallFrame;
 					
 					if(cf == null) {
-						return returns ? rval : NONE;
+						return returns ? rval : NOVALUE;
 					}
 					
 					instructions = cf.function.codeblock.getInstructions();

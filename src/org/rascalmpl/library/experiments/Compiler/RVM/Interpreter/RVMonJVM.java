@@ -45,7 +45,7 @@ public class RVMonJVM extends RVMInterpreter {
 	
 	// Return types of dynRun
 	
-	static protected final IString NOTHING 		= ValueFactoryFactory.getValueFactory().string("$nothing$");
+	static protected final IString NONE 		= ValueFactoryFactory.getValueFactory().string("$none$");
 	static protected final IString YIELD		= ValueFactoryFactory.getValueFactory().string("$yield$");
 	static protected final IString FAILRETURN 	= ValueFactoryFactory.getValueFactory().string("$failreturn$");
 	static protected final IString PANIC 		= ValueFactoryFactory.getValueFactory().string("$panic$");
@@ -58,12 +58,6 @@ public class RVMonJVM extends RVMInterpreter {
 
 	public RVMonJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
 		super(rvmExec, rex);
-
-		// Return types used in code generator
-//		NOTHING = vf.string("$nothing$");
-//		YIELD = vf.string("$yield0$");
-//		FAILRETURN = vf.string("$failreturn$");
-//		PANIC = vf.string("$panic$");
 	}
 	
 	/************************************************************************************/
@@ -136,7 +130,7 @@ public class RVMonJVM extends RVMInterpreter {
 		Frame frame = ofunCall.nextFrame(functionStore);
 		while (frame != null) {
 			Object rsult = dynRun(frame.function.funId, frame);
-			if (rsult == NOTHING) {
+			if (rsult == NONE) {
 				return narrow(returnValue); // Alternative matched.
 			}
 			frame = ofunCall.nextFrame(functionStore);
@@ -596,7 +590,7 @@ public class RVMonJVM extends RVMInterpreter {
 				sp = sp - arity;
 				returnValue = fun_instance;
 				cf.sp = sp;
-				return NOTHING;
+				return NONE;
 			}
 			tmp = cf.getFrame(fun, root, arity, sp);
 			cf.nextFrame = tmp;
@@ -615,7 +609,7 @@ public class RVMonJVM extends RVMInterpreter {
 		} else {
 			cf.hotEntryPoint = 0;
 			cf.nextFrame = null; // Allow GC to clean
-			return NOTHING; // Inline call will continue execution
+			return NONE; // Inline call will continue execution
 		}
 	}
 
@@ -654,7 +648,7 @@ public class RVMonJVM extends RVMInterpreter {
 			return Rascal_FALSE;
 		}
 		
-		return NOTHING;// i.e., signal a failure;
+		return NONE;// i.e., signal a failure;
 	}
 
 	public Object jvmOCALL(final Object[] stack, int sp, final Frame cf, final int ofun, final int arity) {
@@ -671,7 +665,7 @@ public class RVMonJVM extends RVMInterpreter {
 
 		while (frame != null) {	
 			Object rsult = dynRun(frame.function.funId, frame);
-			if (rsult == NOTHING) {
+			if (rsult == NONE) {
 				return returnValue; // Alternative matched.
 			}
 			frame = ofun_call.nextFrame(functionStore);
@@ -732,7 +726,7 @@ public class RVMonJVM extends RVMInterpreter {
 		while (frame != null) {
 			stackPointerAdjusted = true; // See text at OCALL
 			Object rsult = dynRun(frame.function.funId, frame);
-			if (rsult == NOTHING) {
+			if (rsult == NONE) {
 				return cf.sp; // Alternative matched.
 			}
 			frame = ofunCall.nextFrame(functionStore);
@@ -761,7 +755,7 @@ public class RVMonJVM extends RVMInterpreter {
 				sp = sp - arity;
 				returnValue = vf.constructor(constr, args);
 				cf.sp = sp;
-				return NOTHING; // DO not return continue execution
+				return NONE; // DO not return continue execution
 			}
 
 			if (stack[sp - 1] instanceof FunctionInstance) {
@@ -772,7 +766,7 @@ public class RVMonJVM extends RVMInterpreter {
 					sp = sp - arity;
 					returnValue = fun_instance;
 					cf.sp = sp;
-					return NOTHING;
+					return NONE;
 				}
 				tmp = cf.getFrame(fun_instance.function, fun_instance.env, fun_instance.args, arity, sp);
 				cf.nextFrame = tmp;
@@ -794,7 +788,7 @@ public class RVMonJVM extends RVMInterpreter {
 		} else {
 			cf.hotEntryPoint = 0;
 			cf.nextFrame = null; // Allow GC to clean
-			return NOTHING; // Inline call will continue execution
+			return NONE; // Inline call will continue execution
 		}
 	}
 

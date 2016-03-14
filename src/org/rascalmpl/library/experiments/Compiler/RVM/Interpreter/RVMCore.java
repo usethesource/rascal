@@ -55,7 +55,7 @@ public abstract class RVMCore {
 	
 	protected final static IBool Rascal_TRUE = ValueFactoryFactory.getValueFactory().bool(true);	// TODO: Used by RVMonJVM
 	protected final static IBool Rascal_FALSE = ValueFactoryFactory.getValueFactory().bool(false);	// TODO: Used by RVMonJVM
-	protected final IString NONE; 
+	protected final IString NOVALUE; 
 	protected Function[] functionStore;
 	protected Map<String, Integer> functionMap;
 
@@ -139,7 +139,7 @@ public abstract class RVMCore {
 		tf = TypeFactory.getInstance();
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
-		NONE = vf.string("$nothing$");
+		NOVALUE = vf.string("$no-value$");
 		moduleVariables = new HashMap<IValue,IValue>();
 		
 		this.functionStore = rvmExec.getFunctionStore();
@@ -215,10 +215,7 @@ public abstract class RVMCore {
 		FunctionType ft = (FunctionType) funType;
 		
 		for(OverloadedFunction of : overloadedStore){
-			System.err.println(of);
-			if(of.name.equals("fac")){
-				System.err.println("Found fac");
-			}
+			//System.err.println(of);
 			if(of.matchesNameAndSignature(name, funType)){
 				if(result == null){
 					result = of;
@@ -333,18 +330,49 @@ public abstract class RVMCore {
 	 * @param func		Function
 	 * @param posArgs	Positional arguments
 	 * @param kwArgs	Keyword arguments
-	 * @return
+	 * @return			Result of function execution
 	 */
 	abstract public Object executeRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs);
 	
+	/**
+	 * Execute a FunctionInstance
+	 * @param func		Function instance
+	 * @param args		Positional arguments
+	 * @return			Result of function execution
+	 */
 	abstract public IValue executeRVMFunction(FunctionInstance func, IValue[] args);
 	
+	/**
+	 * Execute an OverloadedFunction
+	 * @param func	OverloadedFunction
+	 * @param args	Positional arguments
+	 * @return		Result of function execution
+	 */
 	abstract public IValue executeRVMFunction(OverloadedFunction func, IValue[] args);
 	
+	/**
+	 * Execute an OverloadedFunctionInstance
+	 * @param func	OverloadedFunctionInstance
+	 * @param args	Positional arguments
+	 * @return		Result of function execution
+	 */
 	abstract public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] args);
 
+	/**
+	 * Execute a function during a visit
+	 * @param root	Frame in whcih the function will be executed
+	 * @return		Result of function execution
+	 */
 	abstract public IValue executeRVMFunctionInVisit(Frame root);
 	
+	/**
+	 * Execute a main program in a Rascal module
+	 * @param moduleName	Name of the module
+	 * @param uid_main		Internal name of the main function
+	 * @param args			Positional arguments
+	 * @param kwArgs		Keyword arguments
+	 * @return				Result of executing main function
+	 */
 	abstract public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs);
 	
 	/**
