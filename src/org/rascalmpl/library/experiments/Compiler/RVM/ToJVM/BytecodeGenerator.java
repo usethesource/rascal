@@ -13,24 +13,14 @@
 
 package org.rascalmpl.library.experiments.Compiler.RVM.ToJVM;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -43,7 +33,6 @@ import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.io.StandardTextWriter;
 
 public class BytecodeGenerator implements Opcodes {
 
@@ -78,7 +67,6 @@ public class BytecodeGenerator implements Opcodes {
 	
 	private ClassWriter cw = null;
 	private MethodVisitor mv = null;
-	private FieldVisitor fv = null;
 	private String className = null;
 	private String packageName = null;
 	private String fullClassName = null;
@@ -88,14 +76,13 @@ public class BytecodeGenerator implements Opcodes {
 	// Administration per function
 	private HashMap<String, Label> labelMap = new HashMap<String, Label>();
 	private Set<String> catchTargetLabels = new HashSet<String>();			
-	private Set<String> storeCreators = new HashSet<String>();
 	private Map<String, ExceptionLine> catchTargets = new HashMap<String, ExceptionLine>();
 	private Label[] hotEntryLabels = null;		// entry labels for coroutines
 	private Label exitLabel = null;				// special case for labels without code
 												// TODO: peephole optimizer now removes them; can disappear?
 
-	ArrayList<Function> functionStore;
-	ArrayList<OverloadedFunction> overloadedStore;
+	Function[] functionStore;
+	OverloadedFunction[] overloadedStore;
 	Map<String, Integer> functionMap;
 	Map<String, Integer> constructorMap;
 	Map<String, Integer> resolver;
@@ -109,7 +96,7 @@ public class BytecodeGenerator implements Opcodes {
 		return lb;
 	}
 
-	public BytecodeGenerator(ArrayList<Function> functionStore, ArrayList<OverloadedFunction> overloadedStore,
+	public BytecodeGenerator(Function[] functionStore, OverloadedFunction[] overloadedStore,
 			Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {
 
 		this.functionStore = functionStore;
@@ -140,39 +127,12 @@ public class BytecodeGenerator implements Opcodes {
 		}
 		emitDynFinalize();
 
-		OverloadedFunction[] overloadedStoreV2 = overloadedStore.toArray(new OverloadedFunction[overloadedStore.size()]);
+		OverloadedFunction[] overloadedStoreV2 = new OverloadedFunction[overloadedStore.length];
 		emitConstructor(overloadedStoreV2);
 	}
 
 	public String finalName() {
 		return fullClassName;
-	}
-
-	static final int CHUNKSIZE = 1024 ; // test value.
-	private void emitStringValue(String str) {
-		int len = str.length() ;
-		int chunks = len / CHUNKSIZE ;
-		
-		int i = 0 ;
-		if ( len > CHUNKSIZE ) { 
-			for ( i = 0 ; i < chunks ; i++) {
-				mv.visitLdcInsn(str.substring(i * CHUNKSIZE, i* CHUNKSIZE + CHUNKSIZE));	
-			}
-			if ( len > (chunks * CHUNKSIZE) ) {
-				/// final partial chunk
-				mv.visitLdcInsn(str.substring(i*CHUNKSIZE, len));					
-			}
-			else {
-				chunks-- ;  // No partial chunk perfect fit.
-			}
-			while ( chunks != 0 ) {
-				mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "concat", "(Ljava/lang/String;)Ljava/lang/String;", false);
-				chunks-- ;
-			}
-		}
-		else {
-			mv.visitLdcInsn(str);				
-		}
 	}
 	
 	private void emitIntValue(int value) {
@@ -204,22 +164,6 @@ public class BytecodeGenerator implements Opcodes {
 			mv.visitLdcInsn(new Integer(value)); // REST
 	}
 
-	public static String anySerialize(Object o) throws IOException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ObjectOutputStream oos = new ObjectOutputStream(baos);
-		oos.writeObject(o);
-		oos.close();
-		return DatatypeConverter.printBase64Binary(baos.toByteArray());
-	}
-
-	public static Object anyDeserialize(String s) throws IOException, ClassNotFoundException {
-		ByteArrayInputStream bais = new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(s));
-		ObjectInputStream ois = new ObjectInputStream(bais);
-		Object o = ois.readObject();
-		ois.close();
-		return o;
-	}
-
 	/*
 	 * Generate the constructor method for the generated class
 	 */
@@ -236,24 +180,6 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMonJVM", "<init>",
 				"(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMExecutable;Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalExecutionContext;)V",false);
 
-		// Serialize/Deserialize overloadedStore.
-		try {
-			mv.visitVarInsn(ALOAD, THIS);
-			
-			emitStringValue(anySerialize(overloadedStore));		
-			
-			mv.visitMethodInsn(INVOKESTATIC, fullClassName, "anyDeserialize", "(Ljava/lang/String;)Ljava/lang/Object;",false);
-			mv.visitTypeInsn(CHECKCAST, "[Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/OverloadedFunction;");
-			mv.visitFieldInsn(PUTFIELD, fullClassName, "overloadedStore", "[Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/OverloadedFunction;");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		for (String fname : storeCreators) {
-			mv.visitVarInsn(ALOAD, THIS);
-			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, "()V",false);
-		}
-
 		mv.visitInsn(RETURN);
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
@@ -267,7 +193,6 @@ public class BytecodeGenerator implements Opcodes {
 		this.className = cName;
 		this.packageName = pName;
 		this.fullClassName = packageName.replace('.', '/') + "/" + className;
-		//this.fullClassName = "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMRunner";
 		cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 
 		cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, fullClassName, null, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RVMonJVM", null);
@@ -288,92 +213,6 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	/*
-	 * Generate constant and/or type stores when present (per function)
-	 */
-	public void emitStoreInitializer(Function f) {
-
-		// Create the statics to contain a functions constantStore and typeConstantStore (Why static?)
-		if (f.constantStore.length > 0) {
-			fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "cs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;", null, null);
-			fv.visitEnd();
-		}
-
-		if (f.typeConstantStore.length > 0) {
-			fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, "tcs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;", null, null);
-			fv.visitEnd();
-		}
-
-		if (f.constantStore.length == 0 && f.typeConstantStore.length == 0)
-			return;
-
-		// TODO: create initialiser function to fill them. ( TODO: call them through constructor )
-		mv = cw.visitMethod(ACC_PUBLIC, "init_" + NameMangler.mangle(f.getName()), "()V", null, null);
-		mv.visitCode();
-
-		mv.visitTypeInsn(NEW, "org/rascalmpl/value/io/StandardTextReader");
-		mv.visitInsn(DUP);
-		mv.visitMethodInsn(INVOKESPECIAL, "org/rascalmpl/value/io/StandardTextReader", "<init>", "()V",false);
-		mv.visitVarInsn(ASTORE, 1);		// TODO: NAME!
-
-		if (f.constantStore.length > 0) {
-			emitIntValue(f.constantStore.length);
-			mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
-			mv.visitFieldInsn(PUTSTATIC, fullClassName, "cs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;");
-		}
-		Label l0 = new Label();
-		Label l1 = new Label();	
-		Label l2 = new Label();
-		Label l3 = new Label();
-
-		mv.visitTryCatchBlock(l0, l1, l2, "java/lang/Exception");
-
-		mv.visitLabel(l0);
-
-		StringWriter w = null;
-		for (int i = 0; i < f.constantStore.length; i++) {
-			mv.visitFieldInsn(GETSTATIC, fullClassName, "cs_" + NameMangler.mangle(f.getName()), "[Ljava/lang/Object;");
-			emitIntValue(i);
-			mv.visitVarInsn(ALOAD, 1);	// TODO: NAME!
-			emitValueFactory();
-			mv.visitTypeInsn(NEW, "java/io/StringReader");
-			mv.visitInsn(DUP);
-
-			w = new StringWriter();
-			try {
-				new StandardTextWriter().write(f.constantStore[i], w);
-				// System.err.println(w.toString().length() + " = " + w.toString());
-				emitStringValue(w.toString());
-			} catch (Exception e) {
-			}
-
-			mv.visitMethodInsn(INVOKESPECIAL, "java/io/StringReader", "<init>", "(Ljava/lang/String;)V",false);
-			mv.visitMethodInsn(INVOKEVIRTUAL, "org/rascalmpl/value/io/StandardTextReader", "read",
-					"(Lorg/rascalmpl/value/IValueFactory;Ljava/io/Reader;)Lorg/rascalmpl/value/IValue;",false);
-			mv.visitInsn(AASTORE);
-		}
-		/* */mv.visitInsn(NOP); // so there is no empty try block
-		mv.visitLabel(l1);
-
-		mv.visitJumpInsn(GOTO, l3);
-
-		mv.visitLabel(l2);
-		mv.visitVarInsn(ASTORE, 2);	// TODO: NAME!
-		mv.visitFieldInsn(GETSTATIC, "java/lang/System", "err", "Ljava/io/PrintStream;");
-		mv.visitVarInsn(ALOAD, 2);	// TODO: NAME!
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Exception", "getMessage", "()Ljava/lang/String;",false);
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V",false);
-
-		mv.visitLabel(l3);
-
-		mv.visitInsn(RETURN);
-		mv.visitMaxs(0, 0);
-		mv.visitEnd();
-
-		// Force function to be called in the constructor.
-		storeCreators.add("init_" + NameMangler.mangle(f.getName()));
-	}
-
-	/*
 	 * Generate a method for one RVM function
 	 */
 	public void emitMethod(Function f, boolean debug) {
@@ -383,7 +222,7 @@ public class BytecodeGenerator implements Opcodes {
 		catchTargets.clear();
 
 		// Create method	 TODO: make it private
-		mv = cw.visitMethod(ACC_PUBLIC, NameMangler.mangle(f.getName()), "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)Ljava/lang/Object;", null, null);
+		mv = cw.visitMethod(ACC_PUBLIC, rvm2jvmName(f.getName()), "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)Ljava/lang/Object;", null, null);
 		mv.visitCode();
 
 		emitExceptionTable(f.fromLabels, f.toLabels, f.fromSPsCorrected, f.types, f.handlerLabels);
@@ -521,21 +360,21 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(AALOAD);
 	}
 	
-	private void emitObjectFromAccu(){
-		mv.visitVarInsn(ALOAD, ACCU);			
-	}
+//	private void emitObjectFromAccu(){
+//		mv.visitVarInsn(ALOAD, ACCU);			
+//	}
 	
-	private void emitGetSpfromFrame() {
-		mv.visitVarInsn(ALOAD, CF);
-		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
-		mv.visitVarInsn(ISTORE, SP);
-	}
+//	private void emitGetSpfromFrame() {
+//		mv.visitVarInsn(ALOAD, CF);
+//		mv.visitFieldInsn(GETFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
+//		mv.visitVarInsn(ISTORE, SP);
+//	}
 
-	private void emitPutSpInFrame() {
-		mv.visitVarInsn(ALOAD, CF);
-		mv.visitVarInsn(ILOAD, SP);
-		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
-	}
+//	private void emitPutSpInFrame() {
+//		mv.visitVarInsn(ALOAD, CF);
+//		mv.visitVarInsn(ILOAD, SP);
+//		mv.visitFieldInsn(PUTFIELD, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame", "sp", "I");
+//	}
 
 	public void emitInlineLoadInt(int nval, boolean debug) {
 		emitIntValue(nval);
@@ -897,7 +736,7 @@ public class BytecodeGenerator implements Opcodes {
 			mv.visitLabel(caseLabels[i]);
 			mv.visitVarInsn(ALOAD, THIS);
 			mv.visitVarInsn(ALOAD, 2); // TODO: NAME! BEWARE: CF in second argument differs from generated functions.
-			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, NameMangler.mangle(funcArray[i]), "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)Ljava/lang/Object;",false);
+			mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, rvm2jvmName(funcArray[i]), "(Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Frame;)Ljava/lang/Object;",false);
 			mv.visitInsn(ARETURN);
 		}
 		mv.visitLabel(defaultlabel);
@@ -1965,14 +1804,14 @@ public class BytecodeGenerator implements Opcodes {
 	 * 2: There is only a constructor => call constructor (DONE)
 	 */
 	public void emitOptimizedOcall(String fuid, int overloadedFunctionIndex, int arity, boolean dcode) {
-		OverloadedFunction of = overloadedStore.get(overloadedFunctionIndex);
+		OverloadedFunction of = overloadedStore[overloadedFunctionIndex];
 		int[] functions = of.getFunctions();
 		if (functions.length == 1) {
 			int[] ctors = of.getConstructors();
 			if (ctors.length == 0) {
-				Function fu = functionStore.get(functions[0]);
+				Function fu = functionStore[functions[0]];
 				if (of.getScopeFun().equals("")) {
-					emitOcallSingle(NameMangler.mangle(fu.getName()), functions[0], arity);
+					emitOcallSingle(rvm2jvmName(fu.getName()), functions[0], arity);
 				} else {
 					// Nested function needs link to containing frame
 					emitCallWithArgsSSFII_A("jvmOCALL", overloadedFunctionIndex, arity, dcode);
@@ -2002,11 +1841,10 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, CF);
 		
 		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "functionStore", "Ljava/util/ArrayList;");
+		mv.visitFieldInsn(GETFIELD, fullClassName, "functionStore", "[Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function;");
 		emitIntValue(fun);
-		mv.visitMethodInsn(INVOKEVIRTUAL, "java/util/ArrayList", "get", "(I)Ljava/lang/Object;",false);
+		mv.visitInsn(AALOAD);
 
-		mv.visitTypeInsn(CHECKCAST, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/Function");
 		mv.visitVarInsn(ALOAD, CF);
 		
 		emitIntValue(arity);
@@ -2278,6 +2116,32 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, ACCU);
 		mv.visitInsn(AASTORE);
 		mv.visitIincInsn(SP, 1);
+	}
+	
+	/********************************************************************************************/
+	/*		Utilities																			*/
+	/********************************************************************************************/
+	
+	/*
+	 * Map RVM function names to valid JVM method names. 
+	 * The characeters not allowed in JVM method names are (according to 4.2.2. Unqualified Names): . ; [ / < >
+	 */
+	 private String rvm2jvmName(String s) {
+		char[] b = s.toCharArray();
+		boolean modified = false;
+		for (int i = 0; i < b.length; i++) {
+			switch (b[i]) {
+			
+			case '.': b[i] = '!'; modified = true; break;
+			case ';': b[i] = ':'; modified = true; break;
+			case '[': b[i] = '('; modified = true; break;
+			case ']': b[i] = ')'; modified = true; break; // added for symmetry
+		    case '/': b[i] = '\\'; modified = true; break;  
+		    case '<': b[i] = '{'; modified = true; break;
+		    case '>': b[i] = '}'; modified = true; break;
+			}
+		}
+		return modified ? new String(b) : s;
 	}
 
 	/********************************************************************************************/
