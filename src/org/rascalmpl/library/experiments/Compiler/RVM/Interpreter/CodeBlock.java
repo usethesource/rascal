@@ -833,18 +833,20 @@ public class CodeBlock implements Serializable {
     	StringBuilder sb = new StringBuilder();
     	sb.append("\n") ;
     	boolean prevLabel = false ;
-    	for (Instruction ins : insList ) {
-    		if ( ins instanceof Label ) {
-    			sb.append(ins).append(": ");
-    			prevLabel = true ;
-    		}
-    		else {
-    			if ( prevLabel ) {
-    				sb.append("\t").append(ins).append("\n") ;
-    				prevLabel = false ;
+    	if(insList != null){
+    		for (Instruction ins : insList ) {
+    			if ( ins instanceof Label ) {
+    				sb.append(ins).append(": ");
+    				prevLabel = true ;
     			}
     			else {
-    				sb.append("\t\t").append(ins).append("\n") ;    				
+    				if ( prevLabel ) {
+    					sb.append("\t").append(ins).append("\n") ;
+    					prevLabel = false ;
+    				}
+    				else {
+    					sb.append("\t\t").append(ins).append("\n") ;    				
+    				}
     			}
     		}
     	}
