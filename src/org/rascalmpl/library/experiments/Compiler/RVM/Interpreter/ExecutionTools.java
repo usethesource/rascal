@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 
 import org.rascalmpl.interpreter.ITestResultListener;
@@ -193,4 +194,73 @@ public class ExecutionTools {
 		
 		return rvm;
 	}
+	 
+	 /**
+	  * Create initialized RVM given a scheme and path of a compiled binary
+	  * @param scheme of compiled binary
+	  * @param path of compiled binary
+	  * @return initialized RVM
+	  */
+	public static RVMCore initializedRVM(String scheme, String path){
+
+		 ISourceLocation binLoc = null;
+		 try {
+			 binLoc = vf.sourceLocation(scheme, "", path);
+		 } catch (URISyntaxException e) {
+			 System.err.println("Could not create bin location");;
+		 }
+		 RVMExecutable rvmExecutable = null; 
+		 try {
+			 rvmExecutable = RVMExecutable.read(binLoc);
+		 } catch (IOException e) {
+			 e.printStackTrace();
+		 }
+
+		 RascalExecutionContext rex = 
+				 RascalExecutionContextBuilder.normalContext(vf, System.out, System.err)
+				 .forModule("Fac")
+				 .setJVM(true)
+				 .build();
+
+		 RVMCore rvm = rex.getJVM() ? new RVMJVM(rvmExecutable, rex) : new RVMInterpreter(rvmExecutable, rex);
+
+		 // Execute initializers of imported modules
+		 for(String initializer: rvmExecutable.getInitializers()){
+			 rvm.executeRVMProgram("UNDEFINED", initializer, new IValue[0], null);
+		 }
+
+		 return rvm;
+	 }
+	
+	 /**
+	  * Create initialized RVM given a scheme and path of a compiled binary
+	  * @param scheme of compiled binary
+	  * @param path of compiled binary
+	  * @param rex the execution context to be used
+	  * @return initialized RVM
+	  */
+	public static RVMCore initializedRVM(String scheme, String path,  RascalExecutionContext rex){
+
+		 ISourceLocation binLoc = null;
+		 try {
+			 binLoc = vf.sourceLocation(scheme, "", path);
+		 } catch (URISyntaxException e) {
+			 System.err.println("Could not create bin location");;
+		 }
+		 RVMExecutable rvmExecutable = null; 
+		 try {
+			 rvmExecutable = RVMExecutable.read(binLoc);
+		 } catch (IOException e) {
+			 e.printStackTrace();
+		 }
+
+		 RVMCore rvm = rex.getJVM() ? new RVMJVM(rvmExecutable, rex) : new RVMInterpreter(rvmExecutable, rex);
+
+		 // Execute initializers of imported modules
+		 for(String initializer: rvmExecutable.getInitializers()){
+			 rvm.executeRVMProgram("UNDEFINED", initializer, new IValue[0], null);
+		 }
+
+		 return rvm;
+	 }
 }
