@@ -60,20 +60,16 @@ OFG buildFlowGraph(FlowProgram p)
 rel[loc,&T] propagate(OFG g, rel[loc,&T] gen, rel[loc,&T] kill, bool back) {
   rel[loc,&T] IN = { };
   rel[loc,&T] OUT = gen + (IN - kill);
-  if (back) {
-    g = g<1,0>;
+  if (!back) {
+    g = g<to,from>;
   }
 
   solve (IN, OUT) {
     // book would say:
-    //   IN = { <n,\o> | n <- carrier(g), p <- (back ? pred(n) : succ(n)), \o <- OUT[p] };
-    // ==
-    //   IN = { <n,\o> | n <- carrier(g), p <- g[n], \o <- OUT[p] };
-    // == 
-    //   IN = { <n,\o> | <n,_> <- g, p <- g[n], \o <- OUT[p] };
-    // ==
-    //   IN = { <n,\o> | <n,p> <- g, \o <- OUT[p] };
-    // ==
+    //   IN = { <n,\o> | n <- carrier(g), p <- g[n], \o <- OUT[p] }; <==>
+    //   IN = { <n,\o> | n <- carrier(g), p <- g[n], \o <- OUT[p] }; <==> 
+    //   IN = { <n,\o> | <n,_> <- g, p <- g[n], \o <- OUT[p] }; <==>
+    //   IN = { <n,\o> | <n,p> <- g, \o <- OUT[p] }; <==>
     IN = g o OUT;
     OUT = gen + (IN - kill);
   }
