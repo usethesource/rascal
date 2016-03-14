@@ -56,10 +56,15 @@ public abstract class RVMCore {
 	protected final static IBool Rascal_TRUE = ValueFactoryFactory.getValueFactory().bool(true);	// TODO: Used by RVMonJVM
 	protected final static IBool Rascal_FALSE = ValueFactoryFactory.getValueFactory().bool(false);	// TODO: Used by RVMonJVM
 	protected final IString NONE; 
-	protected ArrayList<Function> functionStore;
+	protected Function[] functionStore;
 	protected Map<String, Integer> functionMap;
 
 	protected ArrayList<Type> constructorStore;
+	protected final Map<String, Integer> constructorMap;
+	
+	// Function overloading
+	protected final Map<String, Integer> resolver;
+	protected final OverloadedFunction[] overloadedStore;
 	
 	protected IFrameObserver frameObserver;
 
@@ -80,6 +85,8 @@ public abstract class RVMCore {
 	List<ClassLoader> classLoaders;
 	private final Map<Class<?>, Object> instanceCache;
 	private final Map<String, Class<?>> classCache;
+
+	private final Types types;
 	
 	public static RVMCore readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex) throws IOException{
 		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
@@ -120,7 +127,7 @@ public abstract class RVMCore {
 		}  
 	};
 
-	public RVMCore( RascalExecutionContext rex){
+	public RVMCore(RVMExecutable rvmExec, RascalExecutionContext rex){
 		this.rex = rex;
 		rex.setRVM(this);
 		
@@ -134,7 +141,18 @@ public abstract class RVMCore {
 		this.stderr = rex.getStdErr();
 		NONE = vf.string("$nothing$");
 		moduleVariables = new HashMap<IValue,IValue>();
-	}
+		
+		this.functionStore = rvmExec.getFunctionStore();
+		this.functionMap = rvmExec.getFunctionMap();
+		
+		this.resolver = rvmExec.getResolver();
+		this.overloadedStore = rvmExec.getOverloadedStore();
+		
+		this.constructorStore = rvmExec.getConstructorStore();
+		this.constructorMap = rvmExec.getConstructorMap();
+		
+		this.types = new Types(vf);
+		}
 	
 	public Map<IValue, IValue> getModuleVariables() { return moduleVariables; }
 
@@ -187,6 +205,58 @@ public abstract class RVMCore {
 			}
 		}
 		return null;
+	}
+	
+	public OverloadedFunction getOverloadedFunction(String signature){
+		OverloadedFunction result = null;
+		
+		String name = types.getFunctionName(signature);
+		Type funType = types.getFunctionType(signature);
+		FunctionType ft = (FunctionType) funType;
+		
+		for(OverloadedFunction of : overloadedStore){
+			System.err.println(of);
+			if(of.matchesNameAndSignature(name, funType)){
+				if(result == null){
+					result = of;
+				} else {
+					if(result.getFunctions().length < of.getFunctions().length ||
+					   result.getConstructors().length < of.getConstructors().length){
+						result = of;
+					}
+				}
+			}
+		}
+		
+		for(int i = 0; i < constructorStore.size(); i++){
+			Type tp = constructorStore.get(i);
+			System.err.println(tp.getName() + ": " + tp.getFieldTypes());
+			System.err.println(tp);
+			if(name.equals(tp.getName()) && ft.getFieldTypes().comparable(funType.getFieldTypes()) 
+					                     && ft.getReturnType().comparable(tp.getAbstractDataType())
+					){
+				System.err.println("YES");
+				return new OverloadedFunction(name, tp,  new int[]{}, new int[] { i }, "");
+			}
+		}
+		
+	
+		// No overloaded function or constructor matched, only nonterminals remain ...
+		for(int i = 0; i < functionStore.length; i++){
+			Function fun = functionStore[i];
+			System.err.println(fun);
+			if(fun.name.contains("/" + name + "(")){
+				if(fun.ftype instanceof FunctionType){
+					FunctionType tp = (FunctionType) fun.ftype;
+					if(tp.getReturnType().toString().equals(ft.getReturnType().toString())){
+						System.err.println("YES");
+						return new OverloadedFunction(name, tp, new int[]{ i }, new int[] { }, "");
+					}
+				}
+			}
+		}
+
+		return result;
 	}
 	
 	public Function getCompanionDefaultsFunction(String name, Type ftype){
@@ -242,7 +312,7 @@ public abstract class RVMCore {
 	public Object executeRVMFunction(String uid_func, IValue[] posArgs, Map<String,IValue> kwArgs){
 		// Assumption here is that the function called is not a nested one
 		// and does not use global variables
-		Function func = functionStore.get(functionMap.get(uid_func));
+		Function func = functionStore[functionMap.get(uid_func)];
 		return executeRVMFunction(func, posArgs, kwArgs);
 	}
 	
@@ -261,6 +331,8 @@ public abstract class RVMCore {
 	abstract public Object executeRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs);
 	
 	abstract public IValue executeRVMFunction(FunctionInstance func, IValue[] args);
+	
+	abstract public IValue executeRVMFunction(OverloadedFunction func, IValue[] args);
 	
 	abstract public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] args);
 
