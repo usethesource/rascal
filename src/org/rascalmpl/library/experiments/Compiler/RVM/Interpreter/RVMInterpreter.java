@@ -4,11 +4,9 @@ import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
@@ -22,7 +20,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Trave
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.FIXEDPOINT;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.PROGRESS;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.REBUILD;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
@@ -35,25 +32,8 @@ import org.rascalmpl.value.type.Type;
 
 public class RVMInterpreter extends RVMCore {
 	
-	private boolean ocall_debug = false;
-		
-	// Function overloading
-	private final Map<String, Integer> resolver;
-	protected final ArrayList<OverloadedFunction> overloadedStore;
-	
-	private final Map<String, Integer> constructorMap;
-	
 	public RVMInterpreter(RVMExecutable rvmExec, RascalExecutionContext rex) {
-		super(rex);
-				
-		this.functionMap = rvmExec.getFunctionMap();
-		this.functionStore = rvmExec.getFunctionStore();
-		
-		this.constructorMap = rvmExec.getConstructorMap();
-		this.constructorStore = rvmExec.getConstructorStore();
-
-		this.resolver = rvmExec.getResolver();
-		this.overloadedStore = rvmExec.getOverloadedStore();
+		super(rvmExec, rex);			
 
 		Opcode.init(stdout, rex.getProfile());
 		
@@ -61,35 +41,8 @@ public class RVMInterpreter extends RVMCore {
 		this.frameObserver = (observer == null) ? NullFrameObserver.getInstance() : observer;		
 	}
 	
-//	URIResolverRegistry getResolverRegistry() { return URIResolverRegistry.getInstance(); }
-//	
-//	IRascalMonitor getMonitor() {return rex.getMonitor();}
 	
 	Configuration getConfiguration() { return rex.getConfiguration(); }
-	
-//	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }	
-	
-//	public IFrameObserver getFrameObserver(){
-//		return frameObserver;
-//	}
-	
-	private String getConstructorName(int n) {
-		for(String cname : constructorMap.keySet()) {
-			if(constructorMap.get(cname) == n) {
-				return cname;
-			}
-		}
-		throw new CompilerError("Undefined constructor index " + n);
-	}
-	
-	private String getOverloadedFunctionName(int n) {
-		for(String ofname : resolver.keySet()) {
-			if(resolver.get(ofname) == n) {
-				return ofname;
-			}
-		}
-		throw new CompilerError("Undefined overloaded function index " + n);
-	}
 	
 	/************************************************************************************/
 	/*		Implementation of abstract methods in RVMCore for RVMInterpreter			*/
@@ -140,9 +93,21 @@ public class RVMInterpreter extends RVMCore {
 		return narrow(o);
 	}
 	
+	public IValue executeRVMFunction(OverloadedFunction func, IValue[] args){
+		if(func.getFunctions().length > 0){
+				Function firstFunc = functionStore[func.getFunctions()[0]]; 
+				Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
+				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functions, func.constructors, root, func.scopeIn, functionStore, constructorStore, this);
+				return executeRVMFunction(ofi, args);
+		} else {
+			Type cons = constructorStore.get(func.getConstructors()[0]);
+			return vf.constructor(cons, args);
+		}
+	}
+	
 	// Implements abstract function for RVM interpreter
 	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] args){
-		Function firstFunc = functionStore.get(func.getFunctions()[0]); // TODO: null?
+		Function firstFunc = functionStore[func.getFunctions()[0]]; // TODO: null?
 		int arity = args.length;
 		int scopeId = func.env.scopeId;
 		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
@@ -184,7 +149,7 @@ public class RVMInterpreter extends RVMCore {
 		String oldModuleName = rex.getCurrentModuleName();
 		rex.setCurrentModuleName(moduleName);
 		
-		Function main_function = functionStore.get(functionMap.get(uid_main));
+		Function main_function = functionStore[functionMap.get(uid_main)];
 
 		if (main_function == null) {
 			throw RascalRuntimeException.noMainFunction(null);
@@ -568,17 +533,17 @@ public class RVMInterpreter extends RVMCore {
 				
 				case Opcode.OP_PUSH_ROOT_FUN:
 					// Loads functions that are defined at the root
-					stack[sp++] = new FunctionInstance(functionStore.get(CodeBlock.fetchArg1(instruction)), root, this);
+					stack[sp++] = new FunctionInstance(functionStore[CodeBlock.fetchArg1(instruction)], root, this);
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_PUSH_NESTED_FUN: { 
 					// Loads nested functions and closures (anonymous nested functions)
-					stack[sp++] = FunctionInstance.computeFunctionInstance(functionStore.get(CodeBlock.fetchArg1(instruction)), cf, CodeBlock.fetchArg2(instruction), this);
+					stack[sp++] = FunctionInstance.computeFunctionInstance(functionStore[CodeBlock.fetchArg1(instruction)], cf, CodeBlock.fetchArg2(instruction), this);
 					continue NEXT_INSTRUCTION;
 				}
 				
 				case Opcode.OP_PUSHOFUN:
-					OverloadedFunction of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
+					OverloadedFunction of = overloadedStore[CodeBlock.fetchArg1(instruction)];
 					stack[sp++] = of.getScopeIn() == -1 ? new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this)
 					                               : OverloadedFunctionInstance.computeOverloadedFunctionInstance(of.functions, of.constructors, cf, of.getScopeIn(), functionStore, constructorStore, this);
 					continue NEXT_INSTRUCTION;
@@ -674,7 +639,7 @@ public class RVMInterpreter extends RVMCore {
 						}
 						cf = cf.getFrame(fun_instance.function, fun_instance.env, fun_instance.args, arity, sp);
 					} else if(op == Opcode.OP_CALL) {
-						Function fun = functionStore.get(CodeBlock.fetchArg1(instruction));
+						Function fun = functionStore[CodeBlock.fetchArg1(instruction)];
 						arity = CodeBlock.fetchArg2(instruction);
 						// In case of partial parameter binding
 						if(arity < fun.nformals) {
@@ -731,24 +696,12 @@ public class RVMInterpreter extends RVMCore {
 						OverloadedFunctionInstance of_instance = (OverloadedFunctionInstance) funcObject;
 						c_ofun_call_next = new OverloadedFunctionInstanceCall(cf, of_instance.getFunctions(), of_instance.getConstructors(), of_instance.env, types, arity);
 					} else {
-						of = overloadedStore.get(CodeBlock.fetchArg1(instruction));
+						of = overloadedStore[CodeBlock.fetchArg1(instruction)];
 						Object arg0 = stack[sp - arity];
 						c_ofun_call_next = of.getScopeIn() == -1 ? new OverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), cf, null, arity)  // changed root to cf
 								                            : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), of.getScopeIn(), null, arity);
 					}
 					
-					if(ocall_debug) {
-						if(op == Opcode.OP_OCALL) {
-							stdout.println("OVERLOADED FUNCTION CALL: " + getOverloadedFunctionName(CodeBlock.fetchArg1(instruction)));
-						} else {
-							stdout.println("OVERLOADED FUNCTION CALLDYN: ");
-						}
-						stdout.println("	with alternatives:");
-						for(int index : c_ofun_call_next.getFunctions()) {
-							stdout.println("		" + getFunctionName(index));
-						}
-						stdout.flush();
-					}
 					
 					Frame frame = c_ofun_call_next.nextFrame(functionStore);
 					
@@ -756,8 +709,6 @@ public class RVMInterpreter extends RVMCore {
 						c_ofun_call = c_ofun_call_next;
 						ocalls.push(c_ofun_call);
 					
-						if(ocall_debug){ stdout.println("		" + "try alternative: " + frame.function.name); stdout.flush();}
-
 						cf = frame;
 						frameObserver.enter(cf);
 						instructions = cf.function.codeblock.getInstructions();
@@ -802,9 +753,7 @@ public class RVMInterpreter extends RVMCore {
 					
 					frame = c_ofun_call.nextFrame(functionStore);				
 					if(frame != null) {
-						
-						if(ocall_debug){ stdout.println("		" + "try alternative: " + frame.function.name); stdout.flush(); }
-						
+												
 						cf = frame;
 						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
@@ -952,7 +901,7 @@ public class RVMInterpreter extends RVMCore {
 				case Opcode.OP_CREATE:
 				case Opcode.OP_CREATEDYN:
 					if(op == Opcode.OP_CREATE) {
-						cccf = cf.getCoroutineFrame(functionStore.get(CodeBlock.fetchArg1(instruction)), root, CodeBlock.fetchArg2(instruction), sp);
+						cccf = cf.getCoroutineFrame(functionStore[CodeBlock.fetchArg1(instruction)], root, CodeBlock.fetchArg2(instruction), sp);
 					} else {
 						arity = CodeBlock.fetchArg1(instruction);
 						Object src = stack[--sp];
@@ -1027,7 +976,7 @@ public class RVMInterpreter extends RVMCore {
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_APPLY:
-					sp =  APPLY(stack, sp, cf, functionStore.get(CodeBlock.fetchArg1(instruction)), CodeBlock.fetchArg2(instruction), root);
+					sp =  APPLY(stack, sp, cf, functionStore[CodeBlock.fetchArg1(instruction)], CodeBlock.fetchArg2(instruction), root);
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_APPLYDYN:
