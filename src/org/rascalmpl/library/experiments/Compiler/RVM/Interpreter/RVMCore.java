@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.ref.SoftReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -19,11 +20,19 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalType;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.NullFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.DIRECTION;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.FIXEDPOINT;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.PROGRESS;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.REBUILD;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
@@ -152,6 +161,9 @@ public abstract class RVMCore {
 		this.constructorMap = rvmExec.getConstructorMap();
 		
 		this.types = new Types(vf);
+		
+		IFrameObserver observer = rex.getFrameObserver(); 
+		this.frameObserver = (observer == null) ? NullFrameObserver.getInstance() : observer;
 		}
 	
 	public Map<IValue, IValue> getModuleVariables() { return moduleVariables; }
@@ -215,7 +227,6 @@ public abstract class RVMCore {
 		FunctionType ft = (FunctionType) funType;
 		
 		for(OverloadedFunction of : overloadedStore){
-			//System.err.println(of);
 			if(of.matchesNameAndSignature(name, funType)){
 				if(result == null){
 					result = of;
@@ -234,12 +245,9 @@ public abstract class RVMCore {
 		
 		for(int i = 0; i < constructorStore.size(); i++){
 			Type tp = constructorStore.get(i);
-			//System.err.println(tp.getName() + ": " + tp.getFieldTypes());
-			//System.err.println(tp);
 			if(name.equals(tp.getName()) && ft.getFieldTypes().comparable(funType.getFieldTypes()) 
 					                     && ft.getReturnType().comparable(tp.getAbstractDataType())
 					){
-				System.err.println("YES");
 				return new OverloadedFunction(name, tp,  new int[]{}, new int[] { i }, "");
 			}
 		}
@@ -253,7 +261,6 @@ public abstract class RVMCore {
 				if(fun.ftype instanceof FunctionType){
 					FunctionType tp = (FunctionType) fun.ftype;
 					if(tp.getReturnType().toString().equals(ft.getReturnType().toString())){
-						System.err.println("YES");
 						return new OverloadedFunction(name, tp, new int[]{ i }, new int[] { }, "");
 					}
 				}
@@ -320,6 +327,24 @@ public abstract class RVMCore {
 		return executeRVMFunction(func, posArgs, kwArgs);
 	}
 	
+	/**
+	 * Execute an OverloadedFunction
+	 * @param func	OverloadedFunction
+	 * @param args	Positional arguments
+	 * @return		Result of function execution
+	 */
+	public IValue executeRVMFunction(OverloadedFunction func, IValue[] args){
+		if(func.getFunctions().length > 0){
+				Function firstFunc = functionStore[func.getFunctions()[0]]; 
+				Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
+				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functions, func.constructors, root, func.scopeIn, functionStore, constructorStore, this);
+				return executeRVMFunction(ofi, args);
+		} else {
+			Type cons = constructorStore.get(func.getConstructors()[0]);
+			return vf.constructor(cons, args);
+		}
+	}
+	
 	/************************************************************************************/
 	/*		Abstract methods to execute RVMFunctions and RVMPrograms					*/
 	/************************************************************************************/
@@ -343,14 +368,6 @@ public abstract class RVMCore {
 	abstract public IValue executeRVMFunction(FunctionInstance func, IValue[] args);
 	
 	/**
-	 * Execute an OverloadedFunction
-	 * @param func	OverloadedFunction
-	 * @param args	Positional arguments
-	 * @return		Result of function execution
-	 */
-	abstract public IValue executeRVMFunction(OverloadedFunction func, IValue[] args);
-	
-	/**
 	 * Execute an OverloadedFunctionInstance
 	 * @param func	OverloadedFunctionInstance
 	 * @param args	Positional arguments
@@ -360,7 +377,7 @@ public abstract class RVMCore {
 
 	/**
 	 * Execute a function during a visit
-	 * @param root	Frame in whcih the function will be executed
+	 * @param root	Frame in which the function will be executed
 	 * @return		Result of function execution
 	 */
 	abstract public IValue executeRVMFunctionInVisit(Frame root);
@@ -833,6 +850,49 @@ public abstract class RVMCore {
 		stdout.println(w.toString());
 		sp = sp - arity + 1;
 		return sp;
+	}
+	
+	public int VISIT(Object[] stack,  int sp, boolean direction, boolean progress, boolean fixedpoint, boolean rebuild){
+		FunctionInstance phi = (FunctionInstance)stack[sp - 8];
+		IValue subject = (IValue) stack[sp - 7];
+		Reference refMatched = (Reference) stack[sp - 6];
+		Reference refChanged = (Reference) stack[sp - 5];
+		Reference refLeaveVisit = (Reference) stack[sp - 4];
+		Reference refBegin = (Reference) stack[sp - 3];
+		Reference refEnd = (Reference) stack[sp - 2];
+		DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
+		DIRECTION tr_direction = direction ? DIRECTION.BottomUp : DIRECTION.TopDown;
+		PROGRESS tr_progress = progress ? PROGRESS.Continuing : PROGRESS.Breaking;
+		FIXEDPOINT tr_fixedpoint = fixedpoint ? FIXEDPOINT.Yes : FIXEDPOINT.No;
+		REBUILD tr_rebuild = rebuild ? REBUILD.Yes :REBUILD.No;
+		IValue res = new Traverse(vf).traverse(tr_direction, tr_progress, tr_fixedpoint, tr_rebuild, subject, phi, refMatched, refChanged, refLeaveVisit, refBegin, refEnd, this, descriptor);
+		stack[sp - 8] = res;
+		sp -= 7;
+		// Trick: we return a negative sp to force a function return;
+		return ((IBool)refLeaveVisit.getValue()).getValue() ? -sp : sp;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public int CHECKMEMO(Object[] stack, int sp, Frame cf){;
+	
+	    Function fun = cf.function;
+		MemoizationCache<IValue> cache = fun.memoization == null ? null : fun.memoization.get();
+		if(cache == null){
+			cache = new MemoizationCache<>();
+			fun.memoization = new SoftReference<>(cache);
+		}
+		int nformals = fun.nformals;
+		IValue[] args = new IValue[nformals - 1];
+		for(int i = 0; i < nformals - 1; i++){
+			args[i] = (IValue) stack[i];
+		}
+
+		IValue result = cache.getStoredResult(args, (Map<String,IValue>)stack[nformals - 1]);
+		if(result == null){
+			return sp + 1;
+		}
+		stack[sp++] = result;
+		return -sp;					// Trick: we return a negative sp to force a function return;
 	}
 	
 	public Class<?> getJavaClass(String className){

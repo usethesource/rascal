@@ -36,11 +36,7 @@ public class RVMInterpreter extends RVMCore {
 		super(rvmExec, rex);			
 
 		Opcode.init(stdout, rex.getProfile());
-		
-		IFrameObserver observer = rex.getFrameObserver(); 
-		this.frameObserver = (observer == null) ? NullFrameObserver.getInstance() : observer;		
 	}
-	
 	
 	Configuration getConfiguration() { return rex.getConfiguration(); }
 	
@@ -88,18 +84,6 @@ public class RVMInterpreter extends RVMCore {
 			throw (Thrown) o;
 		}
 		return narrow(o);
-	}
-	
-	public IValue executeRVMFunction(OverloadedFunction func, IValue[] args){
-		if(func.getFunctions().length > 0){
-				Function firstFunc = functionStore[func.getFunctions()[0]]; 
-				Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
-				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functions, func.constructors, root, func.scopeIn, functionStore, constructorStore, this);
-				return executeRVMFunction(ofi, args);
-		} else {
-			Type cons = constructorStore.get(func.getConstructors()[0]);
-			return vf.constructor(cons, args);
-		}
 	}
 	
 	/* (non-Javadoc)
@@ -181,49 +165,6 @@ public class RVMInterpreter extends RVMCore {
 	/*			Auxiliary functions that implement specific instructions			*/
 	/*			that are only used by RVM ineterpreter								*/
 	/********************************************************************************/
-	
-	@SuppressWarnings("unchecked")
-	public int CHECKMEMO(Object[] stack, int sp, Frame cf){;
-	
-	    Function fun = cf.function;
-		MemoizationCache<IValue> cache = fun.memoization == null ? null : fun.memoization.get();
-		if(cache == null){
-			cache = new MemoizationCache<>();
-			fun.memoization = new SoftReference<>(cache);
-		}
-		int nformals = fun.nformals;
-		IValue[] args = new IValue[nformals - 1];
-		for(int i = 0; i < nformals - 1; i++){
-			args[i] = (IValue) stack[i];
-		}
-
-		IValue result = cache.getStoredResult(args, (Map<String,IValue>)stack[nformals - 1]);
-		if(result == null){
-			return sp + 1;
-		}
-		stack[sp++] = result;
-		return -sp;					// Trick: we return a negative sp to force a function return;
-	}
-	
-	public int VISIT(Object[] stack,  int sp, boolean direction, boolean progress, boolean fixedpoint, boolean rebuild){
-		FunctionInstance phi = (FunctionInstance)stack[sp - 8];
-		IValue subject = (IValue) stack[sp - 7];
-		Reference refMatched = (Reference) stack[sp - 6];
-		Reference refChanged = (Reference) stack[sp - 5];
-		Reference refLeaveVisit = (Reference) stack[sp - 4];
-		Reference refBegin = (Reference) stack[sp - 3];
-		Reference refEnd = (Reference) stack[sp - 2];
-		DescendantDescriptor descriptor = (DescendantDescriptor) stack[sp - 1];
-		DIRECTION tr_direction = direction ? DIRECTION.BottomUp : DIRECTION.TopDown;
-		PROGRESS tr_progress = progress ? PROGRESS.Continuing : PROGRESS.Breaking;
-		FIXEDPOINT tr_fixedpoint = fixedpoint ? FIXEDPOINT.Yes : FIXEDPOINT.No;
-		REBUILD tr_rebuild = rebuild ? REBUILD.Yes :REBUILD.No;
-		IValue res = new Traverse(vf).traverse(tr_direction, tr_progress, tr_fixedpoint, tr_rebuild, subject, phi, refMatched, refChanged, refLeaveVisit, refBegin, refEnd, this, descriptor);
-		stack[sp - 8] = res;
-		sp -= 7;
-		// Trick: we return a negative sp to force a function return;
-		return ((IBool)refLeaveVisit.getValue()).getValue() ? -sp : sp;
-	}
 	
 	private Object VALUESUBTYPE(Type reqType, Object accu){
 		return vf.bool(((IValue) accu).getType().isSubtypeOf(reqType));
