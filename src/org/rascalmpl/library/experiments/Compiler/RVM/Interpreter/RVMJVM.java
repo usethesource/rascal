@@ -62,6 +62,14 @@ public class RVMJVM extends RVMInterpreter {
 		}
 	}
 	
+	/************************************************************************************/
+	/*		Implementation of abstract methods in RVMCore for RVMJVM					*/
+	/************************************************************************************/
+	
+	/* (non-Javadoc)
+	 * Implements abstract function for RVMJVM
+	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function, org.rascalmpl.value.IValue[], java.util.Map)
+	 */
 	@Override
 	public Object executeRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs){
 		// Assumption here is that the function called is not a nested one
@@ -84,8 +92,30 @@ public class RVMJVM extends RVMInterpreter {
 		}
 		return returnValue;
 	}
+	
+//	/* (non-Javadoc)
+//	 * Implements abstract function for RVMJVM
+//	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance, org.rascalmpl.value.IValue[])
+//	 */
+//	@Override
+//	public IValue executeRVMFunction(FunctionInstance func, IValue[] args) {
+//		// TODO Auto-generated method stub
+//		throw new CompilerError("executeRVMFunction not implemented");
+//	}
+//
+//	/* (non-Javadoc)
+//	 * Implements abstract function for RVMJVM
+//	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction, org.rascalmpl.value.IValue[])
+//	 */
+//	@Override
+//	public IValue executeRVMFunction(OverloadedFunction func, IValue[] args) {
+//		throw new CompilerError("executeRVMFunction not implemented");
+//	}
 
-	// Implements abstract function for RVMonJVM
+	/* (non-Javadoc)
+	 * Implements abstract function for RVMJVM
+	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunctionInstance, org.rascalmpl.value.IValue[])
+	 */
 	@Override
 	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] args){		
 		Function firstFunc = functionStore[func.getFunctions()[0]]; // TODO: null?
@@ -105,7 +135,7 @@ public class RVMJVM extends RVMInterpreter {
 		Frame frame = ofunCall.nextFrame(functionStore);
 		while (frame != null) {
 			Object rsult = generatedClassInstance.dynRun(frame.function.funId, frame);
-			if (rsult.equals(RVMonJVM.NOTHING)) {
+			if (rsult == RVMonJVM.NONE) {
 				return narrow(generatedClassInstance.returnValue); // Alternative matched.
 			}
 			frame = ofunCall.nextFrame(functionStore);
@@ -114,8 +144,21 @@ public class RVMJVM extends RVMInterpreter {
 
 		return vf.constructor(constructor, ofunCall.getConstructorArguments(constructor.getArity()));
 	}
-
-	// Implements abstract function for RVMonJVM
+	
+//	/* (non-Javadoc)
+//	 * Implements abstract function for RVMJVM
+//	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunctionInVisit(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame)
+//	 */
+//	@Override
+//	public IValue executeRVMFunctionInVisit(Frame root) {
+//		// TODO Auto-generated method stub
+//		throw new CompilerError("executeRVMFunctionInVisit not implemented");
+//	}
+	
+	/* (non-Javadoc)
+	 * Implements abstract function for RVMJVM
+	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMProgram(java.lang.String, java.lang.String, org.rascalmpl.value.IValue[], java.util.HashMap)
+	 */
 	@Override
 	public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs) {
 
