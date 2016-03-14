@@ -127,17 +127,19 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
 
    //println("generateCompanions");
    
-   set[str] seenCommonDataFields = {};  // record for which common data fields we have generated a companion
+   set[str] seenCommonDataFields = {};  // remember for which common data fields we have already generated a companion
  
    // Generate companion functions  constructors with keyword fields or common keyword fields     
    // This enables evaluation of potentially non-constant default expressions and semantics of implicit keyword arguments
                 
    for(int uid <- config.store, 
        AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int scopeIn, constructorLoc) := config.store[uid], 
-       //bprintln("<uid>: <name>: <constructorLoc>, <M@\loc> <constructorLoc < M@\loc>"),
-       constructorLoc.path == M@\loc.path,
-       allKwFields := getAllKeywordFields(uid), !isEmpty(allKwFields)) {
-       //println("*** Creating companion for <uid>");
+       //bprintln("<uid>: <name>: <constructorLoc>, <M@\loc> <constructorLoc < M@\loc>, <constructorLoc.path == M@\loc.path>"),
+       //constructorLoc.path == M@\loc.path,
+       allKwFields := getAllKeywordFields(uid), 
+       //bprintln(allKwFields), 
+       !isEmpty(allKwFields)) {
+      // println("*** Creating companion for <uid>");
          
        map[RName,Symbol] allKWFieldsAndTypes = getAllKeywordFieldsAndTypes(uid);
         
