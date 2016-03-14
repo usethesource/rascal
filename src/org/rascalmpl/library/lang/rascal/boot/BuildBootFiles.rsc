@@ -104,10 +104,6 @@ str serialize(str moduleName, PathConfig pcfg, bool jvm=false){
      compileAndLink(moduleName, pcfg, verbose=true, jvm=jvm);
      serialized = getDerivedWriteLoc(moduleName, "rvm.ser.gz", pcfg);
      cmd = "cp .<serialized.path> <(BOOT + moduleName2Bin(moduleName, "rvm.ser.gz")).path>\n";
-     //if(jvm){
-     //   classLoc = getDerivedWriteLoc(moduleName + "\\$Compiled", "class", pcfg);
-     //   cmd += "cp .<classLoc.path> <(BOOT + moduleName2Bin(moduleName + "\\$Compiled", "class")).path>\n";
-     //}
      return cmd;
 }
 
@@ -142,23 +138,22 @@ value build(bool jvm=false, bool full=false){
      pcfg = pathConfig(srcPath=[|std:///|], binDir=BINBOOT, libPath=[BINBOOT]);
      
      if(full){
-        report("Removing current compiled standard library <BINBOOT>");
+        report("Removing current compiled boot files <BINBOOT>");
         remove(BINBOOT);
      }
      
      commands = "#!/bin/sh\n";
      
-     if(full){
-        report("Compiling MuLibrary");
-        compileMuLibrary(pcfg, verbose=true, jvm=jvm);
-        muLib = getMuLibraryCompiledWriteLoc(pcfg);
-        commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
-     
-        report("Compiling standard library modules");
-        for(moduleName <- libraryModules){
-            compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
-        }
-     }
+     report("Compiling MuLibrary");
+     compileMuLibrary(pcfg, verbose=true, jvm=jvm);
+     muLib = getMuLibraryCompiledWriteLoc(pcfg);
+     commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
+ 
+     //report("Compiling standard library modules");
+     //for(moduleName <- libraryModules){
+     //    compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
+     //}
+    
      
      commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg, jvm=jvm);
      commands += serialize("lang::rascal::boot::Kernel", pcfg, jvm=jvm);
