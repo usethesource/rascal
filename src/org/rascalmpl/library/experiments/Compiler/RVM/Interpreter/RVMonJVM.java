@@ -12,22 +12,17 @@
 
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-
-import javax.xml.bind.DatatypeConverter;
 
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IList;
 import org.rascalmpl.value.type.Type;
 
 public class RVMonJVM extends RVMInterpreter {
@@ -56,7 +51,7 @@ public class RVMonJVM extends RVMInterpreter {
 
 	// Function overloading
 	
-	protected OverloadedFunction[] overloadedStore;
+	//protected OverloadedFunction[] overloadedStore;
 
 	public RVMonJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
 		super(rvmExec, rex);
@@ -121,7 +116,7 @@ public class RVMonJVM extends RVMInterpreter {
 	// Implements abstract function for RVMonJVM
 	@Override
 	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] args){		
-		Function firstFunc = functionStore.get(func.getFunctions()[0]); // TODO: null?
+		Function firstFunc = functionStore[func.getFunctions()[0]]; // TODO: null?
 		int arity = args.length;
 		int scopeId = func.env.scopeId;
 		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
@@ -166,7 +161,7 @@ public class RVMonJVM extends RVMInterpreter {
 
 		rex.setCurrentModuleName(moduleName);
 
-		Function main_function = functionStore.get(functionMap.get(uid_main));
+		Function main_function = functionStore[functionMap.get(uid_main)];
 
 		if (main_function == null) {
 			throw new RuntimeException("PANIC: No function " + uid_main + " found");
@@ -282,12 +277,12 @@ public class RVMonJVM extends RVMInterpreter {
 	}
 
 	public int insnPUSH_ROOT_FUN(Object[] stack, int sp, int fun) {
-		stack[sp++] = new FunctionInstance(functionStore.get(fun), root, this);
+		stack[sp++] = new FunctionInstance(functionStore[fun], root, this);
 		return sp;
 	}
 
 	public int insnPUSH_NESTED_FUN(Object[] stack, int sp, Frame cf, int fun, int scopeIn) {
-		stack[sp++] = FunctionInstance.computeFunctionInstance(functionStore.get(fun), cf, scopeIn, this);
+		stack[sp++] = FunctionInstance.computeFunctionInstance(functionStore[fun], cf, scopeIn, this);
 		return sp;
 	}
 
@@ -336,7 +331,7 @@ public class RVMonJVM extends RVMInterpreter {
 
 	public int insnAPPLY(Object[] stack, int sp, int function, int arity) {
 		FunctionInstance fun_instance;
-		Function fun = functionStore.get(function);
+		Function fun = functionStore[function];
 		assert arity <= fun.nformals;
 		assert fun.scopeIn == -1;
 		fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
@@ -440,7 +435,7 @@ public class RVMonJVM extends RVMInterpreter {
 	public Object dynRun(final String fname, final IValue[] args) {
 		
 		int n = functionMap.get(fname);
-		Function func = functionStore.get(n);
+		Function func = functionStore[n];
 		root = new Frame(func.scopeId, null, func.maxstack, func);
 
 		root.stack[0] = vf.list(args); // pass the program argument to
@@ -452,7 +447,7 @@ public class RVMonJVM extends RVMInterpreter {
 	
 	public Object executeFunction(final String fname, final IValue[] args){
 		int n = functionMap.get(fname);
-		Function func = functionStore.get(n);
+		Function func = functionStore[n];
 		root = new Frame(func.scopeId, null, func.maxstack, func);
 		for(int i = 0; i < args.length; i++){
 			root.stack[i] = args[i];	
@@ -491,7 +486,7 @@ public class RVMonJVM extends RVMInterpreter {
 	}
 	
 	public Object jvmCREATE(final Object[] stack, final int sp, final Frame cf, final int fun, final int arity) {
-		cccf = cf.getCoroutineFrame(functionStore.get(fun), root, arity, sp);
+		cccf = cf.getCoroutineFrame(functionStore[fun], root, arity, sp);
 		cccf.previousCallFrame = cf;
 
 		// lcf.sp = modified by getCoroutineFrame.
@@ -591,7 +586,7 @@ public class RVMonJVM extends RVMInterpreter {
 		Object rval;
 
 		if (cf.hotEntryPoint != ep) {
-			fun = functionStore.get(funid);
+			fun = functionStore[funid];
 			// In case of partial parameter binding
 			if (arity < fun.nformals) {
 				FunctionInstance fun_instance = FunctionInstance.applyPartial(fun, root, this, arity, stack, sp);
@@ -811,11 +806,11 @@ public class RVMonJVM extends RVMInterpreter {
 		return thrown;
 	}
 
-	public static Object anyDeserialize(String s) throws IOException, ClassNotFoundException {
-		ByteArrayInputStream bais = new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(s));
-		ObjectInputStream ois = new ObjectInputStream(bais);
-		Object o = ois.readObject();
-		ois.close();
-		return o;
-	}
+//	public static Object anyDeserialize(String s) throws IOException, ClassNotFoundException {
+//		ByteArrayInputStream bais = new ByteArrayInputStream(DatatypeConverter.parseBase64Binary(s));
+//		ObjectInputStream ois = new ObjectInputStream(bais);
+//		Object o = ois.readObject();
+//		ois.close();
+//		return o;
+//	}
 }

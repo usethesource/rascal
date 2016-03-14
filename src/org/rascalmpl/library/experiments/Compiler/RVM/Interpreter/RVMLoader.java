@@ -30,42 +30,46 @@ import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class RVMLoader {
 	
-static FSTConfiguration conf;
-static FSTSerializableType serializableType;
-static FSTSerializableIValue serializableIValue;
-static FSTRVMExecutableSerializer rvmExecutableSerializer;
-static FSTFunctionSerializer functionSerializer;
-static FSTCodeBlockSerializer codeblockSerializer;
+	static FSTConfiguration conf;
+	static FSTSerializableType serializableType;
+	static FSTSerializableIValue serializableIValue;
+	static FSTRVMExecutableSerializer rvmExecutableSerializer;
+	static FSTFunctionSerializer functionSerializer;
+	static FSTOverloadedFunctionSerializer overloadedFunctionSerializer;
+	static FSTCodeBlockSerializer codeblockSerializer;
 	
 	static {
-		  
-		   conf = FSTConfiguration.createDefaultConfiguration();   
-		   
-		   // PDB Types
-		   serializableType = new FSTSerializableType();
-		   conf.registerSerializer(FSTSerializableType.class, serializableType, false);
-		   
-		   // PDB values
-		   serializableIValue =  new FSTSerializableIValue();
-		   conf.registerSerializer(FSTSerializableIValue.class, serializableIValue, false);
-		   
-		   // Specific serializers
-		   rvmExecutableSerializer = new FSTRVMExecutableSerializer();
-		   conf.registerSerializer(RVMExecutable.class, rvmExecutableSerializer, false);
-		   
-		   functionSerializer = new FSTFunctionSerializer();
-		   conf.registerSerializer(Function.class, functionSerializer, false);
-		   
-		   codeblockSerializer = new FSTCodeBlockSerializer();
-		   conf.registerSerializer(CodeBlock.class, codeblockSerializer, false);
-		
-		   // For efficiency register some class that are known to occur in serialization
-		   conf.registerClass(OverloadedFunction.class);
-		   //conf.registerClass(FSTSerializableType.class);
-		   //conf.registerClass(FSTSerializableIValue.class);
+		// set up FST serialization
+
+		conf = FSTConfiguration.createDefaultConfiguration();   
+
+		// PDB Types
+		serializableType = new FSTSerializableType();
+		conf.registerSerializer(FSTSerializableType.class, serializableType, false);
+
+		// PDB values
+		serializableIValue =  new FSTSerializableIValue();
+		conf.registerSerializer(FSTSerializableIValue.class, serializableIValue, false);
+
+		// Specific serializers
+		rvmExecutableSerializer = new FSTRVMExecutableSerializer();
+		conf.registerSerializer(RVMExecutable.class, rvmExecutableSerializer, false);
+
+		functionSerializer = new FSTFunctionSerializer();
+		conf.registerSerializer(Function.class, functionSerializer, false);
+
+		overloadedFunctionSerializer = new FSTOverloadedFunctionSerializer();
+		conf.registerSerializer(OverloadedFunction.class, overloadedFunctionSerializer, false);
+
+		codeblockSerializer = new FSTCodeBlockSerializer();
+		conf.registerSerializer(CodeBlock.class, codeblockSerializer, false);
+
+		// For efficiency register some classes that are known to occur in serialization
+		conf.registerClass(OverloadedFunction.class);
+		//conf.registerClass(FSTSerializableType.class);
+		//conf.registerClass(FSTSerializableIValue.class);
 	}   
-		   
-	
+
 	private IValueFactory vf;
 	private TypeFactory tf;
 	
@@ -160,7 +164,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			constructorMap.put(cname, index);
 			constructorStore.add(null);
 		}
-		//stdout.println("useConstructorName: " + index + "  => " + cname);
+		//System.out.println("useConstructorName: " + index + "  => " + cname);
 		return index;
 	}
 	
@@ -202,6 +206,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 	}
 	
 	private void fillOverloadedStore(IList overloadedStore) {
+		
 		for(IValue of : overloadedStore) {
 			
 			ITuple ofTuple = (ITuple) of;
@@ -211,9 +216,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 			IConstructor funType = (IConstructor) ofTuple.get(1);
 			
 			String scopeIn = ((IString) ofTuple.get(2)).getValue();
-//			if(scopeIn.equals("")) {					// TODO <<<< Remind Ferry!
-//				scopeIn = null;
-//			}
+
 			IList fuids = (IList) ofTuple.get(3);		// function alternatives
 			int[] funs = new int[fuids.length()];
 			int alt = 0;
@@ -232,7 +235,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 				Integer index = useConstructorName(((IString) fuid).getValue());
 				constrs[alt++] = index;
 			}
-			OverloadedFunction res = new OverloadedFunction(functionStore, funs, constrs, scopeIn);
+			OverloadedFunction res = new OverloadedFunction(funName, types.symbolToType(funType, new TypeStore()), funs, constrs, scopeIn);
 			this.overloadedStore.add(res);
 		}
 	}
@@ -459,6 +462,7 @@ static FSTCodeBlockSerializer codeblockSerializer;
 
 					if(name.contains("companion")){	// always preserve generated companion and companion-defaults functions
 						rootWriter.insert(iname);
+						loadInstructions(name, declaration, false);
 					}
 
 					if(name.contains("closure#")){	// preserve generated closure functions and their enclosing function
@@ -598,11 +602,11 @@ static FSTCodeBlockSerializer codeblockSerializer;
 								 moduleTags,
 								 (IMap) main_module.get("symbol_definitions"), 
 								 functionMap, 
-								 functionStore, 
+								 functionStore.toArray(new Function[functionStore.size()]),
 								 constructorMap,	
 								 constructorStore, 
 								 resolver,  
-								 overloadedStore, 
+								 overloadedStore.toArray(new OverloadedFunction[overloadedStore.size()]),
 								 initializers, 
 								 testsuites, 
 								 uid_module_init, 

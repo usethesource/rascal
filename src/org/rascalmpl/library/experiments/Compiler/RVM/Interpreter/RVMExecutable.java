@@ -51,7 +51,7 @@ public class RVMExecutable implements Serializable{
 	private IMap moduleTags;
 	private IMap symbol_definitions;
 	
-	private ArrayList<Function> functionStore;
+	private Function[] functionStore;
 	private  Map<String, Integer> functionMap;
 	
 	// Constructors
@@ -59,7 +59,7 @@ public class RVMExecutable implements Serializable{
 	private Map<String, Integer> constructorMap;
 	
 	// Function overloading
-	private ArrayList<OverloadedFunction> overloadedStore;
+	private OverloadedFunction[] overloadedStore;
 	private Map<String, Integer> resolver;
 	
 	private ArrayList<String> initializers;
@@ -79,13 +79,13 @@ public class RVMExecutable implements Serializable{
 			final IMap symbol_definitions,
 			final Map<String, Integer> functionMap,
 			
-			final ArrayList<Function> functionStore,
+			final Function[] functionStore,
 			final Map<String, Integer> constructorMap,
 	
 			final ArrayList<Type> constructorStore,
 			final Map<String, Integer> resolver,
 			
-			final ArrayList<OverloadedFunction> overloadedStore,
+			final OverloadedFunction[] overloadedStore,
 			ArrayList<String> initializers,
 			ArrayList<String> testsuites,
 			String uid_module_init,
@@ -151,7 +151,7 @@ public class RVMExecutable implements Serializable{
 		return symbol_definitions;
 	}
 
-	public ArrayList<Function> getFunctionStore() {
+	public Function[] getFunctionStore() {
 		return functionStore;
 	}
 
@@ -167,7 +167,7 @@ public class RVMExecutable implements Serializable{
 		return constructorMap;
 	}
 	
-	ArrayList<OverloadedFunction> getOverloadedStore() {
+	OverloadedFunction[] getOverloadedStore() {
 		return overloadedStore;
 	}
 	
@@ -453,17 +453,17 @@ public class RVMExecutable implements Serializable{
 		
 		boolean overloadedStoreOk = true;
 		
-		ArrayList<OverloadedFunction> ols = this.overloadedStore;
-		ArrayList<OverloadedFunction> ols2 = other.overloadedStore;
+		OverloadedFunction[] ols = this.overloadedStore;
+		OverloadedFunction[] ols2 = other.overloadedStore;
 		
-		if(ols.size() !=  ols2.size()){
-			System.err.println("overloadedStores: " + ols.size() + " vs " + ols2.size());
+		if(ols.length !=  ols2.length){
+			System.err.println("overloadedStores: " + ols.length + " vs " + ols2.length);
 			overloadedStoreOk = false;
 		}
 		
-		for(int i = 0; i < Math.min(ols.size(),ols2.size()); i++){
-			if(!ols.get(i).comparable(ols2.get(i))){
-				System.err.println(i + ": " + ols.get(i) + " vs " + ols2.get(i));
+		for(int i = 0; i < Math.min(ols.length,ols2.length); i++){
+			if(!ols[i].comparable(ols2[i])){
+				System.err.println(i + ": " + ols[i] + " vs " + ols2[i]);
 				overloadedStoreOk = false;
 			}
 		}
@@ -601,12 +601,12 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		// public ArrayList<Function> functionStore;
 		// public  Map<String, Integer> functionMap;
 
-		ArrayList<Function> functionStore = (ArrayList<Function>) in.readObject();
+		Function[] functionStore = (Function[]) in.readObject();
 
-		n = functionStore.size();
+		n = functionStore.length;
 		HashMap<String, Integer> functionMap = new HashMap<String, Integer>(n);
 		for(int i = 0; i < n; i++){
-			functionMap.put(functionStore.get(i).getName(), i);
+			functionMap.put(functionStore[i].getName(), i);
 		}
 
 		// public ArrayList<Type> constructorStore;
@@ -622,9 +622,9 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 
 		Map<String, Integer> constructorMap = (Map<String, Integer>) in.readObject();
 
-		// public ArrayList<OverloadedFunction> overloadedStore;
+		// public OverloadedFunction[] overloadedStore;
 
-		ArrayList<OverloadedFunction> overloadedStore = (ArrayList<OverloadedFunction>) in.readObject();
+		OverloadedFunction[] overloadedStore = (OverloadedFunction[]) in.readObject();
 
 		// public Map<String, Integer> resolver;
 

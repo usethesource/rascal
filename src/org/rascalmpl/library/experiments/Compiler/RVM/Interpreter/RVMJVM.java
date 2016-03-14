@@ -88,7 +88,7 @@ public class RVMJVM extends RVMInterpreter {
 	// Implements abstract function for RVMonJVM
 	@Override
 	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] args){		
-		Function firstFunc = functionStore.get(func.getFunctions()[0]); // TODO: null?
+		Function firstFunc = functionStore[func.getFunctions()[0]]; // TODO: null?
 		int arity = args.length;
 		int scopeId = func.env.scopeId;
 		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
@@ -121,7 +121,7 @@ public class RVMJVM extends RVMInterpreter {
 
 		rex.setCurrentModuleName(moduleName);
 
-		Function main_function = functionStore.get(functionMap.get(uid_main));
+		Function main_function = functionStore[functionMap.get(uid_main)];
 
 		if (main_function == null) {
 			throw new RuntimeException("PANIC: No function " + uid_main + " found");
