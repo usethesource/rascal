@@ -45,15 +45,16 @@ public class FacUse  {
 			
 			long before = Timing.getCpuTime();
 			
-//			IInteger result = myFac.fac(vf.integer(n));	// <===
+			IInteger result = myFac.fac(vf.integer(n));	// <===
+			System.out.println("result = " + result);
 
 //			System.out.println("result = " + result + "\n" + (Timing.getCpuTime() - before)/1000 + " nsec");
 //			
 //			
 //			System.out.println(myFac.d1(vf.integer(n)));
 //			System.out.println(myFac.d2(vf.string("abc")));
-			System.out.println(myFac.getA());
-			System.out.println(myFac.getAs(vf.integer(3)));
+//			System.out.println(myFac.getA());
+//			System.out.println(myFac.getAs(vf.integer(3)));
 //			before = Timing.getCpuTime();
 //			System.out.println("jfac: " + jfac(n)+ "\n" + (Timing.getCpuTime() - before)/1000 + " nsec");
 //		} else {

@@ -105,7 +105,7 @@ public class RVMJVM extends RVMInterpreter {
 		Frame frame = ofunCall.nextFrame(functionStore);
 		while (frame != null) {
 			Object rsult = generatedClassInstance.dynRun(frame.function.funId, frame);
-			if (rsult == NONE) {
+			if (rsult.equals(RVMonJVM.NOTHING)) {
 				return narrow(generatedClassInstance.returnValue); // Alternative matched.
 			}
 			frame = ofunCall.nextFrame(functionStore);

@@ -216,6 +216,9 @@ public abstract class RVMCore {
 		
 		for(OverloadedFunction of : overloadedStore){
 			System.err.println(of);
+			if(of.name.equals("fac")){
+				System.err.println("Found fac");
+			}
 			if(of.matchesNameAndSignature(name, funType)){
 				if(result == null){
 					result = of;
@@ -228,10 +231,14 @@ public abstract class RVMCore {
 			}
 		}
 		
+		if(result != null){
+			return result;
+		}
+		
 		for(int i = 0; i < constructorStore.size(); i++){
 			Type tp = constructorStore.get(i);
-			System.err.println(tp.getName() + ": " + tp.getFieldTypes());
-			System.err.println(tp);
+			//System.err.println(tp.getName() + ": " + tp.getFieldTypes());
+			//System.err.println(tp);
 			if(name.equals(tp.getName()) && ft.getFieldTypes().comparable(funType.getFieldTypes()) 
 					                     && ft.getReturnType().comparable(tp.getAbstractDataType())
 					){
@@ -244,7 +251,7 @@ public abstract class RVMCore {
 		// No overloaded function or constructor matched, only nonterminals remain ...
 		for(int i = 0; i < functionStore.length; i++){
 			Function fun = functionStore[i];
-			System.err.println(fun);
+			//System.err.println(fun);
 			if(fun.name.contains("/" + name + "(")){
 				if(fun.ftype instanceof FunctionType){
 					FunctionType tp = (FunctionType) fun.ftype;
