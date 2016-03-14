@@ -560,7 +560,6 @@ public class Types {
 			   }
 		default:
 			res = tf.abstractDataType(RascalValueFactory.getStore(), kw);
-			System.err.println(res);
 			return res;
 			//throw new CompilerError("Unimplemented: " + kw);	   
 		}

@@ -564,10 +564,10 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		
 		// public byte[] jvmByteCode;
 		
-		if(ex.getJvmByteCode() == null) 
-			System.err.println("byte code is null"); 
-		else 
-			System.err.println("Writing byte code: " + ex.getJvmByteCode().length + " bytes");
+//		if(ex.getJvmByteCode() == null) 
+//			System.err.println("byte code is null"); 
+//		else 
+//			System.err.println("Writing byte code: " + ex.getJvmByteCode().length + " bytes");
 		
 		out.writeObject(ex.getJvmByteCode());
 		
@@ -653,10 +653,10 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		// public byte[] jvmByteCode;
 		
 		byte[] jvmByteCode = (byte[]) in.readObject();
-		if(jvmByteCode == null)	
-			System.err.println("byte code is null");
-		else 
-			System.err.println("Reading byte code: " + jvmByteCode.length + " bytes");
+//		if(jvmByteCode == null)	
+//			System.err.println("byte code is null");
+//		else 
+//			System.err.println("Reading byte code: " + jvmByteCode.length + " bytes");
 				
 		// public String fullyQualifiedDottedName;
 	
