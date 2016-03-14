@@ -104,10 +104,10 @@ str serialize(str moduleName, PathConfig pcfg, bool jvm=false){
      compileAndLink(moduleName, pcfg, verbose=true, jvm=jvm);
      serialized = getDerivedWriteLoc(moduleName, "rvm.ser.gz", pcfg);
      cmd = "cp .<serialized.path> <(BOOT + moduleName2Bin(moduleName, "rvm.ser.gz")).path>\n";
-     if(jvm){
-        classLoc = getDerivedWriteLoc(moduleName + "\\$Compiled", "class", pcfg);
-        cmd += "cp .<classLoc.path> <(BOOT + moduleName2Bin(moduleName + "\\$Compiled", "class")).path>\n";
-     }
+     //if(jvm){
+     //   classLoc = getDerivedWriteLoc(moduleName + "\\$Compiled", "class", pcfg);
+     //   cmd += "cp .<classLoc.path> <(BOOT + moduleName2Bin(moduleName + "\\$Compiled", "class")).path>\n";
+     //}
      return cmd;
 }
 
@@ -128,7 +128,7 @@ void buildMuLibrary(){
      report("Compiling MuLibrary");
      compileMuLibrary(pcfg, verbose=true);
      muLib = getMuLibraryCompiledWriteLoc(pcfg);
-     commands += "cp <muLib.path> <(BOOT + muLib.file).path>\n";
+     commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
      writeFile(SHELLSCRIPT, commands);
      report("Commands written to <SHELLSCRIPT>");
 }
@@ -152,7 +152,7 @@ value build(bool jvm=false, bool full=false){
         report("Compiling MuLibrary");
         compileMuLibrary(pcfg, verbose=true, jvm=jvm);
         muLib = getMuLibraryCompiledWriteLoc(pcfg);
-        commands += "cp <muLib.path> <(BOOT + muLib.file).path>\n";
+        commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
      
         report("Compiling standard library modules");
         for(moduleName <- libraryModules){
