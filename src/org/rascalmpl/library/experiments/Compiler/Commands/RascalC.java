@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMInterpreter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.value.IValue;
@@ -48,7 +47,7 @@ public class RascalC {
 			
 			.boolOption("profile") 		.help("Profile execution of compiler")
 			
-			.boolOption("jvm") 			.help("Generate JVM code")
+			//.boolOption("jvm") 			.help("Generate JVM code")
 			
 			.boolOption("verbose") 		.help("Make the compiler verbose")
 			
@@ -60,7 +59,7 @@ public class RascalC {
 				.customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
 				.setTrackCalls(cmdOpts.getCommandBoolOption("trackCalls"))
                 .setProfiling(cmdOpts.getCommandBoolOption("profile"))
-                .setJVM(cmdOpts.getCommandBoolOption("jvm"))
+                //.setJVM(cmdOpts.getCommandBoolOption("jvm"))
                 .forModule(cmdOpts.getRascalModule().getValue())
                 .build();
 		

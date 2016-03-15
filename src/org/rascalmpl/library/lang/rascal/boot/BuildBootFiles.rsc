@@ -132,7 +132,7 @@ void buildMuLibrary(){
 // Build MuLibrary, standard library, ParserGenerator and Kernel
 // Maybe run buildMuLibrary first!
 
-value build(bool jvm=false, bool full=false){
+value build(bool jvm=true, bool full=false){
      println("build: full = <full>, jvm = <jvm>");
 
      pcfg = pathConfig(srcPath=[|std:///|], binDir=BINBOOT, libPath=[BINBOOT]);
