@@ -28,7 +28,7 @@ public class RascalExecutionContextBuilder {
 	private boolean profile = false;
 	private boolean trackCalls = false;
 	private boolean coverage = false;
-	private boolean jvm = false;
+	private boolean jvm = true;
 	private TypeStore typeStore = null;
 
 	private IMap symbolDefinitions = null ;

@@ -30,10 +30,6 @@ public class Rascal {
 		}
 	}
 	
-	static {
-		double[] ZZZZ = {2.5, 3.5};
-	}
-	
 	/**
 	 * Main function for execute command: rascal
 	 * 
@@ -51,7 +47,7 @@ public class Rascal {
 										
 			.locOption("binDir") 		.help("Directory for Rascal binaries")
 										
-			.boolOption("jvm") 			.help("Generate JVM code")
+			//.boolOption("jvm") 			.help("Generate JVM code")
 			
 			.boolOption("verbose")		.help("Print compilation steps")
 			

@@ -84,7 +84,7 @@ bool valid(loc mergedImportsLoc, RVMModule mergedProgram, RVMModule program, Pat
     return false;
 }
 
-RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool jvm = false, bool verbose = false){
+RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool jvm = true, bool verbose = false){
                         
    map[str,map[str,str]] imported_moduleTags = ();
    map[str,Symbol] imported_types = ();
@@ -255,7 +255,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool jvm = false,
 
 value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false,
                                   bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
-                                  bool coverage = false, bool jvm = false, bool verbose = false){
+                                  bool coverage = false, bool jvm = true, bool verbose = false){
    startTime = cpuTime();
    v = executeProgram(RVMExecutableCompressedWriteLoc(program.main_module.name, pcfg),
                            program,
@@ -274,7 +274,7 @@ value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArgumen
 
 value execute(RVMModule mainModule, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false,
                                     bool testsuite=false, bool recompile=false, bool profile=false, bool trackCalls= false, 
-                                    bool coverage = false, bool jvm = false, bool verbose = false){
+                                    bool coverage = false, bool jvm = true, bool verbose = false){
    start_linking = cpuTime();   
    merged = mergeImports(mainModule, pcfg, verbose=verbose, jvm=jvm);
    link_time = cpuTime() - start_linking;
@@ -284,7 +284,7 @@ value execute(RVMModule mainModule, PathConfig pcfg, map[str,value] keywordArgum
 }
 value execute(loc moduleLoc, PathConfig pcfg, map[str,value] 
               keywordArguments = (), bool debug=false, bool debugRVM=false, bool testsuite=false, bool recompile=false, bool profile=false, 
-              bool trackCalls= false,  bool coverage=false, bool jvm=false, bool verbose = false) {
+              bool trackCalls= false,  bool coverage=false, bool jvm=true, bool verbose = false) {
    return execute(getModuleName(moduleLoc, pcfg), pcfg, keywordArguments = keywordArguments, debug=debug, debugRVM=debugRVM, 
            testsuite=testsuite, profile=profile, trackCalls=trackCalls, coverage=coverage,jvm=jvm,verbose=verbose);    
 }
@@ -292,7 +292,7 @@ value execute(loc moduleLoc, PathConfig pcfg, map[str,value]
 
 value execute(str qualifiedModuleName, PathConfig pcfg, 
               map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool testsuite=false, bool recompile=false, 
-              bool profile=false, bool trackCalls= false,  bool coverage=false, bool jvm=false, bool verbose = false){
+              bool profile=false, bool trackCalls= false,  bool coverage=false, bool jvm=true, bool verbose = false){
    if(!recompile){
       if(<true, compressed> := RVMExecutableCompressedReadLoc(qualifiedModuleName, pcfg)){
          if(verbose) println("Using <compressed>");
@@ -312,7 +312,7 @@ value execute(str qualifiedModuleName, PathConfig pcfg,
 
 value rascalTests(list[str] qualifiedModuleNames, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir, 
                   map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool recompile=false, bool profile=false, 
-                  bool trackCalls= false,  bool coverage=false, bool jvm=false, bool verbose = false){
+                  bool trackCalls= false,  bool coverage=false, bool jvm=true, bool verbose = false){
     return rascalTests(qualifiedModuleNames, pathConfig(srcPath=srcPath, libPath=libPath, bootDir=bootDir, binDir=binDir),
                        keywordArguments=keywordArguments,
                        debug=debug,
@@ -327,7 +327,7 @@ value rascalTests(list[str] qualifiedModuleNames, list[loc] srcPath, list[loc] l
 
 value rascalTests(list[str] qualifiedModuleNames, PathConfig pcfg, 
                   map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool recompile=false, bool profile=false, 
-                  bool trackCalls= false,  bool coverage=false, bool jvm=false, bool verbose = false){
+                  bool trackCalls= false,  bool coverage=false, bool jvm=true, bool verbose = false){
    lrel[loc,int,str] all_test_results = [];
    
    exceptions = [];
@@ -355,11 +355,11 @@ value rascalTests(list[str] qualifiedModuleNames, PathConfig pcfg,
 }
 
 RVMProgram compileAndLink(str qualifiedModuleName, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir,  
-                          bool jvm=false, bool verbose = false){
+                          bool jvm=true, bool verbose = false){
     return compileAndLink(qualifiedModuleName, pathConfig(srcPath=srcPath, libPath=libPath, bootDir=bootDir, binDir=binDir), jvm=jvm, verbose=verbose);
 }
 
-RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool jvm=false, bool verbose = false){
+RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool jvm=true, bool verbose = false){
    startTime = cpuTime();
    mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose);
    if(verbose) println("Compiling: <(cpuTime() - startTime)/1000000> ms");
@@ -372,7 +372,7 @@ RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool jvm=fal
    return merged;
 }
 
-RVMProgram compileAndLinkIncremental(str qualifiedModuleName, bool reuseConfig, bool jvm=false, bool verbose = false){
+RVMProgram compileAndLinkIncremental(str qualifiedModuleName, bool reuseConfig, bool jvm=true, bool verbose = false){
    startTime = cpuTime();
    pcfg = pathConfig(srcPath=[|std:///|, |test-modules:///|], binDir=|home:///bin-console|, libPath=[|home:///bin-console|]);
    mainModule = compileIncremental(qualifiedModuleName, reuseConfig, pcfg, verbose=verbose);
