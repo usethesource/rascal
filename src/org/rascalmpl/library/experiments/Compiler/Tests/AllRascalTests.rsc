@@ -31,6 +31,10 @@ private list[str] basicTests = [
 	"Relations"	,
 	"Sets",
 	"SolvedIssues",
+	"modules::A",
+	"modules::B",
+	"modules::C",
+	"modules::D",
 	"Strings",
 	"Tuples"					
 ];
