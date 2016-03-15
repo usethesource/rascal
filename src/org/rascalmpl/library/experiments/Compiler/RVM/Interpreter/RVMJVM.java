@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
 
 public class RVMJVM extends RVMCore {
 

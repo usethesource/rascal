@@ -135,7 +135,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
    for(int uid <- config.store, 
        AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int scopeIn, constructorLoc) := config.store[uid], 
        //bprintln("<uid>: <name>: <constructorLoc>, <M@\loc> <constructorLoc < M@\loc>, <constructorLoc.path == M@\loc.path>"),
-       //constructorLoc.path == M@\loc.path,
+       constructorLoc.path == M@\loc.path,
        allKwFields := getAllKeywordFields(uid), 
        //bprintln(allKwFields), 
        !isEmpty(allKwFields)) {

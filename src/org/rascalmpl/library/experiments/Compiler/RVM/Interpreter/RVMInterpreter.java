@@ -1,6 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,17 +8,8 @@ import java.util.Stack;
 
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
-import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.NullFrameObserver;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.DIRECTION;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.FIXEDPOINT;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.PROGRESS;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.REBUILD;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
