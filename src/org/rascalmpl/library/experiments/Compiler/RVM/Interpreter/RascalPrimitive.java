@@ -8295,6 +8295,9 @@ public enum RascalPrimitive {
 			assert arity == 3;
 			IList lst = (IList) stack[sp - 3];
 			int n = ((IInteger) stack[sp - 2]).intValue();
+			if(n < 0){
+				n = lst.length() + n;
+			}
 			try {
 				stack[sp - 3] = lst.put(n, (IValue) stack[sp - 1]);
 				return sp - 2;
