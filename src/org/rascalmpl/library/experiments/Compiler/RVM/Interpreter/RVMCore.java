@@ -826,13 +826,10 @@ public abstract class RVMCore {
 		IValue[] args = new IValue[constructor.getArity()];
 
 		java.util.Map<String,IValue> kwargs;
-		Type type = (Type) stack[--sp];
-		//if(type.getArity() > 0){
-			// Constructors with keyword parameters
-			kwargs = (java.util.Map<String,IValue>) stack[--sp];
-		//} else {
-		//	kwargs = new HashMap<String,IValue>();
-		//}
+		@SuppressWarnings("unused")
+		Type type = (Type) stack[--sp];		// TODO: emove from instruction
+		
+		kwargs = (java.util.Map<String,IValue>) stack[--sp];
 
 		for(int i = 0; i < constructor.getArity(); i++) {
 			args[constructor.getArity() - 1 - i] = (IValue) stack[--sp];
