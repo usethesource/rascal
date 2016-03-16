@@ -52,8 +52,11 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  // Extract scoping information available from the configuration returned by the type checker  
    	  extractScopes(config); 
    	  
+   	  println("extractScopes ... done");
    	  // Extract all declarations for the benefit of the type reifier
       extractDeclarationInfo(config);
+      
+      println("extractDeclarationInfo ... done");
    	 
    	  map[str,Symbol] types = 
    	  	( uid2str[uid] : \type | 
@@ -123,7 +126,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
 
 void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true){
 
-   //println("generateCompanions");
+   println("generateCompanions");
    
    set[str] seenCommonDataFields = {};  // remember for which common data fields we have already generated a companion
  
@@ -135,9 +138,9 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
        //bprintln("<uid>: <name>: <constructorLoc>, <M@\loc> <constructorLoc < M@\loc>, <constructorLoc.path == M@\loc.path>"),
        //constructorLoc.path == M@\loc.path,
        allKwFields := getAllKeywordFields(uid), 
-       //bprintln(allKwFields), 
+       bprintln(allKwFields), 
        !isEmpty(allKwFields)) {
-      // println("*** Creating companion for <uid>");
+        println("*** Creating companion for <uid>");
          
        map[RName,Symbol] allKWFieldsAndTypes = getAllKeywordFieldsAndTypes(uid);
         
@@ -151,7 +154,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
        int nformals = size(\type.parameters) + 1;
        int defaults_pos = nformals;
         
-       //println("enter function scope <fuid>");
+       println("enter function scope <fuid>");
        enterFunctionScope(fuid);
          
        MuExp body = muReturn1(muCall(muConstr(uid2str[uid]), [ muVar("<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
@@ -165,14 +168,14 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
         * Create companion for computing the values of defaults
         */
         
-       //println("*** Creating defaults companion for <uid>");
+       println("*** Creating defaults companion for <uid>");
         
        str fuidDefaults = getCompanionDefaultsForUID(uid);
 
        tuple[str fuid,int pos] addrDefaults = uid2addr[uid];
        addrDefaults.fuid = fuidDefaults;
          
-       //println("enter function scope <fuidDefaults>");
+       println("enter function scope <fuidDefaults>");
        enterFunctionScope(fuidDefaults);
          
        list[MuExp] kwps = [ muAssign("map_of_default_values", fuidDefaults, defaults_pos, muCallMuPrim("make_mmap_str_entry",[])) ];
@@ -190,6 +193,8 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
        }
          
        MuExp bodyDefaults =  muBlock(kwps + [ muReturn1(muVar("map_of_default_values",fuidDefaults,defaults_pos)) ]);
+       println("Generating function <fuidDefaults>");
+       iprintln(bodyDefaults);
        
        leaveFunctionScope();
        addFunctionToModule(muFunction(fuidDefaults, name.name, ftype, (addrDefaults.fuid in moduleNames) ? "" : addrDefaults.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefaults));                                             
@@ -198,20 +203,20 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
         * Create companions for each common keyword field
         */
          
-       //println("**** Create companions per common data field");
-       //println("Number of default fields: <size(allKWFieldsAndDefaultsInModule)>");
+       println("**** Create companions per common data field");
+       println("Number of default fields: <size(allKWFieldsAndDefaultsInModule)>");
        
        dataKWFieldsAndDefaults = [<kwf, defaultExpr> | <kwf, defaultVal> <- allKWFieldsAndDefaultsInModule, 
                                                       Expression defaultExpr := defaultVal,
                                                       !(defaultExpr@\loc < constructorLoc)];
        
       
-       //println("Number of datadefault fields: <size(dataKWFieldsAndDefaults)>"); 
+       println("Number of datadefault fields: <size(dataKWFieldsAndDefaults)>"); 
        for(int i <- index(dataKWFieldsAndDefaults)){
            for(int j <- [0 .. i+1]){
                <mainKwf, mainDefaultVal> = dataKWFieldsAndDefaults[j];
 
-               //println("<i>, <j>: <mainKwf>");
+               println("<i>, <j>: <mainKwf>");
                str fuidDefault = getCompanionDefaultsForADTandField(getADTName(getConstructorResultType(\type)), prettyPrintName(mainKwf));
                if(fuidDefault in seenCommonDataFields) continue;
                
@@ -222,7 +227,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
                nformals = 1;      // the keyword map
                defaults_pos = nformals;
          
-               //println("**** enter scope <fuidDefault>");
+               println("**** enter scope <fuidDefault>");
                enterFunctionScope(fuidDefault);
                
                ftype = Symbol::func(allKWFieldsAndTypes[mainKwf], [ Symbol::\void() ]);
@@ -246,7 +251,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
          
                MuExp bodyDefault =  muBlock(kwps);
          
-               //iprintln(bodyDefault);
+               iprintln(bodyDefault);
          
                leaveFunctionScope();
                addFunctionToModule(muFunction(fuidDefault, prettyPrintName(mainKwf), ftype, (addrDefault.fuid in moduleNames) ? "" : addrDefault.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefault));                                             

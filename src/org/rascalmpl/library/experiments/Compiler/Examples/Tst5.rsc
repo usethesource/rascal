@@ -1,9 +1,10 @@
 module experiments::Compiler::Examples::Tst5
       
- value main(){
+data L = l(int a = 1, int b = 2 * a);
  
-       return [ y | <x, y> <- 
-                   [<a, 10*a> | a <- [1,2,3]],  
-                   y > 10 ];
+//data L(int a = 1, int b = 2 * a) = l(int c = 2 * b);
  
- }
+//data L(int d = -1) = m();
+//
+//L createL1() = l(); 
+//L createM1() = l();
