@@ -120,12 +120,14 @@ public class BytecodeGenerator implements Opcodes {
 		}
 		
 		// All functions are created create int based dispatcher
-		emitDynDispatch(functionMap.size());
-		for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
-			String fname = e.getKey();
-			emitDynCaLL(fname, e.getValue());
+		if(functionMap.size() > 0){
+			emitDynDispatch(functionMap.size());
+			for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
+				String fname = e.getKey();
+				emitDynCaLL(fname, e.getValue());
+			}
+			emitDynFinalize();
 		}
-		emitDynFinalize();
 
 		OverloadedFunction[] overloadedStoreV2 = new OverloadedFunction[overloadedStore.length];
 		emitConstructor(overloadedStoreV2);
