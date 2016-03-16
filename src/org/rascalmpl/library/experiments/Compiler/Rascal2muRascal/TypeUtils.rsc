@@ -578,7 +578,7 @@ void extractScopes(Configuration c){
             uid2addr[decls[i]] = <uid2str[fuid1], -1>;
         }
     }
-    
+  
     for(UID fuid1 <- constructors){
         nformals = getFormals(fuid1); // ***Note: Includes keyword parameters as a single map parameter 
         // First, fill in variables to get their positions right
@@ -626,6 +626,8 @@ void extractScopes(Configuration c){
 
     }
     
+   
+    
     // Fill in uid2addr for overloaded functions;
     for(UID fuid2 <- ofunctions) {
         set[UID] funs = config.store[fuid2].items;
@@ -648,6 +650,7 @@ void extractScopes(Configuration c){
     	//assert size(scopes) == 0 || size(scopes) == 1 : "extractScopes";
     	uid2addr[fuid2] = <scopeIn,-1>;
     }
+   
      extractConstantDefaultExpressions();
 }
 
@@ -711,8 +714,8 @@ lrel[RName,value] getAllKeywordFieldDefaultsInModule(UID cuid, str modulePath){
     if(a_constructor is constructor){
         its_adt = config.store[cuid].rtype.\adt;
         uid_adt = datatypes[its_adt];
-        result = [ defExp | defExp <- config.dataKeywordDefaults[uid_adt], Expression e := defExp[1], e@\loc.path == modulePath] +
-                 [ defExp | defExp <- config.dataKeywordDefaults[cuid], Expression e := defExp[1], e@\loc.path == modulePath];
+        result = [ defExp | defExp <- config.dataKeywordDefaults[uid_adt], Expression e := defExp[1] /*, e@\loc.path == modulePath*/] +
+                 [ defExp | defExp <- config.dataKeywordDefaults[cuid], Expression e := defExp[1] /*, e@\loc.path == modulePath*/];
         result = sort(result, bool(tuple[RName,value] a, tuple[RName,value] b) { return Expression aExp := a[1] && Expression bExp := b[1] && aExp@\loc.offset < bExp@\loc.offset; });
     }
     //println("getAllKeywordDefaultsInModule(<cuid>, modulePath) =\> <result>");
@@ -725,12 +728,13 @@ lrel[RName,value] getAllKeywordFieldDefaultsInModule(UID cuid, str modulePath){
 //       as a consequence, e.g. "abc" + "def" will not be classified as constant.
 
 void extractConstantDefaultExpressions(){
-
      // TODO: the following hacks are needed to convince the interpreter of the correct type.
      constructorConstantDefaultExpressions = (adt("XXX", []) : ("xxxc1" : ("xxxf1": true, "xxxf2" : 0)));
      constructorFields = (adt("XXX", []) : ("xxxc1" : {"xxxa", "xxxb"}));
      //constructorConstantDefaultExpressions = ();
      //constructorFields = ();
+     
+     // Pass 1: collect all positional fields for all constructors in constructorFields
      
      for(cuid <- constructors){
         a_constructor = config.store[cuid];
@@ -753,31 +757,37 @@ void extractConstantDefaultExpressions(){
             }
         }  
      }
+ 
+    // Pass 2: collect all keyword fields and add them to constructorFields
+    
      for(tp <- config.dataKeywordDefaults){
         uid = tp[0];
+        println("uid = <uid>");
         dt = config.store[uid];
-        if(dt is datatype){
+        println("dt = <dt>");
+        if(dt is datatype){             // Note: for now productions cannot have keyword fields
            the_adt = dt.rtype;
            kwParamMap = dt.keywordParams;
+           println("kwParamMap = <kwParamMap>");
            if(kwParamMap != ()){
-               fieldsForAdt = constructorFields[the_adt];
-               //println("fieldsForAdt: <fieldsForAdt>");
-               kwNames = {prettyPrintName(kwn) | kwn <- domain(kwParamMap)};
-               //println("domain(kwParamMap): <kwNames>");
-               constructorFields[the_adt] = (c : fieldsForAdt[c] + kwNames | c <- fieldsForAdt);
+               if(constructorFields[the_adt]?){
+                  fieldsForAdt = constructorFields[the_adt];
+                  println("fieldsForAdt: <fieldsForAdt>");
+                  kwNames = {prettyPrintName(kwn) | kwn <- domain(kwParamMap)};
+                  println("domain(kwParamMap): <kwNames>");
+                  constructorFields[the_adt] = (c : fieldsForAdt[c] + kwNames | c <- fieldsForAdt);
+               }
            }
         }
      }
      
-     //println("&&& constructorFields:");
-     //iprintln(constructorFields);
-     
+     // Pass 3: collect all constant default expressions in constructorConstantDefaultExpressions
     
      for(tp <- config.dataKeywordDefaults){
          uid = tp[0];
          the_constructor = config.store[uid];   // either constructor or datatype
-         //println("the_constructor: <the_constructor>");
-         //println("the_constructor.rtype: <the_constructor.rtype>");
+         println("the_constructor: <the_constructor>");
+         println("the_constructor.rtype: <the_constructor.rtype>");
         if(!(the_constructor is datatype)){
              
              Symbol the_adt = (the_constructor.rtype has adt) ? the_constructor.rtype.\adt : the_constructor.rtype;
@@ -790,7 +800,7 @@ void extractConstantDefaultExpressions(){
              adtFieldMap[the_cons] = fieldSet + fieldName;
              constructorFields += (the_adt : adtFieldMap);
              
-             //println("added: <the_adt>, <adtFieldMap>");
+             println("added: <the_adt>, <adtFieldMap>");
              
              defaultVal = tp[2];
              if(Expression defaultExpr := defaultVal &&  defaultExpr is literal){
@@ -808,8 +818,8 @@ void extractConstantDefaultExpressions(){
              } 
          }
     }
-    ////println("constructorConstantDefaultExpressions");
-    //println(constructorConstantDefaultExpressions);
+    println("constructorConstantDefaultExpressions");
+    println(constructorConstantDefaultExpressions);
   
 }
 

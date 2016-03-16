@@ -1,11 +1,5 @@
 module experiments::Compiler::Examples::Tst1
 
-import Type;
-import IO;
+data D(int a = 1, int b = 2 *a);
 
-bool strange(&L <: num arg1, &R <: &L arg2){
-  println("typeOf(arg1) = <typeOf(arg1)>, typeOf(arg2) = <typeOf(arg2)>");
-  return false;
-}
-
-value main() = strange(3, "abc");
+data E(int a = 10, int b = 3 * a);
