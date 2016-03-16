@@ -429,24 +429,28 @@ void taex() = render(aex());
 
 void tfsm() = render(fsm());
 
-Figure klokBox(int r, int n) =  box(lineWidth = 0, fillOpacity=1.0, size=<2*n, 2*n>, fillColor= "none", align = topMid, fig=at(0, 0, box(size=<10, n>, rounded=<10, 10>, 
-lineWidth = 1, fillColor="yellow")));
+Figure klokBox(int r, int n) =  at(0, n/2, box(size=<10, n>,  rounded=<10, 10>, lineWidth = 1, fillColor="yellow"));
 
 Figure klokFrame() {
      int r = 80; 
-     int d = 2;  
+     int d = 2;
+     int cx = 20 + r;
+     int cy = 20 + r; 
+     int r1 = 95; 
      list[Figure] cs =
-        [
-          at(15+r+toInt(sin((PI()*2*i)/12)*r), toInt(12+r-cos((PI()*2*i)/12)*r), text("<i>"))|int i<-[12, 3, 6, 9]
+          [circle(r=r, cx= cx, cy = cy, fillColor = "silver", lineColor = "red")]
+          +
+          [
+           at(20-6+r+toInt(sin((PI()*2*i)/12)*r1), toInt(20-5+r-cos((PI()*2*i)/12)*r1), htmlText("<i>", size=<20, 20>))|int i<-[12, 3, 6, 9]
           ]
-         +circle(r=r-10, fillColor = "silver", lineColor = "red")
-        +[at(17+r+toInt(sin((PI()*2*i)/12)*(r-10)), toInt(17+r-cos((PI()*2*i)/12)*(r-10)), circle(r=d, fillColor="black"))|int i<-[12, 3, 6, 9]
-        ]
-        +rotate(20, klokBox(r, 70))       
-        +rotate(0, klokBox(r, 50))
-        +circle(r=5, fillColor = "red")
+        
+        +[at(20-1+r+toInt(sin((PI()*2*i)/12)*(r)), toInt(20+r-cos((PI()*2*i)/12)*(r)), circle(r=d, fillColor="black"))|int i<-[12, 3, 6, 9]
+         ]
+        +box(lineWidth = 0, fillColor= "none", fig=at(20, 20, rotate(210, box(size=<2*r, 2*r>, fig =klokBox(r, 70), align = centerMid))))      
+        +box(lineWidth = 0,fillColor= "none",fig=at(20, 20, rotate(180, box(size=<2*r, 2*r>, fig =klokBox(r, 50), align = centerMid))))  
+          +[circle(r=5, cx = cx, cy = cy, fillColor = "red")]
         ;
-     return box(fig=overlayBox(200, 200, cs), align = centerMid);
+     return box(fig=overlay(figs=cs, size=<220, 220>), size=<250, 250>);
      }
      
 Figure demo14() = klokFrame();
@@ -472,11 +476,10 @@ Figure demo15()= ov();
 list[Figure] rgbFigs = [box(fillColor="red",size=<50,100>), box(fillColor="green", size=<200,200>), box(fillColor="blue",  size=<10,10>)];
 
 public Figure hcat11() = 
-       box(padding=<0, 0, 0, 0>, lineWidth = 10 , resizable = true
-       , fillColor = "antiquewhite", lineColor = "blue"
+       box(padding=<0, 0, 0, 0>, lineWidth = 10 , resizable = false
        ,fig= ellipse(padding=<0, 0, 0, 0>
              ,fig=hcat(lineWidth=2, lineColor="brown", figs=rgbFigs) 
-       ,lineWidth = 10, lineColor= "yellow", grow = 1.5, fillColor="lightgrey",align = centerMid
+       ,lineWidth = 10, lineColor= "yellow", grow = 1.45, fillColor="lightgrey",align = centerMid
        )
  )
 ;
@@ -652,14 +655,15 @@ void fdemo(loc l) {
       writeFile(l, toHtmlString(demoFig(), debug = false, resizable = false, width = 800, height = 1800));
       }
       
- Figure sb(Figure tt) {return box(size=<20, 20>, fillColor = "antiquewhite", tooltip = tt);}
+ Figure sb(Figure tt) {return box(size=<20, 20>, fillColor = "antiquewhite", tooltip = at(30, 30, hcat(figs=[
+        box(fig=tt, fillColor="whitesmoke", lineWidth =1)], resizable=false)));}
  
  list[Figure] sb(list[Figure] tt) {return  mapper(tt, sb);}
  
  Figure summary() = grid(figArray = [[sb(x)|x<-y]|y<-figures]);
  
- void tsummary()= render(summary());
+ void tsummary()= render(summary(), align = topLeft);
  
  void fsummary(loc l) {
-      writeFile(l, toHtmlString(summary()));
+      writeFile(l, toHtmlString(summary(), align = topLeft));
       }

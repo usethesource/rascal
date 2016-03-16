@@ -282,50 +282,47 @@ function svgStyle(s, svg) {
 	return s;
 }
 
-function adjust0(f, id1, lw, hpad, vpad) {
+function fromInnerToOuterFigure(f, id1, lw, hpad, vpad) {
 	var to = d3.select("#" + f.id);
-	var from = d3.select("#" + id1);
+    var from = d3.select("#"+id1);
+    if (from.node().nodeName=="g") {
+    	from = d3.select("#"+id1+"_svg");
+    }
+    if (from.empty()) return;
 	var lw0 = parseInt(from.style("stroke-width"));
 	var width = document.getElementById(id1).getBoundingClientRect().width;
 	var height = document.getElementById(id1).getBoundingClientRect().height;
-	// alert("adjust0:"+width);
 	if (from.attr("width") != null)
 		width = parseInt(from.attr("width"));
 	if (from.attr("height") != null)
 		height = parseInt(from.attr("height"));
-	// alert("adjust0:"+width);
 	if (width == 0 || height == 0)
 		return;
 	width = width * f.hgrow + lw + hpad + f.x;
 	height = height * f.vgrow + lw + vpad + f.y;
-	if (from.node().nodeName == "ellipse" || from.node().nodeName == "circle"
-			|| from.node().nodeName == "path"
-	// from.node().nodeName=="polygon"
+	if (to.node().nodeName == "ellipse" || to.node().nodeName == "circle"
+			|| to.node().nodeName == "path"
 	) {
 		width += lw0;
 		height += lw0;
 	}
 	switch (to.node().nodeName) {
 	case "rect":
-		to.attr("width", width).attr("height", height).attr("x", 0)
-				.attr("y", 0);
+		to.attr("width", width).attr("height", height);
 		break;
 	case "circle":
 		var side = Math.max(width, height);
 		var r = (side - lw) / 2;
 		to.attr("cx", r + lw / 2).attr("cy", r + lw / 2).attr("r", r);
-		width = 2 * r + lw;
-		height = 2 * r + lw;
+		width = side;
+		height = side;
 		to.attr("width", width).attr("height", height);
 		break;
 	case "ellipse":
-		var rx = (width - lw) / 2;
-		var ry = (height - lw) / 2;
-		// alert("rx="+width+" ry="+height+" "+rx+" " + ry);
-		to.attr("cx", rx + lw / 2).attr("cy", ry + lw / 2).attr("rx", rx).attr(
+		var rx = (width - lw) / 2.0;
+		var ry = (height - lw) / 2.0;
+		to.attr("cx", rx + lw / 2.0).attr("cy", ry + lw/ 2.0).attr("rx", rx).attr(
 				"ry", ry);
-		width = 2 * rx + lw;
-		height = 2 * ry + lw;
 		to.attr("width", width).attr("height", height);
 		break;
 	case "polygon":
@@ -345,10 +342,9 @@ function adjust0(f, id1, lw, hpad, vpad) {
 		}
 		break;
 	}
-	;
-	d3.select("#" + f.id + "_fo_table").style("width", width).style("height",
-			height);
-	d3.select("#" + f.id + "_fo").attr("width", width).attr("height", height);
+	d3.select("#" + f.id + "_fo_table").style("width", width-f.x).style("height",
+			height-f.y);
+	d3.select("#" + f.id + "_fo").attr("width", width-f.x).attr("height", height-f.y);
 	d3.select("#" + f.id + "_svg").attr("width", width).attr("height", height);
 }
 
@@ -565,19 +561,25 @@ function adjustTable(id1, clients) {
 }
 
 function adjustTableWH1(id1, clients) {
+	var width = d3.select("#" + id1).attr("width");
+	var height = d3.select("#" + id1).attr("height");
+	if (width==null || height == null) {
+        width = d3.select("#" + id1).style("width");
+        height = d3.select("#" + id1).style("height");
+        }
 	var aUndefWH = clients.filter(function(i) {
 		return i.filter(undefWH).length != 0;
 	});
-	if (aUndefWH.length == 0) {
-		var width = document.getElementById(id1).getBoundingClientRect().width;
-		var height = document.getElementById(id1).getBoundingClientRect().height;
+	if ((height == null || width == null) && aUndefWH.length == 0) {
+		width = document.getElementById(id1).getBoundingClientRect().width;
+		height = document.getElementById(id1).getBoundingClientRect().height;
 		d3.select("#" + id1).attr("width", "" + width + "px").attr("height",
 				"" + height + "px");
-		d3.select("#" + id1 + "_outer_fo").attr("width", "" + width + "px").attr(
+	    } 
+     d3.select("#" + id1 + "_outer_fo").attr("width", "" + width + "px").attr(
 				"height", "" + height + "px")
-		d3.select("#" + id1 + "_svg").attr("width", "" + width + "px").attr(
+     d3.select("#" + id1 + "_svg").attr("width", "" + width + "px").attr(
 				"height", "" + height + "px");
-	}
 }
 
 function adjustOverlay(clients, id1, lw, hpad, vpad) {
@@ -802,10 +804,17 @@ function adjust_tooltip(q) {
     var y = s.attr("y");
     var w = getWidth("#"+q+"_tooltip_svg");
     var h = getHeight("#"+q+"_tooltip_svg");
+    var u = d3.select("#"+q+"_tooltip_outer_fo");
     var z = convert(x, y);
+    var x1 = 0;
+    var y1 = 0;
+    if (!u.empty()) {
+    	x1 = parseFloat(u.attr("x"));
+    	y1 = parseFloat(u.attr("y")); 
+    }
 	s.on("mouseenter", function(){
-		    d3.select("#overlay").attr("width", z.x+w);
-		    d3.select("#overlay").attr("height", z.y+h);
+		    d3.select("#overlay").attr("width", z.x+w+x1);
+	        d3.select("#overlay").attr("height", z.y+h+y1);
 		    if (d3.select("#"+q+"_tooltip_outer_fo").empty()) {
 		        d3.select("#"+q+"_tooltip_svg").attr("x", z.x).attr("y", z.y);
 	            }
@@ -819,10 +828,9 @@ function adjust_tooltip(q) {
     var t = d3.select("#"+q+"_tooltip_svg");
     //t.attr("x", 0).attr("y", 0);
     // t.attr("width", 1600).attr("height", 1600);
-    var u = d3.select("#"+q+"_tooltip_outer_fo");
     if (!u.empty()) {
-    	u.attr("x", z.x).attr("y", z.y);
-        t.attr("width", w + z.x).attr("height", h + z.y); 
+    	u.attr("x", z.x+x1).attr("y", z.y+y1);
+        t.attr("width", w + z.x+x1).attr("height", h + z.y+y1); 
         }
     d3.select("#"+q+"_tooltip").style("visibility", "hidden");
 	d3.select("#"+q+"_tooltip_fo").style("visibility", "hidden");
