@@ -1,9 +1,5 @@
 module lang::rascal::tests::functionality::KeywordParameterTests
 
-import lang::rascal::tests::basic::modules::DiamondBottom;
-
-test bool diamondTester() = diamondTest();
-
 str f(int i, str k = "empty", int j = 0) {
     k = k + "; bbb";
     j = j - 1;

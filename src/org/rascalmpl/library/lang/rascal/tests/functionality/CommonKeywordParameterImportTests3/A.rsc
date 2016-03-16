@@ -1,4 +1,4 @@
-module lang::rascal::tests::basic::modules::A
+module lang::rascal::tests::functionality::CommonKeywordParameterImportTests3::A
 
 data X(int y = 0) = x1();
 

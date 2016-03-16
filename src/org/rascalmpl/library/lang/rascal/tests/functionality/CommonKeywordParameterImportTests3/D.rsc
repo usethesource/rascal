@@ -1,7 +1,7 @@
-module lang::rascal::tests::basic::modules::D
+module lang::rascal::tests::functionality::CommonKeywordParameterImportTests3::D
 
-import lang::rascal::tests::basic::modules::A;
-import lang::rascal::tests::basic::modules::C; 
+import lang::rascal::tests::functionality::CommonKeywordParameterImportTests3::A;
+import lang::rascal::tests::functionality::CommonKeywordParameterImportTests3::C; 
 
 test bool Dx1_y1() = x1() has y;
 test bool Dx1_y2() = !x1().y?;

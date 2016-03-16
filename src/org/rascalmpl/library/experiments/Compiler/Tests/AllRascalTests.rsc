@@ -35,6 +35,10 @@ private list[str] basicTests = [
 	"modules::B",
 	"modules::C",
 	"modules::D",
+	"modules::DiamondBottom",
+	"modules::DiamondLeft",
+	"modules::DiamondRight",
+	"modules::DiamondTop",
 	"Strings",
 	"Tuples"					
 ];

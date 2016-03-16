@@ -1,7 +1,7 @@
-module lang::rascal::tests::basic::modules::C
+module lang::rascal::tests::functionality::CommonKeywordParameterImportTests3::C
 
-import lang::rascal::tests::basic::modules::A;
-import lang::rascal::tests::basic::modules::B;
+import lang::rascal::tests::functionality::CommonKeywordParameterImportTests3::A;
+import lang::rascal::tests::functionality::CommonKeywordParameterImportTests3::B;
 
 data X(str z = "abc");
 
