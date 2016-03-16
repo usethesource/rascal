@@ -367,39 +367,6 @@ str getIntro() {
 	return res;
 	}
 
-/*
-Figure pureFigure(Figure f) {	
-    switch(f) {
-	    case g:at(_, _, fg):  return fg;
-        case g:atX(_, fg):  return fg;
-        case g:atY(_, fg):  return fg;
-        case g:rotate(_, fg):  return fg;
-        case g:rotate(_, _, _, fg):  return fg;
-        default: return f;
-       }
-     }
-	
-list[Figure] getChildren(Figure f) {
-   if (box():=f || ellipse() := f || circle():= f || ngon():=f || frame():= f) return f.fig ==emptyFigure()?[]:
-        [pureFigure(f.fig)];
-   if (hcat():=f || vcat():= f) {return [pureFigure(q)|q<-f.figs];}
-   if (tree(_, _):=f) {
-         list[Figure] r = [];
-         visit(f) {
-             case tree(g, _): r+=g; 
-             case Figure h: r+=h; 
-             }
-         return r;
-         }
-   if (grid():=f) return [*[pureFigure(q)|q<-g]|g<-f.figArray];
-   return [];
-   }
-   
-list[str] getDescendants(str id) {
-   list[Figure] h = getChildren(figMap[id]); 
-   return [x.id|x<-h]+[*getDescendants(x.id)|x<-h];
-   }
- */
 
 Response page(get(), /^\/$/, _) { 
 	return response(getIntro());
@@ -900,13 +867,6 @@ str text(str v, bool html) {
     
 str on(Figure f) {
     list[str] events = getEvents(f.event) + getEvent(f.event);
-    value v = f.tooltip;
-    if (Figure g:= v && g != emptyFigure()) {
-         if (indexOf(events, "mouseenter") < 0) 
-                 events = events + "mouseenter";
-         if (indexOf(events, "mouseleave") < 0) 
-                 events = events + "mouseleave";
-         }
     if (indexOf(events, "load")>=0) loadCalls+=f.id;
     return 
     "<for(str e<- events){><on(e, "doFunction(\"<e>\", \"<f.id>\")")><}>";
@@ -1349,7 +1309,7 @@ bool hasInnerCircle(Figure f)  {
          
  IFigure _rect(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(0), Alignment align = <0, 0>) {   
       int lw = getLineWidth(f);  
-      if (getAtX(fig)>0 || getAtY(fig)>0) f.align = topLeft;
+      // if (getAtX(fig)>0 || getAtY(fig)>0) f.align = topLeft;
       int offset1 = round((0.5-f.align[0])*lw);
       int offset2 = round((0.5-f.align[1])*lw);
       if (emptyFigure():=f.fig) fo = false;
@@ -1394,8 +1354,10 @@ bool hasInnerCircle(Figure f)  {
                  tooltip = ".append(\"svg:title\").text(\""+
                  replaceAll(replaceAll(s,"\n", "\\n"),"\"","\\\"") +"\")";
             }
+      // println("HELP: <id>_svg   <toInt(f.bigger*f.width)>  <toInt(f.bigger*f.height)>");  
+      int lw =  getLineWidth(f);
       return " 
-        '<style("stroke-width",getLineWidth(f))>
+        '<style("stroke-width",lw)>
         '<style("stroke","<getLineColor(f)>")>
         '<style("fill", "<getFillColor(f)>")> 
         '<style("stroke-dasharray", cv(f.lineDashing))> 
@@ -1404,7 +1366,7 @@ bool hasInnerCircle(Figure f)  {
         '<style("visibility", getVisibility(f))> 
         '<isPassive(f)?attr("pointer-events", "none"):attr("pointer-events", "all")> 
         '//<findFirst(id,"_tooltip")>=0?attr("pointer-events", "none"):"">    
-        ';       
+        ';   
         'd3.select(\"#<id>_svg\")
         '<attr("width", toInt(f.bigger*f.width))><attr("height", toInt(f.bigger*f.height))>
         '<attr("pointer-events", "none")>     
@@ -1457,14 +1419,14 @@ bool hasInnerCircle(Figure f)  {
         ';
         '<g>
         "
-        + ((iemptyFigure(_)!:=fig && f.width<0)?"adjust0(<figCall(f,getAtX(fig),getAtY(fig))>, \"<getId(fig)>\", <lw>, <hpad>, <vpad>);\n":"")
+        + ((iemptyFigure(_)!:=fig && f.width<0)?"fromInnerToOuterFigure(<figCall(f,getAtX(fig),getAtY(fig))>, \"<getId(fig)>\", <lw>, <hpad>, <vpad>);\n":"")
         ;     
       }
          
 num cxL(Figure f) =  
       (((ellipse():=f)?(f.rx):(f.r)) + (getLineWidth(f)>=0?(getLineWidth(f))/2.0:0));
 num cyL(Figure f) =  
-      (((ellipse():=f)?(f.ry):(f.r)) + (getLineWidth(f)>=0?(getLineWidth(f))/2.0:0));
+      (((ellipse():=f)?(f.ry):(f.r))+ (getLineWidth(f)>=0?(getLineWidth(f))/2.0:0));
 
      
  IFigure _ellipse(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(0), Alignment align = <0.5, 0.5>) {
@@ -1496,21 +1458,21 @@ num cyL(Figure f) =
          ";
        str endtag = endTag(fo);
        endtag += "<endRotate(f)><endScale(f)>\</svg\>"; 
-       int width = f.width;
-       int height = f.height;
+       int width = f.width-lw;
+       int height = f.height-lw;
        widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>_rect\")
         '<style("fill","none")><style("stroke", debug?"black":"none")><style("stroke-width", 1)>
-        '<attr("x", 0)><attr("y", 0)><attr("width", f.width)><attr("height", f.height)>
+        '<attr("x", 0)><attr("y", 0)><attr("width", width)><attr("height", height)>
         ;
         'd3.select(\"#<id>\")
         '<on(f)>
         '<attr("cx", toP(cxL(f)))><attr("cy", toP(cyL(f)))> 
-        '<attr("width", f.width)><attr("height", f.height)>
+        '<attr("width", width)><attr("height", height)>
         '<ellipse():=f?"<attr("rx", toP(f.rx))><attr("ry", toP(f.ry))>":"<attr("r", toP(f.r))>">
         '<styleInsideSvg(id, f, fig)>
-        ", f.width, f.height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f)
+        ", width, height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f)
          , f.sizeFromParent, true >;
        addState(f);
        widgetOrder+= id;
@@ -1797,7 +1759,7 @@ str _padding(tuple[int, int, int, int] p) {
 
 bool isSvg(str s) =  startsWith(s, "\<svg");
    
-IFigure _overlay(str id, Figure f, list[Figure] figs, IFigure fig1...) {
+IFigure _overlay(str id, Figure f, IFigure fig1...) {
        int lw = getLineWidth(f)<0?0:getLineWidth(f); 
        if (f.width<0 && min([getWidth(g)|g<-fig1])>=0) f.width = max([getAtX(g)+getWidth(g)|g<-fig1]);
        if (f.height<0 && min([getHeight(g)|g<-fig1])>=0) f.height = max([getAtY(g)+getHeight(g)|g<-fig1]);
@@ -1813,7 +1775,7 @@ IFigure _overlay(str id, Figure f, list[Figure] figs, IFigure fig1...) {
         */
         widget[id] = <null, seq, id, begintag, endtag, 
         "
-        'd3.select(\"#<id>_svg\") 
+        'd3.select(\"#<id>\") 
         '//<attr("width", f.width)><attr("height", f.height)>  
         '<styleInsideSvgOverlay(id, f)>    
         ';
@@ -2096,9 +2058,10 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
        int width = f.width;
        int height = f.height; 
        str begintag = "";
+       // println("HELP: <addSvgTag> <getAtX(f)> <getAtY(f)>");
        if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\" x=<getAtX(f)> y=<getAtY(f)> width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
          }
        begintag+="                    
             '\<table id=\"<id>\" cellspacing=\"0\" cellpadding=\"0\"\>
@@ -2527,7 +2490,7 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
          );
          
         case overlay(): { 
-              IFigure r = _overlay(f.id, f, f.figs, [_translate(q, addSvgTag = true, inHtml=false )|q<-f.figs]);   
+              IFigure r = _overlay(f.id, f,  [_translate(q, addSvgTag = true, inHtml=false )|q<-f.figs]);   
               return r;
               }
               
@@ -2571,7 +2534,7 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
               list[IFigure] ifs = [_translate(q, addSvgTag = true)|q<-figs];
               extraGraphData[f.id]  = (n[0]:getId(i)| <tuple[str, Figure] n, IFigure i> <-zip(f.nodes, ifs));
               IFigure r =
-               _overlay("<f.id>", f , figs
+               _overlay("<f.id>", f 
                 , 
                 [_graph("<f.id>_graph", f, [getId(i)|i<-ifs])] 
                 +ifs
@@ -2587,7 +2550,6 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
               tuple[int ,int] dim = computeDim(fs, m);
               vs  = vertexUpdate(vs, f.orientation, dim[0], dim[1]);
               fs = treeUpdate(fs, m, f.orientation, dim[0], dim[1]); 
-              f.figs = fs;
               for (Figure f<-fs) {
                   widget[f.id].x =  f.at[0];
                   widget[f.id].y =  f.at[1];
@@ -2596,7 +2558,7 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
               if (f.height<0 && min([g.height|g<-fs])>=0) f.height = max([toInt(g.at[1])+g.height|g<-fs]);
               f.fillColor = "red";
               IFigure r =
-               _overlay("<f.id>", f, f.figs
+               _overlay("<f.id>", f
                 , [_shape("<f.id>_shape", shape(vs, id = "<f.id>_shape", width = f.width, height = f.height, yReverse = false
                    ,lineColor=f.pathColor, lineWidth = f.lineWidth, fillColor="none"
                    , visibility = f.visibility))]

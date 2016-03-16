@@ -186,7 +186,7 @@ public data Figure(
 		num grow = 1.0, 
 		num hgrow = 1.0, 
 		num vgrow = 1.0, 
-		bool resizable = true,
+		bool resizable = false,
 		tuple[int,int] gap = <0,0>,
 		int hgap = 0,
 		int vgap = 0,
@@ -614,12 +614,6 @@ public map[str, value] adt2map(node t) {
 public str adt2json(node t) {
    return toJSON(adt2map(t), true);
    }
-   
-
-public Figure overlayBox(int width, int height, list[Figure] figs) {
-      list[Figure] b = [box(width = width, height = height, fig = f, fillColor="none", align = centerMid)|Figure f<-figs];
-      return overlay(figs = b);
-      }
       
 public Figure plot(Points xy, Rescale x, Rescale y, bool shapeCurved = true
       ,str lineColor = "", int lineWidth = -1, str fillColor = ""
