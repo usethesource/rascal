@@ -1,4 +1,4 @@
-module lang::rascal::tests::functionality::KeywordParameterImportTests1::Import2
+module lang::rascal::tests::functionality::KeywordParameterImportTests2::Import2
 
 data L(str e = "e", str f = e + e) = n(str g = f + f);
 
