@@ -6,10 +6,10 @@ which accompanies this distribution, and is available at
 http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor=|mailto://Jurgen.Vinju@cwi.nl|
-module lang::rascal::tests::functionality::KeywordParameterImportTests1::Tests
+module lang::rascal::tests::functionality::KeywordParameterImportTests2::Tests
 
-import lang::rascal::tests::functionality::KeywordParameterImportTests1::Import1;  
-import lang::rascal::tests::functionality::KeywordParameterImportTests1::Import2;
+import lang::rascal::tests::functionality::KeywordParameterImportTests2::Import1;  
+import lang::rascal::tests::functionality::KeywordParameterImportTests2::Import2;
 
 // this requires keyword parameters attached to the adt
 // to be distributed over all constructors in a module:
