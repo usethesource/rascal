@@ -4,7 +4,7 @@ import lang::rascal::tests::functionality::CommonKeywordParameterImportTests2::D
 
 data X(int left = 10, int leftsq = left * left); 
 
-test bool Left_Top_x_has_no_left()    = Top_has_no_left();
+test bool Left_Top_x_has_no_left()    = Top_x_has_no_left();
 test bool Left_Top_x_has_no_leftsq()  = Top_x_has_no_leftsq();
 test bool Left_Top_x_has_no_right()   = Top_x_has_no_right();
 test bool Left_Top_x_has_no_rightsq() = Top_x_has_no_rightsq();
