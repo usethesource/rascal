@@ -6,6 +6,17 @@ import lang::rascal::tests::functionality::CommonKeywordParameterImportTests2::D
 
 test bool diamondTest() = x().left == x().right && x().leftsq == x().rightsq;
 
+test bool Bottom_Top_x_has_no_left()     = Top_x_has_no_left();
+test bool Bottom_Top_x_has_no_leftsq()   = Top_x_has_no_leftsq();
+test bool Bottom_Top_x_has_no_right()    = Top_x_has_no_right();
+test bool Bottom_Top_x_has_no_rightsq()  = Top_x_has_no_rightsq();
+
+test bool Bottom_Left_x_has_no_right()   = Left_x_has_no_right();
+test bool Bottom_Left_x_has_no_rightsq() = Left_x_has_no_rightsq();
+
+test bool Bottom_Right_x_has_no_left()   = Right_x_has_no_left();
+test bool Bottom_Right_x_has_no_leftsq() = Right_x_has_no_leftsq();
+
 test bool Bottom_x_left1() = x() has left;
 test bool Bottom_x_left2() = !x().left?;
 test bool Bottom_x_left3() = x().left == 10;

@@ -4,6 +4,14 @@ import lang::rascal::tests::functionality::CommonKeywordParameterImportTests2::D
 
 data X(int left = 10, int leftsq = left * left); 
 
+test bool Left_Top_x_has_no_left()    = Top_has_no_left();
+test bool Left_Top_x_has_no_leftsq()  = Top_x_has_no_leftsq();
+test bool Left_Top_x_has_no_right()   = Top_x_has_no_right();
+test bool Left_Top_x_has_no_rightsq() = Top_x_has_no_rightsq();
+
+test bool Left_x_has_no_right()   = !(x() has right);
+test bool Left_x_has_no_rightsq() = !(x() has rightsq);
+
 test bool Left_x_left1() = x() has left;
 test bool Left_x_left2() = !x().left?;
 test bool Left_x_left3() = x().left == 10;
@@ -16,7 +24,3 @@ test bool Left_x_leftsq2() = !x().leftsq?;
 test bool Left_x_leftsq3() = x().leftsq == 100;
 test bool Left_x_leftsq4() = !(x(left = 20).leftsq?);
 test bool Left_x_leftsq5() = x(left = 20).leftsq == 400;
-
-test bool Left_x_right() = !(x() has right);
-test bool Left_x_rightsq() = !(x() has rightsq);
-
