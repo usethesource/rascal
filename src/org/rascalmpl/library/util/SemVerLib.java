@@ -1,6 +1,7 @@
 package org.rascalmpl.library.util;
 
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.experiments.Compiler.VersionInfo;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -51,5 +52,17 @@ public class SemVerLib {
 	
 	public IValue equalVersion(IString version1, IString version2){
 		return vf.bool(makeSemVer(version1).equalVersion(makeSemVer(version2)));
+	}
+	
+	public IValue getRascalVersion(){
+		return vf.string(VersionInfo.RASCAL_VERSION);
+	}
+	
+	public IValue getRascalRuntimeVersion(){
+		return vf.string(VersionInfo.RASCAL_RUNTIME_VERSION);
+	}
+	
+	public IValue getRascalCompilerVersion(){
+		return vf.string(VersionInfo.RASCAL_COMPILER_VERSION);
 	}
 }
