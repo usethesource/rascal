@@ -7,7 +7,6 @@ public class CheckMemo extends Instruction {
 	
 	public CheckMemo(CodeBlock ins){
 		super(ins, Opcode.CHECKMEMO);
-		
 	}
 
 	public String toString() { return "CHECKMEMO"; }

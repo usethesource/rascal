@@ -26,6 +26,6 @@ public class CallPrim2 extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall2(opcode.name(), prim.name(), 2);
 
-		codeEmittor.emitInlineCallPrim2(prim, debug); 
+		codeEmittor.emitInlineCallPrim2(prim, codeblock.getConstantIndex(src), debug); 
 	}
 }

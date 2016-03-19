@@ -8,6 +8,7 @@ public class FailReturn extends Instruction {
 	public FailReturn(CodeBlock ins) {
 		super(ins, Opcode.FAILRETURN);
 	}
+	
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
