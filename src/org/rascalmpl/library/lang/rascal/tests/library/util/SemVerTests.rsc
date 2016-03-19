@@ -1,4 +1,4 @@
-module experiments::Compiler::Examples::Tst1
+module lang::rascal::tests::library::util::SemVerTests
 
 import util::SemVer;
 
@@ -135,13 +135,3 @@ test bool invalid7() = satisfiesVersion("0.5.3", "\> =0.1");
 
 @expected{IllegalArgument}
 test bool invalid8() = satisfiesVersion("0.5.3", "\>= 0.1");
-
-
-
-
-
-
-
-
-
-

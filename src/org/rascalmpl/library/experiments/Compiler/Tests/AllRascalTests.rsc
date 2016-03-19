@@ -31,14 +31,6 @@ private list[str] basicTests = [
 	"Relations"	,
 	"Sets",
 	"SolvedIssues",
-	"modules::A",
-	"modules::B",
-	"modules::C",
-	"modules::D",
-	"modules::DiamondBottom",
-	"modules::DiamondLeft",
-	"modules::DiamondRight",
-	"modules::DiamondTop",
 	"Strings",
 	"Tuples"					
 ];
@@ -53,6 +45,22 @@ private list[str] functionalityTests = [
 "BacktrackingTests",
 "CallTests",
 "CallTestsAux",
+"CommonKeywordParameterImportTests1::DiamondTop",
+"CommonKeywordParameterImportTests1::DiamondLeft",
+"CommonKeywordParameterImportTests1::DiamondRight",
+"CommonKeywordParameterImportTests1::DiamondBottom",
+
+"CommonKeywordParameterImportTests2::DiamondTop",
+"CommonKeywordParameterImportTests2::DiamondLeft",
+"CommonKeywordParameterImportTests2::DiamondRight",
+"CommonKeywordParameterImportTests2::DiamondBottom",
+
+"CommonKeywordParameterImportTests3::A",
+"CommonKeywordParameterImportTests3::B",
+"CommonKeywordParameterImportTests3::C",
+"CommonKeywordParameterImportTests3::D",
+"CommonKeywordParameterImportTests3::Tests",
+
 "ComprehensionTests",
 "ConcretePatternTests1",
 "ConcretePatternTests2",
@@ -68,7 +76,11 @@ private list[str] functionalityTests = [
 "DeclarationTests",
 "FunctionCompositionTests",
 "InterpolationTests",
-"KeywordParameterImportTests",
+"KeywordParameterImportTests1::DiamondTop",
+"KeywordParameterImportTests1::DiamondLeft",
+"KeywordParameterImportTests1::DiamondRight",
+"KeywordParameterImportTests1::DiamondBottom",
+"KeywordParameterImportTests2::Tests",
 "KeywordParameterTests",
 "ParsingTests",
 "PatternTests",
@@ -106,7 +118,8 @@ private list[str] libraryTests = [
 "analysis::statistics::DescriptiveTests",
 "analysis::statistics::RangeUtils",
 "lang::csv::CSVIOTests",
-"lang::json::JSONIOTests"
+"lang::json::JSONIOTests",
+"util::SemVerTests"
 ];
 
 private list[str] importTests = [
