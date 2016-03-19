@@ -10,7 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.utils.Timing;
+import org.rascalmpl.library.experiments.Compiler.VersionInfo;
 import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
+import org.rascalmpl.library.util.SemVer;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMap;
@@ -38,6 +40,7 @@ import org.nustaq.serialization.FSTObjectOutput;
 public class RVMExecutable implements Serializable{
 
 	private static final long serialVersionUID = -8966920880207428792L;
+	static final String RASCAL_MAGIC = "Rascal Vincit Omnia";
 	
 	// transient fields
 	transient static IValueFactory vf;
@@ -503,7 +506,14 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 
 		int n;
 		RVMExecutable ex = (RVMExecutable) toWrite;
-
+		
+		// Write standard header
+		
+		out.writeObject(RVMExecutable.RASCAL_MAGIC);
+		out.writeObject(VersionInfo.RASCAL_VERSION);
+		out.writeObject(VersionInfo.RASCAL_RUNTIME_VERSION);
+		out.writeObject(VersionInfo.RASCAL_COMPILER_VERSION);
+		
 		// public String module_name;
 
 		out.writeObject(ex.getModuleName());
@@ -564,11 +574,6 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		
 		// public byte[] jvmByteCode;
 		
-//		if(ex.getJvmByteCode() == null) 
-//			System.err.println("byte code is null"); 
-//		else 
-//			System.err.println("Writing byte code: " + ex.getJvmByteCode().length + " bytes");
-		
 		out.writeObject(ex.getJvmByteCode());
 		
 		// public String fullyQualifiedDottedName;
@@ -585,6 +590,57 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 	public Object instantiate(@SuppressWarnings("rawtypes") Class objectClass, FSTObjectInput in, FSTClazzInfo serializationInfo, FSTClazzInfo.FSTFieldInfo referencee, int streamPosition) throws ClassNotFoundException, IOException 
 	{
 		int n;
+		
+		// Read and check standard header
+		
+		// Check magic
+		
+		String rascal_magic =  (String) in.readObject();
+		
+		if(!rascal_magic.equals(RVMExecutable.RASCAL_MAGIC)){
+			throw new RuntimeException("Cannot read incompatible Rascal executable");
+		}
+		
+		// Check RASCAL_VERSION
+		
+		String rascal_version = (String) in.readObject();
+		
+		SemVer sv;
+		try {
+			sv = new SemVer(rascal_version);
+		} catch(Exception e){
+			throw new RuntimeException("Invalid value for RASCAL_VERSION in Rascal executable");
+		}
+		
+		if(!sv.satisfiesVersion("~" + VersionInfo.RASCAL_VERSION)){
+			throw new RuntimeException("RASCAL_VERSION " + rascal_version + " in Rascal executable incompatible with current version " + VersionInfo.RASCAL_VERSION);
+		}
+		
+		// Check RASCAL_RUNTIME_VERSION
+		
+		String rascal_runtime_version = (String) in.readObject();
+		try {
+			sv = new SemVer(rascal_runtime_version);
+		} catch(Exception e){
+			throw new RuntimeException("Invalid value for RASCAL_RUNTIME_VERSION in Rascal executable");
+		}
+		if(!sv.satisfiesVersion("~" + VersionInfo.RASCAL_RUNTIME_VERSION)){
+			throw new RuntimeException("RASCAL_RUNTIME_VERSION " + rascal_runtime_version + " in Rascal executable incompatible with current version " + VersionInfo.RASCAL_RUNTIME_VERSION);
+		}
+		
+		// Check RASCAL_COMPILER_VERSION
+		
+		String rascal_compiler_version = (String) in.readObject();
+		try {
+			sv = new SemVer(rascal_runtime_version);
+		} catch(Exception e){
+			throw new RuntimeException("Invalid value for RASCAL_COMPILER_VERSION in Rascal executable");
+		}
+		if(!sv.satisfiesVersion("~" + VersionInfo.RASCAL_COMPILER_VERSION)){
+			throw new RuntimeException("RASCAL_COMPILER_VERSION " + rascal_compiler_version + " in Rascal executable incompatible with current version " + VersionInfo.RASCAL_COMPILER_VERSION);
+		}
+		System.err.println("RascalShell: Rascal: " + VersionInfo.RASCAL_VERSION + "; Runtime: " + VersionInfo.RASCAL_RUNTIME_VERSION + "; Compiler: " + VersionInfo.RASCAL_COMPILER_VERSION);
+		System.err.println("Executable : Rascal: " + rascal_version + "; Runtime: " + rascal_runtime_version + "; Compiler: " + rascal_compiler_version);
 
 		// public String name;
 
@@ -653,10 +709,6 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		// public byte[] jvmByteCode;
 		
 		byte[] jvmByteCode = (byte[]) in.readObject();
-//		if(jvmByteCode == null)	
-//			System.err.println("byte code is null");
-//		else 
-//			System.err.println("Reading byte code: " + jvmByteCode.length + " bytes");
 				
 		// public String fullyQualifiedDottedName;
 	
@@ -669,6 +721,5 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		ex.setFullyQualifiedDottedName(fullyQualifiedDottedName);
 		
 		return ex;
-	
 	}
 }
