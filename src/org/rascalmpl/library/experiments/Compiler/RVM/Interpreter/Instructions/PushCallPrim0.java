@@ -22,10 +22,11 @@ public class PushCallPrim0 extends Instruction {
 		codeblock.addCode1(opcode.getOpcode(), prim.ordinal());
 		codeblock.addCode(codeblock.getConstantIndex(src));
 	}
+	
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
 			codeEmittor.emitDebugCall1(opcode.name(), prim.ordinal());
 
-		codeEmittor.emitInlinePushCallPrim0(prim, debug); 
+		codeEmittor.emitInlinePushCallPrim0(prim, codeblock.getConstantIndex(src), debug); 
 	}
 }

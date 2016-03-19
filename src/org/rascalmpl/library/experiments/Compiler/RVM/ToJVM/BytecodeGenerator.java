@@ -1485,11 +1485,11 @@ public class BytecodeGenerator implements Opcodes {
 	
 	// CallPrim0
 	
-	public void emitInlineCallPrim0(RascalPrimitive prim, boolean debug) {
-		emitInlineCallPrim0General(prim, debug);
+	public void emitInlineCallPrim0(RascalPrimitive prim, int srcIndex, boolean debug) {
+		emitInlineCallPrim0General(prim, srcIndex, debug);
 	}
 	
-	private void emitInlineCallPrim0General(RascalPrimitive prim, boolean debug) {
+	private void emitInlineCallPrim0General(RascalPrimitive prim, int srcIndex, boolean debug) {
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
 		
@@ -1505,11 +1505,11 @@ public class BytecodeGenerator implements Opcodes {
 	
 	// PushCallPrim0
 	
-	public void emitInlinePushCallPrim0(RascalPrimitive prim, boolean debug) {
-		emitInlinePushCallPrim0General(prim, debug);
+	public void emitInlinePushCallPrim0(RascalPrimitive prim, int srcIndex, boolean debug) {
+		emitInlinePushCallPrim0General(prim, srcIndex, debug);
 	}
 	
-	private void emitInlinePushCallPrim0General(RascalPrimitive prim, boolean debug) {
+	private void emitInlinePushCallPrim0General(RascalPrimitive prim, int srcIndex, boolean debug) {
 		mv.visitVarInsn(ALOAD, STACK);		// stack
 		mv.visitVarInsn(ILOAD, SP);			// sp
 		
@@ -1529,11 +1529,11 @@ public class BytecodeGenerator implements Opcodes {
 	
 	// CallPrim1
 	
-	public void emitInlineCallPrim1(RascalPrimitive prim, boolean debug) {
-		emitInlineCallPrim1General(prim, debug);
+	public void emitInlineCallPrim1(RascalPrimitive prim, int srcIndex, boolean debug) {
+		emitInlineCallPrim1General(prim, srcIndex, debug);
 	}
 	
-	private void emitInlineCallPrim1General(RascalPrimitive prim, boolean debug) {
+	private void emitInlineCallPrim1General(RascalPrimitive prim, int srcIndex, boolean debug) {
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
 		
@@ -1551,11 +1551,11 @@ public class BytecodeGenerator implements Opcodes {
 	
 	// PushCallPrim1
 	
-	public void emitInlinePushCallPrim1(RascalPrimitive prim, boolean debug) {
-		emitInlinePushCallPrim1General(prim, debug);
+	public void emitInlinePushCallPrim1(RascalPrimitive prim, int srcIndex, boolean debug) {
+		emitInlinePushCallPrim1General(prim, srcIndex, debug);
 	}
 	
-	private void emitInlinePushCallPrim1General(RascalPrimitive prim, boolean debug) {
+	private void emitInlinePushCallPrim1General(RascalPrimitive prim, int srcIndex, boolean debug) {
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
 		
@@ -1577,20 +1577,20 @@ public class BytecodeGenerator implements Opcodes {
 	
 	// CallPrim2
 	
-	public void emitInlineCallPrim2(RascalPrimitive prim, boolean debug) {
+	public void emitInlineCallPrim2(RascalPrimitive prim, int srcIndex, boolean debug) {
 		switch(prim.name()){
 			case "subtype_value_type":
-				emitInlineCallPrim2_subtype_value_type();
+				emitInlineCallPrim2_subtype_value_type(srcIndex);
 				return;
 			case "subtype_value_value":
-				emitInlineCallPrim2_subtype_value_value();
+				emitInlineCallPrim2_subtype_value_value(srcIndex);
 				return;
 		}
 	
-		emitInlineCallPrim2General(prim, debug);
+		emitInlineCallPrim2General(prim, srcIndex, debug);
 	}
 	
-	private void emitInlineCallPrim2General(RascalPrimitive prim, boolean debug) {
+	private void emitInlineCallPrim2General(RascalPrimitive prim, int srcIndex, boolean debug) {
 		mv.visitIincInsn(SP, -1);
 		
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
@@ -1612,7 +1612,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ASTORE, ACCU);	// accu = CallPrim2(arg_2, arg_1)
 	}
 	
-	private void emitInlineCallPrim2_subtype_value_type(){
+	private void emitInlineCallPrim2_subtype_value_type(int srcIndex){
 		emitValueFactory();
 		
 		emitObjectFromTopOfStack();		// arg_2
@@ -1626,7 +1626,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ASTORE, ACCU);
 	}
 	
-	private void emitInlineCallPrim2_subtype_value_value(){
+	private void emitInlineCallPrim2_subtype_value_value(int srcIndex){
 		emitValueFactory();
 		
 		emitObjectFromTopOfStack();		// arg_2
@@ -1644,19 +1644,19 @@ public class BytecodeGenerator implements Opcodes {
 	
 	// PushCallPrim2
 	
-	public void emitInlinePushCallPrim2(RascalPrimitive prim, boolean debug) {
+	public void emitInlinePushCallPrim2(RascalPrimitive prim, int srcIndex, boolean debug) {
 		switch(prim.name()){
 		case "subtype_value_type":
-			emitInlinePushCallPrim2_subtype_value_type();
+			emitInlinePushCallPrim2_subtype_value_type(srcIndex);
 			return;
 		case "subtype_value_value":
-			emitInlinePushCallPrim2_subtype_value_value();
+			emitInlinePushCallPrim2_subtype_value_value(srcIndex);
 			return;
 		}
-		emitInlinePushCallPrim2General(prim, debug);
+		emitInlinePushCallPrim2General(prim, srcIndex, debug);
 	}
 	
-	private void emitInlinePushCallPrim2General(RascalPrimitive prim, boolean debug) {
+	private void emitInlinePushCallPrim2General(RascalPrimitive prim, int srcIndex, boolean debug) {
 		mv.visitIincInsn(SP, -1);
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
@@ -1681,7 +1681,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitIincInsn(SP, 1);
 	}
 	
-	private void emitInlinePushCallPrim2_subtype_value_type(){
+	private void emitInlinePushCallPrim2_subtype_value_type(int srcIndex){
 		mv.visitIincInsn(SP, -1);
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
@@ -1702,7 +1702,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitIincInsn(SP, 1);
 	}
 	
-	private void emitInlinePushCallPrim2_subtype_value_value(){
+	private void emitInlinePushCallPrim2_subtype_value_value(int srcIndex){
 		mv.visitIincInsn(SP, -1);
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
@@ -1727,11 +1727,11 @@ public class BytecodeGenerator implements Opcodes {
 	
 	// CallPrimN
 	
-	public void emitInlineCallPrimN(RascalPrimitive prim, int arity, boolean debug) {
-		emitInlineCallPrimNGeneral(prim, arity, debug);
+	public void emitInlineCallPrimN(RascalPrimitive prim, int arity, int srcIndex, boolean debug) {
+		emitInlineCallPrimNGeneral(prim, arity, srcIndex, debug);
 	}
 	
-	private void emitInlineCallPrimNGeneral(RascalPrimitive prim, int arity, boolean debug) {
+	private void emitInlineCallPrimNGeneral(RascalPrimitive prim, int arity, int srcIndex, boolean debug) {
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
 
@@ -1759,11 +1759,11 @@ public class BytecodeGenerator implements Opcodes {
 	
 	// PushCallPrimN
 	
-	public void emitInlinePushCallPrimN(RascalPrimitive prim, int arity, boolean debug) {
-		emitInlinePushCallPrimNGeneral(prim, arity, debug);
+	public void emitInlinePushCallPrimN(RascalPrimitive prim, int arity, int srcIndex, boolean debug) {
+		emitInlinePushCallPrimNGeneral(prim, arity, srcIndex, debug);
 	}
 	
-	private void emitInlinePushCallPrimNGeneral(RascalPrimitive prim, int arity, boolean debug) {
+	private void emitInlinePushCallPrimNGeneral(RascalPrimitive prim, int arity, int srcIndex, boolean debug) {
 		mv.visitFieldInsn(GETSTATIC, "org/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive", prim.name(),
 				"Lorg/rascalmpl/library/experiments/Compiler/RVM/Interpreter/RascalPrimitive;");
 
@@ -1797,7 +1797,7 @@ public class BytecodeGenerator implements Opcodes {
 	 * 1: There is only one function => emit direct call  (DONE) 
 	 * 2: There is only a constructor => call constructor (DONE)
 	 */
-	public void emitOptimizedOcall(String fuid, int overloadedFunctionIndex, int arity, boolean dcode) {
+	public void emitOptimizedOcall(String fuid, int overloadedFunctionIndex, int arity, int srcIndex, boolean dcode) {
 		OverloadedFunction of = overloadedStore[overloadedFunctionIndex];
 		int[] functions = of.getFunctions();
 		if (functions.length == 1) {
@@ -1805,15 +1805,17 @@ public class BytecodeGenerator implements Opcodes {
 			if (ctors.length == 0) {
 				Function fu = functionStore[functions[0]];
 				if (of.getScopeFun().equals("")) {
-					emitOcallSingle(rvm2jvmName(fu.getName()), functions[0], arity);
+					emitOcallSingle(rvm2jvmName(fu.getName()), functions[0], arity, srcIndex);
 				} else {
 					// Nested function needs link to containing frame
+					// TODO srcIndex
 					emitCallWithArgsSSFII_A("jvmOCALL", overloadedFunctionIndex, arity, dcode);
 					mv.visitIincInsn(SP, -arity);
 					emitReturnValue2ACCU();
 				}
 			} else {
 				// Has a constructor.
+				// TODO srcIndex
 				emitCallWithArgsSSFII_A("jvmOCALL", overloadedFunctionIndex, arity, dcode);
 				mv.visitIincInsn(SP, -arity);
 				emitReturnValue2ACCU();
@@ -1821,8 +1823,10 @@ public class BytecodeGenerator implements Opcodes {
 		} else {
 			if(functions.length == 0 && of.getConstructors().length == 1){
 				// Specialize for single constructor
+				// TODO srcIndex
 				emitCallWithArgsSSFII_A("jvmOCALLSingleConstructor", overloadedFunctionIndex, arity, dcode);
 			} else {
+				// TODO srcIndex
 				emitCallWithArgsSSFII_A("jvmOCALL", overloadedFunctionIndex, arity, dcode);
 			}
 			mv.visitIincInsn(SP, -arity);
@@ -1830,7 +1834,7 @@ public class BytecodeGenerator implements Opcodes {
 		}
 	}
 
-	private void emitOcallSingle(String funName, int fun, int arity) {
+	private void emitOcallSingle(String funName, int fun, int arity, int srcIndex) {
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, CF);
 		

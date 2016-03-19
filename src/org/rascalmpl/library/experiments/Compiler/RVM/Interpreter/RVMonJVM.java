@@ -672,10 +672,13 @@ public class RVMonJVM extends RVMCore {
 				                          : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), of.getScopeIn(), null, arity);
 		
 		Frame frame = ofun_call.nextFrame(functionStore);
-
+		
+		frameObserver.enter(root);
+		
 		while (frame != null) {	
 			Object rsult = dynRun(frame.function.funId, frame);
 			if (rsult == NONE) {
+				frameObserver.leave(root, returnValue);
 				return returnValue; // Alternative matched.
 			}
 			frame = ofun_call.nextFrame(functionStore);
@@ -684,8 +687,9 @@ public class RVMonJVM extends RVMCore {
 		
 		sp = sp - arity;
 		cf.sp = sp;
-		
+	
 		returnValue = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
+		frameObserver.leave(frame, returnValue);
 		return returnValue;
 	}
 	
