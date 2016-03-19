@@ -42,3 +42,12 @@ java bool greaterEqualVersion(str version1, str version2);
 
 @javaClass{org.rascalmpl.library.util.SemVerLib}
 java bool equalVersion(str version1, str version2);
+
+@javaClass{org.rascalmpl.library.util.SemVerLib}
+java str getRascalVersion();
+
+@javaClass{org.rascalmpl.library.util.SemVerLib}
+java str getRascalRuntimeVersion();
+
+@javaClass{org.rascalmpl.library.util.SemVerLib}
+java str getRascalCompilerVersion();
