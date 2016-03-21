@@ -95,7 +95,6 @@ public class CommandExecutor {
 		prelude = new Prelude(vf);
 		try {
 			compilerBinaryLocation = vf.sourceLocation("compressed+boot", "", "lang/rascal/boot/Kernel.rvm.ser.gz");
-			//compilerBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/lang/rascal/boot/Kernel.rvm.ser.gz");
 			consoleInputLocation = vf.sourceLocation("test-modules", "", consoleInputName + ".rsc");
 			consoleBinaryLocation = vf.sourceLocation("compressed+test-modules", "", consoleInputName + ".rvm.ser.gz");
 			
@@ -126,6 +125,7 @@ public class CommandExecutor {
 					.withModuleTags(moduleTags)
 					.forModule(shellModuleName)
 					.setJVM(true)					// options for complete repl
+					//.setProfiling(true)
 					.build();
 		
 		try {
@@ -155,7 +155,6 @@ public class CommandExecutor {
 		
 		helpManager = new HelpManager(stdout, stderr);
 		stderr.println("Type 'help' for information or 'quit' to leave");
-	
 	}
 	
 	public void setDebugObserver(DebugREPLFrameObserver observer){
@@ -504,6 +503,13 @@ public class CommandExecutor {
 		switch(words[0]){
 		
 		case "set":
+			if(words.length == 1){
+				StringBuilder sb = new StringBuilder();
+				return report(
+					sb.append("profile:   ").append(profile).append("\n")
+					  .append("trace:     ").append(trackCalls).append("\n")
+					  .append("coverage:  ").append(coverage).toString());
+				}
 			if(words.length != 3){
 				return report("set requires two arguments");
 			}
@@ -522,19 +528,11 @@ public class CommandExecutor {
 			case "coverage":
 				coverage = getBooleanValue(val);
 				return report(name + " set to "  + coverage);
-				
-			case "debugRVM":
-				debugRVM = getBooleanValue(val);
-				return report(name + " set to "  + debugRVM);
-				
+								
 			case "debug":
 				debug = getBooleanValue(val);
 				return report(name + " set to "  + debug);
-				
-			case "testsuite":
-				testsuite = getBooleanValue(val);
-				return report(name + " set to "  + testsuite);
-				
+								
 			default:
 				return report("Unrecognized option : " + name);
 			}

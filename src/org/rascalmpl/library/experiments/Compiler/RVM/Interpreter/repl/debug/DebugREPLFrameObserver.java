@@ -45,8 +45,8 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	
 	public DebugREPLFrameObserver getObserverWhenActiveBreakpoints(){
 		breakPointManager.reset();
-		return this;
-		//return breakPointManager.hasEnabledBreakPoints() ? this : null;
+		//return this;
+		return breakPointManager.hasEnabledBreakPoints() ? this : null;
 	}
 	
 	@Override public void setRVM(RVMCore rvm){
