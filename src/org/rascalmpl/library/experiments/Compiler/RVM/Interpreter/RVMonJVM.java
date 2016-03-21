@@ -21,6 +21,7 @@ import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.type.Type;
@@ -79,6 +80,7 @@ public class RVMonJVM extends RVMCore {
 		
 		dynRun(func.funId, cf);
 		if(returnValue instanceof Thrown){
+			frameObserver.exception(cf, (Thrown) thrown);
 			throw (Thrown) returnValue;
 		}
 		return returnValue;
@@ -106,6 +108,7 @@ public class RVMonJVM extends RVMCore {
 		thrown = oldthrown;
 
 		if (returnValue instanceof Thrown) {
+			frameObserver.exception(root, (Thrown) thrown);
 			throw (Thrown) returnValue;
 		}
 		return narrow(returnValue);
@@ -154,6 +157,7 @@ public class RVMonJVM extends RVMCore {
 		dynRun(root.function.funId, root);
 
 		if(returnValue instanceof Thrown){
+			frameObserver.exception(root, (Thrown) thrown);
 			throw (Thrown) returnValue;
 		}
 		return (IValue) returnValue;
@@ -182,6 +186,7 @@ public class RVMonJVM extends RVMCore {
 		
 		Object o = returnValue;
 		if (o != null && o instanceof Thrown) {
+			//TODO: frameObserver.exception(cf, (Thrown) thrown);
 			throw (Thrown) o;
 		}
 		return narrow(o);
@@ -239,6 +244,32 @@ public class RVMonJVM extends RVMCore {
 			printFrameAndStackAndAccu(cf, sp, accu);
 			System.err.println(insName + " " + abbrev(arg1) + ", " + arg2 + "\n");
 		}
+	}
+	
+	/********************************************************************************************/
+	/*	Utitities for FrameObservers															*/
+	/********************************************************************************************/
+	
+	public void frameUpdateSrc(Frame cf, int srcIndex){
+		cf.src = (ISourceLocation) cf.function.constantStore[srcIndex];
+	}
+	
+	public void frameObserve(Frame cf, int srcIndex){
+		cf.src = (ISourceLocation) cf.function.constantStore[srcIndex];
+		frameObserver.observe(cf);
+	}
+	
+	public void frameEnter(Frame cf, int srcIndex){
+		cf.src = (ISourceLocation) cf.function.constantStore[srcIndex];
+		frameObserver.enter(cf);
+	}
+	
+	public void frameLeave(Frame cf, IValue rval){
+		frameObserver.leave(cf, rval);
+	}
+	
+	public void frameException(Frame cf, Thrown thrown){
+		frameObserver.exception(cf, thrown);
 	}
 	
 	/************************************************************************************************/
@@ -609,7 +640,7 @@ public class RVMonJVM extends RVMCore {
 			fun = tmp.function;
 		}
 		tmp.previousCallFrame = cf;
-
+		
 		rval = dynRun(fun.funId, tmp); // In a full inline version we can call the
 										// function directly (name is known).
 		if (rval == YIELD) {

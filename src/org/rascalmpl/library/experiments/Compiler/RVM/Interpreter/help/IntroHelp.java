@@ -20,6 +20,7 @@ public class IntroHelp {
 				"    e.g. set profile true",
 				"         set trace false",
 				"         set coverage true",
+				"    set                    List all current option values",
 				"",
 				"Debugging commands:",
 				"    break                  List current break points",
