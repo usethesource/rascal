@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,9 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -25,12 +23,10 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutio
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.Parser;
-import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
@@ -68,6 +64,7 @@ public class ReflectiveCompiled extends Reflective {
 //		return data;
 //	}
 	
+    
 	public IValue parseCommand(IString str, ISourceLocation loc,  RascalExecutionContext rex) {
 		throw RascalRuntimeException.notImplemented("parseCommand", null, null);
 	}
@@ -75,6 +72,15 @@ public class ReflectiveCompiled extends Reflective {
 	public IValue parseCommands(IString str, ISourceLocation loc,  RascalExecutionContext rex) {
 		throw RascalRuntimeException.notImplemented("parseCommands", null, null);
 	}
+	
+	public IValue parseModuleWithSpaces(ISourceLocation loc) {
+        IActionExecutor<ITree> actions = new NoActionExecutor();    
+        try {
+            return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(loc), actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
+        } catch (IOException e) {
+            throw RascalRuntimeException.io(values.string(e.getMessage()), null);
+        }
+    }
 	
 //	private IValue lastModified(ISourceLocation sloc) {
 //		try {
