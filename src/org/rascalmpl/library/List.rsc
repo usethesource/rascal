@@ -216,6 +216,14 @@ test: getOneFrom(<L>)
 public java &T getOneFrom(list[&T] lst);
 
 @doc{
+Synopsis: Pick first element from a list.
+
+Description:
+Get the first element from a list. As opposed to [$List/getOneFrom] this function always returns the same (first) list element.
+}
+public  &T getFirstFrom(list[&T] lst) = head(lst);
+
+@doc{
 Synopsis: Get the first element(s) from a list.
 
 Description:

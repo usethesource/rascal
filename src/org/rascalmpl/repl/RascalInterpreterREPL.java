@@ -73,8 +73,8 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
 
     @Override
     public void stop() {
-        super.stop();
         eval.interrupt();
+        super.stop();
     }
 
     @Override
@@ -162,7 +162,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     }
 
     @Override
-    protected Collection<String> completePartialIdentifier(String qualifier, String term) {
+    protected Collection<String> completePartialIdentifier(String line, int cursor, String qualifier, String term) {
         return eval.completePartialIdentifier(qualifier, term);
     }
 

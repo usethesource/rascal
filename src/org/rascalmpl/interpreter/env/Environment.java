@@ -268,7 +268,12 @@ public class Environment implements IRascalFrame {
 		if (funcs.isEmpty()) {
 			return null;
 		}
-		return new OverloadedFunction(name, funcs);
+		else if (funcs.size() == 1) {
+			return funcs.get(0);
+		}
+		else {
+			return new OverloadedFunction(name, funcs);
+		}
 	}
 	
 	public Result<IValue> getSimpleVariable(Name name) {

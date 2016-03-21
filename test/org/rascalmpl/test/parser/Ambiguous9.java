@@ -92,7 +92,7 @@ public class Ambiguous9 extends SGTDBF<IConstructor, ITree, ISourceLocation> imp
 	}
 	
 	public ITree executeParser(){
-		return parse(NONTERMINAL_START_S, null, "1+1+1".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+		return parse(NONTERMINAL_START_S, null, "1+1+1".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 	}
 	
 	public IValue getExpectedResult() throws IOException{

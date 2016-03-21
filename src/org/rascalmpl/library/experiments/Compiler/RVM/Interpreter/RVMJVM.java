@@ -5,44 +5,33 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.rascalmpl.value.IValue;
 
-public class RVMJVM extends RVM {
+public class RVMJVM extends RVMCore {
 
-	RVMExecutable rrs;
-	RascalExecutionContext rex;
-	byte[] generatedRunner = null;
-	String generatedName = null;
-	RVMRun runner = null;
-
-	/*
-	 * 
-	 */
-	private static final long serialVersionUID = -3447489546163673435L;
+	final RVMExecutable rvmExec;
+	final byte[] generatedByteCode;
+	final String generatedClassName;
+	RVMonJVM generatedClassInstance;
 
 	/**
-	 * @param rrs
+	 * @param rvmExec
 	 * @param rex
 	 */
-	public RVMJVM(RVMExecutable rrs, RascalExecutionContext rex) {
-		super(rrs, rex);
-		//if (rrs instanceof RVMJVMExecutable) {
-			generatedRunner = rrs.getJvmByteCode();
-			generatedName = rrs.getFullyQualifiedDottedName();
-		//}
-		this.rrs = rrs;
-		this.rex = rex;
-		try {
-			createRunner();
-		}
-		catch(Exception e) {
-			e.printStackTrace() ;
-		}
+	public RVMJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
+		super(rvmExec, rex);
 
+		generatedByteCode = rvmExec.getJvmByteCode();
+		generatedClassName = rvmExec.getFullyQualifiedDottedName();
+
+		this.rvmExec = rvmExec;
+		
+		createGeneratedClassInstance();
 	}
 
-	private void createRunner() {
+	private void createGeneratedClassInstance() {
 		// Oneshot classloader
 		try {
 			Class<?> generatedClass = new ClassLoader(RVMJVM.class.getClassLoader()) {
@@ -58,48 +47,49 @@ public class RVMJVM extends RVM {
 					}
 					return null;
 				}
-			}.defineClass(generatedName, generatedRunner);
+			}.defineClass(generatedClassName, generatedByteCode);
 
 			Constructor<?>[] cons = generatedClass.getConstructors();
 
-			runner = (RVMRun) cons[0].newInstance(rrs, rex);
-			// Inject is obsolete the constructor holds rrs.
-			runner.inject(rrs.getFunctionStore(), rrs.getConstructorStore(), RVMExecutable.store, rrs.getFunctionMap());
+			generatedClassInstance = (RVMonJVM) cons[0].newInstance(rvmExec, rex);
+			// make sure that the moduleVariables in this RVM and in the generated class are the same.
+			this.moduleVariables = generatedClassInstance.moduleVariables;
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+	
+	/************************************************************************************/
+	/*		Implementation of abstract methods in RVMCore for RVMJVM					*/
+	/*		(simply reroute to RVMonJVM)												*/
+	/************************************************************************************/
 
-	boolean useRVMInterpreter = false;
-	public IValue executeProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs) {
-		if (useRVMInterpreter) {
-			return super.executeProgram(moduleName, uid_main, args, kwArgs);
-		} else {
-			rex.setCurrentModuleName(moduleName);
-
-			Function main_function = functionStore.get(functionMap.get(uid_main));
-
-			if (main_function == null) {
-				throw new RuntimeException("PANIC: No function " + uid_main + " found");
-			}
-
-			if (main_function.nformals != 2) { // List of IValues and empty map of
-												// keyword parameters
-				throw new RuntimeException("PANIC: function " + uid_main + " should have two arguments");
-			}
-
-			Object o = null;
-
-			o = runner.dynRun(uid_main, args);
-			if (o != null && o instanceof Thrown) {
-				throw (Thrown) o;
-			}
-			return narrow(o);
-		}
+	@Override
+	public Object executeRVMFunction(Function func, IValue[] posArgs, Map<String, IValue> kwArgs) {
+		return generatedClassInstance.executeRVMFunction(func, posArgs, kwArgs);
 	}
 
-	protected Object executeProgram(Frame root, Frame cf) {
-		return runner.dynRun(root.function.funId, root);
+	@Override
+	public IValue executeRVMFunction(FunctionInstance func, IValue[] args) {
+		return generatedClassInstance.executeRVMFunction(func, args);
+	}
+
+	@Override
+	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] args) {
+		// TODO Auto-generated method stub
+		return generatedClassInstance.executeRVMFunction(func, args);
+	}
+
+	@Override
+	public IValue executeRVMFunctionInVisit(Frame root) {
+		// TODO Auto-generated method stub
+		return generatedClassInstance.executeRVMFunctionInVisit(root);
+	}
+
+	@Override
+	public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] args, HashMap<String, IValue> kwArgs) {
+		// TODO Auto-generated method stub
+		return generatedClassInstance.executeRVMProgram(moduleName, uid_main, args, kwArgs);
 	}
 }

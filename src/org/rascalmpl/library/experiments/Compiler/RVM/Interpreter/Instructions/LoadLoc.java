@@ -17,10 +17,11 @@ public class LoadLoc extends Instruction {
 	public void generate(){
 		codeblock.addCode1(opcode.getOpcode(), pos);
 	}
+	
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
-		
+			codeEmittor.emitDebugCall1(opcode.name(), pos);
+
 		codeEmittor.emitInlineLoadLocN(pos,debug);
 	}
 }

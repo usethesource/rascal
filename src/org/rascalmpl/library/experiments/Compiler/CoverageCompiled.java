@@ -3,7 +3,6 @@ package org.rascalmpl.library.experiments.Compiler;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CoverageFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.value.IList;
-import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.IValueFactory;
 
 public class CoverageCompiled extends Coverage {
@@ -16,7 +15,7 @@ public class CoverageCompiled extends Coverage {
 	
 	public void startCoverage(RascalExecutionContext rex){
 		if(coverageObserver == null){
-			coverageObserver = new CoverageFrameObserver(rex.getStdOut());
+			coverageObserver = new CoverageFrameObserver(null);
 		}
 		coverageObserver.startObserving();
 	}

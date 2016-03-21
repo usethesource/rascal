@@ -1,10 +1,15 @@
 module experiments::vis2::sandbox::IDemo
 import experiments::vis2::sandbox::FigureServer;
 import experiments::vis2::sandbox::Figure;
+import experiments::vis2::sandbox::Steden;
 import Prelude;
 import util::Math;
 
 str current = "white";
+
+Figure ft() = hcat(figs=[box(size=<150, 150>), choiceInput(size=<30, 100>)]);
+
+void tft() = render(ft());
 
 Figure butt() = hcat(figs= [
     buttonInput("Click me", id = "aap"
@@ -16,7 +21,7 @@ Figure butt() = hcat(figs= [
         ) 
        , id = "mies"
       , event = on("click", 
-    void (str n, str e, str v) {
+    void (str e, str n, str v) {
        if (style("mies").fillColor=="green") {       
           style("mies", fillColor="red");
           //style("mies", visibility="hidden");
@@ -44,7 +49,7 @@ Figure lay() = tree(box(fig=buttonInput("click", size=<40, 40>, event=on(click))
 void tlay() = render(lay());
 
 Figure counter() = hcat(figs= [
-    buttonInput("Incr", id = "aap"
+    buttonInput("Incr", id = "aap", size=<50, 50>
     , event = on("click", 
     void (str e, str n, str v) {  
        str t1 = textProperty("mies1").text;
@@ -54,14 +59,14 @@ Figure counter() = hcat(figs= [
        if (d1%2==0) style("box1", fillColor="red"); 
               else style("box1", fillColor="green");
        if (d2%2==0) style("box2", fillColor="green"); 
-              else style("box2", fillColor="red");
+             else style("box2", fillColor="red");
        textProperty("mies1", text="<d1+1>");
        textProperty("mies2", text="<d2-1>");
-       attr("box3", width = 25);
+       // attr("box3", width = 25);
        }
     )
     )
-    , buttonInput("Decr", id = "noot"
+    , buttonInput("Decr", id = "noot", size=<50, 50>
     , event = on("click", 
     void (str e, str n, str v) {
        str t1 = textProperty("mies1").text;
@@ -74,13 +79,13 @@ Figure counter() = hcat(figs= [
               else style("box2", fillColor="red");
        textProperty("mies1", text="<d1-1>");
        textProperty("mies2", text="<d2+1>");
-       attr("box3", width=50);
+       // attr("box3", width=50);
        }
     )
     )
     , box(id = "box1", size=<50, 50>, fig=text("0", id = "mies1")) 
     , box(id = "box2", size=<50, 50>, fig=text("0", id = "mies2")) 
-    , box(id = "box3", width=100, height = 50) 
+    // , box(id = "box3", width=100, height = 50) 
     ]);
     
 void tcounter()= render(counter(), debug = false);
@@ -437,22 +442,151 @@ Figure flipflop() {
       );
   
   
-  Figure tip() {
-       Figure b = box(size=<50, 50>, fillColor = "yellow", id = "aap"
-           , event = on(["mouseenter","mouseout"]
-           , void(str e, str n, str v) {
-                switch(e) {
-                    case "mouseenter": style("aap_overlay", visibility = "visible");
-                    case "mouseout": style("aap_overlay", visibility = "hidden");
-                    }
-              }
-            )        
-           );
-       Figure r = overlay(figs = [b 
-       ,at(50, 0, circle(id="aap_overlay", fig = text("Hallo"), fillColor = "red", visibility = "hidden"))]
+Figure smallTree() = tree( box(size=<50, 50>, fig=text("A")), [text("B", size=<50, 50>, fontColor="red", fillColor = "white"), box(size=<50, 50>, fig=text("C"))]
+, size=<500, 500>, ySep = 10);
+
+void ttree() = render(smallTree(), size=<400, 400>);
+
+public void ftree(loc l) = writeFile(l, toHtmlString(smallTree()));
+       
+       
+Figure tip() {
+        Figure r() = 
+          frame(fig= 
+          at(250, 250, 
+          //vcat(figs=[
+             box(fillColor = "blue", fig=circle(grow=1.5, fig = text("Hallo"), fillColor = "red"), size=<100, 100>)
+            // ,box(size=<20, 20>, fillColor="black")])
+         )
        )
         ;
-       return r;
+       Figure b = box(id="outer", grow=2, fig=at(50, 50, box(id=  "inner", size=<200, 200>, fillColor = "none"
+           ,tooltip  = // r()
+              // steden(width=400, height = 400)
+              // vcat(figs=[d3()])
+              d3()
+              )
+              //vcat(figs=[box(size=<30, 30>, fillColor="red")
+              //           ,box(size=<40, 30>, fillColor="blue")
+              //          ])
+              //)
+              )
+              ,
+              fillColor="green")      
+           ;
+      
+       return b;
        }
        
- void ttip() {render(tip());}
+loc jsonl =  |project://rascal|+"src";
+
+public Figure pack() {return d3Pack(d = fileMap(jsonl, ".rsc"), fillOpacityNode = 0.15, fillLeaf="lightsalmon", 
+fillNode = "royalblue", diameter = 1000);}
+
+public void tpack() = render(pack(), fillColor = "white");
+
+public Figure treemap() {return d3Treemap(d = fileMap(jsonl, ".rsc"));}
+
+public void ttreemap() = render(treemap(), fillColor = "white");
+
+public void fpack(loc l) = writeFile(l, toHtmlString(pack()));
+       
+       
+ void ttip() {render(tip(),align = centerMid);}
+ 
+ public void ftip(loc l) = writeFile(l, toHtmlString(tip()));
+ 
+ DDD ddd = ddd(name = "aap", width = 50, height = 50, children=[
+        ddd(name="noot", width = 20, height = 20
+        ,children=[ddd(name="mies", width=20, height = 20), ddd(name="teun", width=20, height = 20)]
+      ), ddd(name="mies", width= 70, height = 200, children=[
+            ddd(name="weide", width = 100, height = 20)
+            ,ddd(name="schaap", width = 20, height = 20)
+      ])]);
+ 
+ public Figure tre() {return d3Tree(d = ddd, fillColor="none", lineColor="black");}
+ 
+ void ttre() {render(tre());}
+ 
+ public void ftre(loc l) = writeFile(l, toHtmlString(tre()));
+ 
+ Figure cellq(str s, int r = 15) = 
+     circle(
+         lineColor = "black", fillColor = "antiquewhite",
+          r = r, id = s   , fig = text(s, fontWeight="bold")
+         ,event=on(["mouseenter", "mouseleave"], void(str e, str n, str v){
+            if (e=="mouseleave")
+           style(n, fillColor="antiquewhite");
+            else
+              style(n, fillColor="red");
+        }));
+ 
+ public Figure wirth() {
+   Figure r = 
+       tree(
+         box(fig=text("A", size=<25, 15>,fontWeight="bold" ), fillColor="salmon", lineWidth= 0, grow = 2.5,  rounded= <25, 25>), [
+           tree(cellq("B"), [
+              tree(cellq("D"), [cellq("I")])
+              ,tree(cellq("E"),
+                 [cellq("J"), cellq("K"), cellq("L")])
+               ])
+            , tree(cellq("C", r = 25), [
+               tree(cellq("F"), [cellq("O")])
+              ,tree(cellq("G", r = 30), [cellq("M"), cellq("N")])
+              ,tree(cellq("H"), [ cellq("P")])           
+              ])
+            ]
+       );
+   return r;         
+   }
+ 
+ public Figure d3() = 
+     d3Tree(tree(box(size=<40, 40>, fillColor="yellow"), [circle(r=40, fillColor= "blue"
+          ,tooltip = frame(fig=at(100, 100, box(size=<50, 50>, fillColor="red"), lineWidth = 4))
+          )])
+        width = 300, height = 400 );  
+     // d3Tree(wirth(), width=800, height = 800);
+ 
+ void td3() {render(d3());}
+ 
+ public void fd3(loc l) = writeFile(l, toHtmlString(d3()));
+ 
+ 
+
+void main(){
+    render(
+    graph(size=<1000,1000>,
+      nodes=[
+      <"11",ellipse(fillColor="lightYellow",fig=text("closed",fontSize=14),grow=2,id="myName1")>,
+      <"10",ellipse(fillColor="lightYellow",fig=text("opened",fontSize=14),grow=2,id="myName2")>
+      ],
+      edges=[
+        edge("11","10",label="reset",id="myName3"),
+        edge("11","10",label="open", id="myName4"),
+        edge("10","10",label="reset",id="myName5"),
+        edge("10","11",label="close",id="myName6")
+      ]
+      ,gap=<20,40>)
+    );
+}
+
+Figure ov() = overlay(figs=[at(10, 10, box(size=<50, 50>)), at(10, 10, hcat(figs= [box(size=<50, 50>)]))]);
+
+void tov() = render(ov());
+
+Figure rot() // = d3();
+    = box(size=<20, 20>
+     // , tooltip = overlay(figs=[circle(r=10), circle(r=20)])
+      , tooltip = box(fig=smallTree())
+    );
+
+void trot() = render(rot());
+
+public void frot(loc l) = writeFile(l, toHtmlString(rot()));
+ 
+ 
+ 
+ 
+ 
+ 
+ 

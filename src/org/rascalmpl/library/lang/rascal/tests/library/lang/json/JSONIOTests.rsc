@@ -5,7 +5,7 @@ import Type;
 import util::Math;
 import lang::json::IO;
 
-loc targetFile = |tmp:///test.json|;
+loc targetFile = |test-temp:///test.json|;
 
 bool writeRead(&T dt) = writeRead(type(typeOf(dt), ()), dt);
 

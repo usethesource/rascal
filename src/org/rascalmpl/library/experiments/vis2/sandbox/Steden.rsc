@@ -31,17 +31,19 @@ public list[Chart] exampleSteden() {
    }
    
 public Figure steden(int width = 400, int height = 400) {  
-            Figure f = comboChart(charts = exampleSteden(), tickLabels = true,  tooltipColumn = 2, 
+            Figure f = comboChart(, fillColor="antiquewhite", charts = exampleSteden(), tickLabels = true,  tooltipColumn = 2, 
            	    options = chartOptions(
            		hAxis = axis(title="Extend", slantedText = true, slantedTextAngle=90), 
            		vAxis = axis(title="Population"),
-           		chartArea = chartArea(width="80%", height = "40%", backgroundColor="antiquewhite"),
+           		chartArea = chartArea(width="80%", height = "40%"),
            		bar = bar(groupWidth = "100%"),
            		width=width,
                 height=height,
                 animation= animation(startup = true, easing = "in", duration = 500),
-                legend = legend(position="top")), width = width, height = height, id = "steden");
+                legend = legend(position="top")), width = width, height = height);
             println("comboChart <f.width> <f.height>");
              // f.width = width; f.height = height;
              return f;          
    }
+   
+   

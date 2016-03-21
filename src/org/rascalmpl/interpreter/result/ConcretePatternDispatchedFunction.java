@@ -44,19 +44,26 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	private final int arity;
 	private final boolean isStatic;
 	private final String name;
+	private final int index;
 
-	public ConcretePatternDispatchedFunction(IEvaluator<Result<IValue>> eval, String name, Type type, Map<IConstructor, List<AbstractFunction>> alternatives) {
+	public ConcretePatternDispatchedFunction(IEvaluator<Result<IValue>> eval, int index,  String name, Type type, Map<IConstructor, List<AbstractFunction>> alternatives) {
 		super(null
 				, eval
 				, (FunctionType) RascalTypeFactory.getInstance().functionType(TypeFactory.getInstance().voidType(), TypeFactory.getInstance().voidType(), TF.voidType())
 				, Collections.<KeywordFormal>emptyList()
 				, checkVarArgs(alternatives)
 				, null); // ?? I don't know if this will work..
+		this.index = index;
 		this.type = type;
 		this.alternatives = alternatives;
 		this.arity = minArity(alternatives);
 		this.isStatic = checkStatic(alternatives);
 		this.name = name;
+	}
+	
+	@Override
+	public int getIndexedArgumentPosition() {
+		return index;
 	}
 	
 	@Override
@@ -69,7 +76,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 			}
 			newAlts.put(name, alts);
 		}
-		return new ConcretePatternDispatchedFunction(getEval(), name, type, newAlts);
+		return new ConcretePatternDispatchedFunction(getEval(), index, name, type, newAlts);
 	}
 	
 	public Map<IConstructor,List<AbstractFunction>> getMap() {
@@ -174,15 +181,15 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
   public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
     IConstructor label = null;
     
-    if (argTypes.length == 0) {
+    if (argTypes.length < index) {
       throw new MatchFailed();
     }
     
     if (argTypes[0].isSubtypeOf(RascalValueFactory.Tree)) {
-      if (!TreeAdapter.isAppl((ITree) argValues[0])) {
+      if (!TreeAdapter.isAppl((ITree) argValues[index])) {
         throw new MatchFailed();
       }
-      label = TreeAdapter.getProduction((ITree) argValues[0]);
+      label = TreeAdapter.getProduction((ITree) argValues[index]);
       List<AbstractFunction> funcs = alternatives.get(label);
       
       if (funcs != null) {

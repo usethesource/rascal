@@ -64,7 +64,13 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 				
 				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(subject.getType(),
 						val, __eval);
-			} finally {
+			}
+			catch (UnexpectedType e) {
+				e.setLocation(getLocation());
+				throw e;
+			}
+			
+			finally {
 				__eval.__popTraversalEvaluator();
 			}
 		}
@@ -128,7 +134,12 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(t,
 						val, __eval);
 	
-			} finally {
+			} 
+			catch (UnexpectedType e) {
+				e.setLocation(getLocation());
+				throw e;
+			}
+			finally {
 				__eval.__popTraversalEvaluator();
 			}
 		}

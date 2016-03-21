@@ -57,7 +57,7 @@ public class CharRange extends SGTDBF<IConstructor, ITree, ISourceLocation> impl
 	}
 	
 	public ITree executeParser(){
-		return parse(NONTERMINAL_START_S, null, "a".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+		return parse(NONTERMINAL_START_S, null, "a".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 	}
 	
 	public IValue getExpectedResult() throws IOException{

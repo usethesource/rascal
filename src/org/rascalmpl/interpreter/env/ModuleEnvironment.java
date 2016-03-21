@@ -416,7 +416,12 @@ public class ModuleEnvironment extends Environment {
 				return null;
 			}
 			
-			return new OverloadedFunction(cons, result);
+			if (result.size() == 1) {
+				return result.get(0);
+			}
+			else {
+				return new OverloadedFunction(cons, result);
+			}
 		}
 		
 		if (modulename != null) {

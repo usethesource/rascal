@@ -42,3 +42,5 @@ test bool inferKWparamType() {
 // https://github.com/cwi-swat/rascal/issues/885
 test bool checkComparableOnElementsBreak() = [<[],_,_>,_] := [<[],false,1>,<[3],false,3>];
 
+// https://github.com/cwi-swat/rascal/issues/930
+test bool nodeSetMatch() = { "a"(1) } := { "a"(1) };

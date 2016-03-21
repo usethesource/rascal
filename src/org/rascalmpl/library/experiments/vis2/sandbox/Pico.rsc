@@ -52,10 +52,11 @@ Figure cell(str s, str fontWeight="normal", str fontColor = "black", str fontSty
        ),fillColor = "antiquewhite", rounded=<10,10>, lineWidth = 0,
          event=on("click", 
           void(str ev, str id, str v){
-            if (id2pos[id]?) textProperty("panel", html=
-            "\<pre\><substring(input, id2pos[id][0],  id2pos[id][0]+id2pos[id][1])>\</pre\>");
+             if (id2pos[id]?) textProperty("panel", html=
+              "\<pre\>\<code\><substring(input, id2pos[id][0],  id2pos[id][0]+id2pos[id][1])>\</code\>\</pre\>");
             else 
                textProperty("panel", html="not found:<id>");
+            
             }
           ));
        
@@ -172,8 +173,8 @@ public void main() {
     PROGRAM p = load(input);
     Figure t = compileProgram(p);
     Figure g  = htmlText(
-    "\<pre\>\<code\><input>\</pre\>\</code\>" 
-    , size=<400, 400>, nl2br = false, id="panel");
+    "\<pre\>\<code\><input>\</code\>\</pre\>" 
+    , size=<400, 600>, nl2br = false, id="panel");
     Figure f = hcat(lineWidth = 1, align = topLeft, figs= [g, t], borderWidth =-1, borderStyle="groove", borderColor="");
     // writeFile(|file:///ufs/bertl/html/v.html|, toHtmlString(f));
     // println(id2pos);

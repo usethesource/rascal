@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 import org.eclipse.jdt.core.dom.AST;
@@ -53,8 +54,8 @@ import org.rascalmpl.value.type.TypeStore;
 
 @SuppressWarnings({"rawtypes", "deprecation"})
 public class SourceConverter extends M3Converter {
-	SourceConverter(TypeStore typeStore) {
-		super(typeStore);
+	SourceConverter(TypeStore typeStore, Map<String, ISourceLocation> cache) {
+		super(typeStore, cache);
 	}
 	
 	private void visitListOfModifiers(List modif) {

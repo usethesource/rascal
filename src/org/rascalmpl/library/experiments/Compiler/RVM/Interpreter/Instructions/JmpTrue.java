@@ -20,7 +20,7 @@ public class JmpTrue extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall1(opcode.name(), codeblock.getLabelPC(label));
 		
 		codeEmittor.emitJMPTRUEorFALSE(true, label, debug);
 	}

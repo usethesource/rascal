@@ -101,6 +101,7 @@ data Production
      = \cons(Symbol def, list[Symbol] symbols, list[Symbol] kwTypes, set[Attr] attributes)
      | \func(Symbol def, list[Symbol] symbols, list[Symbol] kwTypes, set[Attr] attributes /*, str code = "", map[str,value] bindings = (), loc cpe = |unknown:///|*/)
      | \choice(Symbol def, set[Production] alternatives)
+     | \composition(Production lhs, Production rhs)
      ;
 
 @doc{

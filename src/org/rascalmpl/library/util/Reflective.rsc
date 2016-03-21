@@ -18,14 +18,7 @@ import ParseTree;
 import IO;
 import String;
 import lang::rascal::\syntax::Rascal;
-
-public Tree getModuleParseTree(str modulePath) {
-    return parseModule(getModuleLocation(modulePath));
-}
-
-public Tree getModuleParseTree(str modulePath, PathConfig pcfg) {
-    return parseModule(getModuleLocation(modulePath, pcfg));
-}
+import lang::manifest::IO;
 
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to evaluate}
@@ -42,28 +35,33 @@ public java Tree parseCommands(str commands, loc location);
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to access the Rascal module parser}
 @doc{This parses a module from a string, in its own evaluator context}
-public java Tree parseModule(str moduleContent, loc location);
+public java Tree parseModuleAndFragments(str moduleContent, loc location);
 
-
-lang::rascal::\syntax::Rascal::Module parseModuleAndGetTop(loc moduleLoc){
-    tree = parseModule(moduleLoc);
-    if(tree has top){
-        tree = tree.top;
-    }
-    if(lang::rascal::\syntax::Rascal::Module M := tree){
-        return M;
-    }
-    throw tree;
-}
 
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to access the Rascal module parser}
 @doc{This parses a module on the search path, and loads it into the current evaluator including all of its imported modules}
-public java Tree parseModule(loc location);
+public java Tree parseModuleAndFragments(loc location);
 
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to access the Rascal module parser}
-public java Tree parseModule(loc location, list[loc] searchPath);
+public java Tree parseModuleAndFragments(loc location, list[loc] searchPath);
+
+@javaClass{org.rascalmpl.library.util.Reflective}
+@doc{Just parse a module at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading) }
+public java lang::rascal::\syntax::Rascal::Module parseModule(loc location);
+
+public start[Module] parseNamedModuleWithSpaces(str modulePath) {
+    return parseModuleWithSpaces(getModuleLocation(modulePath));
+}
+
+public start[Module] parseNamedModuleWithSpaces(str modulePath, PathConfig pcfg) {
+    return parseModuleWithSpaces(getModuleLocation(modulePath, pcfg));
+}
+
+@javaClass{org.rascalmpl.library.util.Reflective}
+@doc{Parse a module (including surounding spaces) at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading) }
+public java start[Module] parseModuleWithSpaces(loc location);
 
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to resolve a module name in the Rascal search path}
@@ -73,15 +71,69 @@ public java loc getModuleLocation(str modulePath);
 @reflect{Uses Evaluator to resolve a path name in the Rascal search path}
 public java loc getSearchPathLocation(str filePath);
 
-data PathConfig =
-     pathConfig(list[loc] srcPath = [|std:///|],        // List of directories to search for source files
-                list[loc] libPath = [|std:///|],        // List of directories to search source or derived files
-                list[loc] projectPath = [],             // List of directories to search for source or derived files in projects
+data PathConfig 
+  = pathConfig(list[loc] srcPath = [|std:///|],        // List of directories to search for source files
+               list[loc] libPath = [|boot:///stdlib|, |std:///|],        
+                                                        // List of directories to search source for derived files
+               //list[loc] projectPath = [],             // List of directories to search for source or derived files in projects
                                                         // Note: each directory should include the project name as last path element
-                loc binDir = |home:///bin/|,            // Global directory for derived files outside projects
-                loc bootDir = |boot+compressed:///|     // Directory with Rascal boot files
-               );
-                 
+               loc binDir = |home:///bin/|,            // Global directory for derived files outside projects
+               loc bootDir = |boot+compressed:///|     // Directory with Rascal boot files
+              );
+
+data RascalManifest
+  = rascalManifest(
+      str \Main-Module = "Plugin",
+      str \Main-Function = "main", 
+      list[str] Source = ["src"],
+      str Bin = "bin",
+      list[str] \Required-Libraries = [],
+      list[str] \Required-Dependencies = []
+    ); 
+
+data JavaBundleManifest
+  = javaManifest(
+      str \Manifest-Version = "",
+      str \Bundle-SymbolicName = "",
+      str \Bundle-RequiredExecutionEnvironment = "JavaSE-1.8",
+      list[str] \Require-Bundle = [],
+      str \Bundle-Version = "0.0.0.qualifier",
+      list[str] \Export-Package = [],
+      str \Bundle-Vendor = "",
+      str \Bundle-Name = "",
+      list[str] \Bundle-ClassPath = [],
+      list[str] \Import-Package = [] 
+    );        
+            
+loc metafile(loc l) = l + "META-INF/RASCAL.MF";
+
+@doc{
+  Converts a PathConfig and replaces all references to roots of projects or bundles
+  by the folders which are nested under these roots as configured in their respective
+  META-INF/RASCAL.MF files.
+}
+PathConfig applyManifests(PathConfig cfg) {
+   mf = (l:readManifest(#RascalManifest, metafile(l)) | l <- cfg.srcPath + cfg.libPath + [cfg.binDir], exists(metafile(l)));
+
+   list[loc] expandSrcPath(loc p) = [ p + s | s <- mf[p].Source] when mf[p]?;
+   default list[loc] expandSrcPath(loc p, str _) = [p];
+   
+   list[loc] expandLibPath(loc p) = [ p + s | s <- mf[p].\Required-Libraries] when mf[p]?;
+   default list[loc] expandLibPath(loc p, str _) = [p];
+    
+   loc expandBinDir(loc p) = p + mf[p].Bin when mf[p]?;
+   default loc expandBinDir(loc p) = p;
+   
+   cfg.srcPath = [*expandSrcPath(p) | p <- cfg.srcPath];
+   cfg.libPath = [*expandLibPath(p) | p <- cfg.libPath];
+   cfg.binDir  = expandBinDir(cfg.binDir);
+   
+   // TODO: here we add features for Required-Libraries by searching in a repository of installed
+   // jars. This has to be resolved recursively.
+   
+   return cfg;
+}
+
 str makeFileName(str qualifiedModuleName, str extension = "rsc") = replaceAll(qualifiedModuleName, "::", "/") + "." + extension;
 
 loc getSearchPathLoc(str filePath, PathConfig pcfg){
@@ -97,13 +149,13 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
 
 loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
     fileName = makeFileName(qualifiedModuleName);
-    for(loc dir <- pcfg.projectPath){
-        fileLoc = dir + ("src/" + fileName);
-        if(exists(fileLoc)){
-            println("getModuleLocation <qualifiedModuleName> =\> <fileLoc>");
-            return fileLoc;
-        }
-    }
+    //for(loc dir <- pcfg.projectPath){
+    //    fileLoc = dir + ("src/" + fileName);
+    //    if(exists(fileLoc)){
+    //        println("getModuleLocation <qualifiedModuleName> =\> <fileLoc>");
+    //        return fileLoc;
+    //    }
+    //}
     for(loc dir <- pcfg.srcPath){
         fileLoc = dir + fileName;
         if(exists(fileLoc)){
@@ -120,20 +172,20 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     if(!endsWith(modulePath, "rsc")){
         throw "Not a Rascal source file: <moduleLoc>";
     }
-    if(moduleLoc.scheme == "project"){
-        for(loc dir <- pcfg.projectPath && dir.file == moduleLoc.authority){
-            dir.path = dir.path + "/" + modulePath;
-     
-            println("modulePath = <modulePath>, dir = <dir>");
-            if(exists(dir)){ 
-               moduleName = replaceFirst(modulePath, "/src/", "");
-               moduleName = replaceLast(moduleName, ".rsc", "");
-               moduleName = replaceAll(moduleName, "/", "::");
-               return moduleName;
-            }
-        }
-        throw "No module name found for <moduleLoc>";
-    }
+    //if(moduleLoc.scheme == "project"){
+    //    for(loc dir <- pcfg.projectPath && dir.file == moduleLoc.authority){
+    //        dir.path = dir.path + "/" + modulePath;
+    // 
+    //        println("modulePath = <modulePath>, dir = <dir>");
+    //        if(exists(dir)){ 
+    //           moduleName = replaceFirst(modulePath, "/src/", "");
+    //           moduleName = replaceLast(moduleName, ".rsc", "");
+    //           moduleName = replaceAll(moduleName, "/", "::");
+    //           return moduleName;
+    //        }
+    //    }
+    //    throw "No module name found for <moduleLoc>";
+    //}
     for(loc dir <- pcfg.srcPath){
         if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme){
            moduleName = replaceFirst(modulePath, dir.path, "");
@@ -187,13 +239,13 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
     //println("getDerivedReadLoc: <fileName>");
    
     if(extension in srcExtensions){
-       for(loc dir <- pcfg.projectPath){    // In a project directory?
-           fileLoc = dir + ("src/" + fileName);
-           if(exists(fileLoc)){
-              println("getDerivedReadLoc <qualifiedModuleName> =\> <fileLoc>");
-              return <true, fileLoc>;
-           }
-       }
+       //for(loc dir <- pcfg.projectPath){    // In a project directory?
+       //    fileLoc = dir + ("src/" + fileName);
+       //    if(exists(fileLoc)){
+       //       println("getDerivedReadLoc <qualifiedModuleName> =\> <fileLoc>");
+       //       return <true, fileLoc>;
+       //    }
+       //}
        for(loc dir <- pcfg.srcPath){        // In a source directory?
            fileLoc = dir + fileName;
            if(exists(fileLoc)){
@@ -204,16 +256,16 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
     } else {
       // A binary (possibly library) module
       compressed = endsWith(extension, "gz");
-      for(loc dir <- pcfg.projectPath){     // In a project directory
-           fileLoc = dir + ("bin/" + fileName);
-           if(exists(fileLoc)){
-              if(compressed){
-                 fileLoc.scheme = "compressed+" + fileLoc.scheme;
-              }
-              println("getDerivedReadLoc <qualifiedModuleName> =\> <fileLoc>");
-              return <true, fileLoc>;
-           }
-      }
+      //for(loc dir <- pcfg.projectPath){     // In a project directory
+      //     fileLoc = dir + ("bin/" + fileName);
+      //     if(exists(fileLoc)){
+      //        if(compressed){
+      //           fileLoc.scheme = "compressed+" + fileLoc.scheme;
+      //        }
+      //        println("getDerivedReadLoc <qualifiedModuleName> =\> <fileLoc>");
+      //        return <true, fileLoc>;
+      //     }
+      //}
       for(loc dir <- pcfg.binDir + pcfg.libPath){   // In a bin or lib directory?
        
         fileLoc = dir + fileName;
@@ -260,18 +312,18 @@ loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, 
     fileNameBin = makeFileName(qualifiedModuleName, extension=extension);
     compressed = endsWith(extension, "gz");
     
-    for(loc dir <- pcfg.projectPath){
-        fileLocSrc = dir + ("src/" + fileNameSrc);
-        if(exists(fileLocSrc)){
-           loc fileLocBin = dir + ("bin/" + fileNameBin);
-           if(compressed){
-              fileLocBin.scheme = "compressed+" + fileLocBin.scheme;
-           }
-        
-           println("getDerivedWriteLoc <qualifiedModuleName> =\> <fileLocBin>");
-           return fileLocBin;
-        }
-    }
+    //for(loc dir <- pcfg.projectPath){
+    //    fileLocSrc = dir + ("src/" + fileNameSrc);
+    //    if(exists(fileLocSrc)){
+    //       loc fileLocBin = dir + ("bin/" + fileNameBin);
+    //       if(compressed){
+    //          fileLocBin.scheme = "compressed+" + fileLocBin.scheme;
+    //       }
+    //    
+    //       //println("getDerivedWriteLoc <qualifiedModuleName> =\> <fileLocBin>");
+    //       return fileLocBin;
+    //    }
+    //}
     
     bindir = pcfg.binDir;
     if(compressed){

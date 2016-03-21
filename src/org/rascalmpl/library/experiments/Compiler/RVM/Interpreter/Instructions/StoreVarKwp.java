@@ -22,8 +22,10 @@ public class StoreVarKwp extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if (debug)
-			codeEmittor.emitDebugCall(opcode.name());
-		codeEmittor.emitDebugCall(opcode.name());		
+			codeEmittor.emitDebugCall2(opcode.name(), fuid, codeblock.getConstantIndex(codeblock.vf.string(name)));
+		
+		codeEmittor.emitVoidCallWithArgsFIIA("STOREVARKWP", codeblock.getFunctionIndex(fuid), codeblock.getConstantIndex(codeblock.vf.string(name)), debug);
+	
     }
 
 }

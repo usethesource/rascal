@@ -1,0 +1,10 @@
+#Tue Feb 09 14:36:56 CET 2010
+eclipse.preferences.version=1
+org.codemap.call_hierarchy=true
+org.codemap.coloring=org.codemap.commands.DefaultColoring
+org.codemap.labeling=org.codemap.commands.ClassNameLabeling
+org.codemap.marker=true
+org.codemap.open_files=true
+org.codemap.search_results=true
+org.codemap.selection=true
+org.codemap.you_are_here=true

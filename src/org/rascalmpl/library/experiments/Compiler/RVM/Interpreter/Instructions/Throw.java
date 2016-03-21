@@ -20,7 +20,8 @@ public class Throw extends Instruction {
 	}
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if (debug)
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall1(opcode.name(), codeblock.getConstantIndex(src));
+		
 		// TODO add source lines.
 		codeEmittor.emitInlineThrow(debug);
 	}

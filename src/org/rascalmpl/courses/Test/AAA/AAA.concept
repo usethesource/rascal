@@ -1,72 +1,55 @@
-Name: AAA
 
-Synopsis:
+# Name
+Hello
 
-Syntax:
-A + B
-
-Types:
-xxx yyy zzz ppp qqq rrr sss
-
-Function:
-
-Details:
+# Synopsis
+Variations on the ubiquitous _Hello World_ example.
 
 Description:
-| Operator    | Description |
-|+------------|+------------|
-| `$A$ | $B$` | alternative |
-| `||`        | or          |
-
- 
-
-<screen>
-xxx;
-</screen>
-xxx  < xx  [WRONGLINK]
-
-Goede external link: [Rascal:if].
-
-Goede external link: [Rascal:Rascal].
-
-
-
-Goede external link: [Rascal:List/Comprehension].
-
-Goede external link (short): [$Rascal:List/Comprehension].
-
-Ambigue external link: [$Rascal:Comprehension].
-
-Onbekende external link: [$Rascal:Zap].
-
-
-aa dsf sefwef wefweffwe wefwefwef wefwfwefwefwef weeweewffwwefwef wefef ffffweefe  efefe       effffffffffffff xxx xxxx  xx xx xx xx xx xx xx xx x  x xx xxefgfffffffffffffffffffffffffffffffff
-
-
-<warning>Hier is een warning in AAA</warning>
-<warning>Hier is warning 2 in AAA</warning>
-<warning>Hier is warning 3 in AAA</warning>
-<warning>Hier is warning 4 in AAA</warning>
-
 
 Examples:
-abc def ghi jkl
-xxx yyy zzz
-ppp qqq rrr
-sss ttt uuu
-111 222 333 444 555 666
-See also [BBB].
-Or [Cat1].
+## First version: hello on the command line
 
-Benefits:
+We demonstrate hello via an interactive session with the Rascal system. First we get the prompt `rascal>` that shows that Rascal is ready for our input. Next, we import the library module [$Rascal:Prelude/IO] since hello world requires printing. Rascal responds with the feedback `ok` so we know that all went well. Finally, we call `println` and proudly observe our first Rascal output!
+```
+import IO;
+println("Hello world, this is my first Rascal program");
+```
 
-Pitfalls:
+## Second version: hello in a function
 
-Questions:
+A slightly more audacious approach is to wrap the print statement in a function and call it:
+```rascal
+import IO;
+void hello() {
+   println("Hello world, this is my first Rascal program");
+}
+//When you type in a command and continue it on a new line 
+//the Rascal systems prompts you with `>>>>>>>` to 
+//indicate that more input is needed. Don't get scared by 
+//the `void (): void hello();` that you get back 
+//when typing in the hello function. The first 
+// `void ()` part says the result is a function that 
+// returns nothing, and the second part 
+// `void hello()` summarizes its value 
+// (or would you prefer a hex dump?).
+// Finally, we call the <tt>hello</tt> function and enjoy its output.
+hello();
+```
 
-QType: <A:set[arb[int,str,real]]>
-QType: {1, <?> }
-type: set[int]
-hint: one or more integer values separated by commas
+# Third version: hello in a module
+The summit of hello-engineering can be reached by placing all the above in a separate module:
 
+<listing demo/basic/Hello.rsc>
+Using this Hello module is now simple:
+
+```rascal
+import demo::basic::Hello;
+hello();
+```
+
+The `hello` function is by default visible outside the `Hello` module.
+We could stress this by adding writing `public void hello() { ... }`.
+Restricting visibility to the module itself can be achieved by adding the keyword `private`
+to the definition of `hello`.
 

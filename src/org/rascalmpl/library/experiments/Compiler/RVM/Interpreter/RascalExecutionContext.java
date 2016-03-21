@@ -1,5 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.Null
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.ProfileFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.RVMTrackingObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IListWriter;
@@ -38,9 +41,11 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
 
 /**
  * Provides all context information that is needed during the execution of a compiled Rascal program
@@ -69,27 +74,45 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final boolean trackCalls;
 	private final ITestResultListener testResultListener;
 	private IFrameObserver frameObserver;
+	private ISourceLocation logLocation;
 	private final IMap symbol_definitions;
 	private RascalSearchPath rascalSearchPath;
 	
 	private String currentModuleName;
-	private RVM rvm;
+	private RVMCore rvm;
 	private boolean coverage;
-	private boolean useJVM;
+	private boolean jvm;
 	private final IMap moduleTags;
+	
+	private Cache<Type[], Boolean> subtypeCache;
+	private final int subtypeCacheSize = 200;
+	
+	private final int type2symbolCacheSize = 100;
+	private final int descendantDescriptorCacheSize = 50;
+	
+	private Cache<String, Function> companionDefaultFunctionCache;
+	private final int companionDefaultFunctionCacheSize = 100;
+	
+	private Cache<String, Function> companionFieldDefaultFunctionCache;
+	private final int companionFieldDefaultFunctionCacheSize = 100;
+	
+//	private Cache<String,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache;
+//	private final int parserCacheSize = 30;
+	
+	Cache<String, IValue> parsedModuleCache;
+	private final int parsedModuleCacheSize = 10;
 	
 	// State for RascalPrimitive
 	
 	private final ParsingTools parsingTools; 
 	Stack<String> indentStack = new Stack<String>();
-	//final HashMap<Type,IConstructor> type2symbolCache = new HashMap<Type,IConstructor>();
-	private Cache<Type, IConstructor> type2symbolCache = Caffeine.newBuilder().build();
+	private Cache<Type, IConstructor> type2symbolCache;
 	
 	StringBuilder templateBuilder = null;
 	private final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
 	private IListWriter test_results;
 	
-	private final HashMap<IString,DescendantDescriptor> descendantDescriptorMap = new HashMap<IString,DescendantDescriptor>();
+	private Cache<IString, DescendantDescriptor> descendantDescriptorCache;
 	
 	public RascalExecutionContext(
 			String moduleName, 
@@ -119,7 +142,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 			boolean profile, 
 			boolean trackCalls, 
 			boolean coverage, 
-			boolean useJVM, 
+			boolean jvm, 
 			ITestResultListener testResultListener, 
 			IFrameObserver frameObserver,
 			RascalSearchPath rascalSearchPath
@@ -128,14 +151,14 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.vf = vf;
 		this.moduleTags = moduleTags;
 		this.symbol_definitions = symbol_definitions;
-		this.typeStore = typeStore == null ? new TypeStore() : typeStore;
+		this.typeStore = typeStore == null ? RascalValueFactory.getStore() /*new TypeStore()*/ : typeStore;
 		this.debug = debug;
 		this.debugRVM = debugRVM;
 		this.testsuite = testsuite;
 	
 		this.profile = profile;
 		this.coverage = coverage;
-		this.useJVM = useJVM;
+		this.jvm = jvm;
 		this.trackCalls = trackCalls;
 		
 		currentModuleName = "UNDEFINED";
@@ -158,28 +181,171 @@ public class RascalExecutionContext implements IRascalMonitor {
 		
 		if(frameObserver == null){
 			if(profile){
-				setFrameObserver(new ProfileFrameObserver(stdout));
+				setFrameObserver(new ProfileFrameObserver(this));
 			} else if(coverage){
-				setFrameObserver(new CoverageFrameObserver(stdout));
+				setFrameObserver(new CoverageFrameObserver(this));
 			} else if(debug){
-				setFrameObserver(new DebugFrameObserver(stdout));
+				setFrameObserver(new DebugFrameObserver(this));
 			} else if(trackCalls){
-				setFrameObserver(new CallTrackingObserver(stdout));
+				if(logLocation != null){
+					URIResolverRegistry reg = URIResolverRegistry.getInstance();
+					try {
+						OutputStream outStream = reg.getOutputStream(logLocation, false);
+						setFrameObserver(new CallTrackingObserver(this)); 
+					} catch (IOException e) {
+						throw new RuntimeException("Cannot create log file: " + e.getMessage());
+					}
+					
+				} else {
+					setFrameObserver(new CallTrackingObserver(this));
+				}
 			} else if(debugRVM){
-				setFrameObserver(new RVMTrackingObserver(stdout));
+				setFrameObserver(new RVMTrackingObserver(this));
 			} else {
 				setFrameObserver(NullFrameObserver.getInstance());
 			}
+		} else {
+			setFrameObserver(frameObserver);
 		}
 		
 		parsingTools = new ParsingTools(vf);
+		createCaches(true);
+	}
+	
+	// Cache related methods
+	
+	
+	private void createCaches(boolean enabled){
+		type2symbolCache = Caffeine.newBuilder()
+//				.weakKeys()
+			    .weakValues()
+//			    .recordStats()
+				.maximumSize(enabled ? type2symbolCacheSize : 0)
+				.build();
+		descendantDescriptorCache = Caffeine.newBuilder()
+//				.weakKeys()
+			    .weakValues()
+//			    .recordStats()
+				.maximumSize(enabled ? descendantDescriptorCacheSize : 0)
+				.build();
+		subtypeCache = Caffeine.newBuilder()
+				.maximumSize(enabled ? subtypeCacheSize : 0)
+//				.weakKeys()
+			    .weakValues()
+//			    .recordStats()
+				.build();
+		companionDefaultFunctionCache = Caffeine.newBuilder()
+//				.weakKeys()
+			    .weakValues()
+//			    .recordStats()
+				.maximumSize(enabled ? companionDefaultFunctionCacheSize : 0)
+				.build();
+		companionFieldDefaultFunctionCache = Caffeine.newBuilder()
+//				.weakKeys()
+			    .weakValues()
+//			    .recordStats()
+				.maximumSize(enabled ? companionFieldDefaultFunctionCacheSize : 0)
+				.build();
+//		parserCache = Caffeine.newBuilder()
+////				.weakKeys()
+//			    .weakValues()
+////			    .recordStats()
+//				.maximumSize(enabled ? parserCacheSize : 0)
+//				.build();
+		
+		parsedModuleCache = Caffeine.newBuilder()
+//				.weakKeys()
+			    .weakValues()
+//			    .recordStats()
+				.maximumSize(enabled ? parsedModuleCacheSize : 0)
+				.build();
+	}
+	
+	public void clearCaches(){
+		createCaches(true);
+	}
+	
+	public void noCaches(){
+		createCaches(false);
+	}
+	
+	public void printCacheStat(String name, Cache<?,?> cache){
+		CacheStats s = cache.stats();
+		System.out.printf(
+				//"%35s: %f (ALP) %d (EV) %d (HC) %f (HR) %d (LC) %d (LFC) %f (LFR) %d (LSC) %d (MC) %f (MR) %d (RC)\n",
+				"%35s: %12.0f (ALP) %f (HR) %d (RC)\n",
+				name,
+				s.averageLoadPenalty(),
+				//s.evictionCount(),
+				//s.hitCount(),
+				s.hitRate(),
+//				s.loadCount(),
+//				s.loadFailureCount(),
+//				s.loadFailureRate(),
+//				s.loadSuccessCount(),
+				//s.missCount(),
+				//s.missRate(),
+				s.requestCount());	
+	}
+	
+	public void printCacheStats(){
+	
+		printCacheStat("type2symbolCache", type2symbolCache);
+		printCacheStat("descendantDescriptorCache", descendantDescriptorCache);
+		printCacheStat("subtypeCache", subtypeCache);
+		printCacheStat("companionDefaultFunctionCache", companionDefaultFunctionCache);
+		printCacheStat("companionFieldDefaultFunctionCache", companionFieldDefaultFunctionCache);
+//		printCacheStat("parserCache", parserCache);
+		printCacheStat("parsedModuleCache", parsedModuleCache);
 	}
 
 	public ParsingTools getParsingTools(){
 		return parsingTools;
 	}
 	
-	IValueFactory getValueFactory(){ return vf; }
+//	public Cache<String,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> getParserCache(){
+//		return parserCache;
+//	}
+	
+	public Cache<String, IValue> getParsedModuleCache() {
+		return parsedModuleCache;
+	}
+	
+	public IConstructor type2Symbol(final Type t){
+		//return  RascalPrimitive.$type2symbol(t);
+		return type2symbolCache.get(t, k -> RascalPrimitive.$type2symbol(t));
+	}
+	
+	Cache<IString, DescendantDescriptor> getDescendantDescriptorCache() {
+		return descendantDescriptorCache;
+	}
+	
+	public boolean isSubtypeOf(Type t1, Type t2){
+		//return t1.isSubtypeOf(t2);
+		Type[] key = new Type[] { t1, t2};
+		
+		return subtypeCache.get(key, k -> t1.isSubtypeOf(t2));
+	}
+	
+	public Function getCompanionDefaultsFunction(String name, Type ftype){
+		String key = name + ftype;
+		
+		//return  rvm.getCompanionDefaultsFunction(name, ftype);
+		
+		Function result = companionDefaultFunctionCache.get(key, k -> rvm.getCompanionDefaultsFunction(name, ftype));
+		//System.err.println("RascalExecutionContext.getCompanionDefaultsFunction: " + key + " => " + result.name);
+		return result;
+	}
+	
+	public Function getCompanionFieldDefaultFunction(Type adtType, String fieldName){
+		//return rvm.getCompanionFieldDefaultFunction(adtType, fieldName);
+		
+		String key = adtType.toString() + fieldName;
+		Function result = companionFieldDefaultFunctionCache.get(key, k -> rvm.getCompanionFieldDefaultFunction(adtType, fieldName));
+		return result;
+	}
+	
+	public IValueFactory getValueFactory(){ return vf; }
 	
 	public IMap getSymbolDefinitions() { return symbol_definitions; }
 	
@@ -205,14 +371,17 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	boolean getCoverage(){ return coverage; }
 	
-	boolean getUseJVM() { return useJVM; }
+	boolean getJVM() { return jvm; }
 	
 	boolean getTrackCalls() { return trackCalls; }
 	
-	public RVM getRVM(){ return rvm; }
+	public RVMCore getRVM(){ return rvm; }
 	
-	protected void setRVM(RVM rvm){ 
-		this.rvm = rvm; 
+	protected void setRVM(RVMCore rvmCore){ 
+		this.rvm = rvmCore;
+		if(frameObserver != null){
+			frameObserver.setRVM(rvmCore);
+		}
 	}
 	
 	public void addClassLoader(ClassLoader loader) {
@@ -242,25 +411,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	public Stack<String> getIndentStack() { return indentStack; }
 	
-	//public HashMap<Type,IConstructor> getType2SymbolCache(){ return type2symbolCache; }
-	
-	public IConstructor type2Symbol(final Type t){
-		return type2symbolCache.get(t, k -> RascalPrimitive.$type2symbol(t));
-	}
-	
-	HashMap<IString,DescendantDescriptor> getDescendantDescriptorMap() {
-		return descendantDescriptorMap;
-	}
-	
-	private Cache<Type[], Boolean> subtypeCache = Caffeine.newBuilder().build();
-	
-	public boolean isSubtypeOf(Type t1, Type t2){
-		return t1.isSubtypeOf(t2);
-//		Type[] key = new Type[] { t1, t2};
-//		
-//		return subtypeCache.get(key, k -> t1.isSubtypeOf(t2));
-	}
-	
 	StringBuilder getTemplateBuilder() { return templateBuilder; }
 	
 	void setTemplateBuilder(StringBuilder sb) { templateBuilder = sb; }
@@ -270,30 +420,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	IListWriter getTestResults() { return test_results; }
 	
 	void setTestResults(IListWriter writer) { test_results = writer; }
-	
-	private Cache<String, Function> companionDefaultFunctionCache = Caffeine.newBuilder().build();
-	
-	public Function getCompanionDefaultsFunction(String name, Type ftype){
-		String key = name + ftype;
-		
-		Function result = companionDefaultFunctionCache.get(key, k -> rvm.getCompanionDefaultsFunction(name, ftype));
-		//System.err.println("RascalExecutionContext.getCompanionDefaultsFunction: " + key + " => " + result.name);
-		return result;
-	}
-	
-	private Cache<String, Function> companionFieldDefaultFunctionCache = Caffeine.newBuilder().build();
-	
-	public Function getCompanionFieldDefaultFunction(Type adtType, String fieldName){
-		String key = adtType.toString() + fieldName;
-		Function result = companionFieldDefaultFunctionCache.get(key, k -> rvm.getCompanionFieldDefaultFunction(adtType, fieldName));
-		return result;
-	}
-	
-	public void clearCaches(){
-		companionDefaultFunctionCache = Caffeine.newBuilder().build();
-		descendantDescriptorMap.clear();
-		subtypeCache = Caffeine.newBuilder().build();
-	}
 	
 	boolean bootstrapParser(String moduleName){
 		if(moduleTags != null){
@@ -326,10 +452,12 @@ public class RascalExecutionContext implements IRascalMonitor {
 	}
 
 	public void startJob(String name, int workShare, int totalWork) {
-		if (monitor != null)
+		if (monitor != null){
 			monitor.startJob(name, workShare, totalWork);
-		stdout.println(name);
-		stdout.flush();
+		} else {
+			stdout.println(name);
+			stdout.flush();
+		}
 	}
 	
 	public void startJob(String name, int totalWork) {
@@ -338,10 +466,12 @@ public class RascalExecutionContext implements IRascalMonitor {
 	}
 	
 	public void startJob(String name) {
-		if (monitor != null)
+		if (monitor != null){
 			monitor.startJob(name);
-		stdout.println(name);
-		stdout.flush();
+		} else {
+			stdout.println(name);
+			stdout.flush();
+		}
 	}
 		
 	public void todo(int work) {
@@ -416,5 +546,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 	void registerCommonSchemes(){
 		addRascalSearchPath(URIUtil.rootLocation("test-modules"));
 		addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+		addRascalSearchPath(URIUtil.rootLocation("courses"));
+	}
+
+	public void setLogLocation(ISourceLocation logLocation) {
+		this.logLocation = logLocation;
 	}
 }

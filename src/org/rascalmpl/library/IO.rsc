@@ -203,7 +203,7 @@ iprint(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
 }
 @reflect{for getting IO streams}
 @javaClass{org.rascalmpl.library.Prelude}
-public java void iprint(value arg); 
+public java void iprint(value arg, int lineLimit = 1000); 
 
 @doc{
 Synopsis: Print an indented representation of a value to the specified location.
@@ -267,16 +267,20 @@ Description:
 See [$IO/iprintlnExp] for a version that returns its argument as result
 and [$IO/iprint] for a version that does not add a newline.
 
+By default we only print the first 1000 lines, if you want to print larger values, either 
+use [$ValueIO/writeTextValueFile] or change the limit with the lineLimit parameter.
+
 Examples:
 
 <screen>
 import IO;
 iprintln(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
+iprintln([ {"hi"} | i <- [0..1000]], lineLimit = 10);
 </screen>
 }
 @reflect{for getting IO streams}
 @javaClass{org.rascalmpl.library.Prelude}
-public java void iprintln(value arg); 
+public java void iprintln(value arg, int lineLimit = 1000); 
 
 @doc{
 Synopsis: Check whether a given location is actually a file (and not a directory).

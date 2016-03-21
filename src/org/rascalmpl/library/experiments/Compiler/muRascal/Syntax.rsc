@@ -109,7 +109,7 @@ syntax Exp  =
 			
 			// function call and partial function application
 			| muCall: 					Exp!muReturn!muYield0!muYield1!muYield2!muExhaust exp NoNLList "(" {Exp ","}* largs0 ")"
-			| muApply:                  "bind" "(" Exp!muReturn0!muReturn1!muReturn2!muYield0!muYield1!muYield2!muExhaust exp "," {Exp ","}+ largs1 ")"
+			| muApply:                  "bind" "(" Exp!muReturn0!muReturn1!muYield0!muYield1!muYield2!muExhaust exp "," {Exp ","}+ largs1 ")"
 			
 			| preSubscript:             Exp exp NoNLList "[" Exp index "]"
 			| preList:					"[" {Exp ","}* exps0 "]"
@@ -140,7 +140,7 @@ syntax Exp  =
 			| non-assoc preIs:			Exp lhs [\ ]<< "is" >>[\ ] TConst typeName
 			
 			> preAssignSubscript:       Exp exp1 NoNLList "[" Exp index "]" "=" Exp exp2
-			| preAssignLocList:			"[" Identifier!fvar!rvar id1 "," Identifier!fvar!rvar id2 "]" "=" Exp exp
+			//| preAssignLocList:			"[" Identifier!fvar!rvar id1 "," Identifier!fvar!rvar id2 "]" "=" Exp exp
 			
 			| preAssignLoc: 			Identifier!fvar id "=" Exp exp
 			| preAssign: 				FunNamePart+ funNames Identifier!fvar id "=" Exp exp
@@ -166,7 +166,6 @@ syntax Exp  =
 			| muNext2:   				"next" "(" Exp coro "," {Exp ","}+ largs1 ")"
 			
 			> muReturn1: 				"return" NoNLList Exp exp
-			| muReturn2:                 () "return" NoNLList "(" Exp exp "," {Exp ","}+ exps1 ")"
 			| muReturn0: 				() () "return"
 			
 			| muYield1: 					"yield" NoNLList Exp exp
@@ -174,12 +173,6 @@ syntax Exp  =
 			| muYield0: 					() () "yield"
 			
 			| muExhaust:                "exhaust"
-			
-			// delimited continuations (experimental feature)
-			//| preContLoc:               "cont"
-			//| preContVar:               FunNamePart+ funNames "cont"
-			//| muReset:                  "reset" "(" Exp fun ")"
-			//| muShift:                  "shift" "(" Exp ebody ")"
 			
 			// call-by-reference: expressions that return a value location
 			| preLocRef:     			"ref" Identifier!fvar!rvar id

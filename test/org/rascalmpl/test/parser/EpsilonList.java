@@ -76,7 +76,7 @@ public class EpsilonList extends SGTDBF<IConstructor, ITree, ISourceLocation> im
 	}
 	
 	public ITree executeParser(){
-		return parse(NONTERMINAL_START_S, null, "".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+		return parse(NONTERMINAL_START_S, null, "".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 	}
 	
 	public IValue getExpectedResult() throws IOException{

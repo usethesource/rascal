@@ -21,7 +21,7 @@ import lang::rascal::types::CheckTypes;
 import lang::rascal::types::CheckerConfig;
 import lang::rascal::\syntax::Rascal;
 
-PathConfig testingConfig = pathConfig(srcPath=[|test-modules:///|, |std:///|]);
+PathConfig testingConfig = pathConfig(srcPath=[|test-modules:///|, |std:///|], binDir=|home:///c1bin|, libPath=[|home:///c1bin|]);
 
 str abbrev(str s) { return size(s) < 120 ? s : "<s[0..117]> ..."; }
 
@@ -162,6 +162,11 @@ bool missingModule(str stmts, list[str] importedModules = [], list[str] initialD
 		"Cannot import module _",
 		"Could not parse and prepare config for base module to check: _"
 	], importedModules=importedModules, initialDecls=initialDecls);
+
+bool illegalUse(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
+    check(stmts, [
+        "Cannot append, no valid surrounding context found"
+    ], importedModules=importedModules, initialDecls=initialDecls);
 
 	
 void makeModule(str name, str body){

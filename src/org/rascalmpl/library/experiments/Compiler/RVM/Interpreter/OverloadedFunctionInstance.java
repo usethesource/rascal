@@ -16,6 +16,7 @@ import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IWithKeywordParameters;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
+import org.rascalmpl.value.impl.AbstractExternalValue;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.visitors.IValueVisitor;
@@ -27,13 +28,13 @@ public class OverloadedFunctionInstance implements ICallableCompiledValue, IExte
 	final Frame env;
 	
 	private Type type;
-	private List<Function> functionStore;
+	private Function[] functionStore;
 	private List<Type> constructorStore;
 	
-	final RVM rvm;
+	final RVMCore rvm;
 	
 	public OverloadedFunctionInstance(final int[] functions, final int[] constructors, final Frame env, 
-									  final List<Function> functionStore, final List<Type> constructorStore, final RVM rvm) {
+									  final Function[] functionStore, final List<Type> constructorStore, final RVMCore rvm) {
 		this.functions = functions;
 		this.constructors = constructors;
 		this.env = env;
@@ -42,12 +43,22 @@ public class OverloadedFunctionInstance implements ICallableCompiledValue, IExte
 		this.rvm = rvm;
 	}
 	
-	int[] getFunctions() {
+	public int[] getFunctions() {
 		return functions;
 	}
 
 	int[] getConstructors() {
 		return constructors;
+	}
+	
+	int getArity(){
+		if(functions.length > 0){
+			return functionStore[functions[0]].nformals;
+		}
+		if(constructors.length > 0){
+			return constructorStore.get(constructors[0]).getArity();
+		}
+		throw new RuntimeException("Cannot get arity without functions and constructors");
 	}
 
 	public String toString(){
@@ -56,7 +67,7 @@ public class OverloadedFunctionInstance implements ICallableCompiledValue, IExte
 			sb.append("functions:");
 			for(int i = 0; i < getFunctions().length; i++){
 				int fi = getFunctions()[i];
-				sb.append(" ").append(functionStore.get(fi).getName()).append("/").append(fi);
+				sb.append(" ").append(functionStore[fi].getName()).append("/").append(fi);
 			}
 		}
 		if(getConstructors().length > 0){
@@ -77,7 +88,7 @@ public class OverloadedFunctionInstance implements ICallableCompiledValue, IExte
 	 * Assumption: scopeIn != -1  
 	 */
 	public static OverloadedFunctionInstance computeOverloadedFunctionInstance(final int[] functions, final int[] constructors, final Frame cf, final int scopeIn,
-			                                                                   final List<Function> functionStore, final List<Type> constructorStore, final RVM rvm) {
+			                                                                   final Function[] functionStore, final List<Type> constructorStore, final RVMCore rvm) {
 		for(Frame env = cf; env != null; env = env.previousScope) {
 			if (env.scopeId == scopeIn) {
 				return new OverloadedFunctionInstance(functions, constructors, env, functionStore, constructorStore, rvm);
@@ -94,7 +105,7 @@ public class OverloadedFunctionInstance implements ICallableCompiledValue, IExte
 		}
 		Set<FunctionType> types = new HashSet<FunctionType>();
 		for(int fun : this.getFunctions()) {
-			types.add((FunctionType) functionStore.get(fun).ftype);
+			types.add((FunctionType) functionStore[fun].ftype);
 		}
 		for(int constr : this.getConstructors()) {
 			Type type = constructorStore.get(constr);
@@ -138,7 +149,7 @@ public class OverloadedFunctionInstance implements ICallableCompiledValue, IExte
 
 	@Override
 	public IConstructor encodeAsConstructor() {
-		throw new UnsupportedOperationException("Not implemented.");
+		return AbstractExternalValue.encodeAsConstructor(this);
 	}
   
 @Override
@@ -156,7 +167,7 @@ public IValue call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues,
 		}
 	}
 	args[i] = kwargs.done();
-	IValue rval = rvm.executeFunction(this, args);
+	IValue rval = rvm.executeRVMFunction(this, args);
 	return rval;
 }
 

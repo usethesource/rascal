@@ -41,35 +41,32 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-
 public class ReflectiveCompiled extends Reflective {
 	
-	private final PreludeCompiled preludeCompiled;
+	private final PreludeCompiled preludeCompiled;	
 
 	public ReflectiveCompiled(IValueFactory values){
 		super(values);
 		preludeCompiled = new PreludeCompiled(values);
 	}
 	
-	private char[] getResourceContent(ISourceLocation location) throws IOException{
-		char[] data;
-		Reader textStream = null;
-		
-		URIResolverRegistry resolverRegistry = URIResolverRegistry.getInstance();
-		try {
-			textStream = resolverRegistry.getCharacterReader(location);
-			data = InputConverter.toChar(textStream);
-		}
-		finally{
-			if(textStream != null){
-				textStream.close();
-			}
-		}
-		
-		return data;
-	}
+//	private char[] getResourceContent(ISourceLocation location) throws IOException{
+//		char[] data;
+//		Reader textStream = null;
+//		
+//		URIResolverRegistry resolverRegistry = URIResolverRegistry.getInstance();
+//		try {
+//			textStream = resolverRegistry.getCharacterReader(location);
+//			data = InputConverter.toChar(textStream);
+//		}
+//		finally{
+//			if(textStream != null){
+//				textStream.close();
+//			}
+//		}
+//		
+//		return data;
+//	}
 	
 	public IValue parseCommand(IString str, ISourceLocation loc,  RascalExecutionContext rex) {
 		throw RascalRuntimeException.notImplemented("parseCommand", null, null);
@@ -79,42 +76,43 @@ public class ReflectiveCompiled extends Reflective {
 		throw RascalRuntimeException.notImplemented("parseCommands", null, null);
 	}
 	
-	private IValue lastModified(ISourceLocation sloc) {
-		try {
-			return values.datetime(URIResolverRegistry.getInstance().lastModified(sloc));
-		} catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
-		}
-		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		}
-	}
+//	private IValue lastModified(ISourceLocation sloc) {
+//		try {
+//			return values.datetime(URIResolverRegistry.getInstance().lastModified(sloc));
+//		} catch(FileNotFoundException e){
+//			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+//		}
+//		catch (IOException e) {
+//			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+//		}
+//	}
 	
-	//Map<String, IValue> parseModuleCache = new HashMap<>();
+//	public IValue parseModule(ISourceLocation loc,  RascalExecutionContext rex) {
+//		
+//		String key = loc.toString() + lastModified(loc).toString();
+//		return rex.getParsedModuleCache().get(key, k -> {
+//			IActionExecutor<ITree> actions = new NoActionExecutor();	
+//
+//			try {
+//				ITree tree = new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(rex.resolveSourceLocation(loc)), actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
+//				System.err.println("parseModule (from loc), cache new tree " + key);
+//				return tree;
+//			} catch (IOException e) {
+//				throw RascalRuntimeException.io(values.string(e.getMessage()), null);
+//			}
+//		});
+//	}
 	
-	Cache<String, IValue> cache = Caffeine.newBuilder().build();
 	
-	public IValue parseModule(ISourceLocation loc,  RascalExecutionContext rex) {
-		
-		String key = loc.toString() + lastModified(loc).toString();
-		return cache.get(key, k -> {
-			IActionExecutor<ITree> actions = new NoActionExecutor();	
-
-			try {
-				ITree tree = new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(rex.resolveSourceLocation(loc)), actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
-				System.err.println("parseModule (from loc), cache new tree " + key);
-				return tree;
-			} catch (IOException e) {
-				throw RascalRuntimeException.io(values.string(e.getMessage()), null);
-			}
-		});
-	}
-	
-	public IValue parseModule(IString str, ISourceLocation loc,  RascalExecutionContext rex) {
+	public IValue parseModuleAndFragments(ISourceLocation loc,  RascalExecutionContext rex) {
 		throw RascalRuntimeException.notImplemented("parseModule", null, null);
 	}
 	
-	public IValue parseModule(ISourceLocation loc, final IList searchPath,  RascalExecutionContext rex) {
+	public IValue parseModuleAndFragments(IString str, ISourceLocation loc,  RascalExecutionContext rex) {
+		throw RascalRuntimeException.notImplemented("parseModule", null, null);
+	}
+	
+	public IValue parseModuleAndFragments(ISourceLocation loc, final IList searchPath,  RascalExecutionContext rex) {
 		throw RascalRuntimeException.notImplemented("parseModule", null, null);
     }
 	

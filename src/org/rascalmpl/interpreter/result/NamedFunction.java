@@ -28,11 +28,13 @@ import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
 import org.rascalmpl.ast.Tags;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.type.Type;
 
@@ -148,6 +150,29 @@ abstract public class NamedFunction extends AbstractFunction {
             }
         }
         return false;
+    }
+    
+    protected int computeIndexedPosition(AbstractAST node) {
+    	if (ast instanceof FunctionDeclaration) {
+    		FunctionDeclaration ast = (FunctionDeclaration) node;
+    		for (Tag tag : ast.getTags().getTags()) {
+    			if (Names.name(tag.getName()).equalsIgnoreCase("index") && tag.hasExpression()) {
+    				IInteger anno = (IInteger) tag.getExpression().interpret(getEval()).getValue();
+    				int pos = anno.intValue();
+
+    				if (pos >= 0 && pos < 10) {
+    					return pos;
+    				}
+    				else {
+    					throw new ImplementationError("indexing only supported for argument 0 to 9");
+    				}
+    			}
+    		}
+    	}
+        
+        
+        // fall back to first if no annotation is provided
+        return 0;
     }
 
     protected boolean hasMemoization() {

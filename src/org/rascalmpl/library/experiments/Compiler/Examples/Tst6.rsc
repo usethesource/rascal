@@ -1,12 +1,6 @@
 module experiments::Compiler::Examples::Tst6
 
-import IO;
+import experiments::Compiler::Examples::Tst5;
 
-int f(int n) = n;
-
-value main6(){
-    x = 42;
-    println(x);
-    y = f(x) + 10;
-    return y;
-}
+//import lang::rascal::tests::functionality::KeywordParameterImport1;  
+//import lang::rascal::tests::functionality::KeywordParameterImport2;

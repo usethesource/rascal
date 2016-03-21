@@ -29,7 +29,8 @@ public CheckResult checkStatementsString(str statementsString, PathConfig pcfg, 
     str modName = "CheckStatementsString";
     
 	str moduleToCheck =
-		"module <modName>
+		"@bootstrapParser
+		'module <modName>
 		'<for (im <- importedModules) {>
 		'import <im>;<}>
 		'<for (sd <- syntaxDecls) {>

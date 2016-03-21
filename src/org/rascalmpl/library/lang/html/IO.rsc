@@ -10,5 +10,4 @@ module lang::html::IO
 
 
 @javaClass{org.rascalmpl.library.lang.html.IO}
-@reflect
 public java node readHTMLFile(loc file);

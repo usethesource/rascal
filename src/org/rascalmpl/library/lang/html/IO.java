@@ -39,7 +39,7 @@ public class IO {
 		this.factory = factory;
 	}
 	
-	public IValue readHTMLFile(ISourceLocation file, IEvaluatorContext ctx) {
+	public IValue readHTMLFile(ISourceLocation file) {
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(file)) {
 			Constructor cons = new Constructor();
       new ParserDelegator().parse(reader, cons, true);

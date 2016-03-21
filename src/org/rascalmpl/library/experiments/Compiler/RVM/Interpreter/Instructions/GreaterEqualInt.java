@@ -8,10 +8,14 @@ public class GreaterEqualInt extends Instruction {
 	public GreaterEqualInt(CodeBlock ins) {
 		super(ins, Opcode.GREATEREQUALINT);
 	}
+	
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSS("insnGREATEREQUALINT");
+		//codeEmittor.emitCallWithArgsPA_A("insnGREATEREQUALINT");
+		
+		codeEmittor.emitInlineGreaterEqualInt();
+		
 	}
 }

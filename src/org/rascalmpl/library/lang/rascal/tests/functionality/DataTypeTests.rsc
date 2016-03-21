@@ -922,7 +922,9 @@ test bool testRelation14() = {} + {<1,10>}  == {<1,10>};
 test bool testRelation15() = {<1,10>} + {<2,20>} == {<1,10>, <2,20>};
 test bool testRelation16() = {<1,10>, <2,20>} + {<3,30>} == {<1,10>, <2,20>, <3,30>};
 test bool testRelation17() = {<1,10>, <2,20>} + {<2,20>, <3,30>} == {<1,10>, <2,20>, <3,30>};
-    		
+test bool testRelation17a() = {<1,10>, <2,20>} + <3,30> == {<1,10>, <2,20>, <3,30>};
+test bool testRelation17b() = <1,10> + {<2,20>, <3,30>} == {<1,10>, <2,20>, <3,30>};
+ 		
 test bool testRelation18() = {<1,10>} - {} == {<1,10>};
 test bool testRelation19() = {} - {<1,10>}  == {};
 test bool testRelation20() = {<1,10>, <2,20>} - {<2,20>, <3,30>} == {<1,10>};

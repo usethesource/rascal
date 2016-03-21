@@ -36,6 +36,14 @@ test bool isDefinedStr3() = ("abc"[-3])?;
 
 test bool isDefinedStr4() = !("abc"[-4])?;
 
+// Locations
+
+test bool isDefinedLoc1() = |project://x/y.txt|(5,4,<1,5>,<1,9>).begin?;
+test bool isDefinedLoc2() = |project://x/y.txt|(5,4,<1,5>,<1,9>).end?;
+test bool isDefinedLoc3() = !(|project://x/y.txt|(5,4,<1,5>,<1,9>).host?);
+test bool isDefinedLoc4() = !(|std:///List.rsc|.ls?);
+test bool isDefinedLoc5() = |std:///util|.ls?;
+
 // Lists
 
 test bool isDefinedList1(list[int] L) = L == [] || L[arbInt(size(L))]?;

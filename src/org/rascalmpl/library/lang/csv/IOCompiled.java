@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Types;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
@@ -265,6 +266,7 @@ public class IOCompiled extends IO {
 	}
 
 	private void parseRecordFields(final String[] fields, final Type[] expectedTypes, TypeStore store, IValue[] result, boolean replaceEmpty, final RascalExecutionContext rex) throws IOException  {
+		Prelude prelude = new Prelude(values);
 		for (int i=0; i < fields.length; i++) {
 			final String field = fields[i];
 			final Type currentType = expectedTypes[i];
@@ -302,6 +304,16 @@ public class IOCompiled extends IO {
 						throw RuntimeExceptionFactory.illegalTypeArgument("Invalid real \"" + field + "\" for requested field " + currentType, null, null);
 					}
 				}
+				@Override
+				public IValue visitBool(Type type) throws RuntimeException {
+				    if (field.equalsIgnoreCase("true")) {
+				        return values.bool(true);
+				    }
+				    if (field.equalsIgnoreCase("false")) {
+				        return values.bool(false);
+				    }
+					throw RuntimeExceptionFactory.illegalTypeArgument("Invalid bool \"" + field + "\" for requested field " + currentType, null, null);
+				}
 
 			});
 			
@@ -317,9 +329,30 @@ public class IOCompiled extends IO {
 				catch (UnexpectedTypeException ute) {
 					throw RuntimeExceptionFactory.illegalTypeArgument("Invalid field \"" + field + "\" (" + ute.getExpected() + ") for requested field " + ute.getGiven(), null, null);
 				}
-				catch (FactParseError ex) {
+				catch (FactParseError | NumberFormatException ex) {
 					if (currentType.isTop()) {
-						result[i] = values.string(field);
+					    // our text reader is quite strict about booleans
+					    // in csv's (for example those produced by R), TRUE is also a boolean
+					    if (field.equalsIgnoreCase("true")) {
+					        result[i] = values.bool(true);
+					    }
+					    else if (field.equalsIgnoreCase("false")) {
+					        result[i] = values.bool(true);
+					    }
+					    else {
+					        // it is an actual string
+					        result[i] = values.string(field);
+					    }
+					}
+					else if (currentType.isDateTime()) {
+					    try {
+					        // lets be a bit more flexible than rascal's string reader is.
+					        // 2012-06-24T00:59:56Z
+					        result[i] = prelude.parseDateTime(values.string(field), values.string("yyyy-MM-dd'T'HH:mm:ss'Z'"));
+					    }
+					    catch (Throwable th) {
+					        throw RuntimeExceptionFactory.illegalTypeArgument("Invalid datetime: \"" + field + "\" (" + th.getMessage() + ")", null, null);
+					    }
 					}
 					else {
 						throw RuntimeExceptionFactory.illegalTypeArgument("Invalid field \"" + field + "\" is not a " + currentType, null, null);

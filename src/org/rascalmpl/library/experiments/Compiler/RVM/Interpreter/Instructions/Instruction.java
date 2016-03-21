@@ -24,6 +24,7 @@ public abstract class Instruction {
 	public void generate(){
 		 codeblock.addCode0(opcode.getOpcode());
 	}
+	
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean dcode){
 		codeEmittor.emitDebugCall(opcode.name());
 	}   

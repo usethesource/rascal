@@ -105,11 +105,22 @@ public void extractDeclarationInfo(Configuration config){
    	
    	activeLayouts = { \type | \type <- types, Symbol::layouts(_) := \type };
    	if(!isEmpty(activeLayouts)) {
-   		activeLayout = getOneFrom(activeLayouts);
+   	    for(al <- activeLayouts){
+   	        if(!hasManualTag(grammar[al])){
+   	           activeLayout = al;
+   	           break;
+   	        }
+   	    }
    	}
     cachedGrammar = getGrammar1();
    	computeReachableTypesAndConstructors();
 }
+
+bool hasManualTag(\choice(Symbol def, set[Production] alternatives)) =
+    any(Production alt <- alternatives, hasManualTag(alt));
+
+bool hasManualTag(Production p) =
+    p has attributes && \tag("manual"()) in p.attributes;
 
 // Extract the declared grammar from a type checker configuration
 

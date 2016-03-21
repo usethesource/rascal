@@ -252,6 +252,12 @@ public class StandardTextWriter implements IValueTextWriter {
 				indent();
 				append(']');
 			}
+			try {
+                stream.flush();
+            }
+            catch (IOException e) {
+                // flushing is just to make sure we get some intermediate output
+            }
 			
 			return o;
 		}

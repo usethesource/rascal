@@ -138,13 +138,14 @@ data Configuration = config(set[Message] messages,
 
 public Configuration newConfiguration(PathConfig pcfg) = config({},(),Symbol::\void(),(),(),(),(),(),(),(),(),(),{},(),(),{},{},{},{},(),{},{},[],[],[],0,0,(),{ },(),(),(),(),(),{},false,{},{}, pcfg);
 
-public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c[timings = c.timings + timing(m,s,e)];
+public Configuration pushTiming(Configuration c, str m, datetime s, datetime e) = c; // c[timings = c.timings + timing(m,s,e)];
 
 public set[&T] filterSet(set[&T] xs, bool (&T) f) = { x | x <- xs, f(x) };
 
 @doc{Add a new location type.}
 public CheckResult markLocationType(Configuration c, loc l, Symbol t) {
     if (isFailType(t)) return markLocationFailed(c, l, t);
+    t = normalizeType(t);
     c.locationTypes[l] = t;
     return < c, t >;
 }
@@ -197,7 +198,7 @@ public bool fcvExists(Configuration c, RName n) = unset(n) in c.fcvEnv;
 
 @doc{Get the container in which the given item is defined.}
 public int definingContainer(Configuration c, int i) {
-	if (c.store[i] is overload) return definingContainer(c, getOneFrom(c.store[i].items));
+	if (c.store[i] is overload) return definingContainer(c, getFirstFrom(c.store[i].items));
     cid = c.store[i].containedIn;
     if (c.store[cid] is \module || c.store[cid] is function || c.store[cid] is closure) return cid;
     return definingContainer(c,cid);
@@ -216,7 +217,7 @@ private int getContainedIn(Configuration c, AbstractValue av) {
 	if (av has containedIn) return av.containedIn;
 	// NOTE: This assumes that overloads are all defined at the same level (all at the top
 	// of a module, for instance), or this won't work properly at the calling site.
-	if (av is overload) return getContainedIn(c, c.store[getOneFrom(av.items)]);
+	if (av is overload) return getContainedIn(c, c.store[getFirstFrom(av.items)]);
 	return head(c.stack);
 }
 
@@ -247,7 +248,7 @@ public tuple[Configuration,Symbol] checkTVarBound(Configuration c, loc l, Symbol
     			// are internally consistent
     			nonequiv = { < bnd1, bnd2 > | bnd1 <- wBounds<0>, bnd2 <- wBounds<0>, !equivalent(bnd1,bnd2) };
     			if (size(nonequiv) > 0) {
-    				< bnd1, bnd2 > = getOneFrom(nonequiv);
+    				< bnd1, bnd2 > = getFirstFrom(nonequiv);
     				c = addScopeError(c, "Non-equivalent bounds are given for &<n>, e.g. <prettyPrintType(bnd1)> and <prettyPrintType(bnd2)>", l);
     				
     				// We had non-equivalent bounds; we just lub them all and set that as the bound to use going forward, which
@@ -257,7 +258,7 @@ public tuple[Configuration,Symbol] checkTVarBound(Configuration c, loc l, Symbol
     				c.tvarBounds[n] = lubbed;
 	    		} else {
 	    			// All the bounds were equivalent; we just pick one at random and save it
-	    			c.tvarBounds[n] = getOneFrom(wBounds<0>);
+	    			c.tvarBounds[n] = getFirstFrom(wBounds<0>);
 	    		}
     		}
     	}
@@ -276,6 +277,14 @@ public Configuration addTopLevelVariable(Configuration c, RName n, bool inf, Vis
     
 	moduleId = head([i | i <- c.stack, c.store[i] is \module]);
 	moduleName = c.store[moduleId].name;
+	rt = normalizeType(rt);
+	
+	if (n in c.fcvEnv){
+      if(c.store[c.fcvEnv[n]].at == l){
+         c = addScopeInfo(c, "addTopLevelVariable: not adding <n> from same location", l);
+         return c;
+      }
+    }
 
 	< c, rt > = checkTVarBound(c, l, rt);
 
@@ -284,7 +293,7 @@ public Configuration addTopLevelVariable(Configuration c, RName n, bool inf, Vis
 
 		existingDefs = invert(c.definitions)[l];
 		if (!isEmpty(existingDefs)) {
-			varId = getOneFrom(existingDefs);
+			varId = getFirstFrom(existingDefs);
 		} else {
 			c.nextLoc = varId + 1;
 			c.store[varId] = variable(n,rt,inf,head(c.stack),l);
@@ -339,7 +348,8 @@ public Configuration addLocalVariable(Configuration c, RName n, bool inf, loc l,
 	moduleName = c.store[moduleId].name;
 
 	< c, rt > = checkTVarBound(c, l, rt);
-
+    rt = normalizeType(rt);
+    
 	int insertVariable() {
 		varId = c.nextLoc;
 		c.store[varId] = variable(n,rt,inf,head(c.stack),l);
@@ -388,10 +398,12 @@ public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol r
     
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
+	rt = normalizeType(rt);
+	rtOn = normalizeType(rtOn);
 
 	int insertAnnotation() {
 		existingDefs = invert(c.definitions)[l];
-		if (!isEmpty(existingDefs)) return getOneFrom(existingDefs);
+		if (!isEmpty(existingDefs)) return getFirstFrom(existingDefs);
 
 		annId = c.nextLoc;
 		c.store[annId] = annotation(n,rt,rtOn,moduleId,l);
@@ -438,7 +450,7 @@ public Configuration addAnnotation(Configuration c, RName n, Symbol rt, Symbol r
 						firstTimeThrough = false;
 					}
 				} else {
-					c.definitions = c.definitions + < getOneFrom(onComparableTypes), l >;
+					c.definitions = c.definitions + < getFirstFrom(onComparableTypes), l >;
 				}
 			}
 		}
@@ -500,7 +512,7 @@ public Configuration addADT(Configuration c, RName n, Vis visibility, loc l, Sym
 		}
 		
 		existingDefs = invert(c.definitions)[l];
-		if (!isEmpty(existingDefs)) return getOneFrom(existingDefs);
+		if (!isEmpty(existingDefs)) return getFirstFrom(existingDefs);
 		
 		itemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
@@ -702,8 +714,10 @@ public Configuration addImportedNonterminal(Configuration c, RName n, int itemId
 		if (n is RSimpleName && addFullName) {
 			c.typeEnv[appendName(moduleName, n)] = itemId;
 		}
-	} else if (c.store[c.typeEnv[n]] is datatype || c.store[c.typeEnv[n]] is \alias) {
-		c = addScopeError(c, "An alias or adt named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", c.store[itemId].at);
+	} else if (c.store[c.typeEnv[n]] is datatype){
+	    c = addScopeError(c, "An adt named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", getFirstFrom(c.store[itemId].ats));
+	} else if(c.store[c.typeEnv[n]] is \alias) {
+		c = addScopeError(c, "An alias named <prettyPrintName(n)> has already been declared in module <prettyPrintName(moduleName)>", c.store[itemId].at);
 	}
 	
 	return c;
@@ -715,10 +729,11 @@ public Configuration addAlias(Configuration c, RName n, Vis vis, loc l, Symbol r
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
+	rt = normalizeType(rt);
 	
 	int addAliasAux() {
 		existingDefs = invert(c.definitions)[l];
-		if (!isEmpty(existingDefs)) return getOneFrom(existingDefs);
+		if (!isEmpty(existingDefs)) return getFirstFrom(existingDefs);
 
 		itemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
@@ -781,6 +796,9 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 
 	adtName = RSimpleName(rt.\adt.name);
 	fullAdtName = appendName(moduleName, adtName);
+	
+	rt = normalizeType(rt);
+	keywordParams = visit(keywordParams) { case Symbol sym => normalizeType(sym) };
 	
 	adtId = 0;
 	if (adtName in c.globalAdtMap) {
@@ -899,7 +917,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 		
 		// NOTE: This will pick one if we have multiple types for the same name, but we will have already issued
 		// a warning above...
-		keywordParamMap = ( pn : pt | pn <- keywordParams<0>, pt := getOneFrom(keywordParams[pn]<0>) );
+		keywordParamMap = ( pn : pt | pn <- keywordParams<0>, pt := getFirstFrom(keywordParams[pn]<0>) );
 		
 		constructorItem = constructor(n,rt,keywordParamMap,head([i | i <- c.stack, \module(_,_) := c.store[i]]),l);
 		c.store[constructorItemId] = constructorItem;
@@ -1246,6 +1264,7 @@ public Configuration popModule(Configuration c) {
 
 @doc{Add a closure into the configuration.}
 public Configuration addClosure(Configuration c, Symbol rt, KeywordParamMap keywordParams, loc l) {
+    rt = normalizeType(rt);
     c.store[c.nextLoc] = closure(rt,keywordParams, head(c.stack),l);
     c.definitions = c.definitions + < c.nextLoc, l >;
     c.stack = c.nextLoc + c.stack;
@@ -1268,6 +1287,7 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
     // TODO: Along with the overlaps, see if we are bringing the same function in along multiple paths
     // and, if so, don't add a new entry for it. For now, we just get back multiple entries, which
     // is fine.
+    rt = normalizeType(rt);
     rt.isVarArgs = isVarArgs;
     currentModuleId = head([i | i <- c.stack, \module(_,_) := c.store[i]]);
 
@@ -1278,7 +1298,7 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
 	functionId = c.nextLoc;
 	existingDefs = invert(c.definitions)[l];
 	if (!isEmpty(existingDefs)) {
-		functionId = getOneFrom(existingDefs);
+		functionId = getFirstFrom(existingDefs);
 	} else {
 		c.nextLoc = c.nextLoc + 1;
 		c.store[functionId] = functionItem;

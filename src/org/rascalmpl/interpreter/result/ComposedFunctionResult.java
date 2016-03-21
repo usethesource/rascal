@@ -33,6 +33,7 @@ import org.rascalmpl.value.IExternalValue;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IWithKeywordParameters;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
+import org.rascalmpl.value.impl.AbstractExternalValue;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.visitors.IValueVisitor;
@@ -275,7 +276,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	
 	@Override
 	public IConstructor encodeAsConstructor() {
-		throw new UnsupportedOperationException("Not implemented.");
+		return AbstractExternalValue.encodeAsConstructor(this);
 	}	
 	
 }

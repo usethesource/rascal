@@ -316,21 +316,38 @@ public class TreeAdapter {
 	}
 
 	private static class Unparser extends TreeVisitor<IOException> {
-		private final Writer fStream;
+		protected final Writer fStream;
 		private final boolean fHighlight;
-		private final Map<String,Ansi> ansi = new HashMap<>();
+		private final Map<String,Ansi> ansiOpen = new HashMap<>();
+		
+		private final Map<String,Ansi> ansiClose = new HashMap<>();
 		
 		public Unparser(Writer stream, boolean highlight) {
 			fStream = stream;
 			fHighlight = highlight;
 			
-			ansi.put(NORMAL, Ansi.ansi().reset());
-			ansi.put(NONTERMINAL_LABEL, Ansi.ansi().a(Attribute.ITALIC).fg(Color.CYAN));
-			ansi.put(META_KEYWORD, Ansi.ansi().fg(Color.MAGENTA));
-			ansi.put(META_VARIABLE, Ansi.ansi().a(Attribute.ITALIC).fgBright(Color.GREEN));
-			ansi.put(META_AMBIGUITY,  Ansi.ansi().a(Attribute.INTENSITY_BOLD).fgBright(Color.RED));
-			ansi.put(META_SKIPPED,  Ansi.ansi().bgBright(Color.RED));
-			ansi.put(COMMENT,  Ansi.ansi().a(Attribute.ITALIC).fg(Color.GREEN));
+			ansiOpen.put(NORMAL, Ansi.ansi().a(Attribute.ITALIC_OFF).a(Attribute.INTENSITY_BOLD_OFF)
+					                        .fg(Color.DEFAULT).fgBright(Color.DEFAULT));
+			ansiClose.put(NORMAL, Ansi.ansi().a(Attribute.ITALIC_OFF).a(Attribute.INTENSITY_BOLD_OFF)
+                    						.fg(Color.DEFAULT).fgBright(Color.DEFAULT));
+			
+			ansiOpen.put(NONTERMINAL_LABEL, Ansi.ansi().a(Attribute.ITALIC).fg(Color.CYAN));
+			ansiClose.put(NONTERMINAL_LABEL, Ansi.ansi().a(Attribute.ITALIC_OFF).fg(Color.DEFAULT));
+			
+			ansiOpen.put(META_KEYWORD, Ansi.ansi().fg(Color.MAGENTA));
+			ansiClose.put(META_KEYWORD, Ansi.ansi().fg(Color.DEFAULT));
+			
+			ansiOpen.put(META_VARIABLE, Ansi.ansi().a(Attribute.ITALIC).fgBright(Color.GREEN));
+			ansiClose.put(META_VARIABLE, Ansi.ansi().a(Attribute.ITALIC_OFF).fgBright(Color.DEFAULT));
+			
+			ansiOpen.put(META_AMBIGUITY,  Ansi.ansi().a(Attribute.INTENSITY_BOLD).fgBright(Color.RED));
+			ansiClose.put(META_AMBIGUITY,  Ansi.ansi().a(Attribute.INTENSITY_BOLD_OFF).fgBright(Color.DEFAULT));
+			
+			ansiOpen.put(META_SKIPPED,  Ansi.ansi().bgBright(Color.RED));
+			ansiClose.put(META_SKIPPED,  Ansi.ansi().bgBright(Color.WHITE));
+			
+			ansiOpen.put(COMMENT,  Ansi.ansi().a(Attribute.ITALIC).fg(Color.GREEN));
+			ansiClose.put(COMMENT,  Ansi.ansi().a(Attribute.ITALIC_OFF).fg(Color.DEFAULT));
 		}
 		
 		/**
@@ -402,10 +419,11 @@ public class TreeAdapter {
 		
 		public ITree visitTreeAppl(ITree arg) throws IOException {
 			boolean reset = false;
+			String category = null;
 			
 			if (fHighlight) {
 				IConstructor prod = TreeAdapter.getProduction(arg);
-				String category = ProductionAdapter.getCategory(prod);
+				category = ProductionAdapter.getCategory(prod);
 				
 				if (category == null) {
 					if ((TreeAdapter.isLiteral(arg) || TreeAdapter.isCILiteral(arg))) {
@@ -421,7 +439,7 @@ public class TreeAdapter {
 				}
 				
 				if (category != null) {
-					Ansi code = ansi.get(category);
+					Ansi code = ansiOpen.get(category);
 					if (code != null) {
 						fStream.write(code.toString());
 						reset = true;
@@ -435,7 +453,59 @@ public class TreeAdapter {
 			}
 			
 			if (fHighlight && reset) {
-				fStream.write(Ansi.ansi().reset().toString());
+				Ansi code = ansiClose.get(category);
+				if (code != null) {
+					fStream.write(code.toString());
+				}
+			}
+			return arg;
+		}
+	}
+	
+	private static class UnparserWithFocus extends Unparser {
+
+		private ISourceLocation focus;
+		private final String BACKGROUND_ON = Ansi.ansi().bgBright(Color.CYAN).toString();
+		private final String BACKGROUND_OFF = Ansi.ansi().bg(Color.DEFAULT).toString();
+		
+		private boolean insideFocus = false;
+
+		public UnparserWithFocus(Writer stream, ISourceLocation focus) {
+			super(stream, true);
+			this.focus = focus;
+		}
+		
+		@Override
+		public ITree visitTreeChar(ITree arg) throws IOException {
+			char[] chars = Character.toChars(((IInteger) arg.get("character")).intValue());
+			if(insideFocus){
+				for(int i = 0; i < chars.length; i++){
+					if(chars[i] == '\n'){
+						fStream.write(BACKGROUND_OFF);
+						fStream.write(chars[i]);
+						fStream.write(BACKGROUND_ON);
+					} else {
+						fStream.write(chars[i]);
+					}
+				}
+			} else {
+				fStream.write(Character.toChars(((IInteger) arg.get("character")).intValue()));
+			}
+			return arg;
+		}
+		
+		@Override
+		public ITree visitTreeAppl(ITree arg) throws IOException {
+			ISourceLocation argLoc = getLocation(arg);
+			if(argLoc != null && argLoc.getOffset() == focus.getOffset() &&
+			   argLoc.getLength() == focus.getLength()){
+				fStream.write(BACKGROUND_ON);
+				insideFocus = true;
+				super.visitTreeAppl(arg);
+				insideFocus = false;
+				fStream.write(BACKGROUND_OFF);
+			} else {
+				super.visitTreeAppl(arg);
 			}
 			return arg;
 		}
@@ -551,6 +621,16 @@ public class TreeAdapter {
 			throws IOException, FactTypeUseException {
 	  if (tree instanceof ITree) { 
 	    tree.accept(new Unparser(stream, highlight));
+	  } else {
+	    throw new ImplementationError("Can not unparse this " + tree + " (type = "
+	        + tree.getType() + ")") ;
+	  }
+	}
+	
+	public static void unparseWithFocus(IConstructor tree, Writer stream, ISourceLocation focus)
+			throws IOException, FactTypeUseException {
+	  if (tree instanceof ITree) { 
+	    tree.accept(new UnparserWithFocus(stream, focus));
 	  } else {
 	    throw new ImplementationError("Can not unparse this " + tree + " (type = "
 	        + tree.getType() + ")") ;

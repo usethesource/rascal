@@ -79,7 +79,7 @@ public class AmbiguousNestedPlusList extends SGTDBF<IConstructor, ITree, ISource
 	}
 	
 	public ITree executeParser(){
-		return (ITree) parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+		return (ITree) parse(NONTERMINAL_START_S, null, "aa".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 	}
 	
 	public IValue getExpectedResult() throws IOException{

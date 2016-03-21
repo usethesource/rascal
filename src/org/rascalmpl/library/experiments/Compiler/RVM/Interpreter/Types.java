@@ -1,7 +1,11 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.types.FunctionType;
@@ -33,7 +37,7 @@ public class Types {
 	
 	public IValue typeToValue(Type t, RascalExecutionContext rex) {
 		
-		TypeStore store = new TypeStore();
+		TypeStore store = RascalValueFactory.getStore(); //new TypeStore();
 		IMap definitions = rex.getSymbolDefinitions();
 		TypeReifier tr = new TypeReifier(vf);
 		tr.declareAbstractDataTypes(definitions, store);
@@ -479,5 +483,139 @@ public class Types {
 
 		});	
 	}
+	
+	private static Pattern keyword = Pattern.compile("\\w+");
+	private static Pattern openBracket = Pattern.compile("\\[");
+	private static Pattern closeBracket = Pattern.compile("\\]");
+	private static Pattern openPar = Pattern.compile("\\(");
+	private static Pattern closePar = Pattern.compile("\\)");
+	private static Pattern comma = Pattern.compile(",");
+	private static Pattern whiteSpace = Pattern.compile("\\s*");
+	
+	static String preprocess(String input){
+		return input.replaceAll("(\\[|,|\\]|\\(|\\))", " $1 ");
+	}
+	Type parseType(String input){
+		Scanner s = new Scanner(preprocess(input));
+		return parseType(s);
+	} 
+	
+	public Type getFunctionType(String signature){
+		try {
+			Scanner s = new Scanner(preprocess(signature));
+			Type returnType = parseType(s);
+			s.next();	// skip function name
+			s.next(openPar);
+			Object[] argumentTypes = parseFields(s);
+			s.next(closePar);
+			return RascalTypeFactory.getInstance().functionType(returnType, tf.tupleType(argumentTypes), null);
+		} catch (NoSuchElementException e){
+			throw new RuntimeException("Malformed function signature: " + signature);
+		}
+	}
+	
+	public String getFunctionName(String signature){
+		try {
+			Scanner s = new Scanner(preprocess(signature));
+			parseType(s);	// skip function type
+			String name = s.next();
+			return name;
+		} catch (NoSuchElementException e){
+			throw new RuntimeException("Malformed function signature: " + signature);
+		}
+	}
+	
+	private Type parseType(Scanner s){
+		String kw = s.next();
+		Type res;
+		switch(kw){
+		case "int": return tf.integerType();
+		case "real": return tf.realType();
+		case "rat": return tf.rationalType();
+		case "bool": return tf.boolType();
+		case "datetime": return tf.dateTimeType();
+		case "num": return tf.numberType();
+		case "loc": return tf.sourceLocationType();
+		case "void": return tf.voidType();
+		case "value": return tf.valueType();
+		case "node": return tf.nodeType();
+		case "str": return tf.stringType();
+		case "set":
+		case "list":
+				s.next(openBracket);
+				Type elmType = parseType(s);
+				s.skip(whiteSpace);
+				s.next(closeBracket);
+				return kw.equals("list") ? tf.listType(elmType) : tf.setType(elmType);
+		case "tuple":
+		case "rel":
+		case "lrel":
+			    s.next(openBracket);
+			    Object[] flds = parseFields(s);
+			    s.next(closeBracket);
+			   switch(kw){
+			   case "tuple": return tf.tupleType(flds);
+			   case "rel": return tf.relType(flds);
+			   case "lrel": return tf.lrelType(flds);
+			   }
+		default:
+			res = tf.abstractDataType(RascalValueFactory.getStore(), kw);
+			return res;
+			//throw new CompilerError("Unimplemented: " + kw);	   
+		}
+	}
+	
+	private Object[] parseFields(Scanner s){
+		ArrayList<Object> flds = new ArrayList<>();
+	    do {
+	    	if(s.hasNext(comma)){
+	    		s.next(comma);
+	    	}
+	    	if(s.hasNext(closeBracket) || s.hasNext(closePar)){
+	    		break;
+	    	}
+	    	flds.add(parseType(s));
+	    	if(s.hasNext(keyword)){
+	    		flds.add(s.next());
+	    	} else {
+	    		flds.add("");
+	    	}
+	    }  while(s.hasNext(comma));
+	    return flds.toArray();
+	}
+/*
+TODO: MISSING/INCOMPLETE CASES:
+else if (cons == RascalValueFactory.Symbol_Adt) {
+return adtToType(symbol, store);
+}
+else if (cons == RascalValueFactory.Symbol_Alias){
+return aliasToType(symbol, store);
+}
 
+else if (cons == RascalValueFactory.Symbol_Cons) {
+return consToType(symbol, store);
+}
+else if (cons == RascalValueFactory.Symbol_Func) {
+return funcToType(symbol, store);
+}
+else if (cons == RascalValueFactory.Symbol_Label) {
+return symbolToType((IConstructor) symbol.get("symbol"), store);
+}
+
+else if (cons == RascalValueFactory.Symbol_Parameter) {
+return tf.parameterType(((IString) symbol.get("name")).getValue(), symbolToType((IConstructor) symbol.get("bound"), store));
+}
+else if (cons == RascalValueFactory.Symbol_BoundParameter) {
+return tf.parameterType(((IString) symbol.get("name")).getValue(), symbolToType((IConstructor) symbol.get("bound"), store));
+}
+else if (cons == RascalValueFactory.Symbol_ReifiedType) {
+return RascalTypeFactory.getInstance().reifiedType(symbolToType((IConstructor) symbol.get("symbol"), store));
+
+else {
+// We assume the other types are one of the non-terminal symbols
+return RascalTypeFactory.getInstance().nonTerminalType(symbol);
+}
+}
+*/
+	
 }

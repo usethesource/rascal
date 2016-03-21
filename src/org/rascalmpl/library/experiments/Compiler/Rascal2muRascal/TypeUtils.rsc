@@ -213,6 +213,7 @@ public void resetScopeExtraction() {
 	loc2uid = ();
 	
 	modules = {};
+	moduleNames = {};
 	functions = {};
 	defaultFunctions = {};
 	datatypes = ();
@@ -265,8 +266,20 @@ int getScopeSize(str fuid) =
       // TODO: invertUnique is a proper choice; 
       //       the following is a workaround to the current handling of 'extend' by the type checker
       set[UID] uids = invert(uid2str)[fuid];
-      assert size({ config.store[uid] | UID uid <- uids }) == 1: "getScopeSize";
-      size(uid2type[getOneFrom(uids)].parameters); 
+      //println("getScopeSize(<fuid>): <uids>");
+      
+      nparams = size(uid2type[getFirstFrom(uids)].parameters);
+      if(size(uids) != 1){
+        for(uid <- uids){
+            if(size(uid2type[uid].parameters) != nparams){
+              println("uids = <uids>");
+               throw "getScopeSize: different arities for <fuid>";
+            }
+        }
+      }
+      
+      //assert size({ config.store[uid] | UID uid <- uids }) == 1: "getScopeSize";
+      nparams;
     }
     + size({ pos | int pos <- range(uid2addr)[fuid], pos != -1 })
     + 2 // '+ 2' accounts for keyword arguments and default values of keyword parameters 
@@ -293,8 +306,8 @@ void extractScopes(Configuration c){
 	// - uid2type
 	// - uid2str
 
-   //config = visit (c) { case loc l => normalize(l) };
    config = c;
+
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
       //println("<uid>: <item>");
@@ -446,7 +459,7 @@ void extractScopes(Configuration c){
     }
     
     // Make sure that the original and the normalized location is present.
-    //for(l <- config.locationTypes){
+    //for(l <- config.Execu){
     //	config.locationTypes[l] = config.locationTypes[l];
     //}
     
@@ -565,7 +578,7 @@ void extractScopes(Configuration c){
             uid2addr[decls[i]] = <uid2str[fuid1], -1>;
         }
     }
-    
+  
     for(UID fuid1 <- constructors){
         nformals = getFormals(fuid1); // ***Note: Includes keyword parameters as a single map parameter 
         // First, fill in variables to get their positions right
@@ -613,6 +626,8 @@ void extractScopes(Configuration c){
 
     }
     
+   
+    
     // Fill in uid2addr for overloaded functions;
     for(UID fuid2 <- ofunctions) {
         set[UID] funs = config.store[fuid2].items;
@@ -635,8 +650,11 @@ void extractScopes(Configuration c){
     	//assert size(scopes) == 0 || size(scopes) == 1 : "extractScopes";
     	uid2addr[fuid2] = <scopeIn,-1>;
     }
+   
      extractConstantDefaultExpressions();
 }
+
+// Get all the (positional and keyword) fields for a given constructor
 
 set[str] getAllFields(UID cuid){
     a_constructor = config.store[cuid];
@@ -654,6 +672,8 @@ set[str] getAllFields(UID cuid){
     return result;
 }
 
+// Get all the keyword fields for a given constructor
+
 set[str] getAllKeywordFields(UID cuid){
     a_constructor = config.store[cuid];
     //println("getAllKeywordFields(<cuid>): <a_constructor>");
@@ -669,6 +689,7 @@ set[str] getAllKeywordFields(UID cuid){
     return result;
 } 
  
+// Get all the keyword fields and their types for a given constructor
 
 map[RName,Symbol] getAllKeywordFieldsAndTypes(UID cuid){
     a_constructor = config.store[cuid];
@@ -684,19 +705,22 @@ map[RName,Symbol] getAllKeywordFieldsAndTypes(UID cuid){
     return result;
 }
 
-lrel[RName,value] getAllKeywordFieldDefaults(UID cuid){
+// For a given constructor, get all keyword defaults defined in the current module
+
+lrel[RName,value] getAllKeywordFieldDefaultsInModule(UID cuid, str modulePath){
     a_constructor = config.store[cuid];
-    //println("getAllKeywordDefaults(<cuid>): <a_constructor>");
-    result = [];
+    //println("getAllKeywordDefaultsInModule(<cuid>): <a_constructor>, <modulePath>");
+    lrel[RName,value] result = [];
     if(a_constructor is constructor){
         its_adt = config.store[cuid].rtype.\adt;
         uid_adt = datatypes[its_adt];
-        result = toList(config.dataKeywordDefaults[uid_adt] +  config.dataKeywordDefaults[cuid]);
+        result = [ defExp | defExp <- config.dataKeywordDefaults[uid_adt], Expression e := defExp[1] /*, e@\loc.path == modulePath*/] +
+                 [ defExp | defExp <- config.dataKeywordDefaults[cuid], Expression e := defExp[1] /*, e@\loc.path == modulePath*/];
         result = sort(result, bool(tuple[RName,value] a, tuple[RName,value] b) { return Expression aExp := a[1] && Expression bExp := b[1] && aExp@\loc.offset < bExp@\loc.offset; });
     }
-    //println("getAllKeywordDefaults(<cuid>) =\> <result>");
+    //println("getAllKeywordDefaultsInModule(<cuid>, modulePath) =\> <result>");
     return result;
-}  
+}   
 
 // extractConstantDefaultExpressions:
 // For every ADT, for every constructor, find the default fields with constant default expression
@@ -704,10 +728,14 @@ lrel[RName,value] getAllKeywordFieldDefaults(UID cuid){
 //       as a consequence, e.g. "abc" + "def" will not be classified as constant.
 
 void extractConstantDefaultExpressions(){
-
      // TODO: the following hacks are needed to convince the interpreter of the correct type.
      constructorConstantDefaultExpressions = (adt("XXX", []) : ("xxxc1" : ("xxxf1": true, "xxxf2" : 0)));
      constructorFields = (adt("XXX", []) : ("xxxc1" : {"xxxa", "xxxb"}));
+     //constructorConstantDefaultExpressions = ();
+     //constructorFields = ();
+     
+     // Pass 1: collect all positional fields for all constructors in constructorFields
+     
      for(cuid <- constructors){
         a_constructor = config.store[cuid];
        
@@ -729,25 +757,31 @@ void extractConstantDefaultExpressions(){
             }
         }  
      }
+ 
+    // Pass 2: collect all keyword fields and add them to constructorFields
+    
      for(tp <- config.dataKeywordDefaults){
         uid = tp[0];
+        //println("uid = <uid>");
         dt = config.store[uid];
-        if(dt is datatype){
+        //println("dt = <dt>");
+        if(dt is datatype){             // Note: for now productions cannot have keyword fields
            the_adt = dt.rtype;
            kwParamMap = dt.keywordParams;
+           //println("kwParamMap = <kwParamMap>");
            if(kwParamMap != ()){
-               fieldsForAdt = constructorFields[the_adt];
-               //println("fieldsForAdt: <fieldsForAdt>");
-               kwNames = {prettyPrintName(kwn) | kwn <- domain(kwParamMap)};
-               //println("domain(kwParamMap): <kwNames>");
-               constructorFields[the_adt] = (c : fieldsForAdt[c] + kwNames | c <- fieldsForAdt);
+               if(constructorFields[the_adt]?){
+                  fieldsForAdt = constructorFields[the_adt];
+                  //println("fieldsForAdt: <fieldsForAdt>");
+                  kwNames = {prettyPrintName(kwn) | kwn <- domain(kwParamMap)};
+                  //println("domain(kwParamMap): <kwNames>");
+                  constructorFields[the_adt] = (c : fieldsForAdt[c] + kwNames | c <- fieldsForAdt);
+               }
            }
         }
      }
      
-     //println("&&& constructorFields:");
-     //iprintln(constructorFields);
-     
+     // Pass 3: collect all constant default expressions in constructorConstantDefaultExpressions
     
      for(tp <- config.dataKeywordDefaults){
          uid = tp[0];
@@ -784,7 +818,7 @@ void extractConstantDefaultExpressions(){
              } 
          }
     }
-    ////println("constructorConstantDefaultExpressions");
+    //println("constructorConstantDefaultExpressions");
     //println(constructorConstantDefaultExpressions);
   
 }
@@ -848,7 +882,7 @@ Symbol getType(loc l) {
     	return config.locationTypes[l];
     }
     //////l = normalize(l);
-    //iprintln(config.locationTypes);
+    iprintln(config.locationTypes);
     assert config.locationTypes[l]? : "getType for <l>";
 	//println("getType(<l>) = <config.locationTypes[l]>");
 	return config.locationTypes[l];
@@ -1131,10 +1165,10 @@ bool preferInnerScope(int n, int m) {
      if(nContainers != {} && mContainers == {}) { // non-global global
        res = true; //mContainer in nContainers;
      } else {							  // non-global non-global 
-       res =  nContainer in mContainers;// && mContainer notin nContainers;
+        res =  nContainer in mContainers || n < m;// && mContainer notin nContainers;
      }
 	funInnerScopes[key] = res;
-	//println("preferInnerScope <key> =\> <res>");
+	//println("preferInnerScope: <key> =\> <res>");
 	return res;
 }
 
@@ -1231,7 +1265,7 @@ MuExp mkVar(str name, loc l) {
     // Get the function uids of an overloaded function
     //println("config.store[<uid>] = <config.store[uid]>");
     list[int] ofuids = (uid in functions || uid in constructors) ? [uid] : sortOverloadedFunctions(config.store[uid].items);
-    //println("ofuids = <ofuids>");
+    //println("@@@ mkVar: <name>, <l>, ofuids = <ofuids>");
     //for(nnuid <- ofuids){
     //	println("<nnuid>: <config.store[nnuid]>");
     //}

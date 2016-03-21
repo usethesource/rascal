@@ -122,7 +122,6 @@ public data MuExp =
  
           | muReturn0()											// Return from a function without value
           | muReturn1(MuExp exp)								// Return from a function with value
-          | muReturn2(MuExp exp, list[MuExp] exps)              // Return from a coroutine with multiple values
           
           | muFilterReturn()									// Return for filer statement
           
@@ -150,8 +149,9 @@ public data MuExp =
           
           | muTypeSwitch(MuExp exp, list[MuTypeCase] type_cases, MuExp \default)  		// switch over cases for specific type
          	
-          | muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuExp defaultExp, MuExp result)		// switch over cases for specific value
+          | muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuExp defaultExp)		// switch over cases for specific value
           
+          | muEndCase()                                         // Marks the exit point of a case
 		  | muBreak(str label)									// Break statement
 		  | muContinue(str label)								// Continue statement
 		  | muFail(str label)									// Fail statement
@@ -176,6 +176,8 @@ public data MuExp =
            // Multi-expressions
           
           | muBlock(list[MuExp] exps)  							// A list of expressions, only last value remains
+          | muBlockWithTmps(lrel[str name, str fuid] tmps, lrel[str name, str fuid] tmpRefs, list[MuExp] exps)
+                                                                // A block with scoped temporary variables and temporaries used as reference
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
           | muOne1(MuExp exp)                                   // Expression that always produces only the first value
           //| muOne2(list[MuExp] exps)							// Compute one result for a list of boolean expressions
@@ -251,7 +253,7 @@ public data Guard = preGuard1(MuExp exp)
 public data Function =				
                preFunction(lrel[str,int] funNames, str name, list[Identifier] formals, 
                            lrel[list[VarDecl] vardecls, str s] locals, list[MuExp] body, bool comma)
-             | preCoroutine(lrel[str s,int i] funNames, str name, list[Identifier] formals, 
+             | preCoroutine(lrel[str,int] funNames, str name, list[Identifier] formals, 
                             list[Guard] guard, lrel[list[VarDecl] vardecls, str s] locals, list[MuExp] body, bool comma)
           ;
 
@@ -262,15 +264,12 @@ public data MuExp =
             | preTypeCon(str txt)
             | preVar(Identifier id)
             | preVar(lrel[str name,int formals] funNames, Identifier id)
-            // Specific to delimited continuations (experimental)
-            | preContLoc()
-            | preContVar(lrel[str,int] funNames)
             | preFunNN(str modName, str name, int nformals)
             | preFunN(lrel[str,int] funNames, str name, int nformals)
             | preList(list[MuExp] exps)
             | preAssignLoc(Identifier id, MuExp exp)
             | preAssign(lrel[str,int] funNames, Identifier id, MuExp exp)
-            | preAssignLocList(Identifier id1, Identifier id2, MuExp exp)
+       
             | preIfthen(MuExp cond, list[MuExp] thenPart, bool comma)
             
             | preMuCallPrim1(str name)                                // Call a Rascal primitive function (with empty list of arguments)

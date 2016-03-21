@@ -2,10 +2,15 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.rascalmpl.interpreter.types.FunctionType;  // TODO: remove import: NO
+import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -240,6 +245,9 @@ public class Frame {
 //		}
 		
 		s.append(")");
+		if(src != null){
+			s.append(" at ").append(src);
+		}
 		return s.toString();
 	}
 	
@@ -263,6 +271,67 @@ public class Frame {
 	
 	public void printLeave(PrintWriter stdout, Object rval){
 		stdout.println(indent()./*append("\uE007 ").*/append(this.function.getPrintableName()).append(" returns ").append(rval == null ? "null" : abbrev(rval.toString()))); stdout.flush();
+	}
+	
+	public String getWhere(){
+		int begin = this.src.getBeginLine();
+		int end = this.src.getBeginLine();
+		String line = begin == end ? String.valueOf(begin) : (begin + "-" + end);
+		return this.function.getPrintableName() + ":" + line;
+	}
+	
+	public void printVars(PrintWriter stdout){
+		Iterator<Entry<IValue, IValue>> iter = function.localNames.entryIterator();
+		while(iter.hasNext()){
+			Entry<IValue, IValue> entry = iter.next();
+			String varName = ((IString) entry.getValue()).getValue();
+			int varPos = ((IInteger) entry.getKey()).intValue();
+			Object v = stack[varPos];
+			if(v != null && !varName.equals("map_of_default_values") && v instanceof IValue){
+				    if(varName.matches("[0-9]+")){
+				    	varName = "arg " + varName;
+				    }
+					stdout.println("\t" + varName + ": " + RascalPrimitive.$value2string((IValue) v));
+			}
+		}
+		if(stack[function.nformals-1] instanceof HashMap<?, ?>){
+			@SuppressWarnings("unchecked")
+			HashMap<String,IValue> kwParams = (HashMap<String,IValue>)stack[function.nformals-1];
+			for(String kwParam : kwParams.keySet()){
+				IValue v = kwParams.get(kwParam);
+				if(v != null){
+					stdout.println("\t" + kwParam + "=" + RascalPrimitive.$value2string(v));
+				}
+			}
+		}
+	}
+	
+	public Map<String, IValue> getVars(){
+		HashMap<String, IValue> vars = new HashMap<>();
+		Iterator<Entry<IValue, IValue>> iter = function.localNames.entryIterator();
+		while(iter.hasNext()){
+			Entry<IValue, IValue> entry = iter.next();
+			String varName = ((IString) entry.getValue()).getValue();
+			int varPos = ((IInteger) entry.getKey()).intValue();
+			Object v = stack[varPos];
+			if(v != null && !varName.equals("map_of_default_values")){
+				if(varName.matches("[0-9]+")){
+					varName = "arg " + varName;
+				}
+				vars.put(varName,  (IValue) v);
+			}
+		}
+		if(stack[function.nformals-1] instanceof HashMap<?, ?>){
+			@SuppressWarnings("unchecked")
+			HashMap<String,IValue> kwParams = (HashMap<String,IValue>)stack[function.nformals-1];
+			for(String kwParam : kwParams.keySet()){
+				IValue v = kwParams.get(kwParam);
+				if(v != null){
+					vars.put(kwParam,  kwParams.get(kwParam));
+				}
+			}
+		}
+		return vars;
 	}
 	
 }

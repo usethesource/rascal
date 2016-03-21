@@ -61,7 +61,7 @@ public class CharStarList extends SGTDBF<IConstructor, ITree, ISourceLocation> i
 	}
 	
 	public ITree executeParser(){
-		return parse(NONTERMINAL_START_S, null, "abc".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory());
+		return parse(NONTERMINAL_START_S, null, "abc".toCharArray(), new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 	}
 	
 	public IValue getExpectedResult() throws IOException{

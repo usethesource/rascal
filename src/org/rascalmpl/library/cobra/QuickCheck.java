@@ -116,13 +116,20 @@ public class QuickCheck {
 				}
 				IValue result = function.call(actualTypes, values, null).getValue();
 				function.getEval().getStdOut().flush();
+				
+				if (expected != null) {
+					// no exception at all is thrown
+					return reportMissingException(fname, expected, out);
+				}
+				
 				if (!((IBool) result).getValue()) {
 					reportFailed(fname, "test returns false", tpbindings, formals, values, out);
 					return false;
 				} else if (verbose && formals.getArity() > 0) {
 					out.println((i + 1) + ": Checked with " + Arrays.toString(values) + ": true");
 				}
-			} catch (Throw e){
+			} 
+			catch (Throw e) {
 				if(expected == null || !((IConstructor)e.getException()).getName().equals(expected)){
 					return reportFailed(fname, e.getMessage(), tpbindings, formals, values, out);
 				}
@@ -135,6 +142,7 @@ public class QuickCheck {
 				}
 				expectedThrown = true;
 			}
+			
 			if(expected != null && !expectedThrown){
 				return reportMissingException(fname, expected, out);
 			}

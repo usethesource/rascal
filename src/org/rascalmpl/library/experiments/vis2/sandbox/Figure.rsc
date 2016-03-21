@@ -13,6 +13,9 @@ import util::Math;
 import Prelude;
 import lang::json::IO;
 
+int occur = 0;
+
+void initFigure() { occur = 0;}
 
 /* Properties */
 
@@ -55,19 +58,21 @@ alias StrCallBack = void(str,str,str);
 alias RealCallBack = void(str,str,real);
 alias IntCallBack = void(str,str,int);
 
-data Event 
+// alias InputType = tuple[str lab, str f];
+
+
+data Event
 	= on(StrCallBack strCallBack)
 	| on(RealCallBack realCallBack)
 	| on(IntCallBack intCallBack)
 	| on(str eventName, StrCallBack strCallBack)
-	| on(str eventName, RealCallBack realCallBack)
+	| on(str eventName, RealCallBack realCallBack) 
 	| on(str eventName, IntCallBack intCallBack)
 	| on(list[str] eventList, StrCallBack strCallBack)
 	| on(list[str] eventList, RealCallBack realCallBack)
-	| on(list[str] eventList,IntCallBack intCallBack)
+	| on(list[str] eventList, IntCallBack intCallBack)
+	| noEvent()
 	;
-		
-//alias Cursor[&T] = &T;
 
 
 alias XYData 			= lrel[num x, num y];
@@ -82,10 +87,8 @@ alias XYLabeledData     = lrel[num xx, num yy, str label];
 
 alias GoogleData     = list[list[value]];	
 
+data DDD = ddd(str name="", int size = 0, list[DDD] children = [], int width =10, int height = 10);
 
-/* Dataype belonging to candlesticks */
-
-	
 //data Margin = margin(int left = 0, int right = 0, int top = 0, int bottom = 0);
 
 /*
@@ -122,7 +125,7 @@ public data Attr (
     int width = -1,
     int height =  -1,
     int r = -1,
-    num grow = 1.0,
+    num bigger = 1.0,
     bool disabled = false 
     ) = attr();
     
@@ -135,6 +138,7 @@ public data Timer (
      str command = ""
      // ,str mark = ""
     ) = timer();
+    
     
 public data Style (	
     bool svg = false,
@@ -165,33 +169,36 @@ public alias Prop =
 public data Figure(
         // Naming
         str id = "",
-        // Fid fid = strEmpty,
         str visibility = "", 
 		// Dimensions and Alignmenting
-		
 		tuple[int,int] size = <0,0>,
 		tuple[int, int, int, int] padding = <0, 0, 0, 0>, // left, top, right, botton 
 		int width = -1,
 		int height = -1,
-		int cellHeight = -1,
-		int cellWidth = -1,
 		Position at = <0,0>,
 		Rotate rotate =<0, -1, -1>, 
 		Alignment align = <0.5, 0.5>, // TODO should be middle,
-		num grow = 1.0,
+		
+		num bigger = 1.0,
+		num shrink = 1.0, 
+		num hshrink = 1.0, 
+		num vshrink = 1.0, 
+		num grow = 1.0, 
+		num hgrow = 1.0, 
+		num vgrow = 1.0, 
+		bool resizable = false,
 		tuple[int,int] gap = <0,0>,
 		int hgap = 0,
 		int vgap = 0,
         bool sizeFromParent = false,
+        
     	// Line properties
-    
 		int lineWidth = -1,			
 		str lineColor = "", 		
 		list[int] lineDashing = [],	
 		real lineOpacity = -1.0,
 	
 		// Area properties
-
 		str fillColor    = "", 			
 		real fillOpacity = -1.0,	
 		str fillRule     = "evenodd",
@@ -203,25 +210,25 @@ public data Figure(
 		str fontFamily = "",// "Helvetica, Arial, Verdana, sans-serif",
 		str fontName = "", // "Helvetica",
 		int fontSize = -1, // 12,
-		str fontStyle = "", // "normal",		// normal|italic|oblique|initial|inherit
-		str fontWeight = "",// "normal",		//normal|bold|bolder|lighter|number|initial|inherit; normal==400, bold==700
-		str fontColor = "", // "black",
-		str textDecoration	= "", //"none",	// none|underline|overline|line-through|initial|inherit
+		str fontStyle = "",  //  normal|italic|oblique|initial|inherit   
+		str fontWeight = "", // normal|bold|bolder|lighter|number|initial|inherit; normal==400, bold==700
+		str fontColor = "",  // default "black",
+		str textDecoration	= "", // none|underline|overline|line-through|initial|inherit
+		
 		// Interaction
-	
-		Event event = on(nullCallback),
+		Event event = noEvent(),
 		
 		// Tooltip
 		value tooltip = ""
 	) =
 	
-	emptyFigure()
+	emptyFigure(int seq = 0)
   
 
 // atomic primitivesreturn [[z] +[*((c[z]?)?c[z]:"null")|c<-m]|z<-x];
 	
-   | htmlText(value text, bool nl2br = true)		    			// text label html
-   | text(value text, bool nl2br = true)		    			// text label svg
+   | htmlText(value text, str overflow = "hidden")		    			// text label html
+   | text(value text, str overflow = "hidden")		    			// text label svg
    | markdown(value text)					// text with markdown markup (TODO: make flavor of text?)
    | math(value text)						// text with latex markup
    
@@ -234,11 +241,12 @@ public data Figure(
    | ellipse(num cx = -1, num cy = -1, num rx=-1, num ry=-1, Figure fig=emptyFigure())
    
    | circle(num cx = -1, num cy = -1, num r=-1, Figure fig=emptyFigure())
-   
-   | ngon(int n=3, num r=-1, Figure fig=emptyFigure(),
+
+// regular polygon   
+   | ngon(int n=3, num r=-1, num angle = 0, Figure fig=emptyFigure(),
         Rescale scaleX = <<0,1>, <0, 1>>,
    	    Rescale scaleY = <<0,1>, <0, 1>>
-     )	// regular polygon
+     )	
    
    | polygon(Points points=[], bool fillEvenOdd = true,
             bool yReverse = false,
@@ -250,7 +258,7 @@ public data Figure(
    			bool shapeClosed = false, 		// Make a closed shape
    			bool shapeCurved = false, 		// Connect vertices with a spline
    			bool fillEvenOdd = true,
-   			bool yReverse = true,		// The fill rule to be used. (TODO: remove?)
+   			bool yReverse = true,		
    			Rescale scaleX = <<0,1>, <0, 1>>,
    			Rescale scaleY = <<0,1>, <0, 1>>,
    			Figure startMarker=emptyFigure(),
@@ -263,7 +271,7 @@ public data Figure(
                    
    | hcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "") 					// horizontal and vertical concatenation
    | vcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "") 					// horizontal and vertical concatenation 
-   | overlay(Figures figs=[])				// overlay (stacked) comAlignment
+   | overlay(Figures figs=[])				
    | grid(list[Figures] figArray = [[]], str borderStyle="solid", int borderWidth=0, str borderColor = "") 	// grid of figures
 
 // Figure transformations
@@ -272,19 +280,14 @@ public data Figure(
    | atX(int x, Figure fig)				// TODO: how to handle negative values?
    | atY(int y, Figure fig)
    
-  	//TODO: avoid name clash with Math::util:scale
- //  | SCALE(num factor, Figure fig)
-   
-   // Advised to embed the figure in a frame and use that frame as argument of rotate
+   | rotate(num angle, int x, int y, Figure fig)
    | rotate(num angle, Figure fig)
    
-
 // Input elements
-
-   | buttonInput(str txt)
+   | buttonInput(str txt, bool disabled=false,  value \value = "")
    | checkboxInput(list[str] choices = ["0"], value \value = ())
    | choiceInput(list[str] choices = ["0"], value \value = choices[0])
-   | colorInput()
+   // | colorInput()
    
    // date
    // datetime
@@ -295,14 +298,9 @@ public data Figure(
    // week
    // url
    
-   | numInput()
+  //  | numInput()
    | rangeInput(num low=0, num high=100, num step=1, value \value = 50.0)
-   | strInput(int nchars=20, value \value="")
-   
-// Visibility control elements
-
-  // | visible(bool condition=true, Figure fig = emptyFigure())
-   
+   | strInput(int nchars=20, value \value="") 
    | choice(int selection = 0, Figures figs = [])
   
 /*
@@ -319,18 +317,20 @@ public data Figure(
 	| scatterChart(GoogleData googleData = [], XYData xyData = [], ChartOptions options = chartOptions())
 	| candlestickChart(GoogleData googleData =[], ChartOptions options = chartOptions())
 	| pieChart(GoogleData googleData = [],  ChartOptions options = chartOptions())
-// Graphs
-// Must be used as innerfigure in box(fig=..., align = topLeft). 
-// Advised is to use the function graph(nodes, edges)
+
    | graph(list[tuple[str, Figure]] nodes = [], list[Edge] edges = [], map[str, NodeProperty] nodeProperty = (), 
-     GraphOptions graphOptions = graphOptions())
- 
+     GraphOptions graphOptions = graphOptions(), map[str, str] figId=())
    | tree(Figure root, list[Figure] figs
 	       ,int xSep = 1, int ySep = 2, str pathColor = "black"
 	       ,Orientation orientation = topDown()
 	       ,bool manhattan=false
 // For memory management
-	       , int shrink=5, int rasterHeight=150)
+	       , int refinement=5, int rasterHeight=150)
+   |d3Pack(DDD d = ddd(), str fillNode="rgb(31, 119, 180)", str fillLeaf = "ff7f0e", num fillOpacityNode=0.25, num fillOpacityLeaf=1.0,
+          int diameter = 960)
+   |d3Treemap(DDD d = ddd())
+   |d3Tree(Figure root)
+   |d3Tree(DDD d = ddd())
    ;
    
 data GraphOptions = graphOptions(
@@ -340,8 +340,10 @@ data GraphOptions = graphOptions(
  
 data NodeProperty = nodeProperty(str shape="",str labelStyle="", str style = "", str label="");
 
-data Edge = edge(str from, str to, str label = "", str lineInterpolate="basis"
-     ,str lineColor = "" ,str labelStyle="", str arrowStyle = "");
+data Edge = edge(str from, str to, str label = "", str lineInterpolate="basis" // linear, step-before, step-after
+     ,str lineColor = "" ,str labelStyle="", str arrowheadStyle = "" // normal, vee, undirected
+     , str id = "", str labelPos= "r"  // l, r, c
+     , int labelOffset = 10);
   
 data ChartArea ( 
      value left = "",
@@ -505,7 +507,27 @@ data Chart(str name = "", str color = "", str curveType = "",
 	| area(XYData xydata)
 	| area(XYLabeledData xylabeleddata)
 	| bar(XYLabeledData xylabeledData)
-	;	
+	;
+	
+
+public Figure idEllipse(num rx, num ry) = ellipse(rx=rx, ry = ry, lineWidth = 0, fillColor = "none");
+
+public Figure idCircle(num r) = circle(r= r, lineWidth = 0, fillColor = "none");
+
+public Figure idNgon(num r) = ngon(r= r, lineWidth = 0, fillColor = "none");
+
+public Figure idRect(int width, int height) = rect(width = width, height = height, lineWidth = 0, fillColor = "none");
+
+/* options must be renamed to graphOptions */
+public Figure graph(list[tuple[str, Figure]] n, list[Edge] e, tuple[int, int] size=<0,0>, int width = -1, int height = -1,
+   int lineWidth = 1, GraphOptions options = graphOptions()) =  
+   //box(fig = 
+   graph(nodes = n, edges = e, lineWidth = lineWidth, 
+               nodeProperty = (), size = size, width = width, height = height,
+               graphOptions = options)
+               //, align = topLeft, lineWidth = 0,  size=<1000, 1200>)
+               ;
+             	
 	
 map[str, str] getTooltipMap(int tooltipColumn) {
     str typ = tooltipColumn < 0 || tooltipColumn == 2 ? "string":"number";
@@ -571,9 +593,7 @@ list[list[value]] joinData(list[Chart] charts, bool tickLabels, int tooltipColum
    }
    
 public Figure svg(Figure f, tuple[int, int] size = <0, 0>) {
-    /*if (f.lineWidth<0) */ {f.lineWidth = 1; f.lineColor="black";}
     Figure r = box(size=size, lineWidth = 0, fillColor = "none", fig = f);
-    // println(r);
     return r;
     }
   
@@ -594,26 +614,6 @@ public map[str, value] adt2map(node t) {
 public str adt2json(node t) {
    return toJSON(adt2map(t), true);
    }
-   
-public Figure idEllipse(num rx, num ry) = ellipse(rx=rx, ry = ry, lineWidth = 0, fillColor = "none");
-
-public Figure idCircle(num r) = circle(r= r, lineWidth = 0, fillColor = "none");
-
-public Figure idNgon(num r) = ngon(r= r, lineWidth = 0, fillColor = "none");
-
-public Figure idRect(int width, int height) = rect(width = width, height = height, lineWidth = 0, fillColor = "none");
-
-/* options must be renamed to graphOptions */
-public Figure graph(list[tuple[str, Figure]] n, list[Edge] e, tuple[int, int] size=<0,0>, int width = -1, int height = -1,
-   int lineWidth = 1, GraphOptions options = graphOptions()) =  
-   box(fig = graph(nodes = n, edges = e, lineWidth = lineWidth, 
-               nodeProperty = (), size = size, width = width, height = height,
-               graphOptions = options), align = topLeft, lineWidth = 0);
-               
-public Figure overlayBox(int width, int height, list[Figure] figs) {
-      list[Figure] b = [box(width = width, height = height, fig = f, fillColor="none", align = centerMid)|Figure f<-figs];
-      return overlay(figs = b);
-      }
       
 public Figure plot(Points xy, Rescale x, Rescale y, bool shapeCurved = true
       ,str lineColor = "", int lineWidth = -1, str fillColor = ""
@@ -627,7 +627,13 @@ public Figure plot(Points xy, Rescale x, Rescale y, bool shapeCurved = true
       width = width, height = height, fillEvenOdd = fillEvenOdd);
       }
 
- 
+
+int currentColor = 0;
+
+public void resetColor() {currentColor = 0;} 
+
+public str pickColor() {currentColor = (currentColor+5)%size(colors); return colors[currentColor];}
+
 
 public list[str] colors = 
 ["aliceblue",
@@ -773,4 +779,74 @@ public list[str] colors =
             "yellowgreen"
         ];
         
-   
+ public str randomColor() =  colors[arbInt(size(colors))];
+ 
+ 
+ Figure(Figure , str ) self(Figure g) {return 
+              Figure(Figure f, value c) {g.fig = f; return g;}
+              ;}
+              
+public str newName() {
+  occur+=1;
+  return "myName<occur>";
+  }
+  
+public str newId() {
+  occur+=1;
+  return "myName<occur>";
+  }
+  
+str fileName(loc l) {
+     str p = l.path;
+     int n = findLast(p, "/");
+     return substring(p, n+1, size(p));
+     }
+     
+map[str, list[list[str]]] _compact(list[list[str]] xs) { 
+    if (isEmpty(xs)) return ();  
+    map[str,  list[list[str]]] r = ();
+    for (list[str] x<-xs) {
+         list[list[str]] q = ((r[head(x)]?)? r[head(x)]+[tail(x)]:[tail(x)]);
+         r[head(x)] = q;
+         }
+    return r;
+    }
+  
+list[DDD] compact(list[list[str]] xs, map[loc, int] m, loc path) {
+    map[str, list[list[str]]] q = _compact(xs);
+    list[DDD] r = [];
+    for (str x<-q) {
+         if (isEmpty(head(q[x]))) r = r + ddd(name=substring(x, 0, findLast(x, ".")), size=m[path+x]); 
+         else r = r + ddd(name=x, children=compact(q[x], m, path +x));
+         }
+    return r;
+    }
+  
+public DDD fileMap(loc source, str suffix) {
+    list[loc] todo = [source];
+    list[loc] done = [];
+    while (!isEmpty(todo)) {
+        <elem,todo> = takeOneFrom(todo);
+        for (e <- listEntries(elem)) {
+           loc f = elem +e;
+		   if (isDirectory(f)) {
+		    // println(f);
+		   	todo += f;
+		   }
+		   else {
+		        if (endsWith(f.path, suffix))
+		        done += f;
+		   }
+	      }
+	    }
+        map[loc, int] m = (d:size(readFileLines(d))|d<-done);
+        // println(m);
+        list[list[str]] r = [];
+        for (d<-done) {
+            str p = d.path; 
+            r=r+[split("/", p)];
+            }
+        // println(r);
+        list[DDD] p = compact(r, m, source.parent);
+        return head(p);
+    }

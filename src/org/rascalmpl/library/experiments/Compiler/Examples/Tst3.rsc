@@ -1,6 +1,6 @@
 module experiments::Compiler::Examples::Tst3
-  
-import experiments::Compiler::Examples::Tst1;
-import experiments::Compiler::Examples::Tst2;
 
-value main() = d3(50).a;
+import util::Reflective;
+import experiments::Compiler::Execute;
+
+value main() = execute("lang::rascal::tests::basic::Lists", pathConfig(binDir=|home:///bin|, libPath=[|home:///bin|]), recompile=true, testsuite=true);

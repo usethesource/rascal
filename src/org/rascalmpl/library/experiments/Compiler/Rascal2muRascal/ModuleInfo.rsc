@@ -8,6 +8,7 @@ import IO;
  // Global state maintained when translating a Rascal module
 
 private str module_name;							//  name of current module
+private map[str,str] module_tags;                   // tags of current module;
 private str function_uid;							// uid of current function
 private list[str] imported_modules = [];			// modules imported by current module
 private list[str] extended_modules = [];			// modules extended by current module
@@ -42,6 +43,14 @@ public void setModuleName(str name){
 }
 
 public str getModuleName() = module_name;
+
+public void setModuleTags(map[str,str] mtags){
+    module_tags = mtags;
+}
+
+map[str,str] getModuleTags(){
+    return module_tags;
+}
 
 public void addImportToModule(str moduleName){
 	imported_modules += moduleName;
@@ -114,12 +123,11 @@ public list[MuExp] getTestsInModule(){
 	return tests;
 }		
 
-
-
 // Reset global state
 
 void resetModuleInfo() {
  	module_name = "** undefined **";
+ 	module_tags = ("***":"+++");
     imported_modules = [];
     extended_modules = [];
 	functions_in_module = [];

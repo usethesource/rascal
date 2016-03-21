@@ -20,6 +20,9 @@ str createValidScheme(str s) {
 	return ("a" | it + stringChar(validSchemeChars[c % size(validSchemeChars)]) | c <- chars(s));
 }
 
+@expected{MalFormedURI}
+test bool noOpaqueURI() = loc l := |home:://this:is:opaque|;
+
 test bool canChangeScheme1(loc l, str s) = (l[scheme = createValidScheme(s)]).scheme ==  createValidScheme(s);
 test bool canChangeScheme2(loc l, str s) { l.scheme = createValidScheme(s); return l.scheme ==  createValidScheme(s); }
 
@@ -81,6 +84,10 @@ test bool noFile()    = |tmp://X|.file == "";
 test bool rootPath()  = |tmp://X|.path == "/";
 test bool rootPath3() = |tmp:///|.path == "/";
 test bool rootPath4() = |tmp://X/|.path == "/";
+
+test bool top0(loc x) = x.top == x.top.top;
+test bool top1(loc x) = "<x.top>" == "|" + x.uri + "|";
+test bool top2(loc x) = toLocation(x.uri) == x.top;
 
 @ignore
 test bool splicePathEncoded()         = str x := " " && |tmp:///<x>.rsc| == |tmp:///| + "<x>.rsc";

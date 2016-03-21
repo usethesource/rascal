@@ -58,6 +58,37 @@
 		</testResources>
 
 		<plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <executable>java</executable>
+                            <classpathScope>compile</classpathScope>
+                            <workingDirectory>target/classes/</workingDirectory>-->
+                            <arguments>
+                                <argument>-Xmx2G</argument>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>org.rascalmpl.library.experiments.Compiler.Commands.RascalC</argument>
+                                <argument>--srcPath</argument>
+                                <argument>|std:///|</argument>
+                                <argument>--binDir</argument>
+                                <argument>org/rascalmpl/library/</argument>
+                                <argument>--noLinking</argument>
+                                <argument>Prelude</argument>
+                            </arguments>    
+                        </configuration>
+                        <id>compile-rascal-library</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -74,12 +105,12 @@
 				<configuration>
 					<argLine>
                   		-ea
-						-Xmx1g
+						-Xmx2g
 						-Xss128m
 						-Dfile.encoding=UTF-8
 					</argLine>
 					<includes>
-						<include>**/org/rascalmpl/test/AllSuite.java</include>
+						<include>**/org/rascalmpl/test/AllSuiteParallel.java</include>
 					</includes>
 				</configuration>
 			</plugin>
@@ -104,7 +135,7 @@
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
 			<artifactId>value</artifactId>
-			<version>0.5.0</version>
+			<version>0.5.3</version>
 		</dependency>
 		<dependency>
 			<groupId>io.usethesource</groupId>

@@ -243,7 +243,8 @@ public abstract class AbstractPrimitiveValueFactory implements IValueFactory {
 	public ISourceLocation sourceLocation(URI uri) {
 		try {
 			return SourceLocationValues.newSourceLocation(uri);
-		} catch (URISyntaxException e) {
+		} 
+		catch (URISyntaxException e) {
 			throw new RuntimeException("An URI should always be a correct URI", e);
 		}
 	}

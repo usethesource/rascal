@@ -66,16 +66,19 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.CharSetUtils;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
+import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
@@ -123,6 +126,8 @@ public class Prelude {
 	private static final int FILE_BUFFER_SIZE = 8 * 1024;
 	protected final IValueFactory values;
 	private final Random random;
+	
+	private final boolean trackIO = false;
 	
 	public Prelude(IValueFactory values){
 		super();
@@ -572,7 +577,7 @@ public class Prelude {
 		if (inputDate.isDate() || inputDate.isDateTime()) {
 			Calendar cal = Calendar.getInstance(TimeZone.getDefault(),Locale.getDefault());
 			cal.setLenient(false);
-			cal.set(inputDate.getYear(), inputDate.getMonthOfYear(), inputDate.getDayOfMonth());
+			cal.set(inputDate.getYear(), inputDate.getMonthOfYear()-1, inputDate.getDayOfMonth());
 			return cal;
 		} else {
 			throw new IllegalArgumentException("Cannot get date for a datetime that only represents the time");
@@ -597,7 +602,7 @@ public class Prelude {
 		if (inputDateTime.isDateTime()) {
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(inputDateTime.getTimezoneOffsetHours(),inputDateTime.getTimezoneOffsetMinutes())),Locale.getDefault());
 			cal.setLenient(false);
-			cal.set(inputDateTime.getYear(), inputDateTime.getMonthOfYear(), inputDateTime.getDayOfMonth(), inputDateTime.getHourOfDay(), inputDateTime.getMinuteOfHour(), inputDateTime.getSecondOfMinute());
+			cal.set(inputDateTime.getYear(), inputDateTime.getMonthOfYear()-1, inputDateTime.getDayOfMonth(), inputDateTime.getHourOfDay(), inputDateTime.getMinuteOfHour(), inputDateTime.getSecondOfMinute());
 			cal.set(Calendar.MILLISECOND, inputDateTime.getMillisecondsOfSecond());
 			return cal;
 		} else {
@@ -873,16 +878,31 @@ public class Prelude {
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public void iprint(IValue arg, IEvaluatorContext eval){
+	public void iprint(IValue arg, IInteger lineLimit, IEvaluatorContext eval){
 		StandardTextWriter w = new StandardTextWriter(true, 2);
+		Writer output = eval.getStdOut();
+		if (lineLimit.signum() > 0) {
+		    output = new LimitedLineWriter(output, lineLimit.longValue());
+		}
 		
 		try {
-			w.write(arg, eval.getStdOut());
+		    w.write(arg, output);
 		} 
+	    catch (IOLimitReachedException e) {
+	        // ignore, it's what we wanted
+	    }
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string("Could not print indented value"), eval.getCurrentAST(), eval.getStackTrace());
+			RuntimeExceptionFactory.io(values.string("Could not print indented value"), eval.getCurrentAST(), eval.getStackTrace());
 		}
 		finally {
+		    if (output != eval.getStdOut()) {
+		        try {
+		            output.flush();
+                    output.close();
+                }
+                catch (IOException e) {
+                }
+		    }
 			eval.getStdOut().flush();
 		}
 	}
@@ -901,19 +921,10 @@ public class Prelude {
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public void iprintln(IValue arg, IEvaluatorContext eval){
-		StandardTextWriter w = new StandardTextWriter(true, 2);
-		
-		try {
-			w.write(arg, eval.getStdOut());
-			eval.getStdOut().println();
-		} 
-		catch (IOException e) {
-			RuntimeExceptionFactory.io(values.string("Could not print indented value"), eval.getCurrentAST(), eval.getStackTrace());
-		}
-		finally {
-			eval.getStdOut().flush();
-		}
+	public void iprintln(IValue arg, IInteger lineLimit, IEvaluatorContext eval){
+	    iprint(arg, lineLimit, eval);
+	    eval.getStdOut().println();
+	    eval.getStdOut().flush();
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
@@ -972,7 +983,9 @@ public class Prelude {
 	}
 
 	public IValue exists(ISourceLocation sloc) {
-		return values.bool(URIResolverRegistry.getInstance().exists(sloc));
+		IValue result =  values.bool(URIResolverRegistry.getInstance().exists(sloc));
+		if(trackIO) System.err.println("exists: " + sloc + " => " + result);
+		return result;
 	}
 	
 	public IValue lastModified(ISourceLocation sloc) {
@@ -1036,6 +1049,7 @@ public class Prelude {
 	} 
 	
 	public IValue readFile(ISourceLocation sloc){
+		if(trackIO) System.err.println("readFile: " + sloc);
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc);){
 			return consumeInputStream(reader);
 		} 
@@ -1048,6 +1062,7 @@ public class Prelude {
 	}
 	
 	public IString readFileEnc(ISourceLocation sloc, IString charset){
+		if(trackIO) System.err.println("readFileEnc: " + sloc);
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc, charset.getValue())){
 			return consumeInputStream(reader);
 		} 
@@ -1115,6 +1130,7 @@ public class Prelude {
 	}
 	
 	private void writeFile(ISourceLocation sloc, IList V, boolean append){
+		if(trackIO) System.err.println("writeFile: " + sloc);
 		IString charset = values.string("UTF8");
 		if (append) {
 			charset = detectCharSet(sloc);
@@ -1261,6 +1277,7 @@ public class Prelude {
 	}
 	
 	public IList readFileLines(ISourceLocation sloc){
+		if(trackIO) System.err.println("readFileLines: " + sloc);
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc)) {
 			return consumeInputStreamLines(reader);
 		}
@@ -1276,6 +1293,7 @@ public class Prelude {
 	}
 	
 	public IList readFileLinesEnc(ISourceLocation sloc, IString charset){
+		if(trackIO) System.err.println("readFileLinesEnc: " + sloc);
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc,charset.getValue())) {
 			return consumeInputStreamLines(reader);
 		}
@@ -1302,6 +1320,8 @@ public class Prelude {
 	}
 	
 	public IList readFileBytes(ISourceLocation sloc) {
+		
+		if(trackIO) System.err.println("readFileBytes: " + sloc);
 		IListWriter w = values.listWriter();
 		
 		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc)) {
@@ -2002,6 +2022,9 @@ public class Prelude {
 	}
 	
 	public IMap getAnnotations(INode node) {
+	    if (!node.isAnnotatable()) {
+	        return values.mapWriter().done();
+	    }
 		java.util.Map<java.lang.String,IValue> map = node.asAnnotatable().getAnnotations();
 		IMapWriter w = values.mapWriter();
 		
@@ -2010,6 +2033,17 @@ public class Prelude {
 		}
 		
 		return w.done();
+	}
+	
+	public INode setKeywordParameters(INode node, IMap kwargs) {
+		if (node.isAnnotatable()) {
+		    node = node.asAnnotatable().removeAnnotations();
+		}
+
+		Map<String,IValue> map = new HashMap<java.lang.String,IValue>();
+		kwargs.entryIterator().forEachRemaining((kv) -> map.put(((IString)kv.getKey()).getValue(), kv.getValue()));
+		return node.asWithKeywordParameters().setParameters(map);
+	    
 	}
 	
 	public INode setAnnotations(INode node, IMap annotations) {
@@ -2060,68 +2094,72 @@ public class Prelude {
 	protected final TypeReifier tr;
 
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public IValue parse(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
-		return parse(start, values.mapWriter().done(), input, ctx);
+	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, IEvaluatorContext ctx) {
+		return parse(start, values.mapWriter().done(), input, allowAmbiguity, ctx);
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public IValue parse(IValue start, IMap robust, ISourceLocation input, IEvaluatorContext ctx) {
+	public IValue parse(IValue start, IMap robust, ISourceLocation input, IBool allowAmbiguity, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		
 		try {
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input);
+			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input, allowAmbiguity.getValue());
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
 			throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
+		catch (Ambiguous e) {
+			ITree tree = e.getTree();
+			throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree), values.bool(false)), values.string(TreeAdapter.yield(tree)), null, null);
+		}
 		catch (UndeclaredNonTerminalException e){
 			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
 		}
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public IValue parse(IValue start, IString input, IEvaluatorContext ctx) {
-		return parse(start, values.mapWriter().done(), input, ctx);
+	public IValue parse(IValue start, IString input, IBool allowAmbiguity, IEvaluatorContext ctx) {
+		return parse(start, values.mapWriter().done(), input, allowAmbiguity, ctx);
 	}
 	
-	public IValue parse(IValue start, IMap robust, IString input, IEvaluatorContext ctx) {
+	public IValue parse(IValue start, IMap robust, IString input,  IBool allowAmbiguity, IEvaluatorContext ctx) {
 		try {
 			Type reified = start.getType();
 			IConstructor startSort = checkPreconditions(start, reified);
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue());
+			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue(), allowAmbiguity.getValue());
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
 			throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
+		}
+		catch (Ambiguous e) {
+			ITree tree = e.getTree();
+			throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree), values.bool(false)), values.string(TreeAdapter.yield(tree)), null, null);
 		}
 		catch (UndeclaredNonTerminalException e){
 			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
 		}
 	}
 	
-	public IValue parse(IValue start, IString input, ISourceLocation loc, IEvaluatorContext ctx) {
-		return parse(start, values.mapWriter().done(), input, loc, ctx);
+	public IValue parse(IValue start, IString input, ISourceLocation loc,  IBool allowAmbiguity, IEvaluatorContext ctx) {
+		return parse(start, values.mapWriter().done(), input, loc, allowAmbiguity,  ctx);
 	}
 	
-	public IValue parse(IValue start, IMap robust, IString input, ISourceLocation loc, IEvaluatorContext ctx) {
+	public IValue parse(IValue start, IMap robust, IString input, ISourceLocation loc,  IBool allowAmbiguity, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		try {
-			IConstructor pt = ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue(), loc);
-
-//			if (TreeAdapter.isAppl(pt)) {
-//				if (SymbolAdapter.isStart(TreeAdapter.getType(pt))) {
-//					pt = (IConstructor) TreeAdapter.getArgs(pt).get(1);
-//				}
-//			}
-
-			return pt;
+			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue(), loc, allowAmbiguity.getValue());
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
 			throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
+		}
+		catch (Ambiguous e) {
+			ITree tree = e.getTree();
+			throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree), values.bool(false)), values.string(TreeAdapter.yield(tree)), null, null);
 		}
 		catch (UndeclaredNonTerminalException e){
 			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
@@ -2612,6 +2650,8 @@ public class Prelude {
 	}
 	
 	public IMap index(ISet s) {
+		// TODO this code is wrong since it does not ignore annotations
+		// on the keys at it should do.
 		Map<IValue, ISetWriter> map = new HashMap<IValue, ISetWriter>(s.size());
 		
 		for (IValue t : s) {
@@ -3014,7 +3054,7 @@ public class Prelude {
 			return values.integer(bi.toString());
 		}
 		catch (NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(null, null);
+			throw RuntimeExceptionFactory.illegalArgument(s, null, null, e.getMessage());
 		}
 	}
 	
@@ -3160,10 +3200,12 @@ public class Prelude {
 	}
 	
 	public IValue replaceAll(IString str, IString find, IString replacement){
-		StringBuilder b = new StringBuilder(str.length() * 2); 
-		
-		int iLength = str.length();
 		int fLength = find.length();
+		if(fLength == 0){
+			return str;
+		}
+		int iLength = str.length();
+		StringBuilder b = new StringBuilder(iLength * 2); 
 		int i = 0;
 		boolean matched = false;
 		while(i < iLength){
@@ -3180,11 +3222,13 @@ public class Prelude {
 	}
 	
 	public IValue replaceFirst(IString str, IString find, IString replacement){
-		StringBuilder b = new StringBuilder(str.length() * 2); 
-
-		int iLength = str.length();
 		int fLength = find.length();
-		
+		if(fLength == 0){
+			return str;
+		}
+		int iLength = str.length();
+		StringBuilder b = new StringBuilder(iLength * 2); 
+
 		int i = 0;
 		boolean matched = false;
 		while(i < iLength){
@@ -3202,10 +3246,12 @@ public class Prelude {
 	}
 	
 	public IValue replaceLast(IString str, IString find, IString replacement){
-		StringBuilder b = new StringBuilder(str.length() * 2); 
-
-		int iLength = str.length();
 		int fLength = find.length();
+		if(fLength == 0){
+			return str;
+		}
+		int iLength = str.length();
+		StringBuilder b = new StringBuilder(iLength * 2); 
 		
 		int i = iLength - fLength;
 		while(i >= 0){
@@ -3336,6 +3382,8 @@ public class Prelude {
 	}
 	
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc){
+		if(trackIO) System.err.println("readBinaryValueFile: " + loc);
+
 		TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
@@ -3343,14 +3391,17 @@ public class Prelude {
 			return new BinaryValueReader().read(values, store, start, in);
 		}
 		catch (IOException e) {
+			System.err.println("readBinaryValueFile: " + loc + " throws " + e.getMessage());
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 		catch (Exception e) {
+			System.err.println("readBinaryValueFile: " + loc + " throws " + e.getMessage());
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
 	
 	public IValue readTextValueFile(IValue type, ISourceLocation loc){
+		if(trackIO) System.err.println("readTextValueFile: " + loc);
 	  	TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
@@ -3378,6 +3429,7 @@ public class Prelude {
 	}
 	
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression){
+    	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
 		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
 			new BinaryValueWriter().write(value, out, compression.getValue());
 		}
@@ -3387,6 +3439,7 @@ public class Prelude {
 	}
 	
 	public void writeTextValueFile(ISourceLocation loc, IValue value){
+		if(trackIO) System.err.println("writeTextValueFile: " + loc);
 		try (Writer out = new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), StandardCharsets.UTF_8)) {
 			new StandardTextWriter().write(value, out);
 		}

@@ -1,5 +1,8 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.interpreter.StackTrace;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
@@ -9,13 +12,14 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class RascalRuntimeException {
 	
 	private static TypeFactory TF = TypeFactory.getInstance();
 	private static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
-	public static final TypeStore TS = new TypeStore();
+	public static final TypeStore TS = RascalValueFactory.getStore(); //new TypeStore();
 	public static final Type Exception = TF.abstractDataType(TS, "RuntimeException");
 	
 	public static final Type StackOverflow = TF.constructor(TS, Exception, "StackOverflow");
@@ -43,6 +47,7 @@ public class RascalRuntimeException {
 	public static final Type NoSuchAnnotation = TF.constructor(TS, Exception, "NoSuchAnnotation", TF.stringType(), "label");
 	public static final Type NoSuchField = TF.constructor(TS, Exception, "NoSuchField", TF.stringType(), "label");
 	public static final Type ParseError = TF.constructor(TS, Exception, "ParseError", TF.sourceLocationType(), "location");
+	public static final Type Ambiguity = TF.constructor(TS, Exception, "Ambiguity", TF.sourceLocationType(), "location", TF.stringType(), "nonterminal", TF.stringType(), "sentence");
 	public static final Type IllegalIdentifier = TF.constructor(TS, Exception, "IllegalIdentifier", TF.stringType(), "name");
 	public static final Type IllegalChar = TF.constructor(TS, Exception, "IllegalCharacter", TF.integerType(), "character");
 	public static final Type SchemeNotSupported = TF.constructor(TS, Exception, "SchemeNotSupported", TF.sourceLocationType(), "location");
@@ -211,6 +216,14 @@ public class RascalRuntimeException {
 	
 	public static Thrown parseError(ISourceLocation parseloc, Frame currentFrame) {
 		return Thrown.getInstance(VF.constructor(ParseError, parseloc), currentFrame);
+	}
+	
+	public static Thrown ambiguity(ISourceLocation loc, IString type, IString string, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(Ambiguity, loc, type, string), currentFrame);
+	}
+
+	public static Thrown parseError(ISourceLocation parseloc, IString nt, IString s, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(Ambiguity, parseloc, nt, s), currentFrame);
 	}
 	
 //	public static Thrown pathNotFound(ISourceLocation parseloc, ISourceLocation loc, List<Frame> stacktrace) {

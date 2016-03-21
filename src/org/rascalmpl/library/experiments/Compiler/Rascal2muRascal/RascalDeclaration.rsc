@@ -51,7 +51,8 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType>@<Name name> ;`) { /*skip: translation has nothing to do here */ }
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> alias <UserType user> = <Type base> ;`)   { /* skip: translation has nothing to do here */ }
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> tag <Kind kind> <Name name> on <{Type ","}+ types> ;`)  { throw("tag"); }
-void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> ;`)  { /* skip: translation has nothing to do here */ }
+
+void translate(d : (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> ;`) { /* skip: translation has nothing to do here */ }
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ variants> ;`) { /* skip: translation has nothing to do here */ }
 
 void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = translate(functionDeclaration);
@@ -219,6 +220,8 @@ public map[str,str] translateTags(Tags tags){
    m = ();
    for(tg <- tags.tags){
      str name = "<tg.name>";
+     if(name == "doc" || name == "license")
+       continue;
      if(tg is \default){
         cont = "<tg.contents>"[1 .. -1];
         m[name] = name == "javaClass" ? resolveLibOverriding(cont) : cont;

@@ -6,93 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AddInt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.AndBool;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Apply;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ApplyDyn;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Call;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallConstr;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallDyn;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallJava;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallMuPrim;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CallPrim;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckArgTypeAndCopy;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CheckMemo;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Create;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.CreateDyn;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Exhaust;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FailReturn;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.FilterReturn;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.GreaterEqualInt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Guard;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Halt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Instruction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Jmp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpFalse;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpIndexed;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.JmpTrue;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Label;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LessInt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadBool;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCon;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadConstr;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadCont;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadEmptyKwMap;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadFun;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadInt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc0;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc1;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc2;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc3;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc4;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc5;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc6;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc7;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc8;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLoc9;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocDeref;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocKwp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadLocRef;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadNestedFun;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadOFun;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadType;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVar;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarDeref;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarKwp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.LoadVarRef;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next0;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Next1;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.OCall;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.OCallDyn;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Pop;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Println;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Reset;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ResetLocs;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return0;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Return1;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Shift;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLoc;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocDeref;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreLocKwp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVar;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarDeref;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.StoreVarKwp;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubType;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptArray;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubscriptList;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.SubtractInt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Switch;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Throw;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeOf;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.TypeSwitch;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownLoc;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.UnwrapThrownVar;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.ValueSubtype;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Visit;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield0;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Yield1;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.*;
 import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
@@ -104,11 +18,11 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
-import de.ruedigermoeller.serialization.FSTBasicObjectSerializer;
-import de.ruedigermoeller.serialization.FSTClazzInfo;
-import de.ruedigermoeller.serialization.FSTClazzInfo.FSTFieldInfo;
-import de.ruedigermoeller.serialization.FSTObjectInput;
-import de.ruedigermoeller.serialization.FSTObjectOutput;
+import org.nustaq.serialization.FSTBasicObjectSerializer;
+import org.nustaq.serialization.FSTClazzInfo;
+import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
+import org.nustaq.serialization.FSTObjectInput;
+import org.nustaq.serialization.FSTObjectOutput;
 
 /**
  * CodeBlock contains all instructions needed for a single RVM function
@@ -145,6 +59,8 @@ public class CodeBlock implements Serializable {
 	
 	public long[] finalCode;
 	
+	
+	
 	CodeBlock(String name, Map<IValue, Integer> constantMap, ArrayList<IValue> constantStore, IValue[] finalConstantStore,
 			Map<Type, Integer> typeConstantMap, ArrayList<Type> typeConstantStore, Type[] finalTypeConstantStore,
 			Map<String, Integer> functionMap, Map<String, Integer> resolver, Map<String, Integer> constructorMap, long[] finalCode
@@ -173,6 +89,10 @@ public class CodeBlock implements Serializable {
 		this.constantStore = new ArrayList<IValue>();
 		this.typeConstantMap = new HashMap<Type, Integer>();
 		this.typeConstantStore = new ArrayList<Type>();
+	}
+	
+	void clearForJVM(){
+		finalCode = new long[] {};
 	}
 	
 	public void defLabel(String label, Instruction ins){
@@ -252,6 +172,16 @@ public class CodeBlock implements Serializable {
 	}
 	
 	public String getFunctionName(int n){
+		for(String fname : functionMap.keySet()){
+			if(functionMap.get(fname) == n){
+				return fname;
+			}
+		}
+		throw new CompilerError("In function " + name + ": undefined function index " + n);
+	}
+	
+	public String getFunctionName(String name){
+		int n = getFunctionIndex(name);
 		for(String fname : functionMap.keySet()){
 			if(functionMap.get(fname) == n){
 				return fname;
@@ -357,42 +287,42 @@ public class CodeBlock implements Serializable {
 	public final static int maxArg2 = (int) ((1L << sizeArg2) - 1);
 	public final static int maxArg = Math.min(maxArg1,maxArg2);
 
-	public static long encode0(int op){
+	public final static long encode0(int op){
 		return op;
 	}
 	
-	public static long encode1(int op, int arg1){
+	public final static long encode1(int op, int arg1){
 		assert arg1 < (1L << sizeArg1);
 		long larg1 = arg1;
 		return (larg1 << shiftArg1) | op;
 	}
 	
-	public static long encode2(int op, int arg1, int arg2){
+	public final static long encode2(int op, int arg1, int arg2){
 		assert arg1 < (1L << sizeArg1) && arg2 < (1L << sizeArg2);
 		long larg1 = arg1;
 		long larg2 = arg2;
 		return (larg2 << shiftArg2) | (larg1 << shiftArg1) | op;
 	}
 	
-	public static int fetchOp(long instruction){
+	public final static int fetchOp(long instruction){
 		return (int) (instruction & maskOp);
 	}
 	
-	public static int fetchArg1(long instruction){
+	public final static int fetchArg1(long instruction){
 		return (int) ((instruction >> shiftArg1) & maskArg1);
 	}
 	
-	public static int fetchArg2(long instruction){
+	public final static int fetchArg2(long instruction){
 		return (int) ((instruction >> shiftArg2) & maskArg2);
 	}
 	
-	public static boolean isMaxArg1(int arg){
+	public final static boolean isMaxArg1(int arg){
 		return arg == maskArg1;
 	}
-	public static boolean isMaxArg2(int arg){
+	
+	public final static boolean isMaxArg2(int arg){
 		return arg == maskArg2;
 	}
-	
 	
 	/*
 	 * All Instructions
@@ -402,7 +332,7 @@ public class CodeBlock implements Serializable {
 		return add(new Pop(this));
 	}
 	
-	public  CodeBlock HALT(){
+	public CodeBlock HALT(){
 		return add(new Halt(this));
 	}
 	
@@ -410,8 +340,16 @@ public class CodeBlock implements Serializable {
 		return add(new Return0(this));
 	}
 	
-	public CodeBlock RETURN1(int arity){
-		return add(new Return1(this,arity));
+	public CodeBlock RETURN1(){
+		return add(new Return1(this));
+	}
+	
+	public CodeBlock CORETURN0() {
+		return add(new CoReturn0(this));
+	}
+	
+	public CodeBlock CORETURN1(int arity){
+		return add(new CoReturn1(this,arity));
 	}
 	
 	public CodeBlock LABEL(String arg){
@@ -432,6 +370,10 @@ public class CodeBlock implements Serializable {
 	
 	public CodeBlock LOADCON(IValue val){
 		return add(new LoadCon(this, getConstantIndex(val)));
+	}
+	
+	public CodeBlock PUSHCON(IValue val){
+		return add(new PushCon(this, getConstantIndex(val)));
 	}
 	
 	public CodeBlock LOADBOOL(boolean bool){
@@ -475,6 +417,14 @@ public class CodeBlock implements Serializable {
 		}
 	}
 	
+	public CodeBlock PUSHLOC (int pos){
+		return add(new PushLoc(this, pos));
+	}
+	
+	public CodeBlock RESETLOC (int pos){
+		return add(new ResetLoc(this, pos));
+	}
+	
 	public CodeBlock STORELOC (int pos){
 		return add(new StoreLoc(this, pos));
 	}
@@ -486,6 +436,13 @@ public class CodeBlock implements Serializable {
 		return add(new LoadVar(this, fuid, pos));
 	}
 	
+	public CodeBlock PUSHVAR(String fuid, int pos){
+		if(pos == -1){
+			getConstantIndex(vf.string(fuid));
+		}
+		return add(new PushVar(this, fuid, pos));
+	}
+	
 	public CodeBlock STOREVAR (String fuid, int pos){
 		if(pos == -1){
 			getConstantIndex(vf.string(fuid));
@@ -493,16 +450,78 @@ public class CodeBlock implements Serializable {
 		return add(new StoreVar(this, fuid, pos));
 	}
 	
-	public CodeBlock CALLPRIM (RascalPrimitive prim, int arity, ISourceLocation src){
-		return add(new CallPrim(this, prim, arity, src));
+	public CodeBlock RESETVAR (String fuid, int pos){
+		if(pos == -1){
+			getConstantIndex(vf.string(fuid));
+		}
+		return add(new ResetVar(this, fuid, pos));
 	}
 	
-	public CodeBlock CALLMUPRIM (MuPrimitive muprim, int arity){
-		return add(new CallMuPrim(this, muprim, arity));
+	public CodeBlock CALLMUPRIM0 (MuPrimitive muprim){
+		return add(new CallMuPrim0(this, muprim));
+	}
+	public CodeBlock PUSHCALLMUPRIM0 (MuPrimitive muprim){
+		return add(new PushCallMuPrim0(this, muprim));
 	}
 	
-	public CodeBlock LOADFUN (String fuid){
-		return add(new LoadFun(this, fuid));
+	public CodeBlock CALLMUPRIM1 (MuPrimitive muprim){
+		return add(new CallMuPrim1(this, muprim));
+	}
+	
+	public CodeBlock PUSHCALLMUPRIM1 (MuPrimitive muprim){
+		return add(new PushCallMuPrim1(this, muprim));
+	}
+	
+	public CodeBlock CALLMUPRIM2 (MuPrimitive muprim){
+		return add(new CallMuPrim2(this, muprim));
+	}
+	
+	public CodeBlock PUSHCALLMUPRIM2 (MuPrimitive muprim){
+		return add(new PushCallMuPrim2(this, muprim));
+	}
+	
+	public CodeBlock CALLMUPRIMN (MuPrimitive muprim, int arity){
+		return add(new CallMuPrimN(this, muprim, arity));
+	}
+	
+	public CodeBlock PUSHCALLMUPRIMN (MuPrimitive muprim, int arity){
+		return add(new PushCallMuPrimN(this, muprim, arity));
+	}
+	
+	public CodeBlock CALLPRIM0 (RascalPrimitive prim, ISourceLocation src){
+		return add(new CallPrim0(this, prim, src));
+	}
+	
+	public CodeBlock PUSHCALLPRIM0 (RascalPrimitive prim, ISourceLocation src){
+		return add(new PushCallPrim0(this, prim, src));
+	}
+	
+	public CodeBlock CALLPRIM1 (RascalPrimitive prim, ISourceLocation src){
+		return add(new CallPrim1(this, prim, src));
+	}
+	
+	public CodeBlock PUSHCALLPRIM1 (RascalPrimitive prim, ISourceLocation src){
+		return add(new PushCallPrim1(this, prim, src));
+	}
+	
+	public CodeBlock CALLPRIM2 (RascalPrimitive prim, ISourceLocation src){
+		return add(new CallPrim2(this, prim, src));
+	}
+	
+	public CodeBlock PUSHCALLPRIM2 (RascalPrimitive prim, ISourceLocation src){
+		return add(new PushCallPrim2(this, prim, src));
+	}
+	
+	public CodeBlock CALLPRIMN (RascalPrimitive prim, int arity, ISourceLocation src){
+		return add(new CallPrimN(this, prim, arity, src));
+	}
+	
+	public CodeBlock PUSHCALLPRIMN (RascalPrimitive prim, int arity, ISourceLocation src){
+		return add(new PushCallPrimN(this, prim, arity, src));
+	}
+	
+	public CodeBlock PUSH_ROOT_FUN (String fuid){
+		return add(new PushRootFun(this, fuid));
 	}
 	
 	public CodeBlock CALLDYN(int arity, int ctpt){
@@ -541,16 +560,32 @@ public class CodeBlock implements Serializable {
 		return add(new LoadLocRef(this, pos));
 	}
 	
+	public CodeBlock PUSHLOCREF(int pos) {
+		return add(new PushLocRef(this, pos));
+	}
+	
 	public CodeBlock LOADVARREF(String fuid, int pos) {
 		return add(new LoadVarRef(this, fuid, pos));
+	}
+	
+	public CodeBlock PUSHVARREF(String fuid, int pos) {
+		return add(new PushVarRef(this, fuid, pos));
 	}
 	
 	public CodeBlock LOADLOCDEREF(int pos) {
 		return add(new LoadLocDeref(this, pos));
 	}
 	
+	public CodeBlock PUSHLOCDEREF(int pos) {
+		return add(new PushLocDeref(this, pos));
+	}
+	
 	public CodeBlock LOADVARDEREF(String fuid, int pos) {
 		return add(new LoadVarDeref(this, fuid, pos));
+	}
+	
+	public CodeBlock PUSHVARDEREF(String fuid, int pos) {
+		return add(new PushVarDeref(this, fuid, pos));
 	}
 	
 	public CodeBlock STORELOCDEREF(int pos) {
@@ -561,28 +596,32 @@ public class CodeBlock implements Serializable {
 		return add(new StoreVarDeref(this, fuid, pos));
 	}
 	
-	public CodeBlock LOADCONSTR(String name) {
-		return add(new LoadConstr(this, name));
+	public CodeBlock PUSHCONSTR(String name) {
+		return add(new PushConstr(this, name));
 	}
 	
 	public CodeBlock CALLCONSTR(String name, int arity/*, ISourceLocation src*/) {
 		return add(new CallConstr(this, name, arity/*, src*/));
 	}
 	
-	public CodeBlock LOADNESTEDFUN(String fuid, String scopeIn) {
-		return add(new LoadNestedFun(this, fuid, scopeIn));
+	public CodeBlock PUSHNESTEDFUN(String fuid, String scopeIn) {
+		return add(new PushNestedFun(this, fuid, scopeIn));
 	}
 	
 	public CodeBlock LOADTYPE(Type type) {
 		return add(new LoadType(this, getTypeConstantIndex(type)));
 	}
 	
+	public CodeBlock PUSHTYPE(Type type) {
+		return add(new PushType(this, getTypeConstantIndex(type)));
+	}
+	
 	public CodeBlock FAILRETURN(){
 		return add(new FailReturn(this));
 	}
 	
-	public CodeBlock LOADOFUN(String fuid) {
-		return add(new LoadOFun(this, fuid));
+	public CodeBlock PUSHOFUN(String fuid) {
+		return add(new PushOFun(this, fuid));
 	}
 	
 	public CodeBlock OCALL(String fuid, int arity, ISourceLocation src) {
@@ -664,17 +703,21 @@ public class CodeBlock implements Serializable {
 	public CodeBlock CHECKARGTYPEANDCOPY(int pos1, Type type, int pos2) {
 		return add(new CheckArgTypeAndCopy(this, pos1, getTypeConstantIndex(type), pos2));
 	}
-		
-	public CodeBlock JMPINDEXED(IList labels){
-		return add(new JmpIndexed(this, labels));
-	}
 	
 	public CodeBlock LOADLOCKWP(String name) {
 		return add(new LoadLocKwp(this, name));
 	}
 	
+	public CodeBlock PUSHLOCKWP(String name) {
+		return add(new PushLocKwp(this, name));
+	}
+	
 	public CodeBlock LOADVARKWP(String fuid, String name) {
 		return add(new LoadVarKwp(this, fuid, name));
+	}
+	
+	public CodeBlock PUSHVARKWP(String fuid, String name) {
+		return add(new PushVarKwp(this, fuid, name));
 	}
 	
 	public CodeBlock STORELOCKWP(String name) {
@@ -697,18 +740,6 @@ public class CodeBlock implements Serializable {
 		return add(new ApplyDyn(this, arity));
 	}
 	
-	public CodeBlock LOADCONT(String fuid) {
-		return add(new LoadCont(this, fuid));
-	}
-	
-	public CodeBlock RESET() {
-		return add(new Reset(this));
-	}
-	
-	public CodeBlock SHIFT() {
-		return add(new Shift(this));
-	}
-	
 	public CodeBlock SWITCH(IMap caseLabels, String caseDefault, boolean useConcreteFingerprint) {
 		return add(new Switch(this, caseLabels, caseDefault, useConcreteFingerprint));
 	}
@@ -729,13 +760,23 @@ public class CodeBlock implements Serializable {
 		return add(new CheckMemo(this));
 	}
 	
-	public CodeBlock LOADEMPTYKWMAP(){
-		return add(new LoadEmptyKwMap(this));
+	public CodeBlock PUSHEMPTYKWMAP(){
+		return add(new PushEmptyKwMap(this));
 	}
 	
 	public CodeBlock VALUESUBTYPE(Type type){
 		return add(new ValueSubtype(this, getTypeConstantIndex(type)));
 	}
+	
+	public CodeBlock PUSHACCU(){
+		return add(new PushAccu(this));
+	}
+	
+	
+	public CodeBlock POPACCU(){
+		return add(new PopAccu(this));
+	}
+	
 			
 	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {
 		this.functionMap = codeMap;
@@ -781,7 +822,7 @@ public class CodeBlock implements Serializable {
     void listing(String fname){
     	int pc = 0;
     	while(pc < finalCode.length){
-    		Opcode opc = Opcode.fromInteger((int) finalCode[pc]);
+    		Opcode opc = Opcode.fromInteger(fetchOp((int) finalCode[pc]));
     		System.out.println(fname + "[" + pc +"]: " + Opcode.toString(this, opc, pc));
     		pc += opc.getPcIncrement();
     	}
@@ -792,18 +833,20 @@ public class CodeBlock implements Serializable {
     	StringBuilder sb = new StringBuilder();
     	sb.append("\n") ;
     	boolean prevLabel = false ;
-    	for (Instruction ins : insList ) {
-    		if ( ins instanceof Label ) {
-    			sb.append(ins).append(": ");
-    			prevLabel = true ;
-    		}
-    		else {
-    			if ( prevLabel ) {
-    				sb.append("\t").append(ins).append("\n") ;
-    				prevLabel = false ;
+    	if(insList != null){
+    		for (Instruction ins : insList ) {
+    			if ( ins instanceof Label ) {
+    				sb.append(ins).append(": ");
+    				prevLabel = true ;
     			}
     			else {
-    				sb.append("\t\t").append(ins).append("\n") ;    				
+    				if ( prevLabel ) {
+    					sb.append("\t").append(ins).append("\n") ;
+    					prevLabel = false ;
+    				}
+    				else {
+    					sb.append("\t\t").append(ins).append("\n") ;    				
+    				}
     			}
     		}
     	}

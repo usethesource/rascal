@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.result.NamedFunction;
 import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.value.IValue;
@@ -45,14 +46,16 @@ public class ArgumentMismatch extends StaticError {
       OverloadedFunction of = (OverloadedFunction) function;
       return computeMessage(of.getName(), of.getFunctions(), argTypes);
     }
+    else if (function instanceof NamedFunction) {
+    	return computeMessage(((NamedFunction) function).getName(), Arrays.asList(function), argTypes);
+    }
     else {
-      AbstractFunction func = (AbstractFunction) function;
-      return computeMessage(func.getName(), Arrays.<AbstractFunction>asList(func), argTypes);
+      return computeMessage("", Arrays.asList(function), argTypes);
     }
   }
 
   private static String computeMessage(String name,
-			List<AbstractFunction> candidates, Type[] argTypes) {
+			List<?> candidates, Type[] argTypes) {
 		StringBuilder b = new StringBuilder();
 		
 		b.append("The called signature: " + name);
@@ -65,7 +68,7 @@ public class ArgumentMismatch extends StaticError {
 		else {
 			b.append(",\ndoes not match any of the declared (overloaded) signature patterns:\n");
 		}
-		for (AbstractFunction c : candidates) {
+		for (Object c : candidates) {
 			b.append('\t');
 			b.append(c.toString());
 			b.append('\n');

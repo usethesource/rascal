@@ -149,11 +149,15 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return null;
 	}
 
-	public String getFirstOutermostConstructorLabel() {
+	public String getIndexedLabel() {
 		return null;
 	}
 	
-	public IConstructor getFirstOutermostProduction() {
+	public int getIndexedArgumentPosition() {
+		return -1;
+	}
+	
+	public IConstructor getIndexedProduction() {
 		return null;
 	}
 	
@@ -519,7 +523,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public int hashCode() {
-		return 7 + (declarationEnvironment != null ? declarationEnvironment.hashCode() * 17: 17) + (ast != null ? ast.hashCode() * 23 : 23);
+		return 7 + (ast != null ? ast.hashCode() * 23 : 23);
 	}
 	
 	@Override

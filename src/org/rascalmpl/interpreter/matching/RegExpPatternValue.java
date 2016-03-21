@@ -167,7 +167,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		try {
 			return findMatch();
 		}
-		catch (ArrayIndexOutOfBoundsException e) {
+		catch (IndexOutOfBoundsException e) {
 			throw new ImplementationError("Unexpected error in mapping to Java regex:" + interpolate(ctx), ctx.getCurrentAST().getLocation());
 		}
 	}

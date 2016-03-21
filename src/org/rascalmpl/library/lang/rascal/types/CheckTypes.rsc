@@ -30,7 +30,7 @@ import lang::rascal::types::AbstractType;
 import lang::rascal::types::ConvertType;
 import lang::rascal::types::TypeSignature;
 import lang::rascal::types::TypeInstantiation;
-import lang::rascal::checker::ParserHelper;
+//import lang::rascal::checker::ParserHelper;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::meta::ModuleInfo;
 import lang::rascal::types::Util;
@@ -165,14 +165,15 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
 	cFun.store[head(cFun.stack)].keywordParams = keywordParams;
 	    
     // In the environment with the parameters, check the body of the closure.
+    cFun = prepareFunctionBodyEnv(cFun);
 	< cFun, st > = checkStatementSequence([ssi | ssi <- ss], cFun);
     
     // TODO: We need an actual check to ensure return is defined along all
     // paths, but for now we just check to see if the type of the ending
     // expression is a subtype of the return type.
-    if (!isVoidType(rt) && !subtype(st,rt)) {
-    	cFun = addScopeError(cFun, "The type of the final statement, <prettyPrintType(st)>, must be a subtype of the declared return type, <prettyPrintType(rt)>", exp@\loc);
-    }
+    //if (!isVoidType(rt) && !subtype(st,rt)) {
+    //	cFun = addScopeError(cFun, "The type of the final statement, <prettyPrintType(st)>, must be a subtype of the declared return type, <prettyPrintType(rt)>", exp@\loc);
+    //}
     
     // Now, recover the environment active before the call, removing any names
     // added by the closure (e.g., for parameters) from the environment. This
@@ -193,7 +194,7 @@ public CheckResult checkExp(Expression exp:(Expression)`[ <Expression ef> , <Exp
     < c, t3 > = checkExp(el, c);
 
     if (!isFailType(t1) && !isFailType(t2) && !isFailType(t3) && subtype(t1,Symbol::\num()) && subtype(t2,Symbol::\num()) && subtype(t3,Symbol::\num())) {
-        return markLocationType(c,exp@\loc,\list(lubList([t1,t2,t3])));
+        return markLocationType(c,exp@\loc,makeListType(lubList([t1,t2,t3])));
     } else {
         if (!isFailType(t1) && !subtype(t1,Symbol::\num())) t1 = makeFailType("Invalid type: expected numeric type, found <prettyPrintType(t1)>", ef@\loc);
         if (!isFailType(t2) && !subtype(t2,Symbol::\num())) t2 = makeFailType("Invalid type: expected numeric type, found <prettyPrintType(t2)>", es@\loc);
@@ -231,6 +232,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Parameters ps> { <State
 	cFun.store[head(cFun.stack)].keywordParams = keywordParams;
     
     // In the environment with the parameters, check the body of the closure.
+    cFun = prepareFunctionBodyEnv(cFun);
 	< cFun, t1 > = checkStatementSequence([ssi | ssi <- ss], cFun);
     
     // Now, recover the environment active before the call, removing any names
@@ -390,7 +392,7 @@ public tuple[Configuration,KeywordParamMap] getConstructorKeywordParams(Configur
 	
 	adtIdSet = invert(c.adtConstructors)[itemId];
 	if (size(adtIdSet) == 1) {
-		adtId = getOneFrom(adtIdSet);
+		adtId = getFirstFrom(adtIdSet);
 		if (adtId == 847) {
 			println("Found it");
 		}
@@ -797,7 +799,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 		} 
 		
 		if (size(constructorMatches) == 1) {
-            rt = getOneFrom(constructorMatches);
+            rt = getFirstFrom(constructorMatches);
             if (typeContainsTypeVars(rt)) {
                 // If the constructor is parametric, we need to calculate the actual types of the
                 // parameters and make sure they fall within the proper bounds.
@@ -826,7 +828,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         }
 
 		if (size(productionMatches) == 1) {
-            rt = getOneFrom(productionMatches);
+            rt = getFirstFrom(productionMatches);
             if (typeContainsTypeVars(rt)) {
                 // If the production is parametric, we need to calculate the actual types of the
                 // parameters and getProductionArgumentTypes sure they fall within the proper bounds.
@@ -870,7 +872,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         	return markLocationFailed(c,exp@\loc,makeFailType("Cannot instantiate type parameters in production", exp@\loc));
         } else {
         	if (size(finalNonDefaultMatches) == 1) {
-        		finalMatch = getOneFrom(finalNonDefaultMatches);
+        		finalMatch = getFirstFrom(finalNonDefaultMatches);
 				< c, rtp > = markLocationType(c,e@\loc,finalMatch);
         		if (isFunctionType(finalMatch)) {
         			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is function, comparable(c.store[ui].rtype,finalMatch) };
@@ -882,7 +884,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 					return markLocationFailed(c,exp@\loc,makeFailType("Unexpected match, should have had a function type, instead found <prettyPrintType(finalMatch)>", exp@\loc));
 				}
         	} else if (size(finalDefaultMatches) == 1) {
-				finalMatch = getOneFrom(finalDefaultMatches);
+				finalMatch = getFirstFrom(finalDefaultMatches);
 				< c, rtp > = markLocationType(c,e@\loc,finalMatch);
 				if (isFunctionType(finalMatch)) {
         			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is function, comparable(c.store[ui].rtype,finalMatch) };
@@ -907,10 +909,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 				// Make sure the defaults function, constructor, and production variants have the same return type, else we
 				// have a conflict.
 				functionMatches = filterSet(finalDefaultMatches, isFunctionType);
-				functionVariant = getOneFrom(functionMatches);
+				functionVariant = getFirstFrom(functionMatches);
 				constructorMatches = filterSet(finalDefaultMatches, isConstructorType);
 				productionMatches = filterSet(finalDefaultMatches, isProductionType);
-				nonFunctionResult = (size(constructorMatches) > 0) ? getConstructorResultType(getOneFrom(constructorMatches)) : getProductionSortType(getOneFrom(productionMatches));
+				nonFunctionResult = (size(constructorMatches) > 0) ? getConstructorResultType(getFirstFrom(constructorMatches)) : getProductionSortType(getFirstFrom(productionMatches));
 				
 				if (!equivalent(getFunctionReturnType(functionVariant),nonFunctionResult)) {
 					// TODO: This should also result in an error on the function
@@ -1042,7 +1044,7 @@ public CheckResult checkExp(Expression exp:(Expression)`{ <{Expression ","}* es>
     list[Symbol] tl = [ Symbol::\void() ];
     for (e <- es) { < c, t1 > = checkExp(e,c); tl += t1; }
     if (all(t <- tl, !isFailType(t))) {
-        return markLocationType(c, exp@\loc, \set(lubList(tl)));
+        return markLocationType(c, exp@\loc, makeSetType(lubList(tl)));
     } else {
         return markLocationFailed(c, exp@\loc, {t|t<-tl});
     }
@@ -1053,7 +1055,7 @@ public CheckResult checkExp(Expression exp:(Expression)`[ <{Expression ","}* es>
     list[Symbol] tl = [ Symbol::\void() ];
     for (e <- es) { < c, t1 > = checkExp(e,c); tl += t1; }
     if (all(t <- tl, !isFailType(t))) {
-        return markLocationType(c, exp@\loc, \list(lubList(tl)));
+        return markLocationType(c, exp@\loc, makeListType(lubList(tl)));
     } else {
         return markLocationFailed(c, exp@\loc, {t|t<-tl});
     }
@@ -1071,7 +1073,7 @@ public CheckResult checkExp(Expression exp:(Expression)`[ <Expression ef> .. <Ex
     < c, t2 > = checkExp(el, c);
     
     if (!isFailType(t1) && !isFailType(t2) && subtype(t1,Symbol::\num()) && subtype(t2,Symbol::\num())) {
-        return markLocationType(c,exp@\loc,\list(lubList([t1,t2])));
+        return markLocationType(c,exp@\loc,makeListType(lubList([t1,t2])));
     } else {
         if (!subtype(t1,Symbol::\num())) t1 = makeFailType("Invalid type: expected numeric type, found <prettyPrintType(t1)>", ef@\loc);
         if (!subtype(t2,Symbol::\num())) t2 = makeFailType("Invalid type: expected numeric type, found <prettyPrintType(t2)>", el@\loc);
@@ -1196,13 +1198,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("For a relation with arity <size(getRelFields(t1))> you can have at most <size(getRelFields(t1))-1> subscripts",exp@\loc));
         else {
             relFields = getRelFields(t1);
-            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],\set(relFields[idx]))) };
+            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],makeSetType(relFields[idx]))) };
             if (size(failures) > 0) {
                 return markLocationFailed(c,exp@\loc,failures);
             } else if ((size(relFields) - size(tl)) == 1) {
             	rftype = last(relFields);
             	if (\label(_,rft) := rftype) rftype = rft; 
-                return markLocationType(c,exp@\loc,\set(rftype));
+                return markLocationType(c,exp@\loc,makeSetType(rftype));
             } else {
                 return markLocationType(c,exp@\loc,\rel(tail(relFields,size(relFields)-size(tl))));
             }
@@ -1212,13 +1214,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
             return markLocationFailed(c,exp@\loc,makeFailType("For a list relation with arity <size(getListRelFields(t1))> you can have at most <size(getListRelFields(t1))-1> subscripts",exp@\loc));
         else {
             relFields = getListRelFields(t1);
-            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],\set(relFields[idx]))) };
+            failures = { makeFailType("At subscript <idx+1>, subscript type <prettyPrintType(tl[idx])> must be comparable to relation field type <prettyPrintType(relFields[idx])>", exp@\loc) | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],makeSetType(relFields[idx]))) };
             if (size(failures) > 0) {
                 return markLocationFailed(c,exp@\loc,failures);
             } else if ((size(relFields) - size(tl)) == 1) {
             	rftype = last(relFields);
             	if (\label(_,rft) := rftype) rftype = rft; 
-                return markLocationType(c,exp@\loc,\list(rftype));
+                return markLocationType(c,exp@\loc,makeListType(rftype));
             } else {
                 return markLocationType(c,exp@\loc,\lrel(tail(relFields,size(relFields)-size(tl))));
             }
@@ -1294,7 +1296,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
 	if (isListType(t1) || isStrType(t1) || isNonTerminalIterType(t1)) {
 		res = t1;
 	} else if (isNodeType(t1)) {
-		res = \list(Symbol::\value());
+		res = makeListType(Symbol::\value());
 	}
 	
 	if (isFailType(res) || size(failures) > 0)
@@ -1329,7 +1331,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <Option
 	if (isListType(t1) || isStrType(t1) || isNonTerminalIterType(t1)) {
         res = t1;
     } else if (isNodeType(t1)) {
-        res = \list(Symbol::\value());
+        res = makeListType(Symbol::\value());
     }
 	
 	if (isFailType(res) || size(failures) > 0)
@@ -1358,7 +1360,7 @@ private map[Symbol,map[str,Symbol]] fieldMap =
           "top" : Symbol::\loc(),
           "parent" : Symbol::\loc(),
           "file" : \str(), 
-          "ls" : \list(Symbol::\loc()), 
+          "ls" : makeListType(Symbol::\loc()), 
           "extension" : \str(),
           "params" : \map(\str(),\str())
         ),
@@ -1400,13 +1402,13 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
     } else if (isRelType(t1)) {
         rt = getRelElementType(t1);
         if (tupleHasField(rt, fAsString))
-            return \set(getTupleFieldType(rt, fAsString));
+            return makeSetType(getTupleFieldType(rt, fAsString));
         else
             return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
     } else if (isListRelType(t1)) {
         rt = getListRelElementType(t1);
         if (tupleHasField(rt, fAsString))
-            return \list(getTupleFieldType(rt, fAsString));
+            return makeListType(getTupleFieldType(rt, fAsString));
         else
             return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
     } else if (isMapType(t1)) {
@@ -1622,13 +1624,13 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> \< <{Fiel
 	
     if (isRelType(t1)) {
         if (size(subscripts) > 1) return markLocationType(c, exp@\loc, \rel(subscripts));
-        return markLocationType(c, exp@\loc, \set(head(subscripts)));
+        return markLocationType(c, exp@\loc, makeSetType(head(subscripts)));
     } else if (isListRelType(t1)) {
         if (size(subscripts) > 1) return markLocationType(c, exp@\loc, \lrel(subscripts));
-        return markLocationType(c, exp@\loc, \list(head(subscripts)));
+        return markLocationType(c, exp@\loc, makeListType(head(subscripts)));
     } else if (isMapType(t1)) {
         if (size(subscripts) > 1) return markLocationType(c, exp@\loc, \rel(subscripts));
-        return markLocationType(c, exp@\loc, \set(head(subscripts)));
+        return markLocationType(c, exp@\loc, makeSetType(head(subscripts)));
     } else if (isTupleType(t1)) {
         if (size(subscripts) > 1) return markLocationType(c, exp@\loc, \tuple(subscripts));
         return markLocationType(c, exp@\loc, head(subscripts));
@@ -1654,7 +1656,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ @ <Name
 		        
 		    aTypes = { c.store[annId].rtype | annId <- annIds, subtype(t1,c.store[annId].onType) };
 	        if (size(aTypes) > 0) {
-	            aType = getOneFrom(aTypes); // This should be sufficient, insert logic should keep this to one
+	            aType = getFirstFrom(aTypes); // This should be sufficient, insert logic should keep this to one
 	            if (isFailType(aType)) {
 	                return markLocationFailed(c,exp@\loc,aType);
 	            } else {
@@ -1689,7 +1691,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e>@<Name n>`
 		        
 		    aTypes = { c.store[annId].rtype | annId <- annIds, subtype(t1,c.store[annId].onType) };
 	        if (size(aTypes) > 0) {
-	            aType = getOneFrom(aTypes); // This should be sufficient, insert logic should keep this to one
+	            aType = getFirstFrom(aTypes); // This should be sufficient, insert logic should keep this to one
 	            if (isFailType(aType)) {
 	                return markLocationFailed(c,exp@\loc,aType);
 	            } else {
@@ -1942,7 +1944,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> o <Expre
     		ft = makeFailType("The functions cannot be composed", exp@\loc);
     		return markLocationFailed(c, exp@\loc, ft);
     	} else if (size(newFunTypes) == 1) {
-    		return markLocationType(c, exp@\loc, getOneFrom(newFunTypes));
+    		return markLocationType(c, exp@\loc, getFirstFrom(newFunTypes));
     	} else {
     		// TODO: Do we need to keep track of defaults through all this? If so, do we compose default
     		// and non-default functions?
@@ -1966,7 +1968,7 @@ Symbol computeProductType(Symbol t1, Symbol t2, loc l) {
         return numericArithTypes(t1, t2);
     
     if (isListType(t1) && isListType(t2))
-        return \list(\tuple([getListElementType(t1),getListElementType(t2)]));
+        return makeListType(\tuple([getListElementType(t1),getListElementType(t2)]));
     if (isRelType(t1) && isRelType(t2))
         return \rel([getRelElementType(t1),getRelElementType(t2)]);
     if (isListRelType(t1) && isListRelType(t2))
@@ -2130,23 +2132,23 @@ Symbol computeAdditionType(Symbol t1, Symbol t2, loc l) {
         return lub(t1,t2);
     
     if (isListType(t1) && !isContainerType(t2))
-        return \list(lub(getListElementType(t1),t2));
+        return makeListType(lub(getListElementType(t1),t2));
     if (isSetType(t1) && !isContainerType(t2)) // Covers relations too
-        return \set(lub(getSetElementType(t1),t2));
+        return makeSetType(lub(getSetElementType(t1),t2));
     if (isBagType(t1) && !isContainerType(t2))
         return \bag(lub(getBagElementType(t1),t2));
         
     if (isListType(t2) && !isContainerType(t1))
-        return \list(lub(t1,getListElementType(t2)));
+        return makeListType(lub(t1,getListElementType(t2)));
     if (isSetType(t2) && !isContainerType(t1)) // Covers relations too
-        return \set(lub(t1,getSetElementType(t2)));
+        return makeSetType(lub(t1,getSetElementType(t2)));
     if (isBagType(t2) && !isContainerType(t1))
         return \bag(lub(t1,getBagElementType(t2)));
         
     if (isListType(t1))
-        return \list(lub(getListElementType(t1),t2));
+        return makeListType(lub(getListElementType(t1),t2));
     if (isSetType(t1)) // Covers relations too
-        return \set(lub(getSetElementType(t1),t2));
+        return makeSetType(lub(getSetElementType(t1),t2));
     if (isBagType(t1))
         return \bag(lub(getBagElementType(t1),t2));
         
@@ -2234,7 +2236,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \<\< <Ex
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 
 	if (isListType(t1)) {
-		return markLocationType(c, exp@\loc, \list(lub(getListElementType(t1),t2)));
+		return markLocationType(c, exp@\loc, makeListType(lub(getListElementType(t1),t2)));
 	}
 
     return markLocationFailed(c, exp@\loc, makeFailType("Expected a list type, not type <prettyPrintType(t1)>", e1@\loc));
@@ -2247,7 +2249,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> \>\> <Ex
 	if (isFailType(t1) || isFailType(t2)) return markLocationFailed(c,exp@\loc,{t1,t2});
 
 	if (isListType(t2)) {
-		return markLocationType(c, exp@\loc, \list(lub(getListElementType(t2),t1)));
+		return markLocationType(c, exp@\loc, makeListType(lub(getListElementType(t2),t1)));
 	}
 
     return markLocationFailed(c, exp@\loc, makeFailType("Expected a list type, not type <prettyPrintType(t2)>", e2@\loc));
@@ -2891,11 +2893,11 @@ public CheckResult checkFormals((Formals)`<{Pattern ","}* ps>`, bool isVarArgs, 
         < c, t > = calculatePatternType(patterns[idx], c);
         if (size(patterns) == (idx + 1) && isVarArgs && !isFailType(t)) {
         	if ((Pattern)`<Type pt> <Name pn>` := patterns[idx]) {
-        		c.store[c.fcvEnv[convertName(pn)]].rtype = \list(t);
+        		c.store[c.fcvEnv[convertName(pn)]].rtype = makeListType(t);
         	} else if (!isFailType(t)) {
         		t = makeFailType("A var-args parameter must be a type name followed by a variable name", patterns[idx]@\loc);
         	}
-        	formals += \list(t);
+        	formals += makeListType(t);
         } else {
         	formals += t;
         }
@@ -3241,14 +3243,14 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	        	for (idx <- index(ptns)) {
 	        		if (spliceNodePlus(n,_,rt,nid) := ptns[idx] || spliceNodeStar(n,_,rt,nid) := ptns[idx]) {
 		                if (RSimpleName("_") == n) {
-	                        c = addUnnamedVariable(c, ptns[idx].at, \set(rt));
+	                        c = addUnnamedVariable(c, ptns[idx].at, makeSetType(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][rtype=rt][defs={ c.nextLoc - 1 }];
 		                } else {
 		                	// TODO: Do we want to issue a warning here if the same name is used multiple times? Probably, although a pass
 		                	// over the pattern tree may be a better way to do this (this would only catch cases at the same level of
 		                	// a set pattern or, below, a list pattern)
-		                    c = addLocalVariable(c, n, false, ptns[idx].at, \set(rt));
+		                    c = addLocalVariable(c, n, false, ptns[idx].at, makeSetType(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][rtype=rt];
 		                } 
@@ -3256,13 +3258,13 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 		                if (RSimpleName("_") == n) {
 		                    rt = \inferred(c.uniqueify);
 		                    c.uniqueify = c.uniqueify + 1;
-		                    c = addUnnamedVariable(c, ptns[idx].at, \set(rt));
+		                    c = addUnnamedVariable(c, ptns[idx].at, makeSetType(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][rtype=rt][defs={ c.nextLoc - 1 }];
 		                } else if (!fcvExists(c, n)) {
 		                    rt = \inferred(c.uniqueify);
 		                    c.uniqueify = c.uniqueify + 1;
-		                    c = addLocalVariable(c, n, true, ptns[idx].at, \set(rt));
+		                    c = addLocalVariable(c, n, true, ptns[idx].at, makeSetType(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][rtype=rt];
 		                } else {
@@ -3291,11 +3293,11 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	        	for (idx <- index(ptns)) {
 	        		if (spliceNodePlus(n,_,rt,nid) := ptns[idx] || spliceNodeStar(n,_,rt,nid) := ptns[idx]) {
 		                if (RSimpleName("_") == n) {
-	                        c = addUnnamedVariable(c, ptns[idx].at, \list(rt));
+	                        c = addUnnamedVariable(c, ptns[idx].at, makeListType(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][rtype=rt][defs={ c.nextLoc - 1 }];
 		                } else {
-		                    c = addLocalVariable(c, n, false, ptns[idx].at, \list(rt));
+		                    c = addLocalVariable(c, n, false, ptns[idx].at, makeListType(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][rtype=rt];
 		                } 
@@ -3303,13 +3305,13 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 		                if (RSimpleName("_") == n) {
 		                    rt = \inferred(c.uniqueify);
 		                    c.uniqueify = c.uniqueify + 1;
-		                    c = addUnnamedVariable(c, ptns[idx].at, \list(rt));
+		                    c = addUnnamedVariable(c, ptns[idx].at, makeListType(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][rtype=rt][defs={ c.nextLoc - 1 }];
 		                } else if (!fcvExists(c, n)) {
 		                    rt = \inferred(c.uniqueify);
 		                    c.uniqueify = c.uniqueify + 1;
-		                    c = addLocalVariable(c, n, true, ptns[idx].at, \list(rt));
+		                    c = addLocalVariable(c, n, true, ptns[idx].at, makeListType(rt));
 	                        ptns[idx].nameId = c.nextLoc - 1;
 		                    ptns[idx] = ptns[idx][rtype=rt];
 		                } else {
@@ -3528,16 +3530,16 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
         // pattern tree towards the root. This gives us a way to use the types assigned to
         // names, literals, etc to find the final types of other patterns.
         pt = bottom-up visit(pt) {
-            case ptn:setNode([]) => updateRT(ptn, \set(Symbol::\void()))
+            case ptn:setNode([]) => updateRT(ptn, makeSetType(Symbol::\void()))
             
-            case ptn:setNode(ptns) => updateRT(ptn,\set(lubList([pti.rtype | pti <- ptns]))) 
+            case ptn:setNode(ptns) => updateRT(ptn,makeSetType(lubList([pti.rtype | pti <- ptns]))) 
                                       when all(idx <- index(ptns), (ptns[idx].rtype)?, concreteType(ptns[idx].rtype))
                                       
-            case ptn:listNode([]) => updateRT(ptn, \list(Symbol::\void()))
+            case ptn:listNode([]) => updateRT(ptn, makeListType(Symbol::\void()))
             
             case ptn:listNode(ptns) : {
             	if (all(idx <- index(ptns), (ptns[idx].rtype)?, concreteType(ptns[idx].rtype))) {
-            		insert(updateRT(ptn,\list(lubList([pti.rtype | pti <- ptns]))));
+            		insert(updateRT(ptn,makeListType(lubList([pti.rtype | pti <- ptns]))));
             	} 
 			}
                                       
@@ -3738,8 +3740,8 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             // Push the binding back down the tree with the information in the constructor type; if
                             // this doesn't cause errors, save the updated children back into the tree, along with
                             // the match type
-                            Symbol matchType = getOneFrom(matches<0>);
-                            KeywordParamMap matchParams = getOneFrom(matches<1>);
+                            Symbol matchType = getFirstFrom(matches<0>);
+                            KeywordParamMap matchParams = getFirstFrom(matches<1>);
                             KeywordParamMap justUsedParams = domainR(matchParams,kpargs<0>);
                             bool cannotInstantiate = false;
 
@@ -3775,7 +3777,14 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                                         cannotInstantiate = true;                                  	
                                 	}
                                 }
-
+                                //if (size(subjects) == 1) {
+                                //	try {
+                                //		bindings = match(matchType, getFirstFrom(subjects),bindings);
+                                //	} catch : {
+                                //        insert updateRT(ptn[head=ph[@rtype=matchType]], makeFailType("Cannot instantiate pattern type <prettyPrintType(matchType)> with subject type <prettyPrintType(getFirstFrom(subjects))>", ptn@at));
+                                //        cannotInstantiate = true;                                  	                                	
+                                //	}
+                                //}
                                 if (!cannotInstantiate) {
                                     try {
                                         matchType = instantiate(matchType, bindings);
@@ -3846,7 +3855,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
         }
         
         if (size(subjects) == 1 || (pt.typeHint)?) {
-        	bindType = (size(subjects) == 1) ? getOneFrom(subjects) : pt.typeHint;
+        	bindType = (size(subjects) == 1) ? getFirstFrom(subjects) : pt.typeHint;
             try {
                 < c, pt > = bind(pt, bindType, c);
                 // Why do this? Because we want to bind at least once, and the first bind could
@@ -4027,17 +4036,17 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
             Symbol currentType = c.store[nid].rtype;
             if (c.store[nid].inferred) {
                 if (isSetType(currentType) && isInferredType(getSetElementType(currentType))) {
-                    c.store[nid].rtype = \set(rt);
-                    return < c, pt[rtype=rt] >;
+                    c.store[nid].rtype = makeSetType(rt);
+                    return < c, pt[rtype = rt] >;
                 } else if (isListType(currentType) && isInferredType(getListElementType(currentType))) {
-                    c.store[nid].rtype = \list(rt);
-                    return < c, pt[rtype=rt] >;
+                    c.store[nid].rtype = makeListType(rt);
+                    return < c, pt[rtype = rt] >;
                 } else if (isSetType(currentType)) {
-                    c.store[nid].rtype = \set(lub(getSetElementType(currentType), rt));
-                    return < c, pt[rtype=getSetElementType(c.store[nid].rtype)] >;
+                    c.store[nid].rtype = makeSetType(lub(getSetElementType(currentType), rt));
+                    return < c, pt[rtype = getSetElementType(c.store[nid].rtype)] >;
                 } else if (isListType(currentType)) {
-                    c.store[nid].rtype = \list(lub(getListElementType(currentType), rt));
-                    return < c, pt[rtype=getListElementType(c.store[nid].rtype)] >;
+                    c.store[nid].rtype = makeListType(lub(getListElementType(currentType), rt));
+                    return < c, pt[rtype = getListElementType(c.store[nid].rtype)] >;
                 }
             } else {
                 if (isSetType(currentType) && comparable(getSetElementType(currentType), rt))
@@ -4064,17 +4073,17 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         	Symbol currentType = c.store[nid].rtype;
             if (c.store[nid].inferred) {
                 if (isSetType(currentType) && isInferredType(getSetElementType(currentType))) {
-                    c.store[nid].rtype = \set(rt);
-                    return < c, pt[rtype=rt] >;
+                    c.store[nid].rtype = makeSetType(rt);
+                    return < c, pt[rtype = rt] >;
                 } else if (isListType(currentType) && isInferredType(getListElementType(currentType))) {
-                    c.store[nid].rtype = \list(rt);
-                    return < c, pt[rtype=rt] >;
+                    c.store[nid].rtype = makeListType(rt);
+                    return < c, pt[rtype = rt] >;
                 } else if (isSetType(currentType)) {
-                    c.store[nid].rtype = \set(lub(getSetElementType(currentType), rt));
-                    return < c, pt[rtype=getSetElementType(c.store[nid].rtype)] >;
+                    c.store[nid].rtype = makeSetType(lub(getSetElementType(currentType), rt));
+                    return < c, pt[rtype = getSetElementType(c.store[nid].rtype)] >;
                 } else if (isListType(currentType)) {
-                    c.store[nid].rtype = \list(lub(getListElementType(currentType), rt));
-                    return < c, pt[rtype=getListElementType(c.store[nid].rtype)] >;
+                    c.store[nid].rtype = makeListType(lub(getListElementType(currentType), rt));
+                    return < c, pt[rtype = getListElementType(c.store[nid].rtype)] >;
                 }
             } else {
                 if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
@@ -4124,17 +4133,17 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         	Symbol currentType = c.store[nid].rtype;
             if (c.store[nid].inferred) {
                 if (isSetType(currentType) && isInferredType(getSetElementType(currentType))) {
-                    c.store[nid].rtype = \set(rt);
-                    return < c, pt[rtype=rt] >;
+                    c.store[nid].rtype = makeSetType(rt);
+                    return < c, pt[rtype = rt] >;
                 } else if (isListType(currentType) && isInferredType(getListElementType(currentType))) {
-                    c.store[nid].rtype = \list(rt);
-                    return < c, pt[rtype=rt] >;
+                    c.store[nid].rtype = makeListType(rt);
+                    return < c, pt[rtype = rt] >;
                 } else if (isSetType(currentType)) {
-                    c.store[nid].rtype = \set(lub(getSetElementType(currentType), rt));
-                    return < c, pt[rtype=getSetElementType(c.store[nid].rtype)] >;
+                    c.store[nid].rtype = makeSetType(lub(getSetElementType(currentType), rt));
+                    return < c, pt[rtype = getSetElementType(c.store[nid].rtype)] >;
                 } else if (isListType(currentType)) {
-                    c.store[nid].rtype = \list(lub(getListElementType(currentType), rt));
-                    return < c, pt[rtype=getListElementType(c.store[nid].rtype)] >;
+                    c.store[nid].rtype = makeListType(lub(getListElementType(currentType), rt));
+                    return < c, pt[rtype = getListElementType(c.store[nid].rtype)] >;
                 }
             } else {
                 if (isSetType(currentType) && comparable(getSetElementType(currentType), rt)) {
@@ -4481,7 +4490,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> while ( <{Ex
     if (size(failures) > 0)
         return markLocationFailed(c, stmt@\loc, failures);
     else
-        return markLocationType(c, stmt@\loc, \list(loopElementType)); 
+        return markLocationType(c, stmt@\loc, makeListType(loopElementType)); 
 }
 
 @doc{Check the type of Rascal statements: DoWhile}
@@ -4552,7 +4561,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> do <Statemen
     if (size(failures) > 0)
         return markLocationFailed(c, stmt@\loc, failures);
     else
-        return markLocationType(c, stmt@\loc, \list(loopElementType)); 
+        return markLocationType(c, stmt@\loc, makeListType(loopElementType)); 
 }   
 
 @doc{Check the type of Rascal statements: For}
@@ -4629,7 +4638,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> for ( <{Expr
     if (size(failures) > 0)
         return markLocationFailed(c, stmt@\loc, failures);
     else
-        return markLocationType(c, stmt@\loc, \list(loopElementType)); 
+        return markLocationType(c, stmt@\loc, makeListType(loopElementType)); 
 }
 
 @doc{Check the type of Rascal statements: IfThen (DONE)}
@@ -4804,22 +4813,42 @@ public CheckResult checkStmt(Statement stmt:(Statement)`fail <Target target>;`, 
 
 @doc{Check the type of Rascal statements: Break (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`break <Target target>;`, Configuration c) {
+	set[Symbol] failures = { };
+
     if ((Target)`<Name n>` := target) {
         rn = convertName(n);
         // TODO: Check to see what category the label is in?
         if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label not defined", stmt@\loc));
-    }   
-    return markLocationType(c, stmt@\loc, Symbol::\void());
+    }
+    
+    if (!labelTypeInStack(c, {forLabel(), whileLabel(), doWhileLabel()})) {
+        failures += makeFailType("Cannot break outside the scope of a for, while, or do while loop", stmt@\loc);
+    }
+
+    if (size(failures) > 0)
+        return markLocationFailed(c, stmt@\loc, failures);
+    else
+        return markLocationType(c, stmt@\loc, Symbol::\void());
 }
 
 @doc{Check the type of Rascal statements: Continue (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`continue <Target target>;`, Configuration c) {
+	set[Symbol] failures = { };
+    
     if ((Target)`<Name n>` := target) {
         rn = convertName(n);
         // TODO: Check to see what category the label is in?
         if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label not defined", stmt@\loc));
     }   
-    return markLocationType(c, stmt@\loc, Symbol::\void());
+
+    if (!labelTypeInStack(c, {forLabel(), whileLabel(), doWhileLabel()})) {
+        failures += makeFailType("Cannot continue outside the scope of a for, while, or do while loop", stmt@\loc);
+    }
+
+    if (size(failures) > 0)
+        return markLocationFailed(c, stmt@\loc, failures);
+    else
+        return markLocationType(c, stmt@\loc, Symbol::\void());
 }
 
 @doc{Check the type of Rascal statements: Filter (DONE)}
@@ -4952,7 +4981,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`global <Type t> <{Qualif
 private Configuration addMissingAssignableNames(Configuration c, Assignable a, loc errorLoc) {
 	introducedNames = getIntroducedNames(a);
 	for (n <- introducedNames<0>, n notin c.fcvEnv) {
-		l = getOneFrom(introducedNames[n]);
+		l = getFirstFrom(introducedNames[n]);
 		c = addLocalVariable(c, n, false, l, makeFailTypeAsWarning("Error at location <errorLoc> prevented computation of type",l));
 	}
 	return c;
@@ -5365,7 +5394,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
 		     
 		    aTypes = { c.store[annId].rtype | annId <- annIds, subtype(atree.atype,c.store[annId].onType) };
 	        if (size(aTypes) > 0) {
-	            aType = getOneFrom(aTypes);
+	            aType = getFirstFrom(aTypes);
 	            return < c, annotationNode(atree,aname)[atype=aType][at=assn@\loc] >;
 	        }
         } else {
@@ -5579,7 +5608,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable 
 
 @doc{General function to calculate the type of an append.}
 Symbol computeAppendType(Symbol t1, Symbol t2, loc l) {
-    if (isListType(t1)) return \list(lub(getListElementType(t1),t2));
+    if (isListType(t1)) return makeListType(lub(getListElementType(t1),t2));
     return makeFailType("Append not defined on <prettyPrintType(t1)> and <prettyPrintType(t2)>", l);
 }
 
@@ -5637,7 +5666,7 @@ public ATResult bindAssignable(AssignableTree atree:variableNode(RName name), Sy
     // an ADT type (with fields) to a node type (without fields).
     
     if (RSimpleName("_") == name) {
-        varId = getOneFrom(atree.defs);
+        varId = getFirstFrom(atree.defs);
         Symbol currentType = c.store[varId].rtype;
         if (isInferredType(currentType)) {
             c.store[varId].rtype = st;
@@ -5663,8 +5692,8 @@ public ATResult bindAssignable(AssignableTree atree:variableNode(RName name), Sy
 @doc{Bind variable types to variables in assignables: Subscript}
 public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree receiver, Symbol stype), Symbol st, Configuration c) {
     
-    if (isListType(receiver.atype)) { 
-        < c, receiver > = bindAssignable(receiver, \list(lub(st,getListElementType(receiver.atype))), c);
+    if (isListType(receiver@atype)) { 
+        < c, receiver > = bindAssignable(receiver, makeListType(lub(st,getListElementType(receiver.atype))), c);
         return < c, atree[receiver=receiver][otype=receiver.otype][atype=getListElementType(receiver.atype)] >;
     } else if (isNodeType(receiver.atype)) {
         < c, receiver > = bindAssignable(receiver, Symbol::\node(), c);
@@ -5868,7 +5897,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
     // If we can descend, process the aliased type as well, assigning it into
     // the alias.
     if (descend) {
-        aliasId = getOneFrom(invert(c.definitions)[decl@\loc]);
+        aliasId = getFirstFrom(invert(c.definitions)[decl@\loc]);
         aliasType = c.store[aliasId].rtype;
         // TODO: Check for convert errors
         < c, aliasedType > = convertAndExpandType(t,c);
@@ -5931,8 +5960,8 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
     }
 
 	// If we descend, we also want to add keyword params.
-	if (descend && size(invert(c.definitions)[decl@\loc]) > 0 && c.store[getOneFrom(invert(c.definitions)[decl@\loc])] is datatype) {
-		adtId = getOneFrom(invert(c.definitions)[decl@\loc]);
+	if (descend && size(invert(c.definitions)[decl@\loc]) > 0 && c.store[getFirstFrom(invert(c.definitions)[decl@\loc])] is datatype) {
+		adtId = getFirstFrom(invert(c.definitions)[decl@\loc]);
 
 		commonParamList = [ ];
 		if ((CommonKeywordParameters)`( <{KeywordFormal ","}+ kfs> )` := commonParams) commonParamList = [ kfi | kfi <- kfs ];
@@ -5972,8 +6001,8 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
 	// the ADT into the type environment. We get the adt type out of the store by looking up the definition
 	// from this location. Check to make sure it is there -- if there was an error adding the ADT, there
 	// may not be a datatype definition at this location.
-	if (descend && size(invert(c.definitions)[decl@\loc]) > 0 && c.store[getOneFrom(invert(c.definitions)[decl@\loc])] is datatype) {
-		adtId = getOneFrom(invert(c.definitions)[decl@\loc]);
+	if (descend && size(invert(c.definitions)[decl@\loc]) > 0 && c.store[getFirstFrom(invert(c.definitions)[decl@\loc])] is datatype) {
+		adtId = getFirstFrom(invert(c.definitions)[decl@\loc]);
 		adtType = c.store[adtId].rtype;
 
 		// Get back information on the common keyword parameters and add them into this data declaration.
@@ -6058,6 +6087,23 @@ public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration
 	return c;
 }
 
+public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> data <UserType ut> <CommonKeywordParameters commonParams>;`, Configuration c) {
+	commonParamList = [ ];
+	if ((CommonKeywordParameters)`( <{KeywordFormal ","}+ kfs> )` := commonParams) commonParamList = [ kfi | kfi <- kfs ];
+
+	cCons = enterBlock(c, decl@\loc);
+	if (size(commonParamList) > 0) {
+		for (KeywordFormal kfi <- commonParamList) {
+			< cCons, kfT > = convertAndExpandType(kfi.\type, cCons);
+			< cCons, _ > = calculateKeywordParamRel(cCons, [ kfi ], typesOnly = false ); 
+			cCons = addLocalVariable(cCons, convertName(kfi.name), false, kfi@\loc, kfT);
+		}
+	}
+	c = exitBlock(cCons, c);
+
+	return c;
+}
+
 public default Configuration checkConstructorKeywordParams(Declaration decl, Configuration c) = c;
 
 @doc{Check the type of the components of a declaration: Function}
@@ -6115,7 +6161,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 	    
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
-	    funId = getOneFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
+	    funId = getFirstFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
 	    cFun.stack = funId + cFun.stack;
 	    
         < cFun, tFun > = processSignature(sig, cFun);
@@ -6133,7 +6179,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
    
-    funId = getOneFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
+    funId = getFirstFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
     c.stack = funId + c.stack;
     
     // Normally we would now descend into the body. Here we don't have one.
@@ -6176,7 +6222,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
-	    funId = getOneFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
+	    funId = getFirstFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
 	    cFun.stack = funId + cFun.stack;
 
         < cFun, tFun > = processSignature(sig, cFun);
@@ -6192,7 +6238,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
     
-    funId = getOneFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
+    funId = getFirstFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
     c.stack = funId + c.stack;
     
     if (descend) {
@@ -6203,11 +6249,11 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         funType = c.store[funId].rtype;
         cFun = prepareFunctionBodyEnv(c);
         if (!isFailType(funType)) {
-            cFun = setExpectedReturn(c, getFunctionReturnType(funType));
+            cFun = setExpectedReturn(cFun, getFunctionReturnType(funType));
         } else {
             // If we couldn't calculate the function type, use value here so we don't also
             // get errors on the return type not matching.
-            cFun = setExpectedReturn(c, Symbol::\value());
+            cFun = setExpectedReturn(cFun, Symbol::\value());
         }
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=false);
@@ -6247,7 +6293,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
-	    funId = getOneFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
+	    funId = getFirstFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
 	    cFun.stack = funId + cFun.stack;
 
         < cFun, tFun > = processSignature(sig, cFun);
@@ -6263,7 +6309,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
 
-    funId = getOneFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
+    funId = getFirstFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
     c.stack = funId + c.stack;
     
     if (descend) {
@@ -6274,9 +6320,9 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         funType = c.store[funId].rtype;
         cFun = prepareFunctionBodyEnv(c);
         if (!isFailType(funType)) {
-            cFun = setExpectedReturn(c, getFunctionReturnType(funType));
+            cFun = setExpectedReturn(cFun, getFunctionReturnType(funType));
         } else {
-            cFun = setExpectedReturn(c, Symbol::\value());
+            cFun = setExpectedReturn(cFun, Symbol::\value());
         }
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=false);
@@ -6330,7 +6376,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
-	    funId = getOneFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
+	    funId = getFirstFrom({ di | di <- invert(cFun.definitions)[fd@\loc], !(cFun.store[di] is \label)});
 	    cFun.stack = funId + cFun.stack;
 
         < cFun, tFun > = processSignature(sig, cFun);
@@ -6346,7 +6392,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         c = addFunction(c, rn, tFun, keywordParams, modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
     }
 
-    funId = getOneFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
+    funId = getFirstFrom({ di | di <- invert(c.definitions)[fd@\loc], !(c.store[di] is \label)});
     c.stack = funId + c.stack;
     
     if (descend) {
@@ -6357,9 +6403,9 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         funType = c.store[funId].rtype;
         cFun = prepareFunctionBodyEnv(c);
         if (!isFailType(funType)) {
-            cFun = setExpectedReturn(c, getFunctionReturnType(funType));
+            cFun = setExpectedReturn(cFun, getFunctionReturnType(funType));
         } else {
-            cFun = setExpectedReturn(c, Symbol::\value());
+            cFun = setExpectedReturn(cFun, Symbol::\value());
         }
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=false);        
@@ -6372,13 +6418,13 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
 			
 		    // Basic check for returns: if we have a non-void return type and the sequence
 		    // is empty, flag this as an error
-		    if (!isVoidType(cFun.expectedReturnType) && isEmpty(bodyStatements)) {
-		    	cFun = addScopeError(cFun, "Cannot use a non-void return type with an empty function body", fd@\loc);
-		    }
+		    //if (!isVoidType(cFun.expectedReturnType) && isEmpty(bodyStatements)) {
+		    //	cFun = addScopeError(cFun, "Cannot use a non-void return type with an empty function body", fd@\loc);
+		    //}
 		    
-		    if (!isVoidType(cFun.expectedReturnType) && !isEmpty(bodyStatements) && !subtype(tStmt, cFun.expectedReturnType)) {
-		    	cFun = addScopeError(cFun, "The type of the final statement, <prettyPrintType(tStmt)>, must be a subtype of the declared return type, <prettyPrintType(cFun.expectedReturnType)>", fd@\loc);
-		    }
+		    //if (!isVoidType(cFun.expectedReturnType) && !isEmpty(bodyStatements) && !subtype(tStmt, cFun.expectedReturnType)) {
+		    //	cFun = addScopeError(cFun, "The type of the final statement, <prettyPrintType(tStmt)>, must be a subtype of the declared return type, <prettyPrintType(cFun.expectedReturnType)>", fd@\loc);
+		    //}
 			
         }
 
@@ -6515,7 +6561,7 @@ public Configuration finalizeFunctionImport(Configuration c, RName functionName)
 
 public Configuration importNonterminal(RName sort, Symbol sym, loc at, Configuration c) {
   c = addNonterminal(c, sort, at, sym); // TODO: something with descend?
-  //id = getOneFrom(invert(c.definitions)[at]); // TODO: ??
+  //id = getFirstFrom(invert(c.definitions)[at]); // TODO: ??
   //c.store[id].rtype = sym;
   return c;
 }
@@ -6961,10 +7007,10 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	// scope.
 	for (itemId <- d.typeEnv<1>, itemId in filteredIds, d.store[itemId] is sorttype, itemId in d.grammar) {
 		itemToLoad = d.store[itemId];
-		c = importProduction(d.grammar[itemId], getOneFrom(d.store[itemId].ats), c);
+		c = importProduction(d.grammar[itemId], getFirstFrom(d.store[itemId].ats), c);
 	}
 	for (itemId <- notLoadedSorts, itemId in d.grammar) {
-		c = importProduction(d.grammar[itemId], getOneFrom(d.store[itemId].ats), c, registerName=false);
+		c = importProduction(d.grammar[itemId], getFirstFrom(d.store[itemId].ats), c, registerName=false);
 	}
 	
 	notLoadedConstructors = { di | di <- d.store<0>, d.store[di] is constructor } - loadedIds;
@@ -7052,7 +7098,8 @@ public Configuration loadImportedTypesAndTags(Configuration c, set[RName] import
 
 	// Build relations with info on all types, sorts, and aliases; ignore tags for now since we
 	// don't use them anyway, but TODO: if we start using tags, add support here... 
-	name2id = { < tn, c.moduleInfo[mn].typeEnv[tn] > | mn <- importedModules, tn <- c.moduleInfo[mn].typeEnv };
+	assert importedModules <= domain(c.moduleInfo): "loadImportedTypesAndTags, no moduleInfo for <importedModules - domain(c.moduleInfo)>";
+	name2id = { < tn, c.moduleInfo[mn].typeEnv[tn] > | mn <- importedModules, mn in c.moduleInfo, tn <- c.moduleInfo[mn].typeEnv };
 	
 	justTypes = { < tn, ti > | < tn, ti > <- name2id, c.store[ti] is datatype };
 	typeNames = justTypes<0>;
@@ -7084,9 +7131,9 @@ public Configuration loadImportedTypesAndTags(Configuration c, set[RName] import
 		aliasIds = justAliases[an];
 		aliasTypes = { c.store[aid].rtype | aid <- aliasIds };
 		if (size(aliasTypes) == 1) {
-			c = addImportedAlias(c, an, getOneFrom(aliasIds));
+			c = addImportedAlias(c, an, getFirstFrom(aliasIds));
 		} else {
-			c = addScopeError(c, "Could not import alias <prettyPrintName(an)>, multiple inconsistent definitions were found", c.store[getOneFrom(aliasIds)].at);
+			c = addScopeError(c, "Could not import alias <prettyPrintName(an)>, multiple inconsistent definitions were found", c.store[getFirstFrom(aliasIds)].at);
 		}
 	}
 	
@@ -7097,6 +7144,7 @@ public Configuration loadImportedAnnotations(Configuration c, set[RName] importe
 	// TODO: Add info messages about names that were not imported into scope?
 
 	// Build relation with info on all annotations 
+	assert importedModules <= domain(c.moduleInfo): "loadImportedAnnotations, no moduleInfo for <importedModules - domain(c.moduleInfo)>";
 	name2id = { < an, c.moduleInfo[mn].annotationEnv[an] > | mn <- importedModules, an <- c.moduleInfo[mn].annotationEnv };
 
 	// We try to bring in all annotations, since they should all come in; this may
@@ -7116,6 +7164,7 @@ public Configuration loadImportedNames(Configuration c, set[RName] varNamesToDec
 	// TODO: Handle scope
 	
 	// Build relations with info on all functions, constructors, productions, and vars 
+	assert importedModules <= domain(c.moduleInfo): "loadImportedNames, no moduleInfo for <importedModules - domain(c.moduleInfo)>";
 	name2id = { < tn, c.moduleInfo[mn].fcvEnv[tn] > | mn <- importedModules, tn <- c.moduleInfo[mn].fcvEnv };
 	overloadIds = { < tn, oid > | < tn, tid > <- name2id, c.store[tid] is overload, oid <- c.store[tid].items };
 	
@@ -7176,6 +7225,7 @@ public Configuration loadImportedCPNames(Configuration c, set[RName] varNamesToD
 	// TODO: Handle scope
 	
 	// Build relations with info on all functions, constructors, productions, and vars 
+	assert importedModules <= domain(c.moduleInfo): "loadImportedCPNames, no moduleInfo for <importedModules - domain(c.moduleInfo)>";
 	name2id = { < tn, c.moduleInfo[mn].fcvEnv[tn] > | mn <- importedModules, tn <- c.moduleInfo[mn].fcvEnv };
 	overloadIds = { < tn, oid > | < tn, tid > <- name2id, c.store[tid] is overload, oid <- c.store[tid].items };
 	
@@ -7223,6 +7273,7 @@ public Configuration loadImportedFVNames(Configuration c, set[RName] varNamesToD
 	// TODO: Handle scope
 	
 	// Build relations with info on all functions, constructors, productions, and vars 
+	assert importedModules <= domain(c.moduleInfo): "loadImportedFVNames, no moduleInfo for <importedModules - domain(c.moduleInfo)>";
 	name2id = { < tn, c.moduleInfo[mn].fcvEnv[tn] > | mn <- importedModules, tn <- c.moduleInfo[mn].fcvEnv };
 	overloadIds = { < tn, oid > | < tn, tid > <- name2id, c.store[tid] is overload, oid <- c.store[tid].items };
 	
@@ -7333,7 +7384,7 @@ public Graph[IGComponent] directedConnectedComponents(RName entryNode, ImportGra
 		if (firstIter) {
 			firstIter = false;
 		} else {
-			currentNode = getOneFrom(allNodes);
+			currentNode = getFirstFrom(allNodes);
 		} 
 		allNodes = allNodes - currentNode;
 			
@@ -7498,10 +7549,11 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	moduleTrees = ( moduleName : md );
 	for (mn <- c.dirtyModules, mn != moduleName ) {
 		try {
-			t = parse(#start[Module], getModuleLocation(prettyPrintName(mn), pcfg));    
-			if (t has top && lang::rascal::\syntax::Rascal::Module m := t.top) {
-				moduleTrees[mn] = m;
-			}
+			//t = parse(#start[Module], getModuleLocation(prettyPrintName(mn), pcfg));    
+			//if (t has top && lang::rascal::\syntax::Rascal::Module m := t.top) {
+			//	moduleTrees[mn] = m;
+			//}
+			moduleTrees[mn] = parseModule(getModuleLocation(prettyPrintName(mn), pcfg));
 		} catch _ : {
 			if (verbose) println("ERROR: Could not parse module <prettyPrintName(mn)>, cannot continue with type checking!");
 			c = addScopeError(c, "Could not parse module <prettyPrintName(mn)>, cannot continue with type checking!", md@\loc);
@@ -7526,6 +7578,9 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 
 	// Compute a new import graph, with cycles collapsed into connected components.
 	igComponents = directedConnectedComponents(moduleName, ig);
+	
+	// This map indicates whether the given module name is part of a connected component (true) or not (false).
+	inComponent = ( mn : true | component(mns) <- carrier(igComponents), mn <- mns) + ( mn : false | singleton(mn) <- carrier(igComponents) );  
 
 	// Set up initial configurations for all the modules we need to recheck	
 	map[RName,Configuration] workingConfigs = ( moduleName : c ) + ( mn : newConfiguration(c.pathConfiguration) | mn <- c.dirtyModules, mn != moduleName);
@@ -7535,6 +7590,24 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		c = addModule(c, mn, moduleTrees[mn]@\loc);
 		moduleIds[mn] = head(c.stack);
 		c = popModule(c);
+		
+		// Compute the import graph for the module mn. If this is moduleName, we already assigned
+		// the import graph above so we don't need to repeat the calculation here.
+		if (mn != moduleName) {
+			// Compute the include graph for this specific module. We start with just the
+			// direct includes, and then build up the graph until it stabilizes
+			subgraph = { < mn, mn2 > | < mn, mn2 > <- ig };
+			solve(subgraph) {
+				subgraph = subgraph + { < mn2, mn3 > | mn2 <- subgraph<1>, <mn2, mn3 > <- ig };
+			}
+			c.importGraph = subgraph;
+			
+			// We also compute the dirty modules for just this module. This is just those
+			// dirty modules that are part of reachable, so we don't include those that
+			// are not imported (again, directly or indirectly) by mn.
+			c.dirtyModules = (dirtyModules + igRev[dirtyModules]) & carrier(c.importGraph);
+		}
+
 		workingConfigs[mn] = c;
 	}
 	
@@ -7558,6 +7631,15 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	Configuration fullyCheckSingleModule(Configuration ci, RName itemName) {
 		// Using the checked type information, load in the info for each module
 		for (wl <- allImports[itemName], wl in moduleLocations) {
+		     if(wl notin existingConfigs){
+		        println("*** fullyCheckSingleModule, checking <itemName>, <wl> not in existingConfigs");
+		        if(wl in workingConfigs){
+		           println("*** fullyCheckSingleModule, <wl> found in workingConfigs");
+		           existingConfigs[wl] = workingConfigs[wl];
+		        } else {
+		           continue;
+		        }
+		     }
 			ci = loadConfigurationAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
 		}
 			
@@ -7608,6 +7690,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
 						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
+						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<FunctionDeclaration _>` : { 
@@ -7631,7 +7715,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			while(modified) {
 				modified = false;
 				for(t <- aliases) {
-					int aliasId = getOneFrom(definitions[t@\loc]);
+					int aliasId = getFirstFrom(definitions[t@\loc]);
 					Symbol aliasedType = ci.store[aliasId].rtype;
 					ci = checkDeclaration(t,true,ci);
 					if(unsetRec(aliasedType) != unsetRec(ci.store[aliasId].rtype) 
@@ -7680,6 +7764,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		// Load in the configurations for modules that are not in the same connected component (so they do not
 		// depend on the results of checking the current module) 
 		for (wl <- allImports[itemName], wl notin componentMembers, wl in moduleLocations) {
+		    assert wl in existingConfigs : "checkSingleModuleThroughAliases, <wl>";
 			ci = loadConfigurationAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
 		}
 			
@@ -7713,6 +7798,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						aliases = aliases + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
 						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
+						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 				}
@@ -7733,6 +7820,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		// Load in the configurations of the modules in the connected component. At this point, this will just
 		// load type information.
 		for (wl <- allImports[itemName], wl in componentMembers, wl != itemName, wl in moduleLocations) {
+		    assert wl in existingConfigs: "checkSingleModulePastAliases, <wl>";
 			ci = loadConfigurationTypesAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
 		}
 			
@@ -7779,6 +7867,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
 						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
+						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<FunctionDeclaration _>` : { 
@@ -7799,7 +7889,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			while(modified) {
 				modified = false;
 				for(t <- aliases) {
-					int aliasId = getOneFrom(definitions[t@\loc]);
+					int aliasId = getFirstFrom(definitions[t@\loc]);
 					Symbol aliasedType = ci.store[aliasId].rtype;
 					ci = checkDeclaration(t,true,ci);
 					if(aliasedType != ci.store[aliasId].rtype) {
@@ -7831,6 +7921,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		// Load in the configurations of the modules in the connected component. At this point, this will just
 		// load information on constructors and productions.
 		for (wl <- allImports[itemName], wl in componentMembers, wl != itemName, wl in moduleLocations) {
+		    assert wl in existingConfigs: "checkSingleModuleNamesOnly, <wl>";
 			if (verbose) println("Loading constructors into module <prettyPrintName(itemName)>");
 			ci = loadConfigurationConsAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
 		}
@@ -7863,6 +7954,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
 						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
+						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<FunctionDeclaration _>` : { 
@@ -7890,6 +7983,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		// Using the checked type information, load in the info for each module. This will replace the already
 		// loaded info, and will include functions, variables, etc that are exported from the module.
 		for (wl <- allImports[itemName], wl in componentMembers, wl in moduleLocations) {
+		     assert wl in existingConfigs: "checkSingleModuleAndFinalize, <wl>";
 			ci = loadConfigurationAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName], updateTypes=true);
 		}
 			
@@ -7915,6 +8009,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 					case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
@@ -7977,6 +8073,24 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			}
 		}
 	}
+	
+	// Synchronize the 'importGraph' and 'dirtyModules' fields in all modules of a component
+	//for (wlItem <- worklist) {
+	//     if (component(itemNames) := wlItem){
+	//         newImportGraph = {};
+	//         newDirtyModules = {};
+	//         for (itemName <- itemNames, itemName in workingConfigs) {
+	//           newImportGraph = newImportGraph + workingConfigs[itemName].importGraph;
+	//           newDirtyModules = newDirtyModules + workingConfigs[itemName].dirtyModules;
+	//         }
+	//         for (itemName <- itemNames, itemName in workingConfigs) {
+	//            newConfig = workingConfigs[itemName];
+	//            newConfig.importGraph = newImportGraph;
+	//            newConfig.dirtyModules = newDirtyModules;
+	//            workingConfigs[itemName] = newConfig;
+	//         }
+	//     }
+	//}
 	
 	for (mn <- moduleLocations, mn in workingConfigs) {
 		// Note: This writes more than we need of the hashes. We should probably use domainX to remove non-reachable modules.
@@ -8211,7 +8325,7 @@ public CheckResult checkComprehension(Comprehension cmp:(Comprehension)`{ <{Expr
     if (size(failures) > 0)
         return markLocationFailed(c, cmp@\loc, failures);
     else
-        return markLocationType(c, cmp@\loc, \set(lubList(elementTypes)));
+        return markLocationType(c, cmp@\loc, makeSetType(lubList(elementTypes)));
 }
 
 @doc{Check the types of Rascal comprehensions: Map (DONE)}
@@ -8279,7 +8393,7 @@ public CheckResult checkComprehension(Comprehension cmp:(Comprehension)`[ <{Expr
     if (size(failures) > 0)
         return markLocationFailed(c, cmp@\loc, failures);
     else
-        return markLocationType(c, cmp@\loc, \list(lubList(elementTypes)));
+        return markLocationType(c, cmp@\loc, makeListType(lubList(elementTypes)));
 }
 
 @doc{Check the type of Rascal cases: PatternWithAction (DONE)}
@@ -8296,7 +8410,7 @@ public Configuration checkCase(Case cs:(Case)`default : <Statement stmt>`, Symbo
 private Configuration addMissingPatternNames(Configuration c, Pattern p, loc sourceLoc) {
 	introducedNames = getPatternNames(p);
 	for (n <- introducedNames<0>, n notin c.fcvEnv) {
-		l = getOneFrom(introducedNames[n]);
+		l = getFirstFrom(introducedNames[n]);
 		c = addLocalVariable(c, n, false, l, makeFailTypeAsWarning("Error at location <sourceLoc> prevented computation of type",l));
 	}
 	return c;
@@ -8417,7 +8531,7 @@ public Configuration addAppendTypeInfo(Configuration c, Symbol t, RName rn, set[
     }
     
     if (size(possibleIndexes) == 0) {
-        c = addScopeError(c, "Cannot add append information, no valid surrounding context found", l);
+        c = addScopeError(c, "Cannot append, no valid surrounding context found", l);
     } else {
         c.labelStack[possibleIndexes[0]].labelType = lub(c.labelStack[possibleIndexes[0]].labelType, t);
     }
@@ -8844,9 +8958,10 @@ data Module(map[loc,set[loc]] docLinks = ());
 public Configuration checkAndReturnConfig(str qualifiedModuleName, PathConfig pcfg, bool forceCheck = false, bool verbose = false) {
     c = newConfiguration(pcfg);
     l = getModuleLocation(qualifiedModuleName, pcfg);
-	t = parse(#start[Module], l);    
+	//t = parse(#start[Module], l); 
+	m = parseModule(l);   
     //try {
-		if (t has top && Module m := t.top)
+		//if (t has top && Module m := t.top)
 			c = checkModule(m, l, c, forceCheck=forceCheck, verbose=verbose);
 	//} catch v : {
 	//	c.messages = {error("Encountered error checking module <l>:<v>", t@\loc)};
@@ -8885,18 +9000,25 @@ public Module check(Module m, PathConfig pcfg) {
     return m[messages=c.messages][docStrings=( l : "TYPE: <prettyPrintType(c.locationTypes[l])>" | l <- c.locationTypes<0>)][docLinks=docLinks];
 }
 
-public default Module check(Tree t) {
+public default Module check(Tree t, PathConfig pcfg) {
 	if (t has top && Module m := t.top)
-		return check(m);
-	else {
-	    rprintln(t);
+		return check(m, pcfg);
+	else
 		throw "Cannot check arbitrary trees";
     }
 }
 
+public default Module check(Tree t) {
+	return check(t, pathConfig());
+}
 public default start[Module] check(loc l) {
-  m = parse(#start[Module], l);
-  m.top = check(m.top);
+	return check(l, pathConfig());
+}
+
+public default start[Module] check(loc l, PathConfig pcfg) {
+  //m = parse(#start[Module], l);
+  m = parseModuleWithSpaces(l);
+  m.top = check(m.top, pcfg);
   m.docLinks = m.top.docLinks;
   m.docStrings = m.top.docStrings;
   return m;
@@ -9068,7 +9190,7 @@ public Configuration resolveDeferredTypes(Configuration c, int itemId) {
 			c = resolveDeferredTypes(c, oi);
 		}
 		if (hasDeferredTypes(av.rtype)) {
-			< c, rt > = expandType(undefer(av.rtype), c.store[getOneFrom(av.items)].at, c);
+			< c, rt > = expandType(undefer(av.rtype), c.store[getFirstFrom(av.items)].at, c);
 			c.store[itemId].rtype = rt;
 		}
 	} else if (av is constructor) {

@@ -60,16 +60,16 @@ public class IOCompiled extends IO {
 		//TypeStore store = ctx.getCurrentEnvt().getStore();
 		//Type start = new TypeReifier(ctx.getValueFactory()).valueToType((IConstructor) type, store);
 		
-		System.err.println("fromJSON0:"+start);
+		//System.err.println("fromJSON0:"+start);
 		Gson gson = new GsonBuilder()
 		.enableComplexMapKeySerialization()
 		.setDateFormat(DateFormat.LONG)
 		.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
 		.setVersion(1.0)
 		.create();
-		System.err.println("fromJSON1:"+src.getValue());
+		//System.err.println("fromJSON1:"+src.getValue());
 		Object obj = gson.fromJson(src.getValue(), Object.class);
-		System.err.println("fromJSON2:"+start);
+		//System.err.println("fromJSON2:"+start);
 		try {
 			return JSONReadingTypeVisitor.read(obj, values, store, start);
 		}
