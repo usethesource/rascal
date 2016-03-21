@@ -34,7 +34,6 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.Parser;
@@ -259,7 +258,7 @@ public class Reflective {
     }
   }
 	
-	private char[] getResourceContent(ISourceLocation location) throws IOException{
+	protected char[] getResourceContent(ISourceLocation location) throws IOException{
 		char[] data;
 		Reader textStream = null;
 		
@@ -292,7 +291,7 @@ public class Reflective {
 		try {
 			return new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(loc), actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
 		} catch (IOException e) {
-			throw RascalRuntimeException.io(values.string(e.getMessage()), null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
 	
