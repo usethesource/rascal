@@ -260,7 +260,8 @@ public abstract class RVMCore {
 			if(fun.name.contains("/" + name + "(")){
 				if(fun.ftype instanceof FunctionType){
 					FunctionType tp = (FunctionType) fun.ftype;
-					if(tp.getReturnType().toString().equals(ft.getReturnType().toString())){
+					if(tp.comparable(ft)){
+//					if(tp.getReturnType().toString().equals(ft.getReturnType().toString())){
 						return new OverloadedFunction(name, tp, new int[]{ i }, new int[] { }, "");
 					}
 				}
@@ -321,8 +322,7 @@ public abstract class RVMCore {
 	 * @return
 	 */
 	public Object executeRVMFunction(String uid_func, IValue[] posArgs, Map<String,IValue> kwArgs){
-		// Assumption here is that the function called is not a nested one
-		// and does not use global variables
+		// Assumption here is that the function called is not a nested one and does not use global variables
 		Function func = functionStore[functionMap.get(uid_func)];
 		return executeRVMFunction(func, posArgs, kwArgs);
 	}
@@ -330,14 +330,41 @@ public abstract class RVMCore {
 	/**
 	 * Execute an OverloadedFunction
 	 * @param func	OverloadedFunction
-	 * @param args	Positional arguments
+	 * @param posAndKwArgs	Arguments (last one is a map with keyword arguments)
 	 * @return		Result of function execution
 	 */
-	public IValue executeRVMFunction(OverloadedFunction func, IValue[] args){
+	public IValue executeRVMFunction(OverloadedFunction func, IValue[] posAndKwArgs){
 		if(func.getFunctions().length > 0){
 				Function firstFunc = functionStore[func.getFunctions()[0]]; 
 				Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
 				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functions, func.constructors, root, func.scopeIn, functionStore, constructorStore, this);
+				return executeRVMFunction(ofi, posAndKwArgs);
+		} else {
+			Type cons = constructorStore.get(func.getConstructors()[0]);
+			return vf.constructor(cons, posAndKwArgs);
+		}
+	}
+	
+	/**
+	 * Execute an OverloadedFunction with positional and keyword arguments
+	 * @param func	OverloadedFunction
+	 * @param args	Positional arguments
+	 * @param kwArgs Keyword arguments
+	 * @return		Result of function execution
+	 */
+	public IValue executeRVMFunction(OverloadedFunction func, IValue[] posArgs, IMap kwArgs){
+		IValue[] args = new IValue[posArgs.length + 1];
+		int i = 0;
+		for(IValue argValue : posArgs) {
+			args[i++] = argValue;
+		}
+		args[i] = kwArgs;
+		
+		if(func.getFunctions().length > 0){
+				Function firstFunc = functionStore[func.getFunctions()[0]]; 
+				Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
+				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functions, func.constructors, root, func.scopeIn, functionStore, constructorStore, this);
+				
 				return executeRVMFunction(ofi, args);
 		} else {
 			Type cons = constructorStore.get(func.getConstructors()[0]);
@@ -362,18 +389,18 @@ public abstract class RVMCore {
 	/**
 	 * Execute a FunctionInstance
 	 * @param func		Function instance
-	 * @param args		Positional arguments
+	 * @param posAndKwArgs		Arguments (last one is a map with keyword arguments)
 	 * @return			Result of function execution
 	 */
-	abstract public IValue executeRVMFunction(FunctionInstance func, IValue[] args);
+	abstract public IValue executeRVMFunction(FunctionInstance func, IValue[] posAndKwArgs);
 	
 	/**
 	 * Execute an OverloadedFunctionInstance
 	 * @param func	OverloadedFunctionInstance
-	 * @param args	Positional arguments
+	 * @param posAndKwArgs	Arguments (last one is a map with keyword arguments)
 	 * @return		Result of function execution
 	 */
-	abstract public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] args);
+	abstract public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posAndKwArgs);
 
 	/**
 	 * Execute a function during a visit
@@ -386,11 +413,11 @@ public abstract class RVMCore {
 	 * Execute a main program in a Rascal module
 	 * @param moduleName	Name of the module
 	 * @param uid_main		Internal name of the main function
-	 * @param args			Positional arguments
+	 * @param posArgs		Positional arguments
 	 * @param kwArgs		Keyword arguments
 	 * @return				Result of executing main function
 	 */
-	abstract public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs);
+	abstract public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] posArgs, Map<String,IValue> kwArgs);
 	
 	/**
 	 * Narrow an Object as occurring on the RVM runtime stack to an IValue that can be returned.
