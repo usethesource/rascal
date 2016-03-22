@@ -7,27 +7,25 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.TreeSet;
 
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NameCompleter;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMInterpreter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
+import org.rascalmpl.library.lang.rascal.boot.Kernel;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
+import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
@@ -38,8 +36,6 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
-import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -49,7 +45,6 @@ public class CommandExecutor {
 	private PrintWriter stdout;
 	private PrintWriter stderr;
 	private final IValueFactory vf;
-	private ISourceLocation compilerBinaryLocation;
 	private String consoleInputName = "ConsoleInput";
 	public static String consoleInputPath = "/ConsoleInput.rsc";
 	public static String muLibraryPath = "/experiments/Compiler/muRascal2RVM/MuLibrary.mu";
@@ -58,8 +53,6 @@ public class CommandExecutor {
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
 	private final Prelude prelude;
-	private RVMCore rvmCompiler;
-	private final Function compileAndLinkIncremental;
 	
 	private DebugREPLFrameObserver debugObserver;
 	
@@ -82,11 +75,10 @@ public class CommandExecutor {
 	private HashMap<String, Variable> variables = new HashMap<String, Variable>();
 	
 	private final String shellModuleName = "CompiledRascalShell";
-
-	private IValue[] compileArgs;
 	
 	private boolean forceRecompilation = true;
 	private IMap moduleTags;
+	private Kernel kernel;
 	
 	public CommandExecutor(PrintWriter stdout, PrintWriter stderr) {
 		this.stdout = stdout;
@@ -94,7 +86,6 @@ public class CommandExecutor {
 		vf = ValueFactoryFactory.getValueFactory();
 		prelude = new Prelude(vf);
 		try {
-			compilerBinaryLocation = vf.sourceLocation("compressed+boot", "", "lang/rascal/boot/Kernel.rvm.ser.gz");
 			consoleInputLocation = vf.sourceLocation("test-modules", "", consoleInputName + ".rsc");
 			consoleBinaryLocation = vf.sourceLocation("compressed+test-modules", "", consoleInputName + ".rvm.ser.gz");
 			
@@ -128,26 +119,7 @@ public class CommandExecutor {
 					//.setProfiling(true)
 					.build();
 		
-		try {
-			rvmCompiler = RVMCore.readFromFileAndInitialize(compilerBinaryLocation, rex);
-		} catch (IOException e) {
-			throw new RuntimeException("Cannot initialize: " + e.getMessage());
-		}
-		
-		TypeFactory tf = TypeFactory.getInstance();
-		compileAndLinkIncremental = rvmCompiler.getFunction("compileAndLinkIncremental", 
-															tf.abstractDataType(new TypeStore(), "RVMProgram"), 
-															tf.tupleType(tf.stringType(), 
-																		 tf.boolType()
-																		 //tf.abstractDataType(new TypeStore(), "PathConfig")
-																		 ));
-		if(compileAndLinkIncremental == null){
-			throw new RuntimeException("Cannot find compileAndLinkIncremental function");
-		}
-		
-		
-		
-		compileArgs = new IValue[] {vf.string(consoleInputName), vf.bool(true)};
+		kernel = new Kernel(vf, rex);
 		
 		imports = new ArrayList<String>();
 		syntaxDefinitions = new HashMap<>();
@@ -161,13 +133,15 @@ public class CommandExecutor {
 		this.debugObserver = observer;
 	}
 	
-	private Map<String, IValue> makeCompileKwParams(){
-		HashMap<String, IValue> w = new HashMap<>();
-		w.put("verbose", vf.bool(false));
-		return w;
+	private IMap makeCompileKwParamsAsIMap(){
+		IMapWriter w = vf.mapWriter();
+		w.put(vf.string("verbose"), vf.bool(false));
+		return w.done();
 	}
 	
-	private boolean noErrors(String modString, ISet messages){
+	private boolean noErrors(String modString, IConstructor consoleRVMProgram){
+		IConstructor main_module = (IConstructor) consoleRVMProgram.get("main_module");
+		ISet messages = (ISet) main_module.get("messages");
 		boolean errorFree = true;
 		for(IValue m : messages){
 			IConstructor msg = (IConstructor) m;
@@ -204,22 +178,29 @@ public class CommandExecutor {
 		}
 		w.append(main);
 		String modString = w.toString();
-//		System.err.println("----------------------");
-//		System.err.println(modString);
-//		System.err.println("----------------------");
+
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
-			compileArgs[1] = vf.bool(onlyMainChanged && !forceRecompilation);
+			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation);
 			
-//			System.err.println("reuseConfig = " + compileArgs[1]);
-			IConstructor consoleRVMProgram = (IConstructor) rvmCompiler.executeRVMFunction(compileAndLinkIncremental, compileArgs, makeCompileKwParams());
-			IConstructor main_module = (IConstructor) consoleRVMProgram.get("main_module");
-			ISet messages = (ISet) main_module.get("messages");
-			if(noErrors(modString, messages)){
+			IConstructor consoleRVMProgram = kernel.compileAndLinkIncremental(vf.string(consoleInputName), reuseConfig, makeCompileKwParamsAsIMap());
+			
+			if(noErrors(modString, consoleRVMProgram)){
 				rvmConsoleExecutable = ExecutionTools.loadProgram(consoleBinaryLocation, consoleRVMProgram, vf.bool(jvm));
-		
-				RascalExecutionContext rex = new RascalExecutionContext(vf, stdout, stderr, moduleTags, null, null, debug, debugRVM, testsuite, profile, trackCalls, coverage, jvm, null, debugObserver.getObserverWhenActiveBreakpoints(), null);
-				rex.setCurrentModuleName(shellModuleName);
+				
+				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, stdout, stderr)
+						.forModule(shellModuleName)
+						.withModuleTags(moduleTags)
+						.setDebugging(debug)
+						.setDebuggingRVM(debugRVM)
+						.setTestsuite(testsuite)
+						.setProfiling(profile)
+						.setTrackCalls(trackCalls)
+						.setCoverage(coverage)
+						.setJVM(jvm)
+						.observedBy(debugObserver.getObserverWhenActiveBreakpoints())
+						.build();
+						
 				IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
 				lastRvmConsoleExecutable = rvmConsoleExecutable;
 				forceRecompilation = false;
