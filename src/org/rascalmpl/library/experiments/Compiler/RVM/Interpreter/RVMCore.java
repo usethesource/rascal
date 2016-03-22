@@ -559,13 +559,13 @@ public abstract class RVMCore {
 	}
 
 	protected Object LOADVARMODULE(final Frame cf, final int varScope){				
-		return moduleVariables.get(cf.function.constantStore[varScope]);
+		return moduleVariables.get(cf.function.constantStore[varScope]);		// TODO: undefined case
 	}
 
 	protected Object LOADVARSCOPED(final Frame cf, final int varScope, final int pos){
 		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == varScope) {					
-				return fr.stack[pos];
+				return fr.stack[pos];											// TODO: undefined case
 			}
 		}
 		throw new CompilerError("LOADVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
