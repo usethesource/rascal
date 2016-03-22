@@ -44,6 +44,10 @@ public class RascalExecutionContextBuilder {
 	    this.stdout = stdout;
 	}
 	
+	public static RascalExecutionContextBuilder normalContext(IValueFactory vf) {
+	    return new RascalExecutionContextBuilder(vf, new PrintWriter(System.out, true), new PrintWriter(System.err, true));
+	}
+	
 	public static RascalExecutionContextBuilder normalContext(IValueFactory vf, PrintWriter stdout, PrintWriter stderr) {
 	    return new RascalExecutionContextBuilder(vf, stdout, stderr);
 	}
