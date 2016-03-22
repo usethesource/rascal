@@ -22,3 +22,5 @@ A getA() = [A] "a";
 As getAs(int n) = [As] "<for(int i <-[0..n]){>a<}>";
 
 int size(As as) = size("<as>");
+
+int mulKW(int n, int kw = 10) = n * kw;
