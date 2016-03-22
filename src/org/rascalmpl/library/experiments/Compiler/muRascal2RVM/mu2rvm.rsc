@@ -640,7 +640,6 @@ INS trblock(list[MuExp] exps, Dest d, CDest c) {
   if(!producesValue(exps[-1])){
     ins += plug(con(666), d);
   }
-  //println("trblock, <c>"); iprintln(exps); iprintln(ins);
   return ins;
 }
 
