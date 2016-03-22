@@ -197,7 +197,8 @@ Module removeMain(lang::rascal::\syntax::Rascal::Module m) {
     return m;
 }
 
-Configuration previousConfig;
+Configuration noPreviousConfig = newConfiguration(pathConfig());
+Configuration previousConfig = noPreviousConfig;
 
 tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, bool verbose = true){
 
@@ -212,10 +213,12 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
         start_checking = cpuTime();
         //M = parse(#start[Module], moduleLoc).top;
         M = parseModule(moduleLoc);
-        if(!reuseConfig || !previousConfig?){
+        if(!reuseConfig || previousConfig == noPreviousConfig){
             lang::rascal::\syntax::Rascal::Module M1 = removeMain(M);
             previousConfig = checkModule(M1, newConfiguration(pcfg));
             previousConfig.stack = [0]; // make sure we are in the module scope
+        } else {
+          previousConfig.dirtyModules = {};
         }
         mainDecl = getMain(M);
         //println("<mainDecl>");
