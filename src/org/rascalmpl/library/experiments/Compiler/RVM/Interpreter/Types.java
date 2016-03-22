@@ -23,6 +23,7 @@ import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -484,7 +485,7 @@ public class Types {
 		});	
 	}
 	
-	private static Pattern keyword = Pattern.compile("\\w+");
+	private static Pattern identifier = Pattern.compile("\\w+");
 	private static Pattern openBracket = Pattern.compile("\\[");
 	private static Pattern closeBracket = Pattern.compile("\\]");
 	private static Pattern openPar = Pattern.compile("\\(");
@@ -501,32 +502,48 @@ public class Types {
 	} 
 	
 	public Type getFunctionType(String signature){
+		Scanner s = new Scanner(preprocess(signature));
 		try {
-			Scanner s = new Scanner(preprocess(signature));
 			Type returnType = parseType(s);
-			s.next();	// skip function name
+			s.next(identifier);	// skip function name
 			s.next(openPar);
 			Object[] argumentTypes = parseFields(s);
 			s.next(closePar);
+			s.close();
 			return RascalTypeFactory.getInstance().functionType(returnType, tf.tupleType(argumentTypes), null);
 		} catch (NoSuchElementException e){
-			throw new RuntimeException("Malformed function signature: " + signature);
+			if(s.hasNext()){
+				String tok = s.next();
+				s.close();
+				throw new RuntimeException("Malformed function signature: " + signature + " at '" + tok + "'");
+			} else {
+				s.close();
+				throw new RuntimeException("Malformed function signature: " + signature + " near end, may be missing ')'");
+			}
 		}
 	}
 	
 	public String getFunctionName(String signature){
+		Scanner s = new Scanner(preprocess(signature));
 		try {
-			Scanner s = new Scanner(preprocess(signature));
 			parseType(s);	// skip function type
-			String name = s.next();
+			String name = s.next(identifier);
+			s.close();
 			return name;
 		} catch (NoSuchElementException e){
-			throw new RuntimeException("Malformed function signature: " + signature);
+			if(s.hasNext()){
+				String tok = s.next();
+				s.close();
+				throw new RuntimeException("Malformed function signature: " + signature + " at '" + tok + "'");
+			} else {
+				s.close();
+				throw new RuntimeException("Malformed function signature: " + signature + " near end, may be missing ')'");
+			}
 		}
 	}
 	
 	private Type parseType(Scanner s){
-		String kw = s.next();
+		String kw = s.next(identifier);
 		Type res;
 		switch(kw){
 		case "int": return tf.integerType();
@@ -575,7 +592,7 @@ public class Types {
 	    		break;
 	    	}
 	    	flds.add(parseType(s));
-	    	if(s.hasNext(keyword)){
+	    	if(s.hasNext(identifier)){
 	    		flds.add(s.next());
 	    	} else {
 	    		flds.add("");
@@ -617,5 +634,4 @@ return RascalTypeFactory.getInstance().nonTerminalType(symbol);
 }
 }
 */
-	
 }
