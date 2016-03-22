@@ -23,24 +23,29 @@ void ex(str title, Figure b, bool debug = false) = render(b, debug = debug, alig
 // --------------------------------------------------------------------------
 
 public Figure newNgon(str lc, Figure el) {
-      return at(0, 0, ngon(n = 5,  grow=1, align = topLeft, lineColor= lc, 
-             lineWidth = 20, fillColor = "white", padding=<0,0,0,0>, 
+      return at(0, 0, ngon(n = 5,  grow=1.0, align = centerMid, lineColor= lc, 
+             lineWidth = 20, fillColor = "white", padding=<0,0,0,0>,
       fig = el));
       }
 
-public Figure demo1() = (idNgon(50) |newNgon(e, it)| 
+public Figure demo1() = (idNgon(5, 50) |newNgon(e, it)| 
               e<-["antiquewhite", "yellow", "red","blue" ,"grey","magenta"]);
 void tdemo1()  {render(demo1(), debug = false, align = centerMid);}
+
+ void tfdemo1(loc l) {
+      // println(schoolPlot());
+      writeFile(l, toHtmlString(demo1()), debug = false, width = 600, height = 600);
+      }
 
 // --------------------------------------------------------------------------
 
 public Figure newBox(str lc, Figure el) {
-      return at(10, 10, box(align = topLeft, lineColor= lc, 
+      return at(10, 10, box(align = centerMid, lineColor= lc, 
              fillColor = "white", fig = el, lineWidth = 20));
       }
 public Figure demo2() = (
          // rotate(0, 
-           at(10, 10, box(size=<50, 200> , align = bottomRight, 
+           at(10, 10, box(size=<50, 200> , align = centerMid, 
              lineColor="grey", fillColor = "yellow", lineOpacity=1.0))
          //  )
            |newBox(e, 
@@ -56,9 +61,9 @@ void tdemo2(){ render(demo2(), align = centerRight, debug = false); }
 
 
 public Figure newEllipse(str lc, Figure el) {
-      return at(0, 0, ellipse(lineColor= lc, lineWidth = 19, 
+      return at(0, 0, ellipse(lineColor= lc, lineWidth = 18, 
            fillColor = "white", padding=<0,0,0,0>, 
-      fig = el));
+      fig = el, grow=1.0));
       }
 public Figure demo3() = (idEllipse(100, 75) |newEllipse(e, 
       it)| e<-["red","blue" ,"grey","magenta", "brown", "green"]);
@@ -162,7 +167,7 @@ Figure labeled(Figure g) {
       demo4(), width = 600, height = 600, align = topLeft, debug = false);
       }
       
-void tshrink() = render(box(fig=shrink(false), size=<400, 400>));
+
    
 
 
@@ -567,7 +572,9 @@ Figures elFigs(int n, bool tt) = n>0?
     [elFig(1-i/(2*n), tt)|num i<-[0,1..n]]
    :[elFig(1-i/(2*-n), tt)|num i<-[-n,-n-1..0]];
 
-public Figure shrink(bool tt) {resetColor();return grid(figArray=[elFigs(5, tt), elFigs(-5, tt)], align = centerMid, borderWidth=1);}
+public Figure shrink(bool tt) {resetColor();return grid( figArray=[elFigs(5, tt), elFigs(-5, tt)], align = centerMid, borderWidth=1);}
+
+void tshrink() = render(box(fig=shrink(false), size=<400, 400>), resizable = true);
 
 Figure _tetris1() = 
        grid( vgap=0, hgap= 0
@@ -649,7 +656,7 @@ Figure demoFig() = grid(vgap=4, figArray=figures);
 
                   
 void demo() = render(demoFig(),
-     width = 1800, height = 2000, resizable = false);
+     width = 1800, height = 2000, resizable = true);
      
 void fdemo(loc l) {
       writeFile(l, toHtmlString(demoFig(), debug = false, resizable = false, width = 800, height = 1800));

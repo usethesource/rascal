@@ -30,13 +30,14 @@ public void standard() {
         [
          box(size=<100, 100>, fillColor ="green")
         ,box(fig=text("Hallo", fontSize=20, fontColor="darkred"), grow = 1.7, fillColor = "antiquewhite")
-        ,box(fillColor="antiquewhite", lineWidth = 8, lineColor="blue", align = topLeft, grow  =1.0, fig = box( size=<200, 200>, fillColor = "gold", lineWidth = 8))
+        ,box(fillColor="antiquewhite", lineWidth = 8, lineColor="blue", align = centerMid, grow  =1.0
+              , fig = box( size=<200, 200>, fillColor = "gold", lineWidth = 8, lineColor = "red"))
         ,box(fig=box(size=<50, 50>,fillColor="red"),align= topLeft,grow = 1.5,fillColor = "antiquewhite")
         ,box(fig=box(size=<50, 50>,fillColor="red"),align= centerMid,grow = 1.5,fillColor = "antiquewhite")
         ,box(fig=box(size=<50, 50>,fillColor="red"),align= bottomRight,grow = 1.5,fillColor = "antiquewhite")
-        ,box(size=<50,50>, fig= box(shrink=0.75, fillColor = "yellow"), align = topLeft, fillColor= "green")
-        ,box(size=<50,50>, fig= box(shrink=0.75, fillColor = "yellow"), align = centerMid, fillColor= "green")
-        ,box(size=<50,50>, fig= box(shrink=0.75, fillColor = "yellow"), align = bottomRight, fillColor= "green")
+        ,box(size=<50,50>, fig= box(shrink=0.75, fillColor = "yellow"), align = topLeft, fillColor= "green", resizable= true)
+        ,box(size=<50,50>, fig= box(shrink=0.75, fillColor = "yellow"), align = centerMid, fillColor= "green", resizable= true)
+        ,box(size=<50,50>, fig= box(shrink=0.75, fillColor = "yellow"), align = bottomRight, fillColor= "green", resizable= true)
         ,hcat(figs=[box(size=<30, 30>, fillColor="blue"), box(size=<50, 50>, fillColor="yellow"), box(size=<70, 70>, fillColor=  "red")],align= topLeft)
         ,hcat(figs=[box(size=<30, 30>, fillColor="blue"), box(size=<50, 50>, fillColor="yellow"), box(size=<70, 70>, fillColor=  "red")],align= centerMid)
         ,hcat(figs=[box(size=<30, 30>, fillColor="blue"), box(size=<50, 50>, fillColor="yellow"), box(size=<70, 70>, fillColor=  "red")],align= bottomRight)
@@ -49,10 +50,10 @@ public void standard() {
                                            , <"b", box(fig=text("noot",fontSize=14, fontColor="blue"), grow=1.6, fillColor="beige")>]
                                      ,edges=[edge("a","b")])
         ], stack)
-        , resizable=false);
+        , resizable=true);
      } 
      
- public void ttests() = render(tests()); 
+ public void ttests() = render(tests(), resizable=true); 
  
  public void ftests(loc l) = writeFile(l, toHtmlString(
    tests()
@@ -62,46 +63,31 @@ public void standard() {
  
 // Figure simple() =  hcat(figs=[box(size=<30, 30>, fillColor="blue"), box(size=<50, 50>, fillColor="yellow"), box(size=<70, 70>, fillColor=  "red")],align= topLeft);
 
-Figure simple() =  box(size=<100, 100>, fillColor ="yellow", tooltip = klokFrame());
+Figure simple() =  circle(fillColor ="antiquewhite", lineWidth = 10, lineColor="blue", align = centerMid, fig = at(10, 10, ngon(
+n= 9, lineWidth = 20, shrink = 1.0, lineColor = "red", fillColor="yellow")));
  
- public void tsimple() = render(simple(), resizable=false);
+ public void tsimple() = render(simple(), resizable=true);
  
  
  public void fsimple(loc l) = writeFile(l, toHtmlString(
-   simple()
+   simple(), resizable=true
  )); 
  
- Figure klokBox(int r, int n) =  at(0, n/2, box(size=<10, n>,  rounded=<10, 10>, lineWidth = 1, fillColor="yellow"));
-
-Figure klokFrame() {
-     int r = 80; 
-     int d = 2;
-     int cx = 20 + r;
-     int cy = 20 + r; 
-     int r1 = 95; 
-     list[Figure] cs =
-          [circle(r=r, cx= cx, cy = cy, fillColor = "silver", lineColor = "red")]
-          +
-          [
-           at(20-6+r+toInt(sin((PI()*2*i)/12)*r1), toInt(20-5+r-cos((PI()*2*i)/12)*r1), htmlText("<i>", size=<20, 20>))|int i<-[12, 3, 6, 9]
-          ]
-        
-        +[at(20-1+r+toInt(sin((PI()*2*i)/12)*(r)), toInt(20+r-cos((PI()*2*i)/12)*(r)), circle(r=d, fillColor="black"))|int i<-[12, 3, 6, 9]
-         ]
-        +box(lineWidth = 0, fillColor="none", fig=at(20, 20, rotate(210, box(size=<2*r, 2*r>, fig =klokBox(r, 70), align = centerMid))))      
-        +box(lineWidth = 0, fillColor="none", fig=at(20, 20, rotate(180, box(size=<2*r, 2*r>, fig =klokBox(r, 50), align = centerMid))))  
-          +[circle(r=5, cx = cx, cy = cy, fillColor = "red")]
-        ;
-     return box(fig=overlay(figs=cs, size=<220, 220>), size=<250, 250>);
-     }
-     
-Figure demo14() = klokFrame();
-
-void tklok()= render(klokFrame());
-
-
-void fklok(loc l) = writeFile(l, toHtmlString(klokFrame()));
+ Figure eye()= ellipse(rx=60, ry = 30, lineColor="brown", align = centerMid, fillColor="yellow", lineWidth = 6
+                      , fig = circle(shrink=1.0, fillColor = "whitesmoke", lineWidth = 4, lineColor = "red"));
+                      
  
+                      
+ //Figure eye()= box(size=<200, 200>, lineColor="brown", fillColor="yellow", lineWidth = 20
+ //                     , fig = box(shrink=1.0, fillColor = "whitesmoke", lineWidth = 40, lineColor = "red"));
+ 
+Figure face() = ellipse(grow= 1.2, fig=vcat( figs=[box(size=<50, 50>, lineWidth=0), hcat(figs=[eye(), eye()], hgap = 10)
+                                  ,box(size=<50, 150>, lineWidth=0) ,  ellipse(size=<200, 25>, fillColor="orange")
+                                  ,box(size=<50, 50>, lineWidth = 0)]
+                       ,fillColor= "none"), fillColor="antiquewhite");
+    
+void tface() = render(face());                     
+                      
  
  
                  

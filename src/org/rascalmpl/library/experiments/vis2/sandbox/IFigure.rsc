@@ -618,7 +618,7 @@ public void _render(IFigure fig1, int width = 800, int height = 800,
       
        widgetOrder += id;
     if (resizable && (getWidth(fig1)<0 || getHeight(fig1)<0))
-        adjust+=adjustBox(fig1, id, getN(fig1), getAngle(fig1));
+        adjust+=fromOuterToInner(fig1, id, getN(fig1), getAngle(fig1), getAtX(fig1), getAtY(fig1));
     fig = ifigure(id, [fig1]);
     // println("site=<site>");
 	if (display) htmlDisplay(site);
@@ -1203,9 +1203,9 @@ str beginTag(str id, Alignment align) {
            ' \<td <vAlign(align)> <hAlign(align)> id=\"<id>_td\"\>";
     }
   
-str beginTag(str id, bool foreignObject, Alignment align, IFigure fig, int offset1, int offset2) {  
+str beginTag(str id, bool foreignObject, Alignment align, IFigure fig, int offset) {  
    str r =  foreignObject?"
-    '\<foreignObject  id=\"<id>_fo\" x=\"<getAtX(fig)+offset1>\" y=\"<getAtY(fig)+offset2>\"
+    '\<foreignObject  id=\"<id>_fo\" x=\"<getAtX(fig)+offset>\" y=\"<getAtY(fig)+offset>\"
           width=\"<screenWidth>px\" height=\"<screenHeight>px\"\> 
     '<beginTag("<id>_fo_table", align)>
     "       
@@ -1214,7 +1214,7 @@ str beginTag(str id, bool foreignObject, Alignment align, IFigure fig, int offse
  }
  
 str beginTag(str id, bool foreignObject, Alignment align, IFigure fig)
- = beginTag(id, foreignObject, align, fig, 0, 0);
+ = beginTag(id, foreignObject, align, fig, 0);
  
 
 str endTag(bool foreignObject) {
@@ -1301,22 +1301,20 @@ bool hasInnerCircle(Figure f)  {
   
  str moveAt(bool fo, Figure f) = fo?"":"x=<getAtX(f)> y=<getAtY(f)>";
  
- str adjustBox(IFigure fig, str id, int n, num angle) =  
-   "adjustBox(\"<getId(fig)>\", \"<id>\", <getHshrink(fig)>, <getVshrink(fig)>
-   ', <getLineWidth(fig)>, <n>, <angle>);\n";
+ str fromOuterToInner(IFigure fig, str id, int n, num angle, int x, int y) =  
+   "fromOuterToInner(\"<getId(fig)>\", \"<id>\", <getHshrink(fig)>, <getVshrink(fig)>
+   ', <getLineWidth(fig)>, <n>, <angle>, <x>, <y>);\n";
    
- str adjustBox(IFigure fig, str id) = adjustBox(fig, id, 0, 0);
+ str fromOuterToInner(IFigure fig, str id) = fromOuterToInner(fig, id, 0, 0, 0, 0);
          
- IFigure _rect(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(0), Alignment align = <0, 0>) {   
+ IFigure _rect(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(0)) {   
       int lw = getLineWidth(f);  
-      // if (getAtX(fig)>0 || getAtY(fig)>0) f.align = topLeft;
-      int offset1 = round((0.5-f.align[0])*lw);
-      int offset2 = round((0.5-f.align[1])*lw);
+      // if (getAtX(fig)>0 || getAtY(fig)>0) f.align = topLeft
       if (emptyFigure():=f.fig) fo = false;
       str begintag= 
          "\<svg  xmlns = \'http://www.w3.org/2000/svg\'  id=\"<id>_svg\"\> <beginScale(f)> <beginRotate(f)> 
          '\<rect id=\"<id>\" /\> 
-         '<beginTag("<id>", fo, f.align, fig, offset1, offset2)>
+         '<beginTag("<id>", fo, f.align, fig, lw)>
          "; 
        str endtag =endTag(fo);
        endtag += endRotate(f);  
@@ -1328,7 +1326,7 @@ bool hasInnerCircle(Figure f)  {
         "
         'd3.select(\"#<id>\")
         '<on(f)>
-        '<attr("x", 0)><attr("y", 0)> 
+        '<attr("x", lw/2)><attr("y", lw/2)> 
         '<attr("rx", f.rounded[0])><attr("ry", f.rounded[1])> 
         '<attr("width", width)><attr("height", height)>
         '<styleInsideSvg(id, f, fig)>
@@ -1339,7 +1337,7 @@ bool hasInnerCircle(Figure f)  {
        widgetOrder+= id;  
        if ((iemptyFigure(_)!:=fig) && getResizable(f) && (getWidth(fig)<0 || getHeight(fig)<0)
        )
-          adjust+= adjustBox(fig, id, getN(fig), getAngle(fig));  
+          adjust+= fromOuterToInner(fig, id, getN(fig), getAngle(fig), getAtX(fig), getAtY(fig));  
        return ifigure(id, [fig]);
        } 
        
@@ -1356,6 +1354,10 @@ bool hasInnerCircle(Figure f)  {
             }
       // println("HELP: <id>_svg   <toInt(f.bigger*f.width)>  <toInt(f.bigger*f.height)>");  
       int lw =  getLineWidth(f);
+      int width = f.width;
+      int height = f.height;
+      if (width>=0) width = toInt(f.bigger*(width + lw));
+      if (height>=0) height = toInt(f.bigger*(height + lw));
       return " 
         '<style("stroke-width",lw)>
         '<style("stroke","<getLineColor(f)>")>
@@ -1368,7 +1370,7 @@ bool hasInnerCircle(Figure f)  {
         '//<findFirst(id,"_tooltip")>=0?attr("pointer-events", "none"):"">    
         ';   
         'd3.select(\"#<id>_svg\")
-        '<attr("width", toInt(f.bigger*f.width))><attr("height", toInt(f.bigger*f.height))>
+        '<attr("width", width)><attr("height", height)>
         '<attr("pointer-events", "none")>     
         '<tooltip>
         '<findFirst(id,"_tooltip")>=0?attr("pointer-events", "none"):"">
@@ -1387,7 +1389,9 @@ bool hasInnerCircle(Figure f)  {
     int y = getAtY(fig);
     int lw = getLineWidth(f);
     int width = f.width;
-    int height = f.height;  
+    int height = f.height; 
+    if (width>=0) width = width;
+    if (height>=0) height = height;
     str bId = id; 
     switch (f) {
         case ngon():bId = "<id>_rect";
@@ -1406,13 +1410,13 @@ bool hasInnerCircle(Figure f)  {
     return styleInsideSvgOverlay(id, f) +
         "    
         'd3.select(\"#<id>_fo\")
-        '<attr("width", width)><attr("height", height)>
+        '<attr("width", width-lw)><attr("height", height-lw)>
         '<attr("pointer-events", "none")> 
         '<debugStyle()>
         ';    
         '       
         'd3.select(\"#<id>_fo_table\")
-        '<style("width", width)><style("height", height)>
+        '<style("width", width-lw)><style("height", height-lw)>
         '<attr("pointer-events", "none")> 
         '<_padding(f.padding)> 
         '<debugStyle()>
@@ -1429,37 +1433,39 @@ num cyL(Figure f) =
       (((ellipse():=f)?(f.ry):(f.r))+ (getLineWidth(f)>=0?(getLineWidth(f))/2.0:0));
 
      
- IFigure _ellipse(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(0), Alignment align = <0.5, 0.5>) {
+ IFigure _ellipse(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(0)) {
       int lw = getLineWidth(f);    
-      str tg = "";
       if (emptyFigure():=f.fig) fo = false;
+      str tg = "";
       switch (f) {
-          case ellipse(): {tg = "ellipse"; 
-                           if (f.width>=0 && f.rx<0) f.rx = (f.width-lw)/2;
-                           if (f.height>=0 && f.ry<0) f.ry = (f.height-lw)/2;    
-                           if (f.width<0 && f.rx>=0) f.width= round(f.rx*2+lw);
-                           if (f.height<0 && f.ry>=0) f.height = round(f.ry*2+lw);                   
+          case ellipse(): {
+                           tg = "ellipse";
+                           if (f.width>=0 && f.rx<0) f.rx = f.width/2;
+                           if (f.height>=0 && f.ry<0) f.ry = f.height/2;    
+                           if (f.width<0 && f.rx>=0) f.width= round(f.rx*2);
+                           if (f.height<0 && f.ry>=0) f.height = round(f.ry*2);                   
                            }
-          case circle(): {tg = "circle";
+          case circle(): {
+                          tg = "circle";
                           if (f.width>=0 && f.height>=0 && f.r<0) 
-                                       f.r = (max([f.width, f.height])-lw)/2;
-                          if (f.width<0 && f.r>=0) f.width= round(f.r*2+lw);
-                          if (f.height<0 && f.r>=0) f.height = round(f.r*2+lw);                 
+                                       f.r = (max([f.width, f.height]))/2;
+                          if (f.width<0 && f.r>=0) f.width= round(f.r*2);
+                          if (f.height<0 && f.r>=0) f.height = round(f.r*2);                 
                           }
           } 
-        if (f.cx>0 || f.cy>0) {
+        if (f.cx>=0 || f.cy>=0) {
            num x = f.at[0]+f.cx-((ellipse():=f)?f.rx:f.r)-lw/2;
            num y=  f.at[1]+f.cy-((ellipse():=f)?f.ry:f.r)-lw/2;
            f.at = <x, y>;
            }
        str begintag =
          "\<svg  xmlns = \'http://www.w3.org/2000/svg\' id=\"<id>_svg\"\><beginScale(f)><beginRotate(f)>\<rect id=\"<id>_rect\"/\> \<<tg> id=\"<id>\"/\> 
-         '<beginTag("<id>", fo, f.align, fig)>
+         '<beginTag("<id>", fo, f.align, fig, lw)>
          ";
        str endtag = endTag(fo);
        endtag += "<endRotate(f)><endScale(f)>\</svg\>"; 
-       int width = f.width-lw;
-       int height = f.height-lw;
+       int width = f.width;
+       int height = f.height;
        widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>_rect\")
@@ -1477,7 +1483,7 @@ num cyL(Figure f) =
        addState(f);
        widgetOrder+= id;
        if (iemptyFigure(_)!:=fig && getResizable(f) && (getWidth(fig)<0 || getHeight(fig)<0))
-          adjust+= adjustBox(fig, id, getN(fig), getAngle(fig)); 
+          adjust+= fromOuterToInner(fig, id, getN(fig), getAngle(fig), getAtX(fig), getAtY(fig)); 
        return ifigure(id, [fig]);
        }
        
@@ -1505,8 +1511,8 @@ str translatePoints(Figure f, Rescale scaleX, Rescale scaleY, int x, int y) {
              num z = g.angle/360.0*2*PI();
              p  = [<x+g.r*cos(z+i*angle), y+g.r*sin(z+i*angle)>|int i<-[0..g.n]];
              }
-       return "<toP(p[0][0], scaleX)>, <toP(p[0][1], scaleY)>" + 
-            "<for(t<-tail(p)){> <toP(t[0], scaleX)> , <toP(t[1], scaleY)> <}>";
+       return "<toP(p[0][0], scaleX)>,<toP(p[0][1], scaleY)>" + 
+            "<for(t<-tail(p)){> <toP(t[0], scaleX)>,<toP(t[1], scaleY)><}>";
        }
     
 str extraCircle(str id, Figure f) {
@@ -1640,7 +1646,6 @@ str directive(Vertex v) = ("line": "L", "lineBy": "l", "move": "M", "moveBy": "m
 str mS(Figure f, str v) = ((emptyFigure():=f)?"": v);
        
 IFigure _shape(str id, Figure f,  IFigure fig = iemptyFigure(0)) {
-       // str begintag= beginTag("<id>_table", topLeft); 
        num top = 0, bottom = screenHeight, left = 0, right = screenHeight;
        if (isEmpty(getFillColor(f))) f.fillColor= "white";
        if (shape(list[Vertex] vs):= f) {
@@ -1689,30 +1694,27 @@ str beginRotateNgon(Figure f) {
     if (f.rotate[1]<0 && f.rotate[2]<0) {
         f.rotate[1] = f.width/2;
         f.rotate[2]=  f.height/2;
-        // println(f.rotate);
         return "\<g transform=\"rotate(<f.rotate[0]>,<f.rotate[1]>,<f.rotate[2]>)\" \>";
         }
     }
                  
-IFigure _ngon(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(0), Alignment align = <0.5, 0.5>) {
+IFigure _ngon(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(0)) {
        int lw = getLineWidth(f);
-       if (emptyFigure():=f.fig) fo = false;
-       if (f.r<0 || getAtX(fig)>0 || getAtY(fig)>0 || f.rotate[0]!=0) f.align = centerMid;          
        if (iemptyFigure(_):=fig) fo = false;
        if (f.r<0 && f.height>0 &&f.width>0) {
              int d = min([f.height, f.width]);
-             f.r = (d - corner(f))/2;
+             f.r = (d)/2;
              f.height = d;
              f.width = d;
              }
        else {
-           if (f.width<0 && f.r>=0) f.width= round(2*f.r+corner(f));
-           if (f.height<0 && f.r>=0) f.height = round(2*f.r+corner(f));
+           if (f.width<0 && f.r>=0) f.width= round(2*f.r);
+           if (f.height<0 && f.r>=0) f.height = round(2*f.r);
            }
        str begintag = "";
        begintag+=
          "\<svg <moveAt(fo, f)> id=\"<id>_svg\"\><beginScale(f)><beginRotateNgon(f)>\<rect id=\"<id>_rect\"/\> <extraCircle(id, f)>\<polygon id=\"<id>\"/\>        
-         '<beginTag("<id>", fo, f.align, fig)>
+         '<beginTag("<id>", fo, f.align, fig, corner(f))>
          ";
        str endtag =  endTag(fo); 
        endtag += "<endRotate(f)><endScale(f)>\</svg\>"; 
@@ -1728,7 +1730,7 @@ IFigure _ngon(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(0), Alignme
         
         'd3.select(\"#<id>\")
         '<on(f)>
-        '<f.width>=0?attr("points", translatePoints(f, f.scaleX, f.scaleY, toInt(f.width/2), toInt(f.height/2))):""> 
+        '<f.width>=0?attr("points", translatePoints(f, f.scaleX, f.scaleY, toInt((f.width+lw)/2), toInt((f.height+lw)/2))):""> 
         '<attr("width", f.width)><attr("height", f.height)>
         '<styleInsideSvg(id, f, fig)>
         ", f.width, f.height, getAtX(f), getAtY(f),  f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f)
@@ -1736,7 +1738,7 @@ IFigure _ngon(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(0), Alignme
        addState(f);
        widgetOrder+= id;
        if (iemptyFigure(_)!:=fig && getResizable(f) && (getWidth(fig)<0 || getHeight(fig)<0))
-          adjust+= adjustBox(fig, id, getN(fig), getAngle(fig)); 
+          adjust+= fromOuterToInner(fig, id, getN(fig), getAngle(fig), getAtX(fig), getAtY(fig)); 
        return ifigure(id, [fig]);
        }
  
@@ -1768,11 +1770,6 @@ IFigure _overlay(str id, Figure f, IFigure fig1...) {
        str endtag="<endRotate(f)><endScale(f)>\</g\>\</svg\>";
        int width = f.width;
        int height = f.height;
-       /*
-       for (q<-fig1) {
-           println("overlay: <q.id> <getAtX(q)> <getAtY(q)>");
-           }
-        */
         widget[id] = <null, seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\") 
@@ -1963,8 +1960,6 @@ str flagsToString(list[bool] b, int l, int u) {
          }
        begintag+="\<form id = \"<id>\"\>\<div align=\"left\"\>\<br\>";
        map[str, bool] r = (x:(s2b[x]?)?s2b[x]:false|x<-f.choices);
-       // println(f.choices);
-       // println(r);
        int i = 0;
        for (c<-f.choices) {
        begintag+="                
@@ -2016,7 +2011,6 @@ int heightDefCells(list[IFigure] fig1) {
  IFigure _dialog(str id, Figure f, bool addSvgTag, IFigure fig1) {
        int width = f.width;
        int height = f.height; 
-       // println("hcat <addSvgTag>");
        str begintag = "";
        if (addSvgTag) {
           begintag+=
@@ -2058,7 +2052,6 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
        int width = f.width;
        int height = f.height; 
        str begintag = "";
-       // println("HELP: <addSvgTag> <getAtX(f)> <getAtY(f)>");
        if (addSvgTag) {
           begintag+=
          "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\" x=<getAtX(f)> y=<getAtY(f)> width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
@@ -2328,8 +2321,6 @@ Figure addMarker(Figure f, str id, Figure g) {
      return g;
    }
     
-Alignment nA(Figure f, Figure fig) =  
-     (f.width<0 || f.height<0 || getAtX(fig)>0 || getAtY(fig)>0)?(isCentered(f)?centerMid:topLeft):f.align;
      
 Figure cL(Figure parent, Figure child) { 
     if (!isEmpty(child.id)) parentMap[child.id] = parent.id; 
@@ -2435,7 +2426,7 @@ Figure withoutAt(Figure f) {
        return <toInt(f.at[0]), toInt(f.at[1])>;
        }
                
-IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = false,
+IFigure _translate(Figure f,  bool addSvgTag = false,
     bool inHtml = true, bool forceHtml = false) {
     if (f.size != <0, 0>) {
        if (f.width<0) f.width = f.size[0];
@@ -2456,26 +2447,26 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
     value v = f.tooltip;
     if (Figure g:=v && g!=emptyFigure()) {tooltips +=  _translate(g, addSvgTag=true); }
     switch(f) {   
-        case box(): return _rect(f.id, true, f, fig = _translate(f.fig, align = nA(f, f.fig), inHtlml = true), align = align);
+        case box(): return _rect(f.id, true, f, fig = _translate(f.fig,  inHtlml = true));
         case emptyFigure(): return iemptyFigure(f.seq);
         case frame():  {
                    f.sizeFromParent = true;
                    f.lineWidth = 0; f.fillColor="none";
-                   return _rect(f.id, true, f, fig = _translate(f.fig, align = nA(f, f.fig), inHtml=true), align = align
+                   return _rect(f.id, true, f, fig = _translate(f.fig, inHtml=true)
                        );
                    }
         case ellipse():  return _ellipse(f.id, true, f, fig = 
-             _translate(f.fig, align = nA(f, f.fig)), align = align 
+             _translate(f.fig)
              );
-        case circle():  return _ellipse(f.id, true, f, fig = _translate(f.fig, align = nA(f, f.fig), inHtml=true), align = align);
-        case polygon():  return _polygon(f.id,  f, align = align);
+        case circle():  return _ellipse(f.id, true, f, fig = _translate(f.fig,  inHtml=true));
+        case polygon():  return _polygon(f.id,  f);
         case shape(list[Vertex] _):  {
                        addMarker(f, "<f.id>_start", f.startMarker);
                        addMarker(f, "<f.id>_mid", f.midMarker);
                        addMarker(f, "<f.id>_end", f.endMarker);
                        return _shape(f.id, f);
                        }
-        case ngon():  return _ngon(f.id, true, f, fig = _translate(f.fig, align = nA(f, f.fig), inHtml=true), align = align);
+        case ngon():  return _ngon(f.id, true, f, fig = _translate(f.fig,  inHtml=true));
         case htmlText(value s): {if (str t:=s) return _text(f.id, inHtml, f, t, f.overflow, addSvgTag);
                             return iemptyFigure(0);
                             } 
@@ -2483,10 +2474,10 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
         case text(value s): {if (str t:=s) return _text(f.id, inHtml, f, t, f.overflow, addSvgTag);
                             return iemptyFigure(0);
                             } 
-        case image():  return _img(f.id,   f, addSvgTag,  align = align);                
-        case hcat(): return _hcat(f.id, f, addSvgTag, [_translate(q, align = f.align, forceHtml = true)|q<-f.figs]
+        case image():  return _img(f.id,   f, addSvgTag);                
+        case hcat(): return _hcat(f.id, f, addSvgTag, [_translate(q, forceHtml = true)|q<-f.figs]
             );
-        case vcat(): return _vcat(f.id, f, addSvgTag, [_translate(q, align = f.align, forceHtml = true)|q<-f.figs]
+        case vcat(): return _vcat(f.id, f, addSvgTag, [_translate(q, forceHtml = true)|q<-f.figs]
          );
          
         case overlay(): { 
@@ -2494,29 +2485,29 @@ IFigure _translate(Figure f,  Alignment align = <0.5, 0.5>, bool addSvgTag = fal
               return r;
               }
               
-        case grid(): return _grid(f.id, f, addSvgTag, figArray= [[_translate(q, align = f.align, forceHtml = true)|q<-e]|e<-f.figArray]
+        case grid(): return _grid(f.id, f, addSvgTag, figArray= [[_translate(q, forceHtml = true)|q<-e]|e<-f.figArray]
         );
         case at(int x, int y, Figure fig): {
                      fig.rotate = f.rotate;
                      fig.at = <x, y>; 
-                     return _translate(fig, align = align, inHtml=true, addSvgTag = true);
+                     return _translate(fig, inHtml=true, addSvgTag = true);
                      }
         case atX(int x, Figure fig):	{
                     fig.rotate = f.rotate;
                     fig.at = <x, 0>; 
-                    return _translate(fig, align = align, inHtml=true, addSvgTag = true);
+                    return _translate(fig, inHtml=true, addSvgTag = true);
                     }			
         case atY(int y, Figure fig):	{
                     fig.rotate = f.rotate;
                     fig.at = <0, y>; 
-                    return _translate(fig, align = align, inHtml=true, addSvgTag = true);
+                    return _translate(fig, nHtml=true, addSvgTag = true);
                     }
         case rotate(num angle, int x, int y, Figure fig): {
-             fig.rotate = <angle, x, y>; return _translate(fig, align = align, inHtml=true);}
+             fig.rotate = <angle, x, y>; return _translate(fig, inHtml=true);}
         case rotate(num angle,  Figure fig): {
            fig.rotate = <angle, -1, -1>; 
            fig.at = f.at;
-           return _translate(fig, align = align, inHtml=true);
+           return _translate(fig, inHtml=true);
            }		
         case buttonInput(str txt):  return _buttonInput(f.id, f,  txt, addSvgTag);
         case rangeInput():  return _rangeInput(f.id, f, addSvgTag);

@@ -7,7 +7,7 @@ public void render(Figure fig1, int width = 800, int height = 800,
      Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>,
      str fillColor = "none", str lineColor = "black", bool debug = false, bool display = true, 
      Event event = on(nullCallback), int borderWidth = -1, str borderStyle = "", str borderColor = ""
-     ,int lineWidth = -1, bool resizable = false)
+     ,int lineWidth = -1, bool resizable = true)
      {
      setDebug(debug);
      _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor
@@ -20,7 +20,7 @@ public void render(Figure fig1, int width = 800, int height = 800,
 public str toHtmlString(Figure fig1, int width = 400, int height = 400, 
      Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>,
      str fillColor = "white", str lineColor = "black", bool debug = false
-     , int borderWidth = -1,  str borderColor = "", str borderStyle = "", bool resizable = false)
+     , int borderWidth = -1,  str borderColor = "", str borderStyle = "", bool resizable = true)
      {
      setDebug(debug);
      _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor,

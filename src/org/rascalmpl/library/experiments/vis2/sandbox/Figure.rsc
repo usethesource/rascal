@@ -514,7 +514,7 @@ public Figure idEllipse(num rx, num ry) = ellipse(rx=rx, ry = ry, lineWidth = 0,
 
 public Figure idCircle(num r) = circle(r= r, lineWidth = 0, fillColor = "none");
 
-public Figure idNgon(num r) = ngon(r= r, lineWidth = 0, fillColor = "none");
+public Figure idNgon(int n, num r) = ngon(n=  n, r= r, lineWidth = 0, fillColor = "none");
 
 public Figure idRect(int width, int height) = rect(width = width, height = height, lineWidth = 0, fillColor = "none");
 

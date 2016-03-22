@@ -263,7 +263,7 @@ function corner(n, lineWidth) {
 	var lw = lineWidth < 0 ? 0 : lineWidth;
 	// alert(lw/Math.sin(angle))
 	// return lw;
-	return lw / Math.cos(angle) + 1;
+	return (lw / Math.cos(angle));
 }
 
 function svgStyle(s, svg) {
@@ -282,14 +282,20 @@ function svgStyle(s, svg) {
 	return s;
 }
 
-function fromInnerToOuterFigure(f, id1, lw, hpad, vpad) {
+function nPoints(el) {
+	 var v = el.attr("points");
+	 if (v ==null) return 0;
+	 return v.split(' ').length;
+}
+
+function fromInnerToOuterFigure(f, id1, toLw, hpad, vpad) {
 	var to = d3.select("#" + f.id);
     var from = d3.select("#"+id1);
     if (from.node().nodeName=="g") {
     	from = d3.select("#"+id1+"_svg");
     }
     if (from.empty()) return;
-	var lw0 = parseInt(from.style("stroke-width"));
+	var fromLw = parseInt(from.style("stroke-width"));
 	var width = document.getElementById(id1).getBoundingClientRect().width;
 	var height = document.getElementById(id1).getBoundingClientRect().height;
 	if (from.attr("width") != null)
@@ -298,63 +304,61 @@ function fromInnerToOuterFigure(f, id1, lw, hpad, vpad) {
 		height = parseInt(from.attr("height"));
 	if (width == 0 || height == 0)
 		return;
-	width = width * f.hgrow + lw + hpad + f.x;
-	height = height * f.vgrow + lw + vpad + f.y;
-	if (to.node().nodeName == "ellipse" || to.node().nodeName == "circle"
-			|| to.node().nodeName == "path"
-	) {
-		width += lw0;
-		height += lw0;
-	}
+	toLw = corner(f.n, toLw);
+	var border =  corner(nPoints(from), fromLw);
+	width = width *   f.hgrow +  hpad + f.x+ border+toLw
+	height = height * f.vgrow +  vpad + f.y+ border+toLw;
 	switch (to.node().nodeName) {
 	case "rect":
-		to.attr("width", width).attr("height", height);
+		 to.attr("width", width).attr("height", height)
+		.attr("x", toLw/2).attr("y", toLw/2);	
 		break;
 	case "circle":
 		var side = Math.max(width, height);
-		var r = (side - lw) / 2;
-		to.attr("cx", r + lw / 2).attr("cy", r + lw / 2).attr("r", r);
+		var r = side / 2;
+		to.attr("cx", r + toLw / 2).attr("cy", r + toLw / 2).attr("r", r);
 		width = side;
 		height = side;
 		to.attr("width", width).attr("height", height);
 		break;
 	case "ellipse":
-		var rx = (width - lw) / 2.0;
-		var ry = (height - lw) / 2.0;
-		to.attr("cx", rx + lw / 2.0).attr("cy", ry + lw/ 2.0).attr("rx", rx).attr(
+		var rx = width / 2.0;
+		var ry = height / 2.0;
+		to.attr("cx", rx + toLw / 2.0).attr("cy", ry + toLw/ 2.0).attr("rx", rx).attr(
 				"ry", ry);
 		to.attr("width", width).attr("height", height);
 		break;
 	case "polygon":
 		if (to.attr("r") == null) {
 			var side = Math.max(width, height);
-			width = side + corner(f.n, f.lw);
-			height = side + corner(f.n, f.lw);
-			var r = side / 2;
-			to.attr("points", translatePoints(f, r, width / 2, height / 2).map(
+			width = side;
+			height = side;
+			var r = side / 2.0;
+			to.attr("points", translatePoints(f.angle, f.n, r, r + toLw/2.0, r + toLw/2.0).map(
 					function(a) {
 						return [ a.x, a.y ].join(",");
 					}).join(" "));
-			to.attr("width", width).attr("height", height);
+			to.attr("width", width).attr("height", height)
+			;
 			var e = d3.select("#" + f.id + "_circle");
-			e.attr("cx", width / 2).attr("cy", height / 2).attr("r", r);
+			e.attr("cx", r + toLw/2).attr("cy", r + toLw/2.0).attr("r", r+toLw/2.0);
 			e.attr("width", width).attr("height", height);
 		}
 		break;
 	}
-	d3.select("#" + f.id + "_fo_table").style("width", width-f.x).style("height",
-			height-f.y);
-	d3.select("#" + f.id + "_fo").attr("width", width-f.x).attr("height", height-f.y);
-	d3.select("#" + f.id + "_svg").attr("width", width).attr("height", height);
+	d3.select("#" + f.id + "_fo_table").style("width", width-f.x-toLw).style("height",
+			height-f.y-toLw);
+	d3.select("#" + f.id + "_fo").attr("width", width-f.x-toLw).attr("height", height-f.y-toLw);
+	d3.select("#" + f.id + "_svg").attr("width", width+toLw).attr("height", height+toLw);
 }
 
-function translatePoints(f, r, x, y) {
+function translatePoints(angle, n, r, x, y) {
 	var q = new Array();
 	// alert(f.angle);
-	var p = f.angle / 360.0 * 2 * Math.PI;
+	var p = angle / 360.0 * 2 * Math.PI;
 	// alert(p);
-	var angl = 2 * Math.PI / f.n;
-	for (var i = 0; i < f.n; i++) {
+	var angl = 2 * Math.PI / n;
+	for (var i = 0; i < n; i++) {
 		q.push({
 			"x" : x + r * Math.cos(p + i * angl),
 			"y" : y + r * Math.sin(p + i * angl)
@@ -363,7 +367,7 @@ function translatePoints(f, r, x, y) {
 	return q;
 }
 
-function adjust1(id, f, width, height, hpad, vpad) {
+function adjust1(fromId, f, width, height, hpad, vpad) {
 	if (f.id == "emptyFigure")
 		return;
 	var d = d3.select("#" + f.id);
@@ -387,7 +391,6 @@ function adjust1(id, f, width, height, hpad, vpad) {
 	var h = height * f.vshrink;
 	switch (d.node().nodeName) {
 	case "rect":
-
 		d.attr("width", w).attr("height", h).attr("x", 0).attr("y", 0);
 		break;
 	case "circle":
@@ -415,7 +418,7 @@ function adjust1(id, f, width, height, hpad, vpad) {
 			h = side1;
 			var r1 = (side1 / 2) - corner(f.n, f.lw);
 			// alert(f.angle);
-			d.attr("points", translatePoints(f, r1, side1 / 2, side1 / 2).map(
+			d.attr("points", translatePoints(f.angle, f.n, r1, side1 / 2, side1 / 2).map(
 					function(a) {
 						return [ a.x, a.y ].join(",");
 					}).join(" "));
@@ -446,15 +449,15 @@ function adjust1(id, f, width, height, hpad, vpad) {
 	;
 	// alert(width);
 	// d3.select("#"+f.id").style("width",width).style("height",height);
-	d3.select("#" + f.id + "_fo_table").style("width", "" + w + "px").style(
+	d3.select("#" + f.id + "_fo_table").style("width", w ).style(
 			"height", "" + h + "px");
-	d3.select("#" + f.id + "_fo").attr("width", "" + w + "px").attr("height",
-			"" + h + "px");
-	d3.select("#" + f.id + "_svg").attr("width", "" + w + "px").attr("height",
-			"" + h + "px");
-	d3.select("#" + id + "_" + f.id).style("width", "" + width + "px").style(
-			"height", "" + height + "px");
-	d3.select("#" + id + "_" + f.id).attr("pointer-events", "none");
+	d3.select("#" + f.id + "_fo").attr("width", w ).attr("height",
+			h );
+	d3.select("#" + f.id + "_svg").attr("width", w).attr("height",
+			h );
+	d3.select("#" + fromId + "_" + f.id).style("width", width).style(
+			"height", height);
+	d3.select("#" + fromId + "_" + f.id).attr("pointer-events", "none");
 	d3.select("#" + f.id + "_fo_table").attr("pointer-events", "none");
 }
 
@@ -741,33 +744,85 @@ function adjustFrame(id0, width, height) {
 	d3.select("#" + id0 + "_svg").attr("width", width).attr("height", height);
 }
 
-function adjustBox(id0, id1, hshrink, vshrink, lw, n, angle) {
-	// alert("adjustBox:"+id1+":"+d3.select("#"+id1).node().nodeName);
-	// alert(""+id0+" "+d3.select("#"+id0).attr("width"));
-	var to = d3.select("#" + id0);
+function fromOuterToInner(toId, fromId, hshrink, vshrink, toLw, n, angle, x , y) {
+	var to = d3.select("#" + toId);	
 	if (to.attr("width") != null && to.attr("height") != null)
 		return;
-	var from = d3.select("#" + id1);
-	var width = document.getElementById(id1).getBoundingClientRect().width;
+	var from = d3.select("#" + fromId);
+	var width = document.getElementById(fromId).getBoundingClientRect().width;
 	if (from.attr("width") != null)
 		width = from.attr("width");
-	var height = document.getElementById(id1).getBoundingClientRect().height;
+	var height = document.getElementById(fromId).getBoundingClientRect().height;
 	if (from.attr("height") != null)
 		height = from.attr("height");
-
-	// alert(height);
+	var fromLw = parseInt(from.style("stroke-width"));
+	fromLw =  corner(nPoints(from), fromLw);
 	if (width == null || height == null)
 		return;
-	// alert(width);
-	adjust1(id1, {
-		id : id0,
-		hshrink : hshrink,
-		vshrink : vshrink,
-		lw : lw,
-		n : n,
-		angle : angle
-	}, width, height, 0, 0);
-}
+	toLw = corner(n, toLw);
+	var w = width * hshrink-fromLw-toLw -x;
+	var h = height * vshrink-fromLw-toLw - y; 
+	switch (to.node().nodeName) {
+	case "TABLE":
+		 var tw = document.getElementById(toId).getBoundingClientRect().width;
+		 if (tw==null || tw< 20) {
+		     to.style("width", w);
+		     to.attr("width", w);    
+	         }
+		 var th = document.getElementById(toId).getBoundingClientRect().height;
+		 if (th==null || th< 20) {
+		    to.style("height", h);
+		    to.attr("height", h);
+	        }
+		 break;
+	case "rect":
+		to.attr("width", w).attr("height", h).attr("x", toLw/2).attr("y", toLw/2);
+		break;
+	case "circle":
+		if (to.attr("r") == null) {
+			var side = Math.min(w, h);
+			w = side;
+			h = side;
+			var r = side / 2;
+			to.attr("cx", (w+toLw) / 2).attr("cy", (h+toLw) / 2).attr("r", r).
+			attr("width", w).attr("height", h);
+		}
+
+		break;
+	case "polygon":
+		if (to.attr("r") == null && to.attr("points") == null) {
+			var side = Math.min(w, h);
+			w = side;
+			h = side;
+			var r = (side/2.0);
+			to.attr("points", translatePoints(angle, n, r, (w+toLw)/2.0, (h+toLw)/2.0).map(
+					function(a) {
+						return [ a.x, a.y ].join(",");
+					}).join(" "));
+			to.attr("width", w).attr("height", h);
+			var e = d3.select("#" + toId + "_circle");
+			e.attr("cx", (w+toLw)/2).attr("cy", (h+toLw)/2).attr("r", r);
+			e.attr("width", w).attr("height", h);
+		}
+		break;
+	case "ellipse":
+		if ((to.attr("rx") == null) && (to.attr("ry") == null)) {
+			var rx = w  / 2;
+			var ry = h  / 2;
+			to.attr("cx", (w+toLw) / 2).attr("cy", (h+toLw) / 2).attr("rx", rx).attr("ry",
+					ry).attr("width", w).attr("height", h);
+		}
+		break;
+	}
+	;
+	d3.select("#" + toId + "_fo_table").style("width", w-fromLw).style(
+			"height", h-fromLw);
+	d3.select("#" + toId + "_fo").attr("width", w-fromLw).attr("height",
+			h-fromLw);
+	d3.select("#" + toId + "_svg").attr("width", w+2*toLw+x).attr("height",
+			h+2*toLw+y);
+    }
+	    
 
 function isObject(item) {
 	return (typeof item === "object" && !Array.isArray(item) && item !== null);
