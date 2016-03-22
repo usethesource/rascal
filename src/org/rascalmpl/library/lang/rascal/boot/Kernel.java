@@ -21,7 +21,6 @@ public class Kernel {
 	private final OverloadedFunction compileAndLink;
 	private final OverloadedFunction compileAndLinkIncremental;
 	private final OverloadedFunction rascalTests;
-	//private final OverloadedFunction execute;
 	
 	private final RVMCore rvm;
 
@@ -39,8 +38,8 @@ public class Kernel {
 		return (IConstructor) rvm.executeRVMFunction(compile, new IValue[] { qname, srcPath, libPath, bootDir, binDir, kwArgs });
 	}
 	
-	public IConstructor compileAndLink(IString qname, IConstructor pcfg, IMap kwArgs){
-		return (IConstructor) rvm.executeRVMFunction(compileAndLink, new IValue[] { qname, pcfg, kwArgs });
+	public IConstructor compileAndLink(IString qname,  IList srcPath, IList libPath, ISourceLocation bootDir, ISourceLocation binDir,  IMap kwArgs){
+		return (IConstructor) rvm.executeRVMFunction(compileAndLink, new IValue[] { qname, srcPath, libPath, bootDir, binDir, kwArgs });
 	}
 	
 	public IConstructor compileAndLinkIncremental(IString qname, IBool reuseConfig, IMap kwArgs){

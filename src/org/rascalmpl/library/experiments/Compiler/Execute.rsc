@@ -35,16 +35,6 @@ tuple[bool, loc] getMuLibraryCompiledReadLoc(PathConfig pcfg) {
 
 loc getMuLibraryCompiledWriteLoc(PathConfig pcfg) = getDerivedWriteLoc(MuLibrary(), "rvm.gz", pcfg);
 
-//tuple[bool,loc] getMergedImportsReadLoc(str mainQualifiedName, PathConfig pcfg){
-//    merged_imports_qname = mainQualifiedName + "_imports";
-//    return getDerivedReadLoc(merged_imports_qname, "rvm.gz", pcfg);
-//}
-//
-//loc getMergedImportsWriteLoc(str mainQualifiedName, PathConfig pcfg){
-//    merged_imports_qname = mainQualifiedName + "_imports";
-//    return getDerivedWriteLoc(merged_imports_qname, "rvm.gz", pcfg);
-//}
-
 alias Resolved = tuple[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors];
 
 RVMModule getImport(loc importedLoc){
@@ -84,6 +74,8 @@ bool valid(loc mergedImportsLoc, RVMModule mergedProgram, RVMModule program, Pat
     return false;
 }
 
+bool hasErrors(set[Message] messages) = any(msg <- messages, error(_,_) := msg);
+
 RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool jvm = true, bool verbose = false){
                         
    map[str,map[str,str]] imported_moduleTags = ();
@@ -93,7 +85,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool jvm = true, 
    map[str,int] imported_overloading_resolvers = ();
    set[Message] messages = mainModule.messages;
    
-   if(any(msg <- messages, error(_,_) := msg)){
+   if(hasErrors(messages)){
        return errorRVMProgram(mainModule);        
    }
    
@@ -217,7 +209,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool jvm = true, 
    
    processImports(mainModule);
   
-   if(any(msg <- messages, error(_,_) := msg)){
+   if(hasErrors(messages)){
         return errorRVMProgram(messages);
    }
    
@@ -237,7 +229,8 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool jvm = true, 
             mainModule.src
             );
  
-   mergedImportsLoc = getMergedImportsWriteLoc(mainModule.name, pcfg);       
+   mergedImportsLoc = getMergedImportsWriteLoc(mainModule.name, pcfg); 
+   if(verbose) println("Writing: <mergedImportsLoc>");      
    writeBinaryValueFile(mergedImportsLoc, rvmMergedImports);
    
    pos_delta = size(imported_overloaded_functions);
@@ -282,13 +275,13 @@ value execute(RVMModule mainModule, PathConfig pcfg, map[str,value] keywordArgum
    return execute(merged, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=testsuite,recompile=recompile,
                   profile=profile,trackCalls=trackCalls,coverage=coverage,jvm=jvm,verbose=verbose);             
 }
+
 value execute(loc moduleLoc, PathConfig pcfg, map[str,value] 
               keywordArguments = (), bool debug=false, bool debugRVM=false, bool testsuite=false, bool recompile=false, bool profile=false, 
               bool trackCalls= false,  bool coverage=false, bool jvm=true, bool verbose = false) {
    return execute(getModuleName(moduleLoc, pcfg), pcfg, keywordArguments = keywordArguments, debug=debug, debugRVM=debugRVM, 
            testsuite=testsuite, profile=profile, trackCalls=trackCalls, coverage=coverage,jvm=jvm,verbose=verbose);    
 }
-
 
 value execute(str qualifiedModuleName, PathConfig pcfg, 
               map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool testsuite=false, bool recompile=false, 
@@ -367,8 +360,10 @@ RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool jvm=tru
    merged = mergeImports(mainModule, pcfg, verbose=verbose, jvm=jvm);
    link_time = cpuTime() - start_linking;
    if(verbose) println("linking: <link_time/1000000> msec");
-   mergedLoc = getDerivedWriteLoc(mainModule.name, "rvm.ser.gz", pcfg);       
-   serializeProgram(mergedLoc, merged, jvm);
+   if(!hasErrors(merged.main_module.messages)){
+      mergedLoc = getDerivedWriteLoc(mainModule.name, "rvm.ser.gz", pcfg);       
+      serializeProgram(mergedLoc, merged, jvm);
+   }
    return merged;
 }
 
@@ -381,8 +376,10 @@ RVMProgram compileAndLinkIncremental(str qualifiedModuleName, bool reuseConfig, 
    merged = mergeImports(mainModule, pcfg, verbose=verbose, jvm=jvm);
    //link_time = cpuTime() - start_linking;
    //println("linking: <link_time/1000000> msec");
-   mergedLoc = getDerivedWriteLoc(mainModule.name, "rvm.ser.gz", pcfg);       
-   serializeProgram(mergedLoc, merged, jvm);
+   if(!hasErrors(merged.main_module.messages)){
+      mergedLoc = getDerivedWriteLoc(mainModule.name, "rvm.ser.gz", pcfg);       
+      serializeProgram(mergedLoc, merged, jvm);
+   }
    return merged;
 }
 
