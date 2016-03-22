@@ -2,15 +2,13 @@ package org.rascalmpl.library.experiments.Compiler.Commands;
 
 import java.io.PrintWriter;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
-import org.rascalmpl.value.IValue;
+import org.rascalmpl.library.lang.rascal.boot.Kernel;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalC {
@@ -55,7 +53,7 @@ public class RascalC {
 			
 			.handleArgs(args);
 		
-		RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), new PrintWriter(System.out, true), new PrintWriter(System.err, true))
+		RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory())
 				.customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
 				.setTrackCalls(cmdOpts.getCommandBoolOption("trackCalls"))
                 .setProfiling(cmdOpts.getCommandBoolOption("profile"))
@@ -63,35 +61,14 @@ public class RascalC {
                 .forModule(cmdOpts.getRascalModule().getValue())
                 .build();
 		
-		RVMCore rvmKernel = null;
-		try {
-			rvmKernel = RVMCore.readFromFileAndInitialize(cmdOpts.getKernelLocation(), rex);
-		} catch (Exception e) {
-			System.err.println("Cannot initialize kernel: " + e.getMessage());
-			System.exit(-1);
-		}
-		TypeFactory tf = TypeFactory.getInstance();
-		Type argType = tf.tupleType(tf.stringType(),
-			  	   					tf.listType(tf.sourceLocationType()),
-			  	   					tf.listType(tf.sourceLocationType()),
-			  	   					tf.sourceLocationType(),
-			  	   					tf.sourceLocationType()
-				   		);
-		Function compileFunction = 
-				cmdOpts.getCommandBoolOption("noLinking") ? rvmKernel.getFunction("compile", tf.abstractDataType(new TypeStore(), "RVMModule"), argType)
-														  : rvmKernel.getFunction("compileAndLink", tf.abstractDataType(new TypeStore(), "RVMProgram"), argType);
-		if(compileFunction == null){
-			System.err.println("Cannot find compile function");
-			System.exit(-1);;
-		}
+		Kernel kernel = new Kernel(vf, rex);
 		
-		IValue[] mainWithPostionalArgs = new IValue[] {
-				cmdOpts.getRascalModule(),
-				cmdOpts.getCommandPathOption("srcPath"),
-				cmdOpts.getCommandPathOption("libPath"),
-				cmdOpts.getCommandLocOption("bootDir"),
-				cmdOpts.getCommandLocOption("binDir"),
-		};
-		rvmKernel.executeRVMFunction(compileFunction, mainWithPostionalArgs, cmdOpts.getModuleOptions());
+		kernel.compile(
+				(IString)cmdOpts.getRascalModule(),
+				(IList) cmdOpts.getCommandPathOption("srcPath"),
+				(IList)cmdOpts.getCommandPathOption("libPath"),
+				(ISourceLocation)cmdOpts.getCommandLocOption("bootDir"),
+				(ISourceLocation)cmdOpts.getCommandLocOption("binDir"), 
+				cmdOpts.getModuleOptionsAsIMap());
 	}
 }

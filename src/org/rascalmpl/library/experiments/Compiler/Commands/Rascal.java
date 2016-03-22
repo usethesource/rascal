@@ -61,7 +61,7 @@ public class Rascal {
 			
 			.handleArgs(args);
 		
-		RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), new PrintWriter(System.out, true), new PrintWriter(System.err, true))
+		RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory())
 				.setTrackCalls(cmdOpts.getCommandBoolOption("trackCalls"))
                 .setProfiling(cmdOpts.getCommandBoolOption("profile"))
                 .forModule(cmdOpts.getRascalModule().getValue())
