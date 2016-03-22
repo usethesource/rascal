@@ -321,7 +321,12 @@ public class ParsingTools {
 	  public ITree parseFragment(IString name, IMap moduleTags, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx) throws IOException{
 		  IMapWriter w = vf.mapWriter();
 		  w.insert(vf.tuple(name, moduleTags));
-		  RascalExecutionContext rex = new RascalExecutionContext(vf, new PrintWriter(ctx.getStdOut()), new PrintWriter(ctx.getStdErr()), w.done(), null, null, false, false, false, false, false, false, false, null, null, ctx.getEvaluator().getRascalResolver());
+		  //RascalExecutionContext rex = new RascalExecutionContext(vf, new PrintWriter(ctx.getStdOut()), new PrintWriter(ctx.getStdErr()), w.done(), null, null, false, false, false, false, false, false, false, null, null, ctx.getEvaluator().getRascalResolver());
+		  
+		  RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, ctx.getStdOut(), ctx.getStdErr())
+				  .withModuleTags(w.done())
+				  .customSearchPath(ctx.getEvaluator().getRascalResolver())
+				  .build();
 		  return parseFragment1(name, start, tree, loc, grammar, rex);
 	  }
 		

@@ -115,21 +115,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private Cache<IString, DescendantDescriptor> descendantDescriptorCache;
 	
 	public RascalExecutionContext(
-			String moduleName, 
-			IValueFactory vf, 
-			PrintStream out, PrintStream err) {
-		this(moduleName, vf, new PrintWriter(out), new PrintWriter(err));
-	}
-	
-	public RascalExecutionContext(
-			String moduleName, 
-			IValueFactory vf, 
-			PrintWriter out, PrintWriter err) {
-		this(vf, out, err, null, null, null, false, false, false, false, false, false, false, null, null, null);
-		setCurrentModuleName(moduleName);
-	}
-	
-	public RascalExecutionContext(
 			IValueFactory vf, 
 			PrintWriter stdout, 
 			PrintWriter stderr, 

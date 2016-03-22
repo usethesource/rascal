@@ -41,22 +41,34 @@ public class ExecutionTools {
 					IBool trackCalls, 
 					IBool coverage, IBool jvm, RascalSearchPath rascalSearchPath
 	) {
-		return new RascalExecutionContext(
-					vf, 
-				   	out != null ? out : new PrintWriter(System.out), 
-				   	err != null ? err : new PrintWriter(System.err), 
-				   	rvmExecutable.getModuleTags(), 
-				   	rvmExecutable.getSymbolDefinitions(),
-				   	new TypeStore(), 
-				   	debug.getValue(),
-				   	debugRVM.getValue(), 
-				   	testsuite.getValue(), 
-				   	profile.getValue(), 
-				   	trackCalls.getValue(), 
-				   	coverage.getValue(), 
-				   	jvm.getValue(), 
-				   	null, 
-				   	null, rascalSearchPath);
+//		return new RascalExecutionContext(
+//					vf, 
+//				   	out != null ? out : new PrintWriter(System.out), 
+//				   	err != null ? err : new PrintWriter(System.err), 
+//				   	rvmExecutable.getModuleTags(), 
+//				   	rvmExecutable.getSymbolDefinitions(),
+//				   	new TypeStore(), 
+//				   	debug.getValue(),
+//				   	debugRVM.getValue(), 
+//				   	testsuite.getValue(), 
+//				   	profile.getValue(), 
+//				   	trackCalls.getValue(), 
+//				   	coverage.getValue(), 
+//				   	jvm.getValue(), 
+//				   	null, 
+//				   	null, rascalSearchPath);
+		return RascalExecutionContextBuilder.normalContext(vf, out != null ? out : new PrintWriter(System.out), err != null ? err : new PrintWriter(System.err))
+			.withModuleTags(rvmExecutable.getModuleTags())
+			.withSymbolDefinitions(	rvmExecutable.getSymbolDefinitions())
+			.setDebugging(debug.getValue())
+			.setDebuggingRVM(debugRVM.getValue())
+			.setTestsuite(testsuite.getValue())
+			.setProfiling(profile.getValue())
+			.setTrackCalls(trackCalls.getValue())
+			.setCoverage(coverage.getValue())
+			.setJVM(jvm.getValue())
+			.customSearchPath(rascalSearchPath)
+			.build();
 	}
 	
 	
@@ -207,7 +219,7 @@ public class ExecutionTools {
 		 try {
 			 binLoc = vf.sourceLocation(scheme, "", path);
 		 } catch (URISyntaxException e) {
-			 System.err.println("Could not create bin location");;
+			 System.err.println("Could not create location using '" + scheme + "' and '" + path + "'");
 		 }
 		 RVMExecutable rvmExecutable = null; 
 		 try {
@@ -217,8 +229,8 @@ public class ExecutionTools {
 		 }
 
 		 RascalExecutionContext rex = 
-				 RascalExecutionContextBuilder.normalContext(vf, System.out, System.err)
-				 .forModule("Fac")
+				 RascalExecutionContextBuilder.normalContext(vf)
+				 .forModule(rvmExecutable.getModuleName())
 				 .setJVM(true)
 				 .build();
 
@@ -245,7 +257,7 @@ public class ExecutionTools {
 		 try {
 			 binLoc = vf.sourceLocation(scheme, "", path);
 		 } catch (URISyntaxException e) {
-			 System.err.println("Could not create bin location");;
+			 System.err.println("Could not create bin location using '" + scheme + "' and '" + path + "'");
 		 }
 		 RVMExecutable rvmExecutable = null; 
 		 try {

@@ -108,6 +108,12 @@ public class RascalExecutionContextBuilder {
         return this;
     }
 	
+	public RascalExecutionContextBuilder setTestsuite(boolean testsuite) {
+	    assert !build;
+        this.testsuite = testsuite;
+        return this;
+    }
+	
 	public RascalExecutionContextBuilder setJVM(boolean jvm) {
 	    assert !build;
         this.jvm = jvm;
