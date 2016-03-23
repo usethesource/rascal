@@ -2,9 +2,10 @@ package org.rascalmpl.value.impl.primitive;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 /*
  * Not supported: in URI class, scheme is case insensitive, but this is already kinda broken, since on windows & osx, so should path's be.
@@ -32,7 +33,7 @@ import java.util.regex.Pattern;
 		if (scheme == null || scheme.equals("")) {
 			throw new URISyntaxException(scheme, "scheme cannot be empty or null");
 		}
-		if (!INTERNED_SCHEMES.containsKey(scheme)  && !schemePattern.matcher(scheme).matches()) {
+		if (INTERNED_SCHEMES.getIfPresent(scheme) == null  && !schemePattern.matcher(scheme).matches()) {
 			throw new URISyntaxException(scheme, "Scheme is not a valid scheme");
 		}
 		if (authority == null) {
@@ -91,14 +92,14 @@ import java.util.regex.Pattern;
         return str;
     }
 
-    private static final Map<String, String> INTERNED_SCHEMES = new HashMap<>();
+    private static final Cache<String, String> INTERNED_SCHEMES = Caffeine.newBuilder().build();
 
     private static class BaseURI implements IURI {
 		protected final String scheme;
 		
 		
 		public BaseURI(String scheme)  {
-			this.scheme = INTERNED_SCHEMES.computeIfAbsent(scheme, s -> scheme);
+			this.scheme = INTERNED_SCHEMES.get(scheme, s -> scheme);
 		}
 		
 
@@ -220,13 +221,13 @@ import java.util.regex.Pattern;
 
 
 
-	private static final Map<String, String> INTERNED_AUTHORIES = new HashMap<>();
+	private static final Cache<String, String> INTERNED_AUTHORIES = Caffeine.newBuilder().build();
 	private static class AuthorityURI extends BaseURI {
 		protected final String authority;
 		
 		public AuthorityURI(String scheme, String authority)  {
 			super(scheme);
-			this.authority = INTERNED_AUTHORIES.computeIfAbsent(authority, s -> authority);
+			this.authority = INTERNED_AUTHORIES.get(authority, s -> authority);
 		}
 		
 		@Override
