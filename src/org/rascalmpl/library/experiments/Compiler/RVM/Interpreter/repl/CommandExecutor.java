@@ -66,7 +66,6 @@ public class CommandExecutor {
 	boolean coverage;
 	boolean jvm;
 	boolean verbose;
-	boolean serialize;
 	
 	private ArrayList<String> imports;
 	private HashMap<String,String> syntaxDefinitions;
@@ -100,7 +99,6 @@ public class CommandExecutor {
 		coverage = false;
 		jvm = true;
 		verbose = false;
-		serialize = true;
 		
 		IMapWriter w = vf.mapWriter();
 		w.put(vf.string("bootstrapParser"), vf.string(""));
@@ -186,7 +184,7 @@ public class CommandExecutor {
 			IConstructor consoleRVMProgram = kernel.compileAndLinkIncremental(vf.string(consoleInputName), reuseConfig, makeCompileKwParamsAsIMap());
 			
 			if(noErrors(modString, consoleRVMProgram)){
-				rvmConsoleExecutable = ExecutionTools.loadProgram(consoleBinaryLocation, consoleRVMProgram, vf.bool(jvm));
+				rvmConsoleExecutable = ExecutionTools.linkProgram(consoleBinaryLocation, consoleRVMProgram, vf.bool(jvm));
 				
 				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, stdout, stderr)
 						.forModule(shellModuleName)

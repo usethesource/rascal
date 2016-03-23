@@ -370,12 +370,9 @@ RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool jvm=tru
 RVMProgram compileAndLinkIncremental(str qualifiedModuleName, bool reuseConfig, bool jvm=true, bool verbose = false){
    startTime = cpuTime();
    pcfg = pathConfig(srcPath=[|std:///|, |test-modules:///|], binDir=|home:///bin-console|, libPath=[|home:///bin-console|]);
-   mainModule = compileIncremental(qualifiedModuleName, reuseConfig, pcfg, verbose=verbose);
-   //println("Compiling: <(cpuTime() - startTime)/1000000> ms");
-   //start_linking = cpuTime();   
+   mainModule = compileIncremental(qualifiedModuleName, reuseConfig, pcfg, verbose=verbose); 
    merged = mergeImports(mainModule, pcfg, verbose=verbose, jvm=jvm);
-   //link_time = cpuTime() - start_linking;
-   //println("linking: <link_time/1000000> msec");
+
    if(!hasErrors(merged.main_module.messages)){
       mergedLoc = getDerivedWriteLoc(mainModule.name, "rvm.ser.gz", pcfg);       
       serializeProgram(mergedLoc, merged, jvm);

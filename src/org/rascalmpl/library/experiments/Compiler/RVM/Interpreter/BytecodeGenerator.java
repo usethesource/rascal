@@ -11,7 +11,7 @@
 *******************************************************************************/
 
 
-package org.rascalmpl.library.experiments.Compiler.RVM.ToJVM;
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.OutputStream;
 import java.util.HashMap;
@@ -24,10 +24,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;

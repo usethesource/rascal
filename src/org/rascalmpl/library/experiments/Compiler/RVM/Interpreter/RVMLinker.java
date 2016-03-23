@@ -28,7 +28,7 @@ import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
-public class RVMLoader {
+public class RVMLinker {
 	
 	static FSTConfiguration conf;
 	static FSTSerializableType serializableType;
@@ -88,7 +88,7 @@ public class RVMLoader {
 	private TypeStore typeStore;
 	private final Types types;
 
-	public RVMLoader(IValueFactory vf, TypeStore typeStore) {
+	public RVMLinker(IValueFactory vf, TypeStore typeStore) {
 		this.vf = vf;
 		this.types = new Types(this.vf);
 		this.tf = TypeFactory.getInstance();
@@ -379,7 +379,7 @@ public class RVMLoader {
 		}
 	}
 	
-	public RVMExecutable load(IConstructor program, ISourceLocation rmvProgramLoc, boolean jvm) throws IOException {
+	public RVMExecutable link(IConstructor program, ISourceLocation rmvProgramLoc, boolean jvm) throws IOException {
 		
 		boolean eliminateDeadCode = true;
 		
@@ -595,7 +595,7 @@ public class RVMLoader {
 
 		validateOverloading();
 
-		System.out.println("Loading: " +  (Timing.getCpuTime() - start)/1000000 + " ms");
+		System.out.println("Linking: " +  (Timing.getCpuTime() - start)/1000000 + " ms");
 
 		return new RVMExecutable(rmvProgramLoc,
 							     ((IString) main_module.get("name")).getValue(),
