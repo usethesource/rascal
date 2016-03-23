@@ -23,7 +23,6 @@ import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 

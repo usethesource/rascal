@@ -1,7 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.LinkedList;

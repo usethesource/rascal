@@ -1,8 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,7 +18,7 @@ import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CallTrackingObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CallTraceObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CoverageFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.DebugFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
@@ -29,7 +26,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.Null
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.ProfileFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.RVMTrackingObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IListWriter;
@@ -74,7 +70,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final boolean trace;
 	private final ITestResultListener testResultListener;
 	private IFrameObserver frameObserver;
-	private ISourceLocation logLocation;
 	private final IMap symbol_definitions;
 	private RascalSearchPath rascalSearchPath;
 	
@@ -172,18 +167,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 			} else if(debug){
 				setFrameObserver(new DebugFrameObserver(this));
 			} else if(trace){
-				if(logLocation != null){
-					URIResolverRegistry reg = URIResolverRegistry.getInstance();
-					try {
-						OutputStream outStream = reg.getOutputStream(logLocation, false);
-						setFrameObserver(new CallTrackingObserver(this)); 
-					} catch (IOException e) {
-						throw new RuntimeException("Cannot create log file: " + e.getMessage());
-					}
-					
-				} else {
-					setFrameObserver(new CallTrackingObserver(this));
-				}
+					setFrameObserver(new CallTraceObserver(this));
 			} else if(debugRVM){
 				setFrameObserver(new RVMTrackingObserver(this));
 			} else {
@@ -532,9 +516,5 @@ public class RascalExecutionContext implements IRascalMonitor {
 		addRascalSearchPath(URIUtil.rootLocation("test-modules"));
 		addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		addRascalSearchPath(URIUtil.rootLocation("courses"));
-	}
-
-	public void setLogLocation(ISourceLocation logLocation) {
-		this.logLocation = logLocation;
 	}
 }

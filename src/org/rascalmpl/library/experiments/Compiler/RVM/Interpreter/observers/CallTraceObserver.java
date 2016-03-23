@@ -5,11 +5,11 @@ import java.io.PrintWriter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 
-public class CallTrackingObserver implements IFrameObserver {
+public class CallTraceObserver implements IFrameObserver {
 
 	private final PrintWriter stdout;
 
-	public CallTrackingObserver(RascalExecutionContext rex){
+	public CallTraceObserver(RascalExecutionContext rex){
 		this.stdout = rex.getStdOut();
 	}
 

@@ -9,7 +9,6 @@ import java.io.Writer;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMInterpreter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.repl.BaseREPL;
