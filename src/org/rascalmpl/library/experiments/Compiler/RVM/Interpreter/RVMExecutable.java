@@ -11,7 +11,6 @@ import java.util.Map;
 
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.experiments.Compiler.VersionInfo;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 import org.rascalmpl.library.util.SemVer;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IConstructor;
@@ -95,7 +94,8 @@ public class RVMExecutable implements Serializable{
 			String uid_module_main,
 			String uid_module_main_testsuite,
 			TypeStore ts, 
-			IValueFactory vfactory, boolean jvm
+			IValueFactory vfactory, 
+			boolean jvm
 			) throws IOException{
 		
 		this.rvmProgramLoc = rvmProgramLoc;
@@ -304,7 +304,7 @@ public class RVMExecutable implements Serializable{
 
 		ISourceLocation compOut = rvmExecutable;
 		fileOut = URIResolverRegistry.getInstance().getOutputStream(compOut, false);
-		FSTObjectOutput out = new FSTObjectOutput(fileOut, RVMLoader.conf);
+		FSTObjectOutput out = new FSTObjectOutput(fileOut, RVMLinker.conf);
 		long before = Timing.getCpuTime();
 		out.writeObject(this);
 		out.close();
@@ -328,7 +328,7 @@ public class RVMExecutable implements Serializable{
 		try {
 			ISourceLocation compIn = rvmExecutable;
 			InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(compIn);
-			in = new FSTObjectInput(fileIn, RVMLoader.conf);
+			in = new FSTObjectInput(fileIn, RVMLinker.conf);
 			long before = Timing.getCpuTime();
 			executable = (RVMExecutable) in.readObject(RVMExecutable.class);
 			in.close();

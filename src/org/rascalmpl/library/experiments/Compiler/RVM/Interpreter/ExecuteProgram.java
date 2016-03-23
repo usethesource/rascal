@@ -46,7 +46,7 @@ public class ExecuteProgram {
 
 		checkErrors(rvmProgram);
 
-		ExecutionTools.load(rvmProgramLoc, rvmProgram, jvm);
+		ExecutionTools.link(rvmProgramLoc, rvmProgram, jvm);
 	}
 	
 	// Library function to execute a RVMProgram
@@ -68,7 +68,7 @@ public class ExecuteProgram {
 
 		checkErrors(rvmProgram);
 		
-		RVMExecutable executable = ExecutionTools.load(rvmProgramLoc, rvmProgram, jvm);
+		RVMExecutable executable = ExecutionTools.link(rvmProgramLoc, rvmProgram, jvm);
 
 		RascalExecutionContext rex = ExecutionTools.makeRex(executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, ctx.getEvaluator().getRascalResolver());
 		return ExecutionTools.executeProgram(executable, keywordArguments, rex);
@@ -93,7 +93,7 @@ public class ExecuteProgram {
 
 		checkErrors(rvmProgram);
 		
-		RVMExecutable executable = ExecutionTools.load(rvmProgramLoc, rvmProgram, jvm);
+		RVMExecutable executable = ExecutionTools.link(rvmProgramLoc, rvmProgram, jvm);
 
 		RascalExecutionContext rex2 = ExecutionTools.makeRex(executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, rex.getRascalSearchPath());
 		return ExecutionTools.executeProgram(executable, keywordArguments, rex2);

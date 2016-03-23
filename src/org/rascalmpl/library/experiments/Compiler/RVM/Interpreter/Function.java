@@ -153,7 +153,7 @@ public class Function implements Serializable {
 		codeblock.clearForJVM();
 	}
 	
-	public void attachExceptionTable(final IList exceptions, final RVMLoader rascalLinker) {
+	public void attachExceptionTable(final IList exceptions, final RVMLinker rascalLinker) {
 			froms = new int[exceptions.length()];
 			tos = new int[exceptions.length()];
 			types = new int[exceptions.length()];

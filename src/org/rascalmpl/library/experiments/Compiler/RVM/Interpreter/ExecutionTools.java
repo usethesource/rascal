@@ -55,17 +55,13 @@ public class ExecutionTools {
 			.build();
 	}
 	
-	public static RVMExecutable loadProgram(
+	public static RVMExecutable linkProgram(
 					 ISourceLocation rvmProgramLoc,
 					 IConstructor rvmProgram,
 					 IBool jvm	
     ) throws IOException {
 		
-		return load(
-					rvmProgramLoc,
-				    rvmProgram, 
-				    jvm
-				    );
+		return link(rvmProgramLoc, rvmProgram, jvm);
 	}
 	
 	// Read a RVMExecutable from file
@@ -76,15 +72,15 @@ public class ExecutionTools {
 	
 	// Create an RVMExecutable given an RVMProgram
 	
-	public static RVMExecutable load(
+	public static RVMExecutable link(
 			 	ISourceLocation rvmProgramLoc,
 			 	IConstructor rvmProgram,
 			 	IBool jvm
 	) throws IOException {
 
 		TypeStore typeStore = new TypeStore();
-		RVMLoader loader = new RVMLoader(vf, typeStore);
-		return loader.load(rvmProgram,	rvmProgramLoc, jvm.getValue());
+		RVMLinker linker = new RVMLinker(vf, typeStore);
+		return linker.link(rvmProgram,	rvmProgramLoc, jvm.getValue());
 	}
 		
 	public static IValue executeProgram(RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){
