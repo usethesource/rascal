@@ -1,8 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.interpreter.StackTrace;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;

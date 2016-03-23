@@ -1,6 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.Commands;
 
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 

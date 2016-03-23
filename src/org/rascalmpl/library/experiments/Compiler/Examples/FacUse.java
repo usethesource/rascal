@@ -1,7 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.Examples;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.KWParams;
 import org.rascalmpl.value.IValue;

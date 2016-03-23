@@ -24,7 +24,7 @@ public class ExecutionTools {
 
 	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	private static ITestResultListener testResultListener;
+	private static ITestResultListener testResultListener;		//TODO where should it be used?
 
 	static void setTestResultListener(ITestResultListener trl){
 		testResultListener = trl;
@@ -41,22 +41,6 @@ public class ExecutionTools {
 					IBool trace, 
 					IBool coverage, IBool jvm, RascalSearchPath rascalSearchPath
 	) {
-//		return new RascalExecutionContext(
-//					vf, 
-//				   	out != null ? out : new PrintWriter(System.out), 
-//				   	err != null ? err : new PrintWriter(System.err), 
-//				   	rvmExecutable.getModuleTags(), 
-//				   	rvmExecutable.getSymbolDefinitions(),
-//				   	new TypeStore(), 
-//				   	debug.getValue(),
-//				   	debugRVM.getValue(), 
-//				   	testsuite.getValue(), 
-//				   	profile.getValue(), 
-//				   	trace.getValue(), 
-//				   	coverage.getValue(), 
-//				   	jvm.getValue(), 
-//				   	null, 
-//				   	null, rascalSearchPath);
 		return RascalExecutionContextBuilder.normalContext(vf, out != null ? out : new PrintWriter(System.out), err != null ? err : new PrintWriter(System.err))
 			.withModuleTags(rvmExecutable.getModuleTags())
 			.withSymbolDefinitions(	rvmExecutable.getSymbolDefinitions())
@@ -70,7 +54,6 @@ public class ExecutionTools {
 			.customSearchPath(rascalSearchPath)
 			.build();
 	}
-	
 	
 	public static RVMExecutable loadProgram(
 					 ISourceLocation rvmProgramLoc,
@@ -101,19 +84,7 @@ public class ExecutionTools {
 
 		TypeStore typeStore = new TypeStore();
 		RVMLoader loader = new RVMLoader(vf, typeStore);
-		RVMExecutable executable = loader.load(rvmProgram,	rvmProgramLoc, jvm.getValue());
-		
-		//executable.write(rvmProgramLoc);			
-
-//			/*** Consistency checking after read: TODO: REMOVE THIS WHEN STABLE*/
-//			RVMLinked executable2 = RVMLinked.read(linkedRVM);
-//			if(!executable.comparable(executable2)){
-//				System.err.println("RVMExecutables differ");
-//			}
-//
-//			//TODO: Use the serialized version for testing purposes only
-//			executable = executable2;
-		return executable;
+		return loader.load(rvmProgram,	rvmProgramLoc, jvm.getValue());
 	}
 		
 	public static IValue executeProgram(RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){

@@ -160,7 +160,7 @@ public class CommandExecutor {
 		return errorFree;
 	}
 	
-	IValue executeModule(String main, boolean onlyMainChanged){
+	private IValue executeModule(String main, boolean onlyMainChanged){
 		StringWriter w = new StringWriter();
 		w.append("@bootstrapParser module ConsoleInput\n");
 		for(String imp : imports){
@@ -283,7 +283,7 @@ public class CommandExecutor {
 		return null;
 	}
 	
-	public IValue evalExpression(String src, ITree exp){
+	private IValue evalExpression(String src, ITree exp){
 		try {
 			return executeModule("\nvalue main() = " + src + ";\n", true);
 		} catch (Thrown e){
@@ -291,17 +291,17 @@ public class CommandExecutor {
 		}
 	}
 	
-	void declareVar(String type, String name, String val){
+	private void declareVar(String type, String name, String val){
 		variables.put(name,  new Variable(type, name, val));
 	}
 	
-	IValue report(String msg){
+	private IValue report(String msg){
 		stdout.println(msg);
 		stdout.flush();
 		return null;
 	}
 	
-	String getBaseVar(ITree assignable) throws FactTypeUseException, IOException{
+	private String getBaseVar(ITree assignable) throws FactTypeUseException, IOException{
 		if(is(assignable, "variable")){
 			return unparse(get(assignable, "qualifiedName"));
 		}
@@ -311,7 +311,7 @@ public class CommandExecutor {
 		return null;
 	}
 	
-	public IValue evalStatement(String src, ITree stat) throws FactTypeUseException, IOException{
+	private IValue evalStatement(String src, ITree stat) throws FactTypeUseException, IOException{
 		
 		String consName = TreeAdapter.getConstructorName(stat);
 		switch(consName){
@@ -370,7 +370,7 @@ public class CommandExecutor {
 		return executeModule("\nvalue main() = true;\n", false);
 	}
 	
-	public IValue evalImport(String src, ITree imp) throws FactTypeUseException, IOException{
+	private IValue evalImport(String src, ITree imp) throws FactTypeUseException, IOException{
 		IValue result;
 		if(is(imp, "default")){
 			String impName = unparse(get(get(imp, "module"), "name"));
@@ -415,7 +415,7 @@ public class CommandExecutor {
 		return null;
 	}
 	
-	public IValue evalDeclaration(String src, ITree cmd) throws FactTypeUseException, IOException{
+	private IValue evalDeclaration(String src, ITree cmd) throws FactTypeUseException, IOException{
 		IValue result;
 		if(is(cmd, "variable")){
 			ITree type = get(cmd, "type");
@@ -474,10 +474,18 @@ public class CommandExecutor {
 		}
 	}
 	
-	String unparse(ITree tree) throws FactTypeUseException, IOException{
+	private String unparse(ITree tree) throws FactTypeUseException, IOException{
 		StringWriter w = new StringWriter();
 		TreeAdapter.unparse(tree, w);
 		return w.toString();
+	}
+	
+	private IValue showOptions(){
+		StringBuilder sb = new StringBuilder();
+		return report(
+				sb.append("profile:  ").append(profile).append("\n")
+				  .append("trace:    ").append(trace).append("\n")
+				  .append("coverage: ").append(coverage).toString());
 	}
 	
 	public IValue evalShellCommand(String[] words) {
@@ -485,12 +493,8 @@ public class CommandExecutor {
 		
 		case "set":
 			if(words.length == 1){
-				StringBuilder sb = new StringBuilder();
-				return report(
-					sb.append("profile:   ").append(profile).append("\n")
-					  .append("trace:     ").append(trace).append("\n")
-					  .append("coverage:  ").append(coverage).toString());
-				}
+				return showOptions();
+			}
 			if(words.length != 3){
 				return report("set requires two arguments");
 			}
@@ -498,21 +502,29 @@ public class CommandExecutor {
 			String val = words[2];
 			
 			switch(name){
-			case "profile": case "profiling":
+			case "profile":
 				profile =  getBooleanValue(val);
+				if(profile && (trace || coverage)){
+					trace = coverage = false;
+					return showOptions();
+				}
 				return report(name + " set to "  + profile);
 				
-			case "trace": case "tracing": case "trackCalls":
+			case "trace":
 				trace = getBooleanValue(val);
+				if(trace && (profile || coverage)){
+					profile = coverage = false;
+					return showOptions();
+				}
 				return report(name + " set to "  + trace);
 				
 			case "coverage":
 				coverage = getBooleanValue(val);
+				if(coverage && (profile || trace)){
+					profile = trace = false;
+					return showOptions();
+				}
 				return report(name + " set to "  + coverage);
-								
-			case "debug":
-				debug = getBooleanValue(val);
-				return report(name + " set to "  + debug);
 								
 			default:
 				return report("Unrecognized option : " + name);
@@ -599,9 +611,7 @@ public class CommandExecutor {
 		return null;
 	}	
 	
-
-	
-	ITree parseCommand(String command, ISourceLocation location) {
+	public ITree parseCommand(String command, ISourceLocation location) {
 		//__setInterrupt(false);
 		IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
 		ITree tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));

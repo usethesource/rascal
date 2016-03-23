@@ -2003,8 +2003,7 @@ public enum RascalPrimitive {
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			IList left = (IList) arg_2;
 			IList right = (IList) arg_1;
-			Type elmType = tf.tupleType(left.getElementType(), right.getElementType());
-			IListWriter w = vf.listWriter(elmType);
+			IListWriter w = vf.listWriter();
 			for(IValue l : left){
 				for(IValue r : right){
 					w.append(vf.tuple(l,r));
@@ -2036,8 +2035,7 @@ public enum RascalPrimitive {
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			ISet left = (ISet) arg_2;
 			ISet right = (ISet) arg_1;
-			Type elmType = tf.tupleType(left.getElementType(), right.getElementType());
-			ISetWriter w = vf.setWriter(elmType);
+			ISetWriter w = vf.setWriter();
 			for(IValue l : left){
 				for(IValue r : right){
 					w.insert(vf.tuple(l,r));
@@ -8025,14 +8023,7 @@ public enum RascalPrimitive {
 				}
 			}
 			
-			ISetWriter wset = null;
-			ISetWriter wrel = null;
-			
-			if (yieldSet){
-				wset = vf.setWriter(resFieldType[0]);
-			} else {
-				wrel = vf.relationWriter(tf.tupleType(resFieldType));
-			}
+			ISetWriter wset = vf.setWriter();
 			
 			for (IValue v : rel) {
 				ITuple tup = (ITuple)v;
@@ -8056,12 +8047,12 @@ public enum RascalPrimitive {
 					if(yieldSet){
 						wset.insert(args[0]);
 					} else {
-						wrel.insert(vf.tuple(args));
+						wset.insert(vf.tuple(args));
 					}
 				}
 			}
 			
-			stack[sp - arity] = yieldSet ? wset.done() : wrel.done();
+			stack[sp - arity] = wset.done();
 			return sp - arity + 1;
 		}
 	},
@@ -8116,14 +8107,7 @@ public enum RascalPrimitive {
 				}
 			}
 			
-			IListWriter wlist = null;
-			IListWriter wlrel = null;
-			
-			if (yieldList){
-				wlist = vf.listWriter(resFieldType[0]);
-			} else {
-				wlrel = vf.listRelationWriter(tf.tupleType(resFieldType));
-			}
+			IListWriter wlist = vf.listWriter();
 			
 			for (IValue v : lrel) {
 				ITuple tup = (ITuple)v;
@@ -8147,60 +8131,14 @@ public enum RascalPrimitive {
 					if(yieldList){
 						wlist.append(args[0]);
 					} else {
-						wlrel.append(vf.tuple(args));
+						wlist.append(vf.tuple(args));
 					}
 				}
 			}
 			
-			stack[sp - arity] = yieldList ? wlist.done() : wlrel.done();
+			stack[sp - arity] = wlist.done();
 			return sp - arity + 1;
 		}
-//			assert arity >= 2;
-//			IList lrel = ((IList) stack[sp - arity]);
-//			if(lrel.isEmpty()){
-//				stack[sp - arity] = lrel;
-//				return sp - arity + 1;
-//			}
-//			int indexArity = arity - 1;
-//			int lrelArity = lrel.getElementType().getArity();
-//			assert indexArity < lrelArity;
-//			int resArity = lrelArity - indexArity;
-//			IValue[] indices = new IValue[indexArity];
-//			for(int i = 0; i < indexArity; i++ ){
-//				indices[i] = (IValue) stack[sp - arity + i + 1];
-//				if(indices[i].getType().isString()){
-//					String s = ((IString) indices[i]).getValue();
-//					if(s.equals("_"))
-//						indices[i] = null;
-//				}
-//			}
-//			IValue[] elems = new  IValue[resArity];
-//			IListWriter w = vf.listWriter();
-//			NextTuple:
-//				for(IValue vtup : lrel){
-//					ITuple tup = (ITuple) vtup;
-//					for(int i = 0; i < indexArity; i++){
-//						if(indices[i] != null){
-//							IValue v = tup.get(i);
-//							if(indices[i].getType().isSet()){
-//								ISet s = (ISet) indices[i];
-//								if(!s.contains(v)){
-//									continue NextTuple;
-//								}
-//							} else
-//								if(!v.isEqual(indices[i])){
-//									continue NextTuple;
-//								}
-//						}
-//					}
-//					for(int i = 0; i < resArity; i++){
-//						elems[i] = tup.get(indexArity + i);
-//					}
-//					w.append(resArity > 1 ? vf.tuple(elems) : elems[0]);
-//				}
-//			stack[sp - arity] = w.done();
-//			return sp - arity + 1;
-//		}
 	},
 
 	/**
