@@ -1,4 +1,4 @@
-module experiments::Compiler::RVM::Compare
+module experiments::Compiler::Tests::Compare
 
 import IO;
 import ValueIO;
