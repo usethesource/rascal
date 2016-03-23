@@ -41,7 +41,7 @@ public class RascalC {
 						
 			.boolOption("help") 		.help("Print help message for this command")
 			
-			.boolOption("trackCalls") 	.help("Print Rascal functions during execution of compiler")
+			.boolOption("trace") 		.help("Print Rascal functions during execution of compiler")
 			
 			.boolOption("profile") 		.help("Profile execution of compiler")
 			
@@ -55,8 +55,8 @@ public class RascalC {
 		
 		RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory())
 				.customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
-				.setTrackCalls(cmdOpts.getCommandBoolOption("trackCalls"))
-                .setProfiling(cmdOpts.getCommandBoolOption("profile"))
+				.setTrace(cmdOpts.getCommandBoolOption("trace"))
+                .setProfile(cmdOpts.getCommandBoolOption("profile"))
                 //.setJVM(cmdOpts.getCommandBoolOption("jvm"))
                 .forModule(cmdOpts.getRascalModule().getValue())
                 .build();
@@ -64,11 +64,11 @@ public class RascalC {
 		Kernel kernel = new Kernel(vf, rex);
 		
 		kernel.compile(
-				(IString)cmdOpts.getRascalModule(),
-				(IList) cmdOpts.getCommandPathOption("srcPath"),
-				(IList)cmdOpts.getCommandPathOption("libPath"),
-				(ISourceLocation)cmdOpts.getCommandLocOption("bootDir"),
-				(ISourceLocation)cmdOpts.getCommandLocOption("binDir"), 
+				cmdOpts.getRascalModule(),
+				cmdOpts.getCommandPathOption("srcPath"),
+				cmdOpts.getCommandPathOption("libPath"),
+				cmdOpts.getCommandLocOption("bootDir"),
+				cmdOpts.getCommandLocOption("binDir"), 
 				cmdOpts.getModuleOptionsAsIMap());
 	}
 }

@@ -1,7 +1,5 @@
 package org.rascalmpl.library.lang.rascal.boot;
 
-import java.util.Map;
-
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;

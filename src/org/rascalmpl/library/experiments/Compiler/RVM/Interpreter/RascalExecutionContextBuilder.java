@@ -26,7 +26,7 @@ public class RascalExecutionContextBuilder {
 	private boolean debug = false;
 	private boolean debugRVM = false;
 	private boolean profile = false;
-	private boolean trackCalls = false;
+	private boolean trace = false;
 	private boolean coverage = false;
 	private boolean jvm = true;
 	private TypeStore typeStore = null;
@@ -69,7 +69,7 @@ public class RascalExecutionContextBuilder {
 	
 	public RascalExecutionContext build() {
 	    this.build = true;
-	    RascalExecutionContext result = new RascalExecutionContext(vf, stdout, stderr, moduleTags, symbolDefinitions, typeStore, debug, debugRVM, testsuite, profile, trackCalls, coverage, jvm, testResultListener, frameObserver, rascalSearchPath);
+	    RascalExecutionContext result = new RascalExecutionContext(vf, stdout, stderr, moduleTags, symbolDefinitions, typeStore, debug, debugRVM, testsuite, profile, trace, coverage, jvm, testResultListener, frameObserver, rascalSearchPath);
 	    if (this.moduleName != null) {
 	        result.setCurrentModuleName(moduleName);
 	    }
@@ -79,26 +79,26 @@ public class RascalExecutionContextBuilder {
 	    return result;
 	}
 	
-	public RascalExecutionContextBuilder setDebugging(boolean debug) {
+	public RascalExecutionContextBuilder setDebug(boolean debug) {
 	    assert !build;
 	    this.debug = debug;
 	    return this;
 	}
-	public RascalExecutionContextBuilder setDebuggingRVM(boolean debug) {
+	public RascalExecutionContextBuilder setDebugRVM(boolean debug) {
 	    assert !build;
 	    this.debugRVM = debug;
 	    return this;
 	}
 
-	public RascalExecutionContextBuilder setProfiling(boolean profile) {
+	public RascalExecutionContextBuilder setProfile(boolean profile) {
 	    assert !build;
         this.profile = profile;
         return this;
     }
 	
-	public RascalExecutionContextBuilder setTrackCalls(boolean trackCalls) {
+	public RascalExecutionContextBuilder setTrace(boolean trace) {
 	    assert !build;
-        this.trackCalls = trackCalls;
+        this.trace = trace;
         return this;
     }
 	
@@ -125,16 +125,16 @@ public class RascalExecutionContextBuilder {
 	 */
 	public RascalExecutionContextBuilder debugging() {
 	    assert !build;
-	    return setDebugging(true);
+	    return setDebug(true);
     }
 	
 	
 	/**
-	 *  short hand for .setProfiling(true)
+	 *  short hand for .setProfile(true)
 	 */
 	public RascalExecutionContextBuilder profiling() {
 	    assert !build;
-	    return setProfiling(true);
+	    return setProfile(true);
 	}
 
 	/**
@@ -146,11 +146,11 @@ public class RascalExecutionContextBuilder {
 	}
 	
 	/**
-	 * short hand for .setTrackCalls(true)
+	 * short hand for .setTrace(true)
 	 */
 	public RascalExecutionContextBuilder callTracing() {
 	    assert !build;
-	    return setTrackCalls(true);
+	    return setTrace(true);
 	}
 	
 	public RascalExecutionContextBuilder withSymbolDefinitions(IMap symbols) {
