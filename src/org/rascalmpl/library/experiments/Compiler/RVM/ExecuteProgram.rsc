@@ -20,7 +20,7 @@ public java value executeProgram(
 					bool debugRVM, 
 					bool testsuite,
 					bool profile,
-					bool trackCalls,
+					bool trace,
 					bool coverage,
 					bool jvm);	
 										    
@@ -34,6 +34,6 @@ public java value executeProgram(
 					bool debugRVM, 
 					bool testsuite,
 					bool profile,
-					bool trackCalls,
+					bool trace,
 					bool coverage,
 					bool jvm);

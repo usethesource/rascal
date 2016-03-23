@@ -38,7 +38,7 @@ public class ExecutionTools {
 					IBool debugRVM, 
 					IBool testsuite, 
 					IBool profile, 
-					IBool trackCalls, 
+					IBool trace, 
 					IBool coverage, IBool jvm, RascalSearchPath rascalSearchPath
 	) {
 //		return new RascalExecutionContext(
@@ -52,7 +52,7 @@ public class ExecutionTools {
 //				   	debugRVM.getValue(), 
 //				   	testsuite.getValue(), 
 //				   	profile.getValue(), 
-//				   	trackCalls.getValue(), 
+//				   	trace.getValue(), 
 //				   	coverage.getValue(), 
 //				   	jvm.getValue(), 
 //				   	null, 
@@ -60,11 +60,11 @@ public class ExecutionTools {
 		return RascalExecutionContextBuilder.normalContext(vf, out != null ? out : new PrintWriter(System.out), err != null ? err : new PrintWriter(System.err))
 			.withModuleTags(rvmExecutable.getModuleTags())
 			.withSymbolDefinitions(	rvmExecutable.getSymbolDefinitions())
-			.setDebugging(debug.getValue())
-			.setDebuggingRVM(debugRVM.getValue())
+			.setDebug(debug.getValue())
+			.setDebugRVM(debugRVM.getValue())
 			.setTestsuite(testsuite.getValue())
-			.setProfiling(profile.getValue())
-			.setTrackCalls(trackCalls.getValue())
+			.setProfile(profile.getValue())
+			.setTrace(trace.getValue())
 			.setCoverage(coverage.getValue())
 			.setJVM(jvm.getValue())
 			.customSearchPath(rascalSearchPath)

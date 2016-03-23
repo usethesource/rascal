@@ -71,7 +71,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final boolean debugRVM;
 	private final boolean testsuite;
 	private final boolean profile;
-	private final boolean trackCalls;
+	private final boolean trace;
 	private final ITestResultListener testResultListener;
 	private IFrameObserver frameObserver;
 	private ISourceLocation logLocation;
@@ -125,7 +125,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 			boolean debugRVM, 
 			boolean testsuite, 
 			boolean profile, 
-			boolean trackCalls, 
+			boolean trace, 
 			boolean coverage, 
 			boolean jvm, 
 			ITestResultListener testResultListener, 
@@ -144,7 +144,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.profile = profile;
 		this.coverage = coverage;
 		this.jvm = jvm;
-		this.trackCalls = trackCalls;
+		this.trace = trace;
 		
 		currentModuleName = "UNDEFINED";
 		
@@ -171,7 +171,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 				setFrameObserver(new CoverageFrameObserver(this));
 			} else if(debug){
 				setFrameObserver(new DebugFrameObserver(this));
-			} else if(trackCalls){
+			} else if(trace){
 				if(logLocation != null){
 					URIResolverRegistry reg = URIResolverRegistry.getInstance();
 					try {
@@ -358,7 +358,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	boolean getJVM() { return jvm; }
 	
-	boolean getTrackCalls() { return trackCalls; }
+	boolean getTrace() { return trace; }
 	
 	public RVMCore getRVM(){ return rvm; }
 	

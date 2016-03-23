@@ -49,15 +49,15 @@ public class Command {
 			System.exit(-1);
 	    }
 	    boolean profile = false;
-	    boolean trackCalls = false;
+	    boolean trace = false;
 	    if (swallowProfileAndTrackCallsFlag) {
 	        List<String> newArgs = new ArrayList<>();
 	    	for (String a: args) {
 	    	    if (a.equals("--profile")) {
 	    	       profile = true; 
 	    	    }
-	    	    else if(a.equals("--trackCalls")){
-	    	    	trackCalls = true;
+	    	    else if(a.equals("--trace")){
+	    	    	trace = true;
 	    	    }
 	    	    else {
 	    	        newArgs.add(a);
@@ -73,8 +73,8 @@ public class Command {
 		
 		PrintWriter out = new PrintWriter(System.out);
         RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, out, new PrintWriter(System.err, true))
-                .setProfiling(profile)
-                .setTrackCalls(trackCalls)
+                .setProfile(profile)
+                .setTrace(trace)
                 .forModule(programName)
                 .build();
 

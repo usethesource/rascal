@@ -62,7 +62,7 @@ public class CommandExecutor {
 	boolean debugRVM;
 	boolean testsuite;
 	boolean profile;
-	boolean trackCalls;
+	boolean trace;
 	boolean coverage;
 	boolean jvm;
 	boolean verbose;
@@ -96,7 +96,7 @@ public class CommandExecutor {
 		debugRVM = false;
 		testsuite = false;
 		profile = false;
-		trackCalls = false;
+		trace = false;
 		coverage = false;
 		jvm = true;
 		verbose = false;
@@ -191,11 +191,11 @@ public class CommandExecutor {
 				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, stdout, stderr)
 						.forModule(shellModuleName)
 						.withModuleTags(moduleTags)
-						.setDebugging(debug)
-						.setDebuggingRVM(debugRVM)
+						.setDebug(debug)
+						.setDebugRVM(debugRVM)
 						.setTestsuite(testsuite)
-						.setProfiling(profile)
-						.setTrackCalls(trackCalls)
+						.setProfile(profile)
+						.setTrace(trace)
 						.setCoverage(coverage)
 						.setJVM(jvm)
 						.observedBy(debugObserver.getObserverWhenActiveBreakpoints())
@@ -488,7 +488,7 @@ public class CommandExecutor {
 				StringBuilder sb = new StringBuilder();
 				return report(
 					sb.append("profile:   ").append(profile).append("\n")
-					  .append("trace:     ").append(trackCalls).append("\n")
+					  .append("trace:     ").append(trace).append("\n")
 					  .append("coverage:  ").append(coverage).toString());
 				}
 			if(words.length != 3){
@@ -503,8 +503,8 @@ public class CommandExecutor {
 				return report(name + " set to "  + profile);
 				
 			case "trace": case "tracing": case "trackCalls":
-				trackCalls = getBooleanValue(val);
-				return report(name + " set to "  + trackCalls);
+				trace = getBooleanValue(val);
+				return report(name + " set to "  + trace);
 				
 			case "coverage":
 				coverage = getBooleanValue(val);

@@ -53,7 +53,7 @@ public class Rascal {
 			
 			.boolOption("help")			.help("Print help message for this command")
 			
-			.boolOption("trackCalls")	.help("Print Rascal functions during execution")
+			.boolOption("trace")		.help("Print Rascal functions during execution")
 			
 			.boolOption("profile")		.help("Profile execution of Rascal program")
 			
@@ -62,8 +62,8 @@ public class Rascal {
 			.handleArgs(args);
 		
 		RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory())
-				.setTrackCalls(cmdOpts.getCommandBoolOption("trackCalls"))
-                .setProfiling(cmdOpts.getCommandBoolOption("profile"))
+				.setTrace(cmdOpts.getCommandBoolOption("trace"))
+                .setProfile(cmdOpts.getCommandBoolOption("profile"))
                 .forModule(cmdOpts.getRascalModule().getValue())
                 .build();
 		
