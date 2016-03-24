@@ -67,7 +67,7 @@
                         <configuration>
                             <executable>java</executable>
                             <classpathScope>compile</classpathScope>
-                            <workingDirectory>target/classes/</workingDirectory>-->
+                            <workingDirectory>target/classes/</workingDirectory>
                             <arguments>
                                 <argument>-Xmx2G</argument>
                                 <argument>-classpath</argument>
