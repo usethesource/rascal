@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 
 /*
  * Not supported: in URI class, scheme is case insensitive, but this is already kinda broken, since on windows & osx, so should path's be.
@@ -92,14 +93,14 @@ import com.github.benmanes.caffeine.cache.Caffeine;
         return str;
     }
 
-    private static final Cache<String, String> INTERNED_SCHEMES = Caffeine.newBuilder().build();
+    private static final LoadingCache<String, String> INTERNED_SCHEMES = Caffeine.newBuilder().build(s -> s);
 
     private static class BaseURI implements IURI {
 		protected final String scheme;
 		
 		
 		public BaseURI(String scheme)  {
-			this.scheme = INTERNED_SCHEMES.get(scheme, s -> scheme);
+			this.scheme = INTERNED_SCHEMES.get(scheme);
 		}
 		
 
@@ -221,13 +222,13 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 
 
 
-	private static final Cache<String, String> INTERNED_AUTHORIES = Caffeine.newBuilder().build();
+	private static final LoadingCache<String, String> INTERNED_AUTHORIES = Caffeine.newBuilder().build(s -> s);
 	private static class AuthorityURI extends BaseURI {
 		protected final String authority;
 		
 		public AuthorityURI(String scheme, String authority)  {
 			super(scheme);
-			this.authority = INTERNED_AUTHORIES.get(authority, s -> authority);
+			this.authority = INTERNED_AUTHORIES.get(authority);
 		}
 		
 		@Override
