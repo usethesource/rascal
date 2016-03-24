@@ -110,10 +110,6 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 				File file = get(uri);
 				byte[] content = this.toByteArray();
 				if (file == null) {
-				    if (content.length == 0) {
-				        super.close();
-				        return;
-				    }
 				    file = new File();
 				    fileSystem.getFileSystem().put(uri.getPath(), file);
 				}
