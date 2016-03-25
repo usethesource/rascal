@@ -628,11 +628,11 @@ public Figure plot(Points xy, Rescale x, Rescale y, bool shapeCurved = true
       }
 
 
-int currentColor = 0;
+int currentColor = 7;
 
-public void resetColor() {currentColor = 0;} 
+public void resetColor() {currentColor = 7;} 
 
-public str pickColor() {currentColor = (currentColor+5)%size(colors); return colors[currentColor];}
+public str pickColor() {int r = currentColor;currentColor = (currentColor+3)%size(colors); return colors[r];}
 
 
 public list[str] colors = 

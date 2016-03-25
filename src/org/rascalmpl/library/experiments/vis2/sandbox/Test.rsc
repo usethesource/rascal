@@ -63,8 +63,13 @@ public void standard() {
  
 // Figure simple() =  hcat(figs=[box(size=<30, 30>, fillColor="blue"), box(size=<50, 50>, fillColor="yellow"), box(size=<70, 70>, fillColor=  "red")],align= topLeft);
 
-Figure simple() =  circle(fillColor ="antiquewhite", lineWidth = 10, lineColor="blue", align = centerMid, fig = at(10, 10, ngon(
-n= 9, lineWidth = 20, shrink = 1.0, lineColor = "red", fillColor="yellow")));
+Figure simple() =  box(size=<400, 400>
+, fig=circle(shrink=0.8, fillColor ="antiquewhite", lineWidth = 20, lineColor="blue", align = centerRight
+ , fig = ngon(n=5, shrink=0.8, lineWidth = 20,  lineColor = "red", fillColor="yellow", align = centerLeft
+, fig = circle(shrink=0.6, lineWidth=8, fillColor = "antiquewhite", align = centerRight, lineColor="green")
+)
+)
+);
  
  public void tsimple() = render(simple(), resizable=true);
  
@@ -73,7 +78,7 @@ n= 9, lineWidth = 20, shrink = 1.0, lineColor = "red", fillColor="yellow")));
    simple(), resizable=true
  )); 
  
- Figure eye()= ellipse(rx=60, ry = 30, lineColor="brown", align = centerMid, fillColor="yellow", lineWidth = 6
+ Figure eye()= ellipse(rx=60, ry = 30, lineColor="brown", align = centerMid, fillColor="teal", lineWidth = 6
                       , fig = circle(shrink=1.0, fillColor = "whitesmoke", lineWidth = 4, lineColor = "red"));
                       
  
@@ -82,12 +87,96 @@ n= 9, lineWidth = 20, shrink = 1.0, lineColor = "red", fillColor="yellow")));
  //                     , fig = box(shrink=1.0, fillColor = "whitesmoke", lineWidth = 40, lineColor = "red"));
  
 Figure face() = ellipse(grow= 1.2, fig=vcat( figs=[box(size=<50, 50>, lineWidth=0), hcat(figs=[eye(), eye()], hgap = 10)
-                                  ,box(size=<50, 150>, lineWidth=0) ,  ellipse(size=<200, 25>, fillColor="orange")
+                  ,polygon(size=<50, 150>, points=[<0, 0>, <1,0>, <0.5, 1>],scaleX=<<0,1>,<0, 50>>,scaleY=<<0,1>,<150, 0>>, fillColor="pink") 
+                                     , box(size=<10, 10>, lineWidth= 0)
+                                     ,overlay(figs=
+                                     [ellipse(size=<200, 25>, fillColor="orange"), at(10, 10, box(size=<180, 4>, fillColor="brown", rounded=<2, 2>))])
                                   ,box(size=<50, 50>, lineWidth = 0)]
                        ,fillColor= "none"), fillColor="antiquewhite");
     
 void tface() = render(face());                     
                       
  
+public Figure idCircleShrink(num shrink) = circle(shrink= shrink, lineWidth = 4, lineColor = pickColor());
+
+public Figure idEllipseShrink(num shrink) = ellipse(shrink= shrink, lineWidth = 4, lineColor = pickColor());
+
+public Figure idBoxShrink(num shrink) = box(shrink= shrink, lineWidth = 4, lineColor = pickColor());
+
+public Figure idNgonShrink(num shrink) = ngon(n=4, shrink= shrink, lineWidth = 4, lineColor = pickColor());
+
+public Figure newCircle(str lc, Alignment align, Figure el) {
+      return circle(r=-1, lineColor= lc, lineWidth = 4, 
+           fillColor = "none", padding=<0,0,0,0>, align = align, 
+      fig = el, shrink=0.9);
+      }
+      
+public Figure newEllipse(str lc, Alignment align, Figure el) {
+      return ellipse(lineColor= lc, lineWidth = 4, 
+           fillColor = "none", padding=<0,0,0,0>, align = align, 
+      fig = el, shrink=0.9);
+      }
+      
+public Figure newBox(str lc, Alignment align, Figure el) {
+      return box(lineColor= lc, lineWidth = 4, 
+           fillColor = "none", padding=<0,0,0,0>, align = align, 
+      fig = el, shrink=0.9);
+      }
+      
+public Figure newNgon(str lc, Alignment align, Figure el) {
+      return ngon(n=4, lineColor= lc, lineWidth = 4, 
+           fillColor = "none", padding=<0,0,0,0>, align = align, 
+      fig = el, shrink=0.9);
+      }
+      
+public Figure bundle(int n, Alignment align) { resetColor(); return(idCircleShrink(0.9) |newCircle(e, align, 
+      it)| e<-[pickColor()|int i<-[0..n]]);}
+      
+public Figure bundle() = overlay(size=<600, 600>, figs=[
+               bundle(4, centerLeft), 
+               bundle(4, centerRight),
+               // bundle(4, centerMid)  ,
+               bundle(4, topMid), 
+               bundle(4, bottomMid)
+              ]
+               );
+      
+void tbundle() = render(bundle(), size=<600, 400>);  
+
+public void fbundle(loc l) = writeFile(l, toHtmlString(
+   bundle(), resizable=true
+ )); 
  
+Figure base(int lineWidth, Alignment align, Figure fig = emptyFigure())  = box(lineWidth = 0, align = align, 
+                 fig = box(shrink = 0.45, lineWidth = lineWidth, lineColor = pickColor(),
+                           fig = fig)
+                 );
+                 
+Figure base(int lineWidth, Figure fig = emptyFigure()){return  overlay(figs = [base(lineWidth, topLeft, fig= fig)
+             , base(lineWidth,topRight, fig = fig)
+             , base(lineWidth,bottomLeft, fig = fig)
+             , base(lineWidth,bottomRight, fig = fig)
+             ]);}
+              
+Figure baseRec() {resetColor(); return base(8, fig = base(6, fig= base(4, fig= base(2)))
+      //overlay(lineWidth = 0, figs=[
+      //  box(lineWidth = 0, align=topLeft, fillColor="none", fig=circle(shrink=0.8, lineWidth = 1))
+      //   ,
+      //   box(lineWidth = 0, align=bottomRight, fillColor="none", fig=circle(shrink=0.8, lineWidth = 1))
+      //])
+     );
+ }
+
+void tbase() = render(baseRec(), size=<600, 400>);  
+
+public void fbase(loc l) = writeFile(l, toHtmlString(
+   baseRec()
+ )); 
+ 
+ Figure rec() = box(lineWidth=10, align = bottomRight, lineColor=  "red", size=<300, 200>, fig = ngon(n = 5,
+ lineWidth = 6, lineColor = "blue", shrink = 0.7));
+ 
+ void trec() = render(rec());
+
+
                  

@@ -89,6 +89,8 @@ public map[str, list[IFigure] ] defs = ();
 
 IFigure fig;
 
+int upperBound = 9999;
+
 int getN(IFigure fig1) = getN(getId(fig1));
 
 int getN(Figure fig1) = (Figure g:ngon():= fig1)?g.n:0;
@@ -341,7 +343,8 @@ str getIntro() {
         '<google> 
         '\<script\>
         ' var screenWidth = 0;
-        ' var screenHeight = 0;  
+        ' var screenHeight = 0;
+        ' var upperBound = <upperBound>;  
         ' setSite(\"<getSite()>\");    
         ' function initFunction() {
         '  alertSize();
@@ -597,8 +600,8 @@ public void _render(IFigure fig1, int width = 800, int height = 800,
      bool resizable = true, bool defined = true)
      {
      screenWidth = width;
-     _display = display;
      screenHeight = height;
+     _display = display;
      str id = "figureArea";
     str begintag= beginTag(id, align);
     str endtag = endTag(); 
@@ -918,7 +921,7 @@ IFigure _text(str id, bool inHtml, Figure f, str s, str overflow, bool addSvgTag
          tagSet = true;   
          inHtml = false;   
          }
-    if (!inHtml && isHtml) begintag+="\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>"; 
+    if (!inHtml && isHtml) begintag+="\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>"; 
     begintag+=isHtml?"\<div  id=\"<id>\"\>":"\<text id=\"<id>\"\>";
     int width = f.width;
     int height = f.height;
@@ -1206,12 +1209,14 @@ str beginTag(str id, Alignment align) {
 str beginTag(str id, bool foreignObject, Alignment align, IFigure fig, int offset) {  
    str r =  foreignObject?"
     '\<foreignObject  id=\"<id>_fo\" x=\"<getAtX(fig)+offset>\" y=\"<getAtY(fig)+offset>\"
-          width=\"<screenWidth>px\" height=\"<screenHeight>px\"\> 
+    ' width=\"<upperBound>px\" height=\"<upperBound>px\"\>        
     '<beginTag("<id>_fo_table", align)>
     "       
     :"";
     return r;
  }
+ 
+ // 
  
 str beginTag(str id, bool foreignObject, Alignment align, IFigure fig)
  = beginTag(id, foreignObject, align, fig, 0);
@@ -1713,21 +1718,13 @@ IFigure _ngon(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(0)) {
            }
        str begintag = "";
        begintag+=
-         "\<svg <moveAt(fo, f)> id=\"<id>_svg\"\><beginScale(f)><beginRotateNgon(f)>\<rect id=\"<id>_rect\"/\> <extraCircle(id, f)>\<polygon id=\"<id>\"/\>        
+         "\<svg <moveAt(fo, f)> id=\"<id>_svg\"\><beginScale(f)><beginRotateNgon(f)>\<polygon id=\"<id>\"/\>        
          '<beginTag("<id>", fo, f.align, fig, corner(f))>
          ";
        str endtag =  endTag(fo); 
        endtag += "<endRotate(f)><endScale(f)>\</svg\>"; 
        widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
-        "
-        'd3.select(\"#<id>_rect\")
-        '<style("fill","none")><style("stroke", debug?"black":"none")><style("stroke-width", 1)>
-        '<attr("x", 0)><attr("y", 0)><attr("width", f.width)><attr("height", f.height)>
-        ;
-        'd3.select(\"#<id>_circle\")
-        '<style("fill","none")><style("stroke", debug?"black":"none")><style("stroke-width", 1)>
-        '<attr("cx", toP(cxL(f)))><attr("cy", toP(cyL(f)))><attr("r", toP(f.r))>
-        
+        "     
         'd3.select(\"#<id>\")
         '<on(f)>
         '<f.width>=0?attr("points", translatePoints(f, f.scaleX, f.scaleY, toInt((f.width+lw)/2), toInt((f.height+lw)/2))):""> 
@@ -1807,7 +1804,7 @@ IFigure _buttonInput(str id, Figure f, str txt, bool addSvgTag) {
        if (addSvgTag) {
           begintag+=
          "\<svg id=\"<id>_svg\"\> 
-         '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
        begintag+="                    
             '\<button id=\"<id>\" value=\"<txt>\"\>
@@ -1843,7 +1840,7 @@ IFigure _rangeInput(str id, Figure f, bool addSvgTag) {
        if (addSvgTag) {
           begintag+=
          "\<svg id=\"<id>_svg\"\>  
-         '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
        begintag+="                    
             '\<input type=\"range\" min=\"<f.low>\" max=\"<f.high>\" step=\"<f.step>\" id=\"<id>\" value= \"<f.\value>\"/\>
@@ -1875,7 +1872,7 @@ IFigure _strInput(str id, Figure f, bool addSvgTag) {
        if (addSvgTag) {
           begintag+=
          "\<svg id=\"<id>_svg\"\>  
-         '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
        begintag+="                    
             '\<input type=\"text\" size= \"<f.nchars>\" id=\"<id>\" value= \"<f.\value>\"
@@ -1910,7 +1907,7 @@ IFigure _choiceInput(str id, Figure f, bool addSvgTag) {
        if (addSvgTag) {
           begintag+=
          "\<svg id=\"<id>_svg\"\> 
-         '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
        begintag+="\<form id = \"<id>\"\>\<div align=\"left\"\>\<br\>";
        for (c<-f.choices) {
@@ -1956,7 +1953,7 @@ str flagsToString(list[bool] b, int l, int u) {
        if (addSvgTag) {
           begintag+=
          "\<svg id=\"<id>_svg\"\> 
-         '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
        begintag+="\<form id = \"<id>\"\>\<div align=\"left\"\>\<br\>";
        map[str, bool] r = (x:(s2b[x]?)?s2b[x]:false|x<-f.choices);
@@ -2054,7 +2051,7 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\" x=<getAtX(f)> y=<getAtY(f)> width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\" x=<getAtX(f)> y=<getAtY(f)> width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
        begintag+="                    
             '\<table id=\"<id>\" cellspacing=\"0\" cellpadding=\"0\"\>
@@ -2114,7 +2111,7 @@ IFigure _vcat(str id, Figure f,  bool addSvgTag, IFigure fig1...) {
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
        begintag+="                 
             '\<table id=\"<id>\" cellspacing=\"0\" cellpadding=\"0\"\>"
@@ -2171,7 +2168,7 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\"\>\<foreignObject id=\"<id>_outer_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         "\<svg id=\"<id>_svg\"\>\<foreignObject id=\"<id>_outer_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
        begintag+="                    
             '\<table id=\"<id>\" cellspacing=\"0\" cellpadding=\"0\"\>
@@ -2244,7 +2241,7 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
        if (addSvgTag) {
           begintag+=
          "\<svg id=\"<id>_svg\"\> \<rect id=\"<id>_rect\"/\> 
-         '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
        begintag+="                    
             '\<img id=\"<id>\" src = \"<f.src>\" alt = \"Not found:<f.src>\"\>
