@@ -47,9 +47,8 @@ public class CommandExecutor {
 	private final IValueFactory vf;
 	private String consoleInputName = "ConsoleInput";
 	public static String consoleInputPath = "/ConsoleInput.rsc";
-	public static String muLibraryPath = "/experiments/Compiler/muRascal2RVM/MuLibrary.mu";
+	//public static String muLibraryPath = "/experiments/Compiler/muRascal2RVM/MuLibrary.mu";
 	private ISourceLocation consoleInputLocation;
-	private ISourceLocation consoleBinaryLocation;
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
 	private final Prelude prelude;
@@ -86,8 +85,6 @@ public class CommandExecutor {
 		prelude = new Prelude(vf);
 		try {
 			consoleInputLocation = vf.sourceLocation("test-modules", "", consoleInputName + ".rsc");
-			consoleBinaryLocation = vf.sourceLocation("compressed+test-modules", "", consoleInputName + ".rvm.ser.gz");
-			
 		} catch (URISyntaxException e) {
 			throw new RuntimeException("Cannot initialize: " + e.getMessage());
 		}
@@ -137,14 +134,14 @@ public class CommandExecutor {
 		return w.done();
 	}
 	
-	private boolean noErrors(String modString, IConstructor consoleRVMProgram){
-		IConstructor main_module = (IConstructor) consoleRVMProgram.get("main_module");
-		ISet messages = (ISet) main_module.get("messages");
-		boolean errorFree = true;
-		for(IValue m : messages){
+	private boolean noErrors(String modString, RVMExecutable exec){
+		ISet errors = exec.getErrors();
+		if(errors.size() == 0){
+			return true;
+		}
+		for(IValue m : errors){
 			IConstructor msg = (IConstructor) m;
 			String msgKind = msg.getName();
-			errorFree &= !msgKind.equals("error");
 			String txt = ((IString)msg.get("msg")).getValue();
 			ISourceLocation src = (ISourceLocation)msg.get("at");
 			String hint = " AT " + src.toString();
@@ -155,7 +152,7 @@ public class CommandExecutor {
 			}
 			(msgKind.equals("error") ? stderr : stdout).println("[" + msgKind + "] " + txt + hint);
 		}
-		return errorFree;
+		return false;
 	}
 	
 	private IValue executeModule(String main, boolean onlyMainChanged){
@@ -181,11 +178,9 @@ public class CommandExecutor {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation);
 			
-			IConstructor consoleRVMProgram = kernel.compileAndLinkIncremental(vf.string(consoleInputName), reuseConfig, makeCompileKwParamsAsIMap());
+			rvmConsoleExecutable = kernel.compileAndLinkIncremental(vf.string(consoleInputName), reuseConfig, makeCompileKwParamsAsIMap());
 			
-			if(noErrors(modString, consoleRVMProgram)){
-				rvmConsoleExecutable = ExecutionTools.linkProgram(consoleBinaryLocation, consoleRVMProgram, vf.bool(jvm));
-				
+			if(noErrors(modString, rvmConsoleExecutable)){
 				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, stdout, stderr)
 						.forModule(shellModuleName)
 						.withModuleTags(moduleTags)

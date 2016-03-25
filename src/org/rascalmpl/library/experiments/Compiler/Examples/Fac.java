@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.Examples;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.value.IInteger;
@@ -16,7 +17,7 @@ public class Fac {
 //	private final OverloadedFunction getA;
 //	private final OverloadedFunction getAs;
 //	private final OverloadedFunction sizeAs;
-	private final OverloadedFunction mulKW;
+	private OverloadedFunction mulKW;
 	
 	private final RVMCore rvm;
 
@@ -28,7 +29,12 @@ public class Fac {
 //		getA   = rvm.getOverloadedFunction("A getA()");
 //		getAs  = rvm.getOverloadedFunction("As getAs(int n)");
 //		sizeAs = rvm.getOverloadedFunction("int size(As as)");
-		mulKW  = rvm.getOverloadedFunction("int mulKW(int n)");
+		try {
+			mulKW  = rvm.getOverloadedFunction("int mulKW(int n)");
+		} catch (NoSuchRascalFunction e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 //	IInteger fac(IInteger n){

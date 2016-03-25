@@ -62,8 +62,8 @@ public abstract class RVMCore {
 
 	protected final TypeFactory tf; 
 	
-	protected final static IBool Rascal_TRUE = ValueFactoryFactory.getValueFactory().bool(true);	// TODO: Used by RVMonJVM
-	protected final static IBool Rascal_FALSE = ValueFactoryFactory.getValueFactory().bool(false);	// TODO: Used by RVMonJVM
+	protected final static IBool Rascal_TRUE = ValueFactoryFactory.getValueFactory().bool(true);
+	protected final static IBool Rascal_FALSE = ValueFactoryFactory.getValueFactory().bool(false);
 	protected final IString NOVALUE; 
 	protected Function[] functionStore;
 	protected Map<String, Integer> functionMap;
@@ -84,9 +84,9 @@ public abstract class RVMCore {
 	protected PrintWriter stderr;
 
 	// Management of active coroutines
-	protected Stack<Coroutine> activeCoroutines = new Stack<>();	// TODO: Used by RVMonJVM
-	protected Frame ccf = null; // The start frame of the current active coroutine (coroutine's main function)	// TODO: Used by RVMonJVM
-	protected Frame cccf = null; // The candidate coroutine's start frame; used by the guard semantics // TODO: Used by RVMonJVM
+	protected Stack<Coroutine> activeCoroutines = new Stack<>();
+	protected Frame ccf = null; // The start frame of the current active coroutine (coroutine's main function)	
+	protected Frame cccf = null; // The candidate coroutine's start frame; used by the guard semantics
 	protected RascalExecutionContext rex;
 
 	public Map<IValue, IValue> moduleVariables;
@@ -179,7 +179,6 @@ public abstract class RVMCore {
 	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }
 
 	public IFrameObserver getFrameObserver() {
-		// TODO Auto-generated method stub
 		return frameObserver;
 	}
 	
@@ -219,7 +218,7 @@ public abstract class RVMCore {
 		return null;
 	}
 	
-	public OverloadedFunction getOverloadedFunction(String signature){
+	public OverloadedFunction getOverloadedFunction(String signature) throws NoSuchRascalFunction{
 		OverloadedFunction result = null;
 		
 		String name = types.getFunctionName(signature);
@@ -256,19 +255,16 @@ public abstract class RVMCore {
 		// No overloaded function or constructor matched, only nonterminals remain ...
 		for(int i = 0; i < functionStore.length; i++){
 			Function fun = functionStore[i];
-			//System.err.println(fun);
 			if(fun.name.contains("/" + name + "(")){
 				if(fun.ftype instanceof FunctionType){
 					FunctionType tp = (FunctionType) fun.ftype;
 					if(tp.comparable(ft)){
-//					if(tp.getReturnType().toString().equals(ft.getReturnType().toString())){
 						return new OverloadedFunction(name, tp, new int[]{ i }, new int[] { }, "");
 					}
 				}
 			}
 		}
-
-		return result;
+		throw new NoSuchRascalFunction(signature);
 	}
 	
 	public Function getCompanionDefaultsFunction(String name, Type ftype){

@@ -6,8 +6,6 @@ import org.rascalmpl.interpreter.IEvaluatorContext;  // TODO: remove import? NOT
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -21,82 +19,67 @@ public class ExecuteProgram {
 		this.vf =vf;
 	}
 	
-	private boolean checkErrors(IConstructor rvmProgram) throws IOException{
-		IConstructor main_module = (IConstructor) rvmProgram.get("main_module");
-		ISet messages = (ISet) main_module.get("messages");
-		ISetWriter w = vf.setWriter();
-		for(IValue m : messages){
-			if(((IConstructor) m).getName().equals("error"))
-				w.insert(m);	
-		}
-		ISet errors = w.done();
-		if(errors.size() > 0){
-			throw new IOException("Cannot execute program with errors: " + errors.toString());
-		}
-		return false;
-	}
-	
 	// Library function to serialize a RVMProgram
 
-	public void serializeProgram(
+	public void linkAndSerializeProgram(
 			ISourceLocation rvmProgramLoc,
 			IConstructor rvmProgram,
 			IBool jvm
 			) throws IOException {
 
-		checkErrors(rvmProgram);
-
-		ExecutionTools.link(rvmProgramLoc, rvmProgram, jvm);
+		RVMExecutable exec = ExecutionTools.link(rvmProgram, jvm);
+		exec.write(rvmProgramLoc);
 	}
 	
 	// Library function to execute a RVMProgram
 	// (Interpreter version)
 
 	public IValue executeProgram(
-			ISourceLocation rvmProgramLoc,
 			IConstructor rvmProgram,
 			IMap keywordArguments,
-			IBool debug, 
+			IBool debug,
 			IBool debugRVM, 
 			IBool testsuite, 
 			IBool profile, 
 			IBool trace, 
-			IBool coverage,
+			IBool coverage, 
 			IBool jvm,
 			IEvaluatorContext ctx
 			) throws IOException {
-
-		checkErrors(rvmProgram);
 		
-		RVMExecutable executable = ExecutionTools.link(rvmProgramLoc, rvmProgram, jvm);
-
-		RascalExecutionContext rex = ExecutionTools.makeRex(executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, ctx.getEvaluator().getRascalResolver());
-		return ExecutionTools.executeProgram(executable, keywordArguments, rex);
+		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm);
+		if(executable.isValid()){
+			RascalExecutionContext rex = ExecutionTools.makeRex(executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, ctx.getEvaluator().getRascalResolver());
+			return ExecutionTools.executeProgram(executable, keywordArguments, rex);
+		} else {
+			throw new IOException("Cannot execute program with errors: " + executable.getErrors().toString());
+		}
 	}
 
 	// Library function to execute an RVMProgram
 	// (Compiler version)
 
 	public IValue executeProgram(
-			ISourceLocation rvmProgramLoc,
 			IConstructor rvmProgram,
 			IMap keywordArguments,
-			IBool debug, 
+			IBool debug,
 			IBool debugRVM, 
 			IBool testsuite, 
 			IBool profile, 
 			IBool trace, 
-			IBool coverage,
-			IBool jvm, 
+			IBool coverage, 
+			IBool jvm,
 			RascalExecutionContext rex
 			) throws IOException {
 
-		checkErrors(rvmProgram);
-		
-		RVMExecutable executable = ExecutionTools.link(rvmProgramLoc, rvmProgram, jvm);
+		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm);
 
-		RascalExecutionContext rex2 = ExecutionTools.makeRex(executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, rex.getRascalSearchPath());
-		return ExecutionTools.executeProgram(executable, keywordArguments, rex2);
+		if(executable.isValid()){
+			RascalExecutionContext rex2 = ExecutionTools.makeRex(executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, rex.getRascalSearchPath());
+			return ExecutionTools.executeProgram(executable, keywordArguments, rex2);
+		} else {
+			throw new IOException("Cannot execute program with errors: " + executable.getErrors().toString());
+		}
 	}
 
 	// Library function to link and execute a RVM program from file
@@ -116,9 +99,13 @@ public class ExecuteProgram {
 			) throws IOException {
 
 		RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc);
-		RascalExecutionContext rex = ExecutionTools.makeRex(executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, ctx.getEvaluator().getRascalResolver());
-		return ExecutionTools.executeProgram(executable, keywordArguments, rex);
+		if(executable.isValid()){
+			RascalExecutionContext rex = ExecutionTools.makeRex(executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, ctx.getEvaluator().getRascalResolver());
+			return ExecutionTools.executeProgram(executable, keywordArguments, rex);
+		} else {
+			throw new IOException("Cannot execute program with errors: " + executable.getErrors().toString());
 		}
+	}
 		
 	// Library function to link and execute a RVM program from file
 	// (Compiler version)
@@ -136,8 +123,12 @@ public class ExecuteProgram {
 			RascalExecutionContext rex
 			) throws IOException {
 		RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc);
-		RascalExecutionContext rex2 = ExecutionTools.makeRex(executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, rex.getRascalSearchPath());
-		return ExecutionTools.executeProgram(executable, keywordArguments, rex2);
+		if(executable.isValid()){
+			RascalExecutionContext rex2 = ExecutionTools.makeRex(executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, rex.getRascalSearchPath());
+			return ExecutionTools.executeProgram(executable, keywordArguments, rex2);
+		} else {
+			throw new IOException("Cannot execute program with errors: " + executable.getErrors().toString());
+		}
 	}
 
 }
