@@ -61,7 +61,7 @@ public class ExecutionTools {
 					 IBool jvm	
     ) throws IOException {
 		
-		return link(rvmProgramLoc, rvmProgram, jvm);
+		return link(rvmProgram, jvm);
 	}
 	
 	// Read a RVMExecutable from file
@@ -73,14 +73,13 @@ public class ExecutionTools {
 	// Create an RVMExecutable given an RVMProgram
 	
 	public static RVMExecutable link(
-			 	ISourceLocation rvmProgramLoc,
 			 	IConstructor rvmProgram,
 			 	IBool jvm
 	) throws IOException {
 
 		TypeStore typeStore = new TypeStore();
 		RVMLinker linker = new RVMLinker(vf, typeStore);
-		return linker.link(rvmProgram,	rvmProgramLoc, jvm.getValue());
+		return linker.link(rvmProgram,	jvm.getValue());
 	}
 		
 	public static IValue executeProgram(RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){

@@ -17,7 +17,7 @@ import experiments::Compiler::muRascal::AST;
 import experiments::Compiler::muRascal::Load;
 
 import experiments::Compiler::RVM::AST;
-import experiments::Compiler::RVM::ExecuteProgram;
+import experiments::Compiler::RVM::Interpreter::ExecuteProgram;
 import experiments::Compiler::Compile;
 
 import experiments::Compiler::muRascal2RVM::mu2rvm;
@@ -250,8 +250,7 @@ value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArgumen
                                   bool testsuite=false, bool recompile=false, bool profile=false, bool trace= false, 
                                   bool coverage = false, bool jvm = true, bool verbose = false){
    startTime = cpuTime();
-   v = executeProgram(RVMExecutableCompressedWriteLoc(program.main_module.name, pcfg),
-                           program,
+   v = executeProgram(     program,
                            keywordArguments,
                            debug, 
                            debugRVM, 
@@ -360,23 +359,16 @@ RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool jvm=tru
    merged = mergeImports(mainModule, pcfg, verbose=verbose, jvm=jvm);
    link_time = cpuTime() - start_linking;
    if(verbose) println("linking: <link_time/1000000> msec");
-   if(!hasErrors(merged.main_module.messages)){
-      mergedLoc = getDerivedWriteLoc(mainModule.name, "rvm.ser.gz", pcfg);       
-      serializeProgram(mergedLoc, merged, jvm);
-   }
+   mergedLoc = getDerivedWriteLoc(mainModule.name, "rvm.ser.gz", pcfg);       
+   linkAndSerializeProgram(mergedLoc, merged, jvm);
    return merged;
 }
 
-RVMProgram compileAndLinkIncremental(str qualifiedModuleName, bool reuseConfig, bool jvm=true, bool verbose = false){
-   startTime = cpuTime();
+RVMProgram compileAndMergeIncremental(str qualifiedModuleName, bool reuseConfig, bool jvm=true, bool verbose = false){
    pcfg = pathConfig(srcPath=[|std:///|, |test-modules:///|], binDir=|home:///bin-console|, libPath=[|home:///bin-console|]);
    mainModule = compileIncremental(qualifiedModuleName, reuseConfig, pcfg, verbose=verbose); 
    merged = mergeImports(mainModule, pcfg, verbose=verbose, jvm=jvm);
 
-   if(!hasErrors(merged.main_module.messages)){
-      mergedLoc = getDerivedWriteLoc(mainModule.name, "rvm.ser.gz", pcfg);       
-      serializeProgram(mergedLoc, merged, jvm);
-   }
    return merged;
 }
 

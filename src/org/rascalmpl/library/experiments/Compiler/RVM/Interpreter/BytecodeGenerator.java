@@ -13,6 +13,7 @@
 
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -200,11 +201,13 @@ public class BytecodeGenerator implements Opcodes {
 	 * Dump the code of the generated class for debugging purposes
 	 */
 	
-	public void dumpClass(OutputStream fos) {
+	public void dumpClass() {
 		if (endCode == null)
 			finalizeCode();
 		try {
+			FileOutputStream fos = new FileOutputStream("/tmp/Class.jvm");
 			fos.write(endCode);
+			fos.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

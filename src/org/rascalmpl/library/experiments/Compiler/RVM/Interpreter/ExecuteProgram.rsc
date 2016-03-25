@@ -1,11 +1,11 @@
-module experiments::Compiler::RVM::ExecuteProgram
+module experiments::Compiler::RVM::Interpreter::ExecuteProgram
 
 import experiments::Compiler::RVM::AST;
 
 import Type;
 
 @javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram}
-public java value serializeProgram(
+public java value linkAndSerializeProgram(
                     loc rvmProgramLoc,
                     RVMProgram rvmProgram,
                     bool jvm);
@@ -13,7 +13,6 @@ public java value serializeProgram(
 @javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram}
 @reflect{Uses execution context}
 public java value executeProgram(
-                    loc rvmProgramLoc,
                     RVMProgram rvmProgram,
 					map[str,value] keywordArguments, 
 					bool debug, 

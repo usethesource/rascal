@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.nustaq.serialization.FSTConfiguration;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
@@ -28,47 +27,12 @@ import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
+/**
+ * The RVMLinker takes an RVMProgram (and its imports) and creates a single RVMExecutable for it, with
+ * - all overloaded resolved
+ * - all unused functions removed
+ */
 public class RVMLinker {
-	
-	static FSTConfiguration conf;
-	static FSTSerializableType serializableType;
-	static FSTSerializableIValue serializableIValue;
-	static FSTRVMExecutableSerializer rvmExecutableSerializer;
-	static FSTFunctionSerializer functionSerializer;
-	static FSTOverloadedFunctionSerializer overloadedFunctionSerializer;
-	static FSTCodeBlockSerializer codeblockSerializer;
-	
-	static {
-		// set up FST serialization
-
-		conf = FSTConfiguration.createDefaultConfiguration();   
-
-		// PDB Types
-		serializableType = new FSTSerializableType();
-		conf.registerSerializer(FSTSerializableType.class, serializableType, false);
-
-		// PDB values
-		serializableIValue =  new FSTSerializableIValue();
-		conf.registerSerializer(FSTSerializableIValue.class, serializableIValue, false);
-
-		// Specific serializers
-		rvmExecutableSerializer = new FSTRVMExecutableSerializer();
-		conf.registerSerializer(RVMExecutable.class, rvmExecutableSerializer, false);
-
-		functionSerializer = new FSTFunctionSerializer();
-		conf.registerSerializer(Function.class, functionSerializer, false);
-
-		overloadedFunctionSerializer = new FSTOverloadedFunctionSerializer();
-		conf.registerSerializer(OverloadedFunction.class, overloadedFunctionSerializer, false);
-
-		codeblockSerializer = new FSTCodeBlockSerializer();
-		conf.registerSerializer(CodeBlock.class, codeblockSerializer, false);
-
-		// For efficiency register some classes that are known to occur in serialization
-		conf.registerClass(OverloadedFunction.class);
-		//conf.registerClass(FSTSerializableType.class);
-		//conf.registerClass(FSTSerializableIValue.class);
-	}   
 
 	private IValueFactory vf;
 	private TypeFactory tf;
@@ -93,11 +57,6 @@ public class RVMLinker {
 		this.types = new Types(this.vf);
 		this.tf = TypeFactory.getInstance();
 		this.typeStore = typeStore;
-		FSTSerializableType.initSerialization(vf, typeStore);
-		FSTSerializableIValue.initSerialization(vf, typeStore);
-		FSTRVMExecutableSerializer.initSerialization(vf, typeStore);
-		FSTFunctionSerializer.initSerialization(vf, typeStore);
-		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
 	}
 	
 	String moduleInit(String moduleName){
@@ -379,7 +338,26 @@ public class RVMLinker {
 		}
 	}
 	
-	public RVMExecutable link(IConstructor program, ISourceLocation rmvProgramLoc, boolean jvm) throws IOException {
+	public ISet getErrors(IConstructor program){
+		ISetWriter w = vf.setWriter();
+		IConstructor main_module = (IConstructor) program.get("main_module");
+		ISet messages = (ISet) main_module.get("messages");
+		for(IValue v : messages){
+			IConstructor msg = (IConstructor) v;
+			if(msg.getName().equals("error")){
+				w.insert(msg);
+			}
+		}
+		return w.done();
+	}
+	
+	public RVMExecutable link(IConstructor program, boolean jvm) throws IOException {
+		
+		ISet errors = getErrors(program);
+		
+		if(errors.size() > 0){
+			return new RVMExecutable(errors);
+		}
 		
 		boolean eliminateDeadCode = true;
 		
@@ -597,23 +575,23 @@ public class RVMLinker {
 
 		System.out.println("Linking: " +  (Timing.getCpuTime() - start)/1000000 + " ms");
 
-		return new RVMExecutable(rmvProgramLoc,
-							     ((IString) main_module.get("name")).getValue(),
-								 moduleTags,
-								 (IMap) main_module.get("symbol_definitions"), 
+		return new RVMExecutable(((IString) main_module.get("name")).getValue(),
+							     moduleTags,
+								 (IMap) main_module.get("symbol_definitions"),
 								 functionMap, 
-								 functionStore.toArray(new Function[functionStore.size()]),
-								 constructorMap,	
-								 constructorStore, 
-								 resolver,  
-								 overloadedStore.toArray(new OverloadedFunction[overloadedStore.size()]),
-								 initializers, 
+								 functionStore.toArray(new Function[functionStore.size()]), 
+								 constructorMap,
+								 constructorStore,	
+								 resolver, 
+								 overloadedStore.toArray(new OverloadedFunction[overloadedStore.size()]),  
+								 initializers,
 								 testsuites, 
 								 uid_module_init, 
-								 uid_module_main,
+								 uid_module_main, 
 								 uid_module_main_testsuite,
 								 typeStore,
-								 vf, jvm);
+								 vf,
+								 jvm);
 	}
 	
 	/*
