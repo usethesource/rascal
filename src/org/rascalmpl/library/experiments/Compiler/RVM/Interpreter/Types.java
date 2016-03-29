@@ -574,6 +574,15 @@ public class Types {
 			   case "rel": return tf.relType(flds);
 			   case "lrel": return tf.lrelType(flds);
 			   }
+		case "map":
+			s.next(openBracket);
+		    flds = parseFields(s);
+		    s.next(closeBracket);
+		    if(flds.length == 4){
+		    	return tf.mapType((Type)flds[0],  (Type)flds[2]);
+		    } else {
+		    	throw new NoSuchElementException();
+		    }
 		default:
 			res = tf.abstractDataType(RascalValueFactory.getStore(), kw);
 			return res;
