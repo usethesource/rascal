@@ -96,7 +96,7 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
    	
     rvmMod = mu2rvm(muMod, verbose=verbose); 
     comp_time = (cpuTime() - start_comp)/1000000;
-    println("Compiling <moduleLoc>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
+    if(verbose) println("Compiling <moduleLoc>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
     if(verbose) println("compile: Writing RVMModule <rvmModuleLoc>");
     writeBinaryValueFile(rvmModuleLoc, rvmMod);
     return <config, rvmMod>;  
@@ -245,7 +245,7 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
     
     rvmMod = mu2rvm(muMod, verbose=verbose); 
     comp_time = (cpuTime() - start_comp)/1000000;
-    println("Compiling <moduleLoc>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
+    if(verbose) println("Compiling <moduleLoc>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
     if(verbose) println("compile: Writing RVMModule <rvmModuleLoc>");
     writeBinaryValueFile(rvmModuleLoc, rvmMod);
    
