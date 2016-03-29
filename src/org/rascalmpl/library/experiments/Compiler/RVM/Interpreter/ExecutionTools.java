@@ -106,7 +106,7 @@ public class ExecutionTools {
 			hmKeywordArguments.put(keyString, keywordArguments.get(key));
 		}
 
-		try {
+		//try {
 			//long start = Timing.getCpuTime();
 			IValue result = null;
 			String uid_module_init = executable.getUidModuleInit();
@@ -151,10 +151,10 @@ public class ExecutionTools {
 			//System.out.println("Executing: " + (now - start)/1000000 + "ms");
 			return (IValue) result;
 			
-		} catch(Thrown e) {
-			e.printStackTrace(rex.getStdOut());
-			return vf.tuple(vf.string("Runtime exception: " + e.value), vf.integer(0));
-		}
+//		} catch(Thrown e) {
+//			e.printStackTrace(rex.getStdErr());
+//			return vf.tuple(vf.string("Runtime exception: " + e.value), vf.integer(0));
+//		}
 	}
 	
 	/**
