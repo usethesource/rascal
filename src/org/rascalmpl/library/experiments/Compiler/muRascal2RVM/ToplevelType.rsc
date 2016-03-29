@@ -15,7 +15,7 @@ public list[str] toplevelTypes =
 	  "num", 
 	  "str", 
 	  "loc", 
-	  "datatime", 
+	  "datetime", 
 	  "list", 
 	  "node", 
 	  "constructor", 
