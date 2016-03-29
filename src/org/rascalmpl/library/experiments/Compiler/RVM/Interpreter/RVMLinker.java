@@ -573,7 +573,7 @@ public class RVMLinker {
 
 		validateOverloading();
 
-		System.out.println("Linking: " +  (Timing.getCpuTime() - start)/1000000 + " ms");
+		//System.out.println("Linking: " +  (Timing.getCpuTime() - start)/1000000 + " ms");
 
 		return new RVMExecutable(((IString) main_module.get("name")).getValue(),
 							     moduleTags,

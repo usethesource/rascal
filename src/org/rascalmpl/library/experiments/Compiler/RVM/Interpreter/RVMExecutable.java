@@ -349,7 +349,7 @@ public class RVMExecutable implements Serializable{
 			executable = (RVMExecutable) in.readObject(RVMExecutable.class);
 			in.close();
 			in = null;
-			System.out.println("Reading: " + compIn.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
+			//System.out.println("Reading: " + compIn.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 		} catch (ClassNotFoundException c) {
 			throw new IOException("Class not found: " + c.getMessage());
 		} catch (Exception e) {
