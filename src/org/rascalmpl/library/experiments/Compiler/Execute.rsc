@@ -94,7 +94,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool jvm = true, 
    
       rvmMergedImports = readBinaryValueFile(#RVMModule, mergedImportsLoc);
     
-      println("Reading: <mergedImportsLoc>: <(cpuTime() - startTime)/1000000>ms");
+      if(verbose) println("Reading: <mergedImportsLoc>: <(cpuTime() - startTime)/1000000>ms");
       if(valid(mergedImportsLoc, rvmMergedImports, mainModule, pcfg)){
          pos_delta = size(rvmMergedImports.overloaded_functions);
          mainModule.resolver = ( ofname : mainModule.resolver[ofname] + pos_delta | str ofname <- mainModule.resolver );
