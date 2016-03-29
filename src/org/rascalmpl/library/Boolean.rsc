@@ -13,25 +13,27 @@ module Boolean
 import Exception;
 
 @doc{
-Synopsis: Return an arbitrary Boolean value.
+# Synopsis
+Return an arbitrary Boolean value.
 
-Examples:
-<screen>
+# Examples
+```rascal-shell
 import Boolean;
 arbBool();
 arbBool();
 arbBool();
-</screen>
+```
 
-Benefits:
-<tt>arbInt</tt> is a convenient generator for arbitrary binary choices.
+# Benefits
+`arbInt` is a convenient generator for arbitrary binary choices.
 }
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool arbBool();
 
 @doc{
-Synopsis: Convert the strings "true" or "false" to a bool.
+# Synopsis
+Convert the strings "true" or "false" to a bool.
 }
 public bool fromString(str s)
 { 
@@ -45,17 +47,18 @@ public bool fromString(str s)
 }
 
 @doc{
-Synopsis: Convert a Boolean value to integer.
+# Synopsis
+Convert a Boolean value to integer.
 
-Description:
-Maps `true` to `1` and `false` to 0.
+# Description
+Maps `true` to `1` and `false` to `0`.
 
-Examples:
-<screen>
+# Examples
+```rascal-shell
 import Boolean;
 toInt(true);
 toInt(false);
-</screen>
+```
 }
 public int toInt(bool b)
 {
@@ -63,17 +66,18 @@ public int toInt(bool b)
 }
 
 @doc{
-Synopsis: Convert Boolean value to real.
+# Synopsis
+Convert Boolean value to real.
 
-Description:
-Maps `true` to `1,0` and `false` to `0.0`.
+# Description
+Maps `true` to `1.0` and `false` to `0.0`.
 
-Examples:
-<screen>
+# Examples
+```rascal-shell
 import Boolean;
 toReal(true);
 toReal(false);
-</screen>
+```
 
 }
 public real toReal(bool b)
@@ -82,17 +86,18 @@ public real toReal(bool b)
 }
 
 @doc{
-Synopsis: Convert Boolean value to string.
+# Synopsis
+Convert Boolean value to string.
 
-Description:
+# Description
 Maps `true` to `"true"` and `false` to `"false"`.
 
-Examples:
-<screen>
+# Examples
+```rascal-shell
 import Boolean;
 toString(true);
 toString(false);
-</screen>
+```
 
 }
 public str toString(bool b)
