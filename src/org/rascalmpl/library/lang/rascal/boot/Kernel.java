@@ -24,12 +24,13 @@ public class Kernel {
 	private OverloadedFunction compileAndMergeIncremental;
 	private OverloadedFunction rascalTests;
 	
-	private final RVMCore rvm;
+	private RVMCore rvm;
 
 	public Kernel(IValueFactory vf, RascalExecutionContext rex){
 		this.vf = vf;
-		rvm    			= ExecutionTools.initializedRVM("compressed+boot", "lang/rascal/boot/Kernel.rvm.ser.gz", rex);
-		
+		if(rvm == null){
+			rvm = ExecutionTools.initializedRVM("compressed+boot", "lang/rascal/boot/Kernel.rvm.ser.gz", rex);
+		}
 		try {
 			compile    		= rvm.getOverloadedFunction("RVMModule compile(str qname, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
 			compileAndLink  = rvm.getOverloadedFunction("RVMProgram compileAndLink(str qname, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
