@@ -11,8 +11,8 @@ import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.commonmark.CommonMarkRenderer;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.highlighter.RascalHighlighter;
+import org.rascalmpl.library.experiments.tutor3.commonmark.AnsiRenderer;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISet;
@@ -36,7 +36,7 @@ public class HelpManager {
 	private ISet declarationInfo = null;
 	private static final int FILE_BUFFER_SIZE = 8 * 1024;
 	private Parser cmparser;
-	private CommonMarkRenderer cmrenderer;
+	private AnsiRenderer ansiRenderer;
 
 	public HelpManager(PrintWriter stdout, PrintWriter stderr){
 		this.stdout = stdout;
@@ -50,7 +50,7 @@ public class HelpManager {
 							      Ansi.ansi().reset().boldOff().toString())
 				.setCommentMarkup(Ansi.ansi().reset().fg(Ansi.Color.GREEN).toString(), 
 								  Ansi.ansi().reset().fg(Ansi.Color.BLACK).toString());
-		cmrenderer =  CommonMarkRenderer.builder().setHighlighter(highlighter)
+		ansiRenderer =  AnsiRenderer.builder().setHighlighter(highlighter)
 				.setEmphasisMarkup(Ansi.ansi().a(Attribute.ITALIC).toString(), Ansi.ansi().a(Attribute.ITALIC_OFF).toString())
 				.setStrongMarkup(Ansi.ansi().a(Attribute.INTENSITY_BOLD).toString(), Ansi.ansi().a(Attribute.INTENSITY_BOLD_OFF).toString())
 				.build();
@@ -170,7 +170,7 @@ public class HelpManager {
 	
 	void printConcept(String concept){
 		Node document = cmparser.parse(concept);
-		stdout.println(cmrenderer.render(document));
+		stdout.println(ansiRenderer.render(document));
 //		String[] lines = concept.split("\n");
 //		for(String line : lines){
 //			if(line.startsWith("Questions")){

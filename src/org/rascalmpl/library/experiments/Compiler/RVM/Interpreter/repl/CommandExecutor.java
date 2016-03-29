@@ -124,6 +124,13 @@ public class CommandExecutor {
 		stderr.println("Type 'help' for information or 'quit' to leave");
 	}
 	
+	public void reset(){
+		imports = new ArrayList<String>();
+		syntaxDefinitions = new HashMap<>();
+		declarations = new ArrayList<String>();
+		forceRecompilation = true;
+	}
+	
 	public void setDebugObserver(DebugREPLFrameObserver observer){
 		this.debugObserver = observer;
 	}
@@ -167,13 +174,13 @@ public class CommandExecutor {
 		for(String decl : declarations){
 			w.append(decl);
 		}
-		for(String name : variables.keySet()){
-			Variable var = variables.get(name);
-			w.append(var.type).append(" ").append(name).append(" = ").append(var.value.toString()).append(";\n");
-		}
+//		for(String name : variables.keySet()){
+//			Variable var = variables.get(name);
+//			w.append(var.type).append(" ").append(name).append(" = ").append(var.value.toString()).append(";\n");
+//		}
 		w.append(main);
 		String modString = w.toString();
-
+		//System.err.println(modString);
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation);
@@ -203,11 +210,11 @@ public class CommandExecutor {
 			}
 		} catch (Thrown e){
 			stderr.println(e.getMessage());
-			e.printStackTrace();
+			e.printStackTrace(stderr);
 			return null;
 		} catch (IOException e) {
 			stderr.println(e.getMessage());
-			e.printStackTrace();
+			e.printStackTrace(stderr);
 			return null;
 		}
 	}
@@ -286,6 +293,9 @@ public class CommandExecutor {
 	
 	private void declareVar(String type, String name, String val){
 		variables.put(name,  new Variable(type, name, val));
+		StringWriter w = new StringWriter();
+		w.append(type).append(" ").append(name).append(" = ").append(val).append(";\n");
+		declarations.add(w.toString());
 	}
 	
 	private IValue report(String msg){
@@ -355,12 +365,13 @@ public class CommandExecutor {
 					report("Redeclaring variable " + name1);
 				}
 				declareVar(unparse(type), name1, initial);
+				return executeModule("\nvalue main() = <name1>;\n", false);
 			} else {
 				return report("Initialization required in variable declaration");
 			}
 		}
+		return report("Missing case in evalStatement");
 		
-		return executeModule("\nvalue main() = true;\n", false);
 	}
 	
 	private IValue evalImport(String src, ITree imp) throws FactTypeUseException, IOException{
