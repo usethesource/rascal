@@ -1044,8 +1044,12 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			Result<IValue> var = __eval.getCurrentEnvt().getSimpleVariable(this.getQualifiedName());
 
-			return __eval.getCurrentEnvt().getSimpleVariable(this.getQualifiedName());
+			if (var != null) {
+			    return var;
+			}
+			throw new UndeclaredVariable(Names.fullName(getQualifiedName()), this);
 
 		}
 
