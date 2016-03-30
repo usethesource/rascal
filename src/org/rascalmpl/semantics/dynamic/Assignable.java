@@ -1013,18 +1013,10 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			
 			    
 			if (previous != null && previous.getValue() != null) {
-			    if (Names.fullName(qname).equals("result") && previous.hasInferredType()) {
-	                System.err.println("yes:" + qname);
-	            }
-			    
 				Result<IValue> newResult = __eval.newResult(previous, __eval.__getValue());
 				newResult.setInferredType(previous.hasInferredType());
                 __eval.__setValue(newResult);
 				__eval.__getEnv().storeVariable(qname, __eval.__getValue());
-				
-				 if (Names.fullName(qname).equals("result") && !__eval.__getValue().hasInferredType()) {
-	                    System.err.println("NO!:" + qname);
-	                }
 				return __eval.__getValue();
 			}
 
