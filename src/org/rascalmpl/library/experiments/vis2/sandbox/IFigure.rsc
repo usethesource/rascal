@@ -612,7 +612,7 @@ public void _render(IFigure fig1, int width = 800, int height = 800,
        , width, height, 0, 0, 1, 1, align, 1, "", false, false >;
       
        widgetOrder += id;
-    adjust+=  "adjustTableW("+figCalls([fig1])+", \"<id>\", 0,  0, 0);\n";
+    adjust+=  "adjustTableW("+figCalls([fig1])+", \"<id>\", 0,  0, 0, 0, 0);\n";
     fig = ifigure(id, [fig1]);
     // println("site=<site>");
 	if (display) htmlDisplay(site);
@@ -2065,7 +2065,7 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
        addState(f);
        widgetOrder+= id;
        adjust+=  "adjustTableW("+figCalls(fig1)+", \"<id>\", <getLineWidth(f)<0?0:-getLineWidth(f)>, 
-               <-hPadding(f)>, <-vPadding(f)>);\n";
+               <-hPadding(f)>, <-vPadding(f)>,<f.hgap>, <f.vgap>);\n";
        return ifigure(id ,[td("<id>_<getSeq(g)>", f, g, width, height)| g<-fig1]);
        }
        
@@ -2361,7 +2361,6 @@ void buildParentTree(Figure f) {
     // println(f);
     visit(f) {
         case g:box(): cL(g, g.fig);
-        case g:frame():cL(g, g.fig);
         case g:ellipse():cL(g, g.fig);
         case g:circle():cL(g, g.fig);
         case g:ngon():cL(g, g.fig);
@@ -2424,12 +2423,6 @@ IFigure _translate(Figure f,  bool addSvgTag = false,
     switch(f) {   
         case box(): return _rect(f.id, true, f, fig = _translate(f.fig,  inHtlml = true));
         case emptyFigure(): return iemptyFigure(f.seq);
-        case frame():  {
-                   f.sizeFromParent = true;
-                   f.lineWidth = 0; f.fillColor="none";
-                   return _rect(f.id, true, f, fig = _translate(f.fig, inHtml=true)
-                       );
-                   }
         case ellipse():  return _ellipse(f.id, true, f, fig = 
              _translate(f.fig)
              );
@@ -2582,7 +2575,6 @@ DDD treeToDDD(Figure f) {
  bool isEmpty(Figure f) {
     switch (f) {
         case g:box(): return g.fig == emptyFigure();
-        case g:frame():return  g.fig == emptyFigure();
         case g:ellipse():return  g.fig == emptyFigure();
         case g:circle():return  g.fig == emptyFigure();
         case g:ngon(): return  g.fig == emptyFigure();

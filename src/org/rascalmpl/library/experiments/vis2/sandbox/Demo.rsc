@@ -33,9 +33,15 @@ public Figure demo1() {
            return hcat(size=<300, 400>, figs=[
              (idNgon(5, 20) |newNgon(e, it)| e<-colors)
              ,
+<<<<<<< HEAD
              (idNgon(5, -1) |newNgon(e, it)| e<-colors)
            ]);}
 void tdemo1()  {render(demo1(), debug = false, align = centerMid);}
+=======
+             frame((idNgon(5, -1) |newNgon(e, it)| e<-colors), shrink=0.9)
+           ]);}
+void tdemo1()  {render(box(fig=demo1()), align = centerMid);}
+>>>>>>> Automatic calculation of priority.
 
  void tfdemo1(loc l) {
       // println(schoolPlot());
@@ -54,6 +60,7 @@ public Figure demo2() {
            (
            at(10, 10, box(align = centerMid, 
              lineColor="grey", fillColor = "yellow", lineOpacity=1.0, size=<30, 40>))
+<<<<<<< HEAD
            |newBox(e, 
           it)| e<-colors)
           ,
@@ -65,6 +72,18 @@ public Figure demo2() {
           ]);
           }
 void tdemo2(){ render(demo2(), align = centerRight, debug = false); }
+=======
+           |newBox(e, 
+          it)| e<-colors)
+          ,
+          frame(
+           (at(10, 10, box(align = centerMid, lineColor="grey", fillColor = "yellow", lineOpacity=1.0))
+           |newBox(e, it)| e<-colors)
+           , shrink=0.90)
+            ]);
+          }
+void tdemo2(){ render(box(fig=demo2(), align = centerRight)); }
+>>>>>>> Automatic calculation of priority.
 
  void tfdemo2(loc l) {
       // println(schoolPlot());
@@ -75,14 +94,26 @@ void tdemo2(){ render(demo2(), align = centerRight, debug = false); }
 
 
 public Figure newEllipse(str lc, Figure el) {
-      return at(0, 0, ellipse(lineColor= lc, lineWidth = 18, 
+      return at(0, 0, ellipse(lineColor= lc, lineWidth = 8, 
            fillColor = "white", padding=<0,0,0,0>, 
-      fig = el, grow=1.0));
+      fig = el));
       }
-public Figure demo3() = (idEllipse(100, 75) |newEllipse(e, 
-      it)| e<-["red","blue" ,"grey","magenta", "brown", "green"]);
+public Figure demo3() {
+      list[str] colors = ["red","blue" ,"grey","magenta", "brown", "green"];
+      return hcat(fillColor="none", size=<400, 200>, hgap = 6, figs = [
+      (idEllipse(17, 12) |newEllipse(e,  it)| e<-colors)
+      ,
+      frame((idEllipse(-1, -1) |newEllipse(e, it)| e<-colors), shrink=0.85)
+      ]);
+      ;
+      }
       
 void tdemo3()  {render(demo3(), debug = false);}
+
+void tfdemo3(loc l) {
+      // println(schoolPlot());
+      writeFile(l, toHtmlString(demo3()), debug = false, width = 600, height = 600);
+      }
 // ---------------------------------------------------------------------------
 
 list[Vertex] innerGridH(int n) {
@@ -303,11 +334,19 @@ void hilberts(){
 public Figure vennDiagram0() = overlay(
      size=<350, 150>,
      figs = [
+<<<<<<< HEAD
            box(align = topLeft, size=<350, 150>,
              fig = ellipse(width=200, height = 100, fillColor = "red", fillOpacity = 0.7))
           ,box(align = topRight, size=<350, 150>,
              fig = ellipse(width=200, height = 100, fillColor = "green",fillOpacity = 0.7))
           ,box(align = bottomMid, size=<350, 150>,
+=======
+           box(align = topLeft, size=<350, 150>, fillColor= "none", 
+             fig = ellipse(width=200, height = 100, fillColor = "red", fillOpacity = 0.7))
+          ,box(align = topRight, size=<350, 150>, fillColor= "none",
+             fig = ellipse(width=200, height = 100, fillColor = "green",fillOpacity = 0.7))
+          ,box(align = bottomMid, size=<350, 150>, fillColor= "none",
+>>>>>>> Automatic calculation of priority.
             fig = ellipse(width=200, height = 100, fillColor = "blue", fillOpacity = 0.7))
      ]
      );
@@ -585,7 +624,7 @@ Figures elFigs(int n, bool tt) = n>0?
     [elFig(1-i/(2*n), tt)|num i<-[0,1..n]]
    :[elFig(1-i/(2*-n), tt)|num i<-[-n,-n-1..0]];
 
-public Figure shrink(bool tt) {resetColor();return grid( figArray=[elFigs(5, tt), elFigs(-5, tt)], align = centerMid, borderWidth=1);}
+public Figure shrink(bool tt) {resetColor();return grid(size=<400, 400>, figArray=[elFigs(5, tt), elFigs(-5, tt)], align = centerMid, borderWidth=1);}
 
 void tshrink() = render(box(fig=shrink(false), size=<400, 400>));
 
@@ -660,7 +699,7 @@ public list[list[Figure]] figures() =
              ,[demo14(),demo11()]
              ,[demo16(), demo17()]
              ,[demo18(), demo19()]
-             ,[tetris(), box(fig=shrink(false), size=<400, 400>, resizable=true)]
+             ,[tetris(), box(fig=shrink(false), size=<400, 400>)]
              ,[decision(), triangle()]
             ];
             
@@ -676,7 +715,7 @@ void fdemo(loc l) {
       }
       
  Figure sb(Figure tt) {return box(size=<20, 20>, fillColor = "antiquewhite", tooltip = at(30, 30, hcat(figs=[
-        box(fig=tt, fillColor="none", lineWidth =1)])));}
+        box(fig=tt, fillColor="whitesmoke", lineWidth =1)])));}
  
  list[Figure] sb(list[Figure] tt) {return  mapper(tt, sb);}
  
