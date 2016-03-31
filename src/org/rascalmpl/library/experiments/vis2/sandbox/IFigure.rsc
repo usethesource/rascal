@@ -90,6 +90,7 @@ public map[str, list[IFigure] ] defs = ();
 IFigure fig;
 
 int upperBound = 9999;
+int lowerBound = 10;
 
 int getN(IFigure fig1) = getN(getId(fig1));
 
@@ -184,15 +185,7 @@ Timer _getTimer(str id) = state[widget[id].seq].v.timer;
 
 bool hasInnerFigure(Figure f) = box():=f || ellipse() := f || circle():= f || ngon():=f;
 
-bool isOverlay(Figure f) = overlay():=f || tree(_, _):=f|| graph():=f;
-
-bool needsSvg(Figure f) = // vcat():=f || hcat():=f || grid():=f
-comboChart():=f || lineChart():=f || scatterChart():=f
-|| pieChart():=f || candlestickChart():=f || pieChart():=f
-|| areaChart():=f || tree(_,_):=f
-;
-
-    
+   
 void addState(Figure f) {
     Attr attr = attr(bigger = f.bigger);
     if (buttonInput(_):=f) 
@@ -345,6 +338,7 @@ str getIntro() {
         ' var screenWidth = 0;
         ' var screenHeight = 0;
         ' var upperBound = <upperBound>;  
+        ' var lowerBound = <lowerBound>;  
         ' setSite(\"<getSite()>\");    
         ' function initFunction() {
         '  alertSize();
@@ -382,13 +376,10 @@ list[State] diffNewOld() {
     }
     
 bool isGrow(Figure f) {
-   // println(getKeywordParameters(f)["bigger"]?);
    return getKeywordParameters(f)["bigger"]?;
    }
    
 bool isRotate(Figure f) {
-   // println(getKeywordParameters(f)["bigger"]?);
-   // return false;
    return getKeywordParameters(f)["rotate"]?;
    }
     
@@ -608,20 +599,20 @@ public void _render(IFigure fig1, int width = 800, int height = 800,
     widget[id] = <(display?getRenderCallback(event):null), seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")   
-        '<defined?stylePx("width", width):style1("width", "screenWidth")>
-        '<defined?style("height", height):style1("height", "screenHeight")>    
+        '<defined?attrPx("w", width):attr1("w", "screenWidth")>
+        '<defined?attrPx("h", height):attr1("h", "screenHeight")>    
         '<style("border","0px solid black")> 
         '<style("border-width",borderWidth)>
         '<style("border-style",borderStyle)>
         '<style("border-color",borderColor)>
         '<style("background", fillColor)>
-        ;       
+        ; 
+        'adjustTable(\"<id>\", <figCalls([fig1])>);       
         "
        , width, height, 0, 0, 1, 1, align, 1, "", false, false >;
       
        widgetOrder += id;
-    if (resizable && (getWidth(fig1)<0 || getHeight(fig1)<0))
-        adjust+=fromOuterToInner(fig1, id, getN(fig1), getAngle(fig1), getAtX(fig1), getAtY(fig1));
+    adjust+=  "adjustTableW("+figCalls([fig1])+", \"<id>\", 0,  0, 0);\n";
     fig = ifigure(id, [fig1]);
     // println("site=<site>");
 	if (display) htmlDisplay(site);
@@ -689,13 +680,12 @@ str getLineColor(Figure f) {
   }
   
 bool getResizable(Figure f) {
-    bool c = f.resizable?;
-    while (!c) {
-        if (!(parentMap[f.id]?)) return false;
-        f = figMap[parentMap[f.id]];
-        c = f.resizable?;
-        }
-   return f.resizable;
+    bool c = f.resizable;
+    while (c && parentMap[f.id]?) {
+       f = figMap[parentMap[f.id]];
+       c  = f.resizable;
+       }
+     return c;
   }
 
 str getFillColor(Figure f) {
@@ -1133,8 +1123,12 @@ str dagrePoints(f) {
 str addShape(Figure s) {  
     return "
     'render.shapes().<s.id> = function (parent, bbox, node) {
-    'var width = parseInt(d3.select(\"#<s.id>\").attr(\"width\"));
-    'var height = parseInt(d3.select(\"#<s.id>\").attr(\"height\"));
+    'var width = d3.select(\"#<s.id>\").attr(\"width\");
+    'var height = d3.select(\"#<s.id>\").attr(\"height\");
+    'if (width==null)  width = d3.select(\"#<s.id>\").style(\"width\");
+    'if (height==null)  height = d3.select(\"#<s.id>\").style(\"height\");
+    'width = parseInt(width);
+    'height= parseInt(height);
     'var points = <dagrePoints(s)>();
     'var dpoints = \"M \"+ points.map(function(d) { return d.x + \" \" + d.y; }).join(\" \")+\" Z\";
     'shapeSvg = parent.insert(\"path\", \":first-child\")
@@ -1164,8 +1158,13 @@ str addShape(Figure s) {
     ' g.nodes().forEach(function(v) {
     '     var n = g.node(v);
     '     var id = n.shape;
-    '     var width = parseInt(d3.select(\"#\"+id).attr(\"width\"));
-    '     var height = parseInt(d3.select(\"#\"+id).attr(\"height\"))-1;
+    '     var z = d3.select(\"#\"+id);
+    '     var width = z.attr(\"width\");
+    '     var height =z.attr(\"height\");
+    '     if (width==null) width = z.style(\"width\");
+    '     if (height==null) height = z.style(\"height\");
+    '     width = parseInt(width);
+    '     height= parseInt(height)+1;
     '     d3.select(\"#\"+id+\"_svg\")<attr1("x", "Math.floor(n.x-width/2+offset)")><attr1("y", "Math.floor(n.y-height/2)")>;
     '     });
     ' console.log(g.graph().width);
@@ -1371,8 +1370,7 @@ bool hasInnerCircle(Figure f)  {
         '<style("fill-opacity", getFillOpacity(f))> 
         '<style("stroke-opacity", getLineOpacity(f))>  
         '<style("visibility", getVisibility(f))> 
-        '<isPassive(f)?attr("pointer-events", "none"):attr("pointer-events", "all")> 
-        '//<findFirst(id,"_tooltip")>=0?attr("pointer-events", "none"):"">    
+        '<isPassive(f)?attr("pointer-events", "none"):attr("pointer-events", "all")>   
         ';   
         'd3.select(\"#<id>_svg\")
         '<attr("width", width)><attr("height", height)>
@@ -1540,23 +1538,6 @@ int corner(int n, int lineWidth) {
 
 num rR(Figure f)  = ngon():=f?f.r+corner(f)/2:-1;
 
-
-int getNgonWidth(Figure f, IFigure fig) {
-         if (f.width>=0) return f.width;
-         int r = toInt(rR(f));
-         int lw = 1;
-         if (ngon():=f) return 2*r+lw;     
-         return -1;
-         }
-
-int getNgonHeight(Figure f, IFigure fig) {
-         if (f.height>=0) return f.height;
-         int r = toInt(rR(f));
-         int lw = 1;  
-         if (ngon():=f) return 2*r+lw;      
-         return -1;
-         }
-
 int getPolWidth(Figure f) {
          if (f.width>=0) return f.width;
          num width = rescale(max([p.x|p<-f.points]), f.scaleX)+getLineWidth(f);  
@@ -1623,7 +1604,6 @@ str trVertices(Figure f) {
       
 str trVertices(list[Vertex] vertices, bool shapeClosed = false, bool shapeCurved = true, bool shapeConnected = true,
     Rescale scaleX=<<0,1>, <0, 1>>, Rescale scaleY=<<0,1>, <0, 1>>) {
-	//<width, height>  = bbox(vertices
 	str path = "M<toP(vertices[0].x, scaleX)> <toP(vertices[0].y, scaleY)>"; // Move to start point
 	int n = size(vertices);
 	if(shapeConnected && shapeCurved && n > 2){
@@ -1734,8 +1714,9 @@ IFigure _ngon(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(0)) {
          , f.sizeFromParent, true >;
        addState(f);
        widgetOrder+= id;
-       if (iemptyFigure(_)!:=fig && getResizable(f) && (getWidth(fig)<0 || getHeight(fig)<0))
+       if (iemptyFigure(_)!:=fig && getResizable(f) && (getWidth(fig)<0 || getHeight(fig)<0)) {
           adjust+= fromOuterToInner(fig, id, getN(fig), getAngle(fig), getAtX(fig), getAtY(fig)); 
+          }
        return ifigure(id, [fig]);
        }
  
@@ -1770,7 +1751,6 @@ IFigure _overlay(str id, Figure f, IFigure fig1...) {
         widget[id] = <null, seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\") 
-        '//<attr("width", f.width)><attr("height", f.height)>  
         '<styleInsideSvgOverlay(id, f)>    
         ';
         '<for (q<-fig1){> 
@@ -2070,7 +2050,7 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
         'd3.select(\"#<id>\") 
         '<on(f)>
         '<stylePx("width", width)><stylePx("height", height)>
-        '<attrPx("width", width)><attrPx("height", height)>      
+        '<attrPx("w", width)><attrPx("h", height)>      
         '<debugStyle()> 
         '<style("background-color", "<getFillColor(f)>")> 
         '<style("border-spacing", "<f.hgap> <f.vgap>")> 
@@ -2124,7 +2104,7 @@ IFigure _vcat(str id, Figure f,  bool addSvgTag, IFigure fig1...) {
         "
         'd3.select(\"#<id>\") 
         '<stylePx("width", width)><stylePx("height", height)> 
-        '<attrPx("width", width)><attrPx("height", height)>       
+        '<attrPx("w", width)><attrPx("h", height)>       
         '<attr("fill",getFillColor(f))><attr("stroke",getLineColor(f))>
         '<style("border-spacing", "<f.hgap> <f.vgap>")>
         '<style("stroke-width",getLineWidth(f))>
@@ -2212,7 +2192,7 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
         'd3.select(\"#<id>\")
         '<debug?debugStyle():borderStyle(f)>       
         '<style("background-color", "<getFillColor(f)>")> 
-        '<attr("pointer-events", "none")>     
+        '<attr("pointer-events", "none")> ;
         ", f.width, f.height, getAtX(f), getAtY(f), 0, 0, f.align, getLineWidth(f), getLineColor(f)
          , f.sizeFromParent, false >;
        addState(f);
@@ -2272,8 +2252,6 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
        widgetOrder+= id;
        return ifigure(id ,[]);
        }
-    
-bool isCentered(Figure f) = (ellipse():=f) || (circle():=f) || (ngon():=f);
 
 list[tuple[str, Figure]] addMarkers(Figure f, list[tuple[str, Figure]] ms) {
     list[tuple[str, Figure]] r = [];

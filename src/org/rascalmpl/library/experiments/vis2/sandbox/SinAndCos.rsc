@@ -23,14 +23,12 @@ Figure sinAndCos(){
            		chartArea = chartArea(width="80%", height = "70%"
            		             ,backgroundColor="antiquewhite"
            		),
-           		width=600,
-                height=200,
                 pointSize= 0,
                 lineWidth = 1,
                 legend = legend(position="top")
         	    );
         // println(adt2json(options));
-        	return comboChart(charts=[
+        	Figure f = comboChart(width = 600, height = 200, charts=[
         	       line([<x, round(sin(x/1),0.1)>     | x <- [0.0, 1.0 .. 11.0]], name="Sine Wave")
         		   , line([<x, round(0.5 * cos(x/1), 0.01), "<x>"> | x <- [0.0, 1.0 .. 11.0]], name ="Cosine Wave",
         		       lineWidth = 0, pointSize = 3)
@@ -39,6 +37,8 @@ Figure sinAndCos(){
         	 , options = options
            
         );
+         println("sinAndCos <f.width> <f.height>");
+         return f;
 }
  
 public list[Chart] q = 
