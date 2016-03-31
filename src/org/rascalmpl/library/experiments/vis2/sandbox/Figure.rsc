@@ -186,7 +186,7 @@ public data Figure(
 		num grow = 1.0, 
 		num hgrow = 1.0, 
 		num vgrow = 1.0, 
-		bool resizable = false,
+		bool resizable = true,
 		tuple[int,int] gap = <0,0>,
 		int hgap = 0,
 		int vgap = 0,

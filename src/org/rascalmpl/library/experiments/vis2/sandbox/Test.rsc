@@ -63,19 +63,21 @@ public void standard() {
  
 // Figure simple() =  hcat(figs=[box(size=<30, 30>, fillColor="blue"), box(size=<50, 50>, fillColor="yellow"), box(size=<70, 70>, fillColor=  "red")],align= topLeft);
 
-Figure simple() =  box(size=<400, 400>
+Figure simple() =  hcat(figs=[box(
 , fig=circle(shrink=0.8, fillColor ="antiquewhite", lineWidth = 20, lineColor="blue", align = centerRight
  , fig = ngon(n=5, shrink=0.8, lineWidth = 20,  lineColor = "red", fillColor="yellow", align = centerLeft
 , fig = circle(shrink=0.6, lineWidth=8, fillColor = "antiquewhite", align = centerRight, lineColor="green")
 )
 )
-);
+)]);
+
+// Figure simple() = box(grow=1.5, fig=hcat(figs=[box(size=<50, 50>, fillColor="red")]));
  
- public void tsimple() = render(simple(), resizable=true);
+ public void tsimple() = render(simple(), resizable=true, size=<600, 600>);
  
  
  public void fsimple(loc l) = writeFile(l, toHtmlString(
-   simple(), resizable=true
+   simple(), size=<600, 600>, resizable=true
  )); 
  
  Figure eye()= ellipse(rx=60, ry = 30, lineColor="brown", align = centerMid, fillColor="teal", lineWidth = 6
@@ -101,7 +103,7 @@ public Figure idCircleShrink(num shrink) = circle(shrink= shrink, lineWidth = 4,
 
 public Figure idEllipseShrink(num shrink) = ellipse(shrink= shrink, lineWidth = 4, lineColor = pickColor());
 
-public Figure idBoxShrink(num shrink) = box(shrink= shrink, lineWidth = 4, lineColor = pickColor());
+public Figure idBoxShrink(num shrink) = box(shrink= shrink, lineWidth = 10, lineColor = pickColor());
 
 public Figure idNgonShrink(num shrink) = ngon(n=4, shrink= shrink, lineWidth = 4, lineColor = pickColor());
 
@@ -118,9 +120,9 @@ public Figure newEllipse(str lc, Alignment align, Figure el) {
       }
       
 public Figure newBox(str lc, Alignment align, Figure el) {
-      return box(lineColor= lc, lineWidth = 4, 
+      return box(lineColor= lc, lineWidth = 10, 
            fillColor = "none", padding=<0,0,0,0>, align = align, 
-      fig = el, shrink=0.9);
+      fig = el, shrink=1.0);
       }
       
 public Figure newNgon(str lc, Alignment align, Figure el) {
@@ -129,36 +131,39 @@ public Figure newNgon(str lc, Alignment align, Figure el) {
       fig = el, shrink=0.9);
       }
       
-public Figure bundle(int n, Alignment align) { resetColor(); return(idCircleShrink(0.9) |newCircle(e, align, 
-      it)| e<-[pickColor()|int i<-[0..n]]);}
+public Figure bundle(int n, Alignment align) { resetColor(); return
+      (idCircleShrink(0.9) |newCircle(e, align, 
+      it)| e<-[pickColor()|int i<-[0..n]])
+      ;}
       
-public Figure bundle() = overlay(size=<600, 600>, figs=[
+public Figure bundle() = overlay(figs=[
                bundle(4, centerLeft), 
                bundle(4, centerRight),
-               // bundle(4, centerMid)  ,
+               // bundle(4, centerMid),  
                bundle(4, topMid), 
                bundle(4, bottomMid)
-              ]
-               );
+              ])
+               ;
       
-void tbundle() = render(bundle(), size=<600, 400>);  
+void tbundle() = render(bundle(), size=<600, 600>);  
 
 public void fbundle(loc l) = writeFile(l, toHtmlString(
    bundle(), resizable=true
  )); 
  
 Figure base(int lineWidth, Alignment align, Figure fig = emptyFigure())  = box(lineWidth = 0, align = align, 
-                 fig = box(shrink = 0.45, lineWidth = lineWidth, lineColor = pickColor(),
+                 fig = box(shrink = 0.44, lineWidth = lineWidth, lineColor = pickColor(),
                            fig = fig)
                  );
                  
-Figure base(int lineWidth, Figure fig = emptyFigure()){return  overlay(figs = [base(lineWidth, topLeft, fig= fig)
+Figure base(int lineWidth, Figure fig = emptyFigure()){return  overlay(figs = [
+               base(lineWidth, topLeft, fig= fig)
              , base(lineWidth,topRight, fig = fig)
              , base(lineWidth,bottomLeft, fig = fig)
              , base(lineWidth,bottomRight, fig = fig)
              ]);}
               
-Figure baseRec() {resetColor(); return base(8, fig = base(6, fig= base(4, fig= base(2)))
+Figure baseRec() {resetColor(); return base(4, fig = base(4, fig= base(4, fig= base(4)))
       //overlay(lineWidth = 0, figs=[
       //  box(lineWidth = 0, align=topLeft, fillColor="none", fig=circle(shrink=0.8, lineWidth = 1))
       //   ,
@@ -167,16 +172,35 @@ Figure baseRec() {resetColor(); return base(8, fig = base(6, fig= base(4, fig= b
      );
  }
 
-void tbase() = render(baseRec(), size=<600, 400>);  
+void tbase() = render(baseRec(), size=<600, 600>);  
 
 public void fbase(loc l) = writeFile(l, toHtmlString(
    baseRec()
  )); 
  
- Figure rec() = box(lineWidth=10, align = bottomRight, lineColor=  "red", size=<300, 200>, fig = ngon(n = 5,
- lineWidth = 6, lineColor = "blue", shrink = 0.7));
+ Figure b(int w, int h) = box(grow=1.2, fig= box(size=<w, h>));
  
- void trec() = render(rec());
+ Figure rec() = hcat(figs=[b(10, 40), b(20, 50), b(15, 45)
+ // , box()
+ ]);
+ 
+ 
+ void trec() = render(rec(), size=<400, 400>);
 
+public void frec(loc l) = writeFile(l, toHtmlString(
+   rec()
+ ));
+ 
+ Figure place(str fill) = box(size=<25, 25>, fillColor = fill);
 
+Figure tetris() = 
+       grid( vgap=0, hgap= 0
+       , 
+       figArray=[
+       [place("blue"), emptyFigure()]
+      ,[place("blue"), emptyFigure()]
+      ,[place("blue"), place("blue")]
+       ]);
+  
+void ttetris() = render(tetris());     
                  

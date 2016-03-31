@@ -24,12 +24,17 @@ void ex(str title, Figure b, bool debug = false) = render(b, debug = debug, alig
 
 public Figure newNgon(str lc, Figure el) {
       return at(0, 0, ngon(n = 5,  grow=1.0, align = centerMid, lineColor= lc, 
-             lineWidth = 20, fillColor = "white", padding=<0,0,0,0>,
+             lineWidth = 8, fillColor = "white", padding=<0,0,0,0>,
       fig = el));
       }
 
-public Figure demo1() = (idNgon(5, 50) |newNgon(e, it)| 
-              e<-["antiquewhite", "yellow", "red","blue" ,"grey","magenta"]);
+public Figure demo1() {
+          list[str] colors = ["antiquewhite", "yellow", "red","blue" ,"grey","magenta"];
+           return hcat(size=<300, 400>, figs=[
+             (idNgon(5, 20) |newNgon(e, it)| e<-colors)
+             ,
+             (idNgon(5, -1) |newNgon(e, it)| e<-colors)
+           ]);}
 void tdemo1()  {render(demo1(), debug = false, align = centerMid);}
 
  void tfdemo1(loc l) {
@@ -41,15 +46,24 @@ void tdemo1()  {render(demo1(), debug = false, align = centerMid);}
 
 public Figure newBox(str lc, Figure el) {
       return at(10, 10, box(align = centerMid, lineColor= lc, 
-             fillColor = "white", fig = el, lineWidth = 20));
+             fillColor = "none", fig = el, lineWidth = 8));
       }
-public Figure demo2() = (
-         // rotate(0, 
-           at(10, 10, box(size=<50, 200> , align = centerMid, 
-             lineColor="grey", fillColor = "yellow", lineOpacity=1.0))
-         //  )
+public Figure demo2() { 
+         list[str] colors = ["green", "red", "blue", "grey", "magenta", "brown"];
+         return hcat(fillColor="none", size=<400, 400>, hgap = 6, figs = [
+           (
+           at(10, 10, box(align = centerMid, 
+             lineColor="grey", fillColor = "yellow", lineOpacity=1.0, size=<30, 40>))
            |newBox(e, 
-          it)| e<-["green", "red", "blue", "grey", "magenta", "brown"]);
+          it)| e<-colors)
+          ,
+          (
+           at(10, 10, box(align = centerMid, 
+             lineColor="grey", fillColor = "yellow", lineOpacity=1.0))
+           |newBox(e, 
+          it)| e<-colors)
+          ]);
+          }
 void tdemo2(){ render(demo2(), align = centerRight, debug = false); }
 
  void tfdemo2(loc l) {
@@ -137,7 +151,7 @@ Figure labeled(Figure g) {
            vcat(figs=gridLabelY(), padding=<0,0,0,20>)
            , vcat(lineWidth = 0, figs = [box(fig=g, lineWidth=1),
            hcat(figs = gridLabelX())])
-           ], resizable = false);
+           ]);
      }
      
  list[Figure] gridLabelX() {
@@ -286,19 +300,18 @@ void hilberts(){
 
 
 /**********************  venndiagrams ******************************/
-
 public Figure vennDiagram0() = overlay(
      size=<350, 150>,
      figs = [
-           frame(align = topLeft,
+           box(align = topLeft, size=<350, 150>,
              fig = ellipse(width=200, height = 100, fillColor = "red", fillOpacity = 0.7))
-          ,frame(align = topRight,
+          ,box(align = topRight, size=<350, 150>,
              fig = ellipse(width=200, height = 100, fillColor = "green",fillOpacity = 0.7))
-          ,frame(align = bottomMid,
+          ,box(align = bottomMid, size=<350, 150>,
             fig = ellipse(width=200, height = 100, fillColor = "blue", fillOpacity = 0.7))
      ]
      );
-     
+
 public Figure demo6() = vennDiagram0();
      
 public void vennDiagram() = render(vennDiagram0(), align =  centerMid);
@@ -481,7 +494,7 @@ Figure demo15()= ov();
 list[Figure] rgbFigs = [box(fillColor="red",size=<50,100>), box(fillColor="green", size=<200,200>), box(fillColor="blue",  size=<10,10>)];
 
 public Figure hcat11() = 
-       box(padding=<0, 0, 0, 0>, lineWidth = 10 , resizable = false
+       box(padding=<0, 0, 0, 0>, lineWidth = 10 
        ,fig= ellipse(padding=<0, 0, 0, 0>
              ,fig=hcat(lineWidth=2, lineColor="brown", figs=rgbFigs) 
        ,lineWidth = 10, lineColor= "yellow", grow = 1.45, fillColor="lightgrey",align = centerMid
@@ -574,7 +587,7 @@ Figures elFigs(int n, bool tt) = n>0?
 
 public Figure shrink(bool tt) {resetColor();return grid( figArray=[elFigs(5, tt), elFigs(-5, tt)], align = centerMid, borderWidth=1);}
 
-void tshrink() = render(box(fig=shrink(false), size=<400, 400>), resizable = true);
+void tshrink() = render(box(fig=shrink(false), size=<400, 400>));
 
 Figure _tetris1() = 
        grid( vgap=0, hgap= 0
@@ -636,9 +649,9 @@ public void ftetris1(loc l) = writeFile(l, toHtmlString(
 ));
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-public list[list[Figure]] figures = 
+public list[list[Figure]] figures() = 
 [
-              [demo1(), demo2()]
+             [demo1(), demo2()]
              ,[demo3() , demo4()]
              ,[demo5(), demo6()]
              ,[demo7(), demo8()]
@@ -651,26 +664,26 @@ public list[list[Figure]] figures =
              ,[decision(), triangle()]
             ];
             
-Figure demoFig() = grid(vgap=4, figArray=figures);
+Figure demoFig() = grid(vgap=4, figArray=figures());
             
 
                   
 void demo() = render(demoFig(),
-     width = 1800, height = 2000, resizable = true);
+     width = 1800, height = 2000);
      
 void fdemo(loc l) {
-      writeFile(l, toHtmlString(demoFig(), debug = false, resizable = false, width = 800, height = 1800));
+      writeFile(l, toHtmlString(demoFig(), debug = false, width = 800, height = 1800));
       }
       
  Figure sb(Figure tt) {return box(size=<20, 20>, fillColor = "antiquewhite", tooltip = at(30, 30, hcat(figs=[
-        box(fig=tt, fillColor="whitesmoke", lineWidth =1)], resizable=false)));}
+        box(fig=tt, fillColor="none", lineWidth =1)])));}
  
  list[Figure] sb(list[Figure] tt) {return  mapper(tt, sb);}
  
- Figure summary() = grid(figArray = [[sb(x)|x<-y]|y<-figures]);
+ Figure summary() = grid(figArray = [[sb(x)|x<-y]|y<-figures()]);
  
  void tsummary()= render(summary(), align = topLeft);
  
  void fsummary(loc l) {
-      writeFile(l, toHtmlString(summary(), align = topLeft));
+      writeFile(l, toHtmlString(summary(),  align = topLeft));
       }
