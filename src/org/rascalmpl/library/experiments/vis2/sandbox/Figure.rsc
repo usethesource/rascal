@@ -236,7 +236,6 @@ public data Figure(
 
    | box(Figure fig=emptyFigure())      	// rectangular box with inner element
    
-   | frame(Figure fig=emptyFigure()) // Invisible box
    
    | ellipse(num cx = -1, num cy = -1, num rx=-1, num ry=-1, Figure fig=emptyFigure())
    
@@ -571,6 +570,7 @@ bool hasXYLabeledData(Chart c) {
          }
      return false;
      } 
+    
 
 list[list[value]] joinData(list[Chart] charts, bool tickLabels, int tooltipColumn) {
    list[tuple[list[map[str, str]] header, map[tuple[value, int], list[value]]\data]] m = [tData(c, tooltipColumn)|c<-charts];   
@@ -627,7 +627,10 @@ public Figure plot(Points xy, Rescale x, Rescale y, bool shapeCurved = true
       width = width, height = height, fillEvenOdd = fillEvenOdd);
       }
 
-
+public Figure frame(Figure f, num shrink=1.0, num grow=1.0) {
+      return box(lineWidth=0, fillColor="none", fig = f, shrink= shrink, grow = grow);
+      }
+      
 int currentColor = 7;
 
 public void resetColor() {currentColor = 7;} 

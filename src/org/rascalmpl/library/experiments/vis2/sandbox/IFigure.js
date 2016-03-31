@@ -296,12 +296,13 @@ function fromInnerToOuterFigure(f, id1, toLw, hpad, vpad) {
     }
     if (from.empty()) return;
 	var fromLw = parseInt(from.style("stroke-width"));
-	var width = document.getElementById(id1).getBoundingClientRect().width;
-	var height = document.getElementById(id1).getBoundingClientRect().height;
-	if (!invalid(from.attr("width")))
-		width = parseInt(from.attr("width"));
-	if (!invalid(from.attr("height")))
-		height = parseInt(from.attr("height"));
+	var width = 0;
+	if (!invalid(from.attr("width"))) width = parseInt(from.attr("width"));
+	else width = document.getElementById(id1).getBoundingClientRect().width;
+	var height = 0;
+	if (!invalid(from.attr("height")))	 
+	     height = parseInt(from.attr("height"));
+	else height = document.getElementById(id1).getBoundingClientRect().height;
 	if (width == 0 || height == 0)
 		return;
 	toLw = corner(f.n, toLw);
@@ -433,9 +434,9 @@ function adjust1(fromId, f, width, height, hpad, vpad) {
 		break;
 	case "ellipse":
 		if ((to.attr("rx") == null) && (to.attr("ry") == null)) {
-			var rx1 = (w - toLw) / 2;
-			var ry1 = (h - toLw) / 2;
-			to.attr("cx", w / 2).attr("cy", h / 2).attr("rx", rx1).attr("ry",
+			var rx1 = w / 2;
+			var ry1 = h / 2;
+			to.attr("cx", (w+toLw) / 2).attr("cy", (h+toLw) / 2).attr("rx", rx1).attr("ry",
 					ry1);
 			to.attr("width", w).attr("height", h);
 		}
@@ -454,8 +455,6 @@ function adjust1(fromId, f, width, height, hpad, vpad) {
 			h -toLw);
 	d3.select("#" + f.id + "_svg").attr("width", w+toLw).attr("height",
 			h +toLw);
-	d3.select("#" + fromId + "_" + f.id).style("width", width+toLw).style(
-			"height", height+toLw);
 	d3.select("#" + fromId + "_" + f.id).attr("pointer-events", "none");
 	d3.select("#" + f.id + "_fo_table").attr("pointer-events", "none");
 }
@@ -647,7 +646,7 @@ function adjustOverlay(clients, id1, lw, hpad, vpad) {
 	}
 }
 
-function adjustTableW(clients, id1, lw, hpad, vpad) {
+function adjustTableW(clients, id1, lw, hpad, vpad, hgap, vgap) {
 	var c = d3.select("#" + id1);
 	var width = c.attr("w");
 	var height = c.attr("h");
@@ -657,7 +656,7 @@ function adjustTableW(clients, id1, lw, hpad, vpad) {
 	var aUndefWH = clients.filter(undefWH);
 	var sDefW = sumWidth(clients.filter(defW));
 	var nW = aUndefW.length;
-	var w = (parseInt(width) - sDefW) / nW;
+	var w = ((parseInt(width) - sDefW) / nW)-hgap;
 	var h = parseInt(height);
 	for (var i = 0; i < aUndefWH.length; i++) {
 		adjust1(id1, aUndefWH[i], w, h, hpad, vpad);
@@ -764,17 +763,18 @@ function fromOuterToInner(toId, fromId, hshrink, vshrink, toLw, n, angle, x , y)
 	if (!invalid(to.attr("width")) && !invalid(to.attr("height")))
 		return;
 	var from = d3.select("#" + fromId);
-	var width = document.getElementById(fromId).getBoundingClientRect().width;
-	if (!invalid(from.attr("width")))
-		width = from.attr("width");
-	var height = document.getElementById(fromId).getBoundingClientRect().height;
-	if (!invalid(from.attr("height")))
-		height = from.attr("height");
+	var width = from.attr("width");
+	var height = from.attr("height");
+	if (invalid(from.attr("width")) || invalid(from.attr("height"))) { 
+		 width = document.getElementById(fromId).getBoundingClientRect().width;
+		 height = document.getElementById(fromId).getBoundingClientRect().height;
+	     }
 	var fromLw = parseInt(from.style("stroke-width"));
 	fromLw =  corner(nPoints(from), fromLw);
 	if (invalid(width) || invalid(height))
 		return;
 	toLw = corner(n, toLw);
+	// alert("from:"+width+" "+height+" "+fromLw+" "+toLw);
 	width = width - fromLw - toLw -x;
 	height = height - fromLw - toLw -x;
 	var w = width * hshrink;

@@ -71,7 +71,16 @@ Figure simple() =  hcat(figs=[box(
 )
 )]);
 
+<<<<<<< HEAD
 // Figure simple() = box(grow=1.5, fig=hcat(figs=[box(size=<50, 50>, fillColor="red")]));
+=======
+//Figure simple() = 
+//    box(fig=hcat(size=<600, 400>, hgap = 20, figs=[
+//    ellipse(lineWidth=8, lineColor="red", fig = ellipse(lineColor="blue"))
+//    , ellipse(lineWidth=8, lineColor="red", fig = ellipse(lineColor="blue"))
+ //   ]))
+//   ;
+>>>>>>> Automatic calculation of priority.
  
  public void tsimple() = render(simple(), resizable=true, size=<600, 600>);
  
@@ -156,14 +165,16 @@ Figure base(int lineWidth, Alignment align, Figure fig = emptyFigure())  = box(l
                            fig = fig)
                  );
                  
-Figure base(int lineWidth, Figure fig = emptyFigure()){return  overlay(figs = [
+Figure base(int lineWidth, Figure fig = emptyFigure()){
+                resetColor();
+                return  overlay(figs = [
                base(lineWidth, topLeft, fig= fig)
              , base(lineWidth,topRight, fig = fig)
              , base(lineWidth,bottomLeft, fig = fig)
              , base(lineWidth,bottomRight, fig = fig)
              ]);}
               
-Figure baseRec() {resetColor(); return base(4, fig = base(4, fig= base(4, fig= base(4)))
+Figure baseRec() { return base(4, fig = base(4, fig= base(4, fig= base(4)))
       //overlay(lineWidth = 0, figs=[
       //  box(lineWidth = 0, align=topLeft, fillColor="none", fig=circle(shrink=0.8, lineWidth = 1))
       //   ,
