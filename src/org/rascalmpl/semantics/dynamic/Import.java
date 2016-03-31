@@ -33,6 +33,7 @@ import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString.Lexical;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
@@ -566,7 +567,7 @@ public abstract class Import {
     try {
       String parserMethodName = eval.getParserGenerator().getParserMethodName(symTree);
       DefaultNodeFlattener<IConstructor, ITree, ISourceLocation> converter = new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>();
-      UPTRNodeFactory nodeFactory = new UPTRNodeFactory(true);
+      UPTRNodeFactory nodeFactory = new UPTRNodeFactory(false);
     
       SortedMap<Integer,Integer> corrections = new TreeMap<>();
       char[] input = replaceAntiQuotesByHoles(eval, lit, antiquotes, corrections);
@@ -592,6 +593,13 @@ public abstract class Import {
       eval.getMonitor().warning("parse error in concrete syntax", src);
       return (ITree) tree.asAnnotatable().setAnnotation("parseError", src);
     }
+    catch (Ambiguous e) {
+        ISourceLocation ambLocation = e.getLocation();
+        ISourceLocation loc = TreeAdapter.getLocation(tree);
+        ISourceLocation src = eval.getValueFactory().sourceLocation(loc.top(), loc.getOffset() + ambLocation.getOffset(), loc.getLength(), loc.getBeginLine() + ambLocation.getBeginLine() - 1, loc.getEndLine() + ambLocation.getEndLine() - 1, loc.getBeginColumn() + ambLocation.getBeginColumn(), loc.getBeginColumn() + ambLocation.getEndColumn());
+        eval.getMonitor().warning("ambiguity in concrete syntax", src);
+        return (ITree) tree.asAnnotatable().setAnnotation("parseError", src);
+    }
     catch (StaticError e) {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
       ISourceLocation src = eval.getValueFactory().sourceLocation(loc.top(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
@@ -608,7 +616,6 @@ public abstract class Import {
   
   private static class AdjustLocations extends IdentityTreeVisitor<ImplementationError> {
   	private SortedMap<Integer, Integer> corrections;
-  	
 		private IValueFactory vf;
 
 		AdjustLocations(SortedMap<Integer, Integer> corrections, IValueFactory vf) {
@@ -667,7 +674,8 @@ public abstract class Import {
     
     @Override
     public ITree visitTreeAmb(ITree arg) throws ImplementationError {
-    	return (ITree) TreeAdapter.getAlternatives(arg).iterator().next().accept(this);
+    	TreeAdapter.getAlternatives(arg).iterator().next().accept(this);
+    	return arg;
     }
   }
   
