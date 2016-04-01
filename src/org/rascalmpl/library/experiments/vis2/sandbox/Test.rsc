@@ -71,16 +71,14 @@ Figure simple() =  hcat(figs=[box(
 )
 )]);
 
-<<<<<<< HEAD
 // Figure simple() = box(grow=1.5, fig=hcat(figs=[box(size=<50, 50>, fillColor="red")]));
-=======
 //Figure simple() = 
 //    box(fig=hcat(size=<600, 400>, hgap = 20, figs=[
 //    ellipse(lineWidth=8, lineColor="red", fig = ellipse(lineColor="blue"))
 //    , ellipse(lineWidth=8, lineColor="red", fig = ellipse(lineColor="blue"))
  //   ]))
 //   ;
->>>>>>> Automatic calculation of priority.
+
  
  public void tsimple() = render(simple(), resizable=true, size=<600, 600>);
  

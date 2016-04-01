@@ -33,15 +33,10 @@ public Figure demo1() {
            return hcat(size=<300, 400>, figs=[
              (idNgon(5, 20) |newNgon(e, it)| e<-colors)
              ,
-<<<<<<< HEAD
-             (idNgon(5, -1) |newNgon(e, it)| e<-colors)
-           ]);}
-void tdemo1()  {render(demo1(), debug = false, align = centerMid);}
-=======
              frame((idNgon(5, -1) |newNgon(e, it)| e<-colors), shrink=0.9)
            ]);}
 void tdemo1()  {render(box(fig=demo1()), align = centerMid);}
->>>>>>> Automatic calculation of priority.
+
 
  void tfdemo1(loc l) {
       // println(schoolPlot());
@@ -60,19 +55,6 @@ public Figure demo2() {
            (
            at(10, 10, box(align = centerMid, 
              lineColor="grey", fillColor = "yellow", lineOpacity=1.0, size=<30, 40>))
-<<<<<<< HEAD
-           |newBox(e, 
-          it)| e<-colors)
-          ,
-          (
-           at(10, 10, box(align = centerMid, 
-             lineColor="grey", fillColor = "yellow", lineOpacity=1.0))
-           |newBox(e, 
-          it)| e<-colors)
-          ]);
-          }
-void tdemo2(){ render(demo2(), align = centerRight, debug = false); }
-=======
            |newBox(e, 
           it)| e<-colors)
           ,
@@ -83,7 +65,6 @@ void tdemo2(){ render(demo2(), align = centerRight, debug = false); }
             ]);
           }
 void tdemo2(){ render(box(fig=demo2(), align = centerRight)); }
->>>>>>> Automatic calculation of priority.
 
  void tfdemo2(loc l) {
       // println(schoolPlot());
@@ -334,19 +315,11 @@ void hilberts(){
 public Figure vennDiagram0() = overlay(
      size=<350, 150>,
      figs = [
-<<<<<<< HEAD
-           box(align = topLeft, size=<350, 150>,
+           box(fillColor="none", align = topLeft, size=<350, 150>,
              fig = ellipse(width=200, height = 100, fillColor = "red", fillOpacity = 0.7))
-          ,box(align = topRight, size=<350, 150>,
+          ,box(fillColor="none",align = topRight, size=<350, 150>,
              fig = ellipse(width=200, height = 100, fillColor = "green",fillOpacity = 0.7))
-          ,box(align = bottomMid, size=<350, 150>,
-=======
-           box(align = topLeft, size=<350, 150>, fillColor= "none", 
-             fig = ellipse(width=200, height = 100, fillColor = "red", fillOpacity = 0.7))
-          ,box(align = topRight, size=<350, 150>, fillColor= "none",
-             fig = ellipse(width=200, height = 100, fillColor = "green",fillOpacity = 0.7))
-          ,box(align = bottomMid, size=<350, 150>, fillColor= "none",
->>>>>>> Automatic calculation of priority.
+          ,box(fillColor="none",align = bottomMid, size=<350, 150>,
             fig = ellipse(width=200, height = 100, fillColor = "blue", fillOpacity = 0.7))
      ]
      );
