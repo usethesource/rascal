@@ -306,9 +306,9 @@ function fromInnerToOuterFigure(f, id1, toLw, hpad, vpad) {
 	if (width == 0 || height == 0)
 		return;
 	toLw = corner(f.n, toLw);
-	var border =  corner(nPoints(from), fromLw);
-	width = width *   f.hgrow +  hpad + f.x+ border+toLw
-	height = height * f.vgrow +  vpad + f.y+ border+toLw;
+	fromLw =  corner(nPoints(from), fromLw);
+	width = width *   f.hgrow +  hpad + f.x+ fromLw+toLw
+	height = height * f.vgrow +  vpad + f.y+ fromLw+toLw;
 	switch (to.node().nodeName) {
 	case "rect":
 		to.attr("width", width).attr("height", height).attr("x", toLw/2).attr("y", toLw/2);
@@ -488,7 +488,15 @@ function getVal(f, key) {
 	// alert(f.id);
 	if (f.id == "emptyFigure")
 		return 0;
-	var d = d3.select("#" + f.id);
+	var d;
+	if (["width","height"].indexOf(key)>=0)  {
+	       d = d3.select("#" + f.id+"_svg");
+	       if (!d.empty()) {
+	    	   var r = d.attr(key);
+	    	   if (r!=null) return r;
+	           }
+	       }
+	d = d3.select("#" + f.id);
 	if (["BUTTON","INPUT", "FORM"].indexOf(d.node().nodeName)>=0) {	   
 	   return d.style(key);
 	 }
@@ -646,37 +654,39 @@ function adjustOverlay(clients, id1, lw, hpad, vpad) {
 	}
 }
 
-function adjustTableW(clients, id1, lw, hpad, vpad, hgap, vgap) {
-	var c = d3.select("#" + id1);
+function adjustTableW(clients, from, lw, hpad, vpad, hgap, vgap) {
+	var c = d3.select("#" + from);
 	var width = c.attr("w");
 	var height = c.attr("h");
 	if (invalid(width) || invalid(height))
 		return;
+	width = parseInt(width)-hgap*clients.length;
 	var aUndefW = clients.filter(undefW);
 	var aUndefWH = clients.filter(undefWH);
 	var sDefW = sumWidth(clients.filter(defW));
 	var nW = aUndefW.length;
-	var w = ((parseInt(width) - sDefW) / nW)-hgap;
+	var w = (width- sDefW) / nW;
 	var h = parseInt(height);
 	for (var i = 0; i < aUndefWH.length; i++) {
-		adjust1(id1, aUndefWH[i], w, h, hpad, vpad);
+		adjust1(from, aUndefWH[i], w, h, hpad, vpad);
 	}
 }
 
-function adjustTableH(clients, id1, lw, hpad, vpad) {
-	var c = d3.select("#" + id1);
+function adjustTableH(clients, from, lw, hpad, vpad, hgap, vgap) {
+	var c = d3.select("#" + from);
 	var width = c.attr("w");
 	var height = c.attr("h");
 	if (invalid(width) || invalid(height))
 		return;
+	height = parseInt(height)-vgap*clients.length;
 	var aUndefH = clients.filter(undefH);
 	var aUndefWH = clients.filter(undefWH);
 	var sDefH = sumHeight(clients.filter(defH));
 	var nH = aUndefH.length;
-	var h = (parseInt(height) - sDefH) / nH;
+	var h = (height - sDefH) / nH;
 	var w = parseInt(width);
 	for (var i = 0; i < aUndefWH.length; i++) {
-		adjust1(id1, aUndefWH[i], w, h, hpad, vpad);
+		adjust1(from, aUndefWH[i], w, h, hpad, vpad);
 	     }
 }
 
@@ -706,13 +716,15 @@ function transpose(original) {
 	return copy;
 }
 
-function adjustTableWH(clients, id1, lw, hpad, vpad) {
+function adjustTableWH(clients, id1, lw, hpad, vpad, hgap, vgap) {
 	var c = d3.select("#" + id1);
 	var width = c.attr("width");
 	var height = c.attr("height");
-	clients1 = transpose(clients);
 	if (invalid(width) || invalid(height))
 		return;
+	width = parseInt(width)-hgap*clients.length;;
+	height = parseInt(height)-vgap*clients.length;
+	clients1 = transpose(clients);
 	var aUndefW = clients.map(function(i) {
 		return i.filter(undefW);
 	});
@@ -741,8 +753,8 @@ function adjustTableWH(clients, id1, lw, hpad, vpad) {
 	var nH = getMinOfArray(aUndefH.map(function(i) {
 		return i.length;
 	}));
-	var w = (parseInt(width) - sDefW) / nW;
-	var h = (parseInt(height) - sDefH) / nH;
+	var w = (width - sDefW) / nW;
+	var h = (height - sDefH) / nH;
 	for (var i = 0; i < aUndefWH.length; i++) {
 		for (var j = 0; j < aUndefWH[i].length; j++) {
 			adjust1(id1, aUndefWH[i][j], w, h, hpad, vpad);
@@ -878,6 +890,7 @@ function adjust_tooltip(q) {
     var w = getWidth("#"+q+"_tooltip_svg");
     var h = getHeight("#"+q+"_tooltip_svg");
     var u = d3.select("#"+q+"_tooltip_outer_fo");
+    if (u.empty()) u = d3.select("#"+q+"_tooltip_fo");
     var z = convert(x, y);
     var x1 = 0;
     var y1 = 0;
@@ -888,8 +901,9 @@ function adjust_tooltip(q) {
 	s.on("mouseenter", function(){
 		    d3.select("#overlay").attr("width", z.x+w+x1);
 	        d3.select("#overlay").attr("height", z.y+h+y1);
-		    if (d3.select("#"+q+"_tooltip_outer_fo").empty()) {
-		        d3.select("#"+q+"_tooltip_svg").attr("x", z.x).attr("y", z.y);
+		    if (d3.select("#"+q+"_tooltip_outer_fo").empty() &&
+		    	d3.select("#"+q+"_tooltip_fo").empty()) {
+		            d3.select("#"+q+"_tooltip_svg").attr("x", z.x).attr("y", z.y);
 	            }
 		    d3.select("#"+q+"_tooltip").style("visibility", "visible");
 		    d3.select("#"+q+"_tooltip_fo").style("visibility", "visible");
@@ -906,4 +920,45 @@ function adjust_tooltip(q) {
     d3.select("#"+q+"_tooltip").style("visibility", "hidden");
 	d3.select("#"+q+"_tooltip_fo").style("visibility", "hidden");
 }
+
+function adjust_panel(q) {
+	var s = d3.select("#"+q);
+	var r = d3.select("#close");
+	var convert = makeAbsoluteContext(s.node());   
+	var x = s.attr("x");
+    var y = s.attr("y");
+    var w = getWidth("#"+q+"_panel_svg");
+    var h = getHeight("#"+q+"_panel_svg");
+    var u = d3.select("#"+q+"_panel_outer_fo");
+    var z = convert(x, y);
+    var x1 = 0;
+    var y1 = 0;
+    if (!u.empty()) {
+    	x1 = parseFloat(u.attr("x"));
+    	y1 = parseFloat(u.attr("y")); 
+    }
+	s.on("click", function(){
+		    d3.select("#overlay").attr("width", z.x+w+x1);
+	        d3.select("#overlay").attr("height", z.y+h+y1);
+		    if (d3.select("#"+q+"_panel_outer_fo").empty()) {
+		        d3.select("#"+q+"_panel_svg").attr("x", z.x).attr("y", z.y);
+	            }
+		    d3.select("#"+q+"_panel").style("visibility", "visible");
+		    d3.select("#"+q+"_panel_fo").style("visibility", "visible");
+		    d3.select("#close").style("visibility", "visible");
+		    });
+	r.on("click", function(){
+		    d3.select("#"+q+"_panel").style("visibility", "hidden");
+		    d3.select("#"+q+"_panel_fo").style("visibility", "hidden");
+		    d3.select("#close").style("visibility", "hidden");
+		    });
+    var t = d3.select("#"+q+"_panel_svg");
+    if (!u.empty()) {
+    	u.attr("x", z.x+x1).attr("y", z.y+y1);
+        t.attr("width", w + z.x+x1).attr("height", h + z.y+y1); 
+        }
+    d3.select("#"+q+"_panel").style("visibility", "hidden");
+	d3.select("#"+q+"_panel_fo").style("visibility", "hidden");
+}
+
 
