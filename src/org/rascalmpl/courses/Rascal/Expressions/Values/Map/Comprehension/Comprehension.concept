@@ -28,6 +28,7 @@ import String;
 (fruit : fruits[fruit] | fruit <- fruits, size(fruit) <= 5);
 // Use a map comprehension to filter fruits with an associated value larger than 10:
 (fruit : fruits[fruit] | fruit <- fruits, fruits[fruit] > 10);
+</screen>
 
 Benefits:
 

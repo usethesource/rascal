@@ -18,6 +18,7 @@ import util::IDE;
 import ParseTree;
 m1 = popup(menu("MyMenu", [action("Example item", void (Tree t, loc s) { println("<t> @ <s>");})]));
 registerContributions("myLanguage", {m1});
+</screen>
 
 Examples:
 

@@ -24,6 +24,7 @@ how can we generate a Java class with getters and setters for those fields?
 
 Here is a solution:
 <listing demo/common/StringTemplate.rsc>
+
 At /*1*/ an auxiliary function `capitalize` is defined to capitalize the first character of a string.
 
 The heavy lifting is done at /*2*/ where `genClass` is defined that takes as arguments:
