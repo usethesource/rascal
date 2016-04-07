@@ -138,6 +138,7 @@ data B = t() | f() | neg(B);
 B neg(neg(B b)) = b;
 neg(t());
 neg(neg(f()));
+</screen>
 
 Benefits:
 
