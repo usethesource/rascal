@@ -77,11 +77,11 @@ public list[str] loadCalls = [];
 
 list[IFigure] tooltips = [];
 
+list[IFigure] panels = [];
+
 map[str, map[str, str]] extraGraphData = ();
 
 public list[str] markerScript = [];
-
-public list[str] tooltip_id = [];
 
 public map[str, tuple[str, str]] dialog = ();
 
@@ -228,10 +228,10 @@ public void clearWidget() {
     prompt  = <"", "">;
     alert = "";
     state = [];
-    tooltip_id = [];
     labval = [];
     initFigure();
     tooltips = [];
+    panels = [];
     _display = true;
     }
     
@@ -253,7 +253,14 @@ str visitTooltipFigs() {
             r+= visitFig(g);        
             }
          }
+    for (IFigure fi<-panels) {
+         if (g:ifigure(str id, _):=fi && endsWith(id, "_panel")) {
+            // println("visitTooltipFigs <id>");
+            r+= visitFig(g);        
+            }
+         }
     r+="\</svg\>\</div\>";
+    r+="\<div\>\<button id=\"close\"\>Close\</button\>\<div\>";
     return r;
     }  
 
@@ -293,6 +300,7 @@ str google = "\<script src=\'https://www.google.com/jsapi?autoload={
        
 str getIntro() {
    list[str] tooltipIds = [replaceLast(s,"_tooltip","")| ifigure(str s, _)<-tooltips];
+   list[str] panelIds = [replaceLast(s,"_panel","")| ifigure(str s, _)<-panels];
    res = "\<html\>
         '\<head\>      
         '\<style\>
@@ -328,6 +336,9 @@ str getIntro() {
         '// background-color: rgba(0,0,0,0.5); /*dim the background*/
         'pointer-events:  none
         }
+        '#close {
+          'visibility: hidden;
+        }
         '\</style\>    
         '\<script src=\"IFigure.js\"\>\</script\>
         '\<script src=\"pack.js\"\>\</script\>
@@ -348,6 +359,7 @@ str getIntro() {
         '  <_display?"doFunction(\"load\", \"figureArea\")()":"\"\"">; 
         '  <for (d<-graphs) {> <d> <}>  
         '  <for (d<-tooltipIds) {> adjust_tooltip(\"<d>\"); <}> 
+        '  <for (d<-panelIds) {> adjust_panel(\"<d>\"); <}> 
         '  <for (d<-googleChart) {> <d> <}>  
         '  <for (d<-loadCalls) {><_display?"doFunction(\"load\", \"<d>\")()":"\"\""><}>;    
        ' }
@@ -766,7 +778,7 @@ value getCallback(Event e) {
     if (on(void(str, str, real) callback):=e) return callback;
     if (on(_, void(str, str, str) callback):=e) return callback;
     if (on(_, void(str, str, int) callback):=e) return callback;
-    if (on(_, void(str, str, real) callback):=e) return callback;  
+    if (on(_, void(str, str, real) callback):=e) return callback; 
     return null; 
     }
     
@@ -938,7 +950,7 @@ IFigure _text(str id, bool inHtml, Figure f, str s, str overflow, bool addSvgTag
         '<isHtml?style("color", f.fontColor):(style("fill", f.fillColor))>
         '<isHtml?"":style("text-anchor", "middle")> 
         '<isHtml?style("overflow", overflow):"">
-        '<attr("pointer-events", "none")>
+        '<isHtml?style("pointer-events", "auto"):attr("pointer-events", "none")>
         '<text(s, isHtml)>
         ';
         'd3.select(\"#<id>_svg\")
@@ -1005,7 +1017,7 @@ IFigure _googlechart(str cmd, str id, Figure f, bool addSvgTag) {
     str begintag = "";
     if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
+         "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
     begintag+="\<div id=\"<id>\"\>";
     int width = f.width;
@@ -2129,7 +2141,7 @@ IFigure _vcat(str id, Figure f,  bool addSvgTag, IFigure fig1...) {
        addState(f);
        widgetOrder+= id;
        adjust+=  "adjustTableH("+figCalls(fig1)+", \"<id>\", <getLineWidth(f)<0?0:-getLineWidth(f)>, 
-          <-hPadding(f)>, <-vPadding(f)>);\n"; 
+          <-hPadding(f)>, <-vPadding(f)>,<f.hgap>, <f.vgap>);\n"; 
        return ifigure(id, [td("<id>_<getSeq(g)>", f, g,  width, height, tr = true)| g<-fig1]);
        }
       
@@ -2178,7 +2190,7 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
        widgetOrder+= id;
        list[tuple[list[IFigure] f, int idx]] fig1 = [<figArray[i], i>|int i<-[0..size(figArray)]];
        adjust+=  "adjustTableWH(<figCallArray(figArray)>, \"<id>\", <-getLineWidth(f)>, 
-          <-hPadding(f)>, <-vPadding(f)>);\n";
+          <-hPadding(f)>, <-vPadding(f)>,<f.hgap>, <f.vgap>);\n";
        return ifigure(id, [tr("<id>_<g.idx>", f, f.width, f.height, g.f ) | g<-fig1]);
        }      
    
@@ -2303,6 +2315,32 @@ Figure cL(Figure parent, Figure child) {
     if (Figure h:=v && h!=emptyFigure()) parentMap[h.id] = parent.id;
     return child;
     }
+    
+Figure addSuffix(str id, Figure g, str suffix) {
+    if (g==emptyFigure()) return g;
+    if (at(int x, int y, Figure h):=g) {
+           h.id = "<id><suffix>";
+           figMap[h.id] = h; 
+           g = at(x, y, h, id  = g.id, width=g.width);
+           }
+    else
+    if (atX(int x, Figure h):=g) {
+          h.id = "<id><suffix>";
+           figMap[h.id] = h; 
+           g = at(x, 0, h, id  = g.id, width=g.width);
+           }
+    else
+    if (atY(int y, Figure h):=g) {
+         h.id = "<id><suffix>";
+         figMap[h.id] = h; 
+         g = at(0, y, h, id  = g.id, width=g.width);
+         }
+    else {
+       g.id = "<id><suffix>";
+       figMap[g.id] = g;
+       } 
+    return g;   
+    }
 
 Figure pL(Figure f) {
          if (emptyFigure():=f) {
@@ -2315,35 +2353,14 @@ Figure pL(Figure f) {
               f.id = "i<occur>";
               occur = occur + 1; 
               }
-         value v = f.tooltip;
-         if (Figure g:= v && g!=emptyFigure()) { 
-              if (at(int x, int y, Figure h):=g) {
-                    h.id = "<f.id>_tooltip";
-                     tooltip_id += h.id;
-                     figMap[h.id] = h; 
-                    g = at(x, y, h, id  = g.id, width=g.width);
-                     }
-              else
-              if (atX(int x, Figure h):=g) {
-                     h.id = "<f.id>_tooltip";
-                     tooltip_id += h.id;
-                     figMap[h.id] = h; 
-                    g = at(x, 0, h, id  = g.id, width=g.width);
-                     }
-              else
-              if (atY(int y, Figure h):=g) {
-                     h.id = "<f.id>_tooltip";
-                     tooltip_id += h.id;
-                     figMap[h.id] = h; 
-                     g = at(0, y, h, id  = g.id, width=g.width);
-                     }
-              else {
-                 g.id = "<f.id>_tooltip";
-                 tooltip_id += g.id;
-                 figMap[g.id] = g;
-                 }    
-              f.tooltip = g;              
-              }
+     value v = f.tooltip;
+     if (Figure g:=v) {   
+         f.tooltip = addSuffix(f.id, g, "_tooltip"); 
+         }
+     if (on(str e, Figure g):=f.event) {
+          Figure q = addSuffix(f.id, g, "_panel");
+          f.event=on(e, q);
+          }
      figMap[f.id] = f;
      return f;
      }
@@ -2420,6 +2437,7 @@ IFigure _translate(Figure f,  bool addSvgTag = false,
             }
     value v = f.tooltip;
     if (Figure g:=v && g!=emptyFigure()) {tooltips +=  _translate(g, addSvgTag=true); }
+    if (on(_, Figure g):=f.event) {panels +=  _translate(g, addSvgTag=true); }
     switch(f) {   
         case box(): return _rect(f.id, true, f, fig = _translate(f.fig,  inHtlml = true));
         case emptyFigure(): return iemptyFigure(f.seq);

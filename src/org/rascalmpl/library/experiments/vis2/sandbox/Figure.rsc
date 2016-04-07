@@ -65,6 +65,7 @@ data Event
 	= on(StrCallBack strCallBack)
 	| on(RealCallBack realCallBack)
 	| on(IntCallBack intCallBack)
+	| on(str eventName, Figure figure)
 	| on(str eventName, StrCallBack strCallBack)
 	| on(str eventName, RealCallBack realCallBack) 
 	| on(str eventName, IntCallBack intCallBack)
@@ -199,7 +200,7 @@ public data Figure(
 		real lineOpacity = -1.0,
 	
 		// Area properties
-		str fillColor    = "", 			
+		str fillColor    = "none", 			
 		real fillOpacity = -1.0,	
 		str fillRule     = "evenodd",
 		
