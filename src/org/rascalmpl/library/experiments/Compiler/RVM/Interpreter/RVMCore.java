@@ -444,6 +444,9 @@ public abstract class RVMCore {
 			}
 			return w.done();
 		}
+		if(result == null){
+			return null;
+		}
 		throw new CompilerError("Cannot convert object back to IValue: " + result);
 	}
 	
