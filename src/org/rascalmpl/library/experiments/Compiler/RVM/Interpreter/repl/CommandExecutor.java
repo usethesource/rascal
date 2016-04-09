@@ -180,7 +180,7 @@ public class CommandExecutor {
 //		}
 		w.append(main);
 		String modString = w.toString();
-		//System.err.println(modString);
+//		System.err.println(modString);
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation);
@@ -344,7 +344,14 @@ public class CommandExecutor {
 					}
 					return null;
 				} else {
-					return report("Variable '" + name + "' should be declared first using '<type> " + name + " = <expression>'");
+					IValue val = executeModule("\nvalue main() { " + unparse(get(stat, "statement")) + " }\n", true);
+					
+					if(val == null){
+						return null;
+					}
+					declareVar(val.getType().toString(), name, val.toString());
+					forceRecompilation = true;
+					return val;
 				}
 			}
 			return report("Assignable is not supported supported");
@@ -371,7 +378,6 @@ public class CommandExecutor {
 			}
 		}
 		return report("Missing case in evalStatement");
-		
 	}
 	
 	private IValue evalImport(String src, ITree imp) throws FactTypeUseException, IOException{
