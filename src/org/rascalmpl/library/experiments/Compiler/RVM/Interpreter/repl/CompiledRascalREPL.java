@@ -29,6 +29,7 @@ import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.values.uptr.ITree;
 
 import jline.Terminal;
 
@@ -116,7 +117,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 		  return true;
 	  }
 	  try {
-		  executor.parseCommand(command, URIUtil.rootLocation("prompt"));
+		  ITree res = executor.parseCommand(command, URIUtil.rootLocation("prompt"));
 	  }
 	  catch (ParseError pe) {
 		  String[] commandLines = command.split("\n");
@@ -127,10 +128,13 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 			  semiColonAdded = false;
 			  return false;
 		  }
-		  if (pe.getEndLine() + 1 == lastLine && lastColumn == pe.getEndColumn()) { 
+		  if (!semiColonAdded && pe.getEndLine() + 1 == lastLine && lastColumn == pe.getEndColumn()) { 
 			  semiColonAdded = true;
-			  return isStatementComplete(command + ";");
+			  boolean isComplete = isStatementComplete(command + ";");
+			  semiColonAdded &= isComplete;
+			  return isComplete;
 		  }
+		  return false;
 	  }
 	  return true;
   }
