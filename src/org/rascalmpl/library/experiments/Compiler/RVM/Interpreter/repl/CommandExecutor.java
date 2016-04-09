@@ -21,10 +21,12 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.Deb
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.Parser;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -52,6 +54,8 @@ public class CommandExecutor {
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
 	private final Prelude prelude;
+	
+	boolean semiColonAdded = false;
 	
 	private DebugREPLFrameObserver debugObserver;
 	
@@ -391,13 +395,13 @@ public class CommandExecutor {
 			imports.add(impName);
 			try {
 				forceRecompilation = true;
-				result = executeModule("\nvalue main() = true;\n", false);
+				result = executeModule("\nvalue main() = \"ok\";\n", false);
 				if(result == null){
 					imports.remove(impName);
 					forceRecompilation = true;
 				}
 				
-				return result;
+				return null;
 			} catch (Exception e){
 				imports.remove(impName);
 				forceRecompilation = true;
@@ -410,12 +414,12 @@ public class CommandExecutor {
 			String name = w.toString();
 			syntaxDefinitions.put(name, src);
 			try {
-				result = executeModule("\nvalue main() = true;\n", false);
+				result = executeModule("\nvalue main() = \"ok\";\n", false);
 				if(result == null){
 					syntaxDefinitions.remove(name);
 					forceRecompilation = true;
 				}
-				return result;
+				return null;
 			} catch (Exception e){
 				syntaxDefinitions.remove(name);
 				forceRecompilation = true;
@@ -467,7 +471,7 @@ public class CommandExecutor {
 				declarations.remove(src);
 				forceRecompilation = true;
 			}
-			return result;
+			return null;
 		} catch (Exception e){
 			declarations.remove(src);
 			forceRecompilation = true;
@@ -621,6 +625,35 @@ public class CommandExecutor {
 		stdout.flush();
 		return null;
 	}	
+	
+	  public boolean isStatementComplete(String command) {
+		  
+		  String[] words = command.split(" ");
+		  if(words.length > 0 && CompiledRascalREPL.SHELL_VERBS.contains(words[0])){
+			  return true;
+		  }
+		  try {
+			  ITree res = parseCommand(command, URIUtil.rootLocation("prompt"));
+		  }
+		  catch (ParseError pe) {
+			  String[] commandLines = command.split("\n");
+			  int lastLine = commandLines.length;
+			  int lastColumn = commandLines[lastLine - 1].length();
+
+			  if (pe.getEndLine() + 1 == lastLine && lastColumn < pe.getEndColumn()) { 
+				  semiColonAdded = false;
+				  return false;
+			  }
+			  if (!semiColonAdded && pe.getEndLine() + 1 == lastLine && lastColumn == pe.getEndColumn()) { 
+				  semiColonAdded = true;
+				  boolean isComplete = isStatementComplete(command + ";");
+				  semiColonAdded &= isComplete;
+				  return isComplete;
+			  }
+			  return false;
+		  }
+		  return true;
+	  }
 	
 	public ITree parseCommand(String command, ISourceLocation location) {
 		//__setInterrupt(false);
