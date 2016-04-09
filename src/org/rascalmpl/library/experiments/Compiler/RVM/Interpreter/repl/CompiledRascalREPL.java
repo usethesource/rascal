@@ -37,7 +37,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 
   protected CommandExecutor executor;
   private boolean measureCommandTime;
-  private boolean semiColonAdded = false;
+//  private boolean semiColonAdded = false;
   
   static final TreeSet<String> SHELL_VERBS;
   
@@ -111,41 +111,42 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   
   @Override
   protected boolean isStatementComplete(String command) {
-	  
-	  String[] words = command.split(" ");
-	  if(words.length > 0 && SHELL_VERBS.contains(words[0])){
-		  return true;
-	  }
-	  try {
-		  ITree res = executor.parseCommand(command, URIUtil.rootLocation("prompt"));
-	  }
-	  catch (ParseError pe) {
-		  String[] commandLines = command.split("\n");
-		  int lastLine = commandLines.length;
-		  int lastColumn = commandLines[lastLine - 1].length();
-
-		  if (pe.getEndLine() + 1 == lastLine && lastColumn < pe.getEndColumn()) { 
-			  semiColonAdded = false;
-			  return false;
-		  }
-		  if (!semiColonAdded && pe.getEndLine() + 1 == lastLine && lastColumn == pe.getEndColumn()) { 
-			  semiColonAdded = true;
-			  boolean isComplete = isStatementComplete(command + ";");
-			  semiColonAdded &= isComplete;
-			  return isComplete;
-		  }
-		  return false;
-	  }
-	  return true;
+	  return executor.isStatementComplete(command);
+//	  
+//	  String[] words = command.split(" ");
+//	  if(words.length > 0 && SHELL_VERBS.contains(words[0])){
+//		  return true;
+//	  }
+//	  try {
+//		  ITree res = executor.parseCommand(command, URIUtil.rootLocation("prompt"));
+//	  }
+//	  catch (ParseError pe) {
+//		  String[] commandLines = command.split("\n");
+//		  int lastLine = commandLines.length;
+//		  int lastColumn = commandLines[lastLine - 1].length();
+//
+//		  if (pe.getEndLine() + 1 == lastLine && lastColumn < pe.getEndColumn()) { 
+//			  semiColonAdded = false;
+//			  return false;
+//		  }
+//		  if (!semiColonAdded && pe.getEndLine() + 1 == lastLine && lastColumn == pe.getEndColumn()) { 
+//			  semiColonAdded = true;
+//			  boolean isComplete = isStatementComplete(command + ";");
+//			  semiColonAdded &= isComplete;
+//			  return isComplete;
+//		  }
+//		  return false;
+//	  }
+//	  return true;
   }
 
   @Override
   protected IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException {
 	  try {
 		 
-		  if(semiColonAdded){
+		  if(executor.semiColonAdded){
 			  statement = statement + ";";
-			  semiColonAdded = false;
+			  executor.semiColonAdded = false;
 		  }
 		  String[] words = statement.split(" ");
 		  if(words.length > 0 && SHELL_VERBS.contains(words[0])){
