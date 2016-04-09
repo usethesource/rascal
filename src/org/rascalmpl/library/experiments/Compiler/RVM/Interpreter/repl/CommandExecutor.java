@@ -376,8 +376,9 @@ public class CommandExecutor {
 			} else {
 				return report("Initialization required in variable declaration");
 			}
+		default:
+			return executeModule("\nvalue main() { " + unparse(stat) + " }\n", true);
 		}
-		return report("Missing case in evalStatement");
 	}
 	
 	private IValue evalImport(String src, ITree imp) throws FactTypeUseException, IOException{
