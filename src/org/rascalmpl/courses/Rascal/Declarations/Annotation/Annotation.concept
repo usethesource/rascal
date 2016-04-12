@@ -20,7 +20,7 @@ like adding position information or control flow information to source code or a
 An annotation declaration defines:
 
 * $AnnoType$, the type of the annotation values,
-* $OnTYpe$, the type of the values that are being annotated,
+* $OnType$, the type of the values that are being annotated,
 * $Name$, the name of the annotation.
 
 
