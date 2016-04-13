@@ -3,12 +3,14 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.TreeSet;
 
+import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NameCompleter;
@@ -26,6 +28,8 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
+import org.rascalmpl.repl.LimitedLineWriter;
+import org.rascalmpl.repl.LimitedWriter;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
@@ -38,11 +42,17 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.io.StandardTextWriter;
+import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class CommandExecutor {
+	
+	 private final static int LINE_LIMIT = 75;
+	 private final static int CHAR_LIMIT = LINE_LIMIT * 20;
 	
 	private PrintWriter stdout;
 	private PrintWriter stderr;
@@ -81,6 +91,7 @@ public class CommandExecutor {
 	private boolean forceRecompilation = true;
 	private IMap moduleTags;
 	private Kernel kernel;
+	private StandardTextWriter indentedPrettyPrinter;
 	
 	public CommandExecutor(PrintWriter stdout, PrintWriter stderr) {
 		this.stdout = stdout;
@@ -102,7 +113,7 @@ public class CommandExecutor {
 		verbose = false;
 		
 		IMapWriter w = vf.mapWriter();
-		w.put(vf.string("bootstrapParser"), vf.string(""));
+		//w.put(vf.string("bootstrapParser"), vf.string(""));
 		IMap CompiledRascalShellModuleTags = w.done();
 		
 		w = vf.mapWriter();
@@ -125,6 +136,10 @@ public class CommandExecutor {
 		declarations = new ArrayList<String>();
 		
 		helpManager = new HelpManager(stdout, stderr);
+		
+		 indentedPrettyPrinter = new StandardTextWriter(true);
+         //singleLinePrettyPrinter = new StandardTextWriter(false);
+         
 		stderr.println("Type 'help' for information or 'quit' to leave");
 	}
 	
@@ -168,7 +183,8 @@ public class CommandExecutor {
 	
 	private IValue executeModule(String main, boolean onlyMainChanged){
 		StringWriter w = new StringWriter();
-		w.append("@bootstrapParser module ConsoleInput\n");
+		//w.append("@bootstrapParser\n");
+		w.append("module ConsoleInput\n");
 		for(String imp : imports){
 			w.append("import ").append(imp).append(";\n");
 		}
@@ -184,7 +200,7 @@ public class CommandExecutor {
 //		}
 		w.append(main);
 		String modString = w.toString();
-//		System.err.println(modString);
+		System.err.println(modString);
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation);
@@ -238,6 +254,11 @@ public class CommandExecutor {
 		} catch (Exception e){
 			return false;
 		}
+	}
+	
+	public void evalPrint(String statement, ISourceLocation rootLocation, PrintWriter out) throws IOException{
+		IValue result = eval(statement, rootLocation);
+		printResult(result, out);
 	}
 	
 	public IValue eval(String statement, ISourceLocation rootLocation) {
@@ -358,7 +379,7 @@ public class CommandExecutor {
 					return val;
 				}
 			}
-			return report("Assignable is not supported supported");
+			return report("Assignable is not supported: " + src);
 			
 		case "variableDeclaration":
 			ITree declarator = get(get(stat, "variableDeclaration"), "declarator");
@@ -495,6 +516,39 @@ public class CommandExecutor {
 		return w.toString();
 	}
 	
+	//TODO merge with BaseRascalRepl
+	
+	private void printResult(IValue value, PrintWriter out) throws IOException {
+		if (value == null) {
+			out.println("ok");
+			out.flush();
+			return;
+		}
+		Type type = value.getType();
+
+		if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree)) {
+			out.print(type.toString());
+			out.print(": ");
+			// we unparse the tree
+			out.print("(" + type.toString() +") `");
+			TreeAdapter.yield((IConstructor)value, true, out);
+			out.print("`");
+		}
+		else {
+			out.print(type.toString());
+			out.print(": ");
+			 try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
+	                indentedPrettyPrinter.write(value, wrt);
+	            }
+	            catch (IOLimitReachedException e) {
+	                // ignore since this is what we wanted
+	            }
+			out.print(value);
+		}
+		out.println();
+		out.flush();
+	}
+
 	private IValue showOptions(){
 		StringBuilder sb = new StringBuilder();
 		return report(
