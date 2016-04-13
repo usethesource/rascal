@@ -19,3 +19,7 @@ test bool testMax() = ( 0 | x > it ? x : it | x <- [1,2,3] ) == 3;
 test bool testSum() = ( 0 | it + x  | x <- [1,2,3] ) == 6;
 	
 test bool testFlatMap() = ( {} | it + x  | x <- {{1,2}, {2,3,4}} ) == {1,2,3,4};
+
+int wordCount(list[str] lines) = (0 | it + (0 | it + 1 | /\w+/ := line) | str line <- lines);
+
+test bool wordCount1() = wordCount(["Andra moi ennepe,", "Mousa, polutropon,", "hos mala polla "]) == 8;
