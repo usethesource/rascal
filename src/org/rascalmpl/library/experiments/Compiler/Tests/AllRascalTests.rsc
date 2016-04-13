@@ -199,6 +199,8 @@ private list[str] files_with_tests =
 "demo::lang::Exp::Concrete::WithLayout::Eval",
 "demo::lang::Func::Test",
 "demo::lang::Lisra::Test",
+"demo::lang::Lisra::Parse",
+"demo::lang::Lisra::Pretty",
 "demo::McCabe",
 "demo::ReachingDefs",
 "demo::Slicing",
