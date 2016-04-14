@@ -1,3 +1,4 @@
+// tag::module[]
 module demo::common::CountConstructors
 
 import Node;
@@ -25,18 +26,18 @@ public Hand H = hand([two(hearts()), jack(diamonds()), six(hearts()), ace(spades
 
 // Count frequencies of constructors
 
-public map[str,int] count(node N){      /*1*/
-  freq = ();                            /*2*/
-  visit(N){                             /*3*/
-    case node M: { name = getName(M);   /*4*/
-                   freq[name] ? 0 += 1; /*5*/
+map[str,int] count(node N){ // <1>
+  freq = (); // <2>
+  visit(N){  // <3>
+    case node M: { name = getName(M); // <4>
+                   freq[name] ? 0 += 1; 
                  }
   }
-  return freq;
+  return freq; // <5>
 }
 
+map[str,int] countRelevant(node N, set[str] relevant) = domainR(count(N), relevant); // <6>
+// end::module[]
+
 test bool tstCount() =  count(CT) == ("red":2, "leaf":5, "black":2);
-
-public map[str,int] countRelevant(node N, set[str] relevant) = domainR(count(N), relevant); /*6*/
-
 test bool tstCountRelevant() = countRelevant(CT, {"leaf"}) == ("leaf" : 5);

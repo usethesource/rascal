@@ -8,6 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 //START
+// tag::module[]
 module demo::common::WordCount::WordCount
 
 import demo::common::WordCount::CountInLine1;
@@ -20,14 +21,15 @@ import String;
 // wordCount takes a list of strings and a count function
 // that is applied to each line. The total number of words is returned
 
-public int wordCount(list[str] input, int (str s) countInLine)
+int wordCount(list[str] input, int (str s) countInLine)
 {
   count = 0;
-  for(str line <- input){           /*1*/
-     count += countInLine(line);    /*2*/
+  for(str line <- input){ // <1>
+     count += countInLine(line); // <2>
   }
   return count;
 }
+// end::module[]
 
 test bool tstWordCount1() = wordCount(Jabberwocky, countInLine1) == wordCount(Jabberwocky, countInLine2);
 

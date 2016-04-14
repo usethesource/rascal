@@ -1,3 +1,4 @@
+// tag::module[]
 module demo::lang::Pico::CommonSubExpr
 
 import Prelude;
@@ -21,3 +22,4 @@ PROGRAM cse(PROGRAM P){
 }
 
 public PROGRAM cse(str txt) = cse(load(txt)); 
+// end::module[]
