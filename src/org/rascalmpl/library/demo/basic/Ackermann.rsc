@@ -8,13 +8,14 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 //START
+// tag::module[]
 module demo::basic::Ackermann
 
 import IO;
 // Ackermann's function: a standard example of a double recursive function.
 // See http://en.wikipedia.org/wiki/Ackermann_function
 
-public int ack(int m, int n)
+int ack(int m, int n)
 {
 	if(m == 0)
 		return n + 1;
@@ -23,8 +24,9 @@ public int ack(int m, int n)
 	else
 		return ack(m - 1, ack(m, n - 1));
 }
+// end::module[]
 
 // Tests
 
-public test bool t1() = ack(2,5) == 13;
-public test bool t2() = ack(3,4) == 125;
+test bool t1() = ack(2,5) == 13;
+test bool t2() = ack(3,4) == 125;

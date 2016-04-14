@@ -1,3 +1,4 @@
+// tag::module[]
 module demo::lang::Pico::Compile
 
 import Prelude;
@@ -5,17 +6,17 @@ import demo::lang::Pico::Abstract;
 import demo::lang::Pico::Assembly;
 import demo::lang::Pico::Load;
 
-alias Instrs = list[Instr];                       /*1*/
+alias Instrs = list[Instr]; // <1>
 
 // compile Expressions.
 
-Instrs compileExp(natCon(int N)) = [pushNat(N)];  /*2*/
+Instrs compileExp(natCon(int N)) = [pushNat(N)]; // <2>
 
 Instrs compileExp(strCon(str S)) = [pushStr(substring(S,1,size(S)-1))];
 
 Instrs compileExp(id(PicoId Id)) = [rvalue(Id)];
 
-public Instrs compileExp(add(EXP E1, EXP E2)) =    /*3*/
+public Instrs compileExp(add(EXP E1, EXP E2)) = // <3>
   [*compileExp(E1), *compileExp(E2), add2()];
 
 Instrs compileExp(sub(EXP E1, EXP E2)) =
@@ -26,7 +27,7 @@ Instrs compileExp(conc(EXP E1, EXP E2)) =
   
 // Unique label generation
 
-private int nLabel = 0;                            /*4*/
+private int nLabel = 0; // <4>
 
 private str nextLabel() {
   nLabel += 1;
@@ -38,7 +39,7 @@ private str nextLabel() {
 Instrs compileStat(asgStat(PicoId Id, EXP Exp)) =
 	[lvalue(Id), *compileExp(Exp), assign()];
 	
-Instrs compileStat(ifElseStat(EXP Exp,              /*5*/
+Instrs compileStat(ifElseStat(EXP Exp, // <5>
                               list[STATEMENT] Stats1,
                               list[STATEMENT] Stats2)){
   
@@ -66,19 +67,19 @@ Instrs compileStat(whileStat(EXP Exp,
 }
 
 // Compile a list of statements
-Instrs compileStats(list[STATEMENT] Stats1) =      /*6*/
+Instrs compileStats(list[STATEMENT] Stats1) = // <6>
   [ *compileStat(S) | S <- Stats1 ];
   
 // Compile declarations
 
 Instrs compileDecls(list[DECL] Decls) =
-  [ ((tp == natural()) ? dclNat(Id) : dclStr(Id))  |  /*7*/     
+  [ ((tp == natural()) ? dclNat(Id) : dclStr(Id)) | // <7>     
     decl(PicoId Id, TYPE tp) <- Decls
   ];
 
 // Compile a Pico program
 
-public Instrs compileProgram(PROGRAM P){
+public Instrs compileProgram(PROGRAM P){ // <8>
   nLabel = 0;
   if(program(list[DECL] Decls, list[STATEMENT] Series) := P){
      return [*compileDecls(Decls), *compileStats(Series)];
@@ -87,5 +88,5 @@ public Instrs compileProgram(PROGRAM P){
 }
 
 public Instrs compileProgram(str txt) = compileProgram(load(txt));
-    
+// end::module[]
 

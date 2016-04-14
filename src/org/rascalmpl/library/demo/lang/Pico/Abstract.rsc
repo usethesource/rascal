@@ -1,10 +1,11 @@
+// tag::module[]
 module demo::lang::Pico::Abstract
 
-public data TYPE = natural() | string();    /*1*/
+public data TYPE = natural() | string(); // <1>
 	  
-public alias PicoId = str;                  /*2*/
+public alias PicoId = str; // <2>
 	  
-public data PROGRAM =                       /*3*/
+public data PROGRAM = // <3>
   program(list[DECL] decls, list[STATEMENT] stats);
 
 public data DECL =
@@ -25,10 +26,11 @@ public data STATEMENT =
      | whileStat(EXP exp, list[STATEMENT] body)
      ;
 
-anno loc TYPE@location;                   /*4*/
+anno loc TYPE@location; // <4>
 anno loc PROGRAM@location;
 anno loc DECL@location;
 anno loc EXP@location;
 anno loc STATEMENT@location;
 
-public alias Occurrence = tuple[loc location, PicoId name, STATEMENT stat];  /*5*/
+public alias Occurrence = tuple[loc location, PicoId name, STATEMENT stat]; // <5>
+// end::module[]

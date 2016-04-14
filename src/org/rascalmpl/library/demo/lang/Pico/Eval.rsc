@@ -1,3 +1,4 @@
+// tag::module[]
 module demo::lang::Pico::Eval
 
 import Prelude;
@@ -5,9 +6,9 @@ import demo::lang::Pico::Abstract;
 import demo::lang::Pico::Load;
 
 
-data PicoValue = natval(int n) | strval(str s) | errorval(loc l, str msg);  /*1*/
+data PicoValue = natval(int n) | strval(str s) | errorval(loc l, str msg); // <1>
 
-alias VENV = map[PicoId, PicoValue];                                        /*2*/
+alias VENV = map[PicoId, PicoValue]; // <2>
 
 // Evaluate Expressions.
 
@@ -66,7 +67,9 @@ VENV evalStats(list[STATEMENT] Stats1, VENV env) {
 // Eval declarations
 
 VENV evalDecls(list[DECL] Decls) =
-    ( Id : (tp == demo::lang::Pico::Abstract::natural() ? natval(0) : strval(""))  | decl(PicoId Id, TYPE tp) <- Decls);
+    ( Id : (tp == demo::lang::Pico::Abstract::natural() ? natval(0) : strval(""))  
+    | decl(PicoId Id, TYPE tp) <- Decls
+    );
 
 // Evaluate a Pico program
 
@@ -79,5 +82,5 @@ public VENV evalProgram(PROGRAM P){
 }
 
 public VENV evalProgram(str txt) = evalProgram(load(txt));
-
+// end::module[]
     
