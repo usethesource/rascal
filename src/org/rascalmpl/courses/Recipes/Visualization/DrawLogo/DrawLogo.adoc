@@ -1,0 +1,50 @@
+[[Visualization-DrawLogo]]
+# Draw a Logo
+:concept: Visualization/DrawLogo
+
+.Synopsis
+Draw the Rascal logo.
+
+.Syntax
+
+.Types
+
+.Function
+
+.Description
+
+Given a 50x50 matrix containing the colors of the Rascal logo,
+we can reproduce it as visualization.
+
+.Examples
+Here is the solution:
+[source,rascal]
+----
+include::{LibDir}demo/vis/Logo.rsc[tags=module]
+----
+
+                
+We can use it as follows:
+[source,rascal-shell]
+----
+rascal>render(logo());
+----
+will produce:
+
+image::{concept}/logo1.png[alt="Rascal logo"]
+
+or as a screenshot:
+
+
+image::{concept}/Screenshot1.png[alt="Screen shot"]
+
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

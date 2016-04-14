@@ -1,0 +1,50 @@
+[[Recipes-Visualization]]
+# Visualization
+:concept: Visualization
+
+.Synopsis
+Recipes for creating visualizations.
+
+.Syntax
+
+.Types
+
+.Function
+
+.Description
+
+WARNING: The visualization library is being reimplemented and reorganized; 
+the information provided here maybe inaccurate or even incorrect
+
+We cover the following topics:
+
+
+** <<Visualization-ADT,ADT>>: Visualize an Algebraic Datatype as a tree.
+** <<Visualization-DrawLogo,Draw a Logo>>: Draw the Rascal logo.
+** <<Visualization-InteractiveBoxHeight,Interactive Box Height>>: Control the height of a box with user input.
+** <<Visualization-MyFirstBox,My First Box>>: Drawing a box in many variations.
+** <<Visualization-ParseTree,ParseTree>>: Visualize a parse tree.
+** <<Visualization-PlayingWithProperties,Playing With Properties>>: Illustrate the effect of various figure properties.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+include::ADT/ADT.adoc[ADT]
+
+include::DrawLogo/DrawLogo.adoc[DrawLogo]
+
+include::InteractiveBoxHeight/InteractiveBoxHeight.adoc[InteractiveBoxHeight]
+
+include::MyFirstBox/MyFirstBox.adoc[MyFirstBox]
+
+include::ParseTree/ParseTree.adoc[ParseTree]
+
+include::PlayingWithProperties/PlayingWithProperties.adoc[PlayingWithProperties]
+
+
+:leveloffset: -1

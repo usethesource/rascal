@@ -1,0 +1,30 @@
+[[WordCount-Jabberwocky]]
+# Jabberwocky
+:concept: Common/WordCount/Jabberwocky
+
+.Synopsis
+Lewis Carroll's well-known poem.
+
+.Syntax
+
+.Types
+
+.Function
+
+.Description
+
+.Examples
+[source,rascal]
+----
+include::{LibDir}demo/common/WordCount/Jabberwocky.rsc[tags=module]
+----
+
+                
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

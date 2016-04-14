@@ -1,0 +1,114 @@
+[[Languages-Pico]]
+# Pico
+:concept: Languages/Pico
+
+.Synopsis
+The classical toy language, including a specialized IDE.
+
+.Syntax
+
+.Types
+
+.Function
+       
+.Usage
+
+.Description
+
+Pico is a toy language that has been used as example over the years in many projects and disguishes,
+Pico has a single purpose in life: being so simple that specifications of every possible language aspect are so simple that they fit on a few pages. It can be summarized as follows:
+
+*  There are two types: natural numbers and strings.
+
+*  Variables have to be declared.
+
+*  Statements are assignment, if-then-else and while-do.
+
+*  Expressions may contain naturals, strings, variables, addition (`+`), subtraction (`-`) and concatenation (`||`).
+
+*  The operators `+` and `-` have operands of type natural and their result is natural.
+
+*  The operator `||` has operands of type string and its results is also of type string.
+
+*  Tests in if-then-else statement and while-statement should be of type natural.
+
+
+The following aspects of the Pico language will be discussed:
+
+
+*** <<Pico-Abstract,Abstract>>: Abstract syntax for Pico.
+*** <<Pico-Assembly,Assembly>>: Assembly language for Pico.
+*** <<Pico-Compile,Compile>>: Compile a Pico program to assembly language.
+*** <<Pico-ControlFlow,ControlFlow>>: Compute the control flow graph for a Pico program.
+*** <<Pico-Evaluate,Evaluate>>: Evaluate a Pico program.
+*** <<Pico-IDE,IDE>>: An Integrated Development Environment for Pico.
+*** <<Pico-Load,Load>>: Convert a Pico parse tree into a Pico abstract syntax tree.
+*** <<Pico-Syntax,Syntax>>: Concrete syntax for Pico.
+*** <<Pico-Typecheck,Typecheck>>: Typechecker a Pico program.
+*** <<Pico-Uninit,Uninit>>: Find unitialized variables in a Pico program.
+*** <<Pico-UseDef,UseDef>>: Compute use-def information for the variables in a Pico program.
+*** <<Pico-Visualize,Visualize>>: Visualize Pico Control Flow Graphs.
+
+.Examples
+Here is a -- not so simple -- Pico program that computes the factorial function:
+
+
+[source,rascal]
+----
+begin declare input : natural, // <1>
+              output : natural,           
+              repnr : natural,
+              rep : natural;
+      input := 14;
+      output := 1;
+      while input - 1 do // <2>
+          rep := output;
+          repnr := input;
+          while repnr - 1 do
+             output := output + rep;
+             repnr := repnr - 1
+          od;
+          input := input - 1
+      od
+end
+----
+
+Notes:
+	
+<1> Pico programs do not have input/output statements, so we use variables for that purpose.
+<2> Pico has no multiplication operator so we have to simulate it with repeated addition (yes, simplicity comes at a price!).
+
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+include::Abstract/Abstract.adoc[Abstract]
+
+include::Assembly/Assembly.adoc[Assembly]
+
+include::Compile/Compile.adoc[Compile]
+
+include::ControlFlow/ControlFlow.adoc[ControlFlow]
+
+include::Evaluate/Evaluate.adoc[Evaluate]
+
+include::IDE/IDE.adoc[IDE]
+
+include::Load/Load.adoc[Load]
+
+include::Syntax/Syntax.adoc[Syntax]
+
+include::Typecheck/Typecheck.adoc[Typecheck]
+
+include::Uninit/Uninit.adoc[Uninit]
+
+include::UseDef/UseDef.adoc[UseDef]
+
+include::Visualize/Visualize.adoc[Visualize]
+
+
+:leveloffset: -1

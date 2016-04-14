@@ -1,0 +1,43 @@
+[[WordCount-CountInLine1]]
+# CountInLine1
+:concept: Common/WordCount/CountInLine1
+
+.Synopsis
+Count words in a line.
+
+.Syntax
+
+.Types
+
+.Function
+
+
+.Description
+
+.Examples
+We count words using a regular expression match in a for loop.
+Each time that the pattern `/[a-zA-Z0-9_]+/` matches, the body of the loop is executed
+and `count` is incremented.
+[source,rascal]
+----
+include::{LibDir}demo/common/WordCount/CountInLine1.rsc[tags=module]
+----
+
+                
+Let's try it:
+[source,rascal-shell]
+----
+rascal>import demo::common::WordCount::CountInLine1;
+ok
+rascal>countInLine1("Jabberwocky by Lewis Carroll");
+int: 4
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

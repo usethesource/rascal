@@ -1,0 +1,32 @@
+[[courses-ADocRecipes]]
+#  Rascal Recipes
+
+.Synopsis
+Recipes for writing Rascal programs.
+
+.Details
+Contents
+
+.Description
+These _Rascal Recipes_ are a work-in-progress but will gradually evolve into a collection of basic Rascal language examples and use cases.
+
+Some references to the Rascal Manual:
+
+*  link:{RascalMan}[Rascal Manual]
+*  link:{RascalMan}#ADocRascal-Libraries[Rascal Libraries]
+*  link:{RascalMan}#Libraries-Boolean[Module Boolean]
+*  link:{RascalMan}#Statements-While[While Statement]
+*  link:{RascalMan}#Boolean-fromString[fromString function] in link:{RascalMan}#Libraries-Boolean[Module Boolean]
+
+The following features are covered:
+
+*  Basic language features.
+*  Common tasks.
+*  Fact extraction.
+*  Language definition.
+*  Syntax definition.
+*  Parsing.
+*  Transformation.
+*  Code generation.
+*  IDE extensions.
+*  Visualization.       

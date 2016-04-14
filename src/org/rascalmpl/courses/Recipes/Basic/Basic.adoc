@@ -1,0 +1,54 @@
+[[Recipes-Basic]]
+# Basic
+:concept: Basic
+
+.Synopsis
+Some basic, _hello world_-like, examples of Rascal programs.
+
+.Syntax
+
+.Types
+
+.Function
+
+
+.Description
+We discuss the following examples:
+
+** <<Basic-Hello,Hello>>: Variations on the ubiquitous _Hello World_ example.
+** <<Basic-Factorial,Factorial>>: Compute the factorial function.
+** <<Basic-Squares,Squares>>: Print a list of squares.
+** <<Basic-BottlesOfBeer,Bottles Of Beer>>: A Rascal version of a generator for the _99 Bottles of Beer_ song.
+** <<Basic-Bubble,Bubble>>: Variout styles to write bubble sort.
+** <<Basic-Even,Even>>: Produce a list of even numbers.
+** <<Basic-FizzBuzz,FizzBuzz>>: We solve a well-known job interview puzzle.
+** <<Basic-Quine,Quine>>: A self-reproducing program.
+
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+These programs illustrate various features of Rascal; they are *not representative* as use cases of the language.
+
+
+:leveloffset: +1
+include::Hello/Hello.adoc[Hello]
+
+include::Factorial/Factorial.adoc[Factorial]
+
+include::Squares/Squares.adoc[Squares]
+
+include::BottlesOfBeer/BottlesOfBeer.adoc[BottlesOfBeer]
+
+include::Bubble/Bubble.adoc[Bubble]
+
+include::Even/Even.adoc[Even]
+
+include::FizzBuzz/FizzBuzz.adoc[FizzBuzz]
+
+include::Quine/Quine.adoc[Quine]
+
+
+:leveloffset: -1

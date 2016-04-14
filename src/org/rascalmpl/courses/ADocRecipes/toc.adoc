@@ -1,0 +1,3 @@
+
+* link:/Users/paulklint/git/rascal/src/org/rascalmpl/courses/ADocRecipes/CallAnalysis/CallAnalysis.html[CallAnalysis]
+: Analyzing the call structure of an application.
