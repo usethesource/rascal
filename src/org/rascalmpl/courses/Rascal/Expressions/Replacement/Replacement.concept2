@@ -1,0 +1,34 @@
+# Replacement
+
+.Synopsis
+Set the value of an [$Declarations/Annotation].
+
+.Syntax
+`_Exp_~1~[@_Name_ = _Exp_~2~]`
+
+.Types
+
+.Function
+
+.Details
+
+.Description
+Expression that sets the value of annotation _Name_ of the value _Exp_~1~ to the value of _Exp_~2~
+and returns the value with the new annotation value as result.
+See <<Selection>> for selecting the value of an annotation.
+
+.Examples
+[source,rascal-shell]
+----
+anno str node @ color;
+anno str node @ size;
+F = "fn"(123, "abc");
+F = F[@color="red"];
+F = F[@size="10"];
+F@color;
+----
+
+.Benefits
+
+.Pitfalls
+

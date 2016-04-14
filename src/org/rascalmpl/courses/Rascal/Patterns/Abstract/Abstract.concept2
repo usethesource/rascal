@@ -1,0 +1,40 @@
+# Abstract
+
+.Synopsis
+Abstract patterns.
+
+.Syntax
+|====
+| Pattern              | Syntax                                                                      |
+|+---------------------|+----------------------------------------------------------------------------|
+| Literal              | [$Values/Boolean], [$Values/Integer], [$Values/Real], [$Values/Number], [$Values/String], [$Values/Location], or [$Values/DateTime] |
+| Variable declaration | `$Type$ $Var$`                                                              |
+| Multi-variable       | `*$Var$`, `*$Type$ $Var$`                                                   |
+| Variable             | `$Var$`                                                                     |
+| List                 | `[ $Pat_1$, $Pat_2$, ..., $Pat_n$ ]`                                        |
+| Set                  | `{ $Pat_1$, $Pat_2$, ..., $Pat_n$ }`                                        |
+| Tuple                | `< $Pat_1$, $Pat_2$, ..., $Pat_n$ >`                                        |
+| Node                 | `$Name$ ( $Pat_1$, $Pat_2$, ..., $Pat_n$ )`                                 |
+| Descendant           | `/ $Pat$`                                                                   |
+| Labelled             | `$Var$ : $Pat$`                                                             |
+| TypedLabelled        | `$Type$ $Var$ : $Pat$`                                                      |
+| TypeConstrained      |  `[$Type$] $Pat$`                                                           |
+|====
+
+.Types
+
+.Function
+
+.Details
+
+.Description
+An abstract pattern is recursively defined and may contain the following elements:
+subtoc[Rascal/Patterns/Abstract,1]
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+Map patterns are not (yet?) supported.
+

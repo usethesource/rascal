@@ -1,0 +1,32 @@
+# Concatenation
+
+.Synopsis
+Concatenate two tuple values.
+
+.Syntax
+`_Exp_~1~ + _Exp_~2~`
+
+.Types
+|====
+| `$Exp_1$`                      |  `$Exp_2$`                      | `$Exp_1$ > $Exp_2$`                                 |
+|:-------------------------------|:--------------------------------|:----------------------------------------------------|
+| `tuple[ $T_11$, $T_12$, ... ]` |  `tuple[ $T_21$, $T_22$, ... ]` | `tuple[ $T_11$, $T_12$, ..., $T_21$, $T_22$, ... ]` |
+|====
+
+.Function
+
+.Details
+
+.Description
+Returns a tuple consisting of the concatenation of the tuple elements of _Exp_~1~ and _Exp_~2~.
+
+.Examples
+[source,rascal-shell]
+----
+<"abc", 1, 2.5> + <true, "def">;
+----
+
+.Benefits
+
+.Pitfalls
+

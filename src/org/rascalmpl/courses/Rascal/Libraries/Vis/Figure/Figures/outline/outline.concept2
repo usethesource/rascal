@@ -1,0 +1,37 @@
+# outline
+
+.Synopsis
+Outline to summarize file related information.
+
+.Syntax
+
+.Types
+
+.Function
+`Figure outline(list[LineDecoration] lineInfo, int maxLine, FProperty props...)`
+
+.Details
+
+.Description
+An outline is a rectangle with colored horizontal lines and is primarily used to summarize
+information related to a source file. Colored lines indicate different findings in the file.
+Dimensions are determined by the <<width>> and <<height>> properties. `lineInfo` is a list
+of <<Figures-LineDecoration>>s that associate  information, warnings, errors or highlights with a specific line.
+This information is also used by source editors.
+
+.Examples
+[source,rascal-figure,width=,height=,file=o1.png]
+----
+                render(outline([info(100,"a"), warning(125, "b"), highlight(190, "c")], 200, size(50, 200)));
+----
+
+
+image::{concept}/o1.png[alt="outline 1"]
+
+
+.Benefits
+In combination with <<pack>> or <<hvcat>> information amount large amounts of files can
+be summarized densely.
+
+.Pitfalls
+

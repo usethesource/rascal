@@ -1,0 +1,31 @@
+# Help
+
+.Synopsis
+Help facilities.
+
+.Syntax
+
+.Types
+
+.Function
+
+.Details
+
+.Description
+Various forms of help are available.
+
+At the command console, type *:help* to get a list of help commands.
+
+In the Eclipse environment, select the menu `Rascal > Start Tutor` to start
+the interactive Rascal Tutor.
+
+.Examples
+[source,rascal-shell]
+----
+:help
+----
+
+.Benefits
+
+.Pitfalls
+

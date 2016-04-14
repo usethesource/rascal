@@ -1,0 +1,26 @@
+# Union
+
+.Synopsis
+Union of two set values.
+
+.Syntax
+
+.Types
+|====
+| `$Exp_1$`    |  `$Exp_2$`    | `$Exp_1$ + $Exp_2$`      |
+|:-------------|:--------------|:-------------------------|
+| `set[$T_1$]` |  `set[$T_2$]` | `set[lub($T_1$,$T_2$)]`  |
+|====
+
+.Description
+The `+` operator computes set union if both operands are sets. If one of the operands is not a set, it acts as <<Set-Insert>> instead.
+
+.Examples
+[source,rascal-shell]
+----
+{1, 2, 3} + {4, 5, 6};
+{1,2,3} + {2,3,4};
+{1, 2, 3} + {3};
+{2} + { 2, 3, 4};
+----
+

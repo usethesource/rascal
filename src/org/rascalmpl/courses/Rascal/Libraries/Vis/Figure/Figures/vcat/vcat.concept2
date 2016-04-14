@@ -1,0 +1,68 @@
+# vcat
+
+.Synopsis
+Vertical composition of figures.
+
+.Syntax
+
+.Types
+
+.Function
+`Figure vcat(Figures figs, FProperty props...)`
+
+.Details
+
+.Description
+This is a special case of <<grid>>. It is a <<grid>> with just one column. See <<grid>> for more information.
+
+See also <<hcat>>.
+
+.Examples
+[source,rascal-figure,width=100,height=200,file=v1.png]
+----
+                b1 = box(vshrink(0.8), fillColor("Red"));
+b2 = box(fillColor("Blue"));
+render(vcat([b1, b2]));
+----
+gives: 
+image::{concept}/v1.png[alt="v1"]
+
+
+[source,rascal-figure,width=100,height=200,file=v2.png]
+----
+                b1 = box(hshrink(0.5), fillColor("Red"), left());
+b2 = box(hshrink(1.0),fillColor("Blue"));
+render(vcat([b1, b2]));
+----
+gives: 
+image::{concept}/v2.png[alt="v2"]
+
+
+
+[source,rascal-figure,width=100,height=200,file=v3.png]
+----
+                b1 = box(hshrink(0.5), fillColor("Red"), right());
+b2 = box(hshrink(1.0),fillColor("Blue"));
+render(vcat([b1, b2]));
+----
+gives: 
+image::{concept}/v3.png[alt="v3"]
+
+
+When several child figures are involved, it is more convenient to change
+the standard alignment for them using <<std>>.
+[source,rascal-figure,width=100,height=200,file=v5.png]
+----
+                b1 = box(hshrink(0.7), fillColor("Red"));
+b2 = box(hshrink(1.0),vshrink(0.5), fillColor("Blue"));
+b3 = box(hshrink(0.5), fillColor("Yellow"));
+render(vcat([b1, b2, b3], std(left()), vgrow(1.1)));
+----
+gives: 
+image::{concept}/v5.png[alt="v5"]
+
+
+.Benefits
+
+.Pitfalls
+

@@ -1,0 +1,12 @@
+# List
+
+.Synopsis
+Library functions for lists.
+
+.Description
+
+For operators on lists see <<Values-List>>.
+
+The following functions are available for lists:
+subtoc[Rascal/Libraries/Prelude/List,1]
+

@@ -1,0 +1,33 @@
+# NotEqual
+
+.Synopsis
+Not equal operator on lists.
+
+.Syntax
+`_Exp_~1~ != _Exp_~2~`
+
+.Types
+|====
+| `$Exp_1$`     |  `$Exp_2$`     | `$Exp_1$ != $Exp_2$` |
+|:--------------|:---------------|:---------------------|
+| `list[$T_1$]` |  `list[$T_2$]` | `bool`               |
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields `true` if both arguments are unequal lists and `false` otherwise.
+
+.Examples
+[source,rascal-shell]
+----
+[1, 2, 3] != [3, 2, 1];
+[1, 2, 3] != [1, 2, 3];
+----
+
+.Benefits
+
+.Pitfalls
+

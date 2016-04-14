@@ -1,0 +1,35 @@
+# Join
+
+.Synopsis
+Join two relation values.
+
+.Syntax
+`_Exp_~1~ join _Exp_~2~`
+
+.Types
+|====
+| `$Exp_1$`                            |  `$Exp_2$`                            | `$Exp_1$ join $Exp_2$`                                            |
+|:-------------------------------------|:--------------------------------------|:------------------------------------------------------------------|
+| `rel[ $T_11$, $T_12$, $T_13$, ... ]` |  `rel[ $T_21$, $T_22$, $T_23$, ... ]` | `rel[ $T_11$, $T_12$, $T_13$, ..., $T_21$, $T_22$, $T_23$, ... ]` |
+|====
+
+.Function
+
+.Details
+
+.Description
+Relation resulting from the natural join of the relation values of the two arguments.
+This relation contains tuples that are the result from concatenating the elements from both arguments.
+
+.Examples
+[source,rascal-shell]
+----
+{<1,2>, <10,20>} join {<2,3>};
+{<1,2>} join {3, 4};
+{<1,2>, <10,20>} join {<2,3>, <20,30>};
+----
+
+.Benefits
+
+.Pitfalls
+

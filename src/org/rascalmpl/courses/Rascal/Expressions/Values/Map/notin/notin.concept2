@@ -1,0 +1,34 @@
+# notin
+
+.Synopsis
+Negated membership test on the keys of a map.
+
+.Syntax
+`_Exp_~1~ notin _Exp_~2~`
+
+.Types
+|====
+| `$Exp_1$`           |  `$Exp_2$`         | `$Exp_1$ notin $Exp_2$` |
+|:--------------------|:-------------------|:---------------------|
+| `$T_1$`  <: `$TK$`  |  `map[$TK$, $TV$]` | `bool`               |
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields `true` if the value of _Exp_~1~ does not occur as key in the map value of _Exp_~2~ and `false` otherwise. 
+The type of _Exp_~1~ should be compatible with the key type _TK_ of _Exp_~2~.
+
+.Examples
+[source,rascal-shell]
+----
+"pineapple" notin ("apple": 1, "pear": 2);
+"pear" notin ("apple": 1, "pear": 2);
+----
+
+.Benefits
+
+.Pitfalls
+

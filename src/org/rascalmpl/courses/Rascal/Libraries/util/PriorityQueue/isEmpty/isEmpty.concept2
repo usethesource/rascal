@@ -1,0 +1,19 @@
+# isEmpty
+
+.Synopsis
+Check whether priority queue is empty.
+
+.Function
+`bool isEmpty(PriorityQueue Q)`
+
+.Usage
+
+.Description
+Returns `true` if PriorityQueue `Q` does not contain any (priority, value) pairs.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

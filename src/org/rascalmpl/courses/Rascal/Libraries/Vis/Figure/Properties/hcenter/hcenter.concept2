@@ -1,0 +1,31 @@
+# hcenter
+
+.Synopsis
+Horizontal, centered, alignment.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty hcenter()`
+
+.Details
+
+.Description
+`hcenter` defines *horizontal centered alignment*.
+It sets the horizontal alignment at 0.5.
+
+Note that:
+
+*  `hcenter()` is equivalent to `halign(0.5)`.
+
+
+Also see <<halign>>, <<align>> and <<CompositionModel>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

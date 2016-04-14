@@ -1,0 +1,30 @@
+# ialign
+
+.Synopsis
+Internal align in [hvcat].
+
+.Syntax
+`FProperty ialign(num align)`
+
+.Types
+
+.Function
+
+.Details
+
+.Description
+Describes the internal alignment used in a <<hvcat>>  (like in a word processor):
+
+*  `ialign(0.0)` means left aligned, 
+*  `ialign(0.5)` means center aligned, and 
+*  `ialign(1.0)` means right aligned. 
+
+
+See also <<justify>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

@@ -1,0 +1,114 @@
+# graph
+
+.Synopsis
+Graph layout.
+
+.Syntax
+
+.Types
+
+.Function
+`Figure graph(Figures nodes, list[Edge] edges, FProperty props...)`
+
+.Details
+
+.Description
+Takes a list of nodes and a list of edges and draws a graph. 
+The nodes can be arbitrary figures that should have a name (using the <<id>> property). 
+The edges determine connections between named nodes. 
+
+The following constraints apply:
+
+*  All nodes should have an id property with a unique value.
+*  All edges should refer to ids that are defined by the nodes.
+
+
+The following properties are applicable to graphs:
+
+*  [id] to define the identity of nodes and to define edges between nodes.
+*  [hint] determines the layout algorithm to use. Currently, only `"layered"` is supported.
+*  [layer] is used to define the placement of nodes in the same layer.
+*  [orientation] is used to define the drawing direction.
+*  [toArrow] and [fromArrow] are used to define arrows on edges.
+*  [$Properties/label] defines an edge label.
+
+.Examples
+[source,rascal-figure,width=,height=,file=g1.png]
+----
+                nodes = [ box(text("A"), id("A"), size(50), fillColor("lightgreen")),
+     	  box(text("B"), id("B"), size(60), fillColor("orange")),
+     	  ellipse( text("C"), id("C"), size(70), fillColor("lightblue")),
+     	  ellipse(text("D"), id("D"), size(200, 40), fillColor("violet")),
+          box(text("E"), id("E"), size(50), fillColor("silver")),
+	  box(text("F"), id("F"), size(50), fillColor("coral"))
+     	];
+edges = [ edge("A", "B"), edge("B", "C"), edge("B", "D"), edge("A", "C"),
+          edge("C", "E"), edge("C", "F"), edge("D", "E"), edge("D", "F"),
+          edge("A", "F")
+    	]; 
+render(graph(nodes, edges, hint("layered"), gap(100)));
+----
+
+
+image::{concept}/g1.png[alt="graph 1"]
+
+
+[source,rascal-figure,width=,height=,file=g2.png]
+----
+                nodes = [ box(text("A"), id("A"), fillColor("green")),
+     	  box(text("B"), id("B"), fillColor("red")),
+     	  box(text("C"), id("C"), fillColor("blue")),
+     	  box(text("D"), id("D"), fillColor("purple")),
+     	  box(text("E"), id("E"), fillColor("lightblue")),
+     	  box(text("F"), id("F"), fillColor("orange")),
+     	  box(text("G"), id("G"), fillColor("brown")),
+     	  box(text("H"), id("H"), fillColor("black")),
+     	  box(text("I"), id("I"), fillColor("grey")),
+     	  box(text("J"), id("J"), fillColor("white")),
+     	  box(text("K"), id("K"), fillColor("deeppink")),
+     	  box(text("L"), id("L"), fillColor("deeppink")),
+     	  box(text("M"), id("M"), fillColor("deeppink"))
+     	];
+edges = [ edge("A", "B"), edge("A", "C"), edge("A", "D"),
+    	  edge("B", "E"), edge("B", "F"), edge("B", "G"),
+    	  edge("C", "H"), edge("C", "I"), edge("C", "J"),
+    	  edge("D", "K"), edge("D", "L"), edge("D", "M"),
+    	  edge("K", "G"), edge("A", "G")
+    	]; 
+render(graph(nodes, edges, hint("layered"), std(size(30)), gap(40)));
+----
+
+
+image::{concept}/g2.png[alt="graph 2"]
+
+
+[source,rascal-figure,width=,height=,file=g3.png]
+----
+                Figure n(str nm) = box(text(nm), id(nm), grow(1.2), fillColor(color("yellow", 0.7)));
+nodes = [n("joe"), n("food"), n("dog"), n("tea"), n("cat"), n("table"), n("plate"),
+         n("mouse"), n("cup"), n("spoon"), n("fork"), n("flea1"), n("flea2"), n("knife")];
+edges = [edge("joe", "food"), edge("joe", "dog"), edge("joe", "tea"), edge("joe", "cat"),
+	 edge("joe", "table"), edge("table", "plate"), edge("plate", "food"), 
+         edge("food", "mouse"),	edge("food", "dog"), edge("mouse", "cat"), 
+         edge("table", "cup"), edge("cup", "tea"), edge("dog", "cat"), edge("cup", "spoon"),
+	 edge("plate", "fork"),	edge("dog", "flea1"), edge("dog", "flea2"),
+	 edge("flea1", "flea2"), edge("plate", "knife")];
+render(graph(nodes, edges, hint("spring"), size(500), gap(20)));
+----
+
+
+image::{concept}/screenshot.png[alt="graph 3"]
+
+
+.Benefits
+
+.Pitfalls
+
+*  The layered graph layout performs currently best when:
+**  the [hgap] is set to a value equal to the average width of the nodes.
+**  [orientation] is not used.
+
+*  For spring layout the following do not yet work:
+**  labels,
+**  arrows.
+

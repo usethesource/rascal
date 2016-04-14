@@ -1,0 +1,35 @@
+# Negation
+
+.Synopsis
+Negate a numeric value.
+
+.Syntax
+`- _Exp_`
+
+.Types
+|====
+| `$Exp$`  |  `- $Exp$` |
+|:---------|:-----------|
+| `int`    |  `int`     |
+| `real`   |  `real`    |
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields the negated values of _Exp_.
+
+.Examples
+[source,rascal-shell]
+----
+-12
+-13.5
+- -12
+----
+
+.Benefits
+
+.Pitfalls
+

@@ -1,0 +1,23 @@
+# vendGap
+
+.Synopsis
+Vertical gap at end of composition.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty vendGap(bool b)`
+
+.Details
+
+.Description
+Specifies if a <<vcat>> or <<grid>> will start with (half) a vertical gap. See also <<endGap>> and <<hendGap>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

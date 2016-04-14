@@ -1,0 +1,150 @@
+# Operators
+
+.Synopsis
+The Rascal operators.
+
+.Syntax
+
+.Types
+
+.Function
+
+.Details
+
+.Description
+An _operator expression_ consists of an operator and one or more operands. The evaluation order of the operands depends on the operator. 
+The operator is applied to the operands and the resulting value (or values in some cases) is the result of the operator expression. 
+
+All operators are summarized in the following table. They are listed from highest precedence
+ to lowest precedence. In other words, operators listed earlier in the table bind stronger.
+<table width="100%">
+<caption>*Rascal Operators (from highest to lowest precedence)*</caption>
+<col align=left width="30%">
+<col align=left width="30%">
+<col align=left width="40%">
+<tr><th align="left">Operator</th>	               <th align="left">See</th>	         <th align="left">Short Description</th></tr>
+<tr><td>`_Exp_ . _Name_`</td>	                   <td><<Location-FieldSelection>>,
+                                                       <<DateTime-FieldSelection>>,
+                                                       <<Tuple-FieldSelection>>,
+                                                       <<Relation-FieldSelection>></td>    <td>Select named field from structured value</td></tr>
+<tr><td>`_Exp_~1~ [ _Name_ = _Exp_~2~ ]`</td>        <td><<FieldAssignment>></td>            <td>Change value of named field of structured value</tr>
+<tr><td>`_Exp_ < _field_~1~, ... >`</td>            <td><<FieldProjection>></td>            <td>Select fields from relation or structured value</td></tr>
+<tr><td>`_Exp_ is _Name_` </td> <td><<ParseTree>>, <<ConcreteSyntax>>, <<AlgebraicDataType>></td><td> Returns true if and only if the constructor name of the value produced by _Exp_ is equal to $Name</td></tr>
+<tr><td>`_Exp_ has _Name_` </td> <td><<ParseTree>>, <<ConcreteSyntax>>, <<AlgebraicDataType>></td><td> Returns true if and only if the constructor (node or parse tree) of the value produced by _Exp_ has any field labeled $Name</td></tr>
+<tr><td>`_Exp_~1~ [ _Exp_~2~ , _Exp_~3~, .... ]`</td> <td><<List-Subscription>>,
+                                                       <<Map-Subscription>>, 
+                                                       <<Tuple-Subscription>>,
+                                                       <<Relation-Subscription>></td>      <td>Retrieve values for given index/key from list, map, tuple or relation.</td></tr>
+
+<tr><td>`_Exp_~1~ [ _Exp_~2~ , _Exp_~3~ .. _Exp_~4~ ]`</td> <td><<Values-List-Slice>>,
+                                                       <<String-Slice>>,
+                                                       <<Node-Slice>></td>  				<td>Retrieve a slice from a list, string, or node.</td></tr>
+
+
+
+
+<tr><td> `_Exp_?`</td>                             <td><<Boolean-IsDefined>></td>          <td>Test whether an expression has a defined value</td></tr>
+<tr><td> `!_Exp_`</td>                             <td><<Boolean-Negation>></td>           <td>Negate a Boolean value</td></tr>
+<tr><td>`- _Exp_`</td>                             <td> <<Number-Negation>></td>	         <td>Negation of numbers</td></tr>
+<tr><td>`_Exp_ +`</td>	                           <td><<Relation-TransitiveClosure>>
+                                                       <<ListRelation-TransitiveClosure>></td>	         
+                                                       									<td>Transitive closure on relation or list relation</td></tr>
+<tr><td>`_Exp_ *`</td>                             <td><<Relation-ReflexiveTransitiveClosure>>
+                                                       <<ListRelation-ReflexiveTransitiveClosure>>
+                                                     </td>                               <td>Reflexive transitive closure on relation or list relation</td></tr>
+<tr><td>`_Exp_ @ _Name_`</td>	                   <td><<Expressions-Selection>></td>	     <td>Value of annotation _Name_ of _Exp_'s value</td></tr>
+<tr><td>`_Exp_~1~ [@ _Name_ = _Exp_~2~]`</td>	       <td><<Expressions-Replacement>></td>     <td>Assign value of _Exp_~2~ to annotation _Name_ of _Exp_~1~'s value</td></tr>
+<tr><td>`_Exp_~1~ o _Exp_~2~`</td>	               <td><<Relation-Composition>>, 
+                                                       <<Map-Composition>></td>	         <td>_Exp_~1~ and _Exp_~2~ should evaluate to a relation or map; return their composition. Note: the letter "o" is thus a keyword!</td></tr>
+<tr><td>`_Exp_~1~ / _Exp_~2~`</td>	               <td><<Number-Division>></td>	         <td>Divide two numbers</td></tr>
+<tr><td>`_Exp_~1~ % _Exp_~2~`</td>	               <td><<Number-Remainder>></td>	         <td>Remainder on numbers</td></tr>
+<tr><td>`_Exp_~1~ * _Exp_~2~`</td>	               <td><<Number-Multiplication>>,
+                                                       <<List-Product>>,
+                                                       <<Set-Product>>,
+                                                       <<Relation-CartesianProduct>></td> <td>Multiply numbers; product of list, set, or relation</td></tr>
+<tr><td>`_Exp_~1~ & _Exp_~2~`</td>                   <td><<List-Intersection>>,
+                                                       <<Set-Intersection>>,
+                                                       <<Map-Intersection>></td>           <td>Intersection of list, set (including relation), or map</td></tr>
+
+<tr><td>`_Exp_~1~ + _Exp_~2~`</td>	               <td><<Number-Addition>>,
+                                                       <<String-Concatenation>>,
+                                                       <<List-Concatenation>>,
+                                                       <<List-Insert>>,<<List-Append>>,
+                                                       <<Tuple-Concatenation>>,
+                                                       <<Expressions-Values-Set-Union>>,
+                                                       <<Expressions-Values-Map-Union>>,
+                                                       <<Location-AddSegment>> </td>                 <td>Add numbers; concatenate string, list or tuple; 
+                                                                                             union on set (including relation), or map;
+concatenate location and string</td></tr>
+
+<tr><td>`_Exp_~1~ - _Exp_~2~`</td>                   <td><<Number-Subtraction>>,
+                                                       <<List-Difference>>,
+                                                       <<Set-Difference>>,
+                                                       <<Map-Difference>> </td>	         <td>Subtract numbers; difference of list, set (including relation), or map</td></tr>
+<tr><td>`_Exp_~1~ join _Exp_~2~`</td>	               <td><<Relation-Join>></td>              <td>Join on relation</td></tr>
+
+<tr><td>`_Exp_~1~ in _Exp_~2~`</td>	               <td><<List-in>>, <<Set-in>>, 
+                                                       <<Map-in>> </td>                    <td>Membership test for element in list, map, set (including relation)</td></tr>
+
+<tr><td>`_Exp_~1~ notin _Exp_~2~`</td>	           <td><<List-notin>>, <<Set-notin>>, 
+                                                       <<Map-notin>> </td>                 <td>Negated membership test for element in  list, map, set (including relation)</td></tr>
+
+<tr><td>`_Exp_~1~ <= _Exp_~2~`</td>	               <td><<Number-LessThanOrEqual>>,
+                                                       <<String-LessThanOrEqual>>, 
+                                                       <<Location-LessThanOrEqual>>, 
+                                                       <<DateTime-LessThanOrEqual>>,
+                                                       <<List-SubList>>, 
+                                                       <<Set-SubSet>>, 
+                                                       <<Map-SubMap>></td>                 <td>Less than or equal on all values</td></tr>
+<tr><td>`_Exp_~1~ < _Exp_~2~`</td>	               <td><<Number-LessThan>>,
+                                                       <<String-LessThan>>, 
+                                                       <<Location-LessThan>>, 
+                                                       <<DateTime-LessThan>>,
+                                                       <<List-StrictSubList>>,
+                                                       <<Set-StrictSubSet>>,
+                                                       <<Map-StrictSubMap>></td>           <td>Less than on all values</td></tr>
+<tr><td>`_Exp_~1~ >= _Exp_~2~`</td>	               <td><<Number-GreaterThanOrEqual>>,
+                                                       <<String-GreaterThanOrEqual>>,
+                                                       <<Location-GreaterThanOrEqual>>, 
+                                                       <<DateTime-GreaterThanOrEqual>>,
+                                                       <<List-SuperList>>,
+                                                       <<Set-SuperSet>>,
+                                                       <<Map-SuperMap>></td>               <td>Greater than or equal on all values</td></tr>
+<tr><td>`_Exp_~1~ > _Exp_~2~`</td>	               <td><<Number-GreaterThan>>,
+                                                       <<String-GreaterThan>>, 
+                                                       <<Location-GreaterThan>>, 
+                                                       <<DateTime-GreaterThan>>,
+                                                       <<List-StrictSuperList>>, 
+                                                       <<Set-StrictSuperSet>>, 
+                                                       <<Map-StrictSuperMap>> </td>        <td>Greater than on all values.</td></tr>
+<tr><td> `_Pat_ := _Exp_`</td>                     <td><<Boolean-Match>></td>              <td>Pattern matches value of expression</td></tr>
+<tr><td> `_Pat_ !:= _Exp_`</td>                    <td><<Boolean-NoMatch>></td>            <td>Pattern does not match value of expression</td></tr>
+<tr><td>`_Exp_~1~ == _Exp_~2~`</td>	               <td><<Number-Equal>>,
+                                                       <<String-Equal>>, 
+                                                       <<Location-Equal>>, 
+                                                       <<DateTime-Equal>>,
+                                                       <<List-Equal>>, 
+                                                       <<Set-Equal>>, 
+                                                       <<Map-Equal>></td>                  <td>Equality on all values</td></tr>
+<tr><td>`_Exp_~1~ != _Exp_~2~`</td>	               <td><<Number-NotEqual>>,
+                                                       <<String-NotEqual>>, 
+                                                       <<Location-NotEqual>>, 
+                                                       <<DateTime-NotEqual>>,
+                                                       <<List-NotEqual>>, 
+                                                       <<Set-NotEqual>>, 
+                                                       <<Map-NotEqual>></td>               <td>Inequality on all values</td></tr>
+<tr><td>`_Exp_~1~ ? _Exp_~2~`</td>                   <td><<Boolean-IfDefinedElse>></td>      <td>Value of expression when it is defined, 
+                                                                                             otherwise alternative value</td></tr>
+<tr><td>`_Exp_~1~ ? _Exp_~2~ : _Exp_~3~`</td>         <td><<Value-Conditional>></td>          <td>Conditional expression for all types</td></tr>
+<tr><td> `_Exp_~1~ ==> _Exp_~2~`</td>                <td><<Boolean-Implication>></td>        <td>Implication on Boolean values</td></tr>
+<tr><td> `_Exp_~1~ <==> _Exp_~2~`</td>               <td><<Boolean-Equivalence>></td>        <td>Equivalence on Boolean values</td></tr>
+<tr><td> `_Exp_~1~ && _Exp_~2~`</td>                 <td><<Boolean-And>></td>                <td>And on Boolean values</td></tr>
+<tr><td> `_Exp_~1~ || _Exp_~2~`</td>                 <td><<Boolean-Or>></td>                 <td>Or on Boolean values</td></tr>
+</table>
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

@@ -1,0 +1,72 @@
+# hcat
+
+.Synopsis
+Horizontal composition of a list of figures.
+
+.Syntax
+
+.Types
+
+.Function
+`Figure hcat(Figures figs, FProperty props...)`
+
+.Details
+
+.Description
+
+Horizontal composition is a special case of <<grid>>. It is a grid with just one row. See <<grid>> for more information.
+
+See also <<vcat>>.
+
+.Examples
+[source,rascal-figure,width=300,height=100,file=h1.png]
+----
+                b1 = box(vshrink(0.5), fillColor("Red"));
+b2 = box(vshrink(0.8),  fillColor("Blue"));
+b3 = box(vshrink(1.0), fillColor("Yellow"));
+render(hcat([b1, b2, b3]));
+----
+gives: 
+image::{concept}/h1.png[alt="h1"]
+
+
+`b2` aligned at the top:
+[source,rascal-figure,width=300,height=100,file=h2.png]
+----
+                b1 = box(vshrink(0.5), fillColor("Red"));
+b2 = box(vshrink(0.8),  fillColor("Blue"),top());
+b3 = box(vshrink(1.0), fillColor("Yellow"));
+render(hcat([b1, b2, b3]));
+----
+gives: 
+image::{concept}/h2.png[alt="h2"]
+
+
+`b2` aligned at the bottom:
+[source,rascal-figure,width=300,height=100,file=h3.png]
+----
+                b1 = box(vshrink(0.5), fillColor("Red"));
+b2 = box(vshrink(0.8),  fillColor("Blue"),bottom());
+b3 = box(vshrink(1.0), fillColor("Yellow"));
+render(hcat([b1, b2, b3]));
+----
+gives: 
+image::{concept}/h3.png[alt="h3"]
+
+
+All boxes aligned at the bottom:
+[source,rascal-figure,width=300,height=100,file=h6.png]
+----
+                b1 = box(vshrink(0.5), fillColor("Red"));
+b2 = box(vshrink(0.8), fillColor("Blue"));
+b3 = box(vshrink(1.0), fillColor("Yellow"));
+render(hcat([b1, b2, b3],std(bottom())));
+----
+gives: 
+image::{concept}/h6.png[alt="h6"]
+
+
+.Benefits
+
+.Pitfalls
+

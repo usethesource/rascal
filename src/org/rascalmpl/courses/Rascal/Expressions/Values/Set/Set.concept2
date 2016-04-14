@@ -1,0 +1,85 @@
+# Set
+
+.Synopsis
+Set values.
+
+.Syntax
+`{ _Exp_~1~, _Exp_~2~, ... }`
+
+.Usage
+
+.Types
+|====
+|  `$Exp_1$` |  `$Exp_2$` |  ...  |  `{ $Exp_1$, $Exp_2$, ... }`   |
+|:-----------|:-----------|:------|:-------------------------------|
+| `$T_1$`    | `$T_2$`    |  ...  |  `set[ lub($T_1$, $T_2$, ... ) ]` |
+|====
+
+.Function
+
+.Details
+
+.Description
+A set is an unordered sequence of values and has the following properties:
+
+*  All elements have the same static type.
+*  The order of the elements does not matter.
+*  A set contains an element only once. In other words, duplicate elements are eliminated and no 
+  matter how many times an element is added to a set, it will occur in it only once.
+
+
+The type of a set has the form `set[_T_]`,
+where `_T_` is an arbitrary type.
+
+When a value or variable of type set occurs inside a set, that set value is inserted as set element. To achieve splicing of these elements, i.e., the insertion of the elements of the set value rather than the whole set, it has to be prefixed by the splice operator *.
+
+The following operators are provided on sets:
+subtoc[Rascal/Expressions/Values/Set,1]
+
+The following functions are provided on sets:
+subtoc[Rascal/Libraries/Prelude/Set,1]
+
+.Examples
+##  Set types 
+
+[source,rascal-shell]
+----
+{1, 2, 3};
+{<1,10>, <2,20>, <3,30>};
+{1, "b", 3};
+{<"a", 10>, <"b", 20>, <"c", 30>}
+{{"a", "b"}, {"c", "d", "e"}}
+----
+Note that
+
+*  `{1, 2, 3}` and `{3, 2, 1}` are identical sets (since order is not relevant).
+*  ` {1, 2, 3}` and `{1, 2, 3, 1}` are also identical sets (since duplication is not relevant).
+
+
+
+##  Set splicing 
+
+
+[source,rascal-shell]
+----
+----
+Introduce a set variable <tt>S</tt>
+[source,rascal-shell,continue]
+----
+S = {1, 2, 3};
+----
+and observe how the value of `S` is added as single element in another set:
+[source,rascal-shell,continue]
+----
+{10, S, 20};
+----
+or how its elements are added as elements to the other set:
+[source,rascal-shell,continue]
+----
+{10, *S, 20};
+----
+
+.Benefits
+
+.Pitfalls
+

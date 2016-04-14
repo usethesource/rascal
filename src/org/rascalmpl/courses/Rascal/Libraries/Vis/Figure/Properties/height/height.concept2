@@ -1,0 +1,23 @@
+# height
+
+.Synopsis
+Define the minimal vertical size.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty height(num h)`
+
+.Details
+
+.Description
+`height` is a synonym for <<vsize>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

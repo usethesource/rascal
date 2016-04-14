@@ -1,0 +1,35 @@
+# orientation
+
+.Synopsis
+Define the orientation of a [$Figures/tree] or [$Figures/graph].
+
+.Syntax
+
+.Types
+
+[source,rascal]
+----
+data Orientation =
+		leftRight()
+	|	rightLeft()
+	| 	topDown()
+	|	downTop();
+----
+
+
+
+.Function
+`FProperty orientation(Orientation o)`
+
+.Details
+
+.Description
+Describes the orientation of a <<Figures-graph>> or a <<Figures-tree>>. Possible values are described by
+the datatype `orientation`.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
