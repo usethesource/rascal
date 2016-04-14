@@ -1,0 +1,29 @@
+[[Recipes-Metrics]]
+# Metrics
+:concept: Metrics
+
+.Synopsis
+Computing 
+
+.Syntax
+
+.Types
+
+.Function
+       
+.Usage
+
+.Description
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+include::MeasuringJava/MeasuringJava.adoc[MeasuringJava]
+
+
+:leveloffset: -1

@@ -1,0 +1,59 @@
+[[Recipes]]
+# Recipes
+include::../CommonDefs.adoc[]
+:concept: Recipes
+
+.Synopsis
+Recipes for writing Rascal programs.
+
+.Syntax
+
+.Types
+
+.Function
+
+.Description
+These _Rascal Recipes_ are a work-in-progress but will gradually evolve into a collection of basic Rascal language examples and use cases.
+It consists of the following parts:
+
+
+* <<Recipes-Basic,Basic>>: Some basic, _hello world_-like, examples of Rascal programs.
+* <<Recipes-Common,Common>>: Solutions for some common tasks.
+* <<Recipes-Languages,Languages>>: Definitions of several languages and their tools.
+* <<Recipes-Metrics,Metrics>>: Computing.
+* <<Recipes-Visualization,Visualization>>: Recipes for creating visualizations.
+
+The following features are covered:
+
+*  Basic language features.
+*  Common tasks.
+*  Fact extraction.
+*  Language definition.
+*  Syntax definition.
+*  Parsing.
+*  Transformation.
+*  Code generation.
+*  IDE extensions.
+*  Visualization.
+
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+include::Basic/Basic.adoc[Basic]
+
+include::Common/Common.adoc[Common]
+
+include::Languages/Languages.adoc[Languages]
+
+include::Metrics/Metrics.adoc[Metrics]
+
+include::Visualization/Visualization.adoc[Visualization]
+
+
+:leveloffset: -1
