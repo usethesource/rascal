@@ -1,0 +1,35 @@
+[[Rascalopedia-DomainSpecificLanguage]]
+# Domain Specific Language (DSL)
+:concept: DomainSpecificLanguage
+
+.Synopsis
+Programming language targeted for a particular application domain.
+
+.Syntax
+
+.Types
+
+.Function
+       
+.Usage
+
+.Description
+
+.Examples
+
+*  SQL (querying data bases).
+*  HTML (web pages).
+*  CSS (presentation of HTML pages).
+*  Excel (spreadsheets).
+*  BibTex (bibliography).
+*  BNF (grammars).
+*  Regular expressions (text matching).
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

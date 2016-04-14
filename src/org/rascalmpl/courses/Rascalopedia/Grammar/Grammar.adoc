@@ -1,0 +1,27 @@
+[[Rascalopedia-Grammar]]
+# Grammar
+:concept: Grammar
+
+.Synopsis
+A synonym for <<Syntax>>.
+
+.Syntax
+
+.Types
+
+.Function
+       
+.Usage
+
+.Description
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1
