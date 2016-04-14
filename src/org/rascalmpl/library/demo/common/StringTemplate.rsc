@@ -10,6 +10,7 @@
 @contributor{Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 //START
+// tag::module[]
 module demo::common::StringTemplate
 
 import String;
@@ -19,7 +20,7 @@ import List;
 
 // Capitalize the first character of a string
 
-public str capitalize(str s) {  /*1*/
+str capitalize(str s) { // <1>
   return toUpperCase(substring(s, 0, 1)) + substring(s, 1);
 }
 
@@ -39,7 +40,7 @@ private str genGetter(map[str,str] fields, str x) {
 
 // Generate a class with given name and fields.
 // The field names are processed in sorted order.
-public str genClass(str name, map[str,str] fields) { /*2*/
+str genClass(str name, map[str,str] fields) { // <2>
   return 
     "public class <name> {
     '  <for (x <- sort([f | f <- fields])) {>
@@ -49,13 +50,13 @@ public str genClass(str name, map[str,str] fields) { /*2*/
     '}";
 }
 
-public  map[str, str] fields = (
+map[str, str] fields = (
      "name" : "String",
      "age" : "Integer",
      "address" : "String"
   );
   
-public str cperson = 
+str cperson = 
   // Do not change a single space in the string below!
   "public class Person {
     '  
@@ -81,6 +82,7 @@ public str cperson =
     '    return name;
     '  }
     '}";
+// end::module[]
 
-public test bool tstGenClass() =
+test bool tstGenClass() =
     genClass("Person", fields) == cperson;

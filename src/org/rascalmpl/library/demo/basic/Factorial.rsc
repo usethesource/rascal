@@ -8,18 +8,20 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 //START
+// tag::module[]
 module demo::basic::Factorial
 
-public int fac(int N) = N <= 0 ? 1 : N * fac(N - 1); /*1*/
+int fac(int N) = N <= 0 ? 1 : N * fac(N - 1); //<1>
 
-public int fac2(0) = 1; /*2*/
-public default int fac2(int N) = N * fac2(N - 1); /*3*/
+int fac2(0) = 1;  //<2>
+default int fac2(int N) = N * fac2(N - 1); //<3>
 
-public int fac3(int N)  { /*4*/
+int fac3(int N)  { //<4>
   if (N == 0) 
-    return 1;
+     return 1;
   return N * fac3(N - 1);
 }
+// end::module[]
 
 test bool tfac0()  = fac(0)  == 1;
 test bool tfac1()  = fac(1)  == 1;

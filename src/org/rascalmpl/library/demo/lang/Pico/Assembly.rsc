@@ -1,3 +1,4 @@
+// tag::module[]
 module demo::lang::Pico::Assembly
 
 import demo::lang::Pico::Abstract;
@@ -18,3 +19,4 @@ public data Instr =
      | gotrue(str label)    // Go to instruction with given label, if top equals 0
      | gofalse(str label)   // Go to instruction with given label, if top not equal to 0
      ;
+// tag::module[]     

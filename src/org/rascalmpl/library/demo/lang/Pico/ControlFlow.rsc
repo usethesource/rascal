@@ -1,3 +1,4 @@
+// tag::module[]
 module demo::lang::Pico::ControlFlow
 
 import Prelude;
@@ -5,20 +6,20 @@ import  analysis::graphs::Graph;
 import demo::lang::Pico::Abstract;
 import demo::lang::Pico::Load;
 
-public data CFNode                                                                /*1*/
+public data CFNode // <1>
 	= entry(loc location)
 	| exit()
 	| choice(loc location, EXP exp)
 	| statement(loc location, STATEMENT stat);
 
-alias CFGraph = tuple[set[CFNode] entry, Graph[CFNode] graph, set[CFNode] exit];  /*2*/
+alias CFGraph = tuple[set[CFNode] entry, Graph[CFNode] graph, set[CFNode] exit]; // <2>
 
-CFGraph cflowStat(s:asgStat(PicoId Id, EXP Exp)) {                                /*3*/
+CFGraph cflowStat(s:asgStat(PicoId Id, EXP Exp)) { // <3>
    S = statement(s@location, s);
    return <{S}, {}, {S}>;
 }
 
-CFGraph cflowStat(ifElseStat(EXP Exp,                                             /*4*/
+CFGraph cflowStat(ifElseStat(EXP Exp,                  // <4>
                               list[STATEMENT] Stats1,
                               list[STATEMENT] Stats2)){
    CF1 = cflowStats(Stats1); 
@@ -27,13 +28,13 @@ CFGraph cflowStat(ifElseStat(EXP Exp,                                           
    return < E, (E * CF1.entry) + (E * CF2.entry) + CF1.graph + CF2.graph, CF1.exit + CF2.exit >;
 }
 
-CFGraph cflowStat(whileStat(EXP Exp, list[STATEMENT] Stats)) {                    /*5*/
+CFGraph cflowStat(whileStat(EXP Exp, list[STATEMENT] Stats)) { // <5>
    CF = cflowStats(Stats); 
    E = {choice(Exp@location, Exp)}; 
    return < E, (E * CF.entry) + CF.graph + (CF.exit * E), E >;
 }
 
-CFGraph cflowStats(list[STATEMENT] Stats){                                        /*6*/
+CFGraph cflowStats(list[STATEMENT] Stats){ // <6>
   if(size(Stats) == 1)
      return cflowStat(Stats[0]);
   CF1 = cflowStat(Stats[0]);
@@ -41,7 +42,7 @@ CFGraph cflowStats(list[STATEMENT] Stats){                                      
   return < CF1.entry, CF1.graph + CF2.graph + (CF1.exit * CF2.entry), CF2.exit >;
 }
 
-public CFGraph cflowProgram(PROGRAM P){                                           /*7*/
+public CFGraph cflowProgram(PROGRAM P){ // <7>
   if(program(list[DECL] Decls, list[STATEMENT] Series) := P){
      CF = cflowStats(Series);
      Entry = entry(P@location);
@@ -51,6 +52,6 @@ public CFGraph cflowProgram(PROGRAM P){                                         
     throw "Cannot happen";
 }
 
-public CFGraph cflowProgram(str txt) = cflowProgram(load(txt));                   /*8*/
-
+public CFGraph cflowProgram(str txt) = cflowProgram(load(txt)); // <8>
+// end::module[]
 

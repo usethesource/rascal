@@ -1,3 +1,4 @@
+// tag::module[]
 module demo::lang::Lisra::Syntax
 
 layout Whitespace      = [\t-\n\r\ ]*; 
@@ -9,3 +10,4 @@ start syntax LispExp            // TODO: remove constructor names (needed for co
       | atom_exp: AtomExp
       | par_exp: "(" LispExp* ")"
       ;
+// end::module[]      

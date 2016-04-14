@@ -1,3 +1,4 @@
+// tag::module[]
 module demo::lang::Pico::ToDot
 import demo::lang::Pico::ControlFlow;
 import demo::lang::Pico::Load;
@@ -36,35 +37,36 @@ map[loc, int] getMap(rel[CFNode,CFNode] c) {
 }
       
 DotGraph  buildGraph(CFGraph c) {
-       rel[CFNode,CFNode] g = c.graph;
-       map[loc, int] idx = getMap(g);
-       Stms nodes = 
-          [NODE( [<"style","filled">, <"fillcolor","cornsilk">,<"fontcolor","black">,<"shape","ellipse">])];
-       Stms edges = [];
-       list[tuple[CFNode, CFNode]] c1 = toList(g);
-       list[CFNode] c2 = [d[0]|d<-c1]+[d[1]|d<-c1];
-       for (CFNode d<-c2) { 
-       if (exp(EXP e):=d) {
-            Attrs attrs = [<"label", "<delAnnotationsRec(e)>">];
-            for (q<-c.entry) 
-               if (exp(EXP h):=q)
-                 if (e@location == h@location)  {
-                     attrs += <"fillcolor","lightsalmon">;
-                     break;
-                     }
-             for (q<-c.exit) 
-               if (exp(EXP h):=q)
-                 if (e@location == h@location)  {
-                     attrs += <"fillcolor","palegreen">;
-                     break;
-                     }
-            nodes+=N("<idx[e@location]>", attrs);
-            }
+   rel[CFNode,CFNode] g = c.graph;
+   map[loc, int] idx = getMap(g);
+   Stms nodes = 
+      [NODE( [<"style","filled">, <"fillcolor","cornsilk">,<"fontcolor","black">,<"shape","ellipse">])];
+   Stms edges = [];
+   list[tuple[CFNode, CFNode]] c1 = toList(g);
+   list[CFNode] c2 = [d[0]|d<-c1]+[d[1]|d<-c1];
+   for (CFNode d<-c2) { 
+   if (exp(EXP e):=d) {
+        Attrs attrs = [<"label", "<delAnnotationsRec(e)>">];
+        for (q<-c.entry) 
+           if (exp(EXP h):=q)
+             if (e@location == h@location)  {
+                 attrs += <"fillcolor","lightsalmon">;
+                 break;
+                 }
+         for (q<-c.exit) 
+           if (exp(EXP h):=q)
+             if (e@location == h@location)  {
+                 attrs += <"fillcolor","palegreen">;
+                 break;
+                 }
+        nodes+=N("<idx[e@location]>", attrs);
         }
-        for (<CFNode from, CFNode to> <-g) {
-           if ((exp(EXP f):=from) && (exp(EXP t):=to)) {
-            edges+=E("<idx[f@location]>", "<idx[t@location]>"); 
-            }
-        }
-    return digraph("controlflow", nodes+edges);
     }
+    for (<CFNode from, CFNode to> <-g) {
+       if ((exp(EXP f):=from) && (exp(EXP t):=to)) {
+        edges+=E("<idx[f@location]>", "<idx[t@location]>"); 
+        }
+    }
+    return digraph("controlflow", nodes+edges);
+}
+// end::module[]
