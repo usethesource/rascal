@@ -1,0 +1,30 @@
+# Menus
+
+.Synopsis
+menus in the IDE can be used to call Rascal functions with source texts as arguments and source texts as output
+
+.Syntax
+
+.Types
+
+.Function
+
+.Details
+
+.Description
+
+You can use this library module to define the menu structure and menu items, after which you need to register it with the IDE:
+[source,rascal-shell]
+----
+import util::IDE;
+import ParseTree;
+m1 = popup(menu("MyMenu", [action("Example item", void (Tree t, loc s) { println("<t> @ <s>");})]));
+registerContributions("myLanguage", {m1});
+----
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

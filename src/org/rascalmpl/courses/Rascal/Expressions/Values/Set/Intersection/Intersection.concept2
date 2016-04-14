@@ -1,0 +1,33 @@
+# Intersection
+
+.Synopsis
+Intersection of two sets.
+
+.Syntax
+`_Exp_~1~ & _Exp_~2~`
+
+.Types
+|====
+| `$Exp_1$`    |  `$Exp_2$`      | `$Exp_1$ & $Exp_2$`     |
+|:-------------|:----------------|:------------------------|
+| `set[$T_1$]` |  `set[$T_2$]`   | `set[lub($T_1$,$T_2$)]` |
+|====
+
+.Function
+
+.Details
+
+.Description
+Returns the intersection of the two set values of _Exp_~1~ and _Exp_~2~.
+The intersection consists of the common elements of both sets.
+
+.Examples
+[source,rascal-shell]
+----
+{1, 2, 3, 4, 5} & {4, 5, 6};
+----
+
+.Benefits
+
+.Pitfalls
+

@@ -1,0 +1,33 @@
+# notin
+
+.Synopsis
+Negated membership test on set values.
+
+.Syntax
+`_Exp_~1~ notin _Exp_~2~`
+
+.Types
+|====
+| `$Exp_1$`           |  `$Exp_2$`    | `$Exp_1$ notin $Exp_2$` |
+|:--------------------|:--------------|:------------------------|
+| `$T_1$`  <: `$T_2$` |  `set[$T_2$]` | `bool`                  |
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields `true` if the value of _Exp_~1~ does not occur as element in the value of _Exp_~2~ and `false` otherwise. The type of _Exp_~1~ should be compatible with the element type of _Exp_~2~.
+
+.Examples
+[source,rascal-shell]
+----
+4 notin {1, 2, 3};
+4 notin {1, 2, 3, 4};
+----
+
+.Benefits
+
+.Pitfalls
+

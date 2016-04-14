@@ -1,0 +1,35 @@
+# FieldSelection
+
+.Synopsis
+Select a field from a tuple by its field name.
+
+.Syntax
+`_Exp_ . _Name_`
+
+.Types
+|====
+| `$Exp$`                                 | `$Name$` | `$Exp$ . $Name$` |
+|:----------------------------------------|:---------|:-----------------|
+|`tuple[ $T_1$ $L_1$, $T_2$ $L_2$, ... ]` |  `$L_i$` | `$T_i$`          |
+|====
+
+.Function
+
+.Details
+
+.Description
+Field selection applies to tuples with named elements.
+_Exp_ should evaluate to a tuple with field _Name_ and returns the value of that field.
+_Name_ stands for itself and is not evaluated.
+
+.Examples
+[source,rascal-shell]
+----
+tuple[int key, str val] T = <1, "abc">;
+T.val;
+----
+
+.Benefits
+
+.Pitfalls
+

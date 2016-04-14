@@ -1,0 +1,34 @@
+# LineDecoration
+
+.Synopsis
+Describes the line decorations for an [$Figures/outline]. 
+
+.Syntax
+
+.Types
+
+
+[source,rascal]
+----
+public data LineDecoration = 
+    info(int lineNumber, str msg)
+  | warning(int lineNumber, str msg)
+  | error(int lineNumber, str msg)
+  | highlight(int lineNumber, str msg)
+  | highlight(int lineNumber, str msg, int level)
+  ;
+----
+
+.Function
+
+.Details
+
+.Description
+
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

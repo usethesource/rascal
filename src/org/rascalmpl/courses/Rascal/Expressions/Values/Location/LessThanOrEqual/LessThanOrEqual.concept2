@@ -1,0 +1,29 @@
+# LessThanOrEqual
+
+.Synopsis
+The less than or equal operator on location values.
+
+.Syntax
+`_Exp_~1~ <= _Exp_~2~`
+
+.Types
+|====
+| `$Exp_1$` | `$Exp_2$` | `$Exp_1$ <= $Exp_2$` |
+|:----------|:----------|:---------------------|
+| `loc`     |  `loc`    | `bool`               |
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields `true` if the location value of _Exp_~1~ is textually contained
+in the location value of _Exp_~2~, and `false` otherwise.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

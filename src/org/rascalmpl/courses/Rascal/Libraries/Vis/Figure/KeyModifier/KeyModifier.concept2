@@ -1,0 +1,31 @@
+# KeyModifier
+
+.Synopsis
+The `KeyModifier` datatype describes key modifiers in user-interactions.
+
+.Syntax
+.Types
+[source,rascal]
+----
+data KeyModifier =
+	  modCtrl()
+	| modAlt()
+	| modShift()
+	| modCommand();
+----
+
+
+
+.Function
+
+.Details
+
+.Description
+Describes key modifiers, the keyboards keys Control, Alt, Shift and Command (Super/Windows/Apple key)
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

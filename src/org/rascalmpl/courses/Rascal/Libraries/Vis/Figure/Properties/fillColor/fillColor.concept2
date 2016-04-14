@@ -1,0 +1,44 @@
+# fillColor
+
+.Synopsis
+Fill color.
+
+.Syntax
+
+.Types
+
+.Function
+
+#  `FProperty fillColor(Color c)`
+#  `FProperty fillColor(str cname)`
+
+.Details
+
+.Description
+Set the color used to fill the inside of figures:
+
+#  Set the fill color to `c`.
+#  Set the fill color to the color with name `cname`.
+
+
+Also see <<ColorModel>>.
+
+.Examples
+[source,rascal-figure,width=200,height=100,file=fc1.png]
+----
+                b1 = box(fillColor("Red"));
+b2 = box(fillColor("Blue"));
+b3 = box(fillColor("Green"));
+b4 = box(fillColor("Purple"));
+boxes = [b1, b2, b3, b4];
+render(hcat(boxes));
+----
+gives:
+
+image::{concept}/fc1.png[alt="h1"]
+
+
+.Benefits
+
+.Pitfalls
+

@@ -1,0 +1,31 @@
+# m3
+
+.Synopsis
+Java-specific version of the M3 model
+
+.Syntax
+
+.Types
+
+.Function
+       
+.Usage
+
+.Details
+
+.Description
+
+This API extends <<analysis-m3>> with Java specific functionality:
+
+subtoc[Rascal/Libraries/lang/java/m3,]
+
+Use this API to extract Java m3 models starting from Eclipse Java projects:
+
+subtoc[Rascal/Libraries/lang/java/jdt/m3,]
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

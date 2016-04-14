@@ -1,0 +1,65 @@
+# lineStyle
+
+.Synopsis
+
+Sets the style of lines and borders of figures.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty lineStyle(str style)`
+
+.Details
+
+.Description
+The following line styles are available:
+
+*  `"solid"` (default)
+*  `"dash"`
+*  `"dot"`
+*  `"dashdot"`
+*  `"dashdotdot"`
+
+.Examples
+[source,rascal-figure,width=,height=,file=box1.png]
+----
+                b1 = box(size(50), lineStyle("dash"));
+render(b1);
+----
+gives 
+image::{concept}/box1.png[alt="box1"]
+
+
+[source,rascal-figure,width=,height=,file=box2.png]
+----
+                b2 = box(size(50), lineStyle("dot"));
+render(b2);
+----
+gives 
+image::{concept}/box2.png[alt="box2"]
+
+
+[source,rascal-figure,width=,height=,file=box3.png]
+----
+                b3 = box(size(50), lineStyle("dashdot"));
+render(b3);
+----
+gives 
+image::{concept}/box3.png[alt="box3"]
+
+
+[source,rascal-figure,width=,height=,file=box4.png]
+----
+                b4 = box(size(50), lineStyle("dashdotdot"));
+render(b4);
+----
+gives 
+image::{concept}/box4.png[alt="box4"]
+
+
+.Benefits
+
+.Pitfalls
+

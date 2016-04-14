@@ -1,0 +1,45 @@
+# Map
+
+.Synopsis
+Map values.
+
+.Syntax
+`( _KeyExp_~1~ : _ValExp_~1~, _KeyExp_~2~ : _ValExp_~2~, ... )`
+
+.Types
+|====
+| `$KeyExp_1$` | `$ValExp_1$` | `$KeyExp_2$` | `$ValExp_2$` | ... | `( $KeyExp_1$ : $ValExp_1$, $KeyExp_2$ : $ValExp_2$, ... )`  |
+|:-------------|:-------------|:-------------|:-------------|:----|:-------------------------------------------------------------|
+| `$TK_1$`     |  `$TV_1$`    |  `$TK_2$`    | `$TV_2$`     | ... | `map[lub($TK_1$, $TK_2$, ... ) , lub($TV_1$, $TV_2$, ... )]` |
+|====
+
+.Usage
+
+.Function
+
+.Details
+
+.Description
+A map is a set of key : value pairs and has the following properties:
+
+*  Key and value may have different static types.
+
+*  A key can only occur once.
+
+
+Maps resemble functions rather than relations in the sense that only a single value can be associated with each key.
+
+The following functions are provided for maps:
+
+subtoc[Rascal/Expressions/Values/Map,1]
+
+.Examples
+[source,rascal-shell]
+----
+("pear" : 1, "apple" : 3, "banana" : 0);
+----
+
+.Benefits
+
+.Pitfalls
+

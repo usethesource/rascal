@@ -1,0 +1,27 @@
+# Contents
+
+.Synopsis
+Table of Contents.
+
+.Syntax
+
+.Types
+
+.Function
+
+.Details
+
+.Description
+
+A top-level table of contents:
+subtoc[Rascal,1]
+
+A full table of contents:
+subtoc[Rascal,]
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

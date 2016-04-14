@@ -1,0 +1,50 @@
+# Rascal
+
+.Synopsis
+
+Rascal is a powerful but relatively simple meta-programming language. 
+
+.Syntax
+
+.Types
+
+.Function
+
+.Details
+Contents Motivation InstallingAndRunning Concepts Declarations Patterns Expressions Statements Libraries
+
+.Description
+What you need to know about Rascal is this:
+
+*  Which problems can Rascal help you to solve? Check out the [Motivation] for Rascal and the [EASY:EASY] paradigm.
+*  How to get started? Read [InstallingAndRunning].
+*  What are the basic constructs in Rascal? Learn about its basic [Concepts].
+*  What is the complete reference to Rascal? Read or search through the documentation for [Expressions], [Statements] or [$Rascal/Declarations].
+*  What standard functions does Rascal provide? Read or search through [Libraries].
+
+
+What are the key distinguishing features of Rascal?
+
+*  [Patterns] to express query and search in (models of) programs.
+*  [Visit] to traverse and transform (models of) meta programs.
+*  [SyntaxDefinition] to effectively produce parsers for programming languages and other formats.
+*  [ConcreteSyntax] to analyse and transform source code using patterns in the programming language that is manipulated.
+*  Rapid [$Concepts/IDEConstruction] using Eclipse [IMP](http://www.eclipse.org/imp/) and other reusable aspects of meta-programming can be found
+  in the <<Libraries>>.
+*  Simple value based [CodeModels] to represent any kind of fact about source code using either hierarchical or graph-like modeling constructs.
+
+.Examples
+Read simple examples of Rascal code in link::{Recipes}#Basic[]. The Rascal <<Libraries>> contain many examples of Rascal code. 
+You will also find example code on almost every page in this tutor environment.
+
+.Benefits
+
+*  Rascal has everything you need for any kind of meta program you want to write. See [Motivation].
+
+.Pitfalls
+
+*  Rascal is a procedural/functional language with immutable data. Do not confuse this with object-oriented programming.
+*  Rascal allows you to write highly imperative code, but it has declarative constructs that lead to shorter and more readable code.
+*  Rascal execution is sometimes slow; we are working on more optimization.
+*  Rascal has a static type system, but the type-checker is not yet finished; currently types are checked at run-time.
+

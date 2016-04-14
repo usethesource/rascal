@@ -1,0 +1,34 @@
+# Equal
+
+.Synopsis
+Equal operator on node values.
+
+.Syntax
+`_Exp_~1~ == _Exp_~2~`
+
+.Types
+|====
+| `$Exp_1$`  |  `$Exp_2$` | `$Exp_1$ == $Exp_2$` |
+|:-----------|:-----------|:---------------------|
+| `node`     |  `node`    | `bool`               |
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields `true` if the node names of the values of _Exp_~1~ and _Exp_~2~ are equal and
+the children of each node are pairwise equal, otherwise `false`.
+
+.Examples
+[source,rascal-shell]
+----
+"f"(1, "abc", true) == "f"(1, "abc", true);
+"f"(1, "abc", true) == "f"(1, "def", true);
+----
+
+.Benefits
+
+.Pitfalls
+

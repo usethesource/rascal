@@ -1,0 +1,39 @@
+# Insert
+
+.Synopsis
+Add an element to a set.
+
+.Syntax
+`_Exp_~1~ + _Exp_~2~`
+
+.Types
+|====
+| `$Exp_1$`    |  `$Exp_2$`    | `$Exp_1$ + $Exp_2$`      |
+|:-------------|:--------------|:-------------------------|
+| `set[$T_1$]` |  `$T_2$`      | `set[lub($T_1$,$T_2$)]`  |
+| `$T_1$`      |  `set[$T_2$]` | `set[lub($T_1$,$T_2$)]`  |
+|====
+
+.Function
+
+.Details
+
+.Description
+
+The `+` operator will add elements to sets.
+
+.Examples
+[source,rascal-shell]
+----
+{1, 2, 3} + 4;
+1 + { 2, 3, 4};
+{1} + 1;
+1 + {1};
+----
+
+.Benefits
+
+.Pitfalls
+
+*  if both operands of `+` are a set then it acts as [$Rascal/Expressions/Values/Set/Union].
+

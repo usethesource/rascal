@@ -1,0 +1,25 @@
+# Hyperlinking
+
+.Synopsis
+Hyperlinks in source code.
+
+.Syntax
+
+#  `t@link = $loc$`
+#  `t@links = $setOfLoc$`
+
+.Types
+
+.Function
+
+.Details
+
+.Description
+the editor will show hyperlinks on the source text that is covered by any annotated parse tree node.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

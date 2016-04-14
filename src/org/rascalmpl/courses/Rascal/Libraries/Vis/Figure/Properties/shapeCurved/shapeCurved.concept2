@@ -1,0 +1,25 @@
+# shapeCurved
+
+.Synopsis
+Connect the figures in a shape by curves.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty shapeCurved(bool b)`
+
+.Details
+
+.Description
+When `b` is true, connect the figures in shape by a curve rather than by a straight line.
+A shape is created by connecting the figures in an <<overlay>> by <<shapeConnected>>.
+
+.Examples
+See <<overlay>> for examples.
+
+.Benefits
+
+.Pitfalls
+

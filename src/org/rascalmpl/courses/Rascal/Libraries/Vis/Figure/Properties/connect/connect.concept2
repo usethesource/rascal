@@ -1,0 +1,23 @@
+# connect
+
+.Synopsis
+Connection point for figure in an [overlay].
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty connect(real h, real v)`
+
+.Details
+
+.Description
+Describes where a line connects with this figure. See <<hconnect>>, <<vconnect>> and <<overlay>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

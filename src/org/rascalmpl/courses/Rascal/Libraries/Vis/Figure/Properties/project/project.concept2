@@ -1,0 +1,23 @@
+# project
+
+.Synopsis
+Project figure on a [hscreen] or [vscreen].
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty project (Figure f0, str p0)`
+
+.Details
+
+.Description
+Project figure `f0` from this figure onto the screen with <<id>> `p0`. See <<hscreen>> and <<vscreen>>
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

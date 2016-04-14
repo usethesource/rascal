@@ -1,0 +1,36 @@
+# GreaterThan
+
+.Synopsis
+Greater than operator on node values.
+
+.Syntax
+`_Exp_~1~ > _Exp_~2~`
+
+.Types
+|====
+| `$Exp_1$` |  `$Exp_2$` | `$Exp_1$ > $Exp_2$` |
+|:----------|:-----------|:--------------------|
+| `node`    |  `node`    | `bool`              |
+|====
+
+.Function
+
+.Details
+
+.Description
+Comparison on nodes is defined by a lexicographic ordering. Node `_N_ = _F_(_N_~1~, ..., _N_~n~)` is greater than node 
+`_N_ = _G_(_M_~1~, ..., _M_~m~)` when:
+*  $N$ is not equal to $M$, and
+*  $F$ is lexicographically greater than $G$, or $F$ is equal to $G$ and `$n$ > $m$`.
+
+.Examples
+[source,rascal-shell]
+----
+"g"(3) > "f"(10, "abc");
+"f"(10, "abc") > "f"(10);
+----
+
+.Benefits
+
+.Pitfalls
+

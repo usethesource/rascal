@@ -1,0 +1,52 @@
+# Node
+
+.Synopsis
+Node values.
+
+.Syntax
+`_Exp_~0~ ( _Exp_~1~, _Exp_~2~, ... )`
+
+.Types
+|====
+|`$Exp_0$`  | `$Exp_1$` | `$Exp_2$` | ... | `$Exp_0$ ( $Exp_1$, $Exp_2$, ... )` |
+|:----------|:----------|:----------|:----|:------------------------------------|
+| `str`     | `value`   | `value`   | ... | `node`                              |
+|====
+
+.Usage
+
+.Function
+
+.Details
+
+.Description
+Values of type `node` represent untyped trees and are constructed as follows:
+
+*  the string value of $Exp_0$ is the node name;
+*  zero or more expressions of type `value` are the node\'s children.
+
+
+Nodes can have <<Declarations-Annotation>>s.
+
+The following are provided for nodes:
+subtoc[Rascal/Expressions/Values/Node,1]
+
+.Examples
+[source,rascal-shell]
+----
+----
+A node with name "my_node" and three arguments
+[source,rascal-shell,continue]
+----
+"my_node"(1, true, "abc");
+----
+A nested node structure:
+[source,rascal-shell,continue]
+----
+"my_node1"(1, "my_node2"(3.5, ["a", "b", "c"]), true);
+----
+
+.Benefits
+
+.Pitfalls
+

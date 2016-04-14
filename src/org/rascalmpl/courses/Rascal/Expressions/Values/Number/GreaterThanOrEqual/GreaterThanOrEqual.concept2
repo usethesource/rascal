@@ -1,0 +1,37 @@
+# GreaterThanOrEqual
+
+.Synopsis
+Greater than or equal operator on numeric values.
+
+.Syntax
+`_Exp_~1~ >= _Exp_~2~`
+
+.Types
+|====
+| `$Exp_1$`  |  `$Exp_2$` | `$Exp_1$ >= $Exp_2$`  |
+|:-----------|:-----------|:----------------------|
+| `int`      |  `int`     | `bool`                |
+| `int`      |  `real`    | `bool`                |
+| `real`     |  `real`    | `bool`                |
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields `true` if the value of _Exp_~1~ is numerically greater than or equal to the value of _Exp_~2~, and `false` otherwise.
+
+.Examples
+[source,rascal-shell]
+----
+13 >= 12
+12 >= 13
+13.5 >= 12
+12.5 >= 13
+----
+
+.Benefits
+
+.Pitfalls
+
