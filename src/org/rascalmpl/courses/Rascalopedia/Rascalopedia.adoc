@@ -1,0 +1,112 @@
+[[Rascalopedia]]
+# Rascalopedia
+include::../CommonDefs.adoc[]
+:concept: Rascalopedia
+
+.Synopsis
+Overview of important terms and concepts.
+
+.Syntax
+
+.Types
+
+.Function
+       
+.Usage
+
+.Description
+
+Rascalopedia gives a quick overview of the most important terms and concepts
+that are relevant for metaprogrammers in general and metaprogrammers using Rascal in particular.
+
+Rascalopedia is work in progress. Please send us your suggestions for new concepts.
+
+This are the currently covered topics:
+
+
+* <<Rascalopedia-AbstractDataType,AbstractDataType>>: A definition of a data type.
+* <<Rascalopedia-AbstractSyntaxTree,Abstract Syntax Tree>>: Representation of the abstract syntactic structure of a program.
+* <<Rascalopedia-Compiler,Compiler>>: Tranform source code to an executable form.
+* <<Rascalopedia-DomainSpecificLanguage,Domain Specific Language (DSL)>>: Programming language targeted for a particular application domain.
+* <<Rascalopedia-DynamicSemantics,Dynamic Semantics>>: Description of the execution behaviour of a program.
+* <<Rascalopedia-Grammar,Grammar>>: A synonym for <<Syntax>>.
+* <<Rascalopedia-Interpreter,Interpreter>>: Directly execute the statements of a program.
+* <<Rascalopedia-Language,Language>>: The set of strings defined by a <<Grammar>>.
+* <<Rascalopedia-LanguageDefinition,Language Definition>>: Description of all aspects of a language.
+* <<Rascalopedia-List,List>>: An ordered sequence of values.
+* <<Rascalopedia-MetaProgramming,MetaProgramming>>: Analysis or transformation of one program by another program.
+* <<Rascalopedia-ParseTree,ParseTree>>: Detailed represention of the concrete syntactic structure of a program.
+* <<Rascalopedia-Parser,Parser>>: Check that a text adheres to the rules of a language (and return a [ParseTree]).
+* <<Rascalopedia-Prettyprinter,Prettyprinter>>: Transform an [AbstractSyntaxTree] into a formatted string.
+* <<Rascalopedia-Refactoring,Refactoring>>: Restructuring source code to improve its internal structure without changing its external behaviour.
+* <<Rascalopedia-Relation,Relation>>: An unordered set of tuples.
+* <<Rascalopedia-Scope,Scope>>: The visibility and accessibility of names in a program.
+* <<Rascalopedia-Set,Set>>: An unordered collection of values without duplicates.
+* <<Rascalopedia-SoftwareEngineering,Software Engineering>>: Discpline of design, building and maintaining software.
+* <<Rascalopedia-SoftwareEvolution,Software Evolution>>: Understanding and managing the continuous change of software.
+* <<Rascalopedia-SoftwareMetric,Software Metric>>: A metric to measure a source code property.
+* <<Rascalopedia-StaticSemantics,Static Semantics>>: Description of the properties of a program that can be determined/checked before it is executed.
+* <<Rascalopedia-Syntax,Syntax>>: The rules that describe correctly structured programs in a language.
+* <<Rascalopedia-Testing,Testing>>: Determine that the quality and functionality of software.
+* <<Rascalopedia-Tuple,Tuple>>: An ordered, fixed length, sequence of values of possibly different type.
+* <<Rascalopedia-Typechecker,Typechecker>>: Checks the type rules for a source language.
+* <<Rascalopedia-Visualization,Visualization>>: Visual presentation of scientific or abstract data.
+
+
+:leveloffset: +1
+include::AbstractDataType/AbstractDataType.adoc[AbstractDataType]
+
+include::AbstractSyntaxTree/AbstractSyntaxTree.adoc[AbstractSyntaxTree]
+
+include::Compiler/Compiler.adoc[Compiler]
+
+include::DomainSpecificLanguage/DomainSpecificLanguage.adoc[DomainSpecificLanguage]
+
+include::DynamicSemantics/DynamicSemantics.adoc[DynamicSemantics]
+
+include::Grammar/Grammar.adoc[Grammar]
+
+include::Interpreter/Interpreter.adoc[Interpreter]
+
+include::Language/Language.adoc[Language]
+
+include::LanguageDefinition/LanguageDefinition.adoc[LanguageDefinition]
+
+include::List/List.adoc[List]
+
+include::MetaProgramming/MetaProgramming.adoc[MetaProgramming]
+
+include::ParseTree/ParseTree.adoc[ParseTree]
+
+include::Parser/Parser.adoc[Parser]
+
+include::Prettyprinter/Prettyprinter.adoc[Prettyprinter]
+
+include::Refactoring/Refactoring.adoc[Refactoring]
+
+include::Relation/Relation.adoc[Relation]
+
+include::Scope/Scope.adoc[Scope]
+
+include::Set/Set.adoc[Set]
+
+include::SoftwareEngineering/SoftwareEngineering.adoc[SoftwareEngineering]
+
+include::SoftwareEvolution/SoftwareEvolution.adoc[SoftwareEvolution]
+
+include::SoftwareMetric/SoftwareMetric.adoc[SoftwareMetric]
+
+include::StaticSemantics/StaticSemantics.adoc[StaticSemantics]
+
+include::Syntax/Syntax.adoc[Syntax]
+
+include::Testing/Testing.adoc[Testing]
+
+include::Tuple/Tuple.adoc[Tuple]
+
+include::Typechecker/Typechecker.adoc[Typechecker]
+
+include::Visualization/Visualization.adoc[Visualization]
+
+
+:leveloffset: -1
