@@ -51,6 +51,7 @@ public data IFigure = iemptyFigure(int seq);
 bool debug = true;
 int screenWidth = 400;
 int screenHeight = 400;
+str cssLocation = "";
 
 int seq = 0;
 int occur = 0;
@@ -185,7 +186,6 @@ Timer _getTimer(str id) = state[widget[id].seq].v.timer;
 
 bool hasInnerFigure(Figure f) = box():=f || ellipse() := f || circle():= f || ngon():=f;
 
-   
 void addState(Figure f) {
     Attr attr = attr(bigger = f.bigger);
     if (buttonInput(_):=f) 
@@ -339,7 +339,8 @@ str getIntro() {
         '#close {
           'visibility: hidden;
         }
-        '\</style\>    
+        '\</style\>   
+        '<if (!isEmpty(cssLocation)) {> \<link rel=\"stylesheet\" href= \"<cssLocation>\" type=\"text/css\"/\> <}>
         '\<script src=\"IFigure.js\"\>\</script\>
         '\<script src=\"pack.js\"\>\</script\>
         '\<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"\>\</script\>        
@@ -387,7 +388,7 @@ list[State] diffNewOld() {
     return [state[i]|i<-[0..size(state)], !eqProp(state[i].v, old[i])];
     }
     
-bool isGrow(Figure f) {
+bool isBigger(Figure f) {
    return getKeywordParameters(f)["bigger"]?;
    }
    
@@ -600,7 +601,7 @@ IFigure  _d3Tree(str id, Figure f, list[str] ids, list[IFigure] fig1, str json) 
 public void _render(IFigure fig1, int width = 800, int height = 800, 
      Alignment align = centerMid, int borderWidth = -1, str borderStyle="", str borderColor = "",
      str fillColor = "none", str lineColor = "black", bool display = true, Event event = noEvent(),
-     bool resizable = true, bool defined = true)
+     bool resizable = true, bool defined = true, str cssFile= "")
      {
      screenWidth = width;
      screenHeight = height;
@@ -627,6 +628,7 @@ public void _render(IFigure fig1, int width = 800, int height = 800,
     adjust+=  "adjustTableW("+figCalls([fig1])+", \"<id>\", 0,  0, 0, 0, 0);\n";
     fig = ifigure(id, [fig1]);
     // println("site=<site>");
+    cssLocation = cssFile;
 	if (display) htmlDisplay(site);
 }
 
@@ -860,7 +862,8 @@ str attr(str key, real v) {
     
 str text(str v, bool html) {
     if (isEmpty(v)) return "";
-    str s = replaceAll(v,"\n", "\\n");
+    s = replaceAll(v,"\\", "\\\\");
+    s = replaceAll(s,"\n", "\\\n");
     s = "\"<replaceAll(s,"\"", "\\\"")>\""; 
     if (html) {
         // s = "nl2br(<s>)";
@@ -952,6 +955,7 @@ IFigure _text(str id, bool inHtml, Figure f, str s, str overflow, bool addSvgTag
         '<isHtml?style("overflow", overflow):"">
         '<isHtml?style("pointer-events", "auto"):attr("pointer-events", "none")>
         '<text(s, isHtml)>
+        '// alert(d3.select(\"#<id>\").node().getBoundingClientRect().height);
         ';
         'd3.select(\"#<id>_svg\")
         '<isHtml?"":attr("pointer-events", "none")>
@@ -1028,7 +1032,6 @@ IFigure _googlechart(str cmd, str id, Figure f, bool addSvgTag) {
     if (addSvgTag) {
          endtag += "\</foreignObject\>\</svg\>"; 
          }
-    // println(drawVisualization(id, trChart("ComboChart", id, f)));
     str fname = "googleChart_<id>";
     googleChart+="<fname>();\n";
     widget[id] = <null, seq, id, begintag, endtag, 
@@ -1290,17 +1293,17 @@ return !isRotate(f)? "":"\</g\>";
 }
 
 str beginScale(Figure f) {   
-    if (!isGrow(f)) return "";
+    if (!isBigger(f)) return "";
     if (f.width<0 || f.height<0)
        return "\<g id = \"<f.id>_g\" transform=\"scale(<f.bigger>)\" \>";
     else {
-        int x =0;  // f.width/2; is dependent of environment
-        int y =0; //f.height/2;
+        int x =0;  
+        int y =0;
         return "\<g id = \"<f.id>_g\" transform=\"translate(<-x>, <-y>) scale(<f.bigger>) translate(<x>, <y>)\"\>";
         }
     }
   
-str endScale(Figure f) =  isGrow(f)?"\</g\>":"";
+str endScale(Figure f) =  isBigger(f)?"\</g\>":"";
     
 int hPadding(Figure f) = f.padding[0]+f.padding[2];     
 
@@ -1353,7 +1356,7 @@ bool hasInnerCircle(Figure f)  {
        widgetOrder+= id;  
        if ((iemptyFigure(_)!:=fig) && getResizable(f) && (getWidth(fig)<0 || getHeight(fig)<0)
        )
-          adjust+= fromOuterToInner(fig, id, getN(fig), getAngle(fig), getAtX(fig), getAtY(fig));  
+       adjust+= fromOuterToInner(fig, id, getN(fig), getAngle(fig), getAtX(fig), getAtY(fig));  
        return ifigure(id, [fig]);
        } 
        
@@ -1367,8 +1370,7 @@ bool hasInnerCircle(Figure f)  {
             if (!isEmpty(s)) 
                  tooltip = ".append(\"svg:title\").text(\""+
                  replaceAll(replaceAll(s,"\n", "\\n"),"\"","\\\"") +"\")";
-            }
-      // println("HELP: <id>_svg   <toInt(f.bigger*f.width)>  <toInt(f.bigger*f.height)>");  
+            }  
       int lw =  getLineWidth(f);
       int width = f.width;
       int height = f.height;
@@ -1378,7 +1380,7 @@ bool hasInnerCircle(Figure f)  {
         '<style("stroke-width",lw)>
         '<style("stroke","<getLineColor(f)>")>
         '<style("fill", "<getFillColor(f)>")> 
-        '<style("stroke-dasharray", cv(f.lineDashing))> 
+        '<style("stroke-dasharray", lineDashing(f.lineDashing))> 
         '<style("fill-opacity", getFillOpacity(f))> 
         '<style("stroke-opacity", getLineOpacity(f))>  
         '<style("visibility", getVisibility(f))> 
@@ -1388,12 +1390,12 @@ bool hasInnerCircle(Figure f)  {
         '<attr("width", width)><attr("height", height)>
         '<attr("pointer-events", "none")>     
         '<tooltip>
-        '<findFirst(id,"_tooltip")>=0?attr("pointer-events", "none"):"">
+        '<if (findFirst(id,"_tooltip")>=0){><attr("pointer-events", "none")><}>
         ';
         ";
       } 
       
- str cv(list[int] ld) {
+ str lineDashing(list[int] ld) {
       if (isEmpty(ld)) return "";
       str r = "<head(ld)> <for(d<-tail(ld)){> , <d> <}>";
       return r;
@@ -1403,18 +1405,10 @@ bool hasInnerCircle(Figure f)  {
     int x  =getAtX(fig);
     int y = getAtY(fig);
     int lw = getLineWidth(f);
-    int width = f.width;
-    int height = f.height; 
-    if (width>=0) width = width;
-    if (height>=0) height = height;
-    str bId = id; 
-    switch (f) {
-        case ngon():bId = "<id>_rect";
-        case ellipse():bId = "<id>_rect";
-        case circle():bId = "<id>_rect";
-        }  
     int hpad = hPadding(f);
     int vpad = vPadding(f);
+    int width = f.width>=0?f.width-lw:-1;
+    int height = f.height>=0?f.height-lw:-1;
     str g = ""; 
     if (text(_):=f.fig) {
        int fw =  (f.fig.fontSize<0?12:f.fig.fontSize);
@@ -1425,13 +1419,13 @@ bool hasInnerCircle(Figure f)  {
     return styleInsideSvgOverlay(id, f) +
         "    
         'd3.select(\"#<id>_fo\")
-        '<attr("width", width-lw)><attr("height", height-lw)>
+        '<attr("width", width)><attr("height", height)>
         '<attr("pointer-events", "none")> 
         '<debugStyle()>
         ';    
         '       
         'd3.select(\"#<id>_fo_table\")
-        '<style("width", width-lw)><style("height", height-lw)>
+        '<style("width", width)><style("height", height)>
         '<attr("pointer-events", "none")> 
         '<_padding(f.padding)> 
         '<debugStyle()>
@@ -2202,7 +2196,7 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
     widget[id] = <null, seq, id, begintag, endtag,
         "
         'd3.select(\"#<id>\")
-        '<debug?debugStyle():borderStyle(f)>       
+        '<if(debug){><debugStyle()><} else {> <borderStyle(f)> <}>       
         '<style("background-color", "<getFillColor(f)>")> 
         '<attr("pointer-events", "none")> ;
         ", f.width, f.height, getAtX(f), getAtY(f), 0, 0, f.align, getLineWidth(f), getLineColor(f)
@@ -2614,7 +2608,7 @@ public void _render(Figure fig1, int width = 400, int height = 400,
      int lineWidth = 1, bool display = true, num lineOpacity = 1.0, num fillOpacity = 1.0
      , Event event = noEvent(), int borderWidth = -1, str borderStyle= "", str borderColor = ""
      , bool resizable = true,
-     bool defined = true)
+     bool defined = true, str cssFile = "")
      {    
         id = 0;
         screenHeight = height;
@@ -2659,7 +2653,7 @@ public void _render(Figure fig1, int width = 400, int height = 400,
         _render(f , width = screenWidth, height = screenHeight, align = align, fillColor = fillColor, lineColor = lineColor,
         borderWidth = borderWidth, borderStyle = borderStyle, borderColor = borderColor, display = display, event = event
         , resizable = resizable,
-        defined = defined);
+        defined = defined, cssFile = cssFile);
      }
   
  //public void main() {
