@@ -638,6 +638,20 @@ public void resetColor() {currentColor = 7;}
 
 public str pickColor() {int r = currentColor;currentColor = (currentColor+3)%size(colors); return colors[r];}
 
+public str figToString(Figure f) {
+     str r = "<f>";
+     r = replaceAll(r, "\<0.0,0.0\>", "topLeft");
+     r = replaceAll(r, "\<0.5,0.0\>", "topMid");
+     r = replaceAll(r, "\<1.0,0.0\>", "topRight");
+     r = replaceAll(r, "\<0.0,0.5\>", "centerLeft");
+     r = replaceAll(r, "\<0.5,0.5\>", "centerMid");
+     r = replaceAll(r, "\<1.0,0.5\>", "centerRight");
+     r = replaceAll(r, "\<0.0,1.0\>", "bottomLeft");
+     r = replaceAll(r, "\<0.5,1.0\>", "bottomMid");
+     r = replaceAll(r, "\<1.0,1.0\>", "bottomRight");
+     return r;
+     }
+
 
 public list[str] colors = 
 ["aliceblue",

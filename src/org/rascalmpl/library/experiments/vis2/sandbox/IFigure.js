@@ -303,6 +303,7 @@ function fromInnerToOuterFigure(f, id1, toLw, hpad, vpad) {
 	if (!invalid(from.attr("height")))	 
 	     height = parseInt(from.attr("height"));
 	else height = document.getElementById(id1).getBoundingClientRect().height;
+	// alert("height:"+height+":"+document.getElementById(id1).getBoundingClientRect().height+":"+id1);
 	if (width == 0 || height == 0)
 		return;
 	toLw = corner(f.n, toLw);

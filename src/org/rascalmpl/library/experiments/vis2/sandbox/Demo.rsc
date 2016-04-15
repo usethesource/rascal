@@ -447,9 +447,9 @@ Figure demo13() = fsm();
                     
 void tflags() = render(flags());           
 
-void tsteden() = render(box(size=<50, 50>, tooltip=box(fig=at(100, 100, box(fig=steden(width=400, height = 400))))));
+void tsteden() = render(frame(at(100, 100, box(fig=steden(width=400, height = 400)))));
 
-void fsteden(loc l) = writeFile(l, toHtmlString(box(size=<50, 50>, tooltip=box(fig=at(100, 100, hcat(figs=[steden(width=400, height = 400)]))))));
+void fsteden(loc l) = writeFile(l, toHtmlString(frame(at(100, 100, hcat(figs=[steden(width=400, height = 400)])))));
 
 void tnederland() = render(nederland(5, width=400, height = 200));
 

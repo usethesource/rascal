@@ -1,35 +1,62 @@
 module experiments::vis2::sandbox::FigureServer
 import experiments::vis2::sandbox::Figure;
 import experiments::vis2::sandbox::IFigure;
+import util::ShellExec;
 import Prelude;
 
 public void render(Figure fig1, int width = 800, int height = 800, 
      Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>,
      str fillColor = "none", str lineColor = "black", bool debug = false, bool display = true, 
      Event event = on(nullCallback), int borderWidth = -1, str borderStyle = "", str borderColor = ""
-     ,int lineWidth = -1, bool resizable = true)
+     ,int lineWidth = -1, bool resizable = true, str cssFile="")
      {
      setDebug(debug);
      _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor
      , lineColor = lineColor, lineWidth = lineWidth, size = size, event = event
      , borderWidth = borderWidth, borderStyle = borderStyle, borderColor=borderColor
-     , resizable = resizable, defined = (width? && height?)||(size?));
+     , resizable = resizable, defined = (width? && height?)||(size?), cssFile = cssFile);
      // println(toString());
      }
        
 public str toHtmlString(Figure fig1, int width = 400, int height = 400, 
      Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>,
      str fillColor = "white", str lineColor = "black", bool debug = false
-     , int borderWidth = -1,  str borderColor = "", str borderStyle = "", bool resizable = true)
+     , int borderWidth = -1,  str borderColor = "", str borderStyle = "", bool resizable = true,
+     str cssFile="")
      {
      setDebug(debug);
      _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
      lineColor = lineColor, size = size, display = false
-     , borderWidth = borderWidth, borderWidth = borderWidth, borderStyle = borderStyle, resizable = resizable
+     , borderWidth = borderWidth, borderWidth = borderWidth, borderStyle = borderStyle, resizable = resizable,
+     cssFile = cssFile
      );
      return getIntro();
      }
 
+public void renderSave(Figure fig1, loc file
+     ,int width = 400, int height = 400 
+     ,Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>
+     ,str fillColor = "white", str lineColor = "black", bool debug = false
+     ,int borderWidth = -1,  str borderColor = "", str borderStyle = "", bool resizable = true
+      ,int screenWidth = 500, int screenHeight = 500, str cssFile="") {
+       str r = toHtmlString(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
+       lineColor = lineColor, size = size, display = false
+       ,borderWidth = borderWidth, borderWidth = borderWidth, borderStyle = borderStyle, resizable = resizable
+       ,cssFile=cssFile
+      );  
+      loc parent = file.parent;
+      str name = file.file;
+      if (!endsWith(name, ".png")) {
+            println("Output file name <name> must end with \".png\"");
+            return;
+            }
+      str htmlName = replaceLast(name, ".png", ".html");
+      loc htmlFile = parent+htmlName;
+      writeFile(htmlFile, r);
+      println(exec("fx", workingDir=|file:///ufs/bertl|+"bin"
+         , args=[htmlFile.uri, "<screenWidth>", "<screenHeight>"]
+         ));
+      }
 
 public Style style(str id, str fillColor="", str lineColor="", int lineWidth = -1,
      num fillOpacity = -1.0, num lineOpacity = -1.0, str visibility = "") {
@@ -41,14 +68,6 @@ public Style style(str id, str fillColor="", str lineColor="", int lineWidth = -
      if (lineOpacity>=0) v.lineOpacity = lineOpacity;
      if (!isEmpty(fillColor)) v.fillColor = fillColor;
      if (!isEmpty(lineColor)) v.lineColor = lineColor;
-     // println("visibility? <idx>");
-     //if (!isEmpty(visibility)) {
-     //     v.visibility = visibility;
-     //      list[str] xs = getDescendants(idx);     
-      //     for (x<-xs) {
-     //        style(x, visibility = visibility);
-      //      }
-      //      }
      _setStyle(idx, v);
      return v;
      }

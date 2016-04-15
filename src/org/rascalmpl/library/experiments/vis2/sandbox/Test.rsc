@@ -23,7 +23,7 @@ public void standard() {
      return diff(ok, check);
      }
      
- Figure stack(Figure f) = vcat(vgap=4, figs=[box(fig=text("\<pre\><f>\</pre\>", size=<800, 60>, overflow="auto"), fillColor = "beige"), f]);
+ Figure stack(Figure f) = vcat(vgap=4, figs=[box(fig=text("\<pre\><figToString(f)>\</pre\>", size=<800, 60>, overflow="auto"), fillColor = "beige"), f]);
  
  Figure tests(  ) {
      return vcat(borderWidth=4, vgap=4, figs= mapper(
@@ -32,12 +32,12 @@ public void standard() {
         ,box(fig=text("Hallo", fontSize=20, fontColor="darkred"), grow = 1.7, fillColor = "antiquewhite")
         ,box(fillColor="antiquewhite", lineWidth = 8, lineColor="blue", align = centerMid, grow  =1.0
               , fig = box( size=<200, 200>, fillColor = "gold", lineWidth = 8, lineColor = "red"))
-        ,box(fig=box(size=<50, 50>,fillColor="red"),align= topLeft,grow = 1.5,fillColor = "antiquewhite")
-        ,box(fig=box(size=<50, 50>,fillColor="red"),align= centerMid,grow = 1.5,fillColor = "antiquewhite")
-        ,box(fig=box(size=<50, 50>,fillColor="red"),align= bottomRight,grow = 1.5,fillColor = "antiquewhite")
-        ,box(size=<50,50>, fig= box(shrink=0.75, fillColor = "yellow"), align = topLeft, fillColor= "green", resizable= true)
-        ,box(size=<50,50>, fig= box(shrink=0.75, fillColor = "yellow"), align = centerMid, fillColor= "green", resizable= true)
-        ,box(size=<50,50>, fig= box(shrink=0.75, fillColor = "yellow"), align = bottomRight, fillColor= "green", resizable= true)
+        ,box(fig=box(size=<50, 50>,fillColor="red", lineWidth =1),align= topLeft,grow = 1.5,fillColor = "antiquewhite", lineWidth = 1)
+        ,box(fig=box(size=<50, 50>,fillColor="red", lineWidth =1),align= centerMid,grow = 1.5,fillColor = "antiquewhite", lineWidth = 1)
+        ,box(fig=box(size=<50, 50>,fillColor="red", lineWidth =1),align= bottomRight,grow = 1.5,fillColor = "antiquewhite", lineWidth = 1)
+        ,box(size=<50,50>, fig= box(shrink=0.75, fillColor = "yellow"), align = topLeft, fillColor= "green")
+        ,box(size=<50,50>, fig= box(shrink=0.75, fillColor = "yellow"), align = centerMid, fillColor= "green")
+        ,box(size=<50,50>, fig= box(shrink=0.75, fillColor = "yellow"), align = bottomRight, fillColor= "green")
         ,hcat(figs=[box(size=<30, 30>, fillColor="blue"), box(size=<50, 50>, fillColor="yellow"), box(size=<70, 70>, fillColor=  "red")],align= topLeft)
         ,hcat(figs=[box(size=<30, 30>, fillColor="blue"), box(size=<50, 50>, fillColor="yellow"), box(size=<70, 70>, fillColor=  "red")],align= centerMid)
         ,hcat(figs=[box(size=<30, 30>, fillColor="blue"), box(size=<50, 50>, fillColor="yellow"), box(size=<70, 70>, fillColor=  "red")],align= bottomRight)
@@ -53,23 +53,35 @@ public void standard() {
         , resizable=true);
      } 
      
- public void ttests() = render(tests(), resizable=true); 
+ public void ttests() = render(tests()); 
  
  public void ftests(loc l) = writeFile(l, toHtmlString(
    tests()
  ));
  
-// Figure simple() =  box(size=<100, 100>, fillColor ="green", tooltip = frame(fig=box(size=<150, 150>, fillColor= "red")));
+//Figure simple() =  box(lineWidth= 0, size=<50, 50>, fillColor = "green", tooltip=
+//   box(lineWidth=1, fillColor="whitesmoke", fig=hcat(size=<150, 150>, lineWidth = 0, borderWidth = 0, hgap= 0, figs=[
+//  box(lineWidth = 6, lineColor="magenta", fillColor= "antiquewhite")
+// ,box(lineWidth = 6, size=<50, 50>, lineColor="magenta", fillColor= "whitesmoke")
+//  ]))
+ // )
+ // ;
  
 // Figure simple() =  hcat(figs=[box(size=<30, 30>, fillColor="blue"), box(size=<50, 50>, fillColor="yellow"), box(size=<70, 70>, fillColor=  "red")],align= topLeft);
 
-Figure simple() =  hcat(figs=[box(
-, fig=circle(shrink=0.8, fillColor ="antiquewhite", lineWidth = 20, lineColor="blue", align = centerRight
- , fig = ngon(n=5, shrink=0.8, lineWidth = 20,  lineColor = "red", fillColor="yellow", align = centerLeft
-, fig = circle(shrink=0.6, lineWidth=8, fillColor = "antiquewhite", align = centerRight, lineColor="green")
+Figure simple() {
+  Figure f = circle(shrink=0.6, lineWidth=8, fillColor = "antiquewhite", align = centerRight, lineColor="green");
+  return hcat(figs=[box(
+   , fig=circle(shrink=0.8, fillColor ="antiquewhite", lineWidth = 20, lineColor="blue", align = centerRight
+    , fig = ngon(n=5, shrink=0.8, lineWidth = 20,  lineColor = "red", fillColor="yellow", align = centerMid
+    ,fig = circle(shrink=0.6, lineWidth=8, fillColor = "antiquewhite", lineColor="green"
+   // ,event=on("click", box(fig=at(100, 100, 
+  //  box(vgrow=2.0, lineWidth = 4, lineColor="grey", fig=text("\<pre\><f>\</pre\>"), fillColor = "whitesmoke"))/*, fillColor="none"*/))
+ //,tooltip = box(size=<15, 15>, fillColor="green")
+   )
 )
 )
-)]);
+)]);}
 
 // Figure simple() = box(grow=1.5, fig=hcat(figs=[box(size=<50, 50>, fillColor="red")]));
 //Figure simple() = 
@@ -80,12 +92,16 @@ Figure simple() =  hcat(figs=[box(
 //   ;
 
  
- public void tsimple() = render(simple(), resizable=true, size=<600, 600>);
+ public void tsimple() = render(simple(), size=<600, 600>);
  
  
  public void fsimple(loc l) = writeFile(l, toHtmlString(
    simple(), size=<600, 600>, resizable=true
  )); 
+ 
+ public void psimple(loc l) = renderSave(simple(), l
+    ,width = 400, height = 400
+    );
  
  Figure eye()= ellipse(rx=60, ry = 30, lineColor="brown", align = centerMid, fillColor="teal", lineWidth = 6
                       , fig = circle(shrink=1.0, fillColor = "whitesmoke", lineWidth = 4, lineColor = "red"));
@@ -211,5 +227,17 @@ Figure tetris() =
       ,[place("blue"), place("blue")]
        ]);
   
-void ttetris() = render(tetris());     
+void ttetris() = render(tetris());   
+
+loc location = |project://rascal/src/org/rascalmpl/library/experiments/vis2/data/tutor.html|;  
+
+
+Figure tut() = box(grow=1.2, fig = text(readFile(location)));
+
+public void ttut() {render(tut(), cssFile = "tutor.css", size=<800, 800>);}
+
+public void ftut(loc l) = writeFile(l, toHtmlString(
+   tut(), cssFile = "tutor.css", size=<800, 800>
+ ));
+ 
                  
