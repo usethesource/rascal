@@ -61,11 +61,16 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  	  ( AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int containedIn, loc at) := config.store[uid]
    	  	  || AbstractValue::production(RName name, Symbol \type, int containedIn, Production p, loc at) := config.store[uid] 
    	  	  ),
+   	  	  //bprintln(config.store[uid]), bprintln(config.store[containedIn].at.path), bprintln(at.path),
    	  	  !isEmpty(getSimpleName(name)),
    	  	  containedIn == 0, 
-   	  	  config.store[containedIn].at.path == at.path // needed due to the handling of 'extend' by the type checker
+   	  	  ( config.store[containedIn].at.path == at.path // needed due to the handling of 'extend' by the type checker
+   	  	  || at.path  == "/ConsoleInput.rsc"             // TODO: hack to get the RascalShell working, since config.store[0].at.path
+   	  	                                                 // "/experiments/Compiler/Compile.rc"???
+   	  	  )
    	  	);
-   	  	
+   	  //for(tname <- types) println("<tname>: <types[tname]>");	
+   	  
    	  // Generate companion functions for 
    	  // (1) keyword fields in constructors
    	  // (2) common keyword fields in data declarations
