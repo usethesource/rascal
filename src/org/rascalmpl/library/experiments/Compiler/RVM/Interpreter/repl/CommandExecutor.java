@@ -59,7 +59,6 @@ public class CommandExecutor {
 	private final IValueFactory vf;
 	private String consoleInputName = "ConsoleInput";
 	public static String consoleInputPath = "/ConsoleInput.rsc";
-	//public static String muLibraryPath = "/experiments/Compiler/muRascal2RVM/MuLibrary.mu";
 	private ISourceLocation consoleInputLocation;
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
@@ -189,10 +188,10 @@ public class CommandExecutor {
 			w.append("import ").append(imp).append(";\n");
 		}
 		for(String syn : syntaxDefinitions.keySet()){
-			w.append(syntaxDefinitions.get(syn));
+			w.append(syntaxDefinitions.get(syn)).append("\n");
 		}
 		for(String decl : declarations){
-			w.append(decl);
+			w.append(decl).append("\n");
 		}
 //		for(String name : variables.keySet()){
 //			Variable var = variables.get(name);
@@ -205,7 +204,7 @@ public class CommandExecutor {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation);
 			
-			rvmConsoleExecutable = kernel.compileAndLinkIncremental(vf.string(consoleInputName), reuseConfig, makeCompileKwParamsAsIMap());
+			rvmConsoleExecutable = kernel.compileAndMergeIncremental(vf.string(consoleInputName), reuseConfig, makeCompileKwParamsAsIMap());
 			
 			if(noErrors(modString, rvmConsoleExecutable)){
 				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, stdout, stderr)
@@ -256,9 +255,9 @@ public class CommandExecutor {
 		}
 	}
 	
-	public void evalPrint(String statement, ISourceLocation rootLocation, PrintWriter out) throws IOException{
+	public String evalPrint(String statement, ISourceLocation rootLocation) throws IOException{
 		IValue result = eval(statement, rootLocation);
-		printResult(result, out);
+		return resultToString(result);
 	}
 	
 	public IValue eval(String statement, ISourceLocation rootLocation) {
@@ -323,6 +322,11 @@ public class CommandExecutor {
 		declarations.add(w.toString());
 	}
 	
+	private void undeclareVar(String name){
+		variables.remove(name);
+		declarations.remove(declarations.size() - 1);
+	}
+	
 	private IValue report(String msg){
 		stdout.println(msg);
 		stdout.flush();
@@ -357,6 +361,9 @@ public class CommandExecutor {
 			//assignment: Assignable assignable Assignment operator Statement!functionDeclaration!variableDeclaration statement
 			
 			ITree assignable = get(stat, "assignable");
+			if(unparse(assignable).indexOf("(") >= 0){	// TODO very crude way to distinguish function declarations
+				return evalDeclaration(src, stat);
+			}
 			String name = getBaseVar(assignable);
 			
 			if(name != null){
@@ -397,7 +404,12 @@ public class CommandExecutor {
 					report("Redeclaring variable " + name1);
 				}
 				declareVar(unparse(type), name1, initial);
-				return executeModule("\nvalue main() = <name1>;\n", false);
+				IValue result = executeModule("\nvalue main() = <name1>;\n", false);
+				if(result == null){
+					undeclareVar(name1);
+					forceRecompilation = true;
+				}
+				return result;
 			} else {
 				return report("Initialization required in variable declaration");
 			}
@@ -469,12 +481,12 @@ public class CommandExecutor {
 					forceRecompilation = true;
 					result = executeModule("\nvalue main() = " + name + ";\n", false);
 					if(result == null){
-						this.variables.remove(name);
+						undeclareVar(name);
 						forceRecompilation = true;
 					}
 					return result;
 				} catch (Exception e){
-					this.variables.remove(name);
+					undeclareVar(name);
 					forceRecompilation = true;
 					return null;
 				}
@@ -518,35 +530,34 @@ public class CommandExecutor {
 	
 	//TODO merge with BaseRascalRepl
 	
-	private void printResult(IValue value, PrintWriter out) throws IOException {
+	private String resultToString(IValue value) throws IOException {
+		StringWriter out = new StringWriter();
 		if (value == null) {
-			out.println("ok");
-			out.flush();
-			return;
+			out.append("ok\n");
+			return out.toString();
 		}
 		Type type = value.getType();
 
 		if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree)) {
-			out.print(type.toString());
-			out.print(": ");
+			out.append(type.toString());
+			out.append(": ");
 			// we unparse the tree
-			out.print("(" + type.toString() +") `");
+			out.append("(" + type.toString() +") `");
 			TreeAdapter.yield((IConstructor)value, true, out);
-			out.print("`");
+			out.append("`");
 		}
 		else {
-			out.print(type.toString());
-			out.print(": ");
+			out.append(type.toString());
+			out.append(": ");
 			 try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
 	                indentedPrettyPrinter.write(value, wrt);
 	            }
 	            catch (IOLimitReachedException e) {
 	                // ignore since this is what we wanted
 	            }
-			out.print(value);
 		}
-		out.println();
-		out.flush();
+		out.append("\n");
+		return out.toString();
 	}
 
 	private IValue showOptions(){
@@ -646,7 +657,7 @@ public class CommandExecutor {
 		case "undeclare":
 			if(words.length > 1){
 				for(int i = 1; i <words.length; i++){
-					variables.remove(words[i]);
+					undeclareVar(words[i]);
 					syntaxDefinitions.remove(words[i]);
 				}
 			} else {
@@ -680,14 +691,36 @@ public class CommandExecutor {
 		return null;
 	}	
 	
+	private boolean endsNonEmpty(ITree stat, String consName, String partName){
+		return is(stat, consName) && !is(get(stat, partName), "emptyStatement");
+	}
+	
+	private boolean mayComplete(ITree tree){
+		ITree cmd = TreeAdapter.getStartTop(tree);
+		if(is(cmd, "statement")){
+			ITree stat = get(cmd, "statement");
+			return endsNonEmpty(stat, "ifThen", "thenStatement")
+				   || endsNonEmpty(stat, "ifThenElse", "elseStatement") 
+				   || endsNonEmpty(stat, "while", "body") 
+				   || endsNonEmpty(stat, "solve", "body") 
+				   || endsNonEmpty(stat, "assignment", "statement") 
+				   || endsNonEmpty(stat, "for", "body") 
+				   || endsNonEmpty(stat, "tryFinally", "finallyBody");
+		} else if(is(cmd, "import")){
+			return true;
+		}
+		return false;
+	}
+	
 	  public boolean isStatementComplete(String command) {
 		  
 		  String[] words = command.split(" ");
 		  if(words.length > 0 && CompiledRascalREPL.SHELL_VERBS.contains(words[0])){
 			  return true;
 		  }
+		  ITree parseResult = null;
 		  try {
-			  ITree res = parseCommand(command, URIUtil.rootLocation("prompt"));
+			  parseResult = parseCommand(command, URIUtil.rootLocation("prompt"));
 		  }
 		  catch (ParseError pe) {
 			  String[] commandLines = command.split("\n");
@@ -698,7 +731,7 @@ public class CommandExecutor {
 				  semiColonAdded = false;
 				  return false;
 			  }
-			  if (!semiColonAdded && pe.getEndLine() + 1 == lastLine && lastColumn == pe.getEndColumn()) { 
+			  if (lastLine == 1 && !semiColonAdded && pe.getEndLine() + 1 == lastLine && lastColumn == pe.getEndColumn()) { 
 				  semiColonAdded = true;
 				  boolean isComplete = isStatementComplete(command + ";");
 				  semiColonAdded &= isComplete;
@@ -706,7 +739,7 @@ public class CommandExecutor {
 			  }
 			  return false;
 		  }
-		  return true;
+		  return !semiColonAdded || mayComplete(parseResult);
 	  }
 	
 	public ITree parseCommand(String command, ISourceLocation location) {
