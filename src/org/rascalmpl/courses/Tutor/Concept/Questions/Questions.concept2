@@ -1,0 +1,26 @@
+# Questions
+
+.Synopsis
+
+Questions about the concept.
+
+.Syntax
+`Questions: _Question_~1~, _Question_~2~` (*recommended*)
+
+.Types
+
+.Function
+
+.Details
+
+.Description
+The `Questions` section gives a number of interactive exercises that
+give the student the opportunity to further explore the concept.
+See <<QuestionMarkup>> for details.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
