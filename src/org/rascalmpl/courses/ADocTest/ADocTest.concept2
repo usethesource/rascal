@@ -1,0 +1,22 @@
+# ADoc Test Case
+
+
+.Synopsis
+Test Case
+
+.Syntax
+
+.Types
+
+.Function
+       
+.Usage
+
+.Details
+
+.Description
+
+[source,rascal-shell]
+----
+L = 2/0;
+----

@@ -1,0 +1,113 @@
+# Table
+
+.Synopsis
+
+Mark up for a table.
+
+.Syntax
+[source,rascal]
+----
+| $Header_1$ | $Header_2$ | ... |
+|---------|---------| ... |
+| $Entry_1$  | $Entry_2$  | ... |
+----
+
+.Types
+
+.Function
+
+.Details
+
+.Description
+Each line in a table description starts and ends with a `|` character which is also used to separate columns.
+
+A table description consists of:
+
+*  A line of headers that will be displayed as column names.
+*  A line with separators that can optionally specify column alignment.
+  The default case is that each column is described by one or more `-` characters. This corresponds to centered alignment.
+  Left alignment is described by a column description that starts with a `:` character and right alignment by
+  a column description that end with a `:` character.
+*  Lines given the table entries, separated by `|` characters.
+
+.Examples
+<br>
+
+#####  Example 1 
+
+
+[source,rascal]
+----
+| A |  B  | C |
+|---|-----|---|
+| 12| 123 | 2 |
+----
+
+gives:
+
+|====
+| A | B  | C |
+|---|----|---|
+| 12| 123| 2 |
+|====
+
+#####  Example 2 
+
+
+[source,rascal]
+----
+| A |  B  | C |
+|---|:----|---|
+| 12| 123 | 2 |
+----
+
+gives (with column B left-aligned):
+
+|====
+| A | B   | C |
+|---|:----|---|
+| 12| 123 | 2 |
+|====
+
+#####  Example 3 
+
+
+[source,rascal]
+----
+| A |  B   | C |
+|---|-----:|---|
+| 12| 123  | 2 |
+----
+
+gives (with column B right-aligned):
+
+|====
+| A | B    | C |
+|---|-----:|---|
+| 12| 123  | 2 |
+|====
+
+#####  Example 4 
+
+
+[source,rascal]
+----
+| Operator   | Description |
+|:-----------|:------------|
+| `$A$ | $B$` | Or operator |
+----
+
+gives (note the `|` character in one table entry):
+
+|====
+| Operator   | Description |
+|:-----------|:------------|
+| `$A$ | $B$`   \ \ \ \ \ \      | Or operator |
+|====
+
+
+
+.Benefits
+
+.Pitfalls
+
