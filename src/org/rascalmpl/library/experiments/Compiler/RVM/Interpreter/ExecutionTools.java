@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
@@ -85,9 +86,20 @@ public class ExecutionTools {
 	public static IValue executeProgram(RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){
 		RVMCore rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVMInterpreter(executable, rex);
 		
+		Map<IValue, IValue> moduleVariables = rex.getModuleVariables();
+		
 		rvm = initializedRVM(executable, rex);
 		
-		return executeProgram(rvm, executable, keywordArguments, rex);
+		if(moduleVariables != null){
+			for(IValue key : moduleVariables.keySet()){
+				IValue newVal = moduleVariables.get(key);
+				rvm.updateModuleVariable(key, newVal);
+			}
+		}
+		
+		IValue result = executeProgram(rvm, executable, keywordArguments, rex);
+		rex.setModuleVariables(rvm.getModuleVariables());
+		return result;
 	}
 	
 	/**
@@ -135,9 +147,9 @@ public class ExecutionTools {
 					throw RascalRuntimeException.noMainFunction(null);
 				}
 				String moduleName = executable.getModuleName();
-				if(!uid_module_init.isEmpty()){
-					rvm.executeRVMProgram(moduleName, executable.getUidModuleInit(), arguments, hmKeywordArguments);
-				}
+//				if(!uid_module_init.isEmpty()){
+//					rvm.executeRVMProgram(moduleName, executable.getUidModuleInit(), arguments, hmKeywordArguments);
+//				}
 				//System.out.println("Initializing: " + (Timing.getCpuTime() - start)/1000000 + "ms");
 				result = rvm.executeRVMProgram(moduleName, executable.getUidModuleMain(), arguments, hmKeywordArguments);
 			}
