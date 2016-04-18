@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.rascalmpl.debug.IRascalMonitor;
@@ -78,6 +79,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private boolean coverage;
 	private boolean jvm;
 	private final IMap moduleTags;
+	private Map<IValue, IValue> moduleVariables;
 	
 	private Cache<Type[], Boolean> subtypeCache;
 	private final int subtypeCacheSize = 200;
@@ -351,6 +353,14 @@ public class RascalExecutionContext implements IRascalMonitor {
 		if(frameObserver != null){
 			frameObserver.setRVM(rvmCore);
 		}
+	}
+	
+	public Map<IValue, IValue> getModuleVariables(){
+		return moduleVariables;
+	}
+	
+	void setModuleVariables(Map<IValue, IValue> moduleVariables){
+		this.moduleVariables = moduleVariables;
 	}
 	
 	public void addClassLoader(ClassLoader loader) {
