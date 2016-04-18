@@ -4,6 +4,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
@@ -18,10 +20,15 @@ public class RascalUtils {
 	public RascalUtils(IValueFactory vf){
 		this.vf = vf;
 		if(rvm == null){
-			rvm = ExecutionTools.initializedRVM("compressed+home", "bin/experiments/tutor3/RascalUtils.rvm.ser.gz");
+			RascalExecutionContext rex = 
+					RascalExecutionContextBuilder.normalContext(vf, System.out, System.err)
+						.setJVM(true)					// options for complete repl
+						.setTrace(false)
+						.build();
+			rvm = ExecutionTools.initializedRVM("compressed+home", "bin/experiments/tutor3/RascalUtils.rvm.ser.gz", rex);
 		}
 		try {
-			extractRemoteConcepts  = rvm.getOverloadedFunction("map[str,str] extractRemoteConcepts(str L, str root)");
+			extractRemoteConcepts  = rvm.getOverloadedFunction("str extractRemoteConcepts(str parent, str L)");
 		} catch (NoSuchRascalFunction e) {
 			e.printStackTrace();
 		}
@@ -33,7 +40,12 @@ public class RascalUtils {
 	 * @param kwArgs	Keyword arguments
 	 * @return A 		Map with (subconcep-name, subconcept-text) pairs
 	 */
-	public IMap extractRemoteConcepts(IString L, IString root, IMap kwArgs){
-		return (IMap) rvm.executeRVMFunction(extractRemoteConcepts, new IValue[] { L, root, kwArgs});
+	public IString extractRemoteConcepts(IString parent, IString L, IMap kwArgs){
+		try {
+			return (IString) rvm.executeRVMFunction(extractRemoteConcepts, new IValue[] { parent, L, kwArgs});
+		} catch (Exception e){
+			e.printStackTrace(System.err);
+		}
+		return vf.string("");
 	}
 }

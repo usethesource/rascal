@@ -81,9 +81,13 @@ public class AnsiWriter {
 		indent -= current.startIndent;
 		line();
 		indent += current.startIndent;
-		append(Integer.toString(current.start));
-		current.start++;
-		append(current.delimiter + " ");
+		if(current.ordered){
+			append(Integer.toString(current.start) + ". ");
+			current.start++;
+		} else {
+			append(current.delimiter + "  ");
+		}
+		
 	}
 	
 	public void line() {
@@ -101,7 +105,7 @@ public class AnsiWriter {
 		column += indent;
 	}
 	
-	protected void append(String s) {
+	public void append(String s) {
 		try {
 			buffer.append(s);
 			column += s.length();

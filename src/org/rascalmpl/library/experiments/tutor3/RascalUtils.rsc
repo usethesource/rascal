@@ -17,6 +17,8 @@ import IO;
 import ValueIO;
 import String;
 import List;
+import Map;
+import Set;
 import lang::rascal::\syntax::Rascal;
 import util::Reflective;
 import ParseTree;
@@ -26,7 +28,6 @@ list[loc] libSearchPath = [|clib-rascal:///|, |clib-rascal-eclipse:///|];
 
 //public loc courseDir    = |courses:///|;
 public loc courseDir    =|file:///Users/paulklint/git/rascal/src/org/rascalmpl/courses|;
-public str remoteLoc      = "remote-loc.value";
 
 // A ConceptName is the "pathname" of a concept in the concept hierarchy, e.g., "Rascal/Datastructure/Set"
 
@@ -67,13 +68,13 @@ str normalizeName(str name){
 }
 
 str makeName(str name){
-  return "# Name
-         '<basename(name)>";
+  return "# <basename(name)>";
 }
 
 str makeUsage(str name){
-  return "# Usage
-         '`import <replaceAll(name, "/", "::")>;`";
+  return ".Usage
+         '`import <replaceAll(name, "/", "::")>;`
+         '";
 }
 
 // Return the content of the doc tag in a list of tags.
@@ -88,12 +89,15 @@ private str getDoc(Tags tags){
    return "";
 }
 
-private str getModuleDoc(Header header){
+private str getModuleDoc(str parent, Header header){
   mname = normalizeName("<header.name>");
   doc = getDoc(header.tags);
-  return //"<makeName(mname)>
-         "<makeUsage(mname)>
-         '<doc>";
+  return "[[<parent>-<mname>]]
+         '<makeName(mname)>
+         '<makeUsage(mname)>
+         '
+         '<doc>
+         '";
 }
 
 // Handling of function declarations
@@ -119,11 +123,17 @@ private str getFunctionDoc(str mname, FunctionDeclaration fdecl, list[str] signa
   if(doc == "")
      return "";
   fsig = size(signatures) == 1 ? "`<signatures[0]>`" : "<for(s <- signatures){># `<s>`\n<}>";
-  return  //"<makeName(fname)>
-        "# Function 
+  res = "[[<mname>-<fname>]]
+        '## <basename(fname)>
+        '
+        '.Function 
         '<fsig>
-        '<makeUsage(mname)>
-        '<doc>";
+        '
+        '<doc>
+        '";
+   println("getFunctionDoc:");
+   println(res);
+   return res;
 }
 
 private bool isUndocumentedDataOrAlias(Declaration decl){
@@ -152,29 +162,29 @@ private str getDataDoc(str mname, Declaration decl, list[str] sigs){
     //println("getDataDoc: <decl>, <sigs>");
 	doc = getDoc(decl.tags);
 	nname = normalizeName("<decl.user>");
-	return //"<makeName(nname)>
-	       "Types: 
-	       '```rascal
+	return "#<makeName(nname)>
+	       '.Types
+	       '[source,rascal]
+	       '----
 	       '<intercalate("\n", sigs)>
-	       '```
-	       '<makeUsage(mname)>
-	       '<doc>";
+	       '----
+	       '<doc>
+	       '";
 }
 
 private map[str,str] contentMap = ();
-private str libRoot = "";
+//private str libRoot = "";
 private str moduleName = "";
 private list[Declaration] declarations = [];
 
 // Extract a function declaration from a list of Declarations.
 // Subsequent declarations for functions with the same name (without their own doc tag) are merged.
 // current: index of current declaration in declarations.
-// writing: should we write a remoteLoc file?
 // Returns: <next, doc>:
 //          next: the index of the declaration following the ones used
 //          doc:  the generated documentation string.
 
-private tuple[int,str] extractFunctionDeclaration(int current, bool writing){
+private tuple[int,str] extractFunctionDeclaration(int current){
    decl = declarations[current];
    fdecl = decl.functionDeclaration;
    functionName = normalizeName("<fdecl.signature.name>");
@@ -189,8 +199,7 @@ private tuple[int,str] extractFunctionDeclaration(int current, bool writing){
             current += 1;
       }
       doc = getFunctionDoc(moduleName, fdecl, fsigs);
-      if(doc != "" && writing){  	
-	     //writeFile(courseDir + libRoot + moduleName + functionName + remoteLoc, fdecl@\loc);
+      if(doc != ""){  	
 		 contentMap[key] = doc;
 	  }
    } 
@@ -200,13 +209,12 @@ private tuple[int,str] extractFunctionDeclaration(int current, bool writing){
 // Extract a data or alias declaration from a list of Declarations.
 // Subsequent declarations for data with (without their own doc tag) are merged.
 // current: index of current declaration in declarations.
-// writing: should we write a remoteLoc file?
 // Returns: <next, doc>:
 //          next: the index of the declaration following the ones used
 //          doc:  the generated documentation string.
 
 
-private tuple[int,str] extractDataOrAliasDeclaration(int current, bool writing){
+private tuple[int,str] extractDataOrAliasDeclaration(int current){
   decl = declarations[current];
   userType = normalizeName("<decl.user>");
   key = "<userType>";
@@ -220,8 +228,7 @@ private tuple[int,str] extractDataOrAliasDeclaration(int current, bool writing){
             current += 1;
       }
      doc = getDataDoc(moduleName, decl, sigs);
-     if(doc != "" && writing){  	
-	    //writeFile(courseDir + libRoot + moduleName + userType + remoteLoc, decl@\loc);
+     if(doc != ""){  	
 	    contentMap[key] = doc;
 	 }
   }
@@ -240,23 +247,24 @@ private str getAnnotationDoc(str mname, Declaration decl, str sig){
     //println("getAnnotationDoc: <decl>, <sig>");
 	doc = getDoc(decl.tags);
 	nname = normalizeName("<decl.name>");
-	return //"<makeName(nname)>
-	       "Types: 
-	       '```rascal
+	return "#<makeName(nname)>
+	       '.Types
+	       '[source,rascal]
+	       '----
 	       '<sig>
-	       '```
+	       '----
 	       '<makeUsage(mname)>
-	       '<doc>";
+	       '<doc>
+	       '";
 }
 
 // Extract an annotation declaration from a list of Declarations.
 // current: index of current declaration in declarations.
-// writing: should we write a remoteLoc file?
 // Returns: <next, doc>:
 //          next: the index of the declaration following the one used (always +1).
 //          doc:  the generated documentation string.
 
-private tuple[int,str] extractAnnotationDeclaration(int current, bool writing){
+private tuple[int,str] extractAnnotationDeclaration(int current){
   decl = declarations[current];
   annoType = "<decl.annoType>";
   onType   = "<decl.onType>";
@@ -269,8 +277,7 @@ private tuple[int,str] extractAnnotationDeclaration(int current, bool writing){
      //println("extractAnnotationDeclaration: <name>");
      sig = getAnnotationSignature(decl);
      doc = getAnnotationDoc(moduleName, decl, sig);
-     if(doc != "" && writing){  	
-	    //writeFile(courseDir + libRoot + moduleName + nname + remoteLoc, decl@\loc);
+     if(doc != ""){  	
 	    contentMap[key] = doc;
 	 }
   }
@@ -281,103 +288,65 @@ private tuple[int,str] extractAnnotationDeclaration(int current, bool writing){
 // - L: location of the library
 // - root: the concept that will act as root for all concepts in this library.
 
-public map[str,str] extractRemoteConcepts(str Lstr, str /*ConceptName*/ root){
+public str extractRemoteConcepts(str parent, str Lstr){
  
   loc L = readTextValueString(#loc, Lstr);
   L1 = L.top;
-  //println("extractRemoteConcepts: <L>, <L1>, <root>");
+  //println("extractRemoteConcepts: <L>, <L1>");
 
   try {
     Module M = parseModuleWithSpaces(L1/*, libSearchPath*/).top;
   
  
-  declarations = [];
-  contentMap = ();
-  libRoot = root;
+    declarations = [];
+    contentMap = ();
+ //   libRoot = root;
   
-  Header header = M.header;
-  moduleName = normalizeName("<header.name>"); 
-  doc =  getModuleDoc(header);
-  //println("extractRemoteConcepts: <moduleName>: \'<doc>\'");
-  if(doc != ""){  		
-     //writeFile(courseDir + root + moduleName + remoteLoc,  header@\loc);
-     contentMap["<moduleName>"] = doc;
-      //contentMap["<root>/<moduleName>"] = doc;
-  }
+    Header header = M.header;
+    moduleName = normalizeName("<header.name>"); 
+    moduleNameAsString = "<moduleName>";
+    doc =  getModuleDoc(parent, header);
+    println("extractRemoteConcepts: <moduleName>: \'<doc>\'");
+    if(doc != ""){  		
+       contentMap[moduleNameAsString] = doc;
+    }
   
-  declarations = [tl.declaration | Toplevel tl <- M.body.toplevels];
-  //("<size(declarations)> declarations");
-  int i = 0;
-  while(i < size(declarations)){
-    Declaration decl = declarations[i];
-    if(decl is function){
-       <i, doc> = extractFunctionDeclaration(i, true);
-    } else if(decl is \data || decl is \alias){
-      <i, doc> = extractDataOrAliasDeclaration(i, true);
-    } else if(decl is \annotation){
-      <i, doc> = extractAnnotationDeclaration(i, true);
-    } else {
-      i += 1;
-  	}
-  }
-  return contentMap;
-
-  }
-  catch PathNotFound(loc l): {
-    println("Referred module has disappeared: <L>, as referred to in <root>");
-    return ();
+    declarations = [tl.declaration | Toplevel tl <- M.body.toplevels];
+    //println("<size(declarations)> declarations");
+    int i = 0;
+    while(i < size(declarations)){
+      Declaration decl = declarations[i];
+      if(decl is function){
+         <i, doc> = extractFunctionDeclaration(i);
+      } else if(decl is \data || decl is \alias){
+        <i, doc> = extractDataOrAliasDeclaration(i);
+      } else if(decl is \annotation){
+        <i, doc> = extractAnnotationDeclaration(i);
+      } else {
+        i += 1;
+  	  }
+    }
+    sorted_keys = sort(toList(domain(contentMap)));
+    result = contentMap[moduleNameAsString];
+    println("result = <result>");
+    println("sorted_keys = <sorted_keys>");
+    for(key <- sorted_keys){
+        println("<key>:");
+        println(contentMap[key]);
+        if(key != moduleNameAsString){
+           result += contentMap[key];
+        }
+    }
+    return result;
+  } catch PathNotFound(loc l): {
+    println("Referred module has disappeared: <L>");
+    return "";
   }
   println("AT END OF extractRemoteConcepts");
 }
 
-// ---- Functions for editing individual concepts in a library file ----
-
-// Extract the contents of the doc string for itemName
-// This function is used when editing a single doc entry in a library file.
-// L: location of library file
-// itemName: the name of the item for which documentation has to be extracted.
-// Returns:  the documentation associated with itemName.
-
-public str extractDoc(loc L, str itemName){
- // L1 = L[offset=-1][length=-1][begin=<-1,-1>][end=<-1,-1>];
-  L1 = L.top;
-  //println("extractDoc: <L1>, <itemName>");
-  Module M = parseModuleWithSpaces(L1/*, libSearchPath*/).top;
-  Header header = M.header;
-  moduleName = basename(normalizeName("<header.name>")); 
-  if(moduleName == itemName) 
-  	 return getModuleDoc(header);
-
-  declarations = [tl.declaration | Toplevel tl <- M.body.toplevels];
-  contentMap = ();
-  
-  int i = 0;
-  while(i < size(declarations)){
-    Declaration decl = declarations[i];
-    if(decl is function){
-       <i, doc> = extractFunctionDeclaration(i, false);
-       if(normalizeName("<decl.functionDeclaration.signature.name>") == itemName) return doc;
-    } else if(decl is \data || decl is \alias){
-      <i, doc> = extractDataOrAliasDeclaration(i, false);
-      if(normalizeName("<decl.user>") == itemName) return doc;
-    } else if(decl is \annotation){
-      <i, doc> = extractAnnotationDeclaration(i, true);
-      if(de_escape("<decl.name>") == itemName) return doc;
-    } else {
-      i += 1;
-  	}
-  }
-  
-  //println("extractDoc: <L1>, <itemName>, returns empty");
-  return "";
-}
-
 value main(){
-    concepts = extractRemoteConcepts("|std:///Boolean.rsc|", "Test/Library");
-    for(cp <- concepts){
-        println("<cp>:");
-        println(concepts[cp]);
-    }
+   println(extractRemoteConcepts("PARENT", "|std:///Boolean.rsc|"));
     return true;
 }
 
