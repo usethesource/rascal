@@ -23,9 +23,8 @@ import org.commonmark.node.Emphasis;
 import org.commonmark.node.FencedCodeBlock;
 import org.commonmark.node.HardLineBreak;
 import org.commonmark.node.Heading;
-//import org.commonmark.node.HorizontalRule;
 import org.commonmark.node.HtmlBlock;
-//import org.commonmark.node.HtmlTag;
+import org.commonmark.node.HtmlInline;
 import org.commonmark.node.Image;
 import org.commonmark.node.IndentedCodeBlock;
 import org.commonmark.node.Link;
@@ -37,6 +36,7 @@ import org.commonmark.node.Paragraph;
 import org.commonmark.node.SoftLineBreak;
 import org.commonmark.node.StrongEmphasis;
 import org.commonmark.node.Text;
+import org.commonmark.node.ThematicBreak;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.highlighter.IHighlighter;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.Parser;
@@ -61,6 +61,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  */
 public class AnsiRenderer {
 
+	private final List<CustomAnsiRenderer> customAnsiRenderers;
     private final List<AttributeProvider> attributeProviders;
     
     private int lineWidth = 80;
@@ -85,6 +86,7 @@ public class AnsiRenderer {
         this.closeStrong = builder.closeStrong;
         
         this.highlighter = builder.highlighter;
+        this.customAnsiRenderers = builder.customAnsiRenderers;
     }
 
     /**
@@ -117,6 +119,7 @@ public class AnsiRenderer {
      */
     public static class Builder {
 
+    	private List<CustomAnsiRenderer> customAnsiRenderers = new ArrayList<>();
         private List<AttributeProvider> attributeProviders = new ArrayList<>();
         private int lineWidth = 80;
     	
@@ -156,9 +159,14 @@ public class AnsiRenderer {
         	this.highlighter = highlighter;
         	return this;
         }
+        
+        public Builder customAnsiRenderer(CustomAnsiRenderer customAnsiRenderer) {
+            this.customAnsiRenderers.add(customAnsiRenderer);
+            return this;
+        }
 
         /**
-         * @param extensions extensions to use on this HTML renderer
+         * @param extensions extensions to use on this Ansi renderer
          * @return {@code this}
          */
         public Builder extensions(Iterable<? extends Extension> extensions) {
@@ -234,6 +242,7 @@ public class AnsiRenderer {
         	
         	ansi.setInBlockQuote(false);
         	ansi.line();
+        	ansi.line();
         }
 
         @Override
@@ -253,6 +262,8 @@ public class AnsiRenderer {
             if(highlighter == null){
             	ansi.append("```");
             	if (info != null && !info.isEmpty()) {
+            		info = info.replaceFirst("-continue", "");
+            		info = info.replaceFirst("-errors", "");
             		ansi.append(info);
             	}
             	lines = literal.split("\n");
@@ -291,12 +302,12 @@ public class AnsiRenderer {
             ansi.line();
         }
 
-//        @Override
-//        public void visit(HorizontalRule horizontalRule) {
-//            cm.line();
-//            cm.append("---");
-//            cm.line();
-//        }
+        @Override
+        public void visit(ThematicBreak thematicBreak) {
+            ansi.line();
+            ansi.append("---");
+            ansi.line();
+        }
 
         @Override
         public void visit(IndentedCodeBlock indentedCodeBlock) {
@@ -305,7 +316,6 @@ public class AnsiRenderer {
 
         @Override
         public void visit(Link link) {
-        	ansi.line();
         	ansi.append("[");
         	visitChildren(link);
         	ansi.append("](");
@@ -331,7 +341,7 @@ public class AnsiRenderer {
             if (start != 1) {
                 attrs.put("start", String.valueOf(start));
             }
-            ansi.enterOrderedList(start,orderedList.getDelimiter());
+            ansi.enterOrderedList(start, orderedList.getDelimiter());
             renderListBlock(orderedList, "ol", getAttrs(orderedList, attrs));
             ansi.leaveOrderedList();
         }
@@ -406,12 +416,12 @@ public class AnsiRenderer {
             ansi.append("`");
         }
 
-//        @Override
-//        public void visit(HtmlTag htmlTag) {
-//        	//cm.append("<");
-//        	cm.append(htmlTag.getLiteral());
-//        	//cm.append(">");
-//        }
+        @Override
+        public void visit(HtmlInline htmlInline) {
+        	ansi.append("<");
+        	ansi.append(htmlInline.getLiteral());
+        	ansi.append(">");
+        }
 
         @Override
         public void visit(SoftLineBreak softLineBreak) {
@@ -434,13 +444,13 @@ public class AnsiRenderer {
         }
 
         private void renderCustom(Node node) {
-//            for (CustomCommonMarkRenderer customHtmlRenderer : customCommonMarkRenderers) {
-//                // TODO: Should we pass attributes here?
-//                boolean handled = customHtmlRenderer.render(node, cm, this);
-//                if (handled) {
-//                    break;
-//                }
-//            }
+            for (CustomAnsiRenderer customAnsiRenderer : customAnsiRenderers) {
+                // TODO: Should we pass attributes here?
+                boolean handled = customAnsiRenderer.render(node, ansi, this);
+                if (handled) {
+                    break;
+                }
+            }
         }
 
         private void renderCodeBlock(String literal, Map<String, String> attributes) {
