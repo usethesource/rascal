@@ -1,0 +1,61 @@
+[[Abstract-VariableDeclaration]]
+# Variable Declaration Pattern
+:concept: Patterns/Abstract/VariableDeclaration
+
+.Synopsis
+Variable declaration in abstract pattern.
+
+.Syntax
+
+.Types
+
+.Function
+
+.Description
+
+A variable declaration
+[source,rascal,subs="quotes"]
+----
+_Type_ _Var_
+----
+can be used as abstract pattern.
+A variable declaration introduces a new variable _Var_ that matches any value of the given type _Type_.
+That value is assigned to _Var_ when the whole match succeeds.
+
+The scope of this variable is the outermost expression in which the pattern occurs
+or the enclosing <<If>>, <<While>>, or <<Do>> if the pattern occurs in the test expression of those statements.
+
+.Examples
+Let's first perform a match that succeeds:
+[source,rascal-shell-error]
+----
+rascal>str S := "abc";
+bool: true
+----
+and now we attempt to inspect the value of `S`:
+[source,rascal-shell-error]
+----
+rascal>S;
+[error] Name S is not in scope
+----
+
+As mentioned above: `S` is only bound in the scope of the match expression!
+Let's explore how bindings work in an if statement:
+[source,rascal-shell]
+----
+rascal>import IO;
+ok
+rascal>if(str S := "abc")
+>>>>>>>   println("Match succeeds, S == \"<S>\"");
+Match succeeds, S == "abc"
+ok
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

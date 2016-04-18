@@ -1,0 +1,30 @@
+[[Disambiguation-Reserve]]
+# Reserve Declaration
+:concept: Declarations/SyntaxDefinition/Disambiguation/Reserve
+
+.Synopsis
+Reserve is a conditional <<Symbol>>, constraining the set of strings that a symbol may produce.
+
+.Syntax
+
+*  `_Symbol_ \ _constraint_`
+
+
+where a _constraint_ is any character class, a literal or a keyword non-terminal <<Symbol>>.
+
+.Types
+
+.Function
+
+.Description
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

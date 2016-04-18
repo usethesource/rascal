@@ -1,0 +1,44 @@
+[[Boolean-NoMatch]]
+# Boolean NoMatch
+:concept: Expressions/Values/Boolean/NoMatch
+
+.Synopsis
+Negated [Boolean Match] operator.
+
+.Syntax
+`_Pat_ !:= _Exp_`
+
+.Types
+
+//
+
+|====
+| `_Pat_`     | `_Exp_` |`_Pat_ !:= _Exp_`
+
+| [Patterns]  | `value` | `bool`          
+|====
+
+.Function
+
+.Description
+See <<Pattern Matching>> for an introduction to pattern matching and <<Patterns>> for a complete description.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>123 !:= 456;
+bool: true
+rascal>[10, *n, 50] !:= [10, 20, 30, 40];
+bool: true
+rascal>{10, *n, 50} !:= {40, 30, 30, 10};
+bool: true
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

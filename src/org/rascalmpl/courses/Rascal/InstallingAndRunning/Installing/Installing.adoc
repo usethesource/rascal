@@ -1,0 +1,26 @@
+[[InstallingAndRunning-Installing]]
+# Installing
+:concept: InstallingAndRunning/Installing
+
+.Synopsis
+
+The latest download and installation instructions can be found at the http://www.rascal-mpl.org[Rascal Website].
+
+.Syntax
+
+.Types
+
+.Function
+
+.Description
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

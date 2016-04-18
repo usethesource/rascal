@@ -1,0 +1,43 @@
+[[Boolean-Match]]
+# Boolean Match
+:concept: Expressions/Values/Boolean/Match
+
+.Synopsis
+Match a pattern against an expression.
+
+.Syntax
+`_Pat_ := _Exp_`
+
+.Types
+
+//
+
+|====
+| `_Pat_`      | `_Exp_` |`_Pat_ := _Exp_`
+
+| <<Patterns>> | `value` | `bool`        
+|====
+
+.Function
+
+.Description
+See <<Pattern Matching>> for an introduction to pattern matching and <<Patterns>> for a complete description.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>123 := 456;
+bool: false
+rascal>[10, *n, 50] := [10, 20, 30, 40, 50];
+bool: true
+rascal>{10, *int n, 50} := {50, 40, 30, 30, 10};
+bool: true
+----
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

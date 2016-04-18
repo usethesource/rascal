@@ -1,0 +1,41 @@
+[[String-Equal]]
+# String Equal
+:concept: Expressions/Values/String/Equal
+
+.Synopsis
+Equality operator on string values.
+
+.Syntax
+`_Exp_~1~ == _Exp_~2~`
+
+.Types
+
+
+|====
+| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ == _Exp~2~_` 
+
+| `str`     |  `str`    | `bool`               
+|====
+
+.Function
+
+.Description
+Yields `true` if both arguments are identical and `false` otherwise.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>"abc" == "abc";
+bool: true
+rascal>"abc" == "defghi";
+bool: false
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

@@ -1,0 +1,45 @@
+[[Number-Multiplication]]
+# Number Multiplication
+:concept: Expressions/Values/Number/Multiplication
+
+.Synopsis
+Multiply two numeric values.
+
+.Syntax
+`_Exp_~1~ * _Exp_~2~`
+
+.Types
+
+
+|====
+| `_Exp~1~_` |  `_Exp~2~_` | `_Exp~1~_ * _Exp~2~_` 
+
+| `int`     |  `int`     | `int`               
+| `int`     |  `real`    | `real`              
+| `real`    |  `real`    | `real`              
+|====
+
+.Function
+
+.Description
+Yields the result of multiplying the values of _Exp~1~_ and _Exp~2~_.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>12 * 13
+int: 156
+rascal>12 * 13.5
+real: 162.0
+rascal>-12*13
+int: -156
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

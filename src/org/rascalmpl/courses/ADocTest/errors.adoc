@@ -1,0 +1,7 @@
+# Errors in Course ADocTest
+* __ADocTest__:
+```
+ArithmeticException("/ by zero") at |test-modules:///ConsoleInput.rsc|(36,3,<3,15>,<3,18>)
+Call stack (most recent first):
+	main([]) at |test-modules:///ConsoleInput.rsc|(36,3,<3,15>,<3,18>)
+```

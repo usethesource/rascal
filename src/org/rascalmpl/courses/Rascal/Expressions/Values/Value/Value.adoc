@@ -1,0 +1,52 @@
+[[Values-Value]]
+# Value
+:concept: Expressions/Values/Value
+
+.Synopsis
+Values of type `value`.
+
+.Syntax
+
+.Types
+`value`
+
+.Function
+
+.Description
+Value stands for all possible Rascal values and is represented by the type `value`.
+This type is a container for all other types and does not have any values itself.
+
+The following operators are provided for values:
+
+**** <<Value-Conditional,Value Conditional>>: Conditional expression on values.
+**** <<Value-Equal,Value Equal>>: Equal operator on values.
+**** <<Value-GreaterThan,Value GreaterThan>>: Greater than operator on values.
+**** <<Value-GreaterThanOrEqual,Value GreaterThanOrEqual>>: Greater than or equal operator on values.
+**** <<Value-LessThan,Value LessThan>>: Less than operator on values.
+**** <<Value-LessThanOrEqual,Value LessThanOrEqual>>: Less than or equal operator on values.
+**** <<Value-NotEqual,Value NotEqual>>: Not equal operator on values.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+include::Conditional/Conditional.adoc[Conditional]
+
+include::Equal/Equal.adoc[Equal]
+
+include::GreaterThan/GreaterThan.adoc[GreaterThan]
+
+include::GreaterThanOrEqual/GreaterThanOrEqual.adoc[GreaterThanOrEqual]
+
+include::LessThan/LessThan.adoc[LessThan]
+
+include::LessThanOrEqual/LessThanOrEqual.adoc[LessThanOrEqual]
+
+include::NotEqual/NotEqual.adoc[NotEqual]
+
+
+:leveloffset: -1

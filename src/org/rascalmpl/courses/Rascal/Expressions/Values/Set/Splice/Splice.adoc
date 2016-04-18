@@ -1,0 +1,56 @@
+[[Set-Splice]]
+# Set Splice
+:concept: Expressions/Values/Set/Splice
+
+.Synopsis
+Splice the elements of a set in an enclosing set.
+
+.Syntax
+
+.Types
+
+
+|====
+|`_Exp_` | `_Exp~1~_`|  `_Exp~n~_` | `{_Exp~1~_, ..., _Exp_, ..., _Exp~n~_}` 
+
+|`_T_`   | `_T~1~_`  |  `_T~n~_`   | `set[lub(_T~1~_, ..., _T_, ...,_T~n~_)]`    
+|====
+
+.Function
+       
+.Usage
+
+.Description
+The operator `*` splices the elements of a set in an enclosing set.
+
+.Examples
+
+Consider the following set in which the set `{10, 20, 30]` occurs as set element. It has as type `set[value]`:
+[source,rascal-shell]
+----
+rascal>{1, 2, {10, 20, 30}, 3, 4};
+set[value]: {3,2,4,1,{10,20,30}}
+----
+The effect of splicing the same set element in the enclosing set gives a flat list of type `set[int]`:
+[source,rascal-shell]
+----
+rascal>{1, 2, *{10, 20, 30}, 3, 4};
+set[int]: {10,1,3,20,2,4,30}
+----
+The same example can be written as:
+[source,rascal-shell]
+----
+rascal>S = {10, 20, 30};
+set[int]: {10,20,30}
+rascal>{1, 2, *S, 3, 4};
+set[int]: {10,1,3,20,2,4,30}
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

@@ -1,0 +1,58 @@
+[[Node-Subscription]]
+# Node Subscription
+:concept: Expressions/Values/Node/Subscription
+
+.Synopsis
+Retrieve an argument of a node via its index.
+
+.Syntax
+`_Exp_~1~ [ _Exp_~2~ ]`
+
+.Types
+
+
+|====
+| `_Exp~1~_`     | `_Exp~2~_` | `_Exp~1~_ [ _Exp~2~_ ]` 
+
+| `node`        | `int`     | `value`                
+|====
+
+.Function
+
+.Description
+Node subscription uses the integer value of _Exp_~2~ as index in the argument list of the node value of _Exp_~1~.
+The value of _Exp_~2~ should be greater or equal 0 and less than the number of arguments of the node.
+If this is not the case, the exception `IndexOutOfBounds` is thrown.
+
+.Examples
+[source,rascal-shell-error]
+----
+----
+Introduce a node, assign it to F and retrieve the various arguments:
+[source,rascal-shell-error]
+----
+rascal>F = "f"(1, "abc", false);
+node: "f"(1,"abc",false)
+rascal>F[0]
+int: 1
+rascal>F[1]
+str: "abc"
+rascal>F[2]
+bool: false
+----
+Explore an error case:
+[source,rascal-shell-error]
+----
+rascal>F[3];
+IndexOutOfBounds(3) at |test-modules:///ConsoleInput.rsc|(44,4,<4,15>,<4,19>)
+Call stack (most recent first):
+	main([]) at |test-modules:///ConsoleInput.rsc|(44,4,<4,15>,<4,19>)
+
+ok
+----
+
+       
+
+:leveloffset: +1
+
+:leveloffset: -1

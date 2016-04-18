@@ -1,0 +1,47 @@
+[[Number-Subtraction]]
+# Number Subtraction
+:concept: Expressions/Values/Number/Subtraction
+
+.Synopsis
+Subtract two numeric values.
+
+.Syntax
+`_Exp_~1~ - _Exp_~2~`
+
+.Types
+
+
+|====
+| `_Exp~1~_` |  `_Exp~2~_` | `_Exp~1~_ - _Exp~2~_` 
+
+| `int`     |  `int`     | `int`               
+| `int`     |  `real`    | `real`              
+| `real`    |  `real`    | `real`              
+|====
+
+.Function
+
+.Description
+Yields the numerical result of subtracting the value of _Exp_~2~ from the value of _Exp_~1~.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>13 - 12
+int: 1
+rascal>13.5 - 12
+real: 1.5
+rascal>12 - 13
+int: -1
+rascal>12 - 13.5
+real: -1.5
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

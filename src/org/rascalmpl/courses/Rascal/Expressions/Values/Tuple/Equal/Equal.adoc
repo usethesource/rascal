@@ -1,0 +1,39 @@
+[[Tuple-Equal]]
+#  Tuple Equal
+:concept: Expressions/Values/Tuple/Equal
+
+.Synopsis
+Equality operator on tuple values.
+
+.Syntax
+`_Exp_~1~ == _Exp_~2~`
+
+.Types
+
+
+|====
+| `_Exp~1~_`                      |  `_Exp~2~_`                      | `_Exp~1~_ == _Exp~2~_`
+
+| `tuple[ _T~11~_, _T~12~_, ... ]` |  `tuple[ _T~21~_, _T~22~_, ... ]` | `bool`             
+|====
+
+.Function
+
+.Description
+Yields `true` if both tuples are identical and `false` otherwise.
+
+.Examples
+[source,rascal-shell]
+----
+rascal><1, "abc", true> == <1, "abc", true>;
+bool: true
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

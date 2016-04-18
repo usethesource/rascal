@@ -1,0 +1,105 @@
+[[Values-ListRelation]]
+# ListRelation
+:concept: Expressions/Values/ListRelation
+
+.Synopsis
+ListRelation values.
+
+.Syntax
+`[ < _Exp_~11~, _Exp_~12~, ... > , < _Exp_~21~, _Exp_~22~, ... > , ... ]`
+
+.Types
+
+//
+
+[cols="20,20,20,40"]
+|====
+| `_Exp~11~_` |  `_Exp~12~_` |  ...  | `{ < _Exp~11~_, _Exp~12~_, ... > , ... }`  
+
+| `_T~1~_`    |    `_T~2~_`  |  ...  |  `lrel[_T~1~_, _T~2~_, ... ]`              
+|====
+
+.Usage
+
+.Function
+
+.Description
+A list relation is a list of elements with the following property:
+
+*  All elements have the same static tuple type.
+
+
+ListRelations are thus nothing more than lists of tuples, but since they are used so often we provide a shorthand notation for them.
+ListRelations are represented by the type `lrel[_T_~1~ _L_~1~, _T_~2~ _L_~2~, ... ]`, where _T_~1~, _T_~2~, ... are arbitrary types and
+_L_~1~, _L_~2~, ... are optional labels. It is a shorthand for `list[tuple[_T_~1~ _L_~1~, _T_~2~ _L_~2~, ... ]]`.
+
+An n-ary list relation with m tuples is denoted by
+ `[< _E_~11~, _E_~12~, ..., _E_~1n~>,< _E_~21~, _E_~22~, ..., _E_~2n~>, ..., < _E_~m1~, _E_~m2~, ..., _E_~mn~>]`, 
+where the _E_~ij~ are expressions that yield the desired element type _T_~i~.
+
+Since list relations are a form of list all operations (see <<Values-List>>) and functions
+(see <<Prelude-List>>) are also applicable to relations.
+
+The following additional operators are provided for list relations:
+
+**** <<ListRelation-CartesianProduct,ListRelation CartesianProduct>>: Cartesian product of two list relation values.
+**** <<ListRelation-Composition,ListRelation Composition>>: Composition of two list relation values.
+**** <<ListRelation-FieldSelection,ListRelation FieldSelection>>: Select a field (column) from a list relation value.
+**** <<ListRelation-Join,ListRelation Join>>: Join two list relation values.
+**** <<ListRelation-ReflexiveTransitiveClosure,ListRelation Reflexive Transitive Closure>>: The reflexive transitive closure of a binary list relation.
+**** <<ListRelation-Subscription,ListRelation Subscription>>: Indexing of a list relation via tuple values.
+**** <<ListRelation-TransitiveClosure,ListRelation Transitive Closure>>: Transitive closure on binary list relation values.
+
+The following additional functions are provided on list relations:
+subtoc[Rascal/Libraries/Prelude/ListRelation,1]
+
+
+.Examples
+[source,rascal-shell]
+----
+rascal>[<1,10>, <2,20>, <3,30>]
+lrel[int,int]: [
+  <1,10>,
+  <2,20>,
+  <3,30>
+]
+----
+instead of lrel[int,int] we can also give `list[tuple[int,int]]` as type of the above expression
+remember that these types are interchangeable.
+[source,rascal-shell]
+----
+rascal>[<"a",10>, <"b",20>, <"c",30>]
+lrel[str,int]: [
+  <"a",10>,
+  <"b",20>,
+  <"c",30>
+]
+rascal>[<"a", 1, "b">, <"c", 2, "d">]
+lrel[str,int,str]: [
+  <"a",1,"b">,
+  <"c",2,"d">
+]
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+include::CartesianProduct/CartesianProduct.adoc[CartesianProduct]
+
+include::Composition/Composition.adoc[Composition]
+
+include::FieldSelection/FieldSelection.adoc[FieldSelection]
+
+include::Join/Join.adoc[Join]
+
+include::ReflexiveTransitiveClosure/ReflexiveTransitiveClosure.adoc[ReflexiveTransitiveClosure]
+
+include::Subscription/Subscription.adoc[Subscription]
+
+include::TransitiveClosure/TransitiveClosure.adoc[TransitiveClosure]
+
+
+:leveloffset: -1

@@ -1,0 +1,82 @@
+[[Patterns-Abstract]]
+# Abstract Patterns
+:concept: Patterns/Abstract
+
+.Synopsis
+Abstract patterns.
+
+.Syntax
+
+
+|====
+| Pattern              | Syntax                                                                      
+
+| Literal              | <<Values-Boolean>>, <<Values-Integer>>, <<Values-Real>>, <<Values-Number>>, <<Values-String>>, <<Values-Location>>, or <<Values-DateTime>> 
+| Variable declaration | `_Type_ _Var_`                                                              
+| Multi-variable       | `*_Var_`, `*_Type_ _Var_`                                                   
+| Variable             | `_Var_`                                                                     
+| List                 | `[ _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ ]`                                        
+| Set                  | `{ _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ }`                                        
+| Tuple                | `< _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ >`                                        
+| Node                 | `_Name_ ( _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ )`                                 
+| Descendant           | `/ _Pat_`                                                                   
+| Labelled             | `_Var_ : _Pat_`                                                             
+| TypedLabelled        | `_Type_ _Var_ : _Pat_`                                                      
+| TypeConstrained      |  `[_Type_] _Pat_`                                                           
+|====
+
+.Types
+
+.Function
+
+.Description
+An abstract pattern is recursively defined and may contain the following elements:
+
+*** <<Abstract-Descendant,Descendant Pattern>>: Deep match in an abstract pattern.
+*** <<Abstract-Labelled,Labelled Pattern>>: Labelled abstract pattern.
+*** <<Abstract-List,List Pattern>>: List in abstract pattern.
+*** <<Abstract-Literal,Literal Pattern>>: Literal in abstract pattern.
+*** <<Abstract-MultiVariable,MultiVariable Pattern>>: Multi-variable (also known as Splice-variable) in abstract pattern.
+*** <<Abstract-Node,Node pattern>>: Node in abstract pattern.
+*** <<Abstract-Set,Set Pattern>>: Set in abstract pattern.
+*** <<Abstract-Tuple,Tuple Pattern>>: Tuple in abstract pattern.
+*** <<Abstract-TypeConstrained,Type Constrained Pattern>>: Type constrained abstract pattern.
+*** <<Abstract-TypedLabelled,Typed and Labelled Pattern>>: Typed, labelled, abstract pattern.
+*** <<Abstract-Variable,Variable Pattern>>: Variable in abstract pattern.
+*** <<Abstract-VariableDeclaration,Variable Declaration Pattern>>: Variable declaration in abstract pattern.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+Map patterns are not (yet?) supported.
+
+
+:leveloffset: +1
+include::Descendant/Descendant.adoc[Descendant]
+
+include::Labelled/Labelled.adoc[Labelled]
+
+include::List/List.adoc[List]
+
+include::Literal/Literal.adoc[Literal]
+
+include::MultiVariable/MultiVariable.adoc[MultiVariable]
+
+include::Node/Node.adoc[Node]
+
+include::Set/Set.adoc[Set]
+
+include::Tuple/Tuple.adoc[Tuple]
+
+include::TypeConstrained/TypeConstrained.adoc[TypeConstrained]
+
+include::TypedLabelled/TypedLabelled.adoc[TypedLabelled]
+
+include::Variable/Variable.adoc[Variable]
+
+include::VariableDeclaration/VariableDeclaration.adoc[VariableDeclaration]
+
+
+:leveloffset: -1

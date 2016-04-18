@@ -1,0 +1,58 @@
+[[Map-Subscription]]
+# Map Subscription
+:concept: Expressions/Values/Map/Subscription
+
+.Synopsis
+Retrieve a value by its key in map.
+
+.Syntax
+`_Exp_~1~ [ _Exp_~2~ ]`
+
+.Types
+
+|====
+| `_Exp~1~_`           | `_Exp~2~_` | `_Exp~1~_ [ _Exp~2~_ ]` 
+
+| `map[_T~1~_, _T~2~_]` | `_T~1~_`   | `_T~2~_`               
+|====
+
+.Function
+
+.Description
+Map subscription uses the value of _Exp_~2~ as key in the map value of _Exp_~1~ and returns the associated value.
+If this key does not occur in the map, the exception `NoSuchKey` is thrown.
+
+.Examples
+[source,rascal-shell-error]
+----
+----
+Introduce a map, assign it to `colors`, and retrieve the element with index `"trumps"`:
+[source,rascal-shell-error]
+----
+rascal>colors = ("hearts":"red", "clover":"black", 
+>>>>>>>          "trumps":"black", "clubs":"red");
+map[str, str]: ("hearts":"red","trumps":"black","clover":"black","clubs":"red")
+rascal>colors["trumps"];
+str: "black"
+----
+Explore some erroneous subscription expressions:
+[source,rascal-shell-error]
+----
+rascal>colors[0];
+[error] Expected subscript of type str, not int IN 'colors[0]'
+rascal>colors["square"];
+NoSuchKey("square") at |test-modules:///ConsoleInput.rsc|(58,16,<4,15>,<4,31>)
+Call stack (most recent first):
+	main([]) at |test-modules:///ConsoleInput.rsc|(58,16,<4,15>,<4,31>)
+
+ok
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

@@ -1,0 +1,57 @@
+[[Value-NotEqual]]
+# Value NotEqual
+:concept: Expressions/Values/Value/NotEqual
+
+.Synopsis
+Not equal operator on values.
+
+.Syntax
+`_Exp_~1~ != _Exp_~2~`
+
+.Types
+
+
+|====
+| `_Exp~1~_`   | `_Exp~2~_` | `_Exp~1~_ != _Exp~2~_` 
+
+| `value`     |  `value`  | `bool`               
+|====
+
+.Function
+
+.Description
+Yields `true` if both arguments are not identical and `false` otherwise.
+
+.Examples
+
+Introduce two variables `X`, `Y` and `Z` and force them to be of type `value`:
+[source,rascal-shell]
+----
+rascal>value X = "abc";
+str: "abc"
+rascal>value Y = "abc";
+str: "abc"
+rascal>value Z = 3.14;
+real: 3.14
+----
+Now compare `X` and `Y` for inequality:
+[source,rascal-shell]
+----
+rascal>X != Y;
+bool: false
+----
+and `X` and `Z`:
+[source,rascal-shell]
+----
+rascal>X != Z;
+bool: true
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1
