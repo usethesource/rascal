@@ -366,6 +366,14 @@ RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool jvm=tru
 
 RVMProgram compileAndMergeIncremental(str qualifiedModuleName, bool reuseConfig, bool jvm=true, bool verbose = false){
    pcfg = pathConfig(srcPath=[|std:///|, |test-modules:///|], binDir=|home:///bin-console|, libPath=[|home:///bin-console|]);
+   if(!reuseConfig){
+      mergedImportLoc = getMergedImportsWriteLoc(qualifiedModuleName, pcfg);
+      try {
+         remove(mergedImportLoc);
+         //println("Removed: <mergedImportLoc>");
+      } catch e:
+          ;//println("Could not remove: <mergedImportLoc>"); // ignore possible exception
+   }
    mainModule = compileIncremental(qualifiedModuleName, reuseConfig, pcfg, verbose=verbose); 
    merged = mergeImports(mainModule, pcfg, verbose=verbose, jvm=jvm);
 
