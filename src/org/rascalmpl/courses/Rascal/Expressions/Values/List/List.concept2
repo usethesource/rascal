@@ -7,10 +7,14 @@ List values.
 `[ _Exp_~1~, _Exp_~2~, ... ]`
 
 .Types
+
+//
+
+[cols="20,20,20,40"]
 |====
-|  `$Exp_1$` |  `$Exp_2$` |  ...  |  `[ $Exp_1$, $Exp_2$, ... ]`   |
-|:-----------|:-----------|:------|:-------------------------------|
-| `$T_1$`    | `$T_2$`    |  ...  |  `list[lub($T_1$, $T_2$, ... )]` |
+|  `_Exp~1~_` |  `_Exp~2~_` |  ...  |  `[ _Exp~1~_, _Exp~2~_, ... ]`   
+
+| `_T~1~_`    | `_T~2~_`    |  ...  |  `list[lub(_T~1~_, _T~2~_, ... )]` 
 |====
 
 .Usage
@@ -35,7 +39,7 @@ To achieve _splicing_ of these elements, i.e., the insertion of the elements of 
 it has to be prefixed by the splice operator `*`.
 
 The following operators are provided on list:
-subtoc[Rascal/Expressions/Values/List,1]
+subtoc::[1]
 
 The following functions are provided for lists:
 subtoc[Rascal/Libraries/Prelude/List,1]

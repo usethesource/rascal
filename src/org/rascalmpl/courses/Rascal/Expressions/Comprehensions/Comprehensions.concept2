@@ -14,18 +14,18 @@ Comprehensions provide a concise notation to conditionally generate new values.
 .Description
 Comprehensions are defined for the following types:
 
-*  `list`, see [List/Comprehension],
-*  `set`, see [Set/Comprehension],
-*  `map`, see [Map/Comprehension].
+*  `list`, see <<List-Comprehension,List Comprehension>>,
+*  `set`, see <<Set-Comprehension, Set Comprehension>>,
+*  `map`, see <<Map-Comprehension, Map Comprehension>>.
 
 
 The syntax varies slightly for each type, but comprehensions have the following common elements:
 
-*  _Generator_s that come in two flavours:
+*  A _generator_ can come in two flavours:
 **  an _enumerator_ that generates all the values in some subject value.
 **  a _filter_ that performs an arbitrary test on previously generated values.
 
-*  One or more _contributing expression_s that are added to the list, set or map that is being constructed.
+*  One or more _contributing expressions_ that are added to the list, set or map that is being constructed.
 
 
 The contributing expressions are evaluated for all possible values of the enumerators that are not
@@ -35,11 +35,9 @@ Each enumerator may introduce new variables that can be used in subsequent gener
 A generator can use the variables introduced by preceding generators. 
 
 .Examples
-[source,rascal-shell]
-----
-----
+
 A list comprehension:
-[source,rascal-shell,continue]
+[source,rascal-shell]
 ----
 [ 3 * X | int X <- [1 .. 10] ];
 ----
@@ -71,7 +69,7 @@ fruits = ("pear" : 1, "apple" : 3, "banana" : 0, "berry" : 25, "orange": 35);
 (fruit : fruits[fruit] | fruit <- fruits, fruits[fruit] > 10);
 ----
 
-See <<List-Comprehension>>, <<Set-Comprehension>>, or <<Map-Comprehension>> for more examples.
+See <<List-Comprehension, List Comprehension>>, <<Set-Comprehension, Set Comprehension>>, or <<Map-Comprehension, Map Comprehension>> for more examples.
 
 .Benefits
 

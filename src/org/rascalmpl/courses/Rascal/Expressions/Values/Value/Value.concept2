@@ -16,8 +16,8 @@ Values of type `value`.
 Value stands for all possible Rascal values and is represented by the type `value`.
 This type is a container for all other types and does not have any values itself.
 
-The following functions are provided for values:
-subtoc[Rascal/Expressions/Values/Value,1]
+The following operators are provided for values:
+subtoc::[1]
 
 .Examples
 

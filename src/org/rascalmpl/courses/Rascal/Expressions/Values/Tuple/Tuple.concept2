@@ -7,10 +7,12 @@ Tuple values.
 `< _Exp_~1~, _Exp_~2~, ... >`
 
 .Types
+
+
 |====
-| `$Exp_1$`  | `$Exp_2$`  |  ...  | `< $Exp_1$, $Exp_2$, ... >` |
-|:-----------|:-----------|:------|:----------------------------|
-| `$T_1$`    |  $T_2$     | ...   | `tuple[$T_1$, $T_2$, ... ]` |
+| `_Exp~1~_`  | `_Exp~2~_`  |  ...  | `< _Exp~1~_, _Exp~2~_, ... >` 
+
+| `_T~1~_`    |  _T~2~_     | ...   | `tuple[_T~1~_, _T~2~_, ... ]` 
 |====
 
 .Function
@@ -30,8 +32,8 @@ A tuple is a sequence of elements with the following properties:
 Tuples are represented by the type `tuple[_T_~1~ _L_~1~, _T_~2~ _L_~2~, ...]`, 
 where _T_~1~, _T_~2~, ... are arbitrary types and _L_~1~, _L_~2~, ... are optional labels. 
 
-The following functions are provided for tuples:
-subtoc[Rascal/Expressions/Values/Tuple,1]
+The following operators are provided for tuples:
+subtoc::[1]
 
 .Examples
 [source,rascal-shell]

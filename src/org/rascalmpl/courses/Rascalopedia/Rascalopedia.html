@@ -416,6 +416,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 .hide-for-print{display:none!important}
 .show-for-print{display:inherit!important}}
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
 </head>
 <body id="Rascalopedia" class="article toc2 toc-left">
 <div id="header">
@@ -432,7 +433,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#Rascalopedia-AbstractSyntaxTree">2. Abstract Syntax Tree</a></li>
 <li><a href="#Rascalopedia-Compiler">3. Compiler</a></li>
-<li><a href="#Rascalopedia-DomainSpecificLanguage">4. Domain Specific Language (DSL)</a></li>
+<li><a href="#Rascalopedia-DomainSpecificLanguage">4. Domain Specific Language</a></li>
 <li><a href="#Rascalopedia-DynamicSemantics">5. Dynamic Semantics</a></li>
 <li><a href="#Rascalopedia-Grammar">6. Grammar</a></li>
 <li><a href="#Rascalopedia-Interpreter">7. Interpreter</a></li>
@@ -513,7 +514,7 @@ that are relevant for metaprogrammers in general and metaprogrammers using Rasca
 <p><a href="#Rascalopedia-Compiler">Compiler</a>: Tranform source code to an executable form.</p>
 </li>
 <li>
-<p><a href="#Rascalopedia-DomainSpecificLanguage">Domain Specific Language (DSL)</a>: Programming language targeted for a particular application domain.</p>
+<p><a href="#Rascalopedia-DomainSpecificLanguage">Domain Specific Language</a>: Programming language targeted for a particular application domain.</p>
 </li>
 <li>
 <p><a href="#Rascalopedia-DynamicSemantics">Dynamic Semantics</a>: Description of the execution behaviour of a program.</p>
@@ -540,7 +541,7 @@ that are relevant for metaprogrammers in general and metaprogrammers using Rasca
 <p><a href="#Rascalopedia-ParseTree">ParseTree</a>: Detailed represention of the concrete syntactic structure of a program.</p>
 </li>
 <li>
-<p><a href="#Rascalopedia-Parser">Parser</a>: Check that a text adheres to the rules of a language (and return a [ParseTree]).</p>
+<p><a href="#Rascalopedia-Parser">Parser</a>: Check that a text adheres to the rules of a language (and return a <a href="#Rascalopedia-ParseTree">ParseTree</a>).</p>
 </li>
 <li>
 <p><a href="#Rascalopedia-Prettyprinter">Prettyprinter</a>: Transform an [AbstractSyntaxTree] into a formatted string.</p>
@@ -607,8 +608,8 @@ can be implemented using a list, array or something else.</p>
 are used to define new data types. Well-known examples are <a href="http://en.wikipedia.org/wiki/Stack_(data_structure)">stack</a> and <a href="http://en.wikipedia.org/wiki/Tree_(data_structure)">tree</a>.</p>
 </div>
 <div class="paragraph">
-<p>See <a href=":../Rascal/Rascal.html#AlgebraicDataType">Algebraic Data Types</a> and
-<a href=":../Rascal/Rascal.html#Values-Constructor">Constructors</a> in the <a href=":../Rascal/Rascal.html">Rascal Language Reference</a>.</p>
+<p>See <a href="../Rascal/Rascal.html#Declarations-AlgebraicDataType">Algebraic Data Types</a> and
+<a href="../Rascal/Rascal.html#Values-Constructor">Constructors</a> in the <a href="../Rascal/Rascal.html">Rascal Language Reference</a>.</p>
 </div>
 <div class="sect2">
 <h3 id="_abstract_data_types_in_daily_life">1.1. Abstract Data Types in Daily Life</h3>
@@ -682,10 +683,8 @@ In many cases a less detailed representation is sufficient and an abstract synta
 <div class="title">Examples</div>
 <p>For the input sentence</p>
 </div>
-<div class="imageblock">
-<div class="content">
-<img src="AbstractSyntaxTree/example-text.png" alt="example-text">
-</div>
+<div class="paragraph">
+<p><span class="image"><img src="AbstractSyntaxTree/example-text.png" alt="example-text"></span></p>
 </div>
 <div class="paragraph">
 <p>the parse tree (left) and abstract syntax tree (right) may look as follows:</p>
@@ -735,7 +734,7 @@ This can be seen as a form of <a href="#Rascalopedia-Refactoring">Refactoring</a
 </div>
 </div>
 <div class="sect1">
-<h2 id="Rascalopedia-DomainSpecificLanguage">4. Domain Specific Language (DSL)</h2>
+<h2 id="Rascalopedia-DomainSpecificLanguage">4. Domain Specific Language</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <div class="title">Synopsis</div>
@@ -921,7 +920,7 @@ A language is the (possible infinite) set of strings that are defined by a gramm
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
-<p>A language definition defines all relevant aspects of a programming language or <a href="#DomainSpecificLanguage">[DomainSpecificLanguage]</a> and includes:</p>
+<p>A language definition defines all relevant aspects of a programming language or <a href="#Rascalopedia-DomainSpecificLanguage">Domain Specific Language</a> and includes:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -1020,8 +1019,8 @@ tail(cons(e, l)) = l</code></pre>
 <div class="paragraph">
 <p>In Rascal, lists are surrounded by brackets <code>[</code> and <code>]</code> and the elements are separated by commas.
 Each list has a type of the form <code>list[<em>T</em>]</code>, where <em>T</em> is the smallest common type of all list elements.
-See <a href=":{Rascal}#Values-List">List Values</a> for a description of lists and their operators
-and <a href=":{Rascal}#Libraries-List">List functions</a> for functions on lists.</p>
+Read the description of <a href="../Rascal/Rascal.html#Values-List">lists and their operators</a>
+and of <a href="{Rascal}#Libraries-List">library functions on lists</a>.</p>
 </div>
 <div class="sect2">
 <h3 id="_lists_in_daily_life">10.1. Lists in Daily Life</h3>
@@ -1207,12 +1206,10 @@ It may even be so detailed that it contains every space, comment and parenthesis
 <div class="paragraph">
 <div class="title">Examples</div>
 <p>A parse tree for the sentence
-image::ParseTree/example-text.png[alt="example"]</p>
+<span class="image"><img src="ParseTree/example-text.png" alt="example"></span></p>
 </div>
-<div class="imageblock">
-<div class="content">
-<img src="ParseTree/parse-tree.png" alt="parse-tree">
-</div>
+<div class="paragraph">
+<p><span class="image"><img src="ParseTree/parse-tree.png" alt="parse-tree"></span></p>
 </div>
 </div>
 </div>
@@ -1221,7 +1218,7 @@ image::ParseTree/example-text.png[alt="example"]</p>
 <div class="sectionbody">
 <div class="paragraph">
 <div class="title">Synopsis</div>
-<p>Check that a text adheres to the rules of a language (and return a [ParseTree]).</p>
+<p>Check that a text adheres to the rules of a language (and return a <a href="#Rascalopedia-ParseTree">ParseTree</a>).</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -1231,7 +1228,7 @@ to the syntax rules of language <em>L</em>. There are two possible answers:</p>
 <div class="ulist">
 <ul>
 <li>
-<p><em>Yes</em>. A [ParseTree] is returned that shows how the text adheres to the syntax rules.</p>
+<p><em>Yes</em>. A <a href="#Rascalopedia-ParseTree">ParseTree</a> is returned that shows how the text adheres to the syntax rules.</p>
 </li>
 <li>
 <p><em>No</em>. Error messages pin point the location where the text deviates from the syntax rules.</p>
@@ -1267,10 +1264,10 @@ Pretty printers differ in the inputs they accept:</p>
 <p>The source text itself.</p>
 </li>
 <li>
-<p>A [ParseTree] that corresponds to the source text. This variant is also called <em>unparser</em>.</p>
+<p>A <a href="#Rascalopedia-ParseTree">ParseTree</a> that corresponds to the source text. This variant is also called <em>unparser</em>.</p>
 </li>
 <li>
-<p>An [AbstractSyntaxTree] that corresponds to the source text.</p>
+<p>An <a href="#Rascalopedia-AbstractSyntaxTree">Abstract Syntax Tree</a> that corresponds to the source text.</p>
 </li>
 </ul>
 </div>
@@ -1379,46 +1376,42 @@ the set <em>D</em><sub>i</sub>. When <em>n</em> = 2, we call the relation a <a h
 </div>
 <table class="tableblock frame-all grid-all spread">
 <colgroup>
-<col style="width: 20%;">
-<col style="width: 20%;">
-<col style="width: 20%;">
-<col style="width: 20%;">
-<col style="width: 20%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
 </colgroup>
-<tbody>
+<thead>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>D<sub>1</sub> Name<sub>1</sub></em></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">_D<sub>2</sub> Name<sub>2</sub></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&#8230;&#8203;</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><em>D<sub>n</sub> Name<sub>n</sub></em></p></td>
-<td class="tableblock halign-left valign-top"></td>
+<th class="tableblock halign-left valign-top"><em>D<sub>1</sub> Name<sub>1</sub></em></th>
+<th class="tableblock halign-left valign-top"><em>D<sub>2</sub> Name<sub>2</sub></em></th>
+<th class="tableblock halign-left valign-top">&#8230;&#8203;</th>
+<th class="tableblock halign-left valign-top"><em>D<sub>n</sub> Name<sub>n</sub></em></th>
 </tr>
+</thead>
+<tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>V<sub>11</sub></em></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>V<sub>12</sub></em></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">&#8230;&#8203;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>V<sub>1n</sub></em></p></td>
-<td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>V<sub>21</sub></em></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>V<sub>22</sub></em></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">&#8230;&#8203;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>V<sub>2n</sub></em></p></td>
-<td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>V<sub>31</sub></em></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>V<sub>32</sub></em></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">&#8230;&#8203;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>V<sub>3n</sub></em></p></td>
-<td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">&#8230;&#8203;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">&#8230;&#8203;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">&#8230;&#8203;</p></td>
-<td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 </tbody>
@@ -1426,11 +1419,11 @@ the set <em>D</em><sub>i</sub>. When <em>n</em> = 2, we call the relation a <a h
 <div class="paragraph">
 <p>In Rascal, a relation is a set of tuples and is characterized by the type:
 <code>rel[<em>D</em><sub>1</sub> <em>Name</em><sub>1</sub>, <em>D</em><sub>2</sub> <em>Name</em><sub>2</sub>, &#8230;&#8203;, <em>D</em><sub>n</sub> <em>Name</em><sub>n</sub>]</code>
-See <a href=":{Rascal}#Values-Relation">Relation Values</a> and  for a description of relations and their operators
-(since relations are sets all set operators also apply to them, see <a href=":{Rascal}#Values-Set">Set Values</a>)
-and <a href=":{Rascal}#Libraries-Relation">functions on relations</a>
+See <a href=":../Rascal/Rascal.html#Values-Relation">Relation Values</a> and  for a description of relations and their operators
+(since relations are sets all set operators also apply to them, see <a href=":../Rascal/Rascal.html#Values-Set">Set Values</a>)
+and <a href=":../Libraries/Libraries.html#Libraries-Relation">functions on relations</a>
 (and here again, since relations are sets all set operators also apply to them,
-see <a href=":{Rascal}#Library-Set">functions on sets</a>).</p>
+see <a href=":../Libraries/Libraries.html#Library-Set">functions on sets</a>).</p>
 </div>
 <div class="sect2">
 <h3 id="_relations_in_daily_life">16.1. Relations in Daily Life</h3>
@@ -1545,8 +1538,8 @@ see <a href=":{Rascal}#Library-Set">functions on sets</a>).</p>
 <div class="paragraph">
 <p>In Rascal, sets are surrounded by braces <code>{</code> and <code>}</code> and the elements are separated by commas.
 Each set has a type of the form <code>set[<em>T</em>]</code>, where <em>T</em> is the smallest common type of all set elements.
-See <a href=":{Rascal}#Values-Set" class="bare">:{Rascal}#Values-Set</a> for a description of sets and their operators
-and <a href=":{Rascal}#Prelude-Set" class="bare">:{Rascal}#Prelude-Set</a> for functions on sets.</p>
+Read the description of <a href="../Rascal/Rascal.html#Values-Set">sets and their operators</a>
+and of <a href="../Libraries/Libraries.html#Prelude-Set">library functions on sets</a>.</p>
 </div>
 <div class="sect2">
 <h3 id="_sets_in_daily_life">18.1. Sets in Daily Life</h3>
@@ -1574,7 +1567,7 @@ and <a href=":{Rascal}#Prelude-Set" class="bare">:{Rascal}#Prelude-Set</a> for f
 <div class="ulist">
 <ul>
 <li>
-<p>The files in a directory. Of course, when you order them (by name, modification date) you need a [List] to represent them.</p>
+<p>The files in a directory. Of course, when you order them (by name, modification date) you need a <a href="#Rascalopedia-List">List</a> to represent them.</p>
 </li>
 <li>
 <p>The set of moves an opponent can play in a game.</p>
@@ -1906,7 +1899,7 @@ manually or automatically executing test cases and observe the result.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>See <a href=":{Rascal}#Values-Tuple">Tuple Values</a> for the operations on tuples.</p>
+<p>See <a href=":../Rascal/Rascal.html#Values-Tuple">Tuple Values</a> for the operations on tuples.</p>
 </div>
 </div>
 </div>
@@ -2028,8 +2021,8 @@ may have a time dimension.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>The <a href=":{Rascal}#Libraries-Vis">Visualization Library</a> library provides a framework for interactive visualization.
-Simple examples can be found in <a href=":../Recipes/Recipes.html#Visualization">visualization recipes</a>.</p>
+<p>The <a href="{Rascal}#Libraries-Vis">Visualization Library</a> library provides a framework for interactive visualization.
+Simple examples can be found in <a href="../Recipes/Recipes.html#Recipes-Visualization">visualization recipes</a>.</p>
 </div>
 <div class="sect2">
 <h3 id="_scientific_visualization">27.1. Scientific visualization</h3>
@@ -2080,7 +2073,7 @@ in all source files of a software system.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-04-10 21:38:40 CEST
+Last updated 2016-04-18 23:30:10 CEST
 </div>
 </div>
 </body>

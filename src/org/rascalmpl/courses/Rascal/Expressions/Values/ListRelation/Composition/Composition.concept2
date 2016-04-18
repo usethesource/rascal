@@ -1,4 +1,4 @@
-# Composition
+# ListRelation Composition
 
 .Synopsis
 Composition of two list relation values.
@@ -7,10 +7,13 @@ Composition of two list relation values.
 `_Exp_~1~ o _Exp_~2~`
 
 .Types
+
+//
+
 |====
-|`$Exp_1$`             | `$Exp_2$`            | `$Exp_1$ o $Exp_2$` |
-|:---------------------|:---------------------|:--------------------|
-| `lrel[$T_1$, $T_2$]` | `lrel[$T_2$, $T_3$]` | `lrel[$T_1$, $T_3$]`|
+|`_Exp~1~_`             | `_Exp~2~_`            | `_Exp~1~_ o _Exp~2~_` 
+
+| `lrel[_T~1~_, _T~2~_]` | `lrel[_T~2~_, _T~3~_]` | `lrel[_T~1~_, _T~3~_]`
 |====
 
 .Function

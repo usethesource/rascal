@@ -20,7 +20,7 @@ right-hand side (here: _a_^2^ + 2_ab_ + _b_^2^).
 Given a value and a set of rewrite rules the patterns are tried on every subpart of the value and replacements are made if a match is successful. This is repeated as long as some pattern matches.
 
 Rascal has ancestors, notably http://www.meta-environment.org/[ASF+SDF], where rewriting was the most important computation mechanism.
-In Rascal, rewriting can be achieved using pattern-directed invocation, see <<Function>>, possibly combined with a <<Visit>> statement.
+In Rascal, rewriting can be achieved using pattern-directed invocation, see <<Function Declaration>>, possibly combined with a <<Visit>> statement.
 
 .Examples
 In a package for symbolic differentiation it is desirable to keep expressions in simplified form in order 
@@ -61,7 +61,7 @@ See link::{Recipes}#derivative[] for a full explanation of this example.
 .Benefits
 
 .Pitfalls
-Rascal does still have special syntax for rewrite rules, but this has been *deprecated* in favour of pattern-directed invocation that can achieve the same, see <<Function>>.
+Rascal does still have special syntax for rewrite rules, but this has been *deprecated* in favour of pattern-directed invocation that can achieve the same, see <<Function Declaration>>.
 
 The above example can be written using rule notation:
 

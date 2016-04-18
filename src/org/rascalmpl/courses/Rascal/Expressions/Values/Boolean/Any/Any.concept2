@@ -1,4 +1,4 @@
-# Any
+# Boolean Any
 
 .Synopsis
 Any combination of argument values is true.
@@ -7,10 +7,14 @@ Any combination of argument values is true.
 `any ( _Exp_~1~, _Exp_~2~, ... )`
 
 .Types
+
+//
+
+[cols="20,20,20,40"]
 |====
-| `$Exp_1$` | `$Exp_2$` | ... | `any ( $Exp_1$, $Exp_2$, ... )` |
-|:----------|:----------|:----|:--------------------------------|
-|`bool`     | `bool`    | ... | `bool`                          |
+| `_Exp~1~_` | `_Exp~2~_` | ... | `any ( _Exp~1~_, _Exp~2~_, ... )` 
+
+|`bool`     | `bool`    | ... | `bool`                          
 |====
 
 .Function

@@ -23,8 +23,8 @@ We demonstrate hello via an interactive session with the Rascal system. First we
 rascal>import IO;
 ok
 rascal>println("Hello world, this is my first Rascal program");
-ok
 Hello world, this is my first Rascal program
+ok
 ----
 
 ##  `hello` as function 
@@ -53,8 +53,8 @@ Finally, we call the `hello` function and enjoy its output.
 [source,rascal-shell]
 ----
 rascal>hello();
-ok
 Hello world, this is my first Rascal program
+ok
 ----
 
 ##  `hello` as module 
@@ -73,8 +73,8 @@ Using this Hello module is now simple:
 rascal>import demo::basic::Hello;
 ok
 rascal>hello();
-ok
 Hello world, this is my first Rascal program
+ok
 ----
 
 The `hello` function is by default visible outside the `Hello` module.

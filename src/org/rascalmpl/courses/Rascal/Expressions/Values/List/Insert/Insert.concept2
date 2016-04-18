@@ -1,4 +1,4 @@
-# Insert
+# List Insert
 
 .Synopsis
 add an element in front of a list
@@ -6,10 +6,13 @@ add an element in front of a list
 .Syntax
 
 .Types
+
+//
+
 |====
-| `$Exp_1$`     |  `$Exp_2$`     | `$Exp_1$ + $Exp_2$`      |
-|:--------------|:---------------|:-------------------------|
-| `$T_1$`       |  `list[$T_2$]` | `list[lub($T_1$,$T_2$)]` |
+| `_Exp~1~_`     |  `_Exp~2~_`     | `_Exp~1~_ + _Exp~2~_`      
+
+| `_T~1~_`       |  `list[_T~2~_]` | `list[lub(_T~1~_,_T~2~_)]` 
 |====
 
 .Function
@@ -33,11 +36,8 @@ The `+` operator can insert an element in front of a list. Note that `+` is one 
 
 .Pitfalls
 
-*  If the first operand before the `+` is a list, `+` acts as [List/Concatenation] and not as [List/Insert]
+*  If the first operand before the `+` is a list, `+` acts as <<List Concatenation>> and not as <<List Insert>>
 
-[source,rascal-shell]
-----
-----
 This is concatenation:
 [source,rascal-shell,continue]
 ----

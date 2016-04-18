@@ -1,7 +1,7 @@
-# Tag
+# Tag Declaration
 
 .Synopsis
-b Tag declarations are not implemented (yet).
+Tag declarations are not implemented (yet).
 
 .Syntax
 
@@ -14,6 +14,7 @@ b Tag declarations are not implemented (yet).
 .Description
 
 Tag declarations explain which type the expected value of a tag should have.
+
 .Examples
 
 .Benefits

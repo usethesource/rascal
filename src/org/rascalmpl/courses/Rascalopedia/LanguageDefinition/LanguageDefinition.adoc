@@ -14,7 +14,7 @@ Description of all aspects of a language.
 .Usage
 
 .Description
-A language definition defines all relevant aspects of a programming language or <<DomainSpecificLanguage>> and includes:
+A language definition defines all relevant aspects of a programming language or <<Domain Specific Language>> and includes:
 
 *  A <<Grammar>> (including lexical and contect-free syntax).
 *  Rules to describe the textual formatting of a language. 

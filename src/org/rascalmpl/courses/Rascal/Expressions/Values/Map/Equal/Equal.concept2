@@ -1,4 +1,4 @@
-# Equal
+# Map Equal
 
 .Synopsis
 Equality operator on maps.
@@ -7,10 +7,11 @@ Equality operator on maps.
 `_Exp_~1~ == _Exp_~2~`
 
 .Types
+
 |====
-| `$Exp_1$`            |  `$Exp_2$`             | `$Exp_1$ == $Exp_2$` |
-|:---------------------|:-----------------------|:---------------------|
-| `map[$TK_1$,$TV_2$]` |  `map[$TK_2$, $TV_2$]` | `bool`               |
+| `_Exp~1~_`            |  `_Exp~2~_`             | `_Exp~1~_ == _Exp~2~_` 
+
+| `map[_TK~1~_,_TV~2~_]` |  `map[_TK~2~_, _TV~2~_]` | `bool`               
 |====
 
 .Function

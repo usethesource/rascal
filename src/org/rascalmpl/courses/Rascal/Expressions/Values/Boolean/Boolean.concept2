@@ -29,15 +29,15 @@ Most operators are self-explanatory except the match (:=) and no match (!:=) ope
 
 
 The _match_ operator
-[source,rascal]
+[source,rascal,subs="quotes"]
 ----
-$Pat$ := $Exp$
+_Pat_ := _Exp_
 ----
 is evaluated as follows:
 
-*  $Exp$ is evaluated, the result is a subject value;
+*  _Exp_ is evaluated, the result is a subject value;
 
-*  the subject value is matched against the pattern $Pat$;
+*  the subject value is matched against the pattern _Pat_;
 
 *  if the match succeeds, any variables in the pattern are bound to subvalues of the subject value and the match expression yields `true`;
 
@@ -51,21 +51,21 @@ This behaviour is applicable in the context of all Rascal constructs where a pat
 
 *  Boolean expressions: when a pattern match fails that is part of a Boolean expression, further solutions are tried in order to try to make the Boolean expression true.
 
-*  Tests in [For], [While], [Do] statements.
+*  Tests in <<For>>, <<While>>, <<Do>> statements.
 
-*  Tests in [Any] and [All] expressions.
+*  Tests in <<Boolean Any>> and <<Boolean All>> expressions.
 
-*  Tests and [Enumerator]s in comprehensions.
+*  Tests and <<Enumerator>>s in comprehensions.
 
-*  Pattern matches in cases of a [Visit].
+*  Pattern matches in cases of a <<Visit>>.
 
-*  Pattern matches in cases of a [Switch].
+*  Pattern matches in cases of a <<Switch>>.
 
 
 The following operators are provided for Boolean:
-subtoc[Rascal/Expressions/Values/Boolean,1]
+subtoc::[1]
 
-The following function are provided for Boolean:
+The following library function are provided for Boolean:
 subtoc[Rascal/Libraries/Prelude/Boolean,1]
 
 
@@ -119,7 +119,6 @@ for prints them all:
 ----
 for ([1, *int L, 2, *int M] := [1,2,3,2,4] && size(L) > 0)
   println("L: <L>, M: <M>");
-
 ----
 if prints the first
 [source,rascal-shell,continue]

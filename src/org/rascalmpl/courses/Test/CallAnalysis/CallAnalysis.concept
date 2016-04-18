@@ -96,7 +96,7 @@ set[Proc] calledFromF = closureCalls["f"]
 __Which procedures are called from all entry points?__
 Finally, we can determine which procedures are called from both entry points by taking the intersection of the two sets 
  `calledFromA` and `calledFromF`:
- ```rascal-shell-continue
+```rascal-shell-continue
 calledFromA & calledFromF
 ```
 or if your prefer to write all of the above as a one-liner using a [$Rascal:Expressions/Reducer] expression:

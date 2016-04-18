@@ -1,4 +1,4 @@
-# in
+# Map in
 
 .Synopsis
 Membership test on the keys of a map.
@@ -7,10 +7,11 @@ Membership test on the keys of a map.
 `_Exp_~1~ in _Exp_~2~`
 
 .Types
+
 |====
-| `$Exp_1$`           |  `$Exp_2$`         | `$Exp_1$ in $Exp_2$` |
-|:--------------------|:-------------------|:---------------------|
-| `$T_1$`  <: `$TK$`  |  `map[$TK$, $TV$]` | `bool`               |
+| `_Exp~1~_`           |  `_Exp~2~_`         | `_Exp~1~_ in _Exp~2~_` 
+
+| `_T~1~_`  <: `_TK_`  |  `map[_TK_, _TV_]` | `bool`               
 |====
 
 .Function

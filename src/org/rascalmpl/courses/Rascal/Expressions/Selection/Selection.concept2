@@ -1,16 +1,18 @@
 # Selection
 
 .Synopsis
-Retrieve the value of an [$Declarations/Annotation].
+Retrieve the value of an <<Declarations-Annotation,Annotation>>.
 
 .Syntax
 `_Expr_ @ _Name_`
 
 .Types
+
+
 |====
-| `$Expr$`       | `$Expr$ @ $Name$`                             |
-|:--------------|:-----------------------------------------------|
-| `$T$ <: node` | Determined by annotation declaration of $Name$ |
+| `_Expr_`       | `_Expr_ @ _Name_`                             
+
+| `_T_ <: node` | Determined by annotation declaration of _Name_ 
 |====
 
 .Function

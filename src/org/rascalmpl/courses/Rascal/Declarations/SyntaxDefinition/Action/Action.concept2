@@ -13,7 +13,10 @@ Actions are functions that are called when parse trees are constructed (right af
 
 .Description
 
-A so-called <<Action>> is a normal rascal <<Function>> that overloads a <<SyntaxDefinition>>. A <<SyntaxDefinition>>, very similar to <<AlgebraicDataType>> definitions, defines a constructor for a parse tree node. This constructor is the default <<Function>>, and when it is overloaded by a non-default function this overloaded function will be tried first. You can overload any labeled <<SyntaxDefinition>> using the name of an alternative.
+A so-called <<Action>> is a normal rascal <<Function Declaration>> that overloads a <<Syntax Definition>>. 
+A <<Syntax Definition>>, very similar to <<Algebraic Data Type>> definitions, defines a constructor for a parse tree node. 
+This constructor is the default function, and when it is overloaded by a non-default function this overloaded function will be tried first. 
+You can overload any labeled <<Syntax Definition>> using the name of an alternative.
 
 For example:
 [source,rascal]
@@ -27,10 +30,11 @@ public A a(B b, C c) {
 In this example <<Action>> function the a is replaced by whatever A the `f` function returns. 
 
 <<Action>>s are executed every time a parse tree is constructed:
-*  right after parsing.
-*  on the way back from a visit statement.
-*  when a [ConcreteSyntax] expression is executed.
-*  when a [ParseTree] is constructed "manually".
+
+*  Right after parsing.
+*  On the way back from a visit statement.
+*  When a <<Concrete Syntax>> expression is executed.
+*  When a <<ParseTree>> is constructed "manually".
 
 
 They can be used as a <<Disambiguation>> method, using the `filter` statement, as in:

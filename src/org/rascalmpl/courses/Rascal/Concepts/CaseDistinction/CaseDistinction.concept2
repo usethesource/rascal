@@ -1,4 +1,4 @@
-# CaseDistinction
+# Case Distinction
 
 .Synopsis
 Case distinction via pattern matching.
@@ -20,10 +20,10 @@ The variables bound by the pattern are always local to the statement associated 
 When a match fails or when the associated statement fails, a _rollback_ takes place and all side-effects are undone. 
 External side-effects like I/O and side-effects in user-defined Java code are not undone. 
 
-See <<Switch>>,<<Visit>> and <<PatternWithAction>> for more details.
+See <<Switch>>,<<Visit>> and <<Pattern With Action>> for more details.
 
 .Examples
-We use the link::{Recipes}#ColoredTrees[] datatype as example and use a switch to
+We use the link:{Recipes}#Common-ColoredTrees[ColoredTrees from Recipes] datatype as example and use a switch to
 distinguish between red and black nodes:
 [source,rascal-shell]
 ----
@@ -31,14 +31,13 @@ data ColoredTree =
       leaf(int N) 
     | red(ColoredTree left, ColoredTree right) 
     | black(ColoredTree left, ColoredTree right);
-ColoredTree CT 
-       = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
+ColoredTree CT = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
 import IO;
 switch (CT){
 case red(_, _):
      println("A red root node");
 case black(_, _):
-     black("A black rood node");
+     println("A black root node");
 }
 ----
 

@@ -1,7 +1,7 @@
 # Replacement
 
 .Synopsis
-Set the value of an [$Declarations/Annotation].
+Set the value of an <<Annotation Declaration,Annotation>>.
 
 .Syntax
 `_Exp_~1~[@_Name_ = _Exp_~2~]`

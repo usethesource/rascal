@@ -1,4 +1,4 @@
-# LessThanOrEqual
+# Value LessThanOrEqual
 
 .Synopsis
 Less than or equal operator on values.
@@ -7,10 +7,12 @@ Less than or equal operator on values.
 `_Exp_~1~ <= _Exp_~2~`
 
 .Types
+
+
 |====
-| `$Exp_1$` | `$Exp_2$` | `$Exp_1$ <= $Exp_2$` |
-|:----------|:----------|:---------------------|
-| `value`   |  `value`  | `bool`               |
+| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ <= _Exp~2~_` 
+
+| `value`   |  `value`  | `bool`               
 |====
 
 .Function
@@ -20,7 +22,7 @@ Less than or equal operator on values.
 .Description
 By brute force, a total less than operator between two values _V_~1~ and _V_~2~ of arbitrary types _T_~1~ and _T_~2~ is defined:
 
-*  If the types $T_1$ and $T_2$ can be compared then $V_1$ less than $V_2$ is used.
+*  If the types _T~1~_ and _T~2~_ can be compared then _V~1~_ less than _V~2~_ is used.
 
 *  Otherwise values are ordered according their type name, for instance, `int` is smaller than `list`, and `map` is smaller than `rel`.
 
@@ -29,9 +31,7 @@ Less than or equal yields `true` if the value of _Exp_~1~ is strictly less
 than (according to the ordering defined above) the value of _Exp_~2~ or if both values are equal, and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
-----
+
 Introduce two variables `X`, `Y` and `Z` and force them to be of type `value`:
 [source,rascal-shell,continue]
 ----

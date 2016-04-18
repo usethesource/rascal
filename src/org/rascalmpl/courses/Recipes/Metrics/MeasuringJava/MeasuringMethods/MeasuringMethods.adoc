@@ -22,25 +22,20 @@
 rascal>import lang::java::m3::Core;
 ok
 rascal>import lang::java::jdt::m3::Core;
-ok
 [error] Cannot import module lang::java::jdt::m3::Core AT |std:///experiments/Compiler/Compile.rsc|(0,51,<1,0>,<1,51>)
 rascal>import lang::java::jdt::m3::AST;
-ok
-[error] Cannot import module lang::java::jdt::m3::Core AT |std:///experiments/Compiler/Compile.rsc|(0,51,<1,0>,<1,51>)
 [error] Cannot import module lang::java::jdt::m3::AST AT |std:///experiments/Compiler/Compile.rsc|(0,51,<1,0>,<1,51>)
 ----
 First extract our overview model
 [source,rascal-shell]
 ----
 rascal>myModel = createM3FromEclipseProject(|project://example-project|);
-ok
 [error] Name createM3FromEclipseProject is not in scope
 ----
 Now let's focus on the methods
 [source,rascal-shell]
 ----
 rascal>myMethods = methods(myModel);
-ok
 [error] Name myModel is not in scope
 ----
 What is the source code for a method?
@@ -49,33 +44,29 @@ What is the source code for a method?
 rascal>import IO;
 ok
 rascal>methodSrc = readFile(|java+method:///HelloWorld/main(java.lang.String%5B%5D)|);
-ok
-null
 IO("Unsupported scheme java+method")
 Call stack (most recent first):
 	readFile(|java+method:///HelloWorld/main(java.lang.String%5B%5D)|, {}) at |std:///IO.rsc|(11944,1671,<459,0>,<490,43>)
 	main([]) at |test-modules:///ConsoleInput.rsc|(76,66,<5,15>,<5,81>)
 
+ok
 ----
 let's print it:
 [source,rascal-shell]
 ----
 rascal>println(methodSrc)
-ok
 [error] Name methodSrc is not in scope
 ----
 how many words in this method?
 [source,rascal-shell]
 ----
 rascal>(0 | it + 1 | /\W+/ := methodSrc)
-ok
 [error] Name methodSrc is not in scope
 ----
 let's get its AST
 [source,rascal-shell]
 ----
 rascal>methodAST = getMethodASTEclipse(|java+method:///HelloWorld/main(java.lang.String%5B%5D)|, model=myModel);
-ok
 [error] Name getMethodASTEclipse is not in scope
 [error] Name myModel is not in scope
 ----
@@ -83,14 +74,12 @@ Now we count the number of expressions:
 [source,rascal-shell]
 ----
 rascal>(0 | it + 1 | /Expression _ := methodAST)
-ok
 [error] Name methodAST is not in scope
 ----
 or give us the locations of all expressions:
 [source,rascal-shell]
 ----
 rascal>[m@src | /Expression m := methodAST]
-ok
 [error] Name methodAST is not in scope
 ----
 the size should be the same, right?
@@ -99,7 +88,6 @@ the size should be the same, right?
 rascal>import List;
 ok
 rascal>size([m@src | /Expression m := methodAST]) == (0 | it + 1 | /Expression _ := methodAST)
-ok
 [error] Name methodAST is not in scope
 [error] Name methodAST is not in scope
 ----

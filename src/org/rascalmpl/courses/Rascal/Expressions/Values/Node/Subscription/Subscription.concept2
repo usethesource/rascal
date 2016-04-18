@@ -1,4 +1,4 @@
-# Subscription
+# Node Subscription
 
 .Synopsis
 Retrieve an argument of a node via its index.
@@ -7,10 +7,12 @@ Retrieve an argument of a node via its index.
 `_Exp_~1~ [ _Exp_~2~ ]`
 
 .Types
+
+
 |====
-| `$Exp_1$`     | `$Exp_2$` | `$Exp_1$ [ $Exp_2$ ]` |
-|:--------------|:----------|:----------------------|
-| `node`        | `int`     | `value`                |
+| `_Exp~1~_`     | `_Exp~2~_` | `_Exp~1~_ [ _Exp~2~_ ]` 
+
+| `node`        | `int`     | `value`                
 |====
 
 .Function

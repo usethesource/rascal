@@ -1,4 +1,4 @@
-# Comprehension
+# Map Comprehension
 
 .Synopsis
 A map comprehension generates a map value.
@@ -7,10 +7,12 @@ A map comprehension generates a map value.
 `( _Exp_~1~ : _Exp_~2~ | _Gen_~1~, _Gen_~2~, ... )`
 
 .Types
+
+
 |====
-| `$Exp_1$` | `$Exp_2$` | `( $Exp_1$ : $Exp_2$ | $Gen_1$, $Gen_2$, ... )` |
-|:----------|:----------|:-------------------------------------------------|
-| `$T_1$`   | `$T_2$`   | `map[$T_1$, $T_2$]`                              |
+| `_Exp~1~_` | `_Exp~2~_` | `( _Exp~1~_ : _Exp~2~_ \| _Gen~1~_, _Gen~2~_, ... )` 
+
+| `_T~1~_`   | `_T~2~_`   | `map[_T~1~_, _T~2~_]`                              
 |====
 
 .Function

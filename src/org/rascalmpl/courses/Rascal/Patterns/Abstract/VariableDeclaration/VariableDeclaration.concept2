@@ -1,4 +1,4 @@
-# VariableDeclaration
+# Variable Declaration Pattern
 
 .Synopsis
 Variable declaration in abstract pattern.
@@ -14,9 +14,9 @@ Variable declaration in abstract pattern.
 .Description
 
 A variable declaration
-[source,rascal]
+[source,rascal,subs="quotes"]
 ----
-$Type$ $Var$
+_Type_ _Var_
 ----
 can be used as abstract pattern.
 A variable declaration introduces a new variable _Var_ that matches any value of the given type _Type_.
@@ -36,10 +36,8 @@ and now we attempt to inspect the value of `S`:
 ----
 S;
 ----
+
 As mentioned above: `S` is only bound in the scope of the match expression!
-[source,rascal-shell,continue,error]
-----
-----
 Let's explore how bindings work in an if statement:
 [source,rascal-shell]
 ----

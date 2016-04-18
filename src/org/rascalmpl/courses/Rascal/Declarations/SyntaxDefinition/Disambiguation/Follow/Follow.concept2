@@ -1,12 +1,12 @@
-# Follow
+# Follow Declaration
 
 .Synopsis
-a follow requirement is a conditional [$SyntaxDefinition/Symbol], constraining the characters that can immediately follow a symbol in the input source text.
+a follow requirement is a conditional <<Symbol>>, constraining the characters that can immediately follow a symbol in the input source text.
 
 .Syntax
 
-#  `$Symbol$ >> $constraint$` 
-#  `$Symbol$ !>> $constraint$`
+*  `_Symbol_ >> _constraint_` 
+*  `_Symbol_ !>> _constraint_`
 
 
 where a _constraint_ is any character class, a literal or a keyword non-terminal <<SyntaxDefinition-Symbol>>.

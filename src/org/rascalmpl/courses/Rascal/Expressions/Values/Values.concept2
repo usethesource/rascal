@@ -13,7 +13,9 @@ The different types of values.
 
 .Description
 
-subtoc[Rascal/Expressions/Values,1]
+Rscal provides the following values:
+
+subtoc::[1]
 
 .Examples
 

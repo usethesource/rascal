@@ -17,21 +17,22 @@ A reducer resembles the http://en.wikipedia.org/wiki/Fold_(higher-order_function
 found in most functional languages.
 
 A reducer is equivalent to the following code:
-[source,rascal]
+[source,rascal,subs="quotes,verbatim"]
 ----
-it = $Exp$; /*1*/
-for($Gen_1$, $Gen_1$, ... ) /*2*/
-    it = $RedExp$; /*3*/
-it; /*4*/
+it = _Exp_; // <1>
+for(_Gen~1~_, _Gen~1~_, ... ) // <2>
+    it = _RedExp_; // <3>
+it; // <4>
 ----
 and is executed as follows:
 
-*  A fresh variable `it` is initialized with $Exp$ (/*1*/). 
-  We call the variable `it` since we use `it` to initialize the reducer, to make changes to `i`t, and to return `it` as result.
-*  A for loop iterates over all values produced by the generators `$Gen_1$`, `$Gen_1$`, ... (/*2*/).
-*  In the body of the loop, variable `it` is updated to reflect a new reduced value (/*3*/).
-  Note that `it` itself and variables introduced in _Gen_~1~, _Gen_~1~, ... may occur in _RedExp_.
-*  The value of `it` is the result of the reducer.
+<1> A fresh variable `it` is initialized with _Exp_. 
+    We call the variable `it` since we use `it` to initialize the reducer, to make changes to `it`,
+    and to return `it` as result.
+<2> A for loop iterates over all values produced by the generators `_Gen~1~_`, `_Gen~1~_`, ... .
+<3> In the body of the loop, variable `it` is updated to reflect a new reduced value.
+    Note that `it` itself and variables introduced in _Gen_~1~, _Gen_~1~, ... may occur in _RedExp_.
+<4> The value of `it` is the result of the reducer.
 
 .Examples
 [source,rascal-shell]

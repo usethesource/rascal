@@ -1,4 +1,4 @@
-# Concatenation
+# Tuple Concatenation
 
 .Synopsis
 Concatenate two tuple values.
@@ -7,10 +7,12 @@ Concatenate two tuple values.
 `_Exp_~1~ + _Exp_~2~`
 
 .Types
+
+
 |====
-| `$Exp_1$`                      |  `$Exp_2$`                      | `$Exp_1$ > $Exp_2$`                                 |
-|:-------------------------------|:--------------------------------|:----------------------------------------------------|
-| `tuple[ $T_11$, $T_12$, ... ]` |  `tuple[ $T_21$, $T_22$, ... ]` | `tuple[ $T_11$, $T_12$, ..., $T_21$, $T_22$, ... ]` |
+| `_Exp~1~_`                      |  `_Exp_2_`                      | `_Exp~1~_ > _Exp_2_`                                
+
+| `tuple[ _T~11~_, _T~12~_, ... ]` |  `tuple[ _T~21~_, _T~22~_, ... ]` | `tuple[ _T~11~_, _T~12~_, ..., _T~21~_, _T~22~_, ... ]`
 |====
 
 .Function

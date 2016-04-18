@@ -1,9 +1,10 @@
-# Variable
+# Variable Pattern
 
 .Synopsis
 Variable in abstract pattern.
 
 .Syntax
+_Var_
 
 .Types
 
@@ -14,9 +15,9 @@ Variable in abstract pattern.
 .Description
 A variable pattern can act in two roles:
 
-* If $Var$ has already a defined value then it matches with that value.
+* If _Var_ has already a defined value then it matches with that value.
 
-*  If $Var$ has not been defined before (or it has been declared but not initialized) then it matches any value. 
+*  If _Var_ has not been defined before (or it has been declared but not initialized) then it matches any value. 
     That value is assigned to _Var_. The scope of this variable is the outermost expression in which the pattern occurs
 or the enclosing <<If>>, <<While>>, or <<Do>> if the pattern occurs in the test expression of those statements.
 

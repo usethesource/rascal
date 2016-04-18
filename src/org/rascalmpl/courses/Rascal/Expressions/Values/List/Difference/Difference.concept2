@@ -1,4 +1,4 @@
-# Difference
+# List Difference
 
 .Synopsis
 The difference between two lists.
@@ -7,11 +7,14 @@ The difference between two lists.
 `_Exp_~1~ - _Exp_~2~`
 
 .Types
+
+//
+
 |====
-| `$Exp_1$`     |  `$Exp_2$`     | `$Exp_1$ - $Exp_2$`       |
-|:--------------|:---------------|:--------------------------|
-| `list[$T_1$]` |  `list[$T_2$]` | `list[lub($T_1$,$T_2$)]`  |
-| `list[$T_1$]` |  `$T_2$`       | `list[lub($T_1$,$T_2$)]`  |
+| `_Exp~1~_`     |  `_Exp~2~_`     | `_Exp~1~_ - _Exp~2~_`       
+
+| `list[_T~1~_]` |  `list[_T~2~_]` | `list[lub(_T~1~_,_T~2~_)]`  
+| `list[_T~1~_]` |  `_T~2~_`       | `list[lub(_T~1~_,_T~2~_)]`  
 |====
 
 

@@ -1,4 +1,4 @@
-# notin
+# Map notin
 
 .Synopsis
 Negated membership test on the keys of a map.
@@ -7,10 +7,11 @@ Negated membership test on the keys of a map.
 `_Exp_~1~ notin _Exp_~2~`
 
 .Types
+
 |====
-| `$Exp_1$`           |  `$Exp_2$`         | `$Exp_1$ notin $Exp_2$` |
-|:--------------------|:-------------------|:---------------------|
-| `$T_1$`  <: `$TK$`  |  `map[$TK$, $TV$]` | `bool`               |
+| `_Exp~1~_`           |  `_Exp~2~_`         | `_Exp~1~_ notin _Exp~2~_` 
+
+| `_T~1~_`  <: `_TK_`  |  `map[_TK_, _TV_]` | `bool`               
 |====
 
 .Function

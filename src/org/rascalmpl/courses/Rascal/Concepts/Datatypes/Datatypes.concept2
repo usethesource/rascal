@@ -14,18 +14,18 @@ Built-in and user-defined datatypes.
 .Description
 Rascal provides a rich set of datatypes:
 
-*  [$Values/Boolean] (`bool`).
-*  Infinite precision [$Values/Integer] (`int`), [$Values/Real] (`real`), and [$Values/Number] (`num`).
-*  [$Values/String]s (`str`) that can act as templates with embedded expressions and statements. 
-*  Source code [$Values/Location]s (`loc`) based on an extension of Universal Resource Identifiers (URI) that allow precise description of text areas in local and remote files.
-*  Date and time values ([$Values/DateTime], `datetime`).
-*  [$Values/List] (`list`).
-*  [$Values/Tuple] (`tuple`).
-*  [$Values/Set] (`set`).
-*  [$Values/Map] (`map`) 
-*  [$Values/Relation] (`rel`). 
-*  Untyped tree structures ([$Values/Node], `node`).  
-*  User-defined algebraic datatypes ([Declarations/AlgebraicDataType], `data`) allow the introduction of problem-specific types and are a subtype of node. 
+*  <<Values-Boolean,Boolean>> (`bool`).
+*  Infinite precision <<Values-Integer,Integer>> (`int`), <<Values-Real,real>> (`real`), and <<Values-Number,Number>> (`num`).
+*  <<Values-String,String>>s (`str`) that can act as templates with embedded expressions and statements. 
+*  Source code <<Values-Location,Location>>s (`loc`) based on an extension of Universal Resource Identifiers (URI) that allow precise description of text areas in local and remote files.
+*  Date and time values (<<Values-DateTime,DateTime>>, `datetime`).
+*  <<Values-List,List>> (`list`).
+*  <<Values-Tuple,Tuple>> (`tuple`).
+*  <<Values-Set,Set>> (`set`).
+*  <<Values-Map,Map>> (`map`) 
+*  <<Values-Relation,Relation>> (`rel`). 
+*  Untyped tree structures (<<Values-Node>>, `node`).  
+*  User-defined algebraic datatypes (<<Declarations-AlgebraicDataType, Algebraic Data Type>>], `data`) allow the introduction of problem-specific types and are a subtype of node. 
   This makes it possible to have typed
   and untyped views on the same data. 
   A special case are syntax trees that are the result of parsing source files are represented 
@@ -48,26 +48,23 @@ These built-in datatypes are closely related to each other:
 
 .Examples
 Here are some examples of the built-in data types:
-<table>
-<colgroup>
-<col align="left" span="2">
-<thead>
-<tr><th>_Type_</th> <th>_Examples_</th></tr>
-<tbody>
-<tr><td>`bool`</td>	                   <td>`true`, `false`</td></tr>
-<tr><td>`int`</td>	                   <td>`11, 101, 1-11, 1123456789`</td></tr>
-<tr><td>`real`</td>	                   <td>`1.01, 11.0232e201, 1-25.5`</td></tr>
-<tr><td>`str`</td>	                   <td>`"abc"`, `"first\nnext"`, `"result: <X>"`</td></tr>
-<tr><td>`loc`</td>	                    <td>`|file:///etc/passwd|`</td></tr>
-<tr><td>`dateTime`</td>               	<td>`$2101-09-05T07:16:19.714+0200`</td></tr>
-<tr><td>`tuple[_T_1,...,_Tn_]`			</td><td>`<1,2>`, `<"john", 43, true>`</td></tr>
-<tr><td>`list[_T_]`</td>	            <td>`[]`, `[1]`, `[1,2,3]`, `[true, 2, "abc"]`</td></tr>
-<tr><td>`set[_T_]`</td>	            	<td>`{}`, `{1,2,3,5,7}`, `{"john", 4.0}`</td></tr>
-<tr><td>`rel[_T_1,...,_Tn_]`</td>    	<td>`{<1,2>,<2,3>,<1,3>}`, `{<1,10,100>, <2,20,200>}`</td></tr>
-<tr><td>`map[_T_, _U_]`</td>	    	<td>`()`, `(1:true, 2:false)`, `("a":1, "b":2)`</td></tr>
-<tr><td>`node`</td>	                    <td>`f()`, `add(x,y)`, `g("abc", [2,3,4])`</td></tr>
-</table>
-<br>
+|====
+| _Type_                    | _Examples_
+
+| `bool`                    | `true`, `false`
+| `int`                     | `11, 101, 1-11, 1123456789`
+| `real`                    | `1.01, 11.0232e201, 1-25.5`
+| `str`                     | `"abc"`, `"first\nnext"`, `"result: <X>"`
+| `loc`                     | `\|file:///etc/passwd\|`
+| `dateTime`                | `$2101-09-05T07:16:19.714+0200$`
+| `tuple[_T~1~,...,_T~n~_]`	| `<1,2>`, `<"john", 43, true>`
+| `list[_T_]`               | `[]`, `[1]`, `[1,2,3]`, `[true, 2, "abc"]`
+| `set[_T_]`                | `{}`, `{1,2,3,5,7}`, `{"john", 4.0}`
+| `rel[_T~1~,...,_T~n~_]`   | `{<1,2>,<2,3>,<1,3>}`, `{<1,10,100>, <2,20,200>}`
+| `map[_T_, _U_]`           | `()`, `(1:true, 2:false)`, `("a":1, "b":2)`
+| `node`                    | `f()`, `add(x,y)`, `g("abc", [2,3,4])`
+|====
+
 A fragment of the datatype that defines the abstract syntax for statements (assignment, if, while) in a programming language would look as follows:
 
 [source,rascal]
@@ -87,7 +84,7 @@ true;
 3.14;
 "Rascal";
 |file:///etc/passwd|;
-$2101-09-05;
+$2101-09-05$;
 [30, 20, 10];
 <"Rascal", 100000>;
 {"apples", "oranges", "bananas"};

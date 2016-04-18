@@ -5,14 +5,16 @@ An executable assertion.
 
 .Syntax
 
-#  `assert $Exp_1$`
-#  `assert $Exp_1$ : $Exp_2$`
+*  `assert _Exp~1~_`
+*  `assert _Exp~1~_ : _Exp~2~_`
 
 .Types
+
+
 |====
-| `$Exp_1$` | `$Exp_2$` |
-|:----------|:----------|
-| `bool`    | `str`     |
+| `_Exp~1~_` | `_Exp~2~_` 
+
+| `bool`    | `str`     
 |====
 
 .Function

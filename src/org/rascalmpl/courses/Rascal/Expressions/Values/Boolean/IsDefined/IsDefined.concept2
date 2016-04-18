@@ -1,4 +1,4 @@
-# IsDefined
+# Boolean IsDefined
 
 .Synopsis
 Test whether the value of an expression is defined.
@@ -7,10 +7,13 @@ Test whether the value of an expression is defined.
 `_Exp_ ?`
 
 .Types
+
+//
+
 |====
-| `$Exp$` | `$Exp$ ?` |
-|:-------|:---------|
-|  `$T$`   |   `bool`      |
+| `_Exp_` | `_Exp_ ?` 
+
+|  `_T_`   |   `bool`     
 |====
 
 .Function

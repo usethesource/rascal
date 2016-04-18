@@ -1,4 +1,4 @@
-# NotEqual
+# Number NotEqual
 
 .Synopsis
 Not equal operator on numeric values.
@@ -8,11 +8,11 @@ Not equal operator on numeric values.
 
 .Types
 |====
-| `$Exp_1$`  |  `$Exp_2$` | `$Exp_1$ != $Exp_2$`  |
-|:-----------|:-----------|:----------------------|
-| `int`      |  `int`     | `bool`                |
-| `int`      |  `real`    | `bool`                |
-| `real`     |  `real`    | `bool`                |
+| `_Exp~1~_`  |  `_Exp~2~_` | `_Exp~1~_ != _Exp~2~_`  
+
+| `int`      |  `int`     | `bool`                
+| `int`      |  `real`    | `bool`                
+| `real`     |  `real`    | `bool`                
 |====
 
 .Function

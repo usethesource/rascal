@@ -27,7 +27,7 @@ This are the currently covered topics:
 * <<Rascalopedia-AbstractDataType,AbstractDataType>>: A definition of a data type.
 * <<Rascalopedia-AbstractSyntaxTree,Abstract Syntax Tree>>: Representation of the abstract syntactic structure of a program.
 * <<Rascalopedia-Compiler,Compiler>>: Tranform source code to an executable form.
-* <<Rascalopedia-DomainSpecificLanguage,Domain Specific Language (DSL)>>: Programming language targeted for a particular application domain.
+* <<Rascalopedia-DomainSpecificLanguage,Domain Specific Language>>: Programming language targeted for a particular application domain.
 * <<Rascalopedia-DynamicSemantics,Dynamic Semantics>>: Description of the execution behaviour of a program.
 * <<Rascalopedia-Grammar,Grammar>>: A synonym for <<Syntax>>.
 * <<Rascalopedia-Interpreter,Interpreter>>: Directly execute the statements of a program.
@@ -36,7 +36,7 @@ This are the currently covered topics:
 * <<Rascalopedia-List,List>>: An ordered sequence of values.
 * <<Rascalopedia-MetaProgramming,MetaProgramming>>: Analysis or transformation of one program by another program.
 * <<Rascalopedia-ParseTree,ParseTree>>: Detailed represention of the concrete syntactic structure of a program.
-* <<Rascalopedia-Parser,Parser>>: Check that a text adheres to the rules of a language (and return a [ParseTree]).
+* <<Rascalopedia-Parser,Parser>>: Check that a text adheres to the rules of a language (and return a <<ParseTree>>).
 * <<Rascalopedia-Prettyprinter,Prettyprinter>>: Transform an [AbstractSyntaxTree] into a formatted string.
 * <<Rascalopedia-Refactoring,Refactoring>>: Restructuring source code to improve its internal structure without changing its external behaviour.
 * <<Rascalopedia-Relation,Relation>>: An unordered set of tuples.

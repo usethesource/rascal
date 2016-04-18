@@ -7,10 +7,11 @@ The not equal operator on location values.
 `_Exp_~1~ != _Exp_~2~`
 
 .Types
+
 |====
-| `$Exp_1$` | `$Exp_2$` | `$Exp_1$ != $Exp_2$` |
-|:----------|:----------|:---------------------|
-| `loc`     |  `loc`    | `bool`               |
+| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ != _Exp~2~_` 
+
+| `loc`     |  `loc`    | `bool`               
 |====
 
 .Function

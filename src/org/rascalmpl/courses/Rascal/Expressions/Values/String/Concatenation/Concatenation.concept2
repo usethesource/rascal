@@ -1,4 +1,4 @@
-# Concatenation
+# String Concatenation
 
 .Synopsis
 Concatenate two strings.
@@ -7,10 +7,12 @@ Concatenate two strings.
 `_Exp_~1~ + _Exp_~2~`
 
 .Types
+
+
 |====
-| `$Exp_1$` | `$Exp_2$` | `$Exp_1$ + $Exp_2$` |
-|:----------|:----------|:--------------------|
-| `str`     | `str`     | `str`               |
+| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ + _Exp~2~_` 
+
+| `str`     | `str`     | `str`               
 |====
 
 .Function

@@ -61,6 +61,7 @@ Or equivalenty (with an expected type):
 <screen>
 int n = 3;
 n + 1;
+</screen>
 
 Benefits:
 

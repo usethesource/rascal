@@ -22,7 +22,7 @@ In many cases a less detailed representation is sufficient and an abstract synta
 
 For the input sentence
 
-image::{concept}/example-text.png[alt="example-text"]
+image:example-text.png[alt="example-text"]
 
 
 the parse tree (left) and abstract syntax tree (right) may look as follows:

@@ -1,12 +1,12 @@
-# Precede
+# Precede Declaration
 
 .Synopsis
 
 
 .Syntax
 
-#  `$constraint$ << $Symbol$` 
-#  `$constraint$ !<< $Symbol$`
+*  `_constraint_ << _Symbol_` 
+*  `_constraint_ !<< _Symbol_`
 
 
 where a _constraint_ is any character class, a literal or a keyword non-terminal <<SyntaxDefinition-Symbol>>.

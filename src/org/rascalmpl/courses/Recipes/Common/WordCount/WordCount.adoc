@@ -70,11 +70,8 @@ in the following alternative `wordCount2` function:
 [source,rascal-shell]
 ----
 rascal>int wordCount2(list[str] lines) = (0 | it + (0 | it + 1 | /\w+/ := line) | str line <- lines);
-ok
 [error] Cannot re-declare name that is already declared in the current function or closure: it IN '(0 | it + 1 | /\w+/ := line)'
 rascal>wordCount2(Jabberwocky);
-ok
-[error] Cannot re-declare name that is already declared in the current function or closure: it IN '(0 | it + 1 | /\w+/ := line)'
 [error] Name wordCount2 is not in scope
 ----
 Explain what is going on in this function.

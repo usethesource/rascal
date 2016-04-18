@@ -23,22 +23,23 @@ the set _D_~i~. When _n_ = 2, we call the relation a http://en.wikipedia.org/wik
 In http://en.wikipedia.org/wiki/Relational_algebra[database theory], a relation is a table with a heading and an unordered set of tuples:
 
 |====
-| _D~1~ Name~1~_ | _D~2~ Name~2~ | ... | _D~n~ Name~n~_ |
-| _V~11~_        | _V~12~_       | ... | _V~1n~_        |
-| _V~21~_        | _V~22~_       | ... | _V~2n~_        |
-| _V~31~_        | _V~32~_       | ... | _V~3n~_        |
-| ...            | ...           | ... |                |
+| _D~1~ Name~1~_ | _D~2~ Name~2~_ | ... | _D~n~ Name~n~_
+
+| _V~11~_        | _V~12~_        | ... | _V~1n~_       
+| _V~21~_        | _V~22~_        | ... | _V~2n~_        
+| _V~31~_        | _V~32~_        | ... | _V~3n~_        
+| ...            | ...            | ... |                
 |====
 
 
 
 In Rascal, a relation is a set of tuples and is characterized by the type:
 `rel[_D_~1~ _Name_~1~, _D_~2~ _Name_~2~, ..., _D_~n~ _Name_~n~]` 
-See link::{Rascal}#Values-Relation[Relation Values] and  for a description of relations and their operators
-(since relations are sets all set operators also apply to them, see link::{Rascal}#Values-Set[Set Values])
-and link::{Rascal}#Libraries-Relation[functions on relations]
+See link::{RascalLang}#Values-Relation[Relation Values] and  for a description of relations and their operators
+(since relations are sets all set operators also apply to them, see link::{RascalLang}#Values-Set[Set Values])
+and link::{Libraries}#Libraries-Relation[functions on relations]
 (and here again, since relations are sets all set operators also apply to them, 
-see link::{Rascal}#Library-Set[functions on sets]).
+see link::{LIbraries}#Library-Set[functions on sets]).
 
 
 .Examples

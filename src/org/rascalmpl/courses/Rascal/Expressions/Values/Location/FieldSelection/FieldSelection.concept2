@@ -1,4 +1,4 @@
-# FieldSelection
+# Location FieldSelection
 
 .Synopsis
 Field selection on locations.
@@ -7,10 +7,12 @@ Field selection on locations.
 `_Exp_ . _Name_`
 
 .Types
+
+
 |====
-| `$Exp$` | `$Name$` | `$Exp$ . $Name$` |
-|:--------|:---------|:----------------|
-| `loc`   |          | depends on field|
+| `_Exp_` | `_Name_` | `_Exp_ . _Name_` 
+
+| `loc`   |          | Depends on field
 |====
 
 .Function

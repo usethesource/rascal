@@ -1,12 +1,12 @@
-# MultiVariable
+# MultiVariable Pattern
 
 .Synopsis
 Multi-variable (also known as Splice-variable) in abstract pattern.
 
 .Syntax
 
-#  `*$Var$`
-#  `*$Type$ $Var$`
+*  `*_Var_`
+*  `*_Type_ _Var_`
 
 .Types
 

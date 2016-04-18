@@ -1,4 +1,4 @@
-# Negation
+# Number Negation
 
 .Synopsis
 Negate a numeric value.
@@ -7,11 +7,13 @@ Negate a numeric value.
 `- _Exp_`
 
 .Types
+
+
 |====
-| `$Exp$`  |  `- $Exp$` |
-|:---------|:-----------|
-| `int`    |  `int`     |
-| `real`   |  `real`    |
+| `_Exp_`  |  `- _Exp_` 
+
+| `int`    |  `int`     
+| `real`   |  `real`    
 |====
 
 .Function

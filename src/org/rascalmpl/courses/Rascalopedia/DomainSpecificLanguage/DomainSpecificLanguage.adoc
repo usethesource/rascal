@@ -1,5 +1,5 @@
 [[Rascalopedia-DomainSpecificLanguage]]
-# Domain Specific Language (DSL)
+# Domain Specific Language
 :concept: DomainSpecificLanguage
 
 .Synopsis
