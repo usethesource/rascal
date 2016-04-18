@@ -167,6 +167,14 @@ public abstract class RVMCore {
 		}
 	
 	public Map<IValue, IValue> getModuleVariables() { return moduleVariables; }
+	
+	public void updateModuleVariable(IValue name, IValue newVal){
+		IValue oldVal = moduleVariables.get(name);
+		if(oldVal != null && !oldVal.getType().comparable(newVal.getType())){
+			throw new CompilerError("Module variable " + name + " initalized with incompatible value " + newVal + " was " + oldVal);
+		}
+		moduleVariables.put(name, newVal);
+	}
 
 	public PrintWriter getStdErr() { return rex.getStdErr(); }
 	
