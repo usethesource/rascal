@@ -78,7 +78,7 @@ public class Kernel {
 	 * @return The compiled and linked (RVMExecutable) version of the given module
 	 * @throws IOException
 	 */
-	public RVMExecutable compileAndLinkIncremental(IString qname, IBool reuseConfig, IMap kwArgs) throws IOException{
+	public RVMExecutable compileAndMergeIncremental(IString qname, IBool reuseConfig, IMap kwArgs) throws IOException{
 		IConstructor rvmProgram = (IConstructor) rvm.executeRVMFunction(compileAndMergeIncremental, new IValue[] { qname, reuseConfig, kwArgs });
 		return ExecutionTools.link(rvmProgram, vf.bool(true));
 	}
