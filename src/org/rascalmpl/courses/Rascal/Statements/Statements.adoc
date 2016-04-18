@@ -1,0 +1,96 @@
+[[Rascal-Statements]]
+# Statements
+:concept: Statements
+
+.Synopsis
+
+All Rascal statements.
+
+
+.Syntax
+
+.Types
+
+.Function
+
+.Description
+
+The following statements are available:
+
+** <<Statements-Append,Append>>: Append an element to the list value produced by various loop statements.
+** <<Statements-Assert,Assert>>: An executable assertion.
+** <<Statements-Assignment,Assignment>>: Assign a value to a variable or more complex data structure.
+*** <<Assignment-Annotation,Annotation>>: Assign to annotation.
+*** <<Assignment-Constructor,Constructor>>: Assign to constructor.
+*** <<Assignment-Field,Field>>: Assign to a field of a tuple, relation or datatype.
+*** <<Assignment-IsDefined,IsDefined>>: Assign but replace if value is not defined.
+*** <<Assignment-Multiple,Multiple>>: Assign to multiple assignables.
+*** <<Assignment-Slice,Slice>>: Assign to a slice of a list or string.
+*** <<Assignment-Subscription,Subscription>>: Assign a single element of a structured value.
+*** <<Assignment-Variable,Variable>>: Assign to a variable.
+** <<Statements-Block,Block>>: Group statements into a block.
+** <<Statements-Break,Break>>: End the execution of a while, do or for loop.
+** <<Statements-Continue,Continue>>: Continue with the next iteration of while, do or for loop.
+** <<Statements-Do,Do>>: .
+** <<Statements-Fail,Fail>>: Let the current alternative of a pattern match fail.
+** <<Statements-For,For>>: For loop.
+** <<Statements-If,If>>: .
+** <<Statements-Insert,Insert>>: Insert a value in a tree during a <<Visit>>.
+** <<Statements-Return,Return>>: Return a value as result of a [Function].
+** <<Statements-Solve,Solve>>: Solve a set of equalities by fixed-point iteration.
+** <<Statements-Switch,Switch>>: Switch statement.
+** <<Statements-Test,Test>>: Test statement (__deprecated__).
+** <<Statements-Throw,Throw>>: Throw an exception.
+** <<Statements-TryCatch,Try Catch>>: Try to execute a statement and catch resulting exceptions.
+** <<Statements-While,While>>: While loop.
+
+
+image::{concept}/statement-parts.png[width="500px" style="float: right;" ,alt="Statement Types"]
+
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+include::Append/Append.adoc[Append]
+
+include::Assert/Assert.adoc[Assert]
+
+include::Assignment/Assignment.adoc[Assignment]
+
+include::Block/Block.adoc[Block]
+
+include::Break/Break.adoc[Break]
+
+include::Continue/Continue.adoc[Continue]
+
+include::Do/Do.adoc[Do]
+
+include::Fail/Fail.adoc[Fail]
+
+include::For/For.adoc[For]
+
+include::If/If.adoc[If]
+
+include::Insert/Insert.adoc[Insert]
+
+include::Return/Return.adoc[Return]
+
+include::Solve/Solve.adoc[Solve]
+
+include::Switch/Switch.adoc[Switch]
+
+include::Test/Test.adoc[Test]
+
+include::Throw/Throw.adoc[Throw]
+
+include::TryCatch/TryCatch.adoc[TryCatch]
+
+include::While/While.adoc[While]
+
+
+:leveloffset: -1

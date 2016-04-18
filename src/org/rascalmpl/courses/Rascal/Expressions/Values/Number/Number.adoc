@@ -1,0 +1,72 @@
+[[Values-Number]]
+# Number
+:concept: Expressions/Values/Number
+
+.Synopsis
+Numeric values.
+
+.Syntax
+
+.Types
+`int`, `real`, `num`
+
+.Usage
+
+.Function
+
+.Description
+Numbers include integers (values of type `int`) and reals (values of type `real`). 
+If both operands have the same type (`int` or `real`) then the operator is the corresponding operator on integers or reals. Otherwise, integer arguments are first converted to real and the real operator is applied.
+
+The following operations are provided on numbers:
+
+**** <<Number-Addition,Number Addition>>: Addition on numeric values.
+**** <<Number-Conditional,Number Conditional>>: Conditional expression for numeric values.
+**** <<Number-Division,Number Division>>: Division on numeric values.
+**** <<Number-Equal,Number Equal>>: Equality operator on numeric values.
+**** <<Number-GreaterThan,Number GreaterThan>>: Greater than operator on numeric values.
+**** <<Number-GreaterThanOrEqual,Number GreaterThanOrEqual>>: Greater than or equal operator on numeric values.
+**** <<Number-LessThan,Number LessThan>>: Less than operator on numeric values.
+**** <<Number-LessThanOrEqual,Number LessThanOrEqual>>: Less than or equal operator on numeric values.
+**** <<Number-Multiplication,Number Multiplication>>: Multiply two numeric values.
+**** <<Number-Negation,Number Negation>>: Negate a numeric value.
+**** <<Number-NotEqual,Number NotEqual>>: Not equal operator on numeric values.
+**** <<Number-Remainder,Number Remainder>>: Remainder of two integer values.
+**** <<Number-Subtraction,Number Subtraction>>: Subtract two numeric values.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+include::Addition/Addition.adoc[Addition]
+
+include::Conditional/Conditional.adoc[Conditional]
+
+include::Division/Division.adoc[Division]
+
+include::Equal/Equal.adoc[Equal]
+
+include::GreaterThan/GreaterThan.adoc[GreaterThan]
+
+include::GreaterThanOrEqual/GreaterThanOrEqual.adoc[GreaterThanOrEqual]
+
+include::LessThan/LessThan.adoc[LessThan]
+
+include::LessThanOrEqual/LessThanOrEqual.adoc[LessThanOrEqual]
+
+include::Multiplication/Multiplication.adoc[Multiplication]
+
+include::Negation/Negation.adoc[Negation]
+
+include::NotEqual/NotEqual.adoc[NotEqual]
+
+include::Remainder/Remainder.adoc[Remainder]
+
+include::Subtraction/Subtraction.adoc[Subtraction]
+
+
+:leveloffset: -1

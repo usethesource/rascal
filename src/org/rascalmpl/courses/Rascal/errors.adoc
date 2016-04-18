@@ -1,0 +1,27 @@
+# Errors in Course Rascal
+* __Rascal/Statements/Assignment/Subscription__:
+```
+[error] Unable to bind subject type str to assignable IN 'T[1] = "def";'
+```
+* __Rascal/Expressions/Values/Tuple/NotEqual__:
+```
+[error] tuple[int, str, bool] and tuple[int, str] incomparable IN '<1, "abc", true> != <1, "abc">'
+```
+* __Rascal/Expressions/Values/Relation/TransitiveClosure__:
+While parsing '//tclosure({<1,2>, <2,3>, <3,4>});
+;
+': Parse error
+* __Rascal/Expressions/Values/Boolean/Or__:
+```
+[error] Name i is not in scope
+```
+* __Rascal/Expressions/Values/ListRelation/TransitiveClosure__:
+While parsing '//tclosure([<1,2>, <2,3>, <3,4>]);
+;
+': Parse error
+asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 155: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/CartesianProduct/CartesianProduct.adoc
+asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 157: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/Composition/Composition.adoc
+asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 159: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/FieldSelection/FieldSelection.adoc
+asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 161: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/Join/Join.adoc
+asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 163: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/ReflexiveTransitiveClosure/ReflexiveTransitiveClosure.adoc
+asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 167: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/TransitiveClosure/TransitiveClosure.adoc

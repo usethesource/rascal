@@ -1,0 +1,51 @@
+[[Rascal-Declarations]]
+# Declarations
+:concept: Declarations
+
+.Synopsis
+The entities that can be declared in Rascal programs.
+
+.Syntax
+
+.Types
+
+.Function
+
+
+.Description
+The following concepts are relevant for declarations:
+subtoc[Rascal/Declarations,1]
+
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+include::Module/Module.adoc[Module]
+
+include::Import/Import.adoc[Import]
+
+include::Program/Program.adoc[Program]
+
+include::StaticTyping/StaticTyping.adoc[StaticTyping]
+
+include::AlgebraicDataType/AlgebraicDataType.adoc[AlgebraicDataType]
+
+include::Variable/Variable.adoc[Variable]
+
+include::Function/Function.adoc[Function]
+
+include::SyntaxDefinition/SyntaxDefinition.adoc[SyntaxDefinition]
+
+include::Alias/Alias.adoc[Alias]
+
+include::Annotation/Annotation.adoc[Annotation]
+
+include::Tag/Tag.adoc[Tag]
+
+
+:leveloffset: -1

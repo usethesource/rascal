@@ -1,0 +1,47 @@
+[[Boolean-Negation]]
+# Boolean Negation
+:concept: Expressions/Values/Boolean/Negation
+
+.Synopsis
+The _not_ operator on Boolean values.
+
+.Syntax
+`! _Exp_`
+
+.Types
+
+//
+
+|====
+| `_Exp_` | `! _Exp_` 
+
+| `bool`   | `bool`    
+|====
+
+.Function
+
+.Description
+The _not_ operator on Boolean values defined as follows:
+
+|====
+| `_Exp_`  | `! _Exp_` 
+
+| `true`   | `false`   
+| `false`  | `true`    
+|====
+
+.Examples
+[source,rascal-shell]
+----
+rascal>!true;
+bool: false
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

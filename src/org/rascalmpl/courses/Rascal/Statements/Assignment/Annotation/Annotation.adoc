@@ -1,0 +1,48 @@
+[[Assignment-Annotation]]
+# Annotation
+:concept: Statements/Assignment/Annotation
+
+.Synopsis
+Assign to annotation.
+
+.Syntax
+
+.Types
+
+.Function
+       
+.Usage
+
+.Description
+
+The value _V_ of _Assignable_ is determined and should be of a type that has an annotation _Name_.
+A new value _V_' is created that is a copy of _V_ but with the value of annotation _Name_ replaced by the value of _Exp_.
+_V_' is assigned to _Assignable_.
+See <<Declarations-Annotation>>.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>data FREQ = wf(str word, int freq);
+ok
+rascal>W = wf("rascal", 1000);
+FREQ: wf("rascal",1000)
+rascal>anno str FREQ@color;
+ok
+rascal>W@color = "red";
+str: "red"
+rascal>W@color;
+str: "red"
+----
+
+NOTE: It is advisable to omit whitespace around the `@` operator,
+otherwise the Rascal parser gets confused.
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

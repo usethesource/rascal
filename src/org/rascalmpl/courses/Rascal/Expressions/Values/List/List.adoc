@@ -1,0 +1,170 @@
+[[Values-List]]
+# List
+:concept: Expressions/Values/List
+
+.Synopsis
+List values.
+
+.Syntax
+`[ _Exp_~1~, _Exp_~2~, ... ]`
+
+.Types
+
+//
+
+[cols="20,20,20,40"]
+|====
+|  `_Exp~1~_` |  `_Exp~2~_` |  ...  |  `[ _Exp~1~_, _Exp~2~_, ... ]`   
+
+| `_T~1~_`    | `_T~2~_`    |  ...  |  `list[lub(_T~1~_, _T~2~_, ... )]` 
+|====
+
+.Usage
+
+.Function
+
+.Description
+A list is an ordered sequence of values and has the following properties:
+
+*  All elements have the same static type.
+*  The order of the elements matters.
+*  A list may contain an element more than once.
+
+
+The type of a list has the form `list[_T_]`,
+where `_T_` is an arbitrary type.
+
+When a value or variable of type list occurs inside a list, that list value is inserted as list element.
+To achieve _splicing_ of these elements, i.e., the insertion of the elements of the list value rather than the whole list,
+it has to be prefixed by the splice operator `*`.
+
+The following operators are provided on list:
+
+**** <<List-Append,List Append>>: Append an element at the end of a list.
+**** <<List-Comprehension,List Comprehension>>: A list comprehension generates a list value.
+**** <<List-Concatenation,List Concatenation>>: Concatenate two lists.
+**** <<List-Difference,List Difference>>: The difference between two lists.
+**** <<List-Equal,List Equal>>: Equality on lists.
+**** <<List-Insert,List Insert>>: add an element in front of a list.
+**** <<List-Intersection,List Intersection>>: Intersection of two lists.
+**** <<List-NotEqual,List NotEqual>>: Not equal operator on lists.
+**** <<List-Product,List Product>>: Compute the product of two lists.
+**** <<List-Slice,List Slice>>: Retrieve a slice of a list.
+**** <<List-Splice,List Splice>>: Splice the elements of a list in an enclosing list.
+**** <<List-StrictSubList,List StrictSubList>>: The strict sublist operator on lists.
+**** <<List-StrictSuperList,List StrictSuperList>>: The strict super list operator on lists.
+**** <<List-SubList,List SubList>>: The sublist operator on lists.
+**** <<List-Subscription,List Subscription>>: Retrieve a list element via its index.
+**** <<List-SuperList,List SuperList>>: The super list operator on lists.
+**** <<List-in,List in>>: Membership test on list elements.
+**** <<List-notin,List notin>>: Negated membership test on lists.
+*** <<Values-ListRelation,ListRelation>>: ListRelation values.
+**** <<ListRelation-CartesianProduct,ListRelation CartesianProduct>>: Cartesian product of two list relation values.
+**** <<ListRelation-Composition,ListRelation Composition>>: Composition of two list relation values.
+**** <<ListRelation-FieldSelection,ListRelation FieldSelection>>: Select a field (column) from a list relation value.
+**** <<ListRelation-Join,ListRelation Join>>: Join two list relation values.
+**** <<ListRelation-ReflexiveTransitiveClosure,ListRelation Reflexive Transitive Closure>>: The reflexive transitive closure of a binary list relation.
+**** <<ListRelation-Subscription,ListRelation Subscription>>: Indexing of a list relation via tuple values.
+**** <<ListRelation-TransitiveClosure,ListRelation Transitive Closure>>: Transitive closure on binary list relation values.
+
+The following functions are provided for lists:
+subtoc[Rascal/Libraries/Prelude/List,1]
+
+.Examples
+[source,rascal-shell]
+----
+rascal>[1, 2, 3];
+list[int]: [1,2,3]
+rascal>[<1,10>, <2,20>, <3,30>];
+lrel[int,int]: [
+  <1,10>,
+  <2,20>,
+  <3,30>
+]
+rascal>[1, "b", 3];
+list[value]: [1,"b",3]
+rascal>[<"a",10>, <"b",20>, <"c",30>];
+lrel[str,int]: [
+  <"a",10>,
+  <"b",20>,
+  <"c",30>
+]
+rascal>[["a", "b"], ["c", "d", "e"]];
+list[list[str]]: [
+  ["a","b"],
+  ["c","d","e"]
+]
+----
+List splicing works as follows: by prefixing `L` by the splice operator, its elements are included as elements in the enclosing list:
+[source,rascal-shell]
+----
+rascal>L = [1, 2, 3];
+list[int]: [1,2,3]
+rascal>[10, L, 20];
+list[value]: [
+  10,
+  [1,2,3],
+  20
+]
+rascal>[10, *L, 20];
+list[int]: [10,1,2,3,20]
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+include::Append/Append.adoc[Append]
+
+include::Comprehension/Comprehension.adoc[Comprehension]
+
+include::Concatenation/Concatenation.adoc[Concatenation]
+
+include::Difference/Difference.adoc[Difference]
+
+include::Equal/Equal.adoc[Equal]
+
+include::Insert/Insert.adoc[Insert]
+
+include::Intersection/Intersection.adoc[Intersection]
+
+include::NotEqual/NotEqual.adoc[NotEqual]
+
+include::Product/Product.adoc[Product]
+
+include::Slice/Slice.adoc[Slice]
+
+include::Splice/Splice.adoc[Splice]
+
+include::StrictSubList/StrictSubList.adoc[StrictSubList]
+
+include::StrictSuperList/StrictSuperList.adoc[StrictSuperList]
+
+include::SubList/SubList.adoc[SubList]
+
+include::Subscription/Subscription.adoc[Subscription]
+
+include::SuperList/SuperList.adoc[SuperList]
+
+include::in/in.adoc[in]
+
+include::notin/notin.adoc[notin]
+
+include::CartesianProduct/CartesianProduct.adoc[CartesianProduct]
+
+include::Composition/Composition.adoc[Composition]
+
+include::FieldSelection/FieldSelection.adoc[FieldSelection]
+
+include::Join/Join.adoc[Join]
+
+include::ReflexiveTransitiveClosure/ReflexiveTransitiveClosure.adoc[ReflexiveTransitiveClosure]
+
+include::Subscription/Subscription.adoc[Subscription]
+
+include::TransitiveClosure/TransitiveClosure.adoc[TransitiveClosure]
+
+
+:leveloffset: -1

@@ -1,0 +1,26 @@
+[[Statements-Test]]
+# Test
+:concept: Statements/Test
+
+.Synopsis
+Test statement (__deprecated__).
+
+.Syntax
+
+.Types
+
+.Function
+
+.Description
+The `test` statement is deprecated and is replaced by the `test` modifier in function declarations, see <<Function Declaration>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

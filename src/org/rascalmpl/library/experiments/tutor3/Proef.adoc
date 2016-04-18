@@ -1,0 +1,7 @@
+= Hello AsciiDoc
+Doc Writer <doc@example.com>
+
+== First section
+
+* item 1
+* item 2

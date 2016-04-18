@@ -1,0 +1,44 @@
+[[Number-Negation]]
+# Number Negation
+:concept: Expressions/Values/Number/Negation
+
+.Synopsis
+Negate a numeric value.
+
+.Syntax
+`- _Exp_`
+
+.Types
+
+
+|====
+| `_Exp_`  |  `- _Exp_` 
+
+| `int`    |  `int`     
+| `real`   |  `real`    
+|====
+
+.Function
+
+.Description
+Yields the negated values of _Exp_.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>-12
+int: -12
+rascal>-13.5
+real: -13.5
+rascal>- -12
+int: 12
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

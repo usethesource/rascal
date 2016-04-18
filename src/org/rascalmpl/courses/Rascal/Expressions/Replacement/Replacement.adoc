@@ -1,0 +1,52 @@
+[[Expressions-Replacement]]
+# Replacement
+:concept: Expressions/Replacement
+
+.Synopsis
+Set the value of an <<Annotation Declaration,Annotation>>.
+
+.Syntax
+`_Exp_~1~[@_Name_ = _Exp_~2~]`
+
+.Types
+
+.Function
+
+.Description
+Expression that sets the value of annotation _Name_ of the value _Exp_~1~ to the value of _Exp_~2~
+and returns the value with the new annotation value as result.
+See <<Selection>> for selecting the value of an annotation.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>anno str node @ color;
+ok
+rascal>anno str node @ size;
+ok
+rascal>F = "fn"(123, "abc");
+node: "fn"(123,"abc")
+rascal>F = F[@color="red"];
+node: "fn"(123,"abc")[
+  @color="red"
+]
+rascal>F = F[@size="10"];
+node: "fn"(123,"abc")[
+  @size="10"
+]
+rascal>F@color;
+NoSuchAnnotation("color") at |test-modules:///ConsoleInput.rsc|(91,7,<8,15>,<8,22>)
+Call stack (most recent first):
+	main([]) at |test-modules:///ConsoleInput.rsc|(91,7,<8,15>,<8,22>)
+
+ok
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

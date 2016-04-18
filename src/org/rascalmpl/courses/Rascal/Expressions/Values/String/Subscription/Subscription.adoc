@@ -1,0 +1,52 @@
+[[String-Subscription]]
+# String Subscription
+:concept: Expressions/Values/String/Subscription
+
+.Synopsis
+Retrieve a substring via its index.
+
+.Syntax
+`_Exp_~1~ [ _Exp_~2~ ]`
+
+.Types
+
+
+|====
+| `_Exp~1~_`     | `_Exp~2~_` | `_Exp~1~_ [ _Exp~2~_ ]` 
+
+| `str`         | `int`     | `str`                 
+|====
+
+.Function
+
+.Description
+String subscription uses the integer value of _Exp_~2~ as index in the string value of _Exp_~1~.
+The value of _Exp_~2~ should be greater or equal 0 and less than the number of characters in the string.
+If this is not the case, the exception `IndexOutOfBounds` is thrown.
+
+.Examples
+
+Introduce a string, assign it to S and retrieve the element with index 1:
+[source,rascal-shell-error]
+----
+rascal>S = "abc";
+str: "abc"
+rascal>S[1];
+str: "b"
+----
+Explore an error case:
+[source,rascal-shell-error]
+----
+rascal>S[5];
+IndexOutOfBounds(5) at |test-modules:///ConsoleInput.rsc|(43,4,<4,15>,<4,19>)
+Call stack (most recent first):
+	main([]) at |test-modules:///ConsoleInput.rsc|(43,4,<4,15>,<4,19>)
+
+ok
+----
+
+       
+
+:leveloffset: +1
+
+:leveloffset: -1

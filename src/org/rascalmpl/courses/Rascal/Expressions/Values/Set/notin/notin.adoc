@@ -1,0 +1,41 @@
+[[Set-notin]]
+# Set notin
+:concept: Expressions/Values/Set/notin
+
+.Synopsis
+Negated membership test on set values.
+
+.Syntax
+`_Exp_~1~ notin _Exp_~2~`
+
+.Types
+
+
+|====
+| `_Exp~1~_`           |  `_Exp~2~_`    | `_Exp~1~_ notin _Exp~2~_` 
+
+| `_T~1~_`  <: `_T~2~_` |  `set[_T~2~_]` | `bool`                  
+|====
+
+.Function
+
+.Description
+Yields `true` if the value of _Exp_~1~ does not occur as element in the value of _Exp_~2~ and `false` otherwise. The type of _Exp_~1~ should be compatible with the element type of _Exp_~2~.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>4 notin {1, 2, 3};
+bool: true
+rascal>4 notin {1, 2, 3, 4};
+bool: false
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

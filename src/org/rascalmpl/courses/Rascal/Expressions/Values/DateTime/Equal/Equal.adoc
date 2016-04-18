@@ -1,0 +1,42 @@
+[[DateTime-Equal]]
+# DateTime Equal
+:concept: Expressions/Values/DateTime/Equal
+
+.Synopsis
+Equality on datetime values.
+
+.Syntax
+`_Exp_~1~ == _Exp_~2~`
+
+.Types
+
+//
+
+|====
+| `_Exp~1~_`      | `_Exp~2~_`      | `_Exp~1~_ == _Exp~2~_` 
+
+| `datetime`     |  `datetime`    | `bool`               
+|====
+
+.Function
+
+.Description
+Yields `true` if both arguments are identical `datetime` values and `false` otherwise.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>$2010-07-15$ == $2010-07-15$;
+bool: true
+rascal>$2010-07-15$ == $2010-07-14$;
+bool: false
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

@@ -1,0 +1,51 @@
+[[Abstract-Literal]]
+# Literal Pattern
+:concept: Patterns/Abstract/Literal
+
+.Synopsis
+Literal in abstract pattern.
+
+.Syntax
+
+.Types
+
+.Function
+
+.Description
+
+A literal of one of the basic types <<Values-Boolean>>, <<Values-Integer>>, <<Values-Real>>, <<Values-Number>>, <<Values-String>>, <<Values-Location>>, or <<Values-DateTime>>
+can be used as abstract pattern.
+A literal pattern matches with a value that is identical to the literal.
+
+.Examples
+A literal pattern matches with a value that is equal to it:
+[source,rascal-shell]
+----
+rascal>123 := 123
+bool: true
+rascal>"abc" := "abc"
+bool: true
+----
+A literal pattern does not match with a value that is not equal to it:
+[source,rascal-shell]
+----
+rascal>123 := 456
+bool: false
+rascal>"abc" := "def"
+bool: false
+----
+A literal pattern should be of the same type as the subject it is matched with:
+[source,rascal-shell-error]
+----
+rascal>123 := "abc";
+[error] Cannot match an expression of type: type(str(),()) against a pattern of type type(int(),())
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

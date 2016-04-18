@@ -1,0 +1,83 @@
+[[Values-Tuple]]
+# Tuple
+:concept: Expressions/Values/Tuple
+
+.Synopsis
+Tuple values.
+
+.Syntax
+`< _Exp_~1~, _Exp_~2~, ... >`
+
+.Types
+
+
+|====
+| `_Exp~1~_`  | `_Exp~2~_`  |  ...  | `< _Exp~1~_, _Exp~2~_, ... >` 
+
+| `_T~1~_`    |  _T~2~_     | ...   | `tuple[_T~1~_, _T~2~_, ... ]` 
+|====
+
+.Function
+
+.Description
+A tuple is a sequence of elements with the following properties:
+
+*  Each element in a tuple (may) have a different type.
+
+*  Each element of a tuple may have a label that can be used to select that element of the tuple.
+
+*  Each tuple is fixed-width, i.e., has the same number of elements.
+
+
+Tuples are represented by the type `tuple[_T_~1~ _L_~1~, _T_~2~ _L_~2~, ...]`, 
+where _T_~1~, _T_~2~, ... are arbitrary types and _L_~1~, _L_~2~, ... are optional labels. 
+
+The following operators are provided for tuples:
+
+**** <<Tuple-Concatenation,Tuple Concatenation>>: Concatenate two tuple values.
+**** <<Tuple-Equal,Tuple Equal>>: Equality operator on tuple values.
+**** <<Tuple-FieldSelection,Tuple FieldSelection>>: Select a field from a tuple by its field name.
+**** <<Tuple-GreaterThan,Tuple GreaterThan>>: Greater than operator on tuple values.
+**** <<Tuple-GreaterThanOrEqual,Tuple GreaterThanOrEqual>>: Greater than or equal operator on tuple values.
+**** <<Tuple-LessThan,Tuple LessThan>>: Less than operator on tuple values.
+**** <<Tuple-LessThanOrEqual,Tuple LessThanOrEqual>>: Less than or equal operator on tuple values.
+**** <<Tuple-NotEqual,Tuple NotEqual>>: Not equal operator on tuple values.
+**** <<Tuple-Subscription,Tuple Subscription>>: Retrieve a tuple field by its index position.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>tuple[str first, str last, int age] P = <"Jo","Jones",35>;
+tuple[str,str,int]: <"Jo","Jones",35>
+rascal>P.first;
+str: "Jo"
+rascal>P.first = "Bo";
+tuple[str,str,int]: <"Bo","Jones",35>
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+include::Concatenation/Concatenation.adoc[Concatenation]
+
+include::Equal/Equal.adoc[Equal]
+
+include::FieldSelection/FieldSelection.adoc[FieldSelection]
+
+include::GreaterThan/GreaterThan.adoc[GreaterThan]
+
+include::GreaterThanOrEqual/GreaterThanOrEqual.adoc[GreaterThanOrEqual]
+
+include::LessThan/LessThan.adoc[LessThan]
+
+include::LessThanOrEqual/LessThanOrEqual.adoc[LessThanOrEqual]
+
+include::NotEqual/NotEqual.adoc[NotEqual]
+
+include::Subscription/Subscription.adoc[Subscription]
+
+
+:leveloffset: -1

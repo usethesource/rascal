@@ -1,0 +1,47 @@
+[[Rascal-Patterns]]
+# Patterns
+:concept: Patterns
+
+.Synopsis
+The various patterns that can be used for pattern matching.
+
+.Syntax
+
+.Types
+
+.Function
+
+.Description
+
+The following patterns are available:
+subtoc[Rascal/Patterns,1]
+
+Patterns may be used in:
+
+*  cases of a <<Switch>> or <<Visit>>, 
+*  on the left of the <<Boolean Match>> operator (`:=`),
+*  on the left of the <<Enumerator>> operator (`<-`), and
+*  as formal parameters of <<Function Declaration>>s. 
+*  <<Try Catch>> statements to match thrown exceptions.
+
+
+Each pattern binds variables in a conditional scope. A case statement is such a scope, so are the conditions of if, for, and while and the generators of comprehensions.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+include::Abstract/Abstract.adoc[Abstract]
+
+include::Concrete/Concrete.adoc[Concrete]
+
+include::PatternWithAction/PatternWithAction.adoc[PatternWithAction]
+
+include::Regular/Regular.adoc[Regular]
+
+
+:leveloffset: -1

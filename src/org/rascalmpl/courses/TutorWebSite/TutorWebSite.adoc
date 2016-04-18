@@ -1,0 +1,29 @@
+[[TutorWebSite]]
+# Welcome to the Rascal Tutor
+include::../CommonDefs.adoc[]
+:concept: TutorWebSite
+
+[cols="a,a,a,a"]
+|===
+Beginner          | Moderate | Advanced | General
+
+|
+[square]
+- link:{EASY}[EASY]
+- link:{SolutionStrategies}[Solution Strategies]
+- link:{CompareWithOtherParadigms}[Compare with other Paradigms]
+- link:{Rascalopedia}[Rascalopedia]
+- link:{Recipes}[Rascal Recipes]
+
+|
+[square]
+- link:{RascalLang}[Rascal Language Reference]
+- link:{Libraries}[Rascal Library Reference]
+| TBD
+| TBD
+
+|===
+
+:leveloffset: +1
+
+:leveloffset: -1

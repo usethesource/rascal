@@ -1,0 +1,42 @@
+[[List-Equal]]
+# List Equal
+:concept: Expressions/Values/List/Equal
+
+.Synopsis
+Equality on lists.
+
+.Syntax
+`_Exp_~1~ == _Exp_~2~`
+
+.Types
+
+//
+
+|====
+| `_Exp~1~_`     |  `_Exp~2~_`     | `_Exp~1~_ == _Exp~2~_` 
+
+| `list[_T~1~_]` |  `list[_T~2~_]` | `bool`               
+|====
+
+.Function
+
+.Description
+Yields `true` if both arguments are equal lists and `false` otherwise.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>[1, 2, 3] == [1, 2, 3];
+bool: true
+rascal>[1, 2, 3] == [3, 2, 1];
+bool: false
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

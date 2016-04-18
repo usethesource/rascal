@@ -1,0 +1,36 @@
+[[Running-Help]]
+# Help
+:concept: InstallingAndRunning/Running/Help
+
+.Synopsis
+Help facilities.
+
+.Syntax
+
+.Types
+
+.Function
+
+.Description
+Various forms of help are available.
+
+At the command console, type *:help* to get a list of help commands.
+
+In the Eclipse environment, select the menu `Rascal > Start Tutor` to start
+the interactive Rascal Tutor.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>:help
+ok
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1
