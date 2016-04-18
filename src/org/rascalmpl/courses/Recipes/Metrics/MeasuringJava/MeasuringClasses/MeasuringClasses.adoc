@@ -32,35 +32,30 @@ Then we import the API for extracting an M3 model from an Eclipse project.
 [source,rascal-shell]
 ----
 rascal>import lang::java::jdt::m3::Core;
-ok
 [error] Cannot import module lang::java::jdt::m3::Core AT |std:///experiments/Compiler/Compile.rsc|(0,51,<1,0>,<1,51>)
 ----
 Calling the following function generates an enormous value representing everything the Eclipse Java compiler knows about this project:
 [source,rascal-shell]
 ----
 rascal>myModel = createM3FromEclipseProject(|project://example-project|);
-ok
 [error] Name createM3FromEclipseProject is not in scope
 ----
 Next, let's focus on the _containment_ relation. This defines what parts of the source code are parts of which other parts:
 [source,rascal-shell]
 ----
 rascal>myModel@containment
-ok
 [error] Name myModel is not in scope
 ----
 As you can read, classes contain methods, methods contain variables, etc. Classes could also contain other classes (nested classes), and methods can even contain classes (anonymous classes). Let's focus on a specific class, and project what it contains from the relation:
 [source,rascal-shell]
 ----
 rascal>myModel@containment[|java+class:///HelloWorld|]
-ok
 [error] Name myModel is not in scope
 ----
 Let's filter the methods:
 [source,rascal-shell]
 ----
 rascal>helloWorldMethods = [ e | e <- myModel@containment[|java+class:///HelloWorld|], e.scheme == "java+method"];
-ok
 [error] Name myModel is not in scope
 ----
 And we are ready to compute our first metric. How many methods does this class contain?
@@ -69,7 +64,6 @@ And we are ready to compute our first metric. How many methods does this class c
 rascal>import List;
 ok
 rascal>size(helloWorldMethods)
-ok
 [error] Name helloWorldMethods is not in scope
 ----
 No magic applied! It is just a little query on a model that knows everything about the code. Let's generalize and compute the number of methods for all classes in one big expression. First a function to compute the number for a given class:
@@ -82,7 +76,6 @@ then we apply this new function to give us a map from classes to integers:
 [source,rascal-shell]
 ----
 rascal>map[loc class, int methodCount] numberOfMethodsPerClass = (cl:numberOfMethods(cl, myModel) | <cl,_> <- myModel@containment, isClass(cl));
-ok
 [error] Name myModel is not in scope
 [error] Name myModel is not in scope
 ----
@@ -91,15 +84,7 @@ how about the number of fields?
 ----
 rascal>int numberOfFields(loc cl, M3 model) = size([ m | m <- model@containment[cl], isField(m)]);
 ok
-[error] Name myModel is not in scope
-[error] Name myModel is not in scope
 rascal>map[loc class, int fieldCount] numberOfFieldsPerClass = (cl:numberOfFields(cl, myModel) | <cl,_> <- myModel@containment, isClass(cl));
-ok
-[error] Name myModel is not in scope
-[error] Name myModel is not in scope
-[error] Name myModel is not in scope
-[error] Name numberOfFields is not in scope
-[error] Name myModel is not in scope
 [error] Name myModel is not in scope
 [error] Name myModel is not in scope
 ----
@@ -107,12 +92,8 @@ what is the ratio between fields and methods for each class?
 [source,rascal-shell]
 ----
 rascal>(cl : (numberOfFieldsPerClass[cl] * 1.0) / (numberOfMethodsPerClass[cl] * 1.0) | cl <- classes(myModel))
-ok
-[error] Name myModel is not in scope
-[error] Name myModel is not in scope
-[error] Name numberOfFields is not in scope
-[error] Name myModel is not in scope
-[error] Name myModel is not in scope
+[error] Name numberOfMethodsPerClass is not in scope
+[error] Name numberOfFieldsPerClass is not in scope
 [error] Name myModel is not in scope
 ----
 

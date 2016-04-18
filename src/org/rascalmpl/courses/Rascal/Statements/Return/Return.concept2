@@ -5,8 +5,8 @@ Return a value as result of a [Function].
 
 .Syntax
 
-#  `return;`
-#  `return $Exp$`
+*  `return;`
+*  `return _Exp_`
 
 .Types
 
@@ -21,7 +21,7 @@ The first variant applies to functions with `void` as return type.
 The second variants applies to non-void functions and returns the value of _Exp_ as result of the function invocation.
 The following rules apply:
 
-*  The static type of $Exp$ should be compatible with the declared return type of the function in 
+*  The static type of _Exp_ should be compatible with the declared return type of the function in 
   which the return statement occurs.
 
 *  In each function with a return type that is not void, every possible execution path through the body of 

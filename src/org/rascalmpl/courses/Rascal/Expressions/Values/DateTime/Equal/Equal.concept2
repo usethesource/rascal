@@ -1,4 +1,4 @@
-# Equal
+# DateTime Equal
 
 .Synopsis
 Equality on datetime values.
@@ -7,10 +7,13 @@ Equality on datetime values.
 `_Exp_~1~ == _Exp_~2~`
 
 .Types
+
+//
+
 |====
-| `$Exp_1$`      | `$Exp_2$`      | `$Exp_1$ == $Exp_2$` |
-|:---------------|:---------------|:---------------------|
-| `datetime`     |  `datetime`    | `bool`               |
+| `_Exp~1~_`      | `_Exp~2~_`      | `_Exp~1~_ == _Exp~2~_` 
+
+| `datetime`     |  `datetime`    | `bool`               
 |====
 
 .Function
@@ -23,8 +26,8 @@ Yields `true` if both arguments are identical `datetime` values and `false` othe
 .Examples
 [source,rascal-shell]
 ----
-$2010-07-15 == $2010-07-15;
-$2010-07-15 == $2010-07-14;
+$2010-07-15$ == $2010-07-15$;
+$2010-07-15$ == $2010-07-14$;
 ----
 
 .Benefits

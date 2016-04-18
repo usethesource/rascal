@@ -1,4 +1,4 @@
-# Subscription
+# String Subscription
 
 .Synopsis
 Retrieve a substring via its index.
@@ -7,10 +7,12 @@ Retrieve a substring via its index.
 `_Exp_~1~ [ _Exp_~2~ ]`
 
 .Types
+
+
 |====
-| `$Exp_1$`     | `$Exp_2$` | `$Exp_1$ [ $Exp_2$ ]` |
-|:--------------|:----------|:----------------------|
-| `str`         | `int`     | `str`                 |
+| `_Exp~1~_`     | `_Exp~2~_` | `_Exp~1~_ [ _Exp~2~_ ]` 
+
+| `str`         | `int`     | `str`                 
 |====
 
 .Function
@@ -23,9 +25,7 @@ The value of _Exp_~2~ should be greater or equal 0 and less than the number of c
 If this is not the case, the exception `IndexOutOfBounds` is thrown.
 
 .Examples
-[source,rascal-shell,error]
-----
-----
+
 Introduce a string, assign it to S and retrieve the element with index 1:
 [source,rascal-shell,continue,error]
 ----

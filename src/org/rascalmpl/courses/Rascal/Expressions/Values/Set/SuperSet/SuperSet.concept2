@@ -1,4 +1,4 @@
-# SuperSet
+# Set SuperSet
 
 .Synopsis
 Superset operator on set values.
@@ -7,10 +7,12 @@ Superset operator on set values.
 `_Exp_~1~ >= _Exp_~2~`
 
 .Types
+
+
 |====
-| `$Exp_1$`    |  `$Exp_2$`     | `$Exp_1$ >= $Exp_2$`  |
-|:-------------|:---------------|:----------------------|
-| `set[$T_1$]` |  `set[$T_2$]`  | `bool`                |
+| `_Exp~1~_`    |  `_Exp~2~_`     | `_Exp~1~_ >= _Exp~2~_`  
+
+| `set[_T~1~_]` |  `set[_T~2~_]`  | `bool`                
 |====
 
 .Function

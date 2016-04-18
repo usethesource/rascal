@@ -21,14 +21,15 @@ All the elements of the subject are visited. When one of the cases matches the s
 with that case are executed. These cases may:
 
 *  cause some side effect, i.e., assign a value to local or global variables;
-*  execute an [$Statements/Insert] statement that replaces the current element;
-*  execute a [Fail] statement that causes the match for the current case to fail (and undoing all side-effects due to the successful match itself and the execution of the statements so far).
+*  execute an <<Insert>> statement that replaces the current element;
+*  execute a <<Fail>> statement that causes the match for the current case to fail (and undoing all side-effects due to the successful match itself and the execution of the statements so far).
 
 
 The value of a visit expression is the original subject value with all replacements made as dictated by matching cases. The traversal order in a visit expressions can be explicitly defined by the programmer. 
 
 .Examples
-Examples of visiting are, for instance, given in link::{Recipes}#ColoredTrees[] and link::{Recipes}#Derivative[].
+Examples of visiting are, for instance, given in the Recipes 
+link:{Recipes}#Common-ColoredTrees[ColoredTrees] and link:{Recipes}#Common-Derivative[Derivative].
 
 .Benefits
 

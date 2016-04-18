@@ -1,4 +1,4 @@
-# FieldSelection
+# ListRelation FieldSelection
 
 .Synopsis
 Select a field (column) from a list relation value.
@@ -7,10 +7,12 @@ Select a field (column) from a list relation value.
 `_Exp_ . _Name_`
 
 .Types
+
+
 |====
-|`$Exp$`                                 | `$Exp$ . $Name$` |
-|:---------------------------------------|:-----------------|
-| `lrel[$T_1$ $L_1$, $T_2$ $L_2$, ... ]` | `list[$T_i$]`    |
+|`_Exp_`                                 | `_Exp_ . _Name_` 
+|
+| `lrel[_T~1~_ _L~1~_, _T~2~_ _L~2~_, ... ]` | `list[_T~i~_]`    
 |====
 
 .Function

@@ -9,7 +9,7 @@ See examples below.
 * _emphasis_
 * __bold__
 * [Rascal Web site](http:///rascal-mpl.org)
-*  [CallAnalysis]()
+* [CallAnalysis]()
 * Table:
 
   | Module | LOC |
@@ -17,9 +17,20 @@ See examples below.
   | A      | 10 |
   | B      | 20 |
   
+  
+| Operator    | Description |
+|------------|------------|
+| `$A$ \| $B$` | alternative |
+| `\|\|`       | or          |
+  
 Horizontal rule:
 
 ---
+
+* `code`
+* `in code: _italics_`
+
+<toc Test 2>
 
 # Benefits
 

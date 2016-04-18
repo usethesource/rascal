@@ -1,4 +1,4 @@
-# FieldSelection
+#  Tuple FieldSelection
 
 .Synopsis
 Select a field from a tuple by its field name.
@@ -7,10 +7,12 @@ Select a field from a tuple by its field name.
 `_Exp_ . _Name_`
 
 .Types
+
+
 |====
-| `$Exp$`                                 | `$Name$` | `$Exp$ . $Name$` |
-|:----------------------------------------|:---------|:-----------------|
-|`tuple[ $T_1$ $L_1$, $T_2$ $L_2$, ... ]` |  `$L_i$` | `$T_i$`          |
+| `_Exp_`                                 | `_Name_` | `_Exp_ . _Name_`
+
+|`tuple[ _T~1~_ _L~1~_, _T~2~_ _L~2~_, ... ]` |  `_L~i~_` | `_T~i~_`        
 |====
 
 .Function

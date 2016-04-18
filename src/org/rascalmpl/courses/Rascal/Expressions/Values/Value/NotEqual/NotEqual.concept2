@@ -1,4 +1,4 @@
-# NotEqual
+# Value NotEqual
 
 .Synopsis
 Not equal operator on values.
@@ -7,10 +7,12 @@ Not equal operator on values.
 `_Exp_~1~ != _Exp_~2~`
 
 .Types
+
+
 |====
-| `$Exp_1$`   | `$Exp_2$` | `$Exp_1$ != $Exp_2$` |
-|:------------|:----------|:---------------------|
-| `value`     |  `value`  | `bool`               |
+| `_Exp~1~_`   | `_Exp~2~_` | `_Exp~1~_ != _Exp~2~_` 
+
+| `value`     |  `value`  | `bool`               
 |====
 
 .Function
@@ -21,9 +23,7 @@ Not equal operator on values.
 Yields `true` if both arguments are not identical and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
-----
+
 Introduce two variables `X`, `Y` and `Z` and force them to be of type `value`:
 [source,rascal-shell,continue]
 ----

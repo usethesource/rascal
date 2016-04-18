@@ -1,24 +1,24 @@
-# Concrete
+# Concrete Patterns
 
 .Synopsis
 Concrete patterns.
 
 .Syntax
-[source,rascal]
+[source,rascal,subs="quotes"]
 ----
-` $Token_1$ $Token_2$ ... $Token_n$ `
+` _Token~1~_ _Token~2~_ ... _Token~n~_ `
 ----
-[source,rascal]
+[source,rascal,subs="quotes"]
 ----
-($Symbol$) ` $Token_1$ $Token_2$ ... $Token_n$ `
+(_Symbol_) ` _Token~1~_ _Token~2~_ ... _Token~n~_ `
 ----
-[source,rascal]
+[source,rascal,subs="quotes"]
 ----
-<$Type$ $Var$>
+<_Type_ _Var_>
 ----
-[source,rascal]
+[source,rascal,subs="quotes"]
 ----
-<$Var$>
+<_Var_>
 ----
 
 .Types
@@ -39,29 +39,29 @@ A _concrete pattern_ is a quoted concrete syntax fragment that may contain varia
 A concrete pattern may have the following forms:
 
 *  _Quoted pattern_
-[source,rascal]
+[source,rascal,subs="quotes"]
 ----
-` $Token_1$ $Token_2$ ... $Token_n$ `
+` _Token~1~_ _Token~2~_ ... _Token~n~_ `
 ----
 Inside a quoted pattern arbitrary lexical tokens may occur. Quoted patterns may contain variable declaration patterns and variable patterns (see below).
 
 *  A _typed quoted pattern_
-[source,rascal]
+[source,rascal,subs="quotes"]
 ----
-($Symbol$) ` $Token_1$ $Token_2$ ... $Token_n$ `
+(_Symbol_) ` _Token~1~_ _Token~2~_ ... _Token~n~_ `
 ----
 is a quoted pattern that is preceded by a nonterminal symbol to define its desired syntactic type.
 
 *  A _typed variable pattern_
-[source,rascal]
+[source,rascal,subs="quotes"]
 ----
-<$Type$ $Var$>
+<_Type_ _Var_>
 ----
 
 *  A _variable pattern_
-[source,rascal]
+[source,rascal,subs="quotes"]
 ----
-<$Var$>
+<_Var_>
 ----
 
 

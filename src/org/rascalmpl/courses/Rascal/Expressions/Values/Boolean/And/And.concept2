@@ -1,4 +1,4 @@
-# And
+# Boolean And
 
 .Synopsis
 Boolean _and_ operator.
@@ -7,10 +7,13 @@ Boolean _and_ operator.
 `_Exp_~1~ && _Exp_~2~`
 
 .Types
+
+//
+
 |====
-| `$Exp_1$` | `$Exp_2$`  | `$Exp_1$ && $Exp_2$` |
-|:---------|:----------|:--------------------|
-| `bool`       | `bool`         | `bool` |
+| `_Exp~1~_` | `_Exp~2~_`  | `_Exp~1~_ && _Exp~2~_` 
+
+| `bool`       | `bool`         | `bool` 
 |====
 
 .Function
@@ -21,12 +24,12 @@ Boolean _and_ operator.
 The _and_ operator on Boolean values defined as follows:
 
 |====
-| `$Exp_1$` | `$Exp_2$`  | `$Exp_1$ && $Exp_2$` |
-|:---------|:----------|:--------------------|
-| `true`       | `true`         | `true` |
-| `true`       | `false`         | `false` |
-| `false`       | `true`         | `false` |
-| `false`       | `false`         | `false` |
+| `_Exp~1~_` | `_Exp~2~_`  | `_Exp~1~_ && _Exp~2~_` 
+
+| `true`       | `true`         | `true` 
+| `true`       | `false`         | `false` 
+| `false`       | `true`         | `false` 
+| `false`       | `false`         | `false` 
 |====
 
 Boolean operators have _short circuit_ semantics:  only those operands are evaluated that are needed to compute the result. In the case of the `&&` operator, the result is `false` if `_Exp_~1~` evaluates to `false`, otherwise `_Exp_~2~` is evaluated to determine the result.
@@ -49,11 +52,11 @@ for (i <- [1,2,3,4] && (i % 2 == 0))
 
 .Benefits
 
-*  the backtracking `&&` allows one to express searching for a computational solution in concise manner.
+*  The backtracking `&&` allows one to express searching for a computational solution in concise manner.
 
 .Pitfalls
 
-*  side effects to global variables or IO in the context of a backtracking `&&` can lead to more effects than you bargained for.
+*  Side effects to global variables or IO in the context of a backtracking `&&` can lead to more effects than you bargained for.
 
 [source,rascal-shell]
 ----

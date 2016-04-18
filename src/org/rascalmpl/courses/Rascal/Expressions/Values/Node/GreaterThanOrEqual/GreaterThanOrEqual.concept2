@@ -1,4 +1,4 @@
-# GreaterThanOrEqual
+# Node GreaterThanOrEqual
 
 .Synopsis
 Greater than or equal operator on node values.
@@ -7,10 +7,11 @@ Greater than or equal operator on node values.
 `_Exp_~1~ >= _Exp_~2~`
 
 .Types
+
 |====
-| `$Exp_1$` |  `$Exp_2$` | `$Exp_1$ >= $Exp_2$` |
-|:----------|:-----------|:---------------------|
-| `node`    |  `node`    | `bool`               |
+| `_Exp~1~_` |  `_Exp~2~_` | `_Exp~1~_ >= _Exp~2~_` 
+
+| `node`    |  `node`    | `bool`               
 |====
 
 .Function
@@ -20,8 +21,8 @@ Greater than or equal operator on node values.
 .Description
 Comparison on nodes is defined by a lexicographic ordering. Node `_N_ = _F_(_N_~1~, ..., _N_~n~)` is greater than or equal node 
 `_N_ = _G_(_M_~1~, ..., _M_~m~)` when:
-*  $N$ is equal to $M$, or
-*  $F$ is lexicographically greater than $G$, or $F$ is equal to $G$ and `$n$ > $m$`.
+*  _N_ is equal to _M_, or
+*  _F_ is lexicographically greater than _G_, or _F_ is equal to _G_ and `_n_ > _m_`.
 
 .Examples
 [source,rascal-shell]

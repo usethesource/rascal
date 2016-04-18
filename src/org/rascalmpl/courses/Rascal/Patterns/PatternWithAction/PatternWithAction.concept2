@@ -1,12 +1,12 @@
-# PatternWithAction
+# Pattern With Action
 
 .Synopsis
 A pattern with an associated action that is executed on a successful match.
 
 .Syntax
 
-#  `$Pattern$ => $Exp$`
-#  `$Pattern$: $Statement$`
+*  `_Pattern_ => _Exp_`
+*  `_Pattern_: _Statement_`
 
 .Types
 
@@ -20,9 +20,9 @@ which in its turn, may be used in various statements such <<Switch>> and <<Visit
 
 There are two variants as listed above:
 
-#  When the subject matches $Pattern$, the expression $Exp$ is evaluated and the subject is replaced with the result.
+*  When the subject matches _Pattern_, the expression _Exp_ is evaluated and the subject is replaced with the result.
 
-#  When the subject matches Pat, the Statement is executed. More statements can be executed by including them in a [Block].
+*  When the subject matches Pat, the Statement is executed. More statements can be executed by including them in a <<Block>>.
 
 
 In <<Switch>> statements, only the form `_Pattern_ : _Statement_` is allowed. 

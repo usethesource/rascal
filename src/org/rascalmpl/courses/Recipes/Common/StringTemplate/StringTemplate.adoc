@@ -63,7 +63,6 @@ rascal>fields = (
 >>>>>>>  );
 map[str, str]: ("name":"String","address":"String","age":"Integer")
 rascal>println(genClass("Person", fields));
-ok
 public class Person {
   
   private String address;
@@ -88,6 +87,7 @@ public class Person {
     return name;
   }
 }
+ok
 ----
 
 .Benefits

@@ -6,20 +6,21 @@ Conditional statement.
 
 .Syntax
 
-*  `if ( $Exp$ ) $Statement$;`
-*  `if ( $Exp$ ) $Statement_1$ else $Statement_2$;`
+*  `if ( _Exp_ ) _Statement_;`
+*  `if ( _Exp_ ) _Statement~1~_ else _Statement~2~_;`
 
 .Types
 |====
-| `$Exp$` | `if ( $Exp$ ) $Statement$;` |
-|:--------|:----------------------------|
-| `bool`  |  `void`                     |
+| `_Exp_` | `if ( _Exp_ ) _Statement_;` 
+
+| `bool`  |  `void`                     
 |====
 
+[cols="20,20,20,40"]
 |====
-| `$Exp$` | $Statement_1$ | $Statement_2$ | `if ( $Exp$ ) $Statement_1$ else $Statement_2$;` |
-|:--------|:--------------|:--------------|:-------------------------------------------------|
-| `bool`  |  $T_1$        | $T_2$         | `lub($T_1$, $T_2$)`                              |
+| `_Exp_` | `_Statement~1~_` | `_Statement~2~_` | `if ( _Exp_ ) _Statement~1~_ else _Statement~2~_;` 
+
+| `bool`  |  _T~1~_        | _T~2~_         | `lub(_T~1~_, _T~2~_)`                              
 |====
 
 .Function

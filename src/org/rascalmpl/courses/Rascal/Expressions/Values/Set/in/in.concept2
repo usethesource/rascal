@@ -1,4 +1,4 @@
-# in
+# Set in
 
 .Synopsis
 Membership test on set values.
@@ -7,10 +7,12 @@ Membership test on set values.
 `_Exp_~1~ in _Exp_~2~`
 
 .Types
+
+
 |====
-| `$Exp_1$`           |  `$Exp_2$`     | `$Exp_1$ in $Exp_2$` |
-|:--------------------|:---------------|:---------------------|
-| `$T_1$`  <: `$T_2$` |  `set[$T_2$]`  | `bool`               |
+| `_Exp~1~_`           |  `_Exp~2~_`     | `_Exp~1~_ in _Exp~2~_` 
+
+| `_T~1~_`  <: `_T~2~_` |  `set[_T~2~_]`  | `bool`               
 |====
 
 .Function

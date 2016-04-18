@@ -1,4 +1,4 @@
-# Splice
+# List Splice
 
 .Synopsis
 Splice the elements of a list in an enclosing list.
@@ -6,10 +6,14 @@ Splice the elements of a list in an enclosing list.
 .Syntax
 
 .Types
+
+//
+
+[cols="10,10,10,70"]
 |====
-|`$Exp$` | `$Exp_1$`|  `$Exp_n$` | `[$Exp_1$, ..., $Exp$, ..., $Exp_n$]` |
-|:-------|:---------|:-----------|:----------------------------------|
-|`$T$`   | `$T_1$`  |  `$T_n$`   | `list[lub($T_1$, ..., $T$, ...,$T_n$)]`    |
+|`_Exp_` | `_Exp~1~_`|  `_Exp~n~_` | `[_Exp~1~_, ..., _Exp_, ..., _Exp~n~_]` 
+
+|`_T_`   | `_T~1~_`  |  `_T~n~_`   | `list[lub(_T~1~_, ..., _T_, ...,_T~n~_)]`    
 |====
 
 .Function

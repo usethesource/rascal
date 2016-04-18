@@ -1,4 +1,4 @@
-# TypeConstrained
+# Type Constrained Pattern
 
 .Synopsis
 Type constrained abstract pattern.
@@ -29,7 +29,7 @@ Some example data type which contains generic values as well as specific express
 data Exp = val(value v) | add(Exp l, Exp r) | sub(Exp l, Exp r);
 ex = add(add(val("hello"(1,2)),val("bye")), sub(val(1),val(2)));
 ----
-Here we constraint the match to find only Exps:
+Here we constrain the match to find only Exps:
 [source,rascal-shell,continue]
 ----
 visit (ex) {

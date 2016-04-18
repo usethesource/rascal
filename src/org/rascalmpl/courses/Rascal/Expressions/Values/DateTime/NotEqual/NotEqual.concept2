@@ -1,4 +1,4 @@
-# NotEqual
+# DateTime NotEqual
 
 .Synopsis
 Not equal operator on datetime values.
@@ -8,9 +8,9 @@ Not equal operator on datetime values.
 
 .Types
 |====
-| `$Exp_1$`      | `$Exp_2$`      | `$Exp_1$ != $Exp_2$` |
-|:---------------|:---------------|:---------------------|
-| `datetime`     |  `datetime`    | `bool`               |
+| `_Exp~1~_`      | `_Exp~2~_`      | `_Exp~1~_ != _Exp~2~_` 
+
+| `datetime`     |  `datetime`    | `bool`               
 |====
 
 .Function

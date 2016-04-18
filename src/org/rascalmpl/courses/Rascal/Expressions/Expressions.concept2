@@ -15,10 +15,10 @@ Values Operators
 .Description
 The expression is the basic unit of evaluation and may consist of the ingredients shown in the figure.
 
-*  An elementary _literal value_, e.g. constants of the types [$Values/Boolean], [$Values/Integer], [$Values/Real], 
+*  An elementary _literal value_, e.g. constants of the types <<Values-Boolean>>, <<Values-Integer>>, <<Values-Real>>, 
   <<Values-Number>>, <<Values-String>>, <<Values-Location>> or <<Values-DateTime>>.
 
-*  A _structured value_ for [$Values/List], [$Values/Set], [$Values/Map], [$Values/Tuple] or [$Values/Relation]. 
+*  A _structured value_ for <<Values-List>>, <<Values-Set>>, <<Values-Map>>, <<Values-Tuple>> or <<Values-Relation>>. 
   The elements are first evaluated before the structured value is built.
 
 *  A _variable_ that evaluates to its current value.
@@ -34,15 +34,15 @@ The expression is the basic unit of evaluation and may consist of the ingredient
 *  An operator expression. The operator is applied to the arguments; the evaluation order of the arguments depends 
   on the operator. The result returned by the operator is used as value of the operator expression.  See <<Operators>>.
 
-*  [$Expressions/Comprehensions].
+*  <<Comprehensions>>.
 
-*  A [Visit] expression.
+*  A <<Visit>> expression.
 
-*  An [Any] expression.
+*  A <<Boolean Any>> expression.
 
-*  An [All] expression.
+*  An <<Boolean All>> expression.
 
-*  Some statements like [If], [For], [While] and [Do] can also be used in expressions, see [StatementAsExpression].
+*  Some statements like <<If>>, <<For>>, <<While>> and <<Do>> can also be used in expressions, see <<Statement as Expression>>.
 
 .Examples
 

@@ -1,4 +1,4 @@
-# StatementAsExpression
+# Statement as Expression
 
 .Synopsis
 Statements that have a value and can be used as expressions.

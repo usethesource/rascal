@@ -1,4 +1,4 @@
-# StaticTyping
+# Static Typing
 
 .Synopsis
 Static type checking.
@@ -11,17 +11,16 @@ Static type checking.
 
 .Details
 
+
+image::type-lattice.png[width=400,title="Type Lattice"]
+
 .Description
-
-image::{concept}/type-lattice.png[style="float: right;" width="400px" ,alt="Type Lattice"]
-
-
 Rascal is based on static typing, this means that as many errors and inconsistencies as possible are spotted before the program is executed. The types are ordered in a so-called _type lattice_ shown in the figure.
 
 The arrows describe a _subtype-of_ relation between types. The type `void` is the _smallest_ type and 
 is included in all other types and the type `value` is the _largest_ type that includes all other types. 
 We also see that `rel` is a subtype of `set` and that each ADT is a subtype of `node`. 
-A special role is played by the datatype <tt>Tree</tt> that is the generic type of syntax trees. 
+A special role is played by the datatype `Tree` that is the generic type of syntax trees. 
 Syntax trees for specific languages are all subtypes of `Tree`. As a result, syntax trees can be addressed at two levels: 
 
 *  in a generic fashion as `Tree` and,
@@ -76,7 +75,7 @@ V = 3.5;
 classify(V);
 ----
 
-In addition to these standard examples, it is interesting that all <<AlgebraicDataType>>s are subtypes of type `node`.
+In addition to these standard examples, it is interesting that all <<Algebraic Data Type>>s are subtypes of type `node`.
 Let's introduce a simple `Color` data type:
 [source,rascal-shell]
 ----
@@ -93,7 +92,7 @@ Due to subtyping, we can also have:
 node ND = red(3);
 ----
 
-One example of the actual application of subtypes can be found in link::{Recipes}#CountConstructors[].
+One example of the actual application of subtypes can be found in link:{Recipes}#CountConstructors[Count Constructors].
 
 .Benefits
 

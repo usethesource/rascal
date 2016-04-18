@@ -1,14 +1,14 @@
-# Reserve
+# Reserve Declaration
 
 .Synopsis
-Reserve is a conditional [$SyntaxDefinition/Symbol], constraining the set of strings that a symbol may produce.
+Reserve is a conditional <<Symbol>>, constraining the set of strings that a symbol may produce.
 
 .Syntax
 
-*  `$Symbol$ \ $constraint$`
+*  `_Symbol_ \ _constraint_`
 
 
-where a _constraint_ is any character class, a literal or a keyword non-terminal <<SyntaxDefinition-Symbol>>.
+where a _constraint_ is any character class, a literal or a keyword non-terminal <<Symbol>>.
 
 .Types
 

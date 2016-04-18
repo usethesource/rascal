@@ -1,4 +1,4 @@
-# Negation
+# Boolean Negation
 
 .Synopsis
 The _not_ operator on Boolean values.
@@ -7,10 +7,13 @@ The _not_ operator on Boolean values.
 `! _Exp_`
 
 .Types
+
+//
+
 |====
-| ` $Exp$` | `! $Exp$` |
-|:---------|:----------|
-| `bool`   | `bool`    |
+| `_Exp_` | `! _Exp_` 
+
+| `bool`   | `bool`    
 |====
 
 .Function
@@ -21,10 +24,10 @@ The _not_ operator on Boolean values.
 The _not_ operator on Boolean values defined as follows:
 
 |====
-| `$Exp$`  | `! $Exp$` |
-|:---------|:----------|
-| `true`   | `false`   |
-| `false`  | `true`    |
+| `_Exp_`  | `! _Exp_` 
+
+| `true`   | `false`   
+| `false`  | `true`    
 |====
 
 .Examples

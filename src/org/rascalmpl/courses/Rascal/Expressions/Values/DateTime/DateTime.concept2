@@ -5,9 +5,9 @@ Date and time values.
 
 .Syntax
 
-#  `$` `$Date$`
-#  `$` `$Time$`
-#  `$` `$DateTime$`
+*  `$` `_Date_` `$`
+*  `$` `_Time_` `$`
+*  `$` `_DateTime_` `$`
 
 .Types
 `datetime`
@@ -26,15 +26,15 @@ or a datetime, which is a date and a time, in the orders given above, and separa
 
 The following fields provide access to information about the value, but cannot be set:
 
-*  `isDate`: returns `true` if the value is a date value, `false` if the value is a
-  datetime or time value.
-*  `isTime`: returns `true` if the value is a time value, `false` if the value is a
-  date or datetime value.
-*  `isDateTime`: returns `true` if the value is a datetime value, `false` if the value is a
-  date or time value.
-*  `justTime`: returns the date component of a date or datetime value.
-*  `justDate`: returns the time component of a time or datetime value.
-*  `century`: returns the century component of a year for date or datetime values.
+* `isDate`: returns `true` if the value is a date value, `false` if the value is a
+   datetime or time value.
+* `isTime`: returns `true` if the value is a time value, `false` if the value is a
+   date or datetime value.
+* `isDateTime`: returns `true` if the value is a datetime value, `false` if the value is a
+   date or time value.
+* `justTime`: returns the date component of a date or datetime value.
+* `justDate`: returns the time component of a time or datetime value.
+* `century`: returns the century component of a year for date or datetime values.
 
 
 The following fields provide access to the individual components of date, time and datetime values,
@@ -54,24 +54,24 @@ and can be accessed using <<DateTime-FieldSelection>> and be assigned using <<Da
 Not all fields are available on all values as indicated by the following table:
 
 |====
-| Field                   | `date` | `datetime` | `time` |
-|:------------------------|--------|------------|--------|
-| `year`                  |  x     |  x         |        |
-| `month`                 |  x     |  x         |        |
-| `day`                   |  x     |  x         |        |
-| `hour`                  |        |  x         | x      |
-| `minute`                |        |  x         | x      |
-| `second`                |        |  x         | x      |
-| `millisecond`           |        |  x         | x      |
-| `timezoneOffsetHours`   |        |  x         | x      |
-| `timezoneOffsetMinutes` |        |  x         | x      |
+| Field                   | `date` | `datetime` | `time` 
+
+| `year`                  |  x     |  x         |        
+| `month`                 |  x     |  x         |        
+| `day`                   |  x     |  x         |        
+| `hour`                  |        |  x         | x      
+| `minute`                |        |  x         | x      
+| `second`                |        |  x         | x      
+| `millisecond`           |        |  x         | x      
+| `timezoneOffsetHours`   |        |  x         | x      
+| `timezoneOffsetMinutes` |        |  x         | x      
 |====
 
 The `isDate`, `isTime`, and `isDateTime` fields can be checked in advance to determine what
 kind of value is stored in a variable of type `datetime`.
 
 The following operators are defined for DateTime:
-subtoc[Rascal/Expressions/Values/DateTime,1]
+subtoc::[1]
 
 The following functions are defined for DateTime:
 subtoc[Rascal/Libraries/Prelude/DateTime,1]
@@ -79,9 +79,7 @@ subtoc[Rascal/Libraries/Prelude/DateTime,1]
 
 
 .Examples
-[source,rascal-shell]
-----
-----
+
 Examples of `datetime` values are:
 [source,rascal-shell,continue]
 ----

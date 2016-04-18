@@ -18,11 +18,11 @@ subtoc[Rascal/Patterns,1]
 
 Patterns may be used in:
 
-*  cases of a [Switch] or [Visit], 
-*  on the left of the [Match] operator (`:=`),
-*  on the left of the [Enumerator] operator (`<-`), and
-*  as formal parameters of [Function]s. 
-*  [TryCatch] statements to match thrown exceptions.
+*  cases of a <<Switch>> or <<Visit>>, 
+*  on the left of the <<Boolean Match>> operator (`:=`),
+*  on the left of the <<Enumerator>> operator (`<-`), and
+*  as formal parameters of <<Function Declaration>>s. 
+*  <<Try Catch>> statements to match thrown exceptions.
 
 
 Each pattern binds variables in a conditional scope. A case statement is such a scope, so are the conditions of if, for, and while and the generators of comprehensions.

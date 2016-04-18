@@ -16,7 +16,7 @@ All Rascal statements.
 .Description
 
 The following statements are available:
-subtoc[Rascal/Statements,1]
+subtoc::[1]
 
 
 image::{concept}/statement-parts.png[width="500px" style="float: right;" ,alt="Statement Types"]

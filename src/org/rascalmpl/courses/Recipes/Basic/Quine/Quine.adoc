@@ -49,8 +49,8 @@ ok
 rascal>str greeting = "\"Good Morning, Dr. Watson\", said Holmes";
 str: "\"Good Morning, Dr. Watson\", said Holmes"
 rascal>println("\"" + greeting + "\"");
-ok
 ""Good Morning, Dr. Watson", said Holmes"
+ok
 ----
 As you see the quotes inside the string are not escaped and the result is not a legal string.
 So what can we do? We escape all dangerous characters in the string before printing it using the [Rascal:escape] function.
@@ -63,8 +63,8 @@ we have to say: escape `"\""` and replace it by `"\\\""`. The effect is as follo
 rascal>import String;
 ok
 rascal>println("\"" + escape(greeting, ("\"": "\\\"")) + "\"");
-ok
 "\"Good Morning, Dr. Watson\", said Holmes"
+ok
 ----
 And indeed, the two quotes are now properly escaped.
 
@@ -82,7 +82,6 @@ Now let's put `quine` to the test.
 rascal>import demo::basic::Quine;
 ok
 rascal>quine();
-ok
 module demo::basic::Quine
 
 import IO;
@@ -105,6 +104,7 @@ void quine(){
 }
 
 str program =";
+ok
 ----
 If you follow this output line-by-line you will see that it
 is identical to the original source code of module `Quine`.

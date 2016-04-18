@@ -15,7 +15,7 @@ Real values.
 .Details
 
 .Description
-The real values are represented by the type <tt>real</tt> and are written as usual in most programming languages.
+The real values are represented by the type `real` and are written as usual in most programming languages.
 They can have _arbitrary size and precision_.
 
 See <<Number>> for all operations on integers, reals and numbers.

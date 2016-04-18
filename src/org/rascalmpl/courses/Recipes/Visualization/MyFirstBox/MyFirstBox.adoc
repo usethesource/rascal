@@ -51,7 +51,7 @@ _relative_ to its surroundings by using link::{Rascal}#Properties-shrink[]:
 ----
 rascal>render(b);
 ----
-which says: _ I am a red box and I want to occupy 50% of the available space._ The result is:
+which says: _I am a red box and I want to occupy 50% of the available space._ The result is:
 
 
 image::{concept}/Screenshot2.png[alt="Screen shot 2"]
@@ -75,7 +75,7 @@ Relative sizes can also be used when figures are nested.
 rascal>render(b2);
 ----
 
-image::{concept}/b5.png[alt="Box 5"]
+image::{concept}/b5.png[alt="Box 5"]     
 
 
 .Benefits

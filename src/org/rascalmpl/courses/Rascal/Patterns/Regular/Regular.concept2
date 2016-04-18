@@ -1,4 +1,4 @@
-# Regular
+# Regular Expression Pattern
 
 .Synopsis
 Regular expression patterns.
@@ -20,15 +20,16 @@ We use a regular expression language that slightly extends/modifies the Java Reg
 
 *  Regular expression are delimited by `/` and `/` optionally followed by modifiers (see below).
 
-*  We allow _variable introductions_, syntax `<$Name$:$Regex$>`, which introduce a variable of type `str` named $Name$. A variable introduction corresponds to a group in a Java regexp. Each variable that is introduced should be unique, but may be referenced more than once later in the regular expression.
+*  We allow _variable introductions_, syntax `<_Name_:_Regex_>`, which introduce a variable of type `str` named _Name_.
+   A variable introduction corresponds to a group in a Java regexp. Each variable that is introduced should be unique, but may be referenced more than once later in the regular expression.
 
-*  Regular expressions may also contain _references to variables_, syntax `<$Name$>`,
+*  Regular expressions may also contain _references to variables_, syntax `<_Name_>`,
 the string value of variable `_Name_` is used at the position of the variable reference. 
 This can be used to define so-called _non-linear_ patterns.
 
 *  Java regular expressions allow optional groups, which may introduce null bindings. Since uninitialized variables are not allowed in Rascal, we limit the kinds of expressions one can write here by not allowing nesting of variable introductions.
 
-*  We allow variable references in a regular expression of the form: `<$Name$>` which inserts the string value of $Name$ in the pattern. $Name$ should have been introduced in the regular expression itself or in the context in which the regular expression occurs.
+*  We allow variable references in a regular expression of the form: `<_Name_>` which inserts the string value of _Name_ in the pattern. $Name$ should have been introduced in the regular expression itself or in the context in which the regular expression occurs.
 
 *  In Perl matching options _follow_ the regular expression, but Java uses the notation `(?Option)` 
 at the _beginning_ of the regular expression to set matching options. We support both styles. 
@@ -46,40 +47,42 @@ When this option is set they also match any begin or end of line that is embedde
 
 For convenience, we summarize the most frequently used constructs in regular expressions in the following table.
 
-<table>
-<caption>Frequently used elements of Regular Expression Syntax</caption>
 
-<tr><th align="left">Operator</th>	<th align="left">Description</th></tr>
-<tr><td>`x`</td>               <td>The single character `x` as long as it is not a punctuation character with a 
-                                                        special meaning in the regular expression syntax</td></tr>
-<tr><td>`\p`</td>              <td>The punctuation character `p`, this includes `!`, `"`, `#`, `$`, `%`, `&`, `'`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `<`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `|`, `}`, and `~`.</td></tr>
-<tr><td>`\\`</td>              <td>The backslash character</td></tr>
-<tr><td>`\n`</td>              <td> Newline character</td></tr>
-<tr><td>`\t`</td>               <td> Tab character</td></tr>
-<tr><td>`[...]`</td>             <td> One of the characters between the brackets (also known as _character class_). 
-                                                         Character ranges and set operations on character classes may be used.</td></tr>
-<tr><td>`[^...]`</td>           <td> Any one character not between the brackets.</td></tr>
-<tr><td>`[a-z0-9]`  </td>  <td> Character range: character between `a` and `z` or `0` and `9`.</td></tr>
-<tr><td>`.`</td>               <td> Any character except a line terminator. If single-line mode is set (using `(?s)` or modifier `s`), then it matches any character including line terminators.
-<tr><td>`\d`</td>              <td> Digit: `[0-9]`</td></tr>
-<tr><td>`\D`</td>              <td> Non-digit:` [^0-9]`</td></tr>
-<tr><td>`\s`</td>               <td> Whitespace</td></tr>
-<tr><td>`\S`</td>               <td> Anything but whitespace.</td></tr>
-<tr><td>`\w`</td>               <td> A word: `[a-zA-Z0-9_]`</td></tr>
-<tr><td>`\W`</td>              <td> A non-word:` [^\w]`</td></tr>
-<tr><td>`xy`</td>                <td> Match `x` followed by `y`</td></tr>
-<tr><td>`x|y`</td>              <td> Match `x` or `y`</td></tr>
-<tr><td>`x?`</td>               <td> Optional occurrence of `x`</td></tr>
-<tr><td>`x*`</td>               <td> Zero or more occurrences of `x`</td></tr>
-<tr><td>`x+`</td>              <td>	One or more occurrences of `x`</td></tr>
-<tr><td>`x{n}`</td>            <td>	Exactly `n` occurrences of `x`</td></tr>
-<tr><td>`x{n,}`</td>           <td>	`n` or more occurrences of `x`</td></tr>
-<tr><td>`x{n,m}`</td>        <td>	At least `n`, at most `m` occurrences of `x`</td></tr>
-<tr><td>`^`</td>                <td>	The beginning of the subject string</td></tr>
-<tr><td>`$`</td>                <td>	The end of the input string</td></tr>
-<tr><td>`\b`</td>              <td>	Word boundary: position between a word and a non-word character</td></tr>
-<tr><td>`\B`</td>              <td>	Non-word boundary: position that is a not a word boundary</td></tr>
-</table>
+.Frequently used elements of Regular Expression Syntax
+[cols="10,90"]
+|====
+|Operator   | Description
+
+| `x`       | The single character `x` as long as it is not a punctuation character with a 
+                                                        special meaning in the regular expression syntax
+| `\p`      | The punctuation character `p`, this includes `!`, `"`, `#`, `$`, `%`, `&`, `'`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `<`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `\|`, `}`, and `~`.
+| `\\`      | The backslash character
+| `\n`      | Newline character
+| `\t`      | Tab character
+| `[...]`   | One of the characters between the brackets (also known as _character class_). 
+                                                         Character ranges and set operations on character classes may be used.
+| `[^...]`  | Any one character not between the brackets.
+| `[a-z0-9]` | Character range: character between `a` and `z` or `0` and `9`.
+| `.`       | Any character except a line terminator. If single-line mode is set (using `(?s)` or modifier `s`), then it matches any character including line terminators.
+| `\d`      | Digit: `[0-9]`
+| `\D`      | Non-digit:` [^0-9]`
+| `\s`      | Whitespace
+| `\S`      | Anything but whitespace.
+| `\w`      | A word: `[a-zA-Z0-9_]`
+| `\W`      | A non-word:` [^\w]`
+| `xy`      | Match `x` followed by `y`
+| `x|y`     | Match `x` or `y`
+| `x?`      | Optional occurrence of `x`
+| `x*`      | Zero or more occurrences of `x`
+| `x+`      | One or more occurrences of `x`
+| `x{n}`    | Exactly `n` occurrences of `x`
+| `x{n,}`   | `n` or more occurrences of `x`
+| `x{n,m}`  | At least `n`, at most `m` occurrences of `x`
+| `^`       | The beginning of the subject string
+| `$`       | The end of the input string
+| `\b`      | Word boundary: position between a word and a non-word character
+| `\B`      | Non-word boundary: position that is a not a word boundary
+|====
 
 .Examples
 Here are some examples of regular expression patterns.

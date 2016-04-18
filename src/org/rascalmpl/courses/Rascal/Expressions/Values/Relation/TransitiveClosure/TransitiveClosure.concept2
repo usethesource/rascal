@@ -1,4 +1,4 @@
-# TransitiveClosure
+# Relation TransitiveClosure
 
 .Synopsis
 Transitive closure on binary relation values.
@@ -7,10 +7,12 @@ Transitive closure on binary relation values.
 `_Exp_ +`
 
 .Types
+
+
 |====
-|`$Exp$`              | `$Exp$ +`           |
-|:--------------------|:--------------------|
-| `rel[$T_1$, $T_2$]` | `rel[$T_1$, $T_2$]` |
+|`_Exp_`              | `_Exp_ +`           
+
+| `rel[_T~1~_, _T~2~_]` | `rel[_T~1~_, _T~2~_]` 
 |====
 
 .Function
@@ -22,15 +24,15 @@ Returns the transitive closure of a binary relation.
 Transitive closure is defined by repeated composition of a relation.
 If we define for a given relation R:
 
-*  R$^1$ = R
-*  R$^2$ = R o R
-*  R$^3$ = R o R$^2$
+*  R^1^ = R
+*  R^2^ = R o R
+*  R^3^ = R o R^2^
 *  ...
 
 
 then the transitive closure R+ can be defined as
 
-*  R+ = R$^1$ + R$^2$ + R$^3$ + ...
+*  R+ = R^1^ + R^2^ + R^3^ + ...
 
 
 .Examples
@@ -50,7 +52,7 @@ rel[int,int] tclosure(rel[int,int] R) {
          return tc;
    }
 }
-tclosure({<1,2>, <2,3>, <3,4>});
+//tclosure({<1,2>, <2,3>, <3,4>});
 ----
 
 .Benefits

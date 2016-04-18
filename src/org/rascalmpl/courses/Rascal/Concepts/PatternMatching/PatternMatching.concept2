@@ -1,4 +1,4 @@
-# PatternMatching
+# Pattern Matching
 
 .Synopsis
 Pattern matching.
@@ -33,7 +33,7 @@ Regular expressions follow the Java regular expression syntax with one exception
 
 [source,rascal]
 ----
-<$Name$:$RegularExpression$>
+<_Name_:_RegularExpression_>
 ----
 
 If `_RegularExpression_` matches, the matched substring is assigned to string variable `_Name_`.

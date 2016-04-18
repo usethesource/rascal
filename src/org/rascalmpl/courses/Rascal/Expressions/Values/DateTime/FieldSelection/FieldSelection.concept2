@@ -1,4 +1,4 @@
-# FieldSelection
+# DateTime Field Selection
 
 .Synopsis
 Select a field from a datetime value.
@@ -7,10 +7,13 @@ Select a field from a datetime value.
 `_Exp_ . _Name_`
 
 .Types
+
+//
+
 |====
-| `$Exp$`      | `$Name$` | `$Exp$ . $Name$` |
-|:-------------|:---------|:-----------------|
-| `datetime`   |          | depends on field |
+| `_Exp_`      | `_Name_` | `_Exp_ . _Name_` 
+
+| `datetime`   |          | depends on field 
 |====
 
 .Function

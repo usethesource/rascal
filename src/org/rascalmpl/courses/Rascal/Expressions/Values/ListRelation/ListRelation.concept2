@@ -4,13 +4,17 @@
 ListRelation values.
 
 .Syntax
-`[ <_Exp_~11~, _Exp_~12~, ... > , <_Exp_~21~, _Exp_~22~, ... > , ... ]`
+`[ < _Exp_~11~, _Exp_~12~, ... > , < _Exp_~21~, _Exp_~22~, ... > , ... ]`
 
 .Types
+
+//
+
+[cols="20,20,20,40"]
 |====
-| `$Exp_11$` |  `$Exp_12$` |  ...  | `{ <$Exp_11$, $Exp_12$, ... > , ... }`  |
-|:-----------|:------------|:------|:----------------------------------------|
-| `$T_1$`    |    `$T_2$`  |  ...  |  `lrel[$T_1$, $T_2$, ... ]`              |
+| `_Exp~11~_` |  `_Exp~12~_` |  ...  | `{ < _Exp~11~_, _Exp~12~_, ... > , ... }`  
+
+| `_T~1~_`    |    `_T~2~_`  |  ...  |  `lrel[_T~1~_, _T~2~_, ... ]`              
 |====
 
 .Usage
@@ -30,14 +34,14 @@ ListRelations are represented by the type `lrel[_T_~1~ _L_~1~, _T_~2~ _L_~2~, ..
 _L_~1~, _L_~2~, ... are optional labels. It is a shorthand for `list[tuple[_T_~1~ _L_~1~, _T_~2~ _L_~2~, ... ]]`.
 
 An n-ary list relation with m tuples is denoted by
- `[<_E_~11~, _E_~12~, ..., _E_~1n~>,<_E_~21~, _E_~22~, ..., _E_~2n~>, ..., <_E_~m1~, _E_~m2~, ..., _E_~mn~>]`, 
+ `[< _E_~11~, _E_~12~, ..., _E_~1n~>,< _E_~21~, _E_~22~, ..., _E_~2n~>, ..., < _E_~m1~, _E_~m2~, ..., _E_~mn~>]`, 
 where the _E_~ij~ are expressions that yield the desired element type _T_~i~.
 
 Since list relations are a form of list all operations (see <<Values-List>>) and functions
 (see <<Prelude-List>>) are also applicable to relations.
 
 The following additional operators are provided for list relations:
-subtoc[Rascal/Expressions/Values/ListRelation,1]
+subtoc::[1]
 
 The following additional functions are provided on list relations:
 subtoc[Rascal/Libraries/Prelude/ListRelation,1]

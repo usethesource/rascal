@@ -7,10 +7,13 @@ Function call.
 `_Name_ ( _Exp_~1~, _Exp_~2~, ... )`
 
 .Types
+
+//
+
 |====
-| `$Exp_1$`  | `$Exp_2$` | ... | `$Name$ ( $Exp_1$, $Exp_2$, ... )` |
-|:-----------|:----------|:----|:-----------------------------------|
-| `$T_1$`    | `$T_2$`   | ... | Determined by $Name$, $T_i$ and function declarations |
+| `_Exp~1~_`  | `_Exp~2~_` | ... | `_Name_ ( _Exp~1~_, _Exp~2~_, ... )` 
+
+| `_T~1~_`    | `_T~2~_`   | ... | Determined by _Name_, _T~i~_ and function declarations 
 |====
 
 .Function
@@ -28,24 +31,27 @@ The value returned by the function is used as value of the function call.
 
 A _constructor call_ has identical syntax to that of a function call, see <<Values-Constructor>>,
 
-See <<Function>> for more details about function declarations.
+See <<Function Declaration>> for more details about function declarations.
+
+NOTE: Describe keyword parameters.
 
 .Examples
-[source,rascal-shell]
-----
-----
-First declare a function `square` with argument $n$ that returns $n^2$:
+
+First declare a function `square` with argument _n_ that returns _n^2_:
 [source,rascal-shell,continue]
 ----
 int square(int n) { return n * n; }
 ----
+
 Next call `square`. This results in the following steps:
-# Based on the name `square` and the int argument 12 we identify the function to be called
-(= the function square we just defined).
-# Compute the value of the actual parameter (= 12).
-# Bind the formal parameter `n` to the actual value 12.
-# Execute the body of `square`.
-# The return value of square is the vale of the call:
+
+* Based on the name `square` and the int argument 12 we identify the function to be called
+  (= the function `square` we just defined).
+* Compute the value of the actual parameter (= 12).
+* Bind the formal parameter `n` to the actual value 12.
+* Execute the body of `square`.
+* The return value of square is the vale of the call:
+
 [source,rascal-shell,continue]
 ----
 square(12);

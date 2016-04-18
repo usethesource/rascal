@@ -1,4 +1,4 @@
-# NotEqual
+# Tuple NotEqual
 
 .Synopsis
 Not equal operator on tuple values.
@@ -7,10 +7,12 @@ Not equal operator on tuple values.
 `_Exp_~1~ != _Exp_~2~`
 
 .Types
+
+
 |====
-| `$Exp_1$`                      |  `$Exp_2$`                      | `$Exp_1$ != $Exp_2$` |
-|:-------------------------------|:--------------------------------|:---------------------|
-| `tuple[ $T_11$, $T_12$, ... ]` |  `tuple[ $T_21$, $T_22$, ... ]` | `bool`               |
+| `_Exp~1~_`                      |  `_Exp~2~_`                      | `_Exp~1~_ != _Exp~2~_` 
+
+| `tuple[ _T~11~_, _T~12~_, ... ]` |  `tuple[ _T~21~_, _T~22~_, ... ]` | `bool`               
 |====
 
 .Function

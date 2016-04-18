@@ -1,4 +1,4 @@
-# CartesianProduct
+# Relation CartesianProduct
 
 .Synopsis
 Cartesian product of two relation values.
@@ -7,10 +7,12 @@ Cartesian product of two relation values.
 `_Exp_~1~ * _Exp_~2~`
 
 .Types
+
+
 |====
-|`$Exp_1$`      | `$Exp_2$`     | `$Exp_1$ * $Exp_2$`  |
-|:--------------|:--------------|:---------------------|
-| `set[$T_1$]`  | `set[$T_2$]`  | `rel[$T_1$, $T_2$]`  |
+|`_Exp~1~_`      | `_Exp~2~_`     | `_Exp~1~_ * _Exp~2~_`  
+
+| `set[_T~1~_]`  | `set[_T~2~_]`  | `rel[_T~1~_, _T~2~_]`  
 |====
 
 .Function

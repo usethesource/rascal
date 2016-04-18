@@ -7,10 +7,12 @@ Node values.
 `_Exp_~0~ ( _Exp_~1~, _Exp_~2~, ... )`
 
 .Types
+
+[cols="10,10,10,10,60"]
 |====
-|`$Exp_0$`  | `$Exp_1$` | `$Exp_2$` | ... | `$Exp_0$ ( $Exp_1$, $Exp_2$, ... )` |
-|:----------|:----------|:----------|:----|:------------------------------------|
-| `str`     | `value`   | `value`   | ... | `node`                              |
+|`_Exp~0~_`  | `_Exp~1~_` | `_Exp~2~_` | ... | `_Exp~0~_ ( _Exp~1~_, _Exp~2~_, ... )` 
+
+| `str`      | `value`    | `value`    | ... | `node`                              
 |====
 
 .Usage
@@ -22,19 +24,17 @@ Node values.
 .Description
 Values of type `node` represent untyped trees and are constructed as follows:
 
-*  the string value of $Exp_0$ is the node name;
+*  the string value of _Exp~0~_ is the node name;
 *  zero or more expressions of type `value` are the node\'s children.
 
 
 Nodes can have <<Declarations-Annotation>>s.
 
 The following are provided for nodes:
-subtoc[Rascal/Expressions/Values/Node,1]
+subtoc::[1]
 
 .Examples
-[source,rascal-shell]
-----
-----
+
 A node with name "my_node" and three arguments
 [source,rascal-shell,continue]
 ----

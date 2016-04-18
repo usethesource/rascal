@@ -21,7 +21,9 @@ A comprehension consists of an expression that determines the successive element
 result and a list of enumerators and tests (boolean expressions). 
 The enumerators produce values and the tests filter them. 
 
-See <<Expressions-Comprehensions>>, <<List-Comprehension>>, <<Set-Comprehension>>, and <<Map-Comprehension>> for details.
+See <<Expressions-Comprehensions, Comprehensions>>, 
+<<List-Comprehension, List Comprehension>>, 
+<<Set-Comprehension, Set Comprehension>>, and <<Map-Comprehension, Map Comprehension>> for details.
 
 .Examples
 A standard example is

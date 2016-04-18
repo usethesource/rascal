@@ -1,18 +1,18 @@
-# Variable
+# Variable Declaration
 
 .Synopsis
 Declare a variable.
 
 .Syntax
 
-#  `$Type$ $Name$ = $Exp$;`
-#  `$Type$ $Name$;`
+*  `_Type_ _Name_ = _Exp_ ;`
+*  `_Type_ _Name_;`
 
 .Types
+
 |====
-|`$Type$`  | `$Exp$`     |
-|:---------|:------------|
-| `$Type$` | `<: $Type$` |
+|`_Type_`  | `_Exp_`
+| `_Type_` | `<: _Type_`
 |====
 
 .Function
@@ -30,14 +30,14 @@ The following rules apply:
 
 *  Double declarations in the same scope are not allowed.
 
-*  The type of $Exp$ should be compatible with $Type$, i.e., it should be a subtype of $Type$.
+*  The type of _Exp_ should be compatible with _Type_, i.e., it should be a subtype of _Type_.
 
 
 As a convenience, also declarations without an initialization expression are permitted inside functions (but not at the module level)
  and have the form
-[source,rascal]
+[source,rascal,subs="quotes"]
 ----
-$Type$ $Name$; 
+_Type_ _Name_; 
 ----
 and only introduce the variable _Name_.
 

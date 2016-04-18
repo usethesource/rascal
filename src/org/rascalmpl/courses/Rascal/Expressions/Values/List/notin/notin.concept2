@@ -1,4 +1,4 @@
-# notin
+# List notin
 
 .Synopsis
 Negated membership test on lists.
@@ -7,10 +7,13 @@ Negated membership test on lists.
 `_Exp_~1~ notin _Exp_~2~`
 
 .Types
+
+//
+
 |====
-| `$Exp_1$`           |  `$Exp_2$`      | `$Exp_1$ notin $Exp_2$` |
-|:--------------------|:----------------|:------------------------|
-| `$T_1$`  <: `$T_2$` |  `list[$T_2$]`  | `bool`                  |
+| `_Exp~1~_`           |  `_Exp~2~_`      | `_Exp~1~_ notin _Exp~2~_` 
+
+| `_T~1~_`  <: `_T~2~_` |  `list[_T~2~_]`  | `bool`                  
 |====
 
 .Function

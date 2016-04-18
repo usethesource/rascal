@@ -1,4 +1,4 @@
-# AlgebraicDataType
+# Algebraic Data Type
 
 
 .Synopsis
@@ -22,9 +22,7 @@ then values can be declared using calls to the declared constructor functions,
 see <<Values-Constructor>>.
 
 .Examples
-[source,rascal-shell]
-----
-----
+
 The following data declaration defines the datatype `Bool` that contains various constants (`tt()` and `ff()`
 and constructor functions `conj` and `disj`.
 [source,rascal-shell,continue]

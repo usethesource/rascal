@@ -1,13 +1,13 @@
-# Priority
+# Priority Declaration
 
 .Synopsis
 
 
 .Syntax
 
-#  `syntax $Exp$ = $alt_1$ > $alt_2$ > $alt_3$` is the basic syntax for priorities.
-#  `syntax $Exp$ = $alt_1$ | $alt_2$ > $alt_3$ | $alt_4$`, where the `|` signifies groups of equal priority
-#  `syntax $Exp$ = $associativity$ ( $alt_1 | ... ) > $alt_2`, where an associativity group denotes a group of equal priority
+*  `syntax _Exp_ = _alt~1~_ > _alt~2~_ > _alt~3~_` is the basic syntax for priorities.
+*  `syntax _Exp_ = _alt~1~_ | _alt~2~_ > _alt~3~_ | _alt~4~_`, where the `|` signifies groups of equal priority
+*  `syntax _Exp_ = _associativity_ ( _alt~1~ | ... ) > _alt~2~`, where an associativity group denotes a group of equal priority
 
 .Types
 
@@ -25,16 +25,12 @@ A finer point is that Rascal restricts the filtering of priority such that it is
 
 |====
 | If `Parent > Child` | Parent None: `E = "[" E "]"` | Parent Left-most: `E = E "*"` |Parent  Right-most: `E = "*" E` | Parent Both: `E = E "*" E`  
-|====
----------------------------------------------------------------------------------------------------------------------------------------------
-|====
-| __Child None:__ `E = "{" E "}"` | No filter        | No filter                    | No filter                     | No filter              |
-| __Child Left-most:__ `E = E "+"` | No filter        | No filter                    | Filter under right            | Filter under right     |
-| __Child Right-most:__ `E = "+" E`| No filter        | Filter under left            | No filter                     | Filter under left      |
-| __Child Both:__ `E = E "+" E`   | No filter        | Filter under left            | Filter under right            | Filter under left and right |
-|====
 
-
+| __Child None:__ `E = "{" E "}"`  | No filter        | No filter                    | No filter                     | No filter              
+| __Child Left-most:__ `E = E "+"` | No filter        | No filter                    | Filter under right            | Filter under right     
+| __Child Right-most:__ `E = "+" E`| No filter        | Filter under left            | No filter                     | Filter under left      
+| __Child Both:__ `E = E "+" E`    | No filter        | Filter under left            | Filter under right            | Filter under left and right 
+|====
 
 .Examples
 The following snippet uses all <<Disambiguation-Priority>> features:

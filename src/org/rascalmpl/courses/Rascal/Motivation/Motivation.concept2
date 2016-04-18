@@ -34,7 +34,9 @@ Typical applications of Rascal are:
 *  Implementing a _domain-specific language_ (DSL) for describing games or business processes.
 
 
-All these cases involve a form of meta-programming: software programs (in a wide sense) are the objects-of-interest that are being analyzed, transformed or generated. The Rascal language is designed for meta-programming following the link::{EASY}#EASY[] paradigm. It can be applied in domains ranging from compiler construction and implementing domain-specific languages to constraint solving and software renovation.
+All these cases involve a form of meta-programming: software programs (in a wide sense) are the objects-of-interest 
+that are being analyzed, transformed or generated. The Rascal language is designed for meta-programming following 
+the link:{EASY}[EASY paradigm]. It can be applied in domains ranging from compiler construction and implementing domain-specific languages to constraint solving and software renovation.
 
 Since representation of information is central to the approach, Rascal provides a rich set of built-in data types. To support extraction and analysis, parsing and advanced pattern matching are provided. High-level control structures make analysis and synthesis of complex data structures simple.
 

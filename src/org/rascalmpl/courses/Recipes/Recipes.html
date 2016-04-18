@@ -664,8 +664,8 @@ It consists of the following parts:</p>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import IO;
 ok
 rascal&gt;println("Hello world, this is my first Rascal program");
-ok
-Hello world, this is my first Rascal program</code></pre>
+Hello world, this is my first Rascal program
+ok</code></pre>
 </div>
 </div>
 </div>
@@ -699,8 +699,8 @@ Finally, we call the <code>hello</code> function and enjoy its output.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;hello();
-ok
-Hello world, this is my first Rascal program</code></pre>
+Hello world, this is my first Rascal program
+ok</code></pre>
 </div>
 </div>
 </div>
@@ -728,8 +728,8 @@ void hello() {
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import demo::basic::Hello;
 ok
 rascal&gt;hello();
-ok
-Hello world, this is my first Rascal program</code></pre>
+Hello world, this is my first Rascal program
+ok</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -884,7 +884,6 @@ and returns a string value instead of printing the results itself.</td>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import demo::basic::Squares;
 ok
 rascal&gt;squares(9);
-list[void]: []
 Table of squares from 1 to 9
 
 1 squared = 1
@@ -895,7 +894,8 @@ Table of squares from 1 to 9
 6 squared = 36
 7 squared = 49
 8 squared = 64
-9 squared = 81</code></pre>
+9 squared = 81
+list[void]: []</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -916,7 +916,6 @@ and print the value of <code>squaresTemplate</code>:</p>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import IO;
 ok
 rascal&gt;println(squaresTemplate(9));
-ok
 Table of squares from 1 to 9
 
   1 squared = 1
@@ -927,7 +926,8 @@ Table of squares from 1 to 9
   6 squared = 36
   7 squared = 49
   8 squared = 64
-  9 squared = 81</code></pre>
+  9 squared = 81
+ok</code></pre>
 </div>
 </div>
 </div>
@@ -994,7 +994,6 @@ and prints appriopriate lyrics. Observe how the value  of the <code>bottles</cod
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import demo::basic::Bottles;
 ok
 rascal&gt;sing();
-ok
 99 bottles of beer on the wall, 99 bottles of beer.
 Take one down, pass it around, 98 bottles of beer on the wall.
 
@@ -1293,7 +1292,8 @@ Take one down, pass it around, 1 bottle of beer on the wall.
 Take one down, pass it around, no more bottles of beer on the wall.
 
 No more bottles of beer on the wall, no more bottles of beer.
-Go to the store and buy some more, 99 bottles of beer on the wall.</code></pre>
+Go to the store and buy some more, 99 bottles of beer on the wall.
+ok</code></pre>
 </div>
 </div>
 </div>
@@ -1631,7 +1631,6 @@ void fizzbuzz3() {
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import demo::basic::FizzBuzz;
 ok
 rascal&gt;fizzbuzz();
-list[void]: []
 1
 2
 Fizz
@@ -1731,7 +1730,8 @@ Fizz
 97
 98
 Fizz
-Buzz</code></pre>
+Buzz
+list[void]: []</code></pre>
 </div>
 </div>
 </div>
@@ -1817,8 +1817,8 @@ ok
 rascal&gt;str greeting = "\"Good Morning, Dr. Watson\", said Holmes";
 str: "\"Good Morning, Dr. Watson\", said Holmes"
 rascal&gt;println("\"" + greeting + "\"");
-ok
-""Good Morning, Dr. Watson", said Holmes"</code></pre>
+""Good Morning, Dr. Watson", said Holmes"
+ok</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1834,8 +1834,8 @@ we have to say: escape <code>"\""</code> and replace it by <code>"\\\""</code>. 
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import String;
 ok
 rascal&gt;println("\"" + escape(greeting, ("\"": "\\\"")) + "\"");
-ok
-"\"Good Morning, Dr. Watson\", said Holmes"</code></pre>
+"\"Good Morning, Dr. Watson\", said Holmes"
+ok</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1861,7 +1861,6 @@ The mesmerizing amount of <code>\</code> characters can be explained due to esca
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import demo::basic::Quine;
 ok
 rascal&gt;quine();
-ok
 module demo::basic::Quine
 
 import IO;
@@ -1883,7 +1882,8 @@ void quine(){
   println(\"\\\"\" + escape(program, (\"\\\"\" : \"\\\\\\\"\", \"\\\\\" : \"\\\\\\\\\")) + \"\\\";\");
 }
 
-str program =";</code></pre>
+str program =";
+ok</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -3417,7 +3417,6 @@ rascal&gt;fields = (
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;  );
 map[str, str]: ("name":"String","address":"String","age":"Integer")
 rascal&gt;println(genClass("Person", fields));
-ok
 public class Person {
 
   private String address;
@@ -3441,7 +3440,8 @@ public class Person {
   public String getName() {
     return name;
   }
-}</code></pre>
+}
+ok</code></pre>
 </div>
 </div>
 <div class="ulist">
@@ -3570,11 +3570,8 @@ in the following alternative <code>wordCount2</code> function:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;int wordCount2(list[str] lines) = (0 | it + (0 | it + 1 | /\w+/ := line) | str line &lt;- lines);
-ok
 [error] Cannot re-declare name that is already declared in the current function or closure: it IN '(0 | it + 1 | /\w+/ := line)'
 rascal&gt;wordCount2(Jabberwocky);
-ok
-[error] Cannot re-declare name that is already declared in the current function or closure: it IN '(0 | it + 1 | /\w+/ := line)'
 [error] Name wordCount2 is not in scope</code></pre>
 </div>
 </div>
@@ -8751,7 +8748,6 @@ ok</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import lang::java::jdt::m3::Core;
-ok
 [error] Cannot import module lang::java::jdt::m3::Core AT |std:///experiments/Compiler/Compile.rsc|(0,51,&lt;1,0&gt;,&lt;1,51&gt;)</code></pre>
 </div>
 </div>
@@ -8761,7 +8757,6 @@ ok
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;myModel = createM3FromEclipseProject(|project://example-project|);
-ok
 [error] Name createM3FromEclipseProject is not in scope</code></pre>
 </div>
 </div>
@@ -8798,7 +8793,6 @@ ok</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import lang::java::jdt::m3::Core;
-ok
 [error] Cannot import module lang::java::jdt::m3::Core AT |std:///experiments/Compiler/Compile.rsc|(0,51,&lt;1,0&gt;,&lt;1,51&gt;)</code></pre>
 </div>
 </div>
@@ -8808,7 +8802,6 @@ ok
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;myModel = createM3FromEclipseProject(|project://example-project|);
-ok
 [error] Name createM3FromEclipseProject is not in scope</code></pre>
 </div>
 </div>
@@ -8818,7 +8811,6 @@ ok
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;myModel@containment
-ok
 [error] Name myModel is not in scope</code></pre>
 </div>
 </div>
@@ -8828,7 +8820,6 @@ ok
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;myModel@containment[|java+class:///HelloWorld|]
-ok
 [error] Name myModel is not in scope</code></pre>
 </div>
 </div>
@@ -8838,7 +8829,6 @@ ok
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;helloWorldMethods = [ e | e &lt;- myModel@containment[|java+class:///HelloWorld|], e.scheme == "java+method"];
-ok
 [error] Name myModel is not in scope</code></pre>
 </div>
 </div>
@@ -8850,7 +8840,6 @@ ok
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
 ok
 rascal&gt;size(helloWorldMethods)
-ok
 [error] Name helloWorldMethods is not in scope</code></pre>
 </div>
 </div>
@@ -8869,7 +8858,6 @@ ok</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;map[loc class, int methodCount] numberOfMethodsPerClass = (cl:numberOfMethods(cl, myModel) | &lt;cl,_&gt; &lt;- myModel@containment, isClass(cl));
-ok
 [error] Name myModel is not in scope
 [error] Name myModel is not in scope</code></pre>
 </div>
@@ -8881,15 +8869,7 @@ ok
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;int numberOfFields(loc cl, M3 model) = size([ m | m &lt;- model@containment[cl], isField(m)]);
 ok
-[error] Name myModel is not in scope
-[error] Name myModel is not in scope
 rascal&gt;map[loc class, int fieldCount] numberOfFieldsPerClass = (cl:numberOfFields(cl, myModel) | &lt;cl,_&gt; &lt;- myModel@containment, isClass(cl));
-ok
-[error] Name myModel is not in scope
-[error] Name myModel is not in scope
-[error] Name myModel is not in scope
-[error] Name numberOfFields is not in scope
-[error] Name myModel is not in scope
 [error] Name myModel is not in scope
 [error] Name myModel is not in scope</code></pre>
 </div>
@@ -8900,12 +8880,8 @@ ok
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;(cl : (numberOfFieldsPerClass[cl] * 1.0) / (numberOfMethodsPerClass[cl] * 1.0) | cl &lt;- classes(myModel))
-ok
-[error] Name myModel is not in scope
-[error] Name myModel is not in scope
-[error] Name numberOfFields is not in scope
-[error] Name myModel is not in scope
-[error] Name myModel is not in scope
+[error] Name numberOfMethodsPerClass is not in scope
+[error] Name numberOfFieldsPerClass is not in scope
 [error] Name myModel is not in scope</code></pre>
 </div>
 </div>
@@ -8918,11 +8894,8 @@ ok
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import lang::java::m3::Core;
 ok
 rascal&gt;import lang::java::jdt::m3::Core;
-ok
 [error] Cannot import module lang::java::jdt::m3::Core AT |std:///experiments/Compiler/Compile.rsc|(0,51,&lt;1,0&gt;,&lt;1,51&gt;)
 rascal&gt;import lang::java::jdt::m3::AST;
-ok
-[error] Cannot import module lang::java::jdt::m3::Core AT |std:///experiments/Compiler/Compile.rsc|(0,51,&lt;1,0&gt;,&lt;1,51&gt;)
 [error] Cannot import module lang::java::jdt::m3::AST AT |std:///experiments/Compiler/Compile.rsc|(0,51,&lt;1,0&gt;,&lt;1,51&gt;)</code></pre>
 </div>
 </div>
@@ -8932,7 +8905,6 @@ ok
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;myModel = createM3FromEclipseProject(|project://example-project|);
-ok
 [error] Name createM3FromEclipseProject is not in scope</code></pre>
 </div>
 </div>
@@ -8942,7 +8914,6 @@ ok
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;myMethods = methods(myModel);
-ok
 [error] Name myModel is not in scope</code></pre>
 </div>
 </div>
@@ -8954,12 +8925,12 @@ ok
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import IO;
 ok
 rascal&gt;methodSrc = readFile(|java+method:///HelloWorld/main(java.lang.String%5B%5D)|);
-ok
-null
 IO("Unsupported scheme java+method")
 Call stack (most recent first):
 	readFile(|java+method:///HelloWorld/main(java.lang.String%5B%5D)|, {}) at |std:///IO.rsc|(11944,1671,&lt;459,0&gt;,&lt;490,43&gt;)
-	main([]) at |test-modules:///ConsoleInput.rsc|(76,66,&lt;5,15&gt;,&lt;5,81&gt;)</code></pre>
+	main([]) at |test-modules:///ConsoleInput.rsc|(76,66,&lt;5,15&gt;,&lt;5,81&gt;)
+
+ok</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -8968,7 +8939,6 @@ Call stack (most recent first):
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;println(methodSrc)
-ok
 [error] Name methodSrc is not in scope</code></pre>
 </div>
 </div>
@@ -8978,7 +8948,6 @@ ok
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;(0 | it + 1 | /\W+/ := methodSrc)
-ok
 [error] Name methodSrc is not in scope</code></pre>
 </div>
 </div>
@@ -8988,7 +8957,6 @@ ok
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;methodAST = getMethodASTEclipse(|java+method:///HelloWorld/main(java.lang.String%5B%5D)|, model=myModel);
-ok
 [error] Name getMethodASTEclipse is not in scope
 [error] Name myModel is not in scope</code></pre>
 </div>
@@ -8999,7 +8967,6 @@ ok
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;(0 | it + 1 | /Expression _ := methodAST)
-ok
 [error] Name methodAST is not in scope</code></pre>
 </div>
 </div>
@@ -9009,7 +8976,6 @@ ok
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;[m@src | /Expression m := methodAST]
-ok
 [error] Name methodAST is not in scope</code></pre>
 </div>
 </div>
@@ -9021,7 +8987,6 @@ ok
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
 ok
 rascal&gt;size([m@src | /Expression m := methodAST]) == (0 | it + 1 | /Expression _ := methodAST)
-ok
 [error] Name methodAST is not in scope
 [error] Name methodAST is not in scope</code></pre>
 </div>
@@ -9700,7 +9665,7 @@ rename <code>size</code> to <code>minSize</code> to emphasize this).</p>
 </div>
 </div>
 <div class="paragraph">
-<p>which says: _ I am a red box and I want to occupy 50% of the available space._ The result is:</p>
+<p>which says: <em>I am a red box and I want to occupy 50% of the available space.</em> The result is:</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -9949,7 +9914,7 @@ Exp: (Exp) `1+2*3`</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-04-14 15:32:54 CEST
+Last updated 2016-04-18 22:46:04 CEST
 </div>
 </div>
 </body>

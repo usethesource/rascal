@@ -1,5 +1,7 @@
 <h1>Name</h1>
 <p><a href="file:///Users/paulklint/git/rascal/src/org/rascalmpl/courses/Test/Test.html">Test</a>/<a href="file:///Users/paulklint/git/rascal/src/org/rascalmpl/courses/Test/CallAnalysis/CallAnalysis.html">CallAnalysis</a></p>
+<h1>Details</h1>
+<p><a href="file:///Users/paulklint/git/rascal/src/org/rascalmpl/courses/Test/Libraries/Boolean.html">Boolean</a></p>
 <h1>Synopsis</h1>
 <p>Analyzing the call structure of an application.</p>
 <h1>Description</h1>
@@ -25,13 +27,222 @@ bool: true
 </code></pre>
 <p>Next, we have to represent the call relation as a Rascal datatype, and the relation is the most appropriate for it.
 As preparation, we also import the libraries [$Rascal:Prelude/Set], [$Rascal:Prelude/Relation] and [$Rascal:Prelude/Graph] that will come in handy.</p>
-<pre><code class="language-rascal-shell-continue">rascal&gt;import Set;
+<pre><code class="language-rascal-shell">rascal&gt;import Set;
+rascal2rvm: Parsing and checking |std:///Set.rsc|
+rascal2rvm: Compiling |std:///Set.rsc|
+r2mu: entering ... Set
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Set
+Compiling |std:///Set.rsc|: check: 92, compile: 1082, total: 1174 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Set.rvm.gz|
+rascal2rvm: Parsing and checking |std:///IO.rsc|
+rascal2rvm: Compiling |std:///IO.rsc|
+r2mu: entering ... IO
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module IO
+Compiling |std:///IO.rsc|: check: 75, compile: 718, total: 793 ms
+compile: Writing RVMModule |compressed+home:///bin-console/IO.rvm.gz|
+rascal2rvm: Parsing and checking |std:///util/Math.rsc|
+rascal2rvm: Compiling |std:///util/Math.rsc|
+r2mu: entering ... util::Math
+rlib1 = util.Math, rlib2 = |std:///util/MathCompiled.class|
+resolveLibOverriding org.rascalmpl.library.util.Math =&gt; org.rascalmpl.library.util.Math
+mu2rvm: Compiling module util::Math
+Compiling |std:///util/Math.rsc|: check: 69, compile: 1357, total: 1426 ms
+compile: Writing RVMModule |compressed+home:///bin-console/util/Math.rvm.gz|
+rascal2rvm: Parsing and checking |std:///Map.rsc|
+rascal2rvm: Compiling |std:///Map.rsc|
+r2mu: entering ... Map
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Map
+Compiling |std:///Map.rsc|: check: 36, compile: 639, total: 675 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Map.rvm.gz|
+rascal2rvm: Parsing and checking |std:///List.rsc|
+rascal2rvm: Compiling |std:///List.rsc|
+r2mu: entering ... List
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module List
+Compiling |std:///List.rsc|: check: 118, compile: 1062, total: 1180 ms
+compile: Writing RVMModule |compressed+home:///bin-console/List.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 bool: true
 rascal&gt;import Relation;
+rascal2rvm: Parsing and checking |std:///Set.rsc|
+rascal2rvm: Compiling |std:///Set.rsc|
+r2mu: entering ... Set
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Set
+Compiling |std:///Set.rsc|: check: 92, compile: 1082, total: 1174 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Set.rvm.gz|
+rascal2rvm: Parsing and checking |std:///IO.rsc|
+rascal2rvm: Compiling |std:///IO.rsc|
+r2mu: entering ... IO
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module IO
+Compiling |std:///IO.rsc|: check: 75, compile: 718, total: 793 ms
+compile: Writing RVMModule |compressed+home:///bin-console/IO.rvm.gz|
+rascal2rvm: Parsing and checking |std:///util/Math.rsc|
+rascal2rvm: Compiling |std:///util/Math.rsc|
+r2mu: entering ... util::Math
+rlib1 = util.Math, rlib2 = |std:///util/MathCompiled.class|
+resolveLibOverriding org.rascalmpl.library.util.Math =&gt; org.rascalmpl.library.util.Math
+mu2rvm: Compiling module util::Math
+Compiling |std:///util/Math.rsc|: check: 69, compile: 1357, total: 1426 ms
+compile: Writing RVMModule |compressed+home:///bin-console/util/Math.rvm.gz|
+rascal2rvm: Parsing and checking |std:///Map.rsc|
+rascal2rvm: Compiling |std:///Map.rsc|
+r2mu: entering ... Map
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Map
+Compiling |std:///Map.rsc|: check: 36, compile: 639, total: 675 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Map.rvm.gz|
+rascal2rvm: Parsing and checking |std:///List.rsc|
+rascal2rvm: Compiling |std:///List.rsc|
+r2mu: entering ... List
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module List
+Compiling |std:///List.rsc|: check: 118, compile: 1062, total: 1180 ms
+compile: Writing RVMModule |compressed+home:///bin-console/List.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
+rascal2rvm: Parsing and checking |std:///Relation.rsc|
+rascal2rvm: Compiling |std:///Relation.rsc|
+r2mu: entering ... Relation
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Relation
+Compiling |std:///Relation.rsc|: check: 76, compile: 566, total: 642 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Relation.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 bool: true
 rascal&gt;import analysis::graphs::Graph;
+rascal2rvm: Parsing and checking |std:///Set.rsc|
+rascal2rvm: Compiling |std:///Set.rsc|
+r2mu: entering ... Set
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Set
+Compiling |std:///Set.rsc|: check: 92, compile: 1082, total: 1174 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Set.rvm.gz|
+rascal2rvm: Parsing and checking |std:///IO.rsc|
+rascal2rvm: Compiling |std:///IO.rsc|
+r2mu: entering ... IO
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module IO
+Compiling |std:///IO.rsc|: check: 75, compile: 718, total: 793 ms
+compile: Writing RVMModule |compressed+home:///bin-console/IO.rvm.gz|
+rascal2rvm: Parsing and checking |std:///util/Math.rsc|
+rascal2rvm: Compiling |std:///util/Math.rsc|
+r2mu: entering ... util::Math
+rlib1 = util.Math, rlib2 = |std:///util/MathCompiled.class|
+resolveLibOverriding org.rascalmpl.library.util.Math =&gt; org.rascalmpl.library.util.Math
+mu2rvm: Compiling module util::Math
+Compiling |std:///util/Math.rsc|: check: 69, compile: 1357, total: 1426 ms
+compile: Writing RVMModule |compressed+home:///bin-console/util/Math.rvm.gz|
+rascal2rvm: Parsing and checking |std:///Map.rsc|
+rascal2rvm: Compiling |std:///Map.rsc|
+r2mu: entering ... Map
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Map
+Compiling |std:///Map.rsc|: check: 36, compile: 639, total: 675 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Map.rvm.gz|
+rascal2rvm: Parsing and checking |std:///List.rsc|
+rascal2rvm: Compiling |std:///List.rsc|
+r2mu: entering ... List
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module List
+Compiling |std:///List.rsc|: check: 118, compile: 1062, total: 1180 ms
+compile: Writing RVMModule |compressed+home:///bin-console/List.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
+rascal2rvm: Parsing and checking |std:///Relation.rsc|
+rascal2rvm: Compiling |std:///Relation.rsc|
+r2mu: entering ... Relation
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Relation
+Compiling |std:///Relation.rsc|: check: 76, compile: 566, total: 642 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Relation.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
+rascal2rvm: Parsing and checking |std:///analysis/graphs/Graph.rsc|
+rascal2rvm: Compiling |std:///analysis/graphs/Graph.rsc|
+r2mu: entering ... analysis::graphs::Graph
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module analysis::graphs::Graph
+Compiling |std:///analysis/graphs/Graph.rsc|: check: 40, compile: 460, total: 500 ms
+compile: Writing RVMModule |compressed+home:///bin-console/analysis/graphs/Graph.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 bool: true
 rascal&gt;rel[Proc, Proc] Calls = {&lt;&quot;a&quot;, &quot;b&quot;&gt;, &lt;&quot;b&quot;, &quot;c&quot;&gt;, &lt;&quot;b&quot;, &quot;d&quot;&gt;, &lt;&quot;d&quot;, &quot;c&quot;&gt;, &lt;&quot;d&quot;, &quot;e&quot;&gt;, &lt;&quot;f&quot;, &quot;e&quot;&gt;, &lt;&quot;f&quot;, &quot;g&quot;&gt;, &lt;&quot;g&quot;, &quot;e&quot;&gt;};
+rascal2rvm: Parsing and checking |std:///Set.rsc|
+rascal2rvm: Compiling |std:///Set.rsc|
+r2mu: entering ... Set
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Set
+Compiling |std:///Set.rsc|: check: 92, compile: 1082, total: 1174 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Set.rvm.gz|
+rascal2rvm: Parsing and checking |std:///IO.rsc|
+rascal2rvm: Compiling |std:///IO.rsc|
+r2mu: entering ... IO
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module IO
+Compiling |std:///IO.rsc|: check: 75, compile: 718, total: 793 ms
+compile: Writing RVMModule |compressed+home:///bin-console/IO.rvm.gz|
+rascal2rvm: Parsing and checking |std:///util/Math.rsc|
+rascal2rvm: Compiling |std:///util/Math.rsc|
+r2mu: entering ... util::Math
+rlib1 = util.Math, rlib2 = |std:///util/MathCompiled.class|
+resolveLibOverriding org.rascalmpl.library.util.Math =&gt; org.rascalmpl.library.util.Math
+mu2rvm: Compiling module util::Math
+Compiling |std:///util/Math.rsc|: check: 69, compile: 1357, total: 1426 ms
+compile: Writing RVMModule |compressed+home:///bin-console/util/Math.rvm.gz|
+rascal2rvm: Parsing and checking |std:///Map.rsc|
+rascal2rvm: Compiling |std:///Map.rsc|
+r2mu: entering ... Map
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Map
+Compiling |std:///Map.rsc|: check: 36, compile: 639, total: 675 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Map.rvm.gz|
+rascal2rvm: Parsing and checking |std:///List.rsc|
+rascal2rvm: Compiling |std:///List.rsc|
+r2mu: entering ... List
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module List
+Compiling |std:///List.rsc|: check: 118, compile: 1062, total: 1180 ms
+compile: Writing RVMModule |compressed+home:///bin-console/List.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
+rascal2rvm: Parsing and checking |std:///Relation.rsc|
+rascal2rvm: Compiling |std:///Relation.rsc|
+r2mu: entering ... Relation
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Relation
+Compiling |std:///Relation.rsc|: check: 76, compile: 566, total: 642 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Relation.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
+rascal2rvm: Parsing and checking |std:///analysis/graphs/Graph.rsc|
+rascal2rvm: Compiling |std:///analysis/graphs/Graph.rsc|
+r2mu: entering ... analysis::graphs::Graph
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module analysis::graphs::Graph
+Compiling |std:///analysis/graphs/Graph.rsc|: check: 40, compile: 460, total: 500 ms
+compile: Writing RVMModule |compressed+home:///bin-console/analysis/graphs/Graph.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 rel[str,str]: {&lt;&quot;f&quot;,&quot;e&quot;&gt;,&lt;&quot;g&quot;,&quot;e&quot;&gt;,&lt;&quot;a&quot;,&quot;b&quot;&gt;,&lt;&quot;b&quot;,&quot;d&quot;&gt;,&lt;&quot;b&quot;,&quot;c&quot;&gt;,&lt;&quot;d&quot;,&quot;c&quot;&gt;,&lt;&quot;d&quot;,&quot;e&quot;&gt;,&lt;&quot;f&quot;,&quot;g&quot;&gt;}
 </code></pre>
 <p>Now we are in a good position to start asking some questions.</p>
@@ -39,21 +250,21 @@ rel[str,str]: {&lt;&quot;f&quot;,&quot;e&quot;&gt;,&lt;&quot;g&quot;,&quot;e&quo
 We use the function [Rascal:Set/size] to determine the number of elements in a set or relation.
 Since each tuple in the <code>Calls</code> relation represents a call between procedures, the number of tuples is equal
 to the number of calls.</p>
-<pre><code class="language-rascal-shell-continue">rascal&gt;size(Calls);
+<pre><code class="language-rascal-shell">rascal&gt;size(Calls);
 int: 8
 </code></pre>
 <p><strong>How many procedures occur in this system?</strong> This question is more subtle, since a procedure may call (or be called) by
 several others and the number of tuples is therefore not indicative. What we need are the set of procedures that
 occur (as first or second element) in <em>any</em> tuple. This is precisely what the function [$Rascal:carrier] gives us:</p>
-<pre><code class="language-rascal-shell-continue">rascal&gt;carrier(Calls)
+<pre><code class="language-rascal-shell">rascal&gt;carrier(Calls)
 set[str]: {&quot;a&quot;,&quot;b&quot;,&quot;c&quot;,&quot;d&quot;,&quot;e&quot;,&quot;f&quot;,&quot;g&quot;}
 </code></pre>
 <p>and computing the number of procedures is now easy:</p>
-<pre><code class="language-rascal-shell-continue">rascal&gt;size(carrier(Calls));
+<pre><code class="language-rascal-shell">rascal&gt;size(carrier(Calls));
 int: 7
 </code></pre>
 <p>As an aside, functions [$Rascal:Prelude/Relation/domain] and [$Rascal:Prelude/Relation/range] do the same for the first, respectively, second element of the pairs in a relation:</p>
-<pre><code class="language-rascal-shell-continue">rascal&gt;domain(Calls);
+<pre><code class="language-rascal-shell">rascal&gt;domain(Calls);
 set[str]: {&quot;a&quot;,&quot;b&quot;,&quot;d&quot;,&quot;f&quot;,&quot;g&quot;}
 rascal&gt;range(Calls);
 set[str]: {&quot;b&quot;,&quot;c&quot;,&quot;d&quot;,&quot;e&quot;,&quot;g&quot;}
@@ -65,26 +276,26 @@ split a system in parts. The top of a relation contains those left-hand sides of
 right-hand side. When a relation is viewed as a graph, its top corresponds to the root nodes of that graph. Similarly, the bottom of a
 relation corresponds to the leaf nodes of the graph. See the section called ?Graph? for more details. Using this knowledge, the entry
 points can be computed by determining the top of the Calls relation:</p>
-<pre><code class="language-rascal-shell-continue">rascal&gt;top(Calls);
+<pre><code class="language-rascal-shell">rascal&gt;top(Calls);
 set[str]: {&quot;a&quot;,&quot;f&quot;}
 </code></pre>
 <p><strong>What are the leaves of this application?</strong></p>
 <p>In a similar spirit, we can determine the leaves of this application, i.e., procedures that are being called but do not make any calls
 themselves:</p>
-<pre><code class="language-rascal-shell-continue">rascal&gt;bottom(Calls);
+<pre><code class="language-rascal-shell">rascal&gt;bottom(Calls);
 set[str]: {&quot;c&quot;,&quot;e&quot;}
 </code></pre>
 <p><strong>Which procedures call each other indirectly?</strong></p>
 <p>We can also determine the indirect calls between procedures, by taking the transitive closure of the Calls relation, written as <code>Calls+</code>.
 Observe that the transitive closure will contain both the direct and the indirect calls.</p>
-<pre><code class="language-rascal-shell-continue">rascal&gt;rel[Proc,Proc] closureCalls = Calls+;
+<pre><code class="language-rascal-shell">rascal&gt;rel[Proc,Proc] closureCalls = Calls+;
 rel[str,str]: {&lt;&quot;f&quot;,&quot;e&quot;&gt;,&lt;&quot;g&quot;,&quot;e&quot;&gt;,&lt;&quot;a&quot;,&quot;b&quot;&gt;,&lt;&quot;a&quot;,&quot;c&quot;&gt;,&lt;&quot;b&quot;,&quot;c&quot;&gt;,&lt;&quot;d&quot;,&quot;c&quot;&gt;,&lt;&quot;d&quot;,&quot;e&quot;&gt;,&lt;&quot;f&quot;,&quot;g&quot;&gt;,&lt;&quot;a&quot;,&quot;d&quot;&gt;,&lt;&quot;b&quot;,&quot;e&quot;&gt;,&lt;&quot;b&quot;,&quot;d&quot;&gt;,&lt;&quot;a&quot;,&quot;e&quot;&gt;}
 </code></pre>
 <p><strong>Which procedures are called directly or indirectly from each entry point?</strong></p>
 <p>We now know the entry points for this application (&quot;a&quot; and &quot;f&quot;) and the indirect call relations. Combining this information,
 we can determine which procedures are called from each entry point. This is done by indexing closureCalls with appropriate procedure name.
 The index operator yields all right-hand sides of tuples that have a given value as left-hand side. This gives the following:</p>
-<pre><code class="language-rascal-shell-continue">rascal&gt;set[Proc] calledFromA = closureCalls[&quot;a&quot;]
+<pre><code class="language-rascal-shell">rascal&gt;set[Proc] calledFromA = closureCalls[&quot;a&quot;]
 set[str]: {&quot;b&quot;,&quot;c&quot;,&quot;d&quot;,&quot;e&quot;}
 rascal&gt;set[Proc] calledFromF = closureCalls[&quot;f&quot;]
 set[str]: {&quot;e&quot;,&quot;g&quot;}
@@ -92,11 +303,11 @@ set[str]: {&quot;e&quot;,&quot;g&quot;}
 <p><strong>Which procedures are called from all entry points?</strong>
 Finally, we can determine which procedures are called from both entry points by taking the intersection of the two sets
 <code>calledFromA</code> and <code>calledFromF</code>:</p>
-<pre><code class="language-rascal-shell-continue">rascal&gt;calledFromA &amp; calledFromF
+<pre><code class="language-rascal-shell">rascal&gt;calledFromA &amp; calledFromF
 set[str]: {&quot;e&quot;}
 </code></pre>
 <p>or if your prefer to write all of the above as a one-liner using a [$Rascal:Expressions/Reducer] expression:</p>
-<pre><code class="language-rascal-shell-continue">rascal&gt;(carrier(Calls) | it &amp; (Calls+)[p] | p &lt;- top(Calls));
+<pre><code class="language-rascal-shell">rascal&gt;(carrier(Calls) | it &amp; (Calls+)[p] | p &lt;- top(Calls));
 set[str]: {&quot;e&quot;}
 </code></pre>
 <p>The reducer is initialized with  all procedures (<code>carrier(Calls)</code>) and iterates over all entry points (<code>p &lt;- top(Calls)</code>).

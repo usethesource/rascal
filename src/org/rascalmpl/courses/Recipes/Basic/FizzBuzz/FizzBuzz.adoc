@@ -35,7 +35,6 @@ include::{LibDir}demo/basic/FizzBuzz.rsc[tags=module]
 rascal>import demo::basic::FizzBuzz;
 ok
 rascal>fizzbuzz();
-list[void]: []
 1
 2
 Fizz
@@ -136,6 +135,7 @@ Fizz
 98
 Fizz
 Buzz
+list[void]: []
 ----
 
 .Benefits

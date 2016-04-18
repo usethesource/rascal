@@ -1,4 +1,4 @@
-# Difference
+# Set Difference
 
 .Synopsis
 The difference between two sets.
@@ -7,11 +7,13 @@ The difference between two sets.
 `_Exp_~1~ - _Exp_~2~`
 
 .Types
+
+
 |====
-| `$Exp_1$`    |  `$Exp_2$`     | `$Exp_1$ - $Exp_2$`       |
-|:-------------|:---------------|:--------------------------|
-| `set[$T_1$]` |  `set[$T_2$]`  | `set[lub($T_1$,$T_2$)]`   |
-| `set[$T_1$]` |  `$T_2$`       | `set[lub($T_1$,$T_2$)]`   |
+| `_Exp~1~_`    |  `_Exp~2~_`     | `_Exp~1~_ - _Exp~2~_`       
+
+| `set[_T~1~_]` |  `set[_T~2~_]`  | `set[lub(_T~1~_,_T~2~_)]`   
+| `set[_T~1~_]` |  `_T~2~_`       | `set[lub(_T~1~_,_T~2~_)]`   
 |====
 
 

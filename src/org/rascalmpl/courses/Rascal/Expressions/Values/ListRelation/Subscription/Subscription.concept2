@@ -1,29 +1,30 @@
-# Subscription
+# ListRelation Subscription
 
 .Synopsis
 Indexing of a list relation via tuple values.
 
 .Syntax
 
-#  `$Exp_0$ [ $Exp_1$, $Exp_2$, ... $Exp_n$]`
+*  `_Exp~0~_ [ _Exp~1~_, _Exp~2~_, ... _Exp~n~_]`
 
-#  `$Exp_0$ [ $Exp_1$]`
+*  `_Exp~0~_ [ _Exp~1~_]`
 
 .Types
-### Variant 1
+## Variant 1
+
+[cols="20,20,20,15,25"]
+|====
+| `_Exp~0~_`                          | `_Exp~1~_` | `_Exp~2~_` | ... | `_Exp~0~_ [ _Exp~1~_, _Exp~2~_, ... ]` 
+
+| `lrel[_T~1~_, _T~2~_, ... _T~m~_]`    | `int`     |  `int`    | ... | `lrel[_T~n~_, _T~n+1~_, ... _T~m~_]`   
+|====
+
+## Variant 2
 
 |====
-| `$Exp_0$`                          | `$Exp_1$` | `$Exp_2$` | ... | `$Exp_0$ [ $Exp_1$, $Exp_2$, ... ]` |
-|:-----------------------------------|:----------|:----------|-----|-------------------------------------|
-| `lrel[$T_1$, $T_2$, ... $T_m$]`    | `int`     |  `int`    | ... | `lrel[$T_n$, $T_n+1$, ... $T_m$]`   |
-|====
-
-### Variant 2
-
-|====
-| `$Exp_0$`                          | `$Exp_1$`     | `$Exp_0$ [ $Exp_1$ ]`            |
-|:-----------------------------------|:--------------|:---------------------------------|
-| `lrel[$T_1$, $T_2$, ... $T_m$]`    | `list[$T_1$]` | `lrel[$T_2$, $T_2$, ... $T_m$]`  |
+| `_Exp~0~_`                          | `_Exp~1~_`     | `_Exp~0~_ [ _Exp~1~_ ]`            
+|
+| `lrel[_T~1~_, _T~2~_, ... _T~m~_]`    | `list[_T~1~_]` | `lrel[_T~2~_, _T~3~_, ... _T~m~_]`  
 |====
 
 .Function
@@ -33,7 +34,7 @@ Indexing of a list relation via tuple values.
 .Description
 ListRelation resulting from subscription of a ListRelation _Exp_~0~.
 
-### Variant 1
+## Variant 1
 
 Subscription with the index values of _Exp_~1~, _Exp_~2~, .... 
 The result is a ListRelation with all tuples that have these index values as first elements 
@@ -41,7 +42,7 @@ with the index values removed from the tuple.
 If the resulting tuple has only a single element, a list is returned instead of a relation. 
 A wildcard `_` as index value matches all possible values at that index position.
 
-### Variant 2
+## Variant 2
 
 Subscription with a set of the index values of _Exp_~1~.
 The result is a ListRelation with all tuples that have these index values as first element
