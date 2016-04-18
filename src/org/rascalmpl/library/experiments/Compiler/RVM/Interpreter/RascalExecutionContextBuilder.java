@@ -2,11 +2,13 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.Map;
 
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.TypeStore;
 
@@ -32,6 +34,7 @@ public class RascalExecutionContextBuilder {
 
 	private IMap symbolDefinitions = null ;
 	private IMap moduleTags = null;
+	private Map<IValue,IValue> moduleVariables;
 	private IFrameObserver frameObserver = null;
 	private RascalSearchPath rascalSearchPath = null;
 	
@@ -70,6 +73,9 @@ public class RascalExecutionContextBuilder {
 	    RascalExecutionContext result = new RascalExecutionContext(vf, stdout, stderr, moduleTags, symbolDefinitions, typeStore, debug, debugRVM, testsuite, profile, trace, coverage, jvm, testResultListener, frameObserver, rascalSearchPath);
 	    if (this.moduleName != null) {
 	        result.setCurrentModuleName(moduleName);
+	    }
+	    if(this.moduleVariables != null){
+	    	result.setModuleVariables(moduleVariables);
 	    }
 	    return result;
 	}
@@ -157,6 +163,12 @@ public class RascalExecutionContextBuilder {
 	public RascalExecutionContextBuilder withModuleTags(IMap tags) {
 	    assert !build;
 	    this.moduleTags = tags;
+	    return this;
+	}
+	
+	public RascalExecutionContextBuilder withModuleVariables(Map<IValue,IValue> moduleVariables) {
+	    assert !build;
+	    this.moduleVariables = moduleVariables;
 	    return this;
 	}
 	
