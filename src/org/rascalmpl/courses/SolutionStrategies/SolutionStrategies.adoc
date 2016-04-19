@@ -14,6 +14,7 @@ Strategies to solve problems in various domains using Rascal.
 .Function
 
 
+[[Problem-Solving-Workflow]]
 image::problem-solving.png[width=200, align=left,title="Problem Solving Workflow"]
 
 .Description
@@ -39,7 +40,7 @@ To appreciate these general strategies, it is good to keep some specific problem
 
 
 With these examples in mind, we can study the overall problem solving workflow as shown 
-in the figure <<Problem Solving Workflow>> above.
+in the figure <<Problem-Solving-Workflow>> above.
 It consists of three optional phases:
 
 *  Is extraction needed to solve the problem, then define the extraction phase, see <<Extraction>>.
@@ -48,15 +49,26 @@ It consists of three optional phases:
 
 *  Is synthesis needed, then define the synthesis phase, see <<Synthesis>>.
 
+[[Validation-Workflow]]
 image::validation.png[width=250, align=left, title="Validation Workflow"]
 
-Each phase is subject to a validation and improvement workflow as shown in the second figure <<Validation Workflow>>. Each individual phase as well as the combination of phases may introduce errors and has thus to be carefully validated. In combination with the detailed strategies for each phase, this forms a complete approach for problem solving and validation using Rascal.
+Each phase is subject to a validation and improvement workflow as shown in the second figure <<Validation-Workflow>>. 
+Each individual phase as well as the combination of phases may introduce errors and has thus to be carefully validated. 
+In combination with the detailed strategies for each phase, this forms a complete approach for problem solving and validation 
+using Rascal.
 
-A major question in every problem solving situation is how to determine the requirements for each phase of the solution. For instance, how do we know what to extract from the source code if we do not know what the desired end results of the project are? The standard solution is to use a workflow for requirements gathering that is the inverse of the phases needed to solve the complete problem. 
-This is shown in the third figure _Requirements Workflow_ and amounts to the phases: 
+[[Requirements-Workflow]]
+image::requirements.png[width=250, align=left,title="Requirements Workflow"]
 
-*  Requirements of the synthesis phase. This amounts to making an inventory of the desired results of the whole project and may include generated source code, abstract models, or visualizations. ![Requirements Workflow](requirements.png|250px|right|space 2px)
+A major question in every problem solving situation is how to determine the requirements for each phase of the solution. 
+For instance, how do we know what to extract from the source code if we do not know what the desired end results of the project are? 
+The standard solution is to use a workflow for requirements gathering that is the inverse of the phases needed to solve 
+the complete problem. 
+This is shown in the third figure <<Requirements-Workflow>> and amounts to the phases: 
 
+*  Requirements of the synthesis phase. 
+  This amounts to making an inventory of the desired results of the whole project and may include generated source code, 
+  abstract models, or visualizations. 
 *  Requirements of the analysis phase. Once these results of the synthesis phase are known, it is possible to list the analysis results that are needed to synthesize desired results. Possible results of the analysis phase include type information, structural information of the original source.
 
 *  Requirements of the extraction phase. As a last step, one can make an inventory of the facts that have to be extracted to form the starting point for the analysis phase. Typical facts include method calls, inheritance relations, control flow graphs, usage patterns of specific library functions or language constructs.
