@@ -3,7 +3,7 @@
 :concept: Prettyprinter
 
 .Synopsis
-Transform an [AbstractSyntaxTree] into a formatted string.
+Transform an <<Abstract Syntax Tree>> into a formatted string.
 
 .Syntax
 
