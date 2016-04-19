@@ -4,6 +4,9 @@ import IO;
 import List;
 import String;
 import util::FileSystem;
+import ParseTree;
+import util::Reflective;
+import lang::rascal::\syntax::Rascal;
 /*
 
 Name:               =>  # the_name
@@ -136,7 +139,7 @@ str convert(str anchor, list[str] lines){
       incode = true;
       while(/^\<\/screen\>/ !:= lines[i]) {
          while(/^\/\/\s*<rest:.*$>/ := lines[i] && /^\<\/screen\>/ !:= lines[i]){
-            println(lines[i]);
+            //println(lines[i]);
             if(incode){
                incode = false;
                result += "----\n";
@@ -321,6 +324,29 @@ private str getImgOpts(str txt, str alt){
   return opts;
 }
 
+tuple[bool, str] convertLib(loc L){
+    Module M = parseModuleWithSpaces(L).top;
+    
+    M1 = visit(M){
+        case Tag t:
+            if("<t.name>" == "doc") {
+               c = trim(convert("XXX", split("\n", "<t.contents>")));
+               if(!endsWith(c, "}")){
+                  c += "}";
+               }
+               try { 
+                  cp = parse(#TagString,c);
+                  t.contents = cp;
+                  insert t;
+                } catch e: {
+                  println("Could not parse: <c>");
+                  throw e;
+                }
+            }
+    };
+    
+    return <M1 != M, "<M1>">;  
+}
 
 value main(){
 
@@ -331,5 +357,23 @@ value main(){
         writeFile(conceptFile[extension = "concept2"], convert(conceptFile));
     }
     
+    return true;
+}
+
+value convertLibs(){
+    int nfiles = 0, nconverted = 0;
+    for(libFile <- find(|file:///Users/paulklint/git/rascal/src/org/rascalmpl/library|, "rsc")){
+        nfiles += 1;
+        //println("libFile: <libFile>");
+        lines = readFileLines(libFile);
+        //println(libFile[extension = "rsc2"]);
+        <converted, libText> = convertLib(libFile);
+       if(converted){
+           nconverted += 1;
+           println("converted : <libFile>");
+           //writeFile(conceptFile[extension = "rsc2"], convertLib(libFile));
+        }
+    }
+    println("<nfiles> files, <nconverted> converted");
     return true;
 }
