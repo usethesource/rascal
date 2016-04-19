@@ -437,7 +437,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="title">Synopsis</div>
 <p>Strategies to solve problems in various domains using Rascal.</p>
 </div>
-<div class="imageblock" style="text-align: left">
+<div id="Problem-Solving-Workflow" class="imageblock" style="text-align: left">
 <div class="content">
 <img src="problem-solving.png" alt="problem solving" width="200">
 </div>
@@ -479,7 +479,7 @@ that lock/unlock occurs in pairs along every control flow path.</p>
 </div>
 <div class="paragraph">
 <p>With these examples in mind, we can study the overall problem solving workflow as shown
-in the figure <a href="#Problem Solving Workflow">[Problem Solving Workflow]</a> above.
+in the figure <a href="#Problem-Solving-Workflow">Problem Solving Workflow</a> above.
 It consists of three optional phases:</p>
 </div>
 <div class="ulist">
@@ -495,23 +495,37 @@ It consists of three optional phases:</p>
 </li>
 </ul>
 </div>
-<div class="imageblock" style="text-align: left">
+<div id="Validation-Workflow" class="imageblock" style="text-align: left">
 <div class="content">
 <img src="validation.png" alt="validation" width="250">
 </div>
 <div class="title">Figure 2. Validation Workflow</div>
 </div>
 <div class="paragraph">
-<p>Each phase is subject to a validation and improvement workflow as shown in the second figure <a href="#Validation Workflow">[Validation Workflow]</a>. Each individual phase as well as the combination of phases may introduce errors and has thus to be carefully validated. In combination with the detailed strategies for each phase, this forms a complete approach for problem solving and validation using Rascal.</p>
+<p>Each phase is subject to a validation and improvement workflow as shown in the second figure <a href="#Validation-Workflow">Validation Workflow</a>.
+Each individual phase as well as the combination of phases may introduce errors and has thus to be carefully validated.
+In combination with the detailed strategies for each phase, this forms a complete approach for problem solving and validation
+using Rascal.</p>
+</div>
+<div id="Requirements-Workflow" class="imageblock" style="text-align: left">
+<div class="content">
+<img src="requirements.png" alt="requirements" width="250">
+</div>
+<div class="title">Figure 3. Requirements Workflow</div>
 </div>
 <div class="paragraph">
-<p>A major question in every problem solving situation is how to determine the requirements for each phase of the solution. For instance, how do we know what to extract from the source code if we do not know what the desired end results of the project are? The standard solution is to use a workflow for requirements gathering that is the inverse of the phases needed to solve the complete problem.
-This is shown in the third figure <em>Requirements Workflow</em> and amounts to the phases:</p>
+<p>A major question in every problem solving situation is how to determine the requirements for each phase of the solution.
+For instance, how do we know what to extract from the source code if we do not know what the desired end results of the project are?
+The standard solution is to use a workflow for requirements gathering that is the inverse of the phases needed to solve
+the complete problem.
+This is shown in the third figure <a href="#Requirements-Workflow">Requirements Workflow</a> and amounts to the phases:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Requirements of the synthesis phase. This amounts to making an inventory of the desired results of the whole project and may include generated source code, abstract models, or visualizations. ![Requirements Workflow](requirements.png|250px|right|space 2px)</p>
+<p>Requirements of the synthesis phase.
+This amounts to making an inventory of the desired results of the whole project and may include generated source code,
+abstract models, or visualizations.</p>
 </li>
 <li>
 <p>Requirements of the analysis phase. Once these results of the synthesis phase are known, it is possible to list the analysis results that are needed to synthesize desired results. Possible results of the analysis phase include type information, structural information of the original source.</p>
@@ -554,16 +568,16 @@ of the first figure above.</p>
 <div class="title">Synopsis</div>
 <p>Strategies to extract facts from software systems.</p>
 </div>
-<div class="imageblock" style="text-align: left">
+<div id="Extraction-Workflow" class="imageblock" style="text-align: left">
 <div class="content">
 <img src="Extraction/define-extraction.png" alt="define extraction" width="400">
 </div>
-<div class="title">Figure 3. Extraction Workflow</div>
+<div class="title">Figure 4. Extraction Workflow</div>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
 <p>How can we extract facts from the <em>System under Investigation</em> (SUI) that we are interested in?
-The extraction workflow is shown in the figure <a href="#Extraction Workflow">[Extraction Workflow]</a> above and consists of the following steps:</p>
+The extraction workflow is shown in the figure <a href="#Extraction-Workflow">Extraction Workflow</a> above and consists of the following steps:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -664,15 +678,15 @@ Whatever approach you choose, validate that the resulting grammar is compliant w
 <div class="title">Synopsis</div>
 <p>Strategies to analyze software systems.</p>
 </div>
-<div class="imageblock" style="text-align: left">
+<div id="Analysis-Workflow" class="imageblock" style="text-align: left">
 <div class="content">
 <img src="Analysis/define-analysis.png" alt="define analysis" width="400">
 </div>
-<div class="title">Figure 4. Analysis Workflow</div>
+<div class="title">Figure 5. Analysis Workflow</div>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
-<p>The analysis workflow is shown in the figure <a href="#Analysis Workflow">[Analysis Workflow]</a> below and consists of two steps:</p>
+<p>The analysis workflow is shown in the figure <a href="#Analysis-Workflow">Analysis Workflow</a> below and consists of two steps:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -736,15 +750,15 @@ Whatever approach you choose, validate that the resulting grammar is compliant w
 <div class="title">Synopsis</div>
 <p>Strategies to synthesise results.</p>
 </div>
-<div class="imageblock" style="text-align: left">
+<div id="Synthesis-Workflow" class="imageblock" style="text-align: left">
 <div class="content">
 <img src="Synthesis/define-synthesis.png" alt="define synthesis" width="400">
 </div>
-<div class="title">Figure 5. Synthesis Workflow</div>
+<div class="title">Figure 6. Synthesis Workflow</div>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
-<p>Results are synthesized as shown in the Figure <a href="#Synthesis Workflow">[Synthesis Workflow]</a> above. This consists of the following steps:</p>
+<p>Results are synthesized as shown in the Figure <a href="#Synthesis-Workflow">Synthesis Workflow</a> above. This consists of the following steps:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -814,7 +828,7 @@ generation using print statements or string templates.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-04-18 22:47:39 CEST
+Last updated 2016-04-19 09:13:11 CEST
 </div>
 </div>
 </body>

@@ -93,9 +93,9 @@ public class CourseCompiler {
 //		compileCourse("EASY");
 //		compileCourse("Errors");
 //		compileCourse("Rascal");
-		compileCourse("Rascalopedia");
+//		compileCourse("Rascalopedia");
 //		compileCourse("Recipes");
-//		compileCourse("SolutionStrategies");
+		compileCourse("SolutionStrategies");
 //		compileCourse("TutorWebSite");
 		
 	}
