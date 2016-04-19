@@ -296,7 +296,7 @@ public CheckResult checkExp(Expression exp:(Expression)`( <Expression ei> | <Exp
     // "it", since we have no information on which to base a reasonable assumption. 
     Symbol erType = t1;
     if (!isFailType(t1)) {
-        cRed = addLocalVariable(cRed, RSimpleName("it"), true, exp@\loc, erType);
+        cRed = addLocalVariable(cRed, RSimpleName("it"), true, exp@\loc, erType, allowedConflicts={RSimpleName("it")});
         < cRed, t3 > = checkExp(er, cRed);
         if (!isFailType(t3)) {
             if (!equivalent(erType,t3) && lub(erType,t3) == t3) {
