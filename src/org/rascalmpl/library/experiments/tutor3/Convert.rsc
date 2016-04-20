@@ -364,14 +364,15 @@ value convertLibs(){
     int nfiles = 0, nconverted = 0;
     for(libFile <- find(|file:///Users/paulklint/git/rascal/src/org/rascalmpl/library|, "rsc")){
         nfiles += 1;
-        //println("libFile: <libFile>");
+        if(libFile == |file:///Users/paulklint/git/rascal/src/org/rascalmpl/library/Boolean.rsc|){
+            continue;
+        }
         lines = readFileLines(libFile);
-        //println(libFile[extension = "rsc2"]);
         <converted, libText> = convertLib(libFile);
        if(converted){
            nconverted += 1;
            println("converted : <libFile>");
-           //writeFile(conceptFile[extension = "rsc2"], convertLib(libFile));
+           writeFile(conceptFile, libText);
         }
     }
     println("<nfiles> files, <nconverted> converted");
