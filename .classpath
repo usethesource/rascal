@@ -32,6 +32,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/jdom-2.0.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/html2png.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/fst-2.42-onejar.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commonmark-0.4.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commonmark-ext-autolink-0.4.1.jar"/>
