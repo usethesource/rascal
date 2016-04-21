@@ -1,0 +1,20 @@
+<div id="Syntax">
+<span class="sectionHead">Syntax</span>  <code>"<i>StringChar</i><sub>1</sub><i>StringChar</i><sub>2</sub>..."</code>
+ where <code><i>StringChar</i></code> may be one of the following:
+ <ul><li> <b>Ordinary character</b>: Any character except <code>&lt;</code>, <code>></code>, <code>"</code>, <code>'</code> or <code>\</code>.</li>
+<li> <b>Escaped character</b>: Backslash <code>\</code> followed by any of  <code>&lt;</code>, <code>></code>, <code>"</code>, <code>'</code> or <code>\</code> represents the escaped character itself.   Other escape sequences that are supported are:
+ <ul><li> <code>\n</code>: newline</li>
+<li> <code>\t</code>: tab</li>
+<li> <code>\r</code>: carriage return</li>
+<li> <code>\b</code>: backspace</li>
+<li> <code>\f</code>: vertical feed</li>
+<li> <code>\u<i>hexDigit</i><sub>1</sub><i>hexDigit</i><sub>2</sub><i>hexDigit</i><sub>3</sub><i>hexDigit</i><sub>4</sub></code> : hexadecimal escapes with four digit indexes into UNICODE.</li>
+<li> <code>\U<i>hexDigit</i><sub>1</sub><i>hexDigit</i><sub>2</sub><i>hexDigit</i><sub>3</sub><i>hexDigit</i><sub>4</sub><i>hexDigit</i><sub>5</sub><i>hexDigit</i><sub>6</sub></code> : hexadecimal escapes with six digit indexes into UNICODE.</li>
+<li> <code>\a<i>hexDigit</i><sub>1</sub><i>hexDigit</i><sub>2</sub></code>:  hexadecimal escapes with 2 digit indexes into ASCII (0x0 ... 0x7F).</li>
+</ul></li>
+</ul> <ul><li> <b>String Interpolation</b>: <br/>
+<br/>
+ <table><tr><th align="center"> Form      </th><th align="center"> Description </th></tr><tr><td align="left"> <code>&lt;<i>Exp</i>></code> </td><td align="left"> Interpolate the value of the expression as a string</td></tr><tr><td align="left"> <code>&lt;if(<i>Exp</i>){> ... <i>StringChars</i> ... &lt;}></code> </td><td align="left"> Conditional inclusion of <code><i>Text</i></code>, where <code><i>StringChars</i></code> may use variables introduced in <code><i>Exp</i></code> </td></tr><tr><td align="left"> <code>&lt;if(<i>Exp</i>){> ... <i>StringChars</i><sub>1</sub> ... &lt;} else {>  ... <i>StringChars</i><sub>2</sub> ... &lt;}></code> </td><td align="left"> Conditional inclusion of either <code><i>StringChars</i><sub>1</sub></code> or <code><i>StringChars</i><sub>2</sub></code> </td></tr><tr><td align="left"> <code>&lt;for(<i>Exp</i>){>... <i>StringChars</i> ... &lt;}></code> </td><td align="left"> Iterative splicing of <code><i>StringChars</i></code> into the result, where <code><i>StringChars</i></code> may use variables introduced in <code><i>Exp</i></code>.</td></tr><tr><td align="left"> <code>&lt;while(<i>Exp</i>){> ... <i>StringChars</i> ... &lt;}></code> </td><td align="left"> Iterative splicing of <code><i>StringChars</i></code> into the result, where <code><i>StringChars</i></code> may use variables introduced in <code><i>Exp</i></code>.</td></tr><tr><td align="left"> <code>&lt;do {>... <i>StringChars</i> ... &lt;} while (<i>Exp</i>)></code> </td><td align="left"> Iterative splicing of <code><i>StringChars</i></code> into the result, where <code><i>StringChars</i></code> may use variables introduced in <code><i>Exp</i></code>.</td></tr></table></li>
+<li> <b>Multiline</b>: <table><tr><th align="center"> Form </th><th align="center"> Description </th></tr><tr><td align="left"> <code><i>StringChars</i><sub>1</sub>\n <i>StringChars</i><sub>2</sub> </code> </td><td align="left"> Strings can be multi-line without an escape or continuation marker </td></tr><tr><td align="left"> <code><i>StringChars</i><sub>2</sub>\n '  <i>StringChars</i><sub>2</sub></code> </td><td align="left"> A margin character <code>'</code> indicates where the next line starts </td></tr></table></li>
+</ul>
+</div>
