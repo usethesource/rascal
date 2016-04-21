@@ -100,7 +100,7 @@ Figure simple() {
  )); 
  
  public void psimple(loc l) = renderSave(simple(), l
-    ,width = 400, height = 400
+    ,width = 400, height = 400, javaLoc=|file:///ufs/bertl/jdk1.8.0_77|
     );
  
  Figure eye()= ellipse(rx=60, ry = 30, lineColor="brown", align = centerMid, fillColor="teal", lineWidth = 6
@@ -232,12 +232,16 @@ void ttetris() = render(tetris());
 loc location = |project://rascal/src/org/rascalmpl/library/experiments/vis2/data/tutor.html|;  
 
 
-Figure tut() = box(grow=1.2, fig = text(readFile(location)));
+Figure tut() = box(fillColor="yellow", size=<50, 50>, event=on("click", box(fig=at(60, 60, box(lineColor="black", lineWidth=2,  fig = text(readFile(location)))))));
 
 public void ttut() {render(tut(), cssFile = "tutor.css", size=<800, 800>);}
 
 public void ftut(loc l) = writeFile(l, toHtmlString(
    tut(), cssFile = "tutor.css", size=<800, 800>
  ));
+ 
+ public Figure elp() = ellipse(lineWidth = 10, align = bottomRight, grow = 1.5, fig=box(size=<50, 100>, fillColor="yellow", lineWidth =6));
+ 
+ public void telp() = render(elp());
  
                  
