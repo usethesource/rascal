@@ -2,8 +2,9 @@ module experiments::vis2::sandbox::FigureServer
 import experiments::vis2::sandbox::Figure;
 import experiments::vis2::sandbox::IFigure;
 import util::ShellExec;
+import util::Reflective;
 import Prelude;
-import lang::java::jdt::Project;
+
 
 public void render(Figure fig1, int width = 800, int height = 800, 
      Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>,
@@ -35,7 +36,7 @@ public str toHtmlString(Figure fig1, int width = 400, int height = 400,
      }
 
 public void renderSave(Figure fig1, loc file
-     ,int width = 400, int height = 400 
+     ,int width = 400, int height = 400
      ,Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>
      ,str fillColor = "white", str lineColor = "black", bool debug = false
      ,int borderWidth = -1,  str borderColor = "", str borderStyle = "", bool resizable = true
@@ -48,7 +49,8 @@ public void renderSave(Figure fig1, loc file
       );  
       loc parent = file.parent;
       str name = file.file;
-      str classpath=getOneFrom({x.path|x<-classPathForProject(|project://rascal|), endsWith(x.path, "html2png.jar")}); 
+      str classpath = getOneFrom([x|x<-split(":", getRascalClasspath()), endsWith(x,"html2png.jar")]);
+      // str classpath=getOneFrom({x.path|x<-classPathForProject(|project://rascal|), endsWith(x.path, "html2png.jar")}); 
       if (!endsWith(name, ".png")) {
             println("Output file name <name> must end with \".png\"");
             return;
@@ -56,6 +58,7 @@ public void renderSave(Figure fig1, loc file
       str htmlName = replaceLast(name, ".png", ".html");
       loc htmlFile = parent+htmlName;
       writeFile(htmlFile, r);
+      
       javaLoc=javaLoc+"bin"+"java";
       println(exec(javaLoc.path
          // ,args = []

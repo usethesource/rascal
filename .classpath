@@ -9,7 +9,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/rascal/lib/gson-2.2.4-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib/html2png.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xz-1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-compress-1.9.jar">
 		<attributes>
@@ -32,7 +31,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/jdom-2.0.6.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/html2png.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/fst-2.42-onejar.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commonmark-0.4.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commonmark-ext-autolink-0.4.1.jar"/>
@@ -41,5 +39,6 @@
 	<classpathentry kind="lib" path="lib/value-0.5.3.jar" sourcepath="lib/value-0.5.3-sources.jar"/>
 	<classpathentry kind="lib" path="/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.77-1.b03.fc22.x86_64/jre/lib/ext/cldrdata.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/html2png.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
