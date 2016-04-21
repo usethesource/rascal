@@ -170,7 +170,7 @@ public alias Prop =
 public data Figure(
         // Naming
         str id = "",
-        str visibility = "", 
+        str visibility = "",  // hidden | visable
 		// Dimensions and Alignmenting
 		tuple[int,int] size = <0,0>,
 		tuple[int, int, int, int] padding = <0, 0, 0, 0>, // left, top, right, botton 
@@ -178,8 +178,7 @@ public data Figure(
 		int height = -1,
 		Position at = <0,0>,
 		Rotate rotate =<0, -1, -1>, 
-		Alignment align = <0.5, 0.5>, // TODO should be middle,
-		
+		Alignment align = <0.5, 0.5>, 
 		num bigger = 1.0,
 		num shrink = 1.0, 
 		num hshrink = 1.0, 
@@ -230,13 +229,12 @@ public data Figure(
 	
    | htmlText(value text, str overflow = "hidden")		    			// text label html
    | text(value text, str overflow = "hidden")		    			// text label svg
-   | markdown(value text)					// text with markdown markup (TODO: make flavor of text?)
-   | math(value text)						// text with latex markup
+// | markdown(value text)					// text with markdown markup (TODO: make flavor of text?)
+// | math(value text)						// text with latex markup
    
 // Graphical elements
 
    | box(Figure fig=emptyFigure())      	// rectangular box with inner element
-   
    
    | ellipse(num cx = -1, num cy = -1, num rx=-1, num ry=-1, Figure fig=emptyFigure())
    
@@ -268,7 +266,7 @@ public data Figure(
    | image(str src="")
 
 // Figure composers
-                   
+// borderStyles =  none|hidden|dotted|dashed|solid|double|groove|ridge|inset|outset|initial|inherit;              
    | hcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "") 					// horizontal and vertical concatenation
    | vcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "") 					// horizontal and vertical concatenation 
    | overlay(Figures figs=[])				
@@ -326,6 +324,7 @@ public data Figure(
 	       ,bool manhattan=false
 // For memory management
 	       , int refinement=5, int rasterHeight=150)
+	       
    |d3Pack(DDD d = ddd(), str fillNode="rgb(31, 119, 180)", str fillLeaf = "ff7f0e", num fillOpacityNode=0.25, num fillOpacityLeaf=1.0,
           int diameter = 960)
    |d3Treemap(DDD d = ddd())
@@ -341,7 +340,7 @@ data GraphOptions = graphOptions(
 data NodeProperty = nodeProperty(str shape="",str labelStyle="", str style = "", str label="");
 
 data Edge = edge(str from, str to, str label = "", str lineInterpolate="basis" // linear, step-before, step-after
-     ,str lineColor = "" ,str labelStyle="", str arrowheadStyle = "" // normal, vee, undirected
+     , str lineColor = "" ,str labelStyle="", str arrowheadStyle = "" // normal, vee, undirected
      , str id = "", str labelPos= "r"  // l, r, c
      , int labelOffset = 10);
   
@@ -363,9 +362,7 @@ data Legend (bool none = false,
            
 data ViewWindow(int max = -1, int min = -1) = viewWindow();
 
-
 data Gridlines(str color = "", int count =-1) = gridlines();
-
 
 data Series (
     str color ="",
@@ -521,11 +518,9 @@ public Figure idRect(int width, int height) = rect(width = width, height = heigh
 /* options must be renamed to graphOptions */
 public Figure graph(list[tuple[str, Figure]] n, list[Edge] e, tuple[int, int] size=<0,0>, int width = -1, int height = -1,
    int lineWidth = 1, GraphOptions options = graphOptions()) =  
-   //box(fig = 
    graph(nodes = n, edges = e, lineWidth = lineWidth, 
                nodeProperty = (), size = size, width = width, height = height,
                graphOptions = options)
-               //, align = topLeft, lineWidth = 0,  size=<1000, 1200>)
                ;
              	
 	
@@ -848,7 +843,6 @@ public DDD fileMap(loc source, str suffix) {
         for (e <- listEntries(elem)) {
            loc f = elem +e;
 		   if (isDirectory(f)) {
-		    // println(f);
 		   	todo += f;
 		   }
 		   else {
@@ -858,13 +852,11 @@ public DDD fileMap(loc source, str suffix) {
 	      }
 	    }
         map[loc, int] m = (d:size(readFileLines(d))|d<-done);
-        // println(m);
         list[list[str]] r = [];
         for (d<-done) {
             str p = d.path; 
             r=r+[split("/", p)];
             }
-        // println(r);
         list[DDD] p = compact(r, m, source.parent);
         return head(p);
     }

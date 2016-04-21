@@ -123,7 +123,7 @@ Orientation getOrientation() {
            
 Figure genTree(bool cityblock = false, Orientation orientation = topDown()) {
         idx  = 0;
-        return genTrees(50,state["hGap"], state["vGap"], state["minDepth"],state["maxDepth"], state["minKids"]
+        return genTree(50,state["hGap"], state["vGap"], state["minDepth"],state["maxDepth"], state["minKids"]
                    ,state["maxKids"],state["minWidth"], state["minHeight"]
                    ,state["maxWidth"], state["maxHeight"]
                cityblock = cityblock, orientation = orientation);

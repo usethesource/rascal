@@ -249,13 +249,11 @@ str visitTooltipFigs() {
     str r ="\<div class=\"overlay\"\>\<svg id = \"overlay\"\>";
     for (IFigure fi<-tooltips) {
          if (g:ifigure(str id, _):=fi && endsWith(id, "_tooltip")) {
-            // println("visitTooltipFigs <id>");
             r+= visitFig(g);        
             }
          }
     for (IFigure fi<-panels) {
          if (g:ifigure(str id, _):=fi && endsWith(id, "_panel")) {
-            // println("visitTooltipFigs <id>");
             r+= visitFig(g);        
             }
          }
@@ -374,7 +372,7 @@ str getIntro() {
        '\</body\>     
 		'\</html\>\n";
     // println(res);
-	return res;
+	return replaceAll(res,"\n\n", "");
 	}
 
 
@@ -511,9 +509,8 @@ default Response page(get(), str path, map[str, str] parameters) {
    }
 
 private loc startFigureServer() {
-  	loc site = |http://localhost:8081|;
-  
-  while (true) {
+  	loc site = |http://localhost:8081|; 
+   while (true) {
     try {
       //println("Trying ... <site>");
       serve(site, dispatchserver(page));
@@ -866,7 +863,6 @@ str text(str v, bool html) {
     s = replaceAll(s,"\n", "\\\n");
     s = "\"<replaceAll(s,"\"", "\\\"")>\""; 
     if (html) {
-        // s = "nl2br(<s>)";
         return ".html(<s>)";
         }
     else 
@@ -953,7 +949,7 @@ IFigure _text(str id, bool inHtml, Figure f, str s, str overflow, bool addSvgTag
         '<isHtml?style("color", f.fontColor):(style("fill", f.fillColor))>
         '<isHtml?"":style("text-anchor", "middle")> 
         '<isHtml?style("overflow", overflow):"">
-        '<isHtml?style("pointer-events", "auto"):attr("pointer-events", "none")>
+        '<isHtml?style("pointer-events", overflow=="hidden"?"none":"auto"):attr("pointer-events", "none")>
         '<text(s, isHtml)>
         '// alert(d3.select(\"#<id>\").node().getBoundingClientRect().height);
         ';
@@ -1026,7 +1022,6 @@ IFigure _googlechart(str cmd, str id, Figure f, bool addSvgTag) {
     begintag+="\<div id=\"<id>\"\>";
     int width = f.width;
     int height = f.height;
-    // println("googlechart: <getAtX(f)> <getAtY(f)>");
     Alignment align =  width<0?topLeft:f.align;
     str endtag = "\</div\>"; 
     if (addSvgTag) {
@@ -1215,17 +1210,15 @@ str addShape(Figure s) {
     }
     
 str beginTag(str id, Alignment align) {
-    return "
-           '\<table  cellspacing=\"0\" cellpadding=\"0\" id=\"<id>\"\>\<tr\>
-           ' \<td <vAlign(align)> <hAlign(align)> id=\"<id>_td\"\>";
+    return "\<table  cellspacing=\"0\" cellpadding=\"0\" id=\"<id>\"\>\<tr\>
+           '\<td <vAlign(align)> <hAlign(align)> id=\"<id>_td\"\>";
     }
   
 str beginTag(str id, bool foreignObject, Alignment align, IFigure fig, int offset) {  
-   str r =  foreignObject?"
-    '\<foreignObject  id=\"<id>_fo\" x=\"<getAtX(fig)+offset>\" y=\"<getAtY(fig)+offset>\"
-    ' width=\"<upperBound>px\" height=\"<upperBound>px\"\>        
-    '<beginTag("<id>_fo_table", align)>
-    "       
+   str r =  foreignObject?
+"\<foreignObject id=\"<id>_fo\" x=\"<getAtX(fig)+offset>\" y=\"<getAtY(fig)+offset>\" width=\"<upperBound>px\" height=\"<upperBound>px\"\>    
+'<beginTag("<id>_fo_table", align)>
+"       
     :"";
     return r;
  }
@@ -1331,7 +1324,8 @@ bool hasInnerCircle(Figure f)  {
       // if (getAtX(fig)>0 || getAtY(fig)>0) f.align = topLeft
       if (emptyFigure():=f.fig) fo = false;
       str begintag= 
-         "\<svg  xmlns = \'http://www.w3.org/2000/svg\'  id=\"<id>_svg\"\> <beginScale(f)> <beginRotate(f)> 
+         "
+         '\<svg  xmlns = \'http://www.w3.org/2000/svg\'  id=\"<id>_svg\"\> <beginScale(f)> <beginRotate(f)>
          '\<rect id=\"<id>\" /\> 
          '<beginTag("<id>", fo, f.align, fig, lw)>
          "; 
@@ -1420,7 +1414,7 @@ bool hasInnerCircle(Figure f)  {
         "    
         'd3.select(\"#<id>_fo\")
         '<attr("width", width)><attr("height", height)>
-        '<attr("pointer-events", "none")> 
+        '<isPassive(f)?attr("pointer-events", "all"):attr("pointer-events", "none")> 
         '<debugStyle()>
         ';    
         '       
@@ -1583,22 +1577,6 @@ IFigure _polygon(str id, Figure f,  IFigure fig = iemptyFigure(0)) {
 num xV(Vertex v) = (line(num x, num y):=v)?x:((move(num x, num y):=v)?x:0);
 
 num yV(Vertex v) = (line(num x, num y):=v)?y:((move(num x, num y):=v)?y:0);
-
-int getPathWidth(Figure f) {
-        if (shape(list[Vertex] vs):= f) {
-             if (f.width>=0) return f.width;
-             return screenWidth;
-            }
-         return -1;
-         }
-
-int getPathHeight(Figure f) {
-
-         if (shape(list[Vertex] vs):= f) {
-             if (f.height>=0) return f.height;
-             return screenHeight;
-         }
-      }
       
 str trVertices(Figure f) {
      if (shape(list[Vertex] vertices):=f) {
@@ -1623,10 +1601,8 @@ str trVertices(list[Vertex] vertices, bool shapeClosed = false, bool shapeCurved
 			v = vertices[i];
 			path += "<directive(v)><toP(v.x, scaleX)> <toP(v.y, scaleY)>";
 		}
-	}
-	
+	}	
 	if(shapeConnected && shapeClosed) path += "Z";
-	
 	return path;		   
 }
 
@@ -1725,13 +1701,13 @@ IFigure _ngon(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(0)) {
           }
        return ifigure(id, [fig]);
        }
- 
        
 str vAlign(Alignment align) {
        if (align == bottomLeft || align == bottomMid || align == bottomRight) return "valign=\"bottom\"";
        if (align == centerLeft || align ==centerMid || align ==centerRight)  return "valign=\"middle\"";
        if (align == topLeft || align == topMid || align == topRight) return "valign=\"top\"";
        }
+       
 str hAlign(Alignment align) {
        if (align == bottomLeft || align == centerLeft || align == topLeft) return "align=\"left\"";
        if (align == bottomMid || align == centerMid || align == topMid) return "align=\"center\"";
@@ -1742,8 +1718,6 @@ str _padding(tuple[int, int, int, int] p) {
        return stylePx("padding-left", p[0])+stylePx("padding-top", p[1])
              +stylePx("padding-right", p[2])+stylePx("padding-bottom", p[3]);     
        }
-
-bool isSvg(str s) =  startsWith(s, "\<svg");
    
 IFigure _overlay(str id, Figure f, IFigure fig1...) {
        int lw = getLineWidth(f)<0?0:getLineWidth(f); 
@@ -1793,8 +1767,7 @@ IFigure _buttonInput(str id, Figure f, str txt, bool addSvgTag) {
          '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
        begintag+="                    
-            '\<button id=\"<id>\" value=\"<txt>\"\>
-            "
+            '\<button id=\"<id>\" value=\"<txt>\"\>"
             ;
        str endtag="
             '\</button\>
@@ -2632,7 +2605,6 @@ public void _render(Figure fig1, int width = 400, int height = 400,
         h.align = align;
         h.id = "figureArea";
         figMap[h.id] = h;
-        // fig1 = extendFig(fig1);
         if (fig1.size != <0, 0>) {
             fig1.width = fig1.size[0];
             fig1.height = fig1.size[1];

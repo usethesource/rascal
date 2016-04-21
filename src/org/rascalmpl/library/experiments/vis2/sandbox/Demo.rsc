@@ -134,10 +134,10 @@ Figure schoolPlot() {
         ,lineWidth = 10, lineColor = "red", lineOpacity=0.5, fillOpacity=0.5, fig = text("Hello")
         )
         ,
-        at(50, 50, circle(lineWidth=10, lineColor= "red", fillColor = "none",  padding=<10, 10, 10, 10>, fig= at(0,0, 
-             box(width=50, height = 50, fillColor = "antiquewhite")
+        at(50, 50, circle(lineWidth=10, lineColor= "red", fillColor = "none",  padding=<0, 0, 0, 0>, fig= at(0,0, 
+             box(width=50, height = 50, lineColor="grey", fillColor = "antiquewhite")
              )))
-        ,at(250, 250, circle(lineWidth=10, fillColor="none", lineColor="brown", padding=<5, 5, 5, 5>
+        ,at(250, 250, circle(lineWidth=10, fillColor="none", lineColor="brown", padding=<0, 0, 0, 0>
         , fig=ngon(n=7, r=40, lineWidth = 10, lineColor = "grey", fillColor = "none")))
         ])
         ;
@@ -430,6 +430,8 @@ list[tuple[str, Figure]] flagNodes = [<"nl", dutch()>, <"be", belgium()>
 Figure gflags() = graph(flagNodes, flagEdges, size=<300, 600>);
 
 void tgflags() = render(box(fig=gflags(), size=<400, 400>, align =  centerMid));
+
+void fgflags(loc l) = writeFile(l, toHtmlString(flags()));
 
 void ftgflags(loc l) = writeFile(l, toHtmlString(gflags()));
    
