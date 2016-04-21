@@ -294,6 +294,10 @@ function fromInnerToOuterFigure(f, id1, toLw, hpad, vpad) {
     if (from.node().nodeName=="g") {
     	from = d3.select("#"+id1+"_svg");
     }
+    var blow = 1.0;
+    if (from.node().nodeName=="rect") {
+    	blow = Math.sqrt(2.0);
+    }
     if (from.empty()) return;
 	var fromLw = parseInt(from.style("stroke-width"));
 	var width = 0;
@@ -315,15 +319,17 @@ function fromInnerToOuterFigure(f, id1, toLw, hpad, vpad) {
 		to.attr("width", width).attr("height", height).attr("x", toLw/2).attr("y", toLw/2);
 		break;
 	case "circle":
-		var side = Math.max(width, height);
+		var side = (Math.max(width, height)-toLw)*blow+toLw;	
+		width =  side;
+		height = side;
 		var r = side / 2;
 		to.attr("cx", r + toLw / 2).attr("cy", r + toLw / 2).attr("r", r);
-		width = side;
-		height = side;
 		to.attr("width", width).attr("height", height);
 		break;
 	case "ellipse":
 		if ((to.attr("rx") == null) && (to.attr("ry") == null)) {
+			width = (width-toLw) * blow +toLw;
+			height = (height-toLw) * blow +toLw;
 			var rx = width  / 2;
 			var ry = height  / 2;
 			to.attr("cx", (width+toLw) / 2).attr("cy", (height+toLw) / 2).attr("rx", rx).attr("ry",
@@ -332,18 +338,18 @@ function fromInnerToOuterFigure(f, id1, toLw, hpad, vpad) {
 		break;
 	case "polygon":
         if (to.attr("r") == null) {
-                var side = Math.max(width, height);
-                width = side;
+                var side = Math.max(width, height)  * blow;
+                width =  side;
                 height = side;
-                var r = side / 2.0;
-                to.attr("points", translatePoints(f.angle, f.n, r, r + toLw/2.0, r + toLw/2.0).map(
+                var r = side/2;
+                to.attr("points", translatePoints(f.angle, f.n, r, r + toLw/2, r + toLw/2).map(
                                 function(a) {
                                         return [ a.x, a.y ].join(",");
                                 }).join(" "));
                 to.attr("width", width).attr("height", height)
                 ;
                 var e = d3.select("#" + f.id + "_circle");
-                e.attr("cx", r + toLw/2).attr("cy", r + toLw/2.0).attr("r", r+toLw/2.0);
+                e.attr("cx", r + toLw/2).attr("cy", r + toLw/2).attr("r", r+toLw/2);
                 e.attr("width", width).attr("height", height);
         }
         break;
@@ -371,35 +377,27 @@ function translatePoints(angle, n, r, x, y) {
 	return q;
 }
 
-function adjust1(fromId, f, width, height, hpad, vpad) {
-	if (f.id == "emptyFigure")
-		return;
-	var to = d3.select("#" + f.id);
-	var toLw = f.lw;
-	toLw = corner(f.n, toLw);
-	if (to.node().nodeName == "TABLE") {
-		if (invalid(to.attr("w"))) {
-			to.attr("w", parseInt(width));
-		}
-		if (invalid(to.attr("h"))) {
-			to.attr("h", parseInt(height));
-		}
-		// return;
-	}
-	if (!invalid(to.attr("width")))
-		width = parseInt(to.attr("width"));
-	if (!invalid(to.attr("height")))
-		height = parseInt(to.attr("height"));
+function adjust1(fromId, f, width, height) {
+	if (f.id == "emptyFigure") return;
+	return _adjust(f.id, fromId, f.hshrink, f.vshrink, f.lw, f.n, f.angle, 0, 0, width, height);
+}
+
+function _adjust(toId, fromId, hshrink, vshrink, toLw, n, angle, x, y, width, height) {
+	// toId, fromId, hshrink, vshrink, toLw, n, angle, x , y
+	var to = d3.select("#" + toId);
+	toLw = corner(n, toLw);
 	var from = d3.select("#" + fromId);
 	var fromLw = parseInt(from.style("stroke-width"));
-	width = width - fromLw - toLw;
-	height = height - fromLw - toLw;
-	var w = width * f.hshrink;
-	var h = height * f.vshrink; 
+	fromLw =  corner(nPoints(from), fromLw);
+	width = width - fromLw - toLw - x;
+	height = height - fromLw - toLw - y;
+	var w = width * hshrink;
+	var h = height * vshrink; 
 	// alert("adjust1:"+ to.node().nodeName+" "+width+" "+height+" "+w+" "+h);
 	switch (to.node().nodeName) {
-	case "table":
+	case "TABLE":
 		to.attr("w", w).attr("h", h);
+		to.style("width", w).attr("height", h);
 		break;
 	case "rect":
 		to.attr("width", w).attr("height", h).attr("x", toLw/2).attr("y", toLw/2);
@@ -423,7 +421,7 @@ function adjust1(fromId, f, width, height, hpad, vpad) {
 			w = side;
 			h = side;
 			var r = (side/2.0);
-			to.attr("points", translatePoints(f.angle, f.n, r, (w+toLw)/2.0, (h+toLw)/2.0).map(
+			to.attr("points", translatePoints(angle, n, r, (w+toLw)/2.0, (h+toLw)/2.0).map(
 					function(a) {
 						return [ a.x, a.y ].join(",");
 					}).join(" "));
@@ -444,20 +442,17 @@ function adjust1(fromId, f, width, height, hpad, vpad) {
 		break;
 	}
 	;
-	// alert(width);
-	// d3.select("#"+f.id").style("width",width).style("height",height);
-	d3.select("#" + f.id + "_fo_table").attr("w", w -toLw).attr(
+	d3.select("#" + toId + "_fo_table").attr("w", w -toLw).attr(
 			"h",  h - toLw );
-	d3.select("#" + f.id + "_fo_table").style("width", w -toLw).style(
+	d3.select("#" + toId + "_fo_table").style("width", w -toLw).style(
 			"height",  h - toLw );
-	d3.select("#" + f.id + "_fo").attr("width", w -toLw).attr("height",
+	d3.select("#" + toId+ "_fo_table").attr("pointer-events", "none");
+	d3.select("#" + toId+ "_fo").attr("width", w -toLw).attr("height",
 			h -toLw);
-	d3.select("#" + f.id + "_outer_fo").attr("width", w -toLw).attr("height",
+	d3.select("#" + toId + "_outer_fo").attr("width", w -toLw).attr("height",
 			h -toLw);
-	d3.select("#" + f.id + "_svg").attr("width", w+toLw).attr("height",
-			h +toLw);
-	d3.select("#" + fromId + "_" + f.id).attr("pointer-events", "none");
-	d3.select("#" + f.id + "_fo_table").attr("pointer-events", "none");
+	d3.select("#" + toId + "_svg").attr("width", w+toLw+x).attr("height",
+			h +toLw+y);
 }
 
 function figShrink(id, hshrink, vshrink, lw, n, angle) {
@@ -501,6 +496,10 @@ function getVal(f, key) {
 	if (["BUTTON","INPUT", "FORM"].indexOf(d.node().nodeName)>=0) {	   
 	   return d.style(key);
 	 }
+	if (d.node().nodeName=="TABLE") {
+		if (key=="width") return d.attr("w");
+		if (key=="height") return d.attr("h");
+	}
 	if (d.attr(key)==null) {
 		d = d3.select("#" + f.id+"_svg");
 		return d.empty()?null:d.attr(key);
@@ -628,7 +627,7 @@ function adjustOverlay(clients, id1, lw, hpad, vpad) {
 	  var h = parseInt(height);
 	// alert(aUndefWH.length);
 	  for (var i = 0; i < aUndefWH.length; i++) {
-		adjust1(id1, aUndefWH[i], w, h, hpad, vpad);
+		adjust1(id1, aUndefWH[i], w, h);
 	  }
 	} else {
 	  width = 0;
@@ -669,7 +668,7 @@ function adjustTableW(clients, from, lw, hpad, vpad, hgap, vgap) {
 	var w = (width- sDefW) / nW;
 	var h = parseInt(height);
 	for (var i = 0; i < aUndefWH.length; i++) {
-		adjust1(from, aUndefWH[i], w, h, hpad, vpad);
+		adjust1(from, aUndefWH[i], w, h);
 	}
 }
 
@@ -687,7 +686,7 @@ function adjustTableH(clients, from, lw, hpad, vpad, hgap, vgap) {
 	var h = (height - sDefH) / nH;
 	var w = parseInt(width);
 	for (var i = 0; i < aUndefWH.length; i++) {
-		adjust1(from, aUndefWH[i], w, h, hpad, vpad);
+		adjust1(from, aUndefWH[i], w, h);
 	     }
 }
 
@@ -758,7 +757,7 @@ function adjustTableWH(clients, id1, lw, hpad, vpad, hgap, vgap) {
 	var h = (height - sDefH) / nH;
 	for (var i = 0; i < aUndefWH.length; i++) {
 		for (var j = 0; j < aUndefWH[i].length; j++) {
-			adjust1(id1, aUndefWH[i][j], w, h, hpad, vpad);
+			adjust1(id1, aUndefWH[i][j], w, h);
 		}
 	}
 }
@@ -782,78 +781,8 @@ function fromOuterToInner(toId, fromId, hshrink, vshrink, toLw, n, angle, x , y)
 		 width = document.getElementById(fromId).getBoundingClientRect().width;
 		 height = document.getElementById(fromId).getBoundingClientRect().height;
 	     }
-	var fromLw = parseInt(from.style("stroke-width"));
-	fromLw =  corner(nPoints(from), fromLw);
-	if (invalid(width) || invalid(height))
-		return;
-	toLw = corner(n, toLw);
-	// alert("from:"+width+" "+height+" "+fromLw+" "+toLw);
-	width = width - fromLw - toLw -x;
-	height = height - fromLw - toLw -x;
-	var w = width * hshrink;
-	var h = height * vshrink; 
-	switch (to.node().nodeName) {
-	case "TABLE":
-		 var tw = document.getElementById(toId).getBoundingClientRect().width;
-		 if (invalid(tw)) {
-		     to.attr("width", w);   
-	         }
-		 var th = document.getElementById(toId).getBoundingClientRect().height;
-		 if (invalid(th)) {
-		    to.attr("height", h);
-	        }
-		 break;
-	case "rect":
-		to.attr("width", w).attr("height", h).attr("x", toLw/2).attr("y", toLw/2);
-		break;
-	case "circle":
-		if (to.attr("r") == null) {
-			var side = Math.min(w, h);
-			w = side;
-			h = side;
-			var r = side / 2;
-			to.attr("cx", (w+toLw) / 2).attr("cy", (h+toLw) / 2).attr("r", r).
-			attr("width", w).attr("height", h);
-		}
-		break;
-	case "polygon":
-		if (to.attr("r") == null && to.attr("points") == null) {
-			var side = Math.min(w, h);
-			w = side;
-			h = side;
-			var r = (side/2.0);
-			to.attr("points", translatePoints(angle, n, r, (w+toLw)/2.0, (h+toLw)/2.0).map(
-					function(a) {
-						return [ a.x, a.y ].join(",");
-					}).join(" "));
-			to.attr("width", w).attr("height", h);
-			// var e = d3.select("#" + toId + "_circle");
-			// e.attr("cx", (w+toLw)/2).attr("cy", (h+toLw)/2).attr("r", r);
-			// e.attr("width", w).attr("height", h);
-		}
-		break;
-	case "ellipse":
-		if ((to.attr("rx") == null) && (to.attr("ry") == null)) {
-			var rx = w  / 2;
-			var ry = h  / 2;
-			to.attr("cx", (w+toLw) / 2).attr("cy", (h+toLw) / 2).attr("rx", rx).attr("ry",
-					ry).attr("width", w).attr("height", h);
-		}
-		break;
-	}
-	;
-	d3.select("#" + toId + "_fo_table").attr("w", w-toLw).attr(
-			"h", h-toLw);
-	d3.select("#" + toId + "_fo_table").style("width", w-toLw).style(
-			"height", h-toLw);
-	d3.select("#" + toId + "_fo").attr("width", w-toLw).attr("height",
-			h-toLw);
-	d3.select("#" + toId + "_outer_fo").attr("width", w-toLw).attr("height",
-			h-toLw);
-	d3.select("#" + toId + "_svg").attr("width", w+toLw+x).attr("height",
-			h+toLw+y);
-    }
-	    
+	 _adjust(toId, fromId, hshrink, vshrink, toLw, n, angle, x, y, width, height);
+    }	    
 
 function isObject(item) {
 	return (typeof item === "object" && !Array.isArray(item) && item !== null);
