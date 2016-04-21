@@ -132,4 +132,5 @@ Bundle-ClassPath: lib/snakeyaml-1.11.jar,
  lib/jline-2.13.jar,
  lib/capsule-0.1.0.jar,
  lib/value-0.5.3.jar,
+ lib/html2png.jar,
  .

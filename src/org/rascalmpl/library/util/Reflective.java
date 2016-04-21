@@ -80,6 +80,10 @@ public class Reflective {
 	}
 	
 	
+	public IValue getRascalClasspath(IEvaluatorContext ctx) {
+	    return values.string(ctx.getConfiguration().getRascalJavaClassPathProperty());
+	}
+	
 	IEvaluator<?> getDefaultEvaluator(PrintWriter stdout, PrintWriter stderr) {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
