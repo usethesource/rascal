@@ -83,7 +83,7 @@ Figure triangle(int alpha) = rotate(alpha, 100, 100,
          )
          ;
          
-Figure triangle() = overlay(figs=[triangle(0), triangle(120), triangle(-120)]);
+Figure triangle() = overlay(figs=[triangle(0), triangle(120), triangle(-120)], size=<200, 200>);
          
 void ttriangle() = render(triangle());
 
