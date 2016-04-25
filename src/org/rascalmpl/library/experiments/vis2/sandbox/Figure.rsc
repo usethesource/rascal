@@ -110,6 +110,7 @@ data Vertex
 	| lineBy(num x, num y)
 	| move(num x, num y)
 	| moveBy(num x, num y)
+	| arc(num rx, num ry, num rotation, bool largeArc, bool sweep, num x, num y)
 	;
 	
 alias Vertices = list[Vertex];
@@ -625,6 +626,18 @@ public Figure plot(Points xy, Rescale x, Rescale y, bool shapeCurved = true
 
 public Figure frame(Figure f, num shrink=1.0, num grow=1.0) {
       return box(lineWidth=0, fillColor="none", fig = f, shrink= shrink, grow = grow);
+      }
+      
+public Figure circleSegment(num cx = 100, num cy =100, num r =50, num startAngle = 0, num endAngle =60,
+      str fillColor = "", str lineColor = "", int lineWidth = -1, bool fill = true,tuple[int,int] size = <0,0>
+      ) {
+      num x1 = cx+ r*cos(startAngle/180*PI());
+      num y1 = cy+ r*sin(startAngle/180*PI());
+      num x2 = cx +r*cos(endAngle/180*PI());
+      num y2 = cy +r*sin(endAngle/180*PI());
+      Vertices v = [move(x1, y1), arc(r, r, 0, false, true, x2, y2)];
+      if (fill) v+= [line(cx, cy)];
+      return shape(v, fillColor = fillColor, lineColor = lineColor, lineWidth = lineWidth, shapeClosed=fill, size = size);
       }
       
 int currentColor = 7;

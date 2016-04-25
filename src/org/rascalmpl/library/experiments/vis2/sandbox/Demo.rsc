@@ -231,7 +231,7 @@ Vertices hilbert(num x0, num y0, num xis, num xjs, num yis, num yjs, int n){
 Figure demo5() = shape(hilbert(0, 0, 300, 0, 0, 300, 5), 
 								startMarker=box(size=<10,10>, fillColor="red"),
 								midMarker=box(size=<3,3>,fillColor="blue"),
-								endMarker=box(size=<10,10>,fillColor="green")
+								endMarker=box(size=<10,10>,fillColor="green"), size=<400, 400>
 					   );
 
 void hilbert1(){
@@ -512,7 +512,7 @@ public Figure hcat11() =
        box(padding=<0, 0, 0, 0>, lineWidth = 10, lineColor = "darkgrey"
        ,fig= ellipse(padding=<0, 0, 0, 0>
              ,fig=hcat(lineWidth=2, lineColor="brown", figs=rgbFigs) 
-       ,lineWidth = 10, lineColor= "yellow", grow = 1.45, fillColor="lightgrey",align = centerMid
+       ,lineWidth = 10, lineColor= "yellow", grow = 1.00, fillColor="lightgrey",align = centerMid
        )
  )
 ;

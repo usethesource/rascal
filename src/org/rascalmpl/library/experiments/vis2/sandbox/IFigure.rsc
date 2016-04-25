@@ -1606,15 +1606,24 @@ str trVertices(list[Vertex] vertices, bool shapeClosed = false, bool shapeCurved
 	return path;		   
 }
 
-bool isAbsolute(Vertex v) = (getName(v) == "line" || getName(v) == "move");
+bool isAbsolute(Vertex v) = (getName(v) == "line" || getName(v) == "move" || getName(v) == "arc");
 
-str directive(Vertex v) = ("line": "L", "lineBy": "l", "move": "M", "moveBy": "m")[getName(v)];
-
+str directive(Vertex v) {switch(getName(v)) {
+        case "line":return "L";
+        case "lineBy":return "l";
+        case "move":return "M";
+        case "moveBy":return "m";
+        case "arc": return "A <v.rx> <v.ry> <v.rotation> <v.largeArc?1:0> <v.sweep?1:0>";
+        }
+        return "";
+        }
+        
 str mS(Figure f, str v) = ((emptyFigure():=f)?"": v);
        
 IFigure _shape(str id, Figure f,  IFigure fig = iemptyFigure(0)) {
        num top = 0, bottom = screenHeight, left = 0, right = screenHeight;
        if (isEmpty(getFillColor(f))) f.fillColor= "white";
+       /*
        if (shape(list[Vertex] vs):= f) {
            top = min([yV(p)|p<-vs]);
            bottom = max([yV(p)|p<-vs]);
@@ -1629,14 +1638,14 @@ IFigure _shape(str id, Figure f,  IFigure fig = iemptyFigure(0)) {
             f.width = toInt(abs(f.scaleX[1][1]-f.scaleX[1][0]));
        if (abs(f.scaleY[1][1]-f.scaleY[1][0])>f.height)
            f.height = toInt(abs(f.scaleY[1][1]-f.scaleY[1][0]));
-       if (f.yReverse && f.scaleY==<<0,1>,<0,1>>) f.scaleY = <<0, f.height>, <f.height, 0>>;  
+       */
+       if (f.yReverse && f.scaleY==<<0,1>,<0,1>> && f.height>0) f.scaleY = <<0, f.height>, <f.height, 0>>;  
        str begintag = "";
        begintag+=
-         "\<svg id=\"<id>_svg\"\><visitDefs(id, true)><beginScale(f)> <beginRotate(f)> \<path id=\"<id>\"/\>       
+         "\<svg id=\"<id>_svg\"\><visitDefs(id, true)><if(f.yReverse){>\<g id=\"<id>_mirror\"\><}><beginRotate(f)>\<path id=\"<id>\"/\>       
          ";
-       str endtag = endRotate(f);  
-       endtag+=endScale(f);
-       endtag = "\</svg\>"; 
+       str endtag="<endRotate(f)>"; 
+       endtag += "<if(f.yReverse){>\</g\><}>\</svg\>"; 
        widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\")
