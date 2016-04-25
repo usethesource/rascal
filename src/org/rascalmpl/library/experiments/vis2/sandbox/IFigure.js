@@ -289,13 +289,15 @@ function nPoints(el) {
 }
 
 function fromInnerToOuterFigure(f, id1, toLw, hpad, vpad) {
+	// alert("noot");
 	var to = d3.select("#" + f.id);
     var from = d3.select("#"+id1);
     if (from.node().nodeName=="g") {
     	from = d3.select("#"+id1+"_svg");
     }
     var blow = 1.0;
-    if (from.node().nodeName=="rect") {
+    if (from.node().nodeName=="rect" || from.node().nodeName=="TABLE") {
+    	// alert("blow");
     	blow = Math.sqrt(2.0);
     }
     if (from.empty()) return;
@@ -442,6 +444,7 @@ function _adjust(toId, fromId, hshrink, vshrink, toLw, n, angle, x, y, width, he
 		break;
 	}
 	;
+	d3.select("#" + toId + "_mirror").attr("transform", "scale(1, -1) translate(0, -h)");
 	d3.select("#" + toId + "_fo_table").attr("w", w -toLw).attr(
 			"h",  h - toLw );
 	d3.select("#" + toId + "_fo_table").style("width", w -toLw).style(
