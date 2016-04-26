@@ -1135,8 +1135,10 @@ str addShape(Figure s) {
     'render.shapes().<s.id> = function (parent, bbox, node) {
     'var width = d3.select(\"#<s.id>\").attr(\"width\");
     'var height = d3.select(\"#<s.id>\").attr(\"height\");
-    'if (width==null)  width = d3.select(\"#<s.id>\").style(\"width\");
-    'if (height==null)  height = d3.select(\"#<s.id>\").style(\"height\");
+    'if (invalid(width))  width = d3.select(\"#<s.id>\").style(\"width\");
+    'if (invalid(height)) height = d3.select(\"#<s.id>\").style(\"height\");
+    'if (invalid(width))  width = d3.select(\"#<s.id>_svg\").attr(\"width\");
+    'if (invalid(height)) height = d3.select(\"#<s.id>_svg\").attr(\"height\");
     'width = parseInt(width);
     'height= parseInt(height);
     'var points = <dagrePoints(s)>();
@@ -1171,8 +1173,10 @@ str addShape(Figure s) {
     '     var z = d3.select(\"#\"+id);
     '     var width = z.attr(\"width\");
     '     var height =z.attr(\"height\");
-    '     if (width==null) width = z.style(\"width\");
-    '     if (height==null) height = z.style(\"height\");
+    '     if (invalid(width)) width = z.style(\"width\");
+    '     if (invalid(height)) height = z.style(\"height\");
+    '     if (invalid(width))  width =  d3.select(\"#\"+id+\"_svg\").attr(\"width\");
+    '     if (invalid(height)) height = d3.select(\"#\"+id+\"_svg\").attr(\"height\");
     '     width = parseInt(width);
     '     height= parseInt(height)+1;
     '     d3.select(\"#\"+id+\"_svg\")<attr1("x", "Math.floor(n.x-width/2+offset)")><attr1("y", "Math.floor(n.y-height/2)")>;

@@ -427,7 +427,7 @@ list[tuple[str, Figure]] flagNodes = [<"nl", dutch()>, <"be", belgium()>
                   edge("be", "fr"), edge("be", "de"), edge("fr", "it")];
                   
                  
-Figure gflags() = graph(flagNodes, flagEdges, size=<300, 600>);
+Figure gflags() = graph(nodes=flagNodes, edges=flagEdges, size=<300, 600>);
 
 void tgflags() = render(box(fig=gflags(), size=<400, 400>, align =  centerMid));
 
@@ -506,7 +506,7 @@ void tov()= render(ov());
 
 Figure demo15()= ov();
 
-list[Figure] rgbFigs = [box(fillColor="red",size=<50,100>), box(fillColor="green", size=<200,200>), box(fillColor="blue",  size=<10,10>)];
+list[Figure] rgbFigs = [box(fillColor="red",size=<50,100>), box(fillColor="antiquewhite", size=<200,200>), box(fillColor="blue",  size=<10,10>)];
 
 public Figure hcat11() = 
        box(padding=<0, 0, 0, 0>, lineWidth = 10, lineColor = "darkgrey"

@@ -88,3 +88,21 @@ Figure triangle() = overlay(figs=[triangle(0), triangle(120), triangle(-120)], s
 void ttriangle() = render(triangle());
 
 void ftriangle(loc f) = writeFile(f, toHtmlString(triangle(0)));  
+
+Figure n1 = box(fillColor = "palegreen", grow = 1.2, lineWidth=2, fig=text("Solve (sub)problem"));
+
+Figure n2 = box(fillColor = "palegreen", grow = 1.2, lineWidth=2, fig=text("Validate results"));
+
+Figure n3 = diamond(120, 70, "acceptable?", "lightskyblue");
+
+Figure n4 = ellipse(grow=1.5, fig= text("Improve"), fillColor = "lightyellow");
+
+list[tuple[str, Figure]] dnodes = [<"A", n1>, <"B", n2>, <"C", n3>, <"D", n4>];
+
+list[Edge] dedges = [edge("A", "B"), edge("B", "C"),  edge("C", "D"), edge("D", "A")];
+
+Figure dgram() = box(grow=1.2, fig=graph(nodes=dnodes, edges=dedges, size=<300, 300>));
+
+void tdgram() = render(dgram());
+
+void fdgram(loc f) = writeFile(f, toHtmlString(dgram())); 
