@@ -297,7 +297,6 @@ function fromInnerToOuterFigure(f, id1, toLw, hpad, vpad) {
     }
     var blow = 1.0;
     if (from.node().nodeName=="rect" || from.node().nodeName=="TABLE") {
-    	// alert("blow");
     	blow = Math.sqrt(2.0);
     }
     if (from.empty()) return;
@@ -314,9 +313,13 @@ function fromInnerToOuterFigure(f, id1, toLw, hpad, vpad) {
 		return;
 	toLw = corner(f.n, toLw);
 	fromLw =  corner(nPoints(from), fromLw);
+	if (from.node().nodeName== "TABLE") {
+        from.style("max-width", width).style("max-height", height);
+    }
 	width = width *   f.hgrow +  hpad + f.x+ fromLw+toLw
 	height = height * f.vgrow +  vpad + f.y+ fromLw+toLw;
-	switch (to.node().nodeName) {
+    
+	switch (to.node().nodeName) {	
 	case "rect":
 		to.attr("width", width).attr("height", height).attr("x", toLw/2).attr("y", toLw/2);
 		break;
@@ -554,7 +557,7 @@ function adjustText(id1) {
 			.attr("dy", ".3em");
 }
 
-function invalid(v) {return v==null || parseInt(v)>=upperBound || parseInt(v)<=lowerBound;}
+function invalid(v) {return v==null || v=="auto"|| parseInt(v)>=upperBound || parseInt(v)<=lowerBound;}
 
 function adjustTd(to, from) {
 	 var width = d3.select("#"+from).attr("width");
