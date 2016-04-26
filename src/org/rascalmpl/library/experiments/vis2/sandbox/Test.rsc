@@ -240,7 +240,7 @@ public void ftut(loc l) = writeFile(l, toHtmlString(
    tut(), cssFile = "tutor.css", size=<800, 800>
  ));
  
- public Figure elp() = ellipse(lineWidth = 10, align = bottomRight, grow = 1.5, fig=box(size=<50, 100>, fillColor="yellow", lineWidth =6));
+ public Figure elp() = ellipse(lineWidth = 10,   fig=box(size=<50, 100>, fillColor="yellow", lineWidth =6));
  
  public void telp() = render(elp());
  
