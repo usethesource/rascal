@@ -1,3 +1,4 @@
+
 [[Number-Equal]]
 # Number Equal
 :concept: Expressions/Values/Number/Equal

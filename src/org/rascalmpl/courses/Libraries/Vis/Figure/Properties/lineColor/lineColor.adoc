@@ -1,0 +1,43 @@
+[[Properties-lineColor]]
+# lineColor
+:concept: Vis/Figure/Properties/lineColor
+
+.Synopsis
+Defines the line color.
+
+.Syntax
+
+.Types
+
+.Function
+
+#  `FProperty lineColor(Color c)`
+#  `FProperty lineColor(str cname)`
+
+.Description
+Sets the color of lines and figure boundaries:
+
+#  Set color to `c`.
+#  Set color to color with name `cname`.
+
+
+Also see <<ColorModel>>
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(hcat(boxes));
+----
+gives:
+
+image::{concept}/lc1.png[alt="h1"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

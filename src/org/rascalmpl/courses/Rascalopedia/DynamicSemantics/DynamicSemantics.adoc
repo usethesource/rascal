@@ -1,3 +1,4 @@
+
 [[Rascalopedia-DynamicSemantics]]
 # Dynamic Semantics
 :concept: DynamicSemantics

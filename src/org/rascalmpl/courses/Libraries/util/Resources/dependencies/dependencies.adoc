@@ -1,0 +1,35 @@
+[[Resources-dependencies]]
+# dependencies
+:concept: util/Resources/dependencies
+
+.Synopsis
+Compute the (transitive) dependencies of a project.
+
+.Syntax
+
+.Types
+
+.Function
+`set[loc] dependencies(loc project)`
+
+.Description
+
+
+.Examples
+Assuming that the project `|project://example-project|` exists in the current workspace, we can get the following:
+[source,rascal-shell]
+----
+rascal>import util::Resources;
+[error] Cannot import module util::Resources AT |std:///experiments/Compiler/Compile.rsc|(0,51,<1,0>,<1,51>)
+rascal>dependencies(|project://example-project|);
+[error] Name dependencies is not in scope
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

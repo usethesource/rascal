@@ -65,9 +65,7 @@ This behaviour is applicable in the context of all Rascal constructs where a pat
 The following operators are provided for Boolean:
 subtoc::[1]
 
-The following library function are provided for Boolean:
-subtoc[Rascal/Libraries/Prelude/Boolean,1]
-
+There are also link:{Libraries}#Prelude-Boolean[library functions] available for Booleans.
 
 .Examples
 Consider the following match of a list

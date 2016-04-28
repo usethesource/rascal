@@ -1,0 +1,46 @@
+[[Properties-valign]]
+# valign
+:concept: Vis/Figure/Properties/valign
+
+.Synopsis
+Vertical alignment.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty valign(num v)`
+
+.Description
+Set the vertical alignment to `v`.
+
+Also see <<align>> and <<CompositionModel>>.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(b2);
+----
+
+
+image::{concept}/a1.png[alt="a1"]
+
+
+[source,rascal-shell]
+----
+rascal>render(b2);
+----
+
+
+image::{concept}/a2.png[alt="a2"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

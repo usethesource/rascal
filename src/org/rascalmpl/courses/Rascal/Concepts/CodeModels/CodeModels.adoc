@@ -1,3 +1,4 @@
+
 [[Concepts-CodeModels]]
 # Code Models
 :concept: Concepts/CodeModels
@@ -23,11 +24,11 @@ Specifically we have standardized a set of models to represent source code which
 *  a number of extensible <<Declarations-AlgebraicDataType, Algebraic Data Types>> for representing abstract syntax trees. 
 
 
-The core language independent model can be found here: <<analysis-m3>>
+The core language independent model can be found here: link:{Libraries}#analysis-m3[analysis::m3].
 
 Extensions for representing facts about specific languages:
 
-*  [lang/java/m3]
+*  link:{Libraries}#java-m3[lang::java::m3].
 
 .Examples
 

@@ -1,0 +1,54 @@
+
+[[Static-UndeclaredType]]
+# UndeclaredType
+:concept: Static/UndeclaredType
+
+.Synopsis
+Use of a type that has not been declared.
+
+.Syntax
+
+.Types
+
+.Function
+       
+.Usage
+
+.Description
+A type has to be declared before it can be used.
+This error is generated when an undeclared type is used.
+
+Remedies:
+
+*  Rename the type name.
+*  Declare the type.
+*  Import a module that declares the type. (Did you import all library modules?)
+
+.Examples
+Using the undeclared type `myint` gives an error:
+[source,rascal-shell-error]
+----
+rascal>myint incr(myint n) = n + 1;
+[error] Could not calculate function type because of errors calculating the parameter types IN 'myint incr(myint n)'
+[error] Type of pattern could not be computed IN 'myint n'
+[error] Type myint not declared
+----
+The solkution is to first declares `myint` (here as an alias for `int`):
+[source,rascal-shell-error]
+----
+rascal>alias myint = int;
+ok
+rascal>myint incr(myint n) = n + 1;
+ok
+rascal>incr(3);
+int: 4
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

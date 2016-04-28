@@ -1,0 +1,63 @@
+
+[[Static-UnsupportedSubscript]]
+# UnsupportedSubscript
+:concept: Static/UnsupportedSubscript
+
+.Synopsis
+A subscript is applied to a value that does not support it.
+
+.Syntax
+
+.Types
+
+.Function
+       
+.Usage
+
+.Description
+Subscription is available for values of various types including: 
+link:{RascalLang}#String-Subscription[string], 
+link:{RascalLang}#Node-Subscription[node],
+link:{RascalLang}#List-Subscription[list], 
+link:{RascalLang}#Map-Subscription[map], 
+link:{RascalLang}#Tuple-Subscription[tuple] and 
+link:{RascalLang}#Relation-Subscription[relation].
+This error is generated when subscription is applied to a value for which it is not defined.
+
+Remedies:
+
+*  Use another operation than subscription to extract the values you want.
+*  Use another type (that does support subscription) to represent your data.
+
+.Examples
+Here are some correct uses of subscription:
+[source,rascal-shell]
+----
+rascal>"abc"[1];
+str: "b"
+rascal>[1,2,3][1];
+int: 2
+rascal>"f"(1,2,3)[1];
+int: 2
+rascal>("a":1, "b":2, "c":3)["b"]
+int: 2
+----
+Here are some erroneous examples:
+[source,rascal-shell-error]
+----
+rascal>true[1];
+[error] Expressions of type bool cannot be subscripted IN 'true[1]'
+rascal>123[1];
+[error] Expressions of type int cannot be subscripted IN '123[1]'
+rascal>{1,2,3}[1];
+[error] Expressions of type set[int] cannot be subscripted IN '{1,2,3}[1]'
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

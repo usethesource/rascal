@@ -1,3 +1,4 @@
+
 [[Recipes-Visualization]]
 # Visualization
 :concept: Visualization
@@ -19,12 +20,6 @@ the information provided here maybe inaccurate or even incorrect
 We cover the following topics:
 
 
-** <<Visualization-ADT,ADT>>: Visualize an Algebraic Datatype as a tree.
-** <<Visualization-DrawLogo,Draw a Logo>>: Draw the Rascal logo.
-** <<Visualization-InteractiveBoxHeight,Interactive Box Height>>: Control the height of a box with user input.
-** <<Visualization-MyFirstBox,My First Box>>: Drawing a box in many variations.
-** <<Visualization-ParseTree,ParseTree>>: Visualize a parse tree.
-** <<Visualization-PlayingWithProperties,Playing With Properties>>: Illustrate the effect of various figure properties.
 
 .Examples
 

@@ -1,3 +1,4 @@
+
 [[Concepts-ImmutableValues]]
 # Immutable Values
 :concept: Concepts/ImmutableValues
@@ -55,7 +56,7 @@ In pointer-based languages and in object-oriented languages the change to the or
 via `M`.
 
 
-String values are, like all other values, also immutable. Let's experiment with the link::{Rascal}#replaceAll[] function:
+String values are, like all other values, also immutable. Let's experiment with the link:{Libraries}#String-replaceAll[replaceAll] function:
 [source,rascal-shell]
 ----
 rascal>import String;

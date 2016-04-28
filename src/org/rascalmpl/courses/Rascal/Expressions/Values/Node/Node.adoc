@@ -1,3 +1,4 @@
+
 [[Values-Node]]
 # Node
 :concept: Expressions/Values/Node
@@ -32,14 +33,6 @@ Nodes can have <<Declarations-Annotation>>s.
 
 The following are provided for nodes:
 
-**** <<Node-Equal,Node Equal>>: Equal operator on node values.
-**** <<Node-GreaterThan,Node GreaterThan>>: Greater than operator on node values.
-**** <<Node-GreaterThanOrEqual,Node GreaterThanOrEqual>>: Greater than or equal operator on node values.
-**** <<Node-LessThan,Node LessThan>>: Less than operator on node values.
-**** <<Node-LessThanOrEqual,Node LessThanOrEqual>>: Less than or equal operator on node values.
-**** <<Node-NotEqual,Node NotEqual>>: Not equal operator on node values.
-**** <<Node-Slice,Node Slice>>: Retrieve a slice of a node's argument list.
-**** <<Node-Subscription,Node Subscription>>: Retrieve an argument of a node via its index.
 
 .Examples
 

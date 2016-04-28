@@ -1,3 +1,4 @@
+
 [[Abstract-MultiVariable]]
 # MultiVariable Pattern
 :concept: Patterns/Abstract/MultiVariable

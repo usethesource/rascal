@@ -1,0 +1,60 @@
+
+[[Libraries-util]]
+# util
+:concept: util
+
+.Synopsis
+Utilities: functions, data types and interfaces with external libraries.
+
+.Description
+
+
+** <<util-Benchmark,Benchmark>>: Functions for time measurement and benchmarking.
+** <<util-Clipboard,Clipboard>>: 
+** <<util-ContentCompletion,ContentCompletion>>: 
+** <<util-Editors,Editors>>: 
+** <<util-Eval,Eval>>: Evaluate a (list of) Rascal commands and return the value of the last command.
+** <<util-IDE,IDE>>: 
+*** <<IDE-DocumentationHover,DocumentationHover>>: Show documentation strings by hovering over elements of the source text in the IDE.
+*** <<IDE-ErrorMarking,ErrorMarking>>: Visual and browsable error messages in the IDE.
+*** <<IDE-Folding,Folding>>: Editors may hide (fold) certain parts of a source text based on `foldable` annotations.
+*** <<IDE-Hyperlinking,Hyperlinking>>: Hyperlinks in source code.
+*** <<IDE-Menus,Menus>>: menus in the IDE can be used to call Rascal functions with source texts as arguments and source texts as output.
+*** <<IDE-Outline,Outline>>: An outline is an IDE view with hyperlinks that quickly visualizes an outline of a source code file.
+*** <<IDE-Plugin,Plugin>>: .
+** <<util-Math,Math>>: Mathematical functions.
+** <<util-Monitor,Monitor>>: Monitor the progress of a task/job.
+** <<util-ParseTreeUI,ParseTreeUI>>: 
+*** <<PriorityQueue-extractMinimum,extractMinimum>>: Extract minimum element from priority queue.
+*** <<PriorityQueue-findMinimum,findMinimum>>: Find the minimum priority in a priority queue.
+*** <<PriorityQueue-insertElement,insertElement>>: Insert an element in a priority queue.
+*** <<PriorityQueue-isEmpty,isEmpty>>: Check whether priority queue is empty.
+*** <<PriorityQueue-mkPriorityQueue,mkPriorityQueue>>: Create a priority queue.
+** <<util-Prompt,Prompt>>: 
+** <<util-ResourceMarkers,ResourceMarkers>>: 
+
+:leveloffset: +1
+include::Benchmark/Benchmark.adoc[Benchmark]
+
+include::Clipboard/Clipboard.adoc[Clipboard]
+
+include::ContentCompletion/ContentCompletion.adoc[ContentCompletion]
+
+include::Editors/Editors.adoc[Editors]
+
+include::Eval/Eval.adoc[Eval]
+
+include::IDE/IDE.adoc[IDE]
+
+include::Math/Math.adoc[Math]
+
+include::Monitor/Monitor.adoc[Monitor]
+
+include::ParseTreeUI/ParseTreeUI.adoc[ParseTreeUI]
+
+include::Prompt/Prompt.adoc[Prompt]
+
+include::ResourceMarkers/ResourceMarkers.adoc[ResourceMarkers]
+
+
+:leveloffset: -1

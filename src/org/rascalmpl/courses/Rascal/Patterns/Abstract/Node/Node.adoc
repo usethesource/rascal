@@ -1,3 +1,4 @@
+
 [[Abstract-Node]]
 # Node pattern
 :concept: Patterns/Abstract/Node

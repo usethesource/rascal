@@ -15,8 +15,3 @@ Test Case
 .Details
 
 .Description
-
-[source,rascal-shell]
-----
-L = 2/0;
-----

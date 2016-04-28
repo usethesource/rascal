@@ -1,0 +1,43 @@
+
+[[IDE-Menus]]
+# Menus
+:concept: util/IDE/Menus
+
+.Synopsis
+menus in the IDE can be used to call Rascal functions with source texts as arguments and source texts as output
+
+.Syntax
+
+.Types
+
+.Function
+
+.Description
+
+You can use this library module to define the menu structure and menu items, after which you need to register it with the IDE:
+[source,rascal-shell]
+----
+rascal>import util::IDE;
+[error] Cannot import module util::IDE AT |std:///experiments/Compiler/Compile.rsc|(0,51,<1,0>,<1,51>)
+rascal>import ParseTree;
+ok
+rascal>m1 = popup(menu("MyMenu", [action("Example item", void (Tree t, loc s) { println("<t> @ <s>");})]));
+[error] Name popup is not in scope
+[error] Name println is not in scope
+[error] Name action is not in scope
+[error] Name menu is not in scope
+rascal>registerContributions("myLanguage", {m1});
+[error] Name m1 is not in scope
+[error] Name registerContributions is not in scope
+----
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

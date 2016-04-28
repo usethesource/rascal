@@ -1,3 +1,4 @@
+
 [[Rascalopedia-Refactoring]]
 # Refactoring
 :concept: Refactoring

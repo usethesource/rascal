@@ -1,3 +1,4 @@
+
 [[Enumerators-EquationSolving]]
 # Equation Solving
 :concept: Concepts/Enumerators/EquationSolving

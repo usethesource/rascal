@@ -1,0 +1,25 @@
+[[Properties-onClick]]
+# onClick
+:concept: Vis/Figure/Properties/onClick
+
+.Synopsis
+Old name for [onMouseDown]. (__deprecated__)
+
+.Syntax
+
+.Types
+
+.Function
+
+.Description
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

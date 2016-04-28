@@ -1,3 +1,4 @@
+
 [[Values-Boolean]]
 # Boolean
 :concept: Expressions/Values/Boolean
@@ -64,21 +65,8 @@ This behaviour is applicable in the context of all Rascal constructs where a pat
 
 The following operators are provided for Boolean:
 
-**** <<Boolean-All,Boolean All>>: All argument expressions are true.
-**** <<Boolean-And,Boolean And>>: Boolean _and_ operator.
-**** <<Boolean-Any,Boolean Any>>: Any combination of argument values is true.
-**** <<Boolean-Equivalence,Boolean Equivalence>>: The _equivalence_ operator on Boolean values.
-**** <<Boolean-IfDefinedElse,Boolean IfDefinedElse>>: Test whether expression has a defined value, otherwise provide alternative.
-**** <<Boolean-Implication,Boolean Implication>>: The _implication_ operator on Boolean values.
-**** <<Boolean-IsDefined,Boolean IsDefined>>: Test whether the value of an expression is defined.
-**** <<Boolean-Match,Boolean Match>>: Match a pattern against an expression.
-**** <<Boolean-Negation,Boolean Negation>>: The _not_ operator on Boolean values.
-**** <<Boolean-NoMatch,Boolean NoMatch>>: Negated [Boolean Match] operator.
-**** <<Boolean-Or,Boolean Or>>: The _or_ operator on Boolean values.
 
-The following library function are provided for Boolean:
-subtoc[Rascal/Libraries/Prelude/Boolean,1]
-
+There are also link:{Libraries}#Prelude-Boolean[library functions] available for Booleans.
 
 .Examples
 Consider the following match of a list

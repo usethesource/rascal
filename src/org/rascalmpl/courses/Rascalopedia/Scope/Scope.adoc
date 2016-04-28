@@ -1,3 +1,4 @@
+
 [[Rascalopedia-Scope]]
 # Scope
 :concept: Scope

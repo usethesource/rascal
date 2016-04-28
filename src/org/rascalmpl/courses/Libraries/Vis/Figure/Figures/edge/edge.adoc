@@ -1,0 +1,34 @@
+[[Figures-edge]]
+# edge
+:concept: Vis/Figure/Figures/edge
+
+.Synopsis
+An edge in a graph.
+
+.Syntax
+
+.Types
+
+.Function
+`Edge edge(str from, str to, FProperty props...)`
+
+.Description
+An edge connects nodes in <<Figures-graph>>s.
+The arguments `from` and `to` are node <<id>>s.
+
+Applicable properties are:
+
+*  [fromArrow]
+*  [toArrow]
+
+.Examples
+See <<Figures-graph>>.
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

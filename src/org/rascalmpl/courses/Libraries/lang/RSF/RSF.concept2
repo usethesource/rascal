@@ -25,7 +25,7 @@ $RelName$ $Elem_1$ $Elem_2$
 where _RelName_ is the name of a relation and _Elem_~1~ and _Elem_~2~ are element values.
 
 Provides the following function:
-subtoc[Rascal/Libraries/lang/RSF,1]
+subtoc::[1]
 
 .Examples
 [source,rascal]

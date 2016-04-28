@@ -1,0 +1,34 @@
+[[Properties-layer]]
+# layer
+:concept: Vis/Figure/Properties/layer
+
+.Synopsis
+A layer in a [$Figures/graph].
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty layer(str name)`
+
+.Description
+Introduces a named layer in a <<Figures-graph>>. All nodes with the same layer name are placed in the same layer.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(graph(nodes, edges, gap(20), std(size(50))));
+----
+
+image::{concept}/l1.png[alt="l1"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

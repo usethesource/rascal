@@ -1,3 +1,4 @@
+
 [[Rascalopedia-DomainSpecificLanguage]]
 # Domain Specific Language
 :concept: DomainSpecificLanguage

@@ -67,8 +67,8 @@ The points we want to make are:
 *  Given a syntax definition, it can be used immediately for parsing.
 
 
-See link:{Recipes}[Recipes] for a more extensive presentation of the link:{Recipes}#Exp[EXP]
-language and link::{Recipes}#Languages[Languages] for other language examples.
+See link:{Recipes}[Recipes] for a more extensive presentation of the link:{Recipes}#Languages-Exp[EXP]
+language and link:{Recipes}#Languages[Languages] for other language examples.
 
 .Benefits
 

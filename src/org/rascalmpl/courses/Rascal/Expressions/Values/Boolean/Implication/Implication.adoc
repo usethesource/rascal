@@ -1,3 +1,4 @@
+
 [[Boolean-Implication]]
 # Boolean Implication
 :concept: Expressions/Values/Boolean/Implication

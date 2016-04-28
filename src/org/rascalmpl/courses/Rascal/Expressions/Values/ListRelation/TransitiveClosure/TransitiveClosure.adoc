@@ -1,3 +1,4 @@
+
 [[ListRelation-TransitiveClosure]]
 # ListRelation Transitive Closure
 :concept: Expressions/Values/ListRelation/TransitiveClosure

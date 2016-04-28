@@ -1,0 +1,34 @@
+[[ColorModel-colorScale]]
+# colorScale
+:concept: Vis/Figure/ColorModel/colorScale
+
+.Synopsis
+Compute a color scale for range of values.
+
+.Syntax
+
+.Types
+
+.Function
+`Color(&T <: num) colorScale(list[&T <: num] values, Color from, Color to)`
+
+.Description
+Given a list of numbers `values`, `colorScale` returns a function that maps these numbers to a color scale between the colors `from` and `to`.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(hcat(boxes));
+----
+gives 
+image::{concept}/h1.png[alt="h1"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

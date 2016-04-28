@@ -1,3 +1,4 @@
+
 [[CompareWithOtherParadigms]]
 # Comparison with other Paradigms
 include::../CommonDefs.adoc[]

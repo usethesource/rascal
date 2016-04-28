@@ -1,7 +1,13 @@
 # Errors in Course ADocTest
-* __ADocTest__:
+* __ADocTest/analysis/AnyModule__:
 ```
-ArithmeticException("/ by zero") at |test-modules:///ConsoleInput.rsc|(36,3,<3,15>,<3,18>)
-Call stack (most recent first):
-	main([]) at |test-modules:///ConsoleInput.rsc|(36,3,<3,15>,<3,18>)
+[error] Name mix is not in scope
+```
+* __ADocTest/analysis/AnyModule__:
+```
+[error] Name mix is not in scope
+```
+* __ADocTest/analysis/AnyModule__:
+```
+[error] Name mix is not in scope
 ```

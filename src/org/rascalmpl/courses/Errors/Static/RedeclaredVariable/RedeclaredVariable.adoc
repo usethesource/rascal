@@ -1,0 +1,36 @@
+
+[[Static-RedeclaredVariable]]
+# RedeclaredVariable
+:concept: Static/RedeclaredVariable
+
+.Synopsis
+A variable with the same name has been declared in the same scope.
+
+.Syntax
+
+.Types
+
+.Function
+       
+.Usage
+
+.Description
+Remedy: rename one of the variables.
+
+.Examples
+[source,rascal-shell-error]
+----
+rascal>int n = 3;
+int: 3
+rascal>int n = 4;
+int: 4
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

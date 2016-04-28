@@ -35,7 +35,7 @@ Each Resource, but the root, has an `id` field that explains the exact location 
 The schema `project` that is supported by source locations (see <<Values-Location>>) gives direct access to Eclipse projects.
 
 The `Resource` library provides the following:
-subtoc[Rascal/Libraries/util/Resources,1]
+subtoc::[1]
 
 .Examples
 A location that points to a project in the Eclipse workspace  named "myProject":

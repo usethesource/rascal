@@ -1,3 +1,4 @@
+
 [[Common-AdHocDataExploration]]
 # Ad Hoc Data Exploration
 :concept: Common/AdHocDataExploration

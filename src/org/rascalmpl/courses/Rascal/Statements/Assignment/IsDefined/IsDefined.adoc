@@ -1,3 +1,4 @@
+
 [[Assignment-IsDefined]]
 # IsDefined
 :concept: Statements/Assignment/IsDefined

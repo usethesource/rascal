@@ -1,3 +1,4 @@
+
 [[Statements-Fail]]
 # Fail
 :concept: Statements/Fail
@@ -35,7 +36,8 @@ When `fail` is executed:
 
 .Examples
 
-Here is an example taken from link::{Recipes}#Bubble[Bubble]. It uses a `fail` for the case that no unsorted element can be found in the list of numbers.
+Here is an example taken from link:{Recipes}#Bubble[Bubble]. 
+It uses a `fail` for the case that no unsorted element can be found in the list of numbers.
 As a result, the whole case fails and the default case is used.
 [source,rascal-shell]
 ----

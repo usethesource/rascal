@@ -1,3 +1,4 @@
+
 [[StaticTyping-ReifiedTypes]]
 # Reified Types
 :concept: Declarations/StaticTyping/ReifiedTypes

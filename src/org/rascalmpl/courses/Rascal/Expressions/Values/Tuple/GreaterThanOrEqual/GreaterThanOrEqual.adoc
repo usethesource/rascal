@@ -1,3 +1,4 @@
+
 [[Tuple-GreaterThanOrEqual]]
 # Tuple GreaterThanOrEqual
 :concept: Expressions/Values/Tuple/GreaterThanOrEqual

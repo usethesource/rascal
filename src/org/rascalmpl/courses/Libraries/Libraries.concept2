@@ -1,7 +1,8 @@
 # Libraries
+:toclevels: 2
 
 .Synopsis
-The available Rascal libraries.
+The available link:{RascalLang}[Rascal] libraries.
 
 .Syntax
 
@@ -15,7 +16,7 @@ The available Rascal libraries.
 
 
 The libraries described here provide the following functionality:
-subtoc[Rascal/Libraries,1]
+subtoc::[1]
 
 .Examples
 

@@ -1,0 +1,105 @@
+[[Figure-Figures]]
+# Figures
+:concept: Vis/Figure/Figures
+
+.Synopsis
+Overview of all figures.
+
+.Syntax
+
+.Types
+
+*  `Figure`
+*  `alias Figures = list[Figure];`
+
+.Function
+
+.Description
+`Figure` is the primary data type that represents figures. A list of figures is represented by the type `Figures`.
+Figures can be classified as follows:
+
+*  __Atomic Figures__: indivisible figures such as [$Figures/text] and [$Figures/outline].
+*  __Containers__: most figures may act as containers for other figures. For example, a [box] and [ellipse] may contain 
+  an arbitrarily complex subfigure.
+*  __Compositions__: serve to combine figures into new figures. Examples are horizontal ([hcat]) or vertical ([vcat]) concatenation 
+  or placement of figures in a <<grid>>, <<Figures-graph>> or <<Figures-tree>>.
+*  __Transformations__: perform geometric transformations on a given figure.
+*  __Interaction__: provide interaction with the user, see [computeFigure], [fswitch], [button], [textfield], [combo],
+  <<checkbox>>, <<scaleSlider>>,<<scrollable>>, <<hscrollable>> and <<vscrollable>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+We are cheating a bit with the above data declaration for Figure. 
+The current version of Rascal does not yet support data constructors with a variable number of arguments as needed
+for the properties. At the moment, the above constructors are provided as Rascal functions that can
+have variable arguments, see <<Function Declaration>>.
+
+
+:leveloffset: +1
+include::LineDecoration/LineDecoration.adoc[LineDecoration]
+
+include::box/box.adoc[box]
+
+include::button/button.adoc[button]
+
+include::checkbox/checkbox.adoc[checkbox]
+
+include::choice/choice.adoc[choice]
+
+include::combo/combo.adoc[combo]
+
+include::computeFigure/computeFigure.adoc[computeFigure]
+
+include::edge/edge.adoc[edge]
+
+include::ellipse/ellipse.adoc[ellipse]
+
+include::fswitch/fswitch.adoc[fswitch]
+
+include::graph/graph.adoc[graph]
+
+include::grid/grid.adoc[grid]
+
+include::hcat/hcat.adoc[hcat]
+
+include::hscreen/hscreen.adoc[hscreen]
+
+include::hscrollable/hscrollable.adoc[hscrollable]
+
+include::hvcat/hvcat.adoc[hvcat]
+
+include::outline/outline.adoc[outline]
+
+include::overlay/overlay.adoc[overlay]
+
+include::pack/pack.adoc[pack]
+
+include::rotate/rotate.adoc[rotate]
+
+include::scale/scale.adoc[scale]
+
+include::scaleSlider/scaleSlider.adoc[scaleSlider]
+
+include::scrollable/scrollable.adoc[scrollable]
+
+include::space/space.adoc[space]
+
+include::text/text.adoc[text]
+
+include::textfield/textfield.adoc[textfield]
+
+include::tree/tree.adoc[tree]
+
+include::treemap/treemap.adoc[treemap]
+
+include::vcat/vcat.adoc[vcat]
+
+include::vscreen/vscreen.adoc[vscreen]
+
+include::vscrollable/vscrollable.adoc[vscrollable]
+
+
+:leveloffset: -1

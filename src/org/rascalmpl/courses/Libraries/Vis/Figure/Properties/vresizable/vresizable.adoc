@@ -1,0 +1,29 @@
+[[Properties-vresizable]]
+# vresizable
+:concept: Vis/Figure/Properties/vresizable
+
+.Synopsis
+Define whether figure is resizable in the vertical direction.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty vresizable(bool vr)`
+
+.Description
+Define whether a figure can be resized in the vertical direction.
+
+Also see: <<resizable>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

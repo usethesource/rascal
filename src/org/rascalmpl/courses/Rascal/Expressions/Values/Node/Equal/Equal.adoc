@@ -1,3 +1,4 @@
+
 [[Node-Equal]]
 # Node Equal
 :concept: Expressions/Values/Node/Equal

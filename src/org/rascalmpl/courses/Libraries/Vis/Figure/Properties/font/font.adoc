@@ -1,0 +1,43 @@
+[[Properties-font]]
+# font
+:concept: Vis/Figure/Properties/font
+
+.Synopsis
+Define font to be used for text.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty font(str fname)`
+
+.Description
+Sets the font to be used for text.
+See <<fontNames>> for a list of available fonts.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(t1);
+----
+
+image::{concept}/f1.png[alt="font 1"]
+
+
+[source,rascal-shell]
+----
+rascal>render(t2);
+----
+
+image::{concept}/f2.png[alt="font 2"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

@@ -1,3 +1,4 @@
+
 [[SyntaxDefinition-AmbiguityDetection]]
 # Ambiguity Detection
 :concept: Declarations/SyntaxDefinition/AmbiguityDetection

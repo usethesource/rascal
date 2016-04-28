@@ -1,3 +1,4 @@
+
 [[Rascal-Patterns]]
 # Patterns
 :concept: Patterns
@@ -14,7 +15,7 @@ The various patterns that can be used for pattern matching.
 .Description
 
 The following patterns are available:
-subtoc[Rascal/Patterns,1]
+
 
 Patterns may be used in:
 

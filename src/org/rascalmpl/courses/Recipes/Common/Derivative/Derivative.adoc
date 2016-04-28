@@ -1,3 +1,4 @@
+
 [[Common-Derivative]]
 # Derivative
 :concept: Common/Derivative

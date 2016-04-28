@@ -1,3 +1,4 @@
+
 [[Rascalopedia]]
 # Rascalopedia
 include::../CommonDefs.adoc[]
@@ -24,33 +25,6 @@ Rascalopedia is work in progress. Please send us your suggestions for new concep
 This are the currently covered topics:
 
 
-* <<Rascalopedia-AbstractDataType,AbstractDataType>>: A definition of a data type.
-* <<Rascalopedia-AbstractSyntaxTree,Abstract Syntax Tree>>: Representation of the abstract syntactic structure of a program.
-* <<Rascalopedia-Compiler,Compiler>>: Tranform source code to an executable form.
-* <<Rascalopedia-DomainSpecificLanguage,Domain Specific Language>>: Programming language targeted for a particular application domain.
-* <<Rascalopedia-DynamicSemantics,Dynamic Semantics>>: Description of the execution behaviour of a program.
-* <<Rascalopedia-Grammar,Grammar>>: A synonym for <<Syntax>>.
-* <<Rascalopedia-Interpreter,Interpreter>>: Directly execute the statements of a program.
-* <<Rascalopedia-Language,Language>>: The set of strings defined by a <<Grammar>>.
-* <<Rascalopedia-LanguageDefinition,Language Definition>>: Description of all aspects of a language.
-* <<Rascalopedia-List,List>>: An ordered sequence of values.
-* <<Rascalopedia-MetaProgramming,MetaProgramming>>: Analysis or transformation of one program by another program.
-* <<Rascalopedia-ParseTree,ParseTree>>: Detailed represention of the concrete syntactic structure of a program.
-* <<Rascalopedia-Parser,Parser>>: Check that a text adheres to the rules of a language (and return a <<ParseTree>>).
-* <<Rascalopedia-Prettyprinter,Prettyprinter>>: Transform an <<Abstract Syntax Tree>> into a formatted string.
-* <<Rascalopedia-Refactoring,Refactoring>>: Restructuring source code to improve its internal structure without changing its external behaviour.
-* <<Rascalopedia-Relation,Relation>>: An unordered set of tuples.
-* <<Rascalopedia-Scope,Scope>>: The visibility and accessibility of names in a program.
-* <<Rascalopedia-Set,Set>>: An unordered collection of values without duplicates.
-* <<Rascalopedia-SoftwareEngineering,Software Engineering>>: Discpline of design, building and maintaining software.
-* <<Rascalopedia-SoftwareEvolution,Software Evolution>>: Understanding and managing the continuous change of software.
-* <<Rascalopedia-SoftwareMetric,Software Metric>>: A metric to measure a source code property.
-* <<Rascalopedia-StaticSemantics,Static Semantics>>: Description of the properties of a program that can be determined/checked before it is executed.
-* <<Rascalopedia-Syntax,Syntax>>: The rules that describe correctly structured programs in a language.
-* <<Rascalopedia-Testing,Testing>>: Determine that the quality and functionality of software.
-* <<Rascalopedia-Tuple,Tuple>>: An ordered, fixed length, sequence of values of possibly different type.
-* <<Rascalopedia-Typechecker,Typechecker>>: Checks the type rules for a source language.
-* <<Rascalopedia-Visualization,Visualization>>: Visual presentation of scientific or abstract data.
 
 
 :leveloffset: +1

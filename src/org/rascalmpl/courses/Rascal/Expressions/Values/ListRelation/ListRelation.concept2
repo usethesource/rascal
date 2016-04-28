@@ -43,8 +43,7 @@ Since list relations are a form of list all operations (see <<Values-List>>) and
 The following additional operators are provided for list relations:
 subtoc::[1]
 
-The following additional functions are provided on list relations:
-subtoc[Rascal/Libraries/Prelude/ListRelation,1]
+There are also link:{Libraries}#Prelude-ListRelation[library functions] available for ListRelation.
 
 
 .Examples

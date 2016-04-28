@@ -1,3 +1,4 @@
+
 [[Abstract-Descendant]]
 # Descendant Pattern
 :concept: Patterns/Abstract/Descendant

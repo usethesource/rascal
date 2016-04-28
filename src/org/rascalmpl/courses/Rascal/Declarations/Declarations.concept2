@@ -14,7 +14,7 @@ Module Import Program StaticTyping AlgebraicDataType Variable Function SyntaxDef
 
 .Description
 The following concepts are relevant for declarations:
-subtoc[Rascal/Declarations,1]
+subtoc::[1]
 
 
 .Examples

@@ -1,0 +1,44 @@
+[[Properties-fontNames]]
+# fontNames
+:concept: Vis/Figure/Properties/fontNames
+
+.Synopsis
+The available font names.
+
+.Syntax
+
+.Types
+
+.Function
+`list[str] fontNames()`
+
+.Description
+Gives a list of names of available fonts.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import vis::Figure;
+ok
+rascal>fontNames();
+list[str]: ["Academy Engraved LET","Al Bayan","Al Bayan","Al Nile","Al Nile","Al Tarikh","American Typewriter","American Typewriter","American Typewriter","American Typewriter","American Typewriter","American Typewriter","Andale Mono","Arial","Arial","Arial","Arial","Arial Black","Arial Hebrew","Arial Hebrew","Arial Hebrew","Arial Hebrew Scholar","Arial Hebrew Scholar","Arial Hebrew Scholar","Arial Narrow","Arial Narrow","Arial Narrow","Arial Narrow","Arial Rounded MT Bold","Arial Unicode MS","Athelas","Athelas","Athelas","Athelas","Avenir","Avenir","Avenir","Avenir","Avenir","Avenir","Avenir","Avenir","Avenir","Avenir","Avenir","Avenir","Avenir Next","Avenir Next","Avenir Next","Avenir Next","Avenir Next","Avenir Next","Avenir Next","Avenir Next","Avenir Next","Avenir Next","Avenir Next","Avenir Next","Avenir Next Condensed","Avenir Next Condensed","Avenir Next Condensed","Avenir Next Condensed","Avenir Next Condensed","Avenir Next Condensed","Avenir Next Condensed","Avenir Next Condensed","Avenir Next Condensed","Avenir Next Condensed","Avenir Next Condensed","Avenir Next Condensed","Ayuthaya","Baghdad","Bangla MN","Bangla MN","Bangla Sangam MN","Bangla Sangam MN","Bank Gothic","Bank Gothic","Baoli SC","Baskerville","Baskerville","Baskerville","Baskerville","Baskerville","Baskerville","Beirut","Big Caslon","Blackmoor LET","BlairMdITC TT","Bodoni 72","Bodoni 72","Bodoni 72","Bodoni 72 Oldstyle","Bodoni 72 Oldstyle","Bodoni 72 Oldstyle","Bodoni 72 Smallcaps","Bodoni Ornaments","Bordeaux...
+----
+
+The available fonts (on the machine on which this page was generated) are
+<xfigure f1.png>
+//samples =  [ text(f, font(f), fontSize(12), left()) | f <- fontNames()];
+//render(grid(samples, size(700), gap(350, 20), left(), bottom()));
+----
+
+image::{concept}/f1.png[alt="font names"]
+
+
+.Benefits
+
+.Pitfalls
+The available fonts are system and installation dependent.
+
+
+:leveloffset: +1
+
+:leveloffset: -1

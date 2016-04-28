@@ -1,3 +1,4 @@
+
 [[Visualization-DrawLogo]]
 # Draw a Logo
 :concept: Visualization/DrawLogo

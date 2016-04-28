@@ -1,3 +1,4 @@
+
 [[Values-Void]]
 # Void
 :concept: Expressions/Values/Void

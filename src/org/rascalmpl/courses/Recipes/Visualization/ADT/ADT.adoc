@@ -1,3 +1,4 @@
+
 [[Visualization-ADT]]
 # ADT
 :concept: Visualization/ADT
@@ -32,7 +33,8 @@ include::{LibDir}demo/vis/VisADT.rsc[tags=module]
     two ColoredTrees as children.
 
 
-For the example `ColoredTree` `rb` we can set a standard (see link::{Rascal}#std[]) link::{Rascal}#Properties-size[] and standard link::{Rascal}#Properties-gap[]:
+For the example `ColoredTree` `rb` we can set a standard 
+(see link:{Libraries}#std[]) link:{Libraries}#Properties-size[size] and standard link:{Libraries}#Properties-gap[gap]:
 [source,rascal-shell]
 ----
 rascal>render(space(visColoredTree(rb), std(size(30)), std(gap(30))));
@@ -49,7 +51,8 @@ Note that:
 *  We use `std(size(30))` and ` std(gap(30))` to achieve that these properties are set for all subfigures.
 
 
-Some further custumizations are possible. By default, the tree visualization uses link::{Rascal}#manhattan[] style. If we turn it off
+Some further custumizations are possible. By default, the tree visualization 
+uses link:{Libraries}#Properties-manhattan[manhattan] style. If we turn it off
 [source,rascal-shell]
 ----
 rascal>render(space(visColoredTree(rb), std(size(30)), std(gap(30)), std(manhattan(false))));
@@ -60,7 +63,7 @@ the result is:
 image::{concept}/a2.png[alt="a2"]
 
 
-It is also possible to change the link::{Rascal}#orientation[] of the tree and draw it, for example, from left to right:
+It is also possible to change the link:{Libraries}#Properties-orientation[orientation] of the tree and draw it, for example, from left to right:
 [source,rascal-shell]
 ----
 rascal>render(space(visColoredTree(rb), std(size(30)), std(gap(30)), std(orientation(leftRight()))));

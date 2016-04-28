@@ -1,3 +1,4 @@
+
 [[Number-Multiplication]]
 # Number Multiplication
 :concept: Expressions/Values/Number/Multiplication

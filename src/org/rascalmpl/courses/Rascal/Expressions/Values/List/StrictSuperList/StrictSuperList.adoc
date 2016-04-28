@@ -1,3 +1,4 @@
+
 [[List-StrictSuperList]]
 # List StrictSuperList
 :concept: Expressions/Values/List/StrictSuperList

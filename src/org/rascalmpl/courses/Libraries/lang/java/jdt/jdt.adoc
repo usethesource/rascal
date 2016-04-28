@@ -1,0 +1,13 @@
+
+[[java-jdt]]
+# jdt
+:concept: lang/java/jdt
+
+.Synopsis
+tools for Java provided via reusing the Eclipse JDT
+
+:leveloffset: +1
+include::m3/m3.adoc[m3]
+
+
+:leveloffset: -1

@@ -41,8 +41,7 @@ it has to be prefixed by the splice operator `*`.
 The following operators are provided on list:
 subtoc::[1]
 
-The following functions are provided for lists:
-subtoc[Rascal/Libraries/Prelude/List,1]
+There are also link:{Libraries}#Prelude-List[library functions] available for List.
 
 .Examples
 [source,rascal-shell]

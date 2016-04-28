@@ -1,0 +1,24 @@
+
+[[util-IDE]]
+# IDE
+:concept: util/IDE
+
+WARNING: documentation awaits Eclipse integration
+
+:leveloffset: +1
+include::DocumentationHover/DocumentationHover.adoc[DocumentationHover]
+
+include::ErrorMarking/ErrorMarking.adoc[ErrorMarking]
+
+include::Folding/Folding.adoc[Folding]
+
+include::Hyperlinking/Hyperlinking.adoc[Hyperlinking]
+
+include::Menus/Menus.adoc[Menus]
+
+include::Outline/Outline.adoc[Outline]
+
+include::Plugin/Plugin.adoc[Plugin]
+
+
+:leveloffset: -1

@@ -15,20 +15,19 @@ Illegal operation on an empty list.
 .Details
 
 .Description
-Rascal provides many operations and functions on lists, see link::{Rascal}#Values-List[] and link::{Rascal}#Prelude-List[].
+Rascal provides many operations and functions on lists, see link:{RascalLang}#Values-List[list values] 
+and link:{Libraries}#Prelude-List[list functions].
 This error is generated when a function or operation cannot handle the empty list.
 
 Remedies:
 
-*  Guard the function or operation with a test on the empty list ([$Rascal:List/isEmpty]) and 
+* Guard the function or operation with a test on the empty list (link:{Libraries}#List-isEmpty[isEmpty]) and 
   take alternative action in that case.
-*  Catch the `EmptyList` yourself, see [Rascal:TryCatch].
+* Catch the `EmptyList` yourself, see link:{RascalLang}#Statements-TryCatch[try catch].
 
 
 .Examples
-[source,rascal-shell,error]
-----
-----
+
 Import the `List` library and introduce `L` with an empty list as value:
 [source,rascal-shell,continue,error]
 ----

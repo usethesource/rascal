@@ -1,3 +1,4 @@
+
 [[Location-Equal]]
 # Location Equal
 :concept: Expressions/Values/Location/Equal

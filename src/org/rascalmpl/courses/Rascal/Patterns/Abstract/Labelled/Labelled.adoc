@@ -1,3 +1,4 @@
+
 [[Abstract-Labelled]]
 # Labelled Pattern
 :concept: Patterns/Abstract/Labelled

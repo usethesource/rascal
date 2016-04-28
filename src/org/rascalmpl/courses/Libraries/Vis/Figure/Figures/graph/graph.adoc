@@ -1,0 +1,78 @@
+[[Figures-graph]]
+# graph
+:concept: Vis/Figure/Figures/graph
+
+.Synopsis
+Graph layout.
+
+.Syntax
+
+.Types
+
+.Function
+`Figure graph(Figures nodes, list[Edge] edges, FProperty props...)`
+
+.Description
+Takes a list of nodes and a list of edges and draws a graph. 
+The nodes can be arbitrary figures that should have a name (using the <<id>> property). 
+The edges determine connections between named nodes. 
+
+The following constraints apply:
+
+*  All nodes should have an id property with a unique value.
+*  All edges should refer to ids that are defined by the nodes.
+
+
+The following properties are applicable to graphs:
+
+*  [id] to define the identity of nodes and to define edges between nodes.
+*  [hint] determines the layout algorithm to use. Currently, only `"layered"` is supported.
+*  [layer] is used to define the placement of nodes in the same layer.
+*  [orientation] is used to define the drawing direction.
+*  [toArrow] and [fromArrow] are used to define arrows on edges.
+*  [$Properties/label] defines an edge label.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(graph(nodes, edges, hint("layered"), gap(100)));
+----
+
+
+image::{concept}/g1.png[alt="graph 1"]
+
+
+[source,rascal-shell]
+----
+rascal>render(graph(nodes, edges, hint("layered"), std(size(30)), gap(40)));
+----
+
+
+image::{concept}/g2.png[alt="graph 2"]
+
+
+[source,rascal-shell]
+----
+rascal>render(graph(nodes, edges, hint("spring"), size(500), gap(20)));
+----
+
+
+image::{concept}/screenshot.png[alt="graph 3"]
+
+
+.Benefits
+
+.Pitfalls
+
+*  The layered graph layout performs currently best when:
+**  the [hgap] is set to a value equal to the average width of the nodes.
+**  [orientation] is not used.
+
+*  For spring layout the following do not yet work:
+**  labels,
+**  arrows.
+
+
+:leveloffset: +1
+
+:leveloffset: -1

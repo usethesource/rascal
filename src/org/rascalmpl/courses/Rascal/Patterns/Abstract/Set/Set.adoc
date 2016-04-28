@@ -1,3 +1,4 @@
+
 [[Abstract-Set]]
 # Set Pattern
 :concept: Patterns/Abstract/Set

@@ -1,9 +1,0 @@
-# Correlation
-.Synopsis
-Correlation between data values.
-.Description
-Compute the http://en.wikipedia.org/wiki/Correlation[correlation] between pairs of data values.
-Correlation measures the statistical relationship between two sets of data.
-
-The following functions are provided:
-subtoc[Rascal/Libraries/analysis/statistics/Correlation,]

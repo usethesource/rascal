@@ -1,0 +1,37 @@
+[[ColorModel-rgb]]
+# rgb
+:concept: Vis/Figure/ColorModel/rgb
+
+.Synopsis
+Create a color from a `red`, `green` and `blue` contribution.
+
+.Syntax
+
+.Types
+
+.Function
+
+#  `Color rgb(int red, int green, int blue)`
+#  `Color rgb(int red, int green, int blue, real alpha)`
+
+.Description
+Create a color from a `red`, `green` and `blue` contribution each in the range [0,255].
+An optional transparency `alpha` may be given between 0.0 (completely opaque) and 1.0 (completely transparent).
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(hcat(boxes));
+----
+gives: 
+image::{concept}/h1.png[alt="h1"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

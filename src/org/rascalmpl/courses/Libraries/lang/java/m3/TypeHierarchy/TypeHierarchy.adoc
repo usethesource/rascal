@@ -1,0 +1,16 @@
+
+[[m3-TypeHierarchy]]
+
+
+[[m3-TypeHierarchy]]
+# TypeHierarchy
+:concept: lang/java/m3/TypeHierarchy
+.Usage
+`import lang::java::m3::TypeHierarchy;`
+
+
+
+
+:leveloffset: +1
+
+:leveloffset: -1

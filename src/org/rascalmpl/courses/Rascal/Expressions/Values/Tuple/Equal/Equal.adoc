@@ -1,3 +1,4 @@
+
 [[Tuple-Equal]]
 #  Tuple Equal
 :concept: Expressions/Values/Tuple/Equal

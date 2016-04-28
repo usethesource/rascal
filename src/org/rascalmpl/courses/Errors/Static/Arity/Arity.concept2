@@ -14,7 +14,9 @@ The number of arguments of an operator differ from what is required.
 .Details
 
 .Description
-Various operators like link::{Rascal}#Relation-Composition[], link::{Rascal}#Relation-TransitiveClosure[] and link::{Rascal}#Relation-ReflexiveTransitiveClosure[] 
+Various operators like link:{RascalLang}#Relation-Composition[composition], 
+link:{RascalLang}#Relation-TransitiveClosure[transitive closure] and 
+link:{RascalLang}#Relation-ReflexiveTransitiveClosure[reflexive transitive closure] 
 expect binary relations or tuples as arguments.
 
 .Examples

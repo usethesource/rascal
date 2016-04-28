@@ -1,0 +1,85 @@
+
+[[analysis-formalconcepts]]
+
+
+[[analysis-FCA]]
+# FCA
+:concept: analysis/formalconcepts
+.Usage
+`import analysis::formalconcepts::FCA;`
+
+
+
+.Synopsis
+Library for Formal Concept Analysis
+
+.Description
+
+Formal Concept Analysis is a somewhat ubiquitous tool in software analysis projects. 
+It can be used to find latent groups of objects that share the same attributes in a dataset. 
+Typically, we apply `FCA` to a relation `rel[&O objects, &A attributes]`, which represents
+extracted source code artifacts and their attributes.
+
+
+* <<FCA-FormalContext,FormalContext>>: 
+* <<FCA-fca,fca>>: Computes Concept Lattice given the Object Attribute Relation.
+      
+* <<FCA-toDot,toDot>>: Computes Dot Graph from Concept Lattice.
+      
+* <<FCA-toDotString,toDotString>>: Write relation in `.dot` format.
+      
+
+[[FCA-FormalContext]]
+## FormalContext
+.Types
+[source,rascal]
+----
+public alias FormalContext[&Object, &Attribute] = rel[&Object, &Attribute];
+public alias Concept[&Object, &Attribute] = tuple[set[&Object] objects, set[&Attribute] attributes];
+public alias ConceptLattice[&Object, &Attribute] = rel[Concept[&Object, &Attribute], Concept[&Object, &Attribute]];
+public alias Object2Attributes[&Object, &Attribute] = map[&Object, set[&Attribute]];
+public alias Attribute2Objects[&Attribute, &Object] = map[&Attribute, set[&Object]];
+
+----
+
+[[FCA-fca]]
+## fca
+
+.Function 
+`ConceptLattice[&Object, &Attribute] fca (FormalContext[&Object, &Attribute] fc)`
+
+
+.Synopsis
+Computes Concept Lattice given the Object Attribute Relation.
+
+
+
+[[FCA-toDot]]
+## toDot
+
+.Function 
+* `DotGraph toDot(ConceptLattice[&Object, &Attribute] cl)`
+          * `DotGraph toDot(ConceptLattice[&Object, &Attribute] cl, bool lab)`
+          
+
+
+.Synopsis
+Computes Dot Graph from Concept Lattice.
+
+
+
+[[FCA-toDotString]]
+## toDotString
+
+.Function 
+`str toDotString(ConceptLattice[&Object, &Attribute]  q)`
+
+
+.Synopsis
+Write relation in `.dot` format.
+
+
+
+:leveloffset: +1
+
+:leveloffset: -1

@@ -1,3 +1,4 @@
+
 [[Func-AbstractSyntax]]
 # Abstract Syntax
 :concept: Languages/Func/AbstractSyntax

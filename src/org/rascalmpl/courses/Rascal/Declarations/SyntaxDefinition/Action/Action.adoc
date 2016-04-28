@@ -1,3 +1,4 @@
+
 [[SyntaxDefinition-Action]]
 # Action
 :concept: Declarations/SyntaxDefinition/Action
@@ -34,7 +35,7 @@ In this example <<Action>> function the a is replaced by whatever A the `f` func
 *  Right after parsing.
 *  On the way back from a visit statement.
 *  When a <<Concrete Syntax>> expression is executed.
-*  When a <<ParseTree>> is constructed "manually".
+*  When <<ParseTrees>> are constructed "manually".
 
 
 They can be used as a <<Disambiguation>> method, using the `filter` statement, as in:

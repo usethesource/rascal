@@ -1,3 +1,4 @@
+
 [[Values-ListRelation]]
 # ListRelation
 :concept: Expressions/Values/ListRelation
@@ -42,16 +43,8 @@ Since list relations are a form of list all operations (see <<Values-List>>) and
 
 The following additional operators are provided for list relations:
 
-**** <<ListRelation-CartesianProduct,ListRelation CartesianProduct>>: Cartesian product of two list relation values.
-**** <<ListRelation-Composition,ListRelation Composition>>: Composition of two list relation values.
-**** <<ListRelation-FieldSelection,ListRelation FieldSelection>>: Select a field (column) from a list relation value.
-**** <<ListRelation-Join,ListRelation Join>>: Join two list relation values.
-**** <<ListRelation-ReflexiveTransitiveClosure,ListRelation Reflexive Transitive Closure>>: The reflexive transitive closure of a binary list relation.
-**** <<ListRelation-Subscription,ListRelation Subscription>>: Indexing of a list relation via tuple values.
-**** <<ListRelation-TransitiveClosure,ListRelation Transitive Closure>>: Transitive closure on binary list relation values.
 
-The following additional functions are provided on list relations:
-subtoc[Rascal/Libraries/Prelude/ListRelation,1]
+There are also link:{Libraries}#Prelude-ListRelation[library functions] available for ListRelation.
 
 
 .Examples

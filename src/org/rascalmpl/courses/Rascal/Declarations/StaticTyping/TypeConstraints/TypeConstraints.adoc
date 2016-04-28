@@ -1,3 +1,4 @@
+
 [[StaticTyping-TypeConstraints]]
 # Type Constraints
 :concept: Declarations/StaticTyping/TypeConstraints

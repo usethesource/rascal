@@ -1,0 +1,36 @@
+[[Properties-shadow]]
+# shadow
+:concept: Vis/Figure/Properties/shadow
+
+.Synopsis
+Add a shadow to the current figure.
+
+.Syntax
+
+.Types
+
+.Function
+`Fproperty shadow(bool b)`
+
+.Description
+Defines whether a figure will have a shadow or not.
+The color of the shadow is determined by <<shadowColor>>.
+The position of the shadow is determined by <<shadowPos>>.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(box1);
+----
+
+image::{concept}/s1.png[alt="s1"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

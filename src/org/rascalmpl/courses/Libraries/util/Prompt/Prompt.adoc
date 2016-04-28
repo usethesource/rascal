@@ -1,0 +1,10 @@
+
+[[util-Prompt]]
+# Prompt
+:concept: util/Prompt
+
+WARNING: documentation awaits Eclipse integration
+
+:leveloffset: +1
+
+:leveloffset: -1

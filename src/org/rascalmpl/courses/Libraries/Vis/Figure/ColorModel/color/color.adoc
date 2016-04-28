@@ -1,0 +1,47 @@
+[[ColorModel-color]]
+# color
+:concept: Vis/Figure/ColorModel/color
+
+.Synopsis
+Return a color with a given name.
+
+.Syntax
+
+.Types
+
+.Function
+
+#  `Color color(str name)`
+#  `Color color(str name, real alpha)`
+
+.Description
+Returns color with given name. 
+All http://en.wikipedia.org/wiki/Web_colors#X11_color_names[HTML/X11 Color Names] are supported.
+When the transparency `alpha` is given, the color is adjusted accordingly.
+
+The list of available color names is given by <<colorNames>>.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(b1);
+----
+gives 
+image::{concept}/b1.png[alt="b1"]
+ and with only 50% transparency:
+[source,rascal-shell]
+----
+rascal>render(b1);
+----
+gives 
+image::{concept}/b2.png[alt="b2"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

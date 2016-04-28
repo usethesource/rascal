@@ -1,3 +1,4 @@
+
 [[Rascalopedia-Prettyprinter]]
 # Prettyprinter
 :concept: Prettyprinter

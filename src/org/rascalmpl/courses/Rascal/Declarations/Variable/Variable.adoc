@@ -1,3 +1,4 @@
+
 [[Declarations-Variable]]
 # Variable Declaration
 :concept: Declarations/Variable
@@ -22,7 +23,7 @@ Declare a variable.
 .Description
 The effect of a variable declaration is to introduce a new variable _Name_ and
 to assign the value of expression _Exp_ to _Name_. A mention of _Name_ later on in the same scope
-will be replaced by this value, provided that _Name_\s value has not been changed by an intermediate assignment. 
+will be replaced by this value, provided that _Name_\'s value has not been changed by an intermediate assignment. 
 
 When a variable is declared, it has as scope the nearest enclosing block, or the module when declared at the module level.
 
@@ -52,9 +53,7 @@ Rascal provides local type inference, which allows the implicit declaration of v
 *  All uses of an implicitly declared variable must be compatible with its implicit type.
 
 .Examples
-[source,rascal-shell-error]
-----
-----
+
 Two explicit variable declarations:
 [source,rascal-shell-error]
 ----

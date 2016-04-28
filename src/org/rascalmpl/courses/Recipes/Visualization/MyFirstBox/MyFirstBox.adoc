@@ -1,3 +1,4 @@
+
 [[Visualization-MyFirstBox]]
 # My First Box
 :concept: Visualization/MyFirstBox
@@ -15,7 +16,7 @@ Drawing a box in many variations.
 
 .Examples
 
-Drawing a red link::{Rascal}#box[] is as simple as this:
+Drawing a red link:{Libraries}#Figure-box[box] is as simple as this:
 [source,rascal-shell]
 ----
 rascal>render(b);
@@ -30,7 +31,7 @@ image::{concept}/b1.png[alt="Box 1"]
 image::{concept}/Screenshot1.png[alt="Screenshot 1"]
 
 
-Wow, the box fills the whole window! So lets give our box a link::{Rascal}#Properties-size[]:
+Wow, the box fills the whole window! So lets give our box a link:{Libraries}#Properties-size[size]:
 [source,rascal-shell]
 ----
 rascal>render(b);
@@ -45,7 +46,7 @@ The lesson here is that size is to be taken as *minimum size* (and probably we s
 rename `size` to `minSize` to emphasize this).
 
 So how can we produce a box that does _not_ fill the whole window? The answer is to define the size of the box
-_relative_ to its surroundings by using link::{Rascal}#Properties-shrink[]:
+_relative_ to its surroundings by using link:{Libraries}#Properties-shrink[shrink]:
 
 [source,rascal-shell]
 ----
@@ -57,7 +58,8 @@ which says: _I am a red box and I want to occupy 50% of the available space._ Th
 image::{concept}/Screenshot2.png[alt="Screen shot 2"]
 
 
-Shrinking can also be limited to one dimension using link::{Rascal}#Properties-hshrink[] or link::{Rascal}#Properties-vshrink[]:
+Shrinking can also be limited to one dimension using link:{Libraries}#Properties-hshrink[hshrink] 
+or link:{Libraries}#Properties-vshrink[vshrink]:
 [source,rascal-shell]
 ----
 rascal>render(b);

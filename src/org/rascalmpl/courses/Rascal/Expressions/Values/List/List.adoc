@@ -1,3 +1,4 @@
+
 [[Values-List]]
 # List
 :concept: Expressions/Values/List
@@ -40,35 +41,8 @@ it has to be prefixed by the splice operator `*`.
 
 The following operators are provided on list:
 
-**** <<List-Append,List Append>>: Append an element at the end of a list.
-**** <<List-Comprehension,List Comprehension>>: A list comprehension generates a list value.
-**** <<List-Concatenation,List Concatenation>>: Concatenate two lists.
-**** <<List-Difference,List Difference>>: The difference between two lists.
-**** <<List-Equal,List Equal>>: Equality on lists.
-**** <<List-Insert,List Insert>>: add an element in front of a list.
-**** <<List-Intersection,List Intersection>>: Intersection of two lists.
-**** <<List-NotEqual,List NotEqual>>: Not equal operator on lists.
-**** <<List-Product,List Product>>: Compute the product of two lists.
-**** <<List-Slice,List Slice>>: Retrieve a slice of a list.
-**** <<List-Splice,List Splice>>: Splice the elements of a list in an enclosing list.
-**** <<List-StrictSubList,List StrictSubList>>: The strict sublist operator on lists.
-**** <<List-StrictSuperList,List StrictSuperList>>: The strict super list operator on lists.
-**** <<List-SubList,List SubList>>: The sublist operator on lists.
-**** <<List-Subscription,List Subscription>>: Retrieve a list element via its index.
-**** <<List-SuperList,List SuperList>>: The super list operator on lists.
-**** <<List-in,List in>>: Membership test on list elements.
-**** <<List-notin,List notin>>: Negated membership test on lists.
-*** <<Values-ListRelation,ListRelation>>: ListRelation values.
-**** <<ListRelation-CartesianProduct,ListRelation CartesianProduct>>: Cartesian product of two list relation values.
-**** <<ListRelation-Composition,ListRelation Composition>>: Composition of two list relation values.
-**** <<ListRelation-FieldSelection,ListRelation FieldSelection>>: Select a field (column) from a list relation value.
-**** <<ListRelation-Join,ListRelation Join>>: Join two list relation values.
-**** <<ListRelation-ReflexiveTransitiveClosure,ListRelation Reflexive Transitive Closure>>: The reflexive transitive closure of a binary list relation.
-**** <<ListRelation-Subscription,ListRelation Subscription>>: Indexing of a list relation via tuple values.
-**** <<ListRelation-TransitiveClosure,ListRelation Transitive Closure>>: Transitive closure on binary list relation values.
 
-The following functions are provided for lists:
-subtoc[Rascal/Libraries/Prelude/List,1]
+There are also link:{Libraries}#Prelude-List[library functions] available for List.
 
 .Examples
 [source,rascal-shell]

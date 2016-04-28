@@ -1,3 +1,4 @@
+
 [[Disambiguation-Priority]]
 # Priority Declaration
 :concept: Declarations/SyntaxDefinition/Disambiguation/Priority

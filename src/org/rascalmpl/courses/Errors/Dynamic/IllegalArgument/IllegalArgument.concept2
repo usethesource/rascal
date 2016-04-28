@@ -22,13 +22,11 @@ Remedies:
 *  Check the value or values to which you apply the function or operation.
 
 .Examples
-[source,rascal-shell,error]
-----
-----
+
 Changing the month of a [$Rascal:Values/DateTime] to an illegal month:
 [source,rascal-shell,continue,error]
 ----
-NOW = $2013-01-13T22:16:51.740+01:00;
+NOW = $2013-01-13T22:16:51.740+01:00$;
 NOW.month = 13;
 ----
 

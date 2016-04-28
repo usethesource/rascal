@@ -1,0 +1,27 @@
+[[Properties-onMouseUp]]
+# onMouseUp
+:concept: Vis/Figure/Properties/onMouseUp
+
+.Synopsis
+Define interactive behaviour when the mouse button is released.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty onMouseUp  (bool (int,map[KeyModifier,bool]) cb )
+
+.Description
+Execute callback `cb` when a mouse button is released. Works the same as <<onMouseDown>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

@@ -1,0 +1,34 @@
+[[Figures-computeFigure]]
+# computeFigure
+:concept: Vis/Figure/Figures/computeFigure
+
+.Synopsis
+A dynamically computed figure.
+
+.Syntax
+
+.Types
+
+.Function
+
+#  `Figure computeFigure(Figure () computeFig, FProperty props...)`
+#  `Figure computeFigure(bool() recomp, Figure () computeFig, FProperty props...)`
+
+.Description
+Return the figure that is returned by the callback `computeFig`.
+
+Subsequent calls to `computeFig` may return different figures and may thus change the resulting visualization.
+The figure is recomputed after each user interaction.
+
+Optionally, a function `recomp` may be given that checks whether the figure should be recomputed.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

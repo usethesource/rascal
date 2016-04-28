@@ -1,3 +1,4 @@
+
 [[Statements-Assignment]]
 # Assignment
 :concept: Statements/Assignment
@@ -49,14 +50,6 @@ An assignable is either a single variable, (the base variable), optionally follo
 The assignment statement always results in assigning a completely new value to the base variable. 
 We distinguish the following forms of assignment:
 
-*** <<Assignment-Annotation,Annotation>>: Assign to annotation.
-*** <<Assignment-Constructor,Constructor>>: Assign to constructor.
-*** <<Assignment-Field,Field>>: Assign to a field of a tuple, relation or datatype.
-*** <<Assignment-IsDefined,IsDefined>>: Assign but replace if value is not defined.
-*** <<Assignment-Multiple,Multiple>>: Assign to multiple assignables.
-*** <<Assignment-Slice,Slice>>: Assign to a slice of a list or string.
-*** <<Assignment-Subscription,Subscription>>: Assign a single element of a structured value.
-*** <<Assignment-Variable,Variable>>: Assign to a variable.
 
 .Examples
 

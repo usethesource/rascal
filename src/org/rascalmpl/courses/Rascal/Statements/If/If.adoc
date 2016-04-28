@@ -1,3 +1,4 @@
+
 [[Statements-If]]
 # If
 :concept: Statements/If
@@ -50,6 +51,7 @@ An if-then statement yields `void`  when its test is false
 rascal>if( 2 > 3 ) 30;
 int: 666
 ----
+WARNING: Get rid of the 666.
 
 .Benefits
 

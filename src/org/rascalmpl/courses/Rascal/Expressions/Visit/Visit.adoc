@@ -1,3 +1,4 @@
+
 [[Expressions-Visit]]
 # Visit
 :concept: Expressions/Visit
@@ -21,7 +22,7 @@ default: ...
 .Function
 
 .Description
-Visiting the nodes in a tree is a very common task in the link::{EASY}#EASY[EASY] domain. 
+Visiting the nodes in a tree is a very common task in the link:{EASY}[EASY] domain. 
 In many cases (but certainly not all) the tree is a syntax tree of some source code file 
 and the nodes correspond to expressions or statements. 
 Computing metrics or refactoring are examples of tasks that require a tree visit. 
@@ -118,9 +119,9 @@ bottom-up visit(e){
          }
 ----
 
-More examples can, for instance, be found in Recipeslink::{Recipes}#ColoredTrees[ColoredTrees], 
-link::{Recipes}#WordReplacement[WordReplacement], link::{Recipes}#CountConstructors[CountConstructors], 
-and link::{Recipes}#Derivative[Derivative].
+More examples can, for instance, be found in Recipes, see link:{Recipes}#Common-ColoredTrees[ColoredTrees], 
+link:{Recipes}#Common-WordReplacement[WordReplacement], link:{Recipes}#CommonCountConstructors[CountConstructors], 
+and link:{Recipes}#Common-Derivative[Derivative].
 
 .Benefits
 

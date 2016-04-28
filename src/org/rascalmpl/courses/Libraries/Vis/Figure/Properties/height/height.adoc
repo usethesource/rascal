@@ -1,0 +1,27 @@
+[[Properties-height]]
+# height
+:concept: Vis/Figure/Properties/height
+
+.Synopsis
+Define the minimal vertical size.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty height(num h)`
+
+.Description
+`height` is a synonym for <<vsize>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

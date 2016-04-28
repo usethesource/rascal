@@ -1,0 +1,895 @@
+
+[[util-Math]]
+
+
+[[util-Math]]
+# Math
+:concept: util/Math
+.Usage
+`import util::Math;`
+
+
+
+.Synopsis
+Mathematical functions.
+
+.Usage
+
+.Description
+
+The `Math` library provides the following functions:
+
+
+
+
+* <<Math-E,E>>: The constant E.
+      
+* <<Math-PI,PI>>: The constant pi.
+      
+* <<Math-abs,abs>>: Absolute value of a number.
+      
+* <<Math-arbInt,arbInt>>: Generate a random integer value.
+      
+* <<Math-arbRat,arbRat>>: Generate an arbitrary rational value.
+      
+* <<Math-arbReal,arbReal>>: Generate a random real value in the interval [0.0,1.0).
+      
+* <<Math-arbSeed,arbSeed>>: Define the seed for the generation of arbitrary values.
+      
+* <<Math-ceil,ceil>>: Compute the smallest integer that is larger than a given number.
+      
+* <<Math-cos,cos>>: Calculate the cosine of a numeric value.
+      
+* <<Math-denominator,denominator>>: Return the denominator of a rational value.
+      
+* <<Math-exp,exp>>: Compute exp(x).
+      
+* <<Math-floor,floor>>: Compute the largest integer that is smaller than a given number.
+      
+* <<Math-ln,ln>>: Calculate the natural log of a numeric value.
+      
+* <<Math-log,log>>: Calculate the log<sub>base</sub> of a numeric value.
+      
+* <<Math-log10,log10>>: Compute the 10 based log(x).
+      
+* <<Math-log2,log2>>: Compute the 2 based log(x).
+      
+* <<Math-max,max>>: Determine the largest of two numeric values.
+      
+* <<Math-min,min>>: Determine the smallest of two numeric values.
+      
+* <<Math-nroot,nroot>>: Calculate the n<sup>th</sup> root of a numeric value.
+      
+* <<Math-numerator,numerator>>: Return the numerator of a rational value.
+      
+* <<Math-percent,percent>>: Compute the ratio between two numbers as a percentage.
+      
+* <<Math-pow,pow>>: Calculate an arbitrary power of a numeric value.
+      
+* <<Math-precision,precision>>: Return the precision of a real number.
+      
+* <<Math-primes,primes>>: generate prime numbers up to a maximum
+      
+* <<Math-remainder,remainder>>: Return the remainder of dividing the numerator by the denominator.
+      
+* <<Math-round,round>>: Round a number to the nearest multiple of a given number (default 1).
+      
+* <<Math-scale,scale>>: Return the scale of a real number.
+      
+* <<Math-setPrecision,setPrecision>>: Define the precision for numeric calculations; returns the previous precision.
+      
+* <<Math-sin,sin>>: Calculate the sine of a numeric value.
+      
+* <<Math-sqrt,sqrt>>: Calculate the square root of a numeric value.
+      
+* <<Math-tan,tan>>: Calculate the tangent of a numeric value.
+      
+* <<Math-toInt,toInt>>: Convert a numeric value to an integer.
+      
+* <<Math-toRat,toRat>>: Convert two numbers to a rational value (not supported on reals).
+      
+* <<Math-toReal,toReal>>: Convert a numeric value to a real.
+      
+* <<Math-toString,toString>>: Convert a numeric value to a string.
+      
+* <<Math-unscaled,unscaled>>: Return the unscaled integer of a real.
+      
+
+[[Math-E]]
+## E
+
+.Function 
+`real E()`
+
+
+.Synopsis
+The constant E.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>E();
+real: 2.7182818285
+----
+
+
+
+[[Math-PI]]
+## PI
+
+.Function 
+`real PI()`
+
+
+.Synopsis
+The constant pi.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>PI();
+real: 3.1415926536
+----
+
+
+
+[[Math-abs]]
+## abs
+
+.Function 
+`&T <: num abs(&T <: num N)`
+
+
+.Synopsis
+Absolute value of a number.
+
+.Description
+Absolute value of the number `n`. The result type is equal to the type of the argument `n`.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>abs(13)
+int: 13
+rascal>abs(-13)
+int: 13
+rascal>abs(3.14)
+real: 3.14
+rascal>abs(-3.14)
+real: 3.14
+----
+
+
+[[Math-arbInt]]
+## arbInt
+
+.Function 
+* `int arbInt()`
+          * `int arbInt(int limit)`
+          
+
+
+.Synopsis
+Generate a random integer value.
+
+.Description
+Return an arbitrary integer value. When the argument `limit` is given, the generated value is in the interval [0, `limit`),
+i.e., the limit is exclusive.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>arbInt();
+int: 238037160
+rascal>arbInt();
+int: -152819981
+rascal>arbInt();
+int: -1467280661
+rascal>arbInt(10);
+int: 6
+rascal>arbInt(10);
+int: 3
+rascal>arbInt(10);
+int: 9
+----
+
+.Benefits
+`arbInt` is a convenient generator for pseudo-random integers.
+
+
+
+[[Math-arbRat]]
+## arbRat
+
+.Function 
+* `rat arbRat()`
+          * `rat arbRat(int limit1, int limit2)`
+          
+
+
+.Synopsis
+Generate an arbitrary rational value.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>arbRat();
+rat: -445798175r622478386
+rascal>arbRat();
+rat: 591468709r280976376
+rascal>arbRat();
+rat: -1805057188r121137265
+rascal>arbRat(10,100);
+rat: 9r
+rascal>arbRat(10,100);
+rat: 7r59
+rascal>arbRat(10,100);
+rat: 5r48
+----
+
+
+
+[[Math-arbReal]]
+## arbReal
+
+.Function 
+`real arbReal()`
+
+
+.Synopsis
+Generate a random real value in the interval [0.0,1.0).
+
+.Description
+Generates an arbitrary real value in the interval [0.0, 1.0].
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>arbReal();
+real: 0.12370507199071035
+rascal>arbReal();
+real: 0.9594494548725527
+rascal>arbReal();
+real: 0.8973575670693048
+----
+
+
+
+[[Math-arbSeed]]
+## arbSeed
+
+.Function 
+`void arbSeed(int seed)`
+
+
+.Synopsis
+Define the seed for the generation of arbitrary values.
+
+.Description
+Define the seed for the generation of arbitrary values such as <<arbBool>>, <<arbInt>>, <<arbReal>>,
+<<arbRat>>, <<List-getOneFrom>>,<<Set-getOneFrom>>, <<List-takeOneFrom>> and <<Set-takeOneFrom>>. <<arbSeed>> resets the random number generator that
+is used to choose arbitrary values. This can be used to generate a reproducible series of choices.
+
+
+
+[[Math-ceil]]
+## ceil
+
+.Function 
+`int ceil(num x)`
+
+
+.Synopsis
+Compute the smallest integer that is larger than a given number.
+
+.Description
+Computes the _ceiling_ of a given number.
+Also see <<Math-floor>>.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>ceil(3.2);
+int: 4
+rascal>ceil(-3.2);
+int: -3
+----
+
+
+
+
+[[Math-cos]]
+## cos
+
+.Function 
+`real cos(num x)`
+
+
+.Synopsis
+Calculate the cosine of a numeric value.
+
+.Description
+The cosine of the number `x`.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>cos(1.0)
+real: 0.54030230588
+rascal>cos(60 * PI() / 180)
+real: 0.50000000000
+----
+
+
+
+[[Math-denominator]]
+## denominator
+
+.Function 
+`int denominator(rat n)`
+
+
+.Synopsis
+Return the denominator of a rational value.
+
+
+
+[[Math-exp]]
+## exp
+
+.Function 
+`real exp(num x)`
+
+
+.Synopsis
+Compute exp(x).
+.Description
+Calculate `e`<sup>`x`</sup>. 
+
+
+
+[[Math-floor]]
+## floor
+
+.Function 
+`int floor(num x)`
+
+
+.Synopsis
+Compute the largest integer that is smaller than a given number.
+
+.Description
+Computes the _floor_ of a given number.
+Also see <<Math-ceil>>.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>floor(3.2);
+int: 3
+rascal>floor(-3.2);
+int: -4
+----
+
+
+
+[[Math-ln]]
+## ln
+
+.Function 
+`real ln(num x)`
+
+
+.Synopsis
+Calculate the natural log of a numeric value.
+
+.Description
+Calculate natural log of `x`. 
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>ln(20.0)
+real: 2.9957322736
+rascal>ln(42.0)
+real: 3.7376696183
+----
+
+
+
+[[Math-log]]
+## log
+
+.Function 
+`real log(num x, num base)`
+
+
+.Synopsis
+Calculate the log<sub>base</sub> of a numeric value.
+
+.Description
+Calculate log<sub>base</sub> of `x`. 
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>log(9.99999999, 10)
+real: 0.999999999566
+rascal>log(10, 10)
+real: 1.
+rascal>log(256.0, 2)
+real: 7.99999999999
+----
+
+
+
+[[Math-log10]]
+## log10
+
+.Function 
+`real log10(num x)`
+
+
+.Synopsis
+Compute the 10 based log(x).
+
+
+
+[[Math-log2]]
+## log2
+
+.Function 
+`real log2(num x)`
+
+
+.Synopsis
+Compute the 2 based log(x).
+
+
+
+[[Math-max]]
+## max
+
+.Function 
+`&T <: num max(&T <: num N, &T <: num M)`
+
+
+.Synopsis
+Determine the largest of two numeric values.
+
+.Description
+The largest of two numbers. The type of the result is the same as the type of the largest argument.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>max(12, 13);
+int: 13
+rascal>max(12, 13.5);
+real: 13.5
+rascal>max(12, 11.5);
+int: 12
+----
+
+
+[[Math-min]]
+## min
+
+.Function 
+`&T <: num min(&T <: num N, &T <: num M)`
+
+
+.Synopsis
+Determine the smallest of two numeric values.
+
+.Description
+The smallest of two numbers. The type of the result is the same as the type of the smallest argument.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>min(12, 13);
+int: 12
+rascal>min(12, -13);
+int: -13
+rascal>min(3.14, 4);
+real: 3.14
+----
+
+
+[[Math-nroot]]
+## nroot
+
+.Function 
+`real nroot(num x, int n)`
+
+
+.Synopsis
+Calculate the n<sup>th</sup> root of a numeric value.
+
+.Description
+Calculate <sup>n</sup>&radic;`x` where `n` can only be a integer.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>nroot(42 * 42, 2);
+real: 42.0000000000
+rascal>nroot(42 * 42 * 42, 3);
+real: 42.0000000000
+rascal>nroot(123456789012345678901234567890123456789.0, 100)
+real: 2.4038930938
+----
+
+
+
+[[Math-numerator]]
+## numerator
+
+.Function 
+`int numerator(rat n)`
+
+
+.Synopsis
+Return the numerator of a rational value.
+
+
+
+[[Math-percent]]
+## percent
+
+.Function 
+`int percent(num part, num whole)`
+
+
+.Synopsis
+Compute the ratio between two numbers as a percentage.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>percent(1r4, 1);
+int: 25
+rascal>percent(13,250);
+int: 5
+rascal>percent(80.0,160.0);
+int: 50
+----
+
+
+
+[[Math-pow]]
+## pow
+
+.Function 
+* `real pow(num x, int y)`
+          * `real pow(num x, real y)`
+          
+
+
+.Synopsis
+Calculate an arbitrary power of a numeric value.
+
+.Description
+The calculate `x`<sup>`y`</sup> where `y` can only be a integer.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>pow(sqrt(42), 2)
+real: 41.99999999989811976256
+rascal>pow(12345678901234567890.0, 1000)
+real: 327323519862176629730082067574716643439462300540185122220961832511288805718030910484304325108222843885957688250811158315340566475836232001571619541935415038796348602192296984423155079801992333140052863080750492018420590783574245411031311510942905796189450351912614510641741094491709589411239576756065619918176653289948094430880732479266853021246187981170634861333302200580872985856560855518977488511675544145006801675791138351985746678734387422142342185164278661836498313416561398901718399810114596984172777042303963800096899625199810241300878005585014082782334502894938457546968837522885101157892509894692459561354313786780532679517827353604060468681961209174542267424246240853816845886755294209996435433895294269712878992262721644106226890031664370462222706979715904672586297266460593551184450504665032451235999357222433465060299295477020462819514888057483551478759508444976793225466736775132290553092049866427876353526626065630474037490603570383940996843823967040247622022658439400707006053650592894261198654836654639504753542843560398908885522596433160079097075880850067383018892541529465995345763588872837837593907229770700976597566733884202506653739605059379401347861288230399126563406134764726379055786459406660737522798066830604288612726394086519909309338994703718119693639450620275447776806553594104597194048560725083279242120977189767528195495335507571774589656293544257012451347889004221446663952536972136269481724663158860532924322053397767933001924701437115740854657082984585991651836842...
+----
+
+
+
+[[Math-precision]]
+## precision
+
+.Function 
+* `int precision(num x)`
+          * `real precision(num x, int p)`
+          
+
+
+.Synopsis
+Return the precision of a real number.
+
+
+
+[[Math-primes]]
+## primes
+
+.Function 
+`list[int] primes(int upTo)`
+
+ 
+.Synopsis
+generate prime numbers up to a maximum
+
+
+
+[[Math-remainder]]
+## remainder
+
+.Function 
+`int remainder(rat n)`
+
+
+.Synopsis
+Return the remainder of dividing the numerator by the denominator.
+
+
+
+[[Math-round]]
+## round
+
+.Function 
+* `int round(num d)`
+          * `(&T <: num) round(&T <: num r, &T <: num nearest)`
+          
+
+
+.Synopsis
+Round a number to the nearest multiple of a given number (default 1).
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>round(3.4);
+int: 3
+rascal>round(3.5);
+int: 4
+rascal>round(3.6);
+int: 4
+rascal>round(-3.4);
+int: -3
+rascal>round(-3.5);
+int: -4
+rascal>round(-3.6);
+int: -4
+rascal>round(13, 5);
+int: 15
+rascal>round(1.5,0.2);
+real: 1.6
+rascal>round(3r2,1r4);
+rat: 3r2
+----
+
+
+
+[[Math-scale]]
+## scale
+
+.Function 
+`int scale(num x)`
+
+
+.Synopsis
+Return the scale of a real number.
+
+
+
+[[Math-setPrecision]]
+## setPrecision
+
+.Function 
+`int setPrecision(int p)`
+
+
+.Synopsis
+Define the precision for numeric calculations; returns the previous precision.
+
+
+
+[[Math-sin]]
+## sin
+
+.Function 
+`real sin(num x)`
+
+
+.Synopsis
+Calculate the sine of a numeric value.
+
+.Description
+The sine of the number `x`.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>sin(0)
+real: 0.
+rascal>sin(PI() / 2)
+real: 1.00000000000
+----
+
+
+
+[[Math-sqrt]]
+## sqrt
+
+.Function 
+`real sqrt(num x)`
+
+
+.Synopsis
+Calculate the square root of a numeric value.
+
+.Description
+Calculate &radic;`x`. 
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>sqrt(42 * 42);
+real: 42.0000000000
+rascal>sqrt(12345678901234567890.5 * 12345678901234567890.5);
+real: 12345678901234567890.5000000000
+----
+
+
+
+[[Math-tan]]
+## tan
+
+.Function 
+`real tan(num x)`
+
+
+.Synopsis
+Calculate the tangent of a numeric value.
+
+.Description
+The tangent of the number `x`.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>tan(45 * PI() / 180)
+real: 1.0000000000
+----
+
+
+
+[[Math-toInt]]
+## toInt
+
+.Function 
+`int toInt(num N)`
+
+
+.Synopsis
+Convert a numeric value to an integer.
+
+.Description
+Convert a number to an integer. If `n` is an integer, this is the identity. If `n` is a real value (implemented as BigDecimal) to an integer (implemented as BigInteger). This conversion is analogous to a narrowing primitive conversion from double to long as defined in the Java Language Specification: any fractional part of this BigDecimal will be discarded. Note that this conversion can loose information about the precision of the BigDecimal value.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>toInt(13)
+int: 13
+rascal>toInt(13.5)
+int: 13
+----
+
+
+
+[[Math-toRat]]
+## toRat
+
+.Function 
+`rat toRat(int numerator, int denominator)`
+
+
+.Synopsis
+Convert two numbers to a rational value (not supported on reals).
+
+
+
+
+[[Math-toReal]]
+## toReal
+
+.Function 
+`real toReal(num N)`
+
+
+.Synopsis
+Convert a numeric value to a real.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>toReal(12)
+real: 12.
+rascal>toReal(3.14)
+real: 3.14
+----
+
+
+
+[[Math-toString]]
+## toString
+
+.Function 
+`str toString(num N)`
+
+
+.Synopsis
+Convert a numeric value to a string.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Math;
+ok
+rascal>toString(12)
+str: "12"
+rascal>toString(3.14)
+str: "3.14"
+----
+
+
+
+[[Math-unscaled]]
+## unscaled
+
+.Function 
+`int unscaled(real x)`
+
+
+.Synopsis
+Return the unscaled integer of a real.
+
+
+
+:leveloffset: +1
+
+:leveloffset: -1
