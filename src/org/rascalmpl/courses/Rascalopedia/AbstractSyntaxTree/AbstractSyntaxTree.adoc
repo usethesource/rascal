@@ -1,3 +1,4 @@
+
 [[Rascalopedia-AbstractSyntaxTree]]
 # Abstract Syntax Tree
 :concept: AbstractSyntaxTree

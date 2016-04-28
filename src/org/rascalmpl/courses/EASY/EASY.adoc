@@ -1,3 +1,4 @@
+
 [[EASY]]
 # The Extract-Analyze-SYnthesize (EASY) paradigm
 include::../CommonDefs.adoc[]

@@ -1,0 +1,84 @@
+
+[[Libraries-Prelude]]
+# Prelude
+:concept: Prelude
+
+.Synopsis
+The Rascal standard prelude.
+
+.Description
+
+The `Prelude` library provides core functionality for handling all of Rascal's data-types.
+See the link:{RascalLang}[Rascal language reference] for details of the language Rascal itself.
+
+For 
+
+* numeric functions, see the <<Math>> library,
+* statistical functions see <<analysis-statistics>>,
+* graph functions see <<analysis-graphs>>,
+* other common utilitites see <<Libraries-util>>.
+
+`Prelude` provides the following:
+
+
+** <<Prelude-Boolean,Boolean>>: Library functions for Booleans.
+** <<Prelude-DateTime,DateTime>>: Library functions for date and time.
+** <<Prelude-Exception,Exception>>: Exceptions thrown by the Rascal run-time.
+** <<Prelude-IO,IO>>: Library functions for input/output.
+** <<Prelude-List,List>>: Library functions for lists.
+** <<Prelude-ListRelation,ListRelation>>: Library functions for list relations.
+** <<Prelude-Map,Map>>: Library functions for maps.
+** <<Prelude-Message,Message>>: A `Message` datatype that represents messages in the IDE.
+** <<Prelude-Node,Node>>: Library functions for nodes.
+** <<Prelude-ParseTree,ParseTree>>: Library functions for parse trees.
+** <<Prelude-Relation,Relation>>: Library functions for relations.
+** <<Prelude-Set,Set>>: Library functions for sets.
+** <<Prelude-String,String>>: Library functions for strings.
+** <<Prelude-Type,Type>>: Rascal's type system, implemented in Rascal itself.
+** <<Prelude-ValueIO,ValueIO>>: Library functions for reading and writing values in textual and binary format.
+
+.Benefits
+This library makes it possible to import all core Rascal functionality with a single import.
+
+.Pitfalls
+
+* The prelude may contain more functionality than you need; this leads to an unnecessary longer import 
+  and pollution of your name space.
+
+* The precise contents of the prelude are under discussion.
+
+* In the future, Rascal may automatically load the prelude.
+
+:leveloffset: +1
+include::Boolean/Boolean.adoc[Boolean]
+
+include::DateTime/DateTime.adoc[DateTime]
+
+include::Exception/Exception.adoc[Exception]
+
+include::IO/IO.adoc[IO]
+
+include::List/List.adoc[List]
+
+include::ListRelation/ListRelation.adoc[ListRelation]
+
+include::Map/Map.adoc[Map]
+
+include::Message/Message.adoc[Message]
+
+include::Node/Node.adoc[Node]
+
+include::ParseTree/ParseTree.adoc[ParseTree]
+
+include::Relation/Relation.adoc[Relation]
+
+include::Set/Set.adoc[Set]
+
+include::String/String.adoc[String]
+
+include::Type/Type.adoc[Type]
+
+include::ValueIO/ValueIO.adoc[ValueIO]
+
+
+:leveloffset: -1

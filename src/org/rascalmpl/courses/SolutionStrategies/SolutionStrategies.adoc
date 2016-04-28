@@ -1,3 +1,4 @@
+
 [[SolutionStrategies]]
 # Solution Strategies
 include::../CommonDefs.adoc[]

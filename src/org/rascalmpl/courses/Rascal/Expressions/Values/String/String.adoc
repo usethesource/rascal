@@ -1,3 +1,4 @@
+
 [[Values-String]]
 # String
 :concept: Expressions/Values/String
@@ -70,18 +71,8 @@ _Auto-indent_: Expressions that get interpolated in a string will be auto-indent
 
 The following operators are defined for Strings:
 
-**** <<String-Concatenation,String Concatenation>>: Concatenate two strings.
-**** <<String-Equal,String Equal>>: Equality operator on string values.
-**** <<String-GreaterThan,String GreaterThan>>: Greater than operator on string values.
-**** <<String-GreaterThanOrEqual,String GreaterThanOrEqual>>: Greater than or equal operator on string values.
-**** <<String-LessThan,String LessThan>>: Less than operator on string values.
-**** <<String-LessThanOrEqual,String LessThanOrEqual>>: Less than or equal operator on string values.
-**** <<String-NotEqual,String NotEqual>>: Not equal operator on string values.
-**** <<String-Slice,String Slice>>: Retrieve a slice of a string.
-**** <<String-Subscription,String Subscription>>: Retrieve a substring via its index.
 
-The following functions are provided for strings:
-subtoc[Rascal/Expressions/Values/String,1]
+There are also link:{Libraries}#Prelude-String[library functions] available for Strings.
 
 .Examples
 [source,rascal-shell]

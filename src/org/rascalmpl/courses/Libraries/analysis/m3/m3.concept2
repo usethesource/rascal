@@ -15,9 +15,11 @@ a language independent meta model for facts about source code, which is extensib
 
 .Description
 
+WARNING: this documentation awaits adaptation of m3 with the Rascal compiler
+
 This is the core language independent model:
 
-subtoc[Rascal/Libraries/analysis/m3,1]
+subtoc::[1]
 
 For language-specific support, please go here:
 

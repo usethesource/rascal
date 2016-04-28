@@ -1,0 +1,51 @@
+
+[[lang-RSF]]
+# RSF
+:concept: lang/RSF
+
+.Synopsis
+Functions for reading/writing the Rigi Standard Format (RSF).
+
+
+.Usage
+`import lang::RSF::IO;`
+
+.Types
+
+.Function
+
+.Description
+Rigi Standard Format (RSF) is a textual format to represent binary relations and is 
+used to exchange relational facts between different tools. 
+
+An RSF file consists of triples of the form
+[source,rascal]
+----
+$RelName$ $Elem_1$ $Elem_2$
+----
+where _RelName_ is the name of a relation and _Elem_~1~ and _Elem_~2~ are element values.
+
+Provides the following function:
+
+
+.Examples
+[source,rascal]
+----
+call    main          printf  
+call    main          listcreate  
+data    main          FILE  
+data    listcreate    List
+----
+
+defines two relations named `call` and `data`.
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+include::readRSF/readRSF.adoc[readRSF]
+
+
+:leveloffset: -1

@@ -1,3 +1,4 @@
+
 [[Concepts-StaticTyping]]
 # Static Typing
 :concept: Concepts/StaticTyping

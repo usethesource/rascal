@@ -41,8 +41,7 @@ Since relations are a form of set all operations (see <<Values-Set>>) and functi
 The following additional operators are provided for relations:
 subtoc::[1]
 
-The following additional functions are provided on relations:
-subtoc[Rascal/Libraries/Prelude/Relation,1]
+There are also link:{Libraries}#Prelude-Relation[library functions] available for Relations.
 
 
 .Examples

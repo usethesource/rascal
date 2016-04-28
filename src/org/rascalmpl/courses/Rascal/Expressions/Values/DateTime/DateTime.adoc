@@ -1,3 +1,4 @@
+
 [[Values-DateTime]]
 # DateTime
 :concept: Expressions/Values/DateTime
@@ -72,18 +73,11 @@ kind of value is stored in a variable of type `datetime`.
 
 The following operators are defined for DateTime:
 
-**** <<DateTime-Equal,DateTime Equal>>: Equality on datetime values.
-**** <<DateTime-FieldSelection,DateTime Field Selection>>: Select a field from a datetime value.
-**** <<DateTime-GreaterThan,DateTime GreaterThan>>: Greater than operator on datetime values.
-**** <<DateTime-GreaterThanOrEqual,DateTime GreaterThanOrEqual>>: Greater than or equal operator on datetime values.
-**** <<DateTime-LessThan,DateTime LessThan>>: Less than operator on datetime values.
-**** <<DateTime-LessThanOrEqual,DateTime LessThanOrEqual>>: Less than or equal operator on datetime values.
-**** <<DateTime-NotEqual,DateTime NotEqual>>: Not equal operator on datetime values.
 
 The following functions are defined for DateTime:
 subtoc[Rascal/Libraries/Prelude/DateTime,1]
 
-
+There are also link:{Libraries}#Prelude-DateTime[library functions] available for DateTime.
 
 .Examples
 

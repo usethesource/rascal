@@ -14,13 +14,13 @@ Parse of a syntactically incorrect string.
 
 .Description
 This error is generated when during the execution of a Rascal program the
-link::{Rascal}#ParseTree-parse[] function is applied to a syntactically incorrect input sentence.
+link:{Libraries}#ParseTree-parse[parse] function is applied to a syntactically incorrect input sentence.
 
 Remedies:
 
 *  Correct the input sentence.
 *  Adapt the grammar so that it accepts the inpout sentence.
-*  Catch the ParseError yourself, see [Rascal:TryCatch].
+*  Catch the ParseError yourself, see link:{RascalLang}#Statements-TryCatch[try catch].
 
 
 .Examples

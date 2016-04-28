@@ -1,3 +1,4 @@
+
 [[Location-GreaterThan]]
 # Location GreaterThan
 :concept: Expressions/Values/Location/GreaterThan

@@ -1,3 +1,4 @@
+
 [[Boolean-Any]]
 # Boolean Any
 :concept: Expressions/Values/Boolean/Any

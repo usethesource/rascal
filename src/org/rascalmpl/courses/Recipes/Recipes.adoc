@@ -1,3 +1,4 @@
+
 [[Recipes]]
 # Recipes
 include::../CommonDefs.adoc[]
@@ -17,11 +18,6 @@ These _Rascal Recipes_ are a work-in-progress but will gradually evolve into a c
 It consists of the following parts:
 
 
-* <<Recipes-Basic,Basic>>: Some basic, _hello world_-like, examples of Rascal programs.
-* <<Recipes-Common,Common>>: Solutions for some common tasks.
-* <<Recipes-Languages,Languages>>: Definitions of several languages and their tools.
-* <<Recipes-Metrics,Metrics>>: Computing.
-* <<Recipes-Visualization,Visualization>>: Recipes for creating visualizations.
 
 The following features are covered:
 

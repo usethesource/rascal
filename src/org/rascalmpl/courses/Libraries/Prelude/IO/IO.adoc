@@ -1,0 +1,898 @@
+
+[[Prelude-IO]]
+
+
+[[Prelude-IO]]
+# IO
+:concept: Prelude/IO
+.Usage
+`import IO;`
+
+
+
+.Synopsis
+Library functions for input/output.
+
+.Description
+
+The following input/output functions are defined:
+
+
+
+* <<IO-appendToFile,appendToFile>>: Append a value to a file.
+      
+* <<IO-appendToFileEnc,appendToFileEnc>>: Append a value to a file.
+      
+* <<IO-bprintln,bprintln>>: Print a value and return true.
+      
+* <<IO-canEncode,canEncode>>: Returns whether this charset can be used for encoding (use with <<writeFile>>)
+      
+* <<IO-charsets,charsets>>: Returns all available character sets.
+      
+* <<IO-exists,exists>>: Check whether a given location exists.
+      
+* <<IO-find,find>>: Find a named file in a list of locations.
+      
+* <<IO-iprint,iprint>>: Print an indented representation of a value.
+      
+* <<IO-iprintExp,iprintExp>>: Print an indented representation of a value and returns the value as result.
+      
+* <<IO-iprintToFile,iprintToFile>>: Print an indented representation of a value to the specified location.
+      
+* <<IO-iprintln,iprintln>>: Print a indented representation of a value and add a newline at the end.
+      
+* <<IO-iprintlnExp,iprintlnExp>>: Print an indented representation of a value followed by a newline and returns the value as result.
+      
+* <<IO-isDirectory,isDirectory>>: Check whether a given location is a directory.
+      
+* <<IO-isFile,isFile>>: Check whether a given location is actually a file (and not a directory).
+      
+* <<IO-lastModified,lastModified>>: Last modification date of a location.
+      
+* <<IO-listEntries,listEntries>>: List the entries in a directory.
+      
+* <<IO-md5HashFile,md5HashFile>>: Read the contents of a location and return its MD5 hash.
+      
+* <<IO-mkDirectory,mkDirectory>>: Create a new directory.
+      
+* <<IO-print,print>>: Print a value without subsequent newline.
+      
+* <<IO-printExp,printExp>>: Print a value and return it as result.
+      
+* <<IO-println,println>>: Print a value to the output stream and add a newline.
+      
+* <<IO-printlnExp,printlnExp>>: Print a value followed by a newline and return it as result.
+      
+* <<IO-readFile,readFile>>: Read the contents of a location and return it as string value.
+      
+* <<IO-readFileBytes,readFileBytes>>: Read the contents of a file and return it as a list of bytes.
+      
+* <<IO-readFileEnc,readFileEnc>>: Read the contents of a location and return it as string value.
+      
+* <<IO-readFileLines,readFileLines>>: Read the contents of a file location and return it as a list of strings.
+      
+* <<IO-readFileLinesEnc,readFileLinesEnc>>: Read the contents of a file location and return it as a list of strings.
+      
+* <<IO-rprint,rprint>>: Raw print of a value.
+      
+* <<IO-rprintln,rprintln>>: Raw print of a value followed by newline.
+      
+* <<IO-touch,touch>>: Changes the last modification date of a file.
+      
+* <<IO-writeFile,writeFile>>: Write values to a file.
+      
+* <<IO-writeFileBytes,writeFileBytes>>: Write a list of bytes to a file.
+      
+* <<IO-writeFileEnc,writeFileEnc>>: Write values to a file.
+      
+
+[[IO-appendToFile]]
+## appendToFile
+
+.Function 
+`void appendToFile(loc file, value V...) throws PathNotFound(loc file), IO(str msg)`
+
+
+.Synopsis
+Append a value to a file.
+
+.Description
+Append a textual representation of some values to an existing or a newly created file:
+
+*  If a value is a simple string, the quotes are removed and the contents are de-escaped.
+*  If a value has a non-terminal type, the parse tree is unparsed to produce a value.
+*  All other values are printed as-is.
+*  Each value is terminated by a newline character.
+
+.Encoding
+
+The existing file can be stored using any character set possible, if you know the character set, please use <<appendToFileEnc>>.
+Else the same method of deciding the character set is used as in <<readFile>>.
+
+.Pitfalls
+
+*  The same encoding pitfalls as the <<readFile>> function.
+
+
+
+[[IO-appendToFileEnc]]
+## appendToFileEnc
+
+.Function 
+`void appendToFileEnc(loc file, str charset, value V...) throws PathNotFound(loc file), IO(str msg)`
+
+
+.Synopsis
+Append a value to a file.
+
+.Description
+Append a textual representation of some values to an existing or a newly created file:
+
+*  If a value is a simple string, the quotes are removed and the contents are de-escaped.
+*  If a value has a non-terminal type, the parse tree is unparsed to produce a value.
+*  All other values are printed as-is.
+*  Each value is terminated by a newline character.
+
+Files are encoded using the charset provided.
+
+
+
+[[IO-bprintln]]
+## bprintln
+
+.Function 
+`bool bprintln(value arg)`
+
+
+.Synopsis
+Print a value and return true.
+
+.Description
+Print a value and return `true`. This is useful for debugging complex Boolean expressions or comprehensions.
+The only difference between this function and <<IO-println>> is that its return type is `bool` rather than `void`.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import IO;
+ok
+rascal>bprintln("Hello World");
+Hello World
+bool: true
+----
+
+
+
+[[IO-canEncode]]
+## canEncode
+
+.Function 
+`set[str] canEncode(str charset)`
+
+
+.Synopsis
+Returns whether this charset can be used for encoding (use with <<writeFile>>)
+
+
+
+[[IO-charsets]]
+## charsets
+
+.Function 
+`set[str] charsets()`
+
+
+.Synopsis
+Returns all available character sets.
+
+
+
+[[IO-exists]]
+## exists
+
+.Function 
+`bool exists(loc file)`
+
+
+.Synopsis
+Check whether a given location exists.
+
+.Description
+Check whether a certain location exists, i.e., whether an actual file is associated with it.
+
+.Examples
+
+[source,rascal-shell]
+----
+rascal>import IO;
+ok
+----
+Does the library file `IO.rsc` exist?
+[source,rascal-shell]
+----
+rascal>exists(|std:///IO.rsc|);
+bool: true
+----
+
+
+
+[[IO-find]]
+## find
+
+.Function 
+`loc find(str name, list[loc] path) throws PathNotFound`
+
+
+.Synopsis
+Find a named file in a list of locations.
+
+.Examples
+
+[source,rascal-shell]
+----
+rascal>import IO;
+ok
+----
+Find the file `IO.rsc` in the standard library:
+[source,rascal-shell]
+----
+rascal>find("IO.rsc", [|std:///|]);
+loc: |std:///IO.rsc|
+----
+
+
+
+[[IO-iprint]]
+## iprint
+
+.Function 
+`void iprint(value arg, int lineLimit = 1000)`
+
+
+.Synopsis
+Print an indented representation of a value.
+
+.Description
+See <<IO-iprintExp>> for a version that returns its argument as result
+and <<IO-iprintln>> for a version that adds a newline
+and <<IO-iprintToFile>> for a version that prints to a file.
+
+.Examples
+
+[source,rascal-shell]
+----
+rascal>import IO;
+ok
+rascal>iprint(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
+[
+  "fruits",
+  ("snake":0,"spider":8),
+  [10,20,30]
+]ok
+----
+
+
+
+[[IO-iprintExp]]
+## iprintExp
+
+.Function 
+`&T iprintExp(&T v)`
+
+
+.Synopsis
+Print an indented representation of a value and returns the value as result.
+
+.Description
+See <<IO-iprintlnExp>> for a version that adds a newline.
+
+.Examples
+
+[source,rascal-shell]
+----
+rascal>import IO;
+ok
+rascal>iprintExp(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
+[
+  "fruits",
+  ("snake":0,"spider":8),
+  [10,20,30]
+]list[value]: [
+  "fruits",
+  ("snake":0,"spider":8),
+  [10,20,30]
+]
+----
+
+
+
+[[IO-iprintToFile]]
+## iprintToFile
+
+.Function 
+`void iprintToFile(loc file, value arg)`
+
+
+.Synopsis
+Print an indented representation of a value to the specified location.
+
+.Description
+See <<IO-iprint>> for a version that displays the result on the console
+and <<IO-iprintExp>> for a version that returns its argument as result
+and <<IO-iprintln>> for a version that adds a newline.
+
+.Examples
+
+[source,rascal-shell]
+----
+rascal>import IO;
+ok
+rascal>iprintToFile(|file:///tmp/fruits.txt|, ["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
+ok
+----
+
+
+
+[[IO-iprintln]]
+## iprintln
+
+.Function 
+`void iprintln(value arg, int lineLimit = 1000)`
+
+
+.Synopsis
+Print a indented representation of a value and add a newline at the end.
+
+.Description
+See <<IO-iprintlnExp>> for a version that returns its argument as result
+and <<IO-iprint>> for a version that does not add a newline.
+
+By default we only print the first 1000 lines, if you want to print larger values, either 
+use <<ValueIO-writeTextValueFile>> or change the limit with the lineLimit parameter.
+
+.Examples
+
+[source,rascal-shell]
+----
+rascal>import IO;
+ok
+rascal>iprintln(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
+[
+  "fruits",
+  ("snake":0,"spider":8),
+  [10,20,30]
+]
+ok
+rascal>iprintln([ {"hi"} | i <- [0..1000]], lineLimit = 10);
+[
+  {"hi"},
+  {"hi"},
+  {"hi"},
+  {"hi"},
+  {"hi"},
+  {"hi"},
+  {"hi"},
+  {"hi"},
+  {"hi"},
+...
+ok
+----
+
+
+
+[[IO-iprintlnExp]]
+## iprintlnExp
+
+.Function 
+`&T iprintlnExp(&T v)`
+
+
+.Synopsis
+Print an indented representation of a value followed by a newline and returns the value as result.
+
+.Description
+See <<IO-iprintExp>> for a version that does not add a newline.
+
+.Examples
+
+[source,rascal-shell]
+----
+rascal>import IO;
+ok
+rascal>iprintlnExp(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
+[
+  "fruits",
+  ("snake":0,"spider":8),
+  [10,20,30]
+]
+list[value]: [
+  "fruits",
+  ("snake":0,"spider":8),
+  [10,20,30]
+]
+----
+
+
+
+[[IO-isDirectory]]
+## isDirectory
+
+.Function 
+`bool isDirectory(loc file)`
+
+
+.Synopsis
+Check whether a given location is a directory.
+
+.Description
+Check whether the location `file` is a directory.
+
+
+
+[[IO-isFile]]
+## isFile
+
+.Function 
+`bool isFile(loc file)`
+
+
+.Synopsis
+Check whether a given location is actually a file (and not a directory).
+
+.Description
+Check whether location `file` is actually a file.
+
+
+
+[[IO-lastModified]]
+## lastModified
+
+.Function 
+`datetime lastModified(loc file)`
+
+
+.Synopsis
+Last modification date of a location.
+
+.Description
+Returns last modification time of the file at location `file`.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import IO;
+ok
+----
+Determine the last modification date of the Rascal standard library:
+[source,rascal-shell]
+----
+rascal>lastModified(|std:///IO.rsc|);
+datetime: $2016-04-25T14:31:32.000+00:00$
+----
+
+
+
+[[IO-listEntries]]
+## listEntries
+
+.Function 
+`list[str] listEntries(loc file)`
+
+
+.Synopsis
+List the entries in a directory.
+
+.Description
+List the entries in directory `file`.
+
+.Examples
+
+[source,rascal-shell-error]
+----
+rascal>import IO;
+ok
+----
+List all entries in the standard library:
+[source,rascal-shell-error]
+----
+rascal>listEntries(|std:///|);
+list[str]: [".DS_Store",".project","Ambiguity.rsc","analysis","APIGen.rsc","Boolean.rsc","cobra","DateTime.rsc","demo","Distance.class","Exception.rsc","experiments","Grammar.rsc","IO.rsc","lang","List.rsc","ListRelation.rsc","Map.rsc","Message.rsc","Node.rsc","NodeComparator.class","Origins.rsc","ParseTree.rsc","Prelude$1.class","Prelude$Backtrack.class","Prelude$ByteBufferBackedInputStream.class","Prelude$IValueWrap.class","Prelude$Less.class","Prelude$Sorting.class","Prelude.class","Prelude.rsc","PreludeCompiled$1.class","PreludeCompiled$Backtrack.class","PreludeCompiled$Less.class","PreludeCompiled$Sorting.class","PreludeCompiled.class","Relation.rsc","resource","Set.rsc","String.rsc","ToString.rsc","Traversal.rsc","Tuple.rsc","Type.class","Type.rsc","util","ValueIO.rsc","vis"]
+----
+
+
+
+[[IO-md5HashFile]]
+## md5HashFile
+
+.Function 
+`str md5HashFile(loc file) throws PathNotFound(loc file), IO(str msg)`
+
+
+.Synopsis
+Read the contents of a location and return its MD5 hash.
+
+.Description
+MD5 hash the contents of a file location.
+
+
+
+[[IO-mkDirectory]]
+## mkDirectory
+
+.Function 
+`void mkDirectory(loc file) throws PathNotFound(loc file), IO(str msg)`
+
+
+.Synopsis
+Create a new directory.
+
+.Description
+Create a directory at location `file`.
+
+
+
+[[IO-print]]
+## print
+
+.Function 
+`void print(value arg)`
+
+
+.Synopsis
+Print a value without subsequent newline.
+
+.Description
+Print a value on the output stream.
+See <<IO-println>> for a version that adds a newline
+and <<IO-printExp>> for a version that returns its argument as value.
+
+
+.Examples
+
+Note that the only difference with <<IO-println>> is that no newline is added after the value is printed
+[source,rascal-shell]
+----
+rascal>import IO;
+ok
+rascal>print("Hello World");
+Hello Worldok
+----
+
+NOTE: Since `print` does not add a newline, the prompt `ok` appears at a weird place, i.e., 
+glued to the output of `print`.
+
+
+
+[[IO-printExp]]
+## printExp
+
+.Function 
+* `&T printExp(&T v)`
+          * `&T printExp(str msg, &T v)`
+          
+
+
+.Synopsis
+Print a value and return it as result.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import IO;
+ok
+rascal>printExp(3.14);
+3.14real: 3.14
+rascal>printExp("The value of PI is approximately ", 3.14);
+The value of PI is approximately 3.14real: 3.14
+----
+
+
+
+[[IO-println]]
+## println
+
+.Function 
+* `void println(value arg)`
+          * `void println()`
+          
+
+
+.Synopsis
+Print a value to the output stream and add a newline.
+
+.Description
+Print a value on the output stream followed by a newline.
+See <<IO-print>> for a version that does not add a newline
+and <<IO-printlnExp>> for a version that returns its argument as value.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import IO;
+ok
+rascal>println("Hello World");
+Hello World
+ok
+----
+Introduce variable S and print it:
+[source,rascal-shell]
+----
+rascal>S = "Hello World";
+str: "Hello World"
+rascal>println(S);
+Hello World
+ok
+----
+Introduce variable L and print it:
+[source,rascal-shell]
+----
+rascal>L = ["a", "b", "c"];
+list[str]: ["a","b","c"]
+rascal>println(L);
+["a","b","c"]
+ok
+----
+Use a string template to print several values:
+[source,rascal-shell]
+----
+rascal>println("<S>: <L>");
+Hello World: ["a","b","c"]
+ok
+----
+Just print a newline
+[source,rascal-shell]
+----
+rascal>println();
+
+ok
+----
+
+
+
+[[IO-printlnExp]]
+## printlnExp
+
+.Function 
+* `&T printlnExp(&T v)`
+          * `&T printlnExp(str msg, &T v)`
+          
+
+
+.Synopsis
+Print a value followed by a newline and return it as result.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import IO;
+ok
+rascal>printlnExp(3.14);
+3.14
+real: 3.14
+rascal>printlnExp("The value of PI is approximately ", 3.14);
+The value of PI is approximately 3.14
+real: 3.14
+----
+NOTE: Since `printExp` does no produce a newline after its output, the result prompt `real: 3.14` is glued to the
+output of `printExp`.
+
+
+
+[[IO-readFile]]
+## readFile
+
+.Function 
+`str readFile(loc file) throws PathNotFound(loc file), IO(str msg)`
+
+
+.Synopsis
+Read the contents of a location and return it as string value.
+
+.Description
+Return the contents of a file location as a single string.
+Also see <<readFileLines>>.
+
+.Encoding
+
+A text file can be encoded in many different character sets, most common are UTF8, ISO-8859-1, and ASCII.
+If you know the encoding of the file, please use the <<readFileEnc>> and <<readFileLinesEnc>> overloads.
+If you do not know, we try to detect this. This detection is explained below:
+
+*  If the implementation of the used scheme in the link:{RascalLang}#Values-Location[location] 
+   (e.g.,`|project:///|`) defines the charset of the file then this is used.
+*  Otherwise if the file contains a UTF8/16/32 http://en.wikipedia.org/wiki/Byte_order_mark[BOM], 
+   then this is used.
+*  As a last resort the IO library uses heuristics to determine if UTF-8 or UTF-32 could work:
+   **  Are the first 32 bytes valid UTF-8? Then use UTF-8.
+   **  Are the first 32 bytes valid UTF-32? Then use UTF-32.
+*  Finally, we fall back to the system default (as given by the Java Runtime Environment).
+
+*To summarize*, we use UTF-8 by default, except if the link:{rascalLang}#Values-Location[location] has available meta-data, the file contains a BOM, or
+the first 32 bytes of the file are not valid UTF-8.
+
+.Pitfalls
+
+*  The second version of `readFile` with a string argument is __deprecated__.
+*  In case encoding is not known, we try to estimate as best as we can.
+*  We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8, 
+  you might get an decoding error or just strange looking characters.
+
+
+
+
+[[IO-readFileBytes]]
+## readFileBytes
+
+.Function 
+`list[int] readFileBytes(loc file) throws PathNotFound(loc file), IO(str msg)`
+
+
+.Synopsis
+Read the contents of a file and return it as a list of bytes.
+
+
+
+[[IO-readFileEnc]]
+## readFileEnc
+
+.Function 
+`str readFileEnc(loc file, str charset) throws PathNotFound(loc file), IO(str msg)`
+
+
+.Synopsis
+Read the contents of a location and return it as string value.
+
+.Description
+Return the contents (decoded using the Character set supplied) of a file location as a single string.
+Also see <<readFileLinesEnc>>.
+
+
+
+[[IO-readFileLines]]
+## readFileLines
+
+.Function 
+`list[str] readFileLines(loc file) throws PathNotFound(loc file), IO(str msg)`
+
+
+.Synopsis
+Read the contents of a file location and return it as a list of strings.
+
+.Description
+Return the contents of a file location as a list of lines.
+Also see <<readFile>>.
+
+.Encoding 
+
+Look at <<readFile>> to understand how this function chooses the character set. If you know the character set used, please use <<readFileLinesEnc>>.
+
+.Pitfalls
+
+*  In case encoding is not known, we try to estimate as best as we can (see [readFile]).
+*  We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8, 
+  you might get an decoding error or just strange looking characters (see <<readFile>>).
+
+
+
+[[IO-readFileLinesEnc]]
+## readFileLinesEnc
+
+.Function 
+`list[str] readFileLinesEnc(loc file, str charset) throws PathNotFound(loc file), IO(str msg)`
+
+
+.Synopsis
+Read the contents of a file location and return it as a list of strings.
+
+.Description
+Return the contents (decoded using the Character set supplied) of a file location as a list of lines.
+Also see <<readFileLines>>.
+
+
+
+[[IO-rprint]]
+## rprint
+
+.Function 
+`void rprint(value arg)`
+
+
+.Synopsis
+Raw print of a value.
+
+.Description
+
+
+.Pitfalls
+This function is only available for internal use in the Rascal development team.
+
+
+
+[[IO-rprintln]]
+## rprintln
+
+.Function 
+`void rprintln(value arg)`
+
+
+.Synopsis
+Raw print of a value followed by newline.
+
+.Description
+
+.Pitfalls
+This function is only available for internal use in the Rascal development team.
+
+
+
+[[IO-touch]]
+## touch
+
+.Function 
+`void touch(loc file) throws PathNotFound(loc file), IO(str msg)`
+
+
+.Synopsis
+Changes the last modification date of a file.
+
+
+
+[[IO-writeFile]]
+## writeFile
+
+.Function 
+`void writeFile(loc file, value V...) throws PathNotFound(loc file), IO(str msg)`
+
+
+.Synopsis
+Write values to a file.
+
+.Description
+Write a textual representation of some values to a file:
+
+*  If a value is a simple string, the quotes are removed and the contents are de-escaped.
+*  If a value has a non-terminal type, the parse tree is unparsed to produce a value.
+*  All other values are printed as-is.
+*  Each value is terminated by a newline character.
+
+Files are encoded in UTF-8, in case this is not desired, use <<writeFileEnc>>.
+
+
+
+[[IO-writeFileBytes]]
+## writeFileBytes
+
+.Function 
+`void writeFileBytes(loc file, list[int] bytes) throws PathNotFound(loc file), IO(str msg)`
+
+
+.Synopsis
+Write a list of bytes to a file.
+
+
+
+[[IO-writeFileEnc]]
+## writeFileEnc
+
+.Function 
+`void writeFileEnc(loc file, str charset, value V...) throws PathNotFound(loc file), IO(str msg)`
+
+
+.Synopsis
+Write values to a file.
+
+.Description
+Write a textual representation of some values to a file:
+
+*  If a value is a simple string, the quotes are removed and the contents are de-escaped.
+*  If a value has a non-terminal type, the parse tree is unparsed to produce a value.
+*  All other values are printed as-is.
+*  Each value is terminated by a newline character.
+
+Files are encoded using the charset provided.
+
+
+
+:leveloffset: +1
+
+:leveloffset: -1

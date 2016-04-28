@@ -1,0 +1,34 @@
+[[Properties-left]]
+# left
+:concept: Vis/Figure/Properties/left
+
+.Synopsis
+Left, horizontal, alignment.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty left()`
+
+.Description
+`left` defines *left horizontal alignment*. It sets the horizontal alignment at 1.0.
+
+Note that:
+
+*  `left()` is equivalent to `halign(0.0)`.
+
+
+Also see <<align>>, <<halign>> and <<CompositionModel>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

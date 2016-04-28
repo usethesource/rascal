@@ -1,0 +1,36 @@
+[[Properties-onMouseEnter]]
+# onMouseEnter
+:concept: Vis/Figure/Properties/onMouseEnter
+
+.Synopsis
+
+Define interactive behaviour when the mouse pointer enters the figure.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty onMouseEnter(void () cb)`
+
+.Description
+Execute callback `cb` when the mouse pointer enters the figure. See also <<onMouseExit>>.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(b);
+----
+
+image::{concept}/mouseenter.png[alt="mouseenter"]
+
+
+.Benefits
+
+.Pitfalls
+Unfortunately we cannot show an interactive version here, try it out in Rascal yourself.
+
+
+:leveloffset: +1
+
+:leveloffset: -1

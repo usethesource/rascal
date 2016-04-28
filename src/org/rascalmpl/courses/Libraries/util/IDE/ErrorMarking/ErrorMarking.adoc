@@ -1,0 +1,31 @@
+
+[[IDE-ErrorMarking]]
+# ErrorMarking
+:concept: util/IDE/ErrorMarking
+
+.Synopsis
+Visual and browsable error messages in the IDE.
+
+.Syntax
+
+#  `t@message = $message$;`
+#  `t@messages = $setOfMessages$l`
+
+.Types
+
+.Function
+
+.Description
+
+If a `messages` annotation is encountered on a <<ParseTree>> node, the messages will be registered as well, _but sub-trees will not be searched for further messages_.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

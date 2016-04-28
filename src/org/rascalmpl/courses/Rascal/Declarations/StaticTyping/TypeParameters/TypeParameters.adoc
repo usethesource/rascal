@@ -1,3 +1,4 @@
+
 [[StaticTyping-TypeParameters]]
 # Type Parameters
 :concept: Declarations/StaticTyping/TypeParameters

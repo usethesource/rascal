@@ -16,19 +16,18 @@ Illegal operation on an empty set.
 .Details
 
 .Description
-Rascal provides many operations and functions on maps, see link::{Rascal}#Values-Map[] and link::{Rascal}#Prelude-Map[].
+Rascal provides many operations and functions on maps, see link:{RascalLang}#Values-Map[map values]
+and link:{Libraries}#Prelude-Map[map functions].
 This error is generated when a function or operations cannot handle the empty map.
 
 Remedies: 
 
-*  Guard the function or operation with a test on the empty map ([$Rascal:Map/isEmpty]) and 
+*  Guard the function or operation with a test on the empty map (link:{Libraries}#Map-isEmpty[isEmpty]) and 
   take alternative action in that case.
-*  Catch the `EmptyMap` yourself, see [Rascal:TryCatch].
+*  Catch the `EmptyMap` yourself, see link:{RascalLang}#Statements-TryCatch[try catch].
 
 .Examples
-[source,rascal-shell,error]
-----
-----
+
 Import the `Map` library and introduce `M` with an empty map as value:
 [source,rascal-shell,continue,error]
 ----

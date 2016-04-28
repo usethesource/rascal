@@ -1,3 +1,4 @@
+
 [[Concepts-Functions]]
 # Functions
 :concept: Concepts/Functions

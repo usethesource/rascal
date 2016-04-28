@@ -1,3 +1,4 @@
+
 [[Func-ConcreteSyntax]]
 # Concrete Syntax
 :concept: Languages/Func/ConcreteSyntax

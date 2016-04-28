@@ -1,3 +1,4 @@
+
 [[Rascalopedia-Compiler]]
 # Compiler
 :concept: Compiler

@@ -1,3 +1,4 @@
+
 [[Abstract-Literal]]
 # Literal Pattern
 :concept: Patterns/Abstract/Literal

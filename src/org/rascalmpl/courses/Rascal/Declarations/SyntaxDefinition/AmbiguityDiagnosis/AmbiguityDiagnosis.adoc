@@ -1,3 +1,4 @@
+
 [[SyntaxDefinition-AmbiguityDiagnosis]]
 # Ambiguity Diagnosis
 :concept: Declarations/SyntaxDefinition/AmbiguityDiagnosis

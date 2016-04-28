@@ -1,3 +1,4 @@
+
 [[MeasuringJava-MeasuringClasses]]
 # Measuring Classes
 :concept: Metrics/MeasuringJava/MeasuringClasses

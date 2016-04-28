@@ -422,7 +422,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>Rascalopedia</h1>
 <div id="toc" class="toc2">
-<div id="toctitle">Table of Contents</div>
+<div id="toctitle">Rascalopedia</div>
 <ul class="sectlevel1">
 <li><a href="#Rascalopedia-AbstractDataType">1. AbstractDataType</a>
 <ul class="sectlevel2">
@@ -501,91 +501,6 @@ that are relevant for metaprogrammers in general and metaprogrammers using Rasca
 </div>
 <div class="paragraph">
 <p>This are the currently covered topics:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="#Rascalopedia-AbstractDataType">AbstractDataType</a>: A definition of a data type.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-AbstractSyntaxTree">Abstract Syntax Tree</a>: Representation of the abstract syntactic structure of a program.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-Compiler">Compiler</a>: Tranform source code to an executable form.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-DomainSpecificLanguage">Domain Specific Language</a>: Programming language targeted for a particular application domain.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-DynamicSemantics">Dynamic Semantics</a>: Description of the execution behaviour of a program.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-Grammar">Grammar</a>: A synonym for <a href="#Rascalopedia-Syntax">Syntax</a>.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-Interpreter">Interpreter</a>: Directly execute the statements of a program.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-Language">Language</a>: The set of strings defined by a <a href="#Rascalopedia-Grammar">Grammar</a>.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-LanguageDefinition">Language Definition</a>: Description of all aspects of a language.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-List">List</a>: An ordered sequence of values.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-MetaProgramming">MetaProgramming</a>: Analysis or transformation of one program by another program.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-ParseTree">ParseTree</a>: Detailed represention of the concrete syntactic structure of a program.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-Parser">Parser</a>: Check that a text adheres to the rules of a language (and return a <a href="#Rascalopedia-ParseTree">ParseTree</a>).</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-Prettyprinter">Prettyprinter</a>: Transform an <a href="#Rascalopedia-AbstractSyntaxTree">Abstract Syntax Tree</a> into a formatted string.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-Refactoring">Refactoring</a>: Restructuring source code to improve its internal structure without changing its external behaviour.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-Relation">Relation</a>: An unordered set of tuples.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-Scope">Scope</a>: The visibility and accessibility of names in a program.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-Set">Set</a>: An unordered collection of values without duplicates.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-SoftwareEngineering">Software Engineering</a>: Discpline of design, building and maintaining software.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-SoftwareEvolution">Software Evolution</a>: Understanding and managing the continuous change of software.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-SoftwareMetric">Software Metric</a>: A metric to measure a source code property.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-StaticSemantics">Static Semantics</a>: Description of the properties of a program that can be determined/checked before it is executed.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-Syntax">Syntax</a>: The rules that describe correctly structured programs in a language.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-Testing">Testing</a>: Determine that the quality and functionality of software.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-Tuple">Tuple</a>: An ordered, fixed length, sequence of values of possibly different type.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-Typechecker">Typechecker</a>: Checks the type rules for a source language.</p>
-</li>
-<li>
-<p><a href="#Rascalopedia-Visualization">Visualization</a>: Visual presentation of scientific or abstract data.</p>
-</li>
-</ul>
 </div>
 </div>
 </div>
@@ -1020,7 +935,7 @@ tail(cons(e, l)) = l</code></pre>
 <p>In Rascal, lists are surrounded by brackets <code>[</code> and <code>]</code> and the elements are separated by commas.
 Each list has a type of the form <code>list[<em>T</em>]</code>, where <em>T</em> is the smallest common type of all list elements.
 Read the description of <a href="../Rascal/Rascal.html#Values-List">lists and their operators</a>
-and of <a href="{Rascal}#Libraries-List">library functions on lists</a>.</p>
+and of <a href="../Libraries/Libraries.html#Libraries-List">library functions on lists</a>.</p>
 </div>
 <div class="sect2">
 <h3 id="_lists_in_daily_life">10.1. Lists in Daily Life</h3>
@@ -1419,11 +1334,11 @@ the set <em>D</em><sub>i</sub>. When <em>n</em> = 2, we call the relation a <a h
 <div class="paragraph">
 <p>In Rascal, a relation is a set of tuples and is characterized by the type:
 <code>rel[<em>D</em><sub>1</sub> <em>Name</em><sub>1</sub>, <em>D</em><sub>2</sub> <em>Name</em><sub>2</sub>, &#8230;&#8203;, <em>D</em><sub>n</sub> <em>Name</em><sub>n</sub>]</code>
-See <a href=":../Rascal/Rascal.html#Values-Relation">Relation Values</a> and  for a description of relations and their operators
-(since relations are sets all set operators also apply to them, see <a href=":../Rascal/Rascal.html#Values-Set">Set Values</a>)
-and <a href=":../Libraries/Libraries.html#Libraries-Relation">functions on relations</a>
+See <a href="../Rascal/Rascal.html#Values-Relation">Relation Values</a> and  for a description of relations and their operators
+(since relations are sets all set operators also apply to them, see <a href="../Rascal/Rascal.html#Values-Set">Set Values</a>)
+and <a href="../Libraries/Libraries.html#Libraries-Relation">functions on relations</a>
 (and here again, since relations are sets all set operators also apply to them,
-see <a href=":../Libraries/Libraries.html#Library-Set">functions on sets</a>).</p>
+see <a href="../Libraries/Libraries.html#Libraries-Set">functions on sets</a>).</p>
 </div>
 <div class="sect2">
 <h3 id="_relations_in_daily_life">16.1. Relations in Daily Life</h3>
@@ -1899,7 +1814,7 @@ manually or automatically executing test cases and observe the result.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>See <a href=":../Rascal/Rascal.html#Values-Tuple">Tuple Values</a> for the operations on tuples.</p>
+<p>See <a href="../Rascal/Rascal.html#Values-Tuple">Tuple Values</a> for the operations on tuples.</p>
 </div>
 </div>
 </div>
@@ -2021,7 +1936,7 @@ may have a time dimension.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>The <a href="{Rascal}#Libraries-Vis">Visualization Library</a> library provides a framework for interactive visualization.
+<p>The <a href="../Libraries/Libraries.html#Libraries-Vis">Visualization Library</a> library provides a framework for interactive visualization.
 Simple examples can be found in <a href="../Recipes/Recipes.html#Recipes-Visualization">visualization recipes</a>.</p>
 </div>
 <div class="sect2">
@@ -2073,7 +1988,7 @@ in all source files of a software system.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-04-19 08:57:40 CEST
+Last updated 2016-04-26 15:50:56 CEST
 </div>
 </div>
 </body>

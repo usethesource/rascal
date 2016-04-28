@@ -1,3 +1,4 @@
+
 [[Tuple-Concatenation]]
 # Tuple Concatenation
 :concept: Expressions/Values/Tuple/Concatenation

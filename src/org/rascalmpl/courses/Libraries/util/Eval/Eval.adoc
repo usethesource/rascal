@@ -1,0 +1,226 @@
+
+[[util-Eval]]
+
+
+[[util-Eval]]
+# Eval
+:concept: util/Eval
+.Usage
+`import util::Eval;`
+
+
+
+* <<Eval-Result,Result>>: 
+* <<Eval-eval,eval>>: Evaluate a (list of) Rascal commands and return the value of the last command.
+      
+* <<Eval-evalType,evalType>>: Evaluate a (list of) Rascal commands and return the type of the last command.
+      
+
+[[Eval-Result]]
+## Result
+.Types
+[source,rascal]
+----
+public data Result[&T] = ok() | result(&T val);
+public data Exception 
+  = StaticError(str message, loc location)
+  ;
+
+----
+
+[[Eval-eval]]
+## eval
+
+.Function 
+* `Result[&T] eval(type[&T] typ, str command) throws Timeout, StaticError, ParseError`
+          * `Result[value] eval(str command)`
+          * `Result[&T] eval(type[&T] typ, list[str] commands) throws Timeout, StaticError, ParseError`
+          * `Result[value] eval(list[str] commands)`
+          * `Result[&T] eval(type[&T] typ, str command, int duration) throws Timeout, StaticError, ParseError`
+          * `Result[value] eval(str command, int duration)`
+          * `Result[&T] eval(type[&T] typ, list[str] commands, int duration) throws Timeout, StaticError, ParseError`
+          * `Result[value] eval(list[str] commands, int duration)`
+          
+
+
+.Synopsis
+Evaluate a (list of) Rascal commands and return the value of the last command.
+
+.Description
+Evaluate a command or a list of commands and return the value of the last command that is executed.
+
+Note that a command can be one of:
+
+*  Statement
+*  Declaration
+*  Import
+*  Extend
+*  SyntaxDefinition
+   
+
+The notable exclusion are <<Expressions>>. An Expression is not allowed as a command to the eval function. You can easily make
+a Statement from an Expression by adding a semi-colon.
+ 
+An optional `duration` argument may be present to limit the time
+(in milliseconds) the execution may take. By default, the duration is set to 1000 ms.
+
+.Examples
+
+[source,rascal-shell]
+----
+rascal>import util::Eval;
+ok
+rascal>eval("2 * 3;");
+java.lang.NullPointerException
+	at org.rascalmpl.library.util.Eval.getSharedEvaluator(Eval.java:79)
+	at org.rascalmpl.library.util.Eval.eval(Eval.java:101)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore.callJavaMethod(RVMCore.java:1003)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.insnCALLJAVA(RVMonJVM.java:347)
+	at .ConsoleInput$Compiled.util::Eval\eval(reified(parameter("T",value())(@boundGiven=false)):str():)#23(Unknown Source)
+	at .ConsoleInput$Compiled.dynRun(Unknown Source)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.jvmOCALL(RVMonJVM.java:709)
+	at .ConsoleInput$Compiled.util::Eval\eval(str():)#61(Unknown Source)
+	at .ConsoleInput$Compiled.ConsoleInput\main()#0(Unknown Source)
+	at .ConsoleInput$Compiled.dynRun(Unknown Source)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.dynRun(RVMonJVM.java:482)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.executeRVMProgram(RVMonJVM.java:182)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMJVM.executeRVMProgram(RVMJVM.java:92)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools.executeProgram(ExecutionTools.java:154)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools.executeProgram(ExecutionTools.java:100)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.executeModule(CommandExecutor.java:231)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalStatement(CommandExecutor.java:387)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:286)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:272)
+	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:60)
+	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:218)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:62)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:73)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
+ok
+rascal>eval(["X = 2 * 3;", "X + 5;"]);
+java.lang.NullPointerException
+	at org.rascalmpl.library.util.Eval.getSharedEvaluator(Eval.java:79)
+	at org.rascalmpl.library.util.Eval.eval(Eval.java:119)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore.callJavaMethod(RVMCore.java:1003)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.insnCALLJAVA(RVMonJVM.java:347)
+	at .ConsoleInput$Compiled.util::Eval\eval(reified(parameter("T",value())(@boundGiven=false)):list(str()):)#64(Unknown Source)
+	at .ConsoleInput$Compiled.dynRun(Unknown Source)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.jvmOCALL(RVMonJVM.java:709)
+	at .ConsoleInput$Compiled.util::Eval\eval(list(str()):)#67(Unknown Source)
+	at .ConsoleInput$Compiled.ConsoleInput\main()#0(Unknown Source)
+	at .ConsoleInput$Compiled.dynRun(Unknown Source)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.dynRun(RVMonJVM.java:482)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.executeRVMProgram(RVMonJVM.java:182)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMJVM.executeRVMProgram(RVMJVM.java:92)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools.executeProgram(ExecutionTools.java:154)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools.executeProgram(ExecutionTools.java:100)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.executeModule(CommandExecutor.java:231)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalStatement(CommandExecutor.java:387)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:286)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:272)
+	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:60)
+	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:218)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:62)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:73)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
+ok
+----
+
+
+
+
+[[Eval-evalType]]
+## evalType
+
+.Function 
+* `str evalType(str command) throws Timeout, StaticError, ParseError`
+          * `str evalType(list[str] commands) throws Timeout, StaticError, ParseError`
+          * `str evalType(str command, int duration) throws Timeout, StaticError, ParseError`
+          * `str evalType(list[str] commands, int duration) throws Timeout, StaticError, ParseError`
+          
+
+
+.Synopsis
+Evaluate a (list of) Rascal commands and return the type of the last command.
+
+.Description
+Evaluate a command or a list of commands and return the type of the value of the last command that is executed.
+An optional `duration` argument may be present to limit the time
+(in milliseconds) the execution may take. By default, the duration is set to 1000 ms.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import util::Eval;
+ok
+rascal>evalType("2 * 3;");
+java.lang.NullPointerException
+	at org.rascalmpl.library.util.Eval.getSharedEvaluator(Eval.java:79)
+	at org.rascalmpl.library.util.Eval.evalType(Eval.java:129)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore.callJavaMethod(RVMCore.java:1003)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.insnCALLJAVA(RVMonJVM.java:347)
+	at .ConsoleInput$Compiled.util::Eval\evalType(str():)#84(Unknown Source)
+	at .ConsoleInput$Compiled.ConsoleInput\main()#0(Unknown Source)
+	at .ConsoleInput$Compiled.dynRun(Unknown Source)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.dynRun(RVMonJVM.java:482)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.executeRVMProgram(RVMonJVM.java:182)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMJVM.executeRVMProgram(RVMJVM.java:92)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools.executeProgram(ExecutionTools.java:154)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools.executeProgram(ExecutionTools.java:100)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.executeModule(CommandExecutor.java:231)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalStatement(CommandExecutor.java:387)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:286)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:272)
+	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:60)
+	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:218)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:62)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:73)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
+ok
+rascal>evalType("[1, 2, 3];");
+java.lang.NullPointerException
+	at org.rascalmpl.library.util.Eval.getSharedEvaluator(Eval.java:79)
+	at org.rascalmpl.library.util.Eval.evalType(Eval.java:129)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore.callJavaMethod(RVMCore.java:1003)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.insnCALLJAVA(RVMonJVM.java:347)
+	at .ConsoleInput$Compiled.util::Eval\evalType(str():)#84(Unknown Source)
+	at .ConsoleInput$Compiled.ConsoleInput\main()#0(Unknown Source)
+	at .ConsoleInput$Compiled.dynRun(Unknown Source)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.dynRun(RVMonJVM.java:482)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.executeRVMProgram(RVMonJVM.java:182)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMJVM.executeRVMProgram(RVMJVM.java:92)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools.executeProgram(ExecutionTools.java:154)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools.executeProgram(ExecutionTools.java:100)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.executeModule(CommandExecutor.java:231)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalStatement(CommandExecutor.java:387)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:286)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:272)
+	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:60)
+	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:218)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:62)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:73)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
+ok
+----
+
+
+
+:leveloffset: +1
+
+:leveloffset: -1

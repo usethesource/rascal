@@ -1,0 +1,46 @@
+
+[[Static-NonWellformedType]]
+# NonWellformedType
+:concept: Static/NonWellformedType
+
+.Synopsis
+A type in a declaration is not wellformed.
+
+.Syntax
+
+.Types
+
+.Function
+       
+.Usage
+
+.Description
+Types should respect some structural rules and this error signals a violation of these rules.
+Examples of violations are:
+
+*  a non-parametric type has parameters.
+*  a parametric type has an incorrect number of parameters.
+
+
+Remedy: correct the type.
+
+.Examples
+[source,rascal-shell-error]
+----
+rascal>bool[int] x;
+ok
+rascal>list[int,str] l;
+ok
+rascal>map[str, int, int]  m;
+ok
+rascal>set[int,str] s;
+ok
+----
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

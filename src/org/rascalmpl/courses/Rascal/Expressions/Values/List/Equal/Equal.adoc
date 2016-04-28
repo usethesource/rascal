@@ -1,3 +1,4 @@
+
 [[List-Equal]]
 # List Equal
 :concept: Expressions/Values/List/Equal

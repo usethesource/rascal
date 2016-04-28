@@ -1,0 +1,28 @@
+[[Properties-hsize]]
+# hsize
+:concept: Vis/Figure/Properties/hsize
+
+.Synopsis
+
+Defines the minimal horizontal size.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty hsize(num h)`
+
+.Description
+See <<Properties-size>>. A synonym for `hsize` is <<width>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

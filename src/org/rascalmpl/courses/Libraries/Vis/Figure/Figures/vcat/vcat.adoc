@@ -1,0 +1,63 @@
+[[Figures-vcat]]
+# vcat
+:concept: Vis/Figure/Figures/vcat
+
+.Synopsis
+Vertical composition of figures.
+
+.Syntax
+
+.Types
+
+.Function
+`Figure vcat(Figures figs, FProperty props...)`
+
+.Description
+This is a special case of <<grid>>. It is a <<grid>> with just one column. See <<grid>> for more information.
+
+See also <<hcat>>.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(vcat([b1, b2]));
+----
+gives: 
+image::{concept}/v1.png[alt="v1"]
+
+
+[source,rascal-shell]
+----
+rascal>render(vcat([b1, b2]));
+----
+gives: 
+image::{concept}/v2.png[alt="v2"]
+
+
+
+[source,rascal-shell]
+----
+rascal>render(vcat([b1, b2]));
+----
+gives: 
+image::{concept}/v3.png[alt="v3"]
+
+
+When several child figures are involved, it is more convenient to change
+the standard alignment for them using <<std>>.
+[source,rascal-shell]
+----
+rascal>render(vcat([b1, b2, b3], std(left()), vgrow(1.1)));
+----
+gives: 
+image::{concept}/v5.png[alt="v5"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

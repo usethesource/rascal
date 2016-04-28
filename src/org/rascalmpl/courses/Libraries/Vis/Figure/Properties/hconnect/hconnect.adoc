@@ -1,0 +1,28 @@
+[[Properties-hconnect]]
+# hconnect
+:concept: Vis/Figure/Properties/hconnect
+
+.Synopsis
+Define horizontal connection point of figure in an [overlay].
+
+.Syntax
+
+
+.Types
+
+.Function
+`FProperty hconnect(num r)`
+
+.Description
+Describes where a line connects with this figure. 0.0 means on the left and 1.0 at the right. See also <<connect>> and <<vconnect>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

@@ -1,0 +1,13 @@
+
+[[ADocTest-analysis]]
+# analysis stub
+:concept: analysis
+
+.Synopsis
+Stub for testing analysis doc files
+
+:leveloffset: +1
+include::AnyModule/AnyModule.adoc[AnyModule]
+
+
+:leveloffset: -1

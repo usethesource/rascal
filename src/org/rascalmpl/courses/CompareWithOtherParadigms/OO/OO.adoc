@@ -1,3 +1,4 @@
+
 [[CompareWithOtherParadigms-OO]]
 # Object-Oriented and Imperative Languages
 :concept: OO

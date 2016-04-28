@@ -1,3 +1,4 @@
+
 [[Rascalopedia-Tuple]]
 # Tuple
 :concept: Tuple
@@ -24,7 +25,7 @@ _T_~i~ represents the type of element _i_. Tuple have two major applications:
 *  For ad-hoc packaging of values, for instance, to return multiple-values from a function.
 
 
-See link::{RascalLang}#Values-Tuple[Tuple Values] for the operations on tuples.
+See link:{RascalLang}#Values-Tuple[Tuple Values] for the operations on tuples.
 
 .Examples
 

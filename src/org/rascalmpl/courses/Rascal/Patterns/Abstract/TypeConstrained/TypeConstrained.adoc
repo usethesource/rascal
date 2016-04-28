@@ -1,3 +1,4 @@
+
 [[Abstract-TypeConstrained]]
 # Type Constrained Pattern
 :concept: Patterns/Abstract/TypeConstrained

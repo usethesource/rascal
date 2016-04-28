@@ -1,0 +1,56 @@
+[[Properties-gap]]
+# gap
+:concept: Vis/Figure/Properties/gap
+
+.Synopsis
+Define minimal gap between figures in compositions.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty gap(num h, num v)`
+
+.Description
+Set the minimal horizontal gap between figures to `h` and the minimal vertical gap to `v`. 
+
+Also see <<hgap>> and <<vgap>>.
+
+Note that:
+
+*  `gap(hv)` is equivalent to `gap(hv, hv)` and to `hgap(hv), vgap(hv)`.
+*  `gap(h, v)` is equivalent to `hgap(h), vgap(v)`.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(hcat([b1, b2, b2], gap(50)));
+----
+
+image::{concept}/g1.png[alt="g1"]
+
+[source,rascal-shell]
+----
+rascal>render(b2);
+----
+
+image::{concept}/g2.png[alt="g2"]
+
+
+[source,rascal-shell]
+----
+rascal>render(b2);
+----
+
+image::{concept}/g3.png[alt="g3"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

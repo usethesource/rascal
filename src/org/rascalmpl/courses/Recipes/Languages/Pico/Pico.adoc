@@ -1,3 +1,4 @@
+
 [[Languages-Pico]]
 # Pico
 :concept: Languages/Pico
@@ -36,18 +37,6 @@ Pico has a single purpose in life: being so simple that specifications of every 
 The following aspects of the Pico language will be discussed:
 
 
-*** <<Pico-Abstract,Abstract>>: Abstract syntax for Pico.
-*** <<Pico-Assembly,Assembly>>: Assembly language for Pico.
-*** <<Pico-Compile,Compile>>: Compile a Pico program to assembly language.
-*** <<Pico-ControlFlow,ControlFlow>>: Compute the control flow graph for a Pico program.
-*** <<Pico-Evaluate,Evaluate>>: Evaluate a Pico program.
-*** <<Pico-IDE,IDE>>: An Integrated Development Environment for Pico.
-*** <<Pico-Load,Load>>: Convert a Pico parse tree into a Pico abstract syntax tree.
-*** <<Pico-Syntax,Syntax>>: Concrete syntax for Pico.
-*** <<Pico-Typecheck,Typecheck>>: Typechecker a Pico program.
-*** <<Pico-Uninit,Uninit>>: Find unitialized variables in a Pico program.
-*** <<Pico-UseDef,UseDef>>: Compute use-def information for the variables in a Pico program.
-*** <<Pico-Visualize,Visualize>>: Visualize Pico Control Flow Graphs.
 
 .Examples
 Here is a -- not so simple -- Pico program that computes the factorial function:

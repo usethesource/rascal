@@ -1,3 +1,4 @@
+
 [[Concepts-PatternMatching]]
 # Pattern Matching
 :concept: Concepts/PatternMatching
@@ -31,7 +32,7 @@ Here is a _regular expression_ that matches a line of text, finds the first alph
 
 Regular expressions follow the Java regular expression syntax with one exception: instead of using numbered groups to refer to parts of the subject string that have been matched by a part of the regular expression we use the notation:
 
-[source,rascal]
+[source,rascal,subs="quotes"]
 ----
 <_Name_:_RegularExpression_>
 ----

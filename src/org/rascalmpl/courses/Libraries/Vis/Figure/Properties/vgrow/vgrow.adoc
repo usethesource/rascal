@@ -1,0 +1,37 @@
+[[Properties-vgrow]]
+# vgrow
+:concept: Vis/Figure/Properties/vgrow
+
+.Synopsis
+Increase (grow) the vertical size of a figure relative to its contained figures.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty vgrow(num hg)`
+
+.Description
+Defines the vertical growth of a figure relative to its contained figures.
+Growth is expressed as a factor larger than 1.
+
+Also see <<grow>> and <<hgrow>>.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(b2);
+----
+
+image::{concept}/g1.png[alt="g1"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

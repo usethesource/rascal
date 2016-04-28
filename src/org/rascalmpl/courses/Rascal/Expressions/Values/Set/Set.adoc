@@ -1,3 +1,4 @@
+
 [[Values-Set]]
 # Set
 :concept: Expressions/Values/Set
@@ -39,25 +40,8 @@ it has to be prefixed by the splice operator `*`.
 
 The following operators are provided on sets:
 
-**** <<Set-Comprehension,Set Comprehension>>: A set comprehension generates a set value.
-**** <<Set-Difference,Set Difference>>: The difference between two sets.
-**** <<Set-Equal,Set Equal>>: Equal operator on set values.
-**** <<Set-Insert,Set Insert>>: Add an element to a set.
-**** <<Set-Intersection,Set Intersection>>: Intersection of two sets.
-**** <<Set-NotEqual,Set NotEqual>>: Not equal operator on set values.
-**** <<Set-Product,Set Product>>: The product of two set values.
-**** <<Set-Splice,Set Splice>>: Splice the elements of a set in an enclosing set.
-**** <<Set-StrictSubSet,Set StrictSubSet>>: Strict subset operator on set values.
-**** <<Set-StrictSuperSet,Set StrictSuperSet>>: Strict superset operator on set values.
-**** <<Set-SubSet,Set SubSet>>: Subset operator on set values.
-**** <<Set-SuperSet,Set SuperSet>>: Superset operator on set values.
-**** <<Set-Union,Set Union>>: Union of two set values.
-**** <<Set-in,Set in>>: Membership test on set values.
-**** <<Set-notin,Set notin>>: Negated membership test on set values.
 
-The following functions are provided on sets:
-subtoc[Rascal/Libraries/Prelude/Set,1]
-
+There are also link:{Libraries}#Prelude-Set[library functions] available for Sets.
 .Examples
 ##  Set types 
 

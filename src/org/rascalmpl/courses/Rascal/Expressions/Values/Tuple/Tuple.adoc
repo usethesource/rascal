@@ -1,3 +1,4 @@
+
 [[Values-Tuple]]
 # Tuple
 :concept: Expressions/Values/Tuple
@@ -34,15 +35,6 @@ where _T_~1~, _T_~2~, ... are arbitrary types and _L_~1~, _L_~2~, ... are option
 
 The following operators are provided for tuples:
 
-**** <<Tuple-Concatenation,Tuple Concatenation>>: Concatenate two tuple values.
-**** <<Tuple-Equal,Tuple Equal>>: Equality operator on tuple values.
-**** <<Tuple-FieldSelection,Tuple FieldSelection>>: Select a field from a tuple by its field name.
-**** <<Tuple-GreaterThan,Tuple GreaterThan>>: Greater than operator on tuple values.
-**** <<Tuple-GreaterThanOrEqual,Tuple GreaterThanOrEqual>>: Greater than or equal operator on tuple values.
-**** <<Tuple-LessThan,Tuple LessThan>>: Less than operator on tuple values.
-**** <<Tuple-LessThanOrEqual,Tuple LessThanOrEqual>>: Less than or equal operator on tuple values.
-**** <<Tuple-NotEqual,Tuple NotEqual>>: Not equal operator on tuple values.
-**** <<Tuple-Subscription,Tuple Subscription>>: Retrieve a tuple field by its index position.
 
 .Examples
 [source,rascal-shell]

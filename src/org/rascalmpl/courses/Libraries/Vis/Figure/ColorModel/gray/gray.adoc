@@ -1,0 +1,62 @@
+[[ColorModel-gray]]
+# gray
+:concept: Vis/Figure/ColorModel/gray
+
+.Synopsis
+The color gray.
+
+.Syntax
+
+.Types
+
+.Function
+
+#  `Color gray(int g)`
+#  `Color gray(int g, real alpha)`
+#  `Color gray(real perc)`
+#  `Color gray(real perc, real alpha)`
+
+.Description
+Create gray colors in various shades:
+
+#  Create a gray color between black (0) and white (255).
+#  Create a gray color between black (0) and white (255) with transparency `alpha`.
+#  Create a gray color between black (0.0) and white (1.0).
+#  Create a gray color between black (0.0) and white (1.0) transparency `alpha`.
+
+.Examples
+Setting gray values with an integer in the range [0,255]:
+[source,rascal-shell]
+----
+rascal>render(hcat([b1, b2, b3], size(50)));
+----
+gives: 
+image::{concept}/h1.png[alt="h1"]
+
+
+Setting gray values with an a percentage in the range [0.0, 1.0]:
+[source,rascal-shell]
+----
+rascal>render(hcat([b1, b2, b3], size(50)));
+----
+gives: 
+image::{concept}/h2.png[alt="h2"]
+
+
+Setting transparency:
+[source,rascal-shell]
+----
+rascal>render(hcat([b1, b2, b3], size(50)));
+----
+gives: 
+image::{concept}/h3.png[alt="h3"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

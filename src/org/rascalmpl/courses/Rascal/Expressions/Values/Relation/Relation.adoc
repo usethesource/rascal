@@ -1,3 +1,4 @@
+
 [[Values-Relation]]
 # Relation
 :concept: Expressions/Values/Relation
@@ -40,16 +41,8 @@ Since relations are a form of set all operations (see <<Values-Set>>) and functi
 
 The following additional operators are provided for relations:
 
-**** <<Relation-CartesianProduct,Relation CartesianProduct>>: Cartesian product of two relation values.
-**** <<Relation-Composition,Relation Composition>>: Composition of two relation values.
-**** <<Relation-FieldSelection,Relation FieldSelection>>: Select a field (column) from a relation value.
-**** <<Relation-Join,Relation Join>>: Join two relation values.
-**** <<Relation-ReflexiveTransitiveClosure,Relation ReflexiveTransitiveClosure>>: The reflexive transitive closure of a binary relation.
-**** <<Relation-Subscription,Relation Subscription>>: Indexing of a relation via tuple values.
-**** <<Relation-TransitiveClosure,Relation TransitiveClosure>>: Transitive closure on binary relation values.
 
-The following additional functions are provided on relations:
-subtoc[Rascal/Libraries/Prelude/Relation,1]
+There are also link:{Libraries}#Prelude-Relation[library functions] available for Relations.
 
 
 .Examples

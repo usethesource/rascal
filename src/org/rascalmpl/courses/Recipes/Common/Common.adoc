@@ -1,3 +1,4 @@
+
 [[Recipes-Common]]
 # Common
 :concept: Common
@@ -15,19 +16,6 @@ Solutions for some common tasks.
 We discuss the following tasks:
 
 
-** <<Common-AdHocDataExploration,Ad Hoc Data Exploration>>: Using Rascal to explore an interesting data space.
-** <<Common-CallAnalysis,Call Analysis>>: Analyzing the call structure of an application.
-** <<Common-CallLifting,Call Lifting>>: Lift procedure calls to component calls.
-** <<Common-ColoredTrees,Colored Trees>>: Computations on binary trees.
-** <<Common-CountConstructors,Count Constructors>>: Generic function that can count constructors in a value of any algebraic data type.
-** <<Common-Derivative,Derivative>>: Symbolic differentiation.
-** <<Common-StringTemplate,String Template>>: Using string templates to generate code.
-** <<Common-WordCount,Word Count>>: Counting words in strings.
-*** <<WordCount-CountInLine1,CountInLine1>>: Count words in a line.
-*** <<WordCount-CountInLine2,CountInLine2>>: Count words in a line.
-*** <<WordCount-CountInLine3,CountInLine3>>: Count words in a line.
-*** <<WordCount-Jabberwocky,Jabberwocky>>: Lewis Carroll's well-known poem.
-** <<Common-WordReplacement,Word Replacement>>: Replace words in a string.
 
 .Examples
 

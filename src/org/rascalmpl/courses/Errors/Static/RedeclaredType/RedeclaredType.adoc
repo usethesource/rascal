@@ -1,0 +1,48 @@
+
+[[Static-RedeclaredType]]
+# RedeclaredType
+:concept: Static/RedeclaredType
+
+.Synopsis
+A type with the same name has been declared before.
+
+.Syntax
+
+.Types
+
+.Function
+       
+.Usage
+
+.Description
+Some declarations introduce new type names. Most important are an 
+link:{RascalLang}#Declarations-AlgebraicDataType[algebraic data type] and link:{RascalLang}#Declarations-Alias[alias].
+This error signals that the same type name is used for incompatible purposes.
+
+Remedy: rename one of the type names.
+
+.Examples
+[source,rascal-shell-error]
+----
+rascal>data D = d(int x);
+ok
+rascal>alias D = str;
+[error] An adt, alias, or nonterminal named D has already been declared in module ConsoleInput IN 'alias D = str;'
+----
+
+[source,rascal-shell-error]
+----
+rascal>alias D = int;
+ok
+rascal>alias D = str;
+[error] A non-equivalent alias named D is already in scope IN 'alias D = str;'
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

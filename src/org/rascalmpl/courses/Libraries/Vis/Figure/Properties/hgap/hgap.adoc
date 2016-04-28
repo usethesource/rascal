@@ -1,0 +1,28 @@
+[[Properties-hgap]]
+# hgap
+:concept: Vis/Figure/Properties/hgap
+
+.Synopsis
+Define minimal horizontal gap in compositions.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty hgap(num h)`
+
+.Description
+Set the minimal horizontal gap between figures.
+See <<gap>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

@@ -1,3 +1,4 @@
+
 [[Lisra-Syntax]]
 # Syntax
 :concept: Languages/Lisra/Syntax

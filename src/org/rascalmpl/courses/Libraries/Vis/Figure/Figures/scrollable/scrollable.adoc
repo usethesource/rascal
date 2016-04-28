@@ -1,0 +1,37 @@
+[[Figures-scrollable]]
+# scrollable
+:concept: Vis/Figure/Figures/scrollable
+
+.Synopsis
+Embed a figure in a scrollable plane.
+
+.Syntax
+
+.Types
+
+.Function
+`Figure scrollable(Figure f, FProperty props ...)`
+
+.Description
+Embeds figure `f` in a scrollable plane. If the space for the scrollable is too small to show the entire figure `f` then scrollbars will appear. The minimal size of the `scrollable` is the minimum size required to show the scrollbars.
+
+See also <<hscrollable>> and <<vscrollable>>.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(box(sb,fillColor("red")));
+----
+
+image::{concept}/s1.png[alt="s1"]
+
+
+.Benefits
+
+.Pitfalls
+When rendering on-screen the figure is always displayed in a scrollable area. Thus using a scrollable as a top level figure makes little sense, as there is no observable difference between `render(scrollable(g))` and `render(g)`.
+
+
+:leveloffset: +1
+
+:leveloffset: -1

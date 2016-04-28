@@ -1,3 +1,4 @@
+
 [[Rascalopedia-SoftwareMetric]]
 # Software Metric
 :concept: SoftwareMetric

@@ -1,0 +1,11 @@
+
+[[jdt-m3]]
+# m3
+:concept: lang/java/jdt/m3
+
+.Synopsis
+functions for generating M3 models starting from Eclipse projects
+
+:leveloffset: +1
+
+:leveloffset: -1

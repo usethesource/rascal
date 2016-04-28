@@ -1,3 +1,4 @@
+
 [[MeasuringJava-MeasuringMethods]]
 # Measuring Methods
 :concept: Metrics/MeasuringJava/MeasuringMethods
@@ -46,7 +47,7 @@ ok
 rascal>methodSrc = readFile(|java+method:///HelloWorld/main(java.lang.String%5B%5D)|);
 IO("Unsupported scheme java+method")
 Call stack (most recent first):
-	readFile(|java+method:///HelloWorld/main(java.lang.String%5B%5D)|, {}) at |std:///IO.rsc|(11944,1671,<459,0>,<490,43>)
+	readFile(|java+method:///HelloWorld/main(java.lang.String%5B%5D)|, {}) at |std:///IO.rsc|(12600,1747,<540,0>,<576,43>)
 	main([]) at |test-modules:///ConsoleInput.rsc|(76,66,<5,15>,<5,81>)
 
 ok

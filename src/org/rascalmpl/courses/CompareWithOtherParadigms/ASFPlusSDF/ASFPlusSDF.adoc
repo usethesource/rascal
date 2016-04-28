@@ -1,3 +1,4 @@
+
 [[CompareWithOtherParadigms-ASFPlusSDF]]
 # ASF+SDF
 :concept: ASFPlusSDF

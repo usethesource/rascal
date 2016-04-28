@@ -1,0 +1,41 @@
+[[Figures-checkbox]]
+# checkbox
+:concept: Vis/Figure/Figures/checkbox
+
+.Synopsis
+An interactive checkbox.
+
+.Syntax
+
+.Types
+
+.Function
+`Figure checkbox(str text, void(bool state) vcallback, FProperty props...)`
+
+.Description
+A checkbox that can be selected or deselected by the user.
+Whenever this occurs, `vcallback` is called. The `state` argument of the callback is `true` when the check box is checked (= selected).
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(check());
+----
+
+image::{concept}/c1.png[alt="c1"]
+
+
+Checking the checkbox will change the variable `state` and this is reflected in the changed text.
+
+.Benefits
+
+.Pitfalls
+Unfortunately we cannot show an interactive version of the above example here.
+Try it out in Rascal itself.
+
+Due to limitations in SWT this does not behave correctly when being placed over or under figures, so do not use them in <<overlay>> or <<mouseOver>>.
+
+
+:leveloffset: +1
+
+:leveloffset: -1

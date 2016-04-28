@@ -1,0 +1,42 @@
+[[Figures-pack]]
+# pack
+:concept: Vis/Figure/Figures/pack
+
+.Synopsis
+Dense packing of a list of figures.
+
+.Syntax
+
+.Types
+
+.Function
+`Figure pack(Figures figs, FProperty props...)`
+
+.Description
+Pack the given figures in arbitrary order to fill space as efficiently as possible.
+Our bin packing algorithm is inspired by http://www.blackpawn.com/texts/lightmaps/[LightMaps].
+
+The size computation is automatic and attempts to obtain a rectangular image close to a square.
+The gap property is used for the distance between figures.
+
+When the vertical size available is too small, a vertical scrollbar will appear. 
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(pack([b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12], std(gap(10))));
+----
+gives (when give a space of 200x200):
+
+
+image::{concept}/p1.png[alt="p1"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

@@ -1,3 +1,4 @@
+
 [[Visualization-PlayingWithProperties]]
 # Playing With Properties
 :concept: Visualization/PlayingWithProperties
@@ -24,7 +25,7 @@ image::{concept}/e1.png[alt="e1"]
 
 (we add the shrink to leave some space for thick lines and shadows below).
 
-Change the style of its border using link::{Rascal}#lineStyle[]:
+Change the style of its border using link:{Libraries}#Properties-lineStyle[lineStyle]:
 [source,rascal-shell]
 ----
 rascal>render(e);
@@ -33,7 +34,7 @@ rascal>render(e);
 image::{concept}/e2.png[alt="e2"]
 
 
-Change the thickness of its border using link::{Rascal}#lineWidth[]:
+Change the thickness of its border using link:{Libraries}#Properties-lineWidth[lineWidth]:
 [source,rascal-shell]
 ----
 rascal>render(e);
@@ -42,7 +43,7 @@ rascal>render(e);
 image::{concept}/e3.png[alt="e3"]
 
 
-Change the color of its border using link::{Rascal}#lineColor[]:
+Change the color of its border using link:{Libraries}#Properties-lineColor[lineColor]:
 [source,rascal-shell]
 ----
 rascal>render(e);
@@ -51,7 +52,7 @@ rascal>render(e);
 image::{concept}/e4.png[alt="e4"]
 
 
-Change the color of its area using link::{Rascal}#fillColor[]:
+Change the color of its area using link:{Libraries}#Properties-fillColor[fillColor]:
 [source,rascal-shell]
 ----
 rascal>render(e);
@@ -60,7 +61,7 @@ rascal>render(e);
 image::{concept}/e5.png[alt="e5"]
 
 
-Add a shadow using link::{Rascal}#shadow[]:
+Add a shadow using link:{Libraries}#Properties-shadow[shadow]:
 [source,rascal-shell]
 ----
 rascal>render(e);
@@ -69,7 +70,7 @@ rascal>render(e);
 image::{concept}/e6.png[alt="e6"]
 
 
-Add the color of the shadow using link::{Rascal}#shadowColor[]:
+Add the color of the shadow using link:{Libraries}#Properties-shadowColor[shadowColor]:
 [source,rascal-shell]
 ----
 rascal>render(e);

@@ -71,8 +71,7 @@ _Auto-indent_: Expressions that get interpolated in a string will be auto-indent
 The following operators are defined for Strings:
 subtoc::[1]
 
-The following functions are provided for strings:
-subtoc[Rascal/Expressions/Values/String,1]
+There are also link:{Libraries}#Prelude-String[library functions] available for Strings.
 
 .Examples
 [source,rascal-shell]

@@ -1,0 +1,42 @@
+[[Properties-fontSize]]
+# fontSize
+:concept: Vis/Figure/Properties/fontSize
+
+.Synopsis
+Size of the font to be used for text.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty fontSize(int s)`
+
+.Description
+Sets the font size (in points) to be used in text.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(t1);
+----
+
+image::{concept}/f1.png[alt="font 1"]
+
+
+[source,rascal-shell]
+----
+rascal>render(t2);
+----
+
+image::{concept}/f2.png[alt="font 2"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

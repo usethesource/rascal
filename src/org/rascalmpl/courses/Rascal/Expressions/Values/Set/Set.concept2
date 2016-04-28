@@ -40,9 +40,7 @@ it has to be prefixed by the splice operator `*`.
 The following operators are provided on sets:
 subtoc::[1]
 
-The following functions are provided on sets:
-subtoc[Rascal/Libraries/Prelude/Set,1]
-
+There are also link:{Libraries}#Prelude-Set[library functions] available for Sets.
 .Examples
 ##  Set types 
 

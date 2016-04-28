@@ -1,3 +1,4 @@
+
 [[Declarations-AlgebraicDataType]]
 # Algebraic Data Type
 :concept: Declarations/AlgebraicDataType

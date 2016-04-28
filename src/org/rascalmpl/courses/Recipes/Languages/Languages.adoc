@@ -1,3 +1,4 @@
+
 [[Recipes-Languages]]
 # Languages
 :concept: Languages
@@ -15,39 +16,6 @@ Definitions of several languages and their tools.
 
 Examples of several languages and the implementation of tools like interpreters and compilers:
 
-** <<Languages-Exp,Exp>>: The _hello world_ of syntax definition and language definition.
-*** <<Exp-Abstract,Abstract>>: A version of Exp based on abstract syntax.
-*** <<Exp-Combined,Combined>>: Combine concrete syntax with abstract syntax.
-*** <<Exp-Concrete,Concrete>>: Various versions of Exp based on concrete syntax.
-** <<Languages-Func,Func>>: Func is a tiny functional language; we present several interpreters for it.
-*** <<Func-AbstractSyntax,Abstract Syntax>>: The abstract syntax for Func.
-*** <<Func-ConcreteSyntax,Concrete Syntax>>: The concrete syntax of Func.
-*** <<Func-Eval0,Eval0>>: A Func interpreter that does not support let-expressions and pointers.
-*** <<Func-Eval1,Eval1>>: .
-*** <<Func-Eval2,Eval2>>: .
-*** <<Func-Eval3,Eval3>>: .
-*** <<Func-LoadAST,Load AST>>: Parse Func program from string or file and convert to an abstract syntax tree.
-*** <<Func-Parse,Parse>>: Parse a Func program from a string or a file.
-** <<Languages-Lisra,Lisra>>: A lisp interpreter in Rascal.
-*** <<Lisra-Eval,Eval>>: A Lisp interpreter.
-*** <<Lisra-Parse,Parse>>: Parsing a Lisp expression.
-*** <<Lisra-Pretty,Pretty>>: A Lisp pretty printer.
-*** <<Lisra-Runtime,Runtime>>: The runtime representation of Lisp programs and data.
-*** <<Lisra-Syntax,Syntax>>: The textual syntax of Lisp.
-*** <<Lisra-Test,Test>>: Tests for the Lisp interpreter.
-** <<Languages-Pico,Pico>>: The classical toy language, including a specialized IDE.
-*** <<Pico-Abstract,Abstract>>: Abstract syntax for Pico.
-*** <<Pico-Assembly,Assembly>>: Assembly language for Pico.
-*** <<Pico-Compile,Compile>>: Compile a Pico program to assembly language.
-*** <<Pico-ControlFlow,ControlFlow>>: Compute the control flow graph for a Pico program.
-*** <<Pico-Evaluate,Evaluate>>: Evaluate a Pico program.
-*** <<Pico-IDE,IDE>>: An Integrated Development Environment for Pico.
-*** <<Pico-Load,Load>>: Convert a Pico parse tree into a Pico abstract syntax tree.
-*** <<Pico-Syntax,Syntax>>: Concrete syntax for Pico.
-*** <<Pico-Typecheck,Typecheck>>: Typechecker a Pico program.
-*** <<Pico-Uninit,Uninit>>: Find unitialized variables in a Pico program.
-*** <<Pico-UseDef,UseDef>>: Compute use-def information for the variables in a Pico program.
-*** <<Pico-Visualize,Visualize>>: Visualize Pico Control Flow Graphs.
 
 Other languages that we are considering (but are not yet described):
 

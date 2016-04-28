@@ -1,0 +1,140 @@
+
+[[Prelude-ValueIO]]
+
+
+[[Prelude-ValueIO]]
+# ValueIO
+:concept: Prelude/ValueIO
+.Usage
+`import ValueIO;`
+
+
+
+.Synopsis
+Library functions for reading and writing values in textual and binary format.
+
+
+
+* <<ValueIO-getFileLength,getFileLength>>: Get length of a file in number of bytes.
+      
+* <<ValueIO-readBinaryValueFile,readBinaryValueFile>>: Read a typed value from a binary file.
+      
+* <<ValueIO-readTextValueFile,readTextValueFile>>: Read a typed value from a text file.
+      
+* <<ValueIO-readTextValueFileWithEmbeddedTypes,readTextValueFileWithEmbeddedTypes>>: If you have written a file containing reified types, then you can use this function
+      
+* <<ValueIO-readTextValueString,readTextValueString>>: Parse a textual string representation of a value.
+      
+* <<ValueIO-readValueFile,readValueFile>>: Read  a value from a binary file in PBF format.
+      
+* <<ValueIO-writeBinaryValueFile,writeBinaryValueFile>>: Write a value to a file using an efficient binary file format.
+      
+* <<ValueIO-writeTextValueFile,writeTextValueFile>>: Write a value to a file using a textual file format.
+      
+
+[[ValueIO-getFileLength]]
+## getFileLength
+
+.Function 
+`int getFileLength(loc file)`
+
+
+.Synopsis
+Get length of a file in number of bytes.
+
+
+
+[[ValueIO-readBinaryValueFile]]
+## readBinaryValueFile
+
+.Function 
+* `&T readBinaryValueFile(type[&T] result, loc file)`
+          * `value readBinaryValueFile(loc file)`
+          
+
+
+.Synopsis
+Read a typed value from a binary file.
+
+
+
+[[ValueIO-readTextValueFile]]
+## readTextValueFile
+
+.Function 
+* `&T readTextValueFile(type[&T] result, loc file)`
+          * `value readTextValueFile(loc file)`
+          
+
+
+.Synopsis
+Read a typed value from a text file.
+
+
+
+[[ValueIO-readTextValueFileWithEmbeddedTypes]]
+## readTextValueFileWithEmbeddedTypes
+
+.Function 
+`&T readTextValueFileWithEmbeddedTypes(type[&T] result, loc file)`
+
+
+.Synopsis
+If you have written a file containing reified types, then you can use this function
+  to read them back.  
+
+
+
+[[ValueIO-readTextValueString]]
+## readTextValueString
+
+.Function 
+* `value readTextValueString(str input)`
+          * `&T readTextValueString(type[&T] result, str input)`
+          
+
+
+.Synopsis
+Parse a textual string representation of a value.
+
+
+
+[[ValueIO-readValueFile]]
+## readValueFile
+
+.Function 
+`value readValueFile(loc file)`
+
+
+.Synopsis
+Read  a value from a binary file in PBF format.
+
+
+
+[[ValueIO-writeBinaryValueFile]]
+## writeBinaryValueFile
+
+.Function 
+`void writeBinaryValueFile(loc file, value val, bool compression = true)`
+
+
+.Synopsis
+Write a value to a file using an efficient binary file format.
+
+
+
+[[ValueIO-writeTextValueFile]]
+## writeTextValueFile
+
+.Function 
+`void writeTextValueFile(loc file, value val)`
+
+
+.Synopsis
+Write a value to a file using a textual file format.
+
+
+
+:leveloffset: +1
+
+:leveloffset: -1

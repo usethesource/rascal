@@ -1,3 +1,4 @@
+
 [[Abstract-TypedLabelled]]
 # Typed and Labelled Pattern
 :concept: Patterns/Abstract/TypedLabelled

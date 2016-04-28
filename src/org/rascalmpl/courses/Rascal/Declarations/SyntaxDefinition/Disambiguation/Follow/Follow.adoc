@@ -1,3 +1,4 @@
+
 [[Disambiguation-Follow]]
 # Follow Declaration
 :concept: Declarations/SyntaxDefinition/Disambiguation/Follow

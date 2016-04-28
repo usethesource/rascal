@@ -8,24 +8,25 @@ Statistical functions.
 .Description
 
 A collection of statistical functions based on the 
-http://commons.apache.org/math/api-2.2/index.html[Apache statistics library].
+http://commons.apache.org/math/api-3.6/index.html[Apache statistics library].
 
 We do not provide a course on (or even an introduction to) statistics. Useful background information can be found here:
 
-*  [Statistics](http://en.wikipedia.org/wiki/Statistics) on Wikipedia.
+* http://en.wikipedia.org/wiki/Statistics[Statistics] on Wikipedia.
 
-*  [An Introduction to Statistics](http://www.artofproblemsolving.com/LaTeX/Examples/statistics_firstfive.pdf) by Keone Hon.
+* http://www.artofproblemsolving.com/LaTeX/Examples/statistics_firstfive.pdf[An Introduction to Statistics] by Keone Hon.
 
-*  [Think Stats: Probability and Statistics for Programmers](http://www.greenteapress.com/thinkstats/thinkstats.pdf) by Allan B. Downey gives a very readable overview of statistic techniques.
+* http://www.greenteapress.com/thinkstats/thinkstats.pdf[Think Stats]: Probability and Statistics for Programmers]
+  by Allan B. Downey gives a very readable overview of statistic techniques.
 
-*  [Statistics Calculator](http://www.scatterchart.com/statistical_calculator/) allows entering data and get an overview of the values of various statistical indicators.
+* http://www.scatterchart.com/statistical_calculator/[Statistics Calculator] allows entering data and get an overview of the values of various statistical indicators.
 
-*  [Online Calculation on STATISTICS](http://easycalculation.com/statistics/statistics.php) gives calculators for individual measures.
+* http://easycalculation.com/statistics/statistics.php[Online Calculation on STATISTICS] gives calculators for individual measures.
 
 
 The following functionality is offered:
 
-subtoc[Rascal/Libraries/analysis/statistics,]
+subtoc::[1]
 
 .Pitfalls
 
@@ -35,4 +36,5 @@ subtoc[Rascal/Libraries/analysis/statistics,]
 http://en.wikipedia.org/wiki/Bivariate_normal_distribution[Bivariate Normal Distribution]. 
 This is explicitly stated for functions this is the case.
 
-*  <warning>The stat library is still highly experimental. Interfaces may change and functions maybe added or deleted without notice.</warning>
+WARNING: The statistics library is still highly experimental. 
+     Interfaces may change and functions maybe added or deleted without notice.

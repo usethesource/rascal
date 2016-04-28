@@ -1,3 +1,4 @@
+
 [[Rascalopedia-LanguageDefinition]]
 # Language Definition
 :concept: LanguageDefinition

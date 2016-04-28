@@ -1,0 +1,28 @@
+[[Properties-vstartGap]]
+# vstartGap
+:concept: Vis/Figure/Properties/vstartGap
+
+.Synopsis
+Vertical gap at start of composition.
+
+.Syntax
+
+
+.Types
+
+.Function
+`FProperty vstartGap(bool gap)`
+
+.Description
+Specifies if a <<vcat>> or <<grid>> will start with (half) a vertical gap. See also <<startGap>> and <<hstartGap>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

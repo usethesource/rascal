@@ -1,0 +1,59 @@
+
+[[statistics-Descriptive]]
+
+
+[[statistics-Descriptive]]
+# Descriptive
+:concept: analysis/statistics/Descriptive
+.Usage
+`import analysis::statistics::Descriptive;`
+
+
+
+.Synopsis
+Descriptive Statistics.
+
+.Description
+Provides the following univariate (single variable) statistics functions:
+
+
+
+.Examples
+
+[source,rascal-shell]
+----
+rascal>import analysis::statistics::Descriptive;
+ok
+rascal>D = [67, 88, 55, 92.5, 102, 51];
+list[num]: [67,88,55,92.5,102,51]
+rascal>mn = min(D);
+int: 51
+rascal>mx = max(D);
+int: 102
+rascal>range = mx - mn;
+int: 51
+rascal>midrange =  mn + range/2;
+int: 76
+rascal>sum(D);
+real: 455.5
+rascal>mean(D);
+real: 75.91666667
+rascal>geometricMean(D);
+real: 73.3734107237
+rascal>standardDeviation(D);
+real: 21.1622698845
+rascal>variance(D);
+real: 447.841666666666666666666666666
+rascal>percentile(D,25);
+int: 55
+rascal>percentile(D,50);
+int: 67
+rascal>percentile(D,75);
+real: 92.5
+----
+
+
+
+:leveloffset: +1
+
+:leveloffset: -1

@@ -1,0 +1,36 @@
+[[Properties-label]]
+# label
+:concept: Vis/Figure/Properties/label
+
+.Synopsis
+A label on an [edge].
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty label(Figure f)`
+
+.Description
+Adds figure `f` as label to an <<edge>> in a <<Figures-graph>>.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(graph(nodes, edges, hint("layered"), gap(100)));
+----
+
+image::{concept}/l1.png[alt="graph 1"]
+
+
+.Benefits
+
+.Pitfalls
+
+*  Labels are still under development and produce unexpected results (see above).
+
+
+:leveloffset: +1
+
+:leveloffset: -1

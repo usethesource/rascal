@@ -14,15 +14,18 @@ Annotation without a value.
 .Details
 
 .Description
-An link::{Rascal}#Declarations-Annotation[] can be associated with any node value
-(including any link::{Rascal}#AlgebraicDataType[]).
+An link:{RascalLang}#Declarations-Annotation[annotation] can be associated with any node value
+(including any link:{RascalLang}#Declarations-AlgebraicDataType[algebraic data type]).
 This error is generated when the value of an annotation is requested but has not been defined.
 
 Remedies:
 
 *  Ensure that the annotation value is properly initialized for all relevant parts of the node value. 
-*  Use the [Rascal:Boolean/isDefined] and [Rascal:Boolean/ifDefinedElse] operators to check whether the annotation value is set and act accordingly.
-*  Catch the `NoSuchAnnotation yourself`, see [Rascal:TryCatch].
+*  Use the 
+   link:{RascalLang}#Boolean-isDefined[isDefined] and 
+   link:{RascalLang}#Boolean-ifDefinedElse[ifDefinedElse] operators to check whether the annotation value 
+   is set and act accordingly.
+*  Catch the `NoSuchAnnotation yourself`, see link:{RascalLang}#Statements-TryCatch[try catch].
 
 .Examples
 [source,rascal-shell,error]

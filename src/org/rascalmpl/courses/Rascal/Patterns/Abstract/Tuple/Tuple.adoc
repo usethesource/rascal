@@ -1,3 +1,4 @@
+
 [[Abstract-Tuple]]
 # Tuple Pattern
 :concept: Patterns/Abstract/Tuple

@@ -1,0 +1,291 @@
+
+[[util-Benchmark]]
+
+
+[[util-Benchmark]]
+# Benchmark
+:concept: util/Benchmark
+.Usage
+`import util::Benchmark;`
+
+
+
+.Synopsis
+Functions for time measurement and benchmarking.
+
+.Description
+
+The `Benchmark` library provides the following functions:
+
+
+
+* <<Benchmark-benchmark,benchmark>>: Measure and report the execution time of name:void-closure pairs
+      
+* <<Benchmark-cpuTime,cpuTime>>: CPU time in nanoseconds (10^-9^ sec).
+      
+* <<Benchmark-gc,gc>>: Force a garbage collection.
+      
+* <<Benchmark-getMilliTime,getMilliTime>>: Current time in milliseconds (10^-3^ sec) since January 1, 1970 GMT.
+      
+* <<Benchmark-getNanoTime,getNanoTime>>: Current time in nanoseconds (10^-9^ sec) since January 1, 1970 GMT.
+      
+* <<Benchmark-realTime,realTime>>: Current time in milliseconds (10^-3^ sec).
+      
+* <<Benchmark-systemTime,systemTime>>: System time in nanoseconds (10^-9^ sec).
+      
+* <<Benchmark-userTime,userTime>>: User time in nanoseconds (10^-9^ sec).
+      
+
+[[Benchmark-benchmark]]
+## benchmark
+
+.Function 
+* `map[str,num] benchmark(map[str, void()] Cases)`
+          * `map[str,num] benchmark(map[str, void()] Cases, int (void ()) duration)`
+          
+
+
+.Synopsis
+Measure and report the execution time of name:void-closure pairs
+
+.Description
+
+Given is a map that maps strings (used as label to identify each case) to void-closures that execute the code to be benchmarked.
+An optional `duration` argument can be used to specify the function to perform the actual measurement. By default the function <<realTime>> is used. A map of labels and durations is returned.
+
+.Examples
+We use the `fac` function described in link:{Recipes}#Basic-Factorial[Factorial] as example:
+[source,rascal-shell]
+----
+rascal>import util::Benchmark;
+ok
+rascal>import demo::basic::Factorial;
+ok
+----
+We measure two calls to the factorial function with arguments `100`, respectively, `200` 
+(using by default <<realTime>> that returns milliseconds):
+[source,rascal-shell]
+----
+rascal>benchmark( ("fac100" : void() {fac(100);}, "fac200" : void() {fac(200);}) );
+map[str, int]: ("fac100":1461678505991,"fac200":1461678505991)
+----
+We can do the same using <<userTime>> that returns nanoseconds:
+[source,rascal-shell]
+----
+rascal>benchmark( ("fac100" : void() {fac(100);}, "fac200" : void() {fac(200);}), userTime );
+map[str, int]: ("fac100":233800390000,"fac200":233800464000)
+----
+
+
+
+[[Benchmark-cpuTime]]
+## cpuTime
+
+.Function 
+* `int cpuTime()`
+          * `int cpuTime(void () block)`
+          
+
+
+.Synopsis
+CPU time in nanoseconds (10^-9^ sec).
+
+.Description
+
+*  Current cpu time in __nanoseconds__ (10^-9^ sec) since the start of the thread that runs the code that calls this function.
+*  The cpu time in nanoseconds used by the execution of the code `block`.
+
+.Examples
+
+We use the `fac` function described in link:{Recipes}#Basic-Factorial[Factorial] as example:
+[source,rascal-shell]
+----
+rascal>import util::Benchmark;
+ok
+rascal>import demo::basic::Factorial;
+ok
+----
+Here we measure time by using separate calls to `cpuTime` before and after a call to `fac`.
+[source,rascal-shell]
+----
+rascal>before = cpuTime();
+int: 238355300000
+rascal>fac(50);
+int: 30414093201713378043612608166064768844377641568960512000000000000
+rascal>cpuTime() - before;
+int: 237562000
+----
+The code to be measured can also be passed as a function parameter to `cpuTime`:
+[source,rascal-shell]
+----
+rascal>cpuTime( void() { fac(50); } );
+int: 175000
+----
+These two timings for the same task may differ significantly due to the way these statements are executed here in the tutor.
+
+
+
+
+
+[[Benchmark-gc]]
+## gc
+
+.Function 
+`int gc()`
+
+
+.Synopsis
+Force a garbage collection.
+
+.Description
+This function forces a garbage collection and can, for instance, be used before running a benchmark.
+
+
+
+[[Benchmark-getMilliTime]]
+## getMilliTime
+
+.Function 
+`int getMilliTime()`
+
+
+.Synopsis
+Current time in milliseconds (10^-3^ sec) since January 1, 1970 GMT.
+
+.Description
+This function is a synonym for <<realTime>> and gives the wall clock time in milliseconds.
+
+
+
+[[Benchmark-getNanoTime]]
+## getNanoTime
+
+.Function 
+`int getNanoTime()`
+
+
+.Synopsis
+Current time in nanoseconds (10^-9^ sec) since January 1, 1970 GMT.
+.Description
+
+
+
+
+[[Benchmark-realTime]]
+## realTime
+
+.Function 
+* `int realTime()`
+          * `int realTime(void () block)`
+          
+
+
+.Synopsis
+Current time in milliseconds (10^-3^ sec).
+
+.Description
+
+*  Current system time in __milliseconds__ (10^-3^ sec) since January 1, 1970 GMT.
+*  Real time in milliseconds needed to execute the code `block`.
+
+.Pitfalls
+This function is a competitor for the <<DateTime-now>> function that provides a
+link:{RascalLang}#Values-Datetime[datetime] value for the current time.
+
+
+
+[[Benchmark-systemTime]]
+## systemTime
+
+.Function 
+* `int systemTime()`
+          * `int systemTime(void () block)`
+          
+
+
+.Synopsis
+System time in nanoseconds (10^-9^ sec).
+
+.Description
+
+*  Current system time in nanoseconds (10^-9^ sec) since the start of the thread that runs the code that calls this function.
+*  System time in nanoseconds needed to execute the code `block`.
+
+.Examples
+We use the `fac` function described in link:{Recipes}#Basic-Factorial[Factorial] as example:
+[source,rascal-shell]
+----
+rascal>import util::Benchmark;
+ok
+rascal>import demo::basic::Factorial;
+ok
+----
+Here we measure time by using separate calls to `sytemTime` before and after a call to `fac`.
+[source,rascal-shell]
+----
+rascal>before = systemTime();
+int: 4291368000
+rascal>fac(50);
+int: 30414093201713378043612608166064768844377641568960512000000000000
+rascal>systemTime() - before;
+int: 10212000
+----
+The code to be measured can also be passed as a function parameter to `systemTime`:
+[source,rascal-shell]
+----
+rascal>systemTime( void() { fac(50); } );
+int: 27000
+----
+
+
+
+
+[[Benchmark-userTime]]
+## userTime
+
+.Function 
+* `int userTime()`
+          * `int userTime(void () block)`
+          
+
+
+.Synopsis
+User time in nanoseconds (10^-9^ sec).
+
+.Description
+
+*  Current time in __nanoseconds__ (10^-9^ sec) since the start of the thread that runs the code that calls this function.
+*  User time in nanoseconds needed to execute the code `block`.
+
+.Examples
+
+We use the `fac` function described in link:{Recipes}#Basic-Factorial[Factorial] as example:
+[source,rascal-shell]
+----
+rascal>import util::Benchmark;
+ok
+rascal>import demo::basic::Factorial;
+ok
+----
+Here we measure time by using separate calls to `userTime` before and after a call to `fac`.
+[source,rascal-shell]
+----
+rascal>before = userTime();
+int: 236829925000
+rascal>fac(50);
+int: 30414093201713378043612608166064768844377641568960512000000000000
+rascal>userTime() - before;
+int: 131346000
+----
+The code to be measured can also be passed as a function parameter to `userTime`:
+[source,rascal-shell]
+----
+rascal>userTime( void() { fac(50); } );
+int: 235000
+----
+
+
+
+:leveloffset: +1
+
+:leveloffset: -1

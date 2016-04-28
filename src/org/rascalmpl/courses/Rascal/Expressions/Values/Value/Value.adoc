@@ -1,3 +1,4 @@
+
 [[Values-Value]]
 # Value
 :concept: Expressions/Values/Value
@@ -18,13 +19,6 @@ This type is a container for all other types and does not have any values itself
 
 The following operators are provided for values:
 
-**** <<Value-Conditional,Value Conditional>>: Conditional expression on values.
-**** <<Value-Equal,Value Equal>>: Equal operator on values.
-**** <<Value-GreaterThan,Value GreaterThan>>: Greater than operator on values.
-**** <<Value-GreaterThanOrEqual,Value GreaterThanOrEqual>>: Greater than or equal operator on values.
-**** <<Value-LessThan,Value LessThan>>: Less than operator on values.
-**** <<Value-LessThanOrEqual,Value LessThanOrEqual>>: Less than or equal operator on values.
-**** <<Value-NotEqual,Value NotEqual>>: Not equal operator on values.
 
 .Examples
 

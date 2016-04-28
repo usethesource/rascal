@@ -1,3 +1,4 @@
+
 [[Boolean-Equivalence]]
 # Boolean Equivalence
 :concept: Expressions/Values/Boolean/Equivalence

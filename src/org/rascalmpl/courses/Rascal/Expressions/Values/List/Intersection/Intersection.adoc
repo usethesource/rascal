@@ -1,3 +1,4 @@
+
 [[List-Intersection]]
 # List Intersection
 :concept: Expressions/Values/List/Intersection

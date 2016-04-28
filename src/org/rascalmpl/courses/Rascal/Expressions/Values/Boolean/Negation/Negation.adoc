@@ -1,3 +1,4 @@
+
 [[Boolean-Negation]]
 # Boolean Negation
 :concept: Expressions/Values/Boolean/Negation

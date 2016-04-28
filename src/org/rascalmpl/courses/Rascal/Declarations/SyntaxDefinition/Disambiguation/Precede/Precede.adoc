@@ -1,3 +1,4 @@
+
 [[Disambiguation-Precede]]
 # Precede Declaration
 :concept: Declarations/SyntaxDefinition/Disambiguation/Precede

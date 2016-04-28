@@ -1,3 +1,4 @@
+
 [[ADocTest]]
 # ADoc Test Case
 include::../CommonDefs.adoc[]
@@ -17,16 +18,8 @@ Test Case
 
 .Description
 
-[source,rascal-shell]
-----
-rascal>L = 2/0;
-ArithmeticException("/ by zero") at |test-modules:///ConsoleInput.rsc|(36,3,<3,15>,<3,18>)
-Call stack (most recent first):
-	main([]) at |test-modules:///ConsoleInput.rsc|(36,3,<3,15>,<3,18>)
-
-ok
-----
-
 :leveloffset: +1
+include::analysis/analysis.adoc[analysis]
+
 
 :leveloffset: -1

@@ -97,4 +97,4 @@
 [error] Name methodAST is not in scope
 [error] Name methodAST is not in scope
 ```
-asciidoctor: WARNING: Languages/Pico/IDE/IDE.adoc: line 21: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/library/demo/lang/Pico/Plugin.rsc
+asciidoctor: WARNING: Languages/Pico/IDE/IDE.adoc: line 22: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/library/demo/lang/Pico/Plugin.rsc

@@ -1,3 +1,4 @@
+
 [[Abstract-VariableDeclaration]]
 # Variable Declaration Pattern
 :concept: Patterns/Abstract/VariableDeclaration

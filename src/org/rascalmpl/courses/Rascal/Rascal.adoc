@@ -1,3 +1,4 @@
+
 [[Rascal]]
 # Rascal
 include::../CommonDefs.adoc[]

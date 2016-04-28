@@ -1,3 +1,4 @@
+
 [[Values-Map]]
 # Map
 :concept: Expressions/Values/Map
@@ -34,20 +35,6 @@ Maps resemble functions rather than relations in the sense that only a single va
 The following functions are provided for maps:
 
 
-**** <<Map-Composition,Map Composition>>: Composition of two map values.
-**** <<Map-Comprehension,Map Comprehension>>: A map comprehension generates a map value.
-**** <<Map-Difference,Map Difference>>: The difference between two maps.
-**** <<Map-Equal,Map Equal>>: Equality operator on maps.
-**** <<Map-Intersection,Map Intersection>>: Intersection of two maps.
-**** <<Map-NotEqual,Map NotEqual>>: Not equal operator on map values.
-**** <<Map-StrictSubMap,Map StrictSubMap>>: Strict submap operator on map values.
-**** <<Map-StrictSuperMap,Map StrictSuperMap>>: Strict supermap operator on map values.
-**** <<Map-SubMap,Map SubMap>>: Submap operator on map values.
-**** <<Map-Subscription,Map Subscription>>: Retrieve a value by its key in map.
-**** <<Map-SuperMap,Map SuperMap>>: Supermap operator on map values.
-**** <<Map-Union,Map Union>>: Union of two maps.
-**** <<Map-in,Map in>>: Membership test on the keys of a map.
-**** <<Map-notin,Map notin>>: Negated membership test on the keys of a map.
 
 .Examples
 [source,rascal-shell]

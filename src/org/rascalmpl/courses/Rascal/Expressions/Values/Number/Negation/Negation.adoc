@@ -1,3 +1,4 @@
+
 [[Number-Negation]]
 # Number Negation
 :concept: Expressions/Values/Number/Negation

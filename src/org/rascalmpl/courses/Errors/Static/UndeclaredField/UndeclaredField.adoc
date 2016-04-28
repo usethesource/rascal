@@ -1,0 +1,55 @@
+
+[[Static-UndeclaredField]]
+# UndeclaredField
+:concept: Static/UndeclaredField
+
+.Synopsis
+A field name is used that has not been declared.
+
+.Syntax
+
+.Types
+
+.Function
+       
+.Usage
+
+.Description
+Fields of link:{RascalLang}#Values-Tuple[tuple] (hence also of link:{RascalLang}#Values-Relation[relation]
+ and link:{RascalLang}#Values-ListRelation[listrelation])
+and constructors of link:{RascalLang}#Declarations-AlgebraicDataType[algebraic data types] may have names.
+This error is generated when a reference is made to an undeclared field.
+
+Remedies:
+
+*  Fix the field name in the reference.
+*  Declare a new field as used in the reference.
+
+.Examples
+Use of the undeclared field `gender`:
+[source,rascal-shell-error]
+----
+rascal>tuple[str name, int age] Jo = <"Jo", 33>;
+tuple[str,int]: <"Jo",33>
+rascal>Jo.gender;
+[error] Field gender does not exist on type tuple[str name, int age] IN 'Jo.gender'
+----
+A similar example now expressed as ADT:
+[source,rascal-shell-error]
+----
+rascal>data Person = person(str name, int age);
+ok
+rascal>jo = person("Jo", 33);
+Person: person("Jo",33)
+rascal>jo.gender;
+[error] Field gender does not exist on type Person IN 'jo.gender'
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

@@ -1,3 +1,4 @@
+
 [[SyntaxDefinition-Symbol]]
 # Symbol
 :concept: Declarations/SyntaxDefinition/Symbol

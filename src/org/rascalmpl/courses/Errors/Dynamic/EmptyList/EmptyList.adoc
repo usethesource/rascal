@@ -1,0 +1,82 @@
+
+[[Dynamic-EmptyList]]
+# EmptyList
+:concept: Dynamic/EmptyList
+
+.Synopsis
+Illegal operation on an empty list.
+
+.Syntax
+
+.Types
+
+.Function
+`data RunTimeException = EmptyList();`
+       
+.Usage
+
+.Description
+Rascal provides many operations and functions on lists, see link:{RascalLang}#Values-List[list values] 
+and link:{Libraries}#Prelude-List[list functions].
+This error is generated when a function or operation cannot handle the empty list.
+
+Remedies:
+
+* Guard the function or operation with a test on the empty list (link:{Libraries}#List-isEmpty[isEmpty]) and 
+  take alternative action in that case.
+* Catch the `EmptyList` yourself, see link:{RascalLang}#Statements-TryCatch[try catch].
+
+
+.Examples
+
+Import the `List` library and introduce `L` with an empty list as value:
+[source,rascal-shell-error]
+----
+rascal>import List;
+ok
+rascal>L = [];
+list[void]: []
+----
+Taking the head of an empty list gives an error:
+[source,rascal-shell-error]
+----
+rascal>head(L);
+EmptyList()
+Call stack (most recent first):
+	head([], {}) at |std:///List.rsc|(3617,1019,<156,0>,<195,51>)
+	main([]) at |test-modules:///ConsoleInput.rsc|(166,7,<11,15>,<11,22>)
+
+ok
+----
+This is the case when taking the tail as well:
+[source,rascal-shell-error]
+----
+rascal>tail(L);
+EmptyList()
+Call stack (most recent first):
+	tail([], {}) at |std:///List.rsc|(17604,725,<766,0>,<801,57>)
+	main([]) at |test-modules:///ConsoleInput.rsc|(166,7,<11,15>,<11,22>)
+
+ok
+----
+We can also catch the `EmptyList` error. First import the Rascal exceptions (which are also included in `Prelude`)
+and `IO`:
+[source,rascal-shell-error]
+----
+rascal>import Exception;
+ok
+rascal>import IO;
+ok
+rascal>try println(head(L)); catch EmptyList(): println("Cannot take head of empty list");
+Cannot take head of empty list
+ok
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

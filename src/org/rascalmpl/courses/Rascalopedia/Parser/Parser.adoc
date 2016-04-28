@@ -1,3 +1,4 @@
+
 [[Rascalopedia-Parser]]
 # Parser
 :concept: Parser

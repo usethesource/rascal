@@ -1,0 +1,47 @@
+
+[[Dynamic-IllegalArgument]]
+# IllegalArgument
+:concept: Dynamic/IllegalArgument
+
+.Synopsis
+A function or operation is applied to an illegal argument value.
+
+.Syntax
+
+.Types
+
+.Function
+`data RunTimeException = IllegalArgument() | IllegalArgument(value v) | IllegalArgument(value v, str message);`
+       
+.Usage
+
+.Description
+This error is generated when a function or operation is applied to a value that it does not expect.
+
+Remedies:
+
+*  Check the value or values to which you apply the function or operation.
+
+.Examples
+
+Changing the month of a [$Rascal:Values/DateTime] to an illegal month:
+[source,rascal-shell-error]
+----
+rascal>NOW = $2013-01-13T22:16:51.740+01:00$;
+datetime: $2013-01-13T22:16:51.740+01:00$
+rascal>NOW.month = 13;
+IllegalArgument($2013-01-13T22:16:51.740+01:00$,"Cannot create datetime with provided values.") at |test-modules:///ConsoleInput.rsc|(50,9,<4,15>,<4,24>)
+Call stack (most recent first):
+	main([]) at |test-modules:///ConsoleInput.rsc|(50,9,<4,15>,<4,24>)
+
+ok
+----
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

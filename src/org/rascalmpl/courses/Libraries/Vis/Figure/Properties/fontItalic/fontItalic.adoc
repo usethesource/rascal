@@ -1,0 +1,28 @@
+[[Properties-fontItalic]]
+# fontItalic
+:concept: Vis/Figure/Properties/fontItalic
+
+.Synopsis
+
+Defines if text should be rendered italic.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty fontItalic(bool b)`
+
+.Description
+See also <<fontBold>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

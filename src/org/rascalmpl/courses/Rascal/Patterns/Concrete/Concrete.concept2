@@ -96,7 +96,7 @@ STATEMENT ` while <Exp> do <Stats> od `
 
 
 
-A full example of concrete patterns can be found in link::{Recipes}#Languages-Exp-Concrete-WithLayout[].
+A full example of concrete patterns can be found in link:{Recipes}#Concrete-WithLayout[WithLayout].
 
 .Benefits
 

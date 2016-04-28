@@ -1,3 +1,4 @@
+
 [[Boolean-All]]
 # Boolean All
 :concept: Expressions/Values/Boolean/All

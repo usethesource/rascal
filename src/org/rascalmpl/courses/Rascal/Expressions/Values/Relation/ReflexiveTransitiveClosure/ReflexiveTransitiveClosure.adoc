@@ -1,3 +1,4 @@
+
 [[Relation-ReflexiveTransitiveClosure]]
 # Relation ReflexiveTransitiveClosure
 :concept: Expressions/Values/Relation/ReflexiveTransitiveClosure

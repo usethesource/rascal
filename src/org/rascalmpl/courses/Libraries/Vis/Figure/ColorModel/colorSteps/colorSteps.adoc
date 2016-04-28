@@ -1,0 +1,35 @@
+[[ColorModel-colorSteps]]
+# colorSteps
+:concept: Vis/Figure/ColorModel/colorSteps
+
+.Synopsis
+Create a list of intermediate colors between two colors.
+
+.Syntax
+
+.Types
+
+.Function
+`list[Color] colorSteps(Color from, Color to, int steps)`
+
+.Description
+Create a list of interpolated colors between `from` and `to` in a given number of `steps`.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(hcat(boxes));
+----
+gives:
+
+image::{concept}/h1.png[alt="h1"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

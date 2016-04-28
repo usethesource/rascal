@@ -1,0 +1,90 @@
+[[Figures-box]]
+# box
+:concept: Vis/Figure/Figures/box
+
+.Synopsis
+A rectangular box.
+
+.Syntax
+
+.Types
+
+.Function
+
+#  `Figure box(FProperty props...)`
+#  `Figure box(Figure inner, FProperty props...)`
+
+.Description
+Draw a rectangular box using the properties `props`.
+An optional nested figure `inner` may be placed inside the box.
+
+.Examples
+Lets start with a box `b0` of given (minimal) dimensions:
+[source,rascal-shell]
+----
+rascal>render(b0);
+----
+that will display as: 
+image::{concept}/box0.png[alt="box0"]
+
+
+We can nest a new box `b1` in box `b0` as follows:
+[source,rascal-shell]
+----
+rascal>render(b0);
+----
+The result is: 
+image::{concept}/box1.png[alt="box1"]
+
+
+Note that:
+
+*  Box `b0` contains box `b1`.
+*  The dimensions of `b1` are determined by  shrinking to 80% of the dimensions of `b0`.
+ 
+
+The placement of an inner figure is determined by alignment, see <<align>>. 
+We can, for instance, place `b1` in the top left corner of `b0`:
+[source,rascal-shell]
+----
+rascal>render(b0);
+----
+The result is: 
+image::{concept}/box2.png[alt="box2"]
+
+
+Placing `b1` in the bottom right corner of `b0`:
+[source,rascal-shell]
+----
+rascal>render(b0);
+----
+gives: 
+image::{concept}/box3.png[alt="box3"]
+
+
+We can also nest box `b0` in another box `b2` and make `b2` 20% larger than `b0`:
+[source,rascal-shell]
+----
+rascal>render(b2);
+----
+The result is: 
+image::{concept}/box4.png[alt="box4"]
+
+
+If no sizes are given at all then the box will expand to fill the available size:
+
+[source,rascal-shell]
+----
+----
+The result is: 
+image::{concept}/box5.png[alt="box5"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

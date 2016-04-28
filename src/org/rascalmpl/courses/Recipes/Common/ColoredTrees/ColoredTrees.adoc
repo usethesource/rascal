@@ -1,3 +1,4 @@
+
 [[Common-ColoredTrees]]
 # Colored Trees
 :concept: Common/ColoredTrees

@@ -1,3 +1,4 @@
+
 [[WordCount-CountInLine1]]
 # CountInLine1
 :concept: Common/WordCount/CountInLine1

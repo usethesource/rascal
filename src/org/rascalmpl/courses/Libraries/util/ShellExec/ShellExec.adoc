@@ -1,0 +1,110 @@
+[[util-ShellExec]]
+[[util-util/ShellExec]]
+# ShellExec
+:concept: util/ShellExec
+.Usage
+`import util::ShellExec;`
+
+
+
+.Synopsis
+Execute and manage external processes.
+## PID
+.Types
+[source,rascal]
+----
+alias PID = int;
+----
+
+    .Synopsis
+    Process Identifiers (PID).
+    
+    .Description
+    A PID is returned by <<createProcess>> and is required for any further interaction with the created process.
+[[util/ShellExec-createProcess]]
+## createProcess
+
+.Function 
+`PID createProcess(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str,str] envVars = ())`
+
+
+.Synopsis
+Start a new external process.
+.Description
+
+#   Start a new external process.
+#   Start a new external process in a given working directory.
+#   Start a new external process with the given arguments.
+#   Start a new external process with the given arguments in the given working directory.
+#   Start a new external process with the given environment variables.
+#   Start a new external process with the given environment variables in the given working directory.
+#   Start a new external process with the given arguments and environment variables.
+#   Start a new external process with the given arguments and environment variables in the given working directory.
+
+[[util/ShellExec-exec]]
+## exec
+
+.Function 
+`str exec(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str,str] env = ())`
+
+
+.Synopsis
+start, run and kill an external process returning its output as a string.
+[[util/ShellExec-killProcess]]
+## killProcess
+
+.Function 
+`void killProcess(PID processId)`
+
+
+.Synopsis
+Kill a running process.
+[[util/ShellExec-readEntireErrStream]]
+## readEntireErrStream
+
+.Function 
+`str readEntireErrStream(PID processId)`
+
+
+.Synopsis
+Read the entire error stream from an existing process's output stream. This is blocking.
+[[util/ShellExec-readEntireStream]]
+## readEntireStream
+
+.Function 
+`str readEntireStream(PID processId)`
+
+
+.Synopsis
+Read the entire stream from an existing process's output stream. This is blocking.
+[[util/ShellExec-readFrom]]
+## readFrom
+
+.Function 
+`str readFrom(PID processId)`
+
+
+.Synopsis
+Read from an existing process's output stream. This is non-blocking.
+[[util/ShellExec-readFromErr]]
+## readFromErr
+
+.Function 
+`str readFromErr(PID processId)`
+
+
+.Synopsis
+Read from an existing process's error output stream. This is non-blocking.
+[[util/ShellExec-writeTo]]
+## writeTo
+
+.Function 
+`void writeTo(PID processId, str msg)`
+
+
+.Synopsis
+Write to an existing process's input stream.
+
+:leveloffset: +1
+
+:leveloffset: -1

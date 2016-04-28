@@ -1,0 +1,36 @@
+[[Properties-shadowColor]]
+# shadowColor
+:concept: Vis/Figure/Properties/shadowColor
+
+.Synopsis
+Define the color of a [shadow].
+
+.Syntax
+
+.Types
+
+.Function
+
+*  `FProperty shadowColor(Color c)`
+*  `FProperty shadowColor(str colorName)`
+
+.Description
+Defines the color of shadows. Also see <<shadow>> and <<shadowPos>>.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(box1);
+----
+
+image::{concept}/s1.png[alt="s1"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

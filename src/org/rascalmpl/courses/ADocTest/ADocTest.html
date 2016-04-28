@@ -418,30 +418,1738 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
 </head>
-<body id="ADocTest" class="article">
+<body id="ADocTest" class="article toc2 toc-left">
 <div id="header">
 <h1>ADoc Test Case</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">ADocTest</div>
+<ul class="sectlevel1">
+<li><a href="#ADocTest-analysis">1. analysis stub</a>
+<ul class="sectlevel2">
+<li><a href="#analysis-List">1.1. List</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Test Case</p>
 </div>
-<div class="listingblock">
+</div>
+</div>
+<div class="sect1">
+<h2 id="ADocTest-analysis">1. analysis stub</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Stub for testing analysis doc files</p>
+</div>
+<div class="sect2">
+<h3 id="analysis-List">1.1. List</h3>
+<div class="paragraph">
+<div class="title">Usage</div>
+<p><code>import List;</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Library functions for lists.</p>
+</div>
+<div class="paragraph">
 <div class="title">Description</div>
+<p>For operators on lists see <a href="../Rascal/Rascal.html#Values-List">List</a> in the Rascal Language Reference.</p>
+</div>
+<div class="paragraph">
+<p>The following functions are available for lists:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#List-concat">concat</a>: Concatenate a list of lists.</p>
+</li>
+<li>
+<p><a href="#List-delete">delete</a>: Delete an element from a list.</p>
+</li>
+<li>
+<p><a href="#List-distribution">distribution</a>: Get the distribution of the elements of the list. That</p>
+</li>
+<li>
+<p><a href="#List-drop">drop</a>: Drop elements from the head of a list.</p>
+</li>
+<li>
+<p><a href="#List-dup">dup</a>: Remove multiple occurrences of elements in a list. The first occurrence remains.</p>
+</li>
+<li>
+<p><a href="#List-getFirstFrom">getFirstFrom</a>: Pick first element from a list.</p>
+</li>
+<li>
+<p><a href="#List-getOneFrom">getOneFrom</a>: Pick a random element from a list.</p>
+</li>
+<li>
+<p><a href="#List-head">head</a>: Get the first element(s) from a list.</p>
+</li>
+<li>
+<p><a href="#List-headTail">headTail</a>: Split a list in a head and a tail.</p>
+</li>
+<li>
+<p><a href="#List-index">index</a>: A list of legal index values of a list.</p>
+</li>
+<li>
+<p><a href="#List-indexOf">indexOf</a>: Index of first occurrence of an element in a list.</p>
+</li>
+<li>
+<p><a href="#List-insertAt">insertAt</a>: Insert an element at a specific position in a list.</p>
+</li>
+<li>
+<p><a href="#List-intercalate">intercalate</a>: Join a list of values into a string separated by a separator.</p>
+</li>
+<li>
+<p><a href="#List-intersperse">intersperse</a>: Intersperses a list of values with a separator.</p>
+</li>
+<li>
+<p><a href="#List-isEmpty">isEmpty</a>: Test whether a list is empty.</p>
+</li>
+<li>
+<p><a href="#List-itoString">itoString</a>: Convert a list to an indented string.</p>
+</li>
+<li>
+<p><a href="#List-last">last</a>: Return the last element of a list, if any.</p>
+</li>
+<li>
+<p><a href="#List-lastIndexOf">lastIndexOf</a>: Return index of last occurrence of elt in lst, or -1 if elt is not found.</p>
+</li>
+<li>
+<p><a href="#List-mapper">mapper</a>: Apply a function to all list elements and return list of results.</p>
+</li>
+<li>
+<p><a href="#List-max">max</a>: Determine the largest element in a list.</p>
+</li>
+<li>
+<p><a href="#List-merge">merge</a>: Merge the elements of two sorted lists into one list.</p>
+</li>
+<li>
+<p><a href="#List-min">min</a>: Determine the smallest element in a list.</p>
+</li>
+<li>
+<p><a href="#List-mix">mix</a>: Mix the elements of two lists.</p>
+</li>
+<li>
+<p><a href="#List-permutations">permutations</a>: Compute all permutations of a list.</p>
+</li>
+<li>
+<p><a href="#List-pop">pop</a>: Pop top element from list, return a tuple.</p>
+</li>
+<li>
+<p><a href="#List-prefix">prefix</a>: Return all but the last element of a list.</p>
+</li>
+<li>
+<p><a href="#List-push">push</a>: Push an element in front of a list.</p>
+</li>
+<li>
+<p><a href="#List-reducer">reducer</a>: Apply a function to successive elements of list and combine the results (<em>deprecated</em>).</p>
+</li>
+<li>
+<p><a href="#List-reverse">reverse</a>: Reverse a list.</p>
+</li>
+<li>
+<p><a href="#List-shuffle">shuffle</a>: Shuffle a list.</p>
+</li>
+<li>
+<p><a href="#List-size">size</a>: Determine the number of elements in a list.</p>
+</li>
+<li>
+<p><a href="#List-slice">slice</a>: Compute a sublist of a list.</p>
+</li>
+<li>
+<p><a href="#List-sort">sort</a>: Sort the elements of a list.</p>
+</li>
+<li>
+<p><a href="#List-split">split</a>: Split a list into two halves.</p>
+</li>
+<li>
+<p><a href="#List-tail">tail</a>: Get the tail element(s) from a list.</p>
+</li>
+<li>
+<p><a href="#List-take">take</a>: Get number of elements from the head of a list.</p>
+</li>
+<li>
+<p><a href="#List-takeOneFrom">takeOneFrom</a>: Remove an arbitrary element from a list, returns the element and the modified list.</p>
+</li>
+<li>
+<p><a href="#List-takeWhile">takeWhile</a>: Take elements from the front of the list as long as a predicate is true.</p>
+</li>
+<li>
+<p><a href="#List-toMap">toMap</a>: Convert a list of pairs to a map; first elements are associated with a set of second elements.</p>
+</li>
+<li>
+<p><a href="#List-toMapUnique">toMapUnique</a>: Convert a list of tuples to a map; result must be a map.</p>
+</li>
+<li>
+<p><a href="#List-toRel">toRel</a>: Convert a list to a relation.</p>
+</li>
+<li>
+<p><a href="#List-toSet">toSet</a>: Convert a list to a set.</p>
+</li>
+<li>
+<p><a href="#List-toString">toString</a>: Convert a list to a string.</p>
+</li>
+<li>
+<p><a href="#List-top">top</a>: Take the top element of a list.</p>
+</li>
+<li>
+<p><a href="#List-unzip">unzip</a>: Make a pair (triple) of lists from a list of pairs (triples).</p>
+</li>
+<li>
+<p><a href="#List-upTill">upTill</a>: Returns the list 0,1..n-1.</p>
+</li>
+<li>
+<p><a href="#List-zip">zip</a>: Make a list of pairs from two (three) lists of the same length.</p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="List-concat">1.1.1. concat</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>list[&amp;T] concat(list[list[&amp;T]] xxs)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Concatenate a list of lists.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
 <div class="content">
-<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;L = 2/0;
-ArithmeticException("/ by zero") at |test-modules:///ConsoleInput.rsc|(36,3,&lt;3,15&gt;,&lt;3,18&gt;)
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;concat([]);
+list[void]: []
+rascal&gt;concat([[]]);
+list[void]: []
+rascal&gt;concat([[1]]);
+list[int]: [1]
+rascal&gt;concat([[1],[],[2,3]]);
+list[int]: [1,2,3]
+rascal&gt;concat([[1,2],[3],[4,5],[]]);
+list[int]: [1,2,3,4,5]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-delete">1.1.2. delete</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>list[&amp;T] delete(list[&amp;T] lst, int n)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Delete an element from a list.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Delete the <code>n</code>-th element from a list. A new list without the <code>n</code>-th element is returned as result.
+The <code>IndexOutOfBounds</code> exception is thrown when n is not a valid index.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;delete([1, 2, 3], 1);
+list[int]: [1,3]
+rascal&gt;delete(["zebra", "elephant", "snake", "owl"], 2);
+list[str]: ["zebra","elephant","owl"]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-distribution">1.1.3. distribution</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>map[&amp;T element, int occurs] distribution(list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Get the distribution of the elements of the list. That
+is how often does each element occur in the list?</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;distribution([4,4,4,3,1,2,1,1,3,4]);
+map[int, int]: (1:3,3:2,2:1,4:4)</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-drop">1.1.4. drop</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>list[&amp;T] drop(int n, list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Drop elements from the head of a list.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Drop <code>n</code> elements (or <code>size(lst)</code> elements if <code>size(lst) &lt; n</code>) from the head of <code>lst</code>.
+See <a href="#List-take">take</a> to get elements from the head of a list].</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;drop(2, [5, 1, 7, 3]);
+list[int]: [7,3]
+rascal&gt;drop(10, [5, 1, 7, 3]);
+list[void]: []
+rascal&gt;drop(2, ["zebra", "elephant", "snake", "owl"]);
+list[str]: ["snake","owl"]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-dup">1.1.5. dup</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>list[&amp;T] dup(list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Remove multiple occurrences of elements in a list. The first occurrence remains.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;dup([3, 1, 5, 3, 1, 7, 1, 2]);
+list[int]: [3,1,5,7,2]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-getFirstFrom">1.1.6. getFirstFrom</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>&amp;T getFirstFrom(list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Pick first element from a list.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Get the first element from a list. As opposed to <a href="#List-getOneFrom">getOneFrom</a> this function always returns the same (first) list element.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-getOneFrom">1.1.7. getOneFrom</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>&amp;T getOneFrom(list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Pick a random element from a list.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Get an arbitrary element from a list. See <a href="#List-takeOneFrom">takeOneFrom</a> for a function that also removes the selected element.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;getOneFrom(["zebra", "elephant", "snake", "owl"]);
+str: "owl"
+rascal&gt;getOneFrom(["zebra", "elephant", "snake", "owl"]);
+str: "snake"
+rascal&gt;getOneFrom(["zebra", "elephant", "snake", "owl"]);
+str: "snake"</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-head">1.1.8. head</h4>
+<div class="ulist">
+<div class="title">Function</div>
+<ul>
+<li>
+<p><code>&amp;T head(list[&amp;T] lst) throws EmptyList</code></p>
+</li>
+<li>
+<p><code>list[&amp;T] head(list[&amp;T] lst, int n) throws IndexOutOfBounds</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Get the first element(s) from a list.</p>
+</div>
+<div class="ulist">
+<div class="title">Description</div>
+<ul>
+<li>
+<p>Returns the first element of a list or throws <code>EmptyList</code> when the list is empty.
+This is identical to <a href="#top">[top]</a>.</p>
+</li>
+<li>
+<p>Returns the first <code>n</code> elements of a list or throws <code>IndexOutOfBounds</code> when the list is too short.
+This is similar to <a href="#take">[take]</a>.</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error">rascal&gt;import List;
+ok</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Get the first element:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error">rascal&gt;head([1, 2, 3]);
+int: 1
+rascal&gt;head(["zebra", "elephant", "snake", "owl"]);
+str: "zebra"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>An exception is thrown when taking the head of an empty list:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error">rascal&gt;head([]);
+EmptyList()
 Call stack (most recent first):
-	main([]) at |test-modules:///ConsoleInput.rsc|(36,3,&lt;3,15&gt;,&lt;3,18&gt;)
+	head([], {}) at |std:///List.rsc|(3617,1019,&lt;156,0&gt;,&lt;195,51&gt;)
+	main([]) at |test-modules:///ConsoleInput.rsc|(49,8,&lt;4,15&gt;,&lt;4,23&gt;)
+
+ok</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Get the first n elements:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error">rascal&gt;head([1, 2, 3, 4], 2);
+list[int]: [1,2]
+rascal&gt;head(["zebra", "elephant", "snake", "owl"], 2);
+list[str]: ["zebra","elephant"]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>An exception is thrown when the second argument exceeds the length of the list:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error">rascal&gt;head([1, 2, 3, 5], 5);
+IndexOutOfBounds(4)
+Call stack (most recent first):
+	head([1,2,3,5], 5, {}) at |std:///List.rsc|(4676,113,&lt;198,0&gt;,&lt;199,71&gt;)
+	main([]) at |test-modules:///ConsoleInput.rsc|(49,21,&lt;4,15&gt;,&lt;4,36&gt;)
 
 ok</code></pre>
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="List-headTail">1.1.9. headTail</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>tuple[&amp;T, list[&amp;T]] headTail(list[&amp;T] lst) throws EmptyList</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Split a list in a head and a tail.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>This function is identical to <a href="#List-pop">pop</a>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;headTail([3, 1, 4, 5]);
+tuple[int,list[int]]: &lt;3,[1,4,5]&gt;
+rascal&gt;pop([3, 1, 4, 5]);
+tuple[int,list[int]]: &lt;3,[1,4,5]&gt;
+rascal&gt;headTail(["zebra", "elephant", "snake", "owl"]);
+tuple[str,list[str]]: &lt;"zebra",["elephant","snake","owl"]&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-index">1.1.10. index</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>list[int] index(list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>A list of legal index values of a list.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Returns a list of all legal index values for a given list <code>lst</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;index([1, 3, 5]);
+list[int]: [0,1,2]
+rascal&gt;index(["zebra", "elephant", "snake", "owl"]);
+list[int]: [0,1,2,3]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Benefits</div>
+<p>This function is useful in <a href="../Rascal/Rascal.html#Statements-For">for</a> loops over lists.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-indexOf">1.1.11. indexOf</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>int indexOf(list[&amp;T] lst, &amp;T elt)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Index of first occurrence of an element in a list.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Return index of first occurrence of <code>elt</code> in <code>lst</code>, or <code>-1</code> if <code>elt</code> is not found.
+Also see <a href="#List-lastIndexOf">lastIndexOf</a>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;indexOf([3, 1, 4, 5], 4);
+int: 2
+rascal&gt;indexOf([3, 1, 4, 5], 7);
+int: -1
+rascal&gt;indexOf(["zebra", "elephant", "snake", "owl"], "snake");
+int: 2
+rascal&gt;indexOf(["zebra", "elephant", "snake", "owl"], "eagle");
+int: -1</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-insertAt">1.1.12. insertAt</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>list[&amp;T] insertAt(list[&amp;T] lst, int n, &amp;T elm) throws IndexOutOfBounds</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Insert an element at a specific position in a list.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Returns a new list with the value of <code>elm</code> inserted at index position <code>n</code> of the old list.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error">rascal&gt;import List;
+ok
+rascal&gt;insertAt([1,2,3], 1, 5);
+list[int]: [1,5,2,3]
+rascal&gt;insertAt(["zebra", "elephant", "snake", "owl"], 2, "eagle");
+list[str]: ["zebra","elephant","eagle","snake","owl"]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>An exception is thrown when the index position is outside the list:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error">rascal&gt;insertAt([1,2,3], 10, 5);
+IndexOutOfBounds(10)
+Call stack (most recent first):
+	insertAt([1,2,3], 10, 5, {}) at |std:///List.rsc|(6149,588,&lt;267,0&gt;,&lt;287,83&gt;)
+	main([]) at |test-modules:///ConsoleInput.rsc|(49,24,&lt;4,15&gt;,&lt;4,39&gt;)
+
+ok</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-intercalate">1.1.13. intercalate</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>str intercalate(str sep, list[value] l)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Join a list of values into a string separated by a separator.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;intercalate("/", [3]);
+str: "3"
+rascal&gt;intercalate("/", [3, 1, 4, 5]);
+str: "3/1/4/5"
+rascal&gt;intercalate(", ", [3, 1, 4, 5]);
+str: "3, 1, 4, 5"
+rascal&gt;intercalate(", ", ["zebra", "elephant", "snake", "owl"]);
+str: "zebra, elephant, snake, owl"</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-intersperse">1.1.14. intersperse</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>list[&amp;T] intersperse(&amp;T sep, list[&amp;T] xs)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Intersperses a list of values with a separator.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;intersperse(", ", ["a","b","c"]);
+list[str]: ["a",", ","b",", ","c"]
+rascal&gt;intersperse(0, [1, 2, 3]);
+list[int]: [1,0,2,0,3]
+rascal&gt;intersperse(1, []);
+list[void]: []
+rascal&gt;intersperse([], [1]);
+list[int]: [1]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-isEmpty">1.1.15. isEmpty</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>bool isEmpty(list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Test whether a list is empty.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Returns <code>true</code> when a list is empty and <code>false</code> otherwise.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;isEmpty([]);
+bool: true
+rascal&gt;isEmpty([1, 2, 3]);
+bool: false</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-itoString">1.1.16. itoString</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>str itoString(list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Convert a list to an indented string.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Convert <code>lst</code> to a indented string.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;itoString([10, 20, 30]);
+str: "[10,20,30]"
+rascal&gt;itoString(["zebra", "elephant", "snake", "owl"]);
+str: "[\"zebra\",\"elephant\",\"snake\",\"owl\"]"</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-last">1.1.17. last</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>&amp;T last(list[&amp;T] lst) throws EmptyList</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Return the last element of a list, if any.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Also see <a href="#List-tail">tail</a> that returns a list of one or more of the last elements of a list.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;last([1]);
+int: 1
+rascal&gt;last([3, 1, 4, 5]);
+int: 5
+rascal&gt;last(["zebra", "elephant", "snake", "owl"]);
+str: "owl"
+rascal&gt;tail([3, 1, 4, 5]);
+list[int]: [1,4,5]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-lastIndexOf">1.1.18. lastIndexOf</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>int lastIndexOf(list[&amp;T] lst, &amp;T elt)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Return index of last occurrence of elt in lst, or -1 if elt is not found.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Also see <a href="#List-indexOf">indexOf</a>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;lastIndexOf([3, 1, 4, 5, 4], 4);
+int: 4
+rascal&gt;lastIndexOf([3, 1, 4, 5, 4], 7);
+int: -1
+rascal&gt;lastIndexOf(["zebra", "owl", "elephant", "snake", "owl"], "owl");
+int: 4</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-mapper">1.1.19. mapper</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>list[&amp;U] mapper(list[&amp;T] lst, &amp;U (&amp;T) fn)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Apply a function to all list elements and return list of results.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Apply a function <code>fn</code> to each element of <code>lst</code> and return the list of results.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;int incr(int x) { return x + 1; }
+ok
+rascal&gt;mapper([1, 2, 3, 4], incr);
+list[int]: [2,3,4,5]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-max">1.1.20. max</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>&amp;T max(list[&amp;T] lst) throws EmptyList</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Determine the largest element in a list.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;max([1, 3, 5, 2, 4]);
+int: 5
+rascal&gt;max(["zebra", "elephant", "snake", "owl"]);
+str: "zebra"</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-merge">1.1.21. merge</h4>
+<div class="ulist">
+<div class="title">Function</div>
+<ul>
+<li>
+<p><code>list[&amp;T] merge(list[&amp;T] left, list[&amp;T] right)</code></p>
+</li>
+<li>
+<p><code>list[&amp;T] merge(list[&amp;T] left, list[&amp;T] right, bool (&amp;T a, &amp;T b) lessOrEqual)</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Merge the elements of two sorted lists into one list.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Merge the elements of two sorted lists into one list using the built-in ordering between values.
+Optional, a comparison function <code>lessOrEqual</code> may be given for a user-defined ordering between values.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;merge([1, 3, 5], [2, 7, 9, 15]);
+list[int]: [1,2,3,5,7,9,15]
+rascal&gt;merge(["ape", "elephant", "owl", "snale", "zebra"], ["apple", "berry", "orange", "pineapple"]);
+list[str]: ["ape","apple","berry","elephant","orange","owl","pineapple","snale","zebra"]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Merge two lists of strings and use their length as ordering:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import String;
+ok
+rascal&gt;merge(["ape", "owl", "snale", "zebra", "elephant"], ["apple", "berry", "orange", "pineapple"], bool(str x, str y){ return size(x) &lt;= size(y); });
+list[str]: ["ape","owl","snale","zebra","apple","berry","orange","elephant","pineapple"]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-min">1.1.22. min</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>&amp;T min(list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Determine the smallest element in a list.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;min([1, 3, 5, 2, 4]);
+int: 1
+rascal&gt;min(["zebra", "elephant", "snake", "owl"]);
+str: "elephant"</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-mix">1.1.23. mix</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>list[&amp;T] mix(list[&amp;T] l, list[&amp;T] r)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Mix the elements of two lists.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Let n be the minimum of the length of the two lists <code>l</code> and <code>r</code>.
+<code>mix</code> returns a list in which the first <code>n</code> elements are taken alternately from the left and the right list,
+followed by the remaining elements of the longest list.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+IO("unexpected end of file")
+Call stack (most recent first):
+	compile1Incremental("ConsoleInput", false, pathConfig(binDir=|home:///bin-console|,srcPath=[|std:///|,|test-modules:///|],libPath=[|home:///bin-console|]), {verbose=false}) at |std:///experiments/Compiler/Compile.rsc|(8748,39,&lt;218,29&gt;,&lt;218,68&gt;)
+	compileIncremental("ConsoleInput", false, pathConfig(binDir=|home:///bin-console|,srcPath=[|std:///|,|test-modules:///|],libPath=[|home:///bin-console|]), {verbose=false}) at |std:///experiments/Compiler/Compile.rsc|(10215,76,&lt;256,20&gt;,&lt;256,96&gt;)
+	compileAndMergeIncremental("ConsoleInput", false, ("verbose":false)) at |std:///experiments/Compiler/Execute.rsc|(17193,75,&lt;377,16&gt;,&lt;377,91&gt;)
+	compileAndMergeIncremental("ConsoleInput", false, ("verbose":false)) at |std:///experiments/Compiler/Execute.rsc|(16626,735,&lt;367,0&gt;,&lt;381,1&gt;)
+
+ok
+rascal&gt;mix([3, 1, 7, 5, 9], [15, 25, 35]);
+[error] Name mix is not in scope
+rascal&gt;mix([3, 1, 7], [15, 25, 35, 45, 55]);
+[error] Name mix is not in scope
+rascal&gt;mix([3, 1, 7], ["elephant", "snake"]);
+[error] Name mix is not in scope</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-permutations">1.1.24. permutations</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>set[list[&amp;T]] permutations(list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Compute all permutations of a list.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;permutations([1,2,3]);
+set[list[int]]: {
+  [3,2,1],
+  [1,2,3],
+  [2,1,3],
+  [1,3,2],
+  [2,3,1],
+  [3,1,2]
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-pop">1.1.25. pop</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>tuple[&amp;T, list[&amp;T]] pop(list[&amp;T] lst) throws EmptyList</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Pop top element from list, return a tuple.
+.Description
+This function is identical to <a href="#List-headTail">headTail</a>.
+Also see <a href="#List-push">push</a> and <a href="#List-top">top</a>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;pop([3, 1, 4, 5]);
+tuple[int,list[int]]: &lt;3,[1,4,5]&gt;
+rascal&gt;headTail([3, 1, 4, 5]);
+tuple[int,list[int]]: &lt;3,[1,4,5]&gt;
+rascal&gt;pop(["zebra", "elephant", "snake", "owl"]);
+tuple[str,list[str]]: &lt;"zebra",["elephant","snake","owl"]&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-prefix">1.1.26. prefix</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>list[&amp;T] prefix(list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Return all but the last element of a list.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;prefix([3, 1, 4, 5]);
+list[int]: [3,1,4]
+rascal&gt;prefix([]);
+list[void]: []
+rascal&gt;prefix(["zebra", "elephant", "snake", "owl"]);
+list[str]: ["zebra","elephant","snake"]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-push">1.1.27. push</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>list[&amp;T] push(&amp;T elem, list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Push an element in front of a list.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Also see <a href="#List-pop">pop</a> and <a href="#List-top">top</a>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;push(7, [3, 1, 4, 5]);
+list[int]: [7,3,1,4,5]
+rascal&gt;push("eagle", ["zebra", "elephant", "snake", "owl"]);
+list[str]: ["eagle","zebra","elephant","snake","owl"]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-reducer">1.1.28. reducer</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>&amp;T reducer(list[&amp;T] lst, &amp;T (&amp;T, &amp;T) fn, &amp;T unit)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Apply a function to successive elements of list and combine the results (<em>deprecated</em>).</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Apply the function <code>fn</code> to successive elements of list <code>lst</code> starting with <code>unit</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;int add(int x, int y) { return x + y; }
+ok
+rascal&gt;reducer([10, 20, 30, 40], add, 0);
+int: 100</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Pitfalls</div>
+<p>WARNING:
+This function is <strong>deprecated</strong>, use a <a href="../Rascal/Rascal.html#Expressions-Reducer">reducer</a> instead.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-reverse">1.1.29. reverse</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>list[&amp;T] reverse(list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Reverse a list.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Returns a list with the elements of <code>lst</code> in reverse order.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;reverse([1,4,2,3]);
+list[int]: [3,2,4,1]
+rascal&gt;reverse(["zebra", "elephant", "snake", "owl"]);
+list[str]: ["owl","snake","elephant","zebra"]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-shuffle">1.1.30. shuffle</h4>
+<div class="ulist">
+<div class="title">Function</div>
+<ul>
+<li>
+<p><code>list[&amp;T] shuffle(list[&amp;T] l)</code></p>
+</li>
+<li>
+<p><code>list[&amp;T] shuffle(list[&amp;T] l, int seed)</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Shuffle a list.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Returns a random (unbiased) shuffled list.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;shuffle([1,4,2,3]);
+list[int]: [1,4,2,3]
+rascal&gt;shuffle(["zebra", "elephant", "snake", "owl"]);
+list[str]: ["zebra","owl","elephant","snake"]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-size">1.1.31. size</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>int size(list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Determine the number of elements in a list.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;size([20, 10, 30]);
+int: 3
+rascal&gt;size(["zebra", "elephant", "snake", "owl"]);
+int: 4</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-slice">1.1.32. slice</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>list[&amp;T] slice(list[&amp;T] lst, int begin, int len)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Compute a sublist of a list.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Returns a sublist of <code>lst</code> from index <code>start</code> of length <code>len</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+In most cases it is better to use the built-in <a href="../Rascal/Rascal.html#List-Slice">slice</a> notation,
+see the example below.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;slice([10, 20, 30, 40, 50, 60], 2, 3);
+list[int]: [30,40,50]
+rascal&gt;slice(["zebra", "elephant", "snake", "owl"], 1, 2);
+list[str]: ["elephant","snake"]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here are the equivalent expressions using the slice notation:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;[10, 20, 30, 40, 50, 60][2 .. 5];
+list[int]: [30,40,50]
+rascal&gt;["zebra", "elephant", "snake", "owl"][1 .. 3];
+list[str]: ["elephant","snake"]</code></pre>
+</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+In the slice notation the upper bound is exclusive.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-sort">1.1.33. sort</h4>
+<div class="ulist">
+<div class="title">Function</div>
+<ul>
+<li>
+<p><code>list[&amp;T] sort(list[&amp;T] lst)</code></p>
+</li>
+<li>
+<p><code>list[&amp;T] sort(list[&amp;T] l, bool (&amp;T a, &amp;T b) less)</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Sort the elements of a list.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Sort the elements of a list:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Use the built-in ordering on values to compare list elements.</p>
+</li>
+<li>
+<p>Give an additional <code>lessThan</code> function that will be used to compare elements.</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;import String;
+ok
+rascal&gt;sort([10, 4, -2, 11, 100, 5]);
+list[int]: [-2,4,5,10,11,100]
+rascal&gt;fruits = ["mango", "strawberry", "pear", "pineapple", "banana", "grape", "kiwi"];
+list[str]: ["mango","strawberry","pear","pineapple","banana","grape","kiwi"]
+rascal&gt;sort(fruits);
+list[str]: ["banana","grape","kiwi","mango","pear","pineapple","strawberry"]
+rascal&gt;sort(fruits, bool(str a, str b){ return size(a) &gt; size(b); });
+list[str]: ["strawberry","pineapple","banana","mango","grape","pear","kiwi"]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-split">1.1.34. split</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>tuple[list[&amp;T],list[&amp;T]] split(list[&amp;T] l)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Split a list into two halves.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;split([3, 1, 4, 5, 7]);
+tuple[list[int],list[int]]: &lt;[3,1],[4,5,7]&gt;
+rascal&gt;split(["zebra", "elephant", "snake", "owl"]);
+tuple[list[str],list[str]]: &lt;["zebra","elephant"],["snake","owl"]&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-tail">1.1.35. tail</h4>
+<div class="ulist">
+<div class="title">Function</div>
+<ul>
+<li>
+<p><code>list[&amp;T] tail(list[&amp;T] lst) throws EmptyList</code></p>
+</li>
+<li>
+<p><code>list[&amp;T] tail(list[&amp;T] lst, int len) throws IndexOutOfBounds</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Get the tail element(s) from a list.</p>
+</div>
+<div class="ulist">
+<div class="title">Description</div>
+<ul>
+<li>
+<p>Return a list consisting of all but the first element of <code>lst</code>.</p>
+</li>
+<li>
+<p>Return a list consisting of the last <code>n</code> elements of <code>lst</code>.</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error"></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>All but first element:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error">rascal&gt;import List;
+ok
+rascal&gt;tail([10,20,30]);
+list[int]: [20,30]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Try an error case:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error">rascal&gt;tail([]);
+EmptyList()
+Call stack (most recent first):
+	tail([], {}) at |std:///List.rsc|(17604,725,&lt;766,0&gt;,&lt;801,57&gt;)
+	main([]) at |test-modules:///ConsoleInput.rsc|(49,8,&lt;4,15&gt;,&lt;4,23&gt;)
+
+ok</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Last n elements:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error">rascal&gt;tail([10, 20, 30, 40, 50, 60], 3);
+list[int]: [40,50,60]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Try an error case:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error">rascal&gt;tail([10, 20, 30, 40, 50, 60], 10);
+IndexOutOfBounds(4)
+Call stack (most recent first):
+	tail([10,20,30,40,50,60], 10, {}) at |std:///List.rsc|(18332,115,&lt;803,0&gt;,&lt;804,73&gt;)
+	main([]) at |test-modules:///ConsoleInput.rsc|(49,34,&lt;4,15&gt;,&lt;4,49&gt;)
+
+ok</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-take">1.1.36. take</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>list[&amp;T] take(int n, list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Get number of elements from the head of a list.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Get <code>n</code> elements (or <code>size(lst)</code> elements if <code>size(lst) &lt; n</code>) from the head of the list.
+See <a href="#List-drop">drop</a> to remove elements from the head of a list.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;take(2, [3, 1, 4, 5]);
+list[int]: [3,1]
+rascal&gt;take(6, [3, 1, 4, 5]);
+list[int]: [3,1,4,5]
+rascal&gt;take(2, ["zebra", "elephant", "snake", "owl"]);
+list[str]: ["zebra","elephant"]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-takeOneFrom">1.1.37. takeOneFrom</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>tuple[&amp;T, list[&amp;T]] takeOneFrom(list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Remove an arbitrary element from a list, returns the element and the modified list.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Select an arbitrary element from <code>lst</code>, and return a tuple consisting of:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the selected element, and</p>
+</li>
+<li>
+<p>a new list consisting of all elements of <code>lst</code> except the selected element.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>See <a href="#List-getOneFrom">getOneFrom</a> to only selected an element from a list.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;takeOneFrom([10,20,30,40,50]);
+tuple[int,list[int]]: &lt;50,[10,20,30,40]&gt;
+rascal&gt;takeOneFrom([10,20,30,40,50]);
+tuple[int,list[int]]: &lt;10,[20,30,40,50]&gt;
+rascal&gt;takeOneFrom([10,20,30,40,50]);
+tuple[int,list[int]]: &lt;40,[10,20,30,50]&gt;
+rascal&gt;takeOneFrom(["zebra", "elephant", "snake", "owl"]);
+tuple[str,list[str]]: &lt;"owl",["zebra","elephant","snake"]&gt;
+rascal&gt;takeOneFrom(["zebra", "elephant", "snake", "owl"]);
+tuple[str,list[str]]: &lt;"zebra",["elephant","snake","owl"]&gt;
+rascal&gt;takeOneFrom(["zebra", "elephant", "snake", "owl"]);
+tuple[str,list[str]]: &lt;"elephant",["zebra","snake","owl"]&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-takeWhile">1.1.38. takeWhile</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>list[&amp;T] takeWhile(list[&amp;T] lst, bool (&amp;T a) take)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Take elements from the front of the list as long as a predicate is true.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;bool isEven(int a) = a mod 2 == 0;
+ok
+rascal&gt;takeWhile([2,4,6,8,1,2,3,4,5],isEven);
+list[int]: [2,4,6,8]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-toMap">1.1.39. toMap</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>map[&amp;A,set[&amp;B]] toMap(list[tuple[&amp;A, &amp;B]] lst) throws MultipleKey</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Convert a list of pairs to a map; first elements are associated with a set of second elements.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Convert a list of tuples to a map in which the first element of each tuple is
+associated with the set of second elements from all tuples with the same first element. Keys should be unique.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;toMap([&lt;1,10&gt;, &lt;1, 11&gt;, &lt;2, 20&gt;, &lt;3, 30&gt;, &lt;3, 31&gt;]);
+map[int, set[int]]: (
+  1:{10,11},
+  3:{31,30},
+  2:{20}
+)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Pitfalls</div>
+<p><code>toMap</code> collects all values in tuples with the same first value in a set.
+Contrast this with <code>toMapUnique</code> that associates each first tuple value with the second tuple value,
+but imposes the constraint that those keys are unique.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-toMapUnique">1.1.40. toMapUnique</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>map[&amp;A,&amp;B] toMapUnique(list[tuple[&amp;A, &amp;B]] lst) throws MultipleKey</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Convert a list of tuples to a map; result must be a map.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Convert a list of tuples to a map; result must be a map.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error">rascal&gt;import List;
+ok
+rascal&gt;toMapUnique([&lt;1,10&gt;, &lt;2, 20&gt;, &lt;3, 30&gt;]);
+map[int, int]: (1:10,3:30,2:20)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s explore an error case:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error">rascal&gt;toMapUnique([&lt;1,10&gt;, &lt;1, 11&gt;, &lt;2, 20&gt;, &lt;3, 30&gt;]);
+MultipleKey(1)
+Call stack (most recent first):
+	toMapUnique([&lt;1,10&gt;,&lt;1,11&gt;,&lt;2,20&gt;,&lt;3,30&gt;], {}) at |std:///List.rsc|(20847,667,&lt;893,0&gt;,&lt;916,79&gt;)
+	main([]) at |test-modules:///ConsoleInput.rsc|(49,48,&lt;4,15&gt;,&lt;4,63&gt;)
+
+ok</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<div class="title">Pitfalls</div>
+<p>The keys in a map are unique by definition.
+<code>toMapUnique</code> throws a <code>MultipleKey</code> exception when the list contains more than one tuple with the same first value.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-toRel">1.1.41. toRel</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>rel[&amp;T,&amp;T] toRel(list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Convert a list to a relation.
+.Description
+  Convert a list to relation, where each tuple encodes which elements are followed by each other.
+  This function will return an empty relation for empty lists and for singleton lists.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;toRel([3, 1, 4, 5]);
+rel[int,int]: {
+  &lt;1,4&gt;,
+  &lt;4,5&gt;,
+  &lt;3,1&gt;
+}
+rascal&gt;toRel(["zebra", "elephant", "snake", "owl"]);
+rel[str,str]: {
+  &lt;"snake","owl"&gt;,
+  &lt;"zebra","elephant"&gt;,
+  &lt;"elephant","snake"&gt;
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-toSet">1.1.42. toSet</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>set[&amp;T] toSet(list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Convert a list to a set.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Convert <code>lst</code> to a set.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;toSet([10, 20, 30, 40]);
+set[int]: {10,40,20,30}
+rascal&gt;toSet(["zebra", "elephant", "snake", "owl"]);
+set[str]: {"snake","owl","zebra","elephant"}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that the same can be done using splicing</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;l = [10,20,30,40];
+list[int]: [10,20,30,40]
+rascal&gt;s = {*l};
+set[int]: {10,40,20,30}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-toString">1.1.43. toString</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>str toString(list[&amp;T] lst)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Convert a list to a string.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Convert <code>lst</code> to a string.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;toString([10, 20, 30]);
+str: "[10,20,30]"
+rascal&gt;toString(["zebra", "elephant", "snake", "owl"]);
+str: "[\"zebra\",\"elephant\",\"snake\",\"owl\"]"</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-top">1.1.44. top</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>&amp;T top(list[&amp;T] lst) throws EmptyList</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Take the top element of a list.
+.Description
+This function is identical to <a href="#head">[head]</a>.
+Also see <a href="#List-pop">pop</a> and <a href="#List-push">push</a>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;top([3, 1, 4, 5]);
+int: 3
+rascal&gt;top(["zebra", "elephant", "snake", "owl"]);
+"getCachedConfig: no config found for lang::java::jdt::m3::Core"
+Call stack (most recent first):
+	getCachedConfig("lang::java::jdt::m3::Core", pathConfig(binDir=|home:///bin-console|,srcPath=[|std:///|,|test-modules:///|],libPath=[|home:///bin-console|]), {}) at |std:///lang/rascal/types/CheckTypes.rsc|(376480,2,&lt;7333,68&gt;,&lt;7333,70&gt;)
+	clearDirtyModules("ConsoleInput", pathConfig(binDir=|home:///bin-console|,srcPath=[|std:///|,|test-modules:///|],libPath=[|home:///bin-console|]), {}) at |std:///lang/rascal/types/CheckTypes.rsc|(378038,29,&lt;7368,36&gt;,&lt;7368,65&gt;)
+	recompileDependencies("ConsoleInput", rvmModule("ConsoleInput",("ConsoleInput"..., config({},(|test-modules:///ConsoleInput..., pathConfig(binDir=|home:///bin-console|,srcPath=[|std:///|,|test-modules:///|],libPath=[|home:///bin-console|]), {verbose=false}) at |std:///experiments/Compiler/Compile.rsc|(6728,44,&lt;163,4&gt;,&lt;163,48&gt;)
+	compileIncremental("ConsoleInput", true, pathConfig(binDir=|home:///bin-console|,srcPath=[|std:///|,|test-modules:///|],libPath=[|home:///bin-console|]), {verbose=false}) at |std:///experiments/Compiler/Compile.rsc|(10304,78,&lt;257,11&gt;,&lt;257,89&gt;)
+	compileAndMergeIncremental("ConsoleInput", true, ("verbose":false)) at |std:///experiments/Compiler/Execute.rsc|(17193,75,&lt;377,16&gt;,&lt;377,91&gt;)
+	compileAndMergeIncremental("ConsoleInput", true, ("verbose":false)) at |std:///experiments/Compiler/Execute.rsc|(16626,735,&lt;367,0&gt;,&lt;381,1&gt;)
+
+ok</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-unzip">1.1.45. unzip</h4>
+<div class="ulist">
+<div class="title">Function</div>
+<ul>
+<li>
+<p><code>tuple[list[&amp;T],list[&amp;U]] unzip(list[tuple[&amp;T,&amp;U]] lst)</code></p>
+</li>
+<li>
+<p><code>tuple[list[&amp;T],list[&amp;U],list[&amp;V]] unzip(list[tuple[&amp;T,&amp;U,&amp;V]] lst)</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Make a pair (triple) of lists from a list of pairs (triples).</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Also see <a href="#List-unzip">unzip</a>;</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;unzip([&lt;3,"thirty"&gt;, &lt;1,"ten"&gt;, &lt;4,"forty"&gt;]);
+tuple[list[int],list[str]]: &lt;[3,1,4],["thirty","ten","forty"]&gt;
+rascal&gt;unzip([&lt;3,"thirty",300&gt;, &lt;1,"ten",100&gt;, &lt;4,"forty",400&gt;]);
+tuple[list[int],list[str],list[int]]: &lt;[3,1,4],["thirty","ten","forty"],[300,100,400]&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-upTill">1.1.46. upTill</h4>
+<div class="paragraph">
+<div class="title">Function</div>
+<p><code>list[int] upTill(int n)</code></p>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Returns the list 0,1..n-1.
+.Description
+Returns the list <code>0</code>, <code>1</code>, .., <code>n-1</code>, this is slightly faster than <code>[0..n]</code>, since the returned values are shared.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;upTill(10);
+ok</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="List-zip">1.1.47. zip</h4>
+<div class="ulist">
+<div class="title">Function</div>
+<ul>
+<li>
+<p><code>list[tuple[&amp;T first, &amp;U second]] zip(list[&amp;T] a, list[&amp;U] b)</code></p>
+</li>
+<li>
+<p><code>list[tuple[&amp;T first, &amp;U second, &amp;V third]] zip(list[&amp;T] a, list[&amp;U] b, list[&amp;V] c)</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Make a list of pairs from two (three) lists of the same length.</p>
+</div>
+<div class="paragraph">
+<div class="title">Description</div>
+<p>Also see <a href="#List-unzip">unzip</a>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Examples</div>
+<div class="content">
+<pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
+ok
+rascal&gt;zip([3, 1, 4], ["thirty", "ten", "forty"]);
+lrel[int,str]: [
+  &lt;3,"thirty"&gt;,
+  &lt;1,"ten"&gt;,
+  &lt;4,"forty"&gt;
+]
+rascal&gt;zip([3, 1, 4], ["thirty", "ten", "forty"], [300, 100, 400]);
+lrel[int,str,int]: [
+  &lt;3,"thirty",300&gt;,
+  &lt;1,"ten",100&gt;,
+  &lt;4,"forty",400&gt;
+]</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-04-18 20:50:03 CEST
+Last updated 2016-04-25 16:42:22 CEST
 </div>
 </div>
 </body>

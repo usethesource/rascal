@@ -16,7 +16,7 @@ Overview of the complete Figure library.
 .Description
 The Figure library provides visualization functionality that
 can be used to synthesize information. 
-This plays, for example, a role in the synthesis part of the link::{EASY}#EASY[] paradigm.
+This plays, for example, a role in the synthesis part of the link:{EASY}[EASY] paradigm.
 It is based on the following principles:
 
 *  __Coordinate free__: only intrinsic properties of figures such as their height, width or color have to be specified. 

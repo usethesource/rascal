@@ -1,3 +1,4 @@
+
 [[Abstract-Variable]]
 # Variable Pattern
 :concept: Patterns/Abstract/Variable

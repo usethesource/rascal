@@ -1,0 +1,112 @@
+
+[[m3-Core]]
+
+
+[[m3-Core]]
+# Core
+:concept: lang/java/m3/Core
+.Usage
+`import lang::java::m3::Core;`
+
+
+
+.Synopsis
+extends the M3 [$analysis/m3/Core] with Java specific concepts such as inheritance and overriding.
+
+.Description
+
+For a quick start, go find <<createM3FromEclipseProject>>.
+
+
+* <<Core-Language,Language>>: 
+* <<Core-annotations,annotations>>: 
+* <<Core-createM3FromDirectory,createM3FromDirectory>>: globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
+      
+* <<Core-extends,extends>>: 
+* <<Core-fieldAccess,fieldAccess>>: 
+* <<Core-implements,implements>>: 
+* <<Core-methodInvocation,methodInvocation>>: 
+* <<Core-methodOverrides,methodOverrides>>: 
+* <<Core-typeDependency,typeDependency>>: 
+
+[[Core-Language]]
+## Language
+.Types
+[source,rascal]
+----
+data Language(str version="") = java();
+----
+
+[[Core-annotations]]
+### annotations
+.Types
+[source,rascal]
+----
+anno rel[loc declaration, loc annotation] M3@annotations;
+----
+
+[[Core-createM3FromDirectory]]
+## createM3FromDirectory
+
+.Function 
+`M3 createM3FromDirectory(loc project, bool errorRecovery = false, str Version = "1.7")`
+
+
+.Synopsis
+globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
+
+
+
+[[Core-extends]]
+### extends
+.Types
+[source,rascal]
+----
+anno rel[loc from, loc to] M3@extends;
+----
+
+[[Core-fieldAccess]]
+### fieldAccess
+.Types
+[source,rascal]
+----
+anno rel[loc from, loc to] M3@fieldAccess;
+----
+
+[[Core-implements]]
+### implements
+.Types
+[source,rascal]
+----
+anno rel[loc from, loc to] M3@implements;
+----
+
+[[Core-methodInvocation]]
+### methodInvocation
+.Types
+[source,rascal]
+----
+anno rel[loc from, loc to] M3@methodInvocation;
+----
+
+[[Core-methodOverrides]]
+### methodOverrides
+.Types
+[source,rascal]
+----
+anno rel[loc from, loc to] M3@methodOverrides;
+----
+
+[[Core-typeDependency]]
+### typeDependency
+.Types
+[source,rascal]
+----
+anno rel[loc from, loc to] M3@typeDependency;
+----
+
+:leveloffset: +1
+include::typeDependency/typeDependency.adoc[typeDependency]
+
+
+:leveloffset: -1

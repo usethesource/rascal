@@ -1,3 +1,4 @@
+
 [[Declarations-Alias]]
 # Alias Declaration
 :concept: Declarations/Alias

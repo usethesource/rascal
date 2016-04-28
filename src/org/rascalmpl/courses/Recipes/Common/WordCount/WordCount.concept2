@@ -39,7 +39,7 @@ include::{LibDir}demo/common/WordCount/WordCount.rsc[tags=module]
 ----
 
                 
-<1> An link::{Rascal}#Enumerator[enumerator] is used to generated all the lines in the list of lines.
+<1> An link:{RascalLang}#Comprehensions-Enumerator[enumerator] is used to generated all the lines in the list of lines.
 <2> The argument function `countInLine` is applied to count the number of words in each line.
 
 Let's now do some experiments using the <<Jabberwocky>> poem by Lewis Carrol as input.

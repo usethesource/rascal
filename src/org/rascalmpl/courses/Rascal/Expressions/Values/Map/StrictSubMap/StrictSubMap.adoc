@@ -1,3 +1,4 @@
+
 [[Map-StrictSubMap]]
 # Map StrictSubMap
 :concept: Expressions/Values/Map/StrictSubMap

@@ -1,0 +1,37 @@
+[[Properties-vshrink]]
+# vshrink
+:concept: Vis/Figure/Properties/vshrink
+
+.Synopsis
+Decrease (shrink) vertical size of figure relative to its parent.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty vshrink(num vs)`
+
+.Description
+Vertically shrink the current figure relative to the figure it is contained in (its parent). 
+Shrink is expressed as a factor smaller than 1.
+
+Also see <<shrink>> and <<hshrink>>.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>render(b2);
+----
+
+image::{concept}/s1.png[alt="s1"]
+
+
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

@@ -1,3 +1,4 @@
+
 [[Boolean-IsDefined]]
 # Boolean IsDefined
 :concept: Expressions/Values/Boolean/IsDefined

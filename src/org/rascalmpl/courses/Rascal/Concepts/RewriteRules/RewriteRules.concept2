@@ -56,7 +56,7 @@ At <2> a default for `simp` is given: if no other definition applies, the defaul
 At <3> the actual `simplify` function is given: it performs a bottom up visit of the expression, replacing each subexpression by
 a simplified version.
 
-See link::{Recipes}#derivative[] for a full explanation of this example.
+See link:{Recipes}#Common-Derivative[Derivative] for a full explanation of this example.
 
 .Benefits
 

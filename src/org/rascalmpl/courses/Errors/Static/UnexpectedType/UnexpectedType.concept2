@@ -16,7 +16,8 @@ A value of a different type was expected.
 .Description
 This error signals an incompatibility between expected type and actual type.
 Some of the situations in which this may occur are
-link::{Rascal}#Assert[], link::{Rascal}#Declarations-Variable[], link::{Rascal}#Solve[].
+link:{RascalLang}#Statements-Assert[assert], link:{RascalLang}#Declarations-Variable[variable],
+link:{RascalLang}#Statements-Solve[solve].
 
 Remedy: adjust the actual type to the expected type.
 

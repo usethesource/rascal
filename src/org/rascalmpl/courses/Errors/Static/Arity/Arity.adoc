@@ -1,0 +1,78 @@
+
+[[Static-Arity]]
+# Arity
+:concept: Static/Arity
+
+.Synopsis
+The number of arguments of an operator differ from what is required.
+
+.Syntax
+
+.Types
+
+.Function
+       
+.Usage
+
+.Description
+Various operators like link:{RascalLang}#Relation-Composition[composition], 
+link:{RascalLang}#Relation-TransitiveClosure[transitive closure] and 
+link:{RascalLang}#Relation-ReflexiveTransitiveClosure[reflexive transitive closure] 
+expect binary relations or tuples as arguments.
+
+.Examples
+This composition is correct:
+[source,rascal-shell]
+----
+rascal>{<1,10>, <2,20>} o {<10,100>, <20, 200>};
+rel[int,int]: {
+  <1,100>,
+  <2,200>
+}
+----
+This is not, since the first argument has arity 3:
+[source,rascal-shell-error]
+----
+rascal>{<1,5,10>, <2,6,20>} o {<10,100>, <20, 200>};
+[error] Relation rel[int, int, int] should have arity of 0 or 2 IN '{<1,5,10>, <2,6,20>}'
+----
+
+These transitive closures are correct:
+[source,rascal-shell]
+----
+rascal>{<1,2>, <2,3>,<4,5>}+
+rel[int,int]: {
+  <1,3>,
+  <1,2>,
+  <4,5>,
+  <2,3>
+}
+rascal>{<1,2>, <2,3>,<4,5>}*
+rel[int,int]: {
+  <5,5>,
+  <1,3>,
+  <2,2>,
+  <1,1>,
+  <1,2>,
+  <3,3>,
+  <4,5>,
+  <4,4>,
+  <2,3>
+}
+----
+But these are incorrect:
+[source,rascal-shell-error]
+----
+rascal>{<1,2,3>, <2,3,4>,<4,5,6>}+
+[error] Invalid type: expected a binary relation over equivalent types, found rel[int, int, int] IN '{<1,2,3>, <2,3,4>,<4,5,6>}'
+rascal>{<1,2,3>, <2,3,4>,<4,5,6>}*
+[error] Invalid type: expected a binary relation over equivalent types, found rel[int, int, int] IN '{<1,2,3>, <2,3,4>,<4,5,6>}'
+----
+.Benefits
+
+.Pitfalls
+
+
+:leveloffset: +1
+
+:leveloffset: -1

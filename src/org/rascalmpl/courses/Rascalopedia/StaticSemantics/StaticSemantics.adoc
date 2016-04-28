@@ -1,3 +1,4 @@
+
 [[Rascalopedia-StaticSemantics]]
 # Static Semantics
 :concept: StaticSemantics

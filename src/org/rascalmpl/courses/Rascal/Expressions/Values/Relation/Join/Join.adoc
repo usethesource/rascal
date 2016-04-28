@@ -1,3 +1,4 @@
+
 [[Relation-Join]]
 # Relation Join
 :concept: Expressions/Values/Relation/Join
