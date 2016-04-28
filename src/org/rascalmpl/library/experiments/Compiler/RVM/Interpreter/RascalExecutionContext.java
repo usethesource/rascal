@@ -522,9 +522,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 		return (ISourceLocation) resolver.call(argTypes, argValues, null).getValue();
 	}
 	
-	void registerCommonSchemes(){
-		addRascalSearchPath(URIUtil.rootLocation("test-modules"));
-		addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-		addRascalSearchPath(URIUtil.rootLocation("courses"));
-	}
+//	void registerCommonSchemes(){
+//		addRascalSearchPath(URIUtil.rootLocation("test-modules"));
+//		addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+//		addRascalSearchPath(URIUtil.rootLocation("courses"));
+//	}
 }
