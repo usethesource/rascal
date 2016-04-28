@@ -17,7 +17,8 @@ import experiments::Compiler::Benchmarks::dot::Dot;
 import IO;
 
 @doc{
-Synopsis: Data Types belonging to Formal Concept Analysis.
+.Synopsis
+Data Types belonging to Formal Concept Analysis.
 }
 public alias FormalContext[&Object, &Attribute] = rel[&Object, &Attribute];
 public alias Concept[&Object, &Attribute] = tuple[set[&Object] objects, set[&Attribute] attributes];
@@ -28,7 +29,8 @@ public alias Attribute2Objects[&Attribute, &Object] = map[&Attribute, set[&Objec
 
                                                      
 @doc{
-Synopsis: Computes Concept Lattice given the Object Attribute Relation.
+.Synopsis
+Computes Concept Lattice given the Object Attribute Relation.
 }
 public ConceptLattice[&Object, &Attribute] fca (FormalContext[&Object, &Attribute] fc) {
     rel[set[&Attribute], set[&Attribute]] lat = createAttributeLattice(fc);
@@ -36,7 +38,8 @@ public ConceptLattice[&Object, &Attribute] fca (FormalContext[&Object, &Attribut
 }
 
 @doc{
-Synopsis: Computes Dot Graph from Concept Lattice.
+.Synopsis
+Computes Dot Graph from Concept Lattice.
 }
 public DotGraph toDot(ConceptLattice[&Object, &Attribute] cl) {
    return toDot(cl, true);
@@ -161,4 +164,4 @@ map[Concept[&Object, &Attribute], int] makeNodes(ConceptLattice[&Object, &Attrib
 
 Stm compose(Concept[&Object, &Attribute] c, map[Concept[&Object, &Attribute], int] z, bool lab) {
      return N("\"<z[c]>\"", lab?[<"label", "<c>">]:[]);
-     }     
+     }

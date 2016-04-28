@@ -1,15 +1,16 @@
 @doc{
-Synopsis: Intermediate Language and Basic Algorithms for object flow analysis
+.Synopsis
+Intermediate Language and Basic Algorithms for object flow analysis
   
-Description:
+.Description
   
 The object flow language from the Tonella and Potrich book 
-"Reverse Engineering Object Oriented Code" [tonella] is an intermediate
+"Reverse Engineering Object Oriented Code" <<tonella>> is an intermediate
 representation for object flow. We may translate for example
 Java to this intermediate language and then analyze object flow
 based on the simpler language.
   
-The implementation in this file is intended to work with [M3] models
+The implementation in this file is intended to work with <<M3>> models
 }
 @bibliography{
 @book{tonella,
@@ -30,14 +31,14 @@ data FlowProgram = flowProgram(set[FlowDecl] decls, set[FlowStm] statements);
 
 public loc emptyId = |id:///|;
 
-@doc{Figure 2.1 [tonella]}
+@doc{Figure 2.1 <<tonella>>}
 data FlowDecl 
 	= attribute(loc id)
 	| method(loc id, list[loc] formalParameters)
 	| constructor(loc id, list[loc] formalParameters)
 	;
 
-@doc{Figure 2.1 [tonella]}
+@doc{Figure 2.1 <<tonella>>}
 data FlowStm
 	= newAssign(loc target, loc class, loc ctor, list[loc] actualParameters)
 	| assign(loc target, loc cast, loc source)
@@ -46,7 +47,7 @@ data FlowStm
 	
 alias OFG = rel[loc from, loc to];
 
-@doc{Figure 2.2 [tonella]}
+@doc{Figure 2.2 <<tonella>>}
 OFG buildFlowGraph(FlowProgram p)
   = { <as[i], fps[i]> | newAssign(x, cl, c, as) <- p.statements, constructor(c, fps) <- p.decls, i <- index(as) }
   + { <cl + "this", x> | newAssign(x, cl, _, _) <- p.statements }
@@ -56,7 +57,7 @@ OFG buildFlowGraph(FlowProgram p)
   + { <m + "return", x> | call(x, _, _, m, _) <- p.statements, x != emptyId}
   ;
 
-@doc{Section 2.4 [tonella]}
+@doc{Section 2.4 <<tonella>>}
 rel[loc,&T] propagate(OFG g, rel[loc,&T] gen, rel[loc,&T] kill, bool back) {
   rel[loc,&T] IN = { };
   rel[loc,&T] OUT = gen + (IN - kill);
@@ -76,6 +77,3 @@ rel[loc,&T] propagate(OFG g, rel[loc,&T] gen, rel[loc,&T] kill, bool back) {
 
   return OUT;
 }
-	
-	
-	

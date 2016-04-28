@@ -21,7 +21,8 @@ public value readTextATermFile(loc location) {
 }
 
 @doc{
-Synopsis: Read an ATerm from a named file.
+.Synopsis
+Read an ATerm from a named file.
 
 }
 

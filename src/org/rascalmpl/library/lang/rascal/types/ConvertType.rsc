@@ -75,7 +75,7 @@ public list[Symbol] convertTypeArgList({TypeArg ","}* tas) {
     return [convertTypeArg(ta) | ta <- tas];
 }
 
-@doc{Convert structured types, such as list[int]. Check here for certain syntactical 
+@doc{Convert structured types, such as list<<int>>. Check here for certain syntactical 
 conditions, such as: all field names must be distinct in a given type; lists require 
 exactly one type argument; etc.}
 public Symbol convertStructuredType(StructuredType st) {

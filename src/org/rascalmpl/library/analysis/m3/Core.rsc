@@ -1,28 +1,29 @@
 @doc{
-Synopsis: M3 common source code model represent facts extracted from source code for use in downstream metrics or other analyses.
+.Synopsis
+M3 common source code model represent facts extracted from source code for use in downstream metrics or other analyses.
 
-Description:
+.Description
 
-The [$Rascal/Libraries/analysis/m3] core defines basic concepts such as:
+The <<Rascal-Libraries-analysis-m3>> core defines basic concepts such as:
 
-* qualified names: we use [$Values/Location]s to model qualified names for each programming language
-* containment: which artifacts are contained in which other artifacts
-* declarations: where artifacts are defined
-* uses: where declared artifacts are used
-* types: which artifacts has which types
+*  qualified names: we use [$Values/Location]s to model qualified names for each programming language
+*  containment: which artifacts are contained in which other artifacts
+*  declarations: where artifacts are defined
+*  uses: where declared artifacts are used
+*  types: which artifacts has which types
 
-From this core, [$Rascal/Libraries/analysis/m3] is supposed to be extended with features specific for a programming language. See for example [lang/java/m3].
+From this core, <<Rascal-Libraries-analysis-m3>> is supposed to be extended with features specific for a programming language. See for example <<lang-java-m3>>.
 
-Benefits:
+.Benefits
 
-* Qualified names in the shape of [$Values/Location]s are a uniform and generic way of identifying source code artifacts, that can be extended across languages, projects, and versions.
-* M3 helps standardizing the shape of facts we extract from source code for all different languages, limiting the element of surprise.
-* When we use M3 for many languages, common IDE features are made reusable (such as clicking from an extracted fact to the code that generated it).
-* Some downstream analyses may be reusable between different languages if they all map to M3.
+*  Qualified names in the shape of [$Values/Location]s are a uniform and generic way of identifying source code artifacts, that can be extended across languages, projects, and versions.
+*  M3 helps standardizing the shape of facts we extract from source code for all different languages, limiting the element of surprise.
+*  When we use M3 for many languages, common IDE features are made reusable (such as clicking from an extracted fact to the code that generated it).
+*  Some downstream analyses may be reusable between different languages if they all map to M3.
 
-Pitfalls:
+.Pitfalls
 
-* Even though different languages may map to the same M3 model, this does not mean that the semantics is the same. Downstream
+*  Even though different languages may map to the same M3 model, this does not mean that the semantics is the same. Downstream
 metrics or other analysis tools should still take semantic differences between programming languages into account.
 }
 module analysis::m3::Core
@@ -39,9 +40,10 @@ extend analysis::m3::TypeSymbol;
 data Modifier;
 
 @doc{
-Synopsis: m3 model constructor
+.Synopsis
+m3 model constructor
 
-Description: 
+.Description
 
 This constructor holds all information to an m3 model. It is identified by the _id_ field,
 which should be a unique name for the project or file that the m3 model was constructor for.
@@ -125,9 +127,10 @@ M3 composeM3(loc id, set[M3] models)
 bool isEmpty(M3 model) = model.id.scheme == "unknown";
 
 @doc{
-Synopsis: constructs a recursive FileSystem from a binary [Location] relation.
+.Synopsis
+constructs a recursive FileSystem from a binary [Location] relation.
 
-Description: this function will not terminate if the relation is cyclic.
+.Description
 }
 @memo set[FileSystem] relToFileSystem(rel[loc parent, loc child] r) {
   FileSystem rec(loc l, set[loc] args) = (args == {}) ? file(l) : directory(l, {rec(c, r[c]) | c <- args});
@@ -152,18 +155,19 @@ set[loc] files(M3 model) {
 }
 
 @doc{
-Synopsis: transform the containment relation to a recursive tree model
+.Synopsis
+transform the containment relation to a recursive tree model
 
-Description:
+.Description
 
-Benefits:
+.Benefits
 
-* Transforming the containment relation to a tree model allows further analysis using operators
-such as [Visit] and [Descendant] which is sometimes more convenient.
+*  Transforming the containment relation to a tree model allows further analysis using operators
+such as <<Visit>> and <<Descendant>> which is sometimes more convenient.
 
-Pitfalls:
+.Pitfalls
 
-* Do not forget that the relational operators such as [TransitiveClosure], [Comprehension] and [Composition] may be just
+*  Do not forget that the relational operators such as [TransitiveClosure], [Comprehension] and [Composition] may be just
 as effective and perhaps more efficient, as applied directly on the containment relation. 
 }
 set[FileSystem] containmentToFileSystem(M3 model) = relToFileSystem(model@containment);

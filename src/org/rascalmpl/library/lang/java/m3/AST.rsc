@@ -1,5 +1,6 @@
 @doc{
-Synopsis: defines AST node types for Java
+.Synopsis
+defines AST node types for Java
 }
 module lang::java::m3::AST
 
@@ -195,9 +196,10 @@ set[loc] findRoots(set[loc] folders) {
 }
       
 @doc{
-Synopsis: Creates AST from a file
+.Synopsis
+Creates AST from a file
 
-Description: useful for analyzing raw source code on disk, but if you have an Eclipse project you should have a look at [lang/java/jdt/m3] instead.
+.Description
 }
 public Declaration createAstFromFile(loc file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7") {
     result = createAstsFromFiles({file}, collectBindings, errorRecovery = errorRecovery, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion);
@@ -208,9 +210,10 @@ public Declaration createAstFromFile(loc file, bool collectBindings, bool errorR
 }
 
 @doc{
-Synopsis: Creates AST from a file
+.Synopsis
+Creates AST from a file
 
-Description: useful for analyzing raw source code on disk, but if you have an Eclipse project you should have a look at [lang/java/jdt/m3] instead.
+.Description
 }
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect

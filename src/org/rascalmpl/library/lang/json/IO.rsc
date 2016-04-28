@@ -6,7 +6,8 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @doc{
-Synopsis: (de)serialization of JSON values. 
+.Synopsis
+(de)serialization of JSON values. 
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
@@ -25,4 +26,3 @@ public java str toJSON(value v, bool compact);
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @reflect{Uses type store}
 public java &T fromJSON(type[&T] typ, str src);
-

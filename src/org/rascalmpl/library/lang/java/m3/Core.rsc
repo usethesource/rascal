@@ -1,9 +1,10 @@
 @doc{
-Synopsis: extends the M3 [$analysis/m3/Core] with Java specific concepts such as inheritance and overriding.
+.Synopsis
+extends the M3 [$analysis/m3/Core] with Java specific concepts such as inheritance and overriding.
 
-Description: 
+.Description
 
-For a quick start, go find [createM3FromEclipseProject].
+For a quick start, go find <<createM3FromEclipseProject>>.
 }
 module lang::java::m3::Core
 
@@ -86,7 +87,8 @@ public java M3 createM3FromString(loc fileName, str contents, bool errorRecovery
 public java M3 createM3FromJarClass(loc jarClass);
 
 @doc{
-Synopsis: globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
+.Synopsis
+globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
 }
 public M3 createM3FromDirectory(loc project, bool errorRecovery = false, str javaVersion = "1.7") {
     if (!(isDirectory(project))) {
