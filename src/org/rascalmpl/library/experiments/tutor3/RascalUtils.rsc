@@ -49,8 +49,8 @@ str stripBraces(str content){
   b = findFirst(content, "{");
   b = (b >= 0) ? b + 1 : 0;
   e = findLast(content, "}");
-  e = (e > 0) ? e - 1 : size(content);
-  return substring(content, b, e);
+  e = (e > 0) ? e  : size(content);
+  return substring(content, b, e) + "\n";
 }
 
 str de_escape(str name){
@@ -77,6 +77,13 @@ str makeUsage(str name){
          '";
 }
 
+str getSynopsis(str txt){
+    if(/.*\.Synopsis\n<synopsis:[^\n]*\n>/m := txt){
+       return synopsis;
+    }
+    return "";
+}
+
 // Return the content of the doc tag in a list of tags.
 
 private str getDoc(Tags tags){
@@ -92,7 +99,9 @@ private str getDoc(Tags tags){
 private str getModuleDoc(str parent, Header header){
   mname = normalizeName("<header.name>");
   doc = getDoc(header.tags);
-  return "[[<parent>-<mname>]]
+  return "
+         '
+         '[[<basename(parent)>-<basename(mname)>]]
          '<makeName(mname)>
          '<makeUsage(mname)>
          '
@@ -122,8 +131,9 @@ private str getFunctionDoc(str mname, FunctionDeclaration fdecl, list[str] signa
   doc = getDoc(fdecl.tags);
   if(doc == "")
      return "";
-  fsig = size(signatures) == 1 ? "`<signatures[0]>`" : "<for(s <- signatures){># `<s>`\n<}>";
-  res = "[[<mname>-<fname>]]
+  fsig = size(signatures) == 1 ? "`<signatures[0]>`" : "<for(s <- signatures){>* `<s>`\n<}>";
+  res = "
+        '[[<basename(mname)>-<fname>]]
         '## <basename(fname)>
         '
         '.Function 
@@ -143,18 +153,27 @@ private bool isUndocumentedDataOrAlias(Declaration decl){
 private str getDataOrAliasSignature(Declaration decl){
   //println("getDataOrAliasSignature: <decl>");
   if(decl is \alias){
-   if(getDoc(decl.tags) == "")
-     return "<decl>";
-   return "alias <decl.user> = <decl.base>;";
+     if(getDoc(decl.tags) == "")
+        return "<decl>";
+     return "alias <decl.user> = <decl.base>;";
   }
 
-  if(getDoc(decl.tags) == "")
+  if(getDoc(decl.tags) == ""){
+     println("getDataOrAliasSignature, empty doc: @@<decl>@@");
      return "<decl>";
-  variants = "<decl.variants>";
-  if(!contains(variants, "\n"))
-     return "data <decl.user> = <variants>;";
-  return "data <decl.user>\n     = <variants>
-	                       '     ;";
+  }
+  //variants = "<decl.variants>";
+  //if(!contains(variants, "\n"))
+  //   return "data <decl.user> = <decl.variants>;";
+  
+  res= "data <decl.user> 
+       '     = <decl.variants>
+	   '";
+
+  emptyTags = (Tags) ``;
+  decl.tags = emptyTags;
+  println("getDataOrAliasSignature: @@<decl>@@");
+  return "<decl>";
 }
 
 // Get doc for data declaration, insert name and declaration
@@ -162,14 +181,20 @@ private str getDataDoc(str mname, Declaration decl, list[str] sigs){
     //println("getDataDoc: <decl>, <sigs>");
 	doc = getDoc(decl.tags);
 	nname = normalizeName("<decl.user>");
-	return "#<makeName(nname)>
+	println("sigs = @@<sigs>@@");
+    dsig = size(sigs) == 1 ? "<sigs[0]>" : 
+	                         "<for(s <- sigs){><s>\n<}>";
+	
+	return "
+	       '[[<basename(mname)>-<nname>]]
+	       '## <basename(nname)>
 	       '.Types
 	       '[source,rascal]
 	       '----
-	       '<intercalate("\n", sigs)>
-	       '----
-	       '<doc>
-	       '";
+	       '"
+	       + dsig
+	       + "\n----\n"
+	       + doc;
 }
 
 private map[str,str] contentMap = ();
@@ -223,10 +248,10 @@ private tuple[int,str] extractDataOrAliasDeclaration(int current){
   if(!contentMap[key]?){
      //println("extractDataOrAliasDeclaration: <userType>");
      sigs = [getDataOrAliasSignature(decl)];
-      while(current+1 < size(declarations) && isUndocumentedDataOrAlias(declarations[current+1])){
+     while(current+1 < size(declarations) && isUndocumentedDataOrAlias(declarations[current+1])){
             sigs += getDataOrAliasSignature(declarations[current+1]);
             current += 1;
-      }
+     }
      doc = getDataDoc(moduleName, decl, sigs);
      if(doc != ""){  	
 	    contentMap[key] = doc;
@@ -247,15 +272,16 @@ private str getAnnotationDoc(str mname, Declaration decl, str sig){
     //println("getAnnotationDoc: <decl>, <sig>");
 	doc = getDoc(decl.tags);
 	nname = normalizeName("<decl.name>");
-	return "#<makeName(nname)>
+	return "
+	       '[[<basename(mname)>-<nname>]]
+	       '##<makeName(nname)>
 	       '.Types
 	       '[source,rascal]
 	       '----
 	       '<sig>
-	       '----
-	       '<makeUsage(mname)>
-	       '<doc>
-	       '";
+	       '----\n"
+	       + doc
+	       ;
 }
 
 // Extract an annotation declaration from a list of Declarations.
@@ -328,6 +354,14 @@ public str extractRemoteConcepts(str parent, str Lstr){
     }
     sorted_keys = sort(toList(domain(contentMap)));
     result = contentMap[moduleNameAsString];
+    for(key <- sorted_keys){
+        if(key != moduleNameAsString){
+           txt = contentMap[key];
+           synopsis = getSynopsis(txt);
+           result += "* \<\<<basename(moduleNameAsString)>-<key>,<key>\>\>: <synopsis>\n";
+        }
+     }
+     
     println("result = <result>");
     println("sorted_keys = <sorted_keys>");
     for(key <- sorted_keys){
@@ -346,7 +380,7 @@ public str extractRemoteConcepts(str parent, str Lstr){
 }
 
 value main(){
-   println(extractRemoteConcepts("PARENT", "|std:///Boolean.rsc|"));
+   println(extractRemoteConcepts("PARENT", "|std:///ParseTree.rsc|"));
     return true;
 }
 

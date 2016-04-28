@@ -1,17 +1,19 @@
 @bootstrapParser
 @doc{
-Synopsis: Mutant Generator for Rascal modules
+.Synopsis
+Mutant Generator for Rascal modules
 
-Description:  This module contains tools to automatically generate broken mutations from a working 
+.Description
   Rascal module. The use case is to test how good the tests are for such a module. The tests
   should be able to find the bugs we introduce using the mutators.
   
 Examples
 
-<listing>
+[source,rascal]
+----
 import lang::rascal::mutation::ModuleMutator;
 mutate(|project://rascal/src/org/rascalmpl/library/lang/rascal/format/Grammar.rsc|, mutations=5)
-</listing>  
+----
 }
 module lang::rascal::mutation::ModuleMutator
 

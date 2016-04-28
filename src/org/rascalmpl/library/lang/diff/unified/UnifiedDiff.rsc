@@ -1,5 +1,6 @@
 @doc{
-Synopsis: Syntax definition for Unified Diff format (see http://en.wikipedia.org/wiki/Diff_utility#Unified_format)
+.Synopsis
+Syntax definition for Unified Diff format (see http://en.wikipedia.org/wiki/Diff_utility#Unified_format)
 }
 @contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
 module lang::diff::unified::UnifiedDiff
