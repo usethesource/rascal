@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.KWParams;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -81,6 +83,11 @@ public class Onthology {
 	    return result.toString();	
 	}
 	
+	private static ISourceLocation readLocFromFile(String file) throws IOException{
+		String s = readFile(file);
+		return ValueFactoryFactory.getValueFactory().sourceLocation(s);
+	}
+	
 	private Path makeConceptFilePath(Path p){
 		return Paths.get(p.toString(), p.getFileName().toString() + "." + conceptExtension);
 	}
@@ -102,9 +109,17 @@ public class Onthology {
 	private final class CollectConcepts extends SimpleFileVisitor<Path> {
 
 		@Override  public FileVisitResult preVisitDirectory(Path aDir, BasicFileAttributes aAttrs) throws IOException {
-//			if(!makeConceptFilePath(aDir).toString().contains("Expressions")){
-//				return FileVisitResult.CONTINUE;
-//			}
+			String cpf = makeConceptFilePath(aDir).toString();
+			if(cpf.contains("/ValueUI") 
+			   || cpf.contains("/Vis/") 
+			   || cpf.contains("/SyntaxHighlightingTemplates")
+			   || cpf.contains("/ShellExec")
+			   || cpf.contains("/Resources")
+			 
+			   ){
+				return FileVisitResult.CONTINUE;
+			}
+			
 			System.err.println(aDir);
 			if(Files.exists(makeConceptFilePath(aDir))){
 				String conceptName = makeConceptName(aDir);
@@ -119,6 +134,7 @@ public class Onthology {
 						remote = remote.trim();
 						String parentName = aDir.getName(aDir.getNameCount()-2).toString();
 						String remoteConceptName = makeConceptName(aDir);
+						
 						System.err.println(remote + ": " + remoteConceptName);
 						IString remoteConceptText = rascalUtils.extractRemoteConcepts(vf.string(parentName), vf.string(remote), new KWParams(vf).build());
 						System.err.println(remoteConceptText.getValue());
@@ -199,7 +215,11 @@ public class Onthology {
 	private void listItemSubConcept(String conceptName, String subConceptName, int start, int depth, boolean withSynopsis, StringWriter result){
 		Concept subConcept = conceptMap.get(subConceptName);
 		int newLevel = level(subConceptName);
-		if(subConcept != null && !conceptName.equals(subConceptName) && subConceptName.startsWith(conceptName) && (newLevel - start <= depth)){
+		if(subConcept != null 
+		   && !conceptName.equals(subConceptName) 
+		   && subConceptName.startsWith(conceptName + "/") 
+		   && (newLevel - start <= depth)
+		   ){
 			result.append(bullets(newLevel)).append("<<").append(subConcept.getAnchor()).append(",").append(subConcept.getTitle()).append(">>");
 			if(withSynopsis){
 				result.append(": ").append(subConcept.getSynopsis());
