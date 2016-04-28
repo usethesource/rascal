@@ -126,13 +126,14 @@ public class Concept {
 	
 	public void preprocess(Onthology onthology, PrintWriter err, RascalCommandExecutor executor) throws IOException{
 		//executor = new RascalCommandExecutor(err);
+		System.err.println("Preprocessing: " + name);
 		BufferedReader reader = new BufferedReader(new StringReader(text));
 
 		StringWriter preprocessOut = new StringWriter();
 		String line = null;
 		String[] details = new String[0];
 
-		preprocessOut.append("[[").append(getAnchor()).append("]]\n");
+		preprocessOut.append("\n[[").append(getAnchor()).append("]]\n");
 
 		while( (line = reader.readLine()) != null && !line.startsWith("#")){
 			preprocessOut.append(line).append("\n");
