@@ -1,8 +1,9 @@
 module util::SemVer
 
 @doc{
-Synopsis: Semantic Versioning
-Description:
+.Synopsis
+Semantic Versioning
+.Description
 Check that a given version string satisfies a range-set as defined by:
 (See https://github.com/npm/node-semver):
 <verbatim>

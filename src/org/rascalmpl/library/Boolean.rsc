@@ -10,7 +10,14 @@
 
 @doc{
 .Synopsis
-Functions on Boolean values
+Library functions for Booleans.
+
+.Description
+
+For operators on Boolean values see link:{RascalLang}#Values-Boolean[Boolean] in the Rascal Language Reference.
+
+The following functions are defined for Booleans:
+subtoc::[1]
 }
 module Boolean
 

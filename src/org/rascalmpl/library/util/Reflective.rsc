@@ -214,9 +214,10 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
 //}
 
 @doc{   
-Synopsis: Derive a location from a given module name for reading
+.Synopsis
+Derive a location from a given module name for reading
 
-Description:
+.Description
 Given a module name, a file name extension, and a PathConfig,
 a path name is constructed from the module name + extension.
 
@@ -225,15 +226,16 @@ then the pair <true, F> is returned. Otherwise <false, some error location> is r
 
 For a source extension (typically "rsc" or "mu" but this can be configured) srcPath is searched, otherwise binPath + libPath.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import util::Reflective;
 getDerivedReadLoc("List", "rsc", pathConfig());
 getDerivedReadLoc("experiments::Compiler::Compile", "rvm", pathConfig());
 getDerivedReadLoc("experiments::Compiler::muRascal2RVM::Library", "mu", pathConfig());
-</screen>
+----
 
-Benefits:
+.Benefits
 This function is useful for type checking and compilation tasks, when derived information related to source modules has to be read
 from locations in different, configurable, directories.
 }
@@ -287,24 +289,26 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
 }
 
 @doc{   
-Synopsis: Derive a location from a given module name for writing
+.Synopsis
+Derive a location from a given module name for writing
 
-Description:
+.Description
 Given a module name, a file name extension, and a PathConfig,
 a path name is constructed from the module name + extension.
 
 For source modules, a writable location cannot be derived.
 For other modules, a location for this path in binDir will be returned.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import util::Reflective;
 getDerivedWriteLoc("List", "rvm", pathConfig());
 getDerivedWriteLoc("experiments::Compiler::Compile", "rvm", pathConfig());
 getDerivedWriteLoc("experiments::Compiler::muRascal2RVM::Library", "mu", pathConfig());
-</screen>
+----
 
-Benefits:
+.Benefits
 This function is useful for type checking and compilation tasks, when derived information related to source modules has to be written
 to locations in separate, configurable, directories.
 }

@@ -331,8 +331,9 @@ tuple[bool, str] convertLib(loc L){
         case Tag t:
             if("<t.name>" == "doc") {
                c = trim(convert("XXX", split("\n", "<t.contents>")));
+               
                if(!endsWith(c, "}")){
-                  c += "}";
+                  c += "\n}";
                }
                try { 
                   cp = parse(#TagString,c);
@@ -372,7 +373,7 @@ value convertLibs(){
        if(converted){
            nconverted += 1;
            println("converted : <libFile>");
-           writeFile(conceptFile, libText);
+           writeFile(libFile, libText);
         }
     }
     println("<nfiles> files, <nconverted> converted");

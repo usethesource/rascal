@@ -7,7 +7,15 @@
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 @doc{
-Synopsis: Data Types belonging to Formal Concept Analysis.
+.Synopsis
+Library for Formal Concept Analysis
+
+.Description
+
+Formal Concept Analysis is a somewhat ubiquitous tool in software analysis projects. 
+It can be used to find latent groups of objects that share the same attributes in a dataset. 
+Typically, we apply `FCA` to a relation `rel[&O objects, &A attributes]`, which represents
+extracted source code artifacts and their attributes.
 }
 
 module analysis::formalconcepts::FCA
@@ -28,7 +36,8 @@ public alias Attribute2Objects[&Attribute, &Object] = map[&Attribute, set[&Objec
 
                                                      
 @doc{
-Synopsis: Computes Concept Lattice given the Object Attribute Relation.
+.Synopsis
+Computes Concept Lattice given the Object Attribute Relation.
 }
 public ConceptLattice[&Object, &Attribute] fca (FormalContext[&Object, &Attribute] fc) {
     rel[set[&Attribute], set[&Attribute]] lat = createAttributeLattice(fc);
@@ -36,7 +45,8 @@ public ConceptLattice[&Object, &Attribute] fca (FormalContext[&Object, &Attribut
 }
 
 @doc{
-Synopsis: Computes Dot Graph from Concept Lattice.
+.Synopsis
+Computes Dot Graph from Concept Lattice.
 }
 public DotGraph toDot(ConceptLattice[&Object, &Attribute] cl) {
    return toDot(cl, true);
@@ -160,9 +170,11 @@ Stm compose(Concept[&Object, &Attribute] c, map[Concept[&Object, &Attribute], in
      } 
      
    
-@doc{Write relation in .dot format}    
+@doc{
+.Synopsis
+Write relation in `.dot` format.
+}    
 public str toDotString(ConceptLattice[&Object, &Attribute]  q) {
      DotGraph d = toDot(q);
      return toString(d);
      }
-     
