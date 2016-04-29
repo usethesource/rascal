@@ -37,7 +37,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/commonmark-ext-gfm-tables-0.4.1.jar"/>
 	<classpathentry kind="lib" path="lib/capsule-0.1.0.jar" sourcepath="lib/capsule-0.1.0-sources.jar"/>
 	<classpathentry kind="lib" path="lib/value-0.5.3.jar" sourcepath="lib/value-0.5.3-sources.jar"/>
-	<classpathentry kind="lib" path="/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.77-1.b03.fc22.x86_64/jre/lib/ext/cldrdata.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/html2png.jar"/>
 	<classpathentry kind="output" path="bin"/>
