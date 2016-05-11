@@ -102,10 +102,6 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
     return <config, rvmMod>;  
 }	
 
-//RVMModule compile(str qualifiedModuleName, PathConfig pcfg, bool verbose = false){
-//    return compile(qualifiedModuleName, pcfg, verbose=verbose);
-//}
-
 @doc{Compile a Rascal source module (given at a location) to RVM}
 RVMModule compile(loc moduleLoc, PathConfig pcfg, bool verbose = false) =
     compile(getModuleName(moduleLoc, pcfg), pcfg, verbose = verbose);

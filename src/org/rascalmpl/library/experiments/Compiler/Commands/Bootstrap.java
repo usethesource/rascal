@@ -16,7 +16,7 @@ import org.rascalmpl.uri.URIUtil;
  * This is experimental code.
  */
 public class Bootstrap {
-    private static final String BOOT_KERNEL_PATH = "boot/Kernel.rvm.ser.gz";
+    private static final String BOOT_KERNEL_PATH = "boot/lang/rascal/boot/Kernel.rvm.ser.gz";
     private static Process childProcess;
 
     public static class BootstrapMessage extends Exception {
@@ -60,6 +60,7 @@ public class Bootstrap {
         if (!Files.exists(sourceFolder.resolve("org/rascalmpl/library/Prelude.rsc"))) {
         	throw new RuntimeException("source folder " + sourceFolder + " should point to source folder of standard library containing Prelude and the compiler");
         }
+        String librarySource = sourceFolder.resolve("org/rascalmpl/library").toAbsolutePath().toString();
         
         Path targetFolder = new File(args[arg++]).toPath();
         if (!Files.exists(targetFolder.resolve("org/rascalmpl/library/Prelude.class"))) {	// PK: PreludeCompiled
@@ -79,14 +80,14 @@ public class Bootstrap {
         //    1. build new kernel with old jar using kernel inside the jar (creating K')
         //    2. build new kernel with old jar loading kernel K' (creating K'')
         //    3. build new kernel with new classes using kernel K'' (creating K'''')
-
         try {
             Path phase0Version = getDeployedVersion(tmpDir, versionToUse);
             Path phase0Kernel = getDeployedKernel(tmpDir, versionToUse);
-            Path phase1Kernel = compilePhase(1, phase0Version.toAbsolutePath().toString(), tmpDir, phase0Kernel, sourceFolder);
-            Path phase2Kernel = compilePhase(2, phase0Version.toAbsolutePath().toString(), tmpDir, phase1Kernel, sourceFolder);
-            Path phase3Kernel = compilePhase(3, targetFolder + ":" + classpath, tmpDir, phase2Kernel, sourceFolder);
-            Path phase4Kernel = compilePhase(4, targetFolder + ":" + classpath, tmpDir, phase3Kernel, sourceFolder);
+            
+            Path phase1Kernel = compilePhase(1, phase0Version.toAbsolutePath().toString(), tmpDir, phase0Kernel, librarySource);
+            Path phase2Kernel = compilePhase(2, phase0Version.toAbsolutePath().toString(), tmpDir, phase1Kernel, librarySource);
+            Path phase3Kernel = compilePhase(3, targetFolder + ":" + classpath, tmpDir, phase2Kernel, librarySource);
+            Path phase4Kernel = compilePhase(4, targetFolder + ":" + classpath, tmpDir, phase3Kernel, "|std:///|");
 
             Files.copy(phase4Kernel, targetFolder.resolve(BOOT_KERNEL_PATH));
         } 
@@ -146,8 +147,8 @@ public class Bootstrap {
 	    if ("unstable".equals(version)) {
 	        return unstableVersion();
 	    }
-	    // http://update.rascal-mpl.org/console/rascal-shell-unstable.jar
-		return URIUtil.assumeCorrect("http", "update.rascal-mpl.org", "/console/rascal-" + version + ".jar");
+
+	    return URIUtil.assumeCorrect("http", "update.rascal-mpl.org", "/console/rascal-" + version + ".jar");
 	}
 	
 	private static URI unstableVersion() {
@@ -159,7 +160,6 @@ public class Bootstrap {
 	}
 
 	// PK: Observations:
-	// - The MuLibrary has to be compiled as well. There is a function for that: compileMuLibrary
 	// - Where are the files of the Rascal library compiled?
 	
     private static Path phaseFolder(int phase, Path tmp) {
@@ -168,10 +168,11 @@ public class Bootstrap {
         return result;
     }
     
-    private static Path compilePhase(int phase, String classPath, Path tmp, Path workingKernel, Path sourcePath) throws BootstrapMessage, IOException, InterruptedException {
+    private static Path compilePhase(int phase, String classPath, Path tmp, Path workingKernel, String sourcePath) throws BootstrapMessage, IOException, InterruptedException {
         Path result = phaseFolder(phase, tmp);
         info("phase " + phase + ": " + result);
        
+        compileMuLibrary(phase, classPath, workingKernel, sourcePath, result);
         compileModule(phase, classPath, workingKernel, sourcePath, result, "Prelude");
         compileModule(phase, classPath, workingKernel, sourcePath, result, "lang::rascal::boot::Kernel");
         compileModule(phase, classPath, workingKernel, sourcePath, result, "lang::rascal::grammar::ParserGenerator");
@@ -179,14 +180,25 @@ public class Bootstrap {
         return result.resolve(BOOT_KERNEL_PATH);
     }
 
-    private static void compileModule(int phase, String classPath, Path workingKernel, Path sourcePath, Path result,
+    private static void compileModule(int phase, String classPath, Path workingKernel, String sourcePath, Path result,
             String module) throws IOException, InterruptedException, BootstrapMessage {
         info("\tcompiling " + module);
         if (runCompiler(classPath, 
                 "--binDir", result.toAbsolutePath().toString(),
-                "--srcPath", sourcePath.toAbsolutePath().toString() + "/org/rascalmpl/library/",
+                "--srcPath", sourcePath,
                 "--bootDir", workingKernel.getParent().toAbsolutePath().toString(),
-                "lang::rascal::grammar::ParserGenerator") != 0) {
+                module) != 0) {
+            
+            throw new BootstrapMessage(phase);
+        }
+    }
+    
+    private static void compileMuLibrary(int phase, String classPath, Path workingKernel, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage {
+        info("\tcompiling MuLibrary");
+        if (runMuLibraryCompiler(classPath, 
+                "--binDir", result.toAbsolutePath().toString(),
+                "--srcPath", sourcePath,
+                "--bootDir", workingKernel.getParent().toAbsolutePath().toString()) != 0) {
             
             throw new BootstrapMessage(phase);
         }
@@ -200,6 +212,16 @@ public class Bootstrap {
     	command[3] = "org.rascalmpl.library.experiments.Compiler.Commands.RascalC";
     	System.arraycopy(arguments, 0, command, 4, arguments.length);
     	return runChildProcess(command);
+    }
+    
+    private static int runMuLibraryCompiler(String classPath, String... arguments) throws IOException, InterruptedException {
+        String[] command = new String[arguments.length + 4];
+        command[0] = "java";
+        command[1] = "-cp";
+        command[2] = classPath;
+        command[3] = "org.rascalmpl.library.experiments.Compiler.Commands.CompileMuLibrary";
+        System.arraycopy(arguments, 0, command, 4, arguments.length);
+        return runChildProcess(command);
     }
     
     private static int runChildProcess(String[] command) throws IOException, InterruptedException {

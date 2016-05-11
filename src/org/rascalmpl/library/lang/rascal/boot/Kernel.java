@@ -22,6 +22,7 @@ public class Kernel {
 	private OverloadedFunction compile;
 	private OverloadedFunction compileAndLink;
 	private OverloadedFunction compileAndMergeIncremental;
+	private OverloadedFunction compileMuLibrary;
 	private OverloadedFunction rascalTests;
 	
 	private RVMCore rvm;
@@ -33,6 +34,7 @@ public class Kernel {
 		}
 		try {
 			compile    		= rvm.getOverloadedFunction("RVMModule compile(str qname, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
+			compileMuLibrary= rvm.getOverloadedFunction("void compileMuLibrary(list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
 			compileAndLink  = rvm.getOverloadedFunction("RVMProgram compileAndLink(str qname, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
 			compileAndMergeIncremental	
 							= rvm.getOverloadedFunction("RVMProgram compileAndMergeIncremental(str qname, bool reuseConfig)");
@@ -53,7 +55,11 @@ public class Kernel {
 	 * @return The result (RVMProgram) of compiling the given module
 	 */
 	public IConstructor compile(IString qname, IList srcPath, IList libPath, ISourceLocation bootDir, ISourceLocation binDir, IMap kwArgs){
-		return (IConstructor) rvm.executeRVMFunction(compile, new IValue[] { qname, srcPath, libPath, bootDir, binDir, kwArgs });
+	  return (IConstructor) rvm.executeRVMFunction(compile, new IValue[] { qname, srcPath, libPath, bootDir, binDir, kwArgs });
+	}
+	
+	public void compileMuLibrary(IList srcPath, IList libPath, ISourceLocation bootDir, ISourceLocation binDir, IMap kwArgs) {
+	    rvm.executeRVMFunction(compileMuLibrary, new IValue[] { srcPath, libPath, bootDir, binDir, kwArgs });
 	}
 	
 	/**
