@@ -244,4 +244,76 @@ public void ftut(loc l) = writeFile(l, toHtmlString(
  
  public void telp() = render(elp());
  
+ public Figure frm() {
+        list[str] ids = ["a1", "a2"];
+        return hcat(figs=[
+        box(id= "mies", size=<50, 50>, fillColor="yellow"
+           ,event = on("click", void(str e, str n, str v) {
+              style("aap", visibility="visible");
+              clearTextProperty("error");
+              for (q<-ids)
+                  clearValueProperty(q);
+              }
+              )
+           )
+        ,vcat(id="aap", align=topLeft, figs=[
+           hcat( figs=[
+            strInput(nchars=10, \value="", id = ids[0], keydown= false,
+            event =on(void(str e, str n, str v){ 
+              if (isEmpty(v)) return;
+              int d = toInt(v);
+              if (d>10) {
+                   textProperty("error", html="error: lineWidth <d> \> 10");
+                   clearValueProperty(n);
+                   }
+              }))
+           ,box(fig=text("", id = "error", size=<200, 20>, fontColor="red"))])
+          ,strInput(nchars=10, id = ids[1], keydown = false)
+         ], form = true
+          ,event=on(void(str e, str n, str v){ 
+             bool ok = (true|it && (str q:=property(z).\value) && !isEmpty(q)|z<-ids);     
+             if (e=="ok" && str s :=property(ids[0]).\value) {
+                if (ok) {
+                  style("aap", visibility="hidden");
+                  style("mies", lineWidth= toInt(s));                       
+                  }
+              }
+             else style("aap", visibility="hidden");
+             }))
+        ]);
+        }
+ 
+ public void tfrm() = render(form());
+ 
+ public void ffrm(loc l) = writeFile(l, toHtmlString(
+   form()
+    ));
+ 
+void tr(type[&T] r) {println(r==#int);}
+
+bool constraint(value v) {
+    if (str s:=v) return /[0-9]/!:=s;
+    return false;
+    }
+    
+void ifOk(str e, str n , str v) {
+     value g = property("first").\value;
+     if (str s:=g)
+         textProperty("label", html=s);
+     }
+
+Figure quest() = hcat(figs=[buttonInput("push", event=on(void(str e, str n, str v) {style("form", visibility="visible");}))
+    ,form("form", 
+       [<"first", #str, "first name", [<constraint, "name contains digit">]>
+       ,<"last", #str, "last name",  [<constraint, "name contains digit">] >
+       ], ifOk= ifOk)
+    , box(fig=text("", size=<200, 40>, id = "label"), fillColor="antiqueWhite")
+    ]);
+
+void tquest() = render(quest());
+
+
+ 
+ 
+ 
                  

@@ -76,6 +76,7 @@ public Style style(str id, str fillColor="", str lineColor="", int lineWidth = -
      if (lineOpacity>=0) v.lineOpacity = lineOpacity;
      if (!isEmpty(fillColor)) v.fillColor = fillColor;
      if (!isEmpty(lineColor)) v.lineColor = lineColor;
+     if (!isEmpty(visibility)) v.visibility = visibility;
      _setStyle(idx, v);
      return v;
      }
@@ -148,6 +149,7 @@ public Text clearTextProperty(str id) {
      str idx = child(id);
      Text v = _getText(idx);
      v.text = "";
+     v.html = "";
      _setText(idx, v);
      //  println(v);
      return v;
@@ -216,6 +218,53 @@ Figure finalStateMachine(Figure f, str initialState) {
         Figure z = vcat(figs = buttons, height = 200, width = 200);
         return hcat(vgap = 0, align = topLeft, borderWidth  =4, borderStyle="ridge", figs=[z , g]);
         }
+  }
+  
+  // alias FormEntry = tuple[type[&T] tp, str fieldName, list[tuple[bool(value v) cond, str emsg]] constraints]; 
+ list[Figure] formEntry(FormEntry fr) {
+    str id = fr.id;
+    void f(str e, str n, str v) {
+       list[str] emsg = [d.emsg|d<-fr.constraints, !d.cond(v)];
+       if (!isEmpty(emsg)) {
+            textProperty("<id>_msg", html=head(emsg));
+            clearValueProperty(n);
+            }
+       };
+    if (fr.tp==#str) {
+       return [text(fr.fieldName), strInput(nchars = 20, id = id, fillColor = "white"
+       ,event=on(f)), text("", size=<200, 20>, id = "<id>_msg")];
+       }
+    }
+    
+ 
+  
+ public Figure form(str id, list[FormEntry] fs, void(str, str, str) ifOk=void(str e, str n, str v){return;}) {
+    list[list[Figure]] fa = [formEntry(f)|FormEntry f <- fs];
+    Figure r = box(id = id, vgrow = 1.5, fillColor="whitesmoke", fig=grid(figArray=fa, form = true
+    // , borderStyle="groove", borderWidth = 6
+    , hgap = 10
+    ,event=on(void(str e, str n, str v){ 
+             bool ok = (true|it && (str q:=property(fr[1].id).\value) && !isEmpty(q)|fr<-fa);     
+             if (e=="ok") {
+                if (ok) {
+                  ifOk(e, n, v);
+                  style(id, visibility="hidden"); 
+                  clearForm(fa);                  
+                  }
+              }
+             else {
+                 style(id, visibility="hidden");
+                 clearForm(fa);
+                 }
+             })));
+     return r;         
+     } 
+     
+void clearForm(list[list[Figure]] formArray) {
+  for (list[Figure] forms<-formArray) {
+        clearTextProperty(forms[2].id);
+        clearValueProperty(forms[1].id);
+      }
   }
   
   

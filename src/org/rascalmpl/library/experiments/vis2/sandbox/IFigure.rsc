@@ -258,7 +258,7 @@ str visitTooltipFigs() {
             }
          }
     r+="\</svg\>\</div\>";
-    r+="\<div\>\<button id=\"close\"\>Close\</button\>\<div\>";
+    // r+="\<div\>\<button id=\"close\"\>Close\</button\>\<div\>";
     return r;
     }  
 
@@ -427,7 +427,8 @@ void invokeF(str e, str n, str v) {
     }
  
 void callCallback(str e, str n, str v) { 
-   // println("callback: <e> <n>");
+   if (!figMap[n]?) return;
+   // println("callback: <e> <n>  <v> <labval>");
    if (e=="prompt")  assign(v);
    if (isEmpty(labval)) {
      // println("Go on"); 
@@ -459,8 +460,14 @@ void callCallback(str e, str n, str v) {
        _setProperty(n, a);
        old[widget[n].seq].property = a;
        }
-       value z = f.tooltip; 
-       invokeF(e, n, v);
+     if (strInput():=f) { 
+       Property a = _getProperty(n);
+       a.\value = v;
+       _setProperty(n, a);
+       old[widget[n].seq].property = a;
+       }
+       // value z = f.tooltip; 
+      invokeF(e, n, v);
       /*
       if (Figure g := z && g !=emptyFigure()) {
           // println("OK");
@@ -479,9 +486,14 @@ Response page(post(), /^\/getValue\/<ev:[a-zA-Z0-9_]+>\/<name:[a-zA-Z0-9_]+>\/<v
 	// println("post: getValue: <name>, <parameters>");
 	// widget[name].f(ev, name, v);  // !!! The callback will be called
 	// println(parameters);
-	str lab = name;
+	//  str lab = name;
+	for (str id<-parameters) {
+	     // println(id);
+	     callCallback(ev, id, parameters[id]);
+	     }
 	callCallback(ev, name, v);
 	list[State] changed = diffNewOld();
+	// println(old);
 	map[str, Prop] c = toMapUnique(changed);	
 	map[str, map[str, value]] d = (s:makeMap(c[s])|s<-c);
 	if (!isEmpty(alert)) {
@@ -497,7 +509,7 @@ Response page(post(), /^\/getValue\/<ev:[a-zA-Z0-9_]+>\/<name:[a-zA-Z0-9_]+>\/<v
 	else
 	    d[name] = ("prompt":g);
 	str res = toJSON(d, true);
-	// println(res);
+	// println(d);
 	old = [s.v|s<-state];
 	prompt = <"", "">;
 	return response("<res>");
@@ -772,6 +784,7 @@ Alignment getAlign(IFigure f) {
     } 
       
 value getCallback(Event e) {
+   //  println("getCallbak <e>");
     if (on(void(str, str, str) callback):=e) return callback;
     if (on(void(str, str, int) callback):=e) return callback;
     if (on(void(str, str, real) callback):=e) return callback;
@@ -871,6 +884,7 @@ str text(str v, bool html) {
     
 str on(Figure f) {
     list[str] events = getEvents(f.event) + getEvent(f.event);
+    // println("HELP: <events>");
     if (indexOf(events, "load")>=0) loadCalls+=f.id;
     return 
     "<for(str e<- events){><on(e, "doFunction(\"<e>\", \"<f.id>\")")><}>";
@@ -1196,8 +1210,7 @@ str addShape(Figure s) {
     Alignment align =  width<0?topLeft:f.align; 
     str fname = "graph_<id>";
     graphs+="<fname>();\n";
-    
-    widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
+    widget[id] = <null, seq, id, begintag, endtag, 
         "        
         '<drawGraph(fname, id, trGraph(f), width, height)>
         'd3.select(\"#<id>\")
@@ -1741,7 +1754,7 @@ IFigure _overlay(str id, Figure f, IFigure fig1...) {
        str endtag="<endRotate(f)><endScale(f)>\</g\>\</svg\>";
        int width = f.width;
        int height = f.height;
-        widget[id] = <null, seq, id, begintag, endtag, 
+        widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
         "
         'd3.select(\"#<id>\") 
         '<styleInsideSvgOverlay(id, f)>    
@@ -1815,7 +1828,7 @@ IFigure _rangeInput(str id, Figure f, bool addSvgTag) {
          '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
        begintag+="                    
-            '\<input type=\"range\" min=\"<f.low>\" max=\"<f.high>\" step=\"<f.step>\" id=\"<id>\" value= \"<f.\value>\"/\>
+            '\<input type=\"range\" min=\"<f.low>\" max=\"<f.high>\" step=\"<f.step>\" id=\"<id>\"  class=\"form\" value= \"<f.\value>\"/\>
             "
             ;
        str endtag=""
@@ -1847,8 +1860,8 @@ IFigure _strInput(str id, Figure f, bool addSvgTag) {
          '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
        begintag+="                    
-            '\<input type=\"text\" size= \"<f.nchars>\" id=\"<id>\" value= \"<f.\value>\"
-            ' onkeydown=\"CR(event, \'keydown\', \'<id>\', this.value)\"
+            '\<input type=\"text\" size= \"<f.nchars>\" id=\"<id>\" class=\"form\" value= \"<f.\value>\"
+            ' <if (f.keydown){>onkeydown=\"CR(event, \'keydown\', \'<id>\', this.value)\"<}>
             ' /\>
             "
             ;
@@ -1884,7 +1897,7 @@ IFigure _choiceInput(str id, Figure f, bool addSvgTag) {
        begintag+="\<form id = \"<id>\"\>\<div align=\"left\"\>\<br\>";
        for (c<-f.choices) {
        begintag+="                
-            '\<input type=\"radio\" name=\"<id>\"  class=\"<id>\" id=\"<id>_<c>_i\" value=\"<c>\"
+            '\<input type=\"radio\" name=\"<id>\"  class=\"<id> form\" id=\"<id>_<c>_i\" value=\"<c>\"
             ' onclick=\"ask(\'click\', \'<id>\', this.value)\"
             ' <c==f.\value?"checked":"">
             '/\>
@@ -1932,7 +1945,7 @@ str flagsToString(list[bool] b, int l, int u) {
        int i = 0;
        for (c<-f.choices) {
        begintag+="                
-            '\<input type=\"checkbox\" name=\"<id>_<c>_i\"  class=\"<id>\" id=\"<id>_<c>_i\" value=\"<c>\"
+            '\<input type=\"checkbox\" name=\"<id>_<c>_i\"  class=\"<id>  form\" id=\"<id>_<c>_i\" value=\"<c>\"
             ' onclick=\"ask(\'click\', \'<id>\'
             ' ,(this.checked?\'<i+1>\':\'<-i-1>\'))\"
             ' <r[c]?"checked":"">
@@ -2034,11 +2047,16 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
             '\</table\>
             "
             ;
+        if (f.form) {
+            endtag += "\<div  class=\"<id>_div\"\>\<button id=\"<id>_cancel\"\>Cancel\</button\>\<button id=\"<id>_ok\"\>Ok\</button\>\<div\>";
+            }
        if (addSvgTag) {
             endtag += "\</foreignObject\>\</svg\>"; 
             }
-        widget[id] = <null, seq, id, begintag, endtag, 
+        widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
         "
+        'd3.select(\"#<id>_cancel\")<on("click", "doAllFunction(\"cancel\",\"<id>\")")>;
+        'd3.select(\"#<id>_ok\")<on("click", "doAllFunction(\"ok\",\"<id>\")")>;
         'd3.select(\"#<id>\") 
         '<on(f)>
         '<stylePx("width", width)><stylePx("height", height)>
@@ -2086,14 +2104,20 @@ IFigure _vcat(str id, Figure f,  bool addSvgTag, IFigure fig1...) {
          "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
        begintag+="                 
-            '\<table id=\"<id>\" cellspacing=\"0\" cellpadding=\"0\"\>"
+            '\<table id=\"<id>\"  class=\"<id>_div\" cellspacing=\"0\" cellpadding=\"0\"\>"
            ;
        str endtag="\</table\>";
+       if (f.form) {
+            endtag += "\<div  class=\"<id>_div\"\>\<button id=\"<id>_cancel\"\>Cancel\</button\>\<button id=\"<id>_ok\"\>Ok\</button\>\<div\>";
+            loadCalls+=f.id;
+            }
        if (addSvgTag) {
             endtag += "\</foreignObject\>\</svg\>"; 
             }
-        widget[id] = <null, seq, id, begintag, endtag, 
+        widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
         "
+        'd3.select(\"#<id>_cancel\")<on("click", "doAllFunction(\"cancel\",\"<id>\")")>;
+        'd3.select(\"#<id>_ok\")<on("click", "doAllFunction(\"ok\",\"<id>\")")>;
         'd3.select(\"#<id>\") 
         '<stylePx("width", width)><stylePx("height", height)> 
         '<attrPx("w", width)><attrPx("h", height)>       
@@ -2148,11 +2172,16 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
        str endtag="
             '\</table\>
             ";
+        if (f.form) {
+            endtag += "\<div  class=\"<id>_div\"\>\<button id=\"<id>_cancel\"\>Cancel\</button\>\<button id=\"<id>_ok\"\>Ok\</button\>\<div\>";
+            }
        if (addSvgTag) {
             endtag += "\</foreignObject\>\</svg\>"; 
             }
-        widget[id] = <null, seq, id, begintag, endtag, 
+        widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
         "
+        'd3.select(\"#<id>_cancel\")<on("click", "doAllFunction(\"cancel\",\"<id>\")")>;
+        'd3.select(\"#<id>_ok\")<on("click", "doAllFunction(\"ok\",\"<id>\")")>;
         'd3.select(\"#<id>\")       
          '<debugStyle()>
          '<stylePx("width", f.width)><stylePx("height", f.height)> 
@@ -2338,6 +2367,9 @@ Figure pL(Figure f) {
          f.tooltip = addSuffix(f.id, g, "_tooltip"); 
          }
      if (on(str e, Figure g):=f.event) {
+          //Figure v= vcat(align = topLeft, figs=[buttonInput("Close", id="<f.id>_close"), g], id="<f.id>_vcat");
+          //figMap[v.id]= v; 
+          // g = frame(v);
           Figure q = addSuffix(f.id, g, "_panel");
           f.event=on(e, q);
           }
