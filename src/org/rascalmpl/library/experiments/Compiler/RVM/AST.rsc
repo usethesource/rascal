@@ -81,7 +81,7 @@ public data RVMProgram =
                  map[str,int] imported_overloading_resolvers,
                 lrel[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors] imported_overloaded_functions
                 )
-         ;
+         ; 
 
 RVMProgram errorRVMProgram(RVMModule rvmModule) = rvmProgram(rvmModule, (), (), [], (), []);
 RVMProgram errorRVMProgram(set[Message] messages) = rvmProgram(errorRVMModule("XXX", messages, |unknown:///|), (), (), [], (), []);
