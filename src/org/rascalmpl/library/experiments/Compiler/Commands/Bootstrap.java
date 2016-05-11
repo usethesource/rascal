@@ -145,6 +145,7 @@ public class Bootstrap {
 
 	private static URI deployedVersion(String version) {
 	    if ("unstable".equals(version)) {
+	        info("YOU ARE NOT SUPPOSED TO BOOTSTRAP OFF AN UNSTABLE VERSION! ***ONLY FOR DEBUGGING PURPOSES***");
 	        return unstableVersion();
 	    }
 
