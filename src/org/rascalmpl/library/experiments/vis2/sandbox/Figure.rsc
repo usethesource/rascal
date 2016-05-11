@@ -117,6 +117,8 @@ alias Vertices = list[Vertex];
 
 alias Points = lrel[num x, num y];
 
+alias FormEntry = tuple[str id, type[&T] tp, str fieldName, list[tuple[bool(value v) cond, str emsg]] constraints];
+
 public alias Figures = list[Figure];
 
 public num nullFunction(list[num] x) { return 0;}
@@ -171,7 +173,7 @@ public alias Prop =
 public data Figure(
         // Naming
         str id = "",
-        str visibility = "",  // hidden | visable
+        str visibility = "",  // hidden | visible
 		// Dimensions and Alignmenting
 		tuple[int,int] size = <0,0>,
 		tuple[int, int, int, int] padding = <0, 0, 0, 0>, // left, top, right, botton 
@@ -267,11 +269,11 @@ public data Figure(
    | image(str src="")
 
 // Figure composers
-// borderStyles =  none|hidden|dotted|dashed|solid|double|groove|ridge|inset|outset|initial|inherit;              
-   | hcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "") 					// horizontal and vertical concatenation
-   | vcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "") 					// horizontal and vertical concatenation 
+// borderStyle =  none|hidden|dotted|dashed|solid|double|groove|ridge|inset|outset|initial|inherit;              
+   | hcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "", bool form= false) 					// horizontal and vertical concatenation
+   | vcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "", bool form= false) 					// horizontal and vertical concatenation 
    | overlay(Figures figs=[])				
-   | grid(list[Figures] figArray = [[]], str borderStyle="solid", int borderWidth=0, str borderColor = "") 	// grid of figures
+   | grid(list[Figures] figArray = [[]], str borderStyle="solid", int borderWidth=0, str borderColor = "", bool form= false) 	// grid of figures
 
 // Figure transformations
 
@@ -299,7 +301,7 @@ public data Figure(
    
   //  | numInput()
    | rangeInput(num low=0, num high=100, num step=1, value \value = 50.0)
-   | strInput(int nchars=20, value \value="") 
+   | strInput(int nchars=20, value \value="", bool keydown= true) 
    | choice(int selection = 0, Figures figs = [])
   
 /*
@@ -624,8 +626,8 @@ public Figure plot(Points xy, Rescale x, Rescale y, bool shapeCurved = true
       width = width, height = height, fillEvenOdd = fillEvenOdd);
       }
 
-public Figure frame(Figure f, num shrink=1.0, num grow=1.0) {
-      return box(lineWidth=0, fillColor="none", fig = f, shrink= shrink, grow = grow);
+public Figure frame(Figure f, num shrink=1.0, num grow=1.0, str id = "") {
+      return box(lineWidth=0, fillColor="none", fig = f, shrink= shrink, grow = grow, id = id);
       }
       
 public Figure circleSegment(num cx = 100, num cy =100, num r =50, num startAngle = 0, num endAngle =60,
@@ -873,3 +875,6 @@ public DDD fileMap(loc source, str suffix) {
         list[DDD] p = compact(r, m, source.parent);
         return head(p);
     }
+ 
+     
+     
