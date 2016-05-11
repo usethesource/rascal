@@ -361,7 +361,7 @@ public void thcat() = render(hcat0(), align =  centerMid);
 void thfcat(loc l)= writeFile(l, toHtmlString(hcat0(), debug = false));
 
 Figure title(str s, Figure f) = 
-     vcat(align = topLeft, size=<70, 50>, figs = [f, box(fillColor="antiqueWhite", height=15, width = 70, fig=text(s, fontSize = 9, width = 60, height = 10))]);
+     vcat(align = topLeft, size=<70, 51>, figs = [f, box(fillColor="antiqueWhite", lineWidth=0, height=15, width = 70, fig=text(s, fontSize = 9, height = 10))]);
 
 
 /**********************  flag ******************************/
