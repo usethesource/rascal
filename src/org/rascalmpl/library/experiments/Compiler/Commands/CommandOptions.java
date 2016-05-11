@@ -85,6 +85,7 @@ public class CommandOptions {
 	private Options moduleOptions;
 	
 	private String commandName;
+    private boolean noModuleArgument = false;
 	
 	public CommandOptions(String commandName){
 		this.commandName = commandName;
@@ -336,15 +337,17 @@ public class CommandOptions {
 			}
 		}
 		
-		if(commandOptions.hasNonDefaultValue(OptionType.BOOL, "help")){
+		if(commandOptions.hasNonDefaultValue(OptionType.BOOL, "help")) {
 			help();
 			System.exit(0);
 		}
 		checkDefaults();
 		
-		if(rascalModules.length() == 0){
+		if (!noModuleArgument && rascalModules.length() == 0) {
 			printUsageAndExit("Missing Rascal module" + (singleModule ? "" : "s"));
-		} else if(rascalModules.length() > 1 && singleModule){
+		} else if (noModuleArgument && rascalModules.length() > 0) {
+		    printUsageAndExit("No modules expected");
+		} else if(rascalModules.length() > 1 && singleModule) {
 			printUsageAndExit("Duplicate modules defined: " + rascalModules);
 		}
 	}
@@ -534,6 +537,11 @@ public class CommandOptions {
 							  getCommandLocOption("binDir"),
 							  getCommandLocOption("bootDir"));
 	}
+
+    public CommandOptions noModuleArgument() {
+        noModuleArgument = true;
+        return this;
+    }
 
 }
 
