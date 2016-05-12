@@ -68,7 +68,7 @@ public class RascalC {
 		ISourceLocation binaryKernelLoc = URIUtil.getChildLocation(cmdOpts.getCommandLocOption("bootDir"),"lang/rascal/boot/Kernel.rvm.ser.gz");
         Kernel kernel = new Kernel(vf, rex, URIUtil.changeScheme(binaryKernelLoc, "compressed+" + binaryKernelLoc.getScheme()));
 		
-		kernel.compile(
+		kernel.compileAndLink(
 				cmdOpts.getRascalModule(),
 				cmdOpts.getCommandPathOption("srcPath"),
 				cmdOpts.getCommandPathOption("libPath"),
