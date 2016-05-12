@@ -358,10 +358,10 @@ public class RVMonJVM extends RVMCore {
 		} catch (Exception e) {
 			e.printStackTrace(stderr);
 			stderr.flush();
-			throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: " + e.getMessage() + e.getCause(), cf);
+			throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: " + e.getMessage() + e.getCause(), cf, e);
 		} catch (Throwable e) {
 			e.printStackTrace();
-			throw new CompilerError("Throwable in CALLJAVA: " + className + "." + methodName + "; message: " + e.getMessage() + e.getCause(), cf);
+			throw new CompilerError("Throwable in CALLJAVA: " + className + "." + methodName + "; message: " + e.getMessage() + e.getCause(), cf, e);
 		}
 		return newsp;
 	}

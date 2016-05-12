@@ -9444,9 +9444,7 @@ public enum RascalPrimitive {
 				TreeAdapter.unparse(c, w);
 				return w.toString();
 			} catch (FactTypeUseException | IOException e) {
-				// TODO Auto-generated catch block
-				//e.printcurrentFrame();
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 		}
 		return val.toString();

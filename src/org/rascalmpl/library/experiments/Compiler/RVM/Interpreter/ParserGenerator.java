@@ -73,8 +73,7 @@ public class ParserGenerator {
 			try {
 				rvmParserGenerator = RVMCore.readFromFileAndInitialize(parserGeneratorBinaryLocation, rex2);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			    throw new RuntimeException(e);
 			}
 		}
 	}
@@ -133,24 +132,12 @@ public class ParserGenerator {
 
 	private void debugOutput(String classString, String file) {
 		if (debug) {
-			FileOutputStream s = null;
-			try {
-				s = new FileOutputStream(file);
+			try (FileOutputStream s = new FileOutputStream(file)) {
 				s.write(classString.getBytes());
 				s.flush();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
 			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				if (s != null) {
-					try {
-						s.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
+				throw new RuntimeException(e);
+			} 
 		}
 	}
 	

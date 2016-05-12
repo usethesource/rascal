@@ -55,7 +55,7 @@ public class RVMJVM extends RVMCore {
 			this.moduleVariables = generatedClassInstance.moduleVariables;
 
 		} catch (Exception e) {
-			e.printStackTrace();
+		    throw new RuntimeException(e);
 		}
 	}
 	

@@ -17,8 +17,6 @@ import org.rascalmpl.uri.URIUtil;
  * This is experimental code.
  */
 public class Bootstrap {
-    private static final String KERNEL_PATH = "lang/rascal/boot/Kernel.rvm.ser.gz";
-    private static final String BOOT_KERNEL_PATH = "boot/" + KERNEL_PATH;
     private static Process childProcess;
 
     public static class BootstrapMessage extends Exception {
@@ -82,13 +80,14 @@ public class Bootstrap {
         //    1. build new kernel with old jar using kernel inside the jar (creating K')
         //    2. build new kernel with old jar loading kernel K' (creating K'')
         //    3. build new kernel with new classes using kernel K'' (creating K'''')
-        try {
+        try { 
             Path phase0Version = getDeployedVersion(tmpDir, versionToUse);
+//            if (true) return;
             Path phase1Version = compilePhase(1, phase0Version.toAbsolutePath().toString(), tmpDir, "|boot:///|", librarySource);
             Path phase2Version = compilePhase(2, phase0Version.toAbsolutePath().toString(), tmpDir, phase1Version.toAbsolutePath().toString(), librarySource);
             Path phase3Version = compilePhase(3, targetFolder + ":" + classpath, tmpDir, phase2Version.toAbsolutePath().toString(), librarySource);
             Path phase4Version = compilePhase(4, targetFolder + ":" + classpath, tmpDir, phase3Version.toAbsolutePath().toString(), "|std:///|");
-
+            
             copyResult(phase4Version, targetFolder.resolve("boot"));
         } 
         catch (BootstrapMessage | IOException | InterruptedException e) {
@@ -180,6 +179,7 @@ public class Bootstrap {
                 "--binDir", result.toAbsolutePath().toString(),
                 "--srcPath", sourcePath,
                 "--bootDir", bootDir,
+                "--verbose",
                 module) != 0) {
             
             throw new BootstrapMessage(phase);

@@ -202,8 +202,10 @@ public class BytecodeGenerator implements Opcodes {
 	 */
 	
 	public void dumpClass() {
-		if (endCode == null)
+		if (endCode == null) {
 			finalizeCode();
+		}
+		
 		try {
 			FileOutputStream fos = new FileOutputStream("/tmp/Class.jvm");
 			fos.write(endCode);

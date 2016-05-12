@@ -289,21 +289,16 @@ public class RVMExecutable implements Serializable{
 	}
 
 	void generateClassFile(boolean debug) {
-		try {			
-			BytecodeGenerator codeEmittor = new BytecodeGenerator(functionStore, overloadedStore, functionMap, constructorMap, resolver);
-	
-			codeEmittor.buildClass(getGeneratedPackageName(), getGeneratedClassName(), debug) ;
+	    BytecodeGenerator codeEmittor = new BytecodeGenerator(functionStore, overloadedStore, functionMap, constructorMap, resolver);
 
-			jvmByteCode = codeEmittor.finalizeCode();
-			fullyQualifiedDottedName = codeEmittor.finalName().replace('/', '.') ;
-			
-			if(debug){
-				codeEmittor.dumpClass();
-			}
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	    codeEmittor.buildClass(getGeneratedPackageName(), getGeneratedClassName(), debug) ;
+
+	    jvmByteCode = codeEmittor.finalizeCode();
+	    fullyQualifiedDottedName = codeEmittor.finalName().replace('/', '.') ;
+
+	    if(debug){
+	        codeEmittor.dumpClass();
+	    }
 	}
 	
 	public void write(ISourceLocation rvmExecutable) throws IOException{		
@@ -340,34 +335,13 @@ public class RVMExecutable implements Serializable{
 		FSTFunctionSerializer.initSerialization(vf, typeStore);
 		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
 	
-		FSTObjectInput in = null;
-		try {
-			ISourceLocation compIn = rvmExecutable;
-			InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(compIn);
-			in = new FSTObjectInput(fileIn, FSTConfig);
-			long before = Timing.getCpuTime();
-			executable = (RVMExecutable) in.readObject(RVMExecutable.class);
-			in.close();
-			in = null;
-			//System.out.println("Reading: " + compIn.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
+		try (FSTObjectInput in = new FSTObjectInput(URIResolverRegistry.getInstance().getInputStream(rvmExecutable))) {
+			return (RVMExecutable) in.readObject(RVMExecutable.class);
 		} catch (ClassNotFoundException c) {
 			throw new IOException("Class not found: " + c.getMessage());
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new IOException(e.getMessage());
 		} 
-		finally {
-			if(in != null){
-				try {
-					in.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-		//executable.rvmProgramLoc = rvmExecutable;
-		return executable;
 	}
 	
 	public NameCompleter completePartialIdentifier(NameCompleter completer, String partialIdentifier) {
