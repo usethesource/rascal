@@ -1,7 +1,6 @@
 package org.rascalmpl.library.lang.rascal.boot;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;

@@ -7,6 +7,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Fac {
 	private final IValueFactory vf;
@@ -24,5 +25,9 @@ public class Fac {
 
     public int fac(int n) {
         return facProgram.fac(vf.integer(n)).intValue(); 
+    }
+    
+    public static void main(String[] args) throws IOException {
+        System.out.println(new Fac(ValueFactoryFactory.getValueFactory()).fac(6));
     }
 }

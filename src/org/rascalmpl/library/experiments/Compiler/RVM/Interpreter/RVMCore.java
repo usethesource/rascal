@@ -608,17 +608,43 @@ public abstract class RVMCore {
 
         @Override
 	    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            
-            if (args[args.length - 1] instanceof IMap) { // keyword parameters present
+            if (args[args.length - 1] instanceof IMap) { 
+                // keyword parameters present
                 OverloadedFunction f = core.getFirstOverloadedFunctionByNameAndArity(method.getName(), method.getParameterCount() - 1);
                 IMap kwArgs = (IMap) args[args.length - 1];
-                return core.executeRVMFunction(f, Arrays.copyOf(args, args.length - 1, IValue[].class), kwArgs);
+                return core.executeRVMFunction(f, prepareArguments(args, true), kwArgs);
             }
-            else { // no keyword parameters
+            else { 
+                // no keyword parameters present
                 OverloadedFunction f = core.getFirstOverloadedFunctionByNameAndArity(method.getName(), method.getParameterCount());
-                return core.executeRVMFunction(f, Arrays.copyOf(args, args.length, IValue[].class));
+                return core.executeRVMFunction(f, prepareArguments(args, false));
             }
 	    }
+
+        private IValue[] prepareArguments(Object[] args, boolean skipKeywordArguments) {
+            int len = args.length - (skipKeywordArguments ? 1 : 0);
+            IValue[] result = new IValue[len];
+            
+            for (int i = 0; i < len; i++) {
+                result[i] = prepareArgument(args[i]);
+            }
+            
+            return result;
+        }
+
+        private IValue prepareArgument(Object object) {
+           if (object instanceof Integer) {
+               return core.vf.integer((Integer) object);
+           }
+           else if (object instanceof String) {
+               return core.vf.string((String) object);
+           }
+           else if (object instanceof IValue) {
+               return (IValue) object;
+           }
+           
+           throw new IllegalArgumentException("parameter is not convertible to IValue:" + object.getClass().getCanonicalName());
+        }
 	}
 	
 	/********************************************************************************/

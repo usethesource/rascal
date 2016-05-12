@@ -1,7 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,8 +11,8 @@ import java.util.Map;
 
 import org.nustaq.serialization.FSTBasicObjectSerializer;
 import org.nustaq.serialization.FSTClazzInfo;
-import org.nustaq.serialization.FSTConfiguration;
 import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
+import org.nustaq.serialization.FSTConfiguration;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.interpreter.utils.Timing;
@@ -35,7 +34,7 @@ import org.rascalmpl.values.uptr.RascalValueFactory;
  * RVMExecutable is serialized by FSTRVMExecutableSerializer; make sure that
  * all fields declared here are synced with the serializer.
  */
-public class RVMExecutable implements Serializable{
+public class RVMExecutable implements Serializable {
 	
 	static private final FSTConfiguration FSTConfig;
 	static private final FSTSerializableType serializableType;
@@ -137,7 +136,7 @@ public class RVMExecutable implements Serializable{
 			TypeStore ts,
 			IValueFactory vfactory, 
 			boolean jvm
-			) throws IOException{
+			) {
 		
 		vf = vfactory;
 		store = ts;
@@ -337,8 +336,6 @@ public class RVMExecutable implements Serializable{
 	}
 	
 	public static RVMExecutable read(ISourceLocation rvmExecutable) throws IOException {
-		RVMExecutable executable = null;
-		
 		vf = ValueFactoryFactory.getValueFactory();
 		TypeStore typeStore = RascalValueFactory.getStore(); //new TypeStore(RascalValueFactory.getStore());
 		
@@ -352,11 +349,11 @@ public class RVMExecutable implements Serializable{
 		try (FSTObjectInput in = new FSTObjectInput(URIResolverRegistry.getInstance().getInputStream(rvmExecutable))) {
 			return (RVMExecutable) in.readObject(RVMExecutable.class);
 		} catch (ClassNotFoundException c) {
-			throw new IOException("Class not found: " + c.getMessage());
+			throw new IOException(c.getMessage(), c);
 		} catch (IOException e) {
 		    throw e;
 		} catch (Exception e) {
-		    throw new IOException(e);
+		    throw new IOException(e.getMessage(), e);
 		}
 	}
 	
