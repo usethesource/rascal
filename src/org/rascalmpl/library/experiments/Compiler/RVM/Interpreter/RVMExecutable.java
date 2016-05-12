@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -290,14 +292,26 @@ public class RVMExecutable implements Serializable{
 
 	void generateClassFile(boolean debug) {
 	    BytecodeGenerator codeEmittor = new BytecodeGenerator(functionStore, overloadedStore, functionMap, constructorMap, resolver);
+	    
+	    try {
+	        codeEmittor.buildClass(getGeneratedPackageName(), getGeneratedClassName(), debug) ;
 
-	    codeEmittor.buildClass(getGeneratedPackageName(), getGeneratedClassName(), debug) ;
+	        jvmByteCode = codeEmittor.finalizeCode();
+	        fullyQualifiedDottedName = codeEmittor.finalName().replace('/', '.') ;
 
-	    jvmByteCode = codeEmittor.finalizeCode();
-	    fullyQualifiedDottedName = codeEmittor.finalName().replace('/', '.') ;
-
-	    if(debug){
-	        codeEmittor.dumpClass();
+	        if(debug){
+	            codeEmittor.dumpClass();
+	        }
+	    }
+	    catch (RuntimeException e) {
+	        if (e.getMessage().startsWith("Method code too large")) {
+	            // ASM does not provide an indication of _which_ method is too large, so let's find out:
+	            Comparator<Function> c = ((x, y) -> x.codeblock.finalCode.length - y.codeblock.finalCode.length); 
+	            throw new RuntimeException("Function too large: " + Arrays.stream(functionStore).max(c).get());
+	        }
+	        else {
+	            throw e;
+	        }
 	    }
 	}
 	
