@@ -33,7 +33,7 @@ public class CompileMuLibrary {
 			.boolOption("profile") 		.help("Profile execution of compiler")
 			//.boolOption("jvm") 			.help("Generate JVM code")
 			.boolOption("verbose") 		.help("Make the compiler verbose")
-						
+			.noModuleArgument()
 			.handleArgs(args);
 		
 		RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory())
