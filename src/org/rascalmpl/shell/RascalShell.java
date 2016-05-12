@@ -16,6 +16,7 @@ package org.rascalmpl.shell;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -67,7 +68,7 @@ public class RascalShell  {
                         public void run(String[] args) throws IOException {
                             try {
                                 RascalC.main(Arrays.copyOfRange(args, 1, args.length));
-                            } catch (NoSuchRascalFunction e) {
+                            } catch (NoSuchRascalFunction | URISyntaxException e) {
                                 throw new RuntimeException(e);
                             }
                         }
