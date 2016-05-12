@@ -68,12 +68,23 @@ public class RascalC {
 		ISourceLocation binaryKernelLoc = URIUtil.getChildLocation(cmdOpts.getCommandLocOption("bootDir"),"lang/rascal/boot/Kernel.rvm.ser.gz");
         Kernel kernel = new Kernel(vf, rex, URIUtil.changeScheme(binaryKernelLoc, "compressed+" + binaryKernelLoc.getScheme()));
 		
-		kernel.compileAndLink(
-				cmdOpts.getRascalModule(),
-				cmdOpts.getCommandPathOption("srcPath"),
-				cmdOpts.getCommandPathOption("libPath"),
-				cmdOpts.getCommandLocOption("bootDir"),
-				cmdOpts.getCommandLocOption("binDir"), 
-				cmdOpts.getModuleOptionsAsIMap());
+        if (cmdOpts.getCommandBoolOption("noLinking")) {
+            kernel.compile(
+                    cmdOpts.getRascalModule(),
+                    cmdOpts.getCommandPathOption("srcPath"),
+                    cmdOpts.getCommandPathOption("libPath"),
+                    cmdOpts.getCommandLocOption("bootDir"),
+                    cmdOpts.getCommandLocOption("binDir"), 
+                    cmdOpts.getModuleOptionsAsIMap()); 
+        } 
+        else {
+            kernel.compileAndLink(
+                    cmdOpts.getRascalModule(),
+                    cmdOpts.getCommandPathOption("srcPath"),
+                    cmdOpts.getCommandPathOption("libPath"),
+                    cmdOpts.getCommandLocOption("bootDir"),
+                    cmdOpts.getCommandLocOption("binDir"), 
+                    cmdOpts.getModuleOptionsAsIMap());
+        }
 	}
 }
