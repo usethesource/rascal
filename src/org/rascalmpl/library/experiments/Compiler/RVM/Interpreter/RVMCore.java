@@ -246,8 +246,13 @@ public abstract class RVMCore {
 	
 	private OverloadedFunction getFirstOverloadedFunctionByNameAndArity(String name, int arity) throws NoSuchRascalFunction {
         for(OverloadedFunction of : overloadedStore) {
-            if (of.getName().equals(name) && of.getArity() == arity) {
-                return of;
+            if (of.getName().equals(name)) {
+                System.err.println(of);
+                for (int alt : of.getFunctions()) {
+                    if (functionStore[alt].ftype.getArity() == arity) {
+                        return of;
+                    }
+                }
             }
         }
 
@@ -603,19 +608,14 @@ public abstract class RVMCore {
 
         @Override
 	    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            OverloadedFunction f = core.getFirstOverloadedFunctionByNameAndArity(method.getName(), method.getParameterCount());
             
-            if (args[args.length - 1] instanceof Map) { // keyword parameters present
-                @SuppressWarnings("unchecked") Map<String,IValue> kwArgs = (Map<String,IValue>) args[args.length - 1];
-                
-                IMapWriter m = core.vf.mapWriter();
-                for (Entry<String,IValue> e : kwArgs.entrySet()) {
-                    m.put(core.vf.string(e.getKey()), e.getValue());
-                }
-                
-                return core.executeRVMFunction(f, Arrays.copyOf(args, args.length - 1, IValue[].class), m.done());
+            if (args[args.length - 1] instanceof IMap) { // keyword parameters present
+                OverloadedFunction f = core.getFirstOverloadedFunctionByNameAndArity(method.getName(), method.getParameterCount() - 1);
+                IMap kwArgs = (IMap) args[args.length - 1];
+                return core.executeRVMFunction(f, Arrays.copyOf(args, args.length - 1, IValue[].class), kwArgs);
             }
             else { // no keyword parameters
+                OverloadedFunction f = core.getFirstOverloadedFunctionByNameAndArity(method.getName(), method.getParameterCount());
                 return core.executeRVMFunction(f, Arrays.copyOf(args, args.length, IValue[].class));
             }
 	    }

@@ -188,15 +188,10 @@ public class ExecutionTools {
 	  * Create initialized RVM given a scheme and path of a compiled binary
 	  * @param binLoc of compiled binary
 	  * @return initialized RVM
+	 * @throws IOException 
 	  */
-	public static RVMCore initializedRVM(ISourceLocation binLoc) {
-		 RVMExecutable rvmExecutable = null; 
-		 try {
-			 rvmExecutable = RVMExecutable.read(binLoc);
-		 } catch (IOException e) {
-			 e.printStackTrace();
-		 }
-
+	public static RVMCore initializedRVM(ISourceLocation binLoc) throws IOException {
+		 RVMExecutable rvmExecutable = RVMExecutable.read(binLoc);
 		 RascalExecutionContext rex = 
 				 RascalExecutionContextBuilder.normalContext(vf)
 				 .forModule(rvmExecutable.getModuleName())
