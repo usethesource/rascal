@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ import org.rascalmpl.values.uptr.RascalValueFactory;
  * RVMExecutable is serialized by FSTRVMExecutableSerializer; make sure that
  * all fields declared here are synced with the serializer.
  */
-public class RVMExecutable implements Serializable {
+public class RVMExecutable implements Serializable{
 	
 	static private final FSTConfiguration FSTConfig;
 	static private final FSTSerializableType serializableType;
@@ -136,7 +137,7 @@ public class RVMExecutable implements Serializable {
 			TypeStore ts,
 			IValueFactory vfactory, 
 			boolean jvm
-			) {
+			) throws IOException{
 		
 		vf = vfactory;
 		store = ts;
@@ -290,28 +291,28 @@ public class RVMExecutable implements Serializable {
 	}
 
 	void generateClassFile(boolean debug) {
-	    BytecodeGenerator codeEmittor = new BytecodeGenerator(functionStore, overloadedStore, functionMap, constructorMap, resolver);
-	    
-	    try {
-	        codeEmittor.buildClass(getGeneratedPackageName(), getGeneratedClassName(), debug) ;
+		try {			
+			BytecodeGenerator codeEmittor = new BytecodeGenerator(functionStore, overloadedStore, functionMap, constructorMap, resolver);
+	
+			codeEmittor.buildClass(getGeneratedPackageName(), getGeneratedClassName(), debug) ;
 
-	        jvmByteCode = codeEmittor.finalizeCode();
-	        fullyQualifiedDottedName = codeEmittor.finalName().replace('/', '.') ;
-
-	        if(debug){
-	            codeEmittor.dumpClass();
-	        }
-	    }
-	    catch (RuntimeException e) {
-	        if (e.getMessage().startsWith("Method code too large")) {
-	            // ASM does not provide an indication of _which_ method is too large, so let's find out:
-	            Comparator<Function> c = ((x, y) -> x.codeblock.finalCode.length - y.codeblock.finalCode.length); 
-	            throw new RuntimeException("Function too large: " + Arrays.stream(functionStore).max(c).get());
-	        }
-	        else {
-	            throw e;
-	        }
-	    }
+			jvmByteCode = codeEmittor.finalizeCode();
+			fullyQualifiedDottedName = codeEmittor.finalName().replace('/', '.') ;
+			
+			if(debug){
+				codeEmittor.dumpClass();
+			}
+			
+		} catch (Exception e) {
+		    if (e.getMessage().startsWith("Method code too large")) {
+		        // ASM does not provide an indication of _which_ method is too large, so let's find out:
+		        Comparator<Function> c = ((x, y) -> x.codeblock.finalCode.length - y.codeblock.finalCode.length); 
+		        throw new RuntimeException("Function too large: " + Arrays.stream(functionStore).max(c).get());
+		    }
+		    else {
+		        throw e;
+		    }
+		}
 	}
 	
 	public void write(ISourceLocation rvmExecutable) throws IOException{		
@@ -336,6 +337,8 @@ public class RVMExecutable implements Serializable {
 	}
 	
 	public static RVMExecutable read(ISourceLocation rvmExecutable) throws IOException {
+		RVMExecutable executable = null;
+		
 		vf = ValueFactoryFactory.getValueFactory();
 		TypeStore typeStore = RascalValueFactory.getStore(); //new TypeStore(RascalValueFactory.getStore());
 		
@@ -346,15 +349,34 @@ public class RVMExecutable implements Serializable {
 		FSTFunctionSerializer.initSerialization(vf, typeStore);
 		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
 	
-		try (FSTObjectInput in = new FSTObjectInput(URIResolverRegistry.getInstance().getInputStream(rvmExecutable))) {
-			return (RVMExecutable) in.readObject(RVMExecutable.class);
+		FSTObjectInput in = null;
+		try {
+			ISourceLocation compIn = rvmExecutable;
+			InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(compIn);
+			in = new FSTObjectInput(fileIn, FSTConfig);
+			long before = Timing.getCpuTime();
+			executable = (RVMExecutable) in.readObject(RVMExecutable.class);
+			in.close();
+			in = null;
+			//System.out.println("Reading: " + compIn.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 		} catch (ClassNotFoundException c) {
-			throw new IOException(c.getMessage(), c);
-		} catch (IOException e) {
-		    throw e;
+			throw new IOException("Class not found: " + c.getMessage());
 		} catch (Exception e) {
-		    throw new IOException(e.getMessage(), e);
+			e.printStackTrace();
+			throw new IOException(e.getMessage());
+		} 
+		finally {
+			if(in != null){
+				try {
+					in.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
+		//executable.rvmProgramLoc = rvmExecutable;
+		return executable;
 	}
 	
 	public NameCompleter completePartialIdentifier(NameCompleter completer, String partialIdentifier) {
