@@ -1,6 +1,7 @@
 package org.rascalmpl.library.lang.rascal.boot;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
@@ -8,6 +9,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunc
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -25,28 +27,26 @@ public class Kernel {
 	private OverloadedFunction compileMuLibrary;
 	private OverloadedFunction rascalTests;
 	
-	private RVMCore rvm;
+	private final RVMCore rvm;
 
-	public Kernel(IValueFactory vf, RascalExecutionContext rex){
+	public Kernel(IValueFactory vf, RascalExecutionContext rex) throws IOException, NoSuchRascalFunction {
+	    this(vf, rex, URIUtil.correctLocation("compressed+boot", "", "lang/rascal/boot/Kernel.rvm.ser.gz"));
+	}
+        
+	public Kernel(IValueFactory vf, RascalExecutionContext rex, ISourceLocation binaryKernelLoc) throws IOException, NoSuchRascalFunction {
 		this.vf = vf;
-		if(rvm == null){
-			rvm = ExecutionTools.initializedRVM("compressed+boot", "lang/rascal/boot/Kernel.rvm.ser.gz", rex);
-		}
+		this.rvm = ExecutionTools.initializedRVM(binaryKernelLoc, rex);
 
+		compile    		= rvm.getOverloadedFunction("RVMModule compile(str qname, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
 		try {
-			compile    		= rvm.getOverloadedFunction("RVMModule compile(str qname, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
-			try {
-			    compileMuLibrary= rvm.getOverloadedFunction("void compileMuLibrary(list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
-			} catch (NoSuchRascalFunction e) {
-			    // temporarily allowed
-			}
-			compileAndLink  = rvm.getOverloadedFunction("RVMProgram compileAndLink(str qname, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
-			compileAndMergeIncremental	
-							= rvm.getOverloadedFunction("RVMProgram compileAndMergeIncremental(str qname, bool reuseConfig)");
-			rascalTests   	= rvm.getOverloadedFunction("value rascalTests(list[str] qnames, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
+		    compileMuLibrary= rvm.getOverloadedFunction("void compileMuLibrary(list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
 		} catch (NoSuchRascalFunction e) {
-			throw new RuntimeException(e);
+		    // temporarily allowed
 		}
+		compileAndLink  = rvm.getOverloadedFunction("RVMProgram compileAndLink(str qname, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
+		compileAndMergeIncremental	
+		= rvm.getOverloadedFunction("RVMProgram compileAndMergeIncremental(str qname, bool reuseConfig)");
+		rascalTests   	= rvm.getOverloadedFunction("value rascalTests(list[str] qnames, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
 	}
 	
 	/**

@@ -22,6 +22,7 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.Timing;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.BaseRascalREPL;
@@ -102,11 +103,15 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   }
 
   @Override
-  protected void initialize(Writer stdout, Writer stderr) {
-    executor = constructCommandExecutor(new PrintWriter(stdout), new PrintWriter(stderr));
+  protected void initialize(Writer stdout, Writer stderr) throws IOException {
+    try {
+        executor = constructCommandExecutor(new PrintWriter(stdout), new PrintWriter(stderr));
+    } catch (NoSuchRascalFunction e) {
+        throw new RuntimeException(e);
+    }
   }
   
-  protected abstract CommandExecutor constructCommandExecutor(PrintWriter stdout, PrintWriter stderr);
+  protected abstract CommandExecutor constructCommandExecutor(PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction;
   
   
   @Override

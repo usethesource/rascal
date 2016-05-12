@@ -1,8 +1,14 @@
 package org.rascalmpl.library.experiments.Compiler.Commands;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -12,8 +18,11 @@ public class RascalC {
 	 * Main function for compile command: rascalc
 	 * 
 	 * @param args	list of command-line arguments
+	 * @throws NoSuchRascalFunction 
+	 * @throws IOException 
+	 * @throws URISyntaxException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException, NoSuchRascalFunction, URISyntaxException {
 		
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		CommandOptions cmdOpts = new CommandOptions("rascalc");
@@ -56,7 +65,8 @@ public class RascalC {
                 .forModule(cmdOpts.getRascalModule().getValue())
                 .build();
 		
-		Kernel kernel = new Kernel(vf, rex);
+		ISourceLocation binaryKernelLoc = URIUtil.getChildLocation(cmdOpts.getCommandLocOption("bootDir"),"lang/rascal/boot/Kernel.rvm.ser.gz");
+        Kernel kernel = new Kernel(vf, rex, URIUtil.changeScheme(binaryKernelLoc, "compressed+" + binaryKernelLoc.getScheme()));
 		
 		kernel.compile(
 				cmdOpts.getRascalModule(),

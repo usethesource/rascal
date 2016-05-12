@@ -15,6 +15,7 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedExcepti
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NameCompleter;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
@@ -95,7 +96,7 @@ public class CommandExecutor {
 	private Kernel kernel;
 	private StandardTextWriter indentedPrettyPrinter;
 	
-	public CommandExecutor(PrintWriter stdout, PrintWriter stderr) {
+	public CommandExecutor(PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction {
 		this.stdout = stdout;
 		this.stderr = stderr; 
 		vf = ValueFactoryFactory.getValueFactory();

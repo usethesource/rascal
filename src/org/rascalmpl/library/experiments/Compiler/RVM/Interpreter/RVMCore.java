@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -176,6 +178,22 @@ public abstract class RVMCore {
 		moduleVariables.put(name, newVal);
 	}
 
+	/**
+	 * Create an object which implements the provided interface by forwarding calls to its methods directly to Rascal functions.
+	 * 
+	 * This works for interfaces which contain a specific kind of methods:
+	 *    * each method should have a name which maps to a Rascal function name which is loaded into the current RVMCore
+	 *    * the arity of the method should be equal to at least one of the Rascal functions with the given name
+	 *    * all arguments of the methods should have a type which is a sub-type of IValue
+	 *    * the return type of the methods should be either IValue or void
+	 *    
+	 * @param interf the interface which is to be implemented
+	 * @return an object which implements this interface by forwarding to Rascal functions
+	 */
+	public <T> T asInterface(Class<T> interf) {
+	    return interf.cast(Proxy.newProxyInstance(RVMCore.class.getClassLoader(), new Class<?> [] { interf }, new ProxyInvocationHandler(this, interf)));
+	}
+	
 	public PrintWriter getStdErr() { return rex.getStdErr(); }
 	
 	public PrintWriter getStdOut() { return rex.getStdOut(); }
@@ -226,6 +244,23 @@ public abstract class RVMCore {
 		return null;
 	}
 	
+	private OverloadedFunction getFirstOverloadedFunctionByNameAndArity(String name, int arity) throws NoSuchRascalFunction {
+        for(OverloadedFunction of : overloadedStore) {
+            if (of.getName().equals(name) && of.getArity() == arity) {
+                return of;
+            }
+        }
+
+        for(int i = 0; i < constructorStore.size(); i++){
+            Type tp = constructorStore.get(i);
+            if (tp.getName().equals(name) && tp.getArity() == arity) {
+                return new OverloadedFunction(name, tp,  new int[]{}, new int[] { i }, "");
+            }
+        }
+        
+        throw new NoSuchRascalFunction(name);
+	}
+	
 	public OverloadedFunction getOverloadedFunction(String signature) throws NoSuchRascalFunction{
 		OverloadedFunction result = null;
 		
@@ -234,6 +269,10 @@ public abstract class RVMCore {
 		FunctionType ft = (FunctionType) funType;
 		
 		for(OverloadedFunction of : overloadedStore){
+		    if (name.equals(of.getName())) {
+		        System.err.println(of);
+		        System.err.println("name match");
+		    }
 			if(of.matchesNameAndSignature(name, funType)){
 				if(result == null){
 					result = of;
@@ -552,6 +591,38 @@ public abstract class RVMCore {
 	public String asString(Object o, int w){
 		String repr = asString(o);
 		return (repr.length() < w) ? repr : repr.substring(0, w) + "...";
+	}
+	
+	private static class ProxyInvocationHandler implements InvocationHandler {
+	    private final RVMCore core;
+
+        public ProxyInvocationHandler(RVMCore core, Class<?> clazz) {
+	        this.core = core;
+	        initialize(clazz);
+        }
+	    
+	    private void initialize(Class<?> clazz) {
+	        // TODO: some static checking and some caching.
+        }
+
+        @Override
+	    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            OverloadedFunction f = core.getFirstOverloadedFunctionByNameAndArity(method.getName(), method.getParameterCount());
+            
+            if (args[args.length - 1] instanceof Map) { // keyword parameters present
+                @SuppressWarnings("unchecked") Map<String,IValue> kwArgs = (Map<String,IValue>) args[args.length - 1];
+                
+                IMapWriter m = core.vf.mapWriter();
+                for (Entry<String,IValue> e : kwArgs.entrySet()) {
+                    m.put(core.vf.string(e.getKey()), e.getValue());
+                }
+                
+                return core.executeRVMFunction(f, Arrays.copyOf(args, args.length - 1, IValue[].class), m.done());
+            }
+            else { // no keyword parameters
+                return core.executeRVMFunction(f, Arrays.copyOf(args, args.length, IValue[].class));
+            }
+	    }
 	}
 	
 	/********************************************************************************/

@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.KWParams;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
@@ -38,7 +39,7 @@ public class Onthology {
 	
 	private RascalCommandExecutor executor;
 
-	public Onthology(Path srcDir, Path destDir, PrintWriter err){
+	public Onthology(Path srcDir, Path destDir, PrintWriter err) throws IOException, NoSuchRascalFunction{
 		this.vf = ValueFactoryFactory.getValueFactory();
 		this.rascalUtils = new RascalUtils(vf);
 		this.srcDir = srcDir;

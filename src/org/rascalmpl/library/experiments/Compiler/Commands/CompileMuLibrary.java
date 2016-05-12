@@ -1,5 +1,8 @@
 package org.rascalmpl.library.experiments.Compiler.Commands;
 
+import java.io.IOException;
+
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
@@ -12,8 +15,10 @@ public class CompileMuLibrary {
 	 * Main function for compile command: rascalc
 	 * 
 	 * @param args	list of command-line arguments
+	 * @throws NoSuchRascalFunction 
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException, NoSuchRascalFunction {
 		
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		CommandOptions cmdOpts = new CommandOptions("compileMuLibrary");
