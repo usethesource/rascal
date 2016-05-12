@@ -32,15 +32,20 @@ public class Kernel {
 		if(rvm == null){
 			rvm = ExecutionTools.initializedRVM("compressed+boot", "lang/rascal/boot/Kernel.rvm.ser.gz", rex);
 		}
+
 		try {
 			compile    		= rvm.getOverloadedFunction("RVMModule compile(str qname, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
-			compileMuLibrary= rvm.getOverloadedFunction("void compileMuLibrary(list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
+			try {
+			    compileMuLibrary= rvm.getOverloadedFunction("void compileMuLibrary(list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
+			} catch (NoSuchRascalFunction e) {
+			    // temporarily allowed
+			}
 			compileAndLink  = rvm.getOverloadedFunction("RVMProgram compileAndLink(str qname, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
 			compileAndMergeIncremental	
 							= rvm.getOverloadedFunction("RVMProgram compileAndMergeIncremental(str qname, bool reuseConfig)");
 			rascalTests   	= rvm.getOverloadedFunction("value rascalTests(list[str] qnames, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
 		} catch (NoSuchRascalFunction e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 	
