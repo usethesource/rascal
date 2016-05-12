@@ -353,9 +353,11 @@ public class RVMExecutable implements Serializable{
 			return (RVMExecutable) in.readObject(RVMExecutable.class);
 		} catch (ClassNotFoundException c) {
 			throw new IOException("Class not found: " + c.getMessage());
+		} catch (IOException e) {
+		    throw e;
 		} catch (Exception e) {
-			throw new IOException(e.getMessage());
-		} 
+		    throw new IOException(e);
+		}
 	}
 	
 	public NameCompleter completePartialIdentifier(NameCompleter completer, String partialIdentifier) {
