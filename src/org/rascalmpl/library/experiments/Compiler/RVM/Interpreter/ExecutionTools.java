@@ -190,7 +190,7 @@ public class ExecutionTools {
 	  * @return initialized RVM
 	 * @throws IOException 
 	  */
-	public static RVMCore initializedRVM(ISourceLocation binLoc) throws IOException {
+	public static RVMCore initializedRVM(ISourceLocation binLoc) throws IOException  {
 		 RVMExecutable rvmExecutable = RVMExecutable.read(binLoc);
 		 RascalExecutionContext rex = 
 				 RascalExecutionContextBuilder.normalContext(vf)

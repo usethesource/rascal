@@ -7,8 +7,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.management.RuntimeErrorException;
-
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMap;
@@ -102,6 +100,7 @@ public class FSTSerializableIValue extends FSTBasicObjectSerializer implements S
 	@Override
 	public Object instantiate(@SuppressWarnings("rawtypes") Class objectClass, FSTObjectInput in, FSTClazzInfo serializationInfo, FSTClazzInfo.FSTFieldInfo referencee, int streamPosition) 
 	{		
+		FSTSerializableIValue res = null;
 		try {
 			byte[] bytes = (byte[]) in.readObject();
 			ByteArrayInputStream bs = new ByteArrayInputStream(bytes);
@@ -122,12 +121,14 @@ public class FSTSerializableIValue extends FSTBasicObjectSerializer implements S
 			}
 			in.registerObject(v,streamPosition,serializationInfo, referencee);
 			return v;
+		} catch (FactTypeUseException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		catch (ClassNotFoundException | IOException | FactTypeUseException e) {
-		    System.err.println("WARNING, delegating to FST: " + e.getMessage());
-		    // delegate object creation to FST
-		    return null;
-		}
+		return res;
 	}
 	
 	private class RascalValuesValueFactory extends AbstractValueFactoryAdapter {
