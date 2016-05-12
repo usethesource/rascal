@@ -269,10 +269,6 @@ public abstract class RVMCore {
 		FunctionType ft = (FunctionType) funType;
 		
 		for(OverloadedFunction of : overloadedStore){
-		    if (name.equals(of.getName())) {
-		        System.err.println(of);
-		        System.err.println("name match");
-		    }
 			if(of.matchesNameAndSignature(name, funType)){
 				if(result == null){
 					result = of;
