@@ -25,6 +25,7 @@ import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.experiments.Compiler.Commands.Rascal;
 import org.rascalmpl.library.experiments.Compiler.Commands.RascalC;
 import org.rascalmpl.library.experiments.Compiler.Commands.RascalTests;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.shell.compiled.CompiledREPLRunner;
 
 
@@ -64,7 +65,11 @@ public class RascalShell  {
                     runner = new ShellRunner() {
                         @Override
                         public void run(String[] args) throws IOException {
-                            RascalC.main(Arrays.copyOfRange(args, 1, args.length));
+                            try {
+                                RascalC.main(Arrays.copyOfRange(args, 1, args.length));
+                            } catch (NoSuchRascalFunction e) {
+                                throw new RuntimeException(e);
+                            }
                         }
                     };
                 }
@@ -80,7 +85,11 @@ public class RascalShell  {
                     runner = new ShellRunner() {
                         @Override
                         public void run(String[] args) throws IOException {
-                            RascalTests.main(Arrays.copyOfRange(args, 1, args.length));
+                            try {
+                                RascalTests.main(Arrays.copyOfRange(args, 1, args.length));
+                            } catch (NoSuchRascalFunction e) {
+                                throw new RuntimeException(e);
+                            }
                         }
                     };
                 }

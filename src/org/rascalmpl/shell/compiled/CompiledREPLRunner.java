@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
 import org.rascalmpl.shell.ShellRunner;
@@ -39,7 +40,7 @@ public class CompiledREPLRunner extends CompiledRascalREPL  implements ShellRunn
 	}
 
 	@Override
-	protected CommandExecutor constructCommandExecutor(PrintWriter stdout, PrintWriter stderr) {
+	protected CommandExecutor constructCommandExecutor(PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction {
 		return new CommandExecutor(stdout, stderr);
 	}
 
