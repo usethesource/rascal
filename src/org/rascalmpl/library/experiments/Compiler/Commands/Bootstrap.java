@@ -173,7 +173,7 @@ public class Bootstrap {
         Path result = phaseFolder(phase, tmp);
         info("phase " + phase + ": " + result);
        
-        compileMuLibrary(phase, classPath, workingKernel, sourcePath, result);
+        if (phase > 2) compileMuLibrary(phase, classPath, workingKernel, sourcePath, result);
         compileModule(phase, classPath, workingKernel, sourcePath, result, "Prelude");
         compileModule(phase, classPath, workingKernel, sourcePath, result, "lang::rascal::boot::Kernel");
         compileModule(phase, classPath, workingKernel, sourcePath, result, "lang::rascal::grammar::ParserGenerator");
