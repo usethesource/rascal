@@ -1,11 +1,14 @@
 package org.rascalmpl.library.experiments.tutor3;
 
+import java.io.IOException;
+
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
@@ -17,7 +20,7 @@ public class RascalUtils {
 	
 	private RVMCore rvm;
 	
-	public RascalUtils(IValueFactory vf){
+	public RascalUtils(IValueFactory vf) throws IOException{
 		this.vf = vf;
 		if(rvm == null){
 			RascalExecutionContext rex = 
@@ -25,7 +28,7 @@ public class RascalUtils {
 						.setJVM(true)					// options for complete repl
 						.setTrace(false)
 						.build();
-			rvm = ExecutionTools.initializedRVM("compressed+home", "bin/experiments/tutor3/RascalUtils.rvm.ser.gz", rex);
+			rvm = ExecutionTools.initializedRVM(URIUtil.correctLocation("compressed+home", "", "bin/experiments/tutor3/RascalUtils.rvm.ser.gz"), rex);
 		}
 		try {
 			extractRemoteConcepts  = rvm.getOverloadedFunction("str extractRemoteConcepts(str parent, str L)");

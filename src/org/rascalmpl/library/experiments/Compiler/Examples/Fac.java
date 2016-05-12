@@ -4,6 +4,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IValue;
@@ -22,18 +23,18 @@ public class Fac {
 	private final RVMCore rvm;
 
 	Fac(IValueFactory vf){
-		rvm    = ExecutionTools.initializedRVM("compressed+home", "bin/experiments/Compiler/Examples/Fac.rvm.ser.gz");
+	    try {
+	        rvm    = ExecutionTools.initializedRVM(URIUtil.correctLocation("compressed+home", "", "bin/experiments/Compiler/Examples/Fac.rvm.ser.gz"));
 //		fac    = rvm.getOverloadedFunction("int fac (int n)");
 //		d1     = rvm.getOverloadedFunction("D d1(int n)");
 //		d2     = rvm.getOverloadedFunction("D d2(str s)");
 //		getA   = rvm.getOverloadedFunction("A getA()");
 //		getAs  = rvm.getOverloadedFunction("As getAs(int n)");
 //		sizeAs = rvm.getOverloadedFunction("int size(As as)");
-		try {
+		
 			mulKW  = rvm.getOverloadedFunction("int mulKW(int n)");
 		} catch (NoSuchRascalFunction e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		    throw new RuntimeException(e);
 		}
 	}
 

@@ -2,7 +2,6 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -187,18 +186,10 @@ public class ExecutionTools {
 	 
 	 /**
 	  * Create initialized RVM given a scheme and path of a compiled binary
-	  * @param scheme of compiled binary
-	  * @param path of compiled binary
+	  * @param binLoc of compiled binary
 	  * @return initialized RVM
 	  */
-	public static RVMCore initializedRVM(String scheme, String path){
-
-		 ISourceLocation binLoc = null;
-		 try {
-			 binLoc = vf.sourceLocation(scheme, "", path);
-		 } catch (URISyntaxException e) {
-			 System.err.println("Could not create location using '" + scheme + "' and '" + path + "'");
-		 }
+	public static RVMCore initializedRVM(ISourceLocation binLoc) {
 		 RVMExecutable rvmExecutable = null; 
 		 try {
 			 rvmExecutable = RVMExecutable.read(binLoc);
@@ -228,21 +219,10 @@ public class ExecutionTools {
 	  * @param path of compiled binary
 	  * @param rex the execution context to be used
 	  * @return initialized RVM
+	 * @throws IOException 
 	  */
-	public static RVMCore initializedRVM(String scheme, String path,  RascalExecutionContext rex){
-
-		 ISourceLocation binLoc = null;
-		 try {
-			 binLoc = vf.sourceLocation(scheme, "", path);
-		 } catch (URISyntaxException e) {
-			 System.err.println("Could not create bin location using '" + scheme + "' and '" + path + "'");
-		 }
-		 RVMExecutable rvmExecutable = null; 
-		 try {
-			 rvmExecutable = RVMExecutable.read(binLoc);
-		 } catch (IOException e) {
-			 e.printStackTrace();
-		 }
+	public static RVMCore initializedRVM(ISourceLocation binLoc,  RascalExecutionContext rex) throws IOException {
+		 RVMExecutable rvmExecutable  = RVMExecutable.read(binLoc);
 
 		 RVMCore rvm = rex.getJVM() ? new RVMJVM(rvmExecutable, rex) : new RVMInterpreter(rvmExecutable, rex);
 
