@@ -82,7 +82,6 @@ public class Bootstrap {
         //    3. build new kernel with new classes using kernel K'' (creating K'''')
         try { 
             Path phase0Version = getDeployedVersion(tmpDir, versionToUse);
-//            if (true) return;
             Path phase1Version = compilePhase(1, phase0Version.toAbsolutePath().toString(), tmpDir, "|boot:///|", librarySource);
             Path phase2Version = compilePhase(2, phase0Version.toAbsolutePath().toString(), tmpDir, phase1Version.toAbsolutePath().toString(), librarySource);
             Path phase3Version = compilePhase(3, targetFolder + ":" + classpath, tmpDir, phase2Version.toAbsolutePath().toString(), librarySource);
