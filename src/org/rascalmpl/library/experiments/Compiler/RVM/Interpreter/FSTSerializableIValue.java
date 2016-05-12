@@ -122,8 +122,11 @@ public class FSTSerializableIValue extends FSTBasicObjectSerializer implements S
 			}
 			in.registerObject(v,streamPosition,serializationInfo, referencee);
 			return v;
-		} catch (FactTypeUseException | IOException | ClassNotFoundException e) {
-		    throw new RuntimeException(e);
+		}
+		catch (ClassNotFoundException | IOException | FactTypeUseException e) {
+		    System.err.println("WARNING, delegating to FST: " + e.getMessage());
+		    // delegate object creation to FST
+		    return null;
 		}
 	}
 	
