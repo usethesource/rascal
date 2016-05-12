@@ -1343,7 +1343,7 @@ public class RVMInterpreter extends RVMCore {
 			e.printStackTrace(stderr);
 			stderr.flush();
 			String e2s = (e instanceof CompilerError) ? e.getMessage() : e.toString();
-			throw new CompilerError(e2s + "; function: " + cf + "; instruction: " + cf.function.codeblock.toString(pc - 1), cf );
+			throw new CompilerError(e2s + "; function: " + cf + "; instruction: " + cf.function.codeblock.toString(pc - 1), cf, e);
 		}
 	}
 	

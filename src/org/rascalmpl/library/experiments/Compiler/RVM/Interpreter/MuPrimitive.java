@@ -1447,7 +1447,7 @@ public enum MuPrimitive {
 				try {
 					TreeAdapter.unparse(c, w);
 				} catch (FactTypeUseException | IOException e) {
-					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 				subject = w.toString();
 			}
