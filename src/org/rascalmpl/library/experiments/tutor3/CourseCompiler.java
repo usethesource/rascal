@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.rascalmpl.interpreter.utils.Timing;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 
 public class CourseCompiler {
 	
@@ -58,7 +59,7 @@ public class CourseCompiler {
 		}
 	}
 	
-	public static void compileCourse(String name){
+	public static void compileCourse(String name) throws IOException, NoSuchRascalFunction {
 		courseName = name;
 		courseSrcDir = Paths.get("/Users/paulklint/git/rascal/src/org/rascalmpl/courses/" + courseName + "/");
 		courseDestDir = Paths.get("/Users/paulklint/git/rascal/src/org/rascalmpl/courses/");
@@ -98,7 +99,7 @@ public class CourseCompiler {
 		}
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException, NoSuchRascalFunction {
 //		compileCourse("ADocTest");
 //		compileCourse("CompareWithOtherParadigms");
 //		compileCourse("EASY");

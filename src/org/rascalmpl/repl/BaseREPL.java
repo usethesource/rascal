@@ -13,6 +13,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.fusesource.jansi.Ansi;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.value.ISourceLocation;
 
 import jline.Terminal;
@@ -116,8 +117,10 @@ public abstract class BaseREPL {
      * During the constructor call initialize is called after the REPL is setup enough to have a stdout and std err to write to.
      * @param stdout the output stream to write normal output to.
      * @param stderr the error stream to write error messages on, depending on the environment and options passed, will print in red.
+     * @throws NoSuchRascalFunction 
+     * @throws IOException 
      */
-    protected abstract void initialize(Writer stdout, Writer stderr);
+    protected abstract void initialize(Writer stdout, Writer stderr) throws IOException;
 
     /**
      * Will be called everytime a new prompt is printed.

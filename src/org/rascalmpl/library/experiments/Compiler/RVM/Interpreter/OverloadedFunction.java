@@ -71,6 +71,10 @@ public class OverloadedFunction implements Serializable {
 		return this.name.equals(name) && this.funType.comparable(funType);
 	}
 	
+	public String getName() {
+	    return name;
+	}
+	
 	public int getArity(){
 		return funType.getArity();
 	}
