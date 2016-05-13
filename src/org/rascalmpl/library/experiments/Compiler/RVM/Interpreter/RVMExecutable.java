@@ -304,7 +304,7 @@ public class RVMExecutable implements Serializable{
 			}
 			
 		} catch (Exception e) {
-		    if (e.getMessage().startsWith("Method code too large")) {
+		    if (e.getMessage() != null && e.getMessage().startsWith("Method code too large")) {
 		        // ASM does not provide an indication of _which_ method is too large, so let's find out:
 		        Comparator<Function> c = ((x, y) -> x.codeblock.finalCode.length - y.codeblock.finalCode.length); 
 		        throw new RuntimeException("Function too large: " + Arrays.stream(functionStore).max(c).get());
