@@ -58,8 +58,24 @@ We use the `fac` function described in link:{Recipes}#Basic-Factorial[Factorial]
 [source,rascal-shell]
 ----
 rascal>import util::Benchmark;
+rascal2rvm: Parsing and checking |std:///util/Benchmark.rsc|
+rascal2rvm: Compiling |std:///util/Benchmark.rsc|
+r2mu: entering ... util::Benchmark
+rlib1 = util.Benchmark, rlib2 = |std:///util/BenchmarkCompiled.class|
+resolveLibOverriding org.rascalmpl.library.util.Benchmark => org.rascalmpl.library.util.Benchmark
+mu2rvm: Compiling module util::Benchmark
+Compiling |std:///util/Benchmark.rsc|: check: 18, compile: 190, total: 208 ms
+compile: Writing RVMModule |compressed+home:///bin-console/util/Benchmark.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>import demo::basic::Factorial;
+rascal2rvm: Parsing and checking |std:///demo/basic/Factorial.rsc|
+rascal2rvm: Compiling |std:///demo/basic/Factorial.rsc|
+r2mu: entering ... demo::basic::Factorial
+mu2rvm: Compiling module demo::basic::Factorial
+Compiling |std:///demo/basic/Factorial.rsc|: check: 10, compile: 38, total: 48 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/basic/Factorial.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 ----
 We measure two calls to the factorial function with arguments `100`, respectively, `200` 
@@ -67,13 +83,13 @@ We measure two calls to the factorial function with arguments `100`, respectivel
 [source,rascal-shell]
 ----
 rascal>benchmark( ("fac100" : void() {fac(100);}, "fac200" : void() {fac(200);}) );
-map[str, int]: ("fac100":1461678505991,"fac200":1461678505991)
+map[str, int]: ("fac100":1461966410336,"fac200":1461966410336)
 ----
 We can do the same using <<userTime>> that returns nanoseconds:
 [source,rascal-shell]
 ----
 rascal>benchmark( ("fac100" : void() {fac(100);}, "fac200" : void() {fac(200);}), userTime );
-map[str, int]: ("fac100":233800390000,"fac200":233800464000)
+map[str, int]: ("fac100":106051791000,"fac200":106051833000)
 ----
 
 
@@ -109,17 +125,17 @@ Here we measure time by using separate calls to `cpuTime` before and after a cal
 [source,rascal-shell]
 ----
 rascal>before = cpuTime();
-int: 238355300000
+int: 107997738000
 rascal>fac(50);
 int: 30414093201713378043612608166064768844377641568960512000000000000
 rascal>cpuTime() - before;
-int: 237562000
+int: 137078000
 ----
 The code to be measured can also be passed as a function parameter to `cpuTime`:
 [source,rascal-shell]
 ----
 rascal>cpuTime( void() { fac(50); } );
-int: 175000
+int: 296000
 ----
 These two timings for the same task may differ significantly due to the way these statements are executed here in the tutor.
 
@@ -224,17 +240,17 @@ Here we measure time by using separate calls to `sytemTime` before and after a c
 [source,rascal-shell]
 ----
 rascal>before = systemTime();
-int: 4291368000
+int: 1725081000
 rascal>fac(50);
 int: 30414093201713378043612608166064768844377641568960512000000000000
 rascal>systemTime() - before;
-int: 10212000
+int: 6140000
 ----
 The code to be measured can also be passed as a function parameter to `systemTime`:
 [source,rascal-shell]
 ----
 rascal>systemTime( void() { fac(50); } );
-int: 27000
+int: 11000
 ----
 
 
@@ -271,17 +287,17 @@ Here we measure time by using separate calls to `userTime` before and after a ca
 [source,rascal-shell]
 ----
 rascal>before = userTime();
-int: 236829925000
+int: 108301897000
 rascal>fac(50);
 int: 30414093201713378043612608166064768844377641568960512000000000000
 rascal>userTime() - before;
-int: 131346000
+int: 115913000
 ----
 The code to be measured can also be passed as a function parameter to `userTime`:
 [source,rascal-shell]
 ----
 rascal>userTime( void() { fac(50); } );
-int: 235000
+int: 250000
 ----
 
 

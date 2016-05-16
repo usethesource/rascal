@@ -79,6 +79,23 @@ Each such a non-terminal type has `Tree` as its immediate super-type.
 [source,rascal-shell]
 ----
 rascal>import ParseTree;
+rascal2rvm: Parsing and checking |std:///ParseTree.rsc|
+rascal2rvm: Compiling |std:///ParseTree.rsc|
+r2mu: entering ... ParseTree
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module ParseTree
+Compiling |std:///ParseTree.rsc|: check: 99, compile: 1735, total: 1834 ms
+compile: Writing RVMModule |compressed+home:///bin-console/ParseTree.rvm.gz|
+rascal2rvm: Parsing and checking |std:///Type.rsc|
+rascal2rvm: Compiling |std:///Type.rsc|
+r2mu: entering ... Type
+rlib1 = Type, rlib2 = |std:///TypeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Type => org.rascalmpl.library.Type
+mu2rvm: Compiling module Type
+Compiling |std:///Type.rsc|: check: 253, compile: 6375, total: 6628 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Type.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>syntax A = "a";
 ok
@@ -760,6 +777,13 @@ Parse input text (from a string or a location) and return a parse tree.
 [source,rascal-shell-error]
 ----
 rascal>import demo::lang::Exp::Concrete::NoLayout::Syntax;
+rascal2rvm: Parsing and checking |std:///demo/lang/Exp/Concrete/NoLayout/Syntax.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Exp/Concrete/NoLayout/Syntax.rsc|
+r2mu: entering ... demo::lang::Exp::Concrete::NoLayout::Syntax
+mu2rvm: Compiling module demo::lang::Exp::Concrete::NoLayout::Syntax
+Compiling |std:///demo/lang/Exp/Concrete/NoLayout/Syntax.rsc|: check: 7, compile: 15, total: 22 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Exp/Concrete/NoLayout/Syntax.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>import ParseTree;
 ok

@@ -46,13 +46,22 @@ Return an arbitrary Boolean value.
 [source,rascal-shell]
 ----
 rascal>import Boolean;
+rascal2rvm: Parsing and checking |std:///Boolean.rsc|
+rascal2rvm: Compiling |std:///Boolean.rsc|
+r2mu: entering ... Boolean
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Boolean
+Compiling |std:///Boolean.rsc|: check: 8, compile: 18, total: 26 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Boolean.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>arbBool();
-bool: true
-rascal>arbBool();
-bool: true
+bool: false
 rascal>arbBool();
 bool: false
+rascal>arbBool();
+bool: true
 ----
 
 .Benefits

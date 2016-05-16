@@ -70,6 +70,15 @@ Return the list of all elements in any tuple in a list relation.
 [source,rascal-shell]
 ----
 rascal>import ListRelation;
+rascal2rvm: Parsing and checking |std:///ListRelation.rsc|
+rascal2rvm: Compiling |std:///ListRelation.rsc|
+r2mu: entering ... ListRelation
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module ListRelation
+Compiling |std:///ListRelation.rsc|: check: 62, compile: 756, total: 818 ms
+compile: Writing RVMModule |compressed+home:///bin-console/ListRelation.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>carrier([<1,10>, <2,20>]);
 list[int]: [1,10,2,20]
