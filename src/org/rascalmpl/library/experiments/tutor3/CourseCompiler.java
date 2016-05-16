@@ -103,12 +103,12 @@ public class CourseCompiler {
 //		compileCourse("ADocTest");
 //		compileCourse("CompareWithOtherParadigms");
 //		compileCourse("EASY");
-		compileCourse("Errors");
+//		compileCourse("Errors");
 //		compileCourse("Rascal");
 //		compileCourse("Libraries");
 //		compileCourse("Rascalopedia");
 //		compileCourse("Recipes");
-//		compileCourse("SolutionStrategies");
+		compileCourse("SolutionStrategies");
 //		compileCourse("TutorWebSite");
 		
 	}
