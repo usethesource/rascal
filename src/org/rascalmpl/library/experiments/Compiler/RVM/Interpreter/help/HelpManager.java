@@ -91,7 +91,7 @@ public class HelpManager {
 			TypeStore store = new TypeStore();
 			Type start = TypeFactory.getInstance().valueType();
 			try {
-				StdLibInfo = vf.sourceLocation("compressed+boot", "", "stdlib/StdLib.info.gz");
+				StdLibInfo = vf.sourceLocation("compressed+boot", "", "StdLib.info.gz");
 			} catch (URISyntaxException e) {
 				stderr.println("Cannot create location for help info");
 			} 
@@ -99,7 +99,7 @@ public class HelpManager {
 			try (InputStream in = URIResolverRegistry.getInstance().getInputStream(StdLibInfo)) {
 				declarationInfo = (ISet) new BinaryValueReader().read(vf, store, start, in);
 			} catch (IOException e) {
-				stderr.println("Cannot read help info");
+				stderr.println("Cannot read help info at " + StdLibInfo);
 			}
 		}
 	}
