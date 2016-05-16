@@ -467,7 +467,7 @@ Determine the last modification date of the Rascal standard library:
 [source,rascal-shell]
 ----
 rascal>lastModified(|std:///IO.rsc|);
-datetime: $2016-04-25T14:31:32.000+00:00$
+datetime: $2016-04-28T21:26:43.000+00:00$
 ----
 
 

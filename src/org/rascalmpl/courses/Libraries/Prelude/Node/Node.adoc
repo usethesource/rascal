@@ -64,6 +64,15 @@ Determine the number of children of a node.
 [source,rascal-shell]
 ----
 rascal>import Node;
+rascal2rvm: Parsing and checking |std:///Node.rsc|
+rascal2rvm: Compiling |std:///Node.rsc|
+r2mu: entering ... Node
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Node
+Compiling |std:///Node.rsc|: check: 16, compile: 748, total: 764 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Node.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>arity("f"(10, "abc"));
 int: 2

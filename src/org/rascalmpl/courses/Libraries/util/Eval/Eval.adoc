@@ -69,6 +69,15 @@ An optional `duration` argument may be present to limit the time
 [source,rascal-shell]
 ----
 rascal>import util::Eval;
+rascal2rvm: Parsing and checking |std:///util/Eval.rsc|
+rascal2rvm: Compiling |std:///util/Eval.rsc|
+r2mu: entering ... util::Eval
+rlib1 = util.Eval, rlib2 = |std:///util/EvalCompiled.class|
+resolveLibOverriding org.rascalmpl.library.util.Eval => org.rascalmpl.library.util.Eval
+mu2rvm: Compiling module util::Eval
+Compiling |std:///util/Eval.rsc|: check: 15, compile: 164, total: 179 ms
+compile: Writing RVMModule |compressed+home:///bin-console/util/Eval.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>eval("2 * 3;");
 java.lang.NullPointerException
@@ -97,7 +106,7 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:272)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:60)
 	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:218)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:62)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:105)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:73)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
 ok
@@ -128,7 +137,7 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:272)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:60)
 	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:218)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:62)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:105)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:73)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
 ok
@@ -185,7 +194,7 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:272)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:60)
 	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:218)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:62)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:105)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:73)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
 ok
@@ -213,7 +222,7 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:272)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:60)
 	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:218)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:62)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:105)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:73)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
 ok

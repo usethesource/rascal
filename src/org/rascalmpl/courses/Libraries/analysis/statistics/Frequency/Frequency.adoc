@@ -50,6 +50,15 @@ Returns 0 if the value is not comparable to the values set.
 [source,rascal-shell]
 ----
 rascal>import analysis::statistics::Frequency;
+rascal2rvm: Parsing and checking |std:///analysis/statistics/Frequency.rsc|
+rascal2rvm: Compiling |std:///analysis/statistics/Frequency.rsc|
+r2mu: entering ... analysis::statistics::Frequency
+rlib1 = analysis.statistics.Frequencies, rlib2 = |std:///analysis/statistics/FrequenciesCompiled.class|
+resolveLibOverriding org.rascalmpl.library.analysis.statistics.Frequencies => org.rascalmpl.library.analysis.statistics.Frequencies
+mu2rvm: Compiling module analysis::statistics::Frequency
+Compiling |std:///analysis/statistics/Frequency.rsc|: check: 17, compile: 345, total: 362 ms
+compile: Writing RVMModule |compressed+home:///bin-console/analysis/statistics/Frequency.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>
 >>>>>>>D = [1, 2, 1, 1, 3, 5];

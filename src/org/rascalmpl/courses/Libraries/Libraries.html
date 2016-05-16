@@ -642,13 +642,22 @@ and pollution of your name space.</p>
 <div class="title">Examples</div>
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import Boolean;
+rascal2rvm: Parsing and checking |std:///Boolean.rsc|
+rascal2rvm: Compiling |std:///Boolean.rsc|
+r2mu: entering ... Boolean
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Boolean
+Compiling |std:///Boolean.rsc|: check: 8, compile: 18, total: 26 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Boolean.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal&gt;arbBool();
-bool: true
+bool: false
 rascal&gt;arbBool();
-bool: true
+bool: false
 rascal&gt;arbBool();
-bool: false</code></pre>
+bool: true</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -911,6 +920,15 @@ str: "false"</code></pre>
 <div class="title">Examples</div>
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
+rascal2rvm: Parsing and checking |std:///DateTime.rsc|
+rascal2rvm: Compiling |std:///DateTime.rsc|
+r2mu: entering ... DateTime
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module DateTime
+Compiling |std:///DateTime.rsc|: check: 39, compile: 1206, total: 1245 ms
+compile: Writing RVMModule |compressed+home:///bin-console/DateTime.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal&gt;createDate(2012,1,1);
 datetime: $2012-01-01$</code></pre>
@@ -969,13 +987,13 @@ datetime: $2012-01-01T08:15:30.055+02:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;B = now();
-datetime: $2016-04-26T13:49:24.265+00:00$
+datetime: $2016-04-29T21:47:52.095+00:00$
 rascal&gt;E1 = incrementHours(B);
-datetime: $2016-05-26T14:49:24.265+00:00$
+datetime: $2016-05-29T22:47:52.095+00:00$
 rascal&gt;createDuration(B, E1);
 Duration: duration(0,1,0,1,0,0,0)
 rascal&gt;E2 = incrementMinutes(B);
-datetime: $2016-05-26T13:50:24.265+00:00$
+datetime: $2016-05-29T21:48:52.095+00:00$
 rascal&gt;createDuration(B, E2);
 Duration: duration(0,1,0,0,1,0,0)</code></pre>
 </div>
@@ -997,11 +1015,11 @@ Duration: duration(0,1,0,0,1,0,0)</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;B = now();
-datetime: $2016-04-26T13:49:25.042+00:00$
+datetime: $2016-04-29T21:47:53.847+00:00$
 rascal&gt;E = incrementDays(B, 2);
-datetime: $2016-05-28T13:49:25.042+00:00$
+datetime: $2016-05-31T21:47:53.847+00:00$
 rascal&gt;createInterval(B, E);
-interval: Interval($2016-04-26T13:49:25.042+00:00$,$2016-05-28T13:49:25.042+00:00$)</code></pre>
+interval: Interval($2016-04-29T21:47:53.847+00:00$,$2016-05-31T21:47:53.847+00:00$)</code></pre>
 </div>
 </div>
 </div>
@@ -1054,11 +1072,11 @@ datetime: $T08:15:30.055+02:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;B = now();
-datetime: $2016-04-26T13:49:27.120+00:00$
+datetime: $2016-04-29T21:47:54.602+00:00$
 rascal&gt;E = incrementDays(B, 2);
-datetime: $2016-05-28T13:49:27.120+00:00$
+datetime: $2016-05-31T21:47:54.602+00:00$
 rascal&gt;I = createInterval(B, E);
-interval: Interval($2016-04-26T13:49:27.120+00:00$,$2016-05-28T13:49:27.120+00:00$)
+interval: Interval($2016-04-29T21:47:54.602+00:00$,$2016-05-31T21:47:54.602+00:00$)
 rascal&gt;//dateRangeByDay(I);</code></pre>
 </div>
 </div>
@@ -1079,9 +1097,9 @@ rascal&gt;//dateRangeByDay(I);</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;B = now();
-datetime: $2016-04-26T13:49:28.422+00:00$
+datetime: $2016-04-29T21:47:56.041+00:00$
 rascal&gt;E = incrementDays(B, 2);
-datetime: $2016-05-28T13:49:28.422+00:00$
+datetime: $2016-05-31T21:47:56.041+00:00$
 rascal&gt;daysDiff(B, E);
 int: 32</code></pre>
 </div>
@@ -1103,11 +1121,11 @@ int: 32</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;B = now();
-datetime: $2016-04-26T13:49:29.302+00:00$
+datetime: $2016-04-29T21:47:56.508+00:00$
 rascal&gt;E = incrementDays(B, 2);
-datetime: $2016-05-28T13:49:29.302+00:00$
+datetime: $2016-05-31T21:47:56.508+00:00$
 rascal&gt;I = createInterval(B, E);
-interval: Interval($2016-04-26T13:49:29.302+00:00$,$2016-05-28T13:49:29.302+00:00$)
+interval: Interval($2016-04-29T21:47:56.508+00:00$,$2016-05-31T21:47:56.508+00:00$)
 rascal&gt;daysInInterval(I);
 int: 32</code></pre>
 </div>
@@ -1136,11 +1154,11 @@ int: 32</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-04-26T13:49:29.997+00:00$
+datetime: $2016-04-29T21:47:58.417+00:00$
 rascal&gt;decrementDays(N);
-datetime: $2016-05-25T13:49:29.997+00:00$
+datetime: $2016-05-28T21:47:58.417+00:00$
 rascal&gt;decrementDays(N, 3);
-datetime: $2016-05-23T13:49:29.997+00:00$</code></pre>
+datetime: $2016-05-26T21:47:58.417+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1167,11 +1185,11 @@ datetime: $2016-05-23T13:49:29.997+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-04-26T13:49:31.764+00:00$
+datetime: $2016-04-29T21:47:58.804+00:00$
 rascal&gt;decrementHours(N);
-datetime: $2016-05-26T12:49:31.764+00:00$
+datetime: $2016-05-29T20:47:58.804+00:00$
 rascal&gt;decrementHours(N, 5);
-datetime: $2016-05-26T08:49:31.764+00:00$</code></pre>
+datetime: $2016-05-29T16:47:58.804+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1198,11 +1216,11 @@ datetime: $2016-05-26T08:49:31.764+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-04-26T13:49:32.166+00:00$
+datetime: $2016-04-29T21:47:59.207+00:00$
 rascal&gt;decrementMilliseconds(N);
-datetime: $2016-05-26T13:49:32.165+00:00$
+datetime: $2016-05-29T21:47:59.206+00:00$
 rascal&gt;decrementMilliseconds(N, 5);
-datetime: $2016-05-26T13:49:32.161+00:00$</code></pre>
+datetime: $2016-05-29T21:47:59.202+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1229,11 +1247,11 @@ datetime: $2016-05-26T13:49:32.161+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-04-26T13:49:33.424+00:00$
+datetime: $2016-04-29T21:48:00.867+00:00$
 rascal&gt;decrementMinutes(N);
-datetime: $2016-05-26T13:48:33.424+00:00$
+datetime: $2016-05-29T21:47:00.867+00:00$
 rascal&gt;decrementMinutes(N, 5);
-datetime: $2016-05-26T13:44:33.424+00:00$</code></pre>
+datetime: $2016-05-29T21:43:00.867+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1260,11 +1278,11 @@ datetime: $2016-05-26T13:44:33.424+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-04-26T13:49:34.212+00:00$
+datetime: $2016-04-29T21:48:01.253+00:00$
 rascal&gt;decrementMonths(N);
-datetime: $2016-04-26T13:49:34.212+00:00$
+datetime: $2016-04-29T21:48:01.253+00:00$
 rascal&gt;decrementMonths(N, 5);
-datetime: $2015-12-26T13:49:34.212+00:00$</code></pre>
+datetime: $2015-12-29T21:48:01.253+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1291,11 +1309,11 @@ datetime: $2015-12-26T13:49:34.212+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-04-26T13:49:34.591+00:00$
+datetime: $2016-04-29T21:48:01.734+00:00$
 rascal&gt;decrementSeconds(N);
-datetime: $2016-05-26T13:49:33.591+00:00$
+datetime: $2016-05-29T21:48:00.734+00:00$
 rascal&gt;decrementSeconds(N, 5);
-datetime: $2016-05-26T13:49:29.591+00:00$</code></pre>
+datetime: $2016-05-29T21:47:56.734+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1322,11 +1340,11 @@ datetime: $2016-05-26T13:49:29.591+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-04-26T13:49:35.957+00:00$
+datetime: $2016-04-29T21:48:03.819+00:00$
 rascal&gt;decrementYears(N);
-datetime: $2015-05-26T13:49:35.957+00:00$
+datetime: $2015-05-29T21:48:03.819+00:00$
 rascal&gt;decrementYears(N, 5);
-datetime: $2011-05-26T13:49:35.957+00:00$</code></pre>
+datetime: $2011-05-29T21:48:03.819+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1353,11 +1371,11 @@ datetime: $2011-05-26T13:49:35.957+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-04-26T13:49:36.344+00:00$
+datetime: $2016-04-29T21:48:04.312+00:00$
 rascal&gt;incrementDays(N);
-datetime: $2016-05-27T13:49:36.344+00:00$
+datetime: $2016-05-30T21:48:04.312+00:00$
 rascal&gt;incrementDays(N, 5);
-datetime: $2016-05-31T13:49:36.344+00:00$</code></pre>
+datetime: $2016-06-03T21:48:04.312+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1384,11 +1402,11 @@ datetime: $2016-05-31T13:49:36.344+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-04-26T13:49:36.777+00:00$
+datetime: $2016-04-29T21:48:05.304+00:00$
 rascal&gt;incrementHours(N);
-datetime: $2016-05-26T14:49:36.777+00:00$
+datetime: $2016-05-29T22:48:05.304+00:00$
 rascal&gt;incrementHours(N, 5);
-datetime: $2016-05-26T18:49:36.777+00:00$</code></pre>
+datetime: $2016-05-30T02:48:05.304+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1415,11 +1433,11 @@ datetime: $2016-05-26T18:49:36.777+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-04-26T13:49:37.276+00:00$
+datetime: $2016-04-29T21:48:07.341+00:00$
 rascal&gt;incrementMilliseconds(N);
-datetime: $2016-05-26T13:49:37.277+00:00$
+datetime: $2016-05-29T21:48:07.342+00:00$
 rascal&gt;incrementMilliseconds(N, 5);
-datetime: $2016-05-26T13:49:37.281+00:00$</code></pre>
+datetime: $2016-05-29T21:48:07.346+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1446,11 +1464,11 @@ datetime: $2016-05-26T13:49:37.281+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-04-26T13:49:39.284+00:00$
+datetime: $2016-04-29T21:48:07.756+00:00$
 rascal&gt;incrementMinutes(N);
-datetime: $2016-05-26T13:50:39.284+00:00$
+datetime: $2016-05-29T21:49:07.756+00:00$
 rascal&gt;incrementMinutes(N, 5);
-datetime: $2016-05-26T13:54:39.284+00:00$</code></pre>
+datetime: $2016-05-29T21:53:07.756+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1478,11 +1496,11 @@ datetime: $2016-05-26T13:54:39.284+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-04-26T13:49:39.668+00:00$
+datetime: $2016-04-29T21:48:08.147+00:00$
 rascal&gt;incrementMonths(N);
-datetime: $2016-06-26T13:49:39.668+00:00$
+datetime: $2016-06-29T21:48:08.147+00:00$
 rascal&gt;incrementMonths(N, 5);
-datetime: $2016-10-26T13:49:39.668+00:00$</code></pre>
+datetime: $2016-10-29T21:48:08.147+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1509,11 +1527,11 @@ datetime: $2016-10-26T13:49:39.668+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-04-26T13:49:40.956+00:00$
+datetime: $2016-04-29T21:48:09.805+00:00$
 rascal&gt;incrementSeconds(N);
-datetime: $2016-05-26T13:49:41.956+00:00$
+datetime: $2016-05-29T21:48:10.805+00:00$
 rascal&gt;incrementSeconds(N, 5);
-datetime: $2016-05-26T13:49:45.956+00:00$</code></pre>
+datetime: $2016-05-29T21:48:14.805+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1540,11 +1558,11 @@ datetime: $2016-05-26T13:49:45.956+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-04-26T13:49:41.726+00:00$
+datetime: $2016-04-29T21:48:10.191+00:00$
 rascal&gt;incrementYears(N);
-datetime: $2017-05-26T13:49:41.726+00:00$
+datetime: $2017-05-29T21:48:10.191+00:00$
 rascal&gt;incrementYears(N, 5);
-datetime: $2021-05-26T13:49:41.726+00:00$</code></pre>
+datetime: $2021-05-29T21:48:10.191+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1601,7 +1619,7 @@ datetime: $2012-01-01T08:15:45.030+01:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;now();
-datetime: $2016-04-26T13:49:43.912+00:00$</code></pre>
+datetime: $2016-04-29T21:48:12.072+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1723,9 +1741,9 @@ datetime: $T11:21:19.000+01:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;printDate(now());
-str: "2016-04-26"
+str: "2016-04-29"
 rascal&gt;printDate(now(), "YYYYMMdd");
-str: "20160426"</code></pre>
+str: "20160429"</code></pre>
 </div>
 </div>
 </div>
@@ -1752,9 +1770,9 @@ str: "20160426"</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;printDateInLocale(now(), "Europe/Netherlands");
-str: "2016-04-26"
+str: "2016-04-29"
 rascal&gt;printDateInLocale(now(), "French");
-str: "2016-04-26"</code></pre>
+str: "2016-04-29"</code></pre>
 </div>
 </div>
 </div>
@@ -1781,13 +1799,13 @@ str: "2016-04-26"</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-04-26T13:49:46.626+00:00$
+datetime: $2016-04-29T21:48:14.703+00:00$
 rascal&gt;printDateTime(N);
-str: "2016-04-26 13:49:46.626+0000"
+str: "2016-04-29 21:48:14.703+0000"
 rascal&gt;printDateTime(N, "yyyy-MM-dd\'T\'HH:mm:ss.SSSZZ");
-str: "2016-04-26T13:49:46.626+0000"
+str: "2016-04-29T21:48:14.703+0000"
 rascal&gt;printDateTime(N, "YYYY/MM/dd/HH/mm/ss");
-str: "2016/04/26/13/49/46"</code></pre>
+str: "2016/04/29/21/48/14"</code></pre>
 </div>
 </div>
 </div>
@@ -1832,11 +1850,11 @@ str: "2016/04/26/13/49/46"</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-04-26T13:49:47.666+00:00$
+datetime: $2016-04-29T21:48:15.165+00:00$
 rascal&gt;printTime(N);
-str: "13:49:47.666+0000"
+str: "21:48:15.165+0000"
 rascal&gt;printTime(N, "HH/mm/ss");
-str: "13/49/47"</code></pre>
+str: "21/48/15"</code></pre>
 </div>
 </div>
 </div>
@@ -1874,9 +1892,9 @@ str: "13/49/47"</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-04-26T13:49:50.060+00:00$
+datetime: $2016-04-29T21:48:16.882+00:00$
 rascal&gt;splitDateTime(N);
-tuple[datetime,datetime]: &lt;$2016-04-26$,$T13:49:50.060+00:00$&gt;</code></pre>
+tuple[datetime,datetime]: &lt;$2016-04-29$,$T21:48:16.882+00:00$&gt;</code></pre>
 </div>
 </div>
 </div>
@@ -2532,7 +2550,7 @@ ok</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;lastModified(|std:///IO.rsc|);
-datetime: $2016-04-25T14:31:32.000+00:00$</code></pre>
+datetime: $2016-04-28T21:26:43.000+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -4097,9 +4115,9 @@ list[str]: ["owl","snake","elephant","zebra"]</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
 ok
 rascal&gt;shuffle([1,4,2,3]);
-list[int]: [4,2,1,3]
+list[int]: [2,4,1,3]
 rascal&gt;shuffle(["zebra", "elephant", "snake", "owl"]);
-list[str]: ["owl","elephant","zebra","snake"]</code></pre>
+list[str]: ["elephant","zebra","snake","owl"]</code></pre>
 </div>
 </div>
 </div>
@@ -4232,7 +4250,7 @@ list[str]: ["mango","strawberry","pear","pineapple","banana","grape","kiwi"]
 rascal&gt;sort(fruits);
 list[str]: ["banana","grape","kiwi","mango","pear","pineapple","strawberry"]
 rascal&gt;sort(fruits, bool(str a, str b){ return size(a) &gt; size(b); });
-list[str]: ["strawberry","pineapple","banana","mango","grape","kiwi","pear"]</code></pre>
+list[str]: ["strawberry","pineapple","banana","grape","mango","pear","kiwi"]</code></pre>
 </div>
 </div>
 </div>
@@ -4403,17 +4421,17 @@ list[str]: ["zebra","elephant"]</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
 ok
 rascal&gt;takeOneFrom([10,20,30,40,50]);
-tuple[int,list[int]]: &lt;10,[20,30,40,50]&gt;
-rascal&gt;takeOneFrom([10,20,30,40,50]);
-tuple[int,list[int]]: &lt;20,[10,30,40,50]&gt;
+tuple[int,list[int]]: &lt;30,[10,20,40,50]&gt;
 rascal&gt;takeOneFrom([10,20,30,40,50]);
 tuple[int,list[int]]: &lt;10,[20,30,40,50]&gt;
+rascal&gt;takeOneFrom([10,20,30,40,50]);
+tuple[int,list[int]]: &lt;30,[10,20,40,50]&gt;
 rascal&gt;takeOneFrom(["zebra", "elephant", "snake", "owl"]);
-tuple[str,list[str]]: &lt;"elephant",["zebra","snake","owl"]&gt;
+tuple[str,list[str]]: &lt;"snake",["zebra","elephant","owl"]&gt;
 rascal&gt;takeOneFrom(["zebra", "elephant", "snake", "owl"]);
-tuple[str,list[str]]: &lt;"zebra",["elephant","snake","owl"]&gt;
+tuple[str,list[str]]: &lt;"owl",["zebra","elephant","snake"]&gt;
 rascal&gt;takeOneFrom(["zebra", "elephant", "snake", "owl"]);
-tuple[str,list[str]]: &lt;"elephant",["zebra","snake","owl"]&gt;</code></pre>
+tuple[str,list[str]]: &lt;"zebra",["elephant","snake","owl"]&gt;</code></pre>
 </div>
 </div>
 </div>
@@ -4828,6 +4846,15 @@ lrel[int,str,int]: [
 <div class="title">Examples</div>
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import ListRelation;
+rascal2rvm: Parsing and checking |std:///ListRelation.rsc|
+rascal2rvm: Compiling |std:///ListRelation.rsc|
+r2mu: entering ... ListRelation
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module ListRelation
+Compiling |std:///ListRelation.rsc|: check: 62, compile: 756, total: 818 ms
+compile: Writing RVMModule |compressed+home:///bin-console/ListRelation.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal&gt;carrier([&lt;1,10&gt;, &lt;2,20&gt;]);
 list[int]: [1,10,2,20]
@@ -5573,7 +5600,7 @@ ok
 rascal&gt;getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
 str: "pineapple"
 rascal&gt;getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
-str: "apple"
+str: "pineapple"
 rascal&gt;getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
 str: "apple"</code></pre>
 </div>
@@ -6005,6 +6032,15 @@ A very common example is to annotate parse trees with messages.</p>
 <div class="title">Examples</div>
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import Node;
+rascal2rvm: Parsing and checking |std:///Node.rsc|
+rascal2rvm: Compiling |std:///Node.rsc|
+r2mu: entering ... Node
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Node
+Compiling |std:///Node.rsc|: check: 16, compile: 748, total: 764 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Node.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal&gt;arity("f"(10, "abc"));
 int: 2
@@ -6465,6 +6501,23 @@ Each such a non-terminal type has <code>Tree</code> as its immediate super-type.
 <div class="title">Examples</div>
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import ParseTree;
+rascal2rvm: Parsing and checking |std:///ParseTree.rsc|
+rascal2rvm: Compiling |std:///ParseTree.rsc|
+r2mu: entering ... ParseTree
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module ParseTree
+Compiling |std:///ParseTree.rsc|: check: 99, compile: 1735, total: 1834 ms
+compile: Writing RVMModule |compressed+home:///bin-console/ParseTree.rvm.gz|
+rascal2rvm: Parsing and checking |std:///Type.rsc|
+rascal2rvm: Compiling |std:///Type.rsc|
+r2mu: entering ... Type
+rlib1 = Type, rlib2 = |std:///TypeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Type =&gt; org.rascalmpl.library.Type
+mu2rvm: Compiling module Type
+Compiling |std:///Type.rsc|: check: 253, compile: 6375, total: 6628 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Type.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal&gt;syntax A = "a";
 ok</code></pre>
@@ -7371,6 +7424,13 @@ syntax Decl = decl: Tag? Signature Body;</code></pre>
 <div class="title">Examples</div>
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error">rascal&gt;import demo::lang::Exp::Concrete::NoLayout::Syntax;
+rascal2rvm: Parsing and checking |std:///demo/lang/Exp/Concrete/NoLayout/Syntax.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Exp/Concrete/NoLayout/Syntax.rsc|
+r2mu: entering ... demo::lang::Exp::Concrete::NoLayout::Syntax
+mu2rvm: Compiling module demo::lang::Exp::Concrete::NoLayout::Syntax
+Compiling |std:///demo/lang/Exp/Concrete/NoLayout/Syntax.rsc|: check: 7, compile: 15, total: 22 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Exp/Concrete/NoLayout/Syntax.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal&gt;import ParseTree;
 ok</code></pre>
@@ -7607,6 +7667,15 @@ str: "2+3"</code></pre>
 <div class="title">Examples</div>
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import Relation;
+rascal2rvm: Parsing and checking |std:///Relation.rsc|
+rascal2rvm: Compiling |std:///Relation.rsc|
+r2mu: entering ... Relation
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Relation
+Compiling |std:///Relation.rsc|: check: 57, compile: 409, total: 466 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Relation.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal&gt;carrier({&lt;1,10&gt;, &lt;2,20&gt;});
 set[int]: {10,1,20,2}
@@ -8240,6 +8309,23 @@ rel[int,int]: {&lt;2,20&gt;}</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import Set;
+rascal2rvm: Parsing and checking |std:///Set.rsc|
+rascal2rvm: Compiling |std:///Set.rsc|
+r2mu: entering ... Set
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Set
+Compiling |std:///Set.rsc|: check: 50, compile: 1132, total: 1182 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Set.rvm.gz|
+rascal2rvm: Parsing and checking |std:///util/Math.rsc|
+rascal2rvm: Compiling |std:///util/Math.rsc|
+r2mu: entering ... util::Math
+rlib1 = util.Math, rlib2 = |std:///util/MathCompiled.class|
+resolveLibOverriding org.rascalmpl.library.util.Math =&gt; org.rascalmpl.library.util.Math
+mu2rvm: Compiling module util::Math
+Compiling |std:///util/Math.rsc|: check: 50, compile: 921, total: 971 ms
+compile: Writing RVMModule |compressed+home:///bin-console/util/Math.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok</code></pre>
 </div>
 </div>
@@ -8320,9 +8406,9 @@ int: 4
 rascal&gt;getOneFrom({1,2,3,4});
 int: 3
 rascal&gt;getOneFrom({1,2,3,4});
-int: 3
+int: 4
 rascal&gt;getOneFrom({1,2,3,4});
-int: 1</code></pre>
+int: 3</code></pre>
 </div>
 </div>
 </div>
@@ -8779,11 +8865,11 @@ list[str]: ["strawberry","pineapple","banana","mango","grape","kiwi","pear"]</co
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import Set;
 ok
 rascal&gt;takeOneFrom({1, 2, 3, 4});
-tuple[int,set[int]]: &lt;4,{1,3,2}&gt;
-rascal&gt;takeOneFrom({1, 2, 3, 4});
 tuple[int,set[int]]: &lt;1,{3,2,4}&gt;
 rascal&gt;takeOneFrom({1, 2, 3, 4});
-tuple[int,set[int]]: &lt;2,{1,3,4}&gt;</code></pre>
+tuple[int,set[int]]: &lt;3,{1,2,4}&gt;
+rascal&gt;takeOneFrom({1, 2, 3, 4});
+tuple[int,set[int]]: &lt;3,{1,2,4}&gt;</code></pre>
 </div>
 </div>
 </div>
@@ -11920,6 +12006,15 @@ on <a href="../Rascal/Rascal.html#Values-Relation">relations</a> are also define
 <div class="title">Examples</div>
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import analysis::graphs::Graph;
+rascal2rvm: Parsing and checking |std:///analysis/graphs/Graph.rsc|
+rascal2rvm: Compiling |std:///analysis/graphs/Graph.rsc|
+r2mu: entering ... analysis::graphs::Graph
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module analysis::graphs::Graph
+Compiling |std:///analysis/graphs/Graph.rsc|: check: 25, compile: 619, total: 644 ms
+compile: Writing RVMModule |compressed+home:///bin-console/analysis/graphs/Graph.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal&gt;bottom({&lt;1,2&gt;, &lt;1,3&gt;, &lt;2,4&gt;, &lt;3,4&gt;});
 set[int]: {4}</code></pre>
@@ -12481,6 +12576,15 @@ on the data values using a natural ranking and then computing <a href="#Correlat
 <div class="title">Examples</div>
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import analysis::statistics::Correlation;
+rascal2rvm: Parsing and checking |std:///analysis/statistics/Correlation.rsc|
+rascal2rvm: Compiling |std:///analysis/statistics/Correlation.rsc|
+r2mu: entering ... analysis::statistics::Correlation
+rlib1 = analysis.statistics.Correlations, rlib2 = |std:///analysis/statistics/CorrelationsCompiled.class|
+resolveLibOverriding org.rascalmpl.library.analysis.statistics.Correlations =&gt; org.rascalmpl.library.analysis.statistics.Correlations
+mu2rvm: Compiling module analysis::statistics::Correlation
+Compiling |std:///analysis/statistics/Correlation.rsc|: check: 9, compile: 23, total: 32 ms
+compile: Writing RVMModule |compressed+home:///bin-console/analysis/statistics/Correlation.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal&gt;covariance([&lt;1,12&gt;,&lt;3,12&gt;,&lt;3,11&gt;,&lt;5,7&gt;]);
 real: -2.5</code></pre>
@@ -12592,6 +12696,15 @@ Returns 0 if the value is not comparable to the values set.</p>
 <div class="title">Examples</div>
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import analysis::statistics::Frequency;
+rascal2rvm: Parsing and checking |std:///analysis/statistics/Frequency.rsc|
+rascal2rvm: Compiling |std:///analysis/statistics/Frequency.rsc|
+r2mu: entering ... analysis::statistics::Frequency
+rlib1 = analysis.statistics.Frequencies, rlib2 = |std:///analysis/statistics/FrequenciesCompiled.class|
+resolveLibOverriding org.rascalmpl.library.analysis.statistics.Frequencies =&gt; org.rascalmpl.library.analysis.statistics.Frequencies
+mu2rvm: Compiling module analysis::statistics::Frequency
+Compiling |std:///analysis/statistics/Frequency.rsc|: check: 17, compile: 345, total: 362 ms
+compile: Writing RVMModule |compressed+home:///bin-console/analysis/statistics/Frequency.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal&gt;
 &gt;&gt;&gt;&gt;&gt;&gt;&gt;D = [1, 2, 1, 1, 3, 5];
@@ -12852,6 +12965,15 @@ To test the hypothesis that a random sample of 100 people has been drawn from a 
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import analysis::statistics::Inference;
+rascal2rvm: Parsing and checking |std:///analysis/statistics/Inference.rsc|
+rascal2rvm: Compiling |std:///analysis/statistics/Inference.rsc|
+r2mu: entering ... analysis::statistics::Inference
+rlib1 = analysis.statistics.Inferences, rlib2 = |std:///analysis/statistics/InferencesCompiled.class|
+resolveLibOverriding org.rascalmpl.library.analysis.statistics.Inferences =&gt; org.rascalmpl.library.analysis.statistics.Inferences
+mu2rvm: Compiling module analysis::statistics::Inference
+Compiling |std:///analysis/statistics/Inference.rsc|: check: 15, compile: 23, total: 38 ms
+compile: Writing RVMModule |compressed+home:///bin-console/analysis/statistics/Inference.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal&gt;chiSquare([&lt;50, 44&gt;, &lt;50, 56&gt;])
 real: 1.44</code></pre>
@@ -13019,6 +13141,15 @@ First, we compute the t-statistic using the formula given above.</p>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import util::Math;
 ok
 rascal&gt;import analysis::statistics::Descriptive;
+rascal2rvm: Parsing and checking |std:///analysis/statistics/Descriptive.rsc|
+rascal2rvm: Compiling |std:///analysis/statistics/Descriptive.rsc|
+r2mu: entering ... analysis::statistics::Descriptive
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude =&gt; org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module analysis::statistics::Descriptive
+Compiling |std:///analysis/statistics/Descriptive.rsc|: check: 39, compile: 1130, total: 1169 ms
+compile: Writing RVMModule |compressed+home:///bin-console/analysis/statistics/Descriptive.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal&gt;import List;
 ok
@@ -13987,8 +14118,24 @@ An optional <code>duration</code> argument can be used to specify the function t
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import util::Benchmark;
+rascal2rvm: Parsing and checking |std:///util/Benchmark.rsc|
+rascal2rvm: Compiling |std:///util/Benchmark.rsc|
+r2mu: entering ... util::Benchmark
+rlib1 = util.Benchmark, rlib2 = |std:///util/BenchmarkCompiled.class|
+resolveLibOverriding org.rascalmpl.library.util.Benchmark =&gt; org.rascalmpl.library.util.Benchmark
+mu2rvm: Compiling module util::Benchmark
+Compiling |std:///util/Benchmark.rsc|: check: 18, compile: 190, total: 208 ms
+compile: Writing RVMModule |compressed+home:///bin-console/util/Benchmark.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal&gt;import demo::basic::Factorial;
+rascal2rvm: Parsing and checking |std:///demo/basic/Factorial.rsc|
+rascal2rvm: Compiling |std:///demo/basic/Factorial.rsc|
+r2mu: entering ... demo::basic::Factorial
+mu2rvm: Compiling module demo::basic::Factorial
+Compiling |std:///demo/basic/Factorial.rsc|: check: 10, compile: 38, total: 48 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/basic/Factorial.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok</code></pre>
 </div>
 </div>
@@ -13999,7 +14146,7 @@ ok</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;benchmark( ("fac100" : void() {fac(100);}, "fac200" : void() {fac(200);}) );
-map[str, int]: ("fac100":1461678505991,"fac200":1461678505991)</code></pre>
+map[str, int]: ("fac100":1461966410336,"fac200":1461966410336)</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -14008,7 +14155,7 @@ map[str, int]: ("fac100":1461678505991,"fac200":1461678505991)</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;benchmark( ("fac100" : void() {fac(100);}, "fac200" : void() {fac(200);}), userTime );
-map[str, int]: ("fac100":233800390000,"fac200":233800464000)</code></pre>
+map[str, int]: ("fac100":106051791000,"fac200":106051833000)</code></pre>
 </div>
 </div>
 </div>
@@ -14058,11 +14205,11 @@ ok</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;before = cpuTime();
-int: 238355300000
+int: 107997738000
 rascal&gt;fac(50);
 int: 30414093201713378043612608166064768844377641568960512000000000000
 rascal&gt;cpuTime() - before;
-int: 237562000</code></pre>
+int: 137078000</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -14071,7 +14218,7 @@ int: 237562000</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;cpuTime( void() { fac(50); } );
-int: 175000</code></pre>
+int: 296000</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -14200,11 +14347,11 @@ ok</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;before = systemTime();
-int: 4291368000
+int: 1725081000
 rascal&gt;fac(50);
 int: 30414093201713378043612608166064768844377641568960512000000000000
 rascal&gt;systemTime() - before;
-int: 10212000</code></pre>
+int: 6140000</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -14213,7 +14360,7 @@ int: 10212000</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;systemTime( void() { fac(50); } );
-int: 27000</code></pre>
+int: 11000</code></pre>
 </div>
 </div>
 </div>
@@ -14263,11 +14410,11 @@ ok</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;before = userTime();
-int: 236829925000
+int: 108301897000
 rascal&gt;fac(50);
 int: 30414093201713378043612608166064768844377641568960512000000000000
 rascal&gt;userTime() - before;
-int: 131346000</code></pre>
+int: 115913000</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -14276,7 +14423,7 @@ int: 131346000</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;userTime( void() { fac(50); } );
-int: 235000</code></pre>
+int: 250000</code></pre>
 </div>
 </div>
 </div>
@@ -14430,6 +14577,15 @@ a Statement from an Expression by adding a semi-colon.</p>
 <div class="title">Examples</div>
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import util::Eval;
+rascal2rvm: Parsing and checking |std:///util/Eval.rsc|
+rascal2rvm: Compiling |std:///util/Eval.rsc|
+r2mu: entering ... util::Eval
+rlib1 = util.Eval, rlib2 = |std:///util/EvalCompiled.class|
+resolveLibOverriding org.rascalmpl.library.util.Eval =&gt; org.rascalmpl.library.util.Eval
+mu2rvm: Compiling module util::Eval
+Compiling |std:///util/Eval.rsc|: check: 15, compile: 164, total: 179 ms
+compile: Writing RVMModule |compressed+home:///bin-console/util/Eval.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal&gt;eval("2 * 3;");
 java.lang.NullPointerException
@@ -14458,7 +14614,7 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:272)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:60)
 	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:218)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.&lt;init&gt;(Onthology.java:62)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.&lt;init&gt;(Onthology.java:105)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:73)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
 ok
@@ -14489,7 +14645,7 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:272)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:60)
 	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:218)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.&lt;init&gt;(Onthology.java:62)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.&lt;init&gt;(Onthology.java:105)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:73)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
 ok</code></pre>
@@ -14554,7 +14710,7 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:272)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:60)
 	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:218)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.&lt;init&gt;(Onthology.java:62)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.&lt;init&gt;(Onthology.java:105)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:73)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
 ok
@@ -14582,7 +14738,7 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:272)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:60)
 	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:218)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.&lt;init&gt;(Onthology.java:62)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.&lt;init&gt;(Onthology.java:105)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:73)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
 ok</code></pre>
@@ -15000,15 +15156,15 @@ i.e., the limit is exclusive.</p>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import util::Math;
 ok
 rascal&gt;arbInt();
-int: 238037160
+int: -13867586
 rascal&gt;arbInt();
-int: -152819981
+int: 1079650598
 rascal&gt;arbInt();
-int: -1467280661
+int: 323809440
 rascal&gt;arbInt(10);
-int: 6
+int: 5
 rascal&gt;arbInt(10);
-int: 3
+int: 8
 rascal&gt;arbInt(10);
 int: 9</code></pre>
 </div>
@@ -15041,17 +15197,17 @@ int: 9</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import util::Math;
 ok
 rascal&gt;arbRat();
-rat: -445798175r622478386
+rat: 106311343r230392412
 rascal&gt;arbRat();
-rat: 591468709r280976376
+rat: 1724460007r1887671005
 rascal&gt;arbRat();
-rat: -1805057188r121137265
+rat: 432551834r1370174547
 rascal&gt;arbRat(10,100);
-rat: 9r
+rat: 9r91
 rascal&gt;arbRat(10,100);
-rat: 7r59
+rat: 5r12
 rascal&gt;arbRat(10,100);
-rat: 5r48</code></pre>
+rat: 1r3</code></pre>
 </div>
 </div>
 </div>
@@ -15075,11 +15231,11 @@ rat: 5r48</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import util::Math;
 ok
 rascal&gt;arbReal();
-real: 0.12370507199071035
+real: 0.5983024070548362
 rascal&gt;arbReal();
-real: 0.9594494548725527
+real: 0.40068599233687385
 rascal&gt;arbReal();
-real: 0.8973575670693048</code></pre>
+real: 0.958389721844183</code></pre>
 </div>
 </div>
 </div>
@@ -15896,7 +16052,7 @@ documentation awaits Eclipse integration
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-04-26 15:48:19 CEST
+Last updated 2016-04-29 23:46:38 CEST
 </div>
 </div>
 </body>

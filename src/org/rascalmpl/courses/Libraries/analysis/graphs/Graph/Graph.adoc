@@ -71,6 +71,15 @@ Returns the bottom nodes of Graph `G`, i.e., the leaf nodes that don't have any 
 [source,rascal-shell]
 ----
 rascal>import analysis::graphs::Graph;
+rascal2rvm: Parsing and checking |std:///analysis/graphs/Graph.rsc|
+rascal2rvm: Compiling |std:///analysis/graphs/Graph.rsc|
+r2mu: entering ... analysis::graphs::Graph
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module analysis::graphs::Graph
+Compiling |std:///analysis/graphs/Graph.rsc|: check: 25, compile: 619, total: 644 ms
+compile: Writing RVMModule |compressed+home:///bin-console/analysis/graphs/Graph.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>bottom({<1,2>, <1,3>, <2,4>, <3,4>});
 set[int]: {4}

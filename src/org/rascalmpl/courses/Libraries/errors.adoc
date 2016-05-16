@@ -27,7 +27,7 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:272)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:60)
 	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:218)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:62)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:105)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:73)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
 ```
@@ -59,7 +59,7 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:272)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:60)
 	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:218)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:62)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:105)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:73)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
 ```
@@ -88,7 +88,7 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:272)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:60)
 	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:218)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:62)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:105)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:73)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
 ```
@@ -117,7 +117,7 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:272)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:60)
 	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:218)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:62)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:105)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:73)
 	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
 ```

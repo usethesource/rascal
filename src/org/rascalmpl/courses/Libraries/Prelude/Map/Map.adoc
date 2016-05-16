@@ -173,7 +173,7 @@ ok
 rascal>getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
 str: "pineapple"
 rascal>getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
-str: "apple"
+str: "pineapple"
 rascal>getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
 str: "apple"
 ----

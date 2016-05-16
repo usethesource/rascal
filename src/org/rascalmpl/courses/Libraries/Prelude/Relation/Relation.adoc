@@ -70,6 +70,15 @@ Return the set of all elements in any tuple in a relation.
 [source,rascal-shell]
 ----
 rascal>import Relation;
+rascal2rvm: Parsing and checking |std:///Relation.rsc|
+rascal2rvm: Compiling |std:///Relation.rsc|
+r2mu: entering ... Relation
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Relation
+Compiling |std:///Relation.rsc|: check: 57, compile: 409, total: 466 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Relation.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>carrier({<1,10>, <2,20>});
 set[int]: {10,1,20,2}
