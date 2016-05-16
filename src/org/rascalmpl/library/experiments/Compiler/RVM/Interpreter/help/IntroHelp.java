@@ -39,7 +39,7 @@ public class IntroHelp {
 				"    <CTRL>k                Kill remainder of line after cursor",
 				"    <CTRL>l                Clear screen",
 				"",
-				"Further help: XXX"
+				//"Further help: XXX"
 				//":edit <modulename>         Opens an editor for that module",
 				//":test                      Runs all unit tests currently loaded",
 				//":history                   Print the command history",
