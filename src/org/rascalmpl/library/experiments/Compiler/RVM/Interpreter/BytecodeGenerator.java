@@ -112,7 +112,7 @@ public class BytecodeGenerator implements Opcodes {
 		for (Function f : functionStore) {
 			//System.err.println(f.getName());
 //			currentFunction = f;
-			emitMethod(f, debug);
+		    emitMethod(f, debug);
 			//System.err.println(f.toString() );
 		}
 		
