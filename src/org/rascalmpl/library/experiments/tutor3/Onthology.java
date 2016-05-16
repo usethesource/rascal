@@ -18,13 +18,29 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Version;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.KWParams;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.uri.URIResolverRegistry;
+
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
+
 
 public class Onthology {
 	Path srcDir;
@@ -38,6 +54,7 @@ public class Onthology {
 	private Path courseName;
 	
 	private RascalCommandExecutor executor;
+	private IndexWriter iwriter;
 
 	public Onthology(Path srcDir, Path destDir, PrintWriter err) throws IOException, NoSuchRascalFunction{
 		this.vf = ValueFactoryFactory.getValueFactory();
@@ -50,9 +67,25 @@ public class Onthology {
 		
 		this.executor = new RascalCommandExecutor(err);
 		
+		Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_35);
+
+		// Store the index in memory:
+		//Directory directory = new RAMDirectory();
+		// To store an index on disk, use this instead:
+		Directory directory = null;
+		try {
+			directory = FSDirectory.open(destDir.toFile());
+			iwriter = new IndexWriter(directory, analyzer, true,
+					new IndexWriter.MaxFieldLength(25000));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
 		FileVisitor<Path> fileProcessor = new CollectConcepts();
 		try {
 			Files.walkFileTree(this.srcDir, fileProcessor);
+			iwriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -65,6 +98,31 @@ public class Onthology {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+		
+		try {
+			IndexReader ireader = IndexReader.open(directory); // read-only=true
+			IndexSearcher isearcher = new IndexSearcher(ireader);
+			// Parse a simple query that searches for "text":
+			QueryParser parser = new QueryParser(Version.LUCENE_35, "fieldname", analyzer);
+			Query query = parser.parse("on-the-fly");
+			ScoreDoc[] hits = isearcher.search(query, null, 1000).scoreDocs;
+			
+			// Iterate through the results:
+			for (int i = 0; i < hits.length; i++) {
+				System.err.println("**** HIT " + i);
+				Document hitDoc = isearcher.doc(hits[i].doc);
+				System.err.println(hitDoc.get("title"));
+			}
+			isearcher.close();
+			ireader.close();
+			directory.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
@@ -125,6 +183,10 @@ public class Onthology {
 			if(Files.exists(makeConceptFilePath(aDir))){
 				String conceptName = makeConceptName(aDir);
 				conceptMap.put(conceptName, new Concept(conceptName, readFile(makeConceptFilePath(aDir).toString()), destDir));
+				Document doc = new Document();
+				doc.add(new Field("title", conceptName, Field.Store.YES, Field.Index.ANALYZED));
+				doc.add(new Field("fieldname", conceptMap.get(conceptName).getText(), Field.Store.YES, Field.Index.ANALYZED));
+				iwriter.addDocument(doc);
 			} else
 				if(Files.exists(makeRemoteFilePath(aDir))){
 					try {
