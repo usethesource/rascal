@@ -81,12 +81,23 @@ public class Bootstrap {
         //    2. build new kernel with old jar loading kernel K' (creating K'')
         //    3. build new kernel with new classes using kernel K'' (creating K'''')
         try { 
+            // this is what is found online already:
             Path phase0Version = getDeployedVersion(tmpDir, versionToUse);
+            
+            // here we use the published version, and the kernel files contained in it, to compile the source code of the new compiler:
             Path phase1Version = compilePhase(1, phase0Version.toAbsolutePath().toString(), tmpDir, "|boot:///|", librarySource);
+            
+            // here we use the published runtime RVM code, and combine it with the newly generated binary code of the previous step to recompile the same source code again:  
             Path phase2Version = compilePhase(2, phase0Version.toAbsolutePath().toString(), tmpDir, phase1Version.toAbsolutePath().toString(), librarySource);
+            
+            // here we switch and use a new runtime (compiled previously outside of this process) with the latest stage of the compiler source we compiled earlier:
             Path phase3Version = compilePhase(3, targetFolder + ":" + classpath, tmpDir, phase2Version.toAbsolutePath().toString(), librarySource);
+            
+            // finally we recompile once more, newest runtime + lastly compiled compiler, but now we draw the source code from the deployed bin folder of the project to make sure all 
+            // source locations are well defined in a deployed setting later:
             Path phase4Version = compilePhase(4, targetFolder + ":" + classpath, tmpDir, phase3Version.toAbsolutePath().toString(), "|std:///|");
             
+            // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
             copyResult(phase4Version, targetFolder.resolve("boot"));
         } 
         catch (BootstrapMessage | IOException | InterruptedException e) {
@@ -164,7 +175,7 @@ public class Bootstrap {
         info("phase " + phase + ": " + result);
        
         if (phase > 3) compileMuLibrary(phase, classPath, bootPath, sourcePath, result);
-        compileModule(phase, classPath, bootPath, sourcePath, result, "Prelude");
+//        compileModule(phase, classPath, bootPath, sourcePath, result, "Prelude");
         compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel");
         compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator");
         
@@ -218,7 +229,7 @@ public class Bootstrap {
     
     private static int runChildProcess(String[] command) throws IOException, InterruptedException {
         synchronized (Bootstrap.class) {
-            info("command: " + Arrays.toString(command));
+            info("command: " + Arrays.stream(command).reduce("", (x,y) -> x + " " + y));
             childProcess = new ProcessBuilder(command).inheritIO().start();
             childProcess.waitFor();
             return childProcess.exitValue();    
