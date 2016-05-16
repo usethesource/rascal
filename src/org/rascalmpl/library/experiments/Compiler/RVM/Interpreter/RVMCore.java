@@ -247,7 +247,6 @@ public abstract class RVMCore {
 	private OverloadedFunction getFirstOverloadedFunctionByNameAndArity(String name, int arity) throws NoSuchRascalFunction {
         for(OverloadedFunction of : overloadedStore) {
             if (of.getName().equals(name)) {
-                System.err.println(of);
                 for (int alt : of.getFunctions()) {
                     if (functionStore[alt].ftype.getArity() == arity) {
                         return of;
@@ -256,6 +255,7 @@ public abstract class RVMCore {
             }
         }
 
+        // ?? why are constructors not part of overloaded functions?
         for(int i = 0; i < constructorStore.size(); i++){
             Type tp = constructorStore.get(i);
             if (tp.getName().equals(name) && tp.getArity() == arity) {
