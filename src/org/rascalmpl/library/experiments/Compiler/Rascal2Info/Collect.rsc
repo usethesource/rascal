@@ -143,7 +143,7 @@ private DeclarationInfo collectFunctionDeclaration(str moduleName, FunctionDecla
 
 str getSynopis(str docContents){
     s = trim(docContents);
-    synopsis = "Synopsis: ";
+    synopsis = ".Synopsis\n";
     if(startsWith(s, synopsis)){
         s = s[size(synopsis) ..];
         return trim(s[ .. findFirst(s, "\n")]);
