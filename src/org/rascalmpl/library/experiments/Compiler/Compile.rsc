@@ -3,8 +3,8 @@ module experiments::Compiler::Compile
  
 import IO;
 import ValueIO;
-import String;
 import Message;
+import String;
 import ParseTree;
 import util::Reflective;
 import util::Benchmark;
