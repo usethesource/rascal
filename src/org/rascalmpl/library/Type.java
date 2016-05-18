@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,13 +33,11 @@ import org.rascalmpl.value.type.TypeStore;
 
 public class Type {
 	private final IValueFactory vf;
-	private final TypeFactory tf;
 	private final IMap emptyMap;
 
 	public Type(IValueFactory vf) {
 		this.vf = vf;
-		this.tf = TypeFactory.getInstance();
-		emptyMap = vf.map(tf.stringType(), tf.valueType());
+		emptyMap = vf.mapWriter().done();
 	}
 	
 	public IValue typeOf(IValue v, IEvaluatorContext ctx) {
