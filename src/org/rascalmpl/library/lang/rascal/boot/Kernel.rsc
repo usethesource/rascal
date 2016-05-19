@@ -10,8 +10,29 @@ module lang::rascal::boot::Kernel
  * An up-to-date, compiled version of the Kernel should always reside in the /boot directory 
  * of the Rascal project
  */
+ 
+ /*
+  * TODO: This module should consist of just 3 extends, however that is currently broken in the compiler
+  */
 
-extend experiments::Compiler::Compile;
-extend experiments::Compiler::Execute;
-extend experiments::Compiler::CompileMuLibrary;
+import experiments::Compiler::Compile;
+import experiments::Compiler::Execute;
+import experiments::Compiler::CompileMuLibrary;
 
+import util::Reflective;
+import experiments::Compiler::RVM::AST;
+
+RVMModule compile(loc moduleLoc, PathConfig pcfg, bool verbose = false) =
+    experiments::Compiler::Compile::compile(moduleLoc, pcfg, verbose=verbose);
+
+RVMModule compile(str qualifiedModuleName, PathConfig pcfg, bool verbose = false) =
+    experiments::Compiler::Compile::compile(qualifiedModuleName, pcfg, verbose=verbose);
+
+RVMModule compileIncremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, bool verbose = false) =
+    experiments::Compiler::Compile::compileIncremental(qualifiedModuleName, reuseConfig, pcfg, verbose=verbose);
+    
+RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool jvm=true, bool verbose = false) =
+    experiments::Compiler::Execute::compileAndLink(qualifiedModuleName, pcfg, jvm=jvm, verbose=verbose);
+    
+list[RVMDeclaration] compileMuLibrary(PathConfig pcfg, bool verbose = false, bool jvm=true) =
+    experiments::Compiler::CompileMuLibrary::compileMuLibrary(pcfg, verbose=verbose,jvm=jvm);
