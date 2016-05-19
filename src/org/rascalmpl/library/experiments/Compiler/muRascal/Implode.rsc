@@ -185,95 +185,8 @@ private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, i
                
                case org_exp: preThrow(MuExp exp1)												=> muThrow(exp1, org_exp@location)
                
-              // Calls that are directly mapped to RascalPrimitives
-                   
-               case org_exp: muCall(preVar(mvar("typeOf")), [exp1])                             => muCallPrim3("typeOf", [exp1], org_exp@location)
-               case org_exp: muCall(preVar(mvar("elementTypeOf")), [exp1])                      => muCallPrim3("elementTypeOf", [exp1], org_exp@location)
-               case org_exp: muCall(preVar(mvar("value_is_subtype")), [exp1, exp2])      		=> muCallPrim3("subtype_value_type", [exp1, exp2], org_exp@location)
-               case org_exp: muCall(preVar(mvar("subtype")), [exp1, exp2])                      => muCallPrim3("subtype", [exp1, exp2], org_exp@location)
-               case org_exp: muCall(preVar(mvar("is_element")), [exp1, exp2])					=> muCallPrim3("elm_in_set", [exp1, exp2], org_exp@\location)
-               case org_exp: muCall(preVar(mvar("subset")), list[MuExp] exps)					=> muCallPrim3("set_lessequal_set", exps, org_exp@location)
-               case org_exp: muCall(preVar(mvar("make_tuple")), list[MuExp] exps)				=> muCallPrim3("tuple_create", exps, org_exp@location)
-               
-               // Calls that are directly mapped to muPrimitives
-               
+               case org_exp: muCall(preVar(mvar(str called_fname)), list[MuExp] exps)           => preprocessMuCall(org_exp, called_fname, exps)
                case muCallMuPrim(str name, list[MuExp] exps)                                    => muCallMuPrim(name[1..-1], exps)          // strip surrounding quotes
-   
-               case muCall(preVar(mvar("get_array")), [ar, index1])								=> muCallMuPrim("subscript_array_mint", [ar, index1])
-               case muCall(preVar(mvar("get_list")), [lst, index1])								=> muCallMuPrim("subscript_list_mint", [lst, index1])
-               case muCall(preVar(mvar("get_tuple")), [tup, index1])							=> muCallMuPrim("subscript_tuple_mint", [tup, index1])
-               case muCall(preVar(mvar("get_mmap")), [m, key])									=> muCallMuPrim("get_mmap", [m, key])
-               case muCall(preVar(mvar("put_array")), [ar, index1, exp1])						=> muCallMuPrim("assign_subscript_array_mint", [ar, index1, exp1])
-               case muCall(preVar(mvar("put_list")),  [lst, index1, exp1])						=> muCallMuPrim("assign_subscript_list_mint", [lst, index1, exp1])
-               case muCall(preVar(mvar("size_array")), [exp1])									=> muCallMuPrim("size_array", [exp1])
-               case muCall(preVar(mvar("size_list")), [exp1])									=> muCallMuPrim("size_list", [exp1])
-               case muCall(preVar(mvar("size_set")), [exp1])									=> muCallMuPrim("size_set", [exp1])
-               case muCall(preVar(mvar("size_mset")), [exp1])									=> muCallMuPrim("size_mset", [exp1])
-               case muCall(preVar(mvar("size_map")), [exp1])									=> muCallMuPrim("size_map", [exp1])
-               case muCall(preVar(mvar("size_str")), [exp1])									=> muCallMuPrim("size_str", [exp1])
-               case muCall(preVar(mvar("size_tuple")), [exp1])									=> muCallMuPrim("size_tuple", [exp1])
-               case muCall(preVar(mvar("size")),[exp1])                             	        => muCallMuPrim("size",[exp1])
-               case muCall(preVar(mvar("is_defined")), [exp1])									=> muCallMuPrim("is_defined", [exp1])
-               case muCall(preVar(mvar("is_tail")), [exp1, exp2, exp3])							=> muCallMuPrim("is_tail_str_str_mint", [exp1, exp2, exp3])
-               case muCall(preVar(mvar("substring")), [exp1, exp2, exp3])						=> muCallMuPrim("substring_str_mint_mint", [exp1, exp2, exp3])
-               case muCall(preVar(mvar("is_element_mset")), [exp1, exp2])						=> muCallMuPrim("is_element_mset", [exp1, exp2])
-               case muCall(preVar(mvar("keys")), [exp1])										=> muCallMuPrim("keys_map", [exp1])
-               case muCall(preVar(mvar("mmap_contains_key")), [exp1, exp2])						=> muCallMuPrim("mmap_contains_key", [exp1, exp2])
-               case muCall(preVar(mvar("values")), [exp1])										=> muCallMuPrim("values_map", [exp1])
-               case muCall(preVar(mvar("set2list")), [exp1])									=> muCallMuPrim("set2list", [exp1])
-               case muCall(preVar(mvar("mset2list")), [exp1])									=> muCallMuPrim("mset2list", [exp1])
-               case muCall(preVar(mvar("equal")), [exp1, exp2])									=> muCallMuPrim("equal", [exp1, exp2])
-               case muCall(preVar(mvar("equal_set_mset")), [exp1, exp2])						=> muCallMuPrim("equal_set_mset", [exp1, exp2])
- 			   case muCall(preVar(mvar("get_children")), [exp1])								=> muCallMuPrim("get_children", [exp1])
-  			   case muCall(preVar(mvar("get_children_and_keyword_mmap")), [exp1])			    => muCallPrim3("get_children_and_keyword_mmap", [exp1], exp1@\location)
-			   case muCall(preVar(mvar("get_name")), [exp1])									=> muCallMuPrim("get_name", [exp1])
-			   case muCall(preVar(mvar("get_name_and_children_and_keyword_mmap")), [exp1])		=> muCallPrim3("get_name_and_children_and_keyword_mmap", [exp1], exp1@\location)
-			   case muCall(preVar(mvar("get_name_and_children")), [exp1])                       => muCallMuPrim("get_name_and_children", [exp1])
-			   case muCall(preVar(mvar("get_children_and_keyword_values")), [exp1])				=> muCallPrim3("get_children_and_keyword_values", [exp1], exp1@\location)
-			   case muCall(preVar(mvar("make_keyword_mmap")), [exp1, exp2])					    => muCallMuPrim("make_keyword_mmap", [exp1, exp2])
-			   case muCall(preVar(mvar("get_keys_mmap")), [exp1])								=> muCallMuPrim("get_keys_mmap", [exp1])
- 			   case muCall(preVar(mvar("get_children_without_layout_or_separators_with_keyword_map")), [exp1])	=> muCallMuPrim("get_children_without_layout_or_separators_with_keyword_map", [exp1])
-               case muCall(preVar(mvar("get_children_without_layout_or_separators_without_keyword_map")), [exp1])  => muCallMuPrim("get_children_without_layout_or_separators_without_keyword_map", [exp1])
- 			   case muCall(preVar(mvar("has_label")), [exp1, exp2])								=> muCallMuPrim("has_label", [exp1, exp2])
-               case muCall(preVar(mvar("typeOfMset")), [exp1])									=> muCallMuPrim("typeOfMset", [exp1])
-               case muCall(preVar(mvar("make_iarray")), [exp1])									=> muCallMuPrim("make_iarray_of_size", [exp1])
-               case muCall(preVar(mvar("make_array")), [exp1])									=> muCallMuPrim("make_array_of_size", [exp1])
-               case muCall(preVar(mvar("max")), [exp1, exp2])									=> muCallMuPrim("max_mint_mint", [exp1, exp2])
-               case muCall(preVar(mvar("min")), [exp1, exp2])									=> muCallMuPrim("min_mint_mint", [exp1, exp2])
-               case muCall(preVar(mvar("starts_with")), [exp1, exp2, exp3])						=> muCallMuPrim("starts_with", [exp1, exp2, exp3])
-               case muCall(preVar(mvar("sublist")), list[MuExp] exps)							=> muCallMuPrim("sublist_list_mint_mint", exps)
-               case muCall(preVar(mvar("occurs")), list[MuExp] exps)							=> muCallMuPrim("occurs_list_list_mint", exps)
-               case muCall(preVar(mvar("subset_set_mset")), list[MuExp] exps)					=> muCallMuPrim("set_is_subset_of_mset", exps)
-               case muCall(preVar(mvar("mset_destructive_subtract_mset")), list[MuExp] exps)	=> muCallMuPrim("mset_destructive_subtract_mset", exps)
-               case muCall(preVar(mvar("mset_destructive_add_mset")), list[MuExp] exps)		 	=> muCallMuPrim("mset_destructive_add_mset", exps)
-               case muCall(preVar(mvar("mset_destructive_add_elm")), list[MuExp] exps)		 	=> muCallMuPrim("mset_destructive_add_elm", exps)
-               case muCall(preVar(mvar("mset_destructive_subtract_elm")), list[MuExp] exps)	 	=> muCallMuPrim("mset_destructive_subtract_elm", exps)
-               case muCall(preVar(mvar("mset_destructive_subtract_set")), list[MuExp] exps)	 	=> muCallMuPrim("mset_destructive_subtract_set", exps)
-               case muCall(preVar(mvar("mset_set_subtract_set")), list[MuExp] exps)	 			=> muCallMuPrim("mset_set_subtract_set", exps)
-               case muCall(preVar(mvar("mset_subtract_mset")), list[MuExp] exps)	            => muCallMuPrim("mset_subtract_mset", exps)
-               case muCall(preVar(mvar("mset_subtract_elm")), list[MuExp] exps)	 	            => muCallMuPrim("mset_subtract_elm", exps)
-               case muCall(preVar(mvar("mset_subtract_set")), list[MuExp] exps)	 	            => muCallMuPrim("mset_subtract_set", exps)
-               case muCall(preVar(mvar("mset")), list[MuExp] exps) 								=> muCallMuPrim("mset", exps)
-               case muCall(preVar(mvar("mset_empty")), list[MuExp] exps) 						=> muCallMuPrim("mset_empty", exps)
-               case muCall(preVar(mvar("set")), list[MuExp] exps) 								=> muCallMuPrim("set", exps)
-               case muCall(preVar(mvar("make_mset")), list[MuExp] exps)							=> muCallMuPrim("make_mset", exps)
-               
-               case muCall(preVar(mvar("get_tuple_elements")), [exp1])							=> muCallMuPrim("get_tuple_elements", [exp1])
-               case muCall(preVar(mvar("println")), list[MuExp] exps)							=> muCallMuPrim("println", exps)						
-               case muCall(preVar(mvar("rint")), list[MuExp] exps) 								=> muCallMuPrim("rint", exps)
-               case muCall(preVar(mvar("mint")), list[MuExp] exps) 								=> muCallMuPrim("mint", exps)
-               case muCall(preVar(mvar("mstr")), list[MuExp] exps) 								=> muCallMuPrim("mstr", exps)
-               case muCall(preVar(mvar("undefine")), list[MuExp] exps) 							=> muCallMuPrim("undefine", exps)
-               
-               case muCall(preVar(mvar("iterator")), [exp1])									=> muCallMuPrim("make_iterator", [exp1])
-               case muCall(preVar(mvar("hasNext")), [exp1])										=> muCallMuPrim("iterator_hasNext", [exp1])
-               case muCall(preVar(mvar("getNext")), [exp1])										=> muCallMuPrim("iterator_next", [exp1])
-               case muCall(preVar(mvar("descendant_iterator")), [exp1, exp2])                   => muCallMuPrim("make_descendant_iterator", [exp1, exp2])
-               
-               // Macro-like function calls that are direcetly translated to a muExpression
-               case muCall(preVar(mvar("GET_SUBJECT_LIST")), [exp1])							=> muCallMuPrim("subscript_array_mint", [exp1, muCon(0)])
-               case muCall(preVar(mvar("GET_SUBJECT_CURSOR")), [exp1])							=> muCallMuPrim("subscript_array_mint", [exp1, muCon(1)])
-               case muCall(preVar(mvar("MAKE_SUBJECT")), [exp1, exp2])							=> muCallMuPrim("make_subject", [exp1, exp2])
                
                // Syntactic constructs that are mapped to muPrimitives
       	       case preLess(MuExp lhs, MuExp rhs)												=> muCallMuPrim("less_mint_mint", [lhs, rhs])
@@ -302,9 +215,6 @@ private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, i
       	       case preFunNN(str modName1,  str name1, int nformals1)                  			=> muFun1(getUID(modName1,[],name1,nformals1))
       	       case preFunN(lrel[str,int] funNames1,  str name1, int nformals1)        			=> muFun2(getUID(modName,funNames1,name1,nformals1), getUID(modName,funNames1))
       	       
-      	       //case org_exp: muAll(list[MuExp] exps)                                            => makeBoolExp("ALL",exps,org_exp@location)
-      	       //case org_exp: muOr(list[MuExp] exps)                                             => makeBoolExp("OR",exps,org_exp@location)
-      	       //case org_exp: muOne2(list[MuExp] exps)                                           => makeSingleValuedBoolExp("ALL",exps,org_exp@location)
       	       
       	       /*
  				* The field 'comma' is a work around given the current semantics of implode 
@@ -328,6 +238,108 @@ private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, i
       } catch e: throw "In muRascal function <modName>::<for(<f,n> <- funNames){><f>::<n>::<}><fname>::<nformals> (uid = <uid>) : <e>";   
     }    
 }
+
+MuExp preprocessMuCall(MuExp org_exp, str fname, list[MuExp] exps){
+    switch(fname){
+    // Calls that are directly mapped to RascalPrimitives
+                   
+    case "typeOf":                  return muCallPrim3("typeOf", exps, org_exp@location);
+    case "elementTypeOf":           return muCallPrim3("elementTypeOf", exps, org_exp@location);
+    case "value_is_subtype":        return muCallPrim3("subtype_value_type", exps, org_exp@location);
+    case "subtype":                 return muCallPrim3("subtype", exps, org_exp@location);
+    case "is_element":              return muCallPrim3("elm_in_set", exps, org_exp@\location);
+    case "subset":                  return muCallPrim3("set_lessequal_set", exps, org_exp@location);
+    case "make_tuple":              return muCallPrim3("tuple_create", exps, org_exp@location);
+               
+    // Calls that are directly mapped to muPrimitives
+                  
+    case "get_array":               return muCallMuPrim("subscript_array_mint", exps);
+    case "get_list":                return muCallMuPrim("subscript_list_mint", exps);
+    case "get_tuple":               return muCallMuPrim("subscript_tuple_mint", exps);
+    case "get_mmap":                return muCallMuPrim("get_mmap", exps);
+    case "put_array":               return muCallMuPrim("assign_subscript_array_mint", exps);
+    case "put_list":                return muCallMuPrim("assign_subscript_list_mint", exps);
+    case "size_array":              return muCallMuPrim("size_array", exps);
+    case "size_list":               return muCallMuPrim("size_list", exps);
+    case "size_set":                return muCallMuPrim("size_set", exps);
+    case "size_mset":               return muCallMuPrim("size_mset", exps);
+    case "size_map":                return muCallMuPrim("size_map", exps);
+    case "size_str":                return muCallMuPrim("size_str", exps);
+    case "size_tuple":              return muCallMuPrim("size_tuple", exps);
+    case "size":                    return muCallMuPrim("size",exps);
+    case "is_defined":              return muCallMuPrim("is_defined", exps);
+    case "is_tail":                 return muCallMuPrim("is_tail_str_str_mint", exps);
+    case "substring":               return muCallMuPrim("substring_str_mint_mint", exps);
+    case "is_element_mset":         return muCallMuPrim("is_element_mset", exps);
+    case "keys":                    return muCallMuPrim("keys_map", exps);
+    case "mmap_contains_key":       return muCallMuPrim("mmap_contains_key", exps);
+    case "values":                  return muCallMuPrim("values_map", exps);
+    case "set2list":                return muCallMuPrim("set2list", exps);
+    case "mset2list":               return muCallMuPrim("mset2list", exps);
+    case "equal":                   return muCallMuPrim("equal", exps);
+    case "equal_set_mset":          return muCallMuPrim("equal_set_mset", exps);
+    case "get_children":            return muCallMuPrim("get_children", exps);
+    case "get_children_and_keyword_mmap":
+                                    return muCallPrim3("get_children_and_keyword_mmap", exps, exps[0]@\location);
+    case "get_name":                return muCallMuPrim("get_name", exps);
+    case "get_name_and_children_and_keyword_mmap":
+                                    return muCallPrim3("get_name_and_children_and_keyword_mmap", exps, exps[0]@\location);
+    case "get_name_and_children":   return muCallMuPrim("get_name_and_children", exps);
+    case "get_children_and_keyword_values":
+                                    return muCallPrim3("get_children_and_keyword_values", exps, exps[0]@\location);
+    case "make_keyword_mmap":       return muCallMuPrim("make_keyword_mmap", exps);
+    case "get_keys_mmap":           return muCallMuPrim("get_keys_mmap", exps);
+    case "get_children_without_layout_or_separators_with_keyword_map":
+                                    return muCallMuPrim("get_children_without_layout_or_separators_with_keyword_map", exps);
+    case "get_children_without_layout_or_separators_without_keyword_map":
+                                    return muCallMuPrim("get_children_without_layout_or_separators_without_keyword_map", exps);
+    case "has_label":               return muCallMuPrim("has_label", exps);
+    case "typeOfMset":              return muCallMuPrim("typeOfMset", exps);
+    case "make_iarray":             return muCallMuPrim("make_iarray_of_size", exps);
+    case "make_array":              return muCallMuPrim("make_array_of_size", exps);
+    case "max":                     return muCallMuPrim("max_mint_mint", exps);
+    case "min":                     return muCallMuPrim("min_mint_mint", exps);
+    case "starts_with":             return muCallMuPrim("starts_with", exps);
+    case "sublist":                 return muCallMuPrim("sublist_list_mint_mint", exps);
+    case "occurs":                  return muCallMuPrim("occurs_list_list_mint", exps);
+    case "subset_set_mset":         return muCallMuPrim("set_is_subset_of_mset", exps);
+    case "mset_destructive_subtract_mset":
+                                    return muCallMuPrim("mset_destructive_subtract_mset", exps);
+    case "mset_destructive_add_mset":
+                                    return muCallMuPrim("mset_destructive_add_mset", exps);
+    case "mset_destructive_add_elm":return muCallMuPrim("mset_destructive_add_elm", exps);
+    case "mset_destructive_subtract_elm":
+                                    return muCallMuPrim("mset_destructive_subtract_elm", exps);
+    case "mset_destructive_subtract_set":
+                                    return muCallMuPrim("mset_destructive_subtract_set", exps);
+    case "mset_set_subtract_set":   return muCallMuPrim("mset_set_subtract_set", exps);
+    case "mset_subtract_mset":      return muCallMuPrim("mset_subtract_mset", exps);
+    case "mset_subtract_elm":       return muCallMuPrim("mset_subtract_elm", exps);
+    case "mset_subtract_set":       return muCallMuPrim("mset_subtract_set", exps);
+    case "mset":                    return muCallMuPrim("mset", exps);
+    case "mset_empty":              return muCallMuPrim("mset_empty", exps);
+    case "set":                     return muCallMuPrim("set", exps);
+    case "make_mset":               return muCallMuPrim("make_mset", exps);
+               
+    case "get_tuple_elements":      return muCallMuPrim("get_tuple_elements", exps);
+    case "println":                 return muCallMuPrim("println", exps);                        
+    case "rint":                    return muCallMuPrim("rint", exps);
+    case "mint":                    return muCallMuPrim("mint", exps);
+    case "mstr":                    return muCallMuPrim("mstr", exps);
+    case "undefine":                return muCallMuPrim("undefine", exps);
+               
+    case "iterator":                return muCallMuPrim("make_iterator", exps);
+    case "hasNext":                 return muCallMuPrim("iterator_hasNext", exps);
+    case "getNext":                 return muCallMuPrim("iterator_next", exps);
+    case "descendant_iterator":     return muCallMuPrim("make_descendant_iterator", exps);
+               
+    // Macro-like function calls that are direcetly translated to a muExpression
+    case "GET_SUBJECT_LIST":        return muCallMuPrim("subscript_array_mint", [exps[0], muCon(0)]);
+    case "GET_SUBJECT_CURSOR":      return muCallMuPrim("subscript_array_mint", [exps[0], muCon(1)]);
+    case "MAKE_SUBJECT":            return muCallMuPrim("make_subject", exps);
+    }
+   return org_exp;
+} 
 
 // Produces multi-valued or backtrack-free expressions
 private MuExp makeBoolExp(str operator, list[MuExp] exps, loc src) {
