@@ -99,7 +99,7 @@ str moduleName2Bin(str moduleName, str ext) =
 
 // Compile and serialize a module and generate a command to move the result to the root of the BOOT directory
 
-str serialize(str moduleName, PathConfig pcfg, bool jvm=false){
+str serialize(str moduleName, PathConfig pcfg, bool jvm=true){
      report("Compiling <moduleName>");
      compileAndLink(moduleName, pcfg, verbose=true, jvm=jvm);
      serialized = getDerivedWriteLoc(moduleName, "rvm.ser.gz", pcfg);
@@ -149,10 +149,10 @@ value build(bool jvm=true, bool full=false){
      muLib = getMuLibraryCompiledWriteLoc(pcfg);
      commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
  
-     //report("Compiling standard library modules");
-     //for(moduleName <- libraryModules){
-     //    compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
-     //}
+     report("Compiling standard library modules");
+     for(moduleName <- libraryModules){
+         compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
+     }
     
      
      commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg, jvm=jvm);
