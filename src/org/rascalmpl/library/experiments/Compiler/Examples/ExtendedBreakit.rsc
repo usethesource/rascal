@@ -1,6 +1,6 @@
 module experiments::Compiler::Examples::ExtendedBreakit
 
-bool f(0) = true;
-default bool f(int i) = false;
+bool FFFFF(0) = true;
+default bool FFFFF(int i) = false;
 
-value main() = f(0);
+value main() = FFFFF(0);
