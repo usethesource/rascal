@@ -27,6 +27,9 @@ RVMModule compile(loc moduleLoc, PathConfig pcfg, bool verbose = false) =
 
 RVMModule compile(str qualifiedModuleName, PathConfig pcfg, bool verbose = false) =
     experiments::Compiler::Compile::compile(qualifiedModuleName, pcfg, verbose=verbose);
+    
+RVMModule compile(str qualifiedModuleName, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir, bool verbose = false) =
+    experiments::Compiler::Compile::compile(qualifiedModuleName, srcPath, libPath, bootDir, binDir, verbose=verbose);
 
 RVMModule compileIncremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, bool verbose = false) =
     experiments::Compiler::Compile::compileIncremental(qualifiedModuleName, reuseConfig, pcfg, verbose=verbose);
