@@ -37,6 +37,7 @@ Export-Package:
  org.rascalmpl.library.lang.java.m3.internal,
  org.rascalmpl.library.lang.jvm.run,
  org.rascalmpl.library.lang.jvm.transform,
+ org.rascalmpl.library.lang.rascal.boot,
  org.rascalmpl.library.lang.rascal.syntax,
  org.rascalmpl.library.lang.rsf,
  org.rascalmpl.library.lang.xml,
