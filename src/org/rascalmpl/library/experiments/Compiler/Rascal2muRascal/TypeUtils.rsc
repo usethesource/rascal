@@ -1026,6 +1026,7 @@ str convert2fuid(UID uid) {
 	}
 	str name = uid2name[uid];
 	
+	//println("convert2fuid: <uid>, <name>");
 	if(containedIn[uid]?) {
 		name = convert2fuid(containedIn[uid]) + "/" + name;
 	} else if(declaredIn[uid]?) {
@@ -1034,24 +1035,12 @@ str convert2fuid(UID uid) {
 	         constructor(_,_,_,inScope,src) := val || 
 	         production(_,_,inScope,_,src) := val ), 
 	        \module(RName mname,loc at) := config.store[inScope]) {
-	        //println("<mname>, <prettyPrintName(mname)>, <declaredIn[uid]>");
+	        //println("<name>, <mname>, <prettyPrintName(mname)>, <declaredIn[uid]>");
 	       
         	if(at.path != src.path) {
-        	    //res =  prettyPrintName(mname) + "/" + name;
-        	    //println("1. convert2fuid(<uid>) =\> <res>");
-        	    //return res;
-        	   
-        	    str path = replaceAll(src.path, ".rsc", "");
-        	    path = replaceFirst(path, "/", "");
-        	    if(src.authority != "") {
-        	        path = substring(path, findFirst(path, "/") + 1);
-        	        // Taking care of a special case 
-        	        path = replaceFirst(path, "org/rascalmpl/library/", "");
-        	    }
-        	    name = replaceAll(path, "/", "::") + "/" + name;
-        	    // println("QUALIFIED NAME IN CASE OF EXTEND: inScope: <at>; src: <src>; qname: <name>");
-        	    //println("2. convert2fuid(<uid>) =\> <name>");
-        	    return name;
+        	   res = getModuleName(src, config.pathConfiguration) + "/" + name;
+        	   //println("1. convert2fuid(<uid>) =\> <res>");
+        	   return res;
 			}
         }
 		name = convert2fuid(declaredIn[uid]) + "/" + name;
