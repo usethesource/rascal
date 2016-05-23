@@ -291,7 +291,8 @@ value allRascalTests(loc binDir=|home:///bin-tests-intp|, bool jvm=false){
   partial_results = [];
   lrel[loc,int,str] all_results = [];
   
-  pcfg = pathConfig(binDir=binDir, libPath=[binDir]);
+  pcfg = pathConfig(srcPath=[|file:///Users/paulklint/git/rascal/src/org/rascalmpl/library|],
+                    binDir=binDir, libPath=[binDir]);
   
   all_results += runTests(basicTests, "lang::rascal::tests::basic", pcfg, jvm=jvm);
   all_results += runTests(functionalityTests, "lang::rascal::tests::functionality", pcfg, jvm=jvm);
