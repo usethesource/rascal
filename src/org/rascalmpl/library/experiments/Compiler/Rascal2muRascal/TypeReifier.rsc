@@ -127,10 +127,12 @@ bool hasManualTag(Production p) =
 public map[Symbol,Production] getGrammar() = cachedGrammar;
 
 private map[Symbol,Production] getGrammar1() {
+    set[Symbol] layoutDefs = layoutDefs(grammar);
+    
 	map[Symbol,Production] definitions =   
-		( nonterminal : \layouts(grammar[nonterminal]) | nonterminal <- grammar ) 
+		( nonterminal : \layouts(grammar[nonterminal], layoutDefs) | nonterminal <- grammar) 
 		+ 
-		( Symbol::\start(nonterminal) : \layouts(Production::choice(Symbol::\start(nonterminal), { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) })) 
+		( Symbol::\start(nonterminal) : \layouts(Production::choice(Symbol::\start(nonterminal), { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) }),{}) 
 		| nonterminal <- starts );
 	if(<str n, Symbol def> <- typeRel, Symbol::\layouts(_) := def) {
  		definitions = reify(def,definitions);
@@ -435,6 +437,9 @@ private type[value] symbolToValue1(Symbol symbol) {
  	return type(symbol, definitions); 
 }
 
+@memo
+set[Symbol] layoutDefs(map[Symbol,Production] prod) = {s | Symbol s <- prod, (layouts(_) := s || label(_,layouts(_)) := s)};
+
 public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] definitions){
     tuple[Symbol symbol, map[Symbol,Production] definitions] tup = <symbol, definitions>;
     
@@ -562,10 +567,11 @@ private map[Symbol,Production] reify1(Symbol symbol, map[Symbol,Production] defi
 		          //println("grammar:\n----------");
             //      for(s <- grammar) println("<s>: <grammar[s]>");
             //      println("----------");
-			      definitions[nonterminal] = \layouts(grammar[nonterminal]); // inserts an active layout
+                  
+			      definitions[nonterminal] = \layouts(grammar[nonterminal], layoutDefs(grammar)); // inserts an active layout
 			      if(nonterminal in starts) {
 				     definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),
-																					   { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) }));
+																					   { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) }),{});
 			      }
 			     //println("Productions[nonterminal]: <productions[nonterminal]>");
 			     //println("Domain(grammar): <domain(grammar)>");
@@ -582,14 +588,15 @@ private map[Symbol,Production] reify1(Symbol symbol, map[Symbol,Production] defi
 private map[Symbol,Production] reify1(Symbol symbol, map[Symbol,Production] definitions) 
 	= { 
 	    set[Symbol] defs = typeRel[name];
+	    set[Symbol] layoutDefs = layoutDefs(definitions);
 		//assert !(Symbol::\adt(name,_) := nonterminal);
 		for(Symbol nonterminal <- defs){
             if(Symbol::\adt(name,_) !:= nonterminal){
 		       if(!definitions[nonterminal]?) {
-			      definitions[nonterminal] = \layouts(grammar[nonterminal]); // inserts an active layout
+			      definitions[nonterminal] = \layouts(grammar[nonterminal], layoutDefs); // inserts an active layout
 			      if(nonterminal in starts) {
 				     definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),
-															    { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) }));
+															    { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) }),{});
 			      }
 			      //println("Productions[nonterminal]: <productions[nonterminal]>");
 			     //println("Domain(grammar): <domain(grammar)>");
@@ -646,35 +653,51 @@ private Production sym2prod(Symbol::\prod(Symbol \type, str name, list[Symbol] p
 default Production sym2prod(Symbol s) { throw "Could not transform the symbol <s> to a Production node"; }
 
 @doc{Intermix with an active layout}
-public Production \layouts(Production prod) {
+public Production \layouts(Production prod, set[Symbol] others) {
   return top-down-break visit (prod) {
     case Production::prod(\start(y),[Symbol x],as)                                  => Production::prod(\start(y),[activeLayout, x, activeLayout],  as)
-    case Production::prod(sort(s),list[Symbol] lhs,as)                              => Production::prod(sort(s),intermix(lhs,activeLayout),as)
-    case Production::prod(\parameterized-sort(s,n),list[Symbol] lhs,as)             => Production::prod(\parameterized-sort(s,n),intermix(lhs,activeLayout),as)
-    case Production::prod(label(t,sort(s)),list[Symbol] lhs,as)                     => Production::prod(label(t,sort(s)),intermix(lhs,activeLayout),as)
-    case Production::prod(label(t,\parameterized-sort(s,n)),list[Symbol] lhs,as)    => Production::prod(label(t,\parameterized-sort(s,n)),intermix(lhs,activeLayout),as) 
+    case Production::prod(sort(s),list[Symbol] lhs,as)                              => Production::prod(sort(s),intermix(lhs,activeLayout, others),as)
+    case Production::prod(\parameterized-sort(s,n),list[Symbol] lhs,as)             => Production::prod(\parameterized-sort(s,n),intermix(lhs,activeLayout,others),as)
+    case Production::prod(label(t,sort(s)),list[Symbol] lhs,as)                     => Production::prod(label(t,sort(s)),intermix(lhs,activeLayout,others),as)
+    case Production::prod(label(t,\parameterized-sort(s,n)),list[Symbol] lhs,as)    => Production::prod(label(t,\parameterized-sort(s,n)),intermix(lhs,activeLayout,others),as) 
   }
 } 
 
-private list[Symbol] intermix(list[Symbol] syms, Symbol l) {
+//private list[Symbol] intermix(list[Symbol] syms, Symbol l) {
+//  if (syms == []) 
+//    return syms;
+//  res = tail([l, regulars(s,l) | s <- syms]);
+//  //println("intermix(<syms>, <l>)\n=\> <res>");
+//  return res;
+//}
+
+list[Symbol] intermix(list[Symbol] syms, Symbol l, set[Symbol] others) {
   if (syms == []) 
     return syms;
-  res = tail([l, regulars(s,l) | s <- syms]);
-  //println("intermix(<syms>, <l>)\n=\> <res>");
-  return res;
+    
+  syms = [ sym is layouts ? sym : regulars(sym, l, others) | sym <- syms ];
+  others += {l};
+  
+  // Note that if a user manually put a layouts symbol, then this code makes sure not to override it and
+  // not to surround it with new layout symbols  
+  while ([*pre, sym1, sym2, *pst] := syms, !(sym1 in others || sym2 in others)) {
+      syms = [*pre, sym1, l, sym2, *pst];
+  }
+  
+  return syms;
 }
 
-private Symbol regulars(Symbol s, Symbol l) {
+private Symbol regulars(Symbol s, Symbol l, set[Symbol] others) {
   return visit(s) {
-    case \iter(Symbol n) => \iter-seps(n,[l])
-    case \iter-star(Symbol n) => \iter-star-seps(n,[l]) 
-    case \iter-seps(Symbol n, [Symbol sep]) => \iter-seps(n,[l,sep,l]) 
-    case \iter-star-seps(Symbol n,[Symbol sep]) => \iter-star-seps(n, [l,sep,l])
-    case \seq(list[Symbol] elems) => \seq(tail([l, e | e <- elems]))
+    case \iter(Symbol n) => \iter-seps(n, [l])
+    case \iter-star(Symbol n) => \iter-star-seps(n, [l]) 
+    case \iter-seps(Symbol n, [Symbol sep]) => \iter-seps(n,[l,sep,l]) when !(sep in others), !(seq([a,_,b]) := sep && (a in others || b in others))
+    case \iter-star-seps(Symbol n,[Symbol sep]) => \iter-star-seps(n, [l, sep, l]) when !(sep in others), !(seq([a,_,b]) := sep && (a in others || b in others))
+    case \seq(list[Symbol] elems) => \seq(intermix(elems, l, others))
   }
 }
 
-public Symbol insertLayout(Symbol s) = regulars(s, activeLayout);
+public Symbol insertLayout(Symbol s) = regulars(s, activeLayout, {});
 
 
 public bool hasField(Symbol s, str fieldName){
