@@ -52,7 +52,7 @@ public class ParserGenerator {
 	private Function newGenerateFunction;
 	private Function createHoleFunction;
 	private static final String packageName = "org.rascalmpl.java.parser.object";
-	private static final boolean debug = false;
+	private static final boolean debug = true;
 	private static final boolean useCompiledParserGenerator = true;
 	
 	static {
@@ -132,6 +132,7 @@ public class ParserGenerator {
 
 	private void debugOutput(String classString, String file) {
 		if (debug) {
+		    System.err.println("Saving debug output in " + file);
 			try (FileOutputStream s = new FileOutputStream(file)) {
 				s.write(classString.getBytes());
 				s.flush();
@@ -198,7 +199,7 @@ public class ParserGenerator {
 	  rex.startJob("Compiled -- Generating new parser:" + name, 100, 60);
 	  try {
 
-		  String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
+		  String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_") + "HALLO";
 		  rex.event("Generating java source code for parser: " + name,30);
 		  IString classString;
 		  if(useCompiledParserGenerator){
@@ -206,13 +207,19 @@ public class ParserGenerator {
 		  } else {
 			  classString = (IString) evaluator.call(rex.getMonitor(), "newGenerate", vf.string(packageName), vf.string(normName), grammar);
 		  }
+		  
+		  debugOutput(grammar.toString(),  System.getProperty("java.io.tmpdir") + "/grammar.trm");
 		  debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
 		  rex.event("Compiling generated java code: " + name, 30);
 		  return bridge.compileJava(loc, packageName + "." + normName, this.getClass(), classString.getValue());
   	}  catch (ClassCastException e) {
-  		throw new CompilerError("parser generator:" + e.getMessage() + e);
+  		throw new CompilerError("parser generator:" + e.getMessage(), e);
   	} catch (Throw e) {
-  		throw new CompilerError("parser generator: " + e.getMessage() + e.getTrace());
+  		throw new CompilerError("parser generator: " + e.getMessage(), e);
+  	} catch (Thrown e) {
+  	    throw new CompilerError("parser generator: " + e.getMessage(), e);
+  	} catch (Throwable e) {
+  	  throw new CompilerError("parser generator: " + e.getMessage(), e);  
   	} finally {
   		rex.endJob(true);
   	}
