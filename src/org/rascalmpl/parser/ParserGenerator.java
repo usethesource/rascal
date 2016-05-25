@@ -46,7 +46,7 @@ public class ParserGenerator {
 	private final JavaBridge bridge;
 	private final IValueFactory vf;
 	private static final String packageName = "org.rascalmpl.java.parser.object";
-	private static final boolean debug = false;
+	private static final boolean debug = true;
 
 	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, List<ClassLoader> loaders, IValueFactory factory, Configuration config) {
 		GlobalEnvironment heap = new GlobalEnvironment();
@@ -121,6 +121,7 @@ public class ParserGenerator {
 			String classString = thing.toString();
 			FileOutputStream s = null;
 			try {
+			    System.err.println("Writing parser to " + file);
 				s = new FileOutputStream(file);
 				s.write(classString.getBytes());
 				s.flush();
