@@ -23,8 +23,6 @@ import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.io.StandardTextReader;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
-
 /**
  * This is experimental code.
  */
