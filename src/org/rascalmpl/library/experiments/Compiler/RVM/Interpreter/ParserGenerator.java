@@ -199,7 +199,7 @@ public class ParserGenerator {
 	  rex.startJob("Compiled -- Generating new parser:" + name, 100, 60);
 	  try {
 
-		  String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_") + "HALLO";
+		  String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
 		  rex.event("Generating java source code for parser: " + name,30);
 		  IString classString;
 		  if(useCompiledParserGenerator){
