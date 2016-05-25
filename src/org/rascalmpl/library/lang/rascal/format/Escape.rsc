@@ -165,7 +165,7 @@ public str makeCharClassChar(int ch){
   }
 }
 
-private list[str] hex = ["<i>" | i <- [0..10]] + ["A","B","C","D","E","F"];
+private list[str] hex = ["<i>" | i <- [0..11]] + ["A","B","C","D","E","F"];
 
 @doc{
   Creates a Rascal escaped string character from a given decimal index into the UTF8 table.
