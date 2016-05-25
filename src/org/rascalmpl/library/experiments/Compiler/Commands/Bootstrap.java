@@ -3,15 +3,27 @@ package org.rascalmpl.library.experiments.Compiler.Commands;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.net.URI;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.io.StandardTextReader;
+import org.rascalmpl.values.ValueFactoryFactory;
+
+import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
 
 /**
  * This is experimental code.
@@ -33,7 +45,7 @@ public class Bootstrap {
         }
     }
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchRascalFunction {
         if (args.length != 5) {
         	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder>");
         	return;
@@ -170,12 +182,12 @@ public class Bootstrap {
         return result;
     }
     
-    private static Path compilePhase(int phase, String classPath, Path tmp, String bootPath, String sourcePath) throws BootstrapMessage, IOException, InterruptedException {
+    private static Path compilePhase(int phase, String classPath, Path tmp, String bootPath, String sourcePath) throws BootstrapMessage, IOException, InterruptedException, NoSuchRascalFunction {
         Path result = phaseFolder(phase, tmp);
         info("phase " + phase + ": " + result);
        
-        if (phase > 3) compileMuLibrary(phase, classPath, bootPath, sourcePath, result);
-//        compileModule(phase, classPath, bootPath, sourcePath, result, "Prelude");
+//        runTests(phase, bootPath, sourcePath, result);
+        compileMuLibrary(phase, classPath, bootPath, sourcePath, result);
         compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel");
         compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator");
         
@@ -196,14 +208,58 @@ public class Bootstrap {
         }
     }
     
-    private static void compileMuLibrary(int phase, String classPath, String bootDir, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage {
+    private static void compileMuLibrary(int phase, String classPath, String bootDir, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage, NoSuchRascalFunction {
         info("\tcompiling MuLibrary");
-        if (runMuLibraryCompiler(classPath, 
-                "--binDir", result.toAbsolutePath().toString(),
-                "--srcPath", sourcePath,
-                "--bootDir", bootDir) != 0) {
-            
-            throw new BootstrapMessage(phase);
+        System.err.println(Arrays.toString(new String[] {"--binDir", "/Users/jurgenv/BINBOOT", "--srcPath", "|std:///|", "--bootDir", "|boot:///|"}));
+        CompileMuLibrary.main(new String[] {"--trace", "--binDir", "/Users/jurgenv/BINBOOT", "--srcPath", "|std:///|", "--bootDir", "|boot:///|", "--libPath", "/Users/jurgenv/BINBOOT" });
+        
+//        if (runMuLibraryCompiler(classPath, 
+//                "--binDir", result.toAbsolutePath().toString(),
+//                "--srcPath", sourcePath,
+//                "--bootDir", bootDir) != 0) {
+//            
+//            throw new BootstrapMessage(phase);
+//        }
+    }
+
+    private static List<String> getRecursiveModuleList(String srcDir) throws IOException {
+        ISourceLocation root = srcDir.startsWith("|") 
+                ? (ISourceLocation) new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), new StringReader(srcDir)) 
+                : ValueFactoryFactory.getValueFactory().sourceLocation(srcDir); 
+
+        root = URIUtil.getChildLocation(root, "lang/rascal/tests");
+        List<String> result = new ArrayList<>();
+        Queue<ISourceLocation> todo = new LinkedList<>();
+        todo.add(root);
+        while (!todo.isEmpty()) {
+            ISourceLocation currentDir = todo.poll();
+            String prefix = currentDir.getPath().replaceFirst(root.getPath(), "").replaceFirst("/", "").replaceAll("/", "::");
+            for (ISourceLocation ent : URIResolverRegistry.getInstance().list(currentDir)) {
+                if (ent.getPath().endsWith(".rsc")) {
+                    if (prefix.isEmpty()) {
+                        result.add("lang::rascal::tests::" + URIUtil.getLocationName(ent).replace(".rsc", ""));
+                    }
+                    else {
+                        result.add("lang::rascal::tests::" + prefix + "::" + URIUtil.getLocationName(ent).replace(".rsc", ""));
+                    }
+                }
+                else {
+                    if (URIResolverRegistry.getInstance().isDirectory(ent)) {
+                        todo.add(ent);
+                    }
+                }
+            }
+        }
+        return result;
+        
+    }
+    
+    private static void runTests(int phase, String bootDir, String sourcePath, Path result) throws IOException, NoSuchRascalFunction {
+        for (String module : getRecursiveModuleList(sourcePath)) { 
+            info("Running " + module + " tests before phase " + phase);
+            if (!module.contains("ReserveTests") && !module.contains("ScopeTests")) {
+                RascalTests.main(new String[] {"--binDir", result.toAbsolutePath().toString(), "--srcPath", sourcePath, "--bootDir", bootDir, module});
+            }
         }
     }
 

@@ -1108,9 +1108,7 @@ public abstract class RVMCore {
 			}
 			
 			throw e.getTargetException();
-//			e.printStackTrace();
 		}
-//		return sp;
 	}
 	
 	private HashSet<String> converted = new HashSet<String>(Arrays.asList(
