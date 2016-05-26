@@ -105,10 +105,10 @@ public class CourseCompiler {
 //		compileCourse("EASY");
 //		compileCourse("Errors");
 //		compileCourse("Rascal");
-//		compileCourse("Libraries");
+		compileCourse("Libraries");
 //		compileCourse("Rascalopedia");
 //		compileCourse("Recipes");
-		compileCourse("SolutionStrategies");
+//		compileCourse("SolutionStrategies");
 //		compileCourse("TutorWebSite");
 		
 	}
