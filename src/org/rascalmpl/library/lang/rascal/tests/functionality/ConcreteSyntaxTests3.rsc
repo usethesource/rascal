@@ -16,10 +16,11 @@ syntax Aas
   return ParseTree::amb(result);
 } 
 
-// TODO (compiler): these tests can only be made to work when the compiled parser generator is integrated
-// and compiled Rascal functions can be called during parse tree construction
+@IgnoreCompiler{TODO: these tests can only be made to work when the compiled parser generator is integrated
+and compiled Rascal functions can be called during parse tree construction}
 test bool resolveableAmbIsGone() = amb(_) !:= parse(#Aas, "a", allowAmbiguity=true);
 
 // this test would throw an exception because the amb constructor would not _statically_ return
 // a tree of type Aas:
+@IgnoreCompiler{TODO: Not implemented}
 test bool twoAmbsLeft() = amb({_,_}) := parse(#Aas, "aa", allowAmbiguity=true);
