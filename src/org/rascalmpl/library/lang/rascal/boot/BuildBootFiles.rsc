@@ -122,7 +122,8 @@ void buildMuLibrary(){
      pcfg = pathConfig(srcPath=[|std:///|], binDir=BINBOOT, libPath=[BINBOOT]);
      commands = "#!/bin/sh\n";
      report("Compiling MuLibrary");
-     compileMuLibrary(pcfg, verbose=true);
+     //compileMuLibrary(pcfg, verbose=true);
+     compileMuLibrary(pcfg.srcPath, pcfg.libPath, pcfg.bootDir, pcfg.binDir)
      muLib = getMuLibraryCompiledWriteLoc(pcfg);
      commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
      writeFile(SHELLSCRIPT, commands);
@@ -132,7 +133,7 @@ void buildMuLibrary(){
 // Build MuLibrary, standard library, ParserGenerator and Kernel
 // Maybe run buildMuLibrary first!
 
-value build(bool jvm=true, bool full=false){
+value build(bool jvm=true, bool full=true){
      println("build: full = <full>, jvm = <jvm>");
 
      pcfg = pathConfig(srcPath=[|std:///|], binDir=BINBOOT, libPath=[BINBOOT]);
@@ -149,22 +150,23 @@ value build(bool jvm=true, bool full=false){
      muLib = getMuLibraryCompiledWriteLoc(pcfg);
      commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
  
-     report("Compiling standard library modules");
-     for(moduleName <- libraryModules){
-         compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
-     }
-    
-     
-     commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg, jvm=jvm);
-     commands += serialize("lang::rascal::boot::Kernel", pcfg, jvm=jvm);
-     
-     if(full){
-        info = collectInfo(libraryModules, pcfg);
-     
-        l = getDerivedWriteLoc("StdLib.info", "gz", pcfg);
-        println("l = <l>");
-        writeBinaryValueFile(l, info);
-     }
+    // report("Compiling standard library modules");
+    // for(moduleName <- libraryModules){
+    //     compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
+    // }
+    //
+    // 
+    // commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg, jvm=jvm);
+    // commands += serialize("lang::rascal::boot::Kernel", pcfg, jvm=jvm);
+    // 
+    // if(full){
+    //    info = collectInfo(libraryModules, pcfg);
+    // 
+    //    l = getDerivedWriteLoc("StdLib.info", "gz", pcfg);
+    //    println("l = <l>");
+    //    writeBinaryValueFile(l, info);
+    //    commands += "cp .<l.path> <BOOT.path>\n";
+    // }
     
      writeFile(SHELLSCRIPT, commands);
      report("Commands written to <SHELLSCRIPT>");
