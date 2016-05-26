@@ -7,12 +7,11 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 
-import org.commonmark.node.Node;
-import org.commonmark.parser.Parser;
+//import org.commonmark.node.Node;
+//import org.commonmark.parser.Parser;
 import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Attribute;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.highlighter.RascalHighlighter;
-import org.rascalmpl.library.experiments.tutor3.commonmark.AnsiRenderer;
+//import org.rascalmpl.library.experiments.tutor3.commonmark.AnsiRenderer;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISet;
@@ -35,25 +34,25 @@ public class HelpManager {
 	private ISourceLocation StdLibInfo;
 	private ISet declarationInfo = null;
 	private static final int FILE_BUFFER_SIZE = 8 * 1024;
-	private Parser cmparser;
-	private AnsiRenderer ansiRenderer;
+//	private Parser cmparser;
+//	private AnsiRenderer ansiRenderer;
 
 	public HelpManager(PrintWriter stdout, PrintWriter stderr){
 		this.stdout = stdout;
 		this.stderr = stderr;
 		vf = ValueFactoryFactory.getValueFactory();
 		
-		cmparser = Parser.builder().build();
+//		cmparser = Parser.builder().build();
 		
 		RascalHighlighter highlighter = new RascalHighlighter()
 				.setKeywordMarkup(Ansi.ansi().reset().bold().toString(), 
 							      Ansi.ansi().reset().boldOff().toString())
 				.setCommentMarkup(Ansi.ansi().reset().fg(Ansi.Color.GREEN).toString(), 
 								  Ansi.ansi().reset().fg(Ansi.Color.BLACK).toString());
-		ansiRenderer =  AnsiRenderer.builder().setHighlighter(highlighter)
-				.setEmphasisMarkup(Ansi.ansi().a(Attribute.ITALIC).toString(), Ansi.ansi().a(Attribute.ITALIC_OFF).toString())
-				.setStrongMarkup(Ansi.ansi().a(Attribute.INTENSITY_BOLD).toString(), Ansi.ansi().a(Attribute.INTENSITY_BOLD_OFF).toString())
-				.build();
+//		ansiRenderer =  AnsiRenderer.builder().setHighlighter(highlighter)
+//				.setEmphasisMarkup(Ansi.ansi().a(Attribute.ITALIC).toString(), Ansi.ansi().a(Attribute.ITALIC_OFF).toString())
+//				.setStrongMarkup(Ansi.ansi().a(Attribute.INTENSITY_BOLD).toString(), Ansi.ansi().a(Attribute.INTENSITY_BOLD_OFF).toString())
+//				.build();
 	}
 	
 	public void printHelp(String[] words){
@@ -169,8 +168,9 @@ public class HelpManager {
 	}
 	
 	void printConcept(String concept){
-		Node document = cmparser.parse(concept);
-		stdout.println(ansiRenderer.render(document));
+//		Node document = cmparser.parse(concept);
+//		stdout.println(ansiRenderer.render(document))
+		stdout.println(concept);
 //		String[] lines = concept.split("\n");
 //		for(String line : lines){
 //			if(line.startsWith("Questions")){
