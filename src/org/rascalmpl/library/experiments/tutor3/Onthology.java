@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -32,13 +33,18 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.KWParams;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.uri.URIResolverRegistry;
-
+import org.rascalmpl.library.experiments.Compiler.RascalExtraction.RascalExtraction;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
+import org.rascalmpl.value.io.StandardTextReader;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
@@ -50,7 +56,7 @@ public class Onthology {
 	
 	Map<String,Concept> conceptMap;
 	private IValueFactory vf;
-	private RascalUtils rascalUtils;
+	private RascalExtraction rascalExtraction;
 	private Path courseName;
 	
 	private RascalCommandExecutor executor;
@@ -58,7 +64,7 @@ public class Onthology {
 
 	public Onthology(Path srcDir, Path destDir, PrintWriter err) throws IOException, NoSuchRascalFunction{
 		this.vf = ValueFactoryFactory.getValueFactory();
-		this.rascalUtils = new RascalUtils(vf);
+		this.rascalExtraction = new RascalExtraction(vf);
 		this.srcDir = srcDir;
 		this.destDir = destDir;
 
@@ -70,13 +76,12 @@ public class Onthology {
 		Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_35);
 
 		// Store the index in memory:
-		//Directory directory = new RAMDirectory();
+		// Directory directory = new RAMDirectory();
 		// To store an index on disk, use this instead:
 		Directory directory = null;
 		try {
 			directory = FSDirectory.open(destDir.toFile());
-			iwriter = new IndexWriter(directory, analyzer, true,
-					new IndexWriter.MaxFieldLength(25000));
+			iwriter = new IndexWriter(directory, analyzer, true, new IndexWriter.MaxFieldLength(25000));
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -142,9 +147,20 @@ public class Onthology {
 	    return result.toString();	
 	}
 	
-	private static ISourceLocation readLocFromFile(String file) throws IOException{
-		String s = readFile(file);
-		return ValueFactoryFactory.getValueFactory().sourceLocation(s);
+	ISourceLocation readLocFromFile(String file) {
+		TypeStore store = new TypeStore();
+		
+		Type start = TypeFactory.getInstance().sourceLocationType();
+		
+		try (StringReader in = new StringReader(readFile(file))) {
+			return (ISourceLocation) new StandardTextReader().read(vf, store, start, in);
+		}
+		catch (FactTypeUseException e) {
+			throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
+		} 
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
+		}
 	}
 	
 	private Path makeConceptFilePath(Path p){
@@ -189,22 +205,12 @@ public class Onthology {
 				iwriter.addDocument(doc);
 			} else
 				if(Files.exists(makeRemoteFilePath(aDir))){
-					try {
-						String remote = readFile(makeRemoteFilePath(aDir).toString());
-						if(remote.endsWith("\n")){
-							remote = remote.substring(0,  remote.length()-1);
-						}
-						remote = remote.trim();
+						ISourceLocation remoteLoc = readLocFromFile(makeRemoteFilePath(aDir).toString());
 						String parentName = aDir.getName(aDir.getNameCount()-2).toString();
 						String remoteConceptName = makeConceptName(aDir);
-						
-						System.err.println(remote + ": " + remoteConceptName);
-						IString remoteConceptText = rascalUtils.extractRemoteConcepts(vf.string(parentName), vf.string(remote), new KWParams(vf).build());
+						IString remoteConceptText = rascalExtraction.extractDoc(vf.string(parentName), remoteLoc, new KWParams(vf).build());
 						System.err.println(remoteConceptText.getValue());
 						conceptMap.put(remoteConceptName, new Concept(remoteConceptName, remoteConceptText.getValue(), destDir));
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
 				}
 			return FileVisitResult.CONTINUE;
 		}
