@@ -86,29 +86,34 @@ public class Bootstrap {
         }
         
         // We bootstrap in three + one stages, in each step generating a new Kernel file using an existing version:
-        //    0. download a released version
-        //    1. build new kernel with old jar using kernel inside the jar (creating K')
-        //    2. build new kernel with old jar loading kernel K' (creating K'')
-        //    3. build new kernel with new classes using kernel K'' (creating K'''')
+        //    -1. targetFolder contains what is found online already:
+        //        - compiled classes for new RVM classes (newRVMClasses)
+        //        - copied new source files of the Rascal compiler (newRascalCompilerSources) and library (newLibrarySources)
+        //    0. download a released version (phase0)
+        //       contains:
+        //       - class files of compiled RVM Java code (OldRVMClasses)
+        //       - linked Kernel (OldKernel = Kernel.rvm.ser.gz, muLibrary.rvm.gz, ParserGenerator.rvm.ser.gz + all compiled Rascal libraries)
+        //       - old source code of the Rascal compiler (OldCompilerSources)
+        //    1. build new kernel with old jar (OldRVMClasses) using OldKernel from the newCompilerSources (from librarySource), creating phase1
+        //       phase1 consists of:
+        //       - linked Kernel (newKernel1)
+        //    2. build newKernel2 using newKernel1 and OldRVMClasses, because newKernel1 was still compiled with the old compiler)
+        //    3. build newKernel3 using newKernel2 with newRVMClasses using newKernel2,  because newKernel2 was compiled with new compiler which may depend on changes in the RVM.
+        //    4. build newKernel4 with new classes using newKernels using newRascalCompilerSources and newLibrarySources (effectively setting the source path back to std)
         try { 
-            // this is what is found online already:
-            Path phase0Version = getDeployedVersion(tmpDir, versionToUse);
+        
+            Path oldKernel = getDeployedVersion(tmpDir, versionToUse);
             
-            // here we use the published version, and the kernel files contained in it, to compile the source code of the new compiler:
-            Path phase1Version = compilePhase(1, phase0Version.toAbsolutePath().toString(), tmpDir, "|boot:///|", librarySource);
+            Path newKernel1 = compilePhase(1, oldKernel.toAbsolutePath().toString(), tmpDir, "|boot:///|", librarySource);
             
-            // here we use the published runtime RVM code, and combine it with the newly generated binary code of the previous step to recompile the same source code again:  
-            Path phase2Version = compilePhase(2, phase0Version.toAbsolutePath().toString(), tmpDir, phase1Version.toAbsolutePath().toString(), librarySource);
+            Path newKernel2 = compilePhase(2, oldKernel.toAbsolutePath().toString(), tmpDir, newKernel1.toAbsolutePath().toString(), librarySource);
             
-            // here we switch and use a new runtime (compiled previously outside of this process) with the latest stage of the compiler source we compiled earlier:
-            Path phase3Version = compilePhase(3, targetFolder + ":" + classpath, tmpDir, phase2Version.toAbsolutePath().toString(), librarySource);
+            Path newKernel3 = compilePhase(3, targetFolder + ":" + classpath, tmpDir, newKernel2.toAbsolutePath().toString(), librarySource);
             
-            // finally we recompile once more, newest runtime + lastly compiled compiler, but now we draw the source code from the deployed bin folder of the project to make sure all 
-            // source locations are well defined in a deployed setting later:
-            Path phase4Version = compilePhase(4, targetFolder + ":" + classpath, tmpDir, phase3Version.toAbsolutePath().toString(), "|std:///|");
+            Path newKernel4 = compilePhase(4, targetFolder + ":" + classpath, tmpDir, newKernel3.toAbsolutePath().toString(), "|std:///|");
             
             // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
-            copyResult(phase4Version, targetFolder.resolve("boot"));
+            copyResult(newKernel4, targetFolder.resolve("boot"));
         } 
         catch (BootstrapMessage | IOException | InterruptedException e) {
             info(e.getMessage());
