@@ -59,7 +59,7 @@ public class RascalTests {
 				.forModule(cmdOpts.getRascalModule().getValue())
 				.build();
 
-		Kernel kernel = new Kernel(vf, rex);
+		Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("bootDir"));
 
 		kernel.rascalTests(
 				cmdOpts.getRascalModules(),
