@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
@@ -17,6 +18,11 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -35,6 +41,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Trave
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.FIXEDPOINT;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.PROGRESS;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.REBUILD;
+import org.rascalmpl.library.lang.json.io.JSONWritingValueVisitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
@@ -55,12 +62,20 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.StandardTextWriter;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import com.google.gson.Gson;
+import com.google.gson.internal.bind.JsonTreeWriter;
+import com.google.gson.stream.JsonWriter;
+
+import fi.iki.elonen.NanoHTTPD;
+import fi.iki.elonen.NanoHTTPD.Response.Status;
+
 public abstract class RVMCore {
-	public final IValueFactory vf;
+	public static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
 	protected final TypeFactory tf; 
 	
@@ -146,7 +161,6 @@ public abstract class RVMCore {
 		this.classCache = new HashMap<String, Class<?>>();
 		this.classLoaders = rex.getClassLoaders();
 		
-		this.vf = rex.getValueFactory();
 		tf = TypeFactory.getInstance();
 		this.stdout = rex.getStdOut();
 		this.stderr = rex.getStdErr();
@@ -193,6 +207,37 @@ public abstract class RVMCore {
 	public <T> T asInterface(Class<T> interf) {
 	    return interf.cast(Proxy.newProxyInstance(RVMCore.class.getClassLoader(), new Class<?> [] { interf }, new ProxyInvocationHandler(this, interf)));
 	}
+	
+	/**
+	 * Wrap the program in a Java Servlet, but only for the functions listed in the interf parameter.
+	 * 
+	 * * The Servlet will return only JSON values.
+	 * * The called functions do not take parameters, only string keyword parameters 
+	 * 
+	 * @param interf the servlet interface is restricted to the functions names in this interface
+	 *               for security reasons
+	 * @return Servlet to be plugged into any application server offering the Servlet API
+	 */
+	public HttpServlet asServlet(Class<?> interf) {
+	    return new Servlet(this, interf);
+	}
+	
+	/**
+     * Wrap the program in NanoHttpD web server, but only for the functions listed in the interf parameter.
+     * 
+     * * The Server will return only JSON values.
+     * * The called functions do not take parameters, only string keyword parameters 
+     * 
+     * @param interf the servlet interface is restricted to the functions names in this interface
+     *               for security reasons
+     * @param host   web hostname, e.g. "localhost"
+     * @param port   web port, e.g. 8080              
+     * @return NanoHTTPD server which can be started, stopped at leasure
+     */
+	public NanoHTTPD asServer(Class<?> interf, String host, int port) {
+	    return new Server(this, host, port);
+	}
+	
 	
 	public PrintWriter getStdErr() { return rex.getStdErr(); }
 	
@@ -594,6 +639,81 @@ public abstract class RVMCore {
 		return (repr.length() < w) ? repr : repr.substring(0, w) + "...";
 	}
 	
+	private static class Server extends NanoHTTPD {
+	    private final RVMCore core;
+
+        public Server(RVMCore core, String host, int port) {
+	        super(host, port);
+	        this.core = core;
+        }
+	    
+        @Override
+        public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms, Map<String, String> files) {
+            try (JsonWriter json = new JsonWriter(new StringWriter())) {
+                String functionName = uri;
+                OverloadedFunction f = core.getFirstOverloadedFunctionByNameAndArity(functionName, 0);
+                IValue result = core.executeRVMFunction(f, prepareArguments(parms));
+                result.accept(new JSONWritingValueVisitor(json, true));
+                return new Response(Status.ACCEPTED,"application/json", json.toString());
+            } catch (NoSuchRascalFunction | IOException e) {
+                return new Response(Status.NOT_FOUND,"text/html", "No such Rascal function");
+            } catch (Throwable e) {
+                return new Response(Status.INTERNAL_ERROR, "text/html", e.getMessage());
+            }
+        }
+        
+        static IValue[] prepareArguments(Map<String,String> params) {
+            IMapWriter m = vf.mapWriter();
+            
+            for (Entry<String,String> e : params.entrySet()) {
+                String key = e.getKey();
+                String value = e.getValue();
+                m.put(vf.string(key), vf.string(value));
+            }
+            
+            return new IValue[] { m.done() };
+        }
+	    
+	}
+	
+	private static class Servlet extends HttpServlet {
+        private static final long serialVersionUID = 1L;
+        private final RVMCore core;
+        private final Class<?> interf;
+
+        public Servlet(RVMCore core, Class<?> interf) {
+	        this.core = core;
+	        this.interf = interf;
+        }
+        
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            try (JsonWriter json = new JsonWriter(resp.getWriter())) {
+                resp.setContentType("application/json");
+                resp.setCharacterEncoding("UTF-8");
+                Map<String, String[]> params = req.getParameterMap();
+                String functionName = req.getContextPath().substring(1);
+                OverloadedFunction f = core.getFirstOverloadedFunctionByNameAndArity(functionName, 0);
+                IValue result = core.executeRVMFunction(f, prepareArguments(params));
+                result.accept(new JSONWritingValueVisitor(json, true));
+            } catch (NoSuchRascalFunction e) {
+                throw new ServletException(e);
+            }
+        }
+        
+        IValue[] prepareArguments(Map<String,String[]> params) {
+            IMapWriter m = vf.mapWriter();
+            
+            for (Entry<String,String[]> e : params.entrySet()) {
+                String key = e.getKey();
+                String[] value = e.getValue();
+                m.put(vf.string(key), (value.length == 1) ? vf.string(value[0]) : vf.list(Arrays.stream(value).map(x -> vf.string(x)).toArray(IValue[]::new)));
+            }
+            
+            return new IValue[] { m.done() };
+        }
+	}
+	
 	private static class ProxyInvocationHandler implements InvocationHandler {
 	    private final RVMCore core;
 
@@ -619,6 +739,8 @@ public abstract class RVMCore {
                 OverloadedFunction f = core.getFirstOverloadedFunctionByNameAndArity(method.getName(), method.getParameterCount());
                 return core.executeRVMFunction(f, prepareArguments(args, false));
             }
+            
+            
 	    }
 
         private IValue[] prepareArguments(Object[] args, boolean skipKeywordArguments) {
