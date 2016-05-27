@@ -22,7 +22,10 @@ public class CallTraceObserver implements IFrameObserver {
 
 	@Override
 	public boolean leave(Frame frame, Object rval) {
-		 frame.printLeave(stdout, rval);
-		 return true;
+	    if (frame != null) {
+	        frame.printLeave(stdout, rval);
+	    }
+	    
+	    return true;
 	}
 }
