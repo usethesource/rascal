@@ -13,6 +13,6 @@ syntax C = {"a" ","}*;
 syntax D = {"a" (Manual "," Manual)}*;
 
 test bool layoutA() = /prod(sort("A"),[lit("a"),layouts("Auto"),lit("b"),layouts("Auto"),lit("c")],_) := #A.definitions[sort("A")];
-test bool layoutB() = /prod(sort("B"),[lit("a"),layouts("Manual"),lit("b"),layouts("Auto"),lit("c")],_) := #A.definitions[sort("B")];
-test bool layoutC() = /prod(sort("C"),[\iter-star-seps(lit("a"),[layouts("Auto"),lit(","),layouts("Auto")])],_) := #A.definitions[sort("C")];
-test bool layoutD() = /prod(sort("D"),[\iter-star-seps(lit("a"),[seq([layouts("Manual"),lit(","),layouts("Manual")])])],_) := #A.definitions[sort("D")];
+test bool layoutB() = /prod(sort("B"),[lit("a"),layouts("Manual"),lit("b"),layouts("Auto"),lit("c")],_) := #B.definitions[sort("B")];
+test bool layoutC() = /prod(sort("C"),[\iter-star-seps(lit("a"),[layouts("Auto"),lit(","),layouts("Auto")])],_) := #C.definitions[sort("C")];
+test bool layoutD() = /prod(sort("D"),[\iter-star-seps(lit("a"),[seq([layouts("Manual"),lit(","),layouts("Manual")])])],_) := #D.definitions[sort("D")];
