@@ -381,9 +381,7 @@ public class ParsingTools {
 	    catch (ParseError e) {
 	      ISourceLocation loc = TreeAdapter.getLocation((ITree) tree);
 	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
-	      rex.getStdErr().println("***** WARNING: parseFragment, parse error at " + src);
-	      //getMonitor().warning("parse error in concrete syntax", src);
-	      return (ITree) tree.asAnnotatable().setAnnotation("parseError", src);
+	      throw RascalRuntimeException.parseError(src, null);
 	    }
 	  }
 	  
