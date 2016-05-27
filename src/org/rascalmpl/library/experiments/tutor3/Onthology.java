@@ -211,6 +211,11 @@ public class Onthology {
 						IString remoteConceptText = rascalExtraction.extractDoc(vf.string(parentName), remoteLoc, new KWParams(vf).build());
 						System.err.println(remoteConceptText.getValue());
 						conceptMap.put(remoteConceptName, new Concept(remoteConceptName, remoteConceptText.getValue(), destDir));
+						
+						Document doc = new Document();
+						doc.add(new Field("title", remoteConceptName, Field.Store.YES, Field.Index.ANALYZED));
+						doc.add(new Field("fieldname", conceptMap.get(remoteConceptName).getText(), Field.Store.YES, Field.Index.ANALYZED));
+						iwriter.addDocument(doc);
 				}
 			return FileVisitResult.CONTINUE;
 		}
