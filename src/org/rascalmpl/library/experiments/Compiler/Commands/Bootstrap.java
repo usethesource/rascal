@@ -3,25 +3,16 @@ package org.rascalmpl.library.experiments.Compiler.Commands;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.net.URI;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.io.StandardTextReader;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * This is experimental code.
@@ -189,7 +180,28 @@ public class Bootstrap {
         Path result = phaseFolder(phase, tmp);
         info("phase " + phase + ": " + result);
        
-//        runTests(phase, bootPath, sourcePath, result);
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Booleans");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Equality");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Exceptions");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Functions");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Matching");
+        
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Integers");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::IO");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::IsDefined");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::ListRelations");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Lists");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Locations");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Maps");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Overloading");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Nodes");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Memoization");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Relations");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Sets");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Strings");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Tuples");
+        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::functionality::ConcreteSyntaxTests5");
+        
         compileMuLibrary(phase, classPath, bootPath, sourcePath, result);
         compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel");
         compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator");
@@ -213,56 +225,27 @@ public class Bootstrap {
     
     private static void compileMuLibrary(int phase, String classPath, String bootDir, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage, NoSuchRascalFunction {
         info("\tcompiling MuLibrary");
-        System.err.println(Arrays.toString(new String[] {"--binDir", "/Users/jurgenv/BINBOOT", "--srcPath", "|std:///|", "--bootDir", "|boot:///|"}));
-        CompileMuLibrary.main(new String[] {"--trace", "--binDir", "/Users/jurgenv/BINBOOT", "--srcPath", "|std:///|", "--bootDir", "|boot:///|", "--libPath", "/Users/jurgenv/BINBOOT" });
         
-//        if (runMuLibraryCompiler(classPath, 
-//                "--binDir", result.toAbsolutePath().toString(),
-//                "--srcPath", sourcePath,
-//                "--bootDir", bootDir) != 0) {
-//            
-//            throw new BootstrapMessage(phase);
-//        }
-    }
-
-    private static List<String> getRecursiveModuleList(String srcDir) throws IOException {
-        ISourceLocation root = srcDir.startsWith("|") 
-                ? (ISourceLocation) new StandardTextReader().read(ValueFactoryFactory.getValueFactory(), new StringReader(srcDir)) 
-                : ValueFactoryFactory.getValueFactory().sourceLocation(srcDir); 
-
-        root = URIUtil.getChildLocation(root, "lang/rascal/tests");
-        List<String> result = new ArrayList<>();
-        Queue<ISourceLocation> todo = new LinkedList<>();
-        todo.add(root);
-        while (!todo.isEmpty()) {
-            ISourceLocation currentDir = todo.poll();
-            String prefix = currentDir.getPath().replaceFirst(root.getPath(), "").replaceFirst("/", "").replaceAll("/", "::");
-            for (ISourceLocation ent : URIResolverRegistry.getInstance().list(currentDir)) {
-                if (ent.getPath().endsWith(".rsc")) {
-                    if (prefix.isEmpty()) {
-                        result.add("lang::rascal::tests::" + URIUtil.getLocationName(ent).replace(".rsc", ""));
-                    }
-                    else {
-                        result.add("lang::rascal::tests::" + prefix + "::" + URIUtil.getLocationName(ent).replace(".rsc", ""));
-                    }
-                }
-                else {
-                    if (URIResolverRegistry.getInstance().isDirectory(ent)) {
-                        todo.add(ent);
-                    }
-                }
-            }
+        if (runMuLibraryCompiler(classPath, 
+                "--binDir", result.toAbsolutePath().toString(),
+                "--srcPath", sourcePath,
+                "--bootDir", bootDir) != 0) {
+            
+            throw new BootstrapMessage(phase);
         }
-        return result;
-        
     }
-    
-    private static void runTests(int phase, String bootDir, String sourcePath, Path result) throws IOException, NoSuchRascalFunction {
-        for (String module : getRecursiveModuleList(sourcePath)) { 
-            info("Running " + module + " tests before phase " + phase);
-            if (!module.contains("ReserveTests") && !module.contains("ScopeTests")) {
-                RascalTests.main(new String[] {"--binDir", result.toAbsolutePath().toString(), "--srcPath", sourcePath, "--bootDir", bootDir, module});
-            }
+
+    private static void runTests(int phase, String classPath, String bootDir, String sourcePath, Path result, String module) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
+        info("Running tests of " + module + " before the next phase " + phase);
+        String[] arguments = new String[] {"--binDir", result.toAbsolutePath().toString(), "--srcPath", sourcePath, "--bootDir", bootDir, module/*"experiments::Compiler::Tests::AllRascalTests"*/};
+        String[] command = new String[arguments.length + 4];
+        command[0] = "java";
+        command[1] = "-cp";
+        command[2] = classPath;
+        command[3] = "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests";
+        System.arraycopy(arguments, 0, command, 4, arguments.length);
+        if (runChildProcess(command) != 0) {
+            throw new BootstrapMessage(phase);
         }
     }
 
@@ -296,6 +279,6 @@ public class Bootstrap {
     }
     
     private static void info(String msg) {
-        System.err.println("INFO:" + msg);
+        System.err.println("BOOTSTRAP:" + msg);
     }
 }
