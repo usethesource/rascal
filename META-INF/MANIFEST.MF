@@ -101,7 +101,8 @@ Require-Bundle:
  org.junit,
  org.eclipse.jdt.core,
  org.apache.lucene.core;bundle-version="3.5.0",
- org.apache.lucene.analysis;bundle-version="3.5.0"
+ org.apache.lucene.analysis;bundle-version="3.5.0",
+ javax.servlet;bundle-version="3.1.0"
 Import-Package: com.google.gson;version="2.1.0",
  com.google.gson.annotations;version="2.1.0",
  com.google.gson.internal;version="2.1.0",
