@@ -56,6 +56,8 @@ public class ExecuteProgram {
 			    rex.addClassLoader(l);
 			}
 			
+			rex.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
+			
 			return ExecutionTools.executeProgram(executable, keywordArguments, rex);
 		} else {
 			throw new IOException("Cannot execute program with errors: " + executable.getErrors().toString());
@@ -113,6 +115,8 @@ public class ExecuteProgram {
             for (ClassLoader l : ctx.getEvaluator().getClassLoaders()) {
                 rex.addClassLoader(l);
             }
+            
+            rex.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
             
 			return ExecutionTools.executeProgram(executable, keywordArguments, rex);
 		} else {
