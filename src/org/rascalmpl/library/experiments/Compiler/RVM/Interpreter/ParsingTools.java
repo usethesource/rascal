@@ -326,6 +326,9 @@ public class ParsingTools {
 				  .withModuleTags(w.done())
 				  .customSearchPath(ctx.getEvaluator().getRascalResolver())
 				  .build();
+		  
+		  rex.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
+		  
 		  return parseFragment1(name, start, tree, loc, grammar, rex);
 	  }
 		
