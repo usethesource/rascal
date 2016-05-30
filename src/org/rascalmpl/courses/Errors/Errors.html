@@ -1972,7 +1972,7 @@ datetime: $2013-07-15T09:15:23.123+03:00$</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error">rascal&gt;$2010-15-15T09:15:23.123+03:00$;
-[error] Unexpected exception EXCEPTION in translateFunctionDeclaration, compiling main: IO("Cannot create datetime with provided values.") IN 'module ConsoleInput
+[error] Unexpected compiler exception EXCEPTION in translateFunctionDeclaration, compiling main: IO("Cannot create datetime with provided values.") IN 'module ConsoleInput
 
 value main() = $2010-15-15T09:15:23.123+03:00$;'</code></pre>
 </div>
@@ -3201,16 +3201,16 @@ at test-modules:///ConsoleInput.rsc offset=25 length=1 begin=1:5 end=1:6
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.executeRVMFunction(RVMonJVM.java:138)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMJVM.executeRVMFunction(RVMJVM.java:80)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore.executeRVMFunction(RVMCore.java:385)
-	at org.rascalmpl.library.lang.rascal.boot.Kernel.compileAndMergeIncremental(Kernel.java:92)
+	at org.rascalmpl.library.lang.rascal.boot.Kernel.compileAndMergeIncremental(Kernel.java:103)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.executeModule(CommandExecutor.java:215)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalStatement(CommandExecutor.java:388)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:287)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:273)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:61)
-	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:217)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.&lt;init&gt;(Onthology.java:113)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:74)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:106)
+	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:221)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.&lt;init&gt;(Onthology.java:114)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:75)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
 ok</code></pre>
 </div>
 </div>
@@ -4000,7 +4000,7 @@ rascal&gt;&lt;1, 2, 3&gt;[5,6];
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-05-29 23:32:07 CEST
+Last updated 2016-05-30 23:02:59 CEST
 </div>
 </div>
 </body>
