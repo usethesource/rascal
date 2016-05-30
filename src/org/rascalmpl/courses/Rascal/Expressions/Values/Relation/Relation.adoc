@@ -6,6 +6,9 @@
 .Synopsis
 Relation values.
 
+.Index
+{ } rel
+
 .Syntax
 `{ < _Exp~11~_, _Exp~12~_, ... > , < _Exp~21~_, _Exp_~22~, ... > , ... }`
 

@@ -43,28 +43,10 @@ The function `load` can be used as follows:
 rascal>import demo::lang::Pico::Load;
 ok
 rascal>load("begin declare x : natural; x := 3 end");
-PROGRAM: program(
-  [decl(
-      "x",
-      natural()[
-        @location=|unknown:///|(18,7,<1,18>,<1,25>),
-        @comments=()
-      ])[
-      @location=|unknown:///|(14,11,<1,14>,<1,25>),
-      @comments=()
-    ]],
-  [asgStat(
-      "x",
-      natCon(3)[
-        @location=|unknown:///|(32,1,<1,32>,<1,33>),
-        @comments=()
-      ])[
-      @location=|unknown:///|(27,6,<1,27>,<1,33>),
-      @comments=()
-    ]])[
-  @location=|unknown:///|(0,37,<1,0>,<1,37>),
-  @comments=()
-]
+ParseError(|unknown:///|(17,1,<1,17>,<1,18>))
+No call stack available
+
+ok
 ----
 
 Observe how the various parts of the abstract syntax tree are annotated with location attributes.

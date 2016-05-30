@@ -6,6 +6,9 @@
 .Synopsis
 Append an element to the list value produced by various loop statements.
 
+.Index
+append
+
 .Syntax
 `append _Exp_`
 

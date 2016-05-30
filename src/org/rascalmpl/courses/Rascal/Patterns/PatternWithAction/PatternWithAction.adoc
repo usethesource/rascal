@@ -6,6 +6,9 @@
 .Synopsis
 A pattern with an associated action that is executed on a successful match.
 
+.Index
+=> :
+
 .Syntax
 
 *  `_Pattern_ => _Exp_`

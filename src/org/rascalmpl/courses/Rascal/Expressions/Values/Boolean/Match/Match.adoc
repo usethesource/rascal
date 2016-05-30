@@ -6,6 +6,9 @@
 .Synopsis
 Match a pattern against an expression.
 
+.Index
+:=
+
 .Syntax
 `_Pat_ := _Exp_`
 

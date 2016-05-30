@@ -74,11 +74,7 @@ Lval: Integer(1)
 rascal>parse("x");
 Lval: Atom("x")
 rascal>parse("(+ 5 7)");
-Lval: List([
-    Atom("+"),
-    Integer(5),
-    Integer(7)
-  ])
+ok
 ----
 
 .Benefits

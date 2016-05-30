@@ -6,6 +6,9 @@
 .Synopsis
 Append an element at the end of a list
 
+.Index
++
+
 .Syntax
 
 .Types

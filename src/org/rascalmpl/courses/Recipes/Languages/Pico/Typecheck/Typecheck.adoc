@@ -83,7 +83,10 @@ Checking an erroneous program goes like this:
 rascal>import demo::lang::Pico::Typecheck;
 ok
 rascal>checkProgram("begin declare  x : natural; x := \"abc\" end");
-lrel[loc,str]: [<|unknown:///|(33,5,<1,33>,<1,38>),"Required natural, got string">]
+ParseError(|unknown:///|(18,1,<1,18>,<1,19>))
+No call stack available
+
+ok
 ----
 
 The error location will be use later to give specific messages in the IDE.

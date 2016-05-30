@@ -6,6 +6,9 @@
 .Synopsis
 Greater than or equal operator on node values.
 
+.Index
+>=
+
 .Syntax
 `_Exp_~1~ >= _Exp_~2~`
 

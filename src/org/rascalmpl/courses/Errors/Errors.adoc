@@ -1,9 +1,4 @@
 # Errors in Course Errors
-* __Errors/Dynamic/StackOverflow__:
-While parsing '//int fac1(int n) = n * fac1(n - 1);
-//fac1(10);
-;
-': Parse error
 * __Errors/Static/InvalidDateTimeComparison__:
 While parsing '$2013-07-15$ < $T20:03:56.901+01:00$
 ;

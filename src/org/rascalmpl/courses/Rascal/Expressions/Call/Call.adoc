@@ -6,6 +6,9 @@
 .Synopsis
 Function call.
 
+.Index
+( )
+
 .Syntax
 `_Name_ ( _Exp_~1~, _Exp_~2~, ... )`
 

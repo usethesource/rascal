@@ -6,6 +6,9 @@
 .Synopsis
 Assign to multiple assignables.
 
+.Index
+< > =
+
 .Syntax
 
 .Types

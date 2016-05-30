@@ -6,6 +6,9 @@
 .Synopsis
 Membership test on set values.
 
+.Index
+in
+
 .Syntax
 `_Exp_~1~ in _Exp_~2~`
 

@@ -6,6 +6,9 @@
 .Synopsis
 Composition of two list relation values.
 
+.Index
+o
+
 .Syntax
 `_Exp_~1~ o _Exp_~2~`
 

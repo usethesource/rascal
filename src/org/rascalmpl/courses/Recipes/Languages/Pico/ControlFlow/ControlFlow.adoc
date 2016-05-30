@@ -80,66 +80,10 @@ We can now create a CFG for a small Pico program:
 rascal>import demo::lang::Pico::ControlFlow;
 ok
 rascal>cflowProgram("begin declare n : natural, s : string; n := 10; s := \"a\"; while n do s := s + \"a\"; n := n - 1 od end");
-tuple[set[CFNode],rel[CFNode,CFNode],set[CFNode]]: <{entry(|unknown:///|(0,100,<1,0>,<1,100>))},{
-  <choice(
-    |unknown:///|(64,1,<1,64>,<1,65>),
-    id("n")[
-      @location=|unknown:///|(64,1,<1,64>,<1,65>),
-      @comments=()
-    ]),statement(
-    |unknown:///|(69,12,<1,69>,<1,81>),
-    asgStat(
-      "s",
-      add(
-        id("s")[
-          @location=|unknown:///|(74,1,<1,74>,<1,75>),
-          @comments=()
-        ],
-        strCon("\"a\"")[
-          @location=|unknown:///|(78,3,<1,78>,<1,81>),
-          @comments=()
-        ])[
-        @location=|unknown:///|(74,7,<1,74>,<1,81>),
-        @comments=()
-      ])[
-      @location=|unknown:///|(69,12,<1,69>,<1,81>),
-      @comments=()
-    ])>,
-  <statement(
-    |unknown:///|(39,7,<1,39>,<1,46>),
-    asgStat(
-      "n",
-      natCon(10)[
-        @location=|unknown:///|(44,2,<1,44>,<1,46>),
-        @comments=()
-      ])[
-      @location=|unknown:///|(39,7,<1,39>,<1,46>),
-      @comments=()
-    ]),statement(
-    |unknown:///|(48,8,<1,48>,<1,56>),
-    asgStat(
-      "s",
-      strCon("\"a\"")[
-        @location=|unknown:///|(53,3,<1,53>,<1,56>),
-        @comments=()
-      ])[
-      @location=|unknown:///|(48,8,<1,48>,<1,56>),
-      @comments=()
-    ])>,
-  <statement(
-    |unknown:///|(83,10,<1,83>,<1,93>),
-    asgStat(
-      "n",
-      sub(
-        id("n")[
-          @location=|unknown:///|(88,1,<1,88>,<1,89>),
-          @comments=()
-        ],
-        natCon(1)[
-          @location=|unknown:///|(92,1,<1,92>,<1,93>),
-          @comments=()
-        ])[
-        @location=|unk...
+ParseError(|unknown:///|(17,1,<1,17>,<1,18>))
+No call stack available
+
+ok
 ----
 
 Is the above not very motivating to move on to <<Pico-Visualize>>?

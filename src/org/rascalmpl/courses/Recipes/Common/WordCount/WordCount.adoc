@@ -71,9 +71,9 @@ in the following alternative `wordCount2` function:
 [source,rascal-shell]
 ----
 rascal>int wordCount2(list[str] lines) = (0 | it + (0 | it + 1 | /\w+/ := line) | str line <- lines);
-[error] Cannot re-declare name that is already declared in the current function or closure: it IN '(0 | it + 1 | /\w+/ := line)'
+ok
 rascal>wordCount2(Jabberwocky);
-[error] Name wordCount2 is not in scope
+int: 216
 ----
 Explain what is going on in this function.
 [source,rascal-shell]

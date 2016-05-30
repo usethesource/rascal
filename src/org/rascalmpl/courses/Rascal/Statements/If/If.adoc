@@ -4,8 +4,10 @@
 :concept: Statements/If
 
 .Synopsis
-
 Conditional statement.
+
+.Index
+if else
 
 .Syntax
 

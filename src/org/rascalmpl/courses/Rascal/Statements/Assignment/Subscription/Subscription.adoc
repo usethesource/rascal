@@ -6,6 +6,9 @@
 .Synopsis
 Assign a single element of a structured value.
 
+.Index
+[ ] =
+
 .Syntax
 
 .Types
@@ -53,7 +56,7 @@ Assignable has a tuple value:
 rascal>T = <1, "abc", true>;
 tuple[int,str,bool]: <1,"abc",true>
 rascal>T[1] = "def";
-[error] Unable to bind subject type str to assignable IN 'T[1] = "def";'
+tuple[int,str,bool]: <1,"def",true>
 ----
 NOTE: See https://github.com/usethesource/rascal/issues/948
 

@@ -3,6 +3,9 @@
 # Number GreaterThan
 :concept: Expressions/Values/Number/GreaterThan
 
+.Index
+>
+
 .Synopsis
 Greater than operator on numeric values.
 

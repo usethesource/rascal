@@ -6,6 +6,9 @@
 .Synopsis
 Declare a function.
 
+.Index
+public private java test default &
+
 .Syntax
 
 *  `_Modifiers_ _Type_ _Name_( _Type~1~_ _Var~1~_, ..., _Type~n~_ _Var~n~_ ) _Body_`

@@ -6,6 +6,9 @@
 .Synopsis
 The strict sublist operator on lists.
 
+.Index
+<
+
 .Syntax
 `_Exp_~1~ < _Exp_~2~`
 

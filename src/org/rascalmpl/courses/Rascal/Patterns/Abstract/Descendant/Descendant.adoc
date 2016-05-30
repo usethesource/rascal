@@ -6,8 +6,10 @@
 .Synopsis
 Deep match in an abstract pattern.
 
-.Syntax
+.Index
+/
 
+.Syntax
 
 .Types
 

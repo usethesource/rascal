@@ -81,11 +81,11 @@ Here is a demonstration of `eval`:
 rascal>import demo::lang::Exp::Concrete::NoLayout::Eval;
 ok
 rascal>eval("2+3");
-int: 5
+ok
 rascal>eval("2+3*4");
-int: 14
+ok
 rascal>eval("(2+3)*4");
-int: 20
+ok
 ----
 
 

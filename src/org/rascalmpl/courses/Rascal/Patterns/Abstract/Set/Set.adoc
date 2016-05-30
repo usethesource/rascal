@@ -6,6 +6,9 @@
 .Synopsis
 Set in abstract pattern.
 
+.Index
+{ }
+
 .Syntax
 
 .Types

@@ -6,6 +6,9 @@
 .Synopsis
 Continue with the next iteration of while, do or for loop.
 
+.Index
+continue
+
 .Syntax
 
 .Types

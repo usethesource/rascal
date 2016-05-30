@@ -6,6 +6,9 @@
 .Synopsis
 Retrieve a slice of a string.
 
+.Index
+[ .. ]
+
 .Syntax
 
 #  `_Exp~1~_ [ _Exp~2~_ .. _Exp~4~_]`

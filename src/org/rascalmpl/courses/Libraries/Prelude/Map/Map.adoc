@@ -9,7 +9,6 @@
 `import Map;`
 
 
-
 .Synopsis
 Library functions for maps.
 
@@ -20,48 +19,11 @@ For operators on maps see link:{RascalLang}#Values-Map[Map] in the Rascal Langua
 The following functions are defined for maps:
 
 
-
-* <<Map-delete,delete>>: Delete a key from a map.
-      
-* <<Map-domain,domain>>: Determine the domain (set of keys) of a map.
-      
-* <<Map-domainR,domainR>>: Map restricted to certain keys.
-      
-* <<Map-domainX,domainX>>: Map with certain keys excluded.
-      
-* <<Map-getOneFrom,getOneFrom>>: Get a n arbitrary key from a map.
-      
-* <<Map-invert,invert>>: Invert the (key,value) pairs in a map.
-      
-* <<Map-invertUnique,invertUnique>>: Invert the (key,value) pairs in a map.
-      
-* <<Map-isEmpty,isEmpty>>: Test whether a map is empty.
-      
-* <<Map-itoString,itoString>>: Convert a map to a indented string.
-      
-* <<Map-mapper,mapper>>: Apply a function to all (key, value) pairs in a map.
-      
-* <<Map-range,range>>: The range (set of values that correspond to its keys) of a map.
-      
-* <<Map-rangeR,rangeR>>: Map restricted to certain values in (key,values) pairs.
-      
-* <<Map-rangeX,rangeX>>: Map with certain values in (key,value) pairs excluded.
-      
-* <<Map-size,size>>: Number of (key, value) pairs in a map.
-      
-* <<Map-toList,toList>>: Convert a map to a list of tuples.
-      
-* <<Map-toRel,toRel>>: Convert a map to a relation.
-      
-* <<Map-toString,toString>>: Convert a map to a string.
-      
-
 [[Map-delete]]
 ## delete
 
 .Function 
 `map[&K,&V] delete(map[&K,&V] m, &K k)`
-
 
 .Synopsis
 Delete a key from a map.
@@ -78,14 +40,11 @@ rascal>delete(("apple":1,"pear":2), "apple");
 map[str, int]: ("pear":2)
 ----
 
-
-
 [[Map-domain]]
 ## domain
 
 .Function 
 `set[&K] domain(map[&K, &V] M)`
-
 
 .Synopsis
 Determine the domain (set of keys) of a map.
@@ -102,14 +61,11 @@ rascal>domain(("apple": 1, "pear": 2));
 set[str]: {"pear","apple"}
 ----
 
-
-
 [[Map-domainR]]
 ## domainR
 
 .Function 
 `map[&K, &V] domainR(map[&K, &V] M, set[&K] S)`
-
 
 .Synopsis
 Map restricted to certain keys.
@@ -126,14 +82,11 @@ rascal>domainR(("apple": 1, "pear": 2, "orange": 3), {"apple", "pear"});
 map[str, int]: ("pear":2,"apple":1)
 ----
 
-
-
 [[Map-domainX]]
 ## domainX
 
 .Function 
 `map[&K, &V] domainX(map[&K, &V] M, set[&K] S)`
-
 
 .Synopsis
 Map with certain keys excluded.
@@ -150,14 +103,11 @@ rascal>domainX(("apple": 1, "pear": 2, "orange": 3), {"apple", "pear"});
 map[str, int]: ("orange":3)
 ----
 
-
-
 [[Map-getOneFrom]]
 ## getOneFrom
 
 .Function 
 `&K getOneFrom(map[&K, &V] M)`
-
 
 .Synopsis
 Get a n arbitrary key from a map.
@@ -173,19 +123,16 @@ ok
 rascal>getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
 str: "pineapple"
 rascal>getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
-str: "pineapple"
+str: "apple"
 rascal>getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
 str: "apple"
 ----
-
-
 
 [[Map-invert]]
 ## invert
 
 .Function 
 `map[&V, set[&K]] invert(map[&K, &V] M)`
-
 
 .Synopsis
 Invert the (key,value) pairs in a map.
@@ -206,14 +153,11 @@ map[int, set[str]]: (
 )
 ----
 
-
-
 [[Map-invertUnique]]
 ## invertUnique
 
 .Function 
 `map[&V, &K] invertUnique(map[&K, &V] M)`
-
 
 .Synopsis
 Invert the (key,value) pairs in a map.
@@ -247,14 +191,11 @@ Call stack (most recent first):
 ok
 ----
 
-
-
 [[Map-isEmpty]]
 ## isEmpty
 
 .Function 
 `bool isEmpty(map[&K, &V] M)`
-
 
 .Synopsis
 Test whether a map is empty.
@@ -273,35 +214,11 @@ rascal>isEmpty(("apple": 1, "pear": 2, "orange": 3));
 bool: false
 ----
 
-
-
-[[Map-itoString]]
-## itoString
-
-.Function 
-`str itoString(map[&K, &V] M)`
-
-
-.Synopsis
-Convert a map to a indented string.
-
-.Examples
-[source,rascal-shell]
-----
-rascal>import Map;
-ok
-rascal>itoString(("apple": 1, "pear": 2, "orange": 3));
-str: "(\"pear\":2,\"orange\":3,\"apple\":1)"
-----
-
-
-
 [[Map-mapper]]
 ## mapper
 
 .Function 
 `map[&K, &V] mapper(map[&K, &V] M, &L (&K) F, &W (&V) G)`
-
 
 .Synopsis
 Apply a function to all (key, value) pairs in a map.
@@ -322,14 +239,11 @@ rascal>mapper(("apple": 1, "pear": 2, "orange": 3), prefix, incr);
 map[str, int]: ("Xapple":2,"Xorange":4,"Xpear":3)
 ----
 
-
-
 [[Map-range]]
 ## range
 
 .Function 
 `set[&V] range(map[&K, &V] M)`
-
 
 .Synopsis
 The range (set of values that correspond to its keys) of a map.
@@ -346,14 +260,11 @@ rascal>range(("apple": 1, "pear": 2));
 set[int]: {1,2}
 ----
 
-
-
 [[Map-rangeR]]
 ## rangeR
 
 .Function 
 `map[&K, &V] rangeR(map[&K, &V] M, set[&V] S)`
-
 
 .Synopsis
 Map restricted to certain values in (key,values) pairs.
@@ -370,14 +281,11 @@ rascal>rangeR(("apple": 1, "pear": 2, "orange": 3), {2, 3});
 map[str, int]: ("pear":2,"orange":3)
 ----
 
-
-
 [[Map-rangeX]]
 ## rangeX
 
 .Function 
 `map[&K, &V] rangeX(map[&K, &V] M, set[&V] S)`
-
 
 .Synopsis
 Map with certain values in (key,value) pairs excluded.
@@ -394,14 +302,11 @@ rascal>rangeX(("apple": 1, "pear": 2, "orange": 3), {2, 3});
 map[str, int]: ("apple":1)
 ----
 
-
-
 [[Map-size]]
 ## size
 
 .Function 
 `int size(map[&K, &V] M)`
-
 
 .Synopsis
 Number of (key, value) pairs in a map.
@@ -418,14 +323,11 @@ rascal>size(("apple": 1, "pear": 2, "orange": 3));
 int: 3
 ----
 
-
-
 [[Map-toList]]
 ## toList
 
 .Function 
 `list[tuple[&K, &V]] toList(map[&K, &V] M)`
-
 
 .Synopsis
 Convert a map to a list of tuples.
@@ -443,17 +345,14 @@ lrel[str,int]: [
 ]
 ----
 
-
-
 [[Map-toRel]]
 ## toRel
 
 .Function 
 * `rel[&K,&V] toRel(map[&K,set[&V]] M)`
           * `rel[&K,&V] toRel(map[&K,list[&V]] M)`
-          * `default rel[&K, &V] toRel(map[&K, &V] M)`
+          * `default java rel[&K, &V] toRel(map[&K, &V] M)`
           
-
 
 .Synopsis
 Convert a map to a relation.
@@ -471,14 +370,11 @@ rel[str,int]: {
 }
 ----
 
-
-
 [[Map-toString]]
 ## toString
 
 .Function 
 `str toString(map[&K, &V] M)`
-
 
 .Synopsis
 Convert a map to a string.
@@ -492,7 +388,23 @@ rascal>toString(("apple": 1, "pear": 2, "orange": 3));
 str: "(\"pear\":2,\"orange\":3,\"apple\":1)"
 ----
 
+[[Map-itoString]]
+## itoString
 
+.Function 
+`str itoString(map[&K, &V] M)`
+
+.Synopsis
+Convert a map to a indented string.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import Map;
+ok
+rascal>itoString(("apple": 1, "pear": 2, "orange": 3));
+str: "(\"pear\":2,\"orange\":3,\"apple\":1)"
+----
 
 :leveloffset: +1
 

@@ -6,6 +6,9 @@
 .Synopsis
 Set values.
 
+.Index
+{ }
+
 .Syntax
 `{ _Exp_~1~, _Exp~2~_, ... }`
 

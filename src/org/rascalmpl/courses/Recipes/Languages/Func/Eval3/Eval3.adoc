@@ -63,7 +63,10 @@ ok
 rascal>import demo::lang::Func::programs::F3;
 ok
 rascal>eval3("fact", [10], load(F3));
-tuple[list[int],int]: <[10],3628800>
+ParseError(|unknown:///|(10,1,<1,10>,<1,11>))
+No call stack available
+
+ok
 ----
 
 
