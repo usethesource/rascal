@@ -1,6 +1,7 @@
 package org.rascalmpl.library.lang.rascal.boot;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
@@ -19,7 +20,8 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 
 public class Kernel {
-	IValueFactory vf;
+	private static final String PATH_TO_LINKED_KERNEL = "lang/rascal/boot/Kernel.rvm.ser.gz";
+    IValueFactory vf;
 	private OverloadedFunction compile;
 	private OverloadedFunction compileAndLink;
 	private OverloadedFunction compileAndMergeIncremental;
@@ -28,12 +30,21 @@ public class Kernel {
 	
 	private final RVMCore rvm;
 
-	public Kernel(IValueFactory vf, RascalExecutionContext rex) throws IOException, NoSuchRascalFunction {
-	    this(vf, rex, URIUtil.correctLocation("compressed+boot", "", "lang/rascal/boot/Kernel.rvm.ser.gz"));
+	public Kernel(IValueFactory vf, RascalExecutionContext rex) throws IOException, NoSuchRascalFunction, URISyntaxException {
+	    this(vf, rex, URIUtil.correctLocation("boot", "", "/"));
 	}
         
-	public Kernel(IValueFactory vf, RascalExecutionContext rex, ISourceLocation binaryKernelLoc) throws IOException, NoSuchRascalFunction {
+	public Kernel(IValueFactory vf, RascalExecutionContext rex, ISourceLocation binaryKernelLoc) throws IOException, NoSuchRascalFunction, URISyntaxException {
 		this.vf = vf;
+	
+		if (!binaryKernelLoc.getScheme().startsWith("compressed")) {
+		    binaryKernelLoc = URIUtil.changeScheme(binaryKernelLoc, "compressed" + binaryKernelLoc.getScheme());
+		}
+		
+		if (!binaryKernelLoc.getPath().endsWith(PATH_TO_LINKED_KERNEL)) {
+		    binaryKernelLoc = URIUtil.getChildLocation(binaryKernelLoc, PATH_TO_LINKED_KERNEL);
+		}
+		   
 		this.rvm = ExecutionTools.initializedRVM(binaryKernelLoc, rex);
 
 		compile    		= rvm.getOverloadedFunction("RVMModule compile(str qname, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
