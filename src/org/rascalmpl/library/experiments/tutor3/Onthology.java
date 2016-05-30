@@ -20,25 +20,26 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
+import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.KWParams;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RascalExtraction.RascalExtraction;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
+import org.rascalmpl.value.ITuple;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.io.StandardTextReader;
@@ -46,7 +47,6 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
-
 
 public class Onthology {
 	Path srcDir;
@@ -61,6 +61,20 @@ public class Onthology {
 	
 	private RascalCommandExecutor executor;
 	private IndexWriter iwriter;
+	
+	public static Analyzer multiFieldAnalyzer(){
+		Analyzer stdAnalyzer = new StandardAnalyzer();
+		
+		HashMap<String,Analyzer> analyzerMap = new HashMap<>();
+		
+		//analyzerMap.put("name", new SimpleAnalyzer());
+		analyzerMap.put("index", new WhitespaceAnalyzer());
+		analyzerMap.put("synopsis", stdAnalyzer);
+		analyzerMap.put("signature", stdAnalyzer);
+		analyzerMap.put("doc", stdAnalyzer);
+		
+		return new PerFieldAnalyzerWrapper(stdAnalyzer, analyzerMap);
+	}
 
 	public Onthology(Path srcDir, Path destDir, PrintWriter err) throws IOException, NoSuchRascalFunction{
 		this.vf = ValueFactoryFactory.getValueFactory();
@@ -73,15 +87,13 @@ public class Onthology {
 		
 		this.executor = new RascalCommandExecutor(err);
 		
-		Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_35);
+		Analyzer multiFieldAnalyzer = multiFieldAnalyzer();
 
-		// Store the index in memory:
-		// Directory directory = new RAMDirectory();
-		// To store an index on disk, use this instead:
 		Directory directory = null;
 		try {
-			directory = FSDirectory.open(destDir.toFile());
-			iwriter = new IndexWriter(directory, analyzer, true, new IndexWriter.MaxFieldLength(25000));
+			directory = FSDirectory.open(destDir);
+			IndexWriterConfig config = new IndexWriterConfig(multiFieldAnalyzer);
+			iwriter = new IndexWriter(directory, config);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -103,31 +115,6 @@ public class Onthology {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-		
-		try {
-			IndexReader ireader = IndexReader.open(directory); // read-only=true
-			IndexSearcher isearcher = new IndexSearcher(ireader);
-			// Parse a simple query that searches for "text":
-			QueryParser parser = new QueryParser(Version.LUCENE_35, "fieldname", analyzer);
-			Query query = parser.parse("on-the-fly");
-			ScoreDoc[] hits = isearcher.search(query, null, 1000).scoreDocs;
-			
-			// Iterate through the results:
-			for (int i = 0; i < hits.length; i++) {
-				System.err.println("**** HIT " + i);
-				Document hitDoc = isearcher.doc(hits[i].doc);
-				System.err.println(hitDoc.get("title"));
-			}
-			isearcher.close();
-			ireader.close();
-			directory.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 	
@@ -198,27 +185,69 @@ public class Onthology {
 			System.err.println(aDir);
 			if(Files.exists(makeConceptFilePath(aDir))){
 				String conceptName = makeConceptName(aDir);
-				conceptMap.put(conceptName, new Concept(conceptName, readFile(makeConceptFilePath(aDir).toString()), destDir));
-				Document doc = new Document();
-				doc.add(new Field("title", conceptName, Field.Store.YES, Field.Index.ANALYZED));
-				doc.add(new Field("fieldname", conceptMap.get(conceptName).getText(), Field.Store.YES, Field.Index.ANALYZED));
-				iwriter.addDocument(doc);
+				Concept concept = new Concept(conceptName, readFile(makeConceptFilePath(aDir).toString()), destDir);
+				conceptMap.put(conceptName, concept);
+				iwriter.addDocument(makeLuceneDocument(conceptName, concept.getIndex(), concept.getSynopsis(), concept.getText()));
 			} else
 				if(Files.exists(makeRemoteFilePath(aDir))){
 						ISourceLocation remoteLoc = readLocFromFile(makeRemoteFilePath(aDir).toString());
 						String parentName = aDir.getName(aDir.getNameCount()-2).toString();
 						String remoteConceptName = makeConceptName(aDir);
-						IString remoteConceptText = rascalExtraction.extractDoc(vf.string(parentName), remoteLoc, new KWParams(vf).build());
+						ITuple extracted = rascalExtraction.extractDoc(vf.string(parentName), remoteLoc, new KWParams(vf).build());
+						IString remoteConceptText = (IString) extracted.get(0);
+						IList declarationInfoList = (IList) extracted.get(1);
 						System.err.println(remoteConceptText.getValue());
-						conceptMap.put(remoteConceptName, new Concept(remoteConceptName, remoteConceptText.getValue(), destDir));
+						Concept remoteConcept = new Concept(remoteConceptName, remoteConceptText.getValue(), destDir);
+						conceptMap.put(remoteConceptName, remoteConcept);
 						
-						Document doc = new Document();
-						doc.add(new Field("title", remoteConceptName, Field.Store.YES, Field.Index.ANALYZED));
-						doc.add(new Field("fieldname", conceptMap.get(remoteConceptName).getText(), Field.Store.YES, Field.Index.ANALYZED));
-						iwriter.addDocument(doc);
+						iwriter.addDocument(makeLuceneDocument(remoteConceptName, remoteConcept.getIndex(), remoteConcept.getSynopsis(), remoteConcept.getText()));
+						for(IValue d : declarationInfoList){
+							addDeclarationInfo((IConstructor)d);
+						}
 				}
 			return FileVisitResult.CONTINUE;
 		}
+	}
+	
+	private Document makeLuceneDocument(String name, String index, String synopsis, String doc){
+		Document luceneDoc = new Document();
+		
+		Field nameField = new Field("name", name, TextField.TYPE_STORED);
+		luceneDoc.add(nameField);
+		
+		Field indexField = new Field("index", index + " " + name.replaceAll("/", " ").toLowerCase(), TextField.TYPE_NOT_STORED);
+		indexField.setBoost(2f);
+		luceneDoc.add(indexField);
+		
+		Field synopsisField = new Field("synopsis", synopsis, TextField.TYPE_STORED);
+		synopsisField.setBoost(2f);
+		luceneDoc.add(synopsisField);
+		
+		Field docField = new Field("doc", doc, TextField.TYPE_NOT_STORED);
+		luceneDoc.add(docField);
+		return luceneDoc;
+	}
+	
+	private void addDeclarationInfo(IConstructor d) throws IOException{
+		String consName = d.getName();
+		String moduleName = ((IString) d.get("moduleName")).getValue();
+		
+		String doc = d.has("doc") ? ((IString) d.get("doc")).getValue() : "";
+		String synopsis = d.has("synopsis") ? ((IString) d.get("synopsis")).getValue() : "";
+		
+		if(consName.equals("moduleInfo")){
+			iwriter.addDocument(makeLuceneDocument(moduleName, "", synopsis, doc));
+			return;
+		}
+		String name = ((IString) d.get("name")).getValue();
+		String subConceptName = moduleName + "/" + name;
+		Document luceneDoc = makeLuceneDocument(subConceptName, "", synopsis, doc);
+
+		String signature = ((IString) d.get("signature")).getValue();
+		Field signatureField = new Field("signature", signature, TextField.TYPE_STORED);
+		luceneDoc.add(signatureField);
+		
+		iwriter.addDocument(luceneDoc);
 	}
 	
 	public ArrayList<Concept> resolve(String conceptRef){
