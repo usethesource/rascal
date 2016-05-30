@@ -7,7 +7,7 @@ import IO;
 import experiments::Compiler::RascalExtraction::DeclarationInfo;
 import experiments::Compiler::RascalExtraction::ExtractInfo;
 
-str extractDoc(str parent, loc moduleLoc){
+tuple[str moduleDoc, list[DeclarationInfo] declarationInfo] extractDoc(str parent, loc moduleLoc){
     dinfo = extractInfo(moduleLoc);
     res = "";
     int i = 0;
@@ -24,7 +24,7 @@ str extractDoc(str parent, loc moduleLoc){
         res += declInfo2Doc(parent, dinfo[i], overloads);
         i = j;
     }
-    return res;
+    return <res, dinfo>;
 }
 
 public str basename(str cn){
