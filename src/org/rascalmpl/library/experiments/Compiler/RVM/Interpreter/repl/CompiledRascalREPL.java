@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -57,7 +58,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   private PathConfig pcfg;
   
   public CompiledRascalREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal, PathConfig pcfg)
-      throws IOException {
+      throws IOException, URISyntaxException {
     super(stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal);
     this.pcfg = pcfg;
   }
@@ -103,7 +104,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   }
 
   @Override
-  protected void initialize(Writer stdout, Writer stderr) throws IOException {
+  protected void initialize(Writer stdout, Writer stderr) throws IOException, URISyntaxException {
     try {
         executor = constructCommandExecutor(new PrintWriter(stdout), new PrintWriter(stderr));
     } catch (NoSuchRascalFunction e) {
@@ -111,7 +112,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
     }
   }
   
-  protected abstract CommandExecutor constructCommandExecutor(PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction;
+  protected abstract CommandExecutor constructCommandExecutor(PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction, URISyntaxException;
   
   
   @Override
