@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
@@ -40,7 +41,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     private final OutputStream originalOutput;
 
     public RascalInterpreterREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal)
-                    throws IOException {
+                    throws IOException, URISyntaxException {
         super(stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal);
         originalOutput = stdout;
     }

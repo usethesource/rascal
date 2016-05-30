@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
@@ -37,11 +38,11 @@ public abstract class BaseREPL {
     private volatile PersistentHistory history = null;
     private final Queue<String> commandQueue = new ConcurrentLinkedQueue<String>();
 
-    public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException {
+    public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException, URISyntaxException {
         this(stdin, stdout, prettyPrompt, allowColors, file != null ? new FileHistory(file) : null, terminal);
     }
 
-    public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, ISourceLocation file, Terminal terminal) throws IOException {
+    public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, ISourceLocation file, Terminal terminal) throws IOException, URISyntaxException {
         this(stdin, stdout, prettyPrompt, allowColors, file != null ? new SourceLocationHistory(file) : null, terminal);
     }
 
@@ -55,7 +56,7 @@ public abstract class BaseREPL {
     private static byte STACK_TRACE = (byte)ctrl('\\'); 
 
 
-    private BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, PersistentHistory history, Terminal terminal) throws IOException {
+    private BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, PersistentHistory history, Terminal terminal) throws IOException, URISyntaxException {
         this.originalStdOut = stdout;
         if (!(stdin instanceof NotifieableInputStream) && !(stdin.getClass().getCanonicalName().contains("jline"))) {
             stdin = new NotifieableInputStream(stdin, new byte[] { CANCEL_RUNNING_COMMAND, STOP_REPL, STACK_TRACE }, (Byte b) -> handleEscape(b));
@@ -119,8 +120,9 @@ public abstract class BaseREPL {
      * @param stderr the error stream to write error messages on, depending on the environment and options passed, will print in red.
      * @throws NoSuchRascalFunction 
      * @throws IOException 
+     * @throws URISyntaxException 
      */
-    protected abstract void initialize(Writer stdout, Writer stderr) throws IOException;
+    protected abstract void initialize(Writer stdout, Writer stderr) throws IOException, URISyntaxException;
 
     /**
      * Will be called everytime a new prompt is printed.

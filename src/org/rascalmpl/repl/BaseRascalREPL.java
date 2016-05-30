@@ -60,7 +60,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
     public BaseRascalREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory,Terminal terminal)
-                    throws IOException {
+                    throws IOException, URISyntaxException {
         super(stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal);
         if (terminal.isAnsiSupported() && allowColors) {
             indentedPrettyPrinter = new ReplTextWriter();

@@ -3,6 +3,7 @@ package org.rascalmpl.library.util;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class TermREPL {
     public void startREPL(IConstructor repl, IEvaluatorContext ctx) {
         try {
             new TheREPL(repl, ctx).run();
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             e.printStackTrace(ctx.getStdErr());
         }
     }
@@ -50,7 +51,7 @@ public class TermREPL {
         private final IEvaluatorContext ctx;
         private final ICallableValue completor;
 
-        public TheREPL(IConstructor repl, IEvaluatorContext ctx) throws IOException {
+        public TheREPL(IConstructor repl, IEvaluatorContext ctx) throws IOException, URISyntaxException {
             super(ctx.getREPL() == null ? System.in : ctx.getREPL().getInput(), ctx.getREPL() == null ? System.out : ctx.getREPL().getOutput(), true, true, ((ISourceLocation)repl.get("history")), ctx.getREPL() == null ? TerminalFactory.get() : ctx.getREPL().getTerminal());
             this.ctx = ctx;
             this.handler = (ICallableValue)repl.get("handler");
