@@ -7,6 +7,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFu
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -63,12 +65,14 @@ public class RascalTests {
 
 		Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("bootDir"));
 
-		kernel.rascalTests(
+		IBool success = (IBool) kernel.rascalTests(
 				cmdOpts.getRascalModules(),
 				cmdOpts.getCommandPathOption("srcPath"),
 				cmdOpts.getCommandPathOption("libPath"),
 				cmdOpts.getCommandLocOption("bootDir"),
 				cmdOpts.getCommandLocOption("binDir"), 
 				cmdOpts.getModuleOptionsAsIMap());
+		
+		System.exit(success.getValue() ? 0 : 1);
 	}
 }
