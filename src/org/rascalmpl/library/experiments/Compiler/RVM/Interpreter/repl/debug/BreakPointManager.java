@@ -15,7 +15,6 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.highlighter.RascalHighlighter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.library.util.PathConfig;
@@ -63,7 +62,7 @@ public class BreakPointManager {
 	private boolean autoList = true;
 	private final int defaultListingDelta = 5;
 	
-	RascalHighlighter highlighter;
+	//RascalHighlighter highlighter;
 	
 	Cache<String, IValue> parsedModuleCache;
 	IValueFactory vf = ValueFactoryFactory.getValueFactory();
@@ -73,11 +72,11 @@ public class BreakPointManager {
 		this.pcfg = pcfg;
 		breakpoints = new ArrayList<>();
 		uid = 1;
-		highlighter = new RascalHighlighter()
-				.setKeywordMarkup(Ansi.ansi().bold().toString(), 
-							      Ansi.ansi().boldOff().toString())
-				.setCommentMarkup(Ansi.ansi().fg(Ansi.Color.GREEN).toString(), 
-						          Ansi.ansi().fg(Ansi.Color.BLACK).toString());
+//		highlighter = new RascalHighlighter()
+//				.setKeywordMarkup(Ansi.ansi().bold().toString(), 
+//							      Ansi.ansi().boldOff().toString())
+//				.setCommentMarkup(Ansi.ansi().fg(Ansi.Color.GREEN).toString(), 
+//						          Ansi.ansi().fg(Ansi.Color.BLACK).toString());
 		parsedModuleCache = Caffeine.newBuilder()
 			    .weakValues()
 				.maximumSize(5)
