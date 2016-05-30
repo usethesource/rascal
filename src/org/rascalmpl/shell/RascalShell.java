@@ -88,7 +88,7 @@ public class RascalShell  {
                         public void run(String[] args) throws IOException {
                             try {
                                 RascalTests.main(Arrays.copyOfRange(args, 1, args.length));
-                            } catch (NoSuchRascalFunction e) {
+                            } catch (NoSuchRascalFunction | URISyntaxException e) {
                                 throw new RuntimeException(e);
                             }
                         }

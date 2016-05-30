@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.URISyntaxException;
 
 import jline.TerminalFactory;
 
@@ -27,7 +28,7 @@ public class REPLRunner extends RascalInterpreterREPL  implements ShellRunner {
     return historyFile;
   }
 
-  public REPLRunner(InputStream stdin, OutputStream stdout) throws IOException {
+  public REPLRunner(InputStream stdin, OutputStream stdout) throws IOException, URISyntaxException {
     super(stdin, stdout, true, true, getHistoryFile(), TerminalFactory.get());
     setMeasureCommandTime(false);
   }
