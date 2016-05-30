@@ -38,7 +38,7 @@ public class Kernel {
 		this.vf = vf;
 	
 		if (!binaryKernelLoc.getScheme().startsWith("compressed")) {
-		    binaryKernelLoc = URIUtil.changeScheme(binaryKernelLoc, "compressed" + binaryKernelLoc.getScheme());
+		    binaryKernelLoc = URIUtil.changeScheme(binaryKernelLoc, "compressed+" + binaryKernelLoc.getScheme());
 		}
 		
 		if (!binaryKernelLoc.getPath().endsWith(PATH_TO_LINKED_KERNEL)) {
