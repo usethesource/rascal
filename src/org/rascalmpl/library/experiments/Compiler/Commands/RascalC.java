@@ -3,13 +3,16 @@ package org.rascalmpl.library.experiments.Compiler.Commands;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -77,8 +80,7 @@ public class RascalC {
                     cmdOpts.getCommandLocOption("bootDir"),
                     cmdOpts.getCommandLocOption("binDir"), 
                     cmdOpts.getModuleOptionsAsIMap()); 
-            System.err.println("PROGRAM:" + program);
-            
+            handleMessages(program);
         } 
         else {
             IConstructor program = kernel.compileAndLink(
@@ -88,7 +90,32 @@ public class RascalC {
                     cmdOpts.getCommandLocOption("bootDir"),
                     cmdOpts.getCommandLocOption("binDir"), 
                     cmdOpts.getModuleOptionsAsIMap());
-            System.err.println("PROGRAM:" + program);
+            handleMessages(program);
         }
 	}
+
+    private static void handleMessages(IConstructor program) {
+        if (program.has("main_module")) {
+            program = (IConstructor) program.get("main_module");
+        }
+        
+        if (!program.has("messages")) {
+            throw new CompilerError("unexpected output of compiler, has no messages field");
+        }
+        
+        ISet messages = (ISet) program.get("messages");
+
+        boolean failed = false;
+        for (IValue val : messages) {
+            IConstructor msg = (IConstructor) val;
+            if (msg.getName().equals("error")) {
+                failed = true;
+            }
+            
+            // TODO: improve error reporting notation
+            System.err.println(msg);
+        }
+        
+        System.exit(failed ? 1 : 0);
+    }
 }
