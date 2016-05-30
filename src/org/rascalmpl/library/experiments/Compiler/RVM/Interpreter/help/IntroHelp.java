@@ -9,8 +9,6 @@ public class IntroHelp {
 				"",
 				"RascalShell commands:",
 				"    quit or EOF            Quit this RascalShell",
-				"    help keywords          List all Rascal keywords",
-				"    help operators         List all Rascal operators and special symbols",
 				"    help <text>            Help about a specific keyword, operator, function or topic",
 				"    declarations           List all declarations",
 				"    modules                List all imported modules",

@@ -1,229 +1,87 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help;
+package
+org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-//import org.commonmark.node.Node;
-//import org.commonmark.parser.Parser;
-import org.fusesource.jansi.Ansi;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.highlighter.RascalHighlighter;
-//import org.rascalmpl.library.experiments.tutor3.commonmark.AnsiRenderer;
-import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.exceptions.UndeclaredFieldException;
-import org.rascalmpl.value.io.BinaryValueReader;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.rascalmpl.library.experiments.tutor3.Onthology;
 
 public class HelpManager {
 	
 	private PrintWriter stdout;
 	private PrintWriter stderr;
-	private IValueFactory vf;
-	private ISourceLocation StdLibInfo;
-	private ISet declarationInfo = null;
-	private static final int FILE_BUFFER_SIZE = 8 * 1024;
-//	private Parser cmparser;
-//	private AnsiRenderer ansiRenderer;
 
 	public HelpManager(PrintWriter stdout, PrintWriter stderr){
 		this.stdout = stdout;
 		this.stderr = stderr;
-		vf = ValueFactoryFactory.getValueFactory();
-		
-//		cmparser = Parser.builder().build();
-		
-		RascalHighlighter highlighter = new RascalHighlighter()
-				.setKeywordMarkup(Ansi.ansi().reset().bold().toString(), 
-							      Ansi.ansi().reset().boldOff().toString())
-				.setCommentMarkup(Ansi.ansi().reset().fg(Ansi.Color.GREEN).toString(), 
-								  Ansi.ansi().reset().fg(Ansi.Color.BLACK).toString());
-//		ansiRenderer =  AnsiRenderer.builder().setHighlighter(highlighter)
-//				.setEmphasisMarkup(Ansi.ansi().a(Attribute.ITALIC).toString(), Ansi.ansi().a(Attribute.ITALIC_OFF).toString())
-//				.setStrongMarkup(Ansi.ansi().a(Attribute.INTENSITY_BOLD).toString(), Ansi.ansi().a(Attribute.INTENSITY_BOLD_OFF).toString())
-//				.build();
+	}
+	
+	private String escapeForQuery(String s){
+		return s.toLowerCase().replaceAll("([+\\-!(){}\\[\\]\\^\"~*?:\\\\/]|(&&)|(\\|\\|))","\\\\$1");
 	}
 	
 	public void printHelp(String[] words){
 		//TODO Add here for example credits, copyright, license
 		
-		readDeclarationInfo();
-		
-		if(words.length == 1){
+		if(words.length <= 1){
 			IntroHelp.print(stdout);
-			return;  
-		}
-		if(words[1].equals("keywords")){
-			KeywordHelp.printKeywords(stdout);
 			return;
-		}
-		if(KeywordHelp.containsKey(words[1])){
-			printKeywordHelp(words[1]);
-			return;
-		}
-		
-		if(words[1].equals("operators")){
-			OperatorHelp.printOperators(stdout);
-			return;
-		}
-		
-		if(OperatorHelp.containsKey(words[1])){
-			printOperatorHelp(words);
-			return;
-		}
-		stdout.print(infoFunction(words[1]));
-	}
-	
-	private void readDeclarationInfo(){
-		if(declarationInfo == null){
-			TypeStore store = new TypeStore();
-			Type start = TypeFactory.getInstance().valueType();
-			try {
-				StdLibInfo = vf.sourceLocation("compressed+boot", "", "StdLib.info.gz");
-			} catch (URISyntaxException e) {
-				stderr.println("Cannot create location for help info");
-			} 
-			
-			try (InputStream in = URIResolverRegistry.getInstance().getInputStream(StdLibInfo)) {
-				declarationInfo = (ISet) new BinaryValueReader().read(vf, store, start, in);
-			} catch (IOException e) {
-				stderr.println("Cannot read help info at " + StdLibInfo);
-			}
-		}
-	}
-	
-	private String consumeInputStream(Reader in) throws IOException {
-		StringBuilder res = new StringBuilder();
-		char[] chunk = new char[FILE_BUFFER_SIZE];
-		int read;
-		while ((read = in.read(chunk, 0, chunk.length)) != -1) {
-		    res.append(chunk, 0, read);
-		}
-		return res.toString();
-	}
-	
-	void printKeywordHelp(String keyword){
-		String conceptName = KeywordHelp.get(keyword)[0];
-		ISourceLocation conceptLoc;
-		try {
-			conceptLoc = vf.sourceLocation("courses", "", conceptName + ".concept");
-		} catch (URISyntaxException e) {
-			stderr.println("Cannot create location for " + conceptName);
-			return;
-		} 
-		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(conceptLoc);){
-			printConcept(consumeInputStream(reader));
-		} catch (IOException e) {
-			stderr.println("Cannot read: " + conceptLoc);
-			return;
-		}
-	}
-	
-	void printOperatorHelp(String[] words){
-		String op = words[1];
-		String[] conceptNames = OperatorHelp.get(op);
-		if(words.length == 2 && conceptNames.length > 1){
-			stdout.println("Operator " + words[1] + " is overloaded:\n");
-			for(String conceptName : conceptNames){
-				stdout.println("\t" + conceptName);
-			}
-			stdout.println("\nType 'help " + words[1] + " word1 word2 ...' to disambiguate, e.g. 'help + num'");
-			stdout.println("or   'help " + words[1] + " all' to show all versions");
-			return;
-		}
-		AllNames:
-		for(String conceptName : conceptNames){
-			if(words.length > 2 && !words[2].equals("all")){
-				for(int i = 2; i < words.length; i++){
-					if(conceptName.toLowerCase().indexOf(words[i].toLowerCase()) < 0){
-						continue AllNames;
-					}
-				}
-			}
-			ISourceLocation conceptLoc;
-			try {
-				conceptLoc = vf.sourceLocation("courses", "", conceptName + ".concept");
-			} catch (URISyntaxException e) {
-				stderr.println("Cannot create location for " + conceptName);
-				return;
-			} 
-			try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(conceptLoc);){
-				printConcept(consumeInputStream(reader));
-			} catch (IOException e) {
-				stderr.println("Cannot read: " + conceptLoc);
-				return;
-			}
-		}
-	}
-	
-	void printConcept(String concept){
-//		Node document = cmparser.parse(concept);
-//		stdout.println(ansiRenderer.render(document))
-		stdout.println(concept);
-//		String[] lines = concept.split("\n");
-//		for(String line : lines){
-//			if(line.startsWith("Questions")){
-//				break;
-//			}
-//			stdout.println(line);
-//		}
-	}
-	
-	String getField(IConstructor cons, String fieldName){
-		try {
-			return ((IString)cons.get(fieldName)).getValue();
-		}
-		catch (UndeclaredFieldException e){
-			return "";
-		}
-	}
-	
-	void report(IConstructor declInfo, StringWriter w, boolean showDoc, boolean showSource){
-		String constructorName = declInfo.getName();
-		String role = constructorName;
-		switch(constructorName){
-		case "functionInfo":    role = "Function:    "; break;
-		case "constructorInfo": role = "Constructor: "; break;
-		case "dataInfo":        role = "Data:        "; break;
-		case "moduleInfo":      role = "Module:      "; break;
-		case "varInfo":         role = "Variable:    "; break;
 		}
 
-		w.append("Module:       ").append(getField(declInfo, "moduleName")).append("\n")
-		 .append(role).append(" ").append(getField(declInfo, "signature")).append("\n");
-		if(showDoc){
-			w.append(getField(declInfo, "doc"));
-		} else {
-			String synopsis = getField(declInfo, "synopsis");
-			if(!synopsis.isEmpty()){
-			   w.append("Synopsis:     ").append(synopsis).append("\n");
-		    }
+		Path destDir = Paths.get("/Users/paulklint/git/rascal/src/org/rascalmpl/courses/");
+		Analyzer multiFieldAnalyzer = Onthology.multiFieldAnalyzer();
+		
+		try {
+			Directory directory = FSDirectory.open(destDir);
+			DirectoryReader ireader = DirectoryReader.open(directory); // read-only=true
+			IndexSearcher isearcher = new IndexSearcher(ireader);
+			
+			String searchFields[] = {"index", "synopsis", "doc"};
+			
+			QueryParser parser  = new MultiFieldQueryParser(searchFields, multiFieldAnalyzer);
+			
+			StringBuilder sb = new StringBuilder();
+			for(int i = 1; i < words.length; i++){
+				sb.append(" ").append(escapeForQuery(words[i]));
+			}
+			Query query = parser.parse(sb.toString());
+			    
+			ScoreDoc[] hits = isearcher.search(query, 20).scoreDocs;
+			
+			// Iterate through the results:
+			for (int i = 0; i < Math.min(hits.length, 20); i++) {
+				Document hitDoc = isearcher.doc(hits[i].doc);
+				System.err.println(i + ": " + hitDoc.get("name") 
+				                            + getInfo(hitDoc, "synopsis") 
+				                            + getInfo(hitDoc, "signature"));
+			}
+			ireader.close();
+			directory.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		w.append("\n");
-		//'<showSource ? "Source:\n<readFile(di.src)>" : ""
 	}
 	
-	String infoFunction(String name){
-		StringWriter w = new StringWriter();
-		for(IValue elem : declarationInfo){
-			IConstructor declInfo = (IConstructor) elem;
-			String consName = declInfo.getName();
-			if(consName.equals("moduleInfo")) continue;
-			if(getField(declInfo, "name").indexOf(name) >= 0){
-				report(declInfo, w, false, false);
-			}
-		}
-		return w.toString();
+	String getInfo(Document hitDoc, String field){
+		String s = hitDoc.get(field);
+		return (s == null || s.isEmpty()) ? "" : " -- " + s;
 	}
+	
 }
