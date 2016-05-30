@@ -95,6 +95,29 @@ public class Bootstrap {
         
             Path oldKernel = getDeployedVersion(tmpDir, versionToUse);
             
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Booleans");
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Equality");
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Exceptions");
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Functions");
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Matching");
+//          
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Integers");
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::IO");
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::IsDefined");
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::ListRelations");
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Lists");
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Locations");
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Maps");
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Overloading");
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Nodes");
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Memoization");
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Relations");
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Sets");
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Strings");
+//          runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Tuples");
+//            runTests(0, targetFolder + ":" + classpath, "|boot:///|", librarySource, targetFolder, "lang::rascal::tests::functionality::ConcreteSyntaxTests5");
+          
+          
             Path newKernel1 = compilePhase(1, oldKernel.toAbsolutePath().toString(), tmpDir, "|boot:///|", librarySource);
             
             Path newKernel2 = compilePhase(2, oldKernel.toAbsolutePath().toString(), tmpDir, newKernel1.toAbsolutePath().toString(), librarySource);
@@ -180,28 +203,7 @@ public class Bootstrap {
         Path result = phaseFolder(phase, tmp);
         info("phase " + phase + ": " + result);
        
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Booleans");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Equality");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Exceptions");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Functions");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Matching");
-        
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Integers");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::IO");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::IsDefined");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::ListRelations");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Lists");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Locations");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Maps");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Overloading");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Nodes");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Memoization");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Relations");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Sets");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Strings");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::basic::Tuples");
-        runTests(phase, classPath, bootPath, sourcePath, result, "lang::rascal::tests::functionality::ConcreteSyntaxTests5");
-        
+
         compileMuLibrary(phase, classPath, bootPath, sourcePath, result);
         compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel");
         compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator");
