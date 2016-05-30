@@ -1,6 +1,9 @@
 module experiments::Compiler::Examples::Tst1
 
+import ParseTree;
 
-int z;
-
-value main() = z?;
+test bool main(){
+    Tree pt = parse(#C, "axaaa");
+    rprintln(pt);
+    return c(A a, As as) := pt;
+}
