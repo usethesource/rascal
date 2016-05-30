@@ -23,11 +23,9 @@ public class Concept {
 		this.text = text;
 		this.destDir = destDir;
 		this.remote = remote;
-		this.index = "";
-		//getTitleAndSynopsis();
 		title = extract(titlePat);
 		synopsis = extractSynopsis();
-		index = extract(indexPat);
+		index = extractIndex();
 	}
 	
 	public Concept(String name, String text, Path destDir){
@@ -62,9 +60,19 @@ public class Concept {
 		String s = extract(synopsisPat);
 		return s.isEmpty() ? "" : (s.endsWith(".") ? s : (s + "."));
 	}
+	
+	private String extractIndex(){
+		String s = extract(indexPat);
+		if(!s.isEmpty()){
+			Matcher matcher = indexPat.matcher(text);
+			text = matcher.replaceFirst("");
+		}
+		return s;
+	}
 
 	private String extract(Pattern pat){
 		Matcher matcher = pat.matcher(text);
+		
 		return matcher.find() ? matcher.group(1).trim() : "";
 	}
 	
