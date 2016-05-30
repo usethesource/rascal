@@ -75,7 +75,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  // (1) keyword fields in constructors
    	  // (2) common keyword fields in data declarations
       generateCompanions(M, config, verbose=verbose);
-   	 				  
+   	 
    	  translateModule(M);
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
@@ -114,10 +114,13 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  				  {<prettyPrintName(rn1), prettyPrintName(rn2)> | <rn1, rn2> <- config.importGraph},
    	  				  M@\loc);
 
-   } 
-
-   catch e: {
-        return errorMuModule(getModuleName(), {error("Unexpected exception <e>", M@\loc)}, M@\loc);
+   }
+   catch ParseError(loc l): {
+        if (verbose) println("Parse error in concrete syntax <l>; returning error module");
+        return errorMuModule(getModuleName(), {error("Parse error in concrete syntax fragment", l)}, M@\loc);
+   }
+   catch value e: {
+        return errorMuModule(getModuleName(), {error("Unexpected compiler exception <e>", M@\loc)}, M@\loc);
    }
    finally {
    	   resetModuleInfo();
