@@ -247,8 +247,8 @@ public class Bootstrap {
         command[2] = classPath;
         command[3] = "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests";
         System.arraycopy(arguments, 0, command, 4, arguments.length);
-//        RascalTests.main(arguments);
-        if (runChildProcess(command) != 0) {
+
+        if (runChildProcess(command) != 0) { 
             throw new BootstrapMessage(phase);
         }
     }
