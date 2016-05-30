@@ -101,15 +101,15 @@ public class CourseCompiler {
 	
 	public static void main(String[] args) throws IOException, NoSuchRascalFunction {
 //		compileCourse("ADocTest");
-//		compileCourse("CompareWithOtherParadigms");
-//		compileCourse("EASY");
-//		compileCourse("Errors");
-//		compileCourse("Rascal");
+		compileCourse("CompareWithOtherParadigms");
+		compileCourse("EASY");
+		compileCourse("Errors");
+		compileCourse("Rascal");
 		compileCourse("Libraries");
-//		compileCourse("Rascalopedia");
-//		compileCourse("Recipes");
-//		compileCourse("SolutionStrategies");
-//		compileCourse("TutorWebSite");
+		compileCourse("Rascalopedia");
+		compileCourse("Recipes");
+		compileCourse("SolutionStrategies");
+		compileCourse("TutorWebSite");
 		
 	}
 }

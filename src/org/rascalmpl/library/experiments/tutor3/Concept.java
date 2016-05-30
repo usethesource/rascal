@@ -9,8 +9,6 @@ import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.rascalmpl.value.IValue;
-
 public class Concept {
 	private final String name;
 	private String text = null;
@@ -18,13 +16,18 @@ public class Concept {
 	private boolean remote;
 	private String title;
 	private String synopsis;
+	private String index;
 
 	public Concept(String name, String text, Path destDir, boolean remote){
 		this.name = name;
 		this.text = text;
 		this.destDir = destDir;
 		this.remote = remote;
-		getTitleAndSynopsis();
+		this.index = "";
+		//getTitleAndSynopsis();
+		title = extract(titlePat);
+		synopsis = extractSynopsis();
+		index = extract(indexPat);
 	}
 	
 	public Concept(String name, String text, Path destDir){
@@ -47,29 +50,22 @@ public class Concept {
 		return text;
 	}
 	
-	private void getTitleAndSynopsis(){
-		BufferedReader reader = new BufferedReader(new StringReader(text));
-		String line = null;
-		synopsis = "";
-		try {
-			while( (line = reader.readLine()) != null ) {
-				if(line.startsWith("# ")){
-					title = line.substring(2).trim();
-				}
-				if(line.matches("^.Synopsis")){
-					line = reader.readLine();
-					if(line == null){
-						return;
-					}
-					line = line.trim();
-					synopsis = line.endsWith(".") ? line : (line + ".");
-					return;
-				}
-			}
-		} catch (IOException e) {
-			return;
-		}
-		return;
+	public String getIndex(){
+		return index;
+	}
+	
+	Pattern titlePat = Pattern.compile("(?ms)^# (.*?)$");
+	Pattern indexPat = Pattern.compile("(?ms)^\\.Index$\\n(.*?)$");
+	Pattern synopsisPat = Pattern.compile("(?ms)^\\.Synopsis$\\n(.*?)$");
+	
+	private String extractSynopsis(){
+		String s = extract(synopsisPat);
+		return s.isEmpty() ? "" : (s.endsWith(".") ? s : (s + "."));
+	}
+
+	private String extract(Pattern pat){
+		Matcher matcher = pat.matcher(text);
+		return matcher.find() ? matcher.group(1).trim() : "";
 	}
 	
 	private String getConceptBaseName(){
@@ -125,7 +121,6 @@ public class Concept {
 	}
 	
 	public void preprocess(Onthology onthology, PrintWriter err, RascalCommandExecutor executor) throws IOException{
-		//executor = new RascalCommandExecutor(err);
 		System.err.println("Preprocessing: " + name);
 		BufferedReader reader = new BufferedReader(new StringReader(text));
 
