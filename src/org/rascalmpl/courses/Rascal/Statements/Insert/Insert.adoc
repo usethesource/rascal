@@ -6,8 +6,7 @@
 .Synopsis
 Insert a value in a tree during a <<Visit>>.
 
-.Index
-insert
+
 
 .Syntax
 `insert _Exp_;`

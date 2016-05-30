@@ -6,8 +6,7 @@
 .Synopsis
 An executable assertion.
 
-.Index
-assert
+
 
 .Syntax
 

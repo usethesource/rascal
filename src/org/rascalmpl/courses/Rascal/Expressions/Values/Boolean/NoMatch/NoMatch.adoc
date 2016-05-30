@@ -6,8 +6,7 @@
 .Synopsis
 Negated [Boolean Match] operator.
 
-.Index
-!:=
+
 
 .Syntax
 `_Pat_ !:= _Exp_`

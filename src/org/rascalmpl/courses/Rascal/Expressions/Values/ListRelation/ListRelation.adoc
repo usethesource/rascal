@@ -6,8 +6,7 @@
 .Synopsis
 ListRelation values.
 
-.Index
-[ ] < >
+
 
 .Syntax
 `[ < _Exp_~11~, _Exp_~12~, ... > , < _Exp_~21~, _Exp_~22~, ... > , ... ]`

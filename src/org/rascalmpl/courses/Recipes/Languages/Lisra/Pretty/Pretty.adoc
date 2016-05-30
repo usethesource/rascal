@@ -63,12 +63,9 @@ Now let's explore whether `pretty` is indeed the inverse of `parse`:
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Lisra::Parse;
-ok
+[error] Unexpected compiler exception EXCEPTION in translateFunctionDeclaration, compiling build: ParseError(|std:///demo/lang/Lisra/Parse.rsc|(464,29,<13,45>,<13,46>)) AT |std:///demo/lang/Lisra/Parse.rsc|(17,992,<2,0>,<25,77>)
 rascal>parse(pretty(L)) == L;
-ParseError(|unknown:///|(8,1,<1,8>,<1,9>))
-No call stack available
-
-ok
+[error] Name parse is not in scope
 ----
 
 .Benefits

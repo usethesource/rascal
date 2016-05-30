@@ -6,8 +6,7 @@
 .Synopsis
 Assign a value to a variable or more complex data structure.
 
-.Index
-= += -= *= /= ?= [ .. ] . ? @
+
 
 .Syntax
 `_Assignable_ _AssignmentOp_ _Exp_`

@@ -6,8 +6,7 @@
 .Synopsis
 Numeric values.
 
-.Index
-int real num
+
 
 .Syntax
 

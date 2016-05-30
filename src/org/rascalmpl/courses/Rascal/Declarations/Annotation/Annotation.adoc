@@ -6,8 +6,7 @@
 .Synopsis
 Declare an annotation type for nodes.
 
-.Index
-anno @
+
 
 .Syntax
 `anno _AnnoType_ _OnType_ @ _Name_`

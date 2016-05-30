@@ -6,8 +6,7 @@
 .Synopsis
 Throw an exception.
 
-.Index
-throw
+
 
 .Syntax
 `throw _Exp_`

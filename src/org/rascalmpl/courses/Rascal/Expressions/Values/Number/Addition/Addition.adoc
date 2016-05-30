@@ -3,8 +3,7 @@
 # Number Addition
 :concept: Expressions/Values/Number/Addition
 
-.Index
-+
+
 
 .Synopsis
 Addition on numeric values.

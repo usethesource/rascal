@@ -6,8 +6,7 @@
 .Synopsis
 Multiply two numeric values.
 
-.Index
-*
+
 
 .Syntax
 `_Exp_~1~ * _Exp_~2~`

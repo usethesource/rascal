@@ -6,8 +6,7 @@
 .Synopsis
 Assignment to a field of a tuple or datatype.
 
-.Index
-[ = ]
+
 
 .Syntax
 `_Exp_~1~ [ _Name_ = _Exp_~2~ ]`

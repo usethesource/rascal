@@ -15,17 +15,9 @@ While parsing '//tclosure({<1,2>, <2,3>, <3,4>});
 While parsing '//tclosure([<1,2>, <2,3>, <3,4>]);
 ;
 ': Parse error
-asciidoctor: WARNING: Expressions/Values/List/Slice/Slice.adoc: line 14: invalid empty role detected in style attribute
-asciidoctor: WARNING: Expressions/Values/List/Slice/Slice.adoc: line 14: invalid empty role detected in style attribute
-asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 132: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/CartesianProduct/CartesianProduct.adoc
-asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 134: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/Composition/Composition.adoc
-asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 136: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/FieldSelection/FieldSelection.adoc
-asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 138: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/Join/Join.adoc
-asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 140: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/ReflexiveTransitiveClosure/ReflexiveTransitiveClosure.adoc
-asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 144: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/TransitiveClosure/TransitiveClosure.adoc
-asciidoctor: WARNING: Expressions/Values/Node/Slice/Slice.adoc: line 14: invalid empty role detected in style attribute
-asciidoctor: WARNING: Expressions/Values/Node/Slice/Slice.adoc: line 14: invalid empty role detected in style attribute
-asciidoctor: WARNING: Expressions/Values/Range/Range.adoc: line 14: invalid empty role detected in style attribute
-asciidoctor: WARNING: Expressions/Values/Range/Range.adoc: line 14: invalid empty role detected in style attribute
-asciidoctor: WARNING: Expressions/Values/String/Slice/Slice.adoc: line 14: invalid empty role detected in style attribute
-asciidoctor: WARNING: Expressions/Values/String/Slice/Slice.adoc: line 14: invalid empty role detected in style attribute
+asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 131: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/CartesianProduct/CartesianProduct.adoc
+asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 133: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/Composition/Composition.adoc
+asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 135: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/FieldSelection/FieldSelection.adoc
+asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 137: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/Join/Join.adoc
+asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 139: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/ReflexiveTransitiveClosure/ReflexiveTransitiveClosure.adoc
+asciidoctor: WARNING: Expressions/Values/List/List.adoc: line 143: include file not found: /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Expressions/Values/List/TransitiveClosure/TransitiveClosure.adoc

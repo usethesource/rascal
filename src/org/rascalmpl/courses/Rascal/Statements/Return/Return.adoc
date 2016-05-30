@@ -6,8 +6,7 @@
 .Synopsis
 Return a value as result of a [Function].
 
-.Index
-return
+
 
 .Syntax
 

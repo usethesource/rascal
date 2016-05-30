@@ -6,8 +6,7 @@
 .Synopsis
 Field selection on locations.
 
-.Index
-.
+
 
 .Syntax
 `_Exp_ . _Name_`

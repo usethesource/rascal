@@ -6,8 +6,7 @@
 .Synopsis
 Reified types are types that can be used as values.
 
-.Index
-# type &
+
 
 .Syntax
 `# _Name_`

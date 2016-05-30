@@ -6,8 +6,7 @@
 .Synopsis
 The reflexive transitive closure of a binary list relation.
 
-.Index
-*
+
 
 .Syntax
 `_Exp_ *`

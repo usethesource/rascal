@@ -6,8 +6,7 @@
 .Synopsis
 Union of two set values.
 
-.Index
-+
+
 
 .Syntax
 

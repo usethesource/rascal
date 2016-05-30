@@ -6,8 +6,7 @@
 .Synopsis
 Indexing of a relation via tuple values.
 
-.Index
-[ ]
+
 
 .Syntax
 

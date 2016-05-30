@@ -6,8 +6,7 @@
 .Synopsis
 Membership test on list elements.
 
-.Index
-in
+
 
 .Syntax
 `_Exp_~1~ in _Exp_~2~`

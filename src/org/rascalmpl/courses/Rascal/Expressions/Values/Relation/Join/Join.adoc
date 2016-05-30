@@ -6,8 +6,7 @@
 .Synopsis
 Join two relation values.
 
-.Index
-join
+
 
 .Syntax
 `_Exp_~1~ join _Exp_~2~`

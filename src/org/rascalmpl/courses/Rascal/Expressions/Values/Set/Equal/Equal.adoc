@@ -6,8 +6,7 @@
 .Synopsis
 Equal operator on set values.
 
-.Index
-==
+
 
 .Syntax
 `_Exp_~1~ == _Exp_~2~`

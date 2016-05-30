@@ -6,8 +6,7 @@
 .Synopsis
 Retrieve a slice of a node's argument list.
 
-.Index
-[ .. ]
+
 
 .Syntax
 

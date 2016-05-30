@@ -6,8 +6,7 @@
 .Synopsis
 Projection of tuple.
 
-.Index
-< >
+
 
 .Syntax
 `_Exp_ < _Field_~1~, _Field_~2~ ... >`

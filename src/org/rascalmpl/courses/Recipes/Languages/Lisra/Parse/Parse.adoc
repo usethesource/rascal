@@ -66,15 +66,15 @@ that precedes it (`LispExp` in this example). This is illustrated by the list ca
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Lisra::Parse;
-ok
+[error] Unexpected compiler exception EXCEPTION in translateFunctionDeclaration, compiling build: ParseError(|std:///demo/lang/Lisra/Parse.rsc|(464,29,<13,45>,<13,46>)) AT |std:///demo/lang/Lisra/Parse.rsc|(17,992,<2,0>,<25,77>)
 rascal>import demo::lang::Lisra::Runtime;
 ok
 rascal>parse("1");
-Lval: Integer(1)
+[error] Name parse is not in scope
 rascal>parse("x");
-Lval: Atom("x")
+[error] Name parse is not in scope
 rascal>parse("(+ 5 7)");
-ok
+[error] Name parse is not in scope
 ----
 
 .Benefits
