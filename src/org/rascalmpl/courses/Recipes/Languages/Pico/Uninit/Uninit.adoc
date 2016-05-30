@@ -50,23 +50,10 @@ Here is a simple example, where variable `p` is used without intialization:
 rascal>import demo::lang::Pico::Uninit;
 ok
 rascal>uninitProgram("begin declare n : natural, m : natural, p : natural; n := 10; m := n + p end");
-rel[loc,str,STATEMENT]: {<|unknown:///|(71,1,<1,71>,<1,72>),"p",asgStat(
-    "m",
-    add(
-      id("n")[
-        @location=|unknown:///|(67,1,<1,67>,<1,68>),
-        @comments=()
-      ],
-      id("p")[
-        @location=|unknown:///|(71,1,<1,71>,<1,72>),
-        @comments=()
-      ])[
-      @location=|unknown:///|(67,5,<1,67>,<1,72>),
-      @comments=()
-    ])[
-    @location=|unknown:///|(62,10,<1,62>,<1,72>),
-    @comments=()
-  ]>}
+ParseError(|unknown:///|(17,1,<1,17>,<1,18>))
+No call stack available
+
+ok
 ----
 
 

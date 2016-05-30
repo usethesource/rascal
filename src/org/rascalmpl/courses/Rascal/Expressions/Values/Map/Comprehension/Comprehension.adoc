@@ -6,6 +6,9 @@
 .Synopsis
 A map comprehension generates a map value.
 
+.Index
+( | )
+
 .Syntax
 `( _Exp_~1~ : _Exp_~2~ | _Gen_~1~, _Gen_~2~, ... )`
 

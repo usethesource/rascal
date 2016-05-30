@@ -40,10 +40,10 @@ Here is how to evaluate a Pico program:
 rascal>import demo::lang::Pico::Eval;
 ok
 rascal>evalProgram("begin declare x : natural, y : natural; x := 1; y := x + 5 end");
-map[str, PicoValue]: (
-  "x":natval(1),
-  "y":natval(6)
-)
+ParseError(|unknown:///|(17,1,<1,17>,<1,18>))
+No call stack available
+
+ok
 ----
 
 .Benefits

@@ -39,14 +39,6 @@
 [error] Name numberOfFieldsPerClass is not in scope
 [error] Name myModel is not in scope
 ```
-* __Recipes/Common/WordCount__:
-```
-[error] Cannot re-declare name that is already declared in the current function or closure: it IN '(0 | it + 1 | /\w+/ := line)'
-```
-* __Recipes/Common/WordCount__:
-```
-[error] Name wordCount2 is not in scope
-```
 * __Recipes/Metrics/MeasuringJava__:
 ```
 [error] Cannot import module lang::java::jdt::m3::Core AT |std:///experiments/Compiler/Compile.rsc|(0,51,<1,0>,<1,51>)

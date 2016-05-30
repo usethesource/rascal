@@ -74,7 +74,10 @@ ok
 rascal>import demo::lang::Func::programs::F2;
 ok
 rascal>eval2("fact", [10], load(F2));
-tuple[map[str, int],int]: <("n":3628800),3628800>
+ParseError(|unknown:///|(7,1,<1,7>,<1,8>))
+No call stack available
+
+ok
 ----
 
 .Benefits

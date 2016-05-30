@@ -6,6 +6,9 @@
 .Synopsis
 The less than operator on location values.
 
+.Index
+<
+
 .Syntax
 `_Exp_~1~ < _Exp_~2~`
 

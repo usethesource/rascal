@@ -67,7 +67,10 @@ ok
 rascal>import demo::lang::Func::programs::F1;
 ok
 rascal>eval1("fact", [10], load(F1));
-int: 3628800
+ParseError(|unknown:///|(7,1,<1,7>,<1,8>))
+No call stack available
+
+ok
 ----
 
 .Benefits

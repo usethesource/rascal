@@ -1620,28 +1620,6 @@ See <a href="http://docs.oracle.com/javase/6/docs/technotes/tools/windows/java.h
 </li>
 </ul>
 </div>
-<div class="paragraph">
-<div class="title">Examples</div>
-<p>Here is a naive implementation of factorial that does not terminate and causes a stack oveflow
-(skip over the long stack trace to read more):</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error">rascal&gt;//int fac1(int n) = n * fac1(n - 1);
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;//fac1(10);</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This can be avoided by properly guarding the recursion:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-rascal-shell-error" data-lang="rascal-shell-error">rascal&gt;int fac2(int n) = n &gt; 0 ? n * fac2(n - 1) : 1;
-ok
-rascal&gt;fac2(10);
-int: 3628800</code></pre>
-</div>
-</div>
 </div>
 </div>
 </div>
@@ -3203,35 +3181,36 @@ int: 3
 rascal&gt;M::f(3);
 Parse error
 at test-modules:///ConsoleInput.rsc offset=25 length=1 begin=1:5 end=1:6
-	at org.rascalmpl.parser.gtd.SGTDBF.parse(SGTDBF.java:1200)
-	at org.rascalmpl.parser.gtd.SGTDBF.parse(SGTDBF.java:1238)
-	at org.rascalmpl.parser.gtd.SGTDBF.parse(SGTDBF.java:1243)
-	at org.rascalmpl.parser.gtd.SGTDBF.parse(SGTDBF.java:1255)
+	at org.rascalmpl.parser.gtd.SGTDBF.parse(SGTDBF.java:1198)
+	at org.rascalmpl.parser.gtd.SGTDBF.parse(SGTDBF.java:1236)
+	at org.rascalmpl.parser.gtd.SGTDBF.parse(SGTDBF.java:1241)
+	at org.rascalmpl.parser.gtd.SGTDBF.parse(SGTDBF.java:1253)
 	at org.rascalmpl.library.util.ReflectiveCompiled.parseModuleWithSpaces(ReflectiveCompiled.java:79)
-	at org.rascalmpl.library.util.Reflective.parseModule(Reflective.java:280)
-	at sun.reflect.GeneratedMethodAccessor102.invoke(Unknown Source)
+	at org.rascalmpl.library.util.Reflective.parseModule(Reflective.java:284)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
 	at java.lang.reflect.Method.invoke(Method.java:497)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore.callJavaMethod(RVMCore.java:1003)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore.callJavaMethod(RVMCore.java:1096)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.insnCALLJAVA(RVMonJVM.java:347)
 	at lang.rascal.boot.Kernel$Compiled.util::Reflective\parseModule(\loc():)#50(Unknown Source)
-	at lang.rascal.boot.Kernel$Compiled.experiments::Compiler::Compile\compile1Incremental(str():bool():adt("PathConfig",()):)#203(Unknown Source)
-	at lang.rascal.boot.Kernel$Compiled.experiments::Compiler::Compile\compileIncremental(str():bool():adt("PathConfig",()):)#255(Unknown Source)
-	at lang.rascal.boot.Kernel$Compiled.experiments::Compiler::Execute\compileAndMergeIncremental(str():bool():)#367(Unknown Source)
+	at lang.rascal.boot.Kernel$Compiled.experiments::Compiler::Compile\compile1Incremental(str():bool():adt("PathConfig",()):)#199(Unknown Source)
+	at lang.rascal.boot.Kernel$Compiled.experiments::Compiler::Compile\compileIncremental(str():bool():adt("PathConfig",()):)#251(Unknown Source)
+	at lang.rascal.boot.Kernel$Compiled.experiments::Compiler::Execute\compileAndMergeIncremental(str():bool():)#368(Unknown Source)
 	at lang.rascal.boot.Kernel$Compiled.dynRun(Unknown Source)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.executeRVMFunction(RVMonJVM.java:138)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMJVM.executeRVMFunction(RVMJVM.java:80)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore.executeRVMFunction(RVMCore.java:345)
-	at org.rascalmpl.library.lang.rascal.boot.Kernel.compileAndMergeIncremental(Kernel.java:82)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.executeModule(CommandExecutor.java:214)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalStatement(CommandExecutor.java:387)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:286)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:272)
-	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:60)
-	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:218)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.&lt;init&gt;(Onthology.java:62)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:73)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:105)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore.executeRVMFunction(RVMCore.java:385)
+	at org.rascalmpl.library.lang.rascal.boot.Kernel.compileAndMergeIncremental(Kernel.java:92)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.executeModule(CommandExecutor.java:215)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalStatement(CommandExecutor.java:388)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:287)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:273)
+	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:61)
+	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:217)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.&lt;init&gt;(Onthology.java:113)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:74)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:106)
 ok</code></pre>
 </div>
 </div>
@@ -4021,7 +4000,7 @@ rascal&gt;&lt;1, 2, 3&gt;[5,6];
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-04-26 17:14:25 CEST
+Last updated 2016-05-29 23:32:07 CEST
 </div>
 </div>
 </body>

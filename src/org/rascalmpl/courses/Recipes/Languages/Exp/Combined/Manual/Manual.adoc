@@ -55,9 +55,7 @@ Let's try it:
 rascal>import demo::lang::Exp::Combined::Manual::Load;
 ok
 rascal>loadExp("2+3");
-Exp: add(
-  con(2),
-  con(3))
+ok
 ----
 
 
@@ -74,7 +72,7 @@ Here is how it works:
 rascal>import demo::lang::Exp::Combined::Manual::Eval;
 ok
 rascal>eval("2+3");
-int: 5
+ok
 ----
 
 .Benefits

@@ -9,59 +9,8 @@
 `import util::Monitor;`
 
 
-
 .Synopsis
 Monitor the progress of a task/job.
-
-
-* <<Monitor-endJob,endJob>>: Log the __end__ of a job.
-      
-* <<Monitor-event,event>>: Log the __start__ of an event (it is ended by another `event` or by `endJob`).
-      
-* <<Monitor-startJob,startJob>>: Log the __start__ of a job.
-      
-* <<Monitor-todo,todo>>: Set the estimated remaining work for the current (sub)job.
-      
-
-[[Monitor-endJob]]
-## endJob
-
-.Function 
-`int endJob(bool succeeded)`
-
-
-.Synopsis
-Log the __end__ of a job.
-
-.Description
-This should always be called once for every startJob, unless an exception is thrown.
-Returns the amount of work completed for this job (to help in future estimates)
-
-
-
-[[Monitor-event]]
-## event
-
-.Function 
-* `void event(str name)`
-          * `void event(str name, int inc)`
-          * `void event(int inc)`
-          
-
-
-.Synopsis
-Log the __start__ of an event (it is ended by another `event` or by `endJob`).
-
-.Description
-The various forms of `event` behave as follows:
-
-* Log the start of an event.
-* Log the start of an event with the amount of work that will be done when it's finished.
-  An event is finished when the next event is logged, or when <<endJob>> is called.
-* Log the start of an event with the amount of work that will be done when it's finished.
-  An event is finished when the next event is logged, or when <<endJob>> is called.
-
-
 
 [[Monitor-startJob]]
 ## startJob
@@ -71,7 +20,6 @@ The various forms of `event` behave as follows:
           * `void startJob(str name, int totalWork)`
           * `void startJob(str name, int workShare, int totalWork)`
           
-
 
 .Synopsis
 Log the __start__ of a job.
@@ -87,7 +35,39 @@ The various forms of `startJob` do the following:
 * Register a job with a name, the amount this will contribute to the overall task,
   and a total amount of steps to do.
 
+[[Monitor-event]]
+## event
 
+.Function 
+* `void event(str name)`
+          * `void event(str name, int inc)`
+          * `void event(int inc)`
+          
+
+.Synopsis
+Log the __start__ of an event (it is ended by another `event` or by `endJob`).
+
+.Description
+The various forms of `event` behave as follows:
+
+* Log the start of an event.
+* Log the start of an event with the amount of work that will be done when it's finished.
+  An event is finished when the next event is logged, or when <<endJob>> is called.
+* Log the start of an event with the amount of work that will be done when it's finished.
+  An event is finished when the next event is logged, or when <<endJob>> is called.
+
+[[Monitor-endJob]]
+## endJob
+
+.Function 
+`int endJob(bool succeeded)`
+
+.Synopsis
+Log the __end__ of a job.
+
+.Description
+This should always be called once for every startJob, unless an exception is thrown.
+Returns the amount of work completed for this job (to help in future estimates)
 
 [[Monitor-todo]]
 ## todo
@@ -95,15 +75,12 @@ The various forms of `startJob` do the following:
 .Function 
 `void todo(int work)`
 
-
 .Synopsis
 Set the estimated remaining work for the current (sub)job.
 
 .Description
 Set the estimated remaining work for the current (sub)job. 
 The argument `work` is the amount of work remaining to be done, or 0 for unknown.
-
-
 
 :leveloffset: +1
 

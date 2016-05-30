@@ -6,6 +6,9 @@
 .Synopsis
 Group statements into a block.
 
+.Index
+{ } ;
+
 .Syntax
 `{ _Statement_~1~; ... ; _Statement_~n~ }`
 

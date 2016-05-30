@@ -9,7 +9,6 @@
 `import String;`
 
 
-
 .Synopsis
 Library functions for strings.
 
@@ -20,72 +19,6 @@ For operators on strings see link:{RascalLang}#Values-String[String] in the Rasc
 The following functions are defined for strings:
 
 
-
-* <<String-center,center>>: Center a string in given space.
-      
-* <<String-charAt,charAt>>: Return character in a string by its index position.
-      
-* <<String-chars,chars>>: Return characters of a string.
-      
-* <<String-contains,contains>>: Check that a string contains another string.
-      
-* <<String-endsWith,endsWith>>: Check whether a string ends with a given substring.
-      
-* <<String-escape,escape>>: Replace single characters in a string.
-      
-* <<String-findAll,findAll>>: Find all occurrences of a string in another string.
-      
-* <<String-findFirst,findFirst>>: Find the first occurrence of a string in another string.
-      
-* <<String-findLast,findLast>>: Find the last occurrence of a string in another string.
-      
-* <<String-isEmpty,isEmpty>>: Check whether a string is empty.
-      
-* <<String-isValidCharacter,isValidCharacter>>: Check that a given integer value is a valid Unicode code point.
-      
-* <<String-left,left>>: Left alignment of string in given space.
-      
-* <<String-replaceAll,replaceAll>>: Replace all occurrences of a string in another string.
-      
-* <<String-replaceFirst,replaceFirst>>: Replace the first occurrence of a string in another string.
-      
-* <<String-replaceLast,replaceLast>>: Replace the last occurrence of a string in another string.
-      
-* <<String-reverse,reverse>>: Return a string with all characters in reverse order.
-      
-* <<String-rexpMatch,rexpMatch>>: Determine if a string matches the given (Java-syntax) regular expression.
-      
-* <<String-right,right>>: Right align s in string of length n using space.
-      
-* <<String-size,size>>: Determine length of a string value.
-      
-* <<String-split,split>>: Split a string into a list of strings based on a literal separator.
-      
-* <<String-squeeze,squeeze>>: Squeeze repeated occurrences of characters.
-      
-* <<String-startsWith,startsWith>>: Check whether a string starts with a given prefix.
-      
-* <<String-stringChar,stringChar>>: Convert a character code into a string. 
-      
-* <<String-stringChars,stringChars>>: Convert a list of character codes into a string.
-      
-* <<String-substring,substring>>: Extract a substring from a string value.
-      
-* <<String-toInt,toInt>>: Convert a string value to integer.
-      
-* <<String-toLocation,toLocation>>: Convert a string value to a (source code) location.
-      
-* <<String-toLowerCase,toLowerCase>>: Convert the characters in a string value to lower case.
-      
-* <<String-toReal,toReal>>: Convert a string value to real.
-      
-* <<String-toUpperCase,toUpperCase>>: Convert the characters in a string value to upper case.
-      
-* <<String-trim,trim>>: Returns string with leading and trailing whitespace removed.
-      
-* <<String-wrap,wrap>>: Word wrap a string to fit in a certain width.
-      
-
 [[String-center]]
 ## center
 
@@ -93,7 +26,6 @@ The following functions are defined for strings:
 * `str center(str s, int n)`
           * `str center(str s, int n, str pad)`
           
-
 
 .Synopsis
 Center a string in given space.
@@ -114,14 +46,11 @@ rascal>center("abc", 10, "x");
 str: "xxxabcxxxx"
 ----
 
-
-
 [[String-charAt]]
 ## charAt
 
 .Function 
 `int charAt(str s, int i) throws IndexOutOfBounds(str msg)`
-
 
 .Synopsis
 Return character in a string by its index position.
@@ -141,14 +70,11 @@ rascal>stringChar(charAt("abc", 0));
 str: "a"
 ----
 
-
-
 [[String-chars]]
 ## chars
 
 .Function 
 `list[int] chars(str s)`
-
 
 .Synopsis
 Return characters of a string.
@@ -167,14 +93,11 @@ rascal>stringChars(chars("abc")) == "abc";
 bool: true
 ----
 
-
-
 [[String-contains]]
 ## contains
 
 .Function 
 `bool contains(str input, str find)`
-
 
 .Synopsis
 Check that a string contains another string.
@@ -193,14 +116,11 @@ rascal>contains("abracadabra", "e");
 bool: false
 ----
 
-
-
 [[String-endsWith]]
 ## endsWith
 
 .Function 
 `bool endsWith(str subject, str suffix)`
-
 
 .Synopsis
 Check whether a string ends with a given substring.
@@ -217,14 +137,11 @@ rascal>endsWith("Hello.rsc", ".rsc");
 bool: true
 ----
 
-
-
 [[String-escape]]
 ## escape
 
 .Function 
 `str escape(str subject, map[str,str] mapping)`
-
 
 .Synopsis
 Replace single characters in a string.
@@ -249,14 +166,11 @@ rascal>println(L);
 ok
 ----
 
-
-
 [[String-findAll]]
 ## findAll
 
 .Function 
 `list[int] findAll(str subject, str find)`
-
 
 .Synopsis
 Find all occurrences of a string in another string.
@@ -280,14 +194,11 @@ rascal>findAll("abracadabra", "e");
 list[void]: []
 ----
 
-
-
 [[String-findFirst]]
 ## findFirst
 
 .Function 
 `int findFirst(str subject, str find)`
-
 
 .Synopsis
 Find the first occurrence of a string in another string.
@@ -311,14 +222,11 @@ rascal>findFirst("abracadabra", "e");
 int: -1
 ----
 
-
-
 [[String-findLast]]
 ## findLast
 
 .Function 
 `int findLast(str subject, str find)`
-
 
 .Synopsis
 Find the last occurrence of a string in another string.
@@ -342,14 +250,11 @@ rascal>findLast("abracadabra", "e");
 int: -1
 ----
 
-
-
 [[String-isEmpty]]
 ## isEmpty
 
 .Function 
 `bool isEmpty(str s)`
-
 
 .Synopsis
 Check whether a string is empty.
@@ -368,20 +273,6 @@ rascal>isEmpty("abc");
 bool: false
 ----
 
-
-
-[[String-isValidCharacter]]
-## isValidCharacter
-
-.Function 
-`bool isValidCharacter(int ch)`
-
-
-.Synopsis
-Check that a given integer value is a valid Unicode code point.
-
-
-
 [[String-left]]
 ## left
 
@@ -389,7 +280,6 @@ Check that a given integer value is a valid Unicode code point.
 * `str left(str s, int n)`
           * `str left(str s, int n, str pad)`
           
-
 
 .Synopsis
 Left alignment of string in given space.
@@ -410,14 +300,11 @@ rascal>left("abc", 10, "x");
 str: "abcxxxxxxx"
 ----
 
-
-
 [[String-replaceAll]]
 ## replaceAll
 
 .Function 
 `str replaceAll(str subject, str find, str replacement)`
-
 
 .Synopsis
 Replace all occurrences of a string in another string.
@@ -442,15 +329,11 @@ str: "abracadabra"
 .Pitfalls
 Note that `find` is a string (as opposed to, for instance, a regular expression in Java).
 
-
-
-
 [[String-replaceFirst]]
 ## replaceFirst
 
 .Function 
 `str replaceFirst(str subject, str find, str replacement)`
-
 
 .Synopsis
 Replace the first occurrence of a string in another string.
@@ -475,14 +358,11 @@ str: "abracadabra"
 .Pitfalls
 Note that `find` is a string (as opposed to, for instance, a regular expression in Java).
 
-
-
 [[String-replaceLast]]
 ## replaceLast
 
 .Function 
 `str replaceLast(str subject, str find, str replacement)`
-
 
 .Synopsis
 Replace the last occurrence of a string in another string.
@@ -507,14 +387,11 @@ str: "abracadabra"
 .Pitfalls
 Note that `find` is a string (as opposed to, for instance, a regular expression in Java).
 
-
-
 [[String-reverse]]
 ## reverse
 
 .Function 
 `str reverse(str s)`
-
 
 .Synopsis
 Return a string with all characters in reverse order.
@@ -531,20 +408,6 @@ rascal>reverse("abc");
 str: "cba"
 ----
 
-
-
-[[String-rexpMatch]]
-## rexpMatch
-
-.Function 
-`bool rexpMatch(str s, str re)`
-
-
-.Synopsis
-Determine if a string matches the given (Java-syntax) regular expression.
-
-
-
 [[String-right]]
 ## right
 
@@ -553,9 +416,13 @@ Determine if a string matches the given (Java-syntax) regular expression.
           * `str right(str s, int n, str pad)`
           
 
-
 .Synopsis
-Right align s in string of length n using space.
+Right alignment of a string value in a given space.
+
+.Description
+
+*  Right align string `s` in string of length `n` using spaces.
+*  Right align string `s` in string of length `n` using `pad` as pad character.
 
 .Examples
 [source,rascal-shell]
@@ -568,14 +435,11 @@ rascal>right("abc", 10, "x");
 str: "xxxxxxxabc"
 ----
 
-
-
 [[String-size]]
 ## size
 
 .Function 
 `int size(str s)`
-
 
 .Synopsis
 Determine length of a string value.
@@ -594,51 +458,11 @@ rascal>size("");
 int: 0
 ----
 
-
-
-[[String-split]]
-## split
-
-.Function 
-`list[str] split(str sep, str src)`
-
-
-.Synopsis
-Split a string into a list of strings based on a literal separator.
-
-
-
-[[String-squeeze]]
-## squeeze
-
-.Function 
-`str squeeze(str src, str charSet)`
-
-
-.Synopsis
-Squeeze repeated occurrences of characters.
-.Description
-Squeeze repeated occurrences in `src` of characters in `charSet` removed.
-See http://commons.apache.org/lang/api-2.6/index.html?org/apache/commons/lang/text/package-summary.html[Apache]
-for the allowed syntax in `charSet`.
-
-.Examples
-[source,rascal-shell]
-----
-rascal>import String;
-ok
-rascal>squeeze("hello", "el");
-str: "helo"
-----
-
-
-
 [[String-startsWith]]
 ## startsWith
 
 .Function 
 `bool startsWith(str subject, str prefix)`
-
 
 .Synopsis
 Check whether a string starts with a given prefix.
@@ -655,19 +479,14 @@ rascal>startsWith("Hello.rsc", "Hell");
 bool: true
 ----
 
-
-
 [[String-stringChar]]
 ## stringChar
 
 .Function 
 `str stringChar(int char) throws IllegalArgument(int character)`
 
-
 .Synopsis
-Convert a character code into a string. 
-
-
+Convert a character code into a string.
 
 [[String-stringChars]]
 ## stringChars
@@ -675,11 +494,17 @@ Convert a character code into a string.
 .Function 
 `str stringChars(list[int] chars) throws IllegalArgument(int character)`
 
-
 .Synopsis
 Convert a list of character codes into a string.
 
+[[String-isValidCharacter]]
+## isValidCharacter
 
+.Function 
+`bool isValidCharacter(int ch)`
+
+.Synopsis
+Check that a given integer value is a valid Unicode code point.
 
 [[String-substring]]
 ## substring
@@ -688,7 +513,6 @@ Convert a list of character codes into a string.
 * `str substring(str s, int begin)`
           * `str substring(str s, int begin, int end)`
           
-
 
 .Synopsis
 Extract a substring from a string value.
@@ -709,8 +533,6 @@ rascal>substring("abcdef", 2, 4);
 str: "cd"
 ----
 
-
-
 [[String-toInt]]
 ## toInt
 
@@ -718,7 +540,6 @@ str: "cd"
 * `int toInt(str s) throws IllegalArgument`
           * `int toInt(str s, int r) throws IllegalArgument`
           
-
 
 .Synopsis
 Convert a string value to integer.
@@ -753,42 +574,11 @@ Call stack (most recent first):
 ok
 ----
 
-
-
-[[String-toLocation]]
-## toLocation
-
-.Function 
-`loc toLocation(str s)`
-
-
-.Synopsis
-Convert a string value to a (source code) location.
-
-.Description
-
-*  Converts string `s` to a location.
-*  If the scheme is not provided, it is assumed to be `cwd`.
-
-.Examples
-[source,rascal-shell]
-----
-rascal>import String;
-ok
-rascal>toLocation("http://grammarware.net");
-loc: |http://grammarware.net|
-rascal>toLocation("document.xml");
-loc: |cwd:///document.xml|
-----
-
-
-
 [[String-toLowerCase]]
 ## toLowerCase
 
 .Function 
 `str toLowerCase(str s)`
-
 
 .Synopsis
 Convert the characters in a string value to lower case.
@@ -805,14 +595,11 @@ rascal>toLowerCase("AaBbCc123");
 str: "aabbcc123"
 ----
 
-
-
 [[String-toReal]]
 ## toReal
 
 .Function 
 `real toReal(str s)`
-
 
 .Synopsis
 Convert a string value to real.
@@ -838,14 +625,11 @@ Call stack (most recent first):
 ok
 ----
 
-
-
 [[String-toUpperCase]]
 ## toUpperCase
 
 .Function 
 `str toUpperCase(str s)`
-
 
 .Synopsis
 Convert the characters in a string value to upper case.
@@ -864,14 +648,11 @@ rascal>toUpperCase("AaBbCc123");
 str: "AABBCC123"
 ----
 
-
-
 [[String-trim]]
 ## trim
 
 .Function 
 `str trim(str s)`
-
 
 .Synopsis
 Returns string with leading and trailing whitespace removed.
@@ -886,6 +667,67 @@ rascal>trim("  jelly
 str: "jelly\nbeans"
 ----
 
+[[String-squeeze]]
+## squeeze
+
+.Function 
+`str squeeze(str src, str charSet)`
+
+.Synopsis
+Squeeze repeated occurrences of characters.
+.Description
+Squeeze repeated occurrences in `src` of characters in `charSet` removed.
+See http://commons.apache.org/lang/api-2.6/index.html?org/apache/commons/lang/text/package-summary.html[Apache]
+for the allowed syntax in `charSet`.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import String;
+ok
+rascal>squeeze("hello", "el");
+str: "helo"
+----
+
+[[String-split]]
+## split
+
+.Function 
+`list[str] split(str sep, str src)`
+
+.Synopsis
+Split a string into a list of strings based on a literal separator.
+
+[[String-capitalize]]
+## capitalize
+
+.Function 
+`str capitalize(str src)`
+
+
+
+[[String-uncapitalize]]
+## uncapitalize
+
+.Function 
+`str uncapitalize(str src)`
+
+
+
+[[String-toBase64]]
+## toBase64
+
+.Function 
+`str toBase64(str src)`
+
+
+
+[[String-fromBase64]]
+## fromBase64
+
+.Function 
+`str fromBase64(str src)`
+
 
 
 [[String-wrap]]
@@ -894,14 +736,71 @@ str: "jelly\nbeans"
 .Function 
 `str wrap(str src, int wrapLength)`
 
-
 .Synopsis
 Word wrap a string to fit in a certain width.
 
 .Description
-Inserts newlines in a string in order to fit the string in a certain width. It only breaks on spaces (' '). 
+Inserts newlines in a string in order to fit the string in a certain width. It only breaks on spaces (' ').
+
+[[String-format]]
+## format
+
+.Function 
+`str format(str s, str dir, int n, str pad)`
 
 
+
+[[String-rexpMatch]]
+## rexpMatch
+
+.Function 
+`bool rexpMatch(str s, str re)`
+
+.Synopsis
+Determine if a string matches the given (Java-syntax) regular expression.
+
+[[String-toLocation]]
+## toLocation
+
+.Function 
+`loc toLocation(str s)`
+
+.Synopsis
+Convert a string value to a (source code) location.
+
+.Description
+
+*  Converts string `s` to a location.
+*  If the scheme is not provided, it is assumed to be `cwd`.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import String;
+ok
+rascal>toLocation("http://grammarware.net");
+loc: |http://grammarware.net|
+rascal>toLocation("document.xml");
+loc: |cwd:///document.xml|
+----
+
+[[String-substitute]]
+## substitute
+
+.Function 
+`str substitute(str src, map[loc,str] s)`
+
+.Synopsis
+Substitute substrings in a string based on a substitution map from location to string.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import String;
+ok
+rascal>substitute("abc", (|stdin://|(1,1): "d"))
+[error] Expected 4 arguments: int, int, tuple[int,int], and tuple[int,int] IN '|stdin://|(1,1)'
+----
 
 :leveloffset: +1
 

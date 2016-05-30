@@ -6,6 +6,9 @@
 .Synopsis
 The _implication_ operator on Boolean values.
 
+.Index
+==>
+
 .Syntax
 `_Exp_~1~ ==> _Exp_~2~`
 

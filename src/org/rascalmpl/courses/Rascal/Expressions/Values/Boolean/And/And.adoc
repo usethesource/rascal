@@ -6,6 +6,9 @@
 .Synopsis
 Boolean _and_ operator.
 
+.Index
+&&
+
 .Syntax
 `_Exp_~1~ && _Exp_~2~`
 

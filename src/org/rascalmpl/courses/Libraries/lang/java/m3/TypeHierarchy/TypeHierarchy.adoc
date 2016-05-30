@@ -11,6 +11,14 @@
 
 
 
+[[TypeHierarchy-getDeclaredTypeHierarchy]]
+## getDeclaredTypeHierarchy
+
+.Function 
+`rel[loc from, loc to] getDeclaredTypeHierarchy(M3 model)`
+
+
+
 :leveloffset: +1
 
 :leveloffset: -1

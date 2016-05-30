@@ -9,7 +9,6 @@
 `import Node;`
 
 
-
 .Synopsis
 Library functions for nodes.
 
@@ -20,42 +19,11 @@ For operators on nodes see link:{RascalLang}#Values-Node[Node] in the Rascal Lan
 The following functions are defined for nodes:
 
 
-
-* <<Node-arity,arity>>: Determine the number of children of a node.
-      
-* <<Node-delAnnotation,delAnnotation>>: Delete a specific annotation from a node.
-      
-* <<Node-delAnnotations,delAnnotations>>: Delete all annotations from a node.
-      
-* <<Node-delAnnotationsRec,delAnnotationsRec>>: Delete recursively all annotations from all nodes in a value.
-      
-* <<Node-getAnnotations,getAnnotations>>: Retrieve the annotations of a node value as a map.
-      
-* <<Node-getChildren,getChildren>>: Get the children of a node.
-      
-* <<Node-getKeywordParameters,getKeywordParameters>>: Get the keyword parameters of a node.
-      
-* <<Node-getName,getName>>: Determine the name of a node.
-      
-* <<Node-itoString,itoString>>: Convert a node to an indented string.
-      
-* <<Node-makeNode,makeNode>>: Create a node given its function name and arguments.
-      
-* <<Node-setAnnotations,setAnnotations>>: Add a map of annotations to a node value.
-      
-* <<Node-setKeywordParameters,setKeywordParameters>>: Set the keyword parameters of a node.
-      
-* <<Node-toString,toString>>: Convert a node to a string.
-      
-* <<Node-unset,unset>>: Set a specific parameter back to default on a node.
-      
-
 [[Node-arity]]
 ## arity
 
 .Function 
 `int arity(node T)`
-
 
 .Synopsis
 Determine the number of children of a node.
@@ -64,15 +32,6 @@ Determine the number of children of a node.
 [source,rascal-shell]
 ----
 rascal>import Node;
-rascal2rvm: Parsing and checking |std:///Node.rsc|
-rascal2rvm: Compiling |std:///Node.rsc|
-r2mu: entering ... Node
-rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
-resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
-mu2rvm: Compiling module Node
-Compiling |std:///Node.rsc|: check: 16, compile: 748, total: 764 ms
-compile: Writing RVMModule |compressed+home:///bin-console/Node.rvm.gz|
-Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>arity("f"(10, "abc"));
 int: 2
@@ -80,14 +39,11 @@ rascal>arity("f"(10, "abc", false));
 int: 3
 ----
 
-
-
 [[Node-delAnnotation]]
 ## delAnnotation
 
 .Function 
 `&T <: node delAnnotation(&T <: node x, str label)`
-
 
 .Synopsis
 Delete a specific annotation from a node.
@@ -108,14 +64,11 @@ node: "f"(10,"abc")[
 ]
 ----
 
-
-
 [[Node-delAnnotations]]
 ## delAnnotations
 
 .Function 
 `&T <: node  delAnnotations(&T <: node x)`
-
 
 .Synopsis
 Delete all annotations from a node.
@@ -134,14 +87,11 @@ rascal>delAnnotations(F);
 node: "f"(10,"abc")
 ----
 
-
-
 [[Node-delAnnotationsRec]]
 ## delAnnotationsRec
 
 .Function 
 `&T delAnnotationsRec(&T v)`
-
 
 .Synopsis
 Delete recursively all annotations from all nodes in a value.
@@ -172,14 +122,11 @@ node: "f"(
   "g"("def"))
 ----
 
-
-
 [[Node-getAnnotations]]
 ## getAnnotations
 
 .Function 
 `map[str,value] getAnnotations(node x)`
-
 
 .Synopsis
 Retrieve the annotations of a node value as a map.
@@ -217,14 +164,11 @@ rascal>F@color;
 str: "red"
 ----
 
-
-
 [[Node-getChildren]]
 ## getChildren
 
 .Function 
 `list[value] getChildren(node T)`
-
 
 .Synopsis
 Get the children of a node.
@@ -238,14 +182,11 @@ rascal>getChildren("f"(10, "abc"));
 list[value]: [10,"abc"]
 ----
 
-
-
 [[Node-getKeywordParameters]]
 ## getKeywordParameters
 
 .Function 
 `map[str,value] getKeywordParameters(node T)`
-
 
 .Synopsis
 Get the keyword parameters of a node.
@@ -259,14 +200,29 @@ rascal>getKeywordParameters("f"(10, "abc", height=0));
 map[str, int]: ("height":0)
 ----
 
+[[Node-setKeywordParameters]]
+## setKeywordParameters
 
+.Function 
+`&T <: node setKeywordParameters(&T <: node x, map[str,value] keywordParameters)`
+
+.Synopsis
+Set the keyword parameters of a node.
+
+.Examples
+[source,rascal-shell]
+----
+rascal>import Node;
+ok
+rascal>setKeywordParameters("f"(10, "abc"), ("height":0));
+node: "f"(10,"abc",height=0)
+----
 
 [[Node-getName]]
 ## getName
 
 .Function 
 `str getName(node T)`
-
 
 .Synopsis
 Determine the name of a node.
@@ -280,40 +236,11 @@ rascal>getName("f"(10, "abc"));
 str: "f"
 ----
 
-
-
-[[Node-itoString]]
-## itoString
-
-.Function 
-`str itoString(node T)`
-
-
-.Synopsis
-Convert a node to an indented string.
-
-.Examples
-[source,rascal-shell]
-----
-rascal>import Node;
-ok
-rascal>F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
-node: "f"(10,"abc")[
-  @size="large",
-  @color="red"
-]
-rascal>itoString(F);
-str: "\"f\"(10,\"abc\")[\n  @size=\"large\",\n  @color=\"red\"\n]"
-----
-
-
-
 [[Node-makeNode]]
 ## makeNode
 
 .Function 
 `node makeNode(str N, value V..., map[str, value] keywordParameters = ())`
-
 
 .Synopsis
 Create a node given its function name and arguments.
@@ -327,14 +254,11 @@ rascal>makeNode("f", [10, "abc"]);
 node: "f"(10,"abc")
 ----
 
-
-
 [[Node-setAnnotations]]
 ## setAnnotations
 
 .Function 
 `&T <: node setAnnotations(&T <: node x, map[str, value] annotations)`
-
 
 .Synopsis
 Add a map of annotations to a node value.
@@ -361,26 +285,22 @@ This function may result in run-time type errors later if
 you store a value with a label that has an incomparable annotation type
 declared.
 
-
-
-[[Node-setKeywordParameters]]
-## setKeywordParameters
+[[Node-unset]]
+## unset
 
 .Function 
-`&T <: node setKeywordParameters(&T <: node x, map[str,value] keywordParameters)`
-
+* `&T <: node unset(&T <: node x, str label)`
+          * `&T <: node unset(&T <: node x)`
+          
 
 .Synopsis
-Set the keyword parameters of a node.
+Set a specific parameter back to default on a node.
 
-.Examples
-[source,rascal-shell]
-----
-rascal>import Node;
-ok
-rascal>setKeywordParameters("f"(10, "abc"), ("height":0));
-node: "f"(10,"abc",height=0)
-----
+[[Node-unsetRec]]
+## unsetRec
+
+.Function 
+`&T <: node unsetRec(&T <: node x)`
 
 
 
@@ -389,7 +309,6 @@ node: "f"(10,"abc",height=0)
 
 .Function 
 `str toString(node T)`
-
 
 .Synopsis
 Convert a node to a string.
@@ -408,21 +327,28 @@ rascal>toString(F);
 str: "\"f\"(10,\"abc\")[@size=\"large\",@color=\"red\"]"
 ----
 
-
-
-[[Node-unset]]
-## unset
+[[Node-itoString]]
+## itoString
 
 .Function 
-* `&T <: node unset(&T <: node x, str label)`
-          * `&T <: node unset(&T <: node x)`
-          
-
+`str itoString(node T)`
 
 .Synopsis
-Set a specific parameter back to default on a node.
+Convert a node to an indented string.
 
-
+.Examples
+[source,rascal-shell]
+----
+rascal>import Node;
+ok
+rascal>F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
+node: "f"(10,"abc")[
+  @size="large",
+  @color="red"
+]
+rascal>itoString(F);
+str: "\"f\"(10,\"abc\")[\n  @size=\"large\",\n  @color=\"red\"\n]"
+----
 
 :leveloffset: +1
 

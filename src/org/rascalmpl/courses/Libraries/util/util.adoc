@@ -21,7 +21,7 @@ Utilities: functions, data types and interfaces with external libraries.
 *** <<IDE-Hyperlinking,Hyperlinking>>: Hyperlinks in source code.
 *** <<IDE-Menus,Menus>>: menus in the IDE can be used to call Rascal functions with source texts as arguments and source texts as output.
 *** <<IDE-Outline,Outline>>: An outline is an IDE view with hyperlinks that quickly visualizes an outline of a source code file.
-*** <<IDE-Plugin,Plugin>>: .
+*** <<IDE-Plugin,Plugin>>: 
 ** <<util-Math,Math>>: Mathematical functions.
 ** <<util-Monitor,Monitor>>: Monitor the progress of a task/job.
 ** <<util-ParseTreeUI,ParseTreeUI>>: 

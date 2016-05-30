@@ -4,7 +4,10 @@
 :concept: Declarations/SyntaxDefinition/Disambiguation/Priority
 
 .Synopsis
+Declare the priority of operators.
 
+.Index
+> |
 
 .Syntax
 

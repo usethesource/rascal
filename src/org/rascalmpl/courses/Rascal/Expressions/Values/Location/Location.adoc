@@ -6,6 +6,9 @@
 .Synopsis
 (Source code) location values.
 
+.Index
+| ( )
+
 .Syntax
 `| _Uri_ | ( _O_, _L_, < _BL_, _BC_ > , < _EL_,_EC_ > )`
 where:

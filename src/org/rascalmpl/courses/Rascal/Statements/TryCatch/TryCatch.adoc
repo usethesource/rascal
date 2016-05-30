@@ -6,6 +6,9 @@
 .Synopsis
 Try to execute a statement and catch resulting exceptions.
 
+.Index
+try catch finally
+
 .Syntax
 [source,rascal,subs="quotes"]
 ----

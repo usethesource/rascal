@@ -6,6 +6,9 @@
 .Synopsis
 Less than or equal operator on string values.
 
+.Index
+<=
+
 .Syntax
 `_Exp_~1~ <= _Exp_~2~`
 

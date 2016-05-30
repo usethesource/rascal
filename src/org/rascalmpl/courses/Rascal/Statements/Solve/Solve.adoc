@@ -6,6 +6,9 @@
 .Synopsis
 Solve a set of equalities by fixed-point iteration.
 
+.Index
+solve
+
 .Syntax
 `solve(_Var_~1~, _Var_~2~, ..., _Var_~n~; _Exp_) _Statement_;`
 

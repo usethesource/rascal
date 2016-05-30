@@ -491,21 +491,22 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#Statements-Append">7.1. Append</a></li>
 <li><a href="#Statements-Assert">7.2. Assert</a></li>
 <li><a href="#Statements-Assignment">7.3. Assignment</a></li>
-<li><a href="#Statements-Block">7.4. Block</a></li>
-<li><a href="#Statements-Break">7.5. Break</a></li>
-<li><a href="#Statements-Continue">7.6. Continue</a></li>
-<li><a href="#Statements-Do">7.7. Do</a></li>
-<li><a href="#Statements-Fail">7.8. Fail</a></li>
-<li><a href="#Statements-For">7.9. For</a></li>
-<li><a href="#Statements-If">7.10. If</a></li>
-<li><a href="#Statements-Insert">7.11. Insert</a></li>
-<li><a href="#Statements-Return">7.12. Return</a></li>
-<li><a href="#Statements-Solve">7.13. Solve</a></li>
-<li><a href="#Statements-Switch">7.14. Switch</a></li>
-<li><a href="#Statements-Test">7.15. Test</a></li>
-<li><a href="#Statements-Throw">7.16. Throw</a></li>
-<li><a href="#Statements-TryCatch">7.17. Try Catch</a></li>
-<li><a href="#Statements-While">7.18. While</a></li>
+<li><a href="#_">7.4. += -= *= /= ?= [ .. ] . ? @</a></li>
+<li><a href="#Statements-Block">7.5. Block</a></li>
+<li><a href="#Statements-Break">7.6. Break</a></li>
+<li><a href="#Statements-Continue">7.7. Continue</a></li>
+<li><a href="#Statements-Do">7.8. Do</a></li>
+<li><a href="#Statements-Fail">7.9. Fail</a></li>
+<li><a href="#Statements-For">7.10. For</a></li>
+<li><a href="#Statements-If">7.11. If</a></li>
+<li><a href="#Statements-Insert">7.12. Insert</a></li>
+<li><a href="#Statements-Return">7.13. Return</a></li>
+<li><a href="#Statements-Solve">7.14. Solve</a></li>
+<li><a href="#Statements-Switch">7.15. Switch</a></li>
+<li><a href="#Statements-Test">7.16. Test</a></li>
+<li><a href="#Statements-Throw">7.17. Throw</a></li>
+<li><a href="#Statements-TryCatch">7.18. Try Catch</a></li>
+<li><a href="#Statements-While">7.19. While</a></li>
 </ul>
 </li>
 </ul>
@@ -2074,7 +2075,7 @@ list[void]: []</code></pre>
 <p><a href="#Declarations-Function">Function Declaration</a>: Declare a function.</p>
 </li>
 <li>
-<p><a href="#Declarations-SyntaxDefinition">Syntax Definition</a>: .</p>
+<p><a href="#Declarations-SyntaxDefinition">Syntax Definition</a>: Syntax Definitions allow the definition of parsers for programming languages, domain-specific languages and data formats.</p>
 <div class="ulist">
 <ul>
 <li>
@@ -2087,7 +2088,7 @@ list[void]: []</code></pre>
 <p><a href="#SyntaxDefinition-AmbiguityDiagnosis">Ambiguity Diagnosis</a>: Ambiguity diagnosis suggests changes to syntax definitions to make them non-ambiguous.</p>
 </li>
 <li>
-<p><a href="#SyntaxDefinition-Disambiguation">Disambiguation</a>: .</p>
+<p><a href="#SyntaxDefinition-Disambiguation">Disambiguation</a>:</p>
 </li>
 <li>
 <p><a href="#SyntaxDefinition-ParseTrees">ParseTrees</a>: The ParseTrees module defines an algebraic data-type for parse trees, which all parsers generated from [SyntaxDefinition]s produce.</p>
@@ -2114,6 +2115,10 @@ list[void]: []</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Declare a module.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>module</p>
 </div>
 <div class="listingblock">
 <div class="title">Syntax</div>
@@ -2251,6 +2256,10 @@ Finally, it declares the <code>hello</code> function.</p>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Declare the import a module.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>import</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -2407,6 +2416,9 @@ list[int]: [1,2,3]</code></pre>
 <div class="title">Synopsis</div>
 <p>Reified types are types that can be used as values.</p>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_type">4.4.4. type &amp;</h4>
 <div class="paragraph">
 <div class="title">Syntax</div>
 <p><code># <em>Name</em></code></p>
@@ -2461,10 +2473,14 @@ when we do not know the non-terminals before hand.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="StaticTyping-TypeConstraints">4.4.4. Type Constraints</h4>
+<h4 id="StaticTyping-TypeConstraints">4.4.5. Type Constraints</h4>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Type constraints restrict the acceptable type for parameters.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&lt;: &amp;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -2559,10 +2575,14 @@ Suite: diamonds()[
 </div>
 </div>
 <div class="sect3">
-<h4 id="StaticTyping-TypeParameters">4.4.5. Type Parameters</h4>
+<h4 id="StaticTyping-TypeParameters">4.4.6. Type Parameters</h4>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Type parameters enable parameterized types.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&amp;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -2654,6 +2674,10 @@ should be defined in the left part of the alias definition.</p>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Define a user-defined type (Algebraic Data Type).</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>data</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -2839,6 +2863,10 @@ rascal&gt;x;
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Declare a function.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>public private java test default &amp;</p>
 </div>
 <div class="ulist">
 <div class="title">Syntax</div>
@@ -3157,6 +3185,10 @@ B: f()</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Syntax Definitions allow the definition of parsers for programming languages, domain-specific languages and data formats.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>start lexical layout keyword assoc left right non-assoc</p>
 </div>
 <div class="ulist">
 <div class="title">Syntax</div>
@@ -3553,6 +3585,14 @@ or any other kind of program that processes <a href="#SyntaxDefinition-ParseTree
 </div>
 <div class="sect4">
 <h5 id="Disambiguation-Associativity">Associativity Declaration</h5>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Define associativity of operators</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>left right assoc non-assoc</p>
+</div>
 <div class="ulist">
 <div class="title">Syntax</div>
 <ul>
@@ -3756,7 +3796,11 @@ or any other kind of program that processes <a href="#SyntaxDefinition-ParseTree
 <h5 id="Disambiguation-Follow">Follow Declaration</h5>
 <div class="paragraph">
 <div class="title">Synopsis</div>
-<p>a follow requirement is a conditional <a href="#SyntaxDefinition-Symbol">Symbol</a>, constraining the characters that can immediately follow a symbol in the input source text.</p>
+<p>A conditional <a href="#SyntaxDefinition-Symbol">Symbol</a>, constraining the characters that can immediately follow a symbol in the input source text.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;&gt; !&gt;&gt;</p>
 </div>
 <div class="ulist">
 <div class="title">Syntax</div>
@@ -3779,6 +3823,14 @@ or any other kind of program that processes <a href="#SyntaxDefinition-ParseTree
 </div>
 <div class="sect4">
 <h5 id="Disambiguation-Precede">Precede Declaration</h5>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>A conditional <a href="#SyntaxDefinition-Symbol">Symbol</a>, constraining the characters that can immediately precede a symbol in the input source text.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&lt;&lt; !&lt;&lt;</p>
+</div>
 <div class="ulist">
 <div class="title">Syntax</div>
 <ul>
@@ -3800,6 +3852,18 @@ or any other kind of program that processes <a href="#SyntaxDefinition-ParseTree
 </div>
 <div class="sect4">
 <h5 id="Disambiguation-Priority">Priority Declaration</h5>
+<div class="paragraph">
+<div class="title">Synopsis</div>
+<p>Declare the priority of operators.</p>
+</div>
+<div class="quoteblock">
+<div class="title">Index</div>
+<blockquote>
+<div class="paragraph">
+<p>|</p>
+</div>
+</blockquote>
+</div>
 <div class="ulist">
 <div class="title">Syntax</div>
 <ul>
@@ -3963,6 +4027,10 @@ E = left "a"? E "*" E &gt; E "" E will remain ambiguous. This should be written 
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Reserve is a conditional <a href="#SyntaxDefinition-Symbol">Symbol</a>, constraining the set of strings that a symbol may produce.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>\</p>
 </div>
 <div class="ulist">
 <div class="title">Syntax</div>
@@ -4882,6 +4950,10 @@ test a() = parse(#A,"ab") == appl(prod(label("myA",lex("A")),[lit("a"),sort("bLa
 <p>The symbols that can occur in a syntax definition.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>" ' [ ] ! - || &amp;&amp; ( ) ? + * { } | () ^ @ &gt;&gt; !&gt;&gt; &lt;&lt; !&lt;&lt; \</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p>Nonterminal symbols are identifier names that <em>start with an uppercase letter</em>.</p>
 </div>
@@ -5241,6 +5313,10 @@ ok</code></pre>
 <p>Declare an alias for a type.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>alias</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code>alias <em>Name</em>  = <em>Type</em>;</code></p>
 </div>
@@ -5300,6 +5376,10 @@ ok</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Declare an annotation type for nodes.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>anno @</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -5535,6 +5615,10 @@ LayoutStrategy: fisheye()</code></pre>
 <p>Deep match in an abstract pattern.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>/</p>
+</div>
+<div class="paragraph">
 <div class="title">Description</div>
 <p>A descendant pattern
 performs a deep match of the pattern <em>Pat</em>. In other words, it matches when any element of the subject at any depth
@@ -5626,6 +5710,10 @@ list[int]: [1,2,3,4,5,4]</code></pre>
 <p>Labelled abstract pattern.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>:</p>
+</div>
+<div class="paragraph">
 <div class="title">Description</div>
 <p>A labelled pattern matches the same values as <em>Pat</em>, but has as side-effect that the matched value is assigned to <em>Var</em>.</p>
 </div>
@@ -5666,6 +5754,10 @@ list[void]: []</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>List in abstract pattern.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>[ ]</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -5866,6 +5958,10 @@ bool: false</code></pre>
 <div class="title">Synopsis</div>
 <p>Multi-variable (also known as Splice-variable) in abstract pattern.</p>
 </div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>*</p>
+</div>
 <div class="ulist">
 <div class="title">Syntax</div>
 <ul>
@@ -5988,6 +6084,10 @@ ok</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Set in abstract pattern.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>{ }</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -6123,6 +6223,10 @@ ok</pre>
 <p>Tuple in abstract pattern.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&lt; &gt;</p>
+</div>
+<div class="paragraph">
 <div class="title">Description</div>
 <p>A tuple pattern matches a tuple value, provided that <em>Pat</em><sub>1</sub>, <em>Pat</em><sub>2</sub>, &#8230;&#8203;, <em>Pat</em><sub>n</sub>  match the elements of that tuple in order.</p>
 </div>
@@ -6143,6 +6247,10 @@ ok</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Type constrained abstract pattern.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>[ ]</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -6222,6 +6330,10 @@ Exp: add(
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Typed, labelled, abstract pattern.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>:</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -6402,6 +6514,10 @@ ok</code></pre>
 <div class="title">Synopsis</div>
 <p>Concrete patterns.</p>
 </div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>( ) ` &lt; &gt;</p>
+</div>
 <div class="listingblock">
 <div class="title">Syntax</div>
 <div class="content">
@@ -6558,6 +6674,10 @@ as types in the Rascal program.</p>
 <div class="title">Synopsis</div>
 <p>A pattern with an associated action that is executed on a successful match.</p>
 </div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&#8658; :</p>
+</div>
 <div class="ulist">
 <div class="title">Syntax</div>
 <ul>
@@ -6635,6 +6755,10 @@ case red(_,_): c = c + 1;</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Regular expression patterns.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>/ \ [ ] ^ - . | ? * + { } $</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -7022,6 +7146,10 @@ on the operator. The result returned by the operator is used as value of the ope
 <p>Boolean values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>true false</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code>true</code>, <code>false</code></p>
 </div>
@@ -7217,6 +7345,10 @@ ok</code></pre>
 <p>All argument expressions are true.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>all</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code>all ( <em>Exp</em><sub>1</sub>, <em>Exp</em><sub>2</sub>, &#8230;&#8203; )</code></p>
 </div>
@@ -7297,6 +7429,10 @@ The interpreter returns <code>fals</code> for the abo eexample.
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Boolean <em>and</em> operator.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&amp;&amp;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -7429,6 +7565,10 @@ int: 0</code></pre>
 <div class="sect4">
 <h5 id="Boolean-Any">Boolean Any</h5>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>any</p>
+</div>
+<div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Any combination of argument values is true.</p>
 </div>
@@ -7478,6 +7618,10 @@ bool: true</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>The <em>equivalence</em> operator on Boolean values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&#8656;&#8658;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -7588,6 +7732,10 @@ for i &#8592; [1,2] &amp;&amp; (i % 2 == 0 &#8656;&#8658; (j &#8592; [1,2,3] &am
 <p>Test whether expression has a defined value, otherwise provide alternative.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>?</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> ? <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -7684,6 +7832,10 @@ int: 0</code></pre>
 <p>The <em>implication</em> operator on Boolean values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>=&#8658;</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> =&#8658; <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -7767,6 +7919,10 @@ bool: true</code></pre>
 <p>Test whether the value of an expression is defined.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>?</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em> ?</code></p>
 </div>
@@ -7819,6 +7975,10 @@ bool: false</code></pre>
 <p>Match a pattern against an expression.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>:=</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Pat</em> := <em>Exp</em></code></p>
 </div>
@@ -7865,6 +8025,10 @@ bool: true</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>The <em>not</em> operator on Boolean values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>!</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -7930,6 +8094,10 @@ bool: false</code></pre>
 <p>Negated [Boolean Match] operator.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>!:=</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Pat</em> !:= <em>Exp</em></code></p>
 </div>
@@ -7976,6 +8144,10 @@ bool: true</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>The <em>or</em> operator on Boolean values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>||</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -8148,6 +8320,10 @@ WF: wf("Rascal",10000)</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Date and time values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>$ date datetime time</p>
 </div>
 <div class="ulist">
 <div class="title">Syntax</div>
@@ -8374,6 +8550,10 @@ The <code>century</code> field, however, just returns the century component of a
 <p>Equality on datetime values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>==</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> == <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -8420,6 +8600,10 @@ bool: false</code></pre>
 <p>Select a field from a datetime value.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>.</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em> . <em>Name</em></code></p>
 </div>
@@ -8457,6 +8641,10 @@ Name stands for itself and is not evaluated.</p>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Greater than operator on datetime values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -8506,6 +8694,10 @@ bool: true</code></pre>
 <p>Greater than or equal operator on datetime values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;=</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &gt;= <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -8551,6 +8743,10 @@ bool: true</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Less than operator on datetime values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&lt;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -8600,6 +8796,10 @@ bool: false</code></pre>
 <p>Less than or equal operator on datetime values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&#8656;</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &#8656; <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -8645,6 +8845,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Not equal operator on datetime values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>!=</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -8694,6 +8898,10 @@ bool: false</code></pre>
 <p>Integer values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>int</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p>sequence of digits of arbitrary length.</p>
 </div>
@@ -8728,6 +8936,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>List values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>[ ]</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -8839,6 +9051,10 @@ list[int]: [10,1,2,3,20]</code></pre>
 <div class="title">Synopsis</div>
 <p>Append an element at the end of a list</p>
 </div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>+</p>
+</div>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Types</caption>
 <colgroup>
@@ -8911,6 +9127,10 @@ list[value]: [
 <p>A list comprehension generates a list value.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>[ | ]</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code>[ <em>Exp</em><sub>1</sub>, <em>Exp</em><sub>2</sub>, &#8230;&#8203; | <em>Gen</em><sub>1</sub>, <em>Gen</em><sub>2</sub>, &#8230;&#8203; ]</code></p>
 </div>
@@ -8969,6 +9189,10 @@ list[int]: [0,0,3,9,6,36,9,81]</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Concatenate two lists.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>+</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -9035,6 +9259,10 @@ list[int]: [1]</code></pre>
 <p>The difference between two lists.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>-</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> - <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -9097,6 +9325,10 @@ list[int]: [3,1,2,3]</code></pre>
 <p>Equality on lists.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>==</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> == <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -9141,6 +9373,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>add an element in front of a list</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>+</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Types</caption>
@@ -9216,6 +9452,10 @@ list[value]: [
 <p>Intersection of two lists.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&amp;</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &amp; <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -9259,6 +9499,10 @@ list[int]: [4,5]</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Not equal operator on lists.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>!=</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -9305,6 +9549,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Compute the product of two lists.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>*</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -9710,6 +9958,10 @@ list[int]: [10,20,30,40,50,60,70,80]</code></pre>
 <div class="title">Synopsis</div>
 <p>Splice the elements of a list in an enclosing list.</p>
 </div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>*</p>
+</div>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Types</caption>
 <colgroup>
@@ -9792,6 +10044,10 @@ list[int]: [1,2,10,20,30,3,4]</code></pre>
 <p>The strict sublist operator on lists.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&lt;</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &lt; <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -9838,6 +10094,10 @@ bool: true</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>The strict super list operator on lists.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -9890,6 +10150,10 @@ bool: true</code></pre>
 <p>The sublist operator on lists.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&#8656;</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &#8656; <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -9936,6 +10200,10 @@ bool: true</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Retrieve a list element via its index.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>[ ]</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -10002,6 +10270,10 @@ ok</code></pre>
 <p>The super list operator on lists.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;=</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &gt;= <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -10052,6 +10324,10 @@ bool: true</code></pre>
 <p>Membership test on list elements.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>in</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> in <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -10097,6 +10373,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Negated membership test on lists.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>notin</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -10160,6 +10440,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Retrieve a list element via its index.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>[ ]</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -10229,6 +10513,10 @@ ok</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>ListRelation values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>[ ] &lt; &gt;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -10327,6 +10615,10 @@ lrel[str,int,str]: [
 <p>Cartesian product of two list relation values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>*</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> * <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -10384,6 +10676,10 @@ lrel[int,int]: [
 <p>Composition of two list relation values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>o</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> o <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -10435,6 +10731,10 @@ lrel[int,int]: [
 <p>Select a field (column) from a list relation value.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>.</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em> . <em>Name</em></code></p>
 </div>
@@ -10481,6 +10781,10 @@ list[str]: ["abc","abc","def","def"]</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Join two list relation values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>join</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -10541,6 +10845,10 @@ lrel[int,int,int,int]: [
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>The reflexive transitive closure of a binary list relation.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>*</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -10627,6 +10935,10 @@ lrel[int,int]: [
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Indexing of a list relation via tuple values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>[ ]</p>
 </div>
 <div class="ulist">
 <div class="title">Syntax</div>
@@ -10794,6 +11106,10 @@ list[int]: [4923761]</code></pre>
 <p>Transitive closure on binary list relation values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>+</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em> +</code></p>
 </div>
@@ -10887,6 +11203,10 @@ rascal&gt;//tclosure([&lt;1,2&gt;, &lt;2,3&gt;, &lt;3,4&gt;]);</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>(Source code) location values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>| ( )</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -11188,6 +11508,10 @@ ok</code></pre>
 <p>Locations can be concatenated with strings to add segments to the path component</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>+</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Loc</em> + <em>Str</em></code></p>
 </div>
@@ -11242,6 +11566,10 @@ loc: |tmp:///myDir|</code></pre>
 <p>Equality operator on locations.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>==</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> == <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -11277,6 +11605,10 @@ loc: |tmp:///myDir|</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Field selection on locations.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>.</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -11318,6 +11650,10 @@ Name stands for itself and is not evaluated.</p>
 <p>The greater than operator on location values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &gt; <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -11354,6 +11690,10 @@ the location value of <em>Exp</em><sub>2</sub>, and <code>false</code> otherwise
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>The greater than or equal operator on location values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;=</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -11394,6 +11734,10 @@ the location value of <em>Exp</em><sub>2</sub>, and <code>false</code> otherwise
 <p>The less than operator on location values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&lt;</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &lt; <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -11430,6 +11774,10 @@ in the location value of <em>Exp</em><sub>2</sub>, and <code>false</code> otherw
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>The less than or equal operator on location values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&#8656;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -11470,6 +11818,10 @@ in the location value of <em>Exp</em><sub>2</sub>, and <code>false</code> otherw
 <p>The not equal operator on location values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>!=</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> != <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -11506,6 +11858,10 @@ in the location value of <em>Exp</em><sub>2</sub>, and <code>false</code> otherw
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Map values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>( : )</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -11576,6 +11932,10 @@ map[str, int]: ("banana":0,"pear":1,"apple":3)</code></pre>
 <p>Composition of two map values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>o</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> o <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -11624,6 +11984,10 @@ map[str, int]: ("one":10,"two":20)</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>A map comprehension generates a map value.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>( | )</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -11700,6 +12064,10 @@ map[str, int]: ("orange":35,"berry":25)</code></pre>
 <p>The difference between two maps.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>-</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> - <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -11743,6 +12111,10 @@ map[str, int]: ("pear":2)</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Equality operator on maps.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>==</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -11789,6 +12161,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Intersection of two maps.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&amp;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -11838,6 +12214,10 @@ map[void, void]: ()</code></pre>
 <p>Not equal operator on map values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>!=</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> != <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -11882,6 +12262,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Strict submap operator on map values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&lt;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -11931,6 +12315,10 @@ bool: false</code></pre>
 <p>Strict supermap operator on map values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &gt; <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -11976,6 +12364,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Submap operator on map values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&#8656;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -12025,6 +12417,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Retrieve a value by its key in map.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>[ ]</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -12098,6 +12494,10 @@ ok</code></pre>
 <p>Supermap operator on map values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;=</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &gt;= <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -12145,6 +12545,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Union of two maps.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>+</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -12199,6 +12603,10 @@ map[str, int]: ("banana":3,"pear":2,"apple":4)</code></pre>
 <p>Membership test on the keys of a map.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>in</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> in <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -12244,6 +12652,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Negated membership test on the keys of a map.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>notin</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -12292,6 +12704,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Node values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>( )</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -12376,6 +12792,10 @@ node: "my_node1"(
 <p>Equal operator on node values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>==</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> == <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -12421,6 +12841,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Greater than operator on node values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -12470,6 +12894,10 @@ bool: true</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Greater than or equal operator on node values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;=</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -12523,6 +12951,10 @@ bool: true</code></pre>
 <p>Less than operator on node values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&lt;</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &lt; <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -12572,6 +13004,10 @@ bool: true</code></pre>
 <p>Less than or equal operator on node values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&#8656;</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &#8656; <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -12619,6 +13055,10 @@ bool: true</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Not equal operator on node values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>!=</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -13035,6 +13475,10 @@ list[value]: [
 <p>Retrieve an argument of a node via its index.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>[ ]</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> [ <em>Exp</em><sub>2</sub> ]</code></p>
 </div>
@@ -13109,6 +13553,10 @@ ok</code></pre>
 <p>Numeric values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>int real num</p>
+</div>
+<div class="paragraph">
 <div class="title">Types</div>
 <p><code>int</code>, <code>real</code>, <code>num</code></p>
 </div>
@@ -13122,6 +13570,10 @@ If both operands have the same type (<code>int</code> or <code>real</code>) then
 </div>
 <div class="sect4">
 <h5 id="Number-Addition">Number Addition</h5>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>+</p>
+</div>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Addition on numeric values.</p>
@@ -13181,6 +13633,10 @@ real: 25.5</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Conditional expression for numeric values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>? :</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -13244,6 +13700,10 @@ int: 20</code></pre>
 <p>Division on numeric values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>/</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> / <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -13305,6 +13765,10 @@ ok</code></pre>
 </div>
 <div class="sect4">
 <h5 id="Number-Equal">Number Equal</h5>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>==</p>
+</div>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Equality operator on numeric values.</p>
@@ -13370,6 +13834,10 @@ bool: false</code></pre>
 <div class="sect4">
 <h5 id="Number-GreaterThan">Number GreaterThan</h5>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;</p>
+</div>
+<div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Greater than operator on numeric values.</p>
 </div>
@@ -13429,6 +13897,10 @@ bool: false</code></pre>
 </div>
 <div class="sect4">
 <h5 id="Number-GreaterThanOrEqual">Number GreaterThanOrEqual</h5>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;=</p>
+</div>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Greater than or equal operator on numeric values.</p>
@@ -13494,6 +13966,10 @@ bool: false</code></pre>
 <p>Less than operator on numeric values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&lt;</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &lt; <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -13552,6 +14028,10 @@ bool: true</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Less than or equal operator on numeric values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&#8656;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -13614,6 +14094,10 @@ bool: true</code></pre>
 <p>Multiply two numeric values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>*</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> * <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -13672,6 +14156,10 @@ int: -156</code></pre>
 <p>Negate a numeric value.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>-</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code>- <em>Exp</em></code></p>
 </div>
@@ -13719,6 +14207,10 @@ int: 12</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Not equal operator on numeric values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>!=</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -13785,6 +14277,10 @@ bool: false</code></pre>
 <p>Remainder of two integer values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>%</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> % <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -13839,6 +14335,10 @@ int: 0</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Subtract two numeric values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>-</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -13958,6 +14458,10 @@ list[void]: []</code></pre>
 <p>Real values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>real</p>
+</div>
+<div class="paragraph">
 <div class="title">Types</div>
 <p><code>real</code></p>
 </div>
@@ -13986,6 +14490,10 @@ They can have <em>arbitrary size and precision</em>.</p>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Types can be represented by values</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>#</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -14262,6 +14770,10 @@ tuple[int,int]: &lt;1,2&gt;</code></pre>
 <p>Relation values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>{ } rel</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code>{ &lt; <em>Exp<sub>11</sub></em>, <em>Exp<sub>12</sub></em>, &#8230;&#8203; &gt; , &lt; <em>Exp<sub>21</sub></em>, <em>Exp</em><sub>22</sub>, &#8230;&#8203; &gt; , &#8230;&#8203; }</code></p>
 </div>
@@ -14358,6 +14870,10 @@ rel[str,int,str]: {
 <p>Cartesian product of two relation values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>*</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> * <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -14415,6 +14931,10 @@ rel[int,int]: {
 <p>Composition of two relation values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>o</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> o <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -14468,6 +14988,10 @@ rel[int,int]: {
 <p>Select a field (column) from a relation value.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>.</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em> . <em>Name</em></code></p>
 </div>
@@ -14516,6 +15040,10 @@ set[str]: {"abc","def"}</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Join two relation values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>join</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -14576,6 +15104,10 @@ rel[int,int,int,int]: {
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>The reflexive transitive closure of a binary relation.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>*</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -14654,6 +15186,10 @@ rel[int,int]: {
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Indexing of a relation via tuple values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>[ ]</p>
 </div>
 </div>
 <div class="sect4">
@@ -14822,6 +15358,10 @@ set[int]: {4923761}</code></pre>
 <p>Transitive closure on binary relation values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>+</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em> +</code></p>
 </div>
@@ -14915,6 +15455,10 @@ rascal&gt;//tclosure({&lt;1,2&gt;, &lt;2,3&gt;, &lt;3,4&gt;});</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Set values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>{ }</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -15055,6 +15599,10 @@ set[int]: {10,1,3,20,2}</code></pre>
 <p>A set comprehension generates a set value.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>{ | }</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code>{ <em>Exp</em><sub>1</sub>, <em>Exp</em><sub>2</sub>, &#8230;&#8203; | <em>Gen</em><sub>1</sub>, <em>Gen</em><sub>2</sub>, &#8230;&#8203; }</code></p>
 </div>
@@ -15103,6 +15651,10 @@ set[int]: {9,81,0,36}</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>The difference between two sets.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>-</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -15162,6 +15714,10 @@ set[int]: {1,3,2,4}</code></pre>
 <p>Equal operator on set values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>==</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> == <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -15206,6 +15762,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Add an element to a set.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>+</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -15271,6 +15831,10 @@ set[int]: {1}</code></pre>
 <p>Intersection of two sets.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&amp;</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &amp; <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -15314,6 +15878,10 @@ set[int]: {5,4}</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Not equal operator on set values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>!=</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -15360,6 +15928,10 @@ bool: true</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>The product of two set values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>*</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -15477,6 +16049,10 @@ rel[str,int]: {
 <div class="title">Synopsis</div>
 <p>Splice the elements of a set in an enclosing set.</p>
 </div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>*</p>
+</div>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Types</caption>
 <colgroup>
@@ -15544,6 +16120,10 @@ set[int]: {10,1,3,20,2,4,30}</code></pre>
 <p>Strict subset operator on set values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&lt;</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &lt; <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -15592,6 +16172,10 @@ bool: false</code></pre>
 <p>Strict superset operator on set values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &gt; <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -15636,6 +16220,10 @@ bool: true</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Subset operator on set values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&#8656;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -15684,6 +16272,10 @@ bool: true</code></pre>
 <p>Superset operator on set values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;=</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &gt;= <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -15728,6 +16320,10 @@ bool: true</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Union of two set values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>+</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Types</caption>
@@ -15776,6 +16372,10 @@ set[int]: {3,2,4}</code></pre>
 <p>Membership test on set values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>in</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> in <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -15820,6 +16420,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Negated membership test on set values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>notin</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -15867,6 +16471,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>String values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>" ' &lt; &gt; \ \n \t \r \b \f \u \U hex if else for while do</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -16110,6 +16718,10 @@ source code, markup and the like.</p>
 <p>Concatenate two strings.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>+</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> + <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -16157,6 +16769,10 @@ str: "abcdef"</code></pre>
 <p>Equality operator on string values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>==</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> == <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -16201,6 +16817,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Greater than operator on string values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -16250,6 +16870,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Greater than or equal operator on string values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;=</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -16303,6 +16927,10 @@ bool: false</code></pre>
 <p>Less than operator on string values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&lt;</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &lt; <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -16350,6 +16978,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Less than or equal operator on string values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&#8656;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -16401,6 +17033,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Not equal operator on string values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>!=</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -16740,6 +17376,10 @@ str: "bcdefghi"</code></pre>
 <p>Retrieve a substring via its index.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>[ ]</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> [ <em>Exp</em><sub>2</sub> ]</code></p>
 </div>
@@ -16803,6 +17443,10 @@ ok</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Tuple values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&lt; &gt;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -16875,6 +17519,10 @@ tuple[str,str,int]: &lt;"Bo","Jones",35&gt;</code></pre>
 <p>Concatenate two tuple values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>+</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> + <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -16919,6 +17567,10 @@ tuple[str,int,real,bool,str]: &lt;"abc",1,2.5,true,"def"&gt;</code></pre>
 <p>Equality operator on tuple values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>==</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> == <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -16961,6 +17613,10 @@ bool: true</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Select a field from a tuple by its field name.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>.</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -17009,6 +17665,10 @@ str: "abc"</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Greater than operator on tuple values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -17067,6 +17727,10 @@ bool: true</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Greater than or equal operator on tuple values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;=</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -17129,6 +17793,10 @@ bool: true</code></pre>
 <p>Less than operator on tuple values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&lt;</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &lt; <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -17185,6 +17853,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Less than or equal operator on tuple values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&#8656;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -17247,6 +17919,10 @@ bool: true</code></pre>
 <p>Not equal operator on tuple values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>!=</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> != <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -17293,6 +17969,10 @@ bool: false</code></pre>
 <p>Retrieve a tuple field by its index position.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>[ ]</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> [ <em>Exp</em><sub>2</sub> ]</code></p>
 </div>
@@ -17337,6 +18017,10 @@ This type is a container for all other types and does not have any values itself
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Conditional expression on values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>? :</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -17387,6 +18071,10 @@ set[int]: {3,4}</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Equal operator on values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>==</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -17461,6 +18149,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Greater than operator on values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -17546,6 +18238,10 @@ bool: true</code></pre>
 <p>Greater than or equal operator on values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&gt;=</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &gt;= <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -17627,6 +18323,10 @@ bool: true</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Less than operator on values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&lt;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -17712,6 +18412,10 @@ bool: false</code></pre>
 <p>Less than or equal operator on values.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>&#8656;</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> &#8656; <em>Exp</em><sub>2</sub></code></p>
 </div>
@@ -17793,6 +18497,10 @@ bool: false</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Not equal operator on values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>!=</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -18175,6 +18883,10 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 <p>Assignment to a field of a tuple or datatype.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>[ = ]</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub> [ <em>Name</em> = <em>Exp</em><sub>2</sub> ]</code></p>
 </div>
@@ -18207,6 +18919,10 @@ tuple[int,str]: &lt;1,"abc"&gt;</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Projection of tuple.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&lt; &gt;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -18261,6 +18977,10 @@ rel[int,str]: {
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Function call.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>( )</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -18364,6 +19084,10 @@ int: 144</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Comprehensions provide a concise notation to conditionally generate new values.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>[ ] { } ( ) | &#8592;</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -18487,6 +19211,10 @@ map[str, int]: ("orange":35,"berry":25)</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Enumerate all values in a given subject value.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&#8592;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -18654,6 +19382,10 @@ lrel[int,int]: [
 <div class="title">Synopsis</div>
 <p>Concrete syntax is a notation for patterns that match parse trees and expressions that generate them.</p>
 </div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>` ( )</p>
+</div>
 <div class="ulist">
 <div class="title">Syntax</div>
 <ul>
@@ -18706,6 +19438,10 @@ For any non-terminal defined in a <a href="#Declarations-SyntaxDefinition">Synta
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Reduce generated values to a single value.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>( | ) it</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -18772,6 +19508,10 @@ int: 105</code></pre>
 <p>Set the value of an <a href="#Declarations-Annotation">Annotation</a>.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>[ @ = ]</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Exp</em><sub>1</sub>[@<em>Name</em> = <em>Exp</em><sub>2</sub>]</code></p>
 </div>
@@ -18812,6 +19552,10 @@ ok</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Retrieve the value of an <a href="#Declarations-Annotation">Annotation</a>.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>@</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -18888,6 +19632,10 @@ This is further explained in the sections for the relevant statements, see <a hr
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Visit the elements in a tree or value.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>visit case default top-down top-down-break bottom-up bottom-up-break innermost outermost</p>
 </div>
 <div class="listingblock">
 <div class="title">Syntax</div>
@@ -19082,6 +19830,10 @@ and <a href="../Recipes/Recipes.html#Common-Derivative">Derivative</a>.</p>
 <p>Append an element to the list value produced by various loop statements.</p>
 </div>
 <div class="paragraph">
+<div class="title">Index</div>
+<p>append</p>
+</div>
+<div class="paragraph">
 <div class="title">Syntax</div>
 <p><code>append <em>Exp</em></code></p>
 </div>
@@ -19105,6 +19857,10 @@ list[int]: [1,4,9,16]</code></pre>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>An executable assertion.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>assert</p>
 </div>
 <div class="ulist">
 <div class="title">Syntax</div>
@@ -19179,6 +19935,9 @@ ok</code></pre>
 <div class="title">Synopsis</div>
 <p>Assign a value to a variable or more complex data structure.</p>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_">7.4. += -= *= /= ?= [ .. ] . ? @</h3>
 <div class="paragraph">
 <div class="title">Syntax</div>
 <p><code><em>Assignable</em> <em>AssignmentOp</em> <em>Exp</em></code></p>
@@ -19272,10 +20031,14 @@ The assignment statement always results in assigning a completely new value to t
 We distinguish the following forms of assignment:</p>
 </div>
 <div class="sect3">
-<h4 id="Assignment-Annotation">7.3.1. Annotation</h4>
+<h4 id="Assignment-Annotation">7.4.1. Annotation</h4>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Assign to annotation.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>@ =</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -19314,10 +20077,14 @@ otherwise the Rascal parser gets confused.
 </div>
 </div>
 <div class="sect3">
-<h4 id="Assignment-Constructor">7.3.2. Constructor</h4>
+<h4 id="Assignment-Constructor">7.4.2. Constructor</h4>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Assign to constructor.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>=</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -19341,10 +20108,14 @@ int: 1000</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="Assignment-Field">7.3.3. Field</h4>
+<h4 id="Assignment-Field">7.4.3. Field</h4>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Assign to a field of a tuple, relation or datatype.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>.</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -19364,10 +20135,14 @@ FREQ: wf("rascal",100000)</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="Assignment-IsDefined">7.3.4. IsDefined</h4>
+<h4 id="Assignment-IsDefined">7.4.4. IsDefined</h4>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Assign but replace if value is not defined.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>?</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -19414,10 +20189,14 @@ int: 1</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="Assignment-Multiple">7.3.5. Multiple</h4>
+<h4 id="Assignment-Multiple">7.4.5. Multiple</h4>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Assign to multiple assignables.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>&lt; &gt; =</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -19439,10 +20218,14 @@ list[int]: [1,2,3]</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="Assignment-Slice">7.3.6. Slice</h4>
+<h4 id="Assignment-Slice">7.4.6. Slice</h4>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Assign to a slice of a list or string.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>[ .. ] =</p>
 </div>
 <div class="ulist">
 <div class="title">Syntax</div>
@@ -19652,10 +20435,14 @@ node: "f"(
 </div>
 </div>
 <div class="sect3">
-<h4 id="Assignment-Subscription">7.3.7. Subscription</h4>
+<h4 id="Assignment-Subscription">7.4.7. Subscription</h4>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Assign a single element of a structured value.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>[ ] =</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -19710,7 +20497,7 @@ map[str, int]: ("abc":1,"def":3)</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;T = &lt;1, "abc", true&gt;;
 tuple[int,str,bool]: &lt;1,"abc",true&gt;
 rascal&gt;T[1] = "def";
-[error] Unable to bind subject type str to assignable IN 'T[1] = "def";'</code></pre>
+tuple[int,str,bool]: &lt;1,"def",true&gt;</code></pre>
 </div>
 </div>
 <div class="admonitionblock note">
@@ -19727,10 +20514,14 @@ See <a href="https://github.com/usethesource/rascal/issues/948" class="bare">htt
 </div>
 </div>
 <div class="sect3">
-<h4 id="Assignment-Variable">7.3.8. Variable</h4>
+<h4 id="Assignment-Variable">7.4.8. Variable</h4>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Assign to a variable.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>=</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -19748,10 +20539,14 @@ int: 3</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="Statements-Block">7.4. Block</h3>
+<h3 id="Statements-Block">7.5. Block</h3>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Group statements into a block.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>{ } ;</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -19799,10 +20594,14 @@ int: 9</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="Statements-Break">7.5. Break</h3>
+<h3 id="Statements-Break">7.6. Break</h3>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>End the execution of a while, do or for loop.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>break</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -19833,10 +20632,14 @@ list[void]: []</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="Statements-Continue">7.6. Continue</h3>
+<h3 id="Statements-Continue">7.7. Continue</h3>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Continue with the next iteration of while, do or for loop.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>continue</p>
 </div>
 <div class="paragraph">
 <div class="title">Description</div>
@@ -19872,10 +20675,14 @@ list[void]: []</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="Statements-Do">7.7. Do</h3>
+<h3 id="Statements-Do">7.8. Do</h3>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Repeat statements while condition holds.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>do while</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -19918,10 +20725,14 @@ list[int]: [9,4,1]</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="Statements-Fail">7.8. Fail</h3>
+<h3 id="Statements-Fail">7.9. Fail</h3>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Let the current alternative of a pattern match fail.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>fail</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -20006,10 +20817,14 @@ list[int]: [1,3,5,10]</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="Statements-For">7.9. For</h3>
+<h3 id="Statements-For">7.10. For</h3>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>For loop.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>for</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -20041,10 +20856,14 @@ list[int]: [1,4,9,16]</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="Statements-If">7.10. If</h3>
+<h3 id="Statements-If">7.11. If</h3>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Conditional statement.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>if else</p>
 </div>
 <div class="ulist">
 <div class="title">Syntax</div>
@@ -20142,10 +20961,14 @@ Get rid of the 666.
 </div>
 </div>
 <div class="sect2">
-<h3 id="Statements-Insert">7.11. Insert</h3>
+<h3 id="Statements-Insert">7.12. Insert</h3>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Insert a value in a tree during a <a href="#Expressions-Visit">Visit</a>.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>insert</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -20231,10 +21054,14 @@ but refuses it in the abbreviated version using <code>&#8658;</code> (the second
 </div>
 </div>
 <div class="sect2">
-<h3 id="Statements-Return">7.12. Return</h3>
+<h3 id="Statements-Return">7.13. Return</h3>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Return a value as result of a [Function].</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>return</p>
 </div>
 <div class="ulist">
 <div class="title">Syntax</div>
@@ -20292,10 +21119,14 @@ int: 10</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="Statements-Solve">7.13. Solve</h3>
+<h3 id="Statements-Solve">7.14. Solve</h3>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Solve a set of equalities by fixed-point iteration.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>solve</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -20360,10 +21191,14 @@ rel[int,int]: {
 </div>
 </div>
 <div class="sect2">
-<h3 id="Statements-Switch">7.14. Switch</h3>
+<h3 id="Statements-Switch">7.15. Switch</h3>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Switch statement.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>switch case default</p>
 </div>
 <div class="listingblock">
 <div class="title">Syntax</div>
@@ -20413,7 +21248,7 @@ ok</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="Statements-Test">7.15. Test</h3>
+<h3 id="Statements-Test">7.16. Test</h3>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Test statement (<em>deprecated</em>).</p>
@@ -20424,10 +21259,14 @@ ok</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="Statements-Throw">7.16. Throw</h3>
+<h3 id="Statements-Throw">7.17. Throw</h3>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Throw an exception.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>throw</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -20470,10 +21309,14 @@ ok</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="Statements-TryCatch">7.17. Try Catch</h3>
+<h3 id="Statements-TryCatch">7.18. Try Catch</h3>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>Try to execute a statement and catch resulting exceptions.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>try catch finally</p>
 </div>
 <div class="listingblock">
 <div class="title">Syntax</div>
@@ -20553,10 +21396,14 @@ int: 0</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="Statements-While">7.18. While</h3>
+<h3 id="Statements-While">7.19. While</h3>
 <div class="paragraph">
 <div class="title">Synopsis</div>
 <p>While loop.</p>
+</div>
+<div class="paragraph">
+<div class="title">Index</div>
+<p>while</p>
 </div>
 <div class="paragraph">
 <div class="title">Syntax</div>
@@ -20614,7 +21461,7 @@ list[int]: [9,4]</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-04-26 15:44:39 CEST
+Last updated 2016-05-29 23:33:09 CEST
 </div>
 </div>
 </body>

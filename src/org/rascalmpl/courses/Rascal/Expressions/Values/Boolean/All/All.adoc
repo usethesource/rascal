@@ -6,6 +6,9 @@
 .Synopsis
 All argument expressions are true.
 
+.Index
+all
+
 .Syntax
 `all ( _Exp_~1~, _Exp_~2~, ... )`
 

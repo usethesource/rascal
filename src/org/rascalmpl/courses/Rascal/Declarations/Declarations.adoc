@@ -26,11 +26,11 @@ The following concepts are relevant for declarations:
 ** <<Declarations-AlgebraicDataType,Algebraic Data Type>>: Define a user-defined type (Algebraic Data Type).
 ** <<Declarations-Variable,Variable Declaration>>: Declare a variable.
 ** <<Declarations-Function,Function Declaration>>: Declare a function.
-** <<Declarations-SyntaxDefinition,Syntax Definition>>: .
+** <<Declarations-SyntaxDefinition,Syntax Definition>>: Syntax Definitions allow the definition of parsers for programming languages, domain-specific languages and data formats.
 *** <<SyntaxDefinition-Action,Action>>: Actions are functions that are called when parse trees are constructed (right after parsing).
 *** <<SyntaxDefinition-AmbiguityDetection,Ambiguity Detection>>: Ambiguity detection helps to find ambiguities in syntax definitions.
 *** <<SyntaxDefinition-AmbiguityDiagnosis,Ambiguity Diagnosis>>: Ambiguity diagnosis suggests changes to syntax definitions to make them non-ambiguous.
-*** <<SyntaxDefinition-Disambiguation,Disambiguation>>: .
+*** <<SyntaxDefinition-Disambiguation,Disambiguation>>: 
 *** <<SyntaxDefinition-ParseTrees,ParseTrees>>: The ParseTrees module defines an algebraic data-type for parse trees, which all parsers generated from [SyntaxDefinition]s produce.
 *** <<SyntaxDefinition-Symbol,Symbol>>: The symbols that can occur in a syntax definition.
 ** <<Declarations-Alias,Alias Declaration>>: Declare an alias for a type.

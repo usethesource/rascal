@@ -9,7 +9,6 @@
 `import analysis::formalconcepts::FCA;`
 
 
-
 .Synopsis
 Library for Formal Concept Analysis
 
@@ -20,27 +19,40 @@ It can be used to find latent groups of objects that share the same attributes i
 Typically, we apply `FCA` to a relation `rel[&O objects, &A attributes]`, which represents
 extracted source code artifacts and their attributes.
 
-
-* <<FCA-FormalContext,FormalContext>>: 
-* <<FCA-fca,fca>>: Computes Concept Lattice given the Object Attribute Relation.
-      
-* <<FCA-toDot,toDot>>: Computes Dot Graph from Concept Lattice.
-      
-* <<FCA-toDotString,toDotString>>: Write relation in `.dot` format.
-      
-
-[[FCA-FormalContext]]
-## FormalContext
+[[FCA-FormalContext[&Object, &Attribute]]]
+## FormalContext[&Object, &Attribute]
 .Types
-[source,rascal]
-----
-public alias FormalContext[&Object, &Attribute] = rel[&Object, &Attribute];
-public alias Concept[&Object, &Attribute] = tuple[set[&Object] objects, set[&Attribute] attributes];
-public alias ConceptLattice[&Object, &Attribute] = rel[Concept[&Object, &Attribute], Concept[&Object, &Attribute]];
-public alias Object2Attributes[&Object, &Attribute] = map[&Object, set[&Attribute]];
-public alias Attribute2Objects[&Attribute, &Object] = map[&Attribute, set[&Object]];
+`rel[&Object, &Attribute]`
 
-----
+
+
+[[FCA-Concept[&Object, &Attribute]]]
+## Concept[&Object, &Attribute]
+.Types
+`tuple[set[&Object] objects, set[&Attribute] attributes]`
+
+
+
+[[FCA-ConceptLattice[&Object, &Attribute]]]
+## ConceptLattice[&Object, &Attribute]
+.Types
+`rel[Concept[&Object, &Attribute], Concept[&Object, &Attribute]]`
+
+
+
+[[FCA-Object2Attributes[&Object, &Attribute]]]
+## Object2Attributes[&Object, &Attribute]
+.Types
+`map[&Object, set[&Attribute]]`
+
+
+
+[[FCA-Attribute2Objects[&Attribute, &Object]]]
+## Attribute2Objects[&Attribute, &Object]
+.Types
+`map[&Attribute, set[&Object]]`
+
+
 
 [[FCA-fca]]
 ## fca
@@ -48,11 +60,8 @@ public alias Attribute2Objects[&Attribute, &Object] = map[&Attribute, set[&Objec
 .Function 
 `ConceptLattice[&Object, &Attribute] fca (FormalContext[&Object, &Attribute] fc)`
 
-
 .Synopsis
 Computes Concept Lattice given the Object Attribute Relation.
-
-
 
 [[FCA-toDot]]
 ## toDot
@@ -62,9 +71,120 @@ Computes Concept Lattice given the Object Attribute Relation.
           * `DotGraph toDot(ConceptLattice[&Object, &Attribute] cl, bool lab)`
           
 
-
 .Synopsis
 Computes Dot Graph from Concept Lattice.
+
+[[FCA-toDotline]]
+## toDotline
+
+.Function 
+`Dotline toDotline(ConceptLattice[&Object, &Attribute] cl)`
+
+
+
+[[FCA-toOutline]]
+## toOutline
+
+.Function 
+`Outline toOutline(ConceptLattice[&Object, &Attribute] cl)`
+
+
+
+[[FCA-toFormalContext]]
+## toFormalContext
+
+.Function 
+* `FormalContext[&Object, &Attribute] toFormalContext(Object2Attributes[&Object, &Attribute] objects)`
+          * `FormalContext[&Object, &Attribute] toFormalContext(Attribute2Objects[&Object, &Attribute] attributes)`
+          
+
+
+
+[[FCA-intersection]]
+## intersection
+
+.Function 
+`set[&T] intersection(set[set[&T]] st)`
+
+
+
+[[FCA-union]]
+## union
+
+.Function 
+`set[&T] union(set[set[&T]] st)`
+
+
+
+[[FCA-isSubset]]
+## isSubset
+
+.Function 
+`bool isSubset(set[set[&T]] candidate, set[&T] s )`
+
+
+
+[[FCA-sigma]]
+## sigma
+
+.Function 
+`set[&Attribute] sigma(FormalContext[&Object, &Attribute] fc, set[&Object] objects)`
+
+
+
+[[FCA-tau]]
+## tau
+
+.Function 
+`set[&Object] tau(FormalContext[&Object, &Attribute] fc, set[&Attributes] attributes)`
+
+
+
+[[FCA-maxincl]]
+## maxincl
+
+.Function 
+`set[set[&T]] maxincl(set[set[&T]] c)`
+
+
+
+[[FCA-createAttributeLattice]]
+## createAttributeLattice
+
+.Function 
+`rel[set[&Attribute], set[&Attribute]] createAttributeLattice(FormalContext[&Object, &Attribute] fc)`
+
+
+
+[[FCA-makeNodes]]
+## makeNodes
+
+.Function 
+`map[Concept[&Object, &Attribute], int] makeNodes(ConceptLattice[&Object, &Attribute] q)`
+
+
+
+[[FCA-newAdded1]]
+## newAdded1
+
+.Function 
+`set[&Attribute] newAdded1(ConceptLattice[&Object, &Attribute] q,  Concept[&Object, &Attribute] c)`
+
+
+
+[[FCA-newAdded0]]
+## newAdded0
+
+.Function 
+`set[&Concept] newAdded0(ConceptLattice[&Object, &Attribute] q, Concept[&Object, &Attribute] c)`
+
+
+
+[[FCA-compose]]
+## compose
+
+.Function 
+`Stm compose(Concept[&Object, &Attribute] c, map[Concept[&Object, &Attribute], int] z, bool lab)`
 
 
 
@@ -74,11 +194,8 @@ Computes Dot Graph from Concept Lattice.
 .Function 
 `str toDotString(ConceptLattice[&Object, &Attribute]  q)`
 
-
 .Synopsis
 Write relation in `.dot` format.
-
-
 
 :leveloffset: +1
 
