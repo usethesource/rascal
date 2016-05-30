@@ -1,7 +1,12 @@
 # While
 
+
+
 .Synopsis
 While loop.
+
+.Index
+while
 
 .Syntax
 `while ( _Exp_ ) _Statement_;`

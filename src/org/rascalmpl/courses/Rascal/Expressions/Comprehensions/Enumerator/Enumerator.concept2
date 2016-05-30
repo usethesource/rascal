@@ -3,6 +3,9 @@
 .Synopsis
 Enumerate all values in a given subject value.
 
+.Index
+<-
+
 .Syntax
 `_Pattern_ <- _Exp_`
 

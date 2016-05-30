@@ -3,6 +3,9 @@
 .Synopsis
 Retrieve a slice of a node's argument list.
 
+.Index
+[ .. ]
+
 .Syntax
 
 *  `_Exp~1~_ [ _Exp~2~_ .. _Exp~4~_]`

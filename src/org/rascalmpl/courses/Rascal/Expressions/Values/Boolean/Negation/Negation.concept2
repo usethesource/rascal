@@ -3,6 +3,9 @@
 .Synopsis
 The _not_ operator on Boolean values.
 
+.Index
+!
+
 .Syntax
 `! _Exp_`
 

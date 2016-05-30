@@ -1,7 +1,10 @@
 # Associativity Declaration
 
 .Synopsis
+Define associativity of operators
 
+.Index
+left right assoc non-assoc
 
 .Syntax
 

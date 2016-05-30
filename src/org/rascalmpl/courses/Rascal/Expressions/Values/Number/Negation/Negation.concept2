@@ -3,6 +3,9 @@
 .Synopsis
 Negate a numeric value.
 
+.Index
+-
+
 .Syntax
 `- _Exp_`
 

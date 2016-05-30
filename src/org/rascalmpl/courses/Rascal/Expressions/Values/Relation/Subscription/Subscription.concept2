@@ -3,6 +3,9 @@
 .Synopsis
 Indexing of a relation via tuple values.
 
+.Index
+[ ]
+
 .Syntax
 
 #  `_Exp_0_ [ _Exp~1~_, _Exp~2~_, ... _Exp~n~_]`

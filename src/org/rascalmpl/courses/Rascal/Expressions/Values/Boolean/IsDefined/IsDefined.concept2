@@ -3,6 +3,9 @@
 .Synopsis
 Test whether the value of an expression is defined.
 
+.Index
+?
+
 .Syntax
 `_Exp_ ?`
 

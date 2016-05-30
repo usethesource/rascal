@@ -3,6 +3,9 @@
 .Synopsis
 Date and time values.
 
+.Index
+$ date datetime time
+
 .Syntax
 
 *  `$` `_Date_` `$`

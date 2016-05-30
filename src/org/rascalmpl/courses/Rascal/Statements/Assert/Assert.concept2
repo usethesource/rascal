@@ -3,6 +3,9 @@
 .Synopsis
 An executable assertion.
 
+.Index
+assert
+
 .Syntax
 
 *  `assert _Exp~1~_`

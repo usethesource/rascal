@@ -3,6 +3,9 @@
 .Synopsis
 Regular expression patterns.
 
+.Index
+/ \ [ ] ^ - . | ? * + { } $
+
 .Syntax
 
 .Types

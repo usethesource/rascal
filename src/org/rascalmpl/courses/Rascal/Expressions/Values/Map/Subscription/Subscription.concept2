@@ -3,6 +3,9 @@
 .Synopsis
 Retrieve a value by its key in map.
 
+.Index
+[ ]
+
 .Syntax
 `_Exp_~1~ [ _Exp_~2~ ]`
 

@@ -3,6 +3,9 @@
 .Synopsis
 Add an element to a set.
 
+.Index
++
+
 .Syntax
 `_Exp_~1~ + _Exp_~2~`
 

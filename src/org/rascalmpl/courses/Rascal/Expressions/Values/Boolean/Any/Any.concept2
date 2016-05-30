@@ -1,5 +1,8 @@
 # Boolean Any
 
+.Index
+any
+
 .Synopsis
 Any combination of argument values is true.
 

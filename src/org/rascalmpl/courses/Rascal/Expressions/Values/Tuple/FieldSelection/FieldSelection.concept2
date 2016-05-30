@@ -3,6 +3,9 @@
 .Synopsis
 Select a field from a tuple by its field name.
 
+.Index
+.
+
 .Syntax
 `_Exp_ . _Name_`
 

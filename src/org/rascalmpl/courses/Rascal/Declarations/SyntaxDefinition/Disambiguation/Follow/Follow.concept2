@@ -1,7 +1,10 @@
 # Follow Declaration
 
 .Synopsis
-a follow requirement is a conditional <<Symbol>>, constraining the characters that can immediately follow a symbol in the input source text.
+A conditional <<Symbol>>, constraining the characters that can immediately follow a symbol in the input source text.
+
+.Index
+>> !>>
 
 .Syntax
 
