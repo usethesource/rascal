@@ -13,7 +13,6 @@ import experiments::Compiler::Rascal2muRascal::TypeUtils;
 import experiments::Compiler::Rascal2muRascal::ModuleInfo;
 import experiments::Compiler::RascalExtraction::DeclarationInfo;
 
-
 list[DeclarationInfo] extractInfo(loc moduleLoc){
     M = parseModuleWithSpaces(moduleLoc).top;
     return extractModule(M);
