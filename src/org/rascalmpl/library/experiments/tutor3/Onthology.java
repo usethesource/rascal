@@ -203,7 +203,7 @@ public class Onthology {
 						
 						iwriter.addDocument(makeLuceneDocument(remoteConceptName, remoteConcept.getIndex(), remoteConcept.getSynopsis(), remoteConcept.getText()));
 						for(IValue d : declarationInfoList){
-							addDeclarationInfo((IConstructor)d);
+							addDeclarationInfo(remoteConceptName, (IConstructor)d);
 						}
 				}
 			return FileVisitResult.CONTINUE;
@@ -229,9 +229,9 @@ public class Onthology {
 		return luceneDoc;
 	}
 	
-	private void addDeclarationInfo(IConstructor d) throws IOException{
+	private void addDeclarationInfo(String remoteConceptName, IConstructor d) throws IOException{
 		String consName = d.getName();
-		String moduleName = ((IString) d.get("moduleName")).getValue();
+		String moduleName = remoteConceptName + "/" + ((IString) d.get("moduleName")).getValue().replaceAll("::",  "/");
 		
 		String doc = d.has("doc") ? ((IString) d.get("doc")).getValue() : "";
 		String synopsis = d.has("synopsis") ? ((IString) d.get("synopsis")).getValue() : "";
