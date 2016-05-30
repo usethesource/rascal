@@ -334,8 +334,16 @@ public class ParsingTools {
 		
 	  // Rascal library function (compiler version)
 	  // TODO moduleTags is only needed in interpreted version
-	  public ITree parseFragment(IString name, IMap moduleTags, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex) throws IOException{ 
-		  return parseFragment1(name, start, tree, loc, grammar, rex);
+	  public ITree parseFragment(IString name, IMap moduleTags, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex) throws IOException{
+	      IMapWriter w = vf.mapWriter();
+          w.insert(vf.tuple(name, moduleTags));
+          
+	      RascalExecutionContext rex2 = RascalExecutionContextBuilder.normalContext(vf, rex.getStdOut(), rex.getStdErr())
+	              .withModuleTags(w.done())
+	              .customSearchPath(rex.getRascalSearchPath())
+	              .build();
+	      
+		  return parseFragment1(name, start, tree, loc, grammar, rex2);
 	  }
 	
 	/**
