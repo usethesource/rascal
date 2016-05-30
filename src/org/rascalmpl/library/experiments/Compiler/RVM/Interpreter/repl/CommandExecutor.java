@@ -96,7 +96,7 @@ public class CommandExecutor {
 	private Kernel kernel;
 	private StandardTextWriter indentedPrettyPrinter;
 	
-	public CommandExecutor(PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction {
+	public CommandExecutor(PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction, URISyntaxException {
 		this.stdout = stdout;
 		this.stderr = stderr; 
 		vf = ValueFactoryFactory.getValueFactory();
