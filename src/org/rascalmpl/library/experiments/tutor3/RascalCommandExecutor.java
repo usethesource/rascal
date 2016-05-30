@@ -21,7 +21,7 @@ public class RascalCommandExecutor {
 	PrintWriter err;
 	String consoleInputPath = "/ConsoleInput.rsc";
 
-	RascalCommandExecutor(PrintWriter err) throws IOException, NoSuchRascalFunction{
+	RascalCommandExecutor(PrintWriter err) throws IOException, NoSuchRascalFunction, URISyntaxException{
 		try {
 			IValueFactory vf = ValueFactoryFactory.getValueFactory();
 			screenInputLocation = vf.sourceLocation("home", "", consoleInputPath);

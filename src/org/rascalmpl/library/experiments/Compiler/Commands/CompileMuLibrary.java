@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.Commands;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
@@ -17,8 +18,9 @@ public class CompileMuLibrary {
 	 * @param args	list of command-line arguments
 	 * @throws NoSuchRascalFunction 
 	 * @throws IOException 
+	 * @throws URISyntaxException 
 	 */
-	public static void main(String[] args) throws IOException, NoSuchRascalFunction {
+	public static void main(String[] args) throws IOException, NoSuchRascalFunction, URISyntaxException {
 		
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		CommandOptions cmdOpts = new CommandOptions("compileMuLibrary");

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
@@ -76,7 +77,7 @@ public class Onthology {
 		return new PerFieldAnalyzerWrapper(stdAnalyzer, analyzerMap);
 	}
 
-	public Onthology(Path srcDir, Path destDir, PrintWriter err) throws IOException, NoSuchRascalFunction{
+	public Onthology(Path srcDir, Path destDir, PrintWriter err) throws IOException, NoSuchRascalFunction, URISyntaxException{
 		this.vf = ValueFactoryFactory.getValueFactory();
 		this.rascalExtraction = new RascalExtraction(vf);
 		this.srcDir = srcDir;
