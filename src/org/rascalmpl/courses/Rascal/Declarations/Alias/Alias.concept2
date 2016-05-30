@@ -3,6 +3,9 @@
 .Synopsis
 Declare an alias for a type.
 
+.Index
+alias
+
 .Syntax
 `alias _Name_  = _Type_;`
 

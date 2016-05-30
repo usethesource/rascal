@@ -3,6 +3,9 @@
 .Synopsis
 Assign to a slice of a list or string.
 
+.Index
+[ .. ] =
+
 .Syntax
 
 *   `_Assignable_ [ _Exp~1~_ .. _Exp_3_ ] = _Exp~4~_`

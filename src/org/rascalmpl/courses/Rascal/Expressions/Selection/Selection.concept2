@@ -3,6 +3,9 @@
 .Synopsis
 Retrieve the value of an <<Declarations-Annotation,Annotation>>.
 
+.Index
+@
+
 .Syntax
 `_Expr_ @ _Name_`
 

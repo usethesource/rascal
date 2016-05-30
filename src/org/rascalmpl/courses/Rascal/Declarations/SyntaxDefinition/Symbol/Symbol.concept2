@@ -3,6 +3,9 @@
 .Synopsis
 The symbols that can occur in a syntax definition.
 
+.Index
+" ' [ ] ! - || && ( ) ? + * { } | () ^ @ >> !>> << !<< \
+
 .Syntax
 
 Nonterminal symbols are identifier names that _start with an uppercase letter_.

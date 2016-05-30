@@ -1,7 +1,10 @@
 # Priority Declaration
 
 .Synopsis
+Declare the priority of operators.
 
+.Index
+> |
 
 .Syntax
 

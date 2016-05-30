@@ -3,6 +3,9 @@
 .Synopsis
 Supermap operator on map values.
 
+.Index
+>=
+
 .Syntax
 `_Exp_~1~ >= _Exp_~2~`
 

@@ -1,8 +1,10 @@
 # Do
 
 .Synopsis
-
 Repeat statements while condition holds.
+
+.Index
+do while
 
 .Syntax
 `do _Statement_ while ( _Exp_ );`

@@ -3,6 +3,9 @@
 .Synopsis
 Transitive closure on binary relation values.
 
+.Index
++
+
 .Syntax
 `_Exp_ +`
 

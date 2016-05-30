@@ -3,6 +3,9 @@
 .Synopsis
 Switch statement.
 
+.Index
+switch case default
+
 .Syntax
 [source,rascal,subs="quotes"]
 ----

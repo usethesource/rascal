@@ -3,6 +3,9 @@
 .Synopsis
 Numeric range of values.
 
+.Index
+[ .. ]
+
 .Syntax
 
 *  `[ _Exp~1~_ .. _Exp~3~_ ]`

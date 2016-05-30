@@ -3,6 +3,9 @@
 .Synopsis
 Join two list relation values.
 
+.Index
+join
+
 .Syntax
 `_Exp_~1~ join _Exp_~2~`
 

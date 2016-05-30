@@ -3,6 +3,9 @@
 .Synopsis
 Test whether expression has a defined value, otherwise provide alternative.
 
+.Index
+?
+
 .Syntax
 `_Exp_~1~ ? _Exp_~2~`
 
