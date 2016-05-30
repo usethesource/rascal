@@ -6,8 +6,7 @@
 .Synopsis
 Type parameters enable parameterized types.
 
-.Index
-&
+
 
 .Syntax
 `& _Name_`

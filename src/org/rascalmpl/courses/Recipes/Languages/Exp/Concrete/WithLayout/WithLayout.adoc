@@ -63,22 +63,13 @@ To put this all to the test:
 rascal>import demo::lang::Exp::Concrete::WithLayout::Syntax;
 ok
 rascal>import demo::lang::Exp::Concrete::WithLayout::Eval;
-ok
+[error] Unexpected compiler exception EXCEPTION in translateFunctionDeclaration, compiling eval: ParseError(|std:///demo/lang/Exp/Concrete/WithLayout/Eval.rsc|(363,26,<10,26>,<10,27>)) AT |std:///demo/lang/Exp/Concrete/WithLayout/Eval.rsc|(17,737,<2,0>,<23,47>)
 rascal>eval("2 +  3");
-ParseError(|unknown:///|(3,1,<1,3>,<1,4>))
-No call stack available
-
-ok
+[error] Name eval is not in scope
 rascal>eval("2   +  3*4");
-ParseError(|unknown:///|(5,1,<1,5>,<1,6>))
-No call stack available
-
-ok
+[error] Name eval is not in scope
 rascal>eval("( 2+3 )* 4");
-ParseError(|unknown:///|(6,1,<1,6>,<1,7>))
-No call stack available
-
-ok
+[error] Name eval is not in scope
 ----
 
 .Benefits

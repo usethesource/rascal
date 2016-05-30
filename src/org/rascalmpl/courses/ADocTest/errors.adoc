@@ -1,13 +1,1 @@
 # Errors in Course ADocTest
-* __ADocTest/analysis/AnyModule__:
-```
-[error] Name mix is not in scope
-```
-* __ADocTest/analysis/AnyModule__:
-```
-[error] Name mix is not in scope
-```
-* __ADocTest/analysis/AnyModule__:
-```
-[error] Name mix is not in scope
-```

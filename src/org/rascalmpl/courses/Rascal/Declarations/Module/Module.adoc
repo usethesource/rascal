@@ -6,8 +6,7 @@
 .Synopsis
 Declare a module.
 
-.Index
-module
+
 
 .Syntax
 [source,rascal,subs="quotes"]

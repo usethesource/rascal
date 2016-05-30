@@ -6,8 +6,7 @@
 .Synopsis
 Reduce generated values to a single value.
 
-.Index
-( | ) it
+
 
 .Syntax
 `( _Exp_ | _RedExp_ | _Gen_~1~, _Gen_~1~, ... )`

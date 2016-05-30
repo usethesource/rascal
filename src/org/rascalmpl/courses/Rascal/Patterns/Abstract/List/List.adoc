@@ -6,8 +6,7 @@
 .Synopsis
 List in abstract pattern.
 
-.Index
-[ ]
+
 
 .Syntax
 

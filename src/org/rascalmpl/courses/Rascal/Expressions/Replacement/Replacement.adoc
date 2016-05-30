@@ -6,8 +6,7 @@
 .Synopsis
 Set the value of an <<Annotation Declaration,Annotation>>.
 
-.Index
-[ @ = ]
+
 
 .Syntax
 `_Exp_~1~[@_Name_ = _Exp_~2~]`

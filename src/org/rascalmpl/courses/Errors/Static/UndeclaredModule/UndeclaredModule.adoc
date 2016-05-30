@@ -51,16 +51,16 @@ at test-modules:///ConsoleInput.rsc offset=25 length=1 begin=1:5 end=1:6
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMonJVM.executeRVMFunction(RVMonJVM.java:138)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMJVM.executeRVMFunction(RVMJVM.java:80)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore.executeRVMFunction(RVMCore.java:385)
-	at org.rascalmpl.library.lang.rascal.boot.Kernel.compileAndMergeIncremental(Kernel.java:92)
+	at org.rascalmpl.library.lang.rascal.boot.Kernel.compileAndMergeIncremental(Kernel.java:103)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.executeModule(CommandExecutor.java:215)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalStatement(CommandExecutor.java:388)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:287)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:273)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:61)
-	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:217)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:113)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:74)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:106)
+	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:221)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:114)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:75)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:107)
 ok
 ----
 

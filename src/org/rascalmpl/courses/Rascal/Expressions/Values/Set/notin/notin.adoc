@@ -6,8 +6,7 @@
 .Synopsis
 Negated membership test on set values.
 
-.Index
-notin
+
 
 .Syntax
 `_Exp_~1~ notin _Exp_~2~`

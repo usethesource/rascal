@@ -6,8 +6,7 @@
 .Synopsis
 Type constrained abstract pattern.
 
-.Index
-[ ]
+
 
 .Syntax
 

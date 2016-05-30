@@ -6,8 +6,7 @@
 .Synopsis
 Type constraints restrict the acceptable type for parameters.
 
-.Index
-<: &
+
 
 .Syntax
 `& _Name_ <: _Type_`

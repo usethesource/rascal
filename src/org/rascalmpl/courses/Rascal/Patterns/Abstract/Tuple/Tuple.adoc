@@ -6,8 +6,7 @@
 .Synopsis
 Tuple in abstract pattern.
 
-.Index
-< >
+
 
 .Syntax
 

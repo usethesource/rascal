@@ -6,8 +6,7 @@
 .Synopsis
 String values.
 
-.Index
-" ' < > \ \n \t \r \b \f \u \U hex if else for while do
+
 
 .Syntax
 `"_StringChar_~1~_StringChar_~2~..."`

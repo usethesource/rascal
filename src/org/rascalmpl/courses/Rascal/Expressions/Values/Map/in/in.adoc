@@ -6,8 +6,7 @@
 .Synopsis
 Membership test on the keys of a map.
 
-.Index
-in
+
 
 .Syntax
 `_Exp_~1~ in _Exp_~2~`

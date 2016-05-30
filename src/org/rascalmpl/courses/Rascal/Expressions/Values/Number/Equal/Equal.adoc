@@ -3,8 +3,7 @@
 # Number Equal
 :concept: Expressions/Values/Number/Equal
 
-.Index
-==
+
 
 .Synopsis
 Equality operator on numeric values.

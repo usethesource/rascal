@@ -6,8 +6,7 @@
 .Synopsis
 Declare the import a module.
 
-.Index
-import
+
 
 .Syntax
 `import _QualifiedName_;`

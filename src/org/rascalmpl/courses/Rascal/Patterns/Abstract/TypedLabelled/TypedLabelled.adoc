@@ -6,8 +6,7 @@
 .Synopsis
 Typed, labelled, abstract pattern.
 
-.Index
-:
+
 
 .Syntax
 

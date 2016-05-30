@@ -6,8 +6,7 @@
 .Synopsis
 Declare a function.
 
-.Index
-public private java test default &
+
 
 .Syntax
 

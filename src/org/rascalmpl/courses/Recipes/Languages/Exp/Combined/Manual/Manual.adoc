@@ -53,9 +53,9 @@ Let's try it:
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Exp::Combined::Manual::Load;
-ok
+[error] Unexpected compiler exception EXCEPTION in translateFunctionDeclaration, compiling load: ParseError(|std:///demo/lang/Exp/Combined/Manual/Load.rsc|(513,26,<12,61>,<12,62>)) AT |std:///demo/lang/Exp/Combined/Manual/Load.rsc|(17,733,<2,0>,<18,17>)
 rascal>loadExp("2+3");
-ok
+[error] Name loadExp is not in scope
 ----
 
 
@@ -70,9 +70,9 @@ Here is how it works:
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Exp::Combined::Manual::Eval;
-ok
+[error] Unexpected compiler exception EXCEPTION in translateFunctionDeclaration, compiling load: ParseError(|std:///demo/lang/Exp/Combined/Manual/Load.rsc|(513,26,<12,61>,<12,62>)) AT |std:///demo/lang/Exp/Combined/Manual/Load.rsc|(17,733,<2,0>,<18,17>)
 rascal>eval("2+3");
-ok
+[error] Name eval is not in scope
 ----
 
 .Benefits

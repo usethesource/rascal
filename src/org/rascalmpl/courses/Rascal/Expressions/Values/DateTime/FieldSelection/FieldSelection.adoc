@@ -6,8 +6,7 @@
 .Synopsis
 Select a field from a datetime value.
 
-.Index
-.
+
 
 .Syntax
 `_Exp_ . _Name_`

@@ -6,8 +6,7 @@
 .Synopsis
 Concrete patterns.
 
-.Index
-( ) ` < >
+
 
 .Syntax
 [source,rascal,subs="quotes"]

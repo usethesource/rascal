@@ -105,10 +105,10 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:287)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:273)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:61)
-	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:217)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:113)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:74)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:108)
+	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:221)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:114)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:75)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:109)
 ok
 rascal>eval(["X = 2 * 3;", "X + 5;"]);
 java.lang.NullPointerException
@@ -136,10 +136,10 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:287)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:273)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:61)
-	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:217)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:113)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:74)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:108)
+	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:221)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:114)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:75)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:109)
 ok
 ----
 
@@ -189,10 +189,10 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:287)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:273)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:61)
-	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:217)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:113)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:74)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:108)
+	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:221)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:114)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:75)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:109)
 ok
 rascal>evalType("[1, 2, 3];");
 java.lang.NullPointerException
@@ -217,10 +217,10 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:287)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:273)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:61)
-	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:217)
-	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:113)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:74)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:108)
+	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:221)
+	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:114)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:75)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:109)
 ok
 ----
 

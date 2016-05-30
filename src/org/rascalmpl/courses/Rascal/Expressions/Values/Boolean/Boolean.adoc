@@ -6,8 +6,7 @@
 .Synopsis
 Boolean values.
 
-.Index
-true false
+
 
 .Syntax
 `true`, `false`

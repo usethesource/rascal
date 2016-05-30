@@ -36,7 +36,7 @@ Others, like a wrong month number (here: 15) lead to a DateTimeSyntax error:
 [source,rascal-shell-error]
 ----
 rascal>$2010-15-15T09:15:23.123+03:00$;
-[error] Unexpected exception EXCEPTION in translateFunctionDeclaration, compiling main: IO("Cannot create datetime with provided values.") IN 'module ConsoleInput
+[error] Unexpected compiler exception EXCEPTION in translateFunctionDeclaration, compiling main: IO("Cannot create datetime with provided values.") IN 'module ConsoleInput
 
 value main() = $2010-15-15T09:15:23.123+03:00$;'
 ----

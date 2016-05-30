@@ -6,8 +6,7 @@
 .Synopsis
 The _or_ operator on Boolean values.
 
-.Index
-||
+
 
 .Syntax
 `_Exp_~1~ || _Exp_~2~`

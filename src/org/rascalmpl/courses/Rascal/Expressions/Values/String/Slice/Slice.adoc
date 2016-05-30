@@ -6,8 +6,7 @@
 .Synopsis
 Retrieve a slice of a string.
 
-.Index
-[ .. ]
+
 
 .Syntax
 
