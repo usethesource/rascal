@@ -55,6 +55,10 @@ public class Bootstrap {
             }
         };
         
+        if (versionToUse.equals("unstable")) {
+            info("YOU ARE NOT SUPPOSED TO BOOTSTRAP OFF AN UNSTABLE VERSION! ***ONLY FOR DEBUGGING PURPOSES***");
+        }
+        
         Runtime.getRuntime().addShutdownHook(destroyChild);
         
         Path sourceFolder = new File(args[arg++]).toPath();
@@ -182,7 +186,6 @@ public class Bootstrap {
 
 	private static URI deployedVersion(String version) {
 	    if ("unstable".equals(version)) {
-	        info("YOU ARE NOT SUPPOSED TO BOOTSTRAP OFF AN UNSTABLE VERSION! ***ONLY FOR DEBUGGING PURPOSES***");
 	        return unstableVersion();
 	    }
 
