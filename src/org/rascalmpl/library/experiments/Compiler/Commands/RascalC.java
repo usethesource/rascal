@@ -8,6 +8,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutio
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -69,22 +70,25 @@ public class RascalC {
         Kernel kernel = new Kernel(vf, rex, URIUtil.changeScheme(binaryKernelLoc, "compressed+" + binaryKernelLoc.getScheme()));
 		
         if (cmdOpts.getCommandBoolOption("noLinking")) {
-            kernel.compile(
+            IConstructor program = kernel.compile(
                     cmdOpts.getRascalModule(),
                     cmdOpts.getCommandPathOption("srcPath"),
                     cmdOpts.getCommandPathOption("libPath"),
                     cmdOpts.getCommandLocOption("bootDir"),
                     cmdOpts.getCommandLocOption("binDir"), 
                     cmdOpts.getModuleOptionsAsIMap()); 
+            System.err.println("PROGRAM:" + program);
+            
         } 
         else {
-            kernel.compileAndLink(
+            IConstructor program = kernel.compileAndLink(
                     cmdOpts.getRascalModule(),
                     cmdOpts.getCommandPathOption("srcPath"),
                     cmdOpts.getCommandPathOption("libPath"),
                     cmdOpts.getCommandLocOption("bootDir"),
                     cmdOpts.getCommandLocOption("binDir"), 
                     cmdOpts.getModuleOptionsAsIMap());
+            System.err.println("PROGRAM:" + program);
         }
 	}
 }
