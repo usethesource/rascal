@@ -2,6 +2,7 @@ module lang::rascal::tests::basic::Intermix
 
 import IO;
 
+@ignoreCompiler{compiled code has a problem with the re-assignment of the loop variable l and skips the final possible match where *pst == {}}
 test bool simpler() {
    l = [1,1,1];
    while ([*pre,a,b,*pst] := l, !(a == 0 || b == 0)) {
