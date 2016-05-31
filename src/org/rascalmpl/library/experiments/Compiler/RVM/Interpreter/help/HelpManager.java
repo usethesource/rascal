@@ -26,6 +26,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.rascalmpl.library.experiments.tutor3.Onthology;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 public class HelpManager {
 	
@@ -37,6 +38,7 @@ public class HelpManager {
 	private PrintWriter stderr;
 
 	public HelpManager(PrintWriter stdout, PrintWriter stderr){
+		String u = System.getProperty("rascal.courses");
 		this.stdout = stdout;
 		this.stderr = stderr;
 	}

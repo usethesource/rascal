@@ -32,6 +32,7 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.repl.LimitedWriter;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
@@ -63,6 +64,7 @@ public class CommandExecutor {
 	private String consoleInputName = "ConsoleInput";
 	public static String consoleInputPath = "/ConsoleInput.rsc";
 	private ISourceLocation consoleInputLocation;
+	private ISourceLocation coursesLocation;
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
 	
@@ -103,6 +105,7 @@ public class CommandExecutor {
 		prelude = new Prelude(vf);
 		try {
 			consoleInputLocation = vf.sourceLocation("test-modules", "", consoleInputName + ".rsc");
+			coursesLocation = vf.sourceLocation("courses", "", "");
 		} catch (URISyntaxException e) {
 			throw new RuntimeException("Cannot initialize: " + e.getMessage());
 		}
@@ -139,6 +142,8 @@ public class CommandExecutor {
 		syntaxDefinitions = new HashMap<>();
 		declarations = new ArrayList<>();
 		moduleVariables = new HashMap<>();
+		
+		System.getProperty("rascal.courses");
 		
 		helpManager = new HelpManager(stdout, stderr);
 		
