@@ -122,7 +122,7 @@ str alert = "";
 
 list[tuple[str id, str lab, str val]] labval=[];
 
-bool isPassive(Figure f) = f.event==noEvent()  && isEmptyTooltip(f.tooltip);
+bool isPassive(Figure f) = f.event==noEvent()  && isEmptyTooltip(f.tooltip) && f.panel==emptyFigure();
 
 str child(str id1) {
     if (findFirst(id1,"#") < 1) return id1;
@@ -246,14 +246,14 @@ str visitFig(IFigure fig) {
     }
  
 str visitTooltipFigs() {
-    str r ="\<div class=\"overlay\"\>\<svg id = \"overlay\"\>";
+    str r ="\<div class=\"overlay\"\>\<svg id = \"overlay\" width=10000 height=10000\>";
     for (IFigure fi<-tooltips) {
          if (g:ifigure(str id, _):=fi && endsWith(id, "_tooltip")) {
             r+= visitFig(g);        
             }
          }
     for (IFigure fi<-panels) {
-         if (g:ifigure(str id, _):=fi && endsWith(id, "_panel")) {
+         if (g:ifigure(str id, _):=fi) {
             r+= visitFig(g);        
             }
          }
@@ -298,7 +298,6 @@ str google = "\<script src=\'https://www.google.com/jsapi?autoload={
        
 str getIntro() {
    list[str] tooltipIds = [replaceLast(s,"_tooltip","")| ifigure(str s, _)<-tooltips];
-   list[str] panelIds = [replaceLast(s,"_panel","")| ifigure(str s, _)<-panels];
    res = "\<html\>
         '\<head\>      
         '\<style\>
@@ -320,10 +319,10 @@ str getIntro() {
        ' fill: #333;
        ' stroke-width: 1.5px;
        '  }
-       ' svg {
-       '    width: 10000
-       '    height: 10000
-       '    }
+       ' //#overlay svg {
+       ' //   width: 10000;
+       ' //   height: 10000;
+       '  //  }
        '.overlay{
        'position: absolute;
        'top: 0;
@@ -358,9 +357,10 @@ str getIntro() {
         '  <_display?"doFunction(\"load\", \"figureArea\")()":"\"\"">; 
         '  <for (d<-graphs) {> <d> <}>  
         '  <for (d<-tooltipIds) {> adjust_tooltip(\"<d>\"); <}> 
-        '  <for (d<-panelIds) {> adjust_panel(\"<d>\"); <}> 
+        '  <for (d<-panels) {> adjust_panel(\"<getParentFig(d.id).id>\",\"<d.id>\"); <}> 
         '  <for (d<-googleChart) {> <d> <}>  
-        '  <for (d<-loadCalls) {><_display?"doFunction(\"load\", \"<d>\")()":"\"\""><}>;    
+        '  // setTimeout(function(){<for (d<-loadCalls) {><_display?"doFunction(\"load\", \"<d>\")()":"\"\"">;<}> }, 1000); 
+        ' <for (d<-loadCalls) {><_display?"doFunction(\"load\", \"<d>\")()":"\"\"">;<}>  
        ' }
        ' d3.selectAll(\"table\").remove();
        ' onload=initFunction;
@@ -417,7 +417,7 @@ void assign(str v) {
    labval = tail(labval); 
    }
    
-void invokeF(str e, str n, str v) {
+public void invokeF(str e, str n, str v) {
    value q = widget[n].f;
    switch (q) {
        case void(str, str, str) f: f(e, n, v);
@@ -959,7 +959,7 @@ IFigure _text(str id, bool inHtml, Figure f, str s, str overflow, bool addSvgTag
         '<style("font-style", f.fontStyle)>
         '<style("font-family", f.fontFamily)>
         '<style("font-weight", f.fontWeight)>
-        '<style("visibility", getVisibility(f))>
+        '// <style("visibility", getVisibility(f))>
         '<isHtml?style("color", f.fontColor):(style("fill", f.fillColor))>
         '<isHtml?"":style("text-anchor", "middle")> 
         '<isHtml?style("overflow", overflow):"">
@@ -1031,9 +1031,9 @@ IFigure _googlechart(str cmd, str id, Figure f, bool addSvgTag) {
     str begintag = "";
     if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
+         "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\"  x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
-    begintag+="\<div id=\"<id>\"\>";
+    begintag+="\<div id=\"<id>\" class=\"google\" \>";
     int width = f.width;
     int height = f.height;
     Alignment align =  width<0?topLeft:f.align;
@@ -1387,6 +1387,7 @@ bool hasInnerCircle(Figure f)  {
       int height = f.height;
       if (width>=0) width = toInt(f.bigger*(width + lw));
       if (height>=0) height = toInt(f.bigger*(height + lw));
+      // println("QQQ <isPassive(f)>");
       return " 
         '<style("stroke-width",lw)>
         '<style("stroke","<getLineColor(f)>")>
@@ -1395,7 +1396,8 @@ bool hasInnerCircle(Figure f)  {
         '<style("fill-opacity", getFillOpacity(f))> 
         '<style("stroke-opacity", getLineOpacity(f))>  
         '<style("visibility", getVisibility(f))> 
-        '<isPassive(f)?attr("pointer-events", "none"):attr("pointer-events", "all")>   
+        '<attr("clickable", isPassive(f)?"no":"yes")>
+        '<isPassive(f)||getVisibility(f)=="hidden"?attr("pointer-events", "none"):attr("pointer-events", "all")>   
         ';   
         'd3.select(\"#<id>_svg\")
         '<attr("width", width)><attr("height", height)>
@@ -1410,6 +1412,13 @@ bool hasInnerCircle(Figure f)  {
       if (isEmpty(ld)) return "";
       str r = "<head(ld)> <for(d<-tail(ld)){> , <d> <}>";
       return r;
+      }
+      
+ bool hasForm(Figure f) {
+      if (q:grid():=f.fig && q.form) return true;
+      if (q:hcat():=f.fig && q.form) return true;
+      if (q:vcat():=f.fig && q.form) return true;
+      return false;
       }
  
  str styleInsideSvg(str id, Figure f,  IFigure fig) {  
@@ -1427,11 +1436,13 @@ bool hasInnerCircle(Figure f)  {
        int h =  f.height/2;
        g = "d3.select(\"#<fig.id>\")<attr("x", w)><attr("y", h+fw/2)>;";
        }
+    // println(f);
     return styleInsideSvgOverlay(id, f) +
         "    
         'd3.select(\"#<id>_fo\")
         '<attr("width", width)><attr("height", height)>
-        '<isPassive(f)?attr("pointer-events", "all"):attr("pointer-events", "none")> 
+        '<style("visibility", getVisibility(f))> 
+        '<hasForm(f)?attr("pointer-events", "all"):attr("pointer-events", "none")> 
         '<debugStyle()>
         ';    
         '       
@@ -1876,7 +1887,7 @@ IFigure _strInput(str id, Figure f, bool addSvgTag) {
         'd3.select(\"#<id>\")    
         '<stylePx("width", width)><stylePx("height", height)>   
         '<debugStyle()>
-        '<style("background-color", "<getFillColor(f)>")>   
+        '<style("background-color", "<getFillColor(f)>")> 
         ;"
         , width, height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f), f.sizeFromParent, false >;
        addState(f);
@@ -1892,13 +1903,18 @@ IFigure _choiceInput(str id, Figure f, bool addSvgTag) {
        if (addSvgTag) {
           begintag+=
          "\<svg id=\"<id>_svg\"\> 
-         '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
+         '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>
+         "
+         ;
          }
-       begintag+="\<form id = \"<id>\"\>\<div align=\"left\"\>\<br\>";
+       begintag+=
+       "\<form id = \"<id>\" class=\"form\" align = \"left\"\>
+       "
+       ;
        for (c<-f.choices) {
        begintag+="                
-            '\<input type=\"radio\" name=\"<id>\"  class=\"<id> form\" id=\"<id>_<c>_i\" value=\"<c>\"
-            ' onclick=\"ask(\'click\', \'<id>\', this.value)\"
+            '\<input type=\"radio\" name=\"<id>\"  class=\"<id>\" id=\"<id>_<c>_i\" value=\"<c>\"
+            ' onclick=\"radioAsk(\'click\', \'<id>\', this.value)\"
             ' <c==f.\value?"checked":"">
             '/\>
             <c>\<br\>
@@ -1906,7 +1922,7 @@ IFigure _choiceInput(str id, Figure f, bool addSvgTag) {
             ;
         }
        str endtag="
-            '\</div\>\</form\>
+            '\</form\>
             "
             ;
        if (addSvgTag) {
@@ -2066,8 +2082,9 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
         '<style("border-spacing", "<f.hgap> <f.vgap>")> 
         '<style("stroke-width",getLineWidth(f))>
         '<style("visibility", getVisibility(f))>
-        '<_padding(f.padding)>      
-        ;
+        '<attr("pointer-events","none")>
+        '<_padding(f.padding)>
+        ; 
         'adjustTable(\"<id>\", <figCalls(fig1)>);      
         "
         , width, height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f)
@@ -2101,7 +2118,7 @@ IFigure _vcat(str id, Figure f,  bool addSvgTag, IFigure fig1...) {
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
+         "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\"  x=<getAtX(f)> y=<getAtY(f)> width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
        begintag+="                 
             '\<table id=\"<id>\"  class=\"<id>_div\" cellspacing=\"0\" cellpadding=\"0\"\>"
@@ -2109,7 +2126,7 @@ IFigure _vcat(str id, Figure f,  bool addSvgTag, IFigure fig1...) {
        str endtag="\</table\>";
        if (f.form) {
             endtag += "\<div  class=\"<id>_div\"\>\<button id=\"<id>_cancel\"\>Cancel\</button\>\<button id=\"<id>_ok\"\>Ok\</button\>\<div\>";
-            loadCalls+=f.id;
+            // loadCalls+=f.id;
             }
        if (addSvgTag) {
             endtag += "\</foreignObject\>\</svg\>"; 
@@ -2130,14 +2147,11 @@ IFigure _vcat(str id, Figure f,  bool addSvgTag, IFigure fig1...) {
         '<style("stroke-width",getLineWidth(f))>
         '<style("visibility", getVisibility(f))>
         '<attr("pointer-events", "none")>
-        '<_padding(f.padding)>   
-        ;
-        'd3.select(\"#<id>_fo\")<attr("pointer-events", "none")>
-        ;
-        'd3.select(\"#<id>_svg\")<attr("pointer-events", "none")>
-        ;
-        'd3.select(\"#<id>_rect\")<attr("pointer-events", "none")>
-        ;
+        '<_padding(f.padding)> ;
+        'd3.selectAll(\".<id>_div\")<style("visibility", getVisibility(f))>;								
+        'd3.select(\"#<id>_fo\")<attr("pointer-events", "none")>;
+        'd3.select(\"#<id>_svg\")<attr("pointer-events", "none")>;
+        'd3.select(\"#<id>_rect\")<attr("pointer-events", "none")>;
         'adjustTable(\"<id>\", <figCalls(fig1)>); 
         ", width, height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f)
          , f.sizeFromParent, false >;
@@ -2160,11 +2174,11 @@ list[list[IFigure]] transpose(list[list[IFigure]] f) {
        }
 
 IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[]]) {
-       list[list[IFigure]] figArray1 = transpose(figArray);
+       list[list[IFigure]] figArray1 = isEmpty(figArray)?[]:transpose(figArray);
        str begintag = "";
        if (addSvgTag) {
           begintag+=
-         "\<svg id=\"<id>_svg\"\>\<foreignObject id=\"<id>_outer_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
+         "\<svg id=\"<id>_svg\"\>\<foreignObject id=\"<id>_outer_fo\" x=<getAtX(f)> y=<getAtY(f)> width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
        begintag+="                    
             '\<table id=\"<id>\" cellspacing=\"0\" cellpadding=\"0\"\>
@@ -2184,14 +2198,20 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
         'd3.select(\"#<id>_ok\")<on("click", "doAllFunction(\"ok\",\"<id>\")")>;
         'd3.select(\"#<id>\")       
          '<debugStyle()>
+         '<on(f)>
          '<stylePx("width", f.width)><stylePx("height", f.height)> 
          '<attrPx("width", f.width)><attrPx("height", f.height)>   
          '<style("background-color", "<getFillColor(f)>")>
          '<style("border-spacing", "<f.hgap> <f.vgap>")>
          '<style("stroke-width",getLineWidth(f))>
          '<style("visibility", getVisibility(f))>
+         '<attr("pointer-events","none")>
          '<_padding(f.padding)> 
          '<debugStyle()>;
+         'd3.selectAll(\".<id>_div\")<style("visibility", getVisibility(f))>;
+		 'd3.select(\"#<id>_fo\")<attr("pointer-events", "none")>;
+         'd3.select(\"#<id>_svg\")<attr("pointer-events", "none")>;
+         'd3.select(\"#<id>_rect\")<attr("pointer-events", "none")>;
          'adjustTableWH1(\"<id>\", <figCallArray(figArray)>);  
         ", f.width, f.height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f)
          , f.sizeFromParent, false >;      
@@ -2322,6 +2342,8 @@ Figure cL(Figure parent, Figure child) {
     if (!isEmpty(child.id)) parentMap[child.id] = parent.id; 
     value v = parent.tooltip; 
     if (Figure h:=v && h!=emptyFigure()) parentMap[h.id] = parent.id;
+    v = parent.panel;
+    if (Figure h:=v && h!=emptyFigure()) parentMap[h.id] = parent.id;
     return child;
     }
     
@@ -2366,14 +2388,9 @@ Figure pL(Figure f) {
      if (Figure g:=v) {   
          f.tooltip = addSuffix(f.id, g, "_tooltip"); 
          }
-     if (on(str e, Figure g):=f.event) {
-          //Figure v= vcat(align = topLeft, figs=[buttonInput("Close", id="<f.id>_close"), g], id="<f.id>_vcat");
-          //figMap[v.id]= v; 
-          // g = frame(v);
-          Figure q = addSuffix(f.id, g, "_panel");
-          f.event=on(e, q);
-          }
      figMap[f.id] = f;
+     v =  f.panel;
+     if (Figure g:=v && g!=emptyFigure()) figMap[g.id] = g;
      return f;
      }
      
@@ -2385,6 +2402,8 @@ Figure buildFigMap(Figure f) {
    }
    
 Figure getParentFig(Figure f) = figMap[parentMap[f.id]]; 
+
+Figure getParentFig(str id) = figMap[parentMap[id]];
 
 void buildParentTree(Figure f) {
     // println(f);
@@ -2449,7 +2468,8 @@ IFigure _translate(Figure f,  bool addSvgTag = false,
             }
     value v = f.tooltip;
     if (Figure g:=v && g!=emptyFigure()) {tooltips +=  _translate(g, addSvgTag=true); }
-    if (on(_, Figure g):=f.event) {panels +=  _translate(g, addSvgTag=true); }
+    v = f.panel;
+    if (Figure g:=v && g!=emptyFigure()) {panels +=  _translate(g, addSvgTag=true); }
     switch(f) {   
         case box(): return _rect(f.id, true, f, fig = _translate(f.fig,  inHtlml = true));
         case emptyFigure(): return iemptyFigure(f.seq);
