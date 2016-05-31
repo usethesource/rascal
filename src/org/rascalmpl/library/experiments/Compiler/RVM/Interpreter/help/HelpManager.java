@@ -3,10 +3,8 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help;
 //import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 import java.awt.Desktop;
-import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
@@ -33,6 +31,7 @@ public class HelpManager {
 	
 	private final String COURSE_DIR = "/Users/paulklint/git/rascal/src/org/rascalmpl/courses/";
 	private final String SEARCH_RESULT_FILE = "/Users/paulklint/search-result.html";
+	private final int MAX_SEARCH = 25;
 	
 	private PrintWriter stdout;
 	private PrintWriter stderr;
@@ -40,39 +39,6 @@ public class HelpManager {
 	public HelpManager(PrintWriter stdout, PrintWriter stderr){
 		this.stdout = stdout;
 		this.stderr = stderr;
-	}
-	
-	public void display(String link){
-		Process p = null;
-		try {
-			p = Runtime.getRuntime().exec("/usr/local/bin/lynx " + link);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-		String line = null;
-
-		try {
-			while ((line = input.readLine()) != null)
-			{
-				//stderr.println(line);
-				stdout.println(line);
-			}
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		try {
-			int exitVal = p.waitFor();
-			System.err.println("w3m exits with error code " + exitVal);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 	
 	public void openInBrowser(String url)
@@ -91,22 +57,31 @@ public class HelpManager {
 			try {
 				desktop.browse(uri);
 			} catch (IOException e) {
-				stderr.println("Cannout open " + url);
+				stderr.println("Cannout open in browser: " + url);
 			}
 		} else {
-			stderr.println("Desktop not supported, cannout open browser automatically for " + url);
+			stderr.println("Desktop not supported, cannout open browser automatically for: " + url);
 		}
 	}
 	
-	String  makeURL(String conceptName){
+	void appendURL(StringWriter w, String conceptName){
 		String[] parts = conceptName.split("/");
 		int n = parts.length;
 		String course = parts[0];
-		if(n > 1){
-			return "file://" + COURSE_DIR + course + "/" + course + ".html#" + parts[n-2] + "-" + parts[n-1];
-		} else {
-			return "file://" + COURSE_DIR + course + "/" + course + ".html#" + parts[n-1] + "-" + parts[n-1];
-		}
+		w.append(COURSE_DIR).append(course).append("/").append(course).append(".html")
+		 .append("#").append(parts[n - (n > 1 ? 2 : 1)]).append("-").append(parts[n-1]);
+	}
+	
+	String makeURL(String conceptName){
+		StringWriter w = new StringWriter();
+		appendURL(w, conceptName);
+		return w.toString();
+	}
+	
+	void appendHyperlink(StringWriter w, String conceptName){
+		w.append("<a href=\"file://");
+		appendURL(w, conceptName);
+		w.append("\">").append(conceptName).append("</a>");
 	}
 	
 	private String escapeForQuery(String s){
@@ -130,7 +105,7 @@ public class HelpManager {
 		
 		try {
 			Directory directory = FSDirectory.open(destDir);
-			DirectoryReader ireader = DirectoryReader.open(directory); // read-only=true
+			DirectoryReader ireader = DirectoryReader.open(directory);
 			IndexSearcher isearcher = new IndexSearcher(ireader);
 			
 			String searchFields[] = {"index", "synopsis", "doc"};
@@ -141,52 +116,76 @@ public class HelpManager {
 			for(int i = 1; i < words.length; i++){
 				sb.append(" ").append(escapeForQuery(words[i]));
 			}
-			Query query = parser.parse(sb.toString());
-			    
-			ScoreDoc[] hits = isearcher.search(query, 25).scoreDocs;
-			
-			// Iterate through the results:
-			int nhits = hits.length;
-			if(nhits == 0){
-				stdout.println("No info found");
-//			} else if (nhits == 1){
-//				openInBrowser(makeURL(isearcher.doc(hits[0].doc).get("name")));
+			Query query;
+			try {
+				query = parser.parse(sb.toString());
+			} catch (ParseException e) {
+				stderr.println("Cannot parse query: " + sb + ", " + e.getMessage());
+				return;
+			}
+
+			if(words[0].equals("help")){
+				reportHelp(isearcher, isearcher.search(query, MAX_SEARCH).scoreDocs);
 			} else {
-				StringWriter w = new StringWriter();
-				w.append("<title>Rascal Search Results</title>\n");
-				w.append("<h1>Rascal Search Results</h1>\n");
-				w.append("<ul>\n");
-				for (int i = 0; i < Math.min(hits.length, 25); i++) {
-					Document hitDoc = isearcher.doc(hits[i].doc);
-					w.append("<li> ");
-					String name = hitDoc.get("name");
-					w.append("<a href=\"").append(makeURL(name)).append("\" target=\"_top\">").append(name).append("</a>:\n");
-					w.append("<em>").append(escapeHtml(getInfo(hitDoc, "synopsis"))).append("</em>");
-					String signature = getInfo(hitDoc, "signature");
-					if(!signature.isEmpty()){
-						w.append("<br>").append("<code>").append(escapeHtml(signature)).append("</code>");
-					}
-				}
-				w.append("</ul>\n");
-				FileWriter fout = new FileWriter(SEARCH_RESULT_FILE);
-				fout.write(w.toString());
-				fout.close();
-		        openInBrowser("file://" + SEARCH_RESULT_FILE);
+				reportApropos(isearcher, isearcher.search(query, MAX_SEARCH).scoreDocs);
 			}
 			ireader.close();
 			directory.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
+			
 	}
-	
-	String getInfo(Document hitDoc, String field){
+		
+	String getField(Document hitDoc, String field){
 		String s = hitDoc.get(field);
 		return (s == null || s.isEmpty()) ? "" : s;
 	}
 	
+	void reportHelp(IndexSearcher isearcher, ScoreDoc[] hits) throws IOException{
+		// Iterate through the results:
+		int nhits = hits.length;
+
+		if(nhits == 0){
+			stdout.println("No info found");
+		} else if (nhits == 1){
+			openInBrowser(makeURL(isearcher.doc(hits[0].doc).get("name")));
+		} else {
+			StringWriter w = new StringWriter();
+			w.append("<title>Rascal Search Results</title>\n");
+			w.append("<h1>Rascal Search Results</h1>\n");
+			w.append("<ul>\n");
+			for (int i = 0; i < Math.min(hits.length, MAX_SEARCH); i++) {
+				Document hitDoc = isearcher.doc(hits[i].doc);
+				w.append("<li> ");
+				String name = hitDoc.get("name");
+				appendHyperlink(w, name);
+				w.append(": <em>").append(escapeHtml(getField(hitDoc, "synopsis"))).append("</em>");
+				String signature = getField(hitDoc, "signature");
+				if(!signature.isEmpty()){
+					w.append("<br>").append("<code>").append(escapeHtml(signature)).append("</code>");
+				}
+			}
+			w.append("</ul>\n");
+			FileWriter fout = new FileWriter(SEARCH_RESULT_FILE);
+			fout.write(w.toString());
+			fout.close();
+			openInBrowser("file://" + SEARCH_RESULT_FILE);
+		}
+	}
+	
+	void reportApropos(IndexSearcher isearcher, ScoreDoc[] hits) throws IOException{
+		for (int i = 0; i < Math.min(hits.length, MAX_SEARCH); i++) {
+			Document hitDoc = isearcher.doc(hits[i].doc);
+			String name = hitDoc.get("name");
+			String signature = getField(hitDoc, "signature");
+			String synopsis = getField(hitDoc, "synopsis");
+			if(signature.isEmpty()){
+				stdout.println(name + ":\n\t" + synopsis);
+			} else {
+				stdout.println(name + ":\n\t" + synopsis + "\n\t" + signature);
+			}
+		}
+	}
 }
