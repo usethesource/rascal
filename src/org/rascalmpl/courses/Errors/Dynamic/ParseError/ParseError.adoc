@@ -32,6 +32,29 @@ Define the Non-terminal `As` that accepts one or more letters `a`:
 [source,rascal-shell-error]
 ----
 rascal>import ParseTree;
+rascal2rvm: Parsing and checking |std:///Message.rsc|
+rascal2rvm: Compiling |std:///Message.rsc|
+r2mu: entering ... Message
+mu2rvm: Compiling module Message
+Compiling |std:///Message.rsc|: check: 10, compile: 16, total: 26 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Message.rvm.gz|
+rascal2rvm: Parsing and checking |std:///ParseTree.rsc|
+rascal2rvm: Compiling |std:///ParseTree.rsc|
+r2mu: entering ... ParseTree
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module ParseTree
+Compiling |std:///ParseTree.rsc|: check: 93, compile: 882, total: 975 ms
+compile: Writing RVMModule |compressed+home:///bin-console/ParseTree.rvm.gz|
+rascal2rvm: Parsing and checking |std:///Type.rsc|
+rascal2rvm: Compiling |std:///Type.rsc|
+r2mu: entering ... Type
+rlib1 = Type, rlib2 = |std:///TypeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Type => org.rascalmpl.library.Type
+mu2rvm: Compiling module Type
+Compiling |std:///Type.rsc|: check: 272, compile: 6041, total: 6313 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Type.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>syntax As = "a"+;
 ok

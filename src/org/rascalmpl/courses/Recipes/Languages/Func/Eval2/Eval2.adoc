@@ -70,14 +70,25 @@ Let's try this.
 rascal>import demo::lang::Func::Load;
 ok
 rascal>import demo::lang::Func::Eval2;
+rascal2rvm: Parsing and checking |std:///demo/lang/Func/Eval2.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Func/Eval2.rsc|
+r2mu: entering ... demo::lang::Func::Eval2
+mu2rvm: Compiling module demo::lang::Func::Eval2
+Compiling |std:///demo/lang/Func/Eval2.rsc|: check: 29, compile: 1372, total: 1401 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Func/Eval2.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>import demo::lang::Func::programs::F2;
+rascal2rvm: Parsing and checking |std:///demo/lang/Func/programs/F2.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Func/programs/F2.rsc|
+r2mu: entering ... demo::lang::Func::programs::F2
+mu2rvm: Compiling module demo::lang::Func::programs::F2
+Compiling |std:///demo/lang/Func/programs/F2.rsc|: check: 3, compile: 9, total: 12 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Func/programs/F2.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>eval2("fact", [10], load(F2));
-ParseError(|unknown:///|(7,1,<1,7>,<1,8>))
-No call stack available
-
-ok
+tuple[map[str, int],int]: <("n":3628800),3628800>
 ----
 
 .Benefits

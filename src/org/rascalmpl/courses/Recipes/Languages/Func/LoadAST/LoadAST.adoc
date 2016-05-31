@@ -49,14 +49,96 @@ include::{LibDir}demo/lang/Func/programs/F0.func[]
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Func::Load;
+rascal2rvm: Parsing and checking |std:///demo/lang/Func/AST.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Func/AST.rsc|
+r2mu: entering ... demo::lang::Func::AST
+mu2rvm: Compiling module demo::lang::Func::AST
+Compiling |std:///demo/lang/Func/AST.rsc|: check: 6, compile: 13, total: 19 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Func/AST.rvm.gz|
+rascal2rvm: Parsing and checking |std:///demo/lang/Func/Func.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Func/Func.rsc|
+r2mu: entering ... demo::lang::Func::Func
+mu2rvm: Compiling module demo::lang::Func::Func
+Compiling |std:///demo/lang/Func/Func.rsc|: check: 7, compile: 23, total: 30 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Func/Func.rvm.gz|
+rascal2rvm: Parsing and checking |std:///demo/lang/Func/Load.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Func/Load.rsc|
+r2mu: entering ... demo::lang::Func::Load
+mu2rvm: Compiling module demo::lang::Func::Load
+Compiling |std:///demo/lang/Func/Load.rsc|: check: 16, compile: 405, total: 421 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Func/Load.rvm.gz|
+rascal2rvm: Parsing and checking |std:///demo/lang/Func/Parse.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Func/Parse.rsc|
+r2mu: entering ... demo::lang::Func::Parse
+mu2rvm: Compiling module demo::lang::Func::Parse
+Compiling |std:///demo/lang/Func/Parse.rsc|: check: 19, compile: 521, total: 540 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Func/Parse.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>import demo::lang::Func::programs::F0;
+rascal2rvm: Parsing and checking |std:///demo/lang/Func/programs/F0.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Func/programs/F0.rsc|
+r2mu: entering ... demo::lang::Func::programs::F0
+mu2rvm: Compiling module demo::lang::Func::programs::F0
+Compiling |std:///demo/lang/Func/programs/F0.rsc|: check: 3, compile: 11, total: 14 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Func/programs/F0.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>load(F0);
-ParseError(|unknown:///|(7,1,<1,7>,<1,8>))
-No call stack available
-
-ok
+Prog: prog([func(
+      "fact",
+      ["n"],
+      cond(
+        leq(
+          var("n")[
+            @location=|unknown:///|(13,1,<1,13>,<1,14>),
+            @comments=()
+          ],
+          nat(1)[
+            @location=|unknown:///|(18,1,<1,18>,<1,19>),
+            @comments=()
+          ])[
+          @location=|unknown:///|(13,6,<1,13>,<1,19>),
+          @comments=()
+        ],
+        nat(1)[
+          @location=|unknown:///|(38,1,<2,13>,<2,14>),
+          @comments=()
+        ],
+        mul(
+          var("n")[
+            @location=|unknown:///|(70,1,<4,13>,<4,14>),
+            @comments=()
+          ],
+          call(
+            "fact",
+            [sub(
+                var("n")[
+                  @location=|unknown:///|(79,1,<4,22>,<4,23>),
+                  @comments=()
+                ],
+                nat(1)[
+                  @location=|unknown:///|(81,1,<4,24>,<4,25>),
+                  @comments=()
+                ])[
+                @location=|unknown:///|(79,3,<4,22>,<4,25>),
+                @comments=()
+              ]])[
+            @location=|unknown:///|(74,9,<4,17>,<4,26>),
+            @comments=()
+          ])[
+          @location=|unknown:///|(70,13,<4,13>,<4,26>),
+          @comments=()
+        ])[
+        @location=|unknown:///|(10,87,<1,10>,<5,13>),
+        @comments=()
+      ])[
+      @location=|unknown:///|(0,97,<1,0>,<5,13>),
+      @comments=()
+    ]])[
+  @location=|unknown:///|(0,97,<1,0>,<5,13>),
+  @comments=()
+]
 ----
 We get the original program and its __abstract syntax tree__ of type `Prog` back.
 In case of doubt, compare this with the result in <<Func-Parse>> where we did obtain a parse tree.
@@ -64,10 +146,51 @@ Next, we try the same from a file:
 [source,rascal-shell]
 ----
 rascal>load(|std:///demo/lang/Func/programs/F0.func|);
-ParseError(|std:///demo/lang/Func/programs/F0.func|(7,1,<1,7>,<1,8>))
-No call stack available
-
-ok
+Prog: prog([func(
+      "fact",
+      ["n"],
+      cond(
+        leq(
+          var("n")[
+            @location=|std:///demo/lang/Func/programs/F0.func|(13,1,<1,13>,<1,14>),
+            @comments=()
+          ],
+          nat(1)[
+            @location=|std:///demo/lang/Func/programs/F0.func|(18,1,<1,18>,<1,19>),
+            @comments=()
+          ])[
+          @location=|std:///demo/lang/Func/programs/F0.func|(13,6,<1,13>,<1,19>),
+          @comments=()
+        ],
+        nat(1)[
+          @location=|std:///demo/lang/Func/programs/F0.func|(38,1,<2,13>,<2,14>),
+          @comments=()
+        ],
+        mul(
+          var("n")[
+            @location=|std:///demo/lang/Func/programs/F0.func|(70,1,<4,13>,<4,14>),
+            @comments=()
+          ],
+          call(
+            "fact",
+            [sub(
+                var("n")[
+                  @location=|std:///demo/lang/Func/programs/F0.func|(79,1,<4,22>,<4,23>),
+                  @comments=()
+                ],
+                nat(1)[
+                  @location=|std:///demo/lang/Func/programs/F0.func|(81,1,<4,24>,<4,25>),
+                  @comments=()
+                ])[
+                @location=|std:///demo/lang/Func/programs/F0.func|(79,3,<4,22>,<4,25>),
+                @comments=()
+              ]])[
+            @location=|std:///demo/lang/Func/programs/F0.func|(74,9,<4,17>,<4,26>),
+            @comments=()
+          ])[
+          @location=|std:///demo/lang/Func/programs/F0.func|(70,13,<4,13>,<4,26>),
+          @comments=()
+...
 ----
 
 .Benefits

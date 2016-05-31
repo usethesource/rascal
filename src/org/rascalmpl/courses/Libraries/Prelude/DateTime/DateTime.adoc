@@ -34,7 +34,7 @@ Get the current datetime.
 rascal>import DateTime;
 ok
 rascal>now();
-datetime: $2016-05-31T12:14:39.331+00:00$
+datetime: $2016-05-31T22:26:51.533+00:00$
 ----
 
 [[DateTime-createDate]]
@@ -140,9 +140,9 @@ Split an existing datetime into a tuple with the date and the time.
 rascal>import DateTime;
 ok
 rascal>N = now();
-datetime: $2016-05-31T12:14:42.183+00:00$
+datetime: $2016-05-31T22:26:55.368+00:00$
 rascal>splitDateTime(N);
-tuple[datetime,datetime]: <$2016-05-31$,$T12:14:42.183+00:00$>
+tuple[datetime,datetime]: <$2016-05-31$,$T22:26:55.368+00:00$>
 ----
 
 [[DateTime-incrementYears]]
@@ -162,11 +162,11 @@ Increment the years by given amount or by 1.
 rascal>import DateTime;
 ok
 rascal>N = now();
-datetime: $2016-05-31T12:14:42.563+00:00$
+datetime: $2016-05-31T22:26:55.737+00:00$
 rascal>incrementYears(N);
-datetime: $2017-07-01T12:14:42.563+00:00$
+datetime: $2017-07-01T22:26:55.737+00:00$
 rascal>incrementYears(N, 5);
-datetime: $2021-07-01T12:14:42.563+00:00$
+datetime: $2021-07-01T22:26:55.737+00:00$
 ----
 
 [[DateTime-incrementMonths]]
@@ -187,11 +187,11 @@ Increment the months by a given amount or by 1.
 rascal>import DateTime;
 ok
 rascal>N = now();
-datetime: $2016-05-31T12:14:44.661+00:00$
+datetime: $2016-05-31T22:26:56.320+00:00$
 rascal>incrementMonths(N);
-datetime: $2016-08-01T12:14:44.661+00:00$
+datetime: $2016-08-01T22:26:56.320+00:00$
 rascal>incrementMonths(N, 5);
-datetime: $2016-12-01T12:14:44.661+00:00$
+datetime: $2016-12-01T22:26:56.320+00:00$
 ----
 
 [[DateTime-incrementDays]]
@@ -211,11 +211,11 @@ Increment the days by given amount or by 1.
 rascal>import DateTime;
 ok
 rascal>N = now();
-datetime: $2016-05-31T12:14:45.093+00:00$
+datetime: $2016-05-31T22:26:57.770+00:00$
 rascal>incrementDays(N);
-datetime: $2016-07-02T12:14:45.093+00:00$
+datetime: $2016-07-02T22:26:57.770+00:00$
 rascal>incrementDays(N, 5);
-datetime: $2016-07-06T12:14:45.093+00:00$
+datetime: $2016-07-06T22:26:57.770+00:00$
 ----
 
 [[DateTime-incrementHours]]
@@ -235,11 +235,11 @@ Increment the hours by a given amount or by 1.`
 rascal>import DateTime;
 ok
 rascal>N = now();
-datetime: $2016-05-31T12:14:45.558+00:00$
+datetime: $2016-05-31T22:26:58.495+00:00$
 rascal>incrementHours(N);
-datetime: $2016-07-01T13:14:45.558+00:00$
+datetime: $2016-07-01T23:26:58.495+00:00$
 rascal>incrementHours(N, 5);
-datetime: $2016-07-01T17:14:45.558+00:00$
+datetime: $2016-07-02T03:26:58.495+00:00$
 ----
 
 [[DateTime-incrementMinutes]]
@@ -259,11 +259,11 @@ Increment the minutes by a given amount or by 1.
 rascal>import DateTime;
 ok
 rascal>N = now();
-datetime: $2016-05-31T12:14:47.480+00:00$
+datetime: $2016-05-31T22:26:58.918+00:00$
 rascal>incrementMinutes(N);
-datetime: $2016-07-01T12:15:47.480+00:00$
+datetime: $2016-07-01T22:27:58.918+00:00$
 rascal>incrementMinutes(N, 5);
-datetime: $2016-07-01T12:19:47.480+00:00$
+datetime: $2016-07-01T22:31:58.918+00:00$
 ----
 
 [[DateTime-incrementSeconds]]
@@ -283,11 +283,11 @@ Increment the seconds by a given amount or by 1.
 rascal>import DateTime;
 ok
 rascal>N = now();
-datetime: $2016-05-31T12:14:47.892+00:00$
+datetime: $2016-05-31T22:27:00.689+00:00$
 rascal>incrementSeconds(N);
-datetime: $2016-07-01T12:14:48.892+00:00$
+datetime: $2016-07-01T22:27:01.689+00:00$
 rascal>incrementSeconds(N, 5);
-datetime: $2016-07-01T12:14:52.892+00:00$
+datetime: $2016-07-01T22:27:05.689+00:00$
 ----
 
 [[DateTime-incrementMilliseconds]]
@@ -307,11 +307,11 @@ Increment the milliseconds by a given amount or by 1.
 rascal>import DateTime;
 ok
 rascal>N = now();
-datetime: $2016-05-31T12:14:49.442+00:00$
+datetime: $2016-05-31T22:27:01.155+00:00$
 rascal>incrementMilliseconds(N);
-datetime: $2016-07-01T12:14:49.443+00:00$
+datetime: $2016-07-01T22:27:01.156+00:00$
 rascal>incrementMilliseconds(N, 5);
-datetime: $2016-07-01T12:14:49.447+00:00$
+datetime: $2016-07-01T22:27:01.160+00:00$
 ----
 
 [[DateTime-decrementYears]]
@@ -331,11 +331,11 @@ Decrement the years by a given amount or by 1.
 rascal>import DateTime;
 ok
 rascal>N = now();
-datetime: $2016-05-31T12:14:50.122+00:00$
+datetime: $2016-05-31T22:27:01.582+00:00$
 rascal>decrementYears(N);
-datetime: $2015-07-01T12:14:50.122+00:00$
+datetime: $2015-07-01T22:27:01.582+00:00$
 rascal>decrementYears(N, 5);
-datetime: $2011-07-01T12:14:50.122+00:00$
+datetime: $2011-07-01T22:27:01.582+00:00$
 ----
 
 [[DateTime-decrementMonths]]
@@ -355,11 +355,11 @@ Decrement the months by a given amount or by 1.
 rascal>import DateTime;
 ok
 rascal>N = now();
-datetime: $2016-05-31T12:14:50.540+00:00$
+datetime: $2016-05-31T22:27:03.362+00:00$
 rascal>decrementMonths(N);
-datetime: $2016-06-01T12:14:50.540+00:00$
+datetime: $2016-06-01T22:27:03.362+00:00$
 rascal>decrementMonths(N, 5);
-datetime: $2016-02-01T12:14:50.540+00:00$
+datetime: $2016-02-01T22:27:03.362+00:00$
 ----
 
 [[DateTime-decrementDays]]
@@ -379,11 +379,11 @@ Decrement the days by a given amount or by 1.
 rascal>import DateTime;
 ok
 rascal>N = now();
-datetime: $2016-05-31T12:14:52.146+00:00$
+datetime: $2016-05-31T22:27:03.791+00:00$
 rascal>decrementDays(N);
-datetime: $2016-06-30T12:14:52.146+00:00$
+datetime: $2016-06-30T22:27:03.791+00:00$
 rascal>decrementDays(N, 3);
-datetime: $2016-06-28T12:14:52.146+00:00$
+datetime: $2016-06-28T22:27:03.791+00:00$
 ----
 
 [[DateTime-decrementHours]]
@@ -403,11 +403,11 @@ Decrement the hours by a given amount or by 1.
 rascal>import DateTime;
 ok
 rascal>N = now();
-datetime: $2016-05-31T12:14:52.582+00:00$
+datetime: $2016-05-31T22:27:05.250+00:00$
 rascal>decrementHours(N);
-datetime: $2016-07-01T11:14:52.582+00:00$
+datetime: $2016-07-01T21:27:05.250+00:00$
 rascal>decrementHours(N, 5);
-datetime: $2016-07-01T07:14:52.582+00:00$
+datetime: $2016-07-01T17:27:05.250+00:00$
 ----
 
 [[DateTime-decrementMinutes]]
@@ -427,11 +427,11 @@ Decrement the minutes by a given amount or by 1.
 rascal>import DateTime;
 ok
 rascal>N = now();
-datetime: $2016-05-31T12:14:53.002+00:00$
+datetime: $2016-05-31T22:27:05.673+00:00$
 rascal>decrementMinutes(N);
-datetime: $2016-07-01T12:13:53.002+00:00$
+datetime: $2016-07-01T22:26:05.673+00:00$
 rascal>decrementMinutes(N, 5);
-datetime: $2016-07-01T12:09:53.002+00:00$
+datetime: $2016-07-01T22:22:05.673+00:00$
 ----
 
 [[DateTime-decrementSeconds]]
@@ -451,11 +451,11 @@ Decrement the seconds by a given amount or by 1.
 rascal>import DateTime;
 ok
 rascal>N = now();
-datetime: $2016-05-31T12:14:54.685+00:00$
+datetime: $2016-05-31T22:27:06.101+00:00$
 rascal>decrementSeconds(N);
-datetime: $2016-07-01T12:14:53.685+00:00$
+datetime: $2016-07-01T22:27:05.101+00:00$
 rascal>decrementSeconds(N, 5);
-datetime: $2016-07-01T12:14:49.685+00:00$
+datetime: $2016-07-01T22:27:01.101+00:00$
 ----
 
 [[DateTime-decrementMilliseconds]]
@@ -475,11 +475,11 @@ Decrement the milliseconds by a given amount or by 1.
 rascal>import DateTime;
 ok
 rascal>N = now();
-datetime: $2016-05-31T12:14:55.111+00:00$
+datetime: $2016-05-31T22:27:07.940+00:00$
 rascal>decrementMilliseconds(N);
-datetime: $2016-07-01T12:14:55.110+00:00$
+datetime: $2016-07-01T22:27:07.939+00:00$
 rascal>decrementMilliseconds(N, 5);
-datetime: $2016-07-01T12:14:55.106+00:00$
+datetime: $2016-07-01T22:27:07.935+00:00$
 ----
 
 [[DateTime-interval]]
@@ -511,11 +511,11 @@ Given two datetime values, create an interval.
 rascal>import DateTime;
 ok
 rascal>B = now();
-datetime: $2016-05-31T12:14:55.585+00:00$
+datetime: $2016-05-31T22:27:08.361+00:00$
 rascal>E = incrementDays(B, 2);
-datetime: $2016-07-03T12:14:55.585+00:00$
+datetime: $2016-07-03T22:27:08.361+00:00$
 rascal>createInterval(B, E);
-interval: Interval($2016-05-31T12:14:55.585+00:00$,$2016-07-03T12:14:55.585+00:00$)
+interval: Interval($2016-05-31T22:27:08.361+00:00$,$2016-07-03T22:27:08.361+00:00$)
 ----
 
 [[DateTime-Duration]]
@@ -557,13 +557,13 @@ Create a new duration representing the duration between the begin and end dates.
 rascal>import DateTime;
 ok
 rascal>B = now();
-datetime: $2016-05-31T12:14:57.522+00:00$
+datetime: $2016-05-31T22:27:08.867+00:00$
 rascal>E1 = incrementHours(B);
-datetime: $2016-07-01T13:14:57.522+00:00$
+datetime: $2016-07-01T23:27:08.867+00:00$
 rascal>createDuration(B, E1);
 Duration: duration(0,1,1,1,0,0,0)
 rascal>E2 = incrementMinutes(B);
-datetime: $2016-07-01T12:15:57.522+00:00$
+datetime: $2016-07-01T22:28:08.867+00:00$
 rascal>createDuration(B, E2);
 Duration: duration(0,1,1,0,1,0,0)
 ----
@@ -583,11 +583,11 @@ Return the number of days in an interval, including the begin and end days.
 rascal>import DateTime;
 ok
 rascal>B = now();
-datetime: $2016-05-31T12:14:58.365+00:00$
+datetime: $2016-05-31T22:27:10.817+00:00$
 rascal>E = incrementDays(B, 2);
-datetime: $2016-07-03T12:14:58.365+00:00$
+datetime: $2016-07-03T22:27:10.817+00:00$
 rascal>I = createInterval(B, E);
-interval: Interval($2016-05-31T12:14:58.365+00:00$,$2016-07-03T12:14:58.365+00:00$)
+interval: Interval($2016-05-31T22:27:10.817+00:00$,$2016-07-03T22:27:10.817+00:00$)
 rascal>daysInInterval(I);
 int: 33
 ----
@@ -607,9 +607,9 @@ Return the difference between two dates and/or datetimes in days.
 rascal>import DateTime;
 ok
 rascal>B = now();
-datetime: $2016-05-31T12:15:00.666+00:00$
+datetime: $2016-05-31T22:27:13.216+00:00$
 rascal>E = incrementDays(B, 2);
-datetime: $2016-07-03T12:15:00.666+00:00$
+datetime: $2016-07-03T22:27:13.216+00:00$
 rascal>daysDiff(B, E);
 int: 33
 ----
@@ -632,11 +632,11 @@ Given an interval `i`, return a list of days `[i.begin, ..., i.end]`.
 rascal>import DateTime;
 ok
 rascal>B = now();
-datetime: $2016-05-31T12:15:01.176+00:00$
+datetime: $2016-05-31T22:27:13.774+00:00$
 rascal>E = incrementDays(B, 2);
-datetime: $2016-07-03T12:15:01.176+00:00$
+datetime: $2016-07-03T22:27:13.774+00:00$
 rascal>I = createInterval(B, E);
-interval: Interval($2016-05-31T12:15:01.176+00:00$,$2016-07-03T12:15:01.176+00:00$)
+interval: Interval($2016-05-31T22:27:13.774+00:00$,$2016-07-03T22:27:13.774+00:00$)
 rascal>//dateRangeByDay(I);
 ----
 
@@ -784,11 +784,11 @@ Print an input time using the given format string.
 rascal>import DateTime;
 ok
 rascal>N = now();
-datetime: $2016-05-31T12:15:05.566+00:00$
+datetime: $2016-05-31T22:27:18.324+00:00$
 rascal>printTime(N);
-str: "12:15:05.566+0000"
+str: "22:27:18.324+0000"
 rascal>printTime(N, "HH/mm/ss");
-str: "12/15/05"
+str: "22/27/18"
 ----
 
 [[DateTime-printTimeInLocale]]
@@ -819,13 +819,13 @@ Print an input datetime using the given format string.
 rascal>import DateTime;
 ok
 rascal>N = now();
-datetime: $2016-05-31T12:15:05.999+00:00$
+datetime: $2016-05-31T22:27:18.775+00:00$
 rascal>printDateTime(N);
-str: "2016-05-31 12:15:05.999+0000"
+str: "2016-05-31 22:27:18.775+0000"
 rascal>printDateTime(N, "yyyy-MM-dd\'T\'HH:mm:ss.SSSZZ");
-str: "2016-05-31T12:15:05.999+0000"
+str: "2016-05-31T22:27:18.775+0000"
 rascal>printDateTime(N, "YYYY/MM/dd/HH/mm/ss");
-str: "2016/05/31/12/15/05"
+str: "2016/05/31/22/27/18"
 ----
 
 [[DateTime-printDateTimeInLocale]]

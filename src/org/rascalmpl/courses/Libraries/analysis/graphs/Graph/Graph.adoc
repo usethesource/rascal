@@ -42,6 +42,15 @@ Compute topological order of the nodes in a graph.
 [source,rascal-shell]
 ----
 rascal>import  analysis::graphs::Graph;
+rascal2rvm: Parsing and checking |std:///analysis/graphs/Graph.rsc|
+rascal2rvm: Compiling |std:///analysis/graphs/Graph.rsc|
+r2mu: entering ... analysis::graphs::Graph
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module analysis::graphs::Graph
+Compiling |std:///analysis/graphs/Graph.rsc|: check: 26, compile: 590, total: 616 ms
+compile: Writing RVMModule |compressed+home:///bin-console/analysis/graphs/Graph.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>order({<3,4>, <1,2>, <2,4>, <1,3>});
 list[int]: [1,3,2,4]

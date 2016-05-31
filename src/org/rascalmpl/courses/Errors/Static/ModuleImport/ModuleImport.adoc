@@ -37,6 +37,15 @@ Here is a correct import of the library module `List`:
 [source,rascal-shell]
 ----
 rascal>import List;
+rascal2rvm: Parsing and checking |std:///List.rsc|
+rascal2rvm: Compiling |std:///List.rsc|
+r2mu: entering ... List
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module List
+Compiling |std:///List.rsc|: check: 241, compile: 1348, total: 1589 ms
+compile: Writing RVMModule |compressed+home:///bin-console/List.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 ----
 Here is the effect of a misspelled module name (assuming that you do not have a module `Lis`):

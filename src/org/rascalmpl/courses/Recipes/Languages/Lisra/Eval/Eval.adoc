@@ -89,13 +89,20 @@ We now explain the different cases in more detail:
 rascal>import demo::lang::Lisra::Runtime;
 ok
 rascal>import demo::lang::Lisra::Eval;
-[error] Unexpected compiler exception EXCEPTION in translateFunctionDeclaration, compiling build: ParseError(|std:///demo/lang/Lisra/Parse.rsc|(464,29,<13,45>,<13,46>)) AT |std:///demo/lang/Lisra/Parse.rsc|(17,992,<2,0>,<25,77>)
+rascal2rvm: Parsing and checking |std:///demo/lang/Lisra/Eval.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Lisra/Eval.rsc|
+r2mu: entering ... demo::lang::Lisra::Eval
+mu2rvm: Compiling module demo::lang::Lisra::Eval
+Compiling |std:///demo/lang/Lisra/Eval.rsc|: check: 49, compile: 1258, total: 1307 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Lisra/Eval.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
+ok
 rascal>eval(Integer(5));
-[error] Name eval is not in scope
+Lval: Integer(5)
 rascal>eval(Atom("x"));
-[error] Name eval is not in scope
+Lval: Atom("x")
 rascal>eval(List([Atom("+"), Integer(5), Integer(7)]));
-[error] Name eval is not in scope
+Lval: Integer(12)
 ----
 
 .Benefits

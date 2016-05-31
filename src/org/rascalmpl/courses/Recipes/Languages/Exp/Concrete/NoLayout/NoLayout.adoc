@@ -64,6 +64,13 @@ What remains, is to check that `eval` works as expected.
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Exp::Concrete::NoLayout::Syntax;
+rascal2rvm: Parsing and checking |std:///demo/lang/Exp/Concrete/NoLayout/Syntax.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Exp/Concrete/NoLayout/Syntax.rsc|
+r2mu: entering ... demo::lang::Exp::Concrete::NoLayout::Syntax
+mu2rvm: Compiling module demo::lang::Exp::Concrete::NoLayout::Syntax
+Compiling |std:///demo/lang/Exp/Concrete/NoLayout/Syntax.rsc|: check: 4, compile: 9, total: 13 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Exp/Concrete/NoLayout/Syntax.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>import ParseTree;
 ok
@@ -79,13 +86,20 @@ Here is a demonstration of `eval`:
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Exp::Concrete::NoLayout::Eval;
+rascal2rvm: Parsing and checking |std:///demo/lang/Exp/Concrete/NoLayout/Eval.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Exp/Concrete/NoLayout/Eval.rsc|
+r2mu: entering ... demo::lang::Exp::Concrete::NoLayout::Eval
+mu2rvm: Compiling module demo::lang::Exp::Concrete::NoLayout::Eval
+Compiling |std:///demo/lang/Exp/Concrete/NoLayout/Eval.rsc|: check: 17, compile: 782, total: 799 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Exp/Concrete/NoLayout/Eval.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>eval("2+3");
-ok
+int: 5
 rascal>eval("2+3*4");
-ok
+int: 14
 rascal>eval("(2+3)*4");
-ok
+int: 20
 ----
 
 

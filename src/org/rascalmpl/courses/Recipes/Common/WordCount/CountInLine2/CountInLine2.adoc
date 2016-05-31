@@ -38,6 +38,13 @@ Here is `countInLine2` in action:
 [source,rascal-shell]
 ----
 rascal>import demo::common::WordCount::CountInLine2;
+rascal2rvm: Parsing and checking |std:///demo/common/WordCount/CountInLine2.rsc|
+rascal2rvm: Compiling |std:///demo/common/WordCount/CountInLine2.rsc|
+r2mu: entering ... demo::common::WordCount::CountInLine2
+mu2rvm: Compiling module demo::common::WordCount::CountInLine2
+Compiling |std:///demo/common/WordCount/CountInLine2.rsc|: check: 5, compile: 230, total: 235 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/common/WordCount/CountInLine2.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>countInLine2("Jabberwocky by Lewis Carroll");
 int: 4

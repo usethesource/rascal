@@ -33,6 +33,23 @@ Import the `Set` library and introduce `S` with an empty set as value:
 rascal>import Set;
 rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
 resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+rascal2rvm: Parsing and checking |std:///Set.rsc|
+rascal2rvm: Compiling |std:///Set.rsc|
+r2mu: entering ... Set
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Set
+Compiling |std:///Set.rsc|: check: 44, compile: 923, total: 967 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Set.rvm.gz|
+rascal2rvm: Parsing and checking |std:///util/Math.rsc|
+rascal2rvm: Compiling |std:///util/Math.rsc|
+r2mu: entering ... util::Math
+rlib1 = util.Math, rlib2 = |std:///util/MathCompiled.class|
+resolveLibOverriding org.rascalmpl.library.util.Math => org.rascalmpl.library.util.Math
+mu2rvm: Compiling module util::Math
+Compiling |std:///util/Math.rsc|: check: 51, compile: 1325, total: 1376 ms
+compile: Writing RVMModule |compressed+home:///bin-console/util/Math.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>S = {};
 rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|

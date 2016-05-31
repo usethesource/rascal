@@ -38,12 +38,19 @@ Here is how to evaluate a Pico program:
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Pico::Eval;
+rascal2rvm: Parsing and checking |std:///demo/lang/Pico/Eval.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Pico/Eval.rsc|
+r2mu: entering ... demo::lang::Pico::Eval
+mu2rvm: Compiling module demo::lang::Pico::Eval
+Compiling |std:///demo/lang/Pico/Eval.rsc|: check: 43, compile: 819, total: 862 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Pico/Eval.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>evalProgram("begin declare x : natural, y : natural; x := 1; y := x + 5 end");
-ParseError(|unknown:///|(17,1,<1,17>,<1,18>))
-No call stack available
-
-ok
+map[str, PicoValue]: (
+  "x":natval(1),
+  "y":natval(6)
+)
 ----
 
 .Benefits

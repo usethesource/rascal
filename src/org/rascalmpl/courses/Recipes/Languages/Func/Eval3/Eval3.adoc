@@ -59,11 +59,25 @@ Let's try this.
 rascal>import demo::lang::Func::Load;
 ok
 rascal>import demo::lang::Func::Eval3;
+rascal2rvm: Parsing and checking |std:///demo/lang/Func/Eval3.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Func/Eval3.rsc|
+r2mu: entering ... demo::lang::Func::Eval3
+mu2rvm: Compiling module demo::lang::Func::Eval3
+Compiling |std:///demo/lang/Func/Eval3.rsc|: check: 40, compile: 1210, total: 1250 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Func/Eval3.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>import demo::lang::Func::programs::F3;
+rascal2rvm: Parsing and checking |std:///demo/lang/Func/programs/F3.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Func/programs/F3.rsc|
+r2mu: entering ... demo::lang::Func::programs::F3
+mu2rvm: Compiling module demo::lang::Func::programs::F3
+Compiling |std:///demo/lang/Func/programs/F3.rsc|: check: 4, compile: 11, total: 15 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Func/programs/F3.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>eval3("fact", [10], load(F3));
-ParseError(|unknown:///|(10,1,<1,10>,<1,11>))
+ParseError(|unknown:///|(111,1,<9,0>,<9,1>))
 No call stack available
 
 ok

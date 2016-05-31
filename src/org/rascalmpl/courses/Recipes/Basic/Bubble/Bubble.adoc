@@ -44,6 +44,13 @@ Let's put them to the test:
 [source,rascal-shell]
 ----
 rascal>import demo::basic::Bubble;
+rascal2rvm: Parsing and checking |std:///demo/basic/Bubble.rsc|
+rascal2rvm: Compiling |std:///demo/basic/Bubble.rsc|
+r2mu: entering ... demo::basic::Bubble
+mu2rvm: Compiling module demo::basic::Bubble
+Compiling |std:///demo/basic/Bubble.rsc|: check: 20, compile: 825, total: 845 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/basic/Bubble.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>L = [9,8,7,6,5,4,3,2,1];
 list[int]: [9,8,7,6,5,4,3,2,1]

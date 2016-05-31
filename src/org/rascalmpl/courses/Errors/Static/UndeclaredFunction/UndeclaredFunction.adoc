@@ -62,6 +62,81 @@ Another solution is to import the complete Rascal library at once:
 [source,rascal-shell]
 ----
 rascal>import Prelude;
+rascal2rvm: Parsing and checking |std:///Boolean.rsc|
+rascal2rvm: Compiling |std:///Boolean.rsc|
+r2mu: entering ... Boolean
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Boolean
+Compiling |std:///Boolean.rsc|: check: 9, compile: 141, total: 150 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Boolean.rvm.gz|
+rascal2rvm: Parsing and checking |std:///ToString.rsc|
+rascal2rvm: Compiling |std:///ToString.rsc|
+r2mu: entering ... ToString
+mu2rvm: Compiling module ToString
+Compiling |std:///ToString.rsc|: check: 6, compile: 12, total: 18 ms
+compile: Writing RVMModule |compressed+home:///bin-console/ToString.rvm.gz|
+rascal2rvm: Parsing and checking |std:///ValueIO.rsc|
+rascal2rvm: Compiling |std:///ValueIO.rsc|
+r2mu: entering ... ValueIO
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module ValueIO
+Compiling |std:///ValueIO.rsc|: check: 18, compile: 255, total: 273 ms
+compile: Writing RVMModule |compressed+home:///bin-console/ValueIO.rvm.gz|
+rascal2rvm: Parsing and checking |std:///DateTime.rsc|
+rascal2rvm: Compiling |std:///DateTime.rsc|
+r2mu: entering ... DateTime
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module DateTime
+Compiling |std:///DateTime.rsc|: check: 48, compile: 882, total: 930 ms
+compile: Writing RVMModule |compressed+home:///bin-console/DateTime.rvm.gz|
+rascal2rvm: Parsing and checking |std:///Node.rsc|
+rascal2rvm: Compiling |std:///Node.rsc|
+r2mu: entering ... Node
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Node
+Compiling |std:///Node.rsc|: check: 15, compile: 1210, total: 1225 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Node.rvm.gz|
+rascal2rvm: Parsing and checking |std:///Prelude.rsc|
+rascal2rvm: Compiling |std:///Prelude.rsc|
+r2mu: entering ... Prelude
+mu2rvm: Compiling module Prelude
+Compiling |std:///Prelude.rsc|: check: 35, compile: 325, total: 360 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Prelude.rvm.gz|
+rascal2rvm: Parsing and checking |std:///Origins.rsc|
+rascal2rvm: Compiling |std:///Origins.rsc|
+r2mu: entering ... Origins
+mu2rvm: Compiling module Origins
+Compiling |std:///Origins.rsc|: check: 7, compile: 13, total: 20 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Origins.rvm.gz|
+rascal2rvm: Parsing and checking |std:///String.rsc|
+rascal2rvm: Compiling |std:///String.rsc|
+r2mu: entering ... String
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module String
+Compiling |std:///String.rsc|: check: 64, compile: 141, total: 205 ms
+compile: Writing RVMModule |compressed+home:///bin-console/String.rvm.gz|
+rascal2rvm: Parsing and checking |std:///ListRelation.rsc|
+rascal2rvm: Compiling |std:///ListRelation.rsc|
+r2mu: entering ... ListRelation
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module ListRelation
+Compiling |std:///ListRelation.rsc|: check: 74, compile: 1145, total: 1219 ms
+compile: Writing RVMModule |compressed+home:///bin-console/ListRelation.rvm.gz|
+rascal2rvm: Parsing and checking |std:///Relation.rsc|
+rascal2rvm: Compiling |std:///Relation.rsc|
+r2mu: entering ... Relation
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Relation
+Compiling |std:///Relation.rsc|: check: 72, compile: 232, total: 304 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Relation.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>size([20, 1, 77]);
 int: 3

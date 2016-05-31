@@ -27,6 +27,13 @@ and test it:
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Exp::Combined::Manual::Parse;
+rascal2rvm: Parsing and checking |std:///demo/lang/Exp/Combined/Manual/Parse.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Exp/Combined/Manual/Parse.rsc|
+r2mu: entering ... demo::lang::Exp::Combined::Manual::Parse
+mu2rvm: Compiling module demo::lang::Exp::Combined::Manual::Parse
+Compiling |std:///demo/lang/Exp/Combined/Manual/Parse.rsc|: check: 12, compile: 1101, total: 1113 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Exp/Combined/Manual/Parse.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>parseExp("2+3");
 Exp: (Exp) `2+3`
@@ -53,9 +60,18 @@ Let's try it:
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Exp::Combined::Manual::Load;
-[error] Unexpected compiler exception EXCEPTION in translateFunctionDeclaration, compiling load: ParseError(|std:///demo/lang/Exp/Combined/Manual/Load.rsc|(513,26,<12,61>,<12,62>)) AT |std:///demo/lang/Exp/Combined/Manual/Load.rsc|(17,733,<2,0>,<18,17>)
+rascal2rvm: Parsing and checking |std:///demo/lang/Exp/Combined/Manual/Load.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Exp/Combined/Manual/Load.rsc|
+r2mu: entering ... demo::lang::Exp::Combined::Manual::Load
+mu2rvm: Compiling module demo::lang::Exp::Combined::Manual::Load
+Compiling |std:///demo/lang/Exp/Combined/Manual/Load.rsc|: check: 17, compile: 207, total: 224 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Exp/Combined/Manual/Load.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
+ok
 rascal>loadExp("2+3");
-[error] Name loadExp is not in scope
+Exp: add(
+  con(2),
+  con(3))
 ----
 
 
@@ -70,9 +86,16 @@ Here is how it works:
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Exp::Combined::Manual::Eval;
-[error] Unexpected compiler exception EXCEPTION in translateFunctionDeclaration, compiling load: ParseError(|std:///demo/lang/Exp/Combined/Manual/Load.rsc|(513,26,<12,61>,<12,62>)) AT |std:///demo/lang/Exp/Combined/Manual/Load.rsc|(17,733,<2,0>,<18,17>)
+rascal2rvm: Parsing and checking |std:///demo/lang/Exp/Combined/Manual/Eval.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Exp/Combined/Manual/Eval.rsc|
+r2mu: entering ... demo::lang::Exp::Combined::Manual::Eval
+mu2rvm: Compiling module demo::lang::Exp::Combined::Manual::Eval
+Compiling |std:///demo/lang/Exp/Combined/Manual/Eval.rsc|: check: 16, compile: 172, total: 188 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Exp/Combined/Manual/Eval.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
+ok
 rascal>eval("2+3");
-[error] Name eval is not in scope
+int: 5
 ----
 
 .Benefits

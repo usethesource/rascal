@@ -33,6 +33,15 @@ Import the `Map` and `IO` libraries and introduce map `M`:
 [source,rascal-shell-error]
 ----
 rascal>import Map;
+rascal2rvm: Parsing and checking |std:///Map.rsc|
+rascal2rvm: Compiling |std:///Map.rsc|
+r2mu: entering ... Map
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module Map
+Compiling |std:///Map.rsc|: check: 68, compile: 293, total: 361 ms
+compile: Writing RVMModule |compressed+home:///bin-console/Map.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>import IO;
 ok

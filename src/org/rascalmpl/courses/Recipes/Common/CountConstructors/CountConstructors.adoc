@@ -48,6 +48,13 @@ names that is used to filter the map that is returned by `count` using link:{Lib
 [source,rascal-shell]
 ----
 rascal>import demo::common::CountConstructors;
+rascal2rvm: Parsing and checking |std:///demo/common/CountConstructors.rsc|
+rascal2rvm: Compiling |std:///demo/common/CountConstructors.rsc|
+r2mu: entering ... demo::common::CountConstructors
+mu2rvm: Compiling module demo::common::CountConstructors
+Compiling |std:///demo/common/CountConstructors.rsc|: check: 15, compile: 1952, total: 1967 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/common/CountConstructors.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>count(CT);
 map[str, int]: ("red":2,"leaf":5,"black":2)

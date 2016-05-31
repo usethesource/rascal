@@ -81,6 +81,13 @@ Now let's put `quine` to the test.
 [source,rascal-shell]
 ----
 rascal>import demo::basic::Quine;
+rascal2rvm: Parsing and checking |std:///demo/basic/Quine.rsc|
+rascal2rvm: Compiling |std:///demo/basic/Quine.rsc|
+r2mu: entering ... demo::basic::Quine
+mu2rvm: Compiling module demo::basic::Quine
+Compiling |std:///demo/basic/Quine.rsc|: check: 10, compile: 28, total: 38 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/basic/Quine.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>quine();
 module demo::basic::Quine

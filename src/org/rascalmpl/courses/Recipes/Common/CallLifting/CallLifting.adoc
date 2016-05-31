@@ -47,6 +47,13 @@ And we can use it as follows:
 [source,rascal-shell]
 ----
 rascal>import demo::common::Lift;
+rascal2rvm: Parsing and checking |std:///demo/common/Lift.rsc|
+rascal2rvm: Compiling |std:///demo/common/Lift.rsc|
+r2mu: entering ... demo::common::Lift
+mu2rvm: Compiling module demo::common::Lift
+Compiling |std:///demo/common/Lift.rsc|: check: 8, compile: 150, total: 158 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/common/Lift.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 ----
 Encode the call relation and partOf relation:

@@ -54,12 +54,27 @@ Here is an example:
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Pico::Compile;
+rascal2rvm: Parsing and checking |std:///demo/lang/Pico/Compile.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Pico/Compile.rsc|
+r2mu: entering ... demo::lang::Pico::Compile
+mu2rvm: Compiling module demo::lang::Pico::Compile
+Compiling |std:///demo/lang/Pico/Compile.rsc|: check: 55, compile: 570, total: 625 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Pico/Compile.rvm.gz|
+rascal2rvm: Parsing and checking |std:///demo/lang/Pico/Assembly.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Pico/Assembly.rsc|
+r2mu: entering ... demo::lang::Pico::Assembly
+mu2rvm: Compiling module demo::lang::Pico::Assembly
+Compiling |std:///demo/lang/Pico/Assembly.rsc|: check: 7, compile: 19, total: 26 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Pico/Assembly.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>compileProgram("begin declare x : natural; x := 47 end");
-ParseError(|unknown:///|(17,1,<1,17>,<1,18>))
-No call stack available
-
-ok
+list[Instr]: [
+  dclNat("x"),
+  lvalue("x"),
+  pushNat(47),
+  assign()
+]
 ----
 Here is the compilation of the factorial program:
 [source,rascal-shell]
@@ -80,10 +95,53 @@ rascal>compileProgram("begin declare input : natural,
 >>>>>>>               '          input := input - 1
 >>>>>>>               '      od
 >>>>>>>               'end");
-ParseError(|unknown:///|(21,1,<1,21>,<1,22>))
-No call stack available
-
-ok
+list[Instr]: [
+  dclNat("input"),
+  dclNat("output"),
+  dclNat("repnr"),
+  dclNat("rep"),
+  lvalue("input"),
+  pushNat(14),
+  assign(),
+  lvalue("output"),
+  pushNat(1),
+  assign(),
+  label("L1"),
+  rvalue("input"),
+  pushNat(1),
+  sub2(),
+  gofalse("L2"),
+  lvalue("rep"),
+  rvalue("output"),
+  assign(),
+  lvalue("repnr"),
+  rvalue("input"),
+  assign(),
+  label("L3"),
+  rvalue("repnr"),
+  pushNat(1),
+  sub2(),
+  gofalse("L4"),
+  lvalue("output"),
+  rvalue("output"),
+  rvalue("rep"),
+  add2(),
+  assign(),
+  lvalue("repnr"),
+  rvalue("repnr"),
+  pushNat(1),
+  sub2(),
+  assign(),
+  go("L3"),
+  label("L4"),
+  lvalue("input"),
+  rvalue("input"),
+  pushNat(1),
+  sub2(),
+  assign(),
+  go("L1"),
+  label("L2")
+]
 ----
 
 .Benefits

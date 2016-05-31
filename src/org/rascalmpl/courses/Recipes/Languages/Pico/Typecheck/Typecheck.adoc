@@ -81,12 +81,34 @@ Checking an erroneous program goes like this:
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Pico::Typecheck;
+rascal2rvm: Parsing and checking |std:///demo/lang/Pico/Syntax.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Pico/Syntax.rsc|
+r2mu: entering ... demo::lang::Pico::Syntax
+mu2rvm: Compiling module demo::lang::Pico::Syntax
+Compiling |std:///demo/lang/Pico/Syntax.rsc|: check: 26, compile: 577, total: 603 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Pico/Syntax.rvm.gz|
+rascal2rvm: Parsing and checking |std:///demo/lang/Pico/Typecheck.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Pico/Typecheck.rsc|
+r2mu: entering ... demo::lang::Pico::Typecheck
+mu2rvm: Compiling module demo::lang::Pico::Typecheck
+Compiling |std:///demo/lang/Pico/Typecheck.rsc|: check: 52, compile: 1111, total: 1163 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Pico/Typecheck.rvm.gz|
+rascal2rvm: Parsing and checking |std:///demo/lang/Pico/Abstract.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Pico/Abstract.rsc|
+r2mu: entering ... demo::lang::Pico::Abstract
+mu2rvm: Compiling module demo::lang::Pico::Abstract
+Compiling |std:///demo/lang/Pico/Abstract.rsc|: check: 9, compile: 524, total: 533 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Pico/Abstract.rvm.gz|
+rascal2rvm: Parsing and checking |std:///demo/lang/Pico/Load.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Pico/Load.rsc|
+r2mu: entering ... demo::lang::Pico::Load
+mu2rvm: Compiling module demo::lang::Pico::Load
+Compiling |std:///demo/lang/Pico/Load.rsc|: check: 25, compile: 616, total: 641 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Pico/Load.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>checkProgram("begin declare  x : natural; x := \"abc\" end");
-ParseError(|unknown:///|(18,1,<1,18>,<1,19>))
-No call stack available
-
-ok
+lrel[loc,str]: [<|unknown:///|(33,5,<1,33>,<1,38>),"Required natural, got string">]
 ----
 
 The error location will be use later to give specific messages in the IDE.

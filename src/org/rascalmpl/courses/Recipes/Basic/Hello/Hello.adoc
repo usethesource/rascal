@@ -73,6 +73,13 @@ Using this Hello module is now simple:
 [source,rascal-shell]
 ----
 rascal>import demo::basic::Hello;
+rascal2rvm: Parsing and checking |std:///demo/basic/Hello.rsc|
+rascal2rvm: Compiling |std:///demo/basic/Hello.rsc|
+r2mu: entering ... demo::basic::Hello
+mu2rvm: Compiling module demo::basic::Hello
+Compiling |std:///demo/basic/Hello.rsc|: check: 6, compile: 19, total: 25 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/basic/Hello.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>hello();
 Hello world, this is my first Rascal program
