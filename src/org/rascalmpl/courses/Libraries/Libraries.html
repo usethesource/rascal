@@ -627,9 +627,9 @@ ok
 rascal&gt;arbBool();
 bool: false
 rascal&gt;arbBool();
-bool: false
+bool: true
 rascal&gt;arbBool();
-bool: false</code></pre>
+bool: true</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -760,7 +760,7 @@ str: "false"</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;now();
-datetime: $2016-05-30T21:50:16.539+00:00$</code></pre>
+datetime: $2016-05-31T12:14:39.331+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -886,9 +886,9 @@ datetime: $2012-01-01T08:15:45.030+01:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-05-30T21:50:19.225+00:00$
+datetime: $2016-05-31T12:14:42.183+00:00$
 rascal&gt;splitDateTime(N);
-tuple[datetime,datetime]: &lt;$2016-05-30$,$T21:50:19.225+00:00$&gt;</code></pre>
+tuple[datetime,datetime]: &lt;$2016-05-31$,$T12:14:42.183+00:00$&gt;</code></pre>
 </div>
 </div>
 </div>
@@ -915,11 +915,11 @@ tuple[datetime,datetime]: &lt;$2016-05-30$,$T21:50:19.225+00:00$&gt;</code></pre
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-05-30T21:50:19.598+00:00$
+datetime: $2016-05-31T12:14:42.563+00:00$
 rascal&gt;incrementYears(N);
-datetime: $2017-06-30T21:50:19.598+00:00$
+datetime: $2017-07-01T12:14:42.563+00:00$
 rascal&gt;incrementYears(N, 5);
-datetime: $2021-06-30T21:50:19.598+00:00$</code></pre>
+datetime: $2021-07-01T12:14:42.563+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -947,11 +947,11 @@ datetime: $2021-06-30T21:50:19.598+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-05-30T21:50:21.529+00:00$
+datetime: $2016-05-31T12:14:44.661+00:00$
 rascal&gt;incrementMonths(N);
-datetime: $2016-07-30T21:50:21.529+00:00$
+datetime: $2016-08-01T12:14:44.661+00:00$
 rascal&gt;incrementMonths(N, 5);
-datetime: $2016-11-30T21:50:21.529+00:00$</code></pre>
+datetime: $2016-12-01T12:14:44.661+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -978,11 +978,11 @@ datetime: $2016-11-30T21:50:21.529+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-05-30T21:50:21.913+00:00$
+datetime: $2016-05-31T12:14:45.093+00:00$
 rascal&gt;incrementDays(N);
-datetime: $2016-07-01T21:50:21.913+00:00$
+datetime: $2016-07-02T12:14:45.093+00:00$
 rascal&gt;incrementDays(N, 5);
-datetime: $2016-07-05T21:50:21.913+00:00$</code></pre>
+datetime: $2016-07-06T12:14:45.093+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1009,11 +1009,11 @@ datetime: $2016-07-05T21:50:21.913+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-05-30T21:50:22.289+00:00$
+datetime: $2016-05-31T12:14:45.558+00:00$
 rascal&gt;incrementHours(N);
-datetime: $2016-06-30T22:50:22.289+00:00$
+datetime: $2016-07-01T13:14:45.558+00:00$
 rascal&gt;incrementHours(N, 5);
-datetime: $2016-07-01T02:50:22.289+00:00$</code></pre>
+datetime: $2016-07-01T17:14:45.558+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1040,11 +1040,11 @@ datetime: $2016-07-01T02:50:22.289+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-05-30T21:50:23.981+00:00$
+datetime: $2016-05-31T12:14:47.480+00:00$
 rascal&gt;incrementMinutes(N);
-datetime: $2016-06-30T21:51:23.981+00:00$
+datetime: $2016-07-01T12:15:47.480+00:00$
 rascal&gt;incrementMinutes(N, 5);
-datetime: $2016-06-30T21:55:23.981+00:00$</code></pre>
+datetime: $2016-07-01T12:19:47.480+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1071,11 +1071,11 @@ datetime: $2016-06-30T21:55:23.981+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-05-30T21:50:24.354+00:00$
+datetime: $2016-05-31T12:14:47.892+00:00$
 rascal&gt;incrementSeconds(N);
-datetime: $2016-06-30T21:50:25.354+00:00$
+datetime: $2016-07-01T12:14:48.892+00:00$
 rascal&gt;incrementSeconds(N, 5);
-datetime: $2016-06-30T21:50:29.354+00:00$</code></pre>
+datetime: $2016-07-01T12:14:52.892+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1102,11 +1102,11 @@ datetime: $2016-06-30T21:50:29.354+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-05-30T21:50:25.876+00:00$
+datetime: $2016-05-31T12:14:49.442+00:00$
 rascal&gt;incrementMilliseconds(N);
-datetime: $2016-06-30T21:50:25.877+00:00$
+datetime: $2016-07-01T12:14:49.443+00:00$
 rascal&gt;incrementMilliseconds(N, 5);
-datetime: $2016-06-30T21:50:25.881+00:00$</code></pre>
+datetime: $2016-07-01T12:14:49.447+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1133,11 +1133,11 @@ datetime: $2016-06-30T21:50:25.881+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-05-30T21:50:26.292+00:00$
+datetime: $2016-05-31T12:14:50.122+00:00$
 rascal&gt;decrementYears(N);
-datetime: $2015-06-30T21:50:26.292+00:00$
+datetime: $2015-07-01T12:14:50.122+00:00$
 rascal&gt;decrementYears(N, 5);
-datetime: $2011-06-30T21:50:26.292+00:00$</code></pre>
+datetime: $2011-07-01T12:14:50.122+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1164,11 +1164,11 @@ datetime: $2011-06-30T21:50:26.292+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-05-30T21:50:26.681+00:00$
+datetime: $2016-05-31T12:14:50.540+00:00$
 rascal&gt;decrementMonths(N);
-datetime: $2016-05-30T21:50:26.681+00:00$
+datetime: $2016-06-01T12:14:50.540+00:00$
 rascal&gt;decrementMonths(N, 5);
-datetime: $2016-01-30T21:50:26.681+00:00$</code></pre>
+datetime: $2016-02-01T12:14:50.540+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1195,11 +1195,11 @@ datetime: $2016-01-30T21:50:26.681+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-05-30T21:50:28.343+00:00$
+datetime: $2016-05-31T12:14:52.146+00:00$
 rascal&gt;decrementDays(N);
-datetime: $2016-06-29T21:50:28.343+00:00$
+datetime: $2016-06-30T12:14:52.146+00:00$
 rascal&gt;decrementDays(N, 3);
-datetime: $2016-06-27T21:50:28.343+00:00$</code></pre>
+datetime: $2016-06-28T12:14:52.146+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1226,11 +1226,11 @@ datetime: $2016-06-27T21:50:28.343+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-05-30T21:50:28.720+00:00$
+datetime: $2016-05-31T12:14:52.582+00:00$
 rascal&gt;decrementHours(N);
-datetime: $2016-06-30T20:50:28.720+00:00$
+datetime: $2016-07-01T11:14:52.582+00:00$
 rascal&gt;decrementHours(N, 5);
-datetime: $2016-06-30T16:50:28.720+00:00$</code></pre>
+datetime: $2016-07-01T07:14:52.582+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1257,11 +1257,11 @@ datetime: $2016-06-30T16:50:28.720+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-05-30T21:50:29.100+00:00$
+datetime: $2016-05-31T12:14:53.002+00:00$
 rascal&gt;decrementMinutes(N);
-datetime: $2016-06-30T21:49:29.100+00:00$
+datetime: $2016-07-01T12:13:53.002+00:00$
 rascal&gt;decrementMinutes(N, 5);
-datetime: $2016-06-30T21:45:29.100+00:00$</code></pre>
+datetime: $2016-07-01T12:09:53.002+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1288,11 +1288,11 @@ datetime: $2016-06-30T21:45:29.100+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-05-30T21:50:30.800+00:00$
+datetime: $2016-05-31T12:14:54.685+00:00$
 rascal&gt;decrementSeconds(N);
-datetime: $2016-06-30T21:50:29.800+00:00$
+datetime: $2016-07-01T12:14:53.685+00:00$
 rascal&gt;decrementSeconds(N, 5);
-datetime: $2016-06-30T21:50:25.800+00:00$</code></pre>
+datetime: $2016-07-01T12:14:49.685+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1319,11 +1319,11 @@ datetime: $2016-06-30T21:50:25.800+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-05-30T21:50:31.214+00:00$
+datetime: $2016-05-31T12:14:55.111+00:00$
 rascal&gt;decrementMilliseconds(N);
-datetime: $2016-06-30T21:50:31.213+00:00$
+datetime: $2016-07-01T12:14:55.110+00:00$
 rascal&gt;decrementMilliseconds(N, 5);
-datetime: $2016-06-30T21:50:31.209+00:00$</code></pre>
+datetime: $2016-07-01T12:14:55.106+00:00$</code></pre>
 </div>
 </div>
 </div>
@@ -1360,11 +1360,11 @@ datetime: $2016-06-30T21:50:31.209+00:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;B = now();
-datetime: $2016-05-30T21:50:31.659+00:00$
+datetime: $2016-05-31T12:14:55.585+00:00$
 rascal&gt;E = incrementDays(B, 2);
-datetime: $2016-07-02T21:50:31.659+00:00$
+datetime: $2016-07-03T12:14:55.585+00:00$
 rascal&gt;createInterval(B, E);
-interval: Interval($2016-05-30T21:50:31.659+00:00$,$2016-07-02T21:50:31.659+00:00$)</code></pre>
+interval: Interval($2016-05-31T12:14:55.585+00:00$,$2016-07-03T12:14:55.585+00:00$)</code></pre>
 </div>
 </div>
 </div>
@@ -1415,15 +1415,15 @@ interval: Interval($2016-05-30T21:50:31.659+00:00$,$2016-07-02T21:50:31.659+00:0
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;B = now();
-datetime: $2016-05-30T21:50:33.514+00:00$
+datetime: $2016-05-31T12:14:57.522+00:00$
 rascal&gt;E1 = incrementHours(B);
-datetime: $2016-06-30T22:50:33.514+00:00$
+datetime: $2016-07-01T13:14:57.522+00:00$
 rascal&gt;createDuration(B, E1);
-Duration: duration(0,1,0,1,0,0,0)
+Duration: duration(0,1,1,1,0,0,0)
 rascal&gt;E2 = incrementMinutes(B);
-datetime: $2016-06-30T21:51:33.514+00:00$
+datetime: $2016-07-01T12:15:57.522+00:00$
 rascal&gt;createDuration(B, E2);
-Duration: duration(0,1,0,0,1,0,0)</code></pre>
+Duration: duration(0,1,1,0,1,0,0)</code></pre>
 </div>
 </div>
 </div>
@@ -1443,11 +1443,11 @@ Duration: duration(0,1,0,0,1,0,0)</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;B = now();
-datetime: $2016-05-30T21:50:34.201+00:00$
+datetime: $2016-05-31T12:14:58.365+00:00$
 rascal&gt;E = incrementDays(B, 2);
-datetime: $2016-07-02T21:50:34.201+00:00$
+datetime: $2016-07-03T12:14:58.365+00:00$
 rascal&gt;I = createInterval(B, E);
-interval: Interval($2016-05-30T21:50:34.201+00:00$,$2016-07-02T21:50:34.201+00:00$)
+interval: Interval($2016-05-31T12:14:58.365+00:00$,$2016-07-03T12:14:58.365+00:00$)
 rascal&gt;daysInInterval(I);
 int: 33</code></pre>
 </div>
@@ -1469,9 +1469,9 @@ int: 33</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;B = now();
-datetime: $2016-05-30T21:50:36.102+00:00$
+datetime: $2016-05-31T12:15:00.666+00:00$
 rascal&gt;E = incrementDays(B, 2);
-datetime: $2016-07-02T21:50:36.102+00:00$
+datetime: $2016-07-03T12:15:00.666+00:00$
 rascal&gt;daysDiff(B, E);
 int: 33</code></pre>
 </div>
@@ -1497,11 +1497,11 @@ int: 33</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;B = now();
-datetime: $2016-05-30T21:50:36.577+00:00$
+datetime: $2016-05-31T12:15:01.176+00:00$
 rascal&gt;E = incrementDays(B, 2);
-datetime: $2016-07-02T21:50:36.577+00:00$
+datetime: $2016-07-03T12:15:01.176+00:00$
 rascal&gt;I = createInterval(B, E);
-interval: Interval($2016-05-30T21:50:36.577+00:00$,$2016-07-02T21:50:36.577+00:00$)
+interval: Interval($2016-05-31T12:15:01.176+00:00$,$2016-07-03T12:15:01.176+00:00$)
 rascal&gt;//dateRangeByDay(I);</code></pre>
 </div>
 </div>
@@ -1624,9 +1624,9 @@ datetime: $2010-12-26T11:19:54.000+01:00$</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;printDate(now());
-str: "2016-05-30"
+str: "2016-05-31"
 rascal&gt;printDate(now(), "YYYYMMdd");
-str: "20160530"</code></pre>
+str: "20160531"</code></pre>
 </div>
 </div>
 </div>
@@ -1653,9 +1653,9 @@ str: "20160530"</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;printDateInLocale(now(), "Europe/Netherlands");
-str: "2016-05-30"
+str: "2016-05-31"
 rascal&gt;printDateInLocale(now(), "French");
-str: "2016-05-30"</code></pre>
+str: "2016-05-31"</code></pre>
 </div>
 </div>
 </div>
@@ -1682,11 +1682,11 @@ str: "2016-05-30"</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-05-30T21:50:40.887+00:00$
+datetime: $2016-05-31T12:15:05.566+00:00$
 rascal&gt;printTime(N);
-str: "21:50:40.887+0000"
+str: "12:15:05.566+0000"
 rascal&gt;printTime(N, "HH/mm/ss");
-str: "21/50/40"</code></pre>
+str: "12/15/05"</code></pre>
 </div>
 </div>
 </div>
@@ -1731,13 +1731,13 @@ str: "21/50/40"</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import DateTime;
 ok
 rascal&gt;N = now();
-datetime: $2016-05-30T21:50:41.280+00:00$
+datetime: $2016-05-31T12:15:05.999+00:00$
 rascal&gt;printDateTime(N);
-str: "2016-05-30 21:50:41.280+0000"
+str: "2016-05-31 12:15:05.999+0000"
 rascal&gt;printDateTime(N, "yyyy-MM-dd\'T\'HH:mm:ss.SSSZZ");
-str: "2016-05-30T21:50:41.280+0000"
+str: "2016-05-31T12:15:05.999+0000"
 rascal&gt;printDateTime(N, "YYYY/MM/dd/HH/mm/ss");
-str: "2016/05/30/21/50/41"</code></pre>
+str: "2016/05/31/12/15/05"</code></pre>
 </div>
 </div>
 </div>
@@ -3000,7 +3000,7 @@ ok
 rascal&gt;getOneFrom(["zebra", "elephant", "snake", "owl"]);
 str: "zebra"
 rascal&gt;getOneFrom(["zebra", "elephant", "snake", "owl"]);
-str: "snake"
+str: "elephant"
 rascal&gt;getOneFrom(["zebra", "elephant", "snake", "owl"]);
 str: "zebra"</code></pre>
 </div>
@@ -3837,7 +3837,7 @@ list[str]: ["mango","strawberry","pear","pineapple","banana","grape","kiwi"]
 rascal&gt;sort(fruits);
 list[str]: ["banana","grape","kiwi","mango","pear","pineapple","strawberry"]
 rascal&gt;sort(fruits, bool(str a, str b){ return size(a) &gt; size(b); });
-list[str]: ["strawberry","pineapple","banana","grape","mango","pear","kiwi"]</code></pre>
+list[str]: ["strawberry","pineapple","banana","grape","mango","kiwi","pear"]</code></pre>
 </div>
 </div>
 </div>
@@ -3868,9 +3868,9 @@ list[str]: ["strawberry","pineapple","banana","grape","mango","pear","kiwi"]</co
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import List;
 ok
 rascal&gt;shuffle([1,4,2,3]);
-list[int]: [1,4,3,2]
+list[int]: [4,1,2,3]
 rascal&gt;shuffle(["zebra", "elephant", "snake", "owl"]);
-list[str]: ["zebra","owl","snake","elephant"]</code></pre>
+list[str]: ["zebra","owl","elephant","snake"]</code></pre>
 </div>
 </div>
 </div>
@@ -4057,15 +4057,15 @@ ok
 rascal&gt;takeOneFrom([10,20,30,40,50]);
 tuple[int,list[int]]: &lt;40,[10,20,30,50]&gt;
 rascal&gt;takeOneFrom([10,20,30,40,50]);
-tuple[int,list[int]]: &lt;30,[10,20,40,50]&gt;
+tuple[int,list[int]]: &lt;10,[20,30,40,50]&gt;
 rascal&gt;takeOneFrom([10,20,30,40,50]);
-tuple[int,list[int]]: &lt;50,[10,20,30,40]&gt;
-rascal&gt;takeOneFrom(["zebra", "elephant", "snake", "owl"]);
-tuple[str,list[str]]: &lt;"elephant",["zebra","snake","owl"]&gt;
+tuple[int,list[int]]: &lt;30,[10,20,40,50]&gt;
 rascal&gt;takeOneFrom(["zebra", "elephant", "snake", "owl"]);
 tuple[str,list[str]]: &lt;"owl",["zebra","elephant","snake"]&gt;
 rascal&gt;takeOneFrom(["zebra", "elephant", "snake", "owl"]);
-tuple[str,list[str]]: &lt;"owl",["zebra","elephant","snake"]&gt;</code></pre>
+tuple[str,list[str]]: &lt;"elephant",["zebra","snake","owl"]&gt;
+rascal&gt;takeOneFrom(["zebra", "elephant", "snake", "owl"]);
+tuple[str,list[str]]: &lt;"zebra",["elephant","snake","owl"]&gt;</code></pre>
 </div>
 </div>
 </div>
@@ -5163,11 +5163,11 @@ map[str, int]: ("orange":3)</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import Map;
 ok
 rascal&gt;getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
-str: "pineapple"
+str: "apple"
 rascal&gt;getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
 str: "pineapple"
 rascal&gt;getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
-str: "apple"</code></pre>
+str: "pear"</code></pre>
 </div>
 </div>
 </div>
@@ -6599,11 +6599,11 @@ map[int, set[str]]: (
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import Set;
 ok
 rascal&gt;getOneFrom({1,2,3,4});
-int: 2
+int: 3
 rascal&gt;getOneFrom({1,2,3,4});
-int: 2
+int: 3
 rascal&gt;getOneFrom({1,2,3,4});
-int: 2
+int: 1
 rascal&gt;getOneFrom({1,2,3,4});
 int: 1</code></pre>
 </div>
@@ -6985,13 +6985,13 @@ int: 0</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import Set;
 ok
 rascal&gt;getOneFrom({"elephant", "zebra", "snake"});
-str: "zebra"
-rascal&gt;getOneFrom({"elephant", "zebra", "snake"});
 str: "snake"
 rascal&gt;getOneFrom({"elephant", "zebra", "snake"});
 str: "zebra"
 rascal&gt;getOneFrom({"elephant", "zebra", "snake"});
-str: "snake"</code></pre>
+str: "elephant"
+rascal&gt;getOneFrom({"elephant", "zebra", "snake"});
+str: "zebra"</code></pre>
 </div>
 </div>
 </div>
@@ -7020,7 +7020,7 @@ tuple[int,set[int]]: &lt;4,{1,3,2}&gt;
 rascal&gt;takeOneFrom({1, 2, 3, 4});
 tuple[int,set[int]]: &lt;2,{1,3,4}&gt;
 rascal&gt;takeOneFrom({1, 2, 3, 4});
-tuple[int,set[int]]: &lt;4,{1,3,2}&gt;</code></pre>
+tuple[int,set[int]]: &lt;3,{1,2,4}&gt;</code></pre>
 </div>
 </div>
 </div>
@@ -10910,11 +10910,11 @@ ok</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;before = cpuTime();
-int: 288140428000
+int: 331733204000
 rascal&gt;fac(50);
 int: 30414093201713378043612608166064768844377641568960512000000000000
 rascal&gt;cpuTime() - before;
-int: 180910000</code></pre>
+int: 160107000</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -10923,7 +10923,7 @@ int: 180910000</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;cpuTime( void() { fac(50); } );
-int: 213000</code></pre>
+int: 206000</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -10976,11 +10976,11 @@ ok</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;before = systemTime();
-int: 4063738000
+int: 5865047000
 rascal&gt;fac(50);
 int: 30414093201713378043612608166064768844377641568960512000000000000
 rascal&gt;systemTime() - before;
-int: 5155000</code></pre>
+int: 9092000</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -10989,7 +10989,7 @@ int: 5155000</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;systemTime( void() { fac(50); } );
-int: 9000</code></pre>
+int: 37000</code></pre>
 </div>
 </div>
 </div>
@@ -11039,11 +11039,11 @@ ok</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;before = userTime();
-int: 286102530000
+int: 326907307000
 rascal&gt;fac(50);
 int: 30414093201713378043612608166064768844377641568960512000000000000
 rascal&gt;userTime() - before;
-int: 120209000</code></pre>
+int: 1209001000</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -11052,7 +11052,7 @@ int: 120209000</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;userTime( void() { fac(50); } );
-int: 308000</code></pre>
+int: 195000</code></pre>
 </div>
 </div>
 </div>
@@ -11131,7 +11131,7 @@ ok</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;benchmark( ("fac100" : void() {fac(100);}, "fac200" : void() {fac(200);}) );
-map[str, int]: ("fac100":1464644971032,"fac200":1464644971032)</code></pre>
+map[str, int]: ("fac100":1464696826521,"fac200":1464696826521)</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -11140,7 +11140,7 @@ map[str, int]: ("fac100":1464644971032,"fac200":1464644971032)</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;benchmark( ("fac100" : void() {fac(100);}, "fac200" : void() {fac(200);}), userTime );
-map[str, int]: ("fac100":287538943000,"fac200":287538978000)</code></pre>
+map[str, int]: ("fac100":328479733000,"fac200":328479766000)</code></pre>
 </div>
 </div>
 </div>
@@ -11759,15 +11759,15 @@ i.e., the limit is exclusive.</p>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import util::Math;
 ok
 rascal&gt;arbInt();
-int: 1084258841
+int: -1717745457
 rascal&gt;arbInt();
-int: 214864777
+int: 2001891402
 rascal&gt;arbInt();
-int: 56174154
+int: -1953089314
 rascal&gt;arbInt(10);
-int: 3
+int: 6
 rascal&gt;arbInt(10);
-int: 3
+int: 6
 rascal&gt;arbInt(10);
 int: 0</code></pre>
 </div>
@@ -11797,11 +11797,11 @@ int: 0</code></pre>
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import util::Math;
 ok
 rascal&gt;arbReal();
-real: 0.16966663083424272
+real: 0.12189371559638207
 rascal&gt;arbReal();
-real: 0.32843427575170414
+real: 0.5849599609109637
 rascal&gt;arbReal();
-real: 0.847076078843644</code></pre>
+real: 0.46324647370496386</code></pre>
 </div>
 </div>
 </div>
@@ -11845,17 +11845,17 @@ is used to choose arbitrary values. This can be used to generate a reproducible 
 <pre class="highlight"><code class="language-rascal-shell" data-lang="rascal-shell">rascal&gt;import util::Math;
 ok
 rascal&gt;arbRat();
-rat: 288697357r318348831
+rat: -1128861383r1937460206
 rascal&gt;arbRat();
-rat: 663867133r27343427
+rat: 2009611605r201194192
 rascal&gt;arbRat();
-rat: 1551139815r854790434
+rat: -338287633r294303008
 rascal&gt;arbRat(10,100);
-rat: 1r87
+rat: 8r71
 rascal&gt;arbRat(10,100);
-rat: 8r25
+rat: 0r
 rascal&gt;arbRat(10,100);
-rat: 0r</code></pre>
+rat: 1r4</code></pre>
 </div>
 </div>
 </div>
@@ -12686,7 +12686,7 @@ documentation awaits Eclipse integration
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-05-30 23:49:21 CEST
+Last updated 2016-05-31 14:13:34 CEST
 </div>
 </div>
 </body>
