@@ -61,9 +61,9 @@ determine the traversal order of the subject:
 
 *  `bottom-up-break`: visit the subject from leaves to root, but stop at the current path when a case matches.
 
-*  `innermost`: repeat a bottom-up traversal as long as the traversal changes the resulting value (compute a fixed-point).
+*  `innermost`: repeat a bottom-up traversal as long as a case matches.
 
-*  `outermost`: repeat a top-down traversal as long as the traversal changes the resulting value (compute a fixed-point).
+*  `outermost`: repeat a top-down traversal as long as a case matches.
 
 
 The execution of the cases has the following effect:
