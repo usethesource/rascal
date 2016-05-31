@@ -97,13 +97,22 @@ function ask2Server(site, ev, id, v, parameters) {
 							// if (i=="visibility") alert(""+d+"
 							// "+style[i]);
 							if (i == "visibility") {
-								d3.select("#" + d + "_outer_fo").style(i,
-										style[i]);
-								d3.select("#" + d + "_svg").style(i, style[i]);
-								d3.selectAll("." + d + "_div").style(i,
-										style[i]);
+								// alert(d);
+								d3.select("#" + d + "_outer_fo").style(i,style[i])
+								;
+								d3.select("#" + d + "_fo").style(i,style[i])
+								;
+								d3.select("#" + d + "_svg").style(i, style[i])
+								;
+								d3.selectAll("." + d + "_div").style(i,style[i]);
+								d3.selectAll("#" + d + " .google").style(i,style[i]);
+								d3.select("#" + d + "_frame").style(i,style[i]);
+								if (e.attr("clickable")=="yes")
+								   e.attr("pointer-events", style[i]=="hidden"?"none":"all")
+								;					
 							}
 							e = e.style(svgStyle(i, svg), style[i]);
+							
 						}
 					}
 					// alert(d);
@@ -173,17 +182,21 @@ function ask2Server(site, ev, id, v, parameters) {
 					if (t[d]["property"] != null)
 						for ( var i in t[d]["property"]) {
 							var v = t[d]["property"][i];
-							e = e.property(i, v);
+							// e = e.property(i, v);
 							if (i == "value") {
 								if (isObject(v))
 									for (name in v) {
 										// alert(v[name]);
+										
 										d3.select("#" + d + "_" + name + "_i")
 												.property("checked", v[name]);
 									}
-								else
+								else {
+									if (v!="")
 									d3.select("#" + d + "_" + v + "_i")
 											.property("checked", true);
+									else d3.selectAll("."+d).property("checked", false);
+								     }
 							}
 						}
 				}
@@ -218,10 +231,26 @@ function CR(evt, ev, id, v) {
 	}
 }
 
+function eventFire(el, etype){
+	  if (el.fireEvent) {
+	    el.fireEvent('on' + etype);
+	  } else {
+	    var evObj = document.createEvent('Events');
+	    evObj.initEvent(etype, true, false);
+	    el.dispatchEvent(evObj);
+	  }
+	}
+
 var site;
 
 function setSite(x) {
 	site = x;
+}
+
+function radioAsk(ev, id,  v, parameters) {
+	// d3.select("#"+id).attr("val", v);
+	d3.select("#"+id).property("value", v);
+	ask(ev,id, v, parameters);
 }
 
 function ask(ev, id, v, parameters) {
@@ -242,12 +271,15 @@ function doFunction(ev, id) {
 function doAllFunction(ev, id) {
 	return function() {
 		var r = {};
-		d3.selectAll("#" + id + " .form").call(function(d) {
-			// alert(d[0][0]); alert(d[0][1]);
+		// alert("doall:"+id);
+		if (ev=="ok")
+		d3.selectAll("#" + id + " .form").call(function(d) {	
 			d[0].forEach(function(z, g) {
+				// alert(z.value);
+				if (z.value==null) z.value="";
 				r[z.id] = z.value;
-			});
-			// alert(JSON.stringify(r));
+			    }	     	
+			);
 		});
 		var v = this.value;
 		// alert(JSON.stringify(r));
@@ -667,8 +699,9 @@ function adjustTableWH1(id1, clients) {
 	if (aUndefWH.length == 0) {
 		width = document.getElementById(id1).getBoundingClientRect().width;
 		height = document.getElementById(id1).getBoundingClientRect().height;
+		if (!d3.select("#" + id1+"_ok").empty()) height=parseInt(height)+50;
 		d3.select("#" + id1).attr("w", "" + width + "px").attr("h",
-				"" + height + "px");
+				"" + height + "px").attr("height", height);
 	}
 	d3.select("#" + id1 + "_outer_fo").attr("width", "" + width + "px").attr(
 			"height", "" + height + "px")
@@ -907,11 +940,15 @@ function adjust_tooltip(q) {
 			d3.select("#" + q + "_tooltip_svg").attr("x", z.x).attr("y", z.y);
 		}
 		d3.select("#" + q + "_tooltip").style("visibility", "visible");
-		d3.select("#" + q + "_tooltip_fo").style("visibility", "visible");
+		d3.select("#" + q + "_tooltip_fo").style("visibility", "visible").
+		   selectAll(".google").style("visibility", "visible")
+		   ;
 	});
 	s.on("mouseleave", function() {
 		d3.select("#" + q + "_tooltip").style("visibility", "hidden");
-		d3.select("#" + q + "_tooltip_fo").style("visibility", "hidden");
+		d3.select("#" + q + "_tooltip_fo").style("visibility", "hidden").
+		   selectAll(".google").style("visibility", "hidden")
+		;
 	});
 	var t = d3.select("#" + q + "_tooltip_svg");
 	if (!u.empty()) {
@@ -919,50 +956,50 @@ function adjust_tooltip(q) {
 		t.attr("width", w + z.x + x1).attr("height", h + z.y + y1);
 	}
 	d3.select("#" + q + "_tooltip").style("visibility", "hidden");
-	d3.select("#" + q + "_tooltip_fo").style("visibility", "hidden");
+	d3.select("#" + q + "_tooltip_fo").style("visibility", "hidden").
+	    selectAll(".google").style("visibility", "hidden")
+	    ;
 }
 
-function adjust_panel(q) {
-	var s = d3.select("#" + q);
+function adjust_panel(parent, q) {
+	// alert("adjust_panel");
+	var s = d3.select("#" + parent);
 	// var r = d3.select("#close");
 	var convert = makeAbsoluteContext(s.node());
 	var x = s.attr("x");
 	var y = s.attr("y");
-	var w = getWidth("#" + q + "_panel_svg");
-	var h = getHeight("#" + q + "_panel_svg");
-	var u = d3.select("#" + q + "_panel_outer_fo");
+	var w = getWidth("#" + q + "_svg");
+	var h = getHeight("#" + q + "_svg");
+	var u = d3.select("#" + q + "_outer_fo");
 	var z = convert(x, y);
 	var x1 = 0;
 	var y1 = 0;
 	if (!u.empty()) {
 		x1 = parseFloat(u.attr("x"));
 		y1 = parseFloat(u.attr("y"));
-	}
-	s.on("click", function() {
-		d3.select("#overlay").attr("width", z.x + w + x1);
-		d3.select("#overlay").attr("height", z.y + h + y1);
-		if (d3.select("#" + q + "_panel_outer_fo").empty()) {
-			d3.select("#" + q + "_panel_svg").attr("x", z.x).attr("y", z.y);
-		}
-		if (d3.select("#" + q + "_panel").style("visibility") == "hidden") {
-			d3.select("#" + q + "_panel").style("visibility", "visible");
-			d3.select("#" + q + "_panel_fo").style("visibility", "visible");
-		} else {
-			d3.select("#" + q + "_panel").style("visibility", "hidden");
-			d3.select("#" + q + "_panel_fo").style("visibility", "hidden");
-		}
-		// d3.select("#close").style("visibility", "visible");
-	});
-	// r.on("click", function(){
-	// d3.select("#"+q+"_panel").style("visibility", "hidden");
-	// d3.select("#"+q+"_panel_fo").style("visibility", "hidden");
-	// d3.select("#close").style("visibility", "hidden");
-	// });
-	var t = d3.select("#" + q + "_panel_svg");
+	}	
+	var t = d3.select("#" + q + "_svg");
 	if (!u.empty()) {
 		u.attr("x", z.x + x1).attr("y", z.y + y1);
 		t.attr("width", w + z.x + x1).attr("height", h + z.y + y1);
 	}
-	d3.select("#" + q + "_panel").style("visibility", "hidden");
-	d3.select("#" + q + "_panel_fo").style("visibility", "hidden");
+	if (s.on("click")!=null) return;
+	s.on("click", function() {
+		d3.select("#overlay").attr("width", z.x + w + x1);
+		d3.select("#overlay").attr("height", z.y + h + y1);
+		if (d3.select("#" + q + "_outer_fo").empty()) {
+			d3.select("#" + q + "_svg").attr("x", z.x).attr("y", z.y);
+		}
+		if (d3.select("#" + q + "").style("visibility") == "hidden") {
+			d3.select("#" + q + "").style("visibility", "visible");
+			d3.select("#" + q + "_fo").style("visibility", "visible");
+			d3.select("#" + q + "_frame").style("visibility", "visible");
+		} else {
+			d3.select("#" + q + "").style("visibility", "hidden");
+			d3.select("#" + q + "_fo").style("visibility", "hidden");
+			d3.select("#" + q + "_frame").style("visibility", "hidden");
+		}
+	});
+	d3.select("#" + q + "").style("visibility", "hidden");
+	d3.select("#" + q + "_fo").style("visibility", "hidden").attr("pointer-events", "all");
 }

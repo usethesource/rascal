@@ -151,7 +151,7 @@ public Text clearTextProperty(str id) {
      v.text = "";
      v.html = "";
      _setText(idx, v);
-     //  println(v);
+     // println("clearTextProp:<id>");
      return v;
      }
      
@@ -220,45 +220,164 @@ Figure finalStateMachine(Figure f, str initialState) {
         }
   }
   
-  // alias FormEntry = tuple[type[&T] tp, str fieldName, list[tuple[bool(value v) cond, str emsg]] constraints]; 
+ void setError(str n, bool e) {attr("<n>_msg", disabled = e);}
+ 
+ bool isError(str n) = attr("<n>_msg").disabled;
+ 
+ 
+ data MoneyType = euro(str)|usd(str);
+ 
+ public str emptyStr="";
+ public MoneyType emptyEuro=euro("");
+ public MoneyType emptyUsd=usd("");
+ 
+ public int emptyInt=-999999;
+ 
+ str startValue(value v) {
+    if (str s:=v) return s;
+    if (int d:=v) return d==emptyInt?"":"<d>";
+    if (euro(str z):=v) return z;
+    if (usd(str z):=v) return z;
+    return "unknown";
+    }
+  
+  // alias FormEntry = tuple[str id, type[&T] tp, str fieldName, list[tuple[bool(value v) cond, str emsg]] constraints]; 
  list[Figure] formEntry(FormEntry fr) {
     str id = fr.id;
-    void f(str e, str n, str v) {
-       list[str] emsg = [d.emsg|d<-fr.constraints, !d.cond(v)];
-       if (!isEmpty(emsg)) {
-            textProperty("<id>_msg", html=head(emsg));
-            clearValueProperty(n);
+    bool isDig(value v) = str s:=v && /^[0-9]+$/:=s; 
+    bool isMoney(value v) = str s:=v && (/^[0-9]+.[0-9][0-9]$/:=s|| /^[0-9]+$/ :=s); 
+    void (str , str , str ) f(value q) {   
+     return void (str e, str n, str v) {
+       list[Constraint] constraints = fr.constraints;  
+       str emsg = "";
+       bool found = false;
+       setError(id, false);  
+       if (typeOf(q)==\int()) {
+             if  (!isDig(v)) {
+                emsg = "Illegal argument";
+                found = true;
+                }
+             else d = toInt(v);
+             }
+       if (\adt("MoneyType",_):=typeOf(q)) {
+             if  (!isMoney(v)) {
+                emsg = "Illegal argument";
+                found = true;
+                }
+             }
+       while (!found && !isEmpty(constraints)) {
+            tuple[Constraint, list[Constraint]] c = headTail(constraints);
+            bool b = true;
+            if (typeOf(q)==\str()) b = c[0].cond(v);
+            if (\adt("MoneyType",_):=typeOf(q)) b = c[0].cond(toReal(v));
+            if (typeOf(q)==\int()) b = c[0].cond(toInt(v));
+            if (typeOf(q)==\tuple([\list(\str()), \str()])) b = c[0].cond(v); 
+            if (!b) {
+                  emsg = c[0].emsg;
+                  emsg = replaceAll(emsg, "@", v);
+                  found = true;
+                  break;
+                  }
+            else constraints = c[1];
             }
+       if (found) {
+            textProperty("<id>_msg", html=emsg);
+            setError(id, true);
+            // clearValueProperty(n);
+            }
+       else clearTextProperty("<id>_msg");
        };
-    if (fr.tp==#str) {
-       return [text(fr.fieldName), strInput(nchars = 20, id = id, fillColor = "white"
-       ,event=on(f)), text("", size=<200, 20>, id = "<id>_msg")];
        }
+        Figure question = emptyFigure(); 
+        if (typeOf(fr.startValue)==\str() || typeOf(fr.startValue)==\int()
+        || \adt("MoneyType",_):=typeOf(fr.startValue)) 
+             question = strInput(size=<300, 20>, nchars = 20, id = id, fillColor = "white"
+                 ,\value =  startValue(fr.startValue),event=on(f(fr.startValue)));
+        if (typeOf(fr.startValue)==\tuple([\list(\str()), \str()])) {
+             if (tuple[list[str] fields, str checked] cs := fr.startValue)
+             question = choiceInput(id = id, choices= cs[0], event=on(f(fr.startValue)), \value= cs[1]);
+             }
+       return [text(fr.fieldName, fontWeight="bold", fontColor="blue", size=<300, 20>)
+       , question
+       , text("", size=<300, 20>, id = "<id>_msg", fontColor="red")];
     }
     
- 
+ FormEntry rangeEntry(str id, str fieldName, int low, int high) {
+    
+        
+    bool lowConstraint(value v) = int d:=v && d>=low;
+      
+    bool highConstraint(value v) = int d := v && d<=high;
+    
+    return <id, emptyInt, fieldName, [
+         <lowConstraint, "Number @ too low (\<<low>)"> 
+        ,<highConstraint, "Number @ too high (\><high>)"> 
+        ]>;  
+    }
+    
+ public void invoke(value f, str e, str n, str v) {
+   switch (f) {
+       case void(str, str, str) f: f(e, n, v);
+       case void(str, str, int) f: f(e, n, toInt(v));
+       case void(str, str, real) f: f(e, n, toReal(v));
+       }
+    }
   
- public Figure form(str id, list[FormEntry] fs, void(str, str, str) ifOk=void(str e, str n, str v){return;}) {
+ public Figure form(str id, list[FormEntry] fs, Event event = noEvent()
+    , str fillColor="whitesmoke", str visibility = "hidden", int lineWidth = 1, str enableId="") {
     list[list[Figure]] fa = [formEntry(f)|FormEntry f <- fs];
-    Figure r = box(id = id, vgrow = 1.5, fillColor="whitesmoke", fig=grid(figArray=fa, form = true
+    // if (isEmpty(fa)) return emptyFigure();
+    // println("Inside form: <id>");
+    Figure r = 
+       box(id = id, vgrow = 1.5, visibility=visibility, fillColor=fillColor, lineWidth = lineWidth
+       , fig=grid(id = newId(), figArray=fa, form = true,
     // , borderStyle="groove", borderWidth = 6
-    , hgap = 10
+    hgap = 10,  visibility="inherit", align = topLeft
     ,event=on(void(str e, str n, str v){ 
-             bool ok = (true|it && (str q:=property(fr[1].id).\value) && !isEmpty(q)|fr<-fa);     
+             // bool ok = (true|it && (str q:=property(fr[1].id).\value) && !isEmpty(q)|fr<-fa);
+             bool ok = (true|it && !isError(fr[1].id)|fr<-fa); 
              if (e=="ok") {
                 if (ok) {
-                  ifOk(e, n, v);
+                  if (on (value f) := event) invoke(f, e, id, v);
                   style(id, visibility="hidden"); 
                   clearForm(fa);                  
                   }
               }
-             else {
+             else {    
                  style(id, visibility="hidden");
                  clearForm(fa);
                  }
-             })));
+             if (!isEmpty(enableId)) attr(enableId, disabled=false);
+             })
+      // ,event = on("load", void(str e, str n , str v ) {println(e);})
+     ));
      return r;         
      } 
+        
+ Figure makeFormAction(Figure button, list[FormEntry] forms, int x= 50, int y=50, Event event = noEvent()
+    , str fillColor="whitesmoke", str visibility = "hidden", int lineWidth = 1, str id = "") {  
+     if (isEmpty(button.id)) button.id = newId();
+     Figure panel = form(isEmpty(id)?newId():id, forms, event = event, fillColor=fillColor, visibility = visibility
+        ,lineWidth = lineWidth, enableId= button.id);
+     panel.at=<x, y>;
+     str frameId = "<panel.id>_frame";
+     button.panel = frame(panel,visibility= visibility, id = frameId);
+     // button.panel = box(fig=panel);
+     if (!isEmpty(forms))
+        button.event = on("click",
+            void(str e, str n, str v) {
+            style(panel.id, visibility="visible");
+            attr(button.id, disabled=true);
+          });
+     else 
+          button.event = on("click",
+            void(str e, str n, str v) {
+            if (on(void(str e, str n  , str v) f):=event) {
+                invoke(f, e, panel.id, v);
+                }
+          });
+     return button;
+     }
      
 void clearForm(list[list[Figure]] formArray) {
   for (list[Figure] forms<-formArray) {
