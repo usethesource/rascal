@@ -26,19 +26,28 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.rascalmpl.library.experiments.tutor3.Onthology;
-import org.rascalmpl.uri.URIResolverRegistry;
 
 public class HelpManager {
 	
-	private final String COURSE_DIR = "/Users/paulklint/git/rascal/src/org/rascalmpl/courses/";
-	private final String SEARCH_RESULT_FILE = "/Users/paulklint/search-result.html";
-	private final int MAX_SEARCH = 25;
+	private String coursesDir;
+	private String searchResultFile;
+	private final int maxSearch = 25;
 	
 	private PrintWriter stdout;
 	private PrintWriter stderr;
 
 	public HelpManager(PrintWriter stdout, PrintWriter stderr){
-		String u = System.getProperty("rascal.courses");
+		coursesDir = System.getProperty("rascal.courses");
+		if(coursesDir == null){
+			stderr.println("Please specify -Drascal.courses=<courses-directory>");
+			System.exit(1);
+		}
+		String tmpdir = System.getProperty("java.io.tmpdir");
+		if(tmpdir == null){
+			stderr.println("Cannot create temp name for search results");
+			System.exit(1);
+		}
+		searchResultFile =tmpdir + "/search-result.html";
 		this.stdout = stdout;
 		this.stderr = stderr;
 	}
@@ -51,7 +60,6 @@ public class HelpManager {
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
@@ -70,7 +78,7 @@ public class HelpManager {
 		String[] parts = conceptName.split("/");
 		int n = parts.length;
 		String course = parts[0];
-		w.append(COURSE_DIR).append(course).append("/").append(course).append(".html")
+		w.append(coursesDir).append(course).append("/").append(course).append(".html")
 		 .append("#").append(parts[n - (n > 1 ? 2 : 1)]).append("-").append(parts[n-1]);
 	}
 	
@@ -102,7 +110,7 @@ public class HelpManager {
 			return;
 		}
 
-		Path destDir = Paths.get(COURSE_DIR);
+		Path destDir = Paths.get(coursesDir);
 		Analyzer multiFieldAnalyzer = Onthology.multiFieldAnalyzer();
 		
 		try {
@@ -127,9 +135,9 @@ public class HelpManager {
 			}
 
 			if(words[0].equals("help")){
-				reportHelp(isearcher, isearcher.search(query, MAX_SEARCH).scoreDocs);
+				reportHelp(isearcher, isearcher.search(query, maxSearch).scoreDocs);
 			} else {
-				reportApropos(isearcher, isearcher.search(query, MAX_SEARCH).scoreDocs);
+				reportApropos(isearcher, isearcher.search(query, maxSearch).scoreDocs);
 			}
 			ireader.close();
 			directory.close();
@@ -137,7 +145,6 @@ public class HelpManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-			
 	}
 		
 	String getField(Document hitDoc, String field){
@@ -146,7 +153,6 @@ public class HelpManager {
 	}
 	
 	void reportHelp(IndexSearcher isearcher, ScoreDoc[] hits) throws IOException{
-		// Iterate through the results:
 		int nhits = hits.length;
 
 		if(nhits == 0){
@@ -158,7 +164,7 @@ public class HelpManager {
 			w.append("<title>Rascal Search Results</title>\n");
 			w.append("<h1>Rascal Search Results</h1>\n");
 			w.append("<ul>\n");
-			for (int i = 0; i < Math.min(hits.length, MAX_SEARCH); i++) {
+			for (int i = 0; i < Math.min(hits.length, maxSearch); i++) {
 				Document hitDoc = isearcher.doc(hits[i].doc);
 				w.append("<li> ");
 				String name = hitDoc.get("name");
@@ -170,15 +176,15 @@ public class HelpManager {
 				}
 			}
 			w.append("</ul>\n");
-			FileWriter fout = new FileWriter(SEARCH_RESULT_FILE);
+			FileWriter fout = new FileWriter(searchResultFile);
 			fout.write(w.toString());
 			fout.close();
-			openInBrowser("file://" + SEARCH_RESULT_FILE);
+			openInBrowser("file://" + searchResultFile);
 		}
 	}
 	
 	void reportApropos(IndexSearcher isearcher, ScoreDoc[] hits) throws IOException{
-		for (int i = 0; i < Math.min(hits.length, MAX_SEARCH); i++) {
+		for (int i = 0; i < Math.min(hits.length, maxSearch); i++) {
 			Document hitDoc = isearcher.doc(hits[i].doc);
 			String name = hitDoc.get("name");
 			String signature = getField(hitDoc, "signature");
