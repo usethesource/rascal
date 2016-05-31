@@ -53,6 +53,19 @@ and this is how it works:
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Exp::Combined::Automatic::Parse;
+rascal2rvm: Parsing and checking |std:///demo/lang/Exp/Combined/Automatic/Parse.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Exp/Combined/Automatic/Parse.rsc|
+r2mu: entering ... demo::lang::Exp::Combined::Automatic::Parse
+mu2rvm: Compiling module demo::lang::Exp::Combined::Automatic::Parse
+Compiling |std:///demo/lang/Exp/Combined/Automatic/Parse.rsc|: check: 13, compile: 1338, total: 1351 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Exp/Combined/Automatic/Parse.rvm.gz|
+rascal2rvm: Parsing and checking |std:///demo/lang/Exp/Combined/Automatic/Syntax.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Exp/Combined/Automatic/Syntax.rsc|
+r2mu: entering ... demo::lang::Exp::Combined::Automatic::Syntax
+mu2rvm: Compiling module demo::lang::Exp::Combined::Automatic::Syntax
+Compiling |std:///demo/lang/Exp/Combined/Automatic/Syntax.rsc|: check: 4, compile: 12, total: 16 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Exp/Combined/Automatic/Syntax.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>parseExp("2+3*4");
 Exp: (Exp) `2+3*4`
@@ -75,6 +88,19 @@ Let's try it:
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Exp::Combined::Automatic::Load;
+rascal2rvm: Parsing and checking |std:///demo/lang/Exp/Combined/Automatic/Load.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Exp/Combined/Automatic/Load.rsc|
+r2mu: entering ... demo::lang::Exp::Combined::Automatic::Load
+mu2rvm: Compiling module demo::lang::Exp::Combined::Automatic::Load
+Compiling |std:///demo/lang/Exp/Combined/Automatic/Load.rsc|: check: 15, compile: 391, total: 406 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Exp/Combined/Automatic/Load.rvm.gz|
+rascal2rvm: Parsing and checking |std:///demo/lang/Exp/Abstract/Syntax.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Exp/Abstract/Syntax.rsc|
+r2mu: entering ... demo::lang::Exp::Abstract::Syntax
+mu2rvm: Compiling module demo::lang::Exp::Abstract::Syntax
+Compiling |std:///demo/lang/Exp/Abstract/Syntax.rsc|: check: 5, compile: 13, total: 18 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Exp/Abstract/Syntax.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>load("2+3*4");
 Exp: add(
@@ -110,6 +136,19 @@ Here is the end result:
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Exp::Combined::Automatic::Eval;
+rascal2rvm: Parsing and checking |std:///demo/lang/Exp/Abstract/Eval.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Exp/Abstract/Eval.rsc|
+r2mu: entering ... demo::lang::Exp::Abstract::Eval
+mu2rvm: Compiling module demo::lang::Exp::Abstract::Eval
+Compiling |std:///demo/lang/Exp/Abstract/Eval.rsc|: check: 8, compile: 152, total: 160 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Exp/Abstract/Eval.rvm.gz|
+rascal2rvm: Parsing and checking |std:///demo/lang/Exp/Combined/Automatic/Eval.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Exp/Combined/Automatic/Eval.rsc|
+r2mu: entering ... demo::lang::Exp::Combined::Automatic::Eval
+mu2rvm: Compiling module demo::lang::Exp::Combined::Automatic::Eval
+Compiling |std:///demo/lang/Exp/Combined/Automatic/Eval.rsc|: check: 15, compile: 59, total: 74 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Exp/Combined/Automatic/Eval.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>eval("2+3*4");
 int: 14

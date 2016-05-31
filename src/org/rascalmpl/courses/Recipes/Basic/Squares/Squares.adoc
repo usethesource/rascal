@@ -35,6 +35,13 @@ Here is how `square` can be used:
 [source,rascal-shell]
 ----
 rascal>import demo::basic::Squares;
+rascal2rvm: Parsing and checking |std:///demo/basic/Squares.rsc|
+rascal2rvm: Compiling |std:///demo/basic/Squares.rsc|
+r2mu: entering ... demo::basic::Squares
+mu2rvm: Compiling module demo::basic::Squares
+Compiling |std:///demo/basic/Squares.rsc|: check: 7, compile: 169, total: 176 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/basic/Squares.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>squares(9);
 Table of squares from 1 to 9

@@ -39,46 +39,6 @@
 [error] Name numberOfFieldsPerClass is not in scope
 [error] Name myModel is not in scope
 ```
-* __Recipes/Languages/Exp/Concrete/WithLayout__:
-```
-[error] Unexpected compiler exception EXCEPTION in translateFunctionDeclaration, compiling eval: ParseError(|std:///demo/lang/Exp/Concrete/WithLayout/Eval.rsc|(363,26,<10,26>,<10,27>)) AT |std:///demo/lang/Exp/Concrete/WithLayout/Eval.rsc|(17,737,<2,0>,<23,47>)
-```
-* __Recipes/Languages/Exp/Concrete/WithLayout__:
-```
-[error] Name eval is not in scope
-```
-* __Recipes/Languages/Exp/Concrete/WithLayout__:
-```
-[error] Name eval is not in scope
-```
-* __Recipes/Languages/Exp/Concrete/WithLayout__:
-```
-[error] Name eval is not in scope
-```
-* __Recipes/Languages/Lisra/Pretty__:
-```
-[error] Unexpected compiler exception EXCEPTION in translateFunctionDeclaration, compiling build: ParseError(|std:///demo/lang/Lisra/Parse.rsc|(464,29,<13,45>,<13,46>)) AT |std:///demo/lang/Lisra/Parse.rsc|(17,992,<2,0>,<25,77>)
-```
-* __Recipes/Languages/Lisra/Pretty__:
-```
-[error] Name parse is not in scope
-```
-* __Recipes/Languages/Lisra/Eval__:
-```
-[error] Unexpected compiler exception EXCEPTION in translateFunctionDeclaration, compiling build: ParseError(|std:///demo/lang/Lisra/Parse.rsc|(464,29,<13,45>,<13,46>)) AT |std:///demo/lang/Lisra/Parse.rsc|(17,992,<2,0>,<25,77>)
-```
-* __Recipes/Languages/Lisra/Eval__:
-```
-[error] Name eval is not in scope
-```
-* __Recipes/Languages/Lisra/Eval__:
-```
-[error] Name eval is not in scope
-```
-* __Recipes/Languages/Lisra/Eval__:
-```
-[error] Name eval is not in scope
-```
 * __Recipes/Metrics/MeasuringJava__:
 ```
 [error] Cannot import module lang::java::jdt::m3::Core AT |std:///experiments/Compiler/Compile.rsc|(0,51,<1,0>,<1,51>)
@@ -86,38 +46,6 @@
 * __Recipes/Metrics/MeasuringJava__:
 ```
 [error] Name createM3FromEclipseProject is not in scope
-```
-* __Recipes/Languages/Exp/Combined/Manual__:
-```
-[error] Unexpected compiler exception EXCEPTION in translateFunctionDeclaration, compiling load: ParseError(|std:///demo/lang/Exp/Combined/Manual/Load.rsc|(513,26,<12,61>,<12,62>)) AT |std:///demo/lang/Exp/Combined/Manual/Load.rsc|(17,733,<2,0>,<18,17>)
-```
-* __Recipes/Languages/Exp/Combined/Manual__:
-```
-[error] Name loadExp is not in scope
-```
-* __Recipes/Languages/Exp/Combined/Manual__:
-```
-[error] Unexpected compiler exception EXCEPTION in translateFunctionDeclaration, compiling load: ParseError(|std:///demo/lang/Exp/Combined/Manual/Load.rsc|(513,26,<12,61>,<12,62>)) AT |std:///demo/lang/Exp/Combined/Manual/Load.rsc|(17,733,<2,0>,<18,17>)
-```
-* __Recipes/Languages/Exp/Combined/Manual__:
-```
-[error] Name eval is not in scope
-```
-* __Recipes/Languages/Lisra/Parse__:
-```
-[error] Unexpected compiler exception EXCEPTION in translateFunctionDeclaration, compiling build: ParseError(|std:///demo/lang/Lisra/Parse.rsc|(464,29,<13,45>,<13,46>)) AT |std:///demo/lang/Lisra/Parse.rsc|(17,992,<2,0>,<25,77>)
-```
-* __Recipes/Languages/Lisra/Parse__:
-```
-[error] Name parse is not in scope
-```
-* __Recipes/Languages/Lisra/Parse__:
-```
-[error] Name parse is not in scope
-```
-* __Recipes/Languages/Lisra/Parse__:
-```
-[error] Name parse is not in scope
 ```
 * __Recipes/Metrics/MeasuringJava/MeasuringMethods__:
 ```

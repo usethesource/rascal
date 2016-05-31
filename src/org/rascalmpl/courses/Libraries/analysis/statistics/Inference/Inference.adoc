@@ -38,6 +38,15 @@ To test the hypothesis that a random sample of 100 people has been drawn from a 
 [source,rascal-shell]
 ----
 rascal>import analysis::statistics::Inference;
+rascal2rvm: Parsing and checking |std:///analysis/statistics/Inference.rsc|
+rascal2rvm: Compiling |std:///analysis/statistics/Inference.rsc|
+r2mu: entering ... analysis::statistics::Inference
+rlib1 = analysis.statistics.Inferences, rlib2 = |std:///analysis/statistics/InferencesCompiled.class|
+resolveLibOverriding org.rascalmpl.library.analysis.statistics.Inferences => org.rascalmpl.library.analysis.statistics.Inferences
+mu2rvm: Compiling module analysis::statistics::Inference
+Compiling |std:///analysis/statistics/Inference.rsc|: check: 16, compile: 34, total: 50 ms
+compile: Writing RVMModule |compressed+home:///bin-console/analysis/statistics/Inference.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>chiSquare([<50, 44>, <50, 56>])
 real: 1.44
@@ -108,6 +117,15 @@ First, we compute the t-statistic using the formula given above.
 rascal>import util::Math;
 ok
 rascal>import analysis::statistics::Descriptive;
+rascal2rvm: Parsing and checking |std:///analysis/statistics/Descriptive.rsc|
+rascal2rvm: Compiling |std:///analysis/statistics/Descriptive.rsc|
+r2mu: entering ... analysis::statistics::Descriptive
+rlib1 = Prelude, rlib2 = |std:///PreludeCompiled.class|
+resolveLibOverriding org.rascalmpl.library.Prelude => org.rascalmpl.library.PreludeCompiled
+mu2rvm: Compiling module analysis::statistics::Descriptive
+Compiling |std:///analysis/statistics/Descriptive.rsc|: check: 38, compile: 1238, total: 1276 ms
+compile: Writing RVMModule |compressed+home:///bin-console/analysis/statistics/Descriptive.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>import List;
 ok

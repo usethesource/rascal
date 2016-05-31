@@ -63,13 +63,20 @@ To put this all to the test:
 rascal>import demo::lang::Exp::Concrete::WithLayout::Syntax;
 ok
 rascal>import demo::lang::Exp::Concrete::WithLayout::Eval;
-[error] Unexpected compiler exception EXCEPTION in translateFunctionDeclaration, compiling eval: ParseError(|std:///demo/lang/Exp/Concrete/WithLayout/Eval.rsc|(363,26,<10,26>,<10,27>)) AT |std:///demo/lang/Exp/Concrete/WithLayout/Eval.rsc|(17,737,<2,0>,<23,47>)
+rascal2rvm: Parsing and checking |std:///demo/lang/Exp/Concrete/WithLayout/Eval.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Exp/Concrete/WithLayout/Eval.rsc|
+r2mu: entering ... demo::lang::Exp::Concrete::WithLayout::Eval
+mu2rvm: Compiling module demo::lang::Exp::Concrete::WithLayout::Eval
+Compiling |std:///demo/lang/Exp/Concrete/WithLayout/Eval.rsc|: check: 18, compile: 1867, total: 1885 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Exp/Concrete/WithLayout/Eval.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
+ok
 rascal>eval("2 +  3");
-[error] Name eval is not in scope
+int: 5
 rascal>eval("2   +  3*4");
-[error] Name eval is not in scope
+int: 14
 rascal>eval("( 2+3 )* 4");
-[error] Name eval is not in scope
+int: 20
 ----
 
 .Benefits

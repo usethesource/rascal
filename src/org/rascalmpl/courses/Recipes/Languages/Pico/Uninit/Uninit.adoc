@@ -48,12 +48,44 @@ Here is a simple example, where variable `p` is used without intialization:
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Pico::Uninit;
+rascal2rvm: Parsing and checking |std:///demo/lang/Pico/UseDef.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Pico/UseDef.rsc|
+r2mu: entering ... demo::lang::Pico::UseDef
+mu2rvm: Compiling module demo::lang::Pico::UseDef
+Compiling |std:///demo/lang/Pico/UseDef.rsc|: check: 34, compile: 1252, total: 1286 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Pico/UseDef.rvm.gz|
+rascal2rvm: Parsing and checking |std:///demo/lang/Pico/ControlFlow.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Pico/ControlFlow.rsc|
+r2mu: entering ... demo::lang::Pico::ControlFlow
+mu2rvm: Compiling module demo::lang::Pico::ControlFlow
+Compiling |std:///demo/lang/Pico/ControlFlow.rsc|: check: 38, compile: 1038, total: 1076 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Pico/ControlFlow.rvm.gz|
+rascal2rvm: Parsing and checking |std:///demo/lang/Pico/Uninit.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Pico/Uninit.rsc|
+r2mu: entering ... demo::lang::Pico::Uninit
+mu2rvm: Compiling module demo::lang::Pico::Uninit
+Compiling |std:///demo/lang/Pico/Uninit.rsc|: check: 35, compile: 353, total: 388 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Pico/Uninit.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>uninitProgram("begin declare n : natural, m : natural, p : natural; n := 10; m := n + p end");
-ParseError(|unknown:///|(17,1,<1,17>,<1,18>))
-No call stack available
-
-ok
+rel[loc,str,STATEMENT]: {<|unknown:///|(71,1,<1,71>,<1,72>),"p",asgStat(
+    "m",
+    add(
+      id("n")[
+        @location=|unknown:///|(67,1,<1,67>,<1,68>),
+        @comments=()
+      ],
+      id("p")[
+        @location=|unknown:///|(71,1,<1,71>,<1,72>),
+        @comments=()
+      ])[
+      @location=|unknown:///|(67,5,<1,67>,<1,72>),
+      @comments=()
+    ])[
+    @location=|unknown:///|(62,10,<1,62>,<1,72>),
+    @comments=()
+  ]>}
 ----
 
 

@@ -89,6 +89,15 @@ Computes the http://en.wikipedia.org/wiki/Covariance[covariance] between the `x`
 [source,rascal-shell]
 ----
 rascal>import analysis::statistics::Correlation;
+rascal2rvm: Parsing and checking |std:///analysis/statistics/Correlation.rsc|
+rascal2rvm: Compiling |std:///analysis/statistics/Correlation.rsc|
+r2mu: entering ... analysis::statistics::Correlation
+rlib1 = analysis.statistics.Correlations, rlib2 = |std:///analysis/statistics/CorrelationsCompiled.class|
+resolveLibOverriding org.rascalmpl.library.analysis.statistics.Correlations => org.rascalmpl.library.analysis.statistics.Correlations
+mu2rvm: Compiling module analysis::statistics::Correlation
+Compiling |std:///analysis/statistics/Correlation.rsc|: check: 7, compile: 17, total: 24 ms
+compile: Writing RVMModule |compressed+home:///bin-console/analysis/statistics/Correlation.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>covariance([<1,12>,<3,12>,<3,11>,<5,7>]);
 real: -2.5

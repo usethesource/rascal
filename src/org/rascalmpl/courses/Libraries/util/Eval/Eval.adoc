@@ -78,6 +78,15 @@ An optional `duration` argument may be present to limit the time
 [source,rascal-shell]
 ----
 rascal>import util::Eval;
+rascal2rvm: Parsing and checking |std:///util/Eval.rsc|
+rascal2rvm: Compiling |std:///util/Eval.rsc|
+r2mu: entering ... util::Eval
+rlib1 = util.Eval, rlib2 = |std:///util/EvalCompiled.class|
+resolveLibOverriding org.rascalmpl.library.util.Eval => org.rascalmpl.library.util.Eval
+mu2rvm: Compiling module util::Eval
+Compiling |std:///util/Eval.rsc|: check: 12, compile: 330, total: 342 ms
+compile: Writing RVMModule |compressed+home:///bin-console/util/Eval.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>eval("2 * 3;");
 java.lang.NullPointerException
@@ -100,15 +109,15 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMJVM.executeRVMProgram(RVMJVM.java:92)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools.executeProgram(ExecutionTools.java:153)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools.executeProgram(ExecutionTools.java:99)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.executeModule(CommandExecutor.java:232)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalStatement(CommandExecutor.java:388)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:287)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:273)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.executeModule(CommandExecutor.java:235)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalStatement(CommandExecutor.java:391)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:290)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:276)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:61)
 	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:221)
 	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:114)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:75)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:109)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:71)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:117)
 ok
 rascal>eval(["X = 2 * 3;", "X + 5;"]);
 java.lang.NullPointerException
@@ -131,15 +140,15 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMJVM.executeRVMProgram(RVMJVM.java:92)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools.executeProgram(ExecutionTools.java:153)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools.executeProgram(ExecutionTools.java:99)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.executeModule(CommandExecutor.java:232)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalStatement(CommandExecutor.java:388)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:287)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:273)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.executeModule(CommandExecutor.java:235)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalStatement(CommandExecutor.java:391)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:290)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:276)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:61)
 	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:221)
 	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:114)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:75)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:109)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:71)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:117)
 ok
 ----
 
@@ -184,15 +193,15 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMJVM.executeRVMProgram(RVMJVM.java:92)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools.executeProgram(ExecutionTools.java:153)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools.executeProgram(ExecutionTools.java:99)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.executeModule(CommandExecutor.java:232)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalStatement(CommandExecutor.java:388)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:287)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:273)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.executeModule(CommandExecutor.java:235)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalStatement(CommandExecutor.java:391)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:290)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:276)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:61)
 	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:221)
 	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:114)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:75)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:109)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:71)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:117)
 ok
 rascal>evalType("[1, 2, 3];");
 java.lang.NullPointerException
@@ -212,15 +221,15 @@ java.lang.NullPointerException
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMJVM.executeRVMProgram(RVMJVM.java:92)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools.executeProgram(ExecutionTools.java:153)
 	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools.executeProgram(ExecutionTools.java:99)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.executeModule(CommandExecutor.java:232)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalStatement(CommandExecutor.java:388)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:287)
-	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:273)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.executeModule(CommandExecutor.java:235)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalStatement(CommandExecutor.java:391)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.eval(CommandExecutor.java:290)
+	at org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor.evalPrint(CommandExecutor.java:276)
 	at org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor.evalPrint(RascalCommandExecutor.java:61)
 	at org.rascalmpl.library.experiments.tutor3.Concept.preprocess(Concept.java:221)
 	at org.rascalmpl.library.experiments.tutor3.Onthology.<init>(Onthology.java:114)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:75)
-	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:109)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.compileCourse(CourseCompiler.java:71)
+	at org.rascalmpl.library.experiments.tutor3.CourseCompiler.main(CourseCompiler.java:117)
 ok
 ----
 

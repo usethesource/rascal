@@ -54,6 +54,13 @@ Let's see how this works out on actual data:
 [source,rascal-shell]
 ----
 rascal>import demo::common::StringTemplate;
+rascal2rvm: Parsing and checking |std:///demo/common/StringTemplate.rsc|
+rascal2rvm: Compiling |std:///demo/common/StringTemplate.rsc|
+r2mu: entering ... demo::common::StringTemplate
+mu2rvm: Compiling module demo::common::StringTemplate
+Compiling |std:///demo/common/StringTemplate.rsc|: check: 21, compile: 871, total: 892 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/common/StringTemplate.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>import IO;
 ok

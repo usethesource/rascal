@@ -48,6 +48,19 @@ Let's now do some experiments using the <<Jabberwocky>> poem by Lewis Carrol as 
 [source,rascal-shell]
 ----
 rascal>import demo::common::WordCount::WordCount;
+rascal2rvm: Parsing and checking |std:///demo/common/WordCount/WordCount.rsc|
+rascal2rvm: Compiling |std:///demo/common/WordCount/WordCount.rsc|
+r2mu: entering ... demo::common::WordCount::WordCount
+mu2rvm: Compiling module demo::common::WordCount::WordCount
+Compiling |std:///demo/common/WordCount/WordCount.rsc|: check: 18, compile: 62, total: 80 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/common/WordCount/WordCount.rvm.gz|
+rascal2rvm: Parsing and checking |std:///demo/common/WordCount/Jabberwocky.rsc|
+rascal2rvm: Compiling |std:///demo/common/WordCount/Jabberwocky.rsc|
+r2mu: entering ... demo::common::WordCount::Jabberwocky
+mu2rvm: Compiling module demo::common::WordCount::Jabberwocky
+Compiling |std:///demo/common/WordCount/Jabberwocky.rsc|: check: 7, compile: 11, total: 18 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/common/WordCount/Jabberwocky.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>import demo::common::WordCount::CountInLine1;
 ok

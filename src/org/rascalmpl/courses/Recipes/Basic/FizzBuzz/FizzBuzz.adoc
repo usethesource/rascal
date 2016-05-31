@@ -34,6 +34,13 @@ include::{LibDir}demo/basic/FizzBuzz.rsc[tags=module]
 [source,rascal-shell]
 ----
 rascal>import demo::basic::FizzBuzz;
+rascal2rvm: Parsing and checking |std:///demo/basic/FizzBuzz.rsc|
+rascal2rvm: Compiling |std:///demo/basic/FizzBuzz.rsc|
+r2mu: entering ... demo::basic::FizzBuzz
+mu2rvm: Compiling module demo::basic::FizzBuzz
+Compiling |std:///demo/basic/FizzBuzz.rsc|: check: 12, compile: 553, total: 565 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/basic/FizzBuzz.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>fizzbuzz();
 1

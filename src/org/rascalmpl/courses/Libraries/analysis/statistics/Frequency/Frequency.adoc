@@ -34,6 +34,15 @@ Compute a distribution: count how many times events are mapped to which bucket.
 [source,rascal-shell]
 ----
 rascal>import analysis::statistics::Frequency;
+rascal2rvm: Parsing and checking |std:///analysis/statistics/Frequency.rsc|
+rascal2rvm: Compiling |std:///analysis/statistics/Frequency.rsc|
+r2mu: entering ... analysis::statistics::Frequency
+rlib1 = analysis.statistics.Frequencies, rlib2 = |std:///analysis/statistics/FrequenciesCompiled.class|
+resolveLibOverriding org.rascalmpl.library.analysis.statistics.Frequencies => org.rascalmpl.library.analysis.statistics.Frequencies
+mu2rvm: Compiling module analysis::statistics::Frequency
+Compiling |std:///analysis/statistics/Frequency.rsc|: check: 19, compile: 319, total: 338 ms
+compile: Writing RVMModule |compressed+home:///bin-console/analysis/statistics/Frequency.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>distribution({<"chicken","animal">,<"bear","animal">,<"oak","plant">,<"tulip","plant">});
 map[str, int]: ("plant":2,"animal":2)

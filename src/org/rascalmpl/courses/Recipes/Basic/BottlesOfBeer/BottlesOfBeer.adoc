@@ -39,6 +39,13 @@ Here is the result:
 [source,rascal-shell]
 ----
 rascal>import demo::basic::Bottles;
+rascal2rvm: Parsing and checking |std:///demo/basic/Bottles.rsc|
+rascal2rvm: Compiling |std:///demo/basic/Bottles.rsc|
+r2mu: entering ... demo::basic::Bottles
+mu2rvm: Compiling module demo::basic::Bottles
+Compiling |std:///demo/basic/Bottles.rsc|: check: 7, compile: 51, total: 58 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/basic/Bottles.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>sing();
 99 bottles of beer on the wall, 99 bottles of beer.

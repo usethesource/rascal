@@ -36,6 +36,13 @@ Here are some examples:
 [source,rascal-shell]
 ----
 rascal>import demo::common::WordReplacement;
+rascal2rvm: Parsing and checking |std:///demo/common/WordReplacement.rsc|
+rascal2rvm: Compiling |std:///demo/common/WordReplacement.rsc|
+r2mu: entering ... demo::common::WordReplacement
+mu2rvm: Compiling module demo::common::WordReplacement
+Compiling |std:///demo/common/WordReplacement.rsc|: check: 13, compile: 905, total: 918 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/common/WordReplacement.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>capitalize("rascal");
 str: "Rascal"

@@ -43,6 +43,13 @@ We can now explore ColoredTrees:
 [source,rascal-shell]
 ----
 rascal>import demo::common::ColoredTrees;
+rascal2rvm: Parsing and checking |std:///demo/common/ColoredTrees.rsc|
+rascal2rvm: Compiling |std:///demo/common/ColoredTrees.rsc|
+r2mu: entering ... demo::common::ColoredTrees
+mu2rvm: Compiling module demo::common::ColoredTrees
+Compiling |std:///demo/common/ColoredTrees.rsc|: check: 9, compile: 1284, total: 1293 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/common/ColoredTrees.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>rb = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
 ColoredTree: red(

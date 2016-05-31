@@ -46,6 +46,13 @@ Let's differentiate the example expression `E`:
 [source,rascal-shell]
 ----
 rascal>import demo::common::Derivative;
+rascal2rvm: Parsing and checking |std:///demo/common/Derivative.rsc|
+rascal2rvm: Compiling |std:///demo/common/Derivative.rsc|
+r2mu: entering ... demo::common::Derivative
+mu2rvm: Compiling module demo::common::Derivative
+Compiling |std:///demo/common/Derivative.rsc|: check: 15, compile: 607, total: 622 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/common/Derivative.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>dd(E, var("x"));
 Exp: add(

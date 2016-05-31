@@ -55,6 +55,13 @@ Now you may parse and manipulate programs in the EXP language. Let's demonstrate
 [source,rascal-shell]
 ----
 rascal>import demo::lang::Exp::Concrete::WithLayout::Syntax;
+rascal2rvm: Parsing and checking |std:///demo/lang/Exp/Concrete/WithLayout/Syntax.rsc|
+rascal2rvm: Compiling |std:///demo/lang/Exp/Concrete/WithLayout/Syntax.rsc|
+r2mu: entering ... demo::lang::Exp::Concrete::WithLayout::Syntax
+mu2rvm: Compiling module demo::lang::Exp::Concrete::WithLayout::Syntax
+Compiling |std:///demo/lang/Exp/Concrete/WithLayout/Syntax.rsc|: check: 4, compile: 12, total: 16 ms
+compile: Writing RVMModule |compressed+home:///bin-console/demo/lang/Exp/Concrete/WithLayout/Syntax.rvm.gz|
+Removing |compressed+home:///bin-console/ConsoleInput_imports.rvm.gz|
 ok
 rascal>import ParseTree;
 ok
