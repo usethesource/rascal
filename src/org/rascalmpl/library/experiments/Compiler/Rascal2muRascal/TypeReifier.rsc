@@ -663,29 +663,11 @@ public Production \layouts(Production prod, set[Symbol] others) {
   }
 } 
 
-//private list[Symbol] intermix(list[Symbol] syms, Symbol l) {
-//  if (syms == []) 
-//    return syms;
-//  res = tail([l, regulars(s,l) | s <- syms]);
-//  //println("intermix(<syms>, <l>)\n=\> <res>");
-//  return res;
-//}
+// add layout symbols between every pair of symbols, but not when there is already a layout symbol:
+ list[Symbol] intermix([*Symbol y, Symbol a, Symbol b, *Symbol z], Symbol l, set[Symbol] others) = intermix([*y, regulars(a,l,others), l, regulars(b,l,others), *z], l, others)   
+    when Avoid := {*others,l}, a notin Avoid, b notin Avoid;
 
-list[Symbol] intermix(list[Symbol] syms, Symbol l, set[Symbol] others) {
-  if (syms == []) 
-    return syms;
-    
-  syms = [ sym is layouts ? sym : regulars(sym, l, others) | sym <- syms ];
-  others += {l};
-  
-  // Note that if a user manually put a layouts symbol, then this code makes sure not to override it and
-  // not to surround it with new layout symbols  
-  while ([*pre, sym1, sym2, *pst] := syms, !(sym1 in others || sym2 in others)) {
-      syms = [*pre, sym1, l, sym2, *pst];
-  }
-  
-  return syms;
-}
+ default list[Symbol] intermix(list[Symbol] syms, Symbol _, set[Symbol] _) = syms;
 
 private Symbol regulars(Symbol s, Symbol l, set[Symbol] others) {
   return visit(s) {
