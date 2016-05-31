@@ -687,7 +687,7 @@ public class CommandExecutor {
 				return report("Unrecognized option : " + name);
 			}
 	
-		case "help":
+		case "help": case "apropos":
 			helpManager.printHelp(words);
 			break;
 			

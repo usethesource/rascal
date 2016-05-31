@@ -48,7 +48,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 	  	  // Rascal declarations captured by RascalShell
 	  	  //"import",
 		  // General commands
-		  "help", "set", "declarations", "modules", "unimport", "undeclare", "quit",
+		  "help", "apropos", "set", "declarations", "modules", "unimport", "undeclare", "quit",
 		  // Debugging commands
 		  "break", "enable", "disable", "clear", "ignore"
 	  	};
