@@ -217,7 +217,7 @@ public class CommandExecutor {
 			if(noErrors(modString, rvmConsoleExecutable)){
 				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, stdout, stderr)
 						.forModule(shellModuleName)
-						.withModuleTags(moduleTags)
+						.withModuleTags(rvmConsoleExecutable.getModuleTags())
 						.withModuleVariables(moduleVariables)
 						.setDebug(debug)
 						.setDebugRVM(debugRVM)
