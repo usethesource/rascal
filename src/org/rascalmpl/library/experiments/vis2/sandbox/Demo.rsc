@@ -669,14 +669,14 @@ public list[list[Figure]] figures() =
              [demo1(), demo2()]
              ,[demo3() , demo4()]
              ,[demo5(), demo6()]
-             ,[demo7(), demo8()]
+             , [demo7(), demo8()]
              ,[demo9(), demo10()]          
              ,[demo15(), demo13()]
              ,[demo14(),demo11()]
              ,[demo16(), demo17()]
              ,[demo18(), demo19()]
-             ,[tetris(), box(fig=shrink(false), size=<400, 400>)]
-             ,[decision(), triangle()]
+            ,[tetris(), box(fig=shrink(false), size=<400, 400>)]
+            ,[decision(), triangle()]
             ];
             
 Figure demoFig() = grid(vgap=4, figArray=figures());
@@ -691,7 +691,7 @@ void fdemo(loc l) {
       }
       
  Figure sb(Figure tt) {return box(size=<20, 20>, fillColor = "antiquewhite", 
-     tooltip = frame(at(30, 30, box(fig=tt, fillColor="whitesmoke", lineWidth =1)))
+     tooltip = frame(at(30, 30, box(fig=tt, fillColor="whitesmoke", visible="hidden", lineWidth =1)))
  );}
  
  list[Figure] sb(list[Figure] tt) {return  mapper(tt, sb);}

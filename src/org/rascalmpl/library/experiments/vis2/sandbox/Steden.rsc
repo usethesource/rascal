@@ -11,7 +11,7 @@ module experiments::vis2::sandbox::Steden
 import Prelude;
 import lang::csv::IO;
 import experiments::vis2::sandbox::Figure;
-
+import experiments::vis2::sandbox::FigureServer;
 
 loc location = |project://rascal/src/org/rascalmpl/library/experiments/vis2/data/Steden.csv|;
 
@@ -44,6 +44,9 @@ public Figure steden(int width = 400, int height = 400) {
             println("comboChart <f.width> <f.height>");
              // f.width = width; f.height = height;
              return f;          
+   }
+   
+   public void tsteden() {render(box(size=<50, 50>, fillColor="yellow", tooltip=frame(at(25, 25, box(lineWidth = 1, fig=steden())))));          
    }
    
    

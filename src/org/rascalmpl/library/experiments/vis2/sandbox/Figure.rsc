@@ -65,7 +65,6 @@ data Event
 	= on(StrCallBack strCallBack)
 	| on(RealCallBack realCallBack)
 	| on(IntCallBack intCallBack)
-	| on(str eventName, Figure figure)
 	| on(str eventName, StrCallBack strCallBack)
 	| on(str eventName, RealCallBack realCallBack) 
 	| on(str eventName, IntCallBack intCallBack)
@@ -117,7 +116,9 @@ alias Vertices = list[Vertex];
 
 alias Points = lrel[num x, num y];
 
-alias FormEntry = tuple[str id, type[&T] tp, str fieldName, list[tuple[bool(value v) cond, str emsg]] constraints];
+alias Constraint = tuple[bool(value v) cond, str emsg];
+
+alias FormEntry = tuple[str id, value startValue, str fieldName, list[Constraint] constraints];
 
 public alias Figures = list[Figure];
 
@@ -222,7 +223,10 @@ public data Figure(
 		Event event = noEvent(),
 		
 		// Tooltip
-		value tooltip = ""
+		value tooltip = "",
+		
+		// Panel
+		Figure panel = emptyFigure()
 	) =
 	
 	emptyFigure(int seq = 0)
@@ -626,8 +630,9 @@ public Figure plot(Points xy, Rescale x, Rescale y, bool shapeCurved = true
       width = width, height = height, fillEvenOdd = fillEvenOdd);
       }
 
-public Figure frame(Figure f, num shrink=1.0, num grow=1.0, str id = "") {
-      return box(lineWidth=0, fillColor="none", fig = f, shrink= shrink, grow = grow, id = id);
+public Figure frame(Figure f, num shrink=1.0, num grow=1.0, str id = "", str visibility="visible") {
+      return box(lineWidth=0, fillColor="none", fig = f, shrink= shrink, grow = grow, id = false?"<newId()>_frame":id
+      , visibility = visibility);
       }
       
 public Figure circleSegment(num cx = 100, num cy =100, num r =50, num startAngle = 0, num endAngle =60,
