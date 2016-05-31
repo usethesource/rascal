@@ -109,15 +109,15 @@ public class CourseCompiler {
 			coursesDir = coursesDir + "/";
 		}
 
-//		compileCourse("ADocTest");
+//		compileCourse(coursesDir, "ADocTest");
 		compileCourse(coursesDir, "CompareWithOtherParadigms");
-//		compileCourse(coursesDir, "EASY");
-//		compileCourse(coursesDir, "Errors");
-//		compileCourse(coursesDir, "Rascal");
-//		compileCourse(coursesDir, "Libraries");
-//		compileCourse(coursesDir, "Rascalopedia");
-//		compileCourse(coursesDir, "Recipes");
-//		compileCourse(coursesDir, "SolutionStrategies");
-//		compileCourse(coursesDir, "TutorWebSite");
+		compileCourse(coursesDir, "EASY");
+		compileCourse(coursesDir, "Errors");
+		compileCourse(coursesDir, "Rascal");
+		compileCourse(coursesDir, "Libraries");
+		compileCourse(coursesDir, "Rascalopedia");
+		compileCourse(coursesDir, "Recipes");
+		compileCourse(coursesDir, "SolutionStrategies");
+		compileCourse(coursesDir, "TutorWebSite");
 	}
 }
