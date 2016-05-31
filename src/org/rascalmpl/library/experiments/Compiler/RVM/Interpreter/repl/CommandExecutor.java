@@ -143,8 +143,6 @@ public class CommandExecutor {
 		declarations = new ArrayList<>();
 		moduleVariables = new HashMap<>();
 		
-		System.getProperty("rascal.courses");
-		
 		helpManager = new HelpManager(stdout, stderr);
 		
 		indentedPrettyPrinter = new StandardTextWriter(true);
