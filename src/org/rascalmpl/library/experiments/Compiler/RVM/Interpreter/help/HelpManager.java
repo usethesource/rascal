@@ -78,7 +78,7 @@ public class HelpManager {
 		String[] parts = conceptName.split("/");
 		int n = parts.length;
 		String course = parts[0];
-		w.append(coursesDir).append(course).append("/").append(course).append(".html")
+		w.append("file://").append(coursesDir).append(course).append("/").append(course).append(".html")
 		 .append("#").append(parts[n - (n > 1 ? 2 : 1)]).append("-").append(parts[n-1]);
 	}
 	
@@ -89,7 +89,7 @@ public class HelpManager {
 	}
 	
 	void appendHyperlink(StringWriter w, String conceptName){
-		w.append("<a href=\"file://");
+		w.append("<a href=\"");
 		appendURL(w, conceptName);
 		w.append("\">").append(conceptName).append("</a>");
 	}
