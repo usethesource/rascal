@@ -47,17 +47,17 @@ Here we measure time by using separate calls to `cpuTime` before and after a cal
 [source,rascal-shell]
 ----
 rascal>before = cpuTime();
-int: 288140428000
+int: 331733204000
 rascal>fac(50);
 int: 30414093201713378043612608166064768844377641568960512000000000000
 rascal>cpuTime() - before;
-int: 180910000
+int: 160107000
 ----
 The code to be measured can also be passed as a function parameter to `cpuTime`:
 [source,rascal-shell]
 ----
 rascal>cpuTime( void() { fac(50); } );
-int: 213000
+int: 206000
 ----
 These two timings for the same task may differ significantly due to the way these statements are executed here in the tutor.
 
@@ -90,17 +90,17 @@ Here we measure time by using separate calls to `sytemTime` before and after a c
 [source,rascal-shell]
 ----
 rascal>before = systemTime();
-int: 4063738000
+int: 5865047000
 rascal>fac(50);
 int: 30414093201713378043612608166064768844377641568960512000000000000
 rascal>systemTime() - before;
-int: 5155000
+int: 9092000
 ----
 The code to be measured can also be passed as a function parameter to `systemTime`:
 [source,rascal-shell]
 ----
 rascal>systemTime( void() { fac(50); } );
-int: 9000
+int: 37000
 ----
 
 [[Benchmark-userTime]]
@@ -133,17 +133,17 @@ Here we measure time by using separate calls to `userTime` before and after a ca
 [source,rascal-shell]
 ----
 rascal>before = userTime();
-int: 286102530000
+int: 326907307000
 rascal>fac(50);
 int: 30414093201713378043612608166064768844377641568960512000000000000
 rascal>userTime() - before;
-int: 120209000
+int: 1209001000
 ----
 The code to be measured can also be passed as a function parameter to `userTime`:
 [source,rascal-shell]
 ----
 rascal>userTime( void() { fac(50); } );
-int: 308000
+int: 195000
 ----
 
 [[Benchmark-realTime]]
@@ -196,13 +196,13 @@ We measure two calls to the factorial function with arguments `100`, respectivel
 [source,rascal-shell]
 ----
 rascal>benchmark( ("fac100" : void() {fac(100);}, "fac200" : void() {fac(200);}) );
-map[str, int]: ("fac100":1464644971032,"fac200":1464644971032)
+map[str, int]: ("fac100":1464696826521,"fac200":1464696826521)
 ----
 We can do the same using <<userTime>> that returns nanoseconds:
 [source,rascal-shell]
 ----
 rascal>benchmark( ("fac100" : void() {fac(100);}, "fac200" : void() {fac(200);}), userTime );
-map[str, int]: ("fac100":287538943000,"fac200":287538978000)
+map[str, int]: ("fac100":328479733000,"fac200":328479766000)
 ----
 
 [[Benchmark-getNanoTime]]
