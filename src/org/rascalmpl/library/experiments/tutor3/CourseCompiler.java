@@ -10,18 +10,15 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 
+/**
+ * CourseCompiler compiles all courses to HTML in the following steps:
+ * - 
+ *
+ */
 public class CourseCompiler {
-	
-	
-	static String courseName;
-	static Path courseSrcDir;
-	static Path courseDestDir;
-	static String theme = "flask";
-	//static String theme = "volnitsky";
-	
+	private static final String ASCIIDOCTER = "/usr/local/bin/asciidoctor";
 	
 	static void writeFile(String path, String content) throws IOException {
 		FileWriter fout = new FileWriter(path);
@@ -29,17 +26,18 @@ public class CourseCompiler {
 		fout.close();
 	}
 	
-	static void asciiDoctorConvert(String name, PrintWriter err) throws IOException{
+	static void runAsciiDocter(String coursesDir, String courseName, PrintWriter err) throws IOException {
+		Path courseSrcDir = Paths.get(coursesDir + courseName + "/");
 		Process p = Runtime.getRuntime().exec(
-			"/usr/local/bin/asciidoctor "
+			ASCIIDOCTER + " "
 			+ "-n "										// numbered sections
 			+ "-v "										// verbose
-			+ "-a toc-title=" + name + " "			// table of contents
+			+ "-a toc-title=" + courseName + " "		// table of contents
 			+ "-a toc=left "							
 		    //+ "-a toclevels=2 "
 			+ "-D / "									// destination directory
-		    + "-B " + courseSrcDir + " " 				// base directory
-			+ courseSrcDir + "/" + courseName + ".adoc" // the adoc source file
+		    + "-B " + courseSrcDir + " " 					// base directory
+			+ courseSrcDir + "/" + courseName + ".adoc"	// the adoc source file
 			);
 		BufferedReader input = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 
@@ -53,35 +51,27 @@ public class CourseCompiler {
 
 		try {
 			int exitVal = p.waitFor();
-			System.err.println("asciidoctor exits with error code " + exitVal);
+			if(exitVal != 0){
+				System.err.println("asciidoctor exits with error code " + exitVal);
+			}
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	public static void compileCourse(String name) throws IOException, NoSuchRascalFunction, URISyntaxException {
-		courseName = name;
-		courseSrcDir = Paths.get("/Users/paulklint/git/rascal/src/org/rascalmpl/courses/" + courseName + "/");
-		courseDestDir = Paths.get("/Users/paulklint/git/rascal/src/org/rascalmpl/courses/");
+	public static void compileCourse(String coursesDir, String courseName) throws IOException, NoSuchRascalFunction, URISyntaxException {
+		Path srcDir = Paths.get(coursesDir + courseName + "/");
+		Path destDir = Paths.get(coursesDir);
 
 		StringWriter sw = new StringWriter();
 		PrintWriter err = new PrintWriter(sw);
 		
 		err.println("# Errors in Course " + courseName);
 		
-		long start = Timing.getCpuTime();
-		
-		Onthology onthology = new Onthology(courseSrcDir, courseDestDir, err);
-		
-		long ontComplete = Timing.getCpuTime();
-		
+		new Onthology(srcDir, destDir, err);
 		
 		try {
-			asciiDoctorConvert(name, err);
-			long asciiComplete = Timing.getCpuTime();
-			System.out.println("Onthology + preprocessing: " + (ontComplete - start)/1000000000 + "sec");
-			System.out.println("asciidoctor: " + (asciiComplete - ontComplete)/1000000000 + "sec");
+			runAsciiDocter(coursesDir, courseName, err);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -89,8 +79,8 @@ public class CourseCompiler {
 	
 		try {
 			err.flush();
-			System.err.println("\n------err:\n" + sw.toString());
-			writeFile(courseDestDir + "/" + courseName + "/" + "errors.adoc", sw.toString());
+//			System.err.println("\n------err:\n" + sw.toString());
+			writeFile(destDir + "/" + courseName + "/" + "errors.adoc", sw.toString());
 //			String toc = onthology.getSubToc(courseName, 0, true);
 //			System.err.println(toc);
 //			writeFile(courseDestDir + "/" + courseName + "/" + "toc.adoc", toc);
@@ -100,17 +90,34 @@ public class CourseCompiler {
 		}
 	}
 	
+	/**
+	 * CourseCompiler: compile all courses to HTML
+	 * 
+	 * @param args	a single element string array that contains the path to the courses directory
+	 * @throws IOException
+	 * @throws NoSuchRascalFunction
+	 * @throws URISyntaxException
+	 */
 	public static void main(String[] args) throws IOException, NoSuchRascalFunction, URISyntaxException {
+
+		if(args.length != 1){
+			System.err.println("CourseCompiler needs a courses directory as argument");
+			System.exit(1);
+		}
+		String coursesDir = args[0];
+		if(!coursesDir.endsWith("/")){
+			coursesDir = coursesDir + "/";
+		}
+
 //		compileCourse("ADocTest");
-		compileCourse("CompareWithOtherParadigms");
-		compileCourse("EASY");
-		compileCourse("Errors");
-		compileCourse("Rascal");
-		compileCourse("Libraries");
-		compileCourse("Rascalopedia");
-		compileCourse("Recipes");
-		compileCourse("SolutionStrategies");
-		compileCourse("TutorWebSite");
-		
+		compileCourse(coursesDir, "CompareWithOtherParadigms");
+//		compileCourse(coursesDir, "EASY");
+//		compileCourse(coursesDir, "Errors");
+//		compileCourse(coursesDir, "Rascal");
+//		compileCourse(coursesDir, "Libraries");
+//		compileCourse(coursesDir, "Rascalopedia");
+//		compileCourse(coursesDir, "Recipes");
+//		compileCourse(coursesDir, "SolutionStrategies");
+//		compileCourse(coursesDir, "TutorWebSite");
 	}
 }
