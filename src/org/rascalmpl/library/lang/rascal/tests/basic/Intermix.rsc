@@ -11,3 +11,5 @@ test bool simpler() {
    println(l);
    return l == [1,0,1,0,1];
 }
+
+test bool iterOnly() = [ a,0 | [*pre,a,b,*pst] := [1,2,3]] == [1,0,2,0];
