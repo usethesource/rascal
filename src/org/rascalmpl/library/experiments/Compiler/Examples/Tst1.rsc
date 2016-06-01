@@ -1,9 +1,22 @@
 module experiments::Compiler::Examples::Tst1
 
-import ParseTree;
-
-test bool main(){
-    Tree pt = parse(#C, "axaaa");
-    rprintln(pt);
-    return c(A a, As as) := pt;
-}
+test bool exceptionHandlingFinally4(){
+        str n = "0";
+        // No exceptions and no returns
+        try {
+            try {
+                n = " 2";
+            } 
+            catch: {
+                n = " 3";
+            } 
+            finally {
+                n = " 6";
+            }
+        } 
+        catch "0": {  
+            ;
+        } 
+       
+        return n == "0 2 6";
+}   
