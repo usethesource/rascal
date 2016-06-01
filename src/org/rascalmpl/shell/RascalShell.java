@@ -65,12 +65,8 @@ public class RascalShell  {
                 if (args[0].equals("--rascalc")) {
                     runner = new ShellRunner() {
                         @Override
-                        public void run(String[] args) throws IOException {
-                            try {
-                                RascalC.main(Arrays.copyOfRange(args, 1, args.length));
-                            } catch (NoSuchRascalFunction | URISyntaxException e) {
-                                throw new RuntimeException(e);
-                            }
+                        public void run(String[] args) {
+                            RascalC.main(Arrays.copyOfRange(args, 1, args.length));
                         }
                     };
                 }
