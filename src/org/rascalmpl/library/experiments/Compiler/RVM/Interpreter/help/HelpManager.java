@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -61,10 +62,9 @@ public class HelpManager {
 	{
 		URI uri = null;
 		try {
-			uri = new URL(url).toURI();
+			//uri = new URL(url).toURI();
+			uri = new URI(url);
 		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
 		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
@@ -72,7 +72,7 @@ public class HelpManager {
 			try {
 				desktop.browse(uri);
 			} catch (IOException e) {
-				stderr.println("Cannout open in browser: " + url);
+				stderr.println(e.getMessage());
 			}
 		} else {
 			stderr.println("Desktop not supported, cannout open browser automatically for: " + url);
@@ -189,7 +189,7 @@ public class HelpManager {
 			fout.write(w.toString());
 			fout.close();
 			openInBrowser("file://" + searchResultFile);
-			//openInBrowser("data:text/html," + w.toString());
+			//openInBrowser("data:text/html;charset=utf-8," + "Hoi"); //URLEncoder.encode("Hoi")); //URLEncoder.encode(w.toString(), "ISO-8859-1"));
 		}
 	}
 	
