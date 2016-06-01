@@ -20,30 +20,29 @@ public class BootstrapRascalParser {
 	 * @throws IOException 
 	 * @throws URISyntaxException 
 	 */
-	public static void main(String[] args) throws IOException, NoSuchRascalFunction, URISyntaxException {
-		
-		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-		CommandOptions cmdOpts = new CommandOptions("generateParser");
-		cmdOpts
-			.pathOption("srcPath")		.pathDefault(cmdOpts.getDefaultStdPath().isEmpty() ? vf.list(cmdOpts.getDefaultStdPath()) : cmdOpts.getDefaultStdPath())
-										.respectNoDefaults()
-										.help("Add (absolute!) source path, use multiple --srcPaths for multiple paths")
-			.locOption("bootDir")		.locDefault(cmdOpts.getDefaultBootLocation())
-										.help("Rascal boot directory")
-			.noModuleArgument()
-			.handleArgs(args);
-		
-		RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory())
-				.customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
-				.setTrace(cmdOpts.getCommandBoolOption("trace"))
-                .setProfile(cmdOpts.getCommandBoolOption("profile"))
-                .build();
-		
-		Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("bootDir"));
-		
-		try {
-		    kernel.bootstrapRascalParser(cmdOpts.getCommandPathOption("srcPath"));
-		}
+	public static void main(String[] args) {
+	    try {
+	        IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	        CommandOptions cmdOpts = new CommandOptions("generateParser");
+	        cmdOpts
+	        .pathOption("srcPath")		.pathDefault(cmdOpts.getDefaultStdPath().isEmpty() ? vf.list(cmdOpts.getDefaultStdPath()) : cmdOpts.getDefaultStdPath())
+	        .respectNoDefaults()
+	        .help("Add (absolute!) source path, use multiple --srcPaths for multiple paths")
+	        .locOption("bootDir")		.locDefault(cmdOpts.getDefaultBootLocation())
+	        .help("Rascal boot directory")
+	        .noModuleArgument()
+	        .handleArgs(args);
+
+	        RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory())
+	                .customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
+	                .setTrace(cmdOpts.getCommandBoolOption("trace"))
+	                .setProfile(cmdOpts.getCommandBoolOption("profile"))
+	                .build();
+
+	        Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("bootDir"));
+
+	        kernel.bootstrapRascalParser(cmdOpts.getCommandPathOption("srcPath"));
+	    }
 		catch (Throwable e) {
 		    e.printStackTrace();
 		    System.exit(1);
