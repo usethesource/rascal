@@ -37,19 +37,24 @@ public class HelpManager {
 	private PrintWriter stderr;
 
 	public HelpManager(PrintWriter stdout, PrintWriter stderr){
+		this.stdout = stdout;
+		this.stderr = stderr;
+		
 		coursesDir = System.getProperty("rascal.courses");
-		if(coursesDir == null){
-			stderr.println("Please specify -Drascal.courses=<courses-directory>");
-			System.exit(1);
-		}
 		String tmpdir = System.getProperty("java.io.tmpdir");
 		if(tmpdir == null){
 			stderr.println("Cannot create temp name for search results");
 			System.exit(1);
 		}
 		searchResultFile =tmpdir + "/search-result.html";
-		this.stdout = stdout;
-		this.stderr = stderr;
+	}
+	
+	private boolean indexAvailable(){
+		if(coursesDir != null){
+			return true;
+		}
+		stderr.println("Please specify -Drascal.courses=<courses-directory> to use 'help' or 'apropos'");
+		return false;
 	}
 	
 	public void openInBrowser(String url)
@@ -78,7 +83,7 @@ public class HelpManager {
 		String[] parts = conceptName.split("/");
 		int n = parts.length;
 		String course = parts[0];
-		w.append("file://").append(coursesDir).append(course).append("/").append(course).append(".html")
+		w.append("file://").append(coursesDir).append("/").append(course).append("/").append(course).append(".html")
 		 .append("#").append(parts[n - (n > 1 ? 2 : 1)]).append("-").append(parts[n-1]);
 	}
 	
@@ -107,6 +112,10 @@ public class HelpManager {
 		
 		if(words.length <= 1){
 			IntroHelp.print(stdout);
+			return;
+		}
+		
+		if(!indexAvailable()){
 			return;
 		}
 
@@ -180,6 +189,7 @@ public class HelpManager {
 			fout.write(w.toString());
 			fout.close();
 			openInBrowser("file://" + searchResultFile);
+			//openInBrowser("data:text/html," + w.toString());
 		}
 	}
 	
