@@ -667,7 +667,11 @@ public Production \layouts(Production prod, set[Symbol] others) {
  list[Symbol] intermix([*Symbol y, Symbol a, Symbol b, *Symbol z], Symbol l, set[Symbol] others) = intermix([*y, regulars(a,l,others), l, regulars(b,l,others), *z], l, others)   
     when Avoid := {*others,l}, a notin Avoid, b notin Avoid;
 
- default list[Symbol] intermix(list[Symbol] syms, Symbol _, set[Symbol] _) = syms;
+// for singletons its only important to mix layout in nested regulars as well:
+list[Symbol] intermix([Symbol a], l, set[Symbol] others) = [regulars(a, l, others)];
+
+// when the first rule is done (which is recursive), this one yields the result:
+default list[Symbol] intermix(list[Symbol] syms, Symbol _, set[Symbol] _) = syms;
 
 private Symbol regulars(Symbol s, Symbol l, set[Symbol] others) {
   return visit(s) {
