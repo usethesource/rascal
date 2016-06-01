@@ -8,7 +8,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutio
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
 import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -59,7 +58,6 @@ public class RascalTests {
 				.customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
 				.setTrace(cmdOpts.getCommandBoolOption("trace"))
 				.setProfile(cmdOpts.getCommandBoolOption("profile"))
-				//.setJVM(cmdOpts.getCommandBoolOption("jvm"))
 				.forModule(cmdOpts.getRascalModule().getValue())
 				.build();
 

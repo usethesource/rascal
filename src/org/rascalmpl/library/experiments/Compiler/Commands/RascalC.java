@@ -8,10 +8,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFu
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -69,8 +67,7 @@ public class RascalC {
                 .forModule(cmdOpts.getRascalModule().getValue())
                 .build();
 		
-		ISourceLocation binaryKernelLoc = URIUtil.getChildLocation(cmdOpts.getCommandLocOption("bootDir"),"lang/rascal/boot/Kernel.rvm.ser.gz");
-        Kernel kernel = new Kernel(vf, rex, URIUtil.changeScheme(binaryKernelLoc, "compressed+" + binaryKernelLoc.getScheme()));
+        Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("bootDir"));
 		
         if (cmdOpts.getCommandBoolOption("noLinking")) {
             IConstructor program = kernel.compile(
