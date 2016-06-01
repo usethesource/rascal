@@ -8,16 +8,13 @@ module lang::rascal::boot::Kernel
  * is all that is needed for a full bootstrap of Rascal.
  *
  * An up-to-date, compiled version of the Kernel should always reside in the /boot directory 
- * of the Rascal project
+ * of the Rascal project.
  */
  
- /*
-  * TODO: This module should consist of just 3 extends, however that is currently broken in the compiler
-  */
-
 extend experiments::Compiler::Compile;
 extend experiments::Compiler::Execute;
 extend experiments::Compiler::CompileMuLibrary;
+extend lang::rascal::grammar::Bootstrap;
 
 //import util::Reflective;
 //import experiments::Compiler::RVM::AST;
