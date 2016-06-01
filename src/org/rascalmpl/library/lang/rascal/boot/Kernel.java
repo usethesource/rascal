@@ -26,6 +26,7 @@ public class Kernel {
 	private OverloadedFunction compileAndLink;
 	private OverloadedFunction compileAndMergeIncremental;
 	private OverloadedFunction compileMuLibrary;
+	private OverloadedFunction bootstrapRascalParser;
 	private OverloadedFunction rascalTests;
 	
 	private final RVMCore rvm;
@@ -48,15 +49,11 @@ public class Kernel {
 		this.rvm = ExecutionTools.initializedRVM(binaryKernelLoc, rex);
 
 		compile    		= rvm.getOverloadedFunction("RVMModule compile(str qname, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
-		try {
-		    compileMuLibrary= rvm.getOverloadedFunction("void compileMuLibrary(list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
-		} catch (NoSuchRascalFunction e) {
-		    // temporarily allowed
-		}
+		compileMuLibrary= rvm.getOverloadedFunction("void compileMuLibrary(list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
 		compileAndLink  = rvm.getOverloadedFunction("RVMProgram compileAndLink(str qname, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
-		compileAndMergeIncremental	
-		= rvm.getOverloadedFunction("RVMProgram compileAndMergeIncremental(str qname, bool reuseConfig)");
+		compileAndMergeIncremental = rvm.getOverloadedFunction("RVMProgram compileAndMergeIncremental(str qname, bool reuseConfig)");
 		rascalTests   	= rvm.getOverloadedFunction("value rascalTests(list[str] qnames, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
+//		bootstrapRascalParser = rvm.getOverloadedFunction("void bootstrapRascalParser(loc src)");
 	}
 	
 	/**
@@ -73,8 +70,26 @@ public class Kernel {
 	  return (IConstructor) rvm.executeRVMFunction(compile, new IValue[] { qname, srcPath, libPath, bootDir, binDir, kwArgs });
 	}
 	
+	/**
+	 * Used only in bootstrapping stages to recompile the MuLibrary with a new compiler.
+	 * 
+	 * @param srcPath
+	 * @param libPath
+	 * @param bootDir
+	 * @param binDir
+	 * @param kwArgs
+	 */
 	public void compileMuLibrary(IList srcPath, IList libPath, ISourceLocation bootDir, ISourceLocation binDir, IMap kwArgs) {
 	    rvm.executeRVMFunction(compileMuLibrary, new IValue[] { srcPath, libPath, bootDir, binDir, kwArgs });
+	}
+	
+	/**
+	 * Used only in bootstrapping stages to regenerate the parser for Rascal itself. Writes
+	 * in a source directory!
+	 * @param srcPath
+	 */
+	public void bootstrapRascalParser(IList srcPath) {
+	    rvm.executeRVMFunction(bootstrapRascalParser, new IValue[] { srcPath });
 	}
 	
 	/**
@@ -118,4 +133,6 @@ public class Kernel {
 	public IValue rascalTests(IList qnames, IList srcPath, IList libPath, ISourceLocation bootDir, ISourceLocation binDir, IMap kwArgs){
 		return rvm.executeRVMFunction(rascalTests, new IValue[] { qnames, srcPath, libPath, bootDir, binDir, kwArgs });
 	}
+
+  
 }
