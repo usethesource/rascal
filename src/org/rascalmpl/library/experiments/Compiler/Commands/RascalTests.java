@@ -62,15 +62,20 @@ public class RascalTests {
 				.build();
 
 		Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("bootDir"));
+		try {
+		    IBool success = (IBool) kernel.rascalTests(
+		            cmdOpts.getRascalModules(),
+		            cmdOpts.getCommandPathOption("srcPath"),
+		            cmdOpts.getCommandPathOption("libPath"),
+		            cmdOpts.getCommandLocOption("bootDir"),
+		            cmdOpts.getCommandLocOption("binDir"), 
+		            cmdOpts.getModuleOptionsAsIMap());
 
-		IBool success = (IBool) kernel.rascalTests(
-				cmdOpts.getRascalModules(),
-				cmdOpts.getCommandPathOption("srcPath"),
-				cmdOpts.getCommandPathOption("libPath"),
-				cmdOpts.getCommandLocOption("bootDir"),
-				cmdOpts.getCommandLocOption("binDir"), 
-				cmdOpts.getModuleOptionsAsIMap());
-		
-		System.exit(success.getValue() ? 0 : 1);
+		    System.exit(success.getValue() ? 0 : 1);
+		}
+		catch (Throwable e) {
+		    e.printStackTrace();
+		    System.exit(1);
+		}
 	}
 }
