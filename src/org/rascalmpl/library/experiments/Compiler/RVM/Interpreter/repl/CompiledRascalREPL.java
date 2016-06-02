@@ -31,7 +31,6 @@ import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.type.Type;
-import org.rascalmpl.values.uptr.ITree;
 
 import jline.Terminal;
 

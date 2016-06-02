@@ -229,7 +229,7 @@ public class CommandExecutor {
 						.setTrace(trace)
 						.setCoverage(coverage)
 						.setJVM(jvm)
-						.observedBy(debugObserver.getObserverWhenActiveBreakpoints())
+						.observedBy(debugObserver != null ? debugObserver.getObserverWhenActiveBreakpoints() : null)
 						.build();
 						
 				IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
