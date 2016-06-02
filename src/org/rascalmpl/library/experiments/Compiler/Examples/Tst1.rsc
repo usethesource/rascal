@@ -1,12 +1,17 @@
 module experiments::Compiler::Examples::Tst1
 
-import ParseTree;
+import Set;
+import IO;
 
-layout Whitespace = [\ \t\n]*;
+value main() {
 
-start syntax D = "d";
-start syntax DS = D+;
-
-value parseDS() = parse(#DS, "d d d");// == */ (DS)`d d d`;
-
-value main() = parseDS();
+    R = {<i, j> | i <- [0..100], j <- [10..100] /*, k <- [100..200]*/ };
+    
+    println("<size(R)> elements");
+    
+    for(m <-[ 1 .. 400]){
+        for(n <- [0 .. 100]){
+            R[{1,2}];
+        }
+    }
+}
