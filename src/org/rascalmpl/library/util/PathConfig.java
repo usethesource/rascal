@@ -58,6 +58,14 @@ public class PathConfig {
 		makeRascalSearchPath();
 	}
 	
+	public PathConfig(IList srcPath, IList libPath, ISourceLocation binDir, ISourceLocation bootDir){
+        this.srcPath = convertPath(srcPath);
+        this.libPath = convertPath(libPath);
+        this.binDir = binDir;
+        this.bootDir = bootDir;
+        makeRascalSearchPath();
+    }
+	
 	List<ISourceLocation> convertPath(IList path){
 		List<ISourceLocation> result = new ArrayList<>();
 		for(IValue p : path){
@@ -70,24 +78,34 @@ public class PathConfig {
 		return result;
 	}
 	
-	public PathConfig(IList srcPath, IList libPath, ISourceLocation binDir, ISourceLocation bootDir){
-		this.srcPath = convertPath(srcPath);
-		this.libPath = convertPath(libPath);
-		this.binDir = binDir;
-		this.bootDir = bootDir;
-		makeRascalSearchPath();
-	}
-	
 	String makeFileName(String qualifiedModuleName) {
 		return makeFileName(qualifiedModuleName, "rsc");
 	}
 	
+	public IList getSourcePath() {
+	    return vf.list(srcPath.toArray(new IValue[0]));
+	}
+	
+	public IList getLibPath() {
+        return vf.list(libPath.toArray(new IValue[0]));
+    }
+	
+	public ISourceLocation getBootDir() {
+        return bootDir;
+    }
+	
+	public ISourceLocation getBinDir() {
+        return binDir;
+    }
+	
 	void makeRascalSearchPath(){
 		this.rascalSearchPath = new RascalSearchPath();
-		rascalSearchPath.addPathContributor(new PathContributor("srcPath", srcPath));
-//		rascalSearchPath.addPathContributor(URIUtil.rootLocation("test-modules"));
-//		rascalSearchPath.addPathContributor(StandardLibraryContributor.getInstance());
+		rascalSearchPath.addPathContributor(getSourcePathContributor());
 	}
+
+    public IRascalSearchPathContributor getSourcePathContributor() {
+        return new PathContributor("srcPath", srcPath);
+    }
 	
 	String makeFileName(String qualifiedModuleName, String extension) {
 		return qualifiedModuleName.replaceAll("::", "/") + "." + extension;
