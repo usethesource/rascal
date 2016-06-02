@@ -1622,6 +1622,7 @@ private MuExp translateSubscript(Expression e:(Expression) `<Expression exp> [ <
     ot = getOuterType(exp);
     op = "<ot>_subscript";
     list_of_subscripts = [ s | s <- subscripts ]; // redundant
+    nsubscripts = size(list_of_subscripts);
     if(ot in {"sort", "iter", "iter-star", "iter-seps", "iter-star-seps"}){
        op = "nonterminal_subscript_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
     } else
@@ -1634,6 +1635,14 @@ private MuExp translateSubscript(Expression e:(Expression) `<Expression exp> [ <
     if(ot == "lrel" && size(subscripts) == 1 && getOuterType(list_of_subscripts[0]) == "int"){
     	op = "list_subscript_int";
     }
+    if(op == "rel_subscript" && nsubscripts == 1 && "<list_of_subscripts[0]>" != "_"){
+        relType = getType(exp@\loc);
+        relElem0Type = relType.symbols[0];
+        subsType = getType(list_of_subscripts[0]@\loc);
+        op = "rel" + ((size(relType.symbols) == 2) ? "2" : "") + "_subscript1_"
+                   + ((Symbol::\set(elmType) := subsType && comparable(elmType, relElem0Type)) ? "set" : "noset");
+    }
+    
     if(isDefined){
     	op = "is_defined_<op>";
     	return muCallMuPrim("subscript_array_int", [ muCallPrim3(op, translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | s <- subscripts], e@\loc), muCon(0)]);
