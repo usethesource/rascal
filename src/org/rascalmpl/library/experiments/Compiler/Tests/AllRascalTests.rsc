@@ -282,9 +282,9 @@ lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg, bool jvm=
   return all_test_results;
 }
   
-value main(bool jvm=false) = allRascalTests(binDir=|home:///bin-tests-comp|, jvm=jvm);
+value main(bool jvm=true) = allRascalTests(binDir=|home:///bin-tests-comp|, jvm=jvm);
   
-value allRascalTests(loc binDir=|home:///bin-tests-intp|, bool jvm=false){
+value allRascalTests(loc binDir=|home:///bin-tests-intp|, bool jvm=true){
   
   println("Using binDir = <binDir>");
   timestamp = now();
