@@ -7967,9 +7967,129 @@ public enum RascalPrimitive {
 			return temp_array_of_2;
 		}
 	},
+	
+	/**
+	 * Subscript of a binary rel with a single subscript (no set and unequal to _)
+	 * 
+	 * [ ..., IRelation r, IValue idx1] => r[idx1] ]
+	 */
+	rel2_subscript1_noset {
+		@Override
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet rel = (ISet) arg_2;
+			if(rel.isEmpty()){
+				return rel;
+			}
+			
+			IValue index = (IValue) arg_1;
+			ISetWriter wset = vf.setWriter();
+
+			for (IValue v : rel) {
+				ITuple tup = (ITuple)v;
+
+				if(tup.get(0).isEqual(index)){
+					wset.insert(tup.get(1));
+				} 
+			}
+			return wset.done();
+		}
+	},
+
+	
+	/**
+	 * Subscript of a binary rel with a single subscript (a set but unequal to _)
+	 * 
+	 * [ ..., IRelation r, IValue idx1] => r[idx1] ]
+	 */
+	rel2_subscript1_set {
+		@Override
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet rel = (ISet) arg_2;
+			if(rel.isEmpty()){
+				return rel;
+			}
+
+			IValue index = (IValue) arg_1;
+			ISetWriter wset = vf.setWriter();
+
+			for (IValue v : rel) {
+				ITuple tup = (ITuple)v;
+
+				if((((ISet) index).contains(tup.get(0)))){
+					wset.insert(tup.get(1));
+				} 
+			}
+			return wset.done();
+		}
+	},
 
 	/**
-	 * Subscript of a rel
+	 * Subscript of an n-ary (n > 2) rel with a single subscript (not a set and unequal to _)
+	 * 
+	 * [ ..., IRelation r, IValue idx1] => r[idx1] ]
+	 */
+	rel_subscript1_noset {
+		@Override
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet rel = (ISet) arg_2;
+			if(rel.isEmpty()){
+				return rel;
+			}
+			int relArity = rel.getElementType().getArity();
+			
+			IValue index = (IValue) arg_1;
+			ISetWriter wset = vf.setWriter();
+			IValue args[] = new IValue[relArity - 1];
+
+			for (IValue v : rel) {
+				ITuple tup = (ITuple)v;
+
+				if(tup.get(0).isEqual(index)){
+					for (int i = 1; i < relArity; i++) {
+						args[i - 1] = tup.get(i);
+					}
+					wset.insert(vf.tuple(args));
+				} 
+			}
+			return wset.done();
+		}
+	},
+	
+	/**
+	 * Subscript of an n-ary (n > 2) rel with a single subscript (a set and unequal to _)
+	 * 
+	 * [ ..., IRelation r, IValue idx1] => r[idx1] ]
+	 */
+	rel_subscript1_set {
+		@Override
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet rel = (ISet) arg_2;
+			if(rel.isEmpty()){
+				return rel;
+			}
+			int relArity = rel.getElementType().getArity();
+			
+			IValue index = (IValue) arg_1;			
+			
+			ISetWriter wset = vf.setWriter();
+			IValue args[] = new IValue[relArity - 1];
+			
+			for (IValue v : rel) {
+				ITuple tup = (ITuple)v;
+
+				if((((ISet) index).contains(tup.get(0)))){
+					for (int i = 1; i < relArity; i++) {
+						args[i - 1] = tup.get(i);
+					}
+					wset.insert(vf.tuple(args));
+				} 
+			}
+			return wset.done();
+		}
+	},
+	
+	/**
+	 * Subscript of rel, general case
 	 * 
 	 * [ ..., IRelation r, IValue idx1, IValue idx2, ...] => r[idx1, idx2, ...] ]
 	 */
@@ -8019,6 +8139,7 @@ public enum RascalPrimitive {
 			}
 			
 			ISetWriter wset = vf.setWriter();
+			IValue args[] = new IValue[relArity - indexArity];
 			
 			for (IValue v : rel) {
 				ITuple tup = (ITuple)v;
@@ -8031,11 +8152,12 @@ public enum RascalPrimitive {
 						/* ok */
 					} else {
 						allEqual = false;
+						break;
 					}
 				}
 				
 				if (allEqual) {
-					IValue args[] = new IValue[relArity - indexArity];
+					
 					for (int i = indexArity; i < relArity; i++) {
 						args[i - indexArity] = tup.get(i);
 					}
