@@ -668,7 +668,7 @@ public Production \layouts(Production prod, set[Symbol] others) {
     when Avoid := {*others,l}, a notin Avoid, b notin Avoid;
 
 // for singletons its only important to mix layout in nested regulars as well:
-list[Symbol] intermix([Symbol a], l, set[Symbol] others) = [regulars(a, l, others)];
+list[Symbol] intermix([Symbol a], Symbol l, set[Symbol] others) = [regulars(a, l, others)];
 
 // when the first rule is done (which is recursive), this one yields the result:
 default list[Symbol] intermix(list[Symbol] syms, Symbol _, set[Symbol] _) = syms;
@@ -679,7 +679,7 @@ private Symbol regulars(Symbol s, Symbol l, set[Symbol] others) {
     case \iter-star(Symbol n) => \iter-star-seps(n, [l]) 
     case \iter-seps(Symbol n, [Symbol sep]) => \iter-seps(n,[l,sep,l]) when !(sep in others), !(seq([a,_,b]) := sep && (a in others || b in others))
     case \iter-star-seps(Symbol n,[Symbol sep]) => \iter-star-seps(n, [l, sep, l]) when !(sep in others), !(seq([a,_,b]) := sep && (a in others || b in others))
-    case \seq(list[Symbol] elems) => \seq(intermix(elems, l, others))
+    case \seq(list[Symbol] elems) => \seq(intermix(elems, l, others)) // note that intermix is idempotent
   }
 }
 
