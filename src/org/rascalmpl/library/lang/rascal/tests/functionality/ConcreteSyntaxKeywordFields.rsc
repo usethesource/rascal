@@ -30,10 +30,23 @@ test bool ambTest() = get([B] "b").y == "y";
 
 test bool ambTest2() = {_,_} := get([B] "b")[y="z"].alternatives; 
 
+test bool ambTest3() = get([B] "b")[y="z"].y == "z";
+
+test bool ambTest4() {
+   t = get([B] "b");
+   t.y = "z";
+   return t.y == "z";
+}
+
 test bool charTest() = get(char(32)).y == "y";
 
 test bool charTest2() = get(char(32))[y="z"].y == "z";
 
 test bool charTest3() = get(char(32))[y="z"].character == 32;
 
+test bool charTest4() {
+   t = get(char(32));
+   t.y = "z";
+   return t.y == "z";
+}
 
