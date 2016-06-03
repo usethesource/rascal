@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -21,7 +22,7 @@ public class RascalCommandExecutor {
 	PrintWriter err;
 	String consoleInputPath = "/ConsoleInput.rsc";
 
-	RascalCommandExecutor(PrintWriter err) throws IOException, NoSuchRascalFunction, URISyntaxException{
+	RascalCommandExecutor(PathConfig pcfg, PrintWriter err) throws IOException, NoSuchRascalFunction, URISyntaxException{
 		try {
 			IValueFactory vf = ValueFactoryFactory.getValueFactory();
 			screenInputLocation = vf.sourceLocation("home", "", consoleInputPath);
@@ -31,10 +32,10 @@ public class RascalCommandExecutor {
 		this.err = err;
 		shellStringWriter = new StringWriter();
 		shellPrintWriter = new PrintWriter(shellStringWriter);
-		executor = new CommandExecutor(shellPrintWriter, shellPrintWriter);
+		executor = new CommandExecutor(pcfg, shellPrintWriter, shellPrintWriter);
 	
 		try {
-			executor.setDebugObserver(new DebugREPLFrameObserver(System.in, System.out, true, true, null, null, null));
+			executor.setDebugObserver(new DebugREPLFrameObserver(null, System.in, System.out, true, true, null, null));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
