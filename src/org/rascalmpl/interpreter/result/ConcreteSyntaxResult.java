@@ -95,8 +95,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(
-			String name, Result<V> repl, TypeStore store) {
+	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
 		ITree tree = (ITree) getValue();
 		
 		if (TreeAdapter.isAppl(tree)) {
@@ -145,7 +144,9 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 
 			throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-		throw new UnsupportedOperation("field update", ctx.getCurrentAST());
+		
+		return super.fieldUpdate(name, repl, store);
+//		throw new UnsupportedOperation("field update", ctx.getCurrentAST());
 	}
 	
 	@Override
