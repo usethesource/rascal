@@ -4,6 +4,7 @@ import IO;
 import Node;
 
 syntax A = "a";
+syntax B = "b" | [b];
 
 data Tree(str y = "y");
 
@@ -23,3 +24,6 @@ test bool neqKwTest1() = get((A)`a`)[y="z"] != (A)`a`;
 
 test bool defKw() = get((A)`a`).y == "y";
 
+test bool normalProd() = prod(sort("A"),[lit("a")],{}) := get((A)`a`)[y="z"].prod; 
+
+test bool ambTest() = get([B] "b").y == "y";
