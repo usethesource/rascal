@@ -41,7 +41,6 @@ import util::FileSystem;
 import experiments::Compiler::Execute;
 import experiments::Compiler::Compile;
 import experiments::Compiler::CompileMuLibrary; 
-import experiments::Compiler::Rascal2Info::Collect;
 
 loc BOOT = |file:///Users/paulklint/git/rascal/src/boot/|;
 loc BINBOOT = |home:///bin-boot|;
@@ -138,35 +137,26 @@ value build(bool jvm=true, bool full=true){
 
      pcfg = pathConfig(srcPath=[|std:///|], binDir=BINBOOT, libPath=[BINBOOT]);
      
-     if(full){
-        report("Removing current compiled boot files <BINBOOT>");
-        remove(BINBOOT);
-     }
+     //if(full){
+     //   report("Removing current compiled boot files <BINBOOT>");
+     //   remove(BINBOOT);
+     //}
      
      commands = "#!/bin/sh\n";
      
-     report("Compiling MuLibrary");
-     compileMuLibrary(pcfg, verbose=true, jvm=jvm);
-     muLib = getMuLibraryCompiledWriteLoc(pcfg);
-     commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
+     //report("Compiling MuLibrary");
+     //compileMuLibrary(pcfg, verbose=true, jvm=jvm);
+     //muLib = getMuLibraryCompiledWriteLoc(pcfg);
+     //commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
  
-     report("Compiling standard library modules");
-     for(moduleName <- libraryModules){
-         compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
-     }
+     //report("Compiling standard library modules");
+     //for(moduleName <- libraryModules){
+     //    compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
+     //}
     
      
      commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg, jvm=jvm);
      commands += serialize("lang::rascal::boot::Kernel", pcfg, jvm=jvm);
-    // 
-    // if(full){
-    //    info = collectInfo(libraryModules, pcfg);
-    // 
-    //    l = getDerivedWriteLoc("StdLib.info", "gz", pcfg);
-    //    println("l = <l>");
-    //    writeBinaryValueFile(l, info);
-    //    commands += "cp .<l.path> <BOOT.path>\n";
-    // }
     
      writeFile(SHELLSCRIPT, commands);
      report("Commands written to <SHELLSCRIPT>");
