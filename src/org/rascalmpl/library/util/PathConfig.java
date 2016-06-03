@@ -26,28 +26,19 @@ public class PathConfig {
 
 	private RascalSearchPath rascalSearchPath;
 	
+	public PathConfig() throws URISyntaxException{
+		ISourceLocation std = vf.sourceLocation("std", "", "");
+
+		srcPath = Arrays.asList(std);
+		binDir = vf.sourceLocation("home", "", "bin");
+		libPath = Arrays.asList(binDir);
+		bootDir = vf.sourceLocation("boot+compressed", "", "");
 	
-	public PathConfig(){
-
-		try {
-			ISourceLocation std = vf.sourceLocation("std", "", "");
-			//ISourceLocation bootStdLib = vf.sourceLocation("boot", "", "stdlib");
-
-			srcPath = Arrays.asList(std);
-			binDir = vf.sourceLocation("home", "", "c1bin/stdlib");
-			libPath = Arrays.asList(binDir);
-			bootDir = vf.sourceLocation("boot+compressed", "", "");
-
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-			
 		makeRascalSearchPath();
 	}
 	
-	public PathConfig(List<ISourceLocation> srcPath, List<ISourceLocation> libPath, ISourceLocation binDir){
-		this(srcPath, libPath, binDir, vf.sourceLocation("|boot+compressed:///|"));
+	public PathConfig(List<ISourceLocation> srcPath, List<ISourceLocation> libPath, ISourceLocation binDir) throws URISyntaxException{
+		this(srcPath, libPath, binDir, vf.sourceLocation("boot+compressed", "", ""));
 	}
 		
 	public PathConfig(List<ISourceLocation> srcPath, List<ISourceLocation> libPath, ISourceLocation binDir, ISourceLocation bootDir){
@@ -82,13 +73,26 @@ public class PathConfig {
 		return makeFileName(qualifiedModuleName, "rsc");
 	}
 	
-	public IList getSourcePath() {
+	public IList getSrcPath() {
 	    return vf.list(srcPath.toArray(new IValue[0]));
 	}
+	
+	public PathConfig addSourcePath(ISourceLocation dir) {
+		List<ISourceLocation> extendedSrcPath = new ArrayList<ISourceLocation>(srcPath);
+		extendedSrcPath.add(dir);
+		return new PathConfig(extendedSrcPath, libPath, binDir, bootDir);
+	}
+	
 	
 	public IList getLibPath() {
         return vf.list(libPath.toArray(new IValue[0]));
     }
+	
+	public PathConfig addLibPath(ISourceLocation dir){
+		List<ISourceLocation> extendedLibPath = new ArrayList<ISourceLocation>(libPath);
+		extendedLibPath.add(dir);
+		return new PathConfig(srcPath, extendedLibPath, binDir, bootDir);
+	}
 	
 	public ISourceLocation getBootDir() {
         return bootDir;
