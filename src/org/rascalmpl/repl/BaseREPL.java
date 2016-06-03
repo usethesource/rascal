@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.fusesource.jansi.Ansi;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.ISourceLocation;
 
 import jline.Terminal;
@@ -38,12 +39,12 @@ public abstract class BaseREPL {
     private volatile PersistentHistory history = null;
     private final Queue<String> commandQueue = new ConcurrentLinkedQueue<String>();
 
-    public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException, URISyntaxException {
-        this(stdin, stdout, prettyPrompt, allowColors, file != null ? new FileHistory(file) : null, terminal);
+    public BaseREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException, URISyntaxException {
+        this(pcfg, stdin, stdout, prettyPrompt, allowColors, file != null ? new FileHistory(file) : null, terminal);
     }
 
-    public BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, ISourceLocation file, Terminal terminal) throws IOException, URISyntaxException {
-        this(stdin, stdout, prettyPrompt, allowColors, file != null ? new SourceLocationHistory(file) : null, terminal);
+    public BaseREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, ISourceLocation file, Terminal terminal) throws IOException, URISyntaxException {
+        this(pcfg, stdin, stdout, prettyPrompt, allowColors, file != null ? new SourceLocationHistory(file) : null, terminal);
     }
 
     public static char ctrl(char ch) {
@@ -56,7 +57,7 @@ public abstract class BaseREPL {
     private static byte STACK_TRACE = (byte)ctrl('\\'); 
 
 
-    private BaseREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, PersistentHistory history, Terminal terminal) throws IOException, URISyntaxException {
+    private BaseREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, PersistentHistory history, Terminal terminal) throws IOException, URISyntaxException {
         this.originalStdOut = stdout;
         if (!(stdin instanceof NotifieableInputStream) && !(stdin.getClass().getCanonicalName().contains("jline"))) {
             stdin = new NotifieableInputStream(stdin, new byte[] { CANCEL_RUNNING_COMMAND, STOP_REPL, STACK_TRACE }, (Byte b) -> handleEscape(b));
@@ -87,7 +88,7 @@ public abstract class BaseREPL {
         else {
             this.stdErr = new FilterWriter(reader.getOutput()) { }; // create a basic wrapper to avoid locking on stdout and stderr
         }
-        initialize(reader.getOutput(), stdErr);
+        initialize(pcfg, reader.getOutput(), stdErr);
         if (supportsCompletion()) {
             reader.addCompleter(new Completer(){
                 @Override
@@ -116,13 +117,14 @@ public abstract class BaseREPL {
 
     /**
      * During the constructor call initialize is called after the REPL is setup enough to have a stdout and std err to write to.
+     * @param pcfg the PathConfig to be used
      * @param stdout the output stream to write normal output to.
      * @param stderr the error stream to write error messages on, depending on the environment and options passed, will print in red.
      * @throws NoSuchRascalFunction 
      * @throws IOException 
      * @throws URISyntaxException 
      */
-    protected abstract void initialize(Writer stdout, Writer stderr) throws IOException, URISyntaxException;
+    protected abstract void initialize(PathConfig pcfg, Writer stdout, Writer stderr) throws IOException, URISyntaxException;
 
     /**
      * Will be called everytime a new prompt is printed.

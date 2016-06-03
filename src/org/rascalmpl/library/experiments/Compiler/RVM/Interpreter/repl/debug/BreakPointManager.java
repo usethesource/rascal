@@ -55,9 +55,9 @@ public class BreakPointManager {
 	Frame currentFrame = null;  // next mode, only break in current function
 	Frame returnFrame = null;	// only break on return from this frame
 
-	private PrintWriter stdout;
 	private final PathConfig pcfg;
-	
+	private PrintWriter stdout;
+
 	private final String listingIndent = "\t";
 	private boolean autoList = true;
 	private final int defaultListingDelta = 5;
@@ -67,7 +67,7 @@ public class BreakPointManager {
 	Cache<String, IValue> parsedModuleCache;
 	IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	BreakPointManager(PrintWriter stdout, PathConfig pcfg){
+	BreakPointManager(PathConfig pcfg, PrintWriter stdout){
 		this.stdout = stdout;
 		this.pcfg = pcfg;
 		breakpoints = new ArrayList<>();

@@ -24,6 +24,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManag
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
@@ -32,7 +33,6 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.repl.LimitedWriter;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
@@ -58,13 +58,13 @@ public class CommandExecutor {
 	 private final static int LINE_LIMIT = 75;
 	 private final static int CHAR_LIMIT = LINE_LIMIT * 20;
 	
+	private PathConfig pcfg;
 	private PrintWriter stdout;
 	private PrintWriter stderr;
 	private final IValueFactory vf;
 	private String consoleInputName = "ConsoleInput";
 	public static String consoleInputPath = "/ConsoleInput.rsc";
 	private ISourceLocation consoleInputLocation;
-	private ISourceLocation coursesLocation;
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
 	
@@ -98,17 +98,17 @@ public class CommandExecutor {
 	private Kernel kernel;
 	private StandardTextWriter indentedPrettyPrinter;
 	
-	public CommandExecutor(PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction, URISyntaxException {
-		this.stdout = stdout;
-		this.stderr = stderr; 
+	public CommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction, URISyntaxException {
+		
 		vf = ValueFactoryFactory.getValueFactory();
 		prelude = new Prelude(vf);
-		try {
-			consoleInputLocation = vf.sourceLocation("test-modules", "", consoleInputName + ".rsc");
-			coursesLocation = vf.sourceLocation("courses", "", "");
-		} catch (URISyntaxException e) {
-			throw new RuntimeException("Cannot initialize: " + e.getMessage());
-		}
+		
+		this.pcfg = pcfg.addSourcePath(vf.sourceLocation("test-modules", "", ""));
+		this.stdout = stdout;
+		this.stderr = stderr; 
+		
+		consoleInputLocation = vf.sourceLocation("test-modules", "", consoleInputName + ".rsc");
+		
 		debug = false;							// options per executed command
 		debugRVM = false;
 		testsuite = false;
@@ -134,7 +134,7 @@ public class CommandExecutor {
 					.setJVM(true)					// options for complete repl
 					//.setProfiling(true)
 					.build();
-		
+
 		kernel = new Kernel(vf, rex);
 		
 		variables = new HashMap<>();
@@ -215,7 +215,13 @@ public class CommandExecutor {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation);
 			
-			rvmConsoleExecutable = kernel.compileAndMergeIncremental(vf.string(consoleInputName), reuseConfig, makeCompileKwParamsAsIMap());
+			rvmConsoleExecutable = kernel.compileAndMergeIncremental(vf.string(consoleInputName), 
+																	reuseConfig, 
+																	pcfg.getSrcPath(), 
+																	pcfg.getLibPath(), 
+																	pcfg.getBootDir(), 
+																	pcfg.getBinDir(), 
+																	makeCompileKwParamsAsIMap());
 			
 			if(noErrors(modString, rvmConsoleExecutable)){
 				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, stdout, stderr)
