@@ -2,15 +2,19 @@ package org.rascalmpl.shell.compiled;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
 
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.library.experiments.Compiler.Commands.CommandOptions;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.shell.ManifestRunner;
 import org.rascalmpl.shell.ModuleRunner;
 import org.rascalmpl.shell.ShellRunner;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 
 public class CompiledRascalShell  {
@@ -36,7 +40,34 @@ public class CompiledRascalShell  {
 
 
   public static void main(String[] args) throws IOException {
-    printVersionNumber();
+
+	IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	CommandOptions cmdOpts = new CommandOptions("CompiledRascalShell");
+	try {
+		cmdOpts
+		.pathOption("srcPath").pathDefault(cmdOpts.getDefaultStdPath().isEmpty() ? vf.list(cmdOpts.getDefaultStdPath()) : cmdOpts.getDefaultStdPath())
+		.help("Add (absolute!) source path, use multiple --srcPath arguments for multiple paths")
+
+		.locOption("binDir").locDefault(vf.sourceLocation("home", "", "bin"))
+		.help("Directory for Rascal binaries")
+		
+		.pathOption("libPath").pathDefault((co) -> vf.list(co.getCommandLocOption("binDir")))
+		.help("Add new lib path, use multiple --libPath arguments for multiple paths")
+
+		.locOption("bootDir").locDefault(cmdOpts.getDefaultBootLocation())
+		.help("Rascal boot directory")
+
+		.boolOption("help")
+		.help("Print help message for this command")
+		.noModuleArgument()
+		.handleArgs(args);
+		
+	} catch (URISyntaxException e1) {
+		e1.printStackTrace();
+		System.exit(1);
+	}  
+
+	printVersionNumber();
     RascalManifest mf = new RascalManifest();
     try {
       ShellRunner runner; 
@@ -47,7 +78,7 @@ public class CompiledRascalShell  {
         runner = new ModuleRunner(new PrintWriter(System.out), new PrintWriter(System.err));
       } 
       else {
-        runner = new CompiledREPLRunner(System.in, System.out, new PathConfig());
+        runner = new CompiledREPLRunner(cmdOpts.getPathConfig(), System.in, System.out);
       }
       runner.run(args);
 

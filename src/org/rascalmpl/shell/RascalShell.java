@@ -27,6 +27,7 @@ import org.rascalmpl.library.experiments.Compiler.Commands.Rascal;
 import org.rascalmpl.library.experiments.Compiler.Commands.RascalC;
 import org.rascalmpl.library.experiments.Compiler.Commands.RascalTests;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.shell.compiled.CompiledREPLRunner;
 
 
@@ -91,7 +92,7 @@ public class RascalShell  {
                     };
                 }
                 else if (args[0].equals("--compiledREPL")) {
-                    runner = new CompiledREPLRunner(System.in, System.out, null);
+                    runner = new CompiledREPLRunner(new PathConfig(), System.in, System.out);
                     
                 }
                 else {
