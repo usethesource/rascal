@@ -56,9 +56,9 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   
   private PathConfig pcfg;
   
-  public CompiledRascalREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal, PathConfig pcfg)
+  public CompiledRascalREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal)
       throws IOException, URISyntaxException {
-    super(stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal);
+    super(pcfg, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal);
     this.pcfg = pcfg;
   }
   
@@ -103,15 +103,15 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   }
 
   @Override
-  protected void initialize(Writer stdout, Writer stderr) throws IOException, URISyntaxException {
+  protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr) throws IOException, URISyntaxException {
     try {
-        executor = constructCommandExecutor(new PrintWriter(stdout), new PrintWriter(stderr));
+        executor = constructCommandExecutor(pcfg, new PrintWriter(stdout), new PrintWriter(stderr));
     } catch (NoSuchRascalFunction e) {
         throw new RuntimeException(e);
     }
   }
   
-  protected abstract CommandExecutor constructCommandExecutor(PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction, URISyntaxException;
+  protected abstract CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction, URISyntaxException;
   
   
   @Override
