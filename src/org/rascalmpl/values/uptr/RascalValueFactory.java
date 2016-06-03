@@ -1170,7 +1170,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 
 		@Override
 		public boolean mayHaveKeywordParameters() {
-			return false;
+			return true;
 		}
 		
 		
