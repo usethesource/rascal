@@ -177,7 +177,7 @@ public enum Opcode {
 	static public final int OP_STORELOCDEREF = 27;
 	static public final int OP_STOREVARDEREF = 28;
 	static public final int OP_PUSHCONSTR = 29;
-	static public final int OP_CALLCONSTR = 30;
+//	static public final int OP_CALLCONSTR = 30;
 	static public final int OP_PUSH_NESTED_FUN = 31;
 	static public final int OP_LOADTYPE = 32;
 	static public final int OP_LOADBOOL = 33;
@@ -455,9 +455,9 @@ public enum Opcode {
 		case PUSHCONSTR:
 			return "PUSHCONSTR " + arg1;
 		
-		case CALLCONSTR:
-			return "CALLCONSTR " + arg1 + ", " 
-								 + arg2  /*+ ", " + cb.getConstantValue(cb.finalCode[pc + 1])*/ ;
+//		case CALLCONSTR:
+//			return "CALLCONSTR " + arg1 + ", " 
+//								 + arg2  /*+ ", " + cb.getConstantValue(cb.finalCode[pc + 1])*/ ;
 		
 		case PUSH_NESTED_FUN:
 			return "PUSH_NESTED_FUN " + arg1 + ", " 

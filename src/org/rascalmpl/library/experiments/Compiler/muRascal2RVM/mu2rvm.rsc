@@ -742,7 +742,7 @@ INS tr(muAssignKwp(str fuid, str name, MuExp exp), Dest d, CDest c) = [ *tr_arg_
 
 // Constructor
 
-INS tr(muCallConstr(str fuid, list[MuExp] args), Dest d, CDest c) = [ *tr_args_stack(args), CALLCONSTR(fuid, size(args)), *plug(accu(), d) ];
+//INS tr(muCallConstr(str fuid, list[MuExp] args), Dest d, CDest c) = [ *tr_args_stack(args), CALLCONSTR(fuid, size(args)), *plug(accu(), d) ];
 
 // muRascal functions
 

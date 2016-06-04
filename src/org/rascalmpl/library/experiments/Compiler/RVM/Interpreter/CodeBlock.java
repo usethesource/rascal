@@ -599,9 +599,9 @@ public class CodeBlock implements Serializable {
 		return add(new PushConstr(this, name));
 	}
 	
-	public CodeBlock CALLCONSTR(String name, int arity/*, ISourceLocation src*/) {
-		return add(new CallConstr(this, name, arity/*, src*/));
-	}
+//	public CodeBlock CALLCONSTR(String name, int arity/*, ISourceLocation src*/) {
+//		return add(new CallConstr(this, name, arity/*, src*/));
+//	}
 	
 	public CodeBlock PUSHNESTEDFUN(String fuid, String scopeIn) {
 		return add(new PushNestedFun(this, fuid, scopeIn));

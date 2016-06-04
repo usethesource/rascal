@@ -286,7 +286,7 @@ Effect simulate(CALL(str fuid, int arity), int sp) 		    = <sp - arity, true>;
 Effect simulate(CALLDYN(int arity), int sp) 				= <sp - 1 - arity, true>;
 Effect simulate(APPLY(str fuid, int arity), int sp) 		= <sp - arity + 1, false>;
 Effect simulate(APPLYDYN(int arity), int sp) 				= <sp - arity - 1 + 1, false>;
-Effect simulate(CALLCONSTR(str fuid, int arity), int sp) 	= <sp - arity, true>;
+//Effect simulate(CALLCONSTR(str fuid, int arity), int sp) 	= <sp - arity, true>;
 Effect simulate(OCALL(str fuid, int arity, loc src), int sp)= <sp - arity, true>;
 Effect simulate(OCALLDYN(Symbol types, int arity, loc src), 
 			 int sp) 									    = <sp - 1 - arity, true>;
