@@ -148,7 +148,7 @@ public data Instruction =
 		| APPLY(str fuid, int arity)                // Apply partially a named *muRascal* function
 		| APPLYDYN(int arity)                       // Apply partially a top-of-stack *muRascal* function 
 				
-//		| CALLCONSTR(str fuid, int arity /*, loc src*/)	// Call a constructor
+		| CALLCONSTR(str fuid, int arity /*, loc src*/)	// Call a constructor
 		
 		| OCALL(str fuid, int arity, loc src)		// Call a named *Rascal* function
 		| OCALLDYN(Symbol types, int arity, loc src)// Call a *Rascal* function on stack
