@@ -946,24 +946,24 @@ public abstract class RVMCore {
 	
 	// CALLCONSTR
 	
-//	@SuppressWarnings("unchecked")
-//	protected int CALLCONSTR(final Object[] stack, int sp, final int iconstructor, final int arity){
-//		
-//		Type constructor = constructorStore.get(iconstructor);
-//		IValue[] args = new IValue[constructor.getArity()];
-//
-//		java.util.Map<String,IValue> kwargs;
-//		@SuppressWarnings("unused")
-//		Type type = (Type) stack[--sp];		// TODO: emove from instruction
-//		
-//		kwargs = (java.util.Map<String,IValue>) stack[--sp];
-//
-//		for(int i = 0; i < constructor.getArity(); i++) {
-//			args[constructor.getArity() - 1 - i] = (IValue) stack[--sp];
-//		}
-//		stack[sp++] = vf.constructor(constructor, args, kwargs);
-//		return sp;
-//	}
+	@SuppressWarnings("unchecked")
+	protected int CALLCONSTR(final Object[] stack, int sp, final int iconstructor, final int arity){
+		
+		Type constructor = constructorStore.get(iconstructor);
+		IValue[] args = new IValue[constructor.getArity()];
+
+		java.util.Map<String,IValue> kwargs;
+		@SuppressWarnings("unused")
+		Type type = (Type) stack[--sp];		// TODO: emove from instruction
+		
+		kwargs = (java.util.Map<String,IValue>) stack[--sp];
+
+		for(int i = 0; i < constructor.getArity(); i++) {
+			args[constructor.getArity() - 1 - i] = (IValue) stack[--sp];
+		}
+		stack[sp++] = vf.constructor(constructor, args, kwargs);
+		return sp;
+	}
 
 	protected int PRINTLN(Object[] stack, int sp, int arity){
 		StringBuilder w = new StringBuilder();
