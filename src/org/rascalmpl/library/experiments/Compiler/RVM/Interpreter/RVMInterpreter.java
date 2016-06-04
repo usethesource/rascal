@@ -539,10 +539,10 @@ public class RVMInterpreter extends RVMCore {
 					STOREVARDEREF(cf, CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction), accu);
 					continue NEXT_INSTRUCTION;
 									
-				case Opcode.OP_CALLCONSTR:
-					sp = CALLCONSTR(stack, sp, CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
-					accu = stack[--sp];
-					continue NEXT_INSTRUCTION;
+//				case Opcode.OP_CALLCONSTR:
+//					sp = CALLCONSTR(stack, sp, CodeBlock.fetchArg1(instruction), CodeBlock.fetchArg2(instruction));
+//					accu = stack[--sp];
+//					continue NEXT_INSTRUCTION;
 										
 				case Opcode.OP_CALLDYN:				
 				case Opcode.OP_CALL:
