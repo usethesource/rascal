@@ -107,7 +107,7 @@ public data MuExp =
           | muOCall4(MuExp fun, Symbol types,                    // Call a dynamic *Rascal function
           					   list[MuExp] largs, loc src)
           
-          | muCallConstr(str fuid, list[MuExp] largs /*, loc src*/)	// Call a constructor
+ //         | muCallConstr(str fuid, list[MuExp] largs /*, loc src*/)	// Call a constructor
     
           | muCallPrim2(str name, loc src)                       // Call a Rascal primitive function (with empty list of arguments)
           | muCallPrim3(str name, list[MuExp] exps, loc src)	 // Call a Rascal primitive function

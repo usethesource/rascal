@@ -857,10 +857,10 @@ public class RVMLinker {
 				codeblock.PUSHCONSTR(getStrField(instruction, "fuid"));
 				break;
 
-			case "CALLCONSTR":
-				codeblock.CALLCONSTR(getStrField(instruction, "fuid"), 
-									 getIntField(instruction, "arity")/*, getLocField(instruction, "src")*/);
-				break;
+//			case "CALLCONSTR":
+//				codeblock.CALLCONSTR(getStrField(instruction, "fuid"), 
+//									 getIntField(instruction, "arity")/*, getLocField(instruction, "src")*/);
+//				break;
 
 			case "LOADTYPE":
 				codeblock.LOADTYPE(symbolToType((IConstructor) instruction.get("type")));
