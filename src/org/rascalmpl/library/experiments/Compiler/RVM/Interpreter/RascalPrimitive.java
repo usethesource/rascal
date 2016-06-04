@@ -7981,7 +7981,6 @@ public enum RascalPrimitive {
 			if(rel.isEmpty()){
 				return rel;
 			}
-			
 			IValue index = (IValue) arg_1;
 			ISetWriter wset = vf.setWriter();
 
@@ -8009,7 +8008,6 @@ public enum RascalPrimitive {
 			if(rel.isEmpty()){
 				return rel;
 			}
-
 			IValue index = (IValue) arg_1;
 			ISetWriter wset = vf.setWriter();
 
@@ -8069,7 +8067,6 @@ public enum RascalPrimitive {
 				return rel;
 			}
 			int relArity = rel.getElementType().getArity();
-			
 			IValue index = (IValue) arg_1;			
 			
 			ISetWriter wset = vf.setWriter();
@@ -8091,85 +8088,64 @@ public enum RascalPrimitive {
 	
 	/**
 	 * Subscript of rel, general case
+	 * subsDesc is a subscript descriptor: a list with integers: 0: noset, 1: set, 2: wildcard
 	 * 
-	 * [ ..., IRelation r, IValue idx1, IValue idx2, ...] => r[idx1, idx2, ...] ]
+	 * [ ..., IRelation r, IList subsDesc, IValue idx1, IValue idx2, ...] => rel[idx1, idx2, ...] ]
 	 */
 	rel_subscript {
 		@Override
-		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
-			assert arity >= 2;
+		public int executeN(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity >= 4;
+			
 			ISet rel = ((ISet) stack[sp - arity]);
 			if(rel.isEmpty()){
 				stack[sp - arity] = rel;
 				return sp - arity + 1;
 			}
-			int indexArity = arity - 1;
+			IList subsDesc = ((IList) stack[sp - arity + 1]);
+			int indexArity = arity - 2;
 			int relArity = rel.getElementType().getArity();
-			assert indexArity < relArity ;
-			
-			IValue[] indices = new IValue[indexArity];
-			Type subscriptType[] = new Type[indexArity];
-			boolean subscriptIsSet[] = new boolean[indexArity];
-			
-			boolean yieldSet = (relArity - indexArity) == 1;
-			Type resFieldType[] = new Type[relArity - indexArity];
-			
-			for(int i = 0; i < indexArity; i++ ){
-				indices[i] = (IValue) stack[sp - arity + i + 1];
-				if(indices[i].getType().isString()){
-					String s = ((IString) indices[i]).getValue();
-					if(s.equals("_"))
-						indices[i] = null;
-				}
-				subscriptType[i] = indices[i] == null ? valueType : indices[i].getType();
-			}
-			
-			for (int i = 0; i < relArity; i++) {
-				Type relFieldType = rel.getType().getFieldType(i);
-				if (i < indexArity) {
-					if (subscriptType[i].isSet() && 
-							relFieldType.comparable(subscriptType[i].getElementType())){
-						subscriptIsSet[i] = true;
-					} 
-					else if (indices[i] == null || relFieldType.comparable(subscriptType[i])){
-						subscriptIsSet[i] = false;
-					} 
-				} else {
-					resFieldType[i - indexArity] = relFieldType;
-				}
-			}
 			
 			ISetWriter wset = vf.setWriter();
-			IValue args[] = new IValue[relArity - indexArity];
-			
-			for (IValue v : rel) {
-				ITuple tup = (ITuple)v;
-				boolean allEqual = true;
-				for(int k = 0; k < indexArity; k++){
-					if(subscriptIsSet[k] && ((indices[k] == null) ||
-							                 ((ISet) indices[k]).contains(tup.get(k)))){
-						/* ok */
-					} else if (indices[k] == null || tup.get(k).isEqual(indices[k])){
-						/* ok */
-					} else {
-						allEqual = false;
-						break;
+			int indexBase = sp - arity + 2 ;
+
+			if(relArity - indexArity == 1){	// Return a set
+				allValues:
+					for (IValue v : rel) {
+						ITuple tup = (ITuple)v;
+						for(int k = 0; k < indexArity; k++){
+							switch(((IInteger)subsDesc.get(k)).intValue()){
+							case 0: 
+									if(!tup.get(k).isEqual((IValue)stack[indexBase + k])) continue allValues; 
+									continue;
+							case 1: 
+									if(!((ISet)stack[indexBase + k]).contains(tup.get(k))) continue allValues;
+							}
+						}
+						wset.insert(tup.get(indexArity));
 					}
-				}
-				
-				if (allEqual) {
-					
-					for (int i = indexArity; i < relArity; i++) {
-						args[i - indexArity] = tup.get(i);
-					}
-					if(yieldSet){
-						wset.insert(args[0]);
-					} else {
+			} else {						// Return a relation
+				IValue args[] = new IValue[relArity - indexArity];
+				allValues:
+					for (IValue v : rel) {
+						ITuple tup = (ITuple)v;
+						for(int k = 0; k < indexArity; k++){
+							switch(((IInteger)subsDesc.get(k)).intValue()){
+							case 0: 
+									if(!tup.get(k).isEqual((IValue)stack[indexBase + k])) continue allValues; 
+									continue;
+							case 1: 
+									if(!((ISet)stack[indexBase + k]).contains(tup.get(k))) continue allValues;
+							}
+						}
+
+						for (int i = indexArity; i < relArity; i++) {
+							args[i - indexArity] = tup.get(i);
+						}
 						wset.insert(vf.tuple(args));
 					}
-				}
 			}
-			
+
 			stack[sp - arity] = wset.done();
 			return sp - arity + 1;
 		}
