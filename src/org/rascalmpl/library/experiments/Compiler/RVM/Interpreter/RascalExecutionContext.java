@@ -85,7 +85,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final int subtypeCacheSize = 1000;
 	
 	private final int type2symbolCacheSize = 1000;
-	private final int descendantDescriptorCacheSize = 50;
+	private final int descendantDescriptorCacheSize = 1000;
 	
 	private Cache<String, Function> companionDefaultFunctionCache;
 	private final int companionDefaultFunctionCacheSize = 100;
