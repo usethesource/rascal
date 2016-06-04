@@ -137,22 +137,22 @@ value build(bool jvm=true, bool full=true){
 
      pcfg = pathConfig(srcPath=[|std:///|], binDir=BINBOOT, libPath=[BINBOOT]);
      
-     //if(full){
-     //   report("Removing current compiled boot files <BINBOOT>");
-     //   remove(BINBOOT);
-     //}
+     if(full){
+        report("Removing current compiled boot files <BINBOOT>");
+        remove(BINBOOT);
+     }
      
      commands = "#!/bin/sh\n";
      
-     //report("Compiling MuLibrary");
-     //compileMuLibrary(pcfg, verbose=true, jvm=jvm);
-     //muLib = getMuLibraryCompiledWriteLoc(pcfg);
-     //commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
+     report("Compiling MuLibrary");
+     compileMuLibrary(pcfg, verbose=true, jvm=jvm);
+     muLib = getMuLibraryCompiledWriteLoc(pcfg);
+     commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
  
-     //report("Compiling standard library modules");
-     //for(moduleName <- libraryModules){
-     //    compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
-     //}
+     report("Compiling standard library modules");
+     for(moduleName <- libraryModules){
+         compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
+     }
     
      
      commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg, jvm=jvm);
