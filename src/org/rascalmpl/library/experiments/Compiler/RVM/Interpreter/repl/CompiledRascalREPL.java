@@ -228,7 +228,8 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
      commandLineOptions.add("trace"); 
      commandLineOptions.add("coverage"); 
      commandLineOptions.add("debugRVM"); 
-     commandLineOptions.add("testsuite"); 
+     commandLineOptions.add("testsuite");
+     commandLineOptions.add("optimize"); 
   }
   @Override
   protected SortedSet<String> getCommandLineOptions() {
