@@ -875,9 +875,12 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	//println("visit: <subjectType>, <concreteMatch>");
 	MuExp body = translateVisitCases(phi_fuid, subjectType, concreteMatch, cases);
 	
-	tc = getTypesAndConstructorsInVisit(cases);
-	reachable = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
-	//println("reachableTypesInVisit: <reachable>");
+	reachable = { Symbol::\value() };
+	if(optimizing()){
+	   tc = getTypesAndConstructorsInVisit(cases);
+	   reachable = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
+	   //println("reachableTypesInVisit: <reachable>");
+	}
 	
 	descriptor = muCallPrim3("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())], \visit.subject@\loc);
 	

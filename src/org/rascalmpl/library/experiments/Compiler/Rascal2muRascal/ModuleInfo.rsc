@@ -20,7 +20,11 @@ private list[MuExp] tests = [];						// tests declared in current module
 private set[str] overriddenLibs = {};				// Java libraries overriden for compiler
 private set[str] notOverriddenLibs = {};			// Java libraries not overridden for compiler
 
+private bool optimize = true;
+
 // Access functions
+
+bool optimizing() = optimize;
 
 public set[str] getOverriddenlibs(){
 	return overriddenLibs;
@@ -125,7 +129,9 @@ public list[MuExp] getTestsInModule(){
 
 // Reset global state
 
-void resetModuleInfo() {
+void resetModuleInfo(bool optimize_flag) {
+
+    optimize = optimize_flag;
  	module_name = "** undefined **";
  	module_tags = ("***":"+++");
     imported_modules = [];

@@ -50,6 +50,9 @@ public class RascalC {
             .boolOption("trace") 		.help("Print Rascal functions during execution of compiler")
 
             .boolOption("profile") 		.help("Profile execution of compiler")
+            
+            .boolOption("optimize").	boolDefault(true)
+            .help("Apply code optimizations")
 
             //.boolOption("jvm") 			.help("Generate JVM code")
 
