@@ -97,6 +97,7 @@ public class CommandExecutor {
 	private IMap moduleTags;
 	private Kernel kernel;
 	private StandardTextWriter indentedPrettyPrinter;
+	private boolean optimize;
 	
 	public CommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction, URISyntaxException {
 		
@@ -117,6 +118,7 @@ public class CommandExecutor {
 		coverage = false;
 		jvm = true;
 		verbose = false;
+		optimize = false;
 		
 		IMapWriter w = vf.mapWriter();
 		//w.put(vf.string("bootstrapParser"), vf.string(""));
@@ -167,6 +169,7 @@ public class CommandExecutor {
 	private IMap makeCompileKwParamsAsIMap(){
 		IMapWriter w = vf.mapWriter();
 		w.put(vf.string("verbose"), vf.bool(false));
+		w.put(vf.string("optimize"), vf.bool(optimize));
 		return w.done();
 	}
 	
@@ -691,6 +694,9 @@ public class CommandExecutor {
 					return showOptions();
 				}
 				return report(name + " set to "  + coverage);
+			case "optimize":
+				optimize = getBooleanValue(val);
+				return report(name + " set to "  + optimize);
 								
 			default:
 				return report("Unrecognized option : " + name);

@@ -352,9 +352,9 @@ RVMProgram compileAndLink(str qualifiedModuleName, list[loc] srcPath, list[loc] 
     return compileAndLink(qualifiedModuleName, pathConfig(srcPath=srcPath, libPath=libPath, bootDir=bootDir, binDir=binDir), jvm=jvm, verbose=verbose);
 }
 
-RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool jvm=true, bool verbose = false){
+RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool jvm=true, bool verbose = false, bool optimize=true){
    startTime = cpuTime();
-   mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose);
+   mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose, optimize=optimize);
    if(verbose) println("Compiling: <(cpuTime() - startTime)/1000000> ms");
    start_linking = cpuTime();   
    merged = mergeImports(mainModule, pcfg, verbose=verbose, jvm=jvm);
@@ -365,7 +365,7 @@ RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool jvm=tru
    return merged;
 }
 
-RVMProgram compileAndMergeIncremental(str qualifiedModuleName, bool reuseConfig, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir, bool jvm=true, bool verbose = false){
+RVMProgram compileAndMergeIncremental(str qualifiedModuleName, bool reuseConfig, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir, bool jvm=true, bool verbose = false, bool optimize = true){
    //pcfg = pathConfig(srcPath=[|std:///|, |test-modules:///|], binDir=|home:///bin-console|, libPath=[|home:///bin-console|]);
    pcfg = pathConfig(srcPath=srcPath, libPath=libPath, bootDir=bootDir, binDir=binDir);
    if(!reuseConfig){
@@ -376,7 +376,7 @@ RVMProgram compileAndMergeIncremental(str qualifiedModuleName, bool reuseConfig,
       } catch e:
           ;//println("Could not remove: <mergedImportLoc>"); // ignore possible exception
    }
-   mainModule = compileIncremental(qualifiedModuleName, reuseConfig, pcfg, verbose=verbose); 
+   mainModule = compileIncremental(qualifiedModuleName, reuseConfig, pcfg, verbose=verbose, optimize=optimize); 
    merged = mergeImports(mainModule, pcfg, verbose=verbose, jvm=jvm);
 
    return merged;
