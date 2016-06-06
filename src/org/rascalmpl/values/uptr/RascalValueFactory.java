@@ -306,7 +306,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			Map<String, IValue> kws) throws FactTypeUseException {
 		IConstructor result = specializeNode(name, children);
 		return result != null 
-				? (kws != null ? result.asWithKeywordParameters().setParameters(kws) : result) 
+				? (kws != null  && !kws.isEmpty() ? result.asWithKeywordParameters().setParameters(kws) : result) 
 				: super.node(name, children, kws);
 	}
 	
@@ -314,7 +314,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public IConstructor constructor(Type constructor, IValue[] children, Map<String, IValue> kwParams) throws FactTypeUseException {
 		IConstructor result = specializeConstructor(constructor, children);
 		return result != null 
-				? (kwParams != null && result.mayHaveKeywordParameters() ? result.asWithKeywordParameters().setParameters(kwParams) : result) 
+				? (kwParams != null && !kwParams.isEmpty() && result.mayHaveKeywordParameters() ? result.asWithKeywordParameters().setParameters(kwParams) : result) 
 				: super.constructor(constructor, children, kwParams);
 	}
 	
