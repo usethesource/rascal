@@ -106,7 +106,7 @@ public class ConstructorResult extends NodeResult {
 						ctx.getCurrentAST(), null);
 			}
 
-			if (getType().hasKeywordField(name, store)) { // it's a keyword parameter
+			if (getValue().mayHaveKeywordParameters() && getType().hasKeywordField(name, store)) { // it's a keyword parameter
 			    Type kwType = store.getKeywordParameterType(getValue().getConstructorType(), name);
 			    if (kwType == null) {
 			        kwType = store.getKeywordParameterType(getType(), name);
