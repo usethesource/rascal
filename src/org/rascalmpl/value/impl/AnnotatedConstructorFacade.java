@@ -145,7 +145,7 @@ public class AnnotatedConstructorFacade implements IConstructor {
 			@Override
 			protected IConstructor wrap(IConstructor content,
 					ImmutableMap<String, IValue> annotations) {
-				return new AnnotatedConstructorFacade(content, annotations);
+				return annotations.isEmpty() ? content : new AnnotatedConstructorFacade(content, annotations);
 			}
 		};
 	}

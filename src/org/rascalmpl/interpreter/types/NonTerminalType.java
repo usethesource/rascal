@@ -19,6 +19,7 @@ import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -104,6 +105,11 @@ public class NonTerminalType extends RascalType {
 	public boolean hasField(String fieldName) {
 		// safe over-approximation
 		return true;
+	}
+	
+	@Override
+	public boolean hasKeywordField(String fieldName, TypeStore store) {
+	    return RascalValueFactory.Tree.hasKeywordField(fieldName, store);
 	}
 	
 	@Override
