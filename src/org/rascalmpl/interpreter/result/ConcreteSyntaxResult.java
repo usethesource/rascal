@@ -91,16 +91,11 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			}
 		}
 		
-		if (tree.getConstructorType().hasField(name)) {
-			return makeResult(tree.getConstructorType().getFieldType(name), tree.get(name), ctx);
-		}
-		
-		throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
+		return super.fieldAccess(name, store);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(
-			String name, Result<V> repl, TypeStore store) {
+	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
 		ITree tree = (ITree) getValue();
 		
 		if (TreeAdapter.isAppl(tree)) {
@@ -137,15 +132,21 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 				}
 				throw new UnexpectedType(fieldType, repl.getType(), ctx.getCurrentAST());
 			}
+			
+			if (ctx.getCurrentEnvt().getStore().getKeywordParameterType(RascalValueFactory.Tree, name) != null) {
+			    if (getValue().mayHaveKeywordParameters()) {
+			        return makeResult(getType(), getValue().asWithKeywordParameters().setParameter(name, repl.getValue()), ctx);
+			    }
+			    else {
+			        throw RuntimeExceptionFactory.illegalArgument(getValueFactory().string("Can not set a keyword parameter on a tree which already has annotations"), ctx.getCurrentAST(), ctx.getStackTrace());
+			    }
+			}
 
 			throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-		throw new UnsupportedOperation("field update", ctx.getCurrentAST());
-	}
-	
-	@Override
-	public ITree getValue() {
-		return (ITree) super.getValue();
+		
+		return super.fieldUpdate(name, repl, store);
+//		throw new UnsupportedOperation("field update", ctx.getCurrentAST());
 	}
 	
 	@Override
@@ -188,8 +189,22 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	
 	@Override
 	protected Result<IBool> equalToConcreteSyntax(ConcreteSyntaxResult that) {
-		ITree left = this.getValue();
-		ITree right = that.getValue();
+		IConstructor leftCons = this.getValue();
+		IConstructor rightCons = that.getValue();
+		
+		if ((leftCons.mayHaveKeywordParameters() && !rightCons.mayHaveKeywordParameters())
+		        || (!leftCons.mayHaveKeywordParameters() && rightCons.mayHaveKeywordParameters())) {
+		    return bool(false, ctx);
+		}
+		
+		if (leftCons.mayHaveKeywordParameters() && rightCons.mayHaveKeywordParameters()) {
+		    if (!leftCons.asWithKeywordParameters().equalParameters(rightCons.asWithKeywordParameters())) {
+		        return bool(false, ctx);
+		    }
+		}
+		    
+		ITree left = getTreeWithoutKeywordParameters(leftCons);
+		ITree right = getTreeWithoutKeywordParameters(rightCons);
 		
 		if (TreeAdapter.isLayout(left) && TreeAdapter.isLayout(right)) {
 			return bool(true, ctx);
@@ -255,6 +270,10 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 
 		return bool(false, ctx);
 	}
+
+    private ITree getTreeWithoutKeywordParameters(IConstructor leftCons) {
+        return (ITree) (leftCons.mayHaveKeywordParameters() && !leftCons.asWithKeywordParameters().getParameters().isEmpty() ? leftCons.asWithKeywordParameters().unsetAll() : leftCons);
+    }
 	
 	@SuppressWarnings("unchecked")
 	@Override
