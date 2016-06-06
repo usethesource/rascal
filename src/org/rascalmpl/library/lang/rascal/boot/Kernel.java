@@ -51,7 +51,8 @@ public class Kernel {
 		compile    		= rvm.getOverloadedFunction("RVMModule compile(str qname, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
 		compileMuLibrary= rvm.getOverloadedFunction("void compileMuLibrary(list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
 		compileAndLink  = rvm.getOverloadedFunction("RVMProgram compileAndLink(str qname, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
-		compileAndMergeIncremental = rvm.getOverloadedFunction("RVMProgram compileAndMergeIncremental(str qname, bool reuseConfig)");
+		compileAndMergeIncremental 
+						= rvm.getOverloadedFunction("RVMProgram compileAndMergeIncremental(str qname, bool reuseConfig, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
 		rascalTests   	= rvm.getOverloadedFunction("value rascalTests(list[str] qnames, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
 //		bootstrapRascalParser = rvm.getOverloadedFunction("void bootstrapRascalParser(loc src)");
 	}
@@ -110,12 +111,16 @@ public class Kernel {
 	 * Incrementally compile and link a Rascal module (used in RascalShell)
 	 * @param qname			Qualified module name
 	 * @param reuseConfig	true if the previous typechcker configuration should be reused
+	 * @param srcPath		List of source directories
+	 * @param libPath		List of library directories
+	 * @param bootDir		Boot directory
+	 * @param binDir		Binary directory
 	 * @param kwArgs		Keyword arguments
 	 * @return The compiled and linked (RVMExecutable) version of the given module
 	 * @throws IOException
 	 */
-	public RVMExecutable compileAndMergeIncremental(IString qname, IBool reuseConfig, IMap kwArgs) throws IOException{
-		IConstructor rvmProgram = (IConstructor) rvm.executeRVMFunction(compileAndMergeIncremental, new IValue[] { qname, reuseConfig, kwArgs });
+	public RVMExecutable compileAndMergeIncremental(IString qname, IBool reuseConfig, IList srcPath, IList libPath, ISourceLocation bootDir, ISourceLocation binDir, IMap kwArgs) throws IOException{
+		IConstructor rvmProgram = (IConstructor) rvm.executeRVMFunction(compileAndMergeIncremental, new IValue[] { qname, reuseConfig, srcPath, libPath, bootDir, binDir, kwArgs });
 		return ExecutionTools.link(rvmProgram, vf.bool(true));
 	}
 	

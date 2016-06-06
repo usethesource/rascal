@@ -56,7 +56,9 @@ void set_nlocals(int n) {
     nlocal[functionScope] = n;
 }
 
-void init(){
+private bool optimize = true;
+
+void init(bool optimizeFlag){
     nlabel = -1;
     usedLabels = {};
     functionScope = "";
@@ -77,6 +79,8 @@ void init(){
     
     usedOverloadedFunctions = {};
     usedFunctions = {};
+    
+    optimize = optimizeFlag;
 }
 
 // Map names of <fuid, pos> pairs to local variable names ; Note this info could also be collected in Rascal2muRascal
@@ -288,9 +292,10 @@ RVMModule mu2rvm(muModule(str module_name,
                            rel[str,str] importGraph,
                            loc src), 
                   bool listing=false,
-                  bool verbose=true){
+                  bool verbose=true,
+                  bool optimize=true){
  
-  init();
+  init(optimize);
   if(any(m <- messages, error(_,_) := m)){
     return errorRVMModule(module_name, messages, src);
   }
@@ -742,7 +747,7 @@ INS tr(muAssignKwp(str fuid, str name, MuExp exp), Dest d, CDest c) = [ *tr_arg_
 
 // Constructor
 
-INS tr(muCallConstr(str fuid, list[MuExp] args), Dest d, CDest c) = [ *tr_args_stack(args), CALLCONSTR(fuid, size(args)), *plug(accu(), d) ];
+//INS tr(muCallConstr(str fuid, list[MuExp] args), Dest d, CDest c) = [ *tr_args_stack(args), CALLCONSTR(fuid, size(args)), *plug(accu(), d) ];
 
 // muRascal functions
 
@@ -1154,7 +1159,7 @@ void inlineMuFinally(Dest d, CDest c) {
 
 // Control flow
 
-bool containsFail(list[MuExp] exps) = /muFail(_) := exps;
+bool containsFail(list[MuExp] exps) = optimize ? /muFail(_) := exps : false;
 
 // If
 
