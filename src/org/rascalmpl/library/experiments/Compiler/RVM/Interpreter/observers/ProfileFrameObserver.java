@@ -6,7 +6,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
 
 public class ProfileFrameObserver implements IFrameObserver {
 
@@ -23,19 +22,25 @@ public class ProfileFrameObserver implements IFrameObserver {
 	
 	@Override
 	public boolean observe(Frame frame) {
-		this.src = frame.src;
+		if(frame != null){
+			this.src = frame.src;
+		}
 		return true;
 	}
 	
 	@Override
 	public boolean enter(Frame frame) {
-		this.src = frame.src;
+		if(frame != null){
+			this.src = frame.src;
+		}
 		return true;
 	}
 	
 	@Override
 	public boolean leave(Frame frame, Object rval) {
-		this.src = frame.src;
+		if(frame != null){
+			this.src = frame.src;
+		}
 		return true;
 	}
 	

@@ -35,6 +35,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.KWParams;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RascalExtraction.RascalExtraction;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
@@ -86,7 +87,7 @@ public class Onthology {
 		this.courseName = this.srcDir.getName(this.srcDir.getNameCount() - 1);
 		conceptMap = new HashMap<>();
 		
-		this.executor = new RascalCommandExecutor(err);
+		this.executor = new RascalCommandExecutor(new PathConfig(), err);
 		
 		Analyzer multiFieldAnalyzer = multiFieldAnalyzer();
 
