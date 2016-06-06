@@ -41,9 +41,9 @@ import experiments::Compiler::Rascal2muRascal::RascalExpression;
 /********************************************************************/
 
 @doc{Compile a parsed Rascal source module to muRascal}
-MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true){
+MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true, bool optimize = true){
    try {
-      resetModuleInfo();
+      resetModuleInfo(optimize);
       module_name = "<M.header.name>";
       setModuleName(module_name);
       setModuleTags(translateTags(M.header.tags));
@@ -123,7 +123,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
         return errorMuModule(getModuleName(), {error("Unexpected compiler exception <e>", M@\loc)}, M@\loc);
    }
    finally {
-   	   resetModuleInfo();
+   	   resetModuleInfo(optimize);
    	   resetScopeExtraction();
    }
    throw "r2mu: cannot come here!";

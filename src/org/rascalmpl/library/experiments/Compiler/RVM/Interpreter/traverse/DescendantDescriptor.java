@@ -73,6 +73,9 @@ public class DescendantDescriptor {
 	public IBool shouldDescentInConcreteValue(final ITree subject) {
 		//assert concreteMatch : "shouldDescentInConcreteValue: concrete traversal required";
 		if (subject.isAppl()) {
+			if (containsNodeOrValueType) {
+				return RascalPrimitive.Rascal_TRUE;
+			}
 			IConstructor prod = (IConstructor) subject.getProduction();
 			return mSymbolSet.contains(prod) ? RascalPrimitive.Rascal_TRUE : RascalPrimitive.Rascal_FALSE;
 		}

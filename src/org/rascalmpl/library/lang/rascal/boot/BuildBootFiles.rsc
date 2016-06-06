@@ -41,7 +41,6 @@ import util::FileSystem;
 import experiments::Compiler::Execute;
 import experiments::Compiler::Compile;
 import experiments::Compiler::CompileMuLibrary; 
-import experiments::Compiler::Rascal2Info::Collect;
 
 loc BOOT = |file:///Users/paulklint/git/rascal/src/boot/|;
 loc BINBOOT = |home:///bin-boot|;
@@ -158,15 +157,6 @@ value build(bool jvm=true, bool full=true){
      
      commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg, jvm=jvm);
      commands += serialize("lang::rascal::boot::Kernel", pcfg, jvm=jvm);
-    // 
-    // if(full){
-    //    info = collectInfo(libraryModules, pcfg);
-    // 
-    //    l = getDerivedWriteLoc("StdLib.info", "gz", pcfg);
-    //    println("l = <l>");
-    //    writeBinaryValueFile(l, info);
-    //    commands += "cp .<l.path> <BOOT.path>\n";
-    // }
     
      writeFile(SHELLSCRIPT, commands);
      report("Commands written to <SHELLSCRIPT>");

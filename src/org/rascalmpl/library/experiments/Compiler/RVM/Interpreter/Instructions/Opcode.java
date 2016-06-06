@@ -455,9 +455,9 @@ public enum Opcode {
 		case PUSHCONSTR:
 			return "PUSHCONSTR " + arg1;
 		
-		case CALLCONSTR:
-			return "CALLCONSTR " + arg1 + ", " 
-								 + arg2  /*+ ", " + cb.getConstantValue(cb.finalCode[pc + 1])*/ ;
+//		case CALLCONSTR:
+//			return "CALLCONSTR " + arg1 + ", " 
+//								 + arg2  /*+ ", " + cb.getConstantValue(cb.finalCode[pc + 1])*/ ;
 		
 		case PUSH_NESTED_FUN:
 			return "PUSH_NESTED_FUN " + arg1 + ", " 

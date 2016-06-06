@@ -875,9 +875,12 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	//println("visit: <subjectType>, <concreteMatch>");
 	MuExp body = translateVisitCases(phi_fuid, subjectType, concreteMatch, cases);
 	
-	tc = getTypesAndConstructorsInVisit(cases);
-	reachable = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
-	//println("reachableTypesInVisit: <reachable>");
+	reachable = { Symbol::\value() };
+	if(optimizing()){
+	   tc = getTypesAndConstructorsInVisit(cases);
+	   reachable = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
+	   //println("reachableTypesInVisit: <reachable>");
+	}
 	
 	descriptor = muCallPrim3("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())], \visit.subject@\loc);
 	
@@ -1635,13 +1638,32 @@ private MuExp translateSubscript(Expression e:(Expression) `<Expression exp> [ <
     if(ot == "lrel" && size(subscripts) == 1 && getOuterType(list_of_subscripts[0]) == "int"){
     	op = "list_subscript_int";
     }
-    if(op == "rel_subscript" && nsubscripts == 1 && "<list_of_subscripts[0]>" != "_"){
-        relType = getType(exp@\loc);
-        relElem0Type = relType.symbols[0];
-        subsType = getType(list_of_subscripts[0]@\loc);
-        op = "rel" + ((size(relType.symbols) == 2) ? "2" : "") + "_subscript1_"
-                   + ((Symbol::\set(elmType) := subsType && comparable(elmType, relElem0Type)) ? "set" : "noset");
+    if(op == "rel_subscript"){
+       relType = getType(exp@\loc); 
+       relArity = size(relType.symbols);
+       // Convention: 0: noset; 1: set; 2: wildcard
+       subsKind = for(int i <- [0 .. nsubscripts]){
+                     subs = list_of_subscripts[i];
+                     if("<subs>" == "_") 
+                        append 2;
+                     else 
+                        append (Symbol::\set(elmType) := getType(subs@\loc) && comparable(elmType, relType.symbols[i])) ? 1 : 0;
+                   };
+      relType = getType(exp@\loc); 
+      relArity = size(relType.symbols);
+    
+      generalCase = nsubscripts > 1 || 2 in subsKind;
+      
+      op = generalCase ? "rel_subscript" 
+                       : ("rel" + ((relArity == 2) ? "2" : "") 
+                                + "_subscript1"
+                                + (subsKind == [0] ? "_noset" : "_set"));
+      
+      //println("<generalCase>, <subsKind> <op>");
+      return muCallPrim3(op, translate(exp) + (generalCase ? [muCon(subsKind)] : []) + ["<s>" == "_" ? muCon("_") : translate(s) | s <- subscripts], e@\loc);
     }
+    
+    opCode = muCallPrim3(op, translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | s <- subscripts], e@\loc);
     
     if(isDefined){
     	op = "is_defined_<op>";

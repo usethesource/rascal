@@ -36,7 +36,7 @@ public class TermREPL {
 
     public void startREPL(IConstructor repl, IEvaluatorContext ctx) {
         try {
-            new TheREPL(repl, ctx).run();
+            new TheREPL(repl, ctx, null).run();
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace(ctx.getStdErr());
         }
@@ -51,8 +51,8 @@ public class TermREPL {
         private final IEvaluatorContext ctx;
         private final ICallableValue completor;
 
-        public TheREPL(IConstructor repl, IEvaluatorContext ctx) throws IOException, URISyntaxException {
-            super(ctx.getREPL() == null ? System.in : ctx.getREPL().getInput(), ctx.getREPL() == null ? System.out : ctx.getREPL().getOutput(), true, true, ((ISourceLocation)repl.get("history")), ctx.getREPL() == null ? TerminalFactory.get() : ctx.getREPL().getTerminal());
+        public TheREPL(IConstructor repl, IEvaluatorContext ctx, PathConfig pcfg) throws IOException, URISyntaxException {
+            super(pcfg, ctx.getREPL() == null ? System.in : ctx.getREPL().getInput(), ctx.getREPL() == null ? System.out : ctx.getREPL().getOutput(), true, true, ((ISourceLocation)repl.get("history")), ctx.getREPL() == null ? TerminalFactory.get() : ctx.getREPL().getTerminal());
             this.ctx = ctx;
             this.handler = (ICallableValue)repl.get("handler");
             this.completor = (ICallableValue)repl.get("completor");
@@ -93,7 +93,7 @@ public class TermREPL {
 
 
         @Override
-        protected void initialize(Writer stdout, Writer stderr) {
+        protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr) {
             this.stdout = new PrintWriter(stdout);
             this.stderr = new PrintWriter(stderr);
         }

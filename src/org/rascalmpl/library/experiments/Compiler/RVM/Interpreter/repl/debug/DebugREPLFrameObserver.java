@@ -17,6 +17,7 @@ import jline.Terminal;
 
 public class DebugREPLFrameObserver implements IFrameObserver {
 
+	private final PathConfig pcfg;
 	private final InputStream stdin;
 	private final OutputStream stdout;
 	private final File historyFile;
@@ -25,12 +26,13 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	
 	private RVMCore rvm;
 	
-	public DebugREPLFrameObserver(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal, PathConfig pcfg) throws IOException{
+	public DebugREPLFrameObserver(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException{
+		this.pcfg = pcfg;
 		this.stdin = stdin;
 		this.stdout = stdout;
 		this.historyFile = file;
 		this.terminal = terminal;
-		this.breakPointManager = new BreakPointManager(new PrintWriter(stdout), pcfg);
+		this.breakPointManager = new BreakPointManager(pcfg, new PrintWriter(stdout));
 	}
 	
 	void reset(){
@@ -61,7 +63,7 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	public boolean observe(Frame frame) {
 		try {
 			if(breakPointManager.matchOnObserve(frame)){
-				new DebugREPL(rvm, frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
+				new DebugREPL(pcfg, rvm, frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
 			}
 		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
@@ -73,7 +75,7 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	public boolean enter(Frame frame)  {
 		try {
 			if(breakPointManager.matchOnEnter(frame)){
-				new DebugREPL(rvm, frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
+				new DebugREPL(pcfg, rvm, frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
 			}
 		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
@@ -85,7 +87,7 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	public boolean leave(Frame frame, Object rval) {
 		try {
 			if(breakPointManager.matchOnLeave(frame, rval)){
-				new DebugREPL(rvm, frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
+				new DebugREPL(pcfg, rvm, frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
 			}
 		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
@@ -97,7 +99,7 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	public boolean exception(Frame frame, Thrown thrown){
 		try {
 			if(breakPointManager.matchOnException(frame, thrown)){
-				new DebugREPL(rvm, frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
+				new DebugREPL(pcfg, rvm, frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
 			}
 		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
