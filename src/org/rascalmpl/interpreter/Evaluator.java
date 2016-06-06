@@ -504,24 +504,30 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       setCurrentEnvt(modEnv);
       
       Name name = Names.toName(function, modEnv.getLocation());
-      OverloadedFunction func = (OverloadedFunction) getCurrentEnvt().getVariable(name);
+      
+      Result<IValue> func = getCurrentEnvt().getVariable(name);
+      
+      if (func instanceof OverloadedFunction) {
+          OverloadedFunction overloaded = (OverloadedFunction) getCurrentEnvt().getVariable(name);
+          func = overloaded.getFunctions().get(0); 
+      }
       
       if (func == null) {
         throw new UndeclaredVariable(function, name);
       }
       
-      AbstractFunction main = func.getFunctions().get(0);
-      
-      if (func.getFunctions().size() > 1) {
-    	  func.getEval().getMonitor().warning("should only have one main function.", modEnv.getLocation());
+      if (!(func instanceof AbstractFunction)) {
+        throw new UnsupportedOperationException("main should be function");
       }
       
+      AbstractFunction main = (AbstractFunction) func;
+      
       if (main.getArity() == 1) {
-        return func.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parsePlainCommandLineArgs(commandline)}, null).getValue();
+        return main.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parsePlainCommandLineArgs(commandline)}, null).getValue();
       }
       else if (main.hasKeywordArguments() && main.getArity() == 0) {
         Map<String, IValue> args = parseKeywordCommandLineArgs(monitor, commandline, main);
-        return func.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
+        return main.call(getMonitor(), new Type[] { },new IValue[] {}, args).getValue();
       }
       else {
         throw new CommandlineError("main function should either have one argument of type list[str], or keyword parameters", main);
