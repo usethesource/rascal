@@ -111,6 +111,13 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	private Cache<IString, DescendantDescriptor> descendantDescriptorCache;
 	
+	private static Cache<IValue, IValue> sharedConstantCache = Caffeine.newBuilder()
+//			.weakKeys()
+		    .weakValues()
+//		    .recordStats()
+			.maximumSize(10000)
+			.build();
+	
 	public RascalExecutionContext(
 			IValueFactory vf, 
 			PrintWriter stdout, 
@@ -314,6 +321,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 		String key = adtType.toString() + fieldName;
 		Function result = companionFieldDefaultFunctionCache.get(key, k -> rvm.getCompanionFieldDefaultFunction(adtType, fieldName));
 		return result;
+	}
+	
+	public static IValue shareConstant(IValue c){
+		return sharedConstantCache.get(c, k -> k);
 	}
 	
 	public IValueFactory getValueFactory(){ return vf; }
