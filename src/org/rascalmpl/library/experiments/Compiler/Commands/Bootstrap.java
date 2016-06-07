@@ -212,7 +212,7 @@ public class Bootstrap {
         Path result = phaseFolder(phase, tmp);
         info("phase " + phase + ": " + result);
        
-        runAllTests(phase, testClassPath, bootPath, sourcePath, result);
+        runAllTests(phase, classPath, bootPath, sourcePath, result);
         compileMuLibrary(phase, classPath, bootPath, sourcePath, result);
         generateRascalParser(phase, classPath, bootPath, sourcePath, result);
         compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel");
