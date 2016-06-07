@@ -316,7 +316,7 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		out.writeObject(n);
 
 		for(int i = 0; i < n; i++){
-			out.writeObject(new FSTSerializableType(fun.typeConstantStore[i]));
+			out.writeObject(new FSTSerializableType(RascalExecutionContext.shareTypeConstant(fun.typeConstantStore[i])));
 		}
 
 		// boolean concreteArg = false;
@@ -420,7 +420,7 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		Type[] typeConstantStore = new Type[n];
 
 		for(int i = 0; i < n; i++){
-			typeConstantStore[i] = (Type) in.readObject();
+			typeConstantStore[i] = RascalExecutionContext.shareTypeConstant((Type) in.readObject());
 		}
 
 		// boolean concreteArg = false;

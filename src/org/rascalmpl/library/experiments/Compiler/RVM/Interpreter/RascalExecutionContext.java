@@ -118,6 +118,13 @@ public class RascalExecutionContext implements IRascalMonitor {
 			.maximumSize(10000)
 			.build();
 	
+	private static Cache<Type, Type> sharedTypeConstantCache = Caffeine.newBuilder()
+//			.weakKeys()
+		    .weakValues()
+//		    .recordStats()
+			.maximumSize(10000)
+			.build();
+	
 	public RascalExecutionContext(
 			IValueFactory vf, 
 			PrintWriter stdout, 
@@ -325,6 +332,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	public static IValue shareConstant(IValue c){
 		return sharedConstantCache.get(c, k -> k);
+	}
+	
+	public static Type shareTypeConstant(Type t){
+		return sharedTypeConstantCache.get(t, k -> k);
 	}
 	
 	public IValueFactory getValueFactory(){ return vf; }
