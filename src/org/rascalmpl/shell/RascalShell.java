@@ -62,14 +62,14 @@ public class RascalShell  {
             if (mf.hasManifest(RascalShell.class) && mf.hasMainModule(RascalShell.class)) {
                 runner = new ManifestRunner(mf, new PrintWriter(System.out), new PrintWriter(System.err, true));
             } 
-            else if ("--help".equals(args[0])) {
-                System.err.println("Usage: java -jar rascal-version.jar [{--rascalc, --rascal, --rascalTests, --compiledRepl}] [Module]");
-                System.err.println("\ttry also the --help options of the respective commands.");
-                System.err.println("\tjava -jar rascal-version.jar [Module]: runs the main function of the module using the interpreter");
-                return;
-            }
-            else if (args.length > 0) {
-                if (args[0].equals("--rascalc")) {
+            else if (args.length > 0) {            	
+            	if (args[0].equals("--help")) {
+                    System.err.println("Usage: java -jar rascal-version.jar [{--rascalc, --rascal, --rascalTests, --compiledRepl}] [Module]");
+                    System.err.println("\ttry also the --help options of the respective commands.");
+                    System.err.println("\tjava -jar rascal-version.jar [Module]: runs the main function of the module using the interpreter");
+                    return;
+                }
+            	else if (args[0].equals("--rascalc")) {
                     runner = new ShellRunner() {
                         @Override
                         public void run(String[] args) {
