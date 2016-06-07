@@ -93,7 +93,7 @@ import io.usethesource.capsule.ImmutableMap;
 	        if(value == this) return true;
 	        if(value == null) return false;
 	        
-	        if(value instanceof IConstructor){
+	        if (value instanceof IConstructor){
 	            IConstructor otherTree = (IConstructor) value;
 	            
 	            if(!constructorType.comparable(otherTree.getConstructorType())) {
@@ -110,24 +110,11 @@ import io.usethesource.capsule.ImmutableMap;
 	                }
 	            }  
 
-	            // TODO: this can be optimized when annotations are removed
-	            if (mayHaveKeywordParameters() && otherTree.mayHaveKeywordParameters()) {
-	              return asWithKeywordParameters().equalParameters(otherTree.asWithKeywordParameters());
-	            }
-	            
-	            // TODO: this can be optimized when annotations are removed
-	            if (mayHaveKeywordParameters() && asWithKeywordParameters().hasParameters()) {
-	              return false;
-	            }
-	            
-	            // TODO: this can be optimized when annotations are removed
-	            if (otherTree.mayHaveKeywordParameters() && otherTree.asWithKeywordParameters().hasParameters()) {
-	              return false;
-	            }
-	            
-	            return true;
+	            // if this has keyword parameters, then isEqual is overriden by the wrapper
+	            // but if the other has keyword parameters, then we should fail here:
+	            return otherTree.mayHaveKeywordParameters() ? !otherTree.asWithKeywordParameters().hasParameters() : true;
 	        }
-	        
+
 	        return false;
 	    }
 	    
@@ -217,7 +204,7 @@ import io.usethesource.capsule.ImmutableMap;
 	    @Override
         public Iterator<IValue> iterator() {
             return new Iterator<IValue>() {
-                private final int max = 1;
+                private final int max = arity();
                 private int cur = 0;
 
                 @Override
@@ -227,7 +214,9 @@ import io.usethesource.capsule.ImmutableMap;
 
                 @Override
                 public IValue next() {
-                    return get(cur++);
+                    IValue res = get(cur);
+                    cur++;
+                    return res;
                 }
             };
         }
@@ -240,7 +229,7 @@ import io.usethesource.capsule.ImmutableMap;
 	            Type[] actualTypes = new Type[constructorType.getArity()];
 	            int i = 0;
 	            for (IValue child : this) {
-	                actualTypes[i] = child.getType();
+	                actualTypes[i++] = child.getType();
 	            }
 
 	            Map<Type,Type> bindings = new HashMap<Type,Type>();
