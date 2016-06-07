@@ -214,7 +214,6 @@ public class Bootstrap {
        
         runAllTests(phase, classPath, bootPath, sourcePath, result);
         compileMuLibrary(phase, classPath, bootPath, sourcePath, result);
-        generateRascalParser(phase, classPath, bootPath, sourcePath, result);
         compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel");
         compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator");
         
@@ -254,18 +253,6 @@ public class Bootstrap {
         }
     }
     
-    private static void generateRascalParser(int phase, String classPath, String bootDir, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage, NoSuchRascalFunction {
-        info("\tgenerating Rascal Parser");
-        
-        if (runMuLibraryCompiler(classPath, 
-                "--binDir", result.toAbsolutePath().toString(),
-                "--srcPath", sourcePath,
-                "--bootDir", bootDir) != 0) {
-            
-            throw new BootstrapMessage(phase);
-        }
-    }
-
     private static void runTestModule(int phase, String classPath, String bootDir, String sourcePath, Path result, String module) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
         info("Running tests of " + module + " before the next phase " + phase);
         String[] arguments = new String[] {"--binDir", result.toAbsolutePath().toString(), "--srcPath", sourcePath, "--bootDir", bootDir, module};
