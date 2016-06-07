@@ -18,6 +18,14 @@ test bool assignKw() {
    return a.y == "2";
 }
 
+test bool visitKw() {
+   a = get((A) `a`)[y="2"];
+   a = visit(a) {
+      case "bla" : println("does not happen");
+   }
+   return a.y == "2";
+}
+
 test bool eqTest() = get((A)`a`) == get((A)`a`);
 
 test bool eqTest2() = get((A)`a`).y == get((A)`a`)[y="y"].y;

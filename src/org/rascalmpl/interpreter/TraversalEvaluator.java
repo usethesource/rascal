@@ -372,8 +372,12 @@ public class TraversalEvaluator {
 			  throw new UnexpectedType(cons.getConstructorType().getFieldTypes(), tf.tupleType(args), (AbstractAST) null);
 		  }
 		  
-		  if (!cons.mayHaveKeywordParameters() && cons.asAnnotatable().hasAnnotations()) {
+		  if (cons.isAnnotatable() && cons.asAnnotatable().hasAnnotations()) {
 		    rcons = rcons.asAnnotatable().setAnnotations(cons.asAnnotatable().getAnnotations());
+		  }
+		  
+		  if (cons.mayHaveKeywordParameters() && cons.asWithKeywordParameters().hasParameters()) {
+		      rcons = rcons.asWithKeywordParameters().setParameters(cons.asWithKeywordParameters().getParameters());
 		  }
 
 		  return rcons;
@@ -511,8 +515,12 @@ public class TraversalEvaluator {
 			else {
 				n = eval.getValueFactory().node(node.getName(), args);
 			
-				if (!node.mayHaveKeywordParameters() && node.asAnnotatable().hasAnnotations()) {
+				if (node.isAnnotatable() && node.asAnnotatable().hasAnnotations()) {
 					n = n.asAnnotatable().setAnnotations(node.asAnnotatable().getAnnotations());
+				}
+				
+				if (node.mayHaveKeywordParameters() && node.asWithKeywordParameters().hasParameters()) {
+				    n = n.asWithKeywordParameters().setParameters(node.asWithKeywordParameters().getParameters());
 				}
 			}
 			
