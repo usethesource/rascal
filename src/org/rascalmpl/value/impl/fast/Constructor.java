@@ -46,6 +46,8 @@ import io.usethesource.capsule.ImmutableMap;
 /*package*/ class Constructor {
 	private static abstract class AbstractConstructor extends AbstractValue implements IConstructor {
 	    protected final Type constructorType;  
+	    private int hashCode;
+	    
 	    public AbstractConstructor(Type constructorType) {
 	        this.constructorType = constructorType;
         }
@@ -117,6 +119,20 @@ import io.usethesource.capsule.ImmutableMap;
 
 	        return false;
 	    }
+	    
+	    @Override
+        public int hashCode(){
+            if (hashCode == 0) {
+                hashCode = constructorType.hashCode();
+                
+                for (int i = 0; i < arity(); i++) {
+                    hashCode = (hashCode << 23) + (hashCode >> 5);
+                    hashCode ^= get(i).hashCode();
+                }
+            }
+            
+            return hashCode;
+        }
 	    
 	    @Override
 	    public boolean equals(Object o){
@@ -307,15 +323,6 @@ import io.usethesource.capsule.ImmutableMap;
             return 1;
         }
         
-        
-        
-        @Override
-        public int hashCode(){
-            int consCode = constructorType.hashCode();
-            return (consCode << 23 + consCode >> 5) 
-                    ^ arg1.hashCode();
-        }
-        
         @Override
         public IValue get(int index) throws IndexOutOfBoundsException {
             switch (index) {
@@ -348,14 +355,6 @@ import io.usethesource.capsule.ImmutableMap;
         @Override
         public int arity() {
             return 2;
-        }
-        
-        @Override
-        public int hashCode(){
-            int consCode = constructorType.hashCode();
-            return (consCode << 23 + consCode >> 5) 
-                    ^ arg1.hashCode()
-                    ^ arg2.hashCode();
         }
         
         @Override
@@ -394,15 +393,6 @@ import io.usethesource.capsule.ImmutableMap;
         @Override
         public int arity() {
             return 3;
-        }
-        
-        @Override
-        public int hashCode(){
-            int consCode = constructorType.hashCode();
-            return (consCode << 23 + consCode >> 5) 
-                    ^ arg1.hashCode()
-                    ^ arg2.hashCode()
-                    ^ arg3.hashCode();
         }
         
         @Override
@@ -445,16 +435,6 @@ import io.usethesource.capsule.ImmutableMap;
         @Override
         public int arity() {
             return 4;
-        }
-        
-        @Override
-        public int hashCode(){
-            int consCode = constructorType.hashCode();
-            return (consCode << 23 + consCode >> 5) 
-                    ^ arg1.hashCode()
-                    ^ arg2.hashCode()
-                    ^ arg3.hashCode()
-                    ^ arg4.hashCode();
         }
         
         @Override
@@ -501,17 +481,6 @@ import io.usethesource.capsule.ImmutableMap;
         @Override
         public int arity() {
             return 5;
-        }
-        
-        @Override
-        public int hashCode(){
-            int consCode = constructorType.hashCode();
-            return (consCode << 23 + consCode >> 5) 
-                    ^ arg1.hashCode()
-                    ^ arg2.hashCode()
-                    ^ arg3.hashCode()
-                    ^ arg4.hashCode()
-                    ^ arg5.hashCode();
         }
         
         @Override
@@ -562,18 +531,6 @@ import io.usethesource.capsule.ImmutableMap;
         @Override
         public int arity() {
             return 6;
-        }
-        
-        @Override
-        public int hashCode(){
-            int consCode = constructorType.hashCode();
-            return (consCode << 23 + consCode >> 5) 
-                    ^ arg1.hashCode()
-                    ^ arg2.hashCode()
-                    ^ arg3.hashCode()
-                    ^ arg4.hashCode()
-                    ^ arg5.hashCode()
-                    ^ arg6.hashCode();
         }
         
         @Override
@@ -631,19 +588,6 @@ import io.usethesource.capsule.ImmutableMap;
         }
         
         @Override
-        public int hashCode(){
-            int consCode = constructorType.hashCode();
-            return (consCode << 23 + consCode >> 5) 
-                    ^ arg1.hashCode()
-                    ^ arg2.hashCode()
-                    ^ arg3.hashCode()
-                    ^ arg4.hashCode()
-                    ^ arg5.hashCode()
-                    ^ arg6.hashCode()
-                    ^ arg7.hashCode();
-        }
-        
-        @Override
         public IValue get(int index) throws IndexOutOfBoundsException {
             switch (index) {
             case 0: return arg1;
@@ -672,8 +616,6 @@ import io.usethesource.capsule.ImmutableMap;
                 throw new IndexOutOfBoundsException();
             }
         }
-        
-        
 	}
 	
 	private static class ConstructorN extends AbstractConstructor {
@@ -691,18 +633,7 @@ import io.usethesource.capsule.ImmutableMap;
 	        return children.length;
 	    }
 	    
-	    @Override
-	    public int hashCode(){
-	        if (hashCode == 0) {
-	            hashCode = constructorType.hashCode();
-	            
-	            for(int i = children.length - 1; i >= 0; i--){
-	                hashCode = (hashCode << 23) + (hashCode >> 5);
-	                hashCode ^= children[i].hashCode();
-	            }
-	        }
-	        return hashCode;
-	    }
+	   
 	    
 	    @Override
 	    public Iterator<IValue> iterator() {
