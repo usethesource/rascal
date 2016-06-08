@@ -299,7 +299,7 @@ public CheckResult checkExp(Expression exp:(Expression)`( <Expression ei> | <Exp
         cRed = addLocalVariable(cRed, RSimpleName("it"), true, exp@\loc, erType, allowedConflicts={RSimpleName("it")});
         < cRed, t3 > = checkExp(er, cRed);
         if (!isFailType(t3)) {
-            if (!equivalent(erType,t3) && lub(erType,t3) == t3) {
+            if (!equivalent(erType,t3) && equivalent(lub(erType,t3),t3)) {
                 // If this is true, this means that "it" now has a different type, and
                 // that the type is growing towards value. We run the body again to
                 // see if the type changes again. This covers many standard cases
