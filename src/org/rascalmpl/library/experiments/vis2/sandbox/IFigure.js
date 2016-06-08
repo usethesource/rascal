@@ -484,14 +484,20 @@ function _adjust(toId, fromId, hshrink, vshrink, toLw, n, angle, x, y, width,
 	var w = width * hshrink;
 	var h = height * vshrink;
 	// alert("adjust1:"+ to.node().nodeName+" "+width+" "+height+" "+w+" "+h);
+	var  invalidW = invalid(to.attr("width"))&&invalid(to.attr("w"));
+	var  invalidH = invalid(to.attr("height"))&&invalid(to.attr("h"));
 	switch (to.node().nodeName) {
+	case "BUTTON":
 	case "TABLE":
-		to.attr("w", w).attr("h", h);
-		to.style("width", w).attr("height", h);
+	case "INPUT":
+	case "FORM":
+		if (invalidW) to.attr("w", w).style("width", w);	
+		if (invalidH) to.attr("h", h).style("height", h);
 		break;
 	case "rect":
-		to.attr("width", w).attr("height", h).attr("x", toLw / 2).attr("y",
-				toLw / 2);
+		if (invalidW) to.attr("width", w);
+		if (invalidH) to.attr("height", h);
+		to.attr("x", toLw / 2).attr("y", toLw / 2);
 		break;
 	case "circle":
 		if (to.attr("r") == null) {
@@ -533,18 +539,22 @@ function _adjust(toId, fromId, hshrink, vshrink, toLw, n, angle, x, y, width,
 		break;
 	}
 	;
-	d3.select("#" + toId + "_mirror").attr("transform",
-			"scale(1, -1) translate(0, -h)");
-	d3.select("#" + toId + "_fo_table").attr("w", w - toLw).attr("h", h - toLw);
-	d3.select("#" + toId + "_fo_table").style("width", w - toLw).style(
-			"height", h - toLw);
-	d3.select("#" + toId + "_fo_table").attr("pointer-events", "none");
-	d3.select("#" + toId + "_fo").attr("width", w - toLw).attr("height",
-			h - toLw);
-	d3.select("#" + toId + "_outer_fo").attr("width", w - toLw).attr("height",
-			h - toLw);
-	d3.select("#" + toId + "_svg").attr("width", w + toLw + x).attr("height",
-			h + toLw + y);
+	//d3.select("#" + toId + "_mirror").attr("transform",
+	//		"scale(1,-1)translate(0,"+(-h)+")");
+	to = d3.select("#" + toId + "_fo_table");
+	if (invalidW) {
+	     to.attr("w", w - toLw).style("width", w - toLw);
+	     d3.select("#" + toId + "_fo").attr("width", w - toLw);
+	     d3.select("#" + toId + "_outer_fo").attr("width", w - toLw);
+	     d3.select("#" + toId + "_svg").attr("width", w + toLw + x);
+	}
+	if (invalidH) {
+	     to.attr("h", h - toLw).style("height", h - toLw);
+	     d3.select("#" + toId + "_fo").attr("height", h - toLw);
+		 d3.select("#" + toId + "_outer_fo").attr("height", h - toLw);
+		 d3.select("#" + toId + "_svg").attr("height", h + toLw + y);
+	}
+	to.attr("pointer-events", "none");
 }
 
 function figShrink(id, hshrink, vshrink, lw, n, angle) {
@@ -586,15 +596,21 @@ function getVal(f, key) {
 		}
 	}
 	d = d3.select("#" + f.id);
-	if ([ "BUTTON", "INPUT", "FORM" ].indexOf(d.node().nodeName) >= 0) {
+	if ([ "TABLE", "BUTTON", "INPUT", "FORM" ].indexOf(d.node().nodeName) >= 0) {
+		if (key == "width")
+			return d.attr("w");
+		if (key == "height")
+			return d.attr("h");
 		return d.style(key);
 	}
+	/*
 	if (d.node().nodeName == "TABLE") {
 		if (key == "width")
 			return d.attr("w");
 		if (key == "height")
 			return d.attr("h");
 	}
+	*/
 	if (d.attr(key) == null) {
 		d = d3.select("#" + f.id + "_svg");
 		return d.empty() ? null : d.attr(key);
@@ -666,43 +682,63 @@ function adjustTd(to, from) {
 
 function adjustTable(id1, clients) {
 	// alert("adjustTable");
-	var aUndefWH = clients.filter(undefWH);
+	var aUndefW = clients.filter(undefW);
 	var width = d3.select("#" + id1).attr("w");
-	var height = d3.select("#" + id1).attr("h");
 	// alert("adjustTable:"+aUndefWH.length+" "+width);
-	if (aUndefWH.length == 0) {
+	if (invalid(width) && aUndefW.length == 0) {
 		width = document.getElementById(id1).getBoundingClientRect().width;
-		height = document.getElementById(id1).getBoundingClientRect().height;
 		// alert("OK:"+width);
-		d3.select("#" + id1).attr("w", "" + width + "px").attr("h",
-				"" + height + "px");
+		d3.select("#" + id1).attr("w", "" + width + "px")
+	}
+	var aUndefH = clients.filter(undefH);
+	var height = d3.select("#" + id1).attr("h");
+	if (invalid(height) && aUndefH.length == 0) {
+		height = document.getElementById(id1).getBoundingClientRect().height;
+		d3.select("#" + id1).attr("h", "" + height + "px")
 	}
 	// alert("adjustTable:"+width);
 	if (invalid(width) || invalid(height))
 		return;
 	width = parseInt(width);
 	height = parseInt(height);
+	var x = 0; 
+	var y = 0;
+	var e = d3.select("#" + id1 + "_outer_fo");
+	if (!e.empty()) {
+	    x =  parseInt(d3.select("#" + id1 + "_outer_fo").attr("x"));
+	    y=   parseInt(d3.select("#" + id1 + "_outer_fo").attr("y"));
+	    }
 	d3.select("#" + id1 + "_outer_fo").attr("width", "" + width + "px").attr(
 			"height", "" + height + "px")
-	d3.select("#" + id1 + "_svg").attr("width", "" + width + "px").attr(
-			"height", "" + height + "px");
+	d3.select("#" + id1 + "_svg").attr("width", "" + (width+x) + "px").attr(
+			"height", "" + (height+y) + "px");
 }
 
 function adjustTableWH1(id1, clients) {
-	var width = d3.select("#" + id1).attr("w");
-	var height = d3.select("#" + id1).attr("h");
-
-	var aUndefWH = clients.filter(function(i) {
-		return i.filter(undefWH).length != 0;
+	var aUndefW = clients.filter(function(i) {
+		return i.filter(undefW).length != 0;
 	});
 	// alert("adjustTableWH1:"+width);
-	if (aUndefWH.length == 0) {
+	var width = d3.select("#" + id1).attr("w");
+	if (invalid(width)  && aUndefW.length == 0 ) {
 		width = document.getElementById(id1).getBoundingClientRect().width;
-		height = document.getElementById(id1).getBoundingClientRect().height;
-		if (!d3.select("#" + id1+"_ok").empty()) height=parseInt(height)+50;
-		d3.select("#" + id1).attr("w", "" + width + "px").attr("h",
-				"" + height + "px").attr("height", height);
+		d3.select("#" + id1).attr("w", "" + width + "px").attr("width", width);
 	}
+	
+	var aUndefH = clients.filter(function(i) {
+		return i.filter(undefH).length != 0;
+	});
+	var height = d3.select("#" + id1).attr("h");
+	if (invalid(height) && aUndefH.length == 0 ) {
+		height = document.getElementById(id1).getBoundingClientRect().height;
+		d3.select("#" + id1).attr("h","" + height + "px").attr("height", height);
+	}
+	if (!d3.select("#" + id1+"_ok").empty()) {
+		  if (invalid(height)) height = document.getElementById(id1).getBoundingClientRect().height;
+		  var bheight= parseInt(d3.select("#" + id1+"_ok").style("height"));
+		  height=parseInt(height)+bheight+5;
+	      d3.select("#" + id1).attr("h","" + height + "px").attr("height", height);
+	      }
 	d3.select("#" + id1 + "_outer_fo").attr("width", "" + width + "px").attr(
 			"height", "" + height + "px")
 	d3.select("#" + id1 + "_svg").attr("width", "" + width + "px").attr(
@@ -765,13 +801,16 @@ function adjustTableW(clients, from, lw, hpad, vpad, hgap, vgap) {
 		return;
 	width = parseInt(width) - hgap * clients.length;
 	var aUndefW = clients.filter(undefW);
-	var aUndefWH = clients.filter(undefWH);
 	var sDefW = sumWidth(clients.filter(defW));
 	var nW = aUndefW.length;
 	var w = (width - sDefW) / nW;
 	var h = parseInt(height);
-	for (var i = 0; i < aUndefWH.length; i++) {
-		adjust1(from, aUndefWH[i], w, h);
+	for (var i = 0; i < aUndefW.length; i++) {
+		adjust1(from, aUndefW[i], w, h);
+	}
+	var aUndefH = clients.filter(undefH);
+	for (var i = 0; i < aUndefH.length; i++) {
+		adjust1(from, aUndefH[i], w, h);
 	}
 }
 

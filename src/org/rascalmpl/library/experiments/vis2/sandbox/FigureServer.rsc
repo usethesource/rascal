@@ -291,7 +291,7 @@ Figure finalStateMachine(Figure f, str initialState) {
         Figure question = emptyFigure(); 
         if (typeOf(fr.startValue)==\str() || typeOf(fr.startValue)==\int()
         || \adt("MoneyType",_):=typeOf(fr.startValue)) 
-             question = strInput(size=<300, 20>, nchars = 20, id = id, fillColor = "white"
+             question = strInput(nchars = 20, id = id, fillColor = "white"
                  ,\value =  startValue(fr.startValue),event=on(f(fr.startValue)));
         if (typeOf(fr.startValue)==\tuple([\list(\str()), \str()])) {
              if (tuple[list[str] fields, str checked] cs := fr.startValue)
