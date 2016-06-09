@@ -209,11 +209,17 @@ Figure choice() = hcat(figs=[
       ]);
 void tchoice()= render(choice());
 
-Figure string() = strInput(event=on( 
+Figure string() = vcat(figs=[strInput(event=on( 
     void(str e, str n , str v) {
-       println(v);
+       value w =  property(n).\value;
+       if (str s:= w) {
+           textProperty("aap", html = s);
+           }
        }
-     ));
+     )),
+     box(fig=text("aap", id = "aap"))
+     ]
+     );
 void tstring()= render(string());
 
 Figure checkbox() = hcat(figs= [
@@ -570,10 +576,24 @@ void main(){
     );
 }
 
-Figure ov() = overlay(figs=[at(10, 10, box(size=<50, 50>)), at(10, 10, hcat(figs= [box(size=<50, 50>)]))]);
+Figure ov() = overlay(size=<200, 200>, figs=[at(10, 10, box(size=<150, 150>)), hcat(figs=[box(size=<50, 50>, lineWidth=4, fillColor="red")])]);
 
 void tov() = render(ov());
 
+/*
+Figure ov() = hcat(figs=
+    [overlay(figs=[box(size=<50, 50>, id = "red",   fillColor = "red"  ,event=on("click", void(str e, str n, str v){
+                  style("blue", fillColor="red");
+                  style("green", visibility = "visible");
+                  }))
+                  ,box(size=<50, 50>, id = "green", visibility="hidden", fillColor = "green",event=on("click", void(str e, str n, str v){
+                       style("blue", fillColor="green");
+                       style("green", visibility = "hidden");
+                       }))
+                 ]),
+         box(size=<50, 50>, fillColor="blue", id = "blue")]);
+  */
+         
 Figure rot() // = d3();
     = box(size=<20, 20>
      // , tooltip = overlay(figs=[circle(r=10), circle(r=20)])
@@ -583,6 +603,9 @@ Figure rot() // = d3();
 void trot() = render(rot());
 
 public void frot(loc l) = writeFile(l, toHtmlString(rot()));
+
+
+
  
  
  

@@ -14,8 +14,9 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFu
 
 /**
  * CourseCompiler compiles all courses to HTML in the following steps:
- * - 
- *
+ * - each concept is translated to an AsciiDoc file
+ * - all generated AsciiDoc files are transformed to a single HTML file
+ * - the contributions to the Lucene index are computed
  */
 public class CourseCompiler {
 	private static final String ASCIIDOCTER = "/usr/local/bin/asciidoctor";
@@ -72,9 +73,8 @@ public class CourseCompiler {
 		
 		try {
 			runAsciiDocter(coursesDir, courseName, err);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (IOException e) {
+			System.err.println("Cannot run asciidocter: " + e.getMessage());
 		}
 	
 		try {
@@ -110,14 +110,14 @@ public class CourseCompiler {
 		}
 
 //		compileCourse(coursesDir, "ADocTest");
-		compileCourse(coursesDir, "CompareWithOtherParadigms");
-		compileCourse(coursesDir, "EASY");
-		compileCourse(coursesDir, "Errors");
-		compileCourse(coursesDir, "Rascal");
-		compileCourse(coursesDir, "Libraries");
+//		compileCourse(coursesDir, "CompareWithOtherParadigms");
+//		compileCourse(coursesDir, "EASY");
+//		compileCourse(coursesDir, "Errors");
+//		compileCourse(coursesDir, "Rascal");
+//		compileCourse(coursesDir, "Libraries");
 		compileCourse(coursesDir, "Rascalopedia");
-		compileCourse(coursesDir, "Recipes");
-		compileCourse(coursesDir, "SolutionStrategies");
-		compileCourse(coursesDir, "TutorWebSite");
+//		compileCourse(coursesDir, "Recipes");
+//		compileCourse(coursesDir, "SolutionStrategies");
+//		compileCourse(coursesDir, "TutorWebSite");
 	}
 }

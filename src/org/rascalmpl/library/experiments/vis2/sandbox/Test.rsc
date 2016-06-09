@@ -259,9 +259,9 @@ Figure quest(str p, int x, int y) {
          [
          <p+"sexe", <["male", "female"], "">, "sexe", [<isNotEmpty, "choose sexe, please">]>
          , <p+"first", "Bert", "first name", constraints>
-          ,<p+"last",  emptyStr, "last name",  constraints >
-         ,<p+"telnumber", emptyStr, "tel. number", [<isTel, "is not a telephone number">]>
-         ,<p+"amount", emptyEuro, "amount", [<lowConstraint, "Start amount @ too low">]>
+         ,<p+"last",  emptyStr, "last name",  constraints >
+         ,<p+"telnumber", emptyStr, "tel. number", [<isTel, "is not a telephone number">]>,
+        <p+"amount", emptyEuro, "amount", [<lowConstraint, "Start amount @ too low">]>
          ]
          ,event= on(void(str e, str n, str v){println("aap");})
          ,x=x, y = y, visibility = "hidden")
@@ -270,12 +270,20 @@ Figure quest(str p, int x, int y) {
        ]);
     }
 
-void tquest() = render(vcat(figs=[quest("a", 50, 50), quest("b", 150, 150)]));
+void tquest() = render(vcat(figs=[quest("a", 50, 50), quest("b", 300, 300)]));
 
 public void fquest(loc l) = writeFile(l, toHtmlString(
-   vcat(figs=[quest("a", 50, 50), quest("b",150, 150)])
+   vcat(figs=[quest("a", 10, 10), quest("b",500, 500)])
  )); 
  
+ 
+ Figure half()=hcat(width=60, height = 120, figs = [strInput(fillColor="yellow", nChars = 20)], fillColor="lightGrey");
+ 
+ void thalf() = render(half());
+ 
+ public void fhalf(loc l) = writeFile(l, toHtmlString(
+    half()
+ )); 
  
  
                  

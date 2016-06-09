@@ -180,8 +180,8 @@ public data Figure(
 		tuple[int, int, int, int] padding = <0, 0, 0, 0>, // left, top, right, botton 
 		int width = -1,
 		int height = -1,
-		Position at = <0,0>,
-		Rotate rotate =<0, -1, -1>, 
+		Position at = <0, 0>,
+		Rotate rotate = <0, -1, -1>, 
 		Alignment align = <0.5, 0.5>, 
 		num bigger = 1.0,
 		num shrink = 1.0, 
@@ -594,13 +594,14 @@ list[list[value]] joinData(list[Chart] charts, bool tickLabels, int tooltipColum
            [[lab[z]] +[*((c.\data[z]?)?c.\data[z]:"null")|c<-m]|z<-x];
       }
    }
-   
+
+/* 
 public Figure svg(Figure f, tuple[int, int] size = <0, 0>) {
     Figure r = box(size=size, lineWidth = 0, fillColor = "none", fig = f);
     return r;
     }
+*/
   
-   
 public map[str, value] adt2map(node t) {
    map[str, value] r = getKeywordParameters(t);
    for (d<-r) {

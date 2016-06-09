@@ -39,7 +39,7 @@ void tdemo1()  {render(demo1());}
 
 
  void tfdemo1(loc l) {
-      writeFile(l, toHtmlString(demo1()), debug = false, width = 600, height = 600);
+      writeFile(l, toHtmlString(demo1(), debug = false, width = 600, height = 600));
       }
 
 // --------------------------------------------------------------------------
@@ -64,7 +64,7 @@ public Figure demo2() {
 void tdemo2(){ render(demo2()); }
 
  void tfdemo2(loc l) {
-      writeFile(l, toHtmlString(demo2()), debug = false, width = 600, height = 600);
+      writeFile(l, toHtmlString(demo2(), debug = false, width = 600, height = 600));
       }
 
 // --------------------------------------------------------------------------
@@ -91,7 +91,7 @@ void tdemo3()  {render(demo3(), debug = false);}
 
 void tfdemo3(loc l) {
       // println(schoolPlot());
-      writeFile(l, toHtmlString(demo3()), debug = false, width = 600, height = 600);
+      writeFile(l, toHtmlString(demo3(), debug = false, width = 600, height = 600));
       }
 // ---------------------------------------------------------------------------
 
@@ -191,26 +191,6 @@ Figure labeled(Figure g) {
       demo4(), width = 600, height = 600, align = topLeft, debug = false);
       }
       
-
-   
-
-
-Figure butt() = hcat(figs= [
-    button("Click me", id = "aap"
-    , event = on("click", 
-    void (str n, str e) {
-       if (getStyle("mies").fillColor=="green")
-          setStyle("mies", style(fillColor="red"));
-       else 
-          setStyle("mies", style(fillColor="green"));
-       }
-    ))
-    , box(size=<50, 50>, id = "mies")  
-    ]);
-    
-void tbutt()= render(butt(), debug = false);
-
-void tfbutt(loc l)= writeFile(l, toHtmlString(butt(), debug = false));
 
 // ----------------------------------------------------------------------------------
 
@@ -443,8 +423,6 @@ Figure demo10() = sinAndCos();
 
 Figure demo11() = box(fig=gflags(), size=<400, 400>); 
 
-Figure demo12() = nederland(7); 
-
 Figure demo13() = fsm();                
                     
 void tflags() = render(flags());           
@@ -453,11 +431,8 @@ void tsteden() = render(frame(at(100, 100, box(fig=steden(width=400, height = 40
 
 void fsteden(loc l) = writeFile(l, toHtmlString(frame(at(100, 100, hcat(figs=[steden(width=400, height = 400)])))));
 
-void tnederland() = render(nederland(5, width=400, height = 200));
-
 void tsincos() = render(sinAndCos());
 
-void taex() = render(aex());
 
 void tfsm() = render(fsm());
 
@@ -691,10 +666,12 @@ void fdemo(loc l) {
       }
       
  Figure sb(Figure tt) {return box(size=<20, 20>, fillColor = "antiquewhite", 
-     tooltip = frame(at(30, 30, box(fig=tt, fillColor="whitesmoke", visible="hidden", lineWidth =1)))
+     tooltip = frame(at(30, 30, box(fig=tt, fillColor="whitesmoke", visibility="visible", lineWidth =1)))
  );}
  
- list[Figure] sb(list[Figure] tt) {return  mapper(tt, sb);}
+ // list[Figure] sb(list[Figure] tt) {return  mapper(tt, sb);}
+ 
+list[Figure] sb(list[Figure] tt) = [sb(f)|Figure f<-tt];
  
  Figure summary() = grid(figArray = [[sb(x)|x<-y]|y<-figures()]);
  
