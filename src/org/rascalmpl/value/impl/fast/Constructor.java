@@ -125,7 +125,7 @@ import io.usethesource.capsule.ImmutableMap;
             if (hashCode == 0) {
                 hashCode = constructorType.hashCode();
                 
-                for (int i = 0; i < arity(); i++) {
+                for (int i = arity() - 1; i >= 0; i--) {
                     hashCode = (hashCode << 23) + (hashCode >> 5);
                     hashCode ^= get(i).hashCode();
                 }
