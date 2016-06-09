@@ -620,8 +620,6 @@ import io.usethesource.capsule.ImmutableMap;
 	
 	private static class ConstructorN extends AbstractConstructor {
 	    protected final IValue[] children;
-	    private int hashCode = 0;
-	        
 	    
 	    public ConstructorN(Type constructorType, IValue[] children) {
 	        super(constructorType);
@@ -632,8 +630,6 @@ import io.usethesource.capsule.ImmutableMap;
 	    public int arity(){
 	        return children.length;
 	    }
-	    
-	   
 	    
 	    @Override
 	    public Iterator<IValue> iterator() {

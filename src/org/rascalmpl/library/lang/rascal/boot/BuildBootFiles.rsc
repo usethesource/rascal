@@ -42,7 +42,7 @@ import experiments::Compiler::Execute;
 import experiments::Compiler::Compile;
 import experiments::Compiler::CompileMuLibrary; 
 
-loc BOOT = |file:///Users/paulklint/git/rascal/src/boot/|;
+loc BOOT = |home:///Workspaces/Rascal/rascal/src/boot/|;
 loc BINBOOT = |home:///bin-boot|;
 loc SHELLSCRIPT = |home:///install.sh|;
 
