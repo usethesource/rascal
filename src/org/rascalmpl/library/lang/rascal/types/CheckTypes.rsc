@@ -299,7 +299,7 @@ public CheckResult checkExp(Expression exp:(Expression)`( <Expression ei> | <Exp
         cRed = addLocalVariable(cRed, RSimpleName("it"), true, exp@\loc, erType, allowedConflicts={RSimpleName("it")});
         < cRed, t3 > = checkExp(er, cRed);
         if (!isFailType(t3)) {
-            if (!equivalent(erType,t3) && lub(erType,t3) == t3) {
+            if (!equivalent(erType,t3) && equivalent(lub(erType,t3),t3)) {
                 // If this is true, this means that "it" now has a different type, and
                 // that the type is growing towards value. We run the body again to
                 // see if the type changes again. This covers many standard cases
@@ -3657,7 +3657,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                                	argType = getConstructorArgumentTypes(a)[idx];
 	                                	if ((pargs[idx]@rtype)?) {
 	                                		if (concreteType(pargs[idx]@rtype)) {
-	                                			if (!subtype(pargs[idx]@rtype, argType)) {
+	                                			if (!comparable(pargs[idx]@rtype, argType)) {
 	                                				badMatches = badMatches + idx;
 	                                			}
 	                                		} else {
@@ -3686,7 +3686,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			                                	argType = kpm[kpname];
 			                                	if ((kpargs[kpname]@rtype)?) {
 			                                		if (concreteType(kpargs[kpname]@rtype)) {
-			                                			if (!subtype(kpargs[kpname]@rtype, argType)) {
+			                                			if (!comparable(kpargs[kpname]@rtype, argType)) {
 			                                				badMatches = badMatches + kpname;
 			                                			}
 			                                		} else {
@@ -3714,7 +3714,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             	} else if (isProductionType(a) && size(getProductionArgumentTypes(a)) == size(pargs)) {
 	                                // next, find the bad matches, which are those argument positions where we have concrete
 	                                // type information and that information does not match the alternative
-	                                badMatches = { idx | idx <- index(pargs), (pargs[idx]@rtype)?, concreteType(pargs[idx]@rtype), !subtype(pargs[idx]@rtype, getProductionArgumentTypes(a)[idx]) };
+	                                badMatches = { idx | idx <- index(pargs), (pargs[idx]@rtype)?, concreteType(pargs[idx]@rtype), !comparable(pargs[idx]@rtype, getProductionArgumentTypes(a)[idx]) };
 	                                if (size(badMatches) == 0) 
 	                                    // if we had no bad matches, this is a valid alternative
 	                                    matches += < a, kpm >;
