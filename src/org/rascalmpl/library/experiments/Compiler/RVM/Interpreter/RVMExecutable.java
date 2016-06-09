@@ -37,7 +37,11 @@ import org.rascalmpl.values.uptr.RascalValueFactory;
  */
 public class RVMExecutable implements Serializable{
 	
-	static private final FSTConfiguration FSTConfig;
+	static private final boolean readJson = false;
+	static private final boolean writeJson = false;
+	
+	static private final FSTConfiguration FSTReadConfig;
+	static private final FSTConfiguration FSTWriteConfig;
 	static private final FSTSerializableType serializableType;
 	static private final FSTSerializableIValue serializableIValue;
 	static private final FSTRVMExecutableSerializer rvmExecutableSerializer;
@@ -48,31 +52,40 @@ public class RVMExecutable implements Serializable{
 	static {
 		// set up FST serialization
 
-		FSTConfig = FSTConfiguration.createDefaultConfiguration();   
+		FSTReadConfig = readJson ? FSTConfiguration.createJsonConfiguration() : FSTConfiguration.createDefaultConfiguration();  
+		FSTWriteConfig = writeJson ? FSTConfiguration.createJsonConfiguration() : FSTConfiguration.createDefaultConfiguration(); 
 
 		// PDB Types
 		serializableType = new FSTSerializableType();
-		FSTConfig.registerSerializer(FSTSerializableType.class, serializableType, false);
+		FSTReadConfig.registerSerializer(FSTSerializableType.class, serializableType, false);
+		FSTWriteConfig.registerSerializer(FSTSerializableType.class, serializableType, false);
 
 		// PDB values
 		serializableIValue =  new FSTSerializableIValue();
-		FSTConfig.registerSerializer(FSTSerializableIValue.class, serializableIValue, false);
+		FSTReadConfig.registerSerializer(FSTSerializableIValue.class, serializableIValue, false);
+		FSTWriteConfig.registerSerializer(FSTSerializableIValue.class, serializableIValue, false);
 
 		// Specific serializers
 		rvmExecutableSerializer = new FSTRVMExecutableSerializer();
-		FSTConfig.registerSerializer(RVMExecutable.class, rvmExecutableSerializer, false);
+		FSTReadConfig.registerSerializer(RVMExecutable.class, rvmExecutableSerializer, false);
+		FSTWriteConfig.registerSerializer(RVMExecutable.class, rvmExecutableSerializer, false);
 
 		functionSerializer = new FSTFunctionSerializer();
-		FSTConfig.registerSerializer(Function.class, functionSerializer, false);
+		FSTReadConfig.registerSerializer(Function.class, functionSerializer, false);
+		FSTWriteConfig.registerSerializer(Function.class, functionSerializer, false);
 
 		overloadedFunctionSerializer = new FSTOverloadedFunctionSerializer();
-		FSTConfig.registerSerializer(OverloadedFunction.class, overloadedFunctionSerializer, false);
+		FSTReadConfig.registerSerializer(OverloadedFunction.class, overloadedFunctionSerializer, false);
+		FSTWriteConfig.registerSerializer(OverloadedFunction.class, overloadedFunctionSerializer, false);
 
 		codeblockSerializer = new FSTCodeBlockSerializer();
-		FSTConfig.registerSerializer(CodeBlock.class, codeblockSerializer, false);
+		FSTReadConfig.registerSerializer(CodeBlock.class, codeblockSerializer, false);
+		FSTWriteConfig.registerSerializer(CodeBlock.class, codeblockSerializer, false);
+
 
 		// For efficiency register some classes that are known to occur in serialization
-		FSTConfig.registerClass(OverloadedFunction.class);
+		FSTReadConfig.registerClass(OverloadedFunction.class);
+		FSTWriteConfig.registerClass(OverloadedFunction.class);
 		//conf.registerClass(FSTSerializableType.class);
 		//conf.registerClass(FSTSerializableIValue.class);
 	}   
@@ -329,7 +342,7 @@ public class RVMExecutable implements Serializable{
 
 		ISourceLocation compOut = rvmExecutable;
 		fileOut = URIResolverRegistry.getInstance().getOutputStream(compOut, false);
-		FSTObjectOutput out = new FSTObjectOutput(fileOut, FSTConfig);
+		FSTObjectOutput out = new FSTObjectOutput(fileOut, FSTWriteConfig);
 		long before = Timing.getCpuTime();
 		out.writeObject(this);
 		out.close();
@@ -353,7 +366,7 @@ public class RVMExecutable implements Serializable{
 		try {
 			ISourceLocation compIn = rvmExecutable;
 			InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(compIn);
-			in = new FSTObjectInput(fileIn, FSTConfig);
+			in = new FSTObjectInput(fileIn, FSTReadConfig);
 			long before = Timing.getCpuTime();
 			executable = (RVMExecutable) in.readObject(RVMExecutable.class);
 			in.close();
