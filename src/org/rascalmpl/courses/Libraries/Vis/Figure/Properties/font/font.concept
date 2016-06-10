@@ -1,36 +1,41 @@
-Name: font
+# font
 
-Synopsis: Define font to be used for text.
+.Synopsis
+Define font to be used for text.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty font(str fname)`
 
-Details:
+.Details
 
-Description:
+.Description
 Sets the font to be used for text.
-See [fontNames] for a list of available fonts.
+See <<fontNames>> for a list of available fonts.
 
-Examples:
-<figure f1.png>
-t1 = text("Rascal", font("Serif"), fontColor("Blue"));
+.Examples
+[source,rascal-figure,width=,height=,file=f1.png]
+----
+                t1 = text("Rascal", font("Serif"), fontColor("Blue"));
 render(t1);
-</figure>
-![font 1](f1.png)
+----
 
-<figure f2.png>
-t2 = text("Rascal", font("Monospaced"), fontColor("Red"));
+image::{concept}/f1.png[alt="font 1"]
+
+
+[source,rascal-figure,width=,height=,file=f2.png]
+----
+                t2 = text("Rascal", font("Monospaced"), fontColor("Red"));
 render(t2);
-</figure>
-![font 2](f2.png)
+----
 
-Benefits:
+image::{concept}/f2.png[alt="font 2"]
 
-Pitfalls:
 
-Questions:
+.Benefits
+
+.Pitfalls
 

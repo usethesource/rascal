@@ -1,36 +1,38 @@
-Name: combo
+# combo
 
-Synopsis: An interactive combo box.
+.Synopsis
+An interactive combo box.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `Figure combo(list[str] choices, void(str s) ccallback, FProperty props...)`
 
-Details:
+.Details
 
-Description:
+.Description
 Presents a combo box with a list of named choices to the user. When the user selects one of them, callback `ccallback` is
 called with that choice as argument.
 
-Examples:
-<figure combo1.png 200x100>
-public Figure comboTest(){
+.Examples
+[source,rascal-figure,width=200,height=100,file=combo1.png]
+----
+                public Figure comboTest(){
   str state = "A";
   return vcat([ combo(["A","B","C","D"], void(str s){ state = s;}),
                 text(str(){return "Current state: " + state ;}, left())
               ]);
 }
 render(comboTest());
-</figure>
-![combo1](combo1.png)
+----
 
-Benefits:
+image::{concept}/combo1.png[alt="combo1"]
 
-Pitfalls:
-Due to limitations in SWT this does not behave correctly when being placed over or under figures, so do not use them in [overlay] or [mouseOver].
 
-Questions:
+.Benefits
+
+.Pitfalls
+Due to limitations in SWT this does not behave correctly when being placed over or under figures, so do not use them in <<overlay>> or <<mouseOver>>.
 

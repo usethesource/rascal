@@ -1,25 +1,23 @@
-Name: Contents
+# Contents
 
-Synopsis: Table of Contents.
+.Synopsis
+Table of Contents.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
-<toc Tutor>
+subtoc[Tutor,]
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

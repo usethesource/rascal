@@ -1,24 +1,24 @@
-Name: extractMinimum
+# extractMinimum
 
-Synopsis: Extract minimum element from priority queue.
+.Synopsis
+Extract minimum element from priority queue.
 
-Function:
+.Function
 `tuple[int, int, PriorityQueue] extractMinimum(PriorityQueue Q)`
 
-Usage: `import util::PriorityQueue;`
+.Usage
 
-Description:
+.Description
 Find the pair with the minimum priority and remove it from PriorityQueue `Q`.
 Return a tuple consisting of:
-* minimum priority
-* associated value
-* PriorityQueue with minimal pair removed
 
-Examples:
+*  minimum priority
+*  associated value
+*  PriorityQueue with minimal pair removed
 
-Benefits:
+.Examples
 
-Pitfalls:
+.Benefits
 
-Questions:
+.Pitfalls
 

@@ -1,31 +1,31 @@
-Name: right
+# right
 
-Synopsis: Right, horizontal, alignment.
+.Synopsis
+Right, horizontal, alignment.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty right()`
 
-Details:
+.Details
 
-Description:
-`right` defines __right horizontal alignment__. 
+.Description
+`right` defines *right horizontal alignment*. 
 It sets horizontal alignment to 1.0.
 
 Note that
-* `right()` is equivalent to `halign(1.0)`.
+
+*  `right()` is equivalent to `halign(1.0)`.
 
 
-Also see [align], [halign] and [CompositionModel].
+Also see <<align>>, <<halign>> and <<CompositionModel>>.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

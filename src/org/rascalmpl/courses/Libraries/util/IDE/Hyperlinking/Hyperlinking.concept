@@ -1,25 +1,25 @@
-Name: Hyperlinking
+# Hyperlinking
 
-Synopsis: Hyperlinks in source code.
+.Synopsis
+Hyperlinks in source code.
 
-Syntax: 
-# `t@link = $loc$`
-# `t@links = $setOfLoc$`
+.Syntax
 
-Types:
+#  `t@link = $loc$`
+#  `t@links = $setOfLoc$`
 
-Function:
+.Types
 
-Details:
+.Function
 
-Description: By setting [$ParseTree/link] or [$ParseTree/links] annotations on parse trees, 
+.Details
+
+.Description
 the editor will show hyperlinks on the source text that is covered by any annotated parse tree node.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

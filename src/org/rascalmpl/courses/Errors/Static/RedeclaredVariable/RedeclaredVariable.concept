@@ -1,30 +1,29 @@
-Name: RedeclaredVariable
+# RedeclaredVariable
 
-Synopsis: A variable with the same name has been declared in the same scope.
+.Synopsis
+A variable with the same name has been declared in the same scope.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 Remedy: rename one of the variables.
 
-Examples:
-<screen warning>
+.Examples
+[source,rascal-shell,error]
+----
 int n = 3;
 int n = 4;
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

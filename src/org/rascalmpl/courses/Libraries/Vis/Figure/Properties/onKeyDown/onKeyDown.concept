@@ -1,28 +1,30 @@
-Name: onKeyDown
+# onKeyDown
 
-Synopsis:
+.Synopsis
+
 Define interactive behaviour when a key is pressed.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 FProperty onKeyDown (bool (KeySym key, map[KeyModifier,bool] modifiers) cb)
 
-Details:
+.Details
 
-Description:
+.Description
 This property allows you to install a handler for key presses. When the mouse is over the figure (i.e. the figure has focus) and a key is pressed then the callback `cb` will be called. This callback takes two arguments
 
-* `KeySym key` the key that is pressed, described by a [KeySym].
-* `map[KeyModifier,bool]` a map that indicates which modifier keys (Control, Alt, Super) are currently held down. Modifier keys are described by [KeyModifier].
+*  `KeySym key` the key that is pressed, described by a [KeySym].
+*  `map[KeyModifier,bool]` a map that indicates which modifier keys (Control, Alt, Super) are currently held down. Modifier keys are described by [KeyModifier].
 
 The callback returns a `bool` which indicates if the event is captured. Keyhandlers are executed deepest-figure first, if the key press is captured then the key press is not propagated further so figures below (less deep) than this figure will not receive a key press.
 
-Examples:
-<figure onkeydown.png 300x300>
-import vis::KeySym;
+.Examples
+[source,rascal-figure,width=300,height=300,file=onkeydown.png]
+----
+                import vis::KeySym;
 s = "";
 s2 = "";
 b = box(text(str () { return s; }),
@@ -40,13 +42,13 @@ b2 = box(vcat([
 		return true;
 	}));
 render(b2);
-</figure>
-![onkeydown](onkeydown.png)
+----
 
-Benefits:
+image::{concept}/onkeydown.png[alt="onkeydown"]
 
-Pitfalls:
+
+.Benefits
+
+.Pitfalls
 Unfortunately we cannot show an interactive version here, try it out in Rascal yourself.
-
-Questions:
 

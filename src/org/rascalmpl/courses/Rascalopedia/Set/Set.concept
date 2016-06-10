@@ -1,59 +1,60 @@
-Name: Set
+# Set
 
-Synopsis: An unordered collection of values without duplicates.
+.Synopsis
+An unordered collection of values without duplicates.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 
 A set is a collection of values with the following properties:
-* The set maybe empty.
-* The values in the list are _unordered_.
-* A value can only occur once.
-* The set has a size that is equal to the number of values in the set.
+
+*  The set maybe empty.
+*  The values in the list are _unordered_.
+*  A value can only occur once.
+*  The set has a size that is equal to the number of values in the set.
 
 
 In Rascal, sets are surrounded by braces `{` and `}` and the elements are separated by commas.
-Each set has a type of the form `set[$T$]`, where $T$ is the smallest common type of all set elements.
-See [Rascal:Values/Set] for a description of sets and their operators
-and [Rascal:Prelude/Set] for functions on sets.
+Each set has a type of the form `set[_T_]`, where _T_ is the smallest common type of all set elements.
+Read the description of link:/Rascal#Values-Set[sets and their operators]
+and of link:/Libraries#Prelude-Set[library functions on sets].
 
-Examples:
+.Examples
 
-===Sets in daily life===
-* A cutlery set consisting of knife, fork and the like.
-* A crowd of people.
-* A stamp collection (but be aware that the duplicates will disappear!)
+## Sets in Daily Life
 
+*  A cutlery set consisting of knife, fork and the like.
+   image:cutlery-set.jpg[width=200,alt="cutlery-set"]
+   http://www.ikea.com/gb/en/catalog/products/50087185/[credit]
+*  A crowd of people.
+*  A stamp collection (but be aware that the duplicates will disappear!)
+   image:stamp-collecting.jpg[width=200,alt="stamp-collecting"]
+   http://www.life123.com/hobbies/antiques-collectibles/stamps/stamp-collecting-2.shtml[credit]
 
-![cutlery-set](cutlery-set.jpg|200px) [credit](http://www.ikea.com/gb/en/catalog/products/50087185/)
-![stamp-collecting](stamp-collecting.jpg|200px) [credit](http://www.life123.com/hobbies/antiques-collectibles/stamps/stamp-collecting-2.shtml)
-
-
-===Sets in computer science===
-
-* The files in a directory. Of course, when you order them (by name, modification date) you need a [List] to represent them.
-* The set of moves an opponent can play in a game.
-* The set of nodes in a network.
+## Sets in computer science
 
 
-===Sets in Rascal===
-* The empty set: `{}`. Its type is `set[void]`.
-* A set of integers: `{3, 1, 4}`. Its type is `set[int]`.
-* A set of mixed-type values: `{3, "a", 4}`. Its type is `set[value]`.
+*  The files in a directory. Of course, when you order them (by name, modification date) you need a <<List>> to represent them.
+*  The set of moves an opponent can play in a game.
+*  The set of nodes in a network.
 
-Benefits:
 
-Pitfalls:
+## Sets in Rascal
 
-Questions:
+*  The empty set: `{}`. Its type is `set[void]`.
+*  A set of integers: `{3, 1, 4}`. Its type is `set[int]`.
+*  A set of mixed-type values: `{3, "a", 4}`. Its type is `set[value]`.
 
-       
+.Benefits
+
+.Pitfalls
+

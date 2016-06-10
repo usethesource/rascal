@@ -1,31 +1,29 @@
-Name: graphs
+# graphs
 
-Synopsis: Analyzing unlabeled and labelled graphs.
+.Synopsis
+Analyzing unlabeled and labelled graphs.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 
 Graphs are represented as relations. So in general the idea is to use the `Relation` module to manipulate graphs.
 At the same time there are algorithms and analyses which make particular sense when we view a relation as a graph, hence the
 existence of the `Graph` and `LabeledGraph` libraries.
 
-<toc Rascal/Libraries/analysis/graphs 1>
+subtoc::[1]
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

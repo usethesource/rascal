@@ -1,64 +1,44 @@
-Name: Insert
+# Set Insert
 
-Synopsis: Add an element to a set.
+.Synopsis
+Add an element to a set.
 
-Syntax:
-`$Exp_1$ + $Exp_2$`
+.Index
++
 
-Types:
-| `$Exp_1$`    |  `$Exp_2$`    | `$Exp_1$ + $Exp_2$`      |
-|:-------------|:--------------|:-------------------------|
-| `set[$T_1$]` |  `$T_2$`      | `set[lub($T_1$,$T_2$)]`  |
-| `$T_1$`      |  `set[$T_2$]` | `set[lub($T_1$,$T_2$)]`  |
+.Syntax
+`_Exp_~1~ + _Exp_~2~`
 
-Function:
+.Types
 
-Details:
 
-Description:
+|====
+| `_Exp~1~_`    |  `_Exp~2~_`    | `_Exp~1~_ + _Exp~2~_`      
+
+| `set[_T~1~_]` |  `_T~2~_`      | `set[lub(_T~1~_,_T~2~_)]`  
+| `_T~1~_`      |  `set[_T~2~_]` | `set[lub(_T~1~_,_T~2~_)]`  
+|====
+
+.Function
+
+.Details
+
+.Description
 
 The `+` operator will add elements to sets.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 {1, 2, 3} + 4;
 1 + { 2, 3, 4};
 {1} + 1;
 1 + {1};
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-* if both operands of `+` are a set then it acts as [$Rascal/Expressions/Values/Set/Union].
+.Pitfalls
 
-Questions:
+*  if both operands of `+` are a set then it acts as <<Set-Union>>.
 
-QChoice: When you insert an element in a set, the number of elements in the result is always:
-g: Greater than or equal to the number of elements in the original set.
-g: One larger than the number of elements in the original set.
-b: Smaller than the number of elements in the original set.
-b: One smaller than the number of elements in the original set.
-   
-QType: 
-make: A = arb[int[0,100],str]
-make: B = set[same[A]]
-test: <A> + <B>
-
-QValue: 
-make: A = arb[int[0,100],str]
-make: B = set[same[A]]
-expr: H = <A> + <B>
-hint: <H>
-test: <A> + <B> == <?>
-
-QValue: 
-make: A = arb[int[0,100],str]
-make: B = set[same[A]]
-expr: H = <B> + <A>
-hint: <H>
-test: <B> + <A> == <?>
-
-
-
-       

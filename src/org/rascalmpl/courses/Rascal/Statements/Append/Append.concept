@@ -1,43 +1,32 @@
-Name: Append
+# Append
 
-Synopsis: Append an element to the list value produced by various loop statements.
+.Synopsis
+Append an element to the list value produced by various loop statements.
 
-Syntax:
-`append $Exp$`
+.Index
+append
 
-Types:
+.Syntax
+`append _Exp_`
 
-Function:
+.Types
 
-Details:
+.Function
 
-Description:
-An append statement may only occur in the body of a [While], [Do] or [For] statement. 
-It appends the value of $Exp$ to the resulting list value of the loop construct in which it occurs.
+.Details
 
-Examples:
-<screen>
+.Description
+An append statement may only occur in the body of a <<While>>, <<Do>> or <<For>> statement. 
+It appends the value of _Exp_ to the resulting list value of the loop construct in which it occurs.
+
+.Examples
+[source,rascal-shell]
+----
 for(int i <- [1..5]) append i*i;
 L = for(int i <- [1..5]) append i*i;
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-QValue:
-desc: Complete this function that finds duplicates in a list of strings
-list:
-text = ["the", "jaws", "that", "bite", "the", "claws", "that", "catch"];
-public list[str] duplicates(list[str] text){
-    m = {};
-    return 
-      for(s <- text)
-        if(<?>)
-           append s;
-        else
-           m += s;
-}
-test: duplicates(text) == ["the", "that"];

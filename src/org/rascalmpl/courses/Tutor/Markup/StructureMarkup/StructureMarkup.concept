@@ -1,23 +1,22 @@
-Name: StructureMarkup
+# StructureMarkup
 
-Synopsis:
+.Synopsis
+
 Markup for structured text entities.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

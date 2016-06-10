@@ -1,39 +1,42 @@
-Name: Abstract
+# Abstract Patterns
 
-Synopsis: Abstract patterns.
+.Synopsis
+Abstract patterns.
 
-Syntax:<br>
-| Pattern              | Syntax                                                                      |
-|+---------------------|+----------------------------------------------------------------------------|
-| Literal              | [$Values/Boolean], [$Values/Integer], [$Values/Real], [$Values/Number], [$Values/String], [$Values/Location], or [$Values/DateTime] |
-| Variable declaration | `$Type$ $Var$`                                                              |
-| Multi-variable       | `*$Var$`, `*$Type$ $Var$`                                                   |
-| Variable             | `$Var$`                                                                     |
-| List                 | `[ $Pat_1$, $Pat_2$, ..., $Pat_n$ ]`                                        |
-| Set                  | `{ $Pat_1$, $Pat_2$, ..., $Pat_n$ }`                                        |
-| Tuple                | `< $Pat_1$, $Pat_2$, ..., $Pat_n$ >`                                        |
-| Node                 | `$Name$ ( $Pat_1$, $Pat_2$, ..., $Pat_n$ )`                                 |
-| Descendant           | `/ $Pat$`                                                                   |
-| Labelled             | `$Var$ : $Pat$`                                                             |
-| TypedLabelled        | `$Type$ $Var$ : $Pat$`                                                      |
-| TypeConstrained      |  `[$Type$] $Pat$`                                                           |
+.Syntax
 
-Types:
 
-Function:
+|====
+| Pattern              | Syntax                                                                      
 
-Details: Literal VariableDeclaration MultiVariable Variable List Set Tuple Node Descendant Labelled TypedLabelled TypeConstrained
+| Literal              | <<Values-Boolean>>, <<Values-Integer>>, <<Values-Real>>, <<Values-Number>>, <<Values-String>>, <<Values-Location>>, or <<Values-DateTime>> 
+| Variable declaration | `_Type_ _Var_`                                                              
+| Multi-variable       | `*_Var_`, `*_Type_ _Var_`                                                   
+| Variable             | `_Var_`                                                                     
+| List                 | `[ _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ ]`                                        
+| Set                  | `{ _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ }`                                        
+| Tuple                | `< _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ >`                                        
+| Node                 | `_Name_ ( _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ )`                                 
+| Descendant           | `/ _Pat_`                                                                   
+| Labelled             | `_Var_ : _Pat_`                                                             
+| TypedLabelled        | `_Type_ _Var_ : _Pat_`                                                      
+| TypeConstrained      |  `[_Type_] _Pat_`                                                           
+|====
 
-Description:
+.Types
+
+.Function
+
+.Details
+
+.Description
 An abstract pattern is recursively defined and may contain the following elements:
-<toc Rascal/Patterns/Abstract 1>
+subtoc::[1]
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 Map patterns are not (yet?) supported.
-
-Questions:
 

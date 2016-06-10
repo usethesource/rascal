@@ -1,33 +1,36 @@
-Name: For
+# For
 
-Synopsis: For loop.
+.Synopsis
+For loop.
 
-Syntax:
-`for ( $Exp_1$ , $Exp_2$ , ... , $Exp_n$ ) $Statement$;`
+.Index
+for
 
-Types:
+.Syntax
+`for ( _Exp_~1~ , _Exp_~2~ , ... , _Exp_~n~ ) _Statement_;`
 
-Function:
+.Types
 
-Details:
+.Function
 
-Description:
-The for-statement executes $Statement$ for all possible combinations of values of the expressions $Exp_i$.
+.Details
+
+.Description
+The for-statement executes _Statement_ for all possible combinations of values of the expressions _Exp_~i~.
 If one of the expressions is a boolean expression, we do try all its possible values.
 
 By default, the value of a for statement is the empty list. In general, 
-the value of a for statement consists of all values contributed by [$Statements/Append] statements that are executed during the repeated execution of its body Statement.
+the value of a for statement consists of all values contributed by <<Statements-Append>> statements that are executed during the repeated execution of its body Statement.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import IO;
 for(int n <- [1 .. 5]) println("n = <n>");
 for(int n <- [1 .. 5]) append n * n;
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

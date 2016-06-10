@@ -1,61 +1,72 @@
-Name: hcat
+# hcat
 
-Synopsis: Horizontal composition of a list of figures.
+.Synopsis
+Horizontal composition of a list of figures.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `Figure hcat(Figures figs, FProperty props...)`
 
-Details:
+.Details
 
-Description:
+.Description
 
-Horizontal composition is a special case of [grid]. It is a grid with just one row. See [grid] for more information.
+Horizontal composition is a special case of <<grid>>. It is a grid with just one row. See <<grid>> for more information.
 
-See also [vcat].
+See also <<vcat>>.
 
-Examples:
-<figure h1.png 300x100>
-b1 = box(vshrink(0.5), fillColor("Red"));
+.Examples
+[source,rascal-figure,width=300,height=100,file=h1.png]
+----
+                b1 = box(vshrink(0.5), fillColor("Red"));
 b2 = box(vshrink(0.8),  fillColor("Blue"));
 b3 = box(vshrink(1.0), fillColor("Yellow"));
 render(hcat([b1, b2, b3]));
-</figure>
-gives: ![h1](h1.png)
+----
+gives: 
+image::{concept}/h1.png[alt="h1"]
+
 
 `b2` aligned at the top:
-<figure h2.png 300x100>
-b1 = box(vshrink(0.5), fillColor("Red"));
+[source,rascal-figure,width=300,height=100,file=h2.png]
+----
+                b1 = box(vshrink(0.5), fillColor("Red"));
 b2 = box(vshrink(0.8),  fillColor("Blue"),top());
 b3 = box(vshrink(1.0), fillColor("Yellow"));
 render(hcat([b1, b2, b3]));
-</figure>
-gives: ![h2](h2.png)
+----
+gives: 
+image::{concept}/h2.png[alt="h2"]
+
 
 `b2` aligned at the bottom:
-<figure h3.png 300x100>
-b1 = box(vshrink(0.5), fillColor("Red"));
+[source,rascal-figure,width=300,height=100,file=h3.png]
+----
+                b1 = box(vshrink(0.5), fillColor("Red"));
 b2 = box(vshrink(0.8),  fillColor("Blue"),bottom());
 b3 = box(vshrink(1.0), fillColor("Yellow"));
 render(hcat([b1, b2, b3]));
-</figure>
-gives: ![h3](h3.png)
+----
+gives: 
+image::{concept}/h3.png[alt="h3"]
+
 
 All boxes aligned at the bottom:
-<figure h6.png 300x100>
-b1 = box(vshrink(0.5), fillColor("Red"));
+[source,rascal-figure,width=300,height=100,file=h6.png]
+----
+                b1 = box(vshrink(0.5), fillColor("Red"));
 b2 = box(vshrink(0.8), fillColor("Blue"));
 b3 = box(vshrink(1.0), fillColor("Yellow"));
 render(hcat([b1, b2, b3],std(bottom())));
-</figure>
-gives: ![h6](h6.png)
+----
+gives: 
+image::{concept}/h6.png[alt="h6"]
 
-Benefits:
 
-Pitfalls:
+.Benefits
 
-Questions:
+.Pitfalls
 

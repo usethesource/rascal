@@ -1,50 +1,59 @@
-Name: gap
+# gap
 
-Synopsis: Define minimal gap between figures in compositions.
+.Synopsis
+Define minimal gap between figures in compositions.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty gap(num h, num v)`
 
-Details:
+.Details
 
-Description:
+.Description
 Set the minimal horizontal gap between figures to `h` and the minimal vertical gap to `v`. 
 
-Also see [hgap] and [vgap].
+Also see <<hgap>> and <<vgap>>.
 
 Note that:
-* `gap(hv)` is equivalent to `gap(hv, hv)` and to `hgap(hv), vgap(hv)`.
-* `gap(h, v)` is equivalent to `hgap(h), vgap(v)`.
 
-Examples:
-<figure g1.png 300x100>
-b1 = box(fillColor("blue"));
+*  `gap(hv)` is equivalent to `gap(hv, hv)` and to `hgap(hv), vgap(hv)`.
+*  `gap(h, v)` is equivalent to `hgap(h), vgap(v)`.
+
+.Examples
+[source,rascal-figure,width=300,height=100,file=g1.png]
+----
+                b1 = box(fillColor("blue"));
 b2 = box(fillColor("yellow"));
 b3 = box(fillColor("green"));
 render(hcat([b1, b2, b2], gap(50)));
-</figure>
-![g1](g1.png)
-<figure g2.png 150x150>
-b1 = box(fillColor("blue"));
+----
+
+image::{concept}/g1.png[alt="g1"]
+
+[source,rascal-figure,width=150,height=150,file=g2.png]
+----
+                b1 = box(fillColor("blue"));
 b2 = box(b1,hgap(50),vgap(10),fillColor("yellow"));
 render(b2);
-</figure>
-![g2](g2.png)
+----
 
-<figure g3.png 150x150>
-b1 = box(fillColor("blue"),left(),top());
+image::{concept}/g2.png[alt="g2"]
+
+
+[source,rascal-figure,width=150,height=150,file=g3.png]
+----
+                b1 = box(fillColor("blue"),left(),top());
 b2 = box(b1,hgap(50),vgap(10),fillColor("yellow"));
 render(b2);
-</figure>
-![g3](g3.png)
+----
 
-Benefits:
+image::{concept}/g3.png[alt="g3"]
 
-Pitfalls:
 
-Questions:
+.Benefits
+
+.Pitfalls
 

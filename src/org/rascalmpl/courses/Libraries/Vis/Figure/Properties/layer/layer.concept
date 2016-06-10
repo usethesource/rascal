@@ -1,22 +1,24 @@
-Name: layer
+# layer
 
-Synopsis: A layer in a [$Figures/graph].
+.Synopsis
+A layer in a [$Figures/graph].
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty layer(str name)`
 
-Details:
+.Details
 
-Description:
-Introduces a named layer in a [$Figures/graph]. All nodes with the same layer name are placed in the same layer.
+.Description
+Introduces a named layer in a <<Figures-graph>>. All nodes with the same layer name are placed in the same layer.
 
-Examples:
-<figure l1.png>
-nodes = [ box(text("A"), id("A"), fillColor("lightBlue"), layer("A")), 
+.Examples
+[source,rascal-figure,width=,height=,file=l1.png]
+----
+                nodes = [ box(text("A"), id("A"), fillColor("lightBlue"), layer("A")), 
           box(text("B"), id("B"), fillColor("lightBlue"), layer("B")), 
           box(text("C"), id("C"), fillColor("lightBlue"), layer("C")), 
           box(text("A1"), id("A1"), fillColor("lightGreen"), layer("A")), 
@@ -25,12 +27,12 @@ nodes = [ box(text("A"), id("A"), fillColor("lightBlue"), layer("A")),
         ];
 edges = [ edge("A", "B"), edge("B", "C")];
 render(graph(nodes, edges, gap(20), std(size(50))));
-</figure>
-![l1](l1.png)
+----
 
-Benefits:
+image::{concept}/l1.png[alt="l1"]
 
-Pitfalls:
 
-Questions:
+.Benefits
+
+.Pitfalls
 

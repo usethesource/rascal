@@ -1,41 +1,46 @@
-Name: valign
+# valign
 
-Synopsis: Vertical alignment.
+.Synopsis
+Vertical alignment.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty valign(num v)`
 
-Details:
+.Details
 
-Description:
+.Description
 Set the vertical alignment to `v`.
 
-Also see [align] and [CompositionModel].
+Also see <<align>> and <<CompositionModel>>.
 
-Examples:
-<figure a1.png>
-b1 = box(size(100,50), valign(0), resizable(false), fillColor("Red"));
+.Examples
+[source,rascal-figure,width=,height=,file=a1.png]
+----
+                b1 = box(size(100,50), valign(0), resizable(false), fillColor("Red"));
 b2 = box(b1, size(150, 100));
 render(b2);
-</figure>
+----
 
-![a1](a1.png)
 
-<figure a2.png>
-b1 = box(size(100,50), valign(1), resizable(false), fillColor("Red"));
+image::{concept}/a1.png[alt="a1"]
+
+
+[source,rascal-figure,width=,height=,file=a2.png]
+----
+                b1 = box(size(100,50), valign(1), resizable(false), fillColor("Red"));
 b2 = box(b1, size(150, 100));
 render(b2);
-</figure>
+----
 
-![a2](a2.png)
 
-Benefits:
+image::{concept}/a2.png[alt="a2"]
 
-Pitfalls:
 
-Questions:
+.Benefits
+
+.Pitfalls
 

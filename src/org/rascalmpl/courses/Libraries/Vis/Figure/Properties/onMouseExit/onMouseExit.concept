@@ -1,24 +1,23 @@
-Name: onMouseExit
+# onMouseExit
 
-Synopsis: Define interactive behaviour when the mouse pointer leaves the figure.
+.Synopsis
+Define interactive behaviour when the mouse pointer leaves the figure.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty onMouseExit(void () cb)`
 
-Details:
+.Details
 
-Description:
-Execute callback `cb` when the mouse pointer exits the figure. See also [onMouseEnter].
+.Description
+Execute callback `cb` when the mouse pointer exits the figure. See also <<onMouseEnter>>.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

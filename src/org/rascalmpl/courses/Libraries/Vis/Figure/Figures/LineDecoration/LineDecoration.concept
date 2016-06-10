@@ -1,13 +1,15 @@
-Name: LineDecoration
+# LineDecoration
 
-Synopsis: Describes the line decorations for an [$Figures/outline]. 
+.Synopsis
+Describes the line decorations for an [$Figures/outline]. 
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
 
-<listing>
+[source,rascal]
+----
 public data LineDecoration = 
     info(int lineNumber, str msg)
   | warning(int lineNumber, str msg)
@@ -15,20 +17,18 @@ public data LineDecoration =
   | highlight(int lineNumber, str msg)
   | highlight(int lineNumber, str msg, int level)
   ;
-</listing>
+----
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

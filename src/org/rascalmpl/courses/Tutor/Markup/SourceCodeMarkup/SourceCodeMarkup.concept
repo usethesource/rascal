@@ -1,28 +1,26 @@
-Name: SourceCodeMarkup
+# SourceCodeMarkup
 
-Synopsis: Mark up in Rascal source code.
+.Synopsis
+Mark up in Rascal source code.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details: DocAnnotations
+.Details
 
-Description:
+.Description
 
 The mark up of concepts inside Rascal source code requires two steps:
-<toc Tutor/Markup/SourceCodeMarkup 1>
+subtoc[Tutor/Markup/SourceCodeMarkup,1]
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

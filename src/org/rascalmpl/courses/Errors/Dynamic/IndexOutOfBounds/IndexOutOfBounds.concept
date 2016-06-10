@@ -1,50 +1,57 @@
-Name: IndexOutOfBounds
+# IndexOutOfBounds
 
-Synopsis: Index is out of bounds.
+.Synopsis
+Index is out of bounds.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function: `data RunTimeException = IndexOutOfBounds(int index);`
+.Function
 
-Usage: `import Exception;`
+.Usage
 
-Details:
+.Details
 
-Description:
-Subscription is possible on various ordered types, including [Rascal:List/Subscription],
-[Rascal:Tuple/Subscription], and
-[Rascal:Node/Subscription].
+.Description
+Subscription is possible on various ordered types, including link:/Rascal#List-Subscription[list],
+link:{RascaLangl}#Tuple-Subscription[tuple], and
+link:/Rascal#Node-Subscription[node].
 This error is generated when a subscript is out of bounds for the value that is being subscripted.
 
 Remedies:
+
 * Guard the subscription with a test that the index is within bounds.
 * Make your code less dependent on index values. Suggestions:
-  ** Use the [Rascal:List/index] to produce all legal indices of a list. 
+  ** Use the link:/Libraries#List-index[index] to produce all legal indices of a list. 
      Instead of `for(int i <- [0..size(L)]) { ... }` use `for(int i <- index(L)) { ... }`.
-  ** Use a [Rascal:Values/List/Slice] to automate part of the index computation.
-* Catch the `IndexOutOfBounds` yourself, see [Rascal:TryCatch].
+  ** Use a link:/Rascal#List-Slice[list slice] to automate part of the index computation.
+*  Catch the `IndexOutOfBounds` yourself, see link:/Rascal#Statements-TryCatch[try catch].
 
 
-Examples:
-<screen warnings>
-// Initialize a list `L`:
+.Examples
+
+Initialize a list `L`:
+[source,rascal-shell,continue,error]
+----
 L = [0, 10, 20, 30, 40];
-// The legal indices are 0, 1, 2, 3, 4, so index 5 gives an error:
+----
+The legal indices are 0, 1, 2, 3, 4, so index 5 gives an error:
+[source,rascal-shell,continue,error]
+----
 L[5];
-// We can catch the `IndexOutOfBounds` error. First import the Rascal exceptions (which are also included in `Prelude`)
-// and `IO`:
+----
+We can catch the `IndexOutOfBounds` error. First import the Rascal exceptions (which are also included in `Prelude`)
+and `IO`:
+[source,rascal-shell,continue,error]
+----
 import Exception;
 import IO;
 try L[5]; catch IndexOutOfBounds(msg): println("The message is: <msg>");
-</screen> 
+----
 
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

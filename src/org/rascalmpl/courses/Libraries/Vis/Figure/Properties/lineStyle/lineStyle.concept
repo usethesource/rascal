@@ -1,53 +1,65 @@
-Name: lineStyle
+# lineStyle
 
-Synopsis:
+.Synopsis
+
 Sets the style of lines and borders of figures.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty lineStyle(str style)`
 
-Details:
+.Details
 
-Description:
+.Description
 The following line styles are available:
-* `"solid"` (default)
-* `"dash"`
-* `"dot"`
-* `"dashdot"`
-* `"dashdotdot"`
 
-Examples:
-<figure box1.png>
-b1 = box(size(50), lineStyle("dash"));
+*  `"solid"` (default)
+*  `"dash"`
+*  `"dot"`
+*  `"dashdot"`
+*  `"dashdotdot"`
+
+.Examples
+[source,rascal-figure,width=,height=,file=box1.png]
+----
+                b1 = box(size(50), lineStyle("dash"));
 render(b1);
-</figure>
-gives ![box1](box1.png)
+----
+gives 
+image::{concept}/box1.png[alt="box1"]
 
-<figure box2.png>
-b2 = box(size(50), lineStyle("dot"));
+
+[source,rascal-figure,width=,height=,file=box2.png]
+----
+                b2 = box(size(50), lineStyle("dot"));
 render(b2);
-</figure>
-gives ![box2](box2.png)
+----
+gives 
+image::{concept}/box2.png[alt="box2"]
 
-<figure box3.png>
-b3 = box(size(50), lineStyle("dashdot"));
+
+[source,rascal-figure,width=,height=,file=box3.png]
+----
+                b3 = box(size(50), lineStyle("dashdot"));
 render(b3);
-</figure>
-gives ![box3](box3.png)
+----
+gives 
+image::{concept}/box3.png[alt="box3"]
 
-<figure box4.png>
-b4 = box(size(50), lineStyle("dashdotdot"));
+
+[source,rascal-figure,width=,height=,file=box4.png]
+----
+                b4 = box(size(50), lineStyle("dashdotdot"));
 render(b4);
-</figure>
-gives ![box4](box4.png)
+----
+gives 
+image::{concept}/box4.png[alt="box4"]
 
-Benefits:
 
-Pitfalls:
+.Benefits
 
-Questions:
+.Pitfalls
 

@@ -1,31 +1,30 @@
-Name: JavaCompilation
+# JavaCompilation
 
-Synopsis: Compilation of generated Java code failed.
+.Synopsis
+Compilation of generated Java code failed.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 Some parts of the Rascal system generate Java code. Most notable is the parser generator.
 This error message is generated when the compilation of generated Java code fails.
 
 Remedy: Contact the Rascal developers:
-* Ask a question at [Rascal Ask site](http://ask.rascal-mpl.org/questions/).
-* Read the currently open issues at the Rascal's [issue tracker](https://github.com/cwi-swat/rascal/issues?state=open). If your problem has not yet been reported by someone else, please report it here.
 
-Examples:
+*  Ask a question at [Rascal Ask site](http://ask.rascal-mpl.org/questions/).
+*  Read the currently open issues at the Rascal's [issue tracker](https://github.com/cwi-swat/rascal/issues?state=open). If your problem has not yet been reported by someone else, please report it here.
 
-Benefits:
+.Examples
 
-Pitfalls:
+.Benefits
 
-Questions:
+.Pitfalls
 
-       

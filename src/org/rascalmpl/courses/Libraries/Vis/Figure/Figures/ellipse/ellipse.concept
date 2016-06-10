@@ -1,44 +1,50 @@
-Name: ellipse
+# ellipse
 
-Synopsis: An ellipse.
+.Synopsis
+An ellipse.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
-# `FProperty ellipse(FProperty props...)`
-# `FProperty ellipse(Figure inner, FProperty props)`
+.Function
 
-Details:
+#  `FProperty ellipse(FProperty props...)`
+#  `FProperty ellipse(Figure inner, FProperty props)`
 
-Description:
+.Details
+
+.Description
 Draw an ellipse using the sizes given in properties `props`. 
 An optional nested figure `fig` may be placed inside the ellipse.
 
-Examples:
+.Examples
 The fragment
-<figure e1.png>
-e1 = ellipse(width(100), height(50), fillColor("red"));
+[source,rascal-figure,width=,height=,file=e1.png]
+----
+                e1 = ellipse(width(100), height(50), fillColor("red"));
 render(e1);
-</figure>
+----
 
-will display: ![ellipse 1](e1.png)
+will display: 
+image::{concept}/e1.png[alt="ellipse 1"]
+
 
 Nesting, for instance, a box in an ellipse
-<figure e2.png>
-b1 = box(width(100), height(20), fillColor("yellow"));
+[source,rascal-figure,width=,height=,file=e2.png]
+----
+                b1 = box(width(100), height(20), fillColor("yellow"));
 e1 = ellipse(b1, std(gap(20)), fillColor("red"));
 render(e1);
-</figure>
+----
 
 gives:
 
-![ellipse 2](e2.png)
 
-Benefits:
+image::{concept}/e2.png[alt="ellipse 2"]
 
-Pitfalls:
 
-Questions:
+.Benefits
+
+.Pitfalls
 

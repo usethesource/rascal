@@ -1,22 +1,24 @@
-Name: label
+# label
 
-Synopsis: A label on an [edge].
+.Synopsis
+A label on an [edge].
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty label(Figure f)`
 
-Details:
+.Details
 
-Description:
-Adds figure `f` as label to an [edge] in a [$Figures/graph].
+.Description
+Adds figure `f` as label to an <<edge>> in a <<Figures-graph>>.
 
-Examples:
-<figure l1.png>
-nodes = [ box(text("A"), id("A"), size(50), fillColor("lightgreen")),
+.Examples
+[source,rascal-figure,width=,height=,file=l1.png]
+----
+                nodes = [ box(text("A"), id("A"), size(50), fillColor("lightgreen")),
      	  box(text("B"), id("B"), size(60), fillColor("orange")),
      	  ellipse( text("C"), id("C"), size(70), fillColor("lightblue")),
      	  ellipse(text("D"), id("D"), size(200, 40), fillColor("violet")),
@@ -28,13 +30,14 @@ edges = [ edge("A", "B", label(text("A to B"))), edge("B", "C"), edge("B", "D"),
           edge("D", "F", label(ellipse(fillColor("red"), size(10), resizable(false)))), edge("A", "F")
     	]; 
 render(graph(nodes, edges, hint("layered"), gap(100)));
-</figure>
-![graph 1](l1.png)
+----
 
-Benefits:
+image::{concept}/l1.png[alt="graph 1"]
 
-Pitfalls:
-* Labels are still under development and produce unexpected results (see above).
 
-Questions:
+.Benefits
+
+.Pitfalls
+
+*  Labels are still under development and produce unexpected results (see above).
 

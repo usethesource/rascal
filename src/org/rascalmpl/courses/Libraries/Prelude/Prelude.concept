@@ -1,23 +1,31 @@
-Name: Prelude
+# Prelude
 
-Synopsis: The Rascal standard prelude.
+.Synopsis
+The Rascal standard prelude.
 
-Description:
+.Description
 
-The `Prelude` library contains core functionality for handling all of Rascal's data-types. 
+The `Prelude` library provides core functionality for handling all of Rascal's data-types.
+See the link:/Rascal[Rascal language reference] for details of the language Rascal itself.
 
-For basic numeric functions, see the [Math] library.
+For 
+
+* numeric functions, see the <<Math>> library,
+* statistical functions see <<analysis-statistics>>,
+* graph functions see <<analysis-graphs>>,
+* other common utilitites see <<Libraries-util>>.
 
 `Prelude` provides the following:
 
-<toc Rascal/Libraries/Prelude 2>
+subtoc::[2]
 
-Benefits:
+.Benefits
 This library makes it possible to import all core Rascal functionality with a single import.
 
-Pitfalls:
+.Pitfalls
+
 * The prelude may contain more functionality than you need; this leads to an unnecessary longer import 
-and pollution of your name space.
+  and pollution of your name space.
 
 * The precise contents of the prelude are under discussion.
 

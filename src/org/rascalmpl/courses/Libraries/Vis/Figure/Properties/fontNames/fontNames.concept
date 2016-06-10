@@ -1,36 +1,38 @@
-Name: fontNames
+# fontNames
 
-Synopsis: The available font names.
+.Synopsis
+The available font names.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `list[str] fontNames()`
 
-Details:
+.Details
 
-Description:
+.Description
 Gives a list of names of available fonts.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import vis::Figure;
 fontNames();
-</screen>
+----
 
 The available fonts (on the machine on which this page was generated) are
 <xfigure f1.png>
 //samples =  [ text(f, font(f), fontSize(12), left()) | f <- fontNames()];
 //render(grid(samples, size(700), gap(350, 20), left(), bottom()));
-</figure>
-![font names](f1.png)
+----
 
-Benefits:
+image::{concept}/f1.png[alt="font names"]
 
-Pitfalls:
+
+.Benefits
+
+.Pitfalls
 The available fonts are system and installation dependent.
-
-Questions:
 

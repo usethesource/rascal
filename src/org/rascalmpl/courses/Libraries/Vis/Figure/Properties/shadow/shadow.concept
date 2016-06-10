@@ -1,31 +1,33 @@
-Name: shadow
+# shadow
 
-Synopsis: Add a shadow to the current figure.
+.Synopsis
+Add a shadow to the current figure.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `Fproperty shadow(bool b)`
 
-Details:
+.Details
 
-Description:
+.Description
 Defines whether a figure will have a shadow or not.
-The color of the shadow is determined by [shadowColor].
-The position of the shadow is determined by [shadowPos].
+The color of the shadow is determined by <<shadowColor>>.
+The position of the shadow is determined by <<shadowPos>>.
 
-Examples:
-<figure s1.png>
-box1 = box(size(200,100), shadow(true),resizable(false));
+.Examples
+[source,rascal-figure,width=,height=,file=s1.png]
+----
+                box1 = box(size(200,100), shadow(true),resizable(false));
 render(box1);
-</figure>
-![s1](s1.png)
+----
 
-Benefits:
+image::{concept}/s1.png[alt="s1"]
 
-Pitfalls:
 
-Questions:
+.Benefits
+
+.Pitfalls
 

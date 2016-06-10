@@ -1,29 +1,31 @@
-Name: textAngle
+# textAngle
 
-Synopsis: Define the angle at which text is drawn.
+.Synopsis
+Define the angle at which text is drawn.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty textAngle(num a)`
 
-Details:
+.Details
 
-Description:
+.Description
 Place text at `a` degrees. The value of the angle may also be computed by a callback `ca`.
-Also see [Angles].
+Also see <<Angles>>.
 
-Examples:
-<figure ta1.png>
-render(text("Rascal", fontSize(20), textAngle(45)));
-</figure>
-![ta1](ta1.png)
+.Examples
+[source,rascal-figure,width=,height=,file=ta1.png]
+----
+                render(text("Rascal", fontSize(20), textAngle(45)));
+----
 
-Benefits:
+image::{concept}/ta1.png[alt="ta1"]
 
-Pitfalls:
 
-Questions:
+.Benefits
+
+.Pitfalls
 

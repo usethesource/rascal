@@ -1,26 +1,25 @@
-Name: Declarations
+# Declarations
 
-Synopsis: The entities that can be declared in Rascal programs.
+.Synopsis
+The entities that can be declared in Rascal programs.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 Module Import Program StaticTyping AlgebraicDataType Variable Function SyntaxDefinition Alias Annotation Tag
 
-Description:
+.Description
 The following concepts are relevant for declarations:
-<toc Rascal/Declarations 1>
+subtoc::[1]
 
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

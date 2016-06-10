@@ -1,58 +1,59 @@
-Name: Synthesis
+# Synthesis
 
-Synopsis:
+.Synopsis
 Strategies to synthesise results.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
-Results are synthesized as shown in the Figure _Synthesis Workflow_ below. This consists of the following steps:
-![Synthesis Workflow](define-synthesis.png|400px|right|space 2px)
 
-* Determine the results of the synthesis phase. Wide range of results is possible including:
+[[Synthesis-Workflow]]
+image::define-synthesis.png[width=400,align=left,title="Synthesis Workflow"]
 
-  ** Generated source code.
+.Description
+Results are synthesized as shown in the Figure <<Synthesis-Workflow>> above. This consists of the following steps:
 
-  ** Generated abstract representations, like finite automata or other formals models that capture properties of the SUI.
+*  Determine the results of the synthesis phase. Wide range of results is possible including:
 
-  ** Generated data for visualizations that will be used by visualization tools. 
+  **  Generated source code.
 
-* If source code is to be generated, there are various options.
+  **  Generated abstract representations, like finite automata or other formals models that capture properties of the SUI.
 
-  ** Print strings with embedded variables.
+  **  Generated data for visualizations that will be used by visualization tools. 
 
-  ** Convert abstract syntax trees to strings (perhaps using forms of pretty printing).
+*  If source code is to be generated, there are various options.
 
-  ** Use a grammar of the target source language, also for code generation. 
-     Note that this approach guarantees the generation of syntactically correct source code as opposed to code 
-     generation using print statements or string templates.
+  **  Print strings with embedded variables.
 
-* If other output is needed (e.g., an automaton or other formal structure) write data declarations to represent that output.
+  **  Convert abstract syntax trees to strings (perhaps using forms of pretty printing).
 
-* Finally, write functions and rewrite rules that generate the desired results.
+  **  Use a grammar of the target source language, also for code generation. 
+      Note that this approach guarantees the generation of syntactically correct source code as opposed to code 
+      generation using print statements or string templates.
+
+*  If other output is needed (e.g., an automaton or other formal structure) write data declarations to represent that output.
+
+*  Finally, write functions and rewrite rules that generate the desired results.
 
 
 The Rascal features that are frequently used for synthesis are:
 
-* Syntax definitions or data declarations to define output formats.
+*  Syntax definitions or data declarations to define output formats.
 
-* Pattern matching (used in many Rascal statements).
+*  Pattern matching (used in many Rascal statements).
 
-* Visits of datastructures and on-the-fly code generation.
+*  Visits of datastructures and on-the-fly code generation.
 
-* Rewrite rules.
+*  Rewrite rules.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

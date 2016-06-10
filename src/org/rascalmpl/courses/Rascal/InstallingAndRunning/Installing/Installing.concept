@@ -1,23 +1,22 @@
-Name: Installing
+# Installing
 
-Synopsis:
-The latest download and installation instructions can be found at the [Rascal Website](http://www.rascal-mpl.org).
+.Synopsis
 
-Syntax:
+The latest download and installation instructions can be found at the http://www.rascal-mpl.org[Rascal Website].
 
-Types:
+.Syntax
 
-Function:
+.Types
 
-Details:
+.Function
 
-Description:
+.Details
 
-Examples:
+.Description
 
-Benefits:
+.Examples
 
-Pitfalls:
+.Benefits
 
-Questions:
+.Pitfalls
 

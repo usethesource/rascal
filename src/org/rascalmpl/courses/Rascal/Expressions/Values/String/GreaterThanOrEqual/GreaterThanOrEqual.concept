@@ -1,34 +1,41 @@
-Name: GreaterThanOrEqual
+# String GreaterThanOrEqual
 
-Synopsis: Greater than or equal operator on string values.
+.Synopsis
+Greater than or equal operator on string values.
 
-Syntax:
-`$Exp_1$ >= $Exp_2$`
+.Index
+>=
 
-Types:
-| `$Exp_1$` | `$Exp_2$` | `$Exp_1$ >= $Exp_2$` |
-|:----------|:----------|:---------------------|
-| `str`     |  `str`    | `bool`               |
+.Syntax
+`_Exp_~1~ >= _Exp_~2~`
 
-Function:
+.Types
 
-Details:
 
-Description:
-Yields `true` if the string value of $Exp_1$ is lexicographically greater
-than the string value of $Exp_2$ or if both strings are equal, and `false` otherwise.
+|====
+| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ >= _Exp~2~_` 
 
-Examples:
-<screen>
+| `str`     |  `str`    | `bool`               
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields `true` if the string value of _Exp_~1~ is lexicographically greater
+than the string value of _Exp_~2~ or if both strings are equal, and `false` otherwise.
+
+.Examples
+[source,rascal-shell]
+----
 "abc" >= "abc";
 "abcdef" >= "abc";
 "defghi" >= "abcdef";
 "a" >= "abc";
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

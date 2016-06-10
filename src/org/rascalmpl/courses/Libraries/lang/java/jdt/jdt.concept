@@ -1,3 +1,4 @@
-Name: jdt
+# jdt
 
-Synopsis: tools for Java provided via reusing the Eclipse JDT
+.Synopsis
+tools for Java provided via reusing the Eclipse JDT

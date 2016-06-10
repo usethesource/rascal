@@ -1,42 +1,40 @@
-Name: Conditional
+# Number Conditional
 
-Synopsis: Conditional expression for numeric values.
+.Synopsis
+Conditional expression for numeric values.
 
-Syntax:
-`$Exp_1$ ? $Exp_2$ : $Exp_3$`
+.Index
+? :
 
-Types:
-| `$Exp_1$`   | `$Exp_2$`  |  `$Exp_3$` | `$Exp_1$ ? $Exp_2$ : $Exp_3$`  |
-|:------------|:-----------|:-----------|--------------------------------|
-|  `bool`     | `int`      |  `int`     | `int`                          |
-|  `bool`     | `int`      |  `real`    | `real`                         |
-|  `bool`     | `real`     |  `real`    | `real`                         |
+.Syntax
+`_Exp_~1~ ? _Exp_~2~ : _Exp_~3~`
 
-Function:
+.Types
 
-Details:
 
-Description:
-If the value of $Exp$ is `true` then the value of $Exp_1$ else the value of $Exp_2$.
+|====
+| `_Exp~1~_`   | `_Exp~2~_`  |  `_Exp~3~_` | `_Exp~1~_ ? _Exp~2~_ : _Exp~3~_`  
 
-Examples:
-<screen>
+|  `bool`     | `int`      |  `int`     | `int`                          
+|  `bool`     | `int`      |  `real`    | `real`                         
+|  `bool`     | `real`     |  `real`    | `real`                         
+|====
+
+.Function
+
+.Details
+
+.Description
+If the value of _Exp_ is `true` then the value of _Exp_~1~ else the value of _Exp_~2~.
+
+.Examples
+[source,rascal-shell]
+----
 (3 > 2) ? 10 : 20
 (3 > 20) ? 10 : 20
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-QType: (<A:int> > <B:int>) ? <C:int> : <D:int>
-
-QType: (<A:int> > <B:int>) ? <C:real> : <D:real>
-
-QType: (<A:int> > <B:int>) ? <C:int> : <D:real>
-
-QValue: (<A:int> > <B:int>) ? <C:int> : <D:int>
-
-QValue: (<A:int> > <B:int>) ? <C:int> : <D:real>
+.Pitfalls
 

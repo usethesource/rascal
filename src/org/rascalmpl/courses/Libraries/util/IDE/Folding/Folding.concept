@@ -1,30 +1,30 @@
-Name: Folding
+# Folding
 
-Synopsis: Editors may hide (fold) certain parts of a source text based on `foldable` annotations.
+.Synopsis
+Editors may hide (fold) certain parts of a source text based on `foldable` annotations.
 
-Syntax: 
+.Syntax
 
-# `syntax $Name$ = @foldable $Symbols$;`
-# `a@foldable = true`
+#  `syntax $Name$ = @foldable $Symbols$;`
+#  `a@foldable = true`
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
 There exist two ways of manipulating the folding behavior:
-# By statically tagging a [SyntaxDefinition] with `@foldable`, any source text that is covered by a [ParseTree] 
+
+#  By statically tagging a [SyntaxDefinition] with `@foldable`, any source text that is covered by a [ParseTree] 
   generated from this definition will be foldable.
-# By dynamically annotating a [ParseTree] with the `foldable` annotation (set to `true`) a similar effect is obtained.
+#  By dynamically annotating a [ParseTree] with the `foldable` annotation (set to `true`) a similar effect is obtained.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

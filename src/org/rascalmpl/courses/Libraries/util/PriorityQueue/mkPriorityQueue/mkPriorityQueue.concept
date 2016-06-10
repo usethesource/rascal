@@ -1,24 +1,25 @@
-Name: mkPriorityQueue
+# mkPriorityQueue
 
-Synopsis: Create a priority queue.
+.Synopsis
+Create a priority queue.
 
-Function:
-# `PriorityQueue mkPriorityQueue()`
-# `PriorityQueue mkPriorityQueue(int priority, int val)`
+.Function
 
-Usage: `import util::PriorityQueue;`
+#  `PriorityQueue mkPriorityQueue()`
+#  `PriorityQueue mkPriorityQueue(int priority, int val)`
 
-Details:
+.Usage
 
-Description:
-# Create an empty PriorityQueue.
-# Create a PriorityQueue with one (value, priority) pair.
+.Details
 
-Examples:
+.Description
 
-Benefits:
+#  Create an empty PriorityQueue.
+#  Create a PriorityQueue with one (value, priority) pair.
 
-Pitfalls:
+.Examples
 
-Questions:
+.Benefits
+
+.Pitfalls
 

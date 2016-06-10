@@ -1,16 +1,17 @@
-Name: CaseDistinction
+# Case Distinction
 
-Synopsis: Case distinction via pattern matching.
+.Synopsis
+Case distinction via pattern matching.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 The switch statement as known from C and Java is generalized: the subject value to switch on may be an 
 arbitrary value and the cases are arbitrary patterns followed by a statement. 
 Each case is comparable to a _transaction_: when the pattern succeeds and the following statement is 
@@ -19,30 +20,28 @@ The variables bound by the pattern are always local to the statement associated 
 When a match fails or when the associated statement fails, a _rollback_ takes place and all side-effects are undone. 
 External side-effects like I/O and side-effects in user-defined Java code are not undone. 
 
-See [Switch],[Visit] and [PatternWithAction] for more details.
+See <<Switch>>,<<Visit>> and <<Pattern With Action>> for more details.
 
-Examples:
-We use the [Recipes:ColoredTrees] datatype as example and use a switch to
+.Examples
+We use the link:/Recipes#Common-ColoredTrees[ColoredTrees from Recipes] datatype as example and use a switch to
 distinguish between red and black nodes:
-<screen>
+[source,rascal-shell]
+----
 data ColoredTree = 
       leaf(int N) 
     | red(ColoredTree left, ColoredTree right) 
     | black(ColoredTree left, ColoredTree right);
-ColoredTree CT 
-       = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
+ColoredTree CT = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
 import IO;
 switch (CT){
 case red(_, _):
      println("A red root node");
 case black(_, _):
-     black("A black rood node");
+     println("A black root node");
 }
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

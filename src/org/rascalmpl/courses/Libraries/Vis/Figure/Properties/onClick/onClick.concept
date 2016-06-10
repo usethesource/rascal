@@ -1,22 +1,21 @@
-Name: onClick
+# onClick
 
-Synopsis: Old name for [onMouseDown]. (__deprecated__)
+.Synopsis
+Old name for [onMouseDown]. (__deprecated__)
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

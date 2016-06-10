@@ -1,53 +1,60 @@
-Name: size
+# size
 
-Synopsis: Define the minimal size of a figure.
+.Synopsis
+Define the minimal size of a figure.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `Fproperty size(num h, num v)`
 
-Details:
+.Details
 
-Description:
-Define the __minimal__ size of a figure by
-setting [hsize] to `h` and [vsize] to `v`.
+.Description
+Define the *minimal* size of a figure by
+setting <<hsize>> to `h` and <<vsize>> to `v`.
 
 Note that:
-* `size(hv)` is equivalent to `hsize(hv), vsize(hv)`.
-* `size(h, v)` is equivalent to `hsize(h), vsize(v)`.
-* [width] is a synonym for [hsize].
-* [height] is a synonym for [vsize].
 
-Examples:
+*  `size(hv)` is equivalent to `hsize(hv), vsize(hv)`.
+*  `size(h, v)` is equivalent to `hsize(h), vsize(v)`.
+*  [width] is a synonym for [hsize].
+*  [height] is a synonym for [vsize].
+
+.Examples
 By default, the following box
-<figure box1.png 200x100>
-b1 = box(size(200,100), fillColor("red"));
+[source,rascal-figure,width=200,height=100,file=box1.png]
+----
+                b1 = box(size(200,100), fillColor("red"));
 render(b1);
-</figure>
+----
 will be displayed with the given minimal sizes:
-![box1](box1.png)
+
+image::{concept}/box1.png[alt="box1"]
+
 
 
 By default all figures are resizable and will occupy all _available_ space as determined by
-* the size of the parent figure.
-* the size of the window in which the figure is displayed.
+
+*  the size of the parent figure.
+*  the size of the window in which the figure is displayed.
 
 
 If we enlarge the window in which `b1` is displayed to, say, 400, 200, we get:
-<figure box2.png 400x200>
-b1 = box(size(200,100), fillColor("red"));
+[source,rascal-figure,width=400,height=200,file=box2.png]
+----
+                b1 = box(size(200,100), fillColor("red"));
 render(b1);
-</figure>
-![box2](box2.png)
+----
 
-Resizing can be turned off by setting [resizable] to false.
+image::{concept}/box2.png[alt="box2"]
 
-Benefits:
 
-Pitfalls:
+Resizing can be turned off by setting <<resizable>> to false.
 
-Questions:
+.Benefits
+
+.Pitfalls
 

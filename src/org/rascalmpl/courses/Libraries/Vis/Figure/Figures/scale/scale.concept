@@ -1,18 +1,20 @@
-Name: scale
+# scale
 
-Synopsis: Scale a figure.
+.Synopsis
+Scale a figure.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
-# `Figure scale(num perc, Figure fig)`
-# `Figure scale(num xperc, num yperc, Figure fig)`
+.Function
 
-Details:
+#  `Figure scale(num perc, Figure fig)`
+#  `Figure scale(num xperc, num yperc, Figure fig)`
 
-Description:
+.Details
+
+.Description
 <warning>
 Currently doesn't work!
 </warning>
@@ -23,16 +25,18 @@ the horizontal and vertical dimension.
 When percentages `xperc` and `yperc` are given they are applied to the horizontal, respectively,
 vertical dimension.
 
-Examples:
+.Examples
 <xfigure sc1.png>
 //b = box(size(100,50), fillColor("Blue"));
 //render(hcat([b, scale(0.5, b), scale(0.25, b), scale(2, b)]));
-</figure>
-![scale 1](sc1.png)
+----
 
-Benefits:
+image::{concept}/sc1.png[alt="scale 1"]
 
-Pitfalls:
+
+.Benefits
+
+.Pitfalls
 Other properties than dimensions are scaled as well. For instance, lineWidth 
 is scaled (as can be seen in the above example). When this effect is undesired,
 these properties have to be scaled inversely before `scale` is applied.
@@ -40,8 +44,8 @@ Reducing `lineWidth` to 0.5 and scaling by 2 given a `lineWidth` of 1:
 <xfigure sc2.png>
 //b = box(size(100,50), fillColor("Blue"), lineWidth(0.5));
 //render(scale(2, b));
-</figure>
-![scale 2](sc2.png)
+----
 
-Questions:
+image::{concept}/sc2.png[alt="scale 2"]
+
 

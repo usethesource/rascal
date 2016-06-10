@@ -1,25 +1,24 @@
-Name: id
+# id
 
-Synopsis: Identity.
+.Synopsis
+Identity.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty id(str name)`
 
-Details:
+.Details
 
-Description:
+.Description
 Assign the identity `name` to the current figure. Identities are used in
-various compositions like [Figures/graph] and [treemap].
+various compositions like <<Figures-graph>> and <<treemap>>.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

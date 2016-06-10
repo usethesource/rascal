@@ -1,20 +1,19 @@
-Name: insertElement
+# insertElement
 
-Synopsis: Insert an element in a priority queue.
+.Synopsis
+Insert an element in a priority queue.
 
-Function:
+.Function
 `PriorityQueue insertElement(PriorityQueue Q, int priority, int val)`
 
-Usage: `import util::PriorityQueue;`
+.Usage
 
-Description:
+.Description
 Insert the pair (`priority`, `val`) in PriorityQueue Q.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

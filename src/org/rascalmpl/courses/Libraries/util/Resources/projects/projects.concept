@@ -1,29 +1,29 @@
-Name: projects
+# projects
 
-Synopsis: Retrieve the set of project locations of the current Eclipse workspace.
+.Synopsis
+Retrieve the set of project locations of the current Eclipse workspace.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `set[loc] projects()`
 
-Details:
+.Details
 
-Description:
+.Description
 
 
-Examples:
+.Examples
 The following example shows the projects as they existed when this page was generated:
-<screen>
+[source,rascal-shell]
+----
 import util::Resources;
 projects();
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

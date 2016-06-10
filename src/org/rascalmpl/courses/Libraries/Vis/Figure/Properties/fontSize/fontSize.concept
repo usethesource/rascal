@@ -1,35 +1,40 @@
-Name: fontSize
+# fontSize
 
-Synopsis: Size of the font to be used for text.
+.Synopsis
+Size of the font to be used for text.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty fontSize(int s)`
 
-Details:
+.Details
 
-Description:
+.Description
 Sets the font size (in points) to be used in text.
 
-Examples:
-<figure f1.png>
-t1 = text("Rascal", fontSize(20));
+.Examples
+[source,rascal-figure,width=,height=,file=f1.png]
+----
+                t1 = text("Rascal", fontSize(20));
 render(t1);
-</figure>
-![font 1](f1.png)
+----
 
-<figure f2.png>
-t2 = text("Rascal", fontSize(40));
+image::{concept}/f1.png[alt="font 1"]
+
+
+[source,rascal-figure,width=,height=,file=f2.png]
+----
+                t2 = text("Rascal", fontSize(40));
 render(t2);
-</figure>
-![font 2](f2.png)
+----
 
-Benefits:
+image::{concept}/f2.png[alt="font 2"]
 
-Pitfalls:
 
-Questions:
+.Benefits
+
+.Pitfalls
 

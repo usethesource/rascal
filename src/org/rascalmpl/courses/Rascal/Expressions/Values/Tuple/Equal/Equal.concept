@@ -1,30 +1,37 @@
-Name: Equal
+#  Tuple Equal
 
-Synopsis: Equality operator on tuple values.
+.Synopsis
+Equality operator on tuple values.
 
-Syntax:
-`$Exp_1$ == $Exp_2$`
+.Index
+==
 
-Types:
-| `$Exp_1$`                      |  `$Exp_2$`                      | `$Exp_1$ == $Exp_2$` |
-|:-------------------------------|:--------------------------------|:---------------------|
-| `tuple[ $T_11$, $T_12$, ... ]` |  `tuple[ $T_21$, $T_22$, ... ]` | `bool`               |
+.Syntax
+`_Exp_~1~ == _Exp_~2~`
 
-Function:
+.Types
 
-Details:
 
-Description:
+|====
+| `_Exp~1~_`                      |  `_Exp~2~_`                      | `_Exp~1~_ == _Exp~2~_`
+
+| `tuple[ _T~11~_, _T~12~_, ... ]` |  `tuple[ _T~21~_, _T~22~_, ... ]` | `bool`             
+|====
+
+.Function
+
+.Details
+
+.Description
 Yields `true` if both tuples are identical and `false` otherwise.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 <1, "abc", true> == <1, "abc", true>;
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

@@ -1,26 +1,26 @@
-Name: Libraries
+# Libraries
+:toclevels: 2
 
-Synopsis: The available Rascal libraries.
+.Synopsis
+The available link:/Rascal[Rascal] libraries.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details: Prelude util lang Vis analysis
+.Details
 
-Description:
+.Description
 
 
 The libraries described here provide the following functionality:
-<toc Rascal/Libraries 1>
+subtoc::[1]
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

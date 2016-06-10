@@ -1,57 +1,67 @@
-Name: gray
+# gray
 
-Synopsis: The color gray.
+.Synopsis
+The color gray.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
-# `Color gray(int g)`
-# `Color gray(int g, real alpha)`
-# `Color gray(real perc)`
-# `Color gray(real perc, real alpha)`
+.Function
 
-Details:
+#  `Color gray(int g)`
+#  `Color gray(int g, real alpha)`
+#  `Color gray(real perc)`
+#  `Color gray(real perc, real alpha)`
 
-Description:
+.Details
+
+.Description
 Create gray colors in various shades:
-# Create a gray color between black (0) and white (255).
-# Create a gray color between black (0) and white (255) with transparency `alpha`.
-# Create a gray color between black (0.0) and white (1.0).
-# Create a gray color between black (0.0) and white (1.0) transparency `alpha`.
 
-Examples:
+#  Create a gray color between black (0) and white (255).
+#  Create a gray color between black (0) and white (255) with transparency `alpha`.
+#  Create a gray color between black (0.0) and white (1.0).
+#  Create a gray color between black (0.0) and white (1.0) transparency `alpha`.
+
+.Examples
 Setting gray values with an integer in the range [0,255]:
-<figure h1.png>
-b1 = box(fillColor(gray(0)));
+[source,rascal-figure,width=,height=,file=h1.png]
+----
+                b1 = box(fillColor(gray(0)));
 b2 = box(fillColor(gray(125)));
 b3 = box(fillColor(gray(255)));
 render(hcat([b1, b2, b3], size(50)));
-</figure>
-gives: ![h1](h1.png)
+----
+gives: 
+image::{concept}/h1.png[alt="h1"]
+
 
 Setting gray values with an a percentage in the range [0.0, 1.0]:
-<figure h2.png>
-b1 = box(fillColor(gray(0.0)));
+[source,rascal-figure,width=,height=,file=h2.png]
+----
+                b1 = box(fillColor(gray(0.0)));
 b2 = box(fillColor(gray(0.5)));
 b3 = box(fillColor(gray(1.0)));
 render(hcat([b1, b2, b3], size(50)));
-</figure>
-gives: ![h2](h2.png)
+----
+gives: 
+image::{concept}/h2.png[alt="h2"]
+
 
 Setting transparency:
-<figure h3.png>
-b1 = box(fillColor(gray(0.5, 0.0)));
+[source,rascal-figure,width=,height=,file=h3.png]
+----
+                b1 = box(fillColor(gray(0.5, 0.0)));
 b2 = box(fillColor(gray(0.5, 0.5)));
 b3 = box(fillColor(gray(0.5, 1.0)));
 render(hcat([b1, b2, b3], size(50)));
-</figure>
-gives: ![h3](h3.png)
+----
+gives: 
+image::{concept}/h3.png[alt="h3"]
 
-Benefits:
 
-Pitfalls:
+.Benefits
 
-Questions:
+.Pitfalls
 

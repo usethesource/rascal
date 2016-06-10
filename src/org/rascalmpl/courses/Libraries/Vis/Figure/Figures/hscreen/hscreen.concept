@@ -1,64 +1,75 @@
-Name: hscreen
+# hscreen
 
-Synopsis:
+.Synopsis
+
 Creates a horizontal screen on which things can be projected.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `Figure hscreen(Figure inner,FProperty prop...)`
 
-Details:
+.Details
 
-Description:
-Figures nested within the hscreen can project figures onto the screen using the [project] property. A screen must have an [id] property giving its name. 
+.Description
+Figures nested within the hscreen can project figures onto the screen using the <<project>> property. A screen must have an <<id>> property giving its name. 
 
 The position of the hscreen depends on the alignment of the inner figure. If the inner figure is placed at the top then the screen will be at the bottom and vice versa.
 
-<figure hscreen1.png 200x100>
-i = hcat([box(fillColor("red"),project(text(s),"hscreen")) | s <- ["a","b","c","d"]],top());
+[source,rascal-figure,width=200,height=100,file=hscreen1.png]
+----
+                i = hcat([box(fillColor("red"),project(text(s),"hscreen")) | s <- ["a","b","c","d"]],top());
 sc = hscreen(i,id("hscreen"));
 render(sc);
-</figure>
-![hscreen1](hscreen1.png)
+----
+
+image::{concept}/hscreen1.png[alt="hscreen1"]
 
 
-<figure hscreen2.png 200x100>
-i = hcat([box(fillColor("red"),project(text(s),"hscreen")) | s <- ["a","b","c","d","e","f"]],bottom());
+
+[source,rascal-figure,width=200,height=100,file=hscreen2.png]
+----
+                i = hcat([box(fillColor("red"),project(text(s),"hscreen")) | s <- ["a","b","c","d","e","f"]],bottom());
 sc = hscreen(i,id("hscreen"));
 render(sc);
-</figure>
-![hscreen2](hscreen2.png)
+----
+
+image::{concept}/hscreen2.png[alt="hscreen2"]
+
 
 
 If the inner figure specifies a shrink then the remaining size is used for the screen, otherwise the minimal size is used.
 
-<figure hscreen4.png 200x100>
-i = hcat([box(fillColor("red"),project(text(s),"hscreen")) | s <- ["a","b","c","d","e","f"]],vshrink(0.5),top());
+[source,rascal-figure,width=200,height=100,file=hscreen4.png]
+----
+                i = hcat([box(fillColor("red"),project(text(s),"hscreen")) | s <- ["a","b","c","d","e","f"]],vshrink(0.5),top());
 sc = hscreen(i,id("hscreen"));
 render(sc);
-</figure>
-![hscreen4](hscreen4.png)
+----
+
+image::{concept}/hscreen4.png[alt="hscreen4"]
+
 
 Alignment and shrinking of projected figures also works.
 
-<figure hscreen5.png 200x100>
-boxes = [box(project(box(text(s),fillColor("green"),shrink(c),a),"hscreen"),fillColor("red")) 
+[source,rascal-figure,width=200,height=100,file=hscreen5.png]
+----
+                boxes = [box(project(box(text(s),fillColor("green"),shrink(c),a),"hscreen"),fillColor("red")) 
 	| <s,a,c> <- [<"a",left(),0.6>,<"b",top(),0.9>,<"c",right(),0.5>,<"d",bottom(),0.4>]];
 s = hscreen(hcat(boxes,hgrow(1.2),top(),vshrink(0.8)),id("hscreen"));
 render(s);
-</figure>
-![hscreen5](hscreen5.png)
+----
 
-Also see [vscreen].
+image::{concept}/hscreen5.png[alt="hscreen5"]
 
-Examples:
 
-Benefits:
+Also see <<vscreen>>.
 
-Pitfalls:
+.Examples
 
-Questions:
+.Benefits
+
+.Pitfalls
 

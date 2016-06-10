@@ -1,31 +1,31 @@
-Name: top
+# top
 
-Synopsis: Top, vertical, alignment.
+.Synopsis
+Top, vertical, alignment.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty top()`
 
-Details:
+.Details
 
-Description:
-`top` defines __top vertical alignment__.
+.Description
+`top` defines *top vertical alignment*.
 It sets the vertical alignment to 0.
 
 Note that
-* `top()` is equivalent to `valign(0.0)`.
+
+*  `top()` is equivalent to `valign(0.0)`.
 
 
-Also see [align], [valign] and [CompositionModel].
+Also see <<align>>, <<valign>> and <<CompositionModel>>.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

@@ -1,63 +1,48 @@
-Name: Difference
+# List Difference
 
-Synopsis: The difference between two lists.
+.Synopsis
+The difference between two lists.
 
-Syntax:
-`$Exp_1$ - $Exp_2$`
+.Index
+-
 
-Types:
-| `$Exp_1$`     |  `$Exp_2$`     | `$Exp_1$ - $Exp_2$`       |
-|:--------------|:---------------|:--------------------------|
-| `list[$T_1$]` |  `list[$T_2$]` | `list[lub($T_1$,$T_2$)]`  |
-| `list[$T_1$]` |  `$T_2$`       | `list[lub($T_1$,$T_2$)]`  |
+.Syntax
+`_Exp_~1~ - _Exp_~2~`
+
+.Types
+
+//
+
+|====
+| `_Exp~1~_`     |  `_Exp~2~_`     | `_Exp~1~_ - _Exp~2~_`       
+
+| `list[_T~1~_]` |  `list[_T~2~_]` | `list[lub(_T~1~_,_T~2~_)]`  
+| `list[_T~1~_]` |  `_T~2~_`       | `list[lub(_T~1~_,_T~2~_)]`  
+|====
 
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
-If both $Exp_1$ and $Exp_2$ have a list as value, the result is the difference of these two list values. 
-If $Exp_2$ does not have a list as value, it is first converted to a list before the difference is computed.
+.Description
+If both _Exp_~1~ and _Exp_~2~ have a list as value, the result is the difference of these two list values. 
+If _Exp_~2~ does not have a list as value, it is first converted to a list before the difference is computed.
 The difference is computed by taking the successive elements of the second list and
 removing the first occurrence of that element in the first list. 
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 [1, 2, 3, 4] - [1, 2, 3];
 [1, 2, 3, 4] - [3];
 [1, 2, 3, 4] - 3;
 [1, 2, 3, 4] - [5, 6, 7];
 [1, 2, 3, 1, 2, 3] - [1];
 [1, 2, 3, 1, 2, 3] - [1, 2];
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-QChoice: When you compute the difference of two lists, the number of elements in the result is always:
-b: Greater than the number of elements in the first list.
-b: Greater than the number of elements in the second list.
-b: Greater than or equal to the sum of the number of elements in both lists.
-g: Smaller than or equal to the number of elements in the first list.
-b: Smaller than or equal to the number of elements in the second list.
-b: Equal to the sum of the number of elements in both lists.
-
-QType: 
-make: A = list[arb[int[0,100],str]]
-make: B = same[A]
-test: <A> - <B>
-
-QValue:
-prep: import Set;
-make: DIFF = set[int[0,100]]
-make: A = same[DIFF]
-make: B = same[DIFF]
-expr: A1 = toList(<DIFF> + <A>)
-expr: B1 = toList(<B> + <DIFF>)
-expr: C =  <A1> - <B1>
-hint: <C>
-test: <A1> - <B1> == <?>

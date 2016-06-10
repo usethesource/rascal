@@ -1,37 +1,43 @@
-Name: Remainder
+# Number Remainder
 
-Synopsis: Remainder of two integer values.
+.Synopsis
+Remainder of two integer values.
 
-Syntax:
-`$Exp_1$ % $Exp_2$`
+.Index
+%
 
-Types:
-| `$Exp_1$`  |  `$Exp_2$` | `$Exp_1$ % $Exp_2$` |
-|:-----------|:-----------|:--------------------|
-| `int`      |  `int`     | `int`               |
+.Syntax
+`_Exp_~1~ % _Exp_~2~`
 
-Function:
+.Types
 
-Details:
 
-Description:
-Yields the remainder when dividing the of $Exp_1$ by the value of $Exp_2$.
+|====
+| `_Exp~1~_`  |  `_Exp~2~_` | `_Exp~1~_ % _Exp~2~_` 
 
-Examples:
-<screen>
+| `int`      |  `int`     | `int`               
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields the remainder when dividing the of _Exp_~1~ by the value of _Exp_~2~.
+
+.Examples
+[source,rascal-shell]
+----
 12 % 5
 12 % 6
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 Remainder is only defined on integers:
-<screen errors>
+[source,rascal-shell,error]
+----
 13.5 % 6
-</screen>
-
-Questions:
-QType:  <A:int> % <B:int>
-QValue: <A:int> % <B:int>
+----
 

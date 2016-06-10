@@ -1,48 +1,54 @@
-Name: manhattan
+# manhattan
 
-Synopsis: Define the drawing style of [$Figures/tree]s.
+.Synopsis
+Define the drawing style of [$Figures/tree]s.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty manhattan(bool b)`
 
-Details:
+.Details
 
-Description:
-Determine drawing style for [$Figures/tree]s:
-* When true, all connections are drawn horizontally and vertically.
-* When false, all connections are drawn diagonally.
+.Description
+Determine drawing style for <<Figures-tree>>s:
 
-Examples:
-<figure t1.png>
-t1 = tree(box(fillColor("green")),
+*  When true, all connections are drawn horizontally and vertically.
+*  When false, all connections are drawn diagonally.
+
+.Examples
+[source,rascal-figure,width=,height=,file=t1.png]
+----
+                t1 = tree(box(fillColor("green")),
           [ box(fillColor("red")),
      	    box(fillColor("blue"))
      	  ],
           std(size(50)), std(gap(20)), manhattan(true)
     	);
 render(t1);
-</figure>
-![tree 1](t1.png)
+----
+
+image::{concept}/t1.png[alt="tree 1"]
 
 
-<figure t2.png>
-t2 = tree(box(fillColor("green")),
+
+[source,rascal-figure,width=,height=,file=t2.png]
+----
+                t2 = tree(box(fillColor("green")),
           [ box(fillColor("red")),
      	    box(fillColor("blue"))
      	  ],
           std(size(50)), std(gap(20)), manhattan(false)
     	);
 render(t2);
-</figure>
-![tree 2](t2.png)
+----
 
-Benefits:
+image::{concept}/t2.png[alt="tree 2"]
 
-Pitfalls:
 
-Questions:
+.Benefits
+
+.Pitfalls
 

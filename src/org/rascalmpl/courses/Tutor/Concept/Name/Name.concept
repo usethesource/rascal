@@ -1,35 +1,35 @@
-Name: Name
+# Name
 
-Synopsis:
+.Synopsis
+
 The name of a concept.
 
-Syntax:
-`Name: $ConceptName$` (__mandatory__)
+.Syntax
+`Name: _ConceptName_` (*mandatory*)
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 Name defines the _short_ name of a concept. A name starts with a letter and may contain letters and digits. Concept names are used to
-* Identify a concept: The _full name_ of a concept is the path name from the root concept to the current concept.
-* Refer to other concepts: when unambiguous the short name can be used to refer to another concept, otherwise a sufficient part of the concept name has to be given to make it unambiguous.
+
+*  Identify a concept: The _full name_ of a concept is the path name from the root concept to the current concept.
+*  Refer to other concepts: when unambiguous the short name can be used to refer to another concept, otherwise a sufficient part of the concept name has to be given to make it unambiguous.
 
 
-Name is __mandatory__.
+Name is *mandatory*.
 
-Examples:
+.Examples
 The first line of this concept is:
 
 `Name: Name`
 
 Note that the displayed name `Tutor/Concept/Name` has been generated automatically.
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

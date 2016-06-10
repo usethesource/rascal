@@ -1,33 +1,32 @@
-Name: warning
+# warning
 
-Synopsis:
+.Synopsis
+
 Mark up for a warning.
 
-Syntax:
-`<warning> $MarkedText$ </warning>`
+.Syntax
+`<warning> _MarkedText_ </warning>`
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 With a warning a developers note or urgent message to the student can be inserted.
 All warnings for a course are collected and canbe inspected later.
 
-Examples:
+.Examples
 The input:<br>
 
 `<warning>This is an example warning</warning>`<br>
 
 will give:
 
-<warning>This is an example warning</warning>
+Warning: This is an example warning
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

@@ -1,23 +1,22 @@
-Name: references
+# references
 
-Synopsis: The set of projects that are referenced by a project.
+.Synopsis
+The set of projects that are referenced by a project.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `set[loc] references(loc project)`
 
-Details:
+.Details
 
-Description:
+.Description
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

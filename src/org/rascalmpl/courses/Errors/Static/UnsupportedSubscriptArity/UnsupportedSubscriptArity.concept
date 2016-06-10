@@ -1,37 +1,40 @@
-Name: UnsupportedSubscriptArity
+# UnsupportedSubscriptArity
 
-Synopsis: Wrong number of subscripts is used. 
+.Synopsis
+Wrong number of subscripts is used. 
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 Subscription is available for values of various types including: 
-[$Rascal:Values/String], [Rascal:Values/Node],
-[Rascal:List/Subscription], [Rascal:Map/Subscription], [Rascal:Tuple/Subscription] and [Rascal:Relation/Subscription].
+link:/Rascal#String-Subscription[string], 
+link:/Rascal#Node-Subscription[node],
+link:/Rascal#List-Subscription[list], 
+link:/Rascal#Map-Subscription[map], 
+link:/Rascal#Tuple-Subscription[tuple] and 
+link:/Rascal#Relation-Subscription[relation].
 This error is generated when subscription is applied to a value that does support subscription but not the number
 of indices that are used.
 
 Remedies: correct the number of indices used in the subscription.
 
-Examples:
-<screen warnings>
+.Examples
+[source,rascal-shell,error]
+----
 [1,2,3][2,1];
 ("a":1, "b":2, "c":3)["c", "d"];
 <1, 2, 3>[5,6];
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

@@ -1,26 +1,26 @@
-Name: hint
+# hint
 
-Synopsis: Hint at layout algorithm to be used in graphs.
+.Synopsis
+Hint at layout algorithm to be used in graphs.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `hint(str name)`
 
-Details:
+.Details
 
-Description:
-Gives a hint for the layout strategy to be used. Currently implemented hints all apply to the [$Figures/graph] layout:
-* `spring`: use force-directed spring layout (the default).
-* `layered`: draw as a layered graph.
+.Description
+Gives a hint for the layout strategy to be used. Currently implemented hints all apply to the <<Figures-graph>> layout:
 
-Examples:
+*  `spring`: use force-directed spring layout (the default).
+*  `layered`: draw as a layered graph.
 
-Benefits:
+.Examples
 
-Pitfalls:
+.Benefits
 
-Questions:
+.Pitfalls
 

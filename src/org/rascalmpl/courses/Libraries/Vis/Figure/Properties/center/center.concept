@@ -1,31 +1,31 @@
-Name: center
+# center
 
-Synopsis: Centered alignment.
+.Synopsis
+Centered alignment.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty center()`
 
-Details:
+.Details
 
-Description:
-`center` defines __horizontal and vertical centered alignment__.
+.Description
+`center` defines *horizontal and vertical centered alignment*.
 It sets the horizontal and vertical alignment to 0.5.
 
 Note that:
-* `center()` is equivalent to `anchor(0.5, 0.5)`.
+
+*  `center()` is equivalent to `anchor(0.5, 0.5)`.
 
 
-Also see [align] and [CompositionModel].
+Also see <<align>> and <<CompositionModel>>.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

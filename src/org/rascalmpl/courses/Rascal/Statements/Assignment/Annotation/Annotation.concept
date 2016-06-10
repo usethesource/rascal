@@ -1,36 +1,42 @@
-Name: Annotation
+# Annotation
 
-Synopsis: Assign to annotation.
+.Synopsis
+Assign to annotation.
 
-Syntax:`$Assignable$ @ $Name$ = $Exp$`
+.Index
+@ =
 
-Types:
+.Syntax
 
-Function:
+.Types
+
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
- The value $V$ of $Assignable$ is determined and should be of a type that has an annotation $Name$.
- A new value $V$' is created that is a copy of $V$ but with the value of annotation $Name$ replaced by the value of $Exp$.
- $V$' is assigned to $Assignable$.
- See [$Declarations/Annotation].
+.Description
 
-Examples:
-<screen>
+The value _V_ of _Assignable_ is determined and should be of a type that has an annotation _Name_.
+A new value _V_' is created that is a copy of _V_ but with the value of annotation _Name_ replaced by the value of _Exp_.
+_V_' is assigned to _Assignable_.
+See <<Declarations-Annotation>>.
+
+.Examples
+[source,rascal-shell]
+----
 data FREQ = wf(str word, int freq);
 W = wf("rascal", 1000);
 anno str FREQ@color;
-W @ color = "red";
-W @ color;
-</screen>
+W@color = "red";
+W@color;
+----
 
-Benefits:
+NOTE: It is advisable to omit whitespace around the `@` operator,
+otherwise the Rascal parser gets confused.
 
-Pitfalls:
+.Benefits
 
-Questions:
+.Pitfalls
 
-       

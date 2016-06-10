@@ -1,22 +1,24 @@
-Name: grid
+# grid
 
-Synopsis: Place figures in a grid with cells of equal size.
+.Synopsis
+Place figures in a grid with cells of equal size.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `grid(list[list[Figure]] figs, FProperty props...)`
 
-Details:
+.Details
 
-Description:
+.Description
 Layout figures in a grid. 
 
-All elements that are resizable and do not specify a [shrink] will be get of the same size. For example:
-<figure grid1.png>
-row1 = [ box(text("bla\njada"),fillColor("Red")),
+All elements that are resizable and do not specify a <<shrink>> will be get of the same size. For example:
+[source,rascal-figure,width=,height=,file=grid1.png]
+----
+                row1 = [ box(text("bla\njada"),fillColor("Red")),
          ellipse(fillColor("Blue")),
          box(fillColor("Yellow"))
        ];
@@ -25,15 +27,18 @@ row2 = [ box(ellipse(fillColor("Yellow")),fillColor("Green")),
          box(text("blablabalbalba"),fillColor("Orange"))
        ];
 render(grid([row1, row2]));
-</figure>
+----
 
 gives:
 
-![grid1](grid1.png)
 
-If an element specifies a [hshrink] then this element will get a portion [hshrink] of the total width of the grid. Similarly, if an an element specifies a [vshrink] then this element will get a portion [vshrink] of the total height of the grid. For example:
-<figure grid2.png>
-row1 = [ box(text("bla\njada"),fillColor("Red"),vshrink(0.25)),
+image::{concept}/grid1.png[alt="grid1"]
+
+
+If an element specifies a <<hshrink>> then this element will get a portion <<hshrink>> of the total width of the grid. Similarly, if an an element specifies a <<vshrink>> then this element will get a portion <<vshrink>> of the total height of the grid. For example:
+[source,rascal-figure,width=,height=,file=grid2.png]
+----
+                row1 = [ box(text("bla\njada"),fillColor("Red"),vshrink(0.25)),
          ellipse(fillColor("Blue")),
          box(fillColor("Yellow"))
        ];
@@ -42,15 +47,18 @@ row2 = [ box(ellipse(fillColor("Yellow"),shrink(0.5)),fillColor("Green")),
          box(text("blablabalbalba"),fillColor("Orange"))
        ];
 render(grid([row1, row2]));
-</figure>
+----
 
 gives:
 
-![grid2](grid2.png)
+
+image::{concept}/grid2.png[alt="grid2"]
+
 
 If a row or column contains only non-resizable elements then the entire row or column will not be resized. For example:
-<figure grid3.png>
-row1 = [ box(fillColor("Red"),hresizable(false), hsize(15),left()),
+[source,rascal-figure,width=,height=,file=grid3.png]
+----
+                row1 = [ box(fillColor("Red"),hresizable(false), hsize(15),left()),
          ellipse(fillColor("Blue")),
          box(fillColor("Yellow"))
        ];
@@ -60,31 +68,37 @@ row2 = [ box(fillColor("Green"),resizable(false),size(40)),
        ];
 b = box(grid([row1, row2]),size(200));
 render(b);
-</figure>
+----
 
 Gives
 
-![grid3](grid3.png)
 
-If the total [hshrink] in a row is more than 1.0 or if the total [hshrink] of a row is 1.0 but there are elements in row which do not specify a hshrink but do need space. Then we cannot meet the constraints and the grid will show a `Grid over-constrained message`. The same holds for [vshrink].
+image::{concept}/grid3.png[alt="grid3"]
+
+
+If the total <<hshrink>> in a row is more than 1.0 or if the total <<hshrink>> of a row is 1.0 but there are elements in row which do not specify a hshrink but do need space. Then we cannot meet the constraints and the grid will show a `Grid over-constrained message`. The same holds for <<vshrink>>.
 
 For example:
-<figure grid4.png 400x150>
-row1 = [ box(hshrink(0.5)),
+[source,rascal-figure,width=400,height=150,file=grid4.png]
+----
+                row1 = [ box(hshrink(0.5)),
          box(hshrink(0.5)),
          box(text("jada"))
        ];
-render(grid([row1]));
-</figure>
+render(grid(<<row1>>));
+----
 
 Gives
 
-![grid4](grid4.png)
 
-To insert white space between figures we can specify the [hgrow] and [vgrow]. For example [hgrow] indicates that the grid will be [hgrow] as wide as combined width of the elements, the extra space will be used for gaps between the rows. 
+image::{concept}/grid4.png[alt="grid4"]
 
-<figure grid5.png>
-row1 = [ box(text("bla\njada"),fillColor("Red")),
+
+To insert white space between figures we can specify the <<hgrow>> and <<vgrow>>. For example <<hgrow>> indicates that the grid will be <<hgrow>> as wide as combined width of the elements, the extra space will be used for gaps between the rows. 
+
+[source,rascal-figure,width=,height=,file=grid5.png]
+----
+                row1 = [ box(text("bla\njada"),fillColor("Red")),
          ellipse(fillColor("Blue")),
          box(fillColor("Yellow"))
        ];
@@ -93,18 +107,21 @@ row2 = [ box(ellipse(fillColor("Yellow")),fillColor("Green")),
          box(text("blablabalbalba"),fillColor("Orange"))
        ];
 render(grid([row1, row2],hgrow(1.1),vgrow(1.3)));
-</figure>
+----
 
 
 Gives
 
-![grid5](grid5.png)
 
-Alternatively we can use [hgap] and [vgap] to specify the gap in pixels, instead of relative to the size of the elements. 
+image::{concept}/grid5.png[alt="grid5"]
+
+
+Alternatively we can use <<hgap>> and <<vgap>> to specify the gap in pixels, instead of relative to the size of the elements. 
 
 For example:
-<figure grid6.png>
-row1 = [ box(text("bla\njada"),fillColor("Red")),
+[source,rascal-figure,width=,height=,file=grid6.png]
+----
+                row1 = [ box(text("bla\njada"),fillColor("Red")),
          ellipse(fillColor("Blue")),
          box(fillColor("Yellow"))
        ];
@@ -113,18 +130,21 @@ row2 = [ box(ellipse(fillColor("Yellow")),fillColor("Green")),
          box(text("blablabalbalba"),fillColor("Orange"))
        ];
 render(grid([row1, row2],hgap(10),vgap(15)));
-</figure>
+----
 
 Gives
 
-![grid6](grid6.png)
 
-If both [hgrow] and [hgap] are set then the property which gives the largest gap will be used.
+image::{concept}/grid6.png[alt="grid6"]
+
+
+If both <<hgrow>> and <<hgap>> are set then the property which gives the largest gap will be used.
 
 If one row is shorter than the other then the missing elements of that row are considered to be empty.
 
-<figure grid7.png 250x250>
-row1 = [ box(fillColor("Red")),
+[source,rascal-figure,width=250,height=250,file=grid7.png]
+----
+                row1 = [ box(fillColor("Red")),
          box(fillColor("Blue")),
          box(fillColor("Yellow"))
        ];
@@ -133,19 +153,22 @@ row2 = [ box(fillColor("Green")),
        ];
 row3 = [ box(fillColor("Silver"))];
 render(grid([row1, row2, row3]));
-</figure>
+----
 
 Gives
 
-![grid7](grid7.png)
+
+image::{concept}/grid7.png[alt="grid7"]
 
 
-[hcat] and [vcat] are special cases of `grid`.
 
-Examples:
+<<hcat>> and <<vcat>> are special cases of `grid`.
+
+.Examples
 Element with a fixed size:
-<figure g2.png 250x250>
-row1 = [ box(fillColor("Red")),
+[source,rascal-figure,width=250,height=250,file=g2.png]
+----
+                row1 = [ box(fillColor("Red")),
          box(fillColor("Blue"), size(20), resizable(false)),
          box(fillColor("Yellow"))
        ];
@@ -155,16 +178,19 @@ row2 = [ box(fillColor("Green")),
        ];
 row3 = [ box(fillColor("Silver"))];
 render(grid([row1, row2, row3]));
-</figure>
+----
 
 gives:
 
 
-![grid2](g2.png)
+
+image::{concept}/g2.png[alt="grid2"]
+
 
 And now changing the alignment of `b2`:
-<figure g3.png 250x250>
-row1 = [ box(fillColor("Red")),
+[source,rascal-figure,width=250,height=250,file=g3.png]
+----
+                row1 = [ box(fillColor("Red")),
          box(fillColor("Blue"), size(20), resizable(false), top(), right()),
          box(fillColor("Yellow"))
        ];
@@ -174,15 +200,15 @@ row2 = [ box(fillColor("Green")),
        ];
 row3 = [ box(fillColor("Silver"))];
 render(grid([row1, row2, row3]));
-</figure>
+----
 
 gives:
 
-![grid3](g3.png)
 
-Benefits:
+image::{concept}/g3.png[alt="grid3"]
 
-Pitfalls:
 
-Questions:
+.Benefits
+
+.Pitfalls
 
