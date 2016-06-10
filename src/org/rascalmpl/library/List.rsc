@@ -15,7 +15,7 @@ Library functions for lists.
 
 .Description
 
-For operators on lists see link:{RascalLang}#Values-List[List] in the Rascal Language Reference.
+For operators on lists see link:/Rascal#Values-List[List] in the Rascal Language Reference.
 
 The following functions are available for lists:
 subtoc::[1]
@@ -236,7 +236,7 @@ index(["zebra", "elephant", "snake", "owl"]);
 ----
 
 .Benefits
-This function is useful in link:{RascalLang}#Statements-For[for] loops over lists.}
+This function is useful in link:/Rascal#Statements-For[for] loops over lists.}
 public list[int] index(list[&T] lst) = upTill(size(lst));
 
 
@@ -583,7 +583,7 @@ reducer([10, 20, 30, 40], add, 0);
 
 .Pitfalls
 WARNING:
-This function is *deprecated*, use a link:{rascalLang}#Expressions-Reducer[reducer] instead.
+This function is *deprecated*, use a link:/Rascal#Expressions-Reducer[reducer] instead.
 }
 public &T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)
 {
@@ -641,7 +641,7 @@ Compute a sublist of a list.
 .Description
 Returns a sublist of `lst` from index `start` of length `len`.
 
-NOTE: In most cases it is better to use the built-in link:{RascalLang}#List-Slice[slice] notation,
+NOTE: In most cases it is better to use the built-in link:/Rascal#List-Slice[slice] notation,
 see the example below.
 
 .Examples

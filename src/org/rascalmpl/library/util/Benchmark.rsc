@@ -38,7 +38,7 @@ CPU time in nanoseconds (10^-9^ sec).
 
 .Examples
 
-We use the `fac` function described in link:{Recipes}#Basic-Factorial[Factorial] as example:
+We use the `fac` function described in link:/Recipes#Basic-Factorial[Factorial] as example:
 [source,rascal-shell]
 ----
 import util::Benchmark;
@@ -84,7 +84,7 @@ System time in nanoseconds (10^-9^ sec).
 *  System time in nanoseconds needed to execute the code `block`.
 
 .Examples
-We use the `fac` function described in link:{Recipes}#Basic-Factorial[Factorial] as example:
+We use the `fac` function described in link:/Recipes#Basic-Factorial[Factorial] as example:
 [source,rascal-shell]
 ----
 import util::Benchmark;
@@ -127,7 +127,7 @@ User time in nanoseconds (10^-9^ sec).
 
 .Examples
 
-We use the `fac` function described in link:{Recipes}#Basic-Factorial[Factorial] as example:
+We use the `fac` function described in link:/Recipes#Basic-Factorial[Factorial] as example:
 [source,rascal-shell]
 ----
 import util::Benchmark;
@@ -171,7 +171,7 @@ Current time in milliseconds (10^-3^ sec).
 
 .Pitfalls
 This function is a competitor for the <<DateTime-now>> function that provides a
-link:{RascalLang}#Values-Datetime[datetime] value for the current time.
+link:/Rascal#Values-Datetime[datetime] value for the current time.
 }
 
 @javaImport{import java.lang.System;}
@@ -197,7 +197,7 @@ Given is a map that maps strings (used as label to identify each case) to void-c
 An optional `duration` argument can be used to specify the function to perform the actual measurement. By default the function <<realTime>> is used. A map of labels and durations is returned.
 
 .Examples
-We use the `fac` function described in link:{Recipes}#Basic-Factorial[Factorial] as example:
+We use the `fac` function described in link:/Recipes#Basic-Factorial[Factorial] as example:
 [source,rascal-shell]
 ----
 import util::Benchmark;
