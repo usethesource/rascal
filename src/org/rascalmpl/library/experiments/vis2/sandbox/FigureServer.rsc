@@ -29,7 +29,7 @@ public str toHtmlString(Figure fig1, int width = 400, int height = 400,
      setDebug(debug);
      _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
      lineColor = lineColor, size = size, display = false
-     , borderWidth = borderWidth, borderWidth = borderWidth, borderStyle = borderStyle, resizable = resizable,
+     , borderWidth = borderWidth, borderStyle = borderStyle, resizable = resizable,
      cssFile = cssFile
      );
      return getIntro();
@@ -43,8 +43,8 @@ public void renderSave(Figure fig1, loc file
       ,int screenWidth = 500, int screenHeight = 500, str cssFile="", loc javaLoc=|file:///usr|) 
        {
        str r = toHtmlString(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
-       lineColor = lineColor, size = size, display = false
-       ,borderWidth = borderWidth, borderWidth = borderWidth, borderStyle = borderStyle, resizable = resizable
+       lineColor = lineColor, size = size
+       ,borderWidth = borderWidth, borderStyle = borderStyle, resizable = resizable
        ,cssFile=cssFile
       );  
       loc parent = file.parent;
@@ -136,7 +136,7 @@ public Text textProperty(str id, str text = "", str html = "") {
      str idx = child(id);
      Text v = _getText(idx); 
      if (!isEmpty(text)) {
-         v.text = text;
+         v.plain = text;
          }
      if (!isEmpty(html)) {
          v.html = html;
@@ -148,7 +148,7 @@ public Text textProperty(str id, str text = "", str html = "") {
 public Text clearTextProperty(str id) {
      str idx = child(id);
      Text v = _getText(idx);
-     v.text = "";
+     v.plain = "";
      v.html = "";
      _setText(idx, v);
      // println("clearTextProp:<id>");
@@ -178,6 +178,7 @@ public map[str, str] getIdFig(Figure f) = _getIdFig(f);
 Figure finalStateMachine(Figure f, str initialState) {
     str current = initialState;
     f.id = newId(); 
+    Figures buttons= [];
     if (g:graph():=f) {     
         g.event = on("load", void(str ev, str n, str v){
                map[str, str] q = getIdFig(f);   
@@ -195,7 +196,7 @@ Figure finalStateMachine(Figure f, str initialState) {
                   i = i+1;
                }
          });
-        Figures buttons = [buttonInput("", width = 200, height = 25, disabled = true, id = newName()
+         buttons = [buttonInput("", width = 200, height = 25, disabled = true, id = newName()
         ,event = on("click", void(str ev, str n, str v)(int p) {
              return void(str ev, str n, str v) {
               map[str, str] q = getIdFig(f);  
@@ -315,11 +316,11 @@ Figure finalStateMachine(Figure f, str initialState) {
         ]>;  
     }
     
- public void invoke(value f, str e, str n, str v) {
-   switch (f) {
-       case void(str, str, str) f: f(e, n, v);
-       case void(str, str, int) f: f(e, n, toInt(v));
-       case void(str, str, real) f: f(e, n, toReal(v));
+ public void invoke(value g, str e, str n, str v) {
+   switch (g) {
+       case StrCallBack f: f(e, n, v);
+       case IntCallBack f: f(e, n, toInt(v));
+       case RealCallBack f: f(e, n, toReal(v));
        }
     }
   
@@ -338,7 +339,9 @@ Figure finalStateMachine(Figure f, str initialState) {
              bool ok = (true|it && !isError(fr[1].id)|fr<-fa); 
              if (e=="ok") {
                 if (ok) {
-                  if (on (value f) := event) invoke(f, e, id, v);
+                  if (on (StrCallBack f) := event) invoke(f, e, id, v);
+                  if (on (IntCallBack f) := event) invoke(f, e, id, v);
+                  if (on (RealCallBack f) := event) invoke(f, e, id, v);
                   style(id, visibility="hidden"); 
                   clearForm(fa);                  
                   }

@@ -61,22 +61,22 @@ public Figure decision() {
    int offs = h0+h1;
    return overlay(size=<400, 600>, figs=[
                         begin(width, h0, "Lamp doesn\'t work")
-                      , at((width-w1)/2, h0, vArrow(w1, h1, "brown"))
-                      , at(0, offs, diamond(width, height, "Lamp\<br\> plugged in?", "lightyellow"))
-                      , at(width, offs+(height-h)/2, hArrow(w, h, "brown"))
-                      , at((width-w1)/2,offs+height, vArrow(w1, h1, "brown"))
-                      , at(0, offs+height+h1, diamond(width, height, "Bulb\<br\>burned out?", "lightyellow"))
-                      , at(width, offs+height+ h1 + (height-h)/2, hArrow(w, h, "brown"))
-                      , at((width-w1)/2, offs+2*height+ h1, vArrow(w1, h1, "brown"))
-                      , at(width+w, offs+(height-h)/2, action("Plugin lamp"))
-                      , at(width+w, offs+height+h1+(height-h)/2, action("Replace bulb"))
-                      , at(0,  offs+2*height+ 2*h1, end(width, h0, "Repair Lamp"))
+                      , atXY((width-w1)/2, h0, vArrow(w1, h1, "brown"))
+                      , atXY(0, offs, diamond(width, height, "Lamp\<br\> plugged in?", "lightyellow"))
+                      , atXY(width, offs+(height-h)/2, hArrow(w, h, "brown"))
+                      , atXY((width-w1)/2,offs+height, vArrow(w1, h1, "brown"))
+                      , atXY(0, offs+height+h1, diamond(width, height, "Bulb\<br\>burned out?", "lightyellow"))
+                      , atXY(width, offs+height+ h1 + (height-h)/2, hArrow(w, h, "brown"))
+                      , atXY((width-w1)/2, offs+2*height+ h1, vArrow(w1, h1, "brown"))
+                      , atXY(width+w, offs+(height-h)/2, action("Plugin lamp"))
+                      , atXY(width+w, offs+height+h1+(height-h)/2, action("Replace bulb"))
+                      , atXY(0,  offs+2*height+ 2*h1, end(width, h0, "Repair Lamp"))
                       ]);
    }
 
 public void tdecision() = render(decision());
 
-Figure triangle(int alpha) = rotate(alpha, 100, 100,  
+Figure triangle(int alpha) = rotateDeg(alpha, 100, 100,  
          shape([move(25, 34), line(25, -34), line(17, -38.2), line(17, 20), line(-17.6, 0)]
           ,scaleX=<<-50, 50>, <0, 200>>, scaleY=<<-50, 50>, <0, 200>>
          )

@@ -16,7 +16,7 @@ Figure leaf(int a) {
          int w = 50; int h = 50;
          num d = 0.5*sqrt(2);
          return 
-           rotate(a, 
+           rotateDeg(a, 
            box(size=<w, h>, 
             fig = shape([move(0,0)]+flowShape1(0.5)+flowShape2(0.5)
            ,scaleX=<<0,1>,<(1-d)/2*w, (1+d)/2*w>>, scaleY=<<0,1>,<(1-d)/2*h,(1+d)/2*h>> , shapeCurved= false, fillColor= "red")
@@ -28,8 +28,8 @@ Figure flower() {
     int n  = 16;
     int r = 40;
     list[Figure] fs = 
-    [at(r+toInt(r*sin(p)), r+toInt(r*cos(p)), leaf(45-toInt((180*p)/PI())))|p<-[0,2*PI()/n..2*PI()]]
-    +at(25, 25, box(lineWidth =0, size=<2*r, 2*r>, align = centerMid, lineColor="none", fillColor="none", fig=circle(r=0.6*r
+    [atXY(r+toInt(r*sin(p)), r+toInt(r*cos(p)), leaf(45-toInt((180*p)/PI())))|p<-[0,2*PI()/n..2*PI()]]
+    +atXY(25, 25, box(lineWidth =0, size=<2*r, 2*r>, align = centerMid, lineColor="none", fillColor="none", fig=circle(r=0.6*r
     , fillColor = "yellow", fillOpacity=0.7, fig = circle(r=0.1*r, lineColor="none", fillColor="green"))))
     ;
     return overlay(size=<150, 150>, lineWidth = 0, figs=fs);
@@ -37,7 +37,7 @@ Figure flower() {
     
 void tflower() = render(flower(), size=<400, 400>, resize= false, borderWidth = 1);
 
-void tleaf()=render(overlay(figs=[leaf(0), at(100, 10, leaf(90))]));
+void tleaf()=render(overlay(figs=[leaf(0), atXY(100, 10, leaf(90))]));
 
 
 Figure scheme() =  hcat(figs=[

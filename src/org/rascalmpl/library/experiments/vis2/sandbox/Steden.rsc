@@ -35,12 +35,12 @@ public Figure steden(int width = 400, int height = 400) {
            	    options = chartOptions(
            		hAxis = axis(title="Extend", slantedText = true, slantedTextAngle=90), 
            		vAxis = axis(title="Population"),
-           		chartArea = chartArea(width="80%", height = "40%"),
-           		bar = bar(groupWidth = "100%"),
+           		chartArea_ = chartArea(width="80%", height = "40%"),
+           		bar_ = bar(groupWidth = "100%"),
            		width=width,
                 height=height,
                 // animation= animation(startup = true, easing = "in", duration = 500),
-                legend = legend(position="top")), width = width, height = height);
+                legend_ = legend(position="top")), width = width, height = height);
             println("comboChart <f.width> <f.height>");
              // f.width = width; f.height = height;
              return f;          
