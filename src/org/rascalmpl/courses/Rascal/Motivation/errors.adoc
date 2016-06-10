@@ -1,2 +1,0 @@
-# Errors in Course Rascal/Motivation
-asciidoctor: FAILED: input file /Users/paulklint/git/rascal/src/org/rascalmpl/courses/Rascal/Motivation/Rascal/Motivation.adoc missing or cannot be read

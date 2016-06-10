@@ -1,3 +1,0 @@
-
-[[Prelude-Type]]
-# Libraries/Prelude/Type

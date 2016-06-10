@@ -1,3 +1,0 @@
-
-[[m3-TypeSymbol]]
-# Libraries/lang/java/m3/TypeSymbol
