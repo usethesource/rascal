@@ -120,7 +120,7 @@ function ask2Server(site, ev, id, v, parameters) {
 						var cnt = 0;
 						for ( var i in t[d]["text"]) {
 							var s = t[d]["text"][i];
-							if (i == "text" && s != "")
+							if (i == "plain" && s != "")
 								e = e.text(s);
 							if (i == "html" && s != "")
 								e = e.html(s);
