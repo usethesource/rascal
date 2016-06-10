@@ -16,7 +16,7 @@ Library functions for strings.
 
 .Description
 
-For operators on strings see link:{RascalLang}#Values-String[String] in the Rascal Language Reference.
+For operators on strings see link:/Rascal#Values-String[String] in the Rascal Language Reference.
 
 The following functions are defined for strings:
 subtoc::[1]

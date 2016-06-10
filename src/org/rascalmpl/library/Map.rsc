@@ -15,7 +15,7 @@ Library functions for maps.
 
 .Description
 
-For operators on maps see link:{RascalLang}#Values-Map[Map] in the Rascal Language Reference.
+For operators on maps see link:/Rascal#Values-Map[Map] in the Rascal Language Reference.
 
 The following functions are defined for maps:
 subtoc::[1]

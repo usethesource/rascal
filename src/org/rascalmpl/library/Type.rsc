@@ -561,7 +561,7 @@ typeOf(x)
 .Pitfalls
 
 *  Note that the `typeOf` function does not produce definitions, like the 
-   link:{RascalLang}#Values-ReifiedTypes[reify] operator `#` does, 
+   link:/Rascal#Values-ReifiedTypes[reify] operator `#` does, 
    since values may escape the scope in which they've been constructed leaving their contents possibly undefined.
 }
 @javaClass{org.rascalmpl.library.Type}
