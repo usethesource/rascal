@@ -551,7 +551,7 @@ A text file can be encoded in many different character sets, most common are UTF
 If you know the encoding of the file, please use the <<readFileEnc>> and <<readFileLinesEnc>> overloads.
 If you do not know, we try to detect this. This detection is explained below:
 
-*  If the implementation of the used scheme in the link:{RascalLang}#Values-Location[location] 
+*  If the implementation of the used scheme in the link:/Rascal#Values-Location[location] 
    (e.g.,`|project:///|`) defines the charset of the file then this is used.
 *  Otherwise if the file contains a UTF8/16/32 http://en.wikipedia.org/wiki/Byte_order_mark[BOM], 
    then this is used.
@@ -560,7 +560,7 @@ If you do not know, we try to detect this. This detection is explained below:
    **  Are the first 32 bytes valid UTF-32? Then use UTF-32.
 *  Finally, we fall back to the system default (as given by the Java Runtime Environment).
 
-*To summarize*, we use UTF-8 by default, except if the link:{rascalLang}#Values-Location[location] has available meta-data, the file contains a BOM, or
+*To summarize*, we use UTF-8 by default, except if the link:/Rascal#Values-Location[location] has available meta-data, the file contains a BOM, or
 the first 32 bytes of the file are not valid UTF-8.
 
 .Pitfalls

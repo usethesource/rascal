@@ -16,7 +16,7 @@ Library functions for sets.
 
 .Description
 
-For operators on sets see link:{RascalLang}#Values-Set[Set] in the Rascal Language Reference.
+For operators on sets see link:/Rascal#Values-Set[Set] in the Rascal Language Reference.
 
 The following functions are defined for sets:
 subtoc::[1]
@@ -299,7 +299,7 @@ reducer({10, 20, 30, 40}, add, 0);
 ----
 
 .Pitfalls
-WARNING: This function is *deprecated*, use a link:{rascalLang}#Expressions-Reducer[reducer] instead.
+WARNING: This function is *deprecated*, use a link:/Rascal#Expressions-Reducer[reducer] instead.
 }
 public &T reducer(set[&T] st, &T (&T,&T) fn, &T unit) =
 	(unit | fn(it,elm) | elm <- st);
