@@ -1,24 +1,23 @@
-Name: endGap
+# endGap
 
-Synopsis: End gap in composition.
+.Synopsis
+End gap in composition.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty endGap(bool h,bool v)`
 
-Details:
+.Details
 
-Description:
-Specifies if a [hcat] or [grid] will end with (half) a gap. See also [endGap],[vendGap] and [hendGap].
+.Description
+Specifies if a <<hcat>> or <<grid>> will end with (half) a gap. See also <<endGap>>,<<vendGap>> and <<hendGap>>.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

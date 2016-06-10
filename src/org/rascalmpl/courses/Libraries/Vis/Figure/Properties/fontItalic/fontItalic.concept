@@ -1,26 +1,24 @@
-Name: fontItalic
+# fontItalic
 
-Synopsis:
+.Synopsis
+
 Defines if text should be rendered italic.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty fontItalic(bool b)`
 
-Details:
+.Details
 
-Description:
-See also [fontBold].
+.Description
+See also <<fontBold>>.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

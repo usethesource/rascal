@@ -1,51 +1,41 @@
-Name: StrictSuperList
+# List StrictSuperList
 
-Synopsis: The strict super list operator on lists.
+.Synopsis
+The strict super list operator on lists.
 
-Syntax:
-`$Exp_1$ > $Exp_2$`
+.Index
+>
 
-Types:
-| `$Exp_1$`     |  `$Exp_2$`     | `$Exp_1$ > $Exp_2$` |
-|:--------------|:---------------|:--------------------|
-| `list[$T_1$]` |  `list[$T_2$]` | `bool`              |
+.Syntax
+`_Exp_~1~ > _Exp_~2~`
 
-Function:
+.Types
 
-Details:
+//
 
-Description:
-Yields `true` if the value of $Exp_2$ is a strict sublist of the value of $Exp_1$,  and `false` otherwise.
+|====
+| `_Exp~1~_`     |  `_Exp~2~_`     | `_Exp~1~_ > _Exp~2~_` 
 
-Examples:
-<screen>
+| `list[_T~1~_]` |  `list[_T~2~_]` | `bool`              
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields `true` if the value of _Exp_~2~ is a strict sublist of the value of _Exp_~1~,  and `false` otherwise.
+
+.Examples
+[source,rascal-shell]
+----
 [1, 2, 3, 4] > [1, 2, 3];
 [1, 2, 3, 4] > [1, 2, 3, 4];
 [1, 2, 3, 4] > [1, 2, 3];
 [1, 2, 3, 4, 5] > [1, 3, 5]
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-QType: <A:list[arb]> > <B:same[A]>
-
-QValue:
-prep: import Set;
-make: DIFF = set[int[0,100]]
-make: B = same[DIFF]
-expr: A = toList(<B> + <DIFF>)
-expr: B1 = toList(<B>)
-expr: C =  <A> > <B1>
-hint: <C>
-test: <A> > <B1> == <?>
-
-QValue:
-make: A = list[arb[int,str,bool]]
-expr: C = <A> > <A>
-hint: <C>
-test: <A> > <A>
-
+.Pitfalls
 

@@ -1,26 +1,26 @@
-Name: ErrorMarking
+# ErrorMarking
 
-Synopsis: Visual and browsable error messages in the IDE.
+.Synopsis
+Visual and browsable error messages in the IDE.
 
-Syntax:
-# `t@message = $message$;`
-# `t@messages = $setOfMessages$l`
+.Syntax
 
-Types:
+#  `t@message = $message$;`
+#  `t@messages = $setOfMessages$l`
 
-Function:
+.Types
 
-Details: 
+.Function
 
-Description: Just after parsing and produce a [ParseTree], an editor will collect all [$ParseTree/Message] annotations and use these to annotate the editor text and fill the error view of the IDE.
+.Details
 
-If a `messages` annotation is encountered on a [ParseTree] node, the messages will be registered as well, _but sub-trees will not be searched for further messages_.
+.Description
 
-Examples:
+If a `messages` annotation is encountered on a <<ParseTree>> node, the messages will be registered as well, _but sub-trees will not be searched for further messages_.
 
-Benefits:
+.Examples
 
-Pitfalls:
+.Benefits
 
-Questions:
+.Pitfalls
 

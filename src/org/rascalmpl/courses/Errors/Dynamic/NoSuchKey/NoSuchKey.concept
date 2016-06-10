@@ -1,48 +1,65 @@
-Name: NoSuchKey
+# NoSuchKey
 
-Synopsis: A map does not contain a requested key.
+.Synopsis
+A map does not contain a requested key.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function: `data RunTimeException = NoSuchKey(value key);`
-Usage: `import Exception;`
+.Function
+.Usage
 
-Details:
+.Details
 
-Description:
-Rascal provides many operations and functions on maps, see [Rascal:Values/Map] and [Rascal:Prelude/Map].
+.Description
+Rascal provides many operations and functions on maps, 
+see link:/Rascal#Values-Map[map values] and link:/Libraries#Prelude-Map[map functions].
 This error is generated when a function or operation cannot find a requested key value in a map.
 
 Remedies: 
-* Use the [Rascal:Boolean/IsDefined] or [Rascal:Boolean/IfDefinedElse] operator to guard a lookup in a map.
-* Catch the `NoSuchKey` yourself, see [Rascal:TryCatch].
 
-Examples:
-<screen warnings>
-// Import the `Map` and `IO` libraries and introduce map `M`:
+*  Use the 
+   link:/Rascal#Boolean-isDefined[isDefined] and 
+   link:/Rascal#Boolean-ifDefinedElse[ifDefinedElse] operator to guard a lookup in a map.
+*  Catch the `NoSuchKey` yourself, see link:/Rascal#Statements-TryCatch[try catch].
+
+.Examples
+[source,rascal-shell,error]
+----
+----
+Import the `Map` and `IO` libraries and introduce map `M`:
+[source,rascal-shell,continue,error]
+----
 import Map;
 import IO;
 M = ("a" : 1, "b" : 2);
-// Indexing `M` with a non-existing key gives an error:
+----
+Indexing `M` with a non-existing key gives an error:
+[source,rascal-shell,continue,error]
+----
 M["c"]
-// Use the postfix isDefined operator `?` to test whether the value is defined:
+----
+Use the postfix isDefined operator `?` to test whether the value is defined:
+[source,rascal-shell,continue,error]
+----
 if(M["c"]?) println("defined"); else println("not defined");
-// Or use the binary ifDefinedElse operator `?` to return an alternative value
-// when the value of `M["c"]` is undefined:
+----
+Or use the binary ifDefinedElse operator `?` to return an alternative value
+when the value of `M["c"]` is undefined:
+[source,rascal-shell,continue,error]
+----
 M["c"] ? 3
-// Yet another solution is to use try/catch.
-// First we import the Rascal exceptions (which are also included in `Prelude`):
+----
+Yet another solution is to use try/catch.
+First we import the Rascal exceptions (which are also included in `Prelude`):
+[source,rascal-shell,continue,error]
+----
 import Exception;
 try println(M["c"]); catch NoSuchKey(k): println("Key <k> does not exist");
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       
-       

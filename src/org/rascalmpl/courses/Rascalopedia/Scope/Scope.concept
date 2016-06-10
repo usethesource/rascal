@@ -1,25 +1,23 @@
-Name: Scope
+# Scope
 
-Synopsis: The visibility and accessibility of names in a program.
+.Synopsis
+The visibility and accessibility of names in a program.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

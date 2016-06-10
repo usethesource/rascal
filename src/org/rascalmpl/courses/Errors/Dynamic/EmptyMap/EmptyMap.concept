@@ -1,47 +1,54 @@
-Name: EmptyMap
+# EmptyMap
 
-Synopsis: Illegal operation on an empty set.
+.Synopsis
+Illegal operation on an empty set.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `data RunTimeException = EmptyMap();`
        
-Usage:
+.Usage
 `import Exception;`
 
-Details:
+.Details
 
-Description:
-Rascal provides many operations and functions on maps, see [Rascal:Values/Map] and [Rascal:Prelude/Map].
+.Description
+Rascal provides many operations and functions on maps, see link:/Rascal#Values-Map[map values]
+and link:/Libraries#Prelude-Map[map functions].
 This error is generated when a function or operations cannot handle the empty map.
 
 Remedies: 
-* Guard the function or operation with a test on the empty map ([$Rascal:Map/isEmpty]) and 
-  take alternative action in that case.
-* Catch the `EmptyMap` yourself, see [Rascal:TryCatch].
 
-Examples:
-<screen warnings>
-// Import the `Map` library and introduce `M` with an empty map as value:
+*  Guard the function or operation with a test on the empty map (link:/Libraries#Map-isEmpty[isEmpty]) and 
+  take alternative action in that case.
+*  Catch the `EmptyMap` yourself, see link:/Rascal#Statements-TryCatch[try catch].
+
+.Examples
+
+Import the `Map` library and introduce `M` with an empty map as value:
+[source,rascal-shell,continue,error]
+----
 import Map;
 M = ();
-// Trying to get an arbitrary value from it gives an error:
+----
+Trying to get an arbitrary value from it gives an error:
+[source,rascal-shell,continue,error]
+----
 getOneFrom(M);
-// We can also catch the `EmptyMap` error. First import the Rascal exceptions (which are also included in `Prelude`)
-// and `IO`:
+----
+We can also catch the `EmptyMap` error. First import the Rascal exceptions (which are also included in `Prelude`)
+and `IO`:
+[source,rascal-shell,continue,error]
+----
 import Exception;
 import IO;
 try println(getOneFrom(M)); catch EmptyMap(): println("Cannot use getOneFrom on empty map");
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       
-       

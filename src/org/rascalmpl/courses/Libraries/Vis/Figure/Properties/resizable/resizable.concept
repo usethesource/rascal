@@ -1,30 +1,30 @@
-Name: resizable
+# resizable
 
-Synopsis: Define whether figure can be resized.
+.Synopsis
+Define whether figure can be resized.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty resizable(bool hr, bool vr)`
 
-Details:
+.Details
 
-Description:
+.Description
 Determine whether a figure can be resized in the horizontal or the vertical dimension, or in both directions.
 Figures can have a minimal size beyond which they cannot be further reduced in size.
 By default, figures are resizable and will occupy all available space.
 
 Noet that:
-* `resizable(r)` is equivalent to `hresizable(r), vresizable(r)`.
-* `resizable(hr, vr)` is equivalent to `hresizable(hr), vresizable(vr)`.
 
-Examples:
+*  `resizable(r)` is equivalent to `hresizable(r), vresizable(r)`.
+*  `resizable(hr, vr)` is equivalent to `hresizable(hr), vresizable(vr)`.
 
-Benefits:
+.Examples
 
-Pitfalls:
+.Benefits
 
-Questions:
+.Pitfalls
 

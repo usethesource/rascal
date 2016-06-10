@@ -1,28 +1,36 @@
-Name: Concrete
+# Concrete Patterns
 
-Synopsis: Concrete patterns.
+.Synopsis
+Concrete patterns.
 
-Syntax:
-<listing>
-` $Token_1$ $Token_2$ ... $Token_n$ `
-</listing>
-<listing>
-($Symbol$) ` $Token_1$ $Token_2$ ... $Token_n$ `
-</listing>
-<listing>
-<$Type$ $Var$>
-</listing>
-<listing>
-<$Var$>
-</listing>
+.Index
+( ) ` < >
 
-Types:
+.Syntax
+[source,rascal,subs="quotes"]
+----
+` _Token~1~_ _Token~2~_ ... _Token~n~_ `
+----
+[source,rascal,subs="quotes"]
+----
+(_Symbol_) ` _Token~1~_ _Token~2~_ ... _Token~n~_ `
+----
+[source,rascal,subs="quotes"]
+----
+<_Type_ _Var_>
+----
+[source,rascal,subs="quotes"]
+----
+<_Var_>
+----
 
-Function:
+.Types
 
-Details:
+.Function
 
-Description:
+.Details
+
+.Description
 Suppose we want to manipulate text written in some hypothetical language LANG. 
 Then first the concrete syntax of LANG has to be defined by importing a module that declares the non-terminals and syntax rules for LANG. 
 Next LANG programs have to be parsed. LANG programs made come from text files or they may be included in the Rascal program as literals. 
@@ -33,62 +41,67 @@ A _concrete pattern_ is a quoted concrete syntax fragment that may contain varia
 
 A concrete pattern may have the following forms:
 
-* _Quoted pattern_
-<listing>
-` $Token_1$ $Token_2$ ... $Token_n$ `
-</listing>
+*  _Quoted pattern_
+[source,rascal,subs="quotes"]
+----
+` _Token~1~_ _Token~2~_ ... _Token~n~_ `
+----
 Inside a quoted pattern arbitrary lexical tokens may occur. Quoted patterns may contain variable declaration patterns and variable patterns (see below).
 
-* A _typed quoted pattern_
-<listing>
-($Symbol$) ` $Token_1$ $Token_2$ ... $Token_n$ `
-</listing>
+*  A _typed quoted pattern_
+[source,rascal,subs="quotes"]
+----
+(_Symbol_) ` _Token~1~_ _Token~2~_ ... _Token~n~_ `
+----
 is a quoted pattern that is preceded by a nonterminal symbol to define its desired syntactic type.
 
-* A _typed variable pattern_
-<listing>
-<$Type$ $Var$>
-</listing>
+*  A _typed variable pattern_
+[source,rascal,subs="quotes"]
+----
+<_Type_ _Var_>
+----
 
-* A _variable pattern_
-<listing>
-<$Var$>
-</listing>
+*  A _variable pattern_
+[source,rascal,subs="quotes"]
+----
+<_Var_>
+----
 
 
 
 Inside concrete syntax patterns, layout is ignored.
 
-Examples:
+.Examples
 Examples (in a context where an appropriate concrete syntax has been defined):
 
-* Quoted syntax pattern with two pattern variable declarations:
-<listing>
+*  Quoted syntax pattern with two pattern variable declarations:
+[source,rascal]
+----
 ` while <EXP Exp> do <{STATEMENT ";"}* Stats> od `
-</listing>
+----
 Two observations can be made about this example:
 
-**The non-terminals `EXP` and `{STATEMENT ";"}*` are declared in the imported module and can be used 
+** The non-terminals `EXP` and `{STATEMENT ";"}*` are declared in the imported module and can be used 
 as types in the Rascal program.
 
-** When this pattern is matched successfully against a subject, the variables `Exp` and `Stats` will be bound.
+**  When this pattern is matched successfully against a subject, the variables `Exp` and `Stats` will be bound.
 
-* Quoted syntax pattern with two pattern variable uses (`Exp` and `Stats` should already have a value):
-<listing>
+*  Quoted syntax pattern with two pattern variable uses (`Exp` and `Stats` should already have a value):
+[source,rascal]
+----
 ` while <Exp> do <Stats> od `
-</listing>
-* Identical to the previous example, but with a declaration of the desired syntactic type:
-<listing>
+----
+*  Identical to the previous example, but with a declaration of the desired syntactic type:
+[source,rascal]
+----
 STATEMENT ` while <Exp> do <Stats> od `
-</listing>
+----
 
 
 
-A full example of concrete patterns can be found in [Recipes:Languages/Exp/Concrete/WithLayout].
+A full example of concrete patterns can be found in link:/Recipes#Concrete-WithLayout[WithLayout].
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

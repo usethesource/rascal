@@ -1,32 +1,35 @@
-Name: figure
+# figure
 
-Synopsis:
+.Synopsis
+
 Markup of code that generates a figure.
 
-Syntax:
-* `<figure $FileName$> $RascalCode$ </figure>`
-* `<figure $FileName$ $Width$x$Height$> $RascalCode$ </figure>`
+.Syntax
 
-Types:
+*  `<figure $FileName$> $RascalCode$ </figure>`
+*  `<figure $FileName$ $Width$x$Height$> $RascalCode$ </figure>`
 
-Function:
+.Types
 
-Details:
+.Function
 
-Description:
+.Details
+
+.Description
 With figure markup it is possible to execute visualizations and to include their output in the text.
-$FileName$ is the name of the file to which the visualization will be saved.
-It can later be inserted as [Image].
-Optionally, $Width$ and $Height$ can be given that define the size of the resulting figure.
+_FileName_ is the name of the file to which the visualization will be saved.
+It can later be inserted as <<Image>>.
+Optionally, _Width_ and _Height_ can be given that define the size of the resulting figure.
 By default, the minimal size of the figue is used.
 
 Before executing the Rascal code, the following two imports are added automatically:
-<listing>
+[source,rascal]
+----
 import vis::Figure;
 import vis::Render;
-</listing>
+----
 
-Examples:
+.Examples
 The input:
 
 `<figure fig1.png>`<br>
@@ -35,22 +38,25 @@ The input:
 
 will save a red box in file `fig1.png` and also produce the listing:
 
-<figure fig1.png>
-render(box(fillColor("red")));
-</figure>
+[source,rascal-figure,width=,height=,file=fig1.png]
+----
+                render(box(fillColor("red")));
+----
 
 Later this file can be included as image using: `![fig1](fig1.png)` with as result:
-![fig1](fig1.png) 
 
-Benefits:
+image::{concept}/fig1.png[alt="fig1"]
+ 
 
-Pitfalls:
-* The last line of the $RascalCode$ should be of the form:
-<listing>
+.Benefits
+
+.Pitfalls
+
+*  The last line of the $RascalCode$ should be of the form:
+[source,rascal]
+----
 render(...);
-</listing>
+----
 
-* `<figure>` and `</figure>` should occur at the start of a line.
-
-Questions:
+*  `<figure>` and `</figure>` should occur at the start of a line.
 

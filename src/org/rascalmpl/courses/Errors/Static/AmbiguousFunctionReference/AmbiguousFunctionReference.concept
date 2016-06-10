@@ -1,32 +1,31 @@
-Name: AmbiguousFunctionReference
+# AmbiguousFunctionReference
 
-Synopsis: An ambiguous function name
+.Synopsis
+An ambiguous function name
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
-<warning>How to generate this error? </warning>
+.Description
+Warning: How to generate this error? 
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 data D = d(int x);
 data D2 = d(str x);
 d(3).x
 d("a").x
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

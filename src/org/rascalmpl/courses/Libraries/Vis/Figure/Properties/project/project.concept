@@ -1,24 +1,23 @@
-Name: project
+# project
 
-Synopsis: Project figure on a [hscreen] or [vscreen].
+.Synopsis
+Project figure on a [hscreen] or [vscreen].
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty project (Figure f0, str p0)`
 
-Details:
+.Details
 
-Description:
-Project figure `f0` from this figure onto the screen with [id] `p0`. See [hscreen] and [vscreen]
+.Description
+Project figure `f0` from this figure onto the screen with <<id>> `p0`. See <<hscreen>> and <<vscreen>>
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

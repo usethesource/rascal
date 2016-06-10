@@ -1,24 +1,23 @@
-Name: width
+# width
 
-Synopsis: Defines the minimal horizontal size.
+.Synopsis
+Defines the minimal horizontal size.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty width(num w)`
 
-Details:
+.Details
 
-Description:
-`width` is a synonym for [hsize].
+.Description
+`width` is a synonym for <<hsize>>.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

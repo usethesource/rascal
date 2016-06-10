@@ -1,41 +1,47 @@
-Name: Image
+# Image
 
-Synopsis:
+.Synopsis
+
 Include an image.
 
-Syntax:
-`![$Name$]($File$|$Options$)`
+.Syntax
+`![_Name_](_File_|_Options_)`
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 Describes an image to be included:
-* $Name$ is the alternate name of the image.
-* $File$ is the name of the image file.
-* $Options$ is a possibly empty list of options separated by a `|` character:
-  ** `left`: image will be left algned.
-  ** `right`: image will be right-aligned.
-  ** `center`: image will be centered.
-  ** `$N$px`: the image will be $N$ pixels wide.
-  ** `border`: image will have a 1 pixel border.
-  ** `border $N$px`: image will have a $N$ pixel border.
-  ** `space $N$px`: image will occupy $N$x$N$ pixels.
 
-Examples:
-==== Example 1 ====
-`![image example](image.png)` will produce:<br> ![image example](image.png)
-==== Example 2 ====
-`![image example](image.png|right|border 3px)` will produce:<br> ![image example](image.png|right|border 3px)
+*  $Name$ is the alternate name of the image.
+*  $File$ is the name of the image file.
+*  $Options$ is a possibly empty list of options separated by a `|` character:
+**  `left`: image will be left algned.
+**  `right`: image will be right-aligned.
+**  `center`: image will be centered.
+**  `$N$px`: the image will be $N$ pixels wide.
+**  `border`: image will have a 1 pixel border.
+**  `border $N$px`: image will have a $N$ pixel border.
+**  `space $N$px`: image will occupy $N$x$N$ pixels.
+
+.Examples
+####  Example 1 
+
+`![image example](image.png)` will produce:<br> 
+image::{concept}/image.png[alt="image example"]
+
+####  Example 2 
+
+`![image example](image.png|right|border 3px)` will produce:<br> 
+image::{concept}/image.png[style="float: right;" border="3px" ,alt="image example"]
+
 
 <br>
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

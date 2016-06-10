@@ -1,44 +1,47 @@
-Name: rotate
+# rotate
 
-Synopsis: Rotate a figure.
+.Synopsis
+Rotate a figure.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `Figure rotate(num angle, Figure fig)`
 
-Details:
+.Details
 
-Description:
+.Description
 <warning>
 Currently doesn't work!
 </warning>
 
 Rotate figure `fig` `angle` degrees around its anchor point.
 
-Also see [Angles].
+Also see <<Angles>>.
 
-Examples:
+.Examples
 <xfigure r1.png>
 //b = box(size(100,50), fillColor("Red"));
 //render(rotate(45, b));
-</figure>
+----
 
-![rotate 1](r1.png)
+
+image::{concept}/r1.png[alt="rotate 1"]
+
 
 <xfigure r2.png>
 //b1 = box(size(150,150), fillColor("Blue"));
 //b2 = box(size(100,50), fillColor("Red"));
 //render(hcat([b1, rotate(45, b2)]));
-</figure>
+----
 
-![rotate 1](r2.png)
 
-Benefits:
+image::{concept}/r2.png[alt="rotate 1"]
 
-Pitfalls:
 
-Questions:
+.Benefits
+
+.Pitfalls
 

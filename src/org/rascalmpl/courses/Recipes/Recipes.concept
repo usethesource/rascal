@@ -1,40 +1,39 @@
-Name: Recipes
+# Recipes
 
-Synopsis: Recipes for writing Rascal programs.
+.Synopsis
+Recipes for writing Rascal programs.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details: Contents
+.Details
 
-Description:
+.Description
 These _Rascal Recipes_ are a work-in-progress but will gradually evolve into a collection of basic Rascal language examples and use cases.
 It consists of the following parts:
 
-<toc Recipes 1>
+subtoc::[1]
 
 The following features are covered:
-* Basic language features.
-* Common tasks.
-* Fact extraction.
-* Language definition.
-* Syntax definition.
-* Parsing.
-* Transformation.
-* Code generation.
-* IDE extensions.
-* Visualization.
+
+*  Basic language features.
+*  Common tasks.
+*  Fact extraction.
+*  Language definition.
+*  Syntax definition.
+*  Parsing.
+*  Transformation.
+*  Code generation.
+*  IDE extensions.
+*  Visualization.
 
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

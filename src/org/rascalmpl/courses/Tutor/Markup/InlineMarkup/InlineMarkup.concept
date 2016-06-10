@@ -1,23 +1,22 @@
-Name: InlineMarkup
+# InlineMarkup
 
-Synopsis:
+.Synopsis
+
 Markup directives used in input lines.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

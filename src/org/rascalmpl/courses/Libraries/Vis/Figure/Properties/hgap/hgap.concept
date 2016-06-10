@@ -1,25 +1,24 @@
-Name: hgap
+# hgap
 
-Synopsis: Define minimal horizontal gap in compositions.
+.Synopsis
+Define minimal horizontal gap in compositions.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty hgap(num h)`
 
-Details:
+.Details
 
-Description:
+.Description
 Set the minimal horizontal gap between figures.
-See [gap].
+See <<gap>>.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

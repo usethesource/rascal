@@ -1,30 +1,30 @@
-Name: Description
+# Description
 
-Synopsis:
+.Synopsis
+
 Gives a concise explanation of the concept.
 
-Syntax:
-`Description: $MarkedText$`
+.Syntax
+`Description: _MarkedText_`
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
-Examples:
+.Examples
 The `Description` section of this concept page reads as follows:
 
 `Description:`
 `The ``Description`` section gives a concise explanation of the concept.
 
-Benefits:
+.Benefits
 
-Pitfalls:
-* Avoid giving examples in the `Description` section but reserve these for the `Examples` section.
-* Do not give explicit lists of subconcepts (details) since they are already included automatically in the `Details` section in the generated page.
+.Pitfalls
 
-Questions:
+*  Avoid giving examples in the `Description` section but reserve these for the `Examples` section.
+*  Do not give explicit lists of subconcepts (details) since they are already included automatically in the `Details` section in the generated page.
 

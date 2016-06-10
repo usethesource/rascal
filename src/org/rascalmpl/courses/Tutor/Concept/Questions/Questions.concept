@@ -1,27 +1,26 @@
-Name: Questions
+# Questions
 
-Synopsis:
+.Synopsis
+
 Questions about the concept.
 
-Syntax:
-`Questions: $Question_1$, $Question_2$` (__recommended__)
+.Syntax
+`Questions: _Question_~1~, _Question_~2~` (*recommended*)
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 The `Questions` section gives a number of interactive exercises that
 give the student the opportunity to further explore the concept.
-See [QuestionMarkup] for details.
+See <<QuestionMarkup>> for details.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

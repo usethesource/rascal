@@ -1,33 +1,35 @@
-Name: vgrow
+# vgrow
 
-Synopsis: Increase (grow) the vertical size of a figure relative to its contained figures.
+.Synopsis
+Increase (grow) the vertical size of a figure relative to its contained figures.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty vgrow(num hg)`
 
-Details:
+.Details
 
-Description:
+.Description
 Defines the vertical growth of a figure relative to its contained figures.
 Growth is expressed as a factor larger than 1.
 
-Also see [grow] and [hgrow].
+Also see <<grow>> and <<hgrow>>.
 
-Examples:
-<figure g1.png>
-b1 = box(size(100, 50), fillColor("blue"));
+.Examples
+[source,rascal-figure,width=,height=,file=g1.png]
+----
+                b1 = box(size(100, 50), fillColor("blue"));
 b2 = box(b1, vgrow(1.5), fillColor("yellow"));
 render(b2);
-</figure>
-![g1](g1.png)
+----
 
-Benefits:
+image::{concept}/g1.png[alt="g1"]
 
-Pitfalls:
 
-Questions:
+.Benefits
+
+.Pitfalls
 

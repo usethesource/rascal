@@ -1,6 +1,8 @@
-Name: Static
-Synopsis: All static errors that can occur before executing of a Rascal program.
+# Static Errors
 
-Description:
+.Synopsis
+All static errors that can occur before executing of a Rascal program.
+
+.Description
 The following static errors can occur in a Rascal program. They cannot be caught by the Rascal program:
-<toc Errors/Static>
+subtoc::[1]

@@ -1,44 +1,64 @@
-Name: IfDefinedElse
+# Boolean IfDefinedElse
 
-Synopsis: Test whether expression has a defined value, otherwise provide alternative.
+.Synopsis
+Test whether expression has a defined value, otherwise provide alternative.
 
-Syntax:
-`$Exp_1$ ? $Exp_2$`
+.Index
+?
 
-Types:
-| `$Exp_1$` | `$Exp_2$` | `$Exp_1$ ? $Exp_2$`|
-|:----------|:----------|:-------------------|
-| `$T_1$`   | `$T_2$`   |  `$T_2$ <: $T_1$` |
+.Syntax
+`_Exp_~1~ ? _Exp_~2~`
 
-Function:
+.Types
 
-Details:
+//
 
-Description:
-If no exception is generated during the evaluation of $Exp_1$, the result of `$Exp_1$ ? $Exp_2$` is the value of $Exp_1$.
-Otherwise, it is the value of $Exp_2$.
+|====
+| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ ? _Exp~2~_`
 
-Also see [$Boolean/isDefined] and [Assignment].
+| `_T~1~_`   | `_T~2~_`   |  `_T~2~_ <: _T~1~_` 
+|====
 
-Examples:
+.Function
+
+.Details
+
+.Description
+If no exception is generated during the evaluation of _Exp_~1~, the result of `_Exp_~1~ ? _Exp_~2~` is the value of _Exp_~1~.
+Otherwise, it is the value of _Exp_~2~.
+
+Also see <<Boolean isDefined>> and <<Assignment>>.
+
+.Examples
 This test can, for instance, be used to handle the case that a certain key value is not in a map:
-<screen errors>
+[source,rascal-shell,error]
+----
 T = ("a" : 1, "b" : 2);
-// Trying to access the key `"c"` will result in an error:
+----
+Trying to access the key `"c"` will result in an error:
+[source,rascal-shell,continue,error]
+----
 T["c"];
-// Using the `?` operator, we can write:
+----
+Using the `?` operator, we can write:
+[source,rascal-shell,continue,error]
+----
 T["c"] ? 0;
-// This is very useful, if we want to modify the associated value, but are not sure whether it exists:
+----
+This is very useful, if we want to modify the associated value, but are not sure whether it exists:
+[source,rascal-shell,continue,error]
+----
 T["c"] ? 0 += 1;
-// Another example using a list:
+----
+Another example using a list:
+[source,rascal-shell,continue,error]
+----
 L = [10, 20, 30];
 L[4] ? 0;
-</screen>
+----
 It is, however, not possible to assign to index positions outside the list.
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

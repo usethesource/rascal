@@ -1,35 +1,36 @@
-Name: Parser
+# Parser
 
-Synopsis: Check that a text adheres to the rules of a language (and return a [ParseTree]).
+.Synopsis
+Check that a text adheres to the rules of a language (and return a <<ParseTree>>).
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 
-A [parser](http://en.wikipedia.org/wiki/Parsing) checks that a text in language $L$ indeed adheres 
-to the syntax rules of language $L$. There are two possible answers:
-* _Yes_. A [ParseTree] is returned that shows how the text adheres to the syntax rules.
-* _No_. Error messages pin point the location where the text deviates from the syntax rules.
+A http://en.wikipedia.org/wiki/Parsing[parser] checks that a text in language _L_ indeed adheres 
+to the syntax rules of language _L_. There are two possible answers:
+
+*  _Yes_. A <<ParseTree>> is returned that shows how the text adheres to the syntax rules.
+*  _No_. Error messages pin point the location where the text deviates from the syntax rules.
 
 
 This is shown below:
 
-![parser](parser.png)
 
-Examples:
+image::{concept}/parser.png[alt="parser"]
 
-Benefits:
 
-Pitfalls:
+.Examples
 
-Questions:
+.Benefits
 
-       
+.Pitfalls
+

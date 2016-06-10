@@ -1,140 +1,170 @@
-Name: overlay
+# overlay
 
-Synopsis: Composition of figures by superposition.
+.Synopsis
+Composition of figures by superposition.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `Figure overlay(Figures figs, FProperty props...)`
 
-Details:
+.Details
 
-Description:
+.Description
 Composition of a list of figures by overlaying them on top of each other.
 Alignment gives detailed control over the position of figures in an overlay.
 This can be used to create arbitrary shapes. These shapes can be further controlled
 by 
-* connecting the figures in the overlay, see [shapeConnected].
-* make a smooth connection between figures in the overlay, see [shapeCurved].
-* connecting the first and the last figure in the shape, see [shapeClosed].
-* using [fillColor] to define the area color of the closed shape.
-* using [hconnect] or [vconnect] to determine where the figures in a shape will be connected.
 
-Examples:
-<figure o1.png 150x150>
-b1 = box(shrink(1.0,1.0), fillColor("Red"));
+*  connecting the figures in the overlay, see [shapeConnected].
+*  make a smooth connection between figures in the overlay, see [shapeCurved].
+*  connecting the first and the last figure in the shape, see [shapeClosed].
+*  using [fillColor] to define the area color of the closed shape.
+*  using [hconnect] or [vconnect] to determine where the figures in a shape will be connected.
+
+.Examples
+[source,rascal-figure,width=150,height=150,file=o1.png]
+----
+                b1 = box(shrink(1.0,1.0), fillColor("Red"));
 b2 = box(shrink(0.3,0.5), fillColor("Blue"));
 b3 = box(shrink(0.1,0.7), fillColor("Yellow"));
 render(overlay([b1, b2, b3]));
-</figure>
-gives: ![o1](o1.png)
+----
+gives: 
+image::{concept}/o1.png[alt="o1"]
 
-<figure o2.png 150x150>
-b1 = box(shrink(1.0,1.0), fillColor("Red"));
+
+[source,rascal-figure,width=150,height=150,file=o2.png]
+----
+                b1 = box(shrink(1.0,1.0), fillColor("Red"));
 b2 = box(shrink(0.3,0.5), fillColor("Blue"),top(),right());
 b3 = box(shrink(0.1,0.7), fillColor("Yellow"));
 render(overlay([b1, b2, b3]));
-</figure>
-gives: ![o2](o2.png)
+----
+gives: 
+image::{concept}/o2.png[alt="o2"]
 
-<figure o3.png 150x150>
-b1 = box(shrink(1.0,1.0), fillColor("Red"));
+
+[source,rascal-figure,width=150,height=150,file=o3.png]
+----
+                b1 = box(shrink(1.0,1.0), fillColor("Red"));
 b2 = box(shrink(0.3,0.5), fillColor("Blue"),bottom(),left());
 b3 = box(shrink(0.1,0.7), fillColor("Yellow"));
 render(overlay([b1, b2, b3]));
-</figure>
-gives: ![o3](o3.png)
+----
+gives: 
+image::{concept}/o3.png[alt="o3"]
 
-<figure o4.png 150x150>
-b1 = box(shrink(1.0,1.0), fillColor("Red"));
+
+[source,rascal-figure,width=150,height=150,file=o4.png]
+----
+                b1 = box(shrink(1.0,1.0), fillColor("Red"));
 b2 = box(shrink(0.3,0.5), fillColor("Blue"),bottom(),left());
 b3 = box(shrink(0.1,0.7), fillColor("Yellow"),right());
 render(overlay([b1, b2, b3]));
-</figure>
-gives: ![o4](o4.png)
+----
+gives: 
+image::{concept}/o4.png[alt="o4"]
+
 
 Alignment gives detailed control over the position of figures in an overlay. 
 
-<figure o5.png 200x200>
-Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+[source,rascal-figure,width=200,height=200,file=o5.png]
+----
+                Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [<0.0,0.0>,<0.5,0.5>,<0.8,0.5>,<1.0,0.0>];
 ovl = overlay([point(x,y) | <x,y> <- coords]);
 render(ovl);
-</figure>
+----
 gives: 
 
-![o5](o5.png)
 
-The overlaid figures can be connected by using [shapeConnected]:
+image::{concept}/o5.png[alt="o5"]
 
-<figure o6.png 200x200>
-Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+
+The overlaid figures can be connected by using <<shapeConnected>>:
+
+[source,rascal-figure,width=200,height=200,file=o6.png]
+----
+                Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 list[tuple[num,num]] coords = [<0.0,0.0>,<0.5,0.5>,<0.8,0.5>,<1.0,0.0>];
 ovl = overlay([point(x,y) | <x,y> <- coords], shapeConnected(true));
 render(ovl);
-</figure>
+----
 gives: 
 
-![o6](o6.png)
 
-The next enhancement is to close the begin and end points of the shape, using [shapeClosed]:
-<figure o7.png 200x200>
-Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+image::{concept}/o6.png[alt="o6"]
+
+
+The next enhancement is to close the begin and end points of the shape, using <<shapeClosed>>:
+[source,rascal-figure,width=200,height=200,file=o7.png]
+----
+                Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [<0.0,0.0>,<0.5,0.5>,<0.8,0.5>,<1.0,0.0>];
 ovl = overlay([point(x,y) | <x,y> <- coords], shapeConnected(true),
                                               shapeClosed(true));
 render(ovl);
-</figure>
+----
 gives: 
 
-![o7](o7.png)
 
-Another enhancement is to use curves to connect the figures in the shape, using [shapeCurved]:
-<figure o8.png 200x200>
-Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+image::{concept}/o7.png[alt="o7"]
+
+
+Another enhancement is to use curves to connect the figures in the shape, using <<shapeCurved>>:
+[source,rascal-figure,width=200,height=200,file=o8.png]
+----
+                Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [<0.0,0.0>,<0.5,0.5>,<0.8,0.5>,<1.0,0.0>];
 ovl= overlay([point(x,y) | <x,y> <- coords], shapeConnected(true),
                                              shapeClosed(true),
                                              shapeCurved(true));
 render(ovl);
-</figure>
+----
 gives: 
 
-![o8](o8.png)
+
+image::{concept}/o8.png[alt="o8"]
+
 
 A final enhancement is to set the fill color of the closed shape:
-<figure o9.png 200x200>
-Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
+[source,rascal-figure,width=200,height=200,file=o9.png]
+----
+                Figure point(num x, num y){ return ellipse(shrink(0.05),fillColor("red"),align(x,y));}
 coords = [<0.0,0.0>,<0.5,0.5>,<0.8,0.5>,<1.0,0.0>];
 ovl = overlay([point(x,y) | <x,y> <- coords], shapeConnected(true),
                                               shapeClosed(true),
                                               shapeCurved(true),
                                               fillColor("yellow"));
 render(ovl);
-</figure>
+----
 gives: 
 
-![o9](o9.png)
 
-The [hconnect] and [vconnect] properties can be used to determine where a
+image::{concept}/o9.png[alt="o9"]
+
+
+The <<hconnect>> and <<vconnect>> properties can be used to determine where a
 shape will connect with a figure.
 
-<figure o10.png 200x200>
-b1 = box(shrink(0.2),vconnect(1.0),hconnect(1.0),top(),left(),fillColor("red"));
+[source,rascal-figure,width=200,height=200,file=o10.png]
+----
+                b1 = box(shrink(0.2),vconnect(1.0),hconnect(1.0),top(),left(),fillColor("red"));
 e1 = ellipse(size(25),resizable(false),vconnect(0.0),bottom(),fillColor("green"));
 b2 = box(shrink(0.2),vconnect(0.0),hconnect(0.0),aspectRatio(1.0),top(),right(),fillColor("blue"));
 ovl = overlay([b1,e1,b2 ],shapeConnected(true),shapeClosed(true),fillColor("yellow"));
 render(ovl);
-</figure>
+----
 gives: 
 
-![o10](o10.png)
 
-Benefits:
+image::{concept}/o10.png[alt="o10"]
 
-Pitfalls:
 
-Questions:
+.Benefits
+
+.Pitfalls
 

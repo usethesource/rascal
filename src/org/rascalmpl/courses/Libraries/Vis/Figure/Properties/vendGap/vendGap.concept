@@ -1,24 +1,23 @@
-Name: vendGap
+# vendGap
 
-Synopsis: Vertical gap at end of composition.
+.Synopsis
+Vertical gap at end of composition.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty vendGap(bool b)`
 
-Details:
+.Details
 
-Description:
-Specifies if a [vcat] or [grid] will start with (half) a vertical gap. See also [endGap] and [hendGap].
+.Description
+Specifies if a <<vcat>> or <<grid>> will start with (half) a vertical gap. See also <<endGap>> and <<hendGap>>.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

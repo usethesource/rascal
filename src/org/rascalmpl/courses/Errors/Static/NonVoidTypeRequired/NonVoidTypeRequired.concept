@@ -1,42 +1,43 @@
-Name: NonVoidTypeRequired
+# NonVoidTypeRequired
 
-Synopsis: A type other than `void` is needed.
+.Synopsis
+A type other than `void` is needed.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 This error is generated when a non-void value is needed, but only void is provided.
-The most prominent examples are splicing for [$Rascal:Values/List], [$Rascal:Values/Set], and [$Rascal:Values/Map].
+The most prominent examples are splicing for 
+link:/Rascal#List-Splice[list], link:/Rascal#Set-Splice[set], and link:/Rascal#Map-Splice[map].
 
 Remedy: replace the expression that computes void by an expression that computes a non-void value.
 
-Examples:
+.Examples
 First define a dummy function that returns void:
-<screen warnings>
+[source,rascal-shell,error]
+----
 void dummy() { return; }
 [1, *dummy(), 2]
 {1, *dummy(), 2}
-</screen>
+----
 A solution could be:
 
-<screen>
+[source,rascal-shell]
+----
 int dummy() { return 17; }
 [1, *dummy(), 2]
 {1, *dummy(), 2}
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

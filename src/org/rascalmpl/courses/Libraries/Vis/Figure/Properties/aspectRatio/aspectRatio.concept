@@ -1,46 +1,54 @@
-Name: aspectRatio
+# aspectRatio
 
-Synopsis: The fixed aspect ratio of a figure.
+.Synopsis
+The fixed aspect ratio of a figure.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty onClick(void() handler)`
 
-Details:
+.Details
 
-Description:
+.Description
 Defines the ratio between the horizontal and vertical size of a figure.
 This ratio is maintained whenever the figure is resized.
 An aspect ratio with value 1, turns boxes into squares and ellipses into circles.
 
-Examples:
-<figure a0.png 200x100>
-e1 = ellipse(shrink(0.8),fillColor("yellow"));
+.Examples
+[source,rascal-figure,width=200,height=100,file=a0.png]
+----
+                e1 = ellipse(shrink(0.8),fillColor("yellow"));
 b1 = box(e1,fillColor("red"));
 render(e1);
-</figure>
-![a0](a0.png)
+----
 
-<figure a1.png 200x100>
-e1 = ellipse(shrink(0.8), aspectRatio(1.0),fillColor("yellow"));
+image::{concept}/a0.png[alt="a0"]
+
+
+[source,rascal-figure,width=200,height=100,file=a1.png]
+----
+                e1 = ellipse(shrink(0.8), aspectRatio(1.0),fillColor("yellow"));
 b1 = box(e1,fillColor("red"));
 render(e1);
-</figure>
-![a1](a1.png)
+----
 
-<figure a2.png 200x100>
-e1 = ellipse(shrink(0.8), aspectRatio(0.5),fillColor("yellow"));
+image::{concept}/a1.png[alt="a1"]
+
+
+[source,rascal-figure,width=200,height=100,file=a2.png]
+----
+                e1 = ellipse(shrink(0.8), aspectRatio(0.5),fillColor("yellow"));
 b1 = box(e1,fillColor("red"));
 render(e1);
-</figure>
-![a2](a2.png)
+----
 
-Benefits:
+image::{concept}/a2.png[alt="a2"]
 
-Pitfalls:
 
-Questions:
+.Benefits
+
+.Pitfalls
 

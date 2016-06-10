@@ -1,25 +1,24 @@
-Name: vstartGap
+# vstartGap
 
-Synopsis: Vertical gap at start of composition.
+.Synopsis
+Vertical gap at start of composition.
 
-Syntax:
+.Syntax
 
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty vstartGap(bool gap)`
 
-Details:
+.Details
 
-Description:
-Specifies if a [vcat] or [grid] will start with (half) a vertical gap. See also [startGap] and [hstartGap].
+.Description
+Specifies if a <<vcat>> or <<grid>> will start with (half) a vertical gap. See also <<startGap>> and <<hstartGap>>.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

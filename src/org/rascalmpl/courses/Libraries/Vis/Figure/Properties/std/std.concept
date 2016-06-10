@@ -1,37 +1,39 @@
-Name: std
+# std
 
-Synopsis: Define a standard property value for all contained figures.
+.Synopsis
+Define a standard property value for all contained figures.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty std(FProperty prop)`
 
-Details:
+.Details
 
-Description:
+.Description
 Set `prop` as the standard property for all figures contained in the current figure (including the figure itself).
 
-Examples:
+.Examples
 In the following, each box controls its own `size` and `lineColor`, but the properties `fillColor`, `lineWidth` and `resizable` are
 controlled by a standard setting in `hcat`:
 
-<figure s1.png 300x100>
-boxes = [ box(lineColor("red")), 
+[source,rascal-figure,width=300,height=100,file=s1.png]
+----
+                boxes = [ box(lineColor("red")), 
           box(), 
           box(lineColor("yellow"))
         ];
 render(box(hcat(boxes,shrink(0.9)),std(lineColor("blue")), std(fillColor("grey")), std(lineWidth(3))));
-</figure>
-![s1](s1.png)
+----
+
+image::{concept}/s1.png[alt="s1"]
+
 
 If a figure does not specify a certain property, then the standard will be used.
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

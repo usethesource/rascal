@@ -1,33 +1,33 @@
-Name: ModuleNotFound
+# ModuleNotFound
 
-Synopsis: A module cannot be found on dynamic import.
+.Synopsis
+A module cannot be found on dynamic import.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function: `data RunTimeException = ModuleNotFound(str name);`
-Usage: `import Exception;`
+.Function
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 This error is generated when an internally generated module cannot be found.
 
 Remedy: Contact the Rascal developers:
-* Ask a question at [Rascal Ask site](http://ask.rascal-mpl.org/questions/).
-* Read the currently open issues at the Rascal's [issue tracker](https://github.com/cwi-swat/rascal/issues?state=open). If your problem has not yet been reported by someone else, please report it here.
+
+* Ask a question at http://stackoverflow.com/questions/tagged/rascal[].
+* Read the currently open issues at the Rascal's issue tracker at
+  https://github.com/cwi-swat/rascal/issues?state=open[]. If your problem has not yet been reported by someone else, please report it here.
 
 
 If you are an expert developer, please check your own code first.
 
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

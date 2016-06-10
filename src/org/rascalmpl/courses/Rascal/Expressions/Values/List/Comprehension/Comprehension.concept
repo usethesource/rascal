@@ -1,42 +1,44 @@
-Name: Comprehension
+# List Comprehension
 
-Synopsis: A list comprehension generates a list value.
+.Synopsis
+A list comprehension generates a list value.
 
-Syntax:
-`[ $Exp_1$, $Exp_2$, ... | $Gen_1$, $Gen_2$, ... ]`
+.Index
+[ | ]
 
-Types:
-| `$Exp_1$` | `$Exp_2$` | ... | `[ $Exp_1$, $Exp_2$, ... | $Gen_1$, $Gen_2$, ... ]` |
-|:----------|:----------|:----|:----------------------------------------------------|
-| `$T_1$`   | `$T_2$`   | ... | `list[ lub( $T_1$, $T_2$, ... ) ]`                  |
+.Syntax
+`[ _Exp_~1~, _Exp_~2~, ... | _Gen_~1~, _Gen_~2~, ... ]`
 
-Function:
+.Types
 
-Details:
+[cols="20,20,20,40"]
+|====
+| `_Exp~1~_` | `_Exp~2~_` | ... | `[ _Exp~1~_, _Exp~2~_, ... \| _Gen~1~_, _Gen~2~_, ... ]` 
 
-Description:
-A list comprehension consists of a number of contributing expressions $Exp_1$, $Exp_2$, ... and a number of
-generators $Gen_1$, $Gen_2$, $Gen_3$, ... that are evaluated as described in [Expressions/Comprehensions].
+| `_T~1~_`   | `_T~2~_`   | ... | `list[ lub( _T~1~_, _T~2~_, ... ) ]`                  
+|====
 
-Examples:
+.Function
+
+.Details
+
+.Description
+A list comprehension consists of a number of contributing expressions _Exp_~1~, _Exp_~2~, ... and a number of
+generators _Gen_~1~, _Gen_~2~, _Gen_~3~, ... that are evaluated as described in <<Expressions-Comprehensions>>.
+
+.Examples
 Computing a list of squares of the numbers from 0 to 10 that are divisible by 3:
-<screen>
+[source,rascal-shell]
+----
 [n * n | int n <- [0 .. 10], n % 3 == 0];
-</screen>
+----
 But we can also include the relevant `n` in the resulting list:
-<screen>
+[source,rascal-shell]
+----
 [n, n * n | int n <- [0 .. 10], n % 3 == 0];
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-QValue:
-desc: Return the strings that contain a given substring.
-list:
-text = ["An", "honest", "man", "is", "always", "a", "child"]; 
-public list[str] find(list[str] text, str contains) = [ s | s <- text, <?> ];
-test: find(text, "n") == ["An", "honest", "man"];

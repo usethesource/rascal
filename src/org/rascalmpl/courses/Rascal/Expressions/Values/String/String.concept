@@ -1,51 +1,61 @@
-Name: String
+# String
 
-Synopsis: String values.
+.Synopsis
+String values.
 
-Syntax:
-`"$StringChar_1$$StringChar_2$..."`
-where $StringChar$ may be one of the following:
-* __Ordinary character__: Any character except `<`, `>`, `"`, `'` or `\`.
-* __Escaped character__: Backslash `\` followed by any of  `<`, `>`, `"`, `'` or `\` represents the escaped character itself.
+.Index
+" ' < > \ \n \t \r \b \f \u \U hex if else for while do
+
+.Syntax
+`"_StringChar_~1~_StringChar_~2~..."`
+where `_StringChar~i~_ may be one of the following:
+
+*  __Ordinary character__: Any character except `<`, `>`, `"`, `'` or `\`.
+*  __Escaped character__: Backslash `\` followed by any of  `<`, `>`, `"`, `'` or `\` represents the escaped character itself.
   Other escape sequences that are supported are:
-** `\n`: newline
-** `\t`: tab
-** `\r`: carriage return
-** `\b`: backspace
-** `\f`: vertical feed
-** `\u$hexDigit_1$$hexDigit_2$$hexDigit_3$$hexDigit_4$` : hexadecimal escapes with four digit indexes into UNICODE.
-** `\U$hexDigit_1$$hexDigit_2$$hexDigit_3$$hexDigit_4$$hexDigit_5$$hexDigit_6$` : hexadecimal escapes with six digit indexes into UNICODE.
-** `\a$hexDigit_1$$hexDigit_2$`:  hexadecimal escapes with 2 digit indexes into ASCII (0x0 ... 0x7F).
+**  `\n`: newline
+**  `\t`: tab
+**  `\r`: carriage return
+**  `\b`: backspace
+**  `\f`: vertical feed
+**  `\u _hexDigit~1~_ _hexDigit~2~_ _hexDigit~3~_ _hexDigit~4~_` : hexadecimal escapes with four digit indexes into UNICODE.
+**  `\U _hexDigit~1~_ _hexDigit~2~_ _hexDigit~3~_ _hexDigit~4~_ _hexDigit~5~_ _hexDigit~6~_` : hexadecimal escapes with six digit indexes into UNICODE.
+**  `\ a_hexDigit~1~_ _hexDigit~2~_`:  hexadecimal escapes with 2 digit indexes into ASCII (0x0 ... 0x7F).
 
 
-* __String Interpolation__: 
+*  __String Interpolation__: 
 
-| Form      | Description |
-+-----------+-------------|
-| `<$Exp$>` | Interpolate the value of the expression as a string
-| `<if($Exp$){> ... $StringChars$ ... <}>` | Conditional inclusion of $Text$, where $StringChars$ may use variables introduced in $Exp$ |
-| `<if($Exp$){> ... $StringChars_1$ ... <} else {>  ... $StringChars_2$ ... <}>` | Conditional inclusion of either $StringChars_1$ or $StringChars_2$ |
-| `<for($Exp$){>... $StringChars$ ... <}>` | Iterative splicing of $StringChars$ into the result, where $StringChars$ may use variables introduced in $Exp$.|
-| `<while($Exp$){> ... $StringChars$ ... <}>` | Iterative splicing of $StringChars$ into the result, where $StringChars$ may use variables introduced in $Exp$.|
-| `<do {>... $StringChars$ ... <} while ($Exp$)>` | Iterative splicing of $StringChars$ into the result, where $StringChars$ may use variables introduced in $Exp$.|
+|====
+| Form      | Description
 
-* __Multiline__:
-| Form | Description |
-+------+-------------+
-| `$StringChars_1$\n $StringChars_2$ ` | Strings can be multi-line without an escape or continuation marker |
-| `$StringChars_2$\n '  $StringChars_2$` | A margin character `'` indicates where the next line starts |
+| `<_Exp_>` | Interpolate the value of the expression as a string
+| `<if(_Exp_){> ... _StringChars_ ... <}>` | Conditional inclusion of _Text_, where _StringChars_ may use variables introduced in _Exp_
+| `<if(_Exp_){> ... _StringChars~1~_ ... <} else {>  ... _StringChars~2~_ ... <}>` | Conditional inclusion of either _StringChars~1~_ or _StringChars~2~_
+| `<for(_Exp_){>... _StringChars_ ... <}>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_.
+| `<while(_Exp_){> ... _StringChars_ ... <}>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_.
+| `<do {>... _StringChars_ ... <} while (_Exp_)>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_.
+|====
+
+*  __Multiline__:
+
+|====
+| Form | Description 
+
+| `_StringChars~1~_\n _StringChars~2~_ `   | Strings can be multi-line without an escape or continuation marker 
+| `_StringChars~2~_\n '  _StringChars~2~_` | A margin character `'` indicates where the next line starts 
+|====
 
 
-Usage: `import String`; (included in [Prelude])
+.Usage
 
-Types:
+.Types
 `str`
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
 The string values are represented by the type `str` and consist of character 
 sequences surrounded by double quotes, e.g., `"a"` or `"a\nlong\nstring"`.
@@ -61,35 +71,50 @@ In the interpolation variant of these statements the block or blocks that are pa
 
 _Auto-indent_: Expressions that get interpolated in a string will be auto-indented. This means that each line that results from the evaluation of the expression is prefixed with the indentation level of the position of the expression in the current string.
 
-The following functions are provided for strings:
-<toc Rascal/Expressions/Values/String 1>
+The following operators are defined for Strings:
+subtoc::[1]
 
-Examples:
-<screen>
+There are also link:/Libraries#Prelude-String[library functions] available for Strings.
+
+.Examples
+[source,rascal-shell]
+----
 N = 13;
 "The value of N is <N>";
 "The value of N*N is <N*N>";
 "The value is <(N < 10) ? 10 : N*N>";
-//As you can see the string value of variables and expressions is interpolated in the result as expected. 
-//<br>
-//Some examples of more advances string interpolation 
+----
+As you can see the string value of variables and expressions is interpolated in the result as expected. 
+<br>
+Some examples of more advances string interpolation 
+[source,rascal-shell,continue]
+----
 "N is <if(N < 10){> small <} else {> large <}>";
 "N is <if(N < 10){> small <} else {> large (<N>)<}>";
 "before <for(x<-[1..5]){>a <x> b <}>after";
-// multi-line string
+----
+multi-line string
+[source,rascal-shell,continue]
+----
 import IO;
 println("hello
 this
   is
     new")
-// multi-line string with margin:
+----
+multi-line string with margin:
+[source,rascal-shell,continue]
+----
 if (true)
   println("this is
           'what
           '  margins
           'are good for
           ");
-// auto indent:
+----
+auto indent:
+[source,rascal-shell,continue]
+----
 str genMethod(str n) = "int <n>() {
                        '  return 0;
                        '}";
@@ -97,14 +122,12 @@ str genClass() = "class myClass {
                  '  <genMethod("myMethod")>
                  '}";
 println(genClass());
-</screen>
+----
 
 
-Benefits:
+.Benefits
 String interpolation enables very flexible template-based text generation as used in generators for
 source code, markup and the like.
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

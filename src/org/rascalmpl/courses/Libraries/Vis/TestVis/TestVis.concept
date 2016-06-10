@@ -1,116 +1,172 @@
-Name: TestVis
+# TestVis
 
-Synopsis: List of visualization tests (for developers only).
+.Synopsis
+List of visualization tests (for developers only).
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
 
-Examples:
-<figure test1.png 350x350>
-render(box());
-</figure>
-![test](test1.png)
+.Examples
+[source,rascal-figure,width=350,height=350,file=test1.png]
+----
+                render(box());
+----
 
-<figure test2.png 350x350>
-render(box(shrink(0.5)));
-</figure>
-![test](test2.png)
+image::{concept}/test1.png[alt="test"]
 
-<figure test3.png 350x350>
-render(box( fillColor("green")));
-</figure>
-![test](test3.png)
 
-<figure test4.png 350x350>
-render(box(hshrink(0.7), vshrink(0.2),fillColor("green"), lineColor("red")));
-</figure>
-![test](test4.png)
+[source,rascal-figure,width=350,height=350,file=test2.png]
+----
+                render(box(shrink(0.5)));
+----
 
-<figure test5.png 350x350>
-render(box(box(fillColor("white")), fillColor("mediumblue"), grow(1.5)));
-</figure>
-![test](test5.png)
+image::{concept}/test2.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test3.png]
+----
+                render(box( fillColor("green")));
+----
+
+image::{concept}/test3.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test4.png]
+----
+                render(box(hshrink(0.7), vshrink(0.2),fillColor("green"), lineColor("red")));
+----
+
+image::{concept}/test4.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test5.png]
+----
+                render(box(box(fillColor("white")), fillColor("mediumblue"), grow(1.5)));
+----
+
+image::{concept}/test5.png[alt="test"]
+
 
 /Unsized blue outer box with black inner text
-<figure test6.png 350x350>
-render(box(text("een label"), fillColor("mediumblue"), grow(1.2)));
-</figure>
-![test](test6.png)
+[source,rascal-figure,width=350,height=350,file=test6.png]
+----
+                render(box(text("een label"), fillColor("mediumblue"), grow(1.2)));
+----
+
+image::{concept}/test6.png[alt="test"]
+
 
 Unsized blue outer box with white inner text
 
-<figure test7.png 350x350>
-render(box(text("een label", fontColor("white")), fillColor("mediumblue"),grow(1.2)));
-</figure>
-![test](test7.png)
+[source,rascal-figure,width=350,height=350,file=test7.png]
+----
+                render(box(text("een label", fontColor("white")), fillColor("mediumblue"),grow(1.2)));
+----
 
-<figure test8.png 350x350>
-render(box(text("een label"),  fillColor("mediumblue"), grow(2.0),shrink(0.7)));
-</figure>
-![test](test8.png)
-
-<figure test9.png 350x350>
-render(box(box(fillColor("green"), lineColor("red")), grow(2.0,1.5)));
-</figure>
-![test](test9.png)
-
-<figure test10.png 350x350>
-render(box(box(fillColor("green"), lineColor("red"),left()), grow(2.0,1.5)));
-</figure>
-![test](test10.png)
-
-<figure test11.png 350x350>
-render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), top(),grow(1.2)), grow(2.0,1.5),resizable(false)));
-</figure>
-![test](test11.png)
-
-<figure test12.png 350x350>
-render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), bottom(),grow(1.2)), grow(2.0,1.5),resizable(false)));
-</figure>
-![test](test12.png)
-
-<figure test13.png 350x350>
-render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),grow(1.2)), grow(2.0,1.5),vresizable(false)));
-</figure>
-![test](test13.png)
+image::{concept}/test7.png[alt="test"]
 
 
-<figure test14.png 350x350>
-render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),top(),grow(1.2)), grow(2.0,1.5)));
-</figure>
-![test](test14.png)
+[source,rascal-figure,width=350,height=350,file=test8.png]
+----
+                render(box(text("een label"),  fillColor("mediumblue"), grow(2.0),shrink(0.7)));
+----
 
-<figure test15.png 350x350>
-render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),grow(1.2)), grow(2.0,1.5),width(100.0),height(100.0),hresizable(false)));
-</figure>
-![test](test15.png)
+image::{concept}/test8.png[alt="test"]
 
-<figure test16.png 350x350>
-render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),grow(1.2)), grow(2.0,1.5),width(100.0),height(300.0),resizable(false)));
-</figure>
-![test](test16.png)
 
-<figure test17.png 350x350>
-render(box(box( fillColor("green"), lineColor("red"), right(), bottom()), grow(1.3),size(300.0,200.0),resizable(false)));
-</figure>
-![test](test17.png)
+[source,rascal-figure,width=350,height=350,file=test9.png]
+----
+                render(box(box(fillColor("green"), lineColor("red")), grow(2.0,1.5)));
+----
 
-<figure test18.png 350x350>
-h = hcat([box(fillColor("mediumblue")),box(fillColor(rgb(0, 0, 205))),box(fillColor(rgb(0, 0, 205, 0.5))),box(fillColor(color("mediumblue",0.5)))],std(lineWidth(2)));
+image::{concept}/test9.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test10.png]
+----
+                render(box(box(fillColor("green"), lineColor("red"),left()), grow(2.0,1.5)));
+----
+
+image::{concept}/test10.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test11.png]
+----
+                render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), top(),grow(1.2)), grow(2.0,1.5),resizable(false)));
+----
+
+image::{concept}/test11.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test12.png]
+----
+                render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), bottom(),grow(1.2)), grow(2.0,1.5),resizable(false)));
+----
+
+image::{concept}/test12.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test13.png]
+----
+                render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),grow(1.2)), grow(2.0,1.5),vresizable(false)));
+----
+
+image::{concept}/test13.png[alt="test"]
+
+
+
+[source,rascal-figure,width=350,height=350,file=test14.png]
+----
+                render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),top(),grow(1.2)), grow(2.0,1.5)));
+----
+
+image::{concept}/test14.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test15.png]
+----
+                render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),grow(1.2)), grow(2.0,1.5),width(100.0),height(100.0),hresizable(false)));
+----
+
+image::{concept}/test15.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test16.png]
+----
+                render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),grow(1.2)), grow(2.0,1.5),width(100.0),height(300.0),resizable(false)));
+----
+
+image::{concept}/test16.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test17.png]
+----
+                render(box(box( fillColor("green"), lineColor("red"), right(), bottom()), grow(1.3),size(300.0,200.0),resizable(false)));
+----
+
+image::{concept}/test17.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test18.png]
+----
+                h = hcat([box(fillColor("mediumblue")),box(fillColor(rgb(0, 0, 205))),box(fillColor(rgb(0, 0, 205, 0.5))),box(fillColor(color("mediumblue",0.5)))],std(lineWidth(2)));
 render(h);
-</figure>
-![test](test18.png)
+----
 
-<figure test19.png 350x350>
-h = hcat([
+image::{concept}/test18.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test19.png]
+----
+                h = hcat([
 box(fillColor(color("mediumblue", 0.05))),
 box(fillColor(color("mediumblue", 0.2))),
 box(fillColor(color("mediumblue", 0.4))),
@@ -119,10 +175,13 @@ box(fillColor(color("mediumblue", 0.8))),
 box(fillColor(color("mediumblue", 1.0)))
 ] );
 render(h);
-</figure>
-![test](test19.png)
-<figure testabc.png 500x200>
-h = hcat([
+----
+
+image::{concept}/test19.png[alt="test"]
+
+[source,rascal-figure,width=500,height=200,file=testabc.png]
+----
+                h = hcat([
 	         box(fillColor(gray(125, 0.05))),
 	                 box(fillColor(gray(125, 0.2))),
 	                 box(fillColor(gray(125, 0.4))),
@@ -131,38 +190,50 @@ h = hcat([
 	                 box(fillColor(gray(125, 1.0))) 
 	                ]);
 render(h);
-</figure>
-![test](testabc.png)
-<figure testdef.png 500x200>
-h = hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),top()),
+----
+
+image::{concept}/testabc.png[alt="test"]
+
+[source,rascal-figure,width=500,height=200,file=testdef.png]
+----
+                h = hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),top()),
 			        box(vshrink(0.8),top()),
 			        box(shrink(0.1,0.5), fillColor("green"),top())
 			      ],
 			      std(fillColor("yellow")), hgrow(1.1));
 render(h	);
-</figure>
-![test](testdef.png)
-<figure test21.png 350x350>
-h = hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),bottom()),
+----
+
+image::{concept}/testdef.png[alt="test"]
+
+[source,rascal-figure,width=350,height=350,file=test21.png]
+----
+                h = hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),bottom()),
 			        box(vshrink(0.8),bottom()),
 			        box(shrink(0.1,0.5), fillColor("green"),bottom())
 			      ],
 			      std(fillColor("yellow")), hgrow(1.1));
 render(h);
-</figure>
-![test](test21.png)
+----
 
-<figure test22.png 350x350>
-h = hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),vcenter()),
+image::{concept}/test21.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test22.png]
+----
+                h = hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),vcenter()),
 			        box(vshrink(0.8),vcenter()),
 			        box(shrink(0.1,0.5), fillColor("green"),vcenter())
 			      ],
 			      std(fillColor("yellow")), hgrow(1.1));
 render(h);
-</figure>
-![test](test22.png)
-<figure test23.png 350x350>
-h = hcat(  [ box(size(100,200), fillColor("red")),
+----
+
+image::{concept}/test22.png[alt="test"]
+
+[source,rascal-figure,width=350,height=350,file=test23.png]
+----
+                h = hcat(  [ box(size(100,200), fillColor("red")),
 			        box(align(0.5,1.0), size(150,100)),
 			        hcat([box(size(200,50), fillColor("green")),
 			              box(size(50,100), fillColor("yellow"))
@@ -171,10 +242,13 @@ h = hcat(  [ box(size(100,200), fillColor("red")),
 			      ],
 			      gap(10),std(top()),std(vresizable(false)));
 render(h);
-</figure>
-![test](test23.png)
-<figure test24.png 350x350>
-h =hcat(  [ box(size(100,200), fillColor("red")),
+----
+
+image::{concept}/test23.png[alt="test"]
+
+[source,rascal-figure,width=350,height=350,file=test24.png]
+----
+                h =hcat(  [ box(size(100,200), fillColor("red")),
 			        box(align(0.5,1.0), size(150,100)),
 			        hcat([box(size(200,50), fillColor("green")),
 			              box(size(50,100), fillColor("yellow"))
@@ -184,11 +258,14 @@ h =hcat(  [ box(size(100,200), fillColor("red")),
 			      gap(10),std(vresizable(false))
 		);
 render(h);
-</figure>
-![test](test24.png)
+----
 
-<figure test25.png 350x350>
-h =hcat(  [ box(align(0.0, 0.1), size(100,100), fillColor("red")),
+image::{concept}/test24.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test25.png]
+----
+                h =hcat(  [ box(align(0.0, 0.1), size(100,100), fillColor("red")),
 			        box(align(0.0, 0.2), size(100,100)),
 			        box(align(0.0, 0.3), size(100,100), fillColor("green")),
 			        box(align(0.0, 0.4), size(100,100), fillColor("yellow"))
@@ -196,24 +273,30 @@ h =hcat(  [ box(align(0.0, 0.1), size(100,100), fillColor("red")),
 			      gap(10),vsize(200),std(vresizable(false))
 		);
 render(h);
-</figure>
-![test](test25.png)
+----
+
+image::{concept}/test25.png[alt="test"]
 
 
-<figure test26.png 350x350>
-h =vcat( [ box(size(100,200), fillColor("red")),
+
+[source,rascal-figure,width=350,height=350,file=test26.png]
+----
+                h =vcat( [ box(size(100,200), fillColor("red")),
 			       box(size(150, 100), fillColor("blue")),
 			       box(size(200,50), fillColor("green"))
 			     ],
 			     std(left()), gap(2),std(resizable(false))
 		);
 render(h);
-</figure>
-![test](test26.png)
+----
+
+image::{concept}/test26.png[alt="test"]
 
 
-<figure test27.png 350x350>
-h =vcat( [ box(size(100,200), fillColor("red")),
+
+[source,rascal-figure,width=350,height=350,file=test27.png]
+----
+                h =vcat( [ box(size(100,200), fillColor("red")),
 			       vcat([ box(size(150,100)),
 			              box(size(50,50)),  
 			              box(size(30,30))
@@ -224,12 +307,15 @@ h =vcat( [ box(size(100,200), fillColor("red")),
 			      gap(10),std(left()),std(resizable(false))
 		);
 render(h);
-</figure>
-![test](test27.png)
+----
+
+image::{concept}/test27.png[alt="test"]
 
 
-<figure test28.png 350x350>
-h =hcat([ box(size(100,250), fillColor("red")),
+
+[source,rascal-figure,width=350,height=350,file=test28.png]
+----
+                h =hcat([ box(size(100,250), fillColor("red")),
 	              vcat([ hcat( [ box(size(50, 100), fillColor("blue")),
 			                     box(size(100, 50), fillColor("blue"))
 			                   ],
@@ -241,22 +327,28 @@ h =hcat([ box(size(100,250), fillColor("red")),
 			    ],
 			    std(bottom()), gap(10),std(resizable(false)));
 render(h);
-</figure>
-![test](test28.png)
+----
+
+image::{concept}/test28.png[alt="test"]
 
 
 
-<figure test30.png 350x350>
-h =overlay([ box(shrink(0.5,0.3), fillColor("green")), 
+
+[source,rascal-figure,width=350,height=350,file=test30.png]
+----
+                h =overlay([ box(shrink(0.5,0.3), fillColor("green")), 
          box(shrink(0.3,0.5) ,fillColor("red"))
        ],
        std(center()));
 render(h);
-</figure>
-![test](test30.png)
+----
 
-<figure test31.png 350x350>
-h =overlay( [ box(size(100,250), fillColor("red")),
+image::{concept}/test30.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test31.png]
+----
+                h =overlay( [ box(size(100,250), fillColor("red")),
   vcat([ box(size(150,100)),
          box(size(50,50)),  
          box(size(30,30))
@@ -266,17 +358,20 @@ h =overlay( [ box(size(100,250), fillColor("red")),
 ],
 gap(10),std(left()),std(resizable(false)));
 render(h);
-</figure>
-![test](test31.png)
+----
 
-<figure test32.png 350x350>
-render(ellipse(text("een label", fontColor("white")),fillColor("mediumblue"), grow(1.2)));
-</figure>
-![test](test32.png)
+image::{concept}/test31.png[alt="test"]
 
-Benefits:
 
-Pitfalls:
+[source,rascal-figure,width=350,height=350,file=test32.png]
+----
+                render(ellipse(text("een label", fontColor("white")),fillColor("mediumblue"), grow(1.2)));
+----
 
-Questions:
+image::{concept}/test32.png[alt="test"]
+
+
+.Benefits
+
+.Pitfalls
 

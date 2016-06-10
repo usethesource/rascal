@@ -1,61 +1,53 @@
-Name: Concatenation
+# List Concatenation
 
-Synopsis: Concatenate two lists.
+.Synopsis
+Concatenate two lists.
 
-Syntax:
-`$Exp_1$ + $Exp_2$`
+.Index
++
 
-Types:
-| `$Exp_1$`     |  `$Exp_2$`     | `$Exp_1$ + $Exp_2$`      |
-|:--------------|:---------------|:-------------------------|
-| `list[$T_1$]` |  `list[$T_2$]` | `list[lub($T_1$,$T_2$)]` |
+.Syntax
+`_Exp_~1~ + _Exp_~2~`
+
+.Types
+
+//
+
+|====
+| `_Exp~1~_`     |  `_Exp~2~_`     | `_Exp~1~_ + _Exp~2~_`      
+
+| `list[_T~1~_]` |  `list[_T~2~_]` | `list[lub(_T~1~_,_T~2~_)]` 
+|====
 
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
 The `+` operator concatenates the elements of the two lists in order of appearance. 
 
-Note that the same operator is overloaded for [List/Insert] and [List/Append].
+Note that the same operator is overloaded for <<List-Insert>> and <<List-Append>>.
 
-Examples:
+.Examples
 
-<screen>
+[source,rascal-shell]
+----
 [1, 2, 3] + [4, 5, 6];
 [] + [1]
 [1] + []
 [1] + [2] + [3]
-</screen>
+----
 
 And overloaded usage for insert and append looks like:
-<screen>
+[source,rascal-shell]
+----
 1 + []
 [] + 1
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-
-QChoice: When you compute the concatenation of two lists, the number of elements in the result is always:
-b: Greater than the sum of the number of elements in both lists.
-g: Greater than or equal to the sum of the number of elements in both lists.
-b: Smaller than the sum of the number of elements in both lists.
-g: Equal to the sum of the number of elements in both lists.
-
-QType: <A:list[arb[int,str]]> + <B:same[A]>
-
-QValue: <A:list[arb[int,str]]> + <B:same[A]>
-
-QValue:
-make: A = list[arb[int,str]]
-make: B = same[A]
-expr: C = <A> + <B>
-hint: <B>
-test: <A> + <?> == <C>
+.Pitfalls
 

@@ -1,55 +1,48 @@
-Name: Subscription
+# List Subscription
 
-Synopsis: Retrieve a list element via its index.
+.Synopsis
+Retrieve a list element via its index.
 
-Syntax:
-`$Exp_1$ [ $Exp_2$ ]`
+.Index
+[ ]
 
-Types:
-| `$Exp_1$`     | `$Exp_2$` | `$Exp_1$ [ $Exp_2$ ]` |
-|:--------------|:----------|:----------------------|
-| `list[$T_1$]` | `int`     | `$T_1$`               |
+.Syntax
+`_Exp_~1~ [ _Exp_~2~ ]`
 
-Function:
+.Types
 
-Details:
+//
 
-Description:
-List subscription uses the integer value of $Exp_2$ as index in the list value of $Exp_1$.
-The value of $Exp_2$ should be greater or equal 0 and less than the number of elements in the list.
+|====
+| `_Exp~1~_`     | `_Exp~2~_` | `_Exp~1~_ [ _Exp~2~_ ]`
+
+| `list[_T~1~_]` | `int`     | `_T~1~_`             
+|====
+
+.Function
+
+.Details
+
+.Description
+List subscription uses the integer value of _Exp_~2~ as index in the list value of _Exp_~1~.
+The value of _Exp_~2~ should be greater or equal 0 and less than the number of elements in the list.
 If this is not the case, the exception `IndexOutOfBounds` is thrown.
 
-Examples:
-<screen errors>
-// Introduce a list, assign it to L and retrieve the element with index 1:
+.Examples
+
+Introduce a list, assign it to L and retrieve the element with index 1:
+[source,rascal-shell,continue,error]
+----
 L = [10, 20, 30];
 L[1];
-// Explore an error case:
+----
+Explore an error case:
+[source,rascal-shell,continue,error]
+----
 L[5];
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-
-QChoice: For a list of length $N$, legal index value are:
-g: The integers 0, 1, ..., N - 1.
-b: Positive integers.
-b: The integers 1, 2, ..., N.
-b: Even integers.
-b: Odd integers.
-b: The integers, 0, 2, ..., N.
-
-QValue:
-prep: import List;
-make: L = list[arb[bool,int,str],4,6]
-make: I = int[0,3]
-expr: C = <L>[<I>]
-hint: <C>
-list:
-L = <L>;
-test: L[<I>] == <?>
-
+.Pitfalls
 

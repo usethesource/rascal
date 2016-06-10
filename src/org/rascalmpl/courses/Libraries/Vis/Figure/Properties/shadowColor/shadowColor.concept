@@ -1,30 +1,33 @@
-Name: shadowColor
+# shadowColor
 
-Synopsis: Define the color of a [shadow].
+.Synopsis
+Define the color of a [shadow].
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
-* `FProperty shadowColor(Color c)`
-* `FProperty shadowColor(str colorName)`
+.Function
 
-Details:
+*  `FProperty shadowColor(Color c)`
+*  `FProperty shadowColor(str colorName)`
 
-Description:
-Defines the color of shadows. Also see [shadow] and [shadowPos].
+.Details
 
-Examples:
-<figure s1.png>
-box1 = box(size(200,100), shadow(true), shadowColor("green"), resizable(false));
+.Description
+Defines the color of shadows. Also see <<shadow>> and <<shadowPos>>.
+
+.Examples
+[source,rascal-figure,width=,height=,file=s1.png]
+----
+                box1 = box(size(200,100), shadow(true), shadowColor("green"), resizable(false));
 render(box1);
-</figure>
-![s1](s1.png)
+----
 
-Benefits:
+image::{concept}/s1.png[alt="s1"]
 
-Pitfalls:
 
-Questions:
+.Benefits
+
+.Pitfalls
 

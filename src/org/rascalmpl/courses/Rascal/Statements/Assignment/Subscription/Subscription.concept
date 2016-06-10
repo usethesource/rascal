@@ -1,42 +1,57 @@
-Name: Subscription
+# Subscription
 
-Synopsis: Assign a single element of a structured value.
+.Synopsis
+Assign a single element of a structured value.
 
-Syntax:`$Assignable$ [ $Exp_1$ ] = $Exp_2$`
+.Index
+[ ] =
 
-Types:
+.Syntax
 
-Function:
+.Types
+
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
-  Let $V$ be the current value of $Assignable$. The value of $Exp_1$ is used as index in $V$ and 
-  the value of $Exp_2$ replaces the original value at that index position. 
-  The result is a new value $V$' that is assigned to the $Assignable$.
+.Description
+Let _V_ be the current value of _Assignable_. The value of _Exp_~1~ is used as index in _V_ and 
+the value of _Exp_~2~ replaces the original value at that index position. 
+The result is a new value _V_' that is assigned to the _Assignable_.
 
-Examples:
-<screen>
-// Assignable has a list value:
+.Examples
+[source,rascal-shell]
+----
+----
+Assignable has a list value:
+[source,rascal-shell,continue]
+----
 L = [10,20,30];
 P = L;
 L[1] = 200;
-// Observe that `P` is unchanged:
+----
+Observe that `P` is unchanged:
+[source,rascal-shell,continue]
+----
 P;
-//  Assignable has a map value:
+----
+Assignable has a map value:
+[source,rascal-shell,continue]
+----
 M = ("abc": 1, "def" : 2);
 M["def"] = 3;
-// Assignable has a tuple value:
+----
+Assignable has a tuple value:
+[source,rascal-shell,continue]
+----
 T = <1, "abc", true>;
 T[1] = "def";
-</screen>
+----
+NOTE: See https://github.com/usethesource/rascal/issues/948
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

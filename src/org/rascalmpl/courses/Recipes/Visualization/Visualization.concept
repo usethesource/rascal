@@ -1,25 +1,28 @@
-Name: Visualization
+# Visualization
 
-Synopsis: Recipes for creating visualizations.
+.Synopsis
+Recipes for creating visualizations.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details: MyFirstBox PlayingWithProperties
+.Details
 
-Description:
+.Description
+
+WARNING: The visualization library is being reimplemented and reorganized; 
+the information provided here maybe inaccurate or even incorrect
+
 We cover the following topics:
-<toc Recipes/Visualization 1>
 
-Examples:
+subtoc::[1]
 
-Benefits:
+.Examples
 
-Pitfalls:
+.Benefits
 
-Questions:
+.Pitfalls
 
-       

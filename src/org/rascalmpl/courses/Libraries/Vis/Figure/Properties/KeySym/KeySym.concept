@@ -1,11 +1,13 @@
-Name: KeySym
+# KeySym
 
-Synopsis: Datatype describing a key on the keyboard.
+.Synopsis
+Datatype describing a key on the keyboard.
 
-Syntax: `import vis::KeySym;`
+.Syntax
 
-Types:
-<listing>
+.Types
+[source,rascal]
+----
 data KeySym =
   keyPrintable(str key)
 | keyAltLeft()
@@ -74,22 +76,20 @@ data KeySym =
 | keyShiftRight()
 | keyTab()
 | keyUnknown(int keyCode);
-</listing>
+----
 
 
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 A datatype describing a key on the keyboard. Any key that is printable is represented by `keyPrintable(str key)`, for example 'a' is described by `keyPrintable("a")`. Unknown keys are described by `keyUnkown(int keyCode)` where `keyCode` is their key code.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

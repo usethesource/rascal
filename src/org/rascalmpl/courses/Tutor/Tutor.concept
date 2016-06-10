@@ -1,46 +1,48 @@
-Name: Tutor
+# Tutor
 
-Synopsis:
+.Synopsis
+
 The RascalTutor can be used to create and follow interactive course.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details: Contents
+.Details
 
-Description:
-The RascalTutor is an interactive [Authoring] and learning environment intended to create and follow interactive courses related to the Rascal language.
+.Description
+The RascalTutor is an interactive <<Authoring>> and learning environment intended to create and follow interactive courses related to the Rascal language.
 It is based on the following principles and ideas:
-* The basic notion is a [Concept]. Each concept has a _name_ and contains a fixed set of subsections that describe it.
-* A course is a _concept tree_:
+
+*  The basic notion is a [Concept]. Each concept has a _name_ and contains a fixed set of subsections that describe it.
+*  A course is a _concept tree_:
   The central subject of the course is the root of the concept tree, and all subtrees further explain their parent concept.
 
 
 A _student_ using a course can:
-* Browse through a tree structured overview of the concept tree of the course.
-* Search for concepts and specific terms using a search box.
-* Read individual concepts.
-* Follow links to other concepts.
-* Perform any exercises that are available.
+
+*  Browse through a tree structured overview of the concept tree of the course.
+*  Search for concepts and specific terms using a search box.
+*  Read individual concepts.
+*  Follow links to other concepts.
+*  Perform any exercises that are available.
 
 
 An _author_ of a course can:
-* Edit a concept directly using a wiki-like form of [Markup] that makes it easy to create good looking concept pages.
-* Add code examples that are actually executed when the concept is turned into an HTML page.
-* Add interactive exercises.
-* Save a concept after editing: this will recompile that concept only, but eill update the gloabl search idnex, global warnings, and the like.
-* Recompile all concepts in the whole course.
-* Inspect the warnings that are generated for a concept or for the whole course in order to 
+
+*  Edit a concept directly using a wiki-like form of [Markup] that makes it easy to create good looking concept pages.
+*  Add code examples that are actually executed when the concept is turned into an HTML page.
+*  Add interactive exercises.
+*  Save a concept after editing: this will recompile that concept only, but eill update the gloabl search idnex, global warnings, and the like.
+*  Recompile all concepts in the whole course.
+*  Inspect the warnings that are generated for a concept or for the whole course in order to 
   control the quality of the concept descriptions.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

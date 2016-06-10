@@ -1,7 +1,8 @@
-Name: util
+# util
 
-Synopsis: Utilities: functions, data types and interfaces with external libraries.
+.Synopsis
+Utilities: functions, data types and interfaces with external libraries.
 
-Description:
+.Description
 
-<toc Rascal/Libraries/util 1>
+subtoc::[1]

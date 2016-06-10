@@ -1,81 +1,102 @@
-Name: Slice
+# Slice
 
-Synopsis: Assign to a slice of a list or string.
+.Synopsis
+Assign to a slice of a list or string.
 
-Syntax:
-#  `$Assignable$ [ $Exp_1$ .. $Exp_3$ ] = $Exp_4$`
-#  `$Assignable$ [ $Exp_1$, $Exp_2$ .. $Exp_3$ ] = $Exp_4$`
+.Index
+[ .. ] =
+
+.Syntax
+
+*   `_Assignable_ [ _Exp~1~_ .. _Exp_3_ ] = _Exp~4~_`
+*   `_Assignable_ [ _Exp~1~_, _Exp~2~_ .. _Exp~3~_ ] = _Exp~4~_`
 
 
-`$Exp_1$` and `$Exp_3$` are optional
-Types:
+`_Exp_~1~` and `_Exp_~3~` are optional
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 
-A slice assignment is defined for [$Values/List], [$Values/String] and [$Values/Node] and aims to replace a slice from the old value of the assignable by a new value. See [Values/List/Slice], [String/Slice] or [Node/Slice] for a more detailed explanation of slicing.
+A slice assignment is defined for <<List>>, <<String>> and <<Node>> 
+and aims to replace a slice from the old value of the assignable by a new value. 
+See <<List Slice>>, <<String Slice>> or <<Node Slice>> for a more detailed explanation of slicing.
 
-Let $V$ be the current value of $Assignable$.
+Let _V_ be the current value of _Assignable_.
 
-# `$Assignable$ [ $Exp_1$ .. $Exp_3$ ] = $Exp_4$`:
-   The slice `[ $Exp_1$ .. $Exp_3$ ]` determines two indices `begin` (inclusive) and `end`   
-  (exclusive) in $V$.
-  A new value $V$' is computed that is a copy of $V$ but with all the elements in $V$ with `begin <= index < end` replaced by the elements of the value of $Exp_4$.
-  Note that the size of $V$ and $V$' may differ.
-  $V$' is assigned to the $Assignable$. 
+*  `_Assignable_ [ _Exp~1~_ .. _Exp~3~_ ] = _Exp~4~_`:
+   The slice `[ _Exp_~1~ .. _Exp_~3~ ]` determines two indices `begin` (inclusive) and `end`   
+  (exclusive) in _V_.
+  A new value _V_' is computed that is a copy of _V_ but with all the elements in _V_ with `begin <= index < end` replaced by the elements of the value of _Exp_~4~.
+  Note that the size of _V_ and _V_' may differ.
+  _V_' is assigned to the _Assignable_. 
 
-# `$Assignable$ [ $Exp_1$, $Exp_2$ .. $Exp_3$ ] = $Exp_4$`:
-  The slice `[ $Exp_1$, $Exp_2$ .. $Exp_3 ]` determines two indices `begin` (inclusive) and `end` (exclusive)
-  and a `step` between indices in $V$.
-  A new value $V$' is computed that is a copy of $V$ but with all the elements in $V$ with indices 
-  `begin`, `begin+step`. ... `end-step` <= `index < end` replaced by the successive elements of the value of $Exp_4$.
-  Note that the size of $V$ and $V$' may differ.  $V$' is assigned to the $Assignable$. 
- 
-  If the number of indices in the slice and the number of elements in the value of $Exp_4$ is not equal the following is done:
-  ** If the number of elements in the slice is larger: the elements of $Exp_4$ are used in a circular manner.
-  ** If the number of elements in the slice is smaller: the remaining elements of $Exp_4$ is inserted after the last index in the slice.
+*  `_Assignable_ [ _Exp~1~_, _Exp~2~_ .. _Exp~3~_ ] = _Exp~4~_`:
+  The slice `[ _Exp_~1~, _Exp_~2~ .. _Exp~3~ ]` determines two indices `begin` (inclusive) and `end` (exclusive)
+  and a `step` between indices in _V_.
+  A new value _V_' is computed that is a copy of _V_ but with all the elements in _V_ with indices 
+  `begin`, `begin+step`. ... `end-step` <= `index < end` replaced by the successive elements of the value of _Exp_~4~.
+  Note that the size of _V_ and _V_' may differ.  _V_' is assigned to the _Assignable_. 
+  If the number of indices in the slice and the number of elements in the value of _Exp_~4~ is not equal the following is done:
+  **  If the number of elements in the slice is larger: the elements of _Exp~4~_ are used in a circular manner.
+  **  If the number of elements in the slice is smaller: the remaining elements of _Exp~4~_ is inserted after the last index in the slice.
 
-Examples:
-<screen>
-// Replace the elements with index 3, 4, 5 in `L`:
+.Examples
+Replace the elements with index 3, 4, 5 in `L`:
+[source,rascal-shell,continue]
+----
 L = [0,1,2,3,4,5,6,7,8,9];
 L[3..6] = [100,200,300,400,500];
-// Replace the elements with index 1, 3, 5, 7 in `L` (note how the elements from `[100,200]` are used in a circular way):
+----
+Replace the elements with index 1, 3, 5, 7 in `L` (note how the elements from `[100,200]` are used in a circular way):
+[source,rascal-shell,continue]
+----
 L = [0,1,2,3,4,5,6,7,8,9];
 L[1,3..8] = [100,200];
-// Replace the elements with index 1, 3, 5, 7 in `L` (note how the unused elements from `[100,200,300,400,500]` 
-// are insert at index 7):
+----
+Replace the elements with index 1, 3, 5, 7 in `L` (note how the unused elements from `[100,200,300,400,500]` 
+are insert at index 7):
+[source,rascal-shell,continue]
+----
 L = [0,1,2,3,4,5,6,7,8,9];
 L[1,3..8] = [100,200,300,400,500];
-// Similar examples for slicing assignment on strings:
+----
+Similar examples for slicing assignment on strings:
+[source,rascal-shell,continue]
+----
 S = "abcdefghij";
 S[3..6] = "UVWXYZ";
 S = "abcdefghij";
 S[1,3..8] = "XY";
 S = "abcdefghij";
 S[1,3..8] = "UVWXYZ";
-
-// Replace the elements with index 3, 4, 5 in node `N`:
+----
+Replace the elements with index 3, 4, 5 in node `N`:
+[source,rascal-shell,continue]
+----
 N = "f"(0,true,2,"abc",4,5.5,6,{7,77},8,{9,99,999});
 N[3..6] = [100,200,300,400,500];
-// Replace the elements with index 1, 3, 5, 7 in `L` (note how the elements from `[100,200]` are used in a circular way):
+----
+Replace the elements with index 1, 3, 5, 7 in `L` (note how the elements from `[100,200]` are used in a circular way):
+[source,rascal-shell,continue]
+----
 N = "f"(0,true,2,"abc",4,5.5,6,{7,77},8,{9,99,999});
 N[1,3..8] = [100,200];
-// Replace the elements with index 1, 3, 5, 7 in `L` (note how the unused elements from `[100,200,300,400,500]` 
-// are insert at index 7):
+----
+Replace the elements with index 1, 3, 5, 7 in `L` (note how the unused elements from `[100,200,300,400,500]` 
+are insert at index 7):
+[source,rascal-shell,continue]
+----
 N = "f"(0,true,2,"abc",4,5.5,6,{7,77},8,{9,99,999});
 N[1,3..8] = [100,200,300,400,500];
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

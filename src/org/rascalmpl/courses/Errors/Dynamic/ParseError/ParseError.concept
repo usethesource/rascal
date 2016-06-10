@@ -1,46 +1,58 @@
-Name: ParseError
+# ParseError
 
-Synopsis: Parse of a syntactically incorrect string.
+.Synopsis
+Parse of a syntactically incorrect string.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function: `data RunTimeException = ParseError(loc location);`
-Usage: `import Exception;`
+.Function
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 This error is generated when during the execution of a Rascal program the
-[$Rascal:ParseTree/parse] function is applied to a syntactically incorrect input sentence.
+link:/Libraries#ParseTree-parse[parse] function is applied to a syntactically incorrect input sentence.
 
 Remedies:
-* Correct the input sentence.
-* Adapt the grammar so that it accepts the inpout sentence.
-* Catch the ParseError yourself, see [Rascal:TryCatch].
+
+*  Correct the input sentence.
+*  Adapt the grammar so that it accepts the inpout sentence.
+*  Catch the ParseError yourself, see link:/Rascal#Statements-TryCatch[try catch].
 
 
-Examples:
-<screen warnings>
-// Define the Non-terminal `As` that accepts one or more letters `a`:
+.Examples
+[source,rascal-shell,error]
+----
+----
+Define the Non-terminal `As` that accepts one or more letters `a`:
+[source,rascal-shell,continue,error]
+----
 import ParseTree;
 syntax As = "a"+;
-// It parses a sentences of letters `a`:
+----
+It parses a sentences of letters `a`:
+[source,rascal-shell,continue,error]
+----
 parse(#As, "aaaaaaaa");
-// But gives an error when parsing an input that it cannot accept:
+----
+But gives an error when parsing an input that it cannot accept:
+[source,rascal-shell,continue,error]
+----
 parse(#As, "aaaabaaa");
-// We can also catch the ParseError. First import the Rascal exceptions (which are also included in Prelude) and IO:
+----
+We can also catch the ParseError. First import the Rascal exceptions (which are also included in Prelude) and IO:
+[source,rascal-shell,continue,error]
+----
 import Exception;
 import IO;
 try parse(#As, "aaaabaaa"); catch ParseError(e): println("Your input cannot be parsed: <e>");
-</screen>
+----
 
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

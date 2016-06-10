@@ -1,18 +1,20 @@
-Name: computeFigure
+# computeFigure
 
-Synopsis: A dynamically computed figure.
+.Synopsis
+A dynamically computed figure.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
-# `Figure computeFigure(Figure () computeFig, FProperty props...)`
-# `Figure computeFigure(bool() recomp, Figure () computeFig, FProperty props...)`
+.Function
 
-Details:
+#  `Figure computeFigure(Figure () computeFig, FProperty props...)`
+#  `Figure computeFigure(bool() recomp, Figure () computeFig, FProperty props...)`
 
-Description:
+.Details
+
+.Description
 Return the figure that is returned by the callback `computeFig`.
 
 Subsequent calls to `computeFig` may return different figures and may thus change the resulting visualization.
@@ -20,11 +22,9 @@ The figure is recomputed after each user interaction.
 
 Optionally, a function `recomp` may be given that checks whether the figure should be recomputed.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

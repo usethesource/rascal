@@ -1,39 +1,49 @@
-Name: IsDefined
+# IsDefined
 
-Synopsis: Assign but replace if value is not defined.
+.Synopsis
+Assign but replace if value is not defined.
 
-Syntax: `$Assignable$ ? $Exp_2$ = $Exp_1$`
+.Index
+? 
 
-Types:
+.Syntax
 
-Function:
+.Types
+
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 
- First the value of $Exp_1$ is determined and if that is defined it is assigned to $Assignable$. 
- Otherwise, the value of $Exp_2$ is assigned to $Assignable$. Values which can be undefined are values in [Rascal/Expressions/Values/Map]s where the key is not set or values of [Annotations] which have not been set yet. 
+First the value of _Exp_~1~ is determined and if that is defined it is assigned to _Assignable_. 
+Otherwise, the value of _Exp_~2~ is assigned to _Assignable_. 
+Values which can be undefined are values in <<Map>>s where the key is not set 
+or values of <<Annotation Declaration,Annotations>> which have not been set yet. 
 
 No other values can be used in an undefined state, so the ? operator does not make sense on undefined or uninitialized variables for example.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 M = ("Andy": 1, "Brian" : 2);
-// Using an `isDefined` assignable can we increment a non-existing entry:
+----
+Using an `isDefined` assignable can we increment a non-existing entry:
+[source,rascal-shell,continue]
+----
 M["SomebodyElse"] ? 0 += 1;
 M["SomebodyElse"];
-// And if we increment an existing entry the ? has no effect:
+----
+And if we increment an existing entry the ? has no effect:
+[source,rascal-shell,continue]
+----
 M["Andy"] ? 0 += 1;
 M["Andy"]
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

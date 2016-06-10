@@ -1,29 +1,31 @@
-Name: onMouseDown
+# onMouseDown
 
-Synopsis:
+.Synopsis
+
 Define interactive behaviour when mouse is pressed while mouse is over figure.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty onMouseDown(bool (int, map[KeyModifier,bool]) cb)`
 
-Details:
+.Details
 
-Description:
+.Description
 `onMouseDown` has a single argument: a callback `cb` that gets two arguments:
 
-* an `int` indicating the mouse button, 1 indicates left mouse button, 2 the middle and 3 the right. Higher numbers are used for mice with more buttons.
-*an `map[KeyModifier,bool]` indicating which keyboard modifiers are currently pressed. See [KeyModifier].
+*  an `int` indicating the mouse button, 1 indicates left mouse button, 2 the middle and 3 the right. Higher numbers are used for mice with more buttons.
+* an `map[KeyModifier,bool]` indicating which keyboard modifiers are currently pressed. See [KeyModifier].
 
 
 The callback returns a `bool` which indicates if the event is captured. Mouse handlers are executed deepest-figure first, if the mouse press is captured then the mouse press is not propagated further so figures below (less deep than) this figure will not receive a mouse press.
 
-Examples:
-<figure onmousedown.png 300x300>
-import vis::KeySym;
+.Examples
+[source,rascal-figure,width=300,height=300,file=onmousedown.png]
+----
+                import vis::KeySym;
 s = "";
 s2 = "";
 b = box(text(str () { return s; }),
@@ -41,12 +43,12 @@ b2 = box(vcat([
 		return true;
 	}));
 render(b2);
-</figure>
-![onmousedown](onmousedown.png)
+----
 
-Benefits:
+image::{concept}/onmousedown.png[alt="onmousedown"]
 
-Pitfalls:
 
-Questions:
+.Benefits
+
+.Pitfalls
 

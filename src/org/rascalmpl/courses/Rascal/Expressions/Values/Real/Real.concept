@@ -1,32 +1,34 @@
-Name: Real
+# Real
 
-Synopsis: Real values.
+.Synopsis
+Real values.
 
-Syntax:
+.Index
+real
 
-Types:
+.Syntax
+
+.Types
 `real`
 
-Usage: `import Real`; (__deprecated__: use `import util::Math;`)
+.Usage
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
-The real values are represented by the type <tt>real</tt> and are written as usual in most programming languages.
+.Description
+The real values are represented by the type `real` and are written as usual in most programming languages.
 They can have _arbitrary size and precision_.
 
-See [Number] for all operations on integers, reals and numbers.
+See <<Number>> for all operations on integers, reals and numbers.
 
-Examples:
-* 1.5
-* 3.14e-123
+.Examples
 
-Benefits:
+*  1.5
+*  3.14e-123
 
-Pitfalls:
+.Benefits
 
-Questions:
-QType: <A:real>
+.Pitfalls
 

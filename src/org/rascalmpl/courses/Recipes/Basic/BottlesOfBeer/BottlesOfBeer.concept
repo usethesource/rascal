@@ -1,45 +1,48 @@
-Name: BottlesOfBeer
+# Bottles Of Beer
 
-Synopsis: A Rascal version of a generator for the _99 Bottles of Beer_ song.
+.Synopsis
+A Rascal version of a generator for the _99 Bottles of Beer_ song.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 Programs that generate the lyrics for the song _99 Bottles of Beer_ are a popular way to compare programming languages.
-At [99-bottles-of-beer.net](http://99-bottles-of-beer.net/) you can find versions in nearly 1500 different languages
-and the lyrics can be found [here](http://99-bottles-of-beer.net/lyrics.html).
+At http://99-bottles-of-beer.net/[99-bottles-of-beer.net] you can find versions in nearly 1500 different languages
+and the lyrics can be found http://99-bottles-of-beer.net/lyrics.html[here].
 
-Examples:
+.Examples
 Here is our version:
-<listing demo/basic/Bottles.rsc>
+[source,rascal]
+----
+include::{LibDir}demo/basic/Bottles.rsc[tags=module]
+----
 
-We use an auxiliary function `bottles` (/*1*/) that returns the word "bottle" adjusted for the actual number of bottles that is available.
+                
+<1> We use an auxiliary function `bottles` that returns the word "bottle" adjusted for the actual number of bottles that is available.
 Observe how we use the patterns `0`, `1` and `int n` in the definition of three variants of this function.
 
-_Pattern-directed invocation_ (see [Rascal:Function]) will determine at the call site which function will be called. The
-general case (/*2*/) is labeled with `default` to indicate that if the case for 0 and 1 do not match, this alternative should handle the other cases. 
+<2> _Pattern-directed invocation_ (see link:/Rascal#Declarations-Function[function declaration]) will determine at the call site which function will be called. The
+general case is labeled with `default` to indicate that if the case for 0 and 1 do not match, this alternative should handle the other cases. 
 
-The main function is `sing` (/*3*/) that iterates over the numbers 99 downto 1 (as described by the range `[99 .. 1]`)
+<3> The main function is `sing` that iterates over the numbers 99 downto 1 (as described by the range `[99 .. 1]`)
 and prints appriopriate lyrics. Observe how the value  of the `bottles` function is interpolated several times in the string.
 
 Here is the result:
 
-<screen>
+[source,rascal-shell]
+----
 import demo::basic::Bottles;
 sing();
-</screen>
+----
 
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

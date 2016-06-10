@@ -1,62 +1,53 @@
-Name: ReflexiveTransitiveClosure
+# ListRelation Reflexive Transitive Closure
 
-Synopsis: The reflexive transitive closure of a binary list relation.
+.Synopsis
+The reflexive transitive closure of a binary list relation.
 
-Syntax:
-`$Exp$ *`
+.Index
+*
 
-Types:
-|`$Exp$`               | `$Exp$ *`            |
-|:---------------------|:---------------------|
-| `lrel[$T_1$, $T_2$]` | `lrel[$T_1$, $T_2$]` |
+.Syntax
+`_Exp_ *`
 
-Function:
+.Types
 
-Details:
 
-Description:
+|====
+|`_Exp_`               | `_Exp_ *`            
+
+| `lrel[_T~1~_, _T~2~_]` | `lrel[_T~1~_, _T~2~_]` 
+|====
+
+.Function
+
+.Details
+
+.Description
 
 Reflexive transitive closure is defined by repeated composition of a list relation.
 If we define for a given list relation R:
-* R$^0$ = identity relation = `[<a, a>, <b, b> | <a, b> <- R]`
-* R$^1$ = R
-* R$^2$ = R o R
-* R$^3$ = R o R$^2$
-* ...
+
+*  R^0^ = identity relation = `[<a, a>, <b, b> | <a, b> <- R]`
+*  R^1^ = R
+*  R^2^ = R o R
+*  R^3^ = R o R^2^
+*  ...
 
 
 then the reflexive transitive closure R* can be defined in two ways:
-(also see [$ListRelation/TransitiveClosure]):
-* R* = R$^0$ + R$^1$ + R$^2$ + R$^3$ + ...
-* R* = R$^0$ + R+
+(also see <<ListRelation-TransitiveClosure>>):
+
+*  R* = R^0^ + R^1^ + R^2^ + R^3^ + ...
+*  R* = R^0^ + R+
 
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 [<1,2>, <2,3>, <3,4>]*;
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-
-QType:
-prep: S = [<1,2>, <2,3>];
-make: A = list[tuple[int[0,5],int[0,5]],1,2]
-expr: B = <A> + S
-test: <B>*
-
-QValue:
-prep: S = [<1,2>, <2,3>, <3,4>];
-make: A = list[tuple[int[0,5],int[0,5]],1,2]
-expr: B = <A> + S
-expr: H =  <B>*
-hint: <H>
-test: <B>*
-
-
-
-
+.Pitfalls
 

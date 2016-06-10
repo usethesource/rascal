@@ -1,24 +1,23 @@
-Name: onMouseUp
+# onMouseUp
 
-Synopsis: Define interactive behaviour when the mouse button is released.
+.Synopsis
+Define interactive behaviour when the mouse button is released.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty onMouseUp  (bool (int,map[KeyModifier,bool]) cb )
 
-Details:
+.Details
 
-Description:
-Execute callback `cb` when a mouse button is released. Works the same as [onMouseDown].
+.Description
+Execute callback `cb` when a mouse button is released. Works the same as <<onMouseDown>>.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

@@ -1,35 +1,45 @@
-Name: Negation
+# Boolean Negation
 
-Synopsis: The _not_ operator on Boolean values.
+.Synopsis
+The _not_ operator on Boolean values.
 
-Syntax:
-`! $Exp$`
+.Index
+!
 
-Types:
-| ` $Exp$` | `! $Exp$` |
-|:---------|:----------|
-| `bool`   | `bool`    |
+.Syntax
+`! _Exp_`
 
-Function:
+.Types
 
-Details:
+//
 
-Description:
+|====
+| `_Exp_` | `! _Exp_` 
+
+| `bool`   | `bool`    
+|====
+
+.Function
+
+.Details
+
+.Description
 The _not_ operator on Boolean values defined as follows:
 
-| `$Exp$`  | `! $Exp$` |
-|:---------|:----------|
-| `true`   | `false`   |
-| `false`  | `true`    |
+|====
+| `_Exp_`  | `! _Exp_` 
 
-Examples:
-<screen>
+| `true`   | `false`   
+| `false`  | `true`    
+|====
+
+.Examples
+[source,rascal-shell]
+----
 !true;
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

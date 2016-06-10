@@ -1,24 +1,23 @@
-Name: Render
+# Render
 
-Synopsis: Render a figure on screen or save it to a file.
+.Synopsis
+Render a figure on screen or save it to a file.
 
 
-Syntax:
+.Syntax
 `import vis::Render;`
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

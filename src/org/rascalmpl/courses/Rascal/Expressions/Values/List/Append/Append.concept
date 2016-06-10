@@ -1,59 +1,54 @@
-Name: Append
+# List Append
 
-Synopsis: Append an element at the end of a list
+.Synopsis
+Append an element at the end of a list
 
-Syntax: `$Exp_1$ + $Exp_2$`
+.Index
++
 
-Types:
-| `$Exp_1$`     |  `$Exp_2$`     | `$Exp_1$ + $Exp_2$`      |
-|:--------------|:---------------|:-------------------------|
-| `list[$T_1$]` |  `$T_2$`       | `list[lub($T_1$,$T_2$)]` |
+.Syntax
 
-Function:
+.Types
 
-Details:
+//
 
-Description:
+|====
+| `_Exp~1~_`     |  `_Exp~2~_`     | `_Exp~1~_ + _Exp~2~_`      
 
-The operator `+` appends an element at the end of a list. The `+` is one of those [Operators] which are overloaded. It can also mean [List/Insert] or [List/Concatenation] for example.
+| `list[_T~1~_]` |  `_T~2~_`       | `list[lub(_T~1~_,_T~2~_)]` 
+|====
 
-Examples:
+.Function
 
-<screen>
+.Details
+
+.Description
+
+The operator `+` appends an element at the end of a list. The `+` is one of those <<Operators>> which are overloaded. It can also mean <<List-Insert>> or <<List-Concatenation>> for example.
+
+.Examples
+
+[source,rascal-shell]
+----
 [] + 1;
 [1] + 2;
+----
 
-Benefits:
+.Benefits:
 
-Pitfalls:
-* If both operands of `+` are a list, then it acts as [List/Concatenation] 
-<screen>
-// This is concatenation:
+.Pitfalls:
+
+* If both operands of `+` are a list, then it acts as <<List Concatenation>> 
+
+This is concatenation:
+[source,rascal-shell,continue]
+----
 [1] + [2]
-// To append a list to a list, use extra brackets:
+----
+
+To append a list to a list, use extra brackets:
+[source,rascal-shell,continue]
+----
 [1] + [[2]]
-</screen>
+----
 
-Questions:
-
-QChoice: When you append an element to a list, the number of elements in the result is always:
-g: Greater than the number of elements in the original list.
-g: One larger than the number of elements in the original list.
-b: Smaller than the number of elements in the original list.
-b: One smaller than the number of elements in the original list.
-
-QType: 
-make: B = arb[int[0,100],str]
-make: A = list[same[B]]
-test: <A> + <B>
-
-QValue:
-make: B = arb[int[0,100],str]
-make: A = list[same[B]]
-expr: C = <A> + <B>
-hint: <C>
-test: <A> + <B> == <?>
-
-
-
-       

@@ -1,28 +1,28 @@
-Name: root
+# root
 
-Synopsis: Retrieve a full hierarchical representation of all resources in the Eclipse workspace.
+.Synopsis
+Retrieve a full hierarchical representation of all resources in the Eclipse workspace.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `Resource root()`
 
-Details:
+.Details
 
-Description:
+.Description
 
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import util::Resources;
 root();
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

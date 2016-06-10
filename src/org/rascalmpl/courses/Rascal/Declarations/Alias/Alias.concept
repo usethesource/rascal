@@ -1,40 +1,52 @@
-Name: Alias
+# Alias Declaration
 
-Synopsis: Declare an alias for a type.
+.Synopsis
+Declare an alias for a type.
 
-Syntax:
-`alias $Name$  = $Type$;`
+.Index
+alias
 
-Types:
+.Syntax
+`alias _Name_  = _Type_;`
 
-Function:
+.Types
 
-Details:
+.Function
 
-Description:
+.Details
+
+.Description
 Everything can be expressed using the elementary types and values that are provided by Rascal. 
 However, for the purpose of documentation and readability it is sometimes better to use a descriptive name as type indication, rather than an elementary type.  The use of aliases is a good way to document your intentions. 
 
-An alias declaration states that $Name$ can be used everywhere instead of the already defined type $Type$. 
+An alias declaration states that _Name_ can be used everywhere instead of the already defined type _Type_. 
 Both types are thus structurally equivalent. 
 
-Examples:
-<screen>
-// Introduce two aliases `ModuleId` and `Frequency` for the type str.
+.Examples
+[source,rascal-shell]
+----
+----
+Introduce two aliases `ModuleId` and `Frequency` for the type str.
+[source,rascal-shell,continue]
+----
 alias ModuleId = str;
 alias Frequency = int;
-// Another example is an alias definition for a graph containing integer nodes:
+----
+Another example is an alias definition for a graph containing integer nodes:
+[source,rascal-shell,continue]
+----
 alias IntGraph = rel[int,int];
-//Note that the Rascal Standard Library provides a graph data type that is defined as follows:
+----
+Note that the Rascal Standard Library provides a graph data type that is defined as follows:
+[source,rascal-shell,continue]
+----
 alias Graph[&T] = rel[&T, &T];
-</screen>
+----
 In other words the standard graph datatype can be parameterized with any element type.
 
-See [TypeParameters] for other examples parameterized alias declarations.
+See <<Type Parameters>> for other examples parameterized alias declarations.
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

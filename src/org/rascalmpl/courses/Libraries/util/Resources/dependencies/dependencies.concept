@@ -1,29 +1,29 @@
-Name: dependencies
+# dependencies
 
-Synopsis: Compute the (transitive) dependencies of a project.
+.Synopsis
+Compute the (transitive) dependencies of a project.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `set[loc] dependencies(loc project)`
 
-Details:
+.Details
 
-Description:
+.Description
 
 
-Examples:
+.Examples
 Assuming that the project `|project://example-project|` exists in the current workspace, we can get the following:
-<screen>
+[source,rascal-shell]
+----
 import util::Resources;
 dependencies(|project://example-project|);
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

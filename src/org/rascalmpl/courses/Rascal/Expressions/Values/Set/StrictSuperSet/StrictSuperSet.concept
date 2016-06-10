@@ -1,46 +1,38 @@
-Name: StrictSuperSet
+# Set StrictSuperSet
 
-Synopsis: Strict superset operator on set values.
+.Synopsis
+Strict superset operator on set values.
 
-Syntax:
-`$Exp_1$ > $Exp_2$`
+.Index
+>
 
-Types:
-| `$Exp_1$`    |  `$Exp_2$`    | `$Exp_1$ > $Exp_2$` |
-|:-------------|:--------------|:--------------------|
-| `set[$T_1$]` |  `set[$T_2$]` | `bool`              |
+.Syntax
+`_Exp_~1~ > _Exp_~2~`
 
-Function:
+.Types
 
-Details:
 
-Description:
-Yields `true` if the value of $Exp_1$ is a strict superset of the value of $Exp_2$, and `false` otherwise.
+|====
+| `_Exp~1~_`    |  `_Exp~2~_`    | `_Exp~1~_ > _Exp~2~_` 
 
-Examples:
-<screen>
+| `set[_T~1~_]` |  `set[_T~2~_]` | `bool`              
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields `true` if the value of _Exp_~1~ is a strict superset of the value of _Exp_~2~, and `false` otherwise.
+
+.Examples
+[source,rascal-shell]
+----
 {1, 2, 3, 4} > {3, 2, 1};
 {1, 2, 3, 4} > {4, 3, 2, 1};
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-QType: <A:list[arb]> > <B:same[A]>
-
-QValue:
-make: DIFF = set[int[0,100]]
-make: B = same[DIFF]
-expr: A = <B> + <DIFF>
-expr: C =  <A> > <B>
-hint: <C>
-test: <A> > <B> == <?>
-
-QValue:
-make: A = set[arb[int,str,bool]]
-expr: C = <A> > <A>
-hint: <C>
-test: <A> > <A>
+.Pitfalls
 

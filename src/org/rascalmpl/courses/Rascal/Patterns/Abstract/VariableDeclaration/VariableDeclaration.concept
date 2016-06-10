@@ -1,47 +1,52 @@
-Name: VariableDeclaration
+# Variable Declaration Pattern
 
-Synopsis: Variable declaration in abstract pattern.
+.Synopsis
+Variable declaration in abstract pattern.
 
-Syntax: `$Type$ $Var$`
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
 A variable declaration
-<listing>
-$Type$ $Var$
-</listing>
+[source,rascal,subs="quotes"]
+----
+_Type_ _Var_
+----
 can be used as abstract pattern.
-A variable declaration introduces a new variable $Var$ that matches any value of the given type $Type$.
-That value is assigned to $Var$ when the whole match succeeds.
+A variable declaration introduces a new variable _Var_ that matches any value of the given type _Type_.
+That value is assigned to _Var_ when the whole match succeeds.
 
 The scope of this variable is the outermost expression in which the pattern occurs
-or the enclosing [If], [While], or [Do] if the pattern occurs in the test expression of those statements.
+or the enclosing <<If>>, <<While>>, or <<Do>> if the pattern occurs in the test expression of those statements.
 
-Examples:
+.Examples
 Let's first perform a match that succeeds:
-<screen errors>
+[source,rascal-shell,error]
+----
 str S := "abc";
-//and now we attempt to inspect the value of `S`:
+----
+and now we attempt to inspect the value of `S`:
+[source,rascal-shell,continue,error]
+----
 S;
-// As mentioned above: `S` is only bound in the scope of the match expression!
-</screen>
+----
+
+As mentioned above: `S` is only bound in the scope of the match expression!
 Let's explore how bindings work in an if statement:
-<screen>
+[source,rascal-shell]
+----
 import IO;
 if(str S := "abc")
    println("Match succeeds, S == \"<S>\"");
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

@@ -1,35 +1,35 @@
-Name: Markup
+# Markup
 
-Synopsis:
+.Synopsis
+
 Markup directives for creating concept pages.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details: InlineMarkup StructureMarkup QuestionMarkup
+.Details
 
-Description:
-The $MarkedText$ in each section of a concept is plain text.
+.Description
+The _MarkedText_ in each section of a concept is plain text.
 Some characters or text strings are used to influence the markup of the text.
 We distinguish:
-* __Structure markup__ influences the structure of the text.
-* __Inline markup__ influences the markup for characters or words.
-* __Question markup__ to describe interactive questions.
-* __Source code markup__ to define concepts in Rascal source code.
+
+*  __Structure markup__ influences the structure of the text.
+*  __Inline markup__ influences the markup for characters or words.
+*  __Question markup__ to describe interactive questions.
+*  __Source code markup__ to define concepts in Rascal source code.
 
 
 Markup that is not recognized by the Tutor is included in the generated HTML.
 This makes it possible to use common HTML idioms like `<blockquote>`, <bold>, etc. in concept pages.
 
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

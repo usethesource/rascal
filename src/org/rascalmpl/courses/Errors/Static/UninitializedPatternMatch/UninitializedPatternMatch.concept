@@ -1,38 +1,37 @@
-Name: UninitializedPatternMatch
+# UninitializedPatternMatch
 
-Synopsis: Pattern matching has not been properly initialized.
+.Synopsis
+Pattern matching has not been properly initialized.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
-[Rascal:PatternMatching] requires two ingredients:
-* One of the many [Rascal:Patterns].
-* A non-void subject value to which the pattern is applied.
+.Description
+link:/Rascal#Concepts-PatternMatching[Pattern matching] requires two ingredients:
 
+*  One of the many link:/Rascal#Rascal-Patterns[patterns].
+*  A non-void subject value to which the pattern is applied.
 
 This error is generated when the subject is void.
 
 Remedy: replace the subject by a non-void value.
 
-Examples:
+.Examples
 here is a (contrived) example that produces this error:
-<screen warning>
+[source,rascal-shell,error]
+----
 void dummy() { return; }
 int n := dummy();
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

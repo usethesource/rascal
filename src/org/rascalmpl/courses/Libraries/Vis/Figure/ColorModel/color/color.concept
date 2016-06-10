@@ -1,41 +1,47 @@
-Name: color
+# color
 
-Synopsis: Return a color with a given name.
+.Synopsis
+Return a color with a given name.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
-# `Color color(str name)`
-# `Color color(str name, real alpha)`
+.Function
 
-Details:
+#  `Color color(str name)`
+#  `Color color(str name, real alpha)`
 
-Description:
+.Details
+
+.Description
 Returns color with given name. 
-All [HTML/X11 Color Names](http://en.wikipedia.org/wiki/Web_colors#X11_color_names) are supported.
+All http://en.wikipedia.org/wiki/Web_colors#X11_color_names[HTML/X11 Color Names] are supported.
 When the transparency `alpha` is given, the color is adjusted accordingly.
 
-The list of available color names is given by [colorNames].
+The list of available color names is given by <<colorNames>>.
 
-Examples:
-<figure b1.png>
-c = color("Red");
+.Examples
+[source,rascal-figure,width=,height=,file=b1.png]
+----
+                c = color("Red");
 b1 = box([size(50), fillColor(c)]);
 render(b1);
-</figure>
-gives ![b1](b1.png) and with only 50% transparency:
-<figure b2.png>
-c = color("Red", 0.5);
+----
+gives 
+image::{concept}/b1.png[alt="b1"]
+ and with only 50% transparency:
+[source,rascal-figure,width=,height=,file=b2.png]
+----
+                c = color("Red", 0.5);
 b1 = box([size(50), fillColor(c)]);
 render(b1);
-</figure>
-gives ![b2](b2.png)
+----
+gives 
+image::{concept}/b2.png[alt="b2"]
 
-Benefits:
 
-Pitfalls:
+.Benefits
 
-Questions:
+.Pitfalls
 

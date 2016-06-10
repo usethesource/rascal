@@ -1,25 +1,24 @@
-Name: justify
+# justify
 
-Synopsis: Justification in [hvcat].
+.Synopsis
+Justification in [hvcat].
 
-Syntax:
+.Syntax
 
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty justify(bool b)`
 
-Details:
+.Details
 
-Description:
-If set to `true` then a [hvcat] will be rendered "justified". That is instead of aligning the figures in each row to the left or right according to [ialign] the horizontal space in each row will be set so that the row fills the complete width. This is the same as the "justified" alignment mode in a word processor.
+.Description
+If set to `true` then a <<hvcat>> will be rendered "justified". That is instead of aligning the figures in each row to the left or right according to <<ialign>> the horizontal space in each row will be set so that the row fills the complete width. This is the same as the "justified" alignment mode in a word processor.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

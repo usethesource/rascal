@@ -1,93 +1,110 @@
-Name: MyFirstBox
+# My First Box
 
-Synopsis: Drawing a box in many variations.
+.Synopsis
+Drawing a box in many variations.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
-Examples:
+.Examples
 
-Drawing a red [Rascal:box] is as simple as this:
-<figure b1.png>
+Drawing a red link:/Libraries#Figure-box[box] is as simple as this:
+[source,rascal-figure,width=,height=,file=b1.png]
+----
 import vis::Figure;
 import vis::Render;
 b = box(fillColor("red"));
 render(b);
-</figure>
+----
 and it will look like this:
-![Box 1](b1.png) or rather, it will look like this:
+
+image::{concept}/b1.png[alt="Box 1"]
+ or rather, it will look like this:
 
 
-![Screenshot 1](Screenshot1.png)
 
-Wow, the box fills the whole window! So lets give our box a [$Rascal:Properties/size]:
-<figure b2.png>
+image::{concept}/Screenshot1.png[alt="Screenshot 1"]
+
+
+Wow, the box fills the whole window! So lets give our box a link:/Libraries#Properties-size[size]:
+[source,rascal-figure,width=,height=,file=b2.png]
+----
 import vis::Figure;
 import vis::Render;
 b = box(fillColor("red"), size(200,100));
 render(b);
-</figure>
+----
 and it will look like this:
-![Box 2](b2.png|200x100)
+
+image::b2.png[alt="Box 2"]
+
 
 On screen however, it still fills the whole window as shown above.
-The lesson here is that size is to be taken as __minimum size__ (and probably we should
+The lesson here is that size is to be taken as *minimum size* (and probably we should
 rename `size` to `minSize` to emphasize this).
 
 So how can we produce a box that does _not_ fill the whole window? The answer is to define the size of the box
-_relative_ to its surroundings by using [$Rascal:Properties/shrink]:
+_relative_ to its surroundings by using link:/Libraries#Properties-shrink[shrink]:
 
-<figure b3.png>
+[source,rascal-figure,width=,height=,file=b3.png]
+----
 import vis::Figure;
 import vis::Render;
 b = box(fillColor("red"), shrink(0.5));
 render(b);
-</figure>
-which says: _ I am a red box and I want to occupy 50% of the available space._ The result is:
+----
+which says: _I am a red box and I want to occupy 50% of the available space._ The result is:
 
-![Screen shot 2](Screenshot2.png)
 
-Shrinking can also be limited to one dimension using [$Rascal:Properties/hshrink] or [$Rascal:Properties/vshrink]:
-<figure b4.png>
+image::Screenshot2.png[alt="Screen shot 2"]
+
+
+Shrinking can also be limited to one dimension using link:/Libraries#Properties-hshrink[hshrink] 
+or link:/Libraries#Properties-vshrink[vshrink]:
+[source,rascal-figure,width=,height=,file=b4.png]
+----
 import vis::Figure;
 import vis::Render;
 b = box(fillColor("red"), hshrink(0.5));
 render(b);
-</figure>
+----
 which says:_ I am a red box and I want to occupy 50% of the available space in the horizontal direction and 100% of the available space in the vertical direction._ The result is:
 
-![Screen shot 3](Screenshot3.png)
+
+image::Screenshot3.png[alt="Screen shot 3"]
+
 
 Relative sizes can also be used when figures are nested.
 
-<figure b5.png>
+[source,rascal-figure,width=,height=,file=b5.png]
+----
 import vis::Figure;
 import vis::Render;
 b1 = box(fillColor("red"), hshrink(0.5));
 b2 = box(b1, fillColor("yellow"), size(200,100));
 render(b2);
-</figure>
-![Box 5](b5.png)
+----
 
-Benefits:
+image::b5.png[alt="Box 5"]     
 
-Pitfalls:
+
+.Benefits
+
+.Pitfalls
 
 In the above examples we have consistently added the two imports:
-<listing>
+[source,rascal]
+----
 import vis::Figure;
 import vis::Render;
-</listing>
+----
 In other recipes and the Rascal documentation we omit these two imports to avoid cluttering our examples with irrelevant details.
 Be aware that you will always need them when creating a visualisation.
 
-Questions:
-
-       

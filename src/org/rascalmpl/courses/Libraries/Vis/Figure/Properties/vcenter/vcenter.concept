@@ -1,31 +1,31 @@
-Name: vcenter
+# vcenter
 
-Synopsis: Vertical, centered, alignment.
+.Synopsis
+Vertical, centered, alignment.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty vcenter()`
 
-Details:
+.Details
 
-Description:
-`vcenter` defines __vertical centered alignment__.
+.Description
+`vcenter` defines *vertical centered alignment*.
 It sets the vertical alignment to 0.5,
 
 Note that:
-* `vcenter()` is equivalent to `valign(0.5)`.
+
+*  `vcenter()` is equivalent to `valign(0.5)`.
 
 
-Also see [valign], [align] and [CompositionModel].
+Also see <<valign>>, <<align>> and <<CompositionModel>>.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

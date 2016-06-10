@@ -1,20 +1,21 @@
-Name: NewParagraph
+# NewParagraph
 
-Synopsis:
+.Synopsis
+
 Introduce a new paragraph.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 A new paragraph is created by two consecutive empty lines.
 
-Examples:
+.Examples
 The input:<br>
 `line1`<br>
 `line2`<br>
@@ -31,9 +32,7 @@ will produce:
 `line3`<br>
 `line4`<br>
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

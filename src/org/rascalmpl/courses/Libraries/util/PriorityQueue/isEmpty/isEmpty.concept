@@ -1,20 +1,19 @@
-Name: isEmpty
+# isEmpty
 
-Synopsis: Check whether priority queue is empty.
+.Synopsis
+Check whether priority queue is empty.
 
-Function:
+.Function
 `bool isEmpty(PriorityQueue Q)`
 
-Usage: `import util::PriorityQueue;`
+.Usage
 
-Description:
+.Description
 Returns `true` if PriorityQueue `Q` does not contain any (priority, value) pairs.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

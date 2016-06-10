@@ -1,40 +1,43 @@
-Name: screen
+# screen
 
-Synopsis:
+.Synopsis
+
 Include the results of an interactive session of the Rascal interpreter.
 
-Syntax:
+.Syntax
 <br>
-`<screen $OptErrors$>`<br>
-$RascalCode$<br>
+`<screen _OptErrors_>`<br>
+_RascalCode_<br>
 `</screen>`
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
-The commands in the $RascalCode$ are executed and
+.Description
+The commands in the _RascalCode_ are executed and
 they are show together with the response of the Rascal system.
 
 The following is supported:
-* Lines that start with `//` are formatted as ordinary text. This makes it possible to write a story with interspersed Rascal code.
-* Comments in the code of the form `/*$Number$*/` are replaced by numbered markers such as `/*1*/` that can be used in the text to
+
+*  Lines that start with `//` are formatted as ordinary text. This makes it possible to write a story with interspersed Rascal code.
+*  Comments in the code of the form `/*$Number$*/` are replaced by numbered markers such as `/*1*/` that can be used in the text to
   refer back to the code.
 
 If any error messages are generated or exceptions are raised, they will be logged as warnings.
 The precise set of words that triggers a warning is:
-* `Exception`, `exception`
-* `Error`, `error`
-* `cancelled`.
-* `Timeout`, `timeout`.
+
+*  `Exception`, `exception`
+*  `Error`, `error`
+*  `cancelled`.
+*  `Timeout`, `timeout`.
 
 
-If the $OptErrors$ is non-empty, it is assumed that the error is expected and it will not be logged.
+If the _OptErrors_ is non-empty, it is assumed that the error is expected and it will not be logged.
 
-Examples:
+.Examples
 The text:<br>
 
 `<screen>`<br>
@@ -43,17 +46,18 @@ The text:<br>
 
 will be shown as:
 
-<screen>
+[source,rascal-shell]
+----
 1 + 2;
-</screen>
+----
 
-Benefits:
-* All code in a concept is actually executed before it is included in an HTML file.
-* In the warnings, an overview is maintained of code fragments that produce unexpected errors.
+.Benefits
 
-Pitfalls:
-* `<screen>` and `</screen>` should start at the begin of a line.
-* The $RascalCode$ in a screen is executed in a fresh Rascal Interpreter. Hence no state can be carried over between screens.
+*  All code in a concept is actually executed before it is included in an HTML file.
+*  In the warnings, an overview is maintained of code fragments that produce unexpected errors.
 
-Questions:
+.Pitfalls
+
+*  `<screen>` and `</screen>` should start at the begin of a line.
+*  The $RascalCode$ in a screen is executed in a fresh Rascal Interpreter. Hence no state can be carried over between screens.
 

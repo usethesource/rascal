@@ -1,28 +1,19 @@
-Name: Dynamic
+# Dynamic Errors
 
-Synopsis: All errors that can occur during execution of a Rascal program.
+.Synopsis
+All errors that can occur during execution of a Rascal program.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 
 The following exceptions can be trown as the result of a run-time error:
-<toc Errors/Dynamic>
-
-Examples:
-
-Benefits:
-
-Pitfalls:
-
-Questions:
-
-       
+subtoc::[1]

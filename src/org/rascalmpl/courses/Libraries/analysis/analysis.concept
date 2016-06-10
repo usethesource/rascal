@@ -1,27 +1,25 @@
-Name: analysis
+# analysis
 
-Synopsis: Library functions for analysis tasks.
+.Synopsis
+Library functions for analysis tasks.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 
-<toc Rascal/Libraries/analysis 1>
+subtoc::[1]
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

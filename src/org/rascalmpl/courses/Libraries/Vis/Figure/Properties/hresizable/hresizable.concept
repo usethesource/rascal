@@ -1,26 +1,25 @@
-Name: hresizable
+# hresizable
 
-Synopsis: Resizable in horizontal direction.
+.Synopsis
+Resizable in horizontal direction.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `FProperty hresizable(bool hr)`
 
-Details:
+.Details
 
-Description:
+.Description
 Define whether a figure can be resized in the horizontal direction.
 
-Also see: [resizable].
+Also see: <<resizable>>.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

@@ -1,38 +1,43 @@
-Name: Do
+# Do
 
-Synopsis:
+.Synopsis
 Repeat statements while condition holds.
 
-Syntax:
-`do $Statement$ while ( $Exp$ );`
+.Index
+do while
 
-Types:
+.Syntax
+`do _Statement_ while ( _Exp_ );`
 
-Function:
+.Types
 
-Details:
+.Function
 
-Description:
-$Statement$ is executed repeatedly, as long as the Boolean expression $Exp$ yields true. 
-Expression $Exp$ is executed from scratch in each repetition and only the first true value (if any) is used.
+.Details
+
+.Description
+_Statement_ is executed repeatedly, as long as the Boolean expression _Exp_ yields true. 
+Expression _Exp_ is executed from scratch in each repetition and only the first true value (if any) is used.
 
 By default, the value of a do statement is the empty list. 
-In general, the value of a do statement consists of all values contributed by [$Statements/Append] statements 
+In general, the value of a do statement consists of all values contributed by <<Statements-Append>> statements 
 that are executed during the repeated execution of its body Statement.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import IO;
 int n = 3;
 do { println("n = <n>"); n -= 1; } while (n > 0);
-// Now build a list result using the `append` statement:
+----
+Now build a list result using the `append` statement:
+[source,rascal-shell,continue]
+----
 n = 3;
 do { append n * n; n -= 1; } while (n > 0);
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 
