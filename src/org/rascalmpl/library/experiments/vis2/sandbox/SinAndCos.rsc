@@ -20,12 +20,12 @@ Figure sinAndCos(){
            		), 
            		
            		vAxis = axis(title="Voltage"),
-           		chartArea = chartArea(width="80%", height = "70%"
+           		chartArea_ = chartArea(width="80%", height = "70%"
            		             ,backgroundColor="antiquewhite"
            		),
                 pointSize= 0,
                 lineWidth = 1,
-                legend = legend(position="top")
+                legend_ = legend(position="top")
         	    );
         // println(adt2json(options));
         	Figure f = comboChart(width = 600, height = 200, charts=[
