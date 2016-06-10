@@ -1,3 +1,0 @@
-
-[[m3-AST]]
-# Libraries/lang/java/m3/AST

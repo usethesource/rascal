@@ -1,2 +1,0 @@
-# Errors in Course TutorWebSite
-asciidoctor: ERROR: TutorWebSite.adoc: line 26: table missing leading separator, recovering automatically
