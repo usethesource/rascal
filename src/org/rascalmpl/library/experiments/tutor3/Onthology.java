@@ -51,8 +51,9 @@ import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Onthology {
-	Path srcDir;
+	Path srcPath;
 	Path destDir;
+	Path courseDestDir;
 	
 	static final String conceptExtension = "concept2";
 	
@@ -78,13 +79,13 @@ public class Onthology {
 		return new PerFieldAnalyzerWrapper(stdAnalyzer, analyzerMap);
 	}
 
-	public Onthology(Path srcDir, Path destDir, PrintWriter err) throws IOException, NoSuchRascalFunction, URISyntaxException{
+	public Onthology(Path srcPath, Path destDir, PrintWriter err) throws IOException, NoSuchRascalFunction, URISyntaxException{
 		this.vf = ValueFactoryFactory.getValueFactory();
-		this.rascalExtraction = new RascalExtraction(vf);
-		this.srcDir = srcDir;
+//		this.rascalExtraction = new RascalExtraction(vf);
+		this.srcPath = srcPath;
 		this.destDir = destDir;
 
-		this.courseName = this.srcDir.getName(this.srcDir.getNameCount() - 1);
+		this.courseName = this.srcPath.getFileName();
 		conceptMap = new HashMap<>();
 		
 		this.executor = new RascalCommandExecutor(new PathConfig(), err);
@@ -92,8 +93,14 @@ public class Onthology {
 		Analyzer multiFieldAnalyzer = multiFieldAnalyzer();
 
 		Directory directory = null;
+		String courseDestDir = destDir.toString() + "/" + courseName;
+		
+		Path courseDestPath = Paths.get(courseDestDir);
+		if(!Files.exists(courseDestPath)){
+			Files.createDirectory(courseDestPath);
+		}
 		try {
-			directory = FSDirectory.open(destDir);
+			directory = FSDirectory.open(courseDestPath);
 			IndexWriterConfig config = new IndexWriterConfig(multiFieldAnalyzer);
 			iwriter = new IndexWriter(directory, config);
 		} catch (IOException e1) {
@@ -103,7 +110,7 @@ public class Onthology {
 
 		FileVisitor<Path> fileProcessor = new CollectConcepts();
 		try {
-			Files.walkFileTree(this.srcDir, fileProcessor);
+			Files.walkFileTree(this.srcPath, fileProcessor);
 			iwriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -162,16 +169,33 @@ public class Onthology {
 	
 	private String makeConceptName(Path p){
 		String s = p.toString();
-		return courseName + s.substring(srcDir.toString().length(), s.length());
+		return courseName + s.substring(srcPath.toString().length(), s.length());
 	}
 	
 	String makeConceptNameInCourse(String conceptName){
 		int n = conceptName.indexOf("/");
 		return n < 0 ? "" : conceptName.substring(n + 1, conceptName.length());
 	}
+	
+	Path makeDestFilePath(Path path){
+		int prefix = srcPath.getNameCount();
+		return Paths.get(destDir.toString(), path.subpath(prefix, path.getNameCount()).toString());
+	}
 
-	private final class CollectConcepts extends SimpleFileVisitor<Path> {
-
+	private class CollectConcepts extends SimpleFileVisitor<Path> {
+		
+		@Override public FileVisitResult visitFile(Path file,
+                BasicFileAttributes attrs)
+                  throws IOException{
+			String fileName = file.getFileName().toString();
+			
+			System.err.println("Visit File: " + file);
+			if(fileName.endsWith(".png")){
+				System.err.println("File: " + file + "; " + makeDestFilePath(file));
+			}
+			return FileVisitResult.CONTINUE;
+		}
+		
 		@Override  public FileVisitResult preVisitDirectory(Path aDir, BasicFileAttributes aAttrs) throws IOException {
 			String cpf = makeConceptFilePath(aDir).toString();
 			if(cpf.contains("/ValueUI") 
@@ -187,6 +211,13 @@ public class Onthology {
 			System.err.println(aDir);
 			if(Files.exists(makeConceptFilePath(aDir))){
 				String conceptName = makeConceptName(aDir);
+				if(!conceptName.equals(courseName)){
+					String conceptDestDir = destDir.toString() + "/" + conceptName;
+					Path conceptDestPath = Paths.get(conceptDestDir);
+					if(!Files.exists(conceptDestPath)){
+						Files.createDirectory(conceptDestPath);
+					}
+				}
 				Concept concept = new Concept(conceptName, readFile(makeConceptFilePath(aDir).toString()), destDir);
 				conceptMap.put(conceptName, concept);
 				iwriter.addDocument(makeLuceneDocument(conceptName, concept.getIndex(), concept.getSynopsis(), concept.getText()));

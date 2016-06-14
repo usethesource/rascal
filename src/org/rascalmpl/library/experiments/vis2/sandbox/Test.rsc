@@ -75,7 +75,7 @@ Figure simple() {
    , fig=circle(shrink=0.8, fillColor ="antiquewhite", lineWidth = 20, lineColor="blue", align = centerRight
     , fig = ngon(n=5, shrink=0.8, lineWidth = 20,  lineColor = "red", fillColor="yellow", align = centerMid
     ,fig = circle(shrink=0.6, lineWidth=8, fillColor = "antiquewhite", lineColor="green"
-   // ,event=on("click", box(fig=at(100, 100, 
+   // ,event=on("click", box(fig=atXY(100, 100, 
   //  box(vgrow=2.0, lineWidth = 4, lineColor="grey", fig=text("\<pre\><f>\</pre\>"), fillColor = "whitesmoke"))/*, fillColor="none"*/))
  //,tooltip = box(size=<15, 15>, fillColor="green")
    )
@@ -115,7 +115,7 @@ Figure face() = ellipse(grow= 1.2, fig=vcat( figs=[box(size=<50, 50>, lineWidth=
                   ,polygon(size=<50, 150>, points=[<0, 0>, <1,0>, <0.5, 1>],scaleX=<<0,1>,<0, 50>>,scaleY=<<0,1>,<150, 0>>, fillColor="pink") 
                                      , box(size=<10, 10>, lineWidth= 0)
                                      ,overlay(figs=
-                                     [ellipse(size=<200, 25>, fillColor="orange"), at(10, 10, box(size=<180, 4>, fillColor="brown", rounded=<2, 2>))])
+                                     [ellipse(size=<200, 25>, fillColor="orange"), atXY(10, 10, box(size=<180, 4>, fillColor="brown", rounded=<2, 2>))])
                                   ,box(size=<50, 50>, lineWidth = 0)]
                        ,fillColor= "none"), fillColor="antiquewhite");
     
@@ -234,7 +234,7 @@ loc location = |project://rascal/src/org/rascalmpl/library/experiments/vis2/data
 
 Figure tut() = box(fillColor="yellow", size=<50, 50>
       // ,event = on("click", void(str e, str n , str v) {println("<e>");})
-     , panel= box(lineWidth= 0, fig=at(60, 60, box(lineColor="black", lineWidth=2,  fig = text(readFile(location))))));
+     , panel= box(lineWidth= 0, fig=atXY(60, 60, box(lineColor="black", lineWidth=2,  fig = text(readFile(location))))));
 
 public void ttut() {render(tut(), cssFile = "tutor.css", size=<800, 800>);}
 

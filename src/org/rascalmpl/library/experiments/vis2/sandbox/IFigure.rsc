@@ -1316,7 +1316,7 @@ int vPadding(Figure f) = f.padding[1]+f.padding[3];
 bool hasInnerCircle(Figure f)  {
      if (!((box():=f) || (ellipse():=f) || (circle():=f) || (ngon():=f))) return false;
      f =  f.fig;
-     while (at(_, _, Figure g):= f|| atX(_,Figure g):=f || atY(_,Figure g):=f) {
+     while (atXY(_, _, Figure g):= f|| atX(_,Figure g):=f || atY(_,Figure g):=f) {
           f = g;
           }
      return (circle():=f) || (ellipse():=f) || (ngon():=f);
@@ -2349,22 +2349,22 @@ Figure cL(Figure parent, Figure child) {
     
 Figure addSuffix(str id, Figure g, str suffix) {
     if (g==emptyFigure()) return g;
-    if (at(int x, int y, Figure h):=g) {
+    if (atXY(int x, int y, Figure h):=g) {
            h.id = "<id><suffix>";
            figMap[h.id] = h; 
-           g = at(x, y, h, id  = g.id, width=g.width);
+           g = atXY(x, y, h, id  = g.id, width=g.width);
            }
     else
     if (atX(int x, Figure h):=g) {
           h.id = "<id><suffix>";
            figMap[h.id] = h; 
-           g = at(x, 0, h, id  = g.id, width=g.width);
+           g = atXY(x, 0, h, id  = g.id, width=g.width);
            }
     else
     if (atY(int y, Figure h):=g) {
          h.id = "<id><suffix>";
          figMap[h.id] = h; 
-         g = at(0, y, h, id  = g.id, width=g.width);
+         g = atXY(0, y, h, id  = g.id, width=g.width);
          }
     else {
        g.id = "<id><suffix>";
@@ -2415,14 +2415,14 @@ void buildParentTree(Figure f) {
         case g:hcat(): for (q<-g.figs) cL(g, q);
         case g:vcat(): for (q<-g.figs) cL(g, q);
         case g:grid(): for (e<-g.figArray) for (q<-e) cL(g, q);    
-        case g:at(_, _, fg):  cL(g, fg); 
+        case g:atXY(_, _, fg):  cL(g, fg); 
         case g:atX(_, fg):  cL(g, fg); 
         case g:atY(_, fg):  cL(g, fg);
         case g:overlay(): for (q<-g.figs) cL(g, q); 
         case g:graph():  for (q<-g.nodes) cL(g, q[1]);
         case g:tree(Figure root, Figures figs): {cL(g,root); for (q<-figs) cL(g, q);}
-        case g:rotate(_, fg):  cL(g, fg); 
-        case g:rotate(_, _, _, fg):  cL(g, fg); 
+        case g:rotateDeg(_, fg):  cL(g, fg); 
+        case g:rotateDeg(_, _, _, fg):  cL(g, fg); 
         case g:d3Tree(root):cL(g, root);
         }  
         return; 
@@ -2432,7 +2432,7 @@ Figure hide(Figure f) { f.visibility = "hidden"; return f;}
 
 Figure withoutAt(Figure f) {
        switch(f) {
-            case at(_, _, Figure g): return g;
+            case atXY(_, _, Figure g): return g;
             case atX(_, Figure g): return g;
             case atY(_, Figure g): return g;
             }
@@ -2441,7 +2441,7 @@ Figure withoutAt(Figure f) {
        
  tuple[int, int] fromAt(Figure f) {
        switch(f) {
-            case at(int x,int y , _): return <x+toInt(f.at[0]), y+toInt(f.at[1])>;
+            case atXY(int x,int y , _): return <x+toInt(f.at[0]), y+toInt(f.at[1])>;
             case atX(int x, _): return <x+toInt(f.at[0]),toInt(f.at[1])>;
             case atY(int y, _): return <toInt(f.at[0]), y+toInt(f.at[1])>;
             }
@@ -2505,7 +2505,7 @@ IFigure _translate(Figure f,  bool addSvgTag = false,
               
         case grid(): return _grid(f.id, f, addSvgTag, figArray= [[_translate(q, forceHtml = true)|q<-e]|e<-f.figArray]
         );
-        case at(int x, int y, Figure fig): {
+        case atXY(int x, int y, Figure fig): {
                      fig.rotate = f.rotate;
                      fig.at = <x, y>; 
                      return _translate(fig, inHtml=true, addSvgTag = true);
@@ -2520,9 +2520,9 @@ IFigure _translate(Figure f,  bool addSvgTag = false,
                     fig.at = <0, y>; 
                     return _translate(fig, inHtml=true, addSvgTag = true);
                     }
-        case rotate(num angle, int x, int y, Figure fig): {
+        case rotateDeg(num angle, int x, int y, Figure fig): {
              fig.rotate = <angle, x, y>; return _translate(fig, inHtml=true);}
-        case rotate(num angle,  Figure fig): {
+        case rotateDeg(num angle,  Figure fig): {
            fig.rotate = <angle, -1, -1>; 
            fig.at = f.at;
            return _translate(fig, inHtml=true);
@@ -2631,11 +2631,11 @@ DDD treeToDDD(Figure f) {
         case g:hcat(): return isEmpty(g.figs);
         case g:vcat(): return isEmpty(g.figs);
         case g:grid(): return isEmpty(g.figArray);   
-        case g:at(_, _, fg):  return isEmpty(fg);
+        case g:atXY(_, _, fg):  return isEmpty(fg);
         case g:atX(_, fg):  return isEmpty(fg);
         case g:atY(_, fg):  return isEmpty(fg);
-        case g:rotate(_, fg):   isEmpty(fg);
-        case g:rotate(_, _, _, fg):  isEmpty(fg);
+        case g:rotateDeg(_, fg):   isEmpty(fg);
+        case g:rotateDeg(_, _, _, fg):  isEmpty(fg);
         }
         return false;
      }  
