@@ -60,19 +60,20 @@ public class CourseCompiler {
 		}
 	}
 	
-	public static void compileCourse(String coursesDir, String courseName) throws IOException, NoSuchRascalFunction, URISyntaxException {
-		Path srcDir = Paths.get(coursesDir + courseName + "/");
-		Path destDir = Paths.get(coursesDir);
+	public static void compileCourse(String srcDir, String destDir) throws IOException, NoSuchRascalFunction, URISyntaxException {
+		Path srcPath = Paths.get(srcDir);
+		String courseName = srcPath.getFileName().toString();
+		Path destPath = Paths.get(destDir);
 
 		StringWriter sw = new StringWriter();
 		PrintWriter err = new PrintWriter(sw);
 		
 		err.println("# Errors in Course " + courseName);
 		
-		new Onthology(srcDir, destDir, err);
+		new Onthology(srcPath, destPath, err);
 		
 		try {
-			runAsciiDocter(coursesDir, courseName, err);
+			runAsciiDocter(srcDir, courseName, err);
 		} catch (IOException e) {
 			System.err.println("Cannot run asciidocter: " + e.getMessage());
 		}
@@ -80,7 +81,7 @@ public class CourseCompiler {
 		try {
 			err.flush();
 //			System.err.println("\n------err:\n" + sw.toString());
-			writeFile(destDir + "/" + courseName + "/" + "errors.adoc", sw.toString());
+			writeFile(destPath + "/" + courseName + "/" + "errors.adoc", sw.toString());
 //			String toc = onthology.getSubToc(courseName, 0, true);
 //			System.err.println(toc);
 //			writeFile(courseDestDir + "/" + courseName + "/" + "toc.adoc", toc);
@@ -108,14 +109,17 @@ public class CourseCompiler {
 		if(!coursesDir.endsWith("/")){
 			coursesDir = coursesDir + "/";
 		}
+		
+		String destDir = "/Users/paulklint/courses/";
+		
 
 //		compileCourse(coursesDir, "ADocTest");
 //		compileCourse(coursesDir, "CompareWithOtherParadigms");
-//		compileCourse(coursesDir, "EASY");
+		compileCourse(coursesDir + "EASY", destDir);
 //		compileCourse(coursesDir, "Errors");
 //		compileCourse(coursesDir, "Rascal");
 //		compileCourse(coursesDir, "Libraries");
-		compileCourse(coursesDir, "Rascalopedia");
+//		compileCourse(coursesDir, "Rascalopedia");
 //		compileCourse(coursesDir, "Recipes");
 //		compileCourse(coursesDir, "SolutionStrategies");
 //		compileCourse(coursesDir, "TutorWebSite");
