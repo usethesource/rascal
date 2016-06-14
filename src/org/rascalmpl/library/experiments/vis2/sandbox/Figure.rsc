@@ -159,7 +159,7 @@ public data Style (
     
     
 public data Text (		
-    str text = "",
+    str plain = "",
     str html = ""  
     ) = text();
     
@@ -281,12 +281,12 @@ public data Figure(
 
 // Figure transformations
 
-   | at(int x, int y, Figure fig)			// Move to Alignment relative to origin of enclosing Figure
+   | atXY(int x, int y, Figure fig)			// Move to Alignment relative to origin of enclosing Figure
    | atX(int x, Figure fig)				// TODO: how to handle negative values?
    | atY(int y, Figure fig)
    
-   | rotate(num angle, int x, int y, Figure fig)
-   | rotate(num angle, Figure fig)
+   | rotateDeg(num angle, int x, int y, Figure fig)
+   | rotateDeg(num angle, Figure fig)
    
 // Input elements
    | buttonInput(str txt, bool disabled=false,  value \value = "")
@@ -397,17 +397,17 @@ data TextStyle(str color="", str fontName="", int fontSize=-1,
 data Axis(str title="",
           num minValue = -1,
           num maxValue = -1,
-          ViewWindow viewWindow = ViewWindow::viewWindow(),
+          ViewWindow viewWindow_= ViewWindow::viewWindow(),
           bool slantedText = true,
           bool logScale = false,
           int slantedTextAngle = -1, 
           int direction = -1,
           str textPosition = "",
           str format = "", 
-           Gridlines gridlines =  Gridlines::gridlines() ,
-          list[Tick] tick = [],
-          TextStyle titleTextSyle = textStyle(),
-          TextStyle textStyle = textStyle())
+           Gridlines gridlines_ =  Gridlines::gridlines() ,
+          list[Tick] tick_ = [],
+          TextStyle titleTextStyle_ = textStyle(),
+          TextStyle textStyle_ = textStyle())
           = axis();
           
                
@@ -441,7 +441,7 @@ data SankeyLabel(
      ) = sankeyLabel(); 
      
 data SankeyNode(
-     SankeyLabel label = sadkeyLabel(),
+     SankeyLabel label = sankeyLabel(),
      int labelPadding = -1,
      int nodePadding = -6,
      int width = -1
@@ -458,16 +458,16 @@ data Sankey(
      ) = sankey();   
                   
 data ChartOptions (str title = "",
-             Animation animation = Animation::animation(),
+             Animation animation_ = Animation::animation(),
              Axis hAxis = axis(),
              Axis vAxis = axis(),
-             ChartArea chartArea = ChartArea::chartArea(),
-             Bar bar = Bar::bar(),
+             ChartArea chartArea_ = ChartArea::chartArea(),
+             Bar bar_ = Bar::bar(),
              int width=-1,
              int height = -1,
              bool forceIFrame = true,
              bool is3D = false, 
-             Legend legend = Legend::legend(),
+             Legend legend_ = Legend::legend(),
              int lineWidth = -1,
              int pointSize = -1,
              bool interpolateNulls = false,
@@ -475,15 +475,15 @@ data ChartOptions (str title = "",
              str seriesType = "",
              str pointShape = "",
              bool isStacked = false,
-             Candlestick candlestick = Candlestick::candlestick(),
-             Sankey sankey = Sankey::sankey(),
-             list[Series] series = []
+             Candlestick candlestick_ = Candlestick::candlestick(),
+             Sankey sankey_ = Sankey::sankey(),
+             list[Series] series_ = []
              ) = chartOptions()
             ;
             
 
 ChartOptions updateOptions (list[Chart] charts, ChartOptions options) {
-    options.series = [];
+    options.series_ = [];
     for (c<-charts) {
         Series s = series();
         switch(c) {
@@ -498,7 +498,7 @@ ChartOptions updateOptions (list[Chart] charts, ChartOptions options) {
         if (c.lineWidth>=0)  s.lineWidth = c.lineWidth;
         if (!isEmpty(c.pointShape)) s.pointShape = c.pointShape;
         if (c.pointSize>=0) s.pointSize = c.pointSize;
-        options.series += [s];
+        options.series_ += [s];
         }
     return options;
     }   
@@ -520,7 +520,7 @@ public Figure idCircle(num r) = circle(r= r, lineWidth = 0, fillColor = "none");
 
 public Figure idNgon(int n, num r) = ngon(n=  n, r= r, lineWidth = 0, fillColor = "none");
 
-public Figure idRect(int width, int height) = rect(width = width, height = height, lineWidth = 0, fillColor = "none");
+public Figure idRect(int width, int height) = box(width = width, height = height, lineWidth = 0, fillColor = "none");
 
 /* options must be renamed to graphOptions */
 public Figure graph(list[tuple[str, Figure]] n, list[Edge] e, tuple[int, int] size=<0,0>, int width = -1, int height = -1,
@@ -603,7 +603,8 @@ public Figure svg(Figure f, tuple[int, int] size = <0, 0>) {
 */
   
 public map[str, value] adt2map(node t) {
-   map[str, value] r = getKeywordParameters(t);
+   map[str, value] q = getKeywordParameters(t);
+   map[str, value] r = (replaceLast(d,"_",""):q[d]|d<-q);
    for (d<-r) {
         if (node n := r[d]) {
            r[d] = adt2map(n);
