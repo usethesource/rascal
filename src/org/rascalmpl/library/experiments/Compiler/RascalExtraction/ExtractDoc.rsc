@@ -66,7 +66,7 @@ str declInfo2Doc(str parent, functionInfo(str moduleName, str name, str signatur
  
  str declInfo2Doc(str parent, constructorInfo(str moduleName, str name, str signature, loc src), list[str] overloads) =
      "";
-        
+    
  str declInfo2Doc(str parent, dataInfo(str moduleName, str name, str signature, loc src, str synopsis, str doc), list[str] overloads) =
     "
     '[[<basename(moduleName)>-<name>]]
@@ -76,9 +76,8 @@ str declInfo2Doc(str parent, functionInfo(str moduleName, str name, str signatur
     '----
     '<for(ov <- overloads){><ov>\n<}>
     '----
-    '
     '<doc>
-    '";
+    "; 
 
 str declInfo2Doc(str parent, aliasInfo(str moduleName, str name, str signature, loc src, str synopsis, str doc), list[str] overloads) =
     "

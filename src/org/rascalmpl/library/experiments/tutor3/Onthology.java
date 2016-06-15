@@ -234,7 +234,7 @@ public class Onthology {
 						ITuple extracted = rascalExtraction.extractDoc(vf.string(parentName), remoteLoc, new KWParams(vf).build());
 						IString remoteConceptText = (IString) extracted.get(0);
 						IList declarationInfoList = (IList) extracted.get(1);
-						System.err.println(remoteConceptText.getValue());
+						//System.err.println(remoteConceptText.getValue());
 						Concept remoteConcept = new Concept(remoteConceptName, remoteConceptText.getValue(), destPath, libPath);
 						conceptMap.put(remoteConceptName, remoteConcept);
 						
