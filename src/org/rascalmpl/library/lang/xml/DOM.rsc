@@ -22,7 +22,8 @@ way of representing and manipulating HTML, XHTML and XML documents.
 *  One or more lines consisting of values separated by comma's.
 
 The following functions are provided:
-//<toc Rascal/Library/lang/xml 1>
+
+subtoc::[1]
 }
 
 module lang::xml::DOM

@@ -72,7 +72,6 @@ list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags>
 
 DeclarationInfo genVariant(str moduleName, v: (Variant) `<Name name>(<{TypeArg ","}* arguments> <KeywordFormals keywordArguments>)`){
     signature = "<v>";
-    argTypes = [translateType(arg.\type) | arg <- arguments];
     return constructorInfo(moduleName, "<name>", "<v>", v@\loc);
 }
 
