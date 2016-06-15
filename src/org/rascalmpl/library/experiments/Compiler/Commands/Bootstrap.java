@@ -257,12 +257,13 @@ public class Bootstrap {
     private static void runTestModule(int phase, String classPath, String bootDir, String sourcePath, Path result, String module) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
         info("Running tests of " + module + " before the next phase " + phase);
         String[] arguments = new String[] {"--binDir", result.toAbsolutePath().toString(), "--srcPath", sourcePath, "--bootDir", bootDir, module};
-        String[] command = new String[arguments.length + 4];
+        String[] command = new String[arguments.length + 5];
         command[0] = "java";
         command[1] = "-cp";
         command[2] = classPath;
-        command[3] = "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests";
-        System.arraycopy(arguments, 0, command, 4, arguments.length);
+        command[3] = "-Xmx1G";
+        command[4] = "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests";
+        System.arraycopy(arguments, 0, command, 5, arguments.length);
 
         if (runChildProcess(command) != 0) { 
             throw new BootstrapMessage(phase);
@@ -270,12 +271,13 @@ public class Bootstrap {
     }
 
     private static int runCompiler(String classPath, String... arguments) throws IOException, InterruptedException {
-    	String[] command = new String[arguments.length + 4];
+    	String[] command = new String[arguments.length + 5];
     	command[0] = "java";
     	command[1] = "-cp";
     	command[2] = classPath;
-    	command[3] = "org.rascalmpl.library.experiments.Compiler.Commands.RascalC";
-    	System.arraycopy(arguments, 0, command, 4, arguments.length);
+    	command[3] = "-Xmx1G";
+    	command[4] = "org.rascalmpl.library.experiments.Compiler.Commands.RascalC";
+    	System.arraycopy(arguments, 0, command, 5, arguments.length);
     	return runChildProcess(command);
     }
     
