@@ -415,6 +415,11 @@ public class URIResolverRegistry {
 	
 	public ISourceLocation[] list(ISourceLocation uri) throws IOException {
 		String[] entries = listEntries(uri);
+		
+		if (entries == null) {
+		    return new ISourceLocation[0];
+		}
+		
 		ISourceLocation[] list = new ISourceLocation[entries.length];
 		int i = 0;
 		for (String entry : entries) {
