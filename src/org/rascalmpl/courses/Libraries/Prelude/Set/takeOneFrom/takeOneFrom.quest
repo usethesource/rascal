@@ -1,1 +1,0 @@
-[tvQuestion("Rascal/Libraries/Prelude/Set/takeOneFrom","1",typeOfExpr(),details(" ",["import Set;"],"","","takeOneFrom(\<S\>)","",false,false,[<"S",set(arb(0,[int(-20,20),str()]),1,6)>],[],void(),""))]
