@@ -6,7 +6,7 @@ The Rascal standard prelude.
 .Description
 
 The `Prelude` library provides core functionality for handling all of Rascal's data-types.
-See the link:/Rascal[Rascal language reference] for details of the language Rascal itself.
+See the link:/Rascal[Rascal Language Reference] for details of the language Rascal itself.
 
 For 
 

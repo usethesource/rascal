@@ -14,4 +14,9 @@ Test Case
 
 .Details
 
+[source,rascal-shell]
+----
+1 + 2
+----
+
 .Description
