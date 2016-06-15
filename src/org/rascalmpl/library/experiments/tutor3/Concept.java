@@ -2,42 +2,44 @@ package org.rascalmpl.library.experiments.tutor3;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Concept {
-	private final String name;
+	private final Path name;
 	private String text = null;
-	private final Path destDir;
+	private final Path destPath;
 	private boolean remote;
 	private String title;
 	private String synopsis;
 	private String index;
+	private Path libPath;
 
-	public Concept(String name, String text, Path destDir, boolean remote){
+	public Concept(Path name, String text, Path destPath, Path libPath, boolean remote){
 		this.name = name;
 		this.text = text;
-		this.destDir = destDir;
+		this.destPath = destPath;
+		this.libPath = libPath;
 		this.remote = remote;
 		title = extract(titlePat);
 		synopsis = extractSynopsis();
 		index = extractIndex();
 	}
 	
-	public Concept(String name, String text, Path destDir){
-		this(name, text, destDir, false);
+	public Concept(Path name, String text, Path destDir, Path libPath){
+		this(name, text, destDir, libPath, false);
 	}
 	
-	public String getName(){
+	public Path getName(){
 		return name;
 	}
 	
 	public String getTitle(){
-		return title == null ? getName() : title;
+		return title == null ? getName().toString() : title;
 	}
 	
 	public String getSynopsis(){
@@ -77,30 +79,21 @@ public class Concept {
 	}
 	
 	private String getConceptBaseName(){
-		int i = name.lastIndexOf("/");
-		return i < 0 ? name : name.substring(i + 1, name.length());
+		return name.getFileName().toString();
 	}
 	
 	public String getAnchor(){
-	  String[] parts = name.split("/");
-	  int n = parts.length;
-	  if(n >= 2){
-		  return parts[n-2] + "-" + parts[n-1];
-	  } else {
-		  return parts[0];
-	  }
-	}
-	
-	public String getHtmlFileName(){
-		return destDir.toString() + "/" + name + (remote ? "" : ("/" + getConceptBaseName())) + ".html";
+	  int n = name.getNameCount();
+	  return n >= 2 ? name.getName(n-2) + "-" + name.getName(n-1) : name.getFileName().toString();
 	}
 	
 	private String getADocFileName(){
-		return destDir.toString() + "/" + name + (remote ? "" : ("/" + getConceptBaseName())) + ".adoc";
+		return destPath.toString() + "/" + name + (remote ? "" : ("/" + getConceptBaseName())) + ".adoc";
 	}
 	
-	public String getConceptAsInclude(){
-		return "include::" + getConceptBaseName() + "/" + getConceptBaseName() + ".adoc" + "[" + getConceptBaseName() + "]\n";
+	public String genInclude(){
+		String baseName = getConceptBaseName();
+		return "include::" + baseName + "/" + baseName + ".adoc" + "[" + baseName + "]\n";
 	}
 	
 	private String complete(String line){
@@ -128,30 +121,51 @@ public class Concept {
 		return line;
 	}
 	
-	public void preprocess(Onthology onthology, PrintWriter err, RascalCommandExecutor executor) throws IOException{
+	String commonDefs =	
+		":icons:        font\n" + 
+		":images:       ../images/\n" +
+		":table-caption!:\n";
+	
+	public static String getSearchForm(){
+		return
+		"<form class=\"search-form\" id=\"searchbox\" action=\"/Search\" method=\"POST\">\n" +
+		"<input class=\"search-input\" id=\"search\" name=\"searchFor\" type=\"search\" placeholder=\"Search ...\">\n" +
+		"<input class=\"search-submit\" id=\"submit\" type=\"submit\" value=\"&#10140;\" onkeypress=\"if(event.keyCode==13) {javascript:form.submit();}\">\n" +
+		"</form>\n";
+	}
+	
+	private final String prompt = "rascal>"; //"<i class=\"prompt\">::before</i>";
+	private final String continuation = ">>>>>>>"; //"<i class=\"continuation\">::before</i>";
+	
+	public void preprocess(Onthology onthology, RascalCommandExecutor executor) throws IOException{
 		System.err.println("Preprocessing: " + name);
 		BufferedReader reader = new BufferedReader(new StringReader(text));
 
 		StringWriter preprocessOut = new StringWriter();
 		String line = null;
 		String[] details = new String[0];
-
+		if(Onthology.level(name)==0){
+			preprocessOut.append("++++\n");
+			preprocessOut.append(getSearchForm());
+			//preprocessOut.append("<link rel=\"icon\" href=\"/favicon.ico\" type=\"image/x-icon\"/>");
+			preprocessOut.append("++++\n");
+		}
+		
 		preprocessOut.append("\n[[").append(getAnchor()).append("]]\n");
 
 		while( (line = reader.readLine()) != null && !line.startsWith("#")){
 			preprocessOut.append(line).append("\n");
 		}
 		if(line == null){
-			preprocessOut.append("# ").append(name).append("\n");
+			preprocessOut.append("# ").append(name.toString()).append("\n");
 		} else {
 			title = line.substring(2).trim();
 			preprocessOut.append(line).append("\n");
 			if(Onthology.level(name)==0){
-				preprocessOut.append("include::../CommonDefs.adoc[]\n");
-				preprocessOut.append(":concept: " + name + "\n");
-			} else {
-				preprocessOut.append(":concept: ").append(onthology.makeConceptNameInCourse(name)).append("\n");
-			}
+				preprocessOut.append(commonDefs);
+				preprocessOut.append(":LibDir: ").append(libPath.toString()).append("/\n");
+			} 
+			preprocessOut.append(":concept: ").append(name.toString()).append("\n");
 			while( (line = reader.readLine()) != null ) {
 				if(line.startsWith(".Details")){
 					line = reader.readLine();
@@ -195,11 +209,11 @@ public class Concept {
 							break;
 						}
 						if(isFigure && line.startsWith("render(")){
-							preprocessOut.append("rascal>").append(line).append("\n");
+							preprocessOut.append(prompt).append(line).append("\n");
 							line = makeRenderSave(line, height, width, file);
 						}
 						if(!isFigure){
-							preprocessOut.append("rascal>").append(line).append("\n");
+							preprocessOut.append(prompt).append(line).append("\n");
 							String continuationLine = "";
 							while(!executor.isStatementComplete(line)){
 								 if((continuationLine = reader.readLine()) != null){ 
@@ -207,7 +221,7 @@ public class Concept {
 								    	 moreShellInput = false;
 								    	 break;
 								     }
-									 preprocessOut.append(">>>>>>>").append(continuationLine).append("\n");
+									 preprocessOut.append(continuation).append(continuationLine).append("\n");
 								 } else {
 									 break;
 								 }
@@ -241,10 +255,8 @@ public class Concept {
 //							}
 //						}
 						if(!mayHaveErrors && (messages.contains("[error]") || messages.contains("Exception")) ){
-							executor.error("* __" + name + "__:");
-							executor.error("```");
+							executor.error("* " + name + ":");
 							executor.error(messages.trim());
-							executor.error("```");
 						}
 					}
 					preprocessOut.append("----\n");
@@ -256,7 +268,7 @@ public class Concept {
 						String intStr = m.group(1);
 						depth = intStr.equals("") ? 0 : Integer.parseInt(intStr.substring(0,intStr.length()));
 					}
-					preprocessOut.append(onthology.getSubToc(name, depth, true, details));
+					preprocessOut.append(onthology.genSubToc(name, depth, true, details));
 				} else if(line.contains("image:")){
 					Pattern p = Pattern.compile("(^.*)(image::?)([^\\[]+)(\\[.*$)");
 					Matcher m = p.matcher(line);
@@ -265,8 +277,8 @@ public class Concept {
 						String image = m.group(2);
 						String link = m.group(3);
 						String post = m.group(4);
-						if(!link.contains("{") && Onthology.level(name) > 0){
-							link = "{concept}/" + link;
+						if(!link.contains("{") && !link.startsWith("/")){
+							link = "/{concept}/" + link;
 						}
 						preprocessOut.append(pre).append(image).append(link).append(post).append("\n");
 					} else {
@@ -277,7 +289,12 @@ public class Concept {
 				}
 			}
 
-			preprocessOut.append(onthology.getDetails(name, details));
+			preprocessOut.append(onthology.genDetails(name, details));
+		}
+		
+		Path parent = destPath.resolve(name);
+		if(!Files.exists(parent)){
+			Files.createDirectory(parent);
 		}
 		CourseCompiler.writeFile(getADocFileName(), preprocessOut.toString());
 	}
