@@ -1,9 +1,10 @@
 package org.rascalmpl.library.experiments.tutor3;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
@@ -35,7 +36,6 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.KWParams;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RascalExtraction.RascalExtraction;
-import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
@@ -50,20 +50,25 @@ import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+/**
+ * @author paulklint
+ *
+ */
 public class Onthology {
 	Path srcPath;
-	Path destDir;
-	Path courseDestDir;
+	Path destPath;
 	
-	static final String conceptExtension = "concept2";
+	static final String conceptExtension = "concept";
 	
-	Map<String,Concept> conceptMap;
+	Map<Path,Concept> conceptMap;
 	private IValueFactory vf;
 	private RascalExtraction rascalExtraction;
-	private Path courseName;
+	private String courseName;
 	
-	private RascalCommandExecutor executor;
 	private IndexWriter iwriter;
+	private Path courseSrcPath;
+	private Path courseDestPath;
+	private Path libPath;
 	
 	public static Analyzer multiFieldAnalyzer(){
 		Analyzer stdAnalyzer = new StandardAnalyzer();
@@ -79,29 +84,29 @@ public class Onthology {
 		return new PerFieldAnalyzerWrapper(stdAnalyzer, analyzerMap);
 	}
 
-	public Onthology(Path srcPath, Path destDir, PrintWriter err) throws IOException, NoSuchRascalFunction, URISyntaxException{
+	public Onthology(Path srcPath, String courseName, Path destPath, Path libPath, RascalCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException{
 		this.vf = ValueFactoryFactory.getValueFactory();
-//		this.rascalExtraction = new RascalExtraction(vf);
 		this.srcPath = srcPath;
-		this.destDir = destDir;
-
-		this.courseName = this.srcPath.getFileName();
-		conceptMap = new HashMap<>();
+		this.courseSrcPath = srcPath.resolve(courseName);
+		this.destPath = destPath;
+		this.courseDestPath = destPath.resolve(courseName);
 		
-		this.executor = new RascalCommandExecutor(new PathConfig(), err);
+		this.libPath = libPath;
+
+		this.courseName = courseName;
+		conceptMap = new HashMap<>();
 		
 		Analyzer multiFieldAnalyzer = multiFieldAnalyzer();
 
 		Directory directory = null;
-		String courseDestDir = destDir.toString() + "/" + courseName;
-		
-		Path courseDestPath = Paths.get(courseDestDir);
+	
 		if(!Files.exists(courseDestPath)){
-			Files.createDirectory(courseDestPath);
+			Files.createDirectories(courseDestPath);
 		}
 		try {
 			directory = FSDirectory.open(courseDestPath);
 			IndexWriterConfig config = new IndexWriterConfig(multiFieldAnalyzer);
+			config.setOpenMode( IndexWriterConfig.OpenMode.CREATE);
 			iwriter = new IndexWriter(directory, config);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
@@ -110,16 +115,16 @@ public class Onthology {
 
 		FileVisitor<Path> fileProcessor = new CollectConcepts();
 		try {
-			Files.walkFileTree(this.srcPath, fileProcessor);
+			Files.walkFileTree(courseSrcPath, fileProcessor);
 			iwriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		for(String conceptName : conceptMap.keySet()){
+		for(Path conceptName : conceptMap.keySet()){
 			Concept concept = conceptMap.get(conceptName);
 			try {
-				concept.preprocess(this, err, executor);
+				concept.preprocess(this, executor);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -127,7 +132,7 @@ public class Onthology {
 		}
 	}
 	
-	public Map<String,Concept> getConceptMap(){
+	public Map<Path,Concept> getConceptMap(){
 		return conceptMap;
 	}
 	
@@ -160,26 +165,19 @@ public class Onthology {
 	}
 	
 	private Path makeConceptFilePath(Path p){
-		return Paths.get(p.toString(), p.getFileName().toString() + "." + conceptExtension);
+		return p.resolve(p.getFileName().toString() + "." + conceptExtension);
 	}
 	
 	private Path makeRemoteFilePath(Path p){
-		return Paths.get(p.toString(), p.getFileName().toString() + ".remote");
+		return p.resolve(p.getFileName().toString() + ".remote");
 	}
 	
-	private String makeConceptName(Path p){
-		String s = p.toString();
-		return courseName + s.substring(srcPath.toString().length(), s.length());
-	}
-	
-	String makeConceptNameInCourse(String conceptName){
-		int n = conceptName.indexOf("/");
-		return n < 0 ? "" : conceptName.substring(n + 1, conceptName.length());
+	private Path makeConceptName(Path p){
+		return  srcPath.relativize(p);
 	}
 	
 	Path makeDestFilePath(Path path){
-		int prefix = srcPath.getNameCount();
-		return Paths.get(destDir.toString(), path.subpath(prefix, path.getNameCount()).toString());
+		return destPath.resolve(srcPath.relativize(path));
 	}
 
 	private class CollectConcepts extends SimpleFileVisitor<Path> {
@@ -189,9 +187,13 @@ public class Onthology {
                   throws IOException{
 			String fileName = file.getFileName().toString();
 			
-			System.err.println("Visit File: " + file);
-			if(fileName.endsWith(".png")){
-				System.err.println("File: " + file + "; " + makeDestFilePath(file));
+			if(fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")){
+				Path dest = makeDestFilePath(file);
+				Path parent = dest.getParent();
+				if(!Files.exists(parent)){
+					Files.createDirectories(parent);
+				}
+				Files.copy(file, makeDestFilePath(file), REPLACE_EXISTING);
 			}
 			return FileVisitResult.CONTINUE;
 		}
@@ -208,32 +210,35 @@ public class Onthology {
 				return FileVisitResult.CONTINUE;
 			}
 			
-			System.err.println(aDir);
+			//System.err.println(aDir);
 			if(Files.exists(makeConceptFilePath(aDir))){
-				String conceptName = makeConceptName(aDir);
+				Path conceptName = makeConceptName(aDir);
 				if(!conceptName.equals(courseName)){
-					String conceptDestDir = destDir.toString() + "/" + conceptName;
-					Path conceptDestPath = Paths.get(conceptDestDir);
+					Path conceptDestPath = destPath.resolve(conceptName);
 					if(!Files.exists(conceptDestPath)){
-						Files.createDirectory(conceptDestPath);
+						Files.createDirectories(conceptDestPath);
 					}
 				}
-				Concept concept = new Concept(conceptName, readFile(makeConceptFilePath(aDir).toString()), destDir);
+				Concept concept = new Concept(conceptName, readFile(makeConceptFilePath(aDir).toString()), destPath, libPath);
 				conceptMap.put(conceptName, concept);
-				iwriter.addDocument(makeLuceneDocument(conceptName, concept.getIndex(), concept.getSynopsis(), concept.getText()));
+				iwriter.addDocument(makeLuceneDocument(conceptName.toString(), concept.getIndex(), concept.getSynopsis(), concept.getText()));
 			} else
 				if(Files.exists(makeRemoteFilePath(aDir))){
 						ISourceLocation remoteLoc = readLocFromFile(makeRemoteFilePath(aDir).toString());
 						String parentName = aDir.getName(aDir.getNameCount()-2).toString();
-						String remoteConceptName = makeConceptName(aDir);
+						Path remoteConceptName = makeConceptName(aDir);
+						if(rascalExtraction == null){
+							// Lazily load the RascalExtraction tool
+							rascalExtraction = new RascalExtraction(vf);
+						}
 						ITuple extracted = rascalExtraction.extractDoc(vf.string(parentName), remoteLoc, new KWParams(vf).build());
 						IString remoteConceptText = (IString) extracted.get(0);
 						IList declarationInfoList = (IList) extracted.get(1);
 						System.err.println(remoteConceptText.getValue());
-						Concept remoteConcept = new Concept(remoteConceptName, remoteConceptText.getValue(), destDir);
+						Concept remoteConcept = new Concept(remoteConceptName, remoteConceptText.getValue(), destPath, libPath);
 						conceptMap.put(remoteConceptName, remoteConcept);
 						
-						iwriter.addDocument(makeLuceneDocument(remoteConceptName, remoteConcept.getIndex(), remoteConcept.getSynopsis(), remoteConcept.getText()));
+						iwriter.addDocument(makeLuceneDocument(remoteConceptName.toString(), remoteConcept.getIndex(), remoteConcept.getSynopsis(), remoteConcept.getText()));
 						for(IValue d : declarationInfoList){
 							addDeclarationInfo(remoteConceptName, (IConstructor)d);
 						}
@@ -261,7 +266,7 @@ public class Onthology {
 		return luceneDoc;
 	}
 	
-	private void addDeclarationInfo(String remoteConceptName, IConstructor d) throws IOException{
+	private void addDeclarationInfo(Path remoteConceptName, IConstructor d) throws IOException{
 		String consName = d.getName();
 		String moduleName = remoteConceptName + "/" + ((IString) d.get("moduleName")).getValue().replaceAll("::",  "/");
 		
@@ -283,26 +288,8 @@ public class Onthology {
 		iwriter.addDocument(luceneDoc);
 	}
 	
-	public ArrayList<Concept> resolve(String conceptRef){
-		ArrayList<Concept> result = new ArrayList<>();
-		for(String cn : conceptMap.keySet()){
-			if(cn.endsWith(conceptRef)){
-				result.add(conceptMap.get(cn));
-			}
-		}
-		return result;
-	}
-	
-	static int level(String s){
-		return s.split("\\/").length - 1;
-	}
-	
-	String indent(int n){
-		StringBuilder s = new StringBuilder();
-		for(int i = 0; i < n; i++){
-			s.append("  ");
-		}
-		return s.toString();
+	static int level(Path conceptName){
+		return conceptName.getNameCount() - 1;
 	}
 	
 	String bullets(int n){
@@ -314,46 +301,59 @@ public class Onthology {
 		return s.toString();
 	}
 	
-	private void includeSubConcept(String conceptName, String subConceptName, StringWriter result){
+	private void genIncludeSubConcept(Path conceptName, Path subConceptName, StringWriter result){
 		Concept concept = conceptMap.get(subConceptName);
 		if(concept != null && subConceptName.startsWith(conceptName) && (level(subConceptName) == level(conceptName) + 1)){
-			result.append(concept.getConceptAsInclude()).append("\n");
+			result.append(concept.genInclude()).append("\n");
 		}
 	}
 	
-	public String getDetails(String conceptName, String[] orderDetails){
-		String[] keys = conceptMap.keySet().toArray(new String[conceptMap.size()]);
+	/**
+	 * Generate "details" (i.e. a list of subconcepts), taking into account an ordered list of subconcepts that should come first
+	 * @param conceptName	the root concept
+	 * @param orderDetails subconcepts that should come first in generated list
+	 * @return the list of details
+	 */
+	public String genDetails(Path conceptName, String[] orderDetails){
+		Path[] keys = conceptMap.keySet().toArray(new Path[conceptMap.size()]);
 		Arrays.sort(keys);
 		StringWriter result = new StringWriter();
-		HashSet<String> seen = new HashSet<>();
+		HashSet<Path> seen = new HashSet<>();
 		
 		if(keys.length > 0){
 			result.append("\n:leveloffset: +1\n");
-//			result.append("\n:leveloffset: " + (level(conceptName) + 1)).append("\n");
 		}
 		for(String subConceptName : orderDetails){
-			String fullSubConceptName = conceptName + "/" + subConceptName;
-			includeSubConcept(conceptName, fullSubConceptName, result);
+			Path fullSubConceptName = conceptName.resolve(subConceptName);
+			genIncludeSubConcept(conceptName, fullSubConceptName, result);
 			seen.add(fullSubConceptName);
 		}
-		for(String fullSubConceptName : keys){
+		for(Path fullSubConceptName : keys){
 			if(!seen.contains(fullSubConceptName)){
-				includeSubConcept(conceptName, fullSubConceptName, result);
+				genIncludeSubConcept(conceptName, fullSubConceptName, result);
 			}
 		}
 		if(keys.length > 0){
 			result.append("\n:leveloffset: -1");
-//			result.append("\n:leveloffset: " + (level(conceptName))).append("\n");
 		}
 		return result.toString();
 	}
 	
-	private void listItemSubConcept(String conceptName, String subConceptName, int start, int depth, boolean withSynopsis, StringWriter result){
+	/**
+	 * Generate a list item for a subconcept (if it is a subconcept within required depth)
+	 * @param conceptName	the root concept
+	 * @param subConceptName	subconcept
+	 * @param start		 		start depth
+	 * @param depth				maximal depth
+	 * @param withSynopsis		add synopsis or not
+	 * @param result			generated list item
+	 */
+	private void genListItemForSubConcept(Path conceptName, Path subConceptName, int start, int depth, boolean withSynopsis, StringWriter result){
 		Concept subConcept = conceptMap.get(subConceptName);
 		int newLevel = level(subConceptName);
 		if(subConcept != null 
 		   && !conceptName.equals(subConceptName) 
-		   && subConceptName.startsWith(conceptName + "/") 
+		   && subConceptName.startsWith(conceptName) 
 		   && (newLevel - start <= depth)
 		   ){
 			result.append(bullets(newLevel)).append("<<").append(subConcept.getAnchor()).append(",").append(subConcept.getTitle()).append(">>");
@@ -364,29 +364,37 @@ public class Onthology {
 		}
 	}
 
-	public String getSubToc(String conceptName, int depth, boolean withSynopsis, String[] orderDetails) {
+	/**
+	 * Generate a sub table-of-contents, i.e. a toc of all subconcepts upto certain depth
+	 * @param conceptName	the root concept
+	 * @param depth			depth of the toc
+	 * @param withSynopsis	include a synopsis or not
+	 * @param orderDetails	list of details that determines order
+	 * @return the generated subtoc
+	 */
+	public String genSubToc(Path conceptName, int depth, boolean withSynopsis, String[] orderDetails) {
 		int start = level(conceptName);
-		String[] keys = conceptMap.keySet().toArray(new String[conceptMap.size()]);
+		Path[] keys = conceptMap.keySet().toArray(new Path[conceptMap.size()]);
 		Arrays.sort(keys);
-		HashSet<String> seen = new HashSet<>();
+		HashSet<Path> seen = new HashSet<>();
 
 		StringWriter result = new StringWriter().append("\n");
 		for(String subConceptName : orderDetails){
-			String fullSubConceptName = conceptName + "/" + subConceptName;
-			listItemSubConcept(conceptName, fullSubConceptName, start, start + depth, withSynopsis, result);
+			Path fullSubConceptName = conceptName.resolve(subConceptName);
+			genListItemForSubConcept(conceptName, fullSubConceptName, start, start + depth, withSynopsis, result);
 			seen.add(fullSubConceptName);
-			for(String fullSubSubConceptName : keys){
+			for(Path fullSubSubConceptName : keys){
 				if(!seen.contains(fullSubSubConceptName)){
 					if(fullSubSubConceptName.startsWith(fullSubConceptName)){
-						listItemSubConcept(fullSubConceptName, fullSubSubConceptName, start, start + depth, withSynopsis, result);
+						genListItemForSubConcept(fullSubConceptName, fullSubSubConceptName, start, start + depth, withSynopsis, result);
 						seen.add(fullSubSubConceptName);
 					}
 				}
 			}
 		}
-		for(String fullSubConceptName : keys){
+		for(Path fullSubConceptName : keys){
 			if(!seen.contains(fullSubConceptName)){
-				listItemSubConcept(conceptName, fullSubConceptName, start, start + depth, withSynopsis, result);
+				genListItemForSubConcept(conceptName, fullSubConceptName, start, start + depth, withSynopsis, result);
 			}
 		}
 		return result.toString();
