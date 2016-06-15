@@ -6832,7 +6832,7 @@ public enum RascalPrimitive {
 			try {
 				temp_array_of_2[1] = loc_field_access.execute2(arg_2, arg_1, currentFrame, rex);
 				temp_array_of_2[0] = Rascal_TRUE;
-			} catch (Exception e) {
+			} catch (Exception e) { // TODO: this hides implementation bugs and its not the semantics of isDefined. 
 				temp_array_of_2[0] = Rascal_FALSE;
 			}
 			return temp_array_of_2;
