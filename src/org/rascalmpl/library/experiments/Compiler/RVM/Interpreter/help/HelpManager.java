@@ -3,21 +3,21 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help;
 //import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 import java.awt.Desktop;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -26,6 +26,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.rascalmpl.library.experiments.tutor3.Concept;
 import org.rascalmpl.library.experiments.tutor3.Onthology;
 
 public class HelpManager {
@@ -40,14 +41,24 @@ public class HelpManager {
 	public HelpManager(PrintWriter stdout, PrintWriter stderr){
 		this.stdout = stdout;
 		this.stderr = stderr;
-		
+
 		coursesDir = System.getProperty("rascal.courses");
-		String tmpdir = System.getProperty("java.io.tmpdir");
-		if(tmpdir == null){
-			stderr.println("Cannot create temp name for search results");
-			System.exit(1);
+		if(coursesDir == null){
+			stderr.println("Property rascal.courses should point to deployed courses");
+		} else {
+			searchResultFile = coursesDir + "/search-result.html";
+
+			try {
+				new HelpServer(this, Paths.get(coursesDir));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-		searchResultFile =tmpdir + "/search-result.html";
+	}
+	
+	public String getSearchResultFile(){
+		return searchResultFile;
 	}
 	
 	private boolean indexAvailable(){
@@ -58,11 +69,10 @@ public class HelpManager {
 		return false;
 	}
 	
-	public void openInBrowser(String url)
+	public static void openInBrowser(String url)
 	{
 		URI uri = null;
 		try {
-			//uri = new URL(url).toURI();
 			uri = new URI(url);
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
@@ -72,10 +82,10 @@ public class HelpManager {
 			try {
 				desktop.browse(uri);
 			} catch (IOException e) {
-				stderr.println(e.getMessage());
+				System.err.println(e.getMessage());
 			}
 		} else {
-			stderr.println("Desktop not supported, cannout open browser automatically for: " + url);
+			System.err.println("Desktop not supported, cannout open browser automatically for: " + url);
 		}
 	}
 	
@@ -83,8 +93,7 @@ public class HelpManager {
 		String[] parts = conceptName.split("/");
 		int n = parts.length;
 		String course = parts[0];
-		w.append("file://").append(coursesDir).append("/").append(course).append("/").append(course).append(".html")
-		 .append("#").append(parts[n - (n > 1 ? 2 : 1)]).append("-").append(parts[n-1]);
+		w.append("/").append(course).append("#").append(parts[n - (n > 1 ? 2 : 1)]).append("-").append(parts[n-1]);
 	}
 	
 	String makeURL(String conceptName){
@@ -94,7 +103,7 @@ public class HelpManager {
 	}
 	
 	void appendHyperlink(StringWriter w, String conceptName){
-		w.append("<a href=\"");
+		w.append("<a href=\"http://localhost:8000");
 		appendURL(w, conceptName);
 		w.append("\">").append(conceptName).append("</a>");
 	}
@@ -107,24 +116,36 @@ public class HelpManager {
 		return s;
 	}
 	
-	public void printHelp(String[] words){
+	public String giveHelp(String[] words){
 		//TODO Add here for example credits, copyright, license
 		
 		if(words.length <= 1){
 			IntroHelp.print(stdout);
-			return;
+			return "";
 		}
 		
 		if(!indexAvailable()){
-			return;
+			return "";
 		}
 
 		Path destDir = Paths.get(coursesDir);
 		Analyzer multiFieldAnalyzer = Onthology.multiFieldAnalyzer();
 		
 		try {
-			Directory directory = FSDirectory.open(destDir);
-			DirectoryReader ireader = DirectoryReader.open(directory);
+			ArrayList<IndexReader> readers = new ArrayList<>();
+			for(Path p : Files.newDirectoryStream(destDir)){
+				if(Files.isDirectory(p) && p.getFileName().toString().matches("^[A-Z].*")){
+					Directory directory = FSDirectory.open(p);
+					DirectoryReader ireader = DirectoryReader.open(directory);
+					readers.add(ireader);
+				}
+			}
+			
+			IndexReader[] ireaders = new IndexReader[readers.size()];
+			for(int i = 0; i < readers.size(); i++){
+				ireaders[i] = readers.get(i);
+			}
+			IndexReader ireader = new MultiReader(ireaders);
 			IndexSearcher isearcher = new IndexSearcher(ireader);
 			
 			String searchFields[] = {"index", "synopsis", "doc"};
@@ -140,20 +161,21 @@ public class HelpManager {
 				query = parser.parse(sb.toString());
 			} catch (ParseException e) {
 				stderr.println("Cannot parse query: " + sb + ", " + e.getMessage());
-				return;
+				return "";
 			}
 
 			if(words[0].equals("help")){
-				reportHelp(isearcher, isearcher.search(query, maxSearch).scoreDocs);
+				return reportHelp(words, isearcher, isearcher.search(query, maxSearch).scoreDocs);
 			} else {
-				reportApropos(isearcher, isearcher.search(query, maxSearch).scoreDocs);
+				return reportApropos(words, isearcher, isearcher.search(query, maxSearch).scoreDocs);
 			}
-			ireader.close();
-			directory.close();
+			//ireader.close();
+			//directory.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return "";
 	}
 		
 	String getField(Document hitDoc, String field){
@@ -161,20 +183,52 @@ public class HelpManager {
 		return (s == null || s.isEmpty()) ? "" : s;
 	}
 	
-	void reportHelp(IndexSearcher isearcher, ScoreDoc[] hits) throws IOException{
+	void genPrelude(StringWriter w){
+		w.append("<head>\n");
+		w.append("<title>Rascal Help</title>");
+		w.append("<link rel=\"stylesheet\" href=\"style.css\"/>");
+		w.append("<link rel=\"icon\" href=\"/favicon.ico\" type=\"image/x-icon\"/>");
+		w.append("</head>\n");
+		w.append("<body class=\"book toc2 toc-left\">");
+		
+		w.append(Concept.getSearchForm());
+		
+		w.append("<div id=\"toc\" class=\"toc2\">");
+		w.append("</div>");
+	}
+	
+	void genSearchTerms(String[] words, StringWriter w){
+		w.append("<i>");
+		for(int i = 1; i < words.length; i++){
+			w.append(words[i]).append(" ");
+		}
+		w.append("</i>\n");
+	}
+	
+	String reportHelp(String[] words, IndexSearcher isearcher, ScoreDoc[] hits) throws IOException{
 		int nhits = hits.length;
-
+		
+		StringWriter w = new StringWriter();
 		if(nhits == 0){
 			stdout.println("No info found");
-		} else if (nhits == 1){
-			openInBrowser(makeURL(isearcher.doc(hits[0].doc).get("name")));
+			genPrelude(w);
+			w.append("<h1 class=\"search-sect0\">No help found for: ");
+			genSearchTerms(words, w);
+			w.append("</h1>\n");
+			w.append("</body>\n");
+			return w.toString();
+//		} else if (nhits == 1){
+//			openInBrowser(makeURL(isearcher.doc(hits[0].doc).get("name")));
 		} else {
-			StringWriter w = new StringWriter();
-			w.append("<title>Rascal Search Results</title>\n");
-			w.append("<h1>Rascal Search Results</h1>\n");
+			genPrelude(w);
+
+			w.append("<h1 class=\"search-sect0\">Help for: ");
+			genSearchTerms(words, w);
+			w.append("</h1>\n");
 			w.append("<ul>\n");
 			for (int i = 0; i < Math.min(hits.length, maxSearch); i++) {
 				Document hitDoc = isearcher.doc(hits[i].doc);
+				w.append("<div class=\"search-ulist\">\n");
 				w.append("<li> ");
 				String name = hitDoc.get("name");
 				appendHyperlink(w, name);
@@ -185,25 +239,25 @@ public class HelpManager {
 				}
 			}
 			w.append("</ul>\n");
-			FileWriter fout = new FileWriter(searchResultFile);
-			fout.write(w.toString());
-			fout.close();
-			openInBrowser("file://" + searchResultFile);
-			//openInBrowser("data:text/html;charset=utf-8," + "Hoi"); //URLEncoder.encode("Hoi")); //URLEncoder.encode(w.toString(), "ISO-8859-1"));
+			w.append("</div>");
+			w.append("</body>\n");
+			return w.toString();
 		}
 	}
 	
-	void reportApropos(IndexSearcher isearcher, ScoreDoc[] hits) throws IOException{
+	String reportApropos(String[] words, IndexSearcher isearcher, ScoreDoc[] hits) throws IOException{
+		StringWriter w = new StringWriter();
 		for (int i = 0; i < Math.min(hits.length, maxSearch); i++) {
 			Document hitDoc = isearcher.doc(hits[i].doc);
 			String name = hitDoc.get("name");
 			String signature = getField(hitDoc, "signature");
 			String synopsis = getField(hitDoc, "synopsis");
-			if(signature.isEmpty()){
-				stdout.println(name + ":\n\t" + synopsis);
-			} else {
-				stdout.println(name + ":\n\t" + synopsis + "\n\t" + signature);
+			w.append(name).append(":\n\t").append(synopsis);
+			if(!signature.isEmpty()){
+				w.append("\n\t").append(signature);
 			}
+			w.append("\n");
 		}
+		return w.toString();
 	}
 }

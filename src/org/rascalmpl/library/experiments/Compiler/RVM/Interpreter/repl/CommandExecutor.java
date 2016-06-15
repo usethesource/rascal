@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -145,7 +146,7 @@ public class CommandExecutor {
 		declarations = new ArrayList<>();
 		moduleVariables = new HashMap<>();
 		
-		helpManager = new HelpManager(stdout, stderr);
+		// helpManager is only initialized on first help or apropos call
 		
 		indentedPrettyPrinter = new StandardTextWriter(true);
         //singleLinePrettyPrinter = new StandardTextWriter(false);
@@ -703,7 +704,29 @@ public class CommandExecutor {
 			}
 	
 		case "help": case "apropos":
-			helpManager.printHelp(words);
+			if(helpManager == null){
+				helpManager = new HelpManager(stdout, stderr);
+			}
+			
+			if(words[0].equals("help")){
+				String searchResultsFile = helpManager.getSearchResultFile();
+				if(searchResultsFile == null){
+					stderr.println("Cannot create search results");
+					break;
+				}
+				try {
+					FileWriter fout = new FileWriter(searchResultsFile);
+					fout.write(helpManager.giveHelp(words));
+					fout.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					break;
+				}
+				HelpManager.openInBrowser("http://localhost:8000/" + "search-result.html");
+			} else {
+				stdout.println(helpManager.giveHelp(words));
+			}
 			break;
 			
 		case "declarations":
