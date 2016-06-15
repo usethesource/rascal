@@ -67,7 +67,8 @@ public class Bootstrap {
     
     public static void main(String[] args) throws NoSuchRascalFunction {
         if (args.length != 5) {
-        	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder>");
+        	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder> (you provided " + args.length + " arguments instead)");
+        	System.exit(1);
         	return;
         }
         

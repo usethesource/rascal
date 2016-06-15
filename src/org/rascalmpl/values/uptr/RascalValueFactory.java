@@ -1871,7 +1871,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		@Override
 		public boolean contains(IValue e) {
 			for (int i = 0; i < length(); i++) {
-				if (get(0).isEqual(e)) {
+				if (get(i).isEqual(e)) {
 					return true;
 				}
 			}
