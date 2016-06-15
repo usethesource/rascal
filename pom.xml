@@ -73,6 +73,7 @@
                                 <argument>-cp</argument>
                                 <classpath/>
                                 <argument>org.rascalmpl.library.experiments.Compiler.Commands.Bootstrap</argument>
+                                <classpath/>
                                 <argument>unstable</argument>
                                 <argument>${project.version}</argument>
                                 <argument>${project.basedir}/src</argument>
