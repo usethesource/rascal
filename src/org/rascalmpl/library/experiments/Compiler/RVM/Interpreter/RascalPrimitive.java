@@ -8869,7 +8869,7 @@ public enum RascalPrimitive {
 			}
 			if (ch == '\n') { // atBeginning &&
 				sb.append(buf);
-				buf = new StringBuffer(indent);
+				buf = new StringBuffer();
 				atBeginning = true;
 				sb.appendCodePoint(ch);
 				continue;
