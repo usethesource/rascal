@@ -27,7 +27,6 @@ import org.rascalmpl.library.util.PathConfig;
  *   can be used to override the default location for asciidoctor.
  * - all generated AsciiDoc files are transformed to a single HTML file
  * - the contributions to the Lucene index are computed and stored per course
- * - TODO: remove the .adoc files
  * - TODO Dependency on RascalExtraction
  */
 public class CourseCompiler {
@@ -53,7 +52,7 @@ public class CourseCompiler {
 			+ " -a toc=left"									// at left side
 		    //+ " -a toclevels=2"
 			+ " -a linkcss"										// link the style sheet
-			+ " -a stylesheet=" + "style.css"					// use our own style sheet
+			+ " -a stylesheet=" + "css/style.css"				// use our own style sheet
 			+ " -d book"										// book style
 			+ " -D " + courseDestDir							// destination directory
 		    + " -B " + courseDestDir 							// base directory
@@ -98,7 +97,13 @@ public class CourseCompiler {
 		
 		ArrayList<String> files  = new ArrayList<>();
 		files.add("favicon.ico");
-		files.add("style.css");
+		files.add("css/style.css");
+		files.add("css/font-awesome.min.css");
+		files.add("fonts/fontawesome-webfont.eot");
+		files.add("fonts/fontawesome-webfont.svg");
+		files.add("fonts/fontawesome-webfont.ttf");
+		files.add("fonts/fontawesome-webfont.woff");
+		files.add("fonts/fontawesome-webfont.woff2");
 		files.add("images/rascal-tutor-small.png");
 		for(int i = 1; i <= 15; i++){
 			files.add("images/" + i + ".png");
@@ -161,15 +166,17 @@ public class CourseCompiler {
 
 //		compileCourse(coursesSrcPath, "ADocTest", destPath, libPath, executor);
 		
-		compileCourse(coursesSrcPath, "CompareWithOtherParadigms", destPath, libPath, executor);
-		compileCourse(coursesSrcPath, "EASY", destPath, libPath, executor);
-		compileCourse(coursesSrcPath, "Errors", destPath, libPath, executor);
-		compileCourse(coursesSrcPath, "Rascal", destPath, libPath, executor);
-		compileCourse(coursesSrcPath, "Libraries", destPath, libPath, executor);
-		compileCourse(coursesSrcPath, "Rascalopedia", destPath, libPath, executor);
-		compileCourse(coursesSrcPath, "Recipes", destPath, libPath, executor);
-		compileCourse(coursesSrcPath, "SolutionStrategies", destPath, libPath, executor);
-		compileCourse(coursesSrcPath, "TutorWebSite", destPath, libPath, executor);
+		
+//		compileCourse(coursesSrcPath, "GettingHelp", destPath, libPath, executor);
+//		compileCourse(coursesSrcPath, "GettingStarted", destPath, libPath, executor);
+//		compileCourse(coursesSrcPath, "Errors", destPath, libPath, executor);
+//		compileCourse(coursesSrcPath, "Rascal", destPath, libPath, executor);
+		compileCourse(coursesSrcPath, "RascalConcepts", destPath, libPath, executor);
+//		compileCourse(coursesSrcPath, "Libraries", destPath, libPath, executor);
+//		compileCourse(coursesSrcPath, "Rascalopedia", destPath, libPath, executor);
+//		compileCourse(coursesSrcPath, "Recipes", destPath, libPath, executor);
+//		compileCourse(coursesSrcPath, "TutorWebSite", destPath, libPath, executor);
+//		compileCourse(coursesSrcPath, "WhyRascal", destPath, libPath, executor);
 		
 		err.flush();
 		writeFile(destPath + "/course-compilation-errors.txt", sw.toString());
@@ -183,6 +190,5 @@ public class CourseCompiler {
 			e.printStackTrace();
 		}
 		System.err.println("Course compilation done");
-		
 	}
 }
