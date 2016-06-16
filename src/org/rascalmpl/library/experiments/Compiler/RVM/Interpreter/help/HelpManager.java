@@ -186,7 +186,8 @@ public class HelpManager {
 	void genPrelude(StringWriter w){
 		w.append("<head>\n");
 		w.append("<title>Rascal Help</title>");
-		w.append("<link rel=\"stylesheet\" href=\"style.css\"/>");
+		w.append("<link rel=\"stylesheet\" href=\"css/style.css\"/>");
+		w.append("<link rel=\"stylesheet\" href=\"css/font-awesome.min.css\"/>");
 		w.append("<link rel=\"icon\" href=\"/favicon.ico\" type=\"image/x-icon\"/>");
 		w.append("</head>\n");
 		w.append("<body class=\"book toc2 toc-left\">");
@@ -215,6 +216,10 @@ public class HelpManager {
 			w.append("<h1 class=\"search-sect0\">No help found for: ");
 			genSearchTerms(words, w);
 			w.append("</h1>\n");
+			w.append("<div class=\"search-ulist\">\n");
+			w.append("<ul><li>Perhaps try <i>help</i>, <i>further reading</i> or <i>introduction</i> as search terms</li>");
+			w.append("</ul>\n");
+			w.append("</div>");
 			w.append("</body>\n");
 			return w.toString();
 //		} else if (nhits == 1){

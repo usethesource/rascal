@@ -1,7 +1,7 @@
 # ParseTrees
 
 .Synopsis
-The ParseTrees module defines an algebraic data-type for parse trees, which all parsers generated from [SyntaxDefinition]s produce.
+An algebraic data-type for parse trees; produced by all parsers generated from syntax definitions.
 
 .Syntax
 

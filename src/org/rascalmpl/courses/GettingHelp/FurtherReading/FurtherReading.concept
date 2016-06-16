@@ -1,0 +1,39 @@
+# Further Reading
+
+.Synopsis
+How to continue reading the Rascal documentation
+
+.Index
+help
+
+.Description
+
+[cols="a,a,a,a"]
+|===
+|Beginner          | Moderate | Advanced | General
+
+|
+[square]
+- link:/WhyRascal[Why Rascal?]
+- link:/GettingStarted[Getting Started]
+- link:/GettingHelp[Getting Help]
+- link:/Rascalopedia[Rascalopedia -- simple explanation of relevant concepts]
+
+|
+[square]
+- link:/RascalConcepts[Rascal Concepts]
+- link:/Recipes[Rascal Recipes]
+- link:/Rascal[Rascal Language Reference]
+- link:/Libraries[Rascal Library Reference]
+- link:{Errors}[Explanation of error messages]
+
+| 
+[square]
+- TBD
+
+|
+[square]
+- http://www.rascal-mpl.org[Rascal Website]
+- http://stackoverflow.com/questions/tagged/rascal[StackOverflow]
+
+|===

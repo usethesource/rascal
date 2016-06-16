@@ -29,11 +29,9 @@ Splice the elements of a list in an enclosing list.
 The operator `*` splices the elements of a list in an enclosing list.
 
 .Examples
-[source,rascal-shell]
-----
-----
+
 Consider the following list in which the list `[10, 20, 30]` occurs as list element. It has as type `list[value]`:
-[source,rascal-shell,continue]
+[source,rascal-shell]
 ----
 [1, 2, [10, 20, 30], 3, 4];
 ----

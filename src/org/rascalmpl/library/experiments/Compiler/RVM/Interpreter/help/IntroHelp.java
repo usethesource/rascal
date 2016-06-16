@@ -44,7 +44,7 @@ public class IntroHelp {
 				//":history                   Print the command history",
 		};
 	
-	static void print(PrintWriter stdout){
+	public static void print(PrintWriter stdout){
 		for(String line : helpText){
 			stdout.println(line);
 		}

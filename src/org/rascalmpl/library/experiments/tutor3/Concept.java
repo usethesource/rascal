@@ -123,6 +123,9 @@ public class Concept {
 	
 	String commonDefs =	
 		":icons:        font\n" + 
+		":iconfont-remote!:\n" +
+		":iconfont-name: font-awesome.min\n" +
+		":stylesdir:	../css\n" +
 		":images:       ../images/\n" +
 		":table-caption!:\n";
 	
