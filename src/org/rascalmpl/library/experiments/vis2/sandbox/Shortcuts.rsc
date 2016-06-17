@@ -20,9 +20,9 @@ str nameA(Alignment a) {
 
 // Dimensions of nodes in tree must be known in advance    
 Figure pnode(str s, str t) = box(size=<size(s)*10, (size(findAll(s,"\n"))+1)*20>, fillColor="whitesmoke", fig=text(s, fontSize=12)
-               , tooltip=  frame(fig=at(5, 15, box(t, 12, "blue", 1.2, "white"))));
+               , tooltip=  frame(atXY(5, 15, box(t, 12, "blue", 1.2, "white"))));
               
-Figure rnode(str s) = box(size=<size(s)*12, 20>,fillColor="antiquewhite", visiblity="inherit", fig=htmlText(s, fontSize=14));
+Figure rnode(str s) = box(size=<size(s)*12, 20>,fillColor="antiquewhite", fig=htmlText(s, fontSize=14));
 
 Figure tr(Figure root, Figures args) = tree(root, args, manhattan = true);
     
