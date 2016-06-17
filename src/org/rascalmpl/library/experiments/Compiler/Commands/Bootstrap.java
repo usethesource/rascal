@@ -213,19 +213,12 @@ public class Bootstrap {
         Path result = phaseFolder(phase, tmp);
         info("phase " + phase + ": " + result);
        
-        runAllTests(phase, classPath, bootPath, sourcePath, result);
+        runTestModule(phase, classPath, bootPath, sourcePath, result, testModules);
         compileMuLibrary(phase, classPath, bootPath, sourcePath, result);
         compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel");
         compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator");
         
         return result;
-    }
-
-    private static void runAllTests(int phase, String testClassPath, String bootPath, String sourcePath, Path result)
-            throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
-        for (String module : testModules) {
-            runTestModule(phase, testClassPath, bootPath, sourcePath, result, module);
-        }
     }
 
     private static void compileModule(int phase, String classPath, String bootDir, String sourcePath, Path result,
@@ -254,16 +247,17 @@ public class Bootstrap {
         }
     }
     
-    private static void runTestModule(int phase, String classPath, String bootDir, String sourcePath, Path result, String module) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
-        info("Running tests of " + module + " before the next phase " + phase);
-        String[] arguments = new String[] {"--binDir", result.toAbsolutePath().toString(), "--srcPath", sourcePath, "--bootDir", bootDir, module};
-        String[] command = new String[arguments.length + 5];
+    private static void runTestModule(int phase, String classPath, String bootDir, String sourcePath, Path result, String[] modules) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
+        info("Running tests before the next phase " + phase);
+        String[] arguments = new String[] {"--binDir", result.toAbsolutePath().toString(), "--srcPath", sourcePath, "--bootDir", bootDir};
+        String[] command = new String[arguments.length + modules.length +  5];
         command[0] = "java";
         command[1] = "-cp";
         command[2] = classPath;
         command[3] = "-Xmx1G";
         command[4] = "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests";
         System.arraycopy(arguments, 0, command, 5, arguments.length);
+        System.arraycopy(modules, 0, command, 5 + arguments.length, modules.length);
 
         if (runChildProcess(command) != 0) { 
             throw new BootstrapMessage(phase);
