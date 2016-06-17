@@ -281,7 +281,8 @@ public data Figure(
 
 // Figure transformations
 
-   | atXY(int x, int y, Figure fig)			// Move to Alignment relative to origin of enclosing Figure
+   | atXY(int x, int y, Figure fig)	
+   | atXY(tuple[int x, int y], Figure fig)			// Move to Alignment relative to origin of enclosing Figure
    | atX(int x, Figure fig)				// TODO: how to handle negative values?
    | atY(int y, Figure fig)
    
@@ -883,5 +884,16 @@ public DDD fileMap(loc source, str suffix) {
         return head(p);
     }
  
+ public tuple[int, int](num, num) lattice(int width, int height, int nx, int ny) {
+     return tuple[int, int](num x, num y){return <toInt((x*width)/nx), toInt((y*height)/ny)>;};
+     }
+     
+ public int (num) latticeX(int width, int nx) {
+     return int(num x){return toInt((x*width)/nx);};
+     }
+     
+ public int(num) latticeY(int height, int ny) {
+     return int(num y){return toInt((y*height)/ny);};
+     }
      
      

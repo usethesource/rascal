@@ -82,6 +82,17 @@ function askServer(path, parameters, timer, timeout, callback) {
 	});
 }
 
+function isSvg(e) {
+	switch (e.node().nodeName) {
+	   case "FORM":
+	   case "INPUT":
+	   case "TABLE":	
+	   case "BUTTON":
+	        return false;
+	}
+	return true;
+}
+
 function ask2Server(site, ev, id, v, parameters) {
 	// alert(site);
 	askServer(site + "/getValue/" + ev + "/" + id + "/" + v, parameters, timer,
@@ -92,7 +103,7 @@ function ask2Server(site, ev, id, v, parameters) {
 					var e = d3.select("#" + d);
 					var style = t[d]["style"];
 					if (style != null) {
-						var svg = style["svg"];
+						// var svg = style["svg"];
 						for ( var i in style) {
 							// if (i=="visibility") alert(""+d+"
 							// "+style[i]);
@@ -111,7 +122,7 @@ function ask2Server(site, ev, id, v, parameters) {
 								   e.attr("pointer-events", style[i]=="hidden"?"none":"all")
 								;					
 							}
-							e = e.style(svgStyle(i, svg), style[i]);
+							e = e.style(svgStyle(i, isSvg(e)), style[i]);
 							
 						}
 					}
@@ -136,7 +147,10 @@ function ask2Server(site, ev, id, v, parameters) {
 							if (i != "bigger" && i != "disabled")
 								e = e.attr(i, t[d]["attr"][i]);
 							if (i == "disabled")
-								e = e.attr(i, t[d]["attr"][i] ? true : null);
+								if (isSvg(e))
+								e = e.attr("pointer-events",  t[d]["attr"][i] ? "none" : "all");
+								else
+								e = e.property(i, t[d]["attr"][i] ? true : false);
 						}
 					if (t[d]["property"] != null)
 						for ( var i in t[d]["property"]) {
@@ -487,10 +501,12 @@ function _adjust(toId, fromId, hshrink, vshrink, toLw, n, angle, x, y, width,
 	var  invalidW = invalid(to.attr("width"))&&invalid(to.attr("w"));
 	var  invalidH = invalid(to.attr("height"))&&invalid(to.attr("h"));
 	switch (to.node().nodeName) {
-	case "BUTTON":
-	case "TABLE":
-	case "INPUT":
 	case "FORM":
+	case "INPUT":
+	case "TABLE":	
+	case "BUTTON":
+		invalidW = invalidW && invalid(to.style("width")); // nchars
+		invalidH = invalidH && invalid(to.style("height")); // nchars
 		if (invalidW) to.attr("w", w).style("width", w);	
 		if (invalidH) to.attr("h", h).style("height", h);
 		break;
@@ -962,8 +978,8 @@ function adjust_tooltip(q) {
 	var w = getWidth("#" + q + "_tooltip_svg");
 	var h = getHeight("#" + q + "_tooltip_svg");
 	var u = d3.select("#" + q + "_tooltip_outer_fo");
-	if (u.empty())
-		u = d3.select("#" + q + "_tooltip_fo");
+	//if (u.empty())
+	//	u = d3.select("#" + q + "_tooltip_fo");
 	var z = convert(x, y);
 	var x1 = 0;
 	var y1 = 0;
@@ -975,7 +991,8 @@ function adjust_tooltip(q) {
 		d3.select("#overlay").attr("width", z.x + w + x1);
 		d3.select("#overlay").attr("height", z.y + h + y1);
 		if (d3.select("#" + q + "_tooltip_outer_fo").empty()
-				&& d3.select("#" + q + "_tooltip_fo").empty()) {
+			  // && d3.select("#" + q + "_tooltip_fo").empty()
+			) {
 			d3.select("#" + q + "_tooltip_svg").attr("x", z.x).attr("y", z.y);
 		}
 		d3.select("#" + q + "_tooltip").style("visibility", "visible");
