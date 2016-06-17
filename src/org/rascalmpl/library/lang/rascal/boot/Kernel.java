@@ -23,6 +23,7 @@ public class Kernel {
 	private static final String PATH_TO_LINKED_KERNEL = "lang/rascal/boot/Kernel.rvm.ser.gz";
     IValueFactory vf;
 	private OverloadedFunction compile;
+	private OverloadedFunction compileN;
 	private OverloadedFunction compileAndLink;
 	private OverloadedFunction compileAndMergeIncremental;
 	private OverloadedFunction compileMuLibrary;
@@ -49,6 +50,7 @@ public class Kernel {
 		this.rvm = ExecutionTools.initializedRVM(binaryKernelLoc, rex);
 
 		compile    		= rvm.getOverloadedFunction("RVMModule compile(str qname, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
+		compileN    	= rvm.getOverloadedFunction("RVMModule compile(list[str] qnames, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
 		compileMuLibrary= rvm.getOverloadedFunction("void compileMuLibrary(list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
 		compileAndLink  = rvm.getOverloadedFunction("RVMProgram compileAndLink(str qname, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir)");
 		compileAndMergeIncremental 
@@ -69,6 +71,20 @@ public class Kernel {
 	 */
 	public IConstructor compile(IString qname, IList srcPath, IList libPath, ISourceLocation bootDir, ISourceLocation binDir, IMap kwArgs){
 	  return (IConstructor) rvm.executeRVMFunction(compile, new IValue[] { qname, srcPath, libPath, bootDir, binDir, kwArgs });
+	}
+	
+	/**
+	 * Compile a Rascal module
+	 * @param qnames	List of qualified module names
+	 * @param srcPath	List of source directories
+	 * @param libPath	List of library directories
+	 * @param bootDir	Boot directory
+	 * @param binDir	Binary directory
+	 * @param kwArgs	Keyword arguments
+	 * @return The result (RVMProgram) of compiling the given module
+	 */
+	public IConstructor compile(IList qnames, IList srcPath, IList libPath, ISourceLocation bootDir, ISourceLocation binDir, IMap kwArgs){
+	  return (IConstructor) rvm.executeRVMFunction(compileN, new IValue[] { qnames, srcPath, libPath, bootDir, binDir, kwArgs });
 	}
 	
 	/**
