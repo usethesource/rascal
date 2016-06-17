@@ -124,12 +124,9 @@ RVMModule compile(str qualifiedModuleName, list[loc] srcPath, list[loc] libPath,
     return compile(qualifiedModuleName, pathConfig(srcPath=srcPath, libPath=libPath, bootDir=bootDir, binDir=binDir), verbose=verbose, optimize=optimize);
 }
 
-void compile(list[str] qualifiedModuleNames, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir, bool verbose = false, bool optimize=true){
+list[RVMModule] compile(list[str] qualifiedModuleNames, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir, bool verbose = false, bool optimize=true){
     pcfg =  pathConfig(srcPath=srcPath, libPath=libPath, bootDir=bootDir, binDir=binDir);
-    for(qualifiedModuleName <- qualifiedModuleNames){
-        println("compile: <qualifiedModuleName>");
-        compile(qualifiedModuleName, pcfg, verbose=verbose, optimize=optimize);
-    }
+    return [ compile(qualifiedModuleName, pcfg, verbose=verbose, optimize=optimize) | qualifiedModuleName <- qualifiedModuleNames ];
 }
 
 RVMModule recompileDependencies(str qualifiedModuleName, RVMModule rvmMod, Configuration cfg, PathConfig pcfg, bool verbose = false, bool optimize=true){
