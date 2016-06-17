@@ -255,7 +255,8 @@ Figure quest(str p, int x, int y) {
    
     list[Constraint] constraints = [<isName, "name contains digit">, <isNotEmpty,"enter name, please">];
        return hcat(figs=[
-        makeFormAction(box(fig=text("aap"), grow=1.5,fillColor="yellow", visibility="visible"),  
+        makeFormAction(box(fig=text("aap"), grow=1.5,fillColor="yellow", visibility="visible"),
+        // buttonInput("aap", width = 200),  
          [
          <p+"sexe", <["male", "female"], "">, "sexe", [<isNotEmpty, "choose sexe, please">]>
          , <p+"first", "Bert", "first name", constraints>
@@ -277,7 +278,7 @@ public void fquest(loc l) = writeFile(l, toHtmlString(
  )); 
  
  
- Figure half()=hcat(width=60, height = 120, figs = [strInput(fillColor="yellow", nChars = 20)], fillColor="lightGrey");
+ Figure half()=hcat(height = 120, figs = [strInput(fillColor="yellow", nchars = 20)], fillColor="lightGrey");
  
  void thalf() = render(half());
  
@@ -286,4 +287,62 @@ public void fquest(loc l) = writeFile(l, toHtmlString(
  )); 
  
  
+ 
+ Figure funLine() {
+      int w = 400; 
+      int h = 1600;
+      int offset = 5;
+      num hc = 0.5;
+      list[int] prim = primes(30);
+      tuple[int, int](num x, num y) c = lattice(w, h, 4, 25);
+      int(num) cx = latticeX(w, 4);
+      int(num) cy = latticeY(h, 25);
+      map[int, tuple[int x, int y]] from = ();
+      map[int, tuple[int x, int y]] to = ();
+      
+      int multiplicity(int d, int p) {
+            int r=0;
+            while (d%p==0) {
+               r = r + 1;
+               d = d/p;
+               }
+            return r;
+            }
+      
+      Figure cell1(int d, int x , int y) {
+      from[d] = <x, y>;
+      return  atXY(c(x, y), box(fig=text("<d>"), size=c(0.25, hc), fillColor="yellow"));
+      }
+      
+      Figure cell2(int d, int x , int y) {
+      // println(d);
+      to[d] = <x, y>;
+      return  atXY(c(x, y), box(fig=text("<d>"), size=c(0.25, hc), fillColor="antiquewhite"));
+      }
+      
+      Figure connect(int f, int t) {
+         tuple[int , int] rv = <cx(to[t].x)-cx(from[f].x+0.25), cy(to[t].y+hc/2)-cy(from[f].y+hc/2)>;
+         return overlay(figs=[
+         shape([move(cx(from[f].x+0.25), cy(from[f].y+hc/2)), line(cx(to[t].x),  cy(to[t].y+hc/2))]
+         // , endMarker = ngon(n=3, r=10, fillColor = "purple", lineWidth = 0)
+         )
+         ,circle(r=4, fillColor="firebrick", cx = cx(from[f].x+0.25)+0.2*rv[0], cy = cy(from[f].y+hc/2)+0.2*rv[1]
+          , tooltip=box(fig=text("<multiplicity(f, t)>"), fillColor="floralwhite", size=<50, 50>)
+         //  , tooltip = box(size=<100, 100>, fig=box(size=<50, 50>), fillColor="red")
+         )
+         ]);
+         }
+      
+      Figures fs =  [cell1(i, 0, i-10) |int i<-[10..25]];
+      Figures  ts = [cell2(prim[i], 3,  i+offset)|int i<-[0..5]];
+      Figures cs = [*[connect(i, p)|p<-prim, i!=p, i%p==0]| int i<-[10..25]];
+      return overlay(width=w, height = h, figs= fs +ts + cs
+           );
+      }
+      
+ void tfunLine() = render(funLine());
+ 
+ public void ffunLine(loc l) = writeFile(l, toHtmlString(
+    funLine()
+ )); 
                  

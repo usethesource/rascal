@@ -52,9 +52,9 @@ Figure counter() = hcat(figs= [
     buttonInput("Incr", id = "aap", size=<50, 50>
     , event = on("click", 
     void (str e, str n, str v) {  
-       str t1 = textProperty("mies1").text;
+       str t1 = textProperty("mies1").plain;
        int d1 = isEmpty(t1)?0:toInt(t1);
-       str t2 = textProperty("mies2").text;
+       str t2 = textProperty("mies2").plain;
        int d2 = isEmpty(t2)?0:toInt(t2);
        if (d1%2==0) style("box1", fillColor="red"); 
               else style("box1", fillColor="green");
@@ -69,9 +69,9 @@ Figure counter() = hcat(figs= [
     , buttonInput("Decr", id = "noot", size=<50, 50>
     , event = on("click", 
     void (str e, str n, str v) {
-       str t1 = textProperty("mies1").text;
+       str t1 = textProperty("mies1").plain;
        int d1 = isEmpty(t1)?0:toInt(t1);
-       str t2 = textProperty("mies2").text;
+       str t2 = textProperty("mies2").plain;
        int d2 = isEmpty(t2)?0:toInt(t2);
        if (d1%2==0) style("box1", fillColor="red"); 
               else style("box1", fillColor="green");
@@ -148,7 +148,7 @@ Figure palette() = vcat(figs=[
 
 , box(id="b1", size=<400, 150>, fig = circle(r=40, id="b2"))
  ,
-         rangeInput(val=1.0, low = 0.0, high = 1.0, step= 0.1, 
+         rangeInput(\value=1.0, low = 0.0, high = 1.0, step= 0.1, 
          event=on("mouseup", void(str e, str n, real v)
             {
             // println(d);
@@ -157,7 +157,7 @@ Figure palette() = vcat(figs=[
             )
           )
    ,
-         rangeInput(val=100, 
+         rangeInput(\value=1.0, low = 0.0, high = 1.0, step= 0.1,
          event=on("mouseup", void(str e, str n, real v)
             {
             style("b2", fillOpacity = v);
@@ -172,13 +172,13 @@ void tpalette() = render(palette());
 Figure range() = vcat(
      figs= [rangeInput(id="q", low=0, high = 2, \value = 1, step = 0.01, event=on("change", void(str e, str n, real v)
             {
-                attr("aap", grow = v);
+                attr("aap", bigger = v);
             }))
             , 
             box(size=<200, 200>, fillColor = "antiquewhite"
             , fig = 
-                 // overlay(size=<100, 100>, lineWidth = 1, grow = 1.0, id="aap", figs=[
-                   circle(fillColor= "red", r = 100,  grow= 1.0, align = centerMid, id = "aap"              
+                 // overlay(size=<100, 100>, lineWidth = 1, bigger = 1.0, id="aap", figs=[
+                   circle(fillColor= "red", r = 100,  bigger= 1.0, align = centerMid, id = "aap"              
                    ,fig = box(fillColor="yellow", fig = text("Hello"), size=<50, 50>)
                    )
             //      ]
@@ -187,7 +187,7 @@ Figure range() = vcat(
             ,
             buttonInput("push", event = on ("click", void(str e, str n, str v) {
                 property("q", \value=2); 
-                attr("aap", grow = 2);    
+                attr("aap", bigger = 2);    
                }))
             ]
 
@@ -458,15 +458,15 @@ public void ftree(loc l) = writeFile(l, toHtmlString(smallTree()));
        
 Figure tip() {
         Figure r() = 
-          frame(fig= 
-          at(250, 250, 
-          //vcat(figs=[
-             box(fillColor = "blue", fig=circle(grow=1.5, fig = text("Hallo"), fillColor = "red"), size=<100, 100>)
-            // ,box(size=<20, 20>, fillColor="black")])
+          frame(
+          atXY(250, 250, 
+            vcat(figs=[
+             box(fillColor = "blue", fig=circle(bigger=1.5, fig = text("Hallo"), fillColor = "red"), size=<100, 100>)
+            ,box(size=<20, 20>, fillColor="black")])
          )
        )
         ;
-       Figure b = box(id="outer", grow=2, fig=at(50, 50, box(id=  "inner", size=<200, 200>, fillColor = "none"
+       Figure b = box(id="outer", bigger=2, fig=atXY(50, 50, box(id=  "inner", size=<200, 200>, fillColor = "none"
            ,tooltip  = // r()
               // steden(width=400, height = 400)
               // vcat(figs=[d3()])
@@ -502,7 +502,7 @@ public void fpack(loc l) = writeFile(l, toHtmlString(pack()));
  
  public void ftip(loc l) = writeFile(l, toHtmlString(tip()));
  
- DDD ddd = ddd(name = "aap", width = 50, height = 50, children=[
+ DDD ddd_ = ddd(name = "aap", width = 50, height = 50, children=[
         ddd(name="noot", width = 20, height = 20
         ,children=[ddd(name="mies", width=20, height = 20), ddd(name="teun", width=20, height = 20)]
       ), ddd(name="mies", width= 70, height = 200, children=[
@@ -510,7 +510,7 @@ public void fpack(loc l) = writeFile(l, toHtmlString(pack()));
             ,ddd(name="schaap", width = 20, height = 20)
       ])]);
  
- public Figure tre() {return d3Tree(d = ddd, fillColor="none", lineColor="black");}
+ public Figure tre() {return d3Tree(d = ddd_, fillColor="none", lineColor="black");}
  
  void ttre() {render(tre());}
  
@@ -530,7 +530,7 @@ public void fpack(loc l) = writeFile(l, toHtmlString(pack()));
  public Figure wirth() {
    Figure r = 
        tree(
-         box(fig=text("A", size=<25, 15>,fontWeight="bold" ), fillColor="salmon", lineWidth= 0, grow = 2.5,  rounded= <25, 25>), [
+         box(fig=text("A", size=<25, 15>,fontWeight="bold" ), fillColor="salmon", lineWidth= 0, bigger = 2.5,  rounded= <25, 25>), [
            tree(cellq("B"), [
               tree(cellq("D"), [cellq("I")])
               ,tree(cellq("E"),
@@ -548,7 +548,7 @@ public void fpack(loc l) = writeFile(l, toHtmlString(pack()));
  
  public Figure d3() = 
      d3Tree(tree(box(size=<40, 40>, fillColor="yellow"), [circle(r=40, fillColor= "blue"
-          ,tooltip = frame(fig=at(100, 100, box(size=<50, 50>, fillColor="red"), lineWidth = 4))
+          ,tooltip = frame(atXY(100, 100, box(size=<50, 50>, fillColor="red"), lineWidth = 4))
           )])
         width = 300, height = 400 );  
      // d3Tree(wirth(), width=800, height = 800);
@@ -563,8 +563,8 @@ void main(){
     render(
     graph(size=<1000,1000>,
       nodes=[
-      <"11",ellipse(fillColor="lightYellow",fig=text("closed",fontSize=14),grow=2,id="myName1")>,
-      <"10",ellipse(fillColor="lightYellow",fig=text("opened",fontSize=14),grow=2,id="myName2")>
+      <"11",ellipse(fillColor="lightYellow",fig=text("closed",fontSize=14),bigger=2,id="myName1")>,
+      <"10",ellipse(fillColor="lightYellow",fig=text("opened",fontSize=14),bigger=2,id="myName2")>
       ],
       edges=[
         edge("11","10",label="reset",id="myName3"),
@@ -576,7 +576,7 @@ void main(){
     );
 }
 
-Figure ov() = overlay(size=<200, 200>, figs=[at(10, 10, box(size=<150, 150>)), hcat(figs=[box(size=<50, 50>, lineWidth=4, fillColor="red")])]);
+Figure ov() = overlay(size=<200, 200>, figs=[atXY(10, 10, box(size=<150, 150>)), hcat(figs=[box(size=<50, 50>, lineWidth=4, fillColor="red")])]);
 
 void tov() = render(ov());
 
