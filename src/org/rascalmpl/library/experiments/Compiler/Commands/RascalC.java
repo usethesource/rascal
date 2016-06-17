@@ -28,37 +28,48 @@ public class RascalC {
         try {
             IValueFactory vf = ValueFactoryFactory.getValueFactory();
             CommandOptions cmdOpts = new CommandOptions("rascalc");
+            
             cmdOpts
-            .pathOption("srcPath")		.pathDefault(cmdOpts.getDefaultStdPath().isEmpty() ? vf.list(cmdOpts.getDefaultStdPath()) : cmdOpts.getDefaultStdPath())
+            .pathOption("srcPath")		
+            .pathDefault(cmdOpts.getDefaultStdPath().isEmpty() ? vf.list(cmdOpts.getDefaultStdPath()) : cmdOpts.getDefaultStdPath())
             .respectNoDefaults()
             .help("Add (absolute!) source path, use multiple --srcPaths for multiple paths")
 
-            .pathOption("libPath")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binDir")))
+            .pathOption("libPath")		
+            .pathDefault((co) -> vf.list(co.getCommandLocOption("binDir")))
             .respectNoDefaults()
             .help("Add new lib path, use multiple --libPaths for multiple paths")
 
-            .locOption("bootDir")		.locDefault(cmdOpts.getDefaultBootLocation())
+            .locOption("bootDir")		
+            .locDefault(cmdOpts.getDefaultBootLocation())
             .help("Rascal boot directory")
 
-            .locOption("binDir") 		.respectNoDefaults()
+            .locOption("binDir") 		
+            .respectNoDefaults()
             .help("Directory for Rascal binaries")
 
-            .boolOption("noLinking")	.help("Do not link compiled modules")
+            .boolOption("noLinking")	
+            .help("Do not link compiled modules")
 
-            .boolOption("help") 		.help("Print help message for this command")
+            .boolOption("help") 		
+            .help("Print help message for this command")
 
-            .boolOption("trace") 		.help("Print Rascal functions during execution of compiler")
+            .boolOption("trace") 		
+            .help("Print Rascal functions during execution of compiler")
 
-            .boolOption("profile") 		.help("Profile execution of compiler")
+            .boolOption("profile") 		
+            .help("Profile execution of compiler")
             
-            .boolOption("optimize").	boolDefault(true)
+            .boolOption("optimize")
+            .boolDefault(true)
             .help("Apply code optimizations")
 
             //.boolOption("jvm") 			.help("Generate JVM code")
 
-            .boolOption("verbose") 		.help("Make the compiler verbose")
+            .boolOption("verbose")
+            .help("Make the compiler verbose")
 
-            .rascalModule("Module to be compiled")
+            .rascalModules("Modules to be compiled")
 
             .handleArgs(args);
 
@@ -74,7 +85,7 @@ public class RascalC {
 
             if (cmdOpts.getCommandBoolOption("noLinking")) {
                 IConstructor program = kernel.compile(
-                        cmdOpts.getRascalModule(),
+                        cmdOpts.getRascalModules(),
                         cmdOpts.getCommandPathOption("srcPath"),
                         cmdOpts.getCommandPathOption("libPath"),
                         cmdOpts.getCommandLocOption("bootDir"),
