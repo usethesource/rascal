@@ -4,6 +4,8 @@ node {
 
   stage 'Build and Test'
   def mvnHome = tool 'M3'
+  env.JAVA_HOME="${tool 'jdk-8u92'}"
+  env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
   sh "${mvnHome}/bin/mvn -Dmaven.repo.local=/var/jenkins_home/repo -B  clean install"
 
   stage 'Archive'
