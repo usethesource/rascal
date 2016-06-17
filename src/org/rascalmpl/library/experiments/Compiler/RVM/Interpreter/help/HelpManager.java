@@ -43,6 +43,7 @@ public class HelpManager {
 		this.stderr = stderr;
 
 		coursesDir = System.getProperty("rascal.courses");
+//		this.getClass().getResource("/courses");
 		if(coursesDir == null){
 			stderr.println("Property rascal.courses should point to deployed courses");
 		} else {
