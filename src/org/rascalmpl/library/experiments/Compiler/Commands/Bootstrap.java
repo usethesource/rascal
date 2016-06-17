@@ -269,7 +269,7 @@ public class Bootstrap {
     	command[0] = "java";
     	command[1] = "-cp";
     	command[2] = classPath;
-    	command[3] = "-Xmx1G";
+    	command[3] = "-Xmx2G";
     	command[4] = "org.rascalmpl.library.experiments.Compiler.Commands.RascalC";
     	System.arraycopy(arguments, 0, command, 5, arguments.length);
     	return runChildProcess(command);
