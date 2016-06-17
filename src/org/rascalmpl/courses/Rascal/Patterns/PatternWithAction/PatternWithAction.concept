@@ -30,7 +30,7 @@ There are two variants as listed above:
 
 In <<Switch>> statements, only the form `_Pattern_ : _Statement_` is allowed. 
 When the subject matches _Pattern_, the _Statement_ is executed and the execution of the switch statement is complete. 
-However, when a fail statement is executed in _Statement_ all its side effects are undone and further alternatives of
+However, when a fail statement is executed in _Statement_  further alternatives of
 _Pattern_ are tried. If no alternatives remain, PatternWithAction as a whole fails and subsequent cases of 
 the switch statement are tried.
 
