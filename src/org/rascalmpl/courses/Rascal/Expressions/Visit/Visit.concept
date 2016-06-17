@@ -84,7 +84,7 @@ The execution of the cases has the following effect:
 
       *** `_Pattern_ => _Exp_` is equivalent to `_Pattern_ : insert _Exp_;`.
 
-   ** Execution of a <<Fail>> statement: all side effects of _Statement_ are undone, no insertion is made, and the next case is tried.
+   ** Execution of a <<Fail>> statement: the next case is tried.
 
    ** Execution of a <<Return>> statement that returns a value from the enclosing function.
 

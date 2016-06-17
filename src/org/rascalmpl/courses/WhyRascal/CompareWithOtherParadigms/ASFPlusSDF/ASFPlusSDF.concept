@@ -44,7 +44,7 @@ What are the differences between ASF+SDF and Rascal? What are the commonalities?
 
 *  The imperative nature of Rascal allows you to factor out common code and nest conditionals, unlike in ASF+SDF where alternative control flow paths have to be encoded by enumerating equations with non-overlapping conditions.
 
-*  Rascal is an imperative language, which natively supports I/O and other side-effects without the workarounds that are needed in ASF+SDF to achieve this.  When backtracking occurs, for example during list matching, Rascal makes sure that side-effects (except I/O) are undone.
+*  Rascal is an imperative language, which natively supports I/O and other side-effects without the workarounds that are needed in ASF+SDF to achieve this.
 
 *  Rascal has native support for traversals, instead of the add-on it used to be in ASF+SDF. The visit statement is comparable to a traversal function in ASF+SDF, and is as type-safe as the traversal function, but it is more programmeable.
 
