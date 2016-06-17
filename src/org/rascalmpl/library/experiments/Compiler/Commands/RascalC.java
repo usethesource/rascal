@@ -9,6 +9,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutio
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -84,24 +85,24 @@ public class RascalC {
             Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("bootDir"));
 
             if (cmdOpts.getCommandBoolOption("noLinking")) {
-                IConstructor program = kernel.compile(
+                IList programs = kernel.compile(
                         cmdOpts.getRascalModules(),
                         cmdOpts.getCommandPathOption("srcPath"),
                         cmdOpts.getCommandPathOption("libPath"),
                         cmdOpts.getCommandLocOption("bootDir"),
                         cmdOpts.getCommandLocOption("binDir"), 
                         cmdOpts.getModuleOptionsAsIMap()); 
-                handleMessages(program);
+                handleMessages(programs);
             } 
             else {
-                IConstructor program = kernel.compileAndLink(
-                        cmdOpts.getRascalModule(),
+                IList programs = kernel.compileAndLink(
+                        cmdOpts.getRascalModules(),
                         cmdOpts.getCommandPathOption("srcPath"),
                         cmdOpts.getCommandPathOption("libPath"),
                         cmdOpts.getCommandLocOption("bootDir"),
                         cmdOpts.getCommandLocOption("binDir"), 
                         cmdOpts.getModuleOptionsAsIMap());
-                handleMessages(program);
+                handleMessages(programs);
             }
         } catch (Throwable e) {
             e.printStackTrace();
@@ -109,28 +110,32 @@ public class RascalC {
         }
     }
 
-    private static void handleMessages(IConstructor program) {
-        if (program.has("main_module")) {
-            program = (IConstructor) program.get("main_module");
-        }
+    private static void handleMessages(IList programs) {
+    	boolean failed = false;
 
-        if (!program.has("messages")) {
-            throw new CompilerError("unexpected output of compiler, has no messages field");
-        }
+    	for(IValue iprogram : programs){
+    		IConstructor program = (IConstructor) iprogram;
+    		if (program.has("main_module")) {
+    			program = (IConstructor) program.get("main_module");
+    		}
 
-        ISet messages = (ISet) program.get("messages");
+    		if (!program.has("messages")) {
+    			throw new CompilerError("unexpected output of compiler, has no messages field");
+    		}
 
-        boolean failed = false;
-        for (IValue val : messages) {
-            IConstructor msg = (IConstructor) val;
-            if (msg.getName().equals("error")) {
-                failed = true;
-            }
+    		ISet messages = (ISet) program.get("messages");
 
-            // TODO: improve error reporting notation
-            System.err.println(msg);
-        }
+    		for (IValue val : messages) {
+    			IConstructor msg = (IConstructor) val;
+    			if (msg.getName().equals("error")) {
+    				failed = true;
+    			}
 
-        System.exit(failed ? 1 : 0);
+    			// TODO: improve error reporting notation
+    			System.err.println(msg);
+    		}
+    	}
+
+    	System.exit(failed ? 1 : 0);
     }
 }

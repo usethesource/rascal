@@ -352,6 +352,12 @@ RVMProgram compileAndLink(str qualifiedModuleName, list[loc] srcPath, list[loc] 
     return compileAndLink(qualifiedModuleName, pathConfig(srcPath=srcPath, libPath=libPath, bootDir=bootDir, binDir=binDir), jvm=jvm, verbose=verbose);
 }
 
+list[RVMProgram] compileAndLink(list[str] qualifiedModuleNames, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir,  
+                          bool jvm=true, bool verbose = false){
+    pcfg = pathConfig(srcPath=srcPath, libPath=libPath, bootDir=bootDir, binDir=binDir);
+    return [ compileAndLink(qualifiedModuleName, pcfg, jvm=jvm, verbose=verbose) | qualifiedModuleName <- qualifiedModuleNames ];        
+}                          
+
 RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool jvm=true, bool verbose = false, bool optimize=true){
    startTime = cpuTime();
    mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose, optimize=optimize);
