@@ -164,32 +164,32 @@ public class CourseCompiler {
 		PrintWriter err = new PrintWriter(sw);
 		RascalCommandExecutor executor = new RascalCommandExecutor(new PathConfig(), err);
 
-//		compileCourse(coursesSrcPath, "ADocTest", destPath, libPath, executor);
+		compileCourse(coursesSrcPath, "ADocTest", destPath, libPath, executor);
 		
-		compileCourse(coursesSrcPath, "WhyRascal", destPath, libPath, executor);
-		compileCourse(coursesSrcPath, "GettingStarted", destPath, libPath, executor);
-		compileCourse(coursesSrcPath, "GettingHelp", destPath, libPath, executor);
-		
-		compileCourse(coursesSrcPath, "Errors", destPath, libPath, executor);
-		compileCourse(coursesSrcPath, "Rascal", destPath, libPath, executor);
-		compileCourse(coursesSrcPath, "RascalConcepts", destPath, libPath, executor);
-		compileCourse(coursesSrcPath, "Libraries", destPath, libPath, executor);
-		compileCourse(coursesSrcPath, "Rascalopedia", destPath, libPath, executor);
-		compileCourse(coursesSrcPath, "Recipes", destPath, libPath, executor);
-		compileCourse(coursesSrcPath, "TutorWebSite", destPath, libPath, executor);
+//		compileCourse(coursesSrcPath, "WhyRascal", destPath, libPath, executor);
+//		compileCourse(coursesSrcPath, "GettingStarted", destPath, libPath, executor);
+//		compileCourse(coursesSrcPath, "GettingHelp", destPath, libPath, executor);
+//		
+//		compileCourse(coursesSrcPath, "Errors", destPath, libPath, executor);
+//		compileCourse(coursesSrcPath, "Rascal", destPath, libPath, executor);
+//		compileCourse(coursesSrcPath, "RascalConcepts", destPath, libPath, executor);
+//		compileCourse(coursesSrcPath, "Libraries", destPath, libPath, executor);
+//		compileCourse(coursesSrcPath, "Rascalopedia", destPath, libPath, executor);
+//		compileCourse(coursesSrcPath, "Recipes", destPath, libPath, executor);
+//		compileCourse(coursesSrcPath, "TutorWebSite", destPath, libPath, executor);
 		
 		
 		err.flush();
 		writeFile(destPath + "/course-compilation-errors.txt", sw.toString());
 		
-		System.err.println("Removing intermediate files");
-		
-		FileVisitor<Path> fileProcessor = new RemoveAdocs();
-		try {
-			Files.walkFileTree(destPath, fileProcessor);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		System.err.println("Removing intermediate files");
+//		
+//		FileVisitor<Path> fileProcessor = new RemoveAdocs();
+//		try {
+//			Files.walkFileTree(destPath, fileProcessor);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		System.err.println("Course compilation done");
 	}
 }

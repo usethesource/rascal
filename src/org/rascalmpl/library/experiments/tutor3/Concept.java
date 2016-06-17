@@ -115,7 +115,7 @@ public class Concept {
 			if(height.isEmpty()){
 				return "renderSave(" + arg + "," + file + ");";
 			} else {
-				return  "renderSave(" + arg + "," + width + "," + height + "," + file + ");";
+				return  "renderSave(" + arg + ", |file://" + file + "|, width=" + width + ", height=" + height + ");";
 			}
 		}
 		return line;
@@ -176,9 +176,9 @@ public class Concept {
 				} else if(line.startsWith("```rascal-shell") || line.startsWith("[source,rascal-shell") || line.startsWith("[source,rascal-figure")) {
 					boolean isContinue = line.contains("continue");
 					boolean isFigure = line.contains("figure");
-					String width = "";
-					String height = "";
-					String file = "";
+					String width = "100";
+					String height = "100";
+					String file = "/tmp/fig.png";
 					if(isFigure){
 						height = getAttr(line, "height", height);
 						width = getAttr(line, "width", width);
@@ -202,20 +202,17 @@ public class Concept {
 					}
 					preprocessOut.append("]\n").append("----\n");
 					
-					if(isFigure){
-//						rascalShell.eval("import vis::Figure;");
-//						rascalShell.eval("import vis::Render;");
-					}
 					boolean moreShellInput = true;
 					while( moreShellInput && (line = reader.readLine()) != null ) {
 						if(line.equals("```") || line.equals("----")){
 							break;
 						}
-						if(isFigure && line.startsWith("render(")){
-							preprocessOut.append(prompt).append(line).append("\n");
-							line = makeRenderSave(line, height, width, file);
-						}
-						if(!isFigure){
+						if(isFigure){
+							if(line.startsWith("render(")){
+								preprocessOut.append(prompt).append(line).append("\n");
+								line = makeRenderSave(line, height, width, file);
+							}
+						} else {
 							preprocessOut.append(prompt).append(line).append("\n");
 							String continuationLine = "";
 							while(!executor.isStatementComplete(line)){
@@ -233,10 +230,11 @@ public class Concept {
 							line += "\n";
 						}
 						String resultOutput = "";
+						System.err.println(line);
 						try {
-							if(!isFigure){
+//							if(!isFigure){
 								resultOutput = executor.evalPrint(line);
-							}
+//							}
 						} catch (Exception e){
 							String msg = "While parsing '" + complete(line) + "': " + e.getMessage();
 							System.err.println(msg);
