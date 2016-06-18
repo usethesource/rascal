@@ -222,8 +222,8 @@ public class CommandExecutor {
 			
 			rvmConsoleExecutable = kernel.compileAndMergeIncremental(vf.string(consoleInputName), 
 																	reuseConfig, 
-																	pcfg.getSrcPath(), 
-																	pcfg.getLibPath(), 
+																	pcfg.getSrcPaths(), 
+																	pcfg.getLibPaths(), 
 																	pcfg.getBootDir(), 
 																	pcfg.getBinDir(), 
 																	makeCompileKwParamsAsIMap());
@@ -709,29 +709,7 @@ public class CommandExecutor {
 				helpManager = new HelpManager(stdout, stderr);
 			}
 			
-			if(words[0].equals("help")){
-				if(words.length == 1){
-					IntroHelp.print(stdout);
-					break;
-				}
-				String searchResultsFile = helpManager.getSearchResultFile();
-				if(searchResultsFile == null){
-					stderr.println("Cannot create search results");
-					break;
-				}
-				try {
-					FileWriter fout = new FileWriter(searchResultsFile);
-					fout.write(helpManager.giveHelp(words));
-					fout.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					break;
-				}
-				HelpManager.openInBrowser("http://localhost:8000/" + "search-result.html");
-			} else {
-				stdout.println(helpManager.giveHelp(words));
-			}
+			helpManager.handleHelp(words);
 			break;
 			
 		case "declarations":

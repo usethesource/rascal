@@ -1,6 +1,8 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -10,11 +12,11 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 public class HelpServer extends NanoHTTPD {
 
-	private Path root;
-	private HelpManager helpManager;
+	private final Path root;
+	private final HelpManager helpManager;
 
-	public HelpServer(HelpManager helpManager, Path root) throws IOException {
-		super(8000);
+	public HelpServer(int port, HelpManager helpManager, Path root) throws IOException {
+		super(port);
 		start();
 		this.helpManager = helpManager;
 		this.root = root;
@@ -22,28 +24,43 @@ public class HelpServer extends NanoHTTPD {
 
 	@Override
 	public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms, Map<String, String> files) {
-
 		Response response;
+		
 		if(uri.startsWith("/Search")){
-			String[] words = ("help " + parms.get("searchFor")).split(" ");
-			if(words.length > 1){
-				String results = helpManager.giveHelp(words);
-				return new Response(Status.OK, "text/html", results);
-			} else {
-				return new Response(Status.NO_CONTENT, "text/html", "<h1>Empty Search</h1>");
+			try {
+				String[] words = ("help " + URLDecoder.decode(parms.get("searchFor"), "UTF-8")).split(" ");
+				return new Response(Status.OK, "text/html", helpManager.giveHelp(words));
+			} catch (UnsupportedEncodingException e) {
+				return new Response(Status.OK, "text/plain", e.getStackTrace().toString());
 			}
 		}
 		try {
-			String mime =  uri.endsWith(".css") ? "text/css" : (uri.endsWith(".ico") ? "image/x-icon": "text/html");
-			response = new Response(Status.OK, mime, Files.newInputStream(root.resolve(massage(uri))));
+			response = new Response(Status.OK, getMimeType(uri), Files.newInputStream(root.resolve(normalize(uri))));
 			addHeaders(response, uri, headers);
-			
 			return response;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (IOException e) {			
 			return new Response(Status.NOT_FOUND, "text/plain", uri + " not found.\n" + e);
 		}
+	}
+	
+	String getExtension(String uri){
+		int n = uri.lastIndexOf(".");
+		if(n >= 0){
+			return uri.substring(n + 1);
+		}
+		return "";
+	}
+	
+	String getMimeType(String uri){
+		switch(getExtension(uri)){
+		case "css":		return "text/css";
+		case "ico": 	return "image/x-icon";
+		case "html": 	return "text/html";
+		case "jpeg":	return "image/jpeg";
+		case "png": 	return "image/png";
+		case "txt":		return "text/plain";
+		}
+		return "text/plain";
 	}
 	
 	private String etag(String uri){
@@ -51,12 +68,12 @@ public class HelpServer extends NanoHTTPD {
 		return String.valueOf(parts[0].hashCode());	
 	}
 	
-	private String massage(String uri){
+	private String normalize(String uri){
 		if(uri.startsWith("/")){
 			uri = uri.substring(1, uri.length());
 		}
-		if(uri.contains("#")){
-			String[] parts = uri.split("#");
+		String[] parts = uri.split("#");
+		if(parts.length >= 2){
 			return parts[0] + "/index.html#" + parts[1];
 		}
 		if(!uri.contains(".")){
@@ -73,5 +90,4 @@ public class HelpServer extends NanoHTTPD {
 			response.addHeader(key, headers.get(key));
 		}
 	}
-
 }

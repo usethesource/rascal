@@ -190,6 +190,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
             }
         }
         int locationStart = StringUtils.findRascalLocationStart(line, cursor);
+
         if (locationStart != -1) {
             return completeLocation(line, locationStart);
         }
