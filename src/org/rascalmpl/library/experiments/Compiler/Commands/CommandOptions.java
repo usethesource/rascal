@@ -265,7 +265,7 @@ public class CommandOptions {
 	 * Get the names of the Rascal module arguments of the command
 	 * @return list of module names
 	 */
-	IList getRascalModules(){
+	public IList getRascalModules(){
 		return rascalModules;
 	}
 	
@@ -506,9 +506,22 @@ public class CommandOptions {
 			return null;
 		}
 	}
+	
+	public ISourceLocation getDefaultCourseLocation(){
+		try {
+			return vf.sourceLocation("courses", "", "");
+		} catch (URISyntaxException e) {
+			printUsageAndExit("Cannot create default course location: " + e.getMessage());
+			return null;
+		}
+	}
 
 	public IList getDefaultStdPath(){
 		return vf.list(getDefaultStdLocation());
+	}
+	
+	public IList getDefaultCoursePath(){
+		return vf.list(getDefaultCourseLocation());
 	}
 
 	public ISourceLocation getKernelLocation(){

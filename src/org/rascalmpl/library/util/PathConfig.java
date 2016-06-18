@@ -19,45 +19,87 @@ public class PathConfig {
 	
 	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	List<ISourceLocation> srcPath;		// List of directories to search for source files
-	List<ISourceLocation> libPath; 		// List of directories to search source for derived files
+	List<ISourceLocation> srcPaths;		// List of directories to search for source files
+	List<ISourceLocation> libPaths; 	// List of directories to search for derived files
+	List<ISourceLocation> coursePaths; 	// List of directories to search for course source files
 	ISourceLocation binDir; 			// Global directory for derived files outside projects
 	ISourceLocation bootDir;			// Directory with Rascal boot files
 
 	private RascalSearchPath rascalSearchPath;
 	
-	public PathConfig() throws URISyntaxException{
-		ISourceLocation std = vf.sourceLocation("std", "", "");
-
-		srcPath = Arrays.asList(std);
-		binDir = vf.sourceLocation("home", "", "bin");
-		libPath = Arrays.asList(binDir);
-		bootDir = vf.sourceLocation("boot+compressed", "", "");
+	private static ISourceLocation defaultStdLocation;
+	private static List<ISourceLocation> defaultCoursePaths;
+	private static ISourceLocation defaultBootDir;
 	
+	static {
+		try {
+			defaultStdLocation =  vf.sourceLocation("std", "", "");
+			defaultCoursePaths = Arrays.asList(vf.sourceLocation("courses", "", ""));
+			defaultBootDir = vf.sourceLocation("boot+compressed", "", "");
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public PathConfig() throws URISyntaxException{
+		srcPaths = Arrays.asList(defaultStdLocation);
+		coursePaths = defaultCoursePaths;
+		binDir = vf.sourceLocation("home", "", "bin");
+		libPaths = Arrays.asList(binDir);
+		bootDir = defaultBootDir;
 		makeRascalSearchPath();
 	}
 	
-	public PathConfig(List<ISourceLocation> srcPath, List<ISourceLocation> libPath, ISourceLocation binDir) throws URISyntaxException{
-		this(srcPath, libPath, binDir, vf.sourceLocation("boot+compressed", "", ""));
+	public PathConfig(List<ISourceLocation> srcPaths, List<ISourceLocation> libPaths, ISourceLocation binDir) {
+		this(srcPaths, libPaths, binDir, defaultBootDir, defaultCoursePaths);
+	}
+	
+	public PathConfig(List<ISourceLocation> srcPaths, List<ISourceLocation> libPaths, ISourceLocation binDir, List<ISourceLocation> coursePaths) {
+		this(srcPaths, libPaths, binDir, defaultBootDir, coursePaths);
 	}
 		
-	public PathConfig(List<ISourceLocation> srcPath, List<ISourceLocation> libPath, ISourceLocation binDir, ISourceLocation bootDir){
-		this.srcPath = srcPath;
-		this.libPath = libPath;
+	public PathConfig(List<ISourceLocation> srcPaths, List<ISourceLocation> libPaths, ISourceLocation binDir, ISourceLocation bootDir) {
+		this(srcPaths, libPaths, binDir, bootDir, defaultCoursePaths);
+	}
+	
+	public PathConfig(List<ISourceLocation> srcPaths, List<ISourceLocation> libPaths, ISourceLocation binDir, ISourceLocation bootDir, List<ISourceLocation> coursePaths){
+		this.srcPaths = srcPaths;
+		this.coursePaths = coursePaths;
+		this.libPaths = libPaths;
 		this.binDir = binDir;
 		this.bootDir = bootDir;
 		makeRascalSearchPath();
 	}
 	
-	public PathConfig(IList srcPath, IList libPath, ISourceLocation binDir, ISourceLocation bootDir){
-        this.srcPath = convertPath(srcPath);
-        this.libPath = convertPath(libPath);
+	public PathConfig(IList srcPaths, IList libPaths, ISourceLocation binDir, ISourceLocation bootDir){
+        this.srcPaths = convertPaths(srcPaths);
+        this.libPaths = convertPaths(libPaths);
         this.binDir = binDir;
         this.bootDir = bootDir;
+        this.coursePaths = defaultCoursePaths;
         makeRascalSearchPath();
     }
 	
-	List<ISourceLocation> convertPath(IList path){
+	public PathConfig(IList srcPaths, IList libPaths, ISourceLocation binDir, IList coursePaths){
+        this.srcPaths = convertPaths(srcPaths);
+        this.libPaths = convertPaths(libPaths);
+        this.binDir = binDir;
+        this.bootDir = defaultBootDir;
+        this.coursePaths = convertPaths(coursePaths);
+        makeRascalSearchPath();
+    }
+	
+	public PathConfig(IList srcPaths, IList libPaths, ISourceLocation binDir, ISourceLocation bootDir, IList coursePaths){
+        this.srcPaths = convertPaths(srcPaths);
+        this.libPaths = convertPaths(libPaths);
+        this.binDir = binDir;
+        this.bootDir = bootDir;
+        this.coursePaths = convertPaths(coursePaths);
+        makeRascalSearchPath();
+    }
+	
+	List<ISourceLocation> convertPaths(IList path){
 		List<ISourceLocation> result = new ArrayList<>();
 		for(IValue p : path){
 			if(p instanceof ISourceLocation){
@@ -73,25 +115,71 @@ public class PathConfig {
 		return makeFileName(qualifiedModuleName, "rsc");
 	}
 	
-	public IList getSrcPath() {
-	    return vf.list(srcPath.toArray(new IValue[0]));
+	public IList getSrcPaths() {
+	    return vf.list(srcPaths.toArray(new IValue[0]));
 	}
 	
 	public PathConfig addSourcePath(ISourceLocation dir) {
-		List<ISourceLocation> extendedSrcPath = new ArrayList<ISourceLocation>(srcPath);
+		List<ISourceLocation> extendedSrcPath = new ArrayList<ISourceLocation>(srcPaths);
 		extendedSrcPath.add(dir);
-		return new PathConfig(extendedSrcPath, libPath, binDir, bootDir);
+		return new PathConfig(extendedSrcPath, libPaths, binDir, bootDir);
 	}
 	
+	public IList getCoursePaths() {
+	    return vf.list(coursePaths.toArray(new IValue[0]));
+	}
 	
-	public IList getLibPath() {
-        return vf.list(libPath.toArray(new IValue[0]));
+	public PathConfig addCoursePath(ISourceLocation dir) {
+		List<ISourceLocation> extendedCoursePaths = new ArrayList<ISourceLocation>(coursePaths);
+		extendedCoursePaths.add(dir);
+		return new PathConfig(srcPaths, libPaths, binDir, bootDir, extendedCoursePaths);
+	}
+	
+	public ISourceLocation getCourseLocation(String courseName) throws URISyntaxException, IOException{
+		for(ISourceLocation dir : coursePaths){
+			ISourceLocation fileLoc = vf.sourceLocation(dir.getScheme(), dir.getAuthority(), dir.getPath() + courseName);
+			if(URIResolverRegistry.getInstance().exists(fileLoc)){
+		    	return fileLoc;
+		    }
+		}
+		throw new IOException("Course " + courseName + " not found");
+	}
+	
+	private boolean isCourse(String name){
+		return name.matches("[A-Z][A-Za-z0-9]*$");
+	}
+	
+	private String fileName(ISourceLocation loc){
+		String[] parts = loc.getPath().split("/");
+		return parts[parts.length - 1];
+	}
+	
+	public List<String> listCourseEntries() throws IOException{
+		URIResolverRegistry reg = URIResolverRegistry.getInstance();
+		ArrayList<String> courses = new ArrayList<>();
+		for(ISourceLocation dir : coursePaths){
+			if(reg.exists(dir)){
+				for(ISourceLocation entry : reg.list(dir)){
+					if(reg.isDirectory(entry)){
+						String name = fileName(entry);
+						if(isCourse(name)){
+							courses.add(name);
+						}
+					}
+				}
+			}
+		}
+		return courses;
+	}
+	
+	public IList getLibPaths() {
+        return vf.list(libPaths.toArray(new IValue[0]));
     }
 	
 	public PathConfig addLibPath(ISourceLocation dir){
-		List<ISourceLocation> extendedLibPath = new ArrayList<ISourceLocation>(libPath);
+		List<ISourceLocation> extendedLibPath = new ArrayList<ISourceLocation>(libPaths);
 		extendedLibPath.add(dir);
-		return new PathConfig(srcPath, extendedLibPath, binDir, bootDir);
+		return new PathConfig(srcPaths, extendedLibPath, binDir, bootDir);
 	}
 	
 	public ISourceLocation getBootDir() {
@@ -108,7 +196,7 @@ public class PathConfig {
 	}
 
     public IRascalSearchPathContributor getSourcePathContributor() {
-        return new PathContributor("srcPath", srcPath);
+        return new PathContributor("srcPath", srcPaths);
     }
 	
 	String makeFileName(String qualifiedModuleName, String extension) {
@@ -121,7 +209,7 @@ public class PathConfig {
 
 	ISourceLocation getModuleLocation(String qualifiedModuleName) throws IOException, URISyntaxException{
 		String fileName = makeFileName(qualifiedModuleName);
-		for(ISourceLocation dir : srcPath){
+		for(ISourceLocation dir : srcPaths){
 			ISourceLocation fileLoc = vf.sourceLocation(dir.getScheme(), dir.getAuthority(), dir.getPath() + fileName);
 			if(URIResolverRegistry.getInstance().exists(fileLoc)){
 		    	return fileLoc;
@@ -133,6 +221,7 @@ public class PathConfig {
 	public List<String> listModuleEntries(String qualifier) {
 		return rascalSearchPath.listModuleEntries(qualifier);
 	}
+	
 }
 
 class PathContributor implements IRascalSearchPathContributor{
