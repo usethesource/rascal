@@ -6,8 +6,11 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,26 +34,31 @@ import org.rascalmpl.library.experiments.tutor3.Onthology;
 
 public class HelpManager {
 	
-	private String coursesDir;
-	private String searchResultFile;
+	private URI coursesDir;
 	private final int maxSearch = 25;
-	
-	private PrintWriter stdout;
-	private PrintWriter stderr;
+	private final PrintWriter stdout;
+	private final PrintWriter stderr;
+	private IndexSearcher indexSearcher;
+	private final int port = 8000;
 
 	public HelpManager(PrintWriter stdout, PrintWriter stderr){
 		this.stdout = stdout;
 		this.stderr = stderr;
-
-		coursesDir = System.getProperty("rascal.courses");
-//		this.getClass().getResource("/courses");
-		if(coursesDir == null){
-			stderr.println("Property rascal.courses should point to deployed courses");
+ 
+		URL c = this.getClass().getResource("/courses");
+		if(c == null){
+			stderr.println("Cannot find deployed (precompiled) courses");
 		} else {
-			searchResultFile = coursesDir + "/search-result.html";
+			try {
+				coursesDir = c.toURI();
+			} catch (URISyntaxException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
 			try {
-				new HelpServer(this, Paths.get(coursesDir));
+				new HelpServer(port, this, Paths.get(coursesDir));
+				indexSearcher = makeIndexSearcher();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -58,26 +66,43 @@ public class HelpManager {
 		}
 	}
 	
-	public String getSearchResultFile(){
-		return searchResultFile;
+	private ArrayList<IndexReader> getReaders() throws IOException{
+		if(coursesDir.getScheme().equals("file")){
+			Path destDir = Paths.get(coursesDir);
+			ArrayList<IndexReader> readers = new ArrayList<>();
+			for(Path p : Files.newDirectoryStream(destDir)){
+				if(Files.isDirectory(p) && p.getFileName().toString().matches("^[A-Z].*")){
+					Directory directory = FSDirectory.open(p);
+					DirectoryReader ireader = DirectoryReader.open(directory);
+					readers.add(ireader);
+				}
+			}
+			return readers;
+		}
+		throw new IOException("Cannot yet handle non-file coursesDir");
+	}
+	
+	IndexSearcher makeIndexSearcher() throws IOException{
+		ArrayList<IndexReader> readers = getReaders();
+
+		IndexReader[] ireaders = new IndexReader[readers.size()];
+		for(int i = 0; i < readers.size(); i++){
+			ireaders[i] = readers.get(i);
+		}
+		IndexReader ireader = new MultiReader(ireaders);
+		return  new IndexSearcher(ireader);
 	}
 	
 	private boolean indexAvailable(){
-		if(coursesDir != null){
+		if(indexSearcher != null){
 			return true;
 		}
-		stderr.println("Please specify -Drascal.courses=<courses-directory> to use 'help' or 'apropos'");
+		stderr.println("No deployed courses found; they are needed for 'help' or 'apropos'");
 		return false;
 	}
 	
-	public static void openInBrowser(String url)
+	public void openInBrowser(URI uri)
 	{
-		URI uri = null;
-		try {
-			uri = new URI(url);
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
 		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
 		if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
 			try {
@@ -86,7 +111,7 @@ public class HelpManager {
 				System.err.println(e.getMessage());
 			}
 		} else {
-			System.err.println("Desktop not supported, cannout open browser automatically for: " + url);
+			System.err.println("Desktop not supported, cannout open browser");
 		}
 	}
 	
@@ -104,7 +129,8 @@ public class HelpManager {
 	}
 	
 	void appendHyperlink(StringWriter w, String conceptName){
-		w.append("<a href=\"http://localhost:8000");
+		w.append("<a href=\"http://localhost:");
+		w.append(String.valueOf(port));
 		appendURL(w, conceptName);
 		w.append("\">").append(conceptName).append("</a>");
 	}
@@ -114,7 +140,34 @@ public class HelpManager {
 	}
 	
 	private String escapeHtml(String s){
+		// TODO: switch to StringEscapeUtils when compiled inside Eclipse
 		return s;
+	}
+	
+	private URI makeSearchURI(String[] words) throws URISyntaxException, UnsupportedEncodingException{
+		StringWriter w = new StringWriter();
+		for(int i = 1; i < words.length; i++){
+			w.append(words[i]);
+			if(i < words.length - 1) w.append(" ");
+		}
+		String encoded = URLEncoder.encode(w.toString(), "UTF-8");
+		return new URI("http", "localhost:" + port + "/Search?searchFor=" + encoded, null);
+	}
+	
+	public void handleHelp(String[] words){
+		if(words[0].equals("help")){
+			try {
+				openInBrowser(makeSearchURI(words));
+			} catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			stdout.println(giveHelp(words));
+		}
 	}
 	
 	public String giveHelp(String[] words){
@@ -129,26 +182,9 @@ public class HelpManager {
 			return "";
 		}
 
-		Path destDir = Paths.get(coursesDir);
 		Analyzer multiFieldAnalyzer = Onthology.multiFieldAnalyzer();
 		
 		try {
-			ArrayList<IndexReader> readers = new ArrayList<>();
-			for(Path p : Files.newDirectoryStream(destDir)){
-				if(Files.isDirectory(p) && p.getFileName().toString().matches("^[A-Z].*")){
-					Directory directory = FSDirectory.open(p);
-					DirectoryReader ireader = DirectoryReader.open(directory);
-					readers.add(ireader);
-				}
-			}
-			
-			IndexReader[] ireaders = new IndexReader[readers.size()];
-			for(int i = 0; i < readers.size(); i++){
-				ireaders[i] = readers.get(i);
-			}
-			IndexReader ireader = new MultiReader(ireaders);
-			IndexSearcher isearcher = new IndexSearcher(ireader);
-			
 			String searchFields[] = {"index", "synopsis", "doc"};
 			
 			QueryParser parser  = new MultiFieldQueryParser(searchFields, multiFieldAnalyzer);
@@ -166,12 +202,10 @@ public class HelpManager {
 			}
 
 			if(words[0].equals("help")){
-				return reportHelp(words, isearcher, isearcher.search(query, maxSearch).scoreDocs);
+				return reportHelp(words, indexSearcher.search(query, maxSearch).scoreDocs);
 			} else {
-				return reportApropos(words, isearcher, isearcher.search(query, maxSearch).scoreDocs);
+				return reportApropos(words, indexSearcher.search(query, maxSearch).scoreDocs);
 			}
-			//ireader.close();
-			//directory.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -207,7 +241,7 @@ public class HelpManager {
 		w.append("</i>\n");
 	}
 	
-	String reportHelp(String[] words, IndexSearcher isearcher, ScoreDoc[] hits) throws IOException{
+	String reportHelp(String[] words, ScoreDoc[] hits) throws IOException{
 		int nhits = hits.length;
 		
 		StringWriter w = new StringWriter();
@@ -223,17 +257,14 @@ public class HelpManager {
 			w.append("</div>");
 			w.append("</body>\n");
 			return w.toString();
-//		} else if (nhits == 1){
-//			openInBrowser(makeURL(isearcher.doc(hits[0].doc).get("name")));
 		} else {
 			genPrelude(w);
-
 			w.append("<h1 class=\"search-sect0\">Help for: ");
 			genSearchTerms(words, w);
 			w.append("</h1>\n");
 			w.append("<ul>\n");
 			for (int i = 0; i < Math.min(hits.length, maxSearch); i++) {
-				Document hitDoc = isearcher.doc(hits[i].doc);
+				Document hitDoc = indexSearcher.doc(hits[i].doc);
 				w.append("<div class=\"search-ulist\">\n");
 				w.append("<li> ");
 				String name = hitDoc.get("name");
@@ -251,10 +282,10 @@ public class HelpManager {
 		}
 	}
 	
-	String reportApropos(String[] words, IndexSearcher isearcher, ScoreDoc[] hits) throws IOException{
+	String reportApropos(String[] words, ScoreDoc[] hits) throws IOException{
 		StringWriter w = new StringWriter();
 		for (int i = 0; i < Math.min(hits.length, maxSearch); i++) {
-			Document hitDoc = isearcher.doc(hits[i].doc);
+			Document hitDoc = indexSearcher.doc(hits[i].doc);
 			String name = hitDoc.get("name");
 			String signature = getField(hitDoc, "signature");
 			String synopsis = getField(hitDoc, "synopsis");
