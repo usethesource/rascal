@@ -28,12 +28,12 @@ public class CompileMuLibrary {
             .pathOption("srcPath")		.pathDefault(cmdOpts.getDefaultStdPath().isEmpty() ? vf.list(cmdOpts.getDefaultStdPath()) : cmdOpts.getDefaultStdPath())
             .respectNoDefaults()
             .help("Add (absolute!) source path, use multiple --srcPaths for multiple paths")
-            .pathOption("libPath")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binDir")))
+            .pathOption("libPath")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
             .respectNoDefaults()
             .help("Add new lib path, use multiple --libPaths for multiple paths")
             .locOption("bootLoc")		.locDefault(cmdOpts.getDefaultBootLocation())
             .help("Rascal boot directory")
-            .locOption("binDir") 		.respectNoDefaults()
+            .locOption("binLoc") 		.respectNoDefaults()
             .help("Directory for Rascal binaries")
             .boolOption("help") 		.help("Print help message for this command")
             .boolOption("trace") 		.help("Print Rascal functions during execution of compiler")
@@ -56,7 +56,7 @@ public class CompileMuLibrary {
                     cmdOpts.getCommandPathOption("srcPath"),
                     cmdOpts.getCommandPathOption("libPath"),
                     cmdOpts.getCommandLocOption("bootLoc"),
-                    cmdOpts.getCommandLocOption("binDir"), 
+                    cmdOpts.getCommandLocOption("binLoc"), 
                     cmdOpts.getModuleOptionsAsIMap());
         }
         catch (Throwable e) {

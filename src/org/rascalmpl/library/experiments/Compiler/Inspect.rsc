@@ -394,9 +394,9 @@ void statistics(loc root = |std:///|,
 
 set[loc] getFunctionLocations(
 						   loc srcLoc,                  // location of Rascal source file
-   							loc bindir = |home:///bin|   // location where binaries are stored
+   							loc binLoc = |home:///bin|   // location where binaries are stored
 							){
-   rvmLoc = RVMModuleLocation(srcLoc, bindir);
+   rvmLoc = RVMModuleLocation(srcLoc, binLoc);
    try {
         p = readBinaryValueFile(#RVMModule, rvmLoc);
         

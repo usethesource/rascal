@@ -120,12 +120,12 @@ RVMModule compile(str qualifiedModuleName, PathConfig pcfg, bool verbose = false
     return rvmMod;
 }
 
-RVMModule compile(str qualifiedModuleName, list[loc] srcPath, list[loc] libPath, loc bootLoc, loc binDir, bool verbose = false, bool optimize=true){
-    return compile(qualifiedModuleName, pathConfig(srcPath=srcPath, libPath=libPath, bootLoc=bootLoc, binDir=binDir), verbose=verbose, optimize=optimize);
+RVMModule compile(str qualifiedModuleName, list[loc] srcPath, list[loc] libPath, loc bootLoc, loc binLoc, bool verbose = false, bool optimize=true){
+    return compile(qualifiedModuleName, pathConfig(srcPath=srcPath, libPath=libPath, bootLoc=bootLoc, binLoc=binLoc), verbose=verbose, optimize=optimize);
 }
 
-list[RVMModule] compile(list[str] qualifiedModuleNames, list[loc] srcPath, list[loc] libPath, loc bootLoc, loc binDir, bool verbose = false, bool optimize=true){
-    pcfg =  pathConfig(srcPath=srcPath, libPath=libPath, bootLoc=bootLoc, binDir=binDir);
+list[RVMModule] compile(list[str] qualifiedModuleNames, list[loc] srcPath, list[loc] libPath, loc bootLoc, loc binLoc, bool verbose = false, bool optimize=true){
+    pcfg =  pathConfig(srcPath=srcPath, libPath=libPath, bootLoc=bootLoc, binLoc=binLoc);
     return [ compile(qualifiedModuleName, pcfg, verbose=verbose, optimize=optimize) | qualifiedModuleName <- qualifiedModuleNames ];
 }
 

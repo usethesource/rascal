@@ -282,17 +282,17 @@ lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg, bool jvm=
   return all_test_results;
 }
   
-value main(bool jvm=true) = allRascalTests(binDir=|home:///bin-tests-comp|, jvm=jvm);
+value main(bool jvm=true) = allRascalTests(binLoc=|home:///bin-tests-comp|, jvm=jvm);
   
-value allRascalTests(loc binDir=|home:///bin-tests-intp|, bool jvm=true){
+value allRascalTests(loc binLoc=|home:///bin-tests-intp|, bool jvm=true){
   
-  println("Using binDir = <binDir>");
+  println("Using binLoc = <binLoc>");
   timestamp = now();
   crashes = [];
   partial_results = [];
   lrel[loc,int,str] all_results = [];
   
-  pcfg = pathConfig(srcPath=[|std:///|], binDir=binDir, libPath=[binDir]);
+  pcfg = pathConfig(srcPath=[|std:///|], binLoc=binLoc, libPath=[binLoc]);
   
   all_results += runTests(basicTests, "lang::rascal::tests::basic", pcfg, jvm=jvm);
   all_results += runTests(functionalityTests, "lang::rascal::tests::functionality", pcfg, jvm=jvm);
