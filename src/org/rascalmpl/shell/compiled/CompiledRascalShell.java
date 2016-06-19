@@ -45,13 +45,13 @@ public class CompiledRascalShell  {
 	CommandOptions cmdOpts = new CommandOptions("CompiledRascalShell");
 	try {
 		cmdOpts
-		.pathOption("srcPath").pathDefault(cmdOpts.getDefaultStdPath().isEmpty() ? vf.list(cmdOpts.getDefaultStdPath()) : cmdOpts.getDefaultStdPath())
-		.help("Add (absolute!) source path, use multiple --srcPath arguments for multiple paths")
+		.locsOption("srcLocs").locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
+		.help("Add (absolute!) source path, use multiple --srcLocs arguments for multiple paths")
 
 		.locOption("binLoc").locDefault(vf.sourceLocation("home", "", "bin"))
 		.help("Directory for Rascal binaries")
 		
-		.pathOption("libLocs").pathDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
+		.locsOption("libLocs").locsDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
 		.help("Add new lib path, use multiple --libLocs arguments for multiple paths")
 
 		.locOption("bootLoc").locDefault(cmdOpts.getDefaultBootLocation())
