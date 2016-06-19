@@ -39,8 +39,8 @@ public class Rascal {
 
             CommandOptions cmdOpts = new CommandOptions("rascal");
             cmdOpts
-            .pathOption("libPath")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
-            .help("Add new lib paths, use multiple --libPaths for multiple paths")
+            .pathOption("libLocs")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
+            .help("Add new lib paths, use multiple --libLocss for multiple paths")
 
             .locOption("bootLoc") 		.locDefault(cmdOpts.getDefaultBootLocation())
             .help("Rascal boot directory")

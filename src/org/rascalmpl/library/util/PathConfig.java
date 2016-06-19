@@ -177,9 +177,9 @@ public class PathConfig {
     }
 	
 	public PathConfig addLibLoc(ISourceLocation dir){
-		List<ISourceLocation> extendedLibPath = new ArrayList<ISourceLocation>(libLocs);
-		extendedLibPath.add(dir);
-		return new PathConfig(srcLocs, extendedLibPath, binLoc, bootLoc);
+		List<ISourceLocation> extendedlibLocs = new ArrayList<ISourceLocation>(libLocs);
+		extendedlibLocs.add(dir);
+		return new PathConfig(srcLocs, extendedlibLocs, binLoc, bootLoc);
 	}
 	
 	public ISourceLocation getBootLoc() {

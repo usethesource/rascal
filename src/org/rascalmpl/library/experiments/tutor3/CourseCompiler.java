@@ -164,10 +164,10 @@ public class CourseCompiler {
          .respectNoDefaults()
          .help("Add (absolute!) source path, use multiple --srcPaths for multiple paths")
 
-         .pathOption("libPaths")		
+         .pathOption("libLocss")		
          .pathDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
          .respectNoDefaults()
-         .help("Add new lib path, use multiple --libPaths for multiple paths")
+         .help("Add new lib path, use multiple --libLocss for multiple paths")
 
          .locOption("binLoc") 		
          .respectNoDefaults()
@@ -188,7 +188,7 @@ public class CourseCompiler {
 		
 		PathConfig pcfg = 
 				new PathConfig(cmdOpts.getCommandPathOption("srcPaths"),
-							   cmdOpts.getCommandPathOption("libPaths"),
+							   cmdOpts.getCommandPathOption("libLocss"),
 					           cmdOpts.getCommandLocOption("binLoc"),
 					           cmdOpts.getCommandPathOption("coursePaths"));   
 		
