@@ -14,14 +14,14 @@ public class Rascal {
 
     static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
-    static ISourceLocation findBinary(ISourceLocation binDir, String moduleName){
+    static ISourceLocation findBinary(ISourceLocation binLoc, String moduleName){
         StringWriter sw = new StringWriter();
-        sw.append(binDir.getPath())
+        sw.append(binLoc.getPath())
         .append("/")
         .append(moduleName.replaceAll("::", "/"))
         .append(".rvm.ser.gz");
         try {
-            return vf.sourceLocation("compressed+" + binDir.getScheme(), binDir.getAuthority(), sw.toString());
+            return vf.sourceLocation("compressed+" + binLoc.getScheme(), binLoc.getAuthority(), sw.toString());
         } catch (URISyntaxException e) {
             System.err.println(e.getMessage());
             System.exit(-1);
@@ -39,13 +39,13 @@ public class Rascal {
 
             CommandOptions cmdOpts = new CommandOptions("rascal");
             cmdOpts
-            .pathOption("libPath")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binDir")))
+            .pathOption("libPath")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
             .help("Add new lib paths, use multiple --libPaths for multiple paths")
 
             .locOption("bootLoc") 		.locDefault(cmdOpts.getDefaultBootLocation())
             .help("Rascal boot directory")
 
-            .locOption("binDir") 		.help("Directory for Rascal binaries")
+            .locOption("binLoc") 		.help("Directory for Rascal binaries")
 
             //.boolOption("jvm") 			.help("Generate JVM code")
 
@@ -67,7 +67,7 @@ public class Rascal {
                     .forModule(cmdOpts.getRascalModule().getValue())
                     .build();
 
-            ISourceLocation binary = findBinary(cmdOpts.getCommandLocOption("binDir"), cmdOpts.getRascalModule().getValue());
+            ISourceLocation binary = findBinary(cmdOpts.getCommandLocOption("binLoc"), cmdOpts.getRascalModule().getValue());
             System.out.println(RVMCore.readFromFileAndExecuteProgram(binary, cmdOpts.getModuleOptionsAsIMap(), rex));
         } catch (Throwable e) {
             e.printStackTrace();

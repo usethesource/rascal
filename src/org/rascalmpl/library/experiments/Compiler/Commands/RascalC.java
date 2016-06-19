@@ -37,7 +37,7 @@ public class RascalC {
             .help("Add (absolute!) source path, use multiple --srcPaths for multiple paths")
 
             .pathOption("libPath")		
-            .pathDefault((co) -> vf.list(co.getCommandLocOption("binDir")))
+            .pathDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
             .respectNoDefaults()
             .help("Add new lib path, use multiple --libPaths for multiple paths")
 
@@ -45,7 +45,7 @@ public class RascalC {
             .locDefault(cmdOpts.getDefaultBootLocation())
             .help("Rascal boot directory")
 
-            .locOption("binDir") 		
+            .locOption("binLoc") 		
             .respectNoDefaults()
             .help("Directory for Rascal binaries")
 
@@ -90,7 +90,7 @@ public class RascalC {
                         cmdOpts.getCommandPathOption("srcPath"),
                         cmdOpts.getCommandPathOption("libPath"),
                         cmdOpts.getCommandLocOption("bootLoc"),
-                        cmdOpts.getCommandLocOption("binDir"), 
+                        cmdOpts.getCommandLocOption("binLoc"), 
                         cmdOpts.getModuleOptionsAsIMap()); 
                 handleMessages(programs);
             } 
@@ -100,7 +100,7 @@ public class RascalC {
                         cmdOpts.getCommandPathOption("srcPath"),
                         cmdOpts.getCommandPathOption("libPath"),
                         cmdOpts.getCommandLocOption("bootLoc"),
-                        cmdOpts.getCommandLocOption("binDir"), 
+                        cmdOpts.getCommandLocOption("binLoc"), 
                         cmdOpts.getModuleOptionsAsIMap());
                 handleMessages(programs);
             }

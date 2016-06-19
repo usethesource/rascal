@@ -119,11 +119,11 @@ void report(str msg){
 // build the MuLibrary, install it, end then do the complete build.
 
 void buildMuLibrary(){
-     pcfg = pathConfig(srcPath=[|std:///|], binDir=BINBOOT, libPath=[BINBOOT]);
+     pcfg = pathConfig(srcPath=[|std:///|], binLoc=BINBOOT, libPath=[BINBOOT]);
      commands = "#!/bin/sh\n";
      report("Compiling MuLibrary");
      //compileMuLibrary(pcfg, verbose=true);
-     compileMuLibrary(pcfg.srcPath, pcfg.libPath, pcfg.bootLoc, pcfg.binDir)
+     compileMuLibrary(pcfg.srcPath, pcfg.libPath, pcfg.bootLoc, pcfg.binLoc)
      muLib = getMuLibraryCompiledWriteLoc(pcfg);
      commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
      writeFile(SHELLSCRIPT, commands);
@@ -136,7 +136,7 @@ void buildMuLibrary(){
 value build(bool jvm=true, bool full=true){
      println("build: full = <full>, jvm = <jvm>");
 
-     pcfg = pathConfig(srcPath=[|std:///|], binDir=BINBOOT, libPath=[BINBOOT]);
+     pcfg = pathConfig(srcPath=[|std:///|], binLoc=BINBOOT, libPath=[BINBOOT]);
      
      if(full){
         report("Removing current compiled boot files <BINBOOT>");

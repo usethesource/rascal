@@ -546,7 +546,7 @@ public class CommandOptions {
 	public PathConfig getPathConfig(){
 		return new PathConfig(getCommandPathOption("srcPath"),
 							  getCommandPathOption("libPath"),
-							  getCommandLocOption("binDir"),
+							  getCommandLocOption("binLoc"),
 							  getCommandLocOption("bootLoc"));
 	}
 

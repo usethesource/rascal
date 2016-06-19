@@ -165,11 +165,11 @@ public class CourseCompiler {
          .help("Add (absolute!) source path, use multiple --srcPaths for multiple paths")
 
          .pathOption("libPaths")		
-         .pathDefault((co) -> vf.list(co.getCommandLocOption("binDir")))
+         .pathDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
          .respectNoDefaults()
          .help("Add new lib path, use multiple --libPaths for multiple paths")
 
-         .locOption("binDir") 		
+         .locOption("binLoc") 		
          .respectNoDefaults()
          .help("Directory for Rascal binaries")
          
@@ -189,7 +189,7 @@ public class CourseCompiler {
 		PathConfig pcfg = 
 				new PathConfig(cmdOpts.getCommandPathOption("srcPaths"),
 							   cmdOpts.getCommandPathOption("libPaths"),
-					           cmdOpts.getCommandLocOption("binDir"),
+					           cmdOpts.getCommandLocOption("binLoc"),
 					           cmdOpts.getCommandPathOption("coursePaths"));   
 		
 		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getCourseLocs().get(0)).getPath());

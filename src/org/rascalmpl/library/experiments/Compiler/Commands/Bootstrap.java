@@ -225,7 +225,7 @@ public class Bootstrap {
             String module) throws IOException, InterruptedException, BootstrapMessage {
         info("\tcompiling " + module);
         if (runCompiler(classPath, 
-                "--binDir", result.toAbsolutePath().toString(),
+                "--binLoc", result.toAbsolutePath().toString(),
                 "--srcPath", sourcePath,
                 "--bootLoc", bootLoc,
                 "--verbose",
@@ -239,7 +239,7 @@ public class Bootstrap {
         info("\tcompiling MuLibrary");
         
         if (runMuLibraryCompiler(classPath, 
-                "--binDir", result.toAbsolutePath().toString(),
+                "--binLoc", result.toAbsolutePath().toString(),
                 "--srcPath", sourcePath,
                 "--bootLoc", bootDLoc) != 0) {
             
@@ -249,7 +249,7 @@ public class Bootstrap {
     
     private static void runTestModule(int phase, String classPath, String bootLoc, String sourcePath, Path result, String[] modules) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
         info("Running tests before the next phase " + phase);
-        String[] arguments = new String[] {"--binDir", result.toAbsolutePath().toString(), "--srcPath", sourcePath, "--bootLoc", bootLoc};
+        String[] arguments = new String[] {"--binLoc", result.toAbsolutePath().toString(), "--srcPath", sourcePath, "--bootLoc", bootLoc};
         String[] command = new String[arguments.length + modules.length +  5];
         command[0] = "java";
         command[1] = "-cp";

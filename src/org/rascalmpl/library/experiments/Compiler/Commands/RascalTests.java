@@ -31,14 +31,14 @@ public class RascalTests {
 										.respectNoDefaults()
 										.help("Add (absolute!) source path, use multiple --srcPaths for multiple paths")
 		
-			.pathOption("libPath")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binDir")))
+			.pathOption("libPath")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
 										.respectNoDefaults()
 										.help("Add new lib path, use multiple --libPaths for multiple paths")
 		
 			.locOption("bootLoc")		.locDefault(cmdOpts.getDefaultBootLocation())
 										.help("Rascal boot directory")
 		
-			.locOption("binDir") 		.help("Directory for Rascal binaries")
+			.locOption("binLoc") 		.help("Directory for Rascal binaries")
 			
 			.boolOption("help") 		.help("Print help message for this command")
 			
@@ -68,7 +68,7 @@ public class RascalTests {
 		            cmdOpts.getCommandPathOption("srcPath"),
 		            cmdOpts.getCommandPathOption("libPath"),
 		            cmdOpts.getCommandLocOption("bootLoc"),
-		            cmdOpts.getCommandLocOption("binDir"), 
+		            cmdOpts.getCommandLocOption("binLoc"), 
 		            cmdOpts.getModuleOptionsAsIMap());
 
 		    System.exit(success.getValue() ? 0 : 1);

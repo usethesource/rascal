@@ -77,7 +77,7 @@ data PathConfig
                                                         // List of directories to search source for derived files
                //list[loc] projectPath = [],             // List of directories to search for source or derived files in projects
                                                         // Note: each directory should include the project name as last path element
-               loc binDir = |home:///bin/|,            // Global directory for derived files outside projects
+               loc binLoc = |home:///bin/|,            // Global directory for derived files outside projects
                loc bootLoc = |boot+compressed:///|     // Directory with Rascal boot files
               );
 
@@ -113,7 +113,7 @@ loc metafile(loc l) = l + "META-INF/RASCAL.MF";
   META-INF/RASCAL.MF files.
 }
 PathConfig applyManifests(PathConfig cfg) {
-   mf = (l:readManifest(#RascalManifest, metafile(l)) | l <- cfg.srcPath + cfg.libPath + [cfg.binDir], exists(metafile(l)));
+   mf = (l:readManifest(#RascalManifest, metafile(l)) | l <- cfg.srcPath + cfg.libPath + [cfg.binLoc], exists(metafile(l)));
 
    list[loc] expandSrcPath(loc p) = [ p + s | s <- mf[p].Source] when mf[p]?;
    default list[loc] expandSrcPath(loc p, str _) = [p];
@@ -121,12 +121,12 @@ PathConfig applyManifests(PathConfig cfg) {
    list[loc] expandLibPath(loc p) = [ p + s | s <- mf[p].\Required-Libraries] when mf[p]?;
    default list[loc] expandLibPath(loc p, str _) = [p];
     
-   loc expandBinDir(loc p) = p + mf[p].Bin when mf[p]?;
-   default loc expandBinDir(loc p) = p;
+   loc expandbinLoc(loc p) = p + mf[p].Bin when mf[p]?;
+   default loc expandbinLoc(loc p) = p;
    
    cfg.srcPath = [*expandSrcPath(p) | p <- cfg.srcPath];
    cfg.libPath = [*expandLibPath(p) | p <- cfg.libPath];
-   cfg.binDir  = expandBinDir(cfg.binDir);
+   cfg.binLoc  = expandbinLoc(cfg.binLoc);
    
    // TODO: here we add features for Required-Libraries by searching in a repository of installed
    // jars. This has to be resolved recursively.
@@ -227,7 +227,7 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
       // A binary (possibly library) module
       compressed = endsWith(extension, "gz");
 
-      for(loc dir <- pcfg.binDir + pcfg.libPath){   // In a bin or lib directory?
+      for(loc dir <- pcfg.binLoc + pcfg.libPath){   // In a bin or lib directory?
        
         fileLoc = dir + fileName;
         if(exists(fileLoc)){
@@ -252,7 +252,7 @@ Given a module name, a file name extension, and a PathConfig,
 a path name is constructed from the module name + extension.
 
 For source modules, a writable location cannot be derived.
-For other modules, a location for this path in binDir will be returned.
+For other modules, a location for this path in binLoc will be returned.
 
 .Examples
 [source,rascal-shell]
@@ -275,11 +275,11 @@ loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, 
     fileNameBin = makeFileName(qualifiedModuleName, extension=extension);
     compressed = endsWith(extension, "gz");
     
-    bindir = pcfg.binDir;
+    binLoc = pcfg.binLoc;
     if(compressed){
-       bindir.scheme = "compressed+" + bindir.scheme;
+       binLoc.scheme = "compressed+" + binLoc.scheme;
     }
-    fileLocBin = bindir + fileNameBin;
+    fileLocBin = binLoc + fileNameBin;
     //println("getDerivedWriteLoc: <qualifiedModuleName>, <extension> =\> <fileLocBin>");
     return fileLocBin;
 }
