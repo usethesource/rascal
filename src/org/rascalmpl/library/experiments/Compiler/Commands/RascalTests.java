@@ -27,28 +27,34 @@ public class RascalTests {
 		
 		CommandOptions cmdOpts = new CommandOptions("rascalTests");
 		cmdOpts
-			.pathOption("srcPath")		.pathDefault(cmdOpts.getDefaultStdPath().isEmpty() ? vf.list(cmdOpts.getDefaultStdPath()) : cmdOpts.getDefaultStdPath())
-										.respectNoDefaults()
-										.help("Add (absolute!) source path, use multiple --srcPaths for multiple paths")
+			.locsOption("srcLoc")		
+			.locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
+			.respectNoDefaults()
+			.help("Add (absolute!) source location, use multiple --srcLocs for multiple locations")
 		
-			.pathOption("libLocs")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
-										.respectNoDefaults()
-										.help("Add new lib path, use multiple --libLocs for multiple paths")
+			.locsOption("libLoc")		
+			.locsDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
+			.respectNoDefaults()
+			.help("Add new lib location, use multiple --libLocs for multiple locations")
 		
-			.locOption("bootLoc")		.locDefault(cmdOpts.getDefaultBootLocation())
-										.help("Rascal boot directory")
+			.locOption("bootLoc")		
+			.locDefault(cmdOpts.getDefaultBootLocation())
+			.help("Rascal boot directory")
 		
-			.locOption("binLoc") 		.help("Directory for Rascal binaries")
+			.locOption("binLoc") 		
+			.help("Directory for Rascal binaries")
 			
-			.boolOption("help") 		.help("Print help message for this command")
+			.boolOption("help")
+			.help("Print help message for this command")
 			
-			.boolOption("trace")		.help("Print Rascal functions during execution of compiler")
+			.boolOption("trace")
+			.help("Print Rascal functions during execution of compiler")
 			
-			.boolOption("profile")		.help("Profile execution of compiler")
+			.boolOption("profile")
+			.help("Profile execution of compiler")
 			
-			//.boolOption("jvm")			.help("Generate JVM code")
-			
-			.boolOption("verbose")		.help("Make the compiler verbose")
+			.boolOption("verbose")		
+			.help("Make the compiler verbose")
 			
 			.rascalModules("Rascal modules with tests")
 			
@@ -65,8 +71,8 @@ public class RascalTests {
 		try {
 		    IBool success = (IBool) kernel.rascalTests(
 		            cmdOpts.getRascalModules(),
-		            cmdOpts.getCommandPathOption("srcPath"),
-		            cmdOpts.getCommandPathOption("libLocs"),
+		            cmdOpts.getCommandlocsOption("srcLoc"),
+		            cmdOpts.getCommandlocsOption("libLoc"),
 		            cmdOpts.getCommandLocOption("bootLoc"),
 		            cmdOpts.getCommandLocOption("binLoc"), 
 		            cmdOpts.getModuleOptionsAsIMap());

@@ -292,7 +292,7 @@ value allRascalTests(loc binLoc=|home:///bin-tests-intp|, bool jvm=true){
   partial_results = [];
   lrel[loc,int,str] all_results = [];
   
-  pcfg = pathConfig(srcPath=[|std:///|], binLoc=binLoc, libLocs=[binLoc]);
+  pcfg = pathConfig(srcLocs=[|std:///|], binLoc=binLoc, libLocs=[binLoc]);
   
   all_results += runTests(basicTests, "lang::rascal::tests::basic", pcfg, jvm=jvm);
   all_results += runTests(functionalityTests, "lang::rascal::tests::functionality", pcfg, jvm=jvm);

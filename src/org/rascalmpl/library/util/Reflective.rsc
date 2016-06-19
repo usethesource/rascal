@@ -72,7 +72,7 @@ public java loc getModuleLocation(str modulePath);
 public java loc getSearchPathLocation(str filePath);
 
 data PathConfig 
-  = pathConfig(list[loc] srcPath = [|std:///|],        // List of directories to search for source files
+  = pathConfig(list[loc] srcLocs = [|std:///|],        // List of directories to search for source files
                list[loc] libLocs = [|boot:///stdlib|, |std:///|],        
                                                        // List of directories to search source for derived files
                //list[loc] projectPath = [],           // List of directories to search for source or derived files in projects
@@ -113,19 +113,19 @@ loc metafile(loc l) = l + "META-INF/RASCAL.MF";
   META-INF/RASCAL.MF files.
 }
 PathConfig applyManifests(PathConfig cfg) {
-   mf = (l:readManifest(#RascalManifest, metafile(l)) | l <- cfg.srcPath + cfg.libLocs + [cfg.binLoc], exists(metafile(l)));
+   mf = (l:readManifest(#RascalManifest, metafile(l)) | l <- cfg.srcLocs + cfg.libLocs + [cfg.binLoc], exists(metafile(l)));
 
-   list[loc] expandSrcPath(loc p) = [ p + s | s <- mf[p].Source] when mf[p]?;
-   default list[loc] expandSrcPath(loc p, str _) = [p];
+   list[loc] expandSrcLocs(loc p) = [ p + s | s <- mf[p].Source] when mf[p]?;
+   default list[loc] expandSrcLocs(loc p, str _) = [p];
    
-   list[loc] expandlibLocs(loc p) = [ p + s | s <- mf[p].\Required-Libraries] when mf[p]?;
-   default list[loc] expandlibLocs(loc p, str _) = [p];
+   list[loc] expandLibLocs(loc p) = [ p + s | s <- mf[p].\Required-Libraries] when mf[p]?;
+   default list[loc] expandLibLocs(loc p, str _) = [p];
     
    loc expandbinLoc(loc p) = p + mf[p].Bin when mf[p]?;
    default loc expandbinLoc(loc p) = p;
    
-   cfg.srcPath = [*expandSrcPath(p) | p <- cfg.srcPath];
-   cfg.libLocs = [*expandlibLocs(p) | p <- cfg.libLocs];
+   cfg.srcLocs = [*expandSrcLocs(p) | p <- cfg.srcLocs];
+   cfg.libLocs = [*expandLibLocs(p) | p <- cfg.libLocs];
    cfg.binLoc  = expandbinLoc(cfg.binLoc);
    
    // TODO: here we add features for Required-Libraries by searching in a repository of installed
@@ -137,7 +137,7 @@ PathConfig applyManifests(PathConfig cfg) {
 str makeFileName(str qualifiedModuleName, str extension = "rsc") = replaceAll(qualifiedModuleName, "::", "/") + "." + extension;
 
 loc getSearchPathLoc(str filePath, PathConfig pcfg){
-    for(loc dir <- pcfg.srcPath + pcfg.libLocs){
+    for(loc dir <- pcfg.srcLocs + pcfg.libLocs){
         fileLoc = dir + filePath;
         if(exists(fileLoc)){
             //println("getModuleLocation <qualifiedModuleName> =\> <fileLoc>");
@@ -149,7 +149,7 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
 
 loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
     fileName = makeFileName(qualifiedModuleName);
-    for(loc dir <- pcfg.srcPath){
+    for(loc dir <- pcfg.srcLocs){
         fileLoc = dir + fileName;
         if(exists(fileLoc)){
             //println("getModuleLocation <qualifiedModuleName> =\> <fileLoc>");
@@ -170,7 +170,7 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
         throw "Not a Rascal source file: <moduleLoc>";
     }
    
-    for(loc dir <- pcfg.srcPath){
+    for(loc dir <- pcfg.srcLocs){
         if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme){
            moduleName = replaceFirst(modulePath, dir.path, "");
            moduleName = replaceLast(moduleName, ".rsc", "");
@@ -195,7 +195,7 @@ a path name is constructed from the module name + extension.
 If a file F with this path exists in one of the directories in the PathConfig,
 then the pair <true, F> is returned. Otherwise <false, some error location> is returned.
 
-For a source extension (typically "rsc" or "mu" but this can be configured) srcPath is searched, otherwise binPath + libLocs.
+For a source extension (typically "rsc" or "mu" but this can be configured) srcLocs is searched, otherwise binPath + libLocs.
 
 .Examples
 [source,rascal-shell]
@@ -216,7 +216,7 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
     //println("getDerivedReadLoc: <fileName>");
    
     if(extension in srcExtensions){
-       for(loc dir <- pcfg.srcPath){        // In a source directory?
+       for(loc dir <- pcfg.srcLocs){        // In a source directory?
            fileLoc = dir + fileName;
            if(exists(fileLoc)){
              //println("getDerivedReadLoc: <qualifiedModuleName>, <extension> =\> <fileLoc");

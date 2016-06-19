@@ -25,21 +25,36 @@ public class CompileMuLibrary {
             IValueFactory vf = ValueFactoryFactory.getValueFactory();
             CommandOptions cmdOpts = new CommandOptions("compileMuLibrary");
             cmdOpts
-            .pathOption("srcPath")		.pathDefault(cmdOpts.getDefaultStdPath().isEmpty() ? vf.list(cmdOpts.getDefaultStdPath()) : cmdOpts.getDefaultStdPath())
+            .locsOption("srcLocs")		
+            .locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
             .respectNoDefaults()
-            .help("Add (absolute!) source path, use multiple --srcPaths for multiple paths")
-            .pathOption("libLocs")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
+            .help("Add (absolute!) source path, use multiple --srcLocss for multiple paths")
+            
+            .locsOption("libLocs")		
+            .locsDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
             .respectNoDefaults()
             .help("Add new lib path, use multiple --libLocss for multiple paths")
-            .locOption("bootLoc")		.locDefault(cmdOpts.getDefaultBootLocation())
+            
+            .locOption("bootLoc")		
+            .locDefault(cmdOpts.getDefaultBootLocation())
             .help("Rascal boot directory")
-            .locOption("binLoc") 		.respectNoDefaults()
+            
+            .locOption("binLoc") 		
+            .respectNoDefaults()
             .help("Directory for Rascal binaries")
-            .boolOption("help") 		.help("Print help message for this command")
-            .boolOption("trace") 		.help("Print Rascal functions during execution of compiler")
-            .boolOption("profile") 		.help("Profile execution of compiler")
-            //.boolOption("jvm") 			.help("Generate JVM code")
-            .boolOption("verbose") 		.help("Make the compiler verbose")
+            
+            .boolOption("help") 		
+            .help("Print help message for this command")
+            
+            .boolOption("trace") 		
+            .help("Print Rascal functions during execution of compiler")
+            
+            .boolOption("profile") 		
+            .help("Profile execution of compiler")
+           
+            .boolOption("verbose") 		
+            .help("Make the compiler verbose")
+            
             .noModuleArgument()
             .handleArgs(args);
 
@@ -53,8 +68,8 @@ public class CompileMuLibrary {
             Kernel kernel = new Kernel(vf, rex);
 
             kernel.compileMuLibrary(
-                    cmdOpts.getCommandPathOption("srcPath"),
-                    cmdOpts.getCommandPathOption("libLocs"),
+                    cmdOpts.getCommandlocsOption("srcLocs"),
+                    cmdOpts.getCommandlocsOption("libLocs"),
                     cmdOpts.getCommandLocOption("bootLoc"),
                     cmdOpts.getCommandLocOption("binLoc"), 
                     cmdOpts.getModuleOptionsAsIMap());
