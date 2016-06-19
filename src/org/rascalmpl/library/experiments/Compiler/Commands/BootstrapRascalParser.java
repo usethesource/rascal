@@ -28,7 +28,7 @@ public class BootstrapRascalParser {
 	        .pathOption("srcPath")		.pathDefault(cmdOpts.getDefaultStdPath().isEmpty() ? vf.list(cmdOpts.getDefaultStdPath()) : cmdOpts.getDefaultStdPath())
 	        .respectNoDefaults()
 	        .help("Add (absolute!) source path, use multiple --srcPaths for multiple paths")
-	        .locOption("bootDir")		.locDefault(cmdOpts.getDefaultBootLocation())
+	        .locOption("bootLoc")		.locDefault(cmdOpts.getDefaultBootLocation())
 	        .help("Rascal boot directory")
 	        .noModuleArgument()
 	        .handleArgs(args);
@@ -39,7 +39,7 @@ public class BootstrapRascalParser {
 	                .setProfile(cmdOpts.getCommandBoolOption("profile"))
 	                .build();
 
-	        Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("bootDir"));
+	        Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("bootLoc"));
 
 	        kernel.bootstrapRascalParser(cmdOpts.getCommandPathOption("srcPath"));
 	    }

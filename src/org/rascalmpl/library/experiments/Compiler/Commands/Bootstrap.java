@@ -221,13 +221,13 @@ public class Bootstrap {
         return result;
     }
 
-    private static void compileModule(int phase, String classPath, String bootDir, String sourcePath, Path result,
+    private static void compileModule(int phase, String classPath, String bootLoc, String sourcePath, Path result,
             String module) throws IOException, InterruptedException, BootstrapMessage {
         info("\tcompiling " + module);
         if (runCompiler(classPath, 
                 "--binDir", result.toAbsolutePath().toString(),
                 "--srcPath", sourcePath,
-                "--bootDir", bootDir,
+                "--bootLoc", bootLoc,
                 "--verbose",
                 module) != 0) {
             
@@ -235,21 +235,21 @@ public class Bootstrap {
         }
     }
     
-    private static void compileMuLibrary(int phase, String classPath, String bootDir, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage, NoSuchRascalFunction {
+    private static void compileMuLibrary(int phase, String classPath, String bootDLoc, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage, NoSuchRascalFunction {
         info("\tcompiling MuLibrary");
         
         if (runMuLibraryCompiler(classPath, 
                 "--binDir", result.toAbsolutePath().toString(),
                 "--srcPath", sourcePath,
-                "--bootDir", bootDir) != 0) {
+                "--bootLoc", bootDLoc) != 0) {
             
             throw new BootstrapMessage(phase);
         }
     }
     
-    private static void runTestModule(int phase, String classPath, String bootDir, String sourcePath, Path result, String[] modules) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
+    private static void runTestModule(int phase, String classPath, String bootLoc, String sourcePath, Path result, String[] modules) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
         info("Running tests before the next phase " + phase);
-        String[] arguments = new String[] {"--binDir", result.toAbsolutePath().toString(), "--srcPath", sourcePath, "--bootDir", bootDir};
+        String[] arguments = new String[] {"--binDir", result.toAbsolutePath().toString(), "--srcPath", sourcePath, "--bootLoc", bootLoc};
         String[] command = new String[arguments.length + modules.length +  5];
         command[0] = "java";
         command[1] = "-cp";

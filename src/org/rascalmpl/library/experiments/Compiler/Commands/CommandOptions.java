@@ -526,8 +526,8 @@ public class CommandOptions {
 
 	public ISourceLocation getKernelLocation(){
 		try {
-			ISourceLocation bootDir = getCommandLocOption("bootDir");
-			return vf.sourceLocation("compressed+" + bootDir.getScheme(), "", bootDir.getPath() + "lang/rascal/boot/Kernel.rvm.ser.gz");
+			ISourceLocation bootLoc = getCommandLocOption("bootLoc");
+			return vf.sourceLocation("compressed+" + bootLoc.getScheme(), "", bootLoc.getPath() + "lang/rascal/boot/Kernel.rvm.ser.gz");
 		} catch (URISyntaxException e) {
 			printUsageAndExit("Cannot create default location: " + e.getMessage());
 			return null;
@@ -547,7 +547,7 @@ public class CommandOptions {
 		return new PathConfig(getCommandPathOption("srcPath"),
 							  getCommandPathOption("libPath"),
 							  getCommandLocOption("binDir"),
-							  getCommandLocOption("bootDir"));
+							  getCommandLocOption("bootLoc"));
 	}
 
     public CommandOptions noModuleArgument() {

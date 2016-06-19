@@ -78,7 +78,7 @@ data PathConfig
                //list[loc] projectPath = [],             // List of directories to search for source or derived files in projects
                                                         // Note: each directory should include the project name as last path element
                loc binDir = |home:///bin/|,            // Global directory for derived files outside projects
-               loc bootDir = |boot+compressed:///|     // Directory with Rascal boot files
+               loc bootLoc = |boot+compressed:///|     // Directory with Rascal boot files
               );
 
 data RascalManifest

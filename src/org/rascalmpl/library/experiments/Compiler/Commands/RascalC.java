@@ -41,7 +41,7 @@ public class RascalC {
             .respectNoDefaults()
             .help("Add new lib path, use multiple --libPaths for multiple paths")
 
-            .locOption("bootDir")		
+            .locOption("bootLoc")		
             .locDefault(cmdOpts.getDefaultBootLocation())
             .help("Rascal boot directory")
 
@@ -82,14 +82,14 @@ public class RascalC {
                     .forModule(cmdOpts.getRascalModule().getValue())
                     .build();
 
-            Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("bootDir"));
+            Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("bootLoc"));
 
             if (cmdOpts.getCommandBoolOption("noLinking")) {
                 IList programs = kernel.compile(
                         cmdOpts.getRascalModules(),
                         cmdOpts.getCommandPathOption("srcPath"),
                         cmdOpts.getCommandPathOption("libPath"),
-                        cmdOpts.getCommandLocOption("bootDir"),
+                        cmdOpts.getCommandLocOption("bootLoc"),
                         cmdOpts.getCommandLocOption("binDir"), 
                         cmdOpts.getModuleOptionsAsIMap()); 
                 handleMessages(programs);
@@ -99,7 +99,7 @@ public class RascalC {
                         cmdOpts.getRascalModules(),
                         cmdOpts.getCommandPathOption("srcPath"),
                         cmdOpts.getCommandPathOption("libPath"),
-                        cmdOpts.getCommandLocOption("bootDir"),
+                        cmdOpts.getCommandLocOption("bootLoc"),
                         cmdOpts.getCommandLocOption("binDir"), 
                         cmdOpts.getModuleOptionsAsIMap());
                 handleMessages(programs);
