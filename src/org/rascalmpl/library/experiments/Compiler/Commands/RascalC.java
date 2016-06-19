@@ -31,15 +31,15 @@ public class RascalC {
             CommandOptions cmdOpts = new CommandOptions("rascalc");
             
             cmdOpts
-            .pathOption("srcPath")		
-            .pathDefault(cmdOpts.getDefaultStdPath().isEmpty() ? vf.list(cmdOpts.getDefaultStdPath()) : cmdOpts.getDefaultStdPath())
+            .locsOption("srcLoc")		
+            .locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
             .respectNoDefaults()
-            .help("Add (absolute!) source path, use multiple --srcPaths for multiple paths")
+            .help("Add (absolute!) source location, use multiple --srcLocs for multiple locations")
 
-            .pathOption("libLocs")		
-            .pathDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
+            .locsOption("libLoc")		
+            .locsDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
             .respectNoDefaults()
-            .help("Add new lib path, use multiple --libLocs for multiple paths")
+            .help("Add new lib location, use multiple --libLoc for multiple locations")
 
             .locOption("bootLoc")		
             .locDefault(cmdOpts.getDefaultBootLocation())
@@ -87,8 +87,8 @@ public class RascalC {
             if (cmdOpts.getCommandBoolOption("noLinking")) {
                 IList programs = kernel.compile(
                         cmdOpts.getRascalModules(),
-                        cmdOpts.getCommandPathOption("srcPath"),
-                        cmdOpts.getCommandPathOption("libLocs"),
+                        cmdOpts.getCommandlocsOption("srcLoc"),
+                        cmdOpts.getCommandlocsOption("libLoc"),
                         cmdOpts.getCommandLocOption("bootLoc"),
                         cmdOpts.getCommandLocOption("binLoc"), 
                         cmdOpts.getModuleOptionsAsIMap()); 
@@ -97,8 +97,8 @@ public class RascalC {
             else {
                 IList programs = kernel.compileAndLink(
                         cmdOpts.getRascalModules(),
-                        cmdOpts.getCommandPathOption("srcPath"),
-                        cmdOpts.getCommandPathOption("libLocs"),
+                        cmdOpts.getCommandlocsOption("srcLoc"),
+                        cmdOpts.getCommandlocsOption("libLoc"),
                         cmdOpts.getCommandLocOption("bootLoc"),
                         cmdOpts.getCommandLocOption("binLoc"), 
                         cmdOpts.getModuleOptionsAsIMap());

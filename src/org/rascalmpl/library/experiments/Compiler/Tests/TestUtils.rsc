@@ -10,7 +10,7 @@ import util::Reflective;
 
 //loc TMP = |tmp:///experiments/Compiler::Tests::TMP.rsc|;
 
-PathConfig pcfg = pathConfig(srcPath=[|test-modules:///|, |std:///|], binLoc=|home:///bin|, libLocs=[|home:///bin|]);
+PathConfig pcfg = pathConfig(srcLocs=[|test-modules:///|, |std:///|], binLoc=|home:///bin|, libLocs=[|home:///bin|]);
 
 value run(str exp, bool debug=false, bool debugRVM=false, bool recompile=true, bool profile=false, bool jvm=true) {
     TMP = makeTMP();

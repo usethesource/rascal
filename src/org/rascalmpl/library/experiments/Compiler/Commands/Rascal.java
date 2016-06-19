@@ -39,23 +39,28 @@ public class Rascal {
 
             CommandOptions cmdOpts = new CommandOptions("rascal");
             cmdOpts
-            .pathOption("libLocs")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
-            .help("Add new lib paths, use multiple --libLocss for multiple paths")
+            .locsOption("libLoc")		
+            .locsDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
+            .help("Add new lib location, use multiple --libLocs for multiple locations")
 
-            .locOption("bootLoc") 		.locDefault(cmdOpts.getDefaultBootLocation())
+            .locOption("bootLoc") 		
+            .locDefault(cmdOpts.getDefaultBootLocation())
             .help("Rascal boot directory")
 
-            .locOption("binLoc") 		.help("Directory for Rascal binaries")
+            .locOption("binLoc") 		
+            .help("Directory for Rascal binaries")
 
-            //.boolOption("jvm") 			.help("Generate JVM code")
+            .boolOption("verbose")		
+            .help("Print compilation steps")
 
-            .boolOption("verbose")		.help("Print compilation steps")
+            .boolOption("help")			
+            .help("Print help message for this command")
 
-            .boolOption("help")			.help("Print help message for this command")
+            .boolOption("trace")		
+            .help("Print Rascal functions during execution")
 
-            .boolOption("trace")		.help("Print Rascal functions during execution")
-
-            .boolOption("profile")		.help("Profile execution of Rascal program")
+            .boolOption("profile")		
+            .help("Profile execution of Rascal program")
 
             .rascalModule("RascalModule::main() to be executed")
 

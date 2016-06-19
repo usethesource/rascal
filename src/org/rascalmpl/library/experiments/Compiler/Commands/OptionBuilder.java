@@ -25,7 +25,7 @@ public class  OptionBuilder {
 		case INT: initialValue = vf.integer(0) ; break;
 		case STR: initialValue = vf.string(""); break;
 		case LOC: initialValue = null; break;
-		case PATH:initialValue = vf.list(); break;
+		case LOCS:initialValue = vf.list(); break;
 		case BOOL:initialValue = vf.bool(false);
 		}
 	}
@@ -120,8 +120,8 @@ public class  OptionBuilder {
 	 * @param defaultValue for a path option
 	 * @return this OptionBuilder
 	 */
-	public OptionBuilder pathDefault(IList defaultValue){
-		check(OptionType.PATH);
+	public OptionBuilder locsDefault(IList defaultValue){
+		check(OptionType.LOCS);
 		this.defaultValue = defaultValue;
 		return this;
 	}
@@ -130,8 +130,8 @@ public class  OptionBuilder {
 	 * @param defaultValue for a path option as a function that returns a list of locs
 	 * @return this OptionBuilder
 	 */
-	public OptionBuilder pathDefault(Function<CommandOptions, IList> defaultValue){
-		check(OptionType.PATH);
+	public OptionBuilder locsDefault(Function<CommandOptions, IList> defaultValue){
+		check(OptionType.LOCS);
 		this.defaultValue = defaultValue;
 		return this;
 	}
