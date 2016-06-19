@@ -35,7 +35,7 @@ public class RascalTests {
 										.respectNoDefaults()
 										.help("Add new lib path, use multiple --libPaths for multiple paths")
 		
-			.locOption("bootDir")		.locDefault(cmdOpts.getDefaultBootLocation())
+			.locOption("bootLoc")		.locDefault(cmdOpts.getDefaultBootLocation())
 										.help("Rascal boot directory")
 		
 			.locOption("binDir") 		.help("Directory for Rascal binaries")
@@ -61,13 +61,13 @@ public class RascalTests {
 				.forModule(cmdOpts.getRascalModule().getValue())
 				.build();
 
-		Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("bootDir"));
+		Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("bootLoc"));
 		try {
 		    IBool success = (IBool) kernel.rascalTests(
 		            cmdOpts.getRascalModules(),
 		            cmdOpts.getCommandPathOption("srcPath"),
 		            cmdOpts.getCommandPathOption("libPath"),
-		            cmdOpts.getCommandLocOption("bootDir"),
+		            cmdOpts.getCommandLocOption("bootLoc"),
 		            cmdOpts.getCommandLocOption("binDir"), 
 		            cmdOpts.getModuleOptionsAsIMap());
 
