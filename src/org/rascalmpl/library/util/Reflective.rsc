@@ -73,10 +73,10 @@ public java loc getSearchPathLocation(str filePath);
 
 data PathConfig 
   = pathConfig(list[loc] srcPath = [|std:///|],        // List of directories to search for source files
-               list[loc] libPath = [|boot:///stdlib|, |std:///|],        
-                                                        // List of directories to search source for derived files
-               //list[loc] projectPath = [],             // List of directories to search for source or derived files in projects
-                                                        // Note: each directory should include the project name as last path element
+               list[loc] libLocs = [|boot:///stdlib|, |std:///|],        
+                                                       // List of directories to search source for derived files
+               //list[loc] projectPath = [],           // List of directories to search for source or derived files in projects
+                                                       // Note: each directory should include the project name as last path element
                loc binLoc = |home:///bin/|,            // Global directory for derived files outside projects
                loc bootLoc = |boot+compressed:///|     // Directory with Rascal boot files
               );
@@ -113,19 +113,19 @@ loc metafile(loc l) = l + "META-INF/RASCAL.MF";
   META-INF/RASCAL.MF files.
 }
 PathConfig applyManifests(PathConfig cfg) {
-   mf = (l:readManifest(#RascalManifest, metafile(l)) | l <- cfg.srcPath + cfg.libPath + [cfg.binLoc], exists(metafile(l)));
+   mf = (l:readManifest(#RascalManifest, metafile(l)) | l <- cfg.srcPath + cfg.libLocs + [cfg.binLoc], exists(metafile(l)));
 
    list[loc] expandSrcPath(loc p) = [ p + s | s <- mf[p].Source] when mf[p]?;
    default list[loc] expandSrcPath(loc p, str _) = [p];
    
-   list[loc] expandLibPath(loc p) = [ p + s | s <- mf[p].\Required-Libraries] when mf[p]?;
-   default list[loc] expandLibPath(loc p, str _) = [p];
+   list[loc] expandlibLocs(loc p) = [ p + s | s <- mf[p].\Required-Libraries] when mf[p]?;
+   default list[loc] expandlibLocs(loc p, str _) = [p];
     
    loc expandbinLoc(loc p) = p + mf[p].Bin when mf[p]?;
    default loc expandbinLoc(loc p) = p;
    
    cfg.srcPath = [*expandSrcPath(p) | p <- cfg.srcPath];
-   cfg.libPath = [*expandLibPath(p) | p <- cfg.libPath];
+   cfg.libLocs = [*expandlibLocs(p) | p <- cfg.libLocs];
    cfg.binLoc  = expandbinLoc(cfg.binLoc);
    
    // TODO: here we add features for Required-Libraries by searching in a repository of installed
@@ -137,7 +137,7 @@ PathConfig applyManifests(PathConfig cfg) {
 str makeFileName(str qualifiedModuleName, str extension = "rsc") = replaceAll(qualifiedModuleName, "::", "/") + "." + extension;
 
 loc getSearchPathLoc(str filePath, PathConfig pcfg){
-    for(loc dir <- pcfg.srcPath + pcfg.libPath){
+    for(loc dir <- pcfg.srcPath + pcfg.libLocs){
         fileLoc = dir + filePath;
         if(exists(fileLoc)){
             //println("getModuleLocation <qualifiedModuleName> =\> <fileLoc>");
@@ -195,7 +195,7 @@ a path name is constructed from the module name + extension.
 If a file F with this path exists in one of the directories in the PathConfig,
 then the pair <true, F> is returned. Otherwise <false, some error location> is returned.
 
-For a source extension (typically "rsc" or "mu" but this can be configured) srcPath is searched, otherwise binPath + libPath.
+For a source extension (typically "rsc" or "mu" but this can be configured) srcPath is searched, otherwise binPath + libLocs.
 
 .Examples
 [source,rascal-shell]
@@ -227,7 +227,7 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
       // A binary (possibly library) module
       compressed = endsWith(extension, "gz");
 
-      for(loc dir <- pcfg.binLoc + pcfg.libPath){   // In a bin or lib directory?
+      for(loc dir <- pcfg.binLoc + pcfg.libLocs){   // In a bin or lib directory?
        
         fileLoc = dir + fileName;
         if(exists(fileLoc)){

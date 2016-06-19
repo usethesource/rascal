@@ -28,9 +28,9 @@ public class CompileMuLibrary {
             .pathOption("srcPath")		.pathDefault(cmdOpts.getDefaultStdPath().isEmpty() ? vf.list(cmdOpts.getDefaultStdPath()) : cmdOpts.getDefaultStdPath())
             .respectNoDefaults()
             .help("Add (absolute!) source path, use multiple --srcPaths for multiple paths")
-            .pathOption("libPath")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
+            .pathOption("libLocs")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
             .respectNoDefaults()
-            .help("Add new lib path, use multiple --libPaths for multiple paths")
+            .help("Add new lib path, use multiple --libLocss for multiple paths")
             .locOption("bootLoc")		.locDefault(cmdOpts.getDefaultBootLocation())
             .help("Rascal boot directory")
             .locOption("binLoc") 		.respectNoDefaults()
@@ -54,7 +54,7 @@ public class CompileMuLibrary {
 
             kernel.compileMuLibrary(
                     cmdOpts.getCommandPathOption("srcPath"),
-                    cmdOpts.getCommandPathOption("libPath"),
+                    cmdOpts.getCommandPathOption("libLocs"),
                     cmdOpts.getCommandLocOption("bootLoc"),
                     cmdOpts.getCommandLocOption("binLoc"), 
                     cmdOpts.getModuleOptionsAsIMap());
