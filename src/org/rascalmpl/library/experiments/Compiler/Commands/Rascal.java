@@ -42,7 +42,7 @@ public class Rascal {
             .pathOption("libPath")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binDir")))
             .help("Add new lib paths, use multiple --libPaths for multiple paths")
 
-            .locOption("bootDir") 		.locDefault(cmdOpts.getDefaultBootLocation())
+            .locOption("bootLoc") 		.locDefault(cmdOpts.getDefaultBootLocation())
             .help("Rascal boot directory")
 
             .locOption("binDir") 		.help("Directory for Rascal binaries")

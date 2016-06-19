@@ -192,10 +192,10 @@ public class CourseCompiler {
 					           cmdOpts.getCommandLocOption("binDir"),
 					           cmdOpts.getCommandPathOption("coursePaths"));   
 		
-		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getCoursePaths().get(0)).getPath());
-		Path libPath = Paths.get(((ISourceLocation)pcfg.getLibPaths().get(0)).getPath());
+		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getCourseLocs().get(0)).getPath());
+		Path libPath = Paths.get(((ISourceLocation)pcfg.getLibLocs().get(0)).getPath());
 		
-		Path destPath = Paths.get(((ISourceLocation)pcfg.getBinDir()).getPath()).resolve("courses");
+		Path destPath = Paths.get(((ISourceLocation)pcfg.getBinLoc()).getPath()).resolve("courses");
 		copyStandardFiles(coursesSrcPath, destPath);
 		
 		StringWriter sw = new StringWriter();

@@ -60,7 +60,7 @@ public class HelpServer extends NanoHTTPD {
 		case "png": 	return "image/png";
 		case "txt":		return "text/plain";
 		}
-		return "text/plain";
+		return "text/html";
 	}
 	
 	private String etag(String uri){

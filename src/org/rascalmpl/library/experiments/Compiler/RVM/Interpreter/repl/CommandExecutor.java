@@ -106,7 +106,7 @@ public class CommandExecutor {
 		vf = ValueFactoryFactory.getValueFactory();
 		prelude = new Prelude(vf);
 		
-		this.pcfg = pcfg.addSourcePath(vf.sourceLocation("test-modules", "", ""));
+		this.pcfg = pcfg.addSourceLoc(vf.sourceLocation("test-modules", "", ""));
 		this.stdout = stdout;
 		this.stderr = stderr; 
 		
@@ -222,10 +222,10 @@ public class CommandExecutor {
 			
 			rvmConsoleExecutable = kernel.compileAndMergeIncremental(vf.string(consoleInputName), 
 																	reuseConfig, 
-																	pcfg.getSrcPaths(), 
-																	pcfg.getLibPaths(), 
-																	pcfg.getBootDir(), 
-																	pcfg.getBinDir(), 
+																	pcfg.getSrcLocs(), 
+																	pcfg.getLibLocs(), 
+																	pcfg.getBootLoc(), 
+																	pcfg.getBinLoc(), 
 																	makeCompileKwParamsAsIMap());
 			
 			if(noErrors(modString, rvmConsoleExecutable)){

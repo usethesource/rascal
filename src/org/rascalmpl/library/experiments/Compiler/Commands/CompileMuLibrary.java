@@ -31,7 +31,7 @@ public class CompileMuLibrary {
             .pathOption("libPath")		.pathDefault((co) -> vf.list(co.getCommandLocOption("binDir")))
             .respectNoDefaults()
             .help("Add new lib path, use multiple --libPaths for multiple paths")
-            .locOption("bootDir")		.locDefault(cmdOpts.getDefaultBootLocation())
+            .locOption("bootLoc")		.locDefault(cmdOpts.getDefaultBootLocation())
             .help("Rascal boot directory")
             .locOption("binDir") 		.respectNoDefaults()
             .help("Directory for Rascal binaries")
@@ -55,7 +55,7 @@ public class CompileMuLibrary {
             kernel.compileMuLibrary(
                     cmdOpts.getCommandPathOption("srcPath"),
                     cmdOpts.getCommandPathOption("libPath"),
-                    cmdOpts.getCommandLocOption("bootDir"),
+                    cmdOpts.getCommandLocOption("bootLoc"),
                     cmdOpts.getCommandLocOption("binDir"), 
                     cmdOpts.getModuleOptionsAsIMap());
         }

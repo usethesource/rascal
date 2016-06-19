@@ -303,10 +303,10 @@ value execute(str qualifiedModuleName, PathConfig pcfg,
    return execute(mainModule, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=testsuite, profile=profile, verbose=verbose, trace=trace, coverage=coverage, jvm=jvm);
 }
 
-value rascalTests(list[str] qualifiedModuleNames, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir, 
+value rascalTests(list[str] qualifiedModuleNames, list[loc] srcPath, list[loc] libPath, loc bootLoc, loc binDir, 
                   map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool recompile=false, bool profile=false, 
                   bool trace= false,  bool coverage=false, bool jvm=true, bool verbose = false){
-    return rascalTests(qualifiedModuleNames, pathConfig(srcPath=srcPath, libPath=libPath, bootDir=bootDir, binDir=binDir),
+    return rascalTests(qualifiedModuleNames, pathConfig(srcPath=srcPath, libPath=libPath, bootLoc=bootLoc, binDir=binDir),
                        keywordArguments=keywordArguments,
                        debug=debug,
                        debugRVM=debugRVM,
@@ -347,14 +347,14 @@ value rascalTests(list[str] qualifiedModuleNames, PathConfig pcfg,
    return printTestReport(all_test_results, exceptions);
 }
 
-RVMProgram compileAndLink(str qualifiedModuleName, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir,  
+RVMProgram compileAndLink(str qualifiedModuleName, list[loc] srcPath, list[loc] libPath, loc bootLoc, loc binDir,  
                           bool jvm=true, bool verbose = false){
-    return compileAndLink(qualifiedModuleName, pathConfig(srcPath=srcPath, libPath=libPath, bootDir=bootDir, binDir=binDir), jvm=jvm, verbose=verbose);
+    return compileAndLink(qualifiedModuleName, pathConfig(srcPath=srcPath, libPath=libPath, bootLoc=bootLoc, binDir=binDir), jvm=jvm, verbose=verbose);
 }
 
-list[RVMProgram] compileAndLink(list[str] qualifiedModuleNames, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir,  
+list[RVMProgram] compileAndLink(list[str] qualifiedModuleNames, list[loc] srcPath, list[loc] libPath, loc bootLoc, loc binDir,  
                           bool jvm=true, bool verbose = false){
-    pcfg = pathConfig(srcPath=srcPath, libPath=libPath, bootDir=bootDir, binDir=binDir);
+    pcfg = pathConfig(srcPath=srcPath, libPath=libPath, bootLoc=bootLoc, binDir=binDir);
     return [ compileAndLink(qualifiedModuleName, pcfg, jvm=jvm, verbose=verbose) | qualifiedModuleName <- qualifiedModuleNames ];        
 }                          
 
@@ -371,9 +371,9 @@ RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool jvm=tru
    return merged;
 }
 
-RVMProgram compileAndMergeIncremental(str qualifiedModuleName, bool reuseConfig, list[loc] srcPath, list[loc] libPath, loc bootDir, loc binDir, bool jvm=true, bool verbose = false, bool optimize = true){
+RVMProgram compileAndMergeIncremental(str qualifiedModuleName, bool reuseConfig, list[loc] srcPath, list[loc] libPath, loc bootLoc, loc binDir, bool jvm=true, bool verbose = false, bool optimize = true){
    //pcfg = pathConfig(srcPath=[|std:///|, |test-modules:///|], binDir=|home:///bin-console|, libPath=[|home:///bin-console|]);
-   pcfg = pathConfig(srcPath=srcPath, libPath=libPath, bootDir=bootDir, binDir=binDir);
+   pcfg = pathConfig(srcPath=srcPath, libPath=libPath, bootLoc=bootLoc, binDir=binDir);
    if(!reuseConfig){
       mergedImportLoc = getMergedImportsWriteLoc(qualifiedModuleName, pcfg);
       try {
