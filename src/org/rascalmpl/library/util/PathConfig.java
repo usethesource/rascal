@@ -120,9 +120,9 @@ public class PathConfig {
 	}
 	
 	public PathConfig addSourceLoc(ISourceLocation dir) {
-		List<ISourceLocation> extendedSrcPath = new ArrayList<ISourceLocation>(srcLocs);
-		extendedSrcPath.add(dir);
-		return new PathConfig(extendedSrcPath, libLocs, binLoc, bootLoc);
+		List<ISourceLocation> extendedSrcLocs = new ArrayList<ISourceLocation>(srcLocs);
+		extendedSrcLocs.add(dir);
+		return new PathConfig(extendedSrcLocs, libLocs, binLoc, bootLoc);
 	}
 	
 	public IList getCourseLocs() {
@@ -130,9 +130,9 @@ public class PathConfig {
 	}
 	
 	public PathConfig addCourseLoc(ISourceLocation dir) {
-		List<ISourceLocation> extendedCoursePaths = new ArrayList<ISourceLocation>(courseLocs);
-		extendedCoursePaths.add(dir);
-		return new PathConfig(srcLocs, libLocs, binLoc, bootLoc, extendedCoursePaths);
+		List<ISourceLocation> extendedCourseLocs = new ArrayList<ISourceLocation>(courseLocs);
+		extendedCourseLocs.add(dir);
+		return new PathConfig(srcLocs, libLocs, binLoc, bootLoc, extendedCourseLocs);
 	}
 	
 	public ISourceLocation getCourseLoc(String courseName) throws URISyntaxException, IOException{
@@ -196,7 +196,7 @@ public class PathConfig {
 	}
 
     public IRascalSearchPathContributor getSourcePathContributor() {
-        return new PathContributor("srcPath", srcLocs);
+        return new PathContributor("srcLocs", srcLocs);
     }
 	
 	String makeFileName(String qualifiedModuleName, String extension) {

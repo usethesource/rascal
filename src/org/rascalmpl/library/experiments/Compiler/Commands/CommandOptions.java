@@ -31,7 +31,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  * Option values can have the foloowing types;
  *
  */
-enum OptionType {INT, STR, BOOL, PATH, LOC};
+enum OptionType {INT, STR, BOOL, LOCS, LOC};
 
 /**
  * Create CommandOptions for a main program.
@@ -41,9 +41,9 @@ enum OptionType {INT, STR, BOOL, PATH, LOC};
  * <li>boolean: --optionName
  * <li>string:  --optionName stringValue 
  * <li>loc:     --optionName sourceLocationValue
- * <li>path:    --optionName sourceLocationValue
+ * <li>locs:    --optionName sourceLocationValue
  *                   sourceLocationValue are either (quoted) Rascal source locations or file path names
- *                   multiple path options of the same name accumulate to a list of source locations
+ *                   multiple locs options of the same name accumulate to a list of source locations
  * </ul>
  * Command options define properties for the initialized and configuration of the command.
  * <p>
@@ -195,34 +195,34 @@ public class CommandOptions {
 	}
 	
 	/****************************************************************************/
-	/*			Path options													*/
+	/*			Locs options													*/
 	/****************************************************************************/
 
 	/**
-	 * Declare a path option (a list of locations)
+	 * Declare a locs option (a list of locations)
 	 * @param name of option
 	 * @return OptionBuilder
 	 */
-	public OptionBuilder pathOption(String name){
-		return new OptionBuilder(this, OptionType.PATH, name);
+	public OptionBuilder locsOption(String name){
+		return new OptionBuilder(this, OptionType.LOCS, name);
 	}
 
 	/**
-	 * Get the value of a path option from the command options
+	 * Get the value of a locs option from the command options
 	 * @param name
 	 * @return value of option
 	 */
-	public IList getCommandPathOption(String name){
-		return (IList) commandOptions.get(OptionType.PATH, name);
+	public IList getCommandlocsOption(String name){
+		return (IList) commandOptions.get(OptionType.LOCS, name);
 	}
 
 	/**
-	 * Get the value of a path option from the module options
+	 * Get the value of a locs option from the module options
 	 * @param name
 	 * @return value of option
 	 */
-	public IList getModulePathOption(String name){
-		return (IList) moduleOptions.get(OptionType.PATH, name);
+	public IList getModuleLocsOption(String name){
+		return (IList) moduleOptions.get(OptionType.LOCS, name);
 	}
 
 	/****************************************************************************/
@@ -301,9 +301,9 @@ public class CommandOptions {
 				} else {
 					if(currentOptions.contains(OptionType.STR, option)){
 						currentOptions.set(OptionType.STR, option, vf.string(getOptionValue(args, i)));
-					} else if(currentOptions.contains(OptionType.PATH, option)){
+					} else if(currentOptions.contains(OptionType.LOCS, option)){
 						ISourceLocation newLoc = convertLoc(getOptionValue(args, i));
-						currentOptions.update(OptionType.PATH, option, (current) -> current == null ? vf.list(newLoc) : ((IList) current).append(newLoc));
+						currentOptions.update(OptionType.LOCS, option, (current) -> current == null ? vf.list(newLoc) : ((IList) current).append(newLoc));
 					} else if(currentOptions.contains(OptionType.LOC, option)){
 						currentOptions.set(OptionType.LOC, option, convertLoc(getOptionValue(args, i)));
 					} else {
@@ -516,11 +516,11 @@ public class CommandOptions {
 		}
 	}
 
-	public IList getDefaultStdPath(){
+	public IList getDefaultStdlocs(){
 		return vf.list(getDefaultStdLocation());
 	}
 	
-	public IList getDefaultCoursePath(){
+	public IList getDefaultCourselocs(){
 		return vf.list(getDefaultCourseLocation());
 	}
 
@@ -544,8 +544,8 @@ public class CommandOptions {
 	}
 	
 	public PathConfig getPathConfig(){
-		return new PathConfig(getCommandPathOption("srcPath"),
-							  getCommandPathOption("libLocs"),
+		return new PathConfig(getCommandlocsOption("srcLocs"),
+							  getCommandlocsOption("libLocs"),
 							  getCommandLocOption("binLoc"),
 							  getCommandLocOption("bootLoc"));
 	}
@@ -639,7 +639,7 @@ class Option {
 		case INT: res += " <int>"; break;
 		case STR: res += " <str>"; break;
 		case LOC: res += " <loc>"; break;
-		case PATH: res += " <path>"; break;
+		case LOCS: res += " <locs>"; break;
 		case BOOL:
 			break;
 		}

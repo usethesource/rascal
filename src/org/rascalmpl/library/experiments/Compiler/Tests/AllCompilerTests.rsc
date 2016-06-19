@@ -42,7 +42,7 @@ lrel[str,str] crashes = [];
 lrel[str,str] partial_results = [];
 
 lrel[loc,int,str] runTests(list[str] names, str base){
- PathConfig pcfg = pathConfig(srcPath=[|test-modules:///|, |std:///|], binLoc=|home:///c1bin|, libLocs=[|home:///c1bin|]);
+ PathConfig pcfg = pathConfig(srcLocs=[|test-modules:///|, |std:///|], binLoc=|home:///c1bin|, libLocs=[|home:///c1bin|]);
  all_test_results = [];
  for(str tst <- names){
       //prog = base + (tst + ".rsc");

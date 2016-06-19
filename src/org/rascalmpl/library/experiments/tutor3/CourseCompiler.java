@@ -154,20 +154,20 @@ public class CourseCompiler {
 		 CommandOptions cmdOpts = new CommandOptions("course-compiler");
          
          cmdOpts
-         .pathOption("coursePaths")		
-         .pathDefault(cmdOpts.getDefaultCoursePath().isEmpty() ? vf.list(cmdOpts.getDefaultCoursePath()) : cmdOpts.getDefaultCoursePath())
+         .locsOption("coursePaths")		
+         .locsDefault(cmdOpts.getDefaultCourselocs().isEmpty() ? vf.list(cmdOpts.getDefaultCourselocs()) : cmdOpts.getDefaultCourselocs())
          .respectNoDefaults()
          .help("Add (absolute!) course path, use multiple --coursePaths for multiple paths")
          
-         .pathOption("srcPaths")		
-         .pathDefault(cmdOpts.getDefaultStdPath().isEmpty() ? vf.list(cmdOpts.getDefaultStdPath()) : cmdOpts.getDefaultStdPath())
+         .locsOption("srcPaths")		
+         .locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
          .respectNoDefaults()
-         .help("Add (absolute!) source path, use multiple --srcPaths for multiple paths")
+         .help("Add (absolute!) source location, use multiple --srcLocs for multiple locations")
 
-         .pathOption("libLocss")		
-         .pathDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
+         .locsOption("libLoc")		
+         .locsDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
          .respectNoDefaults()
-         .help("Add new lib path, use multiple --libLocss for multiple paths")
+         .help("Add new lib location, use multiple --libLocs for multiple locations")
 
          .locOption("binLoc") 		
          .respectNoDefaults()
@@ -187,10 +187,10 @@ public class CourseCompiler {
          .handleArgs(args);
 		
 		PathConfig pcfg = 
-				new PathConfig(cmdOpts.getCommandPathOption("srcPaths"),
-							   cmdOpts.getCommandPathOption("libLocss"),
+				new PathConfig(cmdOpts.getCommandlocsOption("srcPath"),
+							   cmdOpts.getCommandlocsOption("libLoc"),
 					           cmdOpts.getCommandLocOption("binLoc"),
-					           cmdOpts.getCommandPathOption("coursePaths"));   
+					           cmdOpts.getCommandlocsOption("coursePaths"));   
 		
 		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getCourseLocs().get(0)).getPath());
 		Path libPath = Paths.get(((ISourceLocation)pcfg.getLibLocs().get(0)).getPath());
