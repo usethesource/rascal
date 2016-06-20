@@ -181,6 +181,9 @@ public class Bootstrap {
 		
 		
 		if (!cached.toFile().exists() || "unstable".equals(version)) {
+		    if (cached.toFile().exists()) {
+		        cached.toFile().delete();
+		    }
     		URI deployedVersion = deployedVersion(version);
     		info("downloading " + deployedVersion);
 			Files.copy(deployedVersion.toURL().openStream(), cached);
