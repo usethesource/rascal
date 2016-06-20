@@ -227,7 +227,7 @@ public class Bootstrap {
         return result;
     }
     
-    private final static boolean TRANSITION_ARGS = false;
+    private final static boolean TRANSITION_ARGS = true;
 
     private static void compileModule(int phase, String classPath, String boot, String sourcePath, Path result,
             String module) throws IOException, InterruptedException, BootstrapMessage {
