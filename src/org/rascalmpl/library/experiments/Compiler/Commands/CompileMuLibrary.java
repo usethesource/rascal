@@ -25,12 +25,12 @@ public class CompileMuLibrary {
             IValueFactory vf = ValueFactoryFactory.getValueFactory();
             CommandOptions cmdOpts = new CommandOptions("compileMuLibrary");
             cmdOpts
-            .locsOption("srcLocs")		
+            .locsOption("srcLoc")		
             .locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
             .respectNoDefaults()
             .help("Add (absolute!) source path, use multiple --srcLocss for multiple paths")
             
-            .locsOption("libLocs")		
+            .locsOption("libLoc")		
             .locsDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
             .respectNoDefaults()
             .help("Add new lib path, use multiple --libLocss for multiple paths")
@@ -68,8 +68,8 @@ public class CompileMuLibrary {
             Kernel kernel = new Kernel(vf, rex);
 
             kernel.compileMuLibrary(
-                    cmdOpts.getCommandlocsOption("srcLocs"),
-                    cmdOpts.getCommandlocsOption("libLocs"),
+                    cmdOpts.getCommandlocsOption("srcLoc"),
+                    cmdOpts.getCommandlocsOption("libLoc"),
                     cmdOpts.getCommandLocOption("bootLoc"),
                     cmdOpts.getCommandLocOption("binLoc"), 
                     cmdOpts.getModuleOptionsAsIMap());
