@@ -534,7 +534,7 @@ public class CommandOptions {
 		}
 	}
 
-	public ISourceLocation getDefaultbootation(){
+	public ISourceLocation getDefaultBootLocation(){
 		try {
 			return vf.sourceLocation("boot", "", "");
 		} catch (URISyntaxException e) {

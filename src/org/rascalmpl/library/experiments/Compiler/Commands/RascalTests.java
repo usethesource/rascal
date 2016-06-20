@@ -38,7 +38,7 @@ public class RascalTests {
 			.help("Add new lib location, use multiple --lib arguments for multiple locations")
 		
 			.locOption("boot")		
-			.locDefault(cmdOpts.getDefaultbootation())
+			.locDefault(cmdOpts.getDefaultBootLocation())
 			.help("Rascal boot directory")
 		
 			.locOption("bin") 		
