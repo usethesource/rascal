@@ -29,6 +29,6 @@ list[RVMDeclaration] compileMuLibrary(PathConfig pcfg, bool verbose = false, boo
     return functions; 
 }
 
-void compileMuLibrary(list[loc] srcLocs, list[loc] libLocs, loc bootLoc, loc binLoc, bool verbose = false, bool jvm=true) {
-  compileMuLibrary(pathConfig(srcLocs=srcLocs, libLocs=libLocs, bootLoc=bootLoc, binLoc=binLoc), verbose=verbose, jvm=jvm);
+void compileMuLibrary(list[loc] srcs, list[loc] libs, loc boot, loc bin, bool verbose = false, bool jvm=true) {
+  compileMuLibrary(pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin), verbose=verbose, jvm=jvm);
 }

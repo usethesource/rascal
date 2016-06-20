@@ -176,22 +176,22 @@ public class CourseCompiler {
 		 CommandOptions cmdOpts = new CommandOptions("course-compiler");
          
          cmdOpts
-         .locsOption("courseLoc")		
-         .locsDefault(cmdOpts.getDefaultCourselocs().isEmpty() ? vf.list(cmdOpts.getDefaultCourselocs()) : cmdOpts.getDefaultCourselocs())
+         .locsOption("course")		
+         .locsDefault(cmdOpts.getDefaultcourses().isEmpty() ? vf.list(cmdOpts.getDefaultcourses()) : cmdOpts.getDefaultcourses())
          .respectNoDefaults()
-         .help("Add (absolute!) course location, use multiple --coursePath arguments for multiple locations")
+         .help("Add (absolute!) course location, use multiple --course arguments for multiple locations")
          
-         .locsOption("srcLoc")		
+         .locsOption("src")		
          .locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
          .respectNoDefaults()
-         .help("Add (absolute!) source location, use multiple --srcLocs for multiple locations")
+         .help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
 
-         .locsOption("libLoc")		
-         .locsDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
+         .locsOption("lib")		
+         .locsDefault((co) -> vf.list(co.getCommandLocOption("bin")))
          .respectNoDefaults()
-         .help("Add new lib location, use multiple --libLoc arguments for multiple locations")
+         .help("Add new lib location, use multiple --lib arguments for multiple locations")
 
-         .locOption("binLoc") 		
+         .locOption("bin") 		
          .respectNoDefaults()
          .help("Directory for Rascal binaries")
          
@@ -209,15 +209,15 @@ public class CourseCompiler {
          .handleArgs(args);
 		
 		PathConfig pcfg = 
-				new PathConfig(cmdOpts.getCommandlocsOption("srcLoc"),
-							   cmdOpts.getCommandlocsOption("libLoc"),
-					           cmdOpts.getCommandLocOption("binLoc"),
+				new PathConfig(cmdOpts.getCommandlocsOption("src"),
+							   cmdOpts.getCommandlocsOption("lib"),
+					           cmdOpts.getCommandLocOption("bin"),
 					           cmdOpts.getCommandlocsOption("courseLoc"));   
 		
-		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getCourseLocs().get(0)).getPath());
-		Path libPath = Paths.get(((ISourceLocation)pcfg.getLibLocs().get(0)).getPath());
+		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getcourses().get(0)).getPath());
+		Path libPath = Paths.get(((ISourceLocation)pcfg.getLibs().get(0)).getPath());
 		
-		Path destPath = Paths.get(((ISourceLocation)pcfg.getBinLoc()).getPath()).resolve("courses");
+		Path destPath = Paths.get(((ISourceLocation)pcfg.getBin()).getPath()).resolve("courses");
 		copyStandardFiles(coursesSrcPath, destPath);
 		
 		StringWriter sw = new StringWriter();
