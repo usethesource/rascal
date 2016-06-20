@@ -25,11 +25,15 @@ public class BootstrapRascalParser {
 	        IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	        CommandOptions cmdOpts = new CommandOptions("generateParser");
 	        cmdOpts
-	        .locsOption("src")		.locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
+	        .locsOption("src")		
+	        .locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
 	        .respectNoDefaults()
 	        .help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
-	        .locOption("boot")		.locDefault(cmdOpts.getDefaultBootLocation())
+	        
+	        .locOption("boot")		
+	        .locDefault(cmdOpts.getDefaultBootLocation())
 	        .help("Rascal boot directory")
+	        
 	        .noModuleArgument()
 	        .handleArgs(args);
 

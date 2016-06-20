@@ -520,7 +520,7 @@ public class CommandOptions {
 		return vf.list(getDefaultStdLocation());
 	}
 	
-	public IList getDefaultcourses(){
+	public IList getDefaultCourses(){
 		return vf.list(getDefaultCourseLocation());
 	}
 

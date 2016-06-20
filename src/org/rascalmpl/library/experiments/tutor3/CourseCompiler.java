@@ -177,7 +177,7 @@ public class CourseCompiler {
          
          cmdOpts
          .locsOption("course")		
-         .locsDefault(cmdOpts.getDefaultcourses().isEmpty() ? vf.list(cmdOpts.getDefaultcourses()) : cmdOpts.getDefaultcourses())
+         .locsDefault(cmdOpts.getDefaultCourses().isEmpty() ? vf.list(cmdOpts.getDefaultCourses()) : cmdOpts.getDefaultCourses())
          .respectNoDefaults()
          .help("Add (absolute!) course location, use multiple --course arguments for multiple locations")
          
@@ -212,7 +212,7 @@ public class CourseCompiler {
 				new PathConfig(cmdOpts.getCommandlocsOption("src"),
 							   cmdOpts.getCommandlocsOption("lib"),
 					           cmdOpts.getCommandLocOption("bin"),
-					           cmdOpts.getCommandlocsOption("courseLoc"));   
+					           cmdOpts.getCommandlocsOption("course"));   
 		
 		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getcourses().get(0)).getPath());
 		Path libPath = Paths.get(((ISourceLocation)pcfg.getLibs().get(0)).getPath());
