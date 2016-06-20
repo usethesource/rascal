@@ -142,6 +142,7 @@ public class Bootstrap {
         catch (BootstrapMessage | IOException | InterruptedException e) {
             info(e.getMessage());
 			e.printStackTrace();
+			System.exit(1);
 		} 
     }
     
