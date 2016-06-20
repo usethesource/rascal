@@ -45,16 +45,16 @@ public class CompiledRascalShell  {
 	CommandOptions cmdOpts = new CommandOptions("CompiledRascalShell");
 	try {
 		cmdOpts
-		.locsOption("srcLocs").locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
-		.help("Add (absolute!) source path, use multiple --srcLocs arguments for multiple paths")
+		.locsOption("src").locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
+		.help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
 
-		.locOption("binLoc").locDefault(vf.sourceLocation("home", "", "bin"))
+		.locOption("bin").locDefault(vf.sourceLocation("home", "", "bin"))
 		.help("Directory for Rascal binaries")
 		
-		.locsOption("libLocs").locsDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
-		.help("Add new lib path, use multiple --libLocs arguments for multiple paths")
+		.locsOption("lib").locsDefault((co) -> vf.list(co.getCommandLocOption("bin")))
+		.help("Add new lib location, use multiple --lib arguments for multiple locations")
 
-		.locOption("bootLoc").locDefault(cmdOpts.getDefaultBootLocation())
+		.locOption("boot").locDefault(cmdOpts.getDefaultbootation())
 		.help("Rascal boot directory")
 
 		.boolOption("help")
