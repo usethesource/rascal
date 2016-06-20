@@ -229,13 +229,13 @@ public class Bootstrap {
     
     private final static boolean TRANSITION_ARGS = false;
 
-    private static void compileModule(int phase, String classPath, String bootLoc, String sourcePath, Path result,
+    private static void compileModule(int phase, String classPath, String boot, String sourcePath, Path result,
             String module) throws IOException, InterruptedException, BootstrapMessage {
         info("\tcompiling " + module);
         if (runCompiler(classPath, 
                 (!TRANSITION_ARGS || phase > 2) ? "--binLoc" : "--binDir", result.toAbsolutePath().toString(),
                 (!TRANSITION_ARGS || phase > 2) ? "--srcLoc" : "--srcPath", sourcePath,
-                (!TRANSITION_ARGS || phase > 2) ? "--bootLoc" : "--bootDir", bootLoc,
+                (!TRANSITION_ARGS || phase > 2) ? "--boot" : "--bootDir", boot,
                 "--verbose",
                 module) != 0) {
             
@@ -249,20 +249,20 @@ public class Bootstrap {
         if (runMuLibraryCompiler(classPath, 
                 (!TRANSITION_ARGS || phase > 2) ? "--binLoc" : "--binDir", result.toAbsolutePath().toString(),
                 (!TRANSITION_ARGS || phase > 2) ? "--srcLoc" : "--srcPath", sourcePath,
-                (!TRANSITION_ARGS || phase > 2) ? "--bootLoc" : "--bootDir", bootDLoc
+                (!TRANSITION_ARGS || phase > 2) ? "--boot" : "--bootDir", bootDLoc
                     ) != 0 ) {
             
             throw new BootstrapMessage(phase);
         }
     }
     
-    private static void runTestModule(int phase, String classPath, String bootLoc, String sourcePath, Path result, String[] modules) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
+    private static void runTestModule(int phase, String classPath, String boot, String sourcePath, Path result, String[] modules) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
         info("Running tests before the next phase " + phase);
         String[] arguments;
         if (!TRANSITION_ARGS || phase > 2) {
-            arguments = new String[] {"--binLoc", result.toAbsolutePath().toString(), "--srcLoc", sourcePath, "--bootLoc", bootLoc};
+            arguments = new String[] {"--binLoc", result.toAbsolutePath().toString(), "--srcLoc", sourcePath, "--boot", boot};
         } else {
-            arguments = new String[] {"--binDir", result.toAbsolutePath().toString(), "--srcPath", sourcePath, "--bootDir", bootLoc};
+            arguments = new String[] {"--binDir", result.toAbsolutePath().toString(), "--srcPath", sourcePath, "--bootDir", boot};
         }
         String[] command = new String[arguments.length + modules.length +  5];
         command[0] = "java";

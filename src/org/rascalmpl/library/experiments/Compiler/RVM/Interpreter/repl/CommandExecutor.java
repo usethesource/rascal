@@ -222,10 +222,10 @@ public class CommandExecutor {
 			
 			rvmConsoleExecutable = kernel.compileAndMergeIncremental(vf.string(consoleInputName), 
 																	reuseConfig, 
-																	pcfg.getSrcLocs(), 
-																	pcfg.getLibLocs(), 
-																	pcfg.getBootLoc(), 
-																	pcfg.getBinLoc(), 
+																	pcfg.getSrcs(), 
+																	pcfg.getLibs(), 
+																	pcfg.getboot(), 
+																	pcfg.getBin(), 
 																	makeCompileKwParamsAsIMap());
 			
 			if(noErrors(modString, rvmConsoleExecutable)){

@@ -520,21 +520,21 @@ public class CommandOptions {
 		return vf.list(getDefaultStdLocation());
 	}
 	
-	public IList getDefaultCourselocs(){
+	public IList getDefaultcourses(){
 		return vf.list(getDefaultCourseLocation());
 	}
 
 	public ISourceLocation getKernelLocation(){
 		try {
-			ISourceLocation bootLoc = getCommandLocOption("bootLoc");
-			return vf.sourceLocation("compressed+" + bootLoc.getScheme(), "", bootLoc.getPath() + "lang/rascal/boot/Kernel.rvm.ser.gz");
+			ISourceLocation boot = getCommandLocOption("boot");
+			return vf.sourceLocation("compressed+" + boot.getScheme(), "", boot.getPath() + "lang/rascal/boot/Kernel.rvm.ser.gz");
 		} catch (URISyntaxException e) {
 			printUsageAndExit("Cannot create default location: " + e.getMessage());
 			return null;
 		}
 	}
 
-	public ISourceLocation getDefaultBootLocation(){
+	public ISourceLocation getDefaultbootation(){
 		try {
 			return vf.sourceLocation("boot", "", "");
 		} catch (URISyntaxException e) {
@@ -544,10 +544,10 @@ public class CommandOptions {
 	}
 	
 	public PathConfig getPathConfig(){
-		return new PathConfig(getCommandlocsOption("srcLoc"),
-							  getCommandlocsOption("libLoc"),
-							  getCommandLocOption("binLoc"),
-							  getCommandLocOption("bootLoc"));
+		return new PathConfig(getCommandlocsOption("src"),
+							  getCommandlocsOption("lib"),
+							  getCommandLocOption("bin"),
+							  getCommandLocOption("boot"));
 	}
 
     public CommandOptions noModuleArgument() {

@@ -27,21 +27,21 @@ public class RascalTests {
 		
 		CommandOptions cmdOpts = new CommandOptions("rascalTests");
 		cmdOpts
-			.locsOption("srcLoc")		
+			.locsOption("src")		
 			.locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
 			.respectNoDefaults()
-			.help("Add (absolute!) source location, use multiple --srcLocs for multiple locations")
+			.help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
 		
-			.locsOption("libLoc")		
-			.locsDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
+			.locsOption("lib")		
+			.locsDefault((co) -> vf.list(co.getCommandLocOption("bin")))
 			.respectNoDefaults()
-			.help("Add new lib location, use multiple --libLocs for multiple locations")
+			.help("Add new lib location, use multiple --lib arguments for multiple locations")
 		
-			.locOption("bootLoc")		
-			.locDefault(cmdOpts.getDefaultBootLocation())
+			.locOption("boot")		
+			.locDefault(cmdOpts.getDefaultbootation())
 			.help("Rascal boot directory")
 		
-			.locOption("binLoc") 		
+			.locOption("bin") 		
 			.help("Directory for Rascal binaries")
 			
 			.boolOption("help")
@@ -67,14 +67,14 @@ public class RascalTests {
 				.forModule(cmdOpts.getRascalModule().getValue())
 				.build();
 
-		Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("bootLoc"));
+		Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
 		try {
 		    IBool success = (IBool) kernel.rascalTests(
 		            cmdOpts.getRascalModules(),
-		            cmdOpts.getCommandlocsOption("srcLoc"),
-		            cmdOpts.getCommandlocsOption("libLoc"),
-		            cmdOpts.getCommandLocOption("bootLoc"),
-		            cmdOpts.getCommandLocOption("binLoc"), 
+		            cmdOpts.getCommandlocsOption("src"),
+		            cmdOpts.getCommandlocsOption("lib"),
+		            cmdOpts.getCommandLocOption("boot"),
+		            cmdOpts.getCommandLocOption("bin"), 
 		            cmdOpts.getModuleOptionsAsIMap());
 
 		    System.exit(success.getValue() ? 0 : 1);
