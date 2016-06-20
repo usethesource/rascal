@@ -393,10 +393,10 @@ void statistics(loc root = |std:///|,
 }
 
 set[loc] getFunctionLocations(
-						   loc srcLoc,                  // location of Rascal source file
-   							loc binLoc = |home:///bin|   // location where binaries are stored
+						   loc src,                  // location of Rascal source file
+   							loc bin = |home:///bin|   // location where binaries are stored
 							){
-   rvmLoc = RVMModuleLocation(srcLoc, binLoc);
+   rvmLoc = RVMModuleLocation(src, bin);
    try {
         p = readBinaryValueFile(#RVMModule, rvmLoc);
         

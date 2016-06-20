@@ -14,14 +14,14 @@ public class Rascal {
 
     static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
-    static ISourceLocation findBinary(ISourceLocation binLoc, String moduleName){
+    static ISourceLocation findBinary(ISourceLocation bin, String moduleName){
         StringWriter sw = new StringWriter();
-        sw.append(binLoc.getPath())
+        sw.append(bin.getPath())
         .append("/")
         .append(moduleName.replaceAll("::", "/"))
         .append(".rvm.ser.gz");
         try {
-            return vf.sourceLocation("compressed+" + binLoc.getScheme(), binLoc.getAuthority(), sw.toString());
+            return vf.sourceLocation("compressed+" + bin.getScheme(), bin.getAuthority(), sw.toString());
         } catch (URISyntaxException e) {
             System.err.println(e.getMessage());
             System.exit(-1);
@@ -39,15 +39,15 @@ public class Rascal {
 
             CommandOptions cmdOpts = new CommandOptions("rascal");
             cmdOpts
-            .locsOption("libLoc")		
-            .locsDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
-            .help("Add new lib location, use multiple --libLocs for multiple locations")
+            .locsOption("lib")		
+            .locsDefault((co) -> vf.list(co.getCommandLocOption("bin")))
+            .help("Add new lib location, use multiple --lib arguments for multiple locations")
 
-            .locOption("bootLoc") 		
-            .locDefault(cmdOpts.getDefaultBootLocation())
+            .locOption("boot") 		
+            .locDefault(cmdOpts.getDefaultbootation())
             .help("Rascal boot directory")
 
-            .locOption("binLoc") 		
+            .locOption("bin") 		
             .help("Directory for Rascal binaries")
 
             .boolOption("verbose")		
@@ -72,7 +72,7 @@ public class Rascal {
                     .forModule(cmdOpts.getRascalModule().getValue())
                     .build();
 
-            ISourceLocation binary = findBinary(cmdOpts.getCommandLocOption("binLoc"), cmdOpts.getRascalModule().getValue());
+            ISourceLocation binary = findBinary(cmdOpts.getCommandLocOption("bin"), cmdOpts.getRascalModule().getValue());
             System.out.println(RVMCore.readFromFileAndExecuteProgram(binary, cmdOpts.getModuleOptionsAsIMap(), rex));
         } catch (Throwable e) {
             e.printStackTrace();

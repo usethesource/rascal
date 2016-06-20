@@ -13,7 +13,7 @@ Conventions:
 
 By default, all compiled code is written to the directory |home:///bin|.
 
-The main functions that are provided are:
+The main functions that are provided are (outdated):
 
 compile			RVMProgram compile(					// Compile a Rascal file
 					loc moduleLoc, 					// source location of module to be compiled

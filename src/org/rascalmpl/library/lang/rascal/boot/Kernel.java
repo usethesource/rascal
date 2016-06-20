@@ -50,125 +50,125 @@ public class Kernel {
 		   
 		this.rvm = ExecutionTools.initializedRVM(binaryKernelLoc, rex);
 
-		compile    		= rvm.getOverloadedFunction("RVMModule compile(str qname, list[loc] srcLocs, list[loc] libLocs, loc bootLoc, loc binLoc)");
-		compileN    	= rvm.getOverloadedFunction("list[RVMModule] compile(list[str] qnames, list[loc] srcLocs, list[loc] libLocs, loc bootLoc, loc binLoc)");
-		compileMuLibrary= rvm.getOverloadedFunction("void compileMuLibrary(list[loc] srcLocs, list[loc] libLocs, loc bootLoc, loc binLoc)");
-		compileAndLink  = rvm.getOverloadedFunction("RVMProgram compileAndLink(str qname, list[loc] srcLocs, list[loc] libLocs, loc bootLoc, loc binLoc)");
-		compileAndLinkN = rvm.getOverloadedFunction("list[RVMProgram] compileAndLink(list[str] qnames, list[loc] srcLocs, list[loc] libLocs, loc bootLoc, loc binLoc)");
+		compile    		= rvm.getOverloadedFunction("RVMModule compile(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+		compileN    	= rvm.getOverloadedFunction("list[RVMModule] compile(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+		compileMuLibrary= rvm.getOverloadedFunction("void compileMuLibrary(list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+		compileAndLink  = rvm.getOverloadedFunction("RVMProgram compileAndLink(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+		compileAndLinkN = rvm.getOverloadedFunction("list[RVMProgram] compileAndLink(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
 		compileAndMergeIncremental 
-						= rvm.getOverloadedFunction("RVMProgram compileAndMergeIncremental(str qname, bool reuseConfig, list[loc] srcLocs, list[loc] libLocs, loc bootLoc, loc binLoc)");
-		rascalTests   	= rvm.getOverloadedFunction("value rascalTests(list[str] qnames, list[loc] srcLocs, list[loc] libLocs, loc bootLoc, loc binLoc)");
+						= rvm.getOverloadedFunction("RVMProgram compileAndMergeIncremental(str qname, bool reuseConfig, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+		rascalTests   	= rvm.getOverloadedFunction("value rascalTests(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
 //		bootstrapRascalParser = rvm.getOverloadedFunction("void bootstrapRascalParser(loc src)");
 	}
 	
 	/**
 	 * Compile a Rascal module
 	 * @param qname		Qualified module name
-	 * @param srcLocs	List of source directories
-	 * @param libLocs	List of library directories
-	 * @param bootLoc	Boot directory
-	 * @param binLoc	Binary directory
+	 * @param srcs	List of source directories
+	 * @param libs	List of library directories
+	 * @param boot	Boot directory
+	 * @param bin	Binary directory
 	 * @param kwArgs	Keyword arguments
 	 * @return The result (RVMProgram) of compiling the given module
 	 */
-	public IConstructor compile(IString qname, IList srcLocs, IList libLocs, ISourceLocation bootLoc, ISourceLocation binLoc, IMap kwArgs){
-	  return (IConstructor) rvm.executeRVMFunction(compile, new IValue[] { qname, srcLocs, libLocs, bootLoc, binLoc, kwArgs });
+	public IConstructor compile(IString qname, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, IMap kwArgs){
+	  return (IConstructor) rvm.executeRVMFunction(compile, new IValue[] { qname, srcs, libs, boot, bin, kwArgs });
 	}
 	
 	/**
 	 * Compile a list of Rascal modules
 	 * @param qnames	List of qualified module names
-	 * @param srcLocs	List of source directories
-	 * @param libLocs	List of library directories
-	 * @param bootLoc	Boot directory
-	 * @param binLoc	Binary directory
+	 * @param srcs	List of source directories
+	 * @param libs	List of library directories
+	 * @param boot	Boot directory
+	 * @param bin	Binary directory
 	 * @param kwArgs	Keyword arguments
 	 * @return A list of RVMPrograms
 	 */
-	public IList compile(IList qnames, IList srcLocs, IList libLocs, ISourceLocation bootLoc, ISourceLocation binLoc, IMap kwArgs){
-		return (IList) rvm.executeRVMFunction(compileN, new IValue[] { qnames, srcLocs, libLocs, bootLoc, binLoc, kwArgs });
+	public IList compile(IList qnames, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, IMap kwArgs){
+		return (IList) rvm.executeRVMFunction(compileN, new IValue[] { qnames, srcs, libs, boot, bin, kwArgs });
 	}
 	
 	/**
 	 * Used only in bootstrapping stages to recompile the MuLibrary with a new compiler.
 	 * 
-	 * @param srcLocs
-	 * @param libLocs
-	 * @param bootLoc
-	 * @param binLoc
+	 * @param srcs
+	 * @param libs
+	 * @param boot
+	 * @param bin
 	 * @param kwArgs
 	 */
-	public void compileMuLibrary(IList srcLocs, IList libLocs, ISourceLocation bootLoc, ISourceLocation binLoc, IMap kwArgs) {
-	    rvm.executeRVMFunction(compileMuLibrary, new IValue[] { srcLocs, libLocs, bootLoc, binLoc, kwArgs });
+	public void compileMuLibrary(IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, IMap kwArgs) {
+	    rvm.executeRVMFunction(compileMuLibrary, new IValue[] { srcs, libs, boot, bin, kwArgs });
 	}
 	
 	/**
 	 * Used only in bootstrapping stages to regenerate the parser for Rascal itself. Writes
 	 * in a source directory!
-	 * @param srcLocs
+	 * @param srcs
 	 */
-	public void bootstrapRascalParser(IList srcLocs) {
-	    rvm.executeRVMFunction(bootstrapRascalParser, new IValue[] { srcLocs });
+	public void bootstrapRascalParser(IList srcs) {
+	    rvm.executeRVMFunction(bootstrapRascalParser, new IValue[] { srcs });
 	}
 	
 	/**
 	 * 	Compile and link a Rascal module
 	 * @param qname		Qualified module name
-	 * @param srcLocs	List of source directories
-	 * @param libLocs	List of library directories
-	 * @param bootLoc	Boot directory
-	 * @param binLoc	Binary directory
+	 * @param srcs	List of source directories
+	 * @param libs	List of library directories
+	 * @param boot	Boot directory
+	 * @param bin	Binary directory
 	 * @param kwArgs	Keyword arguments
 	 * @return The result (RVMProgram) of compiling the given module. The linked version (RVMExecutable) is stored as file.
 	 */
-	public IConstructor compileAndLink(IString qname,  IList srcLocs, IList libLocs, ISourceLocation bootLoc, ISourceLocation binLoc,  IMap kwArgs){
-		return (IConstructor) rvm.executeRVMFunction(compileAndLink, new IValue[] { qname, srcLocs, libLocs, bootLoc, binLoc, kwArgs });
+	public IConstructor compileAndLink(IString qname,  IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin,  IMap kwArgs){
+		return (IConstructor) rvm.executeRVMFunction(compileAndLink, new IValue[] { qname, srcs, libs, boot, bin, kwArgs });
 	}
 	
 	/**
 	 * 	Compile and link a list of Rascal modules. The linked version (RVMExecutable) is stored as file.
 	 * @param qname		List of qualified module names
-	 * @param srcLocs	List of source directories
-	 * @param libLocs	List of library directories
-	 * @param bootLoc	Boot directory
-	 * @param binLoc	Binary directory
+	 * @param srcs	List of source directories
+	 * @param libs	List of library directories
+	 * @param boot	Boot directory
+	 * @param bin	Binary directory
 	 * @param kwArgs	Keyword arguments
 	 * @return A list of resulting RVMExecutables
 	 */
-	public IList compileAndLink(IList qnames,  IList srcLocs, IList libLocs, ISourceLocation bootLoc, ISourceLocation binLoc,  IMap kwArgs){
-		return (IList) rvm.executeRVMFunction(compileAndLinkN, new IValue[] { qnames, srcLocs, libLocs, bootLoc, binLoc, kwArgs });
+	public IList compileAndLink(IList qnames,  IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin,  IMap kwArgs){
+		return (IList) rvm.executeRVMFunction(compileAndLinkN, new IValue[] { qnames, srcs, libs, boot, bin, kwArgs });
 	}
 	
 	/**
 	 * Incrementally compile and link a Rascal module (used in RascalShell)
 	 * @param qname			Qualified module name
 	 * @param reuseConfig	true if the previous typechcker configuration should be reused
-	 * @param srcLocs		List of source directories
-	 * @param libLocs		List of library directories
-	 * @param bootLoc		Boot directory
-	 * @param binLoc		Binary directory
+	 * @param srcs		List of source directories
+	 * @param libs		List of library directories
+	 * @param boot		Boot directory
+	 * @param bin		Binary directory
 	 * @param kwArgs		Keyword arguments
 	 * @return The compiled and linked (RVMExecutable) version of the given module
 	 * @throws IOException
 	 */
-	public RVMExecutable compileAndMergeIncremental(IString qname, IBool reuseConfig, IList srcLocs, IList libLocs, ISourceLocation bootLoc, ISourceLocation binLoc, IMap kwArgs) throws IOException{
-		IConstructor rvmProgram = (IConstructor) rvm.executeRVMFunction(compileAndMergeIncremental, new IValue[] { qname, reuseConfig, srcLocs, libLocs, bootLoc, binLoc, kwArgs });
+	public RVMExecutable compileAndMergeIncremental(IString qname, IBool reuseConfig, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, IMap kwArgs) throws IOException{
+		IConstructor rvmProgram = (IConstructor) rvm.executeRVMFunction(compileAndMergeIncremental, new IValue[] { qname, reuseConfig, srcs, libs, boot, bin, kwArgs });
 		return ExecutionTools.link(rvmProgram, vf.bool(true));
 	}
 	
 	/**
 	 * 	Run tests in a list of Rascal modules
 	 * @param qnames	List of qualified module name
-	 * @param srcLocs	List of source directories
-	 * @param libLocs	List of library directories
-	 * @param bootLoc	Boot directory
-	 * @param binLoc	Binary directory
+	 * @param srcs	List of source directories
+	 * @param libs	List of library directories
+	 * @param boot	Boot directory
+	 * @param bin	Binary directory
 	 * @param kwArgs	Keyword arguments
 	 * @return The outcome of the tests
 	 */
 	
-	public IValue rascalTests(IList qnames, IList srcLocs, IList libLocs, ISourceLocation bootLoc, ISourceLocation binLoc, IMap kwArgs){
-		return rvm.executeRVMFunction(rascalTests, new IValue[] { qnames, srcLocs, libLocs, bootLoc, binLoc, kwArgs });
+	public IValue rascalTests(IList qnames, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, IMap kwArgs){
+		return rvm.executeRVMFunction(rascalTests, new IValue[] { qnames, srcs, libs, boot, bin, kwArgs });
 	}
 
   

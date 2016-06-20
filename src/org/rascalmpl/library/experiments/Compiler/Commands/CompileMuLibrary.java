@@ -25,21 +25,21 @@ public class CompileMuLibrary {
             IValueFactory vf = ValueFactoryFactory.getValueFactory();
             CommandOptions cmdOpts = new CommandOptions("compileMuLibrary");
             cmdOpts
-            .locsOption("srcLoc")		
+            .locsOption("src")		
             .locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
             .respectNoDefaults()
-            .help("Add (absolute!) source path, use multiple --srcLocss for multiple paths")
+            .help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
             
-            .locsOption("libLoc")		
-            .locsDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
+            .locsOption("lib")		
+            .locsDefault((co) -> vf.list(co.getCommandLocOption("bin")))
             .respectNoDefaults()
-            .help("Add new lib path, use multiple --libLocss for multiple paths")
+            .help("Add new lib location, use multiple --lib arguments for multiple locations")
             
-            .locOption("bootLoc")		
-            .locDefault(cmdOpts.getDefaultBootLocation())
+            .locOption("boot")		
+            .locDefault(cmdOpts.getDefaultbootation())
             .help("Rascal boot directory")
             
-            .locOption("binLoc") 		
+            .locOption("bin") 		
             .respectNoDefaults()
             .help("Directory for Rascal binaries")
             
@@ -68,10 +68,10 @@ public class CompileMuLibrary {
             Kernel kernel = new Kernel(vf, rex);
 
             kernel.compileMuLibrary(
-                    cmdOpts.getCommandlocsOption("srcLoc"),
-                    cmdOpts.getCommandlocsOption("libLoc"),
-                    cmdOpts.getCommandLocOption("bootLoc"),
-                    cmdOpts.getCommandLocOption("binLoc"), 
+                    cmdOpts.getCommandlocsOption("src"),
+                    cmdOpts.getCommandlocsOption("lib"),
+                    cmdOpts.getCommandLocOption("boot"),
+                    cmdOpts.getCommandLocOption("bin"), 
                     cmdOpts.getModuleOptionsAsIMap());
         }
         catch (Throwable e) {

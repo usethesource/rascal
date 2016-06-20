@@ -25,10 +25,10 @@ public class BootstrapRascalParser {
 	        IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	        CommandOptions cmdOpts = new CommandOptions("generateParser");
 	        cmdOpts
-	        .locsOption("srcLoc")		.locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
+	        .locsOption("src")		.locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
 	        .respectNoDefaults()
-	        .help("Add (absolute!) source path, use multiple --srcLocss for multiple paths")
-	        .locOption("bootLoc")		.locDefault(cmdOpts.getDefaultBootLocation())
+	        .help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
+	        .locOption("boot")		.locDefault(cmdOpts.getDefaultbootation())
 	        .help("Rascal boot directory")
 	        .noModuleArgument()
 	        .handleArgs(args);
@@ -39,9 +39,9 @@ public class BootstrapRascalParser {
 	                .setProfile(cmdOpts.getCommandBoolOption("profile"))
 	                .build();
 
-	        Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("bootLoc"));
+	        Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
 
-	        kernel.bootstrapRascalParser(cmdOpts.getCommandlocsOption("srcLoc"));
+	        kernel.bootstrapRascalParser(cmdOpts.getCommandlocsOption("src"));
 	    }
 		catch (Throwable e) {
 		    e.printStackTrace();
