@@ -234,7 +234,7 @@ public class Bootstrap {
         info("\tcompiling " + module);
         if (runCompiler(classPath, 
                 (!TRANSITION_ARGS || phase > 2) ? "--binLoc" : "--binDir", result.toAbsolutePath().toString(),
-                (!TRANSITION_ARGS || phase > 2) ? "--srcLocs" : "--srcPath", sourcePath,
+                (!TRANSITION_ARGS || phase > 2) ? "--srcLoc" : "--srcPath", sourcePath,
                 (!TRANSITION_ARGS || phase > 2) ? "--bootLoc" : "--bootDir", bootLoc,
                 "--verbose",
                 module) != 0) {
@@ -248,7 +248,7 @@ public class Bootstrap {
         
         if (runMuLibraryCompiler(classPath, 
                 (!TRANSITION_ARGS || phase > 2) ? "--binLoc" : "--binDir", result.toAbsolutePath().toString(),
-                (!TRANSITION_ARGS || phase > 2) ? "--srcLocs" : "--srcPath", sourcePath,
+                (!TRANSITION_ARGS || phase > 2) ? "--srcLoc" : "--srcPath", sourcePath,
                 (!TRANSITION_ARGS || phase > 2) ? "--bootLoc" : "--bootDir", bootDLoc
                     ) != 0 ) {
             
@@ -260,7 +260,7 @@ public class Bootstrap {
         info("Running tests before the next phase " + phase);
         String[] arguments;
         if (!TRANSITION_ARGS || phase > 2) {
-            arguments = new String[] {"--binLoc", result.toAbsolutePath().toString(), "--srcLocs", sourcePath, "--bootLoc", bootLoc};
+            arguments = new String[] {"--binLoc", result.toAbsolutePath().toString(), "--srcLoc", sourcePath, "--bootLoc", bootLoc};
         } else {
             arguments = new String[] {"--binDir", result.toAbsolutePath().toString(), "--srcPath", sourcePath, "--bootDir", bootLoc};
         }
