@@ -54,7 +54,7 @@ public class CompiledRascalShell  {
 		.locsOption("lib").locsDefault((co) -> vf.list(co.getCommandLocOption("bin")))
 		.help("Add new lib location, use multiple --lib arguments for multiple locations")
 
-		.locOption("boot").locDefault(cmdOpts.getDefaultbootation())
+		.locOption("boot").locDefault(cmdOpts.getDefaultBootLocation())
 		.help("Rascal boot directory")
 
 		.boolOption("help")
