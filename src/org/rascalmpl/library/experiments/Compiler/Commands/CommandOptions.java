@@ -544,8 +544,8 @@ public class CommandOptions {
 	}
 	
 	public PathConfig getPathConfig(){
-		return new PathConfig(getCommandlocsOption("srcLocs"),
-							  getCommandlocsOption("libLocs"),
+		return new PathConfig(getCommandlocsOption("srcLoc"),
+							  getCommandlocsOption("libLoc"),
 							  getCommandLocOption("binLoc"),
 							  getCommandLocOption("bootLoc"));
 	}
