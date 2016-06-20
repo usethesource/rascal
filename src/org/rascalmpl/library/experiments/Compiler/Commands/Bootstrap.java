@@ -233,8 +233,8 @@ public class Bootstrap {
             String module) throws IOException, InterruptedException, BootstrapMessage {
         info("\tcompiling " + module);
         if (runCompiler(classPath, 
-                (!TRANSITION_ARGS || phase > 2) ? "--binLoc" : "--binDir", result.toAbsolutePath().toString(),
-                (!TRANSITION_ARGS || phase > 2) ? "--srcLoc" : "--srcPath", sourcePath,
+                (!TRANSITION_ARGS || phase > 2) ? "--bin" : "--binDir", result.toAbsolutePath().toString(),
+                (!TRANSITION_ARGS || phase > 2) ? "--src" : "--srcPath", sourcePath,
                 (!TRANSITION_ARGS || phase > 2) ? "--boot" : "--bootDir", boot,
                 "--verbose",
                 module) != 0) {
@@ -247,8 +247,8 @@ public class Bootstrap {
         info("\tcompiling MuLibrary");
         
         if (runMuLibraryCompiler(classPath, 
-                (!TRANSITION_ARGS || phase > 2) ? "--binLoc" : "--binDir", result.toAbsolutePath().toString(),
-                (!TRANSITION_ARGS || phase > 2) ? "--srcLoc" : "--srcPath", sourcePath,
+                (!TRANSITION_ARGS || phase > 2) ? "--bin" : "--binDir", result.toAbsolutePath().toString(),
+                (!TRANSITION_ARGS || phase > 2) ? "--src" : "--srcPath", sourcePath,
                 (!TRANSITION_ARGS || phase > 2) ? "--boot" : "--bootDir", bootDLoc
                     ) != 0 ) {
             
@@ -260,7 +260,7 @@ public class Bootstrap {
         info("Running tests before the next phase " + phase);
         String[] arguments;
         if (!TRANSITION_ARGS || phase > 2) {
-            arguments = new String[] {"--binLoc", result.toAbsolutePath().toString(), "--srcLoc", sourcePath, "--boot", boot};
+            arguments = new String[] {"--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot};
         } else {
             arguments = new String[] {"--binDir", result.toAbsolutePath().toString(), "--srcPath", sourcePath, "--bootDir", boot};
         }
