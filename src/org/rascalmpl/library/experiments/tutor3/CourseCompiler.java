@@ -90,12 +90,33 @@ public class CourseCompiler {
 	}
 	
 	public static void compileCourse(Path srcPath, String courseName, Path destPath, Path libPath, RascalCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
+		
+		copyStandardFilesPerCourse(srcPath, courseName, destPath);
 		new Onthology(srcPath, courseName, destPath, libPath, executor);
 		
 		try {
 			runAsciiDocter(srcPath, courseName, destPath, executor.err);
 		} catch (IOException e) {
 			System.err.println("Cannot run asciidocter: " + e.getMessage());
+		}
+	}
+	
+	private static void copyStandardFilesPerCourse(Path srcPath, String courseName, Path destPath) throws IOException {
+		ArrayList<String> files  = new ArrayList<>();
+		
+		files.add("docinfo.html");
+		Path coursePath = destPath.resolve(courseName);
+		if(!Files.exists(coursePath)){
+			Files.createDirectories(coursePath);
+		}
+		for(String file : files){
+			Path src = srcPath.resolve(file);
+			Path dest = coursePath.resolve(file);
+			Path parent = dest.getParent();
+			if(!Files.exists(parent)){
+				Files.createDirectories(parent);
+			}
+			Files.copy(src, dest, REPLACE_EXISTING);
 		}
 	}
 	
@@ -106,6 +127,7 @@ public class CourseCompiler {
 		ArrayList<String> files  = new ArrayList<>();
 		files.add("favicon.ico");
 		files.add("css/style.css");
+		files.add("docinfo.html");
 		files.add("css/font-awesome.min.css");
 		files.add("fonts/fontawesome-webfont.eot");
 		files.add("fonts/fontawesome-webfont.svg");
@@ -154,12 +176,12 @@ public class CourseCompiler {
 		 CommandOptions cmdOpts = new CommandOptions("course-compiler");
          
          cmdOpts
-         .locsOption("coursePaths")		
+         .locsOption("courseLoc")		
          .locsDefault(cmdOpts.getDefaultCourselocs().isEmpty() ? vf.list(cmdOpts.getDefaultCourselocs()) : cmdOpts.getDefaultCourselocs())
          .respectNoDefaults()
-         .help("Add (absolute!) course path, use multiple --coursePaths for multiple paths")
+         .help("Add (absolute!) course location, use multiple --coursePath arguments for multiple locations")
          
-         .locsOption("srcPaths")		
+         .locsOption("srcLoc")		
          .locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
          .respectNoDefaults()
          .help("Add (absolute!) source location, use multiple --srcLocs for multiple locations")
@@ -167,7 +189,7 @@ public class CourseCompiler {
          .locsOption("libLoc")		
          .locsDefault((co) -> vf.list(co.getCommandLocOption("binLoc")))
          .respectNoDefaults()
-         .help("Add new lib location, use multiple --libLocs for multiple locations")
+         .help("Add new lib location, use multiple --libLoc arguments for multiple locations")
 
          .locOption("binLoc") 		
          .respectNoDefaults()
@@ -187,10 +209,10 @@ public class CourseCompiler {
          .handleArgs(args);
 		
 		PathConfig pcfg = 
-				new PathConfig(cmdOpts.getCommandlocsOption("srcPath"),
+				new PathConfig(cmdOpts.getCommandlocsOption("srcLoc"),
 							   cmdOpts.getCommandlocsOption("libLoc"),
 					           cmdOpts.getCommandLocOption("binLoc"),
-					           cmdOpts.getCommandlocsOption("coursePaths"));   
+					           cmdOpts.getCommandlocsOption("courseLoc"));   
 		
 		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getCourseLocs().get(0)).getPath());
 		Path libPath = Paths.get(((ISourceLocation)pcfg.getLibLocs().get(0)).getPath());
@@ -234,14 +256,14 @@ public class CourseCompiler {
 		err.flush();
 		writeFile(destPath + "/course-compilation-errors.txt", sw.toString());
 		
-		System.err.println("Removing intermediate files");
-		
-		FileVisitor<Path> fileProcessor = new RemoveAdocs();
-		try {
-			Files.walkFileTree(destPath, fileProcessor);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		System.err.println("Removing intermediate files");
+//		
+//		FileVisitor<Path> fileProcessor = new RemoveAdocs();
+//		try {
+//			Files.walkFileTree(destPath, fileProcessor);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		System.err.println("Course compilation done");
 	}
 }
