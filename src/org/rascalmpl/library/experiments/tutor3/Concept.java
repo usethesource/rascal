@@ -124,14 +124,14 @@ public class Concept {
 	String commonDefs =	
 		":icons:        font\n" + 
 		":iconfont-remote!:\n" +
-		":iconfont-name: font-awesome.min\n" +
-		":stylesdir:	../css\n" +
+		//":iconfont-name: font-awesome.min\n" +
 		":images:       ../images/\n" +
-		":table-caption!:\n";
+		":table-caption!:\n" +
+		":docinfo1:\n";
 	
 	public static String getSearchForm(){
 		return
-		"<form class=\"search-form\" id=\"searchbox\" action=\"/Search\" method=\"POST\">\n" +
+		"<form class=\"search-form\" id=\"searchbox\" action=\"/Search\">\n" +
 		"<input class=\"search-input\" id=\"search\" name=\"searchFor\" type=\"search\" placeholder=\"Search ...\">\n" +
 		"<input class=\"search-submit\" id=\"submit\" type=\"submit\" value=\"&#10140;\" onkeypress=\"if(event.keyCode==13) {javascript:form.submit();}\">\n" +
 		"</form>\n";
@@ -147,14 +147,7 @@ public class Concept {
 		StringWriter preprocessOut = new StringWriter();
 		String line = null;
 		String[] details = new String[0];
-		if(Onthology.level(name)==0){
-			preprocessOut.append("++++\n");
-			preprocessOut.append(getSearchForm());
-			//preprocessOut.append("<link rel=\"icon\" href=\"/favicon.ico\" type=\"image/x-icon\"/>");
-			preprocessOut.append("++++\n");
-		}
-		
-		preprocessOut.append("\n[[").append(getAnchor()).append("]]\n");
+		int level = Onthology.level(name);
 
 		while( (line = reader.readLine()) != null && !line.startsWith("#")){
 			preprocessOut.append(line).append("\n");
@@ -163,12 +156,23 @@ public class Concept {
 			preprocessOut.append("# ").append(name.toString()).append("\n");
 		} else {
 			title = line.substring(2).trim();
-			preprocessOut.append(line).append("\n");
-			if(Onthology.level(name)==0){
+			if(level > 0){
+				preprocessOut.append("\n[[").append(getAnchor()).append("]]\n");
+				preprocessOut.append(line).append("\n");
+			} else {
+				line = line.replaceFirst("#",  "=");
+				preprocessOut.append(line).append("\n");
 				preprocessOut.append(commonDefs);
 				preprocessOut.append(":LibDir: ").append(libPath.toString()).append("/\n");
-			} 
+			}
+			
 			preprocessOut.append(":concept: ").append(name.toString()).append("\n");
+			
+			if(level == 0){
+				preprocessOut.append("\n++++\n");
+				preprocessOut.append(getSearchForm());
+				preprocessOut.append("++++\n");
+			}
 			while( (line = reader.readLine()) != null ) {
 				if(line.startsWith(".Details")){
 					line = reader.readLine();
