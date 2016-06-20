@@ -178,7 +178,7 @@ public class Bootstrap {
 		Path cached = cachedDeployedVersion(tmp, version);
 		
 		
-		if (!cached.toFile().exists()) {
+		if (!cached.toFile().exists() || "unstable".equals(version)) {
     		URI deployedVersion = deployedVersion(version);
     		info("downloading " + deployedVersion);
 			Files.copy(deployedVersion.toURL().openStream(), cached);
