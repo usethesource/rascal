@@ -138,6 +138,8 @@ public class Bootstrap {
             
             // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
             copyResult(newKernel4, targetFolder.resolve("boot"));
+            
+            runTestModule(5, targetFolder + ":" + classpath,  newKernel4.toAbsolutePath().toString(), "|std:///|", tmpDir.resolve("test-bins"), testModules);
         } 
         catch (BootstrapMessage | IOException | InterruptedException e) {
             info(e.getMessage());
