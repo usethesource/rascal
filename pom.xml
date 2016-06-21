@@ -58,7 +58,6 @@
 		</testResources>
 
 		<plugins>
-            <!--
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -75,7 +74,7 @@
                                 <classpath/>
                                 <argument>org.rascalmpl.library.experiments.Compiler.Commands.Bootstrap</argument>
                                 <classpath/>
-                                <argument>unstable</argument>
+                                <argument>0.8.1-bs</argument>
                                 <argument>${project.version}</argument>
                                 <argument>${project.basedir}/src</argument>
                                 <argument>${project.build.directory}/classes</argument>
@@ -89,7 +88,6 @@
                     </execution>
                 </executions>
             </plugin>
-            -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
