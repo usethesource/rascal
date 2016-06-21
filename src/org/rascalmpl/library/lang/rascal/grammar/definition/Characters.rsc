@@ -307,7 +307,7 @@ public list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
   // <---------left--------->
   if (rhead.begin >= lhead.begin && rhead.end <= lhead.end) 
     return \new-range(lhead.begin,rhead.begin-1) 
-         + difference(range(rhead.end+1,lhead.end)+ltail,rtail);
+         + difference(\new-range(rhead.end+1,lhead.end)+ltail,rtail);
 
   // overlap on left side of right
   // <--left-------->----------
