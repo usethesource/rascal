@@ -137,7 +137,7 @@ public class Concept {
 		"</form>\n";
 	}
 	
-	private final String prompt = "rascal>"; //"<i class=\"prompt\">::before</i>";
+	private final String prompt = "rascal>"; //  "+++<span class=\"prompt\" data-value=\"rascal>\"></span>::after+++";
 	private final String continuation = ">>>>>>>"; //"<i class=\"continuation\">::before</i>";
 	
 	public void preprocess(Onthology onthology, RascalCommandExecutor executor) throws IOException{
@@ -204,6 +204,7 @@ public class Concept {
 					if(mayHaveErrors){
 						preprocessOut.append("-error");
 					}
+					//preprocessOut.append(",subs=\"+verbatim,+quotes\"");
 					preprocessOut.append("]\n").append("----\n");
 					
 					boolean moreShellInput = true;
