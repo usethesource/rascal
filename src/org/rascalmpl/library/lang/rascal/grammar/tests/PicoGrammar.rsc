@@ -30,7 +30,7 @@ sort("Declaration"): choice(sort("Declaration"),{prod(label("decl",sort("Declara
 
 );
 
-loc PicoParserLoc = |std:///lang/rascal/grammar/tests/generated_parsers/PicoParser.java.gz|;
+loc PicoParserLoc = |compressed+file:///Users/paulklint/git/rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/PicoParser.java.gz|;
 
 str generatePicoParser() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "PicoParser", Pico);
 
