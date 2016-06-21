@@ -352,7 +352,11 @@ private str removeMargins(str s) {
 // --- computeIndent 
 
 private str computeIndent(str s) {
-   lines = split("\n", removeMargins(s)); 
+   removed = removeMargins(s);
+   if(endsWith(s, "\n")){
+      return "";
+   }
+   lines = split("\n", removed); 
    return isEmpty(lines) ? "" : left("", size(lines[-1]));
 } 
 
