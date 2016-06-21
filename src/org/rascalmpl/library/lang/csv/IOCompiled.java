@@ -393,7 +393,7 @@ public class IOCompiled extends IO {
 			}
 			@Override
 			public IValue visitRational(Type type) throws RuntimeException {
-				return values.rational(0, 0);
+				return values.rational(0, 1);
 			}
 			@Override
 			public IValue visitReal(Type type) throws RuntimeException {
