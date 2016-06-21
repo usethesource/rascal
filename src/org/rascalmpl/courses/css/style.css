@@ -490,11 +490,19 @@ input:-moz-placeholder {
 	width:100%;margin-left:auto;margin-right:auto;margin-top:0;margin-bottom:0;max-width:62.5em;position:relative;padding-left:.9375em;padding-right:.9375em;
 }
 
-.prompt{display:inline-block;color:#fff!important;background-color:rgba(0,0,0,.8);-webkit-border-radius:100px;border-radius:100px;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
-.prompt *{color:#fff!important}
-.prompt+b{display:none}
-.prompt:after{content:"rascal>"}
-pre .prompt{position:relative;top:-.125em}
+.prompt[data-value]{display:inline-block;color:#fff!important;background-color:rgba(0,0,0,.8);-webkit-border-radius:100px;border-radius:100px;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.prompt[data-value] *{color:#fff!important}
+.prompt[data-value]+b{display:none}
+.prompt[data-value]:after{content:attr(data-value)}
+pre .prompt[data-value]{position:relative;top:-.125em}
 b.prompt *{color:inherit!important}
-.prompt():empty{display:none}
+/*.prompt():empty{display:none}*/
 
+
+.conum[data-value]{display:inline-block;color:#fff!important;background-color:rgba(0,0,0,.8);-webkit-border-radius:100px;border-radius:100px;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]:after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}

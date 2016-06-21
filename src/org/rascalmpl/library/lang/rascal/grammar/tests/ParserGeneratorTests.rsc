@@ -524,20 +524,27 @@ grammar(
           {})})
   ));
   
+loc ParserBaseLoc = |compressed+file:///Users/paulklint/git/rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/|;
 
+void generateParsers() {
+    writeFile(ParserBaseLoc + "GEMPTYParser.java.gz", newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEMPTYParser", GEMPTY));
+    writeFile(ParserBaseLoc + "G0Parser.java.gz", newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "G0Parser", G0));
+    writeFile(ParserBaseLoc + "GEXPParser.java.gz", newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEXPParser", GEXP));
+    writeFile(ParserBaseLoc + "GEXPPRIOParser.java.gz", newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEXPPRIOParser", GEXPPRIO));
+}
  
 test bool tstNewGenerateGEMPTY() = 
 	sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEMPTYParser", GEMPTY), 
-		      readFile(|std:///lang/rascal/grammar/tests/generated_parsers/GEMPTYParser.java.gz|));
+		      readFile(|compressed+std:///lang/rascal/grammar/tests/generated_parsers/GEMPTYParser.java.gz|));
 		      
 test bool tstNewGenerateG0() = 
 	sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "G0Parser", G0), 
-	          readFile(|std:///lang/rascal/grammar/tests/generated_parsers/G0Parser.java.gz|));
+	          readFile(|compressed+std:///lang/rascal/grammar/tests/generated_parsers/G0Parser.java.gz|));
 	          
 test bool tstNewGenerateGEXP() = 
 	sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEXPParser", GEXP), 
-	readFile(|std:///lang/rascal/grammar/tests/generated_parsers/GEXPParser.java.gz|));
+	readFile(|compressed+std:///lang/rascal/grammar/tests/generated_parsers/GEXPParser.java.gz|));
 	
 test bool tstNewGenerateGEXPPRIO() = 
 	sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEXPPRIOParser", GEXPPRIO), 
-		      readFile(|std:///lang/rascal/grammar/tests/generated_parsers/GEXPPRIOParser.java.gz|));
+		      readFile(|compressed+std:///lang/rascal/grammar/tests/generated_parsers/GEXPPRIOParser.java.gz|));

@@ -15,11 +15,12 @@ Test Case
 .Details
 
 
+
 Drawing a red link:/Libraries#Figure-box[box] is as simple as this:
 [source,rascal-figure,width=,height=,file=b1.png]
 ----
-import experiments::vis2::Figure;
-import experiments::vis2::FigureServer;
+import experiments::vis2::sandbox::Figure;
+import experiments::vis2::sandbox::FigureServer;
 b = box(fillColor="red");
 render(b);
 ----
