@@ -51,7 +51,7 @@ public class ParserGenerator {
 	private Function newGenerateFunction;
 	private Function createHoleFunction;
 	private static final String packageName = "org.rascalmpl.java.parser.object";
-	private static final boolean debug = true;
+	private static final boolean debug = false;
 	private static final boolean useCompiledParserGenerator = true;
 	
 	static {
