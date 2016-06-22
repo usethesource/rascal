@@ -65,6 +65,7 @@ public class RascalTests {
 				.setTrace(cmdOpts.getCommandBoolOption("trace"))
 				.setProfile(cmdOpts.getCommandBoolOption("profile"))
 				.forModule(cmdOpts.getRascalModule().getValue())
+                .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
 				.build();
 
 		Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));

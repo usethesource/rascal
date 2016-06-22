@@ -34,6 +34,15 @@ public class BootstrapRascalParser {
 	        .locDefault(cmdOpts.getDefaultBootLocation())
 	        .help("Rascal boot directory")
 	        
+            .boolOption("trace") 		
+            .help("Print Rascal functions during execution of compiler")
+            
+            .boolOption("profile") 		
+            .help("Profile execution of compiler")
+           
+            .boolOption("verbose") 		
+            .help("Make the compiler verbose")
+
 	        .noModuleArgument()
 	        .handleArgs(args);
 
@@ -41,6 +50,7 @@ public class BootstrapRascalParser {
 	                .customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
 	                .setTrace(cmdOpts.getCommandBoolOption("trace"))
 	                .setProfile(cmdOpts.getCommandBoolOption("profile"))
+	                .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
 	                .build();
 
 	        Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));

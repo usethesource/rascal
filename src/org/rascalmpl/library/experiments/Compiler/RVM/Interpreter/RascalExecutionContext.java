@@ -78,6 +78,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private RVMCore rvm;
 	private boolean coverage;
 	private boolean jvm;
+    private boolean verbose;
 	private final IMap moduleTags;
 	private Map<IValue, IValue> moduleVariables;
 	
@@ -139,6 +140,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 			boolean trace, 
 			boolean coverage, 
 			boolean jvm, 
+			boolean verbose,
 			ITestResultListener testResultListener, 
 			IFrameObserver frameObserver,
 			RascalSearchPath rascalSearchPath
@@ -156,6 +158,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.coverage = coverage;
 		this.jvm = jvm;
 		this.trace = trace;
+		this.verbose = verbose;
 		
 		currentModuleName = "UNDEFINED";
 		
@@ -172,7 +175,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.stderr = stderr;
 		config = new Configuration();
 		this.classLoaders = new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader()));
-		this.testResultListener = (testResultListener == null) ? (ITestResultListener) new DefaultTestResultListener(stderr)
+		this.testResultListener = (testResultListener == null) ? (ITestResultListener) new DefaultTestResultListener(stderr, verbose)
 															  : testResultListener;
 		
 		if(frameObserver == null){
