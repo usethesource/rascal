@@ -251,7 +251,7 @@ public class Bootstrap {
     
     private static void compileModule(int phase, String classPath, String boot, String sourcePath, Path result,
             String module) throws IOException, InterruptedException, BootstrapMessage {
-        progress("\tcompiling " + module + "(pase " + phase +")");
+        progress("\tcompiling " + module + "(phase " + phase +")");
         String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
         String[] otherArgs = VERBOSE? new String[] {"--verbose", module} : new String[] {module};
 
