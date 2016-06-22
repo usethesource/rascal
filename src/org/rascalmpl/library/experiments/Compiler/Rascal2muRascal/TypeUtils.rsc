@@ -88,21 +88,21 @@ public int getLoc2uid(loc l){
   //  return loc2uid[l];
 }
 
-public loc normalize(loc l) {
-
-    if(l.scheme == "std"){
-      
-  	   res = getSearchPathLocation(l.path);
-  	   try {
-  	   		res = res(l.offset, l.length, l.begin,l.end);
-  	   } catch: ;
-  	   
-  	  println("**** normalize: <l> =\> <res>");
-  	   return res;
-    }
-    println("**** normalize: unchanged: <l>");
-    return l;
-}
+//public loc normalize(loc l) {
+//
+//    if(l.scheme == "std"){
+//      
+//  	   res = getSearchPathLocation(l.path);
+//  	   try {
+//  	   		res = res(l.offset, l.length, l.begin,l.end);
+//  	   } catch: ;
+//  	   
+//  	  println("**** normalize: <l> =\> <res>");
+//  	   return res;
+//    }
+//    println("**** normalize: unchanged: <l>");
+//    return l;
+//}
 
 private set[UID] modules = {};
 
@@ -151,18 +151,17 @@ private map[UID uid,int n] sig_scopes = ();         // number of signature scope
 private map[loc, UID] blockScopes = ();				// map from location to blockscope.
 
 @doc{Handling nesting}
-private rel[UID,UID] declares = {};
-private rel[UID,UID] containment = {};
-private rel[UID,UID] containmentPlus = {};			// containment+
+private rel[UID scope,UID entity] declares = {};
+private map[UID scope, set[UID] entities] declaresMap = ();
+private rel[UID outer_scope,UID inner_scope] containment = {};
+private rel[UID outer_scope,UID inner_scope] containmentPlus = {};			// containment+
 
-private map[UID,UID] declaredIn = ();				// inverse of declares
-private rel[UID,UID] declaredInPlus = {};			// declaredIn+
-private map[UID,UID] containedIn = ();				// inverse of containment
-private rel[UID,UID] containedInPlus = {};			// inverse of containment+
+private map[UID entity,UID scope] declaredIn = ();				// inverse of declares
+private map[UID inner_scope,UID outer_scope] containedIn = ();				// inverse of containment
 
-private rel[UID, UID] containedOrDeclaredInPlus = {};
+private map[UID outer_scope, set[UID] inner_scopes_or_entities] containedOrDeclaredInPlus = ();
 
-private set[UID] importedModuleScopes = {};
+private set[UID scope] importedModuleScopes = {};
 private map[tuple[list[UID], UID], list[UID]] accessibleFunctions = ();
 private map[UID, set[UID]] accessibleScopes = ();
 
@@ -234,15 +233,15 @@ public void resetScopeExtraction() {
 	sig_scopes = ();
 	blockScopes = ();
 	declares = {};
+	declaresMap = ();
 	containment = {};
 	containmentPlus = {};
 	
 	declaredIn = ();
-	declaredInPlus = {};
 	containedIn = ();
-	containedInPlus = {};
+	
 	importedModuleScopes = {};
-	containedOrDeclaredInPlus = {};
+	containedOrDeclaredInPlus = ();
 	accessibleFunctions = ();
 	accessibleScopes = ();
 	
@@ -408,6 +407,7 @@ void extractScopes(Configuration c){
 			 blockScopes[src] = uid;
         }
         case booleanScope(inScope,src): { 
+             //println("<uid>: <item>");
 		     containment += {<inScope, uid>}; 
 			 loc2uid[src] = uid;
 			 // Fill in uid2name
@@ -465,18 +465,14 @@ void extractScopes(Configuration c){
     
     // Precompute some derived values for efficiency:
     containmentPlus = containment+;
-    containedInPlus = invert(containmentPlus);
+    declaresMap = toMap(declares);
     declaredIn = toMapUnique(invert(declares));
-    declaredInPlus = invert(declares)+;
 	containedIn = toMapUnique(invert(containment));
 	
-	//println("containment: <containment>");
-	//println("containmentPlus: <containmentPlus>");
-	//println("declares: <declares>");
-	
-	containedOrDeclaredInPlus = (invert(declares) + invert(containment))+;
+	containedOrDeclaredInPlus = (moduleId: {} | moduleId <- modules) + toMap((invert(declares + containment))+);
 	
 	//println("containedOrDeclaredInPlus: <containedOrDeclaredInPlus>");
+	
 	importedModuleScopes = range(config.modEnv);
     
     for(muid <- modules){
@@ -484,7 +480,7 @@ void extractScopes(Configuration c){
         nmodule_var_init_locals = 0;
     	// First, fill in variables to get their positions right
     	// Sort variable declarations to ensure that formal parameters get first positions preserving their order 
-    	topdecls = sort([ uid | uid <- declares[muid], variable(_,_,_,_,_) := config.store[uid] ]);
+    	topdecls = sort([ uid | uid <- (declaresMap[muid] ? {}), variable(_,_,_,_,_) := config.store[uid] ]);
     	
     	//println("topdecls:");
     	//for(td <- topdecls){ println(td); }
@@ -499,7 +495,7 @@ void extractScopes(Configuration c){
                 //println("os = <os>, <config.store[os].at>, <config.store[topdecls[i]].at>, <config.store[os].at < config.store[topdecls[i]].at>");
                 
             	if(config.store[os].at < config.store[topdecls[i]].at){
-            		decls_inner_vars = sort([ uid | UID uid <- declares[os], variable(RName name,_,_,_,_) := config.store[uid] ]);
+            		decls_inner_vars = sort([ uid | UID uid <- (declaresMap[os] ? {}), variable(RName name,_,_,_,_) := config.store[uid] ]);
             		//println("decls_inner_vars: <decls_inner_vars>");
     			    for(int j <- index(decls_inner_vars)) {
         			    uid2addr[decls_inner_vars[j]] = <fuid_module_init, 2 + nmodule_var_init_locals>;
@@ -513,7 +509,7 @@ void extractScopes(Configuration c){
     	
     	// Then, functions
     	
-    	topdecls = [ uid | uid <- declares[muid], 
+    	topdecls = [ uid | uid <- (declaresMap[muid] ? {}), 
     	                      function(_,_,_,_,_,_,_,_) := config.store[uid] 
     	                   || closure(_,_,_,_)          := config.store[uid] 
     	                   || constructor(_,_,_,_,_)    := config.store[uid] 
@@ -548,14 +544,17 @@ void extractScopes(Configuration c){
 	
     for(UID fuid1 <- functions) {
     	nformals = getFormals(fuid1); // ***Note: Includes keyword parameters as a single map parameter 
+  
         innerScopes = {fuid1} + containmentPlus[fuid1];
+        declaresInnerScopes = {*(declaresMap[iscope] ? {}) | iscope <- innerScopes};
+        
         // First, fill in variables to get their positions right
         keywordParams = config.store[fuid1].keywordParams;
         
         // Filter all the non-keyword variables within the function scope
         // ***Note: Filtering by name is possible only when shadowing of local variables is not permitted
         // Sort variable declarations to ensure that formal parameters get first positions preserving their order
-        decls_non_kwp = sort([ uid | UID uid <- declares[innerScopes], variable(RName name,_,_,_,_) := config.store[uid], name notin keywordParams ]);
+        decls_non_kwp = sort([ uid | UID uid <- declaresInnerScopes, variable(RName name,_,_,_,_) := config.store[uid], name notin keywordParams ]);
         
         fuid_str = uid2str[fuid1];
         for(int i <- index(decls_non_kwp)) {
@@ -564,16 +563,17 @@ void extractScopes(Configuration c){
         	uid2addr[decls_non_kwp[i]] = <fuid_str, i + nformals + 1>;
         }
         // Filter all the keyword variables (parameters) within the function scope
-        decls_kwp = sort([ uid | UID uid <- declares[innerScopes], variable(RName name,_,_,_,_) := config.store[uid], name in keywordParams ]);
+        decls_kwp = sort([ uid | UID uid <- declaresInnerScopes, variable(RName name,_,_,_,_) := config.store[uid], name in keywordParams ]);
        
         for(int i <- index(decls_kwp)) {
             keywordParameters += decls_kwp[i];
             uid2addr[decls_kwp[i]] = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
         }
         // Then, functions
-        decls = [ uid | uid <- declares[innerScopes], function(_,_,_,_,_,_,_,_) := config.store[uid] ||
-        											  closure(_,_,_,_) := config.store[uid]
-        											   ];
+        decls = [ uid | uid <- declaresInnerScopes, 
+                        function(_,_,_,_,_,_,_,_) := config.store[uid] ||
+        				closure(_,_,_,_) := config.store[uid]
+        		];
         for(i <- index(decls)) {
             uid2addr[decls[i]] = <uid2str[fuid1], -1>;
         }
@@ -595,13 +595,14 @@ void extractScopes(Configuration c){
                 //println("*** <dataKeywordParams>");
                 
                 innerScopes = {fuid1} + containmentPlus[fuid1];
+                declaresInnerScopes = {*(declaresMap[iscope] ? {}) | iscope <- innerScopes};
                 
                 // There may be default expressions with variables, so introduce variable addresses inside the companion function
                 // println("fuid1 = <fuid1>, nformals = <nformals>, innerScopes = <innerScopes>, keywordParams = <keywordParams>");
                 // Filter all the non-keyword variables within the function scope
                 // ***Note: Filtering by name is possible only when shadowing of local variables is not permitted
                 // Sort variable declarations to ensure that formal parameters get first positions preserving their order
-                decls_non_kwp = sort([ uid | UID uid <- declares[innerScopes], variable(RName name,_,_,_,_) := config.store[uid], name notin keywordParams ]);
+                decls_non_kwp = sort([ uid | UID uid <- declaresInnerScopes, variable(RName name,_,_,_,_) := config.store[uid], name notin keywordParams ]);
                 
                 fuid_str = getCompanionDefaultsForUID(fuid1);
                 //println("fuid_str = <fuid_str>, decls_non_kwp = <decls_non_kwp>, declared[innerSopes] = <declares[innerScopes]>");
@@ -615,7 +616,7 @@ void extractScopes(Configuration c){
                 //println("domain(dataKeywordParams): <domain(dataKeywordParams)>");
                 //println("declares[innerScopes]: <declares[innerScopes]>");
                 //println("keywordParams + domain(dataKeywordParams): <keywordParams + domain(dataKeywordParams)>");
-                decls_kwp = sort([ uid | UID uid <- declares[innerScopes], variable(RName name,_,_,_,_) := config.store[uid], name in domain(keywordParams) + domain(dataKeywordParams) ]);
+                decls_kwp = sort([ uid | UID uid <- declaresInnerScopes, variable(RName name,_,_,_,_) := config.store[uid], name in domain(keywordParams) + domain(dataKeywordParams) ]);
                 //println("^^^ adding <decls_kwp>");
                 for(int i <- index(decls_kwp)) {
                     keywordParameters += decls_kwp[i];
@@ -625,8 +626,6 @@ void extractScopes(Configuration c){
         }
 
     }
-    
-   
     
     // Fill in uid2addr for overloaded functions;
     for(UID fuid2 <- ofunctions) {
@@ -1074,21 +1073,6 @@ public default bool isNonTerminalType(AbstractValue _) = false;
 public bool isAlias(AbstractValue::\alias(_,_,_,_)) = true;
 public default bool isAlias(AbstractValue a) = false;
 
-//public bool hasField(Symbol s, str fieldName){
-//    //println("hasField: <s>, <fieldName>");
-//
-//    //if(isADTType(s)){
-//    //   s2v = symbolToValue(s /*, config*/);
-//    //   println("s2v = <s2v>");
-//    //}
-//    s1 = symbolToValue(s);
-//    // TODO: this is too liberal, restrict to outer type.
-//    visit(s1){
-//       case label(fieldName2, _):	if(unescape(fieldName2) == fieldName) return true;
-//    }
-//    return false;
-//}
-
 public int getTupleFieldIndex(Symbol s, str fieldName) = 
     indexOf(getTupleFieldNames(s), fieldName);
 
@@ -1101,14 +1085,12 @@ public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc l) {
          UID uid = blockScopes[l];
          set[UID] innerScopes = containmentPlus[uid];
          for(UID inScope <- innerScopes) {
-             decls = decls + declares[inScope];
+             decls = decls + (declaresMap[inScope] ? {});
          }
          return { addr | UID decl <- decls, tuple[str fuid,int pos] addr := uid2addr[decl] };
      } catch:
      	throw "Block scope at <l> has not been found!";
 }
-
-
 
 /********************************************************************/
 /*     Part III: Type-related code generation functions             */
@@ -1167,47 +1149,7 @@ bool preferInnerScope(int n, int m) {
 	return res;
 }
 
-//bool funInnerScope(int n, int m) {
-//    key = <n, m>;
-//    if(funInnerScopes[key]?){
-//       return funInnerScopes[key];
-//    }
-//	res = config.store[n].containedIn in containmentPlus[config.store[m].containedIn];
-//	funInnerScopes[key] = res;
-//	return res;
-//}
 
-//public list[UID] sortFunctionsByRecentScope(list[UID] funs){
-//	return sort(funs, funInnerScope);
-//}
-
-//public set[UID] accessibleScopes(loc luse) {
-//  luse = normalize(luse);
-//  println("accessibleScopes, luse = <luse>, <loc2uid[luse]>");
-//  println("containmentPlus = <containmentPlus>");
-//   println("declares = <declares>");
-//   println("xxx <invert(containmentPlus)[loc2uid[luse]]>");
-//  
-//	 res1 = {0, 1} +
-//     { uid | UID uid <- config.store, AbstractValue av := config.store[uid], av has at
-//               //(  blockScope(int scope, loc l) := av 
-//               //|| booleanScope(int scope, loc l) := av
-//               //|| function(_,_,_, _, int scope, _, _, loc l) := av
-//               //|| constructor(_,_,_,int scope, loc l) := av
-//               //|| label(_,functionLabel(), int scope, loc l) := av
-//               //|| closure(_,_, int scope, loc l)  := av
-//               //|| \module(_, loc l) := av
-//               //)
-//               , luse < av.at || av.at.path != luse.path
-//               };
-//  res2 = {0, 1} + { uid | uid <- carrier(containment), AbstractValue av := config.store[uid], av has at, luse < av.at || av.at.path != luse.path};
-//  if(res1 != res2){
-//  	println("res1 = <res1>");
-//  	println("res2 = <res2>");
-//  }
-//  return res1;
-//} 
-// 
 public UID declaredScope(UID uid) {
 	if(config.store[uid]?){
 		res = config.store[uid].containedIn;

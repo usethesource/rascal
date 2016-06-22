@@ -267,11 +267,8 @@ value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArgumen
 
 value execute(RVMModule mainModule, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false,
                                     bool testsuite=false, bool recompile=false, bool profile=false, bool trace= false, 
-                                    bool coverage = false, bool jvm = true, bool verbose = false){
-   start_linking = cpuTime();   
+                                    bool coverage = false, bool jvm = true, bool verbose = false){  
    merged = mergeImports(mainModule, pcfg, verbose=verbose, jvm=jvm);
-   link_time = cpuTime() - start_linking;
-   println("linking: <link_time/1000000> msec");
    return execute(merged, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=testsuite,recompile=recompile,
                   profile=profile,trace=trace,coverage=coverage,jvm=jvm,verbose=verbose);             
 }
