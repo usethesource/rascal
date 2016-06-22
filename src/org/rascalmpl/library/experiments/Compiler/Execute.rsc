@@ -266,7 +266,7 @@ value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArgumen
                            coverage,
                            jvm);
  
-   println("Executing: <(cpuTime() - startTime)/1000000> ms");
+   if(verbose) println("Executing: <(cpuTime() - startTime)/1000000> ms");
    return v;                            
 }
 
@@ -293,7 +293,7 @@ value execute(str qualifiedModuleName, PathConfig pcfg,
          if(verbose) println("Using <compressed>");
          startTime = cpuTime();
          v = executeProgram(compressed, keywordArguments, debug, debugRVM, testsuite, profile, trace, coverage, jvm);
-         println("Executing: <(cpuTime() - startTime)/1000000> ms");
+         if(verbose) println("Executing: <(cpuTime() - startTime)/1000000> ms");
          if(!testsuite && verbose){
             println("Result = <v>");
          }  
