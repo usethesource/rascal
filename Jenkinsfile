@@ -10,7 +10,7 @@ node {
   sh "${mvnHome}/bin/mvn -B clean install"
 
   stage 'Deploy'
-  sh "${mvnHome}/bin/mvn -s /var/jenkins_home/usethesource-maven-settings.xml -B deploy"
+  sh "${mvnHome}/bin/mvn -s /var/jenkins_home/usethesource-maven-settings.xml -DskipTests -B deploy"
 
   stage 'Archive'
   step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
