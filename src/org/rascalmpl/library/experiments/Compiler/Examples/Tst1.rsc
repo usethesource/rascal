@@ -1,13 +1,5 @@
 module experiments::Compiler::Examples::Tst1
 
-import IO;
-
-str declInfo2Doc(str doc) =
-    "----
-    '<doc>
-    '++++";
-str d = "AAA
-        'BBB
-        '";
-
-value main() { println(declInfo2Doc(d)); return true; }
+value main(){
+    return ({<1, "a">, <2, "b">}[0]) ? "none";
+}Ê
