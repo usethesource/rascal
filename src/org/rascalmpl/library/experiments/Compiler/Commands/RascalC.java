@@ -80,6 +80,7 @@ public class RascalC {
                     .setProfile(cmdOpts.getCommandBoolOption("profile"))
                     //.setJVM(cmdOpts.getCommandBoolOption("jvm"))
                     .forModule(cmdOpts.getRascalModule().getValue())
+                    .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
                     .build();
 
             Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
