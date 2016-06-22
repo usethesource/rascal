@@ -4,11 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -105,6 +108,11 @@ public class Bootstrap {
         if (!Files.exists(targetFolder.resolve("org/rascalmpl/library/Prelude.class"))) {	// PK: PreludeCompiled
         	throw new RuntimeException("target folder " + sourceFolder + " should point to source folder of compiler library and the RVM interpreter.");
         }
+        Path bootstrapMarker = targetFolder.resolve("META-INF/bootstrapped.version");
+        if (Files.exists(bootstrapMarker)) {
+            System.err.println("Not bootstrapping, since " + bootstrapMarker + " already exists");
+            System.exit(0);
+        }
         
         for (;arg < args.length; arg++) {
             switch (args[arg]) {
@@ -147,7 +155,9 @@ public class Bootstrap {
             // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
             copyResult(newKernel4, targetFolder.resolve("boot"));
             
-            runTestModule(5, targetFolder + ":" + classpath,  newKernel4.toAbsolutePath().toString(), "|std:///|", tmpDir.resolve("test-bins"), testModules);
+            runTestModule(5, targetFolder + ":" + classpath,  "|boot:///|", "|std:///|", tmpDir.resolve("test-bins"), testModules);
+
+            Files.write(bootstrapMarker, versionToUse.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE_NEW);
         } 
         catch (BootstrapMessage | IOException | InterruptedException e) {
             error(e.getMessage());
