@@ -26,12 +26,17 @@ public class DefaultTestResultListener implements ITestResultListener{
 	private int count;
 	private int ignored;
     private String context;
+    private final boolean verbose;
 	private static char[] roller = new char[] {'|', '/', '-', '\\', '|', '/', '-', '\\', '|'};
 	
 	public DefaultTestResultListener(PrintWriter errorStream){
+	    this(errorStream, true);
+	}
+	public DefaultTestResultListener(PrintWriter errorStream, boolean verbose){
 		super();
 
 		this.err = errorStream;
+		this.verbose = verbose;
 		reset();
 	}
 
@@ -55,7 +60,7 @@ public class DefaultTestResultListener implements ITestResultListener{
 	public void start(String context, int count) {
 	    this.context = context;
 	    reset();
-	    if (count != 0) {
+	    if (count != 0 && verbose) {
 	        err.println("Running tests for " + context);
 	    }
 		this.count = count;
@@ -63,7 +68,7 @@ public class DefaultTestResultListener implements ITestResultListener{
 	}
 
     private void progress() {
-        if (count > 0) {
+        if (count > 0 && verbose) {
             err.print(String.format("%s testing %d/%d ", 
                     roller[getNumberOfTests() % roller.length], getNumberOfTests(), count));
         }
@@ -73,6 +78,10 @@ public class DefaultTestResultListener implements ITestResultListener{
 	public void done() {
 	    progress();
 	    if (count > 0) {
+	        if (!verbose) {
+	            // make sure results are reported on a newline
+	            err.println();
+	        }
 	        err.println("\rTest report for " + context);
 	        if (errors + failures == 0) {
 	            err.println("\tall " + (count - ignored) + "/" + count + " tests succeeded");
@@ -96,17 +105,25 @@ public class DefaultTestResultListener implements ITestResultListener{
 		
 		if (successful) {
 		    successes++;
-		    err.print("success                                                       \r");
+		    if (verbose) {
+		        err.print("success                                                       \r");
+		    }
 		}
 		else if (t != null) {
 		    errors++;
-		    err.print("error: " + ReplTextWriter.valueToString(loc) + "\n");
+		    if (!verbose) {
+		        err.println();
+		    }
+		    err.println("error: " + test + " @ " + ReplTextWriter.valueToString(loc));
 		    err.println("\t" + t.getMessage());
 		    t.printStackTrace(err);
 		}
 		else {
 		    failures++;
-		    err.print("failure: " + ReplTextWriter.valueToString(loc) + "\n");
+		    if (!verbose) {
+		        err.println();
+		    }
+		    err.println("failure: " + test + " @ " + ReplTextWriter.valueToString(loc));
 		    err.println(message);
 		}
 		
