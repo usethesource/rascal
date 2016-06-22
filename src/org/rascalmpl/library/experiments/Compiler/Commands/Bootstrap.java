@@ -11,6 +11,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.uri.URIUtil;
@@ -24,6 +25,7 @@ import org.rascalmpl.uri.URIUtil;
  */
 public class Bootstrap {
     private static Process childProcess;
+    private static boolean VERBOSE = false;
     private static final String[] testModules = {
             "lang::rascal::tests::basic::Booleans",
             "lang::rascal::tests::basic::Equality",
@@ -66,8 +68,8 @@ public class Bootstrap {
     }
     
     public static void main(String[] args) throws NoSuchRascalFunction {
-        if (args.length != 5) {
-        	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder> (you provided " + args.length + " arguments instead)");
+        if (args.length < 5) {
+        	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder> [--verbose] (you provided " + args.length + " arguments instead)");
         	System.exit(1);
         	return;
         }
@@ -102,6 +104,12 @@ public class Bootstrap {
         Path targetFolder = new File(args[arg++]).toPath();
         if (!Files.exists(targetFolder.resolve("org/rascalmpl/library/Prelude.class"))) {	// PK: PreludeCompiled
         	throw new RuntimeException("target folder " + sourceFolder + " should point to source folder of compiler library and the RVM interpreter.");
+        }
+        
+        for (;arg < args.length; arg++) {
+            switch (args[arg]) {
+                case "--verbose": VERBOSE=true; break;
+            }
         }
         
         Path tmpDir = new File(System.getProperty("java.io.tmpdir") + "/rascal-boot").toPath();
@@ -142,7 +150,7 @@ public class Bootstrap {
             runTestModule(5, targetFolder + ":" + classpath,  newKernel4.toAbsolutePath().toString(), "|std:///|", tmpDir.resolve("test-bins"), testModules);
         } 
         catch (BootstrapMessage | IOException | InterruptedException e) {
-            info(e.getMessage());
+            error(e.getMessage());
 			e.printStackTrace();
 			System.exit(1);
 		} 
@@ -217,7 +225,7 @@ public class Bootstrap {
     
     private static Path compilePhase(int phase, String classPath, String testClassPath, Path tmp, String bootPath, String sourcePath) throws BootstrapMessage, IOException, InterruptedException, NoSuchRascalFunction {
         Path result = phaseFolder(phase, tmp);
-        info("phase " + phase + ": " + result);
+        progress("phase " + phase + ": " + result);
        
         runTestModule(phase, classPath, bootPath, sourcePath, result, testModules);
         compileMuLibrary(phase, classPath, bootPath, sourcePath, result);
@@ -231,20 +239,17 @@ public class Bootstrap {
 
     private static void compileModule(int phase, String classPath, String boot, String sourcePath, Path result,
             String module) throws IOException, InterruptedException, BootstrapMessage {
-        info("\tcompiling " + module);
-        if (runCompiler(classPath, 
-                (!TRANSITION_ARGS || phase > 2) ? "--bin" : "--binDir", result.toAbsolutePath().toString(),
-                (!TRANSITION_ARGS || phase > 2) ? "--src" : "--srcPath", sourcePath,
-                (!TRANSITION_ARGS || phase > 2) ? "--boot" : "--bootDir", boot,
-                "--verbose",
-                module) != 0) {
-            
+        progress("\tcompiling " + module + "(pase " + phase +")");
+        String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
+        String[] otherArgs = VERBOSE? new String[] {"--verbose", module} : new String[] {module};
+
+        if (runCompiler(classPath, Stream.of(paths, otherArgs).flatMap(Stream::of).toArray((s) -> new String[s])) != 0) {
             throw new BootstrapMessage(phase);
         }
     }
     
     private static void compileMuLibrary(int phase, String classPath, String bootDLoc, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage, NoSuchRascalFunction {
-        info("\tcompiling MuLibrary");
+        progress("\tcompiling MuLibrary (phase " + phase +")");
         
         if (runMuLibraryCompiler(classPath, 
                 (!TRANSITION_ARGS || phase > 2) ? "--bin" : "--binDir", result.toAbsolutePath().toString(),
@@ -257,7 +262,7 @@ public class Bootstrap {
     }
     
     private static void runTestModule(int phase, String classPath, String boot, String sourcePath, Path result, String[] modules) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
-        info("Running tests before the next phase " + phase);
+        progress("Running tests before the next phase " + phase);
         String[] arguments;
         if (!TRANSITION_ARGS || phase > 2) {
             arguments = new String[] {"--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot};
@@ -308,7 +313,15 @@ public class Bootstrap {
         }
     }
     
+    private static void progress(String msg) {
+         System.err.println("BOOTSTRAP:" + msg);
+    }
     private static void info(String msg) {
+        if (VERBOSE) {
+            System.err.println("BOOTSTRAP:" + msg);
+        }
+    }
+    private static void error(String msg) {
         System.err.println("BOOTSTRAP:" + msg);
     }
 }
