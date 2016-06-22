@@ -238,6 +238,7 @@ public class CommandExecutor {
 						.setTrace(trace)
 						.setCoverage(coverage)
 						.setJVM(jvm)
+						.setVerbose(verbose)
 						.observedBy(debugObserver != null ? debugObserver.getObserverWhenActiveBreakpoints() : null)
 						.build();
 						

@@ -70,6 +70,7 @@ public class Rascal {
                     .setTrace(cmdOpts.getCommandBoolOption("trace"))
                     .setProfile(cmdOpts.getCommandBoolOption("profile"))
                     .forModule(cmdOpts.getRascalModule().getValue())
+                    .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
                     .build();
 
             ISourceLocation binary = findBinary(cmdOpts.getCommandLocOption("bin"), cmdOpts.getRascalModule().getValue());

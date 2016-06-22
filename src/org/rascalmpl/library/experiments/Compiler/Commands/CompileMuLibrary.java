@@ -63,6 +63,7 @@ public class CompileMuLibrary {
                     .setTrace(cmdOpts.getCommandBoolOption("trace"))
                     .setProfile(cmdOpts.getCommandBoolOption("profile"))
                     //.setJVM(cmdOpts.getCommandBoolOption("jvm"))
+                    .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
                     .build();
 
             Kernel kernel = new Kernel(vf, rex);
