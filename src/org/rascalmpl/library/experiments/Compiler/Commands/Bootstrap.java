@@ -235,15 +235,17 @@ public class Bootstrap {
         return result;
     }
     
-    private final static boolean TRANSITION_ARGS = false;
-
+    private static String[] concat(String[]... arrays) {
+        return Stream.of(arrays).flatMap(Stream::of).toArray(sz -> new String[sz]);
+    }
+    
     private static void compileModule(int phase, String classPath, String boot, String sourcePath, Path result,
             String module) throws IOException, InterruptedException, BootstrapMessage {
         progress("\tcompiling " + module + "(pase " + phase +")");
         String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
         String[] otherArgs = VERBOSE? new String[] {"--verbose", module} : new String[] {module};
 
-        if (runCompiler(classPath, Stream.of(paths, otherArgs).flatMap(Stream::of).toArray((s) -> new String[s])) != 0) {
+        if (runCompiler(classPath, concat(paths, otherArgs)) != 0) {
             throw new BootstrapMessage(phase);
         }
     }
@@ -251,57 +253,33 @@ public class Bootstrap {
     private static void compileMuLibrary(int phase, String classPath, String bootDLoc, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage, NoSuchRascalFunction {
         progress("\tcompiling MuLibrary (phase " + phase +")");
         
-        if (runMuLibraryCompiler(classPath, 
-                (!TRANSITION_ARGS || phase > 2) ? "--bin" : "--binDir", result.toAbsolutePath().toString(),
-                (!TRANSITION_ARGS || phase > 2) ? "--src" : "--srcPath", sourcePath,
-                (!TRANSITION_ARGS || phase > 2) ? "--boot" : "--bootDir", bootDLoc
-                    ) != 0 ) {
-            
+        String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", bootDLoc };
+        String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
+
+        if (runMuLibraryCompiler(classPath, concat(paths, otherArgs)) != 0) {
             throw new BootstrapMessage(phase);
         }
     }
     
     private static void runTestModule(int phase, String classPath, String boot, String sourcePath, Path result, String[] modules) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
         progress("Running tests before the next phase " + phase);
-        String[] arguments;
-        if (!TRANSITION_ARGS || phase > 2) {
-            arguments = new String[] {"--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot};
-        } else {
-            arguments = new String[] {"--binDir", result.toAbsolutePath().toString(), "--srcPath", sourcePath, "--bootDir", boot};
-        }
-        String[] command = new String[arguments.length + modules.length +  5];
-        command[0] = "java";
-        command[1] = "-cp";
-        command[2] = classPath;
-        command[3] = "-Xmx1G";
-        command[4] = "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests";
-        System.arraycopy(arguments, 0, command, 5, arguments.length);
-        System.arraycopy(modules, 0, command, 5 + arguments.length, modules.length);
+        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
+        String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
+        String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
 
-        if (runChildProcess(command) != 0) { 
+        if (runChildProcess(concat(javaCmd, paths, otherArgs, modules)) != 0) { 
             throw new BootstrapMessage(phase);
         }
     }
 
     private static int runCompiler(String classPath, String... arguments) throws IOException, InterruptedException {
-    	String[] command = new String[arguments.length + 5];
-    	command[0] = "java";
-    	command[1] = "-cp";
-    	command[2] = classPath;
-    	command[3] = "-Xmx2G";
-    	command[4] = "org.rascalmpl.library.experiments.Compiler.Commands.RascalC";
-    	System.arraycopy(arguments, 0, command, 5, arguments.length);
-    	return runChildProcess(command);
+        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "org.rascalmpl.library.experiments.Compiler.Commands.RascalC" };
+    	return runChildProcess(concat(javaCmd, arguments));
     }
     
     private static int runMuLibraryCompiler(String classPath, String... arguments) throws IOException, InterruptedException {
-        String[] command = new String[arguments.length + 4];
-        command[0] = "java";
-        command[1] = "-cp";
-        command[2] = classPath;
-        command[3] = "org.rascalmpl.library.experiments.Compiler.Commands.CompileMuLibrary";
-        System.arraycopy(arguments, 0, command, 4, arguments.length);
-        return runChildProcess(command);
+        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "org.rascalmpl.library.experiments.Compiler.Commands.CompileMuLibrary" };
+    	return runChildProcess(concat(javaCmd, arguments));
     }
     
     private static int runChildProcess(String[] command) throws IOException, InterruptedException {
