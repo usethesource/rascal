@@ -6,8 +6,14 @@ node {
   stage 'Clone'
   checkout scm
 
-  stage 'Build and Test'
-  sh "${mvnHome}/bin/mvn -B clean install"
+  stage 'Build'
+  sh "${mvnHome}/bin/mvn -DskipTest -B clean compile"
+
+  stage 'Test'
+  sh "${mvnHome}/bin/mvn -B test"
+
+  stage 'Packaging'
+  sh "${mvnHome}/bin/mvn -DskipTest -B package"
 
   stage 'Deploy'
   sh "${mvnHome}/bin/mvn -s /var/jenkins_home/usethesource-maven-settings.xml -DskipTests -B deploy"
