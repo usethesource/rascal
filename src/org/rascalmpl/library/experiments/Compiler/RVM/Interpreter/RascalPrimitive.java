@@ -8150,6 +8150,21 @@ public enum RascalPrimitive {
 			return sp - arity + 1;
 		}
 	},
+	
+	is_defined_rel_subscript {
+			@Override
+			public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+				IValue idx = ((IValue) arg_1);
+				try {
+					temp_array_of_2[0] = Rascal_TRUE;
+					temp_array_of_2[1] = idx.getType().isSet() ? RascalPrimitive.rel_subscript1_set.execute2(arg_2, arg_1, currentFrame, rex)
+															   : RascalPrimitive.rel_subscript1_noset.execute2(arg_2, arg_1, currentFrame, rex);
+				} catch(Exception e) {
+					temp_array_of_2[0] = Rascal_FALSE;
+				}
+				return temp_array_of_2;
+			}
+	},
 
 	/**
 	 * Subscript of a lrel
