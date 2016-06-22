@@ -141,7 +141,7 @@ str fuid = "";
 
 private list[MuExp] preprocess(str modName, lrel[str,int] funNames, str fname, int nformals, str uid, list[MuExp] body_exps){
    fuid = uid;
-   println("Pre-processing function: <uid>");
+   //println("Pre-processing function: <uid>");
    return
       for(exp <- body_exps){
         try {
