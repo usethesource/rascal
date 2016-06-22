@@ -116,7 +116,10 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool jvm = true, 
        try {
            imported_declarations = readBinaryValueFile(#list[RVMDeclaration], MuLibraryCompiled);
            // Temporary work around related to issue #343
-           imported_declarations = visit(imported_declarations) { case type[value] t : { insert type(t.symbol,t.definitions); }}
+           // Only needed for reified types in RVM instructions
+           if(!jvm){
+              imported_declarations = visit(imported_declarations) { case type[value] t : { insert type(t.symbol,t.definitions); }}
+           }
            if(verbose) println("execute: Using compiled library version <MuLibraryCompiled>");
       } catch: {
            throw "Cannot read <MuLibraryCompiled>";
@@ -151,8 +154,10 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool jvm = true, 
                imported_moduleTags += importedRvmModule.module_tags;
                
                // Temporary work around related to issue #343
-               importedRvmModule = visit(importedRvmModule) { case type[value] t : { insert type(t.symbol,t.definitions); }}
-              
+               // Only needed for reified types in RVM instructions
+               if(!jvm){
+                  importedRvmModule = visit(importedRvmModule) { case type[value] t : { insert type(t.symbol,t.definitions); }}
+               }
                imported_types = imported_types + importedRvmModule.types;
                new_declarations = importedRvmModule.declarations;
                
