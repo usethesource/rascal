@@ -13,7 +13,6 @@ import Prelude;
 import util::Webserver;
 
 import lang::json::IO;
-import util::HtmlDisplay;
 import util::Math;
 
 import experiments::vis2::sandbox::Figure;
@@ -246,7 +245,9 @@ str visitFig(IFigure fig) {
     }
  
 str visitTooltipFigs() {
-    str r ="\<div class=\"overlay\"\>\<svg id = \"overlay\" width=<upperBound> height=<upperBound>\>";
+    if (isEmpty(panels) && isEmpty(tooltips)) return "";
+    str r =
+"\<div class=\"overlay\"\>\<svg id = \"overlay\" width=<upperBound> height=<upperBound> \>";
     for (IFigure fi<-tooltips) {
          if (g:ifigure(str id, _):=fi && endsWith(id, "_tooltip")) {
             r+= visitFig(g);        
@@ -348,7 +349,7 @@ str getIntro() {
         ' var screenHeight = 0;
         ' var upperBound = <upperBound>;  
         ' var lowerBound = <lowerBound>;  
-        ' setSite(\"<getSite()>\");    
+        ' setSite(\"<getSiteStr()>\");    
         ' function initFunction() {
         '  alertSize();
         '  <for (d<-markerScript) {> <d> <}>
@@ -536,7 +537,9 @@ private loc startFigureServer() {
 
 private loc site = startFigureServer();
 
-private str getSite() = "<site>"[1 .. -1];
+private str getSiteStr() = "<site>"[1 .. -1];
+
+public loc getSite() = site;
 
 value getRenderCallback(Event event) {return void(str e, str n, str v) {
     value q = getCallback(event);
@@ -558,7 +561,7 @@ IFigure  _d3Pack(str id, Figure f, str json) {
      widget[id] = <null, seq, id, begintag, endtag,
      "
      'packDraw(\"<id>_td\", <json>, <extraQuote(f.fillNode)>, <extraQuote(f.fillLeaf)>, <f.fillOpacityNode>, <f.fillOpacityLeaf>,
-     <extraQuote(lineColor)>, <f.lineWidth<0?1:f.lineWidth>, <f.diameter>);
+     <extraQuote(lineColor)>, <f.lineWidth<0?1:f.lineWidth>, <f.diameter>, <f.inTooltip>);
      ",  f.width, f.height, 0, 0, 1, 1, f.align, 1, "", false, false >;
      widgetOrder+= id;  
      return ifigure("<id>", []);
@@ -571,7 +574,7 @@ IFigure  _d3Treemap(str id, Figure f, str json) {
      int height = f.height<0?800:f.height;
      widget[id] = <null, seq, id, begintag, endtag,
      "
-     'treemapDraw(\"<id>_td\", <json>, <width>, <height>);
+     'treemapDraw(\"<id>_td\", <json>, <width>, <height>, \"<f.fillColor>\", <f.inTooltip>);
      ",  f.width, f.height, 0, 0, 1, 1, f.align, 1, "", false, false >;
      widgetOrder+= id;  
      return ifigure("<id>", []);
@@ -638,7 +641,6 @@ public void _render(IFigure fig1, int width = 800, int height = 800,
     fig = ifigure(id, [fig1]);
     // println("site=<site>");
     cssLocation = cssFile;
-	if (display) htmlDisplay(site);
 }
 
 str getId(IFigure f) {
@@ -2200,7 +2202,8 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
          '<debugStyle()>
          '<on(f)>
          '<stylePx("width", f.width)><stylePx("height", f.height)> 
-         '<attrPx("width", f.width)><attrPx("height", f.height)>   
+         '<attrPx("width", f.width)><attrPx("height", f.height)> 
+         '<attrPx("w", f.width)><attrPx("h", f.height)>   
          '<style("background-color", "<getFillColor(f)>")>
          '<style("border-spacing", "<f.hgap> <f.vgap>")>
          '<style("stroke-width",getLineWidth(f))>
@@ -2675,7 +2678,7 @@ public void _render(Figure fig1, int width = 400, int height = 400,
             screenHeight = size[1];
          }
         clearWidget();
-        if (at(_, _, _):= fig1 || atX(_,_):=fig1 || atY(_,_):=fig1){
+        if (atXY(_, _, _):= fig1 || atX(_,_):=fig1 || atY(_,_):=fig1){
              align = topLeft; 
              }  
         Figure h = emptyFigure();

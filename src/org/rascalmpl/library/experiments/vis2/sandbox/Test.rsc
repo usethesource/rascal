@@ -2,7 +2,9 @@ module experiments::vis2::sandbox::Test
 import experiments::vis2::sandbox::FigureServer;
 import experiments::vis2::sandbox::Figure;
 import experiments::vis2::sandbox::Shortcuts;
+import experiments::vis2::sandbox::Render;
 import util::Math;
+
 
 import util::Reflective;
 
@@ -328,7 +330,7 @@ public void fquest(loc l) = writeFile(l, toHtmlString(
          )
          ,circle(r=4, fillColor="firebrick", cx = cx(from[f].x+0.25)+0.2*rv[0], cy = cy(from[f].y+hc/2)+0.2*rv[1]
           , tooltip=box(fig=text("<multiplicity(f, t)>"), fillColor="floralwhite", size=<50, 50>)
-         //  , tooltip = box(size=<100, 100>, fig=box(size=<50, 50>), fillColor="red")
+          // , tooltip = box(size=<100, 100>, fig=box(size=<50, 50>), fillColor="red")
          )
          ]);
          }

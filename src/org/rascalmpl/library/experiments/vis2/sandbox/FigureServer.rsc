@@ -5,21 +5,23 @@ import util::ShellExec;
 import util::Reflective;
 import Prelude;
 
-
-public void render(Figure fig1, int width = 800, int height = 800, 
+public void renderWeb(
+      Figure fig1, int width = 400, int height = 400, 
      Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>,
-     str fillColor = "none", str lineColor = "black", bool debug = false, bool display = true, 
-     Event event = on(nullCallback), int borderWidth = -1, str borderStyle = "", str borderColor = ""
-     ,int lineWidth = -1, bool resizable = true, str cssFile="")
+     str fillColor = "white", str lineColor = "black", bool debug = false
+     , int borderWidth = -1,  str borderColor = "", str borderStyle = "", bool resizable = true,
+     str cssFile="")
      {
      setDebug(debug);
-     _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor
-     , lineColor = lineColor, lineWidth = lineWidth, size = size, event = event
-     , borderWidth = borderWidth, borderStyle = borderStyle, borderColor=borderColor
-     , resizable = resizable, defined = (width? && height?)||(size?), cssFile = cssFile);
-     // println(toString());
+          _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
+     lineColor = lineColor, size = size, display = true
+     , borderWidth = borderWidth, borderStyle = borderStyle, resizable = resizable,
+     cssFile = cssFile
+     );
      }
-       
+     
+
+      
 public str toHtmlString(Figure fig1, int width = 400, int height = 400, 
      Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>,
      str fillColor = "white", str lineColor = "black", bool debug = false

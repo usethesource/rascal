@@ -1,6 +1,7 @@
 module experiments::vis2::sandbox::Shapes
 import experiments::vis2::sandbox::FigureServer;
 import experiments::vis2::sandbox::Figure;
+import experiments::vis2::sandbox::Render;
 import Prelude;
 
 

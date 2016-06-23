@@ -15,8 +15,12 @@ import experiments::vis2::sandbox::SinAndCos;
 import experiments::vis2::sandbox::Graph;
 import experiments::vis2::sandbox::Flower;
 import experiments::vis2::sandbox::Shapes;
+import experiments::vis2::sandbox::Render;
 import util::Math;
 import Prelude;
+
+// import vis::Render;
+
 
 void ex(str title, Figure b, bool debug = false) = render(b, debug = debug, align = centerMid);
 
@@ -396,7 +400,8 @@ Figure flags() = grid(hgap=5, vgap = 5, figArray=[
                     , luxembourg(), german()
                     ]
                    ,[italian(), belgium(), france()]
-                   ],
+                   ]
+                   ,
                     width = 400, height = 200);  
                     
  
@@ -411,7 +416,7 @@ Figure gflags() = graph(nodes=flagNodes, edges=flagEdges, size=<300, 600>);
 
 void tgflags() = render(box(fig=gflags(), size=<400, 400>, align =  centerMid));
 
-void fgflags(loc l) = writeFile(l, toHtmlString(flags()));
+void fgflags(loc l) = writeFile(l, toHtmlString(box(size=<50, 50>, tooltip = frame(flags()))));
 
 void ftgflags(loc l) = writeFile(l, toHtmlString(gflags()));
    
@@ -425,7 +430,7 @@ Figure demo11() = box(fig=gflags(), size=<400, 400>);
 
 Figure demo13() = fsm();                
                     
-void tflags() = render(flags());           
+void tflags() = render(box(size=<50, 50>, tooltip = box(fig=flags())));           
 
 void tsteden() = render(frame(atXY(100, 100, box(fig=steden(width=400, height = 400)))));
 
@@ -639,7 +644,7 @@ public void ftetris1(loc l) = writeFile(l, toHtmlString(
 ));
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------
-public list[list[Figure]] figures() = 
+public list[list[Figure]] figures(bool tooltip) = 
 [
              [demo1(), demo2()]
              ,[demo3() , demo4()]
@@ -651,10 +656,11 @@ public list[list[Figure]] figures() =
              ,[demo16(), demo17()]
              ,[demo18(), demo19()]
             ,[tetris(), box(fig=shrink(false), size=<400, 400>)]
+            ,[steden2(tooltip=tooltip), steden3(tooltip=tooltip)]
             ,[decision(), triangle()]
             ];
             
-Figure demoFig() = grid(vgap=4, figArray=figures());
+Figure demoFig() = grid(vgap=4, figArray=figures(false));
             
 
                   
@@ -673,7 +679,7 @@ void fdemo(loc l) {
  
 list[Figure] sb(list[Figure] tt) = [sb(f)|Figure f<-tt];
  
- Figure summary() = grid(figArray = [[sb(x)|x<-y]|y<-figures()]);
+ Figure summary() = grid(figArray = [[sb(x)|x<-y]|y<-figures(true)]);
  
  void tsummary()= render(summary(), align = topLeft);
  
