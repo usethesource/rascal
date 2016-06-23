@@ -172,7 +172,7 @@ RVMModule recompileDependencies(str qualifiedModuleName, RVMModule rvmMod, Confi
     if(atLeastOneRecompiled){
        mergedLoc = getMergedImportsWriteLoc(qualifiedModuleName, pcfg);
        try {
-           println("Removing <mergedLoc>");
+           if(verbose) println("Removing <mergedLoc>");
            remove(mergedLoc);
        } catch e: {
            println("Could not remove <mergedLoc>: <e>");
