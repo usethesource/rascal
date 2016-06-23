@@ -157,7 +157,7 @@ public CharRange intersect(CharRange r1, CharRange r2) {
 }
 
 public list[CharRange] complement(list[CharRange] s) {
-  return difference([range(1,0xFFFFFF)],s); // the 0 character is excluded
+  return difference([range(1,0x10FFFF)],s); // the 0 character is excluded
 }
 
 public list[CharRange] intersection(list[CharRange] l, list[CharRange] r) {
