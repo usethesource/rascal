@@ -202,16 +202,14 @@ private str resolveLibOverriding(str lib){
 
     rlib1 = replaceFirst(lib, "org.rascalmpl.library.", "");
     rlib2 = |std:///| + "<replaceAll(rlib1, ".", "/")>Compiled.class";
-    
-    println("rlib1 = <rlib1>, rlib2 = <rlib2>");
   
 	if(exists(rlib2)){
 	   addOverriddenLib(lib);
-	   println("resolveLibOverriding <lib> =\> <lib>Compiled");
+	   //println("resolveLibOverriding <lib> =\> <lib>Compiled");
 	   return "<lib>Compiled";
 	} else {
-		 addNotOverriddenLib(lib);
-		println("resolveLibOverriding <lib> =\> <lib>");
+	     addNotOverriddenLib(lib);
+		//println("resolveLibOverriding <lib> =\> <lib>");
 		return lib;
 	}
 }
