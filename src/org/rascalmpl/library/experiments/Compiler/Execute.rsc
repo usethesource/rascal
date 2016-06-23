@@ -256,7 +256,7 @@ value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArgumen
                                   bool testsuite=false, bool recompile=false, bool profile=false, bool trace= false, 
                                   bool coverage = false, bool jvm = true, bool verbose = false){
    startTime = cpuTime();
-   v = executeProgram(     program,
+   return executeProgram(     program,
                            keywordArguments,
                            debug, 
                            debugRVM, 
@@ -266,8 +266,8 @@ value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArgumen
                            coverage,
                            jvm);
  
-   if(verbose) println("Executing: <(cpuTime() - startTime)/1000000> ms");
-   return v;                            
+   //if(verbose) println("Executing: <(cpuTime() - startTime)/1000000> ms");
+   //return v;                            
 }
 
 value execute(RVMModule mainModule, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false,
