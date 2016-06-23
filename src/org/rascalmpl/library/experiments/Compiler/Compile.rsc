@@ -70,7 +70,7 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
     int comp_time;
     loc moduleLoc = getModuleLocation(qualifiedModuleName, pcfg);
    	try {
-   	    if(verbose) println("rascal2rvm: Parsing and checking <moduleLoc>");
+   	    if(verbose) println("rascal2rvm: <moduleLoc>");
    	    start_checking = cpuTime();
    		//M = parse(#start[Module], moduleLoc).top;
    		M = parseModule(moduleLoc);
@@ -90,14 +90,14 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
    	    return <config, rvmMod>;
    	}
    	
-    if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
+    //if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
     start_comp = cpuTime();
    	muMod = r2mu(M, config, verbose=verbose, optimize=optimize);
    	
     rvmMod = mu2rvm(muMod, verbose=verbose, optimize=optimize); 
     comp_time = (cpuTime() - start_comp)/1000000;
     if(verbose) println("Compiling <moduleLoc>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
-    if(verbose) println("compile: Writing RVMModule <rvmModuleLoc>");
+    //if(verbose) println("compile: Writing RVMModule <rvmModuleLoc>");
     writeBinaryValueFile(rvmModuleLoc, rvmMod);
     return <config, rvmMod>;  
 }	
