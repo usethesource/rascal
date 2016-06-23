@@ -1,6 +1,7 @@
 module experiments::vis2::sandbox::Shortcuts
 import experiments::vis2::sandbox::FigureServer;
 import experiments::vis2::sandbox::Figure;
+import experiments::vis2::sandbox::Render;
 import util::Reflective;
 import Prelude;
 

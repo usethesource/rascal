@@ -2,7 +2,7 @@
  * 
  */
 
-function  packDraw(id, root, fill_node, fill_leaf, fillopacity_node, fillopacity_leaf, stroke, stroke_width, diameter) {
+function  packDraw(id, root, fill_node, fill_leaf, fillopacity_node, fillopacity_leaf, stroke, stroke_width, diameter, inTooltip) {
    var format = d3.format(",d"); 
    var pack = d3.layout.pack()
     .size([diameter - 4, diameter - 4])
@@ -11,6 +11,7 @@ function  packDraw(id, root, fill_node, fill_leaf, fillopacity_node, fillopacity
 var svg = d3.select("#"+id).append("svg")
     .attr("width", diameter)
     .attr("height", diameter)
+    .attr("pointer-events","none")
   .append("g")
     .attr("transform", "translate(2,2)");
 
@@ -29,8 +30,9 @@ var svg = d3.select("#"+id).append("svg")
       .style("fill-opacity", function(d){return d.children ? fillopacity_node:fillopacity_leaf})
       .style("stroke", stroke)
       .style("stroke-width", stroke_width)
+      .attr("pointer-events","visible")
       ;
-  
+  if (!inTooltip)
   node.append("title")
   .text(function(d) { return d.name + (d.children ? "" : ": " + format(d.size)); });
 
@@ -46,7 +48,7 @@ var svg = d3.select("#"+id).append("svg")
 /**
 * 
 */
-function  treemapDraw(id, root, width, height) {
+function  treemapDraw(id, root, width, height, fillColor, inTooltip) {
 	var margin = {top: 40, right: 10, bottom: 10, left: 10},
 	width = width - margin.left - margin.right,
 	height = height - margin.top - margin.bottom;
@@ -58,19 +60,22 @@ function  treemapDraw(id, root, width, height) {
 	var svg = d3.select("#"+id).append("svg")
 	.attr("width", width)
 	.attr("height", height)
+	.attr("pointer-events","none");
 	var node = svg.datum(root).selectAll(".node")
 	  .data(treemap.nodes)
 	.enter().append("g")
 	   .attr("class", function(d) { return d.children ? "node" : "leaf node"; })
 	   .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+	 if (!inTooltip)
 	 node.filter(function(d) { return !d.children; }).append("title")
 	   .text(function(d) { return d.name+":"+d.size;})
 	 ;
 	 node.append("rect").style("fill","none")
 	   .attr("width", function(d) { return Math.max(0, d.dx - 1) + "px"; })
 	   .attr("height", function(d) { return Math.max(0, d.dy - 1) + "px"; })
-	   .style("fill", function(d) { return d.children  ? color(d.name) : "none"; })
-	   .style("pointer-events","visible")
+	   .style("fill", fillColor=="none"?function(d) { return d.children  ? color(d.name) : "none"; }
+	                                   :fillColor)
+	   .attr("pointer-events","visible")
 	   .style("stroke","black")
 	   .style("stroke-width", "1")
 	   ;     

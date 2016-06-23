@@ -334,8 +334,8 @@ public data Figure(
 	       , int refinement=5, int rasterHeight=150)
 	       
    |d3Pack(DDD d = ddd(), str fillNode="rgb(31, 119, 180)", str fillLeaf = "ff7f0e", num fillOpacityNode=0.25, num fillOpacityLeaf=1.0,
-          int diameter = 960)
-   |d3Treemap(DDD d = ddd())
+          int diameter = 960, bool inTooltip = false)
+   |d3Treemap(DDD d = ddd(), bool inTooltip = false)
    |d3Tree(Figure root)
    |d3Tree(DDD d = ddd())
    ;
