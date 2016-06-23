@@ -12,6 +12,7 @@ import Prelude;
 import lang::csv::IO;
 import experiments::vis2::sandbox::Figure;
 import experiments::vis2::sandbox::FigureServer;
+import experiments::vis2::sandbox::Render;
 
 loc location = |project://rascal/src/org/rascalmpl/library/experiments/vis2/data/Steden.csv|;
 
@@ -30,7 +31,18 @@ public list[Chart] exampleSteden() {
            bar ([<d[0], d[3], d[1]>|d<-r], name = "2012")];
    }
    
-public Figure steden(int width = 400, int height = 400) {  
+// data DDD = ddd(str name="", int size = 0, list[DDD] children = [], int width =10, int height = 10);
+   
+public DDD dddSteden(int pos) {
+   lrel[str name , int p2013, int p2012 , int ext] v = 
+      readCSV(#lrel[str name, int p2013, int p2012, int ext], location, header=true)
+        // bool(tuple[str name, int v1, int v2, int v3]  a,  tuple[str name, int v1, int v2, int v3] b){ return a.v3 < b.v3; }
+      ;  
+      list[DDD] r = [ddd(name=d.name, size=z)|d<-v, int z:=d[pos]];
+      return ddd( children = r);
+   }
+   
+public Figure steden(int width = 400, int height = 400, bool tooltip = false) {  
             Figure f = comboChart(fillColor="antiquewhite", charts = exampleSteden(), tickLabels = true,  tooltipColumn = 2, 
            	    options = chartOptions(
            		hAxis = axis(title="Extend", slantedText = true, slantedTextAngle=90), 
@@ -41,12 +53,55 @@ public Figure steden(int width = 400, int height = 400) {
                 height=height,
                 // animation= animation(startup = true, easing = "in", duration = 500),
                 legend_ = legend(position="top")), width = width, height = height);
-            println("comboChart <f.width> <f.height>");
+            // println("comboChart <f.width> <f.height>");
              // f.width = width; f.height = height;
              return f;          
    }
    
-   public void tsteden() {render(box(size=<50, 50>, fillColor="yellow", tooltip=frame(at(25, 25, box(lineWidth = 1, fig=steden())))));          
+ public Figure steden2(bool tooltip= false) {return 
+                          hcat(hgap=5, figs=[
+                          vcat(
+                          figs=[box(fig=text("Population"), grow=1.2, fillColor="antiquewhite")
+                               ,d3Treemap(d = dddSteden(1), size=<200, 200>, fillColor="lightskyblue", inTooltip = tooltip)
+                               ]),
+                          vcat(
+                          figs=[box(fig=text("Extend"), grow=1.2, fillColor="antiquewhite")
+                               ,d3Treemap(d = dddSteden(3), size=<200, 200>, fillColor="lightpink", inTooltip = tooltip)
+                               ])
+                          ]);
+                         }
+                         
+public Figure steden3(bool tooltip=false) {return 
+                          hcat(hgap=5, figs=[
+                          vcat(
+                          figs=[box(fig=text("Population"), grow=1.2, fillColor="antiquewhite")
+                               ,d3Pack(d = dddSteden(1), size=<200, 200>, fillLeaf="lightskyblue", diameter = 200, inTooltip = tooltip)
+                               ]),
+                          vcat(
+                          figs=[box(fig=text("Extend"), grow=1.2, fillColor="antiquewhite")
+                               ,d3Pack(d = dddSteden(3), size=<200, 200>, fillLeaf="lightpink", diameter = 200, inTooltip = tooltip)
+                               ])
+                          ]);
+                         }
+   
+ public void tsteden() {
+       render(box(size=<50, 50>, fillColor="yellow", tooltip=frame(atXY(150, 150, box(lineWidth = 1, fig=steden())))));             
    }
+   
+ public void fsteden(loc l) = writeFile(l, toHtmlString(
+      box(size=<50, 50>, fillColor="yellow", tooltip=frame(atXY(150, 150, box(lineWidth = 1, fig=steden()))))
+   )); 
+   
+ public void tsteden2() {
+       render(steden2());             
+   }
+   
+  public void tsteden3() {
+       render(steden3());             
+   }
+   
+public void fsteden2(loc l) = writeFile(l, toHtmlString(
+   steden2()
+   )); 
    
    

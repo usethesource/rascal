@@ -10,6 +10,7 @@ module experiments::vis2::sandbox::Nederland
 
 import experiments::vis2::Figure;
 import experiments::vis2::FigureServer; 
+import experiments::vis2::sandbox::Render;
 
 import Prelude;
 import util::Math;

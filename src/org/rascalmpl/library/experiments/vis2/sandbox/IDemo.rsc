@@ -4,6 +4,7 @@ import experiments::vis2::sandbox::Figure;
 import experiments::vis2::sandbox::Steden;
 import Prelude;
 import util::Math;
+import experiments::vis2::sandbox::Render;
 
 str current = "white";
 

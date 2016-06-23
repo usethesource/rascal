@@ -498,17 +498,17 @@ function _adjust(toId, fromId, hshrink, vshrink, toLw, n, angle, x, y, width,
 	var w = width * hshrink;
 	var h = height * vshrink;
 	// alert("adjust1:"+ to.node().nodeName+" "+width+" "+height+" "+w+" "+h);
+	
 	var  invalidW = invalid(to.attr("width"))&&invalid(to.attr("w"));
 	var  invalidH = invalid(to.attr("height"))&&invalid(to.attr("h"));
+	// alert(""+toId+":"+to.attr("width")+":"+to.attr("w")+":"+invalidW+":"+to.node().nodeName);
 	switch (to.node().nodeName) {
 	case "FORM":
 	case "INPUT":
 	case "TABLE":	
 	case "BUTTON":
-		invalidW = invalidW && invalid(to.style("width")); // nchars
-		invalidH = invalidH && invalid(to.style("height")); // nchars
-		if (invalidW) to.attr("w", w).style("width", w);	
-		if (invalidH) to.attr("h", h).style("height", h);
+		if (invalidW && invalid(to.style("width"))) to.attr("w", w).style("width", w);	
+		if (invalidH && invalid(to.style("height"))) to.attr("h", h).style("height", h);
 		break;
 	case "rect":
 		if (invalidW) to.attr("width", w);
@@ -559,13 +559,16 @@ function _adjust(toId, fromId, hshrink, vshrink, toLw, n, angle, x, y, width,
 	//		"scale(1,-1)translate(0,"+(-h)+")");
 	to = d3.select("#" + toId + "_fo_table");
 	if (invalidW) {
+		 // alert("adjust:"+toId+":"+w+":"+toLw+":"+(w-toLw));
 	     to.attr("w", w - toLw).style("width", w - toLw);
+	     d3.select("#" + toId).attr("w", w - toLw);
 	     d3.select("#" + toId + "_fo").attr("width", w - toLw);
 	     d3.select("#" + toId + "_outer_fo").attr("width", w - toLw);
 	     d3.select("#" + toId + "_svg").attr("width", w + toLw + x);
 	}
 	if (invalidH) {
 	     to.attr("h", h - toLw).style("height", h - toLw);
+	     d3.select("#" + toId).attr("h", h - toLw);
 	     d3.select("#" + toId + "_fo").attr("height", h - toLw);
 		 d3.select("#" + toId + "_outer_fo").attr("height", h - toLw);
 		 d3.select("#" + toId + "_svg").attr("height", h + toLw + y);
@@ -831,13 +834,16 @@ function adjustTableW(clients, from, lw, hpad, vpad, hgap, vgap) {
 }
 
 function adjustTableH(clients, from, lw, hpad, vpad, hgap, vgap) {
+	
 	var c = d3.select("#" + from);
 	var width = c.attr("w");
 	var height = c.attr("h");
+	// alert("AdjustTableH:"+from+":"+width);
 	if (invalid(width) || invalid(height))
 		return;
 	height = parseInt(height) - vgap * clients.length;
 	var aUndefH = clients.filter(undefH);
+	// alert(aUndefH.length);
 	var aUndefWH = clients.filter(undefWH);
 	var sDefH = sumHeight(clients.filter(defH));
 	var nH = aUndefH.length;
@@ -876,8 +882,8 @@ function transpose(original) {
 
 function adjustTableWH(clients, id1, lw, hpad, vpad, hgap, vgap) {
 	var c = d3.select("#" + id1);
-	var width = c.attr("width");
-	var height = c.attr("height");
+	var width = c.attr("w");
+	var height = c.attr("h");
 	if (invalid(width) || invalid(height))
 		return;
 	width = parseInt(width) - hgap * clients.length;
@@ -978,8 +984,9 @@ function adjust_tooltip(q) {
 	var w = getWidth("#" + q + "_tooltip_svg");
 	var h = getHeight("#" + q + "_tooltip_svg");
 	var u = d3.select("#" + q + "_tooltip_outer_fo");
-	//if (u.empty())
-	//	u = d3.select("#" + q + "_tooltip_fo");
+	if (u.empty() && !d3.select("#" + q + "_tooltip_fo").empty()
+	    && !d3.select("#" + q + "_tooltip_fo").selectAll(".google").empty())
+	  	u = d3.select("#" + q + "_tooltip_fo");
 	var z = convert(x, y);
 	var x1 = 0;
 	var y1 = 0;
@@ -991,7 +998,8 @@ function adjust_tooltip(q) {
 		d3.select("#overlay").attr("width", z.x + w + x1);
 		d3.select("#overlay").attr("height", z.y + h + y1);
 		if (d3.select("#" + q + "_tooltip_outer_fo").empty()
-			  // && d3.select("#" + q + "_tooltip_fo").empty()
+			  && !d3.select("#" + q + "_tooltip_fo").empty()
+			  && d3.select("#" + q + "_tooltip_fo").selectAll(".google").empty()
 			) {
 			d3.select("#" + q + "_tooltip_svg").attr("x", z.x).attr("y", z.y);
 		}
@@ -1006,9 +1014,9 @@ function adjust_tooltip(q) {
 		   selectAll(".google").style("visibility", "hidden")
 		;
 	});
-	var t = d3.select("#" + q + "_tooltip_svg");
 	if (!u.empty()) {
 		u.attr("x", z.x + x1).attr("y", z.y + y1);
+		var t = d3.select("#" + q + "_tooltip_svg");
 		t.attr("width", w + z.x + x1).attr("height", h + z.y + y1);
 	}
 	d3.select("#" + q + "_tooltip").style("visibility", "hidden");

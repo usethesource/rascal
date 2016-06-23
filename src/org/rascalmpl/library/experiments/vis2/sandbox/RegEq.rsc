@@ -12,6 +12,7 @@ import util::Math;
 import analysis::statistics::SimpleRegression;
 import experiments::vis2::sandbox::FigureServer;
 import experiments::vis2::sandbox::Figure; 
+import experiments::vis2::sandbox::Render;
 
 
 void ex(str title, Figure f){
