@@ -125,7 +125,7 @@ public class Bootstrap {
         System.err.println("Bootstrapping time:");
         System.err.println("---------------------");
         for (BootTiming bt: timings) {
-            System.err.println(String.format("%"+labelWidth+"s : %,d ms", bt.message, TimeUnit.NANOSECONDS.toMillis(bt.duration)));
+            System.err.println(String.format("%-"+labelWidth+"s : %,d ms", bt.message, TimeUnit.NANOSECONDS.toMillis(bt.duration)));
         }
         System.err.println("---------------------");
     }
