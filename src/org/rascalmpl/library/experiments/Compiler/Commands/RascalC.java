@@ -64,6 +64,9 @@ public class RascalC {
             .boolOption("optimize")
             .boolDefault(true)
             .help("Apply code optimizations")
+            
+            .boolOption("enableAsserts")
+            .help("Enable checking of assertions")
 
             //.boolOption("jvm") 			.help("Generate JVM code")
 

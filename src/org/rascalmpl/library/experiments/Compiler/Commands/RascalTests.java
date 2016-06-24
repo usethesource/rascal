@@ -56,6 +56,10 @@ public class RascalTests {
 			.boolOption("verbose")		
 			.help("Make the compiler verbose")
 			
+			 .boolOption("enableAsserts")
+			 .boolDefault(true)
+	         .help("Enable checking of assertions")
+			
 			.rascalModules("Rascal modules with tests")
 			
 			.handleArgs(args);
