@@ -100,7 +100,7 @@ public void extractDeclarationInfo(Configuration config){
    
     productions = { p.def is label ? <p.def.symbol, Symbol::prod(p.def.symbol, p.def.name, p.symbols, p.attributes)>  //TODO: p.def.name???
 	                               : <p.def, Symbol::prod(p.def, "", p.symbols, p.attributes)> 						  // TODO ""??
-	              | /Production p:prod(_,_,_) := grammar 
+	              | rtype <- grammar, /Production p:prod(_,_,_) := grammar[rtype]
 	              };
 	   
    	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
