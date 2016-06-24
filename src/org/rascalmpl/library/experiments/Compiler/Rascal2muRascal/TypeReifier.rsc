@@ -355,8 +355,8 @@ private set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNa
 	set [value] descent_into = {};
 	
 	// Find all concrete types that can lead to a desired type
-
-	for(sym <- invert(prunedReachableConcreteTypes+)[desiredPatternTypes]){
+    for(<Symbol sym, Symbol tp> <- (prunedReachableConcreteTypes+), tp in desiredPatternTypes){
+	//for(sym <- invert(prunedReachableConcreteTypes+)[desiredPatternTypes]){
 	   alts = instantiatedGrammar[sym];
 	   for(/Production p := alts){
 	       switch(p){
