@@ -124,7 +124,7 @@ RVMModule compile(str qualifiedModuleName, list[loc] srcs, list[loc] libs, loc b
     return compile(qualifiedModuleName, pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin), verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
 }
 
-list[RVMModule] compile(list[str] qualifiedModuleNames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool verbose = false, bool optimize=true){
+list[RVMModule] compile(list[str] qualifiedModuleNames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool verbose = false, bool optimize=true, bool enableAsserts=false){
     pcfg =  pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin);
     return [ compile(qualifiedModuleName, pcfg, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts) | qualifiedModuleName <- qualifiedModuleNames ];
 }
@@ -201,7 +201,7 @@ Module removeMain(lang::rascal::\syntax::Rascal::Module m) {
 Configuration noPreviousConfig = newConfiguration(pathConfig());
 Configuration previousConfig = noPreviousConfig;
 
-tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, bool verbose = true, bool optimize=true){
+tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, bool verbose = true, bool optimize=true, bool enableAsserts=false){
 
     Configuration config;
     lang::rascal::\syntax::Rascal::Module M;
@@ -242,9 +242,9 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
     
     if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
     start_comp = cpuTime();
-    muMod = r2mu(M, config, verbose=verbose);
+    muMod = r2mu(M, config, verbose=verbose,optimize=optimize,enableAsserts=enableAsserts);
     
-    rvmMod = mu2rvm(muMod, verbose=verbose,optimize=optimize,enableAsserts=enableAsserts); 
+    rvmMod = mu2rvm(muMod, verbose=verbose,optimize=optimize); 
     comp_time = (cpuTime() - start_comp)/1000000;
     if(verbose) println("Compiling <moduleLoc>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
     if(verbose) println("compile: Writing RVMModule <rvmModuleLoc>");
