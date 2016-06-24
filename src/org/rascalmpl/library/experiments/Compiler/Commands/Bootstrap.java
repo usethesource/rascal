@@ -7,13 +7,18 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
@@ -70,7 +75,62 @@ public class Bootstrap {
         }
     }
     
-    public static void main(String[] args) throws NoSuchRascalFunction {
+    private static class BootTiming {
+        public final String message;
+        public long duration;
+        public BootTiming(String message) {
+            this.message = message;
+        }
+    }
+    private static final List<BootTiming> timings = new ArrayList<>();
+
+    private static <T> T time(String message, ThrowingSupplier<T> target) throws Exception {
+        BootTiming currentTimings = new BootTiming(message);
+        timings.add(currentTimings); // reserve spot 
+        long start = System.nanoTime();
+        T result = target.throwingGet();
+        currentTimings.duration = System.nanoTime() - start;
+        return result;
+    }
+
+    private static void time(String message, ThrowingSideEffectOnly target) throws Exception {
+        time(message, () -> target.call());
+    }
+    @FunctionalInterface
+    public interface ThrowingSideEffectOnly {
+        default Void call() throws Exception {
+            actualCall();
+            return null;
+        }
+        void actualCall() throws Exception;
+    }
+    
+    @FunctionalInterface
+    public interface ThrowingSupplier<T> extends Supplier<T> {
+        @Override
+        default T get() {
+            try {
+                return throwingGet();
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        T throwingGet() throws Exception;
+    }
+    
+    private static void printTimings() {
+        Optional<Integer> maxLength = timings.stream().map(b -> b.message).map(s -> s.length()).max(Comparator.naturalOrder());
+        int labelWidth = maxLength.orElse(1) + 4;
+        System.err.println("---------------------");
+        System.err.println("Bootstrapping time:");
+        System.err.println("---------------------");
+        for (BootTiming bt: timings) {
+            System.err.println(String.format("%"+labelWidth+"s : %,d ms", bt.message, TimeUnit.NANOSECONDS.toMillis(bt.duration)));
+        }
+        System.err.println("---------------------");
+    }
+    
+    public static void main(String[] args) throws Exception {
         if (args.length < 5) {
         	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder> [--verbose] (you provided " + args.length + " arguments instead)");
         	System.exit(1);
@@ -143,19 +203,20 @@ public class Bootstrap {
         //    2. build newKernel2 using newKernel1 and OldRVMClasses, because newKernel1 was still compiled with the old compiler)
         //    3. build newKernel3 using newKernel2 with newRVMClasses using newKernel2,  because newKernel2 was compiled with new compiler which may depend on changes in the RVM.
         //    4. build newKernel4 with new classes using newKernels using newRascalCompilerSources and newLibrarySources (effectively setting the source path back to std)
+        time("Bootstrap:", () -> {
         try { 
         
             Path oldKernel = getDeployedVersion(tmpDir, versionToUse);
             
-            Path newKernel1 = compilePhase(1, oldKernel.toAbsolutePath().toString(), classpath + ":" + oldKernel.toAbsolutePath().toString(), tmpDir, "|boot:///|", librarySource);
-            Path newKernel2 = compilePhase(2, oldKernel.toAbsolutePath().toString(), oldKernel.toAbsolutePath().toString() + ":" + classpath, tmpDir, newKernel1.toAbsolutePath().toString(), librarySource);
-            Path newKernel3 = compilePhase(3, targetFolder + ":" + classpath,  targetFolder + ":" + classpath, tmpDir, newKernel2.toAbsolutePath().toString(), librarySource);
-            Path newKernel4 = compilePhase(4, targetFolder + ":" + classpath,  targetFolder + ":" + classpath,  tmpDir,newKernel3.toAbsolutePath().toString(), "|std:///|");
+            Path newKernel1 = time("Phase 1", () -> compilePhase(1, oldKernel.toAbsolutePath().toString(), classpath + ":" + oldKernel.toAbsolutePath().toString(), tmpDir, "|boot:///|", librarySource));
+            Path newKernel2 = time("Phase 2", () -> compilePhase(2, oldKernel.toAbsolutePath().toString(), oldKernel.toAbsolutePath().toString() + ":" + classpath, tmpDir, newKernel1.toAbsolutePath().toString(), librarySource));
+            Path newKernel3 = time("Phase 3", () -> compilePhase(3, targetFolder + ":" + classpath,  targetFolder + ":" + classpath, tmpDir, newKernel2.toAbsolutePath().toString(), librarySource));
+            Path newKernel4 = time("Phase 4", () -> compilePhase(4, targetFolder + ":" + classpath,  targetFolder + ":" + classpath,  tmpDir,newKernel3.toAbsolutePath().toString(), "|std:///|"));
             
             // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
-            copyResult(newKernel4, targetFolder.resolve("boot"));
+            time("Copying bootstrapped files", () -> copyResult(newKernel4, targetFolder.resolve("boot")));
             
-            runTestModule(5, targetFolder + ":" + classpath,  "|boot:///|", "|std:///|", tmpDir.resolve("test-bins"), testModules);
+            time("Running final test", () -> runTestModule(5, targetFolder + ":" + classpath,  "|boot:///|", "|std:///|", tmpDir.resolve("test-bins"), testModules));
 
             Files.write(bootstrapMarker, versionToUse.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE_NEW);
         } 
@@ -164,6 +225,8 @@ public class Bootstrap {
 			e.printStackTrace();
 			System.exit(1);
 		} 
+        });
+        printTimings();
     }
     
 	private static void copyResult(Path sourcePath, Path targetPath) throws IOException {
@@ -233,25 +296,26 @@ public class Bootstrap {
         return result;
     }
     
-    private static Path compilePhase(int phase, String classPath, String testClassPath, Path tmp, String bootPath, String sourcePath) throws BootstrapMessage, IOException, InterruptedException, NoSuchRascalFunction {
+    private static Path compilePhase(int phase, String classPath, String testClassPath, Path tmp, String bootPath, String sourcePath) throws Exception {
         Path result = phaseFolder(phase, tmp);
         progress("phase " + phase + ": " + result);
-       
-        runTestModule(phase, classPath, bootPath, sourcePath, result, testModules);
-        compileMuLibrary(phase, classPath, bootPath, sourcePath, result);
-        compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel");
-        compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator");
+        time("- tests", () -> runTestModule(phase, classPath, bootPath, sourcePath, result, testModules));
+        time("- compile MuLibrary", () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
+        time("- compile Kernel", () -> compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel"));
+        time("- compile ParserGenarator", () -> compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator"));
         
         return result;
     }
     
+    
+
     private static String[] concat(String[]... arrays) {
         return Stream.of(arrays).flatMap(Stream::of).toArray(sz -> new String[sz]);
     }
     
     private static void compileModule(int phase, String classPath, String boot, String sourcePath, Path result,
             String module) throws IOException, InterruptedException, BootstrapMessage {
-        progress("\tcompiling " + module + " (phase " + phase +")");
+        progress("\tcompiling " + module + "(pase " + phase +")");
         String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
         String[] otherArgs = VERBOSE? new String[] {"--verbose", module} : new String[] {module};
 
