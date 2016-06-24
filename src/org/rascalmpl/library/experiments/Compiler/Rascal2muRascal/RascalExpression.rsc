@@ -1314,10 +1314,12 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        	return size(dpar) == size(upar) && (size(dpar) == 0 || all(i <- index(dpar), comparable(dpar[i], upar[i])));              //comparable(upar, dpar) || match_void(upar, dpar);
        }
        
+       @memo bool isParameterized(Symbol t) = /parameter(_,_) := t;
+       
        bool matches(Symbol t) {
        	   //println("matches: <ftype>, <t>");
            if(isFunctionType(ftype) || isConstructorType(ftype)) {
-               if(/parameter(_,_) := t) { // In case of polymorphic function types
+               if(isParameterized(t)) { // In case of polymorphic function types
                    ftype_selected = ftype;
                    
                    try {
