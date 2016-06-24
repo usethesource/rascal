@@ -63,7 +63,7 @@ enum OptionType {INT, STR, BOOL, LOCS, LOC};
  * <p>
  * opts.intOption("X").intDefault(42).help("X is a very good option")
  * <p>
- *     .boolOption("Y).help("and Y too!")
+ *     .boolOption("Y").help("and Y too!")
  *     <p>
  *     .rascalModule("Module to analyze")
  *     <p>

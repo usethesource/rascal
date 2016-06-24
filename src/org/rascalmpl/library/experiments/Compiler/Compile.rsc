@@ -62,7 +62,7 @@ bool validRVM(str qualifiedModuleName, PathConfig pcfg){
 	return res;
 }
 
-tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcfg, bool verbose = true, bool optimize=true){
+tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcfg, bool verbose = true, bool optimize=true, bool enableAsserts=false){
 
 	Configuration config;
     lang::rascal::\syntax::Rascal::Module M;
@@ -92,7 +92,7 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
    	
     //if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
     start_comp = cpuTime();
-   	muMod = r2mu(M, config, verbose=verbose, optimize=optimize);
+   	muMod = r2mu(M, config, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
    	
     rvmMod = mu2rvm(muMod, verbose=verbose, optimize=optimize); 
     comp_time = (cpuTime() - start_comp)/1000000;
@@ -103,13 +103,13 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
 }	
 
 @doc{Compile a Rascal source module (given at a location) to RVM}
-RVMModule compile(loc moduleLoc, PathConfig pcfg, bool verbose = false, bool optimize=true) =
-    compile(getModuleName(moduleLoc, pcfg), pcfg, verbose = verbose, optimize=optimize);
+RVMModule compile(loc moduleLoc, PathConfig pcfg, bool verbose = false, bool optimize=true, bool enableAsserts=false) =
+    compile(getModuleName(moduleLoc, pcfg), pcfg, verbose = verbose, optimize=optimize, enableAsserts=enableAsserts);
 
 @doc{Compile a Rascal source module (given at a location) to RVM}
-RVMModule compile(str qualifiedModuleName, PathConfig pcfg, bool verbose = false, bool optimize=true){
+RVMModule compile(str qualifiedModuleName, PathConfig pcfg, bool verbose = false, bool optimize=true, bool enableAsserts=false){
 	<cfg, rvmMod> = compile1(qualifiedModuleName, pcfg, verbose=verbose);
-	rvmMod1 = recompileDependencies(qualifiedModuleName, rvmMod, cfg, pcfg, verbose=verbose, optimize=optimize);
+	rvmMod1 = recompileDependencies(qualifiedModuleName, rvmMod, cfg, pcfg, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
 	errors = [ e | e:error(_,_) <- rvmMod1.messages];
     warnings = [ w | w:warning(_,_) <- rvmMod1.messages ];
     for(msg <- rvmMod1.messages){
@@ -120,16 +120,16 @@ RVMModule compile(str qualifiedModuleName, PathConfig pcfg, bool verbose = false
     return rvmMod;
 }
 
-RVMModule compile(str qualifiedModuleName, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool verbose = false, bool optimize=true){
-    return compile(qualifiedModuleName, pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin), verbose=verbose, optimize=optimize);
+RVMModule compile(str qualifiedModuleName, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool verbose = false, bool optimize=true, bool enableAsserts=false){
+    return compile(qualifiedModuleName, pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin), verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
 }
 
 list[RVMModule] compile(list[str] qualifiedModuleNames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool verbose = false, bool optimize=true){
     pcfg =  pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin);
-    return [ compile(qualifiedModuleName, pcfg, verbose=verbose, optimize=optimize) | qualifiedModuleName <- qualifiedModuleNames ];
+    return [ compile(qualifiedModuleName, pcfg, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts) | qualifiedModuleName <- qualifiedModuleNames ];
 }
 
-RVMModule recompileDependencies(str qualifiedModuleName, RVMModule rvmMod, Configuration cfg, PathConfig pcfg, bool verbose = false, bool optimize=true){
+RVMModule recompileDependencies(str qualifiedModuleName, RVMModule rvmMod, Configuration cfg, PathConfig pcfg, bool verbose = false, bool optimize=true, bool enableAsserts=false){
     errors = [ e | e:error(_,_) <- cfg.messages];
     warnings = [ w | w:warning(_,_) <- cfg.messages ];
    
@@ -155,7 +155,7 @@ RVMModule recompileDependencies(str qualifiedModuleName, RVMModule rvmMod, Confi
     bool atLeastOneRecompiled = false;
     for(dependency <- allDependencies){
         if(dependency in dirtyModules || !validRVM(dependency, pcfg)){
-           <cfg1, rvmMod1> = compile1(dependency, pcfg, optimize=optimize);
+           <cfg1, rvmMod1> = compile1(dependency, pcfg, optimize=optimize, enableAsserts=enableAsserts);
            atLeastOneRecompiled = true;
            messages += cfg1.messages;
         }
@@ -244,7 +244,7 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
     start_comp = cpuTime();
     muMod = r2mu(M, config, verbose=verbose);
     
-    rvmMod = mu2rvm(muMod, verbose=verbose,optimize=optimize); 
+    rvmMod = mu2rvm(muMod, verbose=verbose,optimize=optimize,enableAsserts=enableAsserts); 
     comp_time = (cpuTime() - start_comp)/1000000;
     if(verbose) println("Compiling <moduleLoc>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
     if(verbose) println("compile: Writing RVMModule <rvmModuleLoc>");
@@ -253,7 +253,7 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
     return <config, rvmMod>;  
 }  
 
-RVMModule compileIncremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, bool verbose = false, bool optimize = true){
-    <cfg, rvmMod> = compile1Incremental(qualifiedModuleName, reuseConfig, pcfg, verbose=verbose, optimize=optimize);
-    return recompileDependencies(qualifiedModuleName, rvmMod, cfg, pcfg, verbose=verbose, optimize=optimize);
+RVMModule compileIncremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, bool verbose = false, bool optimize = true, bool enableAsserts=false){
+    <cfg, rvmMod> = compile1Incremental(qualifiedModuleName, reuseConfig, pcfg, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
+    return recompileDependencies(qualifiedModuleName, rvmMod, cfg, pcfg, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
 }    
