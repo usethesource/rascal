@@ -335,10 +335,10 @@ public class RVMExecutable implements Serializable{
 		ISourceLocation compOut = rvmExecutable;
 		fileOut = URIResolverRegistry.getInstance().getOutputStream(compOut, false);
 		FSTObjectOutput out = new FSTObjectOutput(fileOut, makeFSTConfig(rvmExecutable));
-		long before = Timing.getCpuTime();
+		//long before = Timing.getCpuTime();
 		out.writeObject(this);
 		out.close();
-		System.out.println("RVMExecutable.write: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
+		//System.out.println("RVMExecutable.write: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 	}
 	
 	public static RVMExecutable read(ISourceLocation rvmExecutable) throws IOException {
@@ -359,11 +359,11 @@ public class RVMExecutable implements Serializable{
 			ISourceLocation compIn = rvmExecutable;
 			InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(compIn);
 			in = new FSTObjectInput(fileIn, makeFSTConfig(rvmExecutable));
-			long before = Timing.getCpuTime();
+//			long before = Timing.getCpuTime();
 			executable = (RVMExecutable) in.readObject(RVMExecutable.class);
 			in.close();
 			in = null;
-			System.out.println("Reading: " + compIn.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
+			//System.out.println("Reading: " + compIn.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 		} catch (ClassNotFoundException c) {
 			throw new IOException("Class not found: " + c.getMessage());
 		} catch (Exception e) {
