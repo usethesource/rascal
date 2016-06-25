@@ -271,7 +271,7 @@ private void computeReachableConcreteTypes(){
 // - a set of constructor names that occur in the patterns
 // - a set of patternTypes that occur in the patterns
 
-public set[value] getReachableTypes(Symbol subjectType, set[str] consNames, set[Symbol] patternTypes, bool concreteMatch){
+public tuple[set[Symbol], set[Production]] getReachableTypes(Symbol subjectType, set[str] consNames, set[Symbol] patternTypes, bool concreteMatch){
 	//println("getReachableTypes: <subjectType>, <consNames>, <patternTypes>, <concreteMatch>");
 	
 	if(!reachableInfoAvailable){
@@ -287,7 +287,7 @@ public set[value] getReachableTypes(Symbol subjectType, set[str] consNames, set[
 
 // Extract the reachable abstract types
 
-private set[value] getReachableAbstractTypes(Symbol subjectType, set[str] consNames, set[Symbol] patternTypes){
+private  tuple[set[Symbol], set[Production]] getReachableAbstractTypes(Symbol subjectType, set[str] consNames, set[Symbol] patternTypes){
     desiredPatternTypes = { s | /Symbol s := patternTypes};
 	desiredSubjectTypes = { s | /Symbol s := subjectType};
 	desiredTypes = desiredSubjectTypes + desiredPatternTypes;
@@ -295,7 +295,7 @@ private set[value] getReachableAbstractTypes(Symbol subjectType, set[str] consNa
 	if(any(sym <- desiredTypes, sort(_) := sym || lex(_) := sym || subtype(sym, adt("Tree",[])))){
 		// We just give up when abstract and concrete symbols occur together
 		//println("descent_into (abstract) [1]: {value()}");
-	   return {\value()};
+	   return <{\value()}, {}>;
 	}
 	//println("desiredSubjectTypes = <desiredSubjectTypes>");
 	//println("desiredTypes = <desiredTypes>");
@@ -333,12 +333,12 @@ private set[value] getReachableAbstractTypes(Symbol subjectType, set[str] consNa
 	descent_into += tuples;
 	//println("descent_into (abstract) [<size(descent_into)>]:"); for(elm <- descent_into){println("\t<elm>");};
 	
-	return descent_into;
+	return <descent_into, {}>;
 }
 
 // Extract the reachable concrete types
 
-private set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNames, set[Symbol] patternTypes){
+private  tuple[set[Symbol], set[Production]] getReachableConcreteTypes(Symbol subjectType, set[str] consNames, set[Symbol] patternTypes){
 	desiredPatternTypes = { s | /Symbol s := patternTypes};
 	desiredSubjectTypes = { s | /Symbol s := subjectType};
 	desiredTypes = desiredPatternTypes;
@@ -352,7 +352,7 @@ private set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNa
 		//println("removed from reachableConcreteTypes:"); for(x <- reachableConcreteTypes - prunedReachableConcreteTypes){println("\t<x>");}
 	}
 	
-	set [value] descent_into = {};
+	set [Production] descent_into = {};
 	
 	// Find all concrete types that can lead to a desired type
     for(<Symbol sym, Symbol tp> <- (prunedReachableConcreteTypes+), tp in desiredPatternTypes){
@@ -366,10 +366,9 @@ private set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNa
 	    	descent_into += p;
 	       }
 	    }
-	  } 
-	  
-	work =  descent_into;
-	descent_into1 = {};
+	} 
+	
+	set [Production] descent_into1 = {};
 	
 	for(w <- descent_into){
 	  visit(w){
@@ -400,7 +399,7 @@ private set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNa
 	}
 	//println("descent_into (concrete) [<size(descent_into)>]: "); for(s <- descent_into) println("\t<s>");	
 	//println("descent_into1 (concrete) [<size(descent_into1)>]: "); for(s <- descent_into1) println("\t<s>");
-	return descent_into + descent_into1;
+	return <{}, descent_into + descent_into1>;
 }
 
 private bool isAltOrSeq(Symbol s) = alt(_) := s || seq(_) := s;	                                         

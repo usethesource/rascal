@@ -2,7 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse;
 
 import java.util.HashSet;
 
-import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
@@ -15,10 +15,11 @@ import org.rascalmpl.values.uptr.ITree;
 
 /**
  * Create a descendant descriptor given
- * 1: symbolset (converted from ISet of values to HashSet of Types, symbols and Productions)
- * 2: concreteMatch, indicates a concrete or abstract match
+ * 1: symbolset, ISet of symbols
+ * 2: prodset, ISet of productions
+ * 3: concreteMatch, indicates a concrete or abstract match
  * 
- * [ IString id, ISet symbolset, IBool concreteMatch] => descendant_descriptor
+ * [ IString id, ISet symbolset, ISet prodset, IBool concreteMatch] => descendant_descriptor
  */
 
 public class DescendantDescriptor {
@@ -27,27 +28,39 @@ public class DescendantDescriptor {
 	private final boolean containsNodeOrValueType;
 	//private int counter = 0;
 	
-	public DescendantDescriptor(IValueFactory vf, ISet symbolset, IMap definitions, IBool concreteMatch ){
-		mSymbolSet = new HashSet<Object>(symbolset.size());
+	public DescendantDescriptor(IValueFactory vf, ISet symbolset, ISet prodset, IMap definitions, IBool concreteMatch, RascalExecutionContext rex){
+		mSymbolSet = new HashSet<Object>(symbolset.size() + prodset.size());
 		this.concreteMatch = concreteMatch.getValue();
-		TypeReifier reifier = new TypeReifier(vf);
+		boolean nodeOrValue = false;
 		for(IValue v : symbolset){
-			try {
-				IConstructor cons = (IConstructor) v;
-				if(cons.getName().equals("prod")){
-					mSymbolSet.add(cons);							// Add the production itself as SYMBOL to the set
-				} else if(cons.getName().equals("regular")){
-					mSymbolSet.add(cons);							// Add as SYMBOL to the set
-				} else {
-					Type tp = reifier.symbolToType(cons, definitions);
-					mSymbolSet.add(tp);							// Otherwise add as TYPE to the set
-				}
-			} catch (Throwable e) {
-				// TODO: a DuplicateFieldDeclaration occurs on some occasions, explore!!
-				//System.err.println("DescendantDescriptor: problem with " + v + ", " + e);
+			Type tp = rex.symbolToType((IConstructor) v, definitions);
+			mSymbolSet.add(tp);								// Add as TYPE to the set
+			if(tp == RascalPrimitive.nodeType || tp == RascalPrimitive.valueType){
+				nodeOrValue = true;
 			}
 		}
-		containsNodeOrValueType = mSymbolSet.contains(RascalPrimitive.nodeType) || mSymbolSet.contains(RascalPrimitive.valueType);
+		
+		for(IValue v : prodset){
+			IConstructor cons = (IConstructor) v;
+			mSymbolSet.add(cons);							// Add the production itself to the set
+		}
+//		for(IValue v : prodset){
+//			try {
+//				IConstructor cons = (IConstructor) v;
+//				if(cons.getName().equals("prod")){
+//					mSymbolSet.add(cons);							// Add the production itself as SYMBOL to the set
+//				} else if(cons.getName().equals("regular")){
+//					mSymbolSet.add(cons);							// Add as SYMBOL to the set
+//				} else {
+//					Type tp = reifier.symbolToType(cons, definitions);
+//					mSymbolSet.add(tp);							// Otherwise add as TYPE to the set
+//				}
+//			} catch (Throwable e) {
+//				// TODO: a DuplicateFieldDeclaration occurs on some occasions, explore!!
+//				//System.err.println("DescendantDescriptor: problem with " + v + ", " + e);
+//			}
+//		}
+		containsNodeOrValueType = nodeOrValue; //mSymbolSet.contains(RascalPrimitive.nodeType) || mSymbolSet.contains(RascalPrimitive.valueType);
 	}
 	
 	public boolean isConcreteMatch(){

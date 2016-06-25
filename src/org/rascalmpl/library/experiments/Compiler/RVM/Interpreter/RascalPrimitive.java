@@ -467,9 +467,8 @@ public enum RascalPrimitive {
 
 			IConstructor type_cons = (IConstructor) arg_2;
 			IMap idefinitions = (IMap) arg_1;
-			TypeReifier typeReifier = new TypeReifier(vf);
 
-			Type type = typeReifier.symbolToType(type_cons, idefinitions);
+			Type type = rex.symbolToType(type_cons, idefinitions);
 
 			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
 			bindings.put(RascalValueFactory.TypeParam, type);
@@ -6000,7 +5999,7 @@ public enum RascalPrimitive {
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			Type type = (Type) arg_2;
-			return rex.type2Symbol(type);
+			return rex.typeToSymbol(type);
 			//return $type2symbol(type);
 		}
 	},
@@ -7628,7 +7627,6 @@ public enum RascalPrimitive {
 		@Override
 		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
 			rex.setTestResults(vf.listWriter());
-			//***** typeReifier = new TypeReifier(vf);
 			return null;
 		}
 	},
@@ -7664,15 +7662,15 @@ public enum RascalPrimitive {
 
 			if(ignore){
 				rex.getTestResults().append(vf.tuple(src,  vf.integer(2), vf.string("")));
-			rex.getTestResultListener().ignored("", src);
+				rex.getTestResultListener().ignored("", src);
 				return sp - 4;
 			}
 			IConstructor type_cons = ((IConstructor) stack[sp - 1]);
-			TypeReifier typeReifier = new TypeReifier(vf);          // TODO: relation with global?******
-			Type argType = typeReifier.valueToType(type_cons);
-			IMap definitions = (IMap) type_cons.get("definitions");
+//			TypeReifier typeReifier = new TypeReifier(vf);          // TODO: relation with global?******
+			Type argType = rex.valueToType(type_cons);
+//			IMap definitions = (IMap) type_cons.get("definitions");
 
-			typeReifier.declareAbstractDataTypes(definitions, rex.getTypeStore());
+//			typeReifier.declareAbstractDataTypes(definitions, rex.getTypeStore());
 
 			int nargs = argType.getArity();
 			IValue[] args = new IValue[nargs];
@@ -8513,17 +8511,18 @@ public enum RascalPrimitive {
 	make_descendant_descriptor {
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
-			assert arity == 4;
-			IString id = (IString) stack[sp - 4];
+			assert arity == 5;
+			IString id = (IString) stack[sp - 5];
 			
-			stack[sp - 4] = rex.getDescendantDescriptorCache()
+			stack[sp - 5] = rex.getDescendantDescriptorCache()
 					.get(id, k -> {
-						ISet symbolset = (ISet) stack[sp - 3];
+						ISet symbolset = (ISet) stack[sp - 4];
+						ISet prodset = (ISet) stack[sp - 3];
 						IBool concreteMatch = (IBool) stack[sp - 2];
 						IMap definitions = (IMap) stack[sp - 1];
-						return new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
+						return new DescendantDescriptor(vf, symbolset, prodset, definitions, concreteMatch, rex);
 					});
-			return sp - 3;
+			return sp - 4;
 		};
 	},
 
