@@ -407,7 +407,7 @@ RVMModule mu2rvm(muModule(str module_name,
   minNlocal = nlocal;
   temporaries = [];
     
-  if(verbose) println("mu2rvm: Compiling module <module_name>");
+  //if(verbose) println("mu2rvm: Compiling module <module_name>");
   
   for(fun <- functions) {
     scopeIn[fun.qname] = fun.scopeIn;

@@ -14,11 +14,13 @@ import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.DefaultTestResultListener;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CallTraceObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CoverageFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.DebugFrameObserver;
@@ -82,10 +84,12 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final IMap moduleTags;
 	private Map<IValue, IValue> moduleVariables;
 	
+	private final TypeReifier reifier;
 	private Cache<Type[], Boolean> subtypeCache;
 	private final int subtypeCacheSize = 1000;
 	
 	private final int type2symbolCacheSize = 1000;
+	private final int symbol2typeCacheSize = 1000;
 	private final int descendantDescriptorCacheSize = 1000;
 	
 	private Cache<String, Function> companionDefaultFunctionCache;
@@ -104,7 +108,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	private final ParsingTools parsingTools; 
 	Stack<String> indentStack = new Stack<String>();
-	private Cache<Type, IConstructor> type2symbolCache;
+	private Cache<Type, IConstructor> typeToSymbolCache;
+	private Cache<IValue[], Type> symbolToTypeCache;
 	
 	StringBuilder templateBuilder = null;
 	private final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
@@ -162,6 +167,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 		
 		currentModuleName = "UNDEFINED";
 		
+		 reifier = new TypeReifier(vf);
+		
 		if(rascalSearchPath == null){
 			this.rascalSearchPath = new RascalSearchPath();
 			addRascalSearchPath(URIUtil.rootLocation("test-modules"));
@@ -204,11 +211,17 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	
 	private void createCaches(boolean enabled){
-		type2symbolCache = Caffeine.newBuilder()
+		typeToSymbolCache = Caffeine.newBuilder()
 //				.weakKeys()
 			    .weakValues()
 //			    .recordStats()
 				.maximumSize(enabled ? type2symbolCacheSize : 0)
+				.build();
+		symbolToTypeCache = Caffeine.newBuilder()
+//				.weakKeys()
+			    .weakValues()
+//			    .recordStats()
+				.maximumSize(enabled ? symbol2typeCacheSize : 0)
 				.build();
 		descendantDescriptorCache = Caffeine.newBuilder()
 //				.weakKeys()
@@ -278,7 +291,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	public void printCacheStats(){
 	
-		printCacheStat("type2symbolCache", type2symbolCache);
+		printCacheStat("type2symbolCache", typeToSymbolCache);
 		printCacheStat("descendantDescriptorCache", descendantDescriptorCache);
 		printCacheStat("subtypeCache", subtypeCache);
 		printCacheStat("companionDefaultFunctionCache", companionDefaultFunctionCache);
@@ -299,9 +312,22 @@ public class RascalExecutionContext implements IRascalMonitor {
 		return parsedModuleCache;
 	}
 	
-	public IConstructor type2Symbol(final Type t){
-		//return  RascalPrimitive.$type2symbol(t);
-		return type2symbolCache.get(t, k -> RascalPrimitive.$type2symbol(t));
+	public IConstructor typeToSymbol(final Type t){
+		return typeToSymbolCache.get(t, k -> RascalPrimitive.$type2symbol(t));
+	}
+	
+	public Type symbolToType(final IConstructor sym, IMap definitions){
+		IValue[] key = new IValue[] { sym, definitions};
+		return symbolToTypeCache.get(key, k -> { return reifier.symbolToType(sym, definitions); });
+	}
+	
+	public Type valueToType(final IConstructor sym){
+		if (sym.getType() instanceof ReifiedType){
+			IMap definitions = (IMap) sym.get("definitions");
+			reifier.declareAbstractDataTypes(definitions, getTypeStore());
+			return symbolToType((IConstructor) sym.get("symbol"), definitions);
+		}
+		throw new IllegalArgumentException(sym + " is not a reified type");
 	}
 	
 	Cache<IString, DescendantDescriptor> getDescendantDescriptorCache() {
