@@ -71,7 +71,7 @@ public class FSTSerializableIValue extends FSTBasicObjectSerializer implements S
 
 
 	/**
-	 * Constructir used to wrap an IValue to be serialized
+	 * Constructor used to wrap an IValue to be serialized
 	 */
 	public FSTSerializableIValue(IValue value) {
 		this.value = value;
