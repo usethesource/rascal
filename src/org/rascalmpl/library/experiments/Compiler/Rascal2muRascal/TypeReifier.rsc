@@ -356,7 +356,6 @@ private set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNa
 	
 	// Find all concrete types that can lead to a desired type
     for(<Symbol sym, Symbol tp> <- (prunedReachableConcreteTypes+), tp in desiredPatternTypes){
-	//for(sym <- invert(prunedReachableConcreteTypes+)[desiredPatternTypes]){
 	   alts = instantiatedGrammar[sym];
 	   for(/Production p := alts){
 	       switch(p){
@@ -367,26 +366,41 @@ private set[value] getReachableConcreteTypes(Symbol subjectType, set[str] consNa
 	    	descent_into += p;
 	       }
 	    }
-	  }  
+	  } 
+	  
+	work =  descent_into;
+	descent_into1 = {};
 	
-	for(/itr:\iter(s) := descent_into){
-	  	descent_into += regular(itr);
-	  	if(isAltOrSeq(s)) descent_into += regular(s);
-	}	
-	for(/itr:\iter-star(s) := descent_into){
-	  	descent_into += regular(itr);
-	  	if(isAltOrSeq(s)) descent_into += regular(s);
-	}	
-	for(/itr:\iter-seps(s,_) := descent_into){
-	  	descent_into += regular(itr);
-	  	if(isAltOrSeq(s)) descent_into += regular(s);
-	}	
-	for(/itr:\iter-star-seps(s,_) := descent_into){
-	    descent_into += regular(itr);
-	    if(isAltOrSeq(s)) descent_into += regular(s);
-	}	
-	//println("descent_into (concrete) [<size(descent_into)>]: "); for(s <- descent_into) println("\t<s>");
-	return descent_into;
+	for(w <- descent_into){
+	  visit(w){
+	  
+	  case itr:\iter(Symbol s): {
+	       descent_into1 += regular(itr);
+	       if(isAltOrSeq(s)) descent_into1 += regular(s);
+	  }
+	  
+	  case itr:\iter-star(Symbol s):{
+           descent_into1 += regular(itr);
+           if(isAltOrSeq(s)) descent_into1 += regular(s);
+      }
+	  
+	  case itr:\iter-seps(Symbol s,_):{
+           descent_into1 += regular(itr);
+           if(isAltOrSeq(s)) descent_into1 += regular(s);
+      }
+	  
+	  case itr:\iter-star-seps(Symbol s,_):{
+           descent_into1 += regular(itr);
+           if(isAltOrSeq(s)) descent_into1 += regular(s);
+      }
+	 
+	  }
+	  descent_into1 += w;
+	
+	}
+	//println("descent_into (concrete) [<size(descent_into)>]: "); for(s <- descent_into) println("\t<s>");	
+	//println("descent_into1 (concrete) [<size(descent_into1)>]: "); for(s <- descent_into1) println("\t<s>");
+	return descent_into + descent_into1;
 }
 
 private bool isAltOrSeq(Symbol s) = alt(_) := s || seq(_) := s;	                                         
