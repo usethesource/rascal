@@ -8512,18 +8512,46 @@ public enum RascalPrimitive {
 	make_descendant_descriptor {
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
-			assert arity == 5;
-			IString id = (IString) stack[sp - 5];
+			if(arity == 5){		// NEW VERSION
+				assert arity == 5;
+				IString id = (IString) stack[sp - 5];
 
-			stack[sp - 5] = rex.getDescendantDescriptorCache()
-					.get(id, k -> {
-						ISet symbolset = (ISet) stack[sp - 4];
-						ISet prodset = (ISet) stack[sp - 3];
-						IBool concreteMatch = (IBool) stack[sp - 2];
-						IMap definitions = (IMap) stack[sp - 1];
-						return new DescendantDescriptor(vf, symbolset, prodset, definitions, concreteMatch, rex);
-					});
-			return sp - 4;
+				stack[sp - 5] = rex.getDescendantDescriptorCache()
+						.get(id, k -> {
+							ISet symbolset = (ISet) stack[sp - 4];
+							ISet prodset = (ISet) stack[sp - 3];
+							IBool concreteMatch = (IBool) stack[sp - 2];
+							IMap definitions = (IMap) stack[sp - 1];
+							return new DescendantDescriptor(vf, symbolset, prodset, definitions, concreteMatch, rex);
+						});
+				return sp - 4;
+			} else {			// TRANSITIONAL VERSION, TODO: REMOVE LATER
+								// [ IString id, ISet symbolset, IBool concreteMatch, IMap definitions] => DescendantDescriptor
+				assert arity == 4;
+				IString id = (IString) stack[sp - 4];
+				
+				stack[sp - 4] = rex.getDescendantDescriptorCache()
+						.get(id, k -> {
+							ISet all = (ISet) stack[sp - 3];
+							IBool concreteMatch = (IBool) stack[sp - 2];
+							IMap definitions = (IMap) stack[sp - 1];
+
+							ISetWriter syms = vf.setWriter();
+							ISetWriter prods = vf.setWriter();
+							for(IValue v : all){
+								IConstructor cons = (IConstructor) v;
+								if(cons.getName().equals("prod") || cons.getName().equals("regular")){
+									prods.insert(cons);							
+								} else {
+									syms.insert(cons);
+								}
+							}
+							ISet symbolset = syms.done();
+							ISet prodset = prods.done();
+							return new DescendantDescriptor(vf, symbolset, prodset, definitions, concreteMatch, rex);
+						});
+				return sp - 3;
+			}
 		};
 	},
 
