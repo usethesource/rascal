@@ -85,51 +85,31 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private Map<IValue, IValue> moduleVariables;
 	
 	private final TypeReifier reifier;
-	private Cache<Type[], Boolean> subtypeCache;
-	private final int subtypeCacheSize = 1000;
 	
-	private final int type2symbolCacheSize = 1000;
-	private final int symbol2typeCacheSize = 1000;
-	private final int descendantDescriptorCacheSize = 1000;
-	
-	private Cache<String, Function> companionDefaultFunctionCache;
-	private final int companionDefaultFunctionCacheSize = 100;
-	
-	private Cache<String, Function> companionFieldDefaultFunctionCache;
-	private final int companionFieldDefaultFunctionCacheSize = 100;
-	
+	// Caches
+	private static Cache<String, Function> companionDefaultFunctionCache;
+	private static Cache<String, Function> companionFieldDefaultFunctionCache;
 //	private Cache<String,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache;
-//	private final int parserCacheSize = 30;
+	private static Cache<String, IValue> parsedModuleCache;
+	private static Cache<Type, IConstructor> typeToSymbolCache;
+	private static Cache<IValue, Type> symbolToTypeCache;
+	private static Cache<IString, DescendantDescriptor> descendantDescriptorCache;
+	private static Cache<Type, Type> sharedTypeConstantCache;
 	
-	Cache<String, IValue> parsedModuleCache;
-	private final int parsedModuleCacheSize = 10;
+	static {
+		createCaches(true);
+	}
 	
 	// State for RascalPrimitive
 	
 	private final ParsingTools parsingTools; 
 	Stack<String> indentStack = new Stack<String>();
-	private Cache<Type, IConstructor> typeToSymbolCache;
-	private Cache<IValue[], Type> symbolToTypeCache;
 	
 	StringBuilder templateBuilder = null;
 	private final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
 	private IListWriter test_results;
 	
-	private Cache<IString, DescendantDescriptor> descendantDescriptorCache;
 	
-	private static Cache<IValue, IValue> sharedConstantCache = Caffeine.newBuilder()
-//			.weakKeys()
-		    .weakValues()
-//		    .recordStats()
-			.maximumSize(10000)
-			.build();
-	
-	private static Cache<Type, Type> sharedTypeConstantCache = Caffeine.newBuilder()
-//			.weakKeys()
-		    .weakValues()
-//		    .recordStats()
-			.maximumSize(10000)
-			.build();
 	
 	public RascalExecutionContext(
 			IValueFactory vf, 
@@ -204,61 +184,61 @@ public class RascalExecutionContext implements IRascalMonitor {
 		}
 		
 		parsingTools = new ParsingTools(vf);
-		createCaches(true);
+		
 	}
 	
 	// Cache related methods
 	
 	
-	private void createCaches(boolean enabled){
-		typeToSymbolCache = Caffeine.newBuilder()
-//				.weakKeys()
+	private static void createCaches(boolean enabled){
+		sharedTypeConstantCache = Caffeine.newBuilder()
+				.weakKeys()
 			    .weakValues()
-//			    .recordStats()
-				.maximumSize(enabled ? type2symbolCacheSize : 0)
+			    //.recordStats()
+				//.maximumSize(enabled ? 10000 : 0)
+				.build();
+		typeToSymbolCache = Caffeine.newBuilder()
+				.weakKeys()
+			    .weakValues()
+			    //.recordStats()
+				//.maximumSize(enabled ? 1000 : 0)
 				.build();
 		symbolToTypeCache = Caffeine.newBuilder()
-//				.weakKeys()
+				.weakKeys()
 			    .weakValues()
-//			    .recordStats()
-				.maximumSize(enabled ? symbol2typeCacheSize : 0)
+			    //.recordStats()
+				//.maximumSize(enabled ? 10000 : 0)
 				.build();
 		descendantDescriptorCache = Caffeine.newBuilder()
-//				.weakKeys()
+				.weakKeys()
 			    .weakValues()
-//			    .recordStats()
-				.maximumSize(enabled ? descendantDescriptorCacheSize : 0)
-				.build();
-		subtypeCache = Caffeine.newBuilder()
-				.maximumSize(enabled ? subtypeCacheSize : 0)
-//				.weakKeys()
-			    .weakValues()
-//			    .recordStats()
+			    //.recordStats()
+				//.maximumSize(enabled ? 500000 : 0)
 				.build();
 		companionDefaultFunctionCache = Caffeine.newBuilder()
-//				.weakKeys()
+				.weakKeys()
 			    .weakValues()
-//			    .recordStats()
-				.maximumSize(enabled ? companionDefaultFunctionCacheSize : 0)
+			    //.recordStats()
+//				.maximumSize(enabled ? 300 : 0)
 				.build();
 		companionFieldDefaultFunctionCache = Caffeine.newBuilder()
-//				.weakKeys()
+				.weakKeys()
 			    .weakValues()
-//			    .recordStats()
-				.maximumSize(enabled ? companionFieldDefaultFunctionCacheSize : 0)
+			    //.recordStats()
+//				.maximumSize(enabled ? 300 : 0)
 				.build();
 //		parserCache = Caffeine.newBuilder()
 ////				.weakKeys()
 //			    .weakValues()
 ////			    .recordStats()
-//				.maximumSize(enabled ? parserCacheSize : 0)
+//				.maximumSize(enabled ? 30 : 0)
 //				.build();
 		
 		parsedModuleCache = Caffeine.newBuilder()
-//				.weakKeys()
+				.weakKeys()
 			    .weakValues()
-//			    .recordStats()
-				.maximumSize(enabled ? parsedModuleCacheSize : 0)
+			    //.recordStats()
+//				.maximumSize(enabled ? 100 : 0)
 				.build();
 	}
 	
@@ -273,31 +253,33 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public void printCacheStat(String name, Cache<?,?> cache){
 		CacheStats s = cache.stats();
 		System.out.printf(
-				//"%35s: %f (ALP) %d (EV) %d (HC) %f (HR) %d (LC) %d (LFC) %f (LFR) %d (LSC) %d (MC) %f (MR) %d (RC)\n",
-				"%35s: %12.0f (ALP) %f (HR) %d (RC)\n",
+				"%35s: %6d (EV) %6d (HC) %5.1f (HR) %6d (LC) %6d (LFC) %5.1f (LFR) %6d (LSC) %6d (MC) %5.1f (MR) %6d (RC) %10.1f (ALP) \n",
+				//"%35s: %12.0f (ALP) %f (HR) %d (RC)\n",
 				name,
-				s.averageLoadPenalty(),
-				//s.evictionCount(),
-				//s.hitCount(),
+				
+				s.evictionCount(),
+				s.hitCount(),
 				s.hitRate(),
-//				s.loadCount(),
-//				s.loadFailureCount(),
-//				s.loadFailureRate(),
-//				s.loadSuccessCount(),
-				//s.missCount(),
-				//s.missRate(),
-				s.requestCount());	
+				s.loadCount(),
+				s.loadFailureCount(),
+				s.loadFailureRate(),
+				s.loadSuccessCount(),
+				s.missCount(),
+				s.missRate(),
+				s.requestCount(),
+				s.averageLoadPenalty());	
 	}
 	
 	public void printCacheStats(){
-	
-		printCacheStat("type2symbolCache", typeToSymbolCache);
+		printCacheStat("sharedTypeConstantCache", sharedTypeConstantCache);
+		printCacheStat("typeToSymbolCache", typeToSymbolCache);
+		printCacheStat("symbolToTypeCache", symbolToTypeCache);
 		printCacheStat("descendantDescriptorCache", descendantDescriptorCache);
-		printCacheStat("subtypeCache", subtypeCache);
 		printCacheStat("companionDefaultFunctionCache", companionDefaultFunctionCache);
 		printCacheStat("companionFieldDefaultFunctionCache", companionFieldDefaultFunctionCache);
 //		printCacheStat("parserCache", parserCache);
 		printCacheStat("parsedModuleCache", parsedModuleCache);
+		System.out.println("");
 	}
 
 	public ParsingTools getParsingTools(){
@@ -312,13 +294,13 @@ public class RascalExecutionContext implements IRascalMonitor {
 		return parsedModuleCache;
 	}
 	
-	public IConstructor typeToSymbol(final Type t){
+	public static IConstructor typeToSymbol(final Type t){
 		return typeToSymbolCache.get(t, k -> RascalPrimitive.$type2symbol(t));
 	}
 	
 	public Type symbolToType(final IConstructor sym, IMap definitions){
 		IValue[] key = new IValue[] { sym, definitions};
-		return symbolToTypeCache.get(key, k -> { return reifier.symbolToType(sym, definitions); });
+		return symbolToTypeCache.get(sym, k -> { return reifier.symbolToType(sym, definitions); });
 	}
 	
 	public Type valueToType(final IConstructor sym){
@@ -332,13 +314,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	Cache<IString, DescendantDescriptor> getDescendantDescriptorCache() {
 		return descendantDescriptorCache;
-	}
-	
-	public boolean isSubtypeOf(Type t1, Type t2){
-		//return t1.isSubtypeOf(t2);
-		Type[] key = new Type[] { t1, t2};
-		
-		return subtypeCache.get(key, k -> t1.isSubtypeOf(t2));
 	}
 	
 	public Function getCompanionDefaultsFunction(String name, Type ftype){
@@ -357,10 +332,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 		String key = adtType.toString() + fieldName;
 		Function result = companionFieldDefaultFunctionCache.get(key, k -> rvm.getCompanionFieldDefaultFunction(adtType, fieldName));
 		return result;
-	}
-	
-	public static IValue shareConstant(IValue c){
-		return sharedConstantCache.get(c, k -> k);
 	}
 	
 	public static Type shareTypeConstant(Type t){
