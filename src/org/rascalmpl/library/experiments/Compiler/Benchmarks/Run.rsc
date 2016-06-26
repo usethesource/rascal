@@ -117,7 +117,7 @@ map[str name,  value() job] jobs = (
 
 str base = "experiments::Compiler::Benchmarks";
 
-loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted12.value|;
+loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted13.value|;
 
 
 map[str, list[num]] measurementsCompiled = ();      // list of timings of repeated runs per job, compiled
@@ -131,7 +131,7 @@ alias Analysis = tuple[str job, num speedup, num sdev, num cmean, num cdev, num 
 
 // Run all benchmarks
 
-list[Analysis] run_benchmarks(int n, list[str] jobs, bool jvm=false){
+list[Analysis] run_benchmarks(int n, list[str] jobs, bool jvm=true){
   initialize(n);
   jobs = sort(jobs);
   precompile(jobs, jvm=jvm);
@@ -153,13 +153,13 @@ void initialize(int n){
   } catch _: println("MeasurementsInterpreted.value not found, measurements will be repeated");
 }
 
-void precompile(list[str] jobs, bool jvm=false) {
+void precompile(list[str] jobs, bool jvm=true) {
   for(job <- jobs) {
       compileAndLink("<base>::<job>", pathConfig(), jvm=jvm);
   }
 }
 
-void runAll(list[str] jobs, bool jvm=false){
+void runAll(list[str] jobs, bool jvm=true){
    for(int i <- index(jobs)){
        job = jobs[i];
        println("**** Run compiled: <job> (<i+1>/<size(jobs)>)");
@@ -177,7 +177,7 @@ void runAll(list[str] jobs, bool jvm=false){
    }
 }
 
-void runCompiled(str job, bool jvm=false) {
+void runCompiled(str job, bool jvm=true) {
   measurementsCompiled[job] =
 	  for(int i <- [0 .. nsamples]){
 		  t1 = cpuTime();
@@ -273,58 +273,58 @@ void report_latex(list[Analysis] results){
 // Various combinations of benchmarking jobs
 
 void main(){
-  run_benchmarks(10, toList(domain(jobs)), jvm=jvm);
+  run_benchmarks(10, toList(domain(jobs)));
 }
 
-void main_visit(bool jvm=false){
+void main_visit(bool jvm=true){
     run_benchmarks(10, ["BVisit1","BVisit2","BVisit3","BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"], jvm=jvm); 
 }
 
-void main_fac(bool jvm=false){
+void main_fac(bool jvm=true){
     run_benchmarks(10, ["BFac"], jvm=jvm);   
 }
 
-void main_fib(bool jvm=false){
+void main_fib(bool jvm=true){
     run_benchmarks(10, ["BFib"], jvm=jvm);   
 }
 
-void main_marriage(bool jvm=false){
+void main_marriage(bool jvm=true){
     run_benchmarks(10, ["BMarriage"], jvm=jvm);   
 }
 
-void main_sudoku(bool jvm=false){
+void main_sudoku(bool jvm=true){
     run_benchmarks(10, ["BSudoku"], jvm=jvm);   
 }
 
-void main_template(bool jvm=false){
+void main_template(bool jvm=true){
     run_benchmarks(10, ["BTemplate"], jvm=jvm);   
 }
 
-void main_bottles(bool jvm=false){
+void main_bottles(bool jvm=true){
     run_benchmarks(10, ["BBottles"], jvm=jvm);   
 }
 
-void main_rsf(bool jvm=false) {
+void main_rsf(bool jvm=true) {
     run_benchmarks(10, ["BRSFCalls"], jvm=jvm);   
 }
 
-void main_money(bool jvm=false){
+void main_money(bool jvm=true){
     run_benchmarks(10, ["BSendMoreMoney"], jvm=jvm); 
 }
 
-void main_paper(bool jvm=false){
+void main_paper(bool jvm=true){
   main_paper1(jvm=jvm);
   main_paper2(jvm=jvm);
 }
 
-void main_paper1(bool jvm=false){
+void main_paper1(bool jvm=true){
    run_benchmarks(5, ["BCompareFor","BCompareIf","BCompareComprehension","BExceptions","BEmpty",/*"BExceptionsFinally",*/"BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
                       "BOr","BReverse1","BSet1","BSetMatch1","BSetMatch2","BSetMatch3","BWhile","BVisit1","BVisit2","BVisit3"
                      ,"BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"
                 ], jvm=jvm);
 }
 
-void main_paper2(bool jvm=false){
+void main_paper2(bool jvm=true){
    run_benchmarks(5, ["BBottles","BFac","BFib","BMarriage",
                         //"BRSFCalls",
                         "BSendMoreMoney",
@@ -334,11 +334,11 @@ void main_paper2(bool jvm=false){
                      ], jvm=jvm);
 }
 
-void main_listmatch(bool jvm=false){
+void main_listmatch(bool jvm=true){
    run_benchmarks(10, ["BListMatch1", "BListMatch2", "BListMatch3"], jvm=jvm);
 }
 
-void main_setmatch(bool jvm=false){
+void main_setmatch(bool jvm=true){
    run_benchmarks(10, ["BSetMatch1", "BSetMatch2", "BSetMatch3"], jvm=jvm);
 }
 
