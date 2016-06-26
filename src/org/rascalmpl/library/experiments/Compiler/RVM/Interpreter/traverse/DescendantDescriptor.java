@@ -44,23 +44,8 @@ public class DescendantDescriptor {
 			IConstructor cons = (IConstructor) v;
 			mSymbolSet.add(cons);							// Add the production itself to the set
 		}
-//		for(IValue v : prodset){
-//			try {
-//				IConstructor cons = (IConstructor) v;
-//				if(cons.getName().equals("prod")){
-//					mSymbolSet.add(cons);							// Add the production itself as SYMBOL to the set
-//				} else if(cons.getName().equals("regular")){
-//					mSymbolSet.add(cons);							// Add as SYMBOL to the set
-//				} else {
-//					Type tp = reifier.symbolToType(cons, definitions);
-//					mSymbolSet.add(tp);							// Otherwise add as TYPE to the set
-//				}
-//			} catch (Throwable e) {
-//				// TODO: a DuplicateFieldDeclaration occurs on some occasions, explore!!
-//				//System.err.println("DescendantDescriptor: problem with " + v + ", " + e);
-//			}
-//		}
-		containsNodeOrValueType = nodeOrValue; //mSymbolSet.contains(RascalPrimitive.nodeType) || mSymbolSet.contains(RascalPrimitive.valueType);
+
+		containsNodeOrValueType = nodeOrValue;
 	}
 	
 	public boolean isConcreteMatch(){

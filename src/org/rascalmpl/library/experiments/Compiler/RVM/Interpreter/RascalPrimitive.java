@@ -8530,6 +8530,7 @@ public enum RascalPrimitive {
 				assert arity == 4;
 				IString id = (IString) stack[sp - 4];
 				
+				
 				stack[sp - 4] = rex.getDescendantDescriptorCache()
 						.get(id, k -> {
 							ISet all = (ISet) stack[sp - 3];
