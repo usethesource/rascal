@@ -8512,12 +8512,9 @@ public enum RascalPrimitive {
 	make_descendant_descriptor {
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
-			System.err.println("make_descendant_descriptor, arity = " + arity);
 			if(arity == 5){		// NEW VERSION
 				assert arity == 5;
-				System.err.println("stack[sp - 5] = " + stack[sp - 5]);
 				IString id = (IString) stack[sp - 5];
-				System.err.println("id = " + id);
 
 				stack[sp - 5] = rex.getDescendantDescriptorCache()
 						.get(id, k -> {
@@ -8531,9 +8528,7 @@ public enum RascalPrimitive {
 			} else {			// TRANSITIONAL VERSION, TODO: REMOVE LATER
 								// [ IString id, ISet symbolset, IBool concreteMatch, IMap definitions] => DescendantDescriptor
 				assert arity == 4;
-				System.err.println("stack[sp - 4] = " + stack[sp - 4]);
 				IString id = (IString) stack[sp - 4];
-				System.err.println("id = " + id);
 				
 				stack[sp - 4] = rex.getDescendantDescriptorCache()
 						.get(id, k -> {

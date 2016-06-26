@@ -883,7 +883,10 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`, Symbol subjectType){
 	   tc = getTypesAndConstructors(pattern);
        <reachable_syms, reachable_prods>  = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
     }
-    descriptor = muCallPrim3("make_descendant_descriptor", [muCon(descId), muCon(reachable_syms), muCon(reachable_prods), muCon(concreteMatch), muCon(getDefinitions())], p@\loc);
+    // NEW: descriptor = muCallPrim3("make_descendant_descriptor", [muCon(descId), muCon(reachable_syms), muCon(reachable_prods), muCon(concreteMatch), muCon(getDefinitions())], p@\loc);
+    // OLD:
+    descriptor = muCallPrim3("make_descendant_descriptor", [muCon(descId), muCon(reachable_syms + reachable_prods), muCon(concreteMatch), muCon(getDefinitions())], p@\loc);
+ 
     return muApply(mkCallToLibFun("Library",descendantFun), [translatePat(pattern, Symbol::\value()),  descriptor]);
 }
 
