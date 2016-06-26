@@ -887,10 +887,8 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	   //println("reachableTypesInVisit: <reachable>");
 	}
 	
-	// NEW: descriptor = muCallPrim3("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable_syms), muCon(reachable_prods), muCon(concreteMatch), muCon(getDefinitions())], \visit.subject@\loc);
-	// OLD: 
-	descriptor = muCallPrim3("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable_syms + reachable_prods), muCon(concreteMatch), muCon(getDefinitions())], \visit.subject@\loc);
-	
+	descriptor = muCallPrim3("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable_syms), muCon(reachable_prods), muCon(concreteMatch), muCon(getDefinitions())], \visit.subject@\loc);
+		
 	bool direction = true;
 	bool progress = true;
 	bool fixedpoint = true;
