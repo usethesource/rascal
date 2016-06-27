@@ -16,7 +16,7 @@ node {
   sh "mvn -DskipTest -B package"
 
   stage 'Deploy'
-  sh "mvn -s /var/jenkins_home/usethesource-maven-settings.xml -DskipTests -B deploy"
+  sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTests -B deploy"
 
   stage 'Archive'
   step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
