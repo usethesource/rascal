@@ -126,8 +126,20 @@ void buildMuLibrary(){
      compileMuLibrary(pcfg.srcs, pcfg.libs, pcfg.boot, pcfg.bin)
      muLib = getMuLibraryCompiledWriteLoc(pcfg);
      commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
+     commands += "cp .<muLib.path> <(BOOT + muLib.path).path>\n";
      writeFile(SHELLSCRIPT, commands);
      report("Commands written to <SHELLSCRIPT>");
+}
+
+str relativize(str path1, str path2){
+     if(path1 == path2){
+        return "";
+     }
+     if(startsWith(path2, path1)){
+        return path2[size(path1) .. ];
+     }
+     
+     return path2;
 }
 
 // Build MuLibrary, standard library, ParserGenerator and Kernel
@@ -149,6 +161,7 @@ value build(bool jvm=true, bool full=true){
      compileMuLibrary(pcfg, verbose=true, jvm=jvm);
      muLib = getMuLibraryCompiledWriteLoc(pcfg);
      commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
+     commands += "cp .<muLib.path> <(BOOT + relativize(BINBOOT.path, muLib.path)).path>\n";
  
      report("Compiling standard library modules");
      for(moduleName <- libraryModules){
