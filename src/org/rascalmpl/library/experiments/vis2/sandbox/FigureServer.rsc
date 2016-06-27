@@ -10,14 +10,30 @@ public void renderWeb(
      Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>,
      str fillColor = "white", str lineColor = "black", bool debug = false
      , int borderWidth = -1,  str borderColor = "", str borderStyle = "", bool resizable = true,
-     str cssFile="")
-     {
+     str cssFile="", bool eclipse=true, loc javaLoc=|file:///usr|
+      ,int screenWidth = 500, int screenHeight = 500)
+     {      
      setDebug(debug);
           _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
      lineColor = lineColor, size = size, display = true
      , borderWidth = borderWidth, borderStyle = borderStyle, resizable = resizable,
      cssFile = cssFile
-     );
+     );  
+     if (!eclipse) {
+         str classpath = getOneFrom([x|x<-split(":", getRascalClasspath()), endsWith(x,"html2png.jar")]);
+         loc htmlFile=|tmp:///vision.html|;
+          str r = toHtmlString(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
+       lineColor = lineColor, size = size
+       ,borderWidth = borderWidth, borderStyle = borderStyle, resizable = resizable
+       ,cssFile=cssFile
+      );  
+         writeFile(htmlFile, r);
+         javaLoc=javaLoc+"bin"+"java";
+          println(exec(javaLoc.path
+         // ,args = []
+         ,args=["-jar", classpath, htmlFile.uri, "<screenWidth>", "<screenHeight>","false"]
+         ));
+         }
      }
      
 
@@ -36,8 +52,12 @@ public str toHtmlString(Figure fig1, int width = 400, int height = 400,
      );
      return getIntro();
      }
+     
+void copyFile(loc from, loc to) {
+    writeFile(to, readFile(from)); 
+    }
 
-public void renderSave(Figure fig1, loc file
+public void renderSave(Figure fig1, loc pngFile
      ,int width = 400, int height = 400
      ,Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>
      ,str fillColor = "white", str lineColor = "black", bool debug = false
@@ -49,23 +69,34 @@ public void renderSave(Figure fig1, loc file
        ,borderWidth = borderWidth, borderStyle = borderStyle, resizable = resizable
        ,cssFile=cssFile
       );  
-      loc parent = file.parent;
-      str name = file.file;
+      loc temp = |file:///tmp/vision|;
+      loc parent = pngFile.parent;
+      str name = pngFile.file;
+      // println( getRascalClasspath());
       str classpath = getOneFrom([x|x<-split(":", getRascalClasspath()), endsWith(x,"html2png.jar")]);
+      loc classLoc = |file:///|+(classpath+"!");
+      println(classLoc);
+      loc classJar = |jar:///|+(classpath+"!"+"/application");
+      copyFile(classJar+"pack.js", temp+"pack.js");
+      copyFile(classJar+"IFigure.js", temp+"IFigure.js");
       // str classpath=getOneFrom({x.path|x<-classPathForProject(|project://rascal|), endsWith(x.path, "html2png.jar")}); 
       if (!endsWith(name, ".png")) {
             println("Output file name <name> must end with \".png\"");
             return;
             }
       str htmlName = replaceLast(name, ".png", ".html");
-      loc htmlFile = parent+htmlName;
-      writeFile(htmlFile, r);
-      
+      loc htmlFile = temp+htmlName;
+      writeFile(htmlFile, r);  
       javaLoc=javaLoc+"bin"+"java";
       println(exec(javaLoc.path
          // ,args = []
-         ,args=["-jar", classpath, htmlFile.uri, "<screenWidth>", "<screenHeight>"]
+         ,args=["-jar", classpath, htmlFile.uri, pngFile.uri, "<screenWidth>", "<screenHeight>","true"]
          ));
+      remove(htmlFile);
+     
+      // writeTo(pid, r);
+      // killProcess(pid);
+      println("KLAAR");
       }
 
 public Style style(str id, str fillColor="", str lineColor="", int lineWidth = -1,
