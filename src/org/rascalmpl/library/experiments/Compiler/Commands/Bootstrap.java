@@ -329,7 +329,7 @@ public class Bootstrap {
     private static Path compilePhase(int phase, String classPath, String testClassPath, Path tmp, String bootPath, String sourcePath) throws Exception {
         Path result = phaseFolder(phase, tmp);
         progress("phase " + phase + ": " + result);
-        time("- tests", () -> runTestModule(phase, classPath, bootPath, sourcePath, result, testModules));
+        //time("- tests", () -> runTestModule(phase, classPath, bootPath, sourcePath, result, testModules));
         time("- compile MuLibrary", () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
         time("- compile Kernel", () -> compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel"));
         time("- compile ParserGenarator", () -> compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator"));
