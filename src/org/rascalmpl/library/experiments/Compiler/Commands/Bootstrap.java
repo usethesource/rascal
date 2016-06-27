@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
@@ -234,32 +233,45 @@ public class Bootstrap {
         //    3. build newKernel3 using newKernel2 with newRVMClasses using newKernel2,  because newKernel2 was compiled with new compiler which may depend on changes in the RVM.
         //    4. build newKernel4 with new classes using newKernels using newRascalCompilerSources and newLibrarySources (effectively setting the source path back to std)
         time("Bootstrap:", () -> {
-        try { 
-        
-            Path oldKernel = getDeployedVersion(tmpDir, versionToUse);
-            
-            Path newKernel1 = time("Phase 1", () -> compilePhase(1, oldKernel.toAbsolutePath().toString(), classpath + ":" + oldKernel.toAbsolutePath().toString(), tmpDir, "|boot:///|", librarySource));
-            Path newKernel2 = time("Phase 2", () -> compilePhase(2, oldKernel.toAbsolutePath().toString(), oldKernel.toAbsolutePath().toString() + ":" + classpath, tmpDir, newKernel1.toAbsolutePath().toString(), librarySource));
-            Path newKernel3 = time("Phase 3", () -> compilePhase(3, targetFolder + ":" + classpath,  targetFolder + ":" + classpath, tmpDir, newKernel2.toAbsolutePath().toString(), librarySource));
-            Path newKernel4 = time("Phase 4", () -> compilePhase(4, targetFolder + ":" + classpath,  targetFolder + ":" + classpath,  tmpDir,newKernel3.toAbsolutePath().toString(), "|std:///|"));
-            
-            // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
-            time("Copying bootstrapped files", () -> copyResult(newKernel4, targetFolder.resolve("boot")));
-            
-            time("Running final test", () -> runTestModule(5, targetFolder + ":" + classpath,  "|boot:///|", "|std:///|", tmpDir.resolve("test-bins"), testModules));
+            try { 
+                String[] rvm    = new String[] { 
+                        getDeployedVersion(tmpDir, versionToUse).toAbsolutePath().toString(), // this is the released jar
+                        targetFolder + ":" + /*deps*/ classpath // this is the pre-compiled target folder with the new RVM implementation 
+                };
+                
+                String[] kernel = new String[] {
+                        "|boot:///|",  // This is retrieved from the released jar
+                        phaseFolderString(1, tmpDir), 
+                        phaseFolderString(2, tmpDir),  
+                        phaseFolderString(3, tmpDir), 
+                        phaseFolderString(4, tmpDir)
+                };
+                        
+                /*------------------------------------------,-CODE---------,-RVM---,-KERNEL---,-TESTS--*/
+                time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[0]));
+                time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[0], kernel[1], rvm[1]));
+                time("Phase 3", () -> compilePhase(tmpDir, 3, librarySource, rvm[1], kernel[2], rvm[1]));
+                time("Phase 4", () -> compilePhase(tmpDir, 4, "|std:///|"  , rvm[1], kernel[3], rvm[1]));
 
-            Files.write(bootstrapMarker, versionToUse.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE_NEW);
-        } 
-        catch (BootstrapMessage | IOException | InterruptedException e) {
-            error(e.getMessage());
-			e.printStackTrace();
-			System.exit(1);
-		} 
+                // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
+                time("Copying bootstrapped files", () -> copyResult(kernel[4], targetFolder.resolve("boot")));
+
+                time("Running final test", () -> runTestModule(5, targetFolder + ":" + classpath,  "|boot:///|", "|std:///|", tmpDir.resolve("test-bins"), testModules));
+
+                Files.write(bootstrapMarker, versionToUse.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE_NEW);
+            } 
+            catch (BootstrapMessage | IOException | InterruptedException e) {
+                error(e.getMessage());
+                e.printStackTrace();
+                System.exit(1);
+            } 
         });
         printTimings();
     }
     
-	private static void copyResult(Path sourcePath, Path targetPath) throws IOException {
+	private static void copyResult(String sourceString, Path targetPath) throws IOException {
+	    Path sourcePath = new File(sourceString).toPath();
+	    
 	    Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>() {
 	        @Override
 	        public FileVisitResult preVisitDirectory(final Path dir,  final BasicFileAttributes attrs) throws IOException {
@@ -320,19 +332,26 @@ public class Bootstrap {
         return URIUtil.assumeCorrect("http", "update.rascal-mpl.org", "/console/rascal-shell-unstable.jar");
     }
 	
+	private static String phaseFolderString(int phase, Path tmp) {
+        Path result = tmp.resolve("phase" + phase);
+        result.toFile().mkdir();
+        return result.toAbsolutePath().toString();
+    }
+	
     private static Path phaseFolder(int phase, Path tmp) {
         Path result = tmp.resolve("phase" + phase);
         result.toFile().mkdir();
         return result;
     }
     
-    private static Path compilePhase(int phase, String classPath, String testClassPath, Path tmp, String bootPath, String sourcePath) throws Exception {
+    private static Path compilePhase(Path tmp, int phase, String sourcePath, String classPath, String bootPath, String testClassPath) throws Exception {
         Path result = phaseFolder(phase, tmp);
         progress("phase " + phase + ": " + result);
-        //time("- tests", () -> runTestModule(phase, classPath, bootPath, sourcePath, result, testModules));
-        time("- compile MuLibrary", () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
-        time("- compile Kernel", () -> compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel"));
-        time("- compile ParserGenarator", () -> compileModule(phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator"));
+
+        time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
+        time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel"));
+        time("- compile ParserGenarator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator"));
+        time("- tests",                   () -> runTestModule   (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, result, testModules));
         
         return result;
     }
