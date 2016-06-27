@@ -1,22 +1,22 @@
 node {
   def mvnHome = tool 'M3'
   env.JAVA_HOME="${tool 'jdk-oracle-8'}"
-  env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
+  env.PATH="${env.JAVA_HOME}/bin:${mvnHome}/bin:${env.PATH}"
 
   stage 'Clone'
   checkout scm
 
   stage 'Build'
-  sh "${mvnHome}/bin/mvn -DskipTest -B clean compile"
+  sh "mvn -DskipTest -B clean compile"
 
   stage 'Test'
-  sh "${mvnHome}/bin/mvn -B test"
+  sh "mvn -B test"
 
   stage 'Packaging'
-  sh "${mvnHome}/bin/mvn -DskipTest -B package"
+  sh "mvn -DskipTest -B package"
 
   stage 'Deploy'
-  sh "${mvnHome}/bin/mvn -s /var/jenkins_home/usethesource-maven-settings.xml -DskipTests -B deploy"
+  sh "mvn -s /var/jenkins_home/usethesource-maven-settings.xml -DskipTests -B deploy"
 
   stage 'Archive'
   step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
