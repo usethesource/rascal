@@ -74,7 +74,7 @@
                                 <classpath/>
                                 <argument>org.rascalmpl.library.experiments.Compiler.Commands.Bootstrap</argument>
                                 <classpath/>
-                                <argument>0.8.2-phase2</argument>
+                                <argument>0.8.1-bs</argument>
                                 <argument>${project.version}</argument>
                                 <argument>${project.basedir}/src</argument>
                                 <argument>${project.build.directory}/classes</argument>
