@@ -62,7 +62,7 @@ bool validRVM(str qualifiedModuleName, PathConfig pcfg){
 	return res;
 }
 
-tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcfg, bool verbose = true, bool optimize=true, bool enableAsserts=false){
+tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcfg, bool verbose = false, bool optimize=true, bool enableAsserts=false){
 
 	Configuration config;
     lang::rascal::\syntax::Rascal::Module M;
@@ -201,7 +201,7 @@ Module removeMain(lang::rascal::\syntax::Rascal::Module m) {
 Configuration noPreviousConfig = newConfiguration(pathConfig());
 Configuration previousConfig = noPreviousConfig;
 
-tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, bool verbose = true, bool optimize=true, bool enableAsserts=false){
+tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, bool verbose = false, bool optimize=true, bool enableAsserts=false){
 
     Configuration config;
     lang::rascal::\syntax::Rascal::Module M;
