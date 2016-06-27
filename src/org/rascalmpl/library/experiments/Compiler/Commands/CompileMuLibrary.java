@@ -66,7 +66,7 @@ public class CompileMuLibrary {
                     .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
                     .build();
 
-            Kernel kernel = new Kernel(vf, rex);
+            Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
 
             kernel.compileMuLibrary(
                     cmdOpts.getCommandlocsOption("src"),
