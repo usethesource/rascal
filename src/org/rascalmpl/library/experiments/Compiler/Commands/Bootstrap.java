@@ -204,7 +204,6 @@ public class Bootstrap {
                     }
 
                 });
-                Files.delete(tmpDir);
             } catch (IOException e) {
                 System.err.println(e);
                 System.err.println("Error cleaning temp directory");
