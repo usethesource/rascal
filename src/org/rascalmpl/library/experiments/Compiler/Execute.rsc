@@ -28,10 +28,8 @@ private loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compil
 private str MuLibrary() = "experiments::Compiler::muRascal2RVM::MuLibrary";
 
 tuple[bool, loc] getMuLibraryCompiledReadLoc(PathConfig pcfg) {
-    // TODO JURGEN: this does not use the boot path config yet? problem for bootstrapping code
-    muLib = |compressed+boot:///MuLibrary.rvm.gz|;
+    muLib = pcfg.boot[scheme="compressed+" + pcfg.boot.scheme]  + "experiments/Compiler/muRascal2RVM/MuLibrary.rvm.gz";
     return <exists(muLib), muLib>;
-    //return getDerivedReadLoc(MuLibrary(), "rvm.gz", pcfg);
 }
 
 loc getMuLibraryCompiledWriteLoc(PathConfig pcfg) = getDerivedWriteLoc(MuLibrary(), "rvm.gz", pcfg);
