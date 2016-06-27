@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
@@ -132,7 +133,7 @@ public class Bootstrap {
     
     public static void main(String[] args) throws Exception {
         if (args.length < 5) {
-        	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder> [--verbose] (you provided " + args.length + " arguments instead)");
+        	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder> [--verbose] [--clean] (you provided " + args.length + " arguments instead)");
         	System.exit(1);
         	return;
         }
@@ -174,13 +175,43 @@ public class Bootstrap {
             System.exit(0);
         }
         
+        boolean cleanTempDir = false;
         for (;arg < args.length; arg++) {
             switch (args[arg]) {
                 case "--verbose": VERBOSE=true; break;
+                case "--clean": cleanTempDir = true; break;
+                default: 
+                    System.err.println(args[arg] + "Is not a supported argument.");
+                    System.exit(1);
+                    return;
             }
         }
         
         Path tmpDir = new File(System.getProperty("java.io.tmpdir") + "/rascal-boot").toPath();
+        if (cleanTempDir && Files.exists(tmpDir)) {
+            info("Removing files in" + tmpDir.toString());
+            try {
+                Files.walkFileTree(tmpDir, new SimpleFileVisitor<Path>() {
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                        Files.delete(dir);
+                        return super.postVisitDirectory(dir, exc);
+                    }
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        Files.delete(file);
+                        return super.visitFile(file, attrs);
+                    }
+
+                });
+                Files.delete(tmpDir);
+            } catch (IOException e) {
+                System.err.println(e);
+                System.err.println("Error cleaning temp directory");
+                System.exit(1);
+                return;
+            }
+        }
         tmpDir.toFile().mkdir();
         info("bootstrap folder: " + tmpDir.toAbsolutePath());
 
