@@ -13,9 +13,9 @@ Figure ft() = hcat(figs=[box(size=<150, 150>), choiceInput(size=<30, 100>)]);
 void tft() = render(ft());
 
 Figure butt() = hcat(figs= [
-    buttonInput("Click me", id = "aap"
-    
-    )
+    buttonInput("Click me", id = "aap",
+        event=on(void(str e, str n, str v){ style("mies", fillColor="blue");}
+     ))
     , box(size=<50, 50>
         , fig=text("teun", id="teun"
         , fillColor = "yellow"      
@@ -41,6 +41,9 @@ Figure butt() = hcat(figs= [
 void tbutt()= render(butt(), debug = false);
 
 void tfbutt(loc l)= writeFile(l, toHtmlString(butt(), debug = false));
+
+ public void pbutt(/*loc l*/) = renderShow(butt(), // l,
+    width = 400, height = 400, javaLoc=|file:///ufs/bertl/jdk1.8.0_77|);
 
 void click(str e, str n, str v) = println(n);
 
