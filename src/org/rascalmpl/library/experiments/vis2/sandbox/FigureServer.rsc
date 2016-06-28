@@ -11,7 +11,7 @@ public void renderWeb(
      str fillColor = "white", str lineColor = "black", bool debug = false
      , int borderWidth = -1,  str borderColor = "", str borderStyle = "", bool resizable = true,
      str cssFile="", bool eclipse=true, loc javaLoc=|file:///usr|
-      ,int screenWidth = 500, int screenHeight = 500)
+      ,int screenWidth = 500, int screenHeight = 500, loc pngFile=|tmp:///vision.png|, bool snapshot=false)
      {      
      setDebug(debug);
           _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
@@ -20,19 +20,12 @@ public void renderWeb(
      cssFile = cssFile
      );  
      if (!eclipse) {
+         // println(getSite().uri);
          str classpath = getOneFrom([x|x<-split(":", getRascalClasspath()), endsWith(x,"html2png.jar")]);
-         loc htmlFile=|tmp:///vision.html|;
-          str r = toHtmlString(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
-       lineColor = lineColor, size = size
-       ,borderWidth = borderWidth, borderStyle = borderStyle, resizable = resizable
-       ,cssFile=cssFile
-      );  
-         writeFile(htmlFile, r);
          javaLoc=javaLoc+"bin"+"java";
-          println(exec(javaLoc.path
-         // ,args = []
-         ,args=["-jar", classpath, htmlFile.uri, "<screenWidth>", "<screenHeight>","false"]
-         ));
+          PID pid = createProcess(javaLoc.path
+         ,args=["-jar", classpath, getSite().uri, snapshot?pngFile.uri:"", "<screenWidth>", "<screenHeight>",snapshot?"true":"false"]
+         );
          }
      }
      
@@ -64,39 +57,27 @@ public void renderSave(Figure fig1, loc pngFile
      ,int borderWidth = -1,  str borderColor = "", str borderStyle = "", bool resizable = true
       ,int screenWidth = 500, int screenHeight = 500, str cssFile="", loc javaLoc=|file:///usr|) 
        {
-       str r = toHtmlString(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
+      renderWeb(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
        lineColor = lineColor, size = size
-       ,borderWidth = borderWidth, borderStyle = borderStyle, resizable = resizable
-       ,cssFile=cssFile
+       ,borderWidth = borderWidth, borderStyle = borderStyle, borderColor = borderColor, resizable = resizable
+       ,cssFile=cssFile, pngFile = pngFile, snapshot = true, screenWidth = screenWidth, screenHeight = screenHeight,
+       javaLoc = javaLoc, eclipse = false
       );  
-      loc temp = |file:///tmp/vision|;
-      loc parent = pngFile.parent;
-      str name = pngFile.file;
-      // println( getRascalClasspath());
-      str classpath = getOneFrom([x|x<-split(":", getRascalClasspath()), endsWith(x,"html2png.jar")]);
-      loc classLoc = |file:///|+(classpath+"!");
-      println(classLoc);
-      loc classJar = |jar:///|+(classpath+"!"+"/application");
-      copyFile(classJar+"pack.js", temp+"pack.js");
-      copyFile(classJar+"IFigure.js", temp+"IFigure.js");
-      // str classpath=getOneFrom({x.path|x<-classPathForProject(|project://rascal|), endsWith(x.path, "html2png.jar")}); 
-      if (!endsWith(name, ".png")) {
-            println("Output file name <name> must end with \".png\"");
-            return;
-            }
-      str htmlName = replaceLast(name, ".png", ".html");
-      loc htmlFile = temp+htmlName;
-      writeFile(htmlFile, r);  
-      javaLoc=javaLoc+"bin"+"java";
-      println(exec(javaLoc.path
-         // ,args = []
-         ,args=["-jar", classpath, htmlFile.uri, pngFile.uri, "<screenWidth>", "<screenHeight>","true"]
-         ));
-      remove(htmlFile);
-     
-      // writeTo(pid, r);
-      // killProcess(pid);
-      println("KLAAR");
+      }
+      
+public void renderShow(Figure fig1
+     ,int width = 400, int height = 400
+     ,Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>
+     ,str fillColor = "white", str lineColor = "black", bool debug = false
+     ,int borderWidth = -1,  str borderColor = "", str borderStyle = "", bool resizable = true
+      ,int screenWidth = 500, int screenHeight = 500, str cssFile="", loc javaLoc=|file:///usr|) 
+       {
+      renderWeb(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
+       lineColor = lineColor, size = size
+       ,borderWidth = borderWidth, borderStyle = borderStyle, borderColor = borderColor, resizable = resizable
+       ,cssFile=cssFile, snapshot = false, screenWidth = screenWidth, screenHeight = screenHeight,
+       javaLoc = javaLoc, eclipse = false
+      );  
       }
 
 public Style style(str id, str fillColor="", str lineColor="", int lineWidth = -1,

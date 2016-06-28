@@ -101,9 +101,8 @@ Figure simple() {
    simple(), size=<600, 600>, resizable=true
  )); 
  
- public void psimple(loc l) = renderSave(simple(), l,
-    width = 400, height = 400, javaLoc=|file:///ufs/bertl/jdk1.8.0_77|,
-    eclipse = false);
+ public void psimple(loc l) = renderShow(simple(), 
+    width = 400, height = 400, javaLoc=|file:///ufs/bertl/jdk1.8.0_77|);
  
  Figure eye()= ellipse(rx=60, ry = 30, lineColor="brown", align = centerMid, fillColor="teal", lineWidth = 6
                       , fig = circle(shrink=1.0, fillColor = "whitesmoke", lineWidth = 4, lineColor = "red"));
