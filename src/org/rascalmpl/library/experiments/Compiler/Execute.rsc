@@ -325,6 +325,7 @@ value rascalTests(list[str] qualifiedModuleNames, PathConfig pcfg,
    
    exceptions = [];
    value v;
+   bool executables_available = true;
    
    for(qualifiedModuleName <- qualifiedModuleNames){
        try {
@@ -334,6 +335,7 @@ value rascalTests(list[str] qualifiedModuleNames, PathConfig pcfg,
        } else {
            if(!recompile){
               throw "No executable found for <qualifiedModuleName>";
+              executables_available = false;
            }
            mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose);
            v = execute(mainModule, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=true, profile=profile, verbose=verbose, trace=trace, coverage=coverage, jvm=jvm);
@@ -347,7 +349,7 @@ value rascalTests(list[str] qualifiedModuleNames, PathConfig pcfg,
          exceptions += "<qualifiedModuleName>: <e>";
        }
    }
-   return printTestReport(all_test_results, exceptions);
+   return printTestReport(all_test_results, exceptions) && executables_available;
 }
 
 RVMProgram compileAndLink(str qualifiedModuleName, list[loc] srcs, list[loc] libs, loc boot, loc bin,  
