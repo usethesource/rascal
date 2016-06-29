@@ -44,6 +44,9 @@ public class RascalTests {
 			.locOption("bin") 		
 			.help("Directory for Rascal binaries")
 			
+			.boolOption("recompile")
+			.help("Recompile before running tests, when false existing binary is used")
+			
 			.boolOption("help")
 			.help("Print help message for this command")
 			
@@ -80,6 +83,7 @@ public class RascalTests {
 		            cmdOpts.getCommandlocsOption("lib"),
 		            cmdOpts.getCommandLocOption("boot"),
 		            cmdOpts.getCommandLocOption("bin"), 
+		            cmdOpts.getCommandBoolOption("recompile"), 
 		            cmdOpts.getModuleOptionsAsIMap());
 
 		    System.exit(success.getValue() ? 0 : 1);

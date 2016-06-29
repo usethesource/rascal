@@ -302,9 +302,9 @@ value execute(str qualifiedModuleName, PathConfig pcfg,
    mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose);
    return execute(mainModule, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=testsuite, profile=profile, verbose=verbose, trace=trace, coverage=coverage, jvm=jvm);
 }
-
-value rascalTests(list[str] qualifiedModuleNames, list[loc] srcs, list[loc] libs, loc boot, loc bin, 
-                  map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool recompile=false, bool profile=false, 
+ 
+value rascalTests(list[str] qualifiedModuleNames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool recompile,
+                  map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool profile=false, 
                   bool trace= false,  bool coverage=false, bool jvm=true, bool verbose = false){
     return rascalTests(qualifiedModuleNames, pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin),
                        keywordArguments=keywordArguments,
@@ -332,6 +332,9 @@ value rascalTests(list[str] qualifiedModuleNames, PathConfig pcfg,
            if(verbose) println("Using <compressed>");
            v = executeProgram(compressed, keywordArguments, debug, debugRVM, true, profile, trace, coverage, jvm);
        } else {
+           if(!recompile){
+              throw "No executable found for <qualifiedModuleName>";
+           }
            mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose);
            v = execute(mainModule, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=true, profile=profile, verbose=verbose, trace=trace, coverage=coverage, jvm=jvm);
        }
