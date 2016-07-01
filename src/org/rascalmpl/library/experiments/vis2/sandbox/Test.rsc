@@ -328,8 +328,11 @@ public void fquest(loc l) = writeFile(l, toHtmlString(
          // , endMarker = ngon(n=3, r=10, fillColor = "purple", lineWidth = 0)
          )
          ,circle(r=4, fillColor="firebrick", cx = cx(from[f].x+0.25)+0.2*rv[0], cy = cy(from[f].y+hc/2)+0.2*rv[1]
-          , tooltip=box(fig=text("<multiplicity(f, t)>"), fillColor="floralwhite", size=<50, 50>)
-          // , tooltip = box(size=<100, 100>, fig=box(size=<50, 50>), fillColor="red")
+          // , tooltip=box(fig=text("<multiplicity(f, t)>"), fillColor="floralwhite", size=<50, 50>)
+          , tooltip = 
+          // box(fig=
+               hcat(figs=[box(size=<50, 50>)], borderWidth=10, borderStyle="groove")
+          // , fillColor="red")
          )
          ]);
          }
@@ -341,9 +344,19 @@ public void fquest(loc l) = writeFile(l, toHtmlString(
            );
       }
       
- void tfunLine() = render(funLine());
+ void tfunLine() = render(funLine(), javaLoc=|file:///ufs/bertl/jdk1.8.0_77|);
  
  public void ffunLine(loc l) = writeFile(l, toHtmlString(
     funLine()
  )); 
+ 
+Figure title() = box(size=<100, 100>, tooltip = "aap", fillColor="yellow");
+ 
+void ttitle() = render(title()/*, javaLoc=|file:///ufs/bertl/jdk1.8.0_77|*/);
+
+Figure hc() = hcat(size=<200, 100>, figs=[box(width=10, fillColor="yellow"), box(size=<100, 80>, fillColor="lightblue")]);
+
+void thc() = render(hc()/*, javaLoc=|file:///ufs/bertl/jdk1.8.0_77|*/);
+
+ 
                  
