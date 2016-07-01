@@ -393,8 +393,9 @@ function fromInnerToOuterFigure(f, id1, toLw, hpad, vpad) {
 	var width = 0;
 	if (!invalid(from.attr("width")))
 		width = parseInt(from.attr("width"));
-	else
+	else {
 		width = document.getElementById(id1).getBoundingClientRect().width;
+	}
 	var height = 0;
 	if (!invalid(from.attr("height")))
 		height = parseInt(from.attr("height"));
@@ -501,6 +502,7 @@ function _adjust(toId, fromId, hshrink, vshrink, toLw, n, angle, x, y, width,
 	
 	var  invalidW = invalid(to.attr("width"))&&invalid(to.attr("w"));
 	var  invalidH = invalid(to.attr("height"))&&invalid(to.attr("h"));
+	// alert(invalidW);
 	// alert(""+toId+":"+to.attr("width")+":"+to.attr("w")+":"+invalidW+":"+to.node().nodeName);
 	switch (to.node().nodeName) {
 	case "FORM":
@@ -704,15 +706,16 @@ function adjustTable(id1, clients) {
 	var aUndefW = clients.filter(undefW);
 	var width = d3.select("#" + id1).attr("w");
 	// alert("adjustTable:"+aUndefWH.length+" "+width);
+	// alert(id1);
 	if (invalid(width) && aUndefW.length == 0) {
 		width = document.getElementById(id1).getBoundingClientRect().width;
-		// alert("OK:"+width);
 		d3.select("#" + id1).attr("w", "" + width + "px")
 	}
 	var aUndefH = clients.filter(undefH);
 	var height = d3.select("#" + id1).attr("h");
 	if (invalid(height) && aUndefH.length == 0) {
 		height = document.getElementById(id1).getBoundingClientRect().height;
+		// height = document.getElementById(id1).outerHeight;
 		d3.select("#" + id1).attr("h", "" + height + "px")
 	}
 	// alert("adjustTable:"+width);
@@ -985,24 +988,28 @@ function adjust_tooltip(q) {
 	var h = getHeight("#" + q + "_tooltip_svg");
 	var u = d3.select("#" + q + "_tooltip_outer_fo");
 	if (u.empty() && !d3.select("#" + q + "_tooltip_fo").empty()
-	    && !d3.select("#" + q + "_tooltip_fo").selectAll(".google").empty())
+	    && !d3.select("#" + q + "_tooltip_fo").select(".google").empty()) {
 	  	u = d3.select("#" + q + "_tooltip_fo");
+	}
 	var z = convert(x, y);
 	var x1 = 0;
 	var y1 = 0;
 	if (!u.empty()) {
 		x1 = parseFloat(u.attr("x"));
 		y1 = parseFloat(u.attr("y"));
+		u.attr("x", z.x + x1).attr("y", z.y + y1);
+		u.attr("width", w);
+		u.attr("height", h);
+		var t = d3.select("#" + q + "_tooltip_svg");
+		t.attr("width", w + z.x + x1).attr("height", h + z.y + y1);
 	}
 	s.on("mouseenter", function() {
 		d3.select("#overlay").attr("width", z.x + w + x1);
 		d3.select("#overlay").attr("height", z.y + h + y1);
-		if (d3.select("#" + q + "_tooltip_outer_fo").empty()
-			  && !d3.select("#" + q + "_tooltip_fo").empty()
-			  && d3.select("#" + q + "_tooltip_fo").selectAll(".google").empty()
-			) {
+		if (u.empty())
+		 {
 			d3.select("#" + q + "_tooltip_svg").attr("x", z.x).attr("y", z.y);
-		}
+		 }
 		d3.select("#" + q + "_tooltip").style("visibility", "visible");
 		d3.select("#" + q + "_tooltip_fo").style("visibility", "visible").
 		   selectAll(".google").style("visibility", "visible")
@@ -1014,11 +1021,6 @@ function adjust_tooltip(q) {
 		   selectAll(".google").style("visibility", "hidden")
 		;
 	});
-	if (!u.empty()) {
-		u.attr("x", z.x + x1).attr("y", z.y + y1);
-		var t = d3.select("#" + q + "_tooltip_svg");
-		t.attr("width", w + z.x + x1).attr("height", h + z.y + y1);
-	}
 	d3.select("#" + q + "_tooltip").style("visibility", "hidden");
 	d3.select("#" + q + "_tooltip_fo").style("visibility", "hidden").
 	    selectAll(".google").style("visibility", "hidden")

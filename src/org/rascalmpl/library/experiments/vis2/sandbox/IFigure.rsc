@@ -90,7 +90,7 @@ public map[str, list[IFigure] ] defs = ();
 IFigure fig;
 
 int upperBound = 9999;
-int lowerBound = 10;
+int lowerBound = 2;
 
 int getN(IFigure fig1) = getN(getId(fig1));
 
@@ -1383,7 +1383,6 @@ bool hasInnerCircle(Figure f)  {
       int height = f.height;
       if (width>=0) width = toInt(f.bigger*(width + lw));
       if (height>=0) height = toInt(f.bigger*(height + lw));
-      // println("QQQ <isPassive(f)>");
       return " 
         '<style("stroke-width",lw)>
         '<style("stroke","<getLineColor(f)>")>
@@ -1393,13 +1392,12 @@ bool hasInnerCircle(Figure f)  {
         '<style("stroke-opacity", getLineOpacity(f))>  
         '<style("visibility", getVisibility(f))> 
         '<attr("clickable", isPassive(f)?"no":"yes")>
-        '<isPassive(f)||getVisibility(f)=="hidden"?attr("pointer-events", "none"):attr("pointer-events", "all")>   
+        '<isPassive(f)||getVisibility(f)=="hidden"?attr("pointer-events", "none"):attr("pointer-events", "all")>  
+        '<tooltip> 
         ';   
         'd3.select(\"#<id>_svg\")
         '<attr("width", width)><attr("height", height)>
-        '<attr("pointer-events", "none")>     
-        '<tooltip>
-        '<if (findFirst(id,"_tooltip")>=0){><attr("pointer-events", "none")><}>
+        '<attr("pointer-events", "none")>                
         ';
         ";
       } 
@@ -1575,9 +1573,9 @@ int getPolHeight(Figure f) {
          }
        
 IFigure _polygon(str id, Figure f,  IFigure fig = iemptyFigure(0)) {
-       f.width = getPolWidth(f);
-       f.height = getPolHeight(f);
        if (f.yReverse) f.scaleY = <<0, f.height>, <f.height, 0>>;
+       f.width = getPolWidth(f);
+       f.height = getPolHeight(f);   
        str begintag = "";
        begintag+=
          "\<svg id=\"<id>_svg\"\>\<polygon id=\"<id>\"/\>       
@@ -1589,6 +1587,7 @@ IFigure _polygon(str id, Figure f,  IFigure fig = iemptyFigure(0)) {
         '<on(getEvent(f.event), "doFunction(\"<getEvent(f.event)>\", \"<id>\")")>
         '<attr("points", translatePoints(f, f.scaleX, f.scaleY, 0, 0))>
         '<style("fill-rule", f.fillEvenOdd?"evenodd":"nonzero")>
+        '<attr("width", f.width)><attr("height", f.height)>
         '<styleInsideSvgOverlay(id, f)>
         ", f.width, f.height, getAtX(f), getAtY(f),  f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f)
          , f.sizeFromParent, true >;
@@ -2092,10 +2091,11 @@ IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
         , width, height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f)
         , f.sizeFromParent, false >;
        addState(f);
-       widgetOrder+= id;
        adjust+=  "adjustTableW("+figCalls(fig1)+", \"<id>\", <getLineWidth(f)<0?0:-getLineWidth(f)>, 
                <-hPadding(f)>, <-vPadding(f)>,<f.hgap>, <f.vgap>);\n";
-       return ifigure(id ,[td("<id>_<getSeq(g)>", f, g, width, height)| g<-fig1]);
+       IFigure r =  ifigure(id ,[td("<id>_<getSeq(g)>", f, g, width, height)| g<-fig1]);
+       widgetOrder+= id;
+       return r;
        }
        
 str figCall(IFigure f) = 
@@ -2159,10 +2159,11 @@ IFigure _vcat(str id, Figure f,  bool addSvgTag, IFigure fig1...) {
          , f.sizeFromParent, false >;
        
        addState(f);
-       widgetOrder+= id;
        adjust+=  "adjustTableH("+figCalls(fig1)+", \"<id>\", <getLineWidth(f)<0?0:-getLineWidth(f)>, 
           <-hPadding(f)>, <-vPadding(f)>,<f.hgap>, <f.vgap>);\n"; 
-       return ifigure(id, [td("<id>_<getSeq(g)>", f, g,  width, height, tr = true)| g<-fig1]);
+       IFigure r = ifigure(id, [td("<id>_<getSeq(g)>", f, g,  width, height, tr = true)| g<-fig1]);
+       widgetOrder+= id;
+       return r;
        }
       
 list[list[IFigure]] transpose(list[list[IFigure]] f) {
@@ -2219,11 +2220,13 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
         ", f.width, f.height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f)
          , f.sizeFromParent, false >;      
        addState(f);
-       widgetOrder+= id;
        list[tuple[list[IFigure] f, int idx]] fig1 = [<figArray[i], i>|int i<-[0..size(figArray)]];
        adjust+=  "adjustTableWH(<figCallArray(figArray)>, \"<id>\", <-getLineWidth(f)>, 
           <-hPadding(f)>, <-vPadding(f)>,<f.hgap>, <f.vgap>);\n";
-       return ifigure(id, [tr("<id>_<g.idx>", f, f.width, f.height, g.f ) | g<-fig1]);
+       IFigure r = ifigure(id, [tr("<id>_<g.idx>", f, f.width, f.height, g.f ) | g<-fig1]);
+       widgetOrder+= id;
+       return  r;
+      
        }      
    
  IFigure td(str id, Figure f, IFigure fig1, int width, int height, bool tr = false) {
