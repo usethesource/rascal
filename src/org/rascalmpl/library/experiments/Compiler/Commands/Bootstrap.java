@@ -351,8 +351,11 @@ public class Bootstrap {
         time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
         time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel"));
         time("- compile ParserGenarator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator"));
-        time("- compile tests",           () -> compileTests    (phase, classPath, bootPath, sourcePath, result));
-        time("- run tests",               () -> runTestModule   (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, result, testModules));
+        
+        if (phase > 2) {
+            time("- compile tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, result));
+            time("- run tests",               () -> runTestModule   (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, result, testModules));
+        }
         
         return result;
     }
