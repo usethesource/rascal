@@ -36,6 +36,20 @@ public class Kernel {
 	public Kernel(IValueFactory vf, RascalExecutionContext rex) throws IOException, NoSuchRascalFunction, URISyntaxException {
 	    this(vf, rex, URIUtil.correctLocation("boot", "", "/"));
 	}
+	
+	private OverloadedFunction safeGet(String s) {
+	    try {
+	        return rvm.getOverloadedFunction(s);
+	    }
+	    catch (Throwable e) {
+	        // For bootstrapping purposes sometimes unused kernel functions will not bind correctly.
+	        // If such function is not used, this is ok, but we print a warning here to explain
+	        // the subsequent NPE when the function does end up being used:
+	        System.err.println("WARNING: ignoring function " + s);
+	        e.printStackTrace();
+	        return null;
+	    }
+	}
         
 	public Kernel(IValueFactory vf, RascalExecutionContext rex, ISourceLocation binaryKernelLoc) throws IOException, NoSuchRascalFunction, URISyntaxException {
 		this.vf = vf;
@@ -50,15 +64,16 @@ public class Kernel {
 		   
 		this.rvm = ExecutionTools.initializedRVM(binaryKernelLoc, rex);
 
-		compile    		= rvm.getOverloadedFunction("RVMModule compile(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
-		compileN    	= rvm.getOverloadedFunction("list[RVMModule] compile(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
-		compileMuLibrary= rvm.getOverloadedFunction("void compileMuLibrary(list[loc] srcs, list[loc] libs, loc boot, loc bin)");
-		compileAndLink  = rvm.getOverloadedFunction("RVMProgram compileAndLink(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
-		compileAndLinkN = rvm.getOverloadedFunction("list[RVMProgram] compileAndLink(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+		compile    		= safeGet("RVMModule compile(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+		compileN    	= safeGet("list[RVMModule] compile(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+		compileMuLibrary= safeGet("void compileMuLibrary(list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+		compileAndLink  = safeGet("RVMProgram compileAndLink(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+		compileAndLinkN = safeGet("list[RVMProgram] compileAndLink(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
 		compileAndMergeIncremental 
-						= rvm.getOverloadedFunction("RVMProgram compileAndMergeIncremental(str qname, bool reuseConfig, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
-		rascalTests   	= rvm.getOverloadedFunction("value rascalTests(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool recompile)");
-//		bootstrapRascalParser = rvm.getOverloadedFunction("void bootstrapRascalParser(loc src)");
+						= safeGet("RVMProgram compileAndMergeIncremental(str qname, bool reuseConfig, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+		
+		rascalTests   	= safeGet("value rascalTests(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool recompile)");
+//		bootstrapRascalParser = safeGet("void bootstrapRascalParser(loc src)");
 	}
 	
 	/**
