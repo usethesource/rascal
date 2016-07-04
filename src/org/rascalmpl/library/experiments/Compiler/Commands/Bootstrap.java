@@ -351,7 +351,8 @@ public class Bootstrap {
         time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
         time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel"));
         time("- compile ParserGenarator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator"));
-        time("- tests",                   () -> runTestModule   (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, result, testModules));
+        time("- compile tests",           () -> compileTests    (phase, classPath, bootPath, sourcePath, result));
+        time("- run tests",               () -> runTestModule   (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, result, testModules));
         
         return result;
     }
@@ -360,6 +361,16 @@ public class Bootstrap {
 
     private static String[] concat(String[]... arrays) {
         return Stream.of(arrays).flatMap(Stream::of).toArray(sz -> new String[sz]);
+    }
+    
+    private static void compileTests(int phase, String classPath, String boot, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage {
+        progress("\tcompiling tests (phase " + phase +")");
+        String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
+        String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[] {};
+
+        if (runCompiler(classPath, concat(concat(paths, otherArgs), testModules)) != 0) {
+            throw new BootstrapMessage(phase);
+        }
     }
     
     private static void compileModule(int phase, String classPath, String boot, String sourcePath, Path result,
