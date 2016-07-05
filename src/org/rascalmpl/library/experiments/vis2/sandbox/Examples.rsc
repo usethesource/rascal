@@ -43,52 +43,52 @@ void tbox3(){ ex("box3", box3); }
 
 // Nested box
 
-Figure WB = box(fillColor="white", size=<50,100>);
-Figure RB = box(fillColor="red", size=<20,20>);
+Figure WB(Alignment align) = box(fillColor="white", size=<50,100>, align = align);
+Figure RB(Alignment align) = box(fillColor="red", size=<20,20>, align = align);
 
-public Figure box4 =  box(fig=WB, fillColor="lightblue", size=<200,200>);
+public Figure box4 =  box(fig=WB(centerMid), fillColor="lightblue", size=<200,200>);
 void tbox4(){ ex("box4", box4); } 
 
-public Figure box5 = box(fig=WB, fillColor="lightblue", size=<200,200>, align=topLeft);
+public Figure box5 = box(fig=WB(topLeft), fillColor="lightblue", size=<200,200>);
 void tbox5(){ ex("box5", box5, debug = false); } 
 
-public Figure box6 = box( fig=WB, fillColor="lightblue", size=<200,200>, align=topRight);
+public Figure box6 = box( fig=WB(topRight), fillColor="lightblue", size=<200,200>);
 void tbox6(){ ex("box6", box6); } 
 
-public Figure box7 = box(fig=WB, fillColor="lightblue", size=<200,200>, align=bottomRight);
+public Figure box7 = box(fig=WB(bottomRight), fillColor="lightblue", size=<200,200>);
 void tbox7(){ ex("box7", box7); } 
 
-public Figure box8 = box(fig=WB, fillColor="lightblue", size=<200,200>, align=bottomLeft);
+public Figure box8 = box(fig=WB(bottomLeft), fillColor="lightblue", size=<200,200>);
 void tbox8(){ ex("box8", box8); } 
 
-public Figure box9 = box(fig=WB, fillColor="lightblue", size=<200,200>, gap=<20,10>, align=topLeft);
+public Figure box9 = box(fig=WB(topLeft), fillColor="lightblue", size=<200,200>, gap=<20,10>);
 void tbox9(){ ex("box9", box9); } 
 
-public Figure box10 = box(fig=WB, fillColor="lightblue", size=<200,200>, gap=<10,10>, align=topRight);
+public Figure box10 = box(fig=WB(topRight), fillColor="lightblue", size=<200,200>, gap=<10,10>);
 void tbox10(){ ex("box10", box10); } 
 
-public Figure box11 = box(fig=WB, fillColor="lightblue", size=<200,200>, gap=<10,10>, align=bottomRight);
+public Figure box11 = box(fig=WB(bottomRight), fillColor="lightblue", size=<200,200>, gap=<10,10>);
 void tbox11(){ ex("box11", box11); } 
 
-public Figure box12 = box(fig=WB, fillColor="lightblue", size=<200,200>, gap=<10,10>, align=bottomLeft);
+public Figure box12 = box(fig=WB(bottomLeft), fillColor="lightblue", size=<200,200>, gap=<10,10>);
 void tbox12(){ ex("box12", box12); } 
 
-public Figure box13 = box(fig=box(fig=RB, fillColor="white", size=<50,100>), fillColor="lightblue", size=<200,200>, gap=<10,10>, align=bottomLeft);
+public Figure box13 = box(fig=box(fig=RB(bottomLeft), fillColor="white", size=<50,100>), fillColor="blue", size=<200,200>, gap=<10,10>);
 void tbox13(){ ex("box13", box13); } 
 
-public Figure box14 = box(fig=box(fig=RB, fillColor="white", size=<50,100>, align=topLeft), fillColor="lightblue", size=<200,200>, gap=<10,10>, align=bottomLeft);
+public Figure box14 = box(fig=box(fig=RB(topLeft), fillColor="white", size=<50,100>, align=topLeft), fillColor="lightblue", size=<200,200>, gap=<10,10>);
 void tbox14(){ ex("box14", box14); }
 
-public Figure box15 = box(fig=box(fig=RB, fillColor="white", size=<50,100>, align=topRight), fillColor="lightblue", size=<200,200>, gap=<10,10>, align=bottomLeft);
+public Figure box15 = box(fig=box(fig=RB(topRight), fillColor="white", size=<50,100>, align=topRight), fillColor="lightblue", size=<200,200>, gap=<10,10>);
 void tbox15(){ ex("box15", box15); }
 
-public Figure box16 = box(fig=box(fig=RB, fillColor="white", size=<50,100>, align=bottomRight), fillColor="lightblue", size=<200,200>, gap=<10,10>, align=bottomLeft);
+public Figure box16 = box(fig=box(fig=RB(bottomRight), fillColor="white", size=<50,100>, align=bottomRight), fillColor="lightblue", size=<200,200>, gap=<10,10>);
 void tbox16(){ ex("box16", box16); }
 
-public Figure box17 = box(fig=box(fig=RB, fillColor="white", size=<50,100>, align=bottomLeft), fillColor="lightblue", size=<200,200>, gap=<10,10>, align=bottomLeft);
+public Figure box17 = box(fig=box(fig=RB(bottomLeft), fillColor="white", size=<50,100>, align=bottomLeft), fillColor="lightblue", size=<200,200>, gap=<10,10>);
 void tbox17(){ ex("box17", box17); }
 
-public Figure box18 = box(fig=RB, fillColor="lightblue", grow=3);
+public Figure box18 = box(fig=RB(centerMid), fillColor="lightblue", grow=3);
 void tbox18(){ ex("box18", box18); }
 
 public Figure box19 = box(fig=text("Hello", fontSize=20), grow=2);
@@ -130,7 +130,7 @@ void tellipse4(){ ex("ellipse4", ellipse4); }
 public Figure ellipse5 = box(lineColor="red", fig=ellipse(rx=100, ry=75, lineWidth=10, lineColor="silver", lineOpacity=0.5));
 void tellipse5(){ ex("ellipse5", ellipse5, debug = false); }
 
-public Figure ellipse6 = box(lineColor="red", lineWidth=15, fig=ellipse(cx=100, cy=100, rx=100, ry=75, lineWidth=10, lineColor="silver", lineOpacity=0.5));
+public Figure ellipse6 = box(lineColor="red", lineWidth=15, fig=ellipse(rx=100, ry=75, lineWidth=10, lineColor="silver", lineOpacity=0.5));
 void tellipse6(){ ex("ellipse6", ellipse6); }
 
 void ellipses() {
@@ -223,7 +223,7 @@ void ngons(){
 							[ngon1, ngon2, ngon3, ngon4, ngon5, ngon6],
 							[ngon7, ngon8, ngon9, ngon10, ngon11, ngon12],
 							[ngon13, ngon14, ngon15, ngon16, ngon17, ngon18]			    
-  						 ], align=topLeft));
+  						 ]));
 }
 
 /********************** polygon ******************************/
@@ -260,7 +260,7 @@ void polygons() {
   					   figArray=[
 							[polygon1, polygon2, polygon3, polygon4, polygon5],
                             [polygon6, polygon7, polygon8, polygon9]
-                            ], align=topLeft));
+                            ]));
 }
 
 /********************** shape ******************************/
@@ -321,18 +321,18 @@ void shapes(){
 
 // hcat  
 
-Figures rgbFigs = [box(fillColor="red",size=<50,100>), box(fillColor="green", size=<200,200>), box(fillColor="blue", size=<10,10>)];
+Figures rgbFigs(Alignment align=centerMid) = [box(fillColor="red",size=<50,100>, align = align), box(fillColor="green", size=<200,200>, align = align), box(fillColor="blue", size=<10,10>, align = align)];
 
-public Figure hcat1 = hcat(figs=rgbFigs, align=topMid);    
+public Figure hcat1 = hcat(figs=rgbFigs(align=topMid));    
 void thcat1(){ ex("hcat1", hcat1); }
 
-public Figure hcat2 = hcat(figs=rgbFigs, align=centerMid);  
+public Figure hcat2 = hcat(figs=rgbFigs(align=centerMid));  
 void thcat2(){ ex("hcat2", hcat2); }
 
-public Figure hcat3 = hcat(figs=rgbFigs, align=bottomMid);  
+public Figure hcat3 = hcat(figs=rgbFigs(align=bottomMid));  
 void thcat3(){ ex("hcat3", hcat3); }
 
-public Figure hcat4 = hcat(figs=rgbFigs, align=bottomMid, gap=<10,10>);
+public Figure hcat4 = hcat(figs=rgbFigs(align=bottomMid), gap=<10,10>);
 void thcat4(){ ex("hcat4", hcat4); }
 
 // hcat in box
@@ -348,31 +348,31 @@ Figure ctFigs = hcat(align=centerMid, gap=<10,10>,
 				               box(fillColor="green", size=<200,200>), 
 				               box(fillColor="blue", size=<10,10>)
 				             ]);
-public Figure box_hcat1 = box(fig=tlFigs, fillColor="grey");
+public Figure box_hcat1 = box(fig=tlFigs, fillColor="lightgray");
 void tbox_hcat1(){ ex("box_hcat1", box_hcat1); }
 
-public Figure box_hcat2 = box(fig=tlFigs, fillColor="grey", size=<400,400>, align=topLeft);
+public Figure box_hcat2 = box(fig=tlFigs, fillColor="antiquewhite", size=<400,400>, align=topLeft);
 void tbox_hcat2(){ ex("box_hcat2", box_hcat2); }
 
-public Figure box_hcat3 = box(fig=tlFigs, fillColor="grey", size=<400,400>, align=topRight);
+public Figure box_hcat3 = box(fig=tlFigs, fillColor="lightgray", size=<400,400>, align=topRight);
 void tbox_hcat3(){ ex("box_hcat3", box_hcat3); }
 
-public Figure box_hcat4 = box(fig=tlFigs,fillColor="grey", size=<400,400>, align=bottomRight);
+public Figure box_hcat4 = box(fig=tlFigs,fillColor="lightgray", size=<400,400>, align=bottomRight);
 void tbox_hcat4(){ ex("box_hcat4", box_hcat4); }
 
-public Figure box_hcat5 = box(fig=tlFigs, fillColor="grey", size=<400,400>, align=bottomLeft);
+public Figure box_hcat5 = box(fig=tlFigs, fillColor="lightgray", size=<400,400>, align=bottomLeft);
 void tbox_hcat5(){ ex("box_hcat5", box_hcat5); }
 
-public Figure box_hcat6 = box(fig=tlFigs, fillColor="grey", size=<400,400>, align=topLeft);
+public Figure box_hcat6 = box(fig=tlFigs, fillColor="lightgray", size=<400,400>, align=topLeft);
 void tbox_hcat6(){ ex("box_hcat6", box_hcat6); }
 
-public Figure box_hcat7 = box(fig=ctFigs, fillColor="grey", size=<400,400>, align=topRight);
+public Figure box_hcat7 = box(fig=ctFigs, fillColor="lightgray", size=<400,400>, align=topRight);
 void tbox_hcat7(){ ex("box_hcat7", box_hcat7); }
 
-public Figure box_hcat8 = box(fig=ctFigs, fillColor="grey", size=<400,400>, align=bottomRight);
+public Figure box_hcat8 = box(fig=ctFigs, fillColor="lightgray", size=<400,400>, align=bottomRight);
 void tbox_hcat8(){ ex("box_hcat8", box_hcat8); }
 
-public Figure box_hcat9 = box(fig=ctFigs, fillColor="grey", size=<400,400>, align=bottomLeft);
+public Figure box_hcat9 = box(fig=ctFigs, fillColor="lightgray", size=<400,400>, align=bottomLeft);
 void tbox_hcat9(){ ex("box_hcat9", box_hcat9); }
 
 // hcat flex
@@ -425,16 +425,16 @@ void hcats(){
 
 // vcat
 
-public Figure vcat1 = vcat(figs=rgbFigs, align=topLeft);
+public Figure vcat1 = vcat(figs=rgbFigs(align=topLeft));
 void tvcat1(){ ex("vcat1", vcat1); }
 
-public Figure vcat2 = vcat(figs=rgbFigs, align=topMid);
+public Figure vcat2 = vcat(figs=rgbFigs(align=topMid));
 void tvcat2(){ ex("vcat2", vcat2); }
 
-public Figure vcat3 = vcat(figs=rgbFigs, align=topRight);
+public Figure vcat3 = vcat(figs=rgbFigs(align=topRight));
 void tvcat3(){ ex("vcat3", vcat3); }
 
-public Figure vcat4 = vcat(figs=rgbFigs, align=topRight, gap=<10,10>);
+public Figure vcat4 = vcat(figs=rgbFigs(align=topRight), gap=<10,10>);
 void tvcat4(){ ex("vcat4", vcat4); }
 
 

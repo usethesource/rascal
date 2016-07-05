@@ -89,7 +89,7 @@ public map[str, list[IFigure] ] defs = ();
 
 IFigure fig;
 
-int upperBound = 9999;
+int upperBound = 99999;
 int lowerBound = 2;
 
 int getN(IFigure fig1) = getN(getId(fig1));
@@ -394,7 +394,13 @@ bool isBigger(Figure f) {
 bool isRotate(Figure f) {
    return getKeywordParameters(f)["rotate"]?;
    }
-    
+   
+bool isAlign(Figure f) {
+   return getKeywordParameters(f)["align"]?;
+   }
+
+bool isAlign(Alignment align) = align!=<-1, -1>;
+
 map[str, value] makeMap(Prop p) {
    map[str, value] attr = getKeywordParameters(p.attr);
    map[str, value] style = getKeywordParameters(p.style);
@@ -619,7 +625,7 @@ public void _render(IFigure fig1, int width = 800, int height = 800,
      screenHeight = height;
      _display = display;
      str id = "figureArea";
-    str begintag= beginTag(id, align);
+    str begintag= beginTag(id, getAlign(fig1));
     str endtag = endTag(); 
     widget[id] = <(display?getRenderCallback(event):null), seq, id, begintag, endtag, 
         "
@@ -936,7 +942,6 @@ IFigure _text(str id, bool inHtml, Figure f, str s, str overflow, bool addSvgTag
     begintag+=isHtml?"\<div  id=\"<id>\"\>":"\<text id=\"<id>\"\>";
     int width = f.width;
     int height = f.height;
-    Alignment align =  width<0?topLeft:f.align; 
     str endtag = isHtml?"\</div\>":"\</text\>";
     if (!inHtml && isHtml) endtag += "\</foreignObject\>";
     if (tagSet) {
@@ -974,7 +979,7 @@ IFigure _text(str id, bool inHtml, Figure f, str s, str overflow, bool addSvgTag
         '; 
         'adjustText(\"<id>\");  
         "
-        , width, height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, align, getLineWidth(f), getLineColor(f), f.sizeFromParent, true >;
+        , width, height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, getLineWidth(f), getLineColor(f), f.sizeFromParent, true >;
        addState(f);
        widgetOrder+= id;
        return ifigure(id, []);
@@ -1227,7 +1232,7 @@ str beginTag(str id, Alignment align) {
            '\<td <vAlign(align)> <hAlign(align)> id=\"<id>_td\"\>";
     }
   
-str beginTag(str id, bool foreignObject, Alignment align, IFigure fig, int offset) {  
+str beginTag(str id, bool foreignObject, IFigure fig, Alignment align, int offset) {  
    str r =  foreignObject?
 "\<foreignObject id=\"<id>_fo\" x=\"<getAtX(fig)+offset>\" y=\"<getAtY(fig)+offset>\" width=\"<upperBound>px\" height=\"<upperBound>px\"\>    
 '<beginTag("<id>_fo_table", align)>
@@ -1238,8 +1243,8 @@ str beginTag(str id, bool foreignObject, Alignment align, IFigure fig, int offse
  
  // 
  
-str beginTag(str id, bool foreignObject, Alignment align, IFigure fig)
- = beginTag(id, foreignObject, align, fig, 0);
+str beginTag(str id, bool foreignObject, IFigure fig, Alignment align)
+ = beginTag(id, foreignObject, fig, align, 0);
  
 
 str endTag(bool foreignObject) {
@@ -1336,11 +1341,13 @@ bool hasInnerCircle(Figure f)  {
       int lw = getLineWidth(f);  
       // if (getAtX(fig)>0 || getAtY(fig)>0) f.align = topLeft
       if (emptyFigure():=f.fig) fo = false;
+      // Alignment align = isAlign(getAlign(fig))?getAlign(fig):f.align;
+      Alignment align = f.align;
       str begintag= 
          "
          '\<svg  xmlns = \'http://www.w3.org/2000/svg\'  id=\"<id>_svg\"\> <beginScale(f)> <beginRotate(f)>
          '\<rect id=\"<id>\" /\> 
-         '<beginTag("<id>", fo, f.align, fig, lw)>
+         '<beginTag("<id>", fo, fig, align, lw)>
          "; 
        str endtag =endTag(fo);
        endtag += endRotate(f);  
@@ -1461,6 +1468,8 @@ num cyL(Figure f) =
  IFigure _ellipse(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(0)) {
       int lw = getLineWidth(f);    
       if (emptyFigure():=f.fig) fo = false;
+      //Alignment align = isAlign(getAlign(fig))?getAlign(fig):f.align;
+      Alignment align = f.align;
       str tg = "";
       switch (f) {
           case ellipse(): {
@@ -1485,7 +1494,7 @@ num cyL(Figure f) =
            }
        str begintag =
          "\<svg  xmlns = \'http://www.w3.org/2000/svg\' id=\"<id>_svg\"\><beginScale(f)><beginRotate(f)>\<rect id=\"<id>_rect\"/\> \<<tg> id=\"<id>\"/\> 
-         '<beginTag("<id>", fo, f.align, fig, lw)>
+         '<beginTag("<id>", fo, fig, align, lw)>
          ";
        str endtag = endTag(fo);
        endtag += "<endRotate(f)><endScale(f)>\</svg\>"; 
@@ -1700,6 +1709,8 @@ str beginRotateNgon(Figure f) {
 IFigure _ngon(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(0)) {
        int lw = getLineWidth(f);
        if (iemptyFigure(_):=fig) fo = false;
+       // Alignment align = isAlign(getAlign(fig))?getAlign(fig):f.align;
+       Alignment align = f.align;
        if (f.r<0 && f.height>0 &&f.width>0) {
              int d = min([f.height, f.width]);
              f.r = (d)/2;
@@ -1713,7 +1724,7 @@ IFigure _ngon(str id, bool fo, Figure f,  IFigure fig = iemptyFigure(0)) {
        str begintag = "";
        begintag+=
          "\<svg <moveAt(fo, f)> id=\"<id>_svg\"\><beginScale(f)><beginRotateNgon(f)>\<polygon id=\"<id>\"/\>        
-         '<beginTag("<id>", fo, f.align, fig, corner(f))>
+         '<beginTag("<id>", fo, fig, align, corner(f))>
          ";
        str endtag =  endTag(fo); 
        endtag += "<endRotate(f)><endScale(f)>\</svg\>"; 
@@ -1738,12 +1749,14 @@ str vAlign(Alignment align) {
        if (align == bottomLeft || align == bottomMid || align == bottomRight) return "valign=\"bottom\"";
        if (align == centerLeft || align ==centerMid || align ==centerRight)  return "valign=\"middle\"";
        if (align == topLeft || align == topMid || align == topRight) return "valign=\"top\"";
+       return "";
        }
        
 str hAlign(Alignment align) {
        if (align == bottomLeft || align == centerLeft || align == topLeft) return "align=\"left\"";
        if (align == bottomMid || align == centerMid || align == topMid) return "align=\"center\"";
-       if (align == bottomRight || align == centerRight || align == topRight) return "align=\"right\"";    
+       if (align == bottomRight || align == centerRight || align == topRight) return "align=\"right\""; 
+       return "";   
        }
        
 str _padding(tuple[int, int, int, int] p) {
@@ -2231,7 +2244,9 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
    
  IFigure td(str id, Figure f, IFigure fig1, int width, int height, bool tr = false) {
     str begintag = tr?"\<tr\>":"";
-    begintag +="\<td  id=\"<id>\" <vAlign(f.align)> <hAlign(f.align)>\>";   
+    // Alignment align = isAlign(getAlign(fig1))?getAlign(fig1):f.align;
+    Alignment align = isAlign(f)?f.align:getAlign(fig1);
+    begintag +="\<td  id=\"<id>\" <vAlign(align)> <hAlign(align)>\>";   
     str endtag = "\</td\>";
     if (tr) endtag+="\</tr\>";
     widget[id] = <null, seq, id, begintag, endtag,

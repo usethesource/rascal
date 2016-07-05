@@ -25,7 +25,7 @@ public void standard() {
      return diff(ok, check);
      }
      
- Figure stack(Figure f) = vcat(vgap=4, figs=[box(fig=text("\<pre\><figToString(f)>\</pre\>", size=<800, 60>, overflow="auto"), fillColor = "beige"), f]);
+ Figure stack(Figure f) = vcat(align=centerMid, vgap=4, figs=[box(fig=text("\<pre\><figToString(f)>\</pre\>", size=<800, 60>, overflow="auto"), fillColor = "beige"), f]);
  
  Figure tests(  ) {
      return vcat(borderWidth=4, vgap=4, figs= mapper(
