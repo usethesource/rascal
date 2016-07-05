@@ -562,6 +562,7 @@ function _adjust(toId, fromId, hshrink, vshrink, toLw, n, angle, x, y, width,
 	to = d3.select("#" + toId + "_fo_table");
 	if (invalidW) {
 		 // alert("adjust:"+toId+":"+w+":"+toLw+":"+(w-toLw));
+		 d3.select("#" + fromId + "_"+toId).style("width", width);
 	     to.attr("w", w - toLw).style("width", w - toLw);
 	     d3.select("#" + toId).attr("w", w - toLw);
 	     d3.select("#" + toId + "_fo").attr("width", w - toLw);
@@ -569,6 +570,7 @@ function _adjust(toId, fromId, hshrink, vshrink, toLw, n, angle, x, y, width,
 	     d3.select("#" + toId + "_svg").attr("width", w + toLw + x);
 	}
 	if (invalidH) {
+		 // d3.select("#" + fromId + "_"+toId).style("height", height);
 	     to.attr("h", h - toLw).style("height", h - toLw);
 	     d3.select("#" + toId).attr("h", h - toLw);
 	     d3.select("#" + toId + "_fo").attr("height", h - toLw);
@@ -852,8 +854,12 @@ function adjustTableH(clients, from, lw, hpad, vpad, hgap, vgap) {
 	var nH = aUndefH.length;
 	var h = (height - sDefH) / nH;
 	var w = parseInt(width);
-	for (var i = 0; i < aUndefWH.length; i++) {
-		adjust1(from, aUndefWH[i], w, h);
+	for (var i = 0; i < aUndefH.length; i++) {
+		adjust1(from, aUndefH[i], w, h);
+	}
+	var aUndefW = clients.filter(undefW);
+	for (var i = 0; i < aUndefW.length; i++) {
+		adjust1(from, aUndefW[i], w, h);
 	}
 }
 

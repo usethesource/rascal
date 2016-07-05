@@ -297,12 +297,12 @@ void hilberts(){
 public Figure vennDiagram0() = overlay(
      size=<350, 150>,
      figs = [
-           box(fillColor="none", align = topLeft, size=<350, 150>,
-             fig = ellipse(width=200, height = 100, fillColor = "red", fillOpacity = 0.7))
-          ,box(fillColor="none",align = topRight, size=<350, 150>,
-             fig = ellipse(width=200, height = 100, fillColor = "green",fillOpacity = 0.7))
-          ,box(fillColor="none",align = bottomMid, size=<350, 150>,
-            fig = ellipse(width=200, height = 100, fillColor = "blue", fillOpacity = 0.7))
+           box(fillColor="none",  size=<350, 150>, align = topLeft,
+             fig = ellipse(width=200, height = 100, fillColor = "red",  fillOpacity = 0.7))
+          ,box(fillColor="none", size=<350, 150>, align = topRight,
+             fig = ellipse(width=200, height = 100, fillColor = "green", fillOpacity = 0.7))
+          ,box(fillColor="none", size=<350, 150>,align = bottomMid,
+            fig = ellipse(width=200, height = 100, fillColor = "blue",  fillOpacity = 0.7))
      ]
      );
 
@@ -585,7 +585,7 @@ public Figure shrink(bool tt) {resetColor();return grid(size=<400, 400>, figArra
 void tshrink() = render(box(fig=shrink(false), size=<400, 400>));
 
 Figure _tetris1() = 
-       grid( vgap=0, hgap= 0
+       grid( vgap=0, hgap= 0, align = bottomRight
        , 
        figArray=[
        [place("blue"), emptyFigure()]
@@ -596,7 +596,7 @@ Figure _tetris1() =
 Figure emptFigure() = box(size=<10, 10>);
        
 Figure _tetris2() = 
-       grid(vgap=0, hgap= 0,
+       grid(vgap=0, hgap= 0,align = bottomRight,
        figArray=[
        [emptyFigure(), place("blue")]
       ,[emptyFigure(), place("blue")]
@@ -604,21 +604,21 @@ Figure _tetris2() =
        ]);
        
 Figure _tetris3() = 
-       grid(vgap=0, hgap= 0,
+       grid(vgap=0, hgap= 0,align = bottomRight,
        figArray=[
        [place("red"), place("red")]
       ,[place("red"), place("red")]
        ]);
        
 Figure _tetris4() = 
-       grid(vgap=0, hgap= 0,
+       grid(vgap=0, hgap= 0, align = bottomRight,
        figArray=[
        [place("yellow"), place("yellow"), place("yellow")]
       ,[emptyFigure(), place("yellow"), emptyFigure()]
        ]);
        
 Figure _tetris5() = 
-       grid(vgap=0, hgap= 0, 
+       grid(vgap=0, hgap= 0, align = bottomRight,
        figArray=[
        [emptyFigure(), place("darkmagenta"), place("darkmagenta")]
       ,[place("darkmagenta"), place("darkmagenta"), emptyFigure()]
@@ -626,6 +626,7 @@ Figure _tetris5() =
        
 Figure _tetris6() = 
        grid(vgap=0, hgap= 0, 
+       align = bottomRight,
        figArray=[
        [place("brown")]
       ,[place("brown")]
@@ -634,7 +635,7 @@ Figure _tetris6() =
        ]);
        
 public Figure tetris() = hcat(borderStyle="ridge", borderWidth = 4, 
-lineWidth = 1, align = bottomRight, 
+lineWidth = 1, 
 figs=[_tetris1(), _tetris2(), _tetris3(), _tetris4(), _tetris5(), _tetris6()]);
        
 public void tetris1() = render(tetris());
