@@ -256,8 +256,8 @@ public class Bootstrap {
                 // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
                 time("Copying bootstrapped files", () -> copyResult(kernel[4], targetFolder.resolve("boot")));
 
-                time("Compiling final tests", () -> compileTests(5, targetFolder + ":" + classpath, "|boot:///|", "|std:///|", tmpDir.resolve("test-bins")));
-                time("Running final tests", () -> runTestModule(5, targetFolder + ":" + classpath,  "|boot:///|", "|std:///|", tmpDir.resolve("test-bins"), testModules));
+                time("Compiling final tests", () -> compileTests (5, rvm[1], "|boot:///|", "|std:///|", tmpDir.resolve("test-bins")));
+                time("Running final tests"  , () -> runTests(5, rvm[1], "|boot:///|", "|std:///|", tmpDir.resolve("test-bins")));
 
                 Files.write(bootstrapMarker, versionToUse.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE_NEW);
             } 
@@ -353,7 +353,7 @@ public class Bootstrap {
         time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel"));
         time("- compile ParserGenarator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator"));
         time("- compile tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, result));
-        time("- run tests",               () -> runTestModule   (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, result, testModules));
+        time("- run tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, result));
         
         return result;
     }
@@ -396,13 +396,13 @@ public class Bootstrap {
         }
     }
     
-    private static void runTestModule(int phase, String classPath, String boot, String sourcePath, Path result, String[] modules) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
+    private static void runTests(int phase, String classPath, String boot, String sourcePath, Path result) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
         progress("Running tests with the results of " + phase);
         String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
         String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
 
-        if (runChildProcess(concat(javaCmd, paths, otherArgs, modules)) != 0) { 
+        if (runChildProcess(concat(javaCmd, paths, otherArgs, testModules)) != 0) { 
             throw new BootstrapMessage(phase);
         }
     }
