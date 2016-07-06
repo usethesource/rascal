@@ -131,6 +131,8 @@ public class Bootstrap {
     }
     
     public static void main(String[] args) throws Exception {
+        initializeShutdownhook();
+        
         if (args.length < 5) {
         	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder> [--verbose] [--clean] (you provided " + args.length + " arguments instead)");
         	System.exit(1);
@@ -142,21 +144,9 @@ public class Bootstrap {
         String versionToUse = args[arg++];
         String versionToBuild = args[arg++];
         
-        Thread destroyChild = new Thread() {
-            public void run() {
-                synchronized (Bootstrap.class) {
-                    if (childProcess != null && childProcess.isAlive()) {
-                        childProcess.destroy();
-                    }
-                }
-            }
-        };
-        
         if (versionToUse.equals("unstable")) {
             info("YOU ARE NOT SUPPOSED TO BOOTSTRAP OFF AN UNSTABLE VERSION! ***ONLY FOR DEBUGGING PURPOSES***");
         }
-        
-        Runtime.getRuntime().addShutdownHook(destroyChild);
         
         Path sourceFolder = new File(args[arg++]).toPath();
         if (!Files.exists(sourceFolder.resolve("org/rascalmpl/library/Prelude.rsc"))) {
@@ -186,32 +176,7 @@ public class Bootstrap {
             }
         }
         
-        Path tmpDir = new File(System.getProperty("java.io.tmpdir") + "/rascal-boot").toPath();
-        if (cleanTempDir && Files.exists(tmpDir)) {
-            info("Removing files in" + tmpDir.toString());
-            try {
-                Files.walkFileTree(tmpDir, new SimpleFileVisitor<Path>() {
-                    @Override
-                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                        Files.delete(dir);
-                        return super.postVisitDirectory(dir, exc);
-                    }
-                    @Override
-                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        Files.delete(file);
-                        return super.visitFile(file, attrs);
-                    }
-
-                });
-            } catch (IOException e) {
-                System.err.println(e);
-                System.err.println("Error cleaning temp directory");
-                System.exit(1);
-                return;
-            }
-        }
-        tmpDir.toFile().mkdir();
-        info("bootstrap folder: " + tmpDir.toAbsolutePath());
+        Path tmpDir = initializeTemporaryFolder(cleanTempDir);
 
         if (existsDeployedVersion(tmpDir, versionToBuild)) {
             System.out.println("INFO: Got the kernel version to compile: " + versionToBuild + " already from existing deployed build.");
@@ -268,6 +233,50 @@ public class Bootstrap {
             } 
         });
         printTimings();
+    }
+
+    private static void initializeShutdownhook() {
+        Thread destroyChild = new Thread() {
+            public void run() {
+                synchronized (Bootstrap.class) {
+                    if (childProcess != null && childProcess.isAlive()) {
+                        childProcess.destroy();
+                    }
+                }
+            }
+        };
+        
+        Runtime.getRuntime().addShutdownHook(destroyChild);
+    }
+
+    private static Path initializeTemporaryFolder(boolean cleanTempDir) {
+        Path tmpDir = new File(System.getProperty("java.io.tmpdir") + "/rascal-boot").toPath();
+        if (cleanTempDir && Files.exists(tmpDir)) {
+            info("Removing files in" + tmpDir.toString());
+            try {
+                Files.walkFileTree(tmpDir, new SimpleFileVisitor<Path>() {
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                        Files.delete(dir);
+                        return super.postVisitDirectory(dir, exc);
+                    }
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        Files.delete(file);
+                        return super.visitFile(file, attrs);
+                    }
+
+                });
+            } catch (IOException e) {
+                System.err.println(e);
+                System.err.println("Error cleaning temp directory");
+                System.exit(1);
+                return null;
+            }
+        }
+        tmpDir.toFile().mkdir();
+        info("bootstrap folder: " + tmpDir.toAbsolutePath());
+        return tmpDir;
     }
     
 	private static void copyResult(String sourceString, Path targetPath) throws IOException {
