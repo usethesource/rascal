@@ -256,7 +256,8 @@ public class Bootstrap {
                 // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
                 time("Copying bootstrapped files", () -> copyResult(kernel[4], targetFolder.resolve("boot")));
 
-                time("Running final test", () -> runTestModule(5, targetFolder + ":" + classpath,  "|boot:///|", "|std:///|", tmpDir.resolve("test-bins"), testModules));
+                time("Compiling final tests", () -> compileTests(5, targetFolder + ":" + classpath, "|boot:///|", "|std:///|", tmpDir.resolve("test-bins")));
+                time("Running final tests", () -> runTestModule(5, targetFolder + ":" + classpath,  "|boot:///|", "|std:///|", tmpDir.resolve("test-bins"), testModules));
 
                 Files.write(bootstrapMarker, versionToUse.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE_NEW);
             } 
