@@ -580,7 +580,7 @@ function _adjust(toId, fromId, hshrink, vshrink, toLw, n, angle, x, y, width,
 	to.attr("pointer-events", "none");
 }
 
-function figShrink(id, hshrink, vshrink, lw, n, angle) {
+function figShrink(id, hshrink, vshrink, lw, n, angle, align) {
 	// alert("fig");
 	return {
 		id : id,
@@ -588,11 +588,12 @@ function figShrink(id, hshrink, vshrink, lw, n, angle) {
 		vshrink : vshrink,
 		lw : lw,
 		n : n,
-		angle : angle
+		angle : angle,
+		align : align
 	};
 }
 
-function figGrow(id, hgrow, vgrow, lw, n, angle, x, y) {
+function figGrow(id, hgrow, vgrow, lw, n, angle, align, x, y) {
 	return {
 		id : id,
 		hgrow : hgrow,
@@ -600,6 +601,7 @@ function figGrow(id, hgrow, vgrow, lw, n, angle, x, y) {
 		lw : lw,
 		n : n,
 		angle : angle,
+		align : align,
 		x : x,
 		y : y
 	};
@@ -815,6 +817,54 @@ function adjustOverlay(clients, id1, lw, hpad, vpad) {
 			c.attr("width", width).attr("height", height);
 		}
 	}
+	for (var i = 0; i < clients.length; i++) {
+		var e = d3.select("#" + clients[i].id + "_svg");
+		if (!e.empty()) {
+		   var d = d3.select("#" + clients[i].id);
+		   var w = parseInt(d.attr("width")) + parseInt(e.attr("x"));
+		   var h =  parseInt(d.attr("height")) + parseInt(e.attr("y"));
+		   var x = parseInt(e.attr("x"));
+		   var y = parseInt(e.attr("y"));
+		   // alert(clients);
+		   var align = clients[i].align;
+		   e.attr("x", x+xAlign(align, width, w));
+		   e.attr("y", y+yAlign(align, height, h));
+		}
+	}
+}
+
+function xAlign(align, width, w) {
+	 switch(align) {
+	    case "topLeft":
+	    case "centerLeft":
+	    case "bottomLeft":
+	    	return 0;
+	    case "topMid":
+	    case "centerMid":
+	    case "bottomMid":
+	    	return (width-w)/2;
+	    case "topRight":
+	    case "centerRight":
+	    case "bottomRight":
+	    	return (width-w);
+	 }
+}
+
+function yAlign(align, height, h) {
+	 switch(align) {
+	    case "topLeft":
+	    case "topMid":
+	    case "topRight":
+	    	return 0;
+	    case "centerLeft":
+	    case "centerMid":
+	    case "centerRight":
+	    	return (height-h)/2;  
+	    case "bottomLeft":
+	    case "bottomMid":
+	    case "bottomRight":
+	    	return (height-h);
+	 }
 }
 
 function adjustTableW(clients, from, lw, hpad, vpad, hgap, vgap) {
