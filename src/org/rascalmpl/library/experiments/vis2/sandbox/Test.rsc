@@ -358,5 +358,12 @@ Figure hc() = hcat(size=<200, 100>, figs=[box(width=10, fillColor="yellow"), box
 
 void thc() = render(hc()/*, javaLoc=|file:///ufs/bertl/jdk1.8.0_77|*/);
 
- 
+Figure ovl() = box(fig=overlay(size=<400, 400>, figs=[
+          box(size=<50, 50>, fillColor="red", cellAlign=bottomLeft)
+          ,box(size=<50, 50>, fillColor="yellow", cellAlign=topRight)
+          ,box(size=<50, 50>, fillColor="green", cellAlign=centerMid)
+          ]
+          ));
+          
+ void tovl() = render(ovl()/*, javaLoc=|file:///ufs/bertl/jdk1.8.0_77|*/);
                  
