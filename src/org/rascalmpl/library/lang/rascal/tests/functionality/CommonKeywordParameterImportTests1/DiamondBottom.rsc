@@ -4,4 +4,4 @@ import lang::rascal::tests::functionality::CommonKeywordParameterImportTests1::D
 import lang::rascal::tests::functionality::CommonKeywordParameterImportTests1::DiamondRight;
 import lang::rascal::tests::functionality::CommonKeywordParameterImportTests1::DiamondTop;
 
-test bool diamondTest() = x().left == x().right; 
+test bool diamondTest() = x().left == x().right;  
