@@ -13,7 +13,7 @@ module lang::javascript::saner::Syntax
 
 start syntax Source 
   = source: Statement* statements
-  ;
+  ; 
 
 syntax Statement 
   = varDecl: VarDecl varDecl
@@ -30,7 +30,7 @@ syntax Statement
   | forDo: "for" "(" {Expression ","}* inits ";" {Expression ","}* conds ";" {Expression ","}* ops ")" Statement body
   | forDoDeclarations: "for" "(" "var" {VariableDeclarationNoIn ","}+ decls ";" {Expression ","}* conds ";" {Expression ","}* ops ")" Statement body  
   | forIn: "for" "(" Expression var "in" Expression obj ")" Statement body
-  | forInDeclaration: "for" "(" "var" Id var "in" Expression obj ")" Statement body
+  | forInDeclaration: "for" "(" "var" Id varId "in" Expression obj ")" Statement body
   | with: "with" "(" Expression scope ")" Statement body
 
   // Non local control flow
@@ -46,9 +46,9 @@ syntax Statement
   | labeled: Id label ":" Statement statement
  
   | switchCase: "switch" "(" Expression cond ")" "{" CaseClause* clauses "}"
-  | tryCatch: "try" Statement body "catch" "(" Id var ")" Statement catchBody
+  | tryCatch: "try" Statement body "catch" "(" Id varId ")" Statement catchBody
   | tryFinally: "try" Statement body "finally" Statement finallyBody
-  | tryCatchFinally: "try" Statement body "catch" "(" Id var ")" Statement catchBody "finally" Statement finallyBody
+  | tryCatchFinally: "try" Statement body "catch" "(" Id varId ")" Statement catchBody "finally" Statement finallyBody
   ;
 
 syntax VariableDeclaration 
@@ -83,8 +83,8 @@ syntax Expression
   | literal: Literal literal
   | bracket \bracket: "(" Expression arg ")" 
   | function: Function function
-  > property: Expression obj "." Id field 
-  | call: Expression func "(" { Expression ","}* args ")" 
+  > property: Expression obj "." Id fieldId 
+  | call: Expression func "(" { Expression ","}* params ")" 
   | member: Expression obj "[" Expression field "]" 
   > new: "new" Expression cons
   > postIncr: Expression arg "++"
