@@ -28,7 +28,7 @@ public class ExecuteProgram {
 			) throws IOException {
 
 		RVMExecutable exec = ExecutionTools.link(rvmProgram, jvm);
-		exec.write(rvmProgramLoc);
+		exec.writeRVM(rvmProgramLoc);
 	}
 	
 	// Library function to execute a RVMProgram
