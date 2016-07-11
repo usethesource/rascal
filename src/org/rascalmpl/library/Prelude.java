@@ -74,6 +74,9 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FSTSerializableIValue2;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMIValueReader;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMIValueWriter;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -3388,7 +3391,14 @@ public class Prelude {
 		Type start = tr.valueToType((IConstructor) type, store);
 		
 		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(loc)) {
-			return new BinaryValueReader().read(values, store, start, in);
+			//return new BinaryValueReader().read(values, store, start, in);
+			RVMIValueReader deser = new RVMIValueReader(in, values, store);
+			IValue val = deser.readValue();
+			if(val.getType().isSubtypeOf(start)){
+				return val;
+			} else {
+			throw RuntimeExceptionFactory.io(values.string("Requested type " + start + ", but found " + val.getType()), null, null);
+			}
 		}
 		catch (IOException e) {
 			System.err.println("readBinaryValueFile: " + loc + " throws " + e.getMessage());
@@ -3431,7 +3441,10 @@ public class Prelude {
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression){
     	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
 		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
-			new BinaryValueWriter().write(value, out, compression.getValue());
+			//new BinaryValueWriter().write(value, out, compression.getValue());
+			RVMIValueWriter ser = new RVMIValueWriter(out);
+			ser.writeValue(value);
+			ser.close();
 		}
 		catch (IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
