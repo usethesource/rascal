@@ -29,7 +29,7 @@ data TYPE =
 
 data BASE = intType() | realType() ;
 
-bool base_subtype(BASE b, BASE b) = true;
+bool base_subtype(BASE b, b) = true;
 bool base_subtype(intType(), realType()) = true;
 
 default bool base_subtype(BASE b1, BASE b2) = false;
