@@ -283,7 +283,7 @@ public data Figure(
 // Figure transformations
 
    | atXY(int x, int y, Figure fig)	
-   | atXY(tuple[int x, int y], Figure fig)			// Move to Alignment relative to origin of enclosing Figure
+   | atXY(tuple[int x, int y] pos, Figure fig)			// Move to Alignment relative to origin of enclosing Figure
    | atX(int x, Figure fig)				// TODO: how to handle negative values?
    | atY(int y, Figure fig)
    

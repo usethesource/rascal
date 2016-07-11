@@ -4,18 +4,14 @@ import experiments::vis2::sandbox::Figure;
 import util::Math;
 import Prelude;
 
-Vertices flowShape1(num d) {
-     return [line(x-d*x*(1-x), x+d*x*(1-x))| x<-[0.1,0.2..1.1]];
-     }
+Vertices flowShape1(num d) = [line(x-d*x*(1-x), x+d*x*(1-x))| x<-[0.1,0.2..1.1]];
      
-Vertices flowShape2(num d) {
-     return [line(x+d*x*(1-x), x-d*x*(1-x))| x<-[1,0.9..0]];
-     }
+Vertices flowShape2(num d) = [line(x+d*x*(1-x), x-d*x*(1-x))| x<-[1,0.9..0]];
 
 Figure leaf(int a) {
-         int w = 50; int h = 50;
-         num d = 0.5*sqrt(2);
-         return 
+    int w = 50; int h = 50;
+    num d = 0.5*sqrt(2);
+    return 
            rotateDeg(a, 
            box(size=<w, h>, 
             fig = shape([move(0,0)]+flowShape1(0.5)+flowShape2(0.5)
