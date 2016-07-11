@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.*;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableReader;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableWriter;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
@@ -868,6 +870,111 @@ public class CodeBlock implements Serializable {
 			gen.emitPanicReturn();
 		}
 	}
+	
+	public void write(RVMExecutableWriter out) throws IOException {
+		int n;
+
+		// private String name;
+
+		out.writeJString(name);
+
+		// private Map<IValue, Integer> constantMap;	
+		// private ArrayList<IValue> constantStore;	
+		// private IValue[] finalConstantStore;
+
+		n = finalConstantStore.length;
+		out.writeInt(n);
+		for(int i = 0; i < n; i++){
+			out.writeValue(finalConstantStore[i]);
+		}
+
+		// private Map<Type, Integer> typeConstantMap;
+		// private ArrayList<Type> typeConstantStore;
+		// private Type[] finalTypeConstantStore;
+
+		n = finalTypeConstantStore.length;
+		out.writeInt(n);
+		for(int i = 0; i < n; i++){
+			out.writeType(finalTypeConstantStore[i]);
+		}	
+
+		// private Map<String, Integer> functionMap;
+
+		out.writeMapStringInt(functionMap);
+
+		// private Map<String, Integer> resolver;
+
+		out.writeMapStringInt(resolver);
+
+		// private Map<String, Integer> constructorMap;
+
+		out.writeMapStringInt(constructorMap);
+
+		// public int[] finalCode;
+
+		out.writeLongArray(finalCode);
+	}
+	
+	public static CodeBlock read(RVMExecutableReader in) throws IOException 
+	{
+		int n;
+
+		// private String name;
+
+		String name = (String) in.readJString();
+
+		// private Map<IValue, Integer> constantMap;	
+		// private ArrayList<IValue> constantStore;	
+		// private IValue[] finalConstantStore;
+
+		n = in.readInt();
+		Map<IValue,Integer> constantMap = new HashMap<IValue, Integer> ();
+		ArrayList<IValue> constantStore = new ArrayList<IValue>();
+		IValue[] finalConstantStore = new IValue[n];
+
+		for(int i = 0; i < n; i++){
+			IValue val = in.readValue();
+			constantMap.put(val, i);
+			constantStore.add(i, val);
+			finalConstantStore[i] = val;
+		}
+
+		// private Map<Type, Integer> typeConstantMap;
+		// private ArrayList<Type> typeConstantStore;	
+		// private Type[] finalTypeConstantStore;
+		
+		n = in.readInt();
+		Map<Type, Integer> typeConstantMap = new HashMap<Type, Integer>();
+		ArrayList<Type> typeConstantStore = new ArrayList<Type>();
+		Type[] finalTypeConstantStore = new Type[n];
+
+		for(int i = 0; i < n; i++){
+
+			Type type = in.readType();
+			typeConstantMap.put(type, i);
+			typeConstantStore.add(i, type);
+			finalTypeConstantStore[i] = type;
+		}	
+
+		// private Map<String, Integer> functionMap;
+		
+		Map<String, Integer> functionMap =  in.readMapStringInt();
+
+		// private Map<String, Integer> resolver;
+		
+		Map<String, Integer> resolver = in.readMapStringInt();
+
+		// private Map<String, Integer> constructorMap;
+		
+		Map<String, Integer> constructorMap = in.readMapStringInt();
+
+		// public int[] finalCode;
+		
+		long[] finalCode = in.readLongArray();
+
+		return new CodeBlock(name, constantMap, constantStore, finalConstantStore, typeConstantMap, typeConstantStore, finalTypeConstantStore, 
+				functionMap, resolver, constructorMap, finalCode);
+	}
 }
 
 class LabelInfo {
@@ -923,7 +1030,7 @@ class FSTCodeBlockSerializer extends FSTBasicObjectSerializer {
 		n = cb.finalConstantStore.length;
 		out.writeObject(n);
 		for(int i = 0; i < n; i++){
-			out.writeObject(new FSTSerializableIValue(cb.finalConstantStore[i]));
+			out.writeObject(new FSTSerializableIValue2(cb.finalConstantStore[i]));
 		}
 
 		// private Map<Type, Integer> typeConstantMap;
@@ -976,6 +1083,7 @@ class FSTCodeBlockSerializer extends FSTBasicObjectSerializer {
 		IValue[] finalConstantStore = new IValue[n];
 
 		for(int i = 0; i < n; i++){
+			System.out.println("i = " + i);
 			IValue val = (IValue) in.readObject();
 			constantMap.put(val, i);
 			constantStore.add(i, val);
@@ -1008,8 +1116,7 @@ class FSTCodeBlockSerializer extends FSTBasicObjectSerializer {
 		Map<String, Integer> resolver = (HashMap<String, Integer>) in.readObject();
 
 		// private Map<String, Integer> constructorMap;
-		
-		Map<String, Integer> constructorMap = (HashMap<String, Integer>) in.readObject();
+				Map<String, Integer> constructorMap = (HashMap<String, Integer>) in.readObject();
 
 		// public int[] finalCode;
 		

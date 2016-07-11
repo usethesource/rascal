@@ -6,6 +6,8 @@ import java.lang.ref.SoftReference;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableReader;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableWriter;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
@@ -249,6 +251,207 @@ public class Function implements Serializable {
 		return sb.toString();
 	}
 	
+	public void write(RVMExecutableWriter out)	throws IOException {
+
+		// String name;
+		out.writeJString(name);
+
+		// Type ftype;
+		out.writeType(ftype);
+
+		// int scopeId;
+		out.writeInt(scopeId);
+
+		// private String funIn;
+		out.writeJString(funIn);
+
+		// int scopeIn = -1;
+		out.writeInt(scopeIn);
+
+		// int nformals;
+		out.writeInt(nformals);
+
+		// int nlocals;
+		out.writeInt(getNlocals());
+
+		// boolean isDefault;
+		out.writeBool(isDefault);
+
+		// int maxstack;
+		out.writeInt(maxstack);
+
+		// CodeBlock codeblock;
+		codeblock.write(out);
+
+		// IValue[] constantStore;
+		int n = constantStore.length;
+		out.writeInt(n);
+
+		for(int i = 0; i < n; i++){
+			out.writeValue(constantStore[i]);
+		}
+
+		// Type[] typeConstantStore;
+		n = typeConstantStore.length;
+		out.writeInt(n);
+
+		for(int i = 0; i < n; i++){
+			out.writeType(RascalExecutionContext.shareTypeConstant(typeConstantStore[i]));
+		}
+
+		// boolean concreteArg = false;
+		out.writeBool(concreteArg);
+
+		// int abstractFingerprint = 0;
+		out.writeInt(abstractFingerprint);
+
+		// int concreteFingerprint = 0;
+		out.writeInt(concreteFingerprint);
+
+		// int[] froms;
+		out.writeIntArray(froms);
+
+		// int[] tos;
+		out.writeIntArray(tos);
+
+		// int[] types;
+		out.writeIntArray(types);
+
+		// int[] handlers;
+		out.writeIntArray(handlers);
+
+		// int[] fromSPs;
+		out.writeIntArray(fromSPs);
+
+		// int lastHandler = -1;
+		out.writeInt(lastHandler);
+		
+		//public Integer funId; 
+		out.writeInt(funId);
+
+		// boolean isCoroutine = false;
+		out.writeBool(isCoroutine);
+
+		// int[] refs;
+		out.writeIntArray(refs);
+
+		// boolean isVarArgs = false;
+		out.writeBool(isVarArgs);
+
+		// ISourceLocation src;
+		out.writeValue(src);
+
+		// IMap localNames;
+		out.writeValue(localNames);
+
+		// int continuationPoints
+		out.writeInt(continuationPoints);
+	}
+	
+	public static Function read(RVMExecutableReader in) throws IOException 
+	{
+
+		// String name;
+		String name = in.readJString();
+
+		// Type ftype;
+		Type ftype = in.readType();
+
+		// int scopeId;
+		Integer scopeId = in.readInt();
+
+		// private String funIn;
+		String funIn = in.readJString();
+
+		// int scopeIn = -1;
+		Integer scopeIn = in.readInt();
+
+		// int nformals;
+		Integer nformals = in.readInt();
+
+		// int nlocals;
+		Integer nlocals = in.readInt();
+
+		// boolean isDefault;
+		Boolean isDefault = in.readBool();
+
+		// int maxstack;
+		Integer maxstack = in.readInt();
+
+		// CodeBlock codeblock;
+		CodeBlock codeblock = CodeBlock.read(in);
+
+		// IValue[] constantStore;
+		int n = in.readInt();
+		IValue[] constantStore = new IValue[n];
+
+		for(int i = 0; i < n; i++){
+			constantStore[i] = in.readValue();
+		}
+
+		// Type[] typeConstantStore;
+		n = in.readInt();
+		Type[] typeConstantStore = new Type[n];
+
+		for(int i = 0; i < n; i++){
+			typeConstantStore[i] = RascalExecutionContext.shareTypeConstant(in.readType());
+		}
+
+		// boolean concreteArg = false;
+		Boolean concreteArg = in.readBool();
+
+		// int abstractFingerprint = 0;
+		Integer abstractFingerprint = in.readInt();
+
+		// int concreteFingerprint = 0;
+		Integer concreteFingerprint = in.readInt();
+
+		// int[] froms;
+		int[] froms = in.readIntArray();
+
+		// int[] tos;
+		int[] tos = in.readIntArray();
+
+		// int[] types;
+		int[] types = in.readIntArray();
+
+		// int[] handlers;
+		int[] handlers = in.readIntArray();
+
+		// int[] fromSPs;
+		int[] fromSPs = in.readIntArray();
+
+		// int lastHandler = -1;
+		Integer lastHandler = in.readInt();
+		
+		//public Integer funId; 
+		Integer funId = in.readInt();
+
+		// boolean isCoroutine = false;
+		Boolean isCoroutine = in.readBool();
+
+		// int[] refs;
+		int[] refs = in.readIntArray();
+
+		// boolean isVarArgs = false;
+		Boolean isVarArgs = (Boolean)in.readBool();
+
+		// ISourceLocation src;
+		ISourceLocation src = (ISourceLocation) in.readValue();
+
+		// IMap localNames;
+		IMap localNames = (IMap) in.readValue();
+		
+		// int continuationPoints
+		Integer continuationPoints = in.readInt();
+		
+		Function func = new Function(name, ftype, funIn, nformals, nlocals, isDefault, localNames, maxstack, concreteArg, abstractFingerprint, concreteFingerprint, 
+				codeblock, src, scopeIn, constantStore, typeConstantStore,
+				froms, tos, types, handlers, fromSPs, lastHandler, scopeId,
+				isCoroutine, refs, isVarArgs, continuationPoints);
+		func.funId = funId;
+		return func;
+	}
 }
 
 /**
@@ -308,7 +511,7 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		out.writeObject(n);
 
 		for(int i = 0; i < n; i++){
-			out.writeObject(new FSTSerializableIValue(fun.constantStore[i]));
+			out.writeObject(new FSTSerializableIValue2(fun.constantStore[i]));
 		}
 
 		// Type[] typeConstantStore;
@@ -359,10 +562,10 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		out.writeObject(fun.isVarArgs);
 
 		// ISourceLocation src;
-		out.writeObject(new FSTSerializableIValue(fun.src));
+		out.writeObject(new FSTSerializableIValue2(fun.src));
 
 		// IMap localNames;
-		out.writeObject(new FSTSerializableIValue(fun.localNames));
+		out.writeObject(new FSTSerializableIValue2(fun.localNames));
 
 		// int continuationPoints
 		out.writeObject(fun.continuationPoints);

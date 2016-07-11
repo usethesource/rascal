@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
+ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -11,6 +11,8 @@ import org.nustaq.serialization.FSTClazzInfo;
 import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableReader;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableWriter;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
@@ -329,6 +331,78 @@ public class OverloadedFunction implements Serializable {
 
 	public void setScopeIn(int scopeIn) {
 		this.scopeIn = scopeIn;
+	}
+	
+	public void write(RVMExecutableWriter out)throws IOException {
+
+		// String name;
+		out.writeJString(name);
+
+		// Type funType;
+		out.writeType(funType);
+		
+		// int[] functions;
+		out.writeIntArray(functions);
+		
+		// final int[] constructors;
+		out.writeIntArray(constructors);
+		
+		// final String funIn;
+		out.writeJString(funIn);
+		
+		// private int scopeIn = -1;
+		out.writeInt(scopeIn);
+		
+		// boolean allConcreteFunctionArgs = false;
+		out.writeBool(allConcreteFunctionArgs);
+		
+		// boolean allConcreteConstructorArgs = false;
+		out.writeBool(allConcreteConstructorArgs);
+		
+		// HashMap<Integer, int[]> filteredFunctions;
+		out.writeMapIntToIntArray(filteredFunctions);
+		
+		// HashMap<Integer, int[]> filteredConstructors;
+		out.writeMapIntToIntArray(filteredConstructors);
+	}
+	
+	public static OverloadedFunction read(RVMExecutableReader in) throws IOException 
+	{
+		// String name;
+		String name = in.readJString();
+
+		// Type funType;
+		Type funType = in.readType();
+		
+		// int[] functions;
+		int[] functions = in.readIntArray();
+		
+		
+		// final int[] constructors;
+		int[] constructors = in.readIntArray();
+		
+		// final String funIn;
+		 String funIn = (String) in.readJString();
+		
+		// private int scopeIn = -1;
+		 int scopeIn = in.readInt();
+		
+		// boolean allConcreteFunctionArgs = false;
+		boolean allConcreteFunctionArgs = in.readBool();
+		
+		// boolean allConcreteConstructorArgs = false;
+		boolean allConcreteConstructorArgs = in.readBool();
+		
+		// HashMap<Integer, int[]> filteredFunctions;
+		HashMap<Integer, int[]> filteredFunctions = in.readMapIntToIntArray();
+		
+		// HashMap<Integer, int[]> filteredConstructors;
+		
+		HashMap<Integer, int[]> filteredConstructors = in.readMapIntToIntArray();
+		
+		OverloadedFunction ofun = new OverloadedFunction(name, funType, functions, constructors, funIn, scopeIn, allConcreteFunctionArgs, allConcreteConstructorArgs,
+				filteredFunctions,filteredConstructors);
+		return ofun;
 	}
 
 }
