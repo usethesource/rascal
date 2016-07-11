@@ -1,15 +1,6 @@
 module experiments::Compiler::Examples::Tst3
 
-import IO;
-value main(){
-    x = 1;
-    y = 10;
-    while(x < 20){
-        x += 1;
-        if(x > 10){
-            y = 100;
-            fail;
-        }
-    }
-    return y;
-}
+import experiments::Compiler::Examples::Tst4;
+
+
+value main() = size({3, 3.0, 3r1}); // yes, really 3.
