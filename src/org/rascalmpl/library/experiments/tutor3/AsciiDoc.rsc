@@ -4,7 +4,7 @@ import ParseTree;
 syntax Document  = Header Preamble Body ;
 
 // NOTE: "You cannot have a revision line without an author line."
-syntax Header    = DocumentTitle AuthorLine? RevisionLine? Attributes* NEW_LINE  ;
+syntax Header    = DocumentTitle AuthorLine? RevisionLine? Attribute* NEW_LINE  ;
 
 syntax DocumentTitle  = ^ "=" Phrase ;
 syntax AuthorLine     =  CHARS+ "\<" Email "\>" NEW_LINE ;
