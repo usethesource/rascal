@@ -3,14 +3,21 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.interpreter.utils.Timing;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.INode;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
@@ -20,10 +27,12 @@ import org.rascalmpl.value.io.BinaryValueWriter;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import org.nustaq.serialization.FSTBasicObjectSerializer;
 import org.nustaq.serialization.FSTClazzInfo;
+import org.nustaq.serialization.FSTConfiguration;
 import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
@@ -217,5 +226,118 @@ public class FSTSerializableIValue extends FSTBasicObjectSerializer implements S
 //			}
 //			return null;
 //		}
+	}
+	
+	static private final FSTSerializableIValue serializableValue;
+	
+	static private final FSTSerializableType serializableType;
+	
+	static {
+		// set up FST serialization in gredients that will be reused across read/write calls
+
+		// PDB Types
+		serializableType = new FSTSerializableType();
+		serializableValue = new FSTSerializableIValue();
+	} 
+	
+	/**
+	 * Create an FSTConfiguration depending on the used extension: ".json" triggers the JSON reader/writer.
+	 * Note: the JSON version is somewhat larger and slower but is usefull for recovery during bootstrapping incidents.
+	 * @param source or desination of executable
+	 * @return an initialized FSTConfiguration
+	 */
+	private static FSTConfiguration makeFSTConfig(ISourceLocation path){
+		FSTConfiguration config = path.getURI().getPath().contains(".json") ?
+				FSTConfiguration.createJsonConfiguration() : FSTConfiguration.createDefaultConfiguration(); 
+		config.registerSerializer(FSTSerializableType.class, serializableType, false);
+		config.registerSerializer(FSTSerializableIValue.class, serializableValue, false);
+		return config;
+	}
+	
+	public static void main(String[] args) throws IOException {
+
+		int N = 100000;
+
+		OutputStream fileOut;
+
+		TypeStore typeStore = RascalValueFactory.getStore();
+		TypeFactory tf = TypeFactory.getInstance();
+		IValueFactory vf = ValueFactoryFactory.getValueFactory();
+
+		FSTSerializableIValue.initSerialization(vf, typeStore);
+
+		ISourceLocation fileLoc = null;
+		try {
+			fileLoc = vf.sourceLocation("home", "", "file.fst");
+		} catch (URISyntaxException e) {
+			System.err.println("Cannot create default location: " + e.getMessage());
+		}
+
+		fileOut = URIResolverRegistry.getInstance().getOutputStream(fileLoc, false);
+		FSTObjectOutput out = new FSTObjectOutput(fileOut, makeFSTConfig(fileLoc));
+
+		ISetWriter w = vf.setWriter();
+		w.insert(vf.string("abc"));
+		w.insert(vf.integer(42));
+		
+		Type adt = tf.abstractDataType(typeStore, "D");
+		Type fcons = tf.constructor(typeStore, adt, "f", tf.integerType(), "n");
+		
+		HashMap<String,IValue> kwParams = new HashMap<>();
+		kwParams.put("zzz", vf.string("pqr"));
+		
+		IValue start = vf.constructor(fcons, vf.integer(42)).asWithKeywordParameters().setParameters(kwParams);
+		
+		
+		long startTime = Timing.getCpuTime();
+
+		FSTSerializableIValue startFST = new FSTSerializableIValue(start);
+
+		for(int i = 0; i < N; i++){
+			out.writeObject(startFST);
+		}
+		out.close();
+
+		long endWrite = Timing.getCpuTime();
+
+		System.out.println("Writing " + N + " values " +  (endWrite - startTime)/1000000 + " msec");
+
+
+		FSTSerializableIValue.initSerialization(vf, typeStore);
+
+		FSTObjectInput in = null;
+		IValue outVal = start;
+		try {
+			ISourceLocation compIn = fileLoc;
+			InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(compIn);
+			in = new FSTObjectInput(fileIn, makeFSTConfig(fileLoc));
+			for(int i = 0; i < N; i++){
+				outVal = (IValue) in.readObject(IValue.class);
+				//System.out.println(outVal);
+			}
+			in.close();
+			in = null;
+
+		} catch (ClassNotFoundException c) {
+			throw new IOException("Class not found: " + c.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new IOException(e.getMessage());
+		} 
+		finally {
+			if(in != null){
+				try {
+					in.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+  		}
+		long endRead = Timing.getCpuTime();
+		System.out.println(outVal);
+		System.out.println("Reading " + N + " value " +  (endRead - endWrite)/1000000 + " msec");
+
+
 	}
 }

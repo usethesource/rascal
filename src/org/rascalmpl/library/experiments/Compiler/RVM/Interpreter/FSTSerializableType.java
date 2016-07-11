@@ -50,7 +50,7 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 
 	private transient Type type;
 	
-	FSTSerializableType(Type t){
+	public FSTSerializableType(Type t){
 		this.type = t;
 	}
 	
@@ -209,7 +209,7 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 					out.writeObject(TYPE.NONTERMINAL);
 					NonTerminalType nt = (NonTerminalType) type;
 					IConstructor cons = nt.getSymbol();
-					out.writeObject(new FSTSerializableIValue(cons));
+					out.writeObject(new FSTSerializableIValue2(cons));
 				} else {
 					throw new RuntimeException("External type not supported: " + type);
 				}
