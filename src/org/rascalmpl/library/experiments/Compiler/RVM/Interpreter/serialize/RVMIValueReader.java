@@ -136,8 +136,7 @@ public class RVMIValueReader {
 		int length = in.readInt();
 		byte[] valueData = new byte[length];
 		in.read(valueData, 0, length);
-		
-		return vf.integer(new BigInteger(valueData).toString()); // TODO: add new constructor to vf.integer?
+		return vf.integer(valueData);
 	}
 	
 	private IReal readReal() throws IOException{
