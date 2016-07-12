@@ -174,13 +174,38 @@ public class RVMIValueWriter   {
 		out.write(real.scale());
 	}
 	
-	private void writeIInteger(IInteger n) throws IOException{
-		if(n.greaterEqual(minInt).getValue() && n.lessEqual(maxInt).getValue()){
-			writeValueEnum(VALUE.INT);
-			out.writeInt(n.intValue());
+	private void writeIInteger(IInteger val) throws IOException{
+		if(val.greaterEqual(minInt).getValue() && val.lessEqual(maxInt).getValue()){
+			int n = val.intValue();
+			switch(n){
+			case -10:	writeValueEnum(VALUE.INT_10);break;
+			case -9:	writeValueEnum(VALUE.INT_9);break;
+			case -8:	writeValueEnum(VALUE.INT_8);break;
+			case -7:	writeValueEnum(VALUE.INT_7);break;
+			case -6:	writeValueEnum(VALUE.INT_6);break;
+			case -5:	writeValueEnum(VALUE.INT_5);break;
+			case -4:	writeValueEnum(VALUE.INT_4);break;
+			case -3:	writeValueEnum(VALUE.INT_3);break;
+			case -2:	writeValueEnum(VALUE.INT_2);break;
+			case -1:	writeValueEnum(VALUE.INT_1);break;
+			case 0:		writeValueEnum(VALUE.INT0);break;
+			case 1:		writeValueEnum(VALUE.INT1);break;
+			case 2:		writeValueEnum(VALUE.INT2);break;
+			case 3:		writeValueEnum(VALUE.INT3);break;
+			case 4:		writeValueEnum(VALUE.INT4);break;
+			case 5:		writeValueEnum(VALUE.INT5);break;
+			case 6:		writeValueEnum(VALUE.INT6);break;
+			case 7:		writeValueEnum(VALUE.INT7);break;
+			case 8:		writeValueEnum(VALUE.INT8);break;
+			case 9:		writeValueEnum(VALUE.INT9);break;
+			case 10:	writeValueEnum(VALUE.INT10);break;
+			default:
+				writeValueEnum(VALUE.INT);
+				out.writeInt(n);
+			}
 		} else {
 			writeValueEnum(VALUE.BIG_INT);
-			byte[] valueData = n.getTwosComplementRepresentation();
+			byte[] valueData = val.getTwosComplementRepresentation();
 			int length = valueData.length;
 			out.writeInt(length);
 			out.write(valueData, 0, length);
@@ -503,32 +528,7 @@ public class RVMIValueWriter   {
 
 			@Override
 			public Void visitInteger(IInteger val) throws IOException {
-				int n = val.intValue();
-				switch(n){
-				case -10:	writeValueEnum(VALUE.INT_10);break;
-				case -9:	writeValueEnum(VALUE.INT_9);break;
-				case -8:	writeValueEnum(VALUE.INT_8);break;
-				case -7:	writeValueEnum(VALUE.INT_7);break;
-				case -6:	writeValueEnum(VALUE.INT_6);break;
-				case -5:	writeValueEnum(VALUE.INT_5);break;
-				case -4:	writeValueEnum(VALUE.INT_4);break;
-				case -3:	writeValueEnum(VALUE.INT_3);break;
-				case -2:	writeValueEnum(VALUE.INT_2);break;
-				case -1:	writeValueEnum(VALUE.INT_1);break;
-				case 0:		writeValueEnum(VALUE.INT0);break;
-				case 1:		writeValueEnum(VALUE.INT1);break;
-				case 2:		writeValueEnum(VALUE.INT2);break;
-				case 3:		writeValueEnum(VALUE.INT3);break;
-				case 4:		writeValueEnum(VALUE.INT4);break;
-				case 5:		writeValueEnum(VALUE.INT5);break;
-				case 6:		writeValueEnum(VALUE.INT6);break;
-				case 7:		writeValueEnum(VALUE.INT7);break;
-				case 8:		writeValueEnum(VALUE.INT8);break;
-				case 9:		writeValueEnum(VALUE.INT9);break;
-				case 10:	writeValueEnum(VALUE.INT10);break;
-				default:
-							writeIInteger(val);
-				}
+				writeIInteger(val);
 				return null;
 			}
 
