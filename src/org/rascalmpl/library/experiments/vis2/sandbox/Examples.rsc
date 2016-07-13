@@ -100,8 +100,9 @@ void tbox20(){ ex("box20", box20); }
 public Figure box21 = box(fig=box(lineWidth=20, lineColor="silver", lineOpacity=0.5, size=<200,200>), lineColor="red", lineWidth=15);
 void tbox21(){ ex("box21", rotate(50, box21)); }
 
-void boxes(){
-	ex("boxes", grid(gap=<10,10>,
+
+
+Figure boxes()= grid(gap=<10,10>,
 					figArray=[ //[box1, box2, box3],
 						       //[box4, box5, box6, box7, box8],
 						       [box4, box9, box10, box11, box12],
@@ -110,8 +111,11 @@ void boxes(){
 						       [box18, box19],
 						       [box20],
 						       [box21]
-						  ], align=centerMid));
-}
+						  ], align=centerMid);
+						  
+
+void tboxes() = render(buttonInput("boxes", panel = panel(boxes())));					  
+
 
 // ellipse
 
@@ -133,9 +137,8 @@ void tellipse5(){ ex("ellipse5", ellipse5, debug = false); }
 public Figure ellipse6 = box(lineColor="red", lineWidth=15, fig=ellipse(rx=100, ry=75, lineWidth=10, lineColor="silver", lineOpacity=0.5));
 void tellipse6(){ ex("ellipse6", ellipse6); }
 
-void ellipses() {
-   ex("ellipses", vcat(figs=[ellipse1, ellipse2, ellipse3, ellipse4, ellipse5, ellipse6]));
-}
+Figure ellipses() = vcat(figs=[ellipse1, ellipse2, ellipse3, ellipse4, ellipse5, ellipse6]);
+void tellipses() = render(buttonInput("boxes", panel = panel(ellipses())));
 
 // circle
 
@@ -158,9 +161,9 @@ void tcircle5(){ ex("circle5", circle5); }
 public Figure circle6 = box(lineColor="red", lineWidth=15, fig=circle(r=100, lineWidth=10, lineColor="silver", lineOpacity=0.5));
 void tcircle6(){ ex("circle6", circle6); }
 
-void circles() {
-   ex("circles", vcat(figs=[circle1, circle2, circle3, circle4, circle5, circle6]));
-}
+Figure circles() = vcat(figs=[circle1, circle2, circle3, circle4, circle5, circle6]);
+void tcircles() = render(buttonInput("boxes", panel = panel(circles())));
+
 // ngon
 
 public Figure ngon1 = ngon(n = 3, r=100);
@@ -217,14 +220,14 @@ void tngon17(){ ex("ngon17", ngon17); }
 public Figure ngon18 = ngon(n = 10, fillColor="red", fig=box(size=<250,180>, fillColor="yellow"));
 void tngon18(){ ex("ngon18", ngon18); }
 
-void ngons(){
-  ex("ngons" , grid(gap=<10,10>,
+Figure ngons() = grid(gap=<10,10>,
                     figArray=[ 
 							[ngon1, ngon2, ngon3, ngon4, ngon5, ngon6],
 							[ngon7, ngon8, ngon9, ngon10, ngon11, ngon12],
 							[ngon13, ngon14, ngon15, ngon16, ngon17, ngon18]			    
-  						 ]));
-}
+  						 ]);
+  						 
+void tngons() = render(buttonInput("ngons", panel = panel(ngons())));
 
 /********************** polygon ******************************/
 
@@ -237,8 +240,12 @@ void tpolygon2(){ ex("polygon2", polygon2); }
 public Figure polygon3 =  polygon(points=[<100,10>, <40,198>, <190,78>, <10,78>, <160,198>], fillColor="green", lineWidth=4);
 void tpolygon3(){ ex("polygon3", polygon3); }
 
+public Figure polygon13 =  polygon(points=[<100,10>, <40,198>, <190,78>, <10,78>, <160,198>], fillColor="green", fillEvenOdd= false, lineWidth=4);
+void tpolygon13(){ ex("polygon3", polygon13); }
+
 public Figure polygon4 = polygon(points=[<200,10>,<250,190>, <160,210>], fillColor="pink", lineWidth=1);
 void tpolygon4(){ ex("polygon4", polygon4); }
+
 
 public Figure polygon5 = polygon(points=[<350,75>, <379,161>, <469,161>, <397,215>, <423,301>, <350,250>, <277,301>, <303,215>, <231,161>, <321,161>], fillColor="yellow", lineWidth=4);
 void tpolygon5(){ ex("polygon5", polygon5); }
@@ -255,68 +262,69 @@ void tpolygon8(){ ex("polygon8", polygon8); }
 public Figure polygon9 = box(lineColor="red", lineWidth=10, fig=polygon(points=[<350,75>, <379,161>, <469,161>, <397,215>, <423,301>, <350,250>, <277,301>, <303,215>, <231,161>, <321,161>], fillColor="yellow", lineWidth=10));
 void tpolygon9(){ ex("polygon9", polygon9); }
 
-void polygons() {
-  ex("polygons",  grid(gap=<10,10>,
+Figure polygons() 
+      = grid(gap=<10,10>,
   					   figArray=[
-							[polygon1, polygon2, polygon3, polygon4, polygon5],
-                            [polygon6, polygon7, polygon8, polygon9]
-                            ]));
-}
+							[polygon1, polygon2, polygon3, polygon13, polygon4],
+                            [ polygon5, polygon6, polygon7, polygon8, polygon9]
+                            ]);
+
+void tpolygons() = render(buttonInput("ngons", panel = panel(polygons())));
 
 /********************** shape ******************************/
 
-public Figure shape1 = shape([line(100,100), line(100,200), line(200,200)], shapeClosed=true, size=<300, 300>);
+public Figure shape1 = shape([line(100,100), line(100,200), line(200,200)], shapeClosed=true);
 void tshape1(){	ex("shape1", shape1); }
 
-public Figure shape2 = shape([line(30,100), line(100, 100), line(200,80)], shapeClosed=true, size=<300, 300>);
+public Figure shape2 = shape([line(30,100), line(100, 100), line(200,80)], shapeClosed=true);
 void tshape2(){ ex("shape2", shape2); }
 
-public Figure shape3 = hcat(figs=[ shape([line(100,100), line(100, 200), line(200,200)], shapeClosed=true, fillColor="red", size=<200, 200>),
+public Figure shape3 = hcat(figs=[ shape([line(100,100), line(100, 200), line(200,200)], shapeClosed=true, fillColor="red"),
 	
-							 shape([line(100,100), line(100, 200), line(200,200)], shapeClosed=true, fillColor="blue", size=<200, 200>)
+							 shape([line(100,100), line(100, 200), line(200,200)], shapeClosed=true, fillColor="blue")
 							 ]);
 void tshape3(){ ex("shape3", shape3); }
 
-public Figure shape4 = shape([line(0,0), line(50, 50), line(80,50), line(100,0) ], shapeClosed = true,  fillColor = "yellow", size=<200, 200>);
+public Figure shape4 = shape([line(0,0), line(50, 50), line(80,50), line(100,0) ], shapeClosed = true,  fillColor = "yellow");
 void tshape4(){	ex("shape4", shape4); }
 
-public Figure shape5 = shape([line(0,0), line(50, 50), line(80,50), line(100,0) ], shapeCurved=true, shapeClosed = true, fillColor = "yellow", size=<200, 200>);
+public Figure shape5 = shape([line(0,0), line(50, 50), line(80,50), line(100,0) ], shapeCurved=true, shapeClosed = true, fillColor = "yellow");
 void tshape5(){	ex("shape5", shape5); }
 
 public Figure shape6 = box(fig=shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
-					                      shapeClosed=true, fillEvenOdd=false, fillColor = "grey",  lineColor="red", size=<100, 100>));
+					                      shapeClosed=true, fillEvenOdd=false, fillColor = "grey",  lineColor="red"));
 void tshape6(){	ex("shape6", shape6); }
 
 public Figure shape7 = box (fig=shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
-					                      shapeClosed=true, fillEvenOdd=true, fillColor = "grey", lineColor="red", size=<100, 100>));
+					                      shapeClosed=true, fillEvenOdd=true, fillColor = "grey", lineColor="red"));
 					                      
 void tshape7(){	ex("shape7", shape7); }
 
 // SVG Essentials, p95.
 
-public Figure fillRule1 = grid(fillColor="antiquewhite",
+public Figure fillRule1 = grid(fillColor="antiquewhite",borderWidth=5, borderStyle="groove",
 						figArray=[ [ shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
-					                      shapeClosed=true, fillEvenOdd=true, fillColor = "grey", size=<100, 100>),
+					                      shapeClosed=true, fillEvenOdd=true, fillColor = "grey"),
 					           
 					                 shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(15,45), line(45,45), line(45, 15)], 	// clockwise/counter clockwise
-					                       shapeClosed=true, fillEvenOdd=true, fillColor = "grey", size=<100, 100>)
+					                       shapeClosed=true, fillEvenOdd=true, fillColor = "grey")
 					               ],
 					               
 					               [ shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(45, 15), line(45,45), line(15,45)],  // clockwise/clockwise
-					                      shapeClosed=true, fillEvenOdd=false, fillColor = "grey", size=<100, 100>),
+					                      shapeClosed=true, fillEvenOdd=false, fillColor = "grey"),
 					           
 					                 shape([line(0,0), line(60, 0), line(60,60), line(0,60), move(15,15), line(15,45), line(45,45), line(45, 15)], 	// clockwise/counter clockwise
-					                       shapeClosed=true, fillEvenOdd=false, fillColor = "grey", size=<100, 100>)
+					                       shapeClosed=true, fillEvenOdd=false, fillColor = "grey")
 					               ] ]);
 void tfillRule1(){ ex("fillRule1", fillRule1); }
 
-void shapes(){
-	ex("shapes", grid(gap=<10,10>, borderWidth=5, borderStyle="groove",
+Figure shapes() = 
+	grid(gap=<10,10>, borderWidth=5, borderStyle="groove",
 					figArray=[ [shape1, shape2, shape3, shape4, shape5 ],
 							   [shape6, shape7, fillRule1]
-							 ]));
+							 ]);
 
-}
+void tshapes() = render(buttonInput("shapes", panel = panel(shapes())));
 
 
 // hcat  
@@ -420,15 +428,15 @@ public Figure hflex5 = hcat(size = <400,400>,
 void thflex5(){ ex("hflex5", hflex5); }						               
 
 	
-void hcats(){
-	ex("hcats", grid(gap=<10,10>, borderWidth = 2, borderStyle="solid", 
+Figure hcats() = grid(gap=<10,10>, borderWidth = 2, borderStyle="solid", 
 	                 figArray=[
 							[hcat1, hcat2, hcat3, hcat4, box_hcat1],
 							[box_hcat2,box_hcat3,box_hcat4,box_hcat5],
 							[box_hcat6,box_hcat7,box_hcat8, box_hcat9],
 							[hflex1,hflex2,hflex3, hflex4,hflex5]
-						  ], align=topLeft));
-}		               
+						  ], align=topLeft);
+						  
+void thcats() = render(buttonInput("vcats", panel = panel(hcats())));		               
 
 // vcat
 
@@ -546,16 +554,14 @@ void hvflex1(){
 				            ]));
 }	
 
-void vcats(){
-	ex("vcats", grid(gap=<10,10>, 
+Figure vcats() = grid(gap=<10,10>, 
 	                 figArray=[
 							[vcat1, vcat2, vcat3, box_vcat1],
 							[box_vcat2,box_vcat3,box_vcat4,box_vcat5],
 							[box_vcat6,box_vcat7,box_vcat8, box_vcat9],
-							[vflex1,vflex2,vflex3, vflex4,vflex5]
-						  ], align=centerMid));
-}	
-
+							[vflex1,vflex2,vflex3, vflex4,vflex5]]);
+	
+void tvcats() = render(buttonInput("vcats", panel = panel(vcats())));
 /********************** grid ******************************/
 
 Figure RedBox = box(fillColor="red", size=<50,50>);
@@ -635,15 +641,14 @@ void toverlay6(){ ex("overlay6", overlay6); }
 //public Figure overlay6 = box(fig=overlay(align=topLeft, figs= at(0,100, box(size = <100,1>)) + [at(toInt(x * 10), toInt(100 + 100 * sin(x)), box(size=<2,2>))| real x <- [0.0, 0.1 .. 10.0]]));
 //void toverlay6(){ ex("overlay6", overlay6); } 
 
-void overlays(){
-	ex("overlays", grid(gap=<10,10>,
+Figure overlays() =
+	grid(gap=<10,10>,
 						figArray=[ 
 							[overlay1, overlay2, overlay3],
 							[overlay4, overlay5, overlay6]
-						]));
-}
+						]);
 
-
+void toverlays() = render(buttonInput("overlays", panel = panel(overlays())));
 
 /********************** atXY ********************************/
 
@@ -1062,15 +1067,14 @@ public Figure text11 = hcat(figs=[ box(fig=text("Hello", fillColor="black"), fil
 					], fontSize=20);
 void ttext11(){ ex("text11", text11); }
 
-void texts(){
-	ex("texts", grid(gap=<20,20>, 
+Figure texts()= grid(gap=<20,20>, 
 	                 figArray=[
 							[text0, text1, text2, text3, text4, text5],
 							[text6, text7, text8, text9],
-							[text10,text11]
-							
-						  ]));
-}	
+							[text10,text11]						
+						  ]);
+						  
+void ttexts() = render(buttonInput("overlays", panel = panel(texts())));
 
 
 /************** markdown *****************/
@@ -1386,7 +1390,24 @@ void boxcolor2(){
 
 // ------------- ALL TESTS -------------------------
 
+Figure panel(Figure f) = atXY(150, 150, f);
+
 void allExamples(){
+    tuple[int ,int] size = <100, 30>;
+    render(vcat(align = topLeft, figs=[
+    buttonInput("boxes", size = size, panel = panel(boxes()))
+    ,buttonInput("ellipses", size = size,panel = panel(ellipses()))
+    ,buttonInput("circles", size = size,panel = panel(circles()))
+    ,buttonInput("ngons", size = size, panel = panel(ngons()))
+    ,buttonInput("polygons", size = size, panel = panel(polygons()))
+    ,buttonInput("shapes", size = size, panel = panel(shapes()))
+    ,buttonInput("overlays", size = size, panel = panel(overlays()))
+    ,buttonInput("texts", size = size, panel = panel(texts()))
+    ,buttonInput("hcats", size = size, panel = panel(hcats()))
+    ,buttonInput("vcats", size = size, panel = panel(vcats()))
+    ]
+    ));
+    /*
 	boxes();
 	hcats();
 	vcats();
@@ -1403,6 +1424,7 @@ void allExamples(){
 	ats();
 	rotates();
 	// scales();
+	*/
 }
 
 public Figure tst0() = ellipse(

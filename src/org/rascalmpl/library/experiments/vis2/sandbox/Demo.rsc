@@ -585,7 +585,7 @@ public Figure shrink(bool tt) {resetColor();return grid(size=<400, 400>, figArra
 void tshrink() = render(box(fig=shrink(false), size=<400, 400>));
 
 Figure _tetris1() = 
-       grid( vgap=0, hgap= 0, align = bottomRight
+       grid( vgap=0, hgap= 0, cellAlign = bottomRight
        , 
        figArray=[
        [place("blue"), emptyFigure()]
@@ -596,7 +596,7 @@ Figure _tetris1() =
 Figure emptFigure() = box(size=<10, 10>);
        
 Figure _tetris2() = 
-       grid(vgap=0, hgap= 0,align = bottomRight,
+       grid(vgap=0, hgap= 0,cellAlign = bottomRight,
        figArray=[
        [emptyFigure(), place("blue")]
       ,[emptyFigure(), place("blue")]
@@ -604,21 +604,21 @@ Figure _tetris2() =
        ]);
        
 Figure _tetris3() = 
-       grid(vgap=0, hgap= 0,align = bottomRight,
+       grid(vgap=0, hgap= 0,cellAlign = bottomRight,
        figArray=[
        [place("red"), place("red")]
       ,[place("red"), place("red")]
        ]);
        
 Figure _tetris4() = 
-       grid(vgap=0, hgap= 0, align = bottomRight,
+       grid(vgap=0, hgap= 0, cellAlign = bottomRight,
        figArray=[
        [place("yellow"), place("yellow"), place("yellow")]
       ,[emptyFigure(), place("yellow"), emptyFigure()]
        ]);
        
 Figure _tetris5() = 
-       grid(vgap=0, hgap= 0, align = bottomRight,
+       grid(vgap=0, hgap= 0, cellAlign = bottomRight,
        figArray=[
        [emptyFigure(), place("darkmagenta"), place("darkmagenta")]
       ,[place("darkmagenta"), place("darkmagenta"), emptyFigure()]
@@ -626,7 +626,7 @@ Figure _tetris5() =
        
 Figure _tetris6() = 
        grid(vgap=0, hgap= 0, 
-       align = bottomRight,
+       cellAlign = bottomRight,
        figArray=[
        [place("brown")]
       ,[place("brown")]
@@ -634,14 +634,14 @@ Figure _tetris6() =
       ,[place("brown")]
        ]);
        
-public Figure tetris() = hcat(borderStyle="ridge", borderWidth = 4, 
+public Figure tetris() = hcat(borderStyle="ridge", borderWidth = 4, // align = bottomRight,
 lineWidth = 1, 
 figs=[_tetris1(), _tetris2(), _tetris3(), _tetris4(), _tetris5(), _tetris6()]);
        
 public void tetris1() = render(tetris());
 
 public void ftetris1(loc l) = writeFile(l, toHtmlString(
-    grid(hgap=4, vgap = 4, id="aap", figArray=[[_tetris1(),  _tetris2()]])
+    grid(borderStyle="ridge", borderWidth = 4,hgap=4, vgap = 4, id="aap", figArray=[[_tetris1(),  _tetris5()]])
 ));
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -655,10 +655,10 @@ public list[list[Figure]] figures(bool tooltip) =
              ,[demo15(), demo13()]
              ,[demo14(),demo11()]
              ,[demo16(), demo17()]
-             ,[demo18(), demo19()]
+            ,[demo18(), demo19()]
             ,[tetris(), box(fig=shrink(false), size=<400, 400>)]
-            ,[steden2(tooltip=tooltip), steden3(tooltip=tooltip)]
-            ,[decision(), triangle()]
+           ,[steden2(tooltip=tooltip), steden3(tooltip=tooltip)]
+           ,[decision(), triangle()]
             ];
             
 Figure demoFig() = grid(vgap=4, figArray=figures(false));
@@ -673,7 +673,7 @@ void fdemo(loc l) {
       }
       
  Figure sb(Figure tt) {return box(size=<20, 20>, fillColor = "antiquewhite", 
-     tooltip = frame(atXY(30, 30, box(fig=tt, fillColor="whitesmoke", visibility="visible", lineWidth =1)))
+     tooltip = atXY(30, 30, box(fig=tt, fillColor="whitesmoke",  lineWidth =1))
  );}
  
  // list[Figure] sb(list[Figure] tt) {return  mapper(tt, sb);}
