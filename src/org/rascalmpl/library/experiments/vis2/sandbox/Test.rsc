@@ -233,9 +233,16 @@ void ttetris() = render(tetris());
 loc location = |project://rascal/src/org/rascalmpl/library/experiments/vis2/data/tutor.html|;  
 
 
-Figure tut() = box(fillColor="yellow", size=<50, 50>
+Figure tut() =
+      // box(fillColor="yellow", size=<50, 50>
+      buttonInput("Push"
       // ,event = on("click", void(str e, str n , str v) {println("<e>");})
-     , panel= box(lineWidth= 0, fig=atXY(60, 60, box(lineColor="black", lineWidth=2,  fig = text(readFile(location))))));
+     // , panel= box(lineWidth= 0, fig=atXY(60, 60, box(lineColor="black", lineWidth=2,  fig = text(readFile(location)))))
+     , panel= 
+     //box(lineWidth= 0, fig=
+     atXY(60, 60, box(lineColor="black", size=<100, 100>, fillColor="antiquewhite", lineWidth=2, fig=box(size=<20, 20>, fillColor="red")))
+     //)
+     );
 
 public void ttut() {render(tut(), cssFile = "tutor.css", size=<800, 800>);}
 
@@ -350,7 +357,7 @@ public void fquest(loc l) = writeFile(l, toHtmlString(
     funLine()
  )); 
  
-Figure title() = box(size=<100, 100>, tooltip = "aap", fillColor="yellow");
+Figure title() = box(size=<100, 100>, tooltip = atXY(0, 0, box(size=<20, 20>, fillColor="red")), fillColor="yellow");
  
 void ttitle() = render(title()/*, javaLoc=|file:///ufs/bertl/jdk1.8.0_77|*/);
 
