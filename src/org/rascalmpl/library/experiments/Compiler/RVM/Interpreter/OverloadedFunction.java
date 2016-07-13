@@ -1,23 +1,14 @@
  package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nustaq.serialization.FSTBasicObjectSerializer;
-import org.nustaq.serialization.FSTClazzInfo;
-import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
-import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableReader;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableWriter;
 import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * Represent one overloaded function given
@@ -29,9 +20,8 @@ import org.rascalmpl.values.uptr.RascalValueFactory;
  * to create an OverloadedFunctionInstance for each specific call.
  *
  */
-public class OverloadedFunction implements Serializable {
+public class OverloadedFunction  {
 	
-	private static final long serialVersionUID = -5235184427484318482L;
 	final String name;
 	final Type funType;
 	int[] functions;
@@ -406,104 +396,3 @@ public class OverloadedFunction implements Serializable {
 	}
 
 }
-
-
-/**
- * FSTOverloadedFunctionSerializer: serializer for OverloadedFunction objects
- *
- */
-class FSTOverloadedFunctionSerializer extends FSTBasicObjectSerializer {
-	
-	//private static IValueFactory vf;
-	private static TypeStore store;
-
-	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
-		//vf = vfactory;
-		store = ts;
-		store.extendStore(RascalValueFactory.getStore());
-	}
-
-	@Override
-	public void writeObject(FSTObjectOutput out, Object toWrite,
-			FSTClazzInfo clzInfo, FSTFieldInfo arg3, int arg4)
-					throws IOException {
-		
-		OverloadedFunction ofun = (OverloadedFunction) toWrite;
-
-		// String name;
-		out.writeObject(ofun.name);
-
-		// Type funType;
-		out.writeObject(new FSTSerializableType(ofun.funType));
-		
-		// int[] functions;
-		out.writeObject(ofun.functions);
-		
-		// final int[] constructors;
-		out.writeObject(ofun.constructors);
-		
-		// final String funIn;
-		out.writeObject(ofun.funIn);
-		
-		// private int scopeIn = -1;
-		out.writeObject(ofun.scopeIn);
-		
-		// boolean allConcreteFunctionArgs = false;
-		out.writeObject(ofun.allConcreteFunctionArgs);
-		
-		// boolean allConcreteConstructorArgs = false;
-		out.writeObject(ofun.allConcreteConstructorArgs);
-		
-		// HashMap<Integer, int[]> filteredFunctions;
-		out.writeObject(ofun.filteredFunctions);
-		
-		// HashMap<Integer, int[]> filteredConstructors;
-		out.writeObject(ofun.filteredConstructors);
-	}
-	
-	@Override
-	public void readObject(FSTObjectInput in, Object toRead, FSTClazzInfo clzInfo, FSTClazzInfo.FSTFieldInfo referencedBy)
-	{
-	}
-	
-	@SuppressWarnings("unchecked")
-	public Object instantiate(@SuppressWarnings("rawtypes") Class objectClass, FSTObjectInput in, FSTClazzInfo serializationInfo, FSTClazzInfo.FSTFieldInfo referencee, int streamPosition) throws ClassNotFoundException, IOException 
-	{
-		// String name;
-		String name = (String) in.readObject();
-
-		// Type funType;
-		Type funType = (Type) in.readObject();
-		
-		// int[] functions;
-		int[] functions = (int[]) in.readObject();
-		
-		
-		// final int[] constructors;
-		int[] constructors = (int[]) in.readObject();
-		
-		// final String funIn;
-		 String funIn = (String) in.readObject();
-		
-		// private int scopeIn = -1;
-		 int scopeIn = (Integer) in.readObject();
-		
-		// boolean allConcreteFunctionArgs = false;
-		boolean allConcreteFunctionArgs = (Boolean) in.readObject();
-		
-		// boolean allConcreteConstructorArgs = false;
-		boolean allConcreteConstructorArgs = (Boolean) in.readObject();
-		
-		// HashMap<Integer, int[]> filteredFunctions;
-		HashMap<Integer, int[]> filteredFunctions = (HashMap<Integer, int[]>) in.readObject();
-		
-		// HashMap<Integer, int[]> filteredConstructors;
-		
-		HashMap<Integer, int[]> filteredConstructors = (HashMap<Integer, int[]>) in.readObject();
-		
-		OverloadedFunction ofun = new OverloadedFunction(name, funType, functions, constructors, funIn, scopeIn, allConcreteFunctionArgs, allConcreteConstructorArgs,
-				filteredFunctions,filteredConstructors);
-		return ofun;
-	}
-}
-

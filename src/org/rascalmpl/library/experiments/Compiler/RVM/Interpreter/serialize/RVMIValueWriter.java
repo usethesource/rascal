@@ -62,10 +62,10 @@ enum VALUE {REAL, INT, BIG_INT,
 public class RVMIValueWriter   {	
 	private final static int MAX_BYTE = 127;
 
-	transient private static IndexedSet<IValue> sharedValues;
-	transient private static IndexedSet<Type> sharedTypes;
+	transient private final IndexedSet<IValue> sharedValues;
+	transient private final IndexedSet<Type> sharedTypes;
 	private final IndexedSet<String> sharedPaths;
-	transient private static IndexedSet<String> sharedNames;
+	transient private final IndexedSet<String> sharedNames;
 	
 	private final IInteger minInt;
 	private final IInteger maxInt;

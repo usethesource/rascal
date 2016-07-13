@@ -31,7 +31,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/jdom-2.0.6.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/fst-2.42-onejar.jar"/>
 	<classpathentry kind="lib" path="lib/capsule-0.1.0.jar" sourcepath="lib/capsule-0.1.0-sources.jar"/>
 	<classpathentry kind="lib" path="lib/lucene-analyzers-common-6.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/lucene-core-6.0.0.jar"/>

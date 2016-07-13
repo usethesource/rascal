@@ -3,24 +3,16 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nustaq.serialization.FSTBasicObjectSerializer;
-import org.nustaq.serialization.FSTClazzInfo;
-import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
-import org.nustaq.serialization.FSTConfiguration;
-import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.experiments.Compiler.VersionInfo;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableReader;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableWriter;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMIValueWriter;
 import org.rascalmpl.library.util.SemVer;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IMap;
@@ -35,57 +27,11 @@ import org.rascalmpl.values.uptr.RascalValueFactory;
 /**
  * RVMExecutable contains all data needed for executing an RVM program.
  *
- * RVMExecutable is serialized by FSTRVMExecutableSerializer; make sure that
+ * RVMExecutable is serialized by write/read methods defined in this class; make sure that
  * all **non-static** fields declared here are synced with the serializer.
  */
-public class RVMExecutable implements Serializable {
+public class RVMExecutable  {
 	
-	static private final FSTSerializableType serializableType;
-	static private final FSTSerializableIValue2 serializableIValue;
-	static private final FSTRVMExecutableSerializer rvmExecutableSerializer;
-	static private final FSTFunctionSerializer functionSerializer;
-	static private final FSTOverloadedFunctionSerializer overloadedFunctionSerializer;
-	static private final FSTCodeBlockSerializer codeblockSerializer;
-	
-	static {
-		// set up FST serialization in gredients that will be reused across read/write calls
-
-		// PDB Types
-		serializableType = new FSTSerializableType();
-
-		// PDB values
-		serializableIValue =  new FSTSerializableIValue2();
-		
-		// Specific serializers
-		rvmExecutableSerializer = new FSTRVMExecutableSerializer();
-
-		functionSerializer = new FSTFunctionSerializer();
-
-		overloadedFunctionSerializer = new FSTOverloadedFunctionSerializer();
-
-		codeblockSerializer = new FSTCodeBlockSerializer();
-	} 
-	
-	/**
-	 * Create an FSTConfiguration depending on the used extension: ".json" triggers the JSON reader/writer.
-	 * Note: the JSON version is somewhat larger and slower but is usefull for recovery during bootstrapping incidents.
-	 * @param source or desination of executable
-	 * @return an initialized FSTConfiguration
-	 */
-	private static FSTConfiguration makeFSTConfig(ISourceLocation path){
-		FSTConfiguration config = path.getURI().getPath().contains(".json") ?
-				FSTConfiguration.createJsonConfiguration() : FSTConfiguration.createDefaultConfiguration(); 
-		config.registerSerializer(FSTSerializableType.class, serializableType, false);
-		config.registerSerializer(FSTSerializableIValue2.class, serializableIValue, false);
-		config.registerSerializer(RVMExecutable.class, rvmExecutableSerializer, false);
-		config.registerSerializer(Function.class, functionSerializer, false);
-		config.registerSerializer(OverloadedFunction.class, overloadedFunctionSerializer, false);
-		config.registerSerializer(CodeBlock.class, codeblockSerializer, false);
-		config.registerClass(OverloadedFunction.class);
-		return config;
-	}
-
-	private static final long serialVersionUID = -8966920880207428792L;
 	static final String RASCAL_MAGIC = "Rascal Vincit Omnia";
 	
 	// transient fields
@@ -368,74 +314,6 @@ public class RVMExecutable implements Serializable {
 		return executable;
 	}
 	
-	public void writeFST(ISourceLocation rvmExecutable) throws IOException{		
-		OutputStream fileOut;
-		
-		TypeStore typeStore = //RascalValueFactory.getStore(); 
-							 new TypeStore(RascalValueFactory.getStore());
-		
-		FSTSerializableType.initSerialization(vf, typeStore);
-		FSTSerializableIValue2.initSerialization(vf, typeStore);
-		
-		FSTRVMExecutableSerializer.initSerialization(vf, typeStore);
-		FSTFunctionSerializer.initSerialization(vf, typeStore);
-		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
-
-		ISourceLocation compOut = rvmExecutable;
-		fileOut = URIResolverRegistry.getInstance().getOutputStream(compOut, false);
-		FSTObjectOutput out = new FSTObjectOutput(fileOut, makeFSTConfig(rvmExecutable));
-		//long before = Timing.getCpuTime();
-		out.writeObject(this);
-		out.close();
-		//System.out.println("RVMExecutable.write: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
-	}
-	
-	
-	
-	public static RVMExecutable readFST(ISourceLocation rvmExecutable) throws IOException {
-		RVMExecutable executable = null;
-		
-		vf = ValueFactoryFactory.getValueFactory();
-		TypeStore typeStore = // RascalValueFactory.getStore();
-							  new TypeStore(RascalValueFactory.getStore());
-		
-		FSTSerializableType.initSerialization(vf, typeStore);
-		FSTSerializableIValue2.initSerialization(vf, typeStore);
-	
-		FSTRVMExecutableSerializer.initSerialization(vf, typeStore);
-		FSTFunctionSerializer.initSerialization(vf, typeStore);
-		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
-	
-		FSTObjectInput in = null;
-		try {
-			ISourceLocation compIn = rvmExecutable;
-			InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(compIn);
-			in = new FSTObjectInput(fileIn, makeFSTConfig(rvmExecutable));
-			long before = Timing.getCpuTime();
-			executable = (RVMExecutable) in.readObject(RVMExecutable.class);
-			in.close();
-			in = null;
-			System.out.println("Reading: " + compIn.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
-		} catch (ClassNotFoundException c) {
-			throw new IOException("Class not found: " + c.getMessage());
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new IOException(e.getMessage());
-		} 
-		finally {
-			if(in != null){
-				try {
-					in.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-		//executable.rvmProgramLoc = rvmExecutable;
-		return executable;
-	}
-	
 	public NameCompleter completePartialIdentifier(NameCompleter completer, String partialIdentifier) {
 		if (partialIdentifier == null || partialIdentifier.isEmpty()) {
 			throw new IllegalArgumentException("The behavior with empty string is undefined.");
@@ -691,258 +569,6 @@ public class RVMExecutable implements Serializable {
 		ex.setJvmByteCode(jvmByteCode);
 		ex.setFullyQualifiedDottedName(fullyQualifiedDottedName);
 
-		return ex;
-	}
-}
-	
-class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
-
-	private static IValueFactory vf;
-	private static TypeStore store;
-
-	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
-		vf = vfactory;
-		store = ts;
-		store.extendStore(RascalValueFactory.getStore());
-	}
-
-	@Override
-	public void writeObject(FSTObjectOutput out, Object toWrite,
-			FSTClazzInfo arg2, FSTFieldInfo arg3, int arg4)
-					throws IOException {
-
-		int n;
-		RVMExecutable ex = (RVMExecutable) toWrite;
-		
-		// Write standard header
-		
-		out.writeObject(RVMExecutable.RASCAL_MAGIC);
-		out.writeObject(VersionInfo.RASCAL_VERSION);
-		out.writeObject(VersionInfo.RASCAL_RUNTIME_VERSION);
-		out.writeObject(VersionInfo.RASCAL_COMPILER_VERSION);
-		
-		// String[] errors
-		
-		out.writeObject(new FSTSerializableIValue2(ex.getErrors()));
-		
-		if(!ex.isValid()){
-			return;
-		}
-		
-		// public String module_name;
-
-		out.writeObject(ex.getModuleName());
-
-		// public IMap moduleTags;
-	
-		out.writeObject(new FSTSerializableIValue2(ex.getModuleTags()));
-
-		// public IMap symbol_definitions;
-
-		out.writeObject(new FSTSerializableIValue2(ex.getSymbolDefinitions()));
-
-		// public ArrayList<Function> functionStore;
-		// public Map<String, Integer> functionMap;
-
-		out.writeObject(ex.getFunctionStore());
-
-		// public ArrayList<Type> constructorStore;
-
-		n = ex.getConstructorStore().size();
-		out.writeObject(n);
-
-		for(int i = 0; i < n; i++){
-			out.writeObject(new FSTSerializableType(ex.getConstructorStore().get(i)));
-		}
-
-		// public Map<String, Integer> constructorMap;
-
-		out.writeObject(ex.getConstructorMap());
-
-		// public ArrayList<OverloadedFunction> overloadedStore;
-
-		out.writeObject(ex.getOverloadedStore());
-
-		// public Map<String, Integer> resolver;
-
-		out.writeObject(ex.getResolver());
-
-		// ArrayList<String> initializers;
-
-		out.writeObject(ex.getInitializers());
-
-		// ArrayList<String> testsuites;
-
-		out.writeObject(ex.getTestSuites());
-
-		// public String uid_module_init;
-
-		out.writeObject(ex.getUidModuleInit());
-
-		// public String uid_module_main;
-
-		out.writeObject(ex.getUidModuleMain());
-
-		// public String uid_module_main_testsuite;
-
-		out.writeObject(ex.getUidModuleMainTestsuite());
-		
-		// public byte[] jvmByteCode;
-		
-		out.writeObject(ex.getJvmByteCode());
-		
-		// public String fullyQualifiedDottedName;
-		
-		out.writeObject(ex.getFullyQualifiedDottedName());
-	}
-
-
-	public void readObject(FSTObjectInput in, Object toRead, FSTClazzInfo clzInfo, FSTClazzInfo.FSTFieldInfo referencedBy)
-	{
-	}
-
-	@SuppressWarnings("unchecked")
-	public Object instantiate(@SuppressWarnings("rawtypes") Class objectClass, FSTObjectInput in, FSTClazzInfo serializationInfo, FSTClazzInfo.FSTFieldInfo referencee, int streamPosition) throws ClassNotFoundException, IOException 
-	{
-		int n;
-		
-		// Read and check standard header
-		
-		// Check magic
-		
-		String rascal_magic =  (String) in.readObject();
-		
-		if(!rascal_magic.equals(RVMExecutable.RASCAL_MAGIC)){
-			throw new RuntimeException("Cannot read incompatible Rascal executable");
-		}
-		
-		// Check RASCAL_VERSION
-		
-		String rascal_version = (String) in.readObject();
-		
-		SemVer sv;
-		try {
-			sv = new SemVer(rascal_version);
-		} catch(Exception e){
-			throw new RuntimeException("Invalid value for RASCAL_VERSION in Rascal executable");
-		}
-		
-		if(!sv.satisfiesVersion("~" + VersionInfo.RASCAL_VERSION)){
-			throw new RuntimeException("RASCAL_VERSION " + rascal_version + " in Rascal executable incompatible with current version " + VersionInfo.RASCAL_VERSION);
-		}
-		
-		// Check RASCAL_RUNTIME_VERSION
-		
-		String rascal_runtime_version = (String) in.readObject();
-		try {
-			sv = new SemVer(rascal_runtime_version);
-		} catch(Exception e){
-			throw new RuntimeException("Invalid value for RASCAL_RUNTIME_VERSION in Rascal executable");
-		}
-		if(!sv.satisfiesVersion("~" + VersionInfo.RASCAL_RUNTIME_VERSION)){
-			throw new RuntimeException("RASCAL_RUNTIME_VERSION " + rascal_runtime_version + " in Rascal executable incompatible with current version " + VersionInfo.RASCAL_RUNTIME_VERSION);
-		}
-		
-		// Check RASCAL_COMPILER_VERSION
-		
-		String rascal_compiler_version = (String) in.readObject();
-		try {
-			sv = new SemVer(rascal_runtime_version);
-		} catch(Exception e){
-			throw new RuntimeException("Invalid value for RASCAL_COMPILER_VERSION in Rascal executable");
-		}
-		if(!sv.satisfiesVersion("~" + VersionInfo.RASCAL_COMPILER_VERSION)){
-			throw new RuntimeException("RASCAL_COMPILER_VERSION " + rascal_compiler_version + " in Rascal executable incompatible with current version " + VersionInfo.RASCAL_COMPILER_VERSION);
-		}
-//		System.err.println("RascalShell: Rascal: " + VersionInfo.RASCAL_VERSION + "; Runtime: " + VersionInfo.RASCAL_RUNTIME_VERSION + "; Compiler: " + VersionInfo.RASCAL_COMPILER_VERSION);
-//		System.err.println("Executable : Rascal: " + rascal_version + "; Runtime: " + rascal_runtime_version + "; Compiler: " + rascal_compiler_version);
-				
-		// String[] errors
-				
-		ISet errors = (ISet) in.readObject();
-				
-		if(errors.size() > 0){
-			return new RVMExecutable(errors);
-		}
-				
-		// public String name;
-
-		String module_name = (String) in.readObject();
-
-		// public IMap moduleTags;
-
-		IMap moduleTags = (IMap) in.readObject();
-
-		// public IMap symbol_definitions;
-
-		IMap symbol_definitions = (IMap) in.readObject();
-
-		// public ArrayList<Function> functionStore;
-		// public  Map<String, Integer> functionMap;
-
-		Function[] functionStore = (Function[]) in.readObject();
-
-		n = functionStore.length;
-		HashMap<String, Integer> functionMap = new HashMap<String, Integer>(n);
-		for(int i = 0; i < n; i++){
-			functionMap.put(functionStore[i].getName(), i);
-		}
-
-		// public ArrayList<Type> constructorStore;
-
-		n = (Integer) in.readObject();
-		ArrayList<Type> constructorStore = new ArrayList<Type>(n);
-
-		for(int i = 0; i < n; i++){
-			constructorStore.add(i, (Type) in.readObject());
-		}
-
-		// public Map<String, Integer> constructorMap;
-
-		Map<String, Integer> constructorMap = (Map<String, Integer>) in.readObject();
-
-		// public OverloadedFunction[] overloadedStore;
-
-		OverloadedFunction[] overloadedStore = (OverloadedFunction[]) in.readObject();
-
-		// public Map<String, Integer> resolver;
-
-		HashMap<String, Integer> resolver = (HashMap<String, Integer>) in.readObject();
-
-		// ArrayList<String> initializers;
-
-		ArrayList<String> initializers = (ArrayList<String>) in.readObject();
-
-		// ArrayList<String> testsuites;
-
-		ArrayList<String> testsuites = (ArrayList<String>) in.readObject();
-
-		// public String uid_module_init;
-
-		String uid_module_init = (String) in.readObject();
-
-		// public String uid_module_main;
-
-		String uid_module_main = (String) in.readObject();
-
-		// public String uid_module_main_testsuite;
-
-		String uid_module_main_testsuite = (String) in.readObject();
-		
-		// public byte[] jvmByteCode;
-		
-		byte[] jvmByteCode = (byte[]) in.readObject();
-				
-		// public String fullyQualifiedDottedName;
-	
-		String fullyQualifiedDottedName = (String) in.readObject();
-
-		RVMExecutable ex = new RVMExecutable(module_name, moduleTags, symbol_definitions, functionMap, functionStore, 
-								constructorMap, constructorStore, resolver, overloadedStore, initializers, testsuites, 
-								uid_module_init, uid_module_main, uid_module_main_testsuite, store, vf, false);
-		ex.setJvmByteCode(jvmByteCode);
-		ex.setFullyQualifiedDottedName(fullyQualifiedDottedName);
-		
 		return ex;
 	}
 }
