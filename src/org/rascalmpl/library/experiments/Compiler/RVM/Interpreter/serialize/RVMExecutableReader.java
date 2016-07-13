@@ -34,8 +34,8 @@ public class RVMExecutableReader {
 	
 	private final RVMInputStream in;
 	
-	transient private static ResizingArray<Object> sharedObjectsList;
-	transient private static int currentSharedObjectId;
+	transient private final ResizingArray<Object> sharedObjectsList;
+	transient private int currentSharedObjectId;
 
 	public RVMExecutableReader(InputStream in){
 		this.in = new RVMInputStream(in);
@@ -122,6 +122,7 @@ public class RVMExecutableReader {
 		return map;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public Map<String, Integer> readMapStringInt() throws IOException {
 		int n = readInt();
 		if(n >= 0){
