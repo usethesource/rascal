@@ -74,7 +74,6 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FSTSerializableIValue2;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMIValueReader;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMIValueWriter;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
