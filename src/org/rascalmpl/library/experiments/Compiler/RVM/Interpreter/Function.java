@@ -1,7 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.util.Map;
 
@@ -19,23 +18,16 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-
-import org.nustaq.serialization.FSTBasicObjectSerializer;
-import org.nustaq.serialization.FSTClazzInfo;
-import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
-import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
 
 /**
  * Function contains all data needed for a single RVM function
  *
- * Function is serialized by FSTFunctionSerializer, make sure that
+ * Function is serialized by write/read also defined in this class, make sure that
  * all fields declared here are synced with the serializer.
  */
 
-public class Function implements Serializable {
-	private static final long serialVersionUID = -1741144671553091111L;
+public class Function  {
+//	private static final long serialVersionUID = -1741144671553091111L;
 	
 	String name;
 	Type ftype;
@@ -444,235 +436,6 @@ public class Function implements Serializable {
 		
 		// int continuationPoints
 		Integer continuationPoints = in.readInt();
-		
-		Function func = new Function(name, ftype, funIn, nformals, nlocals, isDefault, localNames, maxstack, concreteArg, abstractFingerprint, concreteFingerprint, 
-				codeblock, src, scopeIn, constantStore, typeConstantStore,
-				froms, tos, types, handlers, fromSPs, lastHandler, scopeId,
-				isCoroutine, refs, isVarArgs, continuationPoints);
-		func.funId = funId;
-		return func;
-	}
-}
-
-/**
- * FSTFunctionSerializer: serializer for Function objects
- *
- */
-class FSTFunctionSerializer extends FSTBasicObjectSerializer {
-	
-	//private static IValueFactory vf;
-	private static TypeStore store;
-
-	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
-		//vf = vfactory;
-		store = ts;
-		store.extendStore(RascalValueFactory.getStore());
-	}
-
-	@Override
-	public void writeObject(FSTObjectOutput out, Object toWrite,
-			FSTClazzInfo clzInfo, FSTFieldInfo arg3, int arg4)
-					throws IOException {
-		
-		Function fun = (Function) toWrite;
-
-		// String name;
-		out.writeObject(fun.name);
-
-		// Type ftype;
-		out.writeObject(new FSTSerializableType(fun.ftype));
-
-		// int scopeId;
-		out.writeObject(fun.scopeId);
-
-		// private String funIn;
-		out.writeObject(fun.funIn);
-
-		// int scopeIn = -1;
-		out.writeObject(fun.scopeIn);
-
-		// int nformals;
-		out.writeObject(fun.nformals);
-
-		// int nlocals;
-		out.writeObject(fun.getNlocals());
-
-		// boolean isDefault;
-		out.writeObject(fun.isDefault);
-
-		// int maxstack;
-		out.writeObject(fun.maxstack);
-
-		// CodeBlock codeblock;
-		out.writeObject(fun.codeblock);
-
-		// IValue[] constantStore;
-		int n = fun.constantStore.length;
-		out.writeObject(n);
-
-		for(int i = 0; i < n; i++){
-			out.writeObject(new FSTSerializableIValue2(fun.constantStore[i]));
-		}
-
-		// Type[] typeConstantStore;
-		n = fun.typeConstantStore.length;
-		out.writeObject(n);
-
-		for(int i = 0; i < n; i++){
-			out.writeObject(new FSTSerializableType(RascalExecutionContext.shareTypeConstant(fun.typeConstantStore[i])));
-		}
-
-		// boolean concreteArg = false;
-		out.writeObject(fun.concreteArg);
-
-		// int abstractFingerprint = 0;
-		out.writeObject(fun.abstractFingerprint);
-
-		// int concreteFingerprint = 0;
-		out.writeObject(fun.concreteFingerprint);
-
-		// int[] froms;
-		out.writeObject(fun.froms);
-
-		// int[] tos;
-		out.writeObject(fun.tos);
-
-		// int[] types;
-		out.writeObject(fun.types);
-
-		// int[] handlers;
-		out.writeObject(fun.handlers);
-
-		// int[] fromSPs;
-		out.writeObject(fun.fromSPs);
-
-		// int lastHandler = -1;
-		out.writeObject(fun.lastHandler);
-		
-		//public Integer funId; 
-		out.writeObject(fun.funId);
-
-		// boolean isCoroutine = false;
-		out.writeObject(fun.isCoroutine);
-
-		// int[] refs;
-		out.writeObject(fun.refs);
-
-		// boolean isVarArgs = false;
-		out.writeObject(fun.isVarArgs);
-
-		// ISourceLocation src;
-		out.writeObject(new FSTSerializableIValue2(fun.src));
-
-		// IMap localNames;
-		out.writeObject(new FSTSerializableIValue2(fun.localNames));
-
-		// int continuationPoints
-		out.writeObject(fun.continuationPoints);
-	}
-	
-
-	@Override
-	public void readObject(FSTObjectInput in, Object toRead, FSTClazzInfo clzInfo, FSTClazzInfo.FSTFieldInfo referencedBy)
-	{
-	}
-	
-	public Object instantiate(@SuppressWarnings("rawtypes") Class objectClass, FSTObjectInput in, FSTClazzInfo serializationInfo, FSTClazzInfo.FSTFieldInfo referencee, int streamPosition) throws ClassNotFoundException, IOException 
-	{
-
-		// String name;
-		String name = (String) in.readObject();
-
-		// Type ftype;
-		Type ftype = (Type) in.readObject();
-
-		// int scopeId;
-		Integer scopeId = (Integer) in.readObject();
-
-		// private String funIn;
-		String funIn = (String) in.readObject();
-
-		// int scopeIn = -1;
-		Integer scopeIn = (Integer) in.readObject();
-
-		// int nformals;
-		Integer nformals = (Integer) in.readObject();
-
-		// int nlocals;
-		Integer nlocals = (Integer) in.readObject();
-
-		// boolean isDefault;
-		Boolean isDefault = (Boolean) in.readObject();
-
-		// int maxstack;
-		Integer maxstack = (Integer) in.readObject();
-
-		// CodeBlock codeblock;
-		CodeBlock codeblock = (CodeBlock) in.readObject();
-
-		// IValue[] constantStore;
-		int n = (Integer) in.readObject();
-		IValue[] constantStore = new IValue[n];
-
-		for(int i = 0; i < n; i++){
-			constantStore[i] = (IValue) in.readObject();
-		}
-
-		// Type[] typeConstantStore;
-		n = (Integer) in.readObject();
-		Type[] typeConstantStore = new Type[n];
-
-		for(int i = 0; i < n; i++){
-			typeConstantStore[i] = RascalExecutionContext.shareTypeConstant((Type) in.readObject());
-		}
-
-		// boolean concreteArg = false;
-		Boolean concreteArg = (Boolean) in.readObject();
-
-		// int abstractFingerprint = 0;
-		Integer abstractFingerprint = (Integer) in.readObject();
-
-		// int concreteFingerprint = 0;
-		Integer concreteFingerprint = (Integer) in.readObject();
-
-		// int[] froms;
-		int[] froms = (int[]) in.readObject();
-
-		// int[] tos;
-		int[] tos = (int[]) in.readObject();
-
-		// int[] types;
-		int[] types = (int[]) in.readObject();
-
-		// int[] handlers;
-		int[] handlers = (int[]) in.readObject();
-
-		// int[] fromSPs;
-		int[] fromSPs = (int[]) in.readObject();
-
-		// int lastHandler = -1;
-		Integer lastHandler = (Integer) in.readObject();
-		
-		//public Integer funId; 
-		Integer funId = (Integer) in.readObject();
-
-		// boolean isCoroutine = false;
-		Boolean isCoroutine = (Boolean) in.readObject();
-
-		// int[] refs;
-		int[] refs = (int[]) in.readObject();
-
-		// boolean isVarArgs = false;
-		Boolean isVarArgs = (Boolean)in.readObject();
-
-		// ISourceLocation src;
-		ISourceLocation src = (ISourceLocation) in.readObject();
-
-		// IMap localNames;
-		IMap localNames = (IMap) in.readObject();
-		
-		// int continuationPoints
-		Integer continuationPoints = (Integer) in.readObject();
 		
 		Function func = new Function(name, ftype, funIn, nformals, nlocals, isDefault, localNames, maxstack, concreteArg, abstractFingerprint, concreteFingerprint, 
 				codeblock, src, scopeIn, constantStore, typeConstantStore,

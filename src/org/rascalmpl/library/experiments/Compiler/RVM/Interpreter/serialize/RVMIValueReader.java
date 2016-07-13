@@ -51,15 +51,15 @@ public class RVMIValueReader {
 	private final static int DEFAULT_SHARED_URIS_STORE_SIZE = 128;
 	private final static int DEFAULT_SHARED_NAMES_STORE_SIZE = 128;
 	
-	transient private static ResizingArray<IValue> sharedValuesList;
-	transient private static int currentSharedValueId;
-	transient private static ResizingArray<Type> sharedTypesList;
-	transient private static int currentSharedTypeId;
-	transient private static ResizingArray<ISourceLocation> sharedLocsList;
-	transient private static int currentSharedLocId;
+	transient private final ResizingArray<IValue> sharedValuesList;
+	transient private int currentSharedValueId;
+	transient private final ResizingArray<Type> sharedTypesList;
+	transient private int currentSharedTypeId;
+	transient private final ResizingArray<ISourceLocation> sharedLocsList;
+	transient private int currentSharedLocId;
 
-	transient static private ResizingArray<String> sharedNamesList;
-	transient static private int currentSharedNamesId;
+	transient final ResizingArray<String> sharedNamesList;
+	transient private int currentSharedNamesId;
 
 	private RVMInputStream in;
 
