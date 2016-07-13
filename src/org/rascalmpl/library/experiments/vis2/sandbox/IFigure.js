@@ -1035,57 +1035,60 @@ function getHeight(q) {
 	return parseInt(r);
 }
 
-function adjust_tooltip(q) {
-	var s = d3.select("#" + q);
+function adjust_tooltip(parent, q, xv, yv) {
+	var s = d3.select("#" + parent+"_svg").empty()?d3.select("#" + parent):d3.select("#" + parent+"_svg");
 	var convert = makeAbsoluteContext(s.node());
 	var x = s.attr("x");
 	var y = s.attr("y");
-	var w = getWidth("#" + q + "_tooltip_svg");
-	var h = getHeight("#" + q + "_tooltip_svg");
-	var u = d3.select("#" + q + "_tooltip_outer_fo");
-	if (u.empty() && !d3.select("#" + q + "_tooltip_fo").empty()
-	    && !d3.select("#" + q + "_tooltip_fo").select(".google").empty()) {
-	  	u = d3.select("#" + q + "_tooltip_fo");
-	}
-	var z = convert(x, y);
+	var w = getWidth("#" + q + "_svg");
+	var h = getHeight("#" + q + "_svg");
+	var u = d3.select("#" + q + "_outer_fo");
+	var google = !d3.select("#" + q + "_fo").empty()
+    && !d3.select("#" + q + "_fo").select(".google").empty();
+	if (u.empty() && google) {
+	  	u = d3.select("#" + q + "_fo");
+	}	
 	var x1 = 0;
-	var y1 = 0;
+    var y1 = 0;
+    if (!u.empty()) {
+        x1 = parseFloat(u.attr("x"));
+        y1 = parseFloat(u.attr("y"));
+    }
+	var z = convert(x, y);
 	if (!u.empty()) {
-		x1 = parseFloat(u.attr("x"));
-		y1 = parseFloat(u.attr("y"));
-		u.attr("x", z.x + x1).attr("y", z.y + y1);
+		u.attr("x", z.x + xv+x1).attr("y", z.y + yv+y1);
 		u.attr("width", w);
 		u.attr("height", h);
-		var t = d3.select("#" + q + "_tooltip_svg");
-		t.attr("width", w + z.x + x1).attr("height", h + z.y + y1);
+		var t = d3.select("#" + q + "_svg");
+		t.attr("width", w + z.x + xv).attr("height", h + z.y + yv);
 	}
 	s.on("mouseenter", function() {
-		d3.select("#overlay").attr("width", z.x + w + x1);
-		d3.select("#overlay").attr("height", z.y + h + y1);
-		if (u.empty())
+		d3.select("#overlay").attr("width", z.x + w + xv);
+		d3.select("#overlay").attr("height", z.y + h + yv);
+		if (u.empty()||google)
 		 {
-			d3.select("#" + q + "_tooltip_svg").attr("x", z.x).attr("y", z.y);
+			d3.select("#" + q + "_svg").attr("x", z.x+xv).attr("y", z.y+yv);
 		 }
-		d3.select("#" + q + "_tooltip").style("visibility", "visible");
-		d3.select("#" + q + "_tooltip_fo").style("visibility", "visible").
+		d3.select("#" + q ).style("visibility", "visible");
+		d3.select("#" + q + "_fo").style("visibility", "visible").
 		   selectAll(".google").style("visibility", "visible")
 		   ;
 	});
 	s.on("mouseleave", function() {
-		d3.select("#" + q + "_tooltip").style("visibility", "hidden");
-		d3.select("#" + q + "_tooltip_fo").style("visibility", "hidden").
+		d3.select("#" + q).style("visibility", "hidden");
+		d3.select("#" + q + "_fo").style("visibility", "hidden").
 		   selectAll(".google").style("visibility", "hidden")
 		;
 	});
-	d3.select("#" + q + "_tooltip").style("visibility", "hidden");
-	d3.select("#" + q + "_tooltip_fo").style("visibility", "hidden").
+	d3.select("#" + q).style("visibility", "hidden");
+	d3.select("#" + q + "_fo").style("visibility", "hidden").
 	    selectAll(".google").style("visibility", "hidden")
 	    ;
 }
 
-function adjust_panel(parent, q) {
+function adjust_panel(parent, q, xv , yv) {
 	// alert("adjust_panel");
-	var s = d3.select("#" + parent);
+	var s = d3.select("#" + parent+"_svg").empty()?d3.select("#" + parent):d3.select("#" + parent+"_svg");
 	// var r = d3.select("#close");
 	var convert = makeAbsoluteContext(s.node());
 	var x = s.attr("x");
@@ -1094,23 +1097,17 @@ function adjust_panel(parent, q) {
 	var h = getHeight("#" + q + "_svg");
 	var u = d3.select("#" + q + "_outer_fo");
 	var z = convert(x, y);
-	var x1 = 0;
-	var y1 = 0;
-	if (!u.empty()) {
-		x1 = parseFloat(u.attr("x"));
-		y1 = parseFloat(u.attr("y"));
-	}	
 	var t = d3.select("#" + q + "_svg");
 	if (!u.empty()) {
-		u.attr("x", z.x + x1).attr("y", z.y + y1);
-		t.attr("width", w + z.x + x1).attr("height", h + z.y + y1);
+		u.attr("x", z.x + xv).attr("y", z.y +  yv);
+		t.attr("width", w + z.x  + xv).attr("height", h + z.y +  yv);
 	}
 	if (s.on("click")!=null) return;
 	s.on("click", function() {
-		d3.select("#overlay").attr("width", z.x + w + x1);
-		d3.select("#overlay").attr("height", z.y + h + y1);
+		d3.select("#overlay").attr("width", z.x + w +xv);
+		d3.select("#overlay").attr("height", z.y + h + yv);
 		if (d3.select("#" + q + "_outer_fo").empty()) {
-			d3.select("#" + q + "_svg").attr("x", z.x).attr("y", z.y);
+			d3.select("#" + q + "_svg").attr("x", z.x+xv).attr("y", z.y+yv);
 		}
 		if (d3.select("#" + q + "").style("visibility") == "hidden") {
 			d3.select("#" + q + "").style("visibility", "visible");

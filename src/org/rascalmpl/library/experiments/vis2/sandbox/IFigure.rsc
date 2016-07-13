@@ -249,13 +249,15 @@ str visitTooltipFigs() {
     str r =
 "\<div class=\"overlay\"\>\<svg id = \"overlay\" width=<upperBound> height=<upperBound> \>";
     for (IFigure fi<-tooltips) {
-         if (g:ifigure(str id, _):=fi && endsWith(id, "_tooltip")) {
+         if (g:ifigure(str id, _):=fi) {
             r+= visitFig(g);        
             }
          }
     for (IFigure fi<-panels) {
          if (g:ifigure(str id, _):=fi) {
-            r+= visitFig(g);        
+            // r+= "\<foreignObject id=\"<id>_fox\" x=\"<getAtX(g)>\" y=\"<getAtY(g)>\" width=\"<upperBound>px\" height=\"<upperBound>px\"\>" ;
+            r+= visitFig(g); 
+            // r+= "\</foreignObject\>";     
             }
          }
     r+="\</svg\>\</div\>";
@@ -298,7 +300,6 @@ str google = "\<script src=\'https://www.google.com/jsapi?autoload={
 ;     
        
 str getIntro() {
-   list[str] tooltipIds = [replaceLast(s,"_tooltip","")| ifigure(str s, _)<-tooltips];
    res = "\<html\>
         '\<head\>      
         '\<style\>
@@ -357,8 +358,8 @@ str getIntro() {
         '  <for (d<-reverse(adjust)) {> <d> <}>
         '  <_display?"doFunction(\"load\", \"figureArea\")()":"\"\"">; 
         '  <for (d<-graphs) {> <d> <}>  
-        '  <for (d<-tooltipIds) {> adjust_tooltip(\"<d>\"); <}> 
-        '  <for (d<-panels) {> adjust_panel(\"<getParentFig(d.id).id>\",\"<d.id>\"); <}> 
+        '  <for (d<-tooltips) {> adjust_tooltip(\"<getParentFig(d.id).id>\",\"<d.id>\", <getAtX(d)>, <getAtY(d)>); <}> 
+        '  <for (d<-panels) {> adjust_panel(\"<getParentFig(d.id).id>\",\"<d.id>\", <getAtX(d)>, <getAtY(d)>); <}> 
         '  <for (d<-googleChart) {> <d> <}>  
         '  // setTimeout(function(){<for (d<-loadCalls) {><_display?"doFunction(\"load\", \"<d>\")()":"\"\"">;<}> }, 1000); 
         ' <for (d<-loadCalls) {><_display?"doFunction(\"load\", \"<d>\")()":"\"\"">;<}>  
@@ -1662,24 +1663,20 @@ str directive(Vertex v) {switch(getName(v)) {
 str mS(Figure f, str v) = ((emptyFigure():=f)?"": v);
        
 IFigure _shape(str id, Figure f,  IFigure fig = iemptyFigure(0)) {
-       num top = 0, bottom = screenHeight, left = 0, right = screenHeight;
+       num bottom = 0, right = 0;
        if (isEmpty(getFillColor(f))) f.fillColor= "white";
-       /*
        if (shape(list[Vertex] vs):= f) {
-           top = min([yV(p)|p<-vs]);
-           bottom = max([yV(p)|p<-vs]);
-           left = min([xV(p)|p<-vs]);
-           right = max([xV(p)|p<-vs]);
+           bottom = max([rescale(p.y, f.scaleY)|p<-vs]);
+           right =  max([rescale(p.x, f.scaleX)|p<-vs]);
        }   
        if (f.height<0)
-            f.height = toInt(bottom-top)+ 100;
+            f.height = toInt(bottom)+ 100;
        if (f.width<0) 
-             f.width = toInt(right-left)+ 100;
+             f.width = toInt(right)+ 100;
        if (abs(f.scaleX[1][1]-f.scaleX[1][0])>f.width) 
             f.width = toInt(abs(f.scaleX[1][1]-f.scaleX[1][0]));
        if (abs(f.scaleY[1][1]-f.scaleY[1][0])>f.height)
            f.height = toInt(abs(f.scaleY[1][1]-f.scaleY[1][0]));
-       */
        if (f.yReverse && f.scaleY==<<0,1>,<0,1>> && f.height>0) f.scaleY = <<0, f.height>, <f.height, 0>>;  
        str begintag = "";
        begintag+=
@@ -1821,7 +1818,7 @@ IFigure _buttonInput(str id, Figure f, str txt, bool addSvgTag) {
          '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
        begintag+="                    
-            '\<button id=\"<id>\" value=\"<txt>\"\>"
+            '\<button  id=\"<id>\" value=\"<txt>\"\>"
             ;
        str endtag="
             '\</button\>
@@ -1832,15 +1829,22 @@ IFigure _buttonInput(str id, Figure f, str txt, bool addSvgTag) {
           }
         widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
         "  
-        'd3.select(\"#<id>\")<on("click", 
-            "doFunction(\"click\",\"<id>\")")>
-        '<stylePx("width", width)><stylePx("height", height)> 
+        'd3.select(\"#<id>\")
+        '<if(f.panel==emptyFigure()){><on("click", "doFunction(\"click\",\"<id>\")")><}>
+        '<stylePx("width", width)><stylePx("height", height)>
         '<attrPx("w", width)><attrPx("h", height)>   
         '<attr1("disabled", f.disabled?"true":"null")>
         '<debugStyle()>
         '<style("background-color", "<getFillColor(f)>")> 
-        '.text(\"<txt>\")   
-        ;"
+        '.text(\"<txt>\")     
+        ;
+        var width =parseInt(d3.select(\"#<id>\").style(\"width\"))+4;
+        var height = parseInt(d3.select(\"#<id>\").style(\"height\"))+4;
+        d3.select(\"#<id>_svg\")<attr1("width", "width")>;
+        d3.select(\"#<id>_svg\")<attr1("height", "height")>;
+        d3.select(\"#<id>_fo\")<attr1("width", "width")>;
+        d3.select(\"#<id>_fo\")<attr1("height", "height")>;
+        "
         , width, height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, f.cellAlign,  getLineWidth(f), getLineColor(f), f.sizeFromParent, false >;
        addState(f);
        widgetOrder+= id;
@@ -2258,7 +2262,7 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
        addState(f);
        list[tuple[list[IFigure] f, int idx]] fig1 = [<figArray[i], i>|int i<-[0..size(figArray)]];
        adjust+=  "adjustTableWH(<figCallArray(figArray)>, \"<id>\", <-getLineWidth(f)>, 
-          <-hPadding(f)>, <-vPadding(f)>,<f.hgap>, <f.vgap>);\n";
+         <-hPadding(f)>, <-vPadding(f)>,<f.hgap>, <f.vgap>);\n";
        IFigure r = ifigure(id, [tr("<id>_<g.idx>", f, f.width, f.height, g.f ) | g<-fig1]);
        widgetOrder+= id;
        return  r;
@@ -2269,6 +2273,7 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
     str begintag = tr?"\<tr\>":"";
     // Alignment align = isAlign(getAlign(fig1))?getAlign(fig1):f.align;
     Alignment align = isAlignment(getCellAlign(fig1))?getCellAlign(fig1):f.align;
+    // println(align);
     begintag +="\<td  id=\"<id>\" <vAlign(align)> <hAlign(align)>\>";   
     str endtag = "\</td\>";
     if (tr) endtag+="\</tr\>";
@@ -2278,7 +2283,7 @@ IFigure _grid(str id, Figure f,  bool addSvgTag, list[list[IFigure]] figArray=[[
         '<if(debug){><debugStyle()><} else {> <borderStyle(f)> <}>       
         '<style("background-color", "<getFillColor(f)>")> 
         '<attr("pointer-events", "none")> ;
-        ", f.width, f.height, getAtX(f), getAtY(f), 0, 0, f.align, f.cellAlign, getLineWidth(f), getLineColor(f)
+        ", f.width, f.height, getAtX(f), getAtY(f), 0, 0, align, align, getLineWidth(f), getLineColor(f)
          , f.sizeFromParent, false >;
        addState(f);
        widgetOrder+= id;
@@ -2453,7 +2458,12 @@ Figure buildFigMap(Figure f) {
    
 Figure getParentFig(Figure f) = figMap[parentMap[f.id]]; 
 
-Figure getParentFig(str id) = figMap[parentMap[id]];
+Figure getParentFig(str id) {
+      Figure f = figMap[parentMap[id]];
+      while (atXY(_, _, _):=f ||  atX(_, _):=f || atY(_, _):=f)
+         f = figMap[parentMap[f.id]];
+      return f;  
+      }
 
 void buildParentTree(Figure f) {
     // println(f);
@@ -2526,9 +2536,9 @@ IFigure _translate(Figure f,  bool addSvgTag = false,
             f.vgrow = f.grow;
             }
     value v = f.tooltip;
-    if (Figure g:=v && g!=emptyFigure()) {tooltips +=  _translate(g, addSvgTag=true); }
+    if (Figure g:=v && emptyFigure()!:=g) {tooltips +=  _translate(g, addSvgTag=true); }
     v = f.panel;
-    if (Figure g:=v && g!=emptyFigure()) {panels +=  _translate(g, addSvgTag=true); }
+    if (Figure g:=v && emptyFigure()!=g) {panels +=  _translate(g, addSvgTag=true); }
     switch(f) {   
         case box(): return _rect(f.id, true, f, fig = _translate(f.fig,  inHtml = true));
         case emptyFigure(): return iemptyFigure(f.seq);
@@ -2591,7 +2601,7 @@ IFigure _translate(Figure f,  bool addSvgTag = false,
            fig.at = f.at;
            return _translate(fig, inHtml=true);
            }		
-        case buttonInput(str txt):  return _buttonInput(f.id, f,  txt, addSvgTag);
+        case buttonInput(str txt):  return _buttonInput(f.id, f,  txt, f.panel==emptyFigure()?addSvgTag:true);
         case rangeInput():  return _rangeInput(f.id, f, addSvgTag);
         case strInput():  return _strInput(f.id, f, addSvgTag);
         case choiceInput():  return _choiceInput(f.id, f, addSvgTag);
