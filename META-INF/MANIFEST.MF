@@ -130,6 +130,7 @@ Bundle-ClassPath: lib/snakeyaml-1.11.jar,
  lib/lucene-analyzers-common-6.0.0.jar,
  lib/lucene-core-6.0.0.jar,
  lib/lucene-queryparser-6.0.0.jar,
+ lib/protobuf-java-2.4.1.jar,
  lib/value-0.5.3.jar,
  lib/html2png.jar,
  .
