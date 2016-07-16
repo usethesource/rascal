@@ -14,6 +14,8 @@ import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.util.ResizingArray;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import com.google.protobuf.CodedInputStream;
+
 /**
  * RVMExecutableReader is a binary deserializer for RVMExecutable and related classes
  * such as Function, OverloadedFunction, CodeBlock.
@@ -32,24 +34,24 @@ public class RVMExecutableReader {
 	
 	private final RVMIValueReader valueReader;
 	
-	private final RVMInputStream in;
+	private final CodedInputStream in;
 	
 	transient private final ResizingArray<Object> sharedObjectsList;
 	transient private int currentSharedObjectId;
 
 	public RVMExecutableReader(InputStream in){
-		this.in = new RVMInputStream(in);
-		this.valueReader = new RVMIValueReader(this.in, ValueFactoryFactory.getValueFactory(), new TypeStore());
+		this.valueReader = new RVMIValueReader(in, ValueFactoryFactory.getValueFactory(), new TypeStore());
+		this.in = valueReader.getIn();
 		sharedObjectsList = new ResizingArray<>(1000);
 		sharedObjectsList.set(new Boolean(false), currentSharedObjectId++); // make sure index 0 is not used
 	}
 	
 	public void close() throws IOException {
-		in.close();
+		//in.close();
 	}
 	
 	public ArrayList<String> readArrayListString() throws IOException {
-		int n = in.readInt();
+		int n = in.readInt32();
 		ArrayList<String> res = new ArrayList<String>(n);
 		for(int i = 0; i < n; i++){
 			String s = readJString();
@@ -59,7 +61,7 @@ public class RVMExecutableReader {
 	}
 	
 	public OverloadedFunction[] readArrayOverloadedFunctions() throws IOException {
-		int n = in.readInt();
+		int n = in.readInt32();
 		OverloadedFunction[] res = new OverloadedFunction[n];
 
 		for(int i = 0; i < n; i++){
@@ -73,11 +75,12 @@ public class RVMExecutableReader {
 	}
 	
 	public byte[] readByteArray() throws IOException {
-		return in.readByteArray();
+		int n = readInt();
+		return in.readRawBytes(n);
 	}
 	
 	public Integer readInt() throws IOException {
-		return in.readInt();
+		return in.readInt32();
 	}
 	
 	public Function[] readFunctionStore() throws IOException {
@@ -102,7 +105,7 @@ public class RVMExecutableReader {
 		int n = readInt();
 		long[] longs = new long[n];
 		for(int i = 0; i < n; i++){
-			longs[i] = valueReader.getIn().readLong();
+			longs[i] = valueReader.getIn().readInt64();
 		}
 		return longs;
 	}

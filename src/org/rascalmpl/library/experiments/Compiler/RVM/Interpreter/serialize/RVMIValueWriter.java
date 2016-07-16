@@ -32,7 +32,10 @@ import org.rascalmpl.value.util.IndexedSet;
 import org.rascalmpl.value.visitors.IValueVisitor;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import com.google.protobuf.CodedOutputStream;
 
+
+// TODO: review all palces where writeInt32 and writeByteRaw are used
 /**
  * The TYPEs distinguished during (de)serialization.
  */
@@ -70,10 +73,14 @@ public class RVMIValueWriter   {
 	private final IInteger minInt;
 	private final IInteger maxInt;
 
-	private RVMOutputStream out;
+	private OutputStream basicOut;
+	private CodedOutputStream out;
 
 	public RVMIValueWriter(OutputStream out) {
-		this.out = new RVMOutputStream(out);
+		this.basicOut = out;
+//		this.out = new RVMOutputStream(out);
+		this.out = CodedOutputStream.newInstance(out);
+
 //		store = ts;
 //		store.extendStore(RascalValueFactory.getStore());
 		
@@ -87,30 +94,31 @@ public class RVMIValueWriter   {
 	}
 	
 	public void close() throws IOException {
-		out.close();
+		out.flush();
+		basicOut.close();
 	}
 	
-	RVMOutputStream getOut() {
+	CodedOutputStream getOut() {
 		return out;
 	}
 	
 	private void writeTypeEnum(TYPE t) throws IOException{
-		out.write(t.ordinal());
+		out.writeInt32NoTag(t.ordinal());
 	}
 	
 	private void writeValueEnum(VALUE v) throws IOException{
-		out.write(v.ordinal());
+		out.writeInt32NoTag(v.ordinal());
 	}
 	
 	private void writeArity(int arity) throws IOException{
 		if(arity >= MAX_BYTE){
 			throw new IllegalArgumentException("Arity " + arity + " not supported");
 		}
-		out.writeByte(arity);
+		out.writeRawByte(arity);
 	}
 	
 	private void writeLength(int length) throws IOException{
-		out.writeInt(length);
+		out.writeInt32NoTag(length);
 	}
 	
 	/**
@@ -124,11 +132,11 @@ public class RVMIValueWriter   {
 		int nameId = sharedNames.store(name);
 		if(nameId >= 0){
 			writeValueEnum(VALUE.SHARED_NAME);
-		   out.writeInt(nameId);
+		   out.writeInt32NoTag(nameId);
 		   
 		} else {
 			writeValueEnum(VALUE.NAME);
-			out.writeString(name);
+			out.writeStringNoTag(name);
 		}
 	}
 	
@@ -144,10 +152,10 @@ public class RVMIValueWriter   {
 		int stringId = sharedValues.store(s);
 		if(stringId >= 0){
 			writeValueEnum(VALUE.SHARED_STR);
-			out.writeInt(stringId);
+			out.writeInt64NoTag(stringId);
 		} else {
 			writeValueEnum(VALUE.STR);
-			out.writeString(s.getValue());
+			out.writeStringNoTag(s.getValue());
 		}
 	}
 	
@@ -157,10 +165,10 @@ public class RVMIValueWriter   {
 		int uriId = sharedPaths.store(path);
 		if(uriId >= 0){
 			writeValueEnum(VALUE.SHARED_URI);
-			out.writeInt(uriId);
+			out.writeInt64NoTag(uriId);
 		} else {
 			writeValueEnum(VALUE.URI);
-			out.writeString(path);
+			out.writeStringNoTag(path);
 		}
 	}
 	
@@ -169,9 +177,9 @@ public class RVMIValueWriter   {
 		
 		byte[] valueData = real.unscaled().getTwosComplementRepresentation();
 		int length = valueData.length;
-		out.writeInt(length);
-		out.write(valueData, 0, length);
-		out.write(real.scale());
+		out.writeInt32NoTag(length);
+		out.writeRawBytes(valueData, 0, length);
+		out.writeInt32NoTag(real.scale());
 	}
 	
 	private void writeIInteger(IInteger val) throws IOException{
@@ -201,14 +209,14 @@ public class RVMIValueWriter   {
 			case 10:	writeValueEnum(VALUE.INT10);break;
 			default:
 				writeValueEnum(VALUE.INT);
-				out.writeInt(n);
+				out.writeInt64NoTag(n);
 			}
 		} else {
 			writeValueEnum(VALUE.BIG_INT);
 			byte[] valueData = val.getTwosComplementRepresentation();
 			int length = valueData.length;
-			out.writeInt(length);
-			out.write(valueData, 0, length);
+			out.writeInt32NoTag(length);
+			out.writeRawBytes(valueData, 0, length);
 		}
 	}
 	
@@ -230,7 +238,7 @@ public class RVMIValueWriter   {
 		if(typeId >= 0){
 			//System.out.println("writeType: " + t + " shared as " + typeId);
 			writeTypeEnum(TYPE.SHARED_TYPE);
-			out.writeInt(typeId);
+			out.writeInt32NoTag(typeId);
 			return;
 		}
 		writeType1(t);
@@ -367,7 +375,7 @@ public class RVMIValueWriter   {
 				} else if(type instanceof OverloadedFunctionType){
 					writeTypeEnum(TYPE.OVERLOADED);
 					Set<FunctionType> alternatives = ((OverloadedFunctionType) type).getAlternatives();
-					out.writeInt(alternatives.size());
+					out.writeInt32NoTag(alternatives.size());
 					for(FunctionType ft : alternatives){
 						writeType(ft);
 					}
@@ -453,7 +461,7 @@ public class RVMIValueWriter   {
 			@Override
 			public Void visitBoolean(IBool val) throws IOException {
 				writeValueEnum(VALUE.BOOL);
-				out.writeBool(val.getValue());
+				out.writeBoolNoTag(val.getValue());
 				return null;
 			}
 
@@ -490,33 +498,33 @@ public class RVMIValueWriter   {
 				if(dateTime.isDateTime()){
 					writeValueEnum(VALUE.DATE_TIME);
 					
-					out.writeInt(dateTime.getYear());
-					out.writeInt(dateTime.getMonthOfYear());
-					out.writeInt(dateTime.getDayOfMonth());
+					out.writeInt32NoTag(dateTime.getYear());
+					out.writeInt32NoTag(dateTime.getMonthOfYear());
+					out.writeInt32NoTag(dateTime.getDayOfMonth());
 					
-					out.writeInt(dateTime.getHourOfDay());
-					out.writeInt(dateTime.getMinuteOfHour());
-					out.writeInt(dateTime.getSecondOfMinute());
-					out.writeInt(dateTime.getMillisecondsOfSecond());
+					out.writeInt32NoTag(dateTime.getHourOfDay());
+					out.writeInt32NoTag(dateTime.getMinuteOfHour());
+					out.writeInt32NoTag(dateTime.getSecondOfMinute());
+					out.writeInt32NoTag(dateTime.getMillisecondsOfSecond());
 					
-					out.writeInt(dateTime.getTimezoneOffsetHours());
-					out.writeInt(dateTime.getTimezoneOffsetMinutes());
+					out.writeInt32NoTag(dateTime.getTimezoneOffsetHours());
+					out.writeInt32NoTag(dateTime.getTimezoneOffsetMinutes());
 				} else if(dateTime.isDate()){
 					writeValueEnum(VALUE.DATE);
 					
-					out.writeInt(dateTime.getYear());
-					out.writeInt(dateTime.getMonthOfYear());
-					out.writeInt(dateTime.getDayOfMonth());
+					out.writeInt32NoTag(dateTime.getYear());
+					out.writeInt32NoTag(dateTime.getMonthOfYear());
+					out.writeInt32NoTag(dateTime.getDayOfMonth());
 				} else {
 					writeValueEnum(VALUE.TIME);
 					
-					out.writeInt(dateTime.getHourOfDay());
-					out.writeInt(dateTime.getMinuteOfHour());
-					out.writeInt(dateTime.getSecondOfMinute());
-					out.writeInt(dateTime.getMillisecondsOfSecond());
+					out.writeInt32NoTag(dateTime.getHourOfDay());
+					out.writeInt32NoTag(dateTime.getMinuteOfHour());
+					out.writeInt32NoTag(dateTime.getSecondOfMinute());
+					out.writeInt32NoTag(dateTime.getMillisecondsOfSecond());
 					
-					out.writeInt(dateTime.getTimezoneOffsetHours());
-					out.writeInt(dateTime.getTimezoneOffsetMinutes());
+					out.writeInt32NoTag(dateTime.getTimezoneOffsetHours());
+					out.writeInt32NoTag(dateTime.getTimezoneOffsetMinutes());
 				}
 				return null;
 			}
@@ -625,17 +633,17 @@ public class RVMIValueWriter   {
 				
 				//uri, offset, length, beginLine, endLine, beginCol, endCol
 				if(val.hasOffsetLength()){
-					out.writeInt(val.getOffset());
-					out.writeInt(val.getLength());
+					out.writeInt64NoTag(val.getOffset());
+					out.writeInt64NoTag(val.getLength());
 				} else {
-					out.writeInt(-1);
+					out.writeInt64NoTag(-1);
 					return null;
 				}
 				if(val.hasLineColumn()){
-					out.writeShort((short)val.getBeginLine());
-					out.writeShort((short)val.getEndLine());
-					out.writeShort((short)val.getBeginColumn());
-					out.writeShort((short)val.getEndColumn());
+					out.writeInt32NoTag((short)val.getBeginLine());
+					out.writeInt32NoTag((short)val.getEndLine());
+					out.writeInt32NoTag((short)val.getBeginColumn());
+					out.writeInt32NoTag((short)val.getEndColumn());
 				}
 				return null;
 			}

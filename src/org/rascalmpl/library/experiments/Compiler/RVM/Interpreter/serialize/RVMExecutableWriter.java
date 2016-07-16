@@ -60,13 +60,13 @@ public class RVMExecutableWriter {
 	}
 	
 	public void writeBool(boolean b) throws IOException {
-		valueWriter.getOut().writeBool(b);
+		valueWriter.getOut().writeBoolNoTag(b);
 	}
 	
 	public void writeByteArray(byte[] jvmByteCode) throws IOException {
 		int n = jvmByteCode.length;
 		writeInt(n);
-		valueWriter.getOut().write(jvmByteCode, 0, n);
+		valueWriter.getOut().writeRawBytes(jvmByteCode, 0, n);
 	}
 
 	
@@ -82,7 +82,7 @@ public class RVMExecutableWriter {
 	}
 	
 	public void writeInt(int n) throws IOException {
-		valueWriter.getOut().writeInt(n);
+		valueWriter.getOut().writeInt64NoTag(n);
 	}
 	
 	public void writeIntArray(int[] ia) throws IOException {
@@ -108,7 +108,7 @@ public class RVMExecutableWriter {
 	}
 
 	private void writeLong(long l) throws IOException {
-		valueWriter.getOut().writeLong(l);
+		valueWriter.getOut().writeInt64NoTag(l);
 	}
 	
 	public void writeLongArray(long[] la) throws IOException {
