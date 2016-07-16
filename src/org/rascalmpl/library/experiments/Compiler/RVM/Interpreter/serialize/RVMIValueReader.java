@@ -34,6 +34,8 @@ import org.rascalmpl.value.util.ResizingArray;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
+import com.google.protobuf.CodedInputStream;
+
 import io.usethesource.capsule.TransientMap;
 import io.usethesource.capsule.TrieMap_5Bits;
 
@@ -61,7 +63,8 @@ public class RVMIValueReader {
 	transient final ResizingArray<String> sharedNamesList;
 	transient private int currentSharedNamesId;
 
-	private RVMInputStream in;
+	private InputStream basicIn;
+	private CodedInputStream in;
 
 	private TypeFactory tf;
 
@@ -69,14 +72,17 @@ public class RVMIValueReader {
 
 	private RascalTypeFactory rtf;
 
-	public RVMIValueReader(InputStream in, IValueFactory vfactory, TypeStore ts){
-		this( new RVMInputStream(in), vfactory, ts);
-	}
+//	public RVMIValueReader(InputStream in, IValueFactory vfactory, TypeStore ts){
+//		this.basicIn = in;
+//		this( CodedInputStream.newInstance(in), vfactory, ts);
+//	}
 	
-	public RVMIValueReader(RVMInputStream in, IValueFactory vfactory, TypeStore ts) {
+	public RVMIValueReader(InputStream in, IValueFactory vfactory, TypeStore ts) {
 		tf = TypeFactory.getInstance();
 		vf = vfactory;
-		this.in = in;
+		this.basicIn = in;
+		
+		this.in = CodedInputStream.newInstance(in);
 		store = ts;
 		rtf = RascalTypeFactory.getInstance();
 
@@ -92,22 +98,22 @@ public class RVMIValueReader {
 		currentSharedNamesId = 0;
 	}
 	
-	public RVMInputStream getIn() {
+	public CodedInputStream getIn() {
 		return in;
 	}
 	
 	int readArity() throws IOException{
-		return in.readByte();
+		return in.readRawByte();
 	}
 	
 	int readLength() throws IOException{
-		return in.readInt();
+		return in.readInt32();
 	}
 	
 	String readName() throws IOException{
-		int o = in.readByte();
+		int o = in.readRawByte();
 		if(o == VALUE.SHARED_NAME.ordinal()){
-			int n = in.readInt();
+			int n = in.readInt32();
 			String res = sharedNamesList.get(n);
 			if(res == null){
 				throw new RuntimeException("SharedName not found: " + n);
@@ -133,17 +139,15 @@ public class RVMIValueReader {
 	}
 	
 	private IInteger readBigInt() throws IOException{
-		int length = in.readInt();
-		byte[] valueData = new byte[length];
-		in.read(valueData, 0, length);
+		int length = in.readInt32();
+		byte[] valueData = in.readRawBytes(length);
 		return vf.integer(valueData);
 	}
 	
 	private IReal readReal() throws IOException{
-		int length = in.readInt();
-		byte[] unscaledValueData = new byte[length];
-		in.read(unscaledValueData, 0, length);
-		int scale = in.readInt();
+		int length = in.readInt32();
+		byte[] unscaledValueData = in.readRawBytes(length);
+		int scale = in.readInt32();
 		
 		return vf.real(new BigDecimal(new BigInteger(unscaledValueData), scale).toString()); // The toString call kind of stinks.
 	}
@@ -164,12 +168,12 @@ public class RVMIValueReader {
 	 * @throws IOException
 	 */
 	Type readType() throws IOException{
-		int op = in.readByte();
+		int op = in.readRawByte();
 		
 		TYPE start = TYPE.values()[op];
 		
 		if(start.equals(TYPE.SHARED_TYPE)){
-			int n = in.readInt();
+			int n = in.readInt32();
 			Type res = sharedTypesList.get(n);
 			if(res == null){
 				throw new RuntimeException("sharedType not found: " + n);
@@ -302,7 +306,7 @@ public class RVMIValueReader {
 			return res;
 		
 		case OVERLOADED:
-			int n = in.readInt();
+			int n = in.readInt32();
 			Set<FunctionType> alternatives = new HashSet<FunctionType>(n);
 			for(int i = 0; i < n; i++){
 				alternatives.add((FunctionType) readType());
@@ -356,7 +360,7 @@ public class RVMIValueReader {
 			return tf.tupleType(elemTypes);
 						
 		case SHARED_TYPE:
-			n = in.readInt();
+			n = in.readInt32();
 			res = sharedTypesList.get(n);
 			if(res == null){
 				throw new RuntimeException("readType: sharedType not found " + n);
@@ -382,7 +386,7 @@ public class RVMIValueReader {
 	@SuppressWarnings("deprecation")
 	public IValue readValue() throws IOException{
 		
-		VALUE start = VALUE.values()[in.readByte()];
+		VALUE start = VALUE.values()[in.readRawByte()];
 		
 		switch(start){
 		
@@ -407,32 +411,32 @@ public class RVMIValueReader {
 			return vf.constructor(consType, args).asWithKeywordParameters().setParameters(annos);
 			
 		case DATE_TIME:
-			int year = in.readInt();
-			int month = in.readInt();
-			int day = in.readInt();
+			int year = in.readInt32();
+			int month = in.readInt32();
+			int day = in.readInt32();
 			
-			int hour = in.readInt();
-			int minute = in.readInt();
-			int second = in.readInt();
-			int millisecond = in.readInt();
+			int hour = in.readInt32();
+			int minute = in.readInt32();
+			int second = in.readInt32();
+			int millisecond = in.readInt32();
 			
-			int timeZoneHourOffset = in.readInt();
-			int timeZoneMinuteOffset = in.readInt();
+			int timeZoneHourOffset = in.readInt32();
+			int timeZoneMinuteOffset = in.readInt32();
 			return vf.datetime(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
 
 		case DATE:
-			year = in.readInt();
-			month = in.readInt();
-			day = in.readInt();
+			year = in.readInt32();
+			month = in.readInt32();
+			day = in.readInt32();
 			return vf.date(year, month, day);
 			
 		case TIME:
-			hour = in.readInt();
-			minute = in.readInt();
-			second = in.readInt();
-			millisecond = in.readInt();
-			timeZoneHourOffset = in.readInt();
-			timeZoneMinuteOffset = in.readInt();
+			hour = in.readInt32();
+			minute = in.readInt32();
+			second = in.readInt32();
+			millisecond = in.readInt32();
+			timeZoneHourOffset = in.readInt32();
+			timeZoneMinuteOffset = in.readInt32();
 			return vf.time(hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
 			
 		case FUNCTION:
@@ -442,7 +446,7 @@ public class RVMIValueReader {
 			return readBigInt();
 			
 		case INT:
-			return vf.integer(in.readInt());
+			return vf.integer(in.readInt64());
 			
 		case INT_10:
 			return vf.integer(-10);
@@ -498,18 +502,18 @@ public class RVMIValueReader {
 			
 		case LOC:
 			ISourceLocation path = (ISourceLocation) readValue();
-			int offset = in.readInt();
+			int offset = in.readInt32();
 			int length = -1;
 			if(offset >= 0){
-				length = in.readInt();
+				length = in.readInt32();
 			} else {
 				return path;
 			}
-			int beginLine = in.readShort();
+			int beginLine = in.readInt32();
 			if(beginLine >= 0){
-				int endLine = in.readShort();
-				int beginColumn = in.readShort();
-				int endColumn = in.readShort();
+				int endLine = in.readInt32();
+				int beginColumn = in.readInt32();
+				int endColumn = in.readInt32();
 				return vf.sourceLocation(path, offset, length, beginLine, endLine, beginColumn, endColumn);
 			}
 			return vf.sourceLocation(path, offset, length);
@@ -563,7 +567,7 @@ public class RVMIValueReader {
 			return is;
 			
 		case SHARED_STR:
-			return (IString) sharedValuesList.get(in.readInt());
+			return (IString) sharedValuesList.get(in.readInt32());
 			
 		case URI:
 			try {
@@ -575,7 +579,7 @@ public class RVMIValueReader {
 			return path;
 			
 		case SHARED_URI:
-			int n = in.readInt();
+			int n = in.readInt32();
 			path = sharedLocsList.get(n);
 			if(path == null){
 				throw new RuntimeException("SharedLoc not found: " + n);
@@ -633,7 +637,8 @@ public class RVMIValueReader {
 		HashMap<String,IValue> kwParams = new HashMap<>();
 		kwParams.put("zzz", vf.string("pqr"));
 		
-		IValue start = vf.integer("12345678901234567890");
+		IValue start = dt;
+				//vf.integer("12345678901234567890");
 		//vf.tuple(vf.integer(42), vf.integer(42));
 				//vf.constructor(fcons, w.done()).asWithKeywordParameters().setParameters(kwParams);
 		Type startType = fcons;
@@ -688,7 +693,7 @@ public class RVMIValueReader {
 	}
 
 	private void close() throws IOException {
-		in.close();
+		basicIn.close();
 	}
 
 	
