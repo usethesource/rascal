@@ -34,8 +34,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 import com.google.protobuf.CodedOutputStream;
 
-
-// TODO: review all palces where writeInt32 and writeByteRaw are used
 /**
  * The TYPEs distinguished during (de)serialization.
  */
@@ -63,7 +61,6 @@ enum VALUE {REAL, INT, BIG_INT,
  */
 	        
 public class RVMIValueWriter   {	
-	private final static int MAX_BYTE = 127;
 
 	transient private final IndexedSet<IValue> sharedValues;
 	transient private final IndexedSet<Type> sharedTypes;
@@ -103,22 +100,19 @@ public class RVMIValueWriter   {
 	}
 	
 	private void writeTypeEnum(TYPE t) throws IOException{
-		out.writeInt32NoTag(t.ordinal());
+		out.writeRawByte(t.ordinal());
 	}
 	
 	private void writeValueEnum(VALUE v) throws IOException{
-		out.writeInt32NoTag(v.ordinal());
+		out.writeRawByte(v.ordinal());
 	}
 	
 	private void writeArity(int arity) throws IOException{
-		if(arity >= MAX_BYTE){
-			throw new IllegalArgumentException("Arity " + arity + " not supported");
-		}
-		out.writeRawByte(arity);
+		out.writeRawVarint32(arity);
 	}
 	
 	private void writeLength(int length) throws IOException{
-		out.writeInt32NoTag(length);
+		out.writeRawVarint32(length);
 	}
 	
 	/**
@@ -132,7 +126,7 @@ public class RVMIValueWriter   {
 		int nameId = sharedNames.store(name);
 		if(nameId >= 0){
 			writeValueEnum(VALUE.SHARED_NAME);
-		   out.writeInt32NoTag(nameId);
+		   out.writeRawVarint32(nameId);
 		   
 		} else {
 			writeValueEnum(VALUE.NAME);
@@ -177,9 +171,9 @@ public class RVMIValueWriter   {
 		
 		byte[] valueData = real.unscaled().getTwosComplementRepresentation();
 		int length = valueData.length;
-		out.writeInt32NoTag(length);
+		out.writeRawVarint32(length);
 		out.writeRawBytes(valueData, 0, length);
-		out.writeInt32NoTag(real.scale());
+		out.writeRawVarint32(real.scale());
 	}
 	
 	private void writeIInteger(IInteger val) throws IOException{
@@ -215,7 +209,7 @@ public class RVMIValueWriter   {
 			writeValueEnum(VALUE.BIG_INT);
 			byte[] valueData = val.getTwosComplementRepresentation();
 			int length = valueData.length;
-			out.writeInt32NoTag(length);
+			out.writeRawVarint32(length);
 			out.writeRawBytes(valueData, 0, length);
 		}
 	}
@@ -238,7 +232,7 @@ public class RVMIValueWriter   {
 		if(typeId >= 0){
 			//System.out.println("writeType: " + t + " shared as " + typeId);
 			writeTypeEnum(TYPE.SHARED_TYPE);
-			out.writeInt32NoTag(typeId);
+			out.writeRawVarint32(typeId);
 			return;
 		}
 		writeType1(t);
@@ -375,7 +369,7 @@ public class RVMIValueWriter   {
 				} else if(type instanceof OverloadedFunctionType){
 					writeTypeEnum(TYPE.OVERLOADED);
 					Set<FunctionType> alternatives = ((OverloadedFunctionType) type).getAlternatives();
-					out.writeInt32NoTag(alternatives.size());
+					out.writeRawVarint32(alternatives.size());
 					for(FunctionType ft : alternatives){
 						writeType(ft);
 					}
@@ -498,33 +492,33 @@ public class RVMIValueWriter   {
 				if(dateTime.isDateTime()){
 					writeValueEnum(VALUE.DATE_TIME);
 					
-					out.writeInt32NoTag(dateTime.getYear());
-					out.writeInt32NoTag(dateTime.getMonthOfYear());
-					out.writeInt32NoTag(dateTime.getDayOfMonth());
+					out.writeRawVarint32(dateTime.getYear());
+					out.writeRawVarint32(dateTime.getMonthOfYear());
+					out.writeRawVarint32(dateTime.getDayOfMonth());
 					
-					out.writeInt32NoTag(dateTime.getHourOfDay());
-					out.writeInt32NoTag(dateTime.getMinuteOfHour());
-					out.writeInt32NoTag(dateTime.getSecondOfMinute());
-					out.writeInt32NoTag(dateTime.getMillisecondsOfSecond());
+					out.writeRawVarint32(dateTime.getHourOfDay());
+					out.writeRawVarint32(dateTime.getMinuteOfHour());
+					out.writeRawVarint32(dateTime.getSecondOfMinute());
+					out.writeRawVarint32(dateTime.getMillisecondsOfSecond());
 					
-					out.writeInt32NoTag(dateTime.getTimezoneOffsetHours());
-					out.writeInt32NoTag(dateTime.getTimezoneOffsetMinutes());
+					out.writeRawVarint32(dateTime.getTimezoneOffsetHours());
+					out.writeRawVarint32(dateTime.getTimezoneOffsetMinutes());
 				} else if(dateTime.isDate()){
 					writeValueEnum(VALUE.DATE);
 					
-					out.writeInt32NoTag(dateTime.getYear());
-					out.writeInt32NoTag(dateTime.getMonthOfYear());
-					out.writeInt32NoTag(dateTime.getDayOfMonth());
+					out.writeRawVarint32(dateTime.getYear());
+					out.writeRawVarint32(dateTime.getMonthOfYear());
+					out.writeRawVarint32(dateTime.getDayOfMonth());
 				} else {
 					writeValueEnum(VALUE.TIME);
 					
-					out.writeInt32NoTag(dateTime.getHourOfDay());
-					out.writeInt32NoTag(dateTime.getMinuteOfHour());
-					out.writeInt32NoTag(dateTime.getSecondOfMinute());
-					out.writeInt32NoTag(dateTime.getMillisecondsOfSecond());
+					out.writeRawVarint32(dateTime.getHourOfDay());
+					out.writeRawVarint32(dateTime.getMinuteOfHour());
+					out.writeRawVarint32(dateTime.getSecondOfMinute());
+					out.writeRawVarint32(dateTime.getMillisecondsOfSecond());
 					
-					out.writeInt32NoTag(dateTime.getTimezoneOffsetHours());
-					out.writeInt32NoTag(dateTime.getTimezoneOffsetMinutes());
+					out.writeRawVarint32(dateTime.getTimezoneOffsetHours());
+					out.writeRawVarint32(dateTime.getTimezoneOffsetMinutes());
 				}
 				return null;
 			}
@@ -640,10 +634,10 @@ public class RVMIValueWriter   {
 					return null;
 				}
 				if(val.hasLineColumn()){
-					out.writeInt32NoTag((short)val.getBeginLine());
-					out.writeInt32NoTag((short)val.getEndLine());
-					out.writeInt32NoTag((short)val.getBeginColumn());
-					out.writeInt32NoTag((short)val.getEndColumn());
+					out.writeRawVarint32((short)val.getBeginLine());
+					out.writeRawVarint32((short)val.getEndLine());
+					out.writeRawVarint32((short)val.getBeginColumn());
+					out.writeRawVarint32((short)val.getEndColumn());
 				}
 				return null;
 			}
