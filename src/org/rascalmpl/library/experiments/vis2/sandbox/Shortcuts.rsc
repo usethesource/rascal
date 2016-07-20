@@ -21,7 +21,7 @@ str nameA(Alignment a) {
 
 // Dimensions of nodes in tree must be known in advance    
 Figure pnode(str s, str t) = box(size=<size(s)*10, (size(findAll(s,"\n"))+1)*20>, fillColor="whitesmoke", fig=text(s, fontSize=12)
-               , tooltip=  frame(atXY(5, 15, box(t, 12, "blue", 1.2, "white"))));
+               , tooltip=  atXY(0, 0, box(t, 12, "blue", 1.2, "white")));
               
 Figure rnode(str s) = box(size=<size(s)*12, 20>,fillColor="antiquewhite", fig=htmlText(s, fontSize=14));
 
@@ -253,7 +253,7 @@ public Figure graph(int width, int height, list[Figure] nodes, list[tuple[int, i
                  
  Figure tsts(bool include) = vcat(borderWidth = 2,borderColor="black", vgap=4, figs=tst(include));
  
- public void ttsts() = render(tsts(true), size=<800, 2000>);
+ public void ttsts() = render(tsts(true), defined=false);
  
  public void ftsts(loc l, bool include) = writeFile(l, toHtmlString(
    tsts(include)

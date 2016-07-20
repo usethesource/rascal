@@ -48,8 +48,6 @@ public data IFigure = iemptyFigure(int seq);
 // --------------------------------------------------------------------------------
 
 bool debug = true;
-int screenWidth = 400;
-int screenHeight = 400;
 str cssLocation = "";
 
 int seq = 0;
@@ -216,7 +214,7 @@ void addState(Figure f) {
     }
       
 public void clearWidget() { 
-    println("clearWidget <screenWidth> <screenHeight>");
+    println("clearWidget");
     widget = (); widgetOrder = [];adjust=[]; googleChart=[]; loadCalls = []; graphs= [];
     markerScript = [];
     defs=(); 
@@ -402,6 +400,14 @@ bool isAlign(Figure f) {
    
 bool isCellAlign(Figure f) {
    return getKeywordParameters(f)["cellAlign"]?;
+   }
+   
+bool isWidth(Figure f) {
+   return getKeywordParameters(f)["width"]?;
+   }
+   
+bool isHeight(Figure f) {
+   return getKeywordParameters(f)["height"]?;
    }
 
 bool isAlignment(Alignment align) = align!=<-1, -1>;
@@ -624,19 +630,20 @@ IFigure  _d3Tree(str id, Figure f, list[str] ids, list[IFigure] fig1, str json) 
 public void _render(IFigure fig1, int width = 800, int height = 800, 
      Alignment align = centerMid, int borderWidth = -1, str borderStyle="", str borderColor = "",
      str fillColor = "none", str lineColor = "black", bool display = true, Event event = noEvent(),
-     bool resizable = true, bool defined = true, str cssFile= "")
+     bool resizable = true, bool defined = false, str cssFile= "")
      {
-     screenWidth = width;
-     screenHeight = height;
      _display = display;
      str id = "figureArea";
     str begintag= beginTag(id, getAlign(fig1));
     str endtag = endTag(); 
     widget[id] = <(display?getRenderCallback(event):null), seq, id, begintag, endtag, 
         "
-        'd3.select(\"#<id>\")   
-        '<defined?attrPx("w", width):attr1("w", "screenWidth")>
-        '<defined?attrPx("h", height):attr1("h", "screenHeight")>    
+        'd3.select(\"#<id>\")       
+        '<if(defined){>
+        '      <attrPx("w", width)><attrPx("h", height)>
+        '<}else{>
+        '   <attr1("w", "screenWidth")> <attr1("h", "screenHeight")> 
+        '<}>
         '<style("border","0px solid black")> 
         '<style("border-width",borderWidth)>
         '<style("border-style",borderStyle)>
@@ -754,11 +761,13 @@ num getLineOpacity(Figure f) {
   
 str getVisibility(Figure f) {
     str c = f.visibility;
+    /*
     while (isEmpty(c)) {
         if (!(parentMap[f.id]?)) return "inherited";
         f = figMap[parentMap[f.id]];
         c = f.visibility;
         }
+   */
    return c;
   }
     
@@ -970,6 +979,7 @@ IFigure _text(str id, bool inHtml, Figure f, str s, str overflow, bool addSvgTag
         '<style("font-style", f.fontStyle)>
         '<style("font-family", f.fontFamily)>
         '<style("font-weight", f.fontWeight)>
+        '<style("text-decoration", f.textDecoration)>
         '// <style("visibility", getVisibility(f))>
         '<isHtml?style("color", f.fontColor):(style("fill", f.fillColor))>
         '<isHtml?"":style("text-anchor", "middle")> 
@@ -1953,13 +1963,22 @@ IFigure _choiceInput(str id, Figure f, bool addSvgTag) {
             endtag += "\</foreignObject\>\</svg\>"; 
           }
         widget[id] = <getCallback(f.event), seq, id, begintag, endtag, 
-        "      
+        "     
         'd3.select(\"#<id>\")
         '<stylePx("width", width)><stylePx("height", height)> 
         '<attrPx("w", width)><attrPx("h", height)>   
         '<debugStyle()>
         '<style("background-color", "<getFillColor(f)>")>   
-        ;"
+        ;
+        'var width =parseInt(d3.select(\"#<id>\").style(\"width\"))+4;
+        '// alert(width);
+        'var height = parseInt(d3.select(\"#<id>\").style(\"height\"))+4;
+        'd3.select(\"#<id>_svg\")<attr1("width", "width")>;
+        'd3.select(\"#<id>_svg\")<attr1("height", "height")>;
+        'd3.select(\"#<id>_fo\")<attr1("width", "width")>;
+        'd3.select(\"#<id>_fo\")<attr1("height", "height")>
+        ; 
+        "
         , width, height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, f.cellAlign,  getLineWidth(f), getLineColor(f), f.sizeFromParent, false >;
        addState(f);
        widgetOrder+= id;
@@ -2031,46 +2050,6 @@ int heightDefCells(list[IFigure] fig1) {
      if (isEmpty(fig1)) return 0;
      return sum([0]+[getHeight(q)|q<-fig1,getHeight(q)>=0]);
      } 
-     
- IFigure _dialog(str id, Figure f, bool addSvgTag, IFigure fig1) {
-       int width = f.width;
-       int height = f.height; 
-       str begintag = "";
-       if (addSvgTag) {
-          begintag+=
-         "\<svg id=\"<id>_svg\"\> \<foreignObject id=\"<id>_outer_fo\" x=0 y=0 width=\"<screenWidth>px\" height=\"<screenHeight>px\"\>";
-         }
-       begintag+="                    
-            '\<dialog open\>
-            "
-            ;
-       str endtag="
-            '\</dialog\>
-            "
-            ;
-       if (addSvgTag) {
-            endtag += "\</foreignObject\>\</svg\>"; 
-            }
-        widget[id] = <null, seq, id, begintag, endtag, 
-        "
-        'd3.select(\"#<id>\") 
-        '<on(f)>
-        '<stylePx("width", width)><stylePx("height", height)>
-        '<attrPx("width", width)><attrPx("height", height)>      
-        '<debugStyle()> 
-        '<style("background-color", "<getFillColor(f)>")> 
-        '<style("border-spacing", "<f.hgap> <f.vgap>")> 
-        '<style("stroke-width",getLineWidth(f))>
-        '// <style("visibility", getVisibility(f))>
-        '<_padding(f.padding)>      
-        ; 
-        "
-        , width, height, getAtX(f), getAtY(f), f.hshrink, f.vshrink, f.align, f.cellAlign,  getLineWidth(f), getLineColor(f)
-        , f.sizeFromParent, false >;
-       addState(f);
-       widgetOrder+= id;
-       return ifigure(id ,[fig1]);
-       }   
                 
 IFigure _hcat(str id, Figure f, bool addSvgTag, IFigure fig1...) {
        int width = f.width;
@@ -2715,20 +2694,18 @@ DDD treeToDDD(Figure f) {
         return false;
      }  
      
-public void _render(Figure fig1, int width = 400, int height = 400, 
+public void _render(Figure fig1, int width = -1, int height = -1, 
      Alignment align = centerMid, tuple[int, int] size = <0, 0>,
      str fillColor = "white", str lineColor = "black", 
      int lineWidth = 1, bool display = true, real lineOpacity = 1.0, real fillOpacity = 1.0
      , Event event = noEvent(), int borderWidth = -1, str borderStyle= "", str borderColor = ""
      , bool resizable = true,
-     bool defined = true, str cssFile = "")
+     bool defined = false, str cssFile = "")
      {    
         id = 0;
-        screenHeight = height;
-        screenWidth = width;
         if (size != <0, 0>) {
-            screenWidth = size[0];
-            screenHeight = size[1];
+            width = size[0];
+            height = size[1];
          }
         clearWidget();
         if (atXY(_, _, _):= fig1 || atX(_,_):=fig1 || atY(_,_):=fig1){
@@ -2762,7 +2739,7 @@ public void _render(Figure fig1, int width = 400, int height = 400,
         buildParentTree(fig1);
         IFigure f = _translate(fig1, forceHtml = true);
         addState(fig1);
-        _render(f , width = screenWidth, height = screenHeight, align = align, fillColor = fillColor, lineColor = lineColor,
+        _render(f , width = width, height = height, align = align, fillColor = fillColor, lineColor = lineColor,
         borderWidth = borderWidth, borderStyle = borderStyle, borderColor = borderColor, display = display, event = event
         , resizable = resizable,
         defined = defined, cssFile = cssFile);

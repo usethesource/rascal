@@ -6,6 +6,7 @@ import IO;
 
 import String;
 import List;
+import ListRelation;
 import util::Math;
 import experiments::vis2::sandbox::Render;
 
@@ -413,7 +414,7 @@ public Figure hflex3 = hcat(size = <200,200>,
 				                   ]);
 void thflex3(){	ex("hflex3", hflex3); }	
 
-public Figure hflex4 = hcat(size = <200,200>,
+public Figure hflex4 = hcat(size = <200,200>, cellAlign = bottomRight,
 					        figs = [ box(fillColor="red"), 
 				                     box(fillColor="green", size=<100,100>), 
 				                     box(fillColor="blue")
@@ -518,7 +519,7 @@ public Figure vflex3 = vcat(size = <200,200>,
 				                   ]);
 void tvflex3(){	ex("vflex3",vflex3); }	
 
-public Figure vflex4 = vcat(size = <200,200>,
+public Figure vflex4 = vcat(size = <200,200>, align = bottomRight,
 					        figs = [ box(fillColor="red"), 
 				                     box(fillColor="green", size=<100,100>), 
 				                     box(fillColor="blue")
@@ -903,7 +904,7 @@ public Figure arrow3 = box(align=topLeft, fillColor="silver", fig= shape([line(1
 	                                            shapeCurved=true, fillColor="silver",startMarker = arrow(10, "green",rightDir=false), endMarker=arrow(10, "red")));
 void tarrow3(){	ex("arrow3", arrow3); }
 
-void markers(){F
+void markers(){
 	ex("markers", grid(gap=<10,10>,
 					   figArray=[ [marker1, marker2, marker3, marker4],
 					   			  [arrow1, arrow2, arrow3]
@@ -1352,21 +1353,19 @@ void visible2(){
 data EMPTY = EMPTY();
 
 
-void tooltip1(){
-	ex("tooltip1", box(fillColor="red", width=200, height=100, tooltip=box(grow=1.2, fig=text("I am a red box"), fillColor="antiqueWhite")));
-    }
+Figure tooltip1() = box(fillColor="red", width=200, height=100, tooltip=box(grow=1.2, fig=text("I am a red box"), 
+            fillColor="antiqueWhite"));
+    
 
-void tooltip2(){
-	render( 
+Figure tooltips() =
 				vcat(figs=[ box(size=<200,50>, lineColor="white"),
 					   hcat(figs=[ box(fillColor="red", width=100, height=100, tooltip="I am a red box"),
 					   			   box(fillColor="white", width=100, height=100),
 						           box(fillColor="blue", width=100, height=100, tooltip="I am a blue box")
 	                        ])
 	                  ],		  
-				 gap=<10,20>)
-		);
-}
+				 gap=<10,20>);
+
 
 data COLOR1 = COLOR1(str C);
 
@@ -1390,23 +1389,56 @@ void boxcolor2(){
 
 // ------------- ALL TESTS -------------------------
 
-Figure panel(Figure f) = atXY(150, 150, f);
+
+Figure panel(Figure f) = atXY(100, 100, f);
+
+Figure panel(str id, Figure f) = box(id=id, fig = f, visibility="hidden");
+
+Figure examples() {
+   lrel[str, Figure] items = 
+   //   [<"box", hcat(figs=[box(size=<100, 100>, fillColor="red")])>]
+    [<"boxes",boxes()>, <"ellipses", ellipses()>, <"circles", circles()>, <"ngons", ngons()>, <"polygons", polygons()>,
+     <"overlays",overlays()>, 
+     <"texts", texts()>, <"hcats", hcats()>, <"vcats", vcats()>,
+     <"tooltips", tooltips()>
+     ]
+    ;
+    
+   Figures figs = [panel(q[0], q[1])|q<-items];
+   str visible = "";
+    tuple[int ,int] size = <100, 30>;
+     void choice() {
+      value v = property("choice").\value;
+       if (!isEmpty(visible)) {
+            style(visible, visibility= "hidden");
+            visible="";
+            }
+       else
+          if (str s := v) {
+             style(s, visibility= "visible");
+             visible = s;
+          }
+    }
+    Figures buttons = [buttonInput(q[0], size = size, panel = panel(q[1]))|q<-items];
+    return
+     hcat(align = topLeft, figs = [ vcat(figs=
+    // buttons   
+    [buttonInput("show",  id= "show", size = size, event=on(void(str e, str n , str v){choice();}))
+    ,choiceInput(id="choice", choices=domain(items), width=100)
+    ]
+    )
+    , overlay(figs = figs)
+    // , box(size=<150, 140>, fillColor="blue")
+    ]);
+ }
+ 
 
 void allExamples(){
-    tuple[int ,int] size = <100, 30>;
-    render(vcat(align = topLeft, figs=[
-    buttonInput("boxes", size = size, panel = panel(boxes()))
-    ,buttonInput("ellipses", size = size,panel = panel(ellipses()))
-    ,buttonInput("circles", size = size,panel = panel(circles()))
-    ,buttonInput("ngons", size = size, panel = panel(ngons()))
-    ,buttonInput("polygons", size = size, panel = panel(polygons()))
-    ,buttonInput("shapes", size = size, panel = panel(shapes()))
-    ,buttonInput("overlays", size = size, panel = panel(overlays()))
-    ,buttonInput("texts", size = size, panel = panel(texts()))
-    ,buttonInput("hcats", size = size, panel = panel(hcats()))
-    ,buttonInput("vcats", size = size, panel = panel(vcats()))
-    ]
-    ));
+    render(examples()
+    // renderShow(examples(), javaLoc=|file:///ufs/bertl/jdk1.8.0_77|
+    // , size=<2500, 2500>
+    ,defined = true
+    );
     /*
 	boxes();
 	hcats();
@@ -1426,6 +1458,10 @@ void allExamples(){
 	// scales();
 	*/
 }
+
+public void fexamples(loc l) = writeFile(l, toHtmlString(
+    examples()
+ )); 
 
 public Figure tst0() = ellipse(
                             ,fillColor = "antiqueWhite"
