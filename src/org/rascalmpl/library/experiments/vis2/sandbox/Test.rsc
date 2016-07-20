@@ -101,7 +101,7 @@ Figure simple() {
    simple(), size=<600, 600>, resizable=true
  )); 
  
- public void psimple(loc l) = renderShow(simple(), 
+ public void psimple() = renderShow(simple(), 
     width = 400, height = 400, javaLoc=|file:///ufs/bertl/jdk1.8.0_77|);
  
  Figure eye()= ellipse(rx=60, ry = 30, lineColor="brown", align = centerMid, fillColor="teal", lineWidth = 6
@@ -237,10 +237,10 @@ Figure tut() =
       // box(fillColor="yellow", size=<50, 50>
       buttonInput("Push"
       // ,event = on("click", void(str e, str n , str v) {println("<e>");})
-     // , panel= box(lineWidth= 0, fig=atXY(60, 60, box(lineColor="black", lineWidth=2,  fig = text(readFile(location)))))
-     , panel= 
+      , panel= box(lineWidth= 0, fig=atXY(60, 60, box(lineColor="black", lineWidth=2,  fig = text(readFile(location)))))
+     //, panel= 
      //box(lineWidth= 0, fig=
-     atXY(60, 60, box(lineColor="black", size=<100, 100>, fillColor="antiquewhite", lineWidth=2, fig=box(size=<20, 20>, fillColor="red")))
+     // atXY(60, 60, box(lineColor="black", size=<100, 100>, fillColor="antiquewhite", lineWidth=2, fig=box(size=<20, 20>, fillColor="red")))
      //)
      );
 
@@ -330,20 +330,22 @@ public void fquest(loc l) = writeFile(l, toHtmlString(
       
       Figure connect(int f, int t) {
          tuple[int , int] rv = <cx(to[t].x)-cx(from[f].x+0.25), cy(to[t].y+hc/2)-cy(from[f].y+hc/2)>;
-         return overlay(figs=[
+         // println("<cx(from[f].y)> <cy(to[t].y)>");
+         return overlay( figs=[
          shape([move(cx(from[f].x+0.25), cy(from[f].y+hc/2)), line(cx(to[t].x),  cy(to[t].y+hc/2))]
+         ,yReverse = false
          // , endMarker = ngon(n=3, r=10, fillColor = "purple", lineWidth = 0)
+         // , scaleX=<<0, w>, <0, w>>, scaleY=<<0, h>, <0, h>>
          )
          ,circle(r=4, fillColor="firebrick", cx = cx(from[f].x+0.25)+0.2*rv[0], cy = cy(from[f].y+hc/2)+0.2*rv[1]
-          // , tooltip=box(fig=text("<multiplicity(f, t)>"), fillColor="floralwhite", size=<50, 50>)
-          , tooltip = 
-          // box(fig=
-               hcat(figs=[box(size=<50, 50>)], borderWidth=10, borderStyle="groove")
-          // , fillColor="red")
+           , tooltip=box(fig=text("<multiplicity(f, t)>"), fillColor="floralwhite", size=<50, 50>)
+          //, tooltip = 
+          //box(fig=
+          //    hcat(figs=[box(size=<50, 50>)], borderWidth=10, borderStyle="groove"),
+          // fillColor="red")
          )
          ]);
          }
-      
       Figures fs =  [cell1(i, 0, i-10) |int i<-[10..25]];
       Figures  ts = [cell2(prim[i], 3,  i+offset)|int i<-[0..5]];
       Figures cs = [*[connect(i, p)|p<-prim, i!=p, i%p==0]| int i<-[10..25]];
@@ -351,7 +353,7 @@ public void fquest(loc l) = writeFile(l, toHtmlString(
            );
       }
       
- void tfunLine() = render(funLine(), javaLoc=|file:///ufs/bertl/jdk1.8.0_77|);
+ void tfunLine() = render(funLine(), javaLoc=|file:///ufs/bertl/jdk1.8.0_77|, size=<800, 800>);
  
  public void ffunLine(loc l) = writeFile(l, toHtmlString(
     funLine()
