@@ -57,6 +57,8 @@ function makeAbsoluteContext(element) {
 	return function(x, y) {
 		// var offset = svgDocument.getBoundingClientRect();
 		var matrix = element.getScreenCTM();
+		x = parseFloat(x);
+		y = parseFloat(y);
 		return {
 			x : (matrix.a * x) + (matrix.c * y) + matrix.e, // - offset.left,
 			y : (matrix.b * x) + (matrix.d * y) + matrix.f // - offset.top
@@ -785,6 +787,7 @@ function adjustOverlay(clients, id1, lw, hpad, vpad) {
 		} else
 			return;
 	}
+	// alert(width);
 	if (!invalid(width) && !invalid(height)) {
 		var aUndefWH = clients.filter(undefWH);
 		var w = parseInt(width);
@@ -1038,8 +1041,6 @@ function getHeight(q) {
 function adjust_tooltip(parent, q, xv, yv) {
 	var s = d3.select("#" + parent+"_svg").empty()?d3.select("#" + parent):d3.select("#" + parent+"_svg");
 	var convert = makeAbsoluteContext(s.node());
-	var x = s.attr("x");
-	var y = s.attr("y");
 	var w = getWidth("#" + q + "_svg");
 	var h = getHeight("#" + q + "_svg");
 	var u = d3.select("#" + q + "_outer_fo");
@@ -1047,16 +1048,14 @@ function adjust_tooltip(parent, q, xv, yv) {
     && !d3.select("#" + q + "_fo").select(".google").empty();
 	if (u.empty() && google) {
 	  	u = d3.select("#" + q + "_fo");
-	}	
-	var x1 = 0;
-    var y1 = 0;
-    if (!u.empty()) {
-        x1 = parseFloat(u.attr("x"));
-        y1 = parseFloat(u.attr("y"));
-    }
-	var z = convert(x, y);
+	}
+	var z = convert(0, 0);
+	xv = parseInt(xv);
+	yv = parseInt(yv);
 	if (!u.empty()) {
-		u.attr("x", z.x + xv+x1).attr("y", z.y + yv+y1);
+		var x1 = parseFloat(u.attr("x"));
+	    var y1 = parseFloat(u.attr("y"));	    
+		u.attr("x", z.x + xv+x1).attr("y", z.y +yv+y1);
 		u.attr("width", w);
 		u.attr("height", h);
 		var t = d3.select("#" + q + "_svg");
@@ -1091,12 +1090,10 @@ function adjust_panel(parent, q, xv , yv) {
 	var s = d3.select("#" + parent+"_svg").empty()?d3.select("#" + parent):d3.select("#" + parent+"_svg");
 	// var r = d3.select("#close");
 	var convert = makeAbsoluteContext(s.node());
-	var x = s.attr("x");
-	var y = s.attr("y");
 	var w = getWidth("#" + q + "_svg");
 	var h = getHeight("#" + q + "_svg");
 	var u = d3.select("#" + q + "_outer_fo");
-	var z = convert(x, y);
+	var z = convert(0, 0);
 	var t = d3.select("#" + q + "_svg");
 	if (!u.empty()) {
 		u.attr("x", z.x + xv).attr("y", z.y +  yv);
