@@ -653,7 +653,7 @@ void toverlays() = render(buttonInput("overlays", panel = panel(overlays())));
 
 /********************** atXY ********************************/
 
-public Figure at1 = atXY(100, 100, box(fillColor="red", size=<50,50>));
+public Figure at1 = box(fig=atXY(100, 100, box(fillColor="red", size=<50,50>)));
 void tat1(){ ex("at1", at1); }
 
 public Figure at2 = overlay(align=topLeft,
@@ -700,12 +700,9 @@ public Figure at6 = box(fig=overlay(align=topLeft,
 								]));
 void tat6(){ ex("at6", at6); }
 
-void ats(){
-	ex("ats", hcat(gap=<10,10>, align=topLeft, borderWidth = 5, borderStyle="groove",
-				   figs=[
-				   			at1, at2, at3 , at4, at5, at6
-				   ]));
-}
+Figure ats() = hcat(gap=<10,10>, align=topLeft, borderWidth = 5, borderStyle="groove", figs=[at1, at2, at3]);
+
+void tats() = render(ats());
 
 /********************** scale ******************************/
 /*
@@ -739,12 +736,12 @@ public Figure rotate5 = rotateDeg(180, box(size=<100, 100>, lineWidth= 0, fig=rt
 void trotate5(){ ex("rotate5", rotate5); }
 
 
-void rotates(){
-	ex("rotates", hcat(gap=<10,10>,
+Figure rotates()= hcat(gap=<10,10>,
 					   figs= [
-					   				rotate1, rotate2 , rotate3 , rotate4 ,	rotate5
-					   ]));
-}
+					   		 rotate1, rotate2 , rotate3 , rotate4 ,	rotate5
+					   ]);
+
+void trotates() = render(rotates());
 
 /********************** image ******************************/
 /*
@@ -1078,279 +1075,6 @@ Figure texts()= grid(gap=<20,20>,
 void ttexts() = render(buttonInput("overlays", panel = panel(texts())));
 
 
-/************** markdown *****************/
-/*
-void markdown1(){
-	ex("markdown1", markdown("#A markdown example:
-							 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-							 '
-							 '
-							 '* item 1
-							 '* item 2
-							 '
-							 '```literal``` and _emphasis_
-							 '"	, size=<200,50>));
-}
-*/
-
-/************** math *****************/
-/*
-void math1(){
-	ex("math1", math("x+\\sqrt{1-x^2}"));
-}
-*/
-
-/************** Interaction *****************/
-/*
-data COUNTER = COUNTER(int counter);
-
-int f(str event, str utag, int x) {if (event=="click") {println("aap"); return x+1;} else return x;}
-
-void counter1(){	
-	render("counter1",  #COUNTER, COUNTER(666), Figure (str event, str utag, COUNTER m) {
-			return
-				vcat(figs=[ box(fig=text("Click me", event=on("click", bind(m.counter, f(event, utag, m.counter))), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
-					        text(m.counter, size=<150,50>,fontSize=30)
-				     ], align=topLeft);
-			});
-}
-
-void counter2(){
-	
-	render("counter2",  #COUNTER, COUNTER(666),  Figure (str event, str utag, COUNTER m) {
-			return
-				vcat(figs=[ box(fig=text("Click me 1", event=on("click", bind(m.counter, m.counter + 1)), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
-					   text(m.counter, size=<150,50>,fontSize=30),
-					   box(fig=text("Click me 2", event=on("click", bind(m.counter, m.counter + 1)), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
-					   text(m.counter, size=<150,50>, fontSize=50),
-					   text(m.counter, size=<150,50>, fontSize=80)
-				     ]);
-			});
-}
-
-
-
-void counter3(){
-	
-	render("counter3",  #COUNTER, COUNTER(666), Figure (str event, str utag, COUNTER m) {
-			return
-				vcat(figs=[ buttonInput(trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, f(event, utag, m.counter))), size=<80,40>),
-					   text(m.counter, size=<150,50>,fontSize=30)
-				     ]);
-			});
-}
-
-void counter4(){
-	
-	render("counter4",  #COUNTER, COUNTER(666), Figure (str event, str utag, COUNTER m) {
-			return
-				vcat(figs=[ buttonInput( trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, m.counter + 1)), size=<80,40>),
-					   text(m.counter, size=<150,50>,fontSize=30),
-					   buttonInput( trueText="Click me", falseText="Click me", event=on("click", bind(m.counter, m.counter + 1)), size=<100,40>),
-					   text(m.counter, size=<150,50>, fontSize=50),
-					   text(m.counter, size=<150,50>, fontSize=80)
-				     ]);
-			});
-}
-
-data COUNTER11 = COUNTER11(int counter1, int counter2);
-
-int f1(str event, str utag, int x) {if (event=="click"&& utag== "text1") {return x+1;} else return x;}
-
-int f2(str event, str utag, int x) {if (event=="click"&& utag== "text2") {return x+2;} else return x;}
-
-void counter11(){	
-	render("counter1",  #COUNTER11, COUNTER11(1, 1), Figure (str event, str utag, COUNTER11 m) {
-			return
-				vcat(figs=[ box(fig=text("Click me", id = "text1", event=on("click", bind(m.counter1, f1(event, utag, m.counter1))), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
-					        text(m.counter1, size=<150,50>,fontSize=30),
-					        box(fig=text("Click me", id = "text2",  event=on("click", bind(m.counter2, f2(event, utag, m.counter2))), fontSize=20, gap=<2,2>), fillColor="whitesmoke"),
-					        text(m.counter2, size=<150,50>,fontSize=30)				      
-				     ], align=topLeft);
-			});
-}
-
-data ECHO = ECHO(str TXT);
-
-void echo1(){
-	render("echo1", #ECHO, ECHO("abc"), Figure (str event, str utag, ECHO m) {
-			return
-				hcat(figs=[ strInput(event=on("submit", bind(m.TXT))), 
-	                        text(m.TXT, size=<150,50>, fontSize=50),
-	                        text(m.TXT, size=<150,50>, fontSize=80)
-				          ], align=bottom, gap=<20,20>);
-			});
-}
-
-data ECHO2 = ECHO2(num NUM);
-
-void echo2(){
-	render("echo2", #ECHO2, ECHO2(0), Figure (str event, str utag,  ECHO2 m) {
-			return
-				hcat(figs=[ text("Enter number:", fontSize=18),
-							numInput(event=on("input", bind(m.NUM))), 
-	                        text(m.NUM, size=<150,50>, fontSize=50),
-	                        text(m.NUM, size=<150,50>, fontSize=80)
-				          ], gap=<20,20>);
-			});
-}
-
-data BORDER = BORDER(str C);
-
-void border1(){
-	render("border1", #BORDER, BORDER("red"), Figure (str event, str utag, BORDER m) {
-			return
-				hcat(figs=[ text("Enter:", fontSize=18), 
-				
-	                   strInput(event=on("submit", bind(m.C))), 
-	                   
-	                   box(lineColor=m.C, lineWidth=10, size=<100,100>),
-	                   
-	                   box(lineColor=m.C, lineWidth=10, size=<100,100>)
-				   ], gap=<20,20>);
-			  });
-}
-
-void border2(){
-	render("border2", #BORDER, BORDER("red"), Figure (str event, str utag, BORDER m) {
-			return
-				hcat(figs=[ text("Enter:", fontSize=18), 
-				
-	                   colorInput(event=on("change", bind(m.C)), size=<100,25>), 
-	                   
-	                   box(lineColor=m.C, lineWidth=10, size=<100,100>),
-	                   
-	                   box(lineColor=m.C, lineWidth=10, size=<100,100>)
-				   ], gap=<20,20>);
-			  });
-}
-
-data CONTROL = CONTROL(str FC, int LW, int WIDTH , int HEIGHT);
-
-void control1(){
-	render("control1", #CONTROL, CONTROL("red",1,100,100), Figure (str event, str utag, CONTROL m) {
-			return
-				vcat(figs=[
-					hcat(figs=[ text("  fillColor:", size=<150,50>, fontSize=20), colorInput(event=on("submit", bind(m.FC)), size=<100,25>),
-				
-					       text("lineWidth:", size=<150,50>, fontSize=20), numInput(event=on("input", bind(m.LW)), size=<80,25>),
-					
-					       text("     width:", size=<150,50>, fontSize=20), numInput(event=on("input", bind(m.WIDTH)), size=<100,25>),
-					
-					       text("    height:", size=<150,50>, fontSize=20), numInput(event=on("input", bind(m.HEIGHT)), size=<100,25>)
-					     ]),
-					
-					box(size=<100,100>, lineWidth=0),
-					
-	                box(fillColor=m.FC, lineWidth=m.LW, width=m.WIDTH, height=m.HEIGHT)
-	                   
-				   ], gap=<30,30>);
-			  });
-}
-
-data CHOICE = CHOICE(int SEL);
-
-void choice1(){
-	render("choice1", #CHOICE, CHOICE(0),  Figure (str event, str utag, CHOICE m) {
-			return
-			hcat(figs=[ text("Enter:", size=<150,50>, fontSize=18), 
-			
-	               numInput(event=on("submit", bind(m.SEL)), size=<100,25>),
-	               
-				   choice(selection=m.SEL, 
-				   		   figs = [ box(fillColor="red", size=<100,100>),
-								      box(fillColor="white", size=<100,100>),
-								      box(fillColor="blue", size=<100,100>)
-								    ])],
-					gap=<30,30>);
-					});
-}
-
-public Figure ngon40 = ngon(r = 100, n = 6, fillColor="blue", align = bottomRight, fig=box(size=<125,90>, fillColor="yellow"));
-void tngon40(){ ex("ngon40", ngon40); }
-
-void choice2(){
-	render("choice2", #CHOICE, CHOICE(0),  Figure (str event, str utag, CHOICE m) {
-			return
-			hcat(figs=[ text("Enter:", size=<150,50>, fontSize=18), 
-			
-	               choiceInput(choices=["red", "white", "blue"], event=on("change", bind(m.SEL)), size=<100,25>),
-	               
-				   choice(selection=m.SEL, 
-				   		  figs = [ box(fillColor="red", size=<100,100>),
-								     box(fillColor="white", size=<100,100>),
-								     box(fillColor="blue", size=<100,100>)
-								   ])],
-					gap=<30,30>);
-					});
-}
-
-data SLIDER = SLIDER(int SLIDER);
-
-void slider1(){
-	render("slider1", #SLIDER, SLIDER(50), Figure (str event, str utag, SLIDER m) {
-			return rotate(50, 
-			vcat(figs=[ hcat(figs=[text("0"), rangeInput(low=0,high=100,step=5, event=on("change", bind(m.SLIDER)), size=<150,50>), text("100")]),
-			
-				   text(m.SLIDER, size=<150,50>,fontSize=30)
-	             ],			  
-				 gap=<10,20>));
-				 });
-}
-
-data DIM = DIM(int WIDTH, int HEIGHT);
-
-void slider2(){
-
-	render("slider2", #DIM, DIM(50,50), Figure (str event, str utag, DIM m) {
-			return vcat(figs=[ hcat(figs=[text("WIDTH"), text("0"), rangeInput(low=0,high=100,step=5, event=on("change", bind(m.WIDTH)), size=<150,50>), text("100")]),
-			       hcat(figs=[text("HEIGHT"), text("0"), rangeInput(low=0,high=100,step=5, event=on("change", bind(m.HEIGHT)), size=<150,50>), text("100")]),
-			
-				   box(width=m.WIDTH, height=m.HEIGHT, fillColor="pink")
-	             ],			  
-				 gap=<10,20>);
-		});
-}
-
-void slider3(){
-	render("slider3", #SLIDER, SLIDER(25), Figure (str event, str utag, SLIDER m) {
-			return 
-			vcat(figs=[ rangeInput(low=0, high=50, step=5, event=on("change", bind(m.SLIDER)), size=<200,50>),
-				   box(size=<50,50>, lineWidth=0),
-				   box(lineWidth=m.SLIDER, size=<150,50>, fillColor="red")
-	             ], align=topLeft,		  
-				 gap=<80,80>);
-				 });
-}
-
-data VISABLE = VISABLE(str event, str utag, bool VISABLE);
-
-void visible1(){
-	render("visible1", #VISABLE, VISABLE(true), Figure (VISABLE m) {
-			return 
-			vcat(figs=[ buttonInput( trueText="hide", falseText="show", event=on("click", bind(m.VISABLE)),size=<50,50>),
-				   
-				   visible(condition=m.VISABLE,  fig=box(size=<150,50>, fillColor="red"))
-	             ], align=topLeft,		  
-				 gap=<30,30>);
-				 });
-}
-
-void visible2(){
-	render("visible2", #VISABLE, VISABLE(true), Figure (str event, str utag, VISABLE m) {
-			return 
-			vcat(figs=[ checkboxInput(event=on("click", bind(m.VISABLE)), size=<50,50>),
-				   
-				   visible(condition=m.VISABLE,  fig=box(size=<150,50>, fillColor="red"))
-	             ], align=topLeft,		  
-				 gap=<30,30>);
-				 });
-}
-
-*/
-// Tooltip
-
-data EMPTY = EMPTY();
 
 
 Figure tooltip1() = box(fillColor="red", width=200, height=100, tooltip=box(grow=1.2, fig=text("I am a red box"), 
@@ -1358,34 +1082,20 @@ Figure tooltip1() = box(fillColor="red", width=200, height=100, tooltip=box(grow
     
 
 Figure tooltips() =
-				vcat(figs=[ box(size=<200,50>, lineColor="white"),
-					   hcat(figs=[ box(fillColor="red", width=100, height=100, tooltip="I am a red box"),
+					   box(fig=hcat(figs=[ 
+					               box(fillColor="red", width=100, height=100, tooltip="I am a red box"),
 					   			   box(fillColor="white", width=100, height=100),
 						           box(fillColor="blue", width=100, height=100, tooltip="I am a blue box")
-	                        ])
-	                  ],		  
-				 gap=<10,20>);
+						          ,box(fillColor="green", width=100, height=100
+						              , tooltip=box(fillColor="antiquewhite"
+						               , fig=text("I am a green box")
+						              )
+						           )
+	                        ]));
+	                  		  
 
+void ttooltips(){ ex("text11", tooltips()); }
 
-data COLOR1 = COLOR1(str C);
-
-void boxcolor1(){
-          
-	render("boxcolor1", #COLOR1, COLOR1("white"), Figure (str event, str utag, COLOR1 m) {
-			return box(size=<100,100>, fig=colorInput(event=on("change", bind(m.C)), size=<50,20>, fillColor=m.C, rounded=<10,10>, gap=<20,20>,lineDashing=[1,1,1,1,1,1]));
-		});
-}
-
-data COLOR2 = COLOR2(str C1, str C2);
-
-void boxcolor2(){
-          
-	render("boxcolor2", #COLOR2, COLOR2("white", "blue"), Figure (str event, str utag, COLOR2 m) {
-			return hcat(figs=[ box(size=<100,100>, fig=colorInput(event=on("change", bind(m.C1)), size=<50,20>, fillColor=m.C1, rounded=<10,10>, gap=<20,20>,lineDashing=[1,1,1,1,1,1])),
-						       box(size=<100,100>, fig=colorInput(event=on("change", bind(m.C2)), size=<50,20>, fillColor=m.C2, rounded=<10,10>, gap=<20,20>,lineDashing=[1,1,1,1,1,1]))
-						     ], gap=<20,30>);
-		});
-}
 
 // ------------- ALL TESTS -------------------------
 
@@ -1397,39 +1107,22 @@ Figure panel(str id, Figure f) = box(id=id, fig = f, visibility="hidden");
 Figure examples() {
    lrel[str, Figure] items = 
    //   [<"box", hcat(figs=[box(size=<100, 100>, fillColor="red")])>]
-    [<"boxes",boxes()>, <"ellipses", ellipses()>, <"circles", circles()>, <"ngons", ngons()>, <"polygons", polygons()>,
-     <"overlays",overlays()>, 
-     <"texts", texts()>, <"hcats", hcats()>, <"vcats", vcats()>,
-     <"tooltips", tooltips()>
+     [
+     <"boxes",boxes()>
+     ,<"ellipses", ellipses()>
+     ,<"ngons", ngons()>
+     ,<"polygons", polygons()>
+     ,<"overlays",overlays()>
+     ,<"texts", texts()>
+     ,<"hcats", hcats()>
+     ,<"vcats", vcats()>
+    , <"tooltips", tooltips()>
+    ,<"ats", ats()>
+    ,<"rotates", rotates()>
      ]
     ;
-    
-   Figures figs = [panel(q[0], q[1])|q<-items];
-   str visible = "";
-    tuple[int ,int] size = <100, 30>;
-     void choice() {
-      value v = property("choice").\value;
-       if (!isEmpty(visible)) {
-            style(visible, visibility= "hidden");
-            visible="";
-            }
-       else
-          if (str s := v) {
-             style(s, visibility= "visible");
-             visible = s;
-          }
-    }
-    Figures buttons = [buttonInput(q[0], size = size, panel = panel(q[1]))|q<-items];
-    return
-     hcat(align = topLeft, figs = [ vcat(figs=
-    // buttons   
-    [buttonInput("show",  id= "show", size = size, event=on(void(str e, str n , str v){choice();}))
-    ,choiceInput(id="choice", choices=domain(items), width=100)
-    ]
-    )
-    , overlay(figs = figs)
-    // , box(size=<150, 140>, fillColor="blue")
-    ]);
+    Figures buttons = [buttonInput(q[0],  size=<100, 30>, align = topLeft, panel = panel(q[1]))|q<-items];
+    return  vcat(figs=buttons);
  }
  
 
@@ -1439,24 +1132,6 @@ void allExamples(){
     // , size=<2500, 2500>
     ,defined = true
     );
-    /*
-	boxes();
-	hcats();
-	vcats();
-	//overlays();
-	polygons();
-	ngons();
-	shapes();
-	//markers();
-	circles();
-	ellipses();
-	texts();
-	//images();
-	//hilberts();
-	ats();
-	rotates();
-	// scales();
-	*/
 }
 
 public void fexamples(loc l) = writeFile(l, toHtmlString(
