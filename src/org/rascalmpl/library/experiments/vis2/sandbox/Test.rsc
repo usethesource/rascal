@@ -375,4 +375,12 @@ Figure ovl() = box(fig=overlay(size=<400, 400>, figs=[
           ));
           
  void tovl() = render(ovl()/*, javaLoc=|file:///ufs/bertl/jdk1.8.0_77|*/);
-                 
+ 
+ 
+ Figure txt() = box(size=<50, 50>, tooltip=text("aap"));   
+ 
+ void ttxt() = render(txt()/*, javaLoc=|file:///ufs/bertl/jdk1.8.0_77|*/); 
+ 
+ void ftxt(loc l) = writeFile(l, toHtmlString(txt())); 
+ 
+          

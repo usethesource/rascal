@@ -245,17 +245,20 @@ str visitFig(IFigure fig) {
 str visitTooltipFigs() {
     if (isEmpty(panels) && isEmpty(tooltips)) return "";
     str r =
-"\<div class=\"overlay\"\>\<svg id = \"overlay\" width=<upperBound> height=<upperBound> \>";
-    for (IFigure fi<-tooltips) {
-         if (g:ifigure(str id, _):=fi) {
-            r+= visitFig(g);        
-            }
-         }
+"\<div class=\"panel\"\>\<svg id = \"panel\" width=<upperBound> height=<upperBound> \>";
     for (IFigure fi<-panels) {
          if (g:ifigure(str id, _):=fi) {
             // r+= "\<foreignObject id=\"<id>_fox\" x=\"<getAtX(g)>\" y=\"<getAtY(g)>\" width=\"<upperBound>px\" height=\"<upperBound>px\"\>" ;
             r+= visitFig(g); 
             // r+= "\</foreignObject\>";     
+            }
+         }
+    r+="\</svg\>\</div\>\n";
+    r+=
+"\<div class=\"tooltip\"\>\<svg id = \"tooltip\" width=<upperBound> height=<upperBound> \>";
+    for (IFigure fi<-tooltips) {
+         if (g:ifigure(str id, _):=fi) {
+            r+= visitFig(g);        
             }
          }
     r+="\</svg\>\</div\>";
@@ -323,7 +326,17 @@ str getIntro() {
        ' //   width: 10000;
        ' //   height: 10000;
        '  //  }
-       '.overlay{
+       '.tooltip{
+       'position: absolute;
+       'top: 0;
+        'left: 0;
+        'width: 100%;
+        'height: 100%;
+        '// z-index: 10;
+        '// background-color: rgba(0,0,0,0.5); /*dim the background*/
+        'pointer-events:  none
+        }
+        '.panel{
        'position: absolute;
        'top: 0;
         'left: 0;
@@ -356,8 +369,8 @@ str getIntro() {
         '  <for (d<-reverse(adjust)) {> <d> <}>
         '  <_display?"doFunction(\"load\", \"figureArea\")()":"\"\"">; 
         '  <for (d<-graphs) {> <d> <}>  
-        '  <for (d<-tooltips) {> adjust_tooltip(\"<getParentFig(d.id).id>\",\"<d.id>\", <getAtX(d)>, <getAtY(d)>); <}> 
         '  <for (d<-panels) {> adjust_panel(\"<getParentFig(d.id).id>\",\"<d.id>\", <getAtX(d)>, <getAtY(d)>); <}> 
+        '  <for (d<-tooltips) {> adjust_tooltip(\"<getParentFig(d.id).id>\",\"<d.id>\", <getAtX(d)>, <getAtY(d)>); <}> 
         '  <for (d<-googleChart) {> <d> <}>  
         '  // setTimeout(function(){<for (d<-loadCalls) {><_display?"doFunction(\"load\", \"<d>\")()":"\"\"">;<}> }, 1000); 
         ' <for (d<-loadCalls) {><_display?"doFunction(\"load\", \"<d>\")()":"\"\"">;<}>  
@@ -760,14 +773,18 @@ num getLineOpacity(Figure f) {
   }
   
 str getVisibility(Figure f) {
+   str c = f.visibility;
+   return c;
+  }
+  
+ str getDeepVisibility(Figure f) {
     str c = f.visibility;
-    /*
     while (isEmpty(c)) {
-        if (!(parentMap[f.id]?)) return "inherited";
+        if (!(parentMap[f.id]?)) return "inherit";
         f = figMap[parentMap[f.id]];
         c = f.visibility;
         }
-   */
+   println("Value visib <c>");
    return c;
   }
     
@@ -1419,7 +1436,7 @@ bool hasInnerCircle(Figure f)  {
         '<style("stroke-opacity", getLineOpacity(f))>  
         '<style("visibility", getVisibility(f))> 
         '<attr("clickable", isPassive(f)?"no":"yes")>
-        '<isPassive(f)||getVisibility(f)=="hidden"?attr("pointer-events", "none"):attr("pointer-events", "all")>  
+        '<isPassive(f)||getVisibility(f)=="hidden"?attr("pointer-events", "none"):attr("pointer-events", "auto")>  
         '<tooltip> 
         ';   
         'd3.select(\"#<id>_svg\")
@@ -1821,6 +1838,7 @@ IFigure _overlay(str id, Figure f, IFigure fig1...) {
 IFigure _buttonInput(str id, Figure f, str txt, bool addSvgTag) {
        int width = f.width;
        int height = f.height;
+       str cls = f.panel==emptyFigure()?"":"class=\"panelButton\"";
        str begintag = "";
        if (addSvgTag) {
           begintag+=
@@ -1828,7 +1846,7 @@ IFigure _buttonInput(str id, Figure f, str txt, bool addSvgTag) {
          '\<foreignObject id=\"<id>_fo\" x=0 y=0 width=\"<upperBound>px\" height=\"<upperBound>px\"\>";
          }
        begintag+="                    
-            '\<button  id=\"<id>\" value=\"<txt>\"\>"
+            '\<button  id=\"<id>\" value=\"<txt>\" <cls>\>"
             ;
        str endtag="
             '\</button\>
