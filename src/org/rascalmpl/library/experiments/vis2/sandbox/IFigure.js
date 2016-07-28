@@ -1038,6 +1038,13 @@ function getHeight(q) {
 	return parseInt(r);
 }
 
+function recolorButton(parent, visible) {
+	d3.selectAll(".panelButton").attr("disabled", visible?true:null);
+	var q = d3.select("#" + parent);
+	if (q.node().nodeName!="BUTTON") return;
+	if (visible) q.attr("disabled", null);
+}
+
 function adjust_tooltip(parent, q, xv, yv) {
 	var s = d3.select("#" + parent+"_svg").empty()?d3.select("#" + parent):d3.select("#" + parent+"_svg");
 	var convert = makeAbsoluteContext(s.node());
@@ -1062,8 +1069,8 @@ function adjust_tooltip(parent, q, xv, yv) {
 		t.attr("width", w + z.x + xv).attr("height", h + z.y + yv);
 	}
 	s.on("mouseenter", function() {
-		d3.select("#overlay").attr("width", z.x + w + xv);
-		d3.select("#overlay").attr("height", z.y + h + yv);
+		d3.select("#tooltip").attr("width", z.x + w + xv);
+		d3.select("#tooltip").attr("height", z.y + h + yv);
 		if (u.empty()||google)
 		 {
 			d3.select("#" + q + "_svg").attr("x", z.x+xv).attr("y", z.y+yv);
@@ -1100,22 +1107,28 @@ function adjust_panel(parent, q, xv , yv) {
 		t.attr("width", w + z.x  + xv).attr("height", h + z.y +  yv);
 	}
 	if (s.on("click")!=null) return;
+	recolorButton(parent, false);
 	s.on("click", function() {
-		d3.select("#overlay").attr("width", z.x + w +xv);
-		d3.select("#overlay").attr("height", z.y + h + yv);
+		d3.select("#panel").attr("width", z.x + w +xv);
+		d3.select("#panel").attr("height", z.y + h + yv);
 		if (d3.select("#" + q + "_outer_fo").empty()) {
 			d3.select("#" + q + "_svg").attr("x", z.x+xv).attr("y", z.y+yv);
 		}
 		if (d3.select("#" + q + "").style("visibility") == "hidden") {
-			d3.select("#" + q + "").style("visibility", "visible");
-			d3.select("#" + q + "_fo").style("visibility", "visible");
+			d3.select("#" + q + "").style("visibility", "visible").attr("pointer-events", "all");
+			d3.select("#" + q + "_fo").style("visibility", "visible").attr("pointer-events", "all");
 			d3.select("#" + q + "_frame").style("visibility", "visible");
+			recolorButton(parent, true);
 		} else {
-			d3.select("#" + q + "").style("visibility", "hidden");
-			d3.select("#" + q + "_fo").style("visibility", "hidden");
+			d3.select("#" + q + "").style("visibility", "hidden").attr("pointer-events", "none");
+			d3.select("#" + q + "_fo").style("visibility", "hidden").attr("pointer-events", "none");
 			d3.select("#" + q + "_frame").style("visibility", "hidden");
+			recolorButton(parent, false);
 		}
 	});
-	d3.select("#" + q + "").style("visibility", "hidden");
-	d3.select("#" + q + "_fo").style("visibility", "hidden").attr("pointer-events", "all");
+	if (d3.select("#" + q + "_outer_fo").empty()) {
+		d3.select("#" + q + "_svg").attr("x", z.x+xv).attr("y", z.y+yv);
+	}
+	d3.select("#" + q + "").style("visibility", "hidden").attr("pointer-events", "none");
+	d3.select("#" + q + "_fo").style("visibility", "hidden").attr("pointer-events", "none");
 }
