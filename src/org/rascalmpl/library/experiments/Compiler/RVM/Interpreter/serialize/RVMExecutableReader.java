@@ -40,7 +40,7 @@ public class RVMExecutableReader {
 	transient private int currentSharedObjectId;
 
 	public RVMExecutableReader(InputStream in){
-		this.valueReader = new RVMIValueReader(in, ValueFactoryFactory.getValueFactory(), new TypeStore());
+		this.valueReader = new NewRVMIValueReader(in, ValueFactoryFactory.getValueFactory(), new TypeStore());
 		this.in = valueReader.getIn();
 		sharedObjectsList = new ResizingArray<>(1000);
 		sharedObjectsList.set(new Boolean(false), currentSharedObjectId++); // make sure index 0 is not used
