@@ -43,8 +43,8 @@ import org.rascalmpl.values.uptr.RascalValueFactory;
 	        
 public class NewRVMIValueWriter {
 
-	private final TrackLastWritten<Type> typesWindow;
-	private final TrackLastWritten<IValue> valuesWindow;
+	private final TrackLastWritten<Type> typeCache;
+	private final TrackLastWritten<IValue> valueCache;
 	
 	protected static final byte[] header = { 'R', 'V', 1,0,0 };
 
@@ -52,7 +52,7 @@ public class NewRVMIValueWriter {
 	private final IInteger maxInt;
 
 	private OutputStream basicOut;
-	private NewStyleWriter out;
+	private NewStyleWriter writer;
 
 	public NewRVMIValueWriter(OutputStream out, int typeWindowSize, int valueWindowSize) throws IOException {
 		this.basicOut = out;
@@ -64,13 +64,13 @@ public class NewRVMIValueWriter {
     	out.write(typeWindowSize);
     	out.write(valueWindowSize);
     	
-    	this.out = new NewStyleWriter(out);
+    	this.writer = new NewStyleWriter(out);
 
 //		store = ts;
 //		store.extendStore(RascalValueFactory.getStore());
 		
-		typesWindow = new MapLastWritten<>(typeWindowSize * 1024);
-		valuesWindow = new MapLastWritten<>(valueWindowSize * 1024);
+		typeCache = new MapLastWritten<>(typeWindowSize * 1024);
+		valueCache = new MapLastWritten<>(valueWindowSize * 1024);
 		 
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		minInt = vf.integer(Integer.MIN_VALUE);
@@ -78,33 +78,26 @@ public class NewRVMIValueWriter {
 	}
 	
 	public void close() throws IOException {
-		out.flush();
+		writer.flush();
 		basicOut.close();
 	}
 	
-	NewStyleWriter getOut() {
-		return out;
+	NewStyleWriter getWriter() {
+		return writer;
 	}
 	
 	private void writeAtomicType(int valId) throws IOException{
-		out.startValue(valId);
-		out.endValue();
+		writer.startValue(valId);
+		writer.endValue();
 	}
 	
-	/**
-	 * Write a "name": for the sake of (de) serialization, a name is a Java string 
-	 * that can be used in various positions, e.g. function name, alias, adt name,
-	 * field name, etc.
-	 * @param name
-	 * @throws IOException
-	 */
 	void writeName(int fieldId, String name) throws IOException{
-			out.writeField(fieldId, name);
+			writer.writeField(fieldId, name);
 	}
 	
 	void writeNames(int fieldId, String[] names) throws IOException{
 		int n = names.length;
-		out.writeField(fieldId, n);
+		writer.writeField(fieldId, n);
 		for(int i = 0; i < n; i++){
 			writeName(fieldId, names[i]);
 		}
@@ -116,29 +109,29 @@ public class NewRVMIValueWriter {
 	 * @throws IOException
 	 */
 	public void writeType(Type value) throws IOException {
-		out.assertNotClosed();
-		int alreadyWritten = typesWindow.howLongAgo(value);
+		writer.assertNotClosed();
+		int alreadyWritten = typeCache.howLongAgo(value);
 		if (alreadyWritten != -1) {
-			out.startValue(SType.PREVIOUS);
-			out.writeField(SType.PREVIOUS_TYPE, alreadyWritten);
-			out.endValue();
+			writer.startValue(SType.PREVIOUS);
+			writer.writeField(SType.PREVIOUS_TYPE, alreadyWritten);
+			writer.endValue();
 		}
 		else {
 			writeType1(value);
-			typesWindow.write(value);
+			typeCache.write(value);
 		}
 	}
 	
 	public void writeField(int fieldId, Type value) throws IOException {
-		out.assertNotClosed();
-		int alreadyWritten = typesWindow.howLongAgo(value);
+		writer.assertNotClosed();
+		int alreadyWritten = typeCache.howLongAgo(value);
 		if (alreadyWritten != -1) {
-			out.writeField(SType.PREVIOUS_TYPE, alreadyWritten);
+			writer.writeField(SType.PREVIOUS_TYPE, alreadyWritten);
 		}
 		else {
-			out.writeField(fieldId, 0);
+			writer.writeField(fieldId, 0);
 			writeType1(value);
-			typesWindow.write(value);
+			typeCache.write(value);
 		}
 	}
 	
@@ -218,77 +211,77 @@ public class NewRVMIValueWriter {
 			
 			@Override
 			public Void visitAbstractData(Type type) throws IOException {
-				out.startValue(SType.ADT);
+				writer.startValue(SType.ADT);
 				
-				out.writeField(SType.ADT_NAME,  type.getName());
+				writer.writeField(SType.ADT_NAME,  type.getName());
 				
 				writeField(SType.ADT_TYPE_PARAMETERS, type.getTypeParameters());
 				
-				out.endValue();
+				writer.endValue();
 				return null;
 			}
 			
 			@Override
 			public Void visitAlias(Type type) throws IOException {
-				out.startValue(SType.ALIAS);
-				out.writeField(SType.ALIAS_NAME,  type.getName());
+				writer.startValue(SType.ALIAS);
+				writer.writeField(SType.ALIAS_NAME,  type.getName());
 				
 				writeField(SType.ALIAS_ALIASED, type.getAliased());
 				writeField(SType.ALIAS_TYPE_PARAMETERS, type.getTypeParameters());
 				
-				out.endValue();
+				writer.endValue();
 				return null;
 			}
 			
 			@Override
 			public Void visitConstructor(Type type) throws IOException {
 				
-				out.startValue(SType.CONSTRUCTOR);
-				out.writeField(SType.CONSTRUCTOR_NAME,  type.getName());
+				writer.startValue(SType.CONSTRUCTOR);
+				writer.writeField(SType.CONSTRUCTOR_NAME,  type.getName());
 				
 				writeField(SType.CONSTRUCTOR_ABSTRACT_DATA_TYPE, type.getAbstractDataType());
 				
 				writeField(SType.CONSTRUCTOR_TYPE, type.getFieldTypes());
 				
-				out.endValue();
+				writer.endValue();
 				return null;
 			}
 			
 			@Override
 			public Void visitExternal(Type type) throws IOException {
 				if(type instanceof FunctionType){
-					out.startValue(SType.FUNCTION);
+					writer.startValue(SType.FUNCTION);
 					FunctionType ft = (FunctionType) type;
 		
 					writeField(SType.FUNCTION_RETURN_TYPE, ft.getReturnType());
 					writeField(SType.FUNCTION_ARGUMENT_TYPES, ft.getArgumentTypes());
 					writeField(SType.FUNCTION_KEYWORD_PARAMETER_TYPES, ft.getKeywordParameterTypes());
-					out.endValue();
+					writer.endValue();
 					
 				} else if(type instanceof ReifiedType){
-					out.startValue(SType.REIFIED);
+					writer.startValue(SType.REIFIED);
 					ReifiedType rt = (ReifiedType) type;
 					writeField(SType.REIFIED_ELEMENT_TYPE, rt.getTypeParameters());
-					out.endValue();
+					writer.endValue();
 					
 				} else if(type instanceof OverloadedFunctionType){
-					out.startValue(SType.OVERLOADED);
+					writer.startValue(SType.OVERLOADED);
 					
 					Set<FunctionType> alternatives = ((OverloadedFunctionType) type).getAlternatives();
 					int arity = alternatives.size();
-					out.writeField(SType.OVERLOADED_TYPES, arity);
+					writer.writeField(SType.OVERLOADED_TYPES, arity);
 					for(FunctionType ft : alternatives){
 						writeType(ft);
 					}
-					out.endValue();
+					writer.endValue();
 				} 
 				else if(type instanceof NonTerminalType){
 					NonTerminalType nt = (NonTerminalType) type;
-					out.startValue(SType.NONTERMINAL);
-					out.writeField(SType.NONTERMINAL_CONSTRUCTOR, 0);
+					writer.startValue(SType.NONTERMINAL);
+					writer.writeField(SType.NONTERMINAL_CONSTRUCTOR, 0);
 					IConstructor cons = nt.getSymbol();
 					writeValue(cons);
-					out.endValue();
+					writer.endValue();
 				} 
 				else {
 					throw new RuntimeException("External type not supported: " + type);
@@ -298,53 +291,53 @@ public class NewRVMIValueWriter {
 
 			@Override
 			public Void visitList(Type type) throws IOException {
-				out.startValue(SType.LIST);
+				writer.startValue(SType.LIST);
 				writeField(SType.LIST_ELEMENT_TYPE, type.getElementType());
-				out.endValue();
+				writer.endValue();
 				return null;
 			}
 
 			@Override
 			public Void visitMap(Type type) throws IOException {
-				out.startValue(SType.MAP);
+				writer.startValue(SType.MAP);
 				
 				String keyLabel = type.getKeyLabel();
 				String valLabel = type.getValueLabel();
 			
 				if(keyLabel != null && valLabel != null){
-					out.writeField(SType.MAP_KEY_LABEL, keyLabel);
-					out.writeField(SType.MAP_VAL_LABEL, valLabel);
+					writer.writeField(SType.MAP_KEY_LABEL, keyLabel);
+					writer.writeField(SType.MAP_VAL_LABEL, valLabel);
 				}
 				writeField(SType.MAP_KEY_TYPE, type.getKeyType());
 				writeField(SType.MAP_VAL_TYPE, type.getValueType());
-				out.endValue();
+				writer.endValue();
 				return null;
 			}
 			
 			@Override
 			public Void visitParameter(Type type) throws IOException {
-				out.startValue(SType.PARAMETER);
+				writer.startValue(SType.PARAMETER);
 				
-				out.writeField(SType.PARAMETER_NAME, type.getName());
+				writer.writeField(SType.PARAMETER_NAME, type.getName());
 				writeField(SType.PARAMETER_BOUND, type.getBound());
 				
-				out.endValue();
+				writer.endValue();
 				return null;
 			}
 
 			@Override
 			public Void visitSet(Type type) throws IOException {
-				out.startValue(SType.SET);
+				writer.startValue(SType.SET);
 				
 				writeField(SType.SET_ELEMENT_TYPE, type.getElementType());
 				
-				out.endValue();
+				writer.endValue();
 				return null;
 			}
 
 			@Override
 			public Void visitTuple(Type type) throws IOException {
-				out.startValue(SType.TUPLE);
+				writer.startValue(SType.TUPLE);
 				
 				String[] fieldNames = type.getFieldNames();
 				if(fieldNames != null){
@@ -352,26 +345,31 @@ public class NewRVMIValueWriter {
 				}
 				
 				int arity = type.getArity();
-				out.writeField(SType.TUPLE_TYPES, arity);
+				writer.writeField(SType.TUPLE_TYPES, arity);
 				for(int i = 0; i < arity; i++){
 					writeType(type.getFieldType(i));
 				}
 				
-				out.endValue();
+				writer.endValue();
 				return null;
 			}
 		});
 	}
 	
-	boolean inWindow(IValue v) throws IOException{
-		int id = valuesWindow.howLongAgo(v);
+	boolean inCache(IValue v) throws IOException{
+		int id = valueCache.howLongAgo(v);
 		if(id > -1){
-			out.startValue(SValue.PREVIOUS);
-			out.writeField(SValue.PREVIOUS_VALUE, id);
-			out.endValue();
+			writer.startValue(SValue.PREVIOUS);
+			writer.writeField(SValue.PREVIOUS_VALUE, id);
+			writer.endValue();
 			return true;
 		}
 		return false;
+	}
+	
+	void endAndCacheValue(IValue v) throws IOException{
+		writer.endValue();
+		valueCache.write(v);
 	}
 	
 	/**
@@ -388,11 +386,10 @@ public class NewRVMIValueWriter {
 			case BOOL: {
 				assert it.atBeginning();
 				IBool b = (IBool) it.getIValue();
-				if(!inWindow(b)){
-					out.startValue(SValue.BOOL);
-					out.writeField(SValue.BOOL_VALUE, b.getValue() ? 1 : 0);
-					out.endValue();
-					valuesWindow.write(b);
+				if(!inCache(b)){
+					writer.startValue(SValue.BOOL);
+					writer.writeField(SValue.BOOL_VALUE, b.getValue() ? 1 : 0);
+					endAndCacheValue(b);
 				}
 				break;
 			}
@@ -400,24 +397,23 @@ public class NewRVMIValueWriter {
 			case CONSTRUCTOR: {
 				IConstructor cons = (IConstructor) it.getIValue();
 				if(it.atBeginning()){
-					if(inWindow(cons)){
+					if(inCache(cons)){
 						it.skipChildren();
 					}
 				} else {
-					out.startValue(SValue.CONSTRUCTOR);
-					out.writeField(SValue.CONSTRUCTOR_ARITY, cons.arity());
+					writer.startValue(SValue.CONSTRUCTOR);
+					writer.writeField(SValue.CONSTRUCTOR_ARITY, cons.arity());
 					if(cons.mayHaveKeywordParameters()){
 						if(cons.asWithKeywordParameters().hasParameters()){
-							out.writeField(SValue.CONSTRUCTOR_KWPARAMS, cons.asWithKeywordParameters().getParameters().size());
+							writer.writeField(SValue.CONSTRUCTOR_KWPARAMS, cons.asWithKeywordParameters().getParameters().size());
 						}
 					} else {
 						if(cons.asAnnotatable().hasAnnotations()){
-							out.writeField(SValue.CONSTRUCTOR_ANNOS, cons.asAnnotatable().getAnnotations().size());
+							writer.writeField(SValue.CONSTRUCTOR_ANNOS, cons.asAnnotatable().getAnnotations().size());
 						}
 					}
 					writeField(SValue.CONSTRUCTOR_TYPE, cons.getUninstantiatedConstructorType());
-					out.endValue();
-					valuesWindow.write(cons);
+					endAndCacheValue(cons);
 				}
 				break;
 			}
@@ -426,40 +422,39 @@ public class NewRVMIValueWriter {
 				assert it.atBeginning();
 				
 				IDateTime dateTime = (IDateTime) it.getIValue();
-				if(!inWindow(dateTime)){
+				if(!inCache(dateTime)){
 						if(dateTime.isDateTime()){
-						out.startValue(SValue.DATETIME);
+						writer.startValue(SValue.DATETIME);
 						
-						out.writeField(SValue.DATETIME_YEAR, dateTime.getYear());
-						out.writeField(SValue.DATETIME_MONTH, dateTime.getMonthOfYear());
-						out.writeField(SValue.DATETIME_DAY, dateTime.getDayOfMonth());
+						writer.writeField(SValue.DATETIME_YEAR, dateTime.getYear());
+						writer.writeField(SValue.DATETIME_MONTH, dateTime.getMonthOfYear());
+						writer.writeField(SValue.DATETIME_DAY, dateTime.getDayOfMonth());
 						
-						out.writeField(SValue.DATETIME_HOUR, dateTime.getHourOfDay());
-						out.writeField(SValue.DATETIME_MINUTE, dateTime.getMinuteOfHour());
-						out.writeField(SValue.DATETIME_SECOND, dateTime.getSecondOfMinute());
-						out.writeField(SValue.DATETIME_MILLISECOND, dateTime.getMillisecondsOfSecond());
+						writer.writeField(SValue.DATETIME_HOUR, dateTime.getHourOfDay());
+						writer.writeField(SValue.DATETIME_MINUTE, dateTime.getMinuteOfHour());
+						writer.writeField(SValue.DATETIME_SECOND, dateTime.getSecondOfMinute());
+						writer.writeField(SValue.DATETIME_MILLISECOND, dateTime.getMillisecondsOfSecond());
 						
-						out.writeField(SValue.DATETIME_TZ_HOUR, dateTime.getTimezoneOffsetHours());
-						out.writeField(SValue.DATETIME_TZ_MINUTE, dateTime.getTimezoneOffsetMinutes());
+						writer.writeField(SValue.DATETIME_TZ_HOUR, dateTime.getTimezoneOffsetHours());
+						writer.writeField(SValue.DATETIME_TZ_MINUTE, dateTime.getTimezoneOffsetMinutes());
 					} else if(dateTime.isDate()){
-						out.startValue(SValue.DATE);
+						writer.startValue(SValue.DATE);
 						
-						out.writeField(SValue.DATE_YEAR, dateTime.getYear());
-						out.writeField(SValue.DATE_MONTH, dateTime.getMonthOfYear());
-						out.writeField(SValue.DATE_DAY, dateTime.getDayOfMonth());
+						writer.writeField(SValue.DATE_YEAR, dateTime.getYear());
+						writer.writeField(SValue.DATE_MONTH, dateTime.getMonthOfYear());
+						writer.writeField(SValue.DATE_DAY, dateTime.getDayOfMonth());
 					} else {
-						out.startValue(SValue.TIME);
+						writer.startValue(SValue.TIME);
 						
-						out.writeField(SValue.TIME_HOUR, dateTime.getHourOfDay());
-						out.writeField(SValue.TIME_MINUTE, dateTime.getMinuteOfHour());
-						out.writeField(SValue.TIME_SECOND, dateTime.getSecondOfMinute());
-						out.writeField(SValue.TIME_MILLISECOND, dateTime.getMillisecondsOfSecond());
+						writer.writeField(SValue.TIME_HOUR, dateTime.getHourOfDay());
+						writer.writeField(SValue.TIME_MINUTE, dateTime.getMinuteOfHour());
+						writer.writeField(SValue.TIME_SECOND, dateTime.getSecondOfMinute());
+						writer.writeField(SValue.TIME_MILLISECOND, dateTime.getMillisecondsOfSecond());
 						
-						out.writeField(SValue.TIME_TZ_HOUR, dateTime.getTimezoneOffsetHours());
-						out.writeField(SValue.TIME_TZ_MINUTE, dateTime.getTimezoneOffsetMinutes());
+						writer.writeField(SValue.TIME_TZ_HOUR, dateTime.getTimezoneOffsetHours());
+						writer.writeField(SValue.TIME_TZ_MINUTE, dateTime.getTimezoneOffsetMinutes());
 					}
-					out.endValue();
-					valuesWindow.write(dateTime);
+					endAndCacheValue(dateTime);
 				}
 				break;
 			}
@@ -467,20 +462,17 @@ public class NewRVMIValueWriter {
 			case INT: {
 				assert it.atBeginning();
 				IInteger ii = (IInteger) it.getIValue();
-				if(!inWindow(ii)){
+				if(!inCache(ii)){
 					if(ii.greaterEqual(minInt).getValue() && ii.lessEqual(maxInt).getValue()){
 						int n = ii.intValue();
-						out.startValue(SValue.INT);
-						out.writeField(SValue.INT_VALUE, n);
-						out.endValue();
-						valuesWindow.write(ii);
+						writer.startValue(SValue.INT);
+						writer.writeField(SValue.INT_VALUE, n);
 					} else {
-						out.startValue(SValue.BIGINT);
+						writer.startValue(SValue.BIGINT);
 						byte[] valueData = ii.getTwosComplementRepresentation();
-						out.writeField(SValue.BIGINT_VALUE, valueData);
-						out.endValue();
-						valuesWindow.write(ii);
+						writer.writeField(SValue.BIGINT_VALUE, valueData);
 					}
+					endAndCacheValue(ii);
 				}
 				break;
 			}
@@ -488,14 +480,13 @@ public class NewRVMIValueWriter {
 			case LIST: {
 				IList lst = (IList) it.getIValue();
 				if(it.atBeginning()){
-					if(inWindow(lst)){
+					if(inCache(lst)){
 						it.skipChildren();
 					}
 				} else {
-					out.startValue(SValue.LIST);
-					out.writeField(SValue.LIST_SIZE, lst.length());
-					out.endValue();
-					valuesWindow.write(lst);
+					writer.startValue(SValue.LIST);
+					writer.writeField(SValue.LIST_SIZE, lst.length());
+					endAndCacheValue(lst);
 				}
 				break;
 			}
@@ -503,14 +494,13 @@ public class NewRVMIValueWriter {
 			case MAP: {
 				IMap  map = (IMap) it.getIValue();
 				if(it.atBeginning()){
-					if(inWindow(map)){
+					if(inCache(map)){
 						it.skipChildren();
 					}
 				} else {
-					out.startValue(SValue.MAP);
-					out.writeField(SValue.MAP_SIZE, map.size());
-					out.endValue();
-					valuesWindow.write(map);
+					writer.startValue(SValue.MAP);
+					writer.writeField(SValue.MAP_SIZE, map.size());
+					endAndCacheValue(map);
 				}
 				break;
 			}
@@ -518,24 +508,23 @@ public class NewRVMIValueWriter {
 			case NODE: {
 				INode node = (INode) it.getIValue();
 				if(it.atBeginning()){
-					if(inWindow(node)){
+					if(inCache(node)){
 						it.skipChildren();
 					}
 				} else {
-					out.startValue(SValue.NODE);
-					out.writeField(SValue.NODE_NAME,  node.getName());
-					out.writeField(SValue.NODE_ARITY, node.arity());
+					writer.startValue(SValue.NODE);
+					writer.writeField(SValue.NODE_NAME,  node.getName());
+					writer.writeField(SValue.NODE_ARITY, node.arity());
 					if(node.mayHaveKeywordParameters()){
 						if(node.asWithKeywordParameters().hasParameters()){
-							out.writeField(SValue.NODE_KWPARAMS, node.asWithKeywordParameters().getParameters().size());
+							writer.writeField(SValue.NODE_KWPARAMS, node.asWithKeywordParameters().getParameters().size());
 						}
 					} else {
 						if(node.asAnnotatable().hasAnnotations()){
-							out.writeField(SValue.NODE_ANNOS, node.asAnnotatable().getAnnotations().size());
+							writer.writeField(SValue.NODE_ANNOS, node.asAnnotatable().getAnnotations().size());
 						}
 					}
-					out.endValue();
-					valuesWindow.write(node);
+					endAndCacheValue(node);
 				}
 				break;
 			}
@@ -543,14 +532,13 @@ public class NewRVMIValueWriter {
 			case RATIONAL: {
 				assert it.atBeginning();
 				IRational rat = (IRational) it.getIValue();
-				if(!inWindow(rat)){
-					out.startValue(SValue.RAT);
-					out.writeField(SValue.RAT_NUMERATOR, 0);
+				if(!inCache(rat)){
+					writer.startValue(SValue.RAT);
+					writer.writeField(SValue.RAT_NUMERATOR, 0);
 					writeValue(rat.numerator());
-					out.writeField(SValue.RAT_DENOMINATOR, 0);
+					writer.writeField(SValue.RAT_DENOMINATOR, 0);
 					writeValue(rat.denominator());
-					out.endValue();
-					valuesWindow.write(rat);;
+					endAndCacheValue(rat);
 				}
 				break;
 			}
@@ -559,13 +547,12 @@ public class NewRVMIValueWriter {
 				assert it.atBeginning();
 
 				IReal real = (IReal) it.getIValue();
-				if(!inWindow(real)){
-					out.startValue(SValue.REAL);
+				if(!inCache(real)){
+					writer.startValue(SValue.REAL);
 					byte[] valueData = real.unscaled().getTwosComplementRepresentation();
-					out.writeField(SValue.REAL_VALUE, valueData);
-					out.writeField(SValue.REAL_SCALE, real.scale());
-					out.endValue();
-					valuesWindow.write(real);
+					writer.writeField(SValue.REAL_VALUE, valueData);
+					writer.writeField(SValue.REAL_SCALE, real.scale());
+					endAndCacheValue(real);
 				}
 				break;
 			}
@@ -573,14 +560,13 @@ public class NewRVMIValueWriter {
 			case SET: {
 				ISet set = (ISet) it.getIValue();
 				if(it.atBeginning()){
-					if(inWindow(set)){
+					if(inCache(set)){
 						it.skipChildren();
 					}
 				} else {
-					out.startValue(SValue.SET);
-					out.writeField(SValue.SET_SIZE, set.size());
-					out.endValue();
-					valuesWindow.write(set);
+					writer.startValue(SValue.SET);
+					writer.writeField(SValue.SET_SIZE, set.size());
+					endAndCacheValue(set);
 				}
 				break;
 			}
@@ -589,8 +575,8 @@ public class NewRVMIValueWriter {
 				assert it.atBeginning();
 				
 				ISourceLocation loc = (ISourceLocation) it.getIValue();
-				if(!inWindow(loc)){
-					out.startValue(SValue.LOC);
+				if(!inCache(loc)){
+					writer.startValue(SValue.LOC);
 					URI uri = loc.getURI();
 					String scheme = uri.getScheme();
 					String authority = uri.getAuthority();
@@ -598,33 +584,32 @@ public class NewRVMIValueWriter {
 					String query = uri.getQuery();
 					String fragment = uri.getFragment();
 					if(scheme != null){
-						out.writeField(SValue.LOC_SCHEME, scheme);
+						writer.writeField(SValue.LOC_SCHEME, scheme);
 					}
 					if(authority != null){
-						out.writeField(SValue.LOC_AUTHORITY, authority);
+						writer.writeField(SValue.LOC_AUTHORITY, authority);
 					}
 					if(path != null){
-						out.writeField(SValue.LOC_PATH, path);
+						writer.writeField(SValue.LOC_PATH, path);
 					}
 					if(query != null){
-						out.writeField(SValue.LOC_QUERY,  query);
+						writer.writeField(SValue.LOC_QUERY,  query);
 					}
 					if(fragment != null){
-						out.writeField(SValue.LOC_FRAGMENT,  fragment);
+						writer.writeField(SValue.LOC_FRAGMENT,  fragment);
 					}
 					
 					if(loc.hasOffsetLength()){
-						out.writeField(SValue.LOC_OFFSET, loc.getOffset());
-						out.writeField(SValue.LOC_LENGTH, loc.getLength());
+						writer.writeField(SValue.LOC_OFFSET, loc.getOffset());
+						writer.writeField(SValue.LOC_LENGTH, loc.getLength());
 					} 
 					if(loc.hasLineColumn()){
-						out.writeField(SValue.LOC_BEGINLINE, loc.getBeginLine());
-						out.writeField(SValue.LOC_ENDLINE, loc.getEndLine());
-						out.writeField(SValue.LOC_BEGINCOLUMN, loc.getBeginColumn());
-						out.writeField(SValue.LOC_ENDCOLUMN, loc.getEndColumn());
+						writer.writeField(SValue.LOC_BEGINLINE, loc.getBeginLine());
+						writer.writeField(SValue.LOC_ENDLINE, loc.getEndLine());
+						writer.writeField(SValue.LOC_BEGINCOLUMN, loc.getBeginColumn());
+						writer.writeField(SValue.LOC_ENDCOLUMN, loc.getEndColumn());
 					}
-					out.endValue();
-					valuesWindow.write(loc);
+					endAndCacheValue(loc);
 				}
 				break;
 			}
@@ -633,9 +618,9 @@ public class NewRVMIValueWriter {
 				assert it.atBeginning();
 				
 				IString str = (IString) it.getIValue();
-				out.startValue(SValue.STR);
-				out.writeField(SValue.STR_VALUE, str.getValue());
-				out.endValue();
+				writer.startValue(SValue.STR);
+				writer.writeField(SValue.STR_VALUE, str.getValue());
+				writer.endValue();
 				// Already cached at wire level
 				break;
 			}
@@ -643,14 +628,13 @@ public class NewRVMIValueWriter {
 			case TUPLE: {
 				ITuple tuple = (ITuple) it.getIValue();
 				if(it.atBeginning()){
-					if(inWindow(tuple)){
+					if(inCache(tuple)){
 						it.skipChildren();
 					}
 				} else {
-					out.startValue(SValue.TUPLE);
-					out.writeField(SValue.TUPLE_SIZE, tuple.arity());
-					out.endValue();
-					valuesWindow.write(tuple);
+					writer.startValue(SValue.TUPLE);
+					writer.writeField(SValue.TUPLE_SIZE, tuple.arity());
+					endAndCacheValue(tuple);
 				}
 				break;
 			}
@@ -658,8 +642,8 @@ public class NewRVMIValueWriter {
 				 throw new RuntimeException("writeValue: unexpected kind of value " + kind);
 			}
 		}
-		out.startValue(SValue.END_OF_VALUE);
-		out.endValue();
+		writer.startValue(SValue.END_OF_VALUE);
+		writer.endValue();
 	}
 	
   // Test code

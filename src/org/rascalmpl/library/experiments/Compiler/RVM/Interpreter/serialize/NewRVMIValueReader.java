@@ -15,18 +15,11 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.NewS
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.LinearCircularLookupWindow;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.TrackLastRead;
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IDateTime;
 import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.INode;
-import org.rascalmpl.value.IRational;
-import org.rascalmpl.value.IReal;
-import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
-import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
@@ -82,7 +75,8 @@ public class NewRVMIValueReader {
 	}
 
 	String readName() throws IOException{
-		ReaderPosition x = reader.next();
+		// TODO: add assert
+		reader.next();
 		return reader.getString();
 	}
 	
@@ -152,7 +146,7 @@ public class NewRVMIValueReader {
 		case SType.VOID:		
 			skip_until_end();return tf.voidType();
 
-			// Composite types
+		// Composite types
 
 		case SType.ADT:	{	
 			String name = "";
@@ -430,6 +424,12 @@ public class NewRVMIValueReader {
 		throw new RuntimeException("readType: unhandled case " + reader.value());
 	}
 	
+	void pushCacheNext(ReaderStack stack, IValue v) throws IOException{
+		stack.push(v);
+		valueWindow.read(v);
+		reader.next();
+	}
+	
 	/**
 	 * @return a value read from the input stream.
 	 * @throws IOException
@@ -452,10 +452,7 @@ public class NewRVMIValueReader {
 					}
 				}
 
-				IValue bval = vf.bool(b == 0 ? false : true);
-				stack.push(bval);
-				valueWindow.read(bval);
-				reader.next();
+				pushCacheNext(stack, vf.bool(b == 0 ? false : true));
 				break;
 			}
 			
@@ -495,9 +492,7 @@ public class NewRVMIValueReader {
 					cons = vf.constructor(consType, stack.getChildren(arity));
 				}
 
-				stack.push(cons);
-				valueWindow.read(cons);
-				reader.next();
+				pushCacheNext(stack, cons);
 				break;
 			}
 
@@ -528,10 +523,7 @@ public class NewRVMIValueReader {
 					}
 				}
 
-				IDateTime dateTime = vf.datetime(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
-				stack.push(dateTime);
-				valueWindow.read(dateTime);
-				reader.next();
+				pushCacheNext(stack, vf.datetime(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset));
 				break;
 			}
 
@@ -548,10 +540,7 @@ public class NewRVMIValueReader {
 					}
 				}
 
-				IDateTime dateTime = vf.datetime(year, month, day);
-				stack.push(dateTime);
-				valueWindow.read(dateTime);
-				reader.next();
+				pushCacheNext(stack, vf.datetime(year, month, day));
 				break;
 			}
 
@@ -575,16 +564,9 @@ public class NewRVMIValueReader {
 					}
 				}
 
-				IDateTime dateTime = vf.time(hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
-
-				stack.push(dateTime);
-				valueWindow.read(dateTime);
-				reader.next();
+				pushCacheNext(stack, vf.time(hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset));
 				break;
 			}
-
-//		case FUNCTION:
-//			break;
 
 		case SValue.INT: {
 			long n = 0;
@@ -593,10 +575,8 @@ public class NewRVMIValueReader {
 					n = reader.getLong();
 				}
 			}
-			IInteger ii = vf.integer(n);
-			stack.push(ii);
-			valueWindow.read(ii);
-			reader.next();
+			
+			pushCacheNext(stack, vf.integer(n));
 			break;
 		}
 			
@@ -607,11 +587,10 @@ public class NewRVMIValueReader {
 					bytes = reader.getBytes();
 				}
 			}
+			
 			assert bytes != null;
-			IInteger ii = vf.integer(bytes);
-			stack.push(ii);
-			valueWindow.read(ii);
-			reader.next();
+		
+			pushCacheNext(stack, vf.integer(bytes));
 			break;
 		}
 		
@@ -622,10 +601,8 @@ public class NewRVMIValueReader {
 					len = (int) reader.getLong();
 				}
 			}
-			IList lst = vf.list(stack.getChildren(len));
-			stack.push(lst);
-			valueWindow.read(lst);
-			reader.next();
+			
+			pushCacheNext(stack, vf.list(stack.getChildren(len)));
 			break;
 		}
 
@@ -670,9 +647,8 @@ public class NewRVMIValueReader {
 			} else {
 				loc = baseLoc;
 			}
-			stack.push(loc);
-			valueWindow.read(loc);;
-			reader.next();
+			
+			pushCacheNext(stack, loc);
 			break;
 			
 		}
@@ -690,10 +666,7 @@ public class NewRVMIValueReader {
 				mw.put(key, val);
 			}
 			
-			IMap map = mw.done();
-			stack.push(map);
-			valueWindow.read(map);
-			reader.next();
+			pushCacheNext(stack, mw.done());
 			break;
 		}
 
@@ -733,9 +706,7 @@ public class NewRVMIValueReader {
 				node = vf.node(name, stack.getChildren(arity));
 			}
 			
-			stack.push(node);
-			valueWindow.read(node);
-			reader.next();
+			pushCacheNext(stack, node);
 			break;
 		}
 		
@@ -750,12 +721,10 @@ public class NewRVMIValueReader {
 					denominator = (IInteger) readValue(); break;
 				}
 			}
+			
 			assert numerator != null & denominator != null;
 			
-			IRational rat = vf.rational(numerator, denominator);
-			stack.push(rat);
-			valueWindow.read(rat);
-			reader.next();
+			pushCacheNext(stack, vf.rational(numerator, denominator));
 			break;
 		}
 
@@ -771,11 +740,10 @@ public class NewRVMIValueReader {
 					bytes = reader.getBytes(); break;
 				}
 			}
+			
 			assert bytes != null;
-			IReal real = vf.real(new BigDecimal(new BigInteger(bytes), scale).toString()); // TODO: Improve this
-			stack.push(real);
-			valueWindow.read(real);
-			reader.next();
+
+			pushCacheNext(stack, vf.real(new BigDecimal(new BigInteger(bytes), scale).toString())); // TODO: Improve this?
 			break;
 		}
 		
@@ -786,10 +754,8 @@ public class NewRVMIValueReader {
 					len = (int) reader.getLong();
 				}
 			}
-			ISet set = vf.set(stack.getChildren(len));
-			stack.push(set);
-			valueWindow.read(set);
-			reader.next();
+			
+			pushCacheNext(stack, vf.set(stack.getChildren(len)));
 			break;
 		}
 
@@ -815,10 +781,8 @@ public class NewRVMIValueReader {
 					len = (int) reader.getLong();
 				}
 			}
-			ITuple tuple = vf.tuple(stack.getChildren(len));
-			stack.push(tuple);
-			valueWindow.read(tuple);
-			reader.next();
+			
+			pushCacheNext(stack, vf.tuple(stack.getChildren(len)));
 			break;
 		}
 		
@@ -851,106 +815,6 @@ public class NewRVMIValueReader {
 
 		}
 	}
-//	
-//	public static void main(String[] args) throws IOException {
-//
-//		int N = 1;
-//
-//		OutputStream fileOut;
-//
-//		TypeStore typeStore = RascalValueFactory.getStore();
-//		TypeFactory tf = TypeFactory.getInstance();
-//		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-//
-//		ISourceLocation fileLoc = null;
-//		ISourceLocation locVal1 = null;
-//		ISourceLocation locVal2 = null;
-//		
-//		IDateTime dt = vf.datetime(1234567);
-//		System.out.println(dt);
-//		
-//		IReal r = vf.real(9.87654321);
-//		
-//		try {
-//			fileLoc = vf.sourceLocation("home", "", "file.fst");
-//			locVal1 = vf.sourceLocation(fileLoc, 100, 12);
-//			locVal2 = vf.sourceLocation(fileLoc, 100, 12, 1, 2, 3, 4);
-//		} catch (URISyntaxException e) {
-//			System.err.println("Cannot create default location: " + e.getMessage());
-//		}
-//
-//		fileOut = URIResolverRegistry.getInstance().getOutputStream(fileLoc, false);
-//
-//		ISetWriter w = vf.setWriter();
-//		w.insert(vf.integer(10));
-//		w.insert(vf.integer(42));
-//		
-//		Type adt = tf.abstractDataType(typeStore, "D");
-//		Type fcons = tf.constructor(typeStore, adt, "f", tf.setType(tf.integerType()), "n");
-//		
-//		HashMap<String,IValue> kwParams = new HashMap<>();
-//		kwParams.put("zzz", vf.string("pqr"));
-//		
-//		IValue start = dt;
-//				//vf.integer("12345678901234567890");
-//		//vf.tuple(vf.integer(42), vf.integer(42));
-//				//vf.constructor(fcons, w.done()).asWithKeywordParameters().setParameters(kwParams);
-//		Type startType = fcons;
-//		
-//		long startTime = Timing.getCpuTime();
-//
-//		RVMIValueWriter out = new RVMIValueWriter(fileOut);
-//		
-//		for(int i = 0; i < N; i++){
-//			//out.writeType(startType);zx
-//			out.writeValue(start);
-//			out.writeValue(start);
-//		}
-//		out.close();
-//
-//		long endWrite = Timing.getCpuTime();
-//
-//		System.out.println("Writing " + N + " values " +  (endWrite - startTime)/1000000 + " msec");
-//
-//		NewRVMIValueReader in = null;
-//		IValue outVal = start;
-//		IValue outVal2 = null;
-//		Type outType;
-//		try {
-//			ISourceLocation compIn = fileLoc;
-//			InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(compIn);
-//			in = new NewRVMIValueReader(fileIn, vf, typeStore, 10, 10);
-//			for(int i = 0; i < N; i++){
-//				
-////				outType = in.readType();
-////				System.out.println(outType);
-//				
-//				outVal = in.readValue();
-//				outVal2 = in.readValue();
-//				System.out.println(outVal + ", " + outVal.equals(outVal2));
-//				
-//			}
-//			in.close();
-//			in = null;
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			throw new IOException(e.getMessage());
-//		} 
-//		finally {
-//			if(in != null){
-//				in.close();
-//			}
-//  		}
-//		long endRead = Timing.getCpuTime();
-//		//System.out.println(outVal);
-//		System.out.println("Reading " + N + " value " +  (endRead - endWrite)/1000000 + " msec");
-//	}
-
-//	private void close() throws IOException {
-//		basicIn.close();
-//	}
-
-	
 }
 
 class ReaderStack {
