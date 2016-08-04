@@ -74,7 +74,8 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMIValueReader;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.NewRVMIValueReader;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.NewRVMIValueWriter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMIValueWriter;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.IGTD;
@@ -3391,7 +3392,7 @@ public class Prelude {
 		
 		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(loc)) {
 			//return new BinaryValueReader().read(values, store, start, in);
-			RVMIValueReader deser = new RVMIValueReader(in, values, store);
+			NewRVMIValueReader deser = new NewRVMIValueReader(in, values, store);
 			IValue val = deser.readValue();
 			if(val.getType().isSubtypeOf(start)){
 				return val;
@@ -3441,7 +3442,7 @@ public class Prelude {
     	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
 		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
 			//new BinaryValueWriter().write(value, out, compression.getValue());
-			RVMIValueWriter ser = new RVMIValueWriter(out);
+			NewRVMIValueWriter ser = new NewRVMIValueWriter(out, 100, 100);
 			ser.writeValue(value);
 			ser.close();
 		}
