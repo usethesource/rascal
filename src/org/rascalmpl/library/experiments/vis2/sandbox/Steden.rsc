@@ -85,7 +85,7 @@ public Figure steden3(bool tooltip=false) {return
                          }
    
  public void tsteden() {
-       render(box(size=<50, 50>, fillColor="yellow", tooltip=frame(atXY(150, 150, box(lineWidth = 1, fig=steden())))));             
+       render(box(size=<50, 50>, fillColor="yellow", tooltip=atXY(150, 150, box(lineWidth = 1, fillColor="antiquewhite", fig=steden()))));             
    }
    
  public void fsteden(loc l) = writeFile(l, toHtmlString(

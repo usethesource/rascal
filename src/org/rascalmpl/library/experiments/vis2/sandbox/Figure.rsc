@@ -182,7 +182,8 @@ public data Figure(
 		int height = -1,
 		Position at = <0, 0>,
 		Rotate rotate = <0, -1, -1>, 
-		Alignment align = <0.5, 0.5>, 
+		Alignment align = <0.5, 0.5>,
+		Alignment cellAlign = <-1, -1>, 
 		num bigger = 1.0,
 		num shrink = 1.0, 
 		num hshrink = 1.0, 
@@ -282,7 +283,7 @@ public data Figure(
 // Figure transformations
 
    | atXY(int x, int y, Figure fig)	
-   | atXY(tuple[int x, int y], Figure fig)			// Move to Alignment relative to origin of enclosing Figure
+   | atXY(tuple[int x, int y] pos, Figure fig)			// Move to Alignment relative to origin of enclosing Figure
    | atX(int x, Figure fig)				// TODO: how to handle negative values?
    | atY(int y, Figure fig)
    

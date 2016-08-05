@@ -6,18 +6,18 @@ import util::Reflective;
 import Prelude;
 
 public void renderWeb(
-      Figure fig1, int width = 400, int height = 400, 
+      Figure fig1, int width = -1, int height = -1, 
      Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>,
      str fillColor = "white", str lineColor = "black", bool debug = false
      , int borderWidth = -1,  str borderColor = "", str borderStyle = "", bool resizable = true,
      str cssFile="", bool eclipse=true, loc javaLoc=|file:///usr|
-      ,int screenWidth = 500, int screenHeight = 500, loc pngFile=|tmp:///vision.png|, bool snapshot=false)
+      ,int screenWidth = 500, int screenHeight = 500, loc pngFile=|tmp:///vision.png|, bool snapshot=false, bool defined = true)
      {      
      setDebug(debug);
           _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
      lineColor = lineColor, size = size, display = true
      , borderWidth = borderWidth, borderStyle = borderStyle, resizable = resizable,
-     cssFile = cssFile
+     cssFile = cssFile, defined = defined
      );  
      if (!eclipse) {
          // println(getSite().uri);
@@ -31,17 +31,17 @@ public void renderWeb(
      
 
       
-public str toHtmlString(Figure fig1, int width = 400, int height = 400, 
+public str toHtmlString(Figure fig1, int width = -1, int height = -1, 
      Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>,
      str fillColor = "white", str lineColor = "black", bool debug = false
      , int borderWidth = -1,  str borderColor = "", str borderStyle = "", bool resizable = true,
-     str cssFile="")
+     str cssFile="", bool defined = false)
      {
      setDebug(debug);
      _render(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
      lineColor = lineColor, size = size, display = false
      , borderWidth = borderWidth, borderStyle = borderStyle, resizable = resizable,
-     cssFile = cssFile
+     cssFile = cssFile, defined = (width? && height?)||(size?) || defined
      );
      return getIntro();
      }
@@ -51,32 +51,34 @@ void copyFile(loc from, loc to) {
     }
 
 public void renderSave(Figure fig1, loc pngFile
-     ,int width = 400, int height = 400
+     ,int width = -1, int height = -1
      ,Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>
      ,str fillColor = "white", str lineColor = "black", bool debug = false
      ,int borderWidth = -1,  str borderColor = "", str borderStyle = "", bool resizable = true
-      ,int screenWidth = 500, int screenHeight = 500, str cssFile="", loc javaLoc=|file:///usr|) 
+      ,int screenWidth = 500, int screenHeight = 500, str cssFile="", loc javaLoc=|file:///usr|
+      , bool defined = false
+      ) 
        {
       renderWeb(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
        lineColor = lineColor, size = size
        ,borderWidth = borderWidth, borderStyle = borderStyle, borderColor = borderColor, resizable = resizable
        ,cssFile=cssFile, pngFile = pngFile, snapshot = true, screenWidth = screenWidth, screenHeight = screenHeight,
-       javaLoc = javaLoc, eclipse = false
+       javaLoc = javaLoc, eclipse = false, defined = (width? && height?)||(size?) || defined
       );  
       }
       
 public void renderShow(Figure fig1
-     ,int width = 400, int height = 400
+     ,int width = -1, int height = -1
      ,Alignment align = <0.5, 0.5>, tuple[int, int] size = <0, 0>
      ,str fillColor = "white", str lineColor = "black", bool debug = false
      ,int borderWidth = -1,  str borderColor = "", str borderStyle = "", bool resizable = true
-      ,int screenWidth = 500, int screenHeight = 500, str cssFile="", loc javaLoc=|file:///usr|) 
+      ,int screenWidth = 500, int screenHeight = 500, str cssFile="", loc javaLoc=|file:///usr|, bool defined = false) 
        {
       renderWeb(fig1, width = width,  height = height,  align = align, fillColor = fillColor,
        lineColor = lineColor, size = size
        ,borderWidth = borderWidth, borderStyle = borderStyle, borderColor = borderColor, resizable = resizable
        ,cssFile=cssFile, snapshot = false, screenWidth = screenWidth, screenHeight = screenHeight,
-       javaLoc = javaLoc, eclipse = false
+       javaLoc = javaLoc, eclipse = false, defined =  (width? && height?)||(size?) || defined
       );  
       }
 

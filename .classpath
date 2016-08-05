@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.8.0_45.jdk"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<accessrules>
+			<accessrule kind="accessible" pattern="javafx/**"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry excluding="**/example-project/*" kind="src" path="src"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="test"/>
@@ -42,6 +46,6 @@
 	<attributes>
             <attribute name="javadoc_location" value="jar:platform:/resource/rascal/lib/protobuf-java-2.6.1-javadoc.jar!/"/>
         </attributes>
-    </classpathentry>classpathentry>
+    </classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

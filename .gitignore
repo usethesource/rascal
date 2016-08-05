@@ -8,9 +8,9 @@ tmp/**/*
 *.bak
 *.swp
 *~.nib
+.settings
 local.properties
 .classpath
-.settings/
 .loadpath
 
 # maven stuff

@@ -303,6 +303,13 @@ value execute(str qualifiedModuleName, PathConfig pcfg,
    return execute(mainModule, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=testsuite, profile=profile, verbose=verbose, trace=trace, coverage=coverage, jvm=jvm);
 }
  
+@deprecated 
+value rascalTests(list[str] qualifiedModuleNames, list[loc] srcs, list[loc] libs, loc boot, loc bin, 
+                  map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool profile=false, 
+                  bool trace= false,  bool coverage=false, bool jvm=true, bool verbose = false)
+  = rascalTests(qualifiedModuleNames, srcs, libs, boot, bin, true, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, profile=profile,
+                trace=trace, coverage=coverage, jvm=jvm, verbose=verbose);
+                 
 value rascalTests(list[str] qualifiedModuleNames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool recompile,
                   map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool profile=false, 
                   bool trace= false,  bool coverage=false, bool jvm=true, bool verbose = false){

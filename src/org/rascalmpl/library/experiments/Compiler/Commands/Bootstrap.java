@@ -131,6 +131,8 @@ public class Bootstrap {
     }
     
     public static void main(String[] args) throws Exception {
+        initializeShutdownhook();
+        
         if (args.length < 5) {
         	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder> [--verbose] [--clean] (you provided " + args.length + " arguments instead)");
         	System.exit(1);
@@ -142,21 +144,9 @@ public class Bootstrap {
         String versionToUse = args[arg++];
         String versionToBuild = args[arg++];
         
-        Thread destroyChild = new Thread() {
-            public void run() {
-                synchronized (Bootstrap.class) {
-                    if (childProcess != null && childProcess.isAlive()) {
-                        childProcess.destroy();
-                    }
-                }
-            }
-        };
-        
         if (versionToUse.equals("unstable")) {
             info("YOU ARE NOT SUPPOSED TO BOOTSTRAP OFF AN UNSTABLE VERSION! ***ONLY FOR DEBUGGING PURPOSES***");
         }
-        
-        Runtime.getRuntime().addShutdownHook(destroyChild);
         
         Path sourceFolder = new File(args[arg++]).toPath();
         if (!Files.exists(sourceFolder.resolve("org/rascalmpl/library/Prelude.rsc"))) {
@@ -186,32 +176,7 @@ public class Bootstrap {
             }
         }
         
-        Path tmpDir = new File(System.getProperty("java.io.tmpdir") + "/rascal-boot").toPath();
-        if (cleanTempDir && Files.exists(tmpDir)) {
-            info("Removing files in" + tmpDir.toString());
-            try {
-                Files.walkFileTree(tmpDir, new SimpleFileVisitor<Path>() {
-                    @Override
-                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                        Files.delete(dir);
-                        return super.postVisitDirectory(dir, exc);
-                    }
-                    @Override
-                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        Files.delete(file);
-                        return super.visitFile(file, attrs);
-                    }
-
-                });
-            } catch (IOException e) {
-                System.err.println(e);
-                System.err.println("Error cleaning temp directory");
-                System.exit(1);
-                return;
-            }
-        }
-        tmpDir.toFile().mkdir();
-        info("bootstrap folder: " + tmpDir.toAbsolutePath());
+        Path tmpDir = initializeTemporaryFolder(cleanTempDir);
 
         if (existsDeployedVersion(tmpDir, versionToBuild)) {
             System.out.println("INFO: Got the kernel version to compile: " + versionToBuild + " already from existing deployed build.");
@@ -256,7 +221,8 @@ public class Bootstrap {
                 // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
                 time("Copying bootstrapped files", () -> copyResult(kernel[4], targetFolder.resolve("boot")));
 
-                time("Running final test", () -> runTestModule(5, targetFolder + ":" + classpath,  "|boot:///|", "|std:///|", tmpDir.resolve("test-bins"), testModules));
+                time("Compiling final tests", () -> compileTests (5, rvm[1], "|boot:///|", "|std:///|", tmpDir.resolve("test-bins")));
+                time("Running final tests"  , () -> runTests(5, rvm[1], "|boot:///|", "|std:///|", tmpDir.resolve("test-bins")));
 
                 Files.write(bootstrapMarker, versionToUse.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE_NEW);
             } 
@@ -267,6 +233,50 @@ public class Bootstrap {
             } 
         });
         printTimings();
+    }
+
+    private static void initializeShutdownhook() {
+        Thread destroyChild = new Thread() {
+            public void run() {
+                synchronized (Bootstrap.class) {
+                    if (childProcess != null && childProcess.isAlive()) {
+                        childProcess.destroy();
+                    }
+                }
+            }
+        };
+        
+        Runtime.getRuntime().addShutdownHook(destroyChild);
+    }
+
+    private static Path initializeTemporaryFolder(boolean cleanTempDir) {
+        Path tmpDir = new File(System.getProperty("java.io.tmpdir") + "/rascal-boot").toPath();
+        if (cleanTempDir && Files.exists(tmpDir)) {
+            info("Removing files in" + tmpDir.toString());
+            try {
+                Files.walkFileTree(tmpDir, new SimpleFileVisitor<Path>() {
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                        Files.delete(dir);
+                        return super.postVisitDirectory(dir, exc);
+                    }
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        Files.delete(file);
+                        return super.visitFile(file, attrs);
+                    }
+
+                });
+            } catch (IOException e) {
+                System.err.println(e);
+                System.err.println("Error cleaning temp directory");
+                System.exit(1);
+                return null;
+            }
+        }
+        tmpDir.toFile().mkdir();
+        info("bootstrap folder: " + tmpDir.toAbsolutePath());
+        return tmpDir;
     }
     
 	private static void copyResult(String sourceString, Path targetPath) throws IOException {
@@ -351,7 +361,8 @@ public class Bootstrap {
         time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
         time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel"));
         time("- compile ParserGenarator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator"));
-        time("- tests",                   () -> runTestModule   (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, result, testModules));
+        time("- compile tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, result));
+        time("- run tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, result));
         
         return result;
     }
@@ -360,6 +371,16 @@ public class Bootstrap {
 
     private static String[] concat(String[]... arrays) {
         return Stream.of(arrays).flatMap(Stream::of).toArray(sz -> new String[sz]);
+    }
+    
+    private static void compileTests(int phase, String classPath, String boot, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage {
+        progress("\tcompiling tests (phase " + phase +")");
+        String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
+        String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[] {};
+
+        if (runCompiler(classPath, concat(concat(paths, otherArgs), testModules)) != 0) {
+            throw new BootstrapMessage(phase);
+        }
     }
     
     private static void compileModule(int phase, String classPath, String boot, String sourcePath, Path result,
@@ -384,13 +405,13 @@ public class Bootstrap {
         }
     }
     
-    private static void runTestModule(int phase, String classPath, String boot, String sourcePath, Path result, String[] modules) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
+    private static void runTests(int phase, String classPath, String boot, String sourcePath, Path result) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
         progress("Running tests with the results of " + phase);
         String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
         String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
 
-        if (runChildProcess(concat(javaCmd, paths, otherArgs, modules)) != 0) { 
+        if (runChildProcess(concat(javaCmd, paths, otherArgs, testModules)) != 0) { 
             throw new BootstrapMessage(phase);
         }
     }
