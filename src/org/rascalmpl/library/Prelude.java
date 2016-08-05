@@ -13,15 +13,6 @@
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 
-/*******************************************************************************
- * 
- * Warning this file is an experiment to determine the effect of collecting all
- * classes used by the Prelude in a single class. Overall effect seems to be circa 10%
- * reduction of import time.
- * 
- * Do not edit/change this code, but use the original code instead.
- * 
- */
 package org.rascalmpl.library;
 
 import java.io.BufferedReader;

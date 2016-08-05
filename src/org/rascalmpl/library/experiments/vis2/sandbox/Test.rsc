@@ -25,7 +25,7 @@ public void standard() {
      return diff(ok, check);
      }
      
- Figure stack(Figure f) = vcat(vgap=4, figs=[box(fig=text("\<pre\><figToString(f)>\</pre\>", size=<800, 60>, overflow="auto"), fillColor = "beige"), f]);
+ Figure stack(Figure f) = vcat(align=centerMid, vgap=4, figs=[box(fig=text("\<pre\><figToString(f)>\</pre\>", size=<800, 60>, overflow="auto"), fillColor = "beige"), f]);
  
  Figure tests(  ) {
      return vcat(borderWidth=4, vgap=4, figs= mapper(
@@ -101,7 +101,7 @@ Figure simple() {
    simple(), size=<600, 600>, resizable=true
  )); 
  
- public void psimple(loc l) = renderShow(simple(), 
+ public void psimple() = renderShow(simple(), 
     width = 400, height = 400, javaLoc=|file:///ufs/bertl/jdk1.8.0_77|);
  
  Figure eye()= ellipse(rx=60, ry = 30, lineColor="brown", align = centerMid, fillColor="teal", lineWidth = 6
@@ -233,9 +233,16 @@ void ttetris() = render(tetris());
 loc location = |project://rascal/src/org/rascalmpl/library/experiments/vis2/data/tutor.html|;  
 
 
-Figure tut() = box(fillColor="yellow", size=<50, 50>
+Figure tut() =
+      // box(fillColor="yellow", size=<50, 50>
+      buttonInput("Push"
       // ,event = on("click", void(str e, str n , str v) {println("<e>");})
-     , panel= box(lineWidth= 0, fig=atXY(60, 60, box(lineColor="black", lineWidth=2,  fig = text(readFile(location))))));
+      , panel= box(lineWidth= 0, fig=atXY(60, 60, box(lineColor="black", lineWidth=2,  fig = text(readFile(location)))))
+     //, panel= 
+     //box(lineWidth= 0, fig=
+     // atXY(60, 60, box(lineColor="black", size=<100, 100>, fillColor="antiquewhite", lineWidth=2, fig=box(size=<20, 20>, fillColor="red")))
+     //)
+     );
 
 public void ttut() {render(tut(), cssFile = "tutor.css", size=<800, 800>);}
 
@@ -323,17 +330,22 @@ public void fquest(loc l) = writeFile(l, toHtmlString(
       
       Figure connect(int f, int t) {
          tuple[int , int] rv = <cx(to[t].x)-cx(from[f].x+0.25), cy(to[t].y+hc/2)-cy(from[f].y+hc/2)>;
-         return overlay(figs=[
+         // println("<cx(from[f].y)> <cy(to[t].y)>");
+         return overlay( figs=[
          shape([move(cx(from[f].x+0.25), cy(from[f].y+hc/2)), line(cx(to[t].x),  cy(to[t].y+hc/2))]
+         ,yReverse = false
          // , endMarker = ngon(n=3, r=10, fillColor = "purple", lineWidth = 0)
+         // , scaleX=<<0, w>, <0, w>>, scaleY=<<0, h>, <0, h>>
          )
          ,circle(r=4, fillColor="firebrick", cx = cx(from[f].x+0.25)+0.2*rv[0], cy = cy(from[f].y+hc/2)+0.2*rv[1]
-          , tooltip=box(fig=text("<multiplicity(f, t)>"), fillColor="floralwhite", size=<50, 50>)
-          // , tooltip = box(size=<100, 100>, fig=box(size=<50, 50>), fillColor="red")
+           , tooltip=box(fig=text("<multiplicity(f, t)>"), fillColor="floralwhite", size=<50, 50>)
+          //, tooltip = 
+          //box(fig=
+          //    hcat(figs=[box(size=<50, 50>)], borderWidth=10, borderStyle="groove"),
+          // fillColor="red")
          )
          ]);
          }
-      
       Figures fs =  [cell1(i, 0, i-10) |int i<-[10..25]];
       Figures  ts = [cell2(prim[i], 3,  i+offset)|int i<-[0..5]];
       Figures cs = [*[connect(i, p)|p<-prim, i!=p, i%p==0]| int i<-[10..25]];
@@ -341,9 +353,34 @@ public void fquest(loc l) = writeFile(l, toHtmlString(
            );
       }
       
- void tfunLine() = render(funLine());
+ void tfunLine() = render(funLine(), javaLoc=|file:///ufs/bertl/jdk1.8.0_77|, size=<800, 800>);
  
  public void ffunLine(loc l) = writeFile(l, toHtmlString(
     funLine()
  )); 
-                 
+ 
+Figure title() = box(size=<100, 100>, tooltip = atXY(0, 0, box(size=<20, 20>, fillColor="red")), fillColor="yellow");
+ 
+void ttitle() = render(title()/*, javaLoc=|file:///ufs/bertl/jdk1.8.0_77|*/);
+
+Figure hc() = hcat(size=<200, 100>, figs=[box(width=10, fillColor="yellow"), box(size=<100, 80>, fillColor="lightblue")]);
+
+void thc() = render(hc()/*, javaLoc=|file:///ufs/bertl/jdk1.8.0_77|*/);
+
+Figure ovl() = box(fig=overlay(size=<400, 400>, figs=[
+          box(size=<50, 50>, fillColor="red", cellAlign=bottomLeft)
+          ,box(size=<50, 50>, fillColor="yellow", cellAlign=topRight)
+          ,box(size=<50, 50>, fillColor="green", cellAlign=centerMid)
+          ]
+          ));
+          
+ void tovl() = render(ovl()/*, javaLoc=|file:///ufs/bertl/jdk1.8.0_77|*/);
+ 
+ 
+ Figure txt() = box(size=<50, 50>, tooltip=text("aap"));   
+ 
+ void ttxt() = render(txt()/*, javaLoc=|file:///ufs/bertl/jdk1.8.0_77|*/); 
+ 
+ void ftxt(loc l) = writeFile(l, toHtmlString(txt())); 
+ 
+          
