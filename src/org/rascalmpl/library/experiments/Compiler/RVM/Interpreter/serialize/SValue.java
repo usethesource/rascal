@@ -58,7 +58,7 @@ public class SValue {
 	
 	protected static final byte BIGINT_VALUE = 2;
 	
-	protected static final byte LOC_URI = 2;
+	protected static final byte LOC_PREVIOUS_URI = 2;
 	protected static final byte LOC_OFFSET = 3;
 	protected static final byte LOC_LENGTH = 4;
 	protected static final byte LOC_BEGINLINE = 5;
@@ -71,6 +71,7 @@ public class SValue {
 	protected static final byte LOC_PATH = 12;
 	protected static final byte LOC_QUERY = 13;
 	protected static final byte LOC_FRAGMENT = 14;
+
 	
 	protected static final byte RAT_NUMERATOR = 2;
 	protected static final byte RAT_DENOMINATOR = 3;
