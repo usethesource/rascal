@@ -43,10 +43,6 @@ public GrammarDefinition sdf2grammar(loc input) {
   return sdf2grammar(parse(#SDF, input)); 
 }
 
-public GrammarDefinition sdf2module2grammar(str name, list[loc] path) {
-  return sdf2grammar(name, loadSDF2Module(name, path));
-}
-
 public GrammarDefinition sdf2grammar(SDF def) {
   return sdf2grammar("Main", def);
 }
@@ -72,7 +68,7 @@ public GrammarDefinition sdf2grammar(str main, SDF def) {
     res = definition(main, ms);
     res = split(res);
     res = addLexicalChaining(res);
-    res = resolve(res);
+    //res = resolve(res);
     res = applyConditions(res, (s:c | c:conditional(s,_) <- getConditions(def)));
     res = removeDirectProductionCycle(res);
     
@@ -281,7 +277,7 @@ public &T dup(&T g) {
 }
 
 test bool test1() = sdf2grammar(
-        (SDF) `definition  module X exports context-free syntax    "abc" -\> ABC`).modules["X"].rules[sort("ABC")] ==
+        (SDF) `definition  module X exports context-free syntax    "abc" -\> ABC`).modules["X"].grammar.rules[sort("ABC")] ==
          choice(sort("ABC"), {prod(sort("ABC"),[lit("abc")],{})});
 
 // \char-class([range(97,122),range(48,57)])
@@ -292,8 +288,8 @@ test bool test2() = rs := sdf2grammar(
           'lexical syntax
           '   [a-z] [a-z0-9]* -\> PICO-ID  
           'lexical restrictions
-          '  PICO-ID -/- [a-z0-9]`).modules["PICOID"].rules 
-     && prod(lex("PICO-ID"),[\char-class([range(97,122)]),\conditional(\iter-star(\char-class([range(97,122),range(48,57)])),{\not-follow(\char-class([range(97,122),range(48,57)]))})],{}) in rs[lex("PICO-ID")]          
+          '  PICO-ID -/- [a-z0-9]`).modules["PICOID"].grammar.rules 
+     && prod(lex("PICO-ID"),[\char-class([range(97,122)]),\conditional(\iter-star(\char-class([range(97,122),range(48,57)])),{\not-follow(\char-class([range(97,122),range(48,57)]))})],{}) == rs[lex("PICO-ID")]          
      ;
      
 test bool test3() = rs := sdf2grammar(
@@ -301,8 +297,8 @@ test bool test3() = rs := sdf2grammar(
 		      'module StrChar
           'exports
           ' lexical syntax
-          '   ~[\\0-\\31\\n\\t\\"\\\\]          -\> StrChar {cons("normal")}`).modules["StrChar"].rules
-     && prod(label("normal",sort("StrChar")),[\char-class([range(26,33),range(35,91),range(93,65535)])],{}) in rs[sort("StrChar")]
+          '   ~[\\0-\\31\\n\\t\\"\\\\]          -\> StrChar {cons("normal")}`).modules["StrChar"].grammar.rules
+     && prod(label("normal",sort("StrChar")),[\char-class([range(26,33),range(35,91),range(93,65535)])],{}) == rs[sort("StrChar")]
      ;
        
 public set[Production] getProductions(Module \mod) {

@@ -25,8 +25,14 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+                        <name>rascal_eclipse.rascal_builder</name>
+                        <arguments>
+                        </arguments>
+                </buildCommand>
 	</buildSpec>
 	<natures>
+	<nature>rascal_eclipse.rascal_nature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.pde.PluginNature</nature>
 	</natures>
