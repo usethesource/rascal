@@ -38,23 +38,23 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 	
 	
 	/*package*/ static ISourceLocation newSourceLocation(ISourceLocation loc, int offset, int length) {
-		IURI uri = ((Incomplete)loc).uri;
+		ISourceLocation root = loc.top();
 		if (offset < 0) throw new IllegalArgumentException("offset should be positive");
 		if (length < 0) throw new IllegalArgumentException("length should be positive");
 
 		if (offset < Byte.MAX_VALUE && length < Byte.MAX_VALUE) {
-			return new SourceLocationValues.ByteByte(uri, (byte) offset, (byte) length);
+			return new SourceLocationValues.ByteByte(root, (byte) offset, (byte) length);
 		}
 
 		if (offset < Character.MAX_VALUE && length < Character.MAX_VALUE) {
-			return new SourceLocationValues.CharChar(uri, (char) offset, (char) length);
+			return new SourceLocationValues.CharChar(root, (char) offset, (char) length);
 		}
 
-		return new SourceLocationValues.IntInt(uri, offset, length);
+		return new SourceLocationValues.IntInt(root, offset, length);
 	}
 	
 	/*package*/ static ISourceLocation newSourceLocation(ISourceLocation loc, int offset, int length, int beginLine, int endLine, int beginCol, int endCol) {
-		IURI uri = ((Incomplete)loc).uri;
+		ISourceLocation root = loc.top();
 		if (offset < 0) throw new IllegalArgumentException("offset should be positive");
 		if (length < 0) throw new IllegalArgumentException("length should be positive");
 		if (beginLine < 0) throw new IllegalArgumentException("beginLine should be positive");
@@ -71,25 +71,25 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 				&& endLine < Byte.MAX_VALUE
 				&& beginCol < Byte.MAX_VALUE
 				&& endCol < Byte.MAX_VALUE) {
-			return new SourceLocationValues.CharCharByteByteByteByte(uri, (char) offset, (char) length, (byte) beginLine, (byte) endLine, (byte) beginCol, (byte) endCol);
+			return new SourceLocationValues.CharCharByteByteByteByte(root, (char) offset, (char) length, (byte) beginLine, (byte) endLine, (byte) beginCol, (byte) endCol);
 		} else if (offset < Character.MAX_VALUE
 				&& length < Character.MAX_VALUE
 				&& beginLine < Character.MAX_VALUE
 				&& endLine < Character.MAX_VALUE
 				&& beginCol < Character.MAX_VALUE
 				&& endCol < Character.MAX_VALUE) {
-			return new SourceLocationValues.CharCharCharCharCharChar(uri, (char) offset, (char) length, (char) beginLine, (char) endLine, (char) beginCol, (char) endCol);
+			return new SourceLocationValues.CharCharCharCharCharChar(root, (char) offset, (char) length, (char) beginLine, (char) endLine, (char) beginCol, (char) endCol);
 		} else if (beginLine < Character.MAX_VALUE
 				&& endLine < Character.MAX_VALUE
 				&& beginCol < Byte.MAX_VALUE
 				&& endCol < Byte.MAX_VALUE) {
-			return new SourceLocationValues.IntIntCharCharByteByte(uri, offset, length, (char) beginLine, (char) endLine, (byte) beginCol, (byte) endCol);
+			return new SourceLocationValues.IntIntCharCharByteByte(root, offset, length, (char) beginLine, (char) endLine, (byte) beginCol, (byte) endCol);
 		} else if (beginCol < Byte.MAX_VALUE
 				&& endCol < Byte.MAX_VALUE) {
-			return new SourceLocationValues.IntIntIntIntByteByte(uri, offset, length, beginLine, endLine, (byte) beginCol, (byte) endCol);
+			return new SourceLocationValues.IntIntIntIntByteByte(root, offset, length, beginLine, endLine, (byte) beginCol, (byte) endCol);
 		}
 
-		return new SourceLocationValues.IntIntIntIntIntInt(uri, offset, length, beginLine, endLine, beginCol, endCol);
+		return new SourceLocationValues.IntIntIntIntIntInt(root, offset, length, beginLine, endLine, beginCol, endCol);
 	}	
 	
     private final static Cache<URI, ISourceLocation> locationCache = Caffeine.newBuilder()
@@ -97,7 +97,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
             .maximumSize(1000)
             .build();
         
-	private final static Cache<IURI,URI>  reverseLocationCache = Caffeine.newBuilder()
+	private final static Cache<ISourceLocation,URI>  reverseLocationCache = Caffeine.newBuilder()
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .maximumSize(1000)
             .build();
@@ -126,14 +126,13 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 	
 	/*package*/ static ISourceLocation newSourceLocation(String scheme, String authority,
 			String path, String query, String fragment) throws URISyntaxException {
-		IURI u = SourceLocationURIValues.newURI(scheme, authority, path, query, fragment);
-		return new SourceLocationValues.OnlyURI(u);
+		return SourceLocationURIValues.newURI(scheme, authority, path, query, fragment);
 	}
 
 	
 	private abstract static class Complete extends Incomplete {
-		private Complete(IURI uri) {
-			super(uri);
+		private Complete(ISourceLocation root) {
+			super(root);
 		}
 
 		@Override
@@ -149,65 +148,65 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 	
 	
 	private abstract static class Incomplete extends AbstractValue implements ISourceLocation {
-		protected IURI uri;
+		protected ISourceLocation root;
 
-		public Incomplete(IURI uri) {
-			this.uri = uri;
+		public Incomplete(ISourceLocation root) {
+			this.root = root;
 		}
 		
 		@Override
 		public Boolean hasAuthority() {
-			return uri.hasAuthority();
+			return root.hasAuthority();
 		}
 		
 		@Override
 		public Boolean hasFragment() {
-			return uri.hasFragment();
+			return root.hasFragment();
 		}
 		
 		@Override
 		public Boolean hasPath() {
-			return uri.hasPath();
+			return root.hasPath();
 		}
 		
 		@Override
 		public Boolean hasQuery() {
-			return uri.hasQuery();
+			return root.hasQuery();
 		}
 		
 		@Override
 		public String getAuthority() {
-			return uri.getAuthority();
+			return root.getAuthority();
 		}
 		
 		@Override
 		public String getFragment() {
-			return uri.getFragment();
+			return root.getFragment();
 		}
 		
 		@Override
 		public String getPath() {
-			return uri.getPath();
+			return root.getPath();
 		}
 		
 		@Override
 		public String getQuery() {
-			return uri.getQuery();
+			return root.getQuery();
 		}
 		
 		@Override
 		public String getScheme() {
-			return uri.getScheme();
+			return root.getScheme();
 		}
 		
 		@Override
 		public ISourceLocation top() {
-			return new OnlyURI(uri);
+			return root;
 		}
 		
 		@Override
 		public URI getURI() {
-		    return reverseLocationCache.get(uri, u -> {
+		    return reverseLocationCache.get(root, u -> {
                 URI result = u.getURI();
                 try {
                     // assure correct encoding, side effect of JRE's implementation of URIs
@@ -282,8 +281,8 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 		protected final int beginCol;
 		protected final int endCol;
 		
-		private IntIntIntIntIntInt(IURI uri, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
-			super(uri);
+		private IntIntIntIntIntInt(ISourceLocation root, int offset, int length, int beginLine, int endLine, int beginCol, int endCol){
+			super(root);
 			
 			this.offset = offset;
 			this.length = length;
@@ -329,7 +328,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 		
 		@Override
 		public int hashCode(){
-			int hash = uri.hashCode();
+			int hash = root.hashCode();
 			hash ^= beginLine << 3;
 			hash ^= (endLine << 23);
 			hash ^= (beginCol << 13);
@@ -346,7 +345,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 			
 			if(o.getClass() == getClass()){
 				IntIntIntIntIntInt otherSourceLocation = (IntIntIntIntIntInt) o;
-				return (uri.equals(otherSourceLocation.uri)
+				return (root.equals(otherSourceLocation.root)
 						&& (beginLine == otherSourceLocation.beginLine)
 						&& (endLine == otherSourceLocation.endLine)
 						&& (beginCol == otherSourceLocation.beginCol)
@@ -367,8 +366,8 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 		protected final byte beginCol;
 		protected final byte endCol;
 
-		private CharCharByteByteByteByte(IURI uri, char offset, char length, byte beginLine, byte endLine, byte beginCol, byte endCol){
-			super(uri);
+		private CharCharByteByteByteByte(ISourceLocation root, char offset, char length, byte beginLine, byte endLine, byte beginCol, byte endCol){
+			super(root);
 			
 			this.offset = offset;
 			this.length = length;
@@ -414,7 +413,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 		
 		@Override
 		public int hashCode(){
-			int hash = uri.hashCode();
+			int hash = root.hashCode();
 			hash ^= beginLine << 3;
 			hash ^= (endLine << 23);
 			hash ^= (beginCol << 13);
@@ -431,7 +430,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 			
 			if(o.getClass() == getClass()){
 				CharCharByteByteByteByte otherSourceLocation = (CharCharByteByteByteByte) o;
-				return (uri.equals(otherSourceLocation.uri)
+				return (root.equals(otherSourceLocation.root)
 						&& (beginLine == otherSourceLocation.beginLine)
 						&& (endLine == otherSourceLocation.endLine)
 						&& (beginCol == otherSourceLocation.beginCol)
@@ -452,8 +451,8 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 		protected final char beginCol;
 		protected final char endCol;
 		
-		private CharCharCharCharCharChar(IURI uri, char offset, char length, char beginLine, char endLine, char beginCol, char endCol){
-			super(uri);
+		private CharCharCharCharCharChar(ISourceLocation root, char offset, char length, char beginLine, char endLine, char beginCol, char endCol){
+			super(root);
 			
 			this.offset = offset;
 			this.length = length;
@@ -499,7 +498,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 		
 		@Override
 		public int hashCode(){
-			int hash = uri.hashCode();
+			int hash = root.hashCode();
 			hash ^= beginLine << 3;
 			hash ^= (endLine << 23);
 			hash ^= (beginCol << 13);
@@ -516,7 +515,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 			
 			if(o.getClass() == getClass()){
 				CharCharCharCharCharChar otherSourceLocation = (CharCharCharCharCharChar) o;
-				return (uri.equals(otherSourceLocation.uri)
+				return (root.equals(otherSourceLocation.root)
 						&& (beginLine == otherSourceLocation.beginLine)
 						&& (endLine == otherSourceLocation.endLine)
 						&& (beginCol == otherSourceLocation.beginCol)
@@ -529,36 +528,6 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 		}
 	}
 
-	private final static class OnlyURI extends Incomplete {
-		
-		private OnlyURI(IURI uri){
-			super(uri);
-		}
-
-		@Override
-		public int hashCode(){
-			return uri.hashCode();
-		}
-		
-		@Override
-		public boolean equals(Object o){
-			if(o == null) return false;
-			
-			if(o.getClass() == getClass()){
-				OnlyURI otherSourceLocation = (OnlyURI) o;
-				return uri.equals(otherSourceLocation.uri);
-			}
-			
-			return false;
-		}
-		
-		@Override
-		public ISourceLocation top() {
-			// this is why the class is final
-			return this;
-		}
-	}
-
 	private static class IntIntIntIntByteByte extends Complete {
 		protected final int offset;
 		protected final int length;
@@ -567,8 +536,8 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 		protected final byte beginCol;
 		protected final byte endCol;
 		
-		private IntIntIntIntByteByte(IURI uri, int offset, int length, int beginLine, int endLine, byte beginCol, byte endCol){
-			super(uri);
+		private IntIntIntIntByteByte(ISourceLocation root, int offset, int length, int beginLine, int endLine, byte beginCol, byte endCol){
+			super(root);
 			
 			this.offset = offset;
 			this.length = length;
@@ -610,7 +579,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 		
 		@Override
 		public int hashCode(){
-			int hash = uri.hashCode();
+			int hash = root.hashCode();
 			hash ^= beginLine << 3;
 			hash ^= (endLine << 23);
 			hash ^= (beginCol << 13);
@@ -627,7 +596,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 			
 			if(o.getClass() == getClass()){
 				IntIntIntIntByteByte otherSourceLocation = (IntIntIntIntByteByte) o;
-				return (uri.equals(otherSourceLocation.uri)
+				return (root.equals(otherSourceLocation.root)
 						&& (beginLine == otherSourceLocation.beginLine)
 						&& (endLine == otherSourceLocation.endLine)
 						&& (beginCol == otherSourceLocation.beginCol)
@@ -648,8 +617,8 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 		protected final byte beginCol;
 		protected final byte endCol;
 		
-		private IntIntCharCharByteByte(IURI uri, int offset, int length, char beginLine, char endLine, byte beginCol, byte endCol){
-			super(uri);
+		private IntIntCharCharByteByte(ISourceLocation root, int offset, int length, char beginLine, char endLine, byte beginCol, byte endCol){
+			super(root);
 			
 			this.offset = offset;
 			this.length = length;
@@ -691,7 +660,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 		
 		@Override
 		public int hashCode(){
-			int hash = uri.hashCode();
+			int hash = root.hashCode();
 			hash ^= beginLine << 3;
 			hash ^= (endLine << 23);
 			hash ^= (beginCol << 13);
@@ -708,7 +677,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 			
 			if(o.getClass() == getClass()){
 				IntIntCharCharByteByte otherSourceLocation = (IntIntCharCharByteByte) o;
-				return (uri.equals(otherSourceLocation.uri)
+				return (root.equals(otherSourceLocation.root)
 						&& (beginLine == otherSourceLocation.beginLine)
 						&& (endLine == otherSourceLocation.endLine)
 						&& (beginCol == otherSourceLocation.beginCol)
@@ -725,8 +694,8 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 		protected final byte offset;
 		protected final byte length;
 		
-		private ByteByte(IURI uri, byte offset, byte length){
-			super(uri);
+		private ByteByte(ISourceLocation root, byte offset, byte length){
+			super(root);
 			
 			this.offset = offset;
 			this.length = length;
@@ -749,7 +718,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 		
 		@Override
 		public int hashCode(){
-			int hash = uri.hashCode();
+			int hash = root.hashCode();
 			hash ^= (offset << 8);
 			hash ^= (length << 29);
 			
@@ -762,7 +731,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 			
 			if(o.getClass() == getClass()){
 				ByteByte otherSourceLocation = (ByteByte) o;
-				return (uri.equals(otherSourceLocation.uri)
+				return (root.equals(otherSourceLocation.root)
 						&& (offset == otherSourceLocation.offset)
 						&& (length == otherSourceLocation.length));
 			}
@@ -775,8 +744,8 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 		protected final char offset;
 		protected final char length;
 		
-		private CharChar(IURI uri, char offset, char length){
-			super(uri);
+		private CharChar(ISourceLocation root, char offset, char length){
+			super(root);
 			
 			this.offset = offset;
 			this.length = length;
@@ -799,7 +768,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 		
 		@Override
 		public int hashCode(){
-			int hash = uri.hashCode();
+			int hash = root.hashCode();
 			hash ^= (offset << 8);
 			hash ^= (length << 29);
 			
@@ -812,7 +781,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 			
 			if(o.getClass() == getClass()){
 				CharChar otherSourceLocation = (CharChar) o;
-				return (uri.equals(otherSourceLocation.uri)
+				return (root.equals(otherSourceLocation.root)
 						&& (offset == otherSourceLocation.offset)
 						&& (length == otherSourceLocation.length));
 			}
@@ -825,8 +794,8 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 		protected final int offset;
 		protected final int length;
 		
-		private IntInt(IURI uri, int offset, int length){
-			super(uri);
+		private IntInt(ISourceLocation root, int offset, int length){
+			super(root);
 			
 			this.offset = offset;
 			this.length = length;
@@ -854,7 +823,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 		
 		@Override
 		public int hashCode(){
-			int hash = uri.hashCode();
+			int hash = root.hashCode();
 			hash ^= (offset << 8);
 			hash ^= (length << 29);
 			
@@ -867,7 +836,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 			
 			if(o.getClass() == getClass()){
 				IntInt otherSourceLocation = (IntInt) o;
-				return (uri.equals(otherSourceLocation.uri)
+				return (root.equals(otherSourceLocation.root)
 						&& (offset == otherSourceLocation.offset)
 						&& (length == otherSourceLocation.length));
 			}
