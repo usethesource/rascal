@@ -45,6 +45,7 @@ public class NewRVMIValueWriter {
 
 	private final TrackLastWritten<Type> typeCache;
 	private final TrackLastWritten<IValue> valueCache;
+	private final TrackLastWritten<ISourceLocation> uriCache;
 	
 	protected static final byte[] header = { 'R', 'V', 1,0,0 };
 
@@ -54,15 +55,17 @@ public class NewRVMIValueWriter {
 	private OutputStream basicOut;
 	private NewStyleWriter writer;
 
-	public NewRVMIValueWriter(OutputStream out, int typeWindowSize, int valueWindowSize) throws IOException {
+	public NewRVMIValueWriter(OutputStream out, int typeWindowSize, int valueWindowSize, int uriWindowSize) throws IOException {
 		this.basicOut = out;
 		
 		assert typeWindowSize > 0 && typeWindowSize < 255;
         assert valueWindowSize > 0 && valueWindowSize < 255;
+        assert uriWindowSize > 0 && uriWindowSize < 255;
        
         out.write(header);
     	out.write(typeWindowSize);
     	out.write(valueWindowSize);
+    	out.write(uriWindowSize);
     	
     	this.writer = new NewStyleWriter(out);
 
@@ -71,6 +74,7 @@ public class NewRVMIValueWriter {
 		
 		typeCache = new MapLastWritten<>(typeWindowSize * 1024);
 		valueCache = new MapLastWritten<>(valueWindowSize * 1024);
+		uriCache = new MapLastWritten<>(uriWindowSize * 1024);
 		 
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		minInt = vf.integer(Integer.MIN_VALUE);
@@ -577,26 +581,26 @@ public class NewRVMIValueWriter {
 				ISourceLocation loc = (ISourceLocation) it.getIValue();
 				if(!inCache(loc)){
 					writer.startValue(SValue.LOC);
-					URI uri = loc.getURI();
-					String scheme = uri.getScheme();
-					String authority = uri.getAuthority();
-					String path = uri.getPath();
-					String query = uri.getQuery();
-					String fragment = uri.getFragment();
-					if(scheme != null){
-						writer.writeField(SValue.LOC_SCHEME, scheme);
+					ISourceLocation uriPart = loc.top();
+					int alreadyWritten = uriCache.howLongAgo(uriPart);
+					if (alreadyWritten == -1) {
+					    writer.writeField(SValue.LOC_SCHEME, uriPart.getScheme());
+					    if (uriPart.hasAuthority()) {
+					        writer.writeField(SValue.LOC_AUTHORITY, uriPart.getAuthority());
+					    }
+					    if (uriPart.hasPath()) {
+					        writer.writeField(SValue.LOC_PATH, uriPart.getPath());
+					    }
+					    if (uriPart.hasQuery()) {
+					        writer.writeField(SValue.LOC_QUERY,  uriPart.getQuery());
+					    }
+					    if (uriPart.hasFragment()) {
+					        writer.writeField(SValue.LOC_FRAGMENT,  uriPart.getFragment());
+					    }
+					    uriCache.write(uriPart);
 					}
-					if(authority != null){
-						writer.writeField(SValue.LOC_AUTHORITY, authority);
-					}
-					if(path != null){
-						writer.writeField(SValue.LOC_PATH, path);
-					}
-					if(query != null){
-						writer.writeField(SValue.LOC_QUERY,  query);
-					}
-					if(fragment != null){
-						writer.writeField(SValue.LOC_FRAGMENT,  fragment);
+					else {
+					    writer.writeField(SValue.LOC_PREVIOUS_URI, alreadyWritten);
 					}
 					
 					if(loc.hasOffsetLength()){
@@ -653,7 +657,7 @@ public class NewRVMIValueWriter {
     	IValueFactory vf = ValueFactoryFactory.getValueFactory();
     	TypeStore ts = RascalValueFactory.getStore();
     	 try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-    		 NewRVMIValueWriter ser = new NewRVMIValueWriter(out, 10, 10);
+    		 NewRVMIValueWriter ser = new NewRVMIValueWriter(out, 10, 10, 10);
 //    		 Type ct = tf.constructor(ts, tf.abstractDataType(ts, "D"), "f", tf.integerType());
 //    		 IConstructor nd = vf.constructor(ct, vf.integer(42));
 //    		 nd = nd.asWithKeywordParameters().setParameter("a", vf.integer(1));
