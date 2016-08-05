@@ -398,7 +398,7 @@ public class NewRVMIValueWriter {
 				IConstructor cons = (IConstructor) it.getIValue();
 				if(it.atBeginning()){
 					if(inCache(cons)){
-						it.skipChildren();
+						it.skipIValue();
 					}
 				} else {
 					writer.startValue(SValue.CONSTRUCTOR);
@@ -481,7 +481,7 @@ public class NewRVMIValueWriter {
 				IList lst = (IList) it.getIValue();
 				if(it.atBeginning()){
 					if(inCache(lst)){
-						it.skipChildren();
+						it.skipIValue();
 					}
 				} else {
 					writer.startValue(SValue.LIST);
@@ -495,7 +495,7 @@ public class NewRVMIValueWriter {
 				IMap  map = (IMap) it.getIValue();
 				if(it.atBeginning()){
 					if(inCache(map)){
-						it.skipChildren();
+						it.skipIValue();
 					}
 				} else {
 					writer.startValue(SValue.MAP);
@@ -509,7 +509,7 @@ public class NewRVMIValueWriter {
 				INode node = (INode) it.getIValue();
 				if(it.atBeginning()){
 					if(inCache(node)){
-						it.skipChildren();
+						it.skipIValue();
 					}
 				} else {
 					writer.startValue(SValue.NODE);
@@ -561,7 +561,7 @@ public class NewRVMIValueWriter {
 				ISet set = (ISet) it.getIValue();
 				if(it.atBeginning()){
 					if(inCache(set)){
-						it.skipChildren();
+						it.skipIValue();
 					}
 				} else {
 					writer.startValue(SValue.SET);
@@ -629,7 +629,7 @@ public class NewRVMIValueWriter {
 				ITuple tuple = (ITuple) it.getIValue();
 				if(it.atBeginning()){
 					if(inCache(tuple)){
-						it.skipChildren();
+						it.skipIValue();
 					}
 				} else {
 					writer.startValue(SValue.TUPLE);

@@ -162,7 +162,7 @@ public class LazyPrePostIValueIterator  {
         return kind;
     }
 
-    public Kind skipChildren() {
+    public Kind skipIValue() {
         assert beginning;
         beginning = false;
         return kind;
