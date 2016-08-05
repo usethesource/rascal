@@ -47,6 +47,7 @@ public class NewRVMIValueReader {
 	
 	private final TrackLastRead<Type> typeWindow;
 	private final TrackLastRead<IValue> valueWindow;
+	private final TrackLastRead<ISourceLocation> uriWindow;
 	
 	public NewRVMIValueReader(InputStream in, IValueFactory vfactory, TypeStore ts) throws IOException {
 		tf = TypeFactory.getInstance();
@@ -60,9 +61,11 @@ public class NewRVMIValueReader {
        
         int typeWindowSize = in.read();
         int valueWindowSize = in.read();
+        int uriWindowSize = in.read();
       
         typeWindow = new LinearCircularLookupWindow<>(typeWindowSize * 1024);
         valueWindow = new LinearCircularLookupWindow<>(valueWindowSize * 1024);
+        uriWindow = new LinearCircularLookupWindow<>(uriWindowSize * 1024);
 		
 		this.reader = new NewStyleReader(in);
 		store = ts;
@@ -612,6 +615,7 @@ public class NewRVMIValueReader {
 			String path = "";
 			String query = null;
 			String fragment = null;
+			int previousURI = -1;
 			int offset = -1;
 			int length = -1;
 			int beginLine = -1;
@@ -620,6 +624,7 @@ public class NewRVMIValueReader {
 			int endColumn = -1;
 			while (not_at_end()) {
 				switch(reader.field()){
+				case SValue.LOC_PREVIOUS_URI: previousURI = (int)reader.getLong(); break;
 				case SValue.LOC_SCHEME: scheme = reader.getString(); break;
 				case SValue.LOC_AUTHORITY: authority = reader.getString(); break;
 				case SValue.LOC_PATH: path = reader.getString(); break;
@@ -633,19 +638,21 @@ public class NewRVMIValueReader {
 				case SValue.LOC_ENDCOLUMN: endColumn = (int) reader.getLong(); break;
 				}
 			}
-
-			ISourceLocation baseLoc = vf.sourceLocation(scheme, authority, path, query, fragment);
-			
 			ISourceLocation loc;
+			if (previousURI != -1) {
+			    loc = uriWindow.lookBack(previousURI);
+			} 
+			else {
+			    loc = vf.sourceLocation(scheme, authority, path, query, fragment);
+			    uriWindow.read(loc);
+			}
 			
 			if(beginLine >= 0){
 				assert offset >= 0 && length >= 0 && endLine >= 0 && beginColumn >= 0 && endColumn >= 0;
-				loc = vf.sourceLocation(baseLoc, offset, length, beginLine, endLine, beginColumn, endColumn);
+				loc = vf.sourceLocation(loc, offset, length, beginLine, endLine, beginColumn, endColumn);
 			} else if (offset >= 0){
 				assert length >= 0;
-				loc = vf.sourceLocation(baseLoc, offset, length);
-			} else {
-				loc = baseLoc;
+				loc = vf.sourceLocation(loc, offset, length);
 			}
 			
 			pushCacheNext(stack, loc);
