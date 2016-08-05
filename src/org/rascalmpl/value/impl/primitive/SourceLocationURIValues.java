@@ -4,7 +4,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
-import com.github.benmanes.caffeine.cache.Cache;
+import org.rascalmpl.value.IAnnotatable;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.value.impl.AbstractValue;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.visitors.IValueVisitor;
+
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 
@@ -14,7 +22,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 /*package*/ class SourceLocationURIValues {
 	private static final Pattern schemePattern = Pattern.compile("[A-Za-z][A-Za-z0-9+\\-.]*");
 	private static final Pattern doubleSlashes = Pattern.compile("//+");
-	static IURI newURI(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException  {
+	static ISourceLocation newURI(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException  {
 	    scheme = nullifyIfEmpty(scheme);
 	    authority = nullifyIfEmpty(authority);
 		if (path != null) {
@@ -95,7 +103,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 
     private static final LoadingCache<String, String> INTERNED_SCHEMES = Caffeine.newBuilder().build(s -> s);
 
-    private static class BaseURI implements IURI {
+    private static class BaseURI extends AbstractValue implements ISourceLocation {
 		protected final String scheme;
 		
 		
@@ -104,6 +112,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 		}
 		
 
+		@Override
 		public URI getURI() {
 			try {
 				return new URI(scheme,"","/",null,null);
@@ -171,6 +180,101 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 			return false;
 		}
 
+
+		@Override
+		public <T, E extends Throwable> T accept(IValueVisitor<T, E> arg0) throws E {
+		    return arg0.visitSourceLocation(this);
+		}
+
+
+		@Override
+		public IAnnotatable<? extends IValue> asAnnotatable() {
+			throw new UnsupportedOperationException();
+		}
+
+
+		@Override
+		public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+			throw new UnsupportedOperationException();
+		}
+
+
+		@Override
+		public Type getType() {
+			return TypeFactory.getInstance().sourceLocationType();
+		}
+
+
+		@Override
+		public boolean isAnnotatable() {
+		    return false;
+		}
+
+
+		@Override
+		public boolean isEqual(IValue arg0) {
+		    return equals(arg0);
+		}
+
+
+		@Override
+		public boolean mayHaveKeywordParameters() {
+		    return false;
+		}
+
+
+		@Override
+		public int getBeginColumn() throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+
+
+		@Override
+		public int getBeginLine() throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+
+
+		@Override
+		public int getEndColumn() throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+
+
+		@Override
+		public int getEndLine() throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+
+
+		@Override
+		public int getLength() throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+
+
+		@Override
+		public int getOffset() throws UnsupportedOperationException {
+			throw new UnsupportedOperationException();
+		}
+
+
+		@Override
+		public boolean hasLineColumn() {
+		    return false;
+		}
+
+
+		@Override
+		public boolean hasOffsetLength() {
+		    return false;
+		}
+
+
+		@Override
+		public ISourceLocation top() {
+		    return this;
+		}
 	}
 	
 	private static final Pattern squareBrackets = Pattern.compile("(\\[|\\])");
