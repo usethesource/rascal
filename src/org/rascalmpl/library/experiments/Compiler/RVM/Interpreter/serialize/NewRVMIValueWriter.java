@@ -122,7 +122,6 @@ public class NewRVMIValueWriter {
 		}
 		else {
 			writeType1(value);
-			typeCache.write(value);
 		}
 	}
 	
@@ -222,6 +221,7 @@ public class NewRVMIValueWriter {
 				writeField(SType.ADT_TYPE_PARAMETERS, type.getTypeParameters());
 				
 				writer.endValue();
+				typeCache.write(type);
 				return null;
 			}
 			
@@ -234,6 +234,7 @@ public class NewRVMIValueWriter {
 				writeField(SType.ALIAS_TYPE_PARAMETERS, type.getTypeParameters());
 				
 				writer.endValue();
+				typeCache.write(type);
 				return null;
 			}
 			
@@ -248,6 +249,7 @@ public class NewRVMIValueWriter {
 				writeField(SType.CONSTRUCTOR_TYPE, type.getFieldTypes());
 				
 				writer.endValue();
+				typeCache.write(type);
 				return null;
 			}
 			
@@ -290,6 +292,7 @@ public class NewRVMIValueWriter {
 				else {
 					throw new RuntimeException("External type not supported: " + type);
 				}
+				typeCache.write(type);
 				return null;
 			}
 
@@ -298,6 +301,7 @@ public class NewRVMIValueWriter {
 				writer.startValue(SType.LIST);
 				writeField(SType.LIST_ELEMENT_TYPE, type.getElementType());
 				writer.endValue();
+				typeCache.write(type);
 				return null;
 			}
 
@@ -315,6 +319,7 @@ public class NewRVMIValueWriter {
 				writeField(SType.MAP_KEY_TYPE, type.getKeyType());
 				writeField(SType.MAP_VAL_TYPE, type.getValueType());
 				writer.endValue();
+				typeCache.write(type);
 				return null;
 			}
 			
@@ -326,6 +331,7 @@ public class NewRVMIValueWriter {
 				writeField(SType.PARAMETER_BOUND, type.getBound());
 				
 				writer.endValue();
+				typeCache.write(type);
 				return null;
 			}
 
@@ -336,6 +342,7 @@ public class NewRVMIValueWriter {
 				writeField(SType.SET_ELEMENT_TYPE, type.getElementType());
 				
 				writer.endValue();
+				typeCache.write(type);
 				return null;
 			}
 
@@ -355,6 +362,7 @@ public class NewRVMIValueWriter {
 				}
 				
 				writer.endValue();
+				typeCache.write(type);
 				return null;
 			}
 		});
@@ -658,17 +666,17 @@ public class NewRVMIValueWriter {
     	TypeStore ts = RascalValueFactory.getStore();
     	 try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
     		 NewRVMIValueWriter ser = new NewRVMIValueWriter(out, 10, 10, 10);
-//    		 Type ct = tf.constructor(ts, tf.abstractDataType(ts, "D"), "f", tf.integerType());
-//    		 IConstructor nd = vf.constructor(ct, vf.integer(42));
-//    		 nd = nd.asWithKeywordParameters().setParameter("a", vf.integer(1));
-//    		 nd = nd.asWithKeywordParameters().setParameter("b", vf.string("xyz"));
+    		 Type ct = tf.constructor(ts, tf.abstractDataType(ts, "D"), "f", tf.integerType());
+    		 IConstructor nd = vf.constructor(ct, vf.integer(42));
+    		 nd = nd.asWithKeywordParameters().setParameter("a", vf.integer(1));
+    		 nd = nd.asWithKeywordParameters().setParameter("b", vf.string("xyz"));
     		 
     		 
     		 Type maybe = tf.abstractDataType(ts, "Maybe", tf.parameterType("T"));
     		 
     		 Type none = tf.constructor(ts, maybe, "none");
     		 
-    		 IValue v = vf.constructor(none);
+    		 IValue v = vf.list(vf.constructor(none));
     		 
  
     		 System.out.println(v);

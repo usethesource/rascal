@@ -101,19 +101,9 @@ public class NewRVMIValueReader {
 		while (not_at_end());
 	}
 	
-	/**
-	 * @return a type from the input stream. Types are shared when possible.
-	 * @throws IOException
-	 * @throws URISyntaxException 
-	 */
-	Type readType() throws IOException, URISyntaxException{
-		Type type = readType1();
-		typeWindow.read(type);
-		return type;
-	}
 	
 	@SuppressWarnings("deprecation")
-	private Type readType1() throws IOException, URISyntaxException{
+	private Type readType() throws IOException, URISyntaxException{
 
 		assert reader.current() == ReaderPosition.VALUE_START;
 
@@ -169,9 +159,9 @@ public class NewRVMIValueReader {
 				for(int i = 0; i < arity; i++){
 					targs[i] = typeParameters.getFieldType(i);
 				}
-				return tf.abstractDataType(store, name, targs);
+				return typeRead(tf.abstractDataType(store, name, targs));
 			}
-			return tf.abstractDataType(store, name);
+			return typeRead(tf.abstractDataType(store, name));
 		}
 
 		case SType.ALIAS:	{	
@@ -190,7 +180,7 @@ public class NewRVMIValueReader {
 				}
 			}
 			
-			return tf.aliasType(store, name, aliasedType, typeParameters);
+			return typeRead(tf.aliasType(store, name, aliasedType, typeParameters));
 		}
 		case SType.CONSTRUCTOR: 	{
 			String name = "";
@@ -228,9 +218,9 @@ public class NewRVMIValueReader {
 			if(fieldNames == null){
 				Type res = store.lookupConstructor(adtType, name, tf.tupleType(fieldTypes));
 				if(res == null) {
-					return tf.constructor(store, adtType, name, fieldTypes);
+					return typeRead(tf.constructor(store, adtType, name, fieldTypes));
 				} else {
-					return res;
+					return typeRead(res);
 				}
 			}
 			Object[] typeAndNames = new Object[2*arity];
@@ -241,9 +231,9 @@ public class NewRVMIValueReader {
 
 			Type res = store.lookupConstructor(adtType, name, tf.tupleType(typeAndNames));
 			if(res == null){
-				return tf.constructor(store, adtType, name, typeAndNames);
+				return typeRead(tf.constructor(store, adtType, name, typeAndNames));
 			} else {
-				return res;
+				return typeRead(res);
 			}
 		}
 
@@ -266,7 +256,7 @@ public class NewRVMIValueReader {
 			}
 			assert returnType != null && argumentTypes != null;
 			
-			return rtf.functionType(returnType, argumentTypes, keywordParameterTypes);
+			return typeRead(rtf.functionType(returnType, argumentTypes, keywordParameterTypes));
 		}
 
 		case SType.REIFIED: {
@@ -278,7 +268,7 @@ public class NewRVMIValueReader {
 			}
 			assert elemType != null;
 			elemType = elemType.getFieldType(0);
-			return rtf.reifiedType(elemType);
+			return typeRead(rtf.reifiedType(elemType));
 		}
 
 		case SType.OVERLOADED: {
@@ -301,7 +291,7 @@ public class NewRVMIValueReader {
 			for(int i = 0; i < arity; i++){
 				alternatives.add((FunctionType) elemTypes[i]);
 			}
-			return rtf.overloadedFunctionType(alternatives);
+			return typeRead(rtf.overloadedFunctionType(alternatives));
 		}
 
 		case SType.NONTERMINAL: {
@@ -312,7 +302,7 @@ public class NewRVMIValueReader {
 				}
 			}
 			assert nt != null;
-			return rtf.nonTerminalType(nt);
+			return typeRead(rtf.nonTerminalType(nt));
 		}
 			
 		case SType.LIST:	{
@@ -323,7 +313,7 @@ public class NewRVMIValueReader {
 					elemType = readType();
 				}
 			}
-			return tf.listType(elemType);
+			return typeRead(tf.listType(elemType));
 		}
 
 		case SType.MAP: {	
@@ -346,9 +336,9 @@ public class NewRVMIValueReader {
 			}
 			
 			if(keyLabel == null){
-				return tf.mapType(keyType, valType);
+				return typeRead(tf.mapType(keyType, valType));
 			}
-			return tf.mapType(keyType, keyLabel, valType, valLabel);
+			return typeRead(tf.mapType(keyType, keyLabel, valType, valLabel));
 		}
 
 		case SType.PARAMETER:	{
@@ -364,7 +354,7 @@ public class NewRVMIValueReader {
 					bound = readType(); break;
 				}
 			}
-			return tf.parameterType(name, bound);
+			return typeRead(tf.parameterType(name, bound));
 		}
 
 		case SType.SET: {
@@ -374,7 +364,7 @@ public class NewRVMIValueReader {
 					elemType = readType();
 				}
 			}
-			return tf.setType(elemType);
+			return typeRead(tf.setType(elemType));
 		}
 
 		case SType.TUPLE: {
@@ -403,9 +393,9 @@ public class NewRVMIValueReader {
 
 			if(fieldNames != null){
 				assert fieldNames.length == arity;
-				return tf.tupleType(elemTypes, fieldNames);
+				return typeRead(tf.tupleType(elemTypes, fieldNames));
 			}
-			return tf.tupleType(elemTypes);
+			return typeRead(tf.tupleType(elemTypes));
 		}
 
 		case SType.PREVIOUS: {
@@ -427,7 +417,12 @@ public class NewRVMIValueReader {
 		throw new RuntimeException("readType: unhandled case " + reader.value());
 	}
 	
-	void pushCacheNext(ReaderStack stack, IValue v) throws IOException{
+	private Type typeRead(Type typ) {
+	    typeWindow.read(typ);
+        return typ;
+    }
+
+    void pushCacheNext(ReaderStack stack, IValue v) throws IOException{
 		stack.push(v);
 		valueWindow.read(v);
 		reader.next();
