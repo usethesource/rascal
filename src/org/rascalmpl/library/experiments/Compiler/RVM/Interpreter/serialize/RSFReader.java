@@ -13,7 +13,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
 
-public class NewStyleReader implements Closeable {
+public class RSFReader implements Closeable {
 
     private final boolean debug = false;
     public static enum ReaderPosition {
@@ -35,7 +35,7 @@ public class NewStyleReader implements Closeable {
     private long longValue;
     private byte[] bytesValue;
 
-    public NewStyleReader(InputStream stream) throws IOException {
+    public RSFReader(InputStream stream) throws IOException {
         this.__stream = stream;
         byte[] header = new byte[WIRE_VERSION.length];
         this.__stream.read(header);

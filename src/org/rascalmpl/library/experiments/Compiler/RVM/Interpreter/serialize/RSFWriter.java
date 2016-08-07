@@ -12,7 +12,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util
 
 import com.google.protobuf.CodedOutputStream;
 
-public class NewStyleWriter implements Closeable, Flushable {
+public class RSFWriter implements Closeable, Flushable {
 
     private static final byte[] WIRE_VERSION = new byte[] { 1, 0, 0 };
     private static final int STRING_WRITTEN_SIZE = 2 * 1024;
@@ -21,7 +21,7 @@ public class NewStyleWriter implements Closeable, Flushable {
     private final OutputStream __stream;
     private final TrackLastWritten<String> stringsWritten;
 
-    public NewStyleWriter(OutputStream stream) throws IOException {
+    public RSFWriter(OutputStream stream) throws IOException {
         this.__stream = stream;
         this.stream = CodedOutputStream.newInstance(stream);
         this.stringsWritten = new MapLastWritten<>(STRING_WRITTEN_SIZE);
