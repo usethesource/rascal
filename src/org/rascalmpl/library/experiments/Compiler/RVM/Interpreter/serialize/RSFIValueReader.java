@@ -487,11 +487,10 @@ public class RSFIValueReader {
                                 case RSF.CONSTRUCTOR_ANNOS: annos = (int)reader.getLong(); break;
                             }
                         }
-                        Type consType = tstack.pop();
                         
-                        if( arity == null || consType == null){
-                            System.out.println("Something wrong here");;
-                        }
+                        assert arity != null;
+                        
+                        Type consType = tstack.pop();
                         
                         IConstructor cons;
                         if(annos > 0){
@@ -549,6 +548,7 @@ public class RSFIValueReader {
                         
                         assert variant != null;
                         
+                        // TODO: checking?
                         switch(variant){
                             case  RSF.DATETIME_VARIANT_DATETIME:
                                 pushAndCache(vstack, vf.datetime(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset));
@@ -725,7 +725,7 @@ public class RSFIValueReader {
 
                     case RSF.REAL_VALUE: {
                         byte[] bytes = null;
-                        int scale = 1;
+                        Integer scale = null;
 
                         while (not_at_end()) {
                             switch(reader.field()){
@@ -736,7 +736,7 @@ public class RSFIValueReader {
                             }
                         }
 
-                        assert bytes != null;
+                        assert bytes != null && scale != null;
 
                         pushAndCache(vstack, vf.real(new BigDecimal(new BigInteger(bytes), scale).toString())); // TODO: Improve this?
                         break;
