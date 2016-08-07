@@ -15,6 +15,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 public class NewStyleReader implements Closeable {
 
+    private final boolean debug = false;
     public static enum ReaderPosition {
         VALUE_START,
         FIELD,
@@ -55,6 +56,10 @@ public class NewStyleReader implements Closeable {
             throw new IOException("Already closed");
         }
     }
+    
+    public boolean isAtEnd() throws IOException{
+        return stream.isAtEnd();
+    }
 
     public ReaderPosition next() throws IOException {
         int next;
@@ -62,9 +67,11 @@ public class NewStyleReader implements Closeable {
             next = stream.readRawVarint32();
         } 
         catch (InvalidProtocolBufferException e) {
+            if(debug) System.out.println("reader: EOF");
             throw new EOFException();
         }
         if (next == 0) {
+            if(debug) System.out.println("reader: endValue " + valueID);
             return current = ReaderPosition.VALUE_END;
         }
         fieldID = TaggedInt.getOriginal(next);
@@ -73,24 +80,29 @@ public class NewStyleReader implements Closeable {
             case 0:
                 // special case that signals starts of values
                 valueID = fieldID;
+                if(debug) System.out.println("reader: startValue " + valueID);
                 return current = ReaderPosition.VALUE_START;
             case FieldKind.STRING:
                 stream.resetSizeCounter();
                 stringValue = stream.readString();
                 stringsRead.read(stringValue);
+                if(debug) System.out.println("reader: string field " + fieldID + ", " + stringValue);
                 break;
             case FieldKind.LONG:
                 longValue = stream.readRawVarint64();
+                if(debug) System.out.println("reader: long field " + fieldID + ", " + longValue);
                 break;
             case FieldKind.BYTES:
                 stream.resetSizeCounter();
                 bytesValue = stream.readByteArray();
+                if(debug) System.out.println("reader: bytes field " + fieldID + ", " + bytesValue);
                 break;
             case FieldKind.PREVIOUS_STR:
                 int reference = stream.readRawVarint32();
                 fieldType = TaggedInt.getTag(reference);
                 assert fieldType == FieldKind.STRING;
                 stringValue = stringsRead.lookBack(TaggedInt.getOriginal(reference));
+                if(debug) System.out.println("reader: previous field " + fieldID + ", " + stringValue);
                 break;
             default:
                 throw new IOException("Unexpected wire type: " + fieldType);
@@ -110,6 +122,11 @@ public class NewStyleReader implements Closeable {
     public int field() {
         assert current == ReaderPosition.FIELD;
         return fieldID;
+    }
+    
+    public long getLong() {
+        assert fieldType == FieldKind.LONG;
+        return longValue;
     }
 
     public String getString() {
@@ -143,8 +160,5 @@ public class NewStyleReader implements Closeable {
         }
     }
 
-    public long getLong() {
-        assert fieldType == FieldKind.LONG;
-        return longValue;
-    }
+  
 }
