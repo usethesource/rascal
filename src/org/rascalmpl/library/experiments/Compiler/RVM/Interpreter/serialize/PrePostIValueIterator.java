@@ -145,11 +145,6 @@ public class PrePostIValueIterator extends PrePostIterator<IValue,ValueIteratorK
                     
                     break;
                 }
-                case RVM_FUNCTION: {
-                    Function fun = (Function) item;
-                    fun.nextValues(stack);
-                    break;
-                }
 
                 default:
                     throw new RuntimeException("Missing case");

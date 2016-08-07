@@ -33,11 +33,11 @@ public class RSF {
 	public static final int SET_VALUE = 13;
 	public static final int TUPLE_VALUE = 14;
 	
-	// Values related to compiled executables
-	public static final int RVM_FUNCTION_VALUE = 15;
-	public static final int RVM_OVERLOADED_FUNCTION_VALUE = 16;
-	public static final int RVM_CODEBLOCK_VALUE = 17;
-	public static final int RVM_EXECUTABLE_VALUE = 18;
+//	// Values related to compiled executables
+//	public static final int RVM_FUNCTION_VALUE = 15;
+//	public static final int RVM_OVERLOADED_FUNCTION_VALUE = 16;
+//	public static final int RVM_CODEBLOCK_VALUE = 17;
+//	public static final int RVM_EXECUTABLE_VALUE = 18;
 	
 	// Fields on values
 	
@@ -162,27 +162,27 @@ public class RSF {
     public static final int TUPLE_ARITY = 2;
     public static final int TUPLE_NAMES = 3;
 
-    public static final int RVM_FUNCTION_NAME = 2;
-    public static final int RVM_FUNCTION_SCOPE_ID = 3;
-    public static final int RVM_FUNCTION_FUN_IN = 4;
-    public static final int RVM_FUNCTION_SCOPE_IN = 5;
-    public static final int RVM_FUNCTION_NFORMALS = 6;
-    public static final int RVM_FUNCTION_NLOCALS = 7;
-    public static final int RVM_FUNCTION_IS_DEFAULT = 8;
-    public static final int RVM_FUNCTION_MAX_STACK = 9;
-    public static final int RVM_FUNCTION_CONCRETE_ARG = 10;
-    public static final int RVM_FUNCTION_ABSTRACT_FINGERPRINT = 11;
-    public static final int RVM_FUNCTION_CONCRETE_FINGERPRINT = 12;
-    public static final int RVM_FUNCTION_FROMS = 13;
-    public static final int RVM_FUNCTION_TOS = 14;
-    public static final int RVM_FUNCTION_TYPES = 15;
-    public static final int RVM_FUNCTION_HANDLERS = 16;
-    public static final int RVM_FUNCTION_FROM_SPS = 17;
-    public static final int RVM_FUNCTION_LAST_HANDLER = 18;
-    public static final int RVM_FUNCTION_FUN_ID = 19;
-    public static final int RVM_FUNCTION_IS_COROUTINE = 20;
-    public static final int RVM_FUNCTION_REFS = 21;
-    public static final int RVM_FUNCTION_IS_VARARGS = 22;
-    public static final int RVM_FUNCTION_CONTINUATION_POINTS = 23;
+//    public static final int RVM_FUNCTION_NAME = 2;
+//    public static final int RVM_FUNCTION_SCOPE_ID = 3;
+//    public static final int RVM_FUNCTION_FUN_IN = 4;
+//    public static final int RVM_FUNCTION_SCOPE_IN = 5;
+//    public static final int RVM_FUNCTION_NFORMALS = 6;
+//    public static final int RVM_FUNCTION_NLOCALS = 7;
+//    public static final int RVM_FUNCTION_IS_DEFAULT = 8;
+//    public static final int RVM_FUNCTION_MAX_STACK = 9;
+//    public static final int RVM_FUNCTION_CONCRETE_ARG = 10;
+//    public static final int RVM_FUNCTION_ABSTRACT_FINGERPRINT = 11;
+//    public static final int RVM_FUNCTION_CONCRETE_FINGERPRINT = 12;
+//    public static final int RVM_FUNCTION_FROMS = 13;
+//    public static final int RVM_FUNCTION_TOS = 14;
+//    public static final int RVM_FUNCTION_TYPES = 15;
+//    public static final int RVM_FUNCTION_HANDLERS = 16;
+//    public static final int RVM_FUNCTION_FROM_SPS = 17;
+//    public static final int RVM_FUNCTION_LAST_HANDLER = 18;
+//    public static final int RVM_FUNCTION_FUN_ID = 19;
+//    public static final int RVM_FUNCTION_IS_COROUTINE = 20;
+//    public static final int RVM_FUNCTION_REFS = 21;
+//    public static final int RVM_FUNCTION_IS_VARARGS = 22;
+//    public static final int RVM_FUNCTION_CONTINUATION_POINTS = 23;
 	
 }

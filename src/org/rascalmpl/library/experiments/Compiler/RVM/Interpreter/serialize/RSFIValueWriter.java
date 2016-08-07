@@ -633,14 +633,6 @@ public class RSFIValueWriter {
 				break;
 			}
 			
-			case RVM_FUNCTION: {
-			    Function fun = (Function) it.getValue();
-			    if(!it.atBeginning()){
-			        fun.writeTypes(this);
-			        fun.writeValues(this);
-			        fun.writeRSF(writer);
-			    }
-			}
 			default:
 				 throw new RuntimeException("writeValue: unexpected kind of value " + kind);
 			}
