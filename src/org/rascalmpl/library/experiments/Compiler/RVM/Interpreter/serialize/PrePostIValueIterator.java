@@ -35,11 +35,11 @@ public class PrePostIValueIterator extends PrePostIterator<IValue,ValueIteratorK
     public ValueIteratorKind next() throws IOException {
         if (beginning) {
             if (kind.isCompound()) {
-                stack.push(value, kind, false);
+                stack.push(item, kind, false);
                 switch(kind){
                 
                 case CONSTRUCTOR: {
-                    IConstructor cons = (IConstructor) value;
+                    IConstructor cons = (IConstructor) item;
                     
                     if(cons.mayHaveKeywordParameters()){
                         if(cons.asWithKeywordParameters().hasParameters()){
@@ -69,7 +69,7 @@ public class PrePostIValueIterator extends PrePostIterator<IValue,ValueIteratorK
                 }
                 
                 case LIST: {
-                    IList lst = (IList) value;
+                    IList lst = (IList) item;
                     for (int i = lst.length() - 1; i >= 0; i--) {
                         IValue elem = lst.get(i);
                         stack.push(elem, ValueIteratorKind.getKind(elem), true);
@@ -78,7 +78,7 @@ public class PrePostIValueIterator extends PrePostIterator<IValue,ValueIteratorK
                 }
                 
                 case MAP: {
-                    IMap map = (IMap) value;
+                    IMap map = (IMap) item;
                     for(IValue key : map){
                         IValue val = map.get(key);
                         stack.push(val, ValueIteratorKind.getKind(val),  true);
@@ -88,7 +88,7 @@ public class PrePostIValueIterator extends PrePostIterator<IValue,ValueIteratorK
                 }
                     
                 case NODE: {
-                    INode node = (INode) value;
+                    INode node = (INode) item;
                     
                     if(node.mayHaveKeywordParameters()){
                         if(node.asWithKeywordParameters().hasParameters()){
@@ -118,7 +118,7 @@ public class PrePostIValueIterator extends PrePostIterator<IValue,ValueIteratorK
                 }
                     
                 case RATIONAL: {
-                    IRational rat = (IRational) value;
+                    IRational rat = (IRational) item;
                     IInteger num = rat.numerator();
                     IInteger denom = rat.denominator();
                     
@@ -128,7 +128,7 @@ public class PrePostIValueIterator extends PrePostIterator<IValue,ValueIteratorK
                 }
                 
                 case SET: {
-                    ISet set = (ISet) value;
+                    ISet set = (ISet) item;
                     for(IValue elem : set){
                         stack.push(elem, ValueIteratorKind.getKind(elem), true);
                     }
@@ -136,7 +136,7 @@ public class PrePostIValueIterator extends PrePostIterator<IValue,ValueIteratorK
                 }
                 
                 case TUPLE: {
-                    ITuple tuple = (ITuple) value;
+                    ITuple tuple = (ITuple) item;
                     for(int i = tuple.arity() - 1; i >= 0; i--){
                         IValue elem = tuple.get(i);
                         stack.push(elem, ValueIteratorKind.getKind(elem), true);
@@ -150,7 +150,7 @@ public class PrePostIValueIterator extends PrePostIterator<IValue,ValueIteratorK
                 }
             }
         }
-        value = stack.currentIValue();
+        item = stack.currentItem();
         kind = stack.currentKind();
         beginning = stack.currentBeginning();
         stack.pop();

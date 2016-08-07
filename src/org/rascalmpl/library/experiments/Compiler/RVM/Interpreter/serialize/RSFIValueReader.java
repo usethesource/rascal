@@ -12,7 +12,7 @@ import java.util.Set;
 
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.NewStyleReader.ReaderPosition;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFReader.ReaderPosition;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.LinearCircularLookupWindow;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.TrackLastRead;
 import org.rascalmpl.value.IConstructor;
@@ -37,10 +37,10 @@ import io.usethesource.capsule.TrieMap_5Bits;
  * - readValue
  */
 
-public class NewRVMIValueReader {
+public class RSFIValueReader {
 	private transient static IValueFactory vf;
 	
-	private NewStyleReader reader;
+	private RSFReader reader;
 
 	private TypeFactory tf;
 	private TypeStore store;
@@ -50,13 +50,13 @@ public class NewRVMIValueReader {
 	private final TrackLastRead<IValue> valueWindow;
 	private final TrackLastRead<ISourceLocation> uriWindow;
 	
-	public NewRVMIValueReader(InputStream in, IValueFactory vfactory, TypeStore ts) throws IOException {
+	public RSFIValueReader(InputStream in, IValueFactory vfactory, TypeStore ts) throws IOException {
 		tf = TypeFactory.getInstance();
 		vf = vfactory;
 		
-		byte[] currentHeader = new byte[NewRVMIValueWriter.header.length];
+		byte[] currentHeader = new byte[RSFIValueWriter.header.length];
         in.read(currentHeader);
-        if (!Arrays.equals(NewRVMIValueWriter.header, currentHeader)) {
+        if (!Arrays.equals(RSFIValueWriter.header, currentHeader)) {
             throw new IOException("Unsupported file");
         }
        
@@ -68,13 +68,13 @@ public class NewRVMIValueReader {
         valueWindow = new LinearCircularLookupWindow<>(valueWindowSize * 1024);
         uriWindow = new LinearCircularLookupWindow<>(uriWindowSize * 1024);
 		
-		this.reader = new NewStyleReader(in);
+		this.reader = new RSFReader(in);
 		store = ts;
 		rtf = RascalTypeFactory.getInstance();
 		store.extendStore(RascalValueFactory.getStore());
 	}
 	
-	public NewStyleReader getIn() {
+	public RSFReader getIn() {
 		return reader;
 	}
 
@@ -132,69 +132,69 @@ public class NewRVMIValueReader {
                     /*          Types               */
                     /********************************/
                     
-                    case Ser.BOOL_TYPE:  
+                    case RSF.BOOL_TYPE:  
                         skip_until_end();
                         pushAndCache(tstack, tf.boolType());
                         break;
 
-                    case Ser.DATETIME_TYPE:    
+                    case RSF.DATETIME_TYPE:    
                         skip_until_end();
                         pushAndCache(tstack, tf.dateTimeType());
                         break;
 
-                    case Ser.INT_TYPE:     
+                    case RSF.INT_TYPE:     
                         skip_until_end(); 
                         pushAndCache(tstack, tf.integerType());
                         break;
 
-                    case Ser.NODE_TYPE:        
+                    case RSF.NODE_TYPE:        
                         skip_until_end();
                         pushAndCache(tstack, tf.nodeType());
                         break;
 
-                    case Ser.NUMBER_TYPE:  
+                    case RSF.NUMBER_TYPE:  
                         skip_until_end();
                         pushAndCache(tstack, tf.numberType());
                         break;
 
-                    case Ser.RATIONAL_TYPE:     
+                    case RSF.RATIONAL_TYPE:     
                         skip_until_end();
                         pushAndCache(tstack, tf.rationalType());
                         break;
 
-                    case Ser.REAL_TYPE:        
+                    case RSF.REAL_TYPE:        
                         skip_until_end();
                         pushAndCache(tstack, tf.realType());
                         break;
 
-                    case Ser.LOC_TYPE:     
+                    case RSF.LOC_TYPE:     
                         skip_until_end();
                         pushAndCache(tstack, tf.sourceLocationType());
                         break;
 
-                    case Ser.STR_TYPE:     
+                    case RSF.STR_TYPE:     
                         skip_until_end();
                         pushAndCache(tstack, tf.stringType());
                         break;
 
-                    case Ser.VALUE_TYPE:       
+                    case RSF.VALUE_TYPE:       
                         skip_until_end();
                         pushAndCache(tstack, tf.valueType());
                         break;
 
-                    case Ser.VOID_TYPE:        
+                    case RSF.VOID_TYPE:        
                         skip_until_end();
                         pushAndCache(tstack, tf.voidType());
                         break;
 
                     // Composite types
 
-                    case Ser.ADT_TYPE: {   
+                    case RSF.ADT_TYPE: {   
                         String name = null;
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case Ser.ADT_NAME:
+                                case RSF.ADT_NAME:
                                     name = reader.getString(); break;
                             }
                         }
@@ -215,12 +215,12 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.ALIAS_TYPE:   {   
+                    case RSF.ALIAS_TYPE:   {   
                         String name = null;
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case Ser.ALIAS_NAME:
+                                case RSF.ALIAS_NAME:
                                     name = reader.getString(); break;
                             }
                         }
@@ -234,12 +234,12 @@ public class NewRVMIValueReader {
                         break;
                     }
                     
-                    case Ser.CONSTRUCTOR_TYPE:     {
+                    case RSF.CONSTRUCTOR_TYPE:     {
                         String name = null;
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case Ser.CONSTRUCTOR_NAME:
+                                case RSF.CONSTRUCTOR_NAME:
                                     name = reader.getString(); break;
                             }
                         }
@@ -290,7 +290,7 @@ public class NewRVMIValueReader {
 
                     // External
 
-                    case Ser.FUNCTION_TYPE:    {
+                    case RSF.FUNCTION_TYPE:    {
                         skip_until_end();
 
                         Type keywordParameterTypes = tstack.pop();
@@ -302,7 +302,7 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.REIFIED_TYPE: {
+                    case RSF.REIFIED_TYPE: {
                         skip_until_end();
                         Type elemType = tstack.pop();
 
@@ -311,12 +311,12 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.OVERLOADED_TYPE: {
+                    case RSF.OVERLOADED_TYPE: {
                         Integer size = null;
 
                         while (not_at_end()) {
                             switch (reader.field()){ 
-                                case Ser.OVERLOADED_SIZE:
+                                case RSF.OVERLOADED_SIZE:
                                     size = (int) reader.getLong();
                                     break;
                             }
@@ -332,7 +332,7 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.NONTERMINAL_TYPE: {
+                    case RSF.NONTERMINAL_TYPE: {
                         skip_until_end();
 
                         IConstructor nt = (IConstructor) vstack.pop();
@@ -340,7 +340,7 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.LIST_TYPE:    {
+                    case RSF.LIST_TYPE:    {
                         skip_until_end();
 
                         Type elemType = tstack.pop();
@@ -349,15 +349,15 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.MAP_TYPE: {   
+                    case RSF.MAP_TYPE: {   
                         String keyLabel = null;
                         String valLabel = null;
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case Ser.MAP_KEY_LABEL:
+                                case RSF.MAP_KEY_LABEL:
                                     keyLabel = reader.getString(); break;
-                                case Ser.MAP_VAL_LABEL:
+                                case RSF.MAP_VAL_LABEL:
                                     valLabel = reader.getString(); break;
                             }
                         }
@@ -374,12 +374,12 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.PARAMETER_TYPE:   {
+                    case RSF.PARAMETER_TYPE:   {
                         String name = null;
 
                         while (not_at_end()) {
                             switch (reader.field()){ 
-                                case Ser.PARAMETER_NAME:
+                                case RSF.PARAMETER_NAME:
                                     name = reader.getString();
                                     break;
                             }
@@ -391,7 +391,7 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.SET_TYPE: {
+                    case RSF.SET_TYPE: {
                         skip_until_end();
                         Type elemType = tstack.pop();
 
@@ -399,17 +399,17 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.TUPLE_TYPE: {
+                    case RSF.TUPLE_TYPE: {
                         String [] fieldNames = null;
 
                         Integer arity = null;
 
                         while (not_at_end()) {
                             switch (reader.field()){ 
-                                case Ser.TUPLE_ARITY:
+                                case RSF.TUPLE_ARITY:
                                     arity = (int) reader.getLong(); break;
 
-                                case Ser.TUPLE_NAMES:
+                                case RSF.TUPLE_NAMES:
                                     int n = (int) reader.getLong();
                                     fieldNames = new String[n];
                                     for(int i = 0; i < n; i++){
@@ -436,11 +436,11 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.PREVIOUS_TYPE_ID: {
+                    case RSF.PREVIOUS_TYPE_ID: {
                         Long n = null;
                         while (not_at_end()) {
                             switch (reader.field()){ 
-                                case Ser.PREVIOUS_ID:
+                                case RSF.PREVIOUS_ID:
                                     n = reader.getLong();
                             }
                         }
@@ -461,10 +461,10 @@ public class NewRVMIValueReader {
                     /*          Values              */
                     /********************************/
                     
-                    case Ser.BOOL_VALUE: {
+                    case RSF.BOOL_VALUE: {
                         Integer b = null;
                         while (not_at_end()) {
-                            if(reader.field() == Ser.BOOL_BOOL){
+                            if(reader.field() == RSF.BOOL_BOOL){
                                 b = (int) reader.getLong();
                             }
                         }
@@ -475,7 +475,7 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.CONSTRUCTOR_VALUE:	{
+                    case RSF.CONSTRUCTOR_VALUE:	{
                         Integer arity = null;
                         int annos = 0;
                         int kwparams = 0;
@@ -483,9 +483,9 @@ public class NewRVMIValueReader {
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case Ser.CONSTRUCTOR_ARITY: arity = (int) reader.getLong(); break;
-                                case Ser.CONSTRUCTOR_KWPARAMS: kwparams = (int)reader.getLong(); break;
-                                case Ser.CONSTRUCTOR_ANNOS: annos = (int)reader.getLong(); break;
+                                case RSF.CONSTRUCTOR_ARITY: arity = (int) reader.getLong(); break;
+                                case RSF.CONSTRUCTOR_KWPARAMS: kwparams = (int)reader.getLong(); break;
+                                case RSF.CONSTRUCTOR_ANNOS: annos = (int)reader.getLong(); break;
                             }
                         }
                         Type consType = tstack.pop();
@@ -519,7 +519,7 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.DATETIME_VALUE: {
+                    case RSF.DATETIME_VALUE: {
                         int year = 0;
                         int month = 0;
                         int day = 0;
@@ -534,15 +534,15 @@ public class NewRVMIValueReader {
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case Ser.DATETIME_YEAR: year = (int)reader.getLong(); break;
-                                case Ser.DATETIME_MONTH: month = (int)reader.getLong(); break;
-                                case Ser.DATETIME_DAY: day = (int)reader.getLong(); break;
-                                case Ser.DATETIME_HOUR: hour = (int)reader.getLong(); break;
-                                case Ser.DATETIME_MINUTE: minute = (int)reader.getLong(); break;
-                                case Ser.DATETIME_SECOND: second = (int)reader.getLong(); break;
-                                case Ser.DATETIME_MILLISECOND: millisecond = (int)reader.getLong(); break;
-                                case Ser.DATETIME_TZ_HOUR: timeZoneHourOffset = (int)reader.getLong(); break;
-                                case Ser.DATETIME_TZ_MINUTE: timeZoneMinuteOffset = (int)reader.getLong(); break;
+                                case RSF.DATETIME_YEAR: year = (int)reader.getLong(); break;
+                                case RSF.DATETIME_MONTH: month = (int)reader.getLong(); break;
+                                case RSF.DATETIME_DAY: day = (int)reader.getLong(); break;
+                                case RSF.DATETIME_HOUR: hour = (int)reader.getLong(); break;
+                                case RSF.DATETIME_MINUTE: minute = (int)reader.getLong(); break;
+                                case RSF.DATETIME_SECOND: second = (int)reader.getLong(); break;
+                                case RSF.DATETIME_MILLISECOND: millisecond = (int)reader.getLong(); break;
+                                case RSF.DATETIME_TZ_HOUR: timeZoneHourOffset = (int)reader.getLong(); break;
+                                case RSF.DATETIME_TZ_MINUTE: timeZoneMinuteOffset = (int)reader.getLong(); break;
                             }
                         }
 
@@ -550,16 +550,16 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.DATE_VALUE: {
+                    case RSF.DATE_VALUE: {
                         int year = 0;
                         int month = 0;
                         int day = 0;
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case Ser.DATE_YEAR: year = (int)reader.getLong(); break;
-                                case Ser.DATE_MONTH: month = (int)reader.getLong(); break;
-                                case Ser.DATE_DAY: day = (int)reader.getLong(); break;
+                                case RSF.DATE_YEAR: year = (int)reader.getLong(); break;
+                                case RSF.DATE_MONTH: month = (int)reader.getLong(); break;
+                                case RSF.DATE_DAY: day = (int)reader.getLong(); break;
                             }
                         }
 
@@ -567,7 +567,7 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.TIME_VALUE: {
+                    case RSF.TIME_VALUE: {
                         int hour = 0;
                         int minute = 0;
                         int second = 0;
@@ -578,12 +578,12 @@ public class NewRVMIValueReader {
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case Ser.TIME_HOUR: hour = (int)reader.getLong(); break;
-                                case Ser.TIME_MINUTE: minute = (int)reader.getLong(); break;
-                                case Ser.TIME_SECOND: second = (int)reader.getLong(); break;
-                                case Ser.TIME_MILLISECOND: millisecond = (int)reader.getLong(); break;
-                                case Ser.TIME_TZ_HOUR: timeZoneHourOffset = (int)reader.getLong(); break;
-                                case Ser.TIME_TZ_MINUTE: timeZoneMinuteOffset = (int)reader.getLong(); break;
+                                case RSF.TIME_HOUR: hour = (int)reader.getLong(); break;
+                                case RSF.TIME_MINUTE: minute = (int)reader.getLong(); break;
+                                case RSF.TIME_SECOND: second = (int)reader.getLong(); break;
+                                case RSF.TIME_MILLISECOND: millisecond = (int)reader.getLong(); break;
+                                case RSF.TIME_TZ_HOUR: timeZoneHourOffset = (int)reader.getLong(); break;
+                                case RSF.TIME_TZ_MINUTE: timeZoneMinuteOffset = (int)reader.getLong(); break;
                             }
                         }
 
@@ -591,10 +591,10 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.INT_VALUE: {
+                    case RSF.INT_VALUE: {
                         Long n = null;
                         while (not_at_end()) {
-                            if(reader.field() == Ser.INT_INT){
+                            if(reader.field() == RSF.INT_INT){
                                 n = reader.getLong();
                             }
                         }
@@ -605,10 +605,10 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.BIGINT_VALUE: {
+                    case RSF.BIGINT_VALUE: {
                         byte[] bytes = null;
                         while (not_at_end()) {
-                            if(reader.field() == Ser.BIGINT_BIGINT){
+                            if(reader.field() == RSF.BIGINT_BIGINT){
                                 bytes = reader.getBytes();
                             }
                         }
@@ -619,10 +619,10 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.LIST_VALUE: {
+                    case RSF.LIST_VALUE: {
                         Integer size = null;
                         while (not_at_end()) {
-                            if(reader.field() == Ser.LIST_SIZE){
+                            if(reader.field() == RSF.LIST_SIZE){
                                 size = (int) reader.getLong();
                             }
                         }
@@ -633,7 +633,7 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.LOC_VALUE: {
+                    case RSF.LOC_VALUE: {
                         String scheme = null;
                         String authority = "";
                         String path = "";
@@ -648,18 +648,18 @@ public class NewRVMIValueReader {
                         int endColumn = -1;
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case Ser.LOC_PREVIOUS_URI: previousURI = (int)reader.getLong(); break;
-                                case Ser.LOC_SCHEME: scheme = reader.getString(); break;
-                                case Ser.LOC_AUTHORITY: authority = reader.getString(); break;
-                                case Ser.LOC_PATH: path = reader.getString(); break;
-                                case Ser.LOC_QUERY: query = reader.getString(); break;	
-                                case Ser.LOC_FRAGMENT: fragment = reader.getString(); break;	
-                                case Ser.LOC_OFFSET: offset = (int) reader.getLong(); break;
-                                case Ser.LOC_LENGTH: length = (int) reader.getLong(); break;
-                                case Ser.LOC_BEGINLINE: beginLine = (int) reader.getLong(); break;
-                                case Ser.LOC_ENDLINE: endLine = (int) reader.getLong(); break;
-                                case Ser.LOC_BEGINCOLUMN: beginColumn = (int) reader.getLong(); break;
-                                case Ser.LOC_ENDCOLUMN: endColumn = (int) reader.getLong(); break;
+                                case RSF.LOC_PREVIOUS_URI: previousURI = (int)reader.getLong(); break;
+                                case RSF.LOC_SCHEME: scheme = reader.getString(); break;
+                                case RSF.LOC_AUTHORITY: authority = reader.getString(); break;
+                                case RSF.LOC_PATH: path = reader.getString(); break;
+                                case RSF.LOC_QUERY: query = reader.getString(); break;	
+                                case RSF.LOC_FRAGMENT: fragment = reader.getString(); break;	
+                                case RSF.LOC_OFFSET: offset = (int) reader.getLong(); break;
+                                case RSF.LOC_LENGTH: length = (int) reader.getLong(); break;
+                                case RSF.LOC_BEGINLINE: beginLine = (int) reader.getLong(); break;
+                                case RSF.LOC_ENDLINE: endLine = (int) reader.getLong(); break;
+                                case RSF.LOC_BEGINCOLUMN: beginColumn = (int) reader.getLong(); break;
+                                case RSF.LOC_ENDCOLUMN: endColumn = (int) reader.getLong(); break;
                             }
                         }
                         ISourceLocation loc;
@@ -683,10 +683,10 @@ public class NewRVMIValueReader {
                         break;
 
                     }
-                    case Ser.MAP_VALUE:	{
+                    case RSF.MAP_VALUE:	{
                         Long size = null;
                         while (not_at_end()) {
-                            if(reader.field() == Ser.MAP_SIZE){
+                            if(reader.field() == RSF.MAP_SIZE){
                                 size = reader.getLong();
                             }
                         }
@@ -704,7 +704,7 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.NODE_VALUE:	{
+                    case RSF.NODE_VALUE:	{
                         String name = null;
                         Integer arity = null;
                         int annos = 0;
@@ -713,10 +713,10 @@ public class NewRVMIValueReader {
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case Ser.NODE_NAME: name = reader.getString(); break;
-                                case Ser.NODE_ARITY: arity = (int)reader.getLong(); break;
-                                case Ser.NODE_KWPARAMS: kwparams = (int)reader.getLong(); break;
-                                case Ser.NODE_ANNOS: annos = (int)reader.getLong(); break;
+                                case RSF.NODE_NAME: name = reader.getString(); break;
+                                case RSF.NODE_ARITY: arity = (int)reader.getLong(); break;
+                                case RSF.NODE_KWPARAMS: kwparams = (int)reader.getLong(); break;
+                                case RSF.NODE_ANNOS: annos = (int)reader.getLong(); break;
                             }
                         }
                         
@@ -747,7 +747,7 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.RATIONAL_VALUE: {
+                    case RSF.RATIONAL_VALUE: {
                         skip_until_end();
                         
                         IInteger denominator = (IInteger) vstack.pop();
@@ -757,15 +757,15 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.REAL_VALUE: {
+                    case RSF.REAL_VALUE: {
                         byte[] bytes = null;
                         int scale = 1;
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case Ser.REAL_SCALE:
+                                case RSF.REAL_SCALE:
                                     scale = (int) reader.getLong(); break;
-                                case Ser.REAL_REAL:
+                                case RSF.REAL_REAL:
                                     bytes = reader.getBytes(); break;
                             }
                         }
@@ -776,10 +776,10 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.SET_VALUE: {
+                    case RSF.SET_VALUE: {
                         Integer size = 0;
                         while (not_at_end()) {
-                            if(reader.field() == Ser.SET_SIZE){
+                            if(reader.field() == RSF.SET_SIZE){
                                 size = (int) reader.getLong();
                             }
                         }
@@ -790,10 +790,10 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.STR_VALUE: {
+                    case RSF.STR_VALUE: {
                         String str = null;
                         while (not_at_end()) {
-                            if(reader.field() == Ser.STR_STR){
+                            if(reader.field() == RSF.STR_STR){
                                 str = reader.getString();
                             }
                         }
@@ -806,10 +806,10 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.TUPLE_VALUE: {
+                    case RSF.TUPLE_VALUE: {
                         Integer len = 0;
                         while (not_at_end()) {
-                            if(reader.field() == Ser.TUPLE_SIZE){
+                            if(reader.field() == RSF.TUPLE_SIZE){
                                 len = (int) reader.getLong();
                             }
                         }
@@ -820,10 +820,10 @@ public class NewRVMIValueReader {
                         break;
                     }
 
-                    case Ser.PREVIOUS_VALUE: {
+                    case RSF.PREVIOUS_VALUE: {
                         Integer n = null;
                         while(not_at_end()){
-                            if(reader.field() == Ser.PREVIOUS_VALUE_ID){
+                            if(reader.field() == RSF.PREVIOUS_VALUE_ID){
                                 n = (int) reader.getLong();
                             }
                         }

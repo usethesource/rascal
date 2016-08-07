@@ -25,19 +25,19 @@ public class PrePostTypeIterator extends PrePostIterator<Type, TypeIteratorKind>
         if (beginning) {
             if (kind.isCompound()) {
                 
-                stack.push(value, kind, false);
+                stack.push(item, kind, false);
                 
                 switch(kind){
                     case ADT: {
-                        Type typeParameters = value.getTypeParameters();
+                        Type typeParameters = item.getTypeParameters();
                         
                         stack.push(typeParameters, TypeIteratorKind.getKind(typeParameters), true);
                         break;
                     }
                     
                     case ALIAS: {
-                        Type aliased = value.getAliased();
-                        Type typeParameters = value.getTypeParameters();
+                        Type aliased = item.getAliased();
+                        Type typeParameters = item.getTypeParameters();
                         
                         stack.push(typeParameters, TypeIteratorKind.getKind(typeParameters), true);
                         stack.push(aliased, TypeIteratorKind.getKind(aliased), true);
@@ -45,8 +45,8 @@ public class PrePostTypeIterator extends PrePostIterator<Type, TypeIteratorKind>
                     }
                     
                     case CONSTRUCTOR: {
-                        Type adt = value.getAbstractDataType();
-                        Type type = value.getFieldTypes();
+                        Type adt = item.getAbstractDataType();
+                        Type type = item.getFieldTypes();
                         
                         stack.push(type, TypeIteratorKind.getKind(type),  true);
                         stack.push(adt, TypeIteratorKind.getKind(adt),  true); 
@@ -54,7 +54,7 @@ public class PrePostTypeIterator extends PrePostIterator<Type, TypeIteratorKind>
                     }
                     
                     case FUNCTION: {
-                        FunctionType ft = (FunctionType) value;
+                        FunctionType ft = (FunctionType) item;
                         Type returnType = ft.getReturnType();
                         Type argumentTypes = ft.getArgumentTypes();
                         Type kwparamTypes = ft.getKeywordParameterTypes();
@@ -67,15 +67,15 @@ public class PrePostTypeIterator extends PrePostIterator<Type, TypeIteratorKind>
                     }
                    
                     case LIST:{
-                        Type elemType = value.getElementType();
+                        Type elemType = item.getElementType();
                         
                         stack.push(elemType,  TypeIteratorKind.getKind(elemType),  true); 
                         break;
                     }
              
                     case MAP: {
-                        Type keyType = value.getKeyType();
-                        Type valType = value.getValueType();
+                        Type keyType = item.getKeyType();
+                        Type valType = item.getValueType();
                         
                         stack.push(valType,  TypeIteratorKind.getKind(valType),  true); 
                         stack.push(keyType,  TypeIteratorKind.getKind(keyType),  true);
@@ -83,13 +83,13 @@ public class PrePostTypeIterator extends PrePostIterator<Type, TypeIteratorKind>
                     }
                     
                     case NONTERMINAL: {
-                        NonTerminalType nt = (NonTerminalType) value;
+                        NonTerminalType nt = (NonTerminalType) item;
                         
                         break;
                     }
                    
                     case OVERLOADED:{
-                        Set<FunctionType> alternatives = ((OverloadedFunctionType) value).getAlternatives();
+                        Set<FunctionType> alternatives = ((OverloadedFunctionType) item).getAlternatives();
                         for(FunctionType ft : alternatives){
                             stack.push(ft,  TypeIteratorKind.getKind(ft),  true);
                         }
@@ -97,27 +97,27 @@ public class PrePostTypeIterator extends PrePostIterator<Type, TypeIteratorKind>
                     }
                         
                     case PARAMETER:{
-                        Type bound = value.getBound();
+                        Type bound = item.getBound();
                         stack.push(bound,  TypeIteratorKind.getKind(bound),  true);
                         break;
                     }
                    
                     case REIFIED: {
-                        Type typeParameters = value.getTypeParameters();
+                        Type typeParameters = item.getTypeParameters();
                         stack.push(typeParameters,  TypeIteratorKind.getKind(typeParameters),  true);
                         break;
                     }
                         
                     case SET: {
-                        Type elemType = value.getElementType();
+                        Type elemType = item.getElementType();
                         
                         stack.push(elemType,  TypeIteratorKind.getKind(elemType),  true); 
                         break;
                     }
                     
                     case TUPLE: {
-                        for(int i = value.getArity() - 1; i >= 0; i--){
-                            Type elemType = value.getFieldType(i);
+                        for(int i = item.getArity() - 1; i >= 0; i--){
+                            Type elemType = item.getFieldType(i);
                             stack.push(elemType,  TypeIteratorKind.getKind(elemType),  true); 
                         }
                         break;
@@ -129,7 +129,7 @@ public class PrePostTypeIterator extends PrePostIterator<Type, TypeIteratorKind>
                 }
             }
         }
-        value = stack.currentIValue();
+        item = stack.currentItem();
         kind = stack.currentKind();
         beginning = stack.currentBeginning();
         stack.pop();

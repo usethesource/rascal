@@ -1,10 +1,10 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 
 /**
- * Constants for the (de)serialization of Rascal values and types
- *
+ * Constants for Rascal Serialization Format (RSF),
+ * a binary format for the (de)serialization of Rascal values and types
  */
-public class Ser {
+public class RSF {
     
     /********************************/
     /*  Values:                     */
