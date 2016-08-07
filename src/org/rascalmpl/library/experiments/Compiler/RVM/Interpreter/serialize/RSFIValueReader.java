@@ -464,7 +464,7 @@ public class RSFIValueReader {
                     case RSF.BOOL_VALUE: {
                         Integer b = null;
                         while (not_at_end()) {
-                            if(reader.field() == RSF.BOOL_BOOL){
+                            if(reader.field() == RSF.BOOL_CONTENT){
                                 b = (int) reader.getLong();
                             }
                         }
@@ -594,7 +594,7 @@ public class RSFIValueReader {
                     case RSF.INT_VALUE: {
                         Long n = null;
                         while (not_at_end()) {
-                            if(reader.field() == RSF.INT_INT){
+                            if(reader.field() == RSF.INT_CONTENT){
                                 n = reader.getLong();
                             }
                         }
@@ -608,7 +608,7 @@ public class RSFIValueReader {
                     case RSF.BIGINT_VALUE: {
                         byte[] bytes = null;
                         while (not_at_end()) {
-                            if(reader.field() == RSF.BIGINT_BIGINT){
+                            if(reader.field() == RSF.BIGINT_CONTENT){
                                 bytes = reader.getBytes();
                             }
                         }
@@ -765,7 +765,7 @@ public class RSFIValueReader {
                             switch(reader.field()){
                                 case RSF.REAL_SCALE:
                                     scale = (int) reader.getLong(); break;
-                                case RSF.REAL_REAL:
+                                case RSF.REAL_CONTENT:
                                     bytes = reader.getBytes(); break;
                             }
                         }
@@ -793,7 +793,7 @@ public class RSFIValueReader {
                     case RSF.STR_VALUE: {
                         String str = null;
                         while (not_at_end()) {
-                            if(reader.field() == RSF.STR_STR){
+                            if(reader.field() == RSF.STR_CONTENT){
                                 str = reader.getString();
                             }
                         }
@@ -894,17 +894,15 @@ class ReaderStack<E> {
 	}
 	
 	@SuppressWarnings("unchecked")
-    public E[] getChildren(int childs){
-		int from = sp - childs;
-		E[] children = (E[]) Array.newInstance(eclass,childs);
-		if(from >= 0){
-			for(int i = 0; i < childs; i++){
-				children[i] = elements[from + i];
-			}
-			sp = from;
-			return children;
-		}
-		throw new RuntimeException("Empty Stack");
+	public E[] getChildren(int childs){
+	    int from = sp - childs;
+	    E[] children = (E[]) Array.newInstance(eclass,childs);
+	    if(from >= 0){
+	        System.arraycopy(elements, from, children, 0, childs);
+	        sp = from;
+	        return children;
+	    }
+	    throw new RuntimeException("Empty Stack");
 	}
 	
 	@SuppressWarnings("unchecked")
