@@ -4,6 +4,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 import java.io.IOException;
 import java.util.Map;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
@@ -144,7 +145,12 @@ public class PrePostIValueIterator extends PrePostIterator<IValue,ValueIteratorK
                     
                     break;
                 }
-                
+                case RVM_FUNCTION: {
+                    Function fun = (Function) item;
+                    fun.nextValues(stack);
+                    break;
+                }
+
                 default:
                     throw new RuntimeException("Missing case");
                 }
