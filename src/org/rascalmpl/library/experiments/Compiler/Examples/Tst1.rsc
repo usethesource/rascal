@@ -5,6 +5,14 @@ import util::Reflective;
 
 syntax As = "a"*;
 
+data Bool(str def = "2") = btrue() | bfalse(bool falsity = true) | band(Bool left, Bool right) | bor(Bool left, Bool right);
+
+data Maybe[&T] = none() | some(&T t);
+
+alias X[&T] = list[&T];
+
+alias Y = int;
+
 /*TODO: cleanup generated files as in Java version */
 
 private bool  binaryWriteRead(type[&T] typ, value exp) {
@@ -20,10 +28,13 @@ test bool writingParseTreeWorks() {
 }
 
 value main(){
-     nd = [As] "aaaa";
+    nd = [As] "aaa";
     writeBinaryValueFile(|test-temp:///parsetree1|, nd);
     r = readBinaryValueFile(|test-temp:///parsetree1|);
     println(nd);
     println(r);
-    return r == nd;
+    //println(binaryWriteRead(#num, nd));
+    //return binaryWriteRead(#Bool, bor(btrue(), btrue()));
+    //return binaryWriteRead(#Bool, band(bor(btrue(),bfalse()),band(btrue(),btrue())));
+    return true;
 }

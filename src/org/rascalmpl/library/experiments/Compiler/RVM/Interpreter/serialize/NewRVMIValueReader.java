@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
@@ -101,331 +102,14 @@ public class NewRVMIValueReader {
 		while (not_at_end());
 	}
 	
-	
-	@SuppressWarnings("deprecation")
-	private Type readType() throws IOException, URISyntaxException{
-
-		assert reader.current() == ReaderPosition.VALUE_START;
-
-		reader.next();
-
-		Type[] zeroElemTypes = new Type[0];
-		String[] zeroFieldNames = new String[0];
-	
-		switch(reader.value()){
-
-		// Atomic types
-
-		case SType.BOOL:	
-			skip_until_end();	return tf.boolType();
-		case SType.DATETIME:	
-			skip_until_end();return tf.dateTimeType();
-		case SType.INT:		
-			skip_until_end();return tf.integerType();
-		case SType.NODE:		
-			skip_until_end();return tf.nodeType();
-		case SType.NUMBER:	
-			skip_until_end();return tf.numberType();
-		case SType.RAT:		
-			skip_until_end();return tf.rationalType();
-		case SType.REAL:		
-			skip_until_end();return tf.realType();
-		case SType.LOC:		
-			skip_until_end();return tf.sourceLocationType();
-		case SType.STR:		
-			skip_until_end();return tf.stringType();
-		case SType.VALUE:		
-			skip_until_end();return tf.valueType();
-		case SType.VOID:		
-			skip_until_end();return tf.voidType();
-
-		// Composite types
-
-		case SType.ADT:	{	
-			String name = "";
-			Type typeParameters = tf.voidType();
-			
-			while (not_at_end()) {
-				switch(reader.field()){
-				case SType.ADT_NAME:
-					name = reader.getString(); break;
-				case SType.ADT_TYPE_PARAMETERS:
-					typeParameters = readType(); break;
-				}
-			}
-			int arity = typeParameters.getArity();
-			if(arity > 0){
-				Type targs[] = new Type[arity];
-				for(int i = 0; i < arity; i++){
-					targs[i] = typeParameters.getFieldType(i);
-				}
-				return typeRead(tf.abstractDataType(store, name, targs));
-			}
-			return typeRead(tf.abstractDataType(store, name));
-		}
-
-		case SType.ALIAS:	{	
-			String name = "";
-			Type aliasedType = tf.valueType();
-			Type typeParameters = tf.voidType();
-			
-			while (not_at_end()) {
-				switch(reader.field()){
-				case SType.ALIAS_NAME:
-					name = reader.getString(); break;
-				case SType.ALIAS_ALIASED:
-					aliasedType = readType(); break;
-				case SType.ALIAS_TYPE_PARAMETERS:
-					typeParameters = readType(); break;
-				}
-			}
-			
-			return typeRead(tf.aliasType(store, name, aliasedType, typeParameters));
-		}
-		case SType.CONSTRUCTOR: 	{
-			String name = "";
-			int arity = 0;
-			String [] fieldNames = zeroFieldNames;
-			Type adtType = tf.voidType();
-			Type fieldTypes = tf.voidType();
-			
-			while (not_at_end()) {
-				switch(reader.field()){
-				case SType.CONSTRUCTOR_NAME:
-					name = reader.getString(); break;
-				case SType.CONSTRUCTOR_ABSTRACT_DATA_TYPE:
-					adtType = readType(); break;
-				case SType.CONSTRUCTOR_TYPE:
-					fieldTypes = readType(); break;
-				}
-			}
-
-			Type declaredAdt = store.lookupAbstractDataType(name);
-
-			if(declaredAdt != null){
-				adtType = declaredAdt;
-			}
-			
-			arity = fieldTypes.getArity();
-			fieldNames = fieldTypes.getFieldNames();
-
-			Type fieldTypesAr[] = new Type[arity];
-			
-			for(int i = 0; i < arity; i++){
-				fieldTypesAr[i] = fieldTypes.getFieldType(i);
-			}
-
-			if(fieldNames == null){
-				Type res = store.lookupConstructor(adtType, name, tf.tupleType(fieldTypes));
-				if(res == null) {
-					return typeRead(tf.constructor(store, adtType, name, fieldTypes));
-				} else {
-					return typeRead(res);
-				}
-			}
-			Object[] typeAndNames = new Object[2*arity];
-			for(int i = 0; i < arity; i++){
-				typeAndNames[2 * i] =  fieldTypesAr[i];
-				typeAndNames[2 * i + 1] = fieldNames[i];
-			}
-
-			Type res = store.lookupConstructor(adtType, name, tf.tupleType(typeAndNames));
-			if(res == null){
-				return typeRead(tf.constructor(store, adtType, name, typeAndNames));
-			} else {
-				return typeRead(res);
-			}
-		}
-
-			// External
-
-		case SType.FUNCTION:	{
-			Type returnType = null;
-			Type argumentTypes =  null;
-			Type keywordParameterTypes = null;
-			
-			while (not_at_end()) {
-				switch(reader.field()){
-				case SType.FUNCTION_RETURN_TYPE:
-					returnType = readType(); break;
-				case SType.FUNCTION_ARGUMENT_TYPES:
-					argumentTypes = readType(); break;
-				case SType.FUNCTION_KEYWORD_PARAMETER_TYPES:
-					keywordParameterTypes = readType(); break;
-				}
-			}
-			assert returnType != null && argumentTypes != null;
-			
-			return typeRead(rtf.functionType(returnType, argumentTypes, keywordParameterTypes));
-		}
-
-		case SType.REIFIED: {
-			Type elemType = null;
-			while (not_at_end()) {
-				if(reader.field() == SType.REIFIED_ELEMENT_TYPE){
-					elemType = readType(); break;
-				}
-			}
-			assert elemType != null;
-			elemType = elemType.getFieldType(0);
-			return typeRead(rtf.reifiedType(elemType));
-		}
-
-		case SType.OVERLOADED: {
-			int arity = 0;
-			Type[] elemTypes = null;
-			
-			while (not_at_end()) {
-				switch (reader.field()){ 
-				case SType.OVERLOADED_TYPES:
-					arity = (int) reader.getLong();
-					elemTypes = new Type[arity];
-					for(int i = 0; i < arity; i++){
-						elemTypes[i] = readType();
-					}
-					break;
-				}
-			}
-			
-			Set<FunctionType> alternatives = new HashSet<FunctionType>(arity);
-			for(int i = 0; i < arity; i++){
-				alternatives.add((FunctionType) elemTypes[i]);
-			}
-			return typeRead(rtf.overloadedFunctionType(alternatives));
-		}
-
-		case SType.NONTERMINAL: {
-			IConstructor nt = null;
-			while (not_at_end()) {
-				if (reader.field() == SType.NONTERMINAL_CONSTRUCTOR){
-					nt = (IConstructor) readValue(); break;
-				}
-			}
-			assert nt != null;
-			return typeRead(rtf.nonTerminalType(nt));
-		}
-			
-		case SType.LIST:	{
-			Type elemType = tf.voidType();
-			
-			while (not_at_end()) {
-				if (reader.field() == SType.LIST_ELEMENT_TYPE) {
-					elemType = readType();
-				}
-			}
-			return typeRead(tf.listType(elemType));
-		}
-
-		case SType.MAP: {	
-			String keyLabel = null;
-			String valLabel = null;
-			Type keyType = tf.voidType();
-			Type valType = tf.voidType();
-			
-			while (not_at_end()) {
-				switch(reader.field()){
-				case SType.MAP_KEY_LABEL:
-					keyLabel = reader.getString(); break;
-				case SType.MAP_VAL_LABEL:
-					valLabel = reader.getString(); break;
-				case SType.MAP_KEY_TYPE:
-					keyType = readType(); break;	
-				case SType.MAP_VAL_TYPE:
-					valType = readType(); break;
-				}
-			}
-			
-			if(keyLabel == null){
-				return typeRead(tf.mapType(keyType, valType));
-			}
-			return typeRead(tf.mapType(keyType, keyLabel, valType, valLabel));
-		}
-
-		case SType.PARAMETER:	{
-			String name = "";
-			Type bound = tf.valueType();
-			
-			while (not_at_end()) {
-				switch (reader.field()){ 
-				case SType.PARAMETER_NAME:
-					name = reader.getString();
-					break;
-				case SType.PARAMETER_BOUND:
-					bound = readType(); break;
-				}
-			}
-			return typeRead(tf.parameterType(name, bound));
-		}
-
-		case SType.SET: {
-			Type elemType = tf.voidType();
-			while (not_at_end()) {
-				if (reader.field() == SType.SET_ELEMENT_TYPE) {
-					elemType = readType();
-				}
-			}
-			return typeRead(tf.setType(elemType));
-		}
-
-		case SType.TUPLE: {
-			String [] fieldNames = null;
-			Type[] elemTypes = zeroElemTypes;
-			int arity = 0;
-
-			while (not_at_end()) {
-				switch (reader.field()){ 
-				case SType.TUPLE_TYPES:
-					arity = (int) reader.getLong();
-					elemTypes = new Type[arity];
-					for(int i = 0; i < arity; i++){
-						elemTypes[i] = readType();
-					}
-					break;
-				case SType.TUPLE_NAMES:
-					int n = (int) reader.getLong();
-					fieldNames = new String[n];
-					for(int i = 0; i < n; i++){
-						reader.next();
-						fieldNames[i] = reader.getString();
-					}
-				}
-			}
-
-			if(fieldNames != null){
-				assert fieldNames.length == arity;
-				return typeRead(tf.tupleType(elemTypes, fieldNames));
-			}
-			return typeRead(tf.tupleType(elemTypes));
-		}
-
-		case SType.PREVIOUS: {
-			int n = -1;
-			while (not_at_end()) {
-				switch (reader.field()){ 
-				case SType.PREVIOUS_TYPE:
-					n = (int)reader.getLong();
-				}
-			}
-			
-			Type type = typeWindow.lookBack(n);
-			if(type == null){
-				throw new RuntimeException("Unexpected type cache miss");
-			}
-			return type;
-		}
-		}
-		throw new RuntimeException("readType: unhandled case " + reader.value());
+	void pushAndCache(ReaderStack<Type> stack, Type type) throws IOException{
+	    stack.push(type);
+	    typeWindow.read(type);
 	}
-	
-	private Type typeRead(Type typ) {
-	    typeWindow.read(typ);
-        return typ;
-    }
 
-    void pushCacheNext(ReaderStack stack, IValue v) throws IOException{
+    void pushAndCache(ReaderStack<IValue> stack, IValue v) throws IOException{
 		stack.push(v);
 		valueWindow.read(v);
-		reader.next();
 	}
 	
 	/**
@@ -433,403 +117,763 @@ public class NewRVMIValueReader {
 	 * @throws IOException
 	 * @throws URISyntaxException 
 	 */
-	public IValue readValue() throws IOException, URISyntaxException{
-		reader.next();
-		assert reader.current() == ReaderPosition.VALUE_START;
+    public IValue readValue() throws IOException, URISyntaxException {
 
-		ReaderStack stack = new ReaderStack(1024);
-		while(true){
+        ReaderStack<Type> tstack = new ReaderStack<Type>(Type.class, 100);
+        ReaderStack<IValue> vstack = new ReaderStack<IValue>(IValue.class, 1024);
 
-			switch (reader.value()) {
+        try {
+           
+            while(reader.next() == ReaderPosition.VALUE_START){
+                
+                switch (reader.value()) {
+                    
+                    /********************************/
+                    /*          Types               */
+                    /********************************/
+                    
+                    case Ser.BOOL_TYPE:  
+                        skip_until_end();
+                        pushAndCache(tstack, tf.boolType());
+                        break;
 
-			case SValue.BOOL: {
-				int b = 0;
-				while (not_at_end()) {
-					if(reader.field() == SValue.BOOL_VALUE){
-						b = (int) reader.getLong();
-					}
-				}
+                    case Ser.DATETIME_TYPE:    
+                        skip_until_end();
+                        pushAndCache(tstack, tf.dateTimeType());
+                        break;
 
-				pushCacheNext(stack, vf.bool(b == 0 ? false : true));
-				break;
-			}
-			
-			case SValue.CONSTRUCTOR:	{
-				int arity = 0;
-				int annos = 0;
-				int kwparams = 0;
-				Type consType = tf.voidType();
-				TransientMap<String, IValue> kwParamsOrAnnos = null;
+                    case Ser.INT_TYPE:     
+                        skip_until_end(); 
+                        pushAndCache(tstack, tf.integerType());
+                        break;
 
-				while (not_at_end()) {
-					switch(reader.field()){
-					case SValue.CONSTRUCTOR_ARITY: arity = (int)reader.getLong(); break;
-					case SValue.CONSTRUCTOR_KWPARAMS: kwparams = (int)reader.getLong(); break;
-					case SValue.CONSTRUCTOR_ANNOS: annos = (int)reader.getLong(); break;
-					case SValue.CONSTRUCTOR_TYPE: consType = readType(); break;
-					}
-				}
-				IConstructor cons;
-				if(annos > 0){
-					kwParamsOrAnnos = TrieMap_5Bits.transientOf();
-					for(int i = 0; i < annos; i++){
-						IValue val = stack.pop();
-						IString ikey = (IString) stack.pop();
-						kwParamsOrAnnos.__put(ikey.getValue(),  val);
-					}
-					cons =  vf.constructor(consType, stack.getChildren(arity)).asAnnotatable().setAnnotations(kwParamsOrAnnos);
-				} else if(kwparams > 0){
-					kwParamsOrAnnos = TrieMap_5Bits.transientOf();
-					for(int i = 0; i < kwparams; i++){
-						IValue val = stack.pop();
-						IString ikey = (IString) stack.pop();
-						kwParamsOrAnnos.__put(ikey.getValue(),  val);
-					}
-					cons = vf.constructor(consType, stack.getChildren(arity), kwParamsOrAnnos);
-				} else {
-					cons = vf.constructor(consType, stack.getChildren(arity));
-				}
+                    case Ser.NODE_TYPE:        
+                        skip_until_end();
+                        pushAndCache(tstack, tf.nodeType());
+                        break;
 
-				pushCacheNext(stack, cons);
-				break;
-			}
+                    case Ser.NUMBER_TYPE:  
+                        skip_until_end();
+                        pushAndCache(tstack, tf.numberType());
+                        break;
 
-			case SValue.DATETIME: {
-				int year = 0;
-				int month = 0;
-				int day = 0;
+                    case Ser.RATIONAL_TYPE:     
+                        skip_until_end();
+                        pushAndCache(tstack, tf.rationalType());
+                        break;
 
-				int hour = 0;
-				int minute = 0;
-				int second = 0;
-				int millisecond = 0;
+                    case Ser.REAL_TYPE:        
+                        skip_until_end();
+                        pushAndCache(tstack, tf.realType());
+                        break;
 
-				int timeZoneHourOffset = 0;
-				int timeZoneMinuteOffset = 0;
+                    case Ser.LOC_TYPE:     
+                        skip_until_end();
+                        pushAndCache(tstack, tf.sourceLocationType());
+                        break;
 
-				while (not_at_end()) {
-					switch(reader.field()){
-					case SValue.DATETIME_YEAR: year = (int)reader.getLong(); break;
-					case SValue.DATETIME_MONTH: month = (int)reader.getLong(); break;
-					case SValue.DATETIME_DAY: day = (int)reader.getLong(); break;
-					case SValue.DATETIME_HOUR: hour = (int)reader.getLong(); break;
-					case SValue.DATETIME_MINUTE: minute = (int)reader.getLong(); break;
-					case SValue.DATETIME_SECOND: second = (int)reader.getLong(); break;
-					case SValue.DATETIME_MILLISECOND: millisecond = (int)reader.getLong(); break;
-					case SValue.DATETIME_TZ_HOUR: timeZoneHourOffset = (int)reader.getLong(); break;
-					case SValue.DATETIME_TZ_MINUTE: timeZoneMinuteOffset = (int)reader.getLong(); break;
-					}
-				}
+                    case Ser.STR_TYPE:     
+                        skip_until_end();
+                        pushAndCache(tstack, tf.stringType());
+                        break;
 
-				pushCacheNext(stack, vf.datetime(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset));
-				break;
-			}
+                    case Ser.VALUE_TYPE:       
+                        skip_until_end();
+                        pushAndCache(tstack, tf.valueType());
+                        break;
 
-			case SValue.DATE: {
-				int year = 0;
-				int month = 0;
-				int day = 0;
+                    case Ser.VOID_TYPE:        
+                        skip_until_end();
+                        pushAndCache(tstack, tf.voidType());
+                        break;
 
-				while (not_at_end()) {
-					switch(reader.field()){
-					case SValue.DATE_YEAR: year = (int)reader.getLong(); break;
-					case SValue.DATE_MONTH: month = (int)reader.getLong(); break;
-					case SValue.DATE_DAY: day = (int)reader.getLong(); break;
-					}
-				}
+                    // Composite types
 
-				pushCacheNext(stack, vf.datetime(year, month, day));
-				break;
-			}
+                    case Ser.ADT_TYPE: {   
+                        String name = null;
 
-			case SValue.TIME: {
-				int hour = 0;
-				int minute = 0;
-				int second = 0;
-				int millisecond = 0;
+                        while (not_at_end()) {
+                            switch(reader.field()){
+                                case Ser.ADT_NAME:
+                                    name = reader.getString(); break;
+                            }
+                        }
 
-				int timeZoneHourOffset = 0;
-				int timeZoneMinuteOffset = 0;
+                        assert name != null;
 
-				while (not_at_end()) {
-					switch(reader.field()){
-					case SValue.TIME_HOUR: hour = (int)reader.getLong(); break;
-					case SValue.TIME_MINUTE: minute = (int)reader.getLong(); break;
-					case SValue.TIME_SECOND: second = (int)reader.getLong(); break;
-					case SValue.TIME_MILLISECOND: millisecond = (int)reader.getLong(); break;
-					case SValue.TIME_TZ_HOUR: timeZoneHourOffset = (int)reader.getLong(); break;
-					case SValue.TIME_TZ_MINUTE: timeZoneMinuteOffset = (int)reader.getLong(); break;
-					}
-				}
+                        Type typeParameters = tstack.pop();
+                        int arity = typeParameters.getArity();
+                        if(arity > 0){
+                            Type targs[] = new Type[arity];
+                            for(int i = 0; i < arity; i++){
+                                targs[i] = typeParameters.getFieldType(i);
+                            }
+                            pushAndCache(tstack, tf.abstractDataType(store, name, targs));
+                        } else {
+                            pushAndCache(tstack, tf.abstractDataType(store, name));
+                        }
+                        break;
+                    }
 
-				pushCacheNext(stack, vf.time(hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset));
-				break;
-			}
+                    case Ser.ALIAS_TYPE:   {   
+                        String name = null;
 
-		case SValue.INT: {
-			long n = 0;
-			while (not_at_end()) {
-				if(reader.field() == SValue.INT_VALUE){
-					n = reader.getLong();
-				}
-			}
-			
-			pushCacheNext(stack, vf.integer(n));
-			break;
-		}
-			
-		case SValue.BIGINT: {
-			byte[] bytes = null;
-			while (not_at_end()) {
-				if(reader.field() == SValue.BIGINT_VALUE){
-					bytes = reader.getBytes();
-				}
-			}
-			
-			assert bytes != null;
-		
-			pushCacheNext(stack, vf.integer(bytes));
-			break;
-		}
-		
-		case SValue.LIST: {
-			int len = 0;
-			while (not_at_end()) {
-				if(reader.field() == SValue.LIST_SIZE){
-					len = (int) reader.getLong();
-				}
-			}
-			
-			pushCacheNext(stack, vf.list(stack.getChildren(len)));
-			break;
-		}
+                        while (not_at_end()) {
+                            switch(reader.field()){
+                                case Ser.ALIAS_NAME:
+                                    name = reader.getString(); break;
+                            }
+                        }
+                        
+                        assert name != null;
+                        
+                        Type typeParameters = tstack.pop();
+                        Type aliasedType = tstack.pop();
 
-		case SValue.LOC: {
-			String scheme = null;
-			String authority = "";
-			String path = "";
-			String query = null;
-			String fragment = null;
-			int previousURI = -1;
-			int offset = -1;
-			int length = -1;
-			int beginLine = -1;
-			int endLine = -1;
-			int beginColumn = -1;
-			int endColumn = -1;
-			while (not_at_end()) {
-				switch(reader.field()){
-				case SValue.LOC_PREVIOUS_URI: previousURI = (int)reader.getLong(); break;
-				case SValue.LOC_SCHEME: scheme = reader.getString(); break;
-				case SValue.LOC_AUTHORITY: authority = reader.getString(); break;
-				case SValue.LOC_PATH: path = reader.getString(); break;
-				case SValue.LOC_QUERY: query = reader.getString(); break;	
-				case SValue.LOC_FRAGMENT: fragment = reader.getString(); break;	
-				case SValue.LOC_OFFSET: offset = (int) reader.getLong(); break;
-				case SValue.LOC_LENGTH: length = (int) reader.getLong(); break;
-				case SValue.LOC_BEGINLINE: beginLine = (int) reader.getLong(); break;
-				case SValue.LOC_ENDLINE: endLine = (int) reader.getLong(); break;
-				case SValue.LOC_BEGINCOLUMN: beginColumn = (int) reader.getLong(); break;
-				case SValue.LOC_ENDCOLUMN: endColumn = (int) reader.getLong(); break;
-				}
-			}
-			ISourceLocation loc;
-			if (previousURI != -1) {
-			    loc = uriWindow.lookBack(previousURI);
-			} 
-			else {
-			    loc = vf.sourceLocation(scheme, authority, path, query, fragment);
-			    uriWindow.read(loc);
-			}
-			
-			if(beginLine >= 0){
-				assert offset >= 0 && length >= 0 && endLine >= 0 && beginColumn >= 0 && endColumn >= 0;
-				loc = vf.sourceLocation(loc, offset, length, beginLine, endLine, beginColumn, endColumn);
-			} else if (offset >= 0){
-				assert length >= 0;
-				loc = vf.sourceLocation(loc, offset, length);
-			}
-			
-			pushCacheNext(stack, loc);
-			break;
-			
-		}
-		case SValue.MAP:	{
-			int len = 0;
-			while (not_at_end()) {
-				if(reader.field() == SValue.MAP_SIZE){
-					len = (int) reader.getLong();
-				}
-			}
-			IMapWriter mw = vf.mapWriter();
-			for(int i = 0; i < len; i++){
-				IValue val = stack.pop();
-				IValue key = stack.pop();
-				mw.put(key, val);
-			}
-			
-			pushCacheNext(stack, mw.done());
-			break;
-		}
+                        pushAndCache(tstack, tf.aliasType(store, name, aliasedType, typeParameters));
+                        break;
+                    }
+                    
+                    case Ser.CONSTRUCTOR_TYPE:     {
+                        String name = null;
 
-		case SValue.NODE:	{
-			String name = "";
-			int arity = 0;
-			int annos = 0;
-			int kwparams = 0;
-			TransientMap<String, IValue> kwParamsOrAnnos = null;
+                        while (not_at_end()) {
+                            switch(reader.field()){
+                                case Ser.CONSTRUCTOR_NAME:
+                                    name = reader.getString(); break;
+                            }
+                        }
 
-			while (not_at_end()) {
-				switch(reader.field()){
-				case SValue.NODE_NAME: name = reader.getString(); break;
-				case SValue.NODE_ARITY: arity = (int)reader.getLong(); break;
-				case SValue.NODE_KWPARAMS: kwparams = (int)reader.getLong(); break;
-				case SValue.NODE_ANNOS: annos = (int)reader.getLong(); break;
-				}
-			}
-			INode node;
-			if(annos > 0){
-				kwParamsOrAnnos = TrieMap_5Bits.transientOf();
-				for(int i = 0; i < annos; i++){
-					IValue val = stack.pop();
-					IString ikey = (IString) stack.pop();
-					kwParamsOrAnnos.__put(ikey.getValue(),  val);
-				}
-				node =  vf.node(name, stack.getChildren(arity)).asAnnotatable().setAnnotations(kwParamsOrAnnos);
-			} else if(kwparams > 0){
-				kwParamsOrAnnos = TrieMap_5Bits.transientOf();
-				for(int i = 0; i < kwparams; i++){
-					IValue val = stack.pop();
-					IString ikey = (IString) stack.pop();
-					kwParamsOrAnnos.__put(ikey.getValue(),  val);
-				}
-				node = vf.node(name, stack.getChildren(arity), kwParamsOrAnnos);
-			} else {
-				node = vf.node(name, stack.getChildren(arity));
-			}
-			
-			pushCacheNext(stack, node);
-			break;
-		}
-		
-		case SValue.RAT: {
-			IInteger numerator = null;
-			IInteger denominator = null;
-			while (not_at_end()) {
-				switch(reader.field()){
-				case SValue.RAT_NUMERATOR:
-					numerator = (IInteger) readValue(); break;
-				case SValue.RAT_DENOMINATOR:
-					denominator = (IInteger) readValue(); break;
-				}
-			}
-			
-			assert numerator != null & denominator != null;
-			
-			pushCacheNext(stack, vf.rational(numerator, denominator));
-			break;
-		}
+                        assert name != null;
+                        
+                        Type fieldTypes = tstack.pop();
+                        Type adtType = tstack.pop();
 
-		case SValue.REAL: {
-			byte[] bytes = null;
-			int scale = 1;
+                        Type declaredAdt = store.lookupAbstractDataType(name);
 
-			while (not_at_end()) {
-				switch(reader.field()){
-				case SValue.REAL_SCALE:
-					scale = (int) reader.getLong(); break;
-				case SValue.REAL_VALUE:
-					bytes = reader.getBytes(); break;
-				}
-			}
-			
-			assert bytes != null;
+                        if(declaredAdt != null){
+                            adtType = declaredAdt;
+                        }
 
-			pushCacheNext(stack, vf.real(new BigDecimal(new BigInteger(bytes), scale).toString())); // TODO: Improve this?
-			break;
-		}
-		
-		case SValue.SET: {
-			int len = 0;
-			while (not_at_end()) {
-				if(reader.field() == SValue.SET_SIZE){
-					len = (int) reader.getLong();
-				}
-			}
-			
-			pushCacheNext(stack, vf.set(stack.getChildren(len)));
-			break;
-		}
+                        int arity = fieldTypes.getArity();
+                        String[] fieldNames = fieldTypes.getFieldNames();
 
-		case SValue.STR: {
-			String str = null;
-			while (not_at_end()) {
-				if(reader.field() == SValue.STR_VALUE){
-					str = reader.getString();
-				}
-			}
-			assert str != null;
-			IString istr = vf.string(str);
-			stack.push(istr);;
-			// Already cached at wire level
-			reader.next();
-			break;
-		}
-		
-		case SValue.TUPLE: {
-			int len = 0;
-			while (not_at_end()) {
-				if(reader.field() == SValue.TUPLE_SIZE){
-					len = (int) reader.getLong();
-				}
-			}
-			
-			pushCacheNext(stack, vf.tuple(stack.getChildren(len)));
-			break;
-		}
-		
-		case SValue.PREVIOUS: {
-			int n = -1;
-			while(not_at_end()){
-				if(reader.field() == SValue.PREVIOUS_VALUE){
-					n = (int) reader.getLong();
-				}
-			}
-			
-			IValue result = valueWindow.lookBack(n);
-			if (result == null) {
-				throw new IOException("Unexpected value cache miss");
-			}
-			stack.push(result);
-			reader.next();
-			break;
-		}
-			
-		case SValue.END_OF_VALUE: {
-			assert stack.size() == 1;
-			skip_until_end();
-			return stack.pop();
-		}
-		
-		default:
-			throw new IllegalArgumentException("readValue: " + reader.value());
-			}
+                        Type fieldTypesAr[] = new Type[arity];
 
-		}
-	}
+                        for(int i = 0; i < arity; i++){
+                            fieldTypesAr[i] = fieldTypes.getFieldType(i);
+                        }
+
+                        if(fieldNames == null){
+                            Type res = store.lookupConstructor(adtType, name, tf.tupleType(fieldTypesAr));
+                            if(res == null) {
+                                pushAndCache(tstack, tf.constructor(store, adtType, name, fieldTypesAr));
+                            } else {
+                                pushAndCache(tstack, res);
+                            }
+                        } else {
+                            Object[] typeAndNames = new Object[2*arity];
+                            for(int i = 0; i < arity; i++){
+                                typeAndNames[2 * i] =  fieldTypesAr[i];
+                                typeAndNames[2 * i + 1] = fieldNames[i];
+                            }
+
+                            Type res = store.lookupConstructor(adtType, name, tf.tupleType(typeAndNames));
+                            if(res == null){
+                                pushAndCache(tstack, tf.constructor(store, adtType, name, typeAndNames));
+                            } else {
+                                pushAndCache(tstack, res);
+                            }
+                        }
+                        break;
+                    }
+
+                    // External
+
+                    case Ser.FUNCTION_TYPE:    {
+                        skip_until_end();
+
+                        Type keywordParameterTypes = tstack.pop();
+                        Type argumentTypes =  tstack.pop();
+                        Type returnType = tstack.pop();;
+
+
+                        pushAndCache(tstack, rtf.functionType(returnType, argumentTypes, keywordParameterTypes));
+                        break;
+                    }
+
+                    case Ser.REIFIED_TYPE: {
+                        skip_until_end();
+                        Type elemType = tstack.pop();
+
+                        elemType = elemType.getFieldType(0);
+                        pushAndCache(tstack, rtf.reifiedType(elemType));
+                        break;
+                    }
+
+                    case Ser.OVERLOADED_TYPE: {
+                        Integer size = null;
+
+                        while (not_at_end()) {
+                            switch (reader.field()){ 
+                                case Ser.OVERLOADED_SIZE:
+                                    size = (int) reader.getLong();
+                                    break;
+                            }
+                        }
+
+                        assert size != null;
+
+                        Set<FunctionType> alternatives = new HashSet<FunctionType>(size);
+                        for(int i = 0; i < size; i++){
+                            alternatives.add((FunctionType) tstack.pop());
+                        }
+                        pushAndCache(tstack, rtf.overloadedFunctionType(alternatives));
+                        break;
+                    }
+
+                    case Ser.NONTERMINAL_TYPE: {
+                        skip_until_end();
+
+                        IConstructor nt = (IConstructor) vstack.pop();
+                        pushAndCache(tstack, rtf.nonTerminalType(nt));
+                        break;
+                    }
+
+                    case Ser.LIST_TYPE:    {
+                        skip_until_end();
+
+                        Type elemType = tstack.pop();
+
+                        pushAndCache(tstack, tf.listType(elemType));
+                        break;
+                    }
+
+                    case Ser.MAP_TYPE: {   
+                        String keyLabel = null;
+                        String valLabel = null;
+
+                        while (not_at_end()) {
+                            switch(reader.field()){
+                                case Ser.MAP_KEY_LABEL:
+                                    keyLabel = reader.getString(); break;
+                                case Ser.MAP_VAL_LABEL:
+                                    valLabel = reader.getString(); break;
+                            }
+                        }
+
+                        Type valType = tstack.pop();
+                        Type keyType = tstack.pop();
+
+                        if(keyLabel == null){
+                            pushAndCache(tstack, tf.mapType(keyType, valType));
+                        } else {
+                            assert valLabel != null;
+                            pushAndCache(tstack, tf.mapType(keyType, keyLabel, valType, valLabel));
+                        }
+                        break;
+                    }
+
+                    case Ser.PARAMETER_TYPE:   {
+                        String name = null;
+
+                        while (not_at_end()) {
+                            switch (reader.field()){ 
+                                case Ser.PARAMETER_NAME:
+                                    name = reader.getString();
+                                    break;
+                            }
+                        }
+                        assert name != null;
+                        
+                        Type bound = tstack.pop();
+                        pushAndCache(tstack, tf.parameterType(name, bound));
+                        break;
+                    }
+
+                    case Ser.SET_TYPE: {
+                        skip_until_end();
+                        Type elemType = tstack.pop();
+
+                        pushAndCache(tstack, tf.setType(elemType));
+                        break;
+                    }
+
+                    case Ser.TUPLE_TYPE: {
+                        String [] fieldNames = null;
+
+                        Integer arity = null;
+
+                        while (not_at_end()) {
+                            switch (reader.field()){ 
+                                case Ser.TUPLE_ARITY:
+                                    arity = (int) reader.getLong(); break;
+
+                                case Ser.TUPLE_NAMES:
+                                    int n = (int) reader.getLong();
+                                    fieldNames = new String[n];
+                                    for(int i = 0; i < n; i++){
+                                        reader.next();
+                                        fieldNames[i] = reader.getString();
+                                    }
+                                    break;
+                            }
+                        }
+
+                        assert arity != null;
+                        
+                        Type[] elemTypes = new Type[arity];
+                        for(int i = arity - 1; i >= 0; i--){
+                            elemTypes[i] = tstack.pop();
+                        }
+
+                        if(fieldNames != null){
+                            assert fieldNames.length == arity;
+                            pushAndCache(tstack, tf.tupleType(elemTypes, fieldNames));
+                        } else {
+                            pushAndCache(tstack, tf.tupleType(elemTypes));
+                        }
+                        break;
+                    }
+
+                    case Ser.PREVIOUS_TYPE_ID: {
+                        Long n = null;
+                        while (not_at_end()) {
+                            switch (reader.field()){ 
+                                case Ser.PREVIOUS_ID:
+                                    n = reader.getLong();
+                            }
+                        }
+
+                        assert n != null;
+                        
+                        Type type = typeWindow.lookBack(n.intValue());
+                        if(type == null){
+                            throw new RuntimeException("Unexpected type cache miss");
+                        }
+                        System.out.println("Previous type: " + type + ", " + n);
+                        tstack.push(type);  // do not cache type twice
+                        break;
+                    }
+                    
+                    
+                    /********************************/
+                    /*          Values              */
+                    /********************************/
+                    
+                    case Ser.BOOL_VALUE: {
+                        Integer b = null;
+                        while (not_at_end()) {
+                            if(reader.field() == Ser.BOOL_BOOL){
+                                b = (int) reader.getLong();
+                            }
+                        }
+                        
+                        assert b != null;
+
+                        pushAndCache(vstack, vf.bool(b == 0 ? false : true));
+                        break;
+                    }
+
+                    case Ser.CONSTRUCTOR_VALUE:	{
+                        Integer arity = null;
+                        int annos = 0;
+                        int kwparams = 0;
+                        TransientMap<String, IValue> kwParamsOrAnnos = null;
+
+                        while (not_at_end()) {
+                            switch(reader.field()){
+                                case Ser.CONSTRUCTOR_ARITY: arity = (int) reader.getLong(); break;
+                                case Ser.CONSTRUCTOR_KWPARAMS: kwparams = (int)reader.getLong(); break;
+                                case Ser.CONSTRUCTOR_ANNOS: annos = (int)reader.getLong(); break;
+                            }
+                        }
+                        Type consType = tstack.pop();
+                        
+                        if( arity == null || consType == null){
+                            System.out.println("Something wrong here");;
+                        }
+                        
+                        IConstructor cons;
+                        if(annos > 0){
+                            kwParamsOrAnnos = TrieMap_5Bits.transientOf();
+                            for(int i = 0; i < annos; i++){
+                                IValue val = vstack.pop();
+                                IString ikey = (IString) vstack.pop();
+                                kwParamsOrAnnos.__put(ikey.getValue(),  val);
+                            }
+                            cons =  vf.constructor(consType, vstack.getChildren(arity)).asAnnotatable().setAnnotations(kwParamsOrAnnos);
+                        } else if(kwparams > 0){
+                            kwParamsOrAnnos = TrieMap_5Bits.transientOf();
+                            for(int i = 0; i < kwparams; i++){
+                                IValue val = vstack.pop();
+                                IString ikey = (IString) vstack.pop();
+                                kwParamsOrAnnos.__put(ikey.getValue(),  val);
+                            }
+                            cons = vf.constructor(consType, vstack.getChildren(arity), kwParamsOrAnnos);
+                        } else {
+                            cons = vf.constructor(consType, vstack.getChildren(arity));
+                        }
+
+                        pushAndCache(vstack, cons);
+                        break;
+                    }
+
+                    case Ser.DATETIME_VALUE: {
+                        int year = 0;
+                        int month = 0;
+                        int day = 0;
+
+                        int hour = 0;
+                        int minute = 0;
+                        int second = 0;
+                        int millisecond = 0;
+
+                        int timeZoneHourOffset = 0;
+                        int timeZoneMinuteOffset = 0;
+
+                        while (not_at_end()) {
+                            switch(reader.field()){
+                                case Ser.DATETIME_YEAR: year = (int)reader.getLong(); break;
+                                case Ser.DATETIME_MONTH: month = (int)reader.getLong(); break;
+                                case Ser.DATETIME_DAY: day = (int)reader.getLong(); break;
+                                case Ser.DATETIME_HOUR: hour = (int)reader.getLong(); break;
+                                case Ser.DATETIME_MINUTE: minute = (int)reader.getLong(); break;
+                                case Ser.DATETIME_SECOND: second = (int)reader.getLong(); break;
+                                case Ser.DATETIME_MILLISECOND: millisecond = (int)reader.getLong(); break;
+                                case Ser.DATETIME_TZ_HOUR: timeZoneHourOffset = (int)reader.getLong(); break;
+                                case Ser.DATETIME_TZ_MINUTE: timeZoneMinuteOffset = (int)reader.getLong(); break;
+                            }
+                        }
+
+                        pushAndCache(vstack, vf.datetime(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset));
+                        break;
+                    }
+
+                    case Ser.DATE_VALUE: {
+                        int year = 0;
+                        int month = 0;
+                        int day = 0;
+
+                        while (not_at_end()) {
+                            switch(reader.field()){
+                                case Ser.DATE_YEAR: year = (int)reader.getLong(); break;
+                                case Ser.DATE_MONTH: month = (int)reader.getLong(); break;
+                                case Ser.DATE_DAY: day = (int)reader.getLong(); break;
+                            }
+                        }
+
+                        pushAndCache(vstack, vf.datetime(year, month, day));
+                        break;
+                    }
+
+                    case Ser.TIME_VALUE: {
+                        int hour = 0;
+                        int minute = 0;
+                        int second = 0;
+                        int millisecond = 0;
+
+                        int timeZoneHourOffset = 0;
+                        int timeZoneMinuteOffset = 0;
+
+                        while (not_at_end()) {
+                            switch(reader.field()){
+                                case Ser.TIME_HOUR: hour = (int)reader.getLong(); break;
+                                case Ser.TIME_MINUTE: minute = (int)reader.getLong(); break;
+                                case Ser.TIME_SECOND: second = (int)reader.getLong(); break;
+                                case Ser.TIME_MILLISECOND: millisecond = (int)reader.getLong(); break;
+                                case Ser.TIME_TZ_HOUR: timeZoneHourOffset = (int)reader.getLong(); break;
+                                case Ser.TIME_TZ_MINUTE: timeZoneMinuteOffset = (int)reader.getLong(); break;
+                            }
+                        }
+
+                        pushAndCache(vstack, vf.time(hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset));
+                        break;
+                    }
+
+                    case Ser.INT_VALUE: {
+                        Long n = null;
+                        while (not_at_end()) {
+                            if(reader.field() == Ser.INT_INT){
+                                n = reader.getLong();
+                            }
+                        }
+                        
+                        assert n != null;
+
+                        pushAndCache(vstack, vf.integer(n));
+                        break;
+                    }
+
+                    case Ser.BIGINT_VALUE: {
+                        byte[] bytes = null;
+                        while (not_at_end()) {
+                            if(reader.field() == Ser.BIGINT_BIGINT){
+                                bytes = reader.getBytes();
+                            }
+                        }
+
+                        assert bytes != null;
+
+                        pushAndCache(vstack, vf.integer(bytes));
+                        break;
+                    }
+
+                    case Ser.LIST_VALUE: {
+                        Integer size = null;
+                        while (not_at_end()) {
+                            if(reader.field() == Ser.LIST_SIZE){
+                                size = (int) reader.getLong();
+                            }
+                        }
+                        
+                        assert size != null;
+
+                        pushAndCache(vstack, vf.list(vstack.getChildren(size)));
+                        break;
+                    }
+
+                    case Ser.LOC_VALUE: {
+                        String scheme = null;
+                        String authority = "";
+                        String path = "";
+                        String query = null;
+                        String fragment = null;
+                        int previousURI = -1;
+                        int offset = -1;
+                        int length = -1;
+                        int beginLine = -1;
+                        int endLine = -1;
+                        int beginColumn = -1;
+                        int endColumn = -1;
+                        while (not_at_end()) {
+                            switch(reader.field()){
+                                case Ser.LOC_PREVIOUS_URI: previousURI = (int)reader.getLong(); break;
+                                case Ser.LOC_SCHEME: scheme = reader.getString(); break;
+                                case Ser.LOC_AUTHORITY: authority = reader.getString(); break;
+                                case Ser.LOC_PATH: path = reader.getString(); break;
+                                case Ser.LOC_QUERY: query = reader.getString(); break;	
+                                case Ser.LOC_FRAGMENT: fragment = reader.getString(); break;	
+                                case Ser.LOC_OFFSET: offset = (int) reader.getLong(); break;
+                                case Ser.LOC_LENGTH: length = (int) reader.getLong(); break;
+                                case Ser.LOC_BEGINLINE: beginLine = (int) reader.getLong(); break;
+                                case Ser.LOC_ENDLINE: endLine = (int) reader.getLong(); break;
+                                case Ser.LOC_BEGINCOLUMN: beginColumn = (int) reader.getLong(); break;
+                                case Ser.LOC_ENDCOLUMN: endColumn = (int) reader.getLong(); break;
+                            }
+                        }
+                        ISourceLocation loc;
+                        if (previousURI != -1) {
+                            loc = uriWindow.lookBack(previousURI);
+                        } 
+                        else {
+                            loc = vf.sourceLocation(scheme, authority, path, query, fragment);
+                            uriWindow.read(loc);
+                        }
+
+                        if(beginLine >= 0){
+                            assert offset >= 0 && length >= 0 && endLine >= 0 && beginColumn >= 0 && endColumn >= 0;
+                            loc = vf.sourceLocation(loc, offset, length, beginLine, endLine, beginColumn, endColumn);
+                        } else if (offset >= 0){
+                            assert length >= 0;
+                            loc = vf.sourceLocation(loc, offset, length);
+                        }
+
+                        pushAndCache(vstack, loc);
+                        break;
+
+                    }
+                    case Ser.MAP_VALUE:	{
+                        Long size = null;
+                        while (not_at_end()) {
+                            if(reader.field() == Ser.MAP_SIZE){
+                                size = reader.getLong();
+                            }
+                        }
+                        
+                        assert size != null;
+                        
+                        IMapWriter mw = vf.mapWriter();
+                        for(int i = 0; i < size; i++){
+                            IValue val = vstack.pop();
+                            IValue key = vstack.pop();
+                            mw.put(key, val);
+                        }
+
+                        pushAndCache(vstack, mw.done());
+                        break;
+                    }
+
+                    case Ser.NODE_VALUE:	{
+                        String name = null;
+                        Integer arity = null;
+                        int annos = 0;
+                        int kwparams = 0;
+                        TransientMap<String, IValue> kwParamsOrAnnos = null;
+
+                        while (not_at_end()) {
+                            switch(reader.field()){
+                                case Ser.NODE_NAME: name = reader.getString(); break;
+                                case Ser.NODE_ARITY: arity = (int)reader.getLong(); break;
+                                case Ser.NODE_KWPARAMS: kwparams = (int)reader.getLong(); break;
+                                case Ser.NODE_ANNOS: annos = (int)reader.getLong(); break;
+                            }
+                        }
+                        
+                        assert name != null && arity != null;
+                        
+                        INode node;
+                        if(annos > 0){
+                            kwParamsOrAnnos = TrieMap_5Bits.transientOf();
+                            for(int i = 0; i < annos; i++){
+                                IValue val = vstack.pop();
+                                IString ikey = (IString) vstack.pop();
+                                kwParamsOrAnnos.__put(ikey.getValue(),  val);
+                            }
+                            node =  vf.node(name, vstack.getChildren(arity)).asAnnotatable().setAnnotations(kwParamsOrAnnos);
+                        } else if(kwparams > 0){
+                            kwParamsOrAnnos = TrieMap_5Bits.transientOf();
+                            for(int i = 0; i < kwparams; i++){
+                                IValue val = vstack.pop();
+                                IString ikey = (IString) vstack.pop();
+                                kwParamsOrAnnos.__put(ikey.getValue(),  val);
+                            }
+                            node = vf.node(name, vstack.getChildren(arity), kwParamsOrAnnos);
+                        } else {
+                            node = vf.node(name, vstack.getChildren(arity));
+                        }
+
+                        pushAndCache(vstack, node);
+                        break;
+                    }
+
+                    case Ser.RATIONAL_VALUE: {
+                        skip_until_end();
+                        
+                        IInteger denominator = (IInteger) vstack.pop();
+                        IInteger numerator = (IInteger) vstack.pop();
+
+                        pushAndCache(vstack, vf.rational(numerator, denominator));
+                        break;
+                    }
+
+                    case Ser.REAL_VALUE: {
+                        byte[] bytes = null;
+                        int scale = 1;
+
+                        while (not_at_end()) {
+                            switch(reader.field()){
+                                case Ser.REAL_SCALE:
+                                    scale = (int) reader.getLong(); break;
+                                case Ser.REAL_REAL:
+                                    bytes = reader.getBytes(); break;
+                            }
+                        }
+
+                        assert bytes != null;
+
+                        pushAndCache(vstack, vf.real(new BigDecimal(new BigInteger(bytes), scale).toString())); // TODO: Improve this?
+                        break;
+                    }
+
+                    case Ser.SET_VALUE: {
+                        Integer size = 0;
+                        while (not_at_end()) {
+                            if(reader.field() == Ser.SET_SIZE){
+                                size = (int) reader.getLong();
+                            }
+                        }
+
+                        assert size != null;
+                        
+                        pushAndCache(vstack, vf.set(vstack.getChildren(size)));
+                        break;
+                    }
+
+                    case Ser.STR_VALUE: {
+                        String str = null;
+                        while (not_at_end()) {
+                            if(reader.field() == Ser.STR_STR){
+                                str = reader.getString();
+                            }
+                        }
+                        
+                        assert str != null;
+                        
+                        IString istr = vf.string(str);
+                        vstack.push(istr);;
+                        // Already cached at wire level
+                        break;
+                    }
+
+                    case Ser.TUPLE_VALUE: {
+                        Integer len = 0;
+                        while (not_at_end()) {
+                            if(reader.field() == Ser.TUPLE_SIZE){
+                                len = (int) reader.getLong();
+                            }
+                        }
+                        
+                        assert len != null;
+
+                        pushAndCache(vstack, vf.tuple(vstack.getChildren(len)));
+                        break;
+                    }
+
+                    case Ser.PREVIOUS_VALUE: {
+                        Integer n = null;
+                        while(not_at_end()){
+                            if(reader.field() == Ser.PREVIOUS_VALUE_ID){
+                                n = (int) reader.getLong();
+                            }
+                        }
+                        
+                        assert n != null;
+
+                        IValue result = valueWindow.lookBack(n);
+                        if (result == null) {
+                            throw new IOException("Unexpected value cache miss");
+                        }
+                        System.out.println("PREVIOUS value: " + result + ", " + n);
+                        vstack.push(result);    // Dont cache value twice
+                        break;
+                    }
+
+                    default:
+                        throw new IllegalArgumentException("readValue: " + reader.value());
+                }
+            }
+            if(vstack.size() == 1){
+                return vstack.pop();
+            }
+            else {
+                throw new IOException("Premature EOF while reading value 1: " + reader.current());
+            }
+            
+        } catch (IOException e) {
+           if(vstack.size() == 1){
+                return vstack.pop();
+            } else {
+                throw new IOException("Premature EOF while reading value 2: " + reader.current());
+            }
+        }
+    }
 }
 
-class ReaderStack {
-	private IValue[] elements;
+class ReaderStack<E> {
+	private E[] elements;
 	int capacity;
 	private int sp = 0;
+    private final Class<E> eclass;
 
-	ReaderStack(int capacity){
+	@SuppressWarnings("unchecked")
+    ReaderStack(Class<E> eclass, int capacity){
 		this.capacity = (int)Math.max(capacity, 16);
-		elements = new IValue[this.capacity];
+		elements = (E[]) Array.newInstance(eclass, this.capacity);
+		this.eclass = eclass;
 	}
 	
-	public void push(IValue leaf){
+	public void push(E leaf){
 		if(sp == capacity - 1){
 			grow();
 		}
@@ -837,7 +881,7 @@ class ReaderStack {
 		sp++;
 	}
 	
-	public IValue pop(){
+	public E pop(){
 		if(sp > 0){
 			sp--;
 			return elements[sp];
@@ -849,9 +893,10 @@ class ReaderStack {
 		return sp;
 	}
 	
-	public IValue[] getChildren(int childs){
+	@SuppressWarnings("unchecked")
+    public E[] getChildren(int childs){
 		int from = sp - childs;
-		IValue[] children = new IValue[childs];
+		E[] children = (E[]) Array.newInstance(eclass,childs);
 		if(from >= 0){
 			for(int i = 0; i < childs; i++){
 				children[i] = elements[from + i];
@@ -862,11 +907,12 @@ class ReaderStack {
 		throw new RuntimeException("Empty Stack");
 	}
 	
-	private void grow() {
+	@SuppressWarnings("unchecked")
+    private void grow() {
 		int newSize = (int)Math.min(capacity * 2L, 0x7FFFFFF7); // max array size used by array list
 		assert capacity <= newSize;
 		capacity = newSize;
-		IValue[] newElements = new IValue[newSize];
+		E[] newElements = (E[]) Array.newInstance(eclass, newSize);
 		System.arraycopy(elements, 0, newElements, 0, sp);
 		elements = newElements;
 	}
