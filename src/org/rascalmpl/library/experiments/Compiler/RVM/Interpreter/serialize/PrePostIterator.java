@@ -3,14 +3,14 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 
 import java.io.IOException;
 
-public abstract class PrePostIterator<V, K extends IteratorKind>  {
-    protected PositionStack<V, K> stack;
-    protected K kind;
-    protected V value;
+public abstract class PrePostIterator<Item, Kind extends IteratorKind>  {
+    protected PositionStack<Item, Kind> stack;
+    protected Kind kind;
+    protected Item item;
     protected boolean beginning;
 
-    public PrePostIterator(Class<V> vclass, Class<K> kclass, int stackSize) throws IOException {
-        stack = new PositionStack<V, K>(vclass, kclass, stackSize);
+    public PrePostIterator(Class<Item> iclass, Class<Kind> kclass, int stackSize) throws IOException {
+        stack = new PositionStack<Item, Kind>(iclass, kclass, stackSize);
         beginning = false; // start out at fake end
     }
 
@@ -18,9 +18,9 @@ public abstract class PrePostIterator<V, K extends IteratorKind>  {
         return !stack.isEmpty() || (beginning && kind != null && kind.isCompound());
     }
 
-    abstract public K next() throws IOException ;
+    abstract public Kind next() throws IOException ;
     
-    public K skipValue() {
+    public Kind skipValue() {
         assert beginning;
         beginning = false;
         return kind;
@@ -31,12 +31,12 @@ public abstract class PrePostIterator<V, K extends IteratorKind>  {
     }
 
   
-    public K currentKind() {
+    public Kind currentKind() {
         return kind;
     }
 
-    public V getValue() {
-        return value;
+    public Item getValue() {
+        return item;
     }
 
 }

@@ -1,38 +1,37 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.EmptyStackException;
 
-public class PositionStack<V, K extends IteratorKind> {
+public class PositionStack<Item, Kind extends IteratorKind> {
 
-    private K[] kinds;
-    private V[] leafs;
+    private Kind[] kinds;
+    private Item[] items;
     private boolean[] beginnings;
     private int mark = -1;
-    private final Class<V> vclass;
-    private final Class<K> kclass;
+    private final Class<Item> iclass;
+    private final Class<Kind> kclass;
     
-    public PositionStack(Class<V> vclass, Class<K> kclass) {
-        this(vclass, kclass, 1024);
+    public PositionStack(Class<Item> iclass, Class<Kind> kclass) {
+        this(iclass, kclass, 1024);
     }
     
 	@SuppressWarnings("unchecked")
-    public PositionStack(Class<V> vclass, Class<K> kclass, int initialSize) {
-        kinds = (K[]) Array.newInstance(kclass, initialSize);
-        leafs = (V[])  Array.newInstance(vclass,initialSize);
+    public PositionStack(Class<Item> iclass, Class<Kind> kclass, int initialSize) {
+        kinds = (Kind[]) Array.newInstance(kclass, initialSize);
+        items = (Item[])  Array.newInstance(iclass,initialSize);
         beginnings = new boolean[initialSize];
-        this.vclass = vclass;
+        this.iclass = iclass;
         this.kclass = kclass;
     }
 
-    public K currentKind() {
+    public Kind currentKind() {
         assert mark >= 0;
         return kinds[mark];
     }
-    public V currentIValue() {
+    public Item currentItem() {
         assert mark >= 0;
-        return leafs[mark];
+        return items[mark];
     }
     public boolean currentBeginning() {
         assert mark >= 0;
@@ -43,10 +42,10 @@ public class PositionStack<V, K extends IteratorKind> {
         return mark == -1;
     }
     
-    public void push(V leaf, K kind, boolean beginning) {
+    public void push(Item item, Kind kind, boolean beginning) {
         grow(mark + 2);
         mark++;
-        leafs[mark] = leaf;
+        items[mark] = item;
         kinds[mark] = kind;
         beginnings[mark] = beginning;
     }
@@ -62,13 +61,13 @@ public class PositionStack<V, K extends IteratorKind> {
 
     @SuppressWarnings("unchecked")
 	private void grow(int desiredSize) {
-        if (desiredSize > leafs.length) {
-            int newSize = (int)Math.min(leafs.length * 2L, 0x7FFFFFF7); // max array size used by array list
+        if (desiredSize > items.length) {
+            int newSize = (int)Math.min(items.length * 2L, 0x7FFFFFF7); // max array size used by array list
             assert desiredSize <= newSize;
-            V[] newLeafs = (V[])  Array.newInstance(vclass, newSize);
-            System.arraycopy(leafs, 0, newLeafs, 0, mark + 1);
-            leafs = newLeafs;
-            K[] newKinds = (K[]) Array.newInstance(kclass, newSize);
+            Item[] newItems = (Item[])  Array.newInstance(iclass, newSize);
+            System.arraycopy(items, 0, newItems, 0, mark + 1);
+            items = newItems;
+            Kind[] newKinds = (Kind[]) Array.newInstance(kclass, newSize);
             System.arraycopy(kinds, 0, newKinds, 0, mark + 1);
             kinds = newKinds;
             boolean[] newBeginnings = new boolean[newSize];
