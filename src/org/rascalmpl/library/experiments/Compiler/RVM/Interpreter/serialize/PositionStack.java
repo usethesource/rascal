@@ -1,31 +1,36 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.EmptyStackException;
 
-import org.rascalmpl.value.IValue;
+public class PositionStack<V, K extends IteratorKind> {
 
-public class PositionStack {
-
-    private Kind[] kinds;
-    private IValue[] leafs;
+    private K[] kinds;
+    private V[] leafs;
     private boolean[] beginnings;
     private int mark = -1;
+    private final Class<V> vclass;
+    private final Class<K> kclass;
     
-    public PositionStack() {
-        this(1024);
+    public PositionStack(Class<V> vclass, Class<K> kclass) {
+        this(vclass, kclass, 1024);
     }
     
-	public PositionStack(int initialSize) {
-        kinds = (Kind[]) new Kind[initialSize];
-        leafs = (IValue[]) new IValue[initialSize];
+	@SuppressWarnings("unchecked")
+    public PositionStack(Class<V> vclass, Class<K> kclass, int initialSize) {
+        kinds = (K[]) Array.newInstance(kclass, initialSize);
+        leafs = (V[])  Array.newInstance(vclass,initialSize);
         beginnings = new boolean[initialSize];
+        this.vclass = vclass;
+        this.kclass = kclass;
     }
 
-    public Kind currentKind() {
+    public K currentKind() {
         assert mark >= 0;
         return kinds[mark];
     }
-    public IValue currentIValue() {
+    public V currentIValue() {
         assert mark >= 0;
         return leafs[mark];
     }
@@ -38,7 +43,7 @@ public class PositionStack {
         return mark == -1;
     }
     
-    public void push(IValue leaf, Kind kind, boolean beginning) {
+    public void push(V leaf, K kind, boolean beginning) {
         grow(mark + 2);
         mark++;
         leafs[mark] = leaf;
@@ -60,10 +65,10 @@ public class PositionStack {
         if (desiredSize > leafs.length) {
             int newSize = (int)Math.min(leafs.length * 2L, 0x7FFFFFF7); // max array size used by array list
             assert desiredSize <= newSize;
-            IValue[] newLeafs = new IValue[newSize];
+            V[] newLeafs = (V[])  Array.newInstance(vclass, newSize);
             System.arraycopy(leafs, 0, newLeafs, 0, mark + 1);
             leafs = newLeafs;
-            Kind[] newKinds = new Kind[newSize];
+            K[] newKinds = (K[]) Array.newInstance(kclass, newSize);
             System.arraycopy(kinds, 0, newKinds, 0, mark + 1);
             kinds = newKinds;
             boolean[] newBeginnings = new boolean[newSize];
