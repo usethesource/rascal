@@ -40,7 +40,7 @@ public class RSF {
 	
 	public static final int PREVIOUS_VALUE_ID = 1;	// Common field for all values!
 
-	protected static final int BOOL_BOOL = 2;
+	protected static final int BOOL_CONTENT = 2;
 	
 	protected static final int DATETIME_YEAR = 2;
 	protected static final int DATETIME_MONTH = 3;
@@ -63,9 +63,9 @@ public class RSF {
 	protected static final int TIME_TZ_HOUR = 6;
 	protected static final int TIME_TZ_MINUTE = 7;
 	
-	protected static final int INT_INT = 2;
+	protected static final int INT_CONTENT = 2;
 	
-	protected static final int BIGINT_BIGINT = 2;
+	protected static final int BIGINT_CONTENT = 2;
 	
 	protected static final int LOC_PREVIOUS_URI = 2;
 	protected static final int LOC_OFFSET = 3;
@@ -84,10 +84,10 @@ public class RSF {
 	protected static final int RAT_NUMERATOR = 2;
 	protected static final int RAT_DENOMINATOR = 3;
 	
-	public static final int REAL_REAL = 2;
+	public static final int REAL_CONTENT = 2;
 	public static final int REAL_SCALE = 3;
 	
-	protected static final int STR_STR = 2;
+	protected static final int STR_CONTENT = 2;
 	
 	public static final int CONSTRUCTOR_ARITY = 2;
 	public static final int CONSTRUCTOR_KWPARAMS = 3;
@@ -156,7 +156,6 @@ public class RSF {
     
     protected static final int MAP_KEY_LABEL = 2;
     protected static final int MAP_VAL_LABEL = 3;
-    
     
     protected static final int OVERLOADED_SIZE = 2;
     

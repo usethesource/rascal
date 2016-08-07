@@ -396,7 +396,7 @@ public class RSFIValueWriter {
 				IBool b = (IBool) it.getValue();
 				if(!inCache(b)){
 					writer.startValue(RSF.BOOL_VALUE);
-					writer.writeField(RSF.BOOL_BOOL, b.getValue() ? 1 : 0);
+					writer.writeField(RSF.BOOL_CONTENT, b.getValue() ? 1 : 0);
 					endAndCacheValue(b);
 				}
 				break;
@@ -475,11 +475,11 @@ public class RSFIValueWriter {
 					if(ii.greaterEqual(minInt).getValue() && ii.lessEqual(maxInt).getValue()){
 						int n = ii.intValue();
 						writer.startValue(RSF.INT_VALUE);
-						writer.writeField(RSF.INT_INT, n);
+						writer.writeField(RSF.INT_CONTENT, n);
 					} else {
 						writer.startValue(RSF.BIGINT_VALUE);
 						byte[] valueData = ii.getTwosComplementRepresentation();
-						writer.writeField(RSF.BIGINT_BIGINT, valueData);
+						writer.writeField(RSF.BIGINT_CONTENT, valueData);
 					}
 					endAndCacheValue(ii);
 				}
@@ -558,7 +558,7 @@ public class RSFIValueWriter {
 				if(!inCache(real)){
 					writer.startValue(RSF.REAL_VALUE);
 					byte[] valueData = real.unscaled().getTwosComplementRepresentation();
-					writer.writeField(RSF.REAL_REAL, valueData);
+					writer.writeField(RSF.REAL_CONTENT, valueData);
 					writer.writeField(RSF.REAL_SCALE, real.scale());
 					endAndCacheValue(real);
 				}
@@ -627,7 +627,7 @@ public class RSFIValueWriter {
 				
 				IString str = (IString) it.getValue();
 				writer.startValue(RSF.STR_VALUE);
-				writer.writeField(RSF.STR_STR, str.getValue());
+				writer.writeField(RSF.STR_CONTENT, str.getValue());
 				writer.endValue();
 				// Already cached at wire level
 				break;
