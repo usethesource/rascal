@@ -5,8 +5,15 @@ import java.lang.ref.SoftReference;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.PositionStack;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSF;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFIValueWriter;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFWriter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableReader;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableWriter;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.TypeIteratorKind;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.ValueIteratorKind;
+import org.rascalmpl.value.IAnnotatable;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
@@ -16,8 +23,10 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.IWithKeywordParameters;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.value.visitors.IValueVisitor;
 
 /**
  * Function contains all data needed for a single RVM function
@@ -26,7 +35,7 @@ import org.rascalmpl.value.type.TypeStore;
  * all fields declared here are synced with the serializer.
  */
 
-public class Function  {
+public class Function  implements IValue {
 //	private static final long serialVersionUID = -1741144671553091111L;
 	
 	String name;
@@ -444,4 +453,167 @@ public class Function  {
 		func.funId = funId;
 		return func;
 	}
+	
+	public void writeTypes(RSFIValueWriter writer) throws IOException {
+	    // Write embedded types in reverse order
+
+	    // Type[] typeConstantStore;
+	    int n = typeConstantStore.length;
+
+	    for(int i = n - 1; i >= 0; i--){
+	        writer.writeType(typeConstantStore[i]);
+	    }
+
+	    writer.writeType(ftype);
+	}
+	
+	public void writeValues(RSFIValueWriter writer) throws IOException {
+	    // Write embedded values in reverse order
+	    writer.writeValue(codeblock);
+	}
+
+	public void nextValues(PositionStack<IValue, ValueIteratorKind> stack) throws IOException {
+
+	    // Push embedded values in reverse order for iterator
+
+	    stack.push(localNames, ValueIteratorKind.getKind(localNames), true);
+
+	    stack.push(src, ValueIteratorKind.getKind(src), true);
+
+	    // IValue[] constantStore;
+	    int n = constantStore.length;
+
+	    for(int i = n - 1; i >= 0; i--){
+	        IValue elm = constantStore[i];
+	        stack.push(elm, ValueIteratorKind.getKind(elm), true);
+	    }
+	}
+
+	public void writeRSF(RSFWriter writer)  throws IOException {
+
+	    // Already written (in this order):
+
+	    // CodeBlock codeblock;
+	    // Type[] typeConstantStore;
+
+	    // IMap localNames;
+	    // ISourceLocation src;
+	    // IValue[] constantStore;
+
+	    writer.startValue(RSF.RVM_FUNCTION_VALUE);
+	    // String name;
+	    writer.writeField(RSF.RVM_FUNCTION_NAME, name);
+
+	    // Type ftype;
+	    //writer.writeType(ftype);
+
+	    // int scopeId;
+	    writer.writeField(RSF.RVM_FUNCTION_SCOPE_ID, scopeId);
+
+	    // private String funIn;
+	    writer.writeField(RSF.RVM_FUNCTION_FUN_IN, funIn);
+
+	    // int scopeIn = -1;
+	    writer.writeField(RSF.RVM_FUNCTION_SCOPE_IN, scopeIn);
+
+	    // int nformals;
+	    writer.writeField(RSF.RVM_FUNCTION_NFORMALS, nformals);
+
+	    // int nlocals;
+	    writer.writeField(RSF.RVM_FUNCTION_NLOCALS, getNlocals());
+
+	    // boolean isDefault;
+	    writer.writeField(RSF.RVM_FUNCTION_IS_DEFAULT, isDefault);
+
+	    // int maxstack;
+	    writer.writeField(RSF.RVM_FUNCTION_MAX_STACK, maxstack);
+
+	    // boolean concreteArg = false;
+	    writer.writeField(RSF.RVM_FUNCTION_CONCRETE_ARG, concreteArg);
+
+	    // int abstractFingerprint = 0;
+	    writer.writeField(RSF.RVM_FUNCTION_ABSTRACT_FINGERPRINT, abstractFingerprint);
+
+	    // int concreteFingerprint = 0;
+	    writer.writeField(RSF.RVM_FUNCTION_CONCRETE_FINGERPRINT, concreteFingerprint);
+
+	    // int[] froms;
+	    writer.writeField(RSF.RVM_FUNCTION_FROMS, froms);
+
+	    // int[] tos;
+	    writer.writeField(RSF.RVM_FUNCTION_TOS, tos);
+
+	    // int[] types;
+	    writer.writeField(RSF.RVM_FUNCTION_TYPES, types);
+
+	    // int[] handlers;
+	    writer.writeField(RSF.RVM_FUNCTION_HANDLERS, handlers);
+
+	    // int[] fromSPs;
+	    writer.writeField(RSF.RVM_FUNCTION_FROM_SPS, fromSPs);
+
+	    // int lastHandler = -1;
+	    writer.writeField(RSF.RVM_FUNCTION_LAST_HANDLER, lastHandler);
+
+	    //public Integer funId; 
+	    writer.writeField(RSF.RVM_FUNCTION_FUN_ID, funId);
+
+	    // boolean isCoroutine = false;
+	    writer.writeField(RSF.RVM_FUNCTION_IS_COROUTINE, isCoroutine);
+
+	    // int[] refs;
+	    writer.writeField(RSF.RVM_FUNCTION_REFS, refs);
+
+	    // boolean isVarArgs = false;
+	    writer.writeField(RSF.RVM_FUNCTION_IS_VARARGS, isVarArgs);
+
+	    // int continuationPoints
+	    writer.writeField(RSF.RVM_FUNCTION_CONTINUATION_POINTS, continuationPoints);
+	}
+	
+    @Override
+    public <T, E extends Throwable> T accept(IValueVisitor<T, E> arg0) throws E {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public IAnnotatable<? extends IValue> asAnnotatable() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Type getType() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public boolean isAnnotatable() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean isEqual(IValue arg0) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public boolean mayHaveKeywordParameters() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+   
+
+ 
 }

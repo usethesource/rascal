@@ -10,6 +10,7 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.MapLastWritten;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.TrackLastWritten;
 import org.rascalmpl.value.IBool;
@@ -34,8 +35,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
         	
 /**
- * RVMIValueWriter is a binary serializer for IValues and Types. The main public functions are:
- * - writeType
+ * RSFIValueWriter is a binary serializer for IValues and Types. The main public functions is:
  * - writeValue
  */
 	        
@@ -86,20 +86,22 @@ public class RSFIValueWriter {
 		basicOut.close();
 	}
 	
-	RSFWriter getWriter() {
+	public RSFWriter getWriter() {
 		return writer;
 	}
+	
+	
 	
 	private void writeAtomicType(int valId) throws IOException{
 		writer.startValue(valId);
 		writer.endValue();
 	}
 	
-	void writeName(int fieldId, String name) throws IOException{
+	private void writeName(int fieldId, String name) throws IOException{
 			writer.writeField(fieldId, name);
 	}
 	
-	void writeNames(int fieldId, String[] names) throws IOException{
+	public void writeNames(int fieldId, String[] names) throws IOException{
 		int n = names.length;
 		writer.writeField(fieldId, n);
 		for(int i = 0; i < n; i++){
@@ -107,7 +109,7 @@ public class RSFIValueWriter {
 		}
 	}
 	
-	boolean inCache(Type type) throws IOException{
+	private boolean inCache(Type type) throws IOException{
 	    if(doCaching){
 	        int id = typeCache.howLongAgo(type);
 	        if(id > -1){
@@ -121,12 +123,12 @@ public class RSFIValueWriter {
 	    return false;
 	}
 	
-	void endAndCacheType(Type type) throws IOException{
+	private void endAndCacheType(Type type) throws IOException{
         writer.endValue();
         typeCache.write(type);
     }
 	
-	 void writeType(Type t) throws IOException {
+	 public void writeType(Type t) throws IOException {
 	    PrePostTypeIterator it = new PrePostTypeIterator(t);
 	    
 	    while(it.hasNext()){
@@ -362,7 +364,7 @@ public class RSFIValueWriter {
 	    }
 	}
 	
-	 boolean inCache(IValue v) throws IOException{
+	private boolean inCache(IValue v) throws IOException{
 	     if(doCaching){
 	         int id = valueCache.howLongAgo(v);
 	         if(id > -1){
@@ -375,7 +377,7 @@ public class RSFIValueWriter {
 	     return false;
 	 }
 	
-	void endAndCacheValue(IValue v) throws IOException{
+	private void endAndCacheValue(IValue v) throws IOException{
 		writer.endValue();
 		valueCache.write(v);
 	}
@@ -432,38 +434,23 @@ public class RSFIValueWriter {
 				
 				IDateTime dateTime = (IDateTime) it.getValue();
 				if(!inCache(dateTime)){
-						if(dateTime.isDateTime()){
-						writer.startValue(RSF.DATETIME_VALUE);
-						
-						writer.writeField(RSF.DATETIME_YEAR, dateTime.getYear());
-						writer.writeField(RSF.DATETIME_MONTH, dateTime.getMonthOfYear());
-						writer.writeField(RSF.DATETIME_DAY, dateTime.getDayOfMonth());
-						
-						writer.writeField(RSF.DATETIME_HOUR, dateTime.getHourOfDay());
-						writer.writeField(RSF.DATETIME_MINUTE, dateTime.getMinuteOfHour());
-						writer.writeField(RSF.DATETIME_SECOND, dateTime.getSecondOfMinute());
-						writer.writeField(RSF.DATETIME_MILLISECOND, dateTime.getMillisecondsOfSecond());
-						
-						writer.writeField(RSF.DATETIME_TZ_HOUR, dateTime.getTimezoneOffsetHours());
-						writer.writeField(RSF.DATETIME_TZ_MINUTE, dateTime.getTimezoneOffsetMinutes());
-					} else if(dateTime.isDate()){
-						writer.startValue(RSF.DATE_VALUE);
-						
-						writer.writeField(RSF.DATE_YEAR, dateTime.getYear());
-						writer.writeField(RSF.DATE_MONTH, dateTime.getMonthOfYear());
-						writer.writeField(RSF.DATE_DAY, dateTime.getDayOfMonth());
-					} else {
-						writer.startValue(RSF.TIME_VALUE);
-						
-						writer.writeField(RSF.TIME_HOUR, dateTime.getHourOfDay());
-						writer.writeField(RSF.TIME_MINUTE, dateTime.getMinuteOfHour());
-						writer.writeField(RSF.TIME_SECOND, dateTime.getSecondOfMinute());
-						writer.writeField(RSF.TIME_MILLISECOND, dateTime.getMillisecondsOfSecond());
-						
-						writer.writeField(RSF.TIME_TZ_HOUR, dateTime.getTimezoneOffsetHours());
-						writer.writeField(RSF.TIME_TZ_MINUTE, dateTime.getTimezoneOffsetMinutes());
-					}
-					endAndCacheValue(dateTime);
+				    writer.startValue(RSF.DATETIME_VALUE);
+				    writer.writeField(RSF.DATETIME_VARIANT, 
+				            dateTime.isDateTime() ? RSF.DATETIME_VARIANT_DATETIME : 
+				                (dateTime.isDate() ? RSF.DATETIME_VARIANT_DATE : RSF.DATETIME_VARIANT_TIME));
+
+				    writer.writeField(RSF.DATETIME_YEAR, dateTime.getYear());
+				    writer.writeField(RSF.DATETIME_MONTH, dateTime.getMonthOfYear());
+				    writer.writeField(RSF.DATETIME_DAY, dateTime.getDayOfMonth());
+
+				    writer.writeField(RSF.DATETIME_HOUR, dateTime.getHourOfDay());
+				    writer.writeField(RSF.DATETIME_MINUTE, dateTime.getMinuteOfHour());
+				    writer.writeField(RSF.DATETIME_SECOND, dateTime.getSecondOfMinute());
+				    writer.writeField(RSF.DATETIME_MILLISECOND, dateTime.getMillisecondsOfSecond());
+
+				    writer.writeField(RSF.DATETIME_TZ_HOUR, dateTime.getTimezoneOffsetHours());
+				    writer.writeField(RSF.DATETIME_TZ_MINUTE, dateTime.getTimezoneOffsetMinutes());
+				    endAndCacheValue(dateTime);
 				}
 				break;
 			}
@@ -472,14 +459,13 @@ public class RSFIValueWriter {
 				assert it.atBeginning();
 				IInteger ii = (IInteger) it.getValue();
 				if(!inCache(ii)){
+				    writer.startValue(RSF.INT_VALUE);
 					if(ii.greaterEqual(minInt).getValue() && ii.lessEqual(maxInt).getValue()){
 						int n = ii.intValue();
-						writer.startValue(RSF.INT_VALUE);
-						writer.writeField(RSF.INT_CONTENT, n);
+						writer.writeField(RSF.INT_SMALL, n);
 					} else {
-						writer.startValue(RSF.BIGINT_VALUE);
 						byte[] valueData = ii.getTwosComplementRepresentation();
-						writer.writeField(RSF.BIGINT_CONTENT, valueData);
+						writer.writeField(RSF.INT_BIG, valueData);
 					}
 					endAndCacheValue(ii);
 				}
@@ -646,12 +632,19 @@ public class RSFIValueWriter {
 				}
 				break;
 			}
+			
+			case RVM_FUNCTION: {
+			    Function fun = (Function) it.getValue();
+			    if(!it.atBeginning()){
+			        fun.writeTypes(this);
+			        fun.writeValues(this);
+			        fun.writeRSF(writer);
+			    }
+			}
 			default:
 				 throw new RuntimeException("writeValue: unexpected kind of value " + kind);
 			}
 		}
-//		writer.startValue(SValue.END_OF_VALUE);
-//		writer.endValue();
 	}
 	
   // Test code

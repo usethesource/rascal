@@ -28,7 +28,13 @@ public enum ValueIteratorKind implements IteratorKind {
 	MAP            (true), 
 	NODE           (true), 
 	SET            (true), 
-	TUPLE          (true);
+	TUPLE          (true),
+	
+	RVM_FUNCTION   (true),
+	RVM_OVERLOADED_FUNCTION 
+	               (true),
+	RVM_CODEBLOCK  (true),
+	RVM_EXECUTABLE (true);
 	
 	private boolean compound;
 
