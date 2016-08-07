@@ -6,18 +6,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.*;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFExecutableWriter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableReader;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableWriter;
-import org.rascalmpl.value.IAnnotatable;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.IWithKeywordParameters;
 import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.visitors.IValueVisitor;
 
 /**
  * CodeBlock contains all instructions needed for a single RVM function
@@ -25,7 +23,7 @@ import org.rascalmpl.value.visitors.IValueVisitor;
  * CodeBlock is serialized by write/read methods defined in this class, make sure that
  * all fields declared here are synced with the serializer.
  */
-public class CodeBlock  implements IValue {
+public class CodeBlock  {
 	
 	// Transient fields
 	transient public IValueFactory vf;
@@ -279,6 +277,7 @@ public class CodeBlock  implements IValue {
 	public final static int maxArg1 = (int) ((1L << sizeArg1) - 1);
 	public final static int maxArg2 = (int) ((1L << sizeArg2) - 1);
 	public final static int maxArg = Math.min(maxArg1,maxArg2);
+  
 
 	public final static long encode0(int op){
 		return op;
@@ -967,48 +966,120 @@ public class CodeBlock  implements IValue {
 		return new CodeBlock(name, constantMap, constantStore, finalConstantStore, typeConstantMap, typeConstantStore, finalTypeConstantStore, 
 				functionMap, resolver, constructorMap, finalCode);
 	}
+	
+	private static final int RVM_CODEBLOCK_NAME = 1;
+	private static final int RVM_CODEBLOCK_CONSTANT_STORE = 2;
+	private static final int RVM_CODEBLOCK_TYPE_CONSTANT_STORE = 3;
+	private static final int RVM_CODEBLOCK_FUNCTION_MAP = 4;
+	private static final int RVM_CODEBLOCK_RESOLVER = 5;
+	private static final int RVM_CODEBLOCK_CONSTRUCTOR_MAP = 6;
+	private static final int RVM_CODEBLOCK_FINAL_CODE = 7;
+	
+	public void writeRSF(RSFExecutableWriter writer) throws IOException {
+        int n;
 
-    @Override
-    public <T, E extends Throwable> T accept(IValueVisitor<T, E> arg0) throws E {
-        // TODO Auto-generated method stub
-        return null;
+//        // private String name;
+//
+//        writer.writeField(RVM_CODEBLOCK_NAME, name);
+//
+//        // private Map<IValue, Integer> constantMap;    
+//        // private ArrayList<IValue> constantStore; (
+//        // private IValue[] finalConstantStore;
+//
+//        n = finalConstantStore.length;
+//        writer.writeField(RVM_CODEBLOCK_CONSTANT_STORE, n);
+//        for(int i = 0; i < n; i++){
+//            writer.writeValue(finalConstantStore[i]);
+//        }
+//
+//        // private Map<Type, Integer> typeConstantMap;
+//        // private ArrayList<Type> typeConstantStore;
+//        // private Type[] finalTypeConstantStore;
+//
+//        n = finalTypeConstantStore.length;
+//        writer.writeField(RVM_CODEBLOCK_TYPE_CONSTANT_STORE, n);
+//        for(int i = 0; i < n; i++){
+//            writer.writeType(finalTypeConstantStore[i]);
+//        }   
+//
+//        // private Map<String, Integer> functionMap;
+//
+//        writer.writeField(RVM_CODEBLOCK_FUNCTION_MAP, functionMap);
+//
+//        // private Map<String, Integer> resolver;
+//
+//        writer.writeField(RVM_CODEBLOCK_RESOLVER, resolver);
+//
+//        // private Map<String, Integer> constructorMap;
+//
+//        writer.writeField(RVM_CODEBLOCK_CONSTRUCTOR_MAP, constructorMap);
+//
+//        // public int[] finalCode;
+//
+//        writer.writeField(RVM_CODEBLOCK_FINAL_CODE, finalCode);
+    }
+    
+    public static CodeBlock readRSF(RVMExecutableReader in) throws IOException 
+    {
+        int n;
+
+        // private String name;
+
+        String name = (String) in.readJString();
+
+        // private Map<IValue, Integer> constantMap;    
+        // private ArrayList<IValue> constantStore; 
+        // private IValue[] finalConstantStore;
+
+        n = in.readInt();
+        Map<IValue,Integer> constantMap = new HashMap<IValue, Integer> ();
+        ArrayList<IValue> constantStore = new ArrayList<IValue>();
+        IValue[] finalConstantStore = new IValue[n];
+
+        for(int i = 0; i < n; i++){
+            IValue val = in.readValue();
+            constantMap.put(val, i);
+            constantStore.add(i, val);
+            finalConstantStore[i] = val;
+        }
+
+        // private Map<Type, Integer> typeConstantMap;
+        // private ArrayList<Type> typeConstantStore;   
+        // private Type[] finalTypeConstantStore;
+        
+        n = in.readInt();
+        Map<Type, Integer> typeConstantMap = new HashMap<Type, Integer>();
+        ArrayList<Type> typeConstantStore = new ArrayList<Type>();
+        Type[] finalTypeConstantStore = new Type[n];
+
+        for(int i = 0; i < n; i++){
+
+            Type type = in.readType();
+            typeConstantMap.put(type, i);
+            typeConstantStore.add(i, type);
+            finalTypeConstantStore[i] = type;
+        }   
+
+        // private Map<String, Integer> functionMap;
+        
+        Map<String, Integer> functionMap =  in.readMapStringInt();
+
+        // private Map<String, Integer> resolver;
+        
+        Map<String, Integer> resolver = in.readMapStringInt();
+
+        // private Map<String, Integer> constructorMap;
+        
+        Map<String, Integer> constructorMap = in.readMapStringInt();
+
+        // public int[] finalCode;
+        
+        long[] finalCode = in.readLongArray();
+
+        return new CodeBlock(name, constantMap, constantStore, finalConstantStore, typeConstantMap, typeConstantStore, finalTypeConstantStore, 
+                functionMap, resolver, constructorMap, finalCode);
     }
 
-    @Override
-    public IAnnotatable<? extends IValue> asAnnotatable() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Type getType() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public boolean isAnnotatable() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean isEqual(IValue arg0) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean mayHaveKeywordParameters() {
-        // TODO Auto-generated method stub
-        return false;
-    }
 }
 
 class LabelInfo {
