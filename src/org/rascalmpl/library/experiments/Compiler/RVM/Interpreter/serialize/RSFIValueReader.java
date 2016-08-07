@@ -32,8 +32,7 @@ import io.usethesource.capsule.TransientMap;
 import io.usethesource.capsule.TrieMap_5Bits;
 
 /**
- * NewRVMIValueReader is a binary deserializer for IValues and Types. The main public functions are:
- * - readType
+ * RSFIValueReader is a binary deserializer for IValues and Types. The main public function is:
  * - readValue
  */
 
@@ -78,13 +77,13 @@ public class RSFIValueReader {
 		return reader;
 	}
 
-	String readName() throws IOException{
+	private String readName() throws IOException{
 		// TODO: add assert
 		reader.next();
 		return reader.getString();
 	}
 	
-	String[] readNames() throws IOException{
+	public String[] readNames() throws IOException{
 		reader.next();
 		int n = (int)reader.getLong();
 		String[] names = new String[n];
@@ -102,12 +101,12 @@ public class RSFIValueReader {
 		while (not_at_end());
 	}
 	
-	void pushAndCache(ReaderStack<Type> stack, Type type) throws IOException{
+	private void pushAndCache(ReaderStack<Type> stack, Type type) throws IOException{
 	    stack.push(type);
 	    typeWindow.read(type);
 	}
 
-    void pushAndCache(ReaderStack<IValue> stack, IValue v) throws IOException{
+    private void pushAndCache(ReaderStack<IValue> stack, IValue v) throws IOException{
 		stack.push(v);
 		valueWindow.read(v);
 	}
@@ -520,20 +519,22 @@ public class RSFIValueReader {
                     }
 
                     case RSF.DATETIME_VALUE: {
-                        int year = 0;
-                        int month = 0;
-                        int day = 0;
+                        Integer variant = null;
+                        Integer year = null;;
+                        Integer month = null;
+                        Integer day = null;
 
-                        int hour = 0;
-                        int minute = 0;
-                        int second = 0;
-                        int millisecond = 0;
+                        Integer hour = null;
+                        Integer minute = null;
+                        Integer second = null;
+                        Integer millisecond = null;
 
-                        int timeZoneHourOffset = 0;
-                        int timeZoneMinuteOffset = 0;
+                        Integer timeZoneHourOffset = null;
+                        Integer timeZoneMinuteOffset = null;
 
                         while (not_at_end()) {
                             switch(reader.field()){
+                                case RSF.DATETIME_VARIANT: variant = (int)reader.getLong(); break;
                                 case RSF.DATETIME_YEAR: year = (int)reader.getLong(); break;
                                 case RSF.DATETIME_MONTH: month = (int)reader.getLong(); break;
                                 case RSF.DATETIME_DAY: day = (int)reader.getLong(); break;
@@ -545,77 +546,42 @@ public class RSFIValueReader {
                                 case RSF.DATETIME_TZ_MINUTE: timeZoneMinuteOffset = (int)reader.getLong(); break;
                             }
                         }
-
-                        pushAndCache(vstack, vf.datetime(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset));
-                        break;
-                    }
-
-                    case RSF.DATE_VALUE: {
-                        int year = 0;
-                        int month = 0;
-                        int day = 0;
-
-                        while (not_at_end()) {
-                            switch(reader.field()){
-                                case RSF.DATE_YEAR: year = (int)reader.getLong(); break;
-                                case RSF.DATE_MONTH: month = (int)reader.getLong(); break;
-                                case RSF.DATE_DAY: day = (int)reader.getLong(); break;
-                            }
+                        
+                        assert variant != null;
+                        
+                        switch(variant){
+                            case  RSF.DATETIME_VARIANT_DATETIME:
+                                pushAndCache(vstack, vf.datetime(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset));
+                                break;
+                            case RSF.DATETIME_VARIANT_DATE:
+                                pushAndCache(vstack, vf.datetime(year, month, day));
+                                break;
+                            case RSF.DATETIME_VARIANT_TIME:
+                                pushAndCache(vstack, vf.time(hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset));
+                                break;
                         }
 
-                        pushAndCache(vstack, vf.datetime(year, month, day));
-                        break;
-                    }
-
-                    case RSF.TIME_VALUE: {
-                        int hour = 0;
-                        int minute = 0;
-                        int second = 0;
-                        int millisecond = 0;
-
-                        int timeZoneHourOffset = 0;
-                        int timeZoneMinuteOffset = 0;
-
-                        while (not_at_end()) {
-                            switch(reader.field()){
-                                case RSF.TIME_HOUR: hour = (int)reader.getLong(); break;
-                                case RSF.TIME_MINUTE: minute = (int)reader.getLong(); break;
-                                case RSF.TIME_SECOND: second = (int)reader.getLong(); break;
-                                case RSF.TIME_MILLISECOND: millisecond = (int)reader.getLong(); break;
-                                case RSF.TIME_TZ_HOUR: timeZoneHourOffset = (int)reader.getLong(); break;
-                                case RSF.TIME_TZ_MINUTE: timeZoneMinuteOffset = (int)reader.getLong(); break;
-                            }
-                        }
-
-                        pushAndCache(vstack, vf.time(hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset));
                         break;
                     }
 
                     case RSF.INT_VALUE: {
-                        Long n = null;
+                        Long small = null;
+                        byte[] big = null;
                         while (not_at_end()) {
-                            if(reader.field() == RSF.INT_CONTENT){
-                                n = reader.getLong();
+                            switch(reader.field()){
+                                case RSF.INT_SMALL:  small = reader.getLong(); break;
+                                case RSF.INT_BIG:    big = reader.getBytes(); break;
                             }
                         }
                         
-                        assert n != null;
-
-                        pushAndCache(vstack, vf.integer(n));
-                        break;
-                    }
-
-                    case RSF.BIGINT_VALUE: {
-                        byte[] bytes = null;
-                        while (not_at_end()) {
-                            if(reader.field() == RSF.BIGINT_CONTENT){
-                                bytes = reader.getBytes();
-                            }
+                        if(small != null){
+                            pushAndCache(vstack, vf.integer(small));
+                        } else if(big != null){
+                            pushAndCache(vstack, vf.integer(big));
+                        } else {
+                            throw new RuntimeException("Missing field in INT_VALUE");
                         }
 
-                        assert bytes != null;
-
-                        pushAndCache(vstack, vf.integer(bytes));
                         break;
                     }
 
@@ -860,28 +826,28 @@ public class RSFIValueReader {
     }
 }
 
-class ReaderStack<E> {
-	private E[] elements;
+class ReaderStack<Elem> {
+	private Elem[] elements;
 	int capacity;
 	private int sp = 0;
-    private final Class<E> eclass;
+    private final Class<Elem> eclass;
 
 	@SuppressWarnings("unchecked")
-    ReaderStack(Class<E> eclass, int capacity){
+    ReaderStack(Class<Elem> eclass, int capacity){
 		this.capacity = (int)Math.max(capacity, 16);
-		elements = (E[]) Array.newInstance(eclass, this.capacity);
+		elements = (Elem[]) Array.newInstance(eclass, this.capacity);
 		this.eclass = eclass;
 	}
 	
-	public void push(E leaf){
+	public void push(Elem elem){
 		if(sp == capacity - 1){
 			grow();
 		}
-		elements[sp] = leaf;
+		elements[sp] = elem;
 		sp++;
 	}
 	
-	public E pop(){
+	public Elem pop(){
 		if(sp > 0){
 			sp--;
 			return elements[sp];
@@ -894,11 +860,11 @@ class ReaderStack<E> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public E[] getChildren(int childs){
-	    int from = sp - childs;
-	    E[] children = (E[]) Array.newInstance(eclass,childs);
+	public Elem[] getChildren(int arity){
+	    int from = sp - arity;
+	    Elem[] children = (Elem[]) Array.newInstance(eclass, arity);
 	    if(from >= 0){
-	        System.arraycopy(elements, from, children, 0, childs);
+	        System.arraycopy(elements, from, children, 0, arity);
 	        sp = from;
 	        return children;
 	    }
@@ -910,7 +876,7 @@ class ReaderStack<E> {
 		int newSize = (int)Math.min(capacity * 2L, 0x7FFFFFF7); // max array size used by array list
 		assert capacity <= newSize;
 		capacity = newSize;
-		E[] newElements = (E[]) Array.newInstance(eclass, newSize);
+		Elem[] newElements = (Elem[]) Array.newInstance(eclass, newSize);
 		System.arraycopy(elements, 0, newElements, 0, sp);
 		elements = newElements;
 	}
