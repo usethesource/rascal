@@ -466,11 +466,6 @@ public class Function  implements IValue {
 
 	    writer.writeType(ftype);
 	}
-	
-	public void writeValues(RSFIValueWriter writer) throws IOException {
-	    // Write embedded values in reverse order
-	    writer.writeValue(codeblock);
-	}
 
 	public void nextValues(PositionStack<IValue, ValueIteratorKind> stack) throws IOException {
 
@@ -489,6 +484,31 @@ public class Function  implements IValue {
 	    }
 	}
 
+	public static final int RVM_FUNCTION_VALUE = 15;
+
+	public static final int RVM_FUNCTION_NAME = 2;
+	public static final int RVM_FUNCTION_SCOPE_ID = 3;
+	public static final int RVM_FUNCTION_FUN_IN = 4;
+	public static final int RVM_FUNCTION_SCOPE_IN = 5;
+	public static final int RVM_FUNCTION_NFORMALS = 6;
+	public static final int RVM_FUNCTION_NLOCALS = 7;
+	public static final int RVM_FUNCTION_IS_DEFAULT = 8;
+	public static final int RVM_FUNCTION_MAX_STACK = 9;
+	public static final int RVM_FUNCTION_CONCRETE_ARG = 10;
+	public static final int RVM_FUNCTION_ABSTRACT_FINGERPRINT = 11;
+	public static final int RVM_FUNCTION_CONCRETE_FINGERPRINT = 12;
+	public static final int RVM_FUNCTION_FROMS = 13;
+	public static final int RVM_FUNCTION_TOS = 14;
+	public static final int RVM_FUNCTION_TYPES = 15;
+	public static final int RVM_FUNCTION_HANDLERS = 16;
+	public static final int RVM_FUNCTION_FROM_SPS = 17;
+	public static final int RVM_FUNCTION_LAST_HANDLER = 18;
+	public static final int RVM_FUNCTION_FUN_ID = 19;
+	public static final int RVM_FUNCTION_IS_COROUTINE = 20;
+	public static final int RVM_FUNCTION_REFS = 21;
+	public static final int RVM_FUNCTION_IS_VARARGS = 22;
+	public static final int RVM_FUNCTION_CONTINUATION_POINTS = 23;
+
 	public void writeRSF(RSFWriter writer)  throws IOException {
 
 	    // Already written (in this order):
@@ -500,75 +520,75 @@ public class Function  implements IValue {
 	    // ISourceLocation src;
 	    // IValue[] constantStore;
 
-	    writer.startValue(RSF.RVM_FUNCTION_VALUE);
+	    writer.startValue(RVM_FUNCTION_VALUE);
 	    // String name;
-	    writer.writeField(RSF.RVM_FUNCTION_NAME, name);
+	    writer.writeField(RVM_FUNCTION_NAME, name);
 
 	    // Type ftype;
 	    //writer.writeType(ftype);
 
 	    // int scopeId;
-	    writer.writeField(RSF.RVM_FUNCTION_SCOPE_ID, scopeId);
+	    writer.writeField(RVM_FUNCTION_SCOPE_ID, scopeId);
 
 	    // private String funIn;
-	    writer.writeField(RSF.RVM_FUNCTION_FUN_IN, funIn);
+	    writer.writeField(RVM_FUNCTION_FUN_IN, funIn);
 
 	    // int scopeIn = -1;
-	    writer.writeField(RSF.RVM_FUNCTION_SCOPE_IN, scopeIn);
+	    writer.writeField(RVM_FUNCTION_SCOPE_IN, scopeIn);
 
 	    // int nformals;
-	    writer.writeField(RSF.RVM_FUNCTION_NFORMALS, nformals);
+	    writer.writeField(RVM_FUNCTION_NFORMALS, nformals);
 
 	    // int nlocals;
-	    writer.writeField(RSF.RVM_FUNCTION_NLOCALS, getNlocals());
+	    writer.writeField(RVM_FUNCTION_NLOCALS, getNlocals());
 
 	    // boolean isDefault;
-	    writer.writeField(RSF.RVM_FUNCTION_IS_DEFAULT, isDefault);
+	    writer.writeField(RVM_FUNCTION_IS_DEFAULT, isDefault);
 
 	    // int maxstack;
-	    writer.writeField(RSF.RVM_FUNCTION_MAX_STACK, maxstack);
+	    writer.writeField(RVM_FUNCTION_MAX_STACK, maxstack);
 
 	    // boolean concreteArg = false;
-	    writer.writeField(RSF.RVM_FUNCTION_CONCRETE_ARG, concreteArg);
+	    writer.writeField(RVM_FUNCTION_CONCRETE_ARG, concreteArg);
 
 	    // int abstractFingerprint = 0;
-	    writer.writeField(RSF.RVM_FUNCTION_ABSTRACT_FINGERPRINT, abstractFingerprint);
+	    writer.writeField(RVM_FUNCTION_ABSTRACT_FINGERPRINT, abstractFingerprint);
 
 	    // int concreteFingerprint = 0;
-	    writer.writeField(RSF.RVM_FUNCTION_CONCRETE_FINGERPRINT, concreteFingerprint);
+	    writer.writeField(RVM_FUNCTION_CONCRETE_FINGERPRINT, concreteFingerprint);
 
 	    // int[] froms;
-	    writer.writeField(RSF.RVM_FUNCTION_FROMS, froms);
+	    writer.writeField(RVM_FUNCTION_FROMS, froms);
 
 	    // int[] tos;
-	    writer.writeField(RSF.RVM_FUNCTION_TOS, tos);
+	    writer.writeField(RVM_FUNCTION_TOS, tos);
 
 	    // int[] types;
-	    writer.writeField(RSF.RVM_FUNCTION_TYPES, types);
+	    writer.writeField(RVM_FUNCTION_TYPES, types);
 
 	    // int[] handlers;
-	    writer.writeField(RSF.RVM_FUNCTION_HANDLERS, handlers);
+	    writer.writeField(RVM_FUNCTION_HANDLERS, handlers);
 
 	    // int[] fromSPs;
-	    writer.writeField(RSF.RVM_FUNCTION_FROM_SPS, fromSPs);
+	    writer.writeField(RVM_FUNCTION_FROM_SPS, fromSPs);
 
 	    // int lastHandler = -1;
-	    writer.writeField(RSF.RVM_FUNCTION_LAST_HANDLER, lastHandler);
+	    writer.writeField(RVM_FUNCTION_LAST_HANDLER, lastHandler);
 
 	    //public Integer funId; 
-	    writer.writeField(RSF.RVM_FUNCTION_FUN_ID, funId);
+	    writer.writeField(RVM_FUNCTION_FUN_ID, funId);
 
 	    // boolean isCoroutine = false;
-	    writer.writeField(RSF.RVM_FUNCTION_IS_COROUTINE, isCoroutine);
+	    writer.writeField(RVM_FUNCTION_IS_COROUTINE, isCoroutine);
 
 	    // int[] refs;
-	    writer.writeField(RSF.RVM_FUNCTION_REFS, refs);
+	    writer.writeField(RVM_FUNCTION_REFS, refs);
 
 	    // boolean isVarArgs = false;
-	    writer.writeField(RSF.RVM_FUNCTION_IS_VARARGS, isVarArgs);
+	    writer.writeField(RVM_FUNCTION_IS_VARARGS, isVarArgs);
 
 	    // int continuationPoints
-	    writer.writeField(RSF.RVM_FUNCTION_CONTINUATION_POINTS, continuationPoints);
+	    writer.writeField(RVM_FUNCTION_CONTINUATION_POINTS, continuationPoints);
 	}
 	
     @Override
