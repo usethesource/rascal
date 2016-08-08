@@ -1,34 +1,34 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.EmptyStackException;
 
 public class PositionStack<Item, Kind extends IteratorKind> {
 
-    private Kind[] kinds;
-    private Item[] items;
+    private Object[] kinds;
+    private Object[] items;
     private boolean[] beginnings;
     private int mark = -1;
     
-    public PositionStack(Class<Item> iclass, Class<Kind> kclass) {
-        this(iclass, kclass, 1024);
+    public PositionStack() {
+        this(1024);
     }
     
-	@SuppressWarnings("unchecked")
-    public PositionStack(Class<Item> iclass, Class<Kind> kclass, int initialSize) {
-        kinds = (Kind[]) Array.newInstance(kclass, initialSize);
-        items = (Item[]) Array.newInstance(iclass,initialSize);
+    public PositionStack(int initialSize) {
+        kinds = new Object[initialSize];
+        items = new Object[initialSize];
         beginnings = new boolean[initialSize];
     }
 
+    @SuppressWarnings("unchecked")
     public Kind currentKind() {
         assert mark >= 0;
-        return kinds[mark];
+        return (Kind) kinds[mark];
     }
+	@SuppressWarnings("unchecked")
     public Item currentItem() {
         assert mark >= 0;
-        return items[mark];
+        return (Item) items[mark];
     }
     public boolean currentBeginning() {
         assert mark >= 0;

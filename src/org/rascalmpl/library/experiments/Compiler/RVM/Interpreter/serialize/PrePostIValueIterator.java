@@ -27,7 +27,7 @@ public class PrePostIValueIterator extends PrePostIterator<IValue,ValueIteratorK
     }
 
     public PrePostIValueIterator(IValue root, int stackSize) throws IOException {
-        super(IValue.class, ValueIteratorKind.class, stackSize);
+        super(stackSize);
         stack.push(root, ValueIteratorKind.getKind(root), true);
         beginning = false; // start out at fake end
         vf = ValueFactoryFactory.getValueFactory();

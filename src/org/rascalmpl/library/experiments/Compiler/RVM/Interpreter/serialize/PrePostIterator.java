@@ -9,8 +9,8 @@ public abstract class PrePostIterator<Item, Kind extends IteratorKind>  {
     protected Item item;
     protected boolean beginning;
 
-    public PrePostIterator(Class<Item> iclass, Class<Kind> kclass, int stackSize) throws IOException {
-        stack = new PositionStack<Item, Kind>(iclass, kclass, stackSize);
+    public PrePostIterator(int stackSize) throws IOException {
+        stack = new PositionStack<Item, Kind>(stackSize);
         beginning = false; // start out at fake end
     }
 
