@@ -454,6 +454,29 @@ public class Function  implements IValue {
 		return func;
 	}
 	
+//  public static final int RVM_FUNCTION_NAME = 2;
+//  public static final int RVM_FUNCTION_SCOPE_ID = 3;
+//  public static final int RVM_FUNCTION_FUN_IN = 4;
+//  public static final int RVM_FUNCTION_SCOPE_IN = 5;
+//  public static final int RVM_FUNCTION_NFORMALS = 6;
+//  public static final int RVM_FUNCTION_NLOCALS = 7;
+//  public static final int RVM_FUNCTION_IS_DEFAULT = 8;
+//  public static final int RVM_FUNCTION_MAX_STACK = 9;
+//  public static final int RVM_FUNCTION_CONCRETE_ARG = 10;
+//  public static final int RVM_FUNCTION_ABSTRACT_FINGERPRINT = 11;
+//  public static final int RVM_FUNCTION_CONCRETE_FINGERPRINT = 12;
+//  public static final int RVM_FUNCTION_FROMS = 13;
+//  public static final int RVM_FUNCTION_TOS = 14;
+//  public static final int RVM_FUNCTION_TYPES = 15;
+//  public static final int RVM_FUNCTION_HANDLERS = 16;
+//  public static final int RVM_FUNCTION_FROM_SPS = 17;
+//  public static final int RVM_FUNCTION_LAST_HANDLER = 18;
+//  public static final int RVM_FUNCTION_FUN_ID = 19;
+//  public static final int RVM_FUNCTION_IS_COROUTINE = 20;
+//  public static final int RVM_FUNCTION_REFS = 21;
+//  public static final int RVM_FUNCTION_IS_VARARGS = 22;
+//  public static final int RVM_FUNCTION_CONTINUATION_POINTS = 23;
+	
 	public void writeTypes(RSFIValueWriter writer) throws IOException {
 	    // Write embedded types in reverse order
 
@@ -521,7 +544,7 @@ public class Function  implements IValue {
 	    // ISourceLocation src;
 	    // IValue[] constantStore;
 
-	    writer.startValue(RVM_FUNCTION_VALUE);
+	    writer.startMessage(RVM_FUNCTION_VALUE);
 	    // String name;
 	    writer.writeField(RVM_FUNCTION_NAME, name);
 

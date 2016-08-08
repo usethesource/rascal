@@ -29,13 +29,6 @@ public class RSF {
     private static final int LIST_VALUE_ID = 10;
     private static final int MAP_VALUE_ID = 11;
     private static final int SET_VALUE_ID = 12;
-
-	
-//	// Values related to compiled executables
-//	public static final int RVM_FUNCTION_VALUE = 15;
-//	public static final int RVM_OVERLOADED_FUNCTION_VALUE = 16;
-//	public static final int RVM_CODEBLOCK_VALUE = 17;
-//	public static final int RVM_EXECUTABLE_VALUE = 18;
 	
 	public static class PreviousValue {
 	    public static final int ID = PREVIOUS_VALUE_ID;
@@ -66,7 +59,6 @@ public class RSF {
         public static final int BIGVALUE = 2;
 	}
 	
-	
 	public static class SourceLocationValue {
 	    public static final int ID = SOURCE_LOCATION_VALUE_ID;
         public static final int PREVIOUS_URI = 1;
@@ -93,7 +85,6 @@ public class RSF {
         public static final int SCALE = 2;
 	}
 	
-
 	public static class StringValue {
 	    public static final int ID = STRING_VALUE_ID;
 	    public static final int CONTENT = 1;
@@ -133,11 +124,8 @@ public class RSF {
 	    public static final int ID = SET_VALUE_ID;
 	    public static final int SIZE = 1;
 	}
-	
-	
-   
-	
-	// Type message ID's we start at 100 to leave room for new values
+
+	// Type message ID's start at 100 to leave room for new values
 	// Types aren't serialized that often so the overhead is acceptable
 
     private static final int PREVIOUS_TYPE_ID_ID = 101;
@@ -257,29 +245,5 @@ public class RSF {
         public static final int ARITY = 1;
         public static final int NAMES = 2;
     }
-    
-
-//    public static final int RVM_FUNCTION_NAME = 2;
-//    public static final int RVM_FUNCTION_SCOPE_ID = 3;
-//    public static final int RVM_FUNCTION_FUN_IN = 4;
-//    public static final int RVM_FUNCTION_SCOPE_IN = 5;
-//    public static final int RVM_FUNCTION_NFORMALS = 6;
-//    public static final int RVM_FUNCTION_NLOCALS = 7;
-//    public static final int RVM_FUNCTION_IS_DEFAULT = 8;
-//    public static final int RVM_FUNCTION_MAX_STACK = 9;
-//    public static final int RVM_FUNCTION_CONCRETE_ARG = 10;
-//    public static final int RVM_FUNCTION_ABSTRACT_FINGERPRINT = 11;
-//    public static final int RVM_FUNCTION_CONCRETE_FINGERPRINT = 12;
-//    public static final int RVM_FUNCTION_FROMS = 13;
-//    public static final int RVM_FUNCTION_TOS = 14;
-//    public static final int RVM_FUNCTION_TYPES = 15;
-//    public static final int RVM_FUNCTION_HANDLERS = 16;
-//    public static final int RVM_FUNCTION_FROM_SPS = 17;
-//    public static final int RVM_FUNCTION_LAST_HANDLER = 18;
-//    public static final int RVM_FUNCTION_FUN_ID = 19;
-//    public static final int RVM_FUNCTION_IS_COROUTINE = 20;
-//    public static final int RVM_FUNCTION_REFS = 21;
-//    public static final int RVM_FUNCTION_IS_VARARGS = 22;
-//    public static final int RVM_FUNCTION_CONTINUATION_POINTS = 23;
 	
 }

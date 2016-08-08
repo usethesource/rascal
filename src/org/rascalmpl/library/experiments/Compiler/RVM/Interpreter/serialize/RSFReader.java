@@ -20,9 +20,9 @@ public class RSFReader implements Closeable {
     }
 
     public static enum ReaderPosition {
-        VALUE_START,
+        MESSAGE_START,
         FIELD,
-        VALUE_END {
+        MESSAGE_END {
             @Override
             public boolean isEnd() {
                 return true;
@@ -40,7 +40,7 @@ public class RSFReader implements Closeable {
     private CodedInputStream stream;
     private boolean closed = false;
     private ReaderPosition current;
-    private int valueID;
+    private int messageID;
     private int fieldType;
     private int fieldID;
     private String stringValue;
@@ -69,10 +69,6 @@ public class RSFReader implements Closeable {
             throw new IOException("Already closed");
         }
     }
-    
-    public boolean isAtEnd() throws IOException{
-        return stream.isAtEnd();
-    }
 
     public ReaderPosition next() throws IOException {
         int next;
@@ -84,17 +80,17 @@ public class RSFReader implements Closeable {
             throw new EOFException();
         }
         if (next == 0) {
-            log("reader: endValue " + valueID);
-            return current = ReaderPosition.VALUE_END;
+            log("reader: endMessage " + messageID);
+            return current = ReaderPosition.MESSAGE_END;
         }
         fieldID = TaggedInt.getOriginal(next);
         fieldType = TaggedInt.getTag(next);
         switch (fieldType) {
             case 0:
                 // special case that signals starts of values
-                valueID = fieldID;
-                log("reader: startValue " + valueID);
-                return current = ReaderPosition.VALUE_START;
+                messageID = fieldID;
+                log("reader: startMessage " + messageID);
+                return current = ReaderPosition.MESSAGE_START;
             case FieldKind.STRING:
                 stream.resetSizeCounter();
                 stringValue = stream.readString();
@@ -128,9 +124,9 @@ public class RSFReader implements Closeable {
         return current;
     }
 
-    public int value() {
-        assert current == ReaderPosition.VALUE_START;
-        return valueID;
+    public int message() {
+        assert current == ReaderPosition.MESSAGE_START;
+        return messageID;
     }
 
     public int field() {
@@ -158,14 +154,14 @@ public class RSFReader implements Closeable {
         return fieldType;
     }
 
-    public void skipValue() throws IOException {
+    public void skipMessage() throws IOException {
         int toSkip = 1;
         while (toSkip != 0) {
             switch (next()) {
-                case VALUE_START:
+                case MESSAGE_START:
                     toSkip++;
                     break;
-                case VALUE_END:
+                case MESSAGE_END:
                     toSkip--;
                     break;
                 default:

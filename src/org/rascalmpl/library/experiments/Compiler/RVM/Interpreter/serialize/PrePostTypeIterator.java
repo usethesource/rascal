@@ -66,7 +66,7 @@ public class PrePostTypeIterator extends PrePostIterator<Type, TypeIteratorKind>
                         break;
                     }
                    
-                    case LIST:{
+                    case LIST: {
                         Type elemType = item.getElementType();
                         
                         stack.push(elemType,  TypeIteratorKind.getKind(elemType),  true); 
@@ -81,14 +81,8 @@ public class PrePostTypeIterator extends PrePostIterator<Type, TypeIteratorKind>
                         stack.push(keyType,  TypeIteratorKind.getKind(keyType),  true);
                         break;
                     }
-                    
-                    case NONTERMINAL: {
-                        NonTerminalType nt = (NonTerminalType) item;
-                        
-                        break;
-                    }
                    
-                    case OVERLOADED:{
+                    case OVERLOADED: {
                         Set<FunctionType> alternatives = ((OverloadedFunctionType) item).getAlternatives();
                         for(FunctionType ft : alternatives){
                             stack.push(ft,  TypeIteratorKind.getKind(ft),  true);
@@ -96,7 +90,7 @@ public class PrePostTypeIterator extends PrePostIterator<Type, TypeIteratorKind>
                         break;
                     }
                         
-                    case PARAMETER:{
+                    case PARAMETER: {
                         Type bound = item.getBound();
                         stack.push(bound,  TypeIteratorKind.getKind(bound),  true);
                         break;
@@ -125,7 +119,6 @@ public class PrePostTypeIterator extends PrePostIterator<Type, TypeIteratorKind>
                     
                     default:
                         throw new RuntimeException("Cannot happen");
-                
                 }
             }
         }
@@ -135,6 +128,5 @@ public class PrePostTypeIterator extends PrePostIterator<Type, TypeIteratorKind>
         stack.pop();
         return kind;
     }
-
 }
 
