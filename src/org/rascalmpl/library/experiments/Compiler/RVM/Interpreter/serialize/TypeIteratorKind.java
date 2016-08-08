@@ -57,86 +57,84 @@ public enum TypeIteratorKind implements IteratorKind {
 		return (byte) kind.ordinal();
 	}
 	
-	public  static TypeIteratorKind  getKind(Type t) throws IOException {
-        return t.accept(new ITypeVisitor<TypeIteratorKind,IOException>() {
-
+	private static ITypeVisitor<TypeIteratorKind,RuntimeException> staticTranslator = new ITypeVisitor<TypeIteratorKind,RuntimeException>() {
            // Atomic types
            
            @Override
-           public TypeIteratorKind visitBool(Type type) throws IOException {
+           public TypeIteratorKind visitBool(Type type) throws RuntimeException {
                return BOOL;
            }
            
            @Override
-           public TypeIteratorKind visitDateTime(Type type) throws IOException {
+           public TypeIteratorKind visitDateTime(Type type) throws RuntimeException {
                return DATETIME;
            }
            
            @Override
-           public TypeIteratorKind visitInteger(Type type) throws IOException {
+           public TypeIteratorKind visitInteger(Type type) throws RuntimeException {
                return INT;
            }
            
            @Override
-           public TypeIteratorKind visitNode(Type type) throws IOException {
+           public TypeIteratorKind visitNode(Type type) throws RuntimeException {
                return NODE;
            }
            
            @Override
-           public TypeIteratorKind visitNumber(Type type) throws IOException {
+           public TypeIteratorKind visitNumber(Type type) throws RuntimeException {
                return NUMBER;
            }
            
            @Override
-           public TypeIteratorKind visitRational(Type type) throws IOException {
+           public TypeIteratorKind visitRational(Type type) throws RuntimeException {
                return RATIONAL;
            }
            
            
            @Override
-           public TypeIteratorKind visitReal(Type type) throws IOException {
+           public TypeIteratorKind visitReal(Type type) throws RuntimeException {
                return REAL;
            }
            
            @Override
-           public TypeIteratorKind visitSourceLocation(Type type) throws IOException {
+           public TypeIteratorKind visitSourceLocation(Type type) throws RuntimeException {
                return LOC;
            }
            
            @Override
-           public TypeIteratorKind visitString(Type type) throws IOException {
+           public TypeIteratorKind visitString(Type type) throws RuntimeException {
                return STR;
            }
            
            @Override
-           public TypeIteratorKind visitValue(Type type) throws IOException {
+           public TypeIteratorKind visitValue(Type type) throws RuntimeException {
                return VALUE;
            }
 
            @Override
-           public TypeIteratorKind visitVoid(Type type) throws IOException {
+           public TypeIteratorKind visitVoid(Type type) throws RuntimeException {
                return VOID;
            }
            
            // Composite types
            
            @Override
-           public TypeIteratorKind visitAbstractData(Type type) throws IOException {
+           public TypeIteratorKind visitAbstractData(Type type) throws RuntimeException {
                return ADT;
            }
            
            @Override
-           public TypeIteratorKind visitAlias(Type type) throws IOException {
+           public TypeIteratorKind visitAlias(Type type) throws RuntimeException {
                return ALIAS;
            }
            
            @Override
-           public TypeIteratorKind visitConstructor(Type type) throws IOException {
+           public TypeIteratorKind visitConstructor(Type type) throws RuntimeException {
                return CONSTRUCTOR;
            }
            
            @Override
-           public TypeIteratorKind visitExternal(Type type) throws IOException {
+           public TypeIteratorKind visitExternal(Type type) throws RuntimeException {
                if(type instanceof FunctionType){
                    return FUNCTION;
                } else if(type instanceof ReifiedType){
@@ -151,29 +149,32 @@ public enum TypeIteratorKind implements IteratorKind {
            }
 
            @Override
-           public TypeIteratorKind visitList(Type type) throws IOException {
+           public TypeIteratorKind visitList(Type type) throws RuntimeException {
                return LIST;
            }
 
            @Override
-           public TypeIteratorKind visitMap(Type type) throws IOException {
+           public TypeIteratorKind visitMap(Type type) throws RuntimeException {
                return MAP;
            }
            
            @Override
-           public TypeIteratorKind visitParameter(Type type) throws IOException {
+           public TypeIteratorKind visitParameter(Type type) throws RuntimeException {
                return PARAMETER;
            }
 
            @Override
-           public TypeIteratorKind visitSet(Type type) throws IOException {
+           public TypeIteratorKind visitSet(Type type) throws RuntimeException {
                return SET;
            }
 
            @Override
-           public TypeIteratorKind visitTuple(Type type) throws IOException {
+           public TypeIteratorKind visitTuple(Type type) throws RuntimeException {
                return TUPLE;
            }
-       });
+       };
+	
+	public  static TypeIteratorKind  getKind(Type t) {
+        return t.accept(staticTranslator);
    }
 }

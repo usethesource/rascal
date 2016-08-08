@@ -467,7 +467,7 @@ public class Function  implements IValue {
 	    writer.writeType(ftype);
 	}
 
-	public void nextValues(PositionStack<IValue, ValueIteratorKind> stack) throws IOException {
+	public void nextValues(PositionStack<IValue, ValueIteratorKind> stack) {
 
 	    // Push embedded values in reverse order for iterator
 
