@@ -457,14 +457,15 @@ public class Function  implements IValue {
 	public void writeTypes(RSFIValueWriter writer) throws IOException {
 	    // Write embedded types in reverse order
 
+
 	    // Type[] typeConstantStore;
-	    int n = typeConstantStore.length;
+	    //int n = typeConstantStore.length;
 
-	    for(int i = n - 1; i >= 0; i--){
-	        writer.writeType(typeConstantStore[i]);
-	    }
-
-	    writer.writeType(ftype);
+	    //for(int i = n - 1; i >= 0; i--){
+//	        writer.writeType(typeConstantStore[i]);
+//	    }
+//
+//	    writer.writeType(ftype);
 	}
 
 	public void nextValues(PositionStack<IValue, ValueIteratorKind> stack) {
