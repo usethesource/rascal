@@ -131,69 +131,69 @@ public class RSFIValueReader {
                     /*          Types               */
                     /********************************/
                     
-                    case RSF.BOOL_TYPE:  
+                    case RSF.BoolType.ID:  
                         skip_until_end();
                         pushAndCache(tstack, tf.boolType());
                         break;
 
-                    case RSF.DATETIME_TYPE:    
+                    case RSF.DateTimeType.ID:    
                         skip_until_end();
                         pushAndCache(tstack, tf.dateTimeType());
                         break;
 
-                    case RSF.INT_TYPE:     
+                    case RSF.IntegerType.ID:     
                         skip_until_end(); 
                         pushAndCache(tstack, tf.integerType());
                         break;
 
-                    case RSF.NODE_TYPE:        
+                    case RSF.NodeType.ID:        
                         skip_until_end();
                         pushAndCache(tstack, tf.nodeType());
                         break;
 
-                    case RSF.NUMBER_TYPE:  
+                    case RSF.NumberType.ID:  
                         skip_until_end();
                         pushAndCache(tstack, tf.numberType());
                         break;
 
-                    case RSF.RATIONAL_TYPE:     
+                    case RSF.RationalType.ID:     
                         skip_until_end();
                         pushAndCache(tstack, tf.rationalType());
                         break;
 
-                    case RSF.REAL_TYPE:        
+                    case RSF.RealType.ID:        
                         skip_until_end();
                         pushAndCache(tstack, tf.realType());
                         break;
 
-                    case RSF.LOC_TYPE:     
+                    case RSF.SourceLocationType.ID:     
                         skip_until_end();
                         pushAndCache(tstack, tf.sourceLocationType());
                         break;
 
-                    case RSF.STR_TYPE:     
+                    case RSF.StringType.ID:     
                         skip_until_end();
                         pushAndCache(tstack, tf.stringType());
                         break;
 
-                    case RSF.VALUE_TYPE:       
+                    case RSF.ValueType.ID:       
                         skip_until_end();
                         pushAndCache(tstack, tf.valueType());
                         break;
 
-                    case RSF.VOID_TYPE:        
+                    case RSF.VoidType.ID:        
                         skip_until_end();
                         pushAndCache(tstack, tf.voidType());
                         break;
 
                     // Composite types
 
-                    case RSF.ADT_TYPE: {   
+                    case RSF.ADTType.ID: {   
                         String name = null;
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case RSF.ADT_NAME:
+                                case RSF.ADTType.NAME:
                                     name = reader.getString(); break;
                             }
                         }
@@ -214,12 +214,12 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.ALIAS_TYPE:   {   
+                    case RSF.AliasType.ID:   {   
                         String name = null;
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case RSF.ALIAS_NAME:
+                                case RSF.AliasType.NAME:
                                     name = reader.getString(); break;
                             }
                         }
@@ -233,12 +233,12 @@ public class RSFIValueReader {
                         break;
                     }
                     
-                    case RSF.CONSTRUCTOR_TYPE:     {
+                    case RSF.ConstructorType.ID:     {
                         String name = null;
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case RSF.CONSTRUCTOR_NAME:
+                                case RSF.ConstructorType.NAME:
                                     name = reader.getString(); break;
                             }
                         }
@@ -289,7 +289,7 @@ public class RSFIValueReader {
 
                     // External
 
-                    case RSF.FUNCTION_TYPE:    {
+                    case RSF.FunctionType.ID:    {
                         skip_until_end();
 
                         Type keywordParameterTypes = tstack.pop();
@@ -301,7 +301,7 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.REIFIED_TYPE: {
+                    case RSF.ReifiedType.ID: {
                         skip_until_end();
                         Type elemType = tstack.pop();
 
@@ -310,12 +310,12 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.OVERLOADED_TYPE: {
+                    case RSF.OverloadedType.ID: {
                         Integer size = null;
 
                         while (not_at_end()) {
                             switch (reader.field()){ 
-                                case RSF.OVERLOADED_SIZE:
+                                case RSF.OverloadedType.SIZE:
                                     size = (int) reader.getLong();
                                     break;
                             }
@@ -331,7 +331,7 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.NONTERMINAL_TYPE: {
+                    case RSF.NonTerminalType.ID: {
                         skip_until_end();
 
                         IConstructor nt = (IConstructor) vstack.pop();
@@ -339,7 +339,7 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.LIST_TYPE:    {
+                    case RSF.ListType.ID:    {
                         skip_until_end();
 
                         Type elemType = tstack.pop();
@@ -348,15 +348,15 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.MAP_TYPE: {   
+                    case RSF.MapType.ID: {   
                         String keyLabel = null;
                         String valLabel = null;
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case RSF.MAP_KEY_LABEL:
+                                case RSF.MapType.KEY_LABEL:
                                     keyLabel = reader.getString(); break;
-                                case RSF.MAP_VAL_LABEL:
+                                case RSF.MapType.VAL_LABEL:
                                     valLabel = reader.getString(); break;
                             }
                         }
@@ -373,12 +373,12 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.PARAMETER_TYPE:   {
+                    case RSF.ParameterType.ID:   {
                         String name = null;
 
                         while (not_at_end()) {
                             switch (reader.field()){ 
-                                case RSF.PARAMETER_NAME:
+                                case RSF.ParameterType.NAME:
                                     name = reader.getString();
                                     break;
                             }
@@ -390,7 +390,7 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.SET_TYPE: {
+                    case RSF.SetType.ID: {
                         skip_until_end();
                         Type elemType = tstack.pop();
 
@@ -398,17 +398,17 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.TUPLE_TYPE: {
+                    case RSF.TupleType.ID: {
                         String [] fieldNames = null;
 
                         Integer arity = null;
 
                         while (not_at_end()) {
                             switch (reader.field()){ 
-                                case RSF.TUPLE_ARITY:
+                                case RSF.TupleType.ARITY:
                                     arity = (int) reader.getLong(); break;
 
-                                case RSF.TUPLE_NAMES:
+                                case RSF.TupleType.NAMES:
                                     int n = (int) reader.getLong();
                                     fieldNames = new String[n];
                                     for(int i = 0; i < n; i++){
@@ -435,12 +435,13 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.PREVIOUS_TYPE_ID: {
+                    case RSF.PreviousType.ID: {
                         Long n = null;
                         while (not_at_end()) {
                             switch (reader.field()){ 
-                                case RSF.PREVIOUS_ID:
+                                case RSF.PreviousType.HOW_LONG_AGO:
                                     n = reader.getLong();
+                                    break;
                             }
                         }
 
@@ -460,10 +461,10 @@ public class RSFIValueReader {
                     /*          Values              */
                     /********************************/
                     
-                    case RSF.BOOL_VALUE: {
+                    case RSF.BoolValue.ID: {
                         Integer b = null;
                         while (not_at_end()) {
-                            if(reader.field() == RSF.BOOL_CONTENT){
+                            if(reader.field() == RSF.BoolValue.VALUE){
                                 b = (int) reader.getLong();
                             }
                         }
@@ -474,7 +475,7 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.CONSTRUCTOR_VALUE:	{
+                    case RSF.ConstructorValue.ID:	{
                         Integer arity = null;
                         int annos = 0;
                         int kwparams = 0;
@@ -482,9 +483,9 @@ public class RSFIValueReader {
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case RSF.CONSTRUCTOR_ARITY: arity = (int) reader.getLong(); break;
-                                case RSF.CONSTRUCTOR_KWPARAMS: kwparams = (int)reader.getLong(); break;
-                                case RSF.CONSTRUCTOR_ANNOS: annos = (int)reader.getLong(); break;
+                                case RSF.ConstructorValue.ARITY: arity = (int) reader.getLong(); break;
+                                case RSF.ConstructorValue.KWPARAMS: kwparams = (int)reader.getLong(); break;
+                                case RSF.ConstructorValue.ANNOS: annos = (int)reader.getLong(); break;
                             }
                         }
                         
@@ -517,8 +518,7 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.DATETIME_VALUE: {
-                        Integer variant = null;
+                    case RSF.DateTimeValue.ID: {
                         Integer year = null;;
                         Integer month = null;
                         Integer day = null;
@@ -533,44 +533,40 @@ public class RSFIValueReader {
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case RSF.DATETIME_VARIANT: variant = (int)reader.getLong(); break;
-                                case RSF.DATETIME_YEAR: year = (int)reader.getLong(); break;
-                                case RSF.DATETIME_MONTH: month = (int)reader.getLong(); break;
-                                case RSF.DATETIME_DAY: day = (int)reader.getLong(); break;
-                                case RSF.DATETIME_HOUR: hour = (int)reader.getLong(); break;
-                                case RSF.DATETIME_MINUTE: minute = (int)reader.getLong(); break;
-                                case RSF.DATETIME_SECOND: second = (int)reader.getLong(); break;
-                                case RSF.DATETIME_MILLISECOND: millisecond = (int)reader.getLong(); break;
-                                case RSF.DATETIME_TZ_HOUR: timeZoneHourOffset = (int)reader.getLong(); break;
-                                case RSF.DATETIME_TZ_MINUTE: timeZoneMinuteOffset = (int)reader.getLong(); break;
+                                case RSF.DateTimeValue.YEAR: year = (int)reader.getLong(); break;
+                                case RSF.DateTimeValue.MONTH: month = (int)reader.getLong(); break;
+                                case RSF.DateTimeValue.DAY: day = (int)reader.getLong(); break;
+                                case RSF.DateTimeValue.HOUR: hour = (int)reader.getLong(); break;
+                                case RSF.DateTimeValue.MINUTE: minute = (int)reader.getLong(); break;
+                                case RSF.DateTimeValue.SECOND: second = (int)reader.getLong(); break;
+                                case RSF.DateTimeValue.MILLISECOND: millisecond = (int)reader.getLong(); break;
+                                case RSF.DateTimeValue.TZ_HOUR: timeZoneHourOffset = (int)reader.getLong(); break;
+                                case RSF.DateTimeValue.TZ_MINUTE: timeZoneMinuteOffset = (int)reader.getLong(); break;
                             }
                         }
                         
-                        assert variant != null;
                         
-                        // TODO: checking?
-                        switch(variant){
-                            case  RSF.DATETIME_VARIANT_DATETIME:
-                                pushAndCache(vstack, vf.datetime(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset));
-                                break;
-                            case RSF.DATETIME_VARIANT_DATE:
-                                pushAndCache(vstack, vf.datetime(year, month, day));
-                                break;
-                            case RSF.DATETIME_VARIANT_TIME:
-                                pushAndCache(vstack, vf.time(hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset));
-                                break;
+                        if (hour != null && year != null) {
+                            pushAndCache(vstack, vf.datetime(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset));
+                        }
+                        else if (hour != null) {
+                            pushAndCache(vstack, vf.time(hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset));
+                        }
+                        else {
+                            assert year != null;
+                            pushAndCache(vstack, vf.datetime(year, month, day));
                         }
 
                         break;
                     }
 
-                    case RSF.INT_VALUE: {
-                        Long small = null;
+                    case RSF.IntegerValue.ID: {
+                        Integer small = null;
                         byte[] big = null;
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case RSF.INT_SMALL:  small = reader.getLong(); break;
-                                case RSF.INT_BIG:    big = reader.getBytes(); break;
+                                case RSF.IntegerValue.INTVALUE:  small = (int) reader.getLong(); break;
+                                case RSF.IntegerValue.BIGVALUE:    big = reader.getBytes(); break;
                             }
                         }
                         
@@ -585,10 +581,10 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.LIST_VALUE: {
+                    case RSF.ListValue.ID: {
                         Integer size = null;
                         while (not_at_end()) {
-                            if(reader.field() == RSF.LIST_SIZE){
+                            if(reader.field() == RSF.ListValue.SIZE){
                                 size = (int) reader.getLong();
                             }
                         }
@@ -599,7 +595,7 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.LOC_VALUE: {
+                    case RSF.SourceLocationValue.ID: {
                         String scheme = null;
                         String authority = "";
                         String path = "";
@@ -614,18 +610,18 @@ public class RSFIValueReader {
                         int endColumn = -1;
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case RSF.LOC_PREVIOUS_URI: previousURI = (int)reader.getLong(); break;
-                                case RSF.LOC_SCHEME: scheme = reader.getString(); break;
-                                case RSF.LOC_AUTHORITY: authority = reader.getString(); break;
-                                case RSF.LOC_PATH: path = reader.getString(); break;
-                                case RSF.LOC_QUERY: query = reader.getString(); break;	
-                                case RSF.LOC_FRAGMENT: fragment = reader.getString(); break;	
-                                case RSF.LOC_OFFSET: offset = (int) reader.getLong(); break;
-                                case RSF.LOC_LENGTH: length = (int) reader.getLong(); break;
-                                case RSF.LOC_BEGINLINE: beginLine = (int) reader.getLong(); break;
-                                case RSF.LOC_ENDLINE: endLine = (int) reader.getLong(); break;
-                                case RSF.LOC_BEGINCOLUMN: beginColumn = (int) reader.getLong(); break;
-                                case RSF.LOC_ENDCOLUMN: endColumn = (int) reader.getLong(); break;
+                                case RSF.SourceLocationValue.PREVIOUS_URI: previousURI = (int)reader.getLong(); break;
+                                case RSF.SourceLocationValue.SCHEME: scheme = reader.getString(); break;
+                                case RSF.SourceLocationValue.AUTHORITY: authority = reader.getString(); break;
+                                case RSF.SourceLocationValue.PATH: path = reader.getString(); break;
+                                case RSF.SourceLocationValue.QUERY: query = reader.getString(); break;	
+                                case RSF.SourceLocationValue.FRAGMENT: fragment = reader.getString(); break;	
+                                case RSF.SourceLocationValue.OFFSET: offset = (int) reader.getLong(); break;
+                                case RSF.SourceLocationValue.LENGTH: length = (int) reader.getLong(); break;
+                                case RSF.SourceLocationValue.BEGINLINE: beginLine = (int) reader.getLong(); break;
+                                case RSF.SourceLocationValue.ENDLINE: endLine = (int) reader.getLong(); break;
+                                case RSF.SourceLocationValue.BEGINCOLUMN: beginColumn = (int) reader.getLong(); break;
+                                case RSF.SourceLocationValue.ENDCOLUMN: endColumn = (int) reader.getLong(); break;
                             }
                         }
                         ISourceLocation loc;
@@ -649,10 +645,10 @@ public class RSFIValueReader {
                         break;
 
                     }
-                    case RSF.MAP_VALUE:	{
+                    case RSF.MapValue.ID: {
                         Long size = null;
                         while (not_at_end()) {
-                            if(reader.field() == RSF.MAP_SIZE){
+                            if(reader.field() == RSF.MapValue.SIZE){
                                 size = reader.getLong();
                             }
                         }
@@ -670,7 +666,7 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.NODE_VALUE:	{
+                    case RSF.NodeValue.ID: {
                         String name = null;
                         Integer arity = null;
                         int annos = 0;
@@ -679,10 +675,10 @@ public class RSFIValueReader {
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case RSF.NODE_NAME: name = reader.getString(); break;
-                                case RSF.NODE_ARITY: arity = (int)reader.getLong(); break;
-                                case RSF.NODE_KWPARAMS: kwparams = (int)reader.getLong(); break;
-                                case RSF.NODE_ANNOS: annos = (int)reader.getLong(); break;
+                                case RSF.NodeValue.NAME: name = reader.getString(); break;
+                                case RSF.NodeValue.ARITY: arity = (int)reader.getLong(); break;
+                                case RSF.NodeValue.KWPARAMS: kwparams = (int)reader.getLong(); break;
+                                case RSF.NodeValue.ANNOS: annos = (int)reader.getLong(); break;
                             }
                         }
                         
@@ -713,7 +709,7 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.RATIONAL_VALUE: {
+                    case RSF.RationalValue.ID: {
                         skip_until_end();
                         
                         IInteger denominator = (IInteger) vstack.pop();
@@ -723,15 +719,15 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.REAL_VALUE: {
+                    case RSF.RealValue.ID: {
                         byte[] bytes = null;
                         Integer scale = null;
 
                         while (not_at_end()) {
                             switch(reader.field()){
-                                case RSF.REAL_SCALE:
+                                case RSF.RealValue.SCALE:
                                     scale = (int) reader.getLong(); break;
-                                case RSF.REAL_CONTENT:
+                                case RSF.RealValue.CONTENT:
                                     bytes = reader.getBytes(); break;
                             }
                         }
@@ -742,10 +738,10 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.SET_VALUE: {
+                    case RSF.SetValue.ID: {
                         Integer size = 0;
                         while (not_at_end()) {
-                            if(reader.field() == RSF.SET_SIZE){
+                            if(reader.field() == RSF.SetValue.SIZE){
                                 size = (int) reader.getLong();
                             }
                         }
@@ -756,10 +752,10 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.STR_VALUE: {
+                    case RSF.StringValue.ID: {
                         String str = null;
                         while (not_at_end()) {
-                            if(reader.field() == RSF.STR_CONTENT){
+                            if(reader.field() == RSF.StringValue.CONTENT){
                                 str = reader.getString();
                             }
                         }
@@ -772,10 +768,10 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.TUPLE_VALUE: {
+                    case RSF.TupleValue.ID: {
                         Integer len = 0;
                         while (not_at_end()) {
-                            if(reader.field() == RSF.TUPLE_SIZE){
+                            if(reader.field() == RSF.TupleValue.SIZE){
                                 len = (int) reader.getLong();
                             }
                         }
@@ -786,10 +782,10 @@ public class RSFIValueReader {
                         break;
                     }
 
-                    case RSF.PREVIOUS_VALUE: {
+                    case RSF.PreviousValue.ID: {
                         Integer n = null;
                         while(not_at_end()){
-                            if(reader.field() == RSF.PREVIOUS_VALUE_ID){
+                            if(reader.field() == RSF.PreviousValue.HOW_FAR_BACK){
                                 n = (int) reader.getLong();
                             }
                         }
