@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFExecutableWriter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableReader;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableWriter;
 import org.rascalmpl.value.IValue;
@@ -22,7 +23,8 @@ import org.rascalmpl.value.type.Type;
  */
 public class OverloadedFunction  {
 	
-	final String name;
+
+    final String name;
 	final Type funType;
 	int[] functions;
 	final int[] constructors;
@@ -394,5 +396,73 @@ public class OverloadedFunction  {
 				filteredFunctions,filteredConstructors);
 		return ofun;
 	}
+	
+	private static final int OVERLOADED_FUNCTION_NAME = 0;
+	private static final int OVERLOADED_FUNCTION_FUNTYPE = 0;
+	private static final int OVERLOADED_FUNCTION_FUNCTIONS = 0;
+	private static final int OVERLOADED_FUNCTION_CONSTRUCTORS = 0;
+	private static final int OVERLOADED_FUNCTION_FUN_IN = 0;
+	private static final int OVERLOADED_FUNCTION_SCOPE_IN = 0;
+	private static final int OVERLOADED_FUNCTION_ALL_CONCRETE_FUNCTION_ARGS = 0;
+	private static final int OVERLOADED_FUNCTION_ALL_CONCRETE_CONSTRUCTOR_ARGS = 0;
+	private static final int OVERLOADED_FUNCTION_FILTERED_FUNCTIONS = 0;
+	private static final int OVERLOADED_FUNCTION_FILTERED_CONSTRUCTORS = 0;
+
+	public void writeRSF(RSFExecutableWriter writer)throws IOException {
+
+	    writer.startMessage(RSFExecutableWriter.OVERLOADED_FUNCTION);
+
+	    writer.writeField(OVERLOADED_FUNCTION_NAME, name);
+	    writer.writeField(OVERLOADED_FUNCTION_FUNTYPE, funType);
+	    writer.writeField(OVERLOADED_FUNCTION_FUNCTIONS, functions);
+	    writer.writeField(OVERLOADED_FUNCTION_CONSTRUCTORS, constructors);
+	    writer.writeField(OVERLOADED_FUNCTION_FUN_IN, funIn);
+	    writer.writeField(OVERLOADED_FUNCTION_SCOPE_IN, scopeIn);
+	    writer.writeField(OVERLOADED_FUNCTION_ALL_CONCRETE_FUNCTION_ARGS, allConcreteFunctionArgs);
+	    writer.writeField(OVERLOADED_FUNCTION_ALL_CONCRETE_CONSTRUCTOR_ARGS, allConcreteConstructorArgs);
+	    writer.writeField(OVERLOADED_FUNCTION_FILTERED_FUNCTIONS, filteredFunctions);
+	    writer.writeField(OVERLOADED_FUNCTION_FILTERED_CONSTRUCTORS, filteredConstructors);
+
+	    writer.endMessage();
+	}
+    
+    public static OverloadedFunction readRSF(RVMExecutableReader in) throws IOException 
+    {
+        // String name;
+        String name = in.readJString();
+
+        // Type funType;
+        Type funType = in.readType();
+        
+        // int[] functions;
+        int[] functions = in.readIntArray();
+        
+        
+        // final int[] constructors;
+        int[] constructors = in.readIntArray();
+        
+        // final String funIn;
+         String funIn = (String) in.readJString();
+        
+        // private int scopeIn = -1;
+         int scopeIn = in.readInt();
+        
+        // boolean allConcreteFunctionArgs = false;
+        boolean allConcreteFunctionArgs = in.readBool();
+        
+        // boolean allConcreteConstructorArgs = false;
+        boolean allConcreteConstructorArgs = in.readBool();
+        
+        // HashMap<Integer, int[]> filteredFunctions;
+        HashMap<Integer, int[]> filteredFunctions = in.readMapIntToIntArray();
+        
+        // HashMap<Integer, int[]> filteredConstructors;
+        
+        HashMap<Integer, int[]> filteredConstructors = in.readMapIntToIntArray();
+        
+        OverloadedFunction ofun = new OverloadedFunction(name, funType, functions, constructors, funIn, scopeIn, allConcreteFunctionArgs, allConcreteConstructorArgs,
+                filteredFunctions,filteredConstructors);
+        return ofun;
+    }
 
 }
