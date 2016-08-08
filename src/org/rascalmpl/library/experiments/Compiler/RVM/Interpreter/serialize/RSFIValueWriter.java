@@ -1,13 +1,10 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.MapLastWritten;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.TrackLastWritten;
 import org.rascalmpl.value.IBool;
@@ -23,12 +20,8 @@ import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZOutputStream;
         	
@@ -58,11 +51,11 @@ public class RSFIValueWriter {
             this.valueWindow = valueWindow;
             this.uriWindow = uriWindow;
             this.xzMode = xzMode;
-        }
-        
+        } 
     }
     
 	protected static final byte[] header = { 'R', 'V', 1,0,0 };
+	
 	static final class CompressionHeader {
 	    public static final byte NONE = 0;
 	    public static final byte GZIP = 1;
@@ -489,48 +482,4 @@ public class RSFIValueWriter {
 			}
 		}
 	}
-	
-  // Test code
-    
-
-
-    public static void main(String[] args) throws Exception {
-    	TypeFactory tf = TypeFactory.getInstance();
-    	RascalTypeFactory rtf = RascalTypeFactory.getInstance();
-    	IValueFactory vf = ValueFactoryFactory.getValueFactory();
-    	TypeStore ts = RascalValueFactory.getStore();
-    	 try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-    		 Type ct = tf.constructor(ts, tf.abstractDataType(ts, "D"), "f", tf.integerType(), tf.stringType());
-    		 IConstructor nd = vf.constructor(ct, vf.integer(42));
-    		 nd = nd.asWithKeywordParameters().setParameter("a", vf.integer(1));
-    		 nd = nd.asWithKeywordParameters().setParameter("b", vf.string("xyz"));
-    		 
-    		 Type param = tf.parameterType("T");
-    		 
-    		 Type maybe = tf.abstractDataType(ts, "Maybe");
-    		 
-    		 Type none = tf.constructor(ts, maybe, "none");
-    		 
-    		 Type Bool = tf.abstractDataType(ts, "Bool");
-    		 Type btrue = tf.constructor(ts, Bool, "btrue");
-    		 Type bfalse = tf.constructor(ts, Bool, "bfalse");
-    		 Type band = tf.constructor(ts, Bool, "band", Bool, Bool);
-    		 Type bor = tf.constructor(ts, Bool, "bor", Bool, Bool);
-    		 
-    		 IValue trueval = vf.constructor(btrue);
-    		 IValue falseval = vf.constructor(bfalse);
-    		 
-    		 IValue andval = vf.constructor(band, trueval, falseval);
-    		 
-    		 
-    		 Type t = rtf.functionType(tf.integerType(), tf.tupleType(tf.stringType(), tf.boolType()), tf.voidType());
-    		 IValue v = andval;
-    		 System.out.println(v);
-    		 RSFIValueWriter.write(out, v, CompressionRate.Normal, true);
-    		 try (ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray())) {
-                 System.out.println(RSFIValueReader.read(in, vf, ts));
-             }
-    		 
-    	 }
-    }
 }

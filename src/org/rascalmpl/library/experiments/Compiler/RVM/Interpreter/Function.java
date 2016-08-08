@@ -7,6 +7,7 @@ import java.util.Map;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.PositionStack;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSF;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFExecutableWriter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFIValueWriter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFWriter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableReader;
@@ -35,7 +36,7 @@ import org.rascalmpl.value.visitors.IValueVisitor;
  * all fields declared here are synced with the serializer.
  */
 
-public class Function  implements IValue {
+public class Function {
 //	private static final long serialVersionUID = -1741144671553091111L;
 	
 	String name;
@@ -454,214 +455,68 @@ public class Function  implements IValue {
 		return func;
 	}
 	
-//  public static final int RVM_FUNCTION_NAME = 2;
-//  public static final int RVM_FUNCTION_SCOPE_ID = 3;
-//  public static final int RVM_FUNCTION_FUN_IN = 4;
-//  public static final int RVM_FUNCTION_SCOPE_IN = 5;
-//  public static final int RVM_FUNCTION_NFORMALS = 6;
-//  public static final int RVM_FUNCTION_NLOCALS = 7;
-//  public static final int RVM_FUNCTION_IS_DEFAULT = 8;
-//  public static final int RVM_FUNCTION_MAX_STACK = 9;
-//  public static final int RVM_FUNCTION_CONCRETE_ARG = 10;
-//  public static final int RVM_FUNCTION_ABSTRACT_FINGERPRINT = 11;
-//  public static final int RVM_FUNCTION_CONCRETE_FINGERPRINT = 12;
-//  public static final int RVM_FUNCTION_FROMS = 13;
-//  public static final int RVM_FUNCTION_TOS = 14;
-//  public static final int RVM_FUNCTION_TYPES = 15;
-//  public static final int RVM_FUNCTION_HANDLERS = 16;
-//  public static final int RVM_FUNCTION_FROM_SPS = 17;
-//  public static final int RVM_FUNCTION_LAST_HANDLER = 18;
-//  public static final int RVM_FUNCTION_FUN_ID = 19;
-//  public static final int RVM_FUNCTION_IS_COROUTINE = 20;
-//  public static final int RVM_FUNCTION_REFS = 21;
-//  public static final int RVM_FUNCTION_IS_VARARGS = 22;
-//  public static final int RVM_FUNCTION_CONTINUATION_POINTS = 23;
-	
-	public void writeTypes(RSFIValueWriter writer) throws IOException {
-	    // Write embedded types in reverse order
+	private static final int FUNCTION_NAME = 1;
+	private static final int FUNCTION_FTYPE = 1;
+	private static final int FUNCTION_SCOPE_ID = 2;
+	private static final int FUNCTION_FUN_IN = 3;
+	private static final int FUNCTION_SCOPE_IN = 4;
+	private static final int FUNCTION_NFORMALS = 5;
+	private static final int FUNCTION_NLOCALS = 6;
+	private static final int FUNCTION_IS_DEFAULT = 7;
+	private static final int FUNCTION_MAX_STACK = 8;
+	private static final int FUNCTION_CODE_BLOCK = 9;
+	private static final int FUNCTION_CONSTANT_STORE = 9;
+	private static final int FUNCTION_TYPE_CONSTANT_STORE = 9;
+	private static final int FUNCTION_CONCRETE_ARG = 10;
+	private static final int FUNCTION_ABSTRACT_FINGERPRINT = 11;
+	private static final int FUNCTION_CONCRETE_FINGERPRINT = 12;
+	private static final int FUNCTION_FROMS = 13;
+	private static final int FUNCTION_TOS = 14;
+	private static final int FUNCTION_TYPES = 15;
+	private static final int FUNCTION_HANDLERS = 16;
+	private static final int FUNCTION_FROM_SPS = 17;
+	private static final int FUNCTION_LAST_HANDLER = 18;
+	private static final int FUNCTION_FUN_ID = 19;
+	private static final int FUNCTION_IS_COROUTINE = 20;
+	private static final int FUNCTION_REFS = 21;
+	private static final int FUNCTION_IS_VARARGS = 22;
+	private static final int FUNCTION_SRC = 23;
+	private static final int FUNCTION_LOCAL_NAMES = 24;
+	private static final int FUNCTION_CONTINUATION_POINTS = 25;
 
+	public void writeRSF(RSFExecutableWriter writer)  throws IOException {
 
-	    // Type[] typeConstantStore;
-	    //int n = typeConstantStore.length;
+	    writer.startMessage(RSFExecutableWriter.FUNCTION);
 
-	    //for(int i = n - 1; i >= 0; i--){
-//	        writer.writeType(typeConstantStore[i]);
-//	    }
-//
-//	    writer.writeType(ftype);
+	    writer.writeField(FUNCTION_NAME, name);
+	    writer.writeField(FUNCTION_FTYPE, ftype);
+	    writer.writeField(FUNCTION_SCOPE_ID, scopeId);
+	    writer.writeField(FUNCTION_FUN_IN, funIn);
+	    writer.writeField(FUNCTION_SCOPE_IN, scopeIn);
+	    writer.writeField(FUNCTION_NFORMALS, nformals);
+	    writer.writeField(FUNCTION_NLOCALS, getNlocals());
+	    writer.writeField(FUNCTION_IS_DEFAULT, isDefault ? 1 : 0);
+	    writer.writeField(FUNCTION_MAX_STACK, maxstack);
+	    writer.writeField(FUNCTION_CODE_BLOCK, codeblock);
+	    writer.writeField(FUNCTION_CONSTANT_STORE, constantStore);
+	    writer.writeField(FUNCTION_TYPE_CONSTANT_STORE, typeConstantStore);
+	    writer.writeField(FUNCTION_CONCRETE_ARG, concreteArg);
+	    writer.writeField(FUNCTION_ABSTRACT_FINGERPRINT, abstractFingerprint);
+	    writer.writeField(FUNCTION_CONCRETE_FINGERPRINT, concreteFingerprint);
+	    writer.writeField(FUNCTION_FROMS, froms);
+	    writer.writeField(FUNCTION_TOS, tos);
+	    writer.writeField(FUNCTION_TYPES, types);
+	    writer.writeField(FUNCTION_HANDLERS, handlers);
+	    writer.writeField(FUNCTION_FROM_SPS, fromSPs);
+	    writer.writeField(FUNCTION_LAST_HANDLER, lastHandler); 
+	    writer.writeField(FUNCTION_FUN_ID, funId);
+	    writer.writeField(FUNCTION_IS_COROUTINE, isCoroutine);
+	    writer.writeField(FUNCTION_REFS, refs);
+	    writer.writeField(FUNCTION_IS_VARARGS, isVarArgs);
+	    writer.writeField(FUNCTION_SRC, src);
+	    writer.writeField(FUNCTION_LOCAL_NAMES, localNames);
+	    writer.writeField(FUNCTION_CONTINUATION_POINTS, continuationPoints);
+
+	    writer.endMessage();
 	}
-
-	public void nextValues(PositionStack<IValue, ValueIteratorKind> stack) {
-
-	    // Push embedded values in reverse order for iterator
-
-	    stack.push(localNames, ValueIteratorKind.getKind(localNames), true);
-
-	    stack.push(src, ValueIteratorKind.getKind(src), true);
-
-	    // IValue[] constantStore;
-	    int n = constantStore.length;
-
-	    for(int i = n - 1; i >= 0; i--){
-	        IValue elm = constantStore[i];
-	        stack.push(elm, ValueIteratorKind.getKind(elm), true);
-	    }
-	}
-
-	public static final int RVM_FUNCTION_VALUE = 15;
-
-	public static final int RVM_FUNCTION_NAME = 2;
-	public static final int RVM_FUNCTION_SCOPE_ID = 3;
-	public static final int RVM_FUNCTION_FUN_IN = 4;
-	public static final int RVM_FUNCTION_SCOPE_IN = 5;
-	public static final int RVM_FUNCTION_NFORMALS = 6;
-	public static final int RVM_FUNCTION_NLOCALS = 7;
-	public static final int RVM_FUNCTION_IS_DEFAULT = 8;
-	public static final int RVM_FUNCTION_MAX_STACK = 9;
-	public static final int RVM_FUNCTION_CONCRETE_ARG = 10;
-	public static final int RVM_FUNCTION_ABSTRACT_FINGERPRINT = 11;
-	public static final int RVM_FUNCTION_CONCRETE_FINGERPRINT = 12;
-	public static final int RVM_FUNCTION_FROMS = 13;
-	public static final int RVM_FUNCTION_TOS = 14;
-	public static final int RVM_FUNCTION_TYPES = 15;
-	public static final int RVM_FUNCTION_HANDLERS = 16;
-	public static final int RVM_FUNCTION_FROM_SPS = 17;
-	public static final int RVM_FUNCTION_LAST_HANDLER = 18;
-	public static final int RVM_FUNCTION_FUN_ID = 19;
-	public static final int RVM_FUNCTION_IS_COROUTINE = 20;
-	public static final int RVM_FUNCTION_REFS = 21;
-	public static final int RVM_FUNCTION_IS_VARARGS = 22;
-	public static final int RVM_FUNCTION_CONTINUATION_POINTS = 23;
-
-	public void writeRSF(RSFWriter writer)  throws IOException {
-
-	    // Already written (in this order):
-
-	    // CodeBlock codeblock;
-	    // Type[] typeConstantStore;
-
-	    // IMap localNames;
-	    // ISourceLocation src;
-	    // IValue[] constantStore;
-
-	    writer.startMessage(RVM_FUNCTION_VALUE);
-	    // String name;
-	    writer.writeField(RVM_FUNCTION_NAME, name);
-
-	    // Type ftype;
-	    //writer.writeType(ftype);
-
-	    // int scopeId;
-	    writer.writeField(RVM_FUNCTION_SCOPE_ID, scopeId);
-
-	    // private String funIn;
-	    writer.writeField(RVM_FUNCTION_FUN_IN, funIn);
-
-	    // int scopeIn = -1;
-	    writer.writeField(RVM_FUNCTION_SCOPE_IN, scopeIn);
-
-	    // int nformals;
-	    writer.writeField(RVM_FUNCTION_NFORMALS, nformals);
-
-	    // int nlocals;
-	    writer.writeField(RVM_FUNCTION_NLOCALS, getNlocals());
-
-	    // boolean isDefault;
-	    writer.writeField(RVM_FUNCTION_IS_DEFAULT, isDefault ? 1 : 0);
-
-	    // int maxstack;
-	    writer.writeField(RVM_FUNCTION_MAX_STACK, maxstack);
-
-	    // boolean concreteArg = false;
-	    writer.writeField(RVM_FUNCTION_CONCRETE_ARG, concreteArg ? 1 : 0);
-
-	    // int abstractFingerprint = 0;
-	    writer.writeField(RVM_FUNCTION_ABSTRACT_FINGERPRINT, abstractFingerprint);
-
-	    // int concreteFingerprint = 0;
-	    writer.writeField(RVM_FUNCTION_CONCRETE_FINGERPRINT, concreteFingerprint);
-
-	    // int[] froms;
-	    writeLongs(writer, RVM_FUNCTION_FROMS, froms);
-
-	    // int[] tos;
-	    writeLongs(writer, RVM_FUNCTION_TOS, tos);
-
-	    // int[] types;
-	    writeLongs(writer, RVM_FUNCTION_TYPES, types);
-
-	    // int[] handlers;
-	    writeLongs(writer, RVM_FUNCTION_HANDLERS, handlers);
-
-	    // int[] fromSPs;
-	    writeLongs(writer, RVM_FUNCTION_FROM_SPS, fromSPs);
-
-	    // int lastHandler = -1;
-	    writer.writeField(RVM_FUNCTION_LAST_HANDLER, lastHandler);
-
-	    //public Integer funId; 
-	    writer.writeField(RVM_FUNCTION_FUN_ID, funId);
-
-	    // boolean isCoroutine = false;
-	    writer.writeField(RVM_FUNCTION_IS_COROUTINE, isCoroutine ? 1 : 0);
-
-	    // int[] refs;
-	    writeLongs(writer, RVM_FUNCTION_REFS, refs);
-
-	    // boolean isVarArgs = false;
-	    writer.writeField(RVM_FUNCTION_IS_VARARGS, isVarArgs ? 1 : 0);
-
-	    // int continuationPoints
-	    writer.writeField(RVM_FUNCTION_CONTINUATION_POINTS, continuationPoints);
-	}
-	
-    private void writeLongs(RSFWriter writer, int fieldID, int[] numbers) {
-        throw new RuntimeException("Need to think how to write these arrays, just repeat the field name in front of it?");
-    }
-
-    @Override
-    public <T, E extends Throwable> T accept(IValueVisitor<T, E> arg0) throws E {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public IAnnotatable<? extends IValue> asAnnotatable() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Type getType() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public boolean isAnnotatable() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean isEqual(IValue arg0) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean mayHaveKeywordParameters() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-   
-
- 
 }

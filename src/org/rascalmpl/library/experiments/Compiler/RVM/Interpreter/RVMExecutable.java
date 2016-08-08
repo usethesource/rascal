@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.experiments.Compiler.VersionInfo;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFExecutableWriter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableReader;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableWriter;
 import org.rascalmpl.library.util.SemVer;
@@ -571,4 +572,206 @@ public class RVMExecutable  {
 
 		return ex;
 	}
+	
+	private static final int EXECUTABLE_MAGIC = 0;
+    private static final int EXECUTABLE_RASCAL_VERSION = 1;
+    private static final int EXECUTABLE_RASCAL_RUNTIME_VERSION = 2;
+    private static final int EXECUTABLE_RASCAL_COMPILER_VERSION = 3;
+    private static final int EXECUTABLE_ERRORS = 4;
+    private static final int EXECUTABLE_MODULE_NAME = 5;
+    private static final int EXECUTABLE_MODULE_TAGS = 6;
+    private static final int EXECUTABLE_SYMBOL_DEFINITIONS = 7;
+    private static final int EXECUTABLE_FUNCTION_STORE = 8;
+    private static final int EXECUTABLE_CONSTRUCTOR_STORE = 9;
+    private static final int EXECUTABLE_CONSTRUCTOR_MAP = 10;
+    private static final int EXECUTABLE_OVERLOADED_STORE = 11;
+    private static final int EXECUTABLE_RESOLVER = 12;
+    private static final int EXECUTABLE_INITIALIZERS = 13;
+    private static final int EXECUTABLE_TESTSUITES = 14;
+    private static final int EXECUTABLE_MODULE_INIT = 15;
+    private static final int EXECUTABLE_MODULE_MAIN = 16;
+    private static final int EXECUTABLE_MODULE_MAIN_TESTSUITE = 17;
+    private static final int EXECUTABLE_JVM_BYTECODE = 18;
+    private static final int EXECUTABLE_FULLY_QUALIFIED_DOTTED_NAME = 19;
+	
+	public void writeRSF(RSFExecutableWriter writer) throws IOException {
+
+	    writer.startMessage(RSFExecutableWriter.EXECUTABLE);
+        
+        // Write standard header
+        
+        writer.writeField(EXECUTABLE_MAGIC, RVMExecutable.RASCAL_MAGIC);
+        
+        writer.writeField(EXECUTABLE_RASCAL_VERSION, VersionInfo.RASCAL_VERSION);
+        writer.writeField(EXECUTABLE_RASCAL_RUNTIME_VERSION, VersionInfo.RASCAL_RUNTIME_VERSION);
+        writer.writeField(EXECUTABLE_RASCAL_COMPILER_VERSION, VersionInfo.RASCAL_COMPILER_VERSION);
+        
+        writer.writeField(EXECUTABLE_ERRORS, getErrors());
+        
+        if(!isValid()){
+            writer.endMessage();
+            return;
+        }
+
+        writer.writeField(EXECUTABLE_MODULE_NAME, getModuleName());
+        writer.writeField(EXECUTABLE_MODULE_TAGS, getModuleTags());
+        writer.writeField(EXECUTABLE_SYMBOL_DEFINITIONS, getSymbolDefinitions());
+        writer.writeField(EXECUTABLE_FUNCTION_STORE, getFunctionStore());
+        writer.writeField(EXECUTABLE_CONSTRUCTOR_STORE, getConstructorStore());
+        writer.writeField(EXECUTABLE_CONSTRUCTOR_MAP, getConstructorMap());
+        writer.writeField(EXECUTABLE_OVERLOADED_STORE, getOverloadedStore());
+        writer.writeField(EXECUTABLE_RESOLVER, getResolver());
+        writer.writeField(EXECUTABLE_INITIALIZERS, getInitializers());
+        writer.writeField(EXECUTABLE_TESTSUITES, getTestSuites());
+        writer.writeField(EXECUTABLE_MODULE_INIT, getUidModuleInit());
+        writer.writeField(EXECUTABLE_MODULE_MAIN, getUidModuleMain());
+        writer.writeField(EXECUTABLE_MODULE_MAIN_TESTSUITE, getUidModuleMainTestsuite());
+        writer.writeField(EXECUTABLE_JVM_BYTECODE, getJvmByteCode());
+        writer.writeField(EXECUTABLE_FULLY_QUALIFIED_DOTTED_NAME, getFullyQualifiedDottedName());
+  
+        writer.endMessage();
+	}
+    
+    public static RVMExecutable readRSF(RVMExecutableReader in) throws IOException{
+        int n;
+
+        // Read and check standard header
+
+        // Check magic
+
+        String rascal_magic = in.readJString();
+
+        if(!rascal_magic.equals(RVMExecutable.RASCAL_MAGIC)){
+            throw new RuntimeException("Cannot read incompatible Rascal executable");
+        }
+
+        // Check RASCAL_VERSION
+
+        String rascal_version = in.readJString();
+
+        SemVer sv;
+        try {
+            sv = new SemVer(rascal_version);
+        } catch(Exception e){
+            throw new RuntimeException("Invalid value for RASCAL_VERSION in Rascal executable");
+        }
+
+        if(!sv.satisfiesVersion("~" + VersionInfo.RASCAL_VERSION)){
+            throw new RuntimeException("RASCAL_VERSION " + rascal_version + " in Rascal executable incompatible with current version " + VersionInfo.RASCAL_VERSION);
+        }
+
+        // Check RASCAL_RUNTIME_VERSION
+
+        String rascal_runtime_version = in.readJString();
+        try {
+            sv = new SemVer(rascal_runtime_version);
+        } catch(Exception e){
+            throw new RuntimeException("Invalid value for RASCAL_RUNTIME_VERSION in Rascal executable");
+        }
+        if(!sv.satisfiesVersion("~" + VersionInfo.RASCAL_RUNTIME_VERSION)){
+            throw new RuntimeException("RASCAL_RUNTIME_VERSION " + rascal_runtime_version + " in Rascal executable incompatible with current version " + VersionInfo.RASCAL_RUNTIME_VERSION);
+        }
+
+        // Check RASCAL_COMPILER_VERSION
+
+        String rascal_compiler_version = in.readJString();
+        try {
+            sv = new SemVer(rascal_runtime_version);
+        } catch(Exception e){
+            throw new RuntimeException("Invalid value for RASCAL_COMPILER_VERSION in Rascal executable");
+        }
+        if(!sv.satisfiesVersion("~" + VersionInfo.RASCAL_COMPILER_VERSION)){
+            throw new RuntimeException("RASCAL_COMPILER_VERSION " + rascal_compiler_version + " in Rascal executable incompatible with current version " + VersionInfo.RASCAL_COMPILER_VERSION);
+        }
+        //          System.err.println("RascalShell: Rascal: " + VersionInfo.RASCAL_VERSION + "; Runtime: " + VersionInfo.RASCAL_RUNTIME_VERSION + "; Compiler: " + VersionInfo.RASCAL_COMPILER_VERSION);
+        //          System.err.println("Executable : Rascal: " + rascal_version + "; Runtime: " + rascal_runtime_version + "; Compiler: " + rascal_compiler_version);
+
+        // String[] errors
+
+        ISet errors = (ISet) in.readValue();
+
+        if(errors.size() > 0){
+            return new RVMExecutable(errors);
+        }
+
+        // public String name;
+
+        String module_name = in.readJString();
+
+        // public IMap moduleTags;
+
+        IMap moduleTags = (IMap) in.readValue();
+
+        // public IMap symbol_definitions;
+
+        IMap symbol_definitions = (IMap) in.readValue();
+
+        // public ArrayList<Function> functionStore;
+        // public  Map<String, Integer> functionMap;
+
+        Function[] functionStore = in.readFunctionStore();
+
+        n = functionStore.length;
+        HashMap<String, Integer> functionMap = new HashMap<String, Integer>(n);
+        for(int i = 0; i < n; i++){
+            functionMap.put(functionStore[i].getName(), i);
+        }
+
+        // public ArrayList<Type> constructorStore;
+
+        n = (Integer) in.readInt();
+        ArrayList<Type> constructorStore = new ArrayList<Type>(n);
+
+        for(int i = 0; i < n; i++){
+            constructorStore.add(i, in.readType());
+        }
+
+        // public Map<String, Integer> constructorMap;
+
+        Map<String, Integer> constructorMap = (Map<String, Integer>) in.readMapStringInt();
+
+        // public OverloadedFunction[] overloadedStore;
+
+        OverloadedFunction[] overloadedStore = (OverloadedFunction[]) in.readArrayOverloadedFunctions();
+
+        // public Map<String, Integer> resolver;
+
+        HashMap<String, Integer> resolver = (HashMap<String, Integer>) in.readMapStringInt();
+
+        // ArrayList<String> initializers;
+
+        ArrayList<String> initializers = in.readArrayListString();
+
+        // ArrayList<String> testsuites;
+
+        ArrayList<String> testsuites = in.readArrayListString();
+
+        // public String uid_module_init;
+
+        String uid_module_init = in.readJString();
+
+        // public String uid_module_main;
+
+        String uid_module_main = in.readJString();
+
+        // public String uid_module_main_testsuite;
+
+        String uid_module_main_testsuite = in.readJString();
+
+        // public byte[] jvmByteCode;
+
+        byte[] jvmByteCode = (byte[]) in.readByteArray();
+
+        // public String fullyQualifiedDottedName;
+
+        String fullyQualifiedDottedName = in.readJString();
+
+        RVMExecutable ex = new RVMExecutable(module_name, moduleTags, symbol_definitions, functionMap, functionStore, 
+                constructorMap, constructorStore, resolver, overloadedStore, initializers, testsuites, 
+                uid_module_init, uid_module_main, uid_module_main_testsuite, store, vf, false);
+        ex.setJvmByteCode(jvmByteCode);
+        ex.setFullyQualifiedDottedName(fullyQualifiedDottedName);
+
+        return ex;
+    }
 }
