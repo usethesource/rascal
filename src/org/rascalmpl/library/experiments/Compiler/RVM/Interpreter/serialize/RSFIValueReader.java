@@ -59,13 +59,10 @@ public class RSFIValueReader {
             throw new IOException("Unsupported file");
         }
        
-        int typeWindowSize = in.read();
-        int valueWindowSize = in.read();
-        int uriWindowSize = in.read();
       
-        typeWindow = new LinearCircularLookupWindow<>(typeWindowSize * 1024);
-        valueWindow = new LinearCircularLookupWindow<>(valueWindowSize * 1024);
-        uriWindow = new LinearCircularLookupWindow<>(uriWindowSize * 1024);
+        typeWindow = getWindow(in.read());
+        valueWindow = getWindow(in.read());
+        uriWindow = getWindow(in.read());
 		
 		this.reader = new RSFReader(in);
 		store = ts;
@@ -73,7 +70,24 @@ public class RSFIValueReader {
 		store.extendStore(RascalValueFactory.getStore());
 	}
 	
-	public RSFReader getIn() {
+	private <T> TrackLastRead<T> getWindow(int size) {
+	    if (size == 0) {
+	        return new TrackLastRead<T>() {
+                @Override
+                public void read(T obj) {
+                }
+
+                @Override
+                public T lookBack(int elements) {
+                    throw new IllegalArgumentException();
+                }
+	            
+	        };
+	    }
+	    return new LinearCircularLookupWindow<>(size * 1024);
+    }
+
+    public RSFReader getIn() {
 		return reader;
 	}
 
