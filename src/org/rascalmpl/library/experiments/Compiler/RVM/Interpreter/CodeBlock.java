@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.*;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFExecutableWriter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableReader;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableWriter;
 import org.rascalmpl.value.IList;
@@ -966,57 +967,37 @@ public class CodeBlock  {
 				functionMap, resolver, constructorMap, finalCode);
 	}
 	
-	private static final int RVM_CODEBLOCK_NAME = 1;
-	private static final int RVM_CODEBLOCK_CONSTANT_STORE = 2;
-	private static final int RVM_CODEBLOCK_TYPE_CONSTANT_STORE = 3;
-	private static final int RVM_CODEBLOCK_FUNCTION_MAP = 4;
-	private static final int RVM_CODEBLOCK_RESOLVER = 5;
-	private static final int RVM_CODEBLOCK_CONSTRUCTOR_MAP = 6;
-	private static final int RVM_CODEBLOCK_FINAL_CODE = 7;
+	private static final int CODEBLOCK_NAME = 1;
+	private static final int CODEBLOCK_CONSTANT_STORE = 2;
+	private static final int CODEBLOCK_TYPE_CONSTANT_STORE = 3;
+	private static final int CODEBLOCK_FUNCTION_MAP = 4;
+	private static final int CODEBLOCK_RESOLVER = 5;
+	private static final int CODEBLOCK_CONSTRUCTOR_MAP = 6;
+	private static final int CODEBLOCK_FINAL_CODE = 7;
 	
-//	public void writeRSF(RSFExecutableWriter writer) throws IOException {
-//        int n;
+	public void writeRSF(RSFExecutableWriter writer) throws IOException {
+        writer.startMessage(RSFExecutableWriter.CODEBLOCK);
 
-//        // private String name;
-//
-//        writer.writeField(RVM_CODEBLOCK_NAME, name);
-//
-//        // private Map<IValue, Integer> constantMap;    
-//        // private ArrayList<IValue> constantStore; (
-//        // private IValue[] finalConstantStore;
-//
-//        n = finalConstantStore.length;
-//        writer.writeField(RVM_CODEBLOCK_CONSTANT_STORE, n);
-//        for(int i = 0; i < n; i++){
-//            writer.writeValue(finalConstantStore[i]);
-//        }
-//
-//        // private Map<Type, Integer> typeConstantMap;
-//        // private ArrayList<Type> typeConstantStore;
-//        // private Type[] finalTypeConstantStore;
-//
-//        n = finalTypeConstantStore.length;
-//        writer.writeField(RVM_CODEBLOCK_TYPE_CONSTANT_STORE, n);
-//        for(int i = 0; i < n; i++){
-//            writer.writeType(finalTypeConstantStore[i]);
-//        }   
-//
-//        // private Map<String, Integer> functionMap;
-//
-//        writer.writeField(RVM_CODEBLOCK_FUNCTION_MAP, functionMap);
-//
-//        // private Map<String, Integer> resolver;
-//
-//        writer.writeField(RVM_CODEBLOCK_RESOLVER, resolver);
-//
-//        // private Map<String, Integer> constructorMap;
-//
-//        writer.writeField(RVM_CODEBLOCK_CONSTRUCTOR_MAP, constructorMap);
-//
-//        // public int[] finalCode;
-//
-//        writer.writeField(RVM_CODEBLOCK_FINAL_CODE, finalCode);
-    //}
+        writer.writeField(CODEBLOCK_NAME, name);
+
+        // private Map<IValue, Integer> constantMap;    
+        // private ArrayList<IValue> constantStore; (
+        // private IValue[] finalConstantStore;
+
+        writer.writeField(CODEBLOCK_CONSTANT_STORE, finalConstantStore);
+
+        // private Map<Type, Integer> typeConstantMap;
+        // private ArrayList<Type> typeConstantStore;
+        // private Type[] finalTypeConstantStore;
+
+        writer.writeField(CODEBLOCK_TYPE_CONSTANT_STORE, finalTypeConstantStore);  
+        writer.writeField(CODEBLOCK_FUNCTION_MAP, functionMap);
+        writer.writeField(CODEBLOCK_RESOLVER, resolver);
+        writer.writeField(CODEBLOCK_CONSTRUCTOR_MAP, constructorMap);
+        writer.writeField(CODEBLOCK_FINAL_CODE, finalCode);
+        
+        writer.endMessage();
+    }
     
     public static CodeBlock readRSF(RVMExecutableReader in) throws IOException 
     {
