@@ -43,8 +43,8 @@ public class RSFIValueWriter {
     
     public enum CompressionRate {
         None(0,0,0),
-        TypesOnly(10,0,0),
-        ValuesOnly(0,10,10),
+        //TypesOnly(10,0,0),
+        //ValuesOnly(0,10,10),
         Fast(10,10,10),
         Normal(50,100,50),
         Extreme(50,250,100)
