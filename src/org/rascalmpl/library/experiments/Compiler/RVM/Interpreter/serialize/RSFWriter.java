@@ -93,4 +93,9 @@ public class RSFWriter implements Closeable, Flushable {
         assertNotClosed();
         writeFieldTag(0, 0);
     }
+    
+    public void writeEmptyValue(int messageId) throws IOException {
+        startValue(messageId);
+        endValue();
+    }
 }
