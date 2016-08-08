@@ -67,6 +67,7 @@ import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFIValueReader;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFIValueWriter;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFIValueWriter.CompressionRate;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMIValueWriter;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.IGTD;
@@ -3433,9 +3434,7 @@ public class Prelude {
     	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
 		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
 			//new BinaryValueWriter().write(value, out, compression.getValue());
-			RSFIValueWriter ser = new RSFIValueWriter(out, 100, 100, 10);
-			ser.writeValue(value);
-			ser.close();
+			RSFIValueWriter.write(out, CompressionRate.None, value, false); 
 		}
 		catch (IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
