@@ -22,7 +22,16 @@ public class RSFReader implements Closeable {
     public static enum ReaderPosition {
         VALUE_START,
         FIELD,
-        VALUE_END
+        VALUE_END {
+            @Override
+            public boolean isEnd() {
+                return true;
+            }
+        };
+
+        public boolean isEnd() {
+            return false;
+        }
     }
 
     private static final byte[] WIRE_VERSION = new byte[] { 1, 0, 0 };
