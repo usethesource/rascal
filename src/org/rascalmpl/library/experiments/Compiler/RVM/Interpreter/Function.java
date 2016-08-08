@@ -543,13 +543,13 @@ public class Function  implements IValue {
 	    writer.writeField(RVM_FUNCTION_NLOCALS, getNlocals());
 
 	    // boolean isDefault;
-	    writer.writeField(RVM_FUNCTION_IS_DEFAULT, isDefault);
+	    writer.writeField(RVM_FUNCTION_IS_DEFAULT, isDefault ? 1 : 0);
 
 	    // int maxstack;
 	    writer.writeField(RVM_FUNCTION_MAX_STACK, maxstack);
 
 	    // boolean concreteArg = false;
-	    writer.writeField(RVM_FUNCTION_CONCRETE_ARG, concreteArg);
+	    writer.writeField(RVM_FUNCTION_CONCRETE_ARG, concreteArg ? 1 : 0);
 
 	    // int abstractFingerprint = 0;
 	    writer.writeField(RVM_FUNCTION_ABSTRACT_FINGERPRINT, abstractFingerprint);
@@ -558,19 +558,19 @@ public class Function  implements IValue {
 	    writer.writeField(RVM_FUNCTION_CONCRETE_FINGERPRINT, concreteFingerprint);
 
 	    // int[] froms;
-	    writer.writeField(RVM_FUNCTION_FROMS, froms);
+	    writeLongs(writer, RVM_FUNCTION_FROMS, froms);
 
 	    // int[] tos;
-	    writer.writeField(RVM_FUNCTION_TOS, tos);
+	    writeLongs(writer, RVM_FUNCTION_TOS, tos);
 
 	    // int[] types;
-	    writer.writeField(RVM_FUNCTION_TYPES, types);
+	    writeLongs(writer, RVM_FUNCTION_TYPES, types);
 
 	    // int[] handlers;
-	    writer.writeField(RVM_FUNCTION_HANDLERS, handlers);
+	    writeLongs(writer, RVM_FUNCTION_HANDLERS, handlers);
 
 	    // int[] fromSPs;
-	    writer.writeField(RVM_FUNCTION_FROM_SPS, fromSPs);
+	    writeLongs(writer, RVM_FUNCTION_FROM_SPS, fromSPs);
 
 	    // int lastHandler = -1;
 	    writer.writeField(RVM_FUNCTION_LAST_HANDLER, lastHandler);
@@ -579,18 +579,22 @@ public class Function  implements IValue {
 	    writer.writeField(RVM_FUNCTION_FUN_ID, funId);
 
 	    // boolean isCoroutine = false;
-	    writer.writeField(RVM_FUNCTION_IS_COROUTINE, isCoroutine);
+	    writer.writeField(RVM_FUNCTION_IS_COROUTINE, isCoroutine ? 1 : 0);
 
 	    // int[] refs;
-	    writer.writeField(RVM_FUNCTION_REFS, refs);
+	    writeLongs(writer, RVM_FUNCTION_REFS, refs);
 
 	    // boolean isVarArgs = false;
-	    writer.writeField(RVM_FUNCTION_IS_VARARGS, isVarArgs);
+	    writer.writeField(RVM_FUNCTION_IS_VARARGS, isVarArgs ? 1 : 0);
 
 	    // int continuationPoints
 	    writer.writeField(RVM_FUNCTION_CONTINUATION_POINTS, continuationPoints);
 	}
 	
+    private void writeLongs(RSFWriter writer, int fieldID, int[] numbers) {
+        throw new RuntimeException("Need to think how to write these arrays, just repeat the field name in front of it?");
+    }
+
     @Override
     public <T, E extends Throwable> T accept(IValueVisitor<T, E> arg0) throws E {
         // TODO Auto-generated method stub
