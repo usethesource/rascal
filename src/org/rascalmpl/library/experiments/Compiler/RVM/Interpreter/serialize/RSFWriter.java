@@ -82,25 +82,11 @@ public class RSFWriter implements Closeable, Flushable {
         writeFieldTag(fieldID, FieldKind.LONG);
         stream.writeRawVarint64(value);
     }
-
-    public void writeField(int fieldID, boolean value) throws IOException {
-        assertNotClosed();
-        writeFieldTag(fieldID, FieldKind.LONG);
-        stream.writeRawVarint64(value ? 1 : 0);
-    }
     
     public void writeField(int fieldID, byte[] value) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldID, FieldKind.BYTES);
         stream.writeByteArrayNoTag(value);
-    }
-    
-    public void writeField(int fieldID, int[] values) throws IOException{
-        int n = values.length;
-        writeFieldTag(fieldID, FieldKind.LONG);
-        for(int i = 0; i < n; i++){
-            stream.writeRawVarint64(values[i]);
-        }
     }
 
     public void endValue() throws IOException {
