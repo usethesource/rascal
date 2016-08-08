@@ -54,48 +54,48 @@ public class RSFWriter implements Closeable, Flushable {
         __stream.flush();
     }
 
-    void writeFieldTag(final int fieldID, final int type) throws IOException {
-        stream.writeRawVarint32(TaggedInt.make(fieldID, type));
+    void writeFieldTag(final int fieldId, final int type) throws IOException {
+        stream.writeRawVarint32(TaggedInt.make(fieldId, type));
     }
 
-    public void startValue(int valueID) throws IOException {
+    public void startMessage(int messageId) throws IOException {
         assertNotClosed();
-        writeFieldTag(valueID, 0);
+        writeFieldTag(messageId, 0);
     }
 
-    public void writeField(int fieldID, String value) throws IOException {
+    public void writeField(int fieldId, String value) throws IOException {
         assertNotClosed();
         int alreadyWritten = stringsWritten.howLongAgo(value);
         if (alreadyWritten != -1) {
-            writeFieldTag(fieldID, FieldKind.PREVIOUS_STR);
+            writeFieldTag(fieldId, FieldKind.PREVIOUS_STR);
             stream.writeRawVarint64(TaggedInt.make(alreadyWritten, FieldKind.STRING));
         }
         else {
-            writeFieldTag(fieldID, FieldKind.STRING);
+            writeFieldTag(fieldId, FieldKind.STRING);
             stream.writeStringNoTag(value);
             stringsWritten.write(value);
         }
     }
     
-    public void writeField(int fieldID, long value) throws IOException {
+    public void writeField(int fieldId, long value) throws IOException {
         assertNotClosed();
-        writeFieldTag(fieldID, FieldKind.LONG);
+        writeFieldTag(fieldId, FieldKind.LONG);
         stream.writeRawVarint64(value);
     }
     
-    public void writeField(int fieldID, byte[] value) throws IOException {
+    public void writeField(int fieldId, byte[] value) throws IOException {
         assertNotClosed();
-        writeFieldTag(fieldID, FieldKind.BYTES);
+        writeFieldTag(fieldId, FieldKind.BYTES);
         stream.writeByteArrayNoTag(value);
     }
 
-    public void endValue() throws IOException {
+    public void endMessage() throws IOException {
         assertNotClosed();
         writeFieldTag(0, 0);
     }
     
-    public void writeEmptyValue(int messageId) throws IOException {
-        startValue(messageId);
-        endValue();
+    public void writeEmptyMessage(int messageId) throws IOException {
+        startMessage(messageId);
+        endMessage();
     }
 }

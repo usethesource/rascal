@@ -1,6 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 
-
 import java.io.IOException;
 
 public abstract class PrePostIterator<Item, Kind extends IteratorKind>  {
@@ -20,7 +19,7 @@ public abstract class PrePostIterator<Item, Kind extends IteratorKind>  {
 
     abstract public Kind next() throws IOException ;
     
-    public Kind skipValue() {
+    public Kind skipItem() {
         assert beginning;
         beginning = false;
         return kind;
@@ -30,14 +29,12 @@ public abstract class PrePostIterator<Item, Kind extends IteratorKind>  {
         return beginning;
     }
 
-  
     public Kind currentKind() {
         return kind;
     }
 
-    public Item getValue() {
+    public Item getItem() {
         return item;
     }
 
 }
-

@@ -1,7 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 
-import java.io.IOException;
-
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.type.ITypeVisitor;
@@ -28,13 +26,7 @@ public enum ValueIteratorKind implements IteratorKind {
 	MAP            (true), 
 	NODE           (true), 
 	SET            (true), 
-	TUPLE          (true),
-	
-	RVM_FUNCTION   (true),
-	RVM_OVERLOADED_FUNCTION 
-	               (true),
-	RVM_CODEBLOCK  (true),
-	RVM_EXECUTABLE (true);
+	TUPLE          (true);
 	
 	private boolean compound;
 
@@ -114,7 +106,6 @@ public enum ValueIteratorKind implements IteratorKind {
 			@Override
 			public ValueIteratorKind visitAbstractData(Type type) throws RuntimeException {
 			    return CONSTRUCTOR;
-				//return v instanceof IConstructor ? CONSTRUCTOR : ADT;
 			}
 			
 			@Override

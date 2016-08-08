@@ -3433,7 +3433,7 @@ public class Prelude {
     	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
 		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
 			//new BinaryValueWriter().write(value, out, compression.getValue());
-			RSFIValueWriter.write(out, CompressionRate.Normal, value, false); 
+			RSFIValueWriter.write(out, value, CompressionRate.Normal, false); 
 		}
 		catch (IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
