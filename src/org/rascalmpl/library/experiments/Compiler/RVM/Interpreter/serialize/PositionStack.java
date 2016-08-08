@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.EmptyStackException;
 
 public class PositionStack<Item, Kind extends IteratorKind> {
@@ -9,8 +10,6 @@ public class PositionStack<Item, Kind extends IteratorKind> {
     private Item[] items;
     private boolean[] beginnings;
     private int mark = -1;
-    private final Class<Item> iclass;
-    private final Class<Kind> kclass;
     
     public PositionStack(Class<Item> iclass, Class<Kind> kclass) {
         this(iclass, kclass, 1024);
@@ -19,10 +18,8 @@ public class PositionStack<Item, Kind extends IteratorKind> {
 	@SuppressWarnings("unchecked")
     public PositionStack(Class<Item> iclass, Class<Kind> kclass, int initialSize) {
         kinds = (Kind[]) Array.newInstance(kclass, initialSize);
-        items = (Item[])  Array.newInstance(iclass,initialSize);
+        items = (Item[]) Array.newInstance(iclass,initialSize);
         beginnings = new boolean[initialSize];
-        this.iclass = iclass;
-        this.kclass = kclass;
     }
 
     public Kind currentKind() {
@@ -59,20 +56,13 @@ public class PositionStack<Item, Kind extends IteratorKind> {
         }
     }
 
-    @SuppressWarnings("unchecked")
 	private void grow(int desiredSize) {
         if (desiredSize > items.length) {
             int newSize = (int)Math.min(items.length * 2L, 0x7FFFFFF7); // max array size used by array list
             assert desiredSize <= newSize;
-            Item[] newItems = (Item[])  Array.newInstance(iclass, newSize);
-            System.arraycopy(items, 0, newItems, 0, mark + 1);
-            items = newItems;
-            Kind[] newKinds = (Kind[]) Array.newInstance(kclass, newSize);
-            System.arraycopy(kinds, 0, newKinds, 0, mark + 1);
-            kinds = newKinds;
-            boolean[] newBeginnings = new boolean[newSize];
-            System.arraycopy(beginnings, 0, newBeginnings, 0, mark + 1);
-            beginnings = newBeginnings;
+            items = Arrays.copyOf(items, newSize);
+            kinds = Arrays.copyOf(kinds, newSize);
+            beginnings = Arrays.copyOf(beginnings, newSize);
         }
     }
 }
