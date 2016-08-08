@@ -162,6 +162,7 @@ public class RSFIValueWriter {
 	        int lastSeen;
 	        if (atBeginning && kind.isCompound() && (lastSeen = typeCache.howLongAgo(currentType)) != -1) {
 	            writeSingleValueMessage(writer, RSF.PreviousType.ID, RSF.PreviousType.HOW_LONG_AGO, lastSeen);
+	            it.skipValue();
 	        }
 	        else {
 	            switch(kind){
