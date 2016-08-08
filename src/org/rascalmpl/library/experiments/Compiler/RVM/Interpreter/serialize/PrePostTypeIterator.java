@@ -15,7 +15,7 @@ public class PrePostTypeIterator extends PrePostIterator<Type, TypeIteratorKind>
         this(root, 1024);
     }
 
-    public PrePostTypeIterator(Type root, int stackSize) throws IOException {
+    public PrePostTypeIterator(Type root, int stackSize) {
         super(stackSize);
         stack.push(root, TypeIteratorKind.getKind(root), true);
         beginning = false; // start out at fake end
