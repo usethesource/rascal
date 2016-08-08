@@ -4,13 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Set;
 
-import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.MapLastWritten;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.TrackLastWritten;
 import org.rascalmpl.value.IBool;
@@ -20,7 +17,6 @@ import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.INode;
-import org.rascalmpl.value.IRational;
 import org.rascalmpl.value.IReal;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISourceLocation;
@@ -33,6 +29,8 @@ import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.tukaani.xz.LZMA2Options;
+import org.tukaani.xz.XZOutputStream;
         	
 /**
  * RSFIValueWriter is a binary serializer for IValues and Types. The main public functions is:
@@ -42,27 +40,34 @@ import org.rascalmpl.values.uptr.RascalValueFactory;
 public class RSFIValueWriter {
     
     public enum CompressionRate {
-        None(0,0,0),
+        None(0,0,0, 0),
         //TypesOnly(10,0,0),
         //ValuesOnly(0,10,10),
-        Fast(10,10,10),
-        Normal(50,100,50),
-        Extreme(50,250,100)
+        Fast(10,10,10, 1),
+        Normal(50,100,50,3),
+        Extreme(50,250,100, 6)
         ;
 
         private final int uriWindow;
         private final int typeWindow;
         private final int valueWindow;
+        private int xzMode;
 
-        CompressionRate(int typeWindow, int valueWindow, int uriWindow) {
+        CompressionRate(int typeWindow, int valueWindow, int uriWindow, int xzMode) {
             this.typeWindow = typeWindow;
             this.valueWindow = valueWindow;
             this.uriWindow = uriWindow;
+            this.xzMode = xzMode;
         }
         
     }
     
 	protected static final byte[] header = { 'R', 'V', 1,0,0 };
+	static final class CompressionHeader {
+	    public static final byte NONE = 0;
+	    public static final byte GZIP = 1;
+	    public static final byte XZ = 2;
+	}
     /*
     private final boolean doCaching = false;
 
@@ -124,6 +129,10 @@ public class RSFIValueWriter {
     	out.write(compression.typeWindow);
     	out.write(compression.valueWindow);
     	out.write(compression.uriWindow);
+    	out.write(compression.xzMode == 0 ? CompressionHeader.NONE : CompressionHeader.XZ);
+    	if (compression.xzMode > 0) {
+    	    out = new XZOutputStream(out, new LZMA2Options(compression.xzMode));
+    	}
     	RSFWriter writer =  new RSFWriter(out);
     	try {
     	    TrackLastWritten<Type> typeCache = getWindow(compression.typeWindow);
@@ -135,6 +144,11 @@ public class RSFIValueWriter {
     	    writer.flush();
     	    if (shouldClose) {
     	        writer.close();
+    	    }
+    	    else {
+                if (compression.xzMode > 0) {
+                    ((XZOutputStream)out).finish();
+                }
     	    }
     	}
 	}
@@ -561,7 +575,7 @@ public class RSFIValueWriter {
     		 Type t = rtf.functionType(tf.integerType(), tf.tupleType(tf.stringType(), tf.boolType()), tf.voidType());
     		 IValue v = andval;
     		 System.out.println(v);
-    		 RSFIValueWriter.write(out, CompressionRate.None, v, true);
+    		 RSFIValueWriter.write(out, CompressionRate.Normal, v, true);
     		 try (ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray())) {
                  System.out.println(RSFIValueReader.read(in, vf, ts));
              }

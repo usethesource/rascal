@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
 
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -27,6 +28,7 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.tukaani.xz.XZInputStream;
 
 import io.usethesource.capsule.TransientMap;
 import io.usethesource.capsule.TrieMap_5Bits;
@@ -61,6 +63,20 @@ public class RSFIValueReader {
         TrackLastRead<Type> typeWindow = getWindow(in.read());
         TrackLastRead<IValue> valueWindow = getWindow(in.read());
         TrackLastRead<ISourceLocation> uriWindow = getWindow(in.read());
+        
+        int compression = in.read();
+        switch (compression) {
+            case RSFIValueWriter.CompressionHeader.NONE:
+                break;
+            case RSFIValueWriter.CompressionHeader.GZIP:
+                in = new GZIPInputStream(in);
+                break;
+            case RSFIValueWriter.CompressionHeader.XZ:
+                in = new XZInputStream(in);
+                break;
+            default:
+                throw new IOException("Unsupported compression in file");
+        }
 
         ts.extendStore(RascalValueFactory.getStore());
 		return read(new RSFReader(in), vf, ts, typeWindow, valueWindow, uriWindow);
