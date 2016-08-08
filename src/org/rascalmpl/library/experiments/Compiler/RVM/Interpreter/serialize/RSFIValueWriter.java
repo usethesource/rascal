@@ -43,6 +43,8 @@ public class RSFIValueWriter {
     
     public enum CompressionRate {
         None(0,0,0),
+        TypesOnly(10,0,0),
+        ValuesOnly(0,10,10),
         Fast(10,10,10),
         Normal(50,100,50),
         Extreme(50,250,100)
@@ -158,7 +160,7 @@ public class RSFIValueWriter {
 	        final Type currentType = it.getValue();
 	        final boolean atBeginning = it.atBeginning();
 	        int lastSeen;
-	        if (atBeginning && !kind.isCompound() && (lastSeen = typeCache.howLongAgo(currentType)) != -1) {
+	        if (atBeginning && kind.isCompound() && (lastSeen = typeCache.howLongAgo(currentType)) != -1) {
 	            writeSingleValueMessage(writer, RSF.PreviousType.ID, RSF.PreviousType.HOW_LONG_AGO, lastSeen);
 	        }
 	        else {
@@ -298,7 +300,7 @@ public class RSFIValueWriter {
 	                    break;
 	                }
 	            }
-	            if (!atBeginning && !kind.isCompound()) {
+	            if (!atBeginning && kind.isCompound()) {
 	                typeCache.write(currentType);
 	            }
 	        }
