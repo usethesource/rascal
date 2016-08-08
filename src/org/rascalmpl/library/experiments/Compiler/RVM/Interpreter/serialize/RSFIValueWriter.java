@@ -329,7 +329,7 @@ public class RSFIValueWriter {
 			final IValue currentValue = it.getValue();
 			final boolean atBeginning = it.atBeginning();
 			int lastSeen;
-			if (atBeginning && kind != ValueIteratorKind.BOOL && (lastSeen = valueCache.howLongAgo(currentValue)) > -1) {
+			if (atBeginning && kind != ValueIteratorKind.BOOL && kind.isCompound() && (lastSeen = valueCache.howLongAgo(currentValue)) > -1) {
 			    writer.startValue(RSF.PreviousValue.ID);
 			    writer.writeField(RSF.PreviousValue.HOW_FAR_BACK, lastSeen);
 			    writer.endValue();
@@ -518,7 +518,7 @@ public class RSFIValueWriter {
                      throw new RuntimeException("writeValue: unexpected kind of value " + kind);
                 }
             }
-			if (!atBeginning || !kind.isCompound()) {
+			if (!atBeginning || kind.isCompound()) {
 			    valueCache.write(currentValue);
 			}
 		}
