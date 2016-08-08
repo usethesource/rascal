@@ -114,8 +114,8 @@ public class RSFIValueWriter {
 	        int id = typeCache.howLongAgo(type);
 	        if(id > -1){
 	            System.out.println("inCache: " + type + ", " + id);
-	            writer.startValue(RSF.PREVIOUS_TYPE_ID);
-	            writer.writeField(RSF.PREVIOUS_ID, id);
+	            writer.startValue(RSF.PreviousType.ID);
+	            writer.writeField(RSF.PreviousType.HOW_LONG_AGO, id);
 	            writer.endValue();
 	            return true;
 	        }
@@ -138,47 +138,47 @@ public class RSFIValueWriter {
 			// Atomic types
 			 
 	            case BOOL: {
-	                writeAtomicType(RSF.BOOL_TYPE);
+	                writeAtomicType(RSF.BoolType.ID);
 	                break;
 	            }
 	            case DATETIME:{
-	                writeAtomicType(RSF.DATETIME_TYPE);
+	                writeAtomicType(RSF.DateTimeType.ID);
 	                break;
 	            }
 	            case INT: {
-                    writeAtomicType(RSF.INT_TYPE);
+                    writeAtomicType(RSF.IntegerType.ID);
                     break;
                 }
 	            case NODE: {
-                    writeAtomicType(RSF.NODE_TYPE);
+                    writeAtomicType(RSF.NodeType.ID);
                     break;
                 }
 	            case NUMBER: {
-                    writeAtomicType(RSF.NUMBER_TYPE);
+                    writeAtomicType(RSF.NumberType.ID);
                     break;
                 }
 	            case RATIONAL: {
-                    writeAtomicType(RSF.RATIONAL_TYPE);
+                    writeAtomicType(RSF.RationalType.ID);
                     break;
                 }
 	            case REAL: {
-                    writeAtomicType(RSF.REAL_TYPE);
+                    writeAtomicType(RSF.RealType.ID);
                     break;
                 }
 	            case LOC: {
-                    writeAtomicType(RSF.LOC_TYPE);
+                    writeAtomicType(RSF.SourceLocationType.ID);
                     break;
                 }
 	            case STR: {
-                    writeAtomicType(RSF.STR_TYPE);
+                    writeAtomicType(RSF.StringType.ID);
                     break;
                 }
 	            case VALUE: {
-                    writeAtomicType(RSF.VALUE_TYPE);
+                    writeAtomicType(RSF.ValueType.ID);
                     break;
                 }
 	            case VOID: {
-                    writeAtomicType(RSF.VOID_TYPE);
+                    writeAtomicType(RSF.VoidType.ID);
                     break;
                 }
 	            
@@ -192,10 +192,8 @@ public class RSFIValueWriter {
 	                        it.skipValue();
 	                    }
 	                } else {
-	                    writer.startValue(RSF.ADT_TYPE);
-
-	                    writer.writeField(RSF.ADT_NAME,  adt.getName());
-
+	                    writer.startValue(RSF.ADTType.ID);
+	                    writer.writeField(RSF.ADTType.NAME,  adt.getName());
 	                    endAndCacheType(adt);
 	                }
 	                break;
@@ -208,9 +206,8 @@ public class RSFIValueWriter {
                             it.skipValue();
                         }
                     } else {
-                      writer.startValue(RSF.ALIAS_TYPE);
-                      writer.writeField(RSF.ALIAS_NAME,  alias.getName());
-                      
+                      writer.startValue(RSF.AliasType.ID);
+                      writer.writeField(RSF.AliasType.NAME,  alias.getName());
                       endAndCacheType(alias);
                     }
 	                break;
@@ -222,8 +219,8 @@ public class RSFIValueWriter {
 	                        it.skipValue();
 	                    }
 	                } else {
-	                    writer.startValue(RSF.CONSTRUCTOR_TYPE);
-	                    writer.writeField(RSF.CONSTRUCTOR_NAME,  cons.getName());
+	                    writer.startValue(RSF.ConstructorType.ID);
+	                    writer.writeField(RSF.ConstructorType.NAME,  cons.getName());
 	                    
 	                    endAndCacheType(cons);
 	                }
@@ -236,7 +233,7 @@ public class RSFIValueWriter {
                             it.skipValue();
                         }
                     } else {
-                        writer.startValue(RSF.FUNCTION_TYPE);
+                        writer.startValue(RSF.ConstructorType.ID);
                         endAndCacheType(ft); 
                     }
                     break;
@@ -250,7 +247,7 @@ public class RSFIValueWriter {
                             it.skipValue();
                         }
                     } else {
-                        writer.startValue(RSF.REIFIED_TYPE);
+                        writer.startValue(RSF.ReifiedType.ID);
                         endAndCacheType(reif); 
                     }
                     break;
@@ -263,10 +260,10 @@ public class RSFIValueWriter {
                             it.skipValue();
                         }
                     } else {
-                        writer.startValue(RSF.OVERLOADED_TYPE);
+                        writer.startValue(RSF.OverloadedType.ID);
 
                         Set<FunctionType> alternatives = ((OverloadedFunctionType) ovl).getAlternatives();
-                        writer.writeField(RSF.OVERLOADED_SIZE, alternatives.size()); 
+                        writer.writeField(RSF.OverloadedType.SIZE, alternatives.size()); 
                         
                         endAndCacheType(ovl); 
                     }
@@ -282,7 +279,7 @@ public class RSFIValueWriter {
                     } else {
                         IConstructor cons = nt.getSymbol();
                         writeValue(cons);       // Constructor value comes before NONTERMINAL_TYPE
-                        writer.startValue(RSF.NONTERMINAL_TYPE);
+                        writer.startValue(RSF.NonTerminalType.ID);
                         endAndCacheType(nt); 
                     }
 	                break;
@@ -295,7 +292,7 @@ public class RSFIValueWriter {
 	                        it.skipValue();
 	                    }
 	                } else {
-	                    writer.startValue(RSF.LIST_TYPE);
+	                    writer.startValue(RSF.ListType.ID);
 
 	                    endAndCacheType(lst);
 	                }
@@ -308,7 +305,7 @@ public class RSFIValueWriter {
 	                        it.skipValue();
 	                    }
 	                } else {
-	                    writer.startValue(RSF.MAP_TYPE);
+	                    writer.startValue(RSF.MapType.ID);
 	          
 	                    endAndCacheType(map);
 	                }
@@ -321,8 +318,8 @@ public class RSFIValueWriter {
 	                        it.skipValue();
 	                    }
 	                } else {
-	                    writer.startValue(RSF.PARAMETER_TYPE);
-	                    writer.writeField(RSF.PARAMETER_NAME, param.getName());
+	                    writer.startValue(RSF.ParameterType.ID);
+	                    writer.writeField(RSF.ParameterType.NAME, param.getName());
 	                   
 	                    endAndCacheType(param);
 	                }
@@ -336,7 +333,7 @@ public class RSFIValueWriter {
 	                        it.skipValue();
 	                    }
 	                } else {
-	                    writer.startValue(RSF.SET_TYPE);
+	                    writer.startValue(RSF.SetType.ID);
 	                   
 	                    endAndCacheType(set);
 	                }
@@ -349,11 +346,11 @@ public class RSFIValueWriter {
 	                        it.skipValue();
 	                    }
 	                } else {
-	                    writer.startValue(RSF.TUPLE_TYPE);
-	                    writer.writeField(RSF.TUPLE_ARITY, tuple.getArity());
+	                    writer.startValue(RSF.TupleType.ID);
+	                    writer.writeField(RSF.TupleType.ARITY, tuple.getArity());
 	                    String[] fieldNames = tuple.getFieldNames();
 	                    if(fieldNames != null){
-	                        writeNames(RSF.TUPLE_NAMES, fieldNames);
+	                        writeNames(RSF.TupleType.NAMES, fieldNames);
 	                    }
 	                    
 	                    endAndCacheType(tuple);
@@ -368,8 +365,8 @@ public class RSFIValueWriter {
 	     if(doCaching){
 	         int id = valueCache.howLongAgo(v);
 	         if(id > -1){
-	             writer.startValue(RSF.PREVIOUS_VALUE);
-	             writer.writeField(RSF.PREVIOUS_VALUE_ID, id);
+	             writer.startValue(RSF.PreviousValue.ID);
+	             writer.writeField(RSF.PreviousValue.HOW_FAR_BACK, id);
 	             writer.endValue();
 	             return true;
 	         }
@@ -397,8 +394,8 @@ public class RSFIValueWriter {
 				assert it.atBeginning();
 				IBool b = (IBool) it.getValue();
 				if(!inCache(b)){
-					writer.startValue(RSF.BOOL_VALUE);
-					writer.writeField(RSF.BOOL_CONTENT, b.getValue() ? 1 : 0);
+					writer.startValue(RSF.BoolValue.ID);
+					writer.writeField(RSF.BoolValue.VALUE, b.getValue() ? 1 : 0);
 					endAndCacheValue(b);
 				}
 				break;
@@ -413,15 +410,15 @@ public class RSFIValueWriter {
 				} else {
 				    writeType(cons.getUninstantiatedConstructorType());
 				    
-					writer.startValue(RSF.CONSTRUCTOR_VALUE);
-					writer.writeField(RSF.CONSTRUCTOR_ARITY, cons.arity());
+					writer.startValue(RSF.ConstructorValue.ID);
+					writer.writeField(RSF.ConstructorValue.ARITY, cons.arity());
 					if(cons.mayHaveKeywordParameters()){
 						if(cons.asWithKeywordParameters().hasParameters()){
-							writer.writeField(RSF.CONSTRUCTOR_KWPARAMS, cons.asWithKeywordParameters().getParameters().size());
+							writer.writeField(RSF.ConstructorValue.KWPARAMS, cons.asWithKeywordParameters().getParameters().size());
 						}
 					} else {
 						if(cons.asAnnotatable().hasAnnotations()){
-							writer.writeField(RSF.CONSTRUCTOR_ANNOS, cons.asAnnotatable().getAnnotations().size());
+							writer.writeField(RSF.ConstructorValue.ANNOS, cons.asAnnotatable().getAnnotations().size());
 						}
 					}
 					endAndCacheValue(cons);
@@ -434,22 +431,27 @@ public class RSFIValueWriter {
 				
 				IDateTime dateTime = (IDateTime) it.getValue();
 				if(!inCache(dateTime)){
-				    writer.startValue(RSF.DATETIME_VALUE);
-				    writer.writeField(RSF.DATETIME_VARIANT, 
+				    writer.startValue(RSF.DateTimeValue.ID);
+/*				    writer.writeField(RSF.DATETIME_VARIANT, 
 				            dateTime.isDateTime() ? RSF.DATETIME_VARIANT_DATETIME : 
 				                (dateTime.isDate() ? RSF.DATETIME_VARIANT_DATE : RSF.DATETIME_VARIANT_TIME));
+				                */
 
-				    writer.writeField(RSF.DATETIME_YEAR, dateTime.getYear());
-				    writer.writeField(RSF.DATETIME_MONTH, dateTime.getMonthOfYear());
-				    writer.writeField(RSF.DATETIME_DAY, dateTime.getDayOfMonth());
+				    if (!dateTime.isTime()) {
+                        writer.writeField(RSF.DateTimeValue.YEAR, dateTime.getYear());
+                        writer.writeField(RSF.DateTimeValue.MONTH, dateTime.getMonthOfYear());
+                        writer.writeField(RSF.DateTimeValue.DAY, dateTime.getDayOfMonth());
+				    }
 
-				    writer.writeField(RSF.DATETIME_HOUR, dateTime.getHourOfDay());
-				    writer.writeField(RSF.DATETIME_MINUTE, dateTime.getMinuteOfHour());
-				    writer.writeField(RSF.DATETIME_SECOND, dateTime.getSecondOfMinute());
-				    writer.writeField(RSF.DATETIME_MILLISECOND, dateTime.getMillisecondsOfSecond());
+				    if (!dateTime.isDate()) {
+                        writer.writeField(RSF.DateTimeValue.HOUR, dateTime.getHourOfDay());
+                        writer.writeField(RSF.DateTimeValue.MINUTE, dateTime.getMinuteOfHour());
+                        writer.writeField(RSF.DateTimeValue.SECOND, dateTime.getSecondOfMinute());
+                        writer.writeField(RSF.DateTimeValue.MILLISECOND, dateTime.getMillisecondsOfSecond());
 
-				    writer.writeField(RSF.DATETIME_TZ_HOUR, dateTime.getTimezoneOffsetHours());
-				    writer.writeField(RSF.DATETIME_TZ_MINUTE, dateTime.getTimezoneOffsetMinutes());
+                        writer.writeField(RSF.DateTimeValue.TZ_HOUR, dateTime.getTimezoneOffsetHours());
+                        writer.writeField(RSF.DateTimeValue.TZ_MINUTE, dateTime.getTimezoneOffsetMinutes());
+				    }
 				    endAndCacheValue(dateTime);
 				}
 				break;
@@ -459,13 +461,13 @@ public class RSFIValueWriter {
 				assert it.atBeginning();
 				IInteger ii = (IInteger) it.getValue();
 				if(!inCache(ii)){
-				    writer.startValue(RSF.INT_VALUE);
+				    writer.startValue(RSF.IntegerValue.ID);
 					if(ii.greaterEqual(minInt).getValue() && ii.lessEqual(maxInt).getValue()){
 						int n = ii.intValue();
-						writer.writeField(RSF.INT_SMALL, n);
+						writer.writeField(RSF.IntegerValue.INTVALUE, n);
 					} else {
 						byte[] valueData = ii.getTwosComplementRepresentation();
-						writer.writeField(RSF.INT_BIG, valueData);
+						writer.writeField(RSF.IntegerValue.BIGVALUE, valueData);
 					}
 					endAndCacheValue(ii);
 				}
@@ -479,8 +481,8 @@ public class RSFIValueWriter {
 						it.skipValue();
 					}
 				} else {
-					writer.startValue(RSF.LIST_VALUE);
-					writer.writeField(RSF.LIST_SIZE, lst.length());
+					writer.startValue(RSF.ListValue.ID);
+					writer.writeField(RSF.ListValue.SIZE, lst.length());
 					endAndCacheValue(lst);
 				}
 				break;
@@ -493,8 +495,8 @@ public class RSFIValueWriter {
 						it.skipValue();
 					}
 				} else {
-					writer.startValue(RSF.MAP_VALUE);
-					writer.writeField(RSF.MAP_SIZE, map.size());
+					writer.startValue(RSF.MapValue.ID);
+					writer.writeField(RSF.MapValue.SIZE, map.size());
 					endAndCacheValue(map);
 				}
 				break;
@@ -507,16 +509,16 @@ public class RSFIValueWriter {
 						it.skipValue();
 					}
 				} else {
-					writer.startValue(RSF.NODE_VALUE);
-					writer.writeField(RSF.NODE_NAME,  node.getName());
-					writer.writeField(RSF.NODE_ARITY, node.arity());
+					writer.startValue(RSF.NodeValue.ID);
+					writer.writeField(RSF.NodeValue.NAME,  node.getName());
+					writer.writeField(RSF.NodeValue.ARITY, node.arity());
 					if(node.mayHaveKeywordParameters()){
 						if(node.asWithKeywordParameters().hasParameters()){
-							writer.writeField(RSF.NODE_KWPARAMS, node.asWithKeywordParameters().getParameters().size());
+							writer.writeField(RSF.NodeValue.KWPARAMS, node.asWithKeywordParameters().getParameters().size());
 						}
 					} else {
 						if(node.asAnnotatable().hasAnnotations()){
-							writer.writeField(RSF.NODE_ANNOS, node.asAnnotatable().getAnnotations().size());
+							writer.writeField(RSF.NodeValue.ANNOS, node.asAnnotatable().getAnnotations().size());
 						}
 					}
 					endAndCacheValue(node);
@@ -531,7 +533,7 @@ public class RSFIValueWriter {
 			            it.skipValue();
 			        }
 			    } else {
-					writer.startValue(RSF.RATIONAL_VALUE);
+					writer.startValue(RSF.RationalValue.ID);
 					endAndCacheValue(rat);
 				}
 				break;
@@ -542,10 +544,10 @@ public class RSFIValueWriter {
 
 				IReal real = (IReal) it.getValue();
 				if(!inCache(real)){
-					writer.startValue(RSF.REAL_VALUE);
+					writer.startValue(RSF.RealValue.ID);
 					byte[] valueData = real.unscaled().getTwosComplementRepresentation();
-					writer.writeField(RSF.REAL_CONTENT, valueData);
-					writer.writeField(RSF.REAL_SCALE, real.scale());
+					writer.writeField(RSF.RealValue.CONTENT, valueData);
+					writer.writeField(RSF.RealValue.SCALE, real.scale());
 					endAndCacheValue(real);
 				}
 				break;
@@ -558,8 +560,8 @@ public class RSFIValueWriter {
 						it.skipValue();
 					}
 				} else {
-					writer.startValue(RSF.SET_VALUE);
-					writer.writeField(RSF.SET_SIZE, set.size());
+					writer.startValue(RSF.SetValue.ID);
+					writer.writeField(RSF.SetValue.SIZE, set.size());
 					endAndCacheValue(set);
 				}
 				break;
@@ -570,38 +572,38 @@ public class RSFIValueWriter {
 				
 				ISourceLocation loc = (ISourceLocation) it.getValue();
 				if(!inCache(loc)){
-					writer.startValue(RSF.LOC_VALUE);
+					writer.startValue(RSF.SourceLocationValue.ID);
 					ISourceLocation uriPart = loc.top();
 					int alreadyWritten = uriCache.howLongAgo(uriPart);
 					if (alreadyWritten == -1) {
-					    writer.writeField(RSF.LOC_SCHEME, uriPart.getScheme());
+					    writer.writeField(RSF.SourceLocationValue.SCHEME, uriPart.getScheme());
 					    if (uriPart.hasAuthority()) {
-					        writer.writeField(RSF.LOC_AUTHORITY, uriPart.getAuthority());
+					        writer.writeField(RSF.SourceLocationValue.AUTHORITY, uriPart.getAuthority());
 					    }
 					    if (uriPart.hasPath()) {
-					        writer.writeField(RSF.LOC_PATH, uriPart.getPath());
+					        writer.writeField(RSF.SourceLocationValue.PATH, uriPart.getPath());
 					    }
 					    if (uriPart.hasQuery()) {
-					        writer.writeField(RSF.LOC_QUERY,  uriPart.getQuery());
+					        writer.writeField(RSF.SourceLocationValue.QUERY,  uriPart.getQuery());
 					    }
 					    if (uriPart.hasFragment()) {
-					        writer.writeField(RSF.LOC_FRAGMENT,  uriPart.getFragment());
+					        writer.writeField(RSF.SourceLocationValue.FRAGMENT,  uriPart.getFragment());
 					    }
 					    uriCache.write(uriPart);
 					}
 					else {
-					    writer.writeField(RSF.LOC_PREVIOUS_URI, alreadyWritten);
+					    writer.writeField(RSF.SourceLocationValue.PREVIOUS_URI, alreadyWritten);
 					}
 					
 					if(loc.hasOffsetLength()){
-						writer.writeField(RSF.LOC_OFFSET, loc.getOffset());
-						writer.writeField(RSF.LOC_LENGTH, loc.getLength());
+						writer.writeField(RSF.SourceLocationValue.OFFSET, loc.getOffset());
+						writer.writeField(RSF.SourceLocationValue.LENGTH, loc.getLength());
 					} 
 					if(loc.hasLineColumn()){
-						writer.writeField(RSF.LOC_BEGINLINE, loc.getBeginLine());
-						writer.writeField(RSF.LOC_ENDLINE, loc.getEndLine());
-						writer.writeField(RSF.LOC_BEGINCOLUMN, loc.getBeginColumn());
-						writer.writeField(RSF.LOC_ENDCOLUMN, loc.getEndColumn());
+						writer.writeField(RSF.SourceLocationValue.BEGINLINE, loc.getBeginLine());
+						writer.writeField(RSF.SourceLocationValue.ENDLINE, loc.getEndLine());
+						writer.writeField(RSF.SourceLocationValue.BEGINCOLUMN, loc.getBeginColumn());
+						writer.writeField(RSF.SourceLocationValue.ENDCOLUMN, loc.getEndColumn());
 					}
 					endAndCacheValue(loc);
 				}
@@ -612,8 +614,8 @@ public class RSFIValueWriter {
 				assert it.atBeginning();
 				
 				IString str = (IString) it.getValue();
-				writer.startValue(RSF.STR_VALUE);
-				writer.writeField(RSF.STR_CONTENT, str.getValue());
+				writer.startValue(RSF.StringValue.ID);
+				writer.writeField(RSF.StringValue.CONTENT, str.getValue());
 				writer.endValue();
 				// Already cached at wire level
 				break;
@@ -626,8 +628,8 @@ public class RSFIValueWriter {
 						it.skipValue();
 					}
 				} else {
-					writer.startValue(RSF.TUPLE_VALUE);
-					writer.writeField(RSF.TUPLE_SIZE, tuple.arity());
+					writer.startValue(RSF.TupleValue.ID);
+					writer.writeField(RSF.TupleValue.SIZE, tuple.arity());
 					endAndCacheValue(tuple);
 				}
 				break;
