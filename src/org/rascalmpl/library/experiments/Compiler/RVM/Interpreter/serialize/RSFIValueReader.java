@@ -121,66 +121,66 @@ public class RSFIValueReader {
 
         try {
            
-            while(reader.next() == ReaderPosition.VALUE_START){
+            while(reader.next() == ReaderPosition.MESSAGE_START){
                 
-                switch (reader.value()) {
+                switch (reader.message()) {
                     
                     /********************************/
                     /*          Types               */
                     /********************************/
                     
                     case RSF.BoolType.ID:  
-                        reader.skipValue(); // forward to the end
+                        reader.skipMessage(); // forward to the end
                         pushAndCache(tstack, typeWindow, tf.boolType());
                         break;
 
                     case RSF.DateTimeType.ID:    
-                        reader.skipValue();
+                        reader.skipMessage();
                         pushAndCache(tstack, typeWindow, tf.dateTimeType());
                         break;
 
                     case RSF.IntegerType.ID:     
-                        reader.skipValue(); 
+                        reader.skipMessage(); 
                         pushAndCache(tstack, typeWindow, tf.integerType());
                         break;
 
                     case RSF.NodeType.ID:        
-                        reader.skipValue();
+                        reader.skipMessage();
                         pushAndCache(tstack, typeWindow, tf.nodeType());
                         break;
 
                     case RSF.NumberType.ID:  
-                        reader.skipValue();
+                        reader.skipMessage();
                         pushAndCache(tstack, typeWindow, tf.numberType());
                         break;
 
                     case RSF.RationalType.ID:     
-                        reader.skipValue();
+                        reader.skipMessage();
                         pushAndCache(tstack, typeWindow, tf.rationalType());
                         break;
 
                     case RSF.RealType.ID:        
-                        reader.skipValue();
+                        reader.skipMessage();
                         pushAndCache(tstack, typeWindow, tf.realType());
                         break;
 
                     case RSF.SourceLocationType.ID:     
-                        reader.skipValue();
+                        reader.skipMessage();
                         pushAndCache(tstack, typeWindow, tf.sourceLocationType());
                         break;
 
                     case RSF.StringType.ID:     
-                        reader.skipValue();
+                        reader.skipMessage();
                         pushAndCache(tstack, typeWindow, tf.stringType());
                         break;
 
                     case RSF.ValueType.ID:       
-                        reader.skipValue();
+                        reader.skipMessage();
                         pushAndCache(tstack, typeWindow, tf.valueType());
                         break;
 
                     case RSF.VoidType.ID:        
-                        reader.skipValue();
+                        reader.skipMessage();
                         pushAndCache(tstack, typeWindow, tf.voidType());
                         break;
 
@@ -288,7 +288,7 @@ public class RSFIValueReader {
                     // External
 
                     case RSF.FunctionType.ID:    {
-                        reader.skipValue();
+                        reader.skipMessage();
 
                         Type keywordParameterTypes = tstack.pop();
                         Type argumentTypes =  tstack.pop();
@@ -300,7 +300,7 @@ public class RSFIValueReader {
                     }
 
                     case RSF.ReifiedType.ID: {
-                        reader.skipValue();
+                        reader.skipMessage();
                         Type elemType = tstack.pop();
 
                         elemType = elemType.getFieldType(0);
@@ -330,7 +330,7 @@ public class RSFIValueReader {
                     }
 
                     case RSF.NonTerminalType.ID: {
-                        reader.skipValue();
+                        reader.skipMessage();
 
                         IConstructor nt = (IConstructor) vstack.pop();
                         pushAndCache(tstack, typeWindow, rtf.nonTerminalType(nt));
@@ -338,7 +338,7 @@ public class RSFIValueReader {
                     }
 
                     case RSF.ListType.ID:    {
-                        reader.skipValue();
+                        reader.skipMessage();
 
                         Type elemType = tstack.pop();
 
@@ -389,7 +389,7 @@ public class RSFIValueReader {
                     }
 
                     case RSF.SetType.ID: {
-                        reader.skipValue();
+                        reader.skipMessage();
                         Type elemType = tstack.pop();
 
                         pushAndCache(tstack, typeWindow, tf.setType(elemType));
@@ -709,7 +709,7 @@ public class RSFIValueReader {
                     }
 
                     case RSF.RationalValue.ID: {
-                        reader.skipValue();
+                        reader.skipMessage();
                         
                         IInteger denominator = (IInteger) vstack.pop();
                         IInteger numerator = (IInteger) vstack.pop();
@@ -800,7 +800,7 @@ public class RSFIValueReader {
                     }
 
                     default:
-                        throw new IllegalArgumentException("readValue: " + reader.value());
+                        throw new IllegalArgumentException("readValue: " + reader.message());
                 }
             }
             if(vstack.size() == 1){

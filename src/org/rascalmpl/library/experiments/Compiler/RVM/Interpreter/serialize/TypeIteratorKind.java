@@ -1,7 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 
-import java.io.IOException;
-
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
