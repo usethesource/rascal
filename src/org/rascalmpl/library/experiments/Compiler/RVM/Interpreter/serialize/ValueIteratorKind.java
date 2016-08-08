@@ -50,88 +50,85 @@ public enum ValueIteratorKind implements IteratorKind {
     public boolean isCompound() {
         return compound;
     }
-	
-	public  static ValueIteratorKind  getKind(IValue v) throws IOException {
-		 return v.getType().accept(new ITypeVisitor<ValueIteratorKind,IOException>() {
+    private static final ITypeVisitor<ValueIteratorKind,RuntimeException> typeMapper = new ITypeVisitor<ValueIteratorKind,RuntimeException>() {
 
 			// Atomic types
-			
 			@Override
-			public ValueIteratorKind visitBool(Type type) throws IOException {
+			public ValueIteratorKind visitBool(Type type) throws RuntimeException {
 				return BOOL;
 			}
 			
 			@Override
-			public ValueIteratorKind visitDateTime(Type type) throws IOException {
+			public ValueIteratorKind visitDateTime(Type type) throws RuntimeException {
 				return DATETIME;
 			}
 			
 			@Override
-			public ValueIteratorKind visitInteger(Type type) throws IOException {
+			public ValueIteratorKind visitInteger(Type type) throws RuntimeException {
 				return INT;
 			}
 			
 			@Override
-			public ValueIteratorKind visitNode(Type type) throws IOException {
+			public ValueIteratorKind visitNode(Type type) throws RuntimeException {
 				return NODE;
 			}
 			
 			@Override
-			public ValueIteratorKind visitNumber(Type type) throws IOException {
+			public ValueIteratorKind visitNumber(Type type) throws RuntimeException {
 				return NUMBER;
 			}
 			
 			@Override
-			public ValueIteratorKind visitRational(Type type) throws IOException {
+			public ValueIteratorKind visitRational(Type type) throws RuntimeException {
 				return RATIONAL;
 			}
 			
 			
 			@Override
-			public ValueIteratorKind visitReal(Type type) throws IOException {
+			public ValueIteratorKind visitReal(Type type) throws RuntimeException {
 				return REAL;
 			}
 			
 			@Override
-			public ValueIteratorKind visitSourceLocation(Type type) throws IOException {
+			public ValueIteratorKind visitSourceLocation(Type type) throws RuntimeException {
 				return LOC;
 			}
 			
 			@Override
-			public ValueIteratorKind visitString(Type type) throws IOException {
+			public ValueIteratorKind visitString(Type type) throws RuntimeException {
 				return STR;
 			}
 			
 			@Override
-			public ValueIteratorKind visitValue(Type type) throws IOException {
+			public ValueIteratorKind visitValue(Type type) throws RuntimeException {
 			    throw new RuntimeException("Value type not allowed as runtime type");
 			}
 
 			@Override
-			public ValueIteratorKind visitVoid(Type type) throws IOException {
+			public ValueIteratorKind visitVoid(Type type) throws RuntimeException {
 			    throw new RuntimeException("Void type not allowed as runtime type");
 			}
 			
 			// Composite types
 			
 			@Override
-			public ValueIteratorKind visitAbstractData(Type type) throws IOException {
+			public ValueIteratorKind visitAbstractData(Type type) throws RuntimeException {
 			    return CONSTRUCTOR;
 				//return v instanceof IConstructor ? CONSTRUCTOR : ADT;
 			}
 			
 			@Override
-			public ValueIteratorKind visitAlias(Type type) throws IOException {
+			public ValueIteratorKind visitAlias(Type type) throws RuntimeException {
 			    throw new RuntimeException("Alias type not allowed as runtime type");
 			}
 			
 			@Override
-			public ValueIteratorKind visitConstructor(Type type) throws IOException {
+			public ValueIteratorKind visitConstructor(Type type) throws RuntimeException {
 				return CONSTRUCTOR;
 			}
 			
 			@Override
-			public ValueIteratorKind visitExternal(Type type) throws IOException {
+			public ValueIteratorKind visitExternal(Type type) throws RuntimeException {
 			    if(type instanceof NonTerminalType){
 			        return CONSTRUCTOR;
 			    }
@@ -139,29 +136,32 @@ public enum ValueIteratorKind implements IteratorKind {
 			}
 
 			@Override
-			public ValueIteratorKind visitList(Type type) throws IOException {
+			public ValueIteratorKind visitList(Type type) throws RuntimeException {
 				return LIST;
 			}
 
 			@Override
-			public ValueIteratorKind visitMap(Type type) throws IOException {
+			public ValueIteratorKind visitMap(Type type) throws RuntimeException {
 				return MAP;
 			}
 			
 			@Override
-			public ValueIteratorKind visitParameter(Type type) throws IOException {
+			public ValueIteratorKind visitParameter(Type type) throws RuntimeException {
 			    throw new RuntimeException("Parameter type not allowed as runtime type");
 			}
 
 			@Override
-			public ValueIteratorKind visitSet(Type type) throws IOException {
+			public ValueIteratorKind visitSet(Type type) throws RuntimeException {
 				return SET;
 			}
 
 			@Override
-			public ValueIteratorKind visitTuple(Type type) throws IOException {
+			public ValueIteratorKind visitTuple(Type type) throws RuntimeException {
 				return TUPLE;
 			}
-		});
+		};
+	
+	public  static ValueIteratorKind  getKind(IValue v) {
+		 return v.getType().accept(typeMapper);
 	}
 }

@@ -22,11 +22,11 @@ public class PrePostIValueIterator extends PrePostIterator<IValue,ValueIteratorK
     
     private IValueFactory vf;
 
-    public PrePostIValueIterator(IValue root) throws IOException {
+    public PrePostIValueIterator(IValue root) {
         this(root, 1024);
     }
 
-    public PrePostIValueIterator(IValue root, int stackSize) throws IOException {
+    public PrePostIValueIterator(IValue root, int stackSize) {
         super(stackSize);
         stack.push(root, ValueIteratorKind.getKind(root), true);
         beginning = false; // start out at fake end
