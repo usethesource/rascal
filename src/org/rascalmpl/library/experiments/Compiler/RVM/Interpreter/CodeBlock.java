@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.*;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFExecutableWriter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableReader;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableWriter;
 import org.rascalmpl.value.IList;
@@ -975,8 +974,8 @@ public class CodeBlock  {
 	private static final int RVM_CODEBLOCK_CONSTRUCTOR_MAP = 6;
 	private static final int RVM_CODEBLOCK_FINAL_CODE = 7;
 	
-	public void writeRSF(RSFExecutableWriter writer) throws IOException {
-        int n;
+//	public void writeRSF(RSFExecutableWriter writer) throws IOException {
+//        int n;
 
 //        // private String name;
 //
@@ -1017,7 +1016,7 @@ public class CodeBlock  {
 //        // public int[] finalCode;
 //
 //        writer.writeField(RVM_CODEBLOCK_FINAL_CODE, finalCode);
-    }
+    //}
     
     public static CodeBlock readRSF(RVMExecutableReader in) throws IOException 
     {
