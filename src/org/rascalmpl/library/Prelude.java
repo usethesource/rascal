@@ -3384,8 +3384,7 @@ public class Prelude {
 		
 		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(loc)) {
 			//return new BinaryValueReader().read(values, store, start, in);
-			RSFIValueReader deser = new RSFIValueReader(in, values, store);
-			IValue val = deser.readValue();
+			IValue val = RSFIValueReader.read(in, values, store);
 			if(val.getType().isSubtypeOf(start)){
 				return val;
 			} else {

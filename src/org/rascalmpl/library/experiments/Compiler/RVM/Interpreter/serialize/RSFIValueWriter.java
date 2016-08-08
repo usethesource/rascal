@@ -560,8 +560,7 @@ public class RSFIValueWriter {
     		 System.out.println(v);
     		 RSFIValueWriter.write(out, CompressionRate.None, v, true);
     		 try (ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray())) {
-                 RSFIValueReader reader = new RSFIValueReader(in, vf, ts);
-                 System.out.println(reader.readValue());
+                 System.out.println(RSFIValueReader.read(in, vf, ts));
              }
     		 
     	 }
