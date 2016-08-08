@@ -62,8 +62,8 @@ public class RSF {
 	
 	public static class IntegerValue {
 	    public static final int ID = INTEGER_VALUE_ID;
-        public static final int INT_SMALL = 1;
-        public static final int INT_BIG = 2;
+        public static final int INTVALUE = 1;
+        public static final int BIGVALUE = 2;
 	}
 	
 	
@@ -85,14 +85,12 @@ public class RSF {
 
 	public static class RationalValue {
 	    public static final int ID = RAT_VALUE_ID;
-        public static final int NUMERATOR = 1;
-        public static final int DENOMINATOR = 2;
 	}
 	
 	public static class RealValue {
 	    public static final int ID = REAL_VALUE_ID;
-        public static final int REAL_CONTENT = 1;
-        public static final int REAL_SCALE = 2;
+        public static final int CONTENT = 1;
+        public static final int SCALE = 2;
 	}
 	
 
