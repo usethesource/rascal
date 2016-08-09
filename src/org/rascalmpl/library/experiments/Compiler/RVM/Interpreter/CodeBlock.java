@@ -1013,7 +1013,7 @@ public class CodeBlock  {
 	                break;
 
 	            case CODEBLOCK_CONSTANT_STORE: {
-	                finalConstantStore = reader.getValues();
+	                finalConstantStore = reader.getIValues();
 	                int n = finalConstantStore.length;
 	                constantMap = new HashMap<>();
 	                constantStore = new ArrayList<>();
@@ -1047,7 +1047,7 @@ public class CodeBlock  {
 	                break;
 
 	            case CODEBLOCK_RESOLVER:
-	                resolver = reader.getResolver();
+	                resolver = reader.getMapStringInt();
 	                break;
 
 	            case CODEBLOCK_CONSTRUCTOR_MAP:

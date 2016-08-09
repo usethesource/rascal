@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFReader.ReaderPosition;
@@ -34,18 +35,18 @@ import com.google.protobuf.CodedInputStream;
  */
 public class RSFExecutableReader {
 	
-	private final RVMIValueReader valueReader;
-	
-	private final CodedInputStream in;
-	
-	transient private final ResizingArray<Object> sharedObjectsList;
-	transient private int currentSharedObjectId;
+//	private final RVMIValueReader valueReader;
+//	
+//	private final CodedInputStream in;
+//	
+//	transient private final ResizingArray<Object> sharedObjectsList;
+//	transient private int currentSharedObjectId;
 
 	public RSFExecutableReader(InputStream in){
-		this.valueReader = new RVMIValueReader(in, ValueFactoryFactory.getValueFactory(), new TypeStore());
-		this.in = valueReader.getIn();
-		sharedObjectsList = new ResizingArray<>(1000);
-		sharedObjectsList.set(new Boolean(false), currentSharedObjectId++); // make sure index 0 is not used
+//		this.valueReader = new RVMIValueReader(in, ValueFactoryFactory.getValueFactory(), new TypeStore());
+//		this.in = valueReader.getIn();
+//		sharedObjectsList = new ResizingArray<>(1000);
+//		sharedObjectsList.set(new Boolean(false), currentSharedObjectId++); // make sure index 0 is not used
 	}
 	
 	public void close() throws IOException {
@@ -72,12 +73,12 @@ public class RSFExecutableReader {
         return null;
     }
 
-    public Function[] getFunctionStore() {
+    public Function[] getFunctions() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public ArrayList<Type> getConstructorStore() {
+    public ArrayList<Type> getArrayListType() {
         // TODO Auto-generated method stub
         return null;
     }
@@ -87,12 +88,7 @@ public class RSFExecutableReader {
         return null;
     }
 
-    public OverloadedFunction[] getOverloadedStore() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public Map<String, Integer> getResolver() {
+    public OverloadedFunction[] getOverloadedFunctions() {
         // TODO Auto-generated method stub
         return null;
     }
@@ -107,7 +103,7 @@ public class RSFExecutableReader {
         return null;
     }
 
-    public IValue[] getValues() {
+    public IValue[] getIValues() {
         // TODO Auto-generated method stub
         return null;
     }
@@ -143,6 +139,11 @@ public class RSFExecutableReader {
     }
 
     public HashMap<Integer, int[]> getMapIntToInts() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public CodeBlock getCodeBlock() {
         // TODO Auto-generated method stub
         return null;
     }
