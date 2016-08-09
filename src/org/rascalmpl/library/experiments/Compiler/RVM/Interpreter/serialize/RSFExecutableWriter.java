@@ -9,9 +9,6 @@ import java.util.Map;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.util.IndexedSet;
@@ -39,126 +36,95 @@ public class RSFExecutableWriter {
     public static final int OVERLOADED_FUNCTION = 3;
     public static final int EXECUTABLE = 4;
     
-//    private final RVMIValueWriter valueWriter;
-//	transient private static IndexedSet<Object> sharedObjects;
+    private final RSFWriter rsfWriter;
+	transient private static IndexedSet<Object> sharedObjects;
 
-	public RSFExecutableWriter(OutputStream out){
-//		valueWriter = new RVMIValueWriter(out);
-//		sharedObjects = new IndexedSet<>();
-//		sharedObjects.store(new Boolean(false));	// make sure index 0 will not occur
+	public RSFExecutableWriter(OutputStream out) throws IOException{
+		rsfWriter = new RSFWriter(out);
+		sharedObjects = new IndexedSet<>();
+		sharedObjects.store(new Boolean(false));	// make sure index 0 will not occur
 	}
 	
 	public void close() throws IOException{
 //		valueWriter.close();
 	}
 
-    public void startMessage(int rvmFunctionValue) {
-        // TODO Auto-generated method stub
+    public void startMessage(int messageId) throws IOException {
+        rsfWriter.startMessage(messageId);
     }
-
-    public void writeField(int rvmFunctionName, Function[] functions) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void writeField(int rvmFunctionScopeId, int scopeId) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void writeField(int rvmFunctionConcreteArg, boolean concreteArg) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void writeField(int rvmFunctionLocalNames, IMap localNames) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void writeField(int rvmFunctionFromSps, int[] fromSPs) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void writeType(Type type) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void writeValue(IValue elm) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void writeField(int rvmFunctionName, String name) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void writeField(int rvmCodeblockFunctionMap, Map<String, Integer> functionMap) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void writeField(int rvmCodeblockFinalCode, long[] finalCode) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void writeField(int rvmFunctionCodeBlock, CodeBlock codeblock) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void writeField(int rvmFunctionConstantStore, IValue[] constantStore) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void writeField(int rvmFunctionTypeConstantStore, Type[] typeConstantStore) {
-        // TODO Auto-generated method stub
-        
-    }
-
+    
     public void endMessage() {
         // TODO Auto-generated method stub
-        
     }
 
-    public void writeField(int rvmFunctionFtype, Type ftype) {
-        // TODO Auto-generated method stub
-        
+    public void writeField(int fieldId, int n) throws IOException {
+       rsfWriter.writeField(fieldId, n);  
     }
 
-    public void writeField(int overloadedFunctionFilteredFunctions,
-            HashMap<Integer, int[]> filteredFunctions) {
+    public void writeField(int fieldId, boolean b) throws IOException {
+        rsfWriter.writeField(fieldId, b ? 1 : 0);  
+    }
+    
+    public void writeField(int fieldId, String name) throws IOException {
+        rsfWriter.writeField(fieldId, name);   
+    }
+    
+    public void writeField(int fieldId, byte[] bytes) throws IOException {
+        rsfWriter.writeField(fieldId, bytes);  
+    }
+    
+    // with repeated elements
+
+    public void writeField(int fieldId, int[] ints) throws IOException {
+        rsfWriter.writeField(fieldId, ints);    
+    }
+    
+    public void writeField(int fieldId, long[] longs) throws IOException {
+        rsfWriter.writeField(fieldId, longs); 
+    }
+  
+    public void writeField(int fieldId, Function[] functions) {
+        // TODO Auto-generated method stub 
+    }
+    
+    public void writeField(int fieldId, OverloadedFunction[] overloadedStore) {
+        // TODO Auto-generated method stub 
+    }
+    
+    public void writeField(int fieldId, IValue[] constantStore) {
+        // TODO Auto-generated method stub 
+    }
+
+    public void writeField(int fieldId, Type[] typeConstantStore) {
+        // TODO Auto-generated method stub
+    }
+    
+    // General Java classes
+
+    public void writeField(int fieldId, Map<String, Integer> functionMap) {
+        // TODO Auto-generated method stub
+    }
+    
+    public void writeField(int fieldId, HashMap<Integer, int[]> filteredFunctions) {
+        // TODO Auto-generated method stub
+    }
+    
+    public void writeField(int fieldId, ArrayList<?> constructorStore) {
+        // TODO Auto-generated method stub 
+    }
+    
+    // Class that we serialize ourselves
+
+    public void writeField(int fieldId, CodeBlock codeblock) throws IOException {
+        codeblock.writeRSF(this);
+    }
+
+    public void writeField(int fieldId, Type ftype) {
         // TODO Auto-generated method stub
     }
 
-    public void writeField(int executableErrors, ISet errors) {
+    public void writeField(int fieldId, IValue value) {
         // TODO Auto-generated method stub
-        
-    }
-
-    public void writeField(int executableConstructorStore, ArrayList<?> constructorStore) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void writeField(int executableJvmBytecode, byte[] jvmByteCode) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void writeField(int executableOverloadedStore, OverloadedFunction[] overloadedStore) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public void writeField(int functionSrc, ISourceLocation src) {
-        // TODO Auto-generated method stub
-        
     }
 	
 //	public void writeArrayListString(ArrayList<String> initializers) throws IOException {

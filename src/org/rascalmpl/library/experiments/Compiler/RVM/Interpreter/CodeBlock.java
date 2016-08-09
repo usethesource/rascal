@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.*;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFExecutableReader;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFExecutableWriter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableReader;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableWriter;
@@ -979,17 +980,7 @@ public class CodeBlock  {
         writer.startMessage(RSFExecutableWriter.CODEBLOCK);
 
         writer.writeField(CODEBLOCK_NAME, name);
-
-        // private Map<IValue, Integer> constantMap;    
-        // private ArrayList<IValue> constantStore; (
-        // private IValue[] finalConstantStore;
-
         writer.writeField(CODEBLOCK_CONSTANT_STORE, finalConstantStore);
-
-        // private Map<Type, Integer> typeConstantMap;
-        // private ArrayList<Type> typeConstantStore;
-        // private Type[] finalTypeConstantStore;
-
         writer.writeField(CODEBLOCK_TYPE_CONSTANT_STORE, finalTypeConstantStore);  
         writer.writeField(CODEBLOCK_FUNCTION_MAP, functionMap);
         writer.writeField(CODEBLOCK_RESOLVER, resolver);
@@ -999,67 +990,93 @@ public class CodeBlock  {
         writer.endMessage();
     }
     
-    public static CodeBlock readRSF(RVMExecutableReader in) throws IOException 
-    {
-        int n;
+	public static CodeBlock readRSF(RSFExecutableReader reader) throws IOException 
+	{
+	    String name = null;
+	    Map<IValue,Integer> constantMap = null;
+	    ArrayList<IValue> constantStore = null;
+	    IValue[] finalConstantStore = null;
 
-        // private String name;
+	    Map<Type, Integer> typeConstantMap = null; 
+	    ArrayList<Type> typeConstantStore = null;
+	    Type[] finalTypeConstantStore = null;
+	    Map<String, Integer> functionMap = null;
 
-        String name = (String) in.readJString();
+	    Map<String, Integer> resolver = null;
+	    Map<String, Integer> constructorMap = null;
+	    long[] finalCode  = null;
 
-        // private Map<IValue, Integer> constantMap;    
-        // private ArrayList<IValue> constantStore; 
-        // private IValue[] finalConstantStore;
+	    while(!reader.next().isEnd()){
+	        switch(reader.field()){
+	            case CODEBLOCK_NAME:
+	                name = reader.getString();
+	                break;
 
-        n = in.readInt();
-        Map<IValue,Integer> constantMap = new HashMap<IValue, Integer> ();
-        ArrayList<IValue> constantStore = new ArrayList<IValue>();
-        IValue[] finalConstantStore = new IValue[n];
+	            case CODEBLOCK_CONSTANT_STORE: {
+	                finalConstantStore = reader.getValues();
+	                int n = finalConstantStore.length;
+	                constantMap = new HashMap<>();
+	                constantStore = new ArrayList<>();
+	                
+	                for(int i = 0; i < n; i++){
+	                    IValue val = finalConstantStore[i];
+	                    constantMap.put(val, i);
+	                    constantStore.add(i, val);
+	                    finalConstantStore[i] = val;
+	                }
+	                break;
+	            }
 
-        for(int i = 0; i < n; i++){
-            IValue val = in.readValue();
-            constantMap.put(val, i);
-            constantStore.add(i, val);
-            finalConstantStore[i] = val;
-        }
+	            case CODEBLOCK_TYPE_CONSTANT_STORE: {
+	                finalTypeConstantStore = reader.getTypes();
+	                int n = finalTypeConstantStore.length;
+	                
+	                typeConstantMap = new HashMap<Type, Integer>();
+	                typeConstantStore = new ArrayList<>();
 
-        // private Map<Type, Integer> typeConstantMap;
-        // private ArrayList<Type> typeConstantStore;   
-        // private Type[] finalTypeConstantStore;
-        
-        n = in.readInt();
-        Map<Type, Integer> typeConstantMap = new HashMap<Type, Integer>();
-        ArrayList<Type> typeConstantStore = new ArrayList<Type>();
-        Type[] finalTypeConstantStore = new Type[n];
+	                for(int i = 0; i < n; i++){
+	                    Type type = finalTypeConstantStore[i];
+	                    typeConstantMap.put(type, i);
+	                    typeConstantStore.add(i, type);
+	                }   
+	                break;
+	            }
 
-        for(int i = 0; i < n; i++){
+	            case CODEBLOCK_FUNCTION_MAP:
+	                functionMap = reader.getMapStringInt();
+	                break;
 
-            Type type = in.readType();
-            typeConstantMap.put(type, i);
-            typeConstantStore.add(i, type);
-            finalTypeConstantStore[i] = type;
-        }   
+	            case CODEBLOCK_RESOLVER:
+	                resolver = reader.getResolver();
+	                break;
 
-        // private Map<String, Integer> functionMap;
-        
-        Map<String, Integer> functionMap =  in.readMapStringInt();
+	            case CODEBLOCK_CONSTRUCTOR_MAP:
+	                constructorMap = reader.getMapStringInt();
+	                break;
 
-        // private Map<String, Integer> resolver;
-        
-        Map<String, Integer> resolver = in.readMapStringInt();
+	            case CODEBLOCK_FINAL_CODE:
+	                finalCode = reader.getLongs();
+	        }
+	    }
 
-        // private Map<String, Integer> constructorMap;
-        
-        Map<String, Integer> constructorMap = in.readMapStringInt();
+	    assert  name != null &&
+	            constantMap != null &&
+	            constantStore != null &&
+	            finalConstantStore != null &&
 
-        // public int[] finalCode;
-        
-        long[] finalCode = in.readLongArray();
+	            typeConstantMap != null && 
+	            typeConstantStore != null &&
+	            finalTypeConstantStore != null &&
+	            functionMap != null &&
 
-        return new CodeBlock(name, constantMap, constantStore, finalConstantStore, typeConstantMap, typeConstantStore, finalTypeConstantStore, 
-                functionMap, resolver, constructorMap, finalCode);
-    }
+	            resolver != null &&
+	            constructorMap != null
+	            //finalCode  != null
+	            ;
 
+	    return new CodeBlock(name, constantMap, constantStore, finalConstantStore, typeConstantMap, typeConstantStore, finalTypeConstantStore, 
+	            functionMap, resolver, constructorMap, finalCode);
+	}
 }
 
 class LabelInfo {
