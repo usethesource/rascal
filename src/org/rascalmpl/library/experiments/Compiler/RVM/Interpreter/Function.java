@@ -7,6 +7,7 @@ import java.util.Map;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.PositionStack;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSF;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFExecutableReader;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFExecutableWriter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFIValueWriter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFWriter;
@@ -456,33 +457,33 @@ public class Function {
 	}
 	
 	private static final int FUNCTION_NAME = 1;
-	private static final int FUNCTION_FTYPE = 1;
-	private static final int FUNCTION_SCOPE_ID = 2;
-	private static final int FUNCTION_FUN_IN = 3;
-	private static final int FUNCTION_SCOPE_IN = 4;
-	private static final int FUNCTION_NFORMALS = 5;
-	private static final int FUNCTION_NLOCALS = 6;
-	private static final int FUNCTION_IS_DEFAULT = 7;
-	private static final int FUNCTION_MAX_STACK = 8;
-	private static final int FUNCTION_CODE_BLOCK = 9;
-	private static final int FUNCTION_CONSTANT_STORE = 9;
-	private static final int FUNCTION_TYPE_CONSTANT_STORE = 9;
-	private static final int FUNCTION_CONCRETE_ARG = 10;
-	private static final int FUNCTION_ABSTRACT_FINGERPRINT = 11;
-	private static final int FUNCTION_CONCRETE_FINGERPRINT = 12;
-	private static final int FUNCTION_FROMS = 13;
-	private static final int FUNCTION_TOS = 14;
-	private static final int FUNCTION_TYPES = 15;
-	private static final int FUNCTION_HANDLERS = 16;
-	private static final int FUNCTION_FROM_SPS = 17;
-	private static final int FUNCTION_LAST_HANDLER = 18;
-	private static final int FUNCTION_FUN_ID = 19;
-	private static final int FUNCTION_IS_COROUTINE = 20;
-	private static final int FUNCTION_REFS = 21;
-	private static final int FUNCTION_IS_VARARGS = 22;
-	private static final int FUNCTION_SRC = 23;
-	private static final int FUNCTION_LOCAL_NAMES = 24;
-	private static final int FUNCTION_CONTINUATION_POINTS = 25;
+	private static final int FUNCTION_FTYPE = 2;
+	private static final int FUNCTION_SCOPE_ID = 3;
+	private static final int FUNCTION_FUN_IN = 4;
+	private static final int FUNCTION_SCOPE_IN = 5;
+	private static final int FUNCTION_NFORMALS = 6;
+	private static final int FUNCTION_NLOCALS = 7;
+	private static final int FUNCTION_IS_DEFAULT = 8;
+	private static final int FUNCTION_MAX_STACK = 9;
+	private static final int FUNCTION_CODE_BLOCK = 10;
+	private static final int FUNCTION_CONSTANT_STORE = 11;
+	private static final int FUNCTION_TYPE_CONSTANT_STORE = 12;
+	private static final int FUNCTION_CONCRETE_ARG = 13;
+	private static final int FUNCTION_ABSTRACT_FINGERPRINT = 14;
+	private static final int FUNCTION_CONCRETE_FINGERPRINT = 15;
+	private static final int FUNCTION_FROMS = 16;
+	private static final int FUNCTION_TOS = 17;
+	private static final int FUNCTION_TYPES = 18;
+	private static final int FUNCTION_HANDLERS = 19;
+	private static final int FUNCTION_FROM_SPS = 20;
+	private static final int FUNCTION_LAST_HANDLER = 21;
+	private static final int FUNCTION_FUN_ID = 22;
+	private static final int FUNCTION_IS_COROUTINE = 23;
+	private static final int FUNCTION_REFS = 24;
+	private static final int FUNCTION_IS_VARARGS = 25;
+	private static final int FUNCTION_SRC = 26;
+	private static final int FUNCTION_LOCAL_NAMES = 27;
+	private static final int FUNCTION_CONTINUATION_POINTS = 28;
 
 	public void writeRSF(RSFExecutableWriter writer)  throws IOException {
 
@@ -519,4 +520,188 @@ public class Function {
 
 	    writer.endMessage();
 	}
+	
+	public static Function readRSF(RSFExecutableReader reader) throws IOException 
+    {
+	    String name = null;
+	    Type ftype = null;
+	    Integer scopeId  = null;
+	    String funIn = null;
+	    Integer scopeIn = null;
+	    Integer nformals = null;
+	    Integer nlocals = null;
+	    Boolean isDefault = null;
+	    Integer maxstack = null;
+	    CodeBlock codeblock = null;
+	    IValue[] constantStore = null;
+	    Type[] typeConstantStore = null;
+	    Boolean concreteArg = null;
+	    Integer abstractFingerprint = null;
+	    Integer concreteFingerprint = null;
+	    int[] froms = null;
+	    int[] tos = null;
+	    int[] types = null;
+	    int[] handlers = null;
+	    int[] fromSPs = null;
+	    Integer lastHandler = null;
+	    Integer funId = null;
+	    Boolean isCoroutine = null;
+	    int[] refs = null;
+	    Boolean isVarArgs = null;
+	    ISourceLocation src = null;
+	    IMap localNames = null;
+	    Integer continuationPoints  = null;
+	    
+	    while(!reader.next().isEnd()){
+            switch(reader.field()){
+                case FUNCTION_NAME:
+                    name = reader.getString();
+                    break;
+                    
+                case FUNCTION_FTYPE:
+                    ftype = reader.getType();
+                    break;
+                    
+                case FUNCTION_SCOPE_ID:
+                    scopeId = reader.getLong();
+                    break;
+                    
+                case FUNCTION_FUN_IN:
+                    funIn = reader.getString();
+                    break;
+                    
+                case FUNCTION_SCOPE_IN:
+                    scopeIn = reader.getLong();
+                    break;
+                    
+                case FUNCTION_NFORMALS:
+                    nformals = reader.getLong();
+                    break;
+                    
+                case FUNCTION_NLOCALS:
+                    nlocals = reader.getLong();
+                    break;
+                    
+                case FUNCTION_IS_DEFAULT:
+                    isDefault = reader.getBoolean();
+                    break;
+                    
+                case FUNCTION_MAX_STACK:
+                    maxstack = reader.getLong();
+                    break;
+                    
+                case FUNCTION_CODE_BLOCK:
+                    codeblock = reader.getCodeBlock();
+                    break;
+                    
+                case FUNCTION_CONSTANT_STORE:
+                    constantStore = reader.getIValues();
+                    break;
+                    
+                case FUNCTION_TYPE_CONSTANT_STORE:
+                    typeConstantStore = reader.getTypes();
+                    break;
+                    
+                case FUNCTION_CONCRETE_ARG:
+                    concreteArg = reader.getBoolean();
+                    break;
+                    
+                case FUNCTION_ABSTRACT_FINGERPRINT:
+                    abstractFingerprint = reader.getLong();
+                    break;
+                    
+                case FUNCTION_CONCRETE_FINGERPRINT:
+                    concreteFingerprint = reader.getLong();
+                    break;
+                    
+                case FUNCTION_FROMS:
+                    froms = reader.getInts();
+                    break;
+                    
+                case FUNCTION_TOS:
+                    tos = reader.getInts();
+                    break;
+                    
+                case FUNCTION_TYPES:
+                    types = reader.getInts();
+                    break;
+                    
+                case FUNCTION_HANDLERS:
+                    handlers = reader.getInts();
+                    break;
+                    
+                case FUNCTION_FROM_SPS:
+                    fromSPs = reader.getInts();
+                    break;
+                    
+                case FUNCTION_LAST_HANDLER:
+                    lastHandler = reader.getLong();
+                    break;
+                    
+                case FUNCTION_FUN_ID:
+                    funId = reader.getLong();
+                    break;
+                    
+                case FUNCTION_IS_COROUTINE:
+                    isCoroutine = reader.getBoolean();
+                    break;
+                    
+                case FUNCTION_REFS:
+                    refs = reader.getInts();
+                    break;
+                    
+                case FUNCTION_IS_VARARGS:
+                    isVarArgs = reader.getBoolean();
+                    break;
+                    
+                case FUNCTION_SRC:
+                    src = (ISourceLocation) reader.getIValue();
+                    break;
+                    
+                case FUNCTION_LOCAL_NAMES:
+                    localNames = (IMap) reader.getIValue();
+                    break;
+                    
+                case FUNCTION_CONTINUATION_POINTS:
+                    continuationPoints = reader.getLong();
+                    break;
+            }
+	    }
+	    assert  name != null &&
+	            ftype != null &&
+	            scopeId  != null &&
+	            funIn != null &&
+	            scopeIn != null &&
+	            nformals != null &&
+	            nlocals != null &&
+	            isDefault != null &&
+	            maxstack != null &&
+	            codeblock != null &&
+	            constantStore != null &&
+	            typeConstantStore != null &&
+	            concreteArg != null &&
+	            abstractFingerprint != null &&
+	            concreteFingerprint != null &&
+	            froms != null &&
+	            tos != null &&
+	            types != null &&
+	            handlers != null &&
+	            fromSPs != null &&
+	            lastHandler != null &&
+	            funId != null &&
+	            isCoroutine != null &&
+	            refs != null &&
+	            isVarArgs != null &&
+	            src != null &&
+	            localNames != null &&
+	            continuationPoints  != null;
+
+        
+        Function func = new Function(name, ftype, funIn, nformals, nlocals, isDefault, localNames, maxstack, concreteArg, abstractFingerprint, concreteFingerprint, 
+                codeblock, src, scopeIn, constantStore, typeConstantStore,
+                froms, tos, types, handlers, fromSPs, lastHandler, scopeId,
+                isCoroutine, refs, isVarArgs, continuationPoints);
+        func.funId = funId;
+        return func;
+    }
 }

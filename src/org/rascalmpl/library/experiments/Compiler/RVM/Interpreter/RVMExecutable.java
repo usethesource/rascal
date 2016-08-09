@@ -726,7 +726,7 @@ public class RVMExecutable  {
                     break;
                     
                 case EXECUTABLE_FUNCTION_STORE:
-                    functionStore = reader.getFunctionStore();
+                    functionStore = reader.getFunctions();
                     int n = functionStore.length;
                     functionMap = new HashMap<String, Integer>(n);
                     for(int i = 0; i < n; i++){
@@ -735,7 +735,7 @@ public class RVMExecutable  {
                     break;
                     
                 case EXECUTABLE_CONSTRUCTOR_STORE:
-                    constructorStore = reader.getConstructorStore();
+                    constructorStore = reader.getArrayListType();
                     break;
                     
                 case EXECUTABLE_CONSTRUCTOR_MAP:
@@ -743,11 +743,11 @@ public class RVMExecutable  {
                     break;
                     
                 case EXECUTABLE_OVERLOADED_STORE:
-                    overloadedStore = reader.getOverloadedStore();
+                    overloadedStore = reader.getOverloadedFunctions();
                     break;
                     
                 case EXECUTABLE_RESOLVER:
-                    resolver = reader.getResolver();
+                    resolver = reader.getMapStringInt();
                     break;
                     
                 case EXECUTABLE_INITIALIZERS:
