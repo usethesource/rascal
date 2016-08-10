@@ -46,17 +46,23 @@ MuExp translateStats(Statement* statements) = muBlock([ translate(stat) | stat <
 // -- assert statement -----------------------------------------------
 	
 MuExp translate(s: (Statement) `assert <Expression expression> ;`) {
-    ifname = nextLabel();
-    return muIfelse(ifname, translate(expression), 
-                    [ muCon(true) ],
-    				[ muCallPrim3("assert_fails", [muCon("")], s@\loc) ]);
+    if(assertsEnabled()){
+       ifname = nextLabel();
+       return muIfelse(ifname, translate(expression), 
+                       [ muCon(true) ],
+    				   [ muCallPrim3("assert_fails", [muCon("")], s@\loc) ]);
+    }
+    return muBool(true);
 }    
 
 MuExp translate(s: (Statement) `assert <Expression expression> : <Expression message>;`) {
-    ifname = nextLabel();
-    return muIfelse(ifname, translate(expression), 
-                    [ muCon(true) ],
-    				[ muCallPrim3("assert_fails", [translate(message)], s@\loc) ]);
+    if(assertsEnabled()){
+       ifname = nextLabel();
+       return muIfelse(ifname, translate(expression), 
+                       [ muCon(true) ],
+    			       [ muCallPrim3("assert_fails", [translate(message)], s@\loc) ]);
+    }
+    return muBool(true);
 }
     
 

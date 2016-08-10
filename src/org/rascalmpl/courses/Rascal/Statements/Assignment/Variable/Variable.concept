@@ -1,30 +1,32 @@
-Name: Variable
+# Variable
 
-Synopsis: Assign to a variable.
+.Synopsis
+Assign to a variable.
 
-Syntax: `$Var$ = $Exp$`
+.Index
+=
 
-Types:
+.Syntax
 
-Function:
+.Types
+
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
-The expression $Exp$ is evaluated and its value is assigned to the variable $Var$.
+.Description
+The expression _Exp_ is evaluated and its value is assigned to the variable _Var_.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 N = 3;
 N;
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

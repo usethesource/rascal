@@ -98,7 +98,7 @@ public class RVMInterpreter extends RVMCore {
 		}
 		cf.sp = args.length;
 		cf.previousCallFrame = null;		// ensure that func will retrun here
-		Object o = interpretRVMProgram(root, cf, /*arity,*/ /*cf.function.codeblock.getInstructions(),*/ c_ofun_call_next);
+		Object o = interpretRVMProgram(root, cf, c_ofun_call_next);
 		if(o instanceof Thrown){
 			throw (Thrown) o;
 		}
@@ -109,7 +109,7 @@ public class RVMInterpreter extends RVMCore {
 	 * Implements abstract function for RVM interpreter
 	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunctionInVisit(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame)
 	 */
-	public IValue executeRVMFunctionInVisit(Frame root){		// TODO: differentiate for JVM version
+	public IValue executeRVMFunctionInVisit(Frame root){
 		Frame cf = root;
 		// Pass the subject argument
 
@@ -124,7 +124,7 @@ public class RVMInterpreter extends RVMCore {
 	 *  Implements abstract function for RVM interpreter
 	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMProgram(java.lang.String, java.lang.String, org.rascalmpl.value.IValue[], java.util.HashMap)
 	 */
-	public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs) {
+	public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] args, Map<String,IValue> kwArgs) {
 		
 		String oldModuleName = rex.getCurrentModuleName();
 		rex.setCurrentModuleName(moduleName);
@@ -218,7 +218,6 @@ public class RVMInterpreter extends RVMCore {
 		if(c_ofun_call != null){
 			ocalls.push(c_ofun_call);
 		}
-		//OverloadedFunctionInstanceCall c_ofun_call = null;
 		
 		frameObserver.enter(cf);
 		 
@@ -1344,7 +1343,7 @@ public class RVMInterpreter extends RVMCore {
 			e.printStackTrace(stderr);
 			stderr.flush();
 			String e2s = (e instanceof CompilerError) ? e.getMessage() : e.toString();
-			throw new CompilerError(e2s + "; function: " + cf + "; instruction: " + cf.function.codeblock.toString(pc - 1), cf );
+			throw new CompilerError(e2s + "; function: " + cf + "; instruction: " + cf.function.codeblock.toString(pc - 1), cf, e);
 		}
 	}
 	

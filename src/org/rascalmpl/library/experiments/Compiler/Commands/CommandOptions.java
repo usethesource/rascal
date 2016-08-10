@@ -20,7 +20,6 @@ import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.io.StandardTextReader;
 import org.rascalmpl.value.type.Type;
@@ -32,7 +31,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  * Option values can have the foloowing types;
  *
  */
-enum OptionType {INT, STR, BOOL, PATH, LOC};
+enum OptionType {INT, STR, BOOL, LOCS, LOC};
 
 /**
  * Create CommandOptions for a main program.
@@ -42,9 +41,9 @@ enum OptionType {INT, STR, BOOL, PATH, LOC};
  * <li>boolean: --optionName
  * <li>string:  --optionName stringValue 
  * <li>loc:     --optionName sourceLocationValue
- * <li>path:    --optionName sourceLocationValue
+ * <li>locs:    --optionName sourceLocationValue
  *                   sourceLocationValue are either (quoted) Rascal source locations or file path names
- *                   multiple path options of the same name accumulate to a list of source locations
+ *                   multiple locs options of the same name accumulate to a list of source locations
  * </ul>
  * Command options define properties for the initialized and configuration of the command.
  * <p>
@@ -64,7 +63,7 @@ enum OptionType {INT, STR, BOOL, PATH, LOC};
  * <p>
  * opts.intOption("X").intDefault(42).help("X is a very good option")
  * <p>
- *     .boolOption("Y).help("and Y too!")
+ *     .boolOption("Y").help("and Y too!")
  *     <p>
  *     .rascalModule("Module to analyze")
  *     <p>
@@ -85,6 +84,7 @@ public class CommandOptions {
 	private Options moduleOptions;
 	
 	private String commandName;
+    private boolean noModuleArgument = false;
 	
 	public CommandOptions(String commandName){
 		this.commandName = commandName;
@@ -195,34 +195,34 @@ public class CommandOptions {
 	}
 	
 	/****************************************************************************/
-	/*			Path options													*/
+	/*			Locs options													*/
 	/****************************************************************************/
 
 	/**
-	 * Declare a path option (a list of locations)
+	 * Declare a locs option (a list of locations)
 	 * @param name of option
 	 * @return OptionBuilder
 	 */
-	public OptionBuilder pathOption(String name){
-		return new OptionBuilder(this, OptionType.PATH, name);
+	public OptionBuilder locsOption(String name){
+		return new OptionBuilder(this, OptionType.LOCS, name);
 	}
 
 	/**
-	 * Get the value of a path option from the command options
+	 * Get the value of a locs option from the command options
 	 * @param name
 	 * @return value of option
 	 */
-	public IList getCommandPathOption(String name){
-		return (IList) commandOptions.get(OptionType.PATH, name);
+	public IList getCommandlocsOption(String name){
+		return (IList) commandOptions.get(OptionType.LOCS, name);
 	}
 
 	/**
-	 * Get the value of a path option from the module options
+	 * Get the value of a locs option from the module options
 	 * @param name
 	 * @return value of option
 	 */
-	public IList getModulePathOption(String name){
-		return (IList) moduleOptions.get(OptionType.PATH, name);
+	public IList getModuleLocsOption(String name){
+		return (IList) moduleOptions.get(OptionType.LOCS, name);
 	}
 
 	/****************************************************************************/
@@ -265,7 +265,7 @@ public class CommandOptions {
 	 * Get the names of the Rascal module arguments of the command
 	 * @return list of module names
 	 */
-	IList getRascalModules(){
+	public IList getRascalModules(){
 		return rascalModules;
 	}
 	
@@ -301,9 +301,9 @@ public class CommandOptions {
 				} else {
 					if(currentOptions.contains(OptionType.STR, option)){
 						currentOptions.set(OptionType.STR, option, vf.string(getOptionValue(args, i)));
-					} else if(currentOptions.contains(OptionType.PATH, option)){
+					} else if(currentOptions.contains(OptionType.LOCS, option)){
 						ISourceLocation newLoc = convertLoc(getOptionValue(args, i));
-						currentOptions.update(OptionType.PATH, option, (current) -> current == null ? vf.list(newLoc) : ((IList) current).append(newLoc));
+						currentOptions.update(OptionType.LOCS, option, (current) -> current == null ? vf.list(newLoc) : ((IList) current).append(newLoc));
 					} else if(currentOptions.contains(OptionType.LOC, option)){
 						currentOptions.set(OptionType.LOC, option, convertLoc(getOptionValue(args, i)));
 					} else {
@@ -336,15 +336,17 @@ public class CommandOptions {
 			}
 		}
 		
-		if(commandOptions.hasNonDefaultValue(OptionType.BOOL, "help")){
+		if(commandOptions.hasNonDefaultValue(OptionType.BOOL, "help")) {
 			help();
 			System.exit(0);
 		}
 		checkDefaults();
 		
-		if(rascalModules.length() == 0){
+		if (!noModuleArgument && rascalModules.length() == 0) {
 			printUsageAndExit("Missing Rascal module" + (singleModule ? "" : "s"));
-		} else if(rascalModules.length() > 1 && singleModule){
+		} else if (noModuleArgument && rascalModules.length() > 0) {
+		    printUsageAndExit("No modules expected");
+		} else if(rascalModules.length() > 1 && singleModule) {
 			printUsageAndExit("Duplicate modules defined: " + rascalModules);
 		}
 	}
@@ -504,15 +506,28 @@ public class CommandOptions {
 			return null;
 		}
 	}
+	
+	public ISourceLocation getDefaultCourseLocation(){
+		try {
+			return vf.sourceLocation("courses", "", "");
+		} catch (URISyntaxException e) {
+			printUsageAndExit("Cannot create default course location: " + e.getMessage());
+			return null;
+		}
+	}
 
-	public IList getDefaultStdPath(){
+	public IList getDefaultStdlocs(){
 		return vf.list(getDefaultStdLocation());
+	}
+	
+	public IList getDefaultCourses(){
+		return vf.list(getDefaultCourseLocation());
 	}
 
 	public ISourceLocation getKernelLocation(){
 		try {
-			ISourceLocation bootDir = getCommandLocOption("bootDir");
-			return vf.sourceLocation("compressed+" + bootDir.getScheme(), "", bootDir.getPath() + "lang/rascal/boot/Kernel.rvm.ser.gz");
+			ISourceLocation boot = getCommandLocOption("boot");
+			return vf.sourceLocation("compressed+" + boot.getScheme(), "", boot.getPath() + "lang/rascal/boot/Kernel.rvm.ser.gz");
 		} catch (URISyntaxException e) {
 			printUsageAndExit("Cannot create default location: " + e.getMessage());
 			return null;
@@ -529,160 +544,17 @@ public class CommandOptions {
 	}
 	
 	public PathConfig getPathConfig(){
-		return new PathConfig(getCommandPathOption("srcPath"),
-							  getCommandPathOption("libPath"),
-							  getCommandLocOption("binDir"),
-							  getCommandLocOption("bootDir"));
+		return new PathConfig(getCommandlocsOption("src"),
+							  getCommandlocsOption("lib"),
+							  getCommandLocOption("bin"),
+							  getCommandLocOption("boot"));
 	}
 
-}
+    public CommandOptions noModuleArgument() {
+        noModuleArgument = true;
+        return this;
+    }
 
-class  OptionBuilder {
-	CommandOptions commandOptions;
-	IValueFactory vf;
-	OptionType optionType;
-	String name;
-	private IValue initialValue;
-	private Object defaultValue;
-	private boolean mayForceNoDefault;
-	
-	OptionBuilder(CommandOptions commandOptions, OptionType optionType, String name){
-		this.commandOptions = commandOptions;
-		this.vf = commandOptions.vf;
-		this.optionType = optionType;
-		this.name = name;
-		switch(optionType){
-		case INT: initialValue = vf.integer(0) ; break;
-		case STR: initialValue = vf.string(""); break;
-		case LOC: initialValue = null; break;
-		case PATH:initialValue = vf.list(); break;
-		case BOOL:initialValue = vf.bool(false);
-		}
-	}
-	
-	void check(OptionType ot){
-		if(optionType != ot){
-			throw new RuntimeException("Default value required of type " + ot.toString().toLowerCase());
-		}
-	}
-	
-	/**
-	 * @param defaultValue for a boolean option
-	 * @return this OptionBuilder
-	 */
-	OptionBuilder boolDefault(boolean defaultValue){
-		check(OptionType.BOOL);
-		this.defaultValue = commandOptions.vf.bool(defaultValue);
-		return this;
-	}
-	
-	/**
-	 * @param defaultValue for a boolean option as a function that returns a bool value
-	 * @return this OptionBuilder
-	 */
-	OptionBuilder boolDefault(Function<CommandOptions, Boolean> defaultValue){
-		check(OptionType.BOOL);
-		this.defaultValue = defaultValue;
-		return this;
-	}
-	
-	/**
-	 * @param defaultValue for an int option
-	 * @return this OptionBuilder
-	 */
-	OptionBuilder intDefault(int defaultValue){
-		check(OptionType.INT);
-		this.defaultValue = commandOptions.vf.integer(defaultValue);
-		return this;
-	}
-	
-	/**
-	 * @param defaultValue for an int option as a function that returns an int value
-	 * @return this OptionBuilder
-	 */
-	OptionBuilder intDefault(Function<CommandOptions, Integer> defaultValue){
-		check(OptionType.INT);
-		this.defaultValue = defaultValue;
-		return this;
-	}
-	
-	/**
-	 * @param defaultValue for a str option
-	 * @return this OptionBuilder
-	 */
-	OptionBuilder strDefault(String defaultValue){
-		check(OptionType.STR);
-		this.defaultValue = commandOptions.vf.string(defaultValue);
-		return this;
-	}
-	
-	/**
-	 * @param defaultValue for a str option as a function that returns a str value
-	 * @return this OptionBuilder
-	 */
-	OptionBuilder strDefault(Function<CommandOptions, String> defaultValue){
-		check(OptionType.STR);
-		this.defaultValue = defaultValue;
-		return this;
-	}
-	
-	/**
-	 * @param defaultValue for a loc option
-	 * @return this OptionBuilder
-	 */
-	OptionBuilder locDefault(ISourceLocation defaultValue){
-		check(OptionType.LOC);
-		this.defaultValue = defaultValue;
-		return this;
-	}
-	
-	/**
-	 * @param defaultValue for a loc option as a function that returns a loc value
-	 * @return this OptionBuilder
-	 */
-	OptionBuilder locDefault(Function<CommandOptions, ISourceLocation> defaultValue){
-		check(OptionType.LOC);
-		this.defaultValue = defaultValue;
-		return this;
-	}
-	
-	/**
-	 * @param defaultValue for a path option
-	 * @return this OptionBuilder
-	 */
-	OptionBuilder pathDefault(IList defaultValue){
-		check(OptionType.PATH);
-		this.defaultValue = defaultValue;
-		return this;
-	}
-	
-	/**
-	 * @param defaultValue for a path option as a function that returns a list of locs
-	 * @return this OptionBuilder
-	 */
-	OptionBuilder pathDefault(Function<CommandOptions, IList> defaultValue){
-		check(OptionType.PATH);
-		this.defaultValue = defaultValue;
-		return this;
-	}
-	
-	/**
-	 * If "noDefaults" is set, the value of this option may not depend on its default but should be explicitly set
-	 * @return this OptionBuilder
-	 */
-	OptionBuilder respectNoDefaults(){
-		this.mayForceNoDefault = true;
-		return this;
-	}
-	
-	/**
-	 * 
-	 * @param helpText defines help text for the current option and ends its definition
-	 * @return CommandOptions and can therefore be used in the fluent interface of CommandOptions
-	 */
-	CommandOptions help(String helpText){
-		return commandOptions.addOption(new Option(optionType, name, initialValue, defaultValue, mayForceNoDefault, helpText));
-	}
 }
 
 class Option {
@@ -767,7 +639,7 @@ class Option {
 		case INT: res += " <int>"; break;
 		case STR: res += " <str>"; break;
 		case LOC: res += " <loc>"; break;
-		case PATH: res += " <path>"; break;
+		case LOCS: res += " <locs>"; break;
 		case BOOL:
 			break;
 		}

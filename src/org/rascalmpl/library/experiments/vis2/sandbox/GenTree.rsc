@@ -62,7 +62,7 @@ public Figure genTrees(int leafChance,int hGap, int vGap, int minDepth,int maxDe
 		, manhattan = cityblock, orientation = orientation, xSep = hGap, ySep = vGap
 		);
 		// println(m);
-		treeLayout(r, m, r.sX, r.sY, r.rasterHeight, r.manhattan);
+		treeLayout(r, m,  1, r.refinement, r.rasterHeight, r.manhattan);
 		// println("genTrees");
 		if (!isDisjunct()) {
 		     println("WRONG GENTREES <i>");
@@ -123,7 +123,7 @@ Orientation getOrientation() {
            
 Figure genTree(bool cityblock = false, Orientation orientation = topDown()) {
         idx  = 0;
-        return genTrees(50,state["hGap"], state["vGap"], state["minDepth"],state["maxDepth"], state["minKids"]
+        return genTree(50,state["hGap"], state["vGap"], state["minDepth"],state["maxDepth"], state["minKids"]
                    ,state["maxKids"],state["minWidth"], state["minHeight"]
                    ,state["maxWidth"], state["maxHeight"]
                cityblock = cityblock, orientation = orientation);
@@ -165,7 +165,7 @@ Figure sliders() {
 public Figure restructure(Figure t, int hGap, int vGap, int minX, int maxX, int minY, int maxY) {
    return visit (t) {
         case tree(_, list[Figure] ts)=> tree(box(fillColor="yellow", size=<minX + arbInt(maxX-minX), minY + arbInt(maxY -minY)>), ts
-                        ,xSeparation = hGap, ySeparation = vGap)
+                        ,xSep = hGap, ySep = vGap)
         }
    }
 

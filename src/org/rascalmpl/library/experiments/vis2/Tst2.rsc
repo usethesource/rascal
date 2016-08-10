@@ -4,7 +4,7 @@ import IO;
 
 import lang::json::IO;
 import experiments::vis2::Figure;
-import Type;
+import Type; 
 
 void main(){
 

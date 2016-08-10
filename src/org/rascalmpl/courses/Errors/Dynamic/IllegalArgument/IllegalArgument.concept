@@ -1,35 +1,36 @@
-Name: IllegalArgument
+# IllegalArgument
 
-Synopsis: A function or operation is applied to an illegal argument value.
+.Synopsis
+A function or operation is applied to an illegal argument value.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `data RunTimeException = IllegalArgument() | IllegalArgument(value v) | IllegalArgument(value v, str message);`
        
-Usage: `import Exception;`
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 This error is generated when a function or operation is applied to a value that it does not expect.
 
 Remedies:
-* Check the value or values to which you apply the function or operation.
 
-Examples:
-<screen warnings>
-// Changing the month of a [$Rascal:Values/DateTime] to an illegal month:
-NOW = $2013-01-13T22:16:51.740+01:00;
+*  Check the value or values to which you apply the function or operation.
+
+.Examples
+
+Changing the month of a [$Rascal:Values/DateTime] to an illegal month:
+[source,rascal-shell,continue,error]
+----
+NOW = $2013-01-13T22:16:51.740+01:00$;
 NOW.month = 13;
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

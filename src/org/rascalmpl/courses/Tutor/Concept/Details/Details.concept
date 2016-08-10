@@ -1,18 +1,19 @@
-Name: Details
+# Details
 
-Synopsis:
+.Synopsis
+
 Links to more detailed concepts that complement the description of the current concept.
 
-Syntax:
-`Details: $ConceptName_1$, $ConceptName_2$, ...`
+.Syntax
+`Details: _ConceptName_~1~, _ConceptName_~2~, ...`
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 To fully describe a concept, subconcepts (or details) are needed.
 When the `Details` section is empty, subconcepts will be listed
 alphabetically in the details section of the generated HTML file.
@@ -21,15 +22,13 @@ This alphabetical order can be influenced by explicitly stating concepts in the 
 The effect is that the concepts listed there will be shown first, followed by the unmentioned subconcepts
 in alphabetical order.
 
-Examples:
-In [Concept] we want to order the details in the order as they appear in the concept description.
+.Examples
+In <<Concept>> we want to order the details in the order as they appear in the concept description.
 Its `Details` section is therefore:
 
 `Details: Name Details Syntax Types Function Synopsis Description Examples Benefits Pitfalls Questions`
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

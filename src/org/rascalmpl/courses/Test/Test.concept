@@ -1,22 +1,37 @@
-Name: Test
+# Synopsis
+This is a test synopsis.
 
-Synopsis:
-This is the new synopsis.
+# Description
+See examples below.
 
-Syntax:
+# Examples
 
-Examples:
+* _emphasis_
+* __bold__
+* [Rascal Web site](http:///rascal-mpl.org)
+* [CallAnalysis]()
+* Table:
 
-Benefits:
+  | Module | LOC |
+  |--------|-----|
+  | A      | 10 |
+  | B      | 20 |
+  
+  
+| Operator    | Description |
+|------------|------------|
+| `$A$ \| $B$` | alternative |
+| `\|\|`       | or          |
+  
+Horizontal rule:
 
-Pitfalls:
+---
 
-Questions:
+* `code`
+* `in code: _italics_`
 
-QValue:
-desc: Fill in the missing function name!
-prep: import List;
-make: L = list[arb[int,str],0,5]
-expr: H =  reverse(<L>) 
-hint: reverse
-test: <?>(<L>) == <H>
+<toc Test 2>
+
+# Benefits
+
+# Pitfalls

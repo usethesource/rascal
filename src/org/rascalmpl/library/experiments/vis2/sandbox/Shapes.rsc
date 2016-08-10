@@ -1,6 +1,7 @@
 module experiments::vis2::sandbox::Shapes
 import experiments::vis2::sandbox::FigureServer;
 import experiments::vis2::sandbox::Figure;
+import experiments::vis2::sandbox::Render;
 import Prelude;
 
 
@@ -61,30 +62,48 @@ public Figure decision() {
    int offs = h0+h1;
    return overlay(size=<400, 600>, figs=[
                         begin(width, h0, "Lamp doesn\'t work")
-                      , at((width-w1)/2, h0, vArrow(w1, h1, "brown"))
-                      , at(0, offs, diamond(width, height, "Lamp\<br\> plugged in?", "lightyellow"))
-                      , at(width, offs+(height-h)/2, hArrow(w, h, "brown"))
-                      , at((width-w1)/2,offs+height, vArrow(w1, h1, "brown"))
-                      , at(0, offs+height+h1, diamond(width, height, "Bulb\<br\>burned out?", "lightyellow"))
-                      , at(width, offs+height+ h1 + (height-h)/2, hArrow(w, h, "brown"))
-                      , at((width-w1)/2, offs+2*height+ h1, vArrow(w1, h1, "brown"))
-                      , at(width+w, offs+(height-h)/2, action("Plugin lamp"))
-                      , at(width+w, offs+height+h1+(height-h)/2, action("Replace bulb"))
-                      , at(0,  offs+2*height+ 2*h1, end(width, h0, "Repair Lamp"))
+                      , atXY((width-w1)/2, h0, vArrow(w1, h1, "brown"))
+                      , atXY(0, offs, diamond(width, height, "Lamp\<br\> plugged in?", "lightyellow"))
+                      , atXY(width, offs+(height-h)/2, hArrow(w, h, "brown"))
+                      , atXY((width-w1)/2,offs+height, vArrow(w1, h1, "brown"))
+                      , atXY(0, offs+height+h1, diamond(width, height, "Bulb\<br\>burned out?", "lightyellow"))
+                      , atXY(width, offs+height+ h1 + (height-h)/2, hArrow(w, h, "brown"))
+                      , atXY((width-w1)/2, offs+2*height+ h1, vArrow(w1, h1, "brown"))
+                      , atXY(width+w, offs+(height-h)/2, action("Plugin lamp"))
+                      , atXY(width+w, offs+height+h1+(height-h)/2, action("Replace bulb"))
+                      , atXY(0,  offs+2*height+ 2*h1, end(width, h0, "Repair Lamp"))
                       ]);
    }
 
 public void tdecision() = render(decision());
 
-Figure triangle(int alpha) = rotate(alpha, 100, 100,  
+Figure triangle(int alpha) = rotateDeg(alpha, 100, 100,  
          shape([move(25, 34), line(25, -34), line(17, -38.2), line(17, 20), line(-17.6, 0)]
           ,scaleX=<<-50, 50>, <0, 200>>, scaleY=<<-50, 50>, <0, 200>>
          )
          )
          ;
          
-Figure triangle() = overlay(figs=[triangle(0), triangle(120), triangle(-120)]);
+Figure triangle() = overlay(figs=[triangle(0), triangle(120), triangle(-120)], size=<200, 200>);
          
 void ttriangle() = render(triangle());
 
 void ftriangle(loc f) = writeFile(f, toHtmlString(triangle(0)));  
+
+Figure n1 = box(fillColor = "palegreen", grow = 1.2, lineWidth=2, fig=text("Solve (sub)problem"));
+
+Figure n2 = box(fillColor = "palegreen", grow = 1.2, lineWidth=2, fig=text("Validate results"));
+
+Figure n3 = diamond(120, 70, "acceptable?", "lightskyblue");
+
+Figure n4 = ellipse(grow=1.5, fig= text("Improve"), fillColor = "lightyellow");
+
+list[tuple[str, Figure]] dnodes = [<"A", n1>, <"B", n2>, <"C", n3>, <"D", n4>];
+
+list[Edge] dedges = [edge("A", "B"), edge("B", "C"),  edge("C", "D"), edge("D", "A")];
+
+Figure dgram() = box(grow=1.2, fig=graph(nodes=dnodes, edges=dedges, size=<300, 300>));
+
+void tdgram() = render(dgram());
+
+void fdgram(loc f) = writeFile(f, toHtmlString(dgram())); 

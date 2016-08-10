@@ -1,45 +1,40 @@
-Name: FieldSelection
+# Relation FieldSelection
 
-Synopsis: Select a field (column) from a relation value.
+.Synopsis
+Select a field (column) from a relation value.
 
-Syntax:
-`$Exp$ . $Name$`
+.Index
+.
 
-Types:
-|`$Exp$`                                | `$Exp$ . $Name$` |
-|:--------------------------------------|:-----------------|
-| `rel[$T_1$ $L_1$, $T_2$ $L_2$, ... ]` | `set[$T_i$]`     |
+.Syntax
+`_Exp_ . _Name_`
 
-Function:
+.Types
 
-Details:
 
-Description:
-$Exp$ should evaluate to a relation that has an $i$-th field label $L_i$ that is identical to $Name$.
+|====
+|`_Exp_`                                | `_Exp_ . _Name_` 
+
+| `rel[_T~1~_ _L~1~_, _T~2~_ _L~2~_, ... ]` | `set[_T~i~_]`     
+|====
+
+.Function
+
+.Details
+
+.Description
+_Exp_ should evaluate to a relation that has an _i_-th field label _L_~i~ that is identical to _Name_.
 Return a set with all values of that field.
-$Name$ stands for itself and is not evaluated.
+_Name_ stands for itself and is not evaluated.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 rel[str street, int nm] R = {<"abc", 1>, <"abc", 2>, <"def", 4>, <"def", 5>};
 R.street;
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-
-QValue:
-hint: A set consisting of the first element of each tuple.
-list:
-rel[str animal, int nlegs] legs = {<"bird", 2>, <"dog", 4>, <"human", 2>, <"snake", 0>, <"spider", 8>, <"millepede", 1000>, <"crab", 8>, <"cat", 4>};
-test: legs.animal == <?>
-
-QValue:
-hint: A set consisting of the second element of each tuple.
-list:
-rel[str animal, int nlegs] legs = {<"bird", 2>, <"dog", 4>, <"human", 2>, <"snake", 0>, <"spider", 8>, <"millepede", 1000>, <"crab", 8>, <"cat", 4>};
-test: legs.nlegs == <?>
+.Pitfalls
 

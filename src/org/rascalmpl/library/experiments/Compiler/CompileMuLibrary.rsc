@@ -16,7 +16,7 @@ private str MuLibrary() = "experiments::Compiler::muRascal2RVM::MuLibrary";
 
 loc getMuLibraryCompiledWriteLoc(PathConfig pcfg) = getDerivedWriteLoc(MuLibrary(), "rvm.gz", pcfg);
 
-list[RVMDeclaration] compileMuLibrary(PathConfig pcfg, bool verbose = false, bool jvm=false){
+list[RVMDeclaration] compileMuLibrary(PathConfig pcfg, bool verbose = false, bool jvm=true){
     str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
     if(verbose) println("execute: Recompiling library <basename(MuLibraryLoc(pcfg))>.mu");
     MuLibraryCompiled = getMuLibraryCompiledWriteLoc(pcfg);
@@ -27,4 +27,8 @@ list[RVMDeclaration] compileMuLibrary(PathConfig pcfg, bool verbose = false, boo
     if(verbose) println("execute: Writing compiled version of library <MuLibraryCompiled>");
     
     return functions; 
+}
+
+void compileMuLibrary(list[loc] srcs, list[loc] libs, loc boot, loc bin, bool verbose = false, bool jvm=true) {
+  compileMuLibrary(pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin), verbose=verbose, jvm=jvm);
 }

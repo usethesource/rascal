@@ -1,0 +1,38 @@
+<h1>Name</h1>
+<p><a href="file:///Users/paulklint/git/rascal/src/org/rascalmpl/courses/Test/Test.html">Test</a>/<a href="file:///Users/paulklint/git/rascal/src/org/rascalmpl/courses/Test/If/If.html">If</a></p>
+<h1>Details</h1>
+<p><a href="file:///Users/paulklint/git/rascal/src/org/rascalmpl/courses/Test/Libraries/Boolean.html">Boolean</a></p>
+<h1>Synopsis</h1>
+<p>Conditional statement.</p>
+<h1>Syntax</h1>
+<ul>
+<li><code>if ( $Exp$ ) $Statement$;</code></li>
+<li><code>if ( $Exp$ ) $Statement_1$ else $Statement_2$;</code></li>
+</ul>
+<h1>Types</h1>
+<table>
+<thead>
+<tr><th><code>$Exp$</code></th><th><code>if ( $Exp$ ) $Statement$;</code></th></tr>
+</thead>
+<tbody>
+<tr><td><code>bool</code></td><td><code>void</code></td></tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr><th align="left"><code>$Exp$</code></th><th align="left">$Statement_1$</th><th align="left">$Statement_2$</th><th align="left"><code>if ( $Exp$ ) $Statement_1$ else $Statement_2$;</code></th></tr>
+</thead>
+<tbody>
+<tr><td align="left"><code>bool</code></td><td align="left">$T_1$</td><td align="left">$T_2$</td><td align="left"><code>lub($T_1$, $T_2$)</code></td></tr>
+</tbody>
+</table>
+<h1>Description</h1>
+<p>The test $Exp$ is evaluated and its outcome determines the statement to be executed:
+$Statement_1$ if $Exp$ yields <code>true</code> and $Statement_2$ otherwise.
+The value of an if-then statement is equal to $Statement$ when its test is true. Otherwise it is void.
+The value of an if-then-else statement is the value of the statement that was executed.</p>
+<h1>Examples</h1>
+<p>xx<code>rascal-shell if( 3 &gt; 2 ) 30; else 40; int x = if( 3 &gt; 2 ) 30; else 40; if( 3 &gt; 2 ) 30; xx</code>
+An if-then statement yields <code>void</code>  when its test is false
+(demonstrated by the <strong>ok</strong> that is printed by the Rascal system):
+xx<code>rascal-shell-continue if( 2 &gt; 3 ) 30; xx</code></p>

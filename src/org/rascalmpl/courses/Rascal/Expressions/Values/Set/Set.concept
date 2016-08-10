@@ -1,161 +1,86 @@
-Name: Set
+# Set
 
-Synopsis: Set values.
+.Synopsis
+Set values.
 
-Syntax:
-`{ $Exp_1$, $Exp_2$, ... }`
+.Index
+{ }
 
-Usage: `import Set`; (included in [Prelude])
+.Syntax
+`{ _Exp_~1~, _Exp~2~_, ... }`
 
-Types:
-|  `$Exp_1$` |  `$Exp_2$` |  ...  |  `{ $Exp_1$, $Exp_2$, ... }`   |
-|:-----------|:-----------|:------|:-------------------------------|
-| `$T_1$`    | `$T_2$`    |  ...  |  `set[ lub($T_1$, $T_2$, ... ) ]` |
+.Usage
 
-Function:
+.Types
 
-Details:
 
-Description:
+|====
+|  `_Exp~1~_` |  `_Exp~2~_` |  ...  |  `{ _Exp~1~_, _Exp~2~_, ... }`   
+
+| _T~1~_    | _T~2~_    |  ...  |  set[ lub(_T~1~_, _T~2~_, ... ) ] 
+|====
+
+.Function
+
+.Details
+
+.Description
 A set is an unordered sequence of values and has the following properties:
 
-* All elements have the same static type.
-* The order of the elements does not matter.
-* A set contains an element only once. In other words, duplicate elements are eliminated and no 
+*  All elements have the same static type.
+*  The order of the elements does not matter.
+*  A set contains an element only once. In other words, duplicate elements are eliminated and no 
   matter how many times an element is added to a set, it will occur in it only once.
 
 
-The type of a set has the form `set[$T$]`,
-where `$T$` is an arbitrary type.
+The type of a set has the form `set[_T_]`,
+where `_T_` is an arbitrary type.
 
-When a value or variable of type set occurs inside a set, that set value is inserted as set element. To achieve splicing of these elements, i.e., the insertion of the elements of the set value rather than the whole set, it has to be prefixed by the splice operator *.
+When a value or variable of type set occurs inside a set, that set value is inserted as set element. 
+To achieve splicing of these elements, i.e., the insertion of the elements of the set value rather than the whole set,
+it has to be prefixed by the splice operator `*`.
 
 The following operators are provided on sets:
-<toc Rascal/Expressions/Values/Set 1>
+subtoc::[1]
 
-The following functions are provided on sets:
-<toc Rascal/Libraries/Prelude/Set 1>
+There are also link:/Libraries#Prelude-Set[library functions] available for Sets.
+.Examples
+##  Set types 
 
-Examples:
-== Set types ==
-<screen>
+[source,rascal-shell]
+----
 {1, 2, 3};
 {<1,10>, <2,20>, <3,30>};
 {1, "b", 3};
 {<"a", 10>, <"b", 20>, <"c", 30>}
 {{"a", "b"}, {"c", "d", "e"}}
-</screen>
+----
 Note that
-* `{1, 2, 3}` and `{3, 2, 1}` are identical sets (since order is not relevant).
-* ` {1, 2, 3}` and `{1, 2, 3, 1}` are also identical sets (since duplication is not relevant).
+
+*  `{1, 2, 3}` and `{3, 2, 1}` are identical sets (since order is not relevant).
+*  `{1, 2, 3}` and `{1, 2, 3, 1}` are also identical sets (since duplication is not relevant).
 
 
 
-== Set splicing ==
+##  Set splicing 
 
-<screen>
-//Introduce a set variable <tt>S</tt>
+Introduce a set variable `S`
+[source,rascal-shell,continue]
+----
 S = {1, 2, 3};
-// and observe how the value of `S` is added as single element in another set:
+----
+and observe how the value of `S` is added as single element in another set:
+[source,rascal-shell,continue]
+----
 {10, S, 20};
-//or how its elements are added as elements to the other set:
+----
+or how its elements are added as elements to the other set:
+[source,rascal-shell,continue]
+----
 {10, *S, 20};
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-QChoice: Sets can be used to represent a sequence of values when
-b: The values have duplicates.
-g: The values have no duplicates and no order.
-b: The values are unordered.
-
-QChoice: The type of a set is determined by:
-g: The least upper bound of the type of all elements.
-g: The types of all the elements in the set.
-b: The type of the element that was first added to the set.
-b: The average of the type of the elements with the smallest and the largest type.
-b: The least upper bound of the type of two arbitrary elements.
-b: The type of two arbitrary elements.
-
-
-QType: {1, <?> }
-type: set[int]
-hint: one or more integer values separated by commas
-
-QType: <A:set[arb[int,str]]>
-
-QType: {<A:int>, <B:str>, <C:int>}
-
-QValue:
-desc: Fill in the missing operator.
-make: ELM = int[0,100]
-make: A = set[same[ELM]]
-expr: A1 = {<ELM>} + <A>
-expr: C =  <ELM> in <A1>
-hint: in
-test: <ELM> <?> <A1> == <C>
-
-QValue: 
-desc: Fill in the missing operator.
-make: A = arb[int[0,100],str]
-make: B = set[same[A]]
-expr: H = <A> + <B>
-hint: +
-test: <A> <?> <B> == <H>
-
-QValue:
-desc: Fill in the missing operator.
-make: DIFF = set[int[0,100],str]
-make: A = same[DIFF]
-make: B = same[DIFF]
-expr: A1 = <DIFF> + <A>
-expr: B1 = <B> + <DIFF>
-expr: C =  <A1> & <B1>
-hint: &
-test: <A1> <?> <B1> == <C>
-
-
-QValue:
-desc: Fill in the missing operator.
-prep: import Set;
-make: DIFF = set[int[0,100]]
-make: A = same[DIFF]
-make: B = same[DIFF]
-expr: A1 = <DIFF> + <A>
-expr: B1 = <B> + <DIFF>
-expr: C =  <A1> - <B1>
-hint: -
-test: <A1> <?> <B1> == <C>
-
-QValue:
-desc: Fill in the missing operator.
-make: ELM = int[0,10]
-make: A = set[same[ELM]]
-expr: C =  <ELM> notin <A>
-hint: notin
-test: <ELM> <?> <A> == <C>
-
-QValue:
-desc: Fill in the missing operator.
-make: DIFF = set[int[0,100]]
-make: A = same[DIFF]
-expr: B = <A> + <DIFF>
-expr: C =  <A> < <B>
-hint: <
-test: <A> <?> <B> == <C>
-
-QValue:
-desc: Fill in the missing operator.
-make: A = set[arb[int,str]]
-make: B = same[A]
-expr: C = <A> + <B>
-hint: +
-test: <A> <?> <B> == <C>
-
-
-
-
+.Pitfalls
 

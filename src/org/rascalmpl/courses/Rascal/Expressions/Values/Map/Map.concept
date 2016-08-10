@@ -1,64 +1,50 @@
-Name: Map
+# Map
 
-Synopsis: Map values.
+.Synopsis
+Map values.
 
-Syntax:
-`( $KeyExp_1$ : $ValExp_1$, $KeyExp_2$ : $ValExp_2$, ... )`
+.Index
+( : )
 
-Types:
-| `$KeyExp_1$` | `$ValExp_1$` | `$KeyExp_2$` | `$ValExp_2$` | ... | `( $KeyExp_1$ : $ValExp_1$, $KeyExp_2$ : $ValExp_2$, ... )`  |
-|:-------------|:-------------|:-------------|:-------------|:----|:-------------------------------------------------------------|
-| `$TK_1$`     |  `$TV_1$`    |  `$TK_2$`    | `$TV_2$`     | ... | `map[lub($TK_1$, $TK_2$, ... ) , lub($TV_1$, $TV_2$, ... )]` |
+.Syntax
+`( _KeyExp_~1~ : _ValExp_~1~, _KeyExp_~2~ : _ValExp_~2~, ... )`
 
-Usage: `import Map`; (included in [Prelude])
+.Types
 
-Function:
+[cols="10,10,10,10,10,50"]
+|====
+| `_KeyExp~1~_` | `_ValExp~1~_` | `_KeyExp~2~_` | `_ValExp~2~_` | ... | `( _KeyExp~1~_ : _ValExp~1~_, _KeyExp~2~_ : _ValExp~2~_, ... )`  
 
-Details:
+| `_TK~1~_`     |  `_TV~1~_`    |  `_TK~2~_`    | `_TV~2~_`     | ... | `map[lub(_TK~1~_, _TK~2~_, ... ) , lub(_TV~1~_, _TV~2~_, ... )]` 
+|====
 
-Description:
-A map is a set of key : value pairs and has the following properties:
+.Usage
 
-* Key and value may have different static types.
+.Function
 
-* A key can only occur once.
+.Details
+
+.Description
+A map is a set of key/value pairs and has the following properties:
+
+*  Key and value may have different static types.
+
+*  A key can only occur once.
 
 
 Maps resemble functions rather than relations in the sense that only a single value can be associated with each key.
 
 The following functions are provided for maps:
 
-<toc Rascal/Expressions/Values/Map 1> 
+subtoc::[1]
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 ("pear" : 1, "apple" : 3, "banana" : 0);
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-QChoice: A map maps keys to values. In a map:
-g: All keys have to be unique.
-g: All keys have the same type.
-g: All keys should have the same type and all values should have the same type. The type of keys and values may be different.
-b: All keys should have the same type and all values should have the same type. The type of keys and values should be the same.
-b: All values have to be unique.
-b: All keys and values have to be unique.
-b: All keys are sorted.
-
-QValue:
-desc: Complete this function that returns the set of keys with the smallest associated value.
-list:
-import Map;
-import Set;
-inventory = ("orange" : 20, "apple" : 15, "banana" : 25, "lemon" : 15);
-public set[str] lowest(map[str,int] inv){
-    m = <?>; // Determine the minimal value in the map
-    return { s  | s <- inv, inv[s] == m };
-}
-test: lowest(inventory) == {"apple", "lemon"};
-
+.Pitfalls
 

@@ -1,48 +1,55 @@
-Name: PathNotFound
+# PathNotFound
 
-Synopsis: A requested path name cannot be found.
+.Synopsis
+A requested path name cannot be found.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function: `data RunTimeException = PathNotFound(loc location);`
-Usage: `import Exception;`
+.Function
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 The `PathNotFound` error is generated in all cases where access to the requested location is impossible.
 This includes:
-* A non-existing path.
-* A non-existing file.
-* Insufficient rights to read/write the file.
+
+*  A non-existing path.
+*  A non-existing file.
+*  Insufficient rights to read/write the file.
 
 
 Remedies:
-* Check that the path is correct.
-* Check that the resource exists.
-* When using the `file` scheme:
-  ** Check that you have read/write access to the file.
-  ** When you use an absolute path name, your location should always start with 3 slash (`/`) characters:
-     *** `|file:///users/paulklint/file.txt|` is correct.
-     *** `|file://users/paulklint/file.txt|` gives a `PathNotFound` error.
-  ** When you use a relative path name, make sure that it is relative to the directory from which Rascal was started.
-* Catch the `PathNotFound` yourself, see [Rascal:TryCatch].
 
-Examples:
-<screen warnings>
+*  Check that the path is correct.
+*  Check that the resource exists.
+*  When using the `file` scheme:
+**  Check that you have read/write access to the file.
+**  When you use an absolute path name, your location should always start with 3 slash (`/`) characters:
+***  `|file:///users/paulklint/file.txt|` is correct.
+***  `|file://users/paulklint/file.txt|` gives a `PathNotFound` error.
+**  When you use a relative path name, make sure that it is relative to the directory from which Rascal was started.
+*  Catch the `PathNotFound` yourself, see [Rascal:TryCatch].
+
+.Examples
+[source,rascal-shell,error]
+----
 import IO;
-// Reading a non-existing URI gives an error:
+----
+Reading a non-existing URI gives an error:
+[source,rascal-shell,continue,error]
+----
 readFile(|http://www.cwi.nl/does_not_exist|);
-// Trying to write to a file for which we do not have write access (don't run this as superuser!) als gives an error:
+----
+Trying to write to a file for which we do not have write access (don't run this as superuser!) als gives an error:
+[source,rascal-shell,continue,error]
+----
 writeFile(|file:///etc/passwd|, "A BAD idea!");
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

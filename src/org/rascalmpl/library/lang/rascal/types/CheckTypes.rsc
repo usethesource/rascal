@@ -296,10 +296,10 @@ public CheckResult checkExp(Expression exp:(Expression)`( <Expression ei> | <Exp
     // "it", since we have no information on which to base a reasonable assumption. 
     Symbol erType = t1;
     if (!isFailType(t1)) {
-        cRed = addLocalVariable(cRed, RSimpleName("it"), true, exp@\loc, erType);
+        cRed = addLocalVariable(cRed, RSimpleName("it"), true, exp@\loc, erType, allowedConflicts={RSimpleName("it")});
         < cRed, t3 > = checkExp(er, cRed);
         if (!isFailType(t3)) {
-            if (!equivalent(erType,t3) && lub(erType,t3) == t3) {
+            if (!equivalent(erType,t3) && equivalent(lub(erType,t3),t3)) {
                 // If this is true, this means that "it" now has a different type, and
                 // that the type is growing towards value. We run the body again to
                 // see if the type changes again. This covers many standard cases
@@ -1240,18 +1240,20 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
         else
             return markLocationType(c,exp@\loc,Symbol::\value());
     } else if (isTupleType(t1)) {
-        if (size(tl) != 1)
+        if (size(tl) != 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Expected only 1 subscript for a tuple expression, not <size(tl)>",exp@\loc));
-        else if (!isIntType(tl[0]))
+        } else if (!isIntType(tl[0])) {
             return markLocationFailed(c,exp@\loc,makeFailType("Expected subscript of type int, not <prettyPrintType(tl[0])>",exp@\loc));
-        else if ((Expression)`<DecimalIntegerLiteral dil>` := head(eslist)) {
+        } else if ((Expression)`<DecimalIntegerLiteral dil>` := head(eslist)) {
         	tupleIndex = toInt("<dil>");
-        	if (tupleIndex < 0 || tupleIndex >= size(getTupleFields(t1)))
+        	if (tupleIndex < 0 || tupleIndex >= size(getTupleFields(t1))) {
         		return markLocationFailed(c,exp@\loc,makeFailType("Tuple index must be between 0 and <size(getTupleFields(t1))-1>",exp@\loc));
-        	else
+        	} else {
         		return markLocationType(c,exp@\loc,getTupleFields(t1)[tupleIndex]);
-        } else
+        	}
+        } else {
             return markLocationType(c,exp@\loc,lubList(getTupleFields(t1)));
+        }
     } else if (isStrType(t1)) {
         if (size(tl) != 1)
             return markLocationFailed(c,exp@\loc,makeFailType("Expected only 1 subscript for a string expression, not <size(tl)>",exp@\loc));
@@ -3653,7 +3655,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                                	argType = getConstructorArgumentTypes(a)[idx];
 	                                	if ((pargs[idx].rtype)?) {
 	                                		if (concreteType(pargs[idx].rtype)) {
-	                                			if (!subtype(pargs[idx].rtype, argType)) {
+	                                			if (!comparable(pargs[idx].rtype, argType)) {
 	                                				badMatches = badMatches + idx;
 	                                			}
 	                                		} else {
@@ -3682,7 +3684,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			                                	argType = kpm[kpname];
 			                                	if ((kpargs[kpname].rtype)?) {
 			                                		if (concreteType(kpargs[kpname].rtype)) {
-			                                			if (!subtype(kpargs[kpname].rtype, argType)) {
+			                                			if (!comparable(kpargs[kpname].rtype, argType)) {
 			                                				badMatches = badMatches + kpname;
 			                                			}
 			                                		} else {
@@ -3710,7 +3712,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             	} else if (isProductionType(a) && size(getProductionArgumentTypes(a)) == size(pargs)) {
 	                                // next, find the bad matches, which are those argument positions where we have concrete
 	                                // type information and that information does not match the alternative
-	                                badMatches = { idx | idx <- index(pargs), (pargs[idx].rtype)?, concreteType(pargs[idx].rtype), !subtype(pargs[idx].rtype, getProductionArgumentTypes(a)[idx]) };
+	                                badMatches = { idx | idx <- index(pargs), (pargs[idx].rtype)?, concreteType(pargs[idx].rtype), !comparable(pargs[idx].rtype, getProductionArgumentTypes(a)[idx]) };
 	                                if (size(badMatches) == 0) 
 	                                    // if we had no bad matches, this is a valid alternative
 	                                    matches += < a, kpm >;
@@ -5140,6 +5142,8 @@ data AssignableTree(Symbol otype = \void());
  
 data AssignableTree(Symbol atype = \void());
 
+data AssignableTree(int literalIndex = 0);
+
 @doc{Result of building the assignable tree.}
 alias ATResult = tuple[Configuration, AssignableTree];
 
@@ -5200,14 +5204,27 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
         return < c, subscriptNode(atree,tsub)[atype=failtype][at=assn@\loc] >;
     }
 
-    if (isListType(atree.atype) && isIntType(tsub))
-        return < c, subscriptNode(atree,tsub)[atype=getListElementType(atree.atype)][at=assn@\loc] >;
+    if (isListType(atree.atype) && isIntType(tsub)) {
+        return < c, subscriptNode(atree,tsub)[@atype=getListElementType(atree@atype)][@at=assn@\loc] >;
+    }
 
-    if (isNodeType(atree.atype) && isIntType(tsub))
-        return < c, subscriptNode(atree,tsub)[atype=Symbol::\value()][at=assn@\loc] >;
+    if (isNodeType(atree.atype) && isIntType(tsub)) {
+        return < c, subscriptNode(atree,tsub)[@atype=Symbol::\value()][@at=assn@\loc] >;
+    }
 
-    if (isTupleType(atree.atype) && isIntType(tsub))
-        return < c, subscriptNode(atree,tsub)[atype=Symbol::\value()][at=assn@\loc] >;
+    if (isTupleType(atree.atype) && isIntType(tsub)) {
+    	if ((Expression)`<DecimalIntegerLiteral dil>` := sub) {
+    		tupleIndex = toInt("<dil>");
+    		if (tupleIndex < 0 || tupleIndex >= size(getTupleFields(atree@atype))) {
+		        failtype = makeFailType("Tuple index must be between 0 and <size(getTupleFields(atree.atype))-1>", sub@\loc);
+		        return < c, subscriptNode(atree,tsub)[@atype=failtype][at=assn@\loc] >;
+    		} else {
+    			return < c, subscriptNode(atree,tsub)[@atype=getTupleFields(atree@atype)[tupleIndex]][at=assn@\loc][literalIndex=tupleIndex] >;
+    		}
+    	} else {
+        	return < c, subscriptNode(atree,tsub)[@atype=Symbol::\value()][at=assn@\loc] >;
+        }
+    }
 
     if (isMapType(atree.atype)) {
         if (avar:variableNode(vname) := atree) {
@@ -5704,7 +5721,13 @@ public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree
         // in range, all we can infer about the resulting type is that, since
         // we could assign to each field, each field could have a type based
         // on the lub of the existing field type and the subject type.
-        < c, receiver > = bindAssignable(receiver, \tuple([lub(tupleFields[idx],st) | idx <- index(tupleFields)]), c);
+        if ( (atree.literalIndex)?) {
+        	updatedTupleFields = tupleFields;
+        	updatedTupleFields[atree.literalIndex] = lub(atree.atype,st);
+        	< c, receiver > = bindAssignable(receiver, \tuple(updatedTupleFields), c);
+        } else {
+        	< c, receiver > = bindAssignable(receiver, \tuple([lub(tupleFields[idx],st) | idx <- index(tupleFields)]), c);
+        }
         return < c, atree[receiver=receiver][otype=receiver.otype][atype=Symbol::\value()] >;
     } else if (isMapType(receiver.atype)) {
         < c, receiver > = bindAssignable(receiver, \map(getMapDomainType(receiver.atype), lub(st,getMapRangeType(receiver.atype))), c);

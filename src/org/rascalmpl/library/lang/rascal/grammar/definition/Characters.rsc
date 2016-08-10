@@ -157,7 +157,7 @@ public CharRange intersect(CharRange r1, CharRange r2) {
 }
 
 public list[CharRange] complement(list[CharRange] s) {
-  return difference([range(1,0xFFFFFF)],s); // the 0 character is excluded
+  return difference([range(1,0x10FFFF)],s); // the 0 character is excluded
 }
 
 public list[CharRange] intersection(list[CharRange] l, list[CharRange] r) {
@@ -307,7 +307,7 @@ public list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
   // <---------left--------->
   if (rhead.begin >= lhead.begin && rhead.end <= lhead.end) 
     return \new-range(lhead.begin,rhead.begin-1) 
-         + difference(range(rhead.end+1,lhead.end)+ltail,rtail);
+         + difference(\new-range(rhead.end+1,lhead.end)+ltail,rtail);
 
   // overlap on left side of right
   // <--left-------->----------

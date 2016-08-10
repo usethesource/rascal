@@ -1,55 +1,38 @@
-Name: Intersection
+# Set Intersection
 
-Synopsis: Intersection of two sets.
+.Synopsis
+Intersection of two sets.
 
-Syntax:
-`$Exp_1$ & $Exp_2$`
+.Index
+&
 
-Types:
-| `$Exp_1$`    |  `$Exp_2$`      | `$Exp_1$ & $Exp_2$`     |
-|:-------------|:----------------|:------------------------|
-| `set[$T_1$]` |  `set[$T_2$]`   | `set[lub($T_1$,$T_2$)]` |
+.Syntax
+`_Exp_~1~ & _Exp_~2~`
 
-Function:
+.Types
 
-Details:
 
-Description:
-Returns the intersection of the two set values of $Exp_1$ and $Exp_2$.
+|====
+| `_Exp~1~_`    |  `_Exp~2~_`      | `_Exp~1~_ & _Exp~2~_`     
+
+| `set[_T~1~_]` |  `set[_T~2~_]`   | `set[lub(_T~1~_,_T~2~_)]` 
+|====
+
+.Function
+
+.Details
+
+.Description
+Returns the intersection of the two set values of _Exp_~1~ and _Exp_~2~.
 The intersection consists of the common elements of both sets.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 {1, 2, 3, 4, 5} & {4, 5, 6};
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-QChoice: When you compute the intersection of two sets, the number of elements in the result is always:
-b: Greater than the number of elements in both sets.
-b: Greater than or equal to the number of elements in both sets.
-b: Smaller than the number of elements in both sets.
-g: Smaller than or equal to the number of elements in the smallest set.
-
-
-QType: <A:list[int[0,100],str]> & <B:same[A]>
-
-QValue:
-make: DIFF = set[int[0,100],str]
-make: A = same[DIFF]
-make: B = same[DIFF]
-expr: A1 = <DIFF> + <A>
-expr: B1 = <B> + <DIFF>
-expr: C =  <A1> & <B1>
-hint: <C>
-test: <A1> & <B1> == <?>
-
-QValue:
-make: A = set[int[0,10],str]
-make: B = same[A]
-expr: C =  <A> & <B>
-hint: <C>
-test: <A> & <B> == <?>

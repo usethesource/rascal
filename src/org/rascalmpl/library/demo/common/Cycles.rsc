@@ -12,21 +12,21 @@ module demo::common::Cycles
 import Set;
 import Relation;
 
-public rel[int, set[int]] cycles(rel[int,int] Graph) {
+rel[int, set[int]] cycles(rel[int,int] Graph) {
 	rel[int,int] Closure = Graph+;
   	return { <N, Closure[N]> | int N <- carrier(Graph), <N, N> in Closure};
 }
 
-public bool isProperCycle(rel[int,int] Graph, int N, set[int] C){
+bool isProperCycle(rel[int,int] Graph, int N, set[int] C){
  	rel[int,int] RC  = carrierR(Graph, C)+;
     return all(int M <- C, <N, M> in RC && <M, N> in RC);
 }
 
-public set[set[int]] subCycles (rel[int,int] Graph, int N, set[int] Cycle){
+set[set[int]] subCycles (rel[int,int] Graph, int N, set[int] Cycle){
 	return { B | set[int] B <- power1(Cycle), N in B, isProperCycle(Graph, N, B) };
 }
 
-public rel[int, set[set[int]]] allSubCycles(rel[int,int] Graph, rel[int, set[int]] Cycles) {
+rel[int, set[set[int]]] allSubCycles(rel[int,int] Graph, rel[int, set[int]] Cycles) {
 	return { <N, subCycles(Graph, N, B)> | <int N, set[int] B> <- Cycles};
 }
 
@@ -47,7 +47,7 @@ public rel[int, set[set[int]]] allSubCycles(rel[int,int] Graph, rel[int, set[int
 private	rel[int, int] Graph = {<1,2>,<2,3>,<3,1>,<2,4>,<4,5>,<5,2>,<2,6>,<6,7>,<7,6>};
 
 
-public test bool t1() =
+test bool t1() =
   Graph+ ==
 		{<1, 1>, <1, 2>, <1, 3>, <1, 4>, <1, 5>, <1, 6>, <1, 7>,
   	 	 <2, 1>, <2, 2>, <2, 3>, <2, 4>, <2, 5>, <2, 6>, <2, 7>,
@@ -59,7 +59,7 @@ public test bool t1() =
   		
 private rel[int, set[int]] Cycles = cycles(Graph);
 
-public test bool t2() =
+test bool t2() =
   Cycles ==
 		{< 1, {1, 2, 3, 4, 5, 6, 7}>,
   		 < 2, {1, 2, 3, 4, 5, 6, 7}>,
@@ -69,7 +69,7 @@ public test bool t2() =
   		 < 6,  {6, 7}>,
   		 < 7,  {6, 7}> };
 
-public test bool t3() =
+test bool t3() =
   allSubCycles(Graph, Cycles) ==
 		{< 1, { {1, 2, 3, 4, 5}, {1, 2, 3}} >,
   		 < 2, { {1, 2, 3, 4, 5}, {1, 2, 3}, {2, 4, 5}} >,

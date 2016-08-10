@@ -1,32 +1,39 @@
-Name: Intersection
+# Map Intersection
 
-Synopsis:  Intersection of two maps.
+.Synopsis
+Intersection of two maps.
 
-Syntax:
-`$Exp_1$ & $Exp_2$`
+.Index
+&
 
-Types:
-| `$Exp_1$`    |  `$Exp_2$`      | `$Exp_1$ & $Exp_2$`     |
-|:-------------|:----------------|:------------------------|
-| `map[$T_11$, $T12$]` |  `set[$T_2$]`   | `set[lub($T_1$,$T_2$)]` |
+.Syntax
+`_Exp_~1~ & _Exp_~2~`
 
-Function:
+.Types
 
-Details:
 
-Description:
-Returns the intersection of the two map values of $Exp_1$ and $Exp_2$, i.e., a map that contains the key/value pairs that
+|====
+| `_Exp~1~_`    |  `_Exp~2~_`      | `_Exp~1~_ & _Exp~2~_`     
+
+| `map[_T~1~1_, _T12_]` |  `set[_T~2~_]`   | `set[lub(_T~1~_,_T~2~_)]` 
+|====
+
+.Function
+
+.Details
+
+.Description
+Returns the intersection of the two map values of _Exp_~1~ and _Exp_~2~, i.e., a map that contains the key/value pairs that
 occur in both maps.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 ("apple": 1, "pear": 2) & ("banana": 3, "apple": 1);
 ("apple": 1, "pear": 2) & ("banana": 3, "apple": 4);
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

@@ -185,10 +185,10 @@ TreeNode mirror(TreeNode t) {
        }
     }
     
-Figure dtree(TreeNode t) = shape(display(t, [])
+//Figure dtree(TreeNode t) = shape(display(t, [])
   // , scaleX=<<-40, 40>, <0,400>>, scaleY=<<0, 40>, <0,400>>
-  , size=<400, 400>, yReverse= false
-   );
+ // , size=<400, 400>, yReverse= false
+ //  );
     
 list[Vertex] display(TreeNode t, list[Vertex] v, bool cityblock) {
     if (cityblock)
@@ -250,6 +250,7 @@ TreeNode doShapeTree(TreeNode t, int height, int yPosition, int ySeparation, int
         t.left = outline[0].left;
         t.right = outline[0].right;
         outline[0].x = 0;
+        {
         int i  = 1;
         /* Overlap */
         for (b<-tail(outline)) {
@@ -273,6 +274,7 @@ TreeNode doShapeTree(TreeNode t, int height, int yPosition, int ySeparation, int
              z[t.right].right.yPosition= max([z[b.right].right.yPosition, z[t.right].right.yPosition]);
                    
           i=i+1;
+       }
        }  
        if (!isEmpty(outline)) {
            int centre = cityblock?roundX(outline):last(outline).x/2;

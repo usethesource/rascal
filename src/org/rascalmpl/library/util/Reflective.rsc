@@ -72,13 +72,13 @@ public java loc getModuleLocation(str modulePath);
 public java loc getSearchPathLocation(str filePath);
 
 data PathConfig 
-  = pathConfig(list[loc] srcPath = [|std:///|],        // List of directories to search for source files
-               list[loc] libPath = [|boot:///stdlib|, |std:///|],        
-                                                        // List of directories to search source for derived files
-               //list[loc] projectPath = [],             // List of directories to search for source or derived files in projects
-                                                        // Note: each directory should include the project name as last path element
-               loc binDir = |home:///bin/|,            // Global directory for derived files outside projects
-               loc bootDir = |boot+compressed:///|     // Directory with Rascal boot files
+  = pathConfig(list[loc] srcs = [|std:///|],        // List of directories to search for source files
+               list[loc] libs = [|boot:///stdlib|, |std:///|],        
+                                                       // List of directories to search source for derived files
+               //list[loc] projectPath = [],           // List of directories to search for source or derived files in projects
+                                                       // Note: each directory should include the project name as last path element
+               loc bin = |home:///bin/|,            // Global directory for derived files outside projects
+               loc boot = |boot+compressed:///|     // Directory with Rascal boot files
               );
 
 data RascalManifest
@@ -113,20 +113,20 @@ loc metafile(loc l) = l + "META-INF/RASCAL.MF";
   META-INF/RASCAL.MF files.
 }
 PathConfig applyManifests(PathConfig cfg) {
-   mf = (l:readManifest(#RascalManifest, metafile(l)) | l <- cfg.srcPath + cfg.libPath + [cfg.binDir], exists(metafile(l)));
+   mf = (l:readManifest(#RascalManifest, metafile(l)) | l <- cfg.srcs + cfg.libs + [cfg.bin], exists(metafile(l)));
 
-   list[loc] expandSrcPath(loc p) = [ p + s | s <- mf[p].Source] when mf[p]?;
-   default list[loc] expandSrcPath(loc p, str _) = [p];
+   list[loc] expandSrcs(loc p) = [ p + s | s <- mf[p].Source] when mf[p]?;
+   default list[loc] expandSrcs(loc p, str _) = [p];
    
-   list[loc] expandLibPath(loc p) = [ p + s | s <- mf[p].\Required-Libraries] when mf[p]?;
-   default list[loc] expandLibPath(loc p, str _) = [p];
+   list[loc] expandlibs(loc p) = [ p + s | s <- mf[p].\Required-Libraries] when mf[p]?;
+   default list[loc] expandlibs(loc p, str _) = [p];
     
-   loc expandBinDir(loc p) = p + mf[p].Bin when mf[p]?;
-   default loc expandBinDir(loc p) = p;
+   loc expandBin(loc p) = p + mf[p].Bin when mf[p]?;
+   default loc expandBin(loc p) = p;
    
-   cfg.srcPath = [*expandSrcPath(p) | p <- cfg.srcPath];
-   cfg.libPath = [*expandLibPath(p) | p <- cfg.libPath];
-   cfg.binDir  = expandBinDir(cfg.binDir);
+   cfg.srcs = [*expandSrcs(p) | p <- cfg.srcs];
+   cfg.libs = [*expandlibs(p) | p <- cfg.libs];
+   cfg.bin  = expandBin(cfg.bin);
    
    // TODO: here we add features for Required-Libraries by searching in a repository of installed
    // jars. This has to be resolved recursively.
@@ -137,7 +137,7 @@ PathConfig applyManifests(PathConfig cfg) {
 str makeFileName(str qualifiedModuleName, str extension = "rsc") = replaceAll(qualifiedModuleName, "::", "/") + "." + extension;
 
 loc getSearchPathLoc(str filePath, PathConfig pcfg){
-    for(loc dir <- pcfg.srcPath + pcfg.libPath){
+    for(loc dir <- pcfg.srcs + pcfg.libs){
         fileLoc = dir + filePath;
         if(exists(fileLoc)){
             //println("getModuleLocation <qualifiedModuleName> =\> <fileLoc>");
@@ -149,14 +149,7 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
 
 loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
     fileName = makeFileName(qualifiedModuleName);
-    //for(loc dir <- pcfg.projectPath){
-    //    fileLoc = dir + ("src/" + fileName);
-    //    if(exists(fileLoc)){
-    //        println("getModuleLocation <qualifiedModuleName> =\> <fileLoc>");
-    //        return fileLoc;
-    //    }
-    //}
-    for(loc dir <- pcfg.srcPath){
+    for(loc dir <- pcfg.srcs){
         fileLoc = dir + fileName;
         if(exists(fileLoc)){
             //println("getModuleLocation <qualifiedModuleName> =\> <fileLoc>");
@@ -166,30 +159,24 @@ loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
     throw "Module <qualifiedModuleName> not found";
 }
 
+@reflect{need to get the configuration from the evaluation context}
+@javaClass{org.rascalmpl.library.util.Reflective}
+java str getRascalClasspath();
+
 str getModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
     
     if(!endsWith(modulePath, "rsc")){
         throw "Not a Rascal source file: <moduleLoc>";
     }
-    //if(moduleLoc.scheme == "project"){
-    //    for(loc dir <- pcfg.projectPath && dir.file == moduleLoc.authority){
-    //        dir.path = dir.path + "/" + modulePath;
-    // 
-    //        println("modulePath = <modulePath>, dir = <dir>");
-    //        if(exists(dir)){ 
-    //           moduleName = replaceFirst(modulePath, "/src/", "");
-    //           moduleName = replaceLast(moduleName, ".rsc", "");
-    //           moduleName = replaceAll(moduleName, "/", "::");
-    //           return moduleName;
-    //        }
-    //    }
-    //    throw "No module name found for <moduleLoc>";
-    //}
-    for(loc dir <- pcfg.srcPath){
+   
+    for(loc dir <- pcfg.srcs){
         if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme){
            moduleName = replaceFirst(modulePath, dir.path, "");
            moduleName = replaceLast(moduleName, ".rsc", "");
+           if(moduleName[0] == "/"){
+              moduleName = moduleName[1..];
+           }
            moduleName = replaceAll(moduleName, "/", "::");
            return moduleName;
         }
@@ -197,39 +184,29 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     throw "No module name found for <moduleLoc>";
 }
 
-//bool isDefinedInSearchPath(str filePath, list[loc] searchPath, bool compressed){
-//    for(loc d <- searchPath){
-//        if(compressed){
-//           d.scheme = "compressed+" + d.scheme;
-//        }
-//        if(exists(d + filePath)){
-//            return true;
-//        }
-//    }
-//    return false;
-//}
-
 @doc{   
-Synopsis: Derive a location from a given module name for reading
+.Synopsis
+Derive a location from a given module name for reading
 
-Description:
+.Description
 Given a module name, a file name extension, and a PathConfig,
 a path name is constructed from the module name + extension.
 
 If a file F with this path exists in one of the directories in the PathConfig,
 then the pair <true, F> is returned. Otherwise <false, some error location> is returned.
 
-For a source extension (typically "rsc" or "mu" but this can be configured) srcPath is searched, otherwise binPath + libPath.
+For a source extension (typically "rsc" or "mu" but this can be configured) srcs is searched, otherwise binPath + libs.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import util::Reflective;
 getDerivedReadLoc("List", "rsc", pathConfig());
 getDerivedReadLoc("experiments::Compiler::Compile", "rvm", pathConfig());
 getDerivedReadLoc("experiments::Compiler::muRascal2RVM::Library", "mu", pathConfig());
-</screen>
+----
 
-Benefits:
+.Benefits
 This function is useful for type checking and compilation tasks, when derived information related to source modules has to be read
 from locations in different, configurable, directories.
 }
@@ -239,14 +216,7 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
     //println("getDerivedReadLoc: <fileName>");
    
     if(extension in srcExtensions){
-       //for(loc dir <- pcfg.projectPath){    // In a project directory?
-       //    fileLoc = dir + ("src/" + fileName);
-       //    if(exists(fileLoc)){
-       //       println("getDerivedReadLoc <qualifiedModuleName> =\> <fileLoc>");
-       //       return <true, fileLoc>;
-       //    }
-       //}
-       for(loc dir <- pcfg.srcPath){        // In a source directory?
+       for(loc dir <- pcfg.srcs){        // In a source directory?
            fileLoc = dir + fileName;
            if(exists(fileLoc)){
              //println("getDerivedReadLoc: <qualifiedModuleName>, <extension> =\> <fileLoc");
@@ -256,17 +226,8 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
     } else {
       // A binary (possibly library) module
       compressed = endsWith(extension, "gz");
-      //for(loc dir <- pcfg.projectPath){     // In a project directory
-      //     fileLoc = dir + ("bin/" + fileName);
-      //     if(exists(fileLoc)){
-      //        if(compressed){
-      //           fileLoc.scheme = "compressed+" + fileLoc.scheme;
-      //        }
-      //        println("getDerivedReadLoc <qualifiedModuleName> =\> <fileLoc>");
-      //        return <true, fileLoc>;
-      //     }
-      //}
-      for(loc dir <- pcfg.binDir + pcfg.libPath){   // In a bin or lib directory?
+
+      for(loc dir <- pcfg.bin + pcfg.libs){   // In a bin or lib directory?
        
         fileLoc = dir + fileName;
         if(exists(fileLoc)){
@@ -283,24 +244,26 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
 }
 
 @doc{   
-Synopsis: Derive a location from a given module name for writing
+.Synopsis
+Derive a location from a given module name for writing
 
-Description:
+.Description
 Given a module name, a file name extension, and a PathConfig,
 a path name is constructed from the module name + extension.
 
 For source modules, a writable location cannot be derived.
-For other modules, a location for this path in binDir will be returned.
+For other modules, a location for this path in bin will be returned.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import util::Reflective;
 getDerivedWriteLoc("List", "rvm", pathConfig());
 getDerivedWriteLoc("experiments::Compiler::Compile", "rvm", pathConfig());
 getDerivedWriteLoc("experiments::Compiler::muRascal2RVM::Library", "mu", pathConfig());
-</screen>
+----
 
-Benefits:
+.Benefits
 This function is useful for type checking and compilation tasks, when derived information related to source modules has to be written
 to locations in separate, configurable, directories.
 }
@@ -312,24 +275,11 @@ loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, 
     fileNameBin = makeFileName(qualifiedModuleName, extension=extension);
     compressed = endsWith(extension, "gz");
     
-    //for(loc dir <- pcfg.projectPath){
-    //    fileLocSrc = dir + ("src/" + fileNameSrc);
-    //    if(exists(fileLocSrc)){
-    //       loc fileLocBin = dir + ("bin/" + fileNameBin);
-    //       if(compressed){
-    //          fileLocBin.scheme = "compressed+" + fileLocBin.scheme;
-    //       }
-    //    
-    //       //println("getDerivedWriteLoc <qualifiedModuleName> =\> <fileLocBin>");
-    //       return fileLocBin;
-    //    }
-    //}
-    
-    bindir = pcfg.binDir;
+    bin = pcfg.bin;
     if(compressed){
-       bindir.scheme = "compressed+" + bindir.scheme;
+       bin.scheme = "compressed+" + bin.scheme;
     }
-    fileLocBin = bindir + fileNameBin;
+    fileLocBin = bin + fileNameBin;
     //println("getDerivedWriteLoc: <qualifiedModuleName>, <extension> =\> <fileLocBin>");
     return fileLocBin;
 }

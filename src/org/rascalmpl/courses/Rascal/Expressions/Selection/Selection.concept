@@ -1,36 +1,43 @@
-Name: Selection
+# Selection
 
-Synopsis: Retrieve the value of an [$Declarations/Annotation].
+.Synopsis
+Retrieve the value of an <<Declarations-Annotation,Annotation>>.
 
-Syntax:
-`$Expr$ @ $Name$`
+.Index
+@
 
-Types:
-| `$Expr$`       | `$Expr$ @ $Name$`                             |
-|:--------------|:-----------------------------------------------|
-| `$T$ <: node` | Determined by annotation declaration of $Name$ |
+.Syntax
+`_Expr_ @ _Name_`
 
-Function:
+.Types
 
-Details:
 
-Description:
-Retrieves the value of annotation $Name$ of the value of $Exp$ (may be undefined!).
-Also see [Replacement] for replacing the value of an annotation.
+|====
+| `_Expr_`       | `_Expr_ @ _Name_`                             
 
-Examples:
-<screen>
+| `_T_ <: node` | Determined by annotation declaration of _Name_ 
+|====
+
+.Function
+
+.Details
+
+.Description
+Retrieves the value of annotation _Name_ of the value of _Exp_ (may be undefined!).
+Also see <<Replacement>> for replacing the value of an annotation.
+
+.Examples
+[source,rascal-shell]
+----
 anno str node @ color;
 anno str node @ size;
 F = "fn"(123, "abc");
 F = F[@color="red"];
 F = F[@size="10"];
 F@color;
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

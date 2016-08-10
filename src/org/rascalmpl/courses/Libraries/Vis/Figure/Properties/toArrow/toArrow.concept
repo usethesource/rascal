@@ -1,0 +1,42 @@
+# toArrow
+
+.Synopsis
+Add an error to the destination of an [edge].
+
+.Syntax
+
+.Types
+
+.Function
+FProperty toArrow(Figure f)
+
+.Details
+
+.Description
+Add an arrow to the destination of a <<Figures-graph>> edge. 
+The arrow is an arbitrary figure `f` and its upper side will be used as the
+point of the arrow. The figure is appropriately rotated depending on the orientation of the edge.
+
+An arrow to the source of an edge is defined with <<fromArrow>>.
+An edge may have both a <<fromArrow>> and a <<toArrow>> property.
+
+.Examples
+[source,rascal-figure,width=,height=,file=t1.png]
+----
+                nodes = [ box(id("A"), fillColor("red")), 
+          box(id("B"), fillColor("yellow")), 
+          box(id("C"), fillColor("blue"))];
+edges = [ edge("A", "B", toArrow(box(size(20)))), 
+          edge("A", "C", toArrow(box(size(20))))
+        ];
+render(graph(nodes, edges, gap(50), std(size(100))));
+----
+
+
+image::{concept}/t1.png[alt="f1"]
+
+
+.Benefits
+
+.Pitfalls
+

@@ -22,7 +22,25 @@ public class ProfileFrameObserver implements IFrameObserver {
 	
 	@Override
 	public boolean observe(Frame frame) {
-		this.src = frame.src;
+		if(frame != null){
+			this.src = frame.src;
+		}
+		return true;
+	}
+	
+	@Override
+	public boolean enter(Frame frame) {
+		if(frame != null){
+			this.src = frame.src;
+		}
+		return true;
+	}
+	
+	@Override
+	public boolean leave(Frame frame, Object rval) {
+		if(frame != null){
+			this.src = frame.src;
+		}
 		return true;
 	}
 	

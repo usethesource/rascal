@@ -1,42 +1,44 @@
-Name: UnexpectedType
+# UnexpectedType
 
-Synopsis: A value of a different type was expected.
+.Synopsis
+A value of a different type was expected.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 This error signals an incompatibility between expected type and actual type.
 Some of the situations in which this may occur are
-[Rascal:Assert], [Rascal:Declarations/Variable], [Rascal:Solve].
+link:/Rascal#Statements-Assert[assert], link:/Rascal#Declarations-Variable[variable],
+link:/Rascal#Statements-Solve[solve].
 
 Remedy: adjust the actual type to the expected type.
 
-Examples:
+.Examples
 Declaring variable `n` as `int` and assigning it a `str` value gives an error:
-<screen warnings>
+[source,rascal-shell,error]
+----
 int n = "abc";
-</screen>
+----
 The solution is to assign an `int` value to `n`:
-<screen>
+[source,rascal-shell]
+----
 int n = 123;
-</screen>
+----
 An `assert` statement expects an argument of type `bool`:
-<screen warnings>
+[source,rascal-shell,error]
+----
 assert 3;
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

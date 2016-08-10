@@ -57,9 +57,9 @@ void tbox2(){render(box2);}
 
 
  
- public void main() {
-     Figure WB = box(fillColor="yellow", width = 200, height = 200, align=topLeft);
-     Figure RB = box(fillColor="red", size=<20,20>, align=topLeft);
+// public void main() {
+//    Figure WB = box(fillColor="yellow", width = 200, height = 200, align=topLeft);
+ //    Figure RB = box(fillColor="red", size=<20,20>, align=topLeft);
      // Figure box4 =  box( event = on("click", funFill2), fig = WB, fillColor="blue", width = 60, height = 60);
      // Figure box5 = box( fig=RB, fillColor="green",  width = 50, height = 50, align=topLeft);
      //Figure box2 =  box(fillColor="antiqueWhite", width = 50, height = 50, w = 70);
@@ -67,6 +67,12 @@ void tbox2(){render(box2);}
      // render(box5, width = 500, height = 500);
      // render(vcat( figs =[box4, box2],  w = 104, h = 104),  width = 500, height = 500);
      // render(grid(figArray = [ [box4, box5], [box2]], id="grid"), fillColor=  "red", width = 500, height = 500);
-     render(WB, lineColor = "blue");
+ //    render(WB, lineColor = "blue");
+ //    }
+ 
+ 
+ public void Main() {
+     void() f(value g) {return void () {println(g);};}
+     f(<["aap"],"noot">)();
      }
  

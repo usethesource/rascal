@@ -12,7 +12,6 @@
 
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -21,6 +20,7 @@ import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.type.Type;
@@ -79,6 +79,7 @@ public class RVMonJVM extends RVMCore {
 		
 		dynRun(func.funId, cf);
 		if(returnValue instanceof Thrown){
+			frameObserver.exception(cf, (Thrown) thrown);
 			throw (Thrown) returnValue;
 		}
 		return returnValue;
@@ -89,7 +90,7 @@ public class RVMonJVM extends RVMCore {
 	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance, org.rascalmpl.value.IValue[])
 	 */
 	@Override
-	public IValue executeRVMFunction(FunctionInstance func, IValue[] args) {
+	public IValue executeRVMFunction(FunctionInstance func, IValue[] posAndKwArgs) {
 
 		Thrown oldthrown = thrown;
 
@@ -97,8 +98,8 @@ public class RVMonJVM extends RVMCore {
 		root.sp = func.function.getNlocals();
 
 		// Pass the program arguments to main
-		for (int i = 0; i < args.length; i++) {
-			root.stack[i] = args[i];
+		for (int i = 0; i < posAndKwArgs.length; i++) {
+			root.stack[i] = posAndKwArgs[i];
 		}
 
 		dynRun(func.function.funId, root);
@@ -106,6 +107,7 @@ public class RVMonJVM extends RVMCore {
 		thrown = oldthrown;
 
 		if (returnValue instanceof Thrown) {
+			frameObserver.exception(root, (Thrown) thrown);
 			throw (Thrown) returnValue;
 		}
 		return narrow(returnValue);
@@ -116,17 +118,17 @@ public class RVMonJVM extends RVMCore {
 	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunctionInstance, org.rascalmpl.value.IValue[])
 	 */
 	@Override
-	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] args){		
+	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posAndKwArgs){		
 		Function firstFunc = functionStore[func.getFunctions()[0]]; // TODO: null?
-		int arity = args.length;
+		int arity = posAndKwArgs.length;
 		int scopeId = func.env.scopeId;
 		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
 
 		// Pass the program arguments to func
-		for(int i = 0; i < args.length; i++) {
-			root.stack[i] = args[i]; 
+		for(int i = 0; i < posAndKwArgs.length; i++) {
+			root.stack[i] = posAndKwArgs[i]; 
 		}
-		root.sp = args.length;
+		root.sp = posAndKwArgs.length;
 		root.previousCallFrame = null;
 
 		OverloadedFunctionInstanceCall ofunCall = new OverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), func.env, null, arity);
@@ -154,6 +156,7 @@ public class RVMonJVM extends RVMCore {
 		dynRun(root.function.funId, root);
 
 		if(returnValue instanceof Thrown){
+			frameObserver.exception(root, (Thrown) thrown);
 			throw (Thrown) returnValue;
 		}
 		return (IValue) returnValue;
@@ -164,7 +167,7 @@ public class RVMonJVM extends RVMCore {
 	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMProgram(java.lang.String, java.lang.String, org.rascalmpl.value.IValue[], java.util.HashMap)
 	 */
 	@Override
-	public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] args, HashMap<String,IValue> kwArgs) {
+	public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] args, Map<String,IValue> kwArgs) {
 
 		rex.setCurrentModuleName(moduleName);
 
@@ -182,6 +185,7 @@ public class RVMonJVM extends RVMCore {
 		
 		Object o = returnValue;
 		if (o != null && o instanceof Thrown) {
+			//TODO: frameObserver.exception(cf, (Thrown) thrown);
 			throw (Thrown) o;
 		}
 		return narrow(o);
@@ -239,6 +243,32 @@ public class RVMonJVM extends RVMCore {
 			printFrameAndStackAndAccu(cf, sp, accu);
 			System.err.println(insName + " " + abbrev(arg1) + ", " + arg2 + "\n");
 		}
+	}
+	
+	/********************************************************************************************/
+	/*	Utitities for FrameObservers															*/
+	/********************************************************************************************/
+	
+	public void frameUpdateSrc(Frame cf, int srcIndex){
+		cf.src = (ISourceLocation) cf.function.constantStore[srcIndex];
+	}
+	
+	public void frameObserve(Frame cf, int srcIndex){
+		cf.src = (ISourceLocation) cf.function.constantStore[srcIndex];
+		frameObserver.observe(cf);
+	}
+	
+	public void frameEnter(Frame cf, int srcIndex){
+		cf.src = (ISourceLocation) cf.function.constantStore[srcIndex];
+		frameObserver.enter(cf);
+	}
+	
+	public void frameLeave(Frame cf, IValue rval){
+		frameObserver.leave(cf, rval);
+	}
+	
+	public void frameException(Frame cf, Thrown thrown){
+		frameObserver.exception(cf, thrown);
 	}
 	
 	/************************************************************************************************/
@@ -328,10 +358,10 @@ public class RVMonJVM extends RVMCore {
 		} catch (Exception e) {
 			e.printStackTrace(stderr);
 			stderr.flush();
-			throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: " + e.getMessage() + e.getCause(), cf);
+			throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: " + e.getMessage() + e.getCause(), cf, e);
 		} catch (Throwable e) {
 			e.printStackTrace();
-			throw new CompilerError("Throwable in CALLJAVA: " + className + "." + methodName + "; message: " + e.getMessage() + e.getCause(), cf);
+			throw new CompilerError("Throwable in CALLJAVA: " + className + "." + methodName + "; message: " + e.getMessage() + e.getCause(), cf, e);
 		}
 		return newsp;
 	}
@@ -609,7 +639,7 @@ public class RVMonJVM extends RVMCore {
 			fun = tmp.function;
 		}
 		tmp.previousCallFrame = cf;
-
+		
 		rval = dynRun(fun.funId, tmp); // In a full inline version we can call the
 										// function directly (name is known).
 		if (rval == YIELD) {

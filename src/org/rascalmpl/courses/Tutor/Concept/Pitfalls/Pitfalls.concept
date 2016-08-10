@@ -1,24 +1,23 @@
-Name: Pitfalls
+# Pitfalls
 
-Synopsis:
+.Synopsis
+
 Comprehensive list of known shortcomings or usage problems of the concept.
 
-Syntax:
-`Pitfalls:  $MarkedText$`
+.Syntax
+`Pitfalls:  _MarkedText_`
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

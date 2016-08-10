@@ -1,31 +1,34 @@
-Name: Import
+# Import
 
-Synopsis: Declare the import a module.
+.Synopsis
+Declare the import a module.
 
-Syntax:
-`import $QualifiedName$;`
+.Index
+import
 
-Types:
+.Syntax
+`import _QualifiedName_;`
 
-Function:
+.Types
 
-Details:
+.Function
 
-Description:
-An import has as effect that all public entities declared in module $QualifiedName$ are made available to the importing module. Circular imports are allowed. All publicly visible entities in the imported module become available in the importing module.
+.Details
+
+.Description
+An import has as effect that all public entities declared in module _QualifiedName_ are made available to the importing module. Circular imports are allowed. All publicly visible entities in the imported module become available in the importing module.
 
 Import is _non-transitive_, i.e., the visible entities from an imported module are not re-exported by the importing module.
 
-Examples:
-Here, is how to import the [$Prelude/IO] library:
-<screen>
+.Examples
+Here, is how to import the link:/Libraries#Prelude-IO[IO] library:
+[source,rascal-shell]
+----
 import IO;
 println("IO library was imported.");
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

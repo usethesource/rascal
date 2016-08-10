@@ -1,67 +1,43 @@
-Name: Product
+# List Product
 
-Synopsis: Compute the product of two lists.
+.Synopsis
+Compute the product of two lists.
 
-Syntax:
-`$Exp_1$ * $Exp_2$`
+.Index
+*
 
-Types:
-| `$Exp_1$`     |  `$Exp_2$`     | `$Exp_1$ * $Exp_2$`         |
-|:--------------|:---------------|:----------------------------|
-| `list[$T_1$]` |  `list[$T_2$]` | `list[tuple[$T_1$,$T_2$]]`  |
+.Syntax
+`_Exp_~1~ * _Exp_~2~`
 
-Function:
+.Types
 
-Details:
 
-Description:
-Yields a list of tuples resulting from the product of the values of $Exp_1$ and $Exp_2$. 
+|====
+| `_Exp~1~_`     |  `_Exp~2~_`     | `_Exp~1~_ * _Exp~2~_`         
+
+| `list[_T~1~_]` |  `list[_T~2~_]` | `list[tuple[_T~1~_,_T~2~_]]`  
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields a list of tuples resulting from the product of the values of _Exp_~1~ and _Exp_~2~. 
 It contains a tuple for each combination of values from both arguments.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 [1, 2, 3] * [4, 5, 6];
-</screen>
+----
 Here is a concise way to create a deck of cards:
-<screen>
+[source,rascal-shell]
+----
 ["clubs", "hearts", "diamonds", "spades"] * [1 .. 13];
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-QChoice: When you compute the product of two lists, the number of elements in the result is always:
-b: Smaller than or equal to the number of elements in the first list.
-b: Smaller than or equal to the number of elements in the second list.
-g: Equal to the product of the number of elements in both lists.
-b: Equal to the sum of the number of elements in both lists.
-b: Equal to the number of elements in the largest list.
-
-
-QType: <A:list[arb[int,str,bool]]> * <B:same[A]>
-
-QValue: 
-make: A = list[int[0,50]]
-make: B = int[0,50]
-expr: C = <A> * [<B>]
-hint: <C>
-test:  <A> * [<B>] == <?>
-
-QValue: 
-make: A = list[int[0,50]]
-make: B = int[0,50]
-make: C = int[0,50]
-expr: D = <A> * [<B>, <C>]
-hint: <D>
-test:  <A> * [<B>, <C>] == <?>
-
-QValue: 
-prep: import List;
-make: A = list[int[0,50]]
-make: B = same[A]
-expr: C = size(<A> * <B>)
-hint: <C>
-test:  size(<A> * <B>) == <?>
+.Pitfalls
 

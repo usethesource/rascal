@@ -1,0 +1,62 @@
+# hvcat
+
+.Synopsis
+Horizontal and vertical composition of a list of figures.
+
+.Syntax
+
+.Types
+
+.Function
+`Figure hvcat(Figures figs, FProperty props...)`
+
+.Details
+
+.Description
+Horizontal and vertical composition of a list of figures within a given width 
+comparable to the horizontal and vertical placement of words in a paragraph of text.
+
+Figures are placed horizontally as long as they fit within the given width.
+If a figure would exceed that width it is placed on the next row of figures.
+
+Within each row, the horizontal gap controls the distance between figures and the vertical alignment of each figure controls
+its alignment in the row.
+
+The distance between rows is controlled by the vertical gap.
+
+.Examples
+[source,rascal-figure,width=400,height=50,file=h1.png]
+----
+                b1 = box(size(20,30), fillColor("Red"));
+b2 = box(size(40,20), fillColor("Blue"));
+b3 = box(size(40,40), fillColor("Yellow"));
+b4 = box(size(10,20), fillColor("Green"));
+b5 = box(size(10,20), fillColor("Purple"));
+b6 = box(size(60,20), fillColor("Orange"));
+render(hvcat([b1, b2, b3, b4, b5, b6], gap(5)));
+----
+displayed in a 400x50 area gives: 
+image::{concept}/h1.png[alt="h1"]
+
+
+However, the same example
+[source,rascal-figure,width=100,height=120,file=h2.png]
+----
+                b1 = box(size(20,30), fillColor("Red"));
+b2 = box(size(40,20), fillColor("Blue"));
+b3 = box(size(40,40), fillColor("Yellow"));
+b4 = box(size(10,20), fillColor("Green"));
+b5 = box(size(10,20), fillColor("Purple"));
+b6 = box(size(60,20), fillColor("Orange"));
+render(hvcat([b1, b2, b3, b4, b5, b6], gap(5)));
+----
+displayed in a 100x120 area gives: 
+image::{concept}/h2.png[alt="h2"]
+
+
+The alignment of the rows can be set using <<justify>> and <<ialign>>.
+
+.Benefits
+
+.Pitfalls
+

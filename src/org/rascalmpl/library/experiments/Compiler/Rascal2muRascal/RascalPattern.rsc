@@ -12,6 +12,7 @@ import ParseTree;
 import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::muRascal::AST;
 
+import experiments::Compiler::Rascal2muRascal::ModuleInfo;
 import experiments::Compiler::Rascal2muRascal::RascalType;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
@@ -875,9 +876,14 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`, Symbol subjectType){
 	//subjectType = stripStart(subjectType);
 	concreteMatch = concreteTraversalAllowed(pattern, subjectType);
 	descendantFun = concreteMatch && (subjectType != \str()) ? "DESCENT_AND_MATCH_CONCRETE" : "DESCENT_AND_MATCH";
-	tc = getTypesAndConstructors(pattern);
-    reachable = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
-    descriptor = muCallPrim3("make_descendant_descriptor", [muCon(descId), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())], p@\loc);
+	
+	reachable_syms = { Symbol::\value() };
+	reachable_prods = {};
+    if(optimizing()){
+	   tc = getTypesAndConstructors(pattern);
+       <reachable_syms, reachable_prods>  = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
+    }
+    descriptor = muCallPrim3("make_descendant_descriptor", [muCon(descId), muCon(reachable_syms), muCon(reachable_prods), muCon(concreteMatch), muCon(getDefinitions())], p@\loc);
     return muApply(mkCallToLibFun("Library",descendantFun), [translatePat(pattern, Symbol::\value()),  descriptor]);
 }
 

@@ -1,80 +1,44 @@
-Name: Difference
+# Set Difference
 
-Synopsis: The difference between two sets.
+.Synopsis
+The difference between two sets.
 
-Syntax:
-`$Exp_1$ - $Exp_2$`
+.Index
+-
 
-Types:
-| `$Exp_1$`    |  `$Exp_2$`     | `$Exp_1$ - $Exp_2$`       |
-|:-------------|:---------------|:--------------------------|
-| `set[$T_1$]` |  `set[$T_2$]`  | `set[lub($T_1$,$T_2$)]`   |
-| `set[$T_1$]` |  `$T_2$`       | `set[lub($T_1$,$T_2$)]`   |
+.Syntax
+`_Exp_~1~ - _Exp_~2~`
+
+.Types
 
 
-Function:
+|====
+| `_Exp~1~_`    |  `_Exp~2~_`     | `_Exp~1~_ - _Exp~2~_`       
 
-Details:
+| `set[_T~1~_]` |  `set[_T~2~_]`  | `set[lub(_T~1~_,_T~2~_)]`   
+| `set[_T~1~_]` |  `_T~2~_`       | `set[lub(_T~1~_,_T~2~_)]`   
+|====
 
-Description:
-If both $Exp_1$ and $Exp_2$ have a set as value, the result is the difference of these two set values. 
-If $Exp_2$ does not have a set as value, it is first converted to a set before the difference is computed.
+
+.Function
+
+.Details
+
+.Description
+If both _Exp_~1~ and _Exp_~2~ have a set as value, the result is the difference of these two set values. 
+If _Exp_~2~ does not have a set as value, it is first converted to a set before the difference is computed.
 The difference is computed by removing all elements of the second set from the first set.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 {1, 2, 3, 4} - {1, 2, 3};
 {1, 2, 3, 4} - {3};
 {1, 2, 3, 4} - 3;
 {1, 2, 3, 4} - {5, 6, 7};
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-QChoice: When you compute the difference of two sets, the number of elements in the result is always:
-b: Greater than the number of elements in both sets.
-b: Greater than or equal to the number of elements in the first set.
-b: Smaller than the number of elements in both sets.
-g: Smaller than or equal to the number of elements in the first set.
-
-QType: <A:set[arb[int,str]]> - <B:same[A]>
-
-QType: <A:set[arb[str,int]]> - <A:same[A]>
-
-QValue:
-prep: import Set;
-make: DIFF = set[int[0,100]]
-make: A = same[DIFF]
-make: B = same[DIFF]
-expr: A1 = <DIFF> + <A>
-expr: B1 = <B> + <DIFF>
-expr: C =  <A1> - <B1>
-hint: <C>
-test: <A1> - <B1> == <?>
-
-QValue:
-prep: import Set;
-make: DIFF = set[int[0,100]]
-make: A = same[DIFF]
-make: B = same[DIFF]
-expr: A1 = <DIFF> + <A>
-expr: B1 = <B> + <DIFF>
-expr: C =  <A1> - <B1>
-hint: <A1>
-test: <?> - <B1> == <C>
-
-QValue:
-prep: import Set;
-make: DIFF = set[int[0,100]]
-make: A = same[DIFF]
-make: B = same[DIFF]
-expr: A1 = <DIFF> + <A>
-expr: B1 = <B> + <DIFF>
-expr: C =  <A1> - <B1>
-hint: <B1>
-test: <A1> - <?> == <C>
-
+.Pitfalls
 

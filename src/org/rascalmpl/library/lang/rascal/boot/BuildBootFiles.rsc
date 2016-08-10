@@ -41,9 +41,9 @@ import util::FileSystem;
 import experiments::Compiler::Execute;
 import experiments::Compiler::Compile;
 import experiments::Compiler::CompileMuLibrary; 
-import experiments::Compiler::Rascal2Info::Collect;
 
-loc BOOT = |file:///Users/paulklint/git/rascal/src/boot/|;
+//loc BOOT = |home:///Workspaces/Rascal/rascal/src/boot/|;
+loc BOOT = |file:///Users/paulklint/git/rascal/src/boot|;
 loc BINBOOT = |home:///bin-boot|;
 loc SHELLSCRIPT = |home:///install.sh|;
 
@@ -99,7 +99,7 @@ str moduleName2Bin(str moduleName, str ext) =
 
 // Compile and serialize a module and generate a command to move the result to the root of the BOOT directory
 
-str serialize(str moduleName, PathConfig pcfg, bool jvm=false){
+str serialize(str moduleName, PathConfig pcfg, bool jvm=true){
      report("Compiling <moduleName>");
      compileAndLink(moduleName, pcfg, verbose=true, jvm=jvm);
      serialized = getDerivedWriteLoc(moduleName, "rvm.ser.gz", pcfg);
@@ -119,23 +119,36 @@ void report(str msg){
 // build the MuLibrary, install it, end then do the complete build.
 
 void buildMuLibrary(){
-     pcfg = pathConfig(srcPath=[|std:///|], binDir=BINBOOT, libPath=[BINBOOT]);
+     pcfg = pathConfig(srcs=[|std:///|], bin=BINBOOT, libs=[BINBOOT]);
      commands = "#!/bin/sh\n";
      report("Compiling MuLibrary");
-     compileMuLibrary(pcfg, verbose=true);
+     //compileMuLibrary(pcfg, verbose=true);
+     compileMuLibrary(pcfg.srcs, pcfg.libs, pcfg.boot, pcfg.bin)
      muLib = getMuLibraryCompiledWriteLoc(pcfg);
      commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
+     commands += "cp .<muLib.path> <(BOOT + muLib.path).path>\n";
      writeFile(SHELLSCRIPT, commands);
      report("Commands written to <SHELLSCRIPT>");
+}
+
+str relativize(str path1, str path2){
+     if(path1 == path2){
+        return "";
+     }
+     if(startsWith(path2, path1)){
+        return path2[size(path1) .. ];
+     }
+     
+     return path2;
 }
 
 // Build MuLibrary, standard library, ParserGenerator and Kernel
 // Maybe run buildMuLibrary first!
 
-value build(bool jvm=true, bool full=false){
+value build(bool jvm=true, bool full=true){
      println("build: full = <full>, jvm = <jvm>");
 
-     pcfg = pathConfig(srcPath=[|std:///|], binDir=BINBOOT, libPath=[BINBOOT]);
+     pcfg = pathConfig(srcs=[|std:///|], bin=BINBOOT, libs=[BINBOOT]);
      
      if(full){
         report("Removing current compiled boot files <BINBOOT>");
@@ -148,23 +161,16 @@ value build(bool jvm=true, bool full=false){
      compileMuLibrary(pcfg, verbose=true, jvm=jvm);
      muLib = getMuLibraryCompiledWriteLoc(pcfg);
      commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
+     commands += "cp .<muLib.path> <(BOOT + relativize(BINBOOT.path, muLib.path)).path>\n";
  
-     //report("Compiling standard library modules");
-     //for(moduleName <- libraryModules){
-     //    compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
-     //}
+     report("Compiling standard library modules");
+     for(moduleName <- libraryModules){
+         compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
+     }
     
      
      commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg, jvm=jvm);
      commands += serialize("lang::rascal::boot::Kernel", pcfg, jvm=jvm);
-     
-     if(full){
-        info = collectInfo(libraryModules, pcfg);
-     
-        l = getDerivedWriteLoc("StdLib.info", "gz", pcfg);
-        println("l = <l>");
-        writeBinaryValueFile(l, info);
-     }
     
      writeFile(SHELLSCRIPT, commands);
      report("Commands written to <SHELLSCRIPT>");

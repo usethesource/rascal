@@ -1,46 +1,55 @@
-Name: ArithmeticException
+# ArithmeticException
 
-Synopsis: An arihmetic error occurred
+.Synopsis
+An arihmetic error occurred
 
-Syntax:
-data RunTimeException = ArithmeticException(str message);
+.Syntax
+`data RunTimeException = ArithmeticException(str message);`
 
-Types:
+.Types
 
-Function:
+.Function
 `data RunTimeException = ArithmeticException(str message);`
        
-Usage:
+.Usage
 import Exception;
 
-Details:
+.Details
 
-Description:
+.Description
 This error is generated when an illegal arithmetic operation occurs or when
 a numeric function  is called with an out-of-range argument.
 
 Remedies:
-* Check the validity of the argument before you call the function or apply the operator.
-* Catch the `ArithmeticException` yourself, see [Rascal:TryCatch].
 
-Examples:
-<screen warnings>
-// Division by 0 gives an error:
+*  Check the validity of the argument before you call the function or apply the operator.
+*  Catch the `ArithmeticException` yourself, see link:/Rascal#Statements-TryCatch[try catch] statement.
+
+.Examples
+[source,rascal-shell,error]
+----
+----
+Division by 0 gives an error:
+[source,rascal-shell,continue,error]
+----
 3/0;
-// Giving an out-of-range argument to a mathematical function also gives an error:
+----
+Giving an out-of-range argument to a mathematical function also gives an error:
+[source,rascal-shell,continue,error]
+----
 import util::Math;
 tan(-550000000000000000000000);
-// We can also catch the `ArithmeticException` error. First import the Rascal exceptions (which are also included in `Prelude`)
-// and `IO`:
+----
+We can also catch the `ArithmeticException` error. First import the Rascal exceptions (which are also included in `Prelude`)
+and `IO`:
+[source,rascal-shell,continue,error]
+----
 import Exception;
 import IO;
 try println(3/0); catch ArithmeticException(msg): println("The message is: <msg>");
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

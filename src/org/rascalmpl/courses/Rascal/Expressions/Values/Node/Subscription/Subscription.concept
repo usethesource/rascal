@@ -1,33 +1,48 @@
-Name: Subscription
+# Node Subscription
 
-Synopsis: Retrieve an argument of a node via its index.
+.Synopsis
+Retrieve an argument of a node via its index.
 
-Syntax:
-`$Exp_1$ [ $Exp_2$ ]`
+.Index
+[ ]
 
-Types:
-| `$Exp_1$`     | `$Exp_2$` | `$Exp_1$ [ $Exp_2$ ]` |
-|:--------------|:----------|:----------------------|
-| `node`        | `int`     | `value`                |
+.Syntax
+`_Exp_~1~ [ _Exp_~2~ ]`
 
-Function:
+.Types
 
-Details:
 
-Description:
-Node subscription uses the integer value of $Exp_2$ as index in the argument list of the node value of $Exp_1$.
-The value of $Exp_2$ should be greater or equal 0 and less than the number of arguments of the node.
+|====
+| `_Exp~1~_`     | `_Exp~2~_` | `_Exp~1~_ [ _Exp~2~_ ]` 
+
+| `node`        | `int`     | `value`                
+|====
+
+.Function
+
+.Details
+
+.Description
+Node subscription uses the integer value of _Exp_~2~ as index in the argument list of the node value of _Exp_~1~.
+The value of _Exp_~2~ should be greater or equal 0 and less than the number of arguments of the node.
 If this is not the case, the exception `IndexOutOfBounds` is thrown.
 
-Examples:
-<screen errors>
-// Introduce a node, assign it to F and retrieve the various arguments:
+.Examples
+[source,rascal-shell,error]
+----
+----
+Introduce a node, assign it to F and retrieve the various arguments:
+[source,rascal-shell,continue,error]
+----
 F = "f"(1, "abc", false);
 F[0]
 F[1]
 F[2]
-// Explore an error case:
+----
+Explore an error case:
+[source,rascal-shell,continue,error]
+----
 F[3];
-</screen>
+----
 
        

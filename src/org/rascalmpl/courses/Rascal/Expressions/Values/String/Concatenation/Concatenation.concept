@@ -1,33 +1,40 @@
-Name: Concatenation
+# String Concatenation
 
-Synopsis: Concatenate two strings.
+.Synopsis
+Concatenate two strings.
 
-Syntax:
-`$Exp_1$ + $Exp_2$`
+.Index
++
 
-Types:
-| `$Exp_1$` | `$Exp_2$` | `$Exp_1$ + $Exp_2$` |
-|:----------|:----------|:--------------------|
-| `str`     | `str`     | `str`               |
+.Syntax
+`_Exp_~1~ + _Exp_~2~`
 
-Function:
+.Types
 
-Details:
 
-Description:
+|====
+| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ + _Exp~2~_` 
 
-Concatenates the string values of $Exp_1$ and $Exp_2$.
+| `str`     | `str`     | `str`               
+|====
 
-Note that to concatenate other types of values into a string, you can use [$Values/String] interpolation.
+.Function
 
-Examples:
-<screen>
+.Details
+
+.Description
+
+Concatenates the string values of _Exp_~1~ and _Exp_~2~.
+
+Note that to concatenate other types of values into a string, you can use <<Values-String>> interpolation.
+
+.Examples
+[source,rascal-shell]
+----
 "abc" + "def";
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

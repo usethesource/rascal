@@ -6,12 +6,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMInterpreter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.value.IValue;
@@ -44,8 +45,8 @@ public class DebugREPL extends BaseREPL{
 
 	private final BreakPointManager breakPointManager;
 
-	public DebugREPL(RVMCore rvm2, Frame frame, BreakPointManager breakPointManager, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException{
-		super(stdin, stdout, prettyPrompt, allowColors, new File(file.getAbsolutePath() + "-debug"), terminal);
+	public DebugREPL(PathConfig pcfg, RVMCore rvm2, Frame frame, BreakPointManager breakPointManager, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException, URISyntaxException{
+		super(pcfg, stdin, stdout, prettyPrompt, allowColors, new File(file.getAbsolutePath() + "-debug"), terminal);
 		this.rvm = rvm2;
 		this.currentFrame = frame;
 		this.startFrame = frame;
@@ -56,7 +57,7 @@ public class DebugREPL extends BaseREPL{
 	}
 	
 	@Override
-	protected void initialize(Writer stdout, Writer stderr) {
+	protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr) {
 		 this.stdout = new PrintWriter(stdout);
          this.stderr = new PrintWriter(stderr);
 	}
@@ -228,7 +229,7 @@ public class DebugREPL extends BaseREPL{
 	
 	private void printStack(){
 		for(Frame f = currentFrame; f != null && !f.src.getPath().equals(CommandExecutor.consoleInputPath); f = f.previousCallFrame) {
-			stdout.println("\t" + f.toString() + "\t" + f.src);
+			stdout.println("\t" + f.toString() /*+ "\t" + f.src*/);
 		}
 	}
 

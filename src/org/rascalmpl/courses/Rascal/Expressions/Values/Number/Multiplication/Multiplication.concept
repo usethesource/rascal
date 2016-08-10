@@ -1,38 +1,41 @@
-Name: Multiplication
+# Number Multiplication
 
-Synopsis: Multiply two numeric values.
+.Synopsis
+Multiply two numeric values.
 
-Syntax:
-`$Exp_1$ * $Exp_2$`
+.Index
+*
 
-Types:
-| `$Exp_1$` |  `$Exp_2$` | `$Exp_1$ * $Exp_2$` |
-|:----------|:-----------|:--------------------|
-| `int`     |  `int`     | `int`               |
-| `int`     |  `real`    | `real`              |
-| `real`    |  `real`    | `real`              |
+.Syntax
+`_Exp_~1~ * _Exp_~2~`
 
-Function:
+.Types
 
-Details:
 
-Description:
-Yields the result of multiplying the values of $Exp_1$ and $Exp_2$.
+|====
+| `_Exp~1~_` |  `_Exp~2~_` | `_Exp~1~_ * _Exp~2~_` 
 
-Examples:
-<screen>
+| `int`     |  `int`     | `int`               
+| `int`     |  `real`    | `real`              
+| `real`    |  `real`    | `real`              
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields the result of multiplying the values of _Exp~1~_ and _Exp~2~_.
+
+.Examples
+[source,rascal-shell]
+----
 12 * 13
 12 * 13.5
 -12*13
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-QType:  <A:int> * <B:int>
-QType:  <A:int> * <B:real>
-QType:  <A:real> * <B:int>
-QValue: <A:num> * <B:num>
+.Pitfalls
 

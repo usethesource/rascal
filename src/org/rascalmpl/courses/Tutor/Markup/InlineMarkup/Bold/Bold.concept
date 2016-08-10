@@ -1,25 +1,24 @@
-Name: Bold
+# Bold
 
-Synopsis:
-Create __bold__ text.
+.Synopsis
 
-Syntax:
-`__ $Text$ __`
+Create *bold* text.
 
-Types:
+.Syntax
+`__ _Text_ __`
 
-Function:
+.Types
 
-Details:
+.Function
 
-Description:
+.Details
 
-Examples:
-`__bold__` gives __bold__.
+.Description
 
-Benefits:
+.Examples
+`__bold__` gives *bold*.
 
-Pitfalls:
+.Benefits
 
-Questions:
+.Pitfalls
 

@@ -1,45 +1,30 @@
-Name: Union
+# Set Union
 
-Synopsis: Union of two set values.
+.Synopsis
+Union of two set values.
 
-Syntax: `$Exp_1$ + $Exp_2$`
+.Index
++
 
-Types:
-| `$Exp_1$`    |  `$Exp_2$`    | `$Exp_1$ + $Exp_2$`      |
-|:-------------|:--------------|:-------------------------|
-| `set[$T_1$]` |  `set[$T_2$]` | `set[lub($T_1$,$T_2$)]`  |
+.Syntax
 
-Description:
-The `+` operator computes set union if both operands are sets. If one of the operands is not a set, it acts as [Set/Insert] instead.
+.Types
 
-Examples:
-<screen>
+|====
+| `_Exp~1~_`    |  `_Exp~2~_`    | `_Exp~1~_ + _Exp~2~_`      
+
+| `set[_T~1~_]` |  `set[_T~2~_]` | `set[lub(_T~1~_,_T~2~_)]`  
+|====
+
+.Description
+The `+` operator computes set union if both operands are sets. If one of the operands is not a set, it acts as <<Set-Insert>> instead.
+
+.Examples
+[source,rascal-shell]
+----
 {1, 2, 3} + {4, 5, 6};
 {1,2,3} + {2,3,4};
 {1, 2, 3} + {3};
 {2} + { 2, 3, 4};
-</screen>
-
-Questions:
-
-QChoice: When you compute the union of two sets, the number of elements in the result is always:
-g: Smaller than or equal to the total number of elements in both sets.
-b: Greater than or equal to the number of elements in both sets.
-b: Greater than the number of elements in both sets.
-b: Smaller than the number of elements in both sets.
-
-QType: <A:set[arb[int,str,real]]> + <B:same[A]>
-
-QValue: <A:set[arb[int,str,real]]> + <B:same[A]>
-
-QValue:
-make: A = set[arb[int,str]]
-make: B = same[A]
-expr: C = <A> + <B>
-hint: <B>
-test: <A> + <?> == <C>
-
-QValue: <A:set[arb[0,int,str]]> + <B:same[A]>
-
-QValue: <A:set[arb[0,int,str]]> + {}
+----
 

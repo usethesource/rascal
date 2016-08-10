@@ -67,21 +67,21 @@
                         <configuration>
                             <executable>java</executable>
                             <classpathScope>compile</classpathScope>
-                            <workingDirectory>target/classes/</workingDirectory>-->
-                            <arguments>
-                                <argument>-Xmx2G</argument>
-                                <argument>-classpath</argument>
+                            <workingDirectory>target/classes/</workingDirectory>
+  			    <arguments>
+                                <argument>-Xmx256m</argument>
+                                <argument>-cp</argument>
                                 <classpath/>
-                                <argument>org.rascalmpl.library.experiments.Compiler.Commands.RascalC</argument>
-                                <argument>--srcPath</argument>
-                                <argument>|std:///|</argument>
-                                <argument>--binDir</argument>
-                                <argument>org/rascalmpl/library/</argument>
-                                <argument>--noLinking</argument>
-                                <argument>Prelude</argument>
-                            </arguments>    
+                                <argument>org.rascalmpl.library.experiments.Compiler.Commands.Bootstrap</argument>
+                                <classpath/>
+                                <argument>0.8.2-bs</argument>
+                                <argument>${project.version}</argument>
+                                <argument>${project.basedir}/src</argument>
+                                <argument>${project.build.directory}/classes</argument>
+                                <argument>--clean</argument>
+                            </arguments> 
                         </configuration>
-                        <id>compile-rascal-library</id>
+                        <id>bootstrap</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>exec</goal>

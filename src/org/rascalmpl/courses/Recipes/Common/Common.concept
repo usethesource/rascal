@@ -1,26 +1,24 @@
-Name: Common
+# Common
 
-Synopsis: Solutions for some common tasks.
+.Synopsis
+Solutions for some common tasks.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 We discuss the following tasks:
 
-<toc Recipes/Common 1>
+subtoc::[1]
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

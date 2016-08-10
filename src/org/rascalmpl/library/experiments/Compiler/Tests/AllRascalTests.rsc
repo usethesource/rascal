@@ -45,21 +45,21 @@ private list[str] functionalityTests = [
 "BacktrackingTests",
 "CallTests",
 "CallTestsAux",
-"CommonKeywordParameterImportTests1::DiamondTop",
-"CommonKeywordParameterImportTests1::DiamondLeft",
-"CommonKeywordParameterImportTests1::DiamondRight",
-"CommonKeywordParameterImportTests1::DiamondBottom",
-
-"CommonKeywordParameterImportTests2::DiamondTop",
-"CommonKeywordParameterImportTests2::DiamondLeft",
-"CommonKeywordParameterImportTests2::DiamondRight",
-"CommonKeywordParameterImportTests2::DiamondBottom",
-
-"CommonKeywordParameterImportTests3::A",
-"CommonKeywordParameterImportTests3::B",
-"CommonKeywordParameterImportTests3::C",
-"CommonKeywordParameterImportTests3::D",
-"CommonKeywordParameterImportTests3::Tests",
+//"CommonKeywordParameterImportTests1::DiamondTop",
+//"CommonKeywordParameterImportTests1::DiamondLeft",
+//"CommonKeywordParameterImportTests1::DiamondRight",
+//"CommonKeywordParameterImportTests1::DiamondBottom",
+//
+//"CommonKeywordParameterImportTests2::DiamondTop",
+//"CommonKeywordParameterImportTests2::DiamondLeft",
+//"CommonKeywordParameterImportTests2::DiamondRight",
+//"CommonKeywordParameterImportTests2::DiamondBottom",
+//
+//"CommonKeywordParameterImportTests3::A",
+//"CommonKeywordParameterImportTests3::B",
+//"CommonKeywordParameterImportTests3::C",
+//"CommonKeywordParameterImportTests3::D",
+//"CommonKeywordParameterImportTests3::Tests",
 
 "ComprehensionTests",
 "ConcretePatternTests1",
@@ -76,12 +76,13 @@ private list[str] functionalityTests = [
 "DeclarationTests",
 "FunctionCompositionTests",
 "InterpolationTests",
-"KeywordParameterImportTests1::DiamondTop",
-"KeywordParameterImportTests1::DiamondLeft",
-"KeywordParameterImportTests1::DiamondRight",
-"KeywordParameterImportTests1::DiamondBottom",
-"KeywordParameterImportTests2::Tests",
+//"KeywordParameterImportTests1::DiamondTop",
+//"KeywordParameterImportTests1::DiamondLeft",
+//"KeywordParameterImportTests1::DiamondRight",
+//"KeywordParameterImportTests1::DiamondBottom",
+//"KeywordParameterImportTests2::Tests",
 "KeywordParameterTests",
+"LayoutTests",
 "ParsingTests",
 "PatternTests",
 "PatternDescendantTests",
@@ -199,6 +200,8 @@ private list[str] files_with_tests =
 "demo::lang::Exp::Concrete::WithLayout::Eval",
 "demo::lang::Func::Test",
 "demo::lang::Lisra::Test",
+"demo::lang::Lisra::Parse",
+"demo::lang::Lisra::Pretty",
 "demo::McCabe",
 "demo::ReachingDefs",
 "demo::Slicing",
@@ -279,17 +282,17 @@ lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg, bool jvm=
   return all_test_results;
 }
   
-value main(bool jvm=false) = allRascalTests(binDir=|home:///bin-tests-comp|, jvm=jvm);
+value main(bool jvm=true) = allRascalTests(bin=|home:///bin-tests-comp|, jvm=jvm);
   
-value allRascalTests(loc binDir=|home:///bin-tests-intp|, bool jvm=false){
+value allRascalTests(loc bin=|home:///bin-tests-intp|, bool jvm=true){
   
-  println("Using binDir = <binDir>");
+  println("Using bin = <bin>");
   timestamp = now();
   crashes = [];
   partial_results = [];
   lrel[loc,int,str] all_results = [];
   
-  pcfg = pathConfig(binDir=binDir, libPath=[binDir]);
+  pcfg = pathConfig(srcs=[|std:///|], bin=bin, libs=[bin]);
   
   all_results += runTests(basicTests, "lang::rascal::tests::basic", pcfg, jvm=jvm);
   all_results += runTests(functionalityTests, "lang::rascal::tests::functionality", pcfg, jvm=jvm);

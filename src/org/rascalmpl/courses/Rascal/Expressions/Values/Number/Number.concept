@@ -1,30 +1,32 @@
-Name: Number
+# Number
 
-Synopsis: Numeric values.
+.Synopsis
+Numeric values.
 
-Syntax:
+.Index
+int real num
 
-Types:
+.Syntax
+
+.Types
 `int`, `real`, `num`
 
-Usage: `import Number;` (__deprecated__: use `import util::Math;`)
+.Usage
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 Numbers include integers (values of type `int`) and reals (values of type `real`). 
 If both operands have the same type (`int` or `real`) then the operator is the corresponding operator on integers or reals. Otherwise, integer arguments are first converted to real and the real operator is applied.
 
 The following operations are provided on numbers:
-<toc Rascal/Expressions/Values/Number 1>
+subtoc::[1]
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

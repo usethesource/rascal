@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry excluding="**/example-project/*" kind="src" path="src"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="test"/>
@@ -16,14 +15,14 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/rascal/lib/commons-compress-1.9-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/caffeine-1.2.0.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/rascal/lib/caffeine-1.2.0-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/jline-2.13.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/rascal/lib/jline-2.13-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/caffeine-2.2.3.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/rascal/lib/caffeine-2.2.3-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path=".apt_generated">
@@ -33,8 +32,12 @@
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/jdom-2.0.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/fst-2.42-onejar.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commonmark-0.3.0.jar"/>
 	<classpathentry kind="lib" path="lib/capsule-0.1.0.jar" sourcepath="lib/capsule-0.1.0-sources.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-analyzers-common-6.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-core-6.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-queryparser-6.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/value-0.5.3.jar" sourcepath="lib/value-0.5.3-sources.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/html2png.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

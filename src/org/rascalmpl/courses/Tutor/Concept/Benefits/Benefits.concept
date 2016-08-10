@@ -1,24 +1,23 @@
-Name: Benefits
+# Benefits
 
-Synopsis:
+.Synopsis
+
 Briefly lists known advantages of the concept.
 
-Syntax:
-`Benefits:  $MarkedText$`
+.Syntax
+`Benefits:  _MarkedText_`
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

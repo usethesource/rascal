@@ -1,33 +1,35 @@
-Name: Integer
+# Integer
 
-Synopsis: Integer values.
+.Synopsis
+Integer values.
 
-Syntax:
+.Index
+int
+
+.Syntax
 sequence of digits of arbitrary length.
 
-Types:
+.Types
 `int`
 
-Usage: `import Integer`; (__deprecated__, use `import util::Math`;)
+.Usage
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
-The integer values are represented by the type <tt>int</tt> and are written as usual. They can be _arbitrarily large_.
+.Description
+The integer values are represented by the type `int` and are written as usual. They can be _arbitrarily large_.
 
-See [Number] for all operations and functions on integers, reals and numbers.
+See <<Number>> for all operations and functions on integers, reals and numbers.
 
-Examples:
-* <tt>12</tt>
-* <tt>0</tt>
-* <tt>-123456789</tt>
+.Examples
 
-Benefits:
+*  `12`
+*  `0`
+*  `-123456789`
 
-Pitfalls:
+.Benefits
 
-Questions:
-QType: <A:int>
+.Pitfalls
 

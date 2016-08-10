@@ -1,0 +1,440 @@
+#Syntax  {
+	background-color: Snow;
+	color: black;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 12pt;
+}
+
+h1, th {
+	font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+h1 {
+    font-size: 120%;
+    font-weight: bold;
+}
+
+h2 {
+	font-size: 110%;
+    font-style: italic;
+}
+
+img { 
+	border: 0;
+}
+
+td#tdlogo {
+    vertical-align: top;
+    width: 15%;
+    background-color: Snow;
+    border-color: black;
+    border-left-width : 0;
+    border-right-width : 0;
+    border-top-width : 0;
+}
+
+td#tdsearch {
+    vertical-align: top;
+    background-color: Snow;
+    border-color: black;
+    border-left-width : 0;
+    border-right-width : 0;
+    border-top-width : 0;
+}
+
+td#tdnav {
+    vertical-align: top;
+    width: 15%;
+    background-color: Snow;
+    border-color: black;
+    border-left-width : 0;
+    border-bottom-width : 0;
+}
+
+td#tdconcept {
+    vertical-align: top;
+    width: 85%;
+    background-color: Snow;
+    border-color: black;
+    border-right-width : 0;
+    border-bottom-width : 0;
+    margin: 5px;
+}
+
+table#container {
+    width: 100%;
+    border: 1px solid #000;
+}
+
+
+#Syntax table {
+	border-collapse: collapse;
+    padding-top: 0.5em;
+    margin-top: 0.5em;
+}
+
+#Syntax th, #Syntax td {
+	padding: 5px;
+	border: 2px #666 solid;
+	text-align: left;
+}
+
+th { background-color: silver; }
+
+
+#TutorImg {
+    padding: 5px 5px;
+}
+
+
+.sectionHead {
+    color:black;
+    font-size: 120%;
+    font-weight: bold;
+    text-shadow: silver 2px 2px 2px;
+}
+
+#Name  { 
+    vertical-align: top;
+/*    padding: 5px 0px;
+    margin-top: 2em;
+    position: relative;*/
+}
+
+#Warnings { padding: 0.5em 0em; color: red; }
+#Details { padding: 0.5em 0em; }
+#Synopsis{ padding: 0.5em 0em; }
+#Syntax{ padding: 0.5em 0em; }
+#Usage{ padding: 0.5em 0em; }
+
+#Syntax code {
+ border: 1px solid #000;
+ background-color: MintCream;
+}
+#Types{ padding: 0.5em 0em; }
+
+#Types th {background-color: silver;}
+#Function{ padding: 0.5em 0em; }
+#Description { padding: 0.5em 0em; }
+#Examples{ padding: 0.5em 0em; }
+#Benefits{ padding: 0.5em 0em; }
+#PittFalls{ padding: 0.5em 0em; }
+#Questions{ padding: 0.5em 0em; }
+
+.question {
+    border: 1px dotted #000;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 10px;
+    padding-bottom:10px;
+    position: relative;
+}
+
+/* Search box */
+
+#searchBox {
+    top:  0.5em;
+    right: 0;
+    float: right;
+    margin-top: 6px;
+    margin-right: 20px;
+    position: absolute;
+}
+
+#searchIcon {
+    top: 0.5em;
+    position: relative;
+}
+
+#searchfield {
+/*	font: 1.2em verdana, arial, helvetica, sans-serif; */
+}
+
+.suggestions {
+	background-color: #FFF;
+	padding: 2px 6px;
+	border: 1px solid #000;
+    left: 25px;
+    position: relative;
+}
+
+.suggestions:hover {
+	background-color: #69F;
+}
+
+#popups {
+	position: absolute;
+}
+
+#searchField.error {
+	background-color: Pink;
+}
+
+#navigationMenu {
+    top: 0.5em;
+    right: 15em;
+    float: right;
+    margin-right: 20px;
+
+    position: absolute;
+
+}
+
+#editMenu {
+    padding: 10px 0px;
+    font-size: 80%;
+}
+
+#editTextArea {
+    font-family: Courier, sans-serif;
+    font-size: 90%;
+}
+
+#editErrors {
+    color: red;
+}
+
+.editMenuFooter {   
+    font-size: 90%;
+    font-style: italic;
+}
+
+.inlineError {
+    color: red;
+}
+
+.continuation {
+    color: lightgray;
+}
+
+.answerForm tt {
+    background-color: lightgray;
+    border:solid;
+    color: #000000;
+    border-color: #9b8c8b;
+    border-left: solid #9b8c8b 1px;
+    border-right: solid #9b8c8b 1px;
+    border-top: solid #9b8c8b 1px;
+    border-bottom: solid #9b8c8b 1px;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+.answerText {
+    font-size: 100%;
+    height: 11pt;
+    width: 200pt;
+    padding-bottom: 1px;
+    position: relative;
+}
+
+.answerStatus {
+    height: 12pt;
+    position: relative;
+    top: 6px;
+}
+
+textarea {
+    width: 80em;
+    height: 40em;
+}
+
+.editSubmit{
+    font-size: 100%;
+}
+
+.answerSubmit, .cheatSubmit, .anotherSubmit{
+    
+    font-size: 100%;
+}
+
+.answerSubmit {
+  float: left;
+  margin-left: 1em;
+  margin-top: 16px;
+
+}
+
+.examSubmit {
+  background-color: lightgray;
+  color: red;
+  font-size: 20pt;
+  float: left;
+}
+
+#studentInfo{
+   background-color: lightgray;
+   border-color: red;
+
+}
+
+textarea#studentName {
+    width : 80em;
+    height: 2em;
+}
+textarea#studentMail {
+    width : 80em;
+    height: 2em;
+ }
+textarea#studentNumber {
+    width : 80em;
+    height: 2em;
+ }
+
+.cheatSubmit, .anotherSubmit{
+    font-size: 60%;
+    color: black;
+    float: right;
+    margin-right: 10px;
+    margin-top: 10px;
+}
+
+.answerFeedback{
+    color: red;
+    font-size: 12pt;
+}
+
+tt {
+    font-family: Courier, sans-serif;
+    font-size: 12pt;
+    /* background-color: #eeff88; */
+}
+
+#Questions h2 {
+	background: url(images/open.png) no-repeat 0% 100%;
+	padding-left: 20px;
+	cursor: pointer;
+}
+
+#Questions h2.close {
+	background-image: url(images/close.png);
+}
+
+pre
+{
+        font-family:monospace;
+        white-space: pre;
+        width: 96%;
+        border:solid;
+        color: #000000;
+        border-color: #9b8c8b;
+        border-left: solid #9b8c8b 1px;
+        border-right: solid #9b8c8b 1px;
+        border-top: solid #9b8c8b 1px;
+        border-bottom: solid #9b8c8b 1px;
+        padding-left: 15px;
+        padding-right: 10px;
+        overflow-x:auto;
+}
+
+
+pre.screen
+{
+        background-color: PapayaWhip;
+}
+
+pre.listing
+{
+        background-color: MintCream;
+}
+
+pre.prequestion
+{
+        background-color: lightgrey;
+}
+
+IMPORTANT
+{
+        font-style:italic;
+        border: solid 1px #ff0000;
+        width: 70%;
+        margin-left: 15%;       
+}
+CAUTION
+{
+        font-style:italic;
+        border: ridge 1px #ffff00;
+        width: 70%;
+        margin-left: 15%;       
+}
+
+NOTE
+{
+        font-style:italic;
+        border: solid 1px #000000;
+        width: 70%;
+        margin-left: 15%;       
+}
+
+TIP
+{
+        font-style:italic;
+        border: solid 1px #000000;
+        width: 70%;
+        margin-left: 15%;       
+}
+
+WARNING
+{
+        font-style:italic;
+        font-weight: bold;
+        border: ridge 4px #ff0000;
+        
+        width: 70%;
+        margin-left: 15%; 
+        display: block;      
+}
+
+#pleaseWaitMessage
+{
+	display: none;
+	
+}
+
+
+
+/*
+ColorBox Core Style:
+The following CSS is consistent between example themes and should not be altered.
+*/
+#colorbox, #cboxOverlay, #cboxWrapper{position:absolute; top:0; left:0; z-index:9999; overflow:hidden;}
+#cboxOverlay{position:fixed; width:100%; height:100%;}
+#cboxMiddleLeft, #cboxBottomLeft{clear:left;}
+#cboxContent{position:relative;}
+#cboxLoadedContent{overflow:auto;}
+#cboxTitle{margin:0;}
+#cboxLoadingOverlay, #cboxLoadingGraphic{position:absolute; top:0; left:0; width:100%;}
+#cboxPrevious, #cboxNext, #cboxClose, #cboxSlideshow{cursor:pointer;}
+.cboxPhoto{float:left; margin:auto; border:0; display:block;}
+.cboxIframe{width:100%; height:100%; display:block; border:0;}
+/*
+User Style:
+Change the following styles to modify the appearance of ColorBox.  They are
+ordered & tabbed in a way that represents the nesting of the generated HTML.
+*/
+#cboxOverlay{background:#222;}
+#colorbox{}
+#cboxContent{margin-top:32px; overflow:visible;}
+#cboxError{padding:50px; border:1px solid #ccc;}
+#cboxLoadedContent{background:#fff; padding:1px;}
+#cboxLoadingGraphic{background:url(images/loading.gif) no-repeat center center;}
+#cboxLoadingOverlay{background:#fff;}
+#cboxTitle{position:absolute; top:-22px; left:0; color:#ccc;}
+#cboxCurrent{position:absolute; top:-22px; right:205px; text-indent:-9999px;}
+#cboxSlideshow, #cboxPrevious, #cboxNext, #cboxClose{text-indent:-9999px; width:20px; height:20px; position:absolute; top:-20px; background:url(images/controls.png) no-repeat 0 0;}
+#cboxPrevious{background-position:0px 0px; right:44px;}
+#cboxPrevious.hover{background-position:0px -25px;}
+#cboxNext{background-position:-25px 0px; right:22px;}
+#cboxNext.hover{background-position:-25px -25px;}
+#cboxClose{background-position:-50px 0px; right:0;}
+#cboxClose.hover{background-position:-50px -25px;}
+.cboxSlideshow_on #cboxPrevious, .cboxSlideshow_off #cboxPrevious{right:66px;}
+.cboxSlideshow_on #cboxSlideshow{background-position:-75px -25px; right:44px;}
+.cboxSlideshow_on #cboxSlideshow.hover{background-position:-100px -25px;}
+.cboxSlideshow_off #cboxSlideshow{background-position:-100px 0px; right:44px;}
+.cboxSlideshow_off #cboxSlideshow.hover{background-position:-75px -25px;}
+
+
+

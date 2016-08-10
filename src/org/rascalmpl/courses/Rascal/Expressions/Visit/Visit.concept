@@ -1,46 +1,51 @@
-Name: Visit
+# Visit
 
-Synopsis: Visit the elements in a tree or value.
+.Synopsis
+Visit the elements in a tree or value.
 
-Syntax:
-<listing>
-Strategy visit ( $Exp$ ) {
-case $PatternWithAction_1$;
-case $PatternWithAction_2$;
+.Index
+visit case default top-down top-down-break bottom-up bottom-up-break innermost outermost
+
+.Syntax
+[source,rascal,subs="quotes"]
+----
+Strategy visit ( _Exp_ ) {
+case _PatternWithAction~1~_;
+case _PatternWithAction~2~_;
 ...
 default: ...
 }
-</listing>
+----
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
-Visiting the nodes in a tree is a very common task in the [EASY:EASY] domain. 
+.Description
+Visiting the nodes in a tree is a very common task in the link:/EASY[EASY] domain. 
 In many cases (but certainly not all) the tree is a syntax tree of some source code file 
 and the nodes correspond to expressions or statements. 
 Computing metrics or refactoring are examples of tasks that require a tree visit. 
 In object-oriented programming, the _visitor pattern_ is in common use for this,
-see [Visitor Pattern](http://en.wikipedia.org/wiki/Visitor_pattern).
+see http://en.wikipedia.org/wiki/Visitor_pattern[Visitor Pattern].
 There are three frequently occurring scenarios:
 
-* Accumulator: traverse the tree and collect information.
+*  Accumulator: traverse the tree and collect information.
 
-* Transformer: traverse the tree and transform it into another tree.
+*  Transformer: traverse the tree and transform it into another tree.
 
-* Accumulating Transformer: traverse the tree, collect information and also transform the tree.
+*  Accumulating Transformer: traverse the tree, collect information and also transform the tree.
 
 
 The visit expression in Rascal can accommodate all these (and more) use cases.
 
-Given a subject term (the current value of $Exp$) and a list of cases 
-(consisting of a sequence of [PatternWithAction]s, it traverses the term. 
+Given a subject term (the current value of _Exp_) and a list of cases 
+(consisting of a sequence of <<Pattern with Action>>s, it traverses the term. 
 Depending on the precise actions it may perform replacement (mimicking a transformer), 
 update local variables (mimicking an accumulator) or a combination of these two (accumulating transformer). 
-If __any__ of the actions contains an [$Statements/Insert] statement, 
+If *any* of the actions contains an <<Statements-Insert>> statement, 
 the value of the visit expression is a new value that is obtained by successive insertions in the subject 
 term by executing one or more cases. Otherwise, the original value of the subject term is returned.
 
@@ -48,94 +53,79 @@ term by executing one or more cases. Otherwise, the original value of the subjec
 The visit expression is optionally preceded by one of the following strategy indications that 
 determine the traversal order of the subject:
 
-* `top-down`: visit the subject from root to leaves.
+*  `top-down`: visit the subject from root to leaves.
 
-* `top-down-break`: visit the subject from root to leaves, but stop at the current path when a case matches.
+*  `top-down-break`: visit the subject from root to leaves, but stop at the current path when a case matches.
 
-* `bottom-up`: visit the subject from leaves to root (this is the default).
+*  `bottom-up`: visit the subject from leaves to root (this is the default).
 
-* `bottom-up-break`: visit the subject from leaves to root, but stop at the current path when a case matches.
+*  `bottom-up-break`: visit the subject from leaves to root, but stop at the current path when a case matches.
 
-* `innermost`: repeat a bottom-up traversal as long as the traversal changes the resulting value (compute a fixed-point).
+*  `innermost`: repeat a bottom-up traversal as long as a case matches.
 
-* `outermost`: repeat a top-down traversal as long as the traversal changes the resulting value (compute a fixed-point).
+*  `outermost`: repeat a top-down traversal as long as a case matches.
 
 
 The execution of the cases has the following effect:
 
-* A PatternWithAction of the form `$Pattern$ => $Exp$` replaces the current subtree of the subject by the value of $Exp$. 
-Note that a copy of the subject is created at the start of the visit statement and all replacements are made in this copy. 
-As a consequence, modifications made during the visit cannot influence matches later on.
-The modified copy of the subject is ultimately returned by the visit expression.
+*  A PatternWithAction of the form `_Pattern_ => _Exp_` replaces the current subtree of the subject by the value of _Exp_. 
+   Note that a copy of the subject is created at the start of the visit statement and all replacements are made in this copy. 
+   As a consequence, modifications made during the visit cannot influence matches later on.
+   The modified copy of the subject is ultimately returned by the visit expression.
 
-* A PatternWithAction of the form `$Pattern$ : $Statement$` executes `Statement` and this should lead to one of the following:
+*  A PatternWithAction of the form `_Pattern_ : _Statement_` executes `Statement` and this should lead to one of the following:
 
-** Execution of an Insert statement of the form `insert $Exp_2$`.
-The value of $Exp_2$ replaces the subtree of the subject that is currently being visited. 
-Once again, this modification takes place in a copy of the original subject (see above).
-Note that:
+   ** Execution of an Insert statement of the form `insert _Exp~2~_`.
+      The value of _Exp_~2~ replaces the subtree of the subject that is currently being visited. 
+      Once again, this modification takes place in a copy of the original subject (see above).
+      Note that:
 
-*** An insert statement may only occur in a PatternWithAction in a visit expression or a rule.
+      *** An insert statement may only occur in a PatternWithAction in a visit expression or a rule.
 
-*** `$Pattern$ => $Exp$` is equivalent to `$Pattern$ : insert $Exp$;`.
+      *** `_Pattern_ => _Exp_` is equivalent to `_Pattern_ : insert _Exp_;`.
 
-** Execution of a [Fail] statement: all side effects of $Statement$ are undone, no insertion is made, and the next case is tried.
+   ** Execution of a <<Fail>> statement: the next case is tried.
 
-** Execution of a [Return] statement that returns a value from the enclosing function.
-
+   ** Execution of a <<Return>> statement that returns a value from the enclosing function.
 
 The precise behaviour of the visit expression depends on the type of the subject:
 
-* For type node or ADT, all nodes of the tree are visited (in the order determined by the strategy). 
-Concrete patterns and abstract patterns directly match tree nodes. 
-Regular expression patterns match only values of type string.
+*  For type node or ADT, all nodes of the tree are visited (in the order determined by the strategy). 
+   Concrete patterns and abstract patterns directly match tree nodes. 
+   Regular expression patterns match only values of type string.
 
-* For other structured types (list, set, map, tuple, rel), the elements of the structured type are visited and 
-matched against the cases. 
-When inserts are made, a new structured value is created. In these cases a strategy does not have any effect.
+*  For other structured types (list, set, map, tuple, rel), the elements of the structured type are visited and 
+   matched against the cases. 
+   When inserts are made, a new structured value is created. In these cases a strategy does not have any effect.
 
-Examples:
+.Examples
 Visit a value and increment a counter for pattern `leaf(int N)` matches:
-<listing>
+[source,rascal]
+----
 visit(t) {
      case leaf(int N): c = c + N;   
    };
-</listing>
+----
 Replace all values that match the pattern `red(l, r)`:
-<listing>
+[source,rascal]
+----
 visit(t) {
      case red(l, r) => green(l, r)   
    };
-</listing>
+----
 Do a bottom-up visit of an expression and apply the function `simp` to each subexpression:
-<listing>
+[source,rascal]
+----
 bottom-up visit(e){
            case Exp e1 => simp(e1)
          }
-</listing>
+----
 
-More examples can, for instance, be found in [Recipes:ColoredTrees], [Recipes:WordReplacement], [Recipes:CountConstructors], and [Recipes:Derivative].
+More examples can, for instance, be found in Recipes, see link:/Recipes#Common-ColoredTrees[ColoredTrees], 
+link:/Recipes#Common-WordReplacement[WordReplacement], link:/Recipes#CommonCountConstructors[CountConstructors], 
+and link:/Recipes#Common-Derivative[Derivative].
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-
-QValue:
-desc: Given a data type `ColoredTree`, complete the definition of the function `flipRedChildren` that exchanges the children of all red nodes.
-list:
-data ColoredTree = leaf(int N)      
-                 | red(ColoredTree left, ColoredTree right) 
-                 | black(ColoredTree left, ColoredTree right);
-
-ColoredTree rb = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
-
-public ColoredTree flipRedChildren(ColoredTree t){
-  return visit(t){
-     case red(l,r) => <?>
-  };
-}
-test: flipRedChildren(rb) == red( black(leaf(3), leaf(4)), black(leaf(1), red(leaf(3),leaf(2))));
-
+.Pitfalls
 

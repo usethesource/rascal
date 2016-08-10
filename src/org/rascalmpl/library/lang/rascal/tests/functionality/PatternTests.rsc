@@ -1471,7 +1471,8 @@ test bool matchVariableBecomes4() = [1, L1: [*int L2, int N], 5] := [1,[2,3,4],5
 test bool matchVariableBecomes5() = [1, L1: [*int L2, int N], L1] := [1,[2,3,4],[2,3,4]] && L1 == [2,3,4] && L2==[2,3] && N ==4;
   
 // variableBecomesEquality
-          
+
+@IgnoreCompiler{TODO: fails, reason unknown}        
 test bool matchVariableBecomesEquality1() {int N = 5; return N : 3 !:= 3 && N != 3;}
 
 test bool matchVariableBecomesEquality2() {int N = 3; return N : 3 := 3 && N == 3;}

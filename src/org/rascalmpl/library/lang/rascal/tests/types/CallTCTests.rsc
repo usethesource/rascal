@@ -13,8 +13,8 @@ test bool callError4() = unexpectedType("zap = 10; zap(1,2);");
  
 test bool callError5() = unexpectedType("int f() {return \"a\";}");	
 
-@ignoreCompiler
-test bool callError6() = unexpectedType("int f(){ }"); // TODO? missing return, PK: I think we should report an error here
+@ignoreCompiler{TODO:  missing return, PK: I think we should report an error here}
+test bool callError6() = unexpectedType("int f(){ }");
   
 test bool callError8() = undeclaredVariable("f(undef);", initialDecls = ["int f(int n) {return n;}"]);
 

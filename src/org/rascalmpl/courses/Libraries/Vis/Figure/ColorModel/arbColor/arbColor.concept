@@ -1,0 +1,33 @@
+# arbColor
+
+.Synopsis
+
+Creates an arbitrary color.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty arbColor()`
+
+.Details
+
+.Description
+
+.Examples
+[source,rascal-figure,width=,height=,file=a1.png]
+----
+                box1 = box(fillColor(arbColor()));
+box2 = box(fillColor(arbColor()));
+box3 = box(fillColor(arbColor()));
+render(hcat([box1, box2, box3], std(size(50))));
+----
+
+image::{concept}/a1.png[alt="a1"]
+
+
+.Benefits
+
+.Pitfalls
+

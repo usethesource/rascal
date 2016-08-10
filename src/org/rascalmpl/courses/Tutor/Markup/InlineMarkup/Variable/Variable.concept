@@ -1,39 +1,42 @@
-Name: Variable
+# Variable
 
-Synopsis:
+.Synopsis
+
 Markup for a variable.
 
-Syntax:
-* `$ $VarName$ $`
-* `$ $Varname$ _ $Index$ $`
-* `$ $Varname$ ^ $Index$ $`
+.Syntax
 
-Types:
+*  `$ $VarName$ $`
+*  `$ $Varname$ _ $Index$ $`
+*  `$ $Varname$ ^ $Index$ $`
 
-Function:
+.Types
 
-Details:
+.Function
 
-Description:
+.Details
+
+.Description
 Creates variables in text and code. A variable name may be followed by `_` (or `^`) and an
 index (a number or an identifier) which will be displayed as a subscript (or superscript).
 
-Examples:
+.Examples
 <br>
-===== Example 1 =====
-`$``Var``$` gives $Var$.
+#####  Example 1 
 
-===== Example 2 =====
+`$``Var``$` gives _Var_.
 
-`$``Var``_1$` gives $Var_1$.
+#####  Example 2 
 
-===== Example 3 =====
 
-`$``Var``^1$` gives $Var^1$.
+`$``Var``_1$` gives _Var_~1~.
 
-Benefits:
+#####  Example 3 
 
-Pitfalls:
 
-Questions:
+`$``Var``^1$` gives _Var_^1^.
+
+.Benefits
+
+.Pitfalls
 

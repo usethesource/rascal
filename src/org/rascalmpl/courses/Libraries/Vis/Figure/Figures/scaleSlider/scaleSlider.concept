@@ -1,0 +1,65 @@
+# scaleSlider
+
+.Synopsis
+Interactive slider.
+
+.Syntax
+
+.Types
+
+.Function
+`Figure scaleSlider(int() low, int high(), int () selection, void(int) callback)`
+
+.Details
+
+.Description
+Create an interactive slider that can be used to interactively control an integer parameter.
+The arguments are as follows:
+
+*  `low`: function to determine lowest value on the scale.
+*  `high` function to determine highest value on the scale.
+*  `selection`: function to determine currently selected value.
+*  `callback`: function called when slider is changed.
+
+.Examples
+We now use the `scaleSlider` to interactively control the size of a box.
+Observe that:
+
+*  the local variable `n` is used to record the current size of the box.
+*  the arguments of `scaleSlider` use or modify the value of `n`.
+*  the last element in the vertical composition uses `computeFigure`
+  to compute a new box of size `n`.
+
+
+Here are the code and the resulting figure:
+
+[source,rascal-figure,width=,height=,file=s1.png]
+----
+                Figure scaledbox(){
+   int n = 100;
+   return vcat([ hcat([ scaleSlider(int() { return 0; },     
+                                    int () { return 200; },  
+                                    int () { return n; },    
+                                    void (int s) { n = s; }, 
+                                    width(200)),
+                        text(str () { return "n: <n>";})
+                      ], left(),  top(), resizable(false)),  
+                 computeFigure(Figure (){ return box(size(n), resizable(false)); })
+               ]);
+}
+render(scaledbox());  
+----
+
+image::{concept}/s1.png[alt="s1"]
+
+
+Moving the slider will change the size of the box.      
+
+.Benefits
+
+.Pitfalls
+Due to limitations in SWT this does not behave correctly when being placed over or under figures, so do not use them in <<overlay>> or <<mouseOver>>.
+
+Unfortunately we cannot show an interactive version of the above example here.
+Try it out in Rascal itself.
+

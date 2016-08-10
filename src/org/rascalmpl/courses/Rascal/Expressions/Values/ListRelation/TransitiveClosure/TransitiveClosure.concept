@@ -1,37 +1,51 @@
-Name: TransitiveClosure
+# ListRelation Transitive Closure
 
-Synopsis: Transitive closure on binary list relation values.
+.Synopsis
+Transitive closure on binary list relation values.
 
-Syntax:
-`$Exp$ +`
+.Index
++
 
-Types:
-|`$Exp$`               | `$Exp$ +`           |
-|:---------------------|:--------------- ------|
-| `lrel[$T_1$, $T_2$]` | `lrel[$T_1$, $T_2$]` |
+.Syntax
+`_Exp_ +`
 
-Function:
+.Types
 
-Details:
 
-Description:
+|====
+|`_Exp_`               | `_Exp_ +`           
+
+| `lrel[_T~1~_, _T~2~_]` | `lrel[_T~1~_, _T~2~_]` 
+|====
+
+.Function
+
+.Details
+
+.Description
 Returns the transitive closure of a binary listrelation.
 Transitive closure is defined by repeated composition of a relation.
 If we define for a given relation R:
-* R$^1$ = R
-* R$^2$ = R o R
-* R$^3$ = R o R$^2$
-* ...
+
+*  R^1^ = R
+*  R^2^ = R o R
+*  R^3^ = R o R^2^
+*  ...
 
 
 then the transitive closure R+ can be defined as
-* R+ = R$^1$ + R$^2$ + R$^3$ + ...
+
+*  R+ = R^1^ + R^2^ + R^3^ + ...
 
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 [<1,2>, <2,3>, <3,4>]+;
-// We can also simply (but not necessarily efficiently) define transitive closure ourselves:
+----
+We can also simply (but not necessarily efficiently) define transitive closure ourselves:
+[source,rascal-shell,continue]
+----
 lrel[int,int] tclosure(lrel[int,int] R) {
    tc = R;
    while(true){
@@ -41,26 +55,10 @@ lrel[int,int] tclosure(lrel[int,int] R) {
          return tc;
    }
 }
-tclosure([<1,2>, <2,3>, <3,4>]);
-</screen>
+//tclosure([<1,2>, <2,3>, <3,4>]);
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-
-QType:
-prep: S = [<1,2>, <2,3>];
-make: A = list[tuple[int[0,5],int[0,5]],1,2]
-expr: B = <A> + S
-test: <B>+
-
-QValue:
-prep: S = [<1,2>, <2,3>, <3,4>];
-make: A = list[tuple[int[0,5],int[0,5]],1,2]
-expr: B = <A> + S
-expr: H =  <B>+
-hint: <H>
-test: <B>+
+.Pitfalls
 

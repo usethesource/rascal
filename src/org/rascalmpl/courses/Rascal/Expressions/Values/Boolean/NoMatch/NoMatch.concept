@@ -1,32 +1,40 @@
-Name: NoMatch
+# Boolean NoMatch
 
-Synopsis: Negated [Match] operator.
+.Synopsis
+Negated [Boolean Match] operator.
 
-Syntax:
-`$Pat$ !:= $Exp$`
+.Index
+!:=
 
-Types:
-| `$Pat$`     | `$Exp$` |`$Pat$ !:= $Exp$`|
-|:------------|:--------|:----------------|
-| [Patterns]  | `value` | `bool`          |
+.Syntax
+`_Pat_ !:= _Exp_`
 
-Function:
+.Types
 
-Details:
+//
 
-Description:
-See [PatternMatching] for an introduction to pattern matching and [Patterns] for a complete description.
+|====
+| `_Pat_`     | `_Exp_` |`_Pat_ !:= _Exp_`
 
-Examples:
-<screen>
+| [Patterns]  | `value` | `bool`          
+|====
+
+.Function
+
+.Details
+
+.Description
+See <<Pattern Matching>> for an introduction to pattern matching and <<Patterns>> for a complete description.
+
+.Examples
+[source,rascal-shell]
+----
 123 !:= 456;
-[10, N*, 50] !:= [10, 20, 30, 40, 50];
-{10, set[int] S, 50} !:= {50, 40, 30, 30, 10};
-</screen>
+[10, *n, 50] !:= [10, 20, 30, 40];
+{10, *n, 50} !:= {40, 30, 30, 10};
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

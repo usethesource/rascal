@@ -393,10 +393,10 @@ void statistics(loc root = |std:///|,
 }
 
 set[loc] getFunctionLocations(
-						   loc srcLoc,                  // location of Rascal source file
-   							loc bindir = |home:///bin|   // location where binaries are stored
+						   loc src,                  // location of Rascal source file
+   							loc bin = |home:///bin|   // location where binaries are stored
 							){
-   rvmLoc = RVMModuleLocation(srcLoc, bindir);
+   rvmLoc = RVMModuleLocation(src, bin);
    try {
         p = readBinaryValueFile(#RVMModule, rvmLoc);
         
@@ -447,6 +447,8 @@ str config(loc cloc,  Query select = none()){
    if(hasMatches(c.usedIn, select)) {  res += "usedIn:\n"; for(uid <- sort(domain(c.usedIn)))  res += getSelected(uid, c.usedIn[uid], select); }
    if(hasMatches(c.adtConstructors, select)) {  res += "adtConstructors:\n"; for(uid <- sort(domain(c.adtConstructors)))  res += getSelected(uid, c.adtConstructors[uid], select); }
    if(hasMatches(c.nonterminalConstructors, select)) {  res += "nonterminalConstructors:\n"; for(uid <- sort(domain(c.nonterminalConstructors)))  res += getSelected(uid,c.nonterminalConstructors[uid], select); }
+   res += "stack: <c.stack>\n";
+   res += "labelStack: <c.labelStack>\n";
    if(hasMatches(c.keywordDefaults, select)) {  res += "keywordDefaults:\n"; for(uid <- sort(domain(c.keywordDefaults)))  res += getSelected(uid, c.keywordDefaults[uid], select); }
    if(hasMatches(c.dataKeywordDefaults, select)) {  res += "dataKeywordDefaults:\n"; for(uid <- sort(domain(c.dataKeywordDefaults)))  res += getSelected(uid, c.dataKeywordDefaults[uid], select); }
    if(hasMatches(c.tvarBounds, select)) {  res += "tvarBounds:\n"; for(uid <- sort(domain(c.tvarBounds)))  res += getSelected(uid, c.tvarBounds[uid], select); }

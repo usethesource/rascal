@@ -1,58 +1,39 @@
-Name: Comprehension
+# Set Comprehension
 
-Synopsis: A set comprehension generates a set value.
+.Synopsis
+A set comprehension generates a set value.
 
-Syntax:
-`{ $Exp_1$, $Exp_2$, ... | $Gen_1$, $Gen_2$, ... }`
+.Index
+{ | }
 
-Types:
-| `$Exp_1$` | `$Exp_2$` | ... | `{ $Exp_1$, $Exp_2$, ... | $Gen_1$, $Gen_2$, ... }` |
-|:----------|:----------|:----|:-----------------------------------------------------|
-| `$T_1$`   | `$T_2$`   | ... | `set[ lub( $T_1$, $T_2$, ... ) ]`                   |
+.Syntax
+`{ _Exp_~1~, _Exp_~2~, ... | _Gen_~1~, _Gen_~2~, ... }`
 
-Function:
+.Types
 
-Details:
+[cols="25,25,20,30"]
+|====
+| `_Exp~1~_` | `_Exp~2~_` | ... | `{ _Exp~1~_, _Exp~2~_, ... \| _Gen~1~_, _Gen~2~_, ... }` 
 
-Description:
-A set comprehension consists of a number of contributing expressions $Exp_1$, $Exp_2$, ... and a number of
-generators $Gen_1$, $Gen_2$, $Gen_3$, ... that are evaluated as described in [Expressions/Comprehensions].
+| `_T~1~_`   | `_T~2~_`   | ... | `set[ lub( _T~1~_, _T~2~_, ... ) ]`                   
+|====
 
-Examples:
-<screen>
+.Function
+
+.Details
+
+.Description
+A set comprehension consists of a number of contributing expressions _Exp_~1~, _Exp_~2~, ... and a number of
+generators _Gen_~1~, _Gen_~2~, _Gen_~3~, ... that are evaluated as described in <<Expressions-Comprehensions>>.
+
+.Examples
+[source,rascal-shell]
+----
 { N * N | int N <- [0 .. 10]};
 { N * N | int N <- [0 .. 10], N % 3 == 0};
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-
-QType:
-make: I = int[0,5]
-make: J = int[7,12]
-test: { N + 1 | int N <- [<I> .. <J>] }
-
-QValue:
-make: I = int[0,5]
-make: J = int[7,12]
-expr: H = { N + 1 | int N <- [<I> .. <J>] }
-hint: <H>
-test: { N + 1 | int N <- [<I> .. <J>] } == <?>
-
-QValue:
-make: S = set[int]
-expr: H = { 2 * N | int N <- <S> } 
-hint: <H>
-test: { 2 * N | int N <- <S> } == <?>
-
-QValue:
-desc: Complete this comprehension:
-make: S = set[int]
-expr: H = { N - 1 | int N <- <S> } 
-hint: { N - 1 | int N <- <S> } 
-test: { <?> | int N <- <S> } == <H>
-
+.Pitfalls
 

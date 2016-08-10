@@ -109,11 +109,16 @@ data Vertex
 	| lineBy(num x, num y)
 	| move(num x, num y)
 	| moveBy(num x, num y)
+	| arc(num rx, num ry, num rotation, bool largeArc, bool sweep, num x, num y)
 	;
 	
 alias Vertices = list[Vertex];
 
 alias Points = lrel[num x, num y];
+
+alias Constraint = tuple[bool(value v) cond, str emsg];
+
+alias FormEntry = tuple[str id, value startValue, str fieldName, list[Constraint] constraints];
 
 public alias Figures = list[Figure];
 
@@ -154,7 +159,7 @@ public data Style (
     
     
 public data Text (		
-    str text = "",
+    str plain = "",
     str html = ""  
     ) = text();
     
@@ -169,16 +174,16 @@ public alias Prop =
 public data Figure(
         // Naming
         str id = "",
-        str visibility = "", 
+        str visibility = "",  // hidden | visible
 		// Dimensions and Alignmenting
 		tuple[int,int] size = <0,0>,
 		tuple[int, int, int, int] padding = <0, 0, 0, 0>, // left, top, right, botton 
 		int width = -1,
 		int height = -1,
-		Position at = <0,0>,
-		Rotate rotate =<0, -1, -1>, 
-		Alignment align = <0.5, 0.5>, // TODO should be middle,
-		
+		Position at = <0, 0>,
+		Rotate rotate = <0, -1, -1>, 
+		Alignment align = <0.5, 0.5>,
+		Alignment cellAlign = <-1, -1>, 
 		num bigger = 1.0,
 		num shrink = 1.0, 
 		num hshrink = 1.0, 
@@ -186,7 +191,7 @@ public data Figure(
 		num grow = 1.0, 
 		num hgrow = 1.0, 
 		num vgrow = 1.0, 
-		bool resizable = false,
+		bool resizable = true,
 		tuple[int,int] gap = <0,0>,
 		int hgap = 0,
 		int vgap = 0,
@@ -199,7 +204,7 @@ public data Figure(
 		real lineOpacity = -1.0,
 	
 		// Area properties
-		str fillColor    = "", 			
+		str fillColor    = "none", 			
 		real fillOpacity = -1.0,	
 		str fillRule     = "evenodd",
 		
@@ -219,7 +224,10 @@ public data Figure(
 		Event event = noEvent(),
 		
 		// Tooltip
-		value tooltip = ""
+		value tooltip = "",
+		
+		// Panel
+		Figure panel = emptyFigure()
 	) =
 	
 	emptyFigure(int seq = 0)
@@ -229,14 +237,12 @@ public data Figure(
 	
    | htmlText(value text, str overflow = "hidden")		    			// text label html
    | text(value text, str overflow = "hidden")		    			// text label svg
-   | markdown(value text)					// text with markdown markup (TODO: make flavor of text?)
-   | math(value text)						// text with latex markup
+// | markdown(value text)					// text with markdown markup (TODO: make flavor of text?)
+// | math(value text)						// text with latex markup
    
 // Graphical elements
 
    | box(Figure fig=emptyFigure())      	// rectangular box with inner element
-   
-   | frame(Figure fig=emptyFigure()) // Invisible box
    
    | ellipse(num cx = -1, num cy = -1, num rx=-1, num ry=-1, Figure fig=emptyFigure())
    
@@ -268,20 +274,21 @@ public data Figure(
    | image(str src="")
 
 // Figure composers
-                   
-   | hcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "") 					// horizontal and vertical concatenation
-   | vcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "") 					// horizontal and vertical concatenation 
+// borderStyle =  none|hidden|dotted|dashed|solid|double|groove|ridge|inset|outset|initial|inherit;              
+   | hcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "", bool form= false) 					// horizontal and vertical concatenation
+   | vcat(Figures figs=[], str borderStyle="solid", int borderWidth=0, str borderColor = "", bool form= false) 					// horizontal and vertical concatenation 
    | overlay(Figures figs=[])				
-   | grid(list[Figures] figArray = [[]], str borderStyle="solid", int borderWidth=0, str borderColor = "") 	// grid of figures
+   | grid(list[Figures] figArray = [[]], str borderStyle="solid", int borderWidth=0, str borderColor = "", bool form= false) 	// grid of figures
 
 // Figure transformations
 
-   | at(int x, int y, Figure fig)			// Move to Alignment relative to origin of enclosing Figure
+   | atXY(int x, int y, Figure fig)	
+   | atXY(tuple[int x, int y] pos, Figure fig)			// Move to Alignment relative to origin of enclosing Figure
    | atX(int x, Figure fig)				// TODO: how to handle negative values?
    | atY(int y, Figure fig)
    
-   | rotate(num angle, int x, int y, Figure fig)
-   | rotate(num angle, Figure fig)
+   | rotateDeg(num angle, int x, int y, Figure fig)
+   | rotateDeg(num angle, Figure fig)
    
 // Input elements
    | buttonInput(str txt, bool disabled=false,  value \value = "")
@@ -300,7 +307,7 @@ public data Figure(
    
   //  | numInput()
    | rangeInput(num low=0, num high=100, num step=1, value \value = 50.0)
-   | strInput(int nchars=20, value \value="") 
+   | strInput(int nchars=20, value \value="", bool keydown= true) 
    | choice(int selection = 0, Figures figs = [])
   
 /*
@@ -326,9 +333,10 @@ public data Figure(
 	       ,bool manhattan=false
 // For memory management
 	       , int refinement=5, int rasterHeight=150)
+	       
    |d3Pack(DDD d = ddd(), str fillNode="rgb(31, 119, 180)", str fillLeaf = "ff7f0e", num fillOpacityNode=0.25, num fillOpacityLeaf=1.0,
-          int diameter = 960)
-   |d3Treemap(DDD d = ddd())
+          int diameter = 960, bool inTooltip = false)
+   |d3Treemap(DDD d = ddd(), bool inTooltip = false)
    |d3Tree(Figure root)
    |d3Tree(DDD d = ddd())
    ;
@@ -341,7 +349,7 @@ data GraphOptions = graphOptions(
 data NodeProperty = nodeProperty(str shape="",str labelStyle="", str style = "", str label="");
 
 data Edge = edge(str from, str to, str label = "", str lineInterpolate="basis" // linear, step-before, step-after
-     ,str lineColor = "" ,str labelStyle="", str arrowheadStyle = "" // normal, vee, undirected
+     , str lineColor = "" ,str labelStyle="", str arrowheadStyle = "" // normal, vee, undirected
      , str id = "", str labelPos= "r"  // l, r, c
      , int labelOffset = 10);
   
@@ -363,9 +371,7 @@ data Legend (bool none = false,
            
 data ViewWindow(int max = -1, int min = -1) = viewWindow();
 
-
 data Gridlines(str color = "", int count =-1) = gridlines();
-
 
 data Series (
     str color ="",
@@ -393,17 +399,17 @@ data TextStyle(str color="", str fontName="", int fontSize=-1,
 data Axis(str title="",
           num minValue = -1,
           num maxValue = -1,
-          ViewWindow viewWindow = ViewWindow::viewWindow(),
+          ViewWindow viewWindow_= ViewWindow::viewWindow(),
           bool slantedText = true,
           bool logScale = false,
           int slantedTextAngle = -1, 
           int direction = -1,
           str textPosition = "",
           str format = "", 
-           Gridlines gridlines =  Gridlines::gridlines() ,
-          list[Tick] tick = [],
-          TextStyle titleTextSyle = textStyle(),
-          TextStyle textStyle = textStyle())
+           Gridlines gridlines_ =  Gridlines::gridlines() ,
+          list[Tick] tick_ = [],
+          TextStyle titleTextStyle_ = textStyle(),
+          TextStyle textStyle_ = textStyle())
           = axis();
           
                
@@ -437,7 +443,7 @@ data SankeyLabel(
      ) = sankeyLabel(); 
      
 data SankeyNode(
-     SankeyLabel label = sadkeyLabel(),
+     SankeyLabel label = sankeyLabel(),
      int labelPadding = -1,
      int nodePadding = -6,
      int width = -1
@@ -454,16 +460,16 @@ data Sankey(
      ) = sankey();   
                   
 data ChartOptions (str title = "",
-             Animation animation = Animation::animation(),
+             Animation animation_ = Animation::animation(),
              Axis hAxis = axis(),
              Axis vAxis = axis(),
-             ChartArea chartArea = ChartArea::chartArea(),
-             Bar bar = Bar::bar(),
+             ChartArea chartArea_ = ChartArea::chartArea(),
+             Bar bar_ = Bar::bar(),
              int width=-1,
              int height = -1,
              bool forceIFrame = true,
              bool is3D = false, 
-             Legend legend = Legend::legend(),
+             Legend legend_ = Legend::legend(),
              int lineWidth = -1,
              int pointSize = -1,
              bool interpolateNulls = false,
@@ -471,15 +477,15 @@ data ChartOptions (str title = "",
              str seriesType = "",
              str pointShape = "",
              bool isStacked = false,
-             Candlestick candlestick = Candlestick::candlestick(),
-             Sankey sankey = Sankey::sankey(),
-             list[Series] series = []
+             Candlestick candlestick_ = Candlestick::candlestick(),
+             Sankey sankey_ = Sankey::sankey(),
+             list[Series] series_ = []
              ) = chartOptions()
             ;
             
 
 ChartOptions updateOptions (list[Chart] charts, ChartOptions options) {
-    options.series = [];
+    options.series_ = [];
     for (c<-charts) {
         Series s = series();
         switch(c) {
@@ -494,7 +500,7 @@ ChartOptions updateOptions (list[Chart] charts, ChartOptions options) {
         if (c.lineWidth>=0)  s.lineWidth = c.lineWidth;
         if (!isEmpty(c.pointShape)) s.pointShape = c.pointShape;
         if (c.pointSize>=0) s.pointSize = c.pointSize;
-        options.series += [s];
+        options.series_ += [s];
         }
     return options;
     }   
@@ -514,18 +520,16 @@ public Figure idEllipse(num rx, num ry) = ellipse(rx=rx, ry = ry, lineWidth = 0,
 
 public Figure idCircle(num r) = circle(r= r, lineWidth = 0, fillColor = "none");
 
-public Figure idNgon(num r) = ngon(r= r, lineWidth = 0, fillColor = "none");
+public Figure idNgon(int n, num r) = ngon(n=  n, r= r, lineWidth = 0, fillColor = "none");
 
-public Figure idRect(int width, int height) = rect(width = width, height = height, lineWidth = 0, fillColor = "none");
+public Figure idRect(int width, int height) = box(width = width, height = height, lineWidth = 0, fillColor = "none");
 
 /* options must be renamed to graphOptions */
 public Figure graph(list[tuple[str, Figure]] n, list[Edge] e, tuple[int, int] size=<0,0>, int width = -1, int height = -1,
    int lineWidth = 1, GraphOptions options = graphOptions()) =  
-   //box(fig = 
    graph(nodes = n, edges = e, lineWidth = lineWidth, 
                nodeProperty = (), size = size, width = width, height = height,
                graphOptions = options)
-               //, align = topLeft, lineWidth = 0,  size=<1000, 1200>)
                ;
              	
 	
@@ -571,6 +575,7 @@ bool hasXYLabeledData(Chart c) {
          }
      return false;
      } 
+    
 
 list[list[value]] joinData(list[Chart] charts, bool tickLabels, int tooltipColumn) {
    list[tuple[list[map[str, str]] header, map[tuple[value, int], list[value]]\data]] m = [tData(c, tooltipColumn)|c<-charts];   
@@ -591,15 +596,17 @@ list[list[value]] joinData(list[Chart] charts, bool tickLabels, int tooltipColum
            [[lab[z]] +[*((c.\data[z]?)?c.\data[z]:"null")|c<-m]|z<-x];
       }
    }
-   
+
+/* 
 public Figure svg(Figure f, tuple[int, int] size = <0, 0>) {
     Figure r = box(size=size, lineWidth = 0, fillColor = "none", fig = f);
     return r;
     }
+*/
   
-   
 public map[str, value] adt2map(node t) {
-   map[str, value] r = getKeywordParameters(t);
+   map[str, value] q = getKeywordParameters(t);
+   map[str, value] r = (replaceLast(d,"_",""):q[d]|d<-q);
    for (d<-r) {
         if (node n := r[d]) {
            r[d] = adt2map(n);
@@ -627,12 +634,42 @@ public Figure plot(Points xy, Rescale x, Rescale y, bool shapeCurved = true
       width = width, height = height, fillEvenOdd = fillEvenOdd);
       }
 
+public Figure frame(Figure f, num shrink=1.0, num grow=1.0, str id = "", str visibility="visible") {
+      return box(lineWidth=0, fillColor="none", fig = f, shrink= shrink, grow = grow, id = false?"<newId()>_frame":id
+      , visibility = visibility);
+      }
+      
+public Figure circleSegment(num cx = 100, num cy =100, num r =50, num startAngle = 0, num endAngle =60,
+      str fillColor = "", str lineColor = "", int lineWidth = -1, bool fill = true,tuple[int,int] size = <0,0>
+      ) {
+      num x1 = cx+ r*cos(startAngle/180*PI());
+      num y1 = cy+ r*sin(startAngle/180*PI());
+      num x2 = cx +r*cos(endAngle/180*PI());
+      num y2 = cy +r*sin(endAngle/180*PI());
+      Vertices v = [move(x1, y1), arc(r, r, 0, false, true, x2, y2)];
+      if (fill) v+= [line(cx, cy)];
+      return shape(v, fillColor = fillColor, lineColor = lineColor, lineWidth = lineWidth, shapeClosed=fill, size = size);
+      }
+      
+int currentColor = 7;
 
-int currentColor = 0;
+public void resetColor() {currentColor = 7;} 
 
-public void resetColor() {currentColor = 0;} 
+public str pickColor() {int r = currentColor;currentColor = (currentColor+3)%size(colors); return colors[r];}
 
-public str pickColor() {currentColor = (currentColor+5)%size(colors); return colors[currentColor];}
+public str figToString(Figure f) {
+     str r = "<f>";
+     r = replaceAll(r, "\<0.0,0.0\>", "topLeft");
+     r = replaceAll(r, "\<0.5,0.0\>", "topMid");
+     r = replaceAll(r, "\<1.0,0.0\>", "topRight");
+     r = replaceAll(r, "\<0.0,0.5\>", "centerLeft");
+     r = replaceAll(r, "\<0.5,0.5\>", "centerMid");
+     r = replaceAll(r, "\<1.0,0.5\>", "centerRight");
+     r = replaceAll(r, "\<0.0,1.0\>", "bottomLeft");
+     r = replaceAll(r, "\<0.5,1.0\>", "bottomMid");
+     r = replaceAll(r, "\<1.0,1.0\>", "bottomRight");
+     return r;
+     }
 
 
 public list[str] colors = 
@@ -830,7 +867,6 @@ public DDD fileMap(loc source, str suffix) {
         for (e <- listEntries(elem)) {
            loc f = elem +e;
 		   if (isDirectory(f)) {
-		    // println(f);
 		   	todo += f;
 		   }
 		   else {
@@ -840,13 +876,25 @@ public DDD fileMap(loc source, str suffix) {
 	      }
 	    }
         map[loc, int] m = (d:size(readFileLines(d))|d<-done);
-        // println(m);
         list[list[str]] r = [];
         for (d<-done) {
             str p = d.path; 
             r=r+[split("/", p)];
             }
-        // println(r);
         list[DDD] p = compact(r, m, source.parent);
         return head(p);
     }
+ 
+ public tuple[int, int](num, num) lattice(int width, int height, int nx, int ny) {
+     return tuple[int, int](num x, num y){return <toInt((x*width)/nx), toInt((y*height)/ny)>;};
+     }
+     
+ public int (num) latticeX(int width, int nx) {
+     return int(num x){return toInt((x*width)/nx);};
+     }
+     
+ public int(num) latticeY(int height, int ny) {
+     return int(num y){return toInt((y*height)/ny);};
+     }
+     
+     

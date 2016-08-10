@@ -1,54 +1,40 @@
-Name: Addition
+# Number Addition
 
-Synopsis: Addition on numeric values.
+.Index
++
 
-Syntax:
-`$Exp_1$ + $Exp_2$`
+.Synopsis
+Addition on numeric values.
 
-Types:
-| `$Exp_1$`  |  `$Exp_2$` | `$Exp_1$ + $Exp_2$`  |
-|:-----------|:-----------|:---------------------|
-| `int`      |  `int`     | `int`                |
-| `int`      |  `real`    | `real`               |
-| `real`     |  `real`    | `real`               |
+.Syntax
+`_Exp~1~_ + _Exp~2~_`
 
-Function:
+.Types
 
-Details:
 
-Description:
-Yields the numerical sum of the values of $Exp_1$ and $Exp_2$.
+|====
+| `_Exp~1~_`  |  `_Exp~2~_` | `_Exp~1~_ + _Exp~2~_` 
 
-Examples:
-<screen>
+| `int`      |  `int`     | `int`                
+| `int`      |  `real`    | `real`               
+| `real`     |  `real`    | `real`               
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields the numerical sum of the values of _Exp_~1~ and _Exp_~2~.
+
+.Examples
+[source,rascal-shell]
+----
 12 + 13
 12 + 13.5
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-QType: <A:int[0]> + <B:int[0]>
-desc: Adding integers. 
-
-QValue: <A:int[0]> + <B:int[0]> 
-desc: Adding integers. 
-
-QType:<A:int[0]> + <B:real[0]>
-desc: Adding integers and reals.
-
-QValue:<A:int[0]> + <B:real[0]> 
-Adding integers and reals.
-
-QValue: <A:int> + (<B:int[-20,-1]>)
-desc:Use parentheses when addition and negative numbers interact.
-
-QValue: 
-desc: Use parentheses when addition and negative numbers interact.
-make: A = int
-make: B = int[0,10]
-expr: C = <A> - <B>
-test: <A> + <?> == <C>
+.Pitfalls
 

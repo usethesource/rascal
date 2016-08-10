@@ -111,7 +111,21 @@ public class OverloadedFunctionInstanceCall {
 	public Type nextConstructor(final List<Type> constructorStore) {
 		if(types == null) {
 			if(getConstructors().length == 0){
-				System.err.println("empty constructor list!");
+				System.err.println("No alternative found for (overloaded) function or constructor;\narity: " + arity + ", previousScope: " + previousScope);
+				if(getFunctions().length > 0){
+					System.err.print("Function(s):");
+					for(int i = 0; i < getFunctions().length; i++){
+						System.err.print(" " + getFunctions()[i]);
+					}
+					System.err.println("");
+				}
+				if(getConstructors().length > 0){
+					System.err.println("Constructor(s):");
+					for(int i = 0; i < getConstructors().length; i++){
+						System.err.print(" " + getConstructors()[i]);
+					}
+					System.err.println("");
+				}
 			}
 			assert getConstructors().length >= 1;
 			return constructorStore.get(getConstructors()[0]);

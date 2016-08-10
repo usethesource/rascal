@@ -1,1 +1,0 @@
-[tvQuestion("Rascal/Libraries/Prelude/List/takeOneFrom","1",typeOfExpr(),details(" ",["import List;"],"","","takeOneFrom(\<L\>)","",false,false,[<"L",list(arb(0,[int(-20,20),str()]),1,6)>],[],void(),""))]

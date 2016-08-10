@@ -352,7 +352,11 @@ private str removeMargins(str s) {
 // --- computeIndent 
 
 private str computeIndent(str s) {
-   lines = split("\n", removeMargins(s)); 
+   removed = removeMargins(s);
+   if(endsWith(s, "\n")){
+      return "";
+   }
+   lines = split("\n", removed); 
    return isEmpty(lines) ? "" : left("", size(lines[-1]));
 } 
 
@@ -599,8 +603,9 @@ public Tree parseConcrete(e: appl(Production cprod, list[Tree] cargs)){
 	fragType = getType(e@\loc);
     //println("translateConcrete, fragType = <fragType>");
     reifiedFragType = symbolToValue(fragType);
+    // TODO: getGrammar uses a global variable. Add as parameter to the call stack instead
     return parseFragment(getModuleName(), getModuleTags(), reifiedFragType, e, e@\loc, getGrammar());
-} 
+}  
 
 public MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
     fragType = getType(e@\loc);
@@ -874,12 +879,16 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	//println("visit: <subjectType>, <concreteMatch>");
 	MuExp body = translateVisitCases(phi_fuid, subjectType, concreteMatch, cases);
 	
-	tc = getTypesAndConstructorsInVisit(cases);
-	reachable = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
-	//println("reachableTypesInVisit: <reachable>");
+	reachable_syms = { Symbol::\value() };
+	reachable_prods = {};
+	if(optimizing()){
+	   tc = getTypesAndConstructorsInVisit(cases);
+	   <reachable_syms, reachable_prods> = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
+	   //println("reachableTypesInVisit: <reachable>");
+	}
 	
-	descriptor = muCallPrim3("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable), muCon(concreteMatch), muCon(getDefinitions())], \visit.subject@\loc);
-	
+	descriptor = muCallPrim3("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable_syms), muCon(reachable_prods), muCon(concreteMatch), muCon(getDefinitions())], \visit.subject@\loc);
+		
 	bool direction = true;
 	bool progress = true;
 	bool fixedpoint = true;
@@ -1306,10 +1315,12 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        	return size(dpar) == size(upar) && (size(dpar) == 0 || all(i <- index(dpar), comparable(dpar[i], upar[i])));              //comparable(upar, dpar) || match_void(upar, dpar);
        }
        
+       @memo bool isParameterized(Symbol t) = /parameter(_,_) := t;
+       
        bool matches(Symbol t) {
        	   //println("matches: <ftype>, <t>");
            if(isFunctionType(ftype) || isConstructorType(ftype)) {
-               if(/parameter(_,_) := t) { // In case of polymorphic function types
+               if(isParameterized(t)) { // In case of polymorphic function types
                    ftype_selected = ftype;
                    
                    try {
@@ -1621,6 +1632,7 @@ private MuExp translateSubscript(Expression e:(Expression) `<Expression exp> [ <
     ot = getOuterType(exp);
     op = "<ot>_subscript";
     list_of_subscripts = [ s | s <- subscripts ]; // redundant
+    nsubscripts = size(list_of_subscripts);
     if(ot in {"sort", "iter", "iter-star", "iter-seps", "iter-star-seps"}){
        op = "nonterminal_subscript_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
     } else
@@ -1633,6 +1645,33 @@ private MuExp translateSubscript(Expression e:(Expression) `<Expression exp> [ <
     if(ot == "lrel" && size(subscripts) == 1 && getOuterType(list_of_subscripts[0]) == "int"){
     	op = "list_subscript_int";
     }
+    if(op == "rel_subscript"){
+       relType = getType(exp@\loc); 
+       relArity = size(relType.symbols);
+       // Convention: 0: noset; 1: set; 2: wildcard
+       subsKind = for(int i <- [0 .. nsubscripts]){
+                     subs = list_of_subscripts[i];
+                     if("<subs>" == "_") 
+                        append 2;
+                     else 
+                        append (Symbol::\set(elmType) := getType(subs@\loc) && comparable(elmType, relType.symbols[i])) ? 1 : 0;
+                   };
+      relType = getType(exp@\loc); 
+      relArity = size(relType.symbols);
+    
+      generalCase = nsubscripts > 1 || 2 in subsKind;
+      
+      op = generalCase ? "rel_subscript" 
+                       : ("rel" + ((relArity == 2) ? "2" : "") 
+                                + "_subscript1"
+                                + (subsKind == [0] ? "_noset" : "_set"));
+      
+      //println("<generalCase>, <subsKind> <op>");
+      return muCallPrim3(op, translate(exp) + (generalCase ? [muCon(subsKind)] : []) + ["<s>" == "_" ? muCon("_") : translate(s) | s <- subscripts], e@\loc);
+    }
+    
+    opCode = muCallPrim3(op, translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | s <- subscripts], e@\loc);
+    
     if(isDefined){
     	op = "is_defined_<op>";
     	return muCallMuPrim("subscript_array_int", [ muCallPrim3(op, translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | s <- subscripts], e@\loc), muCon(0)]);

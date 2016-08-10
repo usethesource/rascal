@@ -1,31 +1,26 @@
-Name: Rascalopedia
+# Rascalopedia
 
-Synopsis: Overview of important terms and concepts.
+.Synopsis
+Overview of important terms and concepts.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details: Contents
+.Details
 
-Description:
+.Description
 
 Rascalopedia gives a quick overview of the most important terms and concepts
 that are relevant for metaprogrammers in general and metaprogrammers using Rascal in particular.
 
-Rascalopedia is work in progress. Please add your suggestions for new concepts
-below in the discussion section.
+Rascalopedia is work in progress. Please send us your suggestions for new concepts.
 
-Examples:
+These are the currently covered topics:
 
-Benefits:
+subtoc::[1]
 
-Pitfalls:
-
-Questions:
-
-       

@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.Timing;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.BaseRascalREPL;
@@ -36,7 +38,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 
   protected CommandExecutor executor;
   private boolean measureCommandTime;
-  private boolean semiColonAdded = false;
+//  private boolean semiColonAdded = false;
   
   static final TreeSet<String> SHELL_VERBS;
   
@@ -45,7 +47,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 	  	  // Rascal declarations captured by RascalShell
 	  	  //"import",
 		  // General commands
-		  "help", "set", "declarations", "modules", "unimport", "undeclare", "quit",
+		  "help", "apropos", "set", "declarations", "modules", "unimport", "undeclare", "quit",
 		  // Debugging commands
 		  "break", "enable", "disable", "clear", "ignore"
 	  	};
@@ -54,9 +56,9 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   
   private PathConfig pcfg;
   
-  public CompiledRascalREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal, PathConfig pcfg)
-      throws IOException {
-    super(stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal);
+  public CompiledRascalREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal)
+      throws IOException, URISyntaxException {
+    super(pcfg, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal);
     this.pcfg = pcfg;
   }
   
@@ -101,47 +103,29 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   }
 
   @Override
-  protected void initialize(Writer stdout, Writer stderr) {
-    executor = constructCommandExecutor(new PrintWriter(stdout), new PrintWriter(stderr));
+  protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr) throws IOException, URISyntaxException {
+    try {
+        executor = constructCommandExecutor(pcfg, new PrintWriter(stdout), new PrintWriter(stderr));
+    } catch (NoSuchRascalFunction e) {
+        throw new RuntimeException(e);
+    }
   }
   
-  protected abstract CommandExecutor constructCommandExecutor(PrintWriter stdout, PrintWriter stderr);
+  protected abstract CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction, URISyntaxException;
   
   
   @Override
   protected boolean isStatementComplete(String command) {
-	  
-	  String[] words = command.split(" ");
-	  if(words.length > 0 && SHELL_VERBS.contains(words[0])){
-		  return true;
-	  }
-	  try {
-		  executor.parseCommand(command, URIUtil.rootLocation("prompt"));
-	  }
-	  catch (ParseError pe) {
-		  String[] commandLines = command.split("\n");
-		  int lastLine = commandLines.length;
-		  int lastColumn = commandLines[lastLine - 1].length();
-
-		  if (pe.getEndLine() + 1 == lastLine && lastColumn < pe.getEndColumn()) { 
-			  semiColonAdded = false;
-			  return false;
-		  }
-		  if (pe.getEndLine() + 1 == lastLine && lastColumn == pe.getEndColumn()) { 
-			  semiColonAdded = true;
-			  return isStatementComplete(command + ";");
-		  }
-	  }
-	  return true;
+	  return executor.isStatementComplete(command);
   }
 
   @Override
   protected IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException {
 	  try {
 		 
-		  if(semiColonAdded){
+		  if(executor.semiColonAdded){
 			  statement = statement + ";";
-			  semiColonAdded = false;
+			  executor.semiColonAdded = false;
 		  }
 		  String[] words = statement.split(" ");
 		  if(words.length > 0 && SHELL_VERBS.contains(words[0])){
@@ -244,7 +228,8 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
      commandLineOptions.add("trace"); 
      commandLineOptions.add("coverage"); 
      commandLineOptions.add("debugRVM"); 
-     commandLineOptions.add("testsuite"); 
+     commandLineOptions.add("testsuite");
+     commandLineOptions.add("optimize"); 
   }
   @Override
   protected SortedSet<String> getCommandLineOptions() {

@@ -1,0 +1,36 @@
+# lineWidth
+
+.Synopsis
+Defines the width of lines.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty lineWidth(num w)`
+
+.Details
+
+.Description
+Set the width of lines and borders of figures to `w`.
+
+.Examples
+[source,rascal-figure,width=400,height=100,file=lw1.png]
+----
+                b1 = box(lineWidth(1));
+b2 = box(lineWidth(2));
+b3 = box(lineWidth(3));
+b4 = box(lineWidth(4));
+boxes = [b1, b2, b3, b4];
+render(hcat(boxes,hgrow(1.2)));
+----
+gives:
+
+image::{concept}/lw1.png[alt="h1"]
+
+
+.Benefits
+
+.Pitfalls
+

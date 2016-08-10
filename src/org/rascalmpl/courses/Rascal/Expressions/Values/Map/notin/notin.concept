@@ -1,32 +1,38 @@
-Name: notin
+# Map notin
 
-Synopsis: Negated membership test on the keys of a map.
+.Synopsis
+Negated membership test on the keys of a map.
 
-Syntax:
-`$Exp_1$ notin $Exp_2$`
+.Index
+notin
 
-Types:
-| `$Exp_1$`           |  `$Exp_2$`         | `$Exp_1$ notin $Exp_2$` |
-|:--------------------|:-------------------|:---------------------|
-| `$T_1$`  <: `$TK$`  |  `map[$TK$, $TV$]` | `bool`               |
+.Syntax
+`_Exp_~1~ notin _Exp_~2~`
 
-Function:
+.Types
 
-Details:
+|====
+| `_Exp~1~_`           |  `_Exp~2~_`         | `_Exp~1~_ notin _Exp~2~_` 
 
-Description:
-Yields `true` if the value of $Exp_1$ does not occur as key in the map value of $Exp_2$ and `false` otherwise. 
-The type of $Exp_1$ should be compatible with the key type $TK$ of $Exp_2$.
+| `_T~1~_`  <: `_TK_`  |  `map[_TK_, _TV_]` | `bool`               
+|====
 
-Examples:
-<screen>
+.Function
+
+.Details
+
+.Description
+Yields `true` if the value of _Exp_~1~ does not occur as key in the map value of _Exp_~2~ and `false` otherwise. 
+The type of _Exp_~1~ should be compatible with the key type _TK_ of _Exp_~2~.
+
+.Examples
+[source,rascal-shell]
+----
 "pineapple" notin ("apple": 1, "pear": 2);
 "pear" notin ("apple": 1, "pear": 2);
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

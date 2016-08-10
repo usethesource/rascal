@@ -153,7 +153,7 @@ public class Function implements Serializable {
 		codeblock.clearForJVM();
 	}
 	
-	public void attachExceptionTable(final IList exceptions, final RVMLoader rascalLinker) {
+	public void attachExceptionTable(final IList exceptions, final RVMLinker rascalLinker) {
 			froms = new int[exceptions.length()];
 			tos = new int[exceptions.length()];
 			types = new int[exceptions.length()];
@@ -316,7 +316,7 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		out.writeObject(n);
 
 		for(int i = 0; i < n; i++){
-			out.writeObject(new FSTSerializableType(fun.typeConstantStore[i]));
+			out.writeObject(new FSTSerializableType(RascalExecutionContext.shareTypeConstant(fun.typeConstantStore[i])));
 		}
 
 		// boolean concreteArg = false;
@@ -420,7 +420,7 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		Type[] typeConstantStore = new Type[n];
 
 		for(int i = 0; i < n; i++){
-			typeConstantStore[i] = (Type) in.readObject();
+			typeConstantStore[i] = RascalExecutionContext.shareTypeConstant((Type) in.readObject());
 		}
 
 		// boolean concreteArg = false;

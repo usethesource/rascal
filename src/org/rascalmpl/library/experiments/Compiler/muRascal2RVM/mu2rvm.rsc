@@ -56,7 +56,11 @@ void set_nlocals(int n) {
     nlocal[functionScope] = n;
 }
 
-void init(){
+FailInfo failInfo = <{}, {}>;
+
+private bool optimize = true;
+
+void init(bool optimizeFlag){
     nlabel = -1;
     usedLabels = {};
     functionScope = "";
@@ -77,6 +81,9 @@ void init(){
     
     usedOverloadedFunctions = {};
     usedFunctions = {};
+    
+    optimize = optimizeFlag;
+    failInfo = <{}, {}>;
 }
 
 // Map names of <fuid, pos> pairs to local variable names ; Note this info could also be collected in Rascal2muRascal
@@ -242,11 +249,98 @@ INS finallyBlock = [];
 // As we use label names to mark try blocks (excluding 'catch' clauses)
 list[EEntry] exceptionTable = [];
 
+/*********************************************************************/
+/*      Identify fail statements                                     */
+/*                                                                   */
+/* For the efficient translation of muIf and muWhile it is necessary */
+/* to know whether their then/else part, resp. body contain          */
+/* unhandled "fail" statements.                                      */
+/* We do here a single pass to collect FailInfo:                     */
+/* - a set of active fail labels                                     */
+/* - a set of if/while labels whose parts are affected by an         */
+/*   active fail statement                                           */
+/* During code generation, the global "failInfo" holds the current   */
+/* value                                                             */
+/*********************************************************************/
 
+alias FailInfo = tuple[set[str] active, set[str] labels];
+
+FailInfo findFail(list[MuExp] exps){
+    all_active = {};
+    all_labels = {};
+    for(exp <- exps){
+       <active, labels> = findFail(exp);
+       all_active += active;
+       all_labels += labels;
+    }
+    return <all_active, all_labels>;
+}
+
+FailInfo findFail(muIfelse(str label, MuExp cond, list[MuExp] thenPart,  list[MuExp] elsePart)){
+    <then_active, then_labels> = findFail(thenPart);
+    <else_active, else_labels> = findFail(elsePart);
+    all_active =  then_active + else_active;
+    all_labels = then_labels + else_labels;
+    return label in all_active ? <all_active - label, all_labels + label>
+                               : <all_active, all_labels>;
+}
+
+FailInfo findFail(muWhile(str label, MuExp cond, list[MuExp] body)){
+    <body_active, body_labels> = findFail(body);
+    return label in body_active ? <body_active - label, body_labels + label>
+                                : <body_active, body_labels>;
+}
+
+FailInfo findFail(muBlock(list[MuExp] exps) ) = 
+    findFail(exps);
+
+FailInfo findFail(muBlockWithTmps(lrel[str name, str fuid] tmps, lrel[str name, str fuid] tmpRefs, list[MuExp] exps)) =
+    findFail(exps);
+
+FailInfo findFail(muFail(str label)) = <{label}, {}>;
+
+FailInfo findFail(muCall(MuExp fun, list[MuExp] largs)) = findFail(largs);
+FailInfo findFail(muApply(MuExp fun, list[MuExp] largs)) = findFail(fun + largs);
+FailInfo findFail(muOCall3(MuExp fun, list[MuExp] largs, loc src) ) = findFail(fun + largs);
+FailInfo findFail(muOCall4(MuExp fun, Symbol types, list[MuExp] largs, loc src) ) = findFail(fun + largs);
+FailInfo findFail(muCallPrim3(str name, list[MuExp] exps, loc src)) = findFail(exps);
+FailInfo findFail(muCallMuPrim(str name, list[MuExp] exps)) = findFail(exps);
+FailInfo findFail(muCallJava(str name, str class, Symbol parameterTypes, Symbol keywordTypes, int reflect, list[MuExp] largs)) = findFail(largs);
+FailInfo findFail(muReturn1(MuExp exp)) = findFail(exp);
+FailInfo findFail(muInsert(MuExp exp)  ) = findFail(exp);
+FailInfo findFail(muAssignLoc(str name, int pos, MuExp exp)) = findFail(exp);
+FailInfo findFail(muAssign(str name, str fuid, int pos, MuExp exp)) = findFail(exp);
+FailInfo findFail(muAssignTmp(str name, str fuid, MuExp exp)) = findFail(exp);
+FailInfo findFail(muAssignLocKwp(str name, MuExp exp)) = findFail(exp);
+FailInfo findFail(muAssignKwp(str fuid, str name, MuExp exp)) = findFail(exp);
+FailInfo findFail(muAssignLocDeref(str name, int pos, MuExp exp)) = findFail(exp);
+FailInfo findFail(muAssignVarDeref(str name, str fuid, int pos, MuExp exp)  ) = findFail(exp);
+FailInfo findFail(muCreate2(MuExp coro, list[MuExp] largs) ) = findFail(largs);
+FailInfo findFail(muNext1(MuExp exp)) = findFail(exp);
+FailInfo findFail(muNext2(MuExp exp1, list[MuExp] largs) ) = findFail(largs);
+FailInfo findFail(muYield1(MuExp exp)) = findFail(exp);
+FailInfo findFail(muYield2(MuExp exp, list[MuExp] exps) ) = findFail(exps);
+FailInfo findFail(muGuard(MuExp exp)) = findFail(exp);          
+FailInfo findFail(muBlock(list[MuExp] exps)) = findFail(exps);
+FailInfo findFail(muBlockWithTmps(lrel[str name, str fuid] tmps, lrel[str name, str fuid] tmpRefs, list[MuExp] exps)) = findFail(exps);
+FailInfo findFail(muMulti(MuExp exp)) = findFail(exp); 
+FailInfo findFail(muOne1(MuExp exp)) = findFail(exp);
+FailInfo findFail(muThrow(MuExp exp, loc src)) = findFail(exp);
+FailInfo findFail(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) = findFail([exp, \catch.body, \finally]);
+FailInfo findFail(muVisit(bool direction, bool fixedpoint, bool progress, bool rebuild, 
+                          MuExp descriptor, MuExp phi, MuExp subject, MuExp refHasMatch, 
+                          MuExp refBeenChanged, MuExp refLeaveVisit, MuExp refBegin, MuExp refEnd)) = 
+    findFail([phi, subject]);
+FailInfo findFail(muTypeSwitch(MuExp exp, list[MuTypeCase] type_cases, MuExp \default)) = 
+    findFail([exp, \default] + [tcase.exp | tcase <- type_cases]);
+FailInfo findFail(muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuExp defaultExp)) =
+    findFail([exp, defaultExp] + [mucase.exp | mucase <- cases ]);
+   
+default FailInfo findFail(MuExp exp) = <{}, {}>;
+   
 /*********************************************************************/
 /*      Translate a muRascal library module                          */
 /*********************************************************************/
-
 
 list[RVMDeclaration] mulib2rvm(MuModule muLib){
     list[RVMDeclaration] functions = [];
@@ -257,6 +351,7 @@ list[RVMDeclaration] mulib2rvm(MuModule muLib){
         set_nlocals(fun.nlocals);
         usedOverloadedFunctions = {};
         usedFunctions = {};
+        failInfo = findFail(fun.body);
         body = peephole(tr(fun.body, stack(), returnDest()));
         <maxSP, exceptions> = validate(fun.src, body, []);
         required_frame_size = get_nlocals() + maxSP;
@@ -288,9 +383,10 @@ RVMModule mu2rvm(muModule(str module_name,
                            rel[str,str] importGraph,
                            loc src), 
                   bool listing=false,
-                  bool verbose=true){
+                  bool verbose=true,
+                  bool optimize=true){
  
-  init();
+  init(optimize);
   if(any(m <- messages, error(_,_) := m)){
     return errorRVMModule(module_name, messages, src);
   }
@@ -311,7 +407,7 @@ RVMModule mu2rvm(muModule(str module_name,
   minNlocal = nlocal;
   temporaries = [];
     
-  if(verbose) println("mu2rvm: Compiling module <module_name>");
+  //if(verbose) println("mu2rvm: Compiling module <module_name>");
   
   for(fun <- functions) {
     scopeIn[fun.qname] = fun.scopeIn;
@@ -330,6 +426,8 @@ RVMModule mu2rvm(muModule(str module_name,
    
     //println("*** " + functionScope);
     //iprintln(fun.body);
+    
+    failInfo = findFail(fun.body);
     
     code = tr(fun.body, nowhere(), returnDest());
 
@@ -406,6 +504,7 @@ RVMModule mu2rvm(muModule(str module_name,
   functionScope = module_init_fun;
   usedOverloadedFunctions = {};
   usedFunctions = {};
+  failInfo = findFail(initializations);
   code = trvoidblock(initializations, returnDest()); // compute code first since it may generate new locals!
   <maxSP, dummy_exceptions> = validate(|init:///|, code, []);
   if(size(code) > 0){
@@ -640,7 +739,6 @@ INS trblock(list[MuExp] exps, Dest d, CDest c) {
   if(!producesValue(exps[-1])){
     ins += plug(con(666), d);
   }
-  //println("trblock, <c>"); iprintln(exps); iprintln(ins);
   return ins;
 }
 
@@ -743,7 +841,7 @@ INS tr(muAssignKwp(str fuid, str name, MuExp exp), Dest d, CDest c) = [ *tr_arg_
 
 // Constructor
 
-INS tr(muCallConstr(str fuid, list[MuExp] args), Dest d, CDest c) = [ *tr_args_stack(args), CALLCONSTR(fuid, size(args)), *plug(accu(), d) ];
+//INS tr(muCallConstr(str fuid, list[MuExp] args), Dest d, CDest c) = [ *tr_args_stack(args), CALLCONSTR(fuid, size(args)), *plug(accu(), d) ];
 
 // muRascal functions
 
@@ -1005,7 +1103,7 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally), Dest d, CDest c) {
     leaveTry();
     
     // Translate the 'finally' block; inlining 'finally' blocks where necessary
-    code = code + [ LABEL(try_to), *trMuFinally(\finally, stack(), c) ];
+    code = code + [ LABEL(try_to), *trMuFinally(\finally, nowhere()/*stack()*/, c) ];
     
     // Translate the 'catch' block; inlining 'finally' blocks where necessary
     // 'Catch' block may also throw an exception, and if it is part of an outer 'try' block,
@@ -1015,7 +1113,7 @@ INS tr(muTry(MuExp exp, MuCatch \catch, MuExp \finally), Dest d, CDest c) {
     tryBlocks = catchAsPartOfTryBlocks;
     finallyBlocks = oldFinallyBlocks;
     
-    trMuCatch(\catch, catch_from, catchAsPartOfTry_from, catch_to, try_to, d, c);
+    trMuCatch(\catch, catch_from, catchAsPartOfTry_from, catch_to, try_to, /*nowhere()*/d, c);
         
     // Restore 'try' block environment
     catchAsPartOfTryBlocks = tryBlocks;
@@ -1066,7 +1164,7 @@ void trMuCatch(m: muCatch(str id, str fuid, Symbol \type, MuExp exp), str from, 
                        fuid == functionScope ? LOADLOC(getTmp(id,fuid))  : LOADVAR(fuid,getTmp(id,fuid)), PUSHACCU(),
                        // unwrap it and store the unwrapped one in a separate local variable 
                        fuid == functionScope ? UNWRAPTHROWNLOC(getTmp(asUnwrappedThrown(id),fuid)) : UNWRAPTHROWNVAR(fuid,getTmp(asUnwrappedThrown(id),fuid)),
-                       *tr(exp, d, labelDest(jmpto)), LABEL(to), JMP(jmpto) ];
+                       *tr(exp, /*nowhere()*/d, labelDest(jmpto)), LABEL(to), JMP(jmpto) ];
     }
     
     if(!isEmpty(catchBlocks[currentCatchBlock])) {
@@ -1090,7 +1188,7 @@ void trMuCatch(m: muCatch(str id, str fuid, Symbol \type, MuExp exp), str from, 
 }
 
 // TODO: Re-think the way empty 'finally' blocks are translated
-INS trMuFinally(MuExp \finally, Dest d, CDest c) = (muBlock([]) := \finally) ? [ /*LOADCON(666), POP()*/ ] : tr(\finally, d, c);
+INS trMuFinally(MuExp \finally, Dest d, CDest c) = (muBlock([]) := \finally) ? [ /*LOADCON(666), POP()*/ ] : tr(\finally, /*nowhere()*/d, c);
 
 void inlineMuFinally(Dest d, CDest c) {
     
@@ -1133,7 +1231,7 @@ void inlineMuFinally(Dest d, CDest c) {
     
     finallyBlock = [ LABEL(finally_from) ];
     for(int i <- [0..size(finallyStack)]) {
-        finallyBlock = [ *finallyBlock, *trMuFinally(finallyStack[i], stack(), c), LABEL(finally_to + "_<i>") ];
+        finallyBlock = [ *finallyBlock, *trMuFinally(finallyStack[i], nowhere()/*stack()*/, c), LABEL(finally_to + "_<i>") ];
         if(i < size(finallyStack) - 1) {
             EEntry currentTry = topTry();
             // Fill in the 'catch' block entry into the current exception table
@@ -1155,18 +1253,20 @@ void inlineMuFinally(Dest d, CDest c) {
 
 // Control flow
 
-bool containsFail(list[MuExp] exps) = /muFail(_) := exps;
+bool containsFail(list[MuExp] exps) = optimize ? /muFail(_) := exps : false;
+
+bool containsFail(str label) = label in failInfo.labels;
 
 // If
 
 INS tr(muIfelse(str label, MuExp cond, list[MuExp] thenPart, list[MuExp] elsePart), Dest d, CDest c) {
     if(cond == muCon(true)){
-      if(!containsFail(thenPart)){
+      if(!containsFail(label)){
          return trblock(thenPart, d, c);
       }
     }
     if(cond == muCon(false)){
-       if(!containsFail(elsePart)){
+       if(!containsFail(label)){
           return trblock(elsePart, d, c);
        }
     }
@@ -1175,7 +1275,7 @@ INS tr(muIfelse(str label, MuExp cond, list[MuExp] thenPart, list[MuExp] elsePar
         label = nextLabel();
     };
     
-    failLab = containsFail(thenPart) || containsFail(elsePart) ? mkFail(label) : "";
+    failLab = containsFail(label) /*|| containsFail(elsePart)*/ ? mkFail(label) : "";
     elseLab = mkElse(label);
 
     coro = needsCoRo(cond) ? createTmpCoRo(functionScope) : -1;
@@ -1205,7 +1305,7 @@ INS tr(muWhile(str label, MuExp cond, list[MuExp] body), Dest d, CDest c) {
         label = nextLabel();
     }
     continueLab = mkContinue(label);
-    failLab = containsFail(body) ? mkFail(label) : "";
+    failLab = containsFail(label) ? mkFail(label) : "";
     breakLab = mkBreak(label);
     coro = needsCoRo(cond) ? createTmpCoRo(functionScope) : -1;
     res = [ *tr_cond(cond, coro, continueLab, failLab, c),                      

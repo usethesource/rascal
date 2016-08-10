@@ -68,7 +68,7 @@ public data MuExp =
 	   															// This is necessary to guarantee correct (de)serialization and can be removed
 	   															// when (de)serialization has been improved.
             													// Some special cases are handled by preprocessor, see below.
-          | muConstructorCon(Symbol tp, str repr)				// Constructor constants are shipped as type + their string representation.
+ //         | muConstructorCon(Symbol tp, str repr)				// Constructor constants are shipped as type + their string representation.
  //         | muLab(str name)										// Label
           
           | muFun1(str fuid)							        // *muRascal* function constant: functions at the root
@@ -107,7 +107,7 @@ public data MuExp =
           | muOCall4(MuExp fun, Symbol types,                    // Call a dynamic *Rascal function
           					   list[MuExp] largs, loc src)
           
-          | muCallConstr(str fuid, list[MuExp] largs /*, loc src*/)	// Call a constructor
+ //         | muCallConstr(str fuid, list[MuExp] largs /*, loc src*/)	// Call a constructor
     
           | muCallPrim2(str name, loc src)                       // Call a Rascal primitive function (with empty list of arguments)
           | muCallPrim3(str name, list[MuExp] exps, loc src)	 // Call a Rascal primitive function
@@ -180,9 +180,6 @@ public data MuExp =
                                                                 // A block with scoped temporary variables and temporaries used as reference
           | muMulti(MuExp exp)		 							// Expression that can produce multiple values
           | muOne1(MuExp exp)                                   // Expression that always produces only the first value
-          //| muOne2(list[MuExp] exps)							// Compute one result for a list of boolean expressions
-         // | muAll(list[MuExp] exps)								// Compute all results for a list of boolean expressions
-         // | muOr(list[MuExp] exps)        						// Compute the or of a list of Boolean expressions.
           
           // Exceptions
           
@@ -191,12 +188,6 @@ public data MuExp =
           // Exception handling try/catch
           
           | muTry(MuExp exp, MuCatch \catch, MuExp \finally)
-          
-          // Delimited continuations (experimental)
-          
-          //| muContVar(str fuid)
-          //| muReset(MuExp fun)
-          //| muShift(MuExp exp)
           
           | muVisit(bool direction, bool fixedpoint, bool progress, bool rebuild, MuExp descriptor, MuExp phi, MuExp subject, MuExp refHasMatch, MuExp refBeenChanged, MuExp refLeaveVisit, MuExp refBegin, MuExp refEnd)
           ;

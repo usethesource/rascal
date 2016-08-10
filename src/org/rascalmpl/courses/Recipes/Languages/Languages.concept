@@ -1,31 +1,30 @@
-Name: Languages
+# Languages
 
-Synopsis: Definitions of several languages and their tools.
+.Synopsis
+Definitions of several languages and their tools.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
 Examples of several languages and the implementation of tools like interpreters and compilers:
-<toc Recipes/Languages 1>
+subtoc::[1]
 
 Other languages that we are considering (but are not yet described):
-* Oberon0: a scaled down version of the Oberon language.
-* MissGrant: a state machine language.
+
+*  Oberon0: a scaled down version of the Oberon language.
+*  MissGrant: a state machine language.
 
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

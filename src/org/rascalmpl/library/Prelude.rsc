@@ -7,28 +7,29 @@
 }
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @doc{
-Name: Prelude
-Synopsis: Definition of the Rascal standard prelude.
+# Prelude
+.Synopsis
+Definition of the Rascal standard prelude.
 
-Description:
+.Description
 
 The standard prelude is automatically imported when Rascal is started.
 It combines the following modules:
 
-* `Boolean`,
-* `DateTime`,
-* `Exception`,
-* `IO`,
-* `List`,
-* `Map`,
-* `Node`,
-* `ParseTree`,
-* `Rational`, ???
-* `Relation`,
-* `Set`,
-* `String`,
-* `ToString`,
-* `ValueIO`.
+*  `Boolean`,
+*  `DateTime`,
+*  `Exception`,
+*  `IO`,
+*  `List`,
+*  `Map`,
+*  `Node`,
+*  `ParseTree`,
+*  `Rational`, ???
+*  `Relation`,
+*  `Set`,
+*  `String`,
+*  `ToString`,
+*  `ValueIO`.
 }
 module Prelude
 

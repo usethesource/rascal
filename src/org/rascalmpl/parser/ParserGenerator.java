@@ -121,6 +121,7 @@ public class ParserGenerator {
 			String classString = thing.toString();
 			FileOutputStream s = null;
 			try {
+			    System.err.println("Writing parser to " + file);
 				s = new FileOutputStream(file);
 				s.write(classString.getBytes());
 				s.flush();

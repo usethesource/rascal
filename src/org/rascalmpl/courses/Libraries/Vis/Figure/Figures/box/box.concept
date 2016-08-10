@@ -1,0 +1,96 @@
+# box
+
+.Synopsis
+A rectangular box.
+
+.Syntax
+
+.Types
+
+.Function
+
+#  `Figure box(FProperty props...)`
+#  `Figure box(Figure inner, FProperty props...)`
+
+.Details
+
+.Description
+Draw a rectangular box using the properties `props`.
+An optional nested figure `inner` may be placed inside the box.
+
+.Examples
+Lets start with a box `b0` of given (minimal) dimensions:
+[source,rascal-figure,width=,height=,file=box0.png]
+----
+                b0 = box(size(150,50), fillColor("lightGray"));
+render(b0);
+----
+that will display as: 
+image::{concept}/box0.png[alt="box0"]
+
+
+We can nest a new box `b1` in box `b0` as follows:
+[source,rascal-figure,width=,height=,file=box1.png]
+----
+                b1 = box(shrink(0.8), fillColor("green"));
+b0 = box(b1, size(150,50), fillColor("lightGray"));
+render(b0);
+----
+The result is: 
+image::{concept}/box1.png[alt="box1"]
+
+
+Note that:
+
+*  Box `b0` contains box `b1`.
+*  The dimensions of `b1` are determined by  shrinking to 80% of the dimensions of `b0`.
+ 
+
+The placement of an inner figure is determined by alignment, see <<align>>. 
+We can, for instance, place `b1` in the top left corner of `b0`:
+[source,rascal-figure,width=,height=,file=box2.png]
+----
+                b1 = box(shrink(0.8), align(0, 0), fillColor("green"));
+b0 = box(b1, size(150,50), fillColor("lightGray"));
+render(b0);
+----
+The result is: 
+image::{concept}/box2.png[alt="box2"]
+
+
+Placing `b1` in the bottom right corner of `b0`:
+[source,rascal-figure,width=,height=,file=box3.png]
+----
+                b1 = box(shrink(0.8), align(1, 1), fillColor("green"));
+b0 = box(b1, size(150,50), fillColor("lightGray"));
+render(b0);
+----
+gives: 
+image::{concept}/box3.png[alt="box3"]
+
+
+We can also nest box `b0` in another box `b2` and make `b2` 20% larger than `b0`:
+[source,rascal-figure,width=,height=,file=box4.png]
+----
+                b0 = box(size(150,50), fillColor("lightGray"));
+b2 = box(b0, grow(1.2), fillColor("blue"));
+render(b2);
+----
+The result is: 
+image::{concept}/box4.png[alt="box4"]
+
+
+If no sizes are given at all then the box will expand to fill the available size:
+
+[source,rascal-figure,width=400,height=400,file=box5.png]
+----
+                render(box(box(box(box(shrink(0.5)),shrink(0.5)),shrink(0.5))));
+----
+The result is: 
+image::{concept}/box5.png[alt="box5"]
+
+
+.Benefits
+
+.Pitfalls
+

@@ -41,13 +41,13 @@ import experiments::Compiler::Rascal2muRascal::RascalExpression;
 /********************************************************************/
 
 @doc{Compile a parsed Rascal source module to muRascal}
-MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true){
+MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true, bool optimize = true, bool enableAsserts=false){
    try {
-      resetModuleInfo();
+      resetModuleInfo(optimize, enableAsserts);
       module_name = "<M.header.name>";
       setModuleName(module_name);
       setModuleTags(translateTags(M.header.tags));
-      if(verbose) println("r2mu: entering ... <module_name>");
+      //if(verbose) println("r2mu: entering ... <module_name>");
    	  
    	  // Extract scoping information available from the configuration returned by the type checker  
    	  extractScopes(config); 
@@ -61,16 +61,21 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  	  ( AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int containedIn, loc at) := config.store[uid]
    	  	  || AbstractValue::production(RName name, Symbol \type, int containedIn, Production p, loc at) := config.store[uid] 
    	  	  ),
+   	  	  //bprintln(config.store[uid]), bprintln(config.store[containedIn].at.path), bprintln(at.path),
    	  	  !isEmpty(getSimpleName(name)),
    	  	  containedIn == 0, 
-   	  	  config.store[containedIn].at.path == at.path // needed due to the handling of 'extend' by the type checker
+   	  	  ( config.store[containedIn].at.path == at.path // needed due to the handling of 'extend' by the type checker
+   	  	  || at.path  == "/ConsoleInput.rsc"             // TODO: hack to get the RascalShell working, since config.store[0].at.path
+   	  	                                                 // "/experiments/Compiler/Compile.rc"???
+   	  	  )
    	  	);
-   	  	
+   	  //for(tname <- types) println("<tname>: <types[tname]>");	
+   	  
    	  // Generate companion functions for 
    	  // (1) keyword fields in constructors
    	  // (2) common keyword fields in data declarations
       generateCompanions(M, config, verbose=verbose);
-   	 				  
+   	 
    	  translateModule(M);
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
@@ -109,13 +114,16 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  				  {<prettyPrintName(rn1), prettyPrintName(rn2)> | <rn1, rn2> <- config.importGraph},
    	  				  M@\loc);
 
-   } 
-
-   catch e: {
-        return errorMuModule(getModuleName(), {error("Unexpected exception <e>", M@\loc)}, M@\loc);
+   }
+   catch ParseError(loc l): {
+        if (verbose) println("Parse error in concrete syntax <l>; returning error module");
+        return errorMuModule(getModuleName(), {error("Parse error in concrete syntax fragment", l)}, M@\loc);
+   }
+   catch value e: {
+        return errorMuModule(getModuleName(), {error("Unexpected compiler exception <e>", M@\loc)}, M@\loc);
    }
    finally {
-   	   resetModuleInfo();
+   	   resetModuleInfo(optimize, enableAsserts);
    	   resetScopeExtraction();
    }
    throw "r2mu: cannot come here!";
