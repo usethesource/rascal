@@ -287,198 +287,184 @@ public class RSFIValueWriter {
 		while(iter.hasNext()){
 			final ValueIteratorKind kind = iter.next();
 			final IValue currentValue = iter.getItem();
-			final boolean atBeginning = iter.atBeginning();
-			int lastSeen;
-			if (atBeginning && kind.isCompound() && (lastSeen = valueCache.howLongAgo(currentValue)) > -1) {
-			    writer.startMessage(RSF.PreviousValue.ID);
-			    writer.writeField(RSF.PreviousValue.HOW_FAR_BACK, lastSeen);
-			    writer.endMessage();
-			    iter.skipItem();
+			if (kind.isCompound()) {
+			    if (iter.atBeginning()) {
+			        int lastSeen = valueCache.howLongAgo(currentValue);
+			        if (lastSeen != -1) {
+			            writeSingleValueMessage(writer, RSF.PreviousValue.ID, RSF.PreviousValue.HOW_FAR_BACK, lastSeen);
+			            iter.skipItem();
+			        }
+			    }
+			    else {
+			        switch(kind){
+			            case CONSTRUCTOR: {
+			                IConstructor cons = (IConstructor)currentValue;
+			                write(writer, cons.getUninstantiatedConstructorType(), typeCache, valueCache, uriCache);
+
+			                writer.startMessage(RSF.ConstructorValue.ID);
+			                writer.writeField(RSF.ConstructorValue.ARITY, cons.arity());
+			                if(cons.mayHaveKeywordParameters()){
+			                    if(cons.asWithKeywordParameters().hasParameters()){
+			                        writer.writeField(RSF.ConstructorValue.KWPARAMS, cons.asWithKeywordParameters().getParameters().size());
+			                    }
+			                } else {
+			                    if(cons.asAnnotatable().hasAnnotations()){
+			                        writer.writeField(RSF.ConstructorValue.ANNOS, cons.asAnnotatable().getAnnotations().size());
+			                    }
+			                }
+			                writer.endMessage();
+			                break;
+			            }
+
+
+			            case LIST: {
+			                writeSingleValueMessage(writer, RSF.ListValue.ID, RSF.ListValue.SIZE, ((IList)currentValue).length());
+			                break;
+			            }
+
+			            case MAP: {
+			                writeSingleValueMessage(writer, RSF.MapValue.ID, RSF.MapValue.SIZE, ((IMap)currentValue).size());
+			                break;
+			            }
+			            case SET: {
+			                writeSingleValueMessage(writer, RSF.SetValue.ID, RSF.SetValue.SIZE, ((ISet)currentValue).size());
+			                break;
+			            }
+
+			            case NODE: {
+			                INode node = (INode)currentValue;
+			                writer.startMessage(RSF.NodeValue.ID);
+			                writer.writeField(RSF.NodeValue.NAME,  node.getName());
+			                writer.writeField(RSF.NodeValue.ARITY, node.arity());
+			                if(node.mayHaveKeywordParameters()){
+			                    if(node.asWithKeywordParameters().hasParameters()){
+			                        writer.writeField(RSF.NodeValue.KWPARAMS, node.asWithKeywordParameters().getParameters().size());
+			                    }
+			                } else {
+			                    if(node.asAnnotatable().hasAnnotations()){
+			                        writer.writeField(RSF.NodeValue.ANNOS, node.asAnnotatable().getAnnotations().size());
+			                    }
+			                }
+			                writer.endMessage();
+			                break;
+			            }
+
+			            case RATIONAL: {
+			                writer.writeEmptyMessage(RSF.RationalValue.ID);
+			                break;
+			            }
+
+			            case TUPLE: {
+			                writeSingleValueMessage(writer, RSF.TupleValue.ID, RSF.TupleValue.SIZE, ((ITuple)currentValue).arity());
+			                break;
+			            }
+
+			            default:
+			                throw new RuntimeException("writeValue: unexpected kind of value " + kind);
+			        }
+			        valueCache.write(currentValue);
+			    }
 			}
 			else {
-                switch(kind){
-                case BOOL: {
-                    assert atBeginning;
-                    writeSingleValueMessage(writer, RSF.BoolValue.ID, RSF.BoolValue.VALUE, ((IBool)currentValue).getValue() ? 1: 0);
-                    break;
-                }
+			    assert iter.atBeginning();
+			    switch(kind){
+			        case BOOL: {
+			            writeSingleValueMessage(writer, RSF.BoolValue.ID, RSF.BoolValue.VALUE, ((IBool)currentValue).getValue() ? 1: 0);
+			            break;
+			        }
 
-                case CONSTRUCTOR: {
-                    if (!atBeginning) {
-                        IConstructor cons = (IConstructor)currentValue;
-                        write(writer, cons.getUninstantiatedConstructorType(), typeCache, valueCache, uriCache);
+			        case DATETIME: {
+			            IDateTime dateTime = (IDateTime)currentValue;
+			            writer.startMessage(RSF.DateTimeValue.ID);
 
-                        writer.startMessage(RSF.ConstructorValue.ID);
-                        writer.writeField(RSF.ConstructorValue.ARITY, cons.arity());
-                        if(cons.mayHaveKeywordParameters()){
-                            if(cons.asWithKeywordParameters().hasParameters()){
-                                writer.writeField(RSF.ConstructorValue.KWPARAMS, cons.asWithKeywordParameters().getParameters().size());
-                            }
-                        } else {
-                            if(cons.asAnnotatable().hasAnnotations()){
-                                writer.writeField(RSF.ConstructorValue.ANNOS, cons.asAnnotatable().getAnnotations().size());
-                            }
-                        }
-                        writer.endMessage();
-                    }
-                    break;
-                }
-                
-                case DATETIME: {
-                    assert atBeginning;
-                    
-                    IDateTime dateTime = (IDateTime)currentValue;
-                    writer.startMessage(RSF.DateTimeValue.ID);
+			            if (!dateTime.isTime()) {
+			                writer.writeField(RSF.DateTimeValue.YEAR, dateTime.getYear());
+			                writer.writeField(RSF.DateTimeValue.MONTH, dateTime.getMonthOfYear());
+			                writer.writeField(RSF.DateTimeValue.DAY, dateTime.getDayOfMonth());
+			            }
 
-                    if (!dateTime.isTime()) {
-                        writer.writeField(RSF.DateTimeValue.YEAR, dateTime.getYear());
-                        writer.writeField(RSF.DateTimeValue.MONTH, dateTime.getMonthOfYear());
-                        writer.writeField(RSF.DateTimeValue.DAY, dateTime.getDayOfMonth());
-                    }
+			            if (!dateTime.isDate()) {
+			                writer.writeField(RSF.DateTimeValue.HOUR, dateTime.getHourOfDay());
+			                writer.writeField(RSF.DateTimeValue.MINUTE, dateTime.getMinuteOfHour());
+			                writer.writeField(RSF.DateTimeValue.SECOND, dateTime.getSecondOfMinute());
+			                writer.writeField(RSF.DateTimeValue.MILLISECOND, dateTime.getMillisecondsOfSecond());
 
-                    if (!dateTime.isDate()) {
-                        writer.writeField(RSF.DateTimeValue.HOUR, dateTime.getHourOfDay());
-                        writer.writeField(RSF.DateTimeValue.MINUTE, dateTime.getMinuteOfHour());
-                        writer.writeField(RSF.DateTimeValue.SECOND, dateTime.getSecondOfMinute());
-                        writer.writeField(RSF.DateTimeValue.MILLISECOND, dateTime.getMillisecondsOfSecond());
+			                writer.writeField(RSF.DateTimeValue.TZ_HOUR, dateTime.getTimezoneOffsetHours());
+			                writer.writeField(RSF.DateTimeValue.TZ_MINUTE, dateTime.getTimezoneOffsetMinutes());
+			            }
+			            writer.endMessage();
+			            break;
+			        }
 
-                        writer.writeField(RSF.DateTimeValue.TZ_HOUR, dateTime.getTimezoneOffsetHours());
-                        writer.writeField(RSF.DateTimeValue.TZ_MINUTE, dateTime.getTimezoneOffsetMinutes());
-                    }
-                    writer.endMessage();
-                    break;
-                }
+			        case INT: {
+			            writer.startMessage(RSF.IntegerValue.ID);
+			            IInteger ii = (IInteger)currentValue;
+			            if(ii. greaterEqual(MININT).getValue() && ii.lessEqual(MAXINT).getValue()){
+			                writer.writeField(RSF.IntegerValue.INTVALUE, ii.intValue());
+			            } 
+			            else {
+			                writer.writeField(RSF.IntegerValue.BIGVALUE, ii.getTwosComplementRepresentation());
+			            }
+			            writer.endMessage();
+			            break;
+			        }
 
-                case INT: {
-                    assert atBeginning;
-                    writer.startMessage(RSF.IntegerValue.ID);
-                    IInteger ii = (IInteger)currentValue;
-                    if(ii. greaterEqual(MININT).getValue() && ii.lessEqual(MAXINT).getValue()){
-                        writer.writeField(RSF.IntegerValue.INTVALUE, ii.intValue());
-                    } 
-                    else {
-                        writer.writeField(RSF.IntegerValue.BIGVALUE, ii.getTwosComplementRepresentation());
-                    }
-                    writer.endMessage();
-                    break;
-                }
-                
-                case LIST: {
-                    if (!atBeginning) {
-                        writeSingleValueMessage(writer, RSF.ListValue.ID, RSF.ListValue.SIZE, ((IList)currentValue).length());
-                    }
-                    break;
-                }
-                
-                case MAP: {
-                    if (!atBeginning) {
-                        writeSingleValueMessage(writer, RSF.MapValue.ID, RSF.MapValue.SIZE, ((IMap)currentValue).size());
-                    }
-                    break;
-                }
-                case SET: {
-                    if (!atBeginning) {
-                        writeSingleValueMessage(writer, RSF.SetValue.ID, RSF.SetValue.SIZE, ((ISet)currentValue).size());
-                    }
-                    break;
-                }
 
-                case NODE: {
-                    if (!atBeginning) {
-                        INode node = (INode)currentValue;
-                        writer.startMessage(RSF.NodeValue.ID);
-                        writer.writeField(RSF.NodeValue.NAME,  node.getName());
-                        writer.writeField(RSF.NodeValue.ARITY, node.arity());
-                        if(node.mayHaveKeywordParameters()){
-                            if(node.asWithKeywordParameters().hasParameters()){
-                                writer.writeField(RSF.NodeValue.KWPARAMS, node.asWithKeywordParameters().getParameters().size());
-                            }
-                        } else {
-                            if(node.asAnnotatable().hasAnnotations()){
-                                writer.writeField(RSF.NodeValue.ANNOS, node.asAnnotatable().getAnnotations().size());
-                            }
-                        }
-                        writer.endMessage();
-                    }
-                    break;
-                }
-                        
-                case RATIONAL: {
-                    if (!atBeginning) {
-                        writer.writeEmptyMessage(RSF.RationalValue.ID);
-                    }
-                    break;
-                }
-                    
-                case REAL: {
-                    assert atBeginning;
-                    writer.startMessage(RSF.RealValue.ID);
-                    writer.writeField(RSF.RealValue.CONTENT, ((IReal)currentValue).unscaled().getTwosComplementRepresentation());
-                    writer.writeField(RSF.RealValue.SCALE, ((IReal)currentValue).scale());
-                    writer.endMessage();
-                    break;
-                }
-                
-                case LOC: {
-                    assert atBeginning;
-                    
-                    writer.startMessage(RSF.SourceLocationValue.ID);
-                    ISourceLocation loc = (ISourceLocation)currentValue;
-                    ISourceLocation uriPart = loc.top();
-                    int alreadyWritten = uriCache.howLongAgo(uriPart);
-                    if (alreadyWritten == -1) {
-                        writer.writeField(RSF.SourceLocationValue.SCHEME, uriPart.getScheme());
-                        if (uriPart.hasAuthority()) {
-                            writer.writeField(RSF.SourceLocationValue.AUTHORITY, uriPart.getAuthority());
-                        }
-                        if (uriPart.hasPath()) {
-                            writer.writeField(RSF.SourceLocationValue.PATH, uriPart.getPath());
-                        }
-                        if (uriPart.hasQuery()) {
-                            writer.writeField(RSF.SourceLocationValue.QUERY,  uriPart.getQuery());
-                        }
-                        if (uriPart.hasFragment()) {
-                            writer.writeField(RSF.SourceLocationValue.FRAGMENT,  uriPart.getFragment());
-                        }
-                        uriCache.write(uriPart);
-                    }
-                    else {
-                        writer.writeField(RSF.SourceLocationValue.PREVIOUS_URI, alreadyWritten);
-                    }
+			        case REAL: {
+			            writer.startMessage(RSF.RealValue.ID);
+			            writer.writeField(RSF.RealValue.CONTENT, ((IReal)currentValue).unscaled().getTwosComplementRepresentation());
+			            writer.writeField(RSF.RealValue.SCALE, ((IReal)currentValue).scale());
+			            writer.endMessage();
+			            break;
+			        }
 
-                    if(loc.hasOffsetLength()){
-                        writer.writeField(RSF.SourceLocationValue.OFFSET, loc.getOffset());
-                        writer.writeField(RSF.SourceLocationValue.LENGTH, loc.getLength());
-                    } 
-                    if(loc.hasLineColumn()){
-                        writer.writeField(RSF.SourceLocationValue.BEGINLINE, loc.getBeginLine());
-                        writer.writeField(RSF.SourceLocationValue.ENDLINE, loc.getEndLine());
-                        writer.writeField(RSF.SourceLocationValue.BEGINCOLUMN, loc.getBeginColumn());
-                        writer.writeField(RSF.SourceLocationValue.ENDCOLUMN, loc.getEndColumn());
-                    }
-                    writer.endMessage();
-                    break;
-                }
-                    
-                case STR: {
-                    assert iter.atBeginning();
-                    writeSingleValueMessage(writer, RSF.StringValue.ID, RSF.StringValue.CONTENT, ((IString)currentValue).getValue());
-                    break;
-                }
+			        case LOC: {
+			            writer.startMessage(RSF.SourceLocationValue.ID);
+			            ISourceLocation loc = (ISourceLocation)currentValue;
+			            ISourceLocation uriPart = loc.top();
+			            int alreadyWritten = uriCache.howLongAgo(uriPart);
+			            if (alreadyWritten == -1) {
+			                writer.writeField(RSF.SourceLocationValue.SCHEME, uriPart.getScheme());
+			                if (uriPart.hasAuthority()) {
+			                    writer.writeField(RSF.SourceLocationValue.AUTHORITY, uriPart.getAuthority());
+			                }
+			                if (uriPart.hasPath()) {
+			                    writer.writeField(RSF.SourceLocationValue.PATH, uriPart.getPath());
+			                }
+			                if (uriPart.hasQuery()) {
+			                    writer.writeField(RSF.SourceLocationValue.QUERY,  uriPart.getQuery());
+			                }
+			                if (uriPart.hasFragment()) {
+			                    writer.writeField(RSF.SourceLocationValue.FRAGMENT,  uriPart.getFragment());
+			                }
+			                uriCache.write(uriPart);
+			            }
+			            else {
+			                writer.writeField(RSF.SourceLocationValue.PREVIOUS_URI, alreadyWritten);
+			            }
 
-                case TUPLE: {
-                    if (!atBeginning) {
-                        writeSingleValueMessage(writer, RSF.TupleValue.ID, RSF.TupleValue.SIZE, ((ITuple)currentValue).arity());
-                    }
-                    break;
-                }
-                
-                default:
-                     throw new RuntimeException("writeValue: unexpected kind of value " + kind);
-                }
-            }
-			if (!atBeginning && kind.isCompound()) {
-			    valueCache.write(currentValue);
+			            if(loc.hasOffsetLength()){
+			                writer.writeField(RSF.SourceLocationValue.OFFSET, loc.getOffset());
+			                writer.writeField(RSF.SourceLocationValue.LENGTH, loc.getLength());
+			            } 
+			            if(loc.hasLineColumn()){
+			                writer.writeField(RSF.SourceLocationValue.BEGINLINE, loc.getBeginLine());
+			                writer.writeField(RSF.SourceLocationValue.ENDLINE, loc.getEndLine());
+			                writer.writeField(RSF.SourceLocationValue.BEGINCOLUMN, loc.getBeginColumn());
+			                writer.writeField(RSF.SourceLocationValue.ENDCOLUMN, loc.getEndColumn());
+			            }
+			            writer.endMessage();
+			            break;
+			        }
+
+			        case STR: {
+			            writeSingleValueMessage(writer, RSF.StringValue.ID, RSF.StringValue.CONTENT, ((IString)currentValue).getValue());
+			            break;
+			        }
+
+			        default:
+			            throw new RuntimeException("writeValue: unexpected kind of value " + kind);
+			    }
 			}
 		}
 	}
