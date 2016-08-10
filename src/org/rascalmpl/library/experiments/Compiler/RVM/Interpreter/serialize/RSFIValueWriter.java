@@ -116,11 +116,84 @@ public class RSFIValueWriter {
 	    while(iter.hasNext()){
 	        final TypeIteratorKind kind = iter.next();
 	        final Type currentType = iter.getItem();
-	        final boolean atBeginning = iter.atBeginning();
-	        int lastSeen;
-	        if (atBeginning && kind.isCompound() && (lastSeen = typeCache.howLongAgo(currentType)) != -1) {
-	            writeSingleValueMessage(writer, RSF.PreviousType.ID, RSF.PreviousType.HOW_LONG_AGO, lastSeen);
-	            iter.skipItem();
+	        if (kind.isCompound()) {
+                if (iter.atBeginning()) {
+                    int lastSeen = typeCache.howLongAgo(currentType);
+                    if (lastSeen != -1) { 
+                        writeSingleValueMessage(writer, RSF.PreviousType.ID, RSF.PreviousType.HOW_LONG_AGO, lastSeen);
+                        iter.skipItem();
+                    }
+                }
+                else {
+                    switch(kind){
+                        case ADT: {
+                            writeSingleValueMessage(writer, RSF.ADTType.ID, RSF.ADTType.NAME, currentType.getName());
+                            break;
+
+                        }
+                        case ALIAS: {
+                            writeSingleValueMessage(writer, RSF.AliasType.ID, RSF.AliasType.NAME, currentType.getName());
+                            break;
+                        }
+                        case CONSTRUCTOR : {
+                            writeSingleValueMessage(writer, RSF.ConstructorType.ID, RSF.ConstructorType.NAME, currentType.getName());
+                            break;
+                        }
+                        case FUNCTION: {
+                            writer.writeEmptyMessage(RSF.ConstructorType.ID);
+                            break;
+                        }
+
+                        case REIFIED: {
+                            writer.writeEmptyMessage(RSF.ReifiedType.ID);
+                            break;
+                        }
+
+                        case OVERLOADED: {
+                            writeSingleValueMessage(writer, RSF.OverloadedType.ID, RSF.OverloadedType.SIZE, ((OverloadedFunctionType) currentType).getAlternatives().size());
+                            break;
+                        }
+
+                        case NONTERMINAL: {
+                            // first prefix with the Constructor 
+                            write(writer, ((NonTerminalType)currentType).getSymbol(), typeCache, valueCache, uriCache);
+                            writer.writeEmptyMessage(RSF.NonTerminalType.ID);
+                            break;
+                        }
+
+                        case LIST: {
+                            writer.writeEmptyMessage(RSF.ListType.ID);
+                            break;
+                        }
+
+                        case MAP: {
+                            writer.writeEmptyMessage(RSF.MapType.ID);
+                            break;
+                        }
+                        case PARAMETER: {
+                            writeSingleValueMessage(writer, RSF.ParameterType.ID, RSF.ParameterType.NAME,currentType.getName());
+                            break;
+                        }
+
+                        case SET: {
+                            writer.writeEmptyMessage(RSF.SetType.ID);
+                            break;
+                        }
+                        case TUPLE: {
+                            writer.startMessage(RSF.TupleType.ID);
+                            writer.writeField(RSF.TupleType.ARITY, currentType.getArity());
+                            String[] fieldNames = currentType.getFieldNames();
+                            if(fieldNames != null){
+                                writeNames(writer, RSF.TupleType.NAMES, fieldNames);
+                            }
+                            writer.endMessage();
+                            break;
+                        }
+                        default:
+                            throw new RuntimeException("Missing compound type case");
+                    }
+                    typeCache.write(currentType);
+                }
 	        }
 	        else {
 	            switch(kind){
@@ -168,99 +241,9 @@ public class RSFIValueWriter {
 	                    writer.writeEmptyMessage(RSF.VoidType.ID);
 	                    break;
 	                }
+                    default:
+                        throw new RuntimeException("Missing non-compound type case");
 
-	                // Composite types
-
-	                case ADT: {
-	                    if (!atBeginning) {
-	                        writeSingleValueMessage(writer, RSF.ADTType.ID, RSF.ADTType.NAME, currentType.getName());
-	                    }
-	                    break;
-
-	                }
-	                case ALIAS: {
-	                    if (!atBeginning) {
-	                        writeSingleValueMessage(writer, RSF.AliasType.ID, RSF.AliasType.NAME, currentType.getName());
-	                    }
-	                    break;
-	                }
-	                case CONSTRUCTOR : {
-	                    if (!atBeginning) {
-	                        writeSingleValueMessage(writer, RSF.ConstructorType.ID, RSF.ConstructorType.NAME, currentType.getName());
-	                    }
-	                    break;
-	                }
-	                case FUNCTION: {
-	                    if (!atBeginning) {
-	                        writer.writeEmptyMessage(RSF.ConstructorType.ID);
-	                    }
-	                    break;
-	                }
-
-	                case REIFIED: {
-	                    if (!atBeginning) {
-	                        writer.writeEmptyMessage(RSF.ReifiedType.ID);
-	                    }
-	                    break;
-	                }
-
-	                case OVERLOADED: {
-	                    if (!atBeginning) {
-	                        writeSingleValueMessage(writer, RSF.OverloadedType.ID, RSF.OverloadedType.SIZE, ((OverloadedFunctionType) currentType).getAlternatives().size());
-	                    }
-	                    break;
-	                }
-
-	                case NONTERMINAL: {
-	                    if (!atBeginning) {
-	                        // first prefix with the Constructor 
-	                        write(writer, ((NonTerminalType)currentType).getSymbol(), typeCache, valueCache, uriCache);
-	                        writer.writeEmptyMessage(RSF.NonTerminalType.ID);
-	                    }
-	                    break;
-	                }
-
-	                case LIST: {
-	                    if (!atBeginning) {
-	                        writer.writeEmptyMessage(RSF.ListType.ID);
-	                    }
-	                    break;
-	                }
-	                
-	                case MAP: {
-	                    if (!atBeginning) {
-	                        writer.writeEmptyMessage(RSF.MapType.ID);
-	                    }
-	                    break;
-	                }
-	                case PARAMETER: {
-	                    if (!atBeginning) {
-	                        writeSingleValueMessage(writer, RSF.ParameterType.ID, RSF.ParameterType.NAME,currentType.getName());
-	                    }
-	                    break;
-	                }
-
-	                case SET: {
-	                    if (!atBeginning) {
-	                        writer.writeEmptyMessage(RSF.SetType.ID);
-	                    }
-	                    break;
-	                }
-	                case TUPLE: {
-	                    if (!atBeginning) {
-	                        writer.startMessage(RSF.TupleType.ID);
-	                        writer.writeField(RSF.TupleType.ARITY, currentType.getArity());
-	                        String[] fieldNames = currentType.getFieldNames();
-	                        if(fieldNames != null){
-	                            writeNames(writer, RSF.TupleType.NAMES, fieldNames);
-	                        }
-	                        writer.endMessage();
-	                    }
-	                    break;
-	                }
-	            }
-	            if (!atBeginning && kind.isCompound()) {
-	                typeCache.write(currentType);
 	            }
 	        }
 	    }
