@@ -35,6 +35,39 @@ test bool printTime_simpleFormat(datetime gen) =
 test bool printDateTime_simpleFormat(datetime gen) =
     printDateTime(gen) == "<formattedDate(gen)> <formattedTime(gen)>";
 
+test bool incrementDays_withOneDay(datetime gen) =
+  incrementDays(createDate(gen.year, gen.month, gen.day)) == incDateByOneDay(gen);
+
+datetime incDateByOneDay(datetime dt) {
+	if (dt.day < 28) {
+		return createDate(dt.year, dt.month, dt.day+1);
+	}
+	else if (dt.month in {1,3,5,7,8,10,12}) {
+		if (dt.day < 31) {
+			return createDate(dt.year, dt.month, dt.day+1);
+		} else if (dt.month < 12) {
+			return createDate(dt.year, dt.month+1, 1);
+		} else {
+			return createDate(dt.year+1, 1, 1);
+		}
+	} else if (dt.month == 2) {
+		if (dt.day < 27) {
+			return createDate(dt.year, dt.month, dt.day+1);
+		} else if (dt.day == 28 && ((dt.year % 400 == 0) || (dt.year % 4 == 0 && dt.year % 100 > 0))) { // leap year
+			return createDate(dt.year, dt.month, dt.day+1);
+		} else {
+			return createDate(dt.year, dt.month+1, 1);
+		}
+	} else {
+		if (dt.day < 30) {
+			return createDate(dt.year, dt.month, dt.day+1);
+		} else {
+			return createDate(dt.year, dt.month+1, 1);
+		}
+	}
+	
+}
+
 str formattedDate(datetime dt) =
     "<fill(dt.year, 4)>-<fill(dt.month)>-<fill(dt.day)>";
     
