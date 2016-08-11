@@ -289,19 +289,13 @@ public class Prelude {
 	}
 
 	private Calendar dateTimeToCalendar(IDateTime dt) {
-		Calendar cal;
-		if (dt.isDate()) {
-			cal = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
-			cal.set(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth());
-		} else {
-			cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(dt.getTimezoneOffsetHours(), dt.getTimezoneOffsetMinutes())),Locale.getDefault());
-			if (dt.isTime()) {
-				cal.set(1970, 0, 1, dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute());
-			} else {
-				cal.set(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth(), dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute());
-			}
-			cal.set(Calendar.MILLISECOND, dt.getMillisecondsOfSecond());
-		}
+	    TimeZone tz = dt.isDate() ? 
+	        TimeZone.getDefault() : 
+	          TimeZone.getTimeZone(getTZString(dt.getTimezoneOffsetHours(), dt.getTimezoneOffsetMinutes()));
+  
+		Calendar cal = Calendar.getInstance(tz,Locale.getDefault());
+		cal.setTimeInMillis(dt.getInstant());
+			
 		return cal;
 	}
 	
