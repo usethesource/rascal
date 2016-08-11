@@ -14,17 +14,38 @@
     <version>0.8.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
+    <scm>
+        <developerConnection>scm:git:https://github.com/cwi-swat/rascal.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <!-- deployment configuration (usethesource) -->
+    <distributionManagement>
+        <repository>
+            <id>usethesource-releases</id>
+            <url>http://nexus.rascal-mpl.org/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>usethesource-snapshots</id>
+            <url>http://nexus.rascal-mpl.org/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <!-- dependency resolution configuration (usethesource) -->
+    <repositories>
+        <repository>
+            <id>usethesource</id>
+            <url>http://nexus.rascal-mpl.org/repository/maven-public/</url>
+        </repository>
+    </repositories>
+
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
-
         <lucence-version>6.1.0</lucence-version>
     </properties>
-
-    <scm>
-        <developerConnection>scm:git:https://github.com/cwi-swat/rascal.git</developerConnection>
-    </scm>
 
     <build>
         <sourceDirectory>src</sourceDirectory>
