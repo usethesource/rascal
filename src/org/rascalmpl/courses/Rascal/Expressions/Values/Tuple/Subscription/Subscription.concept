@@ -1,29 +1,32 @@
-Name: Subscription
+# Tuple Subscription
 
-Synopsis: Retrieve a tuple field by its index position.
+.Synopsis
+Retrieve a tuple field by its index position.
 
-Syntax:
-`$Exp_1$ [ $Exp_2$ ]`
+.Index
+[ ]
 
-Types:
+.Syntax
+`_Exp_~1~ [ _Exp_~2~ ]`
 
-Function:
+.Types
 
-Details:
+.Function
 
-Description:
-Subscription retrieves the tuple element with index $Exp_2$ from the tuple value of $Exp_1$.
+.Details
 
-Examples:
+.Description
+Subscription retrieves the tuple element with index _Exp_~2~ from the tuple value of _Exp_~1~.
+
+.Examples
 Introduce a tuple, assign it to T and retrieve the element with index 0:
-<screen>
+[source,rascal-shell]
+----
 T = <"mon", 1>;
 T[0];
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

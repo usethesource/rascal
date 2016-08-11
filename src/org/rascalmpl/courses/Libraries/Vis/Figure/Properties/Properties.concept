@@ -1,0 +1,136 @@
+# Properties
+
+.Synopsis
+Overview of all visual properties that apply to figures.
+
+.Syntax
+
+.Types
+
+*  `FProperty`
+*  `alias FProperties = list[FProperty];`
+*  `alias computedInt = int();`
+*  `alias computedReal = real();`
+*  `alias computedNum = num();`
+*  `alias computedStr = str();`
+*  `alias computedColor = Color();`
+
+.Function
+
+.Details
+
+.Description
+All figures may have an (optional) list of properties.
+
+A property:
+
+*  is represented by the type `FProperty`,
+*  has a standard value, unless it is explicitly defined for a figure,
+*  describes a property of the figure in which it is declared, but
+*  the standard value of each property may be redefined for all figures that are contained in a figure.
+
+
+Several properties have variants that act on one or two dimensions. We call them _2D properties_ and use the following naming scheme:
+
+*  `P(num xy)` sets the value for property `P` in both dimensions to the same value `xy`.
+*  `P(num x, num y)` sets the value for property `P` to distinct values `x`, respectively, `y`.
+*  `hP(num x)` sets the horizontal value for property `P` to `x`.
+*  `vP(num y)` sets the vertical value for property `P` to `y`.
+
+
+The properties `width` and `height` are synonyms for `hsize`, respectively, `vsize`.
+
+Most properties have typed arguments but they come in several versions:
+
+*  A version with an argument of type `int`, `real`, `num`, `str` or `Color`. The values of these arguments are computed when the property is constructed, i.e., when the Figure is constructed.
+*  A version with _computed_ argument like `computedInt`, `computedReal`, `computedNum`, `computedStr` or `computedColor`. These are functions that
+  return a value. These functions are called during the _rendering_ of the figure to which this property is attached. In this way, properties
+  can be changed.
+
+
+Properties can be classified as follows:
+
+*  __Sizing__: [$Properties/size], [hsize], [vsize], [grow], [hgrow], [vgrow], [shrink], [hshrink], [vshrink], 
+            <<resizable>>, <<hresizable>>, <<vresizable>>, <<lineWidth>>, <<fontSize>>
+*  __Aligning__: [align], [halign], [valign], [$Properties/bottom], [$Properties/top], [$Properties/center], [hcenter], [vcenter]
+*  __Composing__: [gap], [hgap], [vgap], [startGap], [hstartGap], [vstartGap], [endGap], [hendGap], [vendGap]
+*  __Styling__: [lineColor], [lineStyle], [fillColor] [font], [fontColor], [shadow], [shadowColor], [shadowPos], [hshadowPos], [vshadowPos].
+*  __Interacting__: [resizable], [onMouseDown],[onMouseUp], [onMouseEnter],  [onMouseExit],[mouseOver], [onKeyDown],[onKeyUp].
+
+
+Most properties use dimensions that are _relative_ to their parent or children. The exceptions are
+
+*  [$Properties/size], [hsize] and [vsize] set a __minimal size__ in pixels.
+*  [gap], [hgap] and [vgap] set __a minimal gap size__ in pixels.
+
+
+If the figure in which these properties occur is not <<resizable>>, then the given absolute values are respected.
+Otherwise they act as minimal value and may become larger in the resized figure.
+
+.Examples
+Just a few examples to show the spirit:
+
+*  `size(10, 20)` sets the `size` property to 10 (horizontally), respectively 20 (vertically).
+*  `hsize(10)` sets the `hsize` property to the value 10.
+*  `hsize(int(){return 10;})` sets the `hsize` property to the result of executing the argument function `int(){return 10;}` which is, indeed, not a big deal. This usage becomes more interesting when the argument function returns different values for each call.
+*  `fillColor("blue")` sets the fill color of the current figure.
+*  `std(fillColor("blue"))` sets the standard fill color for the current figure and for all of its children.
+
+
+See the more detailed description of each property for examples. 
+
+The following table specifies which properties have an effect on which figures.
+
+<table>
+<tr><td>X 		<td><<box>>  <td><<button>>  <td><<checkbox>> 	<td><<combo>>  <td><<computeFigure>> 	<td><<ellipse>> <td><<fswitch>> 	<td><<Figures-graph>>  <td><<grid>> <td><<hvcat>> 	<td><<Figures-outline>>  <td><<overlay>>  <td><<pack>><td><<scaleSlider>> <td><<scrollable>>  <td><<space>>  <td><<Figures-text>>  <td><<textfield>> 	<td><<Figures-tree>>  
+<tr><td><<align>>2D		<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		  <td> X			<td> X		<td> X		<td> X			<td> X		
+<tr><td><<aspectRatio>>	<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		  <td> X			<td> X		<td> X		<td> X			<td> 		
+<tr><td><<connect>>2D	<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		   <td> X			<td> X		<td> X		<td> X			<td> X		
+<tr><td><<endGap>>2D		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td> X		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		
+<tr><td><<fillColor>>	<td> X		<td> X		<td> X			<td> X		<td> 			<td> X		<td> 		<td> 		<td> 		<td> 		<td> X		<td> X		<td> 		<td> X		   <td> 			<td> X		<td> 		<td> X			<td> 		
+<tr><td><<font>>		<td> 		<td> X		<td> X			<td> X		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		   <td> 			<td> 		<td> X		<td> X			<td> 		
+<tr><td><<fontBaseline>>	<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> X		<td> 			<td> 		
+<tr><td><<fontColor>>	<td> 		<td> X		<td> X			<td> X		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		   <td> 			<td> 		<td> X		<td> X			<td> 		
+<tr><td><<fontBold>>	<td> 		<td> X		<td> X			<td> X		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		   <td> 			<td> 		<td> X		<td> X			<td> 		
+<tr><td><<fontSize>>	<td> 		<td> X		<td> X			<td> X		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		   <td> 			<td> 		<td> X		<td> X			<td> 		
+<tr><td><<fontItalic>>	<td> 		<td> X		<td> X			<td> X		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> X		   <td> 			<td> 		<td> X		<td> X			<td> 		
+<tr><td><<gap>>2D		<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> X		<td> X		<td> X		<td> 		<td> 		<td> X		<td> 		  <td> 			<td> X		<td> 		<td> 			<td> X		
+<tr><td><<grow>>2D		<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> 		<td> X		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> X		<td> 		<td> 			<td> 		
+<tr><td><<hint>>		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> X		<td>		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		
+<tr><td><<ialign>>		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td>		<td> X		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> X		<td> 			<td> 		
+<tr><td><<id>>		<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		   <td> X			<td> X		<td> X		<td> X			<td> X		
+<tr><td><<justify>>		<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td>		<td> X		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		
+<tr><td><<lineColor>>	<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> X		<td> 		<td> 		<td> X		<td> X		<td> 		<td> 		   <td> 			<td> X		<td> 		<td> 			<td> X		
+<tr><td><<lineStyle>>	<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> X		<td> 		<td> 		<td> X		<td> X		<td> 		<td> 		   <td> 			<td> X		<td> 		<td> 			<td> X		
+<tr><td><<lineWidth>>	<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> X		<td> 		<td> 		<td> X		<td> X		<td> 		<td> 		   <td> 			<td> X		<td> 		<td> 			<td> X		
+<tr><td><<manhattan>>	<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td>		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> X		
+<tr><td><<mouseOver>>	<td> X		<td> 		<td> 			<td> 		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		   <td> X			<td> X		<td> X		<td> 			<td> X		
+<tr><td><<onKeyDown>>	<td> X		<td> 		<td> 			<td> 		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		   <td> X			<td> X		<td> X		<td> 			<td> X		
+<tr><td><<onKeyUp>>	<td> X		<td> 		<td> 			<td> 		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		   <td> X			<td> X		<td> X		<td> 			<td> X		
+<tr><td><<onMouseDown>>	<td> X		<td> 		<td> 			<td> 		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		   <td> X			<td> X		<td> X		<td> 			<td> X		
+<tr><td><<onMouseUp>>	<td> X		<td> 		<td> 			<td> 		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		   <td> X			<td> X		<td> X		<td> 			<td> X		
+<tr><td><<onMouseUp>>	<td> X		<td> 		<td> 			<td> 		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> 		   <td> X			<td> X		<td> X		<td> 			<td> X		
+<tr><td><<orientation>>	<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		
+<tr><td><<resizable>>2D	<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		  <td> X			<td> X		<td> X		<td> X			<td> X		
+<tr><td><<shadow>>		<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> 		<td> 		<td> 		<td> X		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> X		<td> 			<td> 		
+<tr><td><<shadowColor>>	<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> 		<td> 		<td> 		<td> X		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> X		<td> 			<td> 		
+<tr><td><<shadowPos>>2D	<td> X		<td> 		<td> 			<td> 		<td> 			<td> X		<td> 		<td> 		<td> 		<td> 		<td> X		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> X		<td> 			<td> 		
+<tr><td><<shapeClosed>>	<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td>		<td> 		<td> 		<td> X 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		
+<tr><td><<shapeConnected>>	<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td>		<td> 		<td> 		<td> X 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		
+<tr><td><<shapeCurved>>	<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td>		<td> 		<td> 		<td> X 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		
+<tr><td><<shrink>>2D		<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		  <td> X			<td> X		<td> X		<td> X			<td> X		
+<tr><td><<Properties-size>>2D		<td> X		<td> X		<td> X			<td> X		<td> X			<td> X		<td> X		<td> 		<td> X		<td> X		<td> X		<td> X		<td> X		<td> X		   <td> X			<td> X		<td> X		<td> X			<td> X		
+<tr><td><<startGap>>2D	<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td> X		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> 		<td> 			<td> 		
+<tr><td><<textAngle>>	<td> 		<td> 		<td> 			<td> 		<td> 			<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		<td> 		   <td> 			<td> 		<td> X		<td> 			<td> 		
+</table>
+
+.Benefits
+
+*  Values of properties are defined by an _inheritance-like_ approach: values can be nested and more nested declarations overrule more global ones. Default values can be set locally.
+
+.Pitfalls
+
+*  As described above, each argument of a property may be specified in various manners. 
+  To avoid clutter, *we only show the simplest version*, but be aware that all versions are allowed.
+*  A figure may inherit an undesired value for a property; the solution is to redeclare that property locally with the desired value.
+

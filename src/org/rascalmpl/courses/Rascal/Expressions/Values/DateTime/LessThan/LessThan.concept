@@ -1,32 +1,40 @@
-Name: LessThan
+# DateTime LessThan
 
-Synopsis: Less than operator on datetime values.
+.Synopsis
+Less than operator on datetime values.
 
-Syntax:
-`$Exp_1$ < $Exp_2$`
+.Index
+<
 
-Types:
-| `$Exp_1$`      | `$Exp_2$`      | `$Exp_1$ < $Exp_2$` |
-|:---------------|:---------------|:--------------------|
-| `datetime`     |  `datetime`    | `bool`              |
+.Syntax
+`_Exp_~1~ < _Exp_~2~`
 
-Function:
+.Types
 
-Details:
+//
 
-Description:
-Yields `true` if the `datetime` value of $Exp_1$ is earlier in time than the `datetime` value
-of $Exp_2, and `false` otherwise.
+|====
+| `_Exp~1~_`      | `_Exp~2~_`      | `_Exp~1~_ < _Exp~2~_` 
 
-Examples:
-<screen>
-$2010-07-14 < $2010-07-15;
-$2011-07-15 < $2010-07-14;
-</screen>
+| `datetime`     |  `datetime`    | `bool`              
+|====
 
-Benefits:
+.Function
 
-Pitfalls:
+.Details
 
-Questions:
+.Description
+Yields `true` if the `datetime` value of _Exp_~1~ is earlier in time than the `datetime` value
+of _Exp~2~_, and `false` otherwise.
+
+.Examples
+[source,rascal-shell]
+----
+$2010-07-14$ < $2010-07-15$;
+$2011-07-15$ < $2010-07-14$;
+----
+
+.Benefits
+
+.Pitfalls
 

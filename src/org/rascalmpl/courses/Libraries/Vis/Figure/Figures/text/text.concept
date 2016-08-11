@@ -1,0 +1,70 @@
+# text
+
+.Synopsis
+Text.
+
+.Syntax
+
+.Types
+
+.Function
+`Figure text(str s, FProperty props...)`
+
+.Details
+
+.Description
+Creates a text string. The following properties are relevant for text:
+
+*  [font]: determines the name of the font to be used. The default font is "Helvetica".
+*  [fontSize]: determines the point size (in typographic points) of the font. Default is 12.
+*  [fontColor]: determines the color of the font. Default is "Black",
+*  [textAngle]: determines the angle (in degrees) at which text is draw (also see [Angles]). Default is 0.
+
+.Examples
+[source,rascal-figure,width=,height=,file=t1.png]
+----
+                render(text("Rascal"));
+----
+
+image::{concept}/t1.png[alt="text 1"]
+
+
+[source,rascal-figure,width=,height=,file=t2.png]
+----
+                render(text("Rascal", fontSize(20), fontColor("blue")));
+----
+
+image::{concept}/t2.png[alt="text 2"]
+
+
+[source,rascal-figure,width=,height=,file=t3.png]
+----
+                render(box(text("Rascal", fontSize(20), fontColor("blue")), grow(2.0)));
+----
+
+image::{concept}/t3.png[alt="text 3"]
+
+
+[source,rascal-figure,width=,height=,file=t4.png]
+----
+                t1 = text("Rascal", fontSize(20), fontColor("black"));
+t2 = text("Rascal", fontSize(40), fontColor("blue"));
+t3 = text("Rascal", fontSize(60), fontColor("red"));
+render(box(hcat([t1, t2, t3]), gap(10)));
+----
+
+image::{concept}/t4.png[alt="text 4"]
+
+
+[source,rascal-figure,width=,height=,file=t5.png]
+----
+                render(text("Rascal", fontSize(60), fontColor("red"), textAngle(90)));
+----
+
+image::{concept}/t5.png[alt="text 5"]
+
+
+.Benefits
+
+.Pitfalls
+

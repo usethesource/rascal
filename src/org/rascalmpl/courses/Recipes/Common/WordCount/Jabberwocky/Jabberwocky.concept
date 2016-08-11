@@ -1,24 +1,26 @@
-Name: Jabberwocky
+# Jabberwocky
 
-Synopsis: Lewis Carroll's well-known poem.
+.Synopsis
+Lewis Carroll's well-known poem.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
-Examples:
-<listing demo/common/WordCount/Jabberwocky.rsc>
+.Examples
+[source,rascal]
+----
+include::{LibDir}demo/common/WordCount/Jabberwocky.rsc[tags=module]
+----
 
-Benefits:
+                
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

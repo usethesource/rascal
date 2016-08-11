@@ -58,7 +58,8 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 	public boolean isLayout() {
 		return false;
 	}
-
+	
+	
 	static public class MetaVariable extends Tree {
 		private final String name;
 		private final Type type;
@@ -68,6 +69,12 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			this.name = name;
 			this.type = RTF.nonTerminalType(symbol);
 		}
+		
+		@Override
+	    public String toString() {
+	        return super.toString() + "\nVar:" + name + " Type:" + type;
+	    }
+
 
 		@Override
 		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
@@ -117,6 +124,8 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 				return new TypedVariablePattern(ctx, this, type, name);
 			}
 		}
+		
+		
 
 	}
 
@@ -132,6 +141,11 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			this.args = args;
 		}
 
+		@Override
+        public String toString() {
+            return super.toString() + "\nAppl:" + production + " Type:" + type + " Arity: " + args.size();
+        }
+		
 		@Override
 		public Object clone() {
 			return new Appl(production, src, clone(args));
@@ -324,6 +338,11 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
+        public String toString() {
+            return super.toString() + "\nAmb:" + alts.size() + " Type:" + type;
+        }
+		
+		@Override
 		public Object clone() {
 			return new Amb(src, null, clone(alts));
 		}
@@ -386,6 +405,11 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
+        public String toString() {
+            return super.toString() + "\nChar:" + node;
+        }
+		
+		@Override
 		public Object clone() {
 			return new Char(src, node);
 		}
@@ -429,6 +453,11 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			this.node = node;
 		}
 
+		@Override
+        public String toString() {
+            return super.toString() + "\nCycle:" + node + " Length:" + length;
+        }
+		
 		@Override
 		public Object clone() {
 			return new Cycle(src, node, length);

@@ -14,7 +14,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.NavigableMap;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public abstract class FileTree {
 
@@ -28,12 +29,12 @@ public abstract class FileTree {
 
   // perhaps the string could be split into folders and some smart interning
   // but for now, this works.
-  protected final NavigableMap<String, FSEntry> fs;
+  protected final ConcurrentNavigableMap<String, FSEntry> fs;
   protected long totalSize;
   protected IOException throwMe;
 
   public FileTree() {
-    fs = new TreeMap<String, FSEntry>();
+    fs = new ConcurrentSkipListMap<>();;
     totalSize = 0;
     throwMe = null;
   }
@@ -124,7 +125,7 @@ public abstract class FileTree {
     if (throwMe != null) {
       throw throwMe;
     }
-    if (!path.endsWith("/")) {
+    if (!path.endsWith("/") && !path.isEmpty()) {
       path += "/";
     }
 

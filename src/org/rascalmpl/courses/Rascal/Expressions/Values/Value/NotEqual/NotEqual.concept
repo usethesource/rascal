@@ -1,37 +1,51 @@
-Name: NotEqual
+# Value NotEqual
 
-Synopsis: Not equal operator on values.
+.Synopsis
+Not equal operator on values.
 
-Syntax:
-`$Exp_1$ != $Exp_2$`
+.Index
+!=
 
-Types:
-| `$Exp_1$`   | `$Exp_2$` | `$Exp_1$ != $Exp_2$` |
-|:------------|:----------|:---------------------|
-| `value`     |  `value`  | `bool`               |
+.Syntax
+`_Exp_~1~ != _Exp_~2~`
 
-Function:
+.Types
 
-Details:
 
-Description:
+|====
+| `_Exp~1~_`   | `_Exp~2~_` | `_Exp~1~_ != _Exp~2~_` 
+
+| `value`     |  `value`  | `bool`               
+|====
+
+.Function
+
+.Details
+
+.Description
 Yields `true` if both arguments are not identical and `false` otherwise.
 
-Examples:
-<screen>
-// Introduce two variables `X`, `Y` and `Z` and force them to be of type `value`:
+.Examples
+
+Introduce two variables `X`, `Y` and `Z` and force them to be of type `value`:
+[source,rascal-shell,continue]
+----
 value X = "abc";
 value Y = "abc";
 value Z = 3.14;
-// Now compare `X` and `Y` for inequality:
+----
+Now compare `X` and `Y` for inequality:
+[source,rascal-shell,continue]
+----
 X != Y;
-// and `X` and `Z`:
+----
+and `X` and `Z`:
+[source,rascal-shell,continue]
+----
 X != Z;
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

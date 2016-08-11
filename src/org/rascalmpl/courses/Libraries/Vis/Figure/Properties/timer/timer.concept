@@ -1,0 +1,69 @@
+# timer
+
+.Synopsis
+
+Define interactive, time-dependent, behaviour.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty timer (TimerAction (TimerInfo) ti, void () cbb)`
+
+.Details
+
+.Description
+This property allows you to execute a callback `cbb` after a specified time, and also allows you to delay, cancel and restart the timer. 
+
+At the start and after each event (i.e. other callback) the callback `ti` will be called. This callback should have type `TimerAction (TimerInfo)`. The callback is given a `TimerInfo` structure:
+[source,rascal-shell]
+----
+data TimerInfo  = stopped(int timeSinceLast) 
+		| running(int timeLeft);
+----
+
+This indicates if the timer has stopped and the time since the last execution of the timer (in milliseconds, initially 0) or if the timer is running and the time that is still left till the callback `cbb` will be executed.
+
+The callback `ti` must then return a `TimerAction` which indicates what action it want to undertake:
+
+[source,rascal-shell]
+----
+data TimerAction = restart(int delay)
+		 | stop()
+		 | noChange();
+----
+
+*  `restart(int delay)` indicates that the timer is restarted and that the callback `cbb` will be executed `delay` milliseconds from now. This can also be used to delay the timer. 
+*  `stop()` indicates that the timer is cancelled.
+*  `noChange()` indicates that timer no change to the timer. 
+
+.Examples
+[source,rascal-figure,width=150,height=150,file=timer.png]
+----
+                c = false;
+void executeTimer(){
+	c = !c;
+}
+TimerAction timeAction(TimerInfo t){
+        if(stopped(_) := t){
+		return restart(300);
+	} else {
+		return noChange();
+	}
+}
+Color getColor(){
+	return c ? color("red") : color("green");
+}
+e = ellipse(fillColor(getColor), timer(timeAction,executeTimer),shrink(0.5));
+render(e);
+----
+
+image::{concept}/timer.png[alt="timer"]
+
+
+.Benefits
+
+.Pitfalls
+Unfortunately we cannot show an animated version of the figure above, try it out in rascal yourself.
+

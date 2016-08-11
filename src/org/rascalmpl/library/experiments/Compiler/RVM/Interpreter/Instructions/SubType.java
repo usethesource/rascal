@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.BytecodeGenerator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class SubType extends Instruction {
 	
@@ -12,6 +12,8 @@ public class SubType extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSS("insnSUBTYPE");
+		//codeEmittor.emitCallWithArgsPA_A("insnSUBTYPE");
+		
+		codeEmittor.emitInlineSubType();
 	}
 }

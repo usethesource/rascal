@@ -1,0 +1,31 @@
+# center
+
+.Synopsis
+Centered alignment.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty center()`
+
+.Details
+
+.Description
+`center` defines *horizontal and vertical centered alignment*.
+It sets the horizontal and vertical alignment to 0.5.
+
+Note that:
+
+*  `center()` is equivalent to `anchor(0.5, 0.5)`.
+
+
+Also see <<align>> and <<CompositionModel>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

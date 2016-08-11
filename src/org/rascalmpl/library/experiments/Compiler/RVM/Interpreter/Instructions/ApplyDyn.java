@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.BytecodeGenerator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class ApplyDyn extends Instruction {
 	
@@ -20,8 +20,8 @@ public class ApplyDyn extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean dcode){
 		if ( dcode ) 
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall1(opcode.name(), arity);
 		
-		codeEmittor.emitCallWithArgsSSI("insnAPPLYDYN", arity, dcode);
+		codeEmittor.emitCallWithArgsSSI_S("insnAPPLYDYN", arity, dcode);
 	}
 }	

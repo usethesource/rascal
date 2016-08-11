@@ -18,7 +18,8 @@ import IO;
 alias LGraph[&T,&L] = rel[&T from, &L label, &T to];
 
 @doc{
-Synopsis: Return the bottom nodes of a LGraph.
+.Synopsis
+Return the bottom nodes of a LGraph.
 }
 public set[&T] bottom(LGraph[&T,&L] G)
 {
@@ -26,7 +27,8 @@ public set[&T] bottom(LGraph[&T,&L] G)
 }
 
 @doc{
-Synopsis: The predecessors of a single node in a LGraph.
+.Synopsis
+The predecessors of a single node in a LGraph.
 }
 public set[&T] predecessors(LGraph[&T,&L] G, &T From)
 {
@@ -34,7 +36,8 @@ public set[&T] predecessors(LGraph[&T,&L] G, &T From)
 }
 
 @doc{
-Synopsis: Reachability from a given start set of nodes.
+.Synopsis
+Reachability from a given start set of nodes.
 }
 public set[&T] reach(LGraph[&T,&L] G, set[&T] Start)
 {
@@ -42,7 +45,8 @@ public set[&T] reach(LGraph[&T,&L] G, set[&T] Start)
 }
 
 @doc{
-Synopsis: Reachability from given start set of nodes with restrictions.
+.Synopsis
+Reachability from given start set of nodes with restrictions.
 }
 public set[&T] reachR(LGraph[&T,&L] G, set[&T] Start, set[&T] Restr)
 {
@@ -50,7 +54,8 @@ public set[&T] reachR(LGraph[&T,&L] G, set[&T] Start, set[&T] Restr)
 }
 
 @doc{
-Synopsis: Reachability from given start set of nodes with exclusions.
+.Synopsis
+Reachability from given start set of nodes with exclusions.
 }
 public set[&T] reachX(LGraph[&T,&L] G, set[&T] Start, set[&T] Excl)
 {
@@ -58,7 +63,8 @@ public set[&T] reachX(LGraph[&T,&L] G, set[&T] Start, set[&T] Excl)
 }
 
 @doc{
-Synopsis: The successors of a single node in a LGraph.
+.Synopsis
+The successors of a single node in a LGraph.
 }
 public set[&T] successors(LGraph[&T, &L] G, &T From)
 {
@@ -66,7 +72,8 @@ public set[&T] successors(LGraph[&T, &L] G, &T From)
 }
 
 @doc{
-Synopsis: Return the top nodes of a LGraph.
+.Synopsis
+Return the top nodes of a LGraph.
 }
 public set[&T] top(LGraph[&T,&L] G)
 {

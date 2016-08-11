@@ -1,31 +1,37 @@
-Name: Equal
+# Map Equal
 
-Synopsis: Equality operator on maps.
+.Synopsis
+Equality operator on maps.
 
-Syntax:
-`$Exp_1$ == $Exp_2$`
+.Index
+==
 
-Types:
-| `$Exp_1$`            |  `$Exp_2$`             | `$Exp_1$ == $Exp_2$` |
-|:---------------------|:-----------------------|:---------------------|
-| `map[$TK_1$,$TV_2$]` |  `map[$TK_2$, $TV_2$]` | `bool`               |
+.Syntax
+`_Exp_~1~ == _Exp_~2~`
 
-Function:
+.Types
 
-Details:
+|====
+| `_Exp~1~_`            |  `_Exp~2~_`             | `_Exp~1~_ == _Exp~2~_` 
 
-Description:
+| `map[_TK~1~_,_TV~2~_]` |  `map[_TK~2~_, _TV~2~_]` | `bool`               
+|====
+
+.Function
+
+.Details
+
+.Description
 Yields `true` if both arguments contain the same key/value pairs, and `false` otherwise.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 ("apple": 1, "pear": 2) == ("pear": 2, "apple": 1);
 ("apple": 1, "pear": 2) == ("apple": 1, "banana": 3) 
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

@@ -7,8 +7,8 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
  */
 public class Reference {
 	
-	final Object[] stack;
-	final int pos;
+	public final Object[] stack;
+	public final int pos;
 	
 	public Reference(final Object[] stack, final int pos) {
 		this.stack = stack;

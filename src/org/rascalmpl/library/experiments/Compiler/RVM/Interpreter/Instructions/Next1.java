@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.BytecodeGenerator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class Next1 extends Instruction {
 	
@@ -11,6 +11,8 @@ public class Next1 extends Instruction {
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
+		
+		// TODO: implement!
 		codeEmittor.emitDebugCall(opcode.name());
 	}
 }

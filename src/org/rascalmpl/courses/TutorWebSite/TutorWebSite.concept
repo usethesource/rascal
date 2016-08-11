@@ -1,0 +1,23 @@
+# Welcome to the Rascal Tutor
+
+[cols="a,a,a,a"]
+|===
+Beginner          | Moderate | Advanced | General
+
+|
+[square]
+- link:/EASY[EASY]
+- link:/SolutionStrategies[Solution Strategies]
+- link:/CompareWithOtherParadigms[Compare with other Paradigms]
+- link:/Rascalopedia[Rascalopedia]
+- link:/Recipes[Rascal Recipes]
+- link:{Errors}[Explanation of error messages]
+
+|
+[square]
+- link:/Rascal[Rascal Language Reference]
+- link:/Libraries[Rascal Library Reference]
+| TBD
+| TBD
+
+|===

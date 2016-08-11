@@ -3,7 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 public class Coroutine {
 	
 	final Frame start; // Stack frame of the main coroutine function 
-	Frame frame;       // Current active stack frame of the coroutine
+	public Frame frame;       // Current active stack frame of the coroutine
 	
 	public boolean suspended = false;
 	public boolean isInitialized = false;

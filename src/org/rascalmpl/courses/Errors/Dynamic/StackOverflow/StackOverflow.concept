@@ -1,44 +1,33 @@
-Name: StackOverflow
+# StackOverflow
 
-Synopsis: The Rascal runtime stack exceeded its limit.
+.Synopsis
+The Rascal runtime stack exceeded its limit.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function: `data RunTimeException = StackOverflow();`
-Usage: `import Exception;`
+.Function
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 Rascal uses a runtime stack to store the local variables of functions.
 This error is generated when the allocated space for this stack is exhausted.
 The most likely cause is that you have a non-terminating, recursive, function.
 
 Remedies:
+
 * Rewrite the function to avoid non-termination.
 * If the function is correct but (too) deeply  recursive, increase the size of the Java stack:
   ** On the command line: add the arguyment `-Xss1m` to get a stack of 1 Megabyte. 
-     See [Java documentation](http://docs.oracle.com/javase/6/docs/technotes/tools/windows/java.html).
+     See http://docs.oracle.com/javase/6/docs/technotes/tools/windows/java.html[Java documentation].
   ** In Eclipse: in the `eclipse.ini` file add after the line `-vmargs` on a single line the text `-Xss1m`.
-* Catch the `StackOverflow` yourself, see [Rascal:TryCatch].
 
-Examples:
-Here is a naive implementation of factorial that does not terminate and causes a stack oveflow
-(skip over the long stack trace to read more):
-<screen warnings>
-int fac1(int n) = n * fac1(n - 1);
-fac1(10);
-// This can be avoided by properly guarding the recursion:
-int fac2(int n) = n > 0 ? n * fac2(n - 1) : 1;
-fac2(10);
-</screen>
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

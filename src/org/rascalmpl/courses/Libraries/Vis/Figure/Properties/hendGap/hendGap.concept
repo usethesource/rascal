@@ -1,0 +1,23 @@
+# hendGap
+
+.Synopsis
+Horizontal end gap in compositions.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty hendGap(bool g)`
+
+.Details
+
+.Description
+Specifies if a <<hcat>> or <<grid>> will end with (half) a horizontal gap. See also <<endGap>> and <<vendGap>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

@@ -15,11 +15,7 @@ package org.rascalmpl.value.impl.primitive;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
@@ -27,6 +23,9 @@ import org.rascalmpl.value.impl.AbstractValue;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.visitors.IValueVisitor;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 /**
  * This is a container class for a number of implementations of ISourceLocation. Each implementation is extremely similar to the others.
@@ -93,23 +92,15 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 		return new SourceLocationValues.IntIntIntIntIntInt(uri, offset, length, beginLine, endLine, beginCol, endCol);
 	}	
 	
-	private final static Lock locationCacheLock = new ReentrantLock(true);
-	@SuppressWarnings("serial")
-	private final static LinkedHashMap<URI,ISourceLocation>  locationCache = new LinkedHashMap<URI,ISourceLocation>(400*4/3, 0.75f, true) {
-            @Override
-            protected boolean removeEldestEntry(Map.Entry<URI,ISourceLocation> eldest) {
-                return size() > 400;
-            }
-        };
+    private final static Cache<URI, ISourceLocation> locationCache = Caffeine.newBuilder()
+            .expireAfterAccess(5, TimeUnit.MINUTES)
+            .maximumSize(1000)
+            .build();
         
-	private final static Lock reverseLocationCacheLock = new ReentrantLock(true);
-	@SuppressWarnings("serial")
-	private final static LinkedHashMap<IURI,URI>  reverseLocationCache = new LinkedHashMap<IURI,URI>(400*4/3, 0.75f, true) {
-            @Override
-            protected boolean removeEldestEntry(Map.Entry<IURI, URI> eldest) {
-                return size() > 400;
-            }
-        };
+	private final static Cache<IURI,URI>  reverseLocationCache = Caffeine.newBuilder()
+            .expireAfterAccess(5, TimeUnit.MINUTES)
+            .maximumSize(1000)
+            .build();
 	
 	/*package*/ static ISourceLocation newSourceLocation(URI uri) throws URISyntaxException {
 		if (uri.isOpaque()) {
@@ -117,24 +108,20 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 		}
 		
 		try {
-			// lock around the location cache, except if it takes to long to lock, then just skip the cache
-			if (locationCacheLock.tryLock(10, TimeUnit.MILLISECONDS)) {
-				try {
-					ISourceLocation result = locationCache.get(uri);
-					if (result == null) {
-						result = newSourceLocation(uri.getScheme(), uri.getAuthority(), uri.getPath(), uri.getQuery(), uri.getFragment());
-						locationCache.put(uri, result);
-					}
-					return result;
-				}
-				finally {
-					locationCacheLock.unlock();
-				}
-			}
-		} catch (InterruptedException e) {
-		}
-		// we couldn't get the lock, lets continue without cache
-		return newSourceLocation(uri.getScheme(), uri.getAuthority(), uri.getPath(), uri.getQuery(), uri.getFragment());
+            return locationCache.get(uri, u -> {
+                try {
+                    return newSourceLocation(u.getScheme(), u.getAuthority(), u.getPath(), u.getQuery(), u.getFragment());
+                } 
+                catch (URISyntaxException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof URISyntaxException) {
+                throw (URISyntaxException)e.getCause();
+            }
+            throw e;
+        }
 	}
 	
 	/*package*/ static ISourceLocation newSourceLocation(String scheme, String authority,
@@ -220,35 +207,15 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 		
 		@Override
 		public URI getURI() {
-			try {
-				if (reverseLocationCacheLock.tryLock(10, TimeUnit.MILLISECONDS)) {
-					try {
-						URI result = reverseLocationCache.get(uri);
-						if (result == null) {
-							result = uri.getURI();
-							try {
-								// assure correct encoding, side effect of JRE's implementation of URIs
-								result = new URI(result.toASCIIString());
-							} catch (URISyntaxException e) {
-							} 
-							reverseLocationCache.put(uri, result);
-						}
-						return result; 
-					}
-					finally {
-						reverseLocationCacheLock.unlock();
-					}
-				}
-			} catch (InterruptedException e) {
-			}
-			// we could not get the lock, the cache was to busy, lets continue
-			URI result = uri.getURI();
-			try {
-				// assure correct encoding, side effect of JRE's implementation of URIs
-				result = new URI(result.toASCIIString());
-			} catch (URISyntaxException e) {
-			} 
-			return result;
+		    return reverseLocationCache.get(uri, u -> {
+                URI result = u.getURI();
+                try {
+                    // assure correct encoding, side effect of JRE's implementation of URIs
+                    result = new URI(result.toASCIIString());
+                } catch (URISyntaxException e) {
+                } 
+                return result;
+		    });
 		}
 		
 		@Override

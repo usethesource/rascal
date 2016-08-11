@@ -1,54 +1,52 @@
-Name: Tuple
+# Tuple
 
-Synopsis: Tuple values.
+.Synopsis
+Tuple values.
 
-Syntax:
-`< $Exp_1$, $Exp_2$, ... >`
+.Index
+< >
 
-Types:
-| `$Exp_1$`  | `$Exp_2$`  |  ...  | `< $Exp_1$, $Exp_2$, ... >` |
-|:-----------|:-----------|:------|:----------------------------|
-| `$T_1$`    |  $T_2$     | ...   | `tuple[$T_1$, $T_2$, ... ]` |
+.Syntax
+`< _Exp_~1~, _Exp_~2~, ... >`
 
-Function:
+.Types
 
-Details:
 
-Description:
+|====
+| `_Exp~1~_`  | `_Exp~2~_`  |  ...  | `< _Exp~1~_, _Exp~2~_, ... >` 
+
+| `_T~1~_`    |  _T~2~_     | ...   | `tuple[_T~1~_, _T~2~_, ... ]` 
+|====
+
+.Function
+
+.Details
+
+.Description
 A tuple is a sequence of elements with the following properties:
 
-* Each element in a tuple (may) have a different type.
+*  Each element in a tuple (may) have a different type.
 
-* Each element of a tuple may have a label that can be used to select that element of the tuple.
+*  Each element of a tuple may have a label that can be used to select that element of the tuple.
 
-* Each tuple is fixed-width, i.e., has the same number of elements.
+*  Each tuple is fixed-width, i.e., has the same number of elements.
 
 
-Tuples are represented by the type `tuple[$T_1$ $L_1$, $T_2$ $L_2$, ...]`, 
-where $T_1$, $T_2$, ... are arbitrary types and $L_1$, $L_2$, ... are optional labels. 
+Tuples are represented by the type `tuple[_T_~1~ _L_~1~, _T_~2~ _L_~2~, ...]`, 
+where _T_~1~, _T_~2~, ... are arbitrary types and _L_~1~, _L_~2~, ... are optional labels. 
 
-The following functions are provided for tuples:
-<toc Rascal/Expressions/Values/Tuple 1>
+The following operators are provided for tuples:
+subtoc::[1]
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 tuple[str first, str last, int age] P = <"Jo","Jones",35>;
 P.first;
 P.first = "Bo";
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-
-QChoice: For a tuple:
-g: All elements may have different types.
-b: All elements should have the same type.
-g: It's type changes with the number of elements.
-b: It's type does not change with the number of elements.
-g: The order of the elements is relevant.
-b: The order of the elements is not relevant.
-
+.Pitfalls
 

@@ -1,37 +1,49 @@
-Name: Subscription
+# Map Subscription
 
-Synopsis: Retrieve a value by its key in map.
+.Synopsis
+Retrieve a value by its key in map.
 
-Syntax:
-`$Exp_1$ [ $Exp_2$ ]`
+.Index
+[ ]
 
-Types:
-| `$Exp_1$`           | `$Exp_2$` | `$Exp_1$ [ $Exp_2$ ]` |
-|:--------------------|:----------|:----------------------|
-| `map[$T_1$, $T_2$]` | `$T_1$`   | `$T_2$`               |
+.Syntax
+`_Exp_~1~ [ _Exp_~2~ ]`
 
-Function:
+.Types
 
-Details:
+|====
+| `_Exp~1~_`           | `_Exp~2~_` | `_Exp~1~_ [ _Exp~2~_ ]` 
 
-Description:
-Map subscription uses the value of $Exp_2$ as key in the map value of $Exp_1$ and returns the associated value.
+| `map[_T~1~_, _T~2~_]` | `_T~1~_`   | `_T~2~_`               
+|====
+
+.Function
+
+.Details
+
+.Description
+Map subscription uses the value of _Exp_~2~ as key in the map value of _Exp_~1~ and returns the associated value.
 If this key does not occur in the map, the exception `NoSuchKey` is thrown.
 
-Examples:
-<screen errors>
-// Introduce a map, assign it to `colors`, and retrieve the element with index `"trumps"`:
+.Examples
+[source,rascal-shell,error]
+----
+----
+Introduce a map, assign it to `colors`, and retrieve the element with index `"trumps"`:
+[source,rascal-shell,continue,error]
+----
 colors = ("hearts":"red", "clover":"black", 
           "trumps":"black", "clubs":"red");
 colors["trumps"];
-// Explore some erroneous subscription expressions:
+----
+Explore some erroneous subscription expressions:
+[source,rascal-shell,continue,error]
+----
 colors[0];
 colors["square"];
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

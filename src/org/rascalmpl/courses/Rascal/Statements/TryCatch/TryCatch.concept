@@ -1,61 +1,69 @@
-Name: TryCatch
+# Try Catch
 
-Synopsis: Try to execute a statement and catch resulting exceptions.
+.Synopsis
+Try to execute a statement and catch resulting exceptions.
 
-Syntax:
-<listing>
+.Index
+try catch finally
+
+.Syntax
+[source,rascal,subs="quotes"]
+----
 try
-   $Statement_1$;
-catch $PatternWithAction_1$;
-catch $PatternWithAction_2$;
+   _Statement~1~_;
+catch _PatternWithAction~1~_;
+catch _PatternWithAction~2~_;
 ...
-catch: $Statement_2$;
-finally: $Statement_3$;
-</listing>
+catch: _Statement~2~_;
+finally: _Statement~3~_;
+----
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
-A try catch statement has as purpose to catch any [$Prelude/Exception]s that are raised during the execution of $Statement_1$.
+.Description
+A try catch statement has as purpose to catch any link:/Libraries#Prelude-Exception[Exceptions] that are raised 
+during the execution of _Statement_~1~.
 These exceptions may caused by:
 
-* The execution of an explicit [Throw] statement.
+*  The execution of an explicit <<Throw>> statement.
 
-* The Rascal system that discovers an abnormal condition, e.g., an out of bounds error when accessing a list element.
+*  The Rascal system that discovers an abnormal condition, e.g., an out of bounds error when accessing a list element.
 
 
 Note that all elements of the try catch statement are optional but that at least one has to be present. 
 Their meaning is as follows:
 
-* If a pattern of some $PatternWithAction_i$ matches, the corresponding action is executed.
+*  If a pattern of some _PatternWithAction~i~_ matches, the corresponding action is executed.
 
-* Otherwise, $Statement_2$ is executed (when present).
+*  Otherwise, _Statement~2~_ is executed (when present).
 
-* Before leaving the try catch statement $Statement_3$ is always executed (when present).
+*  Before leaving the try catch statement _Statement~3~_ is always executed (when present).
 
-Examples:
-Let's define a variant of the [head] function that returns the first element of a list,
+.Examples
+Let's define a variant of the link:/Libraries#List-head[head] function that returns the first element of a list,
 but throws an exception when the list is empty. Our variant will return `0` for an empty list:
-<screen>
+[source,rascal-shell]
+----
 import List;
 import Exception;
 int hd(list[int] x) { try return head(x); catch: return 0; }
 hd([1,2,3]);
 hd([]);
-// We can also be more specific and catch the `EmptyList` exception
-// (which is available here since we have imported the `Exception` module):
+----
+We can also be more specific and catch the `EmptyList` exception
+(which is available here since we have imported the `Exception` module):
+[source,rascal-shell,continue]
+----
 int hd2(list[int] x) { try return head(x); catch EmptyList(): return 0; }
 hd2([]);
-</screen>
+----
 
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

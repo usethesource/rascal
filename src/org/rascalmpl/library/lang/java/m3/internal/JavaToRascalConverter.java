@@ -4,6 +4,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -57,11 +58,12 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected final boolean collectBindings;
 	
 	protected IListWriter messages;
+    protected final Map<String, ISourceLocation> locationCache;
 
-	JavaToRascalConverter(final TypeStore typeStore, boolean collectBindings) {
+	JavaToRascalConverter(final TypeStore typeStore, Map<String, ISourceLocation> cache, boolean collectBindings) {
 		super(true);
 		this.typeStore = typeStore;
-		this.bindingsResolver = new BindingsResolver(typeStore, collectBindings);
+		this.bindingsResolver = new BindingsResolver(typeStore, cache, collectBindings);
 		this.collectBindings = collectBindings;
 		DATATYPE_RASCAL_AST_TYPE_NODE_TYPE 		= this.typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_TYPE_NODE);
 		DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_MODIFIER_NODE);
@@ -70,25 +72,18 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		this.DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE 	= typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_STATEMENT_NODE);
 		JavaToRascalConverter.DATATYPE_RASCAL_MESSAGE_DATA_TYPE          = typeStore.lookupAbstractDataType(DATATYPE_RASCAL_MESSAGE);
 		JavaToRascalConverter.DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE    = typeStore.lookupConstructor(DATATYPE_RASCAL_MESSAGE_DATA_TYPE, DATATYPE_RASCAL_MESSAGE_ERROR).iterator().next();
+		this.locationCache = cache;
 
 		messages = values.listWriter();
 	}
 	
-	public void set(CompilationUnit compilUnit) {
-		this.compilUnit = compilUnit;
-	}
-	
-	public void set(ISourceLocation loc) {
-		this.loc = loc;
-	}
-	
 	protected ISourceLocation resolveBinding(String packageComponent) {
-		ISourceLocation packageBinding = new BindingsResolver(typeStore, this.collectBindings) {
+		ISourceLocation packageBinding = new BindingsResolver(typeStore, locationCache, this.collectBindings) {
 			public ISourceLocation resolveBinding(String packageC) {
 				try {
 					if (collectBindings) {
-						if (EclipseJavaCompiler.cache.containsKey(packageC)) {
-							return EclipseJavaCompiler.cache.get(packageC);
+						if (locationCache.containsKey(packageC)) {
+							return locationCache.get(packageC);
 						}
 						return values.sourceLocation("java+package", null, packageC);
 					}
@@ -98,12 +93,12 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 				}
 			}
 		}.resolveBinding(packageComponent);
-		EclipseJavaCompiler.cache.put(packageComponent, packageBinding);
+		locationCache.put(packageComponent, packageBinding);
 		return packageBinding;
 	}
 	
 	protected ISourceLocation resolveBinding(CompilationUnit node) {
-		ISourceLocation compilationUnit = new BindingsResolver(typeStore, true) {
+		ISourceLocation compilationUnit = new BindingsResolver(typeStore, locationCache, true) {
 			public ISourceLocation resolveBinding(CompilationUnit node) {
 				return makeBinding("java+compilationUnit", null, loc.getPath());
 			}
@@ -115,7 +110,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected ISourceLocation resolveBinding(IBinding binding) {
 		ISourceLocation resolvedBinding = bindingsResolver.resolveBinding(binding);
 		if (binding != null)
-			EclipseJavaCompiler.cache.put(binding.getKey(), resolvedBinding);
+			locationCache.put(binding.getKey(), resolvedBinding);
 		return resolvedBinding;
 	}
 	
@@ -138,7 +133,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		if (node instanceof CompilationUnit) {
 			return resolveBinding((CompilationUnit) node);
 		}
-		return bindingsResolver.resolveBinding(node);
+		return bindingsResolver.resolveBinding(node, true);
 	}
 	
 	protected ISourceLocation getSourceLocation(ASTNode node) {
@@ -315,4 +310,10 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 			listW.insert(message);
 		}
 	}
+	
+    public void convert(CompilationUnit root, ASTNode node, ISourceLocation loc) {
+        this.compilUnit = root;
+        this.loc = loc;
+        node.accept(this);
+    }
 }

@@ -1,0 +1,40 @@
+# treemap
+
+.Synopsis
+Treemap layout.
+
+.Syntax
+
+.Types
+
+.Function
+`Figure treemap(Figures nodes, FProperty props...)`
+
+.Details
+
+.Description
+Takes a list of nodes and and draws a treemap, see http://en.wikipedia.org/wiki/Treemapping[TreeMapping].
+The nodes can be arbitrary figures and each node should specify its area, through the <<area>> property.
+If the treemapping algorithm assigns a size to a figure that is smaller than its minimal size then a box (with the same properties) is drawn instead of the actual figure.
+
+.Examples
+[source,rascal-figure,width=350,height=400,file=tm1.png]
+----
+                t = treemap([box(area(10),fillColor("green")),
+	     box(area(20),fillColor("red")),
+	     box(text("jada"),area(10)),
+            box(vcat([
+            	text("nested"),
+            	treemap([box(area(5),fillColor("purple")),box(area(10),fillColor("orange"))])
+            ],shrink(0.9)),area(30),fillColor("lightblue"))
+     ]);
+render(t);
+----
+
+image::{concept}/tm1.png[alt="treemap 1"]
+
+
+.Benefits
+
+.Pitfalls
+

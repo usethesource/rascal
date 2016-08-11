@@ -1,48 +1,59 @@
-Name: EmptyList
+# EmptyList
 
-Synopsis: Illegal operation on an empty list.
+.Synopsis
+Illegal operation on an empty list.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 `data RunTimeException = EmptyList();`
        
-Usage: `import Exception;`
+.Usage
 
-Details:
+.Details
 
-Description:
-Rascal provides many operations and functions on lists, see [Rascal:Values/List] and [Rascal:Prelude/List].
+.Description
+Rascal provides many operations and functions on lists, see link:/Rascal#Values-List[list values] 
+and link:/Libraries#Prelude-List[list functions].
 This error is generated when a function or operation cannot handle the empty list.
 
 Remedies:
-* Guard the function or operation with a test on the empty list ([$Rascal:List/isEmpty]) and 
+
+* Guard the function or operation with a test on the empty list (link:/Libraries#List-isEmpty[isEmpty]) and 
   take alternative action in that case.
-* Catch the `EmptyList` yourself, see [Rascal:TryCatch].
+* Catch the `EmptyList` yourself, see link:/Rascal#Statements-TryCatch[try catch].
 
 
-Examples:
-<screen warnings>
-// Import the `List` library and introduce `L` with an empty list as value:
+.Examples
+
+Import the `List` library and introduce `L` with an empty list as value:
+[source,rascal-shell,continue,error]
+----
 import List;
 L = [];
-// Taking the head of an empty list gives an error:
+----
+Taking the head of an empty list gives an error:
+[source,rascal-shell,continue,error]
+----
 head(L);
-// This is the case when taking the tail as well:
+----
+This is the case when taking the tail as well:
+[source,rascal-shell,continue,error]
+----
 tail(L);
-// We can also catch the `EmptyList` error. First import the Rascal exceptions (which are also included in `Prelude`)
-// and `IO`:
+----
+We can also catch the `EmptyList` error. First import the Rascal exceptions (which are also included in `Prelude`)
+and `IO`:
+[source,rascal-shell,continue,error]
+----
 import Exception;
 import IO;
 try println(head(L)); catch EmptyList(): println("Cannot take head of empty list");
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

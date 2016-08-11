@@ -1,0 +1,24 @@
+# vgap
+
+.Synopsis
+Define minimal vertical gap in compositions.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty vgap(num v)`
+
+.Details
+
+.Description
+Set the minimal vertical gap between figures.
+See <<gap>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

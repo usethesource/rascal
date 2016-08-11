@@ -75,6 +75,7 @@ public class MapResult extends ElementResult<IMap> {
 		}
 		IValue v = getValue().get(key.getValue());
 		if (v == null){
+		    System.err.println(getValue());
 			throw RuntimeExceptionFactory.noSuchKey(key.getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		return makeResult(getType().getValueType(), v, ctx);

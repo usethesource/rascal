@@ -1,26 +1,25 @@
-Name: Examples
+# Examples
 
-Synopsis:
+.Synopsis
+
 Examples to illustrate the concept.
 
-Syntax:
-`Examples:  $MarkedText$` (__recommended__)
+.Syntax
+`Examples:  _MarkedText_` (*recommended*)
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 Gives a number of simple but complete examples to illustrate the concepts and its variations.
-Running examples (using [screen]) are preferred.
+Running examples (using <<screen>>) are preferred.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

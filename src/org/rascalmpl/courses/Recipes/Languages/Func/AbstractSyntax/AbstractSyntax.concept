@@ -1,29 +1,31 @@
-Name: AbstractSyntax
+# Abstract Syntax
 
-Synopsis: The abstract syntax for Func.
+.Synopsis
+The abstract syntax for Func.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
-Examples:
+.Examples
 
 Here is the abstract syntax for Func:
-<listing demo/lang/Func/AST.rsc>
+[source,rascal]
+----
+include::{LibDir}demo/lang/Func/AST.rsc[tags=module]
+----
 
-Observe that the abstract syntax follows the structur of the [Func/ConcreteSyntax] but
+                
+Observe that the abstract syntax follows the structur of the <<Func-ConcreteSyntax>> but
 omits details such as operator priorities, parentheses, and the like.
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

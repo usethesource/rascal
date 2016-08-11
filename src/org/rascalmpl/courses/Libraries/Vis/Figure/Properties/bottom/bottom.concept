@@ -1,0 +1,31 @@
+# bottom
+
+.Synopsis
+Bottom alignment.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty bottom()`
+
+.Details
+
+.Description
+`bottom` defines *bottom alignment*.
+It sets the vertical alignment to 1.
+
+Note that:
+
+*  `bottom()` is equivalent to `valign(1.0)`.
+
+
+Also see <<align>>, <<valign>> and <<CompositionModel>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

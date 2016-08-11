@@ -1,0 +1,50 @@
+# ellipse
+
+.Synopsis
+An ellipse.
+
+.Syntax
+
+.Types
+
+.Function
+
+#  `FProperty ellipse(FProperty props...)`
+#  `FProperty ellipse(Figure inner, FProperty props)`
+
+.Details
+
+.Description
+Draw an ellipse using the sizes given in properties `props`. 
+An optional nested figure `fig` may be placed inside the ellipse.
+
+.Examples
+The fragment
+[source,rascal-figure,width=,height=,file=e1.png]
+----
+                e1 = ellipse(width(100), height(50), fillColor("red"));
+render(e1);
+----
+
+will display: 
+image::{concept}/e1.png[alt="ellipse 1"]
+
+
+Nesting, for instance, a box in an ellipse
+[source,rascal-figure,width=,height=,file=e2.png]
+----
+                b1 = box(width(100), height(20), fillColor("yellow"));
+e1 = ellipse(b1, std(gap(20)), fillColor("red"));
+render(e1);
+----
+
+gives:
+
+
+image::{concept}/e2.png[alt="ellipse 2"]
+
+
+.Benefits
+
+.Pitfalls
+

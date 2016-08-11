@@ -1,1 +1,0 @@
-[tvQuestion("Rascal/Libraries/Prelude/List/sum","1",typeOfExpr(),details(" ",["import List;"],"","","sum(\<L\>)","",false,false,[<"L",list(num(-20,20),2,7)>],[],void(),"")),tvQuestion("Rascal/Libraries/Prelude/List/sum","2",valueOfExpr(),details(" ",["import List;"],"","","sum(\<L\>)","",false,false,[<"L",list(int(-20,20),2,7)>],[<"H","sum(\<L\>)">],void(),"\<H\>"))]

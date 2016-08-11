@@ -1,31 +1,34 @@
-Name: NumberedLists
+# NumberedLists
 
-Synopsis:
+.Synopsis
+
 A (possibly nested) list of numbered points.
 
-Syntax:
-# `# $MarkedText$`
-# `## $MarkedText$`
-# `### $MarkedText$`
-# ...
+.Syntax
 
-Types:
+#  `# $MarkedText$`
+#  `## $MarkedText$`
+#  `### $MarkedText$`
+#  ...
 
-Function:
+.Types
 
-Details:
+.Function
 
-Description:
+.Details
+
+.Description
 NumberedLists create, possibly nested, lists of numbered points.
 The number of `#` characters determines the nesting level of a (sub)list.
 
 A list item ends with:
-* the start of a new list item.
-* to consecutive empty lines.
 
-[BulletLists] and NumberedLists can be mixed.
+*  the start of a new list item.
+*  to consecutive empty lines.
 
-Examples:
+<<BulletLists>> and NumberedLists can be mixed.
+
+.Examples
 The input<br>
 
 `# First item.`<br>
@@ -33,8 +36,8 @@ The input<br>
 
 will produce:
 
-# First item.
-# Second item.
+#  First item.
+#  Second item.
 
 
 The input<br>
@@ -46,15 +49,13 @@ The input<br>
 
 will produce:
 
-# First item.
-## First subitem.
-## Second subitem.
-# Second item
+#  First item.
+##  First subitem.
+##  Second subitem.
+#  Second item
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 Do not forget to add two newlines after a NumberedList, otherwise the new paragraph becomes part of the last list item.
-
-Questions:
 

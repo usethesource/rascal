@@ -1,0 +1,377 @@
+# TestVis
+
+.Synopsis
+List of visualization tests (for developers only).
+
+.Syntax
+
+.Types
+
+.Function
+
+.Details
+
+.Description
+
+
+.Examples
+[source,rascal-figure,width=350,height=350,file=test1.png]
+----
+                render(box());
+----
+
+image::{concept}/test1.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test2.png]
+----
+                render(box(shrink(0.5)));
+----
+
+image::{concept}/test2.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test3.png]
+----
+                render(box( fillColor("green")));
+----
+
+image::{concept}/test3.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test4.png]
+----
+                render(box(hshrink(0.7), vshrink(0.2),fillColor("green"), lineColor("red")));
+----
+
+image::{concept}/test4.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test5.png]
+----
+                render(box(box(fillColor("white")), fillColor("mediumblue"), grow(1.5)));
+----
+
+image::{concept}/test5.png[alt="test"]
+
+
+/Unsized blue outer box with black inner text
+[source,rascal-figure,width=350,height=350,file=test6.png]
+----
+                render(box(text("een label"), fillColor("mediumblue"), grow(1.2)));
+----
+
+image::{concept}/test6.png[alt="test"]
+
+
+Unsized blue outer box with white inner text
+
+[source,rascal-figure,width=350,height=350,file=test7.png]
+----
+                render(box(text("een label", fontColor("white")), fillColor("mediumblue"),grow(1.2)));
+----
+
+image::{concept}/test7.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test8.png]
+----
+                render(box(text("een label"),  fillColor("mediumblue"), grow(2.0),shrink(0.7)));
+----
+
+image::{concept}/test8.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test9.png]
+----
+                render(box(box(fillColor("green"), lineColor("red")), grow(2.0,1.5)));
+----
+
+image::{concept}/test9.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test10.png]
+----
+                render(box(box(fillColor("green"), lineColor("red"),left()), grow(2.0,1.5)));
+----
+
+image::{concept}/test10.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test11.png]
+----
+                render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), top(),grow(1.2)), grow(2.0,1.5),resizable(false)));
+----
+
+image::{concept}/test11.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test12.png]
+----
+                render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), bottom(),grow(1.2)), grow(2.0,1.5),resizable(false)));
+----
+
+image::{concept}/test12.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test13.png]
+----
+                render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),grow(1.2)), grow(2.0,1.5),vresizable(false)));
+----
+
+image::{concept}/test13.png[alt="test"]
+
+
+
+[source,rascal-figure,width=350,height=350,file=test14.png]
+----
+                render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),top(),grow(1.2)), grow(2.0,1.5)));
+----
+
+image::{concept}/test14.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test15.png]
+----
+                render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),grow(1.2)), grow(2.0,1.5),width(100.0),height(100.0),hresizable(false)));
+----
+
+image::{concept}/test15.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test16.png]
+----
+                render(box(box(text("label"),fillColor("green"), lineColor("red"),  left(), right(),grow(1.2)), grow(2.0,1.5),width(100.0),height(300.0),resizable(false)));
+----
+
+image::{concept}/test16.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test17.png]
+----
+                render(box(box( fillColor("green"), lineColor("red"), right(), bottom()), grow(1.3),size(300.0,200.0),resizable(false)));
+----
+
+image::{concept}/test17.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test18.png]
+----
+                h = hcat([box(fillColor("mediumblue")),box(fillColor(rgb(0, 0, 205))),box(fillColor(rgb(0, 0, 205, 0.5))),box(fillColor(color("mediumblue",0.5)))],std(lineWidth(2)));
+render(h);
+----
+
+image::{concept}/test18.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test19.png]
+----
+                h = hcat([
+box(fillColor(color("mediumblue", 0.05))),
+box(fillColor(color("mediumblue", 0.2))),
+box(fillColor(color("mediumblue", 0.4))),
+box(fillColor(color("mediumblue", 0.6))),
+box(fillColor(color("mediumblue", 0.8))),
+box(fillColor(color("mediumblue", 1.0)))
+] );
+render(h);
+----
+
+image::{concept}/test19.png[alt="test"]
+
+[source,rascal-figure,width=500,height=200,file=testabc.png]
+----
+                h = hcat([
+	         box(fillColor(gray(125, 0.05))),
+	                 box(fillColor(gray(125, 0.2))),
+	                 box(fillColor(gray(125, 0.4))),
+	                 box(fillColor(gray(125, 0.6))),
+	                 box(fillColor(gray(125, 0.8))),
+	                 box(fillColor(gray(125, 1.0))) 
+	                ]);
+render(h);
+----
+
+image::{concept}/testabc.png[alt="test"]
+
+[source,rascal-figure,width=500,height=200,file=testdef.png]
+----
+                h = hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),top()),
+			        box(vshrink(0.8),top()),
+			        box(shrink(0.1,0.5), fillColor("green"),top())
+			      ],
+			      std(fillColor("yellow")), hgrow(1.1));
+render(h	);
+----
+
+image::{concept}/testdef.png[alt="test"]
+
+[source,rascal-figure,width=350,height=350,file=test21.png]
+----
+                h = hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),bottom()),
+			        box(vshrink(0.8),bottom()),
+			        box(shrink(0.1,0.5), fillColor("green"),bottom())
+			      ],
+			      std(fillColor("yellow")), hgrow(1.1));
+render(h);
+----
+
+image::{concept}/test21.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test22.png]
+----
+                h = hcat(  [ box(vshrink(0.2),hshrink(0.5), fillColor("red"),vcenter()),
+			        box(vshrink(0.8),vcenter()),
+			        box(shrink(0.1,0.5), fillColor("green"),vcenter())
+			      ],
+			      std(fillColor("yellow")), hgrow(1.1));
+render(h);
+----
+
+image::{concept}/test22.png[alt="test"]
+
+[source,rascal-figure,width=350,height=350,file=test23.png]
+----
+                h = hcat(  [ box(size(100,200), fillColor("red")),
+			        box(align(0.5,1.0), size(150,100)),
+			        hcat([box(size(200,50), fillColor("green")),
+			              box(size(50,100), fillColor("yellow"))
+			             ], std(bottom())
+			            )
+			      ],
+			      gap(10),std(top()),std(vresizable(false)));
+render(h);
+----
+
+image::{concept}/test23.png[alt="test"]
+
+[source,rascal-figure,width=350,height=350,file=test24.png]
+----
+                h =hcat(  [ box(size(100,200), fillColor("red")),
+			        box(align(0.5,1.0), size(150,100)),
+			        hcat([box(size(200,50), fillColor("green")),
+			              box(size(50,100), fillColor("yellow"))
+			             ], std(bottom())
+			            )
+			      ],
+			      gap(10),std(vresizable(false))
+		);
+render(h);
+----
+
+image::{concept}/test24.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test25.png]
+----
+                h =hcat(  [ box(align(0.0, 0.1), size(100,100), fillColor("red")),
+			        box(align(0.0, 0.2), size(100,100)),
+			        box(align(0.0, 0.3), size(100,100), fillColor("green")),
+			        box(align(0.0, 0.4), size(100,100), fillColor("yellow"))
+			      ],
+			      gap(10),vsize(200),std(vresizable(false))
+		);
+render(h);
+----
+
+image::{concept}/test25.png[alt="test"]
+
+
+
+[source,rascal-figure,width=350,height=350,file=test26.png]
+----
+                h =vcat( [ box(size(100,200), fillColor("red")),
+			       box(size(150, 100), fillColor("blue")),
+			       box(size(200,50), fillColor("green"))
+			     ],
+			     std(left()), gap(2),std(resizable(false))
+		);
+render(h);
+----
+
+image::{concept}/test26.png[alt="test"]
+
+
+
+[source,rascal-figure,width=350,height=350,file=test27.png]
+----
+                h =vcat( [ box(size(100,200), fillColor("red")),
+			       vcat([ box(size(150,100)),
+			              box(size(50,50)),  
+			              box(size(30,30))
+			            ],
+			            std(right())),
+			       box(size(200,50), fillColor("green"))
+			      ],
+			      gap(10),std(left()),std(resizable(false))
+		);
+render(h);
+----
+
+image::{concept}/test27.png[alt="test"]
+
+
+
+[source,rascal-figure,width=350,height=350,file=test28.png]
+----
+                h =hcat([ box(size(100,250), fillColor("red")),
+	              vcat([ hcat( [ box(size(50, 100), fillColor("blue")),
+			                     box(size(100, 50), fillColor("blue"))
+			                   ],
+			                   std(vcenter())),
+			             box(size(250,50), fillColor("green"))
+			           ],
+			           std(right()), gap(30)),
+			      box(size(100,100), fillColor("yellow"))
+			    ],
+			    std(bottom()), gap(10),std(resizable(false)));
+render(h);
+----
+
+image::{concept}/test28.png[alt="test"]
+
+
+
+
+[source,rascal-figure,width=350,height=350,file=test30.png]
+----
+                h =overlay([ box(shrink(0.5,0.3), fillColor("green")), 
+         box(shrink(0.3,0.5) ,fillColor("red"))
+       ],
+       std(center()));
+render(h);
+----
+
+image::{concept}/test30.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test31.png]
+----
+                h =overlay( [ box(size(100,250), fillColor("red")),
+  vcat([ box(size(150,100)),
+         box(size(50,50)),  
+         box(size(30,30))
+       ],
+       std(right())), 
+ box(size(150,5), fillColor("green"))
+],
+gap(10),std(left()),std(resizable(false)));
+render(h);
+----
+
+image::{concept}/test31.png[alt="test"]
+
+
+[source,rascal-figure,width=350,height=350,file=test32.png]
+----
+                render(ellipse(text("een label", fontColor("white")),fillColor("mediumblue"), grow(1.2)));
+----
+
+image::{concept}/test32.png[alt="test"]
+
+
+.Benefits
+
+.Pitfalls
+

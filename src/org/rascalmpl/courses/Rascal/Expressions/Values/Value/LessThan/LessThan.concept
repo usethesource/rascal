@@ -1,45 +1,59 @@
-Name: LessThan
+# Value LessThan
 
-Synopsis: Less than operator on values.
+.Synopsis
+Less than operator on values.
 
-Syntax:
-`$Exp_1$ < $Exp_2$`
+.Index
+<
 
-Types:
-| `$Exp_1$` | `$Exp_2$` | `$Exp_1$ < $Exp_2$` |
-|:----------|:----------|:---------------------|
-| `value`   |  `value`  | `bool`               |
+.Syntax
+`_Exp_~1~ < _Exp_~2~`
 
-Function:
-
-Details:
-
-Description:
-By brute force, a total less than operator between two values $V_1$ and $V_2$ of arbitrary types $T_1$ and $T_2$ is defined:
-
-* If the types $T_1$ and $T_2$ can be compared then $V_1$ less than $V_2$ is used.
-
-* Otherwise values are ordered according their type name, for instance, `int` is smaller than `list`, and `map` is smaller than `rel`.
+.Types
 
 
-Less than yields `true` if the value of $Exp_1$ is strictly less
-than (according to the ordering defined above) the value of $Exp_2$, and `false` otherwise.
+|====
+| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ < _Exp~2~_` 
 
-Examples:
-<screen>
-// Introduce two variables `X`, `Y` and `Z` and force them to be of type `value`:
+| `value`   |  `value`  | `bool`               
+|====
+
+.Function
+
+.Details
+
+.Description
+By brute force, a total less than operator between two values _V_~1~ and _V_~2~ of arbitrary types _T_~1~ and _T_~2~ is defined:
+
+*  If the types _T~1~_ and _T~2~_ can be compared then _V~1~_ less than _V~2~_ is used.
+
+*  Otherwise values are ordered according their type name, for instance, `int` is smaller than `list`, and `map` is smaller than `rel`.
+
+
+Less than yields `true` if the value of _Exp_~1~ is strictly less
+than (according to the ordering defined above) the value of _Exp_~2~, and `false` otherwise.
+
+.Examples
+
+Introduce two variables `X`, `Y` and `Z` and force them to be of type `value`:
+[source,rascal-shell,continue]
+----
 value X = "abc";
 value Y = "def";
 value Z = 3.14;
-// Now compare `X` and `Y`:
+----
+Now compare `X` and `Y`:
+[source,rascal-shell,continue]
+----
 X < Y;
-// and `X` and `Z`:
+----
+and `X` and `Z`:
+[source,rascal-shell,continue]
+----
 X < Z;
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

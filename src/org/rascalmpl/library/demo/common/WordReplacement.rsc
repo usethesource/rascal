@@ -8,13 +8,14 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 //START
+// tag::module[]
 module demo::common::WordReplacement
 
 import String;
 
 // capitalize: convert first letter of a word to uppercase
 
-str capitalize(str word)  /*1*/
+str capitalize(str word) // <1>
 {
    if(/^<letter:[a-z]><rest:.*$>/ := word){
      return toUpperCase(letter) + rest;
@@ -30,7 +31,7 @@ test bool capitalize2() = capitalize("rascal") == "Rascal";
 
 // Version 1: capAll1: using a while loop
 
-str capAll1(str S)        /*2*/
+str capAll1(str S) // <2>
 {
  result = "";
  while (/^<before:\W*><word:\w+><after:.*$>/ := S) { 
@@ -44,11 +45,12 @@ test bool tstCapAll1() =  capAll1("turn this into a title") == "Turn This Into A
 
 // Version 2: capAll2: using visit
 
-str capAll2(str S)        /*3*/
+str capAll2(str S) // <3>
 {
    return visit(S){
    	case /^<word:\w+>/i => capitalize(word)
    };
 }
+// end::module[]
 
 test bool tstCapAll2() = capAll2("turn this into a title") == "Turn This Into A Title";

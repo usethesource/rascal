@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2015 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.asserts;
 
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -23,9 +24,17 @@ public final class Ambiguous extends AssertionError {
 
 	public Ambiguous(ITree tree) {
 		super("Ambiguous code (internal error), " + TreeAdapter.yield(tree, 100));
-		this.loc = (ISourceLocation) TreeAdapter.getAlternatives(tree).iterator().next().asAnnotatable().getAnnotation("loc");
+		this.loc = computeLocation(tree);
 		this.tree = tree;
 	}
+
+    private ISourceLocation computeLocation(ITree tree) {
+        ISourceLocation tmp = (ISourceLocation) TreeAdapter.getAlternatives(tree).iterator().next().asAnnotatable().getAnnotation("loc");
+        if (tmp == null) {
+            return URIUtil.rootLocation("unknown");
+        }
+        return tmp;
+    }
 	
 	public Ambiguous(ISourceLocation loc) {
 		super("Ambiguous code (internal error)");

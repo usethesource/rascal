@@ -41,13 +41,13 @@ import experiments::Compiler::Rascal2muRascal::RascalExpression;
 /********************************************************************/
 
 @doc{Compile a parsed Rascal source module to muRascal}
-MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true){
+MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true, bool optimize = true, bool enableAsserts=false){
    try {
-      resetModuleInfo();
+      resetModuleInfo(optimize, enableAsserts);
       module_name = "<M.header.name>";
       setModuleName(module_name);
       setModuleTags(translateTags(M.header.tags));
-      if(verbose) println("r2mu: entering ... <module_name>");
+      //if(verbose) println("r2mu: entering ... <module_name>");
    	  
    	  // Extract scoping information available from the configuration returned by the type checker  
    	  extractScopes(config); 
@@ -61,16 +61,21 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  	  ( AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int containedIn, loc at) := config.store[uid]
    	  	  || AbstractValue::production(RName name, Symbol \type, int containedIn, Production p, loc at) := config.store[uid] 
    	  	  ),
+   	  	  //bprintln(config.store[uid]), bprintln(config.store[containedIn].at.path), bprintln(at.path),
    	  	  !isEmpty(getSimpleName(name)),
    	  	  containedIn == 0, 
-   	  	  config.store[containedIn].at.path == at.path // needed due to the handling of 'extend' by the type checker
+   	  	  ( config.store[containedIn].at.path == at.path // needed due to the handling of 'extend' by the type checker
+   	  	  || at.path  == "/ConsoleInput.rsc"             // TODO: hack to get the RascalShell working, since config.store[0].at.path
+   	  	                                                 // "/experiments/Compiler/Compile.rc"???
+   	  	  )
    	  	);
-   	  	
+   	  //for(tname <- types) println("<tname>: <types[tname]>");	
+   	  
    	  // Generate companion functions for 
    	  // (1) keyword fields in constructors
    	  // (2) common keyword fields in data declarations
-      generateCompanions(config, verbose=verbose);
-   	 				  
+      generateCompanions(M, config, verbose=verbose);
+   	 
    	  translateModule(M);
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
@@ -109,29 +114,36 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  				  {<prettyPrintName(rn1), prettyPrintName(rn2)> | <rn1, rn2> <- config.importGraph},
    	  				  M@\loc);
 
-   } 
-   //catch Java("ParseError","Parse error"): {
-   //	   return errorMuModule(getModuleName(), {error("Syntax errors in module <M.header.name>", M@\loc)}, M@\loc);
-   //} 
-   catch e: {
-        return errorMuModule(getModuleName(), {error("Unexpected exception <e>", M@\loc)}, M@\loc);
+   }
+   catch ParseError(loc l): {
+        if (verbose) println("Parse error in concrete syntax <l>; returning error module");
+        return errorMuModule(getModuleName(), {error("Parse error in concrete syntax fragment", l)}, M@\loc);
+   }
+   catch value e: {
+        return errorMuModule(getModuleName(), {error("Unexpected compiler exception <e>", M@\loc)}, M@\loc);
    }
    finally {
-   	   resetModuleInfo();
+   	   resetModuleInfo(optimize, enableAsserts);
    	   resetScopeExtraction();
    }
    throw "r2mu: cannot come here!";
 }
 
-void generateCompanions(Configuration config, bool verbose = true){
+void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true){
 
-   set[str] seenCommonDataFields = {};  // record for which common data fields we have generated a companion
+   set[str] seenCommonDataFields = {};  // remember for which common data fields we have already generated a companion
  
    // Generate companion functions  constructors with keyword fields or common keyword fields     
    // This enables evaluation of potentially non-constant default expressions and semantics of implicit keyword arguments
                 
-   for(int uid <- config.store, AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, 0, constructorLoc) := config.store[uid], allKwFields := getAllKeywordFields(uid), !isEmpty(allKwFields)) {
-       //println("*** Creating companion for <uid>");
+   for(int uid <- config.store, 
+       AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int scopeIn, constructorLoc) := config.store[uid], 
+       //bprintln("<uid>: <name>: <constructorLoc>, <M@\loc> <constructorLoc < M@\loc>, <constructorLoc.path == M@\loc.path>"),
+       //constructorLoc.path == M@\loc.path,
+       allKwFields := getAllKeywordFields(uid), 
+       //bprintln(allKwFields), 
+       !isEmpty(allKwFields)) {
+        //println("*** Creating companion for <uid>");
          
        map[RName,Symbol] allKWFieldsAndTypes = getAllKeywordFieldsAndTypes(uid);
         
@@ -159,7 +171,7 @@ void generateCompanions(Configuration config, bool verbose = true){
         * Create companion for computing the values of defaults
         */
         
-       //println("*** Creating defaults companion for <uid>");
+      // println("*** Creating defaults companion for <uid>");
         
        str fuidDefaults = getCompanionDefaultsForUID(uid);
 
@@ -170,9 +182,10 @@ void generateCompanions(Configuration config, bool verbose = true){
        enterFunctionScope(fuidDefaults);
          
        list[MuExp] kwps = [ muAssign("map_of_default_values", fuidDefaults, defaults_pos, muCallMuPrim("make_mmap_str_entry",[])) ];
-       allKWFieldsAndDefaults = getAllKeywordFieldDefaults(uid);
+       //allKWFieldsAndDefaults = getAllKeywordFieldDefaults(uid);
+       allKWFieldsAndDefaultsInModule = getAllKeywordFieldDefaultsInModule(uid, M@\loc.path);
         
-       for(<RName kwf, value defaultVal> <- allKWFieldsAndDefaults) {
+       for(<RName kwf, value defaultVal> <- allKWFieldsAndDefaultsInModule) {
            if(Expression defaultExpr := defaultVal /*&& (defaultExpr@\loc < constructorLoc)*/){
               kwps += muCallMuPrim("mmap_str_entry_add_entry_type_ivalue", 
                                    [ muVar("map_of_default_values",fuidDefaults,defaults_pos), 
@@ -183,6 +196,8 @@ void generateCompanions(Configuration config, bool verbose = true){
        }
          
        MuExp bodyDefaults =  muBlock(kwps + [ muReturn1(muVar("map_of_default_values",fuidDefaults,defaults_pos)) ]);
+       //println("Generating function <fuidDefaults>");
+       //iprintln(bodyDefaults);
        
        leaveFunctionScope();
        addFunctionToModule(muFunction(fuidDefaults, name.name, ftype, (addrDefaults.fuid in moduleNames) ? "" : addrDefaults.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefaults));                                             
@@ -192,9 +207,9 @@ void generateCompanions(Configuration config, bool verbose = true){
         */
          
        //println("**** Create companions per common data field");
-       //println("Number of default fields: <size(allKWFieldsAndDefaults)>");
+       //println("Number of default fields: <size(allKWFieldsAndDefaultsInModule)>");
        
-       dataKWFieldsAndDefaults = [<kwf, defaultExpr> | <kwf, defaultVal> <- allKWFieldsAndDefaults, 
+       dataKWFieldsAndDefaults = [<kwf, defaultExpr> | <kwf, defaultVal> <- allKWFieldsAndDefaultsInModule, 
                                                       Expression defaultExpr := defaultVal,
                                                       !(defaultExpr@\loc < constructorLoc)];
        
@@ -239,7 +254,7 @@ void generateCompanions(Configuration config, bool verbose = true){
          
                MuExp bodyDefault =  muBlock(kwps);
          
-               //iprintln(bodyDefault);
+              // iprintln(bodyDefault);
          
                leaveFunctionScope();
                addFunctionToModule(muFunction(fuidDefault, prettyPrintName(mainKwf), ftype, (addrDefault.fuid in moduleNames) ? "" : addrDefault.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefault));                                             
@@ -279,9 +294,12 @@ private default void importModule(Import imp){
 /********************************************************************/
  
 private void generate_tests(str module_name, loc src){
-   code = muBlock([ muCallPrim3("testreport_open", [], src), *getTestsInModule(), muReturn1(muCallPrim3("testreport_close", [], src)) ]);
-   ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
-   name_testsuite = "<module_name>_testsuite";
-   main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
-   addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, "" /*in the root*/, 2, 2, false, true, src, [], (), false, 0, 0, code));
+   testcode = getTestsInModule();
+   if(!isEmpty(testcode)){
+      code = muBlock([ muCallPrim3("testreport_open", [], src), *testcode, muReturn1(muCallPrim3("testreport_close", [], src)) ]);
+      ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
+      name_testsuite = "<module_name>_testsuite";
+      main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
+      addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, "" /*in the root*/, 2, 2, false, true, src, [], (), false, 0, 0, code));
+   }
 }

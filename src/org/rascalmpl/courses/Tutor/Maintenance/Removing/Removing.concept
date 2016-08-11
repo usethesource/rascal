@@ -1,30 +1,29 @@
-Name: Removing
+# Removing
 
-Synopsis: Remove a concept from a course.
+.Synopsis
+Remove a concept from a course.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
-There is no built-in mechanism for renaming a concept. The manual steps to be taken to remove a concept $C$
+.Description
+There is no built-in mechanism for renaming a concept. The manual steps to be taken to remove a concept _C_
 are therefore:
-* Goto to the relevant subdirectory of `org/rascalmpl/courses` and locate the concept directory $C$ to be removed.
-* Remove $C$ using the commands of the version control system.
-* Recompile the course.
 
-Examples:
+*  Goto to the relevant subdirectory of `org/rascalmpl/courses` and locate the concept directory $C$ to be removed.
+*  Remove $C$ using the commands of the version control system.
+*  Recompile the course.
 
-Benefits:
+.Examples
 
-Pitfalls:
+.Benefits
 
-Questions:
+.Pitfalls
 
-       

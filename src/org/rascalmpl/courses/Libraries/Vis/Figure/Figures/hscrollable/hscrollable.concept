@@ -1,0 +1,35 @@
+# hscrollable
+
+.Synopsis
+Embed a figure in a horizontally scrollable plane.
+
+.Syntax
+
+.Types
+
+.Function
+`Figure hscrollable(Figure f, FProperty props ...)`
+
+.Details
+
+.Description
+Embeds figure `f` in a scrollable plane. The full height of `f` will always be shown, but if the horizontal space for the hscrollable is too small to show the entire figure `f` then a horizontal scrollbar will appear. The minimal height of the `hscrollable` is the minimal height of the figure `f` plus the height of a horizontal scrollbar, and the minimal width is the minimal width required to show a horizontal scrollbar (unless the minimal size is specified by <<Properties-size>>).
+
+Also see <<scrollable>> and <<vscrollable>>.
+
+.Examples
+[source,rascal-figure,width=250,height=250,file=s1.png]
+----
+                box1 = box(hsize(2000), fillColor("Blue"));
+sb = hscrollable(box1,shrink(0.5));
+render(box(sb,fillColor("red")));
+----
+
+image::{concept}/s1.png[alt="s1"]
+
+
+.Benefits
+
+.Pitfalls
+When rendering on-screen the figure is always displayed in a scrollable area. Thus using a scrollable as a top level figure makes little sense, as there is no observable difference between `render(hscrollable(g))` and `render(g)`. In both cases horizontal as well as vertical scrollbars may appear.
+

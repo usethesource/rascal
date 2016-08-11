@@ -1,32 +1,39 @@
-Name: Conditional
+# Value Conditional
 
-Synopsis: Conditional expression on values.
+.Synopsis
+Conditional expression on values.
 
-Syntax:
-`$Exp_1$ ? $Exp_2$ : $Exp_3$`
+.Index
+? :
 
-Types:
-| `$Exp_1$`  | `$Exp_2$` | `$Exp_3$` | `$Exp_1$ ? $Exp_2$ : $Exp_3$` |
-|:-----------|:----------|:----------|-------------------------------|
-|   `bool`   | `$T_2$`   | `$T_3$`   | `lub($T_2$,$T_3$)`            |
+.Syntax
+`_Exp_~1~ ? _Exp_~2~ : _Exp_~3~`
 
-Function:
+.Types
 
-Details:
 
-Description:
-Yields the value of $Exp_2$ if the value of $Exp_1$ is `true` and the value of $Exp_3$ otherwise.
-The result type is the _least upper bound_ (also known as `lub`, see [$Declarations/StaticTyping]) of the types of $Exp_2$ and $Exp_3$.
+|====
+| `_Exp~1~_`  | `_Exp~2~_` | `_Exp~3~_` | `_Exp~1~_ ? _Exp~2~_ : _Exp~3~_` 
 
-Examples:
-<screen>
+|   `bool`   | `_T~2~_`   | `_T~3~_`   | `lub(_T~2~_,_T~3~_)`            
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields the value of _Exp_~2~ if the value of _Exp_~1~ is `true` and the value of _Exp_~3~ otherwise.
+The result type is the _least upper bound_ (also known as `lub`, see <<Declarations-StaticTyping, Static Typing>>) of the types of _Exp_~2~ and _Exp_~3~.
+
+.Examples
+[source,rascal-shell]
+----
 ( 3 > 2 ) ? 30 : 40;
 ( 3 < 2 ) ? "abc" : {3, 4};
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

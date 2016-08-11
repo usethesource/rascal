@@ -15,7 +15,7 @@ public class ProfileCompiled extends Profile {
 	
 	public void startProfile(RascalExecutionContext rex){
 		if(profileCollector == null){
-			profileCollector = new ProfileFrameObserver(rex.getStdOut());
+			profileCollector = new ProfileFrameObserver(null);
 		}
 		profileCollector.startObserving();
 	}

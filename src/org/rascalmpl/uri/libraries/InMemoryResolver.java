@@ -15,11 +15,12 @@ package org.rascalmpl.uri.libraries;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.NavigableMap;
+import java.util.concurrent.ConcurrentNavigableMap;
 
 import org.rascalmpl.uri.FileTree;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
@@ -50,7 +51,7 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
     private final String scheme;
     
     private final class InMemoryFileTree extends FileTree { 
-        public NavigableMap<String, FSEntry> getFileSystem() {
+        public ConcurrentNavigableMap<String, FSEntry> getFileSystem() {
             return fs;
         }
     }
@@ -95,37 +96,43 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 			throws IOException {
 		File file = get(uri);
 		if (file == null) {
-			System.err.println(this + " getInputStream: null");
-			throw new IOException();
+			throw new FileNotFoundException();
 		}
-		//System.err.println(this + " getInputStream: " + uri + "?" + file.lastModified);
 		return new ByteArrayInputStream(file.contents);
 	}
 
 	@Override
 	public OutputStream getOutputStream(ISourceLocation uri, boolean append)
 			throws IOException {
-		//System.err.println(this + " getOutputStream " + uri);
-		return new ByteArrayOutputStream() {
+		ByteArrayOutputStream result = new ByteArrayOutputStream() {
 			@Override
 			public void close() throws IOException {
-				super.close();
 				File file = get(uri);
+				byte[] content = this.toByteArray();
 				if (file == null) {
 				    file = new File();
 				    fileSystem.getFileSystem().put(uri.getPath(), file);
 				}
-				file.newContent(this.toByteArray());
-				//System.err.println(this + " getOutputStream.close " + uri + "?" + file.lastModified);
+				file.newContent(content);
+				super.close();
 			}
 		};
+	    if (append) {
+			File file = get(uri);
+			if (file == null) {
+			    throw new FileNotFoundException();
+			}
+			// load data to write, makes the closing code simpler
+			result.write(file.contents);
+	    }
+	    return result;
 	}
 	
 	@Override
 	public long lastModified(ISourceLocation uri) throws IOException {
 		File file = get(uri);
 		if (file == null) {
-			throw new IOException();
+			throw new FileNotFoundException();
 		}
 		return file.lastModified;
 	}

@@ -1,0 +1,24 @@
+# fontBold
+
+.Synopsis
+
+Define if text should be rendered bold.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty fontBold(bool b)`
+
+.Details
+
+.Description
+See also <<fontItalic>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

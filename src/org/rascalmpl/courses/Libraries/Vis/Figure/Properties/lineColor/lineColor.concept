@@ -1,0 +1,44 @@
+# lineColor
+
+.Synopsis
+Defines the line color.
+
+.Syntax
+
+.Types
+
+.Function
+
+#  `FProperty lineColor(Color c)`
+#  `FProperty lineColor(str cname)`
+
+.Details
+
+.Description
+Sets the color of lines and figure boundaries:
+
+#  Set color to `c`.
+#  Set color to color with name `cname`.
+
+
+Also see <<ColorModel>>
+
+.Examples
+[source,rascal-figure,width=,height=,file=lc1.png]
+----
+                b1 = box([size(50), lineColor("Red")]);
+b2 = box([size(50), lineColor("Blue")]);
+b3 = box([size(50), lineColor("Green")]);
+b4 = box([size(50), lineColor("Purple")]);
+boxes = [b1, b2, b3, b4];
+render(hcat(boxes));
+----
+gives:
+
+image::{concept}/lc1.png[alt="h1"]
+
+
+.Benefits
+
+.Pitfalls
+

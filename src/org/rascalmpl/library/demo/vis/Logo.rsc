@@ -8,6 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Jeroen van den Bos - Jeroen.van.den.Bos@cwi.nl (CWI)}
 //START
+// tag::module[]
 module demo::vis::Logo
 
 import vis::Figure;
@@ -268,7 +269,7 @@ public list[int] LogoData = [
 int width = 50;
 int height = 50;
 
-public Figure logo(){
+Figure logo(){
 	list[list[Figure]] boxes;
 	boxes = for(i <- [0..height]){
 		        append for(j <- [0..width]){
@@ -278,6 +279,7 @@ public Figure logo(){
 	return grid(boxes,aspectRatio(1.0));
 }
 
-public void renderLogo() {
+void renderLogo() {
   render(logo());
 }
+// end::module[]

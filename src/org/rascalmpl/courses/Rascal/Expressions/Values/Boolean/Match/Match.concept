@@ -1,43 +1,39 @@
-Name: Match
+# Boolean Match
 
-Synopsis: Match a pattern against an expression.
+.Synopsis
+Match a pattern against an expression.
 
-Syntax:
-`$Pat$ := $Exp$`
+.Index
+:=
 
-Types:
-| `$Pat$`   | `$Exp$` |`$Pat$ := $Exp$`|
-|:----------|:--------|:---------------|
-| [Patterns] | `value` | `bool`        |
+.Syntax
+`_Pat_ := _Exp_`
 
-Function:
+.Types
 
-Details:
+//
 
-Description:
-See [PatternMatching] for an introduction to pattern matching and [Patterns] for a complete description.
+|====
+| `_Pat_`      | `_Exp_` |`_Pat_ := _Exp_`
 
-Examples:
-<screen>
+| <<Patterns>> | `value` | `bool`        
+|====
+
+.Function
+
+.Details
+
+.Description
+See <<Pattern Matching>> for an introduction to pattern matching and <<Patterns>> for a complete description.
+
+.Examples
+[source,rascal-shell]
+----
 123 := 456;
-[10, N*, 50] := [10, 20, 30, 40, 50];
-{10, set[int] S, 50} := {50, 40, 30, 30, 10};
-</screen>
-Benefits:
+[10, *n, 50] := [10, 20, 30, 40, 50];
+{10, *int n, 50} := {50, 40, 30, 30, 10};
+----
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-QValue:
-desc: Determine the number of strings that contain "a".
-list:
-text = ["andra", "moi", "ennepe", "Mousa", "polutropon"];
-public int count(list[str] text){
-  n = 0;
-  for(s <- text)
-    if(<?> := s)
-      n +=1;
-  return n;
-}
-test: count(text) == 2;

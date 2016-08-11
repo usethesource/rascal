@@ -1,7 +1,8 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.BytecodeGenerator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 
 public class CheckArgTypeAndCopy extends Instruction {
 	
@@ -25,9 +26,11 @@ public class CheckArgTypeAndCopy extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) {
-			codeEmittor.emitDebugCall(opcode.name());
-			codeEmittor.emitCallWithArgsSSFIII("insnCHECKARGTYPEANDCOPY",pos1,type,pos2,debug);
+			codeEmittor.emitDebugCall2(opcode.name(), Integer.toString(pos1), type);
 		}
-		codeEmittor.emitInlineCheckArgTypeAndCopy(pos1,type,pos2,debug) ;
+		
+		// TODO: determine which version is better
+		codeEmittor.emitCallWithArgsSSFIII_A("insnCHECKARGTYPEANDCOPY", pos1,type,pos2,debug);
+		//codeEmittor.emitInlineCheckArgTypeAndCopy(pos1,type,pos2,debug) ;
 	}
 }

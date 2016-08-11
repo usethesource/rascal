@@ -47,6 +47,7 @@ import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ConstructorFunction extends NamedFunction {
 	protected final Type constructorType;
+	private Type kwTypes = null; // cache
 	private final List<KeywordFormal> initializers;
 
 	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType, List<KeywordFormal> initializers) {
@@ -171,6 +172,10 @@ public class ConstructorFunction extends NamedFunction {
 	
 	@Override
 	public Type getKeywordArgumentTypes(Environment env) {
+	    if (kwTypes != null) {
+	        return kwTypes;
+	    }
+	    
 		Type kwTypes = functionType.getKeywordParameterTypes();
 		ArrayList<Type> types = new ArrayList<>();
 		ArrayList<String> labels = new ArrayList<>();
@@ -191,7 +196,8 @@ public class ConstructorFunction extends NamedFunction {
 		
 		Type[] typeArray = types.toArray(new Type[0]);
 		String[] stringArray = labels.toArray(new String[0]);
-		return TypeFactory.getInstance().tupleType(typeArray, stringArray);
+		kwTypes = TypeFactory.getInstance().tupleType(typeArray, stringArray);
+		return kwTypes;
 	}
 	
 	

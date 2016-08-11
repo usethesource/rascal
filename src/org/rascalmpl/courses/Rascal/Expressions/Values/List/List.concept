@@ -1,149 +1,69 @@
-Name: List
+# List
 
-Synopsis: List values.
+.Synopsis
+List values.
 
-Syntax:
-`[ $Exp_1$, $Exp_2$, ... ]`
+.Index
+[ ]
 
-Types:
-|  `$Exp_1$` |  `$Exp_2$` |  ...  |  `[ $Exp_1$, $Exp_2$, ... ]`   |
-|:-----------|:-----------|:------|:-------------------------------|
-| `$T_1$`    | `$T_2$`    |  ...  |  `list[lub($T_1$, $T_2$, ... )]` |
+.Syntax
+`[ _Exp_~1~, _Exp_~2~, ... ]`
 
-Usage: `import List`; (included in [Prelude])
+.Types
 
-Function:
+//
 
-Details:
+[cols="20,20,20,40"]
+|====
+|  `_Exp~1~_` |  `_Exp~2~_` |  ...  |  `[ _Exp~1~_, _Exp~2~_, ... ]`   
 
-Description:
+| `_T~1~_`    | `_T~2~_`    |  ...  |  `list[lub(_T~1~_, _T~2~_, ... )]` 
+|====
+
+.Usage
+
+.Function
+
+.Details
+
+.Description
 A list is an ordered sequence of values and has the following properties:
-* All elements have the same static type.
-* The order of the elements matters.
-* A list may contain an element more than once.
+
+*  All elements have the same static type.
+*  The order of the elements matters.
+*  A list may contain an element more than once.
 
 
-The type of a list has the form `list[$T$]`,
-where `$T$` is an arbitrary type.
+The type of a list has the form `list[_T_]`,
+where `_T_` is an arbitrary type.
 
 When a value or variable of type list occurs inside a list, that list value is inserted as list element.
 To achieve _splicing_ of these elements, i.e., the insertion of the elements of the list value rather than the whole list,
 it has to be prefixed by the splice operator `*`.
 
 The following operators are provided on list:
-<toc Rascal/Expressions/Values/List 1>
+subtoc::[1]
 
-The following functions are provided for lists:
-<toc Rascal/Libraries/Prelude/List 1>
+There are also link:/Libraries#Prelude-List[library functions] available for List.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 [1, 2, 3];
 [<1,10>, <2,20>, <3,30>];
 [1, "b", 3];
 [<"a",10>, <"b",20>, <"c",30>];
 [["a", "b"], ["c", "d", "e"]];
-</screen>
+----
 List splicing works as follows: by prefixing `L` by the splice operator, its elements are included as elements in the enclosing list:
-<screen>
+[source,rascal-shell]
+----
 L = [1, 2, 3];
 [10, L, 20];
 [10, *L, 20];
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-
-QChoice: The type of a list is determined by:
-g: The least upper bound of the type of all elements.
-g: The types of all the elements in the list.
-b: The type of the element that was first added to the list.
-b: The average of the type of the elements with the smallest and the largest type.
-b: The least upper bound of the type of two arbitrary elements.
-b: The type of two arbitrary elements.
-
-
-QValue:
-desc: Fill in the missing operator.
-make: B = arb[int[0,100],str]
-make: A = list[same[B]]
-expr: C = <A> + <B>
-hint: Use +.
-test: <A> <?> <B> == <C>
-
-QValue:
-desc: Fill in the missing operator.
-prep: import Set;
-make: DIFF = set[int[0,100]]
-make: A = same[DIFF]
-make: B = same[DIFF]
-expr: A1 = toList(<DIFF> + <A>)
-expr: B1 = toList(<B> + <DIFF>)
-expr: C =  <A1> - <B1>
-hint: Use -.
-test: <A1> <?> <B1> == <C>
-
-QValue:
-desc: Fill in the missing operator.
-prep: import List;
-make: A = list[int[0,100]]
-expr: B = reverse(<A>)
-expr: C =  <A> == <B>
-hint: Use ==.
-test: (<A> <?> <B>) == <C>
-
-QValue:
-desc: Fill in the missing operator.
-prep: import Set;
-make: DIFF = set[int[0,100],str]
-make: A = same[DIFF]
-make: B = same[DIFF]
-expr: A1 = toList(<DIFF> + <A>)
-expr: B1 = toList(<B> + <DIFF>)
-expr: C =  <A1> & <B1>
-hint: Use &.
-test: <A1> <?> <B1> == <C>
-
-QValue:
-desc: Fill in the missing operator.
-prep: import Set;
-make: ELM = int[0,100]
-make: A = set[same[ELM]]
-expr: A1 = toList( {<ELM>} + <A>)
-expr: C =  <ELM> in <A1>
-hint: Use in.
-test: <ELM> <?> <A1> == <C>
-
-QValue:
-desc: Fill in the missing operator.
-prep: import Set;
-make: DIFF = set[int[0,100]]
-make: A = same[DIFF]
-expr: A1 = toList(<A>)
-expr: B = toList(<A> + <DIFF>)
-expr: C =  <A1> < <B>
-hint: <C>
-test: <A1> <?> <B> == <C>
-
-
-QValue:
-desc: Fill in the missing operator.
-make: A = list[arb[int,str]]
-make: B = same[A]
-expr: C = <A> + <B>
-hint: Use +.
-test: <A> <?> <B> == <C>
-
-QValue:
-desc: Fill in the missing operator.
-prep: import Set;
-make: ELM = int[0,10]
-make: A = list[same[ELM]]
-expr: C =  <ELM> notin <A>
-hint: Use notin.
-test: <ELM> <?> <A> == <C>
-
+.Pitfalls
 

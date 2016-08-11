@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.BytecodeGenerator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 import org.rascalmpl.value.ISourceLocation;
 
 public class Throw extends Instruction {
@@ -20,7 +20,8 @@ public class Throw extends Instruction {
 	}
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if (debug)
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall1(opcode.name(), codeblock.getConstantIndex(src));
+		
 		// TODO add source lines.
 		codeEmittor.emitInlineThrow(debug);
 	}

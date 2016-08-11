@@ -1,0 +1,36 @@
+# onMouseEnter
+
+.Synopsis
+
+Define interactive behaviour when the mouse pointer enters the figure.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty onMouseEnter(void () cb)`
+
+.Details
+
+.Description
+Execute callback `cb` when the mouse pointer enters the figure. See also <<onMouseExit>>.
+
+.Examples
+[source,rascal-figure,width=300,height=300,file=mouseenter.png]
+----
+                c = false; 
+b = box(fillColor(Color () { return c ? color("red") : color("green"); }),
+	onMouseEnter(void () { c = true; }), onMouseExit(void () { c = false ; })
+	,shrink(0.5));
+render(b);
+----
+
+image::{concept}/mouseenter.png[alt="mouseenter"]
+
+
+.Benefits
+
+.Pitfalls
+Unfortunately we cannot show an interactive version here, try it out in Rascal yourself.
+

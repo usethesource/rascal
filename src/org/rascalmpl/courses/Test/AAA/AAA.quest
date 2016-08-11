@@ -1,1 +1,0 @@
-[tvQuestion("Test/AAA","1",typeOfExpr(),details(" ",[],"","","\<A:set[arb[int,str,real]]\>","",false,false,[<"A",set(arb(0,[int(-20,20),str(),real(-20,20)]),1,5)>],[],void(),"")),tvQuestion("Test/AAA","2",typeOfExpr(),details(" ",[],"","","{1, "," }",false,true,[],[],set(int(-20,20),1,5),"one or more integer values separated by commas"))]

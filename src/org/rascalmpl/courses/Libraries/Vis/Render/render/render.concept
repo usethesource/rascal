@@ -1,0 +1,29 @@
+# render
+
+.Synopsis
+Render a figure on screen.
+
+.Syntax
+
+.Types
+
+.Function
+
+#  `void render(Figure fig)`
+#  `void render(str name, Figure fig)`
+
+.Details
+
+.Description
+Renders figure `fig` on a canvas. Inside Eclipse a new tabbed pane is created.
+
+When `name` is given, it is shown on the tab of the pane and in the window title.
+If a figure tab with `name` already exists, it will be reused.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+Only works inside Eclipse.
+

@@ -1,0 +1,75 @@
+# align
+
+.Synopsis
+Alignment of figure relative to parent.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty align(num h, num v)`
+
+.Details
+
+.Description
+Defines the horizontal and vertical alignment of a figure relative to its parents.
+Alignments range from 0 (left, top) to 1 (right, bottom) as follows:
+
+
+image::{concept}/Align.png[width="400px" style="float: center;" ,alt="Align"]
+
+
+Alignments can be set per dimension by <<halign>>, respectively, <<valign>>.
+
+Note that:
+
+*  `align(hv)` is equivalent to `halign(hv), valign(hv)`.
+*  `align(h, v)` is equivalent to `halign(h), valign(v)`.
+
+
+A number of shorthands is provided for common alignment values:
+
+|====
+| Shorthand   | Corresponds to    | See                  |
+|:------------|:------------------|:---------------------|
+| `left()`    | `halign(0.0)`     | [Properties/left]    |
+| `hcenter()` | `halign(0.5)`     | [Properties/hcenter] |
+| `right()`   | `halign(1.0)`     | [Properties/right]   |
+| `top()`     | `valign(0.0)`     | [Properties/top]     |
+| `vcenter()` | `valign(0.5)`     | [Properties/vcenter] |
+| `bottom()`  | `valign(1.0)`     | [Properties/bottom]  |
+| `center()`  | `align(0.5, 0.5)` | [Properties/center]  |
+|====
+
+
+
+Also see <<CompositionModel>>.
+
+.Examples
+[source,rascal-figure,width=150,height=150,file=a1.png]
+----
+                b1 = box(shrink(0.5,0.3), align(0,0), fillColor("Red"));
+b2 = box(b1);
+render(b2);
+----
+
+
+image::{concept}/a1.png[alt="a1"]
+
+
+[source,rascal-figure,width=150,height=150,file=a2.png]
+----
+                b1 = box(shrink(0.5,0.3), align(1,1),fillColor("Red"));
+b2 = box(b1);
+render(b2);
+----
+
+
+image::{concept}/a2.png[alt="a2"]
+
+
+.Benefits
+
+.Pitfalls
+

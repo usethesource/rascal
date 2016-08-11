@@ -1,41 +1,42 @@
-Name: Literal
+# Literal Pattern
 
-Synopsis: Literal in abstract pattern.
+.Synopsis
+Literal in abstract pattern.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
-A literal of one of the basic types [$Values/Boolean], [$Values/Integer], [$Values/Real], [$Values/Number], [$Values/String], [$Values/Location], or [$Values/DateTime]
+A literal of one of the basic types <<Values-Boolean>>, <<Values-Integer>>, <<Values-Real>>, <<Values-Number>>, <<Values-String>>, <<Values-Location>>, or <<Values-DateTime>>
 can be used as abstract pattern.
 A literal pattern matches with a value that is identical to the literal.
 
-Examples:
+.Examples
 A literal pattern matches with a value that is equal to it:
-<screen>
+[source,rascal-shell]
+----
 123 := 123
 "abc" := "abc"
-</screen>
+----
 A literal pattern does not match with a value that is not equal to it:
-<screen>
+[source,rascal-shell]
+----
 123 := 456
 "abc" := "def"
-</screen>
+----
 A literal pattern should be of the same type as the subject it is matched with:
-<screen errors>
+[source,rascal-shell,error]
+----
 123 := "abc";
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

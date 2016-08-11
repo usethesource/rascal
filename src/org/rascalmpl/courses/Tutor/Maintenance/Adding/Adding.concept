@@ -1,36 +1,35 @@
-Name: Adding
+# Adding
 
-Synopsis: Add a concept to a course
+.Synopsis
+Add a concept to a course
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 
 There are basically two scenarios for adding a new concept, depending on where its contents come from.
 If the concept is going to be completely contained in the course itself:
-* Select a concept that is suitable as parent for the new concept:
-* Click the `New Subconcept` button.
-* An editing windows is opened: add the name and other information about the new concept.
-* Press the `Save` button. The new concept is now part of the course.
+
+*  Select a concept that is suitable as parent for the new concept:
+*  Click the `New Subconcept` button.
+*  An editing windows is opened: add the name and other information about the new concept.
+*  Press the `Save` button. The new concept is now part of the course.
 
 
 If the concept involves remote content (i.e., the concepts are described in rascallibrary files),
-then a [ConceptMapping] has to be added as explained in [SourceCodeMarkup].
+then a <<ConceptMapping>> has to be added as explained in <<SourceCodeMarkup>>.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

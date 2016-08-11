@@ -1,25 +1,24 @@
-Name: Italic
+# Italic
 
-Synopsis:
+.Synopsis
+
 Create _italic_ text.
 
-Syntax:
-`_ $Text$ _`
+.Syntax
+`_ _Text_ _`
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
-Examples:
+.Examples
 `_italic_` gives: _italic_.
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

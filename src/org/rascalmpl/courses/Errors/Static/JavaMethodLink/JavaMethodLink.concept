@@ -1,61 +1,64 @@
-Name: JavaMethodLink
+# JavaMethodLink
 
-Synopsis: Cannot link to a Java method.
+.Synopsis
+Cannot link to a Java method.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 Rascal functions can be implemented in Java. This is the case for many functions in the standard library.
 This requires these elements:
-* An abstract Rascal function declaration (= a function header without a body).
-* The keyword `java` should be part of the function header.
-* The function declaration is annotated (uing `javaClass`) with the name of the Java class that implements this function.
+
+*  An abstract Rascal function declaration (= a function header without a body).
+*  The keyword `java` should be part of the function header.
+*  The function declaration is annotated (uing `javaClass`) with the name of the Java class that implements this function.
 
 
 This error is generated when the Java implementation cannot be found. Most likely, this is a missing or misspelled Java class name.
 It is also generated when the function declaration _does_ have a body.
 
 Remedy: Contact the Rascal developers:
-* Ask a question at [Rascal Ask site](http://ask.rascal-mpl.org/questions/).
-* Read the currently open issues at the Rascal's [issue tracker](https://github.com/cwi-swat/rascal/issues?state=open). If your problem has not yet been reported by someone else, please report it here.
+
+*  Ask a question at [Rascal Ask site](http://ask.rascal-mpl.org/questions/).
+*  Read the currently open issues at the Rascal's [issue tracker](https://github.com/cwi-swat/rascal/issues?state=open). If your problem has not yet been reported by someone else, please report it here.
 
 
 If you are an expert developer and have implemented your own extension in Java, please check your own extension code first.
 
-Examples:
+.Examples
 This is how the `size` function on lists is declared in the Rascal library:
-<screen>
+[source,rascal-shell]
+----
 @javaClass{org.rascalmpl.library.Prelude}
 public java int size(list[&T] lst);
-</screen>
+----
 
 Misspelling the class name will generate the JavaMethodLink error:
-<screen warning>
+[source,rascal-shell,error]
+----
 @javaClass{org.rascalmpl.library.Preludexxx}
 public java int size(list[&T] lst);
-</screen>
+----
 The same error message is generated if the function declaration contains a body:
-<screen warning>
+[source,rascal-shell,error]
+----
 @javaClass{org.rascalmpl.library.Preludexxx}
 public java int size(list[&T] lst){
   return 0;
 }
-</screen>
+----
 
 
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

@@ -1,3 +1,4 @@
+// tag::module[]
 module demo::lang::Func::Func
 
 lexical Ident =  [a-zA-Z][a-zA-Z0-9]* !>> [a-zA-Z0-9];
@@ -41,3 +42,4 @@ syntax Exp = let: "let" {Binding ","}* "in" Exp "end"
            right seq: Exp ";" Exp; 
 
 syntax Binding = binding: Ident "=" Exp;
+// end::module[]

@@ -1,51 +1,40 @@
-Name: in
+# List in
 
-Synopsis: Membership test on list elements.
+.Synopsis
+Membership test on list elements.
 
-Syntax:
-`$Exp_1$ in $Exp_2$`
+.Index
+in
 
-Types:
-| `$Exp_1$`           |  `$Exp_2$`      | `$Exp_1$ in $Exp_2$` |
-|:--------------------|:----------------|:---------------------|
-| `$T_1$`  <: `$T_2$` |  `list[$T_2$]`  | `bool`               |
+.Syntax
+`_Exp_~1~ in _Exp_~2~`
 
-Function:
+.Types
 
-Details:
+//
 
-Description:
-Yields `true` if the value of $Exp_1$ occurs as element in the value of $Exp_2$ and `false` otherwise. 
-The type of $Exp_1$ should be compatible with the element type of $Exp_2$.
+|====
+| `_Exp~1~_`           |  `_Exp~2~_`      | `_Exp~1~_ in _Exp~2~_` 
 
-Examples:
-<screen>
+| `_T~1~_`  <: `_T~2~_` |  `list[_T~2~_]`  | `bool`              
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields `true` if the value of _Exp_~1~ occurs as element in the value of _Exp_~2~ and `false` otherwise. 
+The type of _Exp_~1~ should be compatible with the element type of _Exp_~2~.
+
+.Examples
+[source,rascal-shell]
+----
 2 in [1, 2, 3];
 4 in [1, 2, 3];
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-
-QType: <A:arb[int,str,bool]> in <B:list[same[A]]>
-
-QValue:
-prep: import Set;
-make: ELM = int[0,100]
-make: A = set[same[ELM]]
-expr: A1 = toList( {<ELM>} + <A>)
-expr: C =  <ELM> in <A1>
-hint: <C>
-test: <ELM> in <A1> == <?>
-
-QValue:
-prep: import Set;
-make: ELM = int[0,10]
-make: A = list[same[ELM]]
-expr: C =  <ELM> in <A>
-hint: <C>
-test: <ELM> in <A> == <?>
+.Pitfalls
 

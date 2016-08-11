@@ -1,8 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.interpreter.StackTrace;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
@@ -205,9 +202,7 @@ public class RascalRuntimeException {
 	}
 	
 	public static Thrown noSuchAnnotation(String label, Frame currentFrame) {
-		Thrown res = Thrown.getInstance(VF.constructor(NoSuchAnnotation, VF.string(label)), currentFrame);
-		res.printStackTrace(System.out);
-		return res;
+		return Thrown.getInstance(VF.constructor(NoSuchAnnotation, VF.string(label)), currentFrame);
 	}
 
 	public static Thrown noSuchKey(IValue v, Frame currentFrame) {

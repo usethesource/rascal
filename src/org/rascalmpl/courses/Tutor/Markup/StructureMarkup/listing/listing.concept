@@ -1,27 +1,30 @@
-Name: listing
+# listing
 
-Synopsis:
+.Synopsis
+
 Markup for a code listing.
 
-Syntax:
-# `<listing> $RascalCode$ </listing>`
-# `<listing $FileName$>`
+.Syntax
 
-Types:
+#  `<listing> $RascalCode$ </listing>`
+#  `<listing $FileName$>`
 
-Function:
+.Types
 
-Details:
+.Function
 
-Description:
+.Details
+
+.Description
 A listing shows Rascal code without executing it. A listing can be of the following kinds:
-# _inline_: the Rascal code appears between the `<listing>` and `</listing>` brackets.
-# _file_: the Rascal code is copied from a named file.
+
+#  _inline_: the Rascal code appears between the `<listing>` and `</listing>` brackets.
+#  _file_: the Rascal code is copied from a named file.
   To avoid that lengthy legal information, contributor lists, and the like appear
   in the listings in the course, all lines occuring before a line containing `//START` are removed before inclusion.
   If such a line is missing, the complete file is included.
 
-Examples:
+.Examples
 The input:<br>
 
 `<listing>`<br>
@@ -30,23 +33,26 @@ The input:<br>
 
 will produce:
 
-<listing>
+[source,rascal]
+----
 x = 3;
-</listing>
+----
 
 The input:<br>
 `<listing demo/Hello.rsc>`
 
 will produce.
-<listing demo/basic/Hello.rsc>
+[source,rascal]
+----
+include::{LibDir}demo/basic/Hello.rsc[]
+----
 
+                
 Compared with the source file, all lines before `//START` have been removed.
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 Do not make the lines in a listing too long since they will not be wrapped.
 Not more than 60 characters is a rule of thumb.
-
-Questions:
 

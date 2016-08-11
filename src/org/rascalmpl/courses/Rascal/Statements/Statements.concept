@@ -1,29 +1,28 @@
-Name: Statements
+# Statements
 
-Synopsis:
+.Synopsis
 All Rascal statements.
 
+.Syntax
 
-Syntax:
+.Types
 
-Types:
+.Function
 
-Function:
+.Details
 
-Details:
-
-Description:
+.Description
 
 The following statements are available:
-<toc Rascal/Statements 1>
+subtoc::[1]
 
-![Statement Types](statement-parts.png|500px|right)
 
-Examples:
+image::{concept}/statement-parts.png[width="500px" style="float: right;" ,alt="Statement Types"]
 
-Benefits:
 
-Pitfalls:
+.Examples
 
-Questions:
+.Benefits
+
+.Pitfalls
 

@@ -1,0 +1,60 @@
+# CompositionModel
+
+.Synopsis
+The model for composing figures.
+
+.Syntax
+
+.Types
+
+.Function
+
+.Details
+
+.Description
+The Figure library uses the following model for the composition of figures:
+
+
+image::{concept}/CompositionModel.png[width="400px" style="float: center;" ,alt="Composition Model"]
+
+
+The ingredients are:
+
+*  [Properties/size] determines the _minimal_ horizontal and vertical size of a figure. Sizes can be set separately per dimension using [hsize] (synonym [width]) or [vsize] (synonym: [height]). Figures can never become smaller than their minimal size.
+*  [shrink] determines how much smaller a figure is relative to its parent size. Shrink can also be set per dimension using [hshrink] or [vshrink].
+*  [grow] determines how much larger a figure is relative to its child size. Grow can also be set per dimension using [hgrow] or [vgrow].
+*  [align] determines the alignment of a figure relative to its parent. Alignment can also be set per dimension using [halign] or [halign].
+
+
+A number of shorthands is provided for common alignment values:
+
+
+|====
+| Shorthand   | Corresponds to     | See                  |
+|:------------|:-------------------|:---------------------|
+| `left()`    | `halign(0.0)`     | [Properties/left]    |
+| `hcenter()` | `halign(0.5)`     | [Properties/hcenter] |
+| `right()`   | `halign(1.0)`     | [Properties/right]   |
+| `top()`     | `valign(0.0)`     | [Properties/top]     |
+| `vcenter()` | `valign(0.5)`     | [Properties/vcenter] |
+| `bottom()`  | `valign(1.0)`     | [Properties/bottom]  |
+| `center()`  | `align(0.5, 0.5)` | [Properties/center]  |
+|====
+
+
+
+The following units are used:
+
+*  sizes are expressed in pixels, i.e., screen points.
+*  align, grow and shrink are expressed as percentage of width and/or height and have a value between 0.0 and 1.0.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
+*  Although sizes are traditionally used to determine the size of geometric figures, it is better to use relative sizes using `grow`, `shrink` and `align` since this makes figures resizable.
+
+*  [resizable] can be used to control the resizing behaviour of a figure.
+

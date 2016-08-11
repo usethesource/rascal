@@ -46,7 +46,6 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
-import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
@@ -67,78 +66,106 @@ public class BindingsResolver {
 	private final Map<ISourceLocation, Integer> initializerCounter = new HashMap<ISourceLocation, Integer>();
 	private final Map<Initializer, ISourceLocation> initializerLookUp = new HashMap<>();
 	
-  private org.rascalmpl.value.type.Type typeSymbol;
+    private org.rascalmpl.value.type.Type typeSymbol;
+    private final Map<String, ISourceLocation> locationCache;
+    private final boolean debug = false;
 	
-	BindingsResolver(final TypeStore store, boolean collectBindings) {
+	BindingsResolver(final TypeStore store, Map<String, ISourceLocation> cache, boolean collectBindings) {
 		this.collectBindings = collectBindings;
 		this.store = store;
+		this.locationCache = cache;
 	}
 	
-	public ISourceLocation resolveBinding(ASTNode node) {
-		if (collectBindings) {
-			if (node instanceof TypeDeclaration) {
-        return resolveBinding(((TypeDeclaration) node).resolveBinding());
-      } else if (node instanceof EnumDeclaration) {
-        return resolveBinding(((EnumDeclaration) node).resolveBinding());
-      } else if (node instanceof AnnotationTypeDeclaration) {
-        return resolveBinding(((AnnotationTypeDeclaration) node).resolveBinding());
-      } else if (node instanceof AnnotationTypeMemberDeclaration) {
-        return resolveBinding(((AnnotationTypeMemberDeclaration) node).resolveBinding());
-      } else if (node instanceof AnonymousClassDeclaration) {
-        return resolveBinding(((AnonymousClassDeclaration) node).resolveBinding());
-      } else if (node instanceof EnumConstantDeclaration) {
-        return resolveBinding(((EnumConstantDeclaration) node).resolveVariable());
-      } else if (node instanceof ClassInstanceCreation) {
-        return resolveBinding(((ClassInstanceCreation) node).resolveConstructorBinding());
-      } else if (node instanceof FieldAccess) {
-        return resolveBinding(((FieldAccess) node).resolveFieldBinding());
-      } else if (node instanceof MethodInvocation) {
-        return resolveBinding(((MethodInvocation) node).resolveMethodBinding());
-      } else if (node instanceof QualifiedName) {
-        return resolveQualifiedName((QualifiedName) node);
-      } else if (node instanceof SimpleName) {
-        return resolveBinding(((SimpleName) node).resolveBinding());
-      } else if (node instanceof SuperFieldAccess) {
-        return resolveBinding(((SuperFieldAccess) node).resolveFieldBinding());
-      } else if (node instanceof SuperMethodInvocation) {
-        return resolveBinding(((SuperMethodInvocation) node).resolveMethodBinding());
-//      } else if (node instanceof Expression) {
-//        return resolveBinding(((Expression) node).resolveTypeBinding());
-      } else if (node instanceof MemberRef) {
-        return resolveBinding(((MemberRef) node).resolveBinding());
-      } else if (node instanceof MethodDeclaration) {
-        return resolveBinding(((MethodDeclaration) node).resolveBinding());
-      } else if (node instanceof MethodRef) {
-        return resolveBinding(((MethodRef) node).resolveBinding());
-      } else if (node instanceof PackageDeclaration) {
-        return resolveBinding(((PackageDeclaration) node).resolveBinding());
-      } else if (node instanceof Type) {
-        return resolveBinding(((Type) node).resolveBinding());
-      } else if (node instanceof TypeParameter) {
-        return resolveBinding(((TypeParameter) node).resolveBinding());
-      } else if (node instanceof VariableDeclaration) {
-    	VariableDeclaration n = (VariableDeclaration) node;
+	public ISourceLocation resolveBinding(ASTNode node, boolean tryHard) {
+	    if (collectBindings) {
+	        if (node instanceof TypeDeclaration) {
+	            return resolveBinding(((TypeDeclaration) node).resolveBinding());
+	        } else if (node instanceof EnumDeclaration) {
+	            return resolveBinding(((EnumDeclaration) node).resolveBinding());
+	        } else if (node instanceof AnnotationTypeDeclaration) {
+	            return resolveBinding(((AnnotationTypeDeclaration) node).resolveBinding());
+	        } else if (node instanceof AnnotationTypeMemberDeclaration) {
+	            return resolveBinding(((AnnotationTypeMemberDeclaration) node).resolveBinding());
+	        } else if (node instanceof AnonymousClassDeclaration) {
+	            return resolveBinding(((AnonymousClassDeclaration) node).resolveBinding());
+	        } else if (node instanceof EnumConstantDeclaration) {
+	            return resolveBinding(((EnumConstantDeclaration) node).resolveVariable());
+	        } else if (node instanceof ClassInstanceCreation) {
+	            return resolveBinding(((ClassInstanceCreation) node).resolveConstructorBinding());
+	        } else if (node instanceof FieldAccess) {
+	            return resolveFieldAccess((FieldAccess) node);
+	        } else if (node instanceof MethodInvocation) {
+	            return resolveBinding(((MethodInvocation) node).resolveMethodBinding());
+	        } else if (node instanceof QualifiedName) {
+	            return resolveQualifiedName((QualifiedName) node);
+	        } else if (node instanceof SimpleName) {
+	            return resolveSimpleName(node, tryHard);
+	        } else if (node instanceof SuperFieldAccess) {
+	            return resolveBinding(((SuperFieldAccess) node).resolveFieldBinding());
+	        } else if (node instanceof SuperMethodInvocation) {
+	            return resolveBinding(((SuperMethodInvocation) node).resolveMethodBinding());
+	        } else if (node instanceof MemberRef) {
+	            return resolveBinding(((MemberRef) node).resolveBinding());
+	        } else if (node instanceof MethodDeclaration) {
+	            return resolveBinding(((MethodDeclaration) node).resolveBinding());
+	        } else if (node instanceof MethodRef) {
+	            return resolveBinding(((MethodRef) node).resolveBinding());
+	        } else if (node instanceof PackageDeclaration) {
+	            return resolveBinding(((PackageDeclaration) node).resolveBinding());
+	        } else if (node instanceof Type) {
+	            return resolveBinding(((Type) node).resolveBinding());
+	        } else if (node instanceof TypeParameter) {
+	            return resolveBinding(((TypeParameter) node).resolveBinding());
+	        } else if (node instanceof VariableDeclaration) {
+	            return resolveVariable(node);
+	        } else if (node instanceof ConstructorInvocation) {
+	            return resolveBinding(((ConstructorInvocation) node).resolveConstructorBinding());
+	        } else if (node instanceof SuperConstructorInvocation) {
+	            return resolveBinding(((SuperConstructorInvocation) node).resolveConstructorBinding());
+	        } else if (node instanceof TypeDeclarationStatement) {
+	            return resolveBinding(((TypeDeclarationStatement) node).resolveBinding());
+	        } else if (node instanceof Initializer) {
+	            return resolveInitializer((Initializer) node);
+	        }
+	    }
+	    return makeBinding("unknown", null, null);
+	}
+
+    private ISourceLocation resolveVariable(ASTNode node) {
+        VariableDeclaration n = (VariableDeclaration) node;
+    	IVariableBinding bin = n.resolveBinding(); 
         ISourceLocation result = resolveBinding(n.resolveBinding());
         // Have to move towards parent to make the binding unique
         if (result.getScheme() == "unresolved") {
-        	result = resolveBinding(n.getParent(), n);
+        	result = resolveBinding(n.getParent(), bin, n.getName());
         }
         return result;
-      } else if (node instanceof ConstructorInvocation) {
-        return resolveBinding(((ConstructorInvocation) node).resolveConstructorBinding());
-      } else if (node instanceof SuperConstructorInvocation) {
-        return resolveBinding(((SuperConstructorInvocation) node).resolveConstructorBinding());
-      } else if (node instanceof TypeDeclarationStatement) {
-        return resolveBinding(((TypeDeclarationStatement) node).resolveBinding());
-      } else if (node instanceof Initializer) {
-        return resolveInitializer((Initializer) node);
-      }
-		}
-		return makeBinding("unknown", null, null);
-	}
+    }
+
+    private ISourceLocation resolveSimpleName(ASTNode node, boolean tryHard) {
+        SimpleName n = (SimpleName) node;
+        IBinding resolveBinding = n.resolveBinding();
+        ISourceLocation result = resolveBinding(resolveBinding);
+        // Have to move towards parent to make the binding unique
+        if (result.getScheme() == "unresolved" && tryHard) {
+        	result = resolveBinding(n.getParent(), resolveBinding, n);
+        }
+        return result;
+    }
+
+    private ISourceLocation resolveFieldAccess(FieldAccess node) {
+        ITypeBinding tb = node.getExpression().resolveTypeBinding();
+        
+        if (tb != null && tb.isArray() && "length".equals(node.getName().getIdentifier())) {
+            ISourceLocation arrayType = resolveBinding(tb);
+            return makeBinding("java+arrayLength", arrayType.getAuthority(), arrayType.getPath());
+        }
+        
+        return resolveBinding(node.resolveFieldBinding());
+    }
 	
-	private ISourceLocation resolveBinding(ASTNode parentNode, VariableDeclaration thisNode) {
-		ISourceLocation parentBinding = resolveBinding(parentNode);
+	private ISourceLocation resolveBinding(ASTNode parentNode, IBinding resolvedBinding, SimpleName nodeName) {
+		ISourceLocation parentBinding = resolveBinding(parentNode, false);
 		// Something has to declare it!!!
 		while(parentBinding.getScheme().equals("unknown") || parentBinding.getScheme().equals("unresolved")) {
 			if (parentNode == null) {
@@ -146,11 +173,10 @@ public class BindingsResolver {
 				return makeBinding("unresolved", null, null);
 			}
 			parentNode = parentNode.getParent();
-			parentBinding = resolveBinding(parentNode);
+			parentBinding = resolveBinding(parentNode, false);
 		}
 
 		// TODO: @ashimshahi please check this additional null check and the way we return an unresolved binding here
-		IVariableBinding resolvedBinding = thisNode.resolveBinding();
 		if (resolvedBinding == null) {
 			return makeBinding("unresolved", null, null);
 		}
@@ -158,8 +184,8 @@ public class BindingsResolver {
 		String key = resolvedBinding.getKey();
 		// Binding keys for initializers are not unique so we always force them to be recomputed
 		if (!(parentNode instanceof Initializer)) {
-			if (EclipseJavaCompiler.cache.containsKey(key)) {
-				return EclipseJavaCompiler.cache.get(key);
+			if (locationCache.containsKey(key)) {
+				return locationCache.get(key);
 			}
 		}
 		String qualifiedName = parentBinding.getPath();
@@ -175,20 +201,20 @@ public class BindingsResolver {
 		}
 		
 		// FIXME: May not be variable only!!!
-		ISourceLocation childBinding = makeBinding("java+variable", null, qualifiedName.concat(thisNode.getName().getIdentifier()));
-		EclipseJavaCompiler.cache.put(key, childBinding);
+		ISourceLocation childBinding = makeBinding("java+variable", null, qualifiedName.concat(nodeName.getIdentifier()));
+		locationCache.put(key, childBinding);
 		return childBinding;
 	}
 	
 	private ISourceLocation resolveQualifiedName(QualifiedName node) {
-		ISourceLocation parent = resolveBinding(node.getQualifier().resolveTypeBinding());
-		ISourceLocation name = resolveBinding(node.getName());
+		ITypeBinding tb = node.getQualifier().resolveTypeBinding();
 		
-		if (parent.getScheme().equals("java+array") && name.getScheme().equals("unresolved")) {
-			return makeBinding("java+field", null, resolveBinding(node.getQualifier()).getPath() + "/" + node.getName().getIdentifier());
+		if (tb != null && tb.isArray()  && "length".equals(node.getName().getIdentifier())) {
+		    ISourceLocation arrayType = resolveBinding(tb);
+		    return makeBinding("java+arrayLength", arrayType.getAuthority(), arrayType.getPath());
 		}
 		
-		return name;
+		return resolveBinding(node.getName(), false);
 	}
 	
 	private ISourceLocation resolveInitializer(Initializer node) {
@@ -196,21 +222,21 @@ public class BindingsResolver {
 			return initializerLookUp.get(node); 
 		}
 		int initCounter = 1;
-		ISourceLocation parent = resolveBinding(node.getParent());
+		ISourceLocation parent = resolveBinding(node.getParent(), true);
 		if (initializerCounter.containsKey(parent)) {
 	      initCounter = initializerCounter.get(parent) + 1;
 	    }
 		initializerCounter.put(parent, initCounter);
 		String key = "";
-		for (String storedKey: EclipseJavaCompiler.cache.keySet()) {
-			if (EclipseJavaCompiler.cache.get(storedKey).equals(parent)) {
+		for (String storedKey: locationCache.keySet()) {
+			if (locationCache.get(storedKey).equals(parent)) {
 				key = storedKey;
 				break;
 			}
 		}
 		key += "$initializer" + initCounter;
 		ISourceLocation result = makeBinding("java+initializer", null, parent.getPath() + "$initializer" + initCounter);
-		EclipseJavaCompiler.cache.put(key, result);
+		locationCache.put(key, result);
 		initializerLookUp.put(node, result);
 		return result;
 	}
@@ -232,7 +258,9 @@ public class BindingsResolver {
 	}
 	
 	public IConstructor resolveType(IBinding binding, boolean isDeclaration) {
-		System.err.println("resolving " + binding);
+	    if (debug) {
+	        System.err.println("resolving " + binding);
+	    }
 		IConstructor result = unresolvedSym();
 		if (binding != null) {
 			ISourceLocation uri = resolveBinding(binding);
@@ -449,8 +477,8 @@ public class BindingsResolver {
 		if (binding == null) {
 			return makeBinding("unresolved", null, null);
 		}
-		if (EclipseJavaCompiler.cache.containsKey(binding.getKey()))
-			return EclipseJavaCompiler.cache.get(binding.getKey());
+		if (locationCache.containsKey(binding.getKey()))
+			return locationCache.get(binding.getKey());
 		String signature = resolveBinding(binding.getDeclaringClass()).getPath();
 		if (!signature.isEmpty()) {
 	      signature = signature.concat("/");
@@ -477,7 +505,7 @@ public class BindingsResolver {
 	      scheme = "java+method";
 	    }
 		ISourceLocation result = makeBinding(scheme, null, signature);
-		EclipseJavaCompiler.cache.put(binding.getKey(), result);
+		locationCache.put(binding.getKey(), result);
 		return result;
 	}
 	
@@ -485,10 +513,10 @@ public class BindingsResolver {
 		if (binding == null) {
 	      return makeBinding("unresolved", null, null);
 	    }
-		if (EclipseJavaCompiler.cache.containsKey(binding.getKey()))
-			return EclipseJavaCompiler.cache.get(binding.getKey());
+		if (locationCache.containsKey(binding.getKey()))
+			return locationCache.get(binding.getKey());
 		ISourceLocation result = makeBinding("java+package", null, binding.getName().replaceAll("\\.", "/"));
-		EclipseJavaCompiler.cache.put(binding.getKey(), result);
+		locationCache.put(binding.getKey(), result);
 		return result;
 	}
 	
@@ -498,8 +526,8 @@ public class BindingsResolver {
 	            return makeBinding("unresolved", null, null);
 	        }
 
-	        if (EclipseJavaCompiler.cache.containsKey(binding.getKey())) {
-	            return EclipseJavaCompiler.cache.get(binding.getKey());
+	        if (locationCache.containsKey(binding.getKey())) {
+	            return locationCache.get(binding.getKey());
 	        }
 
 	        String scheme = binding.isInterface() ? "java+interface" : "java+class";
@@ -513,8 +541,10 @@ public class BindingsResolver {
 	                qualifiedName = resolveBinding(binding.getDeclaringClass()).getPath();
 	            }
 	            else {
-	                System.err.println("No defining class or method for " + binding.getClass().getCanonicalName());
-	                System.err.println("Most probably anonymous class in initializer");
+	                if (debug) {
+	                    System.err.println("No defining class or method for " + binding.getClass().getCanonicalName());
+	                    System.err.println("Most probably anonymous class in initializer");
+	                }
 	            }
 	        }
 
@@ -567,7 +597,7 @@ public class BindingsResolver {
 	            scheme = "java+anonymousClass";
 	        }
 	        ISourceLocation result = makeBinding(scheme, null, qualifiedName.replaceAll("\\.", "/"));
-	        EclipseJavaCompiler.cache.put(binding.getKey(), result);
+	        locationCache.put(binding.getKey(), result);
 	        return result;
 		}
         catch (@SuppressWarnings("restriction") org.eclipse.jdt.internal.compiler.problem.AbortCompilation e) {
@@ -593,6 +623,9 @@ public class BindingsResolver {
 			if (declaringMethod != null) {
 				qualifiedName = getPath(resolveBinding(declaringMethod));
 			}
+			else {
+			    //binding.getDeI
+			}
 		}
 		
 		if (!qualifiedName.isEmpty()) {
@@ -601,8 +634,8 @@ public class BindingsResolver {
 	    	return makeBinding("unresolved", null, null);
 	    }
 		
-		if (EclipseJavaCompiler.cache.containsKey(binding.getKey()))
-			return EclipseJavaCompiler.cache.get(binding.getKey());
+		if (locationCache.containsKey(binding.getKey()))
+			return locationCache.get(binding.getKey());
 		
 		String bindingKey = binding.getKey();
 		String[] bindingKeys = bindingKey.split("#");
@@ -626,7 +659,7 @@ public class BindingsResolver {
 	    }
 		
 		ISourceLocation result = makeBinding(scheme, null, qualifiedName.concat(binding.getName()));
-		EclipseJavaCompiler.cache.put(binding.getKey(), result);
+		locationCache.put(binding.getKey(), result);
 		return result;
 	}
 	

@@ -1,0 +1,33 @@
+# colorScale
+
+.Synopsis
+Compute a color scale for range of values.
+
+.Syntax
+
+.Types
+
+.Function
+`Color(&T <: num) colorScale(list[&T <: num] values, Color from, Color to)`
+
+.Details
+
+.Description
+Given a list of numbers `values`, `colorScale` returns a function that maps these numbers to a color scale between the colors `from` and `to`.
+
+.Examples
+[source,rascal-figure,width=,height=,file=h1.png]
+----
+                observed = [10, 20, -50, 13, -40, 25];
+cscale = colorScale(observed, color("green", 0.5), color("red", 0.8));
+boxes = [ box( text("<v>"), size(50), fillColor(cscale(v))) | v <- observed ];
+render(hcat(boxes));
+----
+gives 
+image::{concept}/h1.png[alt="h1"]
+
+
+.Benefits
+
+.Pitfalls
+

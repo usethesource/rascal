@@ -12,16 +12,14 @@ import java.util.List;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.experiments.Compiler.Commands.PathConfig;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.highlighter.RascalHighlighter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.io.InputConverter;
-import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
@@ -57,28 +55,28 @@ public class BreakPointManager {
 	Frame currentFrame = null;  // next mode, only break in current function
 	Frame returnFrame = null;	// only break on return from this frame
 
-	private PrintWriter stdout;
 	private final PathConfig pcfg;
-	
+	private PrintWriter stdout;
+
 	private final String listingIndent = "\t";
 	private boolean autoList = true;
 	private final int defaultListingDelta = 5;
 	
-	RascalHighlighter highlighter;
+	//RascalHighlighter highlighter;
 	
 	Cache<String, IValue> parsedModuleCache;
 	IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	BreakPointManager(PrintWriter stdout, PathConfig pcfg){
+	BreakPointManager(PathConfig pcfg, PrintWriter stdout){
 		this.stdout = stdout;
 		this.pcfg = pcfg;
 		breakpoints = new ArrayList<>();
 		uid = 1;
-		highlighter = new RascalHighlighter()
-				.setKeywordMarkup(Ansi.ansi().bold().toString(), 
-							      Ansi.ansi().boldOff().toString())
-				.setCommentMarkup(Ansi.ansi().fg(Ansi.Color.GREEN).toString(), 
-						          Ansi.ansi().fg(Ansi.Color.BLACK).toString());
+//		highlighter = new RascalHighlighter()
+//				.setKeywordMarkup(Ansi.ansi().bold().toString(), 
+//							      Ansi.ansi().boldOff().toString())
+//				.setCommentMarkup(Ansi.ansi().fg(Ansi.Color.GREEN).toString(), 
+//						          Ansi.ansi().fg(Ansi.Color.BLACK).toString());
 		parsedModuleCache = Caffeine.newBuilder()
 			    .weakValues()
 				.maximumSize(5)
@@ -211,12 +209,13 @@ public class BreakPointManager {
 				mode = DEBUG_MODE.SKIP;
 				return false;
 			}
-			return doAutoList(frame);
+			//return doAutoList(frame);
+			return false;
 			
 		case SKIP:
 			if(!isBlackListed(frame)){
 				mode = DEBUG_MODE.STEP;
-				return doAutoList(frame);
+				//return doAutoList(frame);
 			}
 			return false;
 	
@@ -229,7 +228,8 @@ public class BreakPointManager {
 		case BREAK:
 			for(BreakPoint bp : breakpoints){
 				if(bp.matchOnEnter(frame)){
-					return doAutoList(frame);
+					mode = DEBUG_MODE.STEP;
+					//return doAutoList(frame);
 				}	
 			}
 		}
@@ -312,7 +312,7 @@ public class BreakPointManager {
 			add(new FunctionEnterBreakpoint(uid++, args[1]));
 		}
 		if(args.length == 3){								// break <moduleName> <lino>
-			ISourceLocation modSrc = pcfg.getRascalResolver().resolveModule(args[1]);
+			ISourceLocation modSrc = pcfg.getRascalSearchPath().resolveModule(args[1]);
 			if(modSrc != null){
 				add(new LineBreakpoint(uid++, modSrc.getPath(), Integer.parseInt(args[2])));
 			} else {

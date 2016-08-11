@@ -1,29 +1,35 @@
-Name: FieldSelection
+# Location FieldSelection
 
-Synopsis: Field selection on locations.
+.Synopsis
+Field selection on locations.
 
-Syntax:
-`$Exp$ . $Name$`
+.Index
+.
 
-Types:
-| `$Exp$` | `$Name$` | `$Exp$ . $Name$` |
-|:--------|:---------|:----------------|
-| `loc`   |          | depends on field|
+.Syntax
+`_Exp_ . _Name_`
 
-Function:
+.Types
 
-Details:
 
-Description:
+|====
+| `_Exp_` | `_Name_` | `_Exp_ . _Name_` 
+
+| `loc`   |          | Depends on field
+|====
+
+.Function
+
+.Details
+
+.Description
 Field selection applies to locations. 
-$Name$ should be one of the supported fields listed in [$Values/Location] and returns the value of that field. 
+_Name_ should be one of the supported fields listed in <<Values-Location>> and returns the value of that field. 
 Name stands for itself and is not evaluated.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

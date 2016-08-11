@@ -1,25 +1,24 @@
-Name: Callout
+# Callout
 
-Synopsis:
+.Synopsis
+
 Create a numeric callout for the digits 1--9.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 
-Examples:
-`/*``9*/` gives /*9*/
+.Examples
+`/*``9*/` gives <9>
 
-Benefits:
+.Benefits
 Callout are most usefull to place markers in code fragments for later reference in explanatory text.
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

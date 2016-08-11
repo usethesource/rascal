@@ -1,58 +1,57 @@
-Name: Concept
+# Concept
 
-Synopsis:
+.Synopsis
+
 A _concept_ is the basic building block of a course.
 
-Syntax:
+.Syntax
 <br>
-`Name: $ConceptName$` (__mandatory__)
+`Name: _ConceptName_` (*mandatory*)
 
-`Synopsis:  $MarkedText$` (__mandatory__)
+`Synopsis:  _MarkedText_` (*mandatory*)
 
-`Syntax: $MarkedText$`
+`Syntax: _MarkedText_`
 
-`Types:  $MarkedText$`
+`Types:  _MarkedText_`
 
-`Function:  $MarkedText$`
+`Function:  _MarkedText_`
 
-`Details: $ConceptName_1$ $ConceptName_2$ ...`
+`Details: _ConceptName_~1~ _ConceptName_~2~ ...`
 
-`Description:  $MarkedText$`
+`Description:  _MarkedText_`
 
-`Examples:  $MarkedText$` (__recommended__)
+`Examples:  _MarkedText_` (*recommended*)
 
-`Benefits:  $MarkedText$`
+`Benefits:  _MarkedText_`
 
-`Pitfalls:  $MarkedText$`
+`Pitfalls:  _MarkedText_`
 
-`Questions: $Question_1$, $Question_2$` (__recommended__)
+`Questions: _Question_~1~, _Question_~2~` (*recommended*)
 
 Name and Synopsis are mandatory, the others are optional.
 It is recommended to give examples and questions.
 
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 Name Synopsis Syntax Types Function Details Description Examples Benefits Pitfalls Questions
 
-Description:
+.Description
 A concept describes a separate entity (idea, artefact, function, rule) that is relevant in the scope of the course in which it appears.
 It consists of 11 named sections that are described separately. 
 Each section starts with a keyword that should appear at the begin of a line.
 Only the `Name` section is mandatory.
 
 Here is a brief summary of the secions of a concept:
-<toc Tutor/Concept 1>
+subtoc[Tutor/Concept,1]
 
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

@@ -9,6 +9,17 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Vadim Zaytsev - vadim@grammarware.net - UvA}
+@doc{
+.Synopsis
+Library functions for lists.
+
+.Description
+
+For operators on lists see link:/Rascal#Values-List[List] in the Rascal Language Reference.
+
+The following functions are available for lists:
+subtoc::[1]
+}
 module List
 
 import Exception;
@@ -16,79 +27,52 @@ import Map;
 import IO;
 
 @doc{
-Synopsis: Concatenate a list of lists.
+.Synopsis
+Concatenate a list of lists.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 concat([]);
 concat([[]]);
 concat([[1]]);
 concat([[1],[],[2,3]]);
 concat([[1,2],[3],[4,5],[]]);
-</screen>
-
-Questions:
-
-QValue:
-prep: import List;
-make: L = list[int,0,5]
-expr: H = concat(<L>) 
-hint: <H>
-test: concat(<L>) == <?>
+----
 }
 public list[&T] concat(list[list[&T]] xxs) =
   [*xs | list[&T] xs <- xxs];
 
 @doc{
-Synopsis: Delete an element from a list.
+.Synopsis
+Delete an element from a list.
 
-Description:
+.Description
 Delete the `n`-th element from a list. A new list without the `n`-th element is returned as result.
 The `IndexOutOfBounds` exception is thrown when n is not a valid index.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 delete([1, 2, 3], 1);
 delete(["zebra", "elephant", "snake", "owl"], 2);
-</screen>
-
-Questions:
-
-QChoice: When you delete an element from a list, the number of elements:
-g: Decreases by one.
-b: Decreases with the number of occurrences of the deleted element.
-b: Stays the same.
-b: Increases by one.
-
-QType:
-prep: import List;
-make: L = list[arb[bool,int,str],4,6]
-make: I = int[0,3]
-test:  delete(<L>, <I>)
-
-QValue:
-prep: import List;
-make: L = list[arb[bool,int,str],4,6]
-make: I = int[0,3]
-expr: C = delete(<L>, <I>)
-hint: <C>
-test: delete(<L>, <I>) == <?>
-
-}
+----}
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] delete(list[&T] lst, int n);
 
 @doc{
-Synopsis: Get the distribution of the elements of the list. That
+.Synopsis
+Get the distribution of the elements of the list. That
 is how often does each element occur in the list? 
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 distribution([4,4,4,3,1,2,1,1,3,4]);
-</screen>
+----
 }
 public map[&T element, int occurs] distribution(list[&T] lst) {
 	res = while(!isEmpty(lst)) {
@@ -101,81 +85,35 @@ public map[&T element, int occurs] distribution(list[&T] lst) {
 }
 
 @doc{
-Synopsis: Drop elements from the head of a list.
+.Synopsis
+Drop elements from the head of a list.
 
-Description:
+.Description
 Drop `n` elements (or `size(lst)` elements if `size(lst) < n`) from the head of `lst`.
-See [$List/take] to get elements from the head of a list].
+See <<List-take>> to get elements from the head of a list].
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 drop(2, [5, 1, 7, 3]);
 drop(10, [5, 1, 7, 3]);
 drop(2, ["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions:
-
-QChoice: Dropping $n$ elements from a list returns a list with
-g: n elements less than the original list.
-b: 1 element less that the original list.
-b: n elements.
-b: n-1 elements.
-b: n-1 elements less than the original list.
-
-QType:
-prep: import List;
-make: L = list[arb[bool,int,str],4,6]
-make: N = int[0,3]
-expr: H = drop(<N>, <L>)
-hint: <H>
-test: drop(<N>, <L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[bool,int,str],4,6]
-make: N = int[0,3]
-expr: H = drop(<N>, <L>)
-hint: <H>
-test: drop(<N>, <L>) == <?>
-
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] drop(int n, list[&T] lst) ;
 
 @doc{
-Synopsis: Remove multiple occurrences of elements in a list. The first occurrence remains.
+.Synopsis
+Remove multiple occurrences of elements in a list. The first occurrence remains.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 dup([3, 1, 5, 3, 1, 7, 1, 2]);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[bool,int,str],4,6]
-expr: H = dup(<L>)
-hint: <H>
-test: dup(<L>)
-
-
-QValue:
-prep: import List;
-make: L = list[arb[bool,int,str],4,6]
-make: I = int[0,3]
-make: J = int[0,3]
-expr: L1 = [<L>[<I>], <L>[<J>], *<L>, <L>[<J>], <L>[<I>]]
-expr: H = dup(<L1>)
-hint: <H>
-test: dup(<L1>) == <?>
-
-
-
-}
+----}
 public list[&T] dup(list[&T] lst) {
   done = {};
   return for (e <- lst, e notin done) {
@@ -189,78 +127,70 @@ public list[&T] dup(list[&T] lst) {
 public java &T elementAt(list[&T] lst, int index); 
 
 @doc{
-Synopsis: Pick a random element from a list.
+.Synopsis
+Pick a random element from a list.
 
-Description:
-Get an arbitrary element from a list. See [$List/takeOneFrom] for a function that also removes the selected element.
+.Description
+Get an arbitrary element from a list. See <<List-takeOneFrom>> for a function that also removes the selected element.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 getOneFrom(["zebra", "elephant", "snake", "owl"]);
 getOneFrom(["zebra", "elephant", "snake", "owl"]);
 getOneFrom(["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[int,str],1,6]
-expr: H =  getOneFrom(<L>)
-hint: <H>
-test: getOneFrom(<L>)
-
-}
+----}
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T getOneFrom(list[&T] lst);
 
 @doc{
-Synopsis: Pick first element from a list.
+.Synopsis
+Pick first element from a list.
 
-Description:
-Get the first element from a list. As opposed to [$List/getOneFrom] this function always returns the same (first) list element.
+.Description
+Get the first element from a list. As opposed to <<List-getOneFrom>> this function always returns the same (first) list element.
 }
 public  &T getFirstFrom(list[&T] lst) = head(lst);
 
 @doc{
-Synopsis: Get the first element(s) from a list.
+.Synopsis
+Get the first element(s) from a list.
 
-Description:
-# Returns the first element of a list or throws `EmptyList` when the list is empty. This is identical to [$List/top].
-# Returns the first `n` elements of a list or throws `IndexOutOfBounds` when the list is too short. This is similar to [$List/take].
+.Description
 
-Examples:
-<screen errors>
+* Returns the first element of a list or throws `EmptyList` when the list is empty. 
+  This is identical to <<top>>.
+* Returns the first `n` elements of a list or throws `IndexOutOfBounds` when the list is too short. 
+  This is similar to <<take>>.
+
+.Examples
+[source,rascal-shell,error]
+----
 import List;
-// Get the first element:
+----
+Get the first element:
+[source,rascal-shell,continue,error]
+----
 head([1, 2, 3]);
 head(["zebra", "elephant", "snake", "owl"]);
-// An exception is thrown when taking the head of an empty list:
+----
+An exception is thrown when taking the head of an empty list:
+[source,rascal-shell,continue,error]
+----
 head([]);
-// Get the first n elements:
+----
+Get the first n elements:
+[source,rascal-shell,continue,error]
+----
 head([1, 2, 3, 4], 2);
 head(["zebra", "elephant", "snake", "owl"], 2);
-// An exception is thrown when the second argument exceeds the length of the list:
+----
+An exception is thrown when the second argument exceeds the length of the list:
+[source,rascal-shell,continue,error]
+----
 head([1, 2, 3, 5], 5);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[int,str],1,6]
-test: head(<L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str],1,6]
-expr: H = head(<L>)
-hint: <H>
-test: head(<L>) == <?>
-
-
-}
+----}
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T head(list[&T] lst) throws EmptyList;
 
@@ -270,33 +200,20 @@ public java list[&T] head(list[&T] lst, int n) throws IndexOutOfBounds;
 
 
 @doc{
-Synopsis: Split a list in a head and a tail.
+.Synopsis
+Split a list in a head and a tail.
 
-Description:
-This function is identical to [$List/pop].
+.Description
+This function is identical to <<List-pop>>.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 headTail([3, 1, 4, 5]);
 pop([3, 1, 4, 5]);
 headTail(["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[int,str],1,5]
-test: headTail(<L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str],1,5]
-expr: H = headTail(<L>)
-hint: <H>
-test: headTail(<L>) == <?>
-}
+----}
 public tuple[&T, list[&T]] headTail(list[&T] lst) throws EmptyList {
 	 if(!isEmpty(lst))
     return <head(lst), tail(lst)>;
@@ -304,83 +221,42 @@ public tuple[&T, list[&T]] headTail(list[&T] lst) throws EmptyList {
 }
 
 @doc{
-Synopsis: A list of legal index values of a list.
+.Synopsis
+A list of legal index values of a list.
 
-Description:
+.Description
 Returns a list of all legal index values for a given list `lst`.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 index([1, 3, 5]);
 index(["zebra", "elephant", "snake", "owl"]);
-</screen>
+----
 
-Benefits:
-This function is useful in [For] loops over lists.
-
-Questions:
-
-QChoice: The number of elements in the index of a list is:
-g: Equal to the number of elements in the list.
-b: Depends on the number of repeated elements in the list.
-b: One less than the number of elements in the list.
-b: One larger than the number of elements in the list.
-
-QType:
-prep: import List;
-make: L = list[arb[int,str],3,5]
-test: index(<L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str],0,5]
-expr: H = index(<L>)
-hint: <H>
-test: index(<L>) == <?>
-}
+.Benefits
+This function is useful in link:/Rascal#Statements-For[for] loops over lists.}
 public list[int] index(list[&T] lst) = upTill(size(lst));
 
 
 @doc{
-Synopsis: Index of first occurrence of an element in a list.
+.Synopsis
+Index of first occurrence of an element in a list.
 
-Description:
+.Description
 Return index of first occurrence of `elt` in `lst`, or `-1` if `elt` is not found.
-Also see [$List/lastIndexOf].
+Also see <<List-lastIndexOf>>.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 indexOf([3, 1, 4, 5], 4);
 indexOf([3, 1, 4, 5], 7);
 indexOf(["zebra", "elephant", "snake", "owl"], "snake");
 indexOf(["zebra", "elephant", "snake", "owl"], "eagle");
-</screen>
-
-Questions:
-
-Qtype:
-prep: import List;
-make: L = list[arb[int,str],4,6]
-make: I = int[0,3]
-expr: E = <L>[<I>]
-test: indexOf(<L>, <E>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str],4,6]
-make: I = int[0,3]
-expr: E = <L>[<I>]
-expr: H = indexOf(<L>, <E>)
-hint: <H>
-test: indexOf(<L>, <E>) == <?>
-
-
-
-
-
-}
+----}
 public int indexOf(list[&T] lst, &T elt) {
 	for(int i <- [0..size(lst)]) {
 		if(lst[i] == elt) return i;
@@ -389,160 +265,92 @@ public int indexOf(list[&T] lst, &T elt) {
 }
 
 @doc{
-Synopsis: Insert an element at a specific position in a list.
+.Synopsis
+Insert an element at a specific position in a list.
 
-Description:
+.Description
 Returns a new list with the value of `elm` inserted at index position `n` of the old list.
 
-Examples:
-<screen errors>
+.Examples
+[source,rascal-shell,error]
+----
 import List;
 insertAt([1,2,3], 1, 5);
 insertAt(["zebra", "elephant", "snake", "owl"], 2, "eagle");
-//An exception is thrown when the index position is outside the list:
+----
+An exception is thrown when the index position is outside the list:
+[source,rascal-shell,continue,error]
+----
 insertAt([1,2,3], 10, 5);
-</screen>
-
-Questions:
-
-QChoice: After inserting an element in a list with $N$ elements, the new list has
-g: N+1 elements.
-b: N elements.
-b: N-1 elements.
-b: a length that depends on the inserted element.
-
-QType:
-prep: import List;
-make: E = arb[int,str]
-make: L = list[same[E],4,6]
-make: I = int[0,3]
-test: insertAt(<L>, <I>, <E>)
-
-QValue:
-prep: import List;
-make: E = arb[int,str]
-make: L = list[same[E],4,6]
-make: I = int[0,3]
-expr: H = insertAt(<L>, <I>, <E>)
-hint: <H>
-test: insertAt(<L>, <I>, <E>) == <?>
-
-
-
-
-}
+----}
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBounds;
 
 @doc{
-Synopsis: Join a list of values into a string separated by a separator.
+.Synopsis
+Join a list of values into a string separated by a separator.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 intercalate("/", [3]);
 intercalate("/", [3, 1, 4, 5]);
 intercalate(", ", [3, 1, 4, 5]);
 intercalate(", ", ["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions:
-
-QValue:
-prep: import List;
-make: L = list[int,0,5]
-expr: H = intercalate(";", <L>) 
-hint: <H>
-test: intercalate(";", <L>) == <?>
-}
+----}
 public str intercalate(str sep, list[value] l) = 
 	(isEmpty(l)) ? "" : ( "<head(l)>" | it + "<sep><x>" | x <- tail(l) );
 
 @doc{
-Synopsis: Intersperses a list of values with a separator.
+.Synopsis
+Intersperses a list of values with a separator.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 intersperse(", ", ["a","b","c"]);
 intersperse(0, [1, 2, 3]);
 intersperse(1, []);
 intersperse([], [1]);
-</screen>
-
-Questions:
-
-QValue:
-prep: import List;
-make: L = list[int,0,5]
-expr: H = intersperse(42, <L>) 
-hint: <H>
-test: intersperse(42, <L>) == <?>
-}
+----}
 public list[&T] intersperse(&T sep, list[&T] xs) = 
   (isEmpty(xs))? [] : ([head(xs)] | it + [sep,x] | x <- tail(xs));
 
 @doc{
-Synopsis: Test whether a list is empty.
+.Synopsis
+Test whether a list is empty.
 
-Description:
+.Description
 Returns `true` when a list is empty and `false` otherwise.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 isEmpty([]);
 isEmpty([1, 2, 3]);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[int,str], 0, 6]
-test: isEmpty(<L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str], 0, 6]
-expr: H = isEmpty(<L>)
-hint: <H>
-test: isEmpty(<L>) == <?>
-
-
-}
+----}
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool isEmpty(list[&T] lst);
 
 @doc{
-Synopsis: Return the last element of a list, if any.
+.Synopsis
+Return the last element of a list, if any.
 
-Description:
-Also see [$List/tail] that returns a list of one or more of the last elements of a list.
+.Description
+Also see <<List-tail>> that returns a list of one or more of the last elements of a list.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 last([1]);
 last([3, 1, 4, 5]);
 last(["zebra", "elephant", "snake", "owl"]);
 tail([3, 1, 4, 5]);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[int,str], 1, 6]
-test: last(<L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str], 1, 6]
-expr: H =  last(<L>)
-hint: <H>
-test: last(<L>) == <?>
-}
+----}
 public &T last(list[&T] lst) throws EmptyList {
   if(lst == [] ) { throw EmptyList(); }
   if([*p, l] := lst){
@@ -551,37 +359,20 @@ public &T last(list[&T] lst) throws EmptyList {
 }
 
 @doc{
-Synopsis: Return index of last occurrence of elt in lst, or -1 if elt is not found.
+.Synopsis
+Return index of last occurrence of elt in lst, or -1 if elt is not found.
 
-Description:
-Also see [$List/indexOf].
+.Description
+Also see <<List-indexOf>>.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 lastIndexOf([3, 1, 4, 5, 4], 4);
 lastIndexOf([3, 1, 4, 5, 4], 7);
 lastIndexOf(["zebra", "owl", "elephant", "snake", "owl"], "owl");
-</screen>
-
-Questions:
-Qtype:
-prep: import List;
-make: L = list[arb[int,str],4,6]
-make: I = int[0,3]
-expr: E = <L>[<I>]
-test: lastIndexOf(<L>, <E>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str],3,4]
-make: I = int[0,2]
-expr: E = <L>[<I>]
-expr: L1 = reverse(<L>) + <L>
-expr: H = lastIndexOf(<L1>, <E>)
-hint: <H>
-test: lastIndexOf(<L1>, <E>) == <?>
-}
+----}
 public int lastIndexOf(list[&T] lst, &T elt) {
 	for(i <- reverse(index(lst))) {
 		if(lst[i] == elt) return i;
@@ -590,118 +381,58 @@ public int lastIndexOf(list[&T] lst, &T elt) {
 }
 
 @doc{
-Synopsis: Apply a function to all list elements and return list of results.
+.Synopsis
+Apply a function to all list elements and return list of results.
 
-Description:
+.Description
 Apply a function `fn` to each element of `lst` and return the list of results.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 int incr(int x) { return x + 1; }
 mapper([1, 2, 3, 4], incr);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[int]
-type: same[L]
-list:
-int incr(int x) { return x + 1; }
-test: mapper(<L>, incr)
-
-
-QValue:
-prep: import List;
-make: L = list[int]
-expr: H = mapper(<L>, int(int n){ return n + 1; })
-hint: <H>
-list:
-int incr(int x) { return x + 1; }
-test: mapper(<L>, incr) == <?>
-}
+----}
 public list[&U] mapper(list[&T] lst, &U (&T) fn) =  [fn(elm) | &T elm <- lst];
 
 @doc{
-Synopsis: Determine the largest element in a list.
+.Synopsis
+Determine the largest element in a list.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 max([1, 3, 5, 2, 4]);
 max(["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[int,str], 1, 6]
-test: max(<L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str], 1, 6]
-expr: H = max(<L>)
-hint: <H>
-test: max(<L>) == <?>
-}
+----}
 public &T max(list[&T] lst) throws EmptyList =
 	(head(lst) | (e > it ? e : it) | e <- tail(lst));
 	
 @doc{
-Synopsis: Merge the elements of two sorted lists into one list.
+.Synopsis
+Merge the elements of two sorted lists into one list.
 
-Description:
+.Description
 Merge the elements of two sorted lists into one list using the built-in ordering between values.
 Optional, a comparison function `lessOrEqual` may be given for a user-defined ordering between values.
 
 
-Examples:
+.Examples
 
-<screen>
+[source,rascal-shell]
+----
 import List;
 merge([1, 3, 5], [2, 7, 9, 15]);
 merge(["ape", "elephant", "owl", "snale", "zebra"], ["apple", "berry", "orange", "pineapple"]);
-// Merge two lists of strings and use their length as ordering:
+----
+Merge two lists of strings and use their length as ordering:
+[source,rascal-shell,continue]
+----
 import String;
 merge(["ape", "owl", "snale", "zebra", "elephant"], ["apple", "berry", "orange", "pineapple"], bool(str x, str y){ return size(x) <= size(y); });
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[int,str]]
-make: M = same[L]
-expr: L1 = sort(<L>)
-expr: M1 = sort(<M>)
-test: merge(<L1>, <M1>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str]]
-make: M = same[L]
-expr: L1 = sort(<L>)
-expr: M1 = sort(<M>)
-expr: H = merge(<L1>, <M1>)
-hint: <H>
-test: merge(<L1>, <M1>)
-
-QValue:
-prep: import List;
-prep: import String;
-make: L = list[str]
-make: M = same[L]
-expr: L1 = sort(<L>,bool(str x, str y){return size(x) > size(y);})
-expr: M1 = sort(<M>,bool(str x, str y){return size(x) > size(y);})
-expr: H = merge(<L1>, <M1>, bool(str x, str y){return size(x) > size(y);})
-hint: <H>
-test: merge(<L1>, <M1>, <?>) == <H>
-
-}
+----}
 
 public list[&T] merge(list[&T] left, list[&T] right){
   res = while(!isEmpty(left) && !isEmpty(right)) {
@@ -730,73 +461,36 @@ public list[&T] merge(list[&T] left, list[&T] right, bool (&T a, &T b) lessOrEqu
 }
 
 @doc{
-Synopsis: Determine the smallest element in a list.
+.Synopsis
+Determine the smallest element in a list.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 min([1, 3, 5, 2, 4]);
 min(["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[int,str], 1, 6]
-test: min(<L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str], 1, 6]
-expr: H = min(<L>)
-hint: <H>
-test: min(<L>) == <?>
-}
+----}
 public &T min(list[&T] lst) =
 	(head(lst) | (e < it ? e : it) | e <- tail(lst));
 
 @doc{
-Synopsis: Mix the elements of two lists.
+.Synopsis
+Mix the elements of two lists.
 
-Description:
+.Description
 Let n be the minimum of the length of the two lists `l` and `r`.
 `mix` returns a list in which the first `n` elements are taken alternately from the left and the right list,
 followed by the remaining elements of the longest list.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 mix([3, 1, 7, 5, 9], [15, 25, 35]);
 mix([3, 1, 7], [15, 25, 35, 45, 55]);
 mix([3, 1, 7], ["elephant", "snake"]);
-</screen>
-
-Questions:
-
-QChoice: Given two lists of length $N$, respectively, $M$. What is the length of the mixed list:
-g: N + M.
-b: N + M - 1.
-b: N.
-b: M.
-b: N * M.
-
-QType:
-prep: import List;
-make: L = list[arb[int,str]]
-make: M = same[L]
-test: mix(<L>, <M>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str]]
-make: M = same[L]
-expr: H =  mix(<L>, <M>)
-hint: <H>
-test: mix(<L>, <M>) == <?>
-
-
-}
+----}
 public list[&T] mix(list[&T] l, list[&T] r){
 	sizeL = size(l);
 	sizeR = size(r);
@@ -805,44 +499,15 @@ public list[&T] mix(list[&T] l, list[&T] r){
 }	
 
 @doc{
-Synopsis: Compute all permutations of a list.
+.Synopsis
+Compute all permutations of a list.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 permutations([1,2,3]);
-</screen>
-
-Questions:
-QChoice: How many permutations has a list of N elements:
-g: 1 x 2 x ... x N.
-g: N x (N-1) x ... x 2 x 1.
-g: N!
-b: 1 + 2 + ... + N.
-b: 1 + 2 + ... + N-1.
-
-QType:
-prep: import List;
-make: L = list[arb[int,str]]
-test: permutations(<L>)
-
-QValue:
-prep: import List;
-prep: import Set;
-make: L = list[arb[int,str]]
-expr: H = size(permutations(<L>))
-hint: <H>
-test: size(permutations(<L>)) == <?>
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str],0,3]
-expr: H = permutations(<L>)
-hint: <H>
-test: permutations(<L>) == <?>
-
-
-}
+----}
 public set[list[&T]] permutations(list[&T] lst) =
 	permutationsBag(distribution(lst));
 
@@ -851,121 +516,74 @@ private set[list[&T]] permutationsBag(map[&T element, int occurs] b) =
 	{ [e] + rest | e <- b, rest <- permutationsBag(removeFromBag(b,e))};
 
 @doc{
-Synopsis: Pop top element from list, return a tuple.
-Description:
-This function is identical to [headTail].
-Also see [$List/push] and [$List/top].
+.Synopsis
+Pop top element from list, return a tuple.
+.Description
+This function is identical to <<headTail>>.
+Also see <<List-push>> and <<List-top>>.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 pop([3, 1, 4, 5]);
 headTail([3, 1, 4, 5]);
 pop(["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[int,str],1,5]
-test: pop(<L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str],1,5]
-expr: H = pop(<L>)
-hint: <H>
-test: pop(<L>) == <?>
-
-}
+----}
 public tuple[&T, list[&T]] pop(list[&T] lst) throws EmptyList =
   headTail(lst);
 
 @doc{
-Synopsis: Return all but the last element of a list.
+.Synopsis
+Return all but the last element of a list.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 prefix([3, 1, 4, 5]);
 prefix([]);
 prefix(["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions:
-QChoice: Taking the prefix of a list with $N$ elements returns a list with
-g: N-1 elements.
-b: N elements.
-b: N+1 elements.
-b: N * (N-1) elements.
-
-QType:
-prep: import List;
-make: L = list[arb[bool,int,str],4,6]
-test: prefix(<L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[bool,int,str],4,6]
-expr: H = prefix(<L>)
-hint: <H>
-test: prefix(<L>) == <?>
-
-}
+----}
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] prefix(list[&T] lst) ;
 
 @doc{
-Synopsis: Push an element in front of a list.
+.Synopsis
+Push an element in front of a list.
 
-Description:
-Also see [$List/pop] and [$List/top].
+.Description
+Also see <<List-pop>> and <<List-top>>.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 push(7, [3, 1, 4, 5]);
 push("eagle", ["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions:
-
-
-QType:
-prep: import List;
-make: E = arb[int,str]
-make: L = list[same[E]]
-test: push(<E>, <L>)
-
-QValue:
-prep: import List;
-make: E = arb[int,str]
-make: L = list[same[E]]
-expr: H =  push(<E>, <L>)
-hint: <H>
-test: push(<E>, <L>) == <?>
-
-}
+----}
 public list[&T] push(&T elem, list[&T] lst) = [elem] + lst;
 
 @doc{
-Synopsis: Apply a function to successive elements of list and combine the results (__deprecated__).
+.Synopsis
+Apply a function to successive elements of list and combine the results (__deprecated__).
 
-Description:
+.Description
 Apply the function `fn` to successive elements of list `lst` starting with `unit`.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 int add(int x, int y) { return x + y; }
 reducer([10, 20, 30, 40], add, 0); 
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-This function is __deprecated__, use a [$Expressions/Reducer] instead.
+.Pitfalls
+WARNING:
+This function is *deprecated*, use a link:/Rascal#Expressions-Reducer[reducer] instead.
 }
 public &T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)
 {
@@ -986,146 +604,84 @@ private map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b,
 	!(b[el] ?) ? b : (b[el] <= nr ? b - (el : b[el]) : b + (el : b[el] - nr)); 
 
 @doc{
-Synopsis: Reverse a list.
+.Synopsis
+Reverse a list.
 
-Description:
+.Description
 Returns a list with the elements of `lst` in reverse order.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 reverse([1,4,2,3]);
 reverse(["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[int,str],0,5]
-test: reverse(<L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str],0,5]
-expr: H =  reverse(<L>) 
-hint: <H>
-test: reverse(<L>) == <?>
-}
+----}
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] reverse(list[&T] lst);
 
 @doc{
-Synopsis: Determine the number of elements in a list.
+.Synopsis
+Determine the number of elements in a list.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 size([20, 10, 30]);
 size(["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions:
-
-QValue:
-desc: Create a list of the right size.
-list:
-import List;
-list[str] text = <?>;
-test: size(text) == 3;
-
-QValue:
-desc: Determine the number of elements in a list
-list:
-import List;
-text = ["abc", "def", "ghi"];
-test: <?>(text) == 3;
-}
+----}
 @javaClass{org.rascalmpl.library.Prelude}
 public java int size(list[&T] lst);
 
 @doc{
-Synopsis: Compute a sublist of a list.
+.Synopsis
+Compute a sublist of a list.
 
-Description:
+.Description
 Returns a sublist of `lst` from index `start` of length `len`.
 
-Examples:
-<screen>
+NOTE: In most cases it is better to use the built-in link:/Rascal#List-Slice[slice] notation,
+see the example below.
+
+.Examples
+[source,rascal-shell]
+----
 import List;
 slice([10, 20, 30, 40, 50, 60], 2, 3);
 slice(["zebra", "elephant", "snake", "owl"], 1, 2);
-</screen>
-
-Questions:
-
-QChoice: Computing `slice(L, B, N)` returns a list with:
-g: N elements.
-b: B elements.
-b: B + N elements.
-b: N - 1 elements.
-b: B - 1 elements.
-
-QType:
-prep: import List;
-make: L = list[arb[int,str],3,5]
-make: B = int[0,2]
-make: E = int[2,5]
-test: slice(<L>,<B>,<E>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str],3,5]
-make: B = int[0,2]
-make: E = int[2,5]
-expr:  H =  slice(<L>,<B>,<E>)
-hint: <H>
-test: slice(<L>,<B>,<E>) == <?>
-
-
+----
+Here are the equivalent expressions using the slice notation:
+[source,rascal-shell]
+----
+[10, 20, 30, 40, 50, 60][2 .. 5];
+["zebra", "elephant", "snake", "owl"][1 .. 3];
+----
+WARNING: In the slice notation the upper bound is exclusive.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] slice(list[&T] lst, int begin, int len);
 
 @doc{
-Synopsis: Sort the elements of a list.
+.Synopsis
+Sort the elements of a list.
 
-Description:
+.Description
 Sort the elements of a list:
-# Use the built-in ordering on values to compare list elements.
-# Give an additional `lessThan` function that will be used to compare elements.
 
-Examples:
-<screen>
+*  Use the built-in ordering on values to compare list elements.
+*  Give an additional `lessThan` function that will be used to compare elements.
+
+.Examples
+[source,rascal-shell]
+----
 import List;
 import String;
 sort([10, 4, -2, 11, 100, 5]);
 fruits = ["mango", "strawberry", "pear", "pineapple", "banana", "grape", "kiwi"];
 sort(fruits);
 sort(fruits, bool(str a, str b){ return size(a) > size(b); });
-</screen>
-
-Questions:
-
-QChoice: Sorting a listing with $N$ elements gives a list with:
-g: N elements.
-b: N - 1 elements.
-b: N! elements.
-b: N * (N - 1) elements.
-
-QType:
-prep: import List;
-make: L = list[arb[int,str],1,5]
-test: sort(<L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str],1,5]
-expr: H = sort(<L>)
-hint: <H>
-test: sort(<L>) == <?>
-
-}
+----}
 public list[&T] sort(list[&T] lst) =
 	sort(lst, bool (&T a,&T b) { return a < b; } );
 	
@@ -1133,66 +689,54 @@ public list[&T] sort(list[&T] lst) =
 public java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
 
 @doc{
-Synopsis: Shuffle a list.
+.Synopsis
+Shuffle a list.
 
-Description:
+.Description
 Returns a random (unbiased) shuffled list.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 shuffle([1,4,2,3]);
 shuffle(["zebra", "elephant", "snake", "owl"]);
-</screen>
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] shuffle(list[&T] l);
 
 @doc{
-Synopsis: Shuffle a list with a seed.
+.Synopsis
+Shuffle a list with a seed.
 
-Description:
+.Description
 Returns a random (unbiased) shuffled list, every call with the same seed shuffles in the same order.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 shuffle([1,2,3,4]);
 shuffle([1,2,3,4]);
 shuffle([1,2,3,4], 1);
 shuffle([1,2,3,4], 1);
-</screen>
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] shuffle(list[&T] l, int seed);
 
 @doc{
-Synopsis: Split a list into two halves.
+.Synopsis
+Split a list into two halves.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 split([3, 1, 4, 5, 7]);
 split(["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions: 
-
-QType:
-prep: import List;
-make: L = list[arb[int,str]]
-test: split(<L>)
-
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str]]
-expr: H = split(<L>)
-hint: <H>
-test: split(<L>) == <?>
-
-
-}
+----}
 public tuple[list[&T],list[&T]] split(list[&T] l) {
 	half = size(l)/2;
 	return <take(half,l), drop(half,l)>;
@@ -1206,79 +750,53 @@ public (&T <:num) sum(list[(&T <:num)] _:[]) {
 		");
 }
 @doc{
-Synopsis: Sum the elements of a list.
+.Synopsis
+Sum the elements of a list.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 sum([3, 1, 4, 5]);
 sum([3, 1.5, 4, 5]);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[num,2,7]
-test: sum(<L>)
-
-QValue:
-prep: import List;
-make: L = list[int,2,7]
-expr: H = sum(<L>)
-hint: <H>
-test: sum(<L>)
-
-
-
-
-}
+----}
 public default (&T <:num) sum([(&T <: num) hd, *(&T <: num) tl])
 	= (hd | it + i | i <- tl);
 
 @doc{
-Synopsis: Get the tail element(s) from a list.
+.Synopsis
+Get the tail element(s) from a list.
 
-Description:
-# Return a list consisting of all but the first element of `lst`.
-# Return a list consisting of the last `n` elements of `lst`.
+.Description
 
-Examples:
-<screen errors>
-// All but first element:
+*  Return a list consisting of all but the first element of `lst`.
+*  Return a list consisting of the last `n` elements of `lst`.
+
+.Examples
+[source,rascal-shell,error]
+----
+----
+All but first element:
+[source,rascal-shell,continue,error]
+----
 import List;
 tail([10,20,30]);
-// Try an error case:
+----
+Try an error case:
+[source,rascal-shell,continue,error]
+----
 tail([]);
-// Last n elements:
+----
+Last n elements:
+[source,rascal-shell,continue,error]
+----
 tail([10, 20, 30, 40, 50, 60], 3);
-// Try an error case:
+----
+Try an error case:
+[source,rascal-shell,continue,error]
+----
 tail([10, 20, 30, 40, 50, 60], 10);
-</screen>
-
-
-Questions:
-QChoice: Computing `tail(L, M)` of a list with $N$ ($N$ > $M$) elements returns a list with
-g: M elements.
-b: N-M elements.
-b: N elements.
-b: N * M elements.
-
-QType:
-prep: import List;
-make: L = list[arb[bool,int,str],4,6]
-make: N = int[0,3]
-test: tail(<L>, <N>)
-
-QValue:
-prep: import List;
-make: L = list[arb[bool,int,str],4,6]
-make: N = int[0,3]
-expr: H = tail(<L>,<N>)
-hint: <H>
-test: tail(<L>,<N>) == <?>
-
-}
+----}
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] tail(list[&T] lst) throws EmptyList;
  
@@ -1286,57 +804,40 @@ public java list[&T] tail(list[&T] lst) throws EmptyList;
 public java list[&T] tail(list[&T] lst, int len) throws IndexOutOfBounds;
 
 @doc{
-Synopsis: Get number of elements from the head of a list.
+.Synopsis
+Get number of elements from the head of a list.
 
-Description:
+.Description
 Get `n` elements (or `size(lst)` elements if `size(lst) < n`) from the head of the list.
-See [$List/drop] to remove elements from the head of a list.
+See <<List-drop>> to remove elements from the head of a list.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 take(2, [3, 1, 4, 5]);
 take(6, [3, 1, 4, 5]);
 take(2, ["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions:
-QChoice: Computing `take(M, L)` of a list with $N$ ($N$ > $M$) elements returns a list with
-g: M elements.
-b: N-M elements.
-b: N elements.
-b: N * M elements.
-
-QType:
-prep: import List;
-make: L = list[arb[bool,int,str],4,6]
-make: N = int[0,3]
-test: take(<N>, <L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[bool,int,str],4,6]
-make: N = int[0,3]
-expr: H = take(<N>, <L>)
-hint: <H>
-test: take(<N>, <L>) == <?>
-}
+----}
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] take(int n, list[&T] lst);
 
 @doc{
-Synopsis: Remove an arbitrary element from a list, returns the element and the modified list.
+.Synopsis
+Remove an arbitrary element from a list, returns the element and the modified list.
 
-Description:
+.Description
 Select an arbitrary element from `lst`, and return a tuple consisting of:
-* the selected element, and 
-* a new list consisting of all elements of `lst` except the selected element.
+
+*  the selected element, and 
+*  a new list consisting of all elements of `lst` except the selected element.
 
 
-See [$List/getOneFrom] to only selected an element from a list.
+See <<List-getOneFrom>> to only selected an element from a list.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 takeOneFrom([10,20,30,40,50]);
 takeOneFrom([10,20,30,40,50]);
@@ -1344,53 +845,21 @@ takeOneFrom([10,20,30,40,50]);
 takeOneFrom(["zebra", "elephant", "snake", "owl"]);
 takeOneFrom(["zebra", "elephant", "snake", "owl"]);
 takeOneFrom(["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[int,str], 1, 6]
-test: takeOneFrom(<L>)
-}
+----}
 @javaClass{org.rascalmpl.library.Prelude}
 public java tuple[&T, list[&T]] takeOneFrom(list[&T] lst);
 
 @doc{
-Synopsis: Take elements from the front of the list as long as a predicate is true.
+.Synopsis
+Take elements from the front of the list as long as a predicate is true.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 bool isEven(int a) = a mod 2 == 0;
 takeWhile([2,4,6,8,1,2,3,4,5],isEven);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[int[-20,20]]
-test: takeWhile(<L>, bool(int x){ return x > 0;})
-
-
-QValue:
-prep: import List;
-make: L = list[int[-20,20]]
-expr: H = takeWhile(<L>, bool(int x){ return x > 0;})
-hint: <H>
-test: takeWhile(<L>, bool(int x){ return x > 0;}) == <?>
-
-QValue:
-prep: import List;
-make: L = list[int[-20,2],3,6]
-expr: M = takeWhile(<L>, bool(int x){ return x < 0;})
-hint: bool(int x){ return x < 0;}
-test: takeWhile(<L>, <?>) == <M>
-
-
-
-}
+----}
 public list[&T] takeWhile(list[&T] lst, bool (&T a) take) {
 	i = 0;
 	return while(i < size(lst) && take(lst[i])) {
@@ -1400,269 +869,161 @@ public list[&T] takeWhile(list[&T] lst, bool (&T a) take) {
 }
 
 @doc{
-Synopsis: Convert a list of pairs to a map; first elements are associated with a set of second elements.
+.Synopsis
+Convert a list of pairs to a map; first elements are associated with a set of second elements.
 
-Description:
+.Description
 Convert a list of tuples to a map in which the first element of each tuple is 
 associated with the set of second elements from all tuples with the same first element. Keys should be unique.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 toMap([<1,10>, <1, 11>, <2, 20>, <3, 30>, <3, 31>]);
-</screen>
+----
 
-Pitfalls:
+.Pitfalls
 `toMap` collects all values in tuples with the same first value in a set.
 Contrast this with `toMapUnique` that associates each first tuple value with the second tuple value,
-but imposes the constraint that those keys are unique.
-
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[tuple[int,int], 5, 8]
-test: toMap(<L>)
-
-QValue:
-prep: import List;
-make: L = list[tuple[int,int], 5, 8]
-expr: H = toMap(<L>)
-hint: <H>
-test: toMap(<L>) == <?>
-
-
-
-}
+but imposes the constraint that those keys are unique.}
 @javaClass{org.rascalmpl.library.Prelude}
 public java map[&A,set[&B]] toMap(list[tuple[&A, &B]] lst) throws MultipleKey;
 
 @doc{
-Synopsis: Convert a list of tuples to a map; result must be a map.
-
-Description:
+.Synopsis
 Convert a list of tuples to a map; result must be a map.
 
-Examples:
-<screen errors>
+.Description
+Convert a list of tuples to a map; result must be a map.
+
+.Examples
+[source,rascal-shell,error]
+----
 import List;
 toMapUnique([<1,10>, <2, 20>, <3, 30>]);
-//Let's explore an error case:
+----
+Let's explore an error case:
+[source,rascal-shell,continue,error]
+----
 toMapUnique([<1,10>, <1, 11>, <2, 20>, <3, 30>]);
-</screen>
+----
 
-Pitfalls:
+.Pitfalls
 The keys in a map are unique by definition.
-`toMapUnique` throws a `MultipleKey` exception when the list contains more than one tuple with the same first value.
-
-Questions:
-
-QType:
-prep: import List;
-prep: import Set;
-make: K = set[int, 6, 6]
-make: V = list[int, 6, 6]
-expr: KL = toList(<K>)
-expr: P = zip(<KL>, <V>)
-test: toMapUnique(<P>)
-
-QValue:
-prep: import List;
-prep: import Set;
-make: K = set[int, 6, 6]
-make: V = list[int, 6, 6]
-expr: KL = toList(<K>)
-expr: P =  zip(<KL>, <V>)
-expr: H = toMapUnique(<P>)
-hint: <H>
-test: toMapUnique(<P>) == <?>
-}
+`toMapUnique` throws a `MultipleKey` exception when the list contains more than one tuple with the same first value.}
 @javaClass{org.rascalmpl.library.Prelude}
 public java map[&A,&B] toMapUnique(list[tuple[&A, &B]] lst) throws MultipleKey;
 
 @doc{
-Synopsis: Take the top element of a list.
-Description:
-This function is identical to [head].
-Also see [$List/pop] and [$List/push].
+.Synopsis
+Take the top element of a list.
+.Description
+This function is identical to <<head>>.
+Also see <<List-pop>> and <<List-push>>.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 top([3, 1, 4, 5]);
 top(["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[int,str],1,6]
-test: top(<L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str],1,6]
-expr: H = top(<L>)
-hint: <H>
-test: top(<L>) == <?>
-
-}
+----}
 public &T top(list[&T] lst) throws EmptyList = head(lst);
 
 @doc{
-Synopsis: Convert a list to a relation.
-Description:
+.Synopsis
+Convert a list to a relation.
+.Description
   Convert a list to relation, where each tuple encodes which elements are followed by each other.
   This function will return an empty relation for empty lists and for singleton lists.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 toRel([3, 1, 4, 5]);
 toRel(["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[int,str],4,4]
-test: toRel(<L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str],4,4]
-expr: H = toRel(<L>)
-hint: <H>
-test: toRel(<L>) == <?>
-
-}
+----}
 public rel[&T,&T] toRel(list[&T] lst) {
   return { <from,to> | [_*, from, to, _*] := lst };
 }
 
 @doc{
-Synopsis: Convert a list to a set.
+.Synopsis
+Convert a list to a set.
 
-Description:
+.Description
 Convert `lst` to a set.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 toSet([10, 20, 30, 40]);
 toSet(["zebra", "elephant", "snake", "owl"]);
-// Note that the same can be done using splicing
+----
+Note that the same can be done using splicing
+[source,rascal-shell,continue]
+----
 l = [10,20,30,40];
 s = {*l};
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[arb[int,str]]
-test: toSet(<L>)
-
-QValue:
-prep: import List;
-make: L = list[arb[int,str]]
-expr: H = toSet(<L>)
-hint: <H>
-test: toSet(<L>) == <?>
-
-
-
-}
+----}
 @deprecated{Please use {*myList} instead.}
 @javaClass{org.rascalmpl.library.Prelude}
 public java set[&T] toSet(list[&T] lst);
 
 @doc{
-Synopsis: Convert a list to a string.
+.Synopsis
+Convert a list to a string.
 
-Description:
+.Description
 Convert `lst` to a string.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 toString([10, 20, 30]);
 toString(["zebra", "elephant", "snake", "owl"]);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[int]
-test: toString(<L>)
-
-QValue:
-prep: import List;
-make: L = list[int]
-expr: H = toString(<L>)
-hint: <H>
-test: toString(<L>) == <?>
-}
+----}
 @javaClass{org.rascalmpl.library.Prelude}
 public java str toString(list[&T] lst);
 
 
 @doc{
-Synopsis: Convert a list to an indented string.
+.Synopsis
+Convert a list to an indented string.
 
-Description:
+.Description
 Convert `lst` to a indented string.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 itoString([10, 20, 30]);
 itoString(["zebra", "elephant", "snake", "owl"]);
-</screen>
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str itoString(list[&T] lst);
 
 
 @doc{
-Synopsis: Make a pair (triple) of lists from a list of pairs (triples).
+.Synopsis
+Make a pair (triple) of lists from a list of pairs (triples).
 
-Description:
-Also see [$List/unzip];
+.Description
+Also see <<List-unzip>>;
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 unzip([<3,"thirty">, <1,"ten">, <4,"forty">]);
 unzip([<3,"thirty",300>, <1,"ten",100>, <4,"forty",400>]);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: L = list[int, 4, 4]
-make: M = list[int, 4, 4]
-expr: Z = zip(<L>, <M>)
-test: unzip(<Z>)
-
-
-
-QValue:
-prep: import List;
-make: L = list[int, 4, 4]
-make: M = list[int, 4, 4]
-expr: Z = zip(<L>, <M>)
-expr: H = unzip(<Z>)
-hint: <H>
-test: unzip(<Z>) == <?>
-
-}
+----}
 public tuple[list[&T],list[&U]] unzip(list[tuple[&T,&U]] lst) =
 	<[t | <t,_> <- lst], [u | <_,u> <- lst]>;
 
@@ -1671,67 +1032,34 @@ public tuple[list[&T],list[&U],list[&V]] unzip(list[tuple[&T,&U,&V]] lst) =
 	<[t | <t,_,_> <- lst], [u | <_,u,_> <- lst], [w | <_,_,w> <- lst]>;
 
 @doc{
-Synopsis: Returns the list 0,1..n-1.
-Description:
+.Synopsis
+Returns the list 0,1..n-1.
+.Description
 Returns the list `0`, `1`, .., `n-1`, this is slightly faster than `[0..n]`, since the returned values are shared.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 upTill(10);
-</screen>
-
-Questions:
-
-QType:
-prep: import List;
-make: N = int[2,5]
-test: upTill(<N>)
-
-QValue:
-prep: import List;
-make: N = int[2,5]
-expr: H = upTill(<N>)
-hint: <H>
-test: upTill(<N>) == <?>
-
-QValue:
-prep: import List;
-make: N = int[2,5]
-expr: H = size(upTill(<N>))
-hint: <H>
-test: size(upTill(<N>)) == <?>
-
-
-
-}
+----}
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[int] upTill(int n);
 
 @doc{
-Synopsis: Make a list of pairs from two (three) lists of the same length.
+.Synopsis
+Make a list of pairs from two (three) lists of the same length.
 
-Description:
-Also see [$List/unzip].
+.Description
+Also see <<List-unzip>>.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import List;
 zip([3, 1, 4], ["thirty", "ten", "forty"]);
 zip([3, 1, 4], ["thirty", "ten", "forty"], [300, 100, 400]);
-</screen>
-
-Questions:
-
-
-QValue:
-prep: import List;
-make: L = list[int, 4, 4]
-make: M = list[int, 4, 4]
-expr: Z = zip(<L>,<M>)
-hint: <Z>
-test: zip(<L>, <M>) == <?>
-}
+----}
 public list[tuple[&T first, &U second]] zip(list[&T] a, list[&U] b) {
 	if(size(a) != size(b))
 		throw IllegalArgument(<size(a),size(b)>, "List size mismatch");

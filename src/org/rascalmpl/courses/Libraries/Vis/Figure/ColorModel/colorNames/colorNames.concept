@@ -1,0 +1,55 @@
+# colorNames
+
+.Synopsis
+Sorted list of available color names that can be used by the [color] function.
+
+.Syntax
+
+.Types
+
+.Function
+`list[str] colorNames()`
+
+.Details
+
+.Description
+
+
+.Examples
+[source,rascal-shell]
+----
+import vis::Figure;
+colorNames();
+----
+
+This functions can be used to create color tables.
+[source,rascal-figure,width=,height=,file=c1.png]
+----
+                boxes = [ box([size(10, 10), fillColor(c)]) | c <- colorNames() ];
+render(hvcat(boxes, width(500), left()));
+----
+
+
+image::{concept}/c1.png[alt="colors"]
+
+
+Or a color table with the color names in colored boxes:
+
+[source,rascal-figure,width=,height=,file=c3.png]
+----
+                import List;
+// Define an auxiliary function to split a list in a list of lists each of length n:
+public list[list[&T]] split(list[&T] elms, int n){
+  return (size(elms) < n) ? <<elms>> : [take(n, elms)] + split(drop(n, elms), n);
+}
+boxes = [ box(text(col, left()), fillColor(col)) | col <- colorNames() ];
+render(grid(split(boxes, 3))); 
+----
+
+image::{concept}/c3.png[alt="c3"]
+
+
+.Benefits
+
+.Pitfalls
+

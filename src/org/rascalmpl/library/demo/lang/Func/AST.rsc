@@ -1,3 +1,4 @@
+// tag::module[]
 module demo::lang::Func::AST
 
 data Prog = prog(list[Func] funcs);
@@ -25,3 +26,4 @@ data Exp = let(list[Binding] bindings, Exp exp)
          | assign(Exp lhs, Exp rhs);
 
 data Binding = binding(str var, Exp exp);
+// end::module[]

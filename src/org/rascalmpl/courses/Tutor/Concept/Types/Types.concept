@@ -1,32 +1,33 @@
-Name: Types
+# Types
 
-Synopsis:
+.Synopsis
+
 Part of the synopsis that describes any types or typing rules introduced by this concept.
 
-Syntax:
-`Types: $MarkedText$`
+.Syntax
+`Types: _MarkedText_`
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 The `Types` section describes any types that are involved in the concept that is described.
 The description can be just text, but in many cases a table is useful to describe types.
 
 
-Examples:
+.Examples
 Here is a type description of an if-then-else statement:
 
 `Types:`
 
-`| ``$$Exp$$`` | $$Statement_1$$ | $$Statement_2$$ | ``if ( $$Exp$$ ) $$Statement_1$$ else $$Statement_2$$;`` |`
+`| ``__Exp__`` | __Statement_1__ | __Statement_2__ | ``if ( __Exp__ ) __Statement_1__ else __Statement_2__;`` |`
 
 `|:------|:--------------|:--------------|:-----------------------------------------------|`
 
-`| ``bool``   |  $$T_1$$        | $$T_2$$         | ``lub($$T_1$$, $$T_2$$)``                              |`
+`| ``bool``   |  __T_1__        | __T_2__         | ``lub(__T_1__, __T_2__)``                              |`
 
 
 The result will be displayed as:
@@ -34,13 +35,13 @@ The result will be displayed as:
 `Types:`
 
 
+|====
 | `$Exp$` | $Statement_1$ | $Statement_2$ | `if ( $Exp$ ) $Statement_1$ else $Statement_2$;` |
 |:--------|:--------------|:--------------|:-------------------------------------------------|
 | `bool`  |  $T_1$        | $T_2$         | `lub($T_1$, $T_2$)`                              |
+|====
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

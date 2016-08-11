@@ -1,13 +1,12 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.BytecodeGenerator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class CheckMemo extends Instruction {
 	
 	public CheckMemo(CodeBlock ins){
 		super(ins, Opcode.CHECKMEMO);
-		
 	}
 
 	public String toString() { return "CHECKMEMO"; }

@@ -1,65 +1,68 @@
-Name: ListRelation
+# ListRelation
 
-Synopsis: ListRelation values.
+.Synopsis
+ListRelation values.
 
-Syntax:
-`[ <$Exp_11$, $Exp_12$, ... > , <$Exp_21$, $Exp_22$, ... > , ... ]`
+.Index
+[ ] < >
 
-Types:
-| `$Exp_11$` |  `$Exp_12$` |  ...  | `{ <$Exp_11$, $Exp_12$, ... > , ... }`  |
-|:-----------|:------------|:------|:----------------------------------------|
-| `$T_1$`    |    `$T_2$`  |  ...  |  `lrel[$T_1$, $T_2$, ... ]`              |
+.Syntax
+`[ < _Exp_~11~, _Exp_~12~, ... > , < _Exp_~21~, _Exp_~22~, ... > , ... ]`
 
-Usage: `import ListRelation;` (included in [Prelude])
+.Types
 
-Function:
+//
 
-Details:
+[cols="20,20,20,40"]
+|====
+| `_Exp~11~_` |  `_Exp~12~_` |  ...  | `{ < _Exp~11~_, _Exp~12~_, ... > , ... }`  
 
-Description:
+| `_T~1~_`    |    `_T~2~_`  |  ...  |  `lrel[_T~1~_, _T~2~_, ... ]`              
+|====
+
+.Usage
+
+.Function
+
+.Details
+
+.Description
 A list relation is a list of elements with the following property:
 
-* All elements have the same static tuple type.
+*  All elements have the same static tuple type.
 
 
 ListRelations are thus nothing more than lists of tuples, but since they are used so often we provide a shorthand notation for them.
-ListRelations are represented by the type `lrel[$T_1$ $L_1$, $T_2$ $L_2$, ... ]`, where $T_1$, $T_2$, ... are arbitrary types and
-$L_1$, $L_2$, ... are optional labels. It is a shorthand for `list[tuple[$T_1$ $L_1$, $T_2$ $L_2$, ... ]]`.
+ListRelations are represented by the type `lrel[_T_~1~ _L_~1~, _T_~2~ _L_~2~, ... ]`, where _T_~1~, _T_~2~, ... are arbitrary types and
+_L_~1~, _L_~2~, ... are optional labels. It is a shorthand for `list[tuple[_T_~1~ _L_~1~, _T_~2~ _L_~2~, ... ]]`.
 
 An n-ary list relation with m tuples is denoted by
- `[<$E_11$, $E_12$, ..., $E_1n$>,<$E_21$, $E_22$, ..., $E_2n$>, ..., <$E_m1$, $E_m2$, ..., $E_mn$>]`, 
-where the $E_ij$ are expressions that yield the desired element type $T_i$.
+ `[< _E_~11~, _E_~12~, ..., _E_~1n~>,< _E_~21~, _E_~22~, ..., _E_~2n~>, ..., < _E_~m1~, _E_~m2~, ..., _E_~mn~>]`, 
+where the _E_~ij~ are expressions that yield the desired element type _T_~i~.
 
-Since list relations are a form of list all operations (see [$Values/List]) and functions
-(see [Prelude/List]) are also applicable to relations.
+Since list relations are a form of list all operations (see <<Values-List>>) and functions
+(see <<Prelude-List>>) are also applicable to relations.
 
 The following additional operators are provided for list relations:
-<toc Rascal/Expressions/Values/ListRelation 1>
+subtoc::[1]
 
-The following additional functions are provided on list relations:
-<toc Rascal/Libraries/Prelude/ListRelation 1>
+There are also link:/Libraries#Prelude-ListRelation[library functions] available for ListRelation.
 
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 [<1,10>, <2,20>, <3,30>]
-// instead of lrel[int,int] we can also give `list[tuple[int,int]]` as type of the above expression
-// remember that these types are interchangeable.
+----
+instead of lrel[int,int] we can also give `list[tuple[int,int]]` as type of the above expression
+remember that these types are interchangeable.
+[source,rascal-shell,continue]
+----
 [<"a",10>, <"b",20>, <"c",30>]
 [<"a", 1, "b">, <"c", 2, "d">]
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-
-QChoice: A relation:
-g: Is a set of tuples.
-b: Is a list of tuples.
-b: Is a tuple of tuples.
-b: Has ordered elements.
-b: Can contain duplicates.
-b: Has a fixed length.
+.Pitfalls
 

@@ -1,0 +1,40 @@
+# fontSize
+
+.Synopsis
+Size of the font to be used for text.
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty fontSize(int s)`
+
+.Details
+
+.Description
+Sets the font size (in points) to be used in text.
+
+.Examples
+[source,rascal-figure,width=,height=,file=f1.png]
+----
+                t1 = text("Rascal", fontSize(20));
+render(t1);
+----
+
+image::{concept}/f1.png[alt="font 1"]
+
+
+[source,rascal-figure,width=,height=,file=f2.png]
+----
+                t2 = text("Rascal", fontSize(40));
+render(t2);
+----
+
+image::{concept}/f2.png[alt="font 2"]
+
+
+.Benefits
+
+.Pitfalls
+

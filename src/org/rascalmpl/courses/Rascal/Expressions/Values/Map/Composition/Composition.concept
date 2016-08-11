@@ -1,29 +1,37 @@
-Name: Composition
+# Map Composition
 
-Synopsis: Composition of two map values.
+.Synopsis
+Composition of two map values.
 
-Syntax:
-`$Exp_1$ o $Exp_2$`
+.Index
+o
 
-Types:
-|`$Exp_1$`            | `$Exp_2$`           | `$Exp_1$ o $Exp_2$` |
-|:--------------------|:--------------------|:--------------------|
-| `map[$T_1$, $T_2$]` | `map[$T_2$, $T_3$]` | `map[$T_1$, $T_3$]` |
+.Syntax
+`_Exp_~1~ o _Exp_~2~`
 
-Function:
+.Types
 
-Details:
+|====
+|`_Exp~1~_`            | `_Exp~2~_`           | `_Exp~1~_ o _Exp~2~_` 
 
-Description:
+| `map[_T~1~_, _T~2~_]` | `map[_T~2~_, _T~3~_]` | `map[_T~1~_, _T~3~_]` 
+|====
+
+.Function
+
+.Details
+
+.Description
 Returns the composition of two maps.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import Map;
 ("one" : 1, "two" : 2) o (1 : 10, 2 : 20);
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 We use the letter `o` as operator and this may conflict other defined names.

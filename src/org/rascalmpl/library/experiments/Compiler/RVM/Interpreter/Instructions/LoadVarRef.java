@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.BytecodeGenerator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class LoadVarRef extends Instruction {
 
@@ -24,11 +24,18 @@ public class LoadVarRef extends Instruction {
 	}
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
-		if ( debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
-
 		int what = (pos == -1) ? codeblock.getConstantIndex(codeblock.vf.string(fuid)) : codeblock.getFunctionIndex(fuid) ;
 		
-		codeEmittor.emitCallWithArgsSSFIIZ("insnLOADVARREF", what, pos, CodeBlock.isMaxArg2(pos),debug);
+		if (pos == -1) {
+			if ( debug ) 
+				codeEmittor.emitDebugCall2(opcode.name(), fuid, pos);
+			
+			codeEmittor.emitCallWithArgsFI_A("LOADVARREFMODULE", what, debug);
+		} else {
+			if ( debug ) 
+				codeEmittor.emitDebugCall2(opcode.name(), codeblock.getFunctionName(fuid), pos);
+			
+			codeEmittor.emitCallWithArgsFII_A("LOADVARREFSCOPED", what, pos, debug);
+		}
 	}
 }

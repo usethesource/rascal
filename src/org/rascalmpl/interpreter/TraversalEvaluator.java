@@ -30,6 +30,7 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.LiteralPattern;
@@ -365,6 +366,10 @@ public class TraversalEvaluator {
 		    else {
 		    	rcons = (IConstructor) eval.getValueFactory().constructor(cons.getConstructorType(),  args);
 		    }
+		  }
+		  catch (MatchFailed e) {
+			  // this indicates that a nested rewrite has applied to replace a valid child with an invalid child
+			  throw new UnexpectedType(cons.getConstructorType().getFieldTypes(), tf.tupleType(args), (AbstractAST) null);
 		  }
 		  
 		  if (!cons.mayHaveKeywordParameters() && cons.asAnnotatable().hasAnnotations()) {
