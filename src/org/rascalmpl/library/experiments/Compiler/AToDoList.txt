@@ -6,8 +6,8 @@ Issues:
 - lang::rascal::grammar::definition::Symbols:sym2symbol
   - The Symbol:: qualifier should be unnneccessary
   - empty (from Rascal.rsc) can cause trouble.
-- Various type checker tests still fail
-- Various (compiled) rascal tests fail.
+x Various type checker tests still fail
+x Various (compiled) rascal tests fail.
 x Change main convention from "value main(list[value] args)" to value "main()"
 
 Still to be implemented:
@@ -26,10 +26,10 @@ Runtime environment end IDE integration
 - Make info available for RascalShell Rascal IDE:
   - Preserve @doc per function/module in compiled code
   - Preserve use/def info per function/module
-- Replace current interpreter-based parser generator used by the compiler by compiled parser generator
+x Replace current interpreter-based parser generator used by the compiler by compiled parser generator
 x Detach the execute command from the interpreter and make it stand alone
 - Adapt the debugger to run with compiled code
-- Create a RascalShell for compiled code
+x Create a RascalShell for compiled code
 - Replace interpreter by compiler in IDE 
 
 Code improvement
@@ -40,7 +40,7 @@ Code improvement
 
 Performance improvement
 x Make the compiler truly incremental:
-  x Best done using import graph (still to be provided by typechecker) 
+  x Best done using import graph (as provided by typechecker) 
 - Optimize the case of an overloaded function call with only one remaining alternative.
 x Currently, RVM does null pointer checking; these checks can disappear when there is a guarantee that
   variables are always initialized. (Switched off)

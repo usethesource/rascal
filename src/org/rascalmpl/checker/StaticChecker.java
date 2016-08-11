@@ -13,6 +13,9 @@
 package org.rascalmpl.checker;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Configuration;
@@ -25,6 +28,9 @@ import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 
@@ -34,6 +40,7 @@ public class StaticChecker {
 	private boolean checkerEnabled; 
 	private boolean initialized;
 	private boolean loaded;
+    private Type pathConfigConstructor = null;
 	
 	public StaticChecker(PrintWriter stderr, PrintWriter stdout) {
 		GlobalEnvironment heap = new GlobalEnvironment();
@@ -55,6 +62,9 @@ public class StaticChecker {
 
 	public synchronized void load(IRascalMonitor monitor) {
 		eval(monitor, "import lang::rascal::types::CheckTypes;");
+		eval(monitor, "import util::Reflective;");
+	    TypeStore ts = eval.getHeap().getModule("util::Reflective").getStore();
+	    pathConfigConstructor = ts.lookupConstructor(ts.lookupAbstractDataType("PathConfig"), "pathConfig").iterator().next();
 		loaded = true;
 	}
 
@@ -72,12 +82,21 @@ public class StaticChecker {
 	
 	public synchronized ITree checkModule(IRascalMonitor monitor, ISourceLocation module) {
 		if (checkerEnabled) {
-			return (ITree) eval.call(monitor, "check", module);
+			return (ITree) eval.call(monitor, "check", module, getPathConfig());
 		}
 		return null;
 	}
 
-	public synchronized void disableChecker() {
+	private IValue getPathConfig() {
+	    assert pathConfigConstructor != null;
+	    IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	    Map<String, IValue> kwArgs = new HashMap<>();
+	    kwArgs.put("srcPath", vf.list(eval.getRascalResolver().collect().toArray(new IValue[0])));
+	    // default args for the rest
+	    return vf.constructor(pathConfigConstructor, new IValue[0], kwArgs);
+    }
+
+    public synchronized void disableChecker() {
 		checkerEnabled = false;
 	}
 

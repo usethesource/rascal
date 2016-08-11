@@ -1,32 +1,33 @@
-Name: Precede
+# Precede Declaration
 
-Synopsis:
+.Synopsis
+A conditional <<Symbol>>, constraining the characters that can immediately precede a symbol in the input source text.
 
-Syntax: 
+.Index
+<< !<<
 
-# `$constraint$ << $Symbol$` 
-# `$constraint$ !<< $Symbol$`
+.Syntax
 
-
-where a $constraint$ is any character class, a literal or a keyword non-terminal [$SyntaxDefinition/Symbol].
-
-Types:
-
-Function:
-
-Details:
-
-Description: Using `<<`, the parser will not accept the $Symbol$ if it is not immediately preceded by the $terminal$ in the input string. If the start of the symbol coincides with start of the inout, the constraint will fail and the symbol will not be accepted.
-
-Using `!<<`, the parser will not accept the $Symbol$ if it is immediately preceded by the $terminal$ in the input string. If the start of the symbol coincides with start of the inout, the constraint will always succeed and the symbol is accepted.
+*  `_constraint_ << _Symbol_` 
+*  `_constraint_ !<< _Symbol_`
 
 
-Examples:
+where a _constraint_ is any character class, a literal or a keyword non-terminal <<SyntaxDefinition-Symbol>>.
 
-Benefits:
+.Types
 
-Pitfalls:
+.Function
 
-Questions:
+.Details
 
-       
+.Description
+
+Using `!<<`, the parser will not accept the _Symbol_ if it is immediately preceded by the _terminal_ in the input string. If the start of the symbol coincides with start of the inout, the constraint will always succeed and the symbol is accepted.
+
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

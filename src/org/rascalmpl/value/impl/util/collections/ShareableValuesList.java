@@ -82,9 +82,9 @@ public class ShareableValuesList extends ShareableList<IValue>{
 	}
 	
 	public ShareableValuesList subList(int offset, int length){
-		if(offset < 0) throw new IndexOutOfBoundsException("Offset may not be smaller then 0.");
-		if(length < 0) throw new IndexOutOfBoundsException("Length may not be smaller then 0.");
-		if((offset + length) > size()) throw new IndexOutOfBoundsException("'offset + length' may not be larger then 'list.size()'");
+		if(offset < 0) throw new IndexOutOfBoundsException("Offset may not be smaller than 0.");
+		if(length < 0) throw new IndexOutOfBoundsException("Length may not be smaller than 0.");
+		if((offset + length) > size()) throw new IndexOutOfBoundsException("'offset + length' may not be larger than 'list.size()'");
 		
 		return new ShareableValuesList(this, offset, length);
 	}

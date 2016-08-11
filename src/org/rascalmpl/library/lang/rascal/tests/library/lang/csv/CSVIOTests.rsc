@@ -7,7 +7,7 @@ import util::Math;
 import ParseTree;
 import DateTime;
 
-loc targetFile = |test-modules:///test.csv|;
+loc targetFile = |test-temp:///csv-test-file.csv|;
 
 bool readWrite(set[&T] dt) = readWrite(type(typeOf(dt), ()), dt);
 bool readWrite(type[&T] returnType, set[&T1] dt) {

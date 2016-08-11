@@ -1,9 +1,10 @@
 @doc{
-Synopsis: mapping all of Java to the object flow language
+.Synopsis
+mapping all of Java to the object flow language
 
-Description:
+.Description
 
-More information can be found in [ObjectFlow].
+More information can be found in <<ObjectFlow>>.
 }
 module lang::java::flow::JavaToObjectFlow
 
@@ -12,9 +13,7 @@ import Set;
 import List;
 import analysis::flow::ObjectFlow;
 import lang::java::m3::TypeSymbol;
-import lang::java::jdt::m3::AST;
-
-FlowProgram createOFG(loc project) = createOFG(createAstsFromEclipseProject(project, true));
+import lang::java::m3::AST;
 
 FlowProgram createOFG(set[Declaration] asts) {
   println("Getting decls");
@@ -329,4 +328,3 @@ tuple[list[loc], set[FlowStm]] unnestExpressions(loc prefix, int uniqNum, list[E
 }
 
 default set[FlowStm] translate(loc base, loc target, Expression e) = { *translate(base, target, ch) | Expression ch <- e};
-

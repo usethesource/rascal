@@ -1,36 +1,37 @@
-Name: NamedParagraph
+# NamedParagraph
 
-Synopsis:
+.Synopsis
+
 Mark up for a named paragraph.
 
-Syntax:
-# `==$ParagraphName$==`
-# `===$ParagraphName$===`
-# `====$ParagraphName$====`
-# ...
+.Syntax
 
-Types:
+#  `==$ParagraphName$==`
+#  `===$ParagraphName$===`
+#  `====$ParagraphName$====`
+#  ...
 
-Function:
+.Types
 
-Details:
+.Function
 
-Description:
-A NamedParagraph produces a named paragraph of a level that is determined by the number of `=` characters surrounding the $ParagraphName$.
+.Details
 
-Examples:
+.Description
+A NamedParagraph produces a named paragraph of a level that is determined by the number of `=` characters surrounding the _ParagraphName_.
+
+.Examples
 The input:
 
 `==Level 1 Paragraph==`
 
 will give<br>
 
-==Level 1 Paragraph==
+## Level 1 Paragraph
 
-Benefits:
 
-Pitfalls:
+.Benefits
+
+.Pitfalls
 A NamedParagraph should start at the start of a line.
-
-Questions:
 

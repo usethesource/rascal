@@ -1,38 +1,38 @@
-Name: UnguardedAppend
+# UnguardedAppend
 
-Synopsis: Append statement occurs outside a for/while statement.
+.Synopsis
+Append statement occurs outside a for/while statement.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
-The [$Rascal:Statements/Append] statement can be used inside a loop statement.
+.Description
+The link:/Rascal#Statements-Append[append] statement can be used inside a loop statement.
 This error is generated when append occurs outside a loop.
 
 Remedy: use List concatenation to append an element to a list outside a loop.
 
-Examples:
+.Examples
 This is the typical use of `append`:
-<screen>
+[source,rascal-shell]
+----
 for(int i <- [1..5]) append i*i;
-</screen>
+----
 Using append outside a loop gives an error:
-<screen warnings>
+[source,rascal-shell,error]
+----
 append 3;
-</screen>
+----
 
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

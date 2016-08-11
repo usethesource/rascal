@@ -1,28 +1,27 @@
-Name: Value
+# Value
 
-Synopsis: Values of type `value`.
+.Synopsis
+Values of type `value`.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 `value`
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 Value stands for all possible Rascal values and is represented by the type `value`.
 This type is a container for all other types and does not have any values itself.
 
-The following functions are provided for values:
-<toc Rascal/Expressions/Values/Value 1>
+The following operators are provided for values:
+subtoc::[1]
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

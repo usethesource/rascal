@@ -1,30 +1,39 @@
-Name: Any
+# Boolean Any
 
-Synopsis: Any combination of argument values is true.
+.Index
+any
 
-Syntax:
-`any ( $Exp_1$, $Exp_2$, ... )`
+.Synopsis
+Any combination of argument values is true.
 
-Types:
-| `$Exp_1$` | `$Exp_2$` | ... | `any ( $Exp_1$, $Exp_2$, ... )` |
-|:----------|:----------|:----|:--------------------------------|
-|`bool`     | `bool`    | ... | `bool`                          |
+.Syntax
+`any ( _Exp_~1~, _Exp_~2~, ... )`
 
-Function:
+.Types
 
-Details:
+//
 
-Description:
-Yields `true` when at least one combination of values of $Exp_i$ is true.
+[cols="20,20,20,40"]
+|====
+| `_Exp~1~_` | `_Exp~2~_` | ... | `any ( _Exp~1~_, _Exp~2~_, ... )` 
 
-Examples:
-<screen>
+|`bool`     | `bool`    | ... | `bool`                          
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields `true` when at least one combination of values of _Exp_~i~ is true.
+
+.Examples
+[source,rascal-shell]
+----
 any(int n <- [1 .. 10], n % 2 == 0);
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

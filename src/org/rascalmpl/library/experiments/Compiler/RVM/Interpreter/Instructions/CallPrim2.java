@@ -1,8 +1,8 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.BytecodeGenerator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 import org.rascalmpl.value.ISourceLocation;
 
 public class CallPrim2 extends Instruction {
@@ -24,8 +24,8 @@ public class CallPrim2 extends Instruction {
 	}
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if ( debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall2(opcode.name(), prim.name(), 2);
 
-		codeEmittor.emitInlineCallPrim2(prim, debug); 
+		codeEmittor.emitInlineCallPrim2(prim, codeblock.getConstantIndex(src), debug); 
 	}
 }

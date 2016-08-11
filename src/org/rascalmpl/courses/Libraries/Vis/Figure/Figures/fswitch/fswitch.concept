@@ -1,0 +1,26 @@
+# fswitch
+
+.Synopsis
+Dynamic selection from a fixed list of figures.
+
+.Syntax
+
+.Types
+
+.Function
+`Figure fswitch(int () choice, Figures fs, Fproprty props ...)`
+
+.Details
+
+.Description
+Select one of the figures in the fixed list of figures `fs`.
+The result of the function `choice` determines which of the figures to select.
+
+The minimal size of the figure is maximal minimal size of all the choices. That means that if a switch is made from choice a to b, the size required for the `fswitch` will not change.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

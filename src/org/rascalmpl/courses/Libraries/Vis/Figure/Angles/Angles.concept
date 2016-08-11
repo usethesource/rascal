@@ -1,0 +1,28 @@
+# Angles
+
+.Synopsis
+Conventions for defining angles.
+
+.Syntax
+
+.Types
+
+.Function
+
+.Details
+
+.Description
+Various properties use angles.
+Angles are measured in degrees and, using an analog clock as metaphor, 0 degrees is at 3:00 hours and degrees go clockwise: 
+
+
+image::{concept}/Angles.png[width="300px" ,alt="Angles"]
+
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+There is at the moment no support for angles expressed in radians.
+

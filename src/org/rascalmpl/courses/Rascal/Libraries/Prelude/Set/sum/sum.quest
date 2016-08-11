@@ -1,1 +1,0 @@
-[tvQuestion("Rascal/Libraries/Prelude/Set/sum","1",typeOfExpr(),details(" ",["import Set;"],"","","sum(\<S\>)","",false,false,[<"S",set(num(-20,20),2,7)>],[],void(),"")),tvQuestion("Rascal/Libraries/Prelude/Set/sum","2",valueOfExpr(),details(" ",["import Set;"],"","","sum(\<S\>)","",false,false,[<"S",set(int(-20,20),2,7)>],[<"H","sum(\<S\>)">],void(),"\<H\>"))]

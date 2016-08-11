@@ -1,24 +1,27 @@
-Name: ReferenceToConcept
+# ReferenceToConcept
 
-Synopsis:
+.Synopsis
+
 Refer to a concept in this course or another course.
 
-Syntax:
-# `[ $OptDollar$ $ConceptName$ ]`
-# `[ $OptDollar$ $OtherCourse$ : $ConceptName$ ]`
+.Syntax
 
-Types:
+#  `[ $OptDollar$ $ConceptName$ ]`
+#  `[ $OptDollar$ $OtherCourse$ : $ConceptName$ ]`
 
-Function:
+.Types
 
-Details:
+.Function
 
-Description:
+.Details
+
+.Description
 The first form creates a link to a concept in the current course.
 The conceptname may be:
-* A full pathname of a concept.
-* A partial pathname (with elements starting at the rooted omitted)
-* A basic conceptname, i.e. the name fo a concept without its hierarchical path.
+
+*  A full pathname of a concept.
+*  A partial pathname (with elements starting at the rooted omitted)
+*  A basic conceptname, i.e. the name fo a concept without its hierarchical path.
 
 
 A partial concept name may be needed if the course contains concepts with the same
@@ -28,18 +31,17 @@ The second form creates a link to a concept in another course.
 
 Each of these two forms may be preceeded by a `$` sign (mnemonic: _short_) and has as effect that only the most specific part of the conceptname is shown.
 
-Examples:
+.Examples
 We can create a reference to the `InlineMarkup` concept in the current course in the following ways:
-* `[Tutor/Markup/InlineMarkup]` gives [Tutor/Markup/InlineMarkup].
-* `[$Tutor/Markup/InlineMarkup]` gives [$Tutor/Markup/InlineMarkup].
-* `[Markup/InlineMarkup]` gives [Markup/InlineMarkup].
-* `[InlineMarkup]` gives [InlineMarkup].
-* `[Rascal:If]` gives [Rascal:If].
-* `[Rascal:Rascal]` gives [Rascal:Rascal].
 
-Benefits:
+*  `[Tutor/Markup/InlineMarkup]` gives [Tutor/Markup/InlineMarkup].
+*  `[$Tutor/Markup/InlineMarkup]` gives [$Tutor/Markup/InlineMarkup].
+*  `[Markup/InlineMarkup]` gives [Markup/InlineMarkup].
+*  `[InlineMarkup]` gives [InlineMarkup].
+*  `[Rascal:If]` gives [Rascal:If].
+*  `[Rascal:Rascal]` gives [Rascal:Rascal].
 
-Pitfalls:
+.Benefits
 
-Questions:
+.Pitfalls
 

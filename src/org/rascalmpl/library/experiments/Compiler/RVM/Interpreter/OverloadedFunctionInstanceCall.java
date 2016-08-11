@@ -80,7 +80,7 @@ public class OverloadedFunctionInstanceCall {
 		throw new CompilerError("Could not find a matching scope when computing a nested overloaded function instance: " + scopeIn, cf);
 	}
 	
-	public Frame nextFrame(final List<Function> functionStore) {
+	public Frame nextFrame(final Function[] functionStore) {
 		Function f = this.nextFunction(functionStore);
 		if(f == null) {
 			return null;
@@ -88,12 +88,12 @@ public class OverloadedFunctionInstanceCall {
 		return cf.getFrame(f, previousScope, arity, sp);
 	}
 	
-	public Function nextFunction(final List<Function> functionStore) {
+	public Function nextFunction(final Function[] functionStore) {
 		if(types == null) {
-			return alternative < getFunctions().length ? functionStore.get(getFunctions()[alternative++]) : null;
+			return alternative < getFunctions().length ? functionStore[getFunctions()[alternative++]] : null;
 		} else {
 			while(alternative < getFunctions().length) {
-				Function fun = functionStore.get(getFunctions()[alternative++]);
+				Function fun = functionStore[getFunctions()[alternative++]];
 				for(Type type : types) {
 					try {
 						Map<Type,Type> bindings = new HashMap<Type,Type>();
@@ -111,7 +111,21 @@ public class OverloadedFunctionInstanceCall {
 	public Type nextConstructor(final List<Type> constructorStore) {
 		if(types == null) {
 			if(getConstructors().length == 0){
-				System.err.println("empty constructor list!");
+				System.err.println("No alternative found for (overloaded) function or constructor;\narity: " + arity + ", previousScope: " + previousScope);
+				if(getFunctions().length > 0){
+					System.err.print("Function(s):");
+					for(int i = 0; i < getFunctions().length; i++){
+						System.err.print(" " + getFunctions()[i]);
+					}
+					System.err.println("");
+				}
+				if(getConstructors().length > 0){
+					System.err.println("Constructor(s):");
+					for(int i = 0; i < getConstructors().length; i++){
+						System.err.print(" " + getConstructors()[i]);
+					}
+					System.err.println("");
+				}
 			}
 			assert getConstructors().length >= 1;
 			return constructorStore.get(getConstructors()[0]);

@@ -39,8 +39,8 @@ public class Function implements Serializable {
 	Type ftype;
 	int scopeId;
 	String funIn;
-	int scopeIn = -1;
-	int nformals;
+	public int scopeIn = -1;
+	public int nformals;
 	private int nlocals;
 	boolean isDefault;
 	int maxstack;
@@ -149,7 +149,11 @@ public class Function implements Serializable {
 		this.typeConstantStore = codeblock.getTypeConstants();
 	}
 	
-	public void attachExceptionTable(final IList exceptions, final RVMLoader rascalLinker) {
+	public void clearForJVM(){
+		codeblock.clearForJVM();
+	}
+	
+	public void attachExceptionTable(final IList exceptions, final RVMLinker rascalLinker) {
 			froms = new int[exceptions.length()];
 			tos = new int[exceptions.length()];
 			types = new int[exceptions.length()];
@@ -312,7 +316,7 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		out.writeObject(n);
 
 		for(int i = 0; i < n; i++){
-			out.writeObject(new FSTSerializableType(fun.typeConstantStore[i]));
+			out.writeObject(new FSTSerializableType(RascalExecutionContext.shareTypeConstant(fun.typeConstantStore[i])));
 		}
 
 		// boolean concreteArg = false;
@@ -341,6 +345,9 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 
 		// int lastHandler = -1;
 		out.writeObject(fun.lastHandler);
+		
+		//public Integer funId; 
+		out.writeObject(fun.funId);
 
 		// boolean isCoroutine = false;
 		out.writeObject(fun.isCoroutine);
@@ -413,7 +420,7 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		Type[] typeConstantStore = new Type[n];
 
 		for(int i = 0; i < n; i++){
-			typeConstantStore[i] = (Type) in.readObject();
+			typeConstantStore[i] = RascalExecutionContext.shareTypeConstant((Type) in.readObject());
 		}
 
 		// boolean concreteArg = false;
@@ -442,6 +449,9 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 
 		// int lastHandler = -1;
 		Integer lastHandler = (Integer) in.readObject();
+		
+		//public Integer funId; 
+		Integer funId = (Integer) in.readObject();
 
 		// boolean isCoroutine = false;
 		Boolean isCoroutine = (Boolean) in.readObject();
@@ -461,10 +471,11 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		// int continuationPoints
 		Integer continuationPoints = (Integer) in.readObject();
 		
-		return new Function(name, ftype, funIn, nformals, nlocals, isDefault, localNames, maxstack, concreteArg, abstractFingerprint, concreteFingerprint, 
+		Function func = new Function(name, ftype, funIn, nformals, nlocals, isDefault, localNames, maxstack, concreteArg, abstractFingerprint, concreteFingerprint, 
 				codeblock, src, scopeIn, constantStore, typeConstantStore,
 				froms, tos, types, handlers, fromSPs, lastHandler, scopeId,
 				isCoroutine, refs, isVarArgs, continuationPoints);
-	
+		func.funId = funId;
+		return func;
 	}
 }

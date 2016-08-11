@@ -591,7 +591,9 @@ default str v2i(value v) {
         //case set[value] s  : return ("" | it + "_" + v2i(e) | e <- (s));
         default            : return uu(v);
     }
-}    
+} 
+
+public str createHole(ConcretePart hole, int idx) = lang::rascal::grammar::ConcreteSyntax::createHole(hole, idx);   
 
 // For the benefit of various tests
 

@@ -1,0 +1,42 @@
+# button
+
+.Synopsis
+An interactive push button.
+
+.Syntax
+
+.Types
+
+.Function
+`Figure button(str label, void () vcallback, FProperty props...)`
+
+.Details
+
+.Description
+A button with the text `label`. Whenever the user clicks on this button,
+callback `vcallback` is called. Typically, the callback causes a state change in the Rascal program
+(e.g., the value of a variable is changed) and this variable is used in another part of the figure.
+
+.Examples
+[source,rascal-figure,width=200,height=100,file=b1.png]
+----
+                public Figure inc(){
+  int n = 0;
+  return vcat([ button("Increment", void(){n += 1;}),
+                text(str(){return "<n>";})
+              ]);
+}
+render(inc());
+----
+
+image::{concept}/b1.png[alt="b1"]
+
+
+Clicking the button will increment the value of `n`.
+
+.Benefits
+
+.Pitfalls
+Unfortunately we cannot show an interactive version of the above example here.
+Try it out in Rascal itself.
+

@@ -1,39 +1,54 @@
-Name: Splice
+# List Splice
 
-Synopsis: Splice the elements of a list in an enclosing list.
+.Synopsis
+Splice the elements of a list in an enclosing list.
 
-Syntax: `*$Exp$`
+.Index
+*
 
-Types:
-|`$Exp$` | `$Exp_1$`|  `$Exp_n$` | `[$Exp_1$, ..., $Exp$, ..., $Exp_n$]` |
-|:-------|:---------|:-----------|:----------------------------------|
-|`$T$`   | `$T_1$`  |  `$T_n$`   | `list[lub($T_1$, ..., $T$, ...,$T_n$)]`    |
+.Syntax
 
-Function:
+.Types
+
+//
+
+[cols="10,10,10,70"]
+|====
+|`_Exp_` | `_Exp~1~_`|  `_Exp~n~_` | `[_Exp~1~_, ..., _Exp_, ..., _Exp~n~_]` 
+
+|`_T_`   | `_T~1~_`  |  `_T~n~_`   | `list[lub(_T~1~_, ..., _T_, ...,_T~n~_)]`    
+|====
+
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 The operator `*` splices the elements of a list in an enclosing list.
 
-Examples:
-<screen>
-//Consider the following list in which the list `[10, 20, 30]` occurs as list element. It has as type `list[value]`:
+.Examples
+
+Consider the following list in which the list `[10, 20, 30]` occurs as list element. It has as type `list[value]`:
+[source,rascal-shell]
+----
 [1, 2, [10, 20, 30], 3, 4];
-//The effect of splicing the same list element in the enclosing list gives a flat list of type `list[int]`:
+----
+The effect of splicing the same list element in the enclosing list gives a flat list of type `list[int]`:
+[source,rascal-shell,continue]
+----
 [1, 2, *[10, 20, 30], 3, 4];
-//The same example can be written as:
+----
+The same example can be written as:
+[source,rascal-shell,continue]
+----
 L = [10, 20, 30];
 [1, 2, *L, 3, 4];
-</screen>
+----
 
-Benefits: The splicing operator gives full, explicit, control over the way
+.Benefits
 in which nested lists are handled.
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

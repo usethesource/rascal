@@ -1,0 +1,23 @@
+# vshadowPos
+
+.Synopsis
+Vertical position of [shadow].
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty vshadowPos(num vs)`
+
+.Details
+
+.Description
+Set the vertical position of shadows. See <<shadowPos>>.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+

@@ -1,7 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -44,13 +43,28 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 public class ParsingTools {
 
 	private IValueFactory vf;
 	
+	//TODO this cache can move to RascalexecutionContext once we are fully boostrapped and independent of the Interpreter:
+	// reason: parseFragment called from the interpreter creates a new REX and destrouys caching.
+	private Cache<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache;
+	private final int parserCacheSize = 30;
+	private final boolean paserCacheEnabled = true;
+	
 	public ParsingTools(IValueFactory vf){
 		super();
 		this.vf = vf;
+		parserCache = Caffeine.newBuilder()
+//				.weakKeys()
+			    .weakValues()
+//			    .recordStats()
+				.maximumSize(paserCacheEnabled ? parserCacheSize : 0)
+				.build();
 	}
 	
 	private IGTD<IConstructor, ITree, ISourceLocation> getObjectParser(IString moduleName, IValue start, ISourceLocation loc, IMap syntax, RascalExecutionContext rex) throws IOException{
@@ -278,14 +292,14 @@ public class ParsingTools {
 	}
 	  
 	  public IGTD<IConstructor, ITree, ISourceLocation> getParser(String name, IValue start, ISourceLocation loc, IMap syntax, RascalExecutionContext rex) throws IOException {
-		String startAsString = start.toString();
+		//String startAsString = start.toString();
         //System.err.println("getParser: " + name + ", bootstrapParser = " + getBootstrap(name, rex) + ", start = " + startAsString.substring(0,Math.min(startAsString.length(),  50)));
 		if(getBootstrap(name, rex)){
 			return new RascalParser();
 		}
 	    ParserGenerator pg = getParserGenerator(rex);
-	    
-	    Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = rex.getParserCache().get(syntax, k -> pg.getNewParser(rex.getMonitor(), loc, name, syntax, rex));
+	   
+	    Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = parserCache.get(syntax, k -> pg.getNewParser(rex.getMonitor(), loc, name, syntax, rex));
 
 	    try {
 	      return parser.newInstance();
@@ -306,14 +320,30 @@ public class ParsingTools {
 	  public ITree parseFragment(IString name, IMap moduleTags, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx) throws IOException{
 		  IMapWriter w = vf.mapWriter();
 		  w.insert(vf.tuple(name, moduleTags));
-		  RascalExecutionContext rex = new RascalExecutionContext(vf, new PrintWriter(ctx.getStdOut()), new PrintWriter(ctx.getStdErr()), w.done(), null, null, false, false, false, false, false, false, false, null, null, ctx.getEvaluator().getRascalResolver());
+		  //RascalExecutionContext rex = new RascalExecutionContext(vf, new PrintWriter(ctx.getStdOut()), new PrintWriter(ctx.getStdErr()), w.done(), null, null, false, false, false, false, false, false, false, null, null, ctx.getEvaluator().getRascalResolver());
+		  
+		  RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, ctx.getStdOut(), ctx.getStdErr())
+				  .withModuleTags(w.done())
+				  .customSearchPath(ctx.getEvaluator().getRascalResolver())
+				  .build();
+		  
+		  rex.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
+		  
 		  return parseFragment1(name, start, tree, loc, grammar, rex);
 	  }
 		
 	  // Rascal library function (compiler version)
 	  // TODO moduleTags is only needed in interpreted version
-	  public ITree parseFragment(IString name, IMap moduleTags, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex) throws IOException{ 
-		  return parseFragment1(name, start, tree, loc, grammar, rex);
+	  public ITree parseFragment(IString name, IMap moduleTags, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, RascalExecutionContext rex) throws IOException{
+	      IMapWriter w = vf.mapWriter();
+          w.insert(vf.tuple(name, moduleTags));
+          
+	      RascalExecutionContext rex2 = RascalExecutionContextBuilder.normalContext(vf, rex.getStdOut(), rex.getStdErr())
+	              .withModuleTags(w.done())
+	              .customSearchPath(rex.getRascalSearchPath())
+	              .build();
+	      
+		  return parseFragment1(name, start, tree, loc, grammar, rex2);
 	  }
 	
 	/**
@@ -359,9 +389,7 @@ public class ParsingTools {
 	    catch (ParseError e) {
 	      ISourceLocation loc = TreeAdapter.getLocation((ITree) tree);
 	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
-	      rex.getStdErr().println("***** WARNING: parseFragment, parse error at " + src);
-	      //getMonitor().warning("parse error in concrete syntax", src);
-	      return (ITree) tree.asAnnotatable().setAnnotation("parseError", src);
+	      throw RascalRuntimeException.parseError(src, null);
 	    }
 	  }
 	  
@@ -398,7 +426,7 @@ public class ParsingTools {
 	    return b.toString().toCharArray();
 	  }
 
-	  private String createHole(ITree part, Map<String, ITree> antiquotes, RascalExecutionContext rex) throws IOException {
+	  public String createHole(ITree part, Map<String, ITree> antiquotes, RascalExecutionContext rex) throws IOException {
 	    String ph = getParserGenerator(rex).createHole(part, antiquotes.size(), rex);
 	    antiquotes.put(ph, part);
 	    return ph;

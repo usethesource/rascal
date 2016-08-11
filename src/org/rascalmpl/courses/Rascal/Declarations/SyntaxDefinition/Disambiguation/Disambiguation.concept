@@ -1,33 +1,37 @@
-Name: Disambiguation
+# Disambiguation
 
-Synopsis:
-Disambiguation is the definition of filters on the parse trees that [SyntaxDefinition]s define. There are several ways of defining [Disambiguation] in Rascal.
+.Synopsis
 
-Syntax:
+Disambiguation is the definition of filters on the parse trees that <<Syntax Definition>>s define. 
+There are several ways of defining <<Disambiguation>> in Rascal.
 
-Types:
+.Syntax
 
-Function:
+.Types
 
-Details:
+.Function
 
-Description:
-There are generally three ways of removing ambiguity from parse forests that are produced by parsers generated from [SyntaxDefinition]s.
+.Details
 
-# The first way is to add disambiguation declarations to the [SyntaxDefinition]. You can choose from:
-   ** [$Disambiguation/Priority] declarations, which can be used to define the relative priority in expression languages
-   ** [$Disambiguation/Associativity] declarations, which can be used to define relative associativity between operators of expression languages
-   ** [Follow] declarations, which can be used to implement longest match using lookahead
-   ** [Precede] declarations, which can be used to implement first match using look behind
-   ** [Reserve] declarations, which allow you to finite sets of strings from a [SyntaxDefinition] to implement keyword reservation
-# The second way is to add [Action]s that will be triggered just after parsing and allow you to trim a parse forest using any information necessary.
-# The third way is use the [Visit] statement on a parse tree and implement your own filter post-parsing time, or any other kind of program that processes [ParseTrees].
+.Description
+There are generally three ways of removing ambiguity from parse forests that are produced by parsers generated from <<SyntaxDefinition>>s.
 
-Examples:
+*  The first way is to add disambiguation declarations to the <<Syntax Definition>>. You can choose from:
+   **  <<Priority Declaration>>s, which can be used to define the relative priority in expression languages
+   **  <<Associativity Declaration>>s, which can be used to define relative associativity between operators of 
+       expression languages
+   **  <<Follow Declaration>>s, which can be used to implement longest match using lookahead
+   **  <<Precede Declaration>>s, which can be used to implement first match using look behind
+   **  <<Reserve Declaration>s, which allow you to finite sets of strings from a <<Syntax Definition>>
+       to implement keyword reservation
+*  The second way is to add <<Action>>s that will be triggered just after parsing and allow you to trim a parse forest 
+   using any information necessary.
+*  The third way is use the <<Visit>> statement on a parse tree and implement your own filter post-parsing time, 
+   or any other kind of program that processes <<ParseTrees>>.
 
-Benefits:
+.Examples
 
-Pitfalls:
+.Benefits
 
-Questions:
+.Pitfalls
 

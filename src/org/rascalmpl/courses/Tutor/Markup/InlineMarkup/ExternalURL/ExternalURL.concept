@@ -1,28 +1,27 @@
-Name: ExternalURL
+# ExternalURL
 
-Synopsis:
+.Synopsis
+
 Refer to an external URL.
 
-Syntax:
-`[ $Name$ ]($URL$)`
+.Syntax
+`[ _Name_ ](_URL_)`
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 Creates a link to an external url.
-$Name$ is displayed in the text, and $URL$ is the destination URL.
+_Name_ is displayed in the text, and _URL_ is the destination URL.
 A URL may contain the characters: `:/0-9-a-zA-Z"$\-_.\+!*'(),`.
 
-Examples:
-`[Rascal](http://www.rascal-mpl.org)` gives [Rascal](http://www.rascal-mpl.org).
+.Examples
+`[Rascal](http://www.rascal-mpl.org)` gives http://www.rascal-mpl.org[Rascal].
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

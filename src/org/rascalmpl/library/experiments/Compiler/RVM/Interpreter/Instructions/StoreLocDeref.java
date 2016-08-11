@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.BytecodeGenerator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class StoreLocDeref extends Instruction {
 	
@@ -20,8 +20,9 @@ public class StoreLocDeref extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if (debug)
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall1(opcode.name(), pos);
 		
-		codeEmittor.emitVoidCallWithArgsSSI("insnSTORELOCDEREF", pos, debug);
+		//codeEmittor.emitVoidCallWithArgsSSI_S("insnSTORELOCDEREF", pos, debug);
+		codeEmittor.emitInlineStoreLocDeref(pos);
 	}
 }

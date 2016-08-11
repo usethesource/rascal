@@ -1,36 +1,36 @@
-Name: PartiallyLabeledFields
+# PartiallyLabeledFields
 
-Synopsis: In a tuple or relation all fields should have names or none at all.
+.Synopsis
+In a tuple or relation all fields should have names or none at all.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 The fields in tuples and relations can optionally be labelled with a name.
 There are only two legal situations:
-* All fields have a label.
-* No field has a label.
+
+*  All fields have a label.
+*  No field has a label.
 
 
 This error signals the case that thei fields are partially labelled.
 
 
-Examples:
-<screen warnings>
+.Examples
+[source,rascal-shell,error]
+----
 tuple[int n, str] T;
 rel[str name, int] R;
-</screen>
-Benefits:
+----
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

@@ -1,0 +1,32 @@
+# colorSteps
+
+.Synopsis
+Create a list of intermediate colors between two colors.
+
+.Syntax
+
+.Types
+
+.Function
+`list[Color] colorSteps(Color from, Color to, int steps)`
+
+.Details
+
+.Description
+Create a list of interpolated colors between `from` and `to` in a given number of `steps`.
+
+.Examples
+[source,rascal-figure,width=,height=,file=h1.png]
+----
+                boxes = [ box([size(50), fillColor(c)]) | c <- colorSteps(color("Yellow"), color("Blue"), 10) ];
+render(hcat(boxes));
+----
+gives:
+
+image::{concept}/h1.png[alt="h1"]
+
+
+.Benefits
+
+.Pitfalls
+

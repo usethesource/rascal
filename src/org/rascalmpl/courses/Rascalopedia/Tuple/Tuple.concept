@@ -1,35 +1,34 @@
-Name: Tuple
+# Tuple
 
-Synopsis: An ordered, fixed length, sequence of values of possibly different type.
+.Synopsis
+An ordered, fixed length, sequence of values of possibly different type.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 
 A tuple is an ordered fixed length sequence of values of possibly different type.
 
-In Rascal a tuple is written as `<` $V_1$, ..., $V_n$ `>` and a tuple type has the form `type[$T_1$, ..., $T_n$]`,
-$T_i$ represents the type of element $i$. Tuple have two major applications:
-* As tuples in a [Relation].
-* For ad-hoc packaging of values, for instance, to return multiple-values from a function.
+In Rascal a tuple is written as `<` _V_~1~, ..., _V_~n~ `>` and a tuple type has the form `type[_T_~1~, ..., _T_~n~]`,
+_T_~i~ represents the type of element _i_. Tuple have two major applications:
+
+*  As tuples in a <<Relation>>.
+*  For ad-hoc packaging of values, for instance, to return multiple-values from a function.
 
 
-See [Rascal:Values/Tuple] for the operations on tuples.
+See link:/Rascal#Values-Tuple[Tuple Values] for the operations on tuples.
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

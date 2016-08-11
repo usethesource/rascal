@@ -1,38 +1,45 @@
-Name: Action
+# Action
 
-Synopsis: Actions are functions that are called when parse trees are constructed (right after parsing).
+.Synopsis
+Actions are functions that are called when parse trees are constructed (right after parsing).
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description: 
+.Description
 
-A so-called [Action] is a normal rascal [Function] that overloads a [SyntaxDefinition]. A [SyntaxDefinition], very similar to [AlgebraicDataType] definitions, defines a constructor for a parse tree node. This constructor is the default [Function], and when it is overloaded by a non-default function this overloaded function will be tried first. You can overload any labeled [SyntaxDefinition] using the name of an alternative.
+A so-called <<Action>> is a normal rascal <<Function Declaration>> that overloads a <<Syntax Definition>>. 
+A <<Syntax Definition>>, very similar to <<Algebraic Data Type>> definitions, defines a constructor for a parse tree node. 
+This constructor is the default function, and when it is overloaded by a non-default function this overloaded function will be tried first. 
+You can overload any labeled <<Syntax Definition>> using the name of an alternative.
 
 For example:
-<listing>
+[source,rascal]
+----
 syntax A = a: B  C;
 
 public A a(B b, C c) {
   return f(b, c);
 }
-</listing>
-In this example [Action] function the a is replaced by whatever A the `f` function returns. 
+----
+In this example <<Action>> function the a is replaced by whatever A the `f` function returns. 
 
-[Action]s are executed every time a parse tree is constructed:
-   * right after parsing.
-   * on the way back from a visit statement.
-   * when a [ConcreteSyntax] expression is executed.
-   * when a [ParseTree] is constructed "manually".
+<<Action>>s are executed every time a parse tree is constructed:
+
+*  Right after parsing.
+*  On the way back from a visit statement.
+*  When a <<Concrete Syntax>> expression is executed.
+*  When <<ParseTrees>> are constructed "manually".
 
 
-They can be used as a [Disambiguation] method, using the `filter` statement, as in:
-<listing>
+They can be used as a <<Disambiguation>> method, using the `filter` statement, as in:
+[source,rascal]
+----
 syntax E = id: Id i;
 set[Id] types = {};
 
@@ -42,13 +49,10 @@ public E id(Id i) {
   else 
     fail; // just build the parse tree "E = id: Id i", by defaulting to the constructor
 } 
-</listing>
-Examples:
+----
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

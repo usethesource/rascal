@@ -1,3 +1,4 @@
+// tag::module[]
 module demo::lang::Lisra::Eval
 
 import Prelude;
@@ -10,45 +11,47 @@ Lval eval(Lval x) = eval(x, [()]).val;
 
 Result eval(str exp) = eval(parse(exp),  [()]);
 
-Result eval(Integer(int x), Env e) = <Integer(x), e>; /*1*/
+Result eval(Integer(int x), Env e) = <Integer(x), e>; // <1>
 
-Result eval(var:Atom(str name), Env e) {              /*2*/
+Result eval(var:Atom(str name), Env e) { // <2>
   n = find(var, e);
   return <(n < 0) ? var : e[n][var], e>;
 }
 
-Result eval(List([Atom("quote"), *Lval exps]), Env e) =     /*3*/
+Result eval(List([Atom("quote"), *Lval exps]), Env e) = // <3>
   <size(exps) == 1 ? exps[0] : List(exps), e>;
 
-Result eval(List([Atom("set!"), var, exp]), Env e) {  /*4*/
+Result eval(List([Atom("set!"), var, exp]), Env e) { // <4>
   val = eval(exp, e).val;
   n = find(var, e);
   if(n < 0) e[0][var] = val; else e[n][var] = val;
   return <val, e>;
 }
-                                                             /*5*/
-Result eval(List([Atom("if"), Lval tst, Lval conseq, Lval alt]), Env e) = 
-       eval(tst, e).val != FALSE ? eval(conseq, e) : eval(alt, e);
+                                                            
+Result eval(List([Atom("if"), Lval tst, Lval conseq, Lval alt]), Env e) = // <5>
+  eval(tst, e).val != FALSE ? eval(conseq, e) : eval(alt, e);
        
-                                                             /*6*/
-Result eval(List([Atom("begin"), *Lval exps]) , Env e) {
+                                                           
+Result eval(List([Atom("begin"), *Lval exps]) , Env e) { // <6>
   val = FALSE;
   for(Lval exp <- exps){
       <val, e> = eval(exp, e);
   }
   return <val, e>;
 }
-                                                             /*7*/
-Result eval(List([Atom("define"), var, exp]), Env e){
+                                                           
+Result eval(List([Atom("define"), var, exp]), Env e){ // <7>
    e[0][var] = eval(exp, e).val;
    return <FALSE, e>;
 }
-                                                             /*8*/
-Result eval(List([Atom("lambda"), List(list[Lval] vars), exp]), Env defEnv) =
-  <Closure(Result(list[Lval] args, Env callEnv) { return eval(exp, makeEnv(vars, args, tail(callEnv, size(defEnv))));}),
+                                                            
+Result eval(List([Atom("lambda"), List(list[Lval] vars), exp]), Env defEnv) = // <8>
+  <Closure(Result(list[Lval] args, Env callEnv) { 
+                 return eval(exp, makeEnv(vars, args, tail(callEnv, size(defEnv))));
+           }),
    defEnv>;
 
-default Result eval(List([ *Lval exps ]), Env e) {         /*9*/
+default Result eval(List([ *Lval exps ]), Env e) { // <9>
   if(isEmpty(exps))
      return <List([]), e>;
   vals = [ eval(exp, e).val | exp <- exps ];
@@ -57,12 +60,13 @@ default Result eval(List([ *Lval exps ]), Env e) {         /*9*/
 
 //default Result eval(Lval exp, Env e) = <exp, e>;
 
-                                                             /*10*/
+                                                            
 // Apply an Lval to a list of arguments and return a Result
-Result apply(Closure(Result(list[Lval] args, Env env) fn), list[Lval] args, Env e) {
+Result apply(Closure(Result(list[Lval] args, Env env) fn), list[Lval] args, Env e) { // <10>
   return <fn(args, e).val, e>;
 }
-                                                             /*11*/
+
+// <11>
 
 Result apply(Atom("+"),      [Integer(x), Integer(y)],      Env e) = <Integer(x + y), e>;
 Result apply(Atom("-"),      [Integer(x), Integer(y)],      Env e) = <Integer(x - y), e>;
@@ -77,7 +81,8 @@ Result apply(Atom("car"),    [List(list[Lval] x)],          Env e) = <head(x), e
 Result apply(Atom("cdr"),    [List(list[Lval] x)],          Env e) = <List(tail(x)), e>;
 Result apply(Atom("list"),   list[Lval] x,                  Env e) = <List(x), e>;
 
-default Result apply(Lval a,     list[Lval] b, Env e) {      /*12*/
+default Result apply(Lval a,     list[Lval] b, Env e) { // <12>
   println("Cannot apply <a> to <b> using <e>");
   return <FALSE, e>;
 }
+// end::module[]

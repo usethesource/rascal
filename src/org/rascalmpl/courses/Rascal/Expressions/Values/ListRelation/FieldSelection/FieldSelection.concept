@@ -1,45 +1,40 @@
-Name: FieldSelection
+# ListRelation FieldSelection
 
-Synopsis: Select a field (column) from a list relation value.
+.Synopsis
+Select a field (column) from a list relation value.
 
-Syntax:
-`$Exp$ . $Name$`
+.Index
+.
 
-Types:
-|`$Exp$`                                 | `$Exp$ . $Name$` |
-|:---------------------------------------|:-----------------|
-| `lrel[$T_1$ $L_1$, $T_2$ $L_2$, ... ]` | `list[$T_i$]`    |
+.Syntax
+`_Exp_ . _Name_`
 
-Function:
+.Types
 
-Details:
 
-Description:
-$Exp$ should evaluate to a list relation that has an $i$-th field label $L_i$ that is identical to $Name$.
+|====
+|`_Exp_`                                 | `_Exp_ . _Name_` 
+|
+| `lrel[_T~1~_ _L~1~_, _T~2~_ _L~2~_, ... ]` | `list[_T~i~_]`    
+|====
+
+.Function
+
+.Details
+
+.Description
+_Exp_ should evaluate to a list relation that has an _i_-th field label _L_~i~ that is identical to _Name_.
 Return a list with all values of that field.
-$Name$ stands for itself and is not evaluated.
+_Name_ stands for itself and is not evaluated.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 lrel[str street, int nm] R = [<"abc", 1>, <"abc", 2>, <"def", 4>, <"def", 5>];
 R.street;
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-
-QValue:
-hint: A list consisting of the first element of each tuple.
-list:
-lrel[str animal, int nlegs] legs = [<"bird", 2>, <"dog", 4>, <"human", 2>, <"snake", 0>, <"spider", 8>, <"millepede", 1000>, <"crab", 8>, <"cat", 4>];
-test: legs.animal == <?>
-
-QValue:
-hint: A list consisting of the second element of each tuple.
-list:
-lrel[str animal, int nlegs] legs = [<"bird", 2>, <"dog", 4>, <"human", 2>, <"snake", 0>, <"spider", 8>, <"millepede", 1000>, <"crab", 8>, <"cat", 4>];
-test: legs.nlegs == <?>
+.Pitfalls
 

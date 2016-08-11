@@ -1,27 +1,26 @@
-Name: Code
+# Code
 
-Synopsis:
+.Synopsis
+
 Create inline code fragments.
 
-Syntax:
-`` `$MarkedText$` ``
+.Syntax
+` `_MarkedText_` `
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 
-Description:
+.Description
 Creates inline fragments of text that represent code.
 Inside the MarkedText, other markup can be used.
 
-Examples:
-```if``` gives `if`
+.Examples
+``if`` gives `if`
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

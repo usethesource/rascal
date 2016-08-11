@@ -30,7 +30,7 @@ import lang::rascal::types::AbstractType;
 import lang::rascal::types::ConvertType;
 import lang::rascal::types::TypeSignature;
 import lang::rascal::types::TypeInstantiation;
-import lang::rascal::checker::ParserHelper;
+//import lang::rascal::checker::ParserHelper;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::meta::ModuleInfo;
 import lang::rascal::types::Util;
@@ -165,6 +165,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
 	cFun.store[head(cFun.stack)].keywordParams = keywordParams;
 	    
     // In the environment with the parameters, check the body of the closure.
+    cFun = prepareFunctionBodyEnv(cFun);
 	< cFun, st > = checkStatementSequence([ssi | ssi <- ss], cFun);
     
     // TODO: We need an actual check to ensure return is defined along all
@@ -231,6 +232,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Parameters ps> { <State
 	cFun.store[head(cFun.stack)].keywordParams = keywordParams;
     
     // In the environment with the parameters, check the body of the closure.
+    cFun = prepareFunctionBodyEnv(cFun);
 	< cFun, t1 > = checkStatementSequence([ssi | ssi <- ss], cFun);
     
     // Now, recover the environment active before the call, removing any names
@@ -294,10 +296,10 @@ public CheckResult checkExp(Expression exp:(Expression)`( <Expression ei> | <Exp
     // "it", since we have no information on which to base a reasonable assumption. 
     Symbol erType = t1;
     if (!isFailType(t1)) {
-        cRed = addLocalVariable(cRed, RSimpleName("it"), true, exp@\loc, erType);
+        cRed = addLocalVariable(cRed, RSimpleName("it"), true, exp@\loc, erType, allowedConflicts={RSimpleName("it")});
         < cRed, t3 > = checkExp(er, cRed);
         if (!isFailType(t3)) {
-            if (!equivalent(erType,t3) && lub(erType,t3) == t3) {
+            if (!equivalent(erType,t3) && equivalent(lub(erType,t3),t3)) {
                 // If this is true, this means that "it" now has a different type, and
                 // that the type is growing towards value. We run the body again to
                 // see if the type changes again. This covers many standard cases
@@ -1238,18 +1240,20 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> [ <{Expre
         else
             return markLocationType(c,exp@\loc,Symbol::\value());
     } else if (isTupleType(t1)) {
-        if (size(tl) != 1)
+        if (size(tl) != 1) {
             return markLocationFailed(c,exp@\loc,makeFailType("Expected only 1 subscript for a tuple expression, not <size(tl)>",exp@\loc));
-        else if (!isIntType(tl[0]))
+        } else if (!isIntType(tl[0])) {
             return markLocationFailed(c,exp@\loc,makeFailType("Expected subscript of type int, not <prettyPrintType(tl[0])>",exp@\loc));
-        else if ((Expression)`<DecimalIntegerLiteral dil>` := head(eslist)) {
+        } else if ((Expression)`<DecimalIntegerLiteral dil>` := head(eslist)) {
         	tupleIndex = toInt("<dil>");
-        	if (tupleIndex < 0 || tupleIndex >= size(getTupleFields(t1)))
+        	if (tupleIndex < 0 || tupleIndex >= size(getTupleFields(t1))) {
         		return markLocationFailed(c,exp@\loc,makeFailType("Tuple index must be between 0 and <size(getTupleFields(t1))-1>",exp@\loc));
-        	else
+        	} else {
         		return markLocationType(c,exp@\loc,getTupleFields(t1)[tupleIndex]);
-        } else
+        	}
+        } else {
             return markLocationType(c,exp@\loc,lubList(getTupleFields(t1)));
+        }
     } else if (isStrType(t1)) {
         if (size(tl) != 1)
             return markLocationFailed(c,exp@\loc,makeFailType("Expected only 1 subscript for a string expression, not <size(tl)>",exp@\loc));
@@ -3653,7 +3657,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 	                                	argType = getConstructorArgumentTypes(a)[idx];
 	                                	if ((pargs[idx]@rtype)?) {
 	                                		if (concreteType(pargs[idx]@rtype)) {
-	                                			if (!subtype(pargs[idx]@rtype, argType)) {
+	                                			if (!comparable(pargs[idx]@rtype, argType)) {
 	                                				badMatches = badMatches + idx;
 	                                			}
 	                                		} else {
@@ -3682,7 +3686,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 			                                	argType = kpm[kpname];
 			                                	if ((kpargs[kpname]@rtype)?) {
 			                                		if (concreteType(kpargs[kpname]@rtype)) {
-			                                			if (!subtype(kpargs[kpname]@rtype, argType)) {
+			                                			if (!comparable(kpargs[kpname]@rtype, argType)) {
 			                                				badMatches = badMatches + kpname;
 			                                			}
 			                                		} else {
@@ -3710,7 +3714,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
                             	} else if (isProductionType(a) && size(getProductionArgumentTypes(a)) == size(pargs)) {
 	                                // next, find the bad matches, which are those argument positions where we have concrete
 	                                // type information and that information does not match the alternative
-	                                badMatches = { idx | idx <- index(pargs), (pargs[idx]@rtype)?, concreteType(pargs[idx]@rtype), !subtype(pargs[idx]@rtype, getProductionArgumentTypes(a)[idx]) };
+	                                badMatches = { idx | idx <- index(pargs), (pargs[idx]@rtype)?, concreteType(pargs[idx]@rtype), !comparable(pargs[idx]@rtype, getProductionArgumentTypes(a)[idx]) };
 	                                if (size(badMatches) == 0) 
 	                                    // if we had no bad matches, this is a valid alternative
 	                                    matches += < a, kpm >;
@@ -4817,22 +4821,42 @@ public CheckResult checkStmt(Statement stmt:(Statement)`fail <Target target>;`, 
 
 @doc{Check the type of Rascal statements: Break (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`break <Target target>;`, Configuration c) {
+	set[Symbol] failures = { };
+
     if ((Target)`<Name n>` := target) {
         rn = convertName(n);
         // TODO: Check to see what category the label is in?
         if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label not defined", stmt@\loc));
-    }   
-    return markLocationType(c, stmt@\loc, Symbol::\void());
+    }
+    
+    if (!labelTypeInStack(c, {forLabel(), whileLabel(), doWhileLabel()})) {
+        failures += makeFailType("Cannot break outside the scope of a for, while, or do while loop", stmt@\loc);
+    }
+
+    if (size(failures) > 0)
+        return markLocationFailed(c, stmt@\loc, failures);
+    else
+        return markLocationType(c, stmt@\loc, Symbol::\void());
 }
 
 @doc{Check the type of Rascal statements: Continue (DONE)}
 public CheckResult checkStmt(Statement stmt:(Statement)`continue <Target target>;`, Configuration c) {
+	set[Symbol] failures = { };
+    
     if ((Target)`<Name n>` := target) {
         rn = convertName(n);
         // TODO: Check to see what category the label is in?
         if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label not defined", stmt@\loc));
     }   
-    return markLocationType(c, stmt@\loc, Symbol::\void());
+
+    if (!labelTypeInStack(c, {forLabel(), whileLabel(), doWhileLabel()})) {
+        failures += makeFailType("Cannot continue outside the scope of a for, while, or do while loop", stmt@\loc);
+    }
+
+    if (size(failures) > 0)
+        return markLocationFailed(c, stmt@\loc, failures);
+    else
+        return markLocationType(c, stmt@\loc, Symbol::\void());
 }
 
 @doc{Check the type of Rascal statements: Filter (DONE)}
@@ -5122,6 +5146,7 @@ public anno set[int] AssignableTree@defs;
 @doc{Allows AssignableTree nodes to be annotated with types.}
 public anno Symbol AssignableTree@otype;
 public anno Symbol AssignableTree@atype;
+public anno int AssignableTree@literalIndex;
 
 @doc{Result of building the assignable tree.}
 alias ATResult = tuple[Configuration, AssignableTree];
@@ -5175,22 +5200,36 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
     < c, atree > = buildAssignableTree(ar, false, c);
     < c, tsub > = checkExp(sub, c);
     
-    if (isFailType(atree@atype) || isFailType(tsub))
+    if (isFailType(atree@atype) || isFailType(tsub)) {
         return < c, subscriptNode(atree,tsub)[@atype=collapseFailTypes({atree@atype,tsub})][@at=assn@\loc] >;
+    }
 
     if (!concreteType(atree@atype)) {
         failtype = makeFailType("Assignable <ar> must have an actual type before subscripting", assn@\loc);
         return < c, subscriptNode(atree,tsub)[@atype=failtype][@at=assn@\loc] >;
     }
 
-    if (isListType(atree@atype) && isIntType(tsub))
+    if (isListType(atree@atype) && isIntType(tsub)) {
         return < c, subscriptNode(atree,tsub)[@atype=getListElementType(atree@atype)][@at=assn@\loc] >;
+    }
 
-    if (isNodeType(atree@atype) && isIntType(tsub))
+    if (isNodeType(atree@atype) && isIntType(tsub)) {
         return < c, subscriptNode(atree,tsub)[@atype=Symbol::\value()][@at=assn@\loc] >;
+    }
 
-    if (isTupleType(atree@atype) && isIntType(tsub))
-        return < c, subscriptNode(atree,tsub)[@atype=Symbol::\value()][@at=assn@\loc] >;
+    if (isTupleType(atree@atype) && isIntType(tsub)) {
+    	if ((Expression)`<DecimalIntegerLiteral dil>` := sub) {
+    		tupleIndex = toInt("<dil>");
+    		if (tupleIndex < 0 || tupleIndex >= size(getTupleFields(atree@atype))) {
+		        failtype = makeFailType("Tuple index must be between 0 and <size(getTupleFields(atree@atype))-1>", sub@\loc);
+		        return < c, subscriptNode(atree,tsub)[@atype=failtype][@at=assn@\loc] >;
+    		} else {
+    			return < c, subscriptNode(atree,tsub)[@atype=getTupleFields(atree@atype)[tupleIndex]][@at=assn@\loc][@literalIndex=tupleIndex] >;
+    		}
+    	} else {
+        	return < c, subscriptNode(atree,tsub)[@atype=Symbol::\value()][@at=assn@\loc] >;
+        }
+    }
 
     if (isMapType(atree@atype)) {
         if (avar:variableNode(vname) := atree) {
@@ -5210,8 +5249,9 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
         return < c, subscriptNode(atree,tsub)[@atype=(isMapType(atree@atype))?getMapRangeType(atree@atype):atree@atype][@at=assn@\loc] >;
     }
 
-    if (isRelType(atree@atype) && size(getRelFields(atree@atype)) == 2 && subtype(tsub,getRelFields(atree@atype)[0]))
+    if (isRelType(atree@atype) && size(getRelFields(atree@atype)) == 2 && subtype(tsub,getRelFields(atree@atype)[0])) {
         return < c, subscriptNode(atree,tsub)[@atype=getRelFields(atree@atype)[1]][@at=assn@\loc] >;
+    }
 
     return < c, subscriptNode(atree,tsub)[@atype=makeFailType("Cannot subscript assignable of type <prettyPrintType(atree@atype)>",assn@\loc)][@at=assn@\loc] >;
 }
@@ -5687,7 +5727,13 @@ public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree
         // in range, all we can infer about the resulting type is that, since
         // we could assign to each field, each field could have a type based
         // on the lub of the existing field type and the subject type.
-        < c, receiver > = bindAssignable(receiver, \tuple([lub(tupleFields[idx],st) | idx <- index(tupleFields)]), c);
+        if ( (atree@literalIndex)?) {
+        	updatedTupleFields = tupleFields;
+        	updatedTupleFields[atree@literalIndex] = lub(atree@atype,st);
+        	< c, receiver > = bindAssignable(receiver, \tuple(updatedTupleFields), c);
+        } else {
+        	< c, receiver > = bindAssignable(receiver, \tuple([lub(tupleFields[idx],st) | idx <- index(tupleFields)]), c);
+        }
         return < c, atree[receiver=receiver][@otype=receiver@otype][@atype=Symbol::\value()] >;
     } else if (isMapType(receiver@atype)) {
         < c, receiver > = bindAssignable(receiver, \map(getMapDomainType(receiver@atype), lub(st,getMapRangeType(receiver@atype))), c);
@@ -6070,6 +6116,23 @@ public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration
 	return c;
 }
 
+public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration)`<Tags tags> <Visibility vis> data <UserType ut> <CommonKeywordParameters commonParams>;`, Configuration c) {
+	commonParamList = [ ];
+	if ((CommonKeywordParameters)`( <{KeywordFormal ","}+ kfs> )` := commonParams) commonParamList = [ kfi | kfi <- kfs ];
+
+	cCons = enterBlock(c, decl@\loc);
+	if (size(commonParamList) > 0) {
+		for (KeywordFormal kfi <- commonParamList) {
+			< cCons, kfT > = convertAndExpandType(kfi.\type, cCons);
+			< cCons, _ > = calculateKeywordParamRel(cCons, [ kfi ], typesOnly = false ); 
+			cCons = addLocalVariable(cCons, convertName(kfi.name), false, kfi@\loc, kfT);
+		}
+	}
+	c = exitBlock(cCons, c);
+
+	return c;
+}
+
 public default Configuration checkConstructorKeywordParams(Declaration decl, Configuration c) = c;
 
 @doc{Check the type of the components of a declaration: Function}
@@ -6215,11 +6278,11 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         funType = c.store[funId].rtype;
         cFun = prepareFunctionBodyEnv(c);
         if (!isFailType(funType)) {
-            cFun = setExpectedReturn(c, getFunctionReturnType(funType));
+            cFun = setExpectedReturn(cFun, getFunctionReturnType(funType));
         } else {
             // If we couldn't calculate the function type, use value here so we don't also
             // get errors on the return type not matching.
-            cFun = setExpectedReturn(c, Symbol::\value());
+            cFun = setExpectedReturn(cFun, Symbol::\value());
         }
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=false);
@@ -6286,9 +6349,9 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         funType = c.store[funId].rtype;
         cFun = prepareFunctionBodyEnv(c);
         if (!isFailType(funType)) {
-            cFun = setExpectedReturn(c, getFunctionReturnType(funType));
+            cFun = setExpectedReturn(cFun, getFunctionReturnType(funType));
         } else {
-            cFun = setExpectedReturn(c, Symbol::\value());
+            cFun = setExpectedReturn(cFun, Symbol::\value());
         }
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=false);
@@ -6369,9 +6432,9 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         funType = c.store[funId].rtype;
         cFun = prepareFunctionBodyEnv(c);
         if (!isFailType(funType)) {
-            cFun = setExpectedReturn(c, getFunctionReturnType(funType));
+            cFun = setExpectedReturn(cFun, getFunctionReturnType(funType));
         } else {
-            cFun = setExpectedReturn(c, Symbol::\value());
+            cFun = setExpectedReturn(cFun, Symbol::\value());
         }
         < cFun, tFun > = processSignature(sig, cFun);
 		< cFun, keywordParams > = checkKeywordFormals(getKeywordFormals(getFunctionParameters(sig)), cFun, typesOnly=false);        
@@ -7515,10 +7578,11 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	moduleTrees = ( moduleName : md );
 	for (mn <- c.dirtyModules, mn != moduleName ) {
 		try {
-			t = parse(#start[Module], getModuleLocation(prettyPrintName(mn), pcfg));    
-			if (t has top && lang::rascal::\syntax::Rascal::Module m := t.top) {
-				moduleTrees[mn] = m;
-			}
+			//t = parse(#start[Module], getModuleLocation(prettyPrintName(mn), pcfg));    
+			//if (t has top && lang::rascal::\syntax::Rascal::Module m := t.top) {
+			//	moduleTrees[mn] = m;
+			//}
+			moduleTrees[mn] = parseModule(getModuleLocation(prettyPrintName(mn), pcfg));
 		} catch _ : {
 			if (verbose) println("ERROR: Could not parse module <prettyPrintName(mn)>, cannot continue with type checking!");
 			c = addScopeError(c, "Could not parse module <prettyPrintName(mn)>, cannot continue with type checking!", md@\loc);
@@ -7655,6 +7719,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
 						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
+						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<FunctionDeclaration _>` : { 
@@ -7760,6 +7826,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						aliases = aliases + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
 						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
+						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 				}
@@ -7826,6 +7894,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 					case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
@@ -7912,6 +7982,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
 						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
+						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<FunctionDeclaration _>` : { 
@@ -7965,6 +8037,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 					case (Declaration)`<Tags _> <Visibility _> tag <Kind _> <Name _> on <{Type ","}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> ;` : 
+						typesAndTags = typesAndTags + decl;
+					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters _>;` : 
 						typesAndTags = typesAndTags + decl;
 					case (Declaration)`<Tags _> <Visibility _> data <UserType _> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ _> ;` : 
 						typesAndTags = typesAndTags + decl;
@@ -8485,7 +8559,7 @@ public Configuration addAppendTypeInfo(Configuration c, Symbol t, RName rn, set[
     }
     
     if (size(possibleIndexes) == 0) {
-        c = addScopeError(c, "Cannot add append information, no valid surrounding context found", l);
+        c = addScopeError(c, "Cannot append, no valid surrounding context found", l);
     } else {
         c.labelStack[possibleIndexes[0]].labelType = lub(c.labelStack[possibleIndexes[0]].labelType, t);
     }
@@ -8908,9 +8982,10 @@ public anno map[loc,set[loc]] Module@docLinks;
 public Configuration checkAndReturnConfig(str qualifiedModuleName, PathConfig pcfg, bool forceCheck = false, bool verbose = false) {
     c = newConfiguration(pcfg);
     l = getModuleLocation(qualifiedModuleName, pcfg);
-	t = parse(#start[Module], l);    
+	//t = parse(#start[Module], l); 
+	m = parseModule(l);   
     //try {
-		if (t has top && Module m := t.top)
+		//if (t has top && Module m := t.top)
 			c = checkModule(m, l, c, forceCheck=forceCheck, verbose=verbose);
 	//} catch v : {
 	//	c.messages = {error("Encountered error checking module <l>:<v>", t@\loc)};
@@ -8961,10 +9036,14 @@ public default Module check(Tree t, PathConfig pcfg) {
 public default Module check(Tree t) {
 	return check(t, pathConfig());
 }
-
 public default start[Module] check(loc l) {
-  m = parse(#start[Module], l);
-  m.top = check(m.top, pathConfig());
+	return check(l, pathConfig());
+}
+
+public default start[Module] check(loc l, PathConfig pcfg) {
+  //m = parse(#start[Module], l);
+  m = parseModuleWithSpaces(l);
+  m.top = check(m.top, pcfg);
   m@docLinks = m.top@docLinks;
   m@docStrings = m.top@docStrings;
   return m;

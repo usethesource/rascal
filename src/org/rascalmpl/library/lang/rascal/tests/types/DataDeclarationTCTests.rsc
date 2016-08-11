@@ -39,6 +39,11 @@ test bool exactDoubleDataDeclarationIsAllowed() =
   	
 test bool undeclaredTypeError1() = 
 	declarationError("true;", initialDecls=["data D = anE(E e);"]);                    // TODO E is not declared
+	
+test bool sharedKeywordsWork1() =
+    checkOK("xx().ll == 0;", initialDecls=["data Y(int ll = 0) = xx();"]);
   	
+test bool sharedKeywordsWork2() =
+    checkOK("xx().ll == 0;", initialDecls=["data Y(int ll = 0);", "data Y = xx();"]);
   
  

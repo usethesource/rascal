@@ -340,11 +340,15 @@ public class NodePattern extends AbstractMatchingResult {
 	@Override
 	public String toString(){
 		int n = patternChildren.size();
-		if(n == 1){
-			return Names.fullName(qName) + "()";
-		}
 		StringBuilder res = new StringBuilder(qName != null ? Names.fullName(qName) : namePattern.toString());
+		
 		res.append("(");
+		
+		if (n == 1) {
+			res.append(")");
+			return res.toString() ;
+		}
+		
 		String sep = "";
 
 		for (IMatchingResult c : patternChildren){

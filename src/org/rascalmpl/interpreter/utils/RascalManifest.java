@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -33,7 +34,7 @@ public class RascalManifest {
   public static final String DEFAULT_SRC = "src";
   protected static final String SOURCE = "Source";
   protected static final String META_INF = "META-INF";
-  protected static final String META_INF_RASCAL_MF = META_INF + "/RASCAL.MF";
+  public static final String META_INF_RASCAL_MF = META_INF + "/RASCAL.MF";
   protected static final String MAIN_MODULE = "Main-Module";
   protected static final String MAIN_FUNCTION = "Main-Function";
   protected static final String REQUIRE_BUNDLES = "Require-Bundles";
@@ -296,7 +297,7 @@ public class RascalManifest {
     }
 
     if (def == null) {
-      return null;
+      return Collections.emptyList();
     } else {
       return Arrays.<String>asList(new String[] { def });
     }

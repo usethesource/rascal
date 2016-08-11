@@ -13,7 +13,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -47,7 +46,7 @@ public class ParserGenerator {
 	private final IValueFactory vf;
 	private final TypeFactory tf;
 	private static ISourceLocation parserGeneratorBinaryLocation;
-	private static RVM rvmParserGenerator;
+	private static RVMCore rvmParserGenerator;
 	private Function getParserMethodNameFunction;
 	private Function newGenerateFunction;
 	private Function createHoleFunction;
@@ -58,19 +57,22 @@ public class ParserGenerator {
 	static {
 		if(useCompiledParserGenerator){
 			try {
-				parserGeneratorBinaryLocation = ValueFactoryFactory.getValueFactory().sourceLocation("compressed+boot", "", "ParserGenerator.rvm.ser.gz");
+				parserGeneratorBinaryLocation = ValueFactoryFactory.getValueFactory().sourceLocation("compressed+boot", "", "lang/rascal/grammar/ParserGenerator.rvm.ser.gz");
 				//parserGeneratorBinaryLocation = vf.sourceLocation("compressed+home", "", "/bin/rascal/src/org/rascalmpl/library/lang/rascal/grammar/ParserGenerator.rvm.ser.gz");
 
 			} catch (URISyntaxException e) {
 				throw new RuntimeException("Cannot initialize: " + e.getMessage());
 			}
-			RascalExecutionContext rex2 = new RascalExecutionContext("$parsergenerator$", ValueFactoryFactory.getValueFactory(), System.out, System.err);
 		
+			RascalExecutionContext rex2 = 
+					RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), System.out,System.err)
+						.forModule("$parsergenerator$")
+						.setJVM(true)					// options for complete repl
+						.build();
 			try {
-				rvmParserGenerator = RVM.readFromFileAndInitialize(parserGeneratorBinaryLocation, rex2);
+				rvmParserGenerator = RVMCore.readFromFileAndInitialize(parserGeneratorBinaryLocation, rex2);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			    throw new RuntimeException(e);
 			}
 		}
 	}
@@ -129,24 +131,13 @@ public class ParserGenerator {
 
 	private void debugOutput(String classString, String file) {
 		if (debug) {
-			FileOutputStream s = null;
-			try {
-				s = new FileOutputStream(file);
+		    System.err.println("Saving debug output in " + file);
+			try (FileOutputStream s = new FileOutputStream(file)) {
 				s.write(classString.getBytes());
 				s.flush();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
 			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				if (s != null) {
-					try {
-						s.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
+				throw new RuntimeException(e);
+			} 
 		}
 	}
 	
@@ -167,7 +158,7 @@ public class ParserGenerator {
 	 */
 	public String getParserMethodName(IConstructor symbol, RascalExecutionContext rex) {
 	  if(useCompiledParserGenerator){
-		  return ((IString) rvmParserGenerator.executeFunction(getParserMethodNameFunction, new IValue[]{ symbol }, new HashMap<String, IValue>())).getValue();
+		  return ((IString) rvmParserGenerator.executeRVMFunction(getParserMethodNameFunction, new IValue[]{ symbol }, new HashMap<String, IValue>())).getValue();
 	  } else {
 		  return ((IString) evaluator.call((IRascalMonitor) null, "getParserMethodName", symbol)).getValue();
 	  }
@@ -211,17 +202,23 @@ public class ParserGenerator {
 		  rex.event("Generating java source code for parser: " + name,30);
 		  IString classString;
 		  if(useCompiledParserGenerator){
-			  classString = (IString) rvmParserGenerator.executeFunction(newGenerateFunction, new IValue[]{ vf.string(packageName), vf.string(normName), grammar }, new HashMap<String, IValue>());
+			  classString = (IString) rvmParserGenerator.executeRVMFunction(newGenerateFunction, new IValue[]{ vf.string(packageName), vf.string(normName), grammar }, new HashMap<String, IValue>());
 		  } else {
 			  classString = (IString) evaluator.call(rex.getMonitor(), "newGenerate", vf.string(packageName), vf.string(normName), grammar);
 		  }
+		  
+		  debugOutput(grammar.toString(),  System.getProperty("java.io.tmpdir") + "/grammar.trm");
 		  debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
 		  rex.event("Compiling generated java code: " + name, 30);
 		  return bridge.compileJava(loc, packageName + "." + normName, this.getClass(), classString.getValue());
   	}  catch (ClassCastException e) {
-  		throw new CompilerError("parser generator:" + e.getMessage() + e);
+  		throw new CompilerError("parser generator:" + e.getMessage(), e);
   	} catch (Throw e) {
-  		throw new CompilerError("parser generator: " + e.getMessage() + e.getTrace());
+  		throw new CompilerError("parser generator: " + e.getMessage(), e);
+  	} catch (Thrown e) {
+  	    throw new CompilerError("parser generator: " + e.getMessage(), e);
+  	} catch (Throwable e) {
+  	  throw new CompilerError("parser generator: " + e.getMessage(), e);  
   	} finally {
   		rex.endJob(true);
   	}
@@ -229,7 +226,7 @@ public class ParserGenerator {
 
   public String createHole(IConstructor part, int size, RascalExecutionContext rex) {
 	  if(useCompiledParserGenerator){
-		  return ((IString) rvmParserGenerator.executeFunction(createHoleFunction, new IValue[]{ part, vf.integer(size) }, new HashMap<String, IValue>())).getValue();
+		  return ((IString) rvmParserGenerator.executeRVMFunction(createHoleFunction, new IValue[]{ part, vf.integer(size) }, new HashMap<String, IValue>())).getValue();
 	  } else {
 		  return ((IString) evaluator.call("createHole", part, vf.integer(size))).getValue();
 	  }

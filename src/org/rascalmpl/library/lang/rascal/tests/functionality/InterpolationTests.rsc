@@ -70,5 +70,14 @@ test bool interpolateEsc24() { A = "A"; return "<A>\u2713<A>" == "A✓A"; }
 test bool interpolateEsc25() { A = "A\tB"; return "x<A>z" == "xA\tBz"; }
 test bool interpolateEsc26() { A = "A\\tB"; return "x<A>z" == "xA\\tBz"; }
 
-
+test bool interpolationWithNewline() {
+   str declInfo2Doc(str doc) =
+       "----
+       '<doc>
+       '++++";
+   
+   str d = "AAA
+           'BBB";
+   return declInfo2Doc(d) == "----\nAAA\nBBB\n++++";
+}
 

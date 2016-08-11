@@ -1,44 +1,54 @@
-Name: Slice
+# String Slice
 
-Synopsis: Retrieve a slice of a string.
+.Synopsis
+Retrieve a slice of a string.
 
-Syntax:
-# `$Exp_1$ [ $Exp_2$ .. $Exp_4$]`
-# `$Exp_1$ [ $Exp_2$ , $Exp3$ .. $Exp_4$]`
+.Index
+[ .. ]
+
+.Syntax
+
+#  `_Exp~1~_ [ _Exp~2~_ .. _Exp~4~_]`
+#  `_Exp~1~_ [ _Exp~2~_ , _Exp3_ .. _Exp~4~_]`
 
 
-where $Exp_2$ and $Exp_4$ are optional.
+where _Exp_~2~ and _Exp_~4~ are optional.
 
-Types:
-| `$Exp_1$`     | `$Exp_2$` |  `$Exp_3$`  | `$Exp_4$` | `$Exp_1$ [ $Exp_2$ .. $Exp_4$ ]`   or  `$Exp_1$ [ $Exp_2$ , $Exp_3$ .. $Exp_4$]` |
-|:--------------|:----------|:------------|-----------|----------------------------------------------------------------------------------|
-| `str`         | `int`     | `int`       | `int`     |  `str`                                                                           |
+.Types
 
-Function:
+[cols="15,15,15,15,40"]
+|====
+| `_Exp~1~_`     | `_Exp~2~_` |  `_Exp~3~_`  | `_Exp~4~_` | `_Exp~1~_ [ _Exp~2~_ .. _Exp~4~_ ]`   or  `_Exp~1~_ [ _Exp~2~_ , _Exp~3~_ .. _Exp~4~_]` 
 
-Details:
+| `str`         | `int`     | `int`       | `int`     |  `str`                                                                           
+|====
 
-Description:
-A String slice is similar to a list [$Values/List/Slice] and uses the integer values of $Exp_2$ and $Exp_4$ to determine the `begin` (__inclusive__) and `end` (__exclusive__)
-of a slice from the string value $S$ of $Exp_1$. Negative indices count from the end of the string backwards.
-Using the second form, an extra index $Exp_3$ is given that determines the
+.Function
+
+.Details
+
+.Description
+A String slice is similar to a list <<List Slice>> and uses the integer values of _Exp_~2~ and _Exp_~4~ to determine the `begin` (*inclusive*) and `end` (*exclusive*)
+of a slice from the string value _S_ of _Exp_~1~. Negative indices count from the end of the string backwards.
+Using the second form, an extra index _Exp_~3~ is given that determines the
 index of the second element in the slice and establishes the `step` between
 successive elements in the slice. The default `step` is 1.
 If `end` is smaller than `begin`, the slice is constructed backwards.
 
-Let `Len` be the length of $S$ and let $N_2$, $N_3$ and $N_4$ be the respective values of the expressions
- $Exp_2$, $Exp_2$ and $Exp_2$ when they are present.
+Let `Len` be the length of _S_ and let _N_~2~, _N_~3~ and _N_~4~ be the respective values of the expressions
+ _Exp_~2~, _Exp_~2~ and _Exp_~2~ when they are present.
 
 The slice parameters `begin`, `end`, and `step` are determined as follows:
-* $Exp_2$:
-  ** If $Exp_2$ is absent, then `begin = 0`.
-  ** Otherwise, if $N_2$ >= 0 then `begin = $N_2$` else `begin = $N_2$ + $Len$`. 
-* $Exp_4$:
-  ** If $Exp_4$ is absent, then `end = $Len$`.
-  ** Otherwise, if $N_4$ >= 0, then `end = $N_4$` else `end = $N_4$ + $Len$`.
-* $Exp_3$:
-  ** If $Exp_3$ is absent, then if `begin < end` then `step = 1` else `step = -1`.
-  ** Otherwise, if `begin < end`, then `step = $N_3$ - begin` else `step = begin - $N_3$`.
+
+*  _Exp~2~_:
+**  If _Exp~2~_ is absent, then `begin = 0`.
+**  Otherwise, if _N~2~_ >= 0 then `begin = _N~2~_` else `begin = _N~2~_ + _Len_`. 
+*  _Exp~4~_:
+**  If _Exp~4~_ is absent, then `end = _Len_`.
+**  Otherwise, if _N~4~_ >= 0, then `end = _N~4~_` else `end = _N~4~_ + _Len_`.
+*  _Exp~3~_:
+**  If _Exp~3~_ is absent, then if `begin < end` then `step = 1` else `step = -1`.
+**  Otherwise, if `begin < end`, then `step = _N~3~_ - begin` else `step = begin - _N~3~_`.
 
 
 Now, the constraints `0 <= begin < Len` and `0 < end < Len` should hold,
@@ -47,57 +57,77 @@ otherwise the exception `IndexOutOfBounds` is thrown.
 The slice consists of the elements `S[begin]`, `S[begin+step]`, `S[end - step]`.
 When `begin >= end`, the elements are listed in reverse order.
 
-Examples:
+.Examples
 Consider the string `S = "abcdefghi";` (with size 9) as running example.
 
-Here is a view on $L$ that will help to correlate positive and negative indices:
+Here is a view on _L_ that will help to correlate positive and negative indices:
 
 
-|`$i$`        | 0    |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |
-|:------------|------|------|------|------|------|------|------|------|------|
-|`S[$i$]`     | `"a"`| `"b"`| `"c"`| `"d"`| `"e"`| `"f"`| `"g"`| `"h"`| `"i"`|
-|`-$i$`       | -9   | -8   | -7   | -6   |   -5 |   -4 |   -3 |   -2 |   -1 |
+|====
+|`_i_`        | 0    |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  
+
+|`S[_i_]`     | `"a"`| `"b"`| `"c"`| `"d"`| `"e"`| `"f"`| `"g"`| `"h"`| `"i"`
+|`-_i_`       | -9   | -8   | -7   | -6   |   -5 |   -4 |   -3 |   -2 |   -1 
+|====
 
 
 
 Some common use cases (with `begin` <= `end`):
 
 
-| Slice           | Means:                                                         |
-|:----------------|:---------------------------------------------------------------|
-| `S[begin..end]` | characters with indices `begin` through `end-1`                |
-| `S[begin..]`    | characters with indices `begin` through the rest of the string |
-| `S[..end]`      | characters with indices from the beginning through `end-1`     |
-| `S[..]`         | the whole list                                                 |
-| `S[-1]`         | last element of the string                                     |
-| `S[-2..]`       | the last two characters of the string                          |
-| `S[..-2]`       | all characters except the last two.                            |
+|====
+| Slice           | Means:                                                         
+
+| `S[begin..end]` | characters with indices `begin` through `end-1`                
+| `S[begin..]`    | characters with indices `begin` through the rest of the string 
+| `S[..end]`      | characters with indices from the beginning through `end-1`     
+| `S[..]`         | the whole list                                                 
+| `S[-1]`         | last element of the string                                     
+| `S[-2..]`       | the last two characters of the string                          
+| `S[..-2]`       | all characters except the last two.                            
+|====
 
 
 Let's put this into practice now.
 
-<screen errors>
+[source,rascal-shell,error]
+----
 S = "abcdefghi";
-// Slices with begin < end
+----
+Slices with begin < end
+[source,rascal-shell,continue,error]
+----
 S[1..3];
 S[1..];       // empty end => end of string
 S[..3];       // empty begin => first character of string
 S[..];        // both empty => whole string
-// Slices with  begin >= end
+----
+Slices with  begin >= end
+[source,rascal-shell,continue,error]
+----
 S[3..1];      // slice contains characters with indices 3 and 2 (in that order)
 S[3..3];      // empty slice when begin == end
-// Slices with negative begin or end:
+----
+Slices with negative begin or end:
+[source,rascal-shell,continue,error]
+----
 S[2..-2];     // equivalent to S[2..7]
 S[2..7];
 S[-4..-2];    // equivalent to S[5..7]
 S[5..7];
-// Slices with an explicit second index:
+----
+Slices with an explicit second index:
+[source,rascal-shell,continue,error]
+----
 S[1,3..6];
 S[5,3..];
-// Explore error cases:
+----
+Explore error cases:
+[source,rascal-shell,continue,error]
+----
 S[..10];
 S[1..20];
-</screen>
+----
 
 
 

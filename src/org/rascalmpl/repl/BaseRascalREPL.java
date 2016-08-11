@@ -23,6 +23,7 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedExcepti
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
@@ -59,9 +60,9 @@ public abstract class BaseRascalREPL extends BaseREPL {
     private final StandardTextWriter singleLinePrettyPrinter;
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
-    public BaseRascalREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory,Terminal terminal)
-                    throws IOException {
-        super(stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal);
+    public BaseRascalREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors,File persistentHistory, Terminal terminal)
+                    throws IOException, URISyntaxException {
+        super(pcfg, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal);
         if (terminal.isAnsiSupported() && allowColors) {
             indentedPrettyPrinter = new ReplTextWriter();
             singleLinePrettyPrinter = new ReplTextWriter(false);
@@ -189,6 +190,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
             }
         }
         int locationStart = StringUtils.findRascalLocationStart(line, cursor);
+
         if (locationStart != -1) {
             return completeLocation(line, locationStart);
         }

@@ -1,5 +1,6 @@
 @doc{
-Synopsis: AST model for S-Expressions.
+.Synopsis
+AST model for S-Expressions.
 }
 @contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
 module lang::sexp::SExp
@@ -30,4 +31,4 @@ data Raw
   ;
 
 public SExp parseSExp(str src, loc l) 
-  = implode(#SExp, parse(#lang::sexp::\syntax::SExp::SExp, src, l)); 
+  = implode(#SExp, parse(#lang::sexp::\syntax::SExp::SExp, src, l));

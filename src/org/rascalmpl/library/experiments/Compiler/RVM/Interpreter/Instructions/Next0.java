@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.BytecodeGenerator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 
 public class Next0 extends Instruction {
 
@@ -12,6 +12,7 @@ public class Next0 extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitCallWithArgsSSF("jvmNEXT0", debug);
+		codeEmittor.emitCallWithArgsFA_A("jvmNEXT0", debug);
+		//codeEmittor.emitReturnValue2ACCU();
 	}
 }

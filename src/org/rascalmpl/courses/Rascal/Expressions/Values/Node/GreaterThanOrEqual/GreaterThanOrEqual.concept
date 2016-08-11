@@ -1,35 +1,41 @@
-Name: GreaterThanOrEqual
+# Node GreaterThanOrEqual
 
-Synopsis: Greater than or equal operator on node values.
+.Synopsis
+Greater than or equal operator on node values.
 
-Syntax:
-`$Exp_1$ >= $Exp_2$`
+.Index
+>=
 
-Types:
-| `$Exp_1$` |  `$Exp_2$` | `$Exp_1$ >= $Exp_2$` |
-|:----------|:-----------|:---------------------|
-| `node`    |  `node`    | `bool`               |
+.Syntax
+`_Exp_~1~ >= _Exp_~2~`
 
-Function:
+.Types
 
-Details:
+|====
+| `_Exp~1~_` |  `_Exp~2~_` | `_Exp~1~_ >= _Exp~2~_` 
 
-Description:
-Comparison on nodes is defined by a lexicographic ordering. Node `$N$ = $F$($N_1$, ..., $N_n$)` is greater than or equal node 
-`$N$ = $G$($M_1$, ..., $M_m$)` when:
-* $N$ is equal to $M$, or
-* $F$ is lexicographically greater than $G$, or $F$ is equal to $G$ and `$n$ > $m$`.
+| `node`    |  `node`    | `bool`               
+|====
 
-Examples:
-<screen>
+.Function
+
+.Details
+
+.Description
+Comparison on nodes is defined by a lexicographic ordering. Node `_N_ = _F_(_N_~1~, ..., _N_~n~)` is greater than or equal node 
+`_N_ = _G_(_M_~1~, ..., _M_~m~)` when:
+*  _N_ is equal to _M_, or
+*  _F_ is lexicographically greater than _G_, or _F_ is equal to _G_ and `_n_ > _m_`.
+
+.Examples
+[source,rascal-shell]
+----
 "g"(3) >= "f"(10, "abc");
 "f"(10, "abc") >= "f"(10);
 "f"(10, "abc") >= "f"(10, "abc");
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
+.Pitfalls
 

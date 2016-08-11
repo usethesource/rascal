@@ -1,36 +1,40 @@
-Name: Negation
+# Number Negation
 
-Synopsis: Negate a numeric value.
+.Synopsis
+Negate a numeric value.
 
-Syntax:
-`- $Exp$`
+.Index
+-
 
-Types:
-| `$Exp$`  |  `- $Exp$` |
-|:---------|:-----------|
-| `int`    |  `int`     |
-| `real`   |  `real`    |
+.Syntax
+`- _Exp_`
 
-Function:
+.Types
 
-Details:
 
-Description:
-Yields the negated values of $Exp$.
+|====
+| `_Exp_`  |  `- _Exp_` 
 
-Examples:
-<screen>
+| `int`    |  `int`     
+| `real`   |  `real`    
+|====
+
+.Function
+
+.Details
+
+.Description
+Yields the negated values of _Exp_.
+
+.Examples
+[source,rascal-shell]
+----
 -12
 -13.5
 - -12
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
-
-Questions:
-QType:  -<A:int>
-QType:  -<A:real>
-QValue: -<A:num>
+.Pitfalls
 

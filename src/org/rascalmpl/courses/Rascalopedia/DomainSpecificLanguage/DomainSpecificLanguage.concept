@@ -1,32 +1,31 @@
-Name: DomainSpecificLanguage
+# Domain Specific Language
 
-Synopsis: Programming language targeted for a particular application domain.
+.Synopsis
+Programming language targeted for a particular application domain.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
+.Description
 
-Examples:
-* SQL (querying data bases).
-* HTML (web pages).
-* CSS (presentation of HTML pages).
-* Excel (spreadsheets).
-* BibTex (bibliography).
-* BNF (grammars).
-* Regular expressions (text matching).
+.Examples
 
-Benefits:
+*  SQL (querying data bases).
+*  HTML (web pages).
+*  CSS (presentation of HTML pages).
+*  Excel (spreadsheets).
+*  BibTex (bibliography).
+*  BNF (grammars).
+*  Regular expressions (text matching).
 
-Pitfalls:
+.Benefits
 
-Questions:
+.Pitfalls
 
-       

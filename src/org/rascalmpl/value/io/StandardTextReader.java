@@ -18,7 +18,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +39,9 @@ import org.rascalmpl.value.type.ExternalType;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 /**
  * This class implements the standard readable syntax for {@link IValue}'s.
@@ -79,7 +81,7 @@ public class StandardTextReader extends AbstractTextReader {
 	private IValueFactory factory;
 	private TypeFactory types;
 	private int current;
-	private LinkedHashMap<String, ISourceLocation> sourceLocationCache;
+	private Cache<String, ISourceLocation> sourceLocationCache;
 
 	@SuppressWarnings("serial")
   public IValue read(IValueFactory factory, TypeStore store, Type type, Reader stream) throws FactTypeUseException, IOException {
@@ -89,12 +91,7 @@ public class StandardTextReader extends AbstractTextReader {
 		this.types = TypeFactory.getInstance();
 
 		try {
-			sourceLocationCache = new LinkedHashMap<String, ISourceLocation>(400*4/3, 0.75f, true) {
-				@Override
-				protected boolean removeEldestEntry(java.util.Map.Entry<String, ISourceLocation> eldest) {
-		            return size() > 400;
-				}
-			};
+			sourceLocationCache = Caffeine.newBuilder().maximumSize(1000).build();
 			current = this.stream.read();
 			IValue result = readValue(type);
 			if (current != -1 || this.stream.read() != -1) {
@@ -103,7 +100,6 @@ public class StandardTextReader extends AbstractTextReader {
 			return result;
 		}
 		finally {
-			sourceLocationCache.clear();
 			sourceLocationCache = null;
 		}
 	}
@@ -183,11 +179,13 @@ public class StandardTextReader extends AbstractTextReader {
 		try {
 
 			String url = parseURL();
-			ISourceLocation loc = sourceLocationCache.get(url);
-			if (loc == null) {
-				loc = factory.sourceLocation(new URI(url));
-				sourceLocationCache.put(url, loc);
-			}
+			ISourceLocation loc = sourceLocationCache.get(url, u -> {
+			    try {
+			        return factory.sourceLocation(new URI(u));
+			    } catch (URISyntaxException e) {
+			        throw new RuntimeException(e);
+			    }
+			});
 			if (current == START_OF_ARGUMENTS) {
 				ArrayList<IValue> args = new ArrayList<>(4);
 				readFixed(types.valueType(), ')', args, null);
@@ -233,8 +231,12 @@ public class StandardTextReader extends AbstractTextReader {
 
 			return loc;
 
-		} catch (URISyntaxException e) {
-			throw new FactParseError(e.getMessage(), stream.offset, e);
+		} catch (RuntimeException e) {
+		    if (e.getCause() instanceof URISyntaxException) {
+		        URISyntaxException actual = (URISyntaxException) e.getCause();
+		        throw new FactParseError(actual.getMessage(), stream.offset, actual);
+		    }
+		    throw e;
 		}
 	}
 

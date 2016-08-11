@@ -4,6 +4,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+
 /*
  * Not supported: in URI class, scheme is case insensitive, but this is already kinda broken, since on windows & osx, so should path's be.
  */
@@ -11,26 +15,30 @@ import java.util.regex.Pattern;
 	private static final Pattern schemePattern = Pattern.compile("[A-Za-z][A-Za-z0-9+\\-.]*");
 	private static final Pattern doubleSlashes = Pattern.compile("//+");
 	static IURI newURI(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException  {
+	    scheme = nullifyIfEmpty(scheme);
+	    authority = nullifyIfEmpty(authority);
 		if (path != null) {
-			if (path.isEmpty()) {
+			if (path.isEmpty() || path.equals("/")) {
 				path = null;
 			}
 			else if (!path.startsWith("/")) {
 				path = "/" + path;
 			}
-			if (path != null) {
+			if (path != null && path.contains("//")) {
 				// normalize double or longer slashes
 				path = doubleSlashes.matcher(path).replaceAll("/");
 			}
 		}
+		query = nullifyIfEmpty(query);
+		fragment = nullifyIfEmpty(fragment);
 		if (scheme == null || scheme.equals("")) {
 			throw new URISyntaxException(scheme, "scheme cannot be empty or null");
 		}
-		if (!schemePattern.matcher(scheme).matches()) {
+		if (INTERNED_SCHEMES.getIfPresent(scheme) == null  && !schemePattern.matcher(scheme).matches()) {
 			throw new URISyntaxException(scheme, "Scheme is not a valid scheme");
 		}
-		if (authority == null || authority.equals("")) {
-			if (path == null || path.equals("/")) {
+		if (authority == null) {
+			if (path == null) {
 				if (query == null) {
 					if (fragment == null) {
 						return new SourceLocationURIValues.BaseURI(scheme);
@@ -78,12 +86,21 @@ import java.util.regex.Pattern;
 	}
 	
 	
-	private static class BaseURI implements IURI {
+	private static String nullifyIfEmpty(String str) {
+	    if (str == null || str.isEmpty()) {
+	        return null;
+	    }
+        return str;
+    }
+
+    private static final LoadingCache<String, String> INTERNED_SCHEMES = Caffeine.newBuilder().build(s -> s);
+
+    private static class BaseURI implements IURI {
 		protected final String scheme;
 		
 		
 		public BaseURI(String scheme)  {
-			this.scheme = scheme.intern();
+			this.scheme = INTERNED_SCHEMES.get(scheme);
 		}
 		
 
@@ -205,12 +222,13 @@ import java.util.regex.Pattern;
 
 
 
+	private static final LoadingCache<String, String> INTERNED_AUTHORIES = Caffeine.newBuilder().build(s -> s);
 	private static class AuthorityURI extends BaseURI {
 		protected final String authority;
 		
 		public AuthorityURI(String scheme, String authority)  {
 			super(scheme);
-			this.authority = authority.intern();
+			this.authority = INTERNED_AUTHORIES.get(authority);
 		}
 		
 		@Override

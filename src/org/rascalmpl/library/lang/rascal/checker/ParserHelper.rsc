@@ -67,13 +67,13 @@ public Tree parseModule(str toParse) {
 	return parse(#Module,toParse);
 }
 
-public Tree parseModuleWithSpaces(str toParse) {
-	return parse(#start[Module],toParse);
-}
-
-public Tree parseModuleWithSpaces(loc toParse) {
-    return parse(#start[Module],toParse);
-}
+//public Tree parseModuleWithSpaces(str toParse) {
+//	return parse(#start[Module],toParse);
+//}
+//
+//public Tree parseModuleWithSpaces(loc toParse) {
+//    return parse(#start[Module],toParse);
+//}
 
 public void howManyMatches(str toParse) {
 	Tree pt = parse(#Expression,toParse);

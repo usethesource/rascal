@@ -1,7 +1,8 @@
 @doc{
-Synopsis: Character classes commonly known in the ASCII set
+.Synopsis
+Character classes commonly known in the ASCII set
 
-Description: These character class are taken from the ctype headers in clib.
+.Description
 } 
 module lang::std::ASCII
 

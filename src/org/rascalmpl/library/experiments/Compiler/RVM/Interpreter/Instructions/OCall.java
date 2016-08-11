@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.BytecodeGenerator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 import org.rascalmpl.value.ISourceLocation;
 
 public class OCall extends Instruction {
@@ -28,8 +28,9 @@ public class OCall extends Instruction {
 
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug) {
 		if ( debug ) 
-			codeEmittor.emitDebugCall(opcode.name());
+			codeEmittor.emitDebugCall2(opcode.name(), fuid, arity);
+		
 		// TODO add source line.
-		codeEmittor.emitOptimizedOcall(fuid,codeblock.getOverloadedFunctionIndex(fuid), arity, debug) ;
+		codeEmittor.emitOptimizedOcall(fuid,codeblock.getOverloadedFunctionIndex(fuid), arity, codeblock.getConstantIndex(src), debug) ;
 	}
 }

@@ -1,27 +1,26 @@
-Name: Basic
+# Basic
 
-Synopsis: Some basic, _hello world_-like, examples of Rascal programs.
+.Synopsis
+Some basic, _hello world_-like, examples of Rascal programs.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
 
-Details:
+.Details
 Hello Factorial Squares
 
-Description:
+.Description
 We discuss the following examples:
-<toc Recipes/Basic 1>
+subtoc::[1]
 
 
-Examples:
+.Examples
 
-Benefits:
+.Benefits
 
-Pitfalls:
-These programs illustrate various features of Rascal; they are __not representative__ as use cases of the language.
-
-Questions:
+.Pitfalls
+These programs illustrate various features of Rascal; they are *not representative* as use cases of the language.
 

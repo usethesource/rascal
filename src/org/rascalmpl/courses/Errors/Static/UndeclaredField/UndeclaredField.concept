@@ -1,43 +1,45 @@
-Name: UndeclaredField
+# UndeclaredField
 
-Synopsis: A field name is used that has not been declared.
+.Synopsis
+A field name is used that has not been declared.
 
-Syntax:
+.Syntax
 
-Types:
+.Types
 
-Function:
+.Function
        
-Usage:
+.Usage
 
-Details:
+.Details
 
-Description:
-Fields of [$Rascal:Values/Tuple] (hence also of [$Rascal:Values/Relation] and [$Rascal:Values/ListRelation])
-and constructors of [Rascal:AlgebraicDataType]s may have names.
+.Description
+Fields of link:/Rascal#Values-Tuple[tuple] (hence also of link:/Rascal#Values-Relation[relation]
+ and link:/Rascal#Values-ListRelation[listrelation])
+and constructors of link:/Rascal#Declarations-AlgebraicDataType[algebraic data types] may have names.
 This error is generated when a reference is made to an undeclared field.
 
 Remedies:
-* Fix the field name in the reference.
-* Declare a new field as used in the reference.
 
-Examples:
+*  Fix the field name in the reference.
+*  Declare a new field as used in the reference.
+
+.Examples
 Use of the undeclared field `gender`:
-<screen warning>
+[source,rascal-shell,error]
+----
 tuple[str name, int age] Jo = <"Jo", 33>;
 Jo.gender;
-</screen>
+----
 A similar example now expressed as ADT:
-<screen warnings>
+[source,rascal-shell,error]
+----
 data Person = person(str name, int age);
 jo = person("Jo", 33);
 jo.gender;
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 
-Questions:
-
-       

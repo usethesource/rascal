@@ -1,228 +1,299 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.net.URISyntaxException;
+//import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
-import org.commonmark.node.Node;
-import org.commonmark.parser.Parser;
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Attribute;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.commonmark.CommonMarkRenderer;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.highlighter.RascalHighlighter;
-import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.exceptions.UndeclaredFieldException;
-import org.rascalmpl.value.io.BinaryValueReader;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
+import java.awt.Desktop;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.MultiReader;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.rascalmpl.library.experiments.tutor3.Concept;
+import org.rascalmpl.library.experiments.tutor3.Onthology;
 
 public class HelpManager {
 	
-	private PrintWriter stdout;
-	private PrintWriter stderr;
-	private IValueFactory vf;
-	private ISourceLocation StdLibInfo;
-	private ISet declarationInfo = null;
-	private static final int FILE_BUFFER_SIZE = 8 * 1024;
-	private Parser cmparser;
-	private CommonMarkRenderer cmrenderer;
+	private URI coursesDir;
+	private final int maxSearch = 25;
+	private final PrintWriter stdout;
+	private final PrintWriter stderr;
+	private IndexSearcher indexSearcher;
+	private final int port = 8000;
 
 	public HelpManager(PrintWriter stdout, PrintWriter stderr){
 		this.stdout = stdout;
 		this.stderr = stderr;
-		vf = ValueFactoryFactory.getValueFactory();
-		
-		cmparser = Parser.builder().build();
-		
-		RascalHighlighter highlighter = new RascalHighlighter()
-				.setKeywordMarkup(Ansi.ansi().reset().bold().toString(), 
-							      Ansi.ansi().reset().boldOff().toString())
-				.setCommentMarkup(Ansi.ansi().reset().fg(Ansi.Color.GREEN).toString(), 
-								  Ansi.ansi().reset().fg(Ansi.Color.BLACK).toString());
-		cmrenderer =  CommonMarkRenderer.builder().setHighlighter(highlighter)
-				.setEmphasisMarkup(Ansi.ansi().a(Attribute.ITALIC).toString(), Ansi.ansi().a(Attribute.ITALIC_OFF).toString())
-				.setStrongMarkup(Ansi.ansi().a(Attribute.INTENSITY_BOLD).toString(), Ansi.ansi().a(Attribute.INTENSITY_BOLD_OFF).toString())
-				.build();
-	}
-	
-	public void printHelp(String[] words){
-		//TODO Add here for example credits, copyright, license
-		
-		readDeclarationInfo();
-		
-		if(words.length == 1){
-			IntroHelp.print(stdout);
-			return;  
-		}
-		if(words[1].equals("keywords")){
-			KeywordHelp.printKeywords(stdout);
-			return;
-		}
-		if(KeywordHelp.containsKey(words[1])){
-			printKeywordHelp(words[1]);
-			return;
-		}
-		
-		if(words[1].equals("operators")){
-			OperatorHelp.printOperators(stdout);
-			return;
-		}
-		
-		if(OperatorHelp.containsKey(words[1])){
-			printOperatorHelp(words);
-			return;
-		}
-		stdout.print(infoFunction(words[1]));
-	}
-	
-	private void readDeclarationInfo(){
-		if(declarationInfo == null){
-			TypeStore store = new TypeStore();
-			Type start = TypeFactory.getInstance().valueType();
+ 
+		URL c = this.getClass().getResource("/courses");
+		if(c == null){
+			stderr.println("Cannot find deployed (precompiled) courses");
+		} else {
 			try {
-				StdLibInfo = vf.sourceLocation("compressed+boot", "", "stdlib/StdLib.info.gz");
-			} catch (URISyntaxException e) {
-				stderr.println("Cannot create location for help info");
-			} 
-			
-			try (InputStream in = URIResolverRegistry.getInstance().getInputStream(StdLibInfo)) {
-				declarationInfo = (ISet) new BinaryValueReader().read(vf, store, start, in);
+				coursesDir = c.toURI();
+			} catch (URISyntaxException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+			try {
+				new HelpServer(port, this, Paths.get(coursesDir));
+				indexSearcher = makeIndexSearcher();
 			} catch (IOException e) {
-				stderr.println("Cannot read help info");
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
 	
-	private String consumeInputStream(Reader in) throws IOException {
-		StringBuilder res = new StringBuilder();
-		char[] chunk = new char[FILE_BUFFER_SIZE];
-		int read;
-		while ((read = in.read(chunk, 0, chunk.length)) != -1) {
-		    res.append(chunk, 0, read);
-		}
-		return res.toString();
-	}
-	
-	void printKeywordHelp(String keyword){
-		String conceptName = KeywordHelp.get(keyword)[0];
-		ISourceLocation conceptLoc;
-		try {
-			conceptLoc = vf.sourceLocation("courses", "", conceptName + ".concept");
-		} catch (URISyntaxException e) {
-			stderr.println("Cannot create location for " + conceptName);
-			return;
-		} 
-		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(conceptLoc);){
-			printConcept(consumeInputStream(reader));
-		} catch (IOException e) {
-			stderr.println("Cannot read: " + conceptLoc);
-			return;
-		}
-	}
-	
-	void printOperatorHelp(String[] words){
-		String op = words[1];
-		String[] conceptNames = OperatorHelp.get(op);
-		if(words.length == 2 && conceptNames.length > 1){
-			stdout.println("Operator " + words[1] + " is overloaded:\n");
-			for(String conceptName : conceptNames){
-				stdout.println("\t" + conceptName);
-			}
-			stdout.println("\nType 'help " + words[1] + " word1 word2 ...' to disambiguate, e.g. 'help + num'");
-			stdout.println("or   'help " + words[1] + " all' to show all versions");
-			return;
-		}
-		AllNames:
-		for(String conceptName : conceptNames){
-			if(words.length > 2 && !words[2].equals("all")){
-				for(int i = 2; i < words.length; i++){
-					if(conceptName.toLowerCase().indexOf(words[i].toLowerCase()) < 0){
-						continue AllNames;
-					}
+	private ArrayList<IndexReader> getReaders() throws IOException{
+		if(coursesDir.getScheme().equals("file")){
+			Path destDir = Paths.get(coursesDir);
+			ArrayList<IndexReader> readers = new ArrayList<>();
+			for(Path p : Files.newDirectoryStream(destDir)){
+				if(Files.isDirectory(p) && p.getFileName().toString().matches("^[A-Z].*")){
+					Directory directory = FSDirectory.open(p);
+					DirectoryReader ireader = DirectoryReader.open(directory);
+					readers.add(ireader);
 				}
 			}
-			ISourceLocation conceptLoc;
+			return readers;
+		}
+		throw new IOException("Cannot yet handle non-file coursesDir");
+	}
+	
+	IndexSearcher makeIndexSearcher() throws IOException{
+		ArrayList<IndexReader> readers = getReaders();
+
+		IndexReader[] ireaders = new IndexReader[readers.size()];
+		for(int i = 0; i < readers.size(); i++){
+			ireaders[i] = readers.get(i);
+		}
+		IndexReader ireader = new MultiReader(ireaders);
+		return  new IndexSearcher(ireader);
+	}
+	
+	private boolean indexAvailable(){
+		if(indexSearcher != null){
+			return true;
+		}
+		stderr.println("No deployed courses found; they are needed for 'help' or 'apropos'");
+		return false;
+	}
+	
+	public void openInBrowser(URI uri)
+	{
+		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+		if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
 			try {
-				conceptLoc = vf.sourceLocation("courses", "", conceptName + ".concept");
-			} catch (URISyntaxException e) {
-				stderr.println("Cannot create location for " + conceptName);
-				return;
-			} 
-			try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(conceptLoc);){
-				printConcept(consumeInputStream(reader));
+				desktop.browse(uri);
 			} catch (IOException e) {
-				stderr.println("Cannot read: " + conceptLoc);
-				return;
+				System.err.println(e.getMessage());
 			}
+		} else {
+			System.err.println("Desktop not supported, cannout open browser");
 		}
 	}
 	
-	void printConcept(String concept){
-		Node document = cmparser.parse(concept);
-		stdout.println(cmrenderer.render(document));
-//		String[] lines = concept.split("\n");
-//		for(String line : lines){
-//			if(line.startsWith("Questions")){
-//				break;
-//			}
-//			stdout.println(line);
-//		}
+	void appendURL(StringWriter w, String conceptName){
+		String[] parts = conceptName.split("/");
+		int n = parts.length;
+		String course = parts[0];
+		w.append("/").append(course).append("#").append(parts[n - (n > 1 ? 2 : 1)]).append("-").append(parts[n-1]);
 	}
 	
-	String getField(IConstructor cons, String fieldName){
-		try {
-			return ((IString)cons.get(fieldName)).getValue();
+	String makeURL(String conceptName){
+		StringWriter w = new StringWriter();
+		appendURL(w, conceptName);
+		return w.toString();
+	}
+	
+	void appendHyperlink(StringWriter w, String conceptName){
+		w.append("<a href=\"http://localhost:");
+		w.append(String.valueOf(port));
+		appendURL(w, conceptName);
+		w.append("\">").append(conceptName).append("</a>");
+	}
+	
+	private String escapeForQuery(String s){
+		return s.toLowerCase().replaceAll("([+\\-!(){}\\[\\]\\^\"~*?:\\\\/]|(&&)|(\\|\\|))","\\\\$1");
+	}
+	
+	private String escapeHtml(String s){
+		// TODO: switch to StringEscapeUtils when compiled inside Eclipse
+		return s;
+	}
+	
+	private URI makeSearchURI(String[] words) throws URISyntaxException, UnsupportedEncodingException{
+		StringWriter w = new StringWriter();
+		for(int i = 1; i < words.length; i++){
+			w.append(words[i]);
+			if(i < words.length - 1) w.append(" ");
 		}
-		catch (UndeclaredFieldException e){
+		String encoded = URLEncoder.encode(w.toString(), "UTF-8");
+		return new URI("http", "localhost:" + port + "/Search?searchFor=" + encoded, null);
+	}
+	
+	public void handleHelp(String[] words){
+		if(words[0].equals("help")){
+			try {
+				openInBrowser(makeSearchURI(words));
+			} catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			stdout.println(giveHelp(words));
+		}
+	}
+	
+	public String giveHelp(String[] words){
+		//TODO Add here for example credits, copyright, license
+		
+		if(words.length <= 1){
+			IntroHelp.print(stdout);
 			return "";
 		}
-	}
-	
-	void report(IConstructor declInfo, StringWriter w, boolean showDoc, boolean showSource){
-		String constructorName = declInfo.getName();
-		String role = constructorName;
-		switch(constructorName){
-		case "functionInfo":    role = "Function:    "; break;
-		case "constructorInfo": role = "Constructor: "; break;
-		case "dataInfo":        role = "Data:        "; break;
-		case "moduleInfo":      role = "Module:      "; break;
-		case "varInfo":         role = "Variable:    "; break;
+		
+		if(!indexAvailable()){
+			return "";
 		}
 
-		w.append("Module:       ").append(getField(declInfo, "moduleName")).append("\n")
-		 .append(role).append(" ").append(getField(declInfo, "signature")).append("\n");
-		if(showDoc){
-			w.append(getField(declInfo, "doc"));
-		} else {
-			String synopsis = getField(declInfo, "synopsis");
-			if(!synopsis.isEmpty()){
-			   w.append("Synopsis:     ").append(synopsis).append("\n");
-		    }
+		Analyzer multiFieldAnalyzer = Onthology.multiFieldAnalyzer();
+		
+		try {
+			String searchFields[] = {"index", "synopsis", "doc"};
+			
+			QueryParser parser  = new MultiFieldQueryParser(searchFields, multiFieldAnalyzer);
+			
+			StringBuilder sb = new StringBuilder();
+			for(int i = 1; i < words.length; i++){
+				sb.append(" ").append(escapeForQuery(words[i]));
+			}
+			Query query;
+			try {
+				query = parser.parse(sb.toString());
+			} catch (ParseException e) {
+				stderr.println("Cannot parse query: " + sb + ", " + e.getMessage());
+				return "";
+			}
+
+			if(words[0].equals("help")){
+				return reportHelp(words, indexSearcher.search(query, maxSearch).scoreDocs);
+			} else {
+				return reportApropos(words, indexSearcher.search(query, maxSearch).scoreDocs);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		w.append("\n");
-		//'<showSource ? "Source:\n<readFile(di.src)>" : ""
+		return "";
+	}
+		
+	String getField(Document hitDoc, String field){
+		String s = hitDoc.get(field);
+		return (s == null || s.isEmpty()) ? "" : s;
 	}
 	
-	String infoFunction(String name){
+	void genPrelude(StringWriter w){
+		w.append("<head>\n");
+		w.append("<title>Rascal Help</title>");
+		w.append("<link rel=\"stylesheet\" href=\"css/style.css\"/>");
+		w.append("<link rel=\"stylesheet\" href=\"css/font-awesome.min.css\"/>");
+		w.append("<link rel=\"icon\" href=\"/favicon.ico\" type=\"image/x-icon\"/>");
+		w.append("</head>\n");
+		w.append("<body class=\"book toc2 toc-left\">");
+		
+		w.append(Concept.getSearchForm());
+		
+		w.append("<div id=\"toc\" class=\"toc2\">");
+		w.append("</div>");
+	}
+	
+	void genSearchTerms(String[] words, StringWriter w){
+		w.append("<i>");
+		for(int i = 1; i < words.length; i++){
+			w.append(words[i]).append(" ");
+		}
+		w.append("</i>\n");
+	}
+	
+	String reportHelp(String[] words, ScoreDoc[] hits) throws IOException{
+		int nhits = hits.length;
+		
 		StringWriter w = new StringWriter();
-		for(IValue elem : declarationInfo){
-			IConstructor declInfo = (IConstructor) elem;
-			String consName = declInfo.getName();
-			if(consName.equals("moduleInfo")) continue;
-			if(getField(declInfo, "name").indexOf(name) >= 0){
-				report(declInfo, w, false, false);
+		if(nhits == 0){
+			stdout.println("No info found");
+			genPrelude(w);
+			w.append("<h1 class=\"search-sect0\">No help found for: ");
+			genSearchTerms(words, w);
+			w.append("</h1>\n");
+			w.append("<div class=\"search-ulist\">\n");
+			w.append("<ul><li>Perhaps try <i>help</i>, <i>further reading</i> or <i>introduction</i> as search terms</li>");
+			w.append("</ul>\n");
+			w.append("</div>");
+			w.append("</body>\n");
+			return w.toString();
+		} else {
+			genPrelude(w);
+			w.append("<h1 class=\"search-sect0\">Help for: ");
+			genSearchTerms(words, w);
+			w.append("</h1>\n");
+			w.append("<ul>\n");
+			for (int i = 0; i < Math.min(hits.length, maxSearch); i++) {
+				Document hitDoc = indexSearcher.doc(hits[i].doc);
+				w.append("<div class=\"search-ulist\">\n");
+				w.append("<li> ");
+				String name = hitDoc.get("name");
+				appendHyperlink(w, name);
+				w.append(": <em>").append(escapeHtml(getField(hitDoc, "synopsis"))).append("</em>");
+				String signature = getField(hitDoc, "signature");
+				if(!signature.isEmpty()){
+					w.append("<br>").append("<code>").append(escapeHtml(signature)).append("</code>");
+				}
 			}
+			w.append("</ul>\n");
+			w.append("</div>");
+			w.append("</body>\n");
+			return w.toString();
+		}
+	}
+	
+	String reportApropos(String[] words, ScoreDoc[] hits) throws IOException{
+		StringWriter w = new StringWriter();
+		for (int i = 0; i < Math.min(hits.length, maxSearch); i++) {
+			Document hitDoc = indexSearcher.doc(hits[i].doc);
+			String name = hitDoc.get("name");
+			String signature = getField(hitDoc, "signature");
+			String synopsis = getField(hitDoc, "synopsis");
+			w.append(name).append(":\n\t").append(synopsis);
+			if(!signature.isEmpty()){
+				w.append("\n\t").append(signature);
+			}
+			w.append("\n");
 		}
 		return w.toString();
 	}

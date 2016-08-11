@@ -3,7 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers;
 import java.io.PrintWriter;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVM;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
 
@@ -14,15 +14,33 @@ public class ProfileFrameObserver implements IFrameObserver {
 	
 	private Profiler profiler;
 	
-	public ProfileFrameObserver(PrintWriter stdout){
-		this.stdout = stdout;
+	public ProfileFrameObserver(RascalExecutionContext rex){
+		this.stdout = rex.getStdOut();
 		profiler = new Profiler(this);
 		profiler.start();
 	}
 	
 	@Override
 	public boolean observe(Frame frame) {
-		this.src = frame.src;
+		if(frame != null){
+			this.src = frame.src;
+		}
+		return true;
+	}
+	
+	@Override
+	public boolean enter(Frame frame) {
+		if(frame != null){
+			this.src = frame.src;
+		}
+		return true;
+	}
+	
+	@Override
+	public boolean leave(Frame frame, Object rval) {
+		if(frame != null){
+			this.src = frame.src;
+		}
 		return true;
 	}
 	

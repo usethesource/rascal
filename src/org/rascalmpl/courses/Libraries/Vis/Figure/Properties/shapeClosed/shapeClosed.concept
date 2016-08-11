@@ -1,0 +1,25 @@
+# shapeClosed
+
+.Synopsis
+Connect first and last point of a shape in an [overlay].
+
+.Syntax
+
+.Types
+
+.Function
+`FProperty shapeClosed(bool b)`
+
+.Details
+
+.Description
+When `b` is true, connect the first and the last figure in a shape created by <<shapeConnected>>.
+Also see <<overlay>> and <<shapeCurved>>.
+
+.Examples
+See <<overlay>> for examples.
+
+.Benefits
+
+.Pitfalls
+

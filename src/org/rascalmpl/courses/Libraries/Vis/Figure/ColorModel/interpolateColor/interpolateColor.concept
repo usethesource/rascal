@@ -1,0 +1,39 @@
+# interpolateColor
+
+.Synopsis
+Interpolate between two colors.
+
+.Syntax
+
+.Types
+
+.Function
+`Color interpolateColor(Color from, Color to, real percentage)`
+
+.Details
+
+.Description
+Interpolate between two colors (in RGB space). The percentage indicates the distance between
+the `from` and the `to` color.
+
+.Examples
+[source,rascal-figure,width=,height=,file=h1.png]
+----
+                from = color("Red");
+to = color("Yellow");
+b1 = box([size(50), fillColor(interpolateColor(from, to, 0.0))]);
+b2 = box([size(50), fillColor(interpolateColor(from, to, 0.2))]);
+b3 = box([size(50), fillColor(interpolateColor(from, to, 0.4))]);
+b4 = box([size(50), fillColor(interpolateColor(from, to, 0.6))]);
+b5 = box([size(50), fillColor(interpolateColor(from, to, 0.8))]);
+b6 = box([size(50), fillColor(interpolateColor(from, to, 1.0))]);
+render(hcat([b1, b2, b3, b4, b5, b6]));
+----
+gives: 
+image::{concept}/h1.png[alt="h1"]
+
+
+.Benefits
+
+.Pitfalls
+

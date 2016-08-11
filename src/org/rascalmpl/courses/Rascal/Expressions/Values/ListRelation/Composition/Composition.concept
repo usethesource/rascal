@@ -1,51 +1,39 @@
-Name: Composition
+# ListRelation Composition
 
-Synopsis: Composition of two list relation values.
+.Synopsis
+Composition of two list relation values.
 
-Syntax:
-`$Exp_1$ o $Exp_2$`
+.Index
+o
 
-Types:
-|`$Exp_1$`             | `$Exp_2$`            | `$Exp_1$ o $Exp_2$` |
-|:---------------------|:---------------------|:--------------------|
-| `lrel[$T_1$, $T_2$]` | `lrel[$T_2$, $T_3$]` | `lrel[$T_1$, $T_3$]`|
+.Syntax
+`_Exp_~1~ o _Exp_~2~`
 
-Function:
+.Types
 
-Details:
+//
 
-Description:
+|====
+|`_Exp~1~_`             | `_Exp~2~_`            | `_Exp~1~_ o _Exp~2~_` 
+
+| `lrel[_T~1~_, _T~2~_]` | `lrel[_T~2~_, _T~3~_]` | `lrel[_T~1~_, _T~3~_]`
+|====
+
+.Function
+
+.Details
+
+.Description
 Returns the composition of two binary list relations.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 [<1,10>, <2,20>, <3,15>] o [<10,100>, <20,200>];
-</screen>
+----
 
-Benefits:
+.Benefits
 
-Pitfalls:
+.Pitfalls
 We use the letter `o` as operator and this may conflict other defined names.
-
-Questions:
-
-QType:
-prep: import List;
-make: C = list[int,3,3]
-make: A = list[int,3,3]
-make: B = list[int,3,3]
-expr: S1 = zip(<A>,<C>)
-expr: S2 = zip(<C>, <B>)
-test: <S1> o <S2>
-
-QValue:
-prep: import List;
-make: C = list[int,3,3]
-make: A = list[int,3,3]
-make: B = list[int,3,3]
-expr: S1 = zip(<A>,<C>)
-expr: S2 = zip(<C>, <B>)
-expr: H = <S1> o <S2>
-hint: <H>
-test: <S1> o <S2>
 

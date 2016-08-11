@@ -1,0 +1,31 @@
+# ADoc Test Case
+
+
+.Synopsis
+Test Case
+
+.Syntax
+
+.Types
+
+.Function
+       
+.Usage
+
+.Details
+
+
+
+Drawing a red link:/Libraries#Figure-box[box] is as simple as this:
+[source,rascal-figure,width=,height=,file=b1.png]
+----
+import experiments::vis2::sandbox::Figure;
+import experiments::vis2::sandbox::FigureServer;
+b = box(fillColor="red");
+render(b);
+----
+and it will look like this:
+
+image::{concept}/b1.png[alt="Box 1"]
+
+.Description

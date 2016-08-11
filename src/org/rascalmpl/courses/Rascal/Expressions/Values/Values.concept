@@ -1,24 +1,9 @@
-Name: Values
+# Values
 
-Synopsis: The different types of values.
+.Synopsis
+The different types of values.
 
-Syntax:
 
-Types:
+.Description
 
-Function:
-
-Details:
-
-Description:
-
-<toc Rascal/Expressions/Values 1>
-
-Examples:
-
-Benefits:
-
-Pitfalls:
-
-Questions:
-
+subtoc::[1]
