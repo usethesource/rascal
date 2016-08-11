@@ -5,6 +5,35 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
+@doc{
+.Synopsis
+Descriptive Statistics.
+
+.Description
+Provides the following univariate (single variable) statistics functions:
+
+subtoc::[1]
+
+.Examples
+
+[source,rascal-shell]
+----
+import analysis::statistics::Descriptive;
+D = [67, 88, 55, 92.5, 102, 51];
+mn = min(D);
+mx = max(D);
+range = mx - mn;
+midrange =  mn + range/2;
+sum(D);
+mean(D);
+geometricMean(D);
+standardDeviation(D);
+variance(D);
+percentile(D,25);
+percentile(D,50);
+percentile(D,75);
+----
+}
 module analysis::statistics::Descriptive
 
 import IO;
@@ -16,11 +45,12 @@ real geometricMean(list[num] l:[]) {
 	throw IllegalArgument(l,"Geometric mean cannot be calculated for empty lists");
 }
 @doc{
-Synopsis: Geometric mean of data values.
+.Synopsis
+Geometric mean of data values.
 
-Description:
+.Description
 
-Computes the [geometric mean](http://en.wikipedia.org/wiki/Geometric_mean) of the given data values.
+Computes the http://en.wikipedia.org/wiki/Geometric_mean[geometric mean] of the given data values.
 }
 default real geometricMean([num hd, *num tl]) {
 	if (tl == []) {
@@ -37,11 +67,12 @@ default real geometricMean([num hd, *num tl]) {
 }
 
 @doc{
-Synopsis: Kurtosis of data values.
+.Synopsis
+Kurtosis of data values.
 
-Description:
+.Description
 
-Computes the [kurtosis](http://en.wikipedia.org/wiki/Kurtosis) of the given data values.
+Computes the http://en.wikipedia.org/wiki/Kurtosis[kurtosis] of the given data values.
 Kurtosis is a measure of the "peakedness" of a distribution.
 }
 real kurtosis(list[num] values) {
@@ -56,17 +87,19 @@ real kurtosis(list[num] values) {
 }
 
 @doc{
-Synopsis: Kurtosis excess of data values.
+.Synopsis
+Kurtosis excess of data values.
 
-Description:
+.Description
 
-Computes the [kurtosis excess](http://en.wikipedia.org/wiki/Kurtosis) of the given data values.
+Computes the http://en.wikipedia.org/wiki/Kurtosis[kurtosis excess] of the given data values.
 Kurtosis excess is a measure of the "peakedness" of a distribution corrected such that a normal distribution will be 0.
 }
 real kurtosisExcess(list[num] values) = kurtosis(values) - 3;
 
 @doc{
-Synopsis: Largest data value.
+.Synopsis
+Largest data value.
 }
 (&T <: num) max(list[&T <: num] nums) throws EmptyList
 	= (head(nums) | it < n ? n : it | n <- tail(nums));
@@ -77,11 +110,12 @@ real mean(list[&T<:num] l:[]) {
 }
 
 @doc{
-Synopsis: Arithmetic mean of data values.
+.Synopsis
+Arithmetic mean of data values.
 
-Description:
+.Description
 
-Computes the [arithmetic mean](http://en.wikipedia.org/wiki/Arithmetic_mean) of the data values.
+Computes the http://en.wikipedia.org/wiki/Arithmetic_mean[arithmetic mean] of the data values.
 }
 default real mean(list[num] nums)
 	= toReal(sum(nums)) / size(nums);
@@ -94,19 +128,21 @@ real median(list[num] l:[]) {
 }
 
 @doc{
-Synopsis: Median of data values.
+.Synopsis
+Median of data values.
 
-Description:
+.Description
 
-Returns the [median](http://en.wikipedia.org/wiki/Median) of the available values.
-This is the same as the 50th [percentile].
+Returns the http://en.wikipedia.org/wiki/Median[median] of the available values.
+This is the same as the 50th <<percentile>>.
 
-Examples:
-<screen>
+.Examples
+[source,rascal-shell]
+----
 import analysis::statistics::Descriptive;
 median([1,2,5,7,8]);
 median([1,2,2,6,7,8]);
-</screen>
+----
 
 }
 default real median(list[num] nums) 
@@ -123,17 +159,19 @@ private list[&T] middle(list[&T] nums) {
 }
 
 @doc{
-Synopsis: Smallest data value.
+.Synopsis
+Smallest data value.
 }
 (&T <: num) min(list[&T <: num] nums) throws EmptyList
 	= (head(nums) | it > n ? n : it | n <- tail(nums));
 
 @doc{
-Synopsis: Percentile of data values.
+.Synopsis
+Percentile of data values.
 
-Description:
+.Description
 
-Returns the `p`th [percentile](http://en.wikipedia.org/wiki/Percentile) of the data values.
+Returns the `p`th http://en.wikipedia.org/wiki/Percentile[percentile] of the data values.
  0 < `p` <= 100 should hold.
 
 }
@@ -154,10 +192,11 @@ num variance(list[num] l:[]) {
 	throw IllegalArgument(l,"variance cannot be calculated for empty lists");
 }
 @doc{
-Synopsis: Variance of data values.
+.Synopsis
+Variance of data values.
 
-Description:
-Computes the [variance](http://en.wikipedia.org/wiki/Variance) of the data values.
+.Description
+Computes the http://en.wikipedia.org/wiki/Variance[variance] of the data values.
 It measures how far a set of numbers is spread out.
 }
 num variance([num hd, *num tl]) {
@@ -176,19 +215,21 @@ real skewness(list[num] l:[]) {
 	throw IllegalArgument(l,"Standard Deviation cannot be calculated for empty lists");
 } 
 @doc{
-Synopsis: Skewness of data values.
+.Synopsis
+Skewness of data values.
 
-Description:
-Returns the [skewness](http://en.wikipedia.org/wiki/Skewness) of the available values. Skewness is a measure of the asymmetry of a given distribution.
+.Description
+Returns the http://en.wikipedia.org/wiki/Skewness[skewness] of the available values. Skewness is a measure of the asymmetry of a given distribution.
 }
 default real skewness(list[num] values) 
 	= centralMoment(values, order=3) / pow(centralMoment(values, order=2), 3/2);
 
 @doc{
-Synopsis: Standard deviation of data values.
+.Synopsis
+Standard deviation of data values.
 
-Description:
-Computes the [standard deviation](http://en.wikipedia.org/wiki/Standard_deviation)
+.Description
+Computes the http://en.wikipedia.org/wiki/Standard_deviation[standard deviation]
 of the data values. It shows how much variation exists from the average (mean, or expected value). 
 }
 real standardDeviation(list[num] values) {
@@ -206,13 +247,15 @@ public (&T <:num) sum(list[(&T <:num)] _:[]) {
 		");
 }
 @doc{
-Synopsis: Sum of data values.
+.Synopsis
+Sum of data values.
 }
 public default (&T <:num) sum([(&T <: num) hd, *(&T <: num) tl])
 	= (hd | it + i | i <- tl);
 
 @doc{
-Synopsis: Sum of the squares of data values.
+.Synopsis
+Sum of the squares of data values.
 }
 (&T <:num) sumsq(list[&T <:num] values)
 	= sum([ n * n | n <- values]);

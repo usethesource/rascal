@@ -67,7 +67,7 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 	
 	// Get the imports of everything transitively reachable through m
 	while (!isEmpty(worklist)) {
-		< wlName, worklist > = takeOneFrom(worklist);
+		< wlName, worklist > = takeFirstFrom(worklist);
 		try {
 		    ppWlName = prettyPrintName(wlName);
 			wlLoc = getModuleLocation(ppWlName,pcfg);
@@ -81,7 +81,8 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 			
 			if (wlName notin minfoMap) {
 				dt = lastModified(wlLoc);
-				pt = getModuleParseTree(ppWlName, pcfg);
+				//pt = getModuleParseTree(ppWlName, pcfg);
+				pt = parseNamedModuleWithSpaces(ppWlName, pcfg);
 				if (Module mImp := pt.top) {
 					minfoMap[wlName] = getImports(mImp);
 
@@ -95,7 +96,7 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 
 					writeCachedImports(ppWlName, pcfg, dt, minfoMap[wlName]); 
 				} else {
-					throw "Unexpected parse, pt is not a module";
+					throw "Unexpected pars, pt is not a module";
 				}
 			}
 		} catch x : {
@@ -169,6 +170,8 @@ public TypeNameInfo extractTypeNames(Module m) {
 		if ((Declaration)`<Tags _> <Visibility _> data <UserType user>;` := ti.declaration) {
 			dataNames = dataNames + convertName(user.name);
 		} else if ((Declaration)`<Tags _> <Visibility _> data <UserType ut> <CommonKeywordParameters ckps> = <{Variant "|"}+ _>;` := ti.declaration) {
+			dataNames = dataNames + convertName(ut.name);
+		} else if ((Declaration)`<Tags _> <Visibility _> data <UserType ut> <CommonKeywordParameters ckps>;` := ti.declaration) {
 			dataNames = dataNames + convertName(ut.name);
 		} else if ((Declaration)`<Tags _> <Visibility _> alias <UserType ut> = <Type base>;` := ti.declaration) {
 			aliasNames = aliasNames + convertName(ut.name);

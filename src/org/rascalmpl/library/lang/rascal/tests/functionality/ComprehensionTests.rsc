@@ -113,6 +113,12 @@ test bool any17()  = !(any(_ <- ()));
 test bool any18()  = any(int X <- [10,10,10], 10 := X);
 test bool any19()  = any(int X <- [10,20,30], 20 := X);
 test bool any20()  = !any(int X <- [10,20,30], 25 := X);
+
+test bool any21()  = any(int X <- [10,10,10], 10 := X) || 13 == 14;
+test bool any22()  = any(int X <- [10,10,10], 11 := X) || 13 == 13;
+test bool any23()  = any(int X <- [10,10,10], 10 := X) && 13 == 13;
+test bool any24()  = 13 == 14 || any(int X <- [10,10,10], 10 := X);
+test bool any25()  = 13 == 13 && any(int X <- [10,10,10], 10 := X);
   	
 // all
   		
@@ -160,6 +166,12 @@ test bool all22()  = all(k <- [1,2,3], (k % 2 == 0 || k % 2 == 1) ? true : false
 
 test bool all23()  = all(k <- [10,10,10], 10 := k);
 test bool all24()  = !all(k <- [10,20,30], 20 := k);
+
+test bool any25()  = all(int X <- [10,10,10], 10 := X) || 13 == 14;
+test bool any26()  = all(int X <- [10,10,10], 11 := X) || 13 == 13;
+test bool any27()  = all(int X <- [10,10,10], 10 := X) && 13 == 13;
+test bool any28()  = 13 == 14 || all(int X <- [10,10,10], 10 := X);
+test bool any29()  = 13 == 13 && all(int X <- [10,10,10], 10 := X);
   
 // setComprehension
   		
@@ -214,6 +226,10 @@ test bool setComprehensionNested4()  = { *{X + y | int y <- [1..X+1], X < 2} | i
 test bool setComprehensionNested5()  = { {X + y | int y <- [1..X+1], X > 2} | int X <- [1,2,3]} == {{}, {4,5,6}};
 test bool setComprehensionNested6()  = { *{X + y | int y <- [1..X+1], X > 2} | int X <- [1,2,3]} == {4, 5, 6};
   	
+test bool setComprehensionNestedGenerator() = { y | <x, y> <- {<a, 10*a> | a <- [1,2,3]}, y > 10 } == {20, 30};
+
+test bool setComprehensionNestedRange() = { i | int i <- [10..12] } == {10, 11};
+
 // emptySetGeneratorError
   
 test bool emptySetGeneratorError3()  = [ X | int X <- {} ] == [];
@@ -341,6 +357,10 @@ test bool listComprehensionNested4()  = [ *[y | int y <- [0..X+1], X < 2] | int 
 test bool listComprehensionNested5()  = [ [y | int y <- [0..X+1], X > 2] | int X <- [1,2,3]] == [[], [], [0,1,2,3]];
 test bool listComprehensionNested6()  = [ *[y | int y <- [0..X+1], X > 2] | int X <- [1,2,3]] == [0,1,2,3];
   	
+test bool listComprehensionNestedGenerator() = [ y | <x, y> <- [<a, 10*a> | a <- [1,2,3]], y > 10 ] == [20, 30];
+
+test bool setComprehensionNestedRange() = [ i | int i <- [10..12] ] == [10..12];
+
 // emptyTupleGenerator
 
 // @ignoreCompiler{Type checker rejects this} test bool emptyTupleGeneratorError1() = {<X,Y> | <int X, int Y> <- {}} == {} ;
@@ -401,6 +421,9 @@ test bool mapComprehensionNested1()  = ( X: (2 * X + y : y | int y <- [1..X+1]) 
 test bool mapComprehensionNested2()  = ( X: (2 * X + y : y | int y <- [1..X+1], X < 2) | int X <- [1,2,3] ) == (1:(3:1), 2:(), 3:());
 test bool mapComprehensionNested3()  = ( X: (2 * X + y : y | int y <- [1..X+1], X > 2) | int X <- [1,2,3] ) == (1:(),2:(),3:(7:1,8:2,9:3));
   
+  
+ test bool mapComprehensionNestedGenerator() = (x : y | <x, y> <- {<a, 10*a> | a <- [1,2,3]}, y > 10 ) == (2 : 20, 3 : 30);
+ 
 data TREE = i(int N) | f(TREE a,TREE b) | g(TREE a, TREE b);
   	
 // nodeGenerator()

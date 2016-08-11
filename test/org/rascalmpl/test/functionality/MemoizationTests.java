@@ -23,6 +23,25 @@ public class MemoizationTests extends TestFramework {
 		// actually hit the cache to cause a cleanup
 		runTestInSameEvaluator("OneMB(1)[0]==1");
 	}
+	
+	@Test
+	public void memoryIsReleased2() {
+	    prepare("int n = 0;");
+		prepareMore("@memo list[int] OneMB(int w) { n += 1; return [ n | i <- [0..(1024*1024/8)]];}");
+		runTestInSameEvaluator("( true | it && OneMB(1)[0] == 1 | i <- [0..10])");
+		runTestInSameEvaluator("OneMB(1)[0]==1");
+		// Force an OoM
+		// use all memory to cause the memoization to cleanup
+	    try {
+	        final ArrayList<Object[]> allocations = new ArrayList<Object[]>();
+	        while(true)
+	            allocations.add( new Object[(int) Math.min(Integer.MAX_VALUE, Runtime.getRuntime().maxMemory())] );
+	    } catch( OutOfMemoryError e ) {
+	        // great!
+	    }
+		// actually hit the cache to cause a cleanup
+		runTestInSameEvaluator("OneMB(1)[0]==2");
+	}
 
 	@Test
 	public void manyEntries() throws InterruptedException {

@@ -278,6 +278,8 @@ void printDecl(RVMDeclaration d){
     }
     println("nformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>, scopeIn=<d.scopeIn>");
     println("\t\tsrc=<d.src>");
+    println("\t\tusedOverLoadedFunctions=<d.usedOverloadedFunctions>");
+    println("\t\tusedFunctions=<d.usedFunctions>");
     if(size(d.exceptions) > 0){
     	for(<str from, str to, Symbol \type, str target, int fromSP> <- d.exceptions){
     		println("\t\ttry: from=<from>, to=<to>, type=<\type>, target=<target>, fromSP=<fromSP>");
@@ -309,14 +311,16 @@ void listDecls(RVMModule p, Query select, int line, bool listing){
 }
 
 void statistics(loc root = |std:///|,
-                loc bindir = |home:///bin|,
+                PathConfig pcfg = pathConfig(),
                 bool printMessages = false
                 ){
-    allFiles = find(root, "rsc");
+    allFiles = find(root, "gz");
+    println(allFiles);
     
     nfunctions = 0;
     ncoroutines = 0;
     ninstructions = 0;
+    locals = ();
   
     messages = [];
     missing = {};
@@ -327,7 +331,7 @@ void statistics(loc root = |std:///|,
     }
     
     for(f <- allFiles){
-        rvmLoc = RVMModuleLocation(f, bindir);
+        rvmLoc = f;
         try {
             p = readBinaryValueFile(#RVMModule, rvmLoc);
             if(size(p.messages) == 0 || all(msg <- p.messages, msg is warning)){
@@ -343,9 +347,10 @@ void statistics(loc root = |std:///|,
         	} 
            
             for(decl <- p.declarations){
-                if(decl is FUNCTION)
+                if(decl is FUNCTION){
                     nfunctions += 1;
-                else {
+                    locals[decl.name] = decl.nlocals;
+                } else {
                     ncoroutines += 1;
                 }
                 ninstructions += size(decl.instructions);
@@ -388,10 +393,10 @@ void statistics(loc root = |std:///|,
 }
 
 set[loc] getFunctionLocations(
-						   loc srcLoc,                  // location of Rascal source file
-   							loc bindir = |home:///bin|   // location where binaries are stored
+						   loc src,                  // location of Rascal source file
+   							loc bin = |home:///bin|   // location where binaries are stored
 							){
-   rvmLoc = RVMModuleLocation(srcLoc, bindir);
+   rvmLoc = RVMModuleLocation(src, bin);
    try {
         p = readBinaryValueFile(#RVMModule, rvmLoc);
         
@@ -442,6 +447,8 @@ str config(loc cloc,  Query select = none()){
    if(hasMatches(c.usedIn, select)) {  res += "usedIn:\n"; for(uid <- sort(domain(c.usedIn)))  res += getSelected(uid, c.usedIn[uid], select); }
    if(hasMatches(c.adtConstructors, select)) {  res += "adtConstructors:\n"; for(uid <- sort(domain(c.adtConstructors)))  res += getSelected(uid, c.adtConstructors[uid], select); }
    if(hasMatches(c.nonterminalConstructors, select)) {  res += "nonterminalConstructors:\n"; for(uid <- sort(domain(c.nonterminalConstructors)))  res += getSelected(uid,c.nonterminalConstructors[uid], select); }
+   res += "stack: <c.stack>\n";
+   res += "labelStack: <c.labelStack>\n";
    if(hasMatches(c.keywordDefaults, select)) {  res += "keywordDefaults:\n"; for(uid <- sort(domain(c.keywordDefaults)))  res += getSelected(uid, c.keywordDefaults[uid], select); }
    if(hasMatches(c.dataKeywordDefaults, select)) {  res += "dataKeywordDefaults:\n"; for(uid <- sort(domain(c.dataKeywordDefaults)))  res += getSelected(uid, c.dataKeywordDefaults[uid], select); }
    if(hasMatches(c.tvarBounds, select)) {  res += "tvarBounds:\n"; for(uid <- sort(domain(c.tvarBounds)))  res += getSelected(uid, c.tvarBounds[uid], select); }

@@ -1,3 +1,4 @@
+// tag::module[]
 module demo::lang::Exp::Combined::Manual::Eval
 
 import demo::lang::Exp::Abstract::Syntax;
@@ -5,6 +6,7 @@ import demo::lang::Exp::Abstract::Eval;
 import demo::lang::Exp::Combined::Manual::Load;
 
 public int eval(str txt) = eval(loadExp(txt));
+// end::module[]
 
 test bool tstEval1() = eval("7") == 7;
 test bool tstEval2() = eval("7*3") == 21;

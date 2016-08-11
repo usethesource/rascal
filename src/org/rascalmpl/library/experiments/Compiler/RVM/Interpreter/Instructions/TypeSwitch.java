@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.BytecodeGenerator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.IString;
@@ -40,11 +40,6 @@ public class TypeSwitch extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-//		IListWriter w = codeblock.vf.listWriter();
-//		for(IValue vlabel : labels){
-//			String label = ((IString) vlabel).getValue();
-//			w.append(codeblock.vf.integer(codeblock.getLabelPC(label)));
-//		}
 		codeEmittor.emitInlineTypeSwitch(labels,debug) ;
 	}
 }

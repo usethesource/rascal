@@ -8,15 +8,17 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 //START
+// tag::module[]
 module demo::common::WordCount::CountInLine1
 
-public int countInLine1(str S){
+int countInLine1(str S){
   int count = 0;
   for(/[a-zA-Z0-9_]+/ := S){
        count += 1;
   }
   return count;
 }
+// end::module[]
 
 test bool tstCountInLine1a() = countInLine1("") == 0;
 

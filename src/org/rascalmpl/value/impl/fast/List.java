@@ -7,11 +7,12 @@
 *
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
-*    Paul Klint - added new methods
+*    Paul Klint - added new methods and SubList
 *******************************************************************************/
 package org.rascalmpl.value.impl.fast;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Random;
 
 import org.rascalmpl.value.IList;
@@ -24,6 +25,7 @@ import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.impl.AbstractValue;
 import org.rascalmpl.value.impl.func.ListFunctions;
 import org.rascalmpl.value.impl.util.collections.ShareableValuesList;
+import org.rascalmpl.value.io.StandardTextWriter;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.visitors.IValueVisitor;
@@ -252,13 +254,25 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 		return new ListWriter(elementType, newData).done();
 	}
 	
-	
 	public  IList sublist(int offset, int length){
+		if(length < 4){
+			return materializedSublist(offset, length);
+		}
+		return new SubList(this, offset, length);
+	}
+	
+	IList materializedSublist(int offset, int length){
 		ShareableValuesList newData = data.subList(offset, length);
 		
 		Type newElementType = TypeFactory.getInstance().voidType();
-		for(IValue el : newData)
+		for(IValue el : newData) {
+		    if (newElementType.equals(this.elementType)) {
+		        // the type can only get more specific
+		        // once we've reached the type of the whole list, we can stop lubbing.
+		        break;
+		    }
 			newElementType = newElementType.lub(el.getType());
+		}
 		
 		return new ListWriter(newElementType, newData).done();
 	}
@@ -284,6 +298,17 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 			if (listType != otherList.listType) return false;
 			
 			return data.equals(otherList.data);
+		}
+		
+		if(o instanceof SubList){
+			IList otherList = (SubList) o;
+			if (getType() != otherList.getType()) return false;
+			
+			if (hashCode() != otherList.hashCode()) return false;
+			
+			if (listType != otherList.getType()) return false;
+			 	
+			return ListFunctions.equals(ValueFactory.getInstance(), this, otherList);
 		}
 		
 		return false;
@@ -322,14 +347,25 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 
 	public IList intersect(IList other) {
 		IListWriter w = ValueFactory.getInstance().listWriter();
-		List o = (List) other;
-		
+
+		if(other instanceof List){
+			List o = (List) other;
+
+			for(IValue v : data){
+				if(o.data.contains(v)){
+					w.append(v);
+				}
+			}
+
+			return w.done();
+		}
+		IList o = (IList) other;
+
 		for(IValue v : data){
-			if(o.data.contains(v)){
+			if(o.contains(v)){
 				w.append(v);
 			}
 		}
-		
 		return w.done();
 	}
 	
@@ -374,3 +410,326 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 		return new RelationViewOnList(this);
 	}
 }
+
+class SubList extends AbstractValue implements IList {
+
+	private final IList base;
+	private final int offset;
+	private final int length;
+	private int hashCode;
+	private final Type elementType;
+
+	SubList(IList base, int offset, int length){
+		this.base = base;
+		this.offset = offset;
+		this.length = length;
+		
+		int end = offset + length;
+		
+		if(offset < 0) throw new IndexOutOfBoundsException("Offset may not be smaller than 0.");
+		if(length < 0) throw new IndexOutOfBoundsException("Length may not be smaller than 0.");
+		if(end > base.length()) throw new IndexOutOfBoundsException("'offset + length' may not be larger than 'list.size()'");
+
+		Type newElementType = TypeFactory.getInstance().voidType();
+		Type baseElementType = base.getElementType();
+		
+		for(int i = offset; i < end; i++){
+			IValue el = base.get(i);
+		    if (newElementType.equals(baseElementType)) {
+		        // the type can only get more specific
+		        // once we've reached the type of the whole list, we can stop lubbing.
+		        break;
+		    }
+			newElementType = newElementType.lub(el.getType());
+		}
+		elementType = newElementType;
+	}
+	
+	IList materialize(){
+		ListWriter w = new ListWriter();
+		int end = offset + length;
+		for(int i = offset; i < end; i++){
+			w.append(base.get(i));
+		}
+		return w.done();
+	}
+	
+	IList maybeMaterialize(IList lst){
+		if(lst instanceof SubList){
+			return ((SubList) lst).materialize();
+		}
+		return lst;
+	}
+	
+	@Override
+	public Type getType() {
+		return TypeFactory.getInstance().listType(elementType);
+	}
+	
+	@Override
+	public Type getElementType(){
+		return elementType;
+	}
+	
+	public int hashCode(){
+		if (hashCode == 0) {
+			hashCode = ListFunctions.hashCode( ValueFactory.getInstance(), this);
+		}
+		return hashCode;
+	}
+	
+	public boolean equals(Object o){
+		if(o == this) return true;
+		if(o == null) return false;
+		
+		if(o instanceof List) {			
+			return ((List) o).equals(this);
+		}
+		
+		if(o instanceof SubList){
+			SubList otherList = (SubList) o;
+			
+			return base.equals(otherList.base) && offset == otherList.offset && length == otherList.length;
+		}
+		
+		return false;
+	}
+	
+	@Override
+	public boolean isEqual(IValue value){
+		if(value == this) return true;
+		if(value == null) return false;
+		
+		if(value instanceof List){
+			List otherList = (List) value;
+			
+			return otherList.isEqual(this);
+		}
+		else if (value instanceof IList) {
+			return ListFunctions.isEqual(ValueFactory.getInstance(), this, value);
+		}
+		
+		return false;
+	}
+	
+	@Override
+	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+		return v.visitList(this);
+	}
+
+	public String toString() {
+		return StandardTextWriter.valueToString(this);
+	}
+	
+	@Override
+	public Iterator<IValue> iterator() {
+		return new SubListIterator(base, offset, length);
+	}
+
+	@Override
+	public IList append(IValue val) {
+		ListWriter w = new ListWriter();
+		int end = offset + length;
+		for(int i = offset; i < end; i++){
+			w.append(base.get(i));
+		}
+		w.append(val);
+		return w.done();
+	}
+
+	@Override
+	public IListRelation<IList> asRelation() {
+		return materialize().asRelation();
+	}
+
+	@Override
+	public IList concat(IList lst) {
+		ListWriter w = new ListWriter();
+		int end = offset + length;
+		for(int i = offset; i < end; i++){
+			w.append(base.get(i));
+		}
+		for(IValue v : lst){
+			w.append(v);
+		}
+		
+		return w.done();
+	}
+
+	@Override
+	public boolean contains(IValue val) {
+		int end = offset + length;
+		for(int i = offset; i < end; i++){
+			if(base.get(i).equals(val)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public IList delete(IValue val) {
+		ListWriter w = new ListWriter();
+		int end = offset + length;
+		for(int i = offset; i < end; i++){
+			IValue elm = base.get(i);
+			if(!elm.equals(val)){
+				w.append(elm);
+			}
+		}
+		return w.done();
+	}
+
+	@Override
+	public IList delete(int n) {
+		ListWriter w = new ListWriter();
+		int end = offset + length;
+		for(int i = offset; i < end; i++){
+			if(i != n){
+				w.append(base.get(i));
+			}
+		}
+		return w.done();
+	}
+
+	@Override
+	public IValue get(int n) throws IndexOutOfBoundsException {
+		return base.get(offset + n);
+	}
+
+	@Override
+	public IList insert(IValue val) {
+		ListWriter w = new ListWriter();
+		int end = offset + length;
+		w.insert(val);;
+		for(int i = offset; i < end; i++){
+			w.append(base.get(i));
+		}
+		return w.done();
+	}
+
+	@Override
+	public IList intersect(IList arg0) {
+		return materialize().intersect(maybeMaterialize(arg0));
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return length == 0;
+	}
+
+	@Override
+	public boolean isRelation() {
+		return getType().isListRelation();
+	}
+
+	@Override
+	public boolean isSubListOf(IList lst) {
+		int end = offset + length;
+		int j = 0;
+		nextchar:
+			for(int i = offset; i < end; i++){
+				IValue elm = base.get(i);
+				while(j < lst.length()){
+					if(elm.isEqual(lst.get(j))){
+						j++;
+						continue nextchar;
+					} else
+						j++;
+				}
+				return false;
+			}
+		return true;
+	}
+
+	@Override
+	public int length() {
+		return length;
+	}
+
+	@Override
+	public IList product(IList arg0) {
+		return materialize().product(maybeMaterialize(arg0));
+	}
+
+	@Override
+	public IList put(int n, IValue val) throws FactTypeUseException, IndexOutOfBoundsException {
+		ListWriter w = new ListWriter();
+		int end = offset + length;
+		for(int i = offset; i < end; i++){
+			if(i == n){
+				w.append(val);
+			} else {
+				w.append(base.get(i));
+			}
+		}
+		return w.done();
+	}
+
+	@Override
+	public IList replace(int arg0, int arg1, int arg2, IList arg3)
+			throws FactTypeUseException, IndexOutOfBoundsException {
+		return materialize().replace(arg0,  arg1,  arg2, arg3);
+	}
+
+	@Override
+	public IList reverse() {
+		ListWriter w = new ListWriter();
+		for(int i = offset + length - 1; i >= offset; i--){	
+			w.append(base.get(i));
+		}
+		return w.done();
+	}
+
+	@Override
+	public IList shuffle(Random arg0) {
+		return materialize().shuffle(arg0);
+	}
+
+	@Override
+	public IList sublist(int offset, int length) {
+		return new SubList(base, this.offset + offset, length);
+	}
+
+	@Override
+	public IList subtract(IList lst) {
+		IListWriter w = ValueFactory.getInstance().listWriter();
+		int end = offset + length;
+		for(int i = offset; i < end; i++){
+			IValue v = base.get(i);
+			if (lst.contains(v)) {
+				lst = lst.delete(v);
+			} else
+				w.append(v);
+		}
+		return w.done();
+	}
+}
+
+final class SubListIterator implements Iterator<IValue> {
+	private int cursor;
+	private final int end;
+	private final IList base;
+
+	public SubListIterator(IList base, int offset, int length) {
+		this.base = base;
+		this.cursor = offset;
+		this.end = offset + length;
+	}
+
+	public boolean hasNext() {
+		return this.cursor < end;
+	}
+
+	public IValue next() {
+		if(this.hasNext()) {
+			return base.get(cursor++);
+		}
+		throw new NoSuchElementException();
+	}
+
+	public void remove() {
+		throw new UnsupportedOperationException();
+	}
+}
+

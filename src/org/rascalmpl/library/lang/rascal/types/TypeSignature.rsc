@@ -197,7 +197,7 @@ private RSignature addImports(Import* imports, RSignature sig, set[RName] visite
 		mn = getNameOfImportedModule(im);
 		if (mn notin visitedAlready) {
 			visitedAlready = visitedAlready + mn;
-			sig = mergeSignatures(sig, getModuleSignature(getModuleParseTree(prettyPrintName(mn)), visitedAlready), true);
+			sig = mergeSignatures(sig, getModuleSignature(parseNamedModuleWithSpaces(prettyPrintName(mn)), visitedAlready), true);
 		}
 	}
 	return sig;
@@ -277,6 +277,11 @@ private RSignature createModuleBodySignature(Body b, RSignature sig, loc l) {
 
 				// ADT without variants
 				case (Toplevel) `<Tags tgs> <Visibility vis> data <UserType typ> ;` : {
+					sig.datatypes = sig.datatypes + ADTSigItem(convertName(getUserTypeRawName(typ)), typ, t@\loc);
+				}
+
+				// ADT without variants but with kw params without usage of then
+				case (Toplevel) `<Tags tgs> <Visibility vis> data <UserType typ> <CommonKeywordParameters _>;` : {
 					sig.datatypes = sig.datatypes + ADTSigItem(convertName(getUserTypeRawName(typ)), typ, t@\loc);
 				}
 

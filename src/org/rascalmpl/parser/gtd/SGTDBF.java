@@ -166,7 +166,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			}
 			
 			AbstractStackNode<P> alternative = alternativeEntry.value1;
-			if(result.isEmpty()){
+			if(alternative.getStartLocation() == location){
 				if(alternative.isMatchable()){
 					if(alternative.isEmptyLeafNode()){
 						// Encountered a possible stack 'overtake'.
@@ -178,18 +178,16 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 						return alternative;
 					}
 				}else{
-					if(alternative.getStartLocation() == location){
-						EdgesSet<P> alternativeEdgesSet = alternative.getIncomingEdges();
-						int resultStoreId = getResultStoreId(alternative.getId());
-						if(alternativeEdgesSet != null && alternativeEdgesSet.getLastVisitedLevel(resultStoreId) == location){
-							// Encountered a possible stack 'overtake'.
-							if(node.getStartLocation() != location){
-								propagateEdgesAndPrefixes(node, result, alternative, alternativeEdgesSet.getLastResult(resultStoreId));
-							}else{
-								propagateEdgesAndPrefixesForNullable(node, result, alternative, alternativeEdgesSet.getLastResult(resultStoreId), node.getEdges().size());
-							}
-							return alternative;
+					EdgesSet<P> alternativeEdgesSet = alternative.getIncomingEdges();
+					int resultStoreId = getResultStoreId(alternative.getId());
+					if(alternativeEdgesSet != null && alternativeEdgesSet.getLastVisitedLevel(resultStoreId) == location){
+						// Encountered a possible stack 'overtake'.
+						if(node.getStartLocation() != location){
+							propagateEdgesAndPrefixes(node, result, alternative, alternativeEdgesSet.getLastResult(resultStoreId));
+						}else{
+							propagateEdgesAndPrefixesForNullable(node, result, alternative, alternativeEdgesSet.getLastResult(resultStoreId), node.getEdges().size());
 						}
+						return alternative;
 					}
 				}
 			}

@@ -8,23 +8,23 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 //START
+// tag::module[]
 module demo::basic::Squares
 
-import IO;                                   /*1*/
+import IO; // <1>
 
 // Print a table of squares
 
-public void squares(int N){
-  println("Table of squares from 1 to <N>"); /*2*/
+void squares(int N){
+  println("Table of squares from 1 to <N>\n"); // <2>
   for(int I <- [1 .. N + 1])
-      println("<I> squared = <I * I>");      /*3*/
+      println("<I> squared = <I * I>");        // <3>
 }
 
 // a solution with a multi line string template:
 
-public str squaresTemplate(int N) 
+str squaresTemplate(int N) // <4>
   = "Table of squares from 1 to <N>
     '<for (int I <- [1 .. N + 1]) {>
-    '  <I> squared = <I * I><}>
-    ";
-
+    '  <I> squared = <I * I><}>";
+// end::module[]

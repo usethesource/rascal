@@ -467,9 +467,8 @@ public enum RascalPrimitive {
 
 			IConstructor type_cons = (IConstructor) arg_2;
 			IMap idefinitions = (IMap) arg_1;
-			TypeReifier typeReifier = new TypeReifier(vf);
 
-			Type type = typeReifier.symbolToType(type_cons, idefinitions);
+			Type type = rex.symbolToType(type_cons, idefinitions);
 
 			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
 			bindings.put(RascalValueFactory.TypeParam, type);
@@ -481,11 +480,10 @@ public enum RascalPrimitive {
 	/*****************************************************************************************************/
 	/*						Readers and writers															 */
 	/*****************************************************************************************************/
-
+	
 	listwriter_open {
 		@Override
 		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
-			// For now, later type can be added
 			return vf.listWriter();
 		}
 	},
@@ -516,11 +514,10 @@ public enum RascalPrimitive {
 			
 		}
 	},
-
+	
 	setwriter_open {
 		@Override
 		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
-			// For now, later type can be added
 			return vf.setWriter();
 		}
 	},
@@ -550,11 +547,10 @@ public enum RascalPrimitive {
 			return writer.done();
 		}
 	},
-
+	
 	mapwriter_open {
 		@Override
 		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
-			// For now, later type can be added
 			return vf.mapWriter();
 		}
 	},
@@ -5301,7 +5297,7 @@ public enum RascalPrimitive {
 			if(lhsType.isRelation()){
 				return rel_transitive_reflexive_closure.execute1(arg_1, currentFrame, rex);
 			}
-			throw new CompilerError("transitive_closure: unexpected type " + lhsType, currentFrame);
+			throw new CompilerError("transitive_reflexive_closure: unexpected type " + lhsType, currentFrame);
 		}
 	},
 
@@ -5934,23 +5930,37 @@ public enum RascalPrimitive {
 	subtype {
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			//return vf.bool(((Type) arg_2).isSubtypeOf((Type) arg_1));
-			return vf.bool(rex.isSubtypeOf((Type) arg_2, (Type) arg_1));
+			return vf.bool(((Type) arg_2).isSubtypeOf((Type) arg_1));
+			//return vf.bool(rex.isSubtypeOf((Type) arg_2, (Type) arg_1));
 		}
 	},
 
 	/**
 	 * subtype-of-value
 	 * 
-	 * [ ..., IValue v, Type t ] => [ ..., typeof(v) <: t ]
+	 * [ ..., IValue v, Type t ] => [ ..., typeOf(v) <: t ]
 	 */
 	subtype_value_type {
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			//return vf.bool(((IValue) arg_2).getType().isSubtypeOf((Type) arg_1));
-			return vf.bool(rex.isSubtypeOf(((IValue) arg_2).getType(), (Type) arg_1));
+			return vf.bool(((IValue) arg_2).getType().isSubtypeOf((Type) arg_1));
+			//return vf.bool(rex.isSubtypeOf(((IValue) arg_2).getType(), (Type) arg_1));
 		}
 	},
+	
+	/**
+	 * subtype-of-value-value
+	 * 
+	 * [ ..., IValue v1, Value v2 ] => [ ..., typeOf(v1) <: typeOf(v2) ]
+	 */
+	subtype_value_value {
+		@Override
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			return vf.bool(((IValue) arg_2).getType().isSubtypeOf(((IValue) arg_1).getType()));
+			//return vf.bool(rex.isSubtypeOf(((IValue) arg_2).getType(), (Type) arg_1));
+		}
+	},
+
 
 	/**
 	 * typeOf a value
@@ -5989,7 +5999,8 @@ public enum RascalPrimitive {
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			Type type = (Type) arg_2;
-			return $type2symbol(type);
+			return rex.typeToSymbol(type);
+			//return $type2symbol(type);
 		}
 	},
 
@@ -6239,7 +6250,7 @@ public enum RascalPrimitive {
 				
 				Function getDefaults = rex.getCompanionDefaultsFunction(consName, tp);
 				
-				if(getDefaults != RVM.noCompanionFunction){
+				if(getDefaults != RVMCore.noCompanionFunction){
 					IValue[] posArgs = new IValue[cons.arity()];
 					for(int i = 0; i < cons.arity(); i++){
 						posArgs[i] = cons.get(i);
@@ -6248,7 +6259,7 @@ public enum RascalPrimitive {
 					Map<String, IValue> kwArgs = cons.asWithKeywordParameters().getParameters();
 
 					@SuppressWarnings("unchecked")
-					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeFunction(getDefaults, posArgs, kwArgs);
+					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeRVMFunction(getDefaults, posArgs, kwArgs);
 					Entry<Type, IValue> def = defaults.get(fieldName);
 					if(def != null){
 						stack[sp - 3] = def.getValue();
@@ -6260,12 +6271,12 @@ public enum RascalPrimitive {
 				
 				Function getFieldDefault = rex.getCompanionFieldDefaultFunction(tp.getAbstractDataType(), fieldName);
 				
-				if(getFieldDefault !=  RVM.noCompanionFunction){
+				if(getFieldDefault !=  RVMCore.noCompanionFunction){
 					IValue[] posArgs = new IValue[0];
 
 					Map<String, IValue> kwArgs = cons.asWithKeywordParameters().getParameters();
 
-					IValue defaultValue = (IValue) rex.getRVM().executeFunction(getFieldDefault, posArgs, kwArgs);
+					IValue defaultValue = (IValue) rex.getRVM().executeRVMFunction(getFieldDefault, posArgs, kwArgs);
 				
 					stack[sp - 3] = defaultValue;
 					return sp - 2;
@@ -6804,6 +6815,26 @@ public enum RascalPrimitive {
 			}
 
 			return v;
+		}
+	},
+	/**
+	 * Is a named field of a location defined? Returns
+	 * - <true, field value> when the field exists and its value is defined
+	 * - false, _> otherwise
+	 * 
+	 * [ ..., INode nd, IString fieldName ] => [ ..., [bool, value] ]
+	 */
+	
+	is_defined_loc_field_access_get {
+		@Override
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			try {
+				temp_array_of_2[1] = loc_field_access.execute2(arg_2, arg_1, currentFrame, rex);
+				temp_array_of_2[0] = Rascal_TRUE;
+			} catch (Exception e) { // TODO: this hides implementation bugs and its not the semantics of isDefined. 
+				temp_array_of_2[0] = Rascal_FALSE;
+			}
+			return temp_array_of_2;
 		}
 	},
 
@@ -7596,7 +7627,6 @@ public enum RascalPrimitive {
 		@Override
 		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
 			rex.setTestResults(vf.listWriter());
-			//***** typeReifier = new TypeReifier(vf);
 			return null;
 		}
 	},
@@ -7632,15 +7662,15 @@ public enum RascalPrimitive {
 
 			if(ignore){
 				rex.getTestResults().append(vf.tuple(src,  vf.integer(2), vf.string("")));
-			rex.getTestResultListener().ignored("", src);
+				rex.getTestResultListener().ignored("", src);
 				return sp - 4;
 			}
 			IConstructor type_cons = ((IConstructor) stack[sp - 1]);
-			TypeReifier typeReifier = new TypeReifier(vf);          // TODO: relation with global?******
-			Type argType = typeReifier.valueToType(type_cons);
-			IMap definitions = (IMap) type_cons.get("definitions");
+//			TypeReifier typeReifier = new TypeReifier(vf);          // TODO: relation with global?******
+			Type argType = rex.valueToType(type_cons);
+//			IMap definitions = (IMap) type_cons.get("definitions");
 
-			typeReifier.declareAbstractDataTypes(definitions, rex.getTypeStore());
+//			typeReifier.declareAbstractDataTypes(definitions, rex.getTypeStore());
 
 			int nargs = argType.getArity();
 			IValue[] args = new IValue[nargs];
@@ -7668,7 +7698,7 @@ public enum RascalPrimitive {
 //					for(String fname : rex.getRVM().functionMap.keySet()){
 //						if(fname.contains("companion")) System.err.println("testreport_add: " + fname);
 //					}
-					IValue res = (IValue) rex.getRVM().executeFunction(fun, args, null); 
+					IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null); 
 					//System.err.println("After executing test " + fun);
 					passed = ((IBool) res).getValue();
 					if(!passed){
@@ -7838,11 +7868,6 @@ public enum RascalPrimitive {
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			IValue result = ((IMap) arg_2).get((IValue) arg_1);
 			if(result == null) {
-//				System.err.println("EXCEPTION NoSuchKey at: " + currentFrame.src);
-//				System.err.println("containsKey: " + ((IMap) arg_2).containsKey((IValue) arg_1));
-//				for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
-//					System.err.println("\t" + f.toString());
-//				}
 				throw RascalRuntimeException.noSuchKey((IValue) arg_1, currentFrame);
 			}
 			return result;
@@ -7941,61 +7966,213 @@ public enum RascalPrimitive {
 			return temp_array_of_2;
 		}
 	},
+	
+	/**
+	 * Subscript of a binary rel with a single subscript (no set and unequal to _)
+	 * 
+	 * [ ..., IRelation r, IValue idx1] => r[idx1] ]
+	 */
+	rel2_subscript1_noset {
+		@Override
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet rel = (ISet) arg_2;
+			if(rel.isEmpty()){
+				return rel;
+			}
+			IValue index = (IValue) arg_1;
+			ISetWriter wset = vf.setWriter();
+
+			for (IValue v : rel) {
+				ITuple tup = (ITuple)v;
+
+				if(tup.get(0).isEqual(index)){
+					wset.insert(tup.get(1));
+				} 
+			}
+			return wset.done();
+		}
+	},
+
+	
+	/**
+	 * Subscript of a binary rel with a single subscript (a set but unequal to _)
+	 * 
+	 * [ ..., IRelation r, IValue idx1] => r[idx1] ]
+	 */
+	rel2_subscript1_set {
+		@Override
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet rel = (ISet) arg_2;
+			if(rel.isEmpty()){
+				return rel;
+			}
+			IValue index = (IValue) arg_1;
+			ISetWriter wset = vf.setWriter();
+
+			for (IValue v : rel) {
+				ITuple tup = (ITuple)v;
+
+				if((((ISet) index).contains(tup.get(0)))){
+					wset.insert(tup.get(1));
+				} 
+			}
+			return wset.done();
+		}
+	},
 
 	/**
-	 * Subscript of a rel
+	 * Subscript of an n-ary (n > 2) rel with a single subscript (not a set and unequal to _)
 	 * 
-	 * [ ..., IRelation r, IValue idx1, IValue idx2, ...] => r[idx1, idx2, ...] ]
+	 * [ ..., IRelation r, IValue idx1] => r[idx1] ]
+	 */
+	rel_subscript1_noset {
+		@Override
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet rel = (ISet) arg_2;
+			if(rel.isEmpty()){
+				return rel;
+			}
+			int relArity = rel.getElementType().getArity();
+			
+			IValue index = (IValue) arg_1;
+			ISetWriter wset = vf.setWriter();
+			IValue args[] = new IValue[relArity - 1];
+
+			for (IValue v : rel) {
+				ITuple tup = (ITuple)v;
+
+				if(tup.get(0).isEqual(index)){
+					for (int i = 1; i < relArity; i++) {
+						args[i - 1] = tup.get(i);
+					}
+					wset.insert(vf.tuple(args));
+				} 
+			}
+			return wset.done();
+		}
+	},
+	
+	/**
+	 * Subscript of an n-ary (n > 2) rel with a single subscript (a set and unequal to _)
+	 * 
+	 * [ ..., IRelation r, IValue idx1] => r[idx1] ]
+	 */
+	rel_subscript1_set {
+		@Override
+		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+			ISet rel = (ISet) arg_2;
+			if(rel.isEmpty()){
+				return rel;
+			}
+			int relArity = rel.getElementType().getArity();
+			IValue index = (IValue) arg_1;			
+			
+			ISetWriter wset = vf.setWriter();
+			IValue args[] = new IValue[relArity - 1];
+			
+			for (IValue v : rel) {
+				ITuple tup = (ITuple)v;
+
+				if((((ISet) index).contains(tup.get(0)))){
+					for (int i = 1; i < relArity; i++) {
+						args[i - 1] = tup.get(i);
+					}
+					wset.insert(vf.tuple(args));
+				} 
+			}
+			return wset.done();
+		}
+	},
+	
+	/**
+	 * Subscript of rel, general case
+	 * subsDesc is a subscript descriptor: a list with integers: 0: noset, 1: set, 2: wildcard
+	 * 
+	 * [ ..., IRelation r, IList subsDesc, IValue idx1, IValue idx2, ...] => rel[idx1, idx2, ...] ]
 	 */
 	rel_subscript {
 		@Override
-		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
-			assert arity >= 2;
+		public int executeN(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
+			assert arity >= 4;
+			
 			ISet rel = ((ISet) stack[sp - arity]);
 			if(rel.isEmpty()){
 				stack[sp - arity] = rel;
 				return sp - arity + 1;
 			}
-			int indexArity = arity - 1;
+			IList subsDesc = ((IList) stack[sp - arity + 1]);
+			int indexArity = arity - 2;
 			int relArity = rel.getElementType().getArity();
-			assert indexArity < relArity ;
-			int resArity = relArity - indexArity;
-			IValue[] indices = new IValue[indexArity];
-			for(int i = 0; i < indexArity; i++ ){
-				indices[i] = (IValue) stack[sp - arity + i + 1];
-				if(indices[i].getType().isString()){
-					String s = ((IString) indices[i]).getValue();
-					if(s.equals("_"))
-						indices[i] = null;
-				}
-			}
-			IValue[] elems = new  IValue[resArity];
-			ISetWriter w = vf.setWriter();
-			NextTuple:
-				for(IValue vtup : rel){
-					ITuple tup = (ITuple) vtup;
-					for(int i = 0; i < indexArity; i++){
-						if(indices[i] != null){
-							IValue v = tup.get(i);
-							if(indices[i].getType().isSet() && !rel.getElementType().getFieldType(i).isSet()){
-								ISet s = (ISet) indices[i];
-								if(!s.contains(v)){
-									continue NextTuple;
-								}
-							} else
-								if(!v.isEqual(indices[i])){
-									continue NextTuple;
-								}
+			
+			ISetWriter wset = vf.setWriter();
+			int indexBase = sp - arity + 2 ;
+
+			if(relArity - indexArity == 1){	// Return a set
+				allValues:
+					for (IValue v : rel) {
+						ITuple tup = (ITuple)v;
+						for(int k = 0; k < indexArity; k++){
+							switch(((IInteger)subsDesc.get(k)).intValue()){
+							case 0: 
+									if(!tup.get(k).isEqual((IValue)stack[indexBase + k])) continue allValues; 
+									continue;
+							case 1: 
+									if(!((ISet)stack[indexBase + k]).contains(tup.get(k))) continue allValues;
+							}
 						}
+						wset.insert(tup.get(indexArity));
 					}
-					for(int i = 0; i < resArity; i++){
-						elems[i] = tup.get(indexArity + i);
+			} else {						// Return a relation
+				IValue args[] = new IValue[relArity - indexArity];
+				allValues:
+					for (IValue v : rel) {
+						ITuple tup = (ITuple)v;
+						for(int k = 0; k < indexArity; k++){
+							switch(((IInteger)subsDesc.get(k)).intValue()){
+							case 0: 
+									if(!tup.get(k).isEqual((IValue)stack[indexBase + k])) continue allValues; 
+									continue;
+							case 1: 
+									if(!((ISet)stack[indexBase + k]).contains(tup.get(k))) continue allValues;
+							}
+						}
+
+						for (int i = indexArity; i < relArity; i++) {
+							args[i - indexArity] = tup.get(i);
+						}
+						wset.insert(vf.tuple(args));
 					}
-					w.insert(resArity > 1 ? vf.tuple(elems) : elems[0]);
-				}
-			stack[sp - arity] = w.done();
+			}
+
+			stack[sp - arity] = wset.done();
 			return sp - arity + 1;
 		}
+	},
+	
+	is_defined_rel_subscript {
+			@Override
+			public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+				ISet rel = (ISet) arg_2;
+				int arity = rel.getElementType().getArity();
+				IValue idx = ((IValue) arg_1);
+				if(idx.getType().isString()){
+					String sidx = ((IString) idx).getValue();
+					if(sidx.equals("_")){
+						throw new CompilerError("Wild card _ not implemented");
+					}
+				}
+				try {
+					temp_array_of_2[0] = Rascal_TRUE;
+					temp_array_of_2[1] = idx.getType().isSet() ? 
+							(arity == 2 ? RascalPrimitive.rel2_subscript1_set.execute2(arg_2, arg_1, currentFrame, rex)
+									    : RascalPrimitive.rel_subscript1_set.execute2(arg_2, arg_1, currentFrame, rex))
+							: (arity == 2 ? RascalPrimitive.rel2_subscript1_noset.execute2(arg_2, arg_1, currentFrame, rex)
+										  : RascalPrimitive.rel_subscript1_noset.execute2(arg_2, arg_1, currentFrame, rex));
+				} catch(Exception e) {
+					temp_array_of_2[0] = Rascal_FALSE;
+				}
+				return temp_array_of_2;
+			}
 	},
 
 	/**
@@ -8014,9 +8191,15 @@ public enum RascalPrimitive {
 			}
 			int indexArity = arity - 1;
 			int lrelArity = lrel.getElementType().getArity();
-			assert indexArity < lrelArity;
-			int resArity = lrelArity - indexArity;
+			assert indexArity < lrelArity ;
+			
 			IValue[] indices = new IValue[indexArity];
+			Type subscriptType[] = new Type[indexArity];
+			boolean subscriptIsSet[] = new boolean[indexArity];
+			
+			boolean yieldList = (lrelArity - indexArity) == 1;
+			Type resFieldType[] = new Type[lrelArity - indexArity];
+			
 			for(int i = 0; i < indexArity; i++ ){
 				indices[i] = (IValue) stack[sp - arity + i + 1];
 				if(indices[i].getType().isString()){
@@ -8024,32 +8207,54 @@ public enum RascalPrimitive {
 					if(s.equals("_"))
 						indices[i] = null;
 				}
+				subscriptType[i] = indices[i] == null ? valueType : indices[i].getType();
 			}
-			IValue[] elems = new  IValue[resArity];
-			IListWriter w = vf.listWriter();
-			NextTuple:
-				for(IValue vtup : lrel){
-					ITuple tup = (ITuple) vtup;
-					for(int i = 0; i < indexArity; i++){
-						if(indices[i] != null){
-							IValue v = tup.get(i);
-							if(indices[i].getType().isSet()){
-								ISet s = (ISet) indices[i];
-								if(!s.contains(v)){
-									continue NextTuple;
-								}
-							} else
-								if(!v.isEqual(indices[i])){
-									continue NextTuple;
-								}
-						}
-					}
-					for(int i = 0; i < resArity; i++){
-						elems[i] = tup.get(indexArity + i);
-					}
-					w.append(resArity > 1 ? vf.tuple(elems) : elems[0]);
+			
+			for (int i = 0; i < lrelArity; i++) {
+				Type relFieldType = lrel.getType().getFieldType(i);
+				if (i < indexArity) {
+					if (subscriptType[i].isSet() && 
+							relFieldType.comparable(subscriptType[i].getElementType())){
+						subscriptIsSet[i] = true;
+					} 
+					else if (indices[i] == null || relFieldType.comparable(subscriptType[i])){
+						subscriptIsSet[i] = false;
+					} 
+				} else {
+					resFieldType[i - indexArity] = relFieldType;
 				}
-			stack[sp - arity] = w.done();
+			}
+			
+			IListWriter wlist = vf.listWriter();
+			
+			for (IValue v : lrel) {
+				ITuple tup = (ITuple)v;
+				boolean allEqual = true;
+				for(int k = 0; k < indexArity; k++){
+					if(subscriptIsSet[k] && ((indices[k] == null) ||
+							                 ((ISet) indices[k]).contains(tup.get(k)))){
+						/* ok */
+					} else if (indices[k] == null || tup.get(k).isEqual(indices[k])){
+						/* ok */
+					} else {
+						allEqual = false;
+					}
+				}
+				
+				if (allEqual) {
+					IValue args[] = new IValue[lrelArity - indexArity];
+					for (int i = indexArity; i < lrelArity; i++) {
+						args[i - indexArity] = tup.get(i);
+					}
+					if(yieldList){
+						wlist.append(args[0]);
+					} else {
+						wlist.append(vf.tuple(args));
+					}
+				}
+			}
+			
+			stack[sp - arity] = wlist.done();
 			return sp - arity + 1;
 		}
 	},
@@ -8146,6 +8351,9 @@ public enum RascalPrimitive {
 			assert arity == 3;
 			IList lst = (IList) stack[sp - 3];
 			int n = ((IInteger) stack[sp - 2]).intValue();
+			if(n < 0){
+				n = lst.length() + n;
+			}
 			try {
 				stack[sp - 3] = lst.put(n, (IValue) stack[sp - 1]);
 				return sp - 2;
@@ -8294,42 +8502,28 @@ public enum RascalPrimitive {
 	/**
 	 * Create a descendant descriptor given
 	 * - a unique id
-	 * - symbolset (converted from ISet of values to HashSet of Types, symbols and Productions)
+	 * - symbolset, set of symbols
+	 * - prodset, set of productions
 	 * - concreteMatch, indicates a concrete or abstract match
 	 * - definitions needed for type reifier
 	 * 
-	 * [ ISet symbolset, IBool concreteMatch, IMap definitions] => DescendantDescriptor
+	 * [ IString id, ISet symbolset, ISET prodset, IBool concreteMatch, IMap definitions] => DescendantDescriptor
 	 */
 	make_descendant_descriptor {
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
-			assert arity == 4;
-			IString id = (IString) stack[sp - 4];
-			
-//			DescendantDescriptor desc = rex.getDescendantDescriptorMap().get(id, k-> {
-//				ISet symbolset = (ISet) stack[sp - 3];
-//				IBool concreteMatch = (IBool) stack[sp - 2];
-//				IMap definitions = (IMap) stack[sp - 1];
-//				return new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
-//			});
+			assert arity == 5;
+			IString id = (IString) stack[sp - 5];
 
-			
-//			DescendantDescriptor desc = rex.getDescendantDescriptorMap().get(id);
-//			if(desc == null){
-//				ISet symbolset = (ISet) stack[sp - 3];
-//				IBool concreteMatch = (IBool) stack[sp - 2];
-//				IMap definitions = (IMap) stack[sp - 1];
-//				desc = new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
-//				rex.getDescendantDescriptorMap().put(id,  desc);
-//			}
-			stack[sp - 4] = rex.getDescendantDescriptorCache()
+			stack[sp - 5] = rex.getDescendantDescriptorCache()
 					.get(id, k -> {
-						ISet symbolset = (ISet) stack[sp - 3];
+						ISet symbolset = (ISet) stack[sp - 4];
+						ISet prodset = (ISet) stack[sp - 3];
 						IBool concreteMatch = (IBool) stack[sp - 2];
 						IMap definitions = (IMap) stack[sp - 1];
-						return new DescendantDescriptor(vf, symbolset, definitions, concreteMatch);
+						return new DescendantDescriptor(vf, symbolset, prodset, definitions, concreteMatch, rex);
 					});
-			return sp - 3;
+			return sp - 4;
 		};
 	},
 
@@ -8347,7 +8541,7 @@ public enum RascalPrimitive {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			IString message = (IString) arg_1;
-			rex.getStdOut().println("Assertion failed" + message + " at " + currentFrame.src);
+			rex.getStdOut().println("Assertion " + message + " failed at " + currentFrame.src);
 			throw RascalRuntimeException.assertionFailed(message, currentFrame.src,  currentFrame);
 		}
 	},
@@ -8550,18 +8744,18 @@ public enum RascalPrimitive {
 //		throw new CompilerError("Not implemented RascalPrimitive");
 //	}
 	public Object execute0(Frame currentFrame, RascalExecutionContext rex) {
-		throw new CompilerError("Not implemented RascalPrimitive");
+		throw new CompilerError("Not implemented RascalPrimitive.execute0 " + name());
 	}
 	public Object execute1(Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
-		throw new CompilerError("Not implemented RascalPrimitive");
+		throw new CompilerError("Not implemented RascalPrimitiv.execute1 " + name());
 	}
 	
 	public Object execute2(Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
-		throw new CompilerError("Not implemented RascalPrimitive");
+		throw new CompilerError("Not implemented RascalPrimitive.execute2 " + name());
 	}
 
 	public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
-		throw new CompilerError("Not implemented RascalPrimitive");
+		throw new CompilerError("Not implemented RascalPrimitive.executeN " + name());
 	}
 
 	/**
@@ -9354,9 +9548,7 @@ public enum RascalPrimitive {
 				TreeAdapter.unparse(c, w);
 				return w.toString();
 			} catch (FactTypeUseException | IOException e) {
-				// TODO Auto-generated catch block
-				//e.printcurrentFrame();
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 		}
 		return val.toString();
@@ -9522,14 +9714,14 @@ public enum RascalPrimitive {
 				Map<String, IValue> setKwArgs =  cons.asWithKeywordParameters().getParameters();
 				String consName = cons.getName();
 				Function getDefaults = rex.getCompanionDefaultsFunction(consName, tp);
-				if(getDefaults != RVM.noCompanionFunction){
+				if(getDefaults != RVMCore.noCompanionFunction){
 					IValue[] posArgs = new IValue[cons.arity()];
 					for(int i = 0; i < cons.arity(); i++){
 						posArgs[i] = cons.get(i);
 					}
 					
 					@SuppressWarnings("unchecked")
-					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeFunction(getDefaults, posArgs, setKwArgs);
+					Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) rex.getRVM().executeRVMFunction(getDefaults, posArgs, setKwArgs);
 
 					HashMap<String, IValue> allKwArgs = new HashMap<>(defaults.size());
 					for(String key : defaults.keySet()){
@@ -9546,7 +9738,7 @@ public enum RascalPrimitive {
 					
 				}
 			} else {
-				return RVM.emptyKeywordMap;
+				return RVMCore.emptyKeywordMap;
 			}
 		}
 		
@@ -9555,11 +9747,20 @@ public enum RascalPrimitive {
 			if(nd.mayHaveKeywordParameters()){
 				return nd.asWithKeywordParameters().getParameters();
 			} else {
-				return RVM.emptyKeywordMap;
+				return RVMCore.emptyKeywordMap;
 			}
 		}
 		
 		throw new CompilerError("getAllKeywordParameters");
+	}
+	
+	/*
+	 * Main program: handy to map a primitive index back to its name (e.g., in profiles!)
+	 */
+	public static void main(String[] args) {
+		int n = 364;
+		
+		System.err.println("RascalPrimitive: " + fromInteger(n) + " (" + n + ")");
 	}
 }
 

@@ -1,3 +1,4 @@
+// tag::module[]
 module demo::lang::Pico::Visualize
 
 import Prelude;
@@ -9,24 +10,24 @@ import util::Editors;
 import demo::lang::Pico::Abstract;
 import demo::lang::Pico::ControlFlow;
 
-// /*1*/ Convert expressions into text
+// Convert expressions into text
 
-str make(natCon(int N)) = "<N>";
+str make(natCon(int N)) = "<N>"; // <1>
 str make(strCon(str S)) = S;
 str make(demo::lang::Pico::Abstract::id(PicoId Id)) = Id;
 str make(add(EXP E1, EXP E2)) = "<make(E1)> + <make(E2)>";
 str make(sub(EXP E1, EXP E2)) = "<make(E1)> - <make(E2)>";
 str make(conc(EXP E1, EXP E2)) = "<make(E1)> || <make(E2)>";
 
-// /*2*/ Add an editor to a node
+// Add an editor to a node
 
-FProperty editIt(CFNode n) =
+FProperty editIt(CFNode n) = // <2>
    (n has location) ? onMouseDown(bool (int butnr, map[KeyModifier,bool] modifiers){ edit(n.location,[]); return true;})
                     : onMouseDown(bool (int butnr, map[KeyModifier,bool] modifiers) {return false;});
         
-// /*3*/ Visualize one CFG node
+// Visualize one CFG node
 
-Figure visNode(CFNode n:entry(loc location)) = 
+Figure visNode(CFNode n:entry(loc location)) = // <3>
        box(text("ENTRY"), vis::Figure::id(getId(n)), fillColor("red"), gap(4));
 
 Figure visNode(CFNode n:exit()) = 
@@ -38,15 +39,15 @@ Figure visNode(CFNode n:choice(loc location, EXP exp)) =
 Figure visNode(CFNode n:statement(loc location, asgStat(PicoId Id, EXP Exp))) =
         box(text("<Id> := <make(Exp)>"),  vis::Figure::id(getId(n)), gap(8), editIt(n));
 
-// /*4*/ Define the id for each CFG node
+// Define the id for each CFG node
 
-str getId(entry(loc location)) = "ENTRY";
+str getId(entry(loc location)) = "ENTRY"; // <4>
 str getId(exit()) = "EXIT";
 default str getId(CFNode n) = "<n.location>";
 
-// /*5*/ Visualize a complete CFG
+// Visualize a complete CFG
 
-public Figure visCFG(rel[CFNode, CFNode] CFGGraph){
+public Figure visCFG(rel[CFNode, CFNode] CFGGraph){ // <5>
        nodeSet = {};
        edges = [];
        for(< CFNode cf1, CFNode cf2> <- CFGGraph){
@@ -56,3 +57,4 @@ public Figure visCFG(rel[CFNode, CFNode] CFGGraph){
        nodes = [visNode(n) | n <- nodeSet];
        return graph(nodes, edges, hint("layered"), gap(20));
 }
+// end::module[]

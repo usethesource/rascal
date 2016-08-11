@@ -13,7 +13,11 @@ module lang::rascal::boot::BuildBootFiles
 /* - Adjust BOOT, where the compiled boot files will be stored                  */
 /* - Adjust SHELLSCRIPT, a simple shell script that will overwrite the current  */
 /*   boot files for Kernel, MuLibrary and ParserGenerator                       */
-/* - main()                                                                     */
+/* [ Optional steps only needed when muLibrary or RVM have been changed:        */
+/*   - buildMuLibrary()                                                         */
+/*   - execute SHELLSCRIPT                                                      */
+/* ]                                                                            */
+/* - build() (or main() if you prefer)                                          */
 /* - if all went well: execute SHELLSCRIPT                                      */
 /*                                                                              */
 /* The final structure of BOOT will be:                                         */
@@ -26,7 +30,7 @@ module lang::rascal::boot::BuildBootFiles
 /* TODO:                                                                        */
 /* - Add generated Java code for Rascal Parser (at the moment we reuse          */
 /*   org.rascalmpl.library.lang.rascal.syntax.RascalParser                      */
-/* - Better handling of BOOT and SHELLSCRIPT (keyword parameters of main?       */
+/* - Better handling of BOOT and SHELLSCRIPT (keyword parameters of main)?       */
 /********************************************************************************/
 
 import IO;
@@ -37,10 +41,11 @@ import util::FileSystem;
 import experiments::Compiler::Execute;
 import experiments::Compiler::Compile;
 import experiments::Compiler::CompileMuLibrary; 
-import experiments::Compiler::Rascal2Info::Collect;
 
-loc BOOT = |file:///Users/paulklint/git/rascal/src/boot/|;
-loc SHELLSCRIPT = |file:///Users/paulklint/install.sh|;
+//loc BOOT = |home:///Workspaces/Rascal/rascal/src/boot/|;
+loc BOOT = |file:///Users/paulklint/git/rascal/src/boot|;
+loc BINBOOT = |home:///bin-boot|;
+loc SHELLSCRIPT = |home:///install.sh|;
 
 // Library modules that will be included in boot/stdlib
 
@@ -89,13 +94,17 @@ list[str] libraryModules =
     "util::Webserver"    
 ];
 
+str moduleName2Bin(str moduleName, str ext) =
+    replaceAll(moduleName, "::", "/") + "." + ext;
+
 // Compile and serialize a module and generate a command to move the result to the root of the BOOT directory
 
-str serialize(str moduleName, PathConfig pcfg){
+str serialize(str moduleName, PathConfig pcfg, bool jvm=true){
      report("Compiling <moduleName>");
-     compileAndLink(moduleName, pcfg, verbose=true);
+     compileAndLink(moduleName, pcfg, verbose=true, jvm=jvm);
      serialized = getDerivedWriteLoc(moduleName, "rvm.ser.gz", pcfg);
-     return "cp <serialized.path> <(pcfg.binDir.parent + serialized.file).path>\n";
+     cmd = "cp .<serialized.path> <(BOOT + moduleName2Bin(moduleName, "rvm.ser.gz")).path>\n";
+     return cmd;
 }
 
 // Fancy reporting
@@ -109,45 +118,59 @@ void report(str msg){
 // After serious changes to that library it is therefore necessary to first
 // build the MuLibrary, install it, end then do the complete build.
 
-void buildMuLibrary(PathConfig pcfg){
+void buildMuLibrary(){
+     pcfg = pathConfig(srcs=[|std:///|], bin=BINBOOT, libs=[BINBOOT]);
      commands = "#!/bin/sh\n";
      report("Compiling MuLibrary");
-     compileMuLibrary(pcfg, verbose=true);
+     //compileMuLibrary(pcfg, verbose=true);
+     compileMuLibrary(pcfg.srcs, pcfg.libs, pcfg.boot, pcfg.bin)
      muLib = getMuLibraryCompiledWriteLoc(pcfg);
-     commands += "cp <muLib.path> <(pcfg.binDir.parent + muLib.file).path>\n";
+     commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
+     commands += "cp .<muLib.path> <(BOOT + muLib.path).path>\n";
      writeFile(SHELLSCRIPT, commands);
      report("Commands written to <SHELLSCRIPT>");
+}
+
+str relativize(str path1, str path2){
+     if(path1 == path2){
+        return "";
+     }
+     if(startsWith(path2, path1)){
+        return path2[size(path1) .. ];
+     }
+     
+     return path2;
 }
 
 // Build MuLibrary, standard library, ParserGenerator and Kernel
 // Maybe run buildMuLibrary first!
 
-value build(){
-     BOOTSTDLIB = BOOT + "stdlib";
-     pcfg = pathConfig(srcPath=[|std:///|], binDir=BOOTSTDLIB, libPath=[BOOTSTDLIB]);
+value build(bool jvm=true, bool full=true){
+     println("build: full = <full>, jvm = <jvm>");
+
+     pcfg = pathConfig(srcs=[|std:///|], bin=BINBOOT, libs=[BINBOOT]);
      
-     report("Removing current compiled standard library <BOOTSTDLIB>");
-     remove(BOOTSTDLIB);
+     if(full){
+        report("Removing current compiled boot files <BINBOOT>");
+        remove(BINBOOT);
+     }
      
      commands = "#!/bin/sh\n";
      
      report("Compiling MuLibrary");
-     compileMuLibrary(pcfg, verbose=true);
+     compileMuLibrary(pcfg, verbose=true, jvm=jvm);
      muLib = getMuLibraryCompiledWriteLoc(pcfg);
-     commands += "cp <muLib.path> <(pcfg.binDir.parent + muLib.file).path>\n";
-     
+     commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
+     commands += "cp .<muLib.path> <(BOOT + relativize(BINBOOT.path, muLib.path)).path>\n";
+ 
      report("Compiling standard library modules");
      for(moduleName <- libraryModules){
-         compile(moduleName, pcfg, recompile=true, verbose=true);
+         compile(moduleName, pcfg, recompile=true, verbose=true, jvm=jvm);
      }
+    
      
-     commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg);
-     commands += serialize("lang::rascal::boot::Kernel", pcfg);
-     
-     info = collectInfo(libraryModules, pcfg);
-     l = getDerivedWriteLoc("StdLib.info", "gz", pcfg);
-     println("l = <l>");
-     writeBinaryValueFile(l, info);
+     commands += serialize("lang::rascal::grammar::ParserGenerator", pcfg, jvm=jvm);
+     commands += serialize("lang::rascal::boot::Kernel", pcfg, jvm=jvm);
     
      writeFile(SHELLSCRIPT, commands);
      report("Commands written to <SHELLSCRIPT>");

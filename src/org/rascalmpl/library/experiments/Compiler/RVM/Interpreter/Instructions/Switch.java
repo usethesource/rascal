@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.BytecodeGenerator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.ToJVM.BytecodeGenerator;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.IString;
@@ -47,12 +47,7 @@ public class Switch extends Instruction {
 	public void generateByteCode(BytecodeGenerator codeEmittor, boolean debug){
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
-		
-//		IMapWriter w = codeblock.vf.mapWriter();
-//		for(IValue key : caseLabels){
-//			String label = ((IString)caseLabels.get(key)).getValue();
-//			w.put(key, codeblock.vf.integer(codeblock.getLabelPC(label)));
-//		}
+
 		codeEmittor.emitInlineSwitch(caseLabels, caseDefault, useConcreteFingerprint, debug) ;
 	}
 }

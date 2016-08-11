@@ -1,5 +1,6 @@
 @doc{
-Synopsis: AST model for HTML5 including pretty printer
+.Synopsis
+AST model for HTML5 including pretty printer
 }
 @contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
 module lang::html5::DOM

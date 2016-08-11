@@ -13,15 +13,6 @@
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
 
-/*******************************************************************************
- * 
- * Warning this file is an experiment to determine the effect of collecting all
- * classes used by the Prelude in a single class. Overall effect seems to be circa 10%
- * reduction of import time.
- * 
- * Do not edit/change this code, but use the original code instead.
- * 
- */
 package org.rascalmpl.library;
 
 import java.io.BufferedReader;
@@ -127,7 +118,7 @@ public class Prelude {
 	protected final IValueFactory values;
 	private final Random random;
 	
-	private final boolean trackReadWrite = false;
+	private final boolean trackIO = false;
 	
 	public Prelude(IValueFactory values){
 		super();
@@ -298,19 +289,13 @@ public class Prelude {
 	}
 
 	private Calendar dateTimeToCalendar(IDateTime dt) {
-		Calendar cal;
-		if (dt.isDate()) {
-			cal = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
-			cal.set(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth());
-		} else {
-			cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(dt.getTimezoneOffsetHours(), dt.getTimezoneOffsetMinutes())),Locale.getDefault());
-			if (dt.isTime()) {
-				cal.set(1970, 0, 1, dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute());
-			} else {
-				cal.set(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth(), dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute());
-			}
-			cal.set(Calendar.MILLISECOND, dt.getMillisecondsOfSecond());
-		}
+	    TimeZone tz = dt.isDate() ? 
+	        TimeZone.getDefault() : 
+	          TimeZone.getTimeZone(getTZString(dt.getTimezoneOffsetHours(), dt.getTimezoneOffsetMinutes()));
+  
+		Calendar cal = Calendar.getInstance(tz,Locale.getDefault());
+		cal.setTimeInMillis(dt.getInstant());
+			
 		return cal;
 	}
 	
@@ -983,8 +968,9 @@ public class Prelude {
 	}
 
 	public IValue exists(ISourceLocation sloc) {
-		//System.err.println("exists: " + sloc);
-		return values.bool(URIResolverRegistry.getInstance().exists(sloc));
+		IValue result =  values.bool(URIResolverRegistry.getInstance().exists(sloc));
+		if(trackIO) System.err.println("exists: " + sloc + " => " + result);
+		return result;
 	}
 	
 	public IValue lastModified(ISourceLocation sloc) {
@@ -1048,7 +1034,7 @@ public class Prelude {
 	} 
 	
 	public IValue readFile(ISourceLocation sloc){
-		if(trackReadWrite) System.err.println("readFile: " + sloc);
+		if(trackIO) System.err.println("readFile: " + sloc);
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc);){
 			return consumeInputStream(reader);
 		} 
@@ -1061,7 +1047,7 @@ public class Prelude {
 	}
 	
 	public IString readFileEnc(ISourceLocation sloc, IString charset){
-		if(trackReadWrite) System.err.println("readFileEnc: " + sloc);
+		if(trackIO) System.err.println("readFileEnc: " + sloc);
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc, charset.getValue())){
 			return consumeInputStream(reader);
 		} 
@@ -1129,7 +1115,7 @@ public class Prelude {
 	}
 	
 	private void writeFile(ISourceLocation sloc, IList V, boolean append){
-		if(trackReadWrite) System.err.println("writeFile: " + sloc);
+		if(trackIO) System.err.println("writeFile: " + sloc);
 		IString charset = values.string("UTF8");
 		if (append) {
 			charset = detectCharSet(sloc);
@@ -1276,7 +1262,7 @@ public class Prelude {
 	}
 	
 	public IList readFileLines(ISourceLocation sloc){
-		if(trackReadWrite) System.err.println("readFileLines: " + sloc);
+		if(trackIO) System.err.println("readFileLines: " + sloc);
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc)) {
 			return consumeInputStreamLines(reader);
 		}
@@ -1292,7 +1278,7 @@ public class Prelude {
 	}
 	
 	public IList readFileLinesEnc(ISourceLocation sloc, IString charset){
-		if(trackReadWrite) System.err.println("readFileLinesEnc: " + sloc);
+		if(trackIO) System.err.println("readFileLinesEnc: " + sloc);
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc,charset.getValue())) {
 			return consumeInputStreamLines(reader);
 		}
@@ -1320,7 +1306,7 @@ public class Prelude {
 	
 	public IList readFileBytes(ISourceLocation sloc) {
 		
-		if(trackReadWrite) System.err.println("readFileBytes: " + sloc);
+		if(trackIO) System.err.println("readFileBytes: " + sloc);
 		IListWriter w = values.listWriter();
 		
 		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc)) {
@@ -2021,6 +2007,9 @@ public class Prelude {
 	}
 	
 	public IMap getAnnotations(INode node) {
+	    if (!node.isAnnotatable()) {
+	        return values.mapWriter().done();
+	    }
 		java.util.Map<java.lang.String,IValue> map = node.asAnnotatable().getAnnotations();
 		IMapWriter w = values.mapWriter();
 		
@@ -2029,6 +2018,17 @@ public class Prelude {
 		}
 		
 		return w.done();
+	}
+	
+	public INode setKeywordParameters(INode node, IMap kwargs) {
+		if (node.isAnnotatable()) {
+		    node = node.asAnnotatable().removeAnnotations();
+		}
+
+		Map<String,IValue> map = new HashMap<java.lang.String,IValue>();
+		kwargs.entryIterator().forEachRemaining((kv) -> map.put(((IString)kv.getKey()).getValue(), kv.getValue()));
+		return node.asWithKeywordParameters().setParameters(map);
+	    
 	}
 	
 	public INode setAnnotations(INode node, IMap annotations) {
@@ -3367,7 +3367,7 @@ public class Prelude {
 	}
 	
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc){
-		if(trackReadWrite) System.err.println("readBinaryValueFile: " + loc);
+		if(trackIO) System.err.println("readBinaryValueFile: " + loc);
 
 		TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
@@ -3386,7 +3386,7 @@ public class Prelude {
 	}
 	
 	public IValue readTextValueFile(IValue type, ISourceLocation loc){
-		if(trackReadWrite) System.err.println("readTextValueFile: " + loc);
+		if(trackIO) System.err.println("readTextValueFile: " + loc);
 	  	TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
@@ -3414,7 +3414,7 @@ public class Prelude {
 	}
 	
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression){
-    	if(trackReadWrite) System.err.println("writeBinaryValueFile: " + loc);
+    	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
 		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
 			new BinaryValueWriter().write(value, out, compression.getValue());
 		}
@@ -3424,7 +3424,7 @@ public class Prelude {
 	}
 	
 	public void writeTextValueFile(ISourceLocation loc, IValue value){
-		if(trackReadWrite) System.err.println("writeTextValueFile: " + loc);
+		if(trackIO) System.err.println("writeTextValueFile: " + loc);
 		try (Writer out = new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), StandardCharsets.UTF_8)) {
 			new StandardTextWriter().write(value, out);
 		}

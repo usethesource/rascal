@@ -1,9 +1,10 @@
 @doc{
-Synopsis: extends the M3 [$analysis/m3/Core] with Java specific concepts such as inheritance and overriding.
+.Synopsis
+extends the M3 [$analysis/m3/Core] with Java specific concepts such as inheritance and overriding.
 
-Description: 
+.Description
 
-For a quick start, go find [createM3FromEclipseProject].
+For a quick start, go find <<createM3FromEclipseProject>>.
 }
 module lang::java::m3::Core
 
@@ -58,47 +59,57 @@ public M3 link(M3 projectModel, set[M3] libraryModels) {
   }
 }
 
-@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
-@reflect
-public java M3 createM3FromFile(loc file, str javaVersion = "1.7");
+public M3 createM3FromFile(loc file, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7") {
+    result = createM3sFromFiles({file}, errorRecovery = errorRecovery, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion);
+    if ({oneResult} := result) {
+        return oneResult;
+    }
+    throw "Unexpected number of M3s returned for <file>";
+}
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
-public java M3 createM3FromString(loc fileName, str contents, str javaVersion = "1.7");
+public java set[M3] createM3sFromFiles(set[loc] files, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
+
+public M3 createM3FromFiles(loc projectName, set[loc] files, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7")
+    = composeJavaM3(projectName, createM3sFromFiles(files, errorRecovery = errorRecovery, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion));
+
+@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
+@reflect
+public java tuple[set[M3], set[Declaration]] createM3sAndAstsFromFiles(set[loc] files, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
+
+@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
+@reflect
+public java M3 createM3FromString(loc fileName, str contents, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
 public java M3 createM3FromJarClass(loc jarClass);
 
-map[loc, map[loc, Declaration]] methodASTs = ();
-
 @doc{
-Synopsis: globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
+.Synopsis
+globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
 }
-public M3 createM3FromDirectory(loc project, map[str, str] dependencyUpdateSites = (), str javaVersion = "1.7") {
+public M3 createM3FromDirectory(loc project, bool errorRecovery = false, str javaVersion = "1.7") {
     if (!(isDirectory(project))) {
       throw "<project> is not a valid directory";
     }
     
-    classPaths = find(project, "jar");
+    list[loc] classPaths = [];
+    set[str] seen = {};
+    for (j <- find(project, "jar"), isFile(j)) {
+        hash = md5HashFile(j);
+        if (!(hash in seen)) {
+            classPaths += j;
+            seen += hash;
+        }
+    }
     sourcePaths = getPaths(project, "java");
-    setEnvironmentOptions(classPaths, findRoots(sourcePaths));
-    m3s = { *createM3FromFile(f, javaVersion = javaVersion) | sp <- sourcePaths, loc f <- find(sp, "java") };
-    M3 result = composeJavaM3(project, m3s);
+    M3 result = composeJavaM3(project, createM3sFromFiles({p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, errorRecovery = errorRecovery, sourcePath = [*findRoots(sourcePaths)], classPath = classPaths, javaVersion = javaVersion));
     registerProject(project, result);
     return result;
 }
 
-public Declaration getMethodAST(loc methodLoc, M3 model = m3(|unknown:///|)) {
-  if (isEmpty(model)) {
-    model = getModelContaining(methodLoc);
-  }
-  if (model.id notin methodASTs) {
-    methodASTs[model.id] = ( d@decl : d |/Declaration d := createAstsFromDirectory(model.id, true), d is method || d is constructor);
-  }
-  try return methodASTs[model.id][methodLoc];
-  catch: throw "Method <methodLoc> not found in any model";
-}
 
 public M3 createM3FromJar(loc jarFile) {
     str jarName = substring(jarFile.path, 0, findFirst(jarFile.path, "!"));
@@ -108,8 +119,8 @@ public M3 createM3FromJar(loc jarFile) {
 
     map[str,M3] m3Map = (classPathToStr(jc): createM3FromJarClass(jc) | /file(jc) <- crawl(jarFile), jc.extension == "class");
     
-    rel[str,str] inheritsFrom = { *{ <c.path, i.path> | <c, i> <- (m3@implements + m3@extends),
-        c.path in m3Map && i.path in m3Map } | m3 <- range(m3Map) }+;
+    rel[str,str] inheritsFrom = { *{ <c.path, i.path> | <c, i> <- (model@implements + model@extends),
+        c.path in m3Map && i.path in m3Map } | model <- range(m3Map) }+;
     
     map[str, rel[loc from,loc to]] methodOverrides = ( c: m3Map[c]@methodOverrides | c <- m3Map );
     for(<c, sc> <- inheritsFrom) {
@@ -123,14 +134,6 @@ public M3 createM3FromJar(loc jarFile) {
 }
 private str classPathToStr(loc jarClass) {
     return substring(jarClass.path,findLast(jarClass.path,"!")+1,findLast(jarClass.path,"."));
-}
-
-public M3 includeJarRelations(M3 project, set[M3] jarRels = {}) {
-  set[M3] rels = jarRels;
-  if (isEmpty(rels))
-    rels = createM3FromProjectJars(project.id);
-  
-  return composeJavaM3(project.id, rels);
 }
 
 public bool isCompilationUnit(loc entity) = entity.scheme == "java+compilationUnit";
@@ -174,15 +177,15 @@ public rel[loc, loc] declaredTopTypes(M3 m)
 public rel[loc, loc] declaredSubTypes(M3 m) 
   = {e | tuple[loc lhs, loc rhs] e <- m@containment, isClass(e.rhs)} - declaredTopTypes(m);
 
-@memo public set[loc] classes(M3 m) =  {e | e <- m@declarations<name>, isClass(e)};
-@memo public set[loc] interfaces(M3 m) =  {e | e <- m@declarations<name>, isInterface(e)};
-@memo public set[loc] packages(M3 m) = {e | e <- m@declarations<name>, isPackage(e)};
-@memo public set[loc] variables(M3 m) = {e | e <- m@declarations<name>, isVariable(e)};
-@memo public set[loc] parameters(M3 m)  = {e | e <- m@declarations<name>, isParameter(e)};
-@memo public set[loc] fields(M3 m) = {e | e <- m@declarations<name>, isField(e)};
-@memo public set[loc] methods(M3 m) = {e | e <- m@declarations<name>, isMethod(e)};
-@memo public set[loc] constructors(M3 m) = {e | e <- m@declarations<name>, isConstructor(e)};
-@memo public set[loc] enums(M3 m) = {e | e <- m@declarations<name>, isEnum(e)};
+@memo public set[loc] classes(M3 m) =  {e | <e,_> <- m@declarations, isClass(e)};
+@memo public set[loc] interfaces(M3 m) =  {e | <e,_> <- m@declarations, isInterface(e)};
+@memo public set[loc] packages(M3 m) = {e | <e,_> <- m@declarations, isPackage(e)};
+@memo public set[loc] variables(M3 m) = {e | <e,_> <- m@declarations, isVariable(e)};
+@memo public set[loc] parameters(M3 m)  = {e | <e,_> <- m@declarations, isParameter(e)};
+@memo public set[loc] fields(M3 m) = {e | <e,_> <- m@declarations, isField(e)};
+@memo public set[loc] methods(M3 m) = {e | <e,_> <- m@declarations, isMethod(e)};
+@memo public set[loc] constructors(M3 m) = {e | <e,_> <- m@declarations, isConstructor(e)};
+@memo public set[loc] enums(M3 m) = {e | <e,_> <- m@declarations, isEnum(e)};
 
 public set[loc] elements(M3 m, loc parent) = m@containment[parent];
 

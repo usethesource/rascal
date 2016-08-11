@@ -1008,11 +1008,14 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		public Result<IValue> assignment(AssignableEvaluator __eval) {
 
 			QualifiedName qname = this.getQualifiedName();
+			
 			Result<IValue> previous = __eval.__getEnv().getVariable(qname);
-
+			
+			    
 			if (previous != null && previous.getValue() != null) {
-				__eval.__setValue(__eval.newResult(previous, __eval
-						.__getValue()));
+				Result<IValue> newResult = __eval.newResult(previous, __eval.__getValue());
+				newResult.setInferredType(previous.hasInferredType());
+                __eval.__setValue(newResult);
 				__eval.__getEnv().storeVariable(qname, __eval.__getValue());
 				return __eval.__getValue();
 			}
@@ -1033,8 +1036,12 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			Result<IValue> var = __eval.getCurrentEnvt().getSimpleVariable(this.getQualifiedName());
 
-			return __eval.getCurrentEnvt().getSimpleVariable(this.getQualifiedName());
+			if (var != null) {
+			    return var;
+			}
+			throw new UndeclaredVariable(Names.fullName(getQualifiedName()), this);
 
 		}
 

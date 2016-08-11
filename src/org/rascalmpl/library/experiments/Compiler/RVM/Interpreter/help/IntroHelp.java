@@ -9,9 +9,8 @@ public class IntroHelp {
 				"",
 				"RascalShell commands:",
 				"    quit or EOF            Quit this RascalShell",
-				"    help keywords          List all Rascal keywords",
-				"    help operators         List all Rascal operators and special symbols",
-				"    help <text>            Help about a specific keyword, operator, function or topic",
+				"    help <topic>           Open a browser with help about topic",
+				"    apropos <topic>        Textual summary of help about topic",
 				"    declarations           List all declarations",
 				"    modules                List all imported modules",
 				"    undeclare <name>       Remove declaration of <name>",
@@ -20,6 +19,7 @@ public class IntroHelp {
 				"    e.g. set profile true",
 				"         set trace false",
 				"         set coverage true",
+				"    set                    List all current option values",
 				"",
 				"Debugging commands:",
 				"    break                  List current break points",
@@ -38,13 +38,13 @@ public class IntroHelp {
 				"    <CTRL>k                Kill remainder of line after cursor",
 				"    <CTRL>l                Clear screen",
 				"",
-				"Further help: XXX"
+				//"Further help: XXX"
 				//":edit <modulename>         Opens an editor for that module",
 				//":test                      Runs all unit tests currently loaded",
 				//":history                   Print the command history",
 		};
 	
-	static void print(PrintWriter stdout){
+	public static void print(PrintWriter stdout){
 		for(String line : helpText){
 			stdout.println(line);
 		}

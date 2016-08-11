@@ -1,5 +1,6 @@
 @doc{
-Synopsis: defines AST node types for Java
+.Synopsis
+defines AST node types for Java
 }
 module lang::java::m3::AST
 
@@ -69,7 +70,7 @@ data Expression
     | \this()
     | \this(Expression thisExpression)
     | \super()
-    | \declarationExpression(Declaration decl)
+    | \declarationExpression(Declaration declaration)
     | \infix(Expression lhs, str operator, Expression rhs)
     | \postfix(Expression operand, str operator)
     | \prefix(str operator, Expression operand)
@@ -117,7 +118,7 @@ data Type
     = arrayType(Type \type)
     | parameterizedType(Type \type)
     | qualifiedType(Type qualifier, Expression simpleName)
-    | simpleType(Expression name)
+    | simpleType(Expression typeName)
     | unionType(list[Type] types)
     | wildcard()
     | upperbound(Type \type)
@@ -158,10 +159,6 @@ set[loc] getPaths(loc dir, str suffix) {
    return find(dir, containsFile);
 }
 
-@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
-@reflect
-java void setEnvironmentOptions(set[loc] classPathEntries, set[loc] sourcePathEntries);
-
 @memo
 set[loc] findRoots(set[loc] folders) {
   set[loc] result = {};
@@ -172,7 +169,7 @@ set[loc] findRoots(set[loc] folders) {
         set[loc] roots = {};
         for (file(f) <- contents, toLowerCase(f.extension) == "java") {
           try {
-            for (/package<p:[^;]*>;/ := readFile(f)) {
+            for (/package[ \t][ \t]*<p:[$0-9A-Z_a-z \t\.]*>;/ := readFile(f)) {
               packagedepth = size(split(".", trim(p)));
               roots += { d[path = intercalate("/", split("/", d.path)[..-packagedepth])] };
             }
@@ -199,29 +196,43 @@ set[loc] findRoots(set[loc] folders) {
 }
       
 @doc{
-Synopsis: Creates AST from a file
+.Synopsis
+Creates AST from a file
 
-Description: useful for analyzing raw source code on disk, but if you have an Eclipse project you should have a look at [lang/java/jdt/m3] instead.
+.Description
+}
+public Declaration createAstFromFile(loc file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7") {
+    result = createAstsFromFiles({file}, collectBindings, errorRecovery = errorRecovery, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion);
+    if ({oneResult} := result) {
+        return oneResult;
+    }
+    throw "Unexpected number of ASTs returned from <file>";
+}
+
+@doc{
+.Synopsis
+Creates AST from a file
+
+.Description
 }
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
-public java Declaration createAstFromFile(loc file, bool collectBindings, str javaVersion = "1.7");
+public java set[Declaration] createAstsFromFiles(set[loc] file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
 
 @doc{
   Creates ASTs from an input string
 }
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
-public java Declaration createAstFromString(loc fileName, str source, bool collectBinding, str javaVersion = "1.7");
+public java Declaration createAstFromString(loc fileName, str source, bool collectBinding, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
 
 @doc{Creates ASTs from a project}
-public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, str javaVersion = "1.7" ) {
+public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, bool errorRecovery = false, str javaVersion = "1.7" ) {
     if (!(isDirectory(project))) {
       throw "<project> is not a valid directory";
     }
     
-    classPaths = find(project, "jar");
+    classPaths = [ j | j <- find(project, "jar"), isFile(j) ];
     sourcePaths = getPaths(project, "java");
-    setEnvironmentOptions(classPaths, findRoots(sourcePaths));
-    return { createAstFromFile(f, collectBindings, javaVersion = javaVersion) | sp <- sourcePaths, loc f <- find(sp, "java") };
+    return createAstsFromFiles({ p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, collectBindings, sourcePath = [*findRoots(sourcePaths)], classPath = classPaths, errorRecovery = errorRecovery, javaVersion = javaVersion);;
 }

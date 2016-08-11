@@ -39,11 +39,14 @@ import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactParseError;
+import org.rascalmpl.value.exceptions.RedeclaredConstructorException;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.util.ResizingArray;
-import org.rascalmpl.value.util.ShareableHashMap;
+
+import io.usethesource.capsule.TransientMap;
+import io.usethesource.capsule.TrieMap_5Bits;
 
 // TODO Change this thing so it doesn't use recursion.
 /**
@@ -539,7 +542,7 @@ public class BinaryReader{
 		
 		int numberOfKeywordParameters = parseInteger();
 		
-		ShareableHashMap<String, IValue> kwParams = new ShareableHashMap<>();
+		TransientMap<String, IValue> kwParams = TrieMap_5Bits.transientOf();
 		for(int i = numberOfKeywordParameters - 1; i >= 0; i--){
 			int nameLength = parseInteger();
 			byte[] nameData = new byte[nameLength];
@@ -548,10 +551,10 @@ public class BinaryReader{
 			
 			IValue value = deserialize();
 			
-			kwParams.put(name, value);
+			kwParams.__put(name, value);
 		}
 		
-		return valueFactory.node(nodeName, content, kwParams);
+		return valueFactory.node(nodeName, content, kwParams.freeze());
 	}
 	
 	private INode readAnnotatedNode(int header) throws IOException{
@@ -579,7 +582,7 @@ public class BinaryReader{
 		
 		int numberOfAnnotations = parseInteger();
 		
-		ShareableHashMap<String, IValue> annotations = new ShareableHashMap<>();
+		TransientMap<String, IValue> annotations = TrieMap_5Bits.transientOf();
 		for(int i = numberOfAnnotations - 1; i >= 0; i--){
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];
@@ -588,11 +591,11 @@ public class BinaryReader{
 			
 			IValue value = deserialize();
 			
-			annotations.put(label, value);
+			annotations.__put(label, value);
 		}
 		
 		INode node = valueFactory.node(nodeName, content);
-		return node.asAnnotatable().setAnnotations(annotations);
+		return node.asAnnotatable().setAnnotations(annotations.freeze());
 	}
 	
 	private IConstructor readConstructor(int header) throws IOException{
@@ -620,7 +623,7 @@ public class BinaryReader{
 		
 		int numberOfKeywordParams = parseInteger();
 		
-		ShareableHashMap<String, IValue> kwParams = new ShareableHashMap<>();
+		TransientMap<String, IValue> kwParams = TrieMap_5Bits.transientOf();
 		for(int i = numberOfKeywordParams - 1; i >= 0; i--){
 			int nameLength = parseInteger();
 			byte[] nameData = new byte[nameLength];
@@ -629,10 +632,10 @@ public class BinaryReader{
 			
 			IValue value = deserialize();
 			
-			kwParams.put(name, value);
+			kwParams.__put(name, value);
 		}
 		
-		return valueFactory.constructor(constructorType, content, kwParams);
+		return valueFactory.constructor(constructorType, content, kwParams.freeze());
 	}
 	
 	private IConstructor readAnnotatedConstructor(int header) throws IOException{
@@ -647,7 +650,7 @@ public class BinaryReader{
 		
 		int numberOfAnnotations = parseInteger();
 		
-		ShareableHashMap<String, IValue> annotations = new ShareableHashMap<>();
+		TransientMap<String, IValue> annotations = TrieMap_5Bits.transientOf();
 		for(int i = numberOfAnnotations - 1; i >= 0; i--){
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];
@@ -656,11 +659,11 @@ public class BinaryReader{
 			
 			IValue value = deserialize();
 			
-			annotations.put(label, value);
+			annotations.__put(label, value);
 		}
 		
 		IConstructor constructor = valueFactory.constructor(constructorType, content);
-		return constructor.asAnnotatable().setAnnotations(annotations);
+		return constructor.asAnnotatable().setAnnotations(annotations.freeze());
 	}
 	
 	private IList readList(int header) throws IOException{
@@ -887,7 +890,18 @@ public class BinaryReader{
 		
 		Type adtType = doReadType();
 		
-		return tf.constructorFromTuple(typeStore, adtType, name, fieldTypes);
+		try {
+		    return tf.constructorFromTuple(typeStore, adtType, name, fieldTypes);
+		}
+		catch (RedeclaredConstructorException e) {
+		    adtType = typeStore.lookupAbstractDataType(adtType.getName());
+		    for (Type candidate: typeStore.lookupConstructor(adtType, name)) {
+		        if (fieldTypes.isSubtypeOf(candidate.getFieldTypes())) {
+		            return candidate;
+		        }
+		    }
+		    throw e;
+		}
 	}
 
 	private Type readKeywordedConstructorType() throws IOException{

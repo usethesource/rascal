@@ -216,7 +216,8 @@ test bool tstLeft1_s(str S) { l = left(S, size(S) + 1); return startsWith(l, S) 
 test bool tstLeft2_s(str S) { l = left(S, size(S) + 1, "x"); return startsWith(l, S) && endsWith(l, "x"); }
 
 bool areOverlapping(str s1, str s2) = 
-    s1 == s2 || findAll(s1 + s2, s2) != [size(s1)] || findAll(s2 + s1, s1) != [size(s2)];
+    s1 == s2 || findAll(s1 + s2, s2) != [size(s1)] || findAll(s2 + s1, s1) != [size(s2)]
+    || ((size(s1) > 0 && size(s2) > 0) && s1[-1] == s2[0] || s1[0] == s2[-1]) ;
 
 test bool tstReplaceAll(str S1, str S2, str S3) {
   if(areOverlapping(S1, S2)) return true;
@@ -245,7 +246,7 @@ test bool tstRight2(str S) { r = right(S, size(S) + 5, "x"); return endsWith(r, 
 
 test bool tstSize(str S) = size(S) == size(chars(S));
 
-test bool tstSplit(str S1, str S2) = isEmpty(S1) || isEmpty(S2) || contains(S2, S1) || S1[-1] == S2[0] || S1[0] == S2[-1] || split(S1, S2 + S1 + S2 + S1) == [S2, S2];
+test bool tstSplit(str S1, str S2) = areOverlapping(S1,S2) || isEmpty(S1) || isEmpty(S2) || contains(S2, S1) || S1[-1] == S2[0] || S1[0] == S2[-1] || split(S1, S2 + S1 + S2 + S1) == [S2, S2];
 
 // squeeze
 

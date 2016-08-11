@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
@@ -27,6 +28,7 @@ import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.Timing;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IValue;
@@ -40,8 +42,8 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     private final OutputStream originalOutput;
 
     public RascalInterpreterREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal)
-                    throws IOException {
-        super(stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal);
+                    throws IOException, URISyntaxException {
+        super(null, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal);
         originalOutput = stdout;
     }
 
@@ -54,7 +56,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     }
 
     @Override
-    protected void initialize(Writer stdout, Writer stderr) {
+    protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr) {
         eval = constructEvaluator(stdout, stderr);
         eval.setREPL(this);
     }

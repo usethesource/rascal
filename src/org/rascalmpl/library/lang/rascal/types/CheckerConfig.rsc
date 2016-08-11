@@ -339,7 +339,7 @@ public Configuration addImportedVariable(Configuration c, RName n, int varId, bo
 }
 
 @doc{Add a new local variable into the configuration.}
-public Configuration addLocalVariable(Configuration c, RName n, bool inf, loc l, Symbol rt) {
+public Configuration addLocalVariable(Configuration c, RName n, bool inf, loc l, Symbol rt, set[RName] allowedConflicts = { }) {
 	moduleId = head([i | i <- c.stack, c.store[i] is \module]);
 	moduleName = c.store[moduleId].name;
 
@@ -357,6 +357,8 @@ public Configuration addLocalVariable(Configuration c, RName n, bool inf, loc l,
 	varId = insertVariable();
 	
 	if (n notin c.fcvEnv) {
+		c.fcvEnv[n] = varId;
+	} else if (n in c.fcvEnv && n in allowedConflicts) {
 		c.fcvEnv[n] = varId;
 	} else {
 		// The name is already defined: what items are defined by this name?

@@ -196,10 +196,11 @@ test bool testAppend3() {
     return res1 + res2 == [0, 1];
 }
 
-test bool testAppend4() {
-    res = for(x <- [1,2,3,4]) { int f() { append x; return 4; }; append f(); };
-    return res == [1,4,2,4,3,4,4,4];
-}
+// We no longer allow dynamically scoped appends
+//test bool testAppend4() {
+//    res = for(x <- [1,2,3,4]) { int f() { append x; return 4; }; append f(); };
+//    return res == [1,4,2,4,3,4,4,4];
+//}
 
 // ifThen
   
@@ -390,3 +391,19 @@ test bool solveIndexOutOfBounds1() {
   		  solve (T; -1)  T = T + (T o R1);
     		return T == {<1,2>, <1,3>,<1,4>,<2,3>,<2,4>,<3,4>};
 		}
+		
+rel[int,int] removeIdPairs(rel[int,int] inp){
+   res = inp;
+   solve(res) {
+         if ( { < a, b >, < b, b >, c* } := res ) 
+              res = { *c, < a, b > };
+   }
+   return res;
+}
+ 
+test bool removeIdPairs1() = removeIdPairs({}) == {};
+test bool removeIdPairs2() = removeIdPairs({<1,2>,<2,3>}) == {<1,2>,<2,3>};
+test bool removeIdPairs3() = removeIdPairs({<1,2>,<2,3>,<2,2>}) == {<1,2>,<2,3>};
+test bool removeIdPairs4() = removeIdPairs({<1,2>,<2,2>,<2,3>,<3,3>}) == {<1,2>,<2,3>};
+test bool removeIdPairs5() = removeIdPairs({<2,2>,<1,2>,<2,2>,<2,3>,<3,3>}) == {<1,2>,<2,3>};
+test bool removeIdPairs6() = removeIdPairs({<2,2>,<3,3>,<1,2>,<2,2>,<2,3>,<3,3>}) == {<1,2>,<2,3>};

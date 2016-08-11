@@ -8,6 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 //START
+// tag::module[]
 module demo::common::WordCount::Jabberwocky
 
 public list[str] Jabberwocky = [
@@ -58,3 +59,4 @@ public list[str] Jabberwocky = [
 	"All mimsy were the borogoves,",
 	"And the mome raths outgrabe."
 ];
+// end::module[]

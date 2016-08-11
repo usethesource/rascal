@@ -69,73 +69,73 @@ import experiments::Compiler::Benchmarks::BVisit6g;
 import experiments::Compiler::Benchmarks::BSudoku;
 
 map[str name,  value() job] jobs = (
-//"BasType" : 				experiments::Compiler::Benchmarks::BasType::main,
-"BBottles": 				experiments::Compiler::Benchmarks::BBottles::main,
-"BCompareFor":				experiments::Compiler::Benchmarks::BCompareFor::main,
-"BCompareIf":				experiments::Compiler::Benchmarks::BCompareIf::main,
-"BCompareComprehension":	experiments::Compiler::Benchmarks::BCompareComprehension::main,
-"BEmpty":					experiments::Compiler::Benchmarks::BEmpty::main,
-"BExceptions":				experiments::Compiler::Benchmarks::BExceptions::main,
-"BExceptionsFinally":		experiments::Compiler::Benchmarks::BExceptionsFinally::main,
-"BFac":						experiments::Compiler::Benchmarks::BFac::main,
-"BFib":						experiments::Compiler::Benchmarks::BFib::main,
-"BFor":						experiments::Compiler::Benchmarks::BFor::main,
-"BForCond":					experiments::Compiler::Benchmarks::BForCond::main,
+//"BasType" :               experiments::Compiler::Benchmarks::BasType::main,
+"BBottles":                 experiments::Compiler::Benchmarks::BBottles::main,
+"BCompareFor":              experiments::Compiler::Benchmarks::BCompareFor::main,
+"BCompareIf":               experiments::Compiler::Benchmarks::BCompareIf::main,
+"BCompareComprehension":    experiments::Compiler::Benchmarks::BCompareComprehension::main,
+"BEmpty":                   experiments::Compiler::Benchmarks::BEmpty::main,
+"BExceptions":              experiments::Compiler::Benchmarks::BExceptions::main,
+"BExceptionsFinally":       experiments::Compiler::Benchmarks::BExceptionsFinally::main,
+"BFac":                     experiments::Compiler::Benchmarks::BFac::main,
+"BFib":                     experiments::Compiler::Benchmarks::BFib::main,
+"BFor":                     experiments::Compiler::Benchmarks::BFor::main,
+"BForCond":                 experiments::Compiler::Benchmarks::BForCond::main,
 
-"BListMatch1":				experiments::Compiler::Benchmarks::BListMatch1::main,
-"BListMatch2":				experiments::Compiler::Benchmarks::BListMatch2::main,
-"BListMatch3":				experiments::Compiler::Benchmarks::BListMatch3::main,
-"BOr":						experiments::Compiler::Benchmarks::BOr::main,
-"BMarriage":				experiments::Compiler::Benchmarks::BMarriage::main,
-//"BPatternMatchASTs":		experiments::Compiler::Benchmarks::BPatternMatchASTs::main,
-"BReverse1":				experiments::Compiler::Benchmarks::BReverse1::main,
-"BRSFCalls":				experiments::Compiler::Benchmarks::BRSFCalls::main,
-"BSet1":					experiments::Compiler::Benchmarks::BSet1::main,
-"BSetMatch1":				experiments::Compiler::Benchmarks::BSetMatch1::main,
-"BSetMatch2":				experiments::Compiler::Benchmarks::BSetMatch2::main,
-"BSetMatch3":				experiments::Compiler::Benchmarks::BSetMatch3::main,
-"BSetMatch4":				experiments::Compiler::Benchmarks::BSetMatch4::main,
-"BSendMoreMoney":			experiments::Compiler::Benchmarks::BSendMoreMoney::main,
-"BSendMoreMoneyNotTyped":	experiments::Compiler::Benchmarks::BSendMoreMoneyNotTyped::main,
-"BTemplate":				experiments::Compiler::Benchmarks::BTemplate::main,
-"BWhile":					experiments::Compiler::Benchmarks::BWhile::main,
-"BVisit1":					experiments::Compiler::Benchmarks::BVisit1::main,
-"BVisit2":					experiments::Compiler::Benchmarks::BVisit2::main,
-"BVisit3":					experiments::Compiler::Benchmarks::BVisit3::main,
-"BVisit4":					experiments::Compiler::Benchmarks::BVisit4::main,
+"BListMatch1":              experiments::Compiler::Benchmarks::BListMatch1::main,
+"BListMatch2":              experiments::Compiler::Benchmarks::BListMatch2::main,
+"BListMatch3":              experiments::Compiler::Benchmarks::BListMatch3::main,
+"BOr":                      experiments::Compiler::Benchmarks::BOr::main,
+"BMarriage":                experiments::Compiler::Benchmarks::BMarriage::main,
+//"BPatternMatchASTs":      experiments::Compiler::Benchmarks::BPatternMatchASTs::main,
+"BReverse1":                experiments::Compiler::Benchmarks::BReverse1::main,
+"BRSFCalls":                experiments::Compiler::Benchmarks::BRSFCalls::main,
+"BSet1":                    experiments::Compiler::Benchmarks::BSet1::main,
+"BSetMatch1":               experiments::Compiler::Benchmarks::BSetMatch1::main,
+"BSetMatch2":               experiments::Compiler::Benchmarks::BSetMatch2::main,
+"BSetMatch3":               experiments::Compiler::Benchmarks::BSetMatch3::main,
+"BSetMatch4":               experiments::Compiler::Benchmarks::BSetMatch4::main,
+"BSendMoreMoney":           experiments::Compiler::Benchmarks::BSendMoreMoney::main,
+"BSendMoreMoneyNotTyped":   experiments::Compiler::Benchmarks::BSendMoreMoneyNotTyped::main,
+"BTemplate":                experiments::Compiler::Benchmarks::BTemplate::main,
+"BWhile":                   experiments::Compiler::Benchmarks::BWhile::main,
+"BVisit1":                  experiments::Compiler::Benchmarks::BVisit1::main,
+"BVisit2":                  experiments::Compiler::Benchmarks::BVisit2::main,
+"BVisit3":                  experiments::Compiler::Benchmarks::BVisit3::main,
+"BVisit4":                  experiments::Compiler::Benchmarks::BVisit4::main,
 
-"BVisit6a":					experiments::Compiler::Benchmarks::BVisit6a::main,
-"BVisit6b":					experiments::Compiler::Benchmarks::BVisit6b::main,
-"BVisit6c":					experiments::Compiler::Benchmarks::BVisit6c::main,
-"BVisit6d":					experiments::Compiler::Benchmarks::BVisit6d::main,
-"BVisit6e":					experiments::Compiler::Benchmarks::BVisit6e::main,
-"BVisit6f":					experiments::Compiler::Benchmarks::BVisit6f::main,
-"BVisit6g":					experiments::Compiler::Benchmarks::BVisit6g::main,
+"BVisit6a":                 experiments::Compiler::Benchmarks::BVisit6a::main,
+"BVisit6b":                 experiments::Compiler::Benchmarks::BVisit6b::main,
+"BVisit6c":                 experiments::Compiler::Benchmarks::BVisit6c::main,
+"BVisit6d":                 experiments::Compiler::Benchmarks::BVisit6d::main,
+"BVisit6e":                 experiments::Compiler::Benchmarks::BVisit6e::main,
+"BVisit6f":                 experiments::Compiler::Benchmarks::BVisit6f::main,
+"BVisit6g":                 experiments::Compiler::Benchmarks::BVisit6g::main,
 
-"BSudoku":					experiments::Compiler::Benchmarks::BSudoku::main
+"BSudoku":                  experiments::Compiler::Benchmarks::BSudoku::main
 );
 
-loc base = |std:///experiments/Compiler/Benchmarks/|;
+str base = "experiments::Compiler::Benchmarks";
 
-loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted7.value|;
+loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted13.value|;
 
 
-map[str, list[num]] measurementsCompiled = ();		// list of timings of repeated runs per job, compiled
-map[str, list[num]] measurementsInterpreted = ();	// and interpreted
+map[str, list[num]] measurementsCompiled = ();      // list of timings of repeated runs per job, compiled
+map[str, list[num]] measurementsInterpreted = ();   // and interpreted
 map[str, list[num]] prevMeasurementsInterpreted = ();
 
-int nsamples = 10;  									// Number of samples per data point.
+int nsamples = 10;                                      // Number of samples per data point.
 
 // Analysis of the data of one job
 alias Analysis = tuple[str job, num speedup, num sdev, num cmean, num cdev, num imean, num idev];
 
 // Run all benchmarks
 
-list[Analysis] run_benchmarks(int n, list[str] jobs){
+list[Analysis] run_benchmarks(int n, list[str] jobs, bool jvm=true){
   initialize(n);
   jobs = sort(jobs);
-  precompile(jobs);
-  runAll(jobs);
+  precompile(jobs, jvm=jvm);
+  runAll(jobs, jvm=jvm);
   results = analyze_all(jobs);
   report(results);
   report_latex(results);
@@ -153,17 +153,17 @@ void initialize(int n){
   } catch _: println("MeasurementsInterpreted.value not found, measurements will be repeated");
 }
 
-void precompile(list[str] jobs) {
+void precompile(list[str] jobs, bool jvm=true) {
   for(job <- jobs) {
-      execute(base + (job + ".rsc"), pathConfig(), recompile=true, serialize=true);
+      compileAndLink("<base>::<job>", pathConfig(), jvm=jvm);
   }
 }
 
-void runAll(list[str] jobs){
+void runAll(list[str] jobs, bool jvm=true){
    for(int i <- index(jobs)){
        job = jobs[i];
        println("**** Run compiled: <job> (<i+1>/<size(jobs)>)");
-       runCompiled(job);
+       runCompiled(job, jvm=jvm);
    }
   
    for(int i <- index(jobs)){
@@ -177,11 +177,11 @@ void runAll(list[str] jobs){
    }
 }
 
-void runCompiled(str job) {
+void runCompiled(str job, bool jvm=true) {
   measurementsCompiled[job] =
 	  for(int i <- [0 .. nsamples]){
 		  t1 = cpuTime();
-		  v = execute(base + (job + ".rsc"), pathConfig());
+		  v = execute("<base>::<job>", pathConfig(), jvm=jvm);
 		  t2 = cpuTime();
 		  append (t2 - t1)/1000000;
 	  }
@@ -190,12 +190,12 @@ void runCompiled(str job) {
 void runInterpreted(str job) {  
   bmain = jobs[job];
   measurementsInterpreted[job] =
-	  for(int i <- [0 .. nsamples]){  
-		  t1 = cpuTime();
-		  bmain();
-		  t2 = cpuTime();
-		  append (t2 - t1)/1000000;
-	  }
+      for(int i <- [0 .. nsamples]){  
+          t1 = cpuTime();
+          bmain();
+          t2 = cpuTime();
+          append (t2 - t1)/1000000;
+      }
 }
 
 // Remove the smalles and largest number from a list of observations
@@ -233,8 +233,8 @@ list[Analysis] analyze_all(list[str] jobs){
 }
 
 // Reporting:
-// plain text:	report, report_one
-// latex:		report_latex, report_one_latex
+// plain text:  report, report_one
+// latex:       report_latex, report_one_latex
 
 str align(num n) = right(toString(precision(n,5)), 6);
 str align2(num n) = right(toString(precision(n,5)), 12);
@@ -276,65 +276,69 @@ void main(){
   run_benchmarks(10, toList(domain(jobs)));
 }
 
-void main_visit(){
-	run_benchmarks(10, ["BVisit1","BVisit2","BVisit3","BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"]);	
+void main_visit(bool jvm=true){
+    run_benchmarks(10, ["BVisit1","BVisit2","BVisit3","BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"], jvm=jvm); 
 }
 
-void main_fac(){
-	run_benchmarks(10, ["BFac"]);	
+void main_fac(bool jvm=true){
+    run_benchmarks(10, ["BFac"], jvm=jvm);   
 }
 
-void main_fib(){
-    run_benchmarks(10, ["BFib"]);   
+void main_fib(bool jvm=true){
+    run_benchmarks(10, ["BFib"], jvm=jvm);   
 }
 
-void main_marriage(){
-    run_benchmarks(10, ["BMarriage"]);   
+void main_marriage(bool jvm=true){
+    run_benchmarks(10, ["BMarriage"], jvm=jvm);   
 }
 
-void main_sudoku(){
-    run_benchmarks(10, ["BSudoku"]);   
+void main_sudoku(bool jvm=true){
+    run_benchmarks(10, ["BSudoku"], jvm=jvm);   
 }
 
-void main_template(){
-    run_benchmarks(10, ["BTemplate"]);   
+void main_template(bool jvm=true){
+    run_benchmarks(10, ["BTemplate"], jvm=jvm);   
 }
 
-void main_bottles(){
-    run_benchmarks(10, ["BBottles"]);   
+void main_bottles(bool jvm=true){
+    run_benchmarks(10, ["BBottles"], jvm=jvm);   
 }
 
-void main_rsf() {
-    run_benchmarks(10, ["BRSFCalls"]);   
+void main_rsf(bool jvm=true) {
+    run_benchmarks(10, ["BRSFCalls"], jvm=jvm);   
 }
 
-void main_money(){
-	run_benchmarks(10, ["BSendMoreMoney"]);	
+void main_money(bool jvm=true){
+    run_benchmarks(10, ["BSendMoreMoney"], jvm=jvm); 
 }
 
-void main_paper(){
-  main_paper1();
-  main_paper2();
+void main_paper(bool jvm=true){
+  main_paper1(jvm=jvm);
+  main_paper2(jvm=jvm);
 }
 
-void main_paper1(){
+void main_paper1(bool jvm=true){
    run_benchmarks(5, ["BCompareFor","BCompareIf","BCompareComprehension","BExceptions","BEmpty",/*"BExceptionsFinally",*/"BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
-             		  "BOr","BReverse1","BSet1","BSetMatch1","BSetMatch2","BSetMatch3","BWhile","BVisit1","BVisit2","BVisit3"
-             		 ,"BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"
-             	]);
+                      "BOr","BReverse1","BSet1","BSetMatch1","BSetMatch2","BSetMatch3","BWhile","BVisit1","BVisit2","BVisit3"
+                     ,"BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"
+                ], jvm=jvm);
 }
 
-void main_paper2(){
+void main_paper2(bool jvm=true){
    run_benchmarks(5, ["BBottles","BFac","BFib","BMarriage",
-   						//"BRSFCalls",
-   						"BSendMoreMoney",
-   						"BSendMoreMoneyNotTyped",
-   						"BSudoku",
-   						"BTemplate"
-   					 ]);
+                        //"BRSFCalls",
+                        "BSendMoreMoney",
+                        "BSendMoreMoneyNotTyped",
+                        "BSudoku",
+                        "BTemplate"
+                     ], jvm=jvm);
 }
 
-void main_setmatch(){
-   run_benchmarks(10, ["BListMatch1", "BListMatch2", "BListMatch3", "BSetMatch1", "BSetMatch2", "BSetMatch3"]);
+void main_listmatch(bool jvm=true){
+   run_benchmarks(10, ["BListMatch1", "BListMatch2", "BListMatch3"], jvm=jvm);
+}
+
+void main_setmatch(bool jvm=true){
+   run_benchmarks(10, ["BSetMatch1", "BSetMatch2", "BSetMatch3"], jvm=jvm);
 }
 

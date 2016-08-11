@@ -82,8 +82,8 @@ import org.rascalmpl.value.type.TypeFactory;
 		
 		for(IValue elem : elems){
 			updateType(elem);
-			data.append(elem);
 		}
+		data.appendAll(elems);
 	}
 	
 	public void appendAll(Iterable<? extends IValue> collection){
