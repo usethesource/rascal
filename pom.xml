@@ -100,7 +100,6 @@
                             <workingDirectory>target/classes/</workingDirectory>
                             <arguments>
                                 <argument>-Xmx256m</argument>
-                                <argument>-Dfile.encoding=UTF-8</argument>
                                 <argument>-cp</argument>
                                 <classpath/>
                                 <argument>org.rascalmpl.library.experiments.Compiler.Commands.Bootstrap</argument>
