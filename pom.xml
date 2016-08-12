@@ -95,6 +95,7 @@
                 <executions>
                     <execution>
                         <configuration>
+                            <skip>${skipBootstrap}</skip>
                             <executable>java</executable>
                             <classpathScope>compile</classpathScope>
                             <workingDirectory>target/classes/</workingDirectory>
