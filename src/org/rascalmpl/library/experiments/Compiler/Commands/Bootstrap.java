@@ -407,7 +407,7 @@ public class Bootstrap {
     
     private static void runTests(int phase, String classPath, String boot, String sourcePath, Path result) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
         progress("Running tests with the results of " + phase);
-        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
+        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
         String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
 
