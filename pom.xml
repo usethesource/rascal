@@ -15,7 +15,7 @@
     <packaging>jar</packaging>
 
     <scm>
-        <developerConnection>scm:git:https://github.com/cwi-swat/rascal.git</developerConnection>
+        <developerConnection>scm:git:https://github.com/usethesource/rascal.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
@@ -110,7 +110,7 @@
                                 <argument>${project.basedir}/src</argument>
                                 <argument>${project.build.directory}/classes</argument>
                                 <argument>--clean</argument>
-                            </arguments> 
+                            </arguments>
                         </configuration>
                         <id>bootstrap</id>
                         <phase>compile</phase>
@@ -153,8 +153,8 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.11</version>
-        </dependency>   
-        <dependency>        
+        </dependency>
+        <dependency>
             <groupId>org.rascalmpl</groupId>
             <artifactId>value</artifactId>
             <version>0.5.3</version>
@@ -198,7 +198,7 @@
             <groupId>org.tukaani</groupId>
             <artifactId>xz</artifactId>
             <version>1.5</version>
-        </dependency>       
+        </dependency>
         <dependency>
             <groupId>de.ruedigermoeller</groupId>
             <artifactId>fst</artifactId>
@@ -208,12 +208,12 @@
             <groupId>com.atlassian.commonmark</groupId>
             <artifactId>commonmark</artifactId>
             <version>0.3.1</version>
-        </dependency>       
+        </dependency>
         <dependency>
             <groupId>jline</groupId>
             <artifactId>jline</artifactId>
             <version>2.13</version>
-        </dependency>       
+        </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
