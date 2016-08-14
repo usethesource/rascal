@@ -43,6 +43,5 @@
 	<classpathentry kind="lib" path="lib/lucene-queryparser-6.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/value-0.5.3.jar" sourcepath="lib/value-0.5.3-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/html2png.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
