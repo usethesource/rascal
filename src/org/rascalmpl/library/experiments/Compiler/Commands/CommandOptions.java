@@ -65,7 +65,7 @@ enum OptionType {INT, STR, BOOL, LOCS, LOC};
  * <p>
  *     .boolOption("Y").help("and Y too!")
  *     <p>
- *     .rascalModule("Module to analyze")
+ *     .mdule("Module to analyze")
  *     <p>
  *     .handleArgs(args); // the string arguments coming from the command line
  * </code>
@@ -77,14 +77,15 @@ public class CommandOptions {
 	private boolean inCommandOptions = true;
 	private boolean singleModule = true;
 	
-	private IList rascalModules;
-	private String rascalModuleHelp;
+	private IList modules;
+	private int minModules = 0;
+	private int maxModules = 0;
+	private String moduleHelp;
 	
 	protected Options commandOptions;
 	private Options moduleOptions;
 	
 	private String commandName;
-    private boolean noModuleArgument = false;
 	
 	public CommandOptions(String commandName){
 		this.commandName = commandName;
@@ -92,8 +93,8 @@ public class CommandOptions {
 		vf = ValueFactoryFactory.getValueFactory();
 		commandOptions = new Options();
 		moduleOptions = new Options();
-		rascalModules = vf.list();
-		rascalModuleHelp = "Rascal Module";
+		modules = vf.list();
+		moduleHelp = "Rascal Module";
 	}
 	
 	public CommandOptions addOption(Option option){
@@ -230,43 +231,59 @@ public class CommandOptions {
 	/****************************************************************************/
 	
 	/**
-	 * Command has one Rascal Module as argument
+	 * Command has one Module (Rascal Module, Course, ...) as argument
 	 * @param helpText describes the role of the single module argument
 	 * @return this CommandOptions
 	 */
-	public CommandOptions rascalModule(String helpText){
-		singleModule = true;
-		inCommandOptions = false;
-		rascalModuleHelp = helpText;
-		return this;
+	public CommandOptions module(String helpText){
+	    return modules(helpText, 1, 1);
 	}
 	
 	/**
-	 * Get the name of the single Rascal module argument of the command
+	 * Get the name of the single module argument of the command
 	 * @return module name
 	 */
-	public IString getRascalModule(){
-		return (IString) rascalModules.get(0);
+	public IString getModule(){
+		return (IString) modules.get(0);
 	}
 	
 	/**
-	 * Command has one or more Rascal Modules as argument
+	 * Command has one or more Modules as argument
 	 * @param helpText describes the role of the one or more module arguments
 	 * @return this CommandOptions
 	 */
-	public CommandOptions rascalModules(String helpText){
-		singleModule = false;
-		inCommandOptions = false;
-		rascalModuleHelp = helpText;
-		return this;
+	public CommandOptions modules(String helpText){
+	  return modules(helpText, 1, 1000000);
 	}
+	
+	/**
+     * Command has min or more Modules as argument
+     * @param helpText describes the role of the one or more module arguments
+     * @return this CommandOptions
+     */
+    public CommandOptions modules(String helpText, int min){
+      return modules(helpText, min, 1000000);
+    }
+	
+	/**
+     * Command has between min and max Modules as argument
+     * @param helpText describes the role of the one or more module arguments
+     * @return this CommandOptions
+     */
+    public CommandOptions modules(String helpText, int min, int max){
+        minModules = min;
+        maxModules = max;
+        inCommandOptions = false;
+        moduleHelp = helpText;
+        return this;
+    }
 
 	/**
-	 * Get the names of the Rascal module arguments of the command
+	 * Get the names of the module arguments of the command
 	 * @return list of module names
 	 */
-	public IList getRascalModules(){
-		return rascalModules;
+	public IList getModules(){
+		return modules;
 	}
 	
 	/****************************************************************************/
@@ -313,7 +330,7 @@ public class CommandOptions {
 					i += 2;
 				}
 			} else {
-				rascalModules = rascalModules.append(vf.string(args[i]));
+				modules = modules.append(vf.string(args[i]));
 				mainSeen = true;
 				i++;
 			}
@@ -342,12 +359,12 @@ public class CommandOptions {
 		}
 		checkDefaults();
 		
-		if (!noModuleArgument && rascalModules.length() == 0) {
+		if (modules.length() == 0 && minModules > 0) {
 			printUsageAndExit("Missing Rascal module" + (singleModule ? "" : "s"));
-		} else if (noModuleArgument && rascalModules.length() > 0) {
+		} else if (modules.length() > 0 && maxModules == 0) {
 		    printUsageAndExit("No modules expected");
-		} else if(rascalModules.length() > 1 && singleModule) {
-			printUsageAndExit("Duplicate modules defined: " + rascalModules);
+		} else if(modules.length() > maxModules) {
+			printUsageAndExit("Too many modules defined: " + modules);
 		}
 	}
 	
@@ -437,7 +454,7 @@ public class CommandOptions {
 			System.err.printf("%20s  %s\n", option.help(), option.helpText);
 		}
 
-		System.err.printf("%20s  %s\n", singleModule ? " <RascalModule>" : " <RascalModules>", rascalModuleHelp);
+		System.err.printf("%20s  %s\n", singleModule ? " <RascalModule>" : " <RascalModules>", moduleHelp);
 		for(Option option : moduleOptions){
 			System.err.printf("%20s  %s\n", option.help(), option.helpText);
 		}
@@ -551,7 +568,6 @@ public class CommandOptions {
 	}
 
     public CommandOptions noModuleArgument() {
-        noModuleArgument = true;
         return this;
     }
 
