@@ -1,4 +1,4 @@
-# SourceCodeMarkup
+# Source Code Markup
 
 .Synopsis
 Mark up in Rascal source code.
@@ -12,11 +12,13 @@ Mark up in Rascal source code.
 .Usage
 
 .Details
+RemoteConceptMapping
 
 .Description
 
 The mark up of concepts inside Rascal source code requires two steps:
-subtoc[Tutor/Markup/SourceCodeMarkup,1]
+
+loctoc::[1]
 
 .Examples
 

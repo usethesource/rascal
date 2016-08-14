@@ -1,11 +1,12 @@
 # ExternalURL
 
 .Synopsis
-
 Refer to an external URL.
 
 .Syntax
-`[ _Name_ ](_URL_)`
+* `_URL_`
+* `_URL_[_MarkedText_]`
+
 
 .Types
 
@@ -14,12 +15,19 @@ Refer to an external URL.
 .Details
 
 .Description
-Creates a link to an external url.
-_Name_ is displayed in the text, and _URL_ is the destination URL.
-A URL may contain the characters: `:/0-9-a-zA-Z"$\-_.\+!*'(),`.
+Creates a link to an external url _URL_.
+When _MarkedText_ is present, a clickable hyperlink is included with the text _Name_.
+Otherwise _URL_ itself is included as clickable hyperlink.
 
 .Examples
-`[Rascal](http://www.rascal-mpl.org)` gives http://www.rascal-mpl.org[Rascal].
+```
+http://www.rascal-mpl.org
+```
+gives http://www.rascal-mpl.org and
+```
+http://www.rascal-mpl.org[Rascal]
+```
+gives http://www.rascal-mpl.org[Rascal]. Try it!
 
 .Benefits
 
