@@ -1,4 +1,4 @@
-# StructureMarkup
+# Structure Markup
 
 .Synopsis
 
@@ -13,6 +13,9 @@ Markup for structured text entities.
 .Details
 
 .Description
+
+The follwing structured markup is supported:
+loctoc::[]
 
 .Examples
 

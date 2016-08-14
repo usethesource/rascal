@@ -1,14 +1,14 @@
 # Variable
 
 .Synopsis
-
 Markup for a variable.
 
 .Syntax
 
-*  `$ $VarName$ $`
-*  `$ $Varname$ _ $Index$ $`
-*  `$ $Varname$ ^ $Index$ $`
+* `\_VarName_`
+* `\_VarName_\~_Index_~`
+* `\_VarName_\^_Index_^`
+
 
 .Types
 
@@ -17,24 +17,18 @@ Markup for a variable.
 .Details
 
 .Description
-Creates variables in text and code. A variable name may be followed by `_` (or `^`) and an
-index (a number or an identifier) which will be displayed as a subscript (or superscript).
+Variables in text and code are represented by <<Italic>> markup. 
+They may be followed by one or more subscripts (enclosed by `~` and `~`) or superscripts (enclosed by `^` and `^`)
 
 .Examples
-<br>
-#####  Example 1 
 
-`$``Var``$` gives _Var_.
+* `\_Var_` gives _Var_.
 
-#####  Example 2 
+* `\_Var_\~1~` gives _Var_~1~.
 
+* `\_Var_\^1^` gives _Var_^1^.
 
-`$``Var``_1$` gives _Var_~1~.
-
-#####  Example 3 
-
-
-`$``Var``^1$` gives _Var_^1^.
+* `\_Var_\^1^\~2~` gives _Var_^1^~2~.
 
 .Benefits
 

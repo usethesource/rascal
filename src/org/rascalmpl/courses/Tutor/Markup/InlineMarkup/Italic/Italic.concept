@@ -1,11 +1,13 @@
 # Italic
 
 .Synopsis
-
 Create _italic_ text.
 
 .Syntax
-`_ _Text_ _`
+[source,subs="verbatim,quotes"]
+----
+_ _Text_ _
+----
 
 .Types
 
@@ -16,7 +18,7 @@ Create _italic_ text.
 .Description
 
 .Examples
-`_italic_` gives: _italic_.
+`\_italic_` gives: _italic_.
 
 .Benefits
 
