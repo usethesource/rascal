@@ -411,9 +411,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 
 /* Additions for Rascal Tutor */
 
-#searchbox{margin-top:0;background-color:#f8f8f7;position:fixed;margin-left:2px;left:0;top:0em;width:30em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-size:1em;background:transparent;}
-#search{width:19em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-size:1em;}
-#submit{font-family:"Open Sans","DejaVu Sans",sans-serif;font-size:1em;width:5em;background:transparent;border:none;left:16.5em;height:3em;position:fixed;}
+#searchbox{margin-top:0;background-color:#f8f8f7;position:fixed;margin-left:64px;margin-top:10px;left:0;top:0em;width:14em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-size:1em;background:transparent;}
+#search{width:10.2em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-size:1em;}
+#submit{font-family:"Open Sans","DejaVu Sans",sans-serif;font-size:1em;width:5em;background:transparent;border:none;left:11.8em;height:5em;position:fixed;}
 
 .search-input:focus {
   outline: none;
@@ -436,11 +436,18 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 input:-moz-placeholder {
   color: #888
 }
- 
-.search {
+
+#home {
   padding: 0 0px 0 0px; 
   left: 0;
   top: 0;
+  position:fixed;
+}
+ 
+.search {
+  padding: 0 0px 0 0px; 
+  left: 64;
+  top: 24;
   position:fixed;
 }
 
