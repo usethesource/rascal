@@ -137,6 +137,10 @@ public class Concept {
 		"</form>\n";
 	}
 	
+	public static String getHomeLink(){
+	  return "<a href=\"/TutorWebSite/index.html\"><img id=\"home\" src=\"/images/rascal-tutor-small.png\", alt=\"RascalTutor\" width=\"64\" height=\"64\"></a>";
+	}
+	
 	private final String prompt = "rascal>"; //  "+++<span class=\"prompt\" data-value=\"rascal>\"></span>::after+++";
 	private final String continuation = ">>>>>>>"; //"<i class=\"continuation\">::before</i>";
 	
@@ -170,6 +174,7 @@ public class Concept {
 			
 			if(level == 0){
 				preprocessOut.append("\n++++\n");
+				preprocessOut.append(getHomeLink());
 				preprocessOut.append(getSearchForm());
 				preprocessOut.append("++++\n");
 			}
@@ -266,13 +271,26 @@ public class Concept {
 						}
 					}
 					preprocessOut.append("----\n");
-				} else if(line.startsWith("subtoc::[")){
-					Pattern p = Pattern.compile("subtoc::\\[(\\d*)\\]");
+				} else if(line.startsWith("```") || line.startsWith("[source")) {
+				  preprocessOut.append(line).append("\n");
+				  boolean inCode = false;
+				  while((line = reader.readLine()) != null ) {
+				    preprocessOut.append(line).append("\n");
+				    if(line.equals("```") || line.equals("----")){
+				      if(inCode){
+				        break;
+				      } else {
+				        inCode = true;
+				      }
+				    }
+				  }
+				} else if(line.startsWith("loctoc::[")){
+					Pattern p = Pattern.compile("loctoc::\\[(\\d*)\\]");
 					Matcher m = p.matcher(line); 
-					int depth = 0;
+					int depth = 1;
 					if(m.find()){
 						String intStr = m.group(1);
-						depth = intStr.equals("") ? 0 : Integer.parseInt(intStr.substring(0,intStr.length()));
+						depth = intStr.equals("") ? 1 : Integer.parseInt(intStr.substring(0,intStr.length()));
 					}
 					preprocessOut.append(onthology.genSubToc(name, depth, true, details));
 				} else if(line.contains("image:")){

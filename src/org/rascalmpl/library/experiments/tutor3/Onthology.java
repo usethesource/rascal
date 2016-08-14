@@ -356,11 +356,14 @@ public class Onthology {
 		   && subConceptName.startsWith(conceptName) 
 		   && (newLevel - start <= depth)
 		   ){
+		    //System.out.println("genListItemForSubConcept1: " + conceptName +", " + subConceptName + ", " + start + ", " + depth);
 			result.append(bullets(newLevel)).append("<<").append(subConcept.getAnchor()).append(",").append(subConcept.getTitle()).append(">>");
 			if(withSynopsis){
 				result.append(": ").append(subConcept.getSynopsis());
 			}
 			result.append("\n");
+		} else {
+		  //System.out.println("genListItemForSubConcept2: " + conceptName +", " + subConceptName + ", " + start + ", " + depth);
 		}
 	}
 
