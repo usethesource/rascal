@@ -34,7 +34,7 @@ Values of type `node` represent untyped trees and are constructed as follows:
 Nodes can have <<Declarations-Annotation>>s.
 
 The following are provided for nodes:
-subtoc::[1]
+loctoc::[1]
 
 .Examples
 

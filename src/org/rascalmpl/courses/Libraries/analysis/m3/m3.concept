@@ -19,7 +19,7 @@ WARNING: this documentation awaits adaptation of m3 with the Rascal compiler
 
 This is the core language independent model:
 
-subtoc::[1]
+loctoc::[1]
 
 For language-specific support, please go here:
 
