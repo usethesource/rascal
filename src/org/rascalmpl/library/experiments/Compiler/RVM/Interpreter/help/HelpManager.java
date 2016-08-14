@@ -29,6 +29,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.tutor3.Concept;
 import org.rascalmpl.library.experiments.tutor3.Onthology;
 
@@ -40,6 +41,7 @@ public class HelpManager {
 	private final PrintWriter stderr;
 	private IndexSearcher indexSearcher;
 	private final int port = 8000;
+    private HelpServer helpServer;
 
 	public HelpManager(PrintWriter stdout, PrintWriter stderr){
 		this.stdout = stdout;
@@ -57,7 +59,7 @@ public class HelpManager {
 			}
 
 			try {
-				new HelpServer(port, this, Paths.get(coursesDir));
+				helpServer = new HelpServer(port, this, Paths.get(coursesDir));
 				indexSearcher = makeIndexSearcher();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -73,8 +75,12 @@ public class HelpManager {
 			for(Path p : Files.newDirectoryStream(destDir)){
 				if(Files.isDirectory(p) && p.getFileName().toString().matches("^[A-Z].*")){
 					Directory directory = FSDirectory.open(p);
+					try {
 					DirectoryReader ireader = DirectoryReader.open(directory);
 					readers.add(ireader);
+					} catch (IOException e){
+					  stderr.println("Skipping index " + directory);
+					}
 				}
 			}
 			return readers;
@@ -227,6 +233,7 @@ public class HelpManager {
 		w.append("</head>\n");
 		w.append("<body class=\"book toc2 toc-left\">");
 		
+		w.append(Concept.getHomeLink());
 		w.append(Concept.getSearchForm());
 		
 		w.append("<div id=\"toc\" class=\"toc2\">");
@@ -297,4 +304,12 @@ public class HelpManager {
 		}
 		return w.toString();
 	}
+	
+	public static void main(String[] args) throws IOException, NoSuchRascalFunction, URISyntaxException, InterruptedException {
+	  HelpManager hm = new HelpManager(new PrintWriter(System.out), new PrintWriter(System.err));
+	  Thread.sleep(500);
+	  hm.openInBrowser(new URI("http://localhost:" + hm.port + "/TutorWebSite/index.html"));
+	  Thread.sleep(300000);
+	}
+
 }
