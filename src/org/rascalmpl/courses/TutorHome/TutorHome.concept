@@ -19,14 +19,16 @@ Beginner          | Moderate | Advanced | General
 - link:/Libraries[Rascal Library Reference]
 - link:{Errors}[Explanation of error messages]
 
+|
 [square]
-| link:/Tutor[RascalTutor]
+- link:/Tutor[RascalTutor]
+- link:https://github.com/usethesource/rascal/wiki[Rascal Wiki]
 
 |
 [square]
 - link:http://www.rascal-mpl.org[Rascal Home Page]
-- link:https://github.com/usethesource/rascal[Rascal at GitHub]
-- link:https://github.com/usethesource/rascal/issues[Issue tracker at GitHub]
-- link:http://stackoverflow.com/questions/tagged/rascal[Rascal at StackOverflow]
+- link:https://github.com/usethesource/rascal[Rascal @ GitHub]
+- link:https://github.com/usethesource/rascal/issues[Issue tracker @ GitHub]
+- link:http://stackoverflow.com/questions/tagged/rascal[Rascal @ StackOverflow]
 
 |===
