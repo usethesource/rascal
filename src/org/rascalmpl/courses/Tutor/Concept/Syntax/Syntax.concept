@@ -1,11 +1,14 @@
 # Syntax
 
 .Synopsis
-
 Part of the synopsis that summarizes syntax introduced by this concept.
 
 .Syntax
-`Syntax: _MarkedText_`
+[source,subs="verbatim,quotes"]
+----
+.Syntax
+_MarkedText_
+----
 
 .Types
 
@@ -15,18 +18,17 @@ Part of the synopsis that summarizes syntax introduced by this concept.
 
 .Description
 The syntax section is intended to describe syntactic aspects of language constructs.
-The contents of this section are arbitrary text, but literal text is treated specially:
-
-*  it is displayed in a separate box.
-*  all literal text that is not a variable is included in the search index.
+The contents of this section are arbitrary text.
 
 
 .Examples
 The syntax section for an if-then statement can be written as:
 
-`Syntax: `\`if ( __Exp__ ) __Statement__;`\`
-
-only `if`, `(`, `)` and `;` will be added to the search index.
+[source,subs="verbatim"]
+----
+.Syntax
+`if ( _Exp_ ) _Statement_;`
+----
 
 .Benefits
 

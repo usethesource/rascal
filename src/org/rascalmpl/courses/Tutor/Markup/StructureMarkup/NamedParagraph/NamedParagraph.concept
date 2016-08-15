@@ -1,15 +1,13 @@
 # NamedParagraph
 
 .Synopsis
-
 Mark up for a named paragraph.
 
 .Syntax
 
-#  `==$ParagraphName$==`
-#  `===$ParagraphName$===`
-#  `====$ParagraphName$====`
-#  ...
+*  `## _ParagraphName_`
+*  `\### _ParagraphName_`
+*  ...
 
 .Types
 
@@ -18,20 +16,20 @@ Mark up for a named paragraph.
 .Details
 
 .Description
-A NamedParagraph produces a named paragraph of a level that is determined by the number of `=` characters surrounding the _ParagraphName_.
+A NamedParagraph produces a named paragraph of a level that is determined by the number of `#` characters preceding the _ParagraphName_.
 
 .Examples
 The input:
 
-`==Level 1 Paragraph==`
+`## Paragraph`
 
-will give<br>
+will give
 
-## Level 1 Paragraph
-
+## Paragraph
 
 .Benefits
 
 .Pitfalls
-A NamedParagraph should start at the start of a line.
+* NamedParagraphs have at least two hash signs (`##`). A single hash is reserved for the Concept level.
+* A NamedParagraph should start at the start of a line.
 

@@ -1,11 +1,14 @@
 # Description
 
 .Synopsis
-
-Gives a concise explanation of the concept.
+Gives a concise explanation of a concept.
 
 .Syntax
-`Description: _MarkedText_`
+[source,subs="verbatim,quotes"]
+----
+.Description
+_MarkedText_
+----
 
 .Types
 
@@ -14,12 +17,16 @@ Gives a concise explanation of the concept.
 .Details
 
 .Description
+The `Description` section gives a concise explanation of a concept.
 
 .Examples
-The `Description` section of this concept page reads as follows:
+The `Description` section of the concept `Description` (= the previous section) reads as follows:
 
-`Description:`
-`The ``Description`` section gives a concise explanation of the concept.
+[source,subs="verbatim,quotes"]
+----
+.Description
+The `Description` section gives a concise explanation of a concept.
+----
 
 .Benefits
 

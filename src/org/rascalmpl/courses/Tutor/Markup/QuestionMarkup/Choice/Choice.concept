@@ -1,15 +1,14 @@
 # Choice
 
 .Synopsis
-
 Multiple-choice question.
 
 .Syntax
-[source,rascal]
+[source,subs="quotes"]
 ----
-QChoice$OptName$: $MarkedText$ 
-$GoodOrBad_1$: $Choice_1$
-$GoodOrBad_2$: $Choice_2$
+QChoice _OptName_: _MarkedText_ 
+_GoodOrBad_~1~: _Choice_~1~
+_GoodOrBad_~2~: _Choice_~2~
 ...
 ----
 

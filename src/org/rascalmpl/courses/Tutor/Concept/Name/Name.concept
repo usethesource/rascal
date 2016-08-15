@@ -1,11 +1,13 @@
 # Name
 
 .Synopsis
-
-The name of a concept.
+The display (presentation) name of a concept.
 
 .Syntax
-`Name: _ConceptName_` (*mandatory*)
+[source,subs="verbatim,quotes"]
+----
+# _ConceptName_
+----
 
 .Types
 
@@ -14,20 +16,26 @@ The name of a concept.
 .Details
 
 .Description
-Name defines the _short_ name of a concept. A name starts with a letter and may contain letters and digits. Concept names are used to
+A concept has actually three names:
 
-*  Identify a concept: The _full name_ of a concept is the path name from the root concept to the current concept.
-*  Refer to other concepts: when unambiguous the short name can be used to refer to another concept, otherwise a sufficient part of the concept name has to be given to make it unambiguous.
+* Its file name, i.e., the name of the `.concept` file in which the concept is described.
+* Its _full_ name, the path name from the root concept to the current concept file.
+* Its displayed name, its name  as its appears as section heading and in the table of contents.
 
+Name defines the presentation name of a concept and may be an arbitrary text. Concept names are used to
+refer to other concepts: when unambiguous its file name or display name can be used to refer to another concept, 
+otherwise a sufficient part of its full name has to be given to make it unambiguous.
 
 Name is *mandatory*.
 
 .Examples
 The first line of this concept is:
 
-`Name: Name`
-
-Note that the displayed name `Tutor/Concept/Name` has been generated automatically.
+[source,subs="verbatim,quotes"]
+----
+.Name
+Name
+----
 
 .Benefits
 

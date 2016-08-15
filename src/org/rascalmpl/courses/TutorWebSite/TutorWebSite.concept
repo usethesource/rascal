@@ -6,18 +6,27 @@ Beginner          | Moderate | Advanced | General
 
 |
 [square]
-- link:/EASY[EASY]
-- link:/SolutionStrategies[Solution Strategies]
-- link:/CompareWithOtherParadigms[Compare with other Paradigms]
+- link:/WhyRascal[Why Rascal?]
+- link:/GettingStarted[Getting Started]
 - link:/Rascalopedia[Rascalopedia]
 - link:/Recipes[Rascal Recipes]
-- link:{Errors}[Explanation of error messages]
+- link:/GettingHelp[Getting Help]
 
 |
 [square]
+- link:/RascalConcepts[Rascal Language Concepts]
 - link:/Rascal[Rascal Language Reference]
 - link:/Libraries[Rascal Library Reference]
-| TBD
-| TBD
+- link:{Errors}[Explanation of error messages]
+
+[square]
+| link:/Tutor[RascalTutor]
+
+|
+[square]
+- link:http://www.rascal-mpl.org[Rascal Home Page]
+- link:https://github.com/usethesource/rascal[Rascal at GitHub]
+- link:https://github.com/usethesource/rascal/issues[Issue tracker at GitHub]
+- link:http://stackoverflow.com/questions/tagged/rascal[Rascal at StackOverflow]
 
 |===
