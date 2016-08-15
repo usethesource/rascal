@@ -19,7 +19,7 @@ Mathematical functions.
 
 The `Math` library provides the following functions:
 
-subtoc::[1]
+loctoc::[1]
 }
 module util::Math
 

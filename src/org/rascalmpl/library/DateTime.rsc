@@ -16,7 +16,7 @@ Library functions for date and time.
 For operators on `datetime` see link:/Rascal#Values-DateTime[DateTime] in the Rascal Language Reference.
 
 The following functions are defined for datetime:
-subtoc::[1]
+loctoc::[1]
 }
 module DateTime
 

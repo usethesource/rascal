@@ -21,7 +21,7 @@ Priority queues maintain (priority, value) pairs in sorted order. They are imple
 http://en.wikipedia.org/wiki/Binomial_heap[Binomial Heap]. Priority queue are, for instance, used to implement shortest path algorithms.
 
 Provides the following functions:
-subtoc::[1]
+loctoc::[1]
 
 .Examples
 

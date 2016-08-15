@@ -12,7 +12,7 @@ Descriptive Statistics.
 .Description
 Provides the following univariate (single variable) statistics functions:
 
-subtoc::[1]
+loctoc::[1]
 
 .Examples
 
