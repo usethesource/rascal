@@ -205,11 +205,6 @@
             <version>2.43</version>
         </dependency>
         <dependency>
-            <groupId>com.atlassian.commonmark</groupId>
-            <artifactId>commonmark</artifactId>
-            <version>0.3.1</version>
-        </dependency>
-        <dependency>
             <groupId>jline</groupId>
             <artifactId>jline</artifactId>
             <version>2.13</version>
