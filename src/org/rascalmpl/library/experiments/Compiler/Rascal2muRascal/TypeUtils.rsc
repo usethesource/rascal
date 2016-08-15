@@ -309,7 +309,7 @@ void extractScopes(Configuration c){
 
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
-      //println("<uid>: <item>");
+      println("<uid>: <item>");
       switch(item){
         case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
          	 //println("<uid>: <item>, scope: <inScope>");
@@ -761,19 +761,19 @@ void extractConstantDefaultExpressions(){
     
      for(tp <- config.dataKeywordDefaults){
         uid = tp[0];
-        //println("uid = <uid>");
+        println("uid = <uid>");
         dt = config.store[uid];
-        //println("dt = <dt>");
+        println("dt = <dt>");
         if(dt is datatype){             // Note: for now productions cannot have keyword fields
            the_adt = dt.rtype;
            kwParamMap = dt.keywordParams;
-           //println("kwParamMap = <kwParamMap>");
+           println("kwParamMap = <kwParamMap>");
            if(kwParamMap != ()){
                if(constructorFields[the_adt]?){
                   fieldsForAdt = constructorFields[the_adt];
-                  //println("fieldsForAdt: <fieldsForAdt>");
+                  println("fieldsForAdt: <fieldsForAdt>");
                   kwNames = {prettyPrintName(kwn) | kwn <- domain(kwParamMap)};
-                  //println("domain(kwParamMap): <kwNames>");
+                  println("domain(kwParamMap): <kwNames>");
                   constructorFields[the_adt] = (c : fieldsForAdt[c] + kwNames | c <- fieldsForAdt);
                }
            }
@@ -785,12 +785,12 @@ void extractConstantDefaultExpressions(){
      for(tp <- config.dataKeywordDefaults){
          uid = tp[0];
          the_constructor = config.store[uid];   // either constructor or datatype
-         //println("the_constructor: <the_constructor>");
-         //println("the_constructor.rtype: <the_constructor.rtype>");
+         println("the_constructor: <the_constructor>");
+         println("the_constructor.rtype: <the_constructor.rtype>");
         if(!(the_constructor is datatype)){
              
              Symbol the_adt = (the_constructor.rtype has adt) ? the_constructor.rtype.\adt : the_constructor.rtype;
-             //println("the_adt = <the_adt>");
+             println("the_adt = <the_adt>");
              str the_cons = the_constructor.rtype.name;
              str fieldName = prettyPrintName(tp[1]);
              
@@ -799,7 +799,7 @@ void extractConstantDefaultExpressions(){
              adtFieldMap[the_cons] = fieldSet + fieldName;
              constructorFields += (the_adt : adtFieldMap);
              
-             //println("added: <the_adt>, <adtFieldMap>");
+             println("added: <the_adt>, <adtFieldMap>");
              
              defaultVal = tp[2];
              if(Expression defaultExpr := defaultVal &&  defaultExpr is literal){
@@ -817,8 +817,8 @@ void extractConstantDefaultExpressions(){
              } 
          }
     }
-    //println("constructorConstantDefaultExpressions");
-    //println(constructorConstantDefaultExpressions);
+    println("constructorConstantDefaultExpressions");
+    println(constructorConstantDefaultExpressions);
   
 }
 
@@ -876,14 +876,15 @@ int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
 
 // Get the type of an expression as Symbol
 Symbol getType(loc l) {
-   
+   println("getType(<l>)");
     if(config.locationTypes[l]?){
+        println("getType(<l>) = <config.locationTypes[l]>");
     	return config.locationTypes[l];
     }
     //////l = normalize(l);
     iprintln(config.locationTypes);
     assert config.locationTypes[l]? : "getType for <l>";
-	//println("getType(<l>) = <config.locationTypes[l]>");
+	println("getType(<l>) = <config.locationTypes[l]>");
 	return config.locationTypes[l];
 }	
 

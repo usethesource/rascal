@@ -17,7 +17,7 @@ Library functions for input/output.
 .Description
 
 The following input/output functions are defined:
-subtoc::[1]
+loctoc::[1]
 }
 module IO
 

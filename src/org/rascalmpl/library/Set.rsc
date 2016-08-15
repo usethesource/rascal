@@ -19,7 +19,7 @@ Library functions for sets.
 For operators on sets see link:/Rascal#Values-Set[Set] in the Rascal Language Reference.
 
 The following functions are defined for sets:
-subtoc::[1]
+loctoc::[1]
 }
 module Set
 

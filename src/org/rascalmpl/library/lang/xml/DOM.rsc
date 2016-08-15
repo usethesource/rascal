@@ -23,7 +23,7 @@ way of representing and manipulating HTML, XHTML and XML documents.
 
 The following functions are provided:
 
-subtoc::[1]
+loctoc::[1]
 }
 
 module lang::xml::DOM

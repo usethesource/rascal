@@ -19,7 +19,7 @@ Library functions for strings.
 For operators on strings see link:/Rascal#Values-String[String] in the Rascal Language Reference.
 
 The following functions are defined for strings:
-subtoc::[1]
+loctoc::[1]
 }
 module String
 

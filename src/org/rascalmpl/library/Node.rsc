@@ -16,7 +16,7 @@ Library functions for nodes.
 For operators on nodes see link:/Rascal#Values-Node[Node] in the Rascal Language Reference.
 
 The following functions are defined for nodes:
-subtoc::[1]
+loctoc::[1]
 }
 module Node
 
