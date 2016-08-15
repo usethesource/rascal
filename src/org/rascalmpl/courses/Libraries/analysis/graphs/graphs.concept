@@ -19,7 +19,7 @@ Graphs are represented as relations. So in general the idea is to use the `Relat
 At the same time there are algorithms and analyses which make particular sense when we view a relation as a graph, hence the
 existence of the `Graph` and `LabeledGraph` libraries.
 
-subtoc::[1]
+loctoc::[1]
 
 .Examples
 

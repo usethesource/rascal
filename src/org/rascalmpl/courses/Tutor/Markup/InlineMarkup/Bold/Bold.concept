@@ -1,11 +1,13 @@
 # Bold
 
 .Synopsis
-
 Create *bold* text.
 
 .Syntax
-`__ _Text_ __`
+[source,subs="verbatim,quotes"]
+----
+\*_Text_*
+----
 
 .Types
 
@@ -16,7 +18,7 @@ Create *bold* text.
 .Description
 
 .Examples
-`__bold__` gives *bold*.
+`\*bold*` gives *bold*.
 
 .Benefits
 

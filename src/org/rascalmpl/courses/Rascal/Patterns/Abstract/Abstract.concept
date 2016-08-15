@@ -31,7 +31,7 @@ Abstract patterns.
 
 .Description
 An abstract pattern is recursively defined and may contain the following elements:
-subtoc::[1]
+loctoc::[1]
 
 .Examples
 

@@ -17,7 +17,7 @@ For
 
 `Prelude` provides the following:
 
-subtoc::[2]
+loctoc::[2]
 
 .Benefits
 This library makes it possible to import all core Rascal functionality with a single import.

@@ -1,15 +1,13 @@
-# BulletLists
+# Bullet Lists
 
 .Synopsis
-
 A (possible nested) list of bullet points.
 
 .Syntax
-
-#  `* $MarkedText$`
-#  `** $MarkedText$`
-#  `*** $MarkedText$`
-#  ...
+*  `* _MarkedText_`
+*  `** _MarkedText_`
+*  `\*** _MarkedText_`
+*  ...
 
 .Types
 
@@ -18,22 +16,25 @@ A (possible nested) list of bullet points.
 .Details
 
 .Description
-BulletLists create, possibly nested, lists of points.
+Bullet lists create, possibly nested, lists of points.
 The number of `*` characters determines the nesting level of a (sub)list.
 
 A list item ends with:
 
 *  the start of a new list item.
-*  to consecutive empty lines.
+*  an empty line.
 
-
-BulletLists and <<NumberedLists>> can be mixed.
+Bullet Lists and <<Numbered Lists>> can be mixed.
+See http://asciidoctor.org/docs/user-manual/#unordered-lists for the precise rules.
 
 .Examples
-The input<br>
+The input
 
-`* First item.`<br>
-`* Second item.`
+[source]
+----
+* First item.
+* Second item.
+----
 
 will produce:
 
@@ -41,22 +42,25 @@ will produce:
 *  Second item.
 
 
-The input<br>
+The input
 
-`* First item.`<br>
-`** First subitem.`<br>
-`** Second subitem.`<br>
-`* Second item`
+[source]
+----
+* First item.
+  ** First subitem.
+  ** Second subitem.
+* Second item.
+----
 
 will produce:
 
 *  First item.
-**  First subitem.
-**  Second subitem.
-*  Second item
+   **  First subitem.
+   **  Second subitem.
+*  Second item.
 
 .Benefits
 
 .Pitfalls
-Do not forget to add two newlines after a BulletList, otherwise the new paragraph becomes part of the last list item.
+An empty line is required before and after a BulletList.
 

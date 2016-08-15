@@ -1,15 +1,18 @@
 # Table
 
 .Synopsis
-
 Mark up for a table.
 
 .Syntax
-[source,rascal]
+[source,subs="quotes"]
 ----
-| $Header_1$ | $Header_2$ | ... |
-|---------|---------| ... |
-| $Entry_1$  | $Entry_2$  | ... |
+|===
+| _Header_~1~ | _Header_~2~ | ...
+
+| _Entry_~11~  | _Entry_~12~  | ...
+
+| _Entry_~21~  | _Entry_~22~  | ...
+|===
 ----
 
 .Types
@@ -19,95 +22,104 @@ Mark up for a table.
 .Details
 
 .Description
-Each line in a table description starts and ends with a `|` character which is also used to separate columns.
 
-A table description consists of:
-
-*  A line of headers that will be displayed as column names.
-*  A line with separators that can optionally specify column alignment.
-  The default case is that each column is described by one or more `-` characters. This corresponds to centered alignment.
-  Left alignment is described by a column description that starts with a `:` character and right alignment by
-  a column description that end with a `:` character.
-*  Lines given the table entries, separated by `|` characters.
+The simplest table starts and ends with `|===`, each row is separetd by an empty line and each column starts with `|`.
+There are, hwoever, other formats and options to specify the formatting of cells and columns.
+See http://asciidoctor.org/docs/user-manual/#tables for details.
 
 .Examples
-<br>
 
-#####  Example 1 
-
+##  Example 1 
 
 [source,rascal]
 ----
-| A |  B  | C |
-|---|-----|---|
-| 12| 123 | 2 |
+|===
+| A  | B  | C
+
+| 11 | 12 | 13
+| 21 | 22 | 23
+|===
 ----
 
 gives:
 
-|====
-| A | B  | C |
-|---|----|---|
-| 12| 123| 2 |
-|====
+|===
+| A  | B  | C
 
-#####  Example 2 
+| 11 | 12 | 13
+| 21 | 22 | 23
+|===
 
+##  Example 2 
 
-[source,rascal]
-----
-| A |  B  | C |
-|---|:----|---|
-| 12| 123 | 2 |
-----
-
-gives (with column B left-aligned):
-
-|====
-| A | B   | C |
-|---|:----|---|
-| 12| 123 | 2 |
-|====
-
-#####  Example 3 
-
+A column specification may precede the table and specifies the number of columns with default alignment (left) and with
+specified alignment: left (`<`), centered (`^`) or right (`>`).
 
 [source,rascal]
 ----
-| A |  B   | C |
-|---|-----:|---|
-| 12| 123  | 2 |
+[cols="1*,^,1*"]
+|===
+| A  | B  | C
+
+| 11 | 12 | 13
+| 21 | 22 | 23
+|===
 ----
 
-gives (with column B right-aligned):
+gives (with column B centered):
 
-|====
-| A | B    | C |
-|---|-----:|---|
-| 12| 123  | 2 |
-|====
+[cols="1*,^,1*"]
+|===
+| A  | B  | C
 
-#####  Example 4 
+| 11 | 12 | 13
+| 21 | 22 | 23
+|===
 
+##  Example 3 
 
 [source,rascal]
 ----
-| Operator   | Description |
-|:-----------|:------------|
-| `$A$ | $B$` | Or operator |
+[cols="2*,>"]
+|===
+| A  | B  | C
+
+| 11 | 12 | 13
+| 21 | 22 | 23
+|===
 ----
 
-gives (note the `|` character in one table entry):
+gives (with column C right-aligned):
 
-|====
-| Operator   | Description |
-|:-----------|:------------|
-| `$A$ | $B$`   \ \ \ \ \ \      | Or operator |
-|====
+[cols="2*,>"]
+|===
+| A  | B  | C
 
+| 11 | 12 | 13
+| 21 | 22 | 23
+|===
 
+##  Example 4 
+
+[source,rascal]
+----
+|===
+| Operator    | Description
+
+| `_A_ \| _B_` | Or operator
+|===
+----
+
+gives (note the escaped `|` character in one table entry):
+
+|===
+| Operator    | Description
+
+| `_A_ \| _B_` | Or operator
+|===
 
 .Benefits
+Table formatting are versatile and include, sizing, subtables, column spans, and more, see  http://asciidoctor.org/docs/user-manual/#tables.
 
 .Pitfalls
 

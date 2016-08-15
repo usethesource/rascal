@@ -1,11 +1,14 @@
 # Examples
 
 .Synopsis
-
 Examples to illustrate the concept.
 
 .Syntax
-`Examples:  _MarkedText_` (*recommended*)
+[source,subs="verbatim,quotes"]
+----
+.Examples
+_MarkedText_
+----
 
 .Types
 

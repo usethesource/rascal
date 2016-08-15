@@ -1,36 +1,72 @@
 # Concept
 
 .Synopsis
-
 A _concept_ is the basic building block of a course.
 
 .Syntax
-<br>
-`Name: _ConceptName_` (*mandatory*)
 
-`Synopsis:  _MarkedText_` (*mandatory*)
+[source,subs="verbatim,quotes"]
+----
+# _ConceptName_
+----
 
-`Syntax: _MarkedText_`
+[source,subs="verbatim,quotes"]
+----
+.Synopsis
+_MarkedText_
+----
 
-`Types:  _MarkedText_`
+[source,subs="verbatim,quotes"]
+----
+.Syntax
+_MarkedText_
+----
 
-`Function:  _MarkedText_`
+[source,subs="verbatim,quotes"]
+----
+.Types
+_MarkedText_
+----
 
-`Details: _ConceptName_~1~ _ConceptName_~2~ ...`
+[source,subs="verbatim,quotes"]
+----
+.Function
+_MarkedText_
+----
 
-`Description:  _MarkedText_`
+[source,subs="verbatim,quotes"]
+----
+.Details
+_ConceptNames_
+----
 
-`Examples:  _MarkedText_` (*recommended*)
+[source,subs="verbatim,quotes"]
+----
+.Description
+_MarkedText_
+----
 
-`Benefits:  _MarkedText_`
+[source,subs="verbatim,quotes"]
+----
+.Examples
+_MarkedText_
+----
 
-`Pitfalls:  _MarkedText_`
+[source,subs="verbatim,quotes"]
+----
+.Benefits
+_MarkedText_
+----
 
-`Questions: _Question_~1~, _Question_~2~` (*recommended*)
 
-Name and Synopsis are mandatory, the others are optional.
-It is recommended to give examples and questions.
+[source,subs="verbatim,quotes"]
+----
+.Pitfalls
+_MarkedText_
+----
 
+The first two sections (Name and Synopsis) are mandatory, the others are optional.
+It is recommended to give examples.
 
 .Types
 
@@ -43,10 +79,10 @@ Name Synopsis Syntax Types Function Details Description Examples Benefits Pitfal
 A concept describes a separate entity (idea, artefact, function, rule) that is relevant in the scope of the course in which it appears.
 It consists of 11 named sections that are described separately. 
 Each section starts with a keyword that should appear at the begin of a line.
-Only the `Name` section is mandatory.
+The first two sections (Name and Synopsis) are mandatory,
 
-Here is a brief summary of the secions of a concept:
-subtoc[Tutor/Concept,1]
+Here is a brief summary of the sections of a concept:
+loctoc::[3]
 
 
 .Examples
@@ -54,4 +90,7 @@ subtoc[Tutor/Concept,1]
 .Benefits
 
 .Pitfalls
+
+* Note that all section names start with a period, e.g., `.Examples`.
+* No space is allowed before the section name.
 

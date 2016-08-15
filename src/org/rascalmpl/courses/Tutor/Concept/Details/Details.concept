@@ -1,11 +1,14 @@
 # Details
 
 .Synopsis
-
-Links to more detailed concepts that complement the description of the current concept.
+Explcitly order the subconcepts of the current concept.
 
 .Syntax
-`Details: _ConceptName_~1~, _ConceptName_~2~, ...`
+[source,subs="verbatim,quotes"]
+----
+.Details
+_ConceptNames_
+----
 
 .Types
 
@@ -26,7 +29,11 @@ in alphabetical order.
 In <<Concept>> we want to order the details in the order as they appear in the concept description.
 Its `Details` section is therefore:
 
-`Details: Name Details Syntax Types Function Synopsis Description Examples Benefits Pitfalls Questions`
+[source,subs="verbatim,quotes"]
+----
+.Details
+Name Details Syntax Types Function Synopsis Description Examples Benefits Pitfalls Questions
+----
 
 .Benefits
 
