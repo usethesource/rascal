@@ -240,7 +240,7 @@ public class Concept {
 							line += "\n";
 						}
 						String resultOutput = "";
-						System.err.println(line);
+//						System.err.println(line);
 						try {
 //							if(!isFigure){
 								resultOutput = executor.evalPrint(line);
