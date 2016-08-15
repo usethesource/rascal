@@ -16,7 +16,7 @@ Library functions for relations.
 For operators on relations see link:/Rascal#Values-Relation[Relation] in the Rascal Language Reference.
 
 The following functions are defined for relations:
-subtoc::[1]
+loctoc::[1]
 }
 module Relation
 

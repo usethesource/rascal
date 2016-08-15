@@ -12,7 +12,7 @@ Statistical inference methods.
 .Description
 
 The following functions are provided:
-subtoc::[1]
+loctoc::[1]
 }
 module analysis::statistics::Inference
 
