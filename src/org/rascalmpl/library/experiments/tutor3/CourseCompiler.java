@@ -236,21 +236,6 @@ public class CourseCompiler {
 				compileCourse(coursesSrcPath, ((IString)iCourseName).getValue(), destPath, libPath, executor);
 			}
 		}
-
-//		compileCourse(coursesSrcPath, "ADocTest", destPath, libPath, executor);
-//		
-//		compileCourse(coursesSrcPath, "WhyRascal", destPath, libPath, executor);
-//		compileCourse(coursesSrcPath, "GettingStarted", destPath, libPath, executor);
-//		compileCourse(coursesSrcPath, "GettingHelp", destPath, libPath, executor);
-//		
-//		compileCourse(coursesSrcPath, "Errors", destPath, libPath, executor);
-//		compileCourse(coursesSrcPath, "Rascal", destPath, libPath, executor);
-//		compileCourse(coursesSrcPath, "RascalConcepts", destPath, libPath, executor);
-//		compileCourse(coursesSrcPath, "Libraries", destPath, libPath, executor);
-//		compileCourse(coursesSrcPath, "Rascalopedia", destPath, libPath, executor);
-//		compileCourse(coursesSrcPath, "Recipes", destPath, libPath, executor);
-//		compileCourse(coursesSrcPath, "TutorWebSite", destPath, libPath, executor);
-		
 		
 		err.flush();
 		writeFile(destPath + "/course-compilation-errors.txt", sw.toString());

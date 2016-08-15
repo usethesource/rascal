@@ -59,7 +59,7 @@ public class HelpManager {
 			}
 
 			try {
-				helpServer = new HelpServer(port, this, Paths.get(coursesDir));
+				helpServer = new HelpServer(getPort(), this, Paths.get(coursesDir));
 				indexSearcher = makeIndexSearcher();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -136,7 +136,7 @@ public class HelpManager {
 	
 	void appendHyperlink(StringWriter w, String conceptName){
 		w.append("<a href=\"http://localhost:");
-		w.append(String.valueOf(port));
+		w.append(String.valueOf(getPort()));
 		appendURL(w, conceptName);
 		w.append("\">").append(conceptName).append("</a>");
 	}
@@ -157,7 +157,7 @@ public class HelpManager {
 			if(i < words.length - 1) w.append(" ");
 		}
 		String encoded = URLEncoder.encode(w.toString(), "UTF-8");
-		return new URI("http", "localhost:" + port + "/Search?searchFor=" + encoded, null);
+		return new URI("http", "localhost:" + getPort() + "/Search?searchFor=" + encoded, null);
 	}
 	
 	public void handleHelp(String[] words){
@@ -308,8 +308,12 @@ public class HelpManager {
 	public static void main(String[] args) throws IOException, NoSuchRascalFunction, URISyntaxException, InterruptedException {
 	  HelpManager hm = new HelpManager(new PrintWriter(System.out), new PrintWriter(System.err));
 	  Thread.sleep(500);
-	  hm.openInBrowser(new URI("http://localhost:" + hm.port + "/TutorWebSite/index.html"));
+	  hm.openInBrowser(new URI("http://localhost:" + hm.getPort() + "/TutorWebSite/index.html"));
 	  Thread.sleep(300000);
 	}
+
+  public int getPort() {
+    return port;
+  }
 
 }
