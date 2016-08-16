@@ -12,7 +12,7 @@ public class Tutor {
 	
 	public static void main(String[] args) throws IOException, NoSuchRascalFunction, URISyntaxException, InterruptedException {
 	  HelpManager hm = new HelpManager(new PrintWriter(System.out), new PrintWriter(System.err));
-	  Thread.sleep(500);
+	  //Thread.sleep(500);
 	  hm.openInBrowser(new URI("http://localhost:" + hm.getPort() + "/TutorHome/index.html"));
 	  Thread.sleep(864000000);  // a hack a day keeps the doctor away (and the debugger close)
 	}
