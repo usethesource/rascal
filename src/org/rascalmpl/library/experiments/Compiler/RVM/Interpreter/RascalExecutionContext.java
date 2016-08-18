@@ -108,11 +108,13 @@ public class RascalExecutionContext implements IRascalMonitor {
 	StringBuilder templateBuilder = null;
 	private final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
 	private IListWriter test_results;
+	private final ISourceLocation kernel;
 	
 	
 	
 	public RascalExecutionContext(
 			IValueFactory vf, 
+			ISourceLocation kernel,
 			PrintWriter stdout, 
 			PrintWriter stderr, 
 			IMap moduleTags, 
@@ -132,6 +134,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	){
 		
 		this.vf = vf;
+		this.kernel = kernel;
 		this.moduleTags = moduleTags;
 		this.symbol_definitions = symbol_definitions;
 		this.typeStore = typeStore == null ? RascalValueFactory.getStore() /*new TypeStore()*/ : typeStore;
@@ -184,9 +187,12 @@ public class RascalExecutionContext implements IRascalMonitor {
 		}
 		
 		parsingTools = new ParsingTools(vf);
-		
 	}
 	
+	public ISourceLocation getKernel() {
+      return kernel;
+    }
+    
 	// Cache related methods
 	
 	

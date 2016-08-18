@@ -77,7 +77,7 @@ public class RascalC {
 
             .handleArgs(args);
 
-            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory())
+            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), cmdOpts.getCommandLocOption("boot"))
                     .customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
                     .setTrace(cmdOpts.getCommandBoolOption("trace"))
                     .setProfile(cmdOpts.getCommandBoolOption("profile"))

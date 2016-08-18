@@ -19,7 +19,7 @@ public class Fac {
 	
 	public Fac (IValueFactory vf) throws IOException {
 	    this.vf = vf;
-	    RVMCore rvm = ExecutionTools.initializedRVM(URIUtil.correctLocation("std", "", "experiments/Compiler/Examples/Fac.rvm.ser.gz"));
+	    RVMCore rvm = ExecutionTools.initializedRVM(URIUtil.rootLocation("boot"), URIUtil.correctLocation("std", "","experiments/Compiler/Examples/Fac.rvm.ser.gz"));
         this.facProgram = rvm.asInterface(IFac.class);
 	}
 
