@@ -851,9 +851,37 @@ class ReaderStack<Elem> {
 	
 	@SuppressWarnings("unchecked")
 	public Elem[] getChildren(Elem[] target){
+	    if (target.length == 0) {
+	        return target;
+	    }
 	    int from = sp - target.length;
 	    if(from >= 0){
-	        System.arraycopy(elements, from, target, 0, target.length);
+	        final Object[] elements = this.elements;
+	        switch(target.length) {
+	            // unrolled arrayCopy for the small arities
+	            case 1:
+	                target[0] = (Elem) elements[from + 0];
+	                break;
+	            case 2:
+	                target[0] = (Elem) elements[from + 0];
+	                target[1] = (Elem) elements[from + 1];
+	                break;
+	            case 3:
+	                target[0] = (Elem) elements[from + 0];
+	                target[1] = (Elem) elements[from + 1];
+	                target[2] = (Elem) elements[from + 2];
+	                break;
+	            case 4:
+	                target[0] = (Elem) elements[from + 0];
+	                target[1] = (Elem) elements[from + 1];
+	                target[2] = (Elem) elements[from + 2];
+	                target[3] = (Elem) elements[from + 3];
+	                break;
+	                
+	            default:
+	                System.arraycopy(elements, from, target, 0, target.length);
+	                break;
+	        }
 	        sp = from;
 	        return target;
 	    }
