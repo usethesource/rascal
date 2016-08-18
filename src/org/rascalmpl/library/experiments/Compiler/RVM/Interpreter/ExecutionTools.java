@@ -31,6 +31,7 @@ public class ExecutionTools {
 	}
 	
 	public static RascalExecutionContext makeRex(
+	                ISourceLocation kernel,
 					RVMExecutable rvmExecutable,
 					PrintWriter out,
 					PrintWriter err,
@@ -41,7 +42,7 @@ public class ExecutionTools {
 					IBool trace, 
 					IBool coverage, IBool jvm, RascalSearchPath rascalSearchPath
 	) {
-		return RascalExecutionContextBuilder.normalContext(vf, out != null ? out : new PrintWriter(System.out), err != null ? err : new PrintWriter(System.err))
+		return RascalExecutionContextBuilder.normalContext(vf, kernel, out != null ? out : new PrintWriter(System.out), err != null ? err : new PrintWriter(System.err))
 			.withModuleTags(rvmExecutable.getModuleTags())
 			.withSymbolDefinitions(	rvmExecutable.getSymbolDefinitions())
 			.setDebug(debug.getValue())
@@ -190,10 +191,10 @@ public class ExecutionTools {
 	  * @return initialized RVM
 	 * @throws IOException 
 	  */
-	public static RVMCore initializedRVM(ISourceLocation bin) throws IOException  {
+	public static RVMCore initializedRVM(ISourceLocation kernel, ISourceLocation bin) throws IOException  {
 		 RVMExecutable rvmExecutable = RVMExecutable.read(bin);
 		 RascalExecutionContext rex = 
-				 RascalExecutionContextBuilder.normalContext(vf)
+				 RascalExecutionContextBuilder.normalContext(vf, bin)
 				 .forModule(rvmExecutable.getModuleName())
 				 .setJVM(true)
 				 .build();
