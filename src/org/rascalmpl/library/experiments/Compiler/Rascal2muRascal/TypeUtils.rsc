@@ -876,15 +876,15 @@ int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
 
 // Get the type of an expression as Symbol
 Symbol getType(loc l) {
-   println("getType(<l>)");
+//   println("getType(<l>)");
     if(config.locationTypes[l]?){
         println("getType(<l>) = <config.locationTypes[l]>");
     	return config.locationTypes[l];
     }
     //////l = normalize(l);
-    iprintln(config.locationTypes);
+ //   iprintln(config.locationTypes);
     assert config.locationTypes[l]? : "getType for <l>";
-	println("getType(<l>) = <config.locationTypes[l]>");
+//	println("getType(<l>) = <config.locationTypes[l]>");
 	return config.locationTypes[l];
 }	
 
