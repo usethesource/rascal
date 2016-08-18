@@ -309,7 +309,7 @@ void extractScopes(Configuration c){
 
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
-      println("<uid>: <item>");
+      //println("<uid>: <item>");
       switch(item){
         case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
          	 //println("<uid>: <item>, scope: <inScope>");
