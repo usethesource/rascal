@@ -607,13 +607,13 @@ public class StandardTextWriter implements IValueTextWriter {
 				append(String.format("%02d", o.getSecondOfMinute()));
 				append(".");
 				append(String.format("%03d", o.getMillisecondsOfSecond()));
-				if (o.getTimezoneOffsetHours() < 0)
-					append("-");
-				else
-					append("+");
-				append(String.format("%02d", o.getTimezoneOffsetHours()));
-				append(":");
-				append(String.format("%02d", o.getTimezoneOffsetMinutes()));
+				if (o.getTimezoneOffsetHours() < 0 || (o.getTimezoneOffsetHours() == 0 && o.getTimezoneOffsetMinutes() < 0))
+				    append("-");
+                else
+                    append("+");
+                append(String.format("%02d", Math.abs(o.getTimezoneOffsetHours())));
+                append(":");
+                append(String.format("%02d", Math.abs(o.getTimezoneOffsetMinutes())));
 			} else {
 				append(String.format("%04d", o.getYear()));
 				append("-");
@@ -629,13 +629,13 @@ public class StandardTextWriter implements IValueTextWriter {
 				append(String.format("%02d", o.getSecondOfMinute()));
 				append(".");
 				append(String.format("%03d", o.getMillisecondsOfSecond()));
-				if (o.getTimezoneOffsetHours() < 0)
-					append("-");
+				if (o.getTimezoneOffsetHours() < 0 || (o.getTimezoneOffsetHours() == 0 && o.getTimezoneOffsetMinutes() < 0))
+				    append("-");
 				else
-					append("+");
-				append(String.format("%02d", o.getTimezoneOffsetHours()));
+				    append("+");
+				append(String.format("%02d", Math.abs(o.getTimezoneOffsetHours())));
 				append(":");
-				append(String.format("%02d", o.getTimezoneOffsetMinutes()));
+				append(String.format("%02d", Math.abs(o.getTimezoneOffsetMinutes())));
 			}
 			append("$");
 			return o;

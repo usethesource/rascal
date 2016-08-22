@@ -281,8 +281,8 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 		private static String getTZString(int hourOffset, int minuteOffset) {
 			String tzString = "GMT" + 
 				((hourOffset < 0 || (0 == hourOffset && minuteOffset < 0)) ? "-" : "+") + 
-				String.format("%02d",hourOffset >= 0 ? hourOffset : hourOffset * -1) +
-				String.format("%02d",minuteOffset >= 0 ? minuteOffset : minuteOffset * -1);
+				String.format("%02d",Math.abs(hourOffset)) +
+				String.format("%02d",Math.abs(minuteOffset));
 			return tzString;
 		}
 		
