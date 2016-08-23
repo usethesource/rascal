@@ -32,6 +32,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.tutor3.Concept;
 import org.rascalmpl.library.experiments.tutor3.Onthology;
+import org.rascalmpl.value.ISourceLocation;
 
 public class HelpManager {
 	
@@ -43,30 +44,21 @@ public class HelpManager {
 	private final int port = 8000;
     private HelpServer helpServer;
 
-	public HelpManager(PrintWriter stdout, PrintWriter stderr){
-		this.stdout = stdout;
-		this.stderr = stderr;
- 
-		URL c = this.getClass().getResource("/courses");
-		if(c == null){
-			stderr.println("Cannot find deployed (precompiled) courses");
-		} else {
-			try {
-				coursesDir = c.toURI();
-			} catch (URISyntaxException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+    public HelpManager(ISourceLocation binDir, PrintWriter stdout, PrintWriter stderr){
+      this.stdout = stdout;
+      this.stderr = stderr;
 
-			try {
-				helpServer = new HelpServer(getPort(), this, Paths.get(coursesDir));
-				indexSearcher = makeIndexSearcher();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
+
+      //URL c = this.getClass().getResource("/courses");
+      coursesDir = binDir.getURI();
+
+      try {
+        helpServer = new HelpServer(getPort(), this, Paths.get(coursesDir));
+        indexSearcher = makeIndexSearcher();
+      } catch (IOException e) {
+        System.err.println("HelpManager: " + e.getMessage());
+      }
+    }
 	
 	private ArrayList<IndexReader> getReaders() throws IOException{
 		if(coursesDir.getScheme().equals("file")){
@@ -303,13 +295,6 @@ public class HelpManager {
 			w.append("\n");
 		}
 		return w.toString();
-	}
-	
-	public static void main(String[] args) throws IOException, NoSuchRascalFunction, URISyntaxException, InterruptedException {
-	  HelpManager hm = new HelpManager(new PrintWriter(System.out), new PrintWriter(System.err));
-	  Thread.sleep(500);
-	  hm.openInBrowser(new URI("http://localhost:" + hm.getPort() + "/TutorWebSite/index.html"));
-	  Thread.sleep(300000);
 	}
 
   public int getPort() {

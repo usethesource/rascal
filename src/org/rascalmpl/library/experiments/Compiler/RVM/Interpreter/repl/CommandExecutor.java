@@ -705,7 +705,7 @@ public class CommandExecutor {
 	
 		case "help": case "apropos":
 			if(helpManager == null){
-				helpManager = new HelpManager(stdout, stderr);
+				helpManager = new HelpManager(pcfg.getBin(), stdout, stderr);
 			}
 			
 			helpManager.handleHelp(words);
