@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Map;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -25,14 +26,33 @@ public class HelpServer extends NanoHTTPD {
 	@Override
 	public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms, Map<String, String> files) {
 		Response response;
-		
-		if(uri.startsWith("/Search")){
+				if(uri.startsWith("/Search")){
 			try {
 				String[] words = ("help " + URLDecoder.decode(parms.get("searchFor"), "UTF-8")).split(" ");
 				return new Response(Status.OK, "text/html", helpManager.giveHelp(words));
 			} catch (UnsupportedEncodingException e) {
 				return new Response(Status.OK, "text/plain", e.getStackTrace().toString());
 			}
+		}
+		if(uri.startsWith("/Validate")){
+		  try {
+		    if(parms.get("listing") == null || parms.get("question") == null || parms.get("hole0") == null){
+		      new Response(Status.NOT_FOUND, "text/plain", "missing listing, question or hole0 parameter");
+		    }
+		    String listing = URLDecoder.decode(parms.get("listing"), "UTF-8");
+		    String question = URLDecoder.decode(parms.get("question"), "UTF-8");
+		    
+		    ArrayList<String> holes = new ArrayList<>();
+		    for(int i = 0; parms.containsKey("hole" + i); i++){
+		      holes.add(URLDecoder.decode(parms.get("hole" + i), "UTF-8"));
+		    }
+        
+          return new Response(Status.OK, "text/html", listing + "\n" + question + "\n" + holes);
+          
+        } catch (UnsupportedEncodingException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
 		}
 		try {
 			response = new Response(Status.OK, getMimeType(uri), Files.newInputStream(root.resolve(normalize(uri))));
