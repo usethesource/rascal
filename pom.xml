@@ -234,6 +234,11 @@
             <artifactId>lucene-queryparser</artifactId>
             <version>${lucence-version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-lite</artifactId>
+            <version>3.0.1</version>
+        </dependency>
 
         <!-- Repackaged Eclipse Dependencies -->
         <dependency>
