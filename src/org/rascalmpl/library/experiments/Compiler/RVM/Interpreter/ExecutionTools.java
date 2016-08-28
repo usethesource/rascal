@@ -192,7 +192,7 @@ public class ExecutionTools {
 	 * @throws IOException 
 	  */
 	public static RVMCore initializedRVM(ISourceLocation kernel, ISourceLocation bin) throws IOException  {
-		 RVMExecutable rvmExecutable = RVMExecutable.read(bin);
+		 RVMExecutable rvmExecutable = RVMExecutable.readRVM(bin);
 		 RascalExecutionContext rex = 
 				 RascalExecutionContextBuilder.normalContext(vf, bin)
 				 .forModule(rvmExecutable.getModuleName())
