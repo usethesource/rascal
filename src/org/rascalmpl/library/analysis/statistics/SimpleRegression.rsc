@@ -12,7 +12,7 @@ Statistical methods for simple regression.
 .Description
 
 The following functions are provided:
-subtoc::[1]
+loctoc::[1]
 }
 module analysis::statistics::SimpleRegression
 

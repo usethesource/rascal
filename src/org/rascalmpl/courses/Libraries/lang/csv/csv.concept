@@ -19,7 +19,7 @@ Some adaptation is possible and includes:
 
 
 The following functions are provided in the <<Rascal-Libraries-lang-csv-IO>> library:
-subtoc::[1]
+loctoc::[1]
 
 .Examples
 Here is an example CSV file using the default separator (","):

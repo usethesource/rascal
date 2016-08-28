@@ -14,7 +14,7 @@ All Rascal statements.
 .Description
 
 The following statements are available:
-subtoc::[1]
+loctoc::[1]
 
 
 image::{concept}/statement-parts.png[width="500px" style="float: right;" ,alt="Statement Types"]

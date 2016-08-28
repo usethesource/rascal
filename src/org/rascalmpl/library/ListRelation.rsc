@@ -19,7 +19,7 @@ Library functions for list relations.
 For operators on listrelations see link:/Rascal#Values-ListRelation[ListRelation] in the Rascal Language Reference.
 
 The following functions are defined for list relations :
-subtoc::[1]
+loctoc::[1]
 }
 module ListRelation
 

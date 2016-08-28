@@ -123,7 +123,7 @@ void buildMuLibrary(){
      commands = "#!/bin/sh\n";
      report("Compiling MuLibrary");
      //compileMuLibrary(pcfg, verbose=true);
-     compileMuLibrary(pcfg.srcs, pcfg.libs, pcfg.boot, pcfg.bin)
+     compileMuLibrary(pcfg.srcs, pcfg.libs, pcfg.boot, pcfg.bin);
      muLib = getMuLibraryCompiledWriteLoc(pcfg);
      commands += "cp .<muLib.path> <(BOOT + muLib.file).path>\n";
      commands += "cp .<muLib.path> <(BOOT + muLib.path).path>\n";

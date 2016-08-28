@@ -1,11 +1,14 @@
 # Benefits
 
 .Synopsis
-
 Briefly lists known advantages of the concept.
 
 .Syntax
-`Benefits:  _MarkedText_`
+[source,subs="verbatim,quotes"]
+----
+.Benefits
+_MarkedText_
+----
 
 .Types
 

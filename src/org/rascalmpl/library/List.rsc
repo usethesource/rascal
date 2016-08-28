@@ -18,7 +18,7 @@ Library functions for lists.
 For operators on lists see link:/Rascal#Values-List[List] in the Rascal Language Reference.
 
 The following functions are available for lists:
-subtoc::[1]
+loctoc::[1]
 }
 module List
 

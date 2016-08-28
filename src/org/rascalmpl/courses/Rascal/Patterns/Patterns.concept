@@ -14,7 +14,7 @@ The various patterns that can be used for pattern matching.
 .Description
 
 The following patterns are available:
-subtoc::[1]
+loctoc::[1]
 
 Patterns may be used in:
 

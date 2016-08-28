@@ -1,5 +1,8 @@
 # eclipse stuff
+.project
 .metadata
+.settings
+.classpath
 bin/**
 tmp/**
 tmp/**/*
@@ -8,21 +11,13 @@ tmp/**/*
 *.bak
 *.swp
 *~.nib
-.settings
 local.properties
-.classpath
 .loadpath
 
 # maven stuff
 target/
 bin/
-/bin
-/bin
-/bin
-/bin
-/bin
-/bin
-/bin
 
 .DS_Store
 /.apt_generated/
+

@@ -1,0 +1,39 @@
+package org.rascalmpl.library.experiments.tutor3;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.rascalmpl.library.experiments.Compiler.Commands.CommandOptions;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
+
+public class Tutor {
+	
+	public static void main(String[] args) throws IOException, NoSuchRascalFunction, URISyntaxException, InterruptedException {
+	  
+	  IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	    CommandOptions cmdOpts = new CommandOptions("CompiledRascalShell");
+	    try {
+	        cmdOpts
+	        .locOption("bin").locDefault(vf.sourceLocation("home", "", "bin"))
+	        .help("Directory for Rascal binaries")
+	        
+	        .boolOption("help")
+	        .help("Print help message for this command")
+	        .noModuleArgument()
+	        .handleArgs(args);
+	        
+	    } catch (URISyntaxException e1) {
+	        e1.printStackTrace();
+	        System.exit(1);
+	    }  
+	  HelpManager hm = new HelpManager(cmdOpts.getCommandLocOption("bin"), new PrintWriter(System.out), new PrintWriter(System.err));
+	  
+	  hm.openInBrowser(new URI("http://localhost:" + hm.getPort() + "/TutorHome/index.html"));
+	  Thread.sleep(864000000);  // a hack a day keeps the doctor away (and the debugger close)
+	}
+}

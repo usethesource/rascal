@@ -63,22 +63,22 @@ public class RascalTests {
 			 .boolDefault(true)
 	         .help("Enable checking of assertions")
 			
-			.rascalModules("Rascal modules with tests")
+			.modules("Rascal modules with tests")
 			
 			.handleArgs(args);
 		
-		RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory())
+		RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), cmdOpts.getCommandLocOption("boot"))
 				.customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
 				.setTrace(cmdOpts.getCommandBoolOption("trace"))
 				.setProfile(cmdOpts.getCommandBoolOption("profile"))
-				.forModule(cmdOpts.getRascalModule().getValue())
+				.forModule(cmdOpts.getModule().getValue())
                 .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
 				.build();
 
 		Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
 		try {
 		    IBool success = (IBool) kernel.rascalTests(
-		            cmdOpts.getRascalModules(),
+		            cmdOpts.getModules(),
 		            cmdOpts.getCommandlocsOption("src"),
 		            cmdOpts.getCommandlocsOption("lib"),
 		            cmdOpts.getCommandLocOption("boot"),
