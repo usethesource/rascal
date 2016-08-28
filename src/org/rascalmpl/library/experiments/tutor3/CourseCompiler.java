@@ -9,9 +9,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,7 +31,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  * CourseCompiler compiles all courses to HTML in the following steps:
  * - each concept is translated to an AsciiDoc file. Note that the property rascal.asciidoctor
  *   can be used to override the default location for asciidoctor.
- * - all generated AsciiDoc files are transformed to a single HTML file
+ * - all generated AsciiDoc files are transformed to a single HTML file per course
  * - the contributions to the Lucene index are computed and stored per course
  * - TODO Dependency on RascalExtraction
  */
@@ -60,7 +58,7 @@ public class CourseCompiler {
 			+ " -a toc=left"									// at left side
 		    //+ " -a toclevels=2"
 			+ " -a linkcss"										// link the style sheet
-			+ " -a stylesheet=" + "css/style.css"				// use our own style sheet
+			+ " -a stylesheet=" + "../css/style.css"				// use our own style sheet
 			+ " -d book"										// book style
 			+ " -D " + courseDestDir							// destination directory
 		    + " -B " + courseDestDir 							// base directory
@@ -97,7 +95,7 @@ public class CourseCompiler {
 		try {
 			runAsciiDocter(srcPath, courseName, destPath, executor.err);
 		} catch (IOException e) {
-			System.err.println("Cannot run asciidocter: " + e.getMessage());
+			System.err.println("Cannot run asciidoctor: " + e.getMessage());
 		}
 	}
 	
@@ -146,6 +144,7 @@ public class CourseCompiler {
 			if(!Files.exists(parent)){
 				Files.createDirectories(parent);
 			}
+			//System.out.println("cp " + src + " " + dest);
 			Files.copy(src, dest, REPLACE_EXISTING);
 		}
 	}
@@ -163,7 +162,7 @@ public class CourseCompiler {
 	}
 	
 	/**
-	 * CourseCompiler: compile and deploy all courses.
+	 * CourseCompiler: compile and deploy courses.
 	 * 
 	 * @param args array with command options and courses to be compiled
 	 * @throws IOException
@@ -204,7 +203,7 @@ public class CourseCompiler {
          .boolOption("verbose")
          .help("Make the course compiler verbose")
 
-         .rascalModules("Course modules to be compiled")
+         .modules("Course modules to be compiled", 0)
 
          .handleArgs(args);
 		
@@ -225,7 +224,7 @@ public class CourseCompiler {
 		RascalCommandExecutor executor = new RascalCommandExecutor(pcfg, err);
 		
 		if(cmdOpts.getCommandBoolOption("all")){
-			IList givenCourses = cmdOpts.getRascalModules();
+			IList givenCourses = cmdOpts.getModules();
 			if(!givenCourses.isEmpty()){
 				System.err.println("--all conflicts with " + givenCourses);
 			}
@@ -233,25 +232,10 @@ public class CourseCompiler {
 				compileCourse(coursesSrcPath, courseName, destPath, libPath, executor);
 			}
 		} else {
-			for(IValue iCourseName : cmdOpts.getRascalModules()){
+			for(IValue iCourseName : cmdOpts.getModules()){
 				compileCourse(coursesSrcPath, ((IString)iCourseName).getValue(), destPath, libPath, executor);
 			}
 		}
-
-//		compileCourse(coursesSrcPath, "ADocTest", destPath, libPath, executor);
-//		
-//		compileCourse(coursesSrcPath, "WhyRascal", destPath, libPath, executor);
-//		compileCourse(coursesSrcPath, "GettingStarted", destPath, libPath, executor);
-//		compileCourse(coursesSrcPath, "GettingHelp", destPath, libPath, executor);
-//		
-//		compileCourse(coursesSrcPath, "Errors", destPath, libPath, executor);
-//		compileCourse(coursesSrcPath, "Rascal", destPath, libPath, executor);
-//		compileCourse(coursesSrcPath, "RascalConcepts", destPath, libPath, executor);
-//		compileCourse(coursesSrcPath, "Libraries", destPath, libPath, executor);
-//		compileCourse(coursesSrcPath, "Rascalopedia", destPath, libPath, executor);
-//		compileCourse(coursesSrcPath, "Recipes", destPath, libPath, executor);
-//		compileCourse(coursesSrcPath, "TutorWebSite", destPath, libPath, executor);
-		
 		
 		err.flush();
 		writeFile(destPath + "/course-compilation-errors.txt", sw.toString());

@@ -47,15 +47,14 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 public class ParsingTools {
-
-	private IValueFactory vf;
+	private final IValueFactory vf;
 	
 	//TODO this cache can move to RascalexecutionContext once we are fully boostrapped and independent of the Interpreter:
 	// reason: parseFragment called from the interpreter creates a new REX and destrouys caching.
 	private Cache<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache;
 	private final int parserCacheSize = 30;
 	private final boolean paserCacheEnabled = true;
-	
+
 	public ParsingTools(IValueFactory vf){
 		super();
 		this.vf = vf;
@@ -279,7 +278,7 @@ public class ParsingTools {
 		     throw new CompilerError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
 		  }
 		 
-		  parserGenerator = new ParserGenerator(rex);
+		  parserGenerator = new ParserGenerator(rex, rex.getKernel());
 		}
 		//rex.endJob(true);
 		return parserGenerator;
@@ -322,7 +321,7 @@ public class ParsingTools {
 		  w.insert(vf.tuple(name, moduleTags));
 		  //RascalExecutionContext rex = new RascalExecutionContext(vf, new PrintWriter(ctx.getStdOut()), new PrintWriter(ctx.getStdErr()), w.done(), null, null, false, false, false, false, false, false, false, null, null, ctx.getEvaluator().getRascalResolver());
 		  
-		  RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, ctx.getStdOut(), ctx.getStdErr())
+		  RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, null /* in the interpreter version we won't need a kernel */, ctx.getStdOut(), ctx.getStdErr())
 				  .withModuleTags(w.done())
 				  .customSearchPath(ctx.getEvaluator().getRascalResolver())
 				  .build();
@@ -338,7 +337,7 @@ public class ParsingTools {
 	      IMapWriter w = vf.mapWriter();
           w.insert(vf.tuple(name, moduleTags));
           
-	      RascalExecutionContext rex2 = RascalExecutionContextBuilder.normalContext(vf, rex.getStdOut(), rex.getStdErr())
+	      RascalExecutionContext rex2 = RascalExecutionContextBuilder.normalContext(vf, rex.getKernel(), rex.getStdOut(), rex.getStdErr())
 	              .withModuleTags(w.done())
 	              .customSearchPath(rex.getRascalSearchPath())
 	              .build();

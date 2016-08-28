@@ -14,7 +14,7 @@ Compute the http://en.wikipedia.org/wiki/Correlation[correlation] between pairs 
 Correlation measures the statistical relationship between two sets of data.
 
 The following functions are provided:
-subtoc::[1]
+loctoc::[1]
 }
 module analysis::statistics::Correlation
 

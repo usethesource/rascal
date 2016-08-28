@@ -73,16 +73,16 @@ public class RascalC {
             .boolOption("verbose")
             .help("Make the compiler verbose")
 
-            .rascalModules("Modules to be compiled")
+            .modules("Modules to be compiled")
 
             .handleArgs(args);
 
-            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory())
+            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), cmdOpts.getCommandLocOption("boot"))
                     .customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
                     .setTrace(cmdOpts.getCommandBoolOption("trace"))
                     .setProfile(cmdOpts.getCommandBoolOption("profile"))
                     //.setJVM(cmdOpts.getCommandBoolOption("jvm"))
-                    .forModule(cmdOpts.getRascalModule().getValue())
+                    .forModule(cmdOpts.getModule().getValue())
                     .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
                     .build();
 
@@ -90,7 +90,7 @@ public class RascalC {
 
             if (cmdOpts.getCommandBoolOption("noLinking")) {
                 IList programs = kernel.compile(
-                        cmdOpts.getRascalModules(),
+                        cmdOpts.getModules(),
                         cmdOpts.getCommandlocsOption("src"),
                         cmdOpts.getCommandlocsOption("lib"),
                         cmdOpts.getCommandLocOption("boot"),
@@ -100,7 +100,7 @@ public class RascalC {
             } 
             else {
                 IList programs = kernel.compileAndLink(
-                        cmdOpts.getRascalModules(),
+                        cmdOpts.getModules(),
                         cmdOpts.getCommandlocsOption("src"),
                         cmdOpts.getCommandlocsOption("lib"),
                         cmdOpts.getCommandLocOption("boot"),

@@ -62,18 +62,18 @@ public class Rascal {
             .boolOption("profile")		
             .help("Profile execution of Rascal program")
 
-            .rascalModule("RascalModule::main() to be executed")
+            .module("RascalModule::main() to be executed")
 
             .handleArgs(args);
 
-            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory())
+            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), cmdOpts.getCommandLocOption("boot"))
                     .setTrace(cmdOpts.getCommandBoolOption("trace"))
                     .setProfile(cmdOpts.getCommandBoolOption("profile"))
-                    .forModule(cmdOpts.getRascalModule().getValue())
+                    .forModule(cmdOpts.getModule().getValue())
                     .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
                     .build();
 
-            ISourceLocation binary = findBinary(cmdOpts.getCommandLocOption("bin"), cmdOpts.getRascalModule().getValue());
+            ISourceLocation binary = findBinary(cmdOpts.getCommandLocOption("bin"), cmdOpts.getModule().getValue());
             System.out.println(RVMCore.readFromFileAndExecuteProgram(binary, cmdOpts.getModuleOptionsAsIMap(), rex));
         } catch (Throwable e) {
             e.printStackTrace();

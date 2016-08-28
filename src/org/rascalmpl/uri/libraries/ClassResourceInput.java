@@ -80,14 +80,11 @@ public abstract class ClassResourceInput implements ISourceLocationInput {
 	}
 
 	public boolean isDirectory(ISourceLocation uri) {
-		try {
-			URL res = clazz.getResource(getPath(uri));
-			if(res == null)
-				return false;
-			return URIResolverRegistry.getInstance().isDirectory(ValueFactoryFactory.getValueFactory().sourceLocation(res.toURI()));
-		} catch (URISyntaxException e) {
-			return false;
-		}
+	  try {
+	    return URIResolverRegistry.getInstance().isDirectory(resolve(uri));
+	  } catch (IOException e) {
+	    return false;
+	  }
 	}
 
 	public boolean isFile(ISourceLocation uri) {

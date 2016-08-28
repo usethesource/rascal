@@ -18,7 +18,7 @@ information between spreadsheets and databases. A CSV file has the following str
 *  One or more lines consisting of values separated by comma's.
 
 The following functions are provided:
-subtoc::[1]
+loctoc::[1]
 
 .Examples
 [source,rascal]

@@ -26,7 +26,7 @@ public class RascalExtraction {
 		this.vf = vf;
 		if(rvm == null){
 			RascalExecutionContext rex = 
-					RascalExecutionContextBuilder.normalContext(vf, System.out, System.err)
+					RascalExecutionContextBuilder.normalContext(vf, null /* TODO needs a kernel location */, System.out, System.err)
 						.setJVM(true)					// options for complete repl
 						.setTrace(false)
 						.build();
