@@ -29,8 +29,10 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.tutor3.Concept;
 import org.rascalmpl.library.experiments.tutor3.Onthology;
+import org.rascalmpl.value.ISourceLocation;
 
 public class HelpManager {
 	
@@ -40,31 +42,23 @@ public class HelpManager {
 	private final PrintWriter stderr;
 	private IndexSearcher indexSearcher;
 	private final int port = 8000;
+    private HelpServer helpServer;
 
-	public HelpManager(PrintWriter stdout, PrintWriter stderr){
-		this.stdout = stdout;
-		this.stderr = stderr;
- 
-		URL c = this.getClass().getResource("/courses");
-		if(c == null){
-			stderr.println("Cannot find deployed (precompiled) courses");
-		} else {
-			try {
-				coursesDir = c.toURI();
-			} catch (URISyntaxException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+    public HelpManager(ISourceLocation binDir, PrintWriter stdout, PrintWriter stderr){
+      this.stdout = stdout;
+      this.stderr = stderr;
 
-			try {
-				new HelpServer(port, this, Paths.get(coursesDir));
-				indexSearcher = makeIndexSearcher();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
+
+      //URL c = this.getClass().getResource("/courses");
+      coursesDir = binDir.getURI();
+
+      try {
+        helpServer = new HelpServer(getPort(), this, Paths.get(coursesDir));
+        indexSearcher = makeIndexSearcher();
+      } catch (IOException e) {
+        System.err.println("HelpManager: " + e.getMessage());
+      }
+    }
 	
 	private ArrayList<IndexReader> getReaders() throws IOException{
 		if(coursesDir.getScheme().equals("file")){
@@ -73,8 +67,12 @@ public class HelpManager {
 			for(Path p : Files.newDirectoryStream(destDir)){
 				if(Files.isDirectory(p) && p.getFileName().toString().matches("^[A-Z].*")){
 					Directory directory = FSDirectory.open(p);
+					try {
 					DirectoryReader ireader = DirectoryReader.open(directory);
 					readers.add(ireader);
+					} catch (IOException e){
+					  stderr.println("Skipping index " + directory);
+					}
 				}
 			}
 			return readers;
@@ -130,7 +128,7 @@ public class HelpManager {
 	
 	void appendHyperlink(StringWriter w, String conceptName){
 		w.append("<a href=\"http://localhost:");
-		w.append(String.valueOf(port));
+		w.append(String.valueOf(getPort()));
 		appendURL(w, conceptName);
 		w.append("\">").append(conceptName).append("</a>");
 	}
@@ -151,7 +149,7 @@ public class HelpManager {
 			if(i < words.length - 1) w.append(" ");
 		}
 		String encoded = URLEncoder.encode(w.toString(), "UTF-8");
-		return new URI("http", "localhost:" + port + "/Search?searchFor=" + encoded, null);
+		return new URI("http", "localhost:" + getPort() + "/Search?searchFor=" + encoded, null);
 	}
 	
 	public void handleHelp(String[] words){
@@ -227,6 +225,7 @@ public class HelpManager {
 		w.append("</head>\n");
 		w.append("<body class=\"book toc2 toc-left\">");
 		
+		w.append(Concept.getHomeLink());
 		w.append(Concept.getSearchForm());
 		
 		w.append("<div id=\"toc\" class=\"toc2\">");
@@ -297,4 +296,9 @@ public class HelpManager {
 		}
 		return w.toString();
 	}
+
+  public int getPort() {
+    return port;
+  }
+
 }

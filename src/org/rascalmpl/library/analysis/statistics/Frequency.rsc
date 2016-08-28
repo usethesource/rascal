@@ -12,7 +12,7 @@ Frequency distributions.
 .Description
 
 The following functions are provided:
-subtoc::[1]
+loctoc::[1]
 }
 module analysis::statistics::Frequency
 

@@ -407,7 +407,7 @@ public class Bootstrap {
     
     private static void runTests(int phase, String classPath, String boot, String sourcePath, Path result) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
         progress("Running tests with the results of " + phase);
-        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
+        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
         String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
 
@@ -417,10 +417,18 @@ public class Bootstrap {
     }
 
     private static int runCompiler(String classPath, String... arguments) throws IOException, InterruptedException {
-        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "org.rascalmpl.library.experiments.Compiler.Commands.RascalC" };
-    	return runChildProcess(concat(javaCmd, arguments));
+        /*
+         * Remote Debugging Example:
+         *     -Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n
+         * 
+         * Flags: 
+         *     suspend=n - starts up and does not wait for attaching a debugger
+         *     suspend=y - waits until a debugger is attached before to proceed
+         */
+        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n", "org.rascalmpl.library.experiments.Compiler.Commands.RascalC" };
+        return runChildProcess(concat(javaCmd, arguments));
     }
-    
+
     private static int runMuLibraryCompiler(String classPath, String... arguments) throws IOException, InterruptedException {
         String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "org.rascalmpl.library.experiments.Compiler.Commands.CompileMuLibrary" };
     	return runChildProcess(concat(javaCmd, arguments));

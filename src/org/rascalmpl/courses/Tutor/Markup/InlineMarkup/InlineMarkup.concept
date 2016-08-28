@@ -1,4 +1,4 @@
-# InlineMarkup
+# Inline Markup
 
 .Synopsis
 
@@ -13,6 +13,11 @@ Markup directives used in input lines.
 .Details
 
 .Description
+
+For convenience we summarize the most commonn inline markup elements.
+See http://asciidoctor.org/docs/asciidoc-syntax-quick-reference/ for more details.
+
+loctoc::[1]
 
 .Examples
 

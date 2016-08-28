@@ -1,10 +1,14 @@
 # Synopsis
 
 .Synopsis
-One-line summary of the concept that is usable as a tool tip.
+One-line summary of the concept that is usable as a tool tip or table of contents entry
 
 .Syntax
-`Synopsis:  _MarkedText_` (*mandatory*)
+[source,subs="verbatim,quotes"]
+----
+.Synopsis
+_MarkedText_
+----
 
 .Types
 

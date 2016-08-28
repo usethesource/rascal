@@ -17,7 +17,7 @@ Functions for time measurement and benchmarking.
 .Description
 
 The `Benchmark` library provides the following functions:
-subtoc::[1]
+loctoc::[1]
 }
 
 module util::Benchmark

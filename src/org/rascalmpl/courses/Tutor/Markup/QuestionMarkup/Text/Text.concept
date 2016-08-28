@@ -4,11 +4,11 @@
 A text question with a free-format answer.
 
 .Syntax
-[source,rascal]
+[source,subs="quotes"]
 ----
-QText $OptName$: $Text$
-a: $Answer_1$
-a: $Answer_2$
+QText _OptName_: _Text_
+a: _Answer_~1~
+a: _Answer_~2~
 ...
 ----
 
