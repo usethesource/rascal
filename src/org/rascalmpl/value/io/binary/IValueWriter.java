@@ -10,6 +10,7 @@ import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IDateTime;
+import org.rascalmpl.value.IExternalValue;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
@@ -296,9 +297,24 @@ public class IValueWriter {
 	private static void write(final ValueWireOutputStream writer, final IValue value, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
 		PrePostIValueIterator iter = new PrePostIValueIterator(value);
 		
-		IValueVisitor<Boolean, IOException> compoundWriter = new NullVisitor<Boolean, IOException>() {
+		// returns if the value should be put into the cache or not
+		IValueVisitor<Boolean, IOException> visitWriter = new IValueVisitor<Boolean, IOException>() {
+
+		    private boolean writeFromCache(IValue val) throws IOException {
+		        int lastSeen = valueCache.howLongAgo(val);
+		        if (lastSeen != -1) {
+		            writeSingleValueMessage(writer, IValueIDs.PreviousValue.ID, IValueIDs.PreviousValue.HOW_FAR_BACK, lastSeen);
+		            iter.skipItem();
+		            return true;
+		        }
+		        return false;
+		    }
 		    @Override
 		    public Boolean visitConstructor(IConstructor cons) throws IOException {
+		        assert IValueKinds.CONSTRUCTOR_COMPOUND;
+		        if (writeFromCache(cons) || iter.atBeginning()) {
+		            return false;
+		        }
 		        write(writer, cons.getUninstantiatedConstructorType(), typeCache, valueCache, uriCache);
 
 		        writer.startMessage(IValueIDs.ConstructorValue.ID);
@@ -317,6 +333,10 @@ public class IValueWriter {
 		    }
 		    @Override
 		    public Boolean visitNode(INode node) throws IOException {
+		        assert IValueKinds.NODE_COMPOUND_VALUE;
+		        if (writeFromCache(node) || iter.atBeginning()) {
+		            return false;
+		        }
 		        writer.startMessage(IValueIDs.NodeValue.ID);
 		        writer.writeField(IValueIDs.NodeValue.NAME,  node.getName());
 		        writer.writeField(IValueIDs.NodeValue.ARITY, node.arity());
@@ -334,42 +354,60 @@ public class IValueWriter {
 		    }
 		    @Override
 		    public Boolean visitList(IList o) throws IOException {
+		        assert IValueKinds.LIST_COMPOUND;
+		        if (writeFromCache(o) || iter.atBeginning()) {
+		            return false;
+		        }
 		        writeSingleValueMessage(writer, IValueIDs.ListValue.ID, IValueIDs.ListValue.SIZE, o.length());
 		        return true;
 		    }
 		    @Override
 		    public Boolean visitMap(IMap o) throws IOException {
+		        assert IValueKinds.MAP_COMPOUND;
+		        if (writeFromCache(o) || iter.atBeginning()) {
+		            return false;
+		        }
 		        writeSingleValueMessage(writer, IValueIDs.MapValue.ID, IValueIDs.MapValue.SIZE, o.size());
 		        return true;
 		    }
 		    @Override
 		    public Boolean visitSet(ISet o) throws IOException {
+		        assert IValueKinds.SET_COMPOUND;
+		        if (writeFromCache(o) || iter.atBeginning()) {
+		            return false;
+		        }
 		        writeSingleValueMessage(writer, IValueIDs.SetValue.ID, IValueIDs.SetValue.SIZE, o.size());
 		        return true;
 		    }
 		    @Override
 		    public Boolean visitRational(IRational o) throws IOException {
+		        assert IValueKinds.RATIONAL_COMPOUND;
+		        if (writeFromCache(o) || iter.atBeginning()) {
+		            return false;
+		        }
 		        writer.writeEmptyMessage(IValueIDs.RationalValue.ID);
 		        return true;
 		    }
 		    @Override
 		    public Boolean visitTuple(ITuple o) throws IOException {
+		        assert IValueKinds.TUPLE_COMPOUND;
+		        if (writeFromCache(o) || iter.atBeginning()) {
+		            return false;
+		        }
 			     writeSingleValueMessage(writer, IValueIDs.TupleValue.ID, IValueIDs.TupleValue.SIZE, o.arity());
 			     return true;
 		    }
-		    
-		};
-		
-		IValueVisitor<Boolean, IOException> singularWriter = new NullVisitor<Boolean, IOException>() {
 
 		    @Override
 		    public Boolean visitBoolean(IBool boolValue) throws IOException {
+		        assert !IValueKinds.BOOLEAN_COMPOUND;
 		        writeSingleValueMessage(writer, IValueIDs.BoolValue.ID, IValueIDs.BoolValue.VALUE, boolValue.getValue() ? 1: 0);
-		        return true;
+		        return false;
 		    }
 
 		    @Override
 		    public Boolean visitDateTime(IDateTime dateTime) throws IOException {
+		        assert !IValueKinds.DATETIME_COMPOUND;
 		        writer.startMessage(IValueIDs.DateTimeValue.ID);
 
 		        if (!dateTime.isTime()) {
@@ -388,10 +426,11 @@ public class IValueWriter {
 		            writer.writeField(IValueIDs.DateTimeValue.TZ_MINUTE, dateTime.getTimezoneOffsetMinutes());
 		        }
 		        writer.endMessage();
-		        return true;
+		        return false;
 		    }
 		    @Override
 		    public Boolean visitInteger(IInteger ii) throws IOException {
+		        assert !IValueKinds.INTEGER_COMPOUND;
 		        writer.startMessage(IValueIDs.IntegerValue.ID);
 		        if(ii. greaterEqual(MININT).getValue() && ii.lessEqual(MAXINT).getValue()){
 		            writer.writeField(IValueIDs.IntegerValue.INTVALUE, ii.intValue());
@@ -400,21 +439,23 @@ public class IValueWriter {
 		            writer.writeField(IValueIDs.IntegerValue.BIGVALUE, ii.getTwosComplementRepresentation());
 		        }
 		        writer.endMessage();
-		        return true;
+		        return false;
 		    }
 
 
 		    @Override
 		    public Boolean visitReal(IReal o) throws IOException {
+		        assert !IValueKinds.REAL_COMPOUND;
 		        writer.startMessage(IValueIDs.RealValue.ID);
 		        writer.writeField(IValueIDs.RealValue.CONTENT, o.unscaled().getTwosComplementRepresentation());
 		        writer.writeField(IValueIDs.RealValue.SCALE, o.scale());
 		        writer.endMessage();
-		        return true;
+		        return false;
 		    }
 
 		    @Override
 		    public Boolean visitSourceLocation(ISourceLocation loc) throws IOException {
+		        assert !IValueKinds.SOURCELOCATION_COMPOUND;
 		        writer.startMessage(IValueIDs.SourceLocationValue.ID);
 		        ISourceLocation uriPart = loc.top();
 		        int alreadyWritten = uriCache.howLongAgo(uriPart);
@@ -449,41 +490,34 @@ public class IValueWriter {
 		            writer.writeField(IValueIDs.SourceLocationValue.ENDCOLUMN, loc.getEndColumn());
 		        }
 		        writer.endMessage();
-		        return true;
+		        return false;
 		    }
 
 		    @Override
 		    public Boolean visitString(IString o) throws IOException {
+		        assert !IValueKinds.SOURCELOCATION_COMPOUND;
 		        writeSingleValueMessage(writer, IValueIDs.StringValue.ID, IValueIDs.StringValue.CONTENT, o.getValue());
-		        return true;
+		        return false;
+		    }
+		    @Override
+		    public Boolean visitExternal(IExternalValue externalValue) throws IOException {
+		        throw new RuntimeException("Not supported yet");
+		    }
+		    @Override
+		    public Boolean visitListRelation(IList o) throws IOException {
+		        return visitList(o);
+		    }
+		    @Override
+		    public Boolean visitRelation(ISet o) throws IOException {
+		        return visitSet(o);
 		    }
 		};
+
 		while(iter.hasNext()){
 		    iter.next();
-			final IValue currentValue = iter.getItem();
-			if (Values.isCompound(currentValue)) {
-			    if (iter.atBeginning()) {
-			        int lastSeen = valueCache.howLongAgo(currentValue);
-			        if (lastSeen != -1) {
-			            writeSingleValueMessage(writer, IValueIDs.PreviousValue.ID, IValueIDs.PreviousValue.HOW_FAR_BACK, lastSeen);
-			            iter.skipItem();
-			        }
-			    }
-			    else {
-			        Boolean written = currentValue.accept(compoundWriter);
-			        if (written == null) {
-			             throw new RuntimeException("writeValue: unexpected kind of value " + currentValue);
-			        }
-			        valueCache.write(currentValue);
-			    }
-			}
-			else {
-			    assert iter.atBeginning();
-			    Boolean written = currentValue.accept(singularWriter);
-			    if (written == null) {
-			        throw new RuntimeException("writeValue: unexpected kind of value " + currentValue);
-			    }
-			}
+		    if (iter.getItem().accept(visitWriter)) {
+			        valueCache.write(iter.getItem());
+		    }
 		}
 	}
 }
