@@ -278,7 +278,7 @@ public class ParsingTools {
 		     throw new CompilerError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
 		  }
 		 
-		  parserGenerator = new ParserGenerator(rex, rex.getKernel());
+		  parserGenerator = new ParserGenerator(rex);
 		}
 		//rex.endJob(true);
 		return parserGenerator;
@@ -319,7 +319,6 @@ public class ParsingTools {
 	  public ITree parseFragment(IString name, IMap moduleTags, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx) throws IOException{
 		  IMapWriter w = vf.mapWriter();
 		  w.insert(vf.tuple(name, moduleTags));
-		  //RascalExecutionContext rex = new RascalExecutionContext(vf, new PrintWriter(ctx.getStdOut()), new PrintWriter(ctx.getStdErr()), w.done(), null, null, false, false, false, false, false, false, false, null, null, ctx.getEvaluator().getRascalResolver());
 		  
 		  RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, null /* in the interpreter version we won't need a kernel */, ctx.getStdOut(), ctx.getStdErr())
 				  .withModuleTags(w.done())
