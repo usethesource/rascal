@@ -5,15 +5,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.uri.URIUtil;
 
 /**
@@ -158,6 +161,8 @@ public class Bootstrap {
         if (!Files.exists(targetFolder.resolve("org/rascalmpl/library/Prelude.class"))) {	// PK: PreludeCompiled
         	throw new RuntimeException("target folder " + sourceFolder + " should point to source folder of compiler library and the RVM interpreter.");
         }
+        
+        Path tmpFolder = new File(args[arg++]).toPath();
         Path bootstrapMarker = targetFolder.resolve("META-INF/bootstrapped.version");
         if (Files.exists(bootstrapMarker)) {
             System.err.println("Not bootstrapping, since " + bootstrapMarker + " already exists");
@@ -165,10 +170,14 @@ public class Bootstrap {
         }
         
         boolean cleanTempDir = false;
+        boolean fullOption = false;
+        
         for (;arg < args.length; arg++) {
             switch (args[arg]) {
                 case "--verbose": VERBOSE=true; break;
                 case "--clean": cleanTempDir = true; break;
+                case "--full" : fullOption = true; break;
+                case "--download" : fullOption = false; break;
                 default: 
                     System.err.println(args[arg] + "Is not a supported argument.");
                     System.exit(1);
@@ -176,8 +185,10 @@ public class Bootstrap {
             }
         }
         
-        Path tmpDir = initializeTemporaryFolder(cleanTempDir);
-
+        final boolean fullBootstrap = fullOption;
+        
+        Path tmpDir = initializeTemporaryFolder(tmpFolder, cleanTempDir);
+        
         if (existsDeployedVersion(tmpDir, versionToBuild)) {
             System.out.println("INFO: Got the kernel version to compile: " + versionToBuild + " already from existing deployed build.");
         }
@@ -211,7 +222,13 @@ public class Bootstrap {
                         phaseFolderString(3, tmpDir), 
                         phaseFolderString(4, tmpDir)
                 };
-                        
+                   
+                if (!fullBootstrap) {
+                  FileSystem jar = FileSystems.newFileSystem(new URI("jar:file", rvm[0], null), Collections.singletonMap("create", true));
+                  time("Copying downloaded files", () -> copyResult(jar.getPath("boot"), targetFolder));
+                  System.exit(0);
+                }
+                
                 /*------------------------------------------,-CODE---------,-RVM---,-KERNEL---,-TESTS--*/
                 time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1]));
                 time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[0], kernel[1], rvm[1]));
@@ -219,8 +236,7 @@ public class Bootstrap {
                 time("Phase 4", () -> compilePhase(tmpDir, 4, "|std:///|"  , rvm[1], kernel[3], rvm[1]));
 
                 // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
-                time("Copying bootstrapped files", () -> copyResult(kernel[4], targetFolder.resolve("boot")));
-
+                time("Copying bootstrapped files", () -> copyResult(new File(kernel[4]).toPath(), targetFolder.resolve("boot")));
                 time("Compiling final tests", () -> compileTests (5, rvm[1], "|boot:///|", "|std:///|", tmpDir.resolve("test-bins")));
                 time("Running final tests"  , () -> runTests(5, rvm[1], "|boot:///|", "|std:///|", tmpDir.resolve("test-bins")));
 
@@ -249,8 +265,7 @@ public class Bootstrap {
         Runtime.getRuntime().addShutdownHook(destroyChild);
     }
 
-    private static Path initializeTemporaryFolder(boolean cleanTempDir) {
-        Path tmpDir = new File(System.getProperty("java.io.tmpdir") + "/rascal-boot").toPath();
+    private static Path initializeTemporaryFolder(Path tmpDir, boolean cleanTempDir) {
         if (cleanTempDir && Files.exists(tmpDir)) {
             info("Removing files in" + tmpDir.toString());
             try {
@@ -262,8 +277,13 @@ public class Bootstrap {
                     }
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                      if (!file.endsWith(".jar")) {
+                        // we don't delete downloaded versions automatically to make sure we can
+                        // keep running bootstrap while offline in trains and airplanes
                         Files.delete(file);
-                        return super.visitFile(file, attrs);
+                      }
+                      
+                      return super.visitFile(file, attrs);
                     }
 
                 });
@@ -279,20 +299,25 @@ public class Bootstrap {
         return tmpDir;
     }
     
-	private static void copyResult(String sourceString, Path targetPath) throws IOException {
-	    Path sourcePath = new File(sourceString).toPath();
-	    
+    /**
+     * Copies all files recursively from a sourcePath to a targetPath.
+     * 
+     * This method also works to get files from a jar into the file system.
+     * Note that this was not easy; it takes extra toString magic and Paths.get to transfer between different
+     * kinds of filesystems (in this case file:/// and jar:file:///)
+     */
+	private static void copyResult(Path sourcePath, Path targetPath) throws IOException {
 	    Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>() {
 	        @Override
 	        public FileVisitResult preVisitDirectory(final Path dir,  final BasicFileAttributes attrs) throws IOException {
-	            Files.createDirectories(targetPath.resolve(sourcePath.relativize(dir)));
+	            Files.createDirectories(Paths.get(targetPath.toString(), dir.toString()));
 	            return FileVisitResult.CONTINUE;
 	        }
 
 	        @Override
 	        public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-	            info("Copying " + file + " to " + targetPath.resolve(sourcePath.relativize(file)));
-	            Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+	            info("Copying " + file);
+	            Files.copy(file, Paths.get(targetPath.toString(), file.toString()), StandardCopyOption.REPLACE_EXISTING);
 	            return FileVisitResult.CONTINUE;
 	        }
 	    });
@@ -394,7 +419,7 @@ public class Bootstrap {
         }
     }
     
-    private static void compileMuLibrary(int phase, String classPath, String bootDLoc, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage, NoSuchRascalFunction {
+    private static void compileMuLibrary(int phase, String classPath, String bootDLoc, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage {
         progress("\tcompiling MuLibrary (phase " + phase +")");
         
         String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", bootDLoc };
@@ -405,7 +430,7 @@ public class Bootstrap {
         }
     }
     
-    private static void runTests(int phase, String classPath, String boot, String sourcePath, Path result) throws IOException, NoSuchRascalFunction, InterruptedException, BootstrapMessage {
+    private static void runTests(int phase, String classPath, String boot, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage {
         progress("Running tests with the results of " + phase);
         String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
         String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
