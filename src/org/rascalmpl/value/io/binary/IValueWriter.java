@@ -1,12 +1,12 @@
 package org.rascalmpl.value.io.binary;
 
-import static org.junit.Assert.assertNotNull;
-
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
+import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IDateTime;
@@ -26,8 +26,10 @@ import org.rascalmpl.value.io.binary.util.PrePostIValueIterator;
 import org.rascalmpl.value.io.binary.util.PrePostTypeIterator;
 import org.rascalmpl.value.io.binary.util.TrackLastWritten;
 import org.rascalmpl.value.io.binary.util.TypeIteratorKind;
-import org.rascalmpl.value.io.binary.util.ValueIteratorKind;
+import org.rascalmpl.value.io.binary.util.Types;
 import org.rascalmpl.value.io.binary.util.Values;
+import org.rascalmpl.value.type.DefaultTypeVisitor;
+import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.visitors.IValueVisitor;
 import org.rascalmpl.value.visitors.NullVisitor;
@@ -123,10 +125,79 @@ public class IValueWriter {
 	private static void write(final ValueWireOutputStream writer, final Type type, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
 	    final PrePostTypeIterator iter = new PrePostTypeIterator(type);
 	    
+	    
+	    ITypeVisitor<Boolean, IOException> compoundWriter = new DefaultTypeVisitor<Boolean, IOException>(null) {
+	        @Override
+	        public Boolean visitAbstractData(Type type) throws IOException {
+	            writeSingleValueMessage(writer, IValueIDs.ADTType.ID, IValueIDs.ADTType.NAME, type.getName());
+	            return true;
+	        }
+	        @Override
+	        public Boolean visitAlias(Type type) throws IOException {
+	            writeSingleValueMessage(writer, IValueIDs.AliasType.ID, IValueIDs.AliasType.NAME, type.getName());
+	            return true;
+	        }
+	        @Override
+	        public Boolean visitConstructor(Type type) throws IOException {
+	            writeSingleValueMessage(writer, IValueIDs.ConstructorType.ID, IValueIDs.ConstructorType.NAME, type.getName());
+	            return true;
+	        }
+	        @Override
+	        public Boolean visitExternal(Type type) throws IOException {
+	            // TODO this should be here, but on the external type callback 
+	            if(type instanceof FunctionType){
+	                writer.writeEmptyMessage(IValueIDs.ConstructorType.ID);
+	            } else if(type instanceof ReifiedType){
+	                writer.writeEmptyMessage(IValueIDs.ReifiedType.ID);
+	            } else if(type instanceof OverloadedFunctionType){
+	                writeSingleValueMessage(writer, IValueIDs.OverloadedType.ID, IValueIDs.OverloadedType.SIZE, ((OverloadedFunctionType) type).getAlternatives().size());
+	            } else if(type instanceof NonTerminalType){
+	                write(writer, ((NonTerminalType)type).getSymbol(), typeCache, valueCache, uriCache);
+	                writer.writeEmptyMessage(IValueIDs.NonTerminalType.ID);
+	            } else {
+	                throw new RuntimeException("External type not supported: " + type);
+	            }
+	            return true;
+	        }
+	        @Override
+	        public Boolean visitList(Type type) throws IOException {
+	            writer.writeEmptyMessage(IValueIDs.ListType.ID);
+	            return true;
+	        }
+
+	        @Override
+	        public Boolean visitMap(Type type) throws IOException {
+	            writer.writeEmptyMessage(IValueIDs.MapType.ID);
+	            return true;
+	        }
+	        @Override
+	        public Boolean visitParameter(Type type) throws IOException {
+	            writeSingleValueMessage(writer, IValueIDs.ParameterType.ID, IValueIDs.ParameterType.NAME,type.getName());
+	            return true;
+	        }
+
+
+	        @Override
+	        public Boolean visitSet(Type type) throws IOException {
+	            writer.writeEmptyMessage(IValueIDs.SetType.ID);
+	            return true;
+	        }
+	        @Override
+	        public Boolean visitTuple(Type type) throws IOException {
+	            writer.startMessage(IValueIDs.TupleType.ID);
+	            writer.writeField(IValueIDs.TupleType.ARITY, type.getArity());
+	            String[] fieldNames = type.getFieldNames();
+	            if(fieldNames != null){
+	                writeNames(writer, IValueIDs.TupleType.NAMES, fieldNames);
+	            }
+	            writer.endMessage();
+	            return true;
+	        }
+	    };
 	    while(iter.hasNext()){
 	        final TypeIteratorKind kind = iter.next();
 	        final Type currentType = iter.getItem();
-	        if (kind.isCompound()) {
+	        if (Types.isCompound(currentType)) {
                 if (iter.atBeginning()) {
                     int lastSeen = typeCache.howLongAgo(currentType);
                     if (lastSeen != -1) { 
@@ -135,72 +206,9 @@ public class IValueWriter {
                     }
                 }
                 else {
-                    switch(kind){
-                        case ADT: {
-                            writeSingleValueMessage(writer, IValueIDs.ADTType.ID, IValueIDs.ADTType.NAME, currentType.getName());
-                            break;
-
-                        }
-                        case ALIAS: {
-                            writeSingleValueMessage(writer, IValueIDs.AliasType.ID, IValueIDs.AliasType.NAME, currentType.getName());
-                            break;
-                        }
-                        case CONSTRUCTOR : {
-                            writeSingleValueMessage(writer, IValueIDs.ConstructorType.ID, IValueIDs.ConstructorType.NAME, currentType.getName());
-                            break;
-                        }
-                        case FUNCTION: {
-                            writer.writeEmptyMessage(IValueIDs.ConstructorType.ID);
-                            break;
-                        }
-
-                        case REIFIED: {
-                            writer.writeEmptyMessage(IValueIDs.ReifiedType.ID);
-                            break;
-                        }
-
-                        case OVERLOADED: {
-                            writeSingleValueMessage(writer, IValueIDs.OverloadedType.ID, IValueIDs.OverloadedType.SIZE, ((OverloadedFunctionType) currentType).getAlternatives().size());
-                            break;
-                        }
-
-                        case NONTERMINAL: {
-                            // first prefix with the Constructor 
-                            write(writer, ((NonTerminalType)currentType).getSymbol(), typeCache, valueCache, uriCache);
-                            writer.writeEmptyMessage(IValueIDs.NonTerminalType.ID);
-                            break;
-                        }
-
-                        case LIST: {
-                            writer.writeEmptyMessage(IValueIDs.ListType.ID);
-                            break;
-                        }
-
-                        case MAP: {
-                            writer.writeEmptyMessage(IValueIDs.MapType.ID);
-                            break;
-                        }
-                        case PARAMETER: {
-                            writeSingleValueMessage(writer, IValueIDs.ParameterType.ID, IValueIDs.ParameterType.NAME,currentType.getName());
-                            break;
-                        }
-
-                        case SET: {
-                            writer.writeEmptyMessage(IValueIDs.SetType.ID);
-                            break;
-                        }
-                        case TUPLE: {
-                            writer.startMessage(IValueIDs.TupleType.ID);
-                            writer.writeField(IValueIDs.TupleType.ARITY, currentType.getArity());
-                            String[] fieldNames = currentType.getFieldNames();
-                            if(fieldNames != null){
-                                writeNames(writer, IValueIDs.TupleType.NAMES, fieldNames);
-                            }
-                            writer.endMessage();
-                            break;
-                        }
-                        default:
-                            throw new RuntimeException("Missing compound type case");
+                    Boolean written = currentType.accept(compoundWriter);
+                    if (written == null) {
+                        throw new RuntimeException("Missing compound type case");
                     }
                     typeCache.write(currentType);
                 }
