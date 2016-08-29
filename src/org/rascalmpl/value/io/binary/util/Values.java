@@ -27,74 +27,74 @@ import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.io.binary.IValueKinds;
 import org.rascalmpl.value.visitors.IValueVisitor;
 
 public class Values {
     private final static IValueVisitor<Boolean, RuntimeException> valueCompoundTest= new IValueVisitor<Boolean, RuntimeException>() {
         @Override
         public Boolean visitString(IString o) throws RuntimeException {
-            return false;
+            return IValueKinds.STRING_COMPOUND;
         }
         @Override
         public Boolean visitReal(IReal o) throws RuntimeException {
-            return false;
+            return IValueKinds.REAL_COMPOUND;
         }
         @Override
         public Boolean visitRational(IRational o) throws RuntimeException {
-            // has two number parts
-            return true;
+            return IValueKinds.RATIONAL_COMPOUND;
         }
         @Override
         public Boolean visitList(IList o) throws RuntimeException {
-            return true;
+            return IValueKinds.LIST_COMPOUND;
         }
         @Override
         public Boolean visitRelation(ISet o) throws RuntimeException {
-            return true;
+            return IValueKinds.SET_COMPOUND;
         }
         @Override
         public Boolean visitListRelation(IList o) throws RuntimeException {
-            return true;
+            return IValueKinds.LIST_COMPOUND;
         }
         @Override
         public Boolean visitSet(ISet o) throws RuntimeException {
-            return true;
+            return IValueKinds.SET_COMPOUND;
         }
         @Override
         public Boolean visitSourceLocation(ISourceLocation o) throws RuntimeException {
-            return false;
+            return IValueKinds.SOURCELOCATION_COMPOUND;
         }
         @Override
         public Boolean visitTuple(ITuple o) throws RuntimeException {
-            return true;
+            return IValueKinds.TUPLE_COMPOUND;
         }
         @Override
         public Boolean visitNode(INode o) throws RuntimeException {
-            return true;
+            return IValueKinds.NODE_COMPOUND_VALUE;
         }
         @Override
         public Boolean visitConstructor(IConstructor o) throws RuntimeException {
-            return true;
+            return IValueKinds.CONSTRUCTOR_COMPOUND;
         }
         @Override
         public Boolean visitInteger(IInteger o) throws RuntimeException {
-            return false;
+            return IValueKinds.INTEGER_COMPOUND;
         }
         @Override
         public Boolean visitMap(IMap o) throws RuntimeException {
-            return true;
+            return IValueKinds.MAP_COMPOUND;
         }
         @Override
         public Boolean visitBoolean(IBool boolValue) throws RuntimeException {
-            return false;
+            return IValueKinds.BOOLEAN_COMPOUND;
         }
         @Override
         public Boolean visitExternal(IExternalValue externalValue) throws RuntimeException {
-            return true;
+            return IValueKinds.EXTERNAL_COMPOUND;
         }
         @Override
         public Boolean visitDateTime(IDateTime o) throws RuntimeException {
-            return false;
+            return IValueKinds.DATETIME_COMPOUND;
         }
     };
 
