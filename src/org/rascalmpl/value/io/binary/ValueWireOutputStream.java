@@ -23,10 +23,10 @@ public class ValueWireOutputStream implements Closeable, Flushable {
 
     public ValueWireOutputStream(OutputStream stream) throws IOException {
         this.__stream = stream;
-        this.stream = CodedOutputStream.newInstance(stream);
-        this.stringsWritten = new MapLastWritten<>(STRING_WRITTEN_SIZE);
         this.__stream.write(WIRE_VERSION);
-        this.stream.writeRawVarint32(STRING_WRITTEN_SIZE);
+        this.stream = CodedOutputStream.newInstance(stream);
+        this.stream.writeUInt32NoTag(STRING_WRITTEN_SIZE);
+        this.stringsWritten = new MapLastWritten<>(STRING_WRITTEN_SIZE);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ValueWireOutputStream implements Closeable, Flushable {
     }
 
     void writeFieldTag(final int fieldId, final int type) throws IOException {
-        stream.writeRawVarint32(TaggedInt.make(fieldId, type));
+        stream.writeUInt32NoTag(TaggedInt.make(fieldId, type));
     }
 
     public void startMessage(int messageId) throws IOException {
@@ -68,7 +68,7 @@ public class ValueWireOutputStream implements Closeable, Flushable {
         int alreadyWritten = stringsWritten.howLongAgo(value);
         if (alreadyWritten != -1) {
             writeFieldTag(fieldId, FieldKind.PREVIOUS_STR);
-            stream.writeRawVarint64(TaggedInt.make(alreadyWritten, FieldKind.STRING));
+            stream.writeUInt64NoTag(TaggedInt.make(alreadyWritten, FieldKind.STRING));
         }
         else {
             writeFieldTag(fieldId, FieldKind.STRING);
@@ -80,7 +80,7 @@ public class ValueWireOutputStream implements Closeable, Flushable {
     public void writeField(int fieldId, long value) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.LONG);
-        stream.writeRawVarint64(value);
+        stream.writeUInt64NoTag(value);
     }
     
     public void writeField(int fieldId, byte[] value) throws IOException {

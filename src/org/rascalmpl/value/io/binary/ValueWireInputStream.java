@@ -58,7 +58,7 @@ public class ValueWireInputStream implements Closeable {
         this.stream = CodedInputStream.newInstance(stream);
         int stringReadSize = this.stream.readRawVarint32();
         this.stringsRead = new LinearCircularLookupWindow<>(stringReadSize);
-        this.stream.setSizeLimit(Integer.MAX_VALUE); // TODO: how to handle very large files (as in over the Integer.MAX_VALUE bytes?)
+        this.stream.setSizeLimit(Integer.MAX_VALUE); 
     }
 
     @Override
@@ -96,6 +96,7 @@ public class ValueWireInputStream implements Closeable {
                 stream.resetSizeCounter();
                 stringValue = stream.readString();
                 stringsRead.read(stringValue);
+                stream.resetSizeCounter();
                 log("reader: string field " + fieldID + ", " + stringValue);
                 break;
             case FieldKind.LONG:
