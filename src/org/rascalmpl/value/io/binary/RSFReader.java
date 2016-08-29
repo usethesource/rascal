@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
+package org.rascalmpl.value.io.binary;
 
 import java.io.Closeable;
 import java.io.EOFException;
@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.FieldKind;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.LinearCircularLookupWindow;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.TaggedInt;
+import org.rascalmpl.value.io.binary.util.FieldKind;
+import org.rascalmpl.value.io.binary.util.LinearCircularLookupWindow;
+import org.rascalmpl.value.io.binary.util.TaggedInt;
 
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;

@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util;
+package org.rascalmpl.value.io.binary.util;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

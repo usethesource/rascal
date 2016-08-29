@@ -10,6 +10,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.io.binary.RSFWriter;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.util.IndexedSet;
 
