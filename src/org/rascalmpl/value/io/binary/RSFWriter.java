@@ -1,14 +1,14 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
+package org.rascalmpl.value.io.binary;
 
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.FieldKind;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.MapLastWritten;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.TaggedInt;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.TrackLastWritten;
+import org.rascalmpl.value.io.binary.util.FieldKind;
+import org.rascalmpl.value.io.binary.util.MapLastWritten;
+import org.rascalmpl.value.io.binary.util.TaggedInt;
+import org.rascalmpl.value.io.binary.util.TrackLastWritten;
 
 import com.google.protobuf.CodedOutputStream;
 

@@ -1,12 +1,10 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
+package org.rascalmpl.value.io.binary;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.MapLastWritten;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.TrackLastWritten;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IDateTime;
@@ -20,6 +18,8 @@ import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.io.binary.util.MapLastWritten;
+import org.rascalmpl.value.io.binary.util.TrackLastWritten;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.tukaani.xz.LZMA2Options;
