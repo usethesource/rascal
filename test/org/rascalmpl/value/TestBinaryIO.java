@@ -13,12 +13,14 @@ package org.rascalmpl.value;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.impl.fast.ValueFactory;
-import org.rascalmpl.value.io.old.BinaryReader;
-import org.rascalmpl.value.io.old.BinaryWriter;
+import org.rascalmpl.value.io.binary.IValueReader;
+import org.rascalmpl.value.io.binary.IValueWriter;
+import org.rascalmpl.value.io.binary.IValueWriter.CompressionRate;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
@@ -68,27 +70,24 @@ public class TestBinaryIO extends TestCase {
 		return vf.constructor(NameNode, vf.string(n));
 	}
 
-	public void testBinaryIO(){
+	public void testBinaryIO() {
 		try{
 			for(int i = 0; i < testValues.length; i++){
 				IValue value = testValues[i];
 				
-				System.out.println(value); // Temp
+				//System.out.println(value); // Temp
 
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				BinaryWriter binaryWriter = new BinaryWriter(value, baos, ts);
-				binaryWriter.serialize();
+				IValueWriter.write(baos, value, CompressionRate.Normal, true);
 				
-				//PBFWriter.writeValueToFile(value, new File("/tmp/testIO"+i+".pbf")); // Temp
 
 				byte[] data = baos.toByteArray();
 				ByteArrayInputStream bais = new ByteArrayInputStream(data);
-				BinaryReader binaryReader = new BinaryReader(vf, ts, bais);
-				printBytes(data); // Temp
-				IValue result = binaryReader.deserialize();
+				IValue result = IValueReader.read(bais, vf, ts);
+				//printBytes(data); // Temp
 
-				System.out.println(result); // Temp
-				System.out.println(); // Temp
+				//System.out.println(result); // Temp
+				//System.out.println(); // Temp
 				
 				if(!value.isEqual(result)){
 					String message = "Not equal: \n\t"+value+" : "+value.getType()+"\n\t"+result+" : "+result.getType();

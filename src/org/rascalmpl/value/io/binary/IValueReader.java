@@ -52,9 +52,8 @@ public class IValueReader {
 	 * @param closeStream
 	 * @return
 	 * @throws IOException 
-	 * @throws URISyntaxException 
 	 */
-	public static IValue read(InputStream in, IValueFactory vf, TypeStore ts) throws IOException, URISyntaxException {
+	public static IValue read(InputStream in, IValueFactory vf, TypeStore ts) throws IOException {
 		byte[] currentHeader = new byte[IValueWriter.header.length];
         in.read(currentHeader);
         if (!Arrays.equals(IValueWriter.header, currentHeader)) {
@@ -115,7 +114,7 @@ public class IValueReader {
 		}
 	}
 	
-	private static IValue read(final ValueWireInputStream reader, final IValueFactory vf, final TypeStore store, TrackLastRead<Type> typeWindow, TrackLastRead<IValue> valueWindow, TrackLastRead<ISourceLocation> uriWindow) throws IOException, URISyntaxException{
+	private static IValue read(final ValueWireInputStream reader, final IValueFactory vf, final TypeStore store, TrackLastRead<Type> typeWindow, TrackLastRead<IValue> valueWindow, TrackLastRead<ISourceLocation> uriWindow) throws IOException{
 
         ReaderStack<Type> tstack = new ReaderStack<>(100);
         ReaderStack<IValue> vstack = new ReaderStack<>(1024);
@@ -817,6 +816,8 @@ public class IValueReader {
             } else {
                 throw new IOException("Premature EOF while reading value 2: " + reader.current());
             }
+        } catch (URISyntaxException e) {
+            throw new IOException(e);
         }
     }
 }
