@@ -10,7 +10,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
 import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.io.binary.RSFWriter;
+import org.rascalmpl.value.io.binary.ValueWireOutputStream;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.util.IndexedSet;
 
@@ -37,11 +37,11 @@ public class RSFExecutableWriter {
     public static final int OVERLOADED_FUNCTION = 3;
     public static final int EXECUTABLE = 4;
     
-    private final RSFWriter rsfWriter;
+    private final ValueWireOutputStream rsfWriter;
 	transient private static IndexedSet<Object> sharedObjects;
 
 	public RSFExecutableWriter(OutputStream out) throws IOException{
-		rsfWriter = new RSFWriter(out);
+		rsfWriter = new ValueWireOutputStream(out);
 		sharedObjects = new IndexedSet<>();
 		sharedObjects.store(new Boolean(false));	// make sure index 0 will not occur
 	}

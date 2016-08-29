@@ -1,4 +1,4 @@
-package org.rascalmpl.value.io.binary;
+package org.rascalmpl.value.io.binary.util;
 
 
 import java.io.IOException;
