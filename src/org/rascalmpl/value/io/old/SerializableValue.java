@@ -1,4 +1,4 @@
-package org.rascalmpl.value.io;
+package org.rascalmpl.value.io.old;
 
 import java.io.IOException;
 import java.io.InputStream;

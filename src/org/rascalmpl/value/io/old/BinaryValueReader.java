@@ -8,7 +8,7 @@
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
 *******************************************************************************/
-package org.rascalmpl.value.io;
+package org.rascalmpl.value.io.old;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -18,7 +18,7 @@ import java.io.InputStream;
 
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.binary.BinaryReader;
+import org.rascalmpl.value.io.IValueBinaryReader;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 
