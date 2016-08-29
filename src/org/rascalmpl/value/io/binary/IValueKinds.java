@@ -19,7 +19,7 @@ public class IValueKinds {
 	public static final boolean INTEGER_COMPOUND = false;
 	public static final boolean SOURCELOCATION_COMPOUND = false;
 	public static final boolean NUMBER_COMPOUND = false;
-	public static final boolean RATIONAL_COMPOUND = true;
+	public static final boolean RATIONAL_COMPOUND = true; // not for type!
 	public static final boolean REAL_COMPOUND = false;
 	public static final boolean STRING_COMPOUND = false;
 	public static final boolean VALUE_COMPOUND = false;
@@ -31,8 +31,7 @@ public class IValueKinds {
 	public static final boolean CONSTRUCTOR_COMPOUND = true;
 	public static final boolean LIST_COMPOUND = true;
 	public static final boolean MAP_COMPOUND = true;
-	public static final boolean NODE_COMPOUND_TYPE = false; 
-	public static final boolean NODE_COMPOUND_VALUE = true; 
+	public static final boolean NODE_COMPOUND = true;  // not for type!
     public static final boolean EXTERNAL_COMPOUND = true;
 	/*
 	public static final boolean FUNCTION_COMPOUND = true;

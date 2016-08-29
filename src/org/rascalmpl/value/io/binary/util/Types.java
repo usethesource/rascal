@@ -71,7 +71,7 @@ public class Types {
 
         @Override
         public Boolean visitNode(Type type) throws RuntimeException {
-            return IValueKinds.NODE_COMPOUND_TYPE;
+            return false; //IValueKinds.NODE_COMPOUND;
         }
 
         @Override

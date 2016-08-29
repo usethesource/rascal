@@ -27,12 +27,9 @@ import org.rascalmpl.value.io.binary.util.PrePostIValueIterator;
 import org.rascalmpl.value.io.binary.util.PrePostTypeIterator;
 import org.rascalmpl.value.io.binary.util.TrackLastWritten;
 import org.rascalmpl.value.io.binary.util.Types;
-import org.rascalmpl.value.io.binary.util.Values;
-import org.rascalmpl.value.type.DefaultTypeVisitor;
 import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.visitors.IValueVisitor;
-import org.rascalmpl.value.visitors.NullVisitor;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZOutputStream;
@@ -44,6 +41,7 @@ import org.tukaani.xz.XZOutputStream;
 	        
 public class IValueWriter {
     
+
     public enum CompressionRate {
         None(0,0,0, 0),
         //TypesOnly(10,0,0),
@@ -122,159 +120,228 @@ public class IValueWriter {
 		}
 	}
 	
+    private static final class TypeWriterVisitor
+            implements ITypeVisitor<Boolean, IOException> {
+        private final TrackLastWritten<IValue> valueCache;
+        private final TrackLastWritten<Type> typeCache;
+        private final PrePostTypeIterator iter;
+        private final ValueWireOutputStream writer;
+        private final TrackLastWritten<ISourceLocation> uriCache;
+
+        private TypeWriterVisitor(TrackLastWritten<IValue> valueCache,
+                TrackLastWritten<Type> typeCache, PrePostTypeIterator iter,
+                ValueWireOutputStream writer, TrackLastWritten<ISourceLocation> uriCache) {
+            this.valueCache = valueCache;
+            this.typeCache = typeCache;
+            this.iter = iter;
+            this.writer = writer;
+            this.uriCache = uriCache;
+        }
+
+        private boolean writeFromCache(Type type) throws IOException {
+            int lastSeen = typeCache.howLongAgo(type);
+            if (lastSeen != -1) { 
+                writeSingleValueMessage(writer, IValueIDs.PreviousType.ID, IValueIDs.PreviousType.HOW_LONG_AGO, lastSeen);
+                iter.skipItem();
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public Boolean visitAbstractData(Type type) throws IOException {
+            assert IValueKinds.ADT_COMPOUND;
+            if (writeFromCache(type) || iter.atBeginning()) {
+                return false;
+            }
+            writeSingleValueMessage(writer, IValueIDs.ADTType.ID, IValueIDs.ADTType.NAME, type.getName());
+            return true;
+        }
+
+        @Override
+        public Boolean visitAlias(Type type) throws IOException {
+            assert IValueKinds.ALIAS_COMPOUND;
+            if (writeFromCache(type) || iter.atBeginning()) {
+                return false;
+            }
+            writeSingleValueMessage(writer, IValueIDs.AliasType.ID, IValueIDs.AliasType.NAME, type.getName());
+            return true;
+        }
+
+        @Override
+        public Boolean visitConstructor(Type type) throws IOException {
+            assert IValueKinds.CONSTRUCTOR_COMPOUND;
+            if (writeFromCache(type) || iter.atBeginning()) {
+                return false;
+            }
+            writeSingleValueMessage(writer, IValueIDs.ConstructorType.ID, IValueIDs.ConstructorType.NAME, type.getName());
+            return true;
+        }
+
+        @Override
+        public Boolean visitExternal(Type type) throws IOException {
+            assert IValueKinds.EXTERNAL_COMPOUND;
+            if (writeFromCache(type) || iter.atBeginning()) {
+                return false;
+            }
+            // TODO this should be here, but on the external type callback 
+            if(type instanceof FunctionType){
+                writer.writeEmptyMessage(IValueIDs.ConstructorType.ID);
+            } else if(type instanceof ReifiedType){
+                writer.writeEmptyMessage(IValueIDs.ReifiedType.ID);
+            } else if(type instanceof OverloadedFunctionType){
+                writeSingleValueMessage(writer, IValueIDs.OverloadedType.ID, IValueIDs.OverloadedType.SIZE, ((OverloadedFunctionType) type).getAlternatives().size());
+            } else if(type instanceof NonTerminalType){
+                write(writer, ((NonTerminalType)type).getSymbol(), typeCache, valueCache, uriCache);
+                writer.writeEmptyMessage(IValueIDs.NonTerminalType.ID);
+            } else {
+                throw new RuntimeException("External type not supported: " + type);
+            }
+            return true;
+        }
+
+        @Override
+        public Boolean visitList(Type type) throws IOException {
+            assert IValueKinds.LIST_COMPOUND;
+            if (writeFromCache(type) || iter.atBeginning()) {
+                return false;
+            }
+            writer.writeEmptyMessage(IValueIDs.ListType.ID);
+            return true;
+        }
+
+        @Override
+        public Boolean visitMap(Type type) throws IOException {
+            assert IValueKinds.MAP_COMPOUND;
+            if (writeFromCache(type) || iter.atBeginning()) {
+                return false;
+            }
+            writer.writeEmptyMessage(IValueIDs.MapType.ID);
+            return true;
+        }
+
+        @Override
+        public Boolean visitParameter(Type type) throws IOException {
+            assert IValueKinds.PARAMETER_COMPOUND;
+            if (writeFromCache(type) || iter.atBeginning()) {
+                return false;
+            }
+            writeSingleValueMessage(writer, IValueIDs.ParameterType.ID, IValueIDs.ParameterType.NAME,type.getName());
+            return true;
+        }
+
+        @Override
+        public Boolean visitSet(Type type) throws IOException {
+            assert IValueKinds.SET_COMPOUND;
+            if (writeFromCache(type) || iter.atBeginning()) {
+                return false;
+            }
+            writer.writeEmptyMessage(IValueIDs.SetType.ID);
+            return true;
+        }
+
+        @Override
+        public Boolean visitTuple(Type type) throws IOException {
+            assert IValueKinds.TUPLE_COMPOUND;
+            if (writeFromCache(type) || iter.atBeginning()) {
+                return false;
+            }
+            writer.startMessage(IValueIDs.TupleType.ID);
+            writer.writeField(IValueIDs.TupleType.ARITY, type.getArity());
+            String[] fieldNames = type.getFieldNames();
+            if(fieldNames != null){
+                writeNames(writer, IValueIDs.TupleType.NAMES, fieldNames);
+            }
+            writer.endMessage();
+            return true;
+        }
+
+        @Override
+        public Boolean visitBool(Type t) throws IOException {
+            assert !IValueKinds.BOOLEAN_COMPOUND;
+            writer.writeEmptyMessage(IValueIDs.BoolType.ID);
+            return false;
+        }
+
+        @Override
+        public Boolean visitDateTime(Type t) throws IOException {
+            assert !IValueKinds.DATETIME_COMPOUND;
+            writer.writeEmptyMessage(IValueIDs.DateTimeType.ID);
+            return false;
+        }
+
+        @Override
+        public Boolean visitInteger(Type t) throws IOException {
+            assert !IValueKinds.INTEGER_COMPOUND;
+            writer.writeEmptyMessage(IValueIDs.IntegerType.ID);
+            return false;
+        }
+
+        @Override
+        public Boolean visitNode(Type t) throws IOException {
+            assert IValueKinds.NODE_COMPOUND; // node types have no nested types
+            writer.writeEmptyMessage(IValueIDs.NodeType.ID);
+            return false;
+        }
+
+        @Override
+        public Boolean visitNumber(Type t) throws IOException {
+            assert !IValueKinds.NUMBER_COMPOUND;
+            writer.writeEmptyMessage(IValueIDs.NumberType.ID);
+            return false;
+        }
+
+        @Override
+        public Boolean visitRational(Type t) throws IOException {
+            assert IValueKinds.RATIONAL_COMPOUND; // rational has no children
+            writer.writeEmptyMessage(IValueIDs.RationalType.ID);
+            return false;
+        }
+
+        @Override
+        public Boolean visitReal(Type t) throws IOException {
+            assert !IValueKinds.REAL_COMPOUND;
+            writer.writeEmptyMessage(IValueIDs.RealType.ID);
+            return false;
+        }
+
+        @Override
+        public Boolean visitSourceLocation(Type t) throws IOException {
+            assert !IValueKinds.SOURCELOCATION_COMPOUND;
+            writer.writeEmptyMessage(IValueIDs.SourceLocationType.ID);
+            return false;
+        }
+
+        @Override
+        public Boolean visitString(Type t) throws IOException {
+            assert !IValueKinds.STRING_COMPOUND;
+            writer.writeEmptyMessage(IValueIDs.StringType.ID);
+            return false;
+        }
+
+        @Override
+        public Boolean visitValue(Type t) throws IOException {
+            assert !IValueKinds.VALUE_COMPOUND;
+            writer.writeEmptyMessage(IValueIDs.ValueType.ID);
+            return false;
+        }
+
+        @Override
+        public Boolean visitVoid(Type t) throws IOException {
+            assert !IValueKinds.VOID_COMPOUND;
+            writer.writeEmptyMessage(IValueIDs.VoidType.ID);
+            return false;
+        }
+    }
 	private static void write(final ValueWireOutputStream writer, final Type type, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
 	    final PrePostTypeIterator iter = new PrePostTypeIterator(type);
 	    
-	    ITypeVisitor<Boolean, IOException> compoundWriter = new DefaultTypeVisitor<Boolean, IOException>(null) {
-	        @Override
-	        public Boolean visitAbstractData(Type type) throws IOException {
-	            writeSingleValueMessage(writer, IValueIDs.ADTType.ID, IValueIDs.ADTType.NAME, type.getName());
-	            return true;
-	        }
-	        @Override
-	        public Boolean visitAlias(Type type) throws IOException {
-	            writeSingleValueMessage(writer, IValueIDs.AliasType.ID, IValueIDs.AliasType.NAME, type.getName());
-	            return true;
-	        }
-	        @Override
-	        public Boolean visitConstructor(Type type) throws IOException {
-	            writeSingleValueMessage(writer, IValueIDs.ConstructorType.ID, IValueIDs.ConstructorType.NAME, type.getName());
-	            return true;
-	        }
-	        @Override
-	        public Boolean visitExternal(Type type) throws IOException {
-	            // TODO this should be here, but on the external type callback 
-	            if(type instanceof FunctionType){
-	                writer.writeEmptyMessage(IValueIDs.ConstructorType.ID);
-	            } else if(type instanceof ReifiedType){
-	                writer.writeEmptyMessage(IValueIDs.ReifiedType.ID);
-	            } else if(type instanceof OverloadedFunctionType){
-	                writeSingleValueMessage(writer, IValueIDs.OverloadedType.ID, IValueIDs.OverloadedType.SIZE, ((OverloadedFunctionType) type).getAlternatives().size());
-	            } else if(type instanceof NonTerminalType){
-	                write(writer, ((NonTerminalType)type).getSymbol(), typeCache, valueCache, uriCache);
-	                writer.writeEmptyMessage(IValueIDs.NonTerminalType.ID);
-	            } else {
-	                throw new RuntimeException("External type not supported: " + type);
-	            }
-	            return true;
-	        }
-	        @Override
-	        public Boolean visitList(Type type) throws IOException {
-	            writer.writeEmptyMessage(IValueIDs.ListType.ID);
-	            return true;
-	        }
-
-	        @Override
-	        public Boolean visitMap(Type type) throws IOException {
-	            writer.writeEmptyMessage(IValueIDs.MapType.ID);
-	            return true;
-	        }
-	        @Override
-	        public Boolean visitParameter(Type type) throws IOException {
-	            writeSingleValueMessage(writer, IValueIDs.ParameterType.ID, IValueIDs.ParameterType.NAME,type.getName());
-	            return true;
-	        }
-
-
-	        @Override
-	        public Boolean visitSet(Type type) throws IOException {
-	            writer.writeEmptyMessage(IValueIDs.SetType.ID);
-	            return true;
-	        }
-	        @Override
-	        public Boolean visitTuple(Type type) throws IOException {
-	            writer.startMessage(IValueIDs.TupleType.ID);
-	            writer.writeField(IValueIDs.TupleType.ARITY, type.getArity());
-	            String[] fieldNames = type.getFieldNames();
-	            if(fieldNames != null){
-	                writeNames(writer, IValueIDs.TupleType.NAMES, fieldNames);
-	            }
-	            writer.endMessage();
-	            return true;
-	        }
-	    };
-
-	    ITypeVisitor<Boolean, IOException> simpleWriter = new DefaultTypeVisitor<Boolean, IOException>(null) {
-	        @Override
-	        public Boolean visitBool(Type t) throws IOException {
-	            writer.writeEmptyMessage(IValueIDs.BoolType.ID);
-	            return true;
-	        }
-	        @Override
-	        public Boolean visitDateTime(Type t) throws IOException {
-	            writer.writeEmptyMessage(IValueIDs.DateTimeType.ID);
-	            return true;
-	        }
-	        @Override
-	        public Boolean visitInteger(Type t) throws IOException {
-	            writer.writeEmptyMessage(IValueIDs.IntegerType.ID);
-	            return true;
-	        }
-	        @Override
-	        public Boolean visitNode(Type t) throws IOException {
-	            writer.writeEmptyMessage(IValueIDs.NodeType.ID);
-	            return true;
-	        }
-	        @Override
-	        public Boolean visitNumber(Type t) throws IOException {
-	            writer.writeEmptyMessage(IValueIDs.NumberType.ID);
-	            return true;
-	        }
-	        @Override
-	        public Boolean visitRational(Type t) throws IOException {
-	            writer.writeEmptyMessage(IValueIDs.RationalType.ID);
-	            return true;
-	        }
-	        @Override
-	        public Boolean visitReal(Type t) throws IOException {
-	            writer.writeEmptyMessage(IValueIDs.RealType.ID);
-	            return true;
-	        }
-	        @Override
-	        public Boolean visitSourceLocation(Type t) throws IOException {
-	            writer.writeEmptyMessage(IValueIDs.SourceLocationType.ID);
-	            return true;
-	        }
-	        @Override
-	        public Boolean visitString(Type t) throws IOException {
-	            writer.writeEmptyMessage(IValueIDs.StringType.ID);
-	            return true;
-	        }
-	        @Override
-	        public Boolean visitValue(Type t) throws IOException {
-	            writer.writeEmptyMessage(IValueIDs.ValueType.ID);
-	            return true;
-	        }
-	        @Override
-	        public Boolean visitVoid(Type t) throws IOException {
-	            writer.writeEmptyMessage(IValueIDs.VoidType.ID);
-	            return true;
-	        }
-	    };
+	    ITypeVisitor<Boolean, IOException> typeWriter = new TypeWriterVisitor(valueCache, typeCache, iter, writer, uriCache);
 	    while(iter.hasNext()){
 	        iter.next();
 	        final Type currentType = iter.getItem();
-	        if (Types.isCompound(currentType)) {
-                if (iter.atBeginning()) {
-                    int lastSeen = typeCache.howLongAgo(currentType);
-                    if (lastSeen != -1) { 
-                        writeSingleValueMessage(writer, IValueIDs.PreviousType.ID, IValueIDs.PreviousType.HOW_LONG_AGO, lastSeen);
-                        iter.skipItem();
-                    }
-                }
-                else {
-                    Boolean written = currentType.accept(compoundWriter);
-                    if (written == null) {
-                        throw new RuntimeException("Missing compound type case");
-                    }
-                    typeCache.write(currentType);
-                }
-	        }
-	        else {
-	            Boolean written = currentType.accept(simpleWriter);
-	            if (written == null) {
-	                throw new RuntimeException("Missing non-compound type case");
-	            }
+	        if (currentType.accept(typeWriter)) {
+                typeCache.write(currentType);
 	        }
 	    }
 	}
@@ -333,7 +400,7 @@ public class IValueWriter {
 		    }
 		    @Override
 		    public Boolean visitNode(INode node) throws IOException {
-		        assert IValueKinds.NODE_COMPOUND_VALUE;
+		        assert IValueKinds.NODE_COMPOUND;
 		        if (writeFromCache(node) || iter.atBeginning()) {
 		            return false;
 		        }

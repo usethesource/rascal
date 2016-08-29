@@ -70,7 +70,7 @@ public class Values {
         }
         @Override
         public Boolean visitNode(INode o) throws RuntimeException {
-            return IValueKinds.NODE_COMPOUND_VALUE;
+            return IValueKinds.NODE_COMPOUND;
         }
         @Override
         public Boolean visitConstructor(IConstructor o) throws RuntimeException {
