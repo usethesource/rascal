@@ -25,7 +25,6 @@ import org.rascalmpl.value.io.binary.util.MapLastWritten;
 import org.rascalmpl.value.io.binary.util.PrePostIValueIterator;
 import org.rascalmpl.value.io.binary.util.PrePostTypeIterator;
 import org.rascalmpl.value.io.binary.util.TrackLastWritten;
-import org.rascalmpl.value.io.binary.util.TypeIteratorKind;
 import org.rascalmpl.value.io.binary.util.Types;
 import org.rascalmpl.value.io.binary.util.Values;
 import org.rascalmpl.value.type.DefaultTypeVisitor;
@@ -125,7 +124,6 @@ public class IValueWriter {
 	private static void write(final ValueWireOutputStream writer, final Type type, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
 	    final PrePostTypeIterator iter = new PrePostTypeIterator(type);
 	    
-	    
 	    ITypeVisitor<Boolean, IOException> compoundWriter = new DefaultTypeVisitor<Boolean, IOException>(null) {
 	        @Override
 	        public Boolean visitAbstractData(Type type) throws IOException {
@@ -194,8 +192,66 @@ public class IValueWriter {
 	            return true;
 	        }
 	    };
+
+	    ITypeVisitor<Boolean, IOException> simpleWriter = new DefaultTypeVisitor<Boolean, IOException>(null) {
+	        @Override
+	        public Boolean visitBool(Type t) throws IOException {
+	            writer.writeEmptyMessage(IValueIDs.BoolType.ID);
+	            return true;
+	        }
+	        @Override
+	        public Boolean visitDateTime(Type t) throws IOException {
+	            writer.writeEmptyMessage(IValueIDs.DateTimeType.ID);
+	            return true;
+	        }
+	        @Override
+	        public Boolean visitInteger(Type t) throws IOException {
+	            writer.writeEmptyMessage(IValueIDs.IntegerType.ID);
+	            return true;
+	        }
+	        @Override
+	        public Boolean visitNode(Type t) throws IOException {
+	            writer.writeEmptyMessage(IValueIDs.NodeType.ID);
+	            return true;
+	        }
+	        @Override
+	        public Boolean visitNumber(Type t) throws IOException {
+	            writer.writeEmptyMessage(IValueIDs.NumberType.ID);
+	            return true;
+	        }
+	        @Override
+	        public Boolean visitRational(Type t) throws IOException {
+	            writer.writeEmptyMessage(IValueIDs.RationalType.ID);
+	            return true;
+	        }
+	        @Override
+	        public Boolean visitReal(Type t) throws IOException {
+	            writer.writeEmptyMessage(IValueIDs.RealType.ID);
+	            return true;
+	        }
+	        @Override
+	        public Boolean visitSourceLocation(Type t) throws IOException {
+	            writer.writeEmptyMessage(IValueIDs.SourceLocationType.ID);
+	            return true;
+	        }
+	        @Override
+	        public Boolean visitString(Type t) throws IOException {
+	            writer.writeEmptyMessage(IValueIDs.StringType.ID);
+	            return true;
+	        }
+	        @Override
+	        public Boolean visitValue(Type t) throws IOException {
+	            writer.writeEmptyMessage(IValueIDs.ValueType.ID);
+	            return true;
+	        }
+	        @Override
+	        public Boolean visitVoid(Type t) throws IOException {
+	            writer.writeEmptyMessage(IValueIDs.VoidType.ID);
+	            return true;
+	        }
+	    };
 	    while(iter.hasNext()){
-	        final TypeIteratorKind kind = iter.next();
+	        iter.next();
 	        final Type currentType = iter.getItem();
 	        if (Types.isCompound(currentType)) {
                 if (iter.atBeginning()) {
@@ -214,54 +270,9 @@ public class IValueWriter {
                 }
 	        }
 	        else {
-	            switch(kind){
-	                case BOOL: {
-	                    writer.writeEmptyMessage(IValueIDs.BoolType.ID);
-	                    break;
-	                }
-	                case DATETIME: {
-	                    writer.writeEmptyMessage(IValueIDs.DateTimeType.ID);
-	                    break;
-	                }
-	                case INT: {
-	                    writer.writeEmptyMessage(IValueIDs.IntegerType.ID);
-	                    break;
-	                }
-	                case NODE: {
-	                    writer.writeEmptyMessage(IValueIDs.NodeType.ID);
-	                    break;
-	                }
-	                case NUMBER: {
-	                    writer.writeEmptyMessage(IValueIDs.NumberType.ID);
-	                    break;
-	                }
-	                case RATIONAL: {
-	                    writer.writeEmptyMessage(IValueIDs.RationalType.ID);
-	                    break;
-	                }
-	                case REAL: {
-	                    writer.writeEmptyMessage(IValueIDs.RealType.ID);
-	                    break;
-	                }
-	                case LOC: {
-	                    writer.writeEmptyMessage(IValueIDs.SourceLocationType.ID);
-	                    break;
-	                }
-	                case STR: {
-	                    writer.writeEmptyMessage(IValueIDs.StringType.ID);
-	                    break;
-	                }
-	                case VALUE: {
-	                    writer.writeEmptyMessage(IValueIDs.ValueType.ID);
-	                    break;
-	                }
-	                case VOID: {
-	                    writer.writeEmptyMessage(IValueIDs.VoidType.ID);
-	                    break;
-	                }
-                    default:
-                        throw new RuntimeException("Missing non-compound type case");
-
+	            Boolean written = currentType.accept(simpleWriter);
+	            if (written == null) {
+	                throw new RuntimeException("Missing non-compound type case");
 	            }
 	        }
 	    }
