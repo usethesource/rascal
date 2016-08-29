@@ -1,5 +1,7 @@
 package org.rascalmpl.value.io.binary;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -12,6 +14,7 @@ import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.INode;
+import org.rascalmpl.value.IRational;
 import org.rascalmpl.value.IReal;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISourceLocation;
@@ -24,7 +27,10 @@ import org.rascalmpl.value.io.binary.util.PrePostTypeIterator;
 import org.rascalmpl.value.io.binary.util.TrackLastWritten;
 import org.rascalmpl.value.io.binary.util.TypeIteratorKind;
 import org.rascalmpl.value.io.binary.util.ValueIteratorKind;
+import org.rascalmpl.value.io.binary.util.Values;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.visitors.IValueVisitor;
+import org.rascalmpl.value.visitors.NullVisitor;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZOutputStream;
@@ -271,10 +277,73 @@ public class IValueWriter {
 	private static void write(final ValueWireOutputStream writer, final IValue value, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
 		PrePostIValueIterator iter = new PrePostIValueIterator(value);
 		
+		IValueVisitor<Boolean, IOException> compoundWriter = new NullVisitor<Boolean, IOException>() {
+		    @Override
+		    public Boolean visitConstructor(IConstructor cons) throws IOException {
+		        write(writer, cons.getUninstantiatedConstructorType(), typeCache, valueCache, uriCache);
+
+		        writer.startMessage(IValueIDs.ConstructorValue.ID);
+		        writer.writeField(IValueIDs.ConstructorValue.ARITY, cons.arity());
+		        if(cons.mayHaveKeywordParameters()){
+		            if(cons.asWithKeywordParameters().hasParameters()){
+		                writer.writeField(IValueIDs.ConstructorValue.KWPARAMS, cons.asWithKeywordParameters().getParameters().size());
+		            }
+		        } else {
+		            if(cons.asAnnotatable().hasAnnotations()){
+		                writer.writeField(IValueIDs.ConstructorValue.ANNOS, cons.asAnnotatable().getAnnotations().size());
+		            }
+		        }
+		        writer.endMessage();
+		        return true;
+		    }
+		    @Override
+		    public Boolean visitNode(INode node) throws IOException {
+		        writer.startMessage(IValueIDs.NodeValue.ID);
+		        writer.writeField(IValueIDs.NodeValue.NAME,  node.getName());
+		        writer.writeField(IValueIDs.NodeValue.ARITY, node.arity());
+		        if(node.mayHaveKeywordParameters()){
+		            if(node.asWithKeywordParameters().hasParameters()){
+		                writer.writeField(IValueIDs.NodeValue.KWPARAMS, node.asWithKeywordParameters().getParameters().size());
+		            }
+		        } else {
+		            if(node.asAnnotatable().hasAnnotations()){
+		                writer.writeField(IValueIDs.NodeValue.ANNOS, node.asAnnotatable().getAnnotations().size());
+		            }
+		        }
+		        writer.endMessage();
+		        return true;
+		    }
+		    @Override
+		    public Boolean visitList(IList o) throws IOException {
+		        writeSingleValueMessage(writer, IValueIDs.ListValue.ID, IValueIDs.ListValue.SIZE, o.length());
+		        return true;
+		    }
+		    @Override
+		    public Boolean visitMap(IMap o) throws IOException {
+		        writeSingleValueMessage(writer, IValueIDs.MapValue.ID, IValueIDs.MapValue.SIZE, o.size());
+		        return true;
+		    }
+		    @Override
+		    public Boolean visitSet(ISet o) throws IOException {
+		        writeSingleValueMessage(writer, IValueIDs.SetValue.ID, IValueIDs.SetValue.SIZE, o.size());
+		        return true;
+		    }
+		    @Override
+		    public Boolean visitRational(IRational o) throws IOException {
+		        writer.writeEmptyMessage(IValueIDs.RationalValue.ID);
+		        return true;
+		    }
+		    @Override
+		    public Boolean visitTuple(ITuple o) throws IOException {
+			     writeSingleValueMessage(writer, IValueIDs.TupleValue.ID, IValueIDs.TupleValue.SIZE, o.arity());
+			     return true;
+		    }
+		    
+		};
 		while(iter.hasNext()){
 			final ValueIteratorKind kind = iter.next();
 			final IValue currentValue = iter.getItem();
-			if (kind.isCompound()) {
+			if (Values.isCompound(currentValue)) {
 			    if (iter.atBeginning()) {
 			        int lastSeen = valueCache.howLongAgo(currentValue);
 			        if (lastSeen != -1) {
@@ -283,71 +352,9 @@ public class IValueWriter {
 			        }
 			    }
 			    else {
-			        switch(kind){
-			            case CONSTRUCTOR: {
-			                IConstructor cons = (IConstructor)currentValue;
-			                write(writer, cons.getUninstantiatedConstructorType(), typeCache, valueCache, uriCache);
-
-			                writer.startMessage(IValueIDs.ConstructorValue.ID);
-			                writer.writeField(IValueIDs.ConstructorValue.ARITY, cons.arity());
-			                if(cons.mayHaveKeywordParameters()){
-			                    if(cons.asWithKeywordParameters().hasParameters()){
-			                        writer.writeField(IValueIDs.ConstructorValue.KWPARAMS, cons.asWithKeywordParameters().getParameters().size());
-			                    }
-			                } else {
-			                    if(cons.asAnnotatable().hasAnnotations()){
-			                        writer.writeField(IValueIDs.ConstructorValue.ANNOS, cons.asAnnotatable().getAnnotations().size());
-			                    }
-			                }
-			                writer.endMessage();
-			                break;
-			            }
-
-
-			            case LIST: {
-			                writeSingleValueMessage(writer, IValueIDs.ListValue.ID, IValueIDs.ListValue.SIZE, ((IList)currentValue).length());
-			                break;
-			            }
-
-			            case MAP: {
-			                writeSingleValueMessage(writer, IValueIDs.MapValue.ID, IValueIDs.MapValue.SIZE, ((IMap)currentValue).size());
-			                break;
-			            }
-			            case SET: {
-			                writeSingleValueMessage(writer, IValueIDs.SetValue.ID, IValueIDs.SetValue.SIZE, ((ISet)currentValue).size());
-			                break;
-			            }
-
-			            case NODE: {
-			                INode node = (INode)currentValue;
-			                writer.startMessage(IValueIDs.NodeValue.ID);
-			                writer.writeField(IValueIDs.NodeValue.NAME,  node.getName());
-			                writer.writeField(IValueIDs.NodeValue.ARITY, node.arity());
-			                if(node.mayHaveKeywordParameters()){
-			                    if(node.asWithKeywordParameters().hasParameters()){
-			                        writer.writeField(IValueIDs.NodeValue.KWPARAMS, node.asWithKeywordParameters().getParameters().size());
-			                    }
-			                } else {
-			                    if(node.asAnnotatable().hasAnnotations()){
-			                        writer.writeField(IValueIDs.NodeValue.ANNOS, node.asAnnotatable().getAnnotations().size());
-			                    }
-			                }
-			                writer.endMessage();
-			                break;
-			            }
-
-			            case RATIONAL: {
-			                writer.writeEmptyMessage(IValueIDs.RationalValue.ID);
-			                break;
-			            }
-
-			            case TUPLE: {
-			                writeSingleValueMessage(writer, IValueIDs.TupleValue.ID, IValueIDs.TupleValue.SIZE, ((ITuple)currentValue).arity());
-			                break;
-			            }
-
-			            default:
-			                throw new RuntimeException("writeValue: unexpected kind of value " + kind);
+			        Boolean written = currentValue.accept(compoundWriter);
+			        if (written == null) {
+			             throw new RuntimeException("writeValue: unexpected kind of value " + currentValue);
 			        }
 			        valueCache.write(currentValue);
 			    }
