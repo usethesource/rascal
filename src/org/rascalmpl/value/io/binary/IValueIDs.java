@@ -4,7 +4,7 @@ package org.rascalmpl.value.io.binary;
  * Constants for Rascal Serialization Format (RSF),
  * a binary format for the (de)serialization of Rascal values and types
  */
-public class RSF {
+public class IValueIDs {
     
     // This is an overview of the message id's, low values are quicker and more compact to encode
     // Never change them, that would break backwards compatiblity

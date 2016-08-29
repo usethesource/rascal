@@ -1,4 +1,4 @@
-package org.rascalmpl.value.io.binary;
+package org.rascalmpl.value.io.binary.util;
 
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.value.IValue;

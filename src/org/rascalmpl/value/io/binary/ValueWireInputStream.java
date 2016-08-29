@@ -13,7 +13,7 @@ import org.rascalmpl.value.io.binary.util.TaggedInt;
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
 
-public class RSFReader implements Closeable {
+public class ValueWireInputStream implements Closeable {
 
     private static void log(String msg) {
         //System.err.println(msg);
@@ -48,7 +48,7 @@ public class RSFReader implements Closeable {
     private int intValue;
     private byte[] bytesValue;
 
-    public RSFReader(InputStream stream) throws IOException {
+    public ValueWireInputStream(InputStream stream) throws IOException {
         this.__stream = stream;
         byte[] header = new byte[WIRE_VERSION.length];
         this.__stream.read(header);
