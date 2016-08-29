@@ -340,8 +340,107 @@ public class IValueWriter {
 		    }
 		    
 		};
+		
+		IValueVisitor<Boolean, IOException> singularWriter = new NullVisitor<Boolean, IOException>() {
+
+		    @Override
+		    public Boolean visitBoolean(IBool boolValue) throws IOException {
+		        writeSingleValueMessage(writer, IValueIDs.BoolValue.ID, IValueIDs.BoolValue.VALUE, boolValue.getValue() ? 1: 0);
+		        return true;
+		    }
+
+		    @Override
+		    public Boolean visitDateTime(IDateTime dateTime) throws IOException {
+		        writer.startMessage(IValueIDs.DateTimeValue.ID);
+
+		        if (!dateTime.isTime()) {
+		            writer.writeField(IValueIDs.DateTimeValue.YEAR, dateTime.getYear());
+		            writer.writeField(IValueIDs.DateTimeValue.MONTH, dateTime.getMonthOfYear());
+		            writer.writeField(IValueIDs.DateTimeValue.DAY, dateTime.getDayOfMonth());
+		        }
+
+		        if (!dateTime.isDate()) {
+		            writer.writeField(IValueIDs.DateTimeValue.HOUR, dateTime.getHourOfDay());
+		            writer.writeField(IValueIDs.DateTimeValue.MINUTE, dateTime.getMinuteOfHour());
+		            writer.writeField(IValueIDs.DateTimeValue.SECOND, dateTime.getSecondOfMinute());
+		            writer.writeField(IValueIDs.DateTimeValue.MILLISECOND, dateTime.getMillisecondsOfSecond());
+
+		            writer.writeField(IValueIDs.DateTimeValue.TZ_HOUR, dateTime.getTimezoneOffsetHours());
+		            writer.writeField(IValueIDs.DateTimeValue.TZ_MINUTE, dateTime.getTimezoneOffsetMinutes());
+		        }
+		        writer.endMessage();
+		        return true;
+		    }
+		    @Override
+		    public Boolean visitInteger(IInteger ii) throws IOException {
+		        writer.startMessage(IValueIDs.IntegerValue.ID);
+		        if(ii. greaterEqual(MININT).getValue() && ii.lessEqual(MAXINT).getValue()){
+		            writer.writeField(IValueIDs.IntegerValue.INTVALUE, ii.intValue());
+		        } 
+		        else {
+		            writer.writeField(IValueIDs.IntegerValue.BIGVALUE, ii.getTwosComplementRepresentation());
+		        }
+		        writer.endMessage();
+		        return true;
+		    }
+
+
+		    @Override
+		    public Boolean visitReal(IReal o) throws IOException {
+		        writer.startMessage(IValueIDs.RealValue.ID);
+		        writer.writeField(IValueIDs.RealValue.CONTENT, o.unscaled().getTwosComplementRepresentation());
+		        writer.writeField(IValueIDs.RealValue.SCALE, o.scale());
+		        writer.endMessage();
+		        return true;
+		    }
+
+		    @Override
+		    public Boolean visitSourceLocation(ISourceLocation loc) throws IOException {
+		        writer.startMessage(IValueIDs.SourceLocationValue.ID);
+		        ISourceLocation uriPart = loc.top();
+		        int alreadyWritten = uriCache.howLongAgo(uriPart);
+		        if (alreadyWritten == -1) {
+		            writer.writeField(IValueIDs.SourceLocationValue.SCHEME, uriPart.getScheme());
+		            if (uriPart.hasAuthority()) {
+		                writer.writeField(IValueIDs.SourceLocationValue.AUTHORITY, uriPart.getAuthority());
+		            }
+		            if (uriPart.hasPath()) {
+		                writer.writeField(IValueIDs.SourceLocationValue.PATH, uriPart.getPath());
+		            }
+		            if (uriPart.hasQuery()) {
+		                writer.writeField(IValueIDs.SourceLocationValue.QUERY,  uriPart.getQuery());
+		            }
+		            if (uriPart.hasFragment()) {
+		                writer.writeField(IValueIDs.SourceLocationValue.FRAGMENT,  uriPart.getFragment());
+		            }
+		            uriCache.write(uriPart);
+		        }
+		        else {
+		            writer.writeField(IValueIDs.SourceLocationValue.PREVIOUS_URI, alreadyWritten);
+		        }
+
+		        if(loc.hasOffsetLength()){
+		            writer.writeField(IValueIDs.SourceLocationValue.OFFSET, loc.getOffset());
+		            writer.writeField(IValueIDs.SourceLocationValue.LENGTH, loc.getLength());
+		        } 
+		        if(loc.hasLineColumn()){
+		            writer.writeField(IValueIDs.SourceLocationValue.BEGINLINE, loc.getBeginLine());
+		            writer.writeField(IValueIDs.SourceLocationValue.ENDLINE, loc.getEndLine());
+		            writer.writeField(IValueIDs.SourceLocationValue.BEGINCOLUMN, loc.getBeginColumn());
+		            writer.writeField(IValueIDs.SourceLocationValue.ENDCOLUMN, loc.getEndColumn());
+		        }
+		        writer.endMessage();
+		        return true;
+		    }
+
+		    @Override
+		    public Boolean visitString(IString o) throws IOException {
+		        writeSingleValueMessage(writer, IValueIDs.StringValue.ID, IValueIDs.StringValue.CONTENT, o.getValue());
+		        return true;
+		    }
+		};
 		while(iter.hasNext()){
-			final ValueIteratorKind kind = iter.next();
+		    iter.next();
 			final IValue currentValue = iter.getItem();
 			if (Values.isCompound(currentValue)) {
 			    if (iter.atBeginning()) {
@@ -361,103 +460,9 @@ public class IValueWriter {
 			}
 			else {
 			    assert iter.atBeginning();
-			    switch(kind){
-			        case BOOL: {
-			            writeSingleValueMessage(writer, IValueIDs.BoolValue.ID, IValueIDs.BoolValue.VALUE, ((IBool)currentValue).getValue() ? 1: 0);
-			            break;
-			        }
-
-			        case DATETIME: {
-			            IDateTime dateTime = (IDateTime)currentValue;
-			            writer.startMessage(IValueIDs.DateTimeValue.ID);
-
-			            if (!dateTime.isTime()) {
-			                writer.writeField(IValueIDs.DateTimeValue.YEAR, dateTime.getYear());
-			                writer.writeField(IValueIDs.DateTimeValue.MONTH, dateTime.getMonthOfYear());
-			                writer.writeField(IValueIDs.DateTimeValue.DAY, dateTime.getDayOfMonth());
-			            }
-
-			            if (!dateTime.isDate()) {
-			                writer.writeField(IValueIDs.DateTimeValue.HOUR, dateTime.getHourOfDay());
-			                writer.writeField(IValueIDs.DateTimeValue.MINUTE, dateTime.getMinuteOfHour());
-			                writer.writeField(IValueIDs.DateTimeValue.SECOND, dateTime.getSecondOfMinute());
-			                writer.writeField(IValueIDs.DateTimeValue.MILLISECOND, dateTime.getMillisecondsOfSecond());
-
-			                writer.writeField(IValueIDs.DateTimeValue.TZ_HOUR, dateTime.getTimezoneOffsetHours());
-			                writer.writeField(IValueIDs.DateTimeValue.TZ_MINUTE, dateTime.getTimezoneOffsetMinutes());
-			            }
-			            writer.endMessage();
-			            break;
-			        }
-
-			        case INT: {
-			            writer.startMessage(IValueIDs.IntegerValue.ID);
-			            IInteger ii = (IInteger)currentValue;
-			            if(ii. greaterEqual(MININT).getValue() && ii.lessEqual(MAXINT).getValue()){
-			                writer.writeField(IValueIDs.IntegerValue.INTVALUE, ii.intValue());
-			            } 
-			            else {
-			                writer.writeField(IValueIDs.IntegerValue.BIGVALUE, ii.getTwosComplementRepresentation());
-			            }
-			            writer.endMessage();
-			            break;
-			        }
-
-
-			        case REAL: {
-			            writer.startMessage(IValueIDs.RealValue.ID);
-			            writer.writeField(IValueIDs.RealValue.CONTENT, ((IReal)currentValue).unscaled().getTwosComplementRepresentation());
-			            writer.writeField(IValueIDs.RealValue.SCALE, ((IReal)currentValue).scale());
-			            writer.endMessage();
-			            break;
-			        }
-
-			        case LOC: {
-			            writer.startMessage(IValueIDs.SourceLocationValue.ID);
-			            ISourceLocation loc = (ISourceLocation)currentValue;
-			            ISourceLocation uriPart = loc.top();
-			            int alreadyWritten = uriCache.howLongAgo(uriPart);
-			            if (alreadyWritten == -1) {
-			                writer.writeField(IValueIDs.SourceLocationValue.SCHEME, uriPart.getScheme());
-			                if (uriPart.hasAuthority()) {
-			                    writer.writeField(IValueIDs.SourceLocationValue.AUTHORITY, uriPart.getAuthority());
-			                }
-			                if (uriPart.hasPath()) {
-			                    writer.writeField(IValueIDs.SourceLocationValue.PATH, uriPart.getPath());
-			                }
-			                if (uriPart.hasQuery()) {
-			                    writer.writeField(IValueIDs.SourceLocationValue.QUERY,  uriPart.getQuery());
-			                }
-			                if (uriPart.hasFragment()) {
-			                    writer.writeField(IValueIDs.SourceLocationValue.FRAGMENT,  uriPart.getFragment());
-			                }
-			                uriCache.write(uriPart);
-			            }
-			            else {
-			                writer.writeField(IValueIDs.SourceLocationValue.PREVIOUS_URI, alreadyWritten);
-			            }
-
-			            if(loc.hasOffsetLength()){
-			                writer.writeField(IValueIDs.SourceLocationValue.OFFSET, loc.getOffset());
-			                writer.writeField(IValueIDs.SourceLocationValue.LENGTH, loc.getLength());
-			            } 
-			            if(loc.hasLineColumn()){
-			                writer.writeField(IValueIDs.SourceLocationValue.BEGINLINE, loc.getBeginLine());
-			                writer.writeField(IValueIDs.SourceLocationValue.ENDLINE, loc.getEndLine());
-			                writer.writeField(IValueIDs.SourceLocationValue.BEGINCOLUMN, loc.getBeginColumn());
-			                writer.writeField(IValueIDs.SourceLocationValue.ENDCOLUMN, loc.getEndColumn());
-			            }
-			            writer.endMessage();
-			            break;
-			        }
-
-			        case STR: {
-			            writeSingleValueMessage(writer, IValueIDs.StringValue.ID, IValueIDs.StringValue.CONTENT, ((IString)currentValue).getValue());
-			            break;
-			        }
-
-			        default:
-			            throw new RuntimeException("writeValue: unexpected kind of value " + kind);
+			    Boolean written = currentValue.accept(singularWriter);
+			    if (written == null) {
+			        throw new RuntimeException("writeValue: unexpected kind of value " + currentValue);
 			    }
 			}
 		}
