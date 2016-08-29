@@ -9,7 +9,7 @@
 *    Arnold Lankamp - interfaces and implementation
 *    Anya Helene Bagge - labeled map types; safer reading
 *******************************************************************************/
-package org.rascalmpl.value.io.binary;
+package org.rascalmpl.value.io.old;
 
 import java.io.IOException;
 import java.io.InputStream;
