@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
+package org.rascalmpl.value.io.binary;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,9 +12,6 @@ import java.util.zip.GZIPInputStream;
 
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFReader.ReaderPosition;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.LinearCircularLookupWindow;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.util.TrackLastRead;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IMapWriter;
@@ -23,6 +20,9 @@ import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.RSFReader.ReaderPosition;
+import org.rascalmpl.value.io.binary.util.LinearCircularLookupWindow;
+import org.rascalmpl.value.io.binary.util.TrackLastRead;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
