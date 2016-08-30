@@ -225,7 +225,7 @@ public class Bootstrap {
                    
                 if (!fullBootstrap) {
                   FileSystem jar = FileSystems.newFileSystem(new URI("jar:file", rvm[0], null), Collections.singletonMap("create", true));
-                  time("Copying downloaded files", () -> copyResult(jar.getPath("boot"), targetFolder));
+                  time("Copying downloaded files", () -> copyJar(jar.getPath("boot"), targetFolder));
                   System.exit(0);
                 }
                 
@@ -299,14 +299,8 @@ public class Bootstrap {
         return tmpDir;
     }
     
-    /**
-     * Copies all files recursively from a sourcePath to a targetPath.
-     * 
-     * This method also works to get files from a jar into the file system.
-     * Note that this was not easy; it takes extra toString magic and Paths.get to transfer between different
-     * kinds of filesystems (in this case file:/// and jar:file:///)
-     */
-	private static void copyResult(Path sourcePath, Path targetPath) throws IOException {
+    // TODO: merge code with copyResult; should be possible imho, but ZipPath.relativize throws exceptions on Paths in the jar
+	private static void copyJar(Path sourcePath, Path targetPath) throws IOException {
 	    Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>() {
 	        @Override
 	        public FileVisitResult preVisitDirectory(final Path dir,  final BasicFileAttributes attrs) throws IOException {
@@ -322,6 +316,23 @@ public class Bootstrap {
 	        }
 	    });
     }
+	
+	private static void copyResult(Path sourcePath, Path targetPath) throws IOException {
+      Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>() {
+          @Override
+          public FileVisitResult preVisitDirectory(final Path dir,  final BasicFileAttributes attrs) throws IOException {
+              Files.createDirectories(targetPath.resolve(sourcePath.relativize(dir)));
+              return FileVisitResult.CONTINUE;
+          }
+
+          @Override
+          public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+              info("Copying " + file + " to " + targetPath.resolve(sourcePath.relativize(file)));
+              Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+              return FileVisitResult.CONTINUE;
+          }
+      });
+  }
 
     private static boolean existsDeployedVersion(Path folder, String version) {	
 		try (InputStream s = deployedVersion(version).toURL().openStream()) {
