@@ -25,9 +25,7 @@ import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.io.binary.util.MapLastWritten;
 import org.rascalmpl.value.io.binary.util.PrePostIValueIterator;
-import org.rascalmpl.value.io.binary.util.PrePostTypeIterator;
 import org.rascalmpl.value.io.binary.util.TrackLastWritten;
-import org.rascalmpl.value.io.binary.util.TypeIteratorKind;
 import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.visitors.IValueVisitor;
@@ -253,7 +251,7 @@ public class IValueWriter {
 	                type.getFieldType(i).accept(this);
 	            }
 	            writer.startMessage(IValueIDs.TupleType.ID);
-	            writer.writeField(IValueIDs.Common.CAN_BE_BACK_REFERENCED, 1);
+	            writeCanBeBackReferenced(writer);
 	            writer.writeField(IValueIDs.TupleType.ARITY, type.getArity());
 	            String[] fieldNames = type.getFieldNames();
 	            if(fieldNames != null){
@@ -339,7 +337,7 @@ public class IValueWriter {
 	}
 	private static void writeSingleValueMessageBackReferenced(final ValueWireOutputStream writer, int messageID, int fieldId, long fieldValue) throws IOException {
 	    writer.startMessage(messageID);
-	    writer.writeField(IValueIDs.Common.CAN_BE_BACK_REFERENCED, 1);
+	    writeCanBeBackReferenced(writer);
 	    writer.writeField(fieldId, fieldValue);
 	    writer.endMessage();
 	}
@@ -351,14 +349,17 @@ public class IValueWriter {
 	}
 	private static void writeSingleValueMessageBackReferenced(final ValueWireOutputStream writer, int messageID, int fieldId, String fieldValue) throws IOException {
 	    writer.startMessage(messageID);
-	    writer.writeField(IValueIDs.Common.CAN_BE_BACK_REFERENCED, 1);
+	    writeCanBeBackReferenced(writer);
 	    writer.writeField(fieldId, fieldValue);
 	    writer.endMessage();
 	}
 	private static void writeEmptyMessageBackReferenced(final ValueWireOutputStream writer, int messageID) throws IOException {
 	    writer.startMessage(messageID);
-	    writer.writeField(IValueIDs.Common.CAN_BE_BACK_REFERENCED, 1);
+	    writeCanBeBackReferenced(writer);
 	    writer.endMessage();
+	}
+	private static void writeCanBeBackReferenced(final ValueWireOutputStream writer) throws IOException {
+	    writer.writeField(IValueIDs.Common.CAN_BE_BACK_REFERENCED, 1);
 	}
 
 	private static final IInteger MININT =ValueFactoryFactory.getValueFactory().integer(Integer.MIN_VALUE);
@@ -381,13 +382,13 @@ public class IValueWriter {
 		    }
 		    @Override
 		    public Boolean visitConstructor(IConstructor cons) throws IOException {
-		        assert IValueKinds.CONSTRUCTOR_COMPOUND;
 		        if (writeFromCache(cons) || iter.atBeginning()) {
 		            return false;
 		        }
 		        write(writer, cons.getUninstantiatedConstructorType(), typeCache, valueCache, uriCache);
 
 		        writer.startMessage(IValueIDs.ConstructorValue.ID);
+		        writeCanBeBackReferenced(writer);
 		        writer.writeField(IValueIDs.ConstructorValue.ARITY, cons.arity());
 		        if(cons.mayHaveKeywordParameters()){
 		            if(cons.asWithKeywordParameters().hasParameters()){
@@ -403,11 +404,11 @@ public class IValueWriter {
 		    }
 		    @Override
 		    public Boolean visitNode(INode node) throws IOException {
-		        assert IValueKinds.NODE_COMPOUND;
 		        if (writeFromCache(node) || iter.atBeginning()) {
 		            return false;
 		        }
 		        writer.startMessage(IValueIDs.NodeValue.ID);
+		        writeCanBeBackReferenced(writer);
 		        writer.writeField(IValueIDs.NodeValue.NAME,  node.getName());
 		        writer.writeField(IValueIDs.NodeValue.ARITY, node.arity());
 		        if(node.mayHaveKeywordParameters()){
@@ -424,60 +425,53 @@ public class IValueWriter {
 		    }
 		    @Override
 		    public Boolean visitList(IList o) throws IOException {
-		        assert IValueKinds.LIST_COMPOUND;
 		        if (writeFromCache(o) || iter.atBeginning()) {
 		            return false;
 		        }
-		        writeSingleValueMessage(writer, IValueIDs.ListValue.ID, IValueIDs.ListValue.SIZE, o.length());
+		        writeSingleValueMessageBackReferenced(writer, IValueIDs.ListValue.ID, IValueIDs.ListValue.SIZE, o.length());
 		        return true;
 		    }
 		    @Override
 		    public Boolean visitMap(IMap o) throws IOException {
-		        assert IValueKinds.MAP_COMPOUND;
 		        if (writeFromCache(o) || iter.atBeginning()) {
 		            return false;
 		        }
-		        writeSingleValueMessage(writer, IValueIDs.MapValue.ID, IValueIDs.MapValue.SIZE, o.size());
+		        writeSingleValueMessageBackReferenced(writer, IValueIDs.MapValue.ID, IValueIDs.MapValue.SIZE, o.size());
 		        return true;
 		    }
 		    @Override
 		    public Boolean visitSet(ISet o) throws IOException {
-		        assert IValueKinds.SET_COMPOUND;
 		        if (writeFromCache(o) || iter.atBeginning()) {
 		            return false;
 		        }
-		        writeSingleValueMessage(writer, IValueIDs.SetValue.ID, IValueIDs.SetValue.SIZE, o.size());
+		        writeSingleValueMessageBackReferenced(writer, IValueIDs.SetValue.ID, IValueIDs.SetValue.SIZE, o.size());
 		        return true;
 		    }
 		    @Override
 		    public Boolean visitRational(IRational o) throws IOException {
-		        assert IValueKinds.RATIONAL_COMPOUND;
 		        if (writeFromCache(o) || iter.atBeginning()) {
 		            return false;
 		        }
-		        writer.writeEmptyMessage(IValueIDs.RationalValue.ID);
+		        writeEmptyMessageBackReferenced(writer, IValueIDs.RationalValue.ID);
 		        return true;
 		    }
 		    @Override
 		    public Boolean visitTuple(ITuple o) throws IOException {
-		        assert IValueKinds.TUPLE_COMPOUND;
 		        if (writeFromCache(o) || iter.atBeginning()) {
 		            return false;
 		        }
-			     writeSingleValueMessage(writer, IValueIDs.TupleValue.ID, IValueIDs.TupleValue.SIZE, o.arity());
+			     writeSingleValueMessageBackReferenced(writer, IValueIDs.TupleValue.ID, IValueIDs.TupleValue.SIZE, o.arity());
 			     return true;
 		    }
 
 		    @Override
 		    public Boolean visitBoolean(IBool boolValue) throws IOException {
-		        assert !IValueKinds.BOOLEAN_COMPOUND;
 		        writeSingleValueMessage(writer, IValueIDs.BoolValue.ID, IValueIDs.BoolValue.VALUE, boolValue.getValue() ? 1: 0);
 		        return false;
 		    }
 
 		    @Override
 		    public Boolean visitDateTime(IDateTime dateTime) throws IOException {
-		        assert !IValueKinds.DATETIME_COMPOUND;
 		        writer.startMessage(IValueIDs.DateTimeValue.ID);
 
 		        if (!dateTime.isTime()) {
@@ -500,7 +494,6 @@ public class IValueWriter {
 		    }
 		    @Override
 		    public Boolean visitInteger(IInteger ii) throws IOException {
-		        assert !IValueKinds.INTEGER_COMPOUND;
 		        writer.startMessage(IValueIDs.IntegerValue.ID);
 		        if(ii. greaterEqual(MININT).getValue() && ii.lessEqual(MAXINT).getValue()){
 		            writer.writeField(IValueIDs.IntegerValue.INTVALUE, ii.intValue());
@@ -515,7 +508,6 @@ public class IValueWriter {
 
 		    @Override
 		    public Boolean visitReal(IReal o) throws IOException {
-		        assert !IValueKinds.REAL_COMPOUND;
 		        writer.startMessage(IValueIDs.RealValue.ID);
 		        writer.writeField(IValueIDs.RealValue.CONTENT, o.unscaled().getTwosComplementRepresentation());
 		        writer.writeField(IValueIDs.RealValue.SCALE, o.scale());
@@ -525,7 +517,6 @@ public class IValueWriter {
 
 		    @Override
 		    public Boolean visitSourceLocation(ISourceLocation loc) throws IOException {
-		        assert !IValueKinds.SOURCELOCATION_COMPOUND;
 		        writer.startMessage(IValueIDs.SourceLocationValue.ID);
 		        ISourceLocation uriPart = loc.top();
 		        int alreadyWritten = uriCache.howLongAgo(uriPart);
@@ -565,7 +556,6 @@ public class IValueWriter {
 
 		    @Override
 		    public Boolean visitString(IString o) throws IOException {
-		        assert !IValueKinds.SOURCELOCATION_COMPOUND;
 		        writeSingleValueMessage(writer, IValueIDs.StringValue.ID, IValueIDs.StringValue.CONTENT, o.getValue());
 		        return false;
 		    }
