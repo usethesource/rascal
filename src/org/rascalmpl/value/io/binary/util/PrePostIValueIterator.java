@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.INode;
@@ -14,146 +13,168 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.visitors.NullVisitor;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class PrePostIValueIterator extends PrePostIterator<IValue,ValueIteratorKind>  {
+public class PrePostIValueIterator  {
     
-    private IValueFactory vf;
+    private final PositionStack stack;
+    private IValue value;
+    private boolean beginning;
+    private boolean hasEnd;
+    private IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
     public PrePostIValueIterator(IValue root) {
         this(root, 1024);
     }
 
     public PrePostIValueIterator(IValue root, int stackSize) {
-        super(stackSize);
-        stack.push(root, ValueIteratorKind.getKind(root), true);
+        stack = new PositionStack(stackSize);
+        stack.push(root, true);
         beginning = false; // start out at fake end
-        vf = ValueFactoryFactory.getValueFactory();
+        hasEnd = false;
     }
 
-    public ValueIteratorKind next() throws IOException {
-        if (beginning) {
-            if (kind.isCompound()) {
-                stack.push(item, kind, false);
-                switch(kind){
-                
-                case CONSTRUCTOR: {
-                    IConstructor cons = (IConstructor) item;
-                    
-                    if(cons.mayHaveKeywordParameters()){
-                        if(cons.asWithKeywordParameters().hasParameters()){
-                            for (Map.Entry<String, IValue> param : cons.asWithKeywordParameters().getParameters().entrySet()) {
-                                IString key = vf.string(param.getKey());
-                                IValue val = param.getValue();
-                                stack.push(val, ValueIteratorKind.getKind(val), true);
-                                stack.push(key, ValueIteratorKind.getKind(key), true);
-                            }
-                        }
-                    } else {
-                        if(cons.asAnnotatable().hasAnnotations()){
-                            for (Map.Entry<String, IValue> param : cons.asAnnotatable().getAnnotations().entrySet()) {
-                                IString key = vf.string(param.getKey());
-                                IValue val = param.getValue();
-                                stack.push(val, ValueIteratorKind.getKind(val), true);
-                                stack.push(key, ValueIteratorKind.getKind(key), true);
-                            }
-                        }
-                    }
-                    
-                    for(int i = cons.arity() - 1; i >= 0; i--){
-                        IValue elem = cons.get(i);
-                        stack.push(elem, ValueIteratorKind.getKind(elem), true);
-                    }
-                    break;
-                }
-                
-                case LIST: {
-                    IList lst = (IList) item;
-                    for (int i = lst.length() - 1; i >= 0; i--) {
-                        IValue elem = lst.get(i);
-                        stack.push(elem, ValueIteratorKind.getKind(elem), true);
-                    }
-                    break;
-                }
-                
-                case MAP: {
-                    IMap map = (IMap) item;
-                    for(IValue key : map){
-                        IValue val = map.get(key);
-                        stack.push(val, ValueIteratorKind.getKind(val),  true);
-                        stack.push(key, ValueIteratorKind.getKind(key),  true);
-                    }
-                    break;
-                }
-                    
-                case NODE: {
-                    INode node = (INode) item;
-                    
-                    if(node.mayHaveKeywordParameters()){
-                        if(node.asWithKeywordParameters().hasParameters()){
-                            for (Map.Entry<String, IValue> param : node.asWithKeywordParameters().getParameters().entrySet()) {
-                                IString key = vf.string(param.getKey());
-                                IValue val = param.getValue();
-                                stack.push(val, ValueIteratorKind.getKind(val), true);
-                                stack.push(key, ValueIteratorKind.getKind(key), true);
-                            }
-                        }
-                    } else {
-                        if(node.asAnnotatable().hasAnnotations()){
-                            for (Map.Entry<String, IValue> param : node.asAnnotatable().getAnnotations().entrySet()) {
-                                IString key = vf.string(param.getKey());
-                                IValue val = param.getValue();
-                                stack.push(val, ValueIteratorKind.getKind(val), true);
-                                stack.push(key, ValueIteratorKind.getKind(key), true);
-                            }
-                        }
-                    }
-                    
-                    for(int i = node.arity() - 1; i >= 0; i--){
-                        IValue elem = node.get(i);
-                        stack.push(elem, ValueIteratorKind.getKind(elem), true);
-                    }
-                    break;
-                }
-                    
-                case RATIONAL: {
-                    IRational rat = (IRational) item;
-                    IInteger num = rat.numerator();
-                    IInteger denom = rat.denominator();
-                    
-                    stack.push(denom, ValueIteratorKind.INT, true);
-                    stack.push(num, ValueIteratorKind.INT, true);
-                    break;
-                }
-                
-                case SET: {
-                    ISet set = (ISet) item;
-                    for(IValue elem : set){
-                        stack.push(elem, ValueIteratorKind.getKind(elem), true);
-                    }
-                    break;
-                }
-                
-                case TUPLE: {
-                    ITuple tuple = (ITuple) item;
-                    for(int i = tuple.arity() - 1; i >= 0; i--){
-                        IValue elem = tuple.get(i);
-                        stack.push(elem, ValueIteratorKind.getKind(elem), true);
-                    }
-                    
-                    break;
-                }
+    public boolean hasNext() {
+        return !stack.isEmpty() || (beginning && hasEnd);
+    }
 
-                default:
-                    throw new RuntimeException("Missing case");
-                }
+    
+    public IValue skipValue() {
+        assert beginning;
+        beginning = false;
+        return value;
+    }
+
+    public boolean atBeginning() {
+        return beginning;
+    }
+
+
+    public IValue getValue() {
+        return value;
+    }
+
+
+    public IValue next() throws IOException {
+        if (beginning) {
+            if (hasEnd) {
+                stack.push(value, false);
+                value.accept(new NullVisitor<Void, RuntimeException>() {
+                    @Override
+                    public Void visitConstructor(IConstructor cons) throws RuntimeException {
+                        if(cons.mayHaveKeywordParameters()){
+                            if(cons.asWithKeywordParameters().hasParameters()){
+                                for (Map.Entry<String, IValue> param : cons.asWithKeywordParameters().getParameters().entrySet()) {
+                                    IString key = vf.string(param.getKey());
+                                    IValue val = param.getValue();
+                                    stack.push(val, true);
+                                    stack.push(key, true);
+                                }
+                            }
+                        } else {
+                            if(cons.asAnnotatable().hasAnnotations()){
+                                for (Map.Entry<String, IValue> param : cons.asAnnotatable().getAnnotations().entrySet()) {
+                                    IString key = vf.string(param.getKey());
+                                    IValue val = param.getValue();
+                                    stack.push(val, true);
+                                    stack.push(key, true);
+                                }
+                            }
+                        }
+
+                        for(int i = cons.arity() - 1; i >= 0; i--){
+                            IValue elem = cons.get(i);
+                            stack.push(elem, true);
+                        }
+                        return null;
+                    }
+                    @Override
+                    public Void visitList(IList lst) throws RuntimeException {
+                        for (int i = lst.length() - 1; i >= 0; i--) {
+                            IValue elem = lst.get(i);
+                            stack.push(elem, true);
+                        }
+                        return null;
+                    }
+                    @Override
+                    public Void visitMap(IMap map) throws RuntimeException {
+                        for(IValue key : map){
+                            IValue val = map.get(key);
+                            stack.push(val, true);
+                            stack.push(key, true);
+                        }
+                        return null;
+                    }
+                    @Override
+                    public Void visitNode(INode node) throws RuntimeException {
+                        if(node.mayHaveKeywordParameters()){
+                            if(node.asWithKeywordParameters().hasParameters()){
+                                for (Map.Entry<String, IValue> param : node.asWithKeywordParameters().getParameters().entrySet()) {
+                                    IString key = vf.string(param.getKey());
+                                    IValue val = param.getValue();
+                                    stack.push(val, true);
+                                    stack.push(key, true);
+                                }
+                            }
+                        } else {
+                            if(node.asAnnotatable().hasAnnotations()){
+                                for (Map.Entry<String, IValue> param : node.asAnnotatable().getAnnotations().entrySet()) {
+                                    IString key = vf.string(param.getKey());
+                                    IValue val = param.getValue();
+                                    stack.push(val, true);
+                                    stack.push(key, true);
+                                }
+                            }
+                        }
+
+                        for(int i = node.arity() - 1; i >= 0; i--){
+                            IValue elem = node.get(i);
+                            stack.push(elem, true);
+                        }
+                        return null;
+                    }
+                    @Override
+                    public Void visitRational(IRational rat) throws RuntimeException {
+                        stack.push(rat.denominator(), true);
+                        stack.push(rat.numerator(), true);
+                        return null;
+                    }
+                    @Override
+                    public Void visitSet(ISet set) throws RuntimeException {
+                        for(IValue elem : set){
+                            stack.push(elem, true);
+                        }
+                        return null;
+                    }
+                    @Override
+                    public Void visitTuple(ITuple tuple) throws RuntimeException {
+                        for(int i = tuple.arity() - 1; i >= 0; i--){
+                            IValue elem = tuple.get(i);
+                            stack.push(elem, true);
+                        }
+                        return null;
+                    }
+                });
             }
         }
-        item = stack.currentItem();
-        kind = stack.currentKind();
+        value = stack.currentIValue();
         beginning = stack.currentBeginning();
+        hasEnd = beginning && hasEnd(value);
         stack.pop();
-        return kind;
+        return value;
+    }
+
+
+    private static boolean hasEnd(IValue val) {
+        return val instanceof IConstructor
+           || val instanceof IList
+           || val instanceof ISet
+           || val instanceof IMap
+           || val instanceof INode
+           || val instanceof IRational
+           || val instanceof ITuple
+           ;
     }
 
 }

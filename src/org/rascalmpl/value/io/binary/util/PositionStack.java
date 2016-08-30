@@ -3,10 +3,10 @@ package org.rascalmpl.value.io.binary.util;
 import java.util.Arrays;
 import java.util.EmptyStackException;
 
-public class PositionStack<Item, Kind extends IteratorKind> {
+import org.rascalmpl.value.IValue;
 
-    private Object[] kinds;
-    private Object[] items;
+public class PositionStack {
+    private IValue[] items;
     private boolean[] beginnings;
     private int mark = -1;
     
@@ -15,20 +15,13 @@ public class PositionStack<Item, Kind extends IteratorKind> {
     }
     
     public PositionStack(int initialSize) {
-        kinds = new Object[initialSize];
-        items = new Object[initialSize];
+        items = new IValue[initialSize];
         beginnings = new boolean[initialSize];
     }
 
-    @SuppressWarnings("unchecked")
-    public Kind currentKind() {
+    public IValue currentIValue() {
         assert mark >= 0;
-        return (Kind) kinds[mark];
-    }
-	@SuppressWarnings("unchecked")
-    public Item currentItem() {
-        assert mark >= 0;
-        return (Item) items[mark];
+        return items[mark];
     }
     public boolean currentBeginning() {
         assert mark >= 0;
@@ -39,11 +32,10 @@ public class PositionStack<Item, Kind extends IteratorKind> {
         return mark == -1;
     }
     
-    public void push(Item item, Kind kind, boolean beginning) {
+    public void push(IValue item, boolean beginning) {
         grow(mark + 2);
         mark++;
         items[mark] = item;
-        kinds[mark] = kind;
         beginnings[mark] = beginning;
     }
     
@@ -61,7 +53,6 @@ public class PositionStack<Item, Kind extends IteratorKind> {
             int newSize = (int)Math.min(items.length * 2L, 0x7FFFFFF7); // max array size used by array list
             assert desiredSize <= newSize;
             items = Arrays.copyOf(items, newSize);
-            kinds = Arrays.copyOf(kinds, newSize);
             beginnings = Arrays.copyOf(beginnings, newSize);
         }
     }
