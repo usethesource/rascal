@@ -16,6 +16,7 @@ private java void writeBinaryValueFileOld(loc file, value val, bool compression 
 public java &T readBinaryValueFileOld(type[&T] result, loc file);
 
 loc targetLoc = |test-temp:///value-io.bench|;
+//loc targetLocOld = |test-temp:///value-io2.bench|;
 loc targetLocOld = |compressed+test-temp:///value-io.bench.gz|;
 void bench(str name, type[&T] result, value v) {
     printTime("<name>-new-write", cpuTime(() { 
