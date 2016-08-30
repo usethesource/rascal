@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
@@ -542,13 +543,8 @@ public class CommandOptions {
 	}
 
 	public ISourceLocation getKernelLocation(){
-		try {
-			ISourceLocation boot = getCommandLocOption("boot");
-			return vf.sourceLocation("compressed+" + boot.getScheme(), "", boot.getPath() + "lang/rascal/boot/Kernel.rvm.ser.gz");
-		} catch (URISyntaxException e) {
-			printUsageAndExit("Cannot create default location: " + e.getMessage());
-			return null;
-		}
+	  ISourceLocation boot = getCommandLocOption("boot");
+	  return RascalExecutionContext.getKernel(boot);
 	}
 
 	public ISourceLocation getDefaultBootLocation(){
