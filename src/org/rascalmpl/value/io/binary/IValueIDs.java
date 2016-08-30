@@ -29,6 +29,10 @@ public class IValueIDs {
     private static final int LIST_VALUE_ID = 10;
     private static final int MAP_VALUE_ID = 11;
     private static final int SET_VALUE_ID = 12;
+    
+    public static class Common {
+        public static final int CAN_BE_BACK_REFERENCED = 31;
+    }
 	
 	public static class PreviousValue {
 	    public static final int ID = PREVIOUS_VALUE_ID;
