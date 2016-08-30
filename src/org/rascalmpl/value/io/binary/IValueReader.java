@@ -23,8 +23,6 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.ValueWireInputStream.ReaderPosition;
 import org.rascalmpl.value.io.binary.util.LinearCircularLookupWindow;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
-import org.rascalmpl.value.io.binary.util.TypeIteratorKind;
-import org.rascalmpl.value.io.binary.util.ValueIteratorKind;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
@@ -107,9 +105,9 @@ public class IValueReader {
 	    }
 	}
 
-	private static void pushAndCache(final ReaderStack<IValue> stack, final TrackLastRead<IValue> valueWindow, final IValue v) throws IOException{
+	private static void pushAndCache(final ReaderStack<IValue> stack, final TrackLastRead<IValue> valueWindow, final IValue v, boolean shouldCache) throws IOException{
 		stack.push(v);
-		if (ValueIteratorKind.getKind(v).isCompound()) {
+		if (shouldCache) {
 		    valueWindow.read(v);
 		}
 	}
@@ -494,7 +492,7 @@ public class IValueReader {
                         
                         assert b != null;
 
-                        pushAndCache(vstack, valueWindow, vf.bool(b == 0 ? false : true));
+                        vstack.push(vf.bool(b == 0 ? false : true));
                         break;
                     }
 
@@ -503,12 +501,14 @@ public class IValueReader {
                         int annos = 0;
                         int kwparams = 0;
                         TransientMap<String, IValue> kwParamsOrAnnos = null;
+                        boolean backReference = false;
 
                         while (!reader.next().isEnd()) {
                             switch(reader.field()){
                                 case IValueIDs.ConstructorValue.ARITY: arity = (int) reader.getLong(); break;
                                 case IValueIDs.ConstructorValue.KWPARAMS: kwparams = (int)reader.getLong(); break;
                                 case IValueIDs.ConstructorValue.ANNOS: annos = (int)reader.getLong(); break;
+                                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
                             }
                         }
                         
@@ -537,7 +537,7 @@ public class IValueReader {
                             cons = vf.constructor(consType, vstack.getChildren(new IValue[arity]));
                         }
 
-                        pushAndCache(vstack, valueWindow, cons);
+                        pushAndCache(vstack, valueWindow, cons, backReference);
                         break;
                     }
 
@@ -569,17 +569,18 @@ public class IValueReader {
                         }
                         
                         
+                        IValue result;
                         if (hour != null && year != null) {
-                            pushAndCache(vstack, valueWindow, vf.datetime(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset));
+                            result = vf.datetime(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
                         }
                         else if (hour != null) {
-                            pushAndCache(vstack, valueWindow, vf.time(hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset));
+                            result = vf.time(hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
                         }
                         else {
                             assert year != null;
-                            pushAndCache(vstack, valueWindow, vf.datetime(year, month, day));
+                            result = vf.datetime(year, month, day);
                         }
-
+                        vstack.push(result);
                         break;
                     }
 
@@ -594,9 +595,9 @@ public class IValueReader {
                         }
                         
                         if(small != null){
-                            pushAndCache(vstack, valueWindow, vf.integer(small));
+                            vstack.push(vf.integer(small));
                         } else if(big != null){
-                            pushAndCache(vstack, valueWindow, vf.integer(big));
+                            vstack.push(vf.integer(big));
                         } else {
                             throw new RuntimeException("Missing field in INT_VALUE");
                         }
@@ -606,15 +607,19 @@ public class IValueReader {
 
                     case IValueIDs.ListValue.ID: {
                         Integer size = null;
+                        boolean backReference = false;
                         while (!reader.next().isEnd()) {
                             if(reader.field() == IValueIDs.ListValue.SIZE){
                                 size = (int) reader.getLong();
+                            }
+                            else if (reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED) {
+                                backReference = true;
                             }
                         }
                         
                         assert size != null;
 
-                        pushAndCache(vstack,valueWindow,  vf.list(vstack.getChildren(new IValue[size])));
+                        pushAndCache(vstack,valueWindow,  vf.list(vstack.getChildren(new IValue[size])), backReference);
                         break;
                     }
 
@@ -664,15 +669,19 @@ public class IValueReader {
                             loc = vf.sourceLocation(loc, offset, length);
                         }
 
-                        pushAndCache(vstack, valueWindow, loc);
+                        vstack.push(loc);
                         break;
 
                     }
                     case IValueIDs.MapValue.ID: {
                         Long size = null;
+                        boolean backReference = false;
                         while (!reader.next().isEnd()) {
                             if(reader.field() == IValueIDs.MapValue.SIZE){
                                 size = reader.getLong();
+                            }
+                            else if (reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED) {
+                                backReference = true;
                             }
                         }
                         
@@ -685,7 +694,7 @@ public class IValueReader {
                             mw.put(key, val);
                         }
 
-                        pushAndCache(vstack, valueWindow, mw.done());
+                        pushAndCache(vstack, valueWindow, mw.done(), backReference);
                         break;
                     }
 
@@ -695,6 +704,7 @@ public class IValueReader {
                         int annos = 0;
                         int kwparams = 0;
                         TransientMap<String, IValue> kwParamsOrAnnos = null;
+                        boolean backReference = false;
 
                         while (!reader.next().isEnd()) {
                             switch(reader.field()){
@@ -702,6 +712,7 @@ public class IValueReader {
                                 case IValueIDs.NodeValue.ARITY: arity = (int)reader.getLong(); break;
                                 case IValueIDs.NodeValue.KWPARAMS: kwparams = (int)reader.getLong(); break;
                                 case IValueIDs.NodeValue.ANNOS: annos = (int)reader.getLong(); break;
+                                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
                             }
                         }
                         
@@ -728,23 +739,24 @@ public class IValueReader {
                             node = vf.node(name, vstack.getChildren(new IValue[arity]));
                         }
 
-                        pushAndCache(vstack, valueWindow, node);
+                        pushAndCache(vstack, valueWindow, node, backReference);
                         break;
                     }
 
                     case IValueIDs.RationalValue.ID: {
-                        reader.skipMessage();
+                        boolean backReference = skipMessageCheckBackReference(reader);
                         
                         IInteger denominator = (IInteger) vstack.pop();
                         IInteger numerator = (IInteger) vstack.pop();
 
-                        pushAndCache(vstack, valueWindow, vf.rational(numerator, denominator));
+                        pushAndCache(vstack, valueWindow, vf.rational(numerator, denominator), backReference);
                         break;
                     }
 
                     case IValueIDs.RealValue.ID: {
                         byte[] bytes = null;
                         Integer scale = null;
+                        boolean backReference = false;
 
                         while (!reader.next().isEnd()) {
                             switch(reader.field()){
@@ -752,56 +764,69 @@ public class IValueReader {
                                     scale = (int) reader.getLong(); break;
                                 case IValueIDs.RealValue.CONTENT:
                                     bytes = reader.getBytes(); break;
+                                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                                    backReference = true;
+                                    break;
                             }
                         }
 
                         assert bytes != null && scale != null;
 
-                        pushAndCache(vstack, valueWindow, vf.real(new BigDecimal(new BigInteger(bytes), scale).toString())); // TODO: Improve this?
+                        pushAndCache(vstack, valueWindow, vf.real(new BigDecimal(new BigInteger(bytes), scale).toString()), backReference); // TODO: Improve this?
                         break;
                     }
 
                     case IValueIDs.SetValue.ID: {
                         Integer size = 0;
+                        boolean backReference = false;
                         while (!reader.next().isEnd()) {
                             if(reader.field() == IValueIDs.SetValue.SIZE){
                                 size = (int) reader.getLong();
+                            }
+                            else if (reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED) {
+                                backReference = true;
                             }
                         }
 
                         assert size != null;
                         
-                        pushAndCache(vstack, valueWindow, vf.set(vstack.getChildren(new IValue[size])));
+                        pushAndCache(vstack, valueWindow, vf.set(vstack.getChildren(new IValue[size])), backReference);
                         break;
                     }
 
                     case IValueIDs.StringValue.ID: {
                         String str = null;
+                        boolean backReference = false;
                         while (!reader.next().isEnd()) {
                             if(reader.field() == IValueIDs.StringValue.CONTENT){
                                 str = reader.getString();
+                            }
+                            else if (reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED) {
+                                backReference = true;
                             }
                         }
                         
                         assert str != null;
                         
-                        IString istr = vf.string(str);
-                        vstack.push(istr);;
-                        // Already cached at wire level
+                        pushAndCache(vstack, valueWindow, vf.string(str), backReference);
                         break;
                     }
 
                     case IValueIDs.TupleValue.ID: {
                         Integer len = 0;
+                        boolean backReference = false;
                         while (!reader.next().isEnd()) {
                             if(reader.field() == IValueIDs.TupleValue.SIZE){
                                 len = (int) reader.getLong();
+                            }
+                            else if (reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED) {
+                                backReference = true;
                             }
                         }
                         
                         assert len != null;
 
-                        pushAndCache(vstack, valueWindow, vf.tuple(vstack.getChildren(new IValue[len])));
+                        pushAndCache(vstack, valueWindow, vf.tuple(vstack.getChildren(new IValue[len])), backReference);
                         break;
                     }
 
@@ -862,7 +887,6 @@ class ReaderStack<Elem> {
 	private Object[] elements;
 	private int sp = 0;
 
-	@SuppressWarnings("unchecked")
     ReaderStack(int capacity){
 		elements = new Object[(int)Math.max(capacity, 16)];
 	}
