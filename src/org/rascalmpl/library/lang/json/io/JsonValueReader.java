@@ -419,15 +419,15 @@ public class JsonValueReader {
           if (cons.hasField(label)) {
             int index = cons.getFieldIndex(label);
             // here we use the field name of a child to match a constructor name of the child:
-            args[index] = read(in, cons.getFieldType(index), cons.getFieldName(index));
+            args[index] = read(in, cons.getFieldType(index), label);
           }
           else {
             Type kwType = store.getKeywordParameterType(cons, label);
             if (kwType != null) {
-              kwParams.put(label, read(in, kwType));
+              kwParams.put(label, read(in, kwType, label));
             }
             else {
-              kwParams.put(label, read(in, TF.valueType()));
+              kwParams.put(label, read(in, TF.valueType(), label));
             }
           }
         }
