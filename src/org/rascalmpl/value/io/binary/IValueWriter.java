@@ -46,7 +46,7 @@ public class IValueWriter {
         //TypesOnly(10,0,0),
         //ValuesOnly(0,10,10),
         Fast(10,10,10, 1),
-        Normal(50,100,50,3),
+        Normal(50,100,50,2),
         Extreme(50,250,100, 6)
         ;
 
