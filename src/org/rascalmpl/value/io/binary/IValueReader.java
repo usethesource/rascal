@@ -100,9 +100,9 @@ public class IValueReader {
 	    return new LinearCircularLookupWindow<>(size * 1024);
     }
 	
-	private static void pushAndCache(final ReaderStack<Type> stack, final TrackLastRead<Type> typeWindow, final Type type) throws IOException{
+	private static void pushAndCache(final ReaderStack<Type> stack, final TrackLastRead<Type> typeWindow, final Type type, boolean shouldCache) throws IOException{
 	    stack.push(type);
-	    if (TypeIteratorKind.getKind(type).isCompound()) {
+	    if (shouldCache) {
 	        typeWindow.read(type);
 	    }
 	}
@@ -114,7 +114,8 @@ public class IValueReader {
 		}
 	}
 	
-	private static IValue read(final ValueWireInputStream reader, final IValueFactory vf, final TypeStore store, TrackLastRead<Type> typeWindow, TrackLastRead<IValue> valueWindow, TrackLastRead<ISourceLocation> uriWindow) throws IOException{
+	@SuppressWarnings("deprecation")
+    private static IValue read(final ValueWireInputStream reader, final IValueFactory vf, final TypeStore store, TrackLastRead<Type> typeWindow, TrackLastRead<IValue> valueWindow, TrackLastRead<ISourceLocation> uriWindow) throws IOException{
 
         ReaderStack<Type> tstack = new ReaderStack<>(100);
         ReaderStack<IValue> vstack = new ReaderStack<>(1024);
@@ -131,68 +132,71 @@ public class IValueReader {
                     
                     case IValueIDs.BoolType.ID:  
                         reader.skipMessage(); // forward to the end
-                        pushAndCache(tstack, typeWindow, tf.boolType());
+                        tstack.push(tf.boolType());
                         break;
 
                     case IValueIDs.DateTimeType.ID:    
                         reader.skipMessage();
-                        pushAndCache(tstack, typeWindow, tf.dateTimeType());
+                        tstack.push(tf.dateTimeType());
                         break;
 
                     case IValueIDs.IntegerType.ID:     
                         reader.skipMessage(); 
-                        pushAndCache(tstack, typeWindow, tf.integerType());
+                        tstack.push(tf.integerType());
                         break;
 
                     case IValueIDs.NodeType.ID:        
                         reader.skipMessage();
-                        pushAndCache(tstack, typeWindow, tf.nodeType());
+                        tstack.push(tf.nodeType());
                         break;
 
                     case IValueIDs.NumberType.ID:  
                         reader.skipMessage();
-                        pushAndCache(tstack, typeWindow, tf.numberType());
+                        tstack.push(tf.numberType());
                         break;
 
                     case IValueIDs.RationalType.ID:     
                         reader.skipMessage();
-                        pushAndCache(tstack, typeWindow, tf.rationalType());
+                        tstack.push(tf.rationalType());
                         break;
 
                     case IValueIDs.RealType.ID:        
                         reader.skipMessage();
-                        pushAndCache(tstack, typeWindow, tf.realType());
+                        tstack.push(tf.realType());
                         break;
 
                     case IValueIDs.SourceLocationType.ID:     
                         reader.skipMessage();
-                        pushAndCache(tstack, typeWindow, tf.sourceLocationType());
+                        tstack.push(tf.sourceLocationType());
                         break;
 
                     case IValueIDs.StringType.ID:     
                         reader.skipMessage();
-                        pushAndCache(tstack, typeWindow, tf.stringType());
+                        tstack.push(tf.stringType());
                         break;
 
                     case IValueIDs.ValueType.ID:       
                         reader.skipMessage();
-                        pushAndCache(tstack, typeWindow, tf.valueType());
+                        tstack.push(tf.valueType());
                         break;
 
                     case IValueIDs.VoidType.ID:        
                         reader.skipMessage();
-                        pushAndCache(tstack, typeWindow, tf.voidType());
+                        tstack.push(tf.voidType());
                         break;
 
                     // Composite types
 
                     case IValueIDs.ADTType.ID: {   
                         String name = null;
+                        boolean backReference = false;
 
                         while (!reader.next().isEnd()) {
                             switch(reader.field()){
                                 case IValueIDs.ADTType.NAME:
                                     name = reader.getString(); break;
+                                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                                    backReference = true; break;
                             }
                         }
 
@@ -205,20 +209,23 @@ public class IValueReader {
                             for(int i = 0; i < arity; i++){
                                 targs[i] = typeParameters.getFieldType(i);
                             }
-                            pushAndCache(tstack, typeWindow, tf.abstractDataType(store, name, targs));
+                            pushAndCache(tstack, typeWindow, tf.abstractDataType(store, name, targs), backReference);
                         } else {
-                            pushAndCache(tstack, typeWindow, tf.abstractDataType(store, name));
+                            pushAndCache(tstack, typeWindow, tf.abstractDataType(store, name), backReference);
                         }
                         break;
                     }
 
                     case IValueIDs.AliasType.ID:   {   
                         String name = null;
+                        boolean backReference = false;
 
                         while (!reader.next().isEnd()) {
                             switch(reader.field()){
                                 case IValueIDs.AliasType.NAME:
                                     name = reader.getString(); break;
+                                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                                    backReference = true; break;
                             }
                         }
                         
@@ -227,17 +234,19 @@ public class IValueReader {
                         Type typeParameters = tstack.pop();
                         Type aliasedType = tstack.pop();
 
-                        pushAndCache(tstack, typeWindow, tf.aliasType(store, name, aliasedType, typeParameters));
+                        pushAndCache(tstack, typeWindow, tf.aliasType(store, name, aliasedType, typeParameters), backReference);
                         break;
                     }
                     
                     case IValueIDs.ConstructorType.ID:     {
                         String name = null;
-
+                        boolean backReference = false;
                         while (!reader.next().isEnd()) {
                             switch(reader.field()){
                                 case IValueIDs.ConstructorType.NAME:
                                     name = reader.getString(); break;
+                                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                                    backReference = true; break;
                             }
                         }
 
@@ -262,12 +271,11 @@ public class IValueReader {
                         }
 
                         if(fieldNames == null){
-                            Type res = store.lookupConstructor(adtType, name, tf.tupleType(fieldTypesAr));
-                            if(res == null) {
-                                pushAndCache(tstack, typeWindow, tf.constructor(store, adtType, name, fieldTypesAr));
-                            } else {
-                                pushAndCache(tstack, typeWindow, res);
+                            Type result = store.lookupConstructor(adtType, name, tf.tupleType(fieldTypesAr));
+                            if(result == null) {
+                                result = tf.constructor(store, adtType, name, fieldTypesAr);
                             }
+                            pushAndCache(tstack, typeWindow, result, backReference);
                         } else {
                             Object[] typeAndNames = new Object[2*arity];
                             for(int i = 0; i < arity; i++){
@@ -275,12 +283,11 @@ public class IValueReader {
                                 typeAndNames[2 * i + 1] = fieldNames[i];
                             }
 
-                            Type res = store.lookupConstructor(adtType, name, tf.tupleType(typeAndNames));
-                            if(res == null){
-                                pushAndCache(tstack, typeWindow, tf.constructor(store, adtType, name, typeAndNames));
-                            } else {
-                                pushAndCache(tstack, typeWindow, res);
+                            Type result = store.lookupConstructor(adtType, name, tf.tupleType(typeAndNames));
+                            if(result == null){
+                                result = tf.constructor(store, adtType, name, typeAndNames);
                             }
+                            pushAndCache(tstack, typeWindow, result, backReference);
                         }
                         break;
                     }
@@ -288,33 +295,38 @@ public class IValueReader {
                     // External
 
                     case IValueIDs.FunctionType.ID:    {
-                        reader.skipMessage();
+                        boolean backReference = skipMessageCheckBackReference(reader);
 
                         Type keywordParameterTypes = tstack.pop();
                         Type argumentTypes =  tstack.pop();
                         Type returnType = tstack.pop();
 
 
-                        pushAndCache(tstack, typeWindow, rtf.functionType(returnType, argumentTypes, keywordParameterTypes));
+                        pushAndCache(tstack, typeWindow, rtf.functionType(returnType, argumentTypes, keywordParameterTypes), backReference);
                         break;
                     }
 
                     case IValueIDs.ReifiedType.ID: {
-                        reader.skipMessage();
+                        boolean backReference = skipMessageCheckBackReference(reader);
                         Type elemType = tstack.pop();
 
                         elemType = elemType.getFieldType(0);
-                        pushAndCache(tstack, typeWindow, rtf.reifiedType(elemType));
+
+                        pushAndCache(tstack, typeWindow, rtf.reifiedType(elemType), backReference);
                         break;
                     }
 
                     case IValueIDs.OverloadedType.ID: {
                         Integer size = null;
+                        boolean backReference = false;
 
                         while (!reader.next().isEnd()) {
                             switch (reader.field()){ 
                                 case IValueIDs.OverloadedType.SIZE:
                                     size = (int) reader.getLong();
+                                    break;
+                                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                                    backReference = true; 
                                     break;
                             }
                         }
@@ -325,30 +337,31 @@ public class IValueReader {
                         for(int i = 0; i < size; i++){
                             alternatives.add((FunctionType) tstack.pop());
                         }
-                        pushAndCache(tstack, typeWindow, rtf.overloadedFunctionType(alternatives));
+                        pushAndCache(tstack, typeWindow, rtf.overloadedFunctionType(alternatives), backReference);
                         break;
                     }
 
                     case IValueIDs.NonTerminalType.ID: {
-                        reader.skipMessage();
+                        boolean backReference = skipMessageCheckBackReference(reader);
 
                         IConstructor nt = (IConstructor) vstack.pop();
-                        pushAndCache(tstack, typeWindow, rtf.nonTerminalType(nt));
+                        pushAndCache(tstack, typeWindow, rtf.nonTerminalType(nt), backReference);
                         break;
                     }
 
                     case IValueIDs.ListType.ID:    {
-                        reader.skipMessage();
+                        boolean backReference = skipMessageCheckBackReference(reader);
 
                         Type elemType = tstack.pop();
 
-                        pushAndCache(tstack, typeWindow, tf.listType(elemType));
+                        pushAndCache(tstack, typeWindow, tf.listType(elemType), backReference);
                         break;
                     }
 
                     case IValueIDs.MapType.ID: {   
                         String keyLabel = null;
                         String valLabel = null;
+                        boolean backReference = false;
 
                         while (!reader.next().isEnd()) {
                             switch(reader.field()){
@@ -356,6 +369,9 @@ public class IValueReader {
                                     keyLabel = reader.getString(); break;
                                 case IValueIDs.MapType.VAL_LABEL:
                                     valLabel = reader.getString(); break;
+                                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                                    backReference = true; 
+                                    break;
                             }
                         }
 
@@ -363,42 +379,47 @@ public class IValueReader {
                         Type keyType = tstack.pop();
 
                         if(keyLabel == null){
-                            pushAndCache(tstack, typeWindow, tf.mapType(keyType, valType));
+                            pushAndCache(tstack, typeWindow, tf.mapType(keyType, valType), backReference);
                         } else {
                             assert valLabel != null;
-                            pushAndCache(tstack, typeWindow, tf.mapType(keyType, keyLabel, valType, valLabel));
+                            pushAndCache(tstack, typeWindow, tf.mapType(keyType, keyLabel, valType, valLabel), backReference);
                         }
                         break;
                     }
 
                     case IValueIDs.ParameterType.ID:   {
                         String name = null;
+                        boolean backReference = false;
 
                         while (!reader.next().isEnd()) {
                             switch (reader.field()){ 
                                 case IValueIDs.ParameterType.NAME:
                                     name = reader.getString();
                                     break;
+                                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                                    backReference = true; 
+                                    break;
                             }
                         }
                         assert name != null;
                         
                         Type bound = tstack.pop();
-                        pushAndCache(tstack, typeWindow, tf.parameterType(name, bound));
+                        pushAndCache(tstack, typeWindow, tf.parameterType(name, bound), backReference);
                         break;
                     }
 
                     case IValueIDs.SetType.ID: {
-                        reader.skipMessage();
+                        boolean backReference = skipMessageCheckBackReference(reader);
                         Type elemType = tstack.pop();
 
-                        pushAndCache(tstack, typeWindow, tf.setType(elemType));
+                        pushAndCache(tstack, typeWindow, tf.setType(elemType), backReference);
                         break;
                     }
 
                     case IValueIDs.TupleType.ID: {
                         String [] fieldNames = null;
 
+                        boolean backReference = false;
                         Integer arity = null;
 
                         while (!reader.next().isEnd()) {
@@ -415,6 +436,9 @@ public class IValueReader {
                                         fieldNames[i] = reader.getString();
                                     }
                                     break;
+                                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                                    backReference = true; 
+                                    break;
                             }
                         }
 
@@ -427,9 +451,9 @@ public class IValueReader {
 
                         if(fieldNames != null){
                             assert fieldNames.length == arity;
-                            pushAndCache(tstack, typeWindow, tf.tupleType(elemTypes, fieldNames));
+                            pushAndCache(tstack, typeWindow, tf.tupleType(elemTypes, fieldNames), backReference);
                         } else {
-                            pushAndCache(tstack, typeWindow, tf.tupleType(elemTypes));
+                            pushAndCache(tstack, typeWindow, tf.tupleType(elemTypes), backReference);
                         }
                         break;
                     }
@@ -819,6 +843,18 @@ public class IValueReader {
         } catch (URISyntaxException e) {
             throw new IOException(e);
         }
+    }
+
+
+    private static boolean skipMessageCheckBackReference(final ValueWireInputStream reader) throws IOException {
+        boolean backReference = false;
+        while (!reader.next().isEnd()) {
+            switch(reader.field()){
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                    backReference = true; break;
+            }
+        }
+        return backReference;
     }
 }
 
