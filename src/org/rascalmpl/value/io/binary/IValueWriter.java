@@ -375,7 +375,7 @@ public class IValueWriter {
 		        int lastSeen = valueCache.howLongAgo(val);
 		        if (lastSeen != -1) {
 		            writeSingleValueMessage(writer, IValueIDs.PreviousValue.ID, IValueIDs.PreviousValue.HOW_FAR_BACK, lastSeen);
-		            iter.skipItem();
+		            iter.skipValue();
 		            return true;
 		        }
 		        return false;
@@ -574,9 +574,9 @@ public class IValueWriter {
 		};
 
 		while(iter.hasNext()){
-		    iter.next();
-		    if (iter.getItem().accept(visitWriter)) {
-			        valueCache.write(iter.getItem());
+		    final IValue currentValue = iter.next();
+		    if (currentValue.accept(visitWriter)) {
+		        valueCache.write(currentValue);
 		    }
 		}
 	}
