@@ -30,6 +30,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.Null
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.ProfileFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.RVMTrackingObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IListWriter;
@@ -113,11 +114,11 @@ public class RascalExecutionContext implements IRascalMonitor {
 	StringBuilder templateBuilder = null;
 	private final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
 	private IListWriter test_results;
-	private final ISourceLocation kernel;
+	private final ISourceLocation bootDir;
 	
 	public RascalExecutionContext(
 			IValueFactory vf, 
-			ISourceLocation kernel,
+			ISourceLocation bootDir,
 			PrintWriter stdout, 
 			PrintWriter stderr, 
 			IMap moduleTags, 
@@ -137,9 +138,11 @@ public class RascalExecutionContext implements IRascalMonitor {
 	){
 		
 	  this.vf = vf;
-	  this.kernel = kernel;
-
-	  System.out.println("RascalExecutionContext:, kernel = " + kernel);
+	  this.bootDir = bootDir;
+	  if(bootDir != null && !URIResolverRegistry.getInstance().isDirectory(bootDir)){
+	    throw new RuntimeException("bootDir should be a directory, given " + bootDir);
+	  }
+	  System.out.println("RascalExecutionContext: bootDir = " + bootDir);
 	  
 	  this.moduleTags = moduleTags;
 	  this.symbol_definitions = symbol_definitions;
@@ -195,55 +198,46 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  parsingTools = new ParsingTools(vf);
 	}
 	
-	public static ISourceLocation getLocation(ISourceLocation givenKernel, String desiredPath) {
+	public static ISourceLocation getLocation(ISourceLocation givenBootDir, String desiredPath) {
 	  IValueFactory vfac = ValueFactoryFactory.getValueFactory();
 	  try {
-	    if(givenKernel == null){
+	    if(givenBootDir == null){
 	      return vfac.sourceLocation("compressed+boot", "", desiredPath);
 	    }
 
-	    String scheme = givenKernel.getScheme();
+	    String scheme = givenBootDir.getScheme();
 	    if(!scheme.startsWith("compressed+")){
 	      scheme = "compressed+" + scheme;
 	    }
-
-	    String [] possiblePaths = new String[] { PATH_TO_LINKED_KERNEL, PATH_TO_LINKED_PARSERGENERATOR };
-	    String basePath = givenKernel.getPath();
-	    for(String path : possiblePaths){
-	      int idx = basePath.indexOf(path);
-
-	      if(idx >= 0){
-	        basePath = basePath.substring(idx);
-
-	        if(!basePath.endsWith("/")){
-	          basePath += "/";
-	        }
-	        return vfac.sourceLocation(scheme, givenKernel.getAuthority(), basePath + desiredPath);
-	      }
-	    }
+	   
+	    String basePath = givenBootDir.getPath();
 	    if(!basePath.endsWith("/")){
 	      basePath += "/";
 	    }
-	    return vfac.sourceLocation(scheme, givenKernel.getAuthority(), basePath + desiredPath);
+	    return vfac.sourceLocation(scheme, givenBootDir.getAuthority(), basePath + desiredPath);
 	  } catch (URISyntaxException e) {
 	    throw new RuntimeException("Cannot create location for " + desiredPath);
 	  }
 	}
 	
-	public static ISourceLocation getKernel(ISourceLocation givenKernel) {
-      return getLocation(givenKernel, PATH_TO_LINKED_KERNEL);
+	public static ISourceLocation getKernel(ISourceLocation givenBootDir) {
+      return getLocation(givenBootDir, PATH_TO_LINKED_KERNEL);
     }
 	
-	public static ISourceLocation getParserGenerator(ISourceLocation givenKernel) {
-      return getLocation(givenKernel, PATH_TO_LINKED_PARSERGENERATOR);
+	public static ISourceLocation getParserGenerator(ISourceLocation givenBootDir) {
+      return getLocation(givenBootDir, PATH_TO_LINKED_PARSERGENERATOR);
     }
 
+	public ISourceLocation getBoot() {
+	  return  getLocation(bootDir, "");
+	}
+	
 	public ISourceLocation getKernel() {
-	  return getLocation(kernel, PATH_TO_LINKED_KERNEL);
+	  return getLocation(bootDir, PATH_TO_LINKED_KERNEL);
 	}
 	
 	public ISourceLocation getParserGenerator(){
-	  return getLocation(kernel, PATH_TO_LINKED_PARSERGENERATOR);
+	  return getLocation(bootDir, PATH_TO_LINKED_PARSERGENERATOR);
 	}
     
 	// Cache related methods
