@@ -20,7 +20,6 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 
 public class Kernel {
-	private static final String PATH_TO_LINKED_KERNEL = "lang/rascal/boot/Kernel.rvm.ser.gz";
     IValueFactory vf;
 	private OverloadedFunction compile;
 	private OverloadedFunction compileN;
@@ -51,18 +50,9 @@ public class Kernel {
 	    }
 	}
         
-	public Kernel(IValueFactory vf, RascalExecutionContext rex, ISourceLocation binaryKernelLoc) throws IOException, NoSuchRascalFunction, URISyntaxException {
-		this.vf = vf;
-	
-		if (!binaryKernelLoc.getScheme().startsWith("compressed")) {
-		    binaryKernelLoc = URIUtil.changeScheme(binaryKernelLoc, "compressed+" + binaryKernelLoc.getScheme());
-		}
-		
-		if (!binaryKernelLoc.getPath().endsWith(PATH_TO_LINKED_KERNEL)) {
-		    binaryKernelLoc = URIUtil.getChildLocation(binaryKernelLoc, PATH_TO_LINKED_KERNEL);
-		}
-		   
-		this.rvm = ExecutionTools.initializedRVM(binaryKernelLoc, rex);
+	public Kernel(IValueFactory vf, RascalExecutionContext rex, ISourceLocation bootDir) throws IOException, NoSuchRascalFunction, URISyntaxException {
+		this.vf = vf;		   
+		this.rvm = ExecutionTools.initializedRVM(RascalExecutionContext.getKernel(bootDir), rex);
 
 		compile    		= safeGet("RVMModule compile(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
 		compileN    	= safeGet("list[RVMModule] compile(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
