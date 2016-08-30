@@ -112,6 +112,7 @@
                                 <argument>${project.build.directory}/classes</argument>
                                 <argument>${project.basedir}/bootstrap</argument>
                                 <argument>--verbose</argument>
+                                <argument>--clean</argument>
                                 <argument>${rascal.boot}</argument>
                             </arguments>
                         </configuration>
