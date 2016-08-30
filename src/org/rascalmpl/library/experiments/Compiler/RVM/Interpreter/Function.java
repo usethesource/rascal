@@ -9,7 +9,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFE
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFExecutableWriter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableReader;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableWriter;
-import org.rascalmpl.value.IAnnotatable;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
@@ -19,16 +18,8 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.IWithKeywordParameters;
-import org.rascalmpl.value.io.binary.IValueIDs;
-import org.rascalmpl.value.io.binary.IValueWriter;
-import org.rascalmpl.value.io.binary.ValueWireOutputStream;
-import org.rascalmpl.value.io.binary.util.PositionStack;
-import org.rascalmpl.value.io.binary.util.TypeIteratorKind;
-import org.rascalmpl.value.io.binary.util.ValueIteratorKind;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.value.visitors.IValueVisitor;
 
 /**
  * Function contains all data needed for a single RVM function
