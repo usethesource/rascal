@@ -320,7 +320,7 @@ public class ParsingTools {
 		  IMapWriter w = vf.mapWriter();
 		  w.insert(vf.tuple(name, moduleTags));
 		  
-		  RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, null /* in the interpreter version we won't need a kernel */, ctx.getStdOut(), ctx.getStdErr())
+		  RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, null /* use default bootDir */, ctx.getStdOut(), ctx.getStdErr())
 				  .withModuleTags(w.done())
 				  .customSearchPath(ctx.getEvaluator().getRascalResolver())
 				  .build();
@@ -336,7 +336,7 @@ public class ParsingTools {
 	      IMapWriter w = vf.mapWriter();
           w.insert(vf.tuple(name, moduleTags));
           
-	      RascalExecutionContext rex2 = RascalExecutionContextBuilder.normalContext(vf, rex.getKernel(), rex.getStdOut(), rex.getStdErr())
+	      RascalExecutionContext rex2 = RascalExecutionContextBuilder.normalContext(vf, rex.getBoot(), rex.getStdOut(), rex.getStdErr())
 	              .withModuleTags(w.done())
 	              .customSearchPath(rex.getRascalSearchPath())
 	              .build();
