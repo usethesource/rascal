@@ -21,8 +21,11 @@ import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.json.io.IValueAdapter;
 import org.rascalmpl.library.lang.json.io.JSONReadingTypeVisitor;
+import org.rascalmpl.library.lang.json.io.JsonValueReader;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -33,6 +36,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import com.ibm.icu.text.DateFormat;
 
 public class IO {
@@ -67,6 +71,23 @@ public class IO {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
+	
+	public IValue readJSON(IValue type, ISourceLocation loc) {
+	  TypeStore store = new TypeStore();
+	  Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
+	  
+	  try {
+	    return new JsonValueReader(values, store).read(new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc)), start);
+	  }
+	  catch (IOException e) {
+	    throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+	  }
+	  catch (NullPointerException e) {
+	    e.printStackTrace();
+	    throw RuntimeExceptionFactory.io(values.string("NPE"), null, null);
+	  }
+	}
+	
 	public IValue fromJSON(IValue type, IString src, IEvaluatorContext ctx) {
 		TypeStore store = ctx.getCurrentEnvt().getStore();
 		Type start = new TypeReifier(ctx.getValueFactory()).valueToType((IConstructor) type, store);
