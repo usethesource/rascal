@@ -110,9 +110,8 @@
                                 <argument>${project.version}</argument>
                                 <argument>${project.basedir}/src</argument>
                                 <argument>${project.build.directory}/classes</argument>
-                                <argument>${project.build.directory}/bootstrap</argument>
+                                <argument>${project.basedir}/bootstrap</argument>
                                 <argument>--verbose</argument>
-                                <argument>--clean</argument>
                                 <argument>${rascal.boot}</argument>
                             </arguments>
                         </configuration>
