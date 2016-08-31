@@ -1,6 +1,5 @@
 module experiments::Compiler::Examples::Tst6
 
-import experiments::Compiler::Examples::Tst5;
+syntax A = "a";
 
-//import lang::rascal::tests::functionality::KeywordParameterImport1;  
-//import lang::rascal::tests::functionality::KeywordParameterImport2;
+value main() = [A] "a";
