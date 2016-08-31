@@ -40,34 +40,34 @@ public class RascalExecutionContextBuilder {
 	private IFrameObserver frameObserver = null;
 	private RascalSearchPath rascalSearchPath = null;
 
-	private final ISourceLocation kernel;
+	private final ISourceLocation bootDir;
 	
 	
-	private RascalExecutionContextBuilder(IValueFactory vf, ISourceLocation kernel, PrintWriter stdout, PrintWriter stderr) {
+	private RascalExecutionContextBuilder(IValueFactory vf, ISourceLocation bootDir, PrintWriter stdout, PrintWriter stderr) {
 	    this.vf = vf;
 	    this.stderr = stderr;
 	    this.stdout = stdout;
-	    this.kernel = kernel;
+	    this.bootDir = bootDir;
 	}
 	
-	public static RascalExecutionContextBuilder normalContext(IValueFactory vf, ISourceLocation kernel) {
-	    return new RascalExecutionContextBuilder(vf, kernel, new PrintWriter(System.out, true), new PrintWriter(System.err, true));
+	public static RascalExecutionContextBuilder normalContext(IValueFactory vf, ISourceLocation bootDir) {
+	    return new RascalExecutionContextBuilder(vf, bootDir, new PrintWriter(System.out, true), new PrintWriter(System.err, true));
 	}
 	
-	public static RascalExecutionContextBuilder normalContext(IValueFactory vf, ISourceLocation kernel, PrintWriter stdout, PrintWriter stderr) {
-	    return new RascalExecutionContextBuilder(vf, kernel, stdout, stderr);
+	public static RascalExecutionContextBuilder normalContext(IValueFactory vf, ISourceLocation bootDir, PrintWriter stdout, PrintWriter stderr) {
+	    return new RascalExecutionContextBuilder(vf, bootDir, stdout, stderr);
 	}
 
-	public static RascalExecutionContextBuilder normalContext(IValueFactory vf, ISourceLocation kernel, PrintStream stdout, PrintStream stderr) {
-	    return new RascalExecutionContextBuilder(vf, kernel, new PrintWriter(stdout), new PrintWriter(stderr, true));
+	public static RascalExecutionContextBuilder normalContext(IValueFactory vf, ISourceLocation bootDir, PrintStream stdout, PrintStream stderr) {
+	    return new RascalExecutionContextBuilder(vf, bootDir, new PrintWriter(stdout), new PrintWriter(stderr, true));
 	}
 
 	/**
 	 * Setup the rascal execution context for test suites
 	 * @param resultListener a specific listener instance or null which will enable the DefaultTestResultListener
 	 */
-	public static RascalExecutionContextBuilder testSuiteContext(IValueFactory vf, ISourceLocation kernel, ITestResultListener resultListener, PrintWriter stdout, PrintWriter stderr) {
-	    RascalExecutionContextBuilder result = normalContext(vf, kernel, stdout, stderr);
+	public static RascalExecutionContextBuilder testSuiteContext(IValueFactory vf, ISourceLocation bootDir, ITestResultListener resultListener, PrintWriter stdout, PrintWriter stderr) {
+	    RascalExecutionContextBuilder result = normalContext(vf, bootDir, stdout, stderr);
 	    result.testsuite = true;
 	    result.testResultListener = resultListener;
 	    return result;
@@ -75,7 +75,7 @@ public class RascalExecutionContextBuilder {
 	
 	public RascalExecutionContext build() {
 	    this.build = true;
-	    RascalExecutionContext result = new RascalExecutionContext(vf, kernel, stdout, stderr, moduleTags, symbolDefinitions, typeStore, debug, debugRVM, testsuite, profile, trace, coverage, jvm, verbose, testResultListener, frameObserver, rascalSearchPath);
+	    RascalExecutionContext result = new RascalExecutionContext(vf, bootDir, stdout, stderr, moduleTags, symbolDefinitions, typeStore, debug, debugRVM, testsuite, profile, trace, coverage, jvm, verbose, testResultListener, frameObserver, rascalSearchPath);
 	    if (this.moduleName != null) {
 	        result.setCurrentModuleName(moduleName);
 	    }

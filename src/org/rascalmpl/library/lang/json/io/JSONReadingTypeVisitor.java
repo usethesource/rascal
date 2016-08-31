@@ -42,6 +42,7 @@ import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.value.exceptions.UnexpectedTypeException;
 import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
@@ -111,12 +112,12 @@ public class JSONReadingTypeVisitor implements
 	
 	@Override
 	public IValue visitReal(Type type) throws IOException {
-		return vf.real(((Double)stack.peek()).doubleValue());
+		return vf.real(safe(Double.class, type, stack.peek()).doubleValue());
 	}
 
 	@Override
 	public IValue visitInteger(Type type) throws IOException {
-		return vf.integer(((Double)stack.peek()).longValue());
+		return vf.integer(safe(Integer.class, type, stack.peek()));
 	}
 
 	@Override
@@ -199,10 +200,9 @@ public class JSONReadingTypeVisitor implements
 		throw new AssertionError("alias normalization should happen in read()");
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public IValue visitSet(Type type) throws IOException {
-		ISetWriter w = vf.setWriter(elementType(type));
+		ISetWriter w = vf.setWriter();
 		List l = (List)stack.peek();
 		for (Object e: l) {
 			stack.push(e);
@@ -292,7 +292,7 @@ public class JSONReadingTypeVisitor implements
 
 	@Override
 	public IValue visitString(Type type) throws IOException {
-		return vf.string((String)stack.peek());
+		return vf.string(safe(String.class, type, stack.peek()));
 	}
 
 	@Override
@@ -380,13 +380,10 @@ public class JSONReadingTypeVisitor implements
 			@Override
 			public IValue visitTuple(ITuple o) throws RuntimeException {
 				IValue[] elements = new IValue[o.arity()];
-				Type[] types = new Type[o.arity()];
 				for (int i = 0; i < elements.length; i++) {
 					elements[i] = o.get(i).accept(this);
-					types[i] = elements[i].getType();
 				}
-
-				return vf.tuple(tf.tupleType(types), elements);
+				return vf.tuple(elements);
 			}
 
 			@Override
@@ -586,8 +583,8 @@ public class JSONReadingTypeVisitor implements
 		}
 		if (obj instanceof Double) {
 			return vf.constructor(JSON_null);
-			
 		}
+		
 		throw new AssertionError("unhandled generic JSON object: " + obj);
 	}
 
@@ -611,7 +608,7 @@ public class JSONReadingTypeVisitor implements
 			args[i] = read(type.getFieldType(i));
 			stack.pop();
 		}
-		return vf.tuple(type, args);
+		return vf.tuple(args);
 	}
 
 	@Override
@@ -716,14 +713,22 @@ public class JSONReadingTypeVisitor implements
 
 	@Override
 	public IValue visitVoid(Type type) throws IOException {
-		throw new AssertionError("cannot read values of type void");
+		throw new IllegalArgumentException("can not read values of type void");
 	}
 
 	@Override
 	public IValue visitBool(Type type) throws IOException {
-		return vf.bool((Boolean)stack.peek());
+		return vf.bool(safe(Boolean.class, type, stack.peek()));
 	}
 
+	private static <T> T safe(Class<T> cls, Type type, Object elem) throws IOException {
+	  if (cls.isInstance(elem)) {
+	    return cls.cast(elem);
+	  }
+	  
+	  throw new IOException("Expected a value convertible to " + type + " but got " + elem.getClass());
+	}
+	
 	@Override
 	public IValue visitParameter(Type type) throws IOException {
 		throw new AssertionError("parameter types should have been bound");

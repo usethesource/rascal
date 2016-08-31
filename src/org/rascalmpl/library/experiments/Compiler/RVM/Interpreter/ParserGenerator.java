@@ -42,12 +42,10 @@ import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ParserGenerator {
-  private static final String PATH_TO_LINKED_GENERATOR = "lang/rascal/grammar/ParserGenerator.rvm.ser.gz";
-  private Evaluator evaluator;
+   private Evaluator evaluator;
   private final JavaBridge bridge;
   private final IValueFactory vf;
   private final TypeFactory tf;
-  private static ISourceLocation parserGeneratorBinaryLocation;
   private static RVMCore rvmParserGenerator;
   private Function getParserMethodNameFunction;
   private Function newGenerateFunction;
@@ -60,31 +58,19 @@ public class ParserGenerator {
 
   }
 
-  public ParserGenerator(RascalExecutionContext rex, ISourceLocation binaryKernelLoc) throws IOException {
+  public ParserGenerator(RascalExecutionContext rex) throws IOException {
     this.vf = rex.getValueFactory();
     this.tf = TypeFactory.getInstance();
     this.bridge = new JavaBridge(rex.getClassLoaders(), rex.getValueFactory(), rex.getConfiguration());
 
-    try {
-      if(useCompiledParserGenerator && parserGeneratorBinaryLocation == null || rvmParserGenerator == null) {
-        if (!binaryKernelLoc.getScheme().startsWith("compressed")) {
-          binaryKernelLoc = URIUtil.changeScheme(binaryKernelLoc, "compressed+" + binaryKernelLoc.getScheme());
-        }
-
-        if (!binaryKernelLoc.getPath().endsWith(PATH_TO_LINKED_GENERATOR)) {
-          binaryKernelLoc = URIUtil.getChildLocation(binaryKernelLoc, PATH_TO_LINKED_GENERATOR);
-        }
-
+      if(useCompiledParserGenerator && rvmParserGenerator == null) {
         RascalExecutionContext rex2 = 
-            RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), binaryKernelLoc, System.out,System.err)
+            RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), rex.getBoot(), System.out,System.err)
             .forModule("$parsergenerator$")
             .setJVM(true)                   // options for complete repl
             .build();
-        rvmParserGenerator = RVMCore.readFromFileAndInitialize(binaryKernelLoc, rex2);
+        rvmParserGenerator = RVMCore.readFromFileAndInitialize(rex.getParserGenerator(), rex2);
       }
-    } catch (URISyntaxException e) {
-      throw new IOException(e);
-    }
 
       if(useCompiledParserGenerator){			
         Type symSort = RascalTypeFactory.getInstance().nonTerminalType(vf.constructor(RascalValueFactory.Symbol_Sort, vf.string("Sym")));
