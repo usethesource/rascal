@@ -19,11 +19,12 @@ import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.INode;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.impl.util.collections.ShareableValuesList;
 import org.rascalmpl.value.io.binary.ValueWireInputStream.ReaderPosition;
 import org.rascalmpl.value.io.binary.util.LinearCircularLookupWindow;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
@@ -794,7 +795,7 @@ public class IValueReader {
 
                         assert size != null;
                         
-                        pushAndCache(vstack, valueWindow, vf.set(vstack.getChildren(new IValue[size])), backReference);
+                        pushAndCache(vstack, valueWindow, vstack.popSet(vf, size), backReference);
                         break;
                     }
 
@@ -968,12 +969,32 @@ class ValueReaderStack extends ReaderStack<IValue> {
     }
     
     public IList popList(IValueFactory vf, int size) {
-	    if(sp >= size){
-            sp -= size;
-            IListWriter result = vf.listWriter(); 
-	        result.insert(elements, sp, size);
-	        return result.done();
+        if (size == 0) {
+            return vf.list();
+        }
+
+	    if(sp < size){
+	        throw new RuntimeException("Empty Stack");
 	    }
-	    throw new RuntimeException("Empty Stack");
+	    sp -= size;
+	    IListWriter result = vf.listWriter(); 
+	    result.insert(elements, sp, size);
+	    return result.done();
+    }
+    
+    public ISet popSet(IValueFactory vf, int size) {
+        if (size == 0) {
+            return vf.set();
+        }
+        if (sp < size) {
+            throw new RuntimeException("Empty Stack");
+        }
+        ISetWriter result = vf.setWriter();
+        int oldSp = sp;
+        sp -= size;
+        for (int i = sp; i < oldSp; i++) {
+            result.insert(elements[i]);
+        }
+        return result.done();
     }
 }
