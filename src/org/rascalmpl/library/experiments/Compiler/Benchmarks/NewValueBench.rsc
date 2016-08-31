@@ -5,6 +5,8 @@ import IO;
 import ParseTree;
 import util::Reflective;
 import util::Benchmark;
+import lang::java::m3::Core;
+import lang::java::m3::AST;
 
 void printTime(str name, int time) {
     println("<name>: <time / 1000000>ms");
@@ -44,4 +46,24 @@ void benchValueIO() {
 
     bench("int list", #list[int], [i, i*2,i*3 | i <- [1..1000000]]);
     bench("str list", #list[str], ["aaa<i>asf<i *3>" | i <- [1..100000]]);
+}
+
+void writeInterestingFile(loc target, loc rascalRoot = |home:///PhD/workspace-rascal-source/rascal/|) {
+    println("Reading trees");
+    trees = [
+          parseNamedModuleWithSpaces("lang::rascal::syntax::Rascal")
+        , parseNamedModuleWithSpaces("lang::rascal::types::CheckTypes")
+    ];
+    println("Constructing list");
+    lists = {
+          [i, i*2,i*3 | i <- [1..1000000]]
+        , ["aaa<i>asf<i *3>" | i <- [1..100000]]
+        , [ { i, i * 2, i *3 } | i <- [1..100000]]
+    };
+
+    println("Constructing M3");
+    m3s = createM3FromDirectory(rascalRoot, errorRecovery = true, javaVersion = "1.8");
+    println("Constructing ASTs");
+    asts = createAstsFromDirectory(rascalRoot,  true, errorRecovery = true, javaVersion = "1.8");
+    writeBinaryValueFile(target, <trees, lists, m3s, asts>);
 }
