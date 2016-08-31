@@ -45,6 +45,8 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <lucence-version>6.1.0</lucence-version>
+        <rascal.boot.version>0.8.2-bs</rascal.boot.version>
+        <rascal.boot>--download</rascal.boot>
     </properties>
 
     <build>
@@ -95,7 +97,6 @@
                 <executions>
                     <execution>
                         <configuration>
-                            <skip>${skipBootstrap}</skip>
                             <executable>java</executable>
                             <classpathScope>compile</classpathScope>
                             <workingDirectory>target/classes/</workingDirectory>
@@ -105,11 +106,14 @@
                                 <classpath/>
                                 <argument>org.rascalmpl.library.experiments.Compiler.Commands.Bootstrap</argument>
                                 <classpath/>
-                                <argument>0.8.2-bs</argument>
+                                <argument>${rascal.boot.version}</argument>
                                 <argument>${project.version}</argument>
                                 <argument>${project.basedir}/src</argument>
                                 <argument>${project.build.directory}/classes</argument>
+                                <argument>${project.basedir}/bootstrap</argument>
+                                <argument>--verbose</argument>
                                 <argument>--clean</argument>
+                                <argument>${rascal.boot}</argument>
                             </arguments>
                         </configuration>
                         <id>bootstrap</id>

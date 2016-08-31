@@ -24,5 +24,4 @@ public class IValueAdapter extends TypeAdapter<IValue> {
 	public IValueAdapter(boolean compact) {
 	   this.compact = compact;
 	}
-	
 }

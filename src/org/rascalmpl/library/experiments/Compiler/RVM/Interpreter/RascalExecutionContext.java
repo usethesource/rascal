@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.Null
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.ProfileFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.RVMTrackingObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IListWriter;
@@ -40,6 +42,7 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -96,6 +99,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private static Cache<IString, DescendantDescriptor> descendantDescriptorCache;
 	private static Cache<Type, Type> sharedTypeConstantCache;
 	
+	private static final String PATH_TO_LINKED_PARSERGENERATOR = "lang/rascal/grammar/ParserGenerator.rvm.ser.gz";
+    private static final String PATH_TO_LINKED_KERNEL = "lang/rascal/boot/Kernel.rvm.ser.gz";
+	
 	static {
 		createCaches(true);
 	}
@@ -108,13 +114,11 @@ public class RascalExecutionContext implements IRascalMonitor {
 	StringBuilder templateBuilder = null;
 	private final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
 	private IListWriter test_results;
-	private final ISourceLocation kernel;
-	
-	
+	private final ISourceLocation bootDir;
 	
 	public RascalExecutionContext(
 			IValueFactory vf, 
-			ISourceLocation kernel,
+			ISourceLocation bootDir,
 			PrintWriter stdout, 
 			PrintWriter stderr, 
 			IMap moduleTags, 
@@ -133,65 +137,107 @@ public class RascalExecutionContext implements IRascalMonitor {
 			RascalSearchPath rascalSearchPath
 	){
 		
-		this.vf = vf;
-		this.kernel = kernel;
-		this.moduleTags = moduleTags;
-		this.symbol_definitions = symbol_definitions;
-		this.typeStore = typeStore == null ? RascalValueFactory.getStore() /*new TypeStore()*/ : typeStore;
-		this.debug = debug;
-		this.debugRVM = debugRVM;
-		this.testsuite = testsuite;
+	  this.vf = vf;
+	  this.bootDir = bootDir;
+	  if(bootDir != null && !URIResolverRegistry.getInstance().isDirectory(bootDir)){
+	    throw new RuntimeException("bootDir should be a directory, given " + bootDir);
+	  }
+	  
+	  this.moduleTags = moduleTags;
+	  this.symbol_definitions = symbol_definitions;
+	  this.typeStore = typeStore == null ? RascalValueFactory.getStore() /*new TypeStore()*/ : typeStore;
+	  this.debug = debug;
+	  this.debugRVM = debugRVM;
+	  this.testsuite = testsuite;
+
+	  this.profile = profile;
+	  this.coverage = coverage;
+	  this.jvm = jvm;
+	  this.trace = trace;
+	  this.verbose = verbose;
+
+	  currentModuleName = "UNDEFINED";
+
+	  reifier = new TypeReifier(vf);
+
+	  if(rascalSearchPath == null){
+	    this.rascalSearchPath = new RascalSearchPath();
+	    addRascalSearchPath(URIUtil.rootLocation("test-modules"));
+	    addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+	  } else {
+	    this.rascalSearchPath = rascalSearchPath;
+	  }
+
+	  monitor = new ConsoleRascalMonitor(); //ctx.getEvaluator().getMonitor();
+	  this.stdout = stdout;
+	  this.stderr = stderr;
+	  config = new Configuration();
+	  this.classLoaders = new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader()));
+	  this.testResultListener = (testResultListener == null) ? (ITestResultListener) new DefaultTestResultListener(stderr, verbose)
+	      : testResultListener;
+
+	  if(frameObserver == null){
+	    if(profile){
+	      setFrameObserver(new ProfileFrameObserver(this));
+	    } else if(coverage){
+	      setFrameObserver(new CoverageFrameObserver(this));
+	    } else if(debug){
+	      setFrameObserver(new DebugFrameObserver(this));
+	    } else if(trace){
+	      setFrameObserver(new CallTraceObserver(this));
+	    } else if(debugRVM){
+	      setFrameObserver(new RVMTrackingObserver(this));
+	    } else {
+	      setFrameObserver(NullFrameObserver.getInstance());
+	    }
+	  } else {
+	    setFrameObserver(frameObserver);
+	  }
+
+	  parsingTools = new ParsingTools(vf);
+	}
 	
-		this.profile = profile;
-		this.coverage = coverage;
-		this.jvm = jvm;
-		this.trace = trace;
-		this.verbose = verbose;
-		
-		currentModuleName = "UNDEFINED";
-		
-		 reifier = new TypeReifier(vf);
-		
-		if(rascalSearchPath == null){
-			this.rascalSearchPath = new RascalSearchPath();
-			addRascalSearchPath(URIUtil.rootLocation("test-modules"));
-            addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-		} else {
-			this.rascalSearchPath = rascalSearchPath;
-		}
+	public static ISourceLocation getLocation(ISourceLocation givenBootDir, String desiredPath) {
+	  IValueFactory vfac = ValueFactoryFactory.getValueFactory();
+	  try {
+	    if(givenBootDir == null){
+	      return vfac.sourceLocation("compressed+boot", "", desiredPath);
+	    }
+
+	    String scheme = givenBootDir.getScheme();
+	    if(!scheme.startsWith("compressed+")){
+	      scheme = "compressed+" + scheme;
+	    }
+	   
+	    String basePath = givenBootDir.getPath();
+	    if(!basePath.endsWith("/")){
+	      basePath += "/";
+	    }
+	    return vfac.sourceLocation(scheme, givenBootDir.getAuthority(), basePath + desiredPath);
+	  } catch (URISyntaxException e) {
+	    throw new RuntimeException("Cannot create location for " + desiredPath);
+	  }
+	}
 	
-		monitor = new ConsoleRascalMonitor(); //ctx.getEvaluator().getMonitor();
-		this.stdout = stdout;
-		this.stderr = stderr;
-		config = new Configuration();
-		this.classLoaders = new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader()));
-		this.testResultListener = (testResultListener == null) ? (ITestResultListener) new DefaultTestResultListener(stderr, verbose)
-															  : testResultListener;
-		
-		if(frameObserver == null){
-			if(profile){
-				setFrameObserver(new ProfileFrameObserver(this));
-			} else if(coverage){
-				setFrameObserver(new CoverageFrameObserver(this));
-			} else if(debug){
-				setFrameObserver(new DebugFrameObserver(this));
-			} else if(trace){
-					setFrameObserver(new CallTraceObserver(this));
-			} else if(debugRVM){
-				setFrameObserver(new RVMTrackingObserver(this));
-			} else {
-				setFrameObserver(NullFrameObserver.getInstance());
-			}
-		} else {
-			setFrameObserver(frameObserver);
-		}
-		
-		parsingTools = new ParsingTools(vf);
+	public static ISourceLocation getKernel(ISourceLocation givenBootDir) {
+      return getLocation(givenBootDir, PATH_TO_LINKED_KERNEL);
+    }
+	
+	public static ISourceLocation getParserGenerator(ISourceLocation givenBootDir) {
+      return getLocation(givenBootDir, PATH_TO_LINKED_PARSERGENERATOR);
+    }
+
+	public ISourceLocation getBoot() {
+	  return  getLocation(bootDir, "");
 	}
 	
 	public ISourceLocation getKernel() {
-      return kernel;
-    }
+	  return getLocation(bootDir, PATH_TO_LINKED_KERNEL);
+	}
+	
+	public ISourceLocation getParserGenerator(){
+	  return getLocation(bootDir, PATH_TO_LINKED_PARSERGENERATOR);
+	}
     
 	// Cache related methods
 	
