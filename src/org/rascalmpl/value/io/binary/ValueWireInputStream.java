@@ -15,10 +15,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 public class ValueWireInputStream implements Closeable {
 
-    private static void log(String msg) {
-        //System.err.println(msg);
-    }
-
     public static enum ReaderPosition {
         MESSAGE_START,
         FIELD,
@@ -77,11 +73,9 @@ public class ValueWireInputStream implements Closeable {
             next = stream.readRawVarint32();
         } 
         catch (InvalidProtocolBufferException e) {
-            log("reader: EOF");
             throw new EOFException();
         }
         if (next == 0) {
-            log("reader: endMessage " + messageID);
             return current = ReaderPosition.MESSAGE_END;
         }
         fieldID = TaggedInt.getOriginal(next);
@@ -90,30 +84,25 @@ public class ValueWireInputStream implements Closeable {
             case 0:
                 // special case that signals starts of values
                 messageID = fieldID;
-                log("reader: startMessage " + messageID);
                 return current = ReaderPosition.MESSAGE_START;
             case FieldKind.STRING:
                 stream.resetSizeCounter();
                 stringValue = stream.readString();
                 stringsRead.read(stringValue);
                 stream.resetSizeCounter();
-                log("reader: string field " + fieldID + ", " + stringValue);
                 break;
             case FieldKind.LONG:
                 longValue = stream.readRawVarint64();
-                log("reader: long field " + fieldID + ", " + longValue);
                 break;
             case FieldKind.BYTES:
                 stream.resetSizeCounter();
                 bytesValue = stream.readByteArray();
-                log("reader: bytes field " + fieldID + ", " + bytesValue);
                 break;
             case FieldKind.PREVIOUS_STR:
                 int reference = stream.readRawVarint32();
                 fieldType = TaggedInt.getTag(reference);
                 assert fieldType == FieldKind.STRING;
                 stringValue = stringsRead.lookBack(TaggedInt.getOriginal(reference));
-                log("reader: previous field " + fieldID + ", " + stringValue);
                 break;
             default:
                 throw new IOException("Unexpected wire type: " + fieldType);
