@@ -2,6 +2,7 @@ package org.rascalmpl.value.io.binary;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
@@ -14,12 +15,15 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.INode;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.impl.util.collections.ShareableValuesList;
 import org.rascalmpl.value.io.binary.ValueWireInputStream.ReaderPosition;
 import org.rascalmpl.value.io.binary.util.LinearCircularLookupWindow;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
@@ -115,8 +119,8 @@ public class IValueReader {
 	@SuppressWarnings("deprecation")
     private static IValue read(final ValueWireInputStream reader, final IValueFactory vf, final TypeStore store, TrackLastRead<Type> typeWindow, TrackLastRead<IValue> valueWindow, TrackLastRead<ISourceLocation> uriWindow) throws IOException{
 
-        ReaderStack<Type> tstack = new ReaderStack<>(100);
-        ReaderStack<IValue> vstack = new ReaderStack<>(1024);
+        ReaderStack<Type> tstack = new ReaderStack<>(Type.class, 100);
+        ValueReaderStack vstack = new ValueReaderStack(1024);
 
         try {
            
@@ -619,7 +623,7 @@ public class IValueReader {
                         
                         assert size != null;
 
-                        pushAndCache(vstack,valueWindow,  vf.list(vstack.getChildren(new IValue[size])), backReference);
+                        pushAndCache(vstack,valueWindow,  vstack.popList(vf, size), backReference);
                         break;
                     }
 
@@ -884,11 +888,12 @@ public class IValueReader {
 }
 
 class ReaderStack<Elem> {
-	private Object[] elements;
-	private int sp = 0;
+	protected Elem[] elements;
+	protected int sp = 0;
 
-    ReaderStack(int capacity){
-		elements = new Object[(int)Math.max(capacity, 16)];
+    @SuppressWarnings("unchecked")
+    ReaderStack(Class<Elem> c, int capacity){
+		elements = (Elem[]) Array.newInstance(c, Math.max(capacity, 16));
 	}
 	
 	public void push(Elem elem){
@@ -899,11 +904,10 @@ class ReaderStack<Elem> {
 		sp++;
 	}
 	
-	@SuppressWarnings("unchecked")
     public Elem pop(){
 		if(sp > 0){
 			sp--;
-			return (Elem) elements[sp];
+			return elements[sp];
 		}
 		throw new RuntimeException("Empty Stack");
 	}
@@ -912,33 +916,32 @@ class ReaderStack<Elem> {
 		return sp;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public Elem[] getChildren(Elem[] target){
 	    if (target.length == 0) {
 	        return target;
 	    }
 	    int from = sp - target.length;
 	    if(from >= 0){
-	        final Object[] elements = this.elements;
+	        final Elem[] elements = this.elements;
 	        switch(target.length) {
 	            // unrolled arrayCopy for the small arities
 	            case 1:
-	                target[0] = (Elem) elements[from + 0];
+	                target[0] = elements[from + 0];
 	                break;
 	            case 2:
-	                target[0] = (Elem) elements[from + 0];
-	                target[1] = (Elem) elements[from + 1];
+	                target[0] = elements[from + 0];
+	                target[1] = elements[from + 1];
 	                break;
 	            case 3:
-	                target[0] = (Elem) elements[from + 0];
-	                target[1] = (Elem) elements[from + 1];
-	                target[2] = (Elem) elements[from + 2];
+	                target[0] = elements[from + 0];
+	                target[1] = elements[from + 1];
+	                target[2] = elements[from + 2];
 	                break;
 	            case 4:
-	                target[0] = (Elem) elements[from + 0];
-	                target[1] = (Elem) elements[from + 1];
-	                target[2] = (Elem) elements[from + 2];
-	                target[3] = (Elem) elements[from + 3];
+	                target[0] = elements[from + 0];
+	                target[1] = elements[from + 1];
+	                target[2] = elements[from + 2];
+	                target[3] = elements[from + 3];
 	                break;
 	                
 	            default:
@@ -956,4 +959,21 @@ class ReaderStack<Elem> {
 		assert elements.length <= newSize;
 		elements = Arrays.copyOf(elements, newSize);
 	}
+}
+
+class ValueReaderStack extends ReaderStack<IValue> {
+
+    public ValueReaderStack(int capacity) {
+        super(IValue.class, capacity);
+    }
+    
+    public IList popList(IValueFactory vf, int size) {
+	    if(sp >= size){
+            sp -= size;
+            IListWriter result = vf.listWriter(); 
+	        result.insert(elements, sp, size);
+	        return result.done();
+	    }
+	    throw new RuntimeException("Empty Stack");
+    }
 }
