@@ -133,7 +133,18 @@ public class JsonValueWriter {
 
       @Override
       public Void visitSourceLocation(ISourceLocation o) throws IOException {
-        // TODO Auto-generated method stub
+        if (!o.hasOffsetLength()) {
+          if ("file".equals(o.getScheme())) {
+            out.value(o.getPath());
+          }
+          else {
+            out.value(o.getURI().toASCIIString());
+          }
+        }
+        else {
+          out.value(o.toString());
+        }
+        
         return null;
       }
 
@@ -192,7 +203,12 @@ public class JsonValueWriter {
           out.beginObject();
           int i = 0;
           for (IValue arg : o) {
-            out.name(o.getConstructorType().getFieldName(i)); 
+            if (arg instanceof INode) {
+              out.name(((INode) arg).getName());
+            }
+            else {
+              out.name(o.getConstructorType().getFieldName(i));
+            }
             arg.accept(this);
           }
           for (Entry<String,IValue> e : o.asWithKeywordParameters().getParameters().entrySet()) {

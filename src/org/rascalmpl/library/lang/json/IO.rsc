@@ -60,3 +60,4 @@ java &T readJSON(type[&T] expected, loc src, bool implicitConstructors = true,  
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 java void writeJSON(loc target, value val, bool implicitConstructors=true, bool implicitNodes=true, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ss\'Z\'", bool dateTimeAsInt=false);
+
