@@ -18,6 +18,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,34 +40,16 @@ import com.google.gson.stream.JsonToken;
 
 /**
  * This class streams a JSON stream directly to an IValue representation and validates the content
- * to a given type as declared in a given type store.
- * 
- * In general:
- *   - Objects translate to maps
- *   - Arrays translate to lists
- *   - Booleans translate to bools
- * 
- * But if the expected type is different than the general `value`, then mapping and validation is influenced as follows:
- *   - node will try and read an object {names and args} as a keyword parameter map to a node ""(kwparams)
- *   - adt/cons will objects using the property name of the parent object as constructor name, and property names as keyword field names
- *   - datetime can be mapped from ints and dateformat strings (see setCalenderFormat())  
- *   - rationals will read array tuples [nom, denom] or {nominator: non, deminator: denom} objects
- *   - sets will read arrays
- *   - lists will read arrays
- *   - tuples read arrays
- *   - maps read objects
- *   - relations read arrays of arrays
- *   - locations will read strings which contain :/ as URI strings (encoded) and strings which do not contain :/ as absolute file names,
- *     also locations will read objects { scheme : str, authority: str?, path: str?, fragment: str?, query: str?, offset: int, length: int, begin: [bl, bc], end: [el, ec]}
- *   - reals will read strings or doubles
- *   - ints will read strings or doubles
- *   - nums will read like ints      
+ * to a given type as declared in a given type store. See the Rascal file lang::json::IO::readJson for documentation.
+ 
  */
 public class JsonValueReader {
   private static final TypeFactory TF = TypeFactory.getInstance();
   private final TypeStore store;
   private final IValueFactory vf;
   private ThreadLocal<SimpleDateFormat> format;
+  private boolean implicitConstructors = true;
+  private boolean implicitNodes = true;
   
   /**
    * @param vf     factory which will be used to construct values
@@ -95,6 +78,16 @@ public class JsonValueReader {
     };
     return this;
   }
+  
+  public JsonValueReader setImplicitConstructors(boolean setting) {
+    this.implicitConstructors = setting;
+    return this;
+  }
+  
+  public JsonValueReader setImplicitNodes(boolean setting) {
+    this.implicitNodes = setting;
+    return this;
+  }
 
   public IValue read(JsonReader in, Type expected) throws IOException {
     return read(in, expected, null);
@@ -108,7 +101,7 @@ public class JsonValueReader {
    * @throws IOException when either a parse error or a validation error occurs
    */
   public IValue read(JsonReader in, Type expected, String label) throws IOException {
-    return expected.accept(new ITypeVisitor<IValue, IOException>() {
+    IValue res = expected.accept(new ITypeVisitor<IValue, IOException>() {
       @Override
       public IValue visitInteger(Type type) throws IOException {
         checkNull();
@@ -356,11 +349,10 @@ public class JsonValueReader {
             return w.done();
           case BEGIN_ARRAY:
             in.beginArray();
-            in.beginArray();
             while (in.hasNext()) {
               in.beginArray();
-              IValue key = read(in, type.getKeyType());
-              IValue value = read(in, type.getValueType());
+              IValue key = read(in, type.getKeyType(), type.getKeyLabel());
+              IValue value = read(in, type.getValueType(), type.getValueLabel());
               w.put(key,value);
               in.endArray();
             }
@@ -388,11 +380,50 @@ public class JsonValueReader {
       
       @Override
       public IValue visitAbstractData(Type type) throws IOException {
+        return implicitConstructors ? implicitConstructor(type) : explicitConstructor(type);
+      }
+       
+      private IValue explicitConstructor(Type type) throws IOException {
+        in.beginArray(); // binary or ternary, first is cons, second is args, third is optional kwargs
+        String label = in.nextString();
+        Type cons = checkNameCons(type, label);
+        
+        // args
+        in.beginArray();
+        IValue[] args = new IValue[cons.getArity()];
+        for (int i = 0; i < cons.getArity(); i++) {
+          args[i] = read(in, cons.getFieldType(i));
+        }
+        in.endArray();
+
+        // kwargs
+        in.beginObject();
+        Map<String,IValue> kwParams = new HashMap<>();
+        while (in.hasNext()) {
+          String kwLabel = in.nextName();
+          Type kwType = store.getKeywordParameterType(cons, label);
+          if (kwType != null) {
+            kwParams.put(kwLabel, read(in, kwType));
+          }
+          else {
+            kwParams.put(kwLabel, read(in, TF.valueType()));
+          }
+        }
+        in.endObject();
+
+        in.endArray();
+        
+        return vf.constructor(cons, args, kwParams);
+        
+      }
+
+      private IValue implicitConstructor(Type type) throws IOException {
         String consName = label;
         
-        if (consName == null) {
-          // this should not happen often, so let's go and find the first constructor for this adt, slowly
-          for (Type cons : store.getConstructors()) {
+        if (consName == null || store.lookupConstructor(type, label) == null) {
+          // this should not happen often, but is useful for top-level values
+          // and members of arrays which do not provide a label context
+          for (Type cons : store.lookupAlternatives(type)) {
             if (cons.getAbstractDataType() == type) {
               consName = cons.getName();
               break;
@@ -433,6 +464,12 @@ public class JsonValueReader {
         }
         in.endObject();
         
+        for (int i = 0; i < args.length; i++) {
+          if (args[i] == null) {
+            throw new IOException("Missing argument " + cons.getFieldName(i) + " to " + cons + ":" + in.getPath());
+          }
+        }
+        
         return vf.constructor(type, args, kwParams);
       }
       
@@ -443,6 +480,39 @@ public class JsonValueReader {
       
       @Override
       public IValue visitNode(Type type) throws IOException {
+        return implicitNodes ? implicitNode() : explicitNode();
+      }
+      
+      private IValue explicitNode() throws IOException {
+        in.beginArray(); // binary or ternary, first is cons, second is args, third is optional kwargs
+        String label = in.nextString();
+        
+        // args
+        in.beginArray();
+        List<IValue> args = new LinkedList<>();
+        while (in.hasNext()) {
+          args.add(read(in, TF.valueType()));
+        }
+        in.endArray();
+
+        // kwargs
+        Map<String,IValue> kwParams = new HashMap<>();
+        
+        if (in.hasNext()) {
+          in.beginObject();
+          while (in.hasNext()) {
+            String kwLabel = in.nextName();
+            kwParams.put(kwLabel, read(in, TF.valueType()));
+          }
+          in.endObject();
+        }
+
+        in.endArray();
+        
+        return vf.node(label, args.toArray(new IValue[args.size()]), kwParams);
+      }
+
+      private IValue implicitNode() throws IOException {
         in.beginObject();
         
         Map<String,IValue> kws = new HashMap<>();
@@ -475,9 +545,6 @@ public class JsonValueReader {
               return vf.datetime(format.get().parse(in.nextString()).toInstant().toEpochMilli());
             case NUMBER:
               return vf.datetime(in.nextLong());
-            case BEGIN_OBJECT:
-              in.beginObject();
-              in.endObject();
             default:
               throw new IOException("Expected a datetime instant " + in.getPath());
           }
@@ -493,7 +560,8 @@ public class JsonValueReader {
         IListWriter w = vf.listWriter();
         in.beginArray();
         while (in.hasNext()) {
-          w.append(read(in, type.getElementType()));
+          // here we pass label from the higher context
+          w.append(read(in, type.getElementType(), label));
         }
 
         in.endArray();
@@ -506,7 +574,8 @@ public class JsonValueReader {
         ISetWriter w = vf.setWriter();
         in.beginArray();
         while (in.hasNext()) {
-          w.insert(read(in, type.getElementType()));
+          // here we pass label from the higher context
+          w.insert(read(in, type.getElementType(), label));
         }
 
         in.endArray();
@@ -533,5 +602,11 @@ public class JsonValueReader {
         return alternatives.iterator().next();
       }
     });
+    
+    if (res == null) {
+      throw new IOException("Unexpected null value produced at " + in.getPath());
+    }
+    
+    return res;
   }
 }
