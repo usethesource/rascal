@@ -13,6 +13,7 @@
 package org.rascalmpl.library.lang.json.io;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,6 +31,7 @@ import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.StandardTextReader;
 import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
@@ -104,26 +106,26 @@ public class JsonValueReader {
     IValue res = expected.accept(new ITypeVisitor<IValue, IOException>() {
       @Override
       public IValue visitInteger(Type type) throws IOException {
-        checkNull();
-        
         switch (in.peek()) {
           case NUMBER:
             return vf.integer(in.nextLong());
           case STRING:
             return vf.integer(in.nextString());
+          case NULL:
+            return null;
           default:
               throw new IOException("Expected integer but got " + in.peek());
         }
       }
       
       public IValue visitReal(Type type) throws IOException {
-        checkNull();
-        
         switch (in.peek()) {
           case NUMBER:
             return vf.real(in.nextInt());
           case STRING:
             return vf.real(in.nextString());
+          case NULL:
+            return null;
           default:
               throw new IOException("Expected integer but got " + in.peek());
         }
@@ -136,13 +138,18 @@ public class JsonValueReader {
       
       @Override
       public IValue visitString(Type type) throws IOException {
-        checkNull();
+        if (isNull()) {
+          return null;
+        }
+        
         return vf.string(in.nextString());
       }
       
       @Override
       public IValue visitTuple(Type type) throws IOException {
-        checkNull();
+        if (isNull()) {
+          return null;
+        }
 
         List<IValue> l = new ArrayList<>();
         in.beginArray();
@@ -257,11 +264,13 @@ public class JsonValueReader {
       
       @Override
       public IValue visitValue(Type type) throws IOException {
-        checkNull();
-        
         switch (in.peek()) {
           case NUMBER:
-            return visitInteger(TF.integerType());
+            try {
+              return vf.integer(in.nextLong());
+            } catch (NumberFormatException e) {
+                return vf.real(in.nextDouble());
+            }
           case STRING:
             return visitString(TF.stringType());
           case BEGIN_ARRAY:
@@ -273,6 +282,9 @@ public class JsonValueReader {
           case NAME:
             // this would be weird though
             return vf.string(in.nextName());
+          case NULL:
+            in.nextNull();
+            return null;
           default:
             throw new IOException("Did not expect end of Json value here, while looking for " + type + " + at " + in.getPath());
         }
@@ -280,12 +292,16 @@ public class JsonValueReader {
       
       private IValue sourceLocationString() throws IOException {  
           try {
-            String val = in.nextString();
+            String val = in.nextString().trim();
             
-            if (val.contains(":/")) {
+            if (val.startsWith("|") && val.endsWith("|")) {
+              return new StandardTextReader().read(vf, new StringReader(val));
+            }
+            else if (val.contains("://")) {
               return vf.sourceLocation(URIUtil.createFromEncoded(val));
             }
             else {
+              // will be simple interpreted as an absolute file name
               return vf.sourceLocation(val);
             }
           } catch (URISyntaxException e) {
@@ -294,7 +310,9 @@ public class JsonValueReader {
       }
       
       public IValue visitRational(Type type) throws IOException {
-        checkNull();
+        if (isNull()) {
+          return null;
+        }
         
         switch (in.peek()) {
           case BEGIN_OBJECT:
@@ -331,7 +349,9 @@ public class JsonValueReader {
       
       @Override
       public IValue visitMap(Type type) throws IOException {
-        checkNull();
+        if (isNull()) {
+          return null;
+        }
         IMapWriter w = vf.mapWriter();
         
         switch (in.peek()) {
@@ -374,7 +394,9 @@ public class JsonValueReader {
       
       @Override
       public IValue visitBool(Type type) throws IOException {
-        checkNull();
+        if (isNull()) {
+          return null;
+        }
         return vf.bool(in.nextBoolean());
       }
       
@@ -393,6 +415,9 @@ public class JsonValueReader {
         IValue[] args = new IValue[cons.getArity()];
         for (int i = 0; i < cons.getArity(); i++) {
           args[i] = read(in, cons.getFieldType(i));
+          if (args[i] == null) {
+            throw new IOException("Unexpected null argument: " + in.getPath());
+          }
         }
         in.endArray();
 
@@ -402,11 +427,11 @@ public class JsonValueReader {
         while (in.hasNext()) {
           String kwLabel = in.nextName();
           Type kwType = store.getKeywordParameterType(cons, label);
-          if (kwType != null) {
-            kwParams.put(kwLabel, read(in, kwType));
-          }
-          else {
-            kwParams.put(kwLabel, read(in, TF.valueType()));
+          IValue val = read(in, kwType != null ? kwType : TF.valueType());
+          
+          if (val != null) {
+            // null values are simply ignored
+            kwParams.put(kwLabel, val);
           }
         }
         in.endObject();
@@ -423,15 +448,16 @@ public class JsonValueReader {
         if (consName == null || store.lookupConstructor(type, label) == null) {
           // this should not happen often, but is useful for top-level values
           // and members of arrays which do not provide a label context
-          for (Type cons : store.lookupAlternatives(type)) {
-            if (cons.getAbstractDataType() == type) {
-              consName = cons.getName();
+          Set<Type> alts = store.lookupAlternatives(type);
+
+          switch (alts.size()) {
+            case 0:
+              throw new IOException("No alternatives found for " + type);
+            case 1:
+              consName = alts.iterator().next().getName();
               break;
-            }
-          }
-          
-          if (consName == null) {
-            throw new IOException("need a context with a constructor name to parse constructors (i.e. a property name of the parent or a unique single constructor exists the given ADT): " + in.getPath());
+            default:
+              throw new IOException("For recovering from an implicit context and using implicit constructors the top-level type can only have one constructor. " + in.getPath());
           }
         }
         
@@ -439,29 +465,29 @@ public class JsonValueReader {
         IValue[] args = new IValue[cons.getArity()];
         Map<String,IValue> kwParams = new HashMap<>();
         
-        if (!cons.hasFieldNames()) {
+        if (!cons.hasFieldNames() && cons.getArity() != 0) {
           throw new IOException("For the object encoding constructors must have field names " + in.getPath());
         }
         
         in.beginObject();
         
-        while (in.hasNext()) {
+        for (int i = 0; in.hasNext(); ) {
           String label = in.nextName();
-          if (cons.hasField(label)) {
-            int index = cons.getFieldIndex(label);
-            // here we use the field name of a child to match a constructor name of the child:
-            args[index] = read(in, cons.getFieldType(index), label);
+          
+          Type kwType = store.getKeywordParameterType(cons, label);
+          if (kwType != null) {
+            IValue val = read(in, kwType, label);
+            if (val != null) {
+              // if the value is null we'd use the default value of the defined field in the constructor
+              kwParams.put(label, val);
+            }
           }
-          else {
-            Type kwType = store.getKeywordParameterType(cons, label);
-            if (kwType != null) {
-              kwParams.put(label, read(in, kwType, label));
-            }
-            else {
-              kwParams.put(label, read(in, TF.valueType(), label));
-            }
+          else { // its a normal arg, pass its label to the child
+            args[i] = read(in, cons.getFieldType(i), label);
+            i = i + 1;
           }
         }
+          
         in.endObject();
         
         for (int i = 0; i < args.length; i++) {
@@ -470,7 +496,7 @@ public class JsonValueReader {
           }
         }
         
-        return vf.constructor(type, args, kwParams);
+        return vf.constructor(cons, args, kwParams);
       }
       
       @Override
@@ -502,7 +528,12 @@ public class JsonValueReader {
           in.beginObject();
           while (in.hasNext()) {
             String kwLabel = in.nextName();
-            kwParams.put(kwLabel, read(in, TF.valueType()));
+            IValue val = read(in, TF.valueType());
+            
+            if (val != null) {
+              // null values are simply "not" set
+              kwParams.put(kwLabel, val);
+            }
           }
           in.endObject();
         }
@@ -519,7 +550,11 @@ public class JsonValueReader {
         
         while (in.hasNext()) {
           String kwName = in.nextName();
-          kws.put(kwName, read(in, TF.valueType(), kwName));
+          IValue value = read(in, TF.valueType(), kwName);
+          
+          if (value != null) {
+            kws.put(kwName, value);
+          }
         }
         
         in.endObject();
@@ -555,7 +590,9 @@ public class JsonValueReader {
       
       @Override
       public IValue visitList(Type type) throws IOException {
-        checkNull();
+        if (isNull()) {
+          return null;
+        }
 
         IListWriter w = vf.listWriter();
         in.beginArray();
@@ -569,7 +606,9 @@ public class JsonValueReader {
       }
       
       public IValue visitSet(Type type) throws IOException {
-        checkNull();
+        if (isNull()) {
+          return null;
+        }
 
         ISetWriter w = vf.setWriter();
         in.beginArray();
@@ -582,11 +621,15 @@ public class JsonValueReader {
         return w.done();
       }
 
-      private void checkNull() throws IOException {
+      private boolean isNull() throws IOException {
+        // we use null in JSon to encode optional values.
+        // this will be mapped to keyword parameters in Rascal,
+        // or an exception if we really need a value
         if (in.peek() == JsonToken.NULL) {
           in.nextNull();
-          throw new IOException("JSon reader does not accept null values; at" + in.getPath());
+          return true;
         }
+        return false;
       }
       
       private Type checkNameCons(Type adt, String consName) throws IOException {
@@ -602,10 +645,6 @@ public class JsonValueReader {
         return alternatives.iterator().next();
       }
     });
-    
-    if (res == null) {
-      throw new IOException("Unexpected null value produced at " + in.getPath());
-    }
     
     return res;
   }
