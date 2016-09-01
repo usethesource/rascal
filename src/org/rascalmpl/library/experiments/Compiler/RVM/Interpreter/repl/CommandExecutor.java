@@ -37,6 +37,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.ISet;
@@ -194,6 +195,32 @@ public class CommandExecutor {
 		return false;
 	}
 	
+	private void executeTests(String[] words){
+	  IListWriter w = vf.listWriter();
+	  if(words.length > 1){
+	    for(int i = 1; i < words.length; i++){
+	      w.append(vf.string(words[i]));
+	    }
+	  } else {
+	    if(imports.size() > 0){
+	      for(int i = 0; i < imports.size(); i++){
+	        w.append(vf.string(imports.get(i)));
+	      }
+	    } else {
+	      System.err.println("No tests to execute");
+	      return;
+	    }
+	  }
+	  IValue res = kernel.rascalTests(w.done(), 
+	      pcfg.getSrcs(), 
+	      pcfg.getLibs(), 
+	      pcfg.getboot(), 
+	      pcfg.getBin(), 
+	      true,
+	      makeCompileKwParamsAsIMap());
+	  System.err.println("executeTests: " + res);
+	}
+	
 	private IValue executeModule(String main, boolean onlyMainChanged){
 		StringWriter w = new StringWriter();
 		
@@ -213,7 +240,7 @@ public class CommandExecutor {
 		}
 		w.append(main);
 		String modString = w.toString();
-//		System.err.println(modString);
+		System.err.println(modString);
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation);
@@ -783,6 +810,10 @@ public class CommandExecutor {
 		case "disable":
 			debugObserver.getBreakPointManager().disableDirective(words);
 			break;
+			
+		case "test":
+		  executeTests(words);
+		  break;
 		}
 		stdout.flush();
 		return null;
