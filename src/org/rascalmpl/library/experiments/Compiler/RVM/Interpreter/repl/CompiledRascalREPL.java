@@ -44,10 +44,8 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   
   static {
 	  	String[] shellVerbValues = {
-	  	  // Rascal declarations captured by RascalShell
-	  	  //"import",
 		  // General commands
-		  "help", "apropos", "set", "declarations", "modules", "unimport", "undeclare", "quit",
+		  "help", "apropos", "set", "declarations", "modules", "unimport", "undeclare", "quit", "test",
 		  // Debugging commands
 		  "break", "enable", "disable", "clear", "ignore"
 	  	};
