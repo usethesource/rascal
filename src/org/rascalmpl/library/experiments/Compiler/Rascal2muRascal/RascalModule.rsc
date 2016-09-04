@@ -146,9 +146,17 @@ loc relocLoc(loc org, loc reloc, list[loc] srcs){
 }
 
 MuModule relocMuModule(MuModule m, loc reloc, list[loc] srcs){
-    res = (reloc.scheme != "noreloc") ? visit(m){ case loc org => relocLoc(org, reloc, srcs) }
-                                         : m;
-    return res;
+    if(reloc.scheme == "noreloc"){
+        return m;
+    }
+    return
+        visit(m){ 
+        case muOCall3(MuExp fun, list[MuExp] largs, loc src)    => muOCall3(fun, largs, relocLoc(src, reloc, srcs))
+        case muOCall4(MuExp fun, Symbol types, list[MuExp] largs, loc src)
+                                                                => muOCall4(fun, types, largs, relocLoc(src, reloc, srcs))
+        case muCallPrim2(str name, loc src)                     => muCallPrim2(name, relocLoc(src, reloc, srcs))                
+        case muCallPrim3(str name, list[MuExp] exps, loc src)   => muCallPrim3(name, exps, relocLoc(src, reloc, srcs))
+        };                                   
 }
 
 void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true){
