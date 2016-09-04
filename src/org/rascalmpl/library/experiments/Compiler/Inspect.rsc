@@ -20,8 +20,8 @@ import lang::rascal::types::CheckerConfig;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 
-import experiments::vis2::sandbox::Figure;
-import experiments::vis2::sandbox::FigureServer;
+//import experiments::vis2::sandbox::Figure;
+//import experiments::vis2::sandbox::FigureServer;
 
 /*
  * A mini-query language to query .rvm and .tc files
@@ -464,24 +464,24 @@ str config(loc cloc,  Query select = none()){
    return res;
 }
 
-void importGraph(str qualifiedModuleName,  // name of Rascal source module
-            PathConfig pcfg = pathConfig()){
-    
-    //config(qualifiedModuleName);
-    if(<true, cloc> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
-       Configuration c = readBinaryValueFile(#Configuration, cloc); 
-        
-  
-	    if(c.importGraph != {}) {
-	        modules = [<prettyPrintName(nm), box(fig=text(getSimpleName(nm), fontSize=12), tooltip=prettyPrintName(nm))> | nm <- carrier(c.importGraph)];
-	        edges = [edge(prettyPrintName(nm1), prettyPrintName(nm2)) | <nm1, nm2> <- c.importGraph];
-	        g = box(fig=graph(modules, edges, width = 3000, height = 1000, lineWidth=1, graphOptions=graphOptions(nodeSep=50,layerSep=50, edgeSep=50)));
-	        println(g);
-	        render(g);
-	    } else {
-	        println("Import graph is empty");
-	    }
-	} else {
-	  println("Config file does not exist");
-	}    
- }
+//void importGraph(str qualifiedModuleName,  // name of Rascal source module
+//            PathConfig pcfg = pathConfig()){
+//    
+//    //config(qualifiedModuleName);
+//    if(<true, cloc> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
+//       Configuration c = readBinaryValueFile(#Configuration, cloc); 
+//        
+//  
+//	    if(c.importGraph != {}) {
+//	        modules = [<prettyPrintName(nm), box(fig=text(getSimpleName(nm), fontSize=12), tooltip=prettyPrintName(nm))> | nm <- carrier(c.importGraph)];
+//	        edges = [edge(prettyPrintName(nm1), prettyPrintName(nm2)) | <nm1, nm2> <- c.importGraph];
+//	        g = box(fig=graph(modules, edges, width = 3000, height = 1000, lineWidth=1, graphOptions=graphOptions(nodeSep=50,layerSep=50, edgeSep=50)));
+//	        println(g);
+//	        render(g);
+//	    } else {
+//	        println("Import graph is empty");
+//	    }
+//	} else {
+//	  println("Config file does not exist");
+//	}    
+// }
