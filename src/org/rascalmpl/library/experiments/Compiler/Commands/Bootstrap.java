@@ -230,10 +230,10 @@ public class Bootstrap {
                 }
                 
                 /*------------------------------------------,-CODE---------,-RVM---,-KERNEL---,-TESTS--*/
-                time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1]));
-                time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[0], kernel[1], rvm[1]));
-                time("Phase 3", () -> compilePhase(tmpDir, 3, librarySource, rvm[1], kernel[2], rvm[1]));
-                time("Phase 4", () -> compilePhase(tmpDir, 4, "|std:///|"  , rvm[1], kernel[3], rvm[1]));
+                time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|"));
+                time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[0], kernel[1], rvm[1], "|noreloc:///|"));
+                time("Phase 3", () -> compilePhase(tmpDir, 3, librarySource, rvm[1], kernel[2], rvm[1], "|noreloc:///|"));
+                time("Phase 4", () -> compilePhase(tmpDir, 4, "|std:///|"  , rvm[1], kernel[3], rvm[1], "|noreloc:///|"));
 
                 // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
                 time("Copying bootstrapped files", () -> copyResult(new File(kernel[4]).toPath(), targetFolder.resolve("boot")));
@@ -390,13 +390,13 @@ public class Bootstrap {
         return result;
     }
     
-    private static Path compilePhase(Path tmp, int phase, String sourcePath, String classPath, String bootPath, String testClassPath) throws Exception {
+    private static Path compilePhase(Path tmp, int phase, String sourcePath, String classPath, String bootPath, String testClassPath, String reloc) throws Exception {
         Path result = phaseFolder(phase, tmp);
         progress("phase " + phase + ": " + result);
 
         time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
-        time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel"));
-        time("- compile ParserGenarator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator"));
+        time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel", reloc));
+        time("- compile ParserGenarator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
         time("- compile tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, result));
         time("- run tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, result));
         
@@ -420,9 +420,9 @@ public class Bootstrap {
     }
     
     private static void compileModule(int phase, String classPath, String boot, String sourcePath, Path result,
-            String module) throws IOException, InterruptedException, BootstrapMessage {
+            String module, String reloc) throws IOException, InterruptedException, BootstrapMessage {
         progress("\tcompiling " + module + " (phase " + phase +")");
-        String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
+        String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot /*, "--reloc", reloc*/ };
         String[] otherArgs = VERBOSE? new String[] {"--verbose", module} : new String[] {module};
 
         if (runCompiler(classPath, concat(paths, otherArgs)) != 0) {
