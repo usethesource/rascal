@@ -199,7 +199,14 @@ public class CommandExecutor {
 	  IListWriter w = vf.listWriter();
 	  if(words.length > 1){
 	    for(int i = 1; i < words.length; i++){
-	      w.append(vf.string(words[i]));
+	      String mname = words[i];
+	      for(int j = 0; j < imports.size(); j++){ // Support abbreviations of already imported modules
+	        if(imports.get(j).contains(mname)){
+	          mname = imports.get(j);
+	          break;
+	        }
+            w.append(vf.string(mname));
+          }
 	    }
 	  } else {
 	    if(imports.size() > 0){
@@ -207,7 +214,7 @@ public class CommandExecutor {
 	        w.append(vf.string(imports.get(i)));
 	      }
 	    } else {
-	      System.err.println("No tests to execute");
+	      System.err.println("No tests to execute; import modules with tests or give list of modules with tests");
 	      return;
 	    }
 	  }
@@ -240,7 +247,7 @@ public class CommandExecutor {
 		}
 		w.append(main);
 		String modString = w.toString();
-		System.err.println(modString);
+		//System.err.println(modString);
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation);
