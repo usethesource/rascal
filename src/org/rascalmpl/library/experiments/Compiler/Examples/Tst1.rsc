@@ -3,7 +3,10 @@ module experiments::Compiler::Examples::Tst1
 data D1 = d1(int lineWidth = -1);
 
 
-//value main() = d1().lineWidth;
+
+
+
+value main() = d1().lineWidth;
 
 //import shapes::Figure;
 //import shapes::FigureServer;

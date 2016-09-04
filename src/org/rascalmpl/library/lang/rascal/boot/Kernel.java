@@ -54,11 +54,11 @@ public class Kernel {
 		this.vf = vf;		   
 		this.rvm = ExecutionTools.initializedRVM(RascalExecutionContext.getKernel(bootDir), rex);
 
-		compile    		= safeGet("RVMModule compile(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
-		compileN    	= safeGet("list[RVMModule] compile(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+		compile    		= safeGet("RVMModule compile(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
+		compileN    	= safeGet("list[RVMModule] compile(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
 		compileMuLibrary= safeGet("void compileMuLibrary(list[loc] srcs, list[loc] libs, loc boot, loc bin)");
-		compileAndLink  = safeGet("RVMProgram compileAndLink(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
-		compileAndLinkN = safeGet("list[RVMProgram] compileAndLink(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+		compileAndLink  = safeGet("RVMProgram compileAndLink(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
+		compileAndLinkN = safeGet("list[RVMProgram] compileAndLink(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
 		compileAndMergeIncremental 
 						= safeGet("RVMProgram compileAndMergeIncremental(str qname, bool reuseConfig, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
 		
@@ -73,11 +73,12 @@ public class Kernel {
 	 * @param libs		List of library directories
 	 * @param boot		Boot directory
 	 * @param bin		Binary directory
+	 * @param reloc     Relocate locations in binaries to reloc
 	 * @param kwArgs	Keyword arguments
 	 * @return 			The result (RVMProgram) of compiling the given module
 	 */
-	public IConstructor compile(IString qname, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, IMap kwArgs){
-	  return (IConstructor) rvm.executeRVMFunction(compile, new IValue[] { qname, srcs, libs, boot, bin, kwArgs });
+	public IConstructor compile(IString qname, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, ISourceLocation reloc, IMap kwArgs){
+	  return (IConstructor) rvm.executeRVMFunction(compile, new IValue[] { qname, srcs, libs, boot, bin, reloc, kwArgs });
 	}
 	
 	/**
@@ -87,10 +88,11 @@ public class Kernel {
 	 * @param libs		List of library directories
 	 * @param boot		Boot directory
 	 * @param bin		Binary directory
+	 * @param reloc     Relocate locations in binaries to reloc
 	 * @param kwArgs	Keyword arguments
 	 * @return 			A list of RVMPrograms
 	 */
-	public IList compile(IList qnames, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, IMap kwArgs){
+	public IList compile(IList qnames, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, ISourceLocation reloc, IMap kwArgs){
 		return (IList) rvm.executeRVMFunction(compileN, new IValue[] { qnames, srcs, libs, boot, bin, kwArgs });
 	}
 	
@@ -126,8 +128,8 @@ public class Kernel {
 	 * @param kwArgs	Keyword arguments
 	 * @return 			The result (RVMProgram) of compiling the given module. The linked version (RVMExecutable) is stored as file.
 	 */
-	public IConstructor compileAndLink(IString qname,  IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin,  IMap kwArgs){
-		return (IConstructor) rvm.executeRVMFunction(compileAndLink, new IValue[] { qname, srcs, libs, boot, bin, kwArgs });
+	public IConstructor compileAndLink(IString qname,  IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, ISourceLocation reloc, IMap kwArgs){
+		return (IConstructor) rvm.executeRVMFunction(compileAndLink, new IValue[] { qname, srcs, libs, boot, bin, reloc, kwArgs });
 	}
 	
 	/**
@@ -140,8 +142,8 @@ public class Kernel {
 	 * @param kwArgs	Keyword arguments
 	 * @return 			A list of resulting RVMExecutables
 	 */
-	public IList compileAndLink(IList qnames,  IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin,  IMap kwArgs){
-		return (IList) rvm.executeRVMFunction(compileAndLinkN, new IValue[] { qnames, srcs, libs, boot, bin, kwArgs });
+	public IList compileAndLink(IList qnames,  IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, ISourceLocation reloc, IMap kwArgs){
+		return (IList) rvm.executeRVMFunction(compileAndLinkN, new IValue[] { qnames, srcs, libs, boot, bin, reloc, kwArgs });
 	}
 	
 	/**

@@ -556,6 +556,15 @@ public class CommandOptions {
 		}
 	}
 	
+	public ISourceLocation getDefaultRelocLocation(){
+      try {
+          return vf.sourceLocation("noreloc", "", "");
+      } catch (URISyntaxException e) {
+          printUsageAndExit("Cannot create default location: " + e.getMessage());
+          return null;
+      }
+  }
+	
 	public PathConfig getPathConfig(){
 		return new PathConfig(getCommandlocsOption("src"),
 							  getCommandlocsOption("lib"),
