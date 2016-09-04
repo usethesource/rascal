@@ -48,6 +48,10 @@ public class RascalC {
             .locOption("bin") 		
             .respectNoDefaults()
             .help("Directory for Rascal binaries")
+            
+            .locOption("reloc")       
+            .locDefault(cmdOpts.getDefaultRelocLocation())
+            .help("Relocate source locations")
 
             .boolOption("noLinking")	
             .help("Do not link compiled modules")
@@ -95,6 +99,7 @@ public class RascalC {
                         cmdOpts.getCommandlocsOption("lib"),
                         cmdOpts.getCommandLocOption("boot"),
                         cmdOpts.getCommandLocOption("bin"), 
+                        cmdOpts.getCommandLocOption("reloc"), 
                         cmdOpts.getModuleOptionsAsIMap()); 
                 handleMessages(programs);
             } 
@@ -105,6 +110,7 @@ public class RascalC {
                         cmdOpts.getCommandlocsOption("lib"),
                         cmdOpts.getCommandLocOption("boot"),
                         cmdOpts.getCommandLocOption("bin"), 
+                        cmdOpts.getCommandLocOption("reloc"),
                         cmdOpts.getModuleOptionsAsIMap());
                 handleMessages(programs);
             }
