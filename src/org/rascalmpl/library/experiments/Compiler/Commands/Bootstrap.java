@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.uri.URIUtil;
 
 /**
@@ -171,6 +174,7 @@ public class Bootstrap {
         
         boolean cleanTempDir = false;
         boolean fullOption = false;
+        boolean validateOption = false;
         
         for (;arg < args.length; arg++) {
             switch (args[arg]) {
@@ -178,6 +182,7 @@ public class Bootstrap {
                 case "--clean": cleanTempDir = true; break;
                 case "--full" : fullOption = true; break;
                 case "--download" : fullOption = false; break;
+                case "--validate" : validateOption = true; break;
                 default: 
                     System.err.println(args[arg] + "Is not a supported argument.");
                     System.exit(1);
@@ -185,7 +190,8 @@ public class Bootstrap {
             }
         }
         
-        final boolean fullBootstrap = fullOption;
+        final boolean fullBootstrap = fullOption || validateOption;
+        final boolean validatingBootstrap = validateOption;
         
         Path tmpDir = initializeTemporaryFolder(tmpFolder, cleanTempDir);
         
@@ -193,7 +199,7 @@ public class Bootstrap {
             System.out.println("INFO: Got the kernel version to compile: " + versionToBuild + " already from existing deployed build.");
         }
         
-        // We bootstrap in three + one stages, in each step generating a new Kernel file using an existing version:
+        // We bootstrap in several stages, in each step generating a new Kernel file using an existing version:
         //    -1. targetFolder contains what is found online already:
         //        - compiled classes for new RVM classes (newRVMClasses)
         //        - copied new source files of the Rascal compiler (newRascalCompilerSources) and library (newLibrarySources)
@@ -207,7 +213,7 @@ public class Bootstrap {
         //       - linked Kernel (newKernel1)
         //    2. build newKernel2 using newKernel1 and OldRVMClasses, because newKernel1 was still compiled with the old compiler)
         //    3. build newKernel3 using newKernel2 with newRVMClasses using newKernel2,  because newKernel2 was compiled with new compiler which may depend on changes in the RVM.
-        //    4. build newKernel4 with new classes using newKernels using newRascalCompilerSources and newLibrarySources (effectively setting the source path back to std)
+       
         time("Bootstrap:", () -> {
             try { 
                 String[] rvm    = new String[] { 
@@ -219,8 +225,7 @@ public class Bootstrap {
                         "|boot:///|",  // This is retrieved from the released jar
                         phaseFolderString(1, tmpDir), 
                         phaseFolderString(2, tmpDir),  
-                        phaseFolderString(3, tmpDir), 
-                        phaseFolderString(4, tmpDir)
+                        phaseFolderString(3, tmpDir)
                 };
                    
                 if (!fullBootstrap) {
@@ -232,11 +237,21 @@ public class Bootstrap {
                 /*------------------------------------------,-CODE---------,-RVM---,-KERNEL---,-TESTS--*/
                 time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|"));
                 time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[1], kernel[1], rvm[1], "|std:///|"));
-                //time("Phase 3", () -> compilePhase(tmpDir, 3, librarySource, rvm[1], kernel[2], rvm[1], "|std:///|"));
-                //time("Phase 4", () -> compilePhase(tmpDir, 4, "|std:///|"  , rvm[1], kernel[3], rvm[1], "|noreloc:///|"));
+                
+                if(validatingBootstrap){
+                  time("Phase 3", () -> compilePhase(tmpDir, 3, librarySource, rvm[1], kernel[2], rvm[1], "|std:///|"));
+                  try {
+                    compareGeneratedRVMCode(Paths.get(kernel[2]), Paths.get(kernel[3]));
+                    System.out.println("VALIDATION: *.rvm.gz files in Phase 2 and Phase 3 are identical");
+                  }
+                  catch (Exception e) {
+                    System.out.println("Comparison between Phase 2 and Phase 3 failed: " + e.getMessage());
+                    System.exit(1);
+                  }
+                }
 
                 // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
-                time("Copying bootstrapped files", () -> copyResult(new File(kernel[2]).toPath(), targetFolder.resolve("boot")));
+                time("Copying bootstrapped files", () -> copyResult(new File(kernel[validatingBootstrap ? 3 : 2]).toPath(), targetFolder.resolve("boot")));
                 time("Compiling final tests", () -> compileTests (5, rvm[1], "|boot:///|", "|std:///|", tmpDir.resolve("test-bins")));
                 time("Running final tests"  , () -> runTests(5, rvm[1], "|boot:///|", "|std:///|", tmpDir.resolve("test-bins")));
 
@@ -399,11 +414,9 @@ public class Bootstrap {
         time("- compile ParserGenarator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
         time("- compile tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, result));
         time("- run tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, result));
-        
+       
         return result;
     }
-    
-    
 
     private static String[] concat(String[]... arrays) {
         return Stream.of(arrays).flatMap(Stream::of).toArray(sz -> new String[sz]);
@@ -422,7 +435,7 @@ public class Bootstrap {
     private static void compileModule(int phase, String classPath, String boot, String sourcePath, Path result,
             String module, String reloc) throws IOException, InterruptedException, BootstrapMessage {
         progress("\tcompiling " + module + " (phase " + phase +")");
-        System.out.println("compileModule " + "phase  " + phase + " classPath  " + classPath + " boot " + boot + " sourcePath " + sourcePath + "  result " + result + " module " + module + " reloc " + reloc);
+       
         String[] paths;
         paths = phase >= 2 ? new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot , "--reloc", reloc }
                            : new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot};
@@ -435,7 +448,7 @@ public class Bootstrap {
     
     private static void compileMuLibrary(int phase, String classPath, String bootDLoc, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage {
         progress("\tcompiling MuLibrary (phase " + phase +")");
-        System.out.println("compileMuLibrary " + "phase  " + phase + " classPath  " + classPath + " boot " + bootDLoc + " sourcePath " + sourcePath + "  result " + result);
+        
         String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", bootDLoc };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
 
@@ -492,5 +505,76 @@ public class Bootstrap {
     }
     private static void error(String msg) {
         System.err.println("BOOTSTRAP:" + msg);
+    }
+    
+    /**
+     * Asserts that two directories are recursively "equal" by checking that
+     * - corresponding (sub)directories and files exist in expected and actual directory
+     * - directories have the same number of entries
+     * - of rvm.gz files actual content is compared.
+     * 
+     * If they are not, an {@link RuntimeException} is thrown with the given message.<br/>
+     * Missing or additional files are considered an error.<br/>
+     * 
+     * @param expected
+     *            Path expected directory
+     * @param actual
+     *            Path actual directory
+     */
+    public static final void compareGeneratedRVMCode(final Path expected, final Path actual) {
+        final Path absoluteExpected = expected.toAbsolutePath();
+        final Path absoluteActual = actual.toAbsolutePath();
+       
+        try {
+            Files.walkFileTree(expected, new FileVisitor<Path>() {
+
+              @Override
+              public FileVisitResult preVisitDirectory(Path expectedDir, BasicFileAttributes attrs)
+                  throws IOException {
+                Path relativeExpectedDir = absoluteExpected.relativize(expectedDir.toAbsolutePath());
+                Path actualDir = absoluteActual.resolve(relativeExpectedDir);
+
+                if (!Files.exists(actualDir)) {
+                  throw new RuntimeException(String.format("Directory \'%s\' missing in actual.", expectedDir.getFileName()));
+                }
+
+                if(expectedDir.toFile().list().length != actualDir.toFile().list().length){
+                  throw new RuntimeException(String.format("Directory sizes differ: \'%s\' and \'%s\'.", expectedDir, actualDir));
+                }
+
+                return FileVisitResult.CONTINUE;
+              }
+
+                @Override
+                public FileVisitResult visitFile(Path expectedFile, BasicFileAttributes attrs) throws IOException {
+                  Path relativeExpectedFile = absoluteExpected.relativize(expectedFile.toAbsolutePath());
+                  Path actualFile = absoluteActual.resolve(relativeExpectedFile);
+
+                  if (!Files.exists(actualFile)) {
+                    throw new RuntimeException(String.format("File \'%s\' missing in actual.", expectedFile.getFileName()));
+                  }
+                  if(actualFile.toString().endsWith(".rvm.gz")){
+                    if(!Arrays.equals(Files.readAllBytes(expectedFile), Files.readAllBytes(actualFile))){
+                      throw new RuntimeException(String.format("File content differs: \'%s\' and \'%s\'.", expectedFile, actualFile));
+                    }
+                  }
+
+                  return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                  throw new RuntimeException(exc.getMessage());
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    return FileVisitResult.CONTINUE;
+                }
+
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }
