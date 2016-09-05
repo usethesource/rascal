@@ -128,9 +128,8 @@ public class Webserver {
           // TODO: will this be all closed in due time?
           JsonWriter out = new JsonWriter(new OutputStreamWriter(outPipe, Charset.forName("UTF8")));
 
-          // TODO: this is not going to work, because the NanoHTTPD will trigger and abort first on
-          // in.available() == 0, which is true while this thread has not written to the piped stream
-          // yet. 
+          // TODO: this first writes something to the outputstream such that the in pipe
+          // has in.available() != 0, otherwise the server will conclude there is nothing to read and abort.
           writer.write(out, data);
           Thread thread = new Thread(new Runnable() {
             public void run () {
