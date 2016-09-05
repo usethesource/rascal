@@ -232,11 +232,11 @@ public class Bootstrap {
                 /*------------------------------------------,-CODE---------,-RVM---,-KERNEL---,-TESTS--*/
                 time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|"));
                 time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[0], kernel[1], rvm[1], "|noreloc:///|"));
-                time("Phase 3", () -> compilePhase(tmpDir, 3, librarySource, rvm[1], kernel[2], rvm[1], "|noreloc:///|"));
-                time("Phase 4", () -> compilePhase(tmpDir, 4, "|std:///|"  , rvm[1], kernel[3], rvm[1], "|noreloc:///|"));
+                time("Phase 3", () -> compilePhase(tmpDir, 3, librarySource, rvm[1], kernel[2], rvm[1], "|std:///|"));
+                //time("Phase 4", () -> compilePhase(tmpDir, 4, "|std:///|"  , rvm[1], kernel[3], rvm[1], "|noreloc:///|"));
 
                 // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
-                time("Copying bootstrapped files", () -> copyResult(new File(kernel[4]).toPath(), targetFolder.resolve("boot")));
+                time("Copying bootstrapped files", () -> copyResult(new File(kernel[3]).toPath(), targetFolder.resolve("boot")));
                 time("Compiling final tests", () -> compileTests (5, rvm[1], "|boot:///|", "|std:///|", tmpDir.resolve("test-bins")));
                 time("Running final tests"  , () -> runTests(5, rvm[1], "|boot:///|", "|std:///|", tmpDir.resolve("test-bins")));
 
@@ -422,7 +422,10 @@ public class Bootstrap {
     private static void compileModule(int phase, String classPath, String boot, String sourcePath, Path result,
             String module, String reloc) throws IOException, InterruptedException, BootstrapMessage {
         progress("\tcompiling " + module + " (phase " + phase +")");
-        String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot /*, "--reloc", reloc*/ };
+        System.out.println("compileModule " + "phase  " + phase + " classPath  " + classPath + " boot " + boot + " sourcePath " + sourcePath + "  result " + result + " module " + module + " reloc " + reloc);
+        String[] paths;
+        paths = phase >= 3 ? new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot , "--reloc", reloc }
+                           : new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot};
         String[] otherArgs = VERBOSE? new String[] {"--verbose", module} : new String[] {module};
 
         if (runCompiler(classPath, concat(paths, otherArgs)) != 0) {
@@ -432,7 +435,7 @@ public class Bootstrap {
     
     private static void compileMuLibrary(int phase, String classPath, String bootDLoc, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage {
         progress("\tcompiling MuLibrary (phase " + phase +")");
-        
+        System.out.println("compileMuLibrary " + "phase  " + phase + " classPath  " + classPath + " boot " + bootDLoc + " sourcePath " + sourcePath + "  result " + result);
         String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", bootDLoc };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
 
