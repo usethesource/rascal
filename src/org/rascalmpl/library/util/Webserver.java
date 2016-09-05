@@ -1,7 +1,12 @@
 package org.rascalmpl.library.util;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,8 +17,10 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.lang.json.io.JsonValueWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IMapWriter;
@@ -21,8 +28,11 @@ import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.IWithKeywordParameters;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+
+import com.google.gson.stream.JsonWriter;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Method;
@@ -78,18 +88,73 @@ public class Webserver {
         }
       }
 
-      private Response translateResponse(Method method, IValue value) {
+      private Response translateResponse(Method method, IValue value) throws IOException {
         IConstructor cons = (IConstructor) value;
         initMethodAndStatusValues(ctx);
         
-        if (cons.getName().equals("fileResponse")) {
-          return translateFileResponse(method, cons);
-        }
-        else {
-          return translateTextResponse(method, cons);
+        switch (cons.getName()) {
+          case "fileResponse":
+            return translateFileResponse(method, cons);
+          case "jsonResponse":
+            return translateJsonResponse(method, cons);
+          case "response":
+            return translateTextResponse(method, cons);
+          default:
+            throw new IOException("Unknown response kind: " + value);
         }
       }
       
+      private Response translateJsonResponse(Method method, IConstructor cons) {
+        IMap header = (IMap) cons.get("header");
+        IValue data = cons.get("val");
+        Status status = translateStatus((IConstructor) cons.get("status"));
+        IWithKeywordParameters<? extends IConstructor> kws = cons.asWithKeywordParameters();
+        
+        IValue dtf = kws.getParameter("dateTimeFormat");
+        IValue ics = kws.getParameter("implicitConstructors");
+        IValue ipn = kws.getParameter("implicitNodes");
+        IValue dai = kws.getParameter("dateTimeAsInt");
+        
+        JsonValueWriter writer = new JsonValueWriter()
+            .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+            .setImplicitConstructors(ics != null ? ((IBool) ics).getValue() : true)
+            .setImplicitNodes(ipn != null ? ((IBool) ipn).getValue() : true)
+            .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true);
+
+        try {
+          PipedInputStream in = new PipedInputStream();
+          final PipedOutputStream outPipe = new PipedOutputStream(in);
+          
+          // TODO: will this be all closed in due time?
+          JsonWriter out = new JsonWriter(new OutputStreamWriter(outPipe, Charset.forName("UTF8")));
+
+          // TODO: this is not going to work, because the NanoHTTPD will trigger and abort first on
+          // in.available() == 0, which is true while this thread has not written to the piped stream
+          // yet. 
+          writer.write(out, data);
+          Thread thread = new Thread(new Runnable() {
+            public void run () {
+              try {
+                out.flush();
+                out.close();
+              } catch (IOException e) {
+                // TODO
+                e.printStackTrace();
+              }
+            }
+          });
+          thread.start();
+          
+          Response response = new Response(status, "application/json", in);
+          addHeaders(response, header);
+          return response;
+        }
+        catch (IOException e) {
+          // this should not happen in theory
+          throw new RuntimeException("Could not create piped inputstream");
+        }
+      }
+
       private Response translateFileResponse(Method method, IConstructor cons) {
         ISourceLocation l = (ISourceLocation) cons.get("file");
         IString mimeType = (IString) cons.get("mimeType");
