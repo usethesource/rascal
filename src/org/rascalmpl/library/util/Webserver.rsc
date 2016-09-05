@@ -4,6 +4,7 @@ import Exception;
 import IO;
 
 public map[str extension, str mimeType] mimeTypes = (
+        "json" :"application/json",
         "css" : "text/css",
         "htm" : "text/html",
         "html" : "text/html",
@@ -48,16 +49,24 @@ data Status
   | internalError()
   ; 
                                           
-data Response = response(Status status, str mimeType, map[str,str] header, str content)
-              | fileResponse(loc file, str mimeType, map[str,str] header);
+data Response 
+  = response(Status status, str mimeType, map[str,str] header, str content)
+  | fileResponse(loc file, str mimeType, map[str,str] header)
+  | jsonResponse(Status status, map[str,str] header, value val, bool implicitConstructors = true,  bool implicitNodes = true, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+  ;
+
+
 
 data Method = get() | put() | post() | head() | delete();
 
 alias Handler = Response (loc uri, Method method, map[str, str] headers, map[str, str] parameters,  map[str, str] uploads);
 
+
 Response response(str content) = response(ok(), "text/html", (), content);
 Response response(Status status, str explanation) = response(status, "text/plain", (), explanation);
 Response response(loc f) = fileResponse(f, mimeTypes[f.extension]?"text/plain", ());
+default 
+Response response(value val) = jsonResponse(ok(), (), val);
 
 @javaClass{org.rascalmpl.library.util.Webserver}
 @reflect{to get access to the data types}
