@@ -173,16 +173,16 @@ public class Bootstrap {
         }
         
         boolean cleanTempDir = false;
-        boolean fullOption = false;
-        boolean validateOption = false;
+        boolean basicOption = false;
+        boolean validatingOption = false;
         
         for (;arg < args.length; arg++) {
             switch (args[arg]) {
                 case "--verbose": VERBOSE=true; break;
                 case "--clean": cleanTempDir = true; break;
-                case "--full" : fullOption = true; break;
-                case "--download" : fullOption = false; break;
-                case "--validate" : validateOption = true; break;
+                case "--basic" : basicOption = true; break;
+                case "--download" : basicOption = false; break;
+                case "--validating" : validatingOption = true; break;
                 default: 
                     System.err.println(args[arg] + "Is not a supported argument.");
                     System.exit(1);
@@ -190,8 +190,8 @@ public class Bootstrap {
             }
         }
         
-        final boolean fullBootstrap = fullOption || validateOption;
-        final boolean validatingBootstrap = validateOption;
+        final boolean basicBootstrap = basicOption || validatingOption;
+        final boolean validatingBootstrap = validatingOption;
         
         Path tmpDir = initializeTemporaryFolder(tmpFolder, cleanTempDir);
         
@@ -228,7 +228,7 @@ public class Bootstrap {
                         phaseFolderString(3, tmpDir)
                 };
                    
-                if (!fullBootstrap) {
+                if (!basicBootstrap) {
                   FileSystem jar = FileSystems.newFileSystem(new URI("jar:file", rvm[0], null), Collections.singletonMap("create", true));
                   time("Copying downloaded files", () -> copyJar(jar.getPath("boot"), targetFolder));
                   System.exit(0);

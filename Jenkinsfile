@@ -7,7 +7,7 @@ node {
   checkout scm
 
   stage 'Build'
-  sh "mvn -DskipTests -Drascal.boot=--full -B clean compile"
+  sh "mvn -DskipTests -Drascal.boot=--validating -B clean compile"
 
   stage 'Test'
   sh "mvn -B test"
