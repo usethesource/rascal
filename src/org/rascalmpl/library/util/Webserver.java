@@ -26,7 +26,6 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.json.io.JsonValueReader;
 import org.rascalmpl.library.lang.json.io.JsonValueWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMap;
@@ -65,7 +64,7 @@ public class Webserver {
     this.servers = new HashMap<>();
   }
 
-  public void serve(ISourceLocation url, IValue type, final IValue callback, final IEvaluatorContext ctx) {
+  public void serve(ISourceLocation url, final IValue callback, final IEvaluatorContext ctx) {
     URI uri = url.getURI();
     initMethodAndStatusValues(ctx);
 
@@ -80,7 +79,7 @@ public class Webserver {
       public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms,
           Map<String, String> files) {
         try {
-          IConstructor request = makeRequest(vf.sourceLocation(URIUtil.assumeCorrect("request", "", uri)), method, headers, parms, files);
+          IConstructor request = makeRequest(uri, method, headers, parms, files);
           
           synchronized (callee.getEval()) {
             callee.getEval().__setInterrupt(false);
@@ -98,7 +97,7 @@ public class Webserver {
         }
       }
 
-      private IConstructor makeRequest(ISourceLocation loc, Method method, Map<String, String> headers,
+      private IConstructor makeRequest(String path, Method method, Map<String, String> headers,
           Map<String, String> parms, Map<String, String> files) throws FactTypeUseException, IOException {
         Map<String,IValue> kws = new HashMap<>();
         kws.put("params", makeMap(parms));
@@ -107,15 +106,15 @@ public class Webserver {
         
         switch (method) {
           case HEAD:
-            return vf.constructor(head, loc);
+            return vf.constructor(head, vf.string(path));
           case DELETE:
-            return vf.constructor(delete, loc);
+            return vf.constructor(delete, vf.string(path));
           case GET:
-            return vf.constructor(get, loc);
+            return vf.constructor(get, vf.string(path));
           case PUT:
-            return vf.constructor(put, loc, getContent(parms));
+            return vf.constructor(put, vf.string(path), getContent(parms));
           case POST:
-            return vf.constructor(post, loc, getContent(parms));
+            return vf.constructor(post, vf.string(path), getContent(parms));
           default:
               throw new IOException("Unhandled request " + method);
         }
@@ -150,7 +149,15 @@ public class Webserver {
                   return ResultFactory.makeResult(getTypeFactory().stringType(), vf.string(parms.get("content")), ctx);
                 }
                 else {
-                  return ResultFactory.makeResult(getTypeFactory().valueType(), new JsonValueReader(vf, store).read(new JsonReader(new StringReader(parms.get("NanoHttpd.QUERY_STRING"))), topType), ctx);
+                  IValue dtf = keyArgValues.get("dateTimeFormat");
+                  IValue ics = keyArgValues.get("implicitConstructors");
+                  IValue icn = keyArgValues.get("implicitNodes");
+                  
+                  return ResultFactory.makeResult(getTypeFactory().valueType(), new JsonValueReader(vf, store)
+                      .setCalendarFormat((dtf != null) ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+                      .setImplicitConstructors((ics != null) ? ((IBool) ics).getValue() : true)
+                      .setImplicitNodes((icn != null) ? ((IBool) icn).getValue() : true)
+                      .read(new JsonReader(new StringReader(parms.get("NanoHttpd.QUERY_STRING"))), topType), ctx);
                 }
               } catch (IOException e) {
                 throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), getAst(), getEval().getStackTrace());
@@ -334,11 +341,11 @@ public class Webserver {
       RascalTypeFactory rtf = RascalTypeFactory.getInstance();
       functionType = rtf.functionType(tf.valueType(), tf.tupleType(rtf.reifiedType(tf.valueType())), tf.voidType());
           
-      get = env.getConstructor(requestType, "get", tf.tupleType(tf.sourceLocationType()));
-      put = env.getConstructor(requestType, "put",  tf.tupleType(tf.sourceLocationType(), functionType));
-      post = env.getConstructor(requestType, "post",  tf.tupleType(tf.sourceLocationType(), functionType));
-      delete = env.getConstructor(requestType, "delete",  tf.tupleType(tf.sourceLocationType()));
-      head = env.getConstructor(requestType, "head",  tf.tupleType(tf.sourceLocationType()));
+      get = env.getConstructor(requestType, "get", tf.tupleType(tf.stringType()));
+      put = env.getConstructor(requestType, "put",  tf.tupleType(tf.stringType(), functionType));
+      post = env.getConstructor(requestType, "post",  tf.tupleType(tf.stringType(), functionType));
+      delete = env.getConstructor(requestType, "delete",  tf.tupleType(tf.stringType()));
+      head = env.getConstructor(requestType, "head",  tf.tupleType(tf.stringType()));
     }
   }
 }

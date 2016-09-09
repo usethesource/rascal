@@ -149,8 +149,10 @@ public class TypeReifier {
 
 	  Type cons = tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store));
 
-	  for (String label : kwTypes.getFieldNames()) {
-	    store.declareKeywordParameter(cons, label, kwTypes.getFieldType(label));
+	  if (kwTypes.hasFieldNames()) {
+	    for (String label : kwTypes.getFieldNames()) {
+	      store.declareKeywordParameter(cons, label, kwTypes.getFieldType(label));
+	    }
 	  }
 
 	  return cons;
