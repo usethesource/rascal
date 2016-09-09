@@ -4,20 +4,21 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.StringReader;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.lang.json.io.JsonValueReader;
 import org.rascalmpl.library.lang.json.io.JsonValueWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -30,32 +31,41 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 
-import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoHTTPD.Method;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 public class Webserver {
   private final IValueFactory vf;
   private final Map<ISourceLocation, NanoHTTPD> servers;
-  private final Map<Method,IConstructor> methodValues = new HashMap<>();
   private final Map<IConstructor,Status> statusValues = new HashMap<>();
-  private final TypeFactory tf = TypeFactory.getInstance();
-  private final Type stringMap = tf.mapType(tf.stringType(), tf.stringType());
-  private final Type[] argTypes = new Type[] { tf.sourceLocationType(), null, stringMap, stringMap, stringMap };
+  private Type requestType;
+  private Type post;
+  private Type get;
+  private Type head;
+  private Type delete;
+  private Type put;
+  
   
   public Webserver(IValueFactory vf) {
     this.vf = vf;
     this.servers = new HashMap<>();
   }
 
-  public void serve(ISourceLocation url, final IValue callback, final IEvaluatorContext ctx) {
-        URI uri = url.getURI();
+  public void serve(ISourceLocation url, IValue type, final IValue callback, final IEvaluatorContext ctx) {
+    URI uri = url.getURI();
+    initMethodAndStatusValues(ctx);
+    final TypeStore store = new TypeStore();
+    final Type topType = new TypeReifier(vf).valueToType((IConstructor) type, store);
+    final Type requestTypeInstance = requestType.instantiate(Collections.singletonMap(requestType.getTypeParameters().getFieldType(0), topType));
+
     int port = uri.getPort() != -1 ? uri.getPort() : 80;
     String host = uri.getHost() != null ? uri.getHost() : "localhost";
     host = host.equals("localhost") ? "127.0.0.1" : host; // NanoHttp tries to resolve localhost, which isn't what we want!
@@ -63,20 +73,15 @@ public class Webserver {
     
     NanoHTTPD server = new NanoHTTPD(host, port) {
       
-
       @Override
       public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms,
           Map<String, String> files) {
-        IConstructor methodVal = makeMethod(method);
-        IMap headersVal = makeMap(headers);
-        IMap paramsVal= makeMap(parms);
-        IMap filesVal= makeMap(files);
-        ISourceLocation loc = vf.sourceLocation(URIUtil.assumeCorrect("request", "", uri));
         try {
+          IConstructor request = makeRequest(vf.sourceLocation(URIUtil.assumeCorrect("request", "", uri)), method, headers, parms, files);
+          
           synchronized (callee.getEval()) {
             callee.getEval().__setInterrupt(false);
-            Result<IValue> response = callee.call(argTypes, new IValue[] { loc, methodVal, headersVal, paramsVal, filesVal }, null);
-            return translateResponse(method, response.getValue());  
+            return translateResponse(method, callee.call(new Type[] {requestTypeInstance}, new IValue[] { request }, null).getValue());  
           }
         }
         catch (Throw rascalException) {
@@ -87,6 +92,38 @@ public class Webserver {
           ctx.getStdErr().println(unexpected.getMessage());
           unexpected.printStackTrace(ctx.getStdErr());
           return new Response(Status.INTERNAL_ERROR, "text/plain", unexpected.getMessage());
+        }
+      }
+
+      private IConstructor makeRequest(ISourceLocation loc, Method method, Map<String, String> headers,
+          Map<String, String> parms, Map<String, String> files) throws FactTypeUseException, IOException {
+        Map<String,IValue> kws = new HashMap<>();
+        kws.put("params", makeMap(parms));
+        kws.put("uploads", makeMap(files));
+        kws.put("headers", makeMap(headers));
+        
+        switch (method) {
+          case HEAD:
+            return vf.constructor(head, loc);
+          case DELETE:
+            return vf.constructor(delete, loc);
+          case GET:
+            return vf.constructor(get, loc);
+          case PUT:
+            return vf.constructor(put, loc, getContent(parms));
+          case POST:
+            return vf.constructor(post, loc, getContent(parms));
+          default:
+              throw new IOException("Unhandled request " + method);
+        }
+      }
+
+      private IValue getContent(Map<String, String> parms) throws IOException {
+        if (topType.isString()) {
+          return vf.string(parms.get("content"));
+        }
+        else {
+          return new JsonValueReader(vf, store).read(new JsonReader(new StringReader(parms.get("content"))), topType);
         }
       }
 
@@ -208,18 +245,12 @@ public class Webserver {
         }
         return writer.done();
       }
-
-      private IConstructor makeMethod(Method method) {
-        initMethodAndStatusValues(ctx);
-        return methodValues.get(method);
-      }
     };
    
     try {
       server.start();
       servers.put(url, server);
     } catch (IOException e) {
-    	System.err.println("laat zien: " + e);
       throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
     }
   }
@@ -247,16 +278,9 @@ public class Webserver {
   }
 
   private void initMethodAndStatusValues(final IEvaluatorContext ctx) {
-    if (methodValues.isEmpty() || statusValues.isEmpty()) {
+    if (statusValues.isEmpty() || requestType == null) {
       Environment env = ctx.getHeap().getModule("util::Webserver");
-      Type methodType = env.getAbstractDataType("Method");
       TypeFactory tf = TypeFactory.getInstance();
-      methodValues.put(Method.DELETE, vf.constructor(env.getConstructor(methodType, "delete", tf.voidType())));
-      methodValues.put(Method.GET, vf.constructor(env.getConstructor(methodType, "get", tf.voidType())));
-      methodValues.put(Method.HEAD, vf.constructor(env.getConstructor(methodType, "head", tf.voidType())));
-      methodValues.put(Method.POST, vf.constructor(env.getConstructor(methodType, "post", tf.voidType())));
-      methodValues.put(Method.PUT, vf.constructor(env.getConstructor(methodType, "put", tf.voidType())));
-      
       Type statusType = env.getAbstractDataType("Status");
                         
       statusValues.put(vf.constructor(env.getConstructor(statusType, "ok", tf.voidType())), Status.OK);
@@ -272,8 +296,15 @@ public class Webserver {
       statusValues.put(vf.constructor(env.getConstructor(statusType, "notFound", tf.voidType())), Status.NOT_FOUND);
       statusValues.put(vf.constructor(env.getConstructor(statusType, "rangeNotSatisfiable", tf.voidType())), Status.RANGE_NOT_SATISFIABLE);
       statusValues.put(vf.constructor(env.getConstructor(statusType, "internalError", tf.voidType())), Status.INTERNAL_ERROR);
-      // yes, we acknowledge our sins
-      argTypes[1] = methodType;
+      
+      requestType = env.getAbstractDataType("Request");
+      Type param = requestType.getTypeParameters().getFieldType(0);
+      
+      get = env.getConstructor(requestType, "get", tf.tupleType(tf.sourceLocationType()));
+      put = env.getConstructor(requestType, "put",  tf.tupleType(tf.sourceLocationType(), param));
+      post = env.getConstructor(requestType, "post",  tf.tupleType(tf.sourceLocationType(), param));
+      delete = env.getConstructor(requestType, "delete",  tf.tupleType(tf.sourceLocationType()));
+      head = env.getConstructor(requestType, "head",  tf.tupleType(tf.sourceLocationType()));
     }
   }
 }
