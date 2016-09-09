@@ -36,6 +36,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.KWParams;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RascalExtraction.RascalExtraction;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
@@ -69,6 +70,7 @@ public class Onthology {
 	private Path courseSrcPath;
 	private Path courseDestPath;
 	private Path libPath;
+    private PathConfig pcfg;
 	
 	public static Analyzer multiFieldAnalyzer(){
 		Analyzer stdAnalyzer = new StandardAnalyzer();
@@ -84,8 +86,9 @@ public class Onthology {
 		return new PerFieldAnalyzerWrapper(stdAnalyzer, analyzerMap);
 	}
 
-	public Onthology(Path srcPath, String courseName, Path destPath, Path libPath, RascalCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException{
+	public Onthology(Path srcPath, String courseName, Path destPath, Path libPath, PathConfig pcfg, RascalCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException{
 		this.vf = ValueFactoryFactory.getValueFactory();
+		this.pcfg = pcfg;
 		this.srcPath = srcPath;
 		this.courseSrcPath = srcPath.resolve(courseName);
 		this.destPath = destPath;
@@ -229,7 +232,7 @@ public class Onthology {
 						Path remoteConceptName = makeConceptName(aDir);
 						if(rascalExtraction == null){
 							// Lazily load the RascalExtraction tool
-							rascalExtraction = new RascalExtraction(vf);
+							rascalExtraction = new RascalExtraction(vf, pcfg);
 						}
 						ITuple extracted = rascalExtraction.extractDoc(vf.string(parentName), remoteLoc, new KWParams(vf).build());
 						IString remoteConceptText = (IString) extracted.get(0);
