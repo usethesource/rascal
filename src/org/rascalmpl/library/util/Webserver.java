@@ -1,6 +1,7 @@
 package org.rascalmpl.library.util;
 
-import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
@@ -32,6 +33,7 @@ import org.rascalmpl.value.IWithKeywordParameters;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 
+import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -122,29 +124,15 @@ public class Webserver {
             .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true);
 
         try {
-          PipedInputStream in = new PipedInputStream();
-          final PipedOutputStream outPipe = new PipedOutputStream(in);
+          final ByteArrayOutputStream baos = new ByteArrayOutputStream();
           
-          // TODO: will this be all closed in due time?
-          JsonWriter out = new JsonWriter(new OutputStreamWriter(outPipe, Charset.forName("UTF8")));
-
-          // TODO: this first writes something to the outputstream such that the in pipe
-          // has in.available() != 0, otherwise the server will conclude there is nothing to read and abort.
+          JsonWriter out = new JsonWriter(new OutputStreamWriter(baos, Charset.forName("UTF8")));
+          
           writer.write(out, data);
-          Thread thread = new Thread(new Runnable() {
-            public void run () {
-              try {
-                out.flush();
-                out.close();
-              } catch (IOException e) {
-                // TODO
-                e.printStackTrace();
-              }
-            }
-          });
-          thread.start();
+          out.flush();
+          out.close();
           
-          Response response = new Response(status, "application/json", in);
+          Response response = new Response(status, "application/json", new ByteArrayInputStream(baos.toByteArray()));
           addHeaders(response, header);
           return response;
         }
@@ -226,10 +214,10 @@ public class Webserver {
         return methodValues.get(method);
       }
     };
-    servers.put(url, server);
-    
+   
     try {
       server.start();
+      servers.put(url, server);
     } catch (IOException e) {
     	System.err.println("laat zien: " + e);
       throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
@@ -239,10 +227,10 @@ public class Webserver {
   public void shutdown(ISourceLocation server) {
     NanoHTTPD nano = servers.get(server);
     if (nano != null) {
-      if (nano.isAlive()) {
+      //if (nano.isAlive()) {
         nano.stop();
         servers.remove(server);
-      }
+      //}
     }
     else {
       throw RuntimeExceptionFactory.illegalArgument(server, null, null, "could not shutdown");
