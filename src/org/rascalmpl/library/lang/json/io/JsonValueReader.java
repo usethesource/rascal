@@ -106,28 +106,38 @@ public class JsonValueReader {
     IValue res = expected.accept(new ITypeVisitor<IValue, IOException>() {
       @Override
       public IValue visitInteger(Type type) throws IOException {
-        switch (in.peek()) {
-          case NUMBER:
-            return vf.integer(in.nextLong());
-          case STRING:
-            return vf.integer(in.nextString());
-          case NULL:
-            return null;
-          default:
+        try {
+          switch (in.peek()) {
+            case NUMBER:
+              return vf.integer(in.nextLong());
+            case STRING:
+              return vf.integer(in.nextString());
+            case NULL:
+              return null;
+            default:
               throw new IOException("Expected integer but got " + in.peek());
+          }
+        }
+        catch (NumberFormatException e) {
+          throw new IOException("Expected integer but got " + e.getMessage());
         }
       }
       
       public IValue visitReal(Type type) throws IOException {
-        switch (in.peek()) {
-          case NUMBER:
-            return vf.real(in.nextInt());
-          case STRING:
-            return vf.real(in.nextString());
-          case NULL:
-            return null;
-          default:
+        try {
+          switch (in.peek()) {
+            case NUMBER:
+              return vf.real(in.nextInt());
+            case STRING:
+              return vf.real(in.nextString());
+            case NULL:
+              return null;
+            default:
               throw new IOException("Expected integer but got " + in.peek());
+          }
+        }
+        catch (NumberFormatException e) {
+          throw new IOException("Expected integer but got " + e.getMessage());
         }
       }
       
@@ -326,13 +336,13 @@ public class JsonValueReader {
                   denomO = (IInteger) read(in, TF.integerType());
               }
             }
-            
+
             in.endObject();
-            
+
             if (nomO == null || denomO == null) {
               throw new IOException("Did not find all fields of expected rational at " + in.getPath());
             }
-            
+
             return vf.rational(nomO, denomO);
           case BEGIN_ARRAY:
             in.beginArray();
@@ -343,7 +353,7 @@ public class JsonValueReader {
           case STRING:
             return vf.rational(in.nextString());
           default:
-              throw new IOException("Expected integer but got " + in.peek());
+            throw new IOException("Expected integer but got " + in.peek());
         }
       }
       

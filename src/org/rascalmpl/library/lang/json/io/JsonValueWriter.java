@@ -210,6 +210,7 @@ public class JsonValueWriter {
               out.name(o.getConstructorType().getFieldName(i));
             }
             arg.accept(this);
+            i++;
           }
           for (Entry<String,IValue> e : o.asWithKeywordParameters().getParameters().entrySet()) {
             out.name(e.getKey()); 

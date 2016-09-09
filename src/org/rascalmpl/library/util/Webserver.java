@@ -12,11 +12,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.json.io.JsonValueReader;
 import org.rascalmpl.library.lang.json.io.JsonValueWriter;
@@ -52,6 +57,7 @@ public class Webserver {
   private Type head;
   private Type delete;
   private Type put;
+  private Type functionType;
   
   
   public Webserver(IValueFactory vf) {
@@ -62,9 +68,6 @@ public class Webserver {
   public void serve(ISourceLocation url, IValue type, final IValue callback, final IEvaluatorContext ctx) {
     URI uri = url.getURI();
     initMethodAndStatusValues(ctx);
-    final TypeStore store = new TypeStore();
-    final Type topType = new TypeReifier(vf).valueToType((IConstructor) type, store);
-    final Type requestTypeInstance = requestType.instantiate(Collections.singletonMap(requestType.getTypeParameters().getFieldType(0), topType));
 
     int port = uri.getPort() != -1 ? uri.getPort() : 80;
     String host = uri.getHost() != null ? uri.getHost() : "localhost";
@@ -81,7 +84,7 @@ public class Webserver {
           
           synchronized (callee.getEval()) {
             callee.getEval().__setInterrupt(false);
-            return translateResponse(method, callee.call(new Type[] {requestTypeInstance}, new IValue[] { request }, null).getValue());  
+            return translateResponse(method, callee.call(new Type[] {requestType}, new IValue[] { request }, null).getValue());  
           }
         }
         catch (Throw rascalException) {
@@ -118,13 +121,42 @@ public class Webserver {
         }
       }
 
-      private IValue getContent(Map<String, String> parms) throws IOException {
-        if (topType.isString()) {
-          return vf.string(parms.get("content"));
-        }
-        else {
-          return new JsonValueReader(vf, store).read(new JsonReader(new StringReader(parms.get("content"))), topType);
-        }
+      // TODO: this is highly interpreter dependent and must be reconsidered for the compiler version
+      protected IValue getContent(Map<String, String> parms) throws IOException {
+          return new AbstractFunction(ctx.getCurrentAST(), ctx.getEvaluator(), (FunctionType) functionType, Collections.<KeywordFormal>emptyList(), false, ctx.getCurrentEnvt()) {
+            
+            @Override
+            public boolean isStatic() {
+              return false;
+            }
+            
+            @Override
+            public ICallableValue cloneInto(Environment env) {
+              // this can not happen because the function is not present in an environment
+              return null;
+            }
+            
+            @Override
+            public boolean isDefault() {
+              return false;
+            }
+            
+            public org.rascalmpl.interpreter.result.Result<IValue> call(Type[] argTypes, IValue[] argValues, java.util.Map<String,IValue> keyArgValues) {
+              try {
+                TypeStore store = new TypeStore();
+                Type topType = new TypeReifier(vf).valueToType((IConstructor) argValues[0], store);
+                
+                if (topType.isString()) {
+                  return ResultFactory.makeResult(getTypeFactory().stringType(), vf.string(parms.get("content")), ctx);
+                }
+                else {
+                  return ResultFactory.makeResult(getTypeFactory().valueType(), new JsonValueReader(vf, store).read(new JsonReader(new StringReader(parms.get("NanoHttpd.QUERY_STRING"))), topType), ctx);
+                }
+              } catch (IOException e) {
+                throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), getAst(), getEval().getStackTrace());
+              }
+            };
+          };
       }
 
       private Response translateResponse(Method method, IValue value) throws IOException {
@@ -298,11 +330,13 @@ public class Webserver {
       statusValues.put(vf.constructor(env.getConstructor(statusType, "internalError", tf.voidType())), Status.INTERNAL_ERROR);
       
       requestType = env.getAbstractDataType("Request");
-      Type param = requestType.getTypeParameters().getFieldType(0);
       
+      RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+      functionType = rtf.functionType(tf.valueType(), tf.tupleType(rtf.reifiedType(tf.valueType())), tf.voidType());
+          
       get = env.getConstructor(requestType, "get", tf.tupleType(tf.sourceLocationType()));
-      put = env.getConstructor(requestType, "put",  tf.tupleType(tf.sourceLocationType(), param));
-      post = env.getConstructor(requestType, "post",  tf.tupleType(tf.sourceLocationType(), param));
+      put = env.getConstructor(requestType, "put",  tf.tupleType(tf.sourceLocationType(), functionType));
+      post = env.getConstructor(requestType, "post",  tf.tupleType(tf.sourceLocationType(), functionType));
       delete = env.getConstructor(requestType, "delete",  tf.tupleType(tf.sourceLocationType()));
       head = env.getConstructor(requestType, "head",  tf.tupleType(tf.sourceLocationType()));
     }
