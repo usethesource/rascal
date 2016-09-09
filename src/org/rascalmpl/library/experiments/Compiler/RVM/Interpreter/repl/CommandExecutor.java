@@ -739,7 +739,7 @@ public class CommandExecutor {
 	
 		case "help": case "apropos":
 			if(helpManager == null){
-				helpManager = new HelpManager(pcfg.getBin(), stdout, stderr);
+				helpManager = new HelpManager(pcfg.getboot(), stdout, stderr);
 			}
 			
 			helpManager.handleHelp(words);
