@@ -8,6 +8,7 @@ All Rascal declarations can be preceeded by an annotation of the form `@doc{ ...
 provided that `{` and `}` characters are balanced and that unbalanced braces are escaped like `\{` or `\}`. 
 This text is expanded to a full concept definition when the concept is processed. 
 
+
 The Tutor supports and expands inline concept descriptions for the following declarations types.
 
 ## Module Declaration
