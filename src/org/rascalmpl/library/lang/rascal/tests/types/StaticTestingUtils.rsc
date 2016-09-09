@@ -33,7 +33,7 @@ bool matches(str subject, str pat){
 
 bool check(str stmts, list[str] expected, list[str] importedModules = [], list[str] initialDecls = []){
      errors = getAllMessages(checkStatementsString(stmts, testingConfig, importedModules=importedModules, initialDecls=initialDecls));
-     println(errors);
+     //println(errors);
      for(eitem <- errors, str exp <- expected){
          if(matches(eitem.msg, exp))
                return true;          
@@ -43,7 +43,7 @@ bool check(str stmts, list[str] expected, list[str] importedModules = [], list[s
 
 bool checkOK(str stmts, list[str] importedModules = [], list[str] initialDecls = []){
      errors = getFailureMessages(checkStatementsString(stmts, testingConfig, importedModules=importedModules, initialDecls=initialDecls));
-     println(errors);
+     //println(errors);
      if(size(errors) == 0)
         return true;
      throw abbrev("<errors>");
@@ -62,7 +62,7 @@ bool checkModuleOK(loc moduleToCheck){
 		c = addScopeError(c, "Could not parse and prepare config for base module to check: <perror>", moduleToCheck);
 	}
      errors = c.messages;
-     println(errors);
+     //println(errors);
      if(size(errors) == 0)
         return true;
      throw abbrev("<errors>");
