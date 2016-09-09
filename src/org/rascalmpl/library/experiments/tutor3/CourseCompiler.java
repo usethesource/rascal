@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,7 +34,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
  *   can be used to override the default location for asciidoctor.
  * - all generated AsciiDoc files are transformed to a single HTML file per course
  * - the contributions to the Lucene index are computed and stored per course
- * - TODO Dependency on RascalExtraction
  */
 public class CourseCompiler {
 	private static final String ASCIIDOCTOR_DEFAULT = "/usr/local/bin/asciidoctor";
@@ -87,10 +87,10 @@ public class CourseCompiler {
 		}
 	}
 	
-	public static void compileCourse(Path srcPath, String courseName, Path destPath, Path libPath, RascalCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
+	public static void compileCourse(Path srcPath, String courseName, Path destPath, Path libPath, PathConfig pcfg, RascalCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
 		
 		copyStandardFilesPerCourse(srcPath, courseName, destPath);
-		new Onthology(srcPath, courseName, destPath, libPath, executor);
+		new Onthology(srcPath, courseName, destPath, libPath, pcfg, executor);
 		
 		try {
 			runAsciiDocter(srcPath, courseName, destPath, executor.err);
@@ -121,6 +121,7 @@ public class CourseCompiler {
 	private static void copyStandardFiles(Path srcPath, Path destPath) throws IOException {
 		
 		System.err.println("Copying standard files");
+		System.err.println("srcPath: " + srcPath + ", destPath: " + destPath);
 		
 		ArrayList<String> files  = new ArrayList<>();
 		files.add("favicon.ico");
@@ -194,6 +195,10 @@ public class CourseCompiler {
          .respectNoDefaults()
          .help("Directory for Rascal binaries")
          
+         .locOption("boot")         
+         .respectNoDefaults()
+         .help("Rascal boot directory")
+         
          .boolOption("all")
          .help("Compile available courses")
 
@@ -211,10 +216,14 @@ public class CourseCompiler {
 				new PathConfig(cmdOpts.getCommandlocsOption("src"),
 							   cmdOpts.getCommandlocsOption("lib"),
 					           cmdOpts.getCommandLocOption("bin"),
+					           cmdOpts.getCommandLocOption("boot"),
 					           cmdOpts.getCommandlocsOption("course"));   
 		
+		System.out.println(cmdOpts.getCommandlocsOption("course").get(0));
 		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getcourses().get(0)).getPath());
 		Path libPath = Paths.get(((ISourceLocation)pcfg.getLibs().get(0)).getPath());
+		
+		System.out.println("coursesSrcPath: " + coursesSrcPath);
 		
 		Path destPath = Paths.get(((ISourceLocation)pcfg.getBin()).getPath()).resolve("courses");
 		copyStandardFiles(coursesSrcPath, destPath);
@@ -229,25 +238,25 @@ public class CourseCompiler {
 				System.err.println("--all conflicts with " + givenCourses);
 			}
 			for(String courseName : pcfg.listCourseEntries()){
-				compileCourse(coursesSrcPath, courseName, destPath, libPath, executor);
+				compileCourse(coursesSrcPath, courseName, destPath, libPath, pcfg, executor);
 			}
 		} else {
 			for(IValue iCourseName : cmdOpts.getModules()){
-				compileCourse(coursesSrcPath, ((IString)iCourseName).getValue(), destPath, libPath, executor);
+				compileCourse(coursesSrcPath, ((IString)iCourseName).getValue(), destPath, libPath, pcfg, executor);
 			}
 		}
 		
 		err.flush();
 		writeFile(destPath + "/course-compilation-errors.txt", sw.toString());
 		
-//		System.err.println("Removing intermediate files");
-//		
-//		FileVisitor<Path> fileProcessor = new RemoveAdocs();
-//		try {
-//			Files.walkFileTree(destPath, fileProcessor);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+		System.err.println("Removing intermediate files");
+		
+		FileVisitor<Path> fileProcessor = new RemoveAdocs();
+		try {
+			Files.walkFileTree(destPath, fileProcessor);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		System.err.println("Course compilation done");
 	}
 }
