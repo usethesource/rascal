@@ -138,7 +138,7 @@ public class Concept {
 	}
 	
 	public static String getHomeLink(){
-	  return "<a href=\"/TutorWebSite/index.html\"><img id=\"home\" src=\"/images/rascal-tutor-small.png\", alt=\"RascalTutor\" width=\"64\" height=\"64\"></a>";
+	  return "<a href=\"/TutorHome/index.html\"><img id=\"home\" src=\"/images/rascal-tutor-small.png\", alt=\"RascalTutor\" width=\"64\" height=\"64\"></a>";
 	}
 	
 	private final String prompt = "rascal>"; //  "+++<span class=\"prompt\" data-value=\"rascal>\"></span>::after+++";
