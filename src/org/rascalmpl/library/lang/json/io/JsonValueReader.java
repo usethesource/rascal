@@ -481,20 +481,27 @@ public class JsonValueReader {
         
         in.beginObject();
         
-        for (int i = 0; in.hasNext(); ) {
+        while (in.hasNext()) {
           String label = in.nextName();
           
-          Type kwType = store.getKeywordParameterType(cons, label);
-          if (kwType != null) {
-            IValue val = read(in, kwType, label);
+          if (cons.hasField(label)) {
+            IValue val = read(in, cons.getFieldType(label), label);
+            if (val != null) {
+              args[cons.getFieldIndex(label)] = val;
+            }
+            else {
+              throw new IOException("Could not parse argument " + label + ":" + in.getPath());
+            }
+          }
+          else if (cons.hasKeywordField(label, store)) {
+            IValue val = read(in, store.getKeywordParameterType(cons, label), label);
             if (val != null) {
               // if the value is null we'd use the default value of the defined field in the constructor
               kwParams.put(label, val);
             }
           }
           else { // its a normal arg, pass its label to the child
-            args[i] = read(in, cons.getFieldType(i), label);
-            i = i + 1;
+            throw new IOException("Unknown field " + label + ":" + in.getPath());
           }
         }
           
