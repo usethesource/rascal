@@ -52,7 +52,7 @@ public class Kernel {
         
 	public Kernel(IValueFactory vf, RascalExecutionContext rex, ISourceLocation bootDir) throws IOException, NoSuchRascalFunction, URISyntaxException {
 		this.vf = vf;		   
-		this.rvm = ExecutionTools.initializedRVM(RascalExecutionContext.getKernel(bootDir), rex);
+		this.rvm = ExecutionTools.initializedRVM(rex.getKernel(), rex);
 
 		compile    		= safeGet("RVMModule compile(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
 		compileN    	= safeGet("list[RVMModule] compile(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
