@@ -431,20 +431,28 @@ public class JsonValueReader {
         }
         in.endArray();
 
-        // kwargs
-        in.beginObject();
         Map<String,IValue> kwParams = new HashMap<>();
-        while (in.hasNext()) {
-          String kwLabel = in.nextName();
-          Type kwType = store.getKeywordParameterType(cons, label);
-          IValue val = read(in, kwType != null ? kwType : TF.valueType());
+        
+        if (in.peek() == JsonToken.BEGIN_OBJECT) {
+          in.beginObject();
           
-          if (val != null) {
-            // null values are simply ignored
-            kwParams.put(kwLabel, val);
+          while (in.hasNext()) {
+            String kwLabel = in.nextName();
+            Type kwType = store.getKeywordParameterType(cons, label);
+            
+            if (kwType == null) {
+              throw new IOException("Unknown field " + label + ":" + in.getPath());
+            }
+            
+            IValue val = read(in, kwType);
+
+            if (val != null) {
+              // null values are simply ignored
+              kwParams.put(kwLabel, val);
+            }
           }
+          in.endObject();
         }
-        in.endObject();
 
         in.endArray();
         
