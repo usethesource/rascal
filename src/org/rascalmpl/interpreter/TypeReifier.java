@@ -128,8 +128,6 @@ public class TypeReifier {
 		for (IValue key : definitions) {
 			IConstructor def = (IConstructor) definitions.get(key);
 			
-			
-			
 			if (def.getConstructorType() == RascalValueFactory.Production_Choice) {
 				IConstructor defined = (IConstructor) def.get("def");
 				
@@ -145,15 +143,17 @@ public class TypeReifier {
 	}
 
 	private Type declareConstructor(Type adt, IConstructor alt, TypeStore store) {
-		IConstructor defined = (IConstructor) alt.get("def");
-		String name = ((IString) defined.get("name")).getValue();
-		Type kwTypes = symbolsToTupleType((IList) alt.get("kwTypes"), store);
-		
-		if (kwTypes.getArity() == 0) {
-			kwTypes = tf.voidType();
-		}
-		
-		return tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store));
+	  IConstructor defined = (IConstructor) alt.get("def");
+	  String name = ((IString) defined.get("name")).getValue();
+	  Type kwTypes = symbolsToTupleType((IList) alt.get("kwTypes"), store);
+
+	  Type cons = tf.constructorFromTuple(store, adt, name, symbolsToTupleType((IList) alt.get("symbols"), store));
+
+	  for (String label : kwTypes.getFieldNames()) {
+	    store.declareKeywordParameter(cons, label, kwTypes.getFieldType(label));
+	  }
+
+	  return cons;
 	}
 
 	private Type symbolToType(IConstructor symbol, TypeStore store) {
