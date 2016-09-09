@@ -3,10 +3,10 @@ module util::Webserver
 import Exception;
 import IO;
 
-data Request[&T](map[str, str] headers = (), map[str, str] parameters = (), map[str,str] uploads = ())
-  = get(loc uri)
-  | put(loc uri, &T content)
-  | post(loc uri, &T content)
+data Request(map[str, str] headers = (), map[str, str] parameters = (), map[str,str] uploads = ())
+  = get (loc uri)
+  | put (loc uri, value (type[value] expected) content)
+  | post(loc uri, value (type[value] expected) content)
   | delete(loc uri)
   | head(loc uri)
   ;
@@ -35,8 +35,16 @@ data Status
   | forbidden() 
   | notFound() 
   | rangeNotSatisfiable() 
-  | internalError1()
+  | internalError()
   ; 
+    
+data MyServerRequestData 
+    = optionA(A a)
+    | optionB(B b)
+    ;    
+    
+data A = a();
+data B = b();    
     
 @javaClass{org.rascalmpl.library.util.Webserver}
 @reflect{to get access to the data types}
@@ -77,3 +85,34 @@ public map[str extension, str mimeType] mimeTypes = (
         "class" : "application/octet-stream"
    );
    
+
+data Method 
+    = get()
+    | post()
+    | put()
+    ;
+
+data Person = person(str name, str address, int age);
+data Company = company(str name, int employees);
+data Result = result(int money, str message);
+
+Method getMethod(post(loc _, value (type[value] _) _)) = post();
+Method getMethod(get(loc _)) = get();
+
+alias Content = value (type[value]);
+
+Response myServer(post(loc uri, Content content)) = response("response" (warning="Watch out <x.name>!", ageInsult="<x.age> is really old..."))
+  when /person/ := uri.path,
+       Person x := content(#Person);
+
+Response myServer(post(loc uri, Content content)) = response(result(1000 * x.employees, "veel he?"))
+  when /company/ := uri.path,
+       Company x := content(#Company);
+
+Response myServer(get(loc uri)) = response("\<html\>\<body\>hoi\</body\>\</html\>") when |request:///index.html| == uri;
+  
+default Response myServer(Request r) =  response(notFound(), "dunno <r.uri>");
+  
+void main() {
+  serve(|http://localhost:9001|, myServer);
+}
