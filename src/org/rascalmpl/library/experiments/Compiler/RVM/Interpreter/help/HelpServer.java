@@ -32,15 +32,15 @@ public class HelpServer extends NanoHTTPD {
 	  if(uri.startsWith("/Search")){
 	    try {
 	      String[] words = ("help " + URLDecoder.decode(parms.get("searchFor"), "UTF-8")).split(" ");
-	      return new Response(Status.OK, "text/html", helpManager.giveHelp(words));
+	      return newFixedLengthResponse(Status.OK, "text/html", helpManager.giveHelp(words));
 	    } catch (UnsupportedEncodingException e) {
-	      return new Response(Status.OK, "text/plain", e.getStackTrace().toString());
+	      return newFixedLengthResponse(Status.OK, "text/plain", e.getStackTrace().toString());
 	    }
 	  }
 	  if(uri.startsWith("/Validate")){
 	    try {
 	      if(parms.get("listing") == null || parms.get("question") == null || parms.get("hole0") == null){
-	        new Response(Status.NOT_FOUND, "text/plain", "missing listing, question or hole0 parameter");
+	        newFixedLengthResponse(Status.NOT_FOUND, "text/plain", "missing listing, question or hole0 parameter");
 	      }
 	      String listing = URLDecoder.decode(parms.get("listing"), "UTF-8");
 	      String question = URLDecoder.decode(parms.get("question"), "UTF-8");
@@ -50,7 +50,7 @@ public class HelpServer extends NanoHTTPD {
 	        holes.add(URLDecoder.decode(parms.get("hole" + i), "UTF-8"));
 	      }
 
-	      return new Response(Status.OK, "text/html", listing + "\n" + question + "\n" + holes);
+	      return newFixedLengthResponse(Status.OK, "text/html", listing + "\n" + question + "\n" + holes);
 
 	    } catch (UnsupportedEncodingException e) {
 	      // TODO Auto-generated catch block
@@ -59,11 +59,11 @@ public class HelpServer extends NanoHTTPD {
 	  }
 	  try {
 	    ISourceLocation requestedItem = URIUtil.correctLocation(root.getScheme(), root.getAuthority(), root.getPath() + "/" + normalize(uri));
-	    response = new Response(Status.OK, getMimeType(uri), URIResolverRegistry.getInstance().getInputStream(requestedItem));
+	    response = newChunkedResponse(Status.OK, getMimeType(uri), URIResolverRegistry.getInstance().getInputStream(requestedItem));
 	    addHeaders(response, uri, headers);
 	    return response;
 	  } catch (IOException e) {			
-	    return new Response(Status.NOT_FOUND, "text/plain", uri + " not found.\n" + e);
+	    return newFixedLengthResponse(Status.NOT_FOUND, "text/plain", uri + " not found.\n" + e);
 	  }
 	}
 	
