@@ -88,12 +88,12 @@ public class Webserver {
         }
         catch (Throw rascalException) {
           ctx.getStdErr().println(rascalException.getMessage());
-          return new Response(Status.INTERNAL_ERROR, "text/plain", rascalException.getMessage());
+          return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, rascalException.getMessage());
         }
         catch (Throwable unexpected) {
           ctx.getStdErr().println(unexpected.getMessage());
           unexpected.printStackTrace(ctx.getStdErr());
-          return new Response(Status.INTERNAL_ERROR, "text/plain", unexpected.getMessage());
+          return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, unexpected.getMessage());
         }
       }
 
@@ -208,7 +208,7 @@ public class Webserver {
           out.flush();
           out.close();
           
-          Response response = new Response(status, "application/json", new ByteArrayInputStream(baos.toByteArray()));
+          Response response = newFixedLengthResponse(status, "application/json", new ByteArrayInputStream(baos.toByteArray()), baos.size());
           addHeaders(response, header);
           return response;
         }
@@ -225,12 +225,12 @@ public class Webserver {
         
         Response response;
         try {
-          response = new Response(Status.OK, mimeType.getValue(),URIResolverRegistry.getInstance().getInputStream(l));
+          response = newChunkedResponse(Status.OK, mimeType.getValue(), URIResolverRegistry.getInstance().getInputStream(l));
           addHeaders(response, header);
           return response;
         } catch (IOException e) {
           e.printStackTrace(ctx.getStdErr());
-          return new Response(Status.NOT_FOUND, "text/plain", l + " not found.\n" + e);
+          return newFixedLengthResponse(Status.NOT_FOUND, "text/plain", l + " not found.\n" + e);
         } 
       }
 
@@ -255,7 +255,7 @@ public class Webserver {
             break;
           }
         }
-        Response response = new Response(status, mimeType.getValue(), data.getValue());
+        Response response = newFixedLengthResponse(status, mimeType.getValue(), data.getValue());
         addHeaders(response, header);
         return response;
       }

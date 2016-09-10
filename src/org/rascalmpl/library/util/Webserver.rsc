@@ -76,4 +76,3 @@ public map[str extension, str mimeType] mimeTypes = (
         "exe" : "application/octet-stream",
         "class" : "application/octet-stream"
    );
-   
