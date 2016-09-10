@@ -3,8 +3,6 @@ package org.rascalmpl.library.experiments.Compiler.Commands;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
@@ -28,12 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import org.rascalmpl.library.experiments.tutor3.RascalCommandExecutor;
-import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * This program is intended to be executed directly from maven; it downloads a previous version of Rascal from a hard-wired location and uses 
@@ -196,7 +189,7 @@ public class Bootstrap {
                 case "--validating" : validatingOption = true; break;
                 case "--withCourses":  basicOption = true; coursesOption = true; break;
                 default: 
-                    System.err.println(args[arg] + "Is not a supported argument.");
+                    System.err.println(args[arg] + " is not a supported argument.");
                     System.exit(1);
                     return;
             }
@@ -303,7 +296,7 @@ public class Bootstrap {
 
     private static Path initializeTemporaryFolder(Path tmpDir, boolean cleanTempDir) {
         if (cleanTempDir && Files.exists(tmpDir)) {
-            info("Removing files in" + tmpDir.toString());
+            info("Removing files in " + tmpDir.toString());
             try {
                 Files.walkFileTree(tmpDir, new SimpleFileVisitor<Path>() {
                     @Override
