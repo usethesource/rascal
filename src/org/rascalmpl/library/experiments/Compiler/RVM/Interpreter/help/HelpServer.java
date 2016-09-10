@@ -3,8 +3,6 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -25,13 +23,12 @@ public class HelpServer extends NanoHTTPD {
 		start();
 		this.helpManager = helpManager;
 		this.root = root;
-		System.out.println("HelpServer up and running");
 	}
 
 	@Override
 	public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms, Map<String, String> files) {
 	  Response response;
-	  System.out.println("HelpServer, requested uri: " + uri);
+	
 	  if(uri.startsWith("/Search")){
 	    try {
 	      String[] words = ("help " + URLDecoder.decode(parms.get("searchFor"), "UTF-8")).split(" ");
@@ -62,9 +59,7 @@ public class HelpServer extends NanoHTTPD {
 	  }
 	  try {
 	    ISourceLocation requestedItem = URIUtil.correctLocation(root.getScheme(), root.getAuthority(), root.getPath() + "/" + normalize(uri));
-	    System.out.println("HelpServer, requestedItem: " + requestedItem);
 	    response = new Response(Status.OK, getMimeType(uri), URIResolverRegistry.getInstance().getInputStream(requestedItem));
-	    //response = new Response(Status.OK, getMimeType(uri), Files.newInputStream(root.resolve(normalize(uri))));
 	    addHeaders(response, uri, headers);
 	    return response;
 	  } catch (IOException e) {			
