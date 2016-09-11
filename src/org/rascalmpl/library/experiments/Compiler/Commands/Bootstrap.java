@@ -136,7 +136,7 @@ public class Bootstrap {
     
     public static void main(String[] args) throws Exception {
         initializeShutdownhook();
-        
+
         if (args.length < 5) {
         	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder> [--verbose] [--clean] (you provided " + args.length + " arguments instead)");
         	System.exit(1);
