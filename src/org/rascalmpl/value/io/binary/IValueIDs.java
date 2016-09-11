@@ -29,6 +29,7 @@ public class IValueIDs {
     private static final int LIST_VALUE_ID = 10;
     private static final int MAP_VALUE_ID = 11;
     private static final int SET_VALUE_ID = 12;
+    // WARNING: when adding here, don't forget to update the ranges at the end of this class
     
     public static class Common {
         public static final int CAN_BE_BACK_REFERENCED = 31;
@@ -250,4 +251,15 @@ public class IValueIDs {
         public static final int NAMES = 2;
     }
 	
+    public static final class Ranges {
+        // these ranges are for splitting up the reader
+        public static final int VALUES_MIN = PREVIOUS_VALUE_ID;
+        public static final int VALUES_MAX = RAT_VALUE_ID;
+        public static final int COMMON_VALUES_MIN = PREVIOUS_VALUE_ID;
+        public static final int COMMON_VALUES_MAX = SET_VALUE_ID;
+
+        
+        public static final int TYPES_MIN = PREVIOUS_TYPE_ID_ID;
+        public static final int TYPES_MAX = FUNCTION_TYPE_ID;
+    }
 }
