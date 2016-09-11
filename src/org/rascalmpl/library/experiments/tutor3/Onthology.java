@@ -69,7 +69,7 @@ public class Onthology {
 	private IndexWriter iwriter;
 	private Path courseSrcPath;
 	private Path courseDestPath;
-	private Path libPath;
+	private Path libSrcPath;
     private PathConfig pcfg;
 	
 	public static Analyzer multiFieldAnalyzer(){
@@ -86,7 +86,7 @@ public class Onthology {
 		return new PerFieldAnalyzerWrapper(stdAnalyzer, analyzerMap);
 	}
 
-	public Onthology(Path srcPath, String courseName, Path destPath, Path libPath, PathConfig pcfg, RascalCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException{
+	public Onthology(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, RascalCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException{
 		this.vf = ValueFactoryFactory.getValueFactory();
 		this.pcfg = pcfg;
 		this.srcPath = srcPath;
@@ -94,7 +94,7 @@ public class Onthology {
 		this.destPath = destPath;
 		this.courseDestPath = destPath.resolve(courseName);
 		
-		this.libPath = libPath;
+		this.libSrcPath = libSrcPath;
 
 		this.courseName = courseName;
 		conceptMap = new HashMap<>();
@@ -222,7 +222,7 @@ public class Onthology {
 						Files.createDirectories(conceptDestPath);
 					}
 				}
-				Concept concept = new Concept(conceptName, readFile(makeConceptFilePath(aDir).toString()), destPath, libPath);
+				Concept concept = new Concept(conceptName, readFile(makeConceptFilePath(aDir).toString()), destPath, libSrcPath);
 				conceptMap.put(conceptName, concept);
 				iwriter.addDocument(makeLuceneDocument(conceptName.toString(), concept.getIndex(), concept.getSynopsis(), concept.getText()));
 			} else
@@ -238,7 +238,7 @@ public class Onthology {
 						IString remoteConceptText = (IString) extracted.get(0);
 						IList declarationInfoList = (IList) extracted.get(1);
 						//System.err.println(remoteConceptText.getValue());
-						Concept remoteConcept = new Concept(remoteConceptName, remoteConceptText.getValue(), destPath, libPath);
+						Concept remoteConcept = new Concept(remoteConceptName, remoteConceptText.getValue(), destPath, libSrcPath);
 						conceptMap.put(remoteConceptName, remoteConcept);
 						
 						iwriter.addDocument(makeLuceneDocument(remoteConceptName.toString(), remoteConcept.getIndex(), remoteConcept.getSynopsis(), remoteConcept.getText()));

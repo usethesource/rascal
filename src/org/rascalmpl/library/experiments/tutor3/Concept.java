@@ -17,21 +17,21 @@ public class Concept {
 	private String title;
 	private String synopsis;
 	private String index;
-	private Path libPath;
+	private Path libSrcPath;
 
-	public Concept(Path name, String text, Path destPath, Path libPath, boolean remote){
+	public Concept(Path name, String text, Path destPath, Path libSrcPath, boolean remote){
 		this.name = name;
 		this.text = text;
 		this.destPath = destPath;
-		this.libPath = libPath;
+		this.libSrcPath = libSrcPath;
 		this.remote = remote;
 		title = extract(titlePat);
 		synopsis = extractSynopsis();
 		index = extractIndex();
 	}
 	
-	public Concept(Path name, String text, Path destDir, Path libPath){
-		this(name, text, destDir, libPath, false);
+	public Concept(Path name, String text, Path destDir, Path libSrcPath){
+		this(name, text, destDir, libSrcPath, false);
 	}
 	
 	public Path getName(){
@@ -167,7 +167,7 @@ public class Concept {
 				line = line.replaceFirst("#",  "=");
 				preprocessOut.append(line).append("\n");
 				preprocessOut.append(commonDefs);
-				preprocessOut.append(":LibDir: ").append(libPath.toString()).append("/\n");
+				preprocessOut.append(":LibDir: ").append(libSrcPath.toString()).append("/\n");
 			}
 			
 			preprocessOut.append(":concept: ").append(name.toString()).append("\n");
