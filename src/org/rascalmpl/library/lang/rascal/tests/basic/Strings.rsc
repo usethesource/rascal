@@ -220,19 +220,19 @@ bool areOverlapping(str s1, str s2) =
     || ((size(s1) > 0 && size(s2) > 0) && s1[-1] == s2[0] || s1[0] == s2[-1]) ;
 
 test bool tstReplaceAll(str S1, str S2, str S3) {
-  if(areOverlapping(S1, S2)) return true;
+  if(areOverlapping(S1, S2) || areOverlapping(S1+S2, S2+S1)) return true;
   S = S1 + S2 + S1 + S2 + S1;
   return replaceAll(S, S2, S3) == S1 + S3 + S1 + S3 + S1;
 }
 
 test bool tstReplaceFirst(str S1, str S2, str S3) {
-  if(areOverlapping(S1, S2)) return true;
+  if(areOverlapping(S1, S2) || areOverlapping(S1+S2, S2+S1)) return true;
   S = S1 + S2 + S1 + S2 + S1;
   return replaceFirst(S, S2, S3) == S1 + S3 + S1 + S2 + S1;
 }
 
 test bool tstReplaceLast(str S1, str S2, str S3) {
-  if(areOverlapping(S1, S2)) return true;
+  if(areOverlapping(S1, S2) || areOverlapping(S1+S2, S2+S1)) return true;
   S = S1 + S2 + S1 + S2 + S1;
   return replaceLast(S, S2, S3) == S1 + S2 + S1 + S3 + S1;
 }
