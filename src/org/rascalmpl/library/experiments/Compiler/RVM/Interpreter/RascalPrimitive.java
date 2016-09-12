@@ -2288,7 +2288,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IInteger) arg_2).divide((IInteger) arg_1);
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+				throw RascalRuntimeException.arithmeticException("divide by zero", currentFrame);
 			}
 		}
 	},
@@ -2304,7 +2304,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IInteger) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+				throw RascalRuntimeException.arithmeticException("divide by zero", currentFrame);
 			}
 		}
 	},
@@ -2320,7 +2320,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IInteger) arg_2).divide((IRational) arg_1);
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+				throw RascalRuntimeException.arithmeticException("divide by zero", currentFrame);
 			}
 		}
 	},
@@ -2336,7 +2336,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IInteger) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+				throw RascalRuntimeException.arithmeticException("divide by zero", currentFrame);
 			}
 		}
 	},
@@ -2352,7 +2352,7 @@ public enum RascalPrimitive {
 			try {
 				return ((INumber) arg_2).divide((IInteger) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+				throw RascalRuntimeException.arithmeticException("divide by zero", currentFrame);
 			}
 		}
 	},
@@ -2368,7 +2368,7 @@ public enum RascalPrimitive {
 			try {
 				return ((INumber) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+				throw RascalRuntimeException.arithmeticException("divide by zero", currentFrame);
 			}
 		}
 	},
@@ -2384,7 +2384,7 @@ public enum RascalPrimitive {
 			try {
 				return ((INumber) arg_2).divide((IRational) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+				throw RascalRuntimeException.arithmeticException("divide by zero", currentFrame);
 			}
 		}
 	},
@@ -2400,7 +2400,7 @@ public enum RascalPrimitive {
 			try {
 				return ((INumber) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+				throw RascalRuntimeException.arithmeticException("divide by zero", currentFrame);
 			}
 		}
 	},
@@ -2416,7 +2416,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IRational) arg_2).divide((IInteger) arg_1);
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+				throw RascalRuntimeException.arithmeticException("divide by zero", currentFrame);
 			}
 		}
 	},
@@ -2432,7 +2432,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IRational) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+				throw RascalRuntimeException.arithmeticException("divide by zero", currentFrame);
 			}
 		}
 	},
@@ -2448,7 +2448,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IRational) arg_2).divide((IRational) arg_1);
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+				throw RascalRuntimeException.arithmeticException("divide by zero", currentFrame);
 			}
 		}
 	},
@@ -2464,7 +2464,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IRational) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+				throw RascalRuntimeException.arithmeticException("divide by zero", currentFrame);
 			}
 		}
 	},
@@ -2480,7 +2480,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IReal) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+				throw RascalRuntimeException.arithmeticException("divide by zero", currentFrame);
 			}
 		}
 	},
@@ -2496,7 +2496,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IReal) arg_2).divide((IInteger) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+				throw RascalRuntimeException.arithmeticException("divide by zero", currentFrame);
 			}
 		}
 	},
@@ -2512,7 +2512,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IReal) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+				throw RascalRuntimeException.arithmeticException("divide by zero", currentFrame);
 			}
 		}
 	},
@@ -2528,7 +2528,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IReal) arg_2).divide((IRational) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+				throw RascalRuntimeException.arithmeticException("divide by zero", currentFrame);
 			}
 		}
 	},
