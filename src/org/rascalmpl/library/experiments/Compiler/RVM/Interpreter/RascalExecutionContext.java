@@ -140,7 +140,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		
 	  this.vf = vf;
 	  this.bootDir = bootDir; 
-	  if(bootDir != null && !URIResolverRegistry.getInstance().isDirectory(bootDir)){
+	  if(bootDir != null && !bootDir.getScheme().equals("boot") && !URIResolverRegistry.getInstance().isDirectory(bootDir)){
 	    throw new RuntimeException("bootDir should be a directory, given " + bootDir);
 	  }
 	  
