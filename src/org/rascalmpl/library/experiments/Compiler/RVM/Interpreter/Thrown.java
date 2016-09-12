@@ -59,7 +59,7 @@ public class Thrown extends RuntimeException {
 	}
 	
 	public void printStackTrace(PrintWriter stdout) {
-	  if(!currentFrame.isConsoleFrame()){
+	  if(!currentFrame.isConsoleMainFrame()){
 		stdout.println(this.toString() + ((loc != null) ? " at " + loc : "") );
 	  }
 		
@@ -77,11 +77,11 @@ public class Thrown extends RuntimeException {
 		}
 		
 		if(currentFrame != null){
-		  if(!currentFrame.isConsoleFrame()){
+		  if(!currentFrame.isConsoleMainFrame()){
 		    stdout.println("Call stack (most recent first):");
 
 		    for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
-		      if(f.isConsoleFrame()){
+		      if(f.isConsoleMainFrame()){
 		        stdout.println("\tinput from console");
 		      } else {
 		        stdout.println("\t" + f);
