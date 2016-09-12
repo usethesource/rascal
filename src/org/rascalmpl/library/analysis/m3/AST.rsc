@@ -43,23 +43,35 @@ public data \AST(loc file = |unknown:///|)
   ;
 
 data Declaration;
-anno loc             Declaration@src;
-anno loc             Declaration@decl;
-anno TypeSymbol      Declaration@typ;
-anno list[Modifier]  Declaration@modifiers;
-anno list[Message]   Declaration@messages;
+data Declaration(loc src = |unknown:///|);
+//anno loc             Declaration@src;
+data Declaration(loc decl = |unknown:///|); 
+//anno loc             Declaration@decl;
+data Declaration(TypeSymbol typ = \any());
+//anno TypeSymbol      Declaration@typ;
+data Declaration(list[Modifier] modifiers = []);
+//anno list[Modifier]  Declaration@modifiers;
+data Declaration(list[Message] messages = []);
+//anno list[Message]   Declaration@messages;
 
 data Statement;
-anno loc Statement@src;
-anno loc Statement@decl;
+data Statement(loc src = |unknown:///|);
+//anno loc Statement@src;
+data Statement(loc decl = |unknown:///|);
+//anno loc Statement@decl;
 
 data Expression;
-anno loc Expression@src;
-anno loc Expression@decl;
-anno TypeSymbol Expression@typ;
+data Expression(loc src = |unknown:///|);
+//anno loc Expression@src;
+data Expression(loc decl = |unknown:///|);
+//anno loc Expression@decl;
+data Expression(TypeSymbol typ = \any());
+//anno TypeSymbol Expression@typ;
 
 data Type;
-anno loc Type@name;              
-anno TypeSymbol Type@typ;
+data Type(loc name = |unknown:///|);
+//anno loc Type@name;              
+data Type(TypeSymbol typ = \any());
+//anno TypeSymbol Type@typ;
 
 data Modifier;
