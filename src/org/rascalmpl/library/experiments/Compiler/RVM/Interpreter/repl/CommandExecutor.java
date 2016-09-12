@@ -286,11 +286,11 @@ public class CommandExecutor {
 			}
 		} catch (Thrown e){
 		    IConstructor cons = (IConstructor) e.value;
-		    if(cons.has("message")){
-		      reportError(((IString)cons.get("message")).getValue());
-		    } else {
+//		    if(cons.has("message")){
+//		      reportError(((IString)cons.get("message")).getValue());
+//		    } else {
 		      reportError(cons.toString());
-		    }
+//		    }
 		    e.printStackTrace(stderr);
 			return null;
 		} catch (Exception e){
@@ -455,11 +455,11 @@ public class CommandExecutor {
 			} catch (Thrown e){
 				forceRecompilation = true;
 				 IConstructor cons = (IConstructor) e.value;
-		         if(cons.has("message")){
-		              return reportError(((IString)cons.get("message")).getValue());
-		         } else {
+//		         if(cons.has("message")){
+//		              return reportError(((IString)cons.get("message")).getValue());
+//		         } else {
 		           return reportError(cons.toString());
-		         }
+//		         }
 				//return reportError("Unkown error during execution");
 			}
 			
@@ -594,6 +594,19 @@ public class CommandExecutor {
 					}
 				} else {
 					declareVar(unparse(type), name);
+					try {
+                      forceRecompilation = true;
+                      result = executeModule(makeMain("true;"), false);
+                      if(result == null){
+                          undeclareVar(name);
+                          forceRecompilation = true;
+                          return null;
+                      }
+                  } catch (Exception e){
+                      undeclareVar(name);
+                      forceRecompilation = true;
+                      return null;
+                  }
 				}
 			}
 			return result;

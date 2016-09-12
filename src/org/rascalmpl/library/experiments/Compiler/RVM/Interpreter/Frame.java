@@ -246,14 +246,14 @@ public class Frame {
 //		}
 		
 		s.append(")");
-		if(src != null && !isConsoleFrame()){
+		if(src != null && !isConsoleMainFrame()){
 			s.append(" at ").append(src);
 		}
 		return s.toString();
 	}
 	
-	boolean isConsoleFrame(){
-      return src.getPath().contentEquals(CommandExecutor.consoleInputPath);
+	boolean isConsoleMainFrame(){
+      return src.getPath().contentEquals(CommandExecutor.consoleInputPath) && function.getPrintableName().contains("main");
     }
 	
 	private StringBuilder indent(){
