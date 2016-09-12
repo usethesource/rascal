@@ -526,7 +526,7 @@ test bool exceptionHandlingNotHandledSimple(){
 		return main();
 	} 
 	catch value v: {
-		return v == ArithmeticException("/ by zero");
+		return v == ArithmeticException("divide by zero");
 	}
 }
 
