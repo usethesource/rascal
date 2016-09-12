@@ -285,17 +285,22 @@ public class CommandExecutor {
 				return null;
 			}
 		} catch (Thrown e){
-			if(e.getMessage() != null){
-				stderr.print(e.getMessage());
-			}
-			e.printStackTrace(stderr);
+		    IConstructor cons = (IConstructor) e.value;
+		    if(cons.has("message")){
+		      reportError(((IString)cons.get("message")).getValue());
+		    } else {
+		      reportError(cons.toString());
+		    }
+		    e.printStackTrace(stderr);
 			return null;
-		} catch (IOException e) {
-			if(e.getMessage() != null){
-				stderr.print(e.getMessage());
-			}
-			e.printStackTrace(stderr);
-			return null;
+		} catch (Exception e){
+		  if(e.getMessage() != null){
+		    reportError(e.getMessage());
+		  } else {
+		    reportError(e.toString());
+		  }
+		  //e.printStackTrace(stderr);
+		  return null;
 		}
 	}
 	
@@ -414,6 +419,12 @@ public class CommandExecutor {
 		return null;
 	}
 	
+	private IValue reportError(String msg){
+      stderr.println("[error] " + msg);
+      stderr.flush();
+      return null;
+  }
+	
 	private String getBaseVar(ITree assignable) throws FactTypeUseException, IOException{
 		if(is(assignable, "variable")){
 			return unparse(get(assignable, "qualifiedName"));
@@ -424,6 +435,14 @@ public class CommandExecutor {
 		return null;
 	}
 	
+	private String makeMain(String stat){
+	  return "\nvalue main() { try { return " + stat + "} catch e: return e;}\n";
+	}
+	
+	private String makeMainOk(){
+	  return "\nvalue main() = \"ok\";\n";
+	}
+	
 	private IValue evalStatement(String src, ITree stat) throws FactTypeUseException, IOException{
 		
 		String consName = TreeAdapter.getConstructorName(stat);
@@ -432,10 +451,16 @@ public class CommandExecutor {
 		case "expression":
 			String innerExp = unparse(get(stat, "expression"));
 			try {
-				return executeModule("\nvalue main() = " + innerExp + ";\n", true);
-			} catch (Exception e){
+				return executeModule(makeMain(innerExp + ";"), true);
+			} catch (Thrown e){
 				forceRecompilation = true;
-				return null;
+				 IConstructor cons = (IConstructor) e.value;
+		         if(cons.has("message")){
+		              return reportError(((IString)cons.get("message")).getValue());
+		         } else {
+		           return reportError(cons.toString());
+		         }
+				//return reportError("Unkown error during execution");
 			}
 			
 		case "assignment":
@@ -453,7 +478,7 @@ public class CommandExecutor {
 				if(var != null){
 					return executeModule("\nvalue main() { " + src + "}\n", true);
 				} else {
-					val = executeModule("\nvalue main() { " + unparse(get(stat, "statement")) + " }\n", true);
+					val = executeModule(makeMain(unparse(get(stat, "statement"))), true);
 					if(val != null){
 						declareVar(val.getType().toString(), name);
 						updateVar(name, val);
@@ -465,7 +490,7 @@ public class CommandExecutor {
 				String annoName = unparse(get(assignable, "annotation"));
 				name = getBaseVar(assignable);
 				var = variables.get(name);
-				val = executeModule("\nvalue main() { " + unparse(get(stat, "statement")) + " }\n", true);
+				val = executeModule(makeMain(unparse(get(stat, "statement"))), true);
 				if(var != null){
 					if(val != null){
 						annotateVar(name, annoName, val);
@@ -476,7 +501,7 @@ public class CommandExecutor {
 			case "ifDefinedOrDefault":
 				name = getBaseVar(assignable);
 				var = variables.get(name);
-				val = executeModule("\nvalue main() { " + src + "}\n", true);
+				val = executeModule(makeMain(src), true);
 				if(var == null){
 					if(val != null){
 						declareVar(val.getType().toString(), name);
@@ -488,7 +513,7 @@ public class CommandExecutor {
 				
 			case "tuple":
 				ITree elements = get(assignable, "elements");
-				val = executeModule("\nvalue main() { " + unparse(get(stat, "statement")) + " }\n", true);
+				val = executeModule(makeMain(unparse(get(stat, "statement"))), true);
 				if(val != null){
 					ITuple tupleVal = (ITuple) val;
 					IList elemList = TreeAdapter.getListASTArgs(elements);
@@ -509,7 +534,7 @@ public class CommandExecutor {
 			case "constructor":
 				consName = unparse(get(assignable, "name"));
 				elements = get(assignable, "arguments");
-				val = executeModule("\nvalue main() { " + unparse(get(stat, "statement")) + " }\n", true);
+				val = executeModule(makeMain(unparse(get(stat, "statement"))), true);
 				if(val != null){
 					IConstructor consVal = (IConstructor) val;
 					if(consVal.getName().equals(consName)){
@@ -536,7 +561,7 @@ public class CommandExecutor {
 			}
 
 		default:
-			return executeModule("\nvalue main() { " + unparse(stat) + " }\n", true);
+			return executeModule(makeMain(unparse(stat)), true);
 		}
 	}
 	
@@ -555,7 +580,7 @@ public class CommandExecutor {
 					declareVar(unparse(type), name);
 					try {
 						forceRecompilation = true;
-						result = executeModule("\nvalue main() { " + name + " = " + initial + ";}\n", false);
+						result = executeModule(makeMain(name + " = " + initial + ";"), false);
 						if(result == null){
 							undeclareVar(name);
 							forceRecompilation = true;
@@ -578,7 +603,7 @@ public class CommandExecutor {
 		declarations.add(src);
 	
 		try {
-			result =  executeModule("\nvalue main() = true;\n", false);
+			result =  executeModule(makeMain("true;"), false);
 			if(result == null){
 				declarations.remove(src);
 				forceRecompilation = true;
@@ -601,7 +626,7 @@ public class CommandExecutor {
 			imports.add(impName);
 			try {
 				forceRecompilation = true;
-				result = executeModule("\nvalue main() = \"ok\";\n", false);
+				result = executeModule(makeMainOk(), false);
 				if(result == null){
 					imports.remove(impName);
 					forceRecompilation = true;
@@ -620,7 +645,7 @@ public class CommandExecutor {
 			String name = w.toString();
 			syntaxDefinitions.put(name, src);
 			try {
-				result = executeModule("\nvalue main() = \"ok\";\n", false);
+				result = executeModule(makeMainOk(), false);
 				if(result == null){
 					syntaxDefinitions.remove(name);
 					forceRecompilation = true;
@@ -700,7 +725,7 @@ public class CommandExecutor {
 				return showOptions();
 			}
 			if(words.length != 3){
-				return report("set requires two arguments");
+				return reportError("set requires two arguments");
 			}
 			String name = words[1];
 			String val = words[2];
@@ -734,7 +759,7 @@ public class CommandExecutor {
 				return report(name + " set to "  + optimize);
 								
 			default:
-				return report("Unrecognized option : " + name);
+				return reportError("Unrecognized option : " + name);
 			}
 	
 		case "help": case "apropos":
