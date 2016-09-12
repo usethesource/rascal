@@ -209,7 +209,7 @@ public class Concept {
 					if(mayHaveErrors){
 						preprocessOut.append("-error");
 					}
-					//preprocessOut.append(",subs=\"+verbatim,+quotes\"");
+					//preprocessOut.append(",subs=\"verbatim,quotes\"");
 					preprocessOut.append("]\n").append("----\n");
 					
 					boolean moreShellInput = true;
@@ -240,23 +240,30 @@ public class Concept {
 							line += "\n";
 						}
 						String resultOutput = "";
+						boolean errorFree = true;
 //						System.err.println(line);
 						try {
 //							if(!isFigure){
 								resultOutput = executor.evalPrint(line);
 //							}
 						} catch (Exception e){
-							String msg = "While parsing '" + complete(line) + "': " + e.getMessage();
-							System.err.println(msg);
-							executor.error("* __" + name + "__:");
-							executor.error(msg);
+						  if(!mayHaveErrors){
+						    String msg = "While executing '" + complete(line) + "': " + e.getMessage();
+						    System.err.println(msg);
+						    executor.error("* __" + name + "__:");
+						    executor.error(msg);
+						  }
+						  preprocessOut.append(e.getMessage()).append("\n");
+						  errorFree = false;
 						}
 
 						String messages = executor.getMessages();
 						executor.resetOutput();
-						preprocessOut.append(messages);
-						if(!messages.contains("[error]")){
-						   preprocessOut.append(resultOutput);
+						if(messages.isEmpty()){
+						  preprocessOut.append(resultOutput);
+						} else {
+						  preprocessOut.append(messages).append("\n");
+						  errorFree = false;
 						}
 //						if(!isFigure){
 //							if(result == null){
@@ -265,7 +272,7 @@ public class Concept {
 //									preprocessOut.append(result.getType().toString()).append(": ").append(result.toString()).append("\n");
 //							}
 //						}
-						if(!mayHaveErrors && (messages.contains("[error]") || messages.contains("Exception")) ){
+						if(!mayHaveErrors && !errorFree){ //(messages.contains("[error]") || messages.contains("Exception")) ){
 							executor.error("* " + name + ":");
 							executor.error(messages.trim());
 						}
