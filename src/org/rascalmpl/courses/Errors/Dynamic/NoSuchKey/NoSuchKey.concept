@@ -25,11 +25,9 @@ Remedies:
 *  Catch the `NoSuchKey` yourself, see link:/Rascal#Statements-TryCatch[try catch].
 
 .Examples
-[source,rascal-shell,error]
-----
-----
+
 Import the `Map` and `IO` libraries and introduce map `M`:
-[source,rascal-shell,continue,error]
+[source,rascal-shell,error]
 ----
 import Map;
 import IO;

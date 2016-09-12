@@ -23,11 +23,9 @@ Remedies:
 *  Change the type of the keyword parameter in the function declaration.
 
 .Examples
-[source,rascal-shell,error]
-----
-----
+
 Declare `incr` function with keyword parameter `delta` of type `int`:
-[source,rascal-shell,continue,error]
+[source,rascal-shell,error]
 ----
 int incr(int x, int delta = 1) = n + delta;
 ----

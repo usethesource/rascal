@@ -24,11 +24,8 @@ Remedies:
 
 
 .Examples
-[source,rascal-shell,error]
-----
-----
 Define the Non-terminal `As` that accepts one or more letters `a`:
-[source,rascal-shell,continue,error]
+[source,rascal-shell,error]
 ----
 import ParseTree;
 syntax As = "a"+;

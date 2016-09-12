@@ -1,7 +1,7 @@
 # Errors
 
 .Synopsis
-Alle errors a Rascal program can generate before and during execution.
+All errors a Rascal program can generate before and during execution.
 
 .Syntax
 
