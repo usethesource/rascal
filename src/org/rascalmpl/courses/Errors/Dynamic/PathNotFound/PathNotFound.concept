@@ -16,22 +16,22 @@ A requested path name cannot be found.
 The `PathNotFound` error is generated in all cases where access to the requested location is impossible.
 This includes:
 
-*  A non-existing path.
-*  A non-existing file.
-*  Insufficient rights to read/write the file.
+* A non-existing path.
+* A non-existing file.
+* Insufficient rights to read/write the file.
 
 
 Remedies:
 
-*  Check that the path is correct.
-*  Check that the resource exists.
-*  When using the `file` scheme:
-**  Check that you have read/write access to the file.
-**  When you use an absolute path name, your location should always start with 3 slash (`/`) characters:
-***  `|file:///users/paulklint/file.txt|` is correct.
-***  `|file://users/paulklint/file.txt|` gives a `PathNotFound` error.
-**  When you use a relative path name, make sure that it is relative to the directory from which Rascal was started.
-*  Catch the `PathNotFound` yourself, see [Rascal:TryCatch].
+* Check that the path is correct.
+* Check that the resource exists.
+* When using the `file` scheme:
+  ** Check that you have read/write access to the file.
+  ** When you use an absolute path name, your location should always start with 3 slash (`/`) characters:
+     *** `|file:///users/paulklint/file.txt|` is correct.
+     *** `|file://users/paulklint/file.txt|` gives a `PathNotFound` error.
+  ** When you use a relative path name, make sure that it is relative to the directory from which Rascal was started.
+* Catch the `PathNotFound` yourself, see [Rascal:TryCatch].
 
 .Examples
 [source,rascal-shell,error]

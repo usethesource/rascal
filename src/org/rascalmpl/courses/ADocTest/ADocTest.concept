@@ -14,18 +14,9 @@ Test Case
 
 .Details
 
-
-
-Drawing a red link:/Libraries#Figure-box[box] is as simple as this:
-[source,rascal-figure,width=,height=,file=bxxx.png]
+[source,rascal-shell,error]
 ----
-import shapes::Figure;
-import shapes::FigureServer;
-b = box(fillColor="red");
-render(b);
+fail;
 ----
-and it will look like this:
-
-image::{concept}/bxxx.png[alt="Box 1"]
 
 .Description

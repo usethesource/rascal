@@ -20,11 +20,8 @@ This error is generated when a qualified name is used in a declaration.
 Remedy: remove the qualification.
 
 .Examples
-[source,rascal-shell,error]
-----
-----
 Using a qualified name gives an error:
-[source,rascal-shell,continue,error]
+[source,rascal-shell,error]
 ----
 data M::D = d();
 ----

@@ -27,11 +27,8 @@ Remedies:
 
 
 .Examples
-[source,rascal-shell,error]
-----
-----
 A false assertion gives an error:
-[source,rascal-shell,continue,error]
+[source,rascal-shell,error]
 ----
 assert 3 > 4;
 ----

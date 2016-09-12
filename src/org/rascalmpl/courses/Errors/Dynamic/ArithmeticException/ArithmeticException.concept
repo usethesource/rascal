@@ -26,11 +26,8 @@ Remedies:
 *  Catch the `ArithmeticException` yourself, see link:/Rascal#Statements-TryCatch[try catch] statement.
 
 .Examples
-[source,rascal-shell,error]
-----
-----
 Division by 0 gives an error:
-[source,rascal-shell,continue,error]
+[source,rascal-shell,error]
 ----
 3/0;
 ----
