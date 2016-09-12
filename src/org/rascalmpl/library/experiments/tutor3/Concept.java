@@ -127,6 +127,7 @@ public class Concept {
 		//":iconfont-name: font-awesome.min\n" +
 		":images:       ../images/\n" +
 		":table-caption!:\n" +
+		":prewrap!:\n" +
 		":docinfo1:\n";
 	
 	public static String getSearchForm(){
