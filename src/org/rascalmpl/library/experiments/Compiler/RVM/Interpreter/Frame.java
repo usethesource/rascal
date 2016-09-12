@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.rascalmpl.interpreter.types.FunctionType;  // TODO: remove import: NO
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.ISourceLocation;
@@ -245,11 +246,15 @@ public class Frame {
 //		}
 		
 		s.append(")");
-		if(src != null){
+		if(src != null && !isConsoleFrame()){
 			s.append(" at ").append(src);
 		}
 		return s.toString();
 	}
+	
+	boolean isConsoleFrame(){
+      return src.getPath().contentEquals(CommandExecutor.consoleInputPath);
+    }
 	
 	private StringBuilder indent(){
 		int n = 0;
