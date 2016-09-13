@@ -515,7 +515,7 @@ test bool exceptionHandlingNotHandled(){
 	}
 }
 
-@ignoreInterpreter{Renamed Exception}
+@ignoreCompiler{Renamed Exception}
 test bool exceptionHandlingNotHandledSimple(){
 	void divide() { 1/0; }
 
@@ -531,7 +531,7 @@ test bool exceptionHandlingNotHandledSimple(){
 	}
 }
 
-@ignoreCompiler{Renamed Exception}
+@ignoreInterpreter{Renamed Exception}
 test bool exceptionHandlingNotHandledSimple(){
     void divide() { 1/0; }
 
