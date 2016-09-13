@@ -16,7 +16,7 @@ RuntimeExceptions OtherRuntimeErrors
 
 .Description
 
-Rascal can generate various kinds of exceptions errors during execution (run time):
+Rascal can generate various kinds of exceptions and errors during execution (run time):
 
 * <<Runtime Exceptions>> are discovered during execution of the Rascal program and be caught by the Rascal program.
   When a runtime exception is not caught in the program, execution is aborted.
