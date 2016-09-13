@@ -1,0 +1,11 @@
+# No Such Field
+
+.Synopsis
+Missing field at runtime.
+
+
+.Types
+`data RunTimeException = NoSuchField(str name);`
+       
+.Usage
+`import Exception;` (only needed when `NoSuchField` is used in `catch`)

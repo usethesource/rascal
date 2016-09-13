@@ -1,0 +1,11 @@
+# No Main Function
+
+.Synopsis
+Rascal program does not provide a `main` function.
+
+
+.Types
+`data RunTimeException = NoMainFunction(str message);`
+       
+.Usage
+`import Exception;` (only needed when `NoMainFunction` is used in `catch`)
