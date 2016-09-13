@@ -515,7 +515,6 @@ test bool exceptionHandlingNotHandled(){
 	}
 }
 
-@ignore{Temporarily, to get the build working again}
 test bool exceptionHandlingNotHandledSimple(){
 	void divide() { 1/0; }
 
@@ -527,7 +526,7 @@ test bool exceptionHandlingNotHandledSimple(){
 		return main();
 	} 
 	catch value v: {
-		return v == ArithmeticException("divide by zero");
+		return v == ArithmeticException("/ by zero");
 	}
 }
 
