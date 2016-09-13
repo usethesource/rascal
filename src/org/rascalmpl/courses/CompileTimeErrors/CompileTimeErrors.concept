@@ -1,0 +1,12 @@
+# Compile Time Errors
+
+.Synopsis
+All errors that can occur during compilation of a Rascal program.
+
+.Description
+
+WARNING: in progress of being adpted to compiler
+
+The following compile time (static) errors can occur in a Rascal program. 
+They cannot be caught by the Rascal program:
+loctoc::[1]
