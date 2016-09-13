@@ -420,7 +420,7 @@ public class CommandExecutor {
 	}
 	
 	private IValue reportError(String msg){
-      stderr.println("[error] " + msg);
+      stderr.println("Error: " + msg);
       stderr.flush();
       return null;
   }
@@ -550,7 +550,7 @@ public class CommandExecutor {
 							}
 						}
 					} else {
-						return report("[Error] Name mismatch in assignment: " + consName  + " vs " + consVal.getName());
+						return report("Error: Name mismatch in assignment: " + consName  + " vs " + consVal.getName());
 					}
 				}
 				forceRecompilation = true;
