@@ -37,11 +37,8 @@ This can be corrected by choosing other names for the labels:
 data D = d1(int intKey) | d2(str strKey);
 ----
 
-[source,rascal-shell,error]
-----
-----
 A tuple declaration with a duplicate field name also gives an error:
-[source,rascal-shell,continue,error]
+[source,rascal-shell,error]
 ----
 tuple[int x, str x] Q = <3,"abc">;
 ----
