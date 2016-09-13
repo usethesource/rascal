@@ -1,0 +1,13 @@
+# Not Implemented
+
+.Synopsis
+Attempt to execute an unimplemented feature.
+
+
+.Types
+`data RunTimeException = NotImplemented(str msg), loc src);`
+       
+.Usage
+`import Exception;` (only needed when `NotImplemented` is used in `catch`)
+
+

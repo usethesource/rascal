@@ -1,0 +1,11 @@
+# Invalid URI
+
+.Synopsis
+An invalid URI is created at runtime.
+
+.Types
+`data RunTimeException = InvalidURI(str uri);`
+       
+.Usage
+`import Exception;` (only needed when `InvalidURI` is used in `catch`)
+

@@ -1,0 +1,11 @@
+# Invalid Use Of Location
+
+.Synopsis
+Invalid use of a source location at runtime.
+
+
+.Types
+`data RunTimeException = InvalidUseOfLocation(str message);`
+       
+.Usage
+`import Exception;` (only needed when `InvalidUseOfLocation` is used in `catch`)

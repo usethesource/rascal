@@ -1,0 +1,11 @@
+# Unavailable Information
+
+.Synopsis
+Requested information is unavailable at runtime
+
+
+.Types
+`data RunTimeException = UnavailableInformation(str message);`
+       
+.Usage
+`import Exception;` (only needed when `UnavailableInformation` is used in `catch`)

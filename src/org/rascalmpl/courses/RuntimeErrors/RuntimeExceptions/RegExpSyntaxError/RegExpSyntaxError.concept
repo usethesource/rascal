@@ -1,0 +1,11 @@
+# RegExp Syntax Error
+
+.Synopsis
+Syntax error in regular expression at runtime
+
+
+.Types
+`data RunTimeException = RegExpSyntaxError(str message);`
+       
+.Usage
+`import Exception;` (only needed when `RegExpSyntaxError` is used in `catch`)
