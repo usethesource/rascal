@@ -20,7 +20,6 @@ node {
     sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTests -B deploy"
     
     stage 'Archive'
-    step([$class: 'ArtifactArchiver', artifacts: '**/target/*.jar', fingerprint: true])
     step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
     
     if (currentBuild.previousBuild.result == "FAILURE") { 
