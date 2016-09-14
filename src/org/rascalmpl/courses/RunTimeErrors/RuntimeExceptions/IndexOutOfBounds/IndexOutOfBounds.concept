@@ -6,7 +6,7 @@ Index is out of bounds.
 .Syntax
 
 .Types
-`data RunTimeException = IndexOutOfBounds(int index)`
+`data RuntimeException = IndexOutOfBounds(int index)`
 
 .Usage
 `import Exception;` (only needed when `IndexOutOfBounds` is used in `catch`)

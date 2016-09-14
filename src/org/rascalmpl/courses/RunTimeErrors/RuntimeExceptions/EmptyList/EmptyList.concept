@@ -6,7 +6,7 @@ Illegal operation on an empty list.
 .Syntax
 
 .Types
-`data RunTimeException = EmptyList();`
+`data RuntimeException = EmptyList();`
        
 .Usage
 `import Exception;` (only needed when `EmptyList` is used in `catch`)
@@ -28,7 +28,7 @@ Remedies:
 .Examples
 
 Import the `List` library and introduce `L` with an empty list as value:
-[source,rascal-shell,continue,error]
+[source,rascal-shell,error]
 ----
 import List;
 L = [];

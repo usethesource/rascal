@@ -4,8 +4,19 @@
 An invalid URI is created at runtime.
 
 .Types
-`data RunTimeException = InvalidURI(str uri);`
+`data RuntimeException = InvalidURI(str uri);`
        
 .Usage
 `import Exception;` (only needed when `InvalidURI` is used in `catch`)
 
+.Description
+Thrown by operations on link:/Rascal#Values-Location[source locations] that would 
+lead to an invalid URI part of source location value.
+
+.Examples
+
+[source,rascal-shell,error]
+----
+someLoc = |home:///abc.txt|;
+someLoc.scheme = "a:b";
+----
