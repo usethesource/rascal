@@ -1456,8 +1456,6 @@ public enum MuPrimitive {
 				Pattern pat = Pattern.compile(RegExpAsString, Pattern.UNICODE_CHARACTER_CLASS);
 				return pat.matcher(subject);
 			} catch (PatternSyntaxException e) {
-				//throw new CompilerError("Syntax error in regular expression: " + RegExpAsString);
-				//TODO: change to something like:
 				throw RascalRuntimeException.RegExpSyntaxError(RegExpAsString, null);
 			}
 		};
@@ -1984,24 +1982,20 @@ public enum MuPrimitive {
 		return t.isExternalType() && ((RascalType) t).isNonterminal();
 	}
 	
-//	public int execute(final Object[] stack, final int sp, final int arity) {
-//		throw new CompilerError("Not implemented MuPrimitive");
-//	}
-	
 	public Object execute0() {
-		throw new CompilerError("Not implemented MuPrimitive.execute0: " + name());
+		throw RascalRuntimeException.notImplemented("MuPrimitive.execute0 " + name(), null, null);
 	}
 	
 	public Object execute1(final Object arg_1) {
-		throw new CompilerError("Not implemented MuPrimitive.execute1: " + name());
+	  throw RascalRuntimeException.notImplemented("MuPrimitive.execute1 " + name(), null, null);
 	}
 	
 	public Object execute2(final Object arg_2, final Object arg_1) {
-		throw new CompilerError("Not implemented MuPrimitive.execute2: " + name());
+	  throw RascalRuntimeException.notImplemented("MuPrimitive.execute2 " + name(), null, null);
 	}
 	
 	public int executeN(final Object[] stack, final int sp, final int arity) {
-		throw new CompilerError("Not implemented MuPrimitive.executeN: " + name());
+	  throw RascalRuntimeException.notImplemented("MuPrimitive.executeN " + name(), null, null);
 	}
 	
 	public static void recordTime(int n, long duration){
