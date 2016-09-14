@@ -23,7 +23,7 @@ public class ManifestRunner implements ShellRunner {
         this.mf = mf;
         this.eval = ShellEvaluatorFactory.getDefaultEvaluator(stdout, stderr);
         addExtraSourceFolders();
-    }
+    } 
 
     void addExtraSourceFolders() {
         for (String root : mf.getSourceRoots(ManifestRunner.class)) {
