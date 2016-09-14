@@ -8,10 +8,11 @@ help
 
 .Description
 
-The Tutor home page is always reachable via the logo  RascalTutor logo image:/images/rascal-tutor-small.png[width="40",heigth="40"] 
+The Tutor home page is always reachable via the RascalTutor logo image:/images/rascal-tutor-small.png[width="40",heigth="40"] 
 in the top left corner of each Tutor page and is the best starting point for further reading. 
 Here is a recent overview of the available courses:
 
+include::../../TutorHome/tutor-contents.include
 [cols="a,a,a,a"]
 |===
 Beginner          | Moderate | Advanced | General

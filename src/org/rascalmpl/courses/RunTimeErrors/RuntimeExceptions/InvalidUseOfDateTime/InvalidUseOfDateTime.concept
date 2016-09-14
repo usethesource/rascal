@@ -4,7 +4,7 @@
 Invalid runtime use of a datetime value.
 
 Types
-`data RunTimeException = InvalidUseOfDateTime(str message);`
+`data RuntimeException = InvalidUseOfDateTime(str message);`
        
 .Usage
 `import Exception;` (only needed when `InvalidUseOfDateTime` is used in `catch`)

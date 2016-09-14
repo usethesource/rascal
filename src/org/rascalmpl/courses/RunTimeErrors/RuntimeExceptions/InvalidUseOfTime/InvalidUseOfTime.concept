@@ -5,7 +5,7 @@ Invalid use of a time value at runtime
 
 
 .Types
-`data RunTimeException = InvalidUseOfTime(str message);`
+`data RuntimeException = InvalidUseOfTime(str message);`
        
 .Usage
 `import Exception;` (only needed when `InvalidUseOfTime` is used in `catch`)

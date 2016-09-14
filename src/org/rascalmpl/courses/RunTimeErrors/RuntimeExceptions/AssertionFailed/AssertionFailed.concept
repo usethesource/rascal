@@ -8,7 +8,7 @@ An assertion in the Rascal code is false.
 .Types
 
 .Function
-`data RunTimeException = AssertionFailed() | AssertionFailed(str label);`
+`data RuntimeException = AssertionFailed() | AssertionFailed(str label);`
 
        
 .Usage

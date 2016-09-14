@@ -5,7 +5,7 @@ Parse of a syntactically incorrect string.
 
 
 .Types
-`data RunTimeException = ParseError(loc parseloc) | ParseError(loc parseloc, str nt, str s);`
+`data RuntimeException = ParseError(loc parseloc) | ParseError(loc parseloc, str nt, str s);`
        
 .Usage
 `import Exception;` (only needed when `ParseError` is used in `catch`)

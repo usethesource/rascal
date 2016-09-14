@@ -4,7 +4,7 @@
 Annotation without a value.
 
 .Types
-`data RunTimeException = NoSuchAnnotation(str label);`
+`data RuntimeException = NoSuchAnnotation(str label);`
        
 .Usage
 `import Exception;` (only needed when `NoSuchAnnotation` is used in `catch`)

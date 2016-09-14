@@ -5,7 +5,7 @@ Parent directory is missing in source location.
 
 
 .Types
-`data RunTimeException = NoParent(loc noparentloc);`
+`data RuntimeException = NoParent(loc noparentloc);`
        
 .Usage
 `import Exception;` (only needed when `NoParent` is used in `catch`)

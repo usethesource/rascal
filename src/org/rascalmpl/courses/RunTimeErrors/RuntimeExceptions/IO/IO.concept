@@ -6,7 +6,7 @@ An input/output operation caused an error.
 .Syntax
 
 .Types
-`data RunTimeException = IO(str message);`
+`data RuntimeException = IO(str message);`
        
 .Usage
 `import Exception;` (only needed when `IO` is used in `catch`)

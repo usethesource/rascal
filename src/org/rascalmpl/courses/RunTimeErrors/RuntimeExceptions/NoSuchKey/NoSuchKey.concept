@@ -4,7 +4,7 @@
 A map does not contain a requested key.
 
 .Types
-`data RunTimeException = NoSuchKey(value v);`
+`data RuntimeException = NoSuchKey(value v);`
        
 .Usage
 `import Exception;` (only needed when `NoSuchKey` is used in `catch`)

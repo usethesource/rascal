@@ -1,35 +1,3 @@
 # Welcome to the Rascal Tutor
 
-[cols="a,a,a,a"]
-|===
-Beginner          | Moderate | Advanced | General
-
-|
-[square]
-- link:/WhyRascal[Why Rascal?]
-- link:/GettingStarted[Getting Started]
-- link:/Rascalopedia[Rascalopedia]
-- link:/Recipes[Rascal Recipes]
-- link:/GettingHelp[Getting Help]
-
-|
-[square]
-- link:/RascalConcepts[Rascal Language Concepts]
-- link:/Rascal[Rascal Language Reference]
-- link:/Libraries[Rascal Library Reference]
-- link:/CompileTimeErrors[Explanation of compile time errors]
-- link:/RunTimeErrors[Explanation of run time errors]
-
-|
-[square]
-- link:/Tutor[RascalTutor]
-- link:https://github.com/usethesource/rascal/wiki[Rascal Wiki]
-
-|
-[square]
-- link:http://www.rascal-mpl.org[Rascal Home Page]
-- link:https://github.com/usethesource/rascal[Rascal @ GitHub]
-- link:https://github.com/usethesource/rascal/issues[Issue tracker @ GitHub]
-- link:http://stackoverflow.com/questions/tagged/rascal[Rascal @ StackOverflow]
-
-|===
+include::tutor-contents.include[]
