@@ -10,7 +10,6 @@
 
 	<scm>
 		<developerConnection>scm:git:https://github.com/usethesource/rascal.git</developerConnection>
-		<tag>HEAD</tag>
 	</scm>
 
 	<!-- deployment configuration (usethesource) -->
