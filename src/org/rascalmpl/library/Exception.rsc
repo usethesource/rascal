@@ -67,22 +67,42 @@ data RuntimeException =
      | EmptyList()
      | EmptyMap() 
      | EmptySet()
-     | IllegalArgument()
-     | IllegalArgument(value v)
-     | IllegalArgument(value v, str message)
+     | IllegalArgument()                        // deprecated
+     | IllegalArgument(value v)                 // deprecated
+     | IllegalArgument(value v, str message)    // deprecated
+     
+     | InvalidArgument()
+     | InvalidArgument(value v)
+     | InvalidArgument(value v, str message)
+     
+     | InvalidUseOfDate(str message)
+     | InvalidUseOfDateTime(str message)
+     | InvalidUseOfTime(str message)
+     | InvalidUseOfLocation(str message)
+     | InvalidURI(str uri)
+     
      | IndexOutOfBounds(int index)
      | IO(str message)
-     | Java(str class, str message)
-     | Java(str class, str message, RuntimeException cause)
-     | ModuleNotFound(str name)
+     | Java(str class, str message)             // deprecated
+     | Java(str class, str message, RuntimeException cause) // deprecated
+     | JavaException(str class, str message)
+     | JavaException(str class, str message, RuntimeException cause)
+     | ModuleNotFound(str name)                 // Deprecated
      | NoSuchAnnotation(str label)
-     | NoMainFunction()
+     | NoSuchField(str name)
      | NoSuchKey(value key)
+    
+     | NoMainFunction()
+     | NotImplemented(str message)
+    
      | MultipleKey(value key)
      | ParseError(loc location)
-     | PathNotFound(loc l)
-     | PathNotFound(set[loc] locs)
-     | StackOverflow()
+     // add versions of ParseError
+     | PathNotFound(loc l)          // Deprecated
+     | PathNotFound(set[loc] locs)  // deprecated
+     | RegExpSyntaxError(str message)
+     | StackOverflow()          // Deprecated
+     | UnavailableInformation(str message)
      
 // Status to be determined:     
      
