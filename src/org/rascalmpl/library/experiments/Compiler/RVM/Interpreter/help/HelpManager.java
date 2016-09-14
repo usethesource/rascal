@@ -58,7 +58,8 @@ public class HelpManager {
     }
 	
 	Path copyToTmp(ISourceLocation fromDir) throws IOException{
-	  Path toDir = Files.createTempDirectory(URIUtil.getLocationName(fromDir));
+	  Path targetDir = Files.createTempDirectory(URIUtil.getLocationName(fromDir));
+	  targetDir.toFile().deleteOnExit();
 	  URIResolverRegistry reg = URIResolverRegistry.getInstance();
 	  for(ISourceLocation file : reg.list(fromDir)){
 	    if(!reg.isDirectory(file)){
@@ -67,12 +68,14 @@ public class HelpManager {
 	      String fileName = n >= 0 ? p.substring(n+1) : p;
 	      // Only copy _* (index files) and segments* (defines number of segments)
 	      if(fileName.startsWith("_") || fileName.startsWith("segments")){
+	        Path targetFile = targetDir.resolve(fileName);
 	        //System.out.println("copy " + file + " to " + toDir.resolve(fileName));
-	        Files.copy(reg.getInputStream(file), toDir.resolve(fileName)); 
+	        Files.copy(reg.getInputStream(file), targetFile); 
+	        targetFile.toFile().deleteOnExit();
 	      }
 	    }
 	  }
-	  return toDir;
+	  return targetDir;
 	}
 	
 	private ArrayList<IndexReader> getReaders() throws IOException{
