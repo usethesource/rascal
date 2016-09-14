@@ -20,6 +20,11 @@ str createValidScheme(str s) {
 	return ("a" | it + stringChar(validSchemeChars[c % size(validSchemeChars)]) | c <- chars(s));
 }
 
+@ignoreInterpreter{Renaming}
+@expected{InvalidURI}
+test bool noOpaqueURI() = loc l := |home:://this:is:opaque|;
+
+@ignoreCompiler{Renaming}
 @expected{MalFormedURI}
 test bool noOpaqueURI() = loc l := |home:://this:is:opaque|;
 
