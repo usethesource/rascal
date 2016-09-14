@@ -21,7 +21,7 @@ public class ManifestRunner implements ShellRunner {
     public ManifestRunner(RascalManifest mf, PrintWriter stdout, PrintWriter stderr) {
         assert mf.hasManifest(ManifestRunner.class);
         this.mf = mf;
-        this.evall = ShellEvaluatorFactory.getDefaultEvaluator(stdout, stderr);
+        this.eval = ShellEvaluatorFactory.getDefaultEvaluator(stdout, stderr);
         addExtraSourceFolders();
     }
 
