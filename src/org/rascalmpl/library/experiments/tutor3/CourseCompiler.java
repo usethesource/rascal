@@ -173,6 +173,7 @@ public class CourseCompiler {
 		for(int i = 1; i <= 15; i++){
 			files.add("images/" + i + ".png");
 		}
+		files.add("tutor-overview.include");
 		
 		for(String file : files){
 			Path src = srcPath.resolve(file);
