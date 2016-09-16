@@ -202,7 +202,7 @@ test bool nonDeterministicChoiceAndNormalComposition23() {
     return outputs3 == outputs4;
 }
 
-test bool nonDeterministicChoiceAndNormalComposition24() {
+test bool nonDeterministicChoiceAndNormalComposition24() { 
     list[int] inputs = [0,1,2,3,4,5,6,7,8,9,10]; 
     list[int] outputs = [ (n%2 == 0) ? n*(n - 1) : 2*n | int n <- inputs ]; 
 

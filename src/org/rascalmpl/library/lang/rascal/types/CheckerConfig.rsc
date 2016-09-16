@@ -1289,7 +1289,9 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
     // and, if so, don't add a new entry for it. For now, we just get back multiple entries, which
     // is fine.
     rt = normalizeType(rt);
-    rt.isVarArgs = isVarArgs;
+    if (isVarArgs) {
+      rt.isVarArgs = isVarArgs;
+    }
     currentModuleId = head([i | i <- c.stack, \module(_,_) := c.store[i]]);
 
 	// Create the new function item and insert it into the store; also keep track of

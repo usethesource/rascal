@@ -9072,7 +9072,7 @@ public default Module check(Tree t, PathConfig pcfg) {
 	} else {
 		throw "Cannot check arbitrary trees";
     }
-}
+} 
 
 public default Module check(Tree t) {
 	return check(t, pathConfig());

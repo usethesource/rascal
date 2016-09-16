@@ -248,12 +248,13 @@ data Symbol(bool isVarArgs = false);
 @doc{Create a new function type with the given return and parameter types.}
 public Symbol makeFunctionType(Symbol retType, bool isVarArgs, Symbol paramTypes...) {
 	set[str] labels = { l | Symbol::\label(l,_) <- paramTypes };
-	if (size(labels) == 0 || size(labels) == size(paramTypes))
-		//if (isVarArgs) { 
-		//	return \var-func(retType, head(paramTypes,size(paramTypes)-1), last(paramTypes));
-		//} else {
-			return Symbol::\func(retType, paramTypes)[isVarArgs=isVarArgs];
-		//}
+	if (size(labels) == 0 || size(labels) == size(paramTypes)) {
+		if (isVarArgs) { 
+			return Symbol::\func(retType, paramTypes, isVarArgs=true);
+		} else {
+			return Symbol::\func(retType, paramTypes);
+		}
+	}
 	else
 		throw "For function types, either all parameters much be given a distinct label or no parameters should be labeled."; 
 }
