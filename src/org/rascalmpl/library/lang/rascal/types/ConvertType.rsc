@@ -220,12 +220,12 @@ public Symbol convertFunctionType(FunctionType ft) {
 public Symbol convertUserType(UserType ut) {
     switch(ut) {
         case (UserType) `<QualifiedName n>` : return \user(convertName(n),[], at=ut@\loc);
-        case (UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]` : return \user(convertName(n),[convertType(ti) | ti <- ts],at=ut@\loc);
+        case (UserType) `<QualifiedName n>[<{Type ","}+ ts>]` : return \user(convertName(n),[convertType(ti) | ti <- ts],at=ut@\loc);
     }
 }
 
 public Symbol convertSymbol(Sym sym) {
-   return sym2symbol(sym,at=sym@\loc);
+   return sym2symbol(sym)[at=sym@\loc];
 }  
 
 @doc{Get the raw Name component from a user type.}
