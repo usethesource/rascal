@@ -1,3 +1,4 @@
+
 @license{
   Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
@@ -31,10 +32,10 @@ public data Symbol(bool boundGiven=false) =
 public data Symbol = \prod(Symbol \sort, str name, list[Symbol] parameters, set[Attr] attributes);
 
 @doc{Annotations to hold the type assigned to a tree.}
-data Tree(Symbol rtype = \void());
+data Tree(Symbol rtype = Symbol::\void());
 
 @doc{Annotations to hold the location at which a type is declared.}
-data Symnol(loc at = |unknown:///|);
+data Symbol(loc at = |unknown:///|);
 
 Symbol normalizeType(Symbol s){
    return

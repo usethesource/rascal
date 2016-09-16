@@ -3160,7 +3160,7 @@ anno Symbol Tree@typeHint;
 anno Symbol Statement@typeHint;
 
 @doc{A hint of the possible type passed down from above.}
-data Symbol(Symbol typeHint = \value());
+data Symbol(Symbol typeHint = Symbol::\value());
 
 @doc{A quick predicate to say whether we can use the type in a type calculation}
 public bool concreteType(Symbol t) = size({ ti | /Symbol ti := t, \failure(_) := ti || \inferred(_) := ti }) == 0; 
@@ -9008,20 +9008,13 @@ public Configuration addNameWarning(Configuration c, RName n, loc l) {
 }
 
  
-data Tree(map[loc,str] docStrings = ());
- 
-data Tree(map[loc,set[loc]] docLinks = ());
-
 public anno map[loc,str] start[Module]@docStrings;
 public anno map[loc,set[loc]] start[Module]@docLinks;
+public anno set[Message] start[Module]@messages;
+public anno map[loc,str] Module@docStrings;
+public anno map[loc,set[loc]] Module@docLinks;
+public anno set[Message] Module@messages;
 
- 
-data Module(
-  map[loc,str] docStrings = (), 
-  map[loc,set[loc]] docLinks = (),
-  set[Message] messages = {}
-);
- 
 //public Configuration checkAndReturnConfig(str mpath, PathConfig pcfg, bool forceCheck = false, bool verbose = false) {
 //	return checkAndReturnConfig(mpath, pcfg, forceCheck=forceCheck, verbose=verbose);
 //}
@@ -9069,7 +9062,7 @@ public Module check(Module m, PathConfig pcfg) {
     }
     c = pushTiming(c,"Annotating", dt1, now());
     for (t <- c.timings) println("<t.tmsg>:<createDuration(t.tstart,t.tend)>");
-    return m[messages=c.messages][docStrings=( l : "TYPE: <prettyPrintType(c.locationTypes[l])>" | l <- c.locationTypes<0>)][docLinks=docLinks];
+    return m[@messages=c.messages][@docStrings=( l : "TYPE: <prettyPrintType(c.locationTypes[l])>" | l <- c.locationTypes<0>)][@docLinks=docLinks];
 }
 
 public default Module check(Tree t, PathConfig pcfg) {
@@ -9091,8 +9084,8 @@ public default start[Module] check(loc l, PathConfig pcfg) {
   //m = parse(#start[Module], l);
   m = parseModuleWithSpaces(l);
   m.top = check(m.top, pcfg);
-  m.docLinks = m.top.docLinks;
-  m.docStrings = m.top.docStrings;
+  m@docLinks = m.top@docLinks;
+  m@docStrings = m.top@docStrings;
   return m;
 } 
 
