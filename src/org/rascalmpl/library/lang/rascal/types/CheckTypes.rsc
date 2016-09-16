@@ -2958,7 +2958,7 @@ data PatternTree(
   loc at = |unknown:///|,
   
   //Allows PatternTree nodes to be annotated with types.
-  Symbol rtype = \void(),
+  Symbol rtype = Symbol::\void(),
   
   //Allows PatternTree nodes to keep track of which ids they define.  
   set[int] defs = {}, 
@@ -2973,7 +2973,7 @@ data PatternTree(
   set[Symbol] tooManyMatches = {},
   
   // A hint of the possible type passed down from above. 
-  Symbol typeHint = \value()) 
+  Symbol typeHint = Symbol::\value()) 
  
     = setNode(list[PatternTree] children)
     | listNode(list[PatternTree] children)
@@ -5118,18 +5118,18 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<LocalVariableDeclaratio
 
 @doc{A compact representation of assignables}
 data AssignableTree(
-// Mark assignable trees with the source location of the assignable 
-loc at = |unknown:///|,
+  // Mark assignable trees with the source location of the assignable 
+  loc at = |unknown:///|,
 
-// Allows AssignableTree nodes to keep track of which ids they define. 
- set[int] defs = {},
+  // Allows AssignableTree nodes to keep track of which ids they define. 
+  set[int] defs = {},
 
-// Allows AssignableTree nodes to be annotated with types. 
-Symbol otype = \void(),
+  // Allows AssignableTree nodes to be annotated with types. 
+  Symbol otype = Symbol::\void(),
  
-Symbol atype = \void(),
+  Symbol atype = Symbol::\void(),
 
-int literalIndex = 0
+  int literalIndex = 0
 ) 
 
     = bracketNode(AssignableTree child)
