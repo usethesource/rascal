@@ -2954,7 +2954,27 @@ data LiteralNodeInfo = literalNodeInfo(DefOrUse dOrU, loc at);
 data MapNodeInfo = mapNodeInfo(PatternTree dtree, PatternTree rtree);
 
 @doc{A compact representation of patterns}
-data PatternTree 
+data PatternTree(
+  loc at = |unknown:///|,
+  
+  //Allows PatternTree nodes to be annotated with types.
+  Symbol rtype = \void(),
+  
+  //Allows PatternTree nodes to keep track of which ids they define.  
+  set[int] defs = {}, 
+  
+  //Is this node in head position in a call or tree node?
+  bool headPosition = false, 
+  
+   // Do we have possible constructors here that do not match arity?
+  set[Symbol] arityMismatches = {},
+  
+  // Do we have too many matching constructors here?
+  set[Symbol] tooManyMatches = {},
+  
+  // A hint of the possible type passed down from above. 
+  Symbol typeHint = \value()) 
+ 
     = setNode(list[PatternTree] children)
     | listNode(list[PatternTree] children)
     | nameNode(RName name, int nameId)
@@ -2979,9 +2999,6 @@ data PatternTree
     | tvarBecomesNode(Symbol rtype, RName name, loc at, PatternTree child, int nameId)
     ;
     
-@doc{Mark pattern trees with the source location of the pattern}
-data PatternTree(loc at = |unknown:///|);
-
 @doc{A shorthand for the results to expect from binding -- an updated configuration and an updated pattern tree.}
 public alias BindResult = tuple[Configuration,PatternTree];
 
@@ -3137,24 +3154,6 @@ public BindResult extractPatternTree(Pattern pat:(Pattern)`<Type t> <Name n> : <
     < c, rt > = convertAndExpandType(t,c);
     return < c, tvarBecomesNode(rt,convertName(n),n@\loc,pti,0)[at=pat@\loc] >;
 }
-
-@doc{Allows PatternTree nodes to be annotated with types.}
-data PatternTree(Symbol rtype = \void());
-
-@doc{Allows PatternTree nodes to keep track of which ids they define.}
-data PatternTree(set[int] defs = {});
-
-@doc{Is this node in head position in a call or tree node?}
-data PatternTree(bool headPosition = false);
-
-@doc{Do we have possible constructors here that do not match arity?}
-data PatternTree(set[Symbol] arityMismatches = {});
-
-@doc{Do we have too many matching constructors here?}
-data PatternTree(set[Symbol] tooManyMatches = {});
-
-@doc{A hint of the possible type passed down from above.}
-data PatternTree(Symbol typeHint = \value());
 
 @doc{A hint of the possible type passed down from above.}
 anno Symbol Tree@typeHint;
@@ -5118,7 +5117,21 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<LocalVariableDeclaratio
 }
 
 @doc{A compact representation of assignables}
-data AssignableTree 
+data AssignableTree(
+// Mark assignable trees with the source location of the assignable 
+loc at = |unknown:///|,
+
+// Allows AssignableTree nodes to keep track of which ids they define. 
+ set[int] defs = {},
+
+// Allows AssignableTree nodes to be annotated with types. 
+Symbol otype = \void(),
+ 
+Symbol atype = \void(),
+
+int literalIndex = 0
+) 
+
     = bracketNode(AssignableTree child)
     | variableNode(RName name)
     | subscriptNode(AssignableTree receiver, Symbol subscriptType)
@@ -5131,18 +5144,9 @@ data AssignableTree
     | annotationNode(AssignableTree receiver, RName name)
     ;
     
-@doc{Mark assignable trees with the source location of the assignable} 
-data AssignableTree(loc at = |unknown:///|);
 
-@doc{Allows AssignableTree nodes to keep track of which ids they define.} 
-data AssignableTree(set[int] defs = {});
 
-@doc{Allows AssignableTree nodes to be annotated with types.} 
-data AssignableTree(Symbol otype = \void());
- 
-data AssignableTree(Symbol atype = \void());
 
-data AssignableTree(int literalIndex = 0);
 
 @doc{Result of building the assignable tree.}
 alias ATResult = tuple[Configuration, AssignableTree];
@@ -9012,11 +9016,12 @@ public anno map[loc,str] start[Module]@docStrings;
 public anno map[loc,set[loc]] start[Module]@docLinks;
 
  
-data Module(map[loc,str] docStrings = ());
+data Module(
+  map[loc,str] docStrings = (), 
+  map[loc,set[loc]] docLinks = (),
+  set[Message] messages = {}
+);
  
-data Module(map[loc,set[loc]] docLinks = ());
-
-
 //public Configuration checkAndReturnConfig(str mpath, PathConfig pcfg, bool forceCheck = false, bool verbose = false) {
 //	return checkAndReturnConfig(mpath, pcfg, forceCheck=forceCheck, verbose=verbose);
 //}
@@ -9046,6 +9051,7 @@ public Module check(Module m, PathConfig pcfg) {
     map[loc,set[loc]] docLinks = ( );
     for (<l,i> <- invert(c.uses)) {
         set[loc] toAdd = { };
+        
         if (overload(items,_) := c.store[i]) {
             toAdd = { c.store[itm].at | itm <- items };
         } else if (datatype(_,_,_,_,ats) := c.store[i]) {

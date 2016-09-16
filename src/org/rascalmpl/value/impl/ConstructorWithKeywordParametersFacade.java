@@ -130,6 +130,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	
 	@Override
 	public IAnnotatable<? extends IConstructor> asAnnotatable() {
+	  new NullPointerException().printStackTrace();
 		throw new UnsupportedOperationException("can not annotate a constructor which already has keyword parameters");
 	}
 	

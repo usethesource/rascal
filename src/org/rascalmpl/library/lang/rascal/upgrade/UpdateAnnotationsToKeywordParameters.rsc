@@ -33,9 +33,8 @@ Tree update(Tree m) =
       when "<field>" != "\\loc", Name name2 := getName(field)
   };
 
-Name getName((Name) `\\loc`) = (Name) `origin`;
-Name getName((Name) `src`) = (Name) `origin`;
-Name getName((Name) `location`) = (Name) `origin`;
+Name getName((Name) `\\loc`) = (Name) `src`;
+Name getName((Name) `location`) = (Name) `src`;
 default Name getName(Name n) = n;
 
 test bool nameTest() = getName((Name) `location`) == (Name) `origin`;
