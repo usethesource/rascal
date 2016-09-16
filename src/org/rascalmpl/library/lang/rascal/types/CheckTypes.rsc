@@ -5205,11 +5205,11 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
     }
 
     if (isListType(atree.atype) && isIntType(tsub)) {
-        return < c, subscriptNode(atree,tsub)[atype=getListElementType(atree.atype)][@at=assn@\loc] >;
+        return < c, subscriptNode(atree,tsub)[atype=getListElementType(atree.atype)][at=assn@\loc] >;
     }
 
     if (isNodeType(atree.atype) && isIntType(tsub)) {
-        return < c, subscriptNode(atree,tsub)[atype=Symbol::\value()][@at=assn@\loc] >;
+        return < c, subscriptNode(atree,tsub)[atype=Symbol::\value()][at=assn@\loc] >;
     }
 
     if (isTupleType(atree.atype) && isIntType(tsub)) {
