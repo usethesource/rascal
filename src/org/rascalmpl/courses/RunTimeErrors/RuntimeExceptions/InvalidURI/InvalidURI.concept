@@ -11,7 +11,7 @@ An invalid URI is created at runtime.
 
 .Description
 Thrown by operations on link:/Rascal#Values-Location[source locations] that would 
-lead to an invalid URI part of source location value.
+lead to an invalid URI part of a source location value.
 
 .Examples
 
@@ -19,4 +19,11 @@ lead to an invalid URI part of source location value.
 ----
 someLoc = |home:///abc.txt|;
 someLoc.scheme = "a:b";
+----
+
+Another well-known example is a missing path when using `//` (wrong) instead of `///` (good):
+[source,rascal-shell,error]
+----
+|home:///|;
+|home://|;
 ----

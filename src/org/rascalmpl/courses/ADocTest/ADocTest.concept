@@ -14,9 +14,18 @@ Test Case
 
 .Details
 
-[source,rascal-shell,error]
+[source,rascal-shell]
 ----
-fail;
+import IO;
+----
+
+
+* Already declared element variable:
+[source,rascal-shell,continue]
+----
+int N;
+if([10, N, 30, 40, 50] := [10, 20, 30, 40, 50])
+   println("Match succeeded, N = <N>");
 ----
 
 .Description
