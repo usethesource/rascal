@@ -14,18 +14,18 @@ Test Case
 
 .Details
 
-
-
-Drawing a red link:/Libraries#Figure-box[box] is as simple as this:
-[source,rascal-figure,width=,height=,file=b1.png]
+[source,rascal-shell]
 ----
-import experiments::vis2::sandbox::Figure;
-import experiments::vis2::sandbox::FigureServer;
-b = box(fillColor="red");
-render(b);
+import IO;
 ----
-and it will look like this:
 
-image::{concept}/b1.png[alt="Box 1"]
+
+* Already declared element variable:
+[source,rascal-shell,continue]
+----
+int N;
+if([10, N, 30, 40, 50] := [10, 20, 30, 40, 50])
+   println("Match succeeded, N = <N>");
+----
 
 .Description

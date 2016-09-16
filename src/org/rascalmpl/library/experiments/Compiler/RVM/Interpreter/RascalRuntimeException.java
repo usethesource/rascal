@@ -19,44 +19,44 @@ public class RascalRuntimeException {
 	public static final TypeStore TS = RascalValueFactory.getStore(); //new TypeStore();
 	public static final Type Exception = TF.abstractDataType(TS, "RuntimeException");
 	
-	public static final Type StackOverflow = TF.constructor(TS, Exception, "StackOverflow");
+//	public static final Type StackOverflow = TF.constructor(TS, Exception, "StackOverflow");
     public static final Type IndexOutOfBounds = TF.constructor(TS, Exception, "IndexOutOfBounds", TF.integerType(), "index");
 	public static final Type AssertionFailed = TF.constructor(TS,Exception,"AssertionFailed");
 	public static final Type LabeledAssertionFailed = TF.constructor(TS,Exception,"AssertionFailed", TF.stringType(), "label");
 	public static final Type EmptyList = TF.constructor(TS,Exception,"EmptyList");
 	public static final Type EmptySet = TF.constructor(TS,Exception,"EmptySet");
 	public static final Type EmptyMap = TF.constructor(TS,Exception,"EmptyMap");
-	public static final Type NoSuchElement = TF.constructor(TS,Exception,"NoSuchElement",TF.valueType(), "v");
+//	public static final Type NoSuchElement = TF.constructor(TS,Exception,"NoSuchElement",TF.valueType(), "v");
 	public static final Type UnavailableInformation = TF.constructor(TS,Exception, "UnavailableInformation", TF.stringType(), "message");
-	public static final Type IllegalArgument = TF.constructor(TS,Exception,"IllegalArgument",TF.valueType(), "v", TF.stringType(), "message");
-	public static final Type IllegalTypeArgument = TF.constructor(TS,Exception,"IllegalTypeArgument",TF.stringType(), "type", TF.stringType(), "message");
+	public static final Type InvalidArgument = TF.constructor(TS,Exception,"InvalidArgument",TF.valueType(), "v", TF.stringType(), "message");
+//	public static final Type IllegalTypeArgument = TF.constructor(TS,Exception,"IllegalTypeArgument",TF.stringType(), "type", TF.stringType(), "message");
 
-	public static final Type AnonymousIllegalArgument = TF.constructor(TS,Exception,"IllegalArgument");
+	public static final Type AnonymousInvalidArgument = TF.constructor(TS,Exception,"InvalidArgument");
 	public static final Type IO = TF.constructor(TS,Exception,"IO",TF.stringType(), "message");
-	public static final Type PathNotFound = TF.constructor(TS,Exception,"PathNotFound",TF.sourceLocationType(), "location");
+//	public static final Type PathNotFound = TF.constructor(TS,Exception,"PathNotFound",TF.sourceLocationType(), "location");
 	
-	public static final Type LocationNotFound = TF.constructor(TS,Exception,"LocationNotFound",TF.sourceLocationType(), "location");
-	public static final Type PermissionDenied = TF.constructor(TS,Exception,"PermissionDenied",TF.stringType(), "message");
-	public static final Type AnonymousPermissionDenied = TF.constructor(TS,Exception,"PermissionDenied");
-	public static final Type ModuleNotFound = TF.constructor(TS, Exception, "ModuleNotFound", TF.stringType(), "name");
-	public static final Type MultipleKey = TF.constructor(TS, Exception, "MultipleKey", TF.valueType(), "key");
+//	public static final Type LocationNotFound = TF.constructor(TS,Exception,"LocationNotFound",TF.sourceLocationType(), "location");
+//	public static final Type PermissionDenied = TF.constructor(TS,Exception,"PermissionDenied",TF.stringType(), "message");
+//	public static final Type AnonymousPermissionDenied = TF.constructor(TS,Exception,"PermissionDenied");
+//	public static final Type ModuleNotFound = TF.constructor(TS, Exception, "ModuleNotFound", TF.stringType(), "name");
+//	public static final Type MultipleKey = TF.constructor(TS, Exception, "MultipleKey", TF.valueType(), "key");
 	public static final Type NoSuchKey = TF.constructor(TS, Exception, "NoSuchKey", TF.valueType(), "key");
 	public static final Type NoSuchAnnotation = TF.constructor(TS, Exception, "NoSuchAnnotation", TF.stringType(), "label");
 	public static final Type NoSuchField = TF.constructor(TS, Exception, "NoSuchField", TF.stringType(), "label");
 	public static final Type ParseError = TF.constructor(TS, Exception, "ParseError", TF.sourceLocationType(), "location");
 	public static final Type Ambiguity = TF.constructor(TS, Exception, "Ambiguity", TF.sourceLocationType(), "location", TF.stringType(), "nonterminal", TF.stringType(), "sentence");
-	public static final Type IllegalIdentifier = TF.constructor(TS, Exception, "IllegalIdentifier", TF.stringType(), "name");
-	public static final Type IllegalChar = TF.constructor(TS, Exception, "IllegalCharacter", TF.integerType(), "character");
-	public static final Type SchemeNotSupported = TF.constructor(TS, Exception, "SchemeNotSupported", TF.sourceLocationType(), "location");
-	public static final Type MalFormedURI = TF.constructor(TS, Exception, "MalFormedURI", TF.stringType(), "malFormedUri");
+//	public static final Type IllegalIdentifier = TF.constructor(TS, Exception, "IllegalIdentifier", TF.stringType(), "name");
+//	public static final Type IllegalChar = TF.constructor(TS, Exception, "IllegalCharacter", TF.integerType(), "character");
+//	public static final Type SchemeNotSupported = TF.constructor(TS, Exception, "SchemeNotSupported", TF.sourceLocationType(), "location");
+	public static final Type InvalidURI = TF.constructor(TS, Exception, "InvalidURI", TF.stringType(), "invalidUri");
 	public static final Type NoParent = TF.constructor(TS, Exception, "NoParent", TF.sourceLocationType(), "noParentUri");
-	public static final Type NameMismatch = TF.constructor(TS, Exception, "NameMismatch", TF.stringType(), "expectedName", TF.stringType(), "gotName");
-	public static final Type ArityMismatch = TF.constructor(TS, Exception, "ArityMismatch", TF.integerType(), "expectedArity", TF.integerType(), "gotArity");
+//	public static final Type NameMismatch = TF.constructor(TS, Exception, "NameMismatch", TF.stringType(), "expectedName", TF.stringType(), "gotName");
+//	public static final Type ArityMismatch = TF.constructor(TS, Exception, "ArityMismatch", TF.integerType(), "expectedArity", TF.integerType(), "gotArity");
 
 	public static final Type Java = TF.constructor(TS, Exception, "Java", TF.stringType(), "class", TF.stringType(), "message");
 	public static final Type JavaWithCause = TF.constructor(TS, Exception, "Java", TF.stringType(), "class", TF.stringType(), "message", Exception, "cause");
   
-	public static final Type Subversion = TF.constructor(TS, Exception, "Subversion", TF.stringType(), "message");
+//	public static final Type Subversion = TF.constructor(TS, Exception, "Subversion", TF.stringType(), "message");
 
 	public static final Type InvalidUseOfDate = TF.constructor(TS, Exception, "InvalidUseOfDate", TF.dateTimeType(), "msg");
 	public static final Type InvalidUseOfTime = TF.constructor(TS, Exception, "InvalidUseOfTime", TF.dateTimeType(), "msg");
@@ -79,7 +79,9 @@ public class RascalRuntimeException {
 
 	public static final Type NotImplemented = TF.constructor(TS, Exception, "NotImplemented", TF.stringType(), "message");
 	
-	
+	public static Thrown ambiguity(ISourceLocation loc, IString type, IString string, Frame currentFrame) {
+	  return Thrown.getInstance(VF.constructor(Ambiguity, loc, type, string), currentFrame);
+	}
 	
 	public static Thrown arithmeticException(String msg, Frame currentFrame) {
 		return Thrown.getInstance(VF.constructor(ArithmeticException, VF.string(msg)), currentFrame);
@@ -97,29 +99,49 @@ public class RascalRuntimeException {
 		return Thrown.getInstance(VF.constructor(EmptyList), currentFrame);
 	}
 	
+	public static Thrown emptyMap(Frame currentFrame) {
+	  return Thrown.getInstance(VF.constructor(EmptyMap), currentFrame);
+	}
+	
 	public static Thrown emptySet(Frame currentFrame) {
 		return Thrown.getInstance(VF.constructor(EmptySet), currentFrame);
 	}
-	
-	public static Thrown emptyMap(Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(EmptyMap), currentFrame);
-	}
-	
-	public static Thrown illegalArgument(Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(AnonymousIllegalArgument), currentFrame);	
-	}
-	
-	public static Thrown illegalArgument(IValue v, Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(IllegalArgument), currentFrame);	
-	}
-	
-	public static Thrown illegalArgument(IValue v, Frame currentFrame, String message) {
-		return Thrown.getInstance(VF.constructor(IllegalArgument, v, VF.string(message)), currentFrame);	
-	}
-	
+
 	public static Thrown indexOutOfBounds(IInteger i, Frame currentFrame) {
-    	return Thrown.getInstance(VF.constructor(IndexOutOfBounds, i), currentFrame);
+	  return Thrown.getInstance(VF.constructor(IndexOutOfBounds, i), currentFrame);
+	}
+	
+	public static Thrown invalidArgument(Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(AnonymousInvalidArgument), currentFrame);	
+	}
+	
+	public static Thrown invalidArgument(IValue v, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(InvalidArgument), currentFrame);	
+	}
+	
+	public static Thrown invalidArgument(IValue v, Frame currentFrame, String message) {
+		return Thrown.getInstance(VF.constructor(InvalidArgument, v, VF.string(message)), currentFrame);	
+	}
+	
+	public static Thrown invalidUseOfLocation(String msg, Frame currentFrame) {
+	  return Thrown.getInstance(VF.constructor(InvalidUseOfLocation, VF.string(msg)),  currentFrame);
+	}   
+
+	public static Thrown invalidURI(String uri, Frame currentFrame) {
+	  return Thrown.getInstance(VF.constructor(InvalidURI, VF.string(uri)), currentFrame);
+	}
+
+	public static Thrown invalidUseOfDate(String message, Frame currentFrame) {
+	  return Thrown.getInstance(VF.constructor(InvalidUseOfDate, VF.string(message)), currentFrame);
+	}
+	
+	public static Thrown invalidUseOfDateTime(String message, Frame currentFrame) {
+      return Thrown.getInstance(VF.constructor(InvalidUseOfDateTime, VF.string(message)),  currentFrame);
     }
+
+	public static Thrown invalidUseOfTime(String message, Frame currentFrame) {
+	  return Thrown.getInstance(VF.constructor(InvalidUseOfTime, VF.string(message)),  currentFrame);
+	}
 	
 	public static Thrown io(IString msg, Frame currentFrame) {
 		return Thrown.getInstance(VF.constructor(IO, msg), currentFrame);
@@ -193,34 +215,51 @@ public class RascalRuntimeException {
 //		return VF.sourceLocation(uri, offset, length, beginLine, endLine, beginCol, endCol);
 //    }
 	
-//	public static Thrown moduleNotFound(IString module, ISourceLocation loc, List<Frame> stacktrace) {
-//		return Thrown.getInstance(VF.constructor(ModuleNotFound, module), loc, stacktrace);
-//	}
-	
 	public static Thrown noMainFunction(Frame currentFrame) {
 		return Thrown.getInstance(VF.constructor(NoMainFunction), currentFrame);
 	}
 	
+	public static Thrown noParent(ISourceLocation noparentloc, Frame currentFrame) {
+	  return Thrown.getInstance(VF.constructor(NoParent, noparentloc), currentFrame);
+	}
+	
 	public static Thrown noSuchAnnotation(String label, Frame currentFrame) {
 		return Thrown.getInstance(VF.constructor(NoSuchAnnotation, VF.string(label)), currentFrame);
+	}
+	
+	public static Thrown noSuchField(String name, Frame currentFrame) {
+	  return Thrown.getInstance(VF.constructor(NoSuchField, VF.string(name)), currentFrame);
 	}
 
 	public static Thrown noSuchKey(IValue v, Frame currentFrame) {
 		return Thrown.getInstance(VF.constructor(NoSuchKey, v),  currentFrame);
 	}
 	
-	public static Thrown parseError(ISourceLocation parseloc, Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(ParseError, parseloc), currentFrame);
+	public static Thrown notImplemented(String msg, ISourceLocation loc, Frame currentFrame) {
+	  return Thrown.getInstance(VF.constructor(NotImplemented, VF.string(msg)), loc, currentFrame);
 	}
 	
-	public static Thrown ambiguity(ISourceLocation loc, IString type, IString string, Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(Ambiguity, loc, type, string), currentFrame);
+	public static Thrown parseError(ISourceLocation parseloc, Frame currentFrame) {
+		return Thrown.getInstance(VF.constructor(ParseError, parseloc), currentFrame);
 	}
 
 	public static Thrown parseError(ISourceLocation parseloc, IString nt, IString s, Frame currentFrame) {
 		return Thrown.getInstance(VF.constructor(Ambiguity, parseloc, nt, s), currentFrame);
 	}
 	
+	public static Thrown uninitializedVariable(String name, Frame currentFrame) {
+	  return Thrown.getInstance(VF.constructor(UninitializedVariable, VF.string(name)), currentFrame);
+	}
+
+	public static Thrown RegExpSyntaxError(String message, Frame currentFrame) {
+	  return Thrown.getInstance(VF.constructor(RegExpSyntaxError, VF.string(message)), currentFrame);
+	}
+
+	public static Thrown unavailableInformation(String message, Frame currentFrame){
+	  return Thrown.getInstance(VF.constructor(UnavailableInformation, VF.string(message)),  currentFrame);   
+	}
+
+// Obsolete:
 //	public static Thrown pathNotFound(ISourceLocation parseloc, ISourceLocation loc, List<Frame> stacktrace) {
 //		return Thrown.getInstance(VF.constructor(PathNotFound, parseloc), loc, stacktrace);
 //	}
@@ -260,26 +299,6 @@ public class RascalRuntimeException {
 //	public static Thrown implodeError(String msg, ISourceLocation loc, List<Frame> stacktrace) {
 //		return Thrown.getInstance(VF.constructor(ImplodeError, VF.string(msg)), loc, stacktrace);
 //	}
-
-	public static Thrown invalidUseOfLocation(String msg, Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(InvalidUseOfLocation, VF.string(msg)),  currentFrame);
-	}	
-	
-	public static Thrown invalidUseOfDateException(String message, Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(InvalidUseOfDate, VF.string(message)), currentFrame);
-	}
-	
-	public static Thrown invalidUseOfTimeException(String message, Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(InvalidUseOfTime, VF.string(message)),  currentFrame);
-	}
-	
-	public static Thrown invalidUseOfDateTimeException(String message, Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(InvalidUseOfDateTime, VF.string(message)),  currentFrame);
-	}
-	
-	public static Thrown malformedURI(String uri, Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(MalFormedURI, VF.string(uri)), currentFrame);
-	}
 	
 //	public static Thrown MultipleKey(IValue v, ISourceLocation loc, List<Frame> stacktrace) {
 //		return Thrown.getInstance(VF.constructor(MultipleKey, v), loc, stacktrace);
@@ -289,18 +308,10 @@ public class RascalRuntimeException {
 //		return Thrown.getInstance(VF.constructor(NameMismatch, VF.string(expected), VF.string(got)), loc, stacktrace);
 //	}
 	
-	public static Thrown noParent(ISourceLocation noparentloc, Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(NoParent, noparentloc), currentFrame);
-	}
-	
 //	public static Thrown noSuchElement(IValue v, ISourceLocation loc, List<Frame> stacktrace) {
 //		return Thrown.getInstance(VF.constructor(NoSuchElement,v), loc, stacktrace);	
 //	}
 
-	public static Thrown noSuchField(String name, Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(NoSuchField, VF.string(name)), currentFrame);
-	}
-	
 //	public static Thrown permissionDenied(ISourceLocation loc, List<Frame> stacktrace) {
 //		return Thrown.getInstance(VF.constructor(AnonymousPermissionDenied), loc, stacktrace);
 //	}
@@ -309,14 +320,9 @@ public class RascalRuntimeException {
 //		return Thrown.getInstance(VF.constructor(PermissionDenied, msg), loc, stacktrace);
 //	}
 	
-	public static Thrown notImplemented(String msg, ISourceLocation loc, Frame currentFrame) {
-    	return Thrown.getInstance(VF.constructor(NotImplemented, VF.string(msg)), loc, currentFrame);
-    }
+	
 
-	public static Thrown unavailableInformation(String message, Frame currentFrame){
-		return Thrown.getInstance(VF.constructor(UnavailableInformation, VF.string(message)),  currentFrame);	
-	}
-
+	
 //	public static Thrown schemeNotSupported(ISourceLocation file, ISourceLocation loc, List<Frame> stacktrace) {
 //		return Thrown.getInstance(VF.constructor(SchemeNotSupported, file), loc, stacktrace);
 //	}
@@ -325,11 +331,5 @@ public class RascalRuntimeException {
 //    	return Thrown.getInstance(VF.constructor(Timeout), loc, stacktrace);
 //    }
 	
-	public static Thrown uninitializedVariable(String name, Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(UninitializedVariable, VF.string(name)), currentFrame);
-	}
 	
-	public static Thrown RegExpSyntaxError(String message, Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(RegExpSyntaxError, VF.string(message)), currentFrame);
-	}
 }

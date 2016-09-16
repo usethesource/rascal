@@ -20,8 +20,12 @@ import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.lang.json.io.JSONReadingTypeVisitor;
+import org.rascalmpl.library.lang.json.io.JsonValueReader;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -31,6 +35,7 @@ import org.rascalmpl.value.type.TypeStore;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonReader;
 import com.ibm.icu.text.DateFormat;
 
 /*
@@ -47,7 +52,27 @@ public class IOCompiled extends IO {
 		this.values = values;
 		this.tr = new TypeReifier(values);
 	}
-
+	
+	public IValue readJSON(IValue type, ISourceLocation loc, IBool implicitConstructors, IBool implicitNodes, IString dateTimeFormat) {
+      TypeStore store = new TypeStore();
+      Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
+      
+      try {
+        return new JsonValueReader(values, store)
+            .setImplicitConstructors(implicitConstructors.getValue())
+            .setImplicitNodes(implicitNodes.getValue())
+            .setCalendarFormat(dateTimeFormat.getValue())
+            .read(new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc)), start);
+      }
+      catch (IOException e) {
+        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+      }
+      catch (NullPointerException e) {
+        e.printStackTrace();
+        throw RuntimeExceptionFactory.io(values.string("NPE"), null, null);
+      }
+    }
+	
 	public IValue fromJSON(IValue type, IString src, RascalExecutionContext rex) {
 		TypeStore store = new TypeStore();
 		

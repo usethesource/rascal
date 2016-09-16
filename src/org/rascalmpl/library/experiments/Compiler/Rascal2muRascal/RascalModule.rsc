@@ -41,7 +41,7 @@ import experiments::Compiler::Rascal2muRascal::RascalExpression;
 /********************************************************************/
 
 @doc{Compile a parsed Rascal source module to muRascal}
-MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true, bool optimize = true, bool enableAsserts=false){
+MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = true, bool optimize = true, bool enableAsserts=false){
    try {
       resetModuleInfo(optimize, enableAsserts);
       module_name = "<M.header.name>";
@@ -97,7 +97,8 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  	| tuple[str name, Symbol funType, str scopeIn, list[int] fuids] of <- getOverloadedFunctions() 
    	  	];  
    	  
-   	  return muModule(modName,
+   	  return relocMuModule(
+   	            muModule(modName,
    	  				  getModuleTags(),
    	                  config.messages, 
    	  				  getImportsInModule(),
@@ -112,7 +113,9 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  				  overloaded_functions, 
    	  				  getGrammar(),
    	  				  {<prettyPrintName(rn1), prettyPrintName(rn2)> | <rn1, rn2> <- config.importGraph},
-   	  				  M@\loc);
+   	  				  M@\loc),
+   	  				  reloc,
+   	  				  pcfg.srcs);
 
    }
    catch ParseError(loc l): {
@@ -127,6 +130,33 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	   resetScopeExtraction();
    }
    throw "r2mu: cannot come here!";
+}
+
+loc relocLoc(loc org, loc reloc, list[loc] srcs){
+    for(src <- srcs){
+        opath = org.path;
+        if(startsWith(opath, src.path)){
+           npath = opath[size(src.path) .. ];
+           return org.offset? ? (reloc + npath)[offset=org.offset][length=org.length][begin=org.begin][end=org.end]
+                                 : reloc + npath;
+        }
+    }
+    println("Not relocated: <org>");
+    return org;
+}
+
+MuModule relocMuModule(MuModule m, loc reloc, list[loc] srcs){
+    if(reloc.scheme == "noreloc"){
+        return m;
+    }
+    return
+        visit(m){ 
+        case muOCall3(MuExp fun, list[MuExp] largs, loc src)    => muOCall3(fun, largs, relocLoc(src, reloc, srcs))
+        case muOCall4(MuExp fun, Symbol types, list[MuExp] largs, loc src)
+                                                                => muOCall4(fun, types, largs, relocLoc(src, reloc, srcs))
+        case muCallPrim2(str name, loc src)                     => muCallPrim2(name, relocLoc(src, reloc, srcs))                
+        case muCallPrim3(str name, list[MuExp] exps, loc src)   => muCallPrim3(name, exps, relocLoc(src, reloc, srcs))
+        };                                   
 }
 
 void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true){

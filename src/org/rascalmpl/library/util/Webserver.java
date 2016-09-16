@@ -1,19 +1,32 @@
 package org.rascalmpl.library.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.StringReader;
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.lang.json.io.JsonValueReader;
+import org.rascalmpl.library.lang.json.io.JsonValueWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IMapWriter;
@@ -21,21 +34,30 @@ import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
+
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoHTTPD.Method;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 public class Webserver {
   private final IValueFactory vf;
   private final Map<ISourceLocation, NanoHTTPD> servers;
-  private final Map<Method,IConstructor> methodValues = new HashMap<>();
   private final Map<IConstructor,Status> statusValues = new HashMap<>();
-  private final TypeFactory tf = TypeFactory.getInstance();
-  private final Type stringMap = tf.mapType(tf.stringType(), tf.stringType());
-  private final Type[] argTypes = new Type[] { tf.sourceLocationType(), null, stringMap, stringMap, stringMap };
+  private Type requestType;
+  private Type post;
+  private Type get;
+  private Type head;
+  private Type delete;
+  private Type put;
+  private Type functionType;
+  
   
   public Webserver(IValueFactory vf) {
     this.vf = vf;
@@ -43,7 +65,9 @@ public class Webserver {
   }
 
   public void serve(ISourceLocation url, final IValue callback, final IEvaluatorContext ctx) {
-        URI uri = url.getURI();
+    URI uri = url.getURI();
+    initMethodAndStatusValues(ctx);
+
     int port = uri.getPort() != -1 ? uri.getPort() : 80;
     String host = uri.getHost() != null ? uri.getHost() : "localhost";
     host = host.equals("localhost") ? "127.0.0.1" : host; // NanoHttp tries to resolve localhost, which isn't what we want!
@@ -51,45 +75,149 @@ public class Webserver {
     
     NanoHTTPD server = new NanoHTTPD(host, port) {
       
-
       @Override
       public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms,
           Map<String, String> files) {
-        IConstructor methodVal = makeMethod(method);
-        IMap headersVal = makeMap(headers);
-        IMap paramsVal= makeMap(parms);
-        IMap filesVal= makeMap(files);
-        ISourceLocation loc = vf.sourceLocation(URIUtil.assumeCorrect("request", "", uri));
         try {
+          IConstructor request = makeRequest(uri, method, headers, parms, files);
+          
           synchronized (callee.getEval()) {
             callee.getEval().__setInterrupt(false);
-            Result<IValue> response = callee.call(argTypes, new IValue[] { loc, methodVal, headersVal, paramsVal, filesVal }, null);
-            return translateResponse(method, response.getValue());  
+            return translateResponse(method, callee.call(new Type[] {requestType}, new IValue[] { request }, null).getValue());  
           }
         }
         catch (Throw rascalException) {
           ctx.getStdErr().println(rascalException.getMessage());
-          return new Response(Status.INTERNAL_ERROR, "text/plain", rascalException.getMessage());
+          return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, rascalException.getMessage());
         }
         catch (Throwable unexpected) {
           ctx.getStdErr().println(unexpected.getMessage());
           unexpected.printStackTrace(ctx.getStdErr());
-          return new Response(Status.INTERNAL_ERROR, "text/plain", unexpected.getMessage());
+          return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, unexpected.getMessage());
         }
       }
 
-      private Response translateResponse(Method method, IValue value) {
+      private IConstructor makeRequest(String path, Method method, Map<String, String> headers,
+          Map<String, String> parms, Map<String, String> files) throws FactTypeUseException, IOException {
+        Map<String,IValue> kws = new HashMap<>();
+        kws.put("params", makeMap(parms));
+        kws.put("uploads", makeMap(files));
+        kws.put("headers", makeMap(headers));
+        
+        switch (method) {
+          case HEAD:
+            return vf.constructor(head, vf.string(path));
+          case DELETE:
+            return vf.constructor(delete, vf.string(path));
+          case GET:
+            return vf.constructor(get, vf.string(path));
+          case PUT:
+            return vf.constructor(put, vf.string(path), getContent(parms));
+          case POST:
+            return vf.constructor(post, vf.string(path), getContent(parms));
+          default:
+              throw new IOException("Unhandled request " + method);
+        }
+      }
+
+      // TODO: this is highly interpreter dependent and must be reconsidered for the compiler version
+      protected IValue getContent(Map<String, String> parms) throws IOException {
+          return new AbstractFunction(ctx.getCurrentAST(), ctx.getEvaluator(), (FunctionType) functionType, Collections.<KeywordFormal>emptyList(), false, ctx.getCurrentEnvt()) {
+            
+            @Override
+            public boolean isStatic() {
+              return false;
+            }
+            
+            @Override
+            public ICallableValue cloneInto(Environment env) {
+              // this can not happen because the function is not present in an environment
+              return null;
+            }
+            
+            @Override
+            public boolean isDefault() {
+              return false;
+            }
+            
+            public org.rascalmpl.interpreter.result.Result<IValue> call(Type[] argTypes, IValue[] argValues, java.util.Map<String,IValue> keyArgValues) {
+              try {
+                TypeStore store = new TypeStore();
+                Type topType = new TypeReifier(vf).valueToType((IConstructor) argValues[0], store);
+                
+                if (topType.isString()) {
+                  return ResultFactory.makeResult(getTypeFactory().stringType(), vf.string(parms.get("content")), ctx);
+                }
+                else {
+                  IValue dtf = keyArgValues.get("dateTimeFormat");
+                  IValue ics = keyArgValues.get("implicitConstructors");
+                  IValue icn = keyArgValues.get("implicitNodes");
+                  
+                  return ResultFactory.makeResult(getTypeFactory().valueType(), new JsonValueReader(vf, store)
+                      .setCalendarFormat((dtf != null) ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+                      .setImplicitConstructors((ics != null) ? ((IBool) ics).getValue() : true)
+                      .setImplicitNodes((icn != null) ? ((IBool) icn).getValue() : true)
+                      .read(new JsonReader(new StringReader(parms.get("NanoHttpd.QUERY_STRING"))), topType), ctx);
+                }
+              } catch (IOException e) {
+                throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), getAst(), getEval().getStackTrace());
+              }
+            };
+          };
+      }
+
+      private Response translateResponse(Method method, IValue value) throws IOException {
         IConstructor cons = (IConstructor) value;
         initMethodAndStatusValues(ctx);
         
-        if (cons.getName().equals("fileResponse")) {
-          return translateFileResponse(method, cons);
-        }
-        else {
-          return translateTextResponse(method, cons);
+        switch (cons.getName()) {
+          case "fileResponse":
+            return translateFileResponse(method, cons);
+          case "jsonResponse":
+            return translateJsonResponse(method, cons);
+          case "response":
+            return translateTextResponse(method, cons);
+          default:
+            throw new IOException("Unknown response kind: " + value);
         }
       }
       
+      private Response translateJsonResponse(Method method, IConstructor cons) {
+        IMap header = (IMap) cons.get("header");
+        IValue data = cons.get("val");
+        Status status = translateStatus((IConstructor) cons.get("status"));
+        IWithKeywordParameters<? extends IConstructor> kws = cons.asWithKeywordParameters();
+        
+        IValue dtf = kws.getParameter("dateTimeFormat");
+        IValue ics = kws.getParameter("implicitConstructors");
+        IValue ipn = kws.getParameter("implicitNodes");
+        IValue dai = kws.getParameter("dateTimeAsInt");
+        
+        JsonValueWriter writer = new JsonValueWriter()
+            .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+            .setImplicitConstructors(ics != null ? ((IBool) ics).getValue() : true)
+            .setImplicitNodes(ipn != null ? ((IBool) ipn).getValue() : true)
+            .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true);
+
+        try {
+          final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+          
+          JsonWriter out = new JsonWriter(new OutputStreamWriter(baos, Charset.forName("UTF8")));
+          
+          writer.write(out, data);
+          out.flush();
+          out.close();
+          
+          Response response = newFixedLengthResponse(status, "application/json", new ByteArrayInputStream(baos.toByteArray()), baos.size());
+          addHeaders(response, header);
+          return response;
+        }
+        catch (IOException e) {
+          // this should not happen in theory
+          throw new RuntimeException("Could not create piped inputstream");
+        }
+      }
+
       private Response translateFileResponse(Method method, IConstructor cons) {
         ISourceLocation l = (ISourceLocation) cons.get("file");
         IString mimeType = (IString) cons.get("mimeType");
@@ -97,12 +225,12 @@ public class Webserver {
         
         Response response;
         try {
-          response = new Response(Status.OK, mimeType.getValue(),URIResolverRegistry.getInstance().getInputStream(l));
+          response = newChunkedResponse(Status.OK, mimeType.getValue(), URIResolverRegistry.getInstance().getInputStream(l));
           addHeaders(response, header);
           return response;
         } catch (IOException e) {
           e.printStackTrace(ctx.getStdErr());
-          return new Response(Status.NOT_FOUND, "text/plain", l + " not found.\n" + e);
+          return newFixedLengthResponse(Status.NOT_FOUND, "text/plain", l + " not found.\n" + e);
         } 
       }
 
@@ -127,7 +255,7 @@ public class Webserver {
             break;
           }
         }
-        Response response = new Response(status, mimeType.getValue(), data.getValue());
+        Response response = newFixedLengthResponse(status, mimeType.getValue(), data.getValue());
         addHeaders(response, header);
         return response;
       }
@@ -156,18 +284,12 @@ public class Webserver {
         }
         return writer.done();
       }
-
-      private IConstructor makeMethod(Method method) {
-        initMethodAndStatusValues(ctx);
-        return methodValues.get(method);
-      }
     };
-    servers.put(url, server);
-    
+   
     try {
       server.start();
+      servers.put(url, server);
     } catch (IOException e) {
-    	System.err.println("laat zien: " + e);
       throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
     }
   }
@@ -175,10 +297,10 @@ public class Webserver {
   public void shutdown(ISourceLocation server) {
     NanoHTTPD nano = servers.get(server);
     if (nano != null) {
-      if (nano.isAlive()) {
+      //if (nano.isAlive()) {
         nano.stop();
         servers.remove(server);
-      }
+      //}
     }
     else {
       throw RuntimeExceptionFactory.illegalArgument(server, null, null, "could not shutdown");
@@ -195,16 +317,9 @@ public class Webserver {
   }
 
   private void initMethodAndStatusValues(final IEvaluatorContext ctx) {
-    if (methodValues.isEmpty() || statusValues.isEmpty()) {
+    if (statusValues.isEmpty() || requestType == null) {
       Environment env = ctx.getHeap().getModule("util::Webserver");
-      Type methodType = env.getAbstractDataType("Method");
       TypeFactory tf = TypeFactory.getInstance();
-      methodValues.put(Method.DELETE, vf.constructor(env.getConstructor(methodType, "delete", tf.voidType())));
-      methodValues.put(Method.GET, vf.constructor(env.getConstructor(methodType, "get", tf.voidType())));
-      methodValues.put(Method.HEAD, vf.constructor(env.getConstructor(methodType, "head", tf.voidType())));
-      methodValues.put(Method.POST, vf.constructor(env.getConstructor(methodType, "post", tf.voidType())));
-      methodValues.put(Method.PUT, vf.constructor(env.getConstructor(methodType, "put", tf.voidType())));
-      
       Type statusType = env.getAbstractDataType("Status");
                         
       statusValues.put(vf.constructor(env.getConstructor(statusType, "ok", tf.voidType())), Status.OK);
@@ -220,8 +335,17 @@ public class Webserver {
       statusValues.put(vf.constructor(env.getConstructor(statusType, "notFound", tf.voidType())), Status.NOT_FOUND);
       statusValues.put(vf.constructor(env.getConstructor(statusType, "rangeNotSatisfiable", tf.voidType())), Status.RANGE_NOT_SATISFIABLE);
       statusValues.put(vf.constructor(env.getConstructor(statusType, "internalError", tf.voidType())), Status.INTERNAL_ERROR);
-      // yes, we acknowledge our sins
-      argTypes[1] = methodType;
+      
+      requestType = env.getAbstractDataType("Request");
+      
+      RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+      functionType = rtf.functionType(tf.valueType(), tf.tupleType(rtf.reifiedType(tf.valueType())), tf.voidType());
+          
+      get = env.getConstructor(requestType, "get", tf.tupleType(tf.stringType()));
+      put = env.getConstructor(requestType, "put",  tf.tupleType(tf.stringType(), functionType));
+      post = env.getConstructor(requestType, "post",  tf.tupleType(tf.stringType(), functionType));
+      delete = env.getConstructor(requestType, "delete",  tf.tupleType(tf.stringType()));
+      head = env.getConstructor(requestType, "head",  tf.tupleType(tf.stringType()));
     }
   }
 }

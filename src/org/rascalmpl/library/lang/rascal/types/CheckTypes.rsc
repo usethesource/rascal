@@ -6717,6 +6717,13 @@ public Configuration loadConfigurationTypes(Configuration c, Configuration d, RN
 					for (at <- ats) {
 						c = addADT(c, name, itemVis, at, rtype, kpList);
 					}
+					// Copy type information for keyword defaults
+					for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
+						defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
+						for (l <- defaultLocations, l notin c.locationTypes) {
+							c.locationTypes[l] = d.locationTypes[l];
+						}
+					}
 					loadedIds = loadedIds + itemId;
 				}
 				
@@ -6812,6 +6819,14 @@ public Configuration loadConfigurationCons(Configuration c, Configuration d, RNa
 					//println("Loading constructor <prettyPrintName(name)> from module <prettyPrintName(mName)>");
 					kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
 					c = addConstructor(c, name, at, rtype, kpList);
+					// Copy type information for keyword defaults
+					for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
+						defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
+						for (l <- defaultLocations, l notin c.locationTypes) {
+							c.locationTypes[l] = d.locationTypes[l];
+						}
+					}
+					
 					loadedIds = loadedIds + itemId;
 				}
 				
@@ -6917,6 +6932,13 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 					for (at <- ats) {
 						c = addADT(c, name, itemVis, at, rtype, kpList, updateType=updateTypes);
 					}
+					// Copy type information for keyword defaults
+					for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
+						defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
+						for (l <- defaultLocations, l notin c.locationTypes) {
+							c.locationTypes[l] = d.locationTypes[l];
+						}
+					}
 					loadedIds = loadedIds + itemId;
 				}
 				
@@ -6930,6 +6952,13 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) : {
 					kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
 					c = addConstructor(c, name, at, rtype, kpList);
+					// Copy type information for keyword defaults
+					for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
+						defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
+						for (l <- defaultLocations, l notin c.locationTypes) {
+							c.locationTypes[l] = d.locationTypes[l];
+						}
+					}					
 					loadedIds = loadedIds + itemId;
 				}
 				
@@ -6966,6 +6995,13 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 			for (at <- ats) {
 				c = addADT(c, name, itemVis, at, rtype, kpList, registerName = false);
 			}
+			// Copy type information for keyword defaults
+			for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
+				defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
+				for (l <- defaultLocations, l notin c.locationTypes) {
+					c.locationTypes[l] = d.locationTypes[l];
+				}
+			}			
 			loadedIds = loadedIds + itemId;
 		}
 	}
@@ -6975,6 +7011,13 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 		if (constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) := av) {
 			kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
 			c = addConstructor(c, name, at, rtype, kpList, registerName = false);
+			// Copy type information for keyword defaults
+			for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
+				defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
+				for (l <- defaultLocations, l notin c.locationTypes) {
+					c.locationTypes[l] = d.locationTypes[l];
+				}
+			}			
 			loadedIds = loadedIds + itemId;
 		}
 	}

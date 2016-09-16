@@ -36,7 +36,7 @@ Maps resemble functions rather than relations in the sense that only a single va
 
 The following functions are provided for maps:
 
-subtoc::[1]
+loctoc::[1]
 
 .Examples
 [source,rascal-shell]

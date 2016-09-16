@@ -1,13 +1,12 @@
 # Type
 
 .Synopsis
-
 A question about a Rascal type.
 
 .Syntax
 
-*  `QType $OptName$ : $TypeDescriptor$`
-*  `QType $OptName$ : $QSteps$ $Test$ $Listing$`
+*  `QType _OptName_ : _TypeDescriptor_`
+*  `QType _OptName_ : _QSteps_ _Test_ _Listing_`
 
 .Types
 
@@ -30,7 +29,7 @@ The second form allows more preparatory steps and also allows adding a listing t
 .Examples
 See the effect of the following type questions in the Questions section below.
 
-#####  Question 1 
+##  Question 1 
 
 The following question can be paraphrased as: _I give you an arbitrary set of integers, what is its type?_
 [source,rascal]
@@ -38,7 +37,7 @@ The following question can be paraphrased as: _I give you an arbitrary set of in
 QType: <A:set[int]>
 ----
 
-#####  Question 2 
+##  Question 2 
 
 
 The following question can be paraphrased as: _I give you an addition of a set of integers, strings or reals and another set of the same type; what is the type of the result?_

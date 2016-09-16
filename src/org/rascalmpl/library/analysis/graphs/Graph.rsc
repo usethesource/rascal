@@ -21,7 +21,7 @@ The Graph data type is a binary relation and all operators and functions defined
 on link:/Rascal#Values-Relation[relations] are also defined on Graphs.
 
 The `Graph` library provides the following functions:
-subtoc::[1]
+loctoc::[1]
 }
 module analysis::graphs::Graph
 

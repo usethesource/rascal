@@ -9,11 +9,9 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -31,58 +29,74 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.rascalmpl.library.experiments.tutor3.Concept;
 import org.rascalmpl.library.experiments.tutor3.Onthology;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
 
 public class HelpManager {
 	
-	private URI coursesDir;
+	private ISourceLocation coursesDir;
 	private final int maxSearch = 25;
 	private final PrintWriter stdout;
 	private final PrintWriter stderr;
 	private IndexSearcher indexSearcher;
 	private final int port = 8000;
+    private HelpServer helpServer;
 
-	public HelpManager(PrintWriter stdout, PrintWriter stderr){
-		this.stdout = stdout;
-		this.stderr = stderr;
- 
-		URL c = this.getClass().getResource("/courses");
-		if(c == null){
-			stderr.println("Cannot find deployed (precompiled) courses");
-		} else {
-			try {
-				coursesDir = c.toURI();
-			} catch (URISyntaxException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+    public HelpManager(ISourceLocation binDir, PrintWriter stdout, PrintWriter stderr){
+      this.stdout = stdout;
+      this.stderr = stderr;
+     
+      coursesDir = URIUtil.correctLocation(binDir.getScheme(), binDir.getAuthority(), binDir.getPath() + "/courses");
 
-			try {
-				new HelpServer(port, this, Paths.get(coursesDir));
-				indexSearcher = makeIndexSearcher();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+      try {
+        helpServer = new HelpServer(getPort(), this, coursesDir);
+        indexSearcher = makeIndexSearcher();
+      } catch (IOException e) {
+        System.err.println("HelpManager: " + e.getMessage());
+      }
+    }
+	
+	Path copyToTmp(ISourceLocation fromDir) throws IOException{
+	  Path targetDir = Files.createTempDirectory(URIUtil.getLocationName(fromDir));
+	  targetDir.toFile().deleteOnExit();
+	  URIResolverRegistry reg = URIResolverRegistry.getInstance();
+	  for(ISourceLocation file : reg.list(fromDir)){
+	    if(!reg.isDirectory(file)){
+	      String p = file.getPath();
+	      int n = p.lastIndexOf("/");
+	      String fileName = n >= 0 ? p.substring(n+1) : p;
+	      // Only copy _* (index files) and segments* (defines number of segments)
+	      if(fileName.startsWith("_") || fileName.startsWith("segments")){
+	        Path targetFile = targetDir.resolve(fileName);
+	        //System.out.println("copy " + file + " to " + toDir.resolve(fileName));
+	        Files.copy(reg.getInputStream(file), targetFile); 
+	        targetFile.toFile().deleteOnExit();
+	      }
+	    }
+	  }
+	  return targetDir;
 	}
 	
 	private ArrayList<IndexReader> getReaders() throws IOException{
-		if(coursesDir.getScheme().equals("file")){
-			Path destDir = Paths.get(coursesDir);
-			ArrayList<IndexReader> readers = new ArrayList<>();
-			for(Path p : Files.newDirectoryStream(destDir)){
-				if(Files.isDirectory(p) && p.getFileName().toString().matches("^[A-Z].*")){
-					Directory directory = FSDirectory.open(p);
-					DirectoryReader ireader = DirectoryReader.open(directory);
-					readers.add(ireader);
-				}
-			}
-			return readers;
-		}
-		throw new IOException("Cannot yet handle non-file coursesDir");
+	  ArrayList<IndexReader> readers = new ArrayList<>();
+	  URIResolverRegistry reg = URIResolverRegistry.getInstance();
+	  for(ISourceLocation p : reg.list(coursesDir)){
+	    if(reg.isDirectory(p) && URIUtil.getLocationName(p).toString().matches("^[A-Z].*")){
+	      Path p1 = copyToTmp(p);
+	      Directory directory = FSDirectory.open(p1);
+	      try {
+	        DirectoryReader ireader = DirectoryReader.open(directory);
+	        readers.add(ireader);
+	      } catch (IOException e){
+	        stderr.println("Skipping index " + directory);
+	      }
+	    }
+	  }
+	  return readers;
 	}
 	
-	IndexSearcher makeIndexSearcher() throws IOException{
+	IndexSearcher makeIndexSearcher() throws IOException {
 		ArrayList<IndexReader> readers = getReaders();
 
 		IndexReader[] ireaders = new IndexReader[readers.size()];
@@ -130,7 +144,7 @@ public class HelpManager {
 	
 	void appendHyperlink(StringWriter w, String conceptName){
 		w.append("<a href=\"http://localhost:");
-		w.append(String.valueOf(port));
+		w.append(String.valueOf(getPort()));
 		appendURL(w, conceptName);
 		w.append("\">").append(conceptName).append("</a>");
 	}
@@ -151,11 +165,11 @@ public class HelpManager {
 			if(i < words.length - 1) w.append(" ");
 		}
 		String encoded = URLEncoder.encode(w.toString(), "UTF-8");
-		return new URI("http", "localhost:" + port + "/Search?searchFor=" + encoded, null);
+		return new URI("http", "localhost:" + getPort() + "/Search?searchFor=" + encoded, null);
 	}
 	
 	public void handleHelp(String[] words){
-		if(words[0].equals("help")){
+		if(words[0].equals("help") && words.length > 1){
 			try {
 				openInBrowser(makeSearchURI(words));
 			} catch (URISyntaxException e) {
@@ -227,6 +241,7 @@ public class HelpManager {
 		w.append("</head>\n");
 		w.append("<body class=\"book toc2 toc-left\">");
 		
+		w.append(Concept.getHomeLink());
 		w.append(Concept.getSearchForm());
 		
 		w.append("<div id=\"toc\" class=\"toc2\">");
@@ -297,4 +312,9 @@ public class HelpManager {
 		}
 		return w.toString();
 	}
+
+  public int getPort() {
+    return port;
+  }
+
 }

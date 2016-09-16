@@ -3,19 +3,22 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Map;
+
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 public class HelpServer extends NanoHTTPD {
 
-	private final Path root;
+	private final ISourceLocation root;
 	private final HelpManager helpManager;
 
-	public HelpServer(int port, HelpManager helpManager, Path root) throws IOException {
+	public HelpServer(int port, HelpManager helpManager, ISourceLocation root) throws IOException {
 		super(port);
 		start();
 		this.helpManager = helpManager;
@@ -24,23 +27,44 @@ public class HelpServer extends NanoHTTPD {
 
 	@Override
 	public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms, Map<String, String> files) {
-		Response response;
-		
-		if(uri.startsWith("/Search")){
-			try {
-				String[] words = ("help " + URLDecoder.decode(parms.get("searchFor"), "UTF-8")).split(" ");
-				return new Response(Status.OK, "text/html", helpManager.giveHelp(words));
-			} catch (UnsupportedEncodingException e) {
-				return new Response(Status.OK, "text/plain", e.getStackTrace().toString());
-			}
-		}
-		try {
-			response = new Response(Status.OK, getMimeType(uri), Files.newInputStream(root.resolve(normalize(uri))));
-			addHeaders(response, uri, headers);
-			return response;
-		} catch (IOException e) {			
-			return new Response(Status.NOT_FOUND, "text/plain", uri + " not found.\n" + e);
-		}
+	  Response response;
+	
+	  if(uri.startsWith("/Search")){
+	    try {
+	      String[] words = ("help " + URLDecoder.decode(parms.get("searchFor"), "UTF-8")).split(" ");
+	      return newFixedLengthResponse(Status.OK, "text/html", helpManager.giveHelp(words));
+	    } catch (UnsupportedEncodingException e) {
+	      return newFixedLengthResponse(Status.OK, "text/plain", e.getStackTrace().toString());
+	    }
+	  }
+	  if(uri.startsWith("/Validate")){
+	    try {
+	      if(parms.get("listing") == null || parms.get("question") == null || parms.get("hole0") == null){
+	        newFixedLengthResponse(Status.NOT_FOUND, "text/plain", "missing listing, question or hole0 parameter");
+	      }
+	      String listing = URLDecoder.decode(parms.get("listing"), "UTF-8");
+	      String question = URLDecoder.decode(parms.get("question"), "UTF-8");
+
+	      ArrayList<String> holes = new ArrayList<>();
+	      for(int i = 0; parms.containsKey("hole" + i); i++){
+	        holes.add(URLDecoder.decode(parms.get("hole" + i), "UTF-8"));
+	      }
+
+	      return newFixedLengthResponse(Status.OK, "text/html", listing + "\n" + question + "\n" + holes);
+
+	    } catch (UnsupportedEncodingException e) {
+	      // TODO Auto-generated catch block
+	      e.printStackTrace();
+	    }
+	  }
+	  try {
+	    ISourceLocation requestedItem = URIUtil.correctLocation(root.getScheme(), root.getAuthority(), root.getPath() + "/" + normalize(uri));
+	    response = newChunkedResponse(Status.OK, getMimeType(uri), URIResolverRegistry.getInstance().getInputStream(requestedItem));
+	    addHeaders(response, uri, headers);
+	    return response;
+	  } catch (IOException e) {			
+	    return newFixedLengthResponse(Status.NOT_FOUND, "text/plain", uri + " not found.\n" + e);
+	  }
 	}
 	
 	String getExtension(String uri){

@@ -7,4 +7,4 @@ int main(){
     return fib(30);
 }
 
-bool testFib() = fib(25) == 75025;
+test bool testFib() = fib(25) == 75025;

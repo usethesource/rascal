@@ -1,11 +1,14 @@
 # Pitfalls
 
 .Synopsis
-
 Comprehensive list of known shortcomings or usage problems of the concept.
 
 .Syntax
-`Pitfalls:  _MarkedText_`
+[source,subs="verbatim,quotes"]
+----
+.Pitfalls
+_MarkedText_
+----
 
 .Types
 

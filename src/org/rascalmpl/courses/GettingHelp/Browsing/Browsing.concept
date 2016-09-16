@@ -24,7 +24,8 @@ Each result consists of a clickable link and
 a synopsis of the information to be found there.
 
 In the top left corner, you find a search box
-for new searches.
+for new searches and the RascalTutor logo image:/images/rascal-tutor-small.png[width="40",heigth="40"] that
+will bring you back to the Tutor home page.
 
 All Rascal documentation is organized
 in _courses_, each course consist of

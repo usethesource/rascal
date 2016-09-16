@@ -359,20 +359,31 @@ value rascalTests(list[str] qualifiedModuleNames, PathConfig pcfg,
    return printTestReport(all_test_results, exceptions) && executables_available;
 }
 
-RVMProgram compileAndLink(str qualifiedModuleName, list[loc] srcs, list[loc] libs, loc boot, loc bin,  
+RVMProgram compileAndLink(str qualifiedModuleName, list[loc] srcs, list[loc] libs, loc boot, loc bin,
                           bool jvm=true, bool verbose = false){
     return compileAndLink(qualifiedModuleName, pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin), jvm=jvm, verbose=verbose);
 }
 
-list[RVMProgram] compileAndLink(list[str] qualifiedModuleNames, list[loc] srcs, list[loc] libs, loc boot, loc bin,  
+RVMProgram compileAndLink(str qualifiedModuleName, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc,
+                          bool jvm=true, bool verbose = false){
+    return compileAndLink(qualifiedModuleName, pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin), reloc=reloc, jvm=jvm, verbose=verbose);
+}
+
+list[RVMProgram] compileAndLink(list[str] qualifiedModuleNames, list[loc] srcs, list[loc] libs, loc boot, loc bin,
                           bool jvm=true, bool verbose = false){
     pcfg = pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin);
     return [ compileAndLink(qualifiedModuleName, pcfg, jvm=jvm, verbose=verbose) | qualifiedModuleName <- qualifiedModuleNames ];        
+} 
+
+list[RVMProgram] compileAndLink(list[str] qualifiedModuleNames, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc,
+                          bool jvm=true, bool verbose = false){
+    pcfg = pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin);
+    return [ compileAndLink(qualifiedModuleName, pcfg, reloc=reloc, jvm=jvm, verbose=verbose) | qualifiedModuleName <- qualifiedModuleNames ];        
 }                          
 
-RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, bool jvm=true, bool verbose = false, bool optimize=true){
+RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, loc reloc=|noreloc:///|, bool jvm=true, bool verbose = false, bool optimize=true){
    startTime = cpuTime();
-   mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose, optimize=optimize);
+   mainModule = compile(qualifiedModuleName, pcfg, reloc=reloc, verbose=verbose, optimize=optimize);
    if(verbose) println("Compiling: <(cpuTime() - startTime)/1000000> ms");
    start_linking = cpuTime();   
    merged = mergeImports(mainModule, pcfg, verbose=verbose, jvm=jvm);

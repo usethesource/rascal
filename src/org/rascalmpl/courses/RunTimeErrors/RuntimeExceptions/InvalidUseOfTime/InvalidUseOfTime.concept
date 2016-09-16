@@ -1,0 +1,11 @@
+# Invalid Use Of Time
+
+.Synopsis
+Invalid use of a time value at runtime
+
+
+.Types
+`data RuntimeException = InvalidUseOfTime(str message);`
+       
+.Usage
+`import Exception;` (only needed when `InvalidUseOfTime` is used in `catch`)

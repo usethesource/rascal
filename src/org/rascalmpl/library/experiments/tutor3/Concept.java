@@ -9,6 +9,8 @@ import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.ExecutionException;
+
 public class Concept {
 	private final Path name;
 	private String text = null;
@@ -17,21 +19,21 @@ public class Concept {
 	private String title;
 	private String synopsis;
 	private String index;
-	private Path libPath;
+	private Path libSrcPath;
 
-	public Concept(Path name, String text, Path destPath, Path libPath, boolean remote){
+	public Concept(Path name, String text, Path destPath, Path libSrcPath, boolean remote){
 		this.name = name;
 		this.text = text;
 		this.destPath = destPath;
-		this.libPath = libPath;
+		this.libSrcPath = libSrcPath;
 		this.remote = remote;
 		title = extract(titlePat);
 		synopsis = extractSynopsis();
 		index = extractIndex();
 	}
 	
-	public Concept(Path name, String text, Path destDir, Path libPath){
-		this(name, text, destDir, libPath, false);
+	public Concept(Path name, String text, Path destDir, Path libSrcPath){
+		this(name, text, destDir, libSrcPath, false);
 	}
 	
 	public Path getName(){
@@ -127,6 +129,7 @@ public class Concept {
 		//":iconfont-name: font-awesome.min\n" +
 		":images:       ../images/\n" +
 		":table-caption!:\n" +
+		":prewrap!:\n" +
 		":docinfo1:\n";
 	
 	public static String getSearchForm(){
@@ -137,9 +140,23 @@ public class Concept {
 		"</form>\n";
 	}
 	
+	public static String getHomeLink(){
+	  return "<a href=\"/TutorHome/index.html\"><img id=\"home\" src=\"/images/rascal-tutor-small.png\", alt=\"RascalTutor\" width=\"64\" height=\"64\"></a>";
+	}
+	
 	private final String prompt = "rascal>"; //  "+++<span class=\"prompt\" data-value=\"rascal>\"></span>::after+++";
 	private final String continuation = ">>>>>>>"; //"<i class=\"continuation\">::before</i>";
 	
+	   
+    private String makeRed(String result){
+      StringWriter sw = new StringWriter(result.length()+5);
+      result.split("\n");
+      for(String s :  result.split("\n")){
+        sw.append("[red]#").append(s).append("#\n");
+      }
+      return sw.toString();
+    }
+    
 	public void preprocess(Onthology onthology, RascalCommandExecutor executor) throws IOException{
 		System.err.println("Preprocessing: " + name);
 		BufferedReader reader = new BufferedReader(new StringReader(text));
@@ -163,13 +180,14 @@ public class Concept {
 				line = line.replaceFirst("#",  "=");
 				preprocessOut.append(line).append("\n");
 				preprocessOut.append(commonDefs);
-				preprocessOut.append(":LibDir: ").append(libPath.toString()).append("/\n");
+				preprocessOut.append(":LibDir: ").append(libSrcPath.toString()).append("/\n");
 			}
 			
 			preprocessOut.append(":concept: ").append(name.toString()).append("\n");
 			
 			if(level == 0){
 				preprocessOut.append("\n++++\n");
+				preprocessOut.append(getHomeLink());
 				preprocessOut.append(getSearchForm());
 				preprocessOut.append("++++\n");
 			}
@@ -204,7 +222,10 @@ public class Concept {
 					if(mayHaveErrors){
 						preprocessOut.append("-error");
 					}
-					//preprocessOut.append(",subs=\"+verbatim,+quotes\"");
+					if(mayHaveErrors){
+					  // To enable [red] macro in generated output
+					  preprocessOut.append(",subs=\"verbatim,quotes\"");
+					}
 					preprocessOut.append("]\n").append("----\n");
 					
 					boolean moreShellInput = true;
@@ -235,23 +256,32 @@ public class Concept {
 							line += "\n";
 						}
 						String resultOutput = "";
-						System.err.println(line);
+						boolean errorFree = true;
+//						System.err.println(line);
 						try {
 //							if(!isFigure){
 								resultOutput = executor.evalPrint(line);
 //							}
 						} catch (Exception e){
-							String msg = "While parsing '" + complete(line) + "': " + e.getMessage();
-							System.err.println(msg);
-							executor.error("* __" + name + "__:");
-							executor.error(msg);
+						  if(!mayHaveErrors){
+						    String msg = "While executing '" + complete(line) + "': " + e.getMessage();
+						    System.err.println(msg);
+						    executor.error("* __" + name + "__:");
+						    executor.error(msg);
+						  }
+						  preprocessOut.append(e.getMessage() != null ? makeRed(e.getMessage())
+						                                              : makeRed(e.toString())
+						                      );
+						  errorFree = false;
 						}
 
 						String messages = executor.getMessages();
 						executor.resetOutput();
-						preprocessOut.append(messages);
-						if(!messages.contains("[error]")){
-						   preprocessOut.append(resultOutput);
+						if(messages.isEmpty()){
+						  preprocessOut.append(resultOutput.startsWith("Error") ? makeRed(resultOutput) : resultOutput);
+						} else {
+						  preprocessOut.append(messages.startsWith("Error") ? makeRed(messages) : messages);
+						  errorFree = false;
 						}
 //						if(!isFigure){
 //							if(result == null){
@@ -260,19 +290,32 @@ public class Concept {
 //									preprocessOut.append(result.getType().toString()).append(": ").append(result.toString()).append("\n");
 //							}
 //						}
-						if(!mayHaveErrors && (messages.contains("[error]") || messages.contains("Exception")) ){
+						if(!mayHaveErrors && !errorFree){ //(messages.contains("[error]") || messages.contains("Exception")) ){
 							executor.error("* " + name + ":");
 							executor.error(messages.trim());
 						}
 					}
 					preprocessOut.append("----\n");
-				} else if(line.startsWith("subtoc::[")){
-					Pattern p = Pattern.compile("subtoc::\\[(\\d*)\\]");
+				} else if(line.startsWith("```") || line.startsWith("[source")) {
+				  preprocessOut.append(line).append("\n");
+				  boolean inCode = false;
+				  while((line = reader.readLine()) != null ) {
+				    preprocessOut.append(line).append("\n");
+				    if(line.equals("```") || line.equals("----")){
+				      if(inCode){
+				        break;
+				      } else {
+				        inCode = true;
+				      }
+				    }
+				  }
+				} else if(line.startsWith("loctoc::[")){
+					Pattern p = Pattern.compile("loctoc::\\[(\\d*)\\]");
 					Matcher m = p.matcher(line); 
-					int depth = 0;
+					int depth = 1;
 					if(m.find()){
 						String intStr = m.group(1);
-						depth = intStr.equals("") ? 0 : Integer.parseInt(intStr.substring(0,intStr.length()));
+						depth = intStr.equals("") ? 1 : Integer.parseInt(intStr.substring(0,intStr.length()));
 					}
 					preprocessOut.append(onthology.genSubToc(name, depth, true, details));
 				} else if(line.contains("image:")){

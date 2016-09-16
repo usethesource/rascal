@@ -1,13 +1,12 @@
 # Value
 
 .Synopsis
-
 Question about the value of a Rascal expression or program.
 
 .Syntax
 
-*  `QValue $OptName$: $TypeDescriptor$`
-*  `QValue $OptName$: $QSteps$ $Test$ $Listing$`
+*  `QValue _OptName_: _TypeDescriptor_`
+*  `QValue _OptName_: _QSteps_ _Test_ _Listing_`
 
 .Types
 
@@ -28,27 +27,26 @@ The first form presents the value generated for the _TypeDescriptor_ and asks ab
 The second form allows more preparatory steps and also allows adding a listing to the question.
 The following steps are defined:
 
-*  `prep: $Cmd$`: execute $Cmd$ as preparatory step. Mostly used to import necessary libraries.
-*  `make: $Var$ = $TypeDescriptor$`: create a new variable and use $TypeDescriptor$ to generate its value.
-*  `expr: $Var$ = $Exp$`: evaluate the Rascal expression $Exp$ and assign its value to the new variable $Var$.
-*  `list: $Lines$`: lines that will be displayed as a listing. The listing may contain a placeholder in the form of `<?>` and
+*  `prep: _Cmd_`: execute _Cmd_ as preparatory step. Mostly used to import necessary libraries.
+*  `make: _Var_ = _TypeDescriptor_`: create a new variable and use _TypeDescriptor_ to generate its value.
+*  `expr: _Var_ = _Exp_`: evaluate the Rascal expression _Exp_ and assign its value to the new variable _Var_.
+*  `list: _Lines_`: lines that will be displayed as a listing. The listing may contain a placeholder in the form of `<?>` and
   ends where a new step begins.
-*  `test: $Exp_1$ == $Exp_2$`: the equality is ecvaluated as Rascal expression. The outcome determines the success or failure to answer this question.
-*  `hint: $Text$`: a hint that will be shown when the user enters a wrong answer.
-
+*  `test: _Exp_~1~ == _Exp_~2~`: the equality is evaluated as Rascal expression. The outcome determines the success or failure to answer this question.
+*  `hint: _Text_`: a hint that will be shown when the user enters a wrong answer.
 
 The following restrictions apply:
 
 *  Each step starts at the beginning of a new line.
-*  Every $Exp$ or $Cmd$ or listing may contain one or more variable references of the form `<$Var$>`.
-*  Each variable reference `<$Var$>` is first replaced by the the value of $Var$. $Var$ should have received a value in a preceeding
-  `make` or `expr` step.
+*  Every _Exp_ or _Cmd_ or listing may contain one or more variable references of the form `<` _Var_ `>`.
+*  Each variable reference `<` _Var_ `>` is first replaced by the value of _Var_.
+   _Var_ should have received a value in a preceeding `make` or `expr` step.
 *  The listing, and the expressions in the test may contain at most one placeholder `<?>`.
 
 .Examples
 See the effect of the following value questions in the Questions section below.
 
-#####  Question 1 
+##  Question 1 
 
 The following question can be paraphrased as: _I give you a union of two sets of integers, what is its value?_
 [source,rascal]
@@ -56,7 +54,7 @@ The following question can be paraphrased as: _I give you a union of two sets of
 QValue: <A:set[int]> + <B:same[A]>
 ----
 
-#####  Question 2 
+##  Question 2 
 
 The following question can be paraphrased as: _What is the size of a given list of integers?_
 [source,rascal]
@@ -67,7 +65,7 @@ test: size(<A:list[int]>) == <?>
 ----
 Note that the `List` module is imported as a preparatory step.
 
-#####  Question 3 
+##  Question 3 
 
 The following question can be paraphrased as: 
 _I give you a union of integers or strings and an unknown set and the result of the union; what is the value of the unknown set?_
@@ -85,7 +83,7 @@ Observe that we generate values for `A` and `B` and compute the value of `C`.
 The value of `B` is the answer we are looking for, and we replace it by `<?>` in the posed test.
 When the student gives a wrong answer, we show the value of `B` as hint.
 
-#####  Question 3 
+###  Question 4
 
 The following question can be paraphrased as: 
 _Fill in the hole in the definition of funcion find to ensure that it returns all strings that contain "o"._

@@ -8,7 +8,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunc
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
-import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
@@ -22,15 +22,15 @@ public class RascalExtraction {
 	
 	private RVMCore rvm;
 	
-	public RascalExtraction(IValueFactory vf) throws IOException{
+	public RascalExtraction(IValueFactory vf, PathConfig pcfg) throws IOException{
 		this.vf = vf;
 		if(rvm == null){
 			RascalExecutionContext rex = 
-					RascalExecutionContextBuilder.normalContext(vf, System.out, System.err)
+					RascalExecutionContextBuilder.normalContext(vf, pcfg.getboot() /* TODO needs a kernel location */, System.out, System.err)
 						.setJVM(true)					// options for complete repl
 						.setTrace(false)
 						.build();
-			rvm = ExecutionTools.initializedRVM(URIUtil.correctLocation("compressed+home", "", "bin/experiments/Compiler/RascalExtraction/RascalExtraction.rvm.ser.gz"), rex);
+			rvm = ExecutionTools.initializedRVM(rex.getRascalExtraction(), rex);
 		}
 		try {
 			extractDoc = rvm.getOverloadedFunction("tuple[str moduleDoc, list[DeclarationInfo] declarationInfo] extractDoc(str parent, loc moduleLoc)");
