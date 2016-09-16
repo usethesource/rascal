@@ -9,6 +9,8 @@ import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.ExecutionException;
+
 public class Concept {
 	private final Path name;
 	private String text = null;
@@ -145,6 +147,16 @@ public class Concept {
 	private final String prompt = "rascal>"; //  "+++<span class=\"prompt\" data-value=\"rascal>\"></span>::after+++";
 	private final String continuation = ">>>>>>>"; //"<i class=\"continuation\">::before</i>";
 	
+	   
+    private String makeRed(String result){
+      StringWriter sw = new StringWriter(result.length()+5);
+      result.split("\n");
+      for(String s :  result.split("\n")){
+        sw.append("[red]#").append(s).append("#\n");
+      }
+      return sw.toString();
+    }
+    
 	public void preprocess(Onthology onthology, RascalCommandExecutor executor) throws IOException{
 		System.err.println("Preprocessing: " + name);
 		BufferedReader reader = new BufferedReader(new StringReader(text));
@@ -210,7 +222,10 @@ public class Concept {
 					if(mayHaveErrors){
 						preprocessOut.append("-error");
 					}
-					//preprocessOut.append(",subs=\"verbatim,quotes\"");
+					if(mayHaveErrors){
+					  // To enable [red] macro in generated output
+					  preprocessOut.append(",subs=\"verbatim,quotes\"");
+					}
 					preprocessOut.append("]\n").append("----\n");
 					
 					boolean moreShellInput = true;
@@ -254,16 +269,18 @@ public class Concept {
 						    executor.error("* __" + name + "__:");
 						    executor.error(msg);
 						  }
-						  preprocessOut.append(e.getMessage()).append("\n");
+						  preprocessOut.append(e.getMessage() != null ? makeRed(e.getMessage())
+						                                              : makeRed(e.toString())
+						                      );
 						  errorFree = false;
 						}
 
 						String messages = executor.getMessages();
 						executor.resetOutput();
 						if(messages.isEmpty()){
-						  preprocessOut.append(resultOutput);
+						  preprocessOut.append(resultOutput.startsWith("Error") ? makeRed(resultOutput) : resultOutput);
 						} else {
-						  preprocessOut.append(messages).append("\n");
+						  preprocessOut.append(messages.startsWith("Error") ? makeRed(messages) : messages);
 						  errorFree = false;
 						}
 //						if(!isFigure){

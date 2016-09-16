@@ -40,7 +40,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   private boolean measureCommandTime;
 //  private boolean semiColonAdded = false;
   
-  static final TreeSet<String> SHELL_VERBS;
+  public static final TreeSet<String> SHELL_VERBS;
   
   static {
 	  	String[] shellVerbValues = {
@@ -120,7 +120,6 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   @Override
   protected IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException {
 	  try {
-		 
 		  if(executor.semiColonAdded){
 			  statement = statement + ";";
 			  executor.semiColonAdded = false;
@@ -138,6 +137,12 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 			  Timing tm = new Timing();
 			  tm.start();
 			  IValue value = executor.eval(statement, URIUtil.rootLocation("prompt"));
+			  if(value != null){
+			    Type tp = value.getType();
+			    if(tp.isAbstractData() && tp.getName().equals("RuntimeException")){
+			      throw new ExecutionException("Error: " + value.toString());
+			    }
+			  }
 			  long duration = tm.duration();
 			  if (measureCommandTime) {
 				  executor.getStdErr().println("Time: " + (duration / 1000000) + "ms");
@@ -176,6 +181,15 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 	  //      eval.getStdErr().println(throwableMessage(e, eval.getStackTrace()));
 	  //      return null;
 	  //    }
+	  catch (ExecutionException e) {
+	    executor.getStdErr().println(e.getMessage());
+	    return null;
+	  }
+	  catch (IOException e) {
+	    executor.getStdErr().println(e.getMessage());
+        e.printStackTrace();
+        return null;
+    }
   }
 
 //  @Override
