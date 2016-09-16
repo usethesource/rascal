@@ -20,6 +20,8 @@ public class IntroHelp {
 				"         set trace false",
 				"         set coverage true",
 				"    set                    List all current option values",
+				"    test                   Run all tests in currently imported modules",
+				"    test <modules>         Run all test in given <modules>",
 				"",
 				"Debugging commands:",
 				"    break                  List current break points",
@@ -36,8 +38,7 @@ public class IntroHelp {
 				"    <CTRL>a                Move cursor to begin of line",
 				"    <CTRL>e                Move cursor to end of line",
 				"    <CTRL>k                Kill remainder of line after cursor",
-				"    <CTRL>l                Clear screen",
-				"",
+				"    <CTRL>l                Clear screen"
 				//"Further help: XXX"
 				//":edit <modulename>         Opens an editor for that module",
 				//":test                      Runs all unit tests currently loaded",
