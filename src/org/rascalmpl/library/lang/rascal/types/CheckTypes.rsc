@@ -3635,7 +3635,7 @@ public CheckResult calculatePatternType(Pattern pat, Configuration c, Symbol sub
 
 					    rel[Symbol,KeywordParamMap] constructorKP = { };
 					    for (ui <- usedItems, c.store[ui] is constructor) {
-					    	< c, consParams > = getConstructorKeywordParams(c, ui, ptn@at);
+					    	< c, consParams > = getConstructorKeywordParams(c, ui, ptn.at);
 					    	constructorKP = constructorKP + < c.store[ui].rtype, consParams >;
 					    }
 
@@ -5205,24 +5205,24 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
     }
 
     if (isListType(atree.atype) && isIntType(tsub)) {
-        return < c, subscriptNode(atree,tsub)[@atype=getListElementType(atree@atype)][@at=assn@\loc] >;
+        return < c, subscriptNode(atree,tsub)[atype=getListElementType(atree.atype)][@at=assn@\loc] >;
     }
 
     if (isNodeType(atree.atype) && isIntType(tsub)) {
-        return < c, subscriptNode(atree,tsub)[@atype=Symbol::\value()][@at=assn@\loc] >;
+        return < c, subscriptNode(atree,tsub)[atype=Symbol::\value()][@at=assn@\loc] >;
     }
 
     if (isTupleType(atree.atype) && isIntType(tsub)) {
     	if ((Expression)`<DecimalIntegerLiteral dil>` := sub) {
     		tupleIndex = toInt("<dil>");
-    		if (tupleIndex < 0 || tupleIndex >= size(getTupleFields(atree@atype))) {
+    		if (tupleIndex < 0 || tupleIndex >= size(getTupleFields(atree.atype))) {
 		        failtype = makeFailType("Tuple index must be between 0 and <size(getTupleFields(atree.atype))-1>", sub@\loc);
-		        return < c, subscriptNode(atree,tsub)[@atype=failtype][at=assn@\loc] >;
+		        return < c, subscriptNode(atree,tsub)[atype=failtype][at=assn@\loc] >;
     		} else {
-    			return < c, subscriptNode(atree,tsub)[@atype=getTupleFields(atree@atype)[tupleIndex]][at=assn@\loc][literalIndex=tupleIndex] >;
+    			return < c, subscriptNode(atree,tsub)[atype=getTupleFields(atree.atype)[tupleIndex]][at=assn@\loc][literalIndex=tupleIndex] >;
     		}
     	} else {
-        	return < c, subscriptNode(atree,tsub)[@atype=Symbol::\value()][at=assn@\loc] >;
+        	return < c, subscriptNode(atree,tsub)[atype=Symbol::\value()][at=assn@\loc] >;
         }
     }
 
@@ -5709,7 +5709,7 @@ public ATResult bindAssignable(AssignableTree atree:variableNode(RName name), Sy
 @doc{Bind variable types to variables in assignables: Subscript}
 public ATResult bindAssignable(AssignableTree atree:subscriptNode(AssignableTree receiver, Symbol stype), Symbol st, Configuration c) {
     
-    if (isListType(receiver@atype)) { 
+    if (isListType(receiver.atype)) { 
         < c, receiver > = bindAssignable(receiver, makeListType(lub(st,getListElementType(receiver.atype))), c);
         return < c, atree[receiver=receiver][otype=receiver.otype][atype=getListElementType(receiver.atype)] >;
     } else if (isNodeType(receiver.atype)) {
@@ -9067,9 +9067,9 @@ public Module check(Module m, PathConfig pcfg) {
 }
 
 public default Module check(Tree t, PathConfig pcfg) {
-	if (t has top && Module m := t.top)
+	if (t has top && Module m := t.top) {
 		return check(m, pcfg);
-	else
+	} else {
 		throw "Cannot check arbitrary trees";
     }
 }
