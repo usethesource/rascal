@@ -8541,7 +8541,9 @@ public enum RascalPrimitive {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			IString message = (IString) arg_1;
-			rex.getStdOut().println("Assertion " + message + " failed at " + currentFrame.src);
+			rex.getStdErr().println("Assertion " 
+			    + (message.length() == 0 ? "" : message + " ") 
+			    + "failed" + (currentFrame.isConsoleMainFrame() ? "" : " at " + currentFrame.src));
 			throw RascalRuntimeException.assertionFailed(message, currentFrame.src,  currentFrame);
 		}
 	},
