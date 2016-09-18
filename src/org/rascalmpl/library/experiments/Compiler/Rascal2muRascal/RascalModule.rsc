@@ -47,7 +47,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, Pat
       module_name = "<M.header.name>";
       setModuleName(module_name);
       setModuleTags(translateTags(M.header.tags));
-      //if(verbose) println("r2mu: entering ... <module_name>");
+      if(verbose) println("r2mu: entering ... <module_name>, enableAsserts: <enableAsserts>");
    	  
    	  // Extract scoping information available from the configuration returned by the type checker  
    	  extractScopes(config); 
