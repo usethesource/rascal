@@ -6941,6 +6941,7 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 						defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
 						for (l <- defaultLocations, l notin c.locationTypes) {
 							c.locationTypes[l] = d.locationTypes[l];
+							c.usedIn[l] = c.usedIn[l] ? containedIn;
 						}
 					}
 					loadedIds = loadedIds + itemId;
@@ -6961,6 +6962,9 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 						defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
 						for (l <- defaultLocations, l notin c.locationTypes) {
 							c.locationTypes[l] = d.locationTypes[l];
+							uid = c.fcvEnv[name];	
+							c.uses = {<uid, l>};
+							c.usedIn[l] = c.usedIn[l] ? containedIn;
 						}
 					}					
 					loadedIds = loadedIds + itemId;
