@@ -67,6 +67,7 @@ data RuntimeException =
      | EmptyList()
      | EmptyMap() 
      | EmptySet()
+     | IndexOutOfBounds(int index)
      | IllegalArgument()                        // deprecated
      | IllegalArgument(value v)                 // deprecated
      | IllegalArgument(value v, str message)    // deprecated
@@ -75,24 +76,23 @@ data RuntimeException =
      | InvalidArgument(value v)
      | InvalidArgument(value v, str message)
      
-     | InvalidUseOfDate(str message)
-     | InvalidUseOfDateTime(str message)
-     | InvalidUseOfTime(str message)
-     | InvalidUseOfLocation(str message)
      | InvalidURI(str uri)
-     
-     | IndexOutOfBounds(int index)
+     | InvalidUseOfDate(str message)
+     | InvalidUseOfLocation(str message)
+     | InvalidUseOfTime(str message)
+ 
      | IO(str message)
      | Java(str class, str message)             // deprecated
      | Java(str class, str message, RuntimeException cause) // deprecated
      | JavaException(str class, str message)
      | JavaException(str class, str message, RuntimeException cause)
      | ModuleNotFound(str name)                 // Deprecated
+     | NoMainFunction()
      | NoSuchAnnotation(str label)
      | NoSuchField(str name)
      | NoSuchKey(value key)
     
-     | NoMainFunction()
+   
      | NotImplemented(str message)
     
      | MultipleKey(value key)
