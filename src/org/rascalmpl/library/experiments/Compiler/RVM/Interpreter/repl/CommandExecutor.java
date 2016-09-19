@@ -449,7 +449,6 @@ public class CommandExecutor {
 					return executeModule("\nvalue main() { " + src + "}\n", true);
 				} else {
 					val = executeModule(makeMain(unparse(get(stat, "statement"))), true);
-					
 					declareVar(val.getType().toString(), name);
 					updateVar(name, val);
 					forceRecompilation = true;
@@ -463,8 +462,8 @@ public class CommandExecutor {
 				val = executeModule(makeMain(unparse(get(stat, "statement"))), true);
 				if(var != null){
 				  annotateVar(name, annoName, val);
-				  return val;
 				}
+				return val;
 			}
 				
 			case "ifDefinedOrDefault": {
@@ -492,7 +491,7 @@ public class CommandExecutor {
 				    updateVar(elemName, tupleVal.get(i));
 				    forceRecompilation = true;
 				  } else {
-				    return report("Assignable is not supported: " + unparse((ITree)element));
+				    return reportError("Assignable is not supported: " + unparse((ITree)element));
 				  }
 				}
 				return val;
@@ -513,11 +512,11 @@ public class CommandExecutor {
 								declareVar(consVal.getConstructorType().getFieldType(i).toString(), elemName);
 								updateVar(elemName, consVal.get(i));
 							} else {
-								return report("Assignable is not supported: " + unparse((ITree)element));
+								return reportError("Assignable is not supported: " + unparse((ITree)element));
 							}
 						}
 					} else {
-						return report("Error: Name mismatch in assignment: " + consName  + " vs " + consVal.getName());
+						return reportError("Name mismatch in assignment: " + consName  + " vs " + consVal.getName());
 					}
 				}
 				forceRecompilation = true;
@@ -525,7 +524,7 @@ public class CommandExecutor {
 			}
 			
 			default:
-				return report("Assignable is not supported: " + src);
+				return reportError("Assignable is not supported: " + src);
 			}
 
 		default:
