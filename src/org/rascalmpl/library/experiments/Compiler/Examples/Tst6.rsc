@@ -1,17 +1,14 @@
 module experiments::Compiler::Examples::Tst6
+import ParseTree;
 
-import String; 
-import IO;
+syntax A = "a";
+syntax As0 = A* as0; 
+syntax As1 = A+ as1;
 
-bool areOverlapping(str s1, str s2) = 
-    s1 == s2 || findAll(s1 + s2, s2) != [size(s1)] || findAll(s2 + s1, s1) != [size(s2)]
-    || ((size(s1) > 0 && size(s2) > 0) && s1[-1] == s2[0] || s1[0] == s2[-1]) ;
+// Calls with concrete parameters
 
-test bool tstReplaceLast(str S1, str S2, str S3) {
-  if(areOverlapping(S1, S2) || areOverlapping(S1+S2, S2+S1)) return true;
-  println("other");
-  S = S1 + S2 + S1 + S2 + S1;
-  return replaceLast(S, S2, S3) == S1 + S2 + S1 + S3 + S1;
-}
+int cntAs0(A* as) = size([a | A a <- as ]);
 
-value main() = tstReplaceLast("\t \n\tnNJ", " \t ", "");
+int cntAs1(A+ as) = cntAs0(as);
+
+test bool callAs1() = cntAs0(([As0] "").as0) == 0;

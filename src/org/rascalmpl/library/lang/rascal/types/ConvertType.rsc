@@ -225,7 +225,7 @@ public Symbol convertUserType(UserType ut) {
 }
 
 public Symbol convertSymbol(Sym sym) {
-   return sym2symbol(sym)[at=sym@\loc];
+   return sym2symbol(sym)/*[at=sym@\loc]*/;
 }  
 
 @doc{Get the raw Name component from a user type.}
