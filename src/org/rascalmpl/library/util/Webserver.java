@@ -155,8 +155,8 @@ public class Webserver {
                   
                   return ResultFactory.makeResult(getTypeFactory().valueType(), new JsonValueReader(vf, store)
                       .setCalendarFormat((dtf != null) ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-                      .setImplicitConstructors((ics != null) ? ((IBool) ics).getValue() : true)
-                      .setImplicitNodes((icn != null) ? ((IBool) icn).getValue() : true)
+                      .setConstructorsAsObjects((ics != null) ? ((IBool) ics).getValue() : true)
+                      .setNodesAsObjects((icn != null) ? ((IBool) icn).getValue() : true)
                       .read(new JsonReader(new StringReader(parms.get("NanoHttpd.QUERY_STRING"))), topType), ctx);
                 }
               } catch (IOException e) {
@@ -195,8 +195,8 @@ public class Webserver {
         
         JsonValueWriter writer = new JsonValueWriter()
             .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-            .setImplicitConstructors(ics != null ? ((IBool) ics).getValue() : true)
-            .setImplicitNodes(ipn != null ? ((IBool) ipn).getValue() : true)
+            .setConstructorsAsObjects(ics != null ? ((IBool) ics).getValue() : true)
+            .setNodesAsObjects(ipn != null ? ((IBool) ipn).getValue() : true)
             .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true);
 
         try {

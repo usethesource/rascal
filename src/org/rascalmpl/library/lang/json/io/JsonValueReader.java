@@ -50,8 +50,8 @@ public class JsonValueReader {
   private final TypeStore store;
   private final IValueFactory vf;
   private ThreadLocal<SimpleDateFormat> format;
-  private boolean implicitConstructors = true;
-  private boolean implicitNodes = true;
+  private boolean constructorsAsObjects = true;
+  private boolean nodesAsObjects = true;
   
   /**
    * @param vf     factory which will be used to construct values
@@ -81,20 +81,16 @@ public class JsonValueReader {
     return this;
   }
   
-  public JsonValueReader setImplicitConstructors(boolean setting) {
-    this.implicitConstructors = setting;
+  public JsonValueReader setConstructorsAsObjects(boolean setting) {
+    this.constructorsAsObjects = setting;
     return this;
   }
   
-  public JsonValueReader setImplicitNodes(boolean setting) {
-    this.implicitNodes = setting;
+  public JsonValueReader setNodesAsObjects(boolean setting) {
+    this.nodesAsObjects = setting;
     return this;
   }
 
-  public IValue read(JsonReader in, Type expected) throws IOException {
-    return read(in, expected, null);
-  }
-  
   /**
    * Read and validate a Json stream as an IValue
    * @param  in       json stream
@@ -102,7 +98,7 @@ public class JsonValueReader {
    * @return an IValue of the expected type
    * @throws IOException when either a parse error or a validation error occurs
    */
-  public IValue read(JsonReader in, Type expected, String label) throws IOException {
+  public IValue read(JsonReader in, Type expected) throws IOException {
     IValue res = expected.accept(new ITypeVisitor<IValue, IOException>() {
       @Override
       public IValue visitInteger(Type type) throws IOException {
@@ -166,7 +162,7 @@ public class JsonValueReader {
         
         if (type.hasFieldNames()) {
           for (int i = 0; i < type.getArity(); i++) {
-            l.add(read(in, type.getFieldType(i), type.getFieldName(i)));
+            l.add(read(in, type.getFieldType(i)));
           }
         }
         else {
@@ -381,8 +377,8 @@ public class JsonValueReader {
             in.beginArray();
             while (in.hasNext()) {
               in.beginArray();
-              IValue key = read(in, type.getKeyType(), type.getKeyLabel());
-              IValue value = read(in, type.getValueType(), type.getValueLabel());
+              IValue key = read(in, type.getKeyType());
+              IValue value = read(in, type.getValueType());
               w.put(key,value);
               in.endArray();
             }
@@ -412,7 +408,7 @@ public class JsonValueReader {
       
       @Override
       public IValue visitAbstractData(Type type) throws IOException {
-        return implicitConstructors ? implicitConstructor(type) : explicitConstructor(type);
+        return constructorsAsObjects ? implicitConstructor(type) : explicitConstructor(type);
       }
        
       private IValue explicitConstructor(Type type) throws IOException {
@@ -461,24 +457,8 @@ public class JsonValueReader {
       }
 
       private IValue implicitConstructor(Type type) throws IOException {
-        String consName = label;
-        
-        if (consName == null || store.lookupConstructor(type, label) == null) {
-          // this should not happen often, but is useful for top-level values
-          // and members of arrays which do not provide a label context
-          Set<Type> alts = store.lookupAlternatives(type);
-
-          switch (alts.size()) {
-            case 0:
-              throw new IOException("No alternatives found for " + type);
-            case 1:
-              consName = alts.iterator().next().getName();
-              break;
-            default:
-              throw new IOException("For recovering from an implicit context and using implicit constructors the top-level type can only have one constructor. " + in.getPath());
-          }
-        }
-        
+        in.beginObject();
+        String consName = in.nextName();
         Type cons = checkNameCons(type, consName);
         IValue[] args = new IValue[cons.getArity()];
         Map<String,IValue> kwParams = new HashMap<>();
@@ -488,12 +468,10 @@ public class JsonValueReader {
         }
         
         in.beginObject();
-        
         while (in.hasNext()) {
           String label = in.nextName();
-          
           if (cons.hasField(label)) {
-            IValue val = read(in, cons.getFieldType(label), label);
+            IValue val = read(in, cons.getFieldType(label));
             if (val != null) {
               args[cons.getFieldIndex(label)] = val;
             }
@@ -502,7 +480,7 @@ public class JsonValueReader {
             }
           }
           else if (cons.hasKeywordField(label, store)) {
-            IValue val = read(in, store.getKeywordParameterType(cons, label), label);
+            IValue val = read(in, store.getKeywordParameterType(cons, label));
             if (val != null) {
               // if the value is null we'd use the default value of the defined field in the constructor
               kwParams.put(label, val);
@@ -513,6 +491,7 @@ public class JsonValueReader {
           }
         }
           
+        in.endObject();
         in.endObject();
         
         for (int i = 0; i < args.length; i++) {
@@ -526,12 +505,12 @@ public class JsonValueReader {
       
       @Override
       public IValue visitConstructor(Type type) throws IOException {
-        return read(in, type.getAbstractDataType(), type.getName());
+        return read(in, type.getAbstractDataType());
       }
       
       @Override
       public IValue visitNode(Type type) throws IOException {
-        return implicitNodes ? implicitNode() : explicitNode();
+        return nodesAsObjects ? implicitNode() : explicitNode();
       }
       
       private IValue explicitNode() throws IOException {
@@ -570,12 +549,11 @@ public class JsonValueReader {
 
       private IValue implicitNode() throws IOException {
         in.beginObject();
-        
         Map<String,IValue> kws = new HashMap<>();
         
         while (in.hasNext()) {
           String kwName = in.nextName();
-          IValue value = read(in, TF.valueType(), kwName);
+          IValue value = read(in, TF.valueType());
           
           if (value != null) {
             kws.put(kwName, value);
@@ -584,7 +562,7 @@ public class JsonValueReader {
         
         in.endObject();
 
-        return vf.node(label == null ? "object" : label, new IValue[] { }, kws);
+        return vf.node("object", new IValue[] { }, kws);
       }
       
       @Override
@@ -623,7 +601,7 @@ public class JsonValueReader {
         in.beginArray();
         while (in.hasNext()) {
           // here we pass label from the higher context
-          w.append(read(in, type.getElementType(), label));
+          w.append(read(in, type.getElementType()));
         }
 
         in.endArray();
@@ -639,7 +617,7 @@ public class JsonValueReader {
         in.beginArray();
         while (in.hasNext()) {
           // here we pass label from the higher context
-          w.insert(read(in, type.getElementType(), label));
+          w.insert(read(in, type.getElementType()));
         }
 
         in.endArray();
