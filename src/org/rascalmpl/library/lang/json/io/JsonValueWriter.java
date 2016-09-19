@@ -208,12 +208,7 @@ public class JsonValueWriter {
           out.beginObject();
           int i = 0;
           for (IValue arg : o) {
-            if (arg instanceof INode) {
-              out.name(((INode) arg).getName());
-            }
-            else {
-              out.name(o.getConstructorType().getFieldName(i));
-            }
+            out.name(o.getConstructorType().getFieldName(i));
             arg.accept(this);
             i++;
           }
