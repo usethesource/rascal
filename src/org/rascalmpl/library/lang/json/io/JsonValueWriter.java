@@ -42,8 +42,8 @@ import com.google.gson.stream.JsonWriter;
  */
 public class JsonValueWriter {
   private ThreadLocal<SimpleDateFormat> format;
-  private boolean implicitConstructors = true;
-  private boolean implicitNodes = true;
+  private boolean constructorsAsObjects = true;
+  private boolean nodesAsObjects = true;
   private boolean datesAsInts = true;
   
   public JsonValueWriter() {
@@ -64,13 +64,13 @@ public class JsonValueWriter {
     return this;
   }
   
-  public JsonValueWriter setImplicitConstructors(boolean setting) {
-    this.implicitConstructors = setting;
+  public JsonValueWriter setConstructorsAsObjects(boolean setting) {
+    this.constructorsAsObjects = setting;
     return this;
   }
   
-  public JsonValueWriter setImplicitNodes(boolean setting) {
-    this.implicitNodes = setting;
+  public JsonValueWriter setNodesAsObjects(boolean setting) {
+    this.nodesAsObjects = setting;
     return this;
   }
   
@@ -160,7 +160,9 @@ public class JsonValueWriter {
 
       @Override
       public Void visitNode(INode o) throws IOException {
-        if (implicitNodes) {
+        if (nodesAsObjects) {
+          out.beginObject();
+          out.name(o.getName());
           out.beginObject();
           int i = 0;
           for (IValue arg : o) {
@@ -171,6 +173,7 @@ public class JsonValueWriter {
             out.name(e.getKey()); 
             e.getValue().accept(this); 
           }
+          out.endObject();
           out.endObject();
         }
         else {
@@ -199,7 +202,9 @@ public class JsonValueWriter {
 
       @Override
       public Void visitConstructor(IConstructor o) throws IOException {
-        if (implicitConstructors) {
+        if (constructorsAsObjects) {
+          out.beginObject();
+          out.name(o.getName());
           out.beginObject();
           int i = 0;
           for (IValue arg : o) {
@@ -216,6 +221,7 @@ public class JsonValueWriter {
             out.name(e.getKey()); 
             e.getValue().accept(this); 
           }
+          out.endObject();
           out.endObject();
         }
         else {
