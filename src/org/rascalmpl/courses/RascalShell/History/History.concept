@@ -1,0 +1,35 @@
+# Command History
+
+.Synopsis
+Use the command history.
+
+.Description
+
+RascalShell provides a history of previously entered commands. This can be accessed as follows:
+
+* `<UP>`    Show previous command in history; Type `<RETURN>` to execute it.
+* `<DOWN>`  Next command in history; Type `<RETURN>` to execute it.
+* `<CTRL>r` (After search text) Search backward in history.
+* `<CTRL>s` (After search text) Forward search in history
+
+.Examples
+
+[source,rascal-shell]
+----
+a = 1;
+b = 2;
+c = 3;
+----
+Typing `<UP>` will then show the text (not followed by `<RETURN>`!):
+[source,rascal,subs="quotes"]
+----
+rascal>c = 3;
+----
+Typing `<RETURN>` will reexecute the shown command.
+
+Typing the letter `a` (the search text in this example) followed by `<CTRL>r` will show the text:
+[source,rascal,subs="verbatim,quotes"]
+----
+(reverse-i-search)`a': a = 3;
+----
+And again, typing `<RETURN>` will reexecute the shown command.

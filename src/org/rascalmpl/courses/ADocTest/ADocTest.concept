@@ -14,18 +14,12 @@ Test Case
 
 .Details
 
-[source,rascal-shell]
+[source,rascal-shell,error]
 ----
-import IO;
-----
-
-
-* Already declared element variable:
-[source,rascal-shell,continue]
-----
-int N;
-if([10, N, 30, 40, 50] := [10, 20, 30, 40, 50])
-   println("Match succeeded, N = <N>");
+import ParseTree;
+syntax A = "a";
+syntax E = A | "(" E ")" | E "+" E;
+parse(#E, "a+a+a");
 ----
 
 .Description

@@ -1,7 +1,7 @@
 # Arithmetic Exception
 
 .Synopsis
-An arithmetic exception occurred
+An arithmetic exception occurred.
 
 .Types
 `data RuntimeException = ArithmeticException(str message);`

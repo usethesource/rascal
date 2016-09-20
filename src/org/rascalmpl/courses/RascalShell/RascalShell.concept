@@ -1,0 +1,18 @@
+# Rascal Shell
+
+.Synopsis
+The interactive RascalShell
+
+.Details
+REPL
+
+.Description
+
+The RascalShell is an interactive console -- or if you prefer a Command Line Interface (CLI) or
+Read Eval Print Loop (REPL) -- for entering and executing 
+Rascal _expressions_, _statements_ and _declarations_.
+
+In addition, several _RascalShell commands_  and features 
+are available to support the user:
+
+loctoc::[1]

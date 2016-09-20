@@ -29,3 +29,6 @@ Rascal can generate various kinds of exceptions and errors during execution (run
 
 .Pitfalls
 
+The structure and naming of exceptions and error messages is being revised 
+so actual exceptions may differ from what is presented here.
+

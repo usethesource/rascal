@@ -1,0 +1,12 @@
+# Quit Command
+
+.Synopsis
+Quit the RascalShell.
+
+.Syntax
+* `quit`
+* EOF
+
+.Description
+
+Typing `quit` or EOF will end the execution of the RascalShell.

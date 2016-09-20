@@ -1,0 +1,10 @@
+# Command Completion
+
+.Synopsis
+Context-dependent command completion.
+
+.Description
+
+RascalShell provides context-dependent command completion.
+Typing `<TAB>` following a partial word will show possible completions
+(or will directly add the completion when this is unique).
