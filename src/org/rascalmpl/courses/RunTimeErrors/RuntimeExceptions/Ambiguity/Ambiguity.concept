@@ -35,7 +35,7 @@ However, when becoming more ambitious, we get an exception:
 parse(#E, "a+a+a");
 ----
 The conclusion is that there are two parses here: `a+(a+a)` and `(a+a)+a`, 
-because we did forget to definity the associativity of the `+` operator.
+because we did forget to define the associativity of the `+` operator.
 Let's fix this:
 
 [source,rascal-shell]
