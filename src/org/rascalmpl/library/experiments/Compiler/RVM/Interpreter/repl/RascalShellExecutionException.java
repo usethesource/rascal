@@ -12,10 +12,10 @@
  */ 
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl;
 
-public class ExecutionException extends Exception {
+public class RascalShellExecutionException extends Exception {
   private static final long serialVersionUID = -1812423726623584599L;
 
-  ExecutionException(String message){
+  RascalShellExecutionException(String message){
     super(message);
   }
 

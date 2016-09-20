@@ -110,6 +110,15 @@ public class RVMonJVM extends RVMCore {
 			frameObserver.exception(root, (Thrown) thrown);
 			throw (Thrown) returnValue;
 		}
+		if(returnValue instanceof IValue){
+          IValue v = (IValue) returnValue;
+          Type tp = v.getType();
+          if(tp.isAbstractData() && tp.getName().equals("RuntimeException")){
+            Thrown th = Thrown.getInstance(v, null, null);
+            frameObserver.exception(root, th);
+            throw th;
+          }
+		}
 		return narrow(returnValue);
 	}
 	
@@ -184,9 +193,19 @@ public class RVMonJVM extends RVMCore {
 		//thrown = oldthrown;
 		
 		Object o = returnValue;
-		if (o != null && o instanceof Thrown) {
-			//TODO: frameObserver.exception(cf, (Thrown) thrown);
-			throw (Thrown) o;
+		if (o != null){
+		  if(o instanceof Thrown) {
+		    //TODO: frameObserver.exception(cf, (Thrown) thrown);
+		    throw (Thrown) o;
+		  }
+		  if(o instanceof IValue){
+		    IValue v = (IValue) o;
+		    Type tp = v.getType();
+		    if(tp.isAbstractData() && tp.getName().equals("RuntimeException")){
+		      throw Thrown.getInstance(v, null, null);
+		    }
+
+		  }
 		}
 		return narrow(o);
 	}
