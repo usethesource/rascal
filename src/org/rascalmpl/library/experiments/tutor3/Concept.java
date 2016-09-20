@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.ExecutionException;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.RascalShellExecutionException;
 
 public class Concept {
 	private final Path name;

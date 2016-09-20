@@ -8,7 +8,7 @@ import java.net.URISyntaxException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.ExecutionException;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.RascalShellExecutionException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.ISourceLocation;
@@ -56,7 +56,7 @@ public class RascalCommandExecutor {
 		executor.reset();
 	}
 	
-	IValue eval(String line) throws ExecutionException, IOException{
+	IValue eval(String line) throws RascalShellExecutionException, IOException{
 	  String[] words = line.split(" ");
 	  if(words.length > 0 && CompiledRascalREPL.SHELL_VERBS.contains(words[0])){
 	    return executor.evalShellCommand(words);
@@ -65,7 +65,7 @@ public class RascalCommandExecutor {
 	  }
 	}
 	
-	String evalPrint(String line) throws IOException, ExecutionException{
+	String evalPrint(String line) throws IOException, RascalShellExecutionException{
 	  String[] words = line.trim().split(" ");
 	  IValue result;
       if(words.length > 0 && CompiledRascalREPL.SHELL_VERBS.contains(words[0])){

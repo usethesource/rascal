@@ -140,7 +140,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 			  if(value != null){
 			    Type tp = value.getType();
 			    if(tp.isAbstractData() && tp.getName().equals("RuntimeException")){
-			      throw new ExecutionException("Error: " + value.toString());
+			      throw new RascalShellExecutionException("Error: " + value.toString());
 			    }
 			  }
 			  long duration = tm.duration();
@@ -181,7 +181,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 	  //      eval.getStdErr().println(throwableMessage(e, eval.getStackTrace()));
 	  //      return null;
 	  //    }
-	  catch (ExecutionException e) {
+	  catch (RascalShellExecutionException e) {
 	    executor.getStdErr().println(e.getMessage());
 	    return null;
 	  }

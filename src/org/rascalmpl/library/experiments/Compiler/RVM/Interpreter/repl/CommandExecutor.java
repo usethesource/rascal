@@ -240,7 +240,7 @@ public class CommandExecutor {
 	  System.err.println("executeTests: " + res);
 	}
 	
-	private IValue executeModule(String main, boolean onlyMainChanged) throws ExecutionException {
+	private IValue executeModule(String main, boolean onlyMainChanged) throws RascalShellExecutionException {
 		StringWriter w = new StringWriter();
 		
 		w.append("module ConsoleInput\n");
@@ -294,18 +294,18 @@ public class CommandExecutor {
 				forceRecompilation = false;
 				return val;
 			} else {
-				throw new ExecutionException(getErrors(modString, rvmConsoleExecutable));
+				throw new RascalShellExecutionException(getErrors(modString, rvmConsoleExecutable));
 			}
 		} catch (Thrown e){
 		    IConstructor cons = (IConstructor) e.value;
 		    StringWriter sw = new StringWriter();
 		    sw.append("Error: ").append(cons.toString());
 		    e.printStackTrace(new PrintWriter(sw));
-			throw new ExecutionException(sw.toString());
+			throw new RascalShellExecutionException(sw.toString());
 		} catch (IOException e){
-		  throw new ExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
+		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
 		} catch (Exception e){
-		  throw new ExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
+		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
 		}
 	}
 	
@@ -331,7 +331,7 @@ public class CommandExecutor {
 //		return resultToString(result);
 //	}
 	
-	public IValue eval(String statement, ISourceLocation rootLocation) throws ExecutionException, IOException {
+	public IValue eval(String statement, ISourceLocation rootLocation) throws RascalShellExecutionException, IOException {
 		ITree cmd = parseCommand(statement, rootLocation);
 		
 		cmd = TreeAdapter.getStartTop(cmd);
@@ -362,7 +362,7 @@ public class CommandExecutor {
 		return null;
 	}
 	
-	private IValue evalExpression(String src, ITree exp) throws ExecutionException{
+	private IValue evalExpression(String src, ITree exp) throws RascalShellExecutionException{
 		return executeModule("\nvalue main() = " + src + ";\n", true);
 	}
 	
@@ -404,8 +404,8 @@ public class CommandExecutor {
       return null;
 	}
 	
-	private IValue reportError(String msg) throws ExecutionException {
-	  throw new ExecutionException("Error: " + msg);
+	private IValue reportError(String msg) throws RascalShellExecutionException {
+	  throw new RascalShellExecutionException("Error: " + msg);
 	}
 
 	private String getBaseVar(ITree assignable) throws FactTypeUseException, IOException{
@@ -426,7 +426,7 @@ public class CommandExecutor {
 	  return "\nvalue main() = \"ok\";\n";
 	}
 	
-	private IValue evalStatement(String src, ITree stat) throws IOException, ExecutionException {
+	private IValue evalStatement(String src, ITree stat) throws IOException, RascalShellExecutionException {
 		
 		String consName = TreeAdapter.getConstructorName(stat);
 		switch(consName){
@@ -448,7 +448,9 @@ public class CommandExecutor {
 
 				Variable var = variables.get(name);
 				if(var != null){
-					return executeModule("\nvalue main() { " + src + "}\n", true);
+					val = executeModule("\nvalue main() { " + src + "}\n", true);
+					updateVar(name, val);
+					return val;
 				} else {
 					val = executeModule(makeMain(unparse(get(stat, "statement"))), true);
 					declareVar(val.getType().toString(), name);
@@ -551,7 +553,7 @@ public class CommandExecutor {
 			      forceRecompilation = true;
 			      result = executeModule(makeMain(name + " = " + initial + ";"), false);
 			      updateVar(name, result);
-			    } catch (ExecutionException e){
+			    } catch (RascalShellExecutionException e){
 			      undeclareVar(name);
 			      return null;
 			    }
@@ -560,7 +562,7 @@ public class CommandExecutor {
 			    try {
 			      forceRecompilation = true;
 			      result = executeModule(makeMain("true;"), false);
-			    } catch (ExecutionException e){
+			    } catch (RascalShellExecutionException e){
 			      undeclareVar(name);
 			    }
 			    return null;
@@ -574,13 +576,13 @@ public class CommandExecutor {
 	
 		try {
 			result =  executeModule(makeMain("true;"), false);
-		} catch (ExecutionException e){
+		} catch (RascalShellExecutionException e){
 			declarations.remove(src);
 		}
 		return null;
 	}
 	
-	private IValue evalImport(String src, ITree imp) throws FactTypeUseException, IOException, ExecutionException{
+	private IValue evalImport(String src, ITree imp) throws FactTypeUseException, IOException, RascalShellExecutionException{
 		IValue result;
 		if(is(imp, "default")){
 			String impName = unparse(get(get(imp, "module"), "name"));
@@ -592,7 +594,7 @@ public class CommandExecutor {
 				forceRecompilation = true;
 				result = executeModule(makeMainOk(), false);
 				return null;
-			} catch (ExecutionException e){
+			} catch (RascalShellExecutionException e){
 				imports.remove(impName);
 				throw e;
 			}
@@ -605,7 +607,7 @@ public class CommandExecutor {
 			try {
 				result = executeModule(makeMainOk(), false);
 				return null;
-			} catch (ExecutionException e){
+			} catch (RascalShellExecutionException e){
 				syntaxDefinitions.remove(name);
 				throw e;
 			}
@@ -614,12 +616,12 @@ public class CommandExecutor {
 		return null;
 	}
 	
-	private boolean getBooleanValue(String val) throws ExecutionException{
+	private boolean getBooleanValue(String val) throws RascalShellExecutionException{
 		switch(val){
 		case "true": return true;
 		case "false": return false;
 		default:
-			throw new ExecutionException("Error: '" + val + "' is not a boolean value");
+			throw new RascalShellExecutionException("Error: '" + val + "' is not a boolean value");
 		}
 	}
 	
@@ -671,7 +673,7 @@ public class CommandExecutor {
 				  .append("coverage: ").append(coverage).toString());
 	}
 	
-	public IValue evalShellCommand(String[] words) throws ExecutionException {
+	public IValue evalShellCommand(String[] words) throws RascalShellExecutionException {
 		switch(words[0]){
 		
 		case "set":
