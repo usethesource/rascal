@@ -104,6 +104,10 @@ public class RuntimeExceptionFactory {
 	
 	// The "official" exceptions that a Rascal program can catch (alphabetical order)
 	
+	public static Throw ambiguity(ISourceLocation loc, IString type, IString string, AbstractAST ast, StackTrace trace) {
+	  return new Throw(VF.constructor(Ambiguity, loc, type, string), ast, trace);
+	}
+	
 	public static Throw arithmeticException(String msg, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(ArithmeticException, VF.string(msg)), ast, trace);
 	}
@@ -120,12 +124,12 @@ public class RuntimeExceptionFactory {
 		return new Throw(VF.constructor(EmptyList), ast, trace);
 	}
 	
-	public static Throw emptySet(AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(EmptySet), ast, trace);
+	public static Throw emptyMap(AbstractAST ast, StackTrace trace) {
+	  return new Throw(VF.constructor(EmptyMap), ast, trace);
 	}
 	
-	public static Throw emptyMap(AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(EmptyMap), ast, trace);
+	public static Throw emptySet(AbstractAST ast, StackTrace trace) {
+		return new Throw(VF.constructor(EmptySet), ast, trace);
 	}
 	
 	public static Throw illegalArgument(AbstractAST ast, StackTrace trace) {
@@ -139,8 +143,6 @@ public class RuntimeExceptionFactory {
 	public static Throw illegalArgument(IValue v, AbstractAST ast, StackTrace trace, String message) {
 		return new Throw(VF.constructor(IllegalArgument, v, VF.string(message)), ast, trace);	
 	}
-	
-	
 	
 	public static Throw indexOutOfBounds(IInteger i, AbstractAST ast, StackTrace trace) {
     	return new Throw(VF.constructor(IndexOutOfBounds, i), ast, trace);
@@ -233,7 +235,6 @@ public class RuntimeExceptionFactory {
 		return new Throw(VF.constructor(NoSuchAnnotation, VF.string(label)), ast, trace);
 	}
 
-	
 
 	public static Throw noSuchKey(IValue v, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(NoSuchKey, v), ast, trace);
@@ -241,10 +242,6 @@ public class RuntimeExceptionFactory {
 	
 	public static Throw parseError(ISourceLocation loc, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(ParseError, loc), ast, trace);
-	}
-	
-	public static Throw ambiguity(ISourceLocation loc, IString type, IString string, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(Ambiguity, loc, type, string), ast, trace);
 	}
 	
 	public static Throw pathNotFound(ISourceLocation loc, AbstractAST ast, StackTrace trace) {
