@@ -304,6 +304,8 @@ public class CommandExecutor {
 			throw new ExecutionException(sw.toString());
 		} catch (IOException e){
 		  throw new ExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
+		} catch (Exception e){
+		  throw new ExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
 		}
 	}
 	
@@ -642,7 +644,7 @@ public class CommandExecutor {
 			out.append(": ");
 			// we unparse the tree
 			out.append("(" + type.toString() +") `");
-			TreeAdapter.yield((IConstructor)value, true, out);
+			TreeAdapter.yield((IConstructor)value, false, out);
 			out.append("`");
 		} else if(type.isAbstractData() && type.getName().equals("RuntimeException")){
 		    out.append("Error: ");
