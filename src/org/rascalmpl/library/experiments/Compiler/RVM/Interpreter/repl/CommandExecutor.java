@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -89,8 +90,10 @@ public class CommandExecutor {
 	
 	private HashMap<String, Variable> variables ;
 	private ArrayList<String> imports;
-	private HashMap<String,String> syntaxDefinitions;
-	private ArrayList<String> declarations;	
+	private HashMap<String,List<String>> syntaxDefinitions;
+	private HashMap<String,List<String>> functionDeclarations;
+	private HashMap<String,List<String>> dataDeclarations;
+	
 	private Map<IValue, IValue> moduleVariables;
 	
 	private final String shellModuleName = "CompiledRascalShell";
@@ -145,7 +148,8 @@ public class CommandExecutor {
 		variables = new HashMap<>();
 		imports = new ArrayList<>();
 		syntaxDefinitions = new HashMap<>();
-		declarations = new ArrayList<>();
+		functionDeclarations = new HashMap<>();
+		dataDeclarations = new HashMap<>();
 		moduleVariables = new HashMap<>();
 		
 		// helpManager is only initialized on first help or apropos call
@@ -160,7 +164,8 @@ public class CommandExecutor {
 		variables = new HashMap<>();
 		imports = new ArrayList<>();
 		syntaxDefinitions = new HashMap<>();
-		declarations = new ArrayList<>();
+		dataDeclarations = new HashMap<>();
+		functionDeclarations = new HashMap<>();
 		moduleVariables = new HashMap<>();
 		forceRecompilation = true;
 	}
@@ -226,7 +231,7 @@ public class CommandExecutor {
 	        w.append(vf.string(imports.get(i)));
 	      }
 	    } else {
-	      System.err.println("No tests to execute; import modules with tests or give list of modules with tests");
+	      stderr.println("No tests to execute; import modules with tests or give list of modules with tests");
 	      return;
 	    }
 	  }
@@ -237,7 +242,7 @@ public class CommandExecutor {
 	      pcfg.getBin(), 
 	      true,
 	      makeCompileKwParamsAsIMap());
-	  System.err.println("executeTests: " + res);
+	  stderr.println("executeTests: " + res);
 	}
 	
 	private IValue executeModule(String main, boolean onlyMainChanged) throws RascalShellExecutionException {
@@ -248,11 +253,22 @@ public class CommandExecutor {
 			w.append("import ").append(imp).append(";\n");
 		}
 		for(String syn : syntaxDefinitions.keySet()){
-			w.append(syntaxDefinitions.get(syn)).append("\n");
+		    for(String alt : syntaxDefinitions.get(syn)){
+		      w.append(alt).append("\n");
+		    }
 		}
-		for(String decl : declarations){
-			w.append(decl).append("\n");
+		for(String d : dataDeclarations.keySet()){
+		  for(String alt : dataDeclarations.get(d)){
+		    w.append(alt).append("\n");
+		  }
 		}
+		
+		for(String f : functionDeclarations.keySet()){
+          for(String alt : functionDeclarations.get(f)){
+            w.append(alt).append("\n");
+          }
+        }
+		
 		for(String name : variables.keySet()){
 			Variable var = variables.get(name);
 			w.append(var.type).append(" ").append(name).append(";\n");
@@ -384,7 +400,6 @@ public class CommandExecutor {
 	
 	private void undeclareVar(String name){
 		variables.remove(name);
-		//declarations.remove(declarations.size() - 1);
 		moduleVariables.remove("ConsoleInput:" + name);
 	}
 	
@@ -536,7 +551,7 @@ public class CommandExecutor {
 		}
 	}
 	
-	private IValue evalDeclaration(String src, ITree cmd) throws FactTypeUseException, IOException{
+	private IValue evalDeclaration(String src, ITree cmd) throws FactTypeUseException, IOException, RascalShellExecutionException{
 		IValue result = null;
 		if(is(cmd, "variable")){
 			ITree type = get(cmd, "type");
@@ -569,17 +584,41 @@ public class CommandExecutor {
 			  }
 			}
 			return result;
+		} else if(is(cmd, "dataAbstract") || is(cmd, "data")){
+		  ITree userType = get(cmd, "user");
+		  String name = unparse(get(userType, "name"));
+		  List<String> alts = dataDeclarations.containsKey(name) 
+		                        ? dataDeclarations.get(name)
+		                        : new ArrayList<String>();
+		  alts.add(src);
+		  dataDeclarations.put(name,  alts);
+		  try {
+		    result = executeModule(makeMain("true;"), false);
+		    return null;
+		  } catch (RascalShellExecutionException e) {
+		    alts.remove(src);
+		    dataDeclarations.put(name,  alts);
+		    throw e;
+		  }
+		} else if(is(cmd, "function")){
+		  ITree functionDeclaration = get(cmd, "functionDeclaration");
+		  ITree signature = get(functionDeclaration, "signature");
+		  String name = unparse(get(signature, "name"));
+		  List<String> alts = functionDeclarations.containsKey(name) 
+		      ? functionDeclarations.get(name)
+		          : new ArrayList<String>();
+		      alts.add(src);
+		      functionDeclarations.put(name,  alts);
+		      try {
+		        result = executeModule(makeMain("true;"), false);
+		        return null;
+		      } catch (RascalShellExecutionException e) {
+		        alts.remove(src);
+		        functionDeclarations.put(name,  alts);
+		        throw e;
+		      }
 		}
-		
-		// TODO handle here data, dataAbstract and function
-		declarations.add(src);
-	
-		try {
-			result =  executeModule(makeMain("true;"), false);
-		} catch (RascalShellExecutionException e){
-			declarations.remove(src);
-		}
-		return null;
+		return reportError("Not supported construct: " + src);
 	}
 	
 	private IValue evalImport(String src, ITree imp) throws FactTypeUseException, IOException, RascalShellExecutionException{
@@ -603,12 +642,17 @@ public class CommandExecutor {
 			StringWriter w = new StringWriter();
 			TreeAdapter.unparse(get(get(imp, "syntax"), "defined"), w);
 			String name = w.toString();
-			syntaxDefinitions.put(name, src);
+			List<String> alts = syntaxDefinitions.containsKey(name) 
+			                          ? syntaxDefinitions.get(name)
+			                          : new ArrayList<String>();
+			alts.add(src);
+            syntaxDefinitions.put(name, alts);
 			try {
 				result = executeModule(makeMainOk(), false);
 				return null;
 			} catch (RascalShellExecutionException e){
-				syntaxDefinitions.remove(name);
+			    alts.remove(src);
+				syntaxDefinitions.put(name, alts);
 				throw e;
 			}
 		}
@@ -727,31 +771,42 @@ public class CommandExecutor {
 			break;
 			
 		case "declarations":
-			if(syntaxDefinitions.isEmpty() && declarations.isEmpty() && variables.isEmpty()){
-				System.err.println("No declarations");
-			} else {
-				for(String synName : syntaxDefinitions.keySet()){
-					System.err.println(syntaxDefinitions.get(synName));
-				}
+		  if(syntaxDefinitions.isEmpty() 
+		      && dataDeclarations.isEmpty() 
+		      &&  functionDeclarations.isEmpty() 
+		      && variables.isEmpty()){
+		    stderr.println("No declarations");
+		  } else {
+		    for(String synName : syntaxDefinitions.keySet()){
+		      for(String alt : syntaxDefinitions.get(synName)){
+		        stderr.println(alt);
+		      }
+		    }
+		    for(String dataName : dataDeclarations.keySet()){
+		      for(String alt : dataDeclarations.get(dataName)){
+		        stderr.println(alt);
+		      }
+		    }
+		    for(String funName : functionDeclarations.keySet()){
+		      for(String alt : functionDeclarations.get(funName)){
+		        stderr.println(alt);
+		      }
+		    }
 
-				for(String decl : declarations){
-					System.err.println(decl);
-				}
+		    for(String varName : variables.keySet()){
+		      Variable var = variables.get(varName);
+		      stderr.println(var.type + " " + varName + ";");
+		    }
+		  }
 
-				for(String varName : variables.keySet()){
-					Variable var = variables.get(varName);
-					System.err.println(var.type + " " + varName + ";");
-				}
-			}
-			
-			break;
+		  break;
 			
 		case "modules":
 			if(imports.isEmpty()){
-				System.err.println("No imported modules");
+				stderr.println("No imported modules");
 			} else {
 				for(String imp : imports){
-					System.err.println(imp);
+					stderr.println(imp);
 				}
 			}
 			break;
@@ -771,12 +826,15 @@ public class CommandExecutor {
 				for(int i = 1; i <words.length; i++){
 					undeclareVar(words[i]);
 					syntaxDefinitions.remove(words[i]);
+					functionDeclarations.remove(words[i]);
+					dataDeclarations.remove(words[i]);
 				}
 			} else {
 				variables =  new HashMap<>();
-				declarations = new ArrayList<>();
 				syntaxDefinitions = new HashMap<>();
-			}
+				functionDeclarations = new HashMap<>();
+				dataDeclarations = new HashMap<>();
+				}
 			break;
 		
 		case "break":
