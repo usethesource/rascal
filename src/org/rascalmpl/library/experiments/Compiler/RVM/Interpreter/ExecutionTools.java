@@ -145,6 +145,7 @@ public class ExecutionTools {
 				 */
 				if(executable.getUidModuleMain().equals("")) {
 					throw RascalRuntimeException.noMainFunction(null);
+					//throw new RuntimeException("No main function found");
 				}
 				String moduleName = executable.getModuleName();
 //				if(!uid_module_init.isEmpty()){
