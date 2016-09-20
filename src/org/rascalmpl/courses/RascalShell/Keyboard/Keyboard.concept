@@ -1,0 +1,15 @@
+# Keyboard Shortcuts
+
+.Synopsis
+Keybord shortcuts.
+
+.Description
+
+RascalShell uses https://github.com/jline/jline2[jline2] for handling console input.
+
+Some convenient shortcuts are:
+
+ * `<CTRL>a`  Move cursor to begin of line
+ * `<CTRL>e`  Move cursor to end of line
+ * `<CTRL>k`  Kill remainder of line after cursor
+ * `<CTRL>l`  Clear screen
