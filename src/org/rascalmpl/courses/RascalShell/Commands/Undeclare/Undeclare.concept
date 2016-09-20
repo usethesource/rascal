@@ -1,0 +1,23 @@
+# Undeclare Command
+
+.Synopsis
+Remove a declaration from the current session
+
+.Syntax
+`undeclare _Name_`
+
+.Description
+
+Remove one of the declarations entered during the current session.
+Also see <<Declarations Command>> to list all declarations.
+
+.Examples
+
+[source,rascal-shell]
+----
+real pi = 3.14;
+data D = d1(int n) | d2(str s);
+declarations
+undeclare D
+declarations
+----
