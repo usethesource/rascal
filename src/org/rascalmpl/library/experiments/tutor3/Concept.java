@@ -152,7 +152,7 @@ public class Concept {
       StringWriter sw = new StringWriter(result.length()+5);
       result.split("\n");
       for(String s :  result.split("\n")){
-        sw.append("[red]#").append(s).append("#\n");
+        sw.append("[red]##").append(s).append("##\n");
       }
       return sw.toString();
     }

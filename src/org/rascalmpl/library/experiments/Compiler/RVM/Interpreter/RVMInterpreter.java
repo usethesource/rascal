@@ -133,6 +133,7 @@ public class RVMInterpreter extends RVMCore {
 
 		if (main_function == null) {
 			throw RascalRuntimeException.noMainFunction(null);
+		  //throw new RuntimeException("No main function found");
 		}
 		
 		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
