@@ -16,10 +16,8 @@ Test Case
 
 [source,rascal-shell,error]
 ----
-import ParseTree;
-syntax A = "a";
-syntax E = A | "(" E ")" | E "+" E;
-parse(#E, "a+a+a");
+NOW = $T20:11:01.463+00:00$;
+NOW.year = 2020;
 ----
 
 .Description

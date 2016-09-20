@@ -36,6 +36,7 @@ fac(5)
 Turn trace off and execute the same function:
 
 [source,rascal-shell,continue]
+----
 set trace false
 fac(5)
 ----
