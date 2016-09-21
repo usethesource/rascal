@@ -24,4 +24,4 @@ NOW = $T20:11:01.463+00:00$;
 NOW.year = 2020;
 ----
 
-INFO: Exception is not shown properly
+NOTE: Exception is not shown properly

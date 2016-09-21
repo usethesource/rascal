@@ -31,6 +31,9 @@ Remedies:
 *  Catch the `NoSuchAnnotation yourself`, see link:/Rascal#Statements-TryCatch[try catch].
 
 .Examples
+
+INFO: Eliminate the double [red]##Error: Error:##
+
 [source,rascal-shell,error]
 ----
 data Fruit = apple(int n) | orange(int n);
