@@ -16,4 +16,4 @@ by their _break point number_ as determined by the order in which they were crea
 
 The first form, lists all current break points.
 
-The second form, sets a break point for a specific function or line in a function.
+The second and third form, set a break point for a specific function or line in a function.
