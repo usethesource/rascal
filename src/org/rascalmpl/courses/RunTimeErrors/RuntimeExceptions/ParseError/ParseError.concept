@@ -20,29 +20,34 @@ link:/Libraries#ParseTree-parse[parse] function is applied to a syntactically in
 Remedies:
 
 *  Correct the input sentence.
-*  Adapt the grammar so that it accepts the inpout sentence.
+*  Adapt the grammar so that it accepts the input sentence.
 *  Catch the ParseError yourself, see link:/Rascal#Statements-TryCatch[try catch].
 
 
 .Examples
-Define the Non-terminal `As` that accepts one or more letters `a`:
-[source,rascal-shell,error]
+Define the non-terminal `As` that accepts one or more letters `a`:
+[source,rascal-shell]
 ----
-import ParseTree;
 syntax As = "a"+;
 ----
-It parses a sentences of letters `a`:
-[source,rascal-shell,continue,error]
+Then import `ParseTree` so that we can use the `parse` function:
+[source,rascal-shell,continue]
+----
+import ParseTree;
+----
+Now we can parse sentences consisting of letters `a`:
+[source,rascal-shell,continue]
 ----
 parse(#As, "aaaaaaaa");
 ----
-But gives an error when parsing an input that it cannot accept:
+But we get an error when parsing syntactically incorrect input  (i.e., that does not
+consists of letters `a` only):
 [source,rascal-shell,continue,error]
 ----
 parse(#As, "aaaabaaa");
 ----
-We can also catch the ParseError. First import the Rascal exceptions (which are also included in Prelude) and IO:
-[source,rascal-shell,continue,error]
+We can also catch the ParseError but first import the Rascal modules `Exception` and `IO`:
+[source,rascal-shell,continue]
 ----
 import Exception;
 import IO;

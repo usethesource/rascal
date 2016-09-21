@@ -23,5 +23,5 @@ NOW = $2016-09-18$;
 NOW.hour = 14;
 ----
 
-INFO: Exception is not shown properly
+NOTE: Exception is not shown properly
 

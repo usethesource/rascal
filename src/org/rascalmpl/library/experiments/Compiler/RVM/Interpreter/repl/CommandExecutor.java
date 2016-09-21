@@ -164,8 +164,8 @@ public class CommandExecutor {
 		variables = new HashMap<>();
 		imports = new ArrayList<>();
 		syntaxDefinitions = new HashMap<>();
-		dataDeclarations = new HashMap<>();
 		functionDeclarations = new HashMap<>();
+		dataDeclarations = new HashMap<>();
 		moduleVariables = new HashMap<>();
 		forceRecompilation = true;
 	}
