@@ -5,8 +5,8 @@ Quit the RascalShell.
 
 .Syntax
 * `quit`
-* EOF
+* kbd:[Ctrl+d] or kbd:[Eof]
 
 .Description
 
-Typing `quit` or EOF will end the execution of the RascalShell.
+Typing `quit` or kbd:[Ctrl+d] will end the execution of the RascalShell.
