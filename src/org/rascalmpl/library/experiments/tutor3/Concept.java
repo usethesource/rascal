@@ -130,7 +130,8 @@ public class Concept {
 		":images:       ../images/\n" +
 		":table-caption!:\n" +
 		":prewrap!:\n" +
-		":docinfo1:\n";
+		":docinfo1:\n" +
+		":experimental:\n";
 	
 	public static String getSearchForm(){
 		return
