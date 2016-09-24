@@ -193,7 +193,8 @@ public class PreludeCompiled extends Prelude {
 
 		public boolean less(IValue x, IValue y) {
 			return ((IBool) less.call(new Type[] { x.getType(), y.getType() },
-					new IValue[] { x, y }, null)).getValue();
+					                  new IValue[] { x, y }, 
+					                  null)).getValue();
 		}
 	}
 

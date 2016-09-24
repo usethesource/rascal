@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RascalExtraction;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
@@ -9,7 +10,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
@@ -45,9 +45,9 @@ public class RascalExtraction {
 	 * @param kwArgs	Keyword arguments
 	 * @return A tuple consisting of 1. string with extracted documentation, 2. a list of extracted declaration info
 	 */
-	public ITuple extractDoc(IString parent, ISourceLocation moduleLoc, IMap kwArgs){
+	public ITuple extractDoc(IString parent, ISourceLocation moduleLoc, Map<String,IValue> kwArgs){
 		try {
-			return (ITuple) rvm.executeRVMFunction(extractDoc, new IValue[] { parent, moduleLoc, kwArgs});
+			return (ITuple) rvm.executeRVMFunction(extractDoc, new IValue[] { parent, moduleLoc }, kwArgs);
 		} catch (Exception e){
 			e.printStackTrace(System.err);
 		}

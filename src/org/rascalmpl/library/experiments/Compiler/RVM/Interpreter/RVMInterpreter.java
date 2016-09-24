@@ -61,14 +61,15 @@ public class RVMInterpreter extends RVMCore {
 	 * Implements abstract function for RVM interpreter
 	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance, org.rascalmpl.value.IValue[])
 	 */
-	public IValue executeRVMFunction(FunctionInstance func, IValue[] args){
+	public IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){
 		Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
 		Frame cf = root;
 
 		// Pass the program arguments to main
-		for(int i = 0; i < args.length; i++) {
-			cf.stack[i] = args[i]; 
+		for(int i = 0; i < posArgs.length; i++) {
+			cf.stack[i] = posArgs[i]; 
 		}
+		cf.stack[func.args.length-1] =  kwArgs;       // CHECK
 		Object o = interpretRVMProgram(root, cf);
 		if(o instanceof Thrown){
 			throw (Thrown) o;
@@ -80,9 +81,9 @@ public class RVMInterpreter extends RVMCore {
 	 * Implements abstract function for RVM interpreter
 	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunctionInstance, org.rascalmpl.value.IValue[])
 	 */
-	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] args){
+	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){
 		Function firstFunc = functionStore[func.getFunctions()[0]]; // TODO: null?
-		int arity = args.length;
+		int arity = posArgs.length + 1;
 		int scopeId = func.env.scopeId;
 		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
 		root.sp = arity;
@@ -93,11 +94,12 @@ public class RVMInterpreter extends RVMCore {
 				
 		Frame cf = c_ofun_call_next.nextFrame(functionStore);
 		// Pass the program arguments to func
-		for(int i = 0; i < args.length; i++) {
-			cf.stack[i] = args[i]; 
+		for(int i = 0; i < posArgs.length; i++) {
+			cf.stack[i] = posArgs[i]; 
 		}
-		cf.sp = args.length;
-		cf.previousCallFrame = null;		// ensure that func will retrun here
+		cf.stack[arity - 1] = kwArgs;
+		cf.sp = arity;
+		cf.previousCallFrame = null;		// ensure that func will return here
 		Object o = interpretRVMProgram(root, cf, c_ofun_call_next);
 		if(o instanceof Thrown){
 			throw (Thrown) o;
