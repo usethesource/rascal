@@ -74,7 +74,7 @@ public class Rascal {
                     .build();
 
             ISourceLocation binary = findBinary(cmdOpts.getCommandLocOption("bin"), cmdOpts.getModule().getValue());
-            System.out.println(RVMCore.readFromFileAndExecuteProgram(binary, cmdOpts.getModuleOptionsAsIMap(), rex));
+            System.out.println(RVMCore.readFromFileAndExecuteProgram(binary, cmdOpts.getModuleOptionsAsMap(), rex));
         } catch (Throwable e) {
             e.printStackTrace();
             System.err.println("rascal: cannot execute program: " + e.getMessage());

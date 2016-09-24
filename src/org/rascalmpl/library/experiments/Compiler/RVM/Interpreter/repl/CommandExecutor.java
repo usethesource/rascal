@@ -174,12 +174,12 @@ public class CommandExecutor {
 		this.debugObserver = observer;
 	}
 	
-	private IMap makeCompileKwParamsAsIMap(){
-		IMapWriter w = vf.mapWriter();
-		w.put(vf.string("verbose"), vf.bool(false));
-		w.put(vf.string("optimize"), vf.bool(optimize));
-		w.put(vf.string("enableAsserts"), vf.bool(enableAsserts));
-		return w.done();
+	private Map<String, IValue> makeCompileKwParamsAsMap(){
+		Map<String,IValue> result = new HashMap<>();
+		result.put("verbose", vf.bool(false));
+		result.put("optimize", vf.bool(optimize));
+		result.put("enableAsserts", vf.bool(enableAsserts));
+		return result;
 	}
 	
 	private boolean noErrors(RVMExecutable exec){
@@ -241,7 +241,7 @@ public class CommandExecutor {
 	      pcfg.getboot(), 
 	      pcfg.getBin(), 
 	      true,
-	      makeCompileKwParamsAsIMap());
+	      makeCompileKwParamsAsMap());
 	  stderr.println("executeTests: " + res);
 	}
 	
@@ -286,7 +286,7 @@ public class CommandExecutor {
 																	pcfg.getLibs(), 
 																	pcfg.getboot(), 
 																	pcfg.getBin(), 
-																	makeCompileKwParamsAsIMap());
+																	makeCompileKwParamsAsMap());
 			
 			if(noErrors(rvmConsoleExecutable)){
 				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getboot(), stdout, stderr)
@@ -304,7 +304,7 @@ public class CommandExecutor {
 						.observedBy(debugObserver != null ? debugObserver.getObserverWhenActiveBreakpoints() : null)
 						.build();
 						
-				IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
+				IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, new HashMap<String,IValue>(), rex);
 				lastRvmConsoleExecutable = rvmConsoleExecutable;
 				updateModuleVariables(rex.getModuleVariables());
 				forceRecompilation = false;

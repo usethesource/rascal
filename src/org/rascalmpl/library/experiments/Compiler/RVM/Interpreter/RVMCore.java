@@ -105,7 +105,7 @@ public abstract class RVMCore {
 		return ExecutionTools.initializedRVM(rvmExecutable, rex);
 	}
 
-	public static IValue readFromFileAndExecuteProgram(ISourceLocation rvmBinaryLocation, IMap keywordArguments, RascalExecutionContext rex) throws Exception{
+	public static IValue readFromFileAndExecuteProgram(ISourceLocation rvmBinaryLocation, Map<String, IValue> keywordArguments, RascalExecutionContext rex) throws Exception{
 		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
 		return ExecutionTools.executeProgram(rvmExecutable, keywordArguments, rex);
 	}
@@ -262,13 +262,13 @@ public abstract class RVMCore {
 	}
 	
 	private OverloadedFunction getOverloadedFunctionByNameAndArity(String name, int arity) throws NoSuchRascalFunction {
-	  System.err.println("getFirstOverloadedFunctionByNameAndArity: " + name + ", " + arity);  
+	  //System.err.println("getFirstOverloadedFunctionByNameAndArity: " + name + ", " + arity);  
 	  OverloadedFunction of = overloadedStoreMap.get(name);
 	  Type tp = null;
-	  System.err.println(of);
+	  //System.err.println(of);
 	  ArrayList<Integer> filteredAlts = new ArrayList<>();
 	  for (int alt : of.getFunctions()) {
-	    System.err.println("alt: " + functionStore[alt].ftype);
+	    //System.err.println("alt: " + functionStore[alt].ftype);
 	    if (functionStore[alt].ftype.getArity() == arity) {
 	      tp = functionStore[alt].ftype;
 	      filteredAlts.add(alt);
@@ -400,48 +400,49 @@ public abstract class RVMCore {
 	
 	/**
 	 * Execute an OverloadedFunction
-	 * @param func	OverloadedFunction
-	 * @param posAndKwArgs	Arguments (last one is a map with keyword arguments)
-	 * @return		Result of function execution
+	 * @param func	   OverloadedFunction
+	 * @param posArgs  Arguments (last one is a map with keyword arguments)
+	 * @param kwArgs   Keyword arguments
+	 * @return		   Result of function execution
 	 */
-	public IValue executeRVMFunction(OverloadedFunction func, IValue[] posAndKwArgs){
+	public IValue executeRVMFunction(OverloadedFunction func, IValue[] posArgs, Map<String, IValue> kwArgs){
 		if(func.getFunctions().length > 0){
 				Function firstFunc = functionStore[func.getFunctions()[0]]; 
 				Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
 				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functions, func.constructors, root, func.scopeIn, functionStore, constructorStore, this);
-				return executeRVMFunction(ofi, posAndKwArgs);
+				return executeRVMFunction(ofi, posArgs, kwArgs);
 		} else {
 			Type cons = constructorStore.get(func.getConstructors()[0]);
-			return vf.constructor(cons, posAndKwArgs);
+			return vf.constructor(cons, posArgs);
 		}
 	}
 	
-	/**
-	 * Execute an OverloadedFunction with positional and keyword arguments
-	 * @param func	OverloadedFunction
-	 * @param args	Positional arguments
-	 * @param kwArgs Keyword arguments
-	 * @return		Result of function execution
-	 */
-	public IValue executeRVMFunction(OverloadedFunction func, IValue[] posArgs, IMap kwArgs){
-		IValue[] args = new IValue[posArgs.length + 1];
-		int i = 0;
-		for(IValue argValue : posArgs) {
-			args[i++] = argValue;
-		}
-		args[i] = kwArgs;
-		
-		if(func.getFunctions().length > 0){
-				Function firstFunc = functionStore[func.getFunctions()[0]]; 
-				Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
-				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functions, func.constructors, root, func.scopeIn, functionStore, constructorStore, this);
-				
-				return executeRVMFunction(ofi, args);
-		} else {
-			Type cons = constructorStore.get(func.getConstructors()[0]);
-			return vf.constructor(cons, args);
-		}
-	}
+//	/**
+//	 * Execute an OverloadedFunction with positional and keyword arguments
+//	 * @param func	OverloadedFunction
+//	 * @param args	Positional arguments
+//	 * @param kwArgs Keyword arguments
+//	 * @return		Result of function execution
+//	 */
+//	public IValue executeRVMFunction(OverloadedFunction func, IValue[] posArgs, IMap kwArgs){
+//		IValue[] args = new IValue[posArgs.length + 1];
+//		int i = 0;
+//		for(IValue argValue : posArgs) {
+//			args[i++] = argValue;
+//		}
+//		args[i] = kwArgs;
+//		
+//		if(func.getFunctions().length > 0){
+//				Function firstFunc = functionStore[func.getFunctions()[0]]; 
+//				Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
+//				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functions, func.constructors, root, func.scopeIn, functionStore, constructorStore, this);
+//				
+//				return executeRVMFunction(ofi, args, null);
+//		} else {
+//			Type cons = constructorStore.get(func.getConstructors()[0]);
+//			return vf.constructor(cons, args);
+//		}
+//	}
 	
 	/************************************************************************************/
 	/*		Abstract methods to execute RVMFunctions and RVMPrograms					*/
@@ -460,18 +461,20 @@ public abstract class RVMCore {
 	/**
 	 * Execute a FunctionInstance
 	 * @param func		Function instance
-	 * @param posAndKwArgs		Arguments (last one is a map with keyword arguments)
+	 * @param posArgs	Arguments (last one is a map with keyword arguments)
+	 * @param kwArgs    Keyword arguments
 	 * @return			Result of function execution
 	 */
-	abstract public IValue executeRVMFunction(FunctionInstance func, IValue[] posAndKwArgs);
+	abstract public IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs);
 	
 	/**
 	 * Execute an OverloadedFunctionInstance
-	 * @param func	OverloadedFunctionInstance
-	 * @param posAndKwArgs	Arguments (last one is a map with keyword arguments)
-	 * @return		Result of function execution
+	 * @param func	   OverloadedFunctionInstance
+	 * @param posArgs  Positional arguments
+	 * @param kwArgs   Keyword arguments
+	 * @return		   Result of function execution
 	 */
-	abstract public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posAndKwArgs);
+	abstract public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs);
 
 	/**
 	 * Execute a function during a visit
@@ -638,7 +641,7 @@ public abstract class RVMCore {
 	  }
 	  
 	  boolean hasKeywordParams(Object[] args){
-	    return args[args.length - 1] instanceof IMap;
+	    return args[args.length - 1] instanceof Map<?,?>;
 	  }
 	  
 	  OverloadedFunction getOverloadedFunction(Method method, Object[] args) throws NoSuchRascalFunction{
@@ -652,6 +655,7 @@ public abstract class RVMCore {
 	    return f;
 	  }
 
+	  @SuppressWarnings("unchecked")
 	  @Override
 	  public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 	    OverloadedFunction f = getOverloadedFunction(method, args);
