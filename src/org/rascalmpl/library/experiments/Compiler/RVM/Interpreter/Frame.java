@@ -28,7 +28,7 @@ public class Frame {
 	 * 
 	 * stack[0] ... stack[nformals-1] 		  : the given actual parameters
 	 * stack[nformals-1] 					  : actual keyword parameters
-	 * stack[nformals]                        : defaul keyword parameters
+	 * stack[nformals]                        : default keyword parameters
 	 * stack[nformals+1] ... stack[nlocals-1] : local variables and temporaries
 	 * stack[nlocals] ... stack[stackSize-1]  : intermediate results during execution
 	 * 

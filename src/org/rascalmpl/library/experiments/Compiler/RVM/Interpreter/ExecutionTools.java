@@ -2,7 +2,6 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.ITestResultListener;
@@ -12,9 +11,7 @@ import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.TypeStore;
@@ -83,7 +80,7 @@ public class ExecutionTools {
 		return linker.link(rvmProgram,	jvm.getValue());
 	}
 		
-	public static IValue executeProgram(RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){
+	public static IValue executeProgram(RVMExecutable executable, Map<String, IValue> keywordArguments, RascalExecutionContext rex){
 		RVMCore rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVMInterpreter(executable, rex);
 		
 		Map<IValue, IValue> moduleVariables = rex.getModuleVariables();
@@ -108,15 +105,9 @@ public class ExecutionTools {
 	 * @param rex				Execution context
 	 * @return					Result of executing program with given parameters in given context
 	 */
-	public static IValue executeProgram(RVMCore rvm, RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){
+	public static IValue executeProgram(RVMCore rvm, RVMExecutable executable, Map<String, IValue> keywordArguments, RascalExecutionContext rex){
 		
 		IValue[] arguments = new IValue[0];
-		HashMap<String, IValue> hmKeywordArguments = new HashMap<>();
-		
-		for(IValue key : keywordArguments){
-			String keyString = ((IString) key).getValue();
-			hmKeywordArguments.put(keyString, keywordArguments.get(key));
-		}
 
 		//try {
 			//long start = Timing.getCpuTime();
@@ -127,7 +118,7 @@ public class ExecutionTools {
 				 * Execute as testsuite
 				 */
 				if(!uid_module_init.isEmpty()){
-					rvm.executeRVMProgram("TESTSUITE", executable.getUidModuleInit(), arguments, hmKeywordArguments);
+					rvm.executeRVMProgram("TESTSUITE", executable.getUidModuleInit(), arguments, keywordArguments);
 				}
 
 				IListWriter w = vf.listWriter();
@@ -135,7 +126,7 @@ public class ExecutionTools {
 				for(String uid_testsuite: executable.getTestSuites()){
 					rex.clearCaches();
 					//System.out.println("Testsuite: " + uid_testsuite);
-					IList test_results = (IList)rvm.executeRVMProgram("TESTSUITE" + n++, uid_testsuite, arguments, hmKeywordArguments);
+					IList test_results = (IList)rvm.executeRVMProgram("TESTSUITE" + n++, uid_testsuite, arguments, keywordArguments);
 					w.insertAll(test_results);
 				}
 				result = w.done();
@@ -152,7 +143,7 @@ public class ExecutionTools {
 //					rvm.executeRVMProgram(moduleName, executable.getUidModuleInit(), arguments, hmKeywordArguments);
 //				}
 				//System.out.println("Initializing: " + (Timing.getCpuTime() - start)/1000000 + "ms");
-				result = rvm.executeRVMProgram(moduleName, executable.getUidModuleMain(), arguments, hmKeywordArguments);
+				result = rvm.executeRVMProgram(moduleName, executable.getUidModuleMain(), arguments, keywordArguments);
 			}
 			//long now = Timing.getCpuTime();
 			MuPrimitive.exit(rvm.getStdOut());
