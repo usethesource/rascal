@@ -7,6 +7,7 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +43,7 @@ import org.rascalmpl.value.type.TypeStore;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.kenai.jffi.Array;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
@@ -100,21 +102,21 @@ public class Webserver {
       private IConstructor makeRequest(String path, Method method, Map<String, String> headers,
           Map<String, String> parms, Map<String, String> files) throws FactTypeUseException, IOException {
         Map<String,IValue> kws = new HashMap<>();
-        kws.put("params", makeMap(parms));
+        kws.put("parameters", makeMap(parms));
         kws.put("uploads", makeMap(files));
         kws.put("headers", makeMap(headers));
         
         switch (method) {
           case HEAD:
-            return vf.constructor(head, vf.string(path));
+            return vf.constructor(head, new IValue[]{vf.string(path)}, kws);
           case DELETE:
-            return vf.constructor(delete, vf.string(path));
+            return vf.constructor(delete, new IValue[]{vf.string(path)}, kws);
           case GET:
-            return vf.constructor(get, vf.string(path));
+            return vf.constructor(get, new IValue[]{vf.string(path)}, kws);
           case PUT:
-            return vf.constructor(put, vf.string(path), getContent(parms));
+            return vf.constructor(put, new IValue[]{vf.string(path), getContent(parms)}, kws);
           case POST:
-            return vf.constructor(post, vf.string(path), getContent(parms));
+            return vf.constructor(post, new IValue[]{vf.string(path), getContent(parms)}, kws);
           default:
               throw new IOException("Unhandled request " + method);
         }
