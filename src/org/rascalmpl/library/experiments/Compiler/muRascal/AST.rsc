@@ -39,7 +39,7 @@ MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name
 // function, or a nested or anomyous function inside a top level function. 
          
 public data MuFunction =					
-                muFunction(str qname, str uqname, Symbol ftype, str scopeIn, int nformals, int nlocals, bool isVarArgs, bool isPublic,
+                muFunction(str qname, str uqname, Symbol ftype, Symbol kwType, str scopeIn, int nformals, int nlocals, bool isVarArgs, bool isPublic,
                            loc src, list[str] modifiers, map[str,str] tags, bool isConcreteArg, int abstractFingerprint, int concreteFingerprint,
                            MuExp body)
               | muCoroutine(str qname, str uqname, str scopeIn, int nformals, int nlocals, loc src, list[int] refs, MuExp body)

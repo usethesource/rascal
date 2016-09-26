@@ -140,7 +140,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 		
 	  this.vf = vf;
 	  this.bootDir = bootDir; 
-	  if(bootDir != null && !bootDir.getScheme().equals("boot") && !URIResolverRegistry.getInstance().isDirectory(bootDir)){
+	  if(bootDir != null && !(bootDir.getScheme().equals("boot") ||  
+	                          bootDir.getScheme().equals("compressed+boot") || 
+	                          URIResolverRegistry.getInstance().isDirectory(bootDir))){
 	    throw new RuntimeException("bootDir should be a directory, given " + bootDir);
 	  }
 	  
@@ -463,9 +465,11 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	ITestResultListener getTestResultListener() { return testResultListener; }
 	
-	public String getCurrentModuleName(){ return currentModuleName; }
+	public String getFullModuleName(){ return currentModuleName; }
 	
-	public void setCurrentModuleName(String moduleName) { currentModuleName = moduleName; }
+	public String getFullModuleNameAsPath() { return currentModuleName.replaceAll("::",  "/") + ".rsc"; }
+	
+	public void setFullModuleName(String moduleName) { currentModuleName = moduleName; }
 	
 	public Stack<String> getIndentStack() { return indentStack; }
 	

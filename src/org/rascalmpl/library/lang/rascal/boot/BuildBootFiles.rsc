@@ -148,12 +148,12 @@ str relativize(str path1, str path2){
 value build(bool jvm=true, bool full=true){
      println("build: full = <full>, jvm = <jvm>");
 
-     pcfg = pathConfig(srcs=[|std:///|], bin=BINBOOT, libs=[BINBOOT]);
+     pcfg = pathConfig(srcs=[|std:///|], bin=BINBOOT, libs=[BINBOOT], boot=BINBOOT);
      
-     if(full){
-        report("Removing current compiled boot files <BINBOOT>");
-        remove(BINBOOT);
-     }
+     //if(full){
+     //   report("Removing current compiled boot files <BINBOOT>");
+     //   remove(BINBOOT);
+     //}
      
      commands = "#!/bin/sh\n";
      
