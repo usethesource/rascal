@@ -180,7 +180,7 @@ public class RVMonJVM extends RVMCore {
 	@Override
 	public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] posArgs, Map<String,IValue> kwArgs) {
 
-		rex.setCurrentModuleName(moduleName);
+		rex.setFullModuleName(moduleName);
 
 		Function main_function = functionStore[functionMap.get(uid_main)];
 
