@@ -16,6 +16,7 @@ import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
@@ -37,6 +38,7 @@ public class Function implements Serializable {
 	
 	String name;
 	Type ftype;
+	Type kwType;
 	int scopeId;
 	String funIn;
 	public int scopeIn = -1;
@@ -83,11 +85,15 @@ public class Function implements Serializable {
 		vf = vfactory;
 	}
 	
-	public Function(final String name, final Type ftype, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
+	public Function(final String name, final Type ftype, Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
 			 final int maxstack, boolean concreteArg, int abstractFingerprint,
 			int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int ctpt){
 		this.name = name;
 		this.ftype = ftype;
+		if(kwType == null){
+		  kwType = TypeFactory.getInstance().tupleEmpty();
+		}
+		this.kwType = kwType;
 		this.funIn = funIn;
 		this.nformals = nformals;
 		this.setNlocals(nlocals);
@@ -102,13 +108,17 @@ public class Function implements Serializable {
 		this.continuationPoints = ctpt ;
 	}
 	
-	Function(final String name, final Type ftype, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
+	Function(final String name, final Type ftype, Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
 			 final int maxstack, boolean concreteArg, int abstractFingerprint,
 			int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int scopeIn, IValue[] constantStore, Type[] typeConstantStore,
 			int[] froms, int[] tos, int[] types, int[] handlers, int[] fromSPs, int lastHandler, int scopeId,
 			boolean isCoroutine, int[] refs, boolean isVarArgs, int ctpt){
 		this.name = name;
 		this.ftype = ftype;
+		if(kwType == null){
+          kwType = TypeFactory.getInstance().tupleEmpty();
+        }
+		this.kwType = kwType;
 		this.funIn = funIn;
 		this.nformals = nformals;
 		this.setNlocals(nlocals);
@@ -278,6 +288,9 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 
 		// Type ftype;
 		out.writeObject(new FSTSerializableType(fun.ftype));
+		
+		// Type kwType;
+        out.writeObject(new FSTSerializableType(fun.kwType));
 
 		// int scopeId;
 		out.writeObject(fun.scopeId);
@@ -382,9 +395,26 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 
 		// Type ftype;
 		Type ftype = (Type) in.readObject();
-
-		// int scopeId;
-		Integer scopeId = (Integer) in.readObject();
+		
+		Object o = in.readObject();
+		
+		Type kwType;          // Transitional for boot
+		Integer scopeId;
+		if(o instanceof Type){
+		  kwType = (Type) o;
+		  // int scopeId;
+		  scopeId = (Integer) in.readObject();
+		} else {
+		  kwType = null;
+		  // int scopeId;
+		  scopeId = (Integer) o;
+		}
+		
+//		// Type kwType;
+//        Type kwType = (Type) in.readObject();
+//
+//		// int scopeId;
+//		Integer scopeId = (Integer) in.readObject();
 
 		// private String funIn;
 		String funIn = (String) in.readObject();
@@ -471,7 +501,7 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		// int continuationPoints
 		Integer continuationPoints = (Integer) in.readObject();
 		
-		Function func = new Function(name, ftype, funIn, nformals, nlocals, isDefault, localNames, maxstack, concreteArg, abstractFingerprint, concreteFingerprint, 
+		Function func = new Function(name, ftype, kwType, funIn, nformals, nlocals, isDefault, localNames, maxstack, concreteArg, abstractFingerprint, concreteFingerprint, 
 				codeblock, src, scopeIn, constantStore, typeConstantStore,
 				froms, tos, types, handlers, fromSPs, lastHandler, scopeId,
 				isCoroutine, refs, isVarArgs, continuationPoints);

@@ -128,8 +128,8 @@ public class RVMInterpreter extends RVMCore {
 	 */
 	public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] args, Map<String,IValue> kwArgs) {
 		
-		String oldModuleName = rex.getCurrentModuleName();
-		rex.setCurrentModuleName(moduleName);
+		String oldModuleName = rex.getFullModuleName();
+		rex.setFullModuleName(moduleName);
 		
 		Function main_function = functionStore[functionMap.get(uid_main)];
 
@@ -150,7 +150,7 @@ public class RVMInterpreter extends RVMCore {
 		}
 		IValue res = narrow(o);
 
-		rex.setCurrentModuleName(oldModuleName);
+		rex.setFullModuleName(oldModuleName);
 		return res;
 	}
 	

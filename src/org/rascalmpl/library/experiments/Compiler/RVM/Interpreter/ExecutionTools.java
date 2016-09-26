@@ -171,7 +171,7 @@ public class ExecutionTools {
 		
 		// Execute initializers of imported modules
 		for(String initializer: executable.getInitializers()){
-			rvm.executeRVMProgram("UNDEFINED", initializer, new IValue[0], null);
+			rvm.executeRVMProgram(executable.getModuleName(), initializer, new IValue[0], null);
 		}
 		
 		return rvm;
@@ -195,7 +195,7 @@ public class ExecutionTools {
 
 		 // Execute initializers of imported modules
 		 for(String initializer: rvmExecutable.getInitializers()){
-			 rvm.executeRVMProgram("UNDEFINED", initializer, new IValue[0], null);
+			 rvm.executeRVMProgram(rvmExecutable.getModuleName(), initializer, new IValue[0], null);
 		 }
 
 		 return rvm;
@@ -207,7 +207,7 @@ public class ExecutionTools {
 	  * @param path of compiled binary
 	  * @param rex the execution context to be used
 	  * @return initialized RVM
-	 * @throws IOException 
+	  * @throws IOException 
 	  */
 	public static RVMCore initializedRVM(ISourceLocation bin,  RascalExecutionContext rex) throws IOException {
 		 RVMExecutable rvmExecutable  = RVMExecutable.read(bin);
@@ -216,7 +216,7 @@ public class ExecutionTools {
 
 		 // Execute initializers of imported modules
 		 for(String initializer: rvmExecutable.getInitializers()){
-			 rvm.executeRVMProgram("UNDEFINED", initializer, new IValue[0], null);
+			 rvm.executeRVMProgram(rvmExecutable.getModuleName(), initializer, new IValue[0], null);
 		 }
 
 		 return rvm;

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
