@@ -112,16 +112,16 @@ public class Webserver {
           case GET:
             return vf.constructor(get, new IValue[]{vf.string(path)}, kws);
           case PUT:
-            return vf.constructor(put, new IValue[]{vf.string(path), getContent(parms)}, kws);
+            return vf.constructor(put, new IValue[]{vf.string(path), getContent(files, "content")}, kws);
           case POST:
-            return vf.constructor(post, new IValue[]{vf.string(path), getContent(parms)}, kws);
+            return vf.constructor(post, new IValue[]{vf.string(path), getContent(files, "postData")}, kws);
           default:
               throw new IOException("Unhandled request " + method);
         }
       }
 
       // TODO: this is highly interpreter dependent and must be reconsidered for the compiler version
-      protected IValue getContent(Map<String, String> parms) throws IOException {
+      protected IValue getContent(Map<String, String> parms, String contentParamName) throws IOException {
           return new AbstractFunction(ctx.getCurrentAST(), ctx.getEvaluator(), (FunctionType) functionType, Collections.<KeywordFormal>emptyList(), false, ctx.getCurrentEnvt()) {
             
             @Override
@@ -146,7 +146,7 @@ public class Webserver {
                 Type topType = new TypeReifier(vf).valueToType((IConstructor) argValues[0], store);
                 
                 if (topType.isString()) {
-                  return ResultFactory.makeResult(getTypeFactory().stringType(), vf.string(parms.get("content")), ctx);
+                  return ResultFactory.makeResult(getTypeFactory().stringType(), vf.string(parms.get(contentParamName)), ctx);
                 }
                 else {
                   IValue dtf = keyArgValues.get("dateTimeFormat");
@@ -157,7 +157,7 @@ public class Webserver {
                       .setCalendarFormat((dtf != null) ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
                       .setConstructorsAsObjects((ics != null) ? ((IBool) ics).getValue() : true)
                       .setNodesAsObjects((icn != null) ? ((IBool) icn).getValue() : true)
-                      .read(new JsonReader(new StringReader(parms.get("NanoHttpd.QUERY_STRING"))), topType), ctx);
+                      .read(new JsonReader(new StringReader(parms.get(contentParamName))), topType), ctx);
                 }
               } catch (IOException e) {
                 throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), getAst(), getEval().getStackTrace());
