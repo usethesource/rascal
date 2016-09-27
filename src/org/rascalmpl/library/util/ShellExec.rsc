@@ -58,6 +58,13 @@ public java str readFrom(PID processId);
 
 @doc{
 .Synopsis
+Read from an existing process's output stream with a given wait timeout. Some processes are a little slower in producing output. The wait is used to give the process some extra time in producing output. This is non-blocking apart from the waiting.
+}
+@javaClass{org.rascalmpl.library.util.ShellExec}
+public java str readWithWait(PID processId, int wait);
+
+@doc{
+.Synopsis
 Read from an existing process's error output stream. This is non-blocking.
 }
 @javaClass{org.rascalmpl.library.util.ShellExec}
