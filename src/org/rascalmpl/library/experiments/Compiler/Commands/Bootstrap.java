@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -138,7 +139,7 @@ public class Bootstrap {
         initializeShutdownhook();
 
         if (args.length < 5) {
-        	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder> [--verbose] [--clean] (you provided " + args.length + " arguments instead)");
+        	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder> <b[--verbose] [--clean] (you provided " + args.length + " arguments instead)");
         	System.exit(1);
         	return;
         }
@@ -199,7 +200,7 @@ public class Bootstrap {
         final boolean validatingBootstrap = validatingOption;
         final boolean withCourses = coursesOption;
         
-        Path tmpDir = initializeTemporaryFolder(tmpFolder, cleanTempDir);
+        Path tmpDir = initializeTemporaryFolder(tmpFolder, cleanTempDir, versionToUse);
         
         if (existsDeployedVersion(tmpDir, versionToBuild)) {
             System.out.println("INFO: Got the kernel version to compile: " + versionToBuild + " already from existing deployed build.");
@@ -294,19 +295,25 @@ public class Bootstrap {
         Runtime.getRuntime().addShutdownHook(destroyChild);
     }
 
-    private static Path initializeTemporaryFolder(Path tmpDir, boolean cleanTempDir) {
+    private static Path initializeTemporaryFolder(Path tmpDir, boolean cleanTempDir, String versionToUse) {
         if (cleanTempDir && Files.exists(tmpDir)) {
             info("Removing files in " + tmpDir.toString());
             try {
                 Files.walkFileTree(tmpDir, new SimpleFileVisitor<Path>() {
                     @Override
                     public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                      try {
                         Files.delete(dir);
-                        return super.postVisitDirectory(dir, exc);
+                      }
+                      catch (DirectoryNotEmptyException e) {
+                        // that's ok when we've left the jar file in it.
+                      }
+                      
+                      return super.postVisitDirectory(dir, exc);
                     }
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                      if (!file.endsWith(".jar")) {
+                      if (!file.equals(cachedDeployedVersion(tmpDir, versionToUse))) {
                         // we don't delete downloaded versions automatically to make sure we can
                         // keep running bootstrap while offline in trains and airplanes
                         Files.delete(file);
