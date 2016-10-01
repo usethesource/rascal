@@ -100,7 +100,7 @@ public class RascalC {
                         cmdOpts.getCommandLocOption("boot"),
                         cmdOpts.getCommandLocOption("bin"), 
                         cmdOpts.getCommandLocOption("reloc"), 
-                        cmdOpts.getModuleOptionsAsIMap()); 
+                        cmdOpts.getModuleOptionsAsMap()); 
                 handleMessages(programs);
             } 
             else {
@@ -111,7 +111,7 @@ public class RascalC {
                         cmdOpts.getCommandLocOption("boot"),
                         cmdOpts.getCommandLocOption("bin"), 
                         cmdOpts.getCommandLocOption("reloc"),
-                        cmdOpts.getModuleOptionsAsIMap());
+                        cmdOpts.getModuleOptionsAsMap());
                 handleMessages(programs);
             }
         } catch (Throwable e) {

@@ -59,8 +59,8 @@ public class IOCompiled extends IO {
       
       try {
         return new JsonValueReader(values, store)
-            .setImplicitConstructors(implicitConstructors.getValue())
-            .setImplicitNodes(implicitNodes.getValue())
+            .setConstructorsAsObjects(implicitConstructors.getValue())
+            .setNodesAsObjects(implicitNodes.getValue())
             .setCalendarFormat(dateTimeFormat.getValue())
             .read(new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc)), start);
       }

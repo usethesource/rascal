@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.ExecutionException;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.RascalShellExecutionException;
 
 public class Concept {
 	private final Path name;
@@ -130,7 +130,8 @@ public class Concept {
 		":images:       ../images/\n" +
 		":table-caption!:\n" +
 		":prewrap!:\n" +
-		":docinfo1:\n";
+		":docinfo1:\n" +
+		":experimental:\n";
 	
 	public static String getSearchForm(){
 		return
@@ -152,7 +153,7 @@ public class Concept {
       StringWriter sw = new StringWriter(result.length()+5);
       result.split("\n");
       for(String s :  result.split("\n")){
-        sw.append("[red]#").append(s).append("#\n");
+        sw.append("[red]##").append(s).append("##\n");
       }
       return sw.toString();
     }

@@ -14,18 +14,10 @@ Test Case
 
 .Details
 
-[source,rascal-shell]
+[source,rascal-shell,error]
 ----
-import IO;
-----
-
-
-* Already declared element variable:
-[source,rascal-shell,continue]
-----
-int N;
-if([10, N, 30, 40, 50] := [10, 20, 30, 40, 50])
-   println("Match succeeded, N = <N>");
+NOW = $T20:11:01.463+00:00$;
+NOW.year = 2020;
 ----
 
 .Description

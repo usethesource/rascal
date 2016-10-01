@@ -47,7 +47,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, Pat
       module_name = "<M.header.name>";
       setModuleName(module_name);
       setModuleTags(translateTags(M.header.tags));
-      //if(verbose) println("r2mu: entering ... <module_name>");
+      if(verbose) println("r2mu: entering ... <module_name>, enableAsserts: <enableAsserts>");
    	  
    	  // Extract scoping information available from the configuration returned by the type checker  
    	  extractScopes(config); 
@@ -195,7 +195,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
                                                                    muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),allKWFieldsAndTypes[rname]) | rname <- allKWFieldsAndTypes ])) 
                                                                ]));                          
        leaveFunctionScope();
-       addFunctionToModule(muFunction(fuid, name.name, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid,nformals, nformals + 1, false, true, |std:///|, [], (), false, 0, 0, body));                                             
+       addFunctionToModule(muFunction(fuid, name.name, ftype, Symbol::\tuple([]), (addr.fuid in moduleNames) ? "" : addr.fuid,nformals, nformals + 1, false, true, |std:///|, [], (), false, 0, 0, body));                                             
      
        /*
         * Create companion for computing the values of defaults
@@ -230,7 +230,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
        //iprintln(bodyDefaults);
        
        leaveFunctionScope();
-       addFunctionToModule(muFunction(fuidDefaults, name.name, ftype, (addrDefaults.fuid in moduleNames) ? "" : addrDefaults.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefaults));                                             
+       addFunctionToModule(muFunction(fuidDefaults, name.name, ftype, Symbol::\tuple([]), (addrDefaults.fuid in moduleNames) ? "" : addrDefaults.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefaults));                                             
        
        /*
         * Create companions for each common keyword field
@@ -287,7 +287,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
               // iprintln(bodyDefault);
          
                leaveFunctionScope();
-               addFunctionToModule(muFunction(fuidDefault, prettyPrintName(mainKwf), ftype, (addrDefault.fuid in moduleNames) ? "" : addrDefault.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefault));                                             
+               addFunctionToModule(muFunction(fuidDefault, prettyPrintName(mainKwf), ftype, Symbol::\tuple([]), (addrDefault.fuid in moduleNames) ? "" : addrDefault.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefault));                                             
              }
        }
    }
@@ -330,6 +330,6 @@ private void generate_tests(str module_name, loc src){
       ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
       name_testsuite = "<module_name>_testsuite";
       main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
-      addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, "" /*in the root*/, 2, 2, false, true, src, [], (), false, 0, 0, code));
+      addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, Symbol::\tuple([]), "" /*in the root*/, 2, 2, false, true, src, [], (), false, 0, 0, code));
    }
 }

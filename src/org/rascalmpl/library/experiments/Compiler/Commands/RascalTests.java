@@ -84,7 +84,7 @@ public class RascalTests {
 		            cmdOpts.getCommandLocOption("boot"),
 		            cmdOpts.getCommandLocOption("bin"), 
 		            cmdOpts.getCommandBoolOption("recompile"), 
-		            cmdOpts.getModuleOptionsAsIMap());
+		            cmdOpts.getModuleOptionsAsMap());
 
 		    System.exit(success.getValue() ? 0 : 1);
 		}

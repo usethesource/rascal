@@ -100,28 +100,28 @@ public class Webserver {
       private IConstructor makeRequest(String path, Method method, Map<String, String> headers,
           Map<String, String> parms, Map<String, String> files) throws FactTypeUseException, IOException {
         Map<String,IValue> kws = new HashMap<>();
-        kws.put("params", makeMap(parms));
+        kws.put("parameters", makeMap(parms));
         kws.put("uploads", makeMap(files));
         kws.put("headers", makeMap(headers));
         
         switch (method) {
           case HEAD:
-            return vf.constructor(head, vf.string(path));
+            return vf.constructor(head, new IValue[]{vf.string(path)}, kws);
           case DELETE:
-            return vf.constructor(delete, vf.string(path));
+            return vf.constructor(delete, new IValue[]{vf.string(path)}, kws);
           case GET:
-            return vf.constructor(get, vf.string(path));
+            return vf.constructor(get, new IValue[]{vf.string(path)}, kws);
           case PUT:
-            return vf.constructor(put, vf.string(path), getContent(parms));
+            return vf.constructor(put, new IValue[]{vf.string(path), getContent(files, "content")}, kws);
           case POST:
-            return vf.constructor(post, vf.string(path), getContent(parms));
+            return vf.constructor(post, new IValue[]{vf.string(path), getContent(files, "postData")}, kws);
           default:
               throw new IOException("Unhandled request " + method);
         }
       }
 
       // TODO: this is highly interpreter dependent and must be reconsidered for the compiler version
-      protected IValue getContent(Map<String, String> parms) throws IOException {
+      protected IValue getContent(Map<String, String> parms, String contentParamName) throws IOException {
           return new AbstractFunction(ctx.getCurrentAST(), ctx.getEvaluator(), (FunctionType) functionType, Collections.<KeywordFormal>emptyList(), false, ctx.getCurrentEnvt()) {
             
             @Override
@@ -146,7 +146,7 @@ public class Webserver {
                 Type topType = new TypeReifier(vf).valueToType((IConstructor) argValues[0], store);
                 
                 if (topType.isString()) {
-                  return ResultFactory.makeResult(getTypeFactory().stringType(), vf.string(parms.get("content")), ctx);
+                  return ResultFactory.makeResult(getTypeFactory().stringType(), vf.string(parms.get(contentParamName)), ctx);
                 }
                 else {
                   IValue dtf = keyArgValues.get("dateTimeFormat");
@@ -155,9 +155,9 @@ public class Webserver {
                   
                   return ResultFactory.makeResult(getTypeFactory().valueType(), new JsonValueReader(vf, store)
                       .setCalendarFormat((dtf != null) ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-                      .setImplicitConstructors((ics != null) ? ((IBool) ics).getValue() : true)
-                      .setImplicitNodes((icn != null) ? ((IBool) icn).getValue() : true)
-                      .read(new JsonReader(new StringReader(parms.get("NanoHttpd.QUERY_STRING"))), topType), ctx);
+                      .setConstructorsAsObjects((ics != null) ? ((IBool) ics).getValue() : true)
+                      .setNodesAsObjects((icn != null) ? ((IBool) icn).getValue() : true)
+                      .read(new JsonReader(new StringReader(parms.get(contentParamName))), topType), ctx);
                 }
               } catch (IOException e) {
                 throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), getAst(), getEval().getStackTrace());
@@ -195,8 +195,8 @@ public class Webserver {
         
         JsonValueWriter writer = new JsonValueWriter()
             .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-            .setImplicitConstructors(ics != null ? ((IBool) ics).getValue() : true)
-            .setImplicitNodes(ipn != null ? ((IBool) ipn).getValue() : true)
+            .setConstructorsAsObjects(ics != null ? ((IBool) ics).getValue() : true)
+            .setNodesAsObjects(ipn != null ? ((IBool) ipn).getValue() : true)
             .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true);
 
         try {

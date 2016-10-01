@@ -21,7 +21,7 @@ public class RascalRuntimeException {
 	
 //	public static final Type StackOverflow = TF.constructor(TS, Exception, "StackOverflow");
     public static final Type IndexOutOfBounds = TF.constructor(TS, Exception, "IndexOutOfBounds", TF.integerType(), "index");
-	public static final Type AssertionFailed = TF.constructor(TS,Exception,"AssertionFailed");
+//	public static final Type AssertionFailed = TF.constructor(TS,Exception,"AssertionFailed");
 	public static final Type LabeledAssertionFailed = TF.constructor(TS,Exception,"AssertionFailed", TF.stringType(), "label");
 	public static final Type EmptyList = TF.constructor(TS,Exception,"EmptyList");
 	public static final Type EmptySet = TF.constructor(TS,Exception,"EmptySet");
@@ -60,7 +60,7 @@ public class RascalRuntimeException {
 
 	public static final Type InvalidUseOfDate = TF.constructor(TS, Exception, "InvalidUseOfDate", TF.dateTimeType(), "msg");
 	public static final Type InvalidUseOfTime = TF.constructor(TS, Exception, "InvalidUseOfTime", TF.dateTimeType(), "msg");
-	public static final Type InvalidUseOfDateTime = TF.constructor(TS, Exception, "InvalidUseOfDateTime", TF.dateTimeType(), "msg");
+//	public static final Type InvalidUseOfDateTime = TF.constructor(TS, Exception, "InvalidUseOfDateTime", TF.dateTimeType(), "msg");
 	public static final Type InvalidUseOfLocation = TF.constructor(TS, Exception, "InvalidUseOfLocation", TF.stringType(), "message");
 	public static final Type DateTimeParsingError = TF.constructor(TS, Exception, "DateTimeParsingError", TF.stringType(), "message");
 	public static final Type DateTimePrintingError = TF.constructor(TS, Exception, "DateTimePrintingError", TF.stringType(), "message");
@@ -87,9 +87,9 @@ public class RascalRuntimeException {
 		return Thrown.getInstance(VF.constructor(ArithmeticException, VF.string(msg)), currentFrame);
 	}
 	
-	public static Thrown assertionFailed(ISourceLocation loc, Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(AssertionFailed), loc, currentFrame);
-	}
+//	public static Thrown assertionFailed(ISourceLocation loc, Frame currentFrame) {
+//		return Thrown.getInstance(VF.constructor(AssertionFailed), loc, currentFrame);
+//	}
 
 	public static Thrown assertionFailed(IString msg, ISourceLocation loc, Frame currentFrame) {
     	return Thrown.getInstance(VF.constructor(LabeledAssertionFailed, msg), loc, currentFrame);
@@ -135,9 +135,9 @@ public class RascalRuntimeException {
 	  return Thrown.getInstance(VF.constructor(InvalidUseOfDate, VF.string(message)), currentFrame);
 	}
 	
-	public static Thrown invalidUseOfDateTime(String message, Frame currentFrame) {
-      return Thrown.getInstance(VF.constructor(InvalidUseOfDateTime, VF.string(message)),  currentFrame);
-    }
+//	public static Thrown invalidUseOfDateTime(String message, Frame currentFrame) {
+//      return Thrown.getInstance(VF.constructor(InvalidUseOfDateTime, VF.string(message)),  currentFrame);
+//    }
 
 	public static Thrown invalidUseOfTime(String message, Frame currentFrame) {
 	  return Thrown.getInstance(VF.constructor(InvalidUseOfTime, VF.string(message)),  currentFrame);

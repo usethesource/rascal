@@ -82,8 +82,8 @@ public class IO {
       
       try (JsonReader in = new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc))) {
         return new JsonValueReader(values, store)
-            .setImplicitConstructors(implicitConstructors.getValue())
-            .setImplicitNodes(implicitNodes.getValue())
+            .setConstructorsAsObjects(implicitConstructors.getValue())
+            .setNodesAsObjects(implicitNodes.getValue())
             .setCalendarFormat(dateTimeFormat.getValue())
             .read(in, start);
       }
@@ -99,8 +99,8 @@ public class IO {
 	public void writeJSON(ISourceLocation loc, IValue value, IBool implicitConstructors, IBool implicitNodes, IString dateTimeFormat, IBool dateTimeAsInt) {
 	  try (JsonWriter out = new JsonWriter(new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), Charset.forName("UTF8")))) {
         new JsonValueWriter()
-        .setImplicitConstructors(implicitConstructors.getValue())
-        .setImplicitNodes(implicitNodes.getValue())
+        .setConstructorsAsObjects(implicitConstructors.getValue())
+        .setNodesAsObjects(implicitNodes.getValue())
         .setCalendarFormat(dateTimeFormat.getValue())
         .setDatesAsInt(dateTimeAsInt.getValue())
         .write(out, value);

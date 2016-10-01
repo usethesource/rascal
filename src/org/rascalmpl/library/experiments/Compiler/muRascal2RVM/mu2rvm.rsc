@@ -356,7 +356,7 @@ list[RVMDeclaration] mulib2rvm(MuModule muLib){
         <maxSP, exceptions> = validate(fun.src, body, []);
         required_frame_size = get_nlocals() + maxSP;
         functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun. uqname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body, [], usedOverloadedFunctions, usedFunctions)
-                                          : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.scopeIn, fun.nformals, get_nlocals(), (), false, false, false, fun.src, required_frame_size, 
+                                          : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.kwType, fun.scopeIn, fun.nformals, get_nlocals(), (), false, false, false, fun.src, required_frame_size, 
                                                      false, 0, 0, body, [], usedOverloadedFunctions, usedFunctions);
     }
     return functions;
@@ -476,6 +476,7 @@ RVMModule mu2rvm(muModule(str module_name,
                                    : (fun.qname : FUNCTION(fun.qname, 
                                                            fun.uqname, 
                                                            fun.ftype, 
+                                                           fun.kwType,
                                                            fun.scopeIn, 
                                                            fun.nformals, 
                                                            nlocal[functionScope], 
@@ -508,7 +509,7 @@ RVMModule mu2rvm(muModule(str module_name,
   code = trvoidblock(initializations, returnDest()); // compute code first since it may generate new locals!
   <maxSP, dummy_exceptions> = validate(|init:///|, code, []);
   if(size(code) > 0){
-     funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, "" /*in the root*/, 2, nlocal[module_init_fun], (), 
+     funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, Symbol::\tuple([]), "" /*in the root*/, 2, nlocal[module_init_fun], (), 
                                             false, true, false, src, maxSP + nlocal[module_init_fun], false, 0, 0,
                                     [*code, 
                                      LOADCON(true),

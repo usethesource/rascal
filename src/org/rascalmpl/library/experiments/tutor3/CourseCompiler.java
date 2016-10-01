@@ -294,6 +294,6 @@ public class CourseCompiler {
 //		} catch (IOException e) {
 //			e.printStackTrace();
 //		}
-		System.err.println("Course compilation done");
+//		System.err.println("Course compilation done");
 	}
 }
