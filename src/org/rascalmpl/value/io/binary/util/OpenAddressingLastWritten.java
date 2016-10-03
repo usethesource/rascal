@@ -17,6 +17,7 @@ import java.util.Arrays;
 /**
  * A track last written implementation that uses linear open addressing to implement the very specific hashmap
  * 
+ * This implementation is just as fast as using the IdentityHashMap, however it uses less memory on average and we can also use value equality.
  * @author Davy Landman
  */
 public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T> {

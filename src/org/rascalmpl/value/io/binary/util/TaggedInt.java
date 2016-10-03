@@ -12,7 +12,12 @@
  */ 
 package org.rascalmpl.value.io.binary.util;
 
+/**
+ * Use the 3 lowest bits of an integer to store a tag.
+ * @author Davy Landman
+ */
 public class TaggedInt {
+    private TaggedInt() {}
 
     private static final int TAG_BITS = 3;
     private static final int TAG_MASK = 0b111;
