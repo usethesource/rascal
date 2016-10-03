@@ -56,30 +56,31 @@ import io.usethesource.capsule.TrieMap_5Bits;
  * - readValue
  */
 
-public class IValueReader {
+public class IValueReader implements AutoCloseable {
 
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	private static final RascalTypeFactory rtf = RascalTypeFactory.getInstance();
-	
+    private final ValueWireInputStream reader;
+    private final int typeWindowSize;
+    private final int valueWindowSize;
+    private final int uriWindowSize;
+    private final TypeStore ts;
+    private final IValueFactory vf;
+
+
 	/**
 	 * this will consume the whole stream, or at least more than needed due to buffering
-	 * @param in
-	 * @param vf
-	 * @param ts
-	 * @param closeStream
-	 * @return
-	 * @throws IOException 
 	 */
-	public static IValue read(InputStream in, IValueFactory vf, TypeStore ts) throws IOException {
+	public IValueReader(InputStream in, IValueFactory vf, TypeStore ts) throws IOException {
 		byte[] currentHeader = new byte[IValueWriter.header.length];
         in.read(currentHeader);
         if (!Arrays.equals(IValueWriter.header, currentHeader)) {
             throw new IOException("Unsupported file");
         }
 
-        TrackLastRead<Type> typeWindow = getWindow(in.read());
-        TrackLastRead<IValue> valueWindow = getWindow(in.read());
-        TrackLastRead<ISourceLocation> uriWindow = getWindow(in.read());
+        typeWindowSize = in.read() * 1024;
+        valueWindowSize = in.read() * 1024;
+        uriWindowSize = in.read() * 1024;
         
         int compression = in.read();
         switch (compression) {
@@ -99,7 +100,22 @@ public class IValueReader {
         }
 
         ts.extendStore(RascalValueFactory.getStore());
-		return read(new ValueWireInputStream(in), vf, ts, typeWindow, valueWindow, uriWindow);
+        reader = new ValueWireInputStream(in);
+        this.ts = ts;
+        this.vf = vf;
+    }
+	
+	public IValue read() throws IOException {
+	    return read(reader, vf, ts, typeWindowSize, valueWindowSize, uriWindowSize);
+	}
+	
+	@Override
+	public void close() throws Exception {
+	    reader.close();
+	}
+	
+	public static IValue read(ValueWireInputStream reader, IValueFactory vf, TypeStore ts, int typeWindowSize, int valueWindowSize, int uriWindowSize) throws IOException {
+	    return read(reader, vf, ts, getWindow(typeWindowSize), getWindow(valueWindowSize), getWindow(uriWindowSize));
 	}
 	
 
@@ -117,39 +133,34 @@ public class IValueReader {
 	            
 	        };
 	    }
-	    return new LinearCircularLookupWindow<>(size * 1024);
+	    return new LinearCircularLookupWindow<>(size);
     }
 	
     private static IValue read(final ValueWireInputStream reader, final IValueFactory vf, final TypeStore store, TrackLastRead<Type> typeWindow, TrackLastRead<IValue> valueWindow, TrackLastRead<ISourceLocation> uriWindow) throws IOException{
 
         ReaderStack<Type> tstack = new ReaderStack<>(Type.class, 100);
         ValueReaderStack vstack = new ValueReaderStack(1024);
-
-        try {
-           
-            while(reader.next() == ReaderPosition.MESSAGE_START){
-                int messageID = reader.message();
-                if (IValueIDs.Ranges.TYPES_MIN <= messageID && messageID <= IValueIDs.Ranges.TYPES_MAX) {
-                    // types
-                    if (readType(reader, messageID, vf, store, typeWindow, valueWindow, uriWindow, tstack, vstack)) {
-                        typeWindow.read(tstack.peek());
-                    }
+        while(reader.next() == ReaderPosition.MESSAGE_START){
+            int messageID = reader.message();
+            if (messageID == IValueIDs.LastValue.ID) {
+                if(vstack.size() == 1 && tstack.size() == 0){
+                    return vstack.pop();
                 }
-                else {
-                    if (readValue(reader, vf, store, typeWindow, valueWindow, uriWindow, tstack, vstack)) {
-                        valueWindow.read(vstack.peek());
-                    }
+                throw new IOException("End message before stack was ready to be ended");
+            }
+            if (IValueIDs.Ranges.TYPES_MIN <= messageID && messageID <= IValueIDs.Ranges.TYPES_MAX) {
+                // types
+                if (readType(reader, messageID, vf, store, typeWindow, valueWindow, uriWindow, tstack, vstack)) {
+                    typeWindow.read(tstack.peek());
                 }
             }
-            throw new AssertionError("We should be reading until an IOException occurs that marks the end of the stream");
-            
-        } catch (IOException e) {
-           if(vstack.size() == 1 && tstack.size() == 0){
-                return vstack.pop();
-            } else {
-                throw e;
+            else {
+                if (readValue(reader, vf, store, typeWindow, valueWindow, uriWindow, tstack, vstack)) {
+                    valueWindow.read(vstack.peek());
+                }
             }
         }
+        throw new AssertionError("We should be reading until an end message occurs that marks the end of the stream");
     }
     private static boolean readType(final ValueWireInputStream reader, int messageID, final IValueFactory vf, final TypeStore store, final TrackLastRead<Type> typeWindow, final TrackLastRead<IValue> valueWindow, final TrackLastRead<ISourceLocation> uriWindow, final ReaderStack<Type> tstack, final ValueReaderStack vstack) throws IOException{
         switch (messageID) {

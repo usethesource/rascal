@@ -20,6 +20,8 @@ public class IValueIDs {
     // This is an overview of the message id's, low values are quicker and more compact to encode
     // Never change them, that would break backwards compatiblity
     
+    private static final int LAST_VALUE_ID = 4242; // a special marker to signal the end of the stream of values
+    
 	// Atomic values
     private static final int PREVIOUS_VALUE_ID = 1;
     private static final int BOOLEAN_VALUE_ID = 2;
@@ -272,5 +274,10 @@ public class IValueIDs {
         
         public static final int TYPES_MIN = PREVIOUS_TYPE_ID_ID;
         public static final int TYPES_MAX = FUNCTION_TYPE_ID;
+    }
+    
+    
+    public static final class LastValue {
+        public static final int ID = LAST_VALUE_ID;
     }
 }
