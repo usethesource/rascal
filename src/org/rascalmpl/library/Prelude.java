@@ -3375,9 +3375,8 @@ public class Prelude {
 		TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
-		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(loc)) {
-			//return new BinaryValueReader().read(values, store, start, in);
-			IValue val = IValueReader.read(in, values, store);
+		try (IValueReader in = new IValueReader(URIResolverRegistry.getInstance().getInputStream(loc), values, store)) {
+			IValue val = in.read();;
 			if(val.getType().isSubtypeOf(start)){
 				return val;
 			} else {
@@ -3448,9 +3447,8 @@ public class Prelude {
 	
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression){
     	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
-		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
-			//new BinaryValueWriter().write(value, out, compression.getValue());
-			IValueWriter.write(out, value, CompressionRate.Normal, false); 
+		try (IValueWriter writer = new IValueWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), CompressionRate.Normal)) {
+		    writer.write(value);
 		}
 		catch (IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
