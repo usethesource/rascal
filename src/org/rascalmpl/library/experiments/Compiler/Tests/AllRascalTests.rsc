@@ -4,7 +4,6 @@ import IO;
 import Type;
 import List;
 import DateTime;
-import experiments::Compiler::Compile;
 import experiments::Compiler::Execute;
 import String;
 import ParseTree;
@@ -261,8 +260,7 @@ lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg, bool jvm=
       // }
       //}
       try {
-          compileAndLink(prog, pcfg);
-	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, pcfg, recompile=false, testsuite=true, jvm=jvm)){
+	      if(lrel[loc src,int n,str msgs] test_results := execute(prog, pcfg, recompile=true, testsuite=true, jvm=jvm)){
 	         s = makeTestSummary(test_results);
 	         println("TESTING <prog>: <s>");
 	         partial_results += <prog, s>;
