@@ -105,7 +105,7 @@ public abstract class RVMCore {
 	private final Types types;
 	
 	public static RVMCore readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex) throws IOException{
-		RVMExecutable rvmExecutable = RVMExecutable.readRVM(rvmBinaryLocation);
+		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
 		return ExecutionTools.initializedRVM(rvmExecutable, rex);
 	}
 

@@ -1,16 +1,21 @@
- package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFExecutableReader;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RSFExecutableWriter;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableReader;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMExecutableWriter;
+import org.nustaq.serialization.FSTBasicObjectSerializer;
+import org.nustaq.serialization.FSTClazzInfo;
+import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
+import org.nustaq.serialization.FSTObjectInput;
+import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * Represent one overloaded function given
@@ -22,10 +27,10 @@ import org.rascalmpl.value.type.Type;
  * to create an OverloadedFunctionInstance for each specific call.
  *
  */
-public class OverloadedFunction  {
+public class OverloadedFunction implements Serializable {
 	
-
-    final String name;
+	private static final long serialVersionUID = -5235184427484318482L;
+	final String name;
 	final Type funType;
 	int[] functions;
 	final int[] constructors;
@@ -325,180 +330,106 @@ public class OverloadedFunction  {
 	public void setScopeIn(int scopeIn) {
 		this.scopeIn = scopeIn;
 	}
+
+}
+
+
+/**
+ * FSTOverloadedFunctionSerializer: serializer for OverloadedFunction objects
+ *
+ */
+class FSTOverloadedFunctionSerializer extends FSTBasicObjectSerializer {
 	
-	public void write(RVMExecutableWriter out)throws IOException {
+	//private static IValueFactory vf;
+	private static TypeStore store;
+
+	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
+		//vf = vfactory;
+		store = ts;
+		store.extendStore(RascalValueFactory.getStore());
+	}
+
+	@Override
+	public void writeObject(FSTObjectOutput out, Object toWrite,
+			FSTClazzInfo clzInfo, FSTFieldInfo arg3, int arg4)
+					throws IOException {
+		
+		OverloadedFunction ofun = (OverloadedFunction) toWrite;
 
 		// String name;
-		out.writeJString(name);
+		out.writeObject(ofun.name);
 
 		// Type funType;
-		out.writeType(funType);
+		out.writeObject(new FSTSerializableType(ofun.funType));
 		
 		// int[] functions;
-		out.writeIntArray(functions);
+		out.writeObject(ofun.functions);
 		
 		// final int[] constructors;
-		out.writeIntArray(constructors);
+		out.writeObject(ofun.constructors);
 		
 		// final String funIn;
-		out.writeJString(funIn);
+		out.writeObject(ofun.funIn);
 		
 		// private int scopeIn = -1;
-		out.writeInt(scopeIn);
+		out.writeObject(ofun.scopeIn);
 		
 		// boolean allConcreteFunctionArgs = false;
-		out.writeBool(allConcreteFunctionArgs);
+		out.writeObject(ofun.allConcreteFunctionArgs);
 		
 		// boolean allConcreteConstructorArgs = false;
-		out.writeBool(allConcreteConstructorArgs);
+		out.writeObject(ofun.allConcreteConstructorArgs);
 		
 		// HashMap<Integer, int[]> filteredFunctions;
-		out.writeMapIntToIntArray(filteredFunctions);
+		out.writeObject(ofun.filteredFunctions);
 		
 		// HashMap<Integer, int[]> filteredConstructors;
-		out.writeMapIntToIntArray(filteredConstructors);
+		out.writeObject(ofun.filteredConstructors);
 	}
 	
-	public static OverloadedFunction read(RVMExecutableReader in) throws IOException 
+	@Override
+	public void readObject(FSTObjectInput in, Object toRead, FSTClazzInfo clzInfo, FSTClazzInfo.FSTFieldInfo referencedBy)
+	{
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Object instantiate(@SuppressWarnings("rawtypes") Class objectClass, FSTObjectInput in, FSTClazzInfo serializationInfo, FSTClazzInfo.FSTFieldInfo referencee, int streamPosition) throws ClassNotFoundException, IOException 
 	{
 		// String name;
-		String name = in.readJString();
+		String name = (String) in.readObject();
 
 		// Type funType;
-		Type funType = in.readType();
+		Type funType = (Type) in.readObject();
 		
 		// int[] functions;
-		int[] functions = in.readIntArray();
+		int[] functions = (int[]) in.readObject();
 		
 		
 		// final int[] constructors;
-		int[] constructors = in.readIntArray();
+		int[] constructors = (int[]) in.readObject();
 		
 		// final String funIn;
-		 String funIn = (String) in.readJString();
+		 String funIn = (String) in.readObject();
 		
 		// private int scopeIn = -1;
-		 int scopeIn = in.readInt();
+		 int scopeIn = (Integer) in.readObject();
 		
 		// boolean allConcreteFunctionArgs = false;
-		boolean allConcreteFunctionArgs = in.readBool();
+		boolean allConcreteFunctionArgs = (Boolean) in.readObject();
 		
 		// boolean allConcreteConstructorArgs = false;
-		boolean allConcreteConstructorArgs = in.readBool();
+		boolean allConcreteConstructorArgs = (Boolean) in.readObject();
 		
 		// HashMap<Integer, int[]> filteredFunctions;
-		HashMap<Integer, int[]> filteredFunctions = in.readMapIntToIntArray();
+		HashMap<Integer, int[]> filteredFunctions = (HashMap<Integer, int[]>) in.readObject();
 		
 		// HashMap<Integer, int[]> filteredConstructors;
 		
-		HashMap<Integer, int[]> filteredConstructors = in.readMapIntToIntArray();
+		HashMap<Integer, int[]> filteredConstructors = (HashMap<Integer, int[]>) in.readObject();
 		
 		OverloadedFunction ofun = new OverloadedFunction(name, funType, functions, constructors, funIn, scopeIn, allConcreteFunctionArgs, allConcreteConstructorArgs,
 				filteredFunctions,filteredConstructors);
 		return ofun;
 	}
-	
-	private static final int OVERLOADED_FUNCTION_NAME = 0;
-	private static final int OVERLOADED_FUNCTION_FUNTYPE = 1;
-	private static final int OVERLOADED_FUNCTION_FUNCTIONS = 2;
-	private static final int OVERLOADED_FUNCTION_CONSTRUCTORS = 3;
-	private static final int OVERLOADED_FUNCTION_FUN_IN = 4;
-	private static final int OVERLOADED_FUNCTION_SCOPE_IN = 5;
-	private static final int OVERLOADED_FUNCTION_ALL_CONCRETE_FUNCTION_ARGS = 6;
-	private static final int OVERLOADED_FUNCTION_ALL_CONCRETE_CONSTRUCTOR_ARGS = 7;
-	private static final int OVERLOADED_FUNCTION_FILTERED_FUNCTIONS = 8;
-	private static final int OVERLOADED_FUNCTION_FILTERED_CONSTRUCTORS = 9;
-
-	public void writeRSF(RSFExecutableWriter writer)throws IOException {
-
-	    writer.startMessage(RSFExecutableWriter.OVERLOADED_FUNCTION);
-
-	    writer.writeField(OVERLOADED_FUNCTION_NAME, name);
-	    writer.writeField(OVERLOADED_FUNCTION_FUNTYPE, funType);
-	    writer.writeField(OVERLOADED_FUNCTION_FUNCTIONS, functions);
-	    writer.writeField(OVERLOADED_FUNCTION_CONSTRUCTORS, constructors);
-	    writer.writeField(OVERLOADED_FUNCTION_FUN_IN, funIn);
-	    writer.writeField(OVERLOADED_FUNCTION_SCOPE_IN, scopeIn);
-	    writer.writeField(OVERLOADED_FUNCTION_ALL_CONCRETE_FUNCTION_ARGS, allConcreteFunctionArgs);
-	    writer.writeField(OVERLOADED_FUNCTION_ALL_CONCRETE_CONSTRUCTOR_ARGS, allConcreteConstructorArgs);
-	    writer.writeField(OVERLOADED_FUNCTION_FILTERED_FUNCTIONS, filteredFunctions);
-	    writer.writeField(OVERLOADED_FUNCTION_FILTERED_CONSTRUCTORS, filteredConstructors);
-
-	    writer.endMessage();
-	}
-    
-    public static OverloadedFunction readRSF(RSFExecutableReader reader) throws IOException 
-    {
-        
-        String name = null;
-        Type funType = null;
-        int[] functions = null;
-        int[] constructors = null;
-        String funIn = null;
-        Integer scopeIn = null;
-        Boolean allConcreteFunctionArgs = null;
-        Boolean allConcreteConstructorArgs = null;
-        HashMap<Integer, int[]> filteredFunctions = null;
-        HashMap<Integer, int[]> filteredConstructors = null;
-        
-        while(!reader.next().isEnd()){
-            switch(reader.field()){
-                case OVERLOADED_FUNCTION_NAME:
-                    name = reader.getString();
-                    break;
-                    
-                case OVERLOADED_FUNCTION_FUNTYPE:
-                    funType = reader.getType();
-                    break;
-                    
-                case OVERLOADED_FUNCTION_FUNCTIONS:
-                    functions = reader.getInts();
-                    break;
-                    
-                case OVERLOADED_FUNCTION_CONSTRUCTORS:
-                    constructors = reader.getInts();
-                    break;
-                    
-                case OVERLOADED_FUNCTION_FUN_IN:
-                    funIn = reader.getString();
-                    break;
-                    
-                case OVERLOADED_FUNCTION_SCOPE_IN:
-                    scopeIn = reader.getLong();
-                    break;
-                    
-                case OVERLOADED_FUNCTION_ALL_CONCRETE_FUNCTION_ARGS:
-                    allConcreteFunctionArgs = reader.getBoolean();
-                    break;
-                    
-                case OVERLOADED_FUNCTION_ALL_CONCRETE_CONSTRUCTOR_ARGS:
-                    allConcreteConstructorArgs = reader.getBoolean();
-                    break;
-                    
-                case OVERLOADED_FUNCTION_FILTERED_FUNCTIONS:
-                    filteredFunctions = reader.getMapIntToInts();
-                    break;
-                    
-                case OVERLOADED_FUNCTION_FILTERED_CONSTRUCTORS:
-                    filteredConstructors = reader.getMapIntToInts();
-                    break;
-            }
-        }   
-        
-        assert  name!= null &&
-                funType!= null &&
-                functions!= null &&
-                constructors!= null &&
-                funIn!= null &&
-                scopeIn!= null &&
-                allConcreteFunctionArgs!= null &&
-                allConcreteConstructorArgs!= null &&
-                filteredFunctions!= null &&
-                filteredConstructors!= null;
-        
-        OverloadedFunction ofun = new OverloadedFunction(name, funType, functions, constructors, funIn, scopeIn, allConcreteFunctionArgs, allConcreteConstructorArgs,
-                filteredFunctions,filteredConstructors);
-        return ofun;
-    }
-
 }
+
