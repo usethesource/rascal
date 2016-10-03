@@ -65,7 +65,6 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMIValueWriter;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -98,7 +97,6 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.io.StandardTextReader;
 import org.rascalmpl.value.io.StandardTextWriter;
 import org.rascalmpl.value.io.binary.IValueReader;
-import org.rascalmpl.value.io.binary.IValueReader2;
 import org.rascalmpl.value.io.binary.IValueWriter;
 import org.rascalmpl.value.io.binary.IValueWriter.CompressionRate;
 import org.rascalmpl.value.io.old.BinaryValueReader;
@@ -3379,7 +3377,7 @@ public class Prelude {
 		
 		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(loc)) {
 			//return new BinaryValueReader().read(values, store, start, in);
-			IValue val = IValueReader2.read(in, values, store);
+			IValue val = IValueReader.read(in, values, store);
 			if(val.getType().isSubtypeOf(start)){
 				return val;
 			} else {
