@@ -13,7 +13,7 @@ void printTime(str name, int time) {
 }
 
 @javaClass{org.rascalmpl.library.Prelude}
-private java void writeBinaryValueFileOld(loc file, value val, bool compression = true);
+public java void writeBinaryValueFileOld(loc file, value val, bool compression = true);
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T readBinaryValueFileOld(type[&T] result, loc file);
 
