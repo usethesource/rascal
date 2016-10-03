@@ -41,7 +41,7 @@ public class RSFExecutableWriter {
 	transient private static IndexedSet<Object> sharedObjects;
 
 	public RSFExecutableWriter(OutputStream out) throws IOException{
-		rsfWriter = new ValueWireOutputStream(out);
+		rsfWriter = new ValueWireOutputStream(out, 10 * 1024);
 		sharedObjects = new IndexedSet<>();
 		sharedObjects.store(new Boolean(false));	// make sure index 0 will not occur
 	}
