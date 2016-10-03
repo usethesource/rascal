@@ -42,8 +42,8 @@ import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.visitors.IValueVisitor;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.tukaani.xz.LZMA2Options;
-import org.tukaani.xz.XZOutputStream;
+
+import com.github.luben.zstd.ZstdOutputStream;
         	
 /**
  * RSFIValueWriter is a binary serializer for IValues and Types. The main public functions is:
@@ -57,23 +57,23 @@ public class IValueWriter {
         None(10,0,0,0, 0),
         //TypesOnly(10,0,0),
         //ValuesOnly(0,10,10),
-        Fast(10, 10,10,10, 1),
-        Normal(30, 50,100,50,0),
-        Extreme(50, 50,250,100, 6)
+        Fast(10, 10,10,10, 2),
+        Normal(30, 50,100,50,0), // 7
+        Extreme(50, 50,250,100, 9)
         ;
 
         private final int uriWindow;
         private final int typeWindow;
         private final int valueWindow;
         private final int stringsWindow;
-        private final int xzMode;
+        private final int compressionMode;
 
-        CompressionRate(int stringsWindow, int typeWindow, int valueWindow, int uriWindow, int xzMode) {
+        CompressionRate(int stringsWindow, int typeWindow, int valueWindow, int uriWindow, int compressionMode) {
             this.stringsWindow = stringsWindow;
             this.typeWindow = typeWindow;
             this.valueWindow = valueWindow;
             this.uriWindow = uriWindow;
-            this.xzMode = xzMode;
+            this.compressionMode = compressionMode;
         } 
     }
     
@@ -83,6 +83,7 @@ public class IValueWriter {
 	    public static final byte NONE = 0;
 	    public static final byte GZIP = 1;
 	    public static final byte XZ = 2;
+	    public static final byte ZSTD = 3;
 	}
 	
 	private static <T> TrackLastWritten<T> getWindow(int size) {
@@ -102,9 +103,9 @@ public class IValueWriter {
     	out.write(compression.typeWindow);
     	out.write(compression.valueWindow);
     	out.write(compression.uriWindow);
-    	out.write(compression.xzMode == 0 ? CompressionHeader.NONE : CompressionHeader.XZ);
-    	if (compression.xzMode > 0) {
-    	    out = new XZOutputStream(out, new LZMA2Options(compression.xzMode));
+    	out.write(compression.compressionMode == 0 ? CompressionHeader.NONE : CompressionHeader.ZSTD);
+    	if (compression.compressionMode > 0) {
+    	    out = new ZstdOutputStream(out, compression.compressionMode);
     	}
     	ValueWireOutputStream writer =  new ValueWireOutputStream(out, compression.stringsWindow * 1024);
     	try {
@@ -115,14 +116,8 @@ public class IValueWriter {
     	}
     	finally {
     	    writer.flush();
-    	    if (shouldClose) {
-    	        writer.close();
-    	    }
-    	    else {
-                if (compression.xzMode > 0) {
-                    ((XZOutputStream)out).finish();
-                }
-    	    }
+    	    writer.close();
+    	    assert shouldClose;
     	}
 	}
 	

@@ -296,6 +296,11 @@
             <artifactId>protobuf-lite</artifactId>
             <version>3.0.1</version>
         </dependency>
+        <dependency>
+			<groupId>com.github.luben</groupId>
+			<artifactId>zstd-jni</artifactId>
+			<version>1.1.0</version>
+		</dependency>
 
 		<!-- Repackaged Eclipse Dependencies -->
 		<dependency>
