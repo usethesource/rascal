@@ -77,7 +77,7 @@ public class RascalExecutionContextBuilder {
 	    this.build = true;
 	    RascalExecutionContext result = new RascalExecutionContext(vf, bootDir, stdout, stderr, moduleTags, symbolDefinitions, typeStore, debug, debugRVM, testsuite, profile, trace, coverage, jvm, verbose, testResultListener, frameObserver, rascalSearchPath);
 	    if (this.moduleName != null) {
-	        result.setCurrentModuleName(moduleName);
+	        result.setFullModuleName(moduleName);
 	    }
 	    if(this.moduleVariables != null){
 	    	result.setModuleVariables(moduleVariables);

@@ -14,18 +14,10 @@ Test Case
 
 .Details
 
-
-
-Drawing a red link:/Libraries#Figure-box[box] is as simple as this:
-[source,rascal-figure,width=,height=,file=bxxx.png]
+[source,rascal-shell,error]
 ----
-import shapes::Figure;
-import shapes::FigureServer;
-b = box(fillColor="red");
-render(b);
+NOW = $T20:11:01.463+00:00$;
+NOW.year = 2020;
 ----
-and it will look like this:
-
-image::{concept}/bxxx.png[alt="Box 1"]
 
 .Description

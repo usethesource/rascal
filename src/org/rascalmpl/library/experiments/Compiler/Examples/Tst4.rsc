@@ -1,5 +1,10 @@
 module experiments::Compiler::Examples::Tst4
 
+import util::Reflective;
+import experiments::Compiler::Execute;
 
-@javaClass{org.rascalmpl.library.Prelude}
-public java int size(set[&T] st);
+value main(){
+   pcfg =pathConfig(bin=|home:///bin-tests-intp|, srcs=[|file:///Users/paulklint/git/rascal/src/org/rascalmpl/library|]);
+
+   return execute("experiments::Compiler::Examples::Tst1", pcfg, recompile=true);
+}
