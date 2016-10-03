@@ -12,8 +12,10 @@
  */ 
 package org.rascalmpl.value.io.binary;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.SequenceInputStream;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -40,6 +42,7 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.ValueWireInputStream.ReaderPosition;
 import org.rascalmpl.value.io.binary.util.LinearCircularLookupWindow;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
+import org.rascalmpl.value.io.old.BinaryReader;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
@@ -64,17 +67,37 @@ public class IValueReader implements AutoCloseable {
     private final int uriWindowSize;
     private final TypeStore ts;
     private final IValueFactory vf;
+    private final boolean legacy;
+    private final BinaryReader legacyReader;
 
 
 	/**
 	 * this will consume the whole stream, or at least more than needed due to buffering, so don't use the InputStream afterwards
 	 */
 	public IValueReader(InputStream in, IValueFactory vf, TypeStore ts) throws IOException {
+        ts.extendStore(RascalValueFactory.getStore());
+        this.ts = ts;
+        this.vf = vf;
 		byte[] currentHeader = new byte[IValueWriter.header.length];
         in.read(currentHeader);
         if (!Arrays.equals(IValueWriter.header, currentHeader)) {
+            byte firstByte = currentHeader[0];
+            // possible an old binary stream
+            firstByte &= (BinaryReader.SHARED_FLAG ^ 0xFF); // remove the possible set shared bit
+            if (BinaryReader.BOOL_HEADER <= firstByte && firstByte <= BinaryReader.IEEE754_ENCODED_DOUBLE_HEADER) {
+                System.err.println("Old value format used, switching to legacy mode!");
+                legacy = true;
+                legacyReader = new BinaryReader(vf, ts, new SequenceInputStream(new ByteArrayInputStream(currentHeader), in));
+                reader = null;
+                typeWindowSize = 0;
+                valueWindowSize = 0;
+                uriWindowSize = 0;
+                return;
+            }
             throw new IOException("Unsupported file");
         }
+        legacy = false;
+        legacyReader = null;
 
         typeWindowSize = in.read() * 1024;
         valueWindowSize = in.read() * 1024;
@@ -97,19 +120,24 @@ public class IValueReader implements AutoCloseable {
                 throw new IOException("Unsupported compression in file");
         }
 
-        ts.extendStore(RascalValueFactory.getStore());
         reader = new ValueWireInputStream(in);
-        this.ts = ts;
-        this.vf = vf;
     }
 	
 	public IValue read() throws IOException {
+	    if (legacy) {
+	        return legacyReader.deserialize();
+	    }
 	    return read(reader, vf, ts, typeWindowSize, valueWindowSize, uriWindowSize);
 	}
 	
 	@Override
 	public void close() throws Exception {
-	    reader.close();
+	    if (legacy) {
+	        legacyReader.close();
+	    }
+	    else {
+	        reader.close();
+	    }
 	}
 	
 	/**
