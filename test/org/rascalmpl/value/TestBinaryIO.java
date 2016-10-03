@@ -78,12 +78,15 @@ public class TestBinaryIO extends TestCase {
 				//System.out.println(value); // Temp
 
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				IValueWriter.write(baos, value, CompressionRate.Normal, true);
+				try (IValueWriter w = new IValueWriter(baos,  CompressionRate.Normal)) {
+				    w.write(value);
+				}
 				
 
 				byte[] data = baos.toByteArray();
 				ByteArrayInputStream bais = new ByteArrayInputStream(data);
-				IValue result = IValueReader.read(bais, vf, ts);
+
+				IValue result = new IValueReader(bais, vf, ts).read();
 				//printBytes(data); // Temp
 
 				//System.out.println(result); // Temp

@@ -12,6 +12,7 @@
  */ 
 package org.rascalmpl.value.io.binary;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Set;
@@ -46,19 +47,27 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import com.github.luben.zstd.ZstdOutputStream;
         	
 /**
- * RSFIValueWriter is a binary serializer for IValues and Types. The main public functions is:
- * - writeValue
+ * A binary serializer for IValues and Types.
+ * 
+ * For most use cases, construct an instance of IValueWriter and write one or more IValues to it.
+ * If you are also using the {@link ValueWriteOutputStream}, there is a static method write method inteded for this use case.
+ * 
+ * Note that when writing multiple IValues, you have to store this arity yourself.
+ *
  */
-	        
-public class IValueWriter {
+public class IValueWriter implements Closeable {
     
 
+    /**
+     * Compression of the serializer, balances lookback windows and compression algorithm
+     */
     public enum CompressionRate {
+        /**
+         * Use only for debugging!
+         */
         None(10,0,0,0, 0),
-        //TypesOnly(10,0,0),
-        //ValuesOnly(0,10,10),
         Fast(10, 10,10,10, 2),
-        Normal(30, 50,100,50,0), // 7
+        Normal(30, 30,100,50,0), // 7
         Extreme(50, 50,250,100, 9)
         ;
 
@@ -77,9 +86,9 @@ public class IValueWriter {
         } 
     }
     
-	protected static final byte[] header = { 'R', 'V', 1,0,0 };
+	/*package*/ static final byte[] header = { 'R', 'V', 1,0,0 };
 	
-	static final class CompressionHeader {
+	/*package*/ static final class CompressionHeader {
 	    public static final byte NONE = 0;
 	    public static final byte GZIP = 1;
 	    public static final byte XZ = 2;
@@ -95,10 +104,13 @@ public class IValueWriter {
 	            public void write(T obj) {};
 	        };
 	    }
-	    return OpenAddressingLastWritten.referenceEquality(size * 1024); 
+	    return OpenAddressingLastWritten.referenceEquality(size); 
 	}
+
+    private final ValueWireOutputStream writer;
+    private final CompressionRate compression;
 	
-	public static void write(OutputStream out, IValue value, CompressionRate compression, boolean shouldClose) throws IOException {
+	public IValueWriter(OutputStream out, CompressionRate compression) throws IOException {
         out.write(header);
     	out.write(compression.typeWindow);
     	out.write(compression.valueWindow);
@@ -107,19 +119,41 @@ public class IValueWriter {
     	if (compression.compressionMode > 0) {
     	    out = new ZstdOutputStream(out, compression.compressionMode);
     	}
-    	ValueWireOutputStream writer =  new ValueWireOutputStream(out, compression.stringsWindow * 1024);
-    	try {
-    	    TrackLastWritten<Type> typeCache = getWindow(compression.typeWindow);
-    	    TrackLastWritten<IValue> valueCache = getWindow(compression.valueWindow);
-    	    TrackLastWritten<ISourceLocation> uriCache = getWindow(compression.uriWindow);
-    	    write(writer, value, typeCache, valueCache, uriCache);
-    	}
-    	finally {
-    	    writer.flush();
-    	    writer.close();
-    	    assert shouldClose;
-    	}
+    	writer = new ValueWireOutputStream(out, compression.stringsWindow * 1024);
+    	this.compression = compression;
+    }
+	
+	public void write(IValue value) throws IOException {
+	    write(writer, compression.typeWindow * 1024, compression.valueWindow * 1024, compression.uriWindow * 1024, value);
+	    writeEnd(writer);
 	}
+
+
+    @Override
+    public void close() throws IOException {
+       writer.close(); 
+    }
+	
+	
+    /**
+     * In most cases you want to construct an instance of this class and call the normal write method, this method is only intended for embedded ValueWireOutputStreams
+     * @param writer
+     * @param typeWindowSize the size of the window for type-reuse. normally 1024 should be enough, when storing parse trees, use a larger number (10_000 for example)
+     * @param valueWindowSize the size of the window for value-reuse. normally 100_000 should be enough, when expecting large values, you can use a larger number
+     * @param uriWindowSize the size of the window for source location reuse. normally 50_000 should be more than enough, when you expect a lot of source locations, increase this number
+     * @param value the value to write
+     * @throws IOException
+     */
+	public static void write(ValueWireOutputStream writer, int typeWindowSize, int valueWindowSize, int uriWindowSize, IValue value ) throws IOException {
+	    TrackLastWritten<Type> typeCache = getWindow(typeWindowSize);
+	    TrackLastWritten<IValue> valueCache = getWindow(valueWindowSize);
+	    TrackLastWritten<ISourceLocation> uriCache = getWindow(uriWindowSize);
+	    write(writer, value, typeCache, valueCache, uriCache);
+	    writeEnd(writer);
+	}
+	
+	
+	
 	
 	private static void writeNames(final ValueWireOutputStream writer, int fieldId, String[] names) throws IOException{
 		writer.writeField(fieldId, names.length);
@@ -370,6 +404,9 @@ public class IValueWriter {
 	private static void writeCanBeBackReferenced(final ValueWireOutputStream writer) throws IOException {
 	    writer.writeField(IValueIDs.Common.CAN_BE_BACK_REFERENCED, 1);
 	}
+    private static void writeEnd(ValueWireOutputStream writer) throws IOException {
+        writer.writeEmptyMessage(IValueIDs.LastValue.ID);
+    }
 
 	private static final IInteger MININT =ValueFactoryFactory.getValueFactory().integer(Integer.MIN_VALUE);
 	private static final IInteger MAXINT =ValueFactoryFactory.getValueFactory().integer(Integer.MAX_VALUE);
@@ -589,4 +626,6 @@ public class IValueWriter {
 		    }
 		}
 	}
+
+
 }
