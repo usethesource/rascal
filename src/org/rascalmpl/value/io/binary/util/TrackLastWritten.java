@@ -12,7 +12,24 @@
  */ 
 package org.rascalmpl.value.io.binary.util;
 
+/**
+ * A lookback window in how long ago a certain object was written.
+ * Commonly there is a window size, so only the last X are tracked.
+ * @author Davy Landman
+ *
+ * @param <T>
+ */
 public interface TrackLastWritten<T> {
+    /**
+     * Register that an object has just been written. 
+     * It is very important that this object is not in the window anymore (eg <code>howLongAgo(obj) == -1</code>)
+     * @param obj the new object to track.
+     */
     void write(T obj);
+    /**
+     * How long ago an object was written.
+     * @param obj which object
+     * @return how many objects ago it was written. 0 means is was the last, 1 means it was the second to last. -1 means that it isn't written yet, or longer than the windows size ago.
+     */
     int howLongAgo(T obj);
 }

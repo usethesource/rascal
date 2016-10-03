@@ -13,8 +13,7 @@
 package org.rascalmpl.value.io.binary;
 
 /**
- * Constants for Rascal Serialization Format (RSF),
- * a binary format for the (de)serialization of Rascal values and types
+ * Constants for Rascal Serialization Format
  */
 public class IValueIDs {
     

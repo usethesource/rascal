@@ -1,5 +1,5 @@
 /** 
- * Copyright (c) 2016, Davy Landman, Centrum Wiskunde & Informatica (CWI) 
+ * Copyright (c) 2016, Davy Landman, Paul Klint, Centrum Wiskunde & Informatica (CWI) 
  * All rights reserved. 
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
@@ -17,7 +17,12 @@ import java.util.EmptyStackException;
 
 import org.rascalmpl.value.IValue;
 
-public class PositionStack {
+/**
+ * A special stack for the iterator
+ * @author Davy Landman
+ *
+ */
+/*package*/ class PositionStack {
     private IValue[] items;
     private boolean[] beginnings;
     private int mark = -1;
