@@ -65,7 +65,8 @@ public class RVMExecutableReader {
 		OverloadedFunction[] res = new OverloadedFunction[n];
 
 		for(int i = 0; i < n; i++){
-			res[i] = OverloadedFunction.read(this);
+			//res[i] = OverloadedFunction.read(this);
+		    throw new UnsupportedOperationException ("This should be changed after the RMV core stuff supports the rvm reader");
 		}
 		return res;
 	}
@@ -87,7 +88,8 @@ public class RVMExecutableReader {
 		int n = readInt();
 		Function[] funs = new Function[n];
 		for(int i = 0; i < n; i++){
-			funs[i] = Function.read(this);
+			//funs[i] = Function.read(this);
+		    throw new UnsupportedOperationException ("This should be changed after the RMV core stuff supports the rvm reader");
 		}
 		return funs;
 	}

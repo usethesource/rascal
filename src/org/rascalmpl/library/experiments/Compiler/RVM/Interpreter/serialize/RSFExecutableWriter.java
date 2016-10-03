@@ -117,7 +117,8 @@ public class RSFExecutableWriter {
     // Class that we serialize ourselves
 
     public void writeField(int fieldId, CodeBlock codeblock) throws IOException {
-        codeblock.writeRSF(this);
+        //codeblock.writeRSF(this);
+		    throw new UnsupportedOperationException ("This should be changed after the RMV core stuff supports the rvm reader");
     }
 
     public void writeField(int fieldId, Type ftype) {
