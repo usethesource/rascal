@@ -12,7 +12,21 @@
  */ 
 package org.rascalmpl.value.io.binary.util;
 
+/**
+ * 
+ * The inverse of the {@link TrackLastWritten}, keeping track of when an object was read.
+ * Most commonly with a window size (that should be at least as large as during writing).
+ * @author Davy Landman
+ * @param <T>
+ */
 public interface TrackLastRead<T> {
+    /**
+     * Register a new object that was read.
+     */
     void read(T obj);
-    T lookBack(int elements);
+    /**
+     * Get an object that was previously read
+     * @param howLongBack how many objects back, 0 means the most recently read. larger than window size causes exceptions
+     */
+    T lookBack(int howLongBack);
 }

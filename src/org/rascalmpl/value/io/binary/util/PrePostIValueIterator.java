@@ -1,5 +1,5 @@
 /** 
- * Copyright (c) 2016, Davy Landman, Centrum Wiskunde & Informatica (CWI) 
+ * Copyright (c) 2016, Davy Landman, Paul Klint, Centrum Wiskunde & Informatica (CWI) 
  * All rights reserved. 
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
@@ -12,7 +12,6 @@
  */ 
 package org.rascalmpl.value.io.binary.util;
 
-import java.io.IOException;
 import java.util.Map;
 
 import org.rascalmpl.value.IConstructor;
@@ -28,6 +27,13 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.visitors.NullVisitor;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+/**
+ * A stackless iterator of IValues, it combines a pre visit with a post visit. The post visit is limited to the compound IValues.
+ * 
+ * To make a difference between the pre and post visit, we call the pre visit the beginning of an value, and the post visit the end. 
+ * @author Davy Landman
+ *
+ */
 public class PrePostIValueIterator  {
     
     private final PositionStack stack;
@@ -47,17 +53,28 @@ public class PrePostIValueIterator  {
         hasEnd = false;
     }
 
+
     public boolean hasNext() {
         return !stack.isEmpty() || (beginning && hasEnd);
     }
 
     
+    /**
+     * Do not go into the children of the current value, and skip the post visit.
+     * 
+     * It can only be called on the pre visit phase of the visitor (<code>atBeginning() == true</code>).
+     * @return
+     */
     public IValue skipValue() {
         assert beginning;
         beginning = false;
         return value;
     }
 
+    /**
+     * Are we at the beginning of an IValue (the pre visit step)
+     * @return true if we are in the pre visit, false if we are in the post visit
+     */
     public boolean atBeginning() {
         return beginning;
     }
@@ -68,7 +85,11 @@ public class PrePostIValueIterator  {
     }
 
 
-    public IValue next() throws IOException {
+    /**
+     * Advanced the iterator to the next value, should be preceded with a call to {@link hasNext()}
+     * @return the next IValue (also available via {@link getValue()})
+     */
+    public IValue next() {
         if (beginning) {
             if (hasEnd) {
                 stack.push(value, false);
