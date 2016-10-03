@@ -1,5 +1,6 @@
 # Rascal - Metaprogramming Language
-[![Build Status](http://ci.usethesource.io/job/usethesource/rascal/master/badge/icon)](http://ci.usethesource.io/job/usethesource/rascal/master)
+[![Build Status](http://ci.usethesource.io/job/usethesource/job/rascal/job/master/badge/icon)](http://ci.usethesource.io/job/usethesource/job/rascal/job/master/)
+
 This is the core implementation of the Rascal meta-programming language. It contains the interpreter, the parser generator, the parser run-time,
 the standard library, the online documentation and the type checker.
 
