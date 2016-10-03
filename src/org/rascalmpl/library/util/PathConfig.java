@@ -35,7 +35,7 @@ public class PathConfig {
 		try {
 			defaultStdLoc =  vf.sourceLocation("std", "", "");
 			defaultcourses = Arrays.asList(vf.sourceLocation("courses", "", ""));
-			defaultboot = vf.sourceLocation("boot+compressed", "", "");
+			defaultboot = vf.sourceLocation("boot", "", "");
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

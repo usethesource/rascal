@@ -677,6 +677,7 @@ public class StandardTextWriter implements IValueTextWriter {
     	  Iterator<Entry<String,IValue>> kwIt = wkw.getParameters().entrySet().iterator();
     	  while (kwIt.hasNext()) {
     	    Entry<String, IValue> e = kwIt.next();
+    	    indent();
     	    append(e.getKey());
     	    append('=');
     	    e.getValue().accept(this);

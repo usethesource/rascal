@@ -124,21 +124,8 @@ public class FunctionInstance implements ICallableCompiledValue, IExternalValue 
 	}
 
 	@Override
-	public IValue call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
-		IValue[] args = new IValue[argValues.length + 1];
-		int i = 0;
-		for(IValue argValue : argValues) {
-			args[i++] = argValue;
-		}
-		IMapWriter kwargs = rvm.vf.mapWriter();
-		if(keyArgValues != null) {
-			for(Entry<String, IValue> entry : keyArgValues.entrySet()) {
-				kwargs.put(rvm.vf.string(entry.getKey()), keyArgValues.get(entry.getValue()));
-			}
-		}
-		args[i] = kwargs.done();
-		IValue rval = rvm.executeRVMFunction(this, args);
-		return rval;
+	public IValue call(IRascalMonitor monitor, Type[] argTypes, IValue[] posArgs, Map<String, IValue> kwArgs) {
+		return rvm.executeRVMFunction(this, posArgs, kwArgs);
 	}
 
 	@Override
