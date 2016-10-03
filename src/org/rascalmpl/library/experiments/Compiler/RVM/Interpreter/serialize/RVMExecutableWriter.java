@@ -55,7 +55,8 @@ public class RVMExecutableWriter {
 		//if(n>10)System.out.println("*** writeArrayOverloadedFunctions: " + n);
 		writeInt(n);
 		for(int i = 0; i < n; i++){
-			overloadedStore[i].write(this);
+			//overloadedStore[i].write(this);
+		    throw new UnsupportedOperationException ("This should be changed after the RMV core stuff supports the rvm reader");
 		}
 	}
 	
@@ -99,7 +100,8 @@ public class RVMExecutableWriter {
 		writeInt(n);
 		
 		for(int i = 0; i < n; i++){
-			functionStore[i].write(this);
+			//functionStore[i].write(this);
+		    throw new UnsupportedOperationException ("This should be changed after the RMV core stuff supports the rvm reader");
 		}
 	}
 	
