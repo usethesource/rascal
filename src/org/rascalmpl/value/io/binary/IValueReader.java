@@ -46,6 +46,8 @@ import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.tukaani.xz.XZInputStream;
 
+import com.github.luben.zstd.ZstdInputStream;
+
 import io.usethesource.capsule.TransientMap;
 import io.usethesource.capsule.TrieMap_5Bits;
 
@@ -88,6 +90,9 @@ public class IValueReader {
                 break;
             case IValueWriter.CompressionHeader.XZ:
                 in = new XZInputStream(in);
+                break;
+            case IValueWriter.CompressionHeader.ZSTD:
+                in = new ZstdInputStream(in);
                 break;
             default:
                 throw new IOException("Unsupported compression in file");
