@@ -1,19 +1,10 @@
 module experiments::Compiler::Examples::Tst1
-import ValueIO;
-import IO;
-import util::Reflective;
 
-data D1 = d1(int lineWidth = -1);
+lexical X = [xyzXYZ];
+lexical XPlus = X+ xs1;
 
+//@ignoreInterpreter{Incorrect/not implemented}
+//@expected{IllegalArgument}
+//test bool lexIllegalSlice() { ([XPlus] "xyz").xs1[0 .. 0]; return false; }
 
-//value main() = d1().lineWidth;
-
-//import shapes::Figure;
-//import shapes::FigureServer;
-//
-//value main(){
-//   b = box(fillColor="red");
-//   renderSave(b);
-//   b = box(fillColor="red");
-//   renderSave(b, |home:///b.png|, width=100, height=100);
-//}
+value main() =  ([XPlus] "xyz").xs1[0 .. 0];

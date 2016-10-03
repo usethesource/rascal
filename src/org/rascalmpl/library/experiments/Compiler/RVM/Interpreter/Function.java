@@ -19,6 +19,7 @@ import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 
 /**
@@ -33,6 +34,7 @@ public class Function {
 	
 	String name;
 	Type ftype;
+	Type kwType;
 	int scopeId;
 	String funIn;
 	public int scopeIn = -1;
@@ -79,11 +81,15 @@ public class Function {
 		vf = vfactory;
 	}
 	
-	public Function(final String name, final Type ftype, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
+	public Function(final String name, final Type ftype, Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
 			 final int maxstack, boolean concreteArg, int abstractFingerprint,
 			int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int ctpt){
 		this.name = name;
 		this.ftype = ftype;
+		if(kwType == null){
+		  kwType = TypeFactory.getInstance().tupleEmpty();
+		}
+		this.kwType = kwType;
 		this.funIn = funIn;
 		this.nformals = nformals;
 		this.setNlocals(nlocals);
@@ -98,13 +104,17 @@ public class Function {
 		this.continuationPoints = ctpt ;
 	}
 	
-	Function(final String name, final Type ftype, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
+	Function(final String name, final Type ftype, Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
 			 final int maxstack, boolean concreteArg, int abstractFingerprint,
 			int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int scopeIn, IValue[] constantStore, Type[] typeConstantStore,
 			int[] froms, int[] tos, int[] types, int[] handlers, int[] fromSPs, int lastHandler, int scopeId,
 			boolean isCoroutine, int[] refs, boolean isVarArgs, int ctpt){
 		this.name = name;
 		this.ftype = ftype;
+		if(kwType == null){
+          kwType = TypeFactory.getInstance().tupleEmpty();
+        }
+		this.kwType = kwType;
 		this.funIn = funIn;
 		this.nformals = nformals;
 		this.setNlocals(nlocals);
@@ -251,7 +261,9 @@ public class Function {
 		out.writeJString(name);
 
 		// Type ftype;
-		out.writeType(ftype);
+		out.writeType(fun.ftype);
+		// Type kwType;
+		out.writeType(fun.kwType);
 
 		// int scopeId;
 		out.writeInt(scopeId);
@@ -351,8 +363,11 @@ public class Function {
 		// Type ftype;
 		Type ftype = in.readType();
 
+        // WARNING: the master branch contained some transitional code here
+		Type kwType = in.readType();
 		// int scopeId;
 		Integer scopeId = in.readInt();
+        
 
 		// private String funIn;
 		String funIn = in.readJString();
@@ -439,7 +454,7 @@ public class Function {
 		// int continuationPoints
 		Integer continuationPoints = in.readInt();
 		
-		Function func = new Function(name, ftype, funIn, nformals, nlocals, isDefault, localNames, maxstack, concreteArg, abstractFingerprint, concreteFingerprint, 
+		Function func = new Function(name, ftype, kwType, funIn, nformals, nlocals, isDefault, localNames, maxstack, concreteArg, abstractFingerprint, concreteFingerprint, 
 				codeblock, src, scopeIn, constantStore, typeConstantStore,
 				froms, tos, types, handlers, fromSPs, lastHandler, scopeId,
 				isCoroutine, refs, isVarArgs, continuationPoints);

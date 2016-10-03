@@ -171,13 +171,13 @@ public class ParsingTools {
 	 */
 	private static IConstructor checkPreconditions(IValue start, Type reified, Frame currentFrame) {
 		if (!(reified instanceof ReifiedType)) {
-		   throw RascalRuntimeException.illegalArgument(start, currentFrame, "A reified type is required instead of " + reified);
+		   throw RascalRuntimeException.invalidArgument(start, currentFrame, "A reified type is required instead of " + reified);
 		}
 		
 		Type nt = reified.getTypeParameters().getFieldType(0);
 		
 		if (!(nt instanceof NonTerminalType)) {
-			throw RascalRuntimeException.illegalArgument(start, currentFrame, "A non-terminal type is required instead of  " + nt);
+			throw RascalRuntimeException.invalidArgument(start, currentFrame, "A non-terminal type is required instead of  " + nt);
 		}
 		
 		IConstructor symbol = ((NonTerminalType) nt).getSymbol();

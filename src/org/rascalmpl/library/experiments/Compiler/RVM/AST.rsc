@@ -16,6 +16,7 @@ public data RVMDeclaration =
 		  FUNCTION(str qname,
 		  		   str uqname, 
 		  		   Symbol ftype, 
+		  		   Symbol kwType,
 		  		   str scopeIn, 
 		  		   int nformals, 
 		  		   int nlocals,

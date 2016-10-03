@@ -1,34 +1,17 @@
 # Welcome to the Rascal Tutor
 
-[cols="a,a,a,a"]
-|===
-Beginner          | Moderate | Advanced | General
 
-|
-[square]
-- link:/WhyRascal[Why Rascal?]
-- link:/GettingStarted[Getting Started]
-- link:/Rascalopedia[Rascalopedia]
-- link:/Recipes[Rascal Recipes]
-- link:/GettingHelp[Getting Help]
+include::../tutor-overview.include[]
 
-|
-[square]
-- link:/RascalConcepts[Rascal Language Concepts]
-- link:/Rascal[Rascal Language Reference]
-- link:/Libraries[Rascal Library Reference]
-- link:{Errors}[Explanation of error messages]
+[WARNING]
+====
+This course material has been updated for the latest, 
+compiler-based, version of Rascal. The same language is supported, but
+compared with the older, interpreter-based,
+version there are some known differences in:
 
-|
-[square]
-- link:/Tutor[RascalTutor]
-- link:https://github.com/usethesource/rascal/wiki[Rascal Wiki]
-
-|
-[square]
-- link:http://www.rascal-mpl.org[Rascal Home Page]
-- link:https://github.com/usethesource/rascal[Rascal @ GitHub]
-- link:https://github.com/usethesource/rascal/issues[Issue tracker @ GitHub]
-- link:http://stackoverflow.com/questions/tagged/rascal[Rascal @ StackOverflow]
-
-|===
+* Error messages.
+* Commands for the RascalShell.
+* Not yet supported (mostly Eclipse-related) libraries.
+* Names of Exceptions.
+====

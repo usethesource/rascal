@@ -22,6 +22,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutio
 import org.rascalmpl.library.lang.json.io.JSONReadingTypeVisitor;
 import org.rascalmpl.library.lang.json.io.JsonValueReader;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
@@ -52,12 +53,16 @@ public class IOCompiled extends IO {
 		this.tr = new TypeReifier(values);
 	}
 	
-	public IValue readJSON(IValue type, ISourceLocation loc) {
+	public IValue readJSON(IValue type, ISourceLocation loc, IBool implicitConstructors, IBool implicitNodes, IString dateTimeFormat) {
       TypeStore store = new TypeStore();
       Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
       
       try {
-        return new JsonValueReader(values, store).read(new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc)), start);
+        return new JsonValueReader(values, store)
+            .setConstructorsAsObjects(implicitConstructors.getValue())
+            .setNodesAsObjects(implicitNodes.getValue())
+            .setCalendarFormat(dateTimeFormat.getValue())
+            .read(new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc)), start);
       }
       catch (IOException e) {
         throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -67,7 +72,7 @@ public class IOCompiled extends IO {
         throw RuntimeExceptionFactory.io(values.string("NPE"), null, null);
       }
     }
-
+	
 	public IValue fromJSON(IValue type, IString src, RascalExecutionContext rex) {
 		TypeStore store = new TypeStore();
 		

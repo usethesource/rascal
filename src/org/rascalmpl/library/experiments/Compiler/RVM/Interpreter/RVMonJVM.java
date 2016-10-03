@@ -90,7 +90,7 @@ public class RVMonJVM extends RVMCore {
 	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance, org.rascalmpl.value.IValue[])
 	 */
 	@Override
-	public IValue executeRVMFunction(FunctionInstance func, IValue[] posAndKwArgs) {
+	public IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs) {
 
 		Thrown oldthrown = thrown;
 
@@ -98,9 +98,10 @@ public class RVMonJVM extends RVMCore {
 		root.sp = func.function.getNlocals();
 
 		// Pass the program arguments to main
-		for (int i = 0; i < posAndKwArgs.length; i++) {
-			root.stack[i] = posAndKwArgs[i];
+		for (int i = 0; i < posArgs.length; i++) {
+			root.stack[i] = posArgs[i];
 		}
+		root.stack[posArgs.length] = kwArgs;
 
 		dynRun(func.function.funId, root);
 		
@@ -110,6 +111,15 @@ public class RVMonJVM extends RVMCore {
 			frameObserver.exception(root, (Thrown) thrown);
 			throw (Thrown) returnValue;
 		}
+		if(returnValue instanceof IValue){
+          IValue v = (IValue) returnValue;
+          Type tp = v.getType();
+          if(tp.isAbstractData() && tp.getName().equals("RuntimeException")){
+            Thrown th = Thrown.getInstance(v, null, null);
+            frameObserver.exception(root, th);
+            throw th;
+          }
+		}
 		return narrow(returnValue);
 	}
 	
@@ -118,17 +128,18 @@ public class RVMonJVM extends RVMCore {
 	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunctionInstance, org.rascalmpl.value.IValue[])
 	 */
 	@Override
-	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posAndKwArgs){		
+	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){		
 		Function firstFunc = functionStore[func.getFunctions()[0]]; // TODO: null?
-		int arity = posAndKwArgs.length;
+		int arity = posArgs.length + 1;
 		int scopeId = func.env.scopeId;
 		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
 
 		// Pass the program arguments to func
-		for(int i = 0; i < posAndKwArgs.length; i++) {
-			root.stack[i] = posAndKwArgs[i]; 
+		for(int i = 0; i < posArgs.length; i++) {
+			root.stack[i] = posArgs[i]; 
 		}
-		root.sp = posAndKwArgs.length;
+		root.stack[arity - 1] = kwArgs;
+		root.sp = arity;
 		root.previousCallFrame = null;
 
 		OverloadedFunctionInstanceCall ofunCall = new OverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), func.env, null, arity);
@@ -167,9 +178,9 @@ public class RVMonJVM extends RVMCore {
 	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMProgram(java.lang.String, java.lang.String, org.rascalmpl.value.IValue[], java.util.HashMap)
 	 */
 	@Override
-	public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] args, Map<String,IValue> kwArgs) {
+	public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] posArgs, Map<String,IValue> kwArgs) {
 
-		rex.setCurrentModuleName(moduleName);
+		rex.setFullModuleName(moduleName);
 
 		Function main_function = functionStore[functionMap.get(uid_main)];
 
@@ -179,14 +190,24 @@ public class RVMonJVM extends RVMCore {
 		
 		//Thrown oldthrown = thrown;	//<===
 		
-		dynRun(uid_main, args);
+		dynRun(uid_main, posArgs, kwArgs);
 		
 		//thrown = oldthrown;
 		
 		Object o = returnValue;
-		if (o != null && o instanceof Thrown) {
-			//TODO: frameObserver.exception(cf, (Thrown) thrown);
-			throw (Thrown) o;
+		if (o != null){
+		  if(o instanceof Thrown) {
+		    //TODO: frameObserver.exception(cf, (Thrown) thrown);
+		    throw (Thrown) o;
+		  }
+		  if(o instanceof IValue){
+		    IValue v = (IValue) o;
+		    Type tp = v.getType();
+		    if(tp.isAbstractData() && tp.getName().equals("RuntimeException")){
+		      throw Thrown.getInstance(v, null, null);
+		    }
+
+		  }
 		}
 		return narrow(o);
 	}
@@ -467,33 +488,32 @@ public class RVMonJVM extends RVMCore {
 	/************************************************************************************************/
 	/* JVM helper methods, called from inline jvm code generated for an RVM instruction				*/
 	/************************************************************************************************/
-	
 
-	public Object dynRun(final String fname, final IValue[] args) {
+	public Object dynRun(final String fname, final IValue[] args, Map<String, IValue> kwArgs) {
 		
 		int n = functionMap.get(fname);
 		Function func = functionStore[n];
 		root = new Frame(func.scopeId, null, func.maxstack, func);
 
 		root.stack[0] = vf.list(args); // pass the program argument to
-		root.stack[1] = vf.mapWriter().done();
+		root.stack[1] = kwArgs;
 		root.sp = func.getNlocals();
 
 		return dynRun(n, root);
 	}
 	
-	public Object executeFunction(final String fname, final IValue[] args){
-		int n = functionMap.get(fname);
-		Function func = functionStore[n];
-		root = new Frame(func.scopeId, null, func.maxstack, func);
-		for(int i = 0; i < args.length; i++){
-			root.stack[i] = args[i];	
-		}
-		root.stack[args.length] = vf.mapWriter().done();
-		root.sp = func.getNlocals();
-		
-		return dynRun(n, root);
-	}
+//	public Object executeFunction(final String fname, final IValue[] args){
+//		int n = functionMap.get(fname);
+//		Function func = functionStore[n];
+//		root = new Frame(func.scopeId, null, func.maxstack, func);
+//		for(int i = 0; i < args.length; i++){
+//			root.stack[i] = args[i];	
+//		}
+//		root.stack[args.length] = vf.mapWriter().done();
+//		root.sp = func.getNlocals();
+//		
+//		return dynRun(n, root);
+//	}
 
 	public Object dynRun(final int n, final Frame cf) {
 		System.out.println("Unimplemented Base called !");
