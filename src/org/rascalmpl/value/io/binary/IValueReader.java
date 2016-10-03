@@ -52,12 +52,10 @@ import io.usethesource.capsule.TransientMap;
 import io.usethesource.capsule.TrieMap_5Bits;
 
 /**
- * RSFIValueReader is a binary deserializer for IValues and Types. The main public function is:
- * - readValue
+ * Reader for binary serialized IValues and Types.
+ *
  */
-
 public class IValueReader implements AutoCloseable {
-
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	private static final RascalTypeFactory rtf = RascalTypeFactory.getInstance();
     private final ValueWireInputStream reader;
@@ -69,7 +67,7 @@ public class IValueReader implements AutoCloseable {
 
 
 	/**
-	 * this will consume the whole stream, or at least more than needed due to buffering
+	 * this will consume the whole stream, or at least more than needed due to buffering, so don't use the InputStream afterwards
 	 */
 	public IValueReader(InputStream in, IValueFactory vf, TypeStore ts) throws IOException {
 		byte[] currentHeader = new byte[IValueWriter.header.length];
@@ -114,6 +112,14 @@ public class IValueReader implements AutoCloseable {
 	    reader.close();
 	}
 	
+	/**
+	 * In most cases you want the other instance write method.
+	 * 
+	 * This static method is only for embedding in nested ValueWriteInputStreams
+	 * @param typeWindowSize should be the same size as used for writing
+	 * @param valueWindowSize should be the same size as used for writing
+	 * @param uriWindowSize should be the same size as used for writing
+	 */
 	public static IValue read(ValueWireInputStream reader, IValueFactory vf, TypeStore ts, int typeWindowSize, int valueWindowSize, int uriWindowSize) throws IOException {
 	    return read(reader, vf, ts, getWindow(typeWindowSize), getWindow(valueWindowSize), getWindow(uriWindowSize));
 	}
