@@ -35,7 +35,7 @@ import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.io.binary.util.MapLastWritten;
+import org.rascalmpl.value.io.binary.util.OpenAddressingLastWritten;
 import org.rascalmpl.value.io.binary.util.PrePostIValueIterator;
 import org.rascalmpl.value.io.binary.util.TrackLastWritten;
 import org.rascalmpl.value.type.ITypeVisitor;
@@ -54,20 +54,22 @@ public class IValueWriter {
     
 
     public enum CompressionRate {
-        None(0,0,0, 0),
+        None(10,0,0,0, 0),
         //TypesOnly(10,0,0),
         //ValuesOnly(0,10,10),
-        Fast(10,10,10, 1),
-        Normal(50,100,50,0),
-        Extreme(50,250,100, 6)
+        Fast(10, 10,10,10, 1),
+        Normal(30, 50,100,50,0),
+        Extreme(50, 50,250,100, 6)
         ;
 
         private final int uriWindow;
         private final int typeWindow;
         private final int valueWindow;
-        private int xzMode;
+        private final int stringsWindow;
+        private final int xzMode;
 
-        CompressionRate(int typeWindow, int valueWindow, int uriWindow, int xzMode) {
+        CompressionRate(int stringsWindow, int typeWindow, int valueWindow, int uriWindow, int xzMode) {
+            this.stringsWindow = stringsWindow;
             this.typeWindow = typeWindow;
             this.valueWindow = valueWindow;
             this.uriWindow = uriWindow;
@@ -92,7 +94,7 @@ public class IValueWriter {
 	            public void write(T obj) {};
 	        };
 	    }
-	    return new MapLastWritten<>(size * 1024); 
+	    return OpenAddressingLastWritten.referenceEquality(size * 1024); 
 	}
 	
 	public static void write(OutputStream out, IValue value, CompressionRate compression, boolean shouldClose) throws IOException {
@@ -104,7 +106,7 @@ public class IValueWriter {
     	if (compression.xzMode > 0) {
     	    out = new XZOutputStream(out, new LZMA2Options(compression.xzMode));
     	}
-    	ValueWireOutputStream writer =  new ValueWireOutputStream(out);
+    	ValueWireOutputStream writer =  new ValueWireOutputStream(out, compression.stringsWindow * 1024);
     	try {
     	    TrackLastWritten<Type> typeCache = getWindow(compression.typeWindow);
     	    TrackLastWritten<IValue> valueCache = getWindow(compression.valueWindow);

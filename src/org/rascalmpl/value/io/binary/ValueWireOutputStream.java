@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.rascalmpl.value.io.binary.util.FieldKind;
-import org.rascalmpl.value.io.binary.util.MapLastWritten;
+import org.rascalmpl.value.io.binary.util.OpenAddressingLastWritten;
 import org.rascalmpl.value.io.binary.util.TaggedInt;
 import org.rascalmpl.value.io.binary.util.TrackLastWritten;
 
@@ -27,18 +27,28 @@ import com.google.protobuf.CodedOutputStream;
 public class ValueWireOutputStream implements Closeable, Flushable {
 
     private static final byte[] WIRE_VERSION = new byte[] { 1, 0, 0 };
-    private static final int STRING_WRITTEN_SIZE = 2 * 1024;
     private boolean closed = false;
     private final CodedOutputStream stream;
     private final OutputStream __stream;
     private final TrackLastWritten<String> stringsWritten;
 
-    public ValueWireOutputStream(OutputStream stream) throws IOException {
+    public ValueWireOutputStream(OutputStream stream, int stringSharingWindowSize) throws IOException {
+        assert stringSharingWindowSize > 0;
         this.__stream = stream;
         this.__stream.write(WIRE_VERSION);
         this.stream = CodedOutputStream.newInstance(stream);
-        this.stream.writeUInt32NoTag(STRING_WRITTEN_SIZE);
-        this.stringsWritten = new MapLastWritten<>(STRING_WRITTEN_SIZE);
+        this.stream.writeUInt32NoTag(stringSharingWindowSize);
+        this.stringsWritten = new OpenAddressingLastWritten<String>(stringSharingWindowSize) {
+            @Override
+            protected boolean equals(String a, String b) {
+                return a.equals(b);
+            }
+
+            @Override
+            protected int hash(String obj) {
+                return obj.hashCode();
+            }
+        };
     }
 
     @Override
