@@ -17,6 +17,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
@@ -25,10 +30,12 @@ import org.rascalmpl.values.uptr.RascalValueFactory;
 public class OverloadedFunctionType extends RascalType {
 	private final Set<FunctionType> alternatives;
 	private final Type returnType;
-	
 	private static final TypeFactory TF = TypeFactory.getInstance();
-	private static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
+    private static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 
+	static final Type CONSTRUCTOR = declareTypeSymbol("overloaded", TF.setType(symbolType()), "alternatives");
+	
+	
 	/*package*/ OverloadedFunctionType(Set<FunctionType> alternatives) {
 		this.alternatives = alternatives;
 		this.returnType = alternatives.iterator().next().getReturnType();
@@ -42,6 +49,25 @@ public class OverloadedFunctionType extends RascalType {
 	@Override
 	public Type asAbstractDataType() {
 		return RascalValueFactory.Production;
+	}
+	
+	@Override
+    public IConstructor asSymbol(IValueFactory vf) {
+      ISetWriter w = vf.setWriter();
+      for (Type alt : alternatives) {
+        w.insert(alt.asSymbol(vf));
+      }
+      return vf.constructor(CONSTRUCTOR, w.done());
+    }
+	
+	public static Type fromSymbol(IConstructor symbol) {
+	  Set<FunctionType> newAlts = new HashSet<>();
+	  
+	  for (IValue alt : ((ISet) symbol.get("alternatives"))) {
+	    newAlts.add((FunctionType) Type.fromSymbol((IConstructor) alt)); 
+	  }
+	  
+	  return RTF.overloadedFunctionType(newAlts);
 	}
 	
 	public Type getKeywordParameterTypes() {

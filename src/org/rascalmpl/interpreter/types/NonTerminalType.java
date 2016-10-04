@@ -18,6 +18,7 @@ import org.rascalmpl.interpreter.utils.Symbols;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
@@ -33,6 +34,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  */
 public class NonTerminalType extends RascalType {
 	private IConstructor symbol;
+	static final Type CONSTRUCTOR = declareTypeSymbol("non-terminal", symbolType(), "symbol");
 
 	/*package*/ public NonTerminalType(IConstructor cons) {
 		// TODO refactor this into different factory methods in RascalTypeFactory
@@ -70,6 +72,15 @@ public class NonTerminalType extends RascalType {
 		this(Symbols.typeToSymbol(type, lex, layout));
 	}
 	
+    @Override
+    public IConstructor asSymbol(IValueFactory vf) {
+      return vf.constructor(CONSTRUCTOR, getSymbol());
+    }
+    
+    public static Type fromSymbol(IConstructor symbol) {
+      return RTF.nonTerminalType((IConstructor) symbol.get("symbol"));
+    }
+    
     @Override
     public boolean isNonterminal() {
     	return true;
