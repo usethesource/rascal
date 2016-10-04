@@ -59,7 +59,7 @@ public abstract class AbstractExternalValue implements IExternalValue {
 			
 			@Override
 			public Type getType() {
-				return ((ExternalType) getType()).asAbstractDataType();
+				return TypeFactory.getInstance().valueType();
 			}
 
 			@Override

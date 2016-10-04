@@ -19,6 +19,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.type.Type;
@@ -33,8 +37,8 @@ public class FunctionType extends RascalType {
 	private final Type argumentTypes;
 	private final Type keywordParameters;
 	
-	private static final TypeFactory TF = TypeFactory.getInstance();
 	private static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
+	static final Type CONSTRUCTOR = declareTypeSymbol("func", symbolType(), "ret", TF.listType(symbolType()), "parameters");
 	
 	/*package*/ FunctionType(Type returnType, Type argumentTypes, Type keywordParameters) {
 		this.argumentTypes = argumentTypes.isTuple() ? argumentTypes : TF.tupleType(argumentTypes);
@@ -51,6 +55,25 @@ public class FunctionType extends RascalType {
 	public Type asAbstractDataType() {
 		return RascalValueFactory.Production;
 	}
+	
+	@Override
+	public IConstructor asSymbol(IValueFactory vf) {
+	  IListWriter w = vf.listWriter();
+      for (Type arg : getArgumentTypes()) {
+          w.append(arg.asSymbol(vf));
+      }
+      
+      return vf.constructor(CONSTRUCTOR, getReturnType().asSymbol(vf), w.done());
+	}
+	
+	public static Type fromSymbol(IConstructor symbol) {
+	  Type returnType = Type.fromSymbol((IConstructor) symbol.get("ret"));
+      Type parameters = Type.symbolsToTupleType((IList) symbol.get("parameters"));
+  
+      // TODO: while merging the other branch had tf.voidType()...    
+      return RascalTypeFactory.getInstance().functionType(returnType, parameters, TF.tupleEmpty());
+	}
+	  
 	
 	@Override
 	public Type getFieldType(int i) {

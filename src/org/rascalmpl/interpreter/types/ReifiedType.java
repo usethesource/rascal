@@ -13,6 +13,8 @@ package org.rascalmpl.interpreter.types;
 
 import java.util.Map;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 import org.rascalmpl.value.type.Type;
@@ -28,6 +30,7 @@ import org.rascalmpl.values.uptr.RascalValueFactory;
  */
 public class ReifiedType extends RascalType {
 	private final Type arg;
+	static final Type CONSTRUCTOR = declareTypeSymbol("reified", symbolType(), "symbol");
 
 	public ReifiedType(Type arg) {
 		this.arg = arg;
@@ -35,7 +38,7 @@ public class ReifiedType extends RascalType {
 	
 	@Override
 	public Type asAbstractDataType() {
-		return RascalValueFactory.ADTforType;
+		return symbolType();
 	}
 	
 	@Override
@@ -171,5 +174,14 @@ public class ReifiedType extends RascalType {
 	@Override
 	public Type getAnnotationType(TypeStore store, String label) throws FactTypeUseException {
 		throw new UndeclaredAnnotationException(this, label);
+	}
+
+	@Override
+	public IConstructor asSymbol(IValueFactory vf) {
+	  return vf.constructor(CONSTRUCTOR, getTypeParameters().getFieldType(0).asSymbol(vf));
+	}
+	
+	public static Type fromSymbol(IConstructor symbol) {
+	  return RTF.reifiedType(Type.fromSymbol((IConstructor) symbol.get("symbol")));
 	}
 }
