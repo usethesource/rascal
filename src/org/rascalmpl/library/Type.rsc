@@ -92,6 +92,7 @@ data Symbol      // <3>
      | \cons(Symbol \adt, str name, list[Symbol] parameters)
      | \alias(str name, list[Symbol] parameters, Symbol aliased)
      | \func(Symbol ret, list[Symbol] parameters)
+     | \overloaded(set[Symbol] alternatives)
      | \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)
      | \reified(Symbol symbol)
      ;

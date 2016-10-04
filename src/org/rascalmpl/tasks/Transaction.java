@@ -28,6 +28,7 @@ import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IExternalValue;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.IWithKeywordParameters;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.impl.AbstractExternalValue;
@@ -55,6 +56,18 @@ IExpirationListener<IValue> {
 		protected Type glbWithExternal(Type type) {
 			// TODO Auto-generated method stub
 			return null;
+		}
+
+		@Override
+		public IConstructor asSymbol(IValueFactory vf) {
+		  // TODO Auto-generated method stub
+		  return null;
+		}
+
+		@Override
+		public Type asAbstractDataType() {
+		  // TODO Auto-generated method stub
+		  return null;
 		}};
 	private final Transaction parent;
 	private final boolean commitEnabled;

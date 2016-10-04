@@ -192,6 +192,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final Type Symbol_Parameter = tf.constructor(uptr, Symbol, "parameter", str, "name", Symbol, "bound");
 	public static final Type Symbol_LayoutX = tf.constructor(uptr, Symbol, "layouts", str, "name");
 	public static final Type Symbol_CharClass = tf.constructor(uptr, Symbol, "char-class", tf.listType(CharRange), "ranges");
+	
 	public static final Type Symbol_Int = tf.constructor(uptr, Symbol, "int");
 	public static final Type Symbol_Rat = tf.constructor(uptr, Symbol, "rat");
 	public static final Type Symbol_Bool = tf.constructor(uptr, Symbol, "bool");
