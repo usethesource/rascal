@@ -58,7 +58,7 @@ public class ExecuteProgram {
 			
 			rex.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
 			
-			return ExecutionTools.executeProgram(executable, keywordArguments, rex);
+			return ExecutionTools.executeProgram(executable, new KWParams(vf).add(keywordArguments).build(), rex);
 		} else {
 			throw new IOException("Cannot execute program with errors: " + executable.getErrors().toString());
 		}
@@ -85,7 +85,7 @@ public class ExecuteProgram {
 		if(executable.isValid()){
 			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getBoot(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, rex.getRascalSearchPath());
 			
-			return ExecutionTools.executeProgram(executable, keywordArguments, rex2);
+			return ExecutionTools.executeProgram(executable, new KWParams(vf).add(keywordArguments).build(), rex2);
 		} else {
 			throw new IOException("Cannot execute program with errors: " + executable.getErrors().toString());
 		}
@@ -118,7 +118,7 @@ public class ExecuteProgram {
             
             rex.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
             
-			return ExecutionTools.executeProgram(executable, keywordArguments, rex);
+			return ExecutionTools.executeProgram(executable, new KWParams(vf).add(keywordArguments).build(), rex);
 		} else {
 			throw new IOException("Cannot execute program with errors: " + executable.getErrors().toString());
 		}
@@ -142,7 +142,7 @@ public class ExecuteProgram {
 		RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc);
 		if(executable.isValid()){
 			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getBoot(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, rex.getRascalSearchPath());
-			return ExecutionTools.executeProgram(executable, keywordArguments, rex2);
+			return ExecutionTools.executeProgram(executable, new KWParams(vf).add(keywordArguments).build(), rex2);
 		} else {
 			throw new IOException("Cannot execute program with errors: " + executable.getErrors().toString());
 		}

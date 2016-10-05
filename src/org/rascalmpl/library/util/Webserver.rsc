@@ -3,6 +3,50 @@ module util::Webserver
 import Exception;
 import IO;
 
+alias Body = value (type[value] expected);
+
+data Request (map[str, str] headers = (), map[str, str] parameters = (), map[str,str] uploads = ())
+  = get (str path)
+  | put (str path, Body content)
+  | post(str path, Body content)
+  | delete(str path)
+  | head(str path)
+  ;
+                                            
+data Response 
+  = response(Status status, str mimeType, map[str,str] header, str content)
+  | fileResponse(loc file, str mimeType, map[str,str] header)
+  | jsonResponse(Status status, map[str,str] header, value val, bool implicitConstructors = true,  bool implicitNodes = true, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+  ;
+  
+Response response(str content)                    = response(ok(), "text/html", (), content);
+Response response(Status status, str explanation) = response(status, "text/plain", (), explanation);
+Response response(loc f)                          = fileResponse(f, mimeTypes[f.extension]?"text/plain", ());
+default  Response response(value val)             = jsonResponse(ok(), (), val);
+  
+data Status 
+  = ok() 
+  | created() 
+  | accepted() 
+  | noContent() 
+  | partialContent() 
+  | redirect() 
+  | notModified() 
+  | badRequest() 
+  | unauthorized() 
+  | forbidden() 
+  | notFound() 
+  | rangeNotSatisfiable() 
+  | internalError()
+  ; 
+    
+@javaClass{org.rascalmpl.library.util.Webserver}
+@reflect{to get access to the data types}
+java void serve(loc server, Response (Request) callback);
+
+@javaClass{org.rascalmpl.library.util.Webserver}
+java void shutdown(loc server);
+
 public map[str extension, str mimeType] mimeTypes = (
         "json" :"application/json",
         "css" : "text/css",
@@ -32,75 +76,3 @@ public map[str extension, str mimeType] mimeTypes = (
         "exe" : "application/octet-stream",
         "class" : "application/octet-stream"
    );
-   
-data Status 
-  = ok() 
-  | created() 
-  | accepted() 
-  | noContent() 
-  | partialContent() 
-  | redirect() 
-  | notModified() 
-  | badRequest() 
-  | unauthorized() 
-  | forbidden() 
-  | notFound() 
-  | rangeNotSatisfiable() 
-  | internalError()
-  ; 
-                                          
-data Response 
-  = response(Status status, str mimeType, map[str,str] header, str content)
-  | fileResponse(loc file, str mimeType, map[str,str] header)
-  | jsonResponse(Status status, map[str,str] header, value val, bool implicitConstructors = true,  bool implicitNodes = true, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-  ;
-
-
-
-data Method = get() | put() | post() | head() | delete();
-
-alias Handler = Response (loc uri, Method method, map[str, str] headers, map[str, str] parameters,  map[str, str] uploads);
-
-
-Response response(str content) = response(ok(), "text/html", (), content);
-Response response(Status status, str explanation) = response(status, "text/plain", (), explanation);
-Response response(loc f) = fileResponse(f, mimeTypes[f.extension]?"text/plain", ());
-default 
-Response response(value val) = jsonResponse(ok(), (), val);
-
-@javaClass{org.rascalmpl.library.util.Webserver}
-@reflect{to get access to the data types}
-java void serve(loc server, Handler callback); 
-
-Handler fileserver(loc root) = 
-  Response (loc uri, Method method, map[str, str] headers, map[str, str] parameters,  map[str, str] uploads) {
-    if (method != get()) 
-      return response(badRequest(), "GET is the only supported method");
-      
-    if (/\.\./ := "<uri>")
-      return response(forbidden(), ".. is not allowed");
-      
-    return response(root + uri.path);
-  };
-
-Handler dispatchserver(Response (Method, str, map[str,str]) router) =
-  Response (loc uri, Method method, map[str, str] headers, map[str, str] ps,  map[str, str] uploads) {
-    try {
-      return router(method, uri.path, ps);
-    } catch value e : {
-      return response(notFound(), "<uri.path> failed, due to <e>");
-    }
-  };
-   
-Handler functionserver(map[str, str (map[str,str] parameters)] functions) =
-  Response (loc uri, Method method, map[str, str] headers, map[str, str] parameters,  map[str, str] uploads) {
-    try {
-      return response(ok(),  mimeTypes[uri.extension]?"text/html", (), functions[uri.path](parameters));
-    }
-    catch value x: {
-      return response(notFound(), "<uri.path> not found");
-    }
-  };
-
-@javaClass{org.rascalmpl.library.util.Webserver}
-java void shutdown(loc server);

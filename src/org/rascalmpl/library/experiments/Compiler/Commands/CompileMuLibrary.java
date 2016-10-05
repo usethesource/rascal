@@ -73,7 +73,7 @@ public class CompileMuLibrary {
                     cmdOpts.getCommandlocsOption("lib"),
                     cmdOpts.getCommandLocOption("boot"),
                     cmdOpts.getCommandLocOption("bin"), 
-                    cmdOpts.getModuleOptionsAsIMap());
+                    cmdOpts.getModuleOptionsAsMap());
         }
         catch (Throwable e) {
             e.printStackTrace();

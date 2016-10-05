@@ -9,11 +9,9 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -29,14 +27,15 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.tutor3.Concept;
 import org.rascalmpl.library.experiments.tutor3.Onthology;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.ISourceLocation;
 
 public class HelpManager {
 	
-	private URI coursesDir;
+	private ISourceLocation coursesDir;
 	private final int maxSearch = 25;
 	private final PrintWriter stdout;
 	private final PrintWriter stderr;
@@ -47,40 +46,57 @@ public class HelpManager {
     public HelpManager(ISourceLocation binDir, PrintWriter stdout, PrintWriter stderr){
       this.stdout = stdout;
       this.stderr = stderr;
-
-
-      //URL c = this.getClass().getResource("/courses");
-      coursesDir = binDir.getURI();
+     
+      coursesDir = URIUtil.correctLocation(binDir.getScheme(), binDir.getAuthority(), binDir.getPath() + "/courses");
 
       try {
-        helpServer = new HelpServer(getPort(), this, Paths.get(coursesDir));
+        helpServer = new HelpServer(getPort(), this, coursesDir);
         indexSearcher = makeIndexSearcher();
       } catch (IOException e) {
         System.err.println("HelpManager: " + e.getMessage());
       }
     }
 	
-	private ArrayList<IndexReader> getReaders() throws IOException{
-		if(coursesDir.getScheme().equals("file")){
-			Path destDir = Paths.get(coursesDir);
-			ArrayList<IndexReader> readers = new ArrayList<>();
-			for(Path p : Files.newDirectoryStream(destDir)){
-				if(Files.isDirectory(p) && p.getFileName().toString().matches("^[A-Z].*")){
-					Directory directory = FSDirectory.open(p);
-					try {
-					DirectoryReader ireader = DirectoryReader.open(directory);
-					readers.add(ireader);
-					} catch (IOException e){
-					  stderr.println("Skipping index " + directory);
-					}
-				}
-			}
-			return readers;
-		}
-		throw new IOException("Cannot yet handle non-file coursesDir");
+	Path copyToTmp(ISourceLocation fromDir) throws IOException{
+	  Path targetDir = Files.createTempDirectory(URIUtil.getLocationName(fromDir));
+	  targetDir.toFile().deleteOnExit();
+	  URIResolverRegistry reg = URIResolverRegistry.getInstance();
+	  for(ISourceLocation file : reg.list(fromDir)){
+	    if(!reg.isDirectory(file)){
+	      String p = file.getPath();
+	      int n = p.lastIndexOf("/");
+	      String fileName = n >= 0 ? p.substring(n+1) : p;
+	      // Only copy _* (index files) and segments* (defines number of segments)
+	      if(fileName.startsWith("_") || fileName.startsWith("segments")){
+	        Path targetFile = targetDir.resolve(fileName);
+	        //System.out.println("copy " + file + " to " + toDir.resolve(fileName));
+	        Files.copy(reg.getInputStream(file), targetFile); 
+	        targetFile.toFile().deleteOnExit();
+	      }
+	    }
+	  }
+	  return targetDir;
 	}
 	
-	IndexSearcher makeIndexSearcher() throws IOException{
+	private ArrayList<IndexReader> getReaders() throws IOException{
+	  ArrayList<IndexReader> readers = new ArrayList<>();
+	  URIResolverRegistry reg = URIResolverRegistry.getInstance();
+	  for(ISourceLocation p : reg.list(coursesDir)){
+	    if(reg.isDirectory(p) && URIUtil.getLocationName(p).toString().matches("^[A-Z].*")){
+	      Path p1 = copyToTmp(p);
+	      Directory directory = FSDirectory.open(p1);
+	      try {
+	        DirectoryReader ireader = DirectoryReader.open(directory);
+	        readers.add(ireader);
+	      } catch (IOException e){
+	        stderr.println("Skipping index " + directory);
+	      }
+	    }
+	  }
+	  return readers;
+	}
+	
+	IndexSearcher makeIndexSearcher() throws IOException {
 		ArrayList<IndexReader> readers = getReaders();
 
 		IndexReader[] ireaders = new IndexReader[readers.size()];
@@ -153,7 +169,7 @@ public class HelpManager {
 	}
 	
 	public void handleHelp(String[] words){
-		if(words[0].equals("help")){
+		if(words[0].equals("help") && words.length > 1){
 			try {
 				openInBrowser(makeSearchURI(words));
 			} catch (URISyntaxException e) {

@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -85,11 +86,14 @@ public class CommandExecutor {
 	boolean coverage;
 	boolean jvm;
 	boolean verbose;
+	boolean enableAsserts;
 	
 	private HashMap<String, Variable> variables ;
 	private ArrayList<String> imports;
-	private HashMap<String,String> syntaxDefinitions;
-	private ArrayList<String> declarations;	
+	private HashMap<String,List<String>> syntaxDefinitions;
+	private HashMap<String,List<String>> functionDeclarations;
+	private HashMap<String,List<String>> dataDeclarations;
+	
 	private Map<IValue, IValue> moduleVariables;
 	
 	private final String shellModuleName = "CompiledRascalShell";
@@ -120,6 +124,7 @@ public class CommandExecutor {
 		jvm = true;
 		verbose = false;
 		optimize = false;
+		enableAsserts = true;
 		
 		IMapWriter w = vf.mapWriter();
 		//w.put(vf.string("bootstrapParser"), vf.string(""));
@@ -143,7 +148,8 @@ public class CommandExecutor {
 		variables = new HashMap<>();
 		imports = new ArrayList<>();
 		syntaxDefinitions = new HashMap<>();
-		declarations = new ArrayList<>();
+		functionDeclarations = new HashMap<>();
+		dataDeclarations = new HashMap<>();
 		moduleVariables = new HashMap<>();
 		
 		// helpManager is only initialized on first help or apropos call
@@ -158,7 +164,8 @@ public class CommandExecutor {
 		variables = new HashMap<>();
 		imports = new ArrayList<>();
 		syntaxDefinitions = new HashMap<>();
-		declarations = new ArrayList<>();
+		functionDeclarations = new HashMap<>();
+		dataDeclarations = new HashMap<>();
 		moduleVariables = new HashMap<>();
 		forceRecompilation = true;
 	}
@@ -167,33 +174,43 @@ public class CommandExecutor {
 		this.debugObserver = observer;
 	}
 	
-	private IMap makeCompileKwParamsAsIMap(){
-		IMapWriter w = vf.mapWriter();
-		w.put(vf.string("verbose"), vf.bool(false));
-		w.put(vf.string("optimize"), vf.bool(optimize));
-		return w.done();
+	private Map<String, IValue> makeCompileKwParamsAsMap(){
+		Map<String,IValue> result = new HashMap<>();
+		result.put("verbose", vf.bool(false));
+		result.put("optimize", vf.bool(optimize));
+		result.put("enableAsserts", vf.bool(enableAsserts));
+		return result;
 	}
 	
-	private boolean noErrors(String modString, RVMExecutable exec){
-		ISet errors = exec.getErrors();
-		if(errors.size() == 0){
-			return true;
-		}
-		for(IValue m : errors){
-			IConstructor msg = (IConstructor) m;
-			String msgKind = msg.getName();
-			String txt = ((IString)msg.get("msg")).getValue();
-			ISourceLocation src = (ISourceLocation)msg.get("at");
-			String hint = " AT " + src.toString();
-			if(src.getPath().equals(consoleInputPath)){
-				int offset = src.getOffset();
-				String subarea = modString.substring(offset, offset + src.getLength());
-				hint = subarea.matches("[a-zA-Z0-9]+") ? "" : " IN '" + subarea + "'";
-			}
-			(msgKind.equals("error") ? stderr : stdout).println("[" + msgKind + "] " + txt + hint);
-		}
-		return false;
+	private boolean noErrors(RVMExecutable exec){
+		return exec.getErrors().size() == 0;
 	}
+	
+	private String capitalize(String s){
+	  return s.substring(0,1).toUpperCase() + s.substring(1);
+	}
+	
+	private String getErrors(String modString, RVMExecutable exec){
+      ISet errors = exec.getErrors();
+      if(errors.size() == 0){
+          return "";
+      }
+      StringWriter sw = new StringWriter();
+      for(IValue m : errors){
+          IConstructor msg = (IConstructor) m;
+          String msgKind = msg.getName();
+          String txt = ((IString)msg.get("msg")).getValue();
+          ISourceLocation src = (ISourceLocation)msg.get("at");
+          String hint = " AT " + src.toString();
+          if(src.getPath().equals(consoleInputPath)){
+              int offset = src.getOffset();
+              String subarea = modString.substring(offset, offset + src.getLength());
+              hint = subarea.matches("[a-zA-Z0-9]+") ? "" : " IN '" + subarea + "'";
+          }
+          sw.append(capitalize(msgKind)).append(": ").append(txt).append(hint).append("\n");
+      }
+      return sw.toString();
+  }
 	
 	private void executeTests(String[] words){
 	  IListWriter w = vf.listWriter();
@@ -214,7 +231,7 @@ public class CommandExecutor {
 	        w.append(vf.string(imports.get(i)));
 	      }
 	    } else {
-	      System.err.println("No tests to execute; import modules with tests or give list of modules with tests");
+	      stderr.println("No tests to execute; import modules with tests or give list of modules with tests");
 	      return;
 	    }
 	  }
@@ -224,11 +241,11 @@ public class CommandExecutor {
 	      pcfg.getboot(), 
 	      pcfg.getBin(), 
 	      true,
-	      makeCompileKwParamsAsIMap());
-	  System.err.println("executeTests: " + res);
+	      makeCompileKwParamsAsMap());
+	  stderr.println("executeTests: " + res);
 	}
 	
-	private IValue executeModule(String main, boolean onlyMainChanged){
+	private IValue executeModule(String main, boolean onlyMainChanged) throws RascalShellExecutionException {
 		StringWriter w = new StringWriter();
 		
 		w.append("module ConsoleInput\n");
@@ -236,11 +253,22 @@ public class CommandExecutor {
 			w.append("import ").append(imp).append(";\n");
 		}
 		for(String syn : syntaxDefinitions.keySet()){
-			w.append(syntaxDefinitions.get(syn)).append("\n");
+		    for(String alt : syntaxDefinitions.get(syn)){
+		      w.append(alt).append("\n");
+		    }
 		}
-		for(String decl : declarations){
-			w.append(decl).append("\n");
+		for(String d : dataDeclarations.keySet()){
+		  for(String alt : dataDeclarations.get(d)){
+		    w.append(alt).append("\n");
+		  }
 		}
+		
+		for(String f : functionDeclarations.keySet()){
+          for(String alt : functionDeclarations.get(f)){
+            w.append(alt).append("\n");
+          }
+        }
+		
 		for(String name : variables.keySet()){
 			Variable var = variables.get(name);
 			w.append(var.type).append(" ").append(name).append(";\n");
@@ -251,16 +279,16 @@ public class CommandExecutor {
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation);
-			
+			forceRecompilation = true;
 			rvmConsoleExecutable = kernel.compileAndMergeIncremental(vf.string(consoleInputName), 
 																	reuseConfig, 
 																	pcfg.getSrcs(), 
 																	pcfg.getLibs(), 
 																	pcfg.getboot(), 
 																	pcfg.getBin(), 
-																	makeCompileKwParamsAsIMap());
+																	makeCompileKwParamsAsMap());
 			
-			if(noErrors(modString, rvmConsoleExecutable)){
+			if(noErrors(rvmConsoleExecutable)){
 				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getboot(), stdout, stderr)
 						.forModule(shellModuleName)
 						.withModuleTags(rvmConsoleExecutable.getModuleTags())
@@ -276,26 +304,24 @@ public class CommandExecutor {
 						.observedBy(debugObserver != null ? debugObserver.getObserverWhenActiveBreakpoints() : null)
 						.build();
 						
-				IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, vf.mapWriter().done(), rex);
+				IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, new HashMap<String,IValue>(), rex);
 				lastRvmConsoleExecutable = rvmConsoleExecutable;
 				updateModuleVariables(rex.getModuleVariables());
 				forceRecompilation = false;
 				return val;
 			} else {
-				return null;
+				throw new RascalShellExecutionException(getErrors(modString, rvmConsoleExecutable));
 			}
 		} catch (Thrown e){
-			if(e.getMessage() != null){
-				stderr.print(e.getMessage());
-			}
-			e.printStackTrace(stderr);
-			return null;
-		} catch (IOException e) {
-			if(e.getMessage() != null){
-				stderr.print(e.getMessage());
-			}
-			e.printStackTrace(stderr);
-			return null;
+		    IConstructor cons = (IConstructor) e.value;
+		    StringWriter sw = new StringWriter();
+		    sw.append("Error: ").append(cons.toString());
+		    e.printStackTrace(new PrintWriter(sw));
+			throw new RascalShellExecutionException(sw.toString());
+		} catch (IOException e){
+		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
+		} catch (Exception e){
+		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
 		}
 	}
 	
@@ -316,12 +342,12 @@ public class CommandExecutor {
 		}
 	}
 	
-	public String evalPrint(String statement, ISourceLocation rootLocation) throws IOException{
-		IValue result = eval(statement, rootLocation);
-		return resultToString(result);
-	}
+//	public String evalPrint(String statement, ISourceLocation rootLocation) throws IOException, ExecutionException{
+//		IValue result = eval(statement, rootLocation);
+//		return resultToString(result);
+//	}
 	
-	public IValue eval(String statement, ISourceLocation rootLocation) {
+	public IValue eval(String statement, ISourceLocation rootLocation) throws RascalShellExecutionException, IOException {
 		ITree cmd = parseCommand(statement, rootLocation);
 		
 		cmd = TreeAdapter.getStartTop(cmd);
@@ -330,50 +356,30 @@ public class CommandExecutor {
 			return evalExpression(statement, get(cmd, "expression"));
 		}
 		if(is(cmd, "statement")){
-			try {
-				return evalStatement(statement, get(cmd, "statement"));
-			} catch (FactTypeUseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return null;
+			return evalStatement(statement, get(cmd, "statement"));
 		}
 		if(is(cmd, "import")){
-			try {
+//			try {
 				return evalImport(statement, get(cmd, "imported"));
-			} catch (FactTypeUseException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return null;
+//			} catch (FactTypeUseException | IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			return null;
 		}
 		if(is(cmd, "declaration")){
-			try {
+			//try {
 				return evalDeclaration(statement, get(cmd, "declaration"));
-			} catch (FactTypeUseException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-//		if(is(cmd, "shell")){
-//			try {
-//				return evalShellCommand(statement, get(cmd, "command"));
 //			} catch (FactTypeUseException | IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
 //			}
-//		}
+		}
 		return null;
 	}
 	
-	private IValue evalExpression(String src, ITree exp){
-		try {
-			return executeModule("\nvalue main() = " + src + ";\n", true);
-		} catch (Thrown e){
-			return null;
-		}
+	private IValue evalExpression(String src, ITree exp) throws RascalShellExecutionException{
+		return executeModule("\nvalue main() = " + src + ";\n", true);
 	}
 	
 	private void declareVar(String type, String name){
@@ -394,7 +400,6 @@ public class CommandExecutor {
 	
 	private void undeclareVar(String name){
 		variables.remove(name);
-		//declarations.remove(declarations.size() - 1);
 		moduleVariables.remove("ConsoleInput:" + name);
 	}
 	
@@ -408,12 +413,16 @@ public class CommandExecutor {
 		}
 	}
 	
-	private IValue report(String msg){
-		stdout.println(msg);
-		stdout.flush();
-		return null;
+	private IValue report(String msg) {
+	  stdout.println(msg);
+      stdout.flush();
+      return null;
 	}
 	
+	private IValue reportError(String msg) throws RascalShellExecutionException {
+	  throw new RascalShellExecutionException("Error: " + msg);
+	}
+
 	private String getBaseVar(ITree assignable) throws FactTypeUseException, IOException{
 		if(is(assignable, "variable")){
 			return unparse(get(assignable, "qualifiedName"));
@@ -424,19 +433,22 @@ public class CommandExecutor {
 		return null;
 	}
 	
-	private IValue evalStatement(String src, ITree stat) throws FactTypeUseException, IOException{
+	private String makeMain(String stat){
+	  return "\nvalue main() { try { return " + stat + "} catch e: return e;}\n";
+	}
+	
+	private String makeMainOk(){
+	  return "\nvalue main() = \"ok\";\n";
+	}
+	
+	private IValue evalStatement(String src, ITree stat) throws IOException, RascalShellExecutionException {
 		
 		String consName = TreeAdapter.getConstructorName(stat);
 		switch(consName){
 		
 		case "expression":
 			String innerExp = unparse(get(stat, "expression"));
-			try {
-				return executeModule("\nvalue main() = " + innerExp + ";\n", true);
-			} catch (Exception e){
-				forceRecompilation = true;
-				return null;
-			}
+			return executeModule(makeMain(innerExp + ";"), true);
 			
 		case "assignment":
 			//assignment: Assignable assignable Assignment operator Statement!functionDeclaration!variableDeclaration statement
@@ -445,71 +457,69 @@ public class CommandExecutor {
 			String assignableName = TreeAdapter.getConstructorName(assignable);
 			IValue val;
 
-			switch(assignableName){
-			case "variable": case "subscript": case "slice": case "sliceStep": case "fieldAccess":
+        switch(assignableName){
+			case "variable": case "subscript": case "slice": case "sliceStep": case "fieldAccess": {
 				String name = getBaseVar(assignable);
 
 				Variable var = variables.get(name);
 				if(var != null){
-					return executeModule("\nvalue main() { " + src + "}\n", true);
+					val = executeModule("\nvalue main() { " + src + "}\n", true);
+					updateVar(name, val);
+					return val;
 				} else {
-					val = executeModule("\nvalue main() { " + unparse(get(stat, "statement")) + " }\n", true);
-					if(val != null){
-						declareVar(val.getType().toString(), name);
-						updateVar(name, val);
-					}
+					val = executeModule(makeMain(unparse(get(stat, "statement"))), true);
+					declareVar(val.getType().toString(), name);
+					updateVar(name, val);
 					forceRecompilation = true;
 					return val;
 				}
-			case "annotation":
+			}
+			case "annotation": {
 				String annoName = unparse(get(assignable, "annotation"));
-				name = getBaseVar(assignable);
-				var = variables.get(name);
-				val = executeModule("\nvalue main() { " + unparse(get(stat, "statement")) + " }\n", true);
+				String name = getBaseVar(assignable);
+				Variable var = variables.get(name);
+				val = executeModule(makeMain(unparse(get(stat, "statement"))), true);
 				if(var != null){
-					if(val != null){
-						annotateVar(name, annoName, val);
-					}
-					return val;
+				  annotateVar(name, annoName, val);
 				}
+				return val;
+			}
 				
-			case "ifDefinedOrDefault":
-				name = getBaseVar(assignable);
-				var = variables.get(name);
-				val = executeModule("\nvalue main() { " + src + "}\n", true);
+			case "ifDefinedOrDefault": {
+				String name = getBaseVar(assignable);
+				Variable var = variables.get(name);
+				val = executeModule(makeMain(src), true);
 				if(var == null){
-					if(val != null){
-						declareVar(val.getType().toString(), name);
-						updateVar(name, val);
-					}
-					forceRecompilation = true;
+				  declareVar(val.getType().toString(), name);
+				  updateVar(name, val);
 				}
 				return val;
+			}
 				
-			case "tuple":
+			case "tuple": {
 				ITree elements = get(assignable, "elements");
-				val = executeModule("\nvalue main() { " + unparse(get(stat, "statement")) + " }\n", true);
-				if(val != null){
-					ITuple tupleVal = (ITuple) val;
-					IList elemList = TreeAdapter.getListASTArgs(elements);
-					for(int i = 0; i < elemList.length(); i++){
-						ITree element = (ITree) elemList.get(i);
-						String elemName = getBaseVar((ITree)element);
-						if(elemName != null){
-							declareVar(val.getType().getFieldType(i).toString(), elemName);
-							updateVar(elemName, tupleVal.get(i));
-						} else {
-							return report("Assignable is not supported: " + unparse((ITree)element));
-						}
-					}
+				val = executeModule(makeMain(unparse(get(stat, "statement"))), true);
+
+				ITuple tupleVal = (ITuple) val;
+				IList elemList = TreeAdapter.getListASTArgs(elements);
+				for(int i = 0; i < elemList.length(); i++){
+				  ITree element = (ITree) elemList.get(i);
+				  String elemName = getBaseVar((ITree)element);
+				  if(elemName != null){
+				    declareVar(val.getType().getFieldType(i).toString(), elemName);
+				    updateVar(elemName, tupleVal.get(i));
+				    forceRecompilation = true;
+				  } else {
+				    return reportError("Assignable is not supported: " + unparse((ITree)element));
+				  }
 				}
-				forceRecompilation = true;
 				return val;
+			}
 				
-			case "constructor":
+			case "constructor": {
 				consName = unparse(get(assignable, "name"));
-				elements = get(assignable, "arguments");
-				val = executeModule("\nvalue main() { " + unparse(get(stat, "statement")) + " }\n", true);
+				ITree elements = get(assignable, "arguments");
+				val = executeModule(makeMain(unparse(get(stat, "statement"))), true);
 				if(val != null){
 					IConstructor consVal = (IConstructor) val;
 					if(consVal.getName().equals(consName)){
@@ -521,26 +531,27 @@ public class CommandExecutor {
 								declareVar(consVal.getConstructorType().getFieldType(i).toString(), elemName);
 								updateVar(elemName, consVal.get(i));
 							} else {
-								return report("Assignable is not supported: " + unparse((ITree)element));
+								return reportError("Assignable is not supported: " + unparse((ITree)element));
 							}
 						}
 					} else {
-						return report("[Error] Name mismatch in assignment: " + consName  + " vs " + consVal.getName());
+						return reportError("Name mismatch in assignment: " + consName  + " vs " + consVal.getName());
 					}
 				}
 				forceRecompilation = true;
 				return val;
+			}
 			
 			default:
-				return report("Assignable is not supported: " + src);
+				return reportError("Assignable is not supported: " + src);
 			}
 
 		default:
-			return executeModule("\nvalue main() { " + unparse(stat) + " }\n", true);
+			return executeModule(makeMain(unparse(stat)), true);
 		}
 	}
 	
-	private IValue evalDeclaration(String src, ITree cmd) throws FactTypeUseException, IOException{
+	private IValue evalDeclaration(String src, ITree cmd) throws FactTypeUseException, IOException, RascalShellExecutionException{
 		IValue result = null;
 		if(is(cmd, "variable")){
 			ITree type = get(cmd, "type");
@@ -548,50 +559,69 @@ public class CommandExecutor {
 			IList vars = TreeAdapter.getListASTArgs(variables);
 
 			for(IValue ivar : vars){
-				ITree var = (ITree) ivar;
-				String name = unparse(get(var, "name"));
-				if(is(var, "initialized")){
-					String initial = unparse(get(var, "initial"));
-					declareVar(unparse(type), name);
-					try {
-						forceRecompilation = true;
-						result = executeModule("\nvalue main() { " + name + " = " + initial + ";}\n", false);
-						if(result == null){
-							undeclareVar(name);
-							forceRecompilation = true;
-							return null;
-						}
-						updateVar(name, result);
-					} catch (Exception e){
-						undeclareVar(name);
-						forceRecompilation = true;
-						return null;
-					}
-				} else {
-					declareVar(unparse(type), name);
-				}
+			  ITree var = (ITree) ivar;
+			  String name = unparse(get(var, "name"));
+			  if(is(var, "initialized")){
+			    String initial = unparse(get(var, "initial"));
+			    declareVar(unparse(type), name);
+			    try {
+			      forceRecompilation = true;
+			      result = executeModule(makeMain(name + " = " + initial + ";"), false);
+			      updateVar(name, result);
+			    } catch (RascalShellExecutionException e){
+			      undeclareVar(name);
+			      return null;
+			    }
+			  } else {
+			    declareVar(unparse(type), name);
+			    try {
+			      forceRecompilation = true;
+			      result = executeModule(makeMain("true;"), false);
+			    } catch (RascalShellExecutionException e){
+			      undeclareVar(name);
+			    }
+			    return null;
+			  }
 			}
 			return result;
+		} else if(is(cmd, "dataAbstract") || is(cmd, "data")){
+		  ITree userType = get(cmd, "user");
+		  String name = unparse(get(userType, "name"));
+		  List<String> alts = dataDeclarations.containsKey(name) 
+		                        ? dataDeclarations.get(name)
+		                        : new ArrayList<String>();
+		  alts.add(src);
+		  dataDeclarations.put(name,  alts);
+		  try {
+		    result = executeModule(makeMain("true;"), false);
+		    return null;
+		  } catch (RascalShellExecutionException e) {
+		    alts.remove(src);
+		    dataDeclarations.put(name,  alts);
+		    throw e;
+		  }
+		} else if(is(cmd, "function")){
+		  ITree functionDeclaration = get(cmd, "functionDeclaration");
+		  ITree signature = get(functionDeclaration, "signature");
+		  String name = unparse(get(signature, "name"));
+		  List<String> alts = functionDeclarations.containsKey(name) 
+		      ? functionDeclarations.get(name)
+		          : new ArrayList<String>();
+		      alts.add(src);
+		      functionDeclarations.put(name,  alts);
+		      try {
+		        result = executeModule(makeMain("true;"), false);
+		        return null;
+		      } catch (RascalShellExecutionException e) {
+		        alts.remove(src);
+		        functionDeclarations.put(name,  alts);
+		        throw e;
+		      }
 		}
-		
-		// TODO handle here data, dataAbstract and function
-		declarations.add(src);
-	
-		try {
-			result =  executeModule("\nvalue main() = true;\n", false);
-			if(result == null){
-				declarations.remove(src);
-				forceRecompilation = true;
-			}
-			return null;
-		} catch (Exception e){
-			declarations.remove(src);
-			forceRecompilation = true;
-			return null;
-		}
+		return reportError("Not supported construct: " + src);
 	}
 	
-	private IValue evalImport(String src, ITree imp) throws FactTypeUseException, IOException{
+	private IValue evalImport(String src, ITree imp) throws FactTypeUseException, IOException, RascalShellExecutionException{
 		IValue result;
 		if(is(imp, "default")){
 			String impName = unparse(get(get(imp, "module"), "name"));
@@ -601,48 +631,41 @@ public class CommandExecutor {
 			imports.add(impName);
 			try {
 				forceRecompilation = true;
-				result = executeModule("\nvalue main() = \"ok\";\n", false);
-				if(result == null){
-					imports.remove(impName);
-					forceRecompilation = true;
-				}
-				
+				result = executeModule(makeMainOk(), false);
 				return null;
-			} catch (Exception e){
+			} catch (RascalShellExecutionException e){
 				imports.remove(impName);
-				forceRecompilation = true;
-				return null;
+				throw e;
 			}
 		}
 		if(is(imp, "syntax")){
 			StringWriter w = new StringWriter();
 			TreeAdapter.unparse(get(get(imp, "syntax"), "defined"), w);
 			String name = w.toString();
-			syntaxDefinitions.put(name, src);
+			List<String> alts = syntaxDefinitions.containsKey(name) 
+			                          ? syntaxDefinitions.get(name)
+			                          : new ArrayList<String>();
+			alts.add(src);
+            syntaxDefinitions.put(name, alts);
 			try {
-				result = executeModule("\nvalue main() = \"ok\";\n", false);
-				if(result == null){
-					syntaxDefinitions.remove(name);
-					forceRecompilation = true;
-				}
+				result = executeModule(makeMainOk(), false);
 				return null;
-			} catch (Exception e){
-				syntaxDefinitions.remove(name);
-				forceRecompilation = true;
-				return null;
+			} catch (RascalShellExecutionException e){
+			    alts.remove(src);
+				syntaxDefinitions.put(name, alts);
+				throw e;
 			}
 		}
 		
 		return null;
 	}
 	
-	private boolean getBooleanValue(String val){
+	private boolean getBooleanValue(String val) throws RascalShellExecutionException{
 		switch(val){
 		case "true": return true;
 		case "false": return false;
 		default:
-			stdout.println("'" + val + "' is not a boolean value");
-			return false;
+			throw new RascalShellExecutionException("Error: '" + val + "' is not a boolean value");
 		}
 	}
 	
@@ -654,7 +677,7 @@ public class CommandExecutor {
 	
 	//TODO merge with BaseRascalRepl
 	
-	private String resultToString(IValue value) throws IOException {
+	public String resultToString(IValue value) throws IOException {
 		StringWriter out = new StringWriter();
 		if (value == null) {
 			out.append("ok\n");
@@ -667,10 +690,12 @@ public class CommandExecutor {
 			out.append(": ");
 			// we unparse the tree
 			out.append("(" + type.toString() +") `");
-			TreeAdapter.yield((IConstructor)value, true, out);
+			TreeAdapter.yield((IConstructor)value, false, out);
 			out.append("`");
-		}
-		else {
+		} else if(type.isAbstractData() && type.getName().equals("RuntimeException")){
+		    out.append("Error: ");
+		    out.append(value.toString());
+		} else {
 			out.append(type.toString());
 			out.append(": ");
 			 try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
@@ -692,7 +717,7 @@ public class CommandExecutor {
 				  .append("coverage: ").append(coverage).toString());
 	}
 	
-	public IValue evalShellCommand(String[] words) {
+	public IValue evalShellCommand(String[] words) throws RascalShellExecutionException {
 		switch(words[0]){
 		
 		case "set":
@@ -700,7 +725,7 @@ public class CommandExecutor {
 				return showOptions();
 			}
 			if(words.length != 3){
-				return report("set requires two arguments");
+				return reportError("set requires two arguments");
 			}
 			String name = words[1];
 			String val = words[2];
@@ -734,43 +759,54 @@ public class CommandExecutor {
 				return report(name + " set to "  + optimize);
 								
 			default:
-				return report("Unrecognized option : " + name);
+				return reportError("Unrecognized option: " + name);
 			}
 	
 		case "help": case "apropos":
 			if(helpManager == null){
-				helpManager = new HelpManager(pcfg.getBin(), stdout, stderr);
+				helpManager = new HelpManager(pcfg.getboot(), stdout, stderr);
 			}
 			
 			helpManager.handleHelp(words);
 			break;
 			
 		case "declarations":
-			if(syntaxDefinitions.isEmpty() && declarations.isEmpty() && variables.isEmpty()){
-				System.err.println("No declarations");
-			} else {
-				for(String synName : syntaxDefinitions.keySet()){
-					System.err.println(syntaxDefinitions.get(synName));
-				}
+		  if(syntaxDefinitions.isEmpty() 
+		      && dataDeclarations.isEmpty() 
+		      &&  functionDeclarations.isEmpty() 
+		      && variables.isEmpty()){
+		    stderr.println("No declarations");
+		  } else {
+		    for(String synName : syntaxDefinitions.keySet()){
+		      for(String alt : syntaxDefinitions.get(synName)){
+		        stderr.println(alt);
+		      }
+		    }
+		    for(String dataName : dataDeclarations.keySet()){
+		      for(String alt : dataDeclarations.get(dataName)){
+		        stderr.println(alt);
+		      }
+		    }
+		    for(String funName : functionDeclarations.keySet()){
+		      for(String alt : functionDeclarations.get(funName)){
+		        stderr.println(alt);
+		      }
+		    }
 
-				for(String decl : declarations){
-					System.err.println(decl);
-				}
+		    for(String varName : variables.keySet()){
+		      Variable var = variables.get(varName);
+		      stderr.println(var.type + " " + varName + ";");
+		    }
+		  }
 
-				for(String varName : variables.keySet()){
-					Variable var = variables.get(varName);
-					System.err.println(var.type + " " + varName + ";");
-				}
-			}
-			
-			break;
+		  break;
 			
 		case "modules":
 			if(imports.isEmpty()){
-				System.err.println("No imported modules");
+				stderr.println("No imported modules");
 			} else {
 				for(String imp : imports){
-					System.err.println(imp);
+					stderr.println(imp);
 				}
 			}
 			break;
@@ -790,12 +826,15 @@ public class CommandExecutor {
 				for(int i = 1; i <words.length; i++){
 					undeclareVar(words[i]);
 					syntaxDefinitions.remove(words[i]);
+					functionDeclarations.remove(words[i]);
+					dataDeclarations.remove(words[i]);
 				}
 			} else {
 				variables =  new HashMap<>();
-				declarations = new ArrayList<>();
 				syntaxDefinitions = new HashMap<>();
-			}
+				functionDeclarations = new HashMap<>();
+				dataDeclarations = new HashMap<>();
+				}
 			break;
 		
 		case "break":

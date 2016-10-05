@@ -306,6 +306,8 @@ void extractScopes(Configuration c){
 	// - uid2str
 
    config = c;
+   
+   consLocationTypes = (l : t | l <- config.locationTypes, t:cons(_,_,_) := config.locationTypes[l]); 
 
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
@@ -358,12 +360,22 @@ void extractScopes(Configuration c){
              //}	
         }
         case constructor(rname,rtype,_,inScope,src): { 
-             //println("<uid>: <item>");
+             //if(!contains("<rtype>", "RuntimeException")){
+             //   println("<uid>: <item>");
+             //}
 			 constructors += {uid};
 			 declares += {<inScope, uid>};
 			 loc2uid[src] = uid;
 			 for(l <- config.uses[uid]) {
+			     //println("add from use: <l>");
 			     loc2uid[l] = uid;
+			 }
+			 /*!!!*/
+			 for(l <- consLocationTypes){
+			     if(consLocationTypes[l] == rtype){
+			        //println("add from locationTypes: <l>");
+			        loc2uid[l] = uid;
+			     }
 			 }
 			 // Fill in uid2name
 		     uid2name[uid] = getCUID(getSimpleName(rname),rtype);
@@ -374,6 +386,9 @@ void extractScopes(Configuration c){
         case datatype(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, set[loc] ats): {
             //println("<uid>: <item>");
             datatypes[rtype] = uid;
+            /*!!!*/
+            uid2name[uid] = getSimpleName(name);
+            uid2type[uid] = rtype;
         }
         case production(rname, rtype, inScope, p, src): {
              //println("<uid>: <item>");
@@ -457,11 +472,6 @@ void extractScopes(Configuration c){
         default: ; //println("extractScopes: skipping <uid>: <item>");
       }
     }
-    
-    // Make sure that the original and the normalized location is present.
-    //for(l <- config.Execu){
-    //	config.locationTypes[l] = config.locationTypes[l];
-    //}
     
     // Precompute some derived values for efficiency:
     containmentPlus = containment+;
@@ -757,7 +767,7 @@ void extractConstantDefaultExpressions(){
         }  
      }
  
-    // Pass 2: collect all keyword fields and add them to constructorFields
+     // Pass 2: collect all keyword fields and add them to constructorFields
     
      for(tp <- config.dataKeywordDefaults){
         uid = tp[0];
@@ -787,7 +797,7 @@ void extractConstantDefaultExpressions(){
          the_constructor = config.store[uid];   // either constructor or datatype
          //println("the_constructor: <the_constructor>");
          //println("the_constructor.rtype: <the_constructor.rtype>");
-        if(!(the_constructor is datatype)){
+         if(!(the_constructor is datatype)){
              
              Symbol the_adt = (the_constructor.rtype has adt) ? the_constructor.rtype.\adt : the_constructor.rtype;
              //println("the_adt = <the_adt>");
@@ -818,8 +828,6 @@ void extractConstantDefaultExpressions(){
          }
     }
     //println("constructorConstantDefaultExpressions");
-    //println(constructorConstantDefaultExpressions);
-  
 }
 
 // Identify constant expressions and compute their value
@@ -1162,9 +1170,10 @@ public UID declaredScope(UID uid) {
 }
 
 public list[UID] accessibleAlts(list[UID] uids, loc luse){
-  //////luse = normalize(luse);
+  //println("accessibleAlts: <uids>, <luse>");
   inScope = config.usedIn[luse] ? 0; // All generated functions are placed in scope 0
   
+  //println("inScope = <inScope>");
   key = <uids, inScope>;
   if(accessibleFunctions[key]?){
   	res = accessibleFunctions[key];
@@ -1177,7 +1186,7 @@ public list[UID] accessibleAlts(list[UID] uids, loc luse){
   if(accessibleScopes[inScope]?){
      accessible = accessibleScopes[inScope];
   } else {
-     accessible = {0, 1, inScope} + containedOrDeclaredInPlus[inScope] + importedModuleScopes;
+     accessible = {0, 1, inScope} + (containedOrDeclaredInPlus[inScope] ? {}) + importedModuleScopes;
      accessibleScopes[inScope] = accessible;
      cachedScope = false;
   }
@@ -1192,26 +1201,25 @@ MuExp mkVar(str name, loc l) {
   //////l = normalize(l);
   //name = unescape(name);
   //println("mkVar: <name>, <l>");
+  //println("mkVar:getLoc2uid, <name>, <l>");
   uid = getLoc2uid(l);
-  //println("uid = <uid>");
   //iprintln(uid2addr);
   tuple[str fuid,int pos] addr = uid2addr[uid];
-  //println("addr = <addr>");
   
   // Pass all the functions through the overloading resolution
   if(uid in functions || uid in constructors || uid in ofunctions) {
     // Get the function uids of an overloaded function
-    //println("config.store[<uid>] = <config.store[uid]>");
     list[int] ofuids = (uid in functions || uid in constructors) ? [uid] : sortOverloadedFunctions(config.store[uid].items);
     //println("@@@ mkVar: <name>, <l>, ofuids = <ofuids>");
     //for(nnuid <- ofuids){
     //	println("<nnuid>: <config.store[nnuid]>");
     //}
     // Generate a unique name for an overloaded function resolved for this specific use
+    //println("config.usedIn: <config.usedIn>");
     str ofuid = convert2fuid(config.usedIn[l]) + "/use:<name>#<l.begin.line>-<l.offset>";
-    
  
     addOverloadedFunctionAndResolver(ofuid, <name, config.store[uid].rtype, addr.fuid, ofuids>);
+    //println("return: <muOFun(ofuid)>");
   	return muOFun(ofuid);
   }
   

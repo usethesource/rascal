@@ -638,6 +638,10 @@ public class RVMLinker {
 		int continuationPoints = 0 ;
 		Type ftype = isCoroutine ? tf.voidType() : symbolToType((IConstructor) declaration.get("ftype"));
 		
+		Type kwType = null;   // transitional for boot
+		if(!isCoroutine && declaration.has("kwType")){
+		  kwType = symbolToType((IConstructor) declaration.get("kwType"));
+		}
 		
 		String scopeIn = ((IString) declaration.get("scopeIn")).getValue();
 //		if(scopeIn.equals("")) {
@@ -1129,6 +1133,7 @@ public class RVMLinker {
 		
 		Function function = new Function(name, 
 										 ftype, 
+										 kwType,
 										 scopeIn, 
 										 nformals, 
 										 nlocals, 
