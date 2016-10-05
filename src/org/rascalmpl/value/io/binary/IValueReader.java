@@ -554,16 +554,16 @@ public class IValueReader implements AutoCloseable {
     private static boolean readValue(final ValueWireInputStream reader, final IValueFactory vf, final TypeStore store, final TrackLastRead<Type> typeWindow, final TrackLastRead<IValue> valueWindow, final TrackLastRead<ISourceLocation> uriWindow, final ReaderStack<Type> tstack, final ValueReaderStack vstack) throws IOException{
         switch (reader.message()) {
             case IValueIDs.BoolValue.ID: return readBoolean(reader, vf, tstack, vstack);
-            case IValueIDs.ConstructorValue.ID:	return readConstructor(reader, vf, tstack, vstack);
+            case IValueIDs.ConstructorValue.ID:	return readConstructor(reader, vf, tstack, vstack, 0);
             case IValueIDs.DateTimeValue.ID: return readDateTime(reader, vf, tstack, vstack);
             case IValueIDs.IntegerValue.ID: return readInteger(reader, vf, tstack, vstack);
-            case IValueIDs.ListValue.ID: return readList(reader, vf, tstack, vstack);
+            case IValueIDs.ListValue.ID: return readList(reader, vf, tstack, vstack, 0);
             case IValueIDs.SourceLocationValue.ID: return readSourceLocation(reader, vf, uriWindow, vstack);
-            case IValueIDs.MapValue.ID: return readMap(reader, vf, vstack);
+            case IValueIDs.MapValue.ID: return readMap(reader, vf, vstack, 0);
             case IValueIDs.NodeValue.ID: return readNode(reader, vf, vstack);
             case IValueIDs.RationalValue.ID: return readRational(reader, vf, vstack);
             case IValueIDs.RealValue.ID: return readReal(reader, vf, vstack);
-            case IValueIDs.SetValue.ID: return readSet(reader, vf, vstack);
+            case IValueIDs.SetValue.ID: return readSet(reader, vf, vstack, 0);
             case IValueIDs.StringValue.ID: return readString(reader, vf, vstack);
             case IValueIDs.TupleValue.ID: return readTuple(reader, vf, vstack);
             case IValueIDs.PreviousValue.ID: return readPreviousValue(reader, valueWindow, vstack);
@@ -635,8 +635,8 @@ public class IValueReader implements AutoCloseable {
 
 
     private static boolean readSet(final ValueWireInputStream reader, final IValueFactory vf,
-            final ValueReaderStack vstack) throws IOException {
-        Integer size = 0;
+            final ValueReaderStack vstack, int defaultSize) throws IOException {
+        int size = defaultSize;
         boolean backReference = false;
         while (!reader.next().isEnd()) {
             if(reader.field() == IValueIDs.SetValue.SIZE){
@@ -646,8 +646,6 @@ public class IValueReader implements AutoCloseable {
                 backReference = true;
             }
         }
-
-        assert size != null;
 
         vstack.push(vstack.popSet(vf, size));
         return backReference;
@@ -739,19 +737,19 @@ public class IValueReader implements AutoCloseable {
 
 
     private static boolean readMap(final ValueWireInputStream reader, final IValueFactory vf,
-            final ValueReaderStack vstack) throws IOException {
-        Long size = null;
+            final ValueReaderStack vstack, int defaultSize) throws IOException {
+        int size = defaultSize;
         boolean backReference = false;
         while (!reader.next().isEnd()) {
             if(reader.field() == IValueIDs.MapValue.SIZE){
-                size = reader.getLong();
+                size = (int) reader.getLong();
             }
             else if (reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED) {
                 backReference = true;
             }
         }
 
-        assert size != null;
+        assert size >= 0;
 
         IMapWriter mw = vf.mapWriter();
         for(int i = 0; i < size; i++){
@@ -823,8 +821,8 @@ public class IValueReader implements AutoCloseable {
 
 
     private static boolean readList(final ValueWireInputStream reader, final IValueFactory vf,
-            final ReaderStack<Type> tstack, ValueReaderStack vstack) throws IOException {
-        Integer size = null;
+            final ReaderStack<Type> tstack, ValueReaderStack vstack, int defaultSize) throws IOException {
+        int size = defaultSize;
         boolean backReference = false;
         while (!reader.next().isEnd()) {
             if(reader.field() == IValueIDs.ListValue.SIZE){
@@ -834,8 +832,6 @@ public class IValueReader implements AutoCloseable {
                 backReference = true;
             }
         }
-
-        assert size != null;
 
         vstack.push(vstack.popList(vf, size));
         return backReference;
@@ -910,9 +906,9 @@ public class IValueReader implements AutoCloseable {
 
 
     private static boolean readConstructor(final ValueWireInputStream reader, final IValueFactory vf,
-            final ReaderStack<Type> tstack, final ValueReaderStack vstack)
+            final ReaderStack<Type> tstack, final ValueReaderStack vstack, int defaultArity)
             throws IOException {
-        Integer arity = null;
+        int arity = defaultArity;
         int annos = 0;
         int kwparams = 0;
 
@@ -926,8 +922,6 @@ public class IValueReader implements AutoCloseable {
             }
         }
 
-        assert arity != null;
-
         Type consType = tstack.pop();
 
         IConstructor cons;
@@ -938,7 +932,7 @@ public class IValueReader implements AutoCloseable {
                 IString ikey = (IString) vstack.pop();
                 annosResult.__put(ikey.getValue(),  val);
             }
-            cons =  vf.constructor(consType, vstack.getChildren(new IValue[arity])).asAnnotatable().setAnnotations(annosResult.freeze());
+            cons =  vf.constructor(consType, annosResult.freeze(), vstack.getChildren(new IValue[arity]));
         } else if(kwparams > 0){
             TransientMap<String, IValue> kwResult = TrieMap_5Bits.transientOf();
             for(int i = 0; i < kwparams; i++){
@@ -947,10 +941,12 @@ public class IValueReader implements AutoCloseable {
                 kwResult.__put(ikey.getValue(),  val);
             }
             cons = vf.constructor(consType, vstack.getChildren(new IValue[arity]), kwResult.freeze());
-        } else {
+        } else if (arity > 0) {
             cons = vf.constructor(consType, vstack.getChildren(new IValue[arity]));
         }
-
+        else {
+            cons = vf.constructor(consType);
+        }
         vstack.push(cons);
         return backReference;
     }
