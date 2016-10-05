@@ -70,14 +70,14 @@ public class RVMJVM extends RVMCore {
 	}
 
 	@Override
-	public IValue executeRVMFunction(FunctionInstance func, IValue[] posAndKwArgs) {
-		return generatedClassInstance.executeRVMFunction(func, posAndKwArgs);
+	public IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs) {
+		return generatedClassInstance.executeRVMFunction(func, posArgs, kwArgs);
 	}
 
 	@Override
-	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posAndKwArgs) {
+	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs) {
 		// TODO Auto-generated method stub
-		return generatedClassInstance.executeRVMFunction(func, posAndKwArgs);
+		return generatedClassInstance.executeRVMFunction(func, posArgs, kwArgs);
 	}
 
 	@Override

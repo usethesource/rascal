@@ -16,8 +16,6 @@ import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
@@ -478,14 +476,14 @@ public class CommandOptions {
 	}
 	
 	/**
-	 * @return all module options as an IMap
+	 * @return all module options as a Map
 	 */
-	public IMap getModuleOptionsAsIMap(){
-		IMapWriter w = vf.mapWriter();
+	public Map<String, IValue> getModuleOptionsAsMap(){
+	    Map<String,IValue> result = new HashMap<>();
 		for(Option option : moduleOptions){
-			w.put(vf.string(option.name), option.currentValue);
+			result.put(option.name, option.currentValue);
 		}
-		return w.done();
+		return result;
 	}
 	
 	/**

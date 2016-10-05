@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.value.IInteger;
@@ -161,6 +163,7 @@ public class ShellExec {
 				isr = new InputStreamReader(runningProcess.getInputStream());
 				processInputStreams.put(processId, isr);
 			}
+			 
 			StringBuffer line = new StringBuffer();
 			while (isr.ready()) {
 				line.append((char)isr.read());
@@ -170,6 +173,37 @@ public class ShellExec {
 			throw RuntimeExceptionFactory.javaException(e, null, null);
 		}
 	}
+	
+	public synchronized IString readWithWait(IInteger processId, IInteger wait) {
+      if (!runningProcesses.containsKey(processId))
+        throw RuntimeExceptionFactory.illegalArgument(processId, null, null);
+
+      try {
+          Process runningProcess = runningProcesses.get(processId);
+          InputStreamReader isr = null;
+          if (processInputStreams.containsKey(processId)) {
+              isr = processInputStreams.get(processId);
+          } else {
+              isr = new InputStreamReader(runningProcess.getInputStream());
+              processInputStreams.put(processId, isr);
+          }
+           
+          StringBuffer line = new StringBuffer();
+          int nrOfWaits = 0;
+          while (nrOfWaits < 2) {
+            if (isr.ready()) {
+              nrOfWaits = 0;
+              line.append((char)isr.read());
+            } else {
+              Thread.sleep(wait.intValue());
+              nrOfWaits++;
+            }
+          }
+          return vf.string(line.toString());
+      } catch (IOException | InterruptedException e) {
+          throw RuntimeExceptionFactory.javaException(e, null, null);
+      }
+    }
 	
 	public synchronized IString readFromErr(IInteger processId) {
 		if (!runningProcesses.containsKey(processId))

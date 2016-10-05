@@ -101,6 +101,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	private static final String PATH_TO_LINKED_PARSERGENERATOR = "lang/rascal/grammar/ParserGenerator.rvm.ser.gz";
     private static final String PATH_TO_LINKED_KERNEL = "lang/rascal/boot/Kernel.rvm.ser.gz";
+    private static final String PATH_TO_LINKED_RASCALEXTRACTION = "experiments/Compiler/RascalExtraction/RascalExtraction.rvm.ser.gz";
 	
 	static {
 		createCaches(true);
@@ -139,7 +140,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 		
 	  this.vf = vf;
 	  this.bootDir = bootDir; 
-	  if(bootDir != null && !URIResolverRegistry.getInstance().isDirectory(bootDir)){
+	  if(bootDir != null && !(bootDir.getScheme().equals("boot") ||  
+	                          bootDir.getScheme().equals("compressed+boot") || 
+	                          URIResolverRegistry.getInstance().isDirectory(bootDir))){
 	    throw new RuntimeException("bootDir should be a directory, given " + bootDir);
 	  }
 	  
@@ -237,6 +240,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	public ISourceLocation getParserGenerator(){
 	  return getLocation(bootDir, PATH_TO_LINKED_PARSERGENERATOR);
+	}
+	
+	public ISourceLocation getRascalExtraction(){
+	  return getLocation(bootDir, PATH_TO_LINKED_RASCALEXTRACTION);
 	}
     
 	// Cache related methods
@@ -458,9 +465,11 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	ITestResultListener getTestResultListener() { return testResultListener; }
 	
-	public String getCurrentModuleName(){ return currentModuleName; }
+	public String getFullModuleName(){ return currentModuleName; }
 	
-	public void setCurrentModuleName(String moduleName) { currentModuleName = moduleName; }
+	public String getFullModuleNameAsPath() { return currentModuleName.replaceAll("::",  "/") + ".rsc"; }
+	
+	public void setFullModuleName(String moduleName) { currentModuleName = moduleName; }
 	
 	public Stack<String> getIndentStack() { return indentStack; }
 	

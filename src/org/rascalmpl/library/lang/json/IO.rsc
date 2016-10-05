@@ -27,7 +27,6 @@ public java str toJSON(value v, bool compact);
 @reflect{Uses type store}
 public java &T fromJSON(type[&T] typ, str src);
 
-
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @doc{reads JSON values from a stream
 In general the translation behaves as follows:
