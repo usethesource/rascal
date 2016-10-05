@@ -435,7 +435,10 @@ public class IValueWriter implements Closeable {
 
 		        writer.startMessage(IValueIDs.ConstructorValue.ID);
 		        writeCanBeBackReferenced(writer);
-		        writer.writeField(IValueIDs.ConstructorValue.ARITY, cons.arity());
+		        int arity = cons.arity();
+		        if (arity > 0) {
+		            writer.writeField(IValueIDs.ConstructorValue.ARITY, arity);
+		        }
 		        if(cons.mayHaveKeywordParameters()){
 		            if(cons.asWithKeywordParameters().hasParameters()){
 		                writer.writeField(IValueIDs.ConstructorValue.KWPARAMS, cons.asWithKeywordParameters().getParameters().size());
@@ -474,7 +477,12 @@ public class IValueWriter implements Closeable {
 		        if (writeFromCache(o) || iter.atBeginning()) {
 		            return false;
 		        }
-		        writeSingleValueMessageBackReferenced(writer, IValueIDs.ListValue.ID, IValueIDs.ListValue.SIZE, o.length());
+		        if (o.length() > 0) {
+		            writeSingleValueMessageBackReferenced(writer, IValueIDs.ListValue.ID, IValueIDs.ListValue.SIZE, o.length());
+		        }
+		        else {
+		            writeEmptyMessageBackReferenced(writer, IValueIDs.ListValue.ID);
+		        }
 		        return true;
 		    }
 		    @Override
@@ -482,7 +490,12 @@ public class IValueWriter implements Closeable {
 		        if (writeFromCache(o) || iter.atBeginning()) {
 		            return false;
 		        }
-		        writeSingleValueMessageBackReferenced(writer, IValueIDs.MapValue.ID, IValueIDs.MapValue.SIZE, o.size());
+		        if (o.size() > 0) {
+		            writeSingleValueMessageBackReferenced(writer, IValueIDs.MapValue.ID, IValueIDs.MapValue.SIZE, o.size());
+		        }
+		        else {
+		            writeEmptyMessageBackReferenced(writer, IValueIDs.MapValue.ID);
+		        }
 		        return true;
 		    }
 		    @Override
@@ -490,7 +503,12 @@ public class IValueWriter implements Closeable {
 		        if (writeFromCache(o) || iter.atBeginning()) {
 		            return false;
 		        }
-		        writeSingleValueMessageBackReferenced(writer, IValueIDs.SetValue.ID, IValueIDs.SetValue.SIZE, o.size());
+		        if (o.size() > 0) {
+		            writeSingleValueMessageBackReferenced(writer, IValueIDs.SetValue.ID, IValueIDs.SetValue.SIZE, o.size());
+		        }
+		        else {
+		            writeEmptyMessageBackReferenced(writer, IValueIDs.SetValue.ID);
+		        }
 		        return true;
 		    }
 		    @Override
