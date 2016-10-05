@@ -189,13 +189,15 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
         
        //println("enter function scope <fuid>");
        enterFunctionScope(fuid);
-         
+       
+       kwTypes = Symbol::\tuple([ Symbol::label(getSimpleName(rname),allKWFieldsAndTypes[rname]) | rname <- allKWFieldsAndTypes ]);
+       //println("kwTypes: <kwTypes>");
        MuExp body = muReturn1(muCall(muConstr(uid2str[uid]), [ muVar("<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
                                                                + [ muVar("kwparams", fuid, size(\type.parameters)),
-                                                                   muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),allKWFieldsAndTypes[rname]) | rname <- allKWFieldsAndTypes ])) 
+                                                                   muTypeCon(kwTypes) 
                                                                ]));                          
        leaveFunctionScope();
-       addFunctionToModule(muFunction(fuid, name.name, ftype, Symbol::\tuple([]), (addr.fuid in moduleNames) ? "" : addr.fuid,nformals, nformals + 1, false, true, |std:///|, [], (), false, 0, 0, body));                                             
+       addFunctionToModule(muFunction(fuid, name.name, ftype, kwTypes, (addr.fuid in moduleNames) ? "" : addr.fuid,nformals, nformals + 1, false, true, |std:///|, [], (), false, 0, 0, body));                                             
      
        /*
         * Create companion for computing the values of defaults
