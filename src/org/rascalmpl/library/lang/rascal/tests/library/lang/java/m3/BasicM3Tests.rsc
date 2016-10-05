@@ -41,7 +41,10 @@ private bool compareASTs(set[Declaration] a, set[Declaration] b) {
 
 private bool compareM3s(M3 a, M3 b) = a == b && getAnnotations(a) == getAnnotations(b);
 
+private bool compareM3s(M3 a, M3 b) = a == b;
+
 public test bool m3sAreSame() 
     = getSnakesAndLaddersPath().scheme != "unknown" && compareM3s(getSnakesAndLaddersM3(), readBinaryValueFile(#M3, |compressed+testdata:///example-project/p2-SnakesAndLadders/m3-results/m3.bin.xz|));
+
 public test bool astsAreSame() 
     = getSnakesAndLaddersPath().scheme != "unknown" && compareASTs(getSnakesAndLaddersASTs(), readBinaryValueFile(#set[Declaration], |compressed+testdata:///example-project/p2-SnakesAndLadders/m3-results/m3ast.bin.xz|));
