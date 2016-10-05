@@ -17,13 +17,13 @@ public java void writeBinaryValueFileOld(loc file, value val, bool compression =
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T readBinaryValueFileOld(type[&T] result, loc file);
 
-int warmup = 10;
-int measure = 10;
+@javaClass{org.rascalmpl.library.Prelude}
+public java int __getFileSize(loc file);
 
 loc targetLoc = |test-temp:///value-io.bench|;
-//loc targetLocOld = |test-temp:///value-io2.bench|;
-loc targetLocOld = |compressed+test-temp:///value-io.bench.gz|;
-void bench(str name, type[&T] result, value v) {
+loc targetLocOld = |test-temp:///value-io2.bench|;
+//loc targetLocOld = |compressed+test-temp:///value-io.bench.gz|;
+void bench(str name, type[&T] result, value v, int warmup, int measure) {
     for (i <- [0..warmup]) {
         writeBinaryValueFile(targetLoc, v);
         writeBinaryValueFileOld(targetLoc, v, compression = false);
@@ -33,11 +33,13 @@ void bench(str name, type[&T] result, value v) {
             writeBinaryValueFile(targetLoc, v);
         }
     }) / measure);
+    println("<name>-new-size: <__getFileSize(targetLoc)>");
     printTime("<name>-old-write", cpuTime(() { 
         for (i <- [0..measure]) {
             writeBinaryValueFileOld(targetLocOld, v, compression=false);
         }
     })/measure);
+    println("<name>-old-size: <__getFileSize(targetLocOld)>");
 
     v = "";
     for (i <- [0..warmup]) {
@@ -68,11 +70,11 @@ list[Tree] getTrees()
         , parseNamedModuleWithSpaces("lang::rascal::types::CheckTypes")
     ];
 
-void benchValueIO(loc rascalRoot = |home:///PhD/workspace-rascal-source/rascal/|) {
-    bench("parse trees", #list[Tree], getTrees());
-    bench("int list", #list[int], [i, i*2,i*3 | i <- [1..1000000]]);
-    bench("str list", #list[str], ["aaa<i>asf<i *3>" | i <- [1..100000]]);
-    bench("m3 asts", #set[Declaration], getRascalASTs(rascalRoot));
+void benchValueIO(loc rascalRoot = |home:///PhD/workspace-rascal-source/rascal/|, int warmup = 10, int measure = 10) {
+    bench("parse trees", #list[Tree], getTrees(), warmup, measure);
+    bench("int list", #list[int], [i, i*2,i*3 | i <- [1..1000000]], warmup, measure);
+    bench("str list", #list[str], ["aaa<i>asf<i *3>" | i <- [1..100000]], warmup, measure);
+    bench("m3 asts", #set[Declaration], getRascalASTs(rascalRoot), warmup, measure);
 }
 
 void writeInterestingFile(loc target, loc rascalRoot = |home:///PhD/workspace-rascal-source/rascal/|) {
