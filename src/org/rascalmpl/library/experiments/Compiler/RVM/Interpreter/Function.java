@@ -233,6 +233,13 @@ public class Function implements Serializable {
 	}
 
 	public String getPrintableName(){
+	    int comp = name.lastIndexOf("::companion");
+	    if(comp >= 0){
+	      String tmpName = name.substring(0, comp);
+	      int from = tmpName.lastIndexOf("::")+2;
+	      int to = tmpName.indexOf("(", from);
+	      return tmpName.substring(from, to);
+	    }
 		int from = name.lastIndexOf("/")+1;
 		int to = name.indexOf("(", from);
 		if(to < 0){
@@ -248,6 +255,9 @@ public class Function implements Serializable {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("FUNCTION ").append(name).append(" ->> ").append(ftype).append("\n");
+		if(kwType.getArity() > 0){
+		  sb.append("kwType: " + kwType);
+		}
 		for(int i = 0; i < constantStore.length; i++){
 			sb.append("\t constant "). append(i).append(": "). append(constantStore[i]).append("\n");
 		}
