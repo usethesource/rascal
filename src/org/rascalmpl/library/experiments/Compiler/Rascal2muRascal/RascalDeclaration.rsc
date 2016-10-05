@@ -99,14 +99,20 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   // Keyword parameters
   list[MuExp] kwps = translateKeywordParameters(fd.signature.parameters, fuid, getFormals(uid), fd@\loc);
   
+  KeywordFormals kwfs = fd.signature.parameters.keywordFormals;
+  keywordTypes = \tuple([]);
+  if(kwfs is \default){
+     keywordTypes = \tuple([ label("<kwf.name>", translateType(kwf.\type)) | KeywordFormal kwf <- kwfs.keywordFormalList]);
+  }
+  
   if(ttags["javaClass"]?){
      paramTypes = \tuple([param | param <- ftype.parameters]);
      params = [ muVar("<ftype.parameters[i]>", fuid, i) | i <- [ 0 .. nformals] ];
      
-     keywordTypes = \tuple([]);
-     KeywordFormals kwfs = fd.signature.parameters.keywordFormals;
+     //keywordTypes = \tuple([]);
+     //KeywordFormals kwfs = fd.signature.parameters.keywordFormals;
      if(kwfs is \default) {
-      	keywordTypes = \tuple([ label("<kwf.name>", translateType(kwf.\type)) | KeywordFormal kwf <- kwfs.keywordFormalList]);
+      	//keywordTypes = \tuple([ label("<kwf.name>", translateType(kwf.\type)) | KeywordFormal kwf <- kwfs.keywordFormalList]);
       	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
      }
      if("<fd.signature.name>" == "typeOf"){		// Take note: special treatment of Types::typeOf
@@ -137,6 +143,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   addFunctionToModule(muFunction(fuid, 
   								 "<fd.signature.name>", 
   								 ftype, 
+  								 keywordTypes,
   								 (addr.fuid in moduleNames) ? "" : addr.fuid, 
   								 getFormals(uid), 
   								 getScopeSize(fuid), 

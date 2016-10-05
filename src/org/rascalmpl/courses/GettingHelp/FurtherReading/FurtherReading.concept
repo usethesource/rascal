@@ -8,39 +8,8 @@ help
 
 .Description
 
-The Tutor home page is always reachable via the logo  RascalTutor logo image:/images/rascal-tutor-small.png[width="40",heigth="40"] 
+The Tutor home page is always reachable via the RascalTutor logo image:/images/rascal-tutor-small.png[width="40",heigth="40"] 
 in the top left corner of each Tutor page and is the best starting point for further reading. 
 Here is a recent overview of the available courses:
 
-[cols="a,a,a,a"]
-|===
-Beginner          | Moderate | Advanced | General
-
-|
-[square]
-- link:/WhyRascal[Why Rascal?]
-- link:/GettingStarted[Getting Started]
-- link:/Rascalopedia[Rascalopedia]
-- link:/Recipes[Rascal Recipes]
-- link:/GettingHelp[Getting Help]
-
-|
-[square]
-- link:/RascalConcepts[Rascal Language Concepts]
-- link:/Rascal[Rascal Language Reference]
-- link:/Libraries[Rascal Library Reference]
-- link:{Errors}[Explanation of error messages]
-
-|
-[square]
-- link:/Tutor[RascalTutor]
-- link:https://github.com/usethesource/rascal/wiki[Rascal Wiki]
-
-|
-[square]
-- link:http://www.rascal-mpl.org[Rascal Home Page]
-- link:https://github.com/usethesource/rascal[Rascal @ GitHub]
-- link:https://github.com/usethesource/rascal/issues[Issue tracker @ GitHub]
-- link:http://stackoverflow.com/questions/tagged/rascal[Rascal @ StackOverflow]
-
-|===
+include::../../tutor-overview.include[]
