@@ -3417,6 +3417,21 @@ public class Prelude {
 		}
 	}
 	
+	public IInteger __getFileSize(ISourceLocation loc) throws URISyntaxException, IOException {
+	    if (loc.getScheme().contains("compressed+")) {
+	        loc = URIUtil.changeScheme(loc, loc.getScheme().replace("compressed+", ""));
+	    }
+	    IInteger result = values.integer(0);
+	    try (InputStream in = URIResolverRegistry.getInstance().getInputStream(loc)) {
+	        final byte[] buffer = new byte[FILE_BUFFER_SIZE];
+	        int read;
+	        while ((read = in.read(buffer, 0, buffer.length)) != -1) {
+	            result = result.add(values.integer(read));
+	        }
+	        return result;
+	    }
+	}
+	
 	public IValue readTextValueFile(IValue type, ISourceLocation loc){
 		if(trackIO) System.err.println("readTextValueFile: " + loc);
 	  	TypeStore store = new TypeStore();
