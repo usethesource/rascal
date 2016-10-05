@@ -37,8 +37,8 @@ public class Function implements Serializable {
 	private static final long serialVersionUID = -1741144671553091111L;
 	
 	String name;
-	Type ftype;
-	Type kwType;
+	public Type ftype;
+	public Type kwType;
 	int scopeId;
 	String funIn;
 	public int scopeIn = -1;
@@ -75,7 +75,7 @@ public class Function implements Serializable {
 	boolean isVarArgs = false;
 
 	public ISourceLocation src;			
-	IMap localNames;
+	public IMap localNames;
 	
 	// transient fields 
 	transient static IValueFactory vf;
