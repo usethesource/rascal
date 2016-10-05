@@ -33,7 +33,7 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.KWParams;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.KWArgs;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RascalExtraction.RascalExtraction;
 import org.rascalmpl.library.util.PathConfig;
@@ -234,7 +234,7 @@ public class Onthology {
 							// Lazily load the RascalExtraction tool
 							rascalExtraction = new RascalExtraction(vf, pcfg);
 						}
-						ITuple extracted = rascalExtraction.extractDoc(vf.string(parentName), remoteLoc, new KWParams(vf).build());
+						ITuple extracted = rascalExtraction.extractDoc(vf.string(parentName), remoteLoc, new KWArgs(vf).build());
 						IString remoteConceptText = (IString) extracted.get(0);
 						IList declarationInfoList = (IList) extracted.get(1);
 						//System.err.println(remoteConceptText.getValue());
