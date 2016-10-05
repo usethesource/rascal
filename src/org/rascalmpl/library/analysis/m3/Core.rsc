@@ -50,8 +50,19 @@ which should be a unique name for the project or file that the m3 model was cons
 
 Attached to this m3 model will be annotations with the specific information.
 }
-data M3 = m3(loc id);
+data M3(
+	rel[loc name, loc src] declarations = {},	// maps declarations to where they are declared. contains any kind of data or type or code declaration (classes, fields, methods, variables, etc. etc.)
+	rel[loc name, TypeSymbol typ] types = {},	// assigns types to declared source code artifacts
+	rel[loc src, loc name] uses = {},			// maps source locations of usages to the respective declarations
+	rel[loc from, loc to] containment = {},		// what is logically contained in what else (not necessarily physically, but usually also)
+	list[Message] messages = [],				// error messages and warnings produced while constructing a single m3 model
+	rel[str simpleName, loc qualifiedName] names = {},		// convenience mapping from logical names to end-user readable (GUI) names, and vice versa
+	rel[loc definition, loc comments] documentation = {},	// comments and javadoc attached to declared things
+	rel[loc definition, Modifier modifier] modifiers = {}	// modifiers associated with declared things
+) = m3(
+	loc id);
              
+/*
 anno rel[loc name, loc src]        M3@declarations;            // maps declarations to where they are declared. contains any kind of data or type or code declaration (classes, fields, methods, variables, etc. etc.)
 anno rel[loc name, TypeSymbol typ] M3@types;                   // assigns types to declared source code artifacts
 anno rel[loc src, loc name]        M3@uses;                    // maps source locations of usages to the respective declarations
@@ -60,7 +71,7 @@ anno list[Message]                 M3@messages;                // error messages
 anno rel[str simpleName, loc qualifiedName]  M3@names;         // convenience mapping from logical names to end-user readable (GUI) names, and vice versa
 anno rel[loc definition, loc comments]       M3@documentation; // comments and javadoc attached to declared things
 anno rel[loc definition, Modifier modifier] M3@modifiers;     // modifiers associated with declared things
-
+*/
 public data Language(str version = "")
   = generic()
   ;
@@ -68,18 +79,19 @@ public data Language(str version = "")
 @doc{
 	Create an empty m3 term with empty annotations
 }
+//TODO: Deprecated method, replace any calls to this method with default constructor
 public M3 emptyM3(loc id)
 {
 	m = m3(id);
 
-	m@declarations = {};
+	/*m@declarations = {};
 	m@uses = {};
 	m@containment = {};
 	m@documentation = {};
 	m@modifiers = {};
 	m@messages = [];
 	m@names = {};
-	m@types = {};
+	m@types = {};*/
 
 	return m;
 }
@@ -95,13 +107,13 @@ private value compose(value v1, value v2) { throw "can\'t compose non-collection
 @memo
 M3 composeM3(loc id, set[M3] models)
 {
-	set[str] allAnnoNames = { *domain(getAnnotations(m)) | m <- models };
+	set[str] allAnnoNames = { *domain(getKeywordParameters(m)) | m <- models };
 
 	map[str, value] allAnnos = ();
 
 	for (m <- models)
 	{
-		annos = getAnnotations(m);
+		annos = getKeywordParameters(m);
 
 		for (name <- allAnnoNames, name in annos)
 		{
@@ -121,7 +133,7 @@ M3 composeM3(loc id, set[M3] models)
 		}
 	}
 
-	return setAnnotations(m3(id), allAnnos);
+	return setKeywordParameters(m3(id), allAnnos);
 }
 
 bool isEmpty(M3 model) = model.id.scheme == "unknown";
@@ -138,13 +150,15 @@ constructs a recursive FileSystem from a binary [Location] relation.
 }
 
 set[loc] files(M3 model) {
- todo = top(model@containment);
+ //todo = top(model@containment);
+ todo = top(model.containment);
  done = {};
  
  while (todo != {}) {
    <elem,todo> = takeOneFrom(todo);
    if (isDirectory(elem)) {
-     todo += model@containment[elem];
+     //todo += model@containment[elem];
+     todo += model.containment[elem];
    }
    else {
      done += elem;
@@ -170,11 +184,15 @@ such as <<Visit>> and <<Descendant>> which is sometimes more convenient.
 *  Do not forget that the relational operators such as [TransitiveClosure], [Comprehension] and [Composition] may be just
 as effective and perhaps more efficient, as applied directly on the containment relation. 
 }
-set[FileSystem] containmentToFileSystem(M3 model) = relToFileSystem(model@containment);
+//set[FileSystem] containmentToFileSystem(M3 model) = relToFileSystem(model@containment);
+set[FileSystem] containmentToFileSystem(M3 model) = relToFileSystem(model.containment);
 
 list[Message] checkM3(M3 model) {
-  result  = [m | m <- model@messages, m is error];
-  result += [error("undeclared element in containment", decl) | decl <- model@containment<to> - model@declarations<name>];
-  result += [error("non-root element is not contained anywhere", decl) | decl <- model@containment<from> - model@declarations<name> - top(model@containment)];
+  //result  = [m | m <- model@messages, m is error];
+  result  = [m | m <- model.messages, m is error];
+  //result += [error("undeclared element in containment", decl) | decl <- model@containment<to> - model@declarations<name>];
+  result += [error("undeclared element in containment", decl) | decl <- model.containment<to> - model.declarations<name>];
+  //result += [error("non-root element is not contained anywhere", decl) | decl <- model@containment<from> - model@declarations<name> - top(model@containment)];
+  result += [error("non-root element is not contained anywhere", decl) | decl <- model.containment<from> - model.declarations<name> - top(model.containment)];
   return result;
 }

@@ -41,37 +41,33 @@ public data \AST(loc file = |unknown:///|)
   | lines(list[str] contents)
   | noAST(Message msg)
   ;
+  
+public loc unknownSource = |unknown:///|;
+public loc unresolvedDecl = |unresolved:///|;
+public loc unresolvedType = |unresolved:///|;  
 
-data Declaration;
-data Declaration(loc src = |unknown:///|);
-//anno loc             Declaration@src;
-data Declaration(loc decl = |unknown:///|); 
-//anno loc             Declaration@decl;
-data Declaration(TypeSymbol typ = \any());
-//anno TypeSymbol      Declaration@typ;
-data Declaration(list[Modifier] modifiers = []);
-//anno list[Modifier]  Declaration@modifiers;
-data Declaration(list[Message] messages = []);
-//anno list[Message]   Declaration@messages;
+data Declaration(
+	loc src = unknownSource,
+	loc decl = unresolvedDecl, 
+	TypeSymbol typ = \any(),
+	list[Modifier] modifiers = [],
+	list[Message] messages = []
+);
 
-data Statement;
-data Statement(loc src = |unknown:///|);
-//anno loc Statement@src;
-data Statement(loc decl = |unknown:///|);
-//anno loc Statement@decl;
+data Statement(
+	loc src = unknownSource,
+	loc decl = unresolvedDecl
+);
 
-data Expression;
-data Expression(loc src = |unknown:///|);
-//anno loc Expression@src;
-data Expression(loc decl = |unknown:///|);
-//anno loc Expression@decl;
-data Expression(TypeSymbol typ = \any());
-//anno TypeSymbol Expression@typ;
+data Expression(
+	loc src = unknownSource,
+	loc decl = unresolvedDecl,
+	TypeSymbol typ = \any()
+);
 
-data Type;
-data Type(loc name = |unknown:///|);
-//anno loc Type@name;              
-data Type(TypeSymbol typ = \any());
-//anno TypeSymbol Type@typ;
+data Type(
+	loc name = unresolvedType,              
+	TypeSymbol typ = \any()
+);
 
 data Modifier;

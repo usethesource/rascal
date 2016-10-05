@@ -41,7 +41,6 @@ import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ISourceLocation;
