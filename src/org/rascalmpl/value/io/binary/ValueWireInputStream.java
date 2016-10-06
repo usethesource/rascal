@@ -53,8 +53,10 @@ public class ValueWireInputStream implements Closeable {
     private int fieldID;
     private String stringValue;
     private long longValue;
-    private int intValue;
     private byte[] bytesValue;
+    private int nestedType;
+    private String[] stringValues;
+    private long[] longValues;
 
     public ValueWireInputStream(InputStream stream) throws IOException {
         this.__stream = stream;
@@ -80,6 +82,8 @@ public class ValueWireInputStream implements Closeable {
     }
 
     public ReaderPosition next() throws IOException {
+        longValues = null;
+        stringValues = null;
         int next;
         try {
             next = stream.readRawVarint32();
@@ -116,6 +120,37 @@ public class ValueWireInputStream implements Closeable {
                 assert fieldType == FieldKind.STRING;
                 stringValue = stringsRead.lookBack(TaggedInt.getOriginal(reference));
                 break;
+            case FieldKind.REPEATED:
+                stream.resetSizeCounter();
+                int flaggedAmount = (int) stream.readRawVarint64();
+                nestedType = TaggedInt.getTag(flaggedAmount);
+                int nestedLength = TaggedInt.getOriginal(flaggedAmount);
+                switch (nestedType) {
+                    case FieldKind.LONG:
+                        long[] longValues = new long[nestedLength];
+                        for (int i = 0; i < nestedLength; i++) {
+                            longValues[i] = stream.readRawVarint64();
+                        }
+                        this.longValues = longValues;
+                        break;
+                    case FieldKind.STRING: 
+                        String[] stringValues = new String[nestedLength];
+                        for (int i = 0; i < nestedLength; i++) {
+                            reference = stream.readRawVarint32();
+                            if (TaggedInt.getTag(reference) == 0) {
+                                // normal string
+                                stringValues[i] = stream.readString();
+                                stringsRead.read(stringValues[i]);
+                            }
+                            else {
+                                assert TaggedInt.getTag(reference) == FieldKind.STRING;
+                                stringValues[i] = stringsRead.lookBack(TaggedInt.getOriginal(reference));
+                            }
+                        }
+                        break;
+                }
+                stream.resetSizeCounter();
+                break;
             default:
                 throw new IOException("Unexpected wire type: " + fieldType);
         }
@@ -147,6 +182,7 @@ public class ValueWireInputStream implements Closeable {
         return stringValue;
     }
     
+    
     public byte[] getBytes() {
         assert fieldType == FieldKind.BYTES;
         return bytesValue;
@@ -155,6 +191,21 @@ public class ValueWireInputStream implements Closeable {
     public int getFieldType() {
         assert current == ReaderPosition.FIELD;
         return fieldType;
+    }
+    
+    public int getRepeatedType() {
+        assert current == ReaderPosition.FIELD && fieldType == FieldKind.REPEATED;
+        return nestedType;
+    }
+
+    public String[] getStrings() {
+        assert fieldType == FieldKind.REPEATED && nestedType == FieldKind.STRING;
+        return stringValues;
+    }
+    
+    public long[] getLongs() {
+        assert fieldType == FieldKind.REPEATED && nestedType == FieldKind.LONG;
+        return longValues;
     }
 
     public void skipMessage() throws IOException {

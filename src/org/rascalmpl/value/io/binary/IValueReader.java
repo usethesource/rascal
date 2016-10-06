@@ -496,13 +496,7 @@ public class IValueReader implements AutoCloseable {
                             arity = (int) reader.getLong(); break;
 
                         case IValueIDs.TupleType.NAMES:
-                            int n = (int) reader.getLong();
-                            fieldNames = new String[n];
-                            for(int i = 0; i < n; i++){
-                                reader.next();
-                                assert reader.field() == IValueIDs.TupleType.NAMES;
-                                fieldNames[i] = reader.getString();
-                            }
+                            fieldNames = reader.getStrings();
                             break;
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
                             backReference = true; 
