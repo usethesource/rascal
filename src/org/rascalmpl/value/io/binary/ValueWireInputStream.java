@@ -52,11 +52,11 @@ public class ValueWireInputStream implements Closeable {
     private int fieldType;
     private int fieldID;
     private String stringValue;
-    private long longValue;
+    private int intValue;
     private byte[] bytesValue;
     private int nestedType;
     private String[] stringValues;
-    private long[] longValues;
+    private int[] intValues;
 
     public ValueWireInputStream(InputStream stream) throws IOException {
         this.__stream = stream;
@@ -82,7 +82,7 @@ public class ValueWireInputStream implements Closeable {
     }
 
     public ReaderPosition next() throws IOException {
-        longValues = null;
+        intValues = null;
         stringValues = null;
         int next;
         try {
@@ -107,8 +107,8 @@ public class ValueWireInputStream implements Closeable {
                 stringsRead.read(stringValue);
                 stream.resetSizeCounter();
                 break;
-            case FieldKind.LONG:
-                longValue = stream.readRawVarint64();
+            case FieldKind.INT:
+                intValue = stream.readRawVarint32();
                 break;
             case FieldKind.BYTES:
                 stream.resetSizeCounter();
@@ -122,16 +122,16 @@ public class ValueWireInputStream implements Closeable {
                 break;
             case FieldKind.REPEATED:
                 stream.resetSizeCounter();
-                int flaggedAmount = (int) stream.readRawVarint64();
+                int flaggedAmount = (int) stream.readRawVarint32();
                 nestedType = TaggedInt.getTag(flaggedAmount);
                 int nestedLength = TaggedInt.getOriginal(flaggedAmount);
                 switch (nestedType) {
-                    case FieldKind.LONG:
-                        long[] longValues = new long[nestedLength];
+                    case FieldKind.INT:
+                        int[] intValues = new int[nestedLength];
                         for (int i = 0; i < nestedLength; i++) {
-                            longValues[i] = stream.readRawVarint64();
+                            intValues[i] = stream.readRawVarint32();
                         }
-                        this.longValues = longValues;
+                        this.intValues = intValues;
                         break;
                     case FieldKind.STRING: 
                         String[] stringValues = new String[nestedLength];
@@ -172,9 +172,9 @@ public class ValueWireInputStream implements Closeable {
         return fieldID;
     }
     
-    public long getLong() {
-        assert fieldType == FieldKind.LONG;
-        return longValue;
+    public int getInteger() {
+        assert fieldType == FieldKind.INT;
+        return intValue;
     }
 
     public String getString() {
@@ -203,9 +203,9 @@ public class ValueWireInputStream implements Closeable {
         return stringValues;
     }
     
-    public long[] getLongs() {
-        assert fieldType == FieldKind.REPEATED && nestedType == FieldKind.LONG;
-        return longValues;
+    public int[] getIntegers() {
+        assert fieldType == FieldKind.REPEATED && nestedType == FieldKind.INT;
+        return intValues;
     }
 
     public void skipMessage() throws IOException {

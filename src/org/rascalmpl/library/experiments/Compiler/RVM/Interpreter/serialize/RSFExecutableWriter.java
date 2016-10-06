@@ -79,10 +79,6 @@ public class RSFExecutableWriter {
     public void writeField(int fieldId, int[] ints) throws IOException {
         rsfWriter.writeField(fieldId, ints);    
     }
-    
-    public void writeField(int fieldId, long[] longs) throws IOException {
-        rsfWriter.writeField(fieldId, longs); 
-    }
   
     public void writeField(int fieldId, Function[] functions) {
         // TODO Auto-generated method stub 
