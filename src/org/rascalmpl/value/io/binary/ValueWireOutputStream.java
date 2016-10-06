@@ -137,6 +137,11 @@ public class ValueWireOutputStream implements Closeable, Flushable {
         }
     }
     
+    public void writeFlag(int fieldId) throws IOException {
+        assertNotClosed();
+        writeFieldTag(fieldId, FieldKind.FLAG);
+    }
+    
     public void endMessage() throws IOException {
         assertNotClosed();
         writeFieldTag(0, 0);

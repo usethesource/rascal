@@ -370,6 +370,11 @@ public class IValueWriter implements Closeable {
 	    writer.writeField(fieldId, fieldValue);
 	    writer.endMessage();
 	}
+	private static void writeSingleFlagMessage(final ValueWireOutputStream writer, int messageID, int fieldId) throws IOException {
+	    writer.startMessage(messageID);
+	    writer.writeFlag(fieldId);
+	    writer.endMessage();
+	}
 	private static void writeSingleValueMessageBackReferenced(final ValueWireOutputStream writer, int messageID, int fieldId, int fieldValue) throws IOException {
 	    writer.startMessage(messageID);
 	    writeCanBeBackReferenced(writer);
@@ -394,7 +399,7 @@ public class IValueWriter implements Closeable {
 	    writer.endMessage();
 	}
 	private static void writeCanBeBackReferenced(final ValueWireOutputStream writer) throws IOException {
-	    writer.writeField(IValueIDs.Common.CAN_BE_BACK_REFERENCED, 1);
+	    writer.writeFlag(IValueIDs.Common.CAN_BE_BACK_REFERENCED);
 	}
     private static void writeEnd(ValueWireOutputStream writer) throws IOException {
         writer.writeEmptyMessage(IValueIDs.LastValue.ID);
@@ -522,7 +527,12 @@ public class IValueWriter implements Closeable {
 
 		    @Override
 		    public Boolean visitBoolean(IBool boolValue) throws IOException {
-		        writeSingleValueMessage(writer, IValueIDs.BoolValue.ID, IValueIDs.BoolValue.VALUE, boolValue.getValue() ? 1: 0);
+		        if (boolValue.getValue()) {
+		            writeSingleFlagMessage(writer, IValueIDs.BoolValue.ID, IValueIDs.BoolValue.VALUE);
+		        }
+		        else {
+		            writer.writeEmptyMessage(IValueIDs.BoolValue.ID);
+		        }
 		        return false;
 		    }
 

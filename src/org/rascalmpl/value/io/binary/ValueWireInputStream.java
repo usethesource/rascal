@@ -101,6 +101,9 @@ public class ValueWireInputStream implements Closeable {
                 // special case that signals starts of values
                 messageID = fieldID;
                 return current = ReaderPosition.MESSAGE_START;
+            case FieldKind.FLAG:
+                // nothing, the flag itself is enough
+                break;
             case FieldKind.STRING:
                 stream.resetSizeCounter();
                 stringValue = stream.readString();

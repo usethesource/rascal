@@ -948,16 +948,14 @@ public class IValueReader implements AutoCloseable {
 
     private static boolean readBoolean(final ValueWireInputStream reader, final IValueFactory vf,
             ReaderStack<Type> tstack, final ValueReaderStack vstack) throws IOException {
-        Integer b = null;
+        boolean value = false;
         while (!reader.next().isEnd()) {
             if(reader.field() == IValueIDs.BoolValue.VALUE){
-                b =  reader.getInteger();
+                value =  true;
             }
         }
 
-        assert b != null;
-
-        vstack.push(vf.bool(b == 0 ? false : true));
+        vstack.push(vf.bool(value));
         return false;
     }
 
