@@ -18,6 +18,7 @@ public class FieldKind {
     public static final int STRING = 3;
     public static final int BYTES = 4;
     public static final int REPEATED = 5;
+    public static final int FLAG = 6;
    
     private FieldKind() {}
 }
