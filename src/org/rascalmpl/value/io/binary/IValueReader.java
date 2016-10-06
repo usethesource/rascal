@@ -391,7 +391,7 @@ public class IValueReader implements AutoCloseable {
                 while (!reader.next().isEnd()) {
                     switch (reader.field()){ 
                         case IValueIDs.OverloadedType.SIZE:
-                            size = (int) reader.getLong();
+                            size =  reader.getInteger();
                             break;
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
                             backReference = true; 
@@ -493,7 +493,7 @@ public class IValueReader implements AutoCloseable {
                 while (!reader.next().isEnd()) {
                     switch (reader.field()){ 
                         case IValueIDs.TupleType.ARITY:
-                            arity = (int) reader.getLong(); break;
+                            arity =  reader.getInteger(); break;
 
                         case IValueIDs.TupleType.NAMES:
                             fieldNames = reader.getStrings();
@@ -521,18 +521,18 @@ public class IValueReader implements AutoCloseable {
             }
 
             case IValueIDs.PreviousType.ID: {
-                Long n = null;
+                Integer n = null;
                 while (!reader.next().isEnd()) {
                     switch (reader.field()){ 
                         case IValueIDs.PreviousType.HOW_LONG_AGO:
-                            n = reader.getLong();
+                            n = reader.getInteger();
                             break;
                     }
                 }
 
                 assert n != null;
 
-                Type type = typeWindow.lookBack(n.intValue());
+                Type type = typeWindow.lookBack(n);
                 if(type == null){
                     throw new RuntimeException("Unexpected type cache miss");
                 }
@@ -573,7 +573,7 @@ public class IValueReader implements AutoCloseable {
         Integer n = null;
         while(!reader.next().isEnd()){
             if(reader.field() == IValueIDs.PreviousValue.HOW_FAR_BACK){
-                n = (int) reader.getLong();
+                n =  reader.getInteger();
             }
         }
 
@@ -594,7 +594,7 @@ public class IValueReader implements AutoCloseable {
         boolean backReference = false;
         while (!reader.next().isEnd()) {
             if(reader.field() == IValueIDs.TupleValue.SIZE){
-                len = (int) reader.getLong();
+                len =  reader.getInteger();
             }
             else if (reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED) {
                 backReference = true;
@@ -634,7 +634,7 @@ public class IValueReader implements AutoCloseable {
         boolean backReference = false;
         while (!reader.next().isEnd()) {
             if(reader.field() == IValueIDs.SetValue.SIZE){
-                size = (int) reader.getLong();
+                size = reader.getInteger();
             }
             else if (reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED) {
                 backReference = true;
@@ -655,7 +655,7 @@ public class IValueReader implements AutoCloseable {
         while (!reader.next().isEnd()) {
             switch(reader.field()){
                 case IValueIDs.RealValue.SCALE:
-                    scale = (int) reader.getLong(); break;
+                    scale = reader.getInteger(); break;
                 case IValueIDs.RealValue.CONTENT:
                     bytes = reader.getBytes(); break;
                 case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
@@ -695,9 +695,9 @@ public class IValueReader implements AutoCloseable {
         while (!reader.next().isEnd()) {
             switch(reader.field()){
                 case IValueIDs.NodeValue.NAME: name = reader.getString(); break;
-                case IValueIDs.NodeValue.ARITY: arity = (int)reader.getLong(); break;
-                case IValueIDs.NodeValue.KWPARAMS: kwparams = (int)reader.getLong(); break;
-                case IValueIDs.NodeValue.ANNOS: annos = (int)reader.getLong(); break;
+                case IValueIDs.NodeValue.ARITY: arity = reader.getInteger(); break;
+                case IValueIDs.NodeValue.KWPARAMS: kwparams = reader.getInteger(); break;
+                case IValueIDs.NodeValue.ANNOS: annos = reader.getInteger(); break;
                 case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
             }
         }
@@ -736,7 +736,7 @@ public class IValueReader implements AutoCloseable {
         boolean backReference = false;
         while (!reader.next().isEnd()) {
             if(reader.field() == IValueIDs.MapValue.SIZE){
-                size = (int) reader.getLong();
+                size = reader.getInteger();
             }
             else if (reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED) {
                 backReference = true;
@@ -774,18 +774,18 @@ public class IValueReader implements AutoCloseable {
         int endColumn = -1;
         while (!reader.next().isEnd()) {
             switch(reader.field()){
-                case IValueIDs.SourceLocationValue.PREVIOUS_URI: previousURI = (int)reader.getLong(); break;
+                case IValueIDs.SourceLocationValue.PREVIOUS_URI: previousURI = reader.getInteger(); break;
                 case IValueIDs.SourceLocationValue.SCHEME: scheme = reader.getString(); break;
                 case IValueIDs.SourceLocationValue.AUTHORITY: authority = reader.getString(); break;
                 case IValueIDs.SourceLocationValue.PATH: path = reader.getString(); break;
                 case IValueIDs.SourceLocationValue.QUERY: query = reader.getString(); break;	
                 case IValueIDs.SourceLocationValue.FRAGMENT: fragment = reader.getString(); break;	
-                case IValueIDs.SourceLocationValue.OFFSET: offset = (int) reader.getLong(); break;
-                case IValueIDs.SourceLocationValue.LENGTH: length = (int) reader.getLong(); break;
-                case IValueIDs.SourceLocationValue.BEGINLINE: beginLine = (int) reader.getLong(); break;
-                case IValueIDs.SourceLocationValue.ENDLINE: endLine = (int) reader.getLong(); break;
-                case IValueIDs.SourceLocationValue.BEGINCOLUMN: beginColumn = (int) reader.getLong(); break;
-                case IValueIDs.SourceLocationValue.ENDCOLUMN: endColumn = (int) reader.getLong(); break;
+                case IValueIDs.SourceLocationValue.OFFSET: offset = reader.getInteger(); break;
+                case IValueIDs.SourceLocationValue.LENGTH: length = reader.getInteger(); break;
+                case IValueIDs.SourceLocationValue.BEGINLINE: beginLine = reader.getInteger(); break;
+                case IValueIDs.SourceLocationValue.ENDLINE: endLine = reader.getInteger(); break;
+                case IValueIDs.SourceLocationValue.BEGINCOLUMN: beginColumn = reader.getInteger(); break;
+                case IValueIDs.SourceLocationValue.ENDCOLUMN: endColumn = reader.getInteger(); break;
             }
         }
         ISourceLocation loc;
@@ -820,7 +820,7 @@ public class IValueReader implements AutoCloseable {
         boolean backReference = false;
         while (!reader.next().isEnd()) {
             if(reader.field() == IValueIDs.ListValue.SIZE){
-                size = (int) reader.getLong();
+                size = reader.getInteger();
             }
             else if (reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED) {
                 backReference = true;
@@ -838,7 +838,7 @@ public class IValueReader implements AutoCloseable {
         byte[] big = null;
         while (!reader.next().isEnd()) {
             switch(reader.field()){
-                case IValueIDs.IntegerValue.INTVALUE:  small = (int) reader.getLong(); break;
+                case IValueIDs.IntegerValue.INTVALUE:  small = reader.getInteger(); break;
                 case IValueIDs.IntegerValue.BIGVALUE:    big = reader.getBytes(); break;
             }
         }
@@ -870,15 +870,15 @@ public class IValueReader implements AutoCloseable {
 
         while (!reader.next().isEnd()) {
             switch(reader.field()){
-                case IValueIDs.DateTimeValue.YEAR: year = (int)reader.getLong(); break;
-                case IValueIDs.DateTimeValue.MONTH: month = (int)reader.getLong(); break;
-                case IValueIDs.DateTimeValue.DAY: day = (int)reader.getLong(); break;
-                case IValueIDs.DateTimeValue.HOUR: hour = (int)reader.getLong(); break;
-                case IValueIDs.DateTimeValue.MINUTE: minute = (int)reader.getLong(); break;
-                case IValueIDs.DateTimeValue.SECOND: second = (int)reader.getLong(); break;
-                case IValueIDs.DateTimeValue.MILLISECOND: millisecond = (int)reader.getLong(); break;
-                case IValueIDs.DateTimeValue.TZ_HOUR: timeZoneHourOffset = (int)reader.getLong(); break;
-                case IValueIDs.DateTimeValue.TZ_MINUTE: timeZoneMinuteOffset = (int)reader.getLong(); break;
+                case IValueIDs.DateTimeValue.YEAR: year = reader.getInteger(); break;
+                case IValueIDs.DateTimeValue.MONTH: month = reader.getInteger(); break;
+                case IValueIDs.DateTimeValue.DAY: day = reader.getInteger(); break;
+                case IValueIDs.DateTimeValue.HOUR: hour = reader.getInteger(); break;
+                case IValueIDs.DateTimeValue.MINUTE: minute = reader.getInteger(); break;
+                case IValueIDs.DateTimeValue.SECOND: second = reader.getInteger(); break;
+                case IValueIDs.DateTimeValue.MILLISECOND: millisecond = reader.getInteger(); break;
+                case IValueIDs.DateTimeValue.TZ_HOUR: timeZoneHourOffset = reader.getInteger(); break;
+                case IValueIDs.DateTimeValue.TZ_MINUTE: timeZoneMinuteOffset = reader.getInteger(); break;
             }
         }
 
@@ -909,9 +909,9 @@ public class IValueReader implements AutoCloseable {
         boolean backReference = false;
         while (!reader.next().isEnd()) {
             switch(reader.field()){
-                case IValueIDs.ConstructorValue.ARITY: arity = (int) reader.getLong(); break;
-                case IValueIDs.ConstructorValue.KWPARAMS: kwparams = (int)reader.getLong(); break;
-                case IValueIDs.ConstructorValue.ANNOS: annos = (int)reader.getLong(); break;
+                case IValueIDs.ConstructorValue.ARITY: arity =  reader.getInteger(); break;
+                case IValueIDs.ConstructorValue.KWPARAMS: kwparams = reader.getInteger(); break;
+                case IValueIDs.ConstructorValue.ANNOS: annos = reader.getInteger(); break;
                 case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
             }
         }
@@ -951,7 +951,7 @@ public class IValueReader implements AutoCloseable {
         Integer b = null;
         while (!reader.next().isEnd()) {
             if(reader.field() == IValueIDs.BoolValue.VALUE){
-                b = (int) reader.getLong();
+                b =  reader.getInteger();
             }
         }
 
@@ -1048,7 +1048,7 @@ public class IValueReader implements AutoCloseable {
         }
 
         private void grow() {
-            int newSize = (int)Math.min(elements.length * 2L, 0x7FFFFFF7); // max array size used by array list
+            int newSize = (int) Math.min(elements.length * 2L, 0x7FFFFFF7); // max array size used by array list
             assert elements.length <= newSize;
             elements = Arrays.copyOf(elements, newSize);
         }

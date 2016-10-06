@@ -365,12 +365,12 @@ public class IValueWriter implements Closeable {
 	    });
 	}
 	
-	private static void writeSingleValueMessage(final ValueWireOutputStream writer, int messageID, int fieldId, long fieldValue) throws IOException {
+	private static void writeSingleValueMessage(final ValueWireOutputStream writer, int messageID, int fieldId, int fieldValue) throws IOException {
 	    writer.startMessage(messageID);
 	    writer.writeField(fieldId, fieldValue);
 	    writer.endMessage();
 	}
-	private static void writeSingleValueMessageBackReferenced(final ValueWireOutputStream writer, int messageID, int fieldId, long fieldValue) throws IOException {
+	private static void writeSingleValueMessageBackReferenced(final ValueWireOutputStream writer, int messageID, int fieldId, int fieldValue) throws IOException {
 	    writer.startMessage(messageID);
 	    writeCanBeBackReferenced(writer);
 	    writer.writeField(fieldId, fieldValue);
