@@ -90,7 +90,7 @@ public class ValueWireOutputStream implements Closeable, Flushable {
         int alreadyWritten = stringsWritten.howLongAgo(value);
         if (alreadyWritten != -1) {
             writeFieldTag(fieldId, FieldKind.PREVIOUS_STR);
-            stream.writeUInt64NoTag(TaggedInt.make(alreadyWritten, FieldKind.STRING));
+            stream.writeUInt32NoTag(TaggedInt.make(alreadyWritten, FieldKind.STRING));
         }
         else {
             writeFieldTag(fieldId, FieldKind.STRING);
@@ -99,10 +99,10 @@ public class ValueWireOutputStream implements Closeable, Flushable {
         }
     }
     
-    public void writeField(int fieldId, long value) throws IOException {
+    public void writeField(int fieldId, int value) throws IOException {
         assertNotClosed();
-        writeFieldTag(fieldId, FieldKind.LONG);
-        stream.writeUInt64NoTag(value);
+        writeFieldTag(fieldId, FieldKind.INT);
+        stream.writeUInt32NoTag(value);
     }
     
     public void writeField(int fieldId, byte[] value) throws IOException {
@@ -114,32 +114,23 @@ public class ValueWireOutputStream implements Closeable, Flushable {
     public void writeField(int fieldId, int[] values) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.REPEATED);
-        stream.writeUInt64NoTag(TaggedInt.make(values.length, FieldKind.LONG));
+        stream.writeUInt32NoTag(TaggedInt.make(values.length, FieldKind.INT));
         for (int v : values) {
-            stream.writeUInt64NoTag(v);
-        }
-    }
-    
-    public void writeField(int fieldId, long[] values) throws IOException {
-        assertNotClosed();
-        writeFieldTag(fieldId, FieldKind.REPEATED);
-        stream.writeUInt64NoTag(TaggedInt.make(values.length, FieldKind.LONG));
-        for (long v : values) {
-            stream.writeUInt64NoTag(v);
+            stream.writeUInt32NoTag(v);
         }
     }
     
     public void writeField(int fieldId, String[] values) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.REPEATED);
-        stream.writeUInt64NoTag(TaggedInt.make(values.length, FieldKind.STRING));
+        stream.writeUInt32NoTag(TaggedInt.make(values.length, FieldKind.STRING));
         for (String s : values) {
             int alreadyWritten = stringsWritten.howLongAgo(s);
             if (alreadyWritten != -1) {
-                stream.writeUInt64NoTag(TaggedInt.make(alreadyWritten, FieldKind.STRING));
+                stream.writeUInt32NoTag(TaggedInt.make(alreadyWritten, FieldKind.STRING));
             }
             else {
-                stream.writeUInt64NoTag(0);
+                stream.writeUInt32NoTag(0);
                 stream.writeStringNoTag(s);
                 stringsWritten.write(s);
             }
