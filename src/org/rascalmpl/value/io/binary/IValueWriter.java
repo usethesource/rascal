@@ -154,14 +154,6 @@ public class IValueWriter implements Closeable {
 	
 	
 	
-	
-	private static void writeNames(final ValueWireOutputStream writer, int fieldId, String[] names) throws IOException{
-		writer.writeField(fieldId, names.length);
-		for(int i = 0; i < names.length; i++){
-		    writer.writeField(fieldId, names[i]);
-		}
-	}
-	
 	private static void write(final ValueWireOutputStream writer, final Type type, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
 	    type.accept(new ITypeVisitor<Void, IOException>() {
 
@@ -298,7 +290,7 @@ public class IValueWriter implements Closeable {
 	            writer.writeField(IValueIDs.TupleType.ARITY, type.getArity());
 	            String[] fieldNames = type.getFieldNames();
 	            if(fieldNames != null){
-	                writeNames(writer, IValueIDs.TupleType.NAMES, fieldNames);
+	                writer.writeField(IValueIDs.TupleType.NAMES, fieldNames);
 	            }
 	            writer.endMessage();
 	            typeCache.write(type);
