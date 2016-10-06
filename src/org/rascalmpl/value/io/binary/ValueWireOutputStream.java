@@ -114,19 +114,36 @@ public class ValueWireOutputStream implements Closeable, Flushable {
     public void writeField(int fieldId, int[] values) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.REPEATED);
-        throw new RuntimeException("Ask Davy");
+        stream.writeUInt64NoTag(TaggedInt.make(values.length, FieldKind.LONG));
+        for (int v : values) {
+            stream.writeUInt64NoTag(v);
+        }
     }
     
     public void writeField(int fieldId, long[] values) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.REPEATED);
-        throw new RuntimeException("Ask Davy");
+        stream.writeUInt64NoTag(TaggedInt.make(values.length, FieldKind.LONG));
+        for (long v : values) {
+            stream.writeUInt64NoTag(v);
+        }
     }
     
     public void writeField(int fieldId, String[] values) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.REPEATED);
-        throw new RuntimeException("Ask Davy");
+        stream.writeUInt64NoTag(TaggedInt.make(values.length, FieldKind.STRING));
+        for (String s : values) {
+            int alreadyWritten = stringsWritten.howLongAgo(s);
+            if (alreadyWritten != -1) {
+                stream.writeUInt64NoTag(TaggedInt.make(alreadyWritten, FieldKind.STRING));
+            }
+            else {
+                stream.writeUInt64NoTag(0);
+                stream.writeStringNoTag(s);
+                stringsWritten.write(s);
+            }
+        }
     }
     
     public void endMessage() throws IOException {
