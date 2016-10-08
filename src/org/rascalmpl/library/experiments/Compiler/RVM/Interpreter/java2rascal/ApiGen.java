@@ -14,6 +14,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
@@ -32,6 +33,24 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ApiGen {
+
+  static final String keywords[] = { "abstract", "assert", "boolean",
+      "break", "byte", "case", "catch", "char", "class", "const",
+      "continue", "default", "do", "double", "else", "extends", "false",
+      "final", "finally", "float", "for", "goto", "if", "implements",
+      "import", "instanceof", "int", "interface", "long", "native",
+      "new", "null", "package", "private", "protected", "public",
+      "return", "short", "static", "strictfp", "super", "switch",
+      "synchronized", "this", "throw", "throws", "transient", "true",
+      "try", "void", "volatile", "while" };
+
+  public static boolean isJavaKeyword(String keyword) {
+    return (Arrays.binarySearch(keywords, keyword) >= 0);
+  }
+  
+  public static String escapeJavaKeyword(String name){
+    return isJavaKeyword(name) ? name + "$" : name;
+  }
 
   public static String generate(RVMExecutable rvmExec, String moduleName, String javaPackage) throws Exception{
     StringWriter sw = new StringWriter();
@@ -58,8 +77,12 @@ public class ApiGen {
   
     for(Function fun : rvmExec.getFunctionStore()){
       String funName = fun.getName();
+      System.err.println(funName);
       
-      if(fun.ftype instanceof FunctionType && !funName.endsWith("companion-defaults") && (funName.contains(moduleName) || funName.endsWith("companion"))){
+      if(fun.ftype instanceof FunctionType 
+         && !funName.endsWith("companion-defaults") 
+         && !funName.contains("closure#") 
+         && (funName.contains(moduleName) || funName.endsWith("companion"))){
         
         FunctionType ftype = (FunctionType) fun.ftype;
         
@@ -67,7 +90,7 @@ public class ApiGen {
         sw2.append("\t");
         sw2.append(toJavaType(ftype.getReturnType()));
         sw2.append(" ");
-        sw2.append(fun.getPrintableName());
+        sw2.append(escapeJavaKeyword(fun.getPrintableName()));
         sw2.append("(");
         
         Type argTypes;
@@ -82,7 +105,6 @@ public class ApiGen {
           argTypes = consType.getFieldTypes();
         } else {
           argTypes = ftype.getArgumentTypes();
-         
         }
         
         int arity = argTypes.getArity();
@@ -98,10 +120,10 @@ public class ApiGen {
           sw2.append(toJavaType(argTypes.getFieldType(i)));
           sw2.append(" ");
           if(isConstructor){
-            sw2.append(argTypes.getFieldName(i));
+            sw2.append(escapeJavaKeyword(argTypes.getFieldName(i)));
           } else {
             IValue argName = localNames.get(vf.integer(i + arity + 2));
-            sw2.append(argName == null ? "arg" + i : ((IString)argName).getValue());
+            sw2.append(argName == null ? "arg" + i : escapeJavaKeyword(((IString)argName).getValue()));
           }
         }
         Type kwType = fun.kwType;
@@ -126,6 +148,33 @@ public class ApiGen {
         }
       }
     }
+    for(Type consType :rvmExec.getConstructorStore()){
+      System.err.println(consType);
+      Type argTypes = consType.getFieldTypes();
+      int arity = argTypes.getArity();
+      
+      StringWriter sw3 = new StringWriter();
+      sw3.append("\t");
+      sw3.append(escapeJavaKeyword(toJavaType(consType.getAbstractDataType())));
+      sw3.append(" ");
+      sw3.append(escapeJavaKeyword(consType.getName()));
+      sw3.append("(");
+      
+      for(int i = 0; i < arity; i++){
+        if(i > 0){
+          sw3.append(", ");
+        }
+      
+        sw3.append(toJavaType(argTypes.getFieldType(i)));
+        sw3.append(" ");
+        sw3.append(escapeJavaKeyword(argTypes.getFieldName(i)));
+      }
+      sw3.append(");\n");
+      String line = sw3.toString();
+      if(!lines.contains(line)){
+        lines.add(line);
+      }
+    }
     for(String line : lines){
       sw.append(line);
     }
@@ -144,7 +193,7 @@ public class ApiGen {
     for(int i = 0; i < kwType.getArity(); i++){
       String fieldName = kwType.getFieldName(i);
       Type fieldType = kwType.getFieldType(i);
-      sw.append("\t\t").append(className).append(" ").append(fieldName).append("(")
+      sw.append("\t\t").append(className).append(" ").append(escapeJavaKeyword(fieldName)).append("(")
         .append(toJavaType(fieldType)).append(" ").append("val);\n");
     }
     sw.append("\t}\n");
