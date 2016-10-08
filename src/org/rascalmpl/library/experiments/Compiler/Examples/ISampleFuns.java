@@ -8,12 +8,12 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Ra
 /* Automatically generated code; do not change */
 
 @RascalModule("experiments::Compiler::Examples::SampleFuns")
-interface ISampleFuns {
-	IConstructor d1(int arg0, KWd1 kwArgs);
-	IConstructor d1(String arg0, KWd1 kwArgs);
-	IConstructor d2(String arg0, KWd1 kwArgs);
-	IConstructor d3(int arg0, KWd3 kwArgs);
-	IConstructor d4(String arg0, KWd1 kwArgs);
+public interface ISampleFuns {
+	/*D*/ IConstructor d1(int n, KWd1 kwArgs);
+	/*D*/ IConstructor d1(String s, KWd1 kwArgs);
+	/*D*/ IConstructor d2(String s, KWd1 kwArgs);
+	/*D*/ IConstructor d3(int n, KWd3 kwArgs);
+	/*D*/ IConstructor d4(String z, KWd1 kwArgs);
 	int fun1(int n, KWfun1 kwArgs);
 	int fun1(IList l);
 	int fun1(IList l, int n);
