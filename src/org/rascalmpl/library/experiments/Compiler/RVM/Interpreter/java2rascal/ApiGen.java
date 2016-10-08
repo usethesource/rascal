@@ -49,7 +49,7 @@ public class ApiGen {
     sw.append("/* Automatically generated code; do not change */\n\n");
     sw.append("@RascalModule(\"" + moduleName + "\")\n");
     
-    sw.append("interface I").append(baseName ).append(" {\n");
+    sw.append("public interface I").append(baseName ).append(" {\n");
     ArrayList<String> lines = new ArrayList<>();
     
     String kwclasses = "";
@@ -61,20 +61,35 @@ public class ApiGen {
       
       if(fun.ftype instanceof FunctionType && !funName.endsWith("companion-defaults") && (funName.contains(moduleName) || funName.endsWith("companion"))){
         
-        
         FunctionType ftype = (FunctionType) fun.ftype;
         
-        IMap localNames = fun.localNames;
-        IValueFactory vf = ValueFactoryFactory.getValueFactory();
- 
         StringWriter sw2 = new StringWriter();
         sw2.append("\t");
         sw2.append(toJavaType(ftype.getReturnType()));
         sw2.append(" ");
         sw2.append(fun.getPrintableName());
         sw2.append("(");
-        Type argTypes = ftype.getArgumentTypes();
+        
+        Type argTypes;
+        boolean isConstructor = false;
+        
+        int k = funName.lastIndexOf("::companion");
+        if(k >  0){ 
+          isConstructor = true;
+          String consName = funName.substring(0, k);
+          int cn = rvmExec.getConstructorMap().get(consName);
+          Type consType =  rvmExec.getConstructorStore().get(cn);
+          argTypes = consType.getFieldTypes();
+        } else {
+          argTypes = ftype.getArgumentTypes();
+         
+        }
+        
         int arity = argTypes.getArity();
+        
+        IMap localNames = fun.localNames;
+        IValueFactory vf = ValueFactoryFactory.getValueFactory();
+ 
         for(int i = 0; i < arity; i++){
           if(i > 0){
             sw2.append(", ");
@@ -82,8 +97,12 @@ public class ApiGen {
         
           sw2.append(toJavaType(argTypes.getFieldType(i)));
           sw2.append(" ");
-          IValue argName = localNames.get(vf.integer(i + arity + 2));
-          sw2.append(argName == null ? "arg" + i : ((IString)argName).getValue());
+          if(isConstructor){
+            sw2.append(argTypes.getFieldName(i));
+          } else {
+            IValue argName = localNames.get(vf.integer(i + arity + 2));
+            sw2.append(argName == null ? "arg" + i : ((IString)argName).getValue());
+          }
         }
         Type kwType = fun.kwType;
         if(kwType.getArity() > 0){
@@ -202,7 +221,7 @@ public class ApiGen {
       @Override
       public String visitAbstractData(Type type)
               throws RuntimeException {
-          return "IConstructor";
+          return "/*" + type.getName() + "*/ IConstructor";
       }
 
       @Override
@@ -240,149 +259,6 @@ public class ApiGen {
           return "IConstructor";
         } else if(type instanceof NonTerminalType){
           return "IConstructor";
-        }
-
-        throw new CompilerError("External cannot occur as interface type: " + type);
-      }
-      
-      @Override
-      public String visitNonTerminal(RascalType type)
-              throws RuntimeException {
-          return "IConstructor";
-      }
-      
-      @Override
-      public String visitReified(RascalType type)
-              throws RuntimeException {
-          return "IConstructor";
-      }
-      
-      @Override
-      public String visitFunction(RascalType type)
-              throws RuntimeException {
-          return "IValue";
-      }
-      
-      @Override
-      public String visitOverloadedFunction(RascalType type)
-              throws RuntimeException {
-        throw new CompilerError("External cannot occur as interface type: " + type);
-      }
-
-      @Override
-      public String visitDateTime(Type type)
-              throws RuntimeException {
-          return "IDateTime";
-      }});
-  }
-  
-  String toVfConstructor(Type t) throws Exception{
-    return t.accept(new DefaultRascalTypeVisitor<String,RuntimeException>("") {
-
-      @Override
-      public String visitReal(Type type) throws RuntimeException {
-          return "vf.real(val)";
-      }
-
-      @Override
-      public String visitInteger(Type type) throws RuntimeException {
-          return "vf.integer(val)";
-      }
-
-      @Override
-      public String visitRational(Type type)
-              throws RuntimeException {
-          return "val";
-      }
-
-      @Override
-      public String visitList(Type type) throws RuntimeException {
-          return "val";
-      }
-
-      @Override
-      public String visitMap(Type type) throws RuntimeException {
-          return "val";
-      }
-
-      @Override
-      public String visitNumber(Type type) throws RuntimeException {
-          return "val";
-      }
-
-      @Override
-      public String visitAlias(Type type) throws RuntimeException {
-          throw new CompilerError("Alias cannot occur as interface type");
-      }
-
-      @Override
-      public String visitSet(Type type) throws RuntimeException {
-          return "val";
-      }
-
-      @Override
-      public String visitSourceLocation(Type type)
-              throws RuntimeException {
-          return "val";
-      }
-
-      @Override
-      public String visitString(Type type) throws RuntimeException {
-          return "vf.string(val)";
-      }
-
-      @Override
-      public String visitNode(Type type) throws RuntimeException {
-          return "val";
-      }
-
-      @Override
-      public String visitConstructor(Type type)
-              throws RuntimeException {
-          return "val";
-      }
-
-      @Override
-      public String visitAbstractData(Type type)
-              throws RuntimeException {
-          return "val";
-      }
-
-      @Override
-      public String visitTuple(Type type) throws RuntimeException {
-          return "ITuple";
-      }
-
-      @Override
-      public String visitValue(Type type) throws RuntimeException {
-          return "IValue";
-      }
-
-      @Override
-      public String visitVoid(Type type) throws RuntimeException  {
-          return "val";
-      }
-
-      @Override
-      public String visitBool(Type type) throws RuntimeException {
-          return "vf.bool(val)";
-      }
-
-      @Override
-      public String visitParameter(Type type)
-              throws RuntimeException {
-        return "val";
-      }
-
-      @Override
-      public String visitExternal(Type type)
-          throws RuntimeException {
-        if(type instanceof FunctionType){
-          return "val";
-        } else if(type instanceof ReifiedType){
-          return "val";
-        } else if(type instanceof NonTerminalType){
-          return "val";
         }
 
         throw new CompilerError("External cannot occur as interface type: " + type);
