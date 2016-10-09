@@ -112,9 +112,6 @@ public class IValueWriter implements Closeable {
 	
 	public IValueWriter(OutputStream out, CompressionRate compression) throws IOException {
         out.write(header);
-    	out.write(compression.typeWindow);
-    	out.write(compression.valueWindow);
-    	out.write(compression.uriWindow);
     	out.write(compression.compressionMode == 0 ? CompressionHeader.NONE : CompressionHeader.ZSTD);
     	if (compression.compressionMode > 0) {
     	    out = new ZstdOutputStream(out, compression.compressionMode);
@@ -145,6 +142,7 @@ public class IValueWriter implements Closeable {
      * @throws IOException
      */
 	public static void write(ValueWireOutputStream writer, int typeWindowSize, int valueWindowSize, int uriWindowSize, IValue value ) throws IOException {
+	    writeHeader(writer, valueWindowSize, typeWindowSize, uriWindowSize);
 	    TrackLastWritten<Type> typeCache = getWindow(typeWindowSize);
 	    TrackLastWritten<IValue> valueCache = getWindow(valueWindowSize);
 	    TrackLastWritten<ISourceLocation> uriCache = getWindow(uriWindowSize);
@@ -154,7 +152,15 @@ public class IValueWriter implements Closeable {
 	
 	
 	
-	private static void write(final ValueWireOutputStream writer, final Type type, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
+	private static void writeHeader(ValueWireOutputStream writer, int valueWindowSize, int typeWindowSize, int uriWindowSize) throws IOException {
+	    writer.startMessage(IValueIDs.Header.ID);
+	    writer.writeField(IValueIDs.Header.VALUE_WINDOW, valueWindowSize);
+	    writer.writeField(IValueIDs.Header.TYPE_WINDOW, typeWindowSize);
+	    writer.writeField(IValueIDs.Header.SOURCE_LOCATION_WINDOW, uriWindowSize);
+	    writer.endMessage();
+    }
+
+    private static void write(final ValueWireOutputStream writer, final Type type, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
 	    type.accept(new ITypeVisitor<Void, IOException>() {
 
 	        private boolean writeFromCache(Type type) throws IOException {
