@@ -59,8 +59,8 @@ import io.usethesource.capsule.TrieMap_5Bits;
  *
  */
 public class IValueReader implements AutoCloseable {
-	private static final TypeFactory tf = TypeFactory.getInstance();
-	private static final RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+    private static final TypeFactory tf = TypeFactory.getInstance();
+    private static final RascalTypeFactory rtf = RascalTypeFactory.getInstance();
     private final ValueWireInputStream reader;
     private final TypeStore ts;
     private final IValueFactory vf;
@@ -68,14 +68,14 @@ public class IValueReader implements AutoCloseable {
     private final BinaryReader legacyReader;
 
 
-	/**
-	 * this will consume the whole stream, or at least more than needed due to buffering, so don't use the InputStream afterwards
-	 */
-	public IValueReader(InputStream in, IValueFactory vf, TypeStore ts) throws IOException {
+    /**
+     * this will consume the whole stream, or at least more than needed due to buffering, so don't use the InputStream afterwards
+     */
+    public IValueReader(InputStream in, IValueFactory vf, TypeStore ts) throws IOException {
         ts.extendStore(RascalValueFactory.getStore());
         this.ts = ts;
         this.vf = vf;
-		byte[] currentHeader = new byte[IValueWriter.header.length];
+        byte[] currentHeader = new byte[IValueWriter.header.length];
         in.read(currentHeader);
         if (!Arrays.equals(IValueWriter.header, currentHeader)) {
             byte firstByte = currentHeader[0];
@@ -112,53 +112,53 @@ public class IValueReader implements AutoCloseable {
 
         reader = new ValueWireInputStream(in);
     }
-	
-	public IValue read() throws IOException {
-	    if (legacy) {
-	        return legacyReader.deserialize();
-	    }
-	    return read(reader, vf, ts);
-	}
-	
-	@Override
-	public void close() throws Exception {
-	    if (legacy) {
-	        legacyReader.close();
-	    }
-	    else {
-	        reader.close();
-	    }
-	}
-	
-	/**
-	 * In most cases you want the other instance write method.
-	 * 
-	 * This static method is only for embedding in nested ValueWriteInputStreams
-	 * @param typeWindowSize should be the same size as used for writing
-	 * @param valueWindowSize should be the same size as used for writing
-	 * @param uriWindowSize should be the same size as used for writing
-	 */
-	public static IValue read(ValueWireInputStream reader, IValueFactory vf, TypeStore ts) throws IOException {
-	    int typeWindowSize = 0;
-	    int valueWindowSize = 0;
-	    int uriWindowSize = 0;
-	    if (reader.next() != ReaderPosition.MESSAGE_START || reader.message() != IValueIDs.Header.ID) {
-	        throw new IOException("Missing header at start of stream");
-	    }
-	    while (reader.next() != ReaderPosition.MESSAGE_END) {
-	        switch (reader.field()) {
-	            case IValueIDs.Header.VALUE_WINDOW: valueWindowSize = reader.getInteger();  break;
-	            case IValueIDs.Header.TYPE_WINDOW: typeWindowSize = reader.getInteger();  break;
-	            case IValueIDs.Header.SOURCE_LOCATION_WINDOW: uriWindowSize = reader.getInteger();  break;
-	        }
-	    }
-	    return read(reader, vf, ts, getWindow(typeWindowSize), getWindow(valueWindowSize), getWindow(uriWindowSize));
-	}
-	
+    
+    public IValue read() throws IOException {
+        if (legacy) {
+            return legacyReader.deserialize();
+        }
+        return read(reader, vf, ts);
+    }
+    
+    @Override
+    public void close() throws Exception {
+        if (legacy) {
+            legacyReader.close();
+        }
+        else {
+            reader.close();
+        }
+    }
+    
+    /**
+     * In most cases you want the other instance write method.
+     * 
+     * This static method is only for embedding in nested ValueWriteInputStreams
+     * @param typeWindowSize should be the same size as used for writing
+     * @param valueWindowSize should be the same size as used for writing
+     * @param uriWindowSize should be the same size as used for writing
+     */
+    public static IValue read(ValueWireInputStream reader, IValueFactory vf, TypeStore ts) throws IOException {
+        int typeWindowSize = 0;
+        int valueWindowSize = 0;
+        int uriWindowSize = 0;
+        if (reader.next() != ReaderPosition.MESSAGE_START || reader.message() != IValueIDs.Header.ID) {
+            throw new IOException("Missing header at start of stream");
+        }
+        while (reader.next() != ReaderPosition.MESSAGE_END) {
+            switch (reader.field()) {
+                case IValueIDs.Header.VALUE_WINDOW: valueWindowSize = reader.getInteger();  break;
+                case IValueIDs.Header.TYPE_WINDOW: typeWindowSize = reader.getInteger();  break;
+                case IValueIDs.Header.SOURCE_LOCATION_WINDOW: uriWindowSize = reader.getInteger();  break;
+            }
+        }
+        return read(reader, vf, ts, getWindow(typeWindowSize), getWindow(valueWindowSize), getWindow(uriWindowSize));
+    }
+    
 
     private static <T> TrackLastRead<T> getWindow(int size) {
-	    if (size == 0) {
-	        return new TrackLastRead<T>() {
+        if (size == 0) {
+            return new TrackLastRead<T>() {
                 @Override
                 public void read(T obj) {
                 }
@@ -167,12 +167,12 @@ public class IValueReader implements AutoCloseable {
                 public T lookBack(int elements) {
                     throw new IllegalArgumentException();
                 }
-	            
-	        };
-	    }
-	    return new LinearCircularLookupWindow<>(size);
+                
+            };
+        }
+        return new LinearCircularLookupWindow<>(size);
     }
-	
+    
     private static IValue read(final ValueWireInputStream reader, final IValueFactory vf, final TypeStore store, TrackLastRead<Type> typeWindow, TrackLastRead<IValue> valueWindow, TrackLastRead<ISourceLocation> uriWindow) throws IOException{
 
         ReaderStack<Type> tstack = new ReaderStack<>(Type.class, 100);
@@ -551,7 +551,7 @@ public class IValueReader implements AutoCloseable {
     private static boolean readValue(final ValueWireInputStream reader, final IValueFactory vf, final TypeStore store, final TrackLastRead<Type> typeWindow, final TrackLastRead<IValue> valueWindow, final TrackLastRead<ISourceLocation> uriWindow, final ReaderStack<Type> tstack, final ValueReaderStack vstack) throws IOException{
         switch (reader.message()) {
             case IValueIDs.BoolValue.ID: return readBoolean(reader, vf, tstack, vstack);
-            case IValueIDs.ConstructorValue.ID:	return readConstructor(reader, vf, tstack, vstack, 0);
+            case IValueIDs.ConstructorValue.ID:    return readConstructor(reader, vf, tstack, vstack, 0);
             case IValueIDs.DateTimeValue.ID: return readDateTime(reader, vf, tstack, vstack);
             case IValueIDs.IntegerValue.ID: return readInteger(reader, vf, tstack, vstack);
             case IValueIDs.ListValue.ID: return readList(reader, vf, tstack, vstack, 0);
@@ -781,8 +781,8 @@ public class IValueReader implements AutoCloseable {
                 case IValueIDs.SourceLocationValue.SCHEME: scheme = reader.getString(); break;
                 case IValueIDs.SourceLocationValue.AUTHORITY: authority = reader.getString(); break;
                 case IValueIDs.SourceLocationValue.PATH: path = reader.getString(); break;
-                case IValueIDs.SourceLocationValue.QUERY: query = reader.getString(); break;	
-                case IValueIDs.SourceLocationValue.FRAGMENT: fragment = reader.getString(); break;	
+                case IValueIDs.SourceLocationValue.QUERY: query = reader.getString(); break;    
+                case IValueIDs.SourceLocationValue.FRAGMENT: fragment = reader.getString(); break;    
                 case IValueIDs.SourceLocationValue.OFFSET: offset = reader.getInteger(); break;
                 case IValueIDs.SourceLocationValue.LENGTH: length = reader.getInteger(); break;
                 case IValueIDs.SourceLocationValue.BEGINLINE: beginLine = reader.getInteger(); break;
@@ -963,7 +963,7 @@ public class IValueReader implements AutoCloseable {
     }
 
 
-	
+    
 
 
     private static boolean skipMessageCheckBackReference(final ValueWireInputStream reader) throws IOException {

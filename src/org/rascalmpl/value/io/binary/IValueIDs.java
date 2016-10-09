@@ -33,7 +33,7 @@ public class IValueIDs {
         public static final int ID = LAST_VALUE_ID;
     }
     
-	// Atomic values
+    // Atomic values
     private static final int PREVIOUS_VALUE_ID = 1;
     private static final int BOOLEAN_VALUE_ID = 2;
     private static final int INTEGER_VALUE_ID = 3;
@@ -45,7 +45,7 @@ public class IValueIDs {
     private static final int DATETIME_VALUE_ID = 32; 
     private static final int RAT_VALUE_ID = 33;
     
-	// Compound values
+    // Compound values
 
     private static final int CONSTRUCTOR_VALUE_ID = 7;
     private static final int NODE_VALUE_ID = 8;
@@ -58,19 +58,19 @@ public class IValueIDs {
     public static class Common {
         public static final int CAN_BE_BACK_REFERENCED = 31;
     }
-	
-	public static class PreviousValue {
-	    public static final int ID = PREVIOUS_VALUE_ID;
-	    public static final int HOW_FAR_BACK = 1;	
-	}
+    
+    public static class PreviousValue {
+        public static final int ID = PREVIOUS_VALUE_ID;
+        public static final int HOW_FAR_BACK = 1;    
+    }
 
-	public static class BoolValue {
-	    public static final int ID = BOOLEAN_VALUE_ID;
-	    public static final int VALUE = 1;
-	}
-	
-	public static class DateTimeValue {
-	    public static final int ID = DATETIME_VALUE_ID;
+    public static class BoolValue {
+        public static final int ID = BOOLEAN_VALUE_ID;
+        public static final int VALUE = 1;
+    }
+    
+    public static class DateTimeValue {
+        public static final int ID = DATETIME_VALUE_ID;
         public static final int YEAR = 1;
         public static final int MONTH = 2;
         public static final int DAY = 3;
@@ -80,16 +80,16 @@ public class IValueIDs {
         public static final int MILLISECOND = 7;
         public static final int TZ_HOUR = 8;
         public static final int TZ_MINUTE = 9;
-	}
-	
-	public static class IntegerValue {
-	    public static final int ID = INTEGER_VALUE_ID;
+    }
+    
+    public static class IntegerValue {
+        public static final int ID = INTEGER_VALUE_ID;
         public static final int INTVALUE = 1;
         public static final int BIGVALUE = 2;
-	}
-	
-	public static class SourceLocationValue {
-	    public static final int ID = SOURCE_LOCATION_VALUE_ID;
+    }
+    
+    public static class SourceLocationValue {
+        public static final int ID = SOURCE_LOCATION_VALUE_ID;
         public static final int PREVIOUS_URI = 1;
         public static final int OFFSET = 2;
         public static final int LENGTH = 3;
@@ -102,64 +102,64 @@ public class IValueIDs {
         public static final int PATH = 10;
         public static final int QUERY = 11;
         public static final int FRAGMENT = 12;
-	}
+    }
 
-	public static class RationalValue {
-	    public static final int ID = RAT_VALUE_ID;
-	}
-	
-	public static class RealValue {
-	    public static final int ID = REAL_VALUE_ID;
+    public static class RationalValue {
+        public static final int ID = RAT_VALUE_ID;
+    }
+    
+    public static class RealValue {
+        public static final int ID = REAL_VALUE_ID;
         public static final int CONTENT = 1;
         public static final int SCALE = 2;
-	}
-	
-	public static class StringValue {
-	    public static final int ID = STRING_VALUE_ID;
-	    public static final int CONTENT = 1;
-	}
-	
-	public static class ConstructorValue {
-	    public static final int ID = CONSTRUCTOR_VALUE_ID;
+    }
+    
+    public static class StringValue {
+        public static final int ID = STRING_VALUE_ID;
+        public static final int CONTENT = 1;
+    }
+    
+    public static class ConstructorValue {
+        public static final int ID = CONSTRUCTOR_VALUE_ID;
         public static final int ARITY = 1;
         public static final int KWPARAMS = 2;
         public static final int ANNOS = 3;
-	}
+    }
 
-	public static class NodeValue {
-	    public static final int ID = NODE_VALUE_ID;
+    public static class NodeValue {
+        public static final int ID = NODE_VALUE_ID;
         public static final int NAME = 1;
         public static final int ARITY = 2;
         public static final int KWPARAMS = 3;
         public static final int ANNOS = 4;
-	}
+    }
 
-	public static class TupleValue {
-	    public static final int ID = TUPLE_VALUE_ID;
-	    public static final int SIZE = 1;
-	}
-	
-	public static class ListValue {
-	    public static final int ID = LIST_VALUE_ID;
-	    public static final int SIZE = 1;
-	}
-	
-	public static class MapValue {
-	    public static final int ID = MAP_VALUE_ID;
-	    public static final int SIZE = 1;
-	}
+    public static class TupleValue {
+        public static final int ID = TUPLE_VALUE_ID;
+        public static final int SIZE = 1;
+    }
+    
+    public static class ListValue {
+        public static final int ID = LIST_VALUE_ID;
+        public static final int SIZE = 1;
+    }
+    
+    public static class MapValue {
+        public static final int ID = MAP_VALUE_ID;
+        public static final int SIZE = 1;
+    }
 
-	public static class SetValue {
-	    public static final int ID = SET_VALUE_ID;
-	    public static final int SIZE = 1;
-	}
+    public static class SetValue {
+        public static final int ID = SET_VALUE_ID;
+        public static final int SIZE = 1;
+    }
 
-	// Type message ID's start at 100 to leave room for new values
-	// Types aren't serialized that often so the overhead is acceptable
+    // Type message ID's start at 100 to leave room for new values
+    // Types aren't serialized that often so the overhead is acceptable
 
     private static final int PREVIOUS_TYPE_ID_ID = 101;
-	
-	// Atomic types
+    
+    // Atomic types
     private static final int BOOL_TYPE_ID = 102;
     private static final int LOC_TYPE_ID = 103;
     private static final int DATETIME_TYPE_ID = 104;
@@ -274,7 +274,7 @@ public class IValueIDs {
         public static final int ARITY = 1;
         public static final int NAMES = 2;
     }
-	
+    
     public static final class Ranges {
         // these ranges are for splitting up the reader
         public static final int VALUES_MIN = PREVIOUS_VALUE_ID;
