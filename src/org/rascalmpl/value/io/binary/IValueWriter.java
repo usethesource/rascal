@@ -67,7 +67,7 @@ public class IValueWriter implements Closeable {
          */
         None(10,0,0,0, 0),
         Fast(10, 10,10,10, 2),
-        Normal(30, 30,100,50,0), // 7
+        Normal(30, 30,100,50,7),
         Extreme(50, 50,250,100, 9)
         ;
 
