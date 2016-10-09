@@ -137,11 +137,16 @@ public class ValueWireOutputStream implements Closeable, Flushable {
         }
     }
     
-    public void writeFlag(int fieldId) throws IOException {
+    public void writeNestedField(int fieldId) throws IOException {
         assertNotClosed();
-        writeFieldTag(fieldId, FieldKind.FLAG);
+        writeFieldTag(fieldId, FieldKind.NESTED);
+        
     }
-    
+    public void writeRepeatedNestedField(int fieldId, int numberOfNestedElements) throws IOException {
+        assertNotClosed();
+        writeFieldTag(fieldId, FieldKind.REPEATED);
+        stream.writeUInt32NoTag(TaggedInt.make(numberOfNestedElements, FieldKind.NESTED));
+    }
     public void endMessage() throws IOException {
         assertNotClosed();
         writeFieldTag(0, 0);
