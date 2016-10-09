@@ -57,6 +57,7 @@ public class ValueWireInputStream implements Closeable {
     private int nestedType;
     private String[] stringValues;
     private int[] intValues;
+    private int nestedLength;
 
     public ValueWireInputStream(InputStream stream) throws IOException {
         this.__stream = stream;
@@ -101,8 +102,8 @@ public class ValueWireInputStream implements Closeable {
                 // special case that signals starts of values
                 messageID = fieldID;
                 return current = ReaderPosition.MESSAGE_START;
-            case FieldKind.FLAG:
-                // nothing, the flag itself is enough
+            case FieldKind.NESTED:
+                // only case where we don't read the value
                 break;
             case FieldKind.STRING:
                 stream.resetSizeCounter();
@@ -127,7 +128,7 @@ public class ValueWireInputStream implements Closeable {
                 stream.resetSizeCounter();
                 int flaggedAmount = (int) stream.readRawVarint32();
                 nestedType = TaggedInt.getTag(flaggedAmount);
-                int nestedLength = TaggedInt.getOriginal(flaggedAmount);
+                nestedLength = TaggedInt.getOriginal(flaggedAmount);
                 switch (nestedType) {
                     case FieldKind.INT:
                         int[] intValues = new int[nestedLength];
@@ -151,6 +152,10 @@ public class ValueWireInputStream implements Closeable {
                             }
                         }
                         break;
+                    case FieldKind.NESTED:
+                        break;
+                    default:
+                        throw new IOException("Unsupported nested type:" + nestedType);
                 }
                 stream.resetSizeCounter();
                 break;
@@ -199,6 +204,11 @@ public class ValueWireInputStream implements Closeable {
     public int getRepeatedType() {
         assert current == ReaderPosition.FIELD && fieldType == FieldKind.REPEATED;
         return nestedType;
+    }
+    
+    public int getRepeatedLength() {
+        assert current == ReaderPosition.FIELD && fieldType == FieldKind.REPEATED;
+        return nestedLength;
     }
 
     public String[] getStrings() {
