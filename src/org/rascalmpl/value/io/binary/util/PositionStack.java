@@ -65,7 +65,7 @@ import org.rascalmpl.value.IValue;
         }
     }
 
-	private void grow(int desiredSize) {
+    private void grow(int desiredSize) {
         if (desiredSize > items.length) {
             int newSize = (int)Math.min(items.length * 2L, 0x7FFFFFF7); // max array size used by array list
             assert desiredSize <= newSize;
