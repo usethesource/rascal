@@ -63,7 +63,7 @@ public class ValueWireOutputStream implements Closeable, Flushable {
         }
     }
     
-    void assertNotClosed() throws IOException {
+    private void assertNotClosed() throws IOException {
         if (closed) {
             throw new IOException("Stream already closed"); 
         }
@@ -76,7 +76,7 @@ public class ValueWireOutputStream implements Closeable, Flushable {
         __stream.flush();
     }
 
-    void writeFieldTag(final int fieldId, final int type) throws IOException {
+    private void writeFieldTag(final int fieldId, final int type) throws IOException {
         stream.writeUInt32NoTag(TaggedInt.make(fieldId, type));
     }
 
