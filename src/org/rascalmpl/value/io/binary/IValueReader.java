@@ -62,9 +62,6 @@ public class IValueReader implements AutoCloseable {
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	private static final RascalTypeFactory rtf = RascalTypeFactory.getInstance();
     private final ValueWireInputStream reader;
-    private final int typeWindowSize;
-    private final int valueWindowSize;
-    private final int uriWindowSize;
     private final TypeStore ts;
     private final IValueFactory vf;
     private final boolean legacy;
@@ -89,9 +86,6 @@ public class IValueReader implements AutoCloseable {
                 legacy = true;
                 legacyReader = new BinaryReader(vf, ts, new SequenceInputStream(new ByteArrayInputStream(currentHeader), in));
                 reader = null;
-                typeWindowSize = 0;
-                valueWindowSize = 0;
-                uriWindowSize = 0;
                 return;
             }
             throw new IOException("Unsupported file");
@@ -99,10 +93,6 @@ public class IValueReader implements AutoCloseable {
         legacy = false;
         legacyReader = null;
 
-        typeWindowSize = in.read() * 1024;
-        valueWindowSize = in.read() * 1024;
-        uriWindowSize = in.read() * 1024;
-        
         int compression = in.read();
         switch (compression) {
             case IValueWriter.CompressionHeader.NONE:
@@ -127,7 +117,7 @@ public class IValueReader implements AutoCloseable {
 	    if (legacy) {
 	        return legacyReader.deserialize();
 	    }
-	    return read(reader, vf, ts, typeWindowSize, valueWindowSize, uriWindowSize);
+	    return read(reader, vf, ts);
 	}
 	
 	@Override
@@ -148,7 +138,20 @@ public class IValueReader implements AutoCloseable {
 	 * @param valueWindowSize should be the same size as used for writing
 	 * @param uriWindowSize should be the same size as used for writing
 	 */
-	public static IValue read(ValueWireInputStream reader, IValueFactory vf, TypeStore ts, int typeWindowSize, int valueWindowSize, int uriWindowSize) throws IOException {
+	public static IValue read(ValueWireInputStream reader, IValueFactory vf, TypeStore ts) throws IOException {
+	    int typeWindowSize = 0;
+	    int valueWindowSize = 0;
+	    int uriWindowSize = 0;
+	    if (reader.next() != ReaderPosition.MESSAGE_START || reader.message() != IValueIDs.Header.ID) {
+	        throw new IOException("Missing header at start of stream");
+	    }
+	    while (reader.next() != ReaderPosition.MESSAGE_END) {
+	        switch (reader.field()) {
+	            case IValueIDs.Header.VALUE_WINDOW: valueWindowSize = reader.getInteger();  break;
+	            case IValueIDs.Header.TYPE_WINDOW: typeWindowSize = reader.getInteger();  break;
+	            case IValueIDs.Header.SOURCE_LOCATION_WINDOW: uriWindowSize = reader.getInteger();  break;
+	        }
+	    }
 	    return read(reader, vf, ts, getWindow(typeWindowSize), getWindow(valueWindowSize), getWindow(uriWindowSize));
 	}
 	

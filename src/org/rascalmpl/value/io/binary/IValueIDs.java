@@ -20,7 +20,18 @@ public class IValueIDs {
     // This is an overview of the message id's, low values are quicker and more compact to encode
     // Never change them, that would break backwards compatiblity
     
-    private static final int LAST_VALUE_ID = 4242; // a special marker to signal the end of the stream of values
+    private static final int HEADER_ID = 4242;  
+    private static final int LAST_VALUE_ID = 4243; // a special marker to signal the end of the stream of values
+    
+    public static final class Header {
+        public static final int ID = HEADER_ID;
+        public static final int VALUE_WINDOW = 1;
+        public static final int TYPE_WINDOW = 2;
+        public static final int SOURCE_LOCATION_WINDOW = 3;
+    }
+    public static final class LastValue {
+        public static final int ID = LAST_VALUE_ID;
+    }
     
 	// Atomic values
     private static final int PREVIOUS_VALUE_ID = 1;
@@ -274,10 +285,5 @@ public class IValueIDs {
         
         public static final int TYPES_MIN = PREVIOUS_TYPE_ID_ID;
         public static final int TYPES_MAX = FUNCTION_TYPE_ID;
-    }
-    
-    
-    public static final class LastValue {
-        public static final int ID = LAST_VALUE_ID;
     }
 }
