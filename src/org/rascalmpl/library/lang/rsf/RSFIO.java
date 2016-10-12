@@ -237,7 +237,7 @@ public class RSFIO {
 		for (Map.Entry<java.lang.String, Type> entry : table.entrySet()) {
 			Type t = entry.getValue();
 			mr.put(values.string(entry.getKey()), 
-			       ((IConstructor) new TypeReifier(values).typeToValue(types.relType(t.getFieldType(0), t.getFieldType(1)), ctx).getValue()));	
+			       new TypeReifier(values).typeToValue(types.relType(t.getFieldType(0), t.getFieldType(1)), ctx.getCurrentEnvt().getStore()));	
 		}
 		return mr.done();
 	}

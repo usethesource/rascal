@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISet;
@@ -25,6 +26,7 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class OverloadedFunctionType extends RascalType {
@@ -52,19 +54,19 @@ public class OverloadedFunctionType extends RascalType {
 	}
 	
 	@Override
-    public IConstructor asSymbol(IValueFactory vf) {
+    public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
       ISetWriter w = vf.setWriter();
       for (Type alt : alternatives) {
-        w.insert(alt.asSymbol(vf));
+        w.insert(alt.asSymbol(vf, store, grammar, done));
       }
       return vf.constructor(CONSTRUCTOR, w.done());
     }
 	
-	public static Type fromSymbol(IConstructor symbol) {
+	public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
 	  Set<FunctionType> newAlts = new HashSet<>();
 	  
 	  for (IValue alt : ((ISet) symbol.get("alternatives"))) {
-	    newAlts.add((FunctionType) Type.fromSymbol((IConstructor) alt)); 
+	    newAlts.add((FunctionType) Type.fromSymbol((IConstructor) alt, store, grammar)); 
 	  }
 	  
 	  return RTF.overloadedFunctionType(newAlts);
