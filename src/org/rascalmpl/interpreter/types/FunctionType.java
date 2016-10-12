@@ -70,7 +70,7 @@ public class FunctionType extends RascalType {
 	}
 	
 	@Override
-	protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+    public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 	    getReturnType().asProductions(vf, store, grammar, done);
 	    
 	    for (Type arg : getArgumentTypes()) {

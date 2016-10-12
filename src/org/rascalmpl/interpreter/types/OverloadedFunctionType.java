@@ -73,8 +73,7 @@ public class OverloadedFunctionType extends RascalType {
 	}
 	
 	@Override
-	protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar,
-	        Set<IConstructor> done) {
+    public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 	    for (Type alt : alternatives) {
 	        alt.asProductions(vf, store, grammar, done);
 	    } 
