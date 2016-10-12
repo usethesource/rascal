@@ -1,5 +1,7 @@
 package org.rascalmpl.value.io.old;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -10,6 +12,10 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.IValueReader;
+import org.rascalmpl.value.io.binary.IValueWriter;
+import org.rascalmpl.value.io.binary.IValueWriter.CompressionRate;
+import org.rascalmpl.value.type.TypeStore;
 
 
 /**
@@ -52,7 +58,14 @@ public class SerializableValue<T extends IValue> implements Serializable {
 		out.write(':');
 		out.write(factoryName.getBytes("UTF8"));
 		out.write(':');
-		new BinaryValueWriter().write(value, out);
+		ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
+		try (IValueWriter writer = new IValueWriter(bytesStream, CompressionRate.Normal)) {
+		    writer.write(value);
+		}
+		byte[] bytes = bytesStream.toByteArray();
+		out.writeInt(bytes.length);
+		out.write(':');
+		out.write(bytes);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -65,9 +78,15 @@ public class SerializableValue<T extends IValue> implements Serializable {
 			byte[] factoryName = new byte[length];
 			in.read(factoryName, 0, length);
 			in.read(); // ':'
+			int amountOfBytes = in.readInt();
+			in.read(); // ':'
+			byte[] bytes = new byte[amountOfBytes];
+			in.read(bytes);
 			Class<?> clazz = getClass().getClassLoader().loadClass(new String(factoryName, "UTF8"));
 			this.vf = (IValueFactory) clazz.getMethod("getInstance").invoke(null, new Object[0]);
-			this.value = (T) new BinaryValueReader().read(vf, in);
+			try (IValueReader reader = new IValueReader(new ByteArrayInputStream(bytes), vf, new TypeStore())) {
+			    this.value = (T) reader.read();
+			}
 		}
 		catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | ClassCastException e) {
 			throw new IOException("Could not load IValueFactory", e);
