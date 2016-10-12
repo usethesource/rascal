@@ -77,9 +77,7 @@ public class IOCompiled extends IO {
 		TypeStore store = new TypeStore();
 		
 		IConstructor type_cons = ((IConstructor) type);
-		IMap definitions = rex.getSymbolDefinitions();
 
-		tr.declareAbstractDataTypes(definitions, store);
 		Type start = tr.valueToType(type_cons, store);
 		
 		//TypeStore store = ctx.getCurrentEnvt().getStore();

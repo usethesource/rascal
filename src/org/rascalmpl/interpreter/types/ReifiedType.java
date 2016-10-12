@@ -12,15 +12,17 @@
 package org.rascalmpl.interpreter.types;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * A reified type is the type of a value that represents a type. It is parametrized by the type
@@ -177,11 +179,11 @@ public class ReifiedType extends RascalType {
 	}
 
 	@Override
-	public IConstructor asSymbol(IValueFactory vf) {
-	  return vf.constructor(CONSTRUCTOR, getTypeParameters().getFieldType(0).asSymbol(vf));
+	public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+	  return vf.constructor(CONSTRUCTOR, getTypeParameters().getFieldType(0).asSymbol(vf, store, grammar, done));
 	}
 	
-	public static Type fromSymbol(IConstructor symbol) {
-	  return RTF.reifiedType(Type.fromSymbol((IConstructor) symbol.get("symbol")));
+	public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
+	  return RTF.reifiedType(Type.fromSymbol((IConstructor) symbol.get("symbol"), store, grammar));
 	}
 }

@@ -180,7 +180,7 @@ public class Function implements Serializable {
 				ITuple tuple = (ITuple) entry;
 				String from = ((IString) tuple.get(0)).getValue();
 				String to = ((IString) tuple.get(1)).getValue();
-				Type type = rascalLinker.symbolToType((IConstructor) tuple.get(2));
+				Type type = rascalLinker.loadProduction((IConstructor) tuple.get(2));
 				String handler = ((IString) tuple.get(3)).getValue();
 				int fromSP =  ((IInteger) tuple.get(4)).intValue();
 				

@@ -12,7 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.values.uptr;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -233,6 +233,13 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final IValue Attribute_Assoc_Assoc = bootFactory.constructor(Attr_Assoc, bootFactory.constructor(Associativity_Assoc));
 	public static final IValue Attribute_Bracket = bootFactory.constructor(Attr_Bracket);
 	
+	/* Constructors for Function instances to be used in encodeAsConstructor */
+	public static final Type Function = tf.abstractDataType(uptr, "Function");
+	public static final Type Function_Choice = tf.constructor(uptr, Function, "choice", tf.listType(Function), "alternatives", tf.listType(Function), "otherwise");
+	public static final Type Function_Function = tf.constructor(uptr, Function, "function", tf.sourceLocationType(), "id");
+	public static final Type Function_Closure = tf.constructor(uptr, Function, "closure", Function, "definition", tf.mapType(str, tf.valueType()), "environment");
+	public static final Type Function_Composition = tf.constructor(uptr, Function, "composition", Function, "lhs", Function, "rhs");
+	
 	@Deprecated
 	/** Will be replaced by keyword parameter "origin" */
 	public static final String Location = "loc";
@@ -360,8 +367,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	
 	@Override
 	public IConstructor reifiedType(IConstructor symbol, IMap definitions) {
-		java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-		bindings.put(RascalValueFactory.TypeParam, tr.symbolToType(symbol, definitions));
+		java.util.Map<Type,Type> bindings = 
+		        Collections.singletonMap(RascalValueFactory.TypeParam, tr.symbolToType(symbol, definitions));
 		return super.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), symbol, definitions);
 	}
 	
