@@ -188,8 +188,7 @@ public class ReifiedType extends RascalType {
 	}
 	
 	@Override
-	protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar,
-	        Set<IConstructor> done) {
+    public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 	    arg.asProductions(vf, store, grammar, done);
 	}
 }
