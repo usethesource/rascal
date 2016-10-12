@@ -188,6 +188,14 @@ public class PrePostIValueIterator  {
                         }
                         return null;
                     }
+                    @Override
+                    public Void visitListRelation(IList o) throws RuntimeException {
+                        return visitList(o);
+                    }
+                    @Override
+                    public Void visitRelation(ISet o) throws RuntimeException {
+                        return visitSet(o);
+                    }
                 });
             }
         }
