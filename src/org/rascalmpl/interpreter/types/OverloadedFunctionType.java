@@ -72,6 +72,14 @@ public class OverloadedFunctionType extends RascalType {
 	  return RTF.overloadedFunctionType(newAlts);
 	}
 	
+	@Override
+	protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar,
+	        Set<IConstructor> done) {
+	    for (Type alt : alternatives) {
+	        alt.asProductions(vf, store, grammar, done);
+	    } 
+	}
+	
 	public Type getKeywordParameterTypes() {
 		// TODO: what does this union mean in case of overlapping names?
 		ArrayList<String> labels = new ArrayList<>();

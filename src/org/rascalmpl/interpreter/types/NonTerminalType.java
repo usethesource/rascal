@@ -86,6 +86,11 @@ public class NonTerminalType extends RascalType {
     }
     
     @Override
+    protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+        // TODO: collect production rules
+    }
+    
+    @Override
     public boolean isNonterminal() {
     	return true;
     }
