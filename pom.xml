@@ -140,6 +140,7 @@
 					</argLine>
 					<includes>
 						<include>**/org/rascalmpl/test/AllSuiteParallel.java</include>
+                        <include>**/org/rascalmpl/test/value/AllTests.java</include>
 					</includes>
 				</configuration>
 			</plugin>
