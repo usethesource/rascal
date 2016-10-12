@@ -24,7 +24,9 @@ public class Types {
 	}
 	
 	public IValue typeToValue(Type t, RascalExecutionContext rex) {
-		return tr.typeToValue(t, rex.getTypeStore());
+	    // TODO: check rex.getSymbolDefinitions(); don't know if this is correct
+	    System.err.println("TODO: check correctness of typeToValue here");
+		return tr.typeToValue(t, rex.getTypeStore(), rex.getSymbolDefinitions());
 	}
 	
 	public Type symbolToType(IConstructor symbol, TypeStore store) {

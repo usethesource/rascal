@@ -103,38 +103,39 @@ public class RascalYAML {
 	@SuppressWarnings("unchecked")
 	private IConstructor loadRec(Object obj, IdentityHashMap<Object, Integer> anchors, IdentityHashMap<Object, Boolean> visited, IEvaluatorContext ctx) {
 	    TypeStore store = ctx.getCurrentEnvt().getStore();
+	    IMap empty = values.mapWriter().done();
 	    
 		if (obj instanceof Integer) {
 			return values.constructor(Node_scalar, values.integer((Integer)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.integerType(), ctx.getCurrentEnvt().getStore()));
+					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.integerType(), ctx.getCurrentEnvt().getStore(), empty));
 		}
 		if (obj instanceof Long) {
 			return	values.constructor(Node_scalar, values.integer((Long)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.integerType(), ctx.getCurrentEnvt().getStore()));
+					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.integerType(), ctx.getCurrentEnvt().getStore(), empty));
 		}
 		if (obj instanceof Double) {
 			return values.constructor(Node_scalar, values.real((Double)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.realType(), ctx.getCurrentEnvt().getStore()));
+					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.realType(), ctx.getCurrentEnvt().getStore(), empty));
 		}
 		if (obj instanceof Float) {
 			return values.constructor(Node_scalar, values.real((Float)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.realType(), ctx.getCurrentEnvt().getStore()));
+					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.realType(), ctx.getCurrentEnvt().getStore(), empty));
 		}
 		if (obj instanceof String) {
 			return values.constructor(Node_scalar, values.string((String)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.stringType(), ctx.getCurrentEnvt().getStore()));
+					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.stringType(), ctx.getCurrentEnvt().getStore(), empty));
 		}
 		if (obj instanceof Boolean) {
 			return values.constructor(Node_scalar, values.bool((Boolean)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.boolType(), ctx.getCurrentEnvt().getStore()));
+					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.boolType(), ctx.getCurrentEnvt().getStore(), empty));
 		}
 		if (obj instanceof Date) {
 			return values.constructor(Node_scalar, values.datetime(((Date)obj).getTime()))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.dateTimeType(), ctx.getCurrentEnvt().getStore()));
+					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.dateTimeType(), ctx.getCurrentEnvt().getStore(), empty));
 		}
 		if (obj instanceof URI) {
 			return values.constructor(Node_scalar, values.sourceLocation((URI)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.sourceLocationType(), ctx.getCurrentEnvt().getStore()));
+					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.sourceLocationType(), ctx.getCurrentEnvt().getStore(), empty));
 		}
 
 		// Structural types may be shared.

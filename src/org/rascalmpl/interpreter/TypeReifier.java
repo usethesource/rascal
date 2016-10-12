@@ -44,10 +44,10 @@ public class TypeReifier {
         this.vf = valueFactory;
     }
 
-    public IConstructor typeToValue(Type t, TypeStore store) {
+    public IConstructor typeToValue(Type t, TypeStore store, IMap syntax) {
         // after this definitions contains a relation from adt to constructors
         ISetWriter definitions = vf.setWriter();
-        IConstructor symbol = reify(t, definitions, store);
+        IConstructor symbol = reify(t, definitions, store, syntax);
 
         // now we hash the relation on adt, resulting in a map from adt to set of constructors
         IMap index = new Prelude(vf).index(definitions.done()); // TODO: bring index functionality to rascal.value library 
@@ -139,7 +139,20 @@ public class TypeReifier {
         return Type.fromSymbol(symbol, new TypeStore(), x -> getAlternatives(definitions, x));
     }
 
-    private IConstructor reify(Type t, ISetWriter definitions, final TypeStore store) {
-        return t.asSymbol(vf, store, definitions, new HashSet<>());
+    private IConstructor reify(Type t, ISetWriter definitions, final TypeStore store, IMap syntax) {
+        return t.asSymbol(vf, new TypeStoreWithSyntax(store, syntax), definitions, new HashSet<>());
+    }
+    
+    public static class TypeStoreWithSyntax extends TypeStore {
+        private final IMap grammar;
+
+        public TypeStoreWithSyntax(TypeStore parent, IMap grammar) {
+            this.grammar = grammar;
+            extendStore(parent);
+        }
+        
+        public ISet getRules(IConstructor nt) {
+            return (ISet) ((IConstructor) grammar.get(nt)).get("alternatives");
+        }
     }
 }

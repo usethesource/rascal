@@ -16,12 +16,14 @@ package org.rascalmpl.interpreter.types;
 import java.util.Set;
 import java.util.function.Function;
 
+import org.rascalmpl.interpreter.TypeReifier.TypeStoreWithSyntax;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.Symbols;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
@@ -78,7 +80,9 @@ public class NonTerminalType extends RascalType {
 	
     @Override
     public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-      return vf.constructor(CONSTRUCTOR, getSymbol());
+      IConstructor result = vf.constructor(CONSTRUCTOR, getSymbol());
+      asProductions(vf, store, grammar, done);
+      return result;
     }
     
     public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
@@ -87,7 +91,12 @@ public class NonTerminalType extends RascalType {
     
     @Override
     public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-        // TODO: collect production rules
+        if (store instanceof TypeStoreWithSyntax) {
+            TypeStoreWithSyntax syntax = (TypeStoreWithSyntax) store;
+            for (IValue rule : syntax.getRules(symbol)) {
+                grammar.insert(vf.tuple(symbol, rule));
+            }
+        }
     }
     
     @Override
