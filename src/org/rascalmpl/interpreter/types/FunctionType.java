@@ -69,6 +69,15 @@ public class FunctionType extends RascalType {
       return vf.constructor(CONSTRUCTOR, getReturnType().asSymbol(vf, store, grammar, done), w.done());
 	}
 	
+	@Override
+	protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+	    getReturnType().asProductions(vf, store, grammar, done);
+	    
+	    for (Type arg : getArgumentTypes()) {
+	        arg.asProductions(vf, store, grammar, done);
+	    }
+	}
+	
 	public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
 	  Type returnType = Type.fromSymbol((IConstructor) symbol.get("ret"), store, grammar);
       Type parameters = Type.fromSymbols((IList) symbol.get("parameters"), store, grammar);

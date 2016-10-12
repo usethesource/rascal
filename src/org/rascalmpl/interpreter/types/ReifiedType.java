@@ -186,4 +186,10 @@ public class ReifiedType extends RascalType {
 	public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
 	  return RTF.reifiedType(Type.fromSymbol((IConstructor) symbol.get("symbol"), store, grammar));
 	}
+	
+	@Override
+	protected void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar,
+	        Set<IConstructor> done) {
+	    arg.asProductions(vf, store, grammar, done);
+	}
 }
