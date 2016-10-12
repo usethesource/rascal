@@ -151,7 +151,7 @@ public class Manager {
 	}
 
 	protected IConstructor reify(IEvaluatorContext ctx, Type type) {
-		return (IConstructor) typeReifier.typeToValue(type, ctx).getValue();
+		return typeReifier.typeToValue(type, ctx.getCurrentEnvt().getStore());
 	}
 	/**
 	 *  Cast an IValue to ITransaction 

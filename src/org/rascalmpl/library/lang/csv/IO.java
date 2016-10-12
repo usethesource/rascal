@@ -125,7 +125,7 @@ public class IO {
 
 	private IValue computeType(ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx) {
 		IValue csvResult = this.read(null, loc, header, separator, encoding, values.bool(true), ctx);
-		return ((IConstructor) new TypeReifier(values).typeToValue(csvResult.getType(), ctx).getValue());
+		return new TypeReifier(values).typeToValue(csvResult.getType(), ctx.getCurrentEnvt().getStore());
 	}
 	
 	private String[] readFirstRecord(FieldReader reader) throws IOException {

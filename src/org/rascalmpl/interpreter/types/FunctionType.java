@@ -18,15 +18,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
@@ -57,18 +60,18 @@ public class FunctionType extends RascalType {
 	}
 	
 	@Override
-	public IConstructor asSymbol(IValueFactory vf) {
+	public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
 	  IListWriter w = vf.listWriter();
       for (Type arg : getArgumentTypes()) {
-          w.append(arg.asSymbol(vf));
+          w.append(arg.asSymbol(vf, store, grammar, done));
       }
       
-      return vf.constructor(CONSTRUCTOR, getReturnType().asSymbol(vf), w.done());
+      return vf.constructor(CONSTRUCTOR, getReturnType().asSymbol(vf, store, grammar, done), w.done());
 	}
 	
-	public static Type fromSymbol(IConstructor symbol) {
-	  Type returnType = Type.fromSymbol((IConstructor) symbol.get("ret"));
-      Type parameters = Type.symbolsToTupleType((IList) symbol.get("parameters"));
+	public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
+	  Type returnType = Type.fromSymbol((IConstructor) symbol.get("ret"), store, grammar);
+      Type parameters = Type.fromSymbols((IList) symbol.get("parameters"), store, grammar);
   
       // TODO: while merging the other branch had tf.voidType()...    
       return RascalTypeFactory.getInstance().functionType(returnType, parameters, TF.tupleEmpty());
