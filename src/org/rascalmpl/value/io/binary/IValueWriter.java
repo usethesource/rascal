@@ -16,7 +16,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Set;
+import java.util.zip.GZIPOutputStream;
 
+import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
@@ -45,6 +47,7 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import com.github.luben.zstd.ZstdOutputStream;
+import com.github.luben.zstd.util.Native;
             
 /**
  * A binary serializer for IValues and Types.
@@ -75,14 +78,14 @@ public class IValueWriter implements Closeable {
         private final int typeWindow;
         private final int valueWindow;
         private final int stringsWindow;
-        private final int compressionMode;
+        private final int compressionLevel;
 
-        CompressionRate(int stringsWindow, int typeWindow, int valueWindow, int uriWindow, int compressionMode) {
+        CompressionRate(int stringsWindow, int typeWindow, int valueWindow, int uriWindow, int compressionLevel) {
             this.stringsWindow = stringsWindow;
             this.typeWindow = typeWindow;
             this.valueWindow = valueWindow;
             this.uriWindow = uriWindow;
-            this.compressionMode = compressionMode;
+            this.compressionLevel = compressionLevel;
         } 
     }
     
@@ -110,11 +113,49 @@ public class IValueWriter implements Closeable {
     private final ValueWireOutputStream writer;
     private final CompressionRate compression;
     
+    static boolean zstdAvailable() {
+        try {
+            if (Native.isLoaded()) {
+                return true;
+            }
+            Native.load();
+            return Native.isLoaded();
+        }
+        catch (Throwable t) {
+            return false;
+        }
+    }
+    
+    private static int getCompressionMethod(int level) {
+        if (level > 0) {
+            if (zstdAvailable()) {
+                return CompressionHeader.ZSTD;
+            }
+            return CompressionHeader.GZIP;
+        }
+        return CompressionHeader.NONE;
+    }
+
+    
     public IValueWriter(OutputStream out, CompressionRate compression) throws IOException {
         out.write(header);
-        out.write(compression.compressionMode == 0 ? CompressionHeader.NONE : CompressionHeader.ZSTD);
-        if (compression.compressionMode > 0) {
-            out = new ZstdOutputStream(out, compression.compressionMode);
+        int compressor = getCompressionMethod(compression.compressionLevel);
+        out.write(compressor);
+        switch (compressor) {
+            case CompressionHeader.GZIP: {
+                out = new GZIPOutputStream(out);
+                break;
+            }
+            case CompressionHeader.XZ: {
+                out = new XZCompressorOutputStream(out, compression.compressionLevel);
+                break;
+            }
+            case CompressionHeader.ZSTD: {
+                out = new ZstdOutputStream(out, compression.compressionLevel);
+                break;
+            }
+            default : break;
+            
         }
         writer = new ValueWireOutputStream(out, compression.stringsWindow * 1024);
         this.compression = compression;

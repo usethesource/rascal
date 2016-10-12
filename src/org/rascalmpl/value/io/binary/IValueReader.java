@@ -103,9 +103,15 @@ public class IValueReader implements AutoCloseable {
             case IValueWriter.CompressionHeader.XZ:
                 in = new XZInputStream(in);
                 break;
-            case IValueWriter.CompressionHeader.ZSTD:
-                in = new ZstdInputStream(in);
+            case IValueWriter.CompressionHeader.ZSTD: {
+                if (IValueWriter.zstdAvailable()) {
+                    in = new ZstdInputStream(in);
+                }
+                else {
+                    throw new IOException("There is not native zstd library available for the current architecture.");
+                }
                 break;
+            }
             default:
                 throw new IOException("Unsupported compression in file");
         }
