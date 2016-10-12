@@ -115,9 +115,6 @@ public class IValueWriter implements Closeable {
     
     static boolean zstdAvailable() {
         try {
-            if (Native.isLoaded()) {
-                return true;
-            }
             Native.load();
             return Native.isLoaded();
         }
