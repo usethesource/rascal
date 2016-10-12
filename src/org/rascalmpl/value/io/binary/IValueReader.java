@@ -13,6 +13,7 @@
 package org.rascalmpl.value.io.binary;
 
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
@@ -58,7 +59,7 @@ import io.usethesource.capsule.TrieMap_5Bits;
  * Reader for binary serialized IValues and Types.
  *
  */
-public class IValueReader implements AutoCloseable {
+public class IValueReader implements Closeable {
     private static final TypeFactory tf = TypeFactory.getInstance();
     private static final RascalTypeFactory rtf = RascalTypeFactory.getInstance();
     private final ValueWireInputStream reader;
@@ -127,7 +128,7 @@ public class IValueReader implements AutoCloseable {
     }
     
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
         if (legacy) {
             legacyReader.close();
         }
