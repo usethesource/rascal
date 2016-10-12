@@ -2307,8 +2307,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			eval.setCurrentAST(this);
 			eval.notifyAboutSuspension(this);			
 
+			final IMap gr = (IMap) eval.getEvaluator().getGrammar(eval.getCurrentEnvt()).get("rules");
 			Type t = getType().typeOf(eval.getCurrentEnvt(), false, eval);
-			IConstructor value = new TypeReifier(eval.__getVf()).typeToValue(t, eval.getCurrentEnvt().getStore());
+			IConstructor value = new TypeReifier(eval.__getVf()).typeToValue(t, eval.getCurrentEnvt().getStore(), gr);
 			
 			// the static type of a reified type is always equal to its dynamic type
 			return makeResult(value.getType(), value, eval);

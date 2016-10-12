@@ -109,7 +109,7 @@ public class HTMLGenerator {
 			throw new ImplementationError("First call startShell, then shell, then end with endShell");
 		}
 		
-		IValue valueType = tr.typeToValue(TypeFactory.getInstance().valueType(), ctx.getCurrentEnvt().getStore());
+		IValue valueType = tr.typeToValue(TypeFactory.getInstance().valueType(), ctx.getCurrentEnvt().getStore(), values.mapWriter().done());
 		StringBuilder content = new StringBuilder();
 		
 		try {
