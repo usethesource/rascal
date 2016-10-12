@@ -26,7 +26,9 @@ import org.rascalmpl.value.type.TypeStore;
  * A reader for PDB Binary Files (PBF).
  * 
  * @author Arnold Lankamp
+ * @deprecated use the new {@link org.rascalmpl.value.io.binary.IValueReader}
  */
+@Deprecated
 public class BinaryValueReader implements IValueBinaryReader{
 	
 	/**

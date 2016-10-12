@@ -25,7 +25,7 @@ import org.rascalmpl.value.type.TypeStore;
  * Writer for PDB Binary Files (PBF).
  * 
  * @author Arnold Lankamp
- * @deprecated binary writer currently does not support keyword parameters.
+ * @deprecated binary writer is replaced by the new {@link org.rascalmpl.value.io.binary.IValueWriter}}
  */
 public class BinaryValueWriter implements IValueBinaryWriter{
 	
