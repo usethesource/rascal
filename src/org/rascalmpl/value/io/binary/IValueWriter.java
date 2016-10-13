@@ -169,7 +169,7 @@ public class IValueWriter implements Closeable {
             default : break;
             
         }
-        this.sizes = compression == CompressionRate.None ? new WindowSizes(0, 0, 0, 0) : new WindowSizes(100_000, 20_000, 2_000, 5_000);
+        this.sizes = compression == CompressionRate.None ? new WindowSizes(0, 0, 0, 0) : new WindowSizes(100_000, 40_000, 5_000, 10_000);
         writer = new ValueWireOutputStream(out, sizes.stringsWindow);
         this.compression = compression;
     }
