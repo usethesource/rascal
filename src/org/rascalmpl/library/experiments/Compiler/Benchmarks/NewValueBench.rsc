@@ -2,11 +2,28 @@ module experiments::Compiler::Benchmarks::NewValueBench
 
 import ValueIO;
 import IO;
+import String;
 import ParseTree;
+import util::Math;
 import util::Reflective;
 import util::Benchmark;
 import lang::java::m3::Core;
 import lang::java::m3::AST;
+import analysis::statistics::Descriptive;
+
+
+tuple[void(str) reporter, void() finished] progressReporter(str prefix) {
+    lastSize = 0;
+    println();
+    return <void (str msg) {
+        // clear line
+        print("\r<("" | it + " " | _ <- [0..lastSize])>");
+        newMsg = prefix + msg;
+        lastSize = size(newMsg);
+        print("\r" + newMsg);
+    }, void () { println(); }>;
+}
+str formatTime(real time) = "<round(time / 1000000)>ms";
 
 void printTime(str name, int time) {
     println("<name>: <time / 1000000>ms");
@@ -59,6 +76,37 @@ void bench(str name, type[&T] result, value v, int warmup, int measure) {
 }
 
 
+void benchNew(str name, type[&T] result, value v, int warmup, int measure, list[ValueIOCompression] compressions) {
+    <report, done> = progressReporter("<name>-");
+    for (i <- [0..warmup], c <- compressions) {
+        report("warmup: <i>/<warmup>");
+        writeBinaryValueFile(targetLoc, v, compression = c);
+        readBinaryValueFile(result, targetLoc);
+    }
+    report("warmup: <warmup>/<warmup>");
+    lrel[ValueIOCompression comp, real write, real read, int size] meas = [];
+    for (c <- compressions) {
+        writes = [];
+        for (i <-[0..measure]) {
+            report("<c>-write: <i>/<measure>");
+            writes += cpuTime(() { writeBinaryValueFile(targetLoc, v, compression = c); });
+        }
+        reads = [];
+        for (i <-[0..measure]) {
+            report("<c>-read: <i>/<measure>");
+            reads += cpuTime(() { readBinaryValueFile(result, targetLoc); });
+        }
+        meas += <c, median(writes), median(reads), __getFileSize(targetLoc)>;
+    }
+    print("\r                                   ");
+    println("\r<name>:");
+    for (<c, w, r, s> <- meas) {
+        println("\t<left("<c>", 10)>\t write: <formatTime(w)>\t read: <formatTime(r)>\t size: <s> bytes");
+    }
+    println();
+}
+
+
 @memo
 set[Declaration] getRascalASTs(loc root) 
     = createAstsFromDirectory(root,  true, errorRecovery = true, javaVersion = "1.8");
@@ -75,6 +123,15 @@ void benchValueIO(loc rascalRoot = |home:///PhD/workspace-rascal-source/rascal/|
     bench("int list", #list[int], [i, i*2,i*3 | i <- [1..1000000]], warmup, measure);
     bench("str list", #list[str], ["aaa<i>asf<i *3>" | i <- [1..100000]], warmup, measure);
     bench("m3 asts", #set[Declaration], getRascalASTs(rascalRoot), warmup, measure);
+}
+
+
+void benchValueIO2(loc rascalRoot = |home:///PhD/workspace-rascal-source/rascal/|, int warmup = 10, int measure = 10) {
+    compr = [fast(), normal(), strong()];
+    benchNew("parse trees", #list[Tree], getTrees(), warmup, measure, compr);
+    benchNew("int list", #list[int], [i, i*2,i*3 | i <- [1..1000000]], warmup, measure, compr);
+    benchNew("str list", #list[str], ["aaa<i>asf<i *3>" | i <- [1..100000]], warmup, measure, compr);
+    benchNew("m3 asts", #set[Declaration], getRascalASTs(rascalRoot), warmup, measure,compr);
 }
 
 void writeInterestingFile(loc target, loc rascalRoot = |home:///PhD/workspace-rascal-source/rascal/|) {
