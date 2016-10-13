@@ -38,8 +38,8 @@ public java &T readBinaryValueFileOld(type[&T] result, loc file);
 public java int __getFileSize(loc file);
 
 loc targetLoc = |test-temp:///value-io.bench|;
-loc targetLocOld = |test-temp:///value-io2.bench|;
-//loc targetLocOld = |compressed+test-temp:///value-io.bench.gz|;
+//loc targetLocOld = |test-temp:///value-io2.bench|;
+loc targetLocOld = |compressed+test-temp:///value-io.bench.gz|;
 void bench(str name, type[&T] result, value v, int warmup, int measure) {
     for (i <- [0..warmup]) {
         writeBinaryValueFile(targetLoc, v);
