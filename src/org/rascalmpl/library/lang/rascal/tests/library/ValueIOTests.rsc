@@ -118,7 +118,7 @@ test bool tupleBinary(tuple[value,value,value] v) = binaryWriteRead(#tuple[value
 test bool numBinary(num v) = binaryWriteRead(#num, v);
 
 test bool disablingCompressionWorks(value v) {
-   writeBinaryValueFile(|test-temp:///compression-off.test|,v, compression=false);
+   writeBinaryValueFile(|test-temp:///compression-off.test|,v, compression=fastest());
    return readBinaryValueFile(|test-temp:///compression-off.test|) == v;
 }
 
@@ -132,7 +132,7 @@ data NestedValue
 test bool disablingCompressionWorksWithSharedValues(set[NestedValue] a, set[NestedValue] b, NestedValue c, value d) {
 	lab = [a,b];
 	joined = <a,b,inAList(lab), inASet({a,c}), inAList([lab, d])>;
-   writeBinaryValueFile(|test-temp:///compression-shared.test|, joined, compression=false);
+   writeBinaryValueFile(|test-temp:///compression-shared.test|, joined, compression=fastest());
    return readBinaryValueFile(|test-temp:///compression-shared.test|) == joined;
 }
 
@@ -143,6 +143,6 @@ test bool writingParseTreeWorks() {
 }
 test bool writingParseTreeWorksWithoutCompression() {
 	t = parseNamedModuleWithSpaces("lang::rascal::syntax::Rascal");
-	writeBinaryValueFile(|test-temp:///parsetree1|, t, compression=false);
+	writeBinaryValueFile(|test-temp:///parsetree1|, t, compression=fastest());
 	return readBinaryValueFile(|test-temp:///parsetree1|) == t;
 }
