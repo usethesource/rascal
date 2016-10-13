@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.types;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -93,11 +94,25 @@ public class NonTerminalType extends RascalType {
     public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
         if (store instanceof TypeStoreWithSyntax) {
             TypeStoreWithSyntax syntax = (TypeStoreWithSyntax) store;
-            for (IValue rule : syntax.getRules(symbol)) {
-                grammar.insert(vf.tuple(symbol, rule));
+            addRulesForSort(vf, symbol, syntax, grammar, new HashSet<>());
+        }
+    }
+    
+    private void addRulesForSort(IValueFactory vf, IConstructor sort, TypeStoreWithSyntax syntax, ISetWriter grammar, Set<IConstructor> done) {
+        if (done.contains(sort)) {
+            return;
+        }
+        
+        for (IValue rule : syntax.getRules(sort)) {
+            grammar.insert(vf.tuple(sort, rule));
+            
+            done.add(sort);
+            for (IValue arg : ProductionAdapter.getSymbols((IConstructor) rule)) {
+                addRulesForSort(vf, (IConstructor) arg, syntax, grammar, done);
             }
         }
     }
+    
     
     @Override
     public boolean isNonterminal() {
