@@ -77,12 +77,12 @@ public class IValueWriter implements Closeable {
         /**
          * Use only for debugging!
          */
+        NoSharing(CompressionHeader.NONE, 0),
         None(CompressionHeader.NONE, 0),
-        Fastest(CompressionHeader.NONE, 0),
-        Fast(CompressionHeader.ZSTD, 1),
+        Light(CompressionHeader.ZSTD, 1),
         Normal(CompressionHeader.ZSTD, 5),
         Strong(CompressionHeader.ZSTD, 13),
-        Archive(CompressionHeader.XZ, 6), 
+        Extreme(CompressionHeader.XZ, 6), 
         ;
 
         private final int compressionAlgorithm;
@@ -169,7 +169,7 @@ public class IValueWriter implements Closeable {
             default : break;
             
         }
-        this.sizes = compression == CompressionRate.None ? new WindowSizes(0, 0, 0, 0) : new WindowSizes(100_000, 40_000, 5_000, 10_000);
+        this.sizes = compression == CompressionRate.NoSharing ? new WindowSizes(0, 0, 0, 0) : new WindowSizes(100_000, 40_000, 5_000, 10_000);
         writer = new ValueWireOutputStream(out, sizes.stringsWindow);
         this.compression = compression;
     }

@@ -3472,11 +3472,11 @@ public class Prelude {
 
     private CompressionRate translateCompression(IConstructor compression) {
         switch (compression.getName()) {
-            case "fastest": return CompressionRate.Fastest;
-            case "fast": return CompressionRate.Fast;
+            case "none": return CompressionRate.None;
+            case "light": return CompressionRate.Light;
             case "normal": return CompressionRate.Normal;
             case "strong": return CompressionRate.Strong;
-            case "archive": return CompressionRate.Archive;
+            case "extreme": return CompressionRate.Extreme;
             default: return CompressionRate.Normal;
         }
     }
