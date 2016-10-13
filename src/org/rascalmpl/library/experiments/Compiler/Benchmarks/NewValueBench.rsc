@@ -79,7 +79,7 @@ void bench(str name, type[&T] result, value v, int warmup, int measure) {
 void benchNew(str name, type[&T] result, value v, int warmup, int measure, list[ValueIOCompression] compressions) {
     <report, done> = progressReporter("<name>-");
     for (i <- [0..warmup], c <- compressions) {
-        report("warmup: <i>/<warmup>");
+        report("warmup: <i + 1>/<warmup>");
         writeBinaryValueFile(targetLoc, v, compression = c);
         readBinaryValueFile(result, targetLoc);
     }
@@ -88,12 +88,12 @@ void benchNew(str name, type[&T] result, value v, int warmup, int measure, list[
     for (c <- compressions) {
         writes = [];
         for (i <-[0..measure]) {
-            report("<c>-write: <i>/<measure>");
+            report("<c>-write: <i + 1>/<measure>");
             writes += cpuTime(() { writeBinaryValueFile(targetLoc, v, compression = c); });
         }
         reads = [];
         for (i <-[0..measure]) {
-            report("<c>-read: <i>/<measure>");
+            report("<c>-read: <i + 1>/<measure>");
             reads += cpuTime(() { readBinaryValueFile(result, targetLoc); });
         }
         meas += <c, median(writes), median(reads), __getFileSize(targetLoc)>;
