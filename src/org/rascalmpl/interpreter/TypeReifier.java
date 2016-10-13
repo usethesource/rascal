@@ -50,7 +50,7 @@ public class TypeReifier {
         IConstructor symbol = reify(t, definitions, store, syntax);
 
         // now we hash the relation on adt, resulting in a map from adt to set of constructors
-        IMap index = new Prelude(vf).index(definitions.done()); // TODO: bring index functionality to rascal.value library 
+        IMap index = new Prelude(vf).index(definitions.done()); // TODO: bring index functionality to rascal-value library 
         IMapWriter grammar = vf.mapWriter(); 
         
         // and here we wrap the set of constructors in a choice operator
@@ -140,19 +140,23 @@ public class TypeReifier {
     }
 
     private IConstructor reify(Type t, ISetWriter definitions, final TypeStore store, IMap syntax) {
-        return t.asSymbol(vf, new TypeStoreWithSyntax(store, syntax), definitions, new HashSet<>());
+        return t.asSymbol(vf, new TypeStoreWithSyntax(vf, store, syntax), definitions, new HashSet<>());
     }
     
     public static class TypeStoreWithSyntax extends TypeStore {
         private final IMap grammar;
+        private final IValueFactory vf;
 
-        public TypeStoreWithSyntax(TypeStore parent, IMap grammar) {
+        public TypeStoreWithSyntax(IValueFactory vf, TypeStore parent, IMap grammar) {
             this.grammar = grammar;
+            this.vf = vf;
             extendStore(parent);
         }
         
         public ISet getRules(IConstructor nt) {
-            return (ISet) ((IConstructor) grammar.get(nt)).get("alternatives");
+            IConstructor choice = (IConstructor) grammar.get(nt);
+            
+            return choice != null ? (ISet) choice.get("alternatives") : vf.setWriter().done();
         }
     }
 }
