@@ -79,10 +79,10 @@ public class IValueWriter implements Closeable {
          */
         None(CompressionHeader.NONE, 0),
         Fastest(CompressionHeader.NONE, 0),
-        Fast(CompressionHeader.ZSTD, 2),
-        Normal(CompressionHeader.ZSTD, 7),
-        Strong(CompressionHeader.ZSTD, 9),
-        Archive(CompressionHeader.XZ, 8), 
+        Fast(CompressionHeader.ZSTD, 1),
+        Normal(CompressionHeader.ZSTD, 4),
+        Strong(CompressionHeader.ZSTD, 10),
+        Archive(CompressionHeader.XZ, 5), 
         ;
 
         private final int compressionAlgorithm;
