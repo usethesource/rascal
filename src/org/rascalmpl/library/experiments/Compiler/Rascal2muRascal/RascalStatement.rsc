@@ -861,8 +861,8 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, bool isMemo, int i
       ifname = nextLabel();
       enterBacktrackingScope(ifname);
       
-      patTest =  pat.literal is regExp ? muMulti(muApply(translatePat(pat, getType(pat@\loc)), [muVar("<i>",topFunctionScope(),i) ]))
-                                       : muCallMuPrim("equal", [ muVar("<i>",topFunctionScope(),i), translate(pat.literal) ]);
+      patTest =  pat.literal is regExp ? muMulti(muApply(translatePat(pat, getType(pat@\loc)), [muVar("arg<i>",topFunctionScope(),i) ]))
+                                       : muCallMuPrim("equal", [ muVar("arg<i>",topFunctionScope(),i), translate(pat.literal) ]);
       
       exp = muIfelse(ifname, patTest,
                    [ translateFormals(tail(formals), isVarArgs, isMemo, i + 1, kwps, body, when_conditions, src) ],
@@ -910,7 +910,7 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[
      enterBacktrackingScope(fname);
      // TODO: account for a variable number of arguments
      for(Pattern pat <- formals) {
-         conditions += muMulti(muApply(translatePat(pat, Symbol::\value()), [ muVar("<i>",topFunctionScope(),i) ]));
+         conditions += muMulti(muApply(translatePat(pat, Symbol::\value()), [ muVar("arg<i>",topFunctionScope(),i) ]));
          i += 1;
       };
       conditions += [ translate(cond) | cond <- when_conditions];

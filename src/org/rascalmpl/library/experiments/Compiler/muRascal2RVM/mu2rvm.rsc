@@ -417,7 +417,7 @@ RVMModule mu2rvm(muModule(str module_name,
     currentFunction = fun;
     functionScope = fun.qname;
     surroundingFunctionScope = fun.scopeIn;
-    localNames = ();
+    localNames = (fun is muCoroutine) ? () : (i : fun.argNames[i] | i <- index(fun.argNames));
     exceptionTable = [];
     catchBlocks = [[]];
     
