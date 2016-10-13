@@ -79,12 +79,13 @@ Parse a textual string representation of a value and validate it against the giv
 public java &T readTextValueString(type[&T] result, str input);
 	
 data ValueIOCompression
-    = fastest() // you do not care about size, only speed
-    | fast() // still reasonable compression but faster than normal
+    = none() // you do not care about size, only speed
+    | light() // still reasonable compression but faster than normal
     | normal() // a good balance between compression and speed
-    | strong() // good compression which might slow-down the writing, but the reading will remain fast
-    | archive() // excelent compression, quite a loss in write and read performance
+    | strong() // good compression slower writing, but the reading will remain fast
+    | extreme() // excelent compression, slow in writing and reading 
     ;
+
 @doc{
 .Synopsis
 Write a value to a file using an efficient binary file format.
