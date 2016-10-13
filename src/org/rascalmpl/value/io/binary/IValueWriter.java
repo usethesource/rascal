@@ -18,6 +18,8 @@ import java.io.OutputStream;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipParameters;
 import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
@@ -61,6 +63,13 @@ import com.github.luben.zstd.util.Native;
 public class IValueWriter implements Closeable {
     
 
+    /*package*/ static final class CompressionHeader {
+        public static final byte NONE = 0;
+        public static final byte GZIP = 1;
+        public static final byte XZ = 2;
+        public static final byte ZSTD = 3;
+    }
+
     /**
      * Compression of the serializer, balances lookback windows and compression algorithm
      */
@@ -68,37 +77,38 @@ public class IValueWriter implements Closeable {
         /**
          * Use only for debugging!
          */
-        None(10,0,0,0, 0),
-        Fastest(10, 10,10,10, 0),
-        Fast(10, 10,10,10, 2),
-        Normal(30, 30,100,50,7),
-        Strong(50, 50,250,100, 9), 
-        Archive(50, 50,250,100, 11), 
+        None(CompressionHeader.NONE, 0),
+        Fastest(CompressionHeader.NONE, 0),
+        Fast(CompressionHeader.ZSTD, 2),
+        Normal(CompressionHeader.ZSTD, 7),
+        Strong(CompressionHeader.ZSTD, 9),
+        Archive(CompressionHeader.XZ, 8), 
         ;
 
+        private final int compressionAlgorithm;
+        private final int compressionLevel;
+
+        CompressionRate(int compressionAlgorithm, int compressionLevel) {
+            this.compressionLevel = compressionLevel;
+            this.compressionAlgorithm = compressionAlgorithm;
+        } 
+    }
+    
+    public static class WindowSizes {
         private final int uriWindow;
         private final int typeWindow;
         private final int valueWindow;
         private final int stringsWindow;
-        private final int compressionLevel;
-
-        CompressionRate(int stringsWindow, int typeWindow, int valueWindow, int uriWindow, int compressionLevel) {
+        public WindowSizes(int valueWindow, int uriWindow, int typeWindow, int stringsWindow) {
             this.stringsWindow = stringsWindow;
             this.typeWindow = typeWindow;
-            this.valueWindow = valueWindow;
             this.uriWindow = uriWindow;
-            this.compressionLevel = compressionLevel;
-        } 
+            this.valueWindow = valueWindow;
+        }
     }
     
     /*package*/ static final byte[] header = { 'R', 'V', 1,0,0 };
     
-    /*package*/ static final class CompressionHeader {
-        public static final byte NONE = 0;
-        public static final byte GZIP = 1;
-        public static final byte XZ = 2;
-        public static final byte ZSTD = 3;
-    }
     
     private static <T> TrackLastWritten<T> getWindow(int size) {
         if (size == 0) {
@@ -114,6 +124,7 @@ public class IValueWriter implements Closeable {
 
     private final ValueWireOutputStream writer;
     private final CompressionRate compression;
+    private WindowSizes sizes;
     
     static boolean zstdAvailable() {
         try {
@@ -125,24 +136,26 @@ public class IValueWriter implements Closeable {
         }
     }
     
-    private static int getCompressionMethod(int level) {
-        if (level > 0) {
-            if (zstdAvailable()) {
-                return CompressionHeader.ZSTD;
-            }
+    private static int fallbackIfNeeded(int compressionAlgorithm) {
+        if (compressionAlgorithm == CompressionHeader.ZSTD && ! zstdAvailable()) {
             return CompressionHeader.GZIP;
         }
-        return CompressionHeader.NONE;
+        return compressionAlgorithm;
     }
 
     
+    public IValueWriter(OutputStream out) throws IOException {
+        this(out, CompressionRate.Normal);
+    }
     public IValueWriter(OutputStream out, CompressionRate compression) throws IOException {
         out.write(header);
-        int compressor = getCompressionMethod(compression.compressionLevel);
-        out.write(compressor);
-        switch (compressor) {
+        int algorithm = fallbackIfNeeded(compression.compressionAlgorithm);
+        out.write(algorithm);
+        switch (algorithm) {
             case CompressionHeader.GZIP: {
-                out = new GZIPOutputStream(out);
+                GzipParameters params = new GzipParameters();
+                params.setCompressionLevel(compression.compressionLevel);
+                out = new GzipCompressorOutputStream(out, params);
                 break;
             }
             case CompressionHeader.XZ: {
@@ -156,12 +169,13 @@ public class IValueWriter implements Closeable {
             default : break;
             
         }
-        writer = new ValueWireOutputStream(out, compression.stringsWindow * 1024);
+        this.sizes = compression == CompressionRate.None ? new WindowSizes(0, 0, 0, 0) : new WindowSizes(100_000, 20_000, 2_000, 5_000);
+        writer = new ValueWireOutputStream(out, sizes.stringsWindow);
         this.compression = compression;
     }
     
     public void write(IValue value) throws IOException {
-        write(writer, compression.typeWindow * 1024, compression.valueWindow * 1024, compression.uriWindow * 1024, value);
+        write(writer, sizes.typeWindow, sizes.valueWindow, sizes.uriWindow, value);
         writeEnd(writer);
     }
 
