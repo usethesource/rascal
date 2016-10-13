@@ -3460,15 +3460,26 @@ public class Prelude {
 		}
 	}
 	
-    public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression){
+    public void writeBinaryValueFile(ISourceLocation loc, IValue value, IConstructor compression){
     	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
-		try (IValueWriter writer = new IValueWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), CompressionRate.Normal)) {
+		try (IValueWriter writer = new IValueWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), translateCompression(compression))) {
 		    writer.write(value);
 		}
 		catch (IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 		}
 	}
+
+    private CompressionRate translateCompression(IConstructor compression) {
+        switch (compression.getName()) {
+            case "fastest": return CompressionRate.Fastest;
+            case "fast": return CompressionRate.Fast;
+            case "normal": return CompressionRate.Normal;
+            case "strong": return CompressionRate.Strong;
+            case "archive": return CompressionRate.Archive;
+            default: return CompressionRate.Normal;
+        }
+    }
 
     public void writeBinaryValueFileOld(ISourceLocation loc, IValue value, IBool compression){
     	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
