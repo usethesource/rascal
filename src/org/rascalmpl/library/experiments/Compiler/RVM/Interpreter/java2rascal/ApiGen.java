@@ -49,7 +49,7 @@ public class ApiGen {
   }
   
   public static String escapeJavaKeyword(String name){
-    return isJavaKeyword(name) ? name + "$" : name;
+    return isJavaKeyword(name) ? name + "$" : name.replaceAll("-",  "_");
   }
 
   public static String generate(RVMExecutable rvmExec, String moduleName, String javaPackage) throws Exception{
@@ -85,14 +85,7 @@ public class ApiGen {
          && (funName.contains(moduleName) || funName.endsWith("companion"))){
         
         FunctionType ftype = (FunctionType) fun.ftype;
-        
-        StringWriter sw2 = new StringWriter();
-        sw2.append("\t");
-        sw2.append(toJavaType(ftype.getReturnType()));
-        sw2.append(" ");
-        sw2.append(escapeJavaKeyword(fun.getPrintableName()));
-        sw2.append("(");
-        
+        Type returnType;
         Type argTypes;
         boolean isConstructor = false;
         
@@ -102,14 +95,27 @@ public class ApiGen {
           String consName = funName.substring(0, k);
           int cn = rvmExec.getConstructorMap().get(consName);
           Type consType =  rvmExec.getConstructorStore().get(cn);
+          returnType = consType.getAbstractDataType();
           argTypes = consType.getFieldTypes();
         } else {
+          returnType = ftype.getReturnType();
           argTypes = ftype.getArgumentTypes();
         }
         
         int arity = argTypes.getArity();
         
+        StringWriter sw2 = new StringWriter();
+        sw2.append("\t");
+        sw2.append(toJavaType(returnType));
+        sw2.append(" ");
+        if(isConstructor){
+          sw2.append(removeTypeParams(returnType)).append("_");
+        }
+        sw2.append(escapeJavaKeyword(fun.getPrintableName()));
+        sw2.append("(");
+        
         IMap localNames = fun.localNames;
+        System.err.println("localNames: " + localNames);
         IValueFactory vf = ValueFactoryFactory.getValueFactory();
  
         for(int i = 0; i < arity; i++){
@@ -122,7 +128,7 @@ public class ApiGen {
           if(isConstructor){
             sw2.append(escapeJavaKeyword(argTypes.getFieldName(i)));
           } else {
-            IValue argName = localNames.get(vf.integer(i + arity + 2));
+            IValue argName = localNames.get(vf.integer(i));
             sw2.append(argName == null ? "arg" + i : escapeJavaKeyword(((IString)argName).getValue()));
           }
         }
@@ -157,7 +163,7 @@ public class ApiGen {
       sw3.append("\t");
       sw3.append(escapeJavaKeyword(toJavaType(consType.getAbstractDataType())));
       sw3.append(" ");
-      sw3.append(escapeJavaKeyword(consType.getName()));
+      sw3.append(removeTypeParams(consType.getAbstractDataType())).append("_").append(escapeJavaKeyword(consType.getName()));
       sw3.append("(");
       
       for(int i = 0; i < arity; i++){
@@ -182,6 +188,15 @@ public class ApiGen {
     sw.append("}\n");
     
     return sw.toString();
+  }
+  
+  static String removeTypeParams(Type t){
+    String rt = t.toString();
+    int j = rt.indexOf("[");
+    if(j >= 0){
+      rt = rt.substring(0, j);
+    }
+    return rt;
   }
   
   static String KWClass(String funName, Type kwType) throws Exception{
@@ -270,7 +285,7 @@ public class ApiGen {
       @Override
       public String visitAbstractData(Type type)
               throws RuntimeException {
-          return "/*" + type.getName() + "*/ IConstructor";
+          return "IConstructor";
       }
 
       @Override

@@ -22,14 +22,14 @@ public class SampleFuns {
       System.out.println(sf.fun1(lst2));
       System.out.println(sf.fun1(5, sf.kw_fun1().delta(3)));
       
-      System.out.println(sf.d1(3, sf.kw_d1()));
+      System.out.println(sf.D_d1(3, sf.kw_d1()));
       
-      System.out.println(sf.d3(3, sf.kw_d3().opt("def").x(23)));
+      System.out.println(sf.D_d3(3, sf.kw_d3().opt("def").x(23)));
       
-      System.out.println(sf.d4("pqr", sf.kw_d1()));
+      System.out.println(sf.D_d4("pqr", sf.kw_d1()));
       
-      System.out.println(sf.d1(3, sf.kw_d1().x(20)));
+      System.out.println(sf.D_d1(3, sf.kw_d1().x(20)));
       }
     
-     
+      
 }
