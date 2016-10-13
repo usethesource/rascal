@@ -126,8 +126,7 @@ void benchValueIO(loc rascalRoot = |home:///PhD/workspace-rascal-source/rascal/|
 }
 
 
-void benchValueIO2(loc rascalRoot = |home:///PhD/workspace-rascal-source/rascal/|, int warmup = 10, int measure = 10) {
-    compr = [fast(), normal(), strong()];
+void benchValueIO2(loc rascalRoot = |home:///PhD/workspace-rascal-source/rascal/|, int warmup = 10, int measure = 10, list[ValueIOCompression] compr = [fast(), normal(), strong()]) {
     benchNew("parse trees", #list[Tree], getTrees(), warmup, measure, compr);
     benchNew("int list", #list[int], [i, i*2,i*3 | i <- [1..1000000]], warmup, measure, compr);
     benchNew("str list", #list[str], ["aaa<i>asf<i *3>" | i <- [1..100000]], warmup, measure, compr);
