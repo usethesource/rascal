@@ -183,6 +183,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
          
        str fuid = getCompanionForUID(uid);
        Symbol ftype = Symbol::func(getConstructorResultType(\type), [ t | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ]);
+       list[str] argNames = [ l | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ];
        tuple[str fuid,int pos] addr = uid2addr[uid];
        int nformals = size(\type.parameters) + 1;
        int defaults_pos = nformals;
@@ -192,12 +193,12 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
        
        kwTypes = Symbol::\tuple([ Symbol::label(getSimpleName(rname),allKWFieldsAndTypes[rname]) | rname <- allKWFieldsAndTypes ]);
        //println("kwTypes: <kwTypes>");
-       MuExp body = muReturn1(muCall(muConstr(uid2str[uid]), [ muVar("<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
+       MuExp body = muReturn1(muCall(muConstr(uid2str[uid]), [ muVar("arg<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
                                                                + [ muVar("kwparams", fuid, size(\type.parameters)),
                                                                    muTypeCon(kwTypes) 
                                                                ]));                          
        leaveFunctionScope();
-       addFunctionToModule(muFunction(fuid, name.name, ftype, kwTypes, (addr.fuid in moduleNames) ? "" : addr.fuid,nformals, nformals + 1, false, true, |std:///|, [], (), false, 0, 0, body));                                             
+       addFunctionToModule(muFunction(fuid, name.name, ftype, argNames, kwTypes, (addr.fuid in moduleNames) ? "" : addr.fuid,nformals, nformals + 1, false, true, |std:///|, [], (), false, 0, 0, body));                                             
      
        /*
         * Create companion for computing the values of defaults
@@ -232,7 +233,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
        //iprintln(bodyDefaults);
        
        leaveFunctionScope();
-       addFunctionToModule(muFunction(fuidDefaults, name.name, ftype, Symbol::\tuple([]), (addrDefaults.fuid in moduleNames) ? "" : addrDefaults.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefaults));                                             
+       addFunctionToModule(muFunction(fuidDefaults, name.name, ftype, argNames, Symbol::\tuple([]), (addrDefaults.fuid in moduleNames) ? "" : addrDefaults.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefaults));                                             
        
        /*
         * Create companions for each common keyword field
@@ -289,7 +290,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
               // iprintln(bodyDefault);
          
                leaveFunctionScope();
-               addFunctionToModule(muFunction(fuidDefault, prettyPrintName(mainKwf), ftype, Symbol::\tuple([]), (addrDefault.fuid in moduleNames) ? "" : addrDefault.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefault));                                             
+               addFunctionToModule(muFunction(fuidDefault, prettyPrintName(mainKwf), ftype, argNames, Symbol::\tuple([]), (addrDefault.fuid in moduleNames) ? "" : addrDefault.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefault));                                             
              }
        }
    }
@@ -332,6 +333,6 @@ private void generate_tests(str module_name, loc src){
       ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
       name_testsuite = "<module_name>_testsuite";
       main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
-      addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, Symbol::\tuple([]), "" /*in the root*/, 2, 2, false, true, src, [], (), false, 0, 0, code));
+      addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, [], Symbol::\tuple([]), "" /*in the root*/, 2, 2, false, true, src, [], (), false, 0, 0, code));
    }
 }
