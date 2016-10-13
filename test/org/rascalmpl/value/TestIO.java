@@ -29,7 +29,7 @@ import org.rascalmpl.value.io.StandardTextReader;
 import org.rascalmpl.value.io.StandardTextWriter;
 import org.rascalmpl.value.io.XMLReader;
 import org.rascalmpl.value.io.XMLWriter;
-import org.rascalmpl.value.io.old.SerializableValue;
+import org.rascalmpl.value.io.binary.SerializableValue;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;

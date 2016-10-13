@@ -1,4 +1,4 @@
-package org.rascalmpl.value.io.old;
+package org.rascalmpl.value.io.binary;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -12,8 +12,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.binary.IValueReader;
-import org.rascalmpl.value.io.binary.IValueWriter;
 import org.rascalmpl.value.io.binary.IValueWriter.CompressionRate;
 import org.rascalmpl.value.type.TypeStore;
 
@@ -49,7 +47,6 @@ public class SerializableValue<T extends IValue> implements Serializable {
 		} 
 	}
 
-	@SuppressWarnings("deprecation")
 	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
 		String factoryName = vf.getClass().getName();
 		out.write("factory".getBytes());
