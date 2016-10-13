@@ -252,16 +252,22 @@ public abstract class RVMCore {
 	}
 	
 	public Function getFunction(String name, Type returnType, Type argumentTypes){
-		for(Function f : functionStore){
-			if(f.name.contains("/" + name + "(") && f.ftype instanceof FunctionType){
-				FunctionType ft = (FunctionType) f.ftype;
-				if(returnType.equals(ft.getReturnType()) &&
-				   argumentTypes.equals(ft.getArgumentTypes())){
-					return f;
-				}
-			}
-		}
-		return null;
+	  next:
+	    for(Function f : functionStore){
+	      if(f.name.contains("/" + name + "(") && f.ftype instanceof FunctionType){
+	        FunctionType ft = (FunctionType) f.ftype;
+	        int arity = argumentTypes.getArity();
+	        if(returnType.equals(ft.getReturnType()) && arity == ft.getArgumentTypes().getArity()){
+	          for(int i = 0; i < arity; i++){ // ignore field names
+	            if(!argumentTypes.getFieldType(i).equals(ft.getArgumentTypes().getFieldType(i))){
+	              continue next;
+	            }
+	          }
+	          return f;
+	        }
+	      }
+	    }
+	return null;
 	}
 	
 	private ArrayList<Integer> getFunctionByNameAndArity(String name, int arity){
