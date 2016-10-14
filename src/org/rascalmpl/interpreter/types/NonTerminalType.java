@@ -150,8 +150,10 @@ public class NonTerminalType extends RascalType {
                 grammar.insert(vf.tuple(sort, rule));
                 
                 done.add(sort);
-                for (IValue arg : ProductionAdapter.getSymbols((IConstructor) rule)) {
-                    addRulesForSort(vf, (IConstructor) arg, syntax, grammar, done);
+                if (ProductionAdapter.isDefault((IConstructor) rule)) {
+                    for (IValue arg : ProductionAdapter.getSymbols((IConstructor) rule)) {
+                        addRulesForSort(vf, (IConstructor) arg, syntax, grammar, done);
+                    }
                 }
             }
         }
