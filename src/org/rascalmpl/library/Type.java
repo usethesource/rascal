@@ -45,7 +45,7 @@ public class Type {
 		        v.getType(), 
 		        ctx.getCurrentEnvt().getStore(),
 		        (IMap) ctx.getEvaluator().getGrammar(ctx.getCurrentEnvt()).get("rules")
-		        );
+		        ).get("symbol");
 	}
 	
 	public IBool eq(IValue x, IValue y) {
