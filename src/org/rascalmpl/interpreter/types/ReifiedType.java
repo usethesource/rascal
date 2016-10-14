@@ -22,6 +22,7 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 import org.rascalmpl.value.type.TypeStore;
 
 /**
@@ -32,15 +33,44 @@ import org.rascalmpl.value.type.TypeStore;
  */
 public class ReifiedType extends RascalType {
 	private final Type arg;
-	static final Type CONSTRUCTOR = declareTypeSymbol("reified", symbolType(), "symbol");
 
 	public ReifiedType(Type arg) {
 		this.arg = arg;
 	}
 	
+	public static class Reifier implements TypeReifier {
+
+        @Override
+        public Type getSymbolConstructorType() {
+            return symbols().typeSymbolConstructor("reified", symbols().symbolADT(), "symbol");
+        }
+
+        @Override
+        public Type fromSymbol(IConstructor symbol, TypeStore store,
+                Function<IConstructor, Set<IConstructor>> grammar) {
+            return RTF.reifiedType(symbols().fromSymbol((IConstructor) symbol.get("symbol"), store, grammar));
+        }
+	    
+        @Override
+        public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+            return vf.constructor(getSymbolConstructorType(), type.getTypeParameters().getFieldType(0).asSymbol(vf, store, grammar, done));
+        }
+        
+        @Override
+        public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+                Set<IConstructor> done) {
+            ((ReifiedType) type).arg.asProductions(vf, store, grammar, done);
+        }
+	}
+	
+	@Override
+	public TypeReifier getTypeReifier() {
+	    return new Reifier();
+	}
+	
 	@Override
 	public Type asAbstractDataType() {
-		return symbolType();
+		return getTypeReifier().symbols().symbolADT();
 	}
 	
 	@Override
@@ -178,17 +208,5 @@ public class ReifiedType extends RascalType {
 		throw new UndeclaredAnnotationException(this, label);
 	}
 
-	@Override
-	public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-	  return vf.constructor(CONSTRUCTOR, getTypeParameters().getFieldType(0).asSymbol(vf, store, grammar, done));
-	}
 	
-	public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-	  return RTF.reifiedType(Type.fromSymbol((IConstructor) symbol.get("symbol"), store, grammar));
-	}
-	
-	@Override
-    public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-	    arg.asProductions(vf, store, grammar, done);
-	}
 }

@@ -26,6 +26,7 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
@@ -35,14 +36,52 @@ public class OverloadedFunctionType extends RascalType {
 	private static final TypeFactory TF = TypeFactory.getInstance();
     private static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 
-	static final Type CONSTRUCTOR = declareTypeSymbol("overloaded", TF.setType(symbolType()), "alternatives");
-	
-	
 	/*package*/ OverloadedFunctionType(Set<FunctionType> alternatives) {
 		this.alternatives = alternatives;
 		this.returnType = alternatives.iterator().next().getReturnType();
 	}
 	
+	public static class Reifier implements TypeReifier {
+
+        @Override
+        public Type getSymbolConstructorType() {
+           return symbols().typeSymbolConstructor("overloaded", TF.setType(symbols().symbolADT()), "alternatives");
+        }
+
+        @Override
+        public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
+            Set<FunctionType> newAlts = new HashSet<>();
+            
+            for (IValue alt : ((ISet) symbol.get("alternatives"))) {
+              newAlts.add((FunctionType) symbols().fromSymbol((IConstructor) alt, store, grammar)); 
+            }
+            
+            return RTF.overloadedFunctionType(newAlts);
+        }
+
+        @Override
+        public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+                Set<IConstructor> done) {
+            for (Type alt : ((OverloadedFunctionType) type).getAlternatives()) {
+                alt.asProductions(vf, store, grammar, done);
+            } 
+        }
+        
+        @Override
+        public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store,  ISetWriter grammar, Set<IConstructor> done) {
+            ISetWriter w = vf.setWriter();
+            for (Type alt : ((OverloadedFunctionType) type).getAlternatives()) {
+              w.insert(alt.asSymbol(vf, store, grammar, done));
+            }
+            return vf.constructor(getSymbolConstructorType(), w.done());
+        }
+    }
+    
+    @Override
+    public TypeReifier getTypeReifier() {
+        return new Reifier();
+    }
+    
 	@Override
 	public boolean isOverloadedFunction() {
 		return true;
@@ -51,32 +90,6 @@ public class OverloadedFunctionType extends RascalType {
 	@Override
 	public Type asAbstractDataType() {
 		return RascalValueFactory.Production;
-	}
-	
-	@Override
-    public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-      ISetWriter w = vf.setWriter();
-      for (Type alt : alternatives) {
-        w.insert(alt.asSymbol(vf, store, grammar, done));
-      }
-      return vf.constructor(CONSTRUCTOR, w.done());
-    }
-	
-	public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-	  Set<FunctionType> newAlts = new HashSet<>();
-	  
-	  for (IValue alt : ((ISet) symbol.get("alternatives"))) {
-	    newAlts.add((FunctionType) Type.fromSymbol((IConstructor) alt, store, grammar)); 
-	  }
-	  
-	  return RTF.overloadedFunctionType(newAlts);
-	}
-	
-	@Override
-    public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-	    for (Type alt : alternatives) {
-	        alt.asProductions(vf, store, grammar, done);
-	    } 
 	}
 	
 	public Type getKeywordParameterTypes() {

@@ -28,10 +28,6 @@ public abstract class RascalType extends ExternalType {
     return ((RascalType) type).isSupertypeOf(this);
   }
 
-  /*package*/ static void registerRascalType(Type cons, Class<? extends Type> cls) {
-    registerType(cons, cls);
-  }
-  
   protected abstract boolean isSupertypeOf(RascalType type);
   
   public boolean isSubtypeOfNonTerminal(RascalType type) {

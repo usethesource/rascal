@@ -29,6 +29,7 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
@@ -41,12 +42,54 @@ public class FunctionType extends RascalType {
 	private final Type keywordParameters;
 	
 	private static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
-	static final Type CONSTRUCTOR = declareTypeSymbol("func", symbolType(), "ret", TF.listType(symbolType()), "parameters");
 	
 	/*package*/ FunctionType(Type returnType, Type argumentTypes, Type keywordParameters) {
 		this.argumentTypes = argumentTypes.isTuple() ? argumentTypes : TF.tupleType(argumentTypes);
 		this.returnType = returnType;
 		this.keywordParameters = keywordParameters == null ? null : keywordParameters.isBottom() || (keywordParameters.isTuple() && keywordParameters.getArity() == 0) ? null : keywordParameters;
+	}
+	
+	public static class Reifier implements TypeReifier {
+
+        @Override
+        public Type getSymbolConstructorType() {
+           return symbols().typeSymbolConstructor("func", symbols().symbolADT(), "ret", TF.listType(symbols().symbolADT()), "parameters");
+        }
+
+        @Override
+        public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
+            Type returnType = symbols().fromSymbol((IConstructor) symbol.get("ret"), store, grammar);
+            Type parameters = symbols().fromSymbols((IList) symbol.get("parameters"), store, grammar);
+        
+            // TODO: while merging the other branch had tf.voidType()...    
+            return RTF.functionType(returnType, parameters, TF.tupleEmpty());
+        }
+
+        @Override
+        public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+                Set<IConstructor> done) {
+            ((FunctionType) type).getReturnType().asProductions(vf, store, grammar, done);
+
+            for (Type arg : ((FunctionType) type).getArgumentTypes()) {
+                arg.asProductions(vf, store, grammar, done);
+            }
+        }
+        
+        @Override
+        public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store,  ISetWriter grammar, Set<IConstructor> done) {
+            IListWriter w = vf.listWriter();
+            
+            for (Type arg : ((FunctionType) type).getArgumentTypes()) {
+                w.append(arg.asSymbol(vf, store, grammar, done));
+            }
+            
+            return vf.constructor(getSymbolConstructorType(), ((FunctionType) type).getReturnType().asSymbol(vf, store, grammar, done), w.done());
+        }
+	}
+	
+	@Override
+	public TypeReifier getTypeReifier() {
+	    return new Reifier();
 	}
 	
 	@Override
@@ -59,33 +102,7 @@ public class FunctionType extends RascalType {
 		return RascalValueFactory.Production;
 	}
 	
-	@Override
-	public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-	  IListWriter w = vf.listWriter();
-      for (Type arg : getArgumentTypes()) {
-          w.append(arg.asSymbol(vf, store, grammar, done));
-      }
-      
-      return vf.constructor(CONSTRUCTOR, getReturnType().asSymbol(vf, store, grammar, done), w.done());
-	}
 	
-	@Override
-    public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-	    getReturnType().asProductions(vf, store, grammar, done);
-	    
-	    for (Type arg : getArgumentTypes()) {
-	        arg.asProductions(vf, store, grammar, done);
-	    }
-	}
-	
-	public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-	  Type returnType = Type.fromSymbol((IConstructor) symbol.get("ret"), store, grammar);
-      Type parameters = Type.fromSymbols((IList) symbol.get("parameters"), store, grammar);
-  
-      // TODO: while merging the other branch had tf.voidType()...    
-      return RascalTypeFactory.getInstance().functionType(returnType, parameters, TF.tupleEmpty());
-	}
-	  
 	
 	@Override
 	public Type getFieldType(int i) {

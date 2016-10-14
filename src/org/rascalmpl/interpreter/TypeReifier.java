@@ -26,6 +26,7 @@ import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -83,7 +84,7 @@ public class TypeReifier {
              */
             IMap definitions = (IMap) typeValue.get("definitions");
 
-            return Type.fromSymbol((IConstructor) typeValue.get("symbol"), store, x -> getAlternatives(definitions, x));
+            return TypeFactory.getInstance().fromSymbol((IConstructor) typeValue.get("symbol"), store, x -> getAlternatives(definitions, x));
         }
 
         throw new IllegalArgumentException(typeValue + " is not a reified type");
@@ -101,7 +102,7 @@ public class TypeReifier {
         }
         
         IConstructor adt = (IConstructor) prod.get("def");
-        return Type.fromSymbol(adt, new TypeStore(), x -> x == adt ? Collections.singleton(prod) : Collections.emptySet()); 
+        return TypeFactory.getInstance().fromSymbol(adt, new TypeStore(), x -> x == adt ? Collections.singleton(prod) : Collections.emptySet()); 
     }
 
     /**
@@ -136,7 +137,7 @@ public class TypeReifier {
      * @param definitions the definition
      */
     public Type symbolToType(IConstructor symbol, IMap definitions) {
-        return Type.fromSymbol(symbol, new TypeStore(), x -> getAlternatives(definitions, x));
+        return TypeFactory.getInstance().fromSymbol(symbol, new TypeStore(), x -> getAlternatives(definitions, x));
     }
 
     private IConstructor reify(Type t, ISetWriter definitions, final TypeStore store, IMap syntax) {
