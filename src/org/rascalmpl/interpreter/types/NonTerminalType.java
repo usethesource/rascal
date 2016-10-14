@@ -13,9 +13,11 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.types;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.interpreter.TypeReifier.TypeStoreWithSyntax;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
@@ -27,6 +29,7 @@ import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
@@ -41,7 +44,6 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  */
 public class NonTerminalType extends RascalType {
 	private IConstructor symbol;
-	static final Type CONSTRUCTOR = declareTypeSymbol("non-terminal", symbolType(), "symbol");
 
 	/*package*/ public NonTerminalType(IConstructor cons) {
 		// TODO refactor this into different factory methods in RascalTypeFactory
@@ -79,40 +81,86 @@ public class NonTerminalType extends RascalType {
 		this(Symbols.typeToSymbol(type, lex, layout));
 	}
 	
-    @Override
-    public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-      IConstructor result = vf.constructor(CONSTRUCTOR, getSymbol());
-      asProductions(vf, store, grammar, done);
-      return result;
-    }
-    
-    public static Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor,Set<IConstructor>> grammar) {
-      return RTF.nonTerminalType((IConstructor) symbol.get("symbol"));
-    }
-    
-    @Override
-    public void asProductions(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
-        if (store instanceof TypeStoreWithSyntax) {
-            TypeStoreWithSyntax syntax = (TypeStoreWithSyntax) store;
-            addRulesForSort(vf, symbol, syntax, grammar, new HashSet<>());
-        }
-    }
-    
-    private void addRulesForSort(IValueFactory vf, IConstructor sort, TypeStoreWithSyntax syntax, ISetWriter grammar, Set<IConstructor> done) {
-        if (done.contains(sort)) {
-            return;
+    public static class Reifier implements TypeReifier {
+
+        @Override
+        public Set<Type> getSymbolConstructorTypes() {
+            return Arrays.stream(new Type[] {
+                   RascalValueFactory.Symbol_Label,
+                   RascalValueFactory.Symbol_Start_Sort,
+                   RascalValueFactory.Symbol_Lit,
+                   RascalValueFactory.Symbol_CiLit,
+                   RascalValueFactory.Symbol_Empty,
+                   RascalValueFactory.Symbol_Seq,
+                   RascalValueFactory.Symbol_Opt,
+                   RascalValueFactory.Symbol_Alt,
+                   RascalValueFactory.Symbol_Sort,
+                   RascalValueFactory.Symbol_Lex,
+                   RascalValueFactory.Symbol_Keyword,
+                   RascalValueFactory.Symbol_Meta,
+                   RascalValueFactory.Symbol_Conditional,
+                   RascalValueFactory.Symbol_IterSepX,
+                   RascalValueFactory.Symbol_IterStarSepX,
+                   RascalValueFactory.Symbol_IterPlus,
+                   RascalValueFactory.Symbol_IterStar,
+                   RascalValueFactory.Symbol_ParameterizedSort,
+                   RascalValueFactory.Symbol_ParameterizedLex,
+                   RascalValueFactory.Symbol_Parameter,
+                   RascalValueFactory.Symbol_LayoutX,
+                   RascalValueFactory.Symbol_CharClass,
+            }).collect(Collectors.toSet());
         }
         
-        for (IValue rule : syntax.getRules(sort)) {
-            grammar.insert(vf.tuple(sort, rule));
+        @Override
+        public Type getSymbolConstructorType() {
+            // this reifier is for multiple constructor types
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
+            if (symbols().isLabel(symbol)) {
+                symbol = symbols().getLabeledSymbol(symbol);
+            }
             
-            done.add(sort);
-            for (IValue arg : ProductionAdapter.getSymbols((IConstructor) rule)) {
-                addRulesForSort(vf, (IConstructor) arg, syntax, grammar, done);
+            return RTF.nonTerminalType((IConstructor) symbol);
+        }
+
+        @Override
+        public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+                Set<IConstructor> done) {
+            if (store instanceof TypeStoreWithSyntax) {
+                TypeStoreWithSyntax syntax = (TypeStoreWithSyntax) store;
+                addRulesForSort(vf, ((NonTerminalType) type).symbol, syntax, grammar, new HashSet<>());
+            }
+        }
+        
+        @Override
+        public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store,  ISetWriter grammar, Set<IConstructor> done) {
+            asProductions(type, vf, store, grammar, done);
+            return ((NonTerminalType) type).symbol;
+        }
+        
+        private void addRulesForSort(IValueFactory vf, IConstructor sort, TypeStoreWithSyntax syntax, ISetWriter grammar, Set<IConstructor> done) {
+            if (done.contains(sort)) {
+                return;
+            }
+            
+            for (IValue rule : syntax.getRules(sort)) {
+                grammar.insert(vf.tuple(sort, rule));
+                
+                done.add(sort);
+                for (IValue arg : ProductionAdapter.getSymbols((IConstructor) rule)) {
+                    addRulesForSort(vf, (IConstructor) arg, syntax, grammar, done);
+                }
             }
         }
     }
     
+    @Override
+    public TypeReifier getTypeReifier() {
+        return new Reifier();
+    }
     
     @Override
     public boolean isNonterminal() {

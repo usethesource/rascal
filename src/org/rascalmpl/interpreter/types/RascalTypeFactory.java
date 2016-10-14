@@ -19,13 +19,6 @@ import org.rascalmpl.value.type.TypeFactory;
 
 public class RascalTypeFactory {
 	private TypeFactory tf = TypeFactory.getInstance();
-
-	static {
-	  RascalType.registerRascalType(FunctionType.CONSTRUCTOR, FunctionType.class);
-	  RascalType.registerRascalType(OverloadedFunctionType.CONSTRUCTOR, OverloadedFunctionType.class);
-	  RascalType.registerRascalType(NonTerminalType.CONSTRUCTOR, NonTerminalType.class);
-	  RascalType.registerRascalType(ReifiedType.CONSTRUCTOR, ReifiedType.class);
-	}
 	
 	private static class InstanceHolder {
 		public static final RascalTypeFactory sInstance = new RascalTypeFactory();
