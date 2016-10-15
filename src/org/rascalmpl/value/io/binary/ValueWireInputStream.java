@@ -21,6 +21,7 @@ import java.util.Arrays;
 import org.rascalmpl.value.io.binary.util.FieldKind;
 import org.rascalmpl.value.io.binary.util.LinearCircularLookupWindow;
 import org.rascalmpl.value.io.binary.util.TaggedInt;
+import org.rascalmpl.value.io.binary.util.TrackLastRead;
 
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -44,7 +45,7 @@ public class ValueWireInputStream implements Closeable {
 
     private static final byte[] WIRE_VERSION = new byte[] { 1, 0, 0 };
     private final InputStream __stream;
-    private final LinearCircularLookupWindow<String> stringsRead;
+    private final TrackLastRead<String> stringsRead;
     private CodedInputStream stream;
     private boolean closed = false;
     private ReaderPosition current;
@@ -68,7 +69,16 @@ public class ValueWireInputStream implements Closeable {
         }
         this.stream = CodedInputStream.newInstance(stream);
         int stringReadSize = this.stream.readRawVarint32();
-        this.stringsRead = new LinearCircularLookupWindow<>(stringReadSize);
+        if (stringReadSize > 0) {
+            this.stringsRead = new LinearCircularLookupWindow<>(stringReadSize);
+        }
+        else {
+            this.stringsRead = new TrackLastRead<String>() {
+                @Override public void read(String obj) { }
+                
+                @Override public String lookBack(int howLongBack) { throw new IllegalArgumentException(); }
+            };
+        }
         this.stream.setSizeLimit(Integer.MAX_VALUE); 
     }
 
