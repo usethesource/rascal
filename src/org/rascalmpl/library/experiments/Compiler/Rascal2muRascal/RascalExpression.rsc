@@ -173,7 +173,7 @@ private MuExp translateComposeFunction(Expression e){
   body_exps =  [muReturn1(muOCall4(lhsReceiver, \tuple([lhsType]), [rhsCall, kwargs ], e.lhs@\loc))];
    
   leaveFunctionScope();
-  fun = muFunction(comp_fuid, comp_name, comp_ftype, Symbol::\tuple([]), scopeId, nargs, 2, false, false, \e@\loc, [], (), false, 0, 0, muBlock(body_exps));
+  fun = muFunction(comp_fuid, comp_name, comp_ftype, ["a", "b"], Symbol::\tuple([]), scopeId, nargs, 2, false, false, \e@\loc, [], (), false, 0, 0, muBlock(body_exps));
  
   int uid = declareGeneratedFunction(comp_name, comp_fuid, comp_ftype, e@\loc);
   addFunctionToModule(fun);  
@@ -718,7 +718,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
     
     tuple[str fuid,int pos] addr = uid2addr[uid];
     
-    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, Symbol::\tuple([]), (addr.fuid in moduleNames) ? "" : addr.fuid, 
+    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, getParameterNames(parameters.formals.formals), Symbol::\tuple([]), (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									  getFormals(uid), getScopeSize(fuid), 
   									  isVarArgs, false, e@\loc, [], (), 
   									  false, 0, 0,
@@ -741,7 +741,7 @@ private MuExp translateBoolClosure(Expression e){
 	bool isVarArgs = false;
   	
     MuExp body = muReturn1(translate(e));
-    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, Symbol::\tuple([]), addr.fuid, nformals, nlocals, isVarArgs, false, e@\loc, [], (), false, 0, 0, body));
+    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, [], Symbol::\tuple([]), addr.fuid, nformals, nlocals, isVarArgs, false, e@\loc, [], (), false, 0, 0, body));
   	
   	leaveFunctionScope();								  
   	
@@ -866,6 +866,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	           :
 	           []);
 	
+	phi_argNames = ["iSubject", "matched", "hasInsert", "leaveVisit", "begin", "end"];
 	Symbol phi_ftype = Symbol::func(Symbol::\value(), phi_args);
 	
 	enterVisit();
@@ -975,7 +976,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	
 	//println("size functions after lift: <size(getFunctionsInModule())>");
 	
-	addFunctionToModule(muFunction(phi_fuid, "PHI", phi_ftype, Symbol::\tuple([]), scopeId, NumberOfPhiFormals, pos_in_phi, false, false, \visit@\loc, [], (), false, 0, 0, body));
+	addFunctionToModule(muFunction(phi_fuid, "PHI", phi_ftype, phi_argNames, Symbol::\tuple([]), scopeId, NumberOfPhiFormals, pos_in_phi, false, false, \visit@\loc, [], (), false, 0, 0, body));
 	
 	leaveFunctionScope();
 	leaveVisit();
@@ -1298,7 +1299,12 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        	if(isVarArgs(fdef) && !isVarArgs(fuse)){
        		un = size(upar);
        		dn = size(dpar);
-       		Symbol var_elm_type = dpar[-1].symbol;
+       		va = dpar[-1];
+       		//if(label(_, s) := va){
+         //      va = s;
+         //   }
+       		Symbol var_elm_type = va.symbol;
+       		
        		i = un - 1;
        		while(i > 0){
        			if(subtype(upar[i], var_elm_type)){
