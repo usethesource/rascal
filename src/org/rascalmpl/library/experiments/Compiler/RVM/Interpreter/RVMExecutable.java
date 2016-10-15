@@ -208,11 +208,11 @@ public class RVMExecutable implements Serializable{
 		return functionMap;
 	}
 
-	ArrayList<Type> getConstructorStore() {
+	public ArrayList<Type> getConstructorStore() {
 		return constructorStore;
 	}
 
-	Map<String, Integer> getConstructorMap() {
+	public Map<String, Integer> getConstructorMap() {
 		return constructorMap;
 	}
 	
