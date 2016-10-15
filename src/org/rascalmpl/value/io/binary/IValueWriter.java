@@ -15,6 +15,8 @@ package org.rascalmpl.value.io.binary;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
@@ -46,6 +48,7 @@ import org.rascalmpl.value.io.binary.util.TrackLastWritten;
 import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.visitors.IValueVisitor;
+import org.rascalmpl.value.visitors.NullVisitor;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import com.github.luben.zstd.ZstdOutputStream;
@@ -94,7 +97,7 @@ public class IValueWriter implements Closeable {
         } 
     }
     
-    public static class WindowSizes {
+    private static class WindowSizes {
         private final int uriWindow;
         private final int typeWindow;
         private final int valueWindow;
@@ -104,6 +107,130 @@ public class IValueWriter implements Closeable {
             this.typeWindow = typeWindow;
             this.uriWindow = uriWindow;
             this.valueWindow = valueWindow;
+        }
+    }
+    
+    private static final WindowSizes NO_WINDOW = new WindowSizes(0, 0, 0, 0);
+    private static final WindowSizes TINY_WINDOW = new WindowSizes(500, 200, 100, 500);
+    private static final WindowSizes SMALL_WINDOW = new WindowSizes(5_000, 1_000, 800, 1_000);
+    private static final WindowSizes NORMAL_WINDOW = new WindowSizes(100_000, 40_000, 5_000, 10_000);
+    
+    private static final class StopCountingException extends RuntimeException {
+        @Override
+        public synchronized Throwable fillInStackTrace() {
+            return this;
+        }
+        
+    }
+    
+    private static final class ValueCounter extends NullVisitor<Void, StopCountingException> {
+        private final int stopAfter;
+        public int values;
+
+        public ValueCounter(int stopAfter) {
+            this.stopAfter = stopAfter;
+            values = 0;
+        }
+
+        private void checkEarlyExit() {
+            if (values > stopAfter) {
+                throw new StopCountingException();
+            }
+        }
+
+        private Void accept(Iterable<IValue> o) {
+            for (IValue v: o) {
+                v.accept(this);
+            }
+            return null;
+        }
+
+        private Void acceptKWAnno(IValue o) {
+            if (o.mayHaveKeywordParameters()) {
+                for (IValue v: o.asWithKeywordParameters().getParameters().values()) {
+                    v.accept(this);
+                }
+            }
+            else if (o.isAnnotatable()) {
+                for (IValue v: o.asAnnotatable().getAnnotations().values()) {
+                    v.accept(this);
+                }
+            }
+            return null;
+        }
+        @Override
+        public Void visitNode(INode o) throws StopCountingException {
+            checkEarlyExit();
+            values += 1;
+            accept(o.getChildren());
+            return acceptKWAnno(o);
+        }
+        
+        @Override
+        public Void visitConstructor(IConstructor o) throws StopCountingException {
+            return visitNode(o);
+        }
+
+        
+        @Override
+        public Void visitList(IList o) throws StopCountingException {
+            checkEarlyExit();
+            values += 1;
+            return accept(o);
+        }
+
+
+        @Override
+        public Void visitSet(ISet o) throws StopCountingException {
+            checkEarlyExit();
+            values += 1;
+            return accept(o);
+        }
+        
+        @Override
+        public Void visitListRelation(IList o) throws StopCountingException {
+            return visitList(o);
+        }
+        @Override
+        public Void visitRelation(ISet o) throws StopCountingException {
+            return visitSet(o);
+        }
+        @Override
+        public Void visitTuple(ITuple o) throws StopCountingException {
+            checkEarlyExit();
+            values += 1;
+            return accept(o);
+        }
+        @Override
+        public Void visitMap(IMap o) throws StopCountingException {
+            checkEarlyExit();
+            values += 1;
+            Iterator<Entry<IValue, IValue>> entries = o.entryIterator();
+            while (entries.hasNext()) {
+                Entry<IValue, IValue> e = entries.next();
+                e.getKey().accept(this);
+                e.getValue().accept(this);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visitExternal(IExternalValue externalValue) throws StopCountingException {
+            checkEarlyExit();
+            values += 1;
+            return null;
+        }
+        
+    }
+    
+    private static int estimateIValueSize(IValue root, int stopCountingAfter) {
+        ValueCounter counter = new ValueCounter(stopCountingAfter);
+        try {
+            root.accept(counter);
+            return counter.values;
+        } 
+        catch (StopCountingException e) {
+            return stopCountingAfter;
         }
     }
     
@@ -122,9 +249,6 @@ public class IValueWriter implements Closeable {
         return OpenAddressingLastWritten.referenceEquality(size); 
     }
 
-    private final ValueWireOutputStream writer;
-    private final CompressionRate compression;
-    private WindowSizes sizes;
     
     static boolean zstdAvailable() {
         try {
@@ -144,37 +268,62 @@ public class IValueWriter implements Closeable {
     }
 
     
+    private static final int SMALL_SIZE = 512;
+    private static final int NORMAL_SIZE = 8*1024;
+    
     public IValueWriter(OutputStream out) throws IOException {
         this(out, CompressionRate.Normal);
     }
+    private CompressionRate compression;
+    private OutputStream rawStream;
     public IValueWriter(OutputStream out, CompressionRate compression) throws IOException {
         out.write(header);
-        int algorithm = fallbackIfNeeded(compression.compressionAlgorithm);
-        out.write(algorithm);
-        switch (algorithm) {
-            case CompressionHeader.GZIP: {
-                GzipParameters params = new GzipParameters();
-                params.setCompressionLevel(compression.compressionLevel);
-                out = new GzipCompressorOutputStream(out, params);
-                break;
-            }
-            case CompressionHeader.XZ: {
-                out = new XZCompressorOutputStream(out, compression.compressionLevel);
-                break;
-            }
-            case CompressionHeader.ZSTD: {
-                out = new ZstdOutputStream(out, compression.compressionLevel);
-                break;
-            }
-            default : break;
-            
-        }
-        this.sizes = compression == CompressionRate.NoSharing ? new WindowSizes(0, 0, 0, 0) : new WindowSizes(100_000, 40_000, 5_000, 10_000);
-        writer = new ValueWireOutputStream(out, sizes.stringsWindow);
+        rawStream = out;
         this.compression = compression;
+        writer = null;
     }
     
+    private ValueWireOutputStream writer;
     public void write(IValue value) throws IOException {
+        int estimatedSize = estimateIValueSize(value, NORMAL_SIZE);
+        WindowSizes sizes = NO_WINDOW;
+        if (compression != CompressionRate.NoSharing) {
+            if (estimatedSize < SMALL_SIZE) {
+                sizes = TINY_WINDOW;
+            }
+            else if (estimatedSize < NORMAL_SIZE) {
+                sizes = SMALL_WINDOW;
+            }
+            else {
+                sizes = NORMAL_WINDOW;
+            }
+        }
+        if (writer == null) {
+            if (estimatedSize < SMALL_SIZE) {
+                compression = CompressionRate.None;
+            }
+            int algorithm = fallbackIfNeeded(compression.compressionAlgorithm);
+            rawStream.write(algorithm);
+            switch (algorithm) {
+                case CompressionHeader.GZIP: {
+                    GzipParameters params = new GzipParameters();
+                    params.setCompressionLevel(compression.compressionLevel);
+                    rawStream = new GzipCompressorOutputStream(rawStream, params);
+                    break;
+                }
+                case CompressionHeader.XZ: {
+                    rawStream = new XZCompressorOutputStream(rawStream, compression.compressionLevel);
+                    break;
+                }
+                case CompressionHeader.ZSTD: {
+                    rawStream = new ZstdOutputStream(rawStream, compression.compressionLevel);
+                    break;
+                }
+                default : break;
+            }
+            // writer is only initilized for first value
+            writer = new ValueWireOutputStream(rawStream, sizes.stringsWindow);
+        }
         write(writer, sizes.typeWindow, sizes.valueWindow, sizes.uriWindow, value);
         writeEnd(writer);
     }
@@ -182,7 +331,12 @@ public class IValueWriter implements Closeable {
 
     @Override
     public void close() throws IOException {
-       writer.close(); 
+        if (writer != null) {
+            writer.close();
+        }
+        else {
+            rawStream.close();
+        }
     }
     
     

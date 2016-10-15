@@ -56,6 +56,20 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
         };
     }
 
+    public static <T> OpenAddressingLastWritten<T> objectEquality(int maximumEntries) {
+        return new OpenAddressingLastWritten<T>(maximumEntries) {
+            @Override
+            protected boolean equals(T a, T b) {
+                return a.equals(b);
+            }
+
+            @Override
+            protected int hash(T obj) {
+                return obj.hashCode();
+            }
+        };
+    }
+
     /**
      * @param maximumEntries larger than 0 and smaller than Integer.MAX_VALUE  / 2
      */

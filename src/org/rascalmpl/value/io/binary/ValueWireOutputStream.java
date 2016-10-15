@@ -38,17 +38,15 @@ public class ValueWireOutputStream implements Closeable, Flushable {
         this.__stream.write(WIRE_VERSION);
         this.stream = CodedOutputStream.newInstance(stream);
         this.stream.writeUInt32NoTag(stringSharingWindowSize);
-        this.stringsWritten = new OpenAddressingLastWritten<String>(stringSharingWindowSize) {
-            @Override
-            protected boolean equals(String a, String b) {
-                return a.equals(b);
-            }
-
-            @Override
-            protected int hash(String obj) {
-                return obj.hashCode();
-            }
-        };
+        if (stringSharingWindowSize > 0) {
+            this.stringsWritten = OpenAddressingLastWritten.objectEquality(stringSharingWindowSize);
+        }
+        else {
+            this.stringsWritten = new TrackLastWritten<String>() {
+                @Override public void write(String obj) { }
+                @Override public int howLongAgo(String obj) { return -1; }
+            };
+        }
     }
 
     @Override
