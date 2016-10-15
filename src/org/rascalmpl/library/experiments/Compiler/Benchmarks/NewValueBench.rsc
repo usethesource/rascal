@@ -3,10 +3,12 @@ module experiments::Compiler::Benchmarks::NewValueBench
 import ValueIO;
 import IO;
 import String;
+import Set;
 import ParseTree;
 import util::Math;
 import util::Reflective;
 import util::Benchmark;
+import util::FileSystem;
 import lang::java::m3::Core;
 import lang::java::m3::AST;
 import analysis::statistics::Descriptive;
@@ -26,7 +28,12 @@ tuple[void(str) reporter, void() finished] progressReporter(str prefix) {
 str formatTime(real time) = "<round(time / 1000000)>ms";
 
 void printTime(str name, int time) {
-    println("<name>: <time / 1000000>ms");
+    if (time > 10000000) {
+        println("<name>: <time / 1000000>ms");
+    }
+    else {
+        println("<name>: <time / 1000>us");
+    }
 }
 
 @javaClass{org.rascalmpl.library.Prelude}
@@ -42,12 +49,12 @@ loc targetLoc = |test-temp:///value-io.bench|;
 loc targetLocOld = |compressed+test-temp:///value-io.bench.gz|;
 void bench(str name, type[&T] result, value v, int warmup, int measure) {
     for (i <- [0..warmup]) {
-        writeBinaryValueFile(targetLoc, v);
+        writeBinaryValueFile(targetLoc, v, compression=normal());
         writeBinaryValueFileOld(targetLoc, v, compression = false);
     }
     printTime("<name>-new-write", cpuTime(() { 
         for (i <- [0..measure]) {
-            writeBinaryValueFile(targetLoc, v);
+            writeBinaryValueFile(targetLoc, v, compression=normal());
         }
     }) / measure);
     println("<name>-new-size: <__getFileSize(targetLoc)>");
@@ -123,6 +130,14 @@ void benchValueIO(loc rascalRoot = |home:///PhD/workspace-rascal-source/rascal/|
     bench("int list", #list[int], [i, i*2,i*3 | i <- [1..1000000]], warmup, measure);
     bench("str list", #list[str], ["aaa<i>asf<i *3>" | i <- [1..100000]], warmup, measure);
     bench("m3 asts", #set[Declaration], getRascalASTs(rascalRoot), warmup, measure);
+}
+
+void benchValueIOSmall(loc rascalRoot = |home:///PhD/workspace-rascal-source/rascal/|, int warmup = 40, int measure = 60) {
+    bench("small parse tree", #Tree, parseNamedModuleWithSpaces("util::Maybe"), warmup, measure);
+    bench("tiny int list", #list[int], [i, i*2,i*3 | i <- [1..100]], warmup, measure);
+    bench("small int list", #list[int], [i, i*2,i*3 | i <- [1..1000]], warmup, measure);
+    bench("tiny str list", #list[str], ["aaa<i>asf<i *3>" | i <- [1..100]], warmup, measure);
+    bench("small str list", #list[str], ["aaa<i>asf<i *3>" | i <- [1..1000]], warmup, measure);
 }
 
 
