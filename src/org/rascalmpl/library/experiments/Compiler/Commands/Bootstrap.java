@@ -363,7 +363,7 @@ public class Bootstrap {
 
           @Override
           public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-              info("Copying " + file + " to " + targetPath.resolve(sourcePath.relativize(file)));
+              //info("Copying " + file + " to " + targetPath.resolve(sourcePath.relativize(file)));
               Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
               return FileVisitResult.CONTINUE;
           }
@@ -610,6 +610,9 @@ class RVMFileCompareAndCount implements FileVisitor<Path> {
     }
     if(actualFile.toString().endsWith(".rvm.gz")){
       nfiles += 1;
+      if(actualFile.toString().endsWith("_imports.rvm.gz")){  // Skip since base directories will always differ
+        return FileVisitResult.CONTINUE;
+      }
       if(!Arrays.equals(Files.readAllBytes(expectedFile), Files.readAllBytes(actualFile))){
         throw new RuntimeException(String.format("File content differs: \'%s\' and \'%s\'.", expectedFile, actualFile));
       }
