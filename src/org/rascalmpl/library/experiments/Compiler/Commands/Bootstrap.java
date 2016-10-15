@@ -198,7 +198,7 @@ public class Bootstrap {
         
         final boolean realBootstrap = basicOption || validatingOption;
         final boolean validatingBootstrap = validatingOption;
-        final boolean withCourses = coursesOption;
+        final boolean withCourses = coursesOption || validatingOption;
         
         Path tmpDir = initializeTemporaryFolder(tmpFolder, cleanTempDir, versionToUse);
         
