@@ -1,5 +1,33 @@
 module experiments::Compiler::Examples::Tst6
+import ParseTree;
+//import lang::pico::\syntax::Main;
+import demo::lang::Pico::Syntax;
+import IO;
 
-int incr(int n, int delta = 1) = n + delta;
+test bool Pico1()  {t1 = (Program) `begin declare x: natural; x := 10 end`; return true;}
 
-value main() = incr(5, 2);
+test bool Pico2() { return Program P := (Program) `begin declare x: natural; x := 10 end`;}
+
+test bool Pico3() { return (Program) `<Program P>` := (Program) `begin declare x: natural; x := 10 end`;}
+  
+Tree t1 = (Program) `begin declare x: natural; x := 10 end`;
+ 
+Tree t2 = (Declarations) `declare x : natural;`;
+ 
+test bool PicoQuoted1() {
+    bool match() { return (Program) `<Program program>` := t1; }
+
+    return match();
+}
+
+test bool PicoQuoted2(){
+    bool match() { return Program program := t1; }
+
+    return match();
+}
+
+test bool PicoQuoted5(){
+    bool match() { return (Program) `begin <Declarations decls> <{Statement ";"}* stats> end` := t1; }
+    
+    return match();
+}
