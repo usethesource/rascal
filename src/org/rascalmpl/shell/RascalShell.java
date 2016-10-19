@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
@@ -29,6 +30,7 @@ import org.rascalmpl.library.experiments.Compiler.Commands.RascalTests;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.shell.compiled.CompiledREPLRunner;
+import org.rascalmpl.uri.URIUtil;
 
 
 public class RascalShell  {
@@ -64,7 +66,7 @@ public class RascalShell  {
             } 
             else if (args.length > 0) {            	
             	if (args[0].equals("--help")) {
-                    System.err.println("Usage: java -jar rascal-version.jar [{--rascalc, --rascal, --rascalTests, --compiledRepl}] [Module]");
+                    System.err.println("Usage: java -jar rascal-version.jar [{--rascalc, --rascal, --rascalTests, --compiledREPL}] [Module]");
                     System.err.println("\ttry also the --help options of the respective commands.");
                     System.err.println("\tjava -jar rascal-version.jar [Module]: runs the main function of the module using the interpreter");
                     return;
@@ -98,7 +100,9 @@ public class RascalShell  {
                     };
                 }
                 else if (args[0].equals("--compiledREPL")) {
-                    runner = new CompiledREPLRunner(new PathConfig(), System.in, System.out);
+                    PathConfig pc = new PathConfig();
+                    pc.addSourceLoc(URIUtil.correctLocation("file", null, Paths.get(".").toAbsolutePath().normalize().toString()));
+                    runner = new CompiledREPLRunner(pc, System.in, System.out);
                     
                 }
                 else {
