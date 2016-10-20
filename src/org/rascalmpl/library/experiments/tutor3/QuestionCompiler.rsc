@@ -12,6 +12,7 @@ import experiments::Compiler::Execute;
 import util::SystemAPI;
 import IO;
 import util::Reflective;
+import DateTime;
 
 import Ambiguity;
 
@@ -681,10 +682,10 @@ void runTests(str mbody){
 
 value main(){
 
-    //process("question Replace _ by an expression and make the test true:
-    //        'expr setComprehension: [?{n-1} | int n \<- !{list[int]}]
-    //        'end");
-    //        
+    process("question Replace _ by an expression and make the test true:
+            'expr setComprehension: [?{n-1} | int n \<- !{list[int]}]
+            'end");
+            
     process("question Replace _ by a function name and make the test true:
             'prep: 
             'import List;
