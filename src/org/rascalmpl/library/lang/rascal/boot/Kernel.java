@@ -29,6 +29,7 @@ public class Kernel {
 	private OverloadedFunction compileMuLibrary;
 	private OverloadedFunction bootstrapRascalParser;
 	private OverloadedFunction rascalTests;
+	private OverloadedFunction rascalTestsRaw;
 	
 	private final RVMCore rvm;
 
@@ -63,6 +64,7 @@ public class Kernel {
 						= safeGet("RVMProgram compileAndMergeIncremental(str qname, bool reuseConfig, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
 		
 		rascalTests   	= safeGet("value rascalTests(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool recompile)");
+		rascalTestsRaw  = safeGet("TestResults rascalTestsRaw(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool recompile)");
 //		bootstrapRascalParser = safeGet("void bootstrapRascalParser(loc src)");
 	}
 	
@@ -178,4 +180,19 @@ public class Kernel {
 	public IValue rascalTests(IList qnames, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, boolean recompile, Map<String, IValue> kwArgs){
 		return rvm.executeRVMFunction(rascalTests, new IValue[] { qnames, srcs, libs, boot, bin, vf.bool(recompile) }, kwArgs);
 	}
+	
+	/**
+     *  Run tests in a list of Rascal modules
+     * @param qnames    List of qualified module name
+     * @param srcs      List of source directories
+     * @param libs      List of library directories
+     * @param boot      Boot directory
+     * @param bin       Binary directory
+     * @param kwArgs    Keyword arguments
+     * @return          The outcome of the tests
+     */
+    
+    public IConstructor rascalTestsRaw(IList qnames, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, boolean recompile, Map<String, IValue> kwArgs){
+        return (IConstructor) rvm.executeRVMFunction(rascalTestsRaw, new IValue[] { qnames, srcs, libs, boot, bin, vf.bool(recompile) }, kwArgs);
+    }
 }
