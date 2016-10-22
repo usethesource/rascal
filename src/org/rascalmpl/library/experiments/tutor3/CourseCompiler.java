@@ -160,6 +160,7 @@ public class CourseCompiler {
 		System.err.println("srcPath: " + srcPath + ", destPath: " + destPath);
 		
 		ArrayList<String> files  = new ArrayList<>();
+		files.add("tutor-prelude.js");
 		files.add("favicon.ico");
 		files.add("css/style.css");
 		files.add("docinfo.html");
