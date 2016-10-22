@@ -310,6 +310,7 @@ value rascalTests(list[str] qualifiedModuleNames, list[loc] srcs, list[loc] libs
   = rascalTests(qualifiedModuleNames, srcs, libs, boot, bin, true, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, profile=profile,
                 trace=trace, coverage=coverage, jvm=jvm, verbose=verbose);
                  
+
 value rascalTests(list[str] qualifiedModuleNames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool recompile,
                   map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool profile=false, 
                   bool trace= false,  bool coverage=false, bool jvm=true, bool verbose = false){
@@ -327,6 +328,22 @@ value rascalTests(list[str] qualifiedModuleNames, list[loc] srcs, list[loc] libs
 
 data TestResults = testResults(lrel[loc,int,str] results, list[value] exceptions);
 
+TestResults rascalTestsRaw(list[str] qualifiedModuleNames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool recompile,
+                  map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool profile=false, 
+                  bool trace= false,  bool coverage=false, bool jvm=true, bool verbose = false){
+            
+    return rascalTestsRaw(qualifiedModuleNames, pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin),
+                       keywordArguments=keywordArguments,
+                       debug=debug,
+                       debugRVM=debugRVM,
+                       recompile=recompile,
+                       profile=profile,
+                       trace=trace,
+                       coverage=coverage,
+                       jvm=jvm,
+                       verbose=verbose);             
+}
+                  
 TestResults rascalTestsRaw(list[str] qualifiedModuleNames, PathConfig pcfg, 
                   map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool recompile=false, bool profile=false, 
                   bool trace= false,  bool coverage=false, bool jvm=true, bool verbose = false){
