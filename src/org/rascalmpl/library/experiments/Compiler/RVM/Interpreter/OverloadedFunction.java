@@ -68,7 +68,12 @@ public class OverloadedFunction implements Serializable {
 	}
 
 	public boolean matchesNameAndSignature(String name, Type funType){
-		return this.name.equals(name) && this.funType.comparable(funType);
+	    
+		boolean res = this.name.equals(name) && this.funType.comparable(funType);
+		if(name.equals("rascalTestsRaw") && this.name.equals(name)){
+		   System.err.println("matchesNameAndSignature: " + name + funType + " vs " + this.funType + " => " + res);
+		}
+		return res;
 	}
 	
 	public String getName() {
