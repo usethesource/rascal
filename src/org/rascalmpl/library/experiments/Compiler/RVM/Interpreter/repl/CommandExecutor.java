@@ -241,7 +241,8 @@ public class CommandExecutor {
 	      pcfg.getboot(), 
 	      pcfg.getBin(), 
 	      true,
-	      makeCompileKwParamsAsMap());
+	      makeCompileKwParamsAsMap()
+	      );
 	  stderr.println("executeTests: " + res);
 	}
 	

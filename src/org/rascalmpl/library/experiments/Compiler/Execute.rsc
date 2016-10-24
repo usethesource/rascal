@@ -363,8 +363,18 @@ TestResults rascalTestsRaw(list[str] qualifiedModuleNames, PathConfig pcfg,
               throw "No executable found for <qualifiedModuleName>";
               //executables_available = false;
            }
-           mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose,enableAsserts=true);
-           v = execute(mainModule, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=true, profile=profile, verbose=verbose, trace=trace, coverage=coverage, jvm=jvm);
+           try {
+              mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose,enableAsserts=true);
+              errors = [ e | e:error(_,_) <- mainModule.messages];
+              if(size(errors) > 0){
+                 v = [ <at, 0, msg> | error(msg, at) <- errors ];
+              } else {
+                 v = execute(mainModule, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=true, profile=profile, verbose=verbose, trace=trace, coverage=coverage, jvm=jvm);
+              }
+           } catch e: {
+             exceptions += "<qualifiedModuleName>: <e>";
+             v = [];
+           }
        }
        if(lrel[loc,int,str] test_results := v){
           all_test_results += test_results;
