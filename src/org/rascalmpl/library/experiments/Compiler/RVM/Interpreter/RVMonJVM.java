@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
@@ -376,6 +377,8 @@ public class RVMonJVM extends RVMCore {
 			thrown = e;
 			throw thrown;	// <===
 			// postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
+		} catch (ParseError e){
+		    throw e;
 		} catch (Exception e) {
 			e.printStackTrace(stderr);
 			stderr.flush();
