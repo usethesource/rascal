@@ -5,19 +5,28 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.RascalShellExecutionException;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.ITuple;
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -73,7 +82,20 @@ public class HelpServer extends NanoHTTPD {
 	        listing = listing.replaceFirst("_", holes.get(k++));
 	      }
 	      if(executor == null){
-	        PathConfig pcfg = new PathConfig();
+	        PathConfig pcfg = null;
+	        try {
+	            ISourceLocation src = vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/src/org/rascalmpl/library");
+	            List<ISourceLocation> srcs = Arrays.asList(src);
+	            
+	            ISourceLocation bin = vf.sourceLocation("home", "", "bin");
+	            List<ISourceLocation> libs = Arrays.asList(bin);
+	            List<ISourceLocation> courses = Arrays.asList(vf.sourceLocation("home", "", "bin/courses"));
+                ISourceLocation boot = vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/bootstrap/phase2");
+	            pcfg = new PathConfig(srcs, libs, bin, boot, courses);
+	        } catch (URISyntaxException e) {
+	            // TODO Auto-generated catch block
+	            e.printStackTrace();
+	        }
 	        
 	        outWriter = new StringWriter();
 	        outPrintWriter = new PrintWriter(outWriter);
@@ -88,14 +110,14 @@ public class HelpServer extends NanoHTTPD {
 	      
 	      writeModule(question, listing);
 	      
-	      IConstructor tr = executor.executeTestsRaw(question);
-	      outPrintWriter.flush();
-	      errPrintWriter.flush();
-
-	      return newFixedLengthResponse(Status.OK, "text/html", "listing: " + listing + "\n" +
-	                                                           "tr: " + tr +
-	                                                           "out: " + outWriter.toString() + "\n" +
-	                                                           "err: " + errWriter.toString());
+	      try {
+	        IConstructor tr = executor.executeTestsRaw(question);
+	        outPrintWriter.flush();
+	        errPrintWriter.flush();
+	        return newFixedLengthResponse(Status.OK, "application/json", formatTestResults(tr));
+	      } catch (ParseError e){
+	        return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": false, \"failed\": [], \"exceptions\": [], \"syntax\": " + makeLoc(e) + " }");
+	      }
 
 	    } catch (UnsupportedEncodingException e) {
 	      // TODO Auto-generated catch block
@@ -119,6 +141,63 @@ public class HelpServer extends NanoHTTPD {
 	  } catch (IOException e) {			
 	    return newFixedLengthResponse(Status.NOT_FOUND, "text/plain", uri + " not found.\n" + e);
 	  }
+	}
+	
+	String makeLoc(ParseError e){
+	  return
+	      "{" + "\"beginLine\": "   + e.getBeginLine() + ", "
+	          + "\"beginColumn\": " + e.getBeginColumn()  + ", "
+	          + "\"endLine\": "     + e.getEndLine()  + ", "
+	          + "\"endColumn\": "   + e.getEndColumn()
+	          + "}";
+	}
+	
+	String makeLoc(ISourceLocation l){
+	  return
+	  "{" + "\"beginLine\": "   + l.getBeginLine() + ", "
+	      + "\"beginColumn\": " + l.getBeginColumn()  + ", "
+	      + "\"endLine\": "     + l.getEndLine()  + ", "
+	      + "\"endColumn\": "   + l.getEndColumn()
+	      + "}";
+	}
+	
+	String makeResult(ISourceLocation l, IString msg){
+	  return "{" + "\"src\": " + makeLoc(l) + ", "
+	             + "\"msg\": " + msg + "}";
+	}
+	
+	String formatTestResults(IConstructor tr){
+	  IList results = (IList) tr.get("results");
+	  IList exceptions = (IList) tr.get("exceptions");
+	  boolean ok = true;
+	  String failed = "[";
+
+	  IInteger zero = vf.integer(0);
+	  String sep = "";
+	  for(IValue v : results){
+	    ITuple tup = (ITuple) v;
+	    if(tup.get(1).equals(zero)){
+	      ok = false;
+	      failed += sep + makeResult((ISourceLocation) tup.get(0), (IString) tup.get(2)) ;
+	      sep = ", ";
+	    }
+	  }
+	  failed += "]";
+
+	  String sexceptions = "[";
+	  sep = "";
+	  for(IValue v : exceptions){
+	    sexceptions += sep + ((IString) v).getValue();
+	    sep = ", ";
+	  }
+	  sexceptions += "]";
+	  
+	  ok &= exceptions.length() == 0;
+	  
+	  return "{" + "\"ok\": " + ok + ", "
+	             + "\"failed\": " + failed + "," 
+	             + "\"exceptions\": " + sexceptions 
+	             + "}";
 	}
 	
 	private void writeModule(String question, String listing) throws IOException, URISyntaxException {
