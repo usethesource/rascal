@@ -173,6 +173,7 @@ public class Kernel {
 	 * @param libs		List of library directories
 	 * @param boot		Boot directory
 	 * @param bin		Binary directory
+	 * @param recompile Recompile when no binary is found
 	 * @param kwArgs	Keyword arguments
 	 * @return 			The outcome of the tests
 	 */
@@ -188,6 +189,7 @@ public class Kernel {
      * @param libs      List of library directories
      * @param boot      Boot directory
      * @param bin       Binary directory
+     * @param recompile Recompile when no binary is found
      * @param kwArgs    Keyword arguments
      * @return          The outcome of the tests
      */
