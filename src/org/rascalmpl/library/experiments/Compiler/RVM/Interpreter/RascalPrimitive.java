@@ -7662,7 +7662,7 @@ public enum RascalPrimitive {
 				return sp - 4;
 			}
 			IConstructor type_cons = ((IConstructor) stack[sp - 1]);
-			Type argType = rex.symbolToType(type_cons, vf.mapWriter().done()); // TODO: empty set of definitions?
+			Type argType = rex.symbolToType((IConstructor) type_cons.get("symbol"), vf.mapWriter().done()); // TODO: empty set of definitions?
 
 			int nargs = argType.getArity();
 			IValue[] args = new IValue[nargs];
