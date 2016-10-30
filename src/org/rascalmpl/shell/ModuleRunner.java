@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.io.StandardTextWriter;
 import org.rascalmpl.interpreter.Evaluator;
 
@@ -29,12 +30,12 @@ public class ModuleRunner implements ShellRunner {
 
     IValue v = eval.main(null, module, "main", realArgs);
 
-    if (v != null) {
+    if (v != null && !(v instanceof IInteger)) {
       new StandardTextWriter(true).write(v, eval.getStdOut());
       eval.getStdOut().flush();
     }
 
-    System.exit(0);
+    System.exit(v instanceof IInteger ? ((IInteger) v).intValue() : 0);
     return;
   }
 
