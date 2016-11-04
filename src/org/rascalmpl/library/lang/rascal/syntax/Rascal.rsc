@@ -227,7 +227,7 @@ syntax Expression
     | transitiveReflexiveClosure: Expression argument "*" !>> "=" 
 	> isDefined    : Expression argument "?" 
 	> negation     : "!" Expression!match!noMatch argument 
-	| negative     : "-" Expression argument 
+	| negative     : "-" Expression!transitiveClosure!transitiveReflexiveClosure!isDefined argument 
 	| non-assoc splice : "*" Expression argument
 	| asType       : "[" Type type "]" Expression!match!noMatch argument
 	> left composition: Expression lhs "o" Expression rhs 
