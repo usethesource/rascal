@@ -13,7 +13,6 @@
 package org.rascalmpl.value.io.binary.util;
 
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.rascalmpl.value.IConstructor;
@@ -22,7 +21,6 @@ import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.INode;
 import org.rascalmpl.value.IRational;
 import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
