@@ -14,6 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Random;
 
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -24,6 +25,7 @@ import org.rascalmpl.value.io.binary.IValueWriter.CompressionRate;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.value.util.RandomValues;
 
 import junit.framework.TestCase;
 
@@ -102,6 +104,35 @@ public class TestBinaryIO extends TestCase {
 			ioex.printStackTrace();
 			fail(ioex.getMessage());
 		}
+	}
+	
+	public void testRandomBinaryIO() {
+	    TypeStore ts = new TypeStore();
+	    Type name = RandomValues.addNameType(ts);
+	    Random r = new Random(42);
+	    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+	    try {
+            for (int i = 0; i < 20; i++) {
+                buffer.reset();
+                IValue value = RandomValues.generate(name, ts, vf, r, 10);
+                try (IValueWriter w = new IValueWriter(buffer,  CompressionRate.Normal)) {
+                    w.write(value);
+                }
+				try (IValueReader read = new IValueReader(new ByteArrayInputStream(buffer.toByteArray()), vf, ts)) {
+				    IValue result = read.read();
+				    if(!value.isEqual(result)){
+				        String message = "Not equal: \n\t"+value+" : "+value.getType()+"\n\t"+result+" : "+result.getType();
+				        System.err.println(message);
+				        fail(message);
+				    }
+				}
+            }
+		}
+	    catch(IOException ioex){
+			ioex.printStackTrace();
+			fail(ioex.getMessage());
+		}
+	          
 	}
 	
 	private final static String[] HEX = new String[]{"0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"};
