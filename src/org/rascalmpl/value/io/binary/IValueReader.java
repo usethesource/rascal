@@ -40,7 +40,6 @@ import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.binary.ValueWireInputStream.ReaderPosition;
 import org.rascalmpl.value.io.binary.util.LinearCircularLookupWindow;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
 import org.rascalmpl.value.io.old.BinaryReader;
@@ -140,7 +139,7 @@ public class IValueReader implements Closeable {
     /**
      * In most cases you want the other instance write method.
      * 
-     * This static method is only for embedding in nested ValueWriteInputStreams
+     * This static method is only for embedding in nested ValueWireInputStreams
      * @param typeWindowSize should be the same size as used for writing
      * @param valueWindowSize should be the same size as used for writing
      * @param uriWindowSize should be the same size as used for writing
@@ -149,10 +148,10 @@ public class IValueReader implements Closeable {
         int typeWindowSize = 0;
         int valueWindowSize = 0;
         int uriWindowSize = 0;
-        if (reader.next() != ReaderPosition.MESSAGE_START || reader.message() != IValueIDs.Header.ID) {
+        if (reader.next() != ValueWireInputStream.MESSAGE_START || reader.message() != IValueIDs.Header.ID) {
             throw new IOException("Missing header at start of stream");
         }
-        while (reader.next() != ReaderPosition.MESSAGE_END) {
+        while (reader.next() != ValueWireInputStream.MESSAGE_END) {
             switch (reader.field()) {
                 case IValueIDs.Header.VALUE_WINDOW: valueWindowSize = reader.getInteger();  break;
                 case IValueIDs.Header.TYPE_WINDOW: typeWindowSize = reader.getInteger();  break;
@@ -184,7 +183,7 @@ public class IValueReader implements Closeable {
 
         ReaderStack<Type> tstack = new ReaderStack<>(Type.class, 100);
         ValueReaderStack vstack = new ValueReaderStack(1024);
-        while(reader.next() == ReaderPosition.MESSAGE_START){
+        while(reader.next() == ValueWireInputStream.MESSAGE_START){
             int messageID = reader.message();
             if (messageID == IValueIDs.LastValue.ID) {
                 if(vstack.size() == 1 && tstack.size() == 0){
@@ -269,7 +268,7 @@ public class IValueReader implements Closeable {
                 String name = null;
                 boolean backReference = false;
 
-                while (!reader.next().isEnd()) {
+                while (reader.next() != ValueWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.ADTType.NAME:
                             name = reader.getString(); break;
@@ -298,7 +297,7 @@ public class IValueReader implements Closeable {
                 String name = null;
                 boolean backReference = false;
 
-                while (!reader.next().isEnd()) {
+                while (reader.next() != ValueWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.AliasType.NAME:
                             name = reader.getString(); break;
@@ -319,7 +318,7 @@ public class IValueReader implements Closeable {
             case IValueIDs.ConstructorType.ID:     {
                 String name = null;
                 boolean backReference = false;
-                while (!reader.next().isEnd()) {
+                while (reader.next() != ValueWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.ConstructorType.NAME:
                             name = reader.getString(); break;
@@ -398,7 +397,7 @@ public class IValueReader implements Closeable {
                 Integer size = null;
                 boolean backReference = false;
 
-                while (!reader.next().isEnd()) {
+                while (reader.next() != ValueWireInputStream.MESSAGE_END) {
                     switch (reader.field()){ 
                         case IValueIDs.OverloadedType.SIZE:
                             size =  reader.getInteger();
@@ -441,7 +440,7 @@ public class IValueReader implements Closeable {
                 String valLabel = null;
                 boolean backReference = false;
 
-                while (!reader.next().isEnd()) {
+                while (reader.next() != ValueWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.MapType.KEY_LABEL:
                             keyLabel = reader.getString(); break;
@@ -469,7 +468,7 @@ public class IValueReader implements Closeable {
                 String name = null;
                 boolean backReference = false;
 
-                while (!reader.next().isEnd()) {
+                while (reader.next() != ValueWireInputStream.MESSAGE_END) {
                     switch (reader.field()){ 
                         case IValueIDs.ParameterType.NAME:
                             name = reader.getString();
@@ -500,7 +499,7 @@ public class IValueReader implements Closeable {
                 boolean backReference = false;
                 Integer arity = null;
 
-                while (!reader.next().isEnd()) {
+                while (reader.next() != ValueWireInputStream.MESSAGE_END) {
                     switch (reader.field()){ 
                         case IValueIDs.TupleType.ARITY:
                             arity =  reader.getInteger(); break;
@@ -532,7 +531,7 @@ public class IValueReader implements Closeable {
 
             case IValueIDs.PreviousType.ID: {
                 Integer n = null;
-                while (!reader.next().isEnd()) {
+                while (reader.next() != ValueWireInputStream.MESSAGE_END) {
                     switch (reader.field()){ 
                         case IValueIDs.PreviousType.HOW_LONG_AGO:
                             n = reader.getInteger();
@@ -581,7 +580,7 @@ public class IValueReader implements Closeable {
             final TrackLastRead<IValue> valueWindow, final ValueReaderStack vstack)
             throws IOException {
         int n = -1;
-        while(!reader.next().isEnd()){
+        while(reader.next() != ValueWireInputStream.MESSAGE_END){
             if(reader.field() == IValueIDs.PreviousValue.HOW_FAR_BACK){
                 n = reader.getInteger();
             }
@@ -602,7 +601,7 @@ public class IValueReader implements Closeable {
             final ValueReaderStack vstack, int defaultSize) throws IOException {
         int size = defaultSize;
         boolean backReference = false;
-        while (!reader.next().isEnd()) {
+        while (reader.next() != ValueWireInputStream.MESSAGE_END) {
             switch(reader.field()) {
                 case IValueIDs.TupleValue.SIZE: size = reader.getInteger(); break;
                 case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
@@ -618,7 +617,7 @@ public class IValueReader implements Closeable {
             final ValueReaderStack vstack) throws IOException {
         String str = null;
         boolean backReference = false;
-        while (!reader.next().isEnd()) {
+        while (reader.next() != ValueWireInputStream.MESSAGE_END) {
             switch(reader.field()) {
                 case IValueIDs.StringValue.CONTENT: str = reader.getString(); break;
                 case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
@@ -636,7 +635,7 @@ public class IValueReader implements Closeable {
             final ValueReaderStack vstack, int defaultSize) throws IOException {
         int size = defaultSize;
         boolean backReference = false;
-        while (!reader.next().isEnd()) {
+        while (reader.next() != ValueWireInputStream.MESSAGE_END) {
             switch(reader.field()) {
                 case IValueIDs.SetValue.SIZE: size = reader.getInteger(); break;
                 case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
@@ -654,7 +653,7 @@ public class IValueReader implements Closeable {
         Integer scale = null;
 
         boolean backReference = false;
-        while (!reader.next().isEnd()) {
+        while (reader.next() != ValueWireInputStream.MESSAGE_END) {
             switch(reader.field()){
                 case IValueIDs.RealValue.SCALE:
                     scale = reader.getInteger(); break;
@@ -694,7 +693,7 @@ public class IValueReader implements Closeable {
         int kwparams = 0;
 
         boolean backReference = false;
-        while (!reader.next().isEnd()) {
+        while (reader.next() != ValueWireInputStream.MESSAGE_END) {
             switch(reader.field()){
                 case IValueIDs.NodeValue.NAME: name = reader.getString(); break;
                 case IValueIDs.NodeValue.ARITY: arity = reader.getInteger(); break;
@@ -736,7 +735,7 @@ public class IValueReader implements Closeable {
             final ValueReaderStack vstack, int defaultSize) throws IOException {
         int size = defaultSize;
         boolean backReference = false;
-        while (!reader.next().isEnd()) {
+        while (reader.next() != ValueWireInputStream.MESSAGE_END) {
             switch(reader.field()) {
                 case IValueIDs.MapValue.SIZE: size = reader.getInteger(); break;
                 case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
@@ -772,7 +771,7 @@ public class IValueReader implements Closeable {
         int endLine = -1;
         int beginColumn = -1;
         int endColumn = -1;
-        while (!reader.next().isEnd()) {
+        while (reader.next() != ValueWireInputStream.MESSAGE_END) {
             switch(reader.field()){
                 case IValueIDs.SourceLocationValue.PREVIOUS_URI: previousURI = reader.getInteger(); break;
                 case IValueIDs.SourceLocationValue.SCHEME: scheme = reader.getString(); break;
@@ -818,7 +817,7 @@ public class IValueReader implements Closeable {
             final ReaderStack<Type> tstack, ValueReaderStack vstack, int defaultSize) throws IOException {
         int size = defaultSize;
         boolean backReference = false;
-        while (!reader.next().isEnd()) {
+        while (reader.next() != ValueWireInputStream.MESSAGE_END) {
             switch(reader.field()) {
                 case IValueIDs.ListValue.SIZE: size = reader.getInteger(); break;
                 case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
@@ -834,7 +833,7 @@ public class IValueReader implements Closeable {
             ReaderStack<Type> tstack, final ValueReaderStack vstack) throws IOException {
         Integer small = null;
         byte[] big = null;
-        while (!reader.next().isEnd()) {
+        while (reader.next() != ValueWireInputStream.MESSAGE_END) {
             switch(reader.field()){
                 case IValueIDs.IntegerValue.INTVALUE:  small = reader.getInteger(); break;
                 case IValueIDs.IntegerValue.BIGVALUE:    big = reader.getBytes(); break;
@@ -866,7 +865,7 @@ public class IValueReader implements Closeable {
         Integer timeZoneHourOffset = null;
         Integer timeZoneMinuteOffset = null;
 
-        while (!reader.next().isEnd()) {
+        while (reader.next() != ValueWireInputStream.MESSAGE_END) {
             switch(reader.field()){
                 case IValueIDs.DateTimeValue.YEAR: year = reader.getInteger(); break;
                 case IValueIDs.DateTimeValue.MONTH: month = reader.getInteger(); break;
@@ -905,7 +904,7 @@ public class IValueReader implements Closeable {
         int kwparams = 0;
 
         boolean backReference = false;
-        while (!reader.next().isEnd()) {
+        while (reader.next() != ValueWireInputStream.MESSAGE_END) {
             switch(reader.field()){
                 case IValueIDs.ConstructorValue.ARITY: arity =  reader.getInteger(); break;
                 case IValueIDs.ConstructorValue.KWPARAMS: kwparams = reader.getInteger(); break;
@@ -947,7 +946,7 @@ public class IValueReader implements Closeable {
     private static boolean readBoolean(final ValueWireInputStream reader, final IValueFactory vf,
             ReaderStack<Type> tstack, final ValueReaderStack vstack) throws IOException {
         boolean value = false;
-        while (!reader.next().isEnd()) {
+        while (reader.next() != ValueWireInputStream.MESSAGE_END) {
             if(reader.field() == IValueIDs.BoolValue.VALUE){
                 value =  true;
             }
@@ -963,7 +962,7 @@ public class IValueReader implements Closeable {
 
     private static boolean skipMessageCheckBackReference(final ValueWireInputStream reader) throws IOException {
         boolean backReference = false;
-        while (!reader.next().isEnd()) {
+        while (reader.next() != ValueWireInputStream.MESSAGE_END) {
             backReference |= reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED;
         }
         return backReference;

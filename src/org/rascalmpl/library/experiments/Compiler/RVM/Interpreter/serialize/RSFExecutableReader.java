@@ -9,16 +9,8 @@ import java.util.Map;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
-import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.io.binary.ValueWireInputStream;
-import org.rascalmpl.value.io.binary.ValueWireInputStream.ReaderPosition;
 import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.value.util.ResizingArray;
-import org.rascalmpl.values.ValueFactoryFactory;
-
-import com.google.protobuf.CodedInputStream;
 
 /**
  * RVMExecutableReader is a binary deserializer for RVMExecutable and related classes
@@ -53,11 +45,6 @@ public class RSFExecutableReader {
 	public void close() throws IOException {
 		//in.close();
 	}
-
-    public ReaderPosition next() {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
     public int field() {
         // TODO Auto-generated method stub
