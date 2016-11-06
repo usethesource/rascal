@@ -12,7 +12,9 @@
  */ 
 package org.rascalmpl.value.io.binary.util;
 
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -24,6 +26,8 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.impl.AbstractDefaultAnnotatable;
+import org.rascalmpl.value.impl.AbstractDefaultWithKeywordParameters;
 import org.rascalmpl.value.visitors.NullVisitor;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -96,31 +100,7 @@ public class PrePostIValueIterator  {
                 value.accept(new NullVisitor<Void, RuntimeException>() {
                     @Override
                     public Void visitConstructor(IConstructor cons) throws RuntimeException {
-                        if(cons.mayHaveKeywordParameters()){
-                            if(cons.asWithKeywordParameters().hasParameters()){
-                                for (Map.Entry<String, IValue> param : cons.asWithKeywordParameters().getParameters().entrySet()) {
-                                    IString key = vf.string(param.getKey());
-                                    IValue val = param.getValue();
-                                    stack.push(val, true);
-                                    stack.push(key, true);
-                                }
-                            }
-                        } else {
-                            if(cons.asAnnotatable().hasAnnotations()){
-                                for (Map.Entry<String, IValue> param : cons.asAnnotatable().getAnnotations().entrySet()) {
-                                    IString key = vf.string(param.getKey());
-                                    IValue val = param.getValue();
-                                    stack.push(val, true);
-                                    stack.push(key, true);
-                                }
-                            }
-                        }
-
-                        for(int i = cons.arity() - 1; i >= 0; i--){
-                            IValue elem = cons.get(i);
-                            stack.push(elem, true);
-                        }
-                        return null;
+                        return visitNode(cons);
                     }
                     @Override
                     public Void visitList(IList lst) throws RuntimeException {
@@ -139,25 +119,20 @@ public class PrePostIValueIterator  {
                         }
                         return null;
                     }
+                    @SuppressWarnings("unchecked")
                     @Override
                     public Void visitNode(INode node) throws RuntimeException {
                         if(node.mayHaveKeywordParameters()){
                             if(node.asWithKeywordParameters().hasParameters()){
-                                for (Map.Entry<String, IValue> param : node.asWithKeywordParameters().getParameters().entrySet()) {
-                                    IString key = vf.string(param.getKey());
-                                    IValue val = param.getValue();
-                                    stack.push(val, true);
-                                    stack.push(key, true);
-                                }
+                                assert node.asWithKeywordParameters() instanceof AbstractDefaultWithKeywordParameters;
+                                AbstractDefaultWithKeywordParameters<IValue> nodeKw = (AbstractDefaultWithKeywordParameters<IValue>)(node.asWithKeywordParameters());
+                                pushKWPairs(nodeKw.internalGetParameters().entryIterator());
                             }
                         } else {
                             if(node.asAnnotatable().hasAnnotations()){
-                                for (Map.Entry<String, IValue> param : node.asAnnotatable().getAnnotations().entrySet()) {
-                                    IString key = vf.string(param.getKey());
-                                    IValue val = param.getValue();
-                                    stack.push(val, true);
-                                    stack.push(key, true);
-                                }
+                                assert node.asAnnotatable() instanceof AbstractDefaultAnnotatable;
+                                AbstractDefaultAnnotatable<IValue> nodeAnno = (AbstractDefaultAnnotatable<IValue>)(node.asAnnotatable());
+                                pushKWPairs(nodeAnno.internalGetAnnotations().entryIterator());
                             }
                         }
 
@@ -166,6 +141,13 @@ public class PrePostIValueIterator  {
                             stack.push(elem, true);
                         }
                         return null;
+                    }
+                    private void pushKWPairs(Iterator<Entry<String, IValue>> entryIterator) {
+                        while (entryIterator.hasNext()) {
+                            Entry<String, IValue> param = entryIterator.next();
+                            stack.push(param.getValue(), true);
+                            stack.push(vf.string(param.getKey()), true);
+                        }
                     }
                     @Override
                     public Void visitRational(IRational rat) throws RuntimeException {
