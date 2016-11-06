@@ -3472,7 +3472,7 @@ public class Prelude {
 
     private CompressionRate translateCompression(IConstructor compression) {
         switch (compression.getName()) {
-            case "none": return CompressionRate.None;
+            case "disabled": return CompressionRate.None;
             case "light": return CompressionRate.Light;
             case "normal": return CompressionRate.Normal;
             case "strong": return CompressionRate.Strong;
