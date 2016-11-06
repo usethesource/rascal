@@ -569,7 +569,7 @@ public class IValueReader implements Closeable {
             case IValueIDs.RealValue.ID: return readReal(reader, vf, vstack);
             case IValueIDs.SetValue.ID: return readSet(reader, vf, vstack, 0);
             case IValueIDs.StringValue.ID: return readString(reader, vf, vstack);
-            case IValueIDs.TupleValue.ID: return readTuple(reader, vf, vstack);
+            case IValueIDs.TupleValue.ID: return readTuple(reader, vf, vstack, 0);
             case IValueIDs.PreviousValue.ID: return readPreviousValue(reader, valueWindow, vstack);
             default:
                 throw new IllegalArgumentException("readValue: " + reader.message());
@@ -580,14 +580,14 @@ public class IValueReader implements Closeable {
     private static boolean readPreviousValue(final ValueWireInputStream reader,
             final TrackLastRead<IValue> valueWindow, final ValueReaderStack vstack)
             throws IOException {
-        Integer n = null;
+        int n = -1;
         while(!reader.next().isEnd()){
             if(reader.field() == IValueIDs.PreviousValue.HOW_FAR_BACK){
-                n =  reader.getInteger();
+                n = reader.getInteger();
             }
         }
 
-        assert n != null;
+        assert n != -1;
 
         IValue result = valueWindow.lookBack(n);
         if (result == null) {
@@ -599,21 +599,17 @@ public class IValueReader implements Closeable {
 
 
     private static boolean readTuple(final ValueWireInputStream reader, final IValueFactory vf,
-            final ValueReaderStack vstack) throws IOException {
-        Integer len = 0;
+            final ValueReaderStack vstack, int defaultSize) throws IOException {
+        int size = defaultSize;
         boolean backReference = false;
         while (!reader.next().isEnd()) {
-            if(reader.field() == IValueIDs.TupleValue.SIZE){
-                len =  reader.getInteger();
-            }
-            else if (reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED) {
-                backReference = true;
+            switch(reader.field()) {
+                case IValueIDs.TupleValue.SIZE: size = reader.getInteger(); break;
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
             }
         }
 
-        assert len != null;
-
-        vstack.push(vf.tuple(vstack.getChildren(new IValue[len])));
+        vstack.push(vf.tuple(vstack.getChildren(new IValue[size])));
         return backReference;
     }
 
@@ -623,11 +619,9 @@ public class IValueReader implements Closeable {
         String str = null;
         boolean backReference = false;
         while (!reader.next().isEnd()) {
-            if(reader.field() == IValueIDs.StringValue.CONTENT){
-                str = reader.getString();
-            }
-            else if (reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED) {
-                backReference = true;
+            switch(reader.field()) {
+                case IValueIDs.StringValue.CONTENT: str = reader.getString(); break;
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
             }
         }
 
@@ -643,11 +637,9 @@ public class IValueReader implements Closeable {
         int size = defaultSize;
         boolean backReference = false;
         while (!reader.next().isEnd()) {
-            if(reader.field() == IValueIDs.SetValue.SIZE){
-                size = reader.getInteger();
-            }
-            else if (reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED) {
-                backReference = true;
+            switch(reader.field()) {
+                case IValueIDs.SetValue.SIZE: size = reader.getInteger(); break;
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
             }
         }
 
@@ -745,11 +737,9 @@ public class IValueReader implements Closeable {
         int size = defaultSize;
         boolean backReference = false;
         while (!reader.next().isEnd()) {
-            if(reader.field() == IValueIDs.MapValue.SIZE){
-                size = reader.getInteger();
-            }
-            else if (reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED) {
-                backReference = true;
+            switch(reader.field()) {
+                case IValueIDs.MapValue.SIZE: size = reader.getInteger(); break;
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
             }
         }
 
@@ -829,11 +819,9 @@ public class IValueReader implements Closeable {
         int size = defaultSize;
         boolean backReference = false;
         while (!reader.next().isEnd()) {
-            if(reader.field() == IValueIDs.ListValue.SIZE){
-                size = reader.getInteger();
-            }
-            else if (reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED) {
-                backReference = true;
+            switch(reader.field()) {
+                case IValueIDs.ListValue.SIZE: size = reader.getInteger(); break;
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
             }
         }
 
@@ -976,10 +964,7 @@ public class IValueReader implements Closeable {
     private static boolean skipMessageCheckBackReference(final ValueWireInputStream reader) throws IOException {
         boolean backReference = false;
         while (!reader.next().isEnd()) {
-            switch(reader.field()){
-                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
-                    backReference = true; break;
-            }
+            backReference |= reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED;
         }
         return backReference;
     }
