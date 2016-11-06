@@ -124,6 +124,12 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 		return content.toString();
 	}
 	
+	/**
+	 * This method is only to be used by internal methods, such as testing and fast iterators
+	 */
+	public ImmutableMap<String, IValue> internalGetAnnotations() {
+	    return annotations;
+	}
 //	@Override
 //	public int hashCode() {
 //		// TODO
