@@ -28,27 +28,16 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 public class ValueWireInputStream implements Closeable {
 
-    public static enum ReaderPosition {
-        MESSAGE_START,
-        FIELD,
-        MESSAGE_END {
-            @Override
-            public boolean isEnd() {
-                return true;
-            }
-        };
-
-        public boolean isEnd() {
-            return false;
-        }
-    }
+    public static final int MESSAGE_START = 0;
+    public static final int FIELD = 1;
+    public static final int MESSAGE_END = 2;
 
     private static final byte[] WIRE_VERSION = new byte[] { 1, 0, 0 };
     private final InputStream __stream;
     private final TrackLastRead<String> stringsRead;
     private CodedInputStream stream;
     private boolean closed = false;
-    private ReaderPosition current;
+    private int current;
     private int messageID;
     private int fieldType;
     private int fieldID;
@@ -92,7 +81,7 @@ public class ValueWireInputStream implements Closeable {
         }
     }
 
-    public ReaderPosition next() throws IOException {
+    public int next() throws IOException {
         intValues = null;
         stringValues = null;
         int next;
@@ -103,7 +92,7 @@ public class ValueWireInputStream implements Closeable {
             throw new EOFException();
         }
         if (next == 0) {
-            return current = ReaderPosition.MESSAGE_END;
+            return current = MESSAGE_END;
         }
         fieldID = TaggedInt.getOriginal(next);
         fieldType = TaggedInt.getTag(next);
@@ -111,7 +100,7 @@ public class ValueWireInputStream implements Closeable {
             case 0:
                 // special case that signals starts of values
                 messageID = fieldID;
-                return current = ReaderPosition.MESSAGE_START;
+                return current = MESSAGE_START;
             case FieldKind.NESTED:
                 // only case where we don't read the value
                 break;
@@ -172,21 +161,21 @@ public class ValueWireInputStream implements Closeable {
             default:
                 throw new IOException("Unexpected wire type: " + fieldType);
         }
-        return current = ReaderPosition.FIELD;
+        return current = FIELD;
     }
 
 
-    public ReaderPosition current() {
+    public int current() {
         return current;
     }
 
     public int message() {
-        assert current == ReaderPosition.MESSAGE_START;
+        assert current == MESSAGE_START;
         return messageID;
     }
 
     public int field() {
-        assert current == ReaderPosition.FIELD;
+        assert current == FIELD;
         return fieldID;
     }
     
@@ -207,17 +196,17 @@ public class ValueWireInputStream implements Closeable {
     }
     
     public int getFieldType() {
-        assert current == ReaderPosition.FIELD;
+        assert current == FIELD;
         return fieldType;
     }
     
     public int getRepeatedType() {
-        assert current == ReaderPosition.FIELD && fieldType == FieldKind.REPEATED;
+        assert current == FIELD && fieldType == FieldKind.REPEATED;
         return nestedType;
     }
     
     public int getRepeatedLength() {
-        assert current == ReaderPosition.FIELD && fieldType == FieldKind.REPEATED;
+        assert current == FIELD && fieldType == FieldKind.REPEATED;
         return nestedLength;
     }
 
