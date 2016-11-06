@@ -132,7 +132,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
     
     @SuppressWarnings("unchecked")
     private int locate(T obj) {
-        int pos = (hash(obj) & 0x7FFFFFFF) % tableSize;
+        int pos = (hash(obj) & 0x7FFFFFFF) % tableSize; // 0x7FFFFF to make it positive, Math.abs can fail when MAX_INT is returned
         final Object[] keys = this.keys;
         Object current = keys[pos];
         if (current == null) {
@@ -152,7 +152,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
     protected abstract int hash(T obj);
 
     private int findSpace(int hash) {
-        int pos = (hash & 0x7FFFFFFF) % tableSize;
+        int pos = (hash & 0x7FFFFFFF) % tableSize; 
         while (keys[pos] != null) {
             pos = (pos + 1) % tableSize; 
         }
