@@ -26,16 +26,16 @@ import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.visitors.NullVisitor;
 
-final class StopCountingException extends RuntimeException {
-    private static final long serialVersionUID = 0;
+/* package */ final class IValueSizeEstimator extends NullVisitor<Void, RuntimeException> {
 
-    @Override
-    public synchronized Throwable fillInStackTrace() {
-        return this;
+    final class StopCountingException extends RuntimeException {
+        private static final long serialVersionUID = 0;
+
+        @Override
+        public synchronized Throwable fillInStackTrace() {
+            return this;
+        }
     }
-}
-final class IValueSizeEstimator extends NullVisitor<Void, StopCountingException> {
-
     public static int estimateIValueSize(IValue root, int stopCountingAfter) {
         IValueSizeEstimator counter = new IValueSizeEstimator(stopCountingAfter);
         try {
@@ -49,7 +49,7 @@ final class IValueSizeEstimator extends NullVisitor<Void, StopCountingException>
     private final int stopAfter;
     public int values;
 
-    public IValueSizeEstimator(int stopAfter) {
+    private IValueSizeEstimator(int stopAfter) {
         this.stopAfter = stopAfter;
         values = 0;
     }
