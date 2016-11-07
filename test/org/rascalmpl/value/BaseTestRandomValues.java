@@ -30,9 +30,9 @@ import org.rascalmpl.value.io.IValueTextReader;
 import org.rascalmpl.value.io.IValueTextWriter;
 import org.rascalmpl.value.io.StandardTextReader;
 import org.rascalmpl.value.io.StandardTextWriter;
-import org.rascalmpl.value.io.binary.message.IValueReader;
-import org.rascalmpl.value.io.binary.message.IValueWriter;
-import org.rascalmpl.value.io.binary.message.IValueWriter.CompressionRate;
+import org.rascalmpl.value.io.binary.stream.IValueInputStream;
+import org.rascalmpl.value.io.binary.stream.IValueOutputStream;
+import org.rascalmpl.value.io.binary.stream.IValueOutputStream.CompressionRate;
 import org.rascalmpl.value.random.DataGenerator;
 import org.rascalmpl.value.random.RandomIntegerGenerator;
 import org.rascalmpl.value.random.RandomNumberGenerator;
@@ -204,13 +204,13 @@ abstract public class BaseTestRandomValues extends TestCase {
 	}
 	
 	// test are build around this old interface
-	private class IValueReaderWrapper implements IValueBinaryReader {
+	private class IValueInputStreamWrapper implements IValueBinaryReader {
 
         @Override
         public IValue read(IValueFactory factory, TypeStore store, Type type, InputStream stream)
                 throws FactTypeUseException, IOException {
             assert stream instanceof ByteArrayInputStream; // else the closing contract is broken!
-            try (IValueReader reader = new IValueReader(stream, factory, store)) {
+            try (IValueInputStream reader = new IValueInputStream(stream, factory, store)) {
                 return reader.read();
             }
         }
@@ -229,11 +229,11 @@ abstract public class BaseTestRandomValues extends TestCase {
 	    
 	}
 	
-	private class IValueWriterWrapper implements IValueBinaryWriter {
+	private class IValueOutputStreamWrapper implements IValueBinaryWriter {
 
         @Override
         public void write(IValue value, OutputStream stream) throws IOException {
-            try(IValueWriter writer = new IValueWriter(stream, CompressionRate.Normal)) {
+            try(IValueOutputStream writer = new IValueOutputStream(stream, CompressionRate.Normal)) {
                 writer.write(value);
             }
         }
@@ -263,7 +263,7 @@ abstract public class BaseTestRandomValues extends TestCase {
 		if(noisy)
 			System.out.println("Test I/O: " + "(" + getClass().getPackage().getName() + ")");
 
-		ioHelperBin("RV Serializer", new IValueReaderWrapper(), new IValueWriterWrapper());
+		ioHelperBin("RV Serializer", new IValueInputStreamWrapper(), new IValueOutputStreamWrapper());
 		ioHelperText("Text", new StandardTextReader(), new StandardTextWriter());
 	}
 

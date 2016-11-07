@@ -18,8 +18,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.rascalmpl.value.io.binary.message.IValueReader;
-import org.rascalmpl.value.io.binary.message.IValueWriter;
+import org.rascalmpl.value.io.binary.stream.IValueInputStream;
+import org.rascalmpl.value.io.binary.stream.IValueOutputStream;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
@@ -319,11 +319,11 @@ public abstract class BaseTestMap extends TestCase {
 		switch(kind) {
 		case BINARY: {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			try (IValueWriter w = new IValueWriter(baos)) {
+			try (IValueOutputStream w = new IValueOutputStream(baos)) {
 			    w.write(val);
 			}
 
-			try (IValueReader r = new IValueReader(new ByteArrayInputStream(baos.toByteArray()), vf, ts)) {
+			try (IValueInputStream r = new IValueInputStream(new ByteArrayInputStream(baos.toByteArray()), vf, ts)) {
 			    return r.read();
 			}
 		}

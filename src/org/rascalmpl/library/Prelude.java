@@ -96,9 +96,9 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.io.StandardTextReader;
 import org.rascalmpl.value.io.StandardTextWriter;
-import org.rascalmpl.value.io.binary.message.IValueReader;
-import org.rascalmpl.value.io.binary.message.IValueWriter;
-import org.rascalmpl.value.io.binary.message.IValueWriter.CompressionRate;
+import org.rascalmpl.value.io.binary.stream.IValueInputStream;
+import org.rascalmpl.value.io.binary.stream.IValueOutputStream;
+import org.rascalmpl.value.io.binary.stream.IValueOutputStream.CompressionRate;
 import org.rascalmpl.value.io.old.BinaryValueReader;
 import org.rascalmpl.value.io.old.BinaryValueWriter;
 import org.rascalmpl.value.type.Type;
@@ -3375,7 +3375,7 @@ public class Prelude {
 		TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
-		try (IValueReader in = new IValueReader(URIResolverRegistry.getInstance().getInputStream(loc), values, store)) {
+		try (IValueInputStream in = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), values, store)) {
 			IValue val = in.read();;
 			if(val.getType().isSubtypeOf(start)){
 				return val;
@@ -3462,7 +3462,7 @@ public class Prelude {
 	
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IConstructor compression){
     	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
-		try (IValueWriter writer = new IValueWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), translateCompression(compression))) {
+		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), translateCompression(compression))) {
 		    writer.write(value);
 		}
 		catch (IOException ioex){
