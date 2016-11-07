@@ -12,7 +12,9 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.binary.IValueWriter.CompressionRate;
+import org.rascalmpl.value.io.binary.message.IValueReader;
+import org.rascalmpl.value.io.binary.message.IValueWriter;
+import org.rascalmpl.value.io.binary.message.IValueWriter.CompressionRate;
 import org.rascalmpl.value.type.TypeStore;
 
 
