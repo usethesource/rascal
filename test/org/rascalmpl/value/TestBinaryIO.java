@@ -16,9 +16,9 @@ import java.io.IOException;
 import java.util.Random;
 
 import org.rascalmpl.value.impl.fast.ValueFactory;
-import org.rascalmpl.value.io.binary.message.IValueReader;
-import org.rascalmpl.value.io.binary.message.IValueWriter;
-import org.rascalmpl.value.io.binary.message.IValueWriter.CompressionRate;
+import org.rascalmpl.value.io.binary.stream.IValueInputStream;
+import org.rascalmpl.value.io.binary.stream.IValueOutputStream;
+import org.rascalmpl.value.io.binary.stream.IValueOutputStream.CompressionRate;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.util.RandomValues;
@@ -51,10 +51,10 @@ public class TestBinaryIO extends TestCase {
     private void ioRoundTrip(TypeStore ts, IValue value) {
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            try (IValueWriter w = new IValueWriter(buffer,  CompressionRate.Normal)) {
+            try (IValueOutputStream w = new IValueOutputStream(buffer,  CompressionRate.Normal)) {
                 w.write(value);
             }
-            try (IValueReader read = new IValueReader(new ByteArrayInputStream(buffer.toByteArray()), vf, ts)) {
+            try (IValueInputStream read = new IValueInputStream(new ByteArrayInputStream(buffer.toByteArray()), vf, ts)) {
                 IValue result = read.read();
                 if(!value.isEqual(result)){
                     String message = "Not equal: \n\t"+value+" : "+value.getType()+"\n\t"+result+" : "+result.getType();

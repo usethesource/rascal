@@ -59,84 +59,10 @@ import io.usethesource.capsule.TrieMap_5Bits;
  * Reader for binary serialized IValues and Types.
  *
  */
-public class IValueReader implements Closeable {
+public class IValueReader {
     private static final TypeFactory tf = TypeFactory.getInstance();
     private static final RascalTypeFactory rtf = RascalTypeFactory.getInstance();
-    private final ValueWireInputStream reader;
-    private final TypeStore ts;
-    private final IValueFactory vf;
-    private final boolean legacy;
-    private final BinaryReader legacyReader;
 
-
-    /**
-     * this will consume the whole stream, or at least more than needed due to buffering, so don't use the InputStream afterwards
-     */
-    public IValueReader(InputStream in, IValueFactory vf, TypeStore ts) throws IOException {
-        ts.extendStore(RascalValueFactory.getStore());
-        this.ts = ts;
-        this.vf = vf;
-        byte[] currentHeader = new byte[IValueWriter.header.length];
-        in.read(currentHeader);
-        if (!Arrays.equals(IValueWriter.header, currentHeader)) {
-            byte firstByte = currentHeader[0];
-            // possible an old binary stream
-            firstByte &= (BinaryReader.SHARED_FLAG ^ 0xFF); // remove the possible set shared bit
-            if (BinaryReader.BOOL_HEADER <= firstByte && firstByte <= BinaryReader.IEEE754_ENCODED_DOUBLE_HEADER) {
-                System.err.println("Old value format used, switching to legacy mode!");
-                legacy = true;
-                legacyReader = new BinaryReader(vf, ts, new SequenceInputStream(new ByteArrayInputStream(currentHeader), in));
-                reader = null;
-                return;
-            }
-            throw new IOException("Unsupported file");
-        }
-        legacy = false;
-        legacyReader = null;
-
-        int compression = in.read();
-        switch (compression) {
-            case IValueWriter.CompressionHeader.NONE:
-                break;
-            case IValueWriter.CompressionHeader.GZIP:
-                in = new GZIPInputStream(in);
-                break;
-            case IValueWriter.CompressionHeader.XZ:
-                in = new XZInputStream(in);
-                break;
-            case IValueWriter.CompressionHeader.ZSTD: {
-                if (IValueWriter.zstdAvailable()) {
-                    in = new ZstdInputStream(in);
-                }
-                else {
-                    throw new IOException("There is not native zstd library available for the current architecture.");
-                }
-                break;
-            }
-            default:
-                throw new IOException("Unsupported compression in file");
-        }
-
-        reader = new ValueWireInputStream(in);
-    }
-    
-    public IValue read() throws IOException {
-        if (legacy) {
-            return legacyReader.deserialize();
-        }
-        return read(reader, vf, ts);
-    }
-    
-    @Override
-    public void close() throws IOException {
-        if (legacy) {
-            legacyReader.close();
-        }
-        else {
-            reader.close();
-        }
-    }
-    
     /**
      * In most cases you want the other instance write method.
      * 
