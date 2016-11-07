@@ -44,7 +44,7 @@ import org.rascalmpl.value.io.binary.message.IValueReader;
 import org.rascalmpl.value.io.binary.message.IValueWriter;
 import org.rascalmpl.value.io.binary.util.LinearCircularLookupWindow;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
-import org.rascalmpl.value.io.binary.wire.ValueWireInputStream;
+import org.rascalmpl.value.io.binary.wire.binary.BinaryWireInputStream;
 import org.rascalmpl.value.io.old.BinaryReader;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
@@ -62,7 +62,7 @@ import io.usethesource.capsule.TrieMap_5Bits;
  *
  */
 public class IValueInputStream implements Closeable {
-    private final ValueWireInputStream reader;
+    private final BinaryWireInputStream reader;
     private final TypeStore ts;
     private final IValueFactory vf;
     private final boolean legacy;
@@ -118,7 +118,7 @@ public class IValueInputStream implements Closeable {
                 throw new IOException("Unsupported compression in file");
         }
 
-        reader = new ValueWireInputStream(in);
+        reader = new BinaryWireInputStream(in);
     }
     
     @SuppressWarnings("deprecation")

@@ -10,7 +10,7 @@
  *  
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */ 
-package org.rascalmpl.value.io.binary.wire;
+package org.rascalmpl.value.io.binary.wire.binary;
 
 import java.io.Closeable;
 import java.io.EOFException;
@@ -18,19 +18,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-import org.rascalmpl.value.io.binary.util.FieldKind;
 import org.rascalmpl.value.io.binary.util.LinearCircularLookupWindow;
 import org.rascalmpl.value.io.binary.util.TaggedInt;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
+import org.rascalmpl.value.io.binary.wire.FieldKind;
+import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
 
-public class ValueWireInputStream implements Closeable {
-
-    public static final int MESSAGE_START = 0;
-    public static final int FIELD = 1;
-    public static final int MESSAGE_END = 2;
+public class BinaryWireInputStream implements IWireInputStream {
 
     private static final byte[] WIRE_VERSION = new byte[] { 1, 0, 0 };
     private final InputStream __stream;
@@ -49,7 +46,7 @@ public class ValueWireInputStream implements Closeable {
     private int[] intValues;
     private int nestedLength;
 
-    public ValueWireInputStream(InputStream stream) throws IOException {
+    public BinaryWireInputStream(InputStream stream) throws IOException {
         this.__stream = stream;
         byte[] header = new byte[WIRE_VERSION.length];
         this.__stream.read(header);
@@ -81,6 +78,7 @@ public class ValueWireInputStream implements Closeable {
         }
     }
 
+    @Override
     public int next() throws IOException {
         intValues = null;
         stringValues = null;
@@ -165,61 +163,73 @@ public class ValueWireInputStream implements Closeable {
     }
 
 
+    @Override
     public int current() {
         return current;
     }
 
+    @Override
     public int message() {
         assert current == MESSAGE_START;
         return messageID;
     }
 
+    @Override
     public int field() {
         assert current == FIELD;
         return fieldID;
     }
     
+    @Override
     public int getInteger() {
         assert fieldType == FieldKind.INT;
         return intValue;
     }
 
+    @Override
     public String getString() {
         assert fieldType == FieldKind.STRING;
         return stringValue;
     }
     
     
+    @Override
     public byte[] getBytes() {
         assert fieldType == FieldKind.BYTES;
         return bytesValue;
     }
     
+    @Override
     public int getFieldType() {
         assert current == FIELD;
         return fieldType;
     }
     
+    @Override
     public int getRepeatedType() {
         assert current == FIELD && fieldType == FieldKind.REPEATED;
         return nestedType;
     }
     
+    @Override
     public int getRepeatedLength() {
         assert current == FIELD && fieldType == FieldKind.REPEATED;
         return nestedLength;
     }
 
+    @Override
     public String[] getStrings() {
         assert fieldType == FieldKind.REPEATED && nestedType == FieldKind.STRING;
         return stringValues;
     }
     
+    @Override
     public int[] getIntegers() {
         assert fieldType == FieldKind.REPEATED && nestedType == FieldKind.INT;
         return intValues;
     }
 
+    @Override
     public void skipMessage() throws IOException {
         int toSkip = 1;
         while (toSkip != 0) {
