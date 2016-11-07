@@ -52,7 +52,7 @@ import io.usethesource.capsule.TrieMap_5Bits;
 // TODO Change this thing so it doesn't use recursion.
 /**
  * @author Arnold Lankamp
- * @deprecated this reader is only for the old IValue format. The new {@link org.rascalmpl.value.io.binary.IValueReader} should be used, it even switches back to this class in case an old file is encounter. 
+ * @deprecated this reader is only for the old IValue format. The new {@link org.rascalmpl.value.io.binary.message.IValueReader} should be used, it even switches back to this class in case an old file is encounter. 
  */
 @Deprecated
 public class BinaryReader implements Closeable {

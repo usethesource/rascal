@@ -46,7 +46,7 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 // TODO Change this thing so it doesn't use recursion.
 /**
  * @author Arnold Lankamp
- * @deprecated binary writer is replaced by the new {@link org.rascalmpl.value.io.binary.IValueWriter}}
+ * @deprecated binary writer is replaced by the new {@link org.rascalmpl.value.io.binary.message.IValueWriter}}
  */
 @Deprecated
 public class BinaryWriter{

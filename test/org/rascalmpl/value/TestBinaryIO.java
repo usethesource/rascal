@@ -16,9 +16,9 @@ import java.io.IOException;
 import java.util.Random;
 
 import org.rascalmpl.value.impl.fast.ValueFactory;
-import org.rascalmpl.value.io.binary.IValueReader;
-import org.rascalmpl.value.io.binary.IValueWriter;
-import org.rascalmpl.value.io.binary.IValueWriter.CompressionRate;
+import org.rascalmpl.value.io.binary.message.IValueReader;
+import org.rascalmpl.value.io.binary.message.IValueWriter;
+import org.rascalmpl.value.io.binary.message.IValueWriter.CompressionRate;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.util.RandomValues;
