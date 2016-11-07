@@ -18,8 +18,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.rascalmpl.value.io.binary.IValueReader;
-import org.rascalmpl.value.io.binary.IValueWriter;
+import org.rascalmpl.value.io.binary.message.IValueReader;
+import org.rascalmpl.value.io.binary.message.IValueWriter;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
