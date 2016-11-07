@@ -12,9 +12,9 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.binary.message.IValueReader;
-import org.rascalmpl.value.io.binary.message.IValueWriter;
-import org.rascalmpl.value.io.binary.message.IValueWriter.CompressionRate;
+import org.rascalmpl.value.io.binary.stream.IValueInputStream;
+import org.rascalmpl.value.io.binary.stream.IValueOutputStream;
+import org.rascalmpl.value.io.binary.stream.IValueOutputStream.CompressionRate;
 import org.rascalmpl.value.type.TypeStore;
 
 
@@ -58,7 +58,7 @@ public class SerializableValue<T extends IValue> implements Serializable {
 		out.write(factoryName.getBytes("UTF8"));
 		out.write(':');
 		ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
-		try (IValueWriter writer = new IValueWriter(bytesStream, CompressionRate.Normal)) {
+		try (IValueOutputStream writer = new IValueOutputStream(bytesStream, CompressionRate.Normal)) {
 		    writer.write(value);
 		}
 		byte[] bytes = bytesStream.toByteArray();
@@ -83,7 +83,7 @@ public class SerializableValue<T extends IValue> implements Serializable {
 			in.read(bytes);
 			Class<?> clazz = getClass().getClassLoader().loadClass(new String(factoryName, "UTF8"));
 			this.vf = (IValueFactory) clazz.getMethod("getInstance").invoke(null, new Object[0]);
-			try (IValueReader reader = new IValueReader(new ByteArrayInputStream(bytes), vf, new TypeStore())) {
+			try (IValueInputStream reader = new IValueInputStream(new ByteArrayInputStream(bytes), vf, new TypeStore())) {
 			    this.value = (T) reader.read();
 			}
 		}
