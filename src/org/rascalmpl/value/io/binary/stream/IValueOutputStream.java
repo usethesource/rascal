@@ -37,7 +37,7 @@ import org.rascalmpl.value.io.binary.message.IValueWriter;
 import org.rascalmpl.value.io.binary.util.OpenAddressingLastWritten;
 import org.rascalmpl.value.io.binary.util.PrePostIValueIterator;
 import org.rascalmpl.value.io.binary.util.TrackLastWritten;
-import org.rascalmpl.value.io.binary.wire.ValueWireOutputStream;
+import org.rascalmpl.value.io.binary.wire.binary.BinaryWireOutputStream;
 import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.visitors.IValueVisitor;
@@ -107,7 +107,7 @@ public class IValueOutputStream implements Closeable {
     }
     private CompressionRate compression;
     private OutputStream rawStream;
-    private ValueWireOutputStream writer;
+    private BinaryWireOutputStream writer;
     public IValueOutputStream(OutputStream out, CompressionRate compression) throws IOException {
         out.write(Header.MAIN);
         rawStream = out;
@@ -158,7 +158,7 @@ public class IValueOutputStream implements Closeable {
         rawStream.write(algorithm);
         rawStream = Compressor.wrapStream(rawStream, algorithm, compression.compressionLevel);
         // writer is only initilized for first value
-        writer = new ValueWireOutputStream(rawStream, sizes.stringsWindow);
+        writer = new BinaryWireOutputStream(rawStream, sizes.stringsWindow);
     }
 
 

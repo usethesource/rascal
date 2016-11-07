@@ -37,7 +37,7 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.io.binary.util.OpenAddressingLastWritten;
 import org.rascalmpl.value.io.binary.util.PrePostIValueIterator;
 import org.rascalmpl.value.io.binary.util.TrackLastWritten;
-import org.rascalmpl.value.io.binary.wire.ValueWireOutputStream;
+import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.visitors.IValueVisitor;
@@ -74,7 +74,7 @@ public class IValueWriter {
      * @param value the value to write
      * @throws IOException
      */
-    public static void write(ValueWireOutputStream writer, int typeWindowSize, int valueWindowSize, int uriWindowSize, IValue value ) throws IOException {
+    public static void write(IWireOutputStream writer, int typeWindowSize, int valueWindowSize, int uriWindowSize, IValue value ) throws IOException {
         writeHeader(writer, valueWindowSize, typeWindowSize, uriWindowSize);
         TrackLastWritten<Type> typeCache = getWindow(typeWindowSize);
         TrackLastWritten<IValue> valueCache = getWindow(valueWindowSize);
@@ -85,7 +85,7 @@ public class IValueWriter {
     
     
     
-    private static void writeHeader(ValueWireOutputStream writer, int valueWindowSize, int typeWindowSize, int uriWindowSize) throws IOException {
+    private static void writeHeader(IWireOutputStream writer, int valueWindowSize, int typeWindowSize, int uriWindowSize) throws IOException {
         writer.startMessage(IValueIDs.Header.ID);
         writer.writeField(IValueIDs.Header.VALUE_WINDOW, valueWindowSize);
         writer.writeField(IValueIDs.Header.TYPE_WINDOW, typeWindowSize);
@@ -93,7 +93,7 @@ public class IValueWriter {
         writer.endMessage();
     }
 
-    private static void write(final ValueWireOutputStream writer, final Type type, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
+    private static void write(final IWireOutputStream writer, final Type type, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
         type.accept(new ITypeVisitor<Void, IOException>() {
 
             private boolean writeFromCache(Type type) throws IOException {
@@ -304,45 +304,45 @@ public class IValueWriter {
         });
     }
     
-    private static void writeSingleValueMessage(final ValueWireOutputStream writer, int messageID, int fieldId, int fieldValue) throws IOException {
+    private static void writeSingleValueMessage(final IWireOutputStream writer, int messageID, int fieldId, int fieldValue) throws IOException {
         writer.startMessage(messageID);
         writer.writeField(fieldId, fieldValue);
         writer.endMessage();
     }
-    private static void writeSingleValueMessageBackReferenced(final ValueWireOutputStream writer, int messageID, int fieldId, int fieldValue) throws IOException {
+    private static void writeSingleValueMessageBackReferenced(final IWireOutputStream writer, int messageID, int fieldId, int fieldValue) throws IOException {
         writer.startMessage(messageID);
         writeCanBeBackReferenced(writer);
         writer.writeField(fieldId, fieldValue);
         writer.endMessage();
     }
     
-    private static void writeSingleValueMessage(final ValueWireOutputStream writer, int messageID, int fieldId, String fieldValue) throws IOException {
+    private static void writeSingleValueMessage(final IWireOutputStream writer, int messageID, int fieldId, String fieldValue) throws IOException {
         writer.startMessage(messageID);
         writer.writeField(fieldId, fieldValue);
         writer.endMessage();
     }
-    private static void writeSingleValueMessageBackReferenced(final ValueWireOutputStream writer, int messageID, int fieldId, String fieldValue) throws IOException {
+    private static void writeSingleValueMessageBackReferenced(final IWireOutputStream writer, int messageID, int fieldId, String fieldValue) throws IOException {
         writer.startMessage(messageID);
         writeCanBeBackReferenced(writer);
         writer.writeField(fieldId, fieldValue);
         writer.endMessage();
     }
-    private static void writeEmptyMessageBackReferenced(final ValueWireOutputStream writer, int messageID) throws IOException {
+    private static void writeEmptyMessageBackReferenced(final IWireOutputStream writer, int messageID) throws IOException {
         writer.startMessage(messageID);
         writeCanBeBackReferenced(writer);
         writer.endMessage();
     }
-    private static void writeCanBeBackReferenced(final ValueWireOutputStream writer) throws IOException {
+    private static void writeCanBeBackReferenced(final IWireOutputStream writer) throws IOException {
         writer.writeField(IValueIDs.Common.CAN_BE_BACK_REFERENCED, 1);
     }
-    private static void writeEnd(ValueWireOutputStream writer) throws IOException {
+    private static void writeEnd(IWireOutputStream writer) throws IOException {
         writer.writeEmptyMessage(IValueIDs.LastValue.ID);
     }
 
     private static final IInteger MININT =ValueFactoryFactory.getValueFactory().integer(Integer.MIN_VALUE);
     private static final IInteger MAXINT =ValueFactoryFactory.getValueFactory().integer(Integer.MAX_VALUE);
     
-    private static void write(final ValueWireOutputStream writer, final IValue value, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
+    private static void write(final IWireOutputStream writer, final IValue value, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
         PrePostIValueIterator iter = new PrePostIValueIterator(value);
         
         // returns if the value should be put into the cache or not

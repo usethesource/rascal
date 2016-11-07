@@ -10,21 +10,22 @@
  *  
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */ 
-package org.rascalmpl.value.io.binary.wire;
+package org.rascalmpl.value.io.binary.wire.binary;
 
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.rascalmpl.value.io.binary.util.FieldKind;
 import org.rascalmpl.value.io.binary.util.OpenAddressingLastWritten;
 import org.rascalmpl.value.io.binary.util.TaggedInt;
 import org.rascalmpl.value.io.binary.util.TrackLastWritten;
+import org.rascalmpl.value.io.binary.wire.FieldKind;
+import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 
 import com.google.protobuf.CodedOutputStream;
 
-public class ValueWireOutputStream implements Closeable, Flushable {
+public class BinaryWireOutputStream implements IWireOutputStream {
 
     private static final byte[] WIRE_VERSION = new byte[] { 1, 0, 0 };
     private boolean closed = false;
@@ -32,7 +33,7 @@ public class ValueWireOutputStream implements Closeable, Flushable {
     private final OutputStream __stream;
     private final TrackLastWritten<String> stringsWritten;
 
-    public ValueWireOutputStream(OutputStream stream, int stringSharingWindowSize) throws IOException {
+    public BinaryWireOutputStream(OutputStream stream, int stringSharingWindowSize) throws IOException {
         assert stringSharingWindowSize > 0;
         this.__stream = stream;
         this.__stream.write(WIRE_VERSION);
@@ -78,11 +79,13 @@ public class ValueWireOutputStream implements Closeable, Flushable {
         stream.writeUInt32NoTag(TaggedInt.make(fieldId, type));
     }
 
+    @Override
     public void startMessage(int messageId) throws IOException {
         assertNotClosed();
         writeFieldTag(messageId, 0);
     }
 
+    @Override
     public void writeField(int fieldId, String value) throws IOException {
         assertNotClosed();
         int alreadyWritten = stringsWritten.howLongAgo(value);
@@ -97,18 +100,21 @@ public class ValueWireOutputStream implements Closeable, Flushable {
         }
     }
     
+    @Override
     public void writeField(int fieldId, int value) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.INT);
         stream.writeUInt32NoTag(value);
     }
     
+    @Override
     public void writeField(int fieldId, byte[] value) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.BYTES);
         stream.writeByteArrayNoTag(value);
     }
     
+    @Override
     public void writeField(int fieldId, int[] values) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.REPEATED);
@@ -118,6 +124,7 @@ public class ValueWireOutputStream implements Closeable, Flushable {
         }
     }
     
+    @Override
     public void writeField(int fieldId, String[] values) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.REPEATED);
@@ -135,21 +142,25 @@ public class ValueWireOutputStream implements Closeable, Flushable {
         }
     }
     
+    @Override
     public void writeNestedField(int fieldId) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.NESTED);
         
     }
+    @Override
     public void writeRepeatedNestedField(int fieldId, int numberOfNestedElements) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.REPEATED);
         stream.writeUInt32NoTag(TaggedInt.make(numberOfNestedElements, FieldKind.NESTED));
     }
+    @Override
     public void endMessage() throws IOException {
         assertNotClosed();
         writeFieldTag(0, 0);
     }
     
+    @Override
     public void writeEmptyMessage(int messageId) throws IOException {
         startMessage(messageId);
         endMessage();
