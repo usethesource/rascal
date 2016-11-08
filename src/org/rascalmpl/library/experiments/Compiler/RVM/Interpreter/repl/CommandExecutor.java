@@ -222,8 +222,8 @@ public class CommandExecutor {
 	          mname = imports.get(j);
 	          break;
 	        }
-            w.append(vf.string(mname));
-          }
+	      }
+          w.append(vf.string(mname));
 	    }
 	  } else {
 	    if(imports.size() > 0){
@@ -241,8 +241,19 @@ public class CommandExecutor {
 	      pcfg.getboot(), 
 	      pcfg.getBin(), 
 	      true,
-	      makeCompileKwParamsAsMap());
+	      makeCompileKwParamsAsMap()
+	      );
 	  stderr.println("executeTests: " + res);
+	}
+	
+	public IConstructor executeTestsRaw(String mname){
+	  return kernel.rascalTestsRaw(vf.list(vf.string(mname)), 
+          pcfg.getSrcs(), 
+          pcfg.getLibs(), 
+          pcfg.getboot(), 
+          pcfg.getBin(), 
+          true,
+          makeCompileKwParamsAsMap());
 	}
 	
 	private IValue executeModule(String main, boolean onlyMainChanged) throws RascalShellExecutionException {

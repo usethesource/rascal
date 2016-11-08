@@ -272,6 +272,7 @@ void printDecl(RVMDeclaration d){
     if(d is FUNCTION){
         println("\tFUNCTION <d.uqname>, <d.qname>, <d.ftype>");
         print("\t\tisPublic=<d.isPublic>, isDefault=<d.isDefault>, ");
+        println("\t\tlocalNames=<d.localNames>");
     } else {
         println("\tCOROUTINE <d.uqname>, <d.qname>");
         print("\t\t");

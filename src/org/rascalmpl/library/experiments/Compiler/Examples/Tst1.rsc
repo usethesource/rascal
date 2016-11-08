@@ -1,10 +1,3 @@
 module experiments::Compiler::Examples::Tst1
-
-lexical X = [xyzXYZ];
-lexical XPlus = X+ xs1;
-
-//@ignoreInterpreter{Incorrect/not implemented}
-//@expected{IllegalArgument}
-//test bool lexIllegalSlice() { ([XPlus] "xyz").xs1[0 .. 0]; return false; }
-
-value main() =  ([XPlus] "xyz").xs1[0 .. 0];
+       
+test bool setComprehension() = [   n-1 | int n <- [14, 24, 52, 76, 89, -68, 19, -9, -76]] == [13,23,51,75,88,-69,18,-10,-77];
