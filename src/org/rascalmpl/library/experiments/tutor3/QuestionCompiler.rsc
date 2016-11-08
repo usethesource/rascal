@@ -12,6 +12,7 @@ import experiments::Compiler::Execute;
 import util::SystemAPI;
 import IO;
 import util::Reflective;
+import DateTime;
 
 import Ambiguity;
 
@@ -468,10 +469,12 @@ int countInsertCmds(EvalCmd c){
     return n;
 }
 
-tuple[str quoted, str execute, bool hasHoles, map[str,str] bindings] preprocess(QuestionPart q, str setup, map[str,str] initialEnv){
+str holeMarkup(int n, int len) = "+++\<div class=\"hole\" id=\"hole<n>\" length=\"<len>\"/\>+++";
+
+tuple[str quoted, str execute, bool hasHoles, map[str,str] bindings] preprocess(int questionId, QuestionPart q, str setup, map[str,str] initialEnv){
     quoted = "";
     executed = "";
-    holes = false;
+    nholes = 0;
     map[str,str] env = initialEnv;
     
     str handle(InsertCmd ins){
@@ -505,7 +508,7 @@ tuple[str quoted, str execute, bool hasHoles, map[str,str] bindings] preprocess(
            }
         }
         //println("Eval: <expr>");
-        v = eval(expr, setup);
+        v = eval(questionId, expr, setup);
         return "<v>";
     }
     
@@ -515,9 +518,9 @@ tuple[str quoted, str execute, bool hasHoles, map[str,str] bindings] preprocess(
             quoted += v; executed += v;
         }   
         case HoleCmd h: {
-            holes = true;
+            nholes += 1;
             txt = "<h.contents.parts>";
-            quoted += "_";
+            quoted += holeMarkup(nholes, size(txt));
             try {
                 ins = [InsertCmd] "!{<txt>}";
                 v = handle(ins);
@@ -552,13 +555,16 @@ tuple[str quoted, str execute, bool hasHoles, map[str,str] bindings] preprocess(
         }
     }
     
-    return <quoted, executed, holes, env>;
+    return <quoted, executed, nholes > 0, env>;
 }
 
 void process(str question){
     res = process(parse(#Question, question));
-    println("<question>\n==\>\n<res>");
+    //println("<question>\n==\>\n<res>");
+    println(res);
 }
+
+int questionId = 0;
 
 str process(Question q){
     text = "<q.text>";
@@ -566,23 +572,24 @@ str process(Question q){
     prep_quoted = prep_executed = "";
     prep_holes = false;
     env1 = ();
+    questionId += 1;
   
     if(body has prep){
-        <prep_quoted, prep_executed, prep_holes, env1> = preprocess(body.prep.text, "", ());
+        <prep_quoted, prep_executed, prep_holes, env1> = preprocess(questionId, body.prep.text, "", ());
     }
     
     expr_quoted = expr_executed = "";
     expr_holes = false;
     env2 = env1;
     if(body has expr){
-        <expr_quoted, expr_executed, expr_holes, env2> = preprocess(body.expr.text, prep_executed, env1);
-        return questionMarkup(text, "module Question
+        <expr_quoted, expr_executed, expr_holes, env2> = preprocess(questionId, body.expr.text, prep_executed, env1);
+        return questionMarkup(questionId, text, "module Question<questionId>
                                     '<prep_quoted><"<prep_quoted>" == "" ? "" : "\n">
-                                    'test bool <body.expr.name>() = <expr_quoted> == <expr_holes ? eval(expr_executed, prep_executed) : "_">;");
+                                    'test bool <body.expr.name>() = <expr_quoted> == <expr_holes ? eval(questionId, expr_executed, prep_executed) : holeMarkup(1, 10)>;");
     }
     if(prep_holes){
-        runTests(prep_executed);
-        return questionMarkup(text, "module Question
+        runTests(questionId, prep_executed);
+        return questionMarkup(questionId, text, "module Question<questionId>
                                     '<prep_quoted>
                                     ");
     }
@@ -590,37 +597,64 @@ str process(Question q){
       
 }
 
-str questionMarkup(str text, str code){
-    return ".Question
+str replaceHoles(str code){
+    return replaceAll(visit(code){
+        case /^\+\+\+[^\+]+\+\+\+/ => "_"
+    }, "\n", "\\n");
+}
+
+str escape(str code){
+    return replaceAll(code, "\"", "&quot;");
+}
+
+str removeSpacesAroundHoles(str code){
+    return visit(code){
+        case /^[ ]+\+\+\+/ => "+++"
+        case /^\+\+\+[ ]+/ => "+++"
+    };
+}
+
+str questionMarkup(int n, str text, str code){
+    return ".Question <n>
            '<text>
-           '[source,rascal]
+           '++++
+           '\<div id=\"Question<n>\" 
+           '    class=\"codequestion\"
+           '    listing=\"<escape(replaceHoles(code))>\"\>
+           '++++
+           '[source,rascal,subs=\"normal\"]
            '----
-           '<code>
-           '----";
+           '<removeSpacesAroundHoles(code)>
+           '----
+           '++++
+           '\</div\>
+           '\<br\>
+           '++++";
 }
 
 PathConfig pcfg = 
-    pathConfig(srcs=[|test-modules:///|, |std:///|], 
+    pathConfig(srcs=[|test-modules:///|, |home:///git/rascal/src/org/rascalmpl/library|], 
                bin=|home:///bin|, 
-               libs=[|home:///bin|, |home:///git/rascal/bin/boot|]);
+               boot=|home:///git/rascal/bootstrap/phase2|,
+               libs=[|home:///bin|, |home:///git/rascal/bootstrap/phase2/org/rascal/mpl/library|]);
 
-loc makeQuestion(){
+loc makeQuestion(int questionId){
     for(f <- pcfg.bin.ls){
         if(/Question/ := "<f>"){
-        println("remove: <f>");
+        //println("remove: <f>");
            remove(f);
         }
     }
-    mloc = |test-modules:///| + "Question.rsc";
+    mloc = |test-modules:///| + "Question<questionId>.rsc";
     return mloc;
 }
 
-value eval(str exp, str setup) {
-    Q = makeQuestion();
-    msrc = "module Question <setup> value main() {<exp>;}";
+value eval(int questionId, str exp, str setup) {
+    Q = makeQuestion(questionId);
+    msrc = "module Question<questionId> <setup> value main() {<exp>;}";
     writeFile(Q, msrc);
     try {
-       compileAndLink("Question", pcfg); 
+       compileAndLink("Question<questionId>", pcfg); 
        return execute(Q, pcfg);
     } catch e:{
        println("*** While evaluating <exp> in
@@ -631,12 +665,12 @@ value eval(str exp, str setup) {
     }
 }
 
-void runTests(str mbody){
-    Q = makeQuestion();
-    msrc = "module Question <mbody>";
+void runTests(int questionId, str mbody){
+    Q = makeQuestion(questionId);
+    msrc = "module Question<questionId> <mbody>";
     writeFile(Q, msrc);
     try {
-       compileAndLink("Question", pcfg); 
+       compileAndLink("Question<questionId>", pcfg); 
        res = execute(Q, pcfg, testsuite=true);
        if(!printTestReport(res, [])){
           throw "Errors while executing testsuite for question";
@@ -652,36 +686,32 @@ void runTests(str mbody){
 
 value main(){
 
-    //process("question Replace _ by an expression and make the test true:
-    //        'expr setComprehension: [?{n-1} | int n \<- !{list[int]}]
-    //        'end");
-            
-    //process("question Replace _ by a function name and make the test true:
-    //        'prep: 
-    //        'import List;
-    //        'expr listFunction: ?{headTail}(!{list[int]})
-    //        'end"); 
-             
-//    process("question Replace _ by a value and make the test true:
-//            'expr setIn: ?{A:int} in %{  !{B:set[int]} + !{A} }
-//            'end");         
-// 
-    process("question Replace _ by the result of the intersection and make the test true:
-            'expr setIntersection: %{ !{A:set[int]} + !{B:set[int]} } & %{ !{C:set[int]} + !{B} }
+    process("question Replace _ by an expression and make the test true:
+            'expr setComprehension: [?{n-1} | int n \<- !{list[int][1,10]}]
             'end");
-//    
-//    process("question Replace _ by the value of the given expression and make the test true:
-//            'prep:
-//            'lrel[str country, int year, int amount] GDP = 
-//            '   [\<\"US\", 2008, 14264600\>, 
-//            '    \<\"EU\", 2008, 18394115\>,
-//            '    \<\"Japan\", 2008, 4923761\>, 
-//            '    \<\"US\", 2007, 13811200\>, 
-//            '    \<\"EU\", 2007, 13811200\>, 
-//            '    \<\"Japan\", 2007, 4376705\>];
-//            'expr relSubscript: GDP[\"US\",2008]
-//            'end");
-//    
+ //           
+ //   process("question Replace _ by a function name and make the test true:
+ //           'prep: 
+ //           'import List;
+ //           'expr listFunction: ?{headTail}(!{list[int][1,10]})
+ //           'end"); 
+ //            
+ //   process("question Replace _ by a value and make the test true:
+ //           'expr setIn: ?{A:int} in %{  !{B:set[int]} + !{A} }
+ //           'end");         
+ //
+ //   process("question Replace _ by the result of the intersection and make the test true:
+ //           'expr setIntersection: %{ !{A:set[int]} + !{B:set[int]} } & %{ !{C:set[int]} + !{B} }
+ //           'end");
+ //   
+    //process("question Replace _ by the value of the given expression and make the test true:
+    //        'prep:
+    //        'lrel[str country, int year, int amount] GDP = 
+    //        '   [\<\"US\", 2008, 14264600\>, 
+    //        '    \<\"Japan\", 2007, 4376705\>];
+    //        'expr relSubscript: GDP[\"US\",2008]
+    //        'end");
+    //
 //    process("question Replace _ by the size of the list and make the test true:
 //            'prep:
 //            'import List;
