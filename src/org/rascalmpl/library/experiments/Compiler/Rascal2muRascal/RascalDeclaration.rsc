@@ -87,9 +87,12 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   tmods = translateModifiers(fd.signature.modifiers);
   
   ftype = getFunctionType(fd@\loc);
+  argNames = getParameterNames(fd.signature.parameters.formals.formals);
   nformals = size(ftype.parameters);
   uid = getLoc2uid(fd@\loc);
   fuid = convert2fuid(uid);
+  
+  //println("argNames = <argNames>, nformals = <nformals>");
  
   enterFunctionScope(fuid);
   
@@ -107,12 +110,9 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   
   if(ttags["javaClass"]?){
      paramTypes = \tuple([param | param <- ftype.parameters]);
-     params = [ muVar("<ftype.parameters[i]>", fuid, i) | i <- [ 0 .. nformals] ];
+     params = [ muVar(argNames[i], fuid, i) | i <- [ 0 .. nformals] ];
      
-     //keywordTypes = \tuple([]);
-     //KeywordFormals kwfs = fd.signature.parameters.keywordFormals;
      if(kwfs is \default) {
-      	//keywordTypes = \tuple([ label("<kwf.name>", translateType(kwf.\type)) | KeywordFormal kwf <- kwfs.keywordFormalList]);
       	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
      }
      if("<fd.signature.name>" == "typeOf"){		// Take note: special treatment of Types::typeOf
@@ -142,7 +142,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   
   addFunctionToModule(muFunction(fuid, 
   								 "<fd.signature.name>", 
-  								 ftype, 
+  								 ftype,
+  								 argNames,
   								 keywordTypes,
   								 (addr.fuid in moduleNames) ? "" : addr.fuid, 
   								 getFormals(uid), 
@@ -167,6 +168,28 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   } catch e: {
         throw "EXCEPTION in translateFunctionDeclaration, compiling <fd.signature.name>: <e>";
   }
+}
+
+list[str] getParameterNames({Pattern ","}* formals){
+     int arity = size(formals);
+    
+     abs_formals = [f | f <- formals];
+     names =
+     for(int i <- [0 .. arity]){
+         str argName = "arg<i>";
+         
+         if((Pattern)`<Type pt> <Name pn>` := abs_formals[i]){
+              argName = "<pn>";
+         } else if((Pattern)`<Name pn>` := abs_formals[i]){
+              argName = "<pn>";
+         } else if((Pattern) `<Name name> : <Pattern pattern>` := abs_formals[i]){
+            argName = "<name>";
+         } else if((Pattern) `<Type tp> <Name name> : <Pattern pattern>` := abs_formals[i]){
+            argName = "<name>";
+         }
+         append argName; 
+     }
+     return names; 
 }
 
 /********************************************************************/

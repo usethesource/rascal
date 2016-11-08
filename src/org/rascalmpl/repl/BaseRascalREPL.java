@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
@@ -116,7 +117,11 @@ public abstract class BaseRascalREPL extends BaseREPL {
             }
         } catch (IOException ie) {
             throw new RuntimeException(ie);
+        } catch (Ambiguous e) {
+            getErrorWriter().println("Internal error: ambiguous command: " + TreeAdapter.yield(e.getTree()));
+            return;
         }
+        
     }
 
     @Override

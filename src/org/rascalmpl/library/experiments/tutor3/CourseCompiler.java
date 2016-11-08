@@ -160,6 +160,7 @@ public class CourseCompiler {
 		System.err.println("srcPath: " + srcPath + ", destPath: " + destPath);
 		
 		ArrayList<String> files  = new ArrayList<>();
+		files.add("tutor-prelude.js");
 		files.add("favicon.ico");
 		files.add("css/style.css");
 		files.add("docinfo.html");
@@ -286,14 +287,14 @@ public class CourseCompiler {
 		err.flush();
 		writeFile(destPath + "/course-compilation-errors.txt", sw.toString());
 		
-//		System.err.println("Removing intermediate files");
-//		
-//		FileVisitor<Path> fileProcessor = new RemoveAdocs();
-//		try {
-//			Files.walkFileTree(destPath, fileProcessor);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		System.err.println("Course compilation done");
+		System.err.println("Removing intermediate files");
+		
+		FileVisitor<Path> fileProcessor = new RemoveAdocs();
+		try {
+			Files.walkFileTree(destPath, fileProcessor);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.err.println("Course compilation done");
 	}
 }
