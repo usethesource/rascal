@@ -159,10 +159,4 @@ public class BinaryWireOutputStream implements IWireOutputStream {
         assertNotClosed();
         writeFieldTag(0, 0);
     }
-    
-    @Override
-    public void writeEmptyMessage(int messageId) throws IOException {
-        startMessage(messageId);
-        endMessage();
-    }
 }
