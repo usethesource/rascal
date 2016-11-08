@@ -32,5 +32,8 @@ public interface IWireOutputStream extends Closeable, Flushable  {
 
     void endMessage() throws IOException;
 
-    void writeEmptyMessage(int messageId) throws IOException;
+    default void writeEmptyMessage(int messageId) throws IOException {
+        startMessage(messageId);
+        endMessage();
+    }
 }
