@@ -19,12 +19,18 @@ import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +44,7 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class URIResolverRegistry {
-	private static final String RESOLVERS_CONFIG = "org/rascalmpl/uri/resolvers.config";
+	private static final String RESOLVERS_CONFIG = "org/rascalmpl/uri/";
     private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final Map<String,ISourceLocationInput> inputResolvers = new HashMap<>();
 	private final Map<String,ISourceLocationOutput> outputResolvers = new HashMap<>();
@@ -56,62 +62,76 @@ public class URIResolverRegistry {
 	    try {
             Enumeration<URL> resources = getClass().getClassLoader().getResources(RESOLVERS_CONFIG);
             while (resources.hasMoreElements()) {
-                loadServices(resources.nextElement());
+                Files.list(getPath(resources.nextElement().toURI())).filter(f -> f.toString().endsWith(".config")).forEach(f -> loadServices(f));
             }
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             System.err.println("WARNING: Could not load URIResolverRegistry extensions from " + RESOLVERS_CONFIG);
         }
     }
 
-	private void loadServices(URL nextElement) throws IOException {
+	
+	private Path getPath(URI uri) throws URISyntaxException, IOException {
+	  String uriString = uri.toString();
+
+	  if (uriString.startsWith("jar:file:")) {
+	    int index = uriString.indexOf('!');
+	    URI jarUri = new URI(uriString.substring(0, index));
+	    return FileSystems.newFileSystem(jarUri, Collections.emptyMap()).getPath(uriString.substring(index + 1));
+	  }
+
+	  return Paths.get(uri);
+	}
+	
+	private void loadServices(Path nextElement) {
+	  try {
 	    for (String name : readConfigFile(nextElement)) {
-	        name = name.trim();
+	      name = name.trim();
 
-	        if (name.startsWith("#")) { 
-	            // source code comment
-	            continue;
-	        }
+	      if (name.startsWith("#")) { 
+	        // source code comment
+	        continue;
+	      }
 
-	        try {
-	            Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
-	            Object instance;
-	            
-	            try {
-	                instance = clazz.getDeclaredConstructor(URIResolverRegistry.class).newInstance(this);
-	            }
-	            catch (NoSuchMethodException e) {
-	                instance = clazz.newInstance();
-	            }
-	            
-	            boolean ok = false;
+	      Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
+	      Object instance;
 
-	            if (instance instanceof ILogicalSourceLocationResolver) {
-	                registerLogical((ILogicalSourceLocationResolver) instance);
-	                ok = true;
-	            }
+	      try {
+	        instance = clazz.getDeclaredConstructor(URIResolverRegistry.class).newInstance(this);
+	      }
+	      catch (NoSuchMethodException e) {
+	        instance = clazz.newInstance();
+	      }
 
-	            if (instance instanceof ISourceLocationInput) {
-	                registerInput((ISourceLocationInput) instance);
-	                ok = true;
-	            }
+	      boolean ok = false;
 
-	            if (instance instanceof ISourceLocationOutput) {
-	                registerOutput((ISourceLocationOutput) instance);
-	                ok = true;
-	            }
+	      if (instance instanceof ILogicalSourceLocationResolver) {
+	        registerLogical((ILogicalSourceLocationResolver) instance);
+	        ok = true;
+	      }
 
-	            if (!ok) {
-	                System.err.println("WARNING: could not load resolver " + name + " because it does not implement ISourceLocationInput or ISourceLocationOutput or ILogicalSourceLocationResolver");
-	            }
-	        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
-	            System.err.println("WARNING: could not load resolver " + name + " due to " + e.getMessage());
-	            e.printStackTrace();
-	        }
+	      if (instance instanceof ISourceLocationInput) {
+	        registerInput((ISourceLocationInput) instance);
+	        ok = true;
+	      }
+
+	      if (instance instanceof ISourceLocationOutput) {
+	        registerOutput((ISourceLocationOutput) instance);
+	        ok = true;
+	      }
+
+	      if (!ok) {
+	        System.err.println("WARNING: could not load resolver " + name + " because it does not implement ISourceLocationInput or ISourceLocationOutput or ILogicalSourceLocationResolver");
+	      }
+
 	    }
+	  } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException | IllegalArgumentException | InvocationTargetException | SecurityException | IOException e) {
+	    System.err.println("WARNING: could not load resolver due to " + e.getMessage());
+	    e.printStackTrace();
+	  }
 	}
 
-    private String[] readConfigFile(URL nextElement) throws IOException {
-        try (Reader in = new InputStreamReader(nextElement.openStream())) {
+    private String[] readConfigFile(Path nextElement) throws IOException {
+        try (Reader in = Files.newBufferedReader(nextElement)) {
             StringBuilder res = new StringBuilder();
             char[] chunk = new char[1024];
             int read;
@@ -337,6 +357,7 @@ public class URIResolverRegistry {
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
+		    // TODO: should this not throw an exception? 
 			return false;
 		}
 
