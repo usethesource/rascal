@@ -196,7 +196,7 @@ public abstract class RVMCore {
 	
 	/**
 	 * Create an object which implements the provided interface (that is
-	 * usually created by ApiGeb.generate) by forwarding calls 
+	 * usually created by ApiGen.generate) by forwarding calls 
 	 * to its methods directly to Rascal functions.
 	 * 
 	 * This works for interfaces which contain a specific kind of methods:
