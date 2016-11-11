@@ -16,6 +16,7 @@ import java.util.Map;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.RascalShellExecutionException;
+import org.rascalmpl.library.experiments.tutor3.Feedback;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -71,7 +72,6 @@ public class HelpServer extends NanoHTTPD {
 	      }
 	      String listing = URLDecoder.decode(parms.get("listing"), "UTF-8");
 	      String question = URLDecoder.decode(parms.get("question"), "UTF-8");
-	      question = "Question1";
 
 	      ArrayList<String> holes = new ArrayList<>();
 	      for(int i = 1; parms.containsKey("hole" + i); i++){
@@ -82,21 +82,23 @@ public class HelpServer extends NanoHTTPD {
 	        listing = listing.replaceFirst("_", holes.get(k++));
 	      }
 	      if(executor == null){
-	        PathConfig pcfg = null;
-	        try {
-	            ISourceLocation src = vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/src/org/rascalmpl/library");
-	            List<ISourceLocation> srcs = Arrays.asList(src);
-	            
-	            ISourceLocation bin = vf.sourceLocation("home", "", "bin");
-	            List<ISourceLocation> libs = Arrays.asList(bin);
-	            List<ISourceLocation> courses = Arrays.asList(vf.sourceLocation("home", "", "bin/courses"));
-                ISourceLocation boot = vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/bootstrap/phase2");
-	            pcfg = new PathConfig(srcs, libs, bin, boot, courses);
-	        } catch (URISyntaxException e) {
-	            // TODO Auto-generated catch block
-	            e.printStackTrace();
-	        }
-	        
+	       
+	       
+//	        PathConfig pcfg = null;
+//	        try {
+//	            ISourceLocation src = vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/src/org/rascalmpl/library");
+//	            List<ISourceLocation> srcs = Arrays.asList(src);
+//	            
+//	            ISourceLocation bin = vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/src/org/rascalmpl/library");
+//	            List<ISourceLocation> libs = Arrays.asList(bin);
+//	            List<ISourceLocation> courses = Arrays.asList(vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/src/org/rascalmpl/library/courses"));
+//                ISourceLocation boot = vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/bootstrap/phase2");
+//	            pcfg = new PathConfig(srcs, libs, bin, boot, courses);
+//	        } catch (URISyntaxException e) {
+//	            // TODO Auto-generated catch block
+//	            e.printStackTrace();
+//	        }
+	        PathConfig pcfg = helpManager.getPathConfig();
 	        outWriter = new StringWriter();
 	        outPrintWriter = new PrintWriter(outWriter);
 	        errWriter = new StringWriter();
@@ -112,11 +114,13 @@ public class HelpServer extends NanoHTTPD {
 	      
 	      try {
 	        IConstructor tr = executor.executeTestsRaw(question);
+	        System.err.println(tr);
 	        outPrintWriter.flush();
 	        errPrintWriter.flush();
 	        return newFixedLengthResponse(Status.OK, "application/json", formatTestResults(tr));
 	      } catch (ParseError e){
-	        return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": false, \"failed\": [], \"exceptions\": [], \"syntax\": " + makeLoc(e) + " }");
+	        return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": false, \"failed\": [], \"exceptions\": [], \"syntax\": " + makeLoc(e)
+	                                                  + " }");
 	      }
 
 	    } catch (UnsupportedEncodingException e) {
@@ -196,7 +200,8 @@ public class HelpServer extends NanoHTTPD {
 	  
 	  return "{" + "\"ok\": " + ok + ", "
 	             + "\"failed\": " + failed + "," 
-	             + "\"exceptions\": " + sexceptions 
+	             + "\"exceptions\": " + sexceptions + ","
+	             + "\"feedback\": " + Feedback.give(ok)
 	             + "}";
 	}
 	

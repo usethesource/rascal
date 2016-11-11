@@ -136,7 +136,7 @@ public class CommandExecutor {
 		moduleTags = w.done();
 		
 		RascalExecutionContext rex = 
-				RascalExecutionContextBuilder.normalContext(vf, pcfg.getboot(), this.stdout, this.stderr)
+				RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot(), this.stdout, this.stderr)
 					.withModuleTags(moduleTags)
 					.forModule(shellModuleName)
 					.setJVM(true)					// options for complete repl
@@ -238,7 +238,7 @@ public class CommandExecutor {
 	  IValue res = kernel.rascalTests(w.done(), 
 	      pcfg.getSrcs(), 
 	      pcfg.getLibs(), 
-	      pcfg.getboot(), 
+	      pcfg.getBoot(), 
 	      pcfg.getBin(), 
 	      true,
 	      makeCompileKwParamsAsMap()
@@ -250,7 +250,7 @@ public class CommandExecutor {
 	  return kernel.rascalTestsRaw(vf.list(vf.string(mname)), 
           pcfg.getSrcs(), 
           pcfg.getLibs(), 
-          pcfg.getboot(), 
+          pcfg.getBoot(), 
           pcfg.getBin(), 
           true,
           makeCompileKwParamsAsMap());
@@ -295,12 +295,12 @@ public class CommandExecutor {
 																	reuseConfig, 
 																	pcfg.getSrcs(), 
 																	pcfg.getLibs(), 
-																	pcfg.getboot(), 
+																	pcfg.getBoot(), 
 																	pcfg.getBin(), 
 																	makeCompileKwParamsAsMap());
 			
 			if(noErrors(rvmConsoleExecutable)){
-				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getboot(), stdout, stderr)
+				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot(), stdout, stderr)
 						.forModule(shellModuleName)
 						.withModuleTags(rvmConsoleExecutable.getModuleTags())
 						.withModuleVariables(moduleVariables)
@@ -775,7 +775,7 @@ public class CommandExecutor {
 	
 		case "help": case "apropos":
 			if(helpManager == null){
-				helpManager = new HelpManager(pcfg.getboot(), stdout, stderr);
+				helpManager = new HelpManager(pcfg, stdout, stderr);
 			}
 			
 			helpManager.handleHelp(words);
