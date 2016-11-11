@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
@@ -28,9 +27,7 @@ import org.rascalmpl.library.experiments.Compiler.Commands.Rascal;
 import org.rascalmpl.library.experiments.Compiler.Commands.RascalC;
 import org.rascalmpl.library.experiments.Compiler.Commands.RascalTests;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.shell.compiled.CompiledREPLRunner;
-import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.shell.compiled.CompiledRascalShell;
 
 
 public class RascalShell  {
@@ -100,9 +97,12 @@ public class RascalShell  {
                     };
                 }
                 else if (args[0].equals("--compiledREPL")) {
-                    PathConfig pc = new PathConfig();
-                    pc.addSourceLoc(URIUtil.correctLocation("file", null, Paths.get(".").toAbsolutePath().normalize().toString()));
-                    runner = new CompiledREPLRunner(pc, System.in, System.out);
+                    runner = new ShellRunner() {
+                        @Override
+                        public void run(String[] args) throws IOException {
+                            CompiledRascalShell.main(Arrays.copyOfRange(args, 1, args.length));
+                        }
+                    };
                     
                 }
                 else {
