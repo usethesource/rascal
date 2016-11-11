@@ -74,9 +74,9 @@ public class CompiledRascalShell  {
       if (mf.hasManifest(CompiledRascalShell.class) && mf.hasMainModule(CompiledRascalShell.class)) {
         runner = new ManifestRunner(mf, new PrintWriter(System.out), new PrintWriter(System.err));
       } 
-      else if (args.length > 0) {
-        runner = new ModuleRunner(new PrintWriter(System.out), new PrintWriter(System.err));
-      } 
+//      else if (args.length > 0) {
+//        runner = new ModuleRunner(new PrintWriter(System.out), new PrintWriter(System.err));
+//      } 
       else {
         runner = new CompiledREPLRunner(cmdOpts.getPathConfig(), System.in, System.out);
       }
