@@ -170,7 +170,10 @@ public class CourseCompiler {
 		files.add("fonts/fontawesome-webfont.ttf");
 		files.add("fonts/fontawesome-webfont.woff");
 		files.add("fonts/fontawesome-webfont.woff2");
+		
 		files.add("images/rascal-tutor-small.png");
+		files.add("images/good.png");
+		files.add("images/bad.png");
 		for(int i = 1; i <= 15; i++){
 			files.add("images/" + i + ".png");
 		}
@@ -251,11 +254,11 @@ public class CourseCompiler {
          .handleArgs(args);
 		
 		PathConfig pcfg = 
-				new PathConfig(cmdOpts.getCommandlocsOption("src"),
-							   cmdOpts.getCommandlocsOption("lib"),
+				new PathConfig(cmdOpts.getCommandLocsOption("src"),
+							   cmdOpts.getCommandLocsOption("lib"),
 					           cmdOpts.getCommandLocOption("bin"),
 					           cmdOpts.getCommandLocOption("boot"),
-					           cmdOpts.getCommandlocsOption("course"));   
+					           cmdOpts.getCommandLocsOption("course"));   
 		
 		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getcourses().get(0)).getPath());
 		Path libSrcPath = Paths.get(((ISourceLocation)pcfg.getSrcs().get(0)).getPath());
@@ -287,14 +290,14 @@ public class CourseCompiler {
 		err.flush();
 		writeFile(destPath + "/course-compilation-errors.txt", sw.toString());
 		
-		System.err.println("Removing intermediate files");
-		
-		FileVisitor<Path> fileProcessor = new RemoveAdocs();
-		try {
-			Files.walkFileTree(destPath, fileProcessor);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		System.err.println("Removing intermediate files");
+//		
+//		FileVisitor<Path> fileProcessor = new RemoveAdocs();
+//		try {
+//			Files.walkFileTree(destPath, fileProcessor);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		System.err.println("Course compilation done");
 	}
 }
