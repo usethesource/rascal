@@ -16,24 +16,28 @@ public class Concept {
 	private String text = null;
 	private final Path destPath;
 	private boolean remote;
+	private boolean questions;
 	private String title;
 	private String synopsis;
 	private String index;
 	private Path libSrcPath;
 
-	public Concept(Path name, String text, Path destPath, Path libSrcPath, boolean remote){
+	public Concept(Path name, String text, Path destPath, Path libSrcPath){
 		this.name = name;
 		this.text = text;
 		this.destPath = destPath;
 		this.libSrcPath = libSrcPath;
-		this.remote = remote;
 		title = extract(titlePat);
 		synopsis = extractSynopsis();
 		index = extractIndex();
 	}
 	
-	public Concept(Path name, String text, Path destDir, Path libSrcPath){
-		this(name, text, destDir, libSrcPath, false);
+	public void setRemote(){
+	  remote = true;
+	}
+	
+	public void setQuestions(){
+	  questions = true;
 	}
 	
 	public Path getName(){

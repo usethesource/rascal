@@ -513,3 +513,29 @@ b.prompt *{color:inherit!important}
 pre .conum[data-value]{position:relative;top:-.125em}
 b.conum *{color:inherit!important}
 .conum:not([data-value]):empty{display:none}
+
+/* Styling for Questions */
+
+.choice-description {
+	font-family: "Open Sans","DejaVu Sans", sans-serif;
+	font-size: 20px;
+	font-family:inherit;
+	font-weight:400;
+	font-size:1em;
+	line-height:1.6;
+	margin-top: -1.3em;
+	margin-left: 30px;
+	margin-bottom:1.25em;
+}
+
+.click-question {
+	cursor:initial;
+}
+
+.clickable {
+	cursor:initial;
+}
+
+.clickable[clicked=true]{
+	background-color: lightgreen;
+}
