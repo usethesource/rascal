@@ -25,7 +25,7 @@ public class Fac {
 	public Fac (IValueFactory vf, PathConfig pcfg) throws IOException {
 	    this.vf = vf;
 	    RascalExecutionContext rex = 
-            RascalExecutionContextBuilder.normalContext(vf, pcfg.getboot() /* TODO needs a kernel location */, System.out, System.err)
+            RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot() /* TODO needs a kernel location */, System.out, System.err)
                 .setJVM(true)                   // options for complete repl
                 .setTrace(false)
                 .build();
