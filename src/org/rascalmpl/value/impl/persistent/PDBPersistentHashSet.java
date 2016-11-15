@@ -24,8 +24,8 @@ import org.rascalmpl.value.util.AbstractTypeBag;
 import org.rascalmpl.value.util.EqualityUtils;
 
 import io.usethesource.capsule.DefaultTrieSet;
-import io.usethesource.capsule.ImmutableSet;
-import io.usethesource.capsule.TransientSet;
+import io.usethesource.capsule.api.deprecated.ImmutableSet;
+import io.usethesource.capsule.api.deprecated.TransientSet;
 
 public final class PDBPersistentHashSet extends AbstractSet {
 

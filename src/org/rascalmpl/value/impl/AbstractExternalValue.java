@@ -28,8 +28,8 @@ import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.visitors.IValueVisitor;
 
-import io.usethesource.capsule.AbstractSpecialisedImmutableMap;
-import io.usethesource.capsule.ImmutableMap;
+import io.usethesource.capsule.api.deprecated.ImmutableMap;
+import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 /**
  * IExternalValue, together with {@link ExternalType} offer a limited form of extensibility

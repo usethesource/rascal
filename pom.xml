@@ -196,7 +196,7 @@
 		<dependency>
 			<groupId>io.usethesource</groupId>
 			<artifactId>capsule</artifactId>
-			<version>0.1.0</version>
+			<version>0.3.0.HETEROGENEOUS-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>

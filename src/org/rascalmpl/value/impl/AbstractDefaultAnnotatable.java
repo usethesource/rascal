@@ -17,8 +17,8 @@ import org.rascalmpl.value.IAnnotatable;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 
-import io.usethesource.capsule.AbstractSpecialisedImmutableMap;
-import io.usethesource.capsule.ImmutableMap;
+import io.usethesource.capsule.api.deprecated.ImmutableMap;
+import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 /**
  * A generic wrapper for an {@link IValue} that associates annotations to it. 

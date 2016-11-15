@@ -49,8 +49,8 @@ import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.visitors.IValueVisitor;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
-import io.usethesource.capsule.AbstractSpecialisedImmutableMap;
-import io.usethesource.capsule.ImmutableMap;
+import io.usethesource.capsule.api.deprecated.ImmutableMap;
+import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 /**
  * The RascalValueFactory extends a given IValueFactory with the Rascal-specific builtin
