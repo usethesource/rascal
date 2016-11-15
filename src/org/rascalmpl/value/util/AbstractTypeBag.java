@@ -11,12 +11,12 @@
  *******************************************************************************/
 package org.rascalmpl.value.util;
 
-import static io.usethesource.capsule.AbstractSpecialisedImmutableMap.mapOf;
+import static io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap.mapOf;
 
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 
-import io.usethesource.capsule.ImmutableMap;
+import io.usethesource.capsule.api.deprecated.ImmutableMap;
 
 /**
  * Stores mapping (Type -> Integer) to keep track of a collection's element

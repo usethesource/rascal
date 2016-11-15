@@ -19,8 +19,8 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IWithKeywordParameters;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 
-import io.usethesource.capsule.AbstractSpecialisedImmutableMap;
-import io.usethesource.capsule.ImmutableMap;
+import io.usethesource.capsule.api.deprecated.ImmutableMap;
+import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 
 /**

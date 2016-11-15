@@ -23,7 +23,7 @@ import org.rascalmpl.value.io.StandardTextWriter;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.visitors.IValueVisitor;
 
-import io.usethesource.capsule.ImmutableMap;
+import io.usethesource.capsule.api.deprecated.ImmutableMap;
 
 public class AnnotatedNodeFacade implements INode {
 

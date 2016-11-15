@@ -22,8 +22,8 @@ import org.rascalmpl.value.impl.func.NodeFunctions;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.visitors.IValueVisitor;
 
-import io.usethesource.capsule.AbstractSpecialisedImmutableMap;
-import io.usethesource.capsule.ImmutableMap;
+import io.usethesource.capsule.api.deprecated.ImmutableMap;
+import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 public abstract class AbstractNode extends AbstractValue implements INode {
 
