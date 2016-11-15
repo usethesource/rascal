@@ -14,6 +14,7 @@ package org.rascalmpl.value.impl.persistent;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IValue;
@@ -23,10 +24,8 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.util.AbstractTypeBag;
 import org.rascalmpl.value.util.EqualityUtils;
 
-import java.util.Objects;
-
-import io.usethesource.capsule.ImmutableMap;
-import io.usethesource.capsule.TransientMap;
+import io.usethesource.capsule.api.deprecated.ImmutableMap;
+import io.usethesource.capsule.api.deprecated.TransientMap;
 
 public final class PDBPersistentHashMap extends AbstractMap {
 		

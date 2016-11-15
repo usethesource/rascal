@@ -26,7 +26,7 @@ import org.rascalmpl.value.util.AbstractTypeBag;
 import org.rascalmpl.value.util.EqualityUtils;
 
 import io.usethesource.capsule.DefaultTrieMap;
-import io.usethesource.capsule.TransientMap;
+import io.usethesource.capsule.api.deprecated.TransientMap;
 
 final class MapWriter implements IMapWriter {
 

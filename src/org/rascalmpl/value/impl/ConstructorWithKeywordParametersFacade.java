@@ -27,7 +27,7 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.visitors.IValueVisitor;
 
-import io.usethesource.capsule.ImmutableMap;
+import io.usethesource.capsule.api.deprecated.ImmutableMap;
 
 public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	protected final IConstructor content;

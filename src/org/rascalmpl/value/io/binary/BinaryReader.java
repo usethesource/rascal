@@ -45,8 +45,8 @@ import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.util.ResizingArray;
 
-import io.usethesource.capsule.TransientMap;
-import io.usethesource.capsule.TrieMap_5Bits;
+import io.usethesource.capsule.api.deprecated.TransientMap;
+import io.usethesource.capsule.core.deprecated.TrieMap_5Bits;
 
 // TODO Change this thing so it doesn't use recursion.
 /**
