@@ -59,7 +59,7 @@ public class URIResolverRegistry {
                 loadServices(resources.nextElement());
             }
         } catch (IOException e) {
-            System.err.println("WARNING: Could not load URIResolverRegistry extensions from " + RESOLVERS_CONFIG);
+            throw new Error("WARNING: Could not load URIResolverRegistry extensions from " + RESOLVERS_CONFIG, e);
         }
     }
 
