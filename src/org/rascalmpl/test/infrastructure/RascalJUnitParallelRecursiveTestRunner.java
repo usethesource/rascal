@@ -66,7 +66,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
 
 
     public RascalJUnitParallelRecursiveTestRunner(Class<?> clazz) {
-        System.out.println("Runnig parallel test with " + numberOfWorkers + " runners");
+        System.out.println("Running parallel test with " + numberOfWorkers + " runners");
         System.out.flush();
         rootName = clazz.getName();
         this.prefixes = clazz.getAnnotation(RecursiveRascalParallelTest.class).value();
