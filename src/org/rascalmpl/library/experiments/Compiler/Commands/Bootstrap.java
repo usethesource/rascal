@@ -262,6 +262,7 @@ public class Bootstrap {
                 if(withCourses){
                   Path phase2Folder = phaseFolder(2, tmpDir);
                   time("Compiling RascalExtraction", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "experiments::Compiler::RascalExtraction::RascalExtraction", "|noreloc:///"));
+                  time("Compiling QuestionCompiler", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "experiments::tutor3::QuestionCompiler", "|noreloc:///"));
                   time("Compiling courses", () -> compileCourses(rvm[1], kernel[2], librarySource, courseSource, phase2Folder));
                 }
                 

@@ -212,7 +212,7 @@ public class CommandOptions {
 	 * @param name
 	 * @return value of option
 	 */
-	public IList getCommandlocsOption(String name){
+	public IList getCommandLocsOption(String name){
 		return (IList) commandOptions.get(OptionType.LOCS, name);
 	}
 
@@ -564,8 +564,8 @@ public class CommandOptions {
   }
 	
 	public PathConfig getPathConfig(){
-		return new PathConfig(getCommandlocsOption("src"),
-							  getCommandlocsOption("lib"),
+		return new PathConfig(getCommandLocsOption("src"),
+							  getCommandLocsOption("lib"),
 							  getCommandLocOption("bin"),
 							  getCommandLocOption("boot"));
 	}

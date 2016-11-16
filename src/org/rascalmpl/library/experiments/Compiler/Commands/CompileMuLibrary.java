@@ -69,8 +69,8 @@ public class CompileMuLibrary {
             Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
 
             kernel.compileMuLibrary(
-                    cmdOpts.getCommandlocsOption("src"),
-                    cmdOpts.getCommandlocsOption("lib"),
+                    cmdOpts.getCommandLocsOption("src"),
+                    cmdOpts.getCommandLocsOption("lib"),
                     cmdOpts.getCommandLocOption("boot"),
                     cmdOpts.getCommandLocOption("bin"), 
                     cmdOpts.getModuleOptionsAsMap());

@@ -182,7 +182,7 @@ public class PathConfig {
 		return new PathConfig(srcs, extendedlibs, bin, boot);
 	}
 	
-	public ISourceLocation getboot() {
+	public ISourceLocation getBoot() {
         return boot;
     }
 	
