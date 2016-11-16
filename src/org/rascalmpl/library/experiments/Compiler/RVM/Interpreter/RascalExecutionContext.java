@@ -101,6 +101,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private static final String PATH_TO_LINKED_PARSERGENERATOR = "lang/rascal/grammar/ParserGenerator.rvm.ser.gz";
     private static final String PATH_TO_LINKED_KERNEL = "lang/rascal/boot/Kernel.rvm.ser.gz";
     private static final String PATH_TO_LINKED_RASCALEXTRACTION = "experiments/Compiler/RascalExtraction/RascalExtraction.rvm.ser.gz";
+    private static final String PATH_TO_LINKED_QUESTIONCOMPILER = "experiments/tutor3/QuestionCompiler.rvm.ser.gz";
+
 	
 	static {
 		createCaches(true);
@@ -228,6 +230,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public static ISourceLocation getParserGenerator(ISourceLocation givenBootDir) {
       return getLocation(givenBootDir, PATH_TO_LINKED_PARSERGENERATOR);
     }
+	
+	public static ISourceLocation getQuestionCompiler(ISourceLocation givenBootDir) {
+      return getLocation(givenBootDir, PATH_TO_LINKED_QUESTIONCOMPILER);
+    }
 
 	public ISourceLocation getBoot() {
 	  return  getLocation(bootDir, "");
@@ -244,6 +250,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public ISourceLocation getRascalExtraction(){
 	  return getLocation(bootDir, PATH_TO_LINKED_RASCALEXTRACTION);
 	}
+	
+	public ISourceLocation getQuestionCompiler() {
+      return getLocation(bootDir, PATH_TO_LINKED_QUESTIONCOMPILER);
+    }
     
 	// Cache related methods
 	
