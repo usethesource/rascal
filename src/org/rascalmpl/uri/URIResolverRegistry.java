@@ -67,8 +67,8 @@ public class URIResolverRegistry {
 	    for (String name : readConfigFile(nextElement)) {
 	      name = name.trim();
 
-	      if (name.startsWith("#")) { 
-	        // source code comment
+	      if (name.startsWith("#") || name.isEmpty()) { 
+	        // source code comment or empty line
 	        continue;
 	      }
 
