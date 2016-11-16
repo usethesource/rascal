@@ -16,7 +16,6 @@ package org.rascalmpl.uri;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,13 +23,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,7 +39,7 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class URIResolverRegistry {
-	private static final String RESOLVERS_CONFIG = "org/rascalmpl/uri/";
+	private static final String RESOLVERS_CONFIG = "org/rascalmpl/uri/resolvers.config";
     private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final Map<String,ISourceLocationInput> inputResolvers = new HashMap<>();
 	private final Map<String,ISourceLocationOutput> outputResolvers = new HashMap<>();
@@ -59,31 +56,12 @@ public class URIResolverRegistry {
 	private void loadServices() {
 	    try {
             Enumeration<URL> resources = getClass().getClassLoader().getResources(RESOLVERS_CONFIG);
-            
-            while (resources.hasMoreElements()) {
-                getResourceFiles(resources.nextElement()).stream().filter(f -> f.toString().endsWith(".config")).forEach(f -> loadServices(f));
-            }
-        } catch (IOException | URISyntaxException e) {
+            Collections.list(resources).forEach(f -> loadServices(f));
+        } catch (IOException e) {
             throw new Error("WARNING: Could not load URIResolverRegistry extensions from " + RESOLVERS_CONFIG, e);
         }
     }
 	
-	private List<URL> getResourceFiles(URL folder) throws IOException, URISyntaxException {
-	    List<URL> filenames = new ArrayList<>();
-
-	    try(
-	      InputStream in = folder.openStream();
-	      BufferedReader br = new BufferedReader( new InputStreamReader( in ) ) ) {
-	      String resource;
-
-	      while( (resource = br.readLine()) != null ) {
-	        filenames.add( URIUtil.getChildURI(folder.toURI(), resource).toURL());
-	      }
-	    }
-
-	    return filenames;
-	  }
-
 	private void loadServices(URL nextElement) {
 	  try {
 	    for (String name : readConfigFile(nextElement)) {
