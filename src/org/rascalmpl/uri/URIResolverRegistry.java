@@ -64,8 +64,8 @@ public class URIResolverRegistry {
             while (resources.hasMoreElements()) {
                 Files.list(getPath(resources.nextElement().toURI())).filter(f -> f.toString().endsWith(".config")).forEach(f -> loadServices(f));
             }
-        } catch (IOException | URISyntaxException e) {
-            System.err.println("WARNING: Could not load URIResolverRegistry extensions from " + RESOLVERS_CONFIG);
+        } catch (IOException e) {
+            throw new Error("WARNING: Could not load URIResolverRegistry extensions from " + RESOLVERS_CONFIG, e);
         }
     }
 
