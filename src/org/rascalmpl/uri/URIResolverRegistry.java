@@ -16,23 +16,21 @@ package org.rascalmpl.uri;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -61,28 +59,32 @@ public class URIResolverRegistry {
 	private void loadServices() {
 	    try {
             Enumeration<URL> resources = getClass().getClassLoader().getResources(RESOLVERS_CONFIG);
+            
             while (resources.hasMoreElements()) {
-                Files.list(getPath(resources.nextElement().toURI())).filter(f -> f.toString().endsWith(".config")).forEach(f -> loadServices(f));
+                getResourceFiles(resources.nextElement()).stream().filter(f -> f.toString().endsWith(".config")).forEach(f -> loadServices(f));
             }
         } catch (IOException | URISyntaxException e) {
             throw new Error("WARNING: Could not load URIResolverRegistry extensions from " + RESOLVERS_CONFIG, e);
         }
     }
-
 	
-	private Path getPath(URI uri) throws URISyntaxException, IOException {
-	  String uriString = uri.toString();
+	private List<URL> getResourceFiles(URL folder) throws IOException, URISyntaxException {
+	    List<URL> filenames = new ArrayList<>();
 
-	  if (uriString.startsWith("jar:file:")) {
-	    int index = uriString.indexOf('!');
-	    URI jarUri = new URI(uriString.substring(0, index));
-	    return FileSystems.newFileSystem(jarUri, Collections.emptyMap()).getPath(uriString.substring(index + 1));
+	    try(
+	      InputStream in = folder.openStream();
+	      BufferedReader br = new BufferedReader( new InputStreamReader( in ) ) ) {
+	      String resource;
+
+	      while( (resource = br.readLine()) != null ) {
+	        filenames.add( URIUtil.getChildURI(folder.toURI(), resource).toURL());
+	      }
+	    }
+
+	    return filenames;
 	  }
 
-	  return Paths.get(uri);
-	}
-	
-	private void loadServices(Path nextElement) {
+	private void loadServices(URL nextElement) {
 	  try {
 	    for (String name : readConfigFile(nextElement)) {
 	      name = name.trim();
@@ -110,6 +112,7 @@ public class URIResolverRegistry {
 	      }
 
 	      if (instance instanceof ISourceLocationInput) {
+	        System.err.println("registered " + instance.getClass().getCanonicalName());
 	        registerInput((ISourceLocationInput) instance);
 	        ok = true;
 	      }
@@ -130,8 +133,8 @@ public class URIResolverRegistry {
 	  }
 	}
 
-    private String[] readConfigFile(Path nextElement) throws IOException {
-        try (Reader in = Files.newBufferedReader(nextElement)) {
+    private String[] readConfigFile(URL nextElement) throws IOException {
+        try (Reader in = new InputStreamReader(nextElement.openStream())) {
             StringBuilder res = new StringBuilder();
             char[] chunk = new char[1024];
             int read;
