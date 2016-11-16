@@ -1,0 +1,21 @@
+## Simple questions
+Here is a question to answer.
+
+question Replace the text box by an expression and make the test true:
+    expr setComprehension: [?{n-1} | int n <- !{list[int][1,5]}]
+end
+
+//Here are other questions
+
+question Replace the text box by a function name and make the test true:
+    prep: 
+        import List;
+    expr 
+        listFunction: ?{headTail}(!{list[int][1,5]})
+end 
+
+## Tough questions
+question Replace the text box by a value and make the test true:
+    expr 
+        setIn: ?{A:int} in %{  !{B:set[int]} + !{A} }
+end
