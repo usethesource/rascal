@@ -101,7 +101,8 @@ public class TypeReifier {
             return productionToConstructorType(convertSymbolProdToProduction(prod));
         }
         
-        IConstructor adt = (IConstructor) prod.get("def");
+        // TODO remove check after bootstrap suc6
+        IConstructor adt = (IConstructor) (prod.has("adt") ?  prod.get("adt") : prod.get("def"));
         return TypeFactory.getInstance().fromSymbol(adt, new TypeStore(), x -> x == adt ? Collections.singleton(prod) : Collections.emptySet()); 
     }
 
