@@ -27,10 +27,10 @@ import org.rascalmpl.value.util.AbstractTypeBag;
 import org.rascalmpl.value.util.EqualityUtils;
 
 import io.usethesource.capsule.DefaultTrieSet;
+import io.usethesource.capsule.DefaultTrieSetMultimap;
 import io.usethesource.capsule.api.deprecated.ImmutableSetMultimap;
 import io.usethesource.capsule.api.deprecated.ImmutableSetMultimapAsImmutableSetView;
 import io.usethesource.capsule.api.deprecated.TransientSet;
-import io.usethesource.capsule.experimental.multimap.TrieSetMultimap_ChampBasedPrototype;
 
 class SetWriter implements ISetWriter {
 
@@ -39,7 +39,7 @@ class SetWriter implements ISetWriter {
   static Predicate<Type> isTuple = (type) -> type.isTuple();
   static Predicate<Type> arityEqualsTwo = (type) -> type.getArity() == 2;
   static Predicate<Type> isTupleOfArityTwo = isTuple.and(arityEqualsTwo);
-  
+
   private static final BiFunction<ITuple, Integer, Object> BINREL_TUPLE_ELEMENT_AT =
       (tuple, position) -> {
         if (position < 0 || position > 1)
@@ -106,8 +106,7 @@ class SetWriter implements ISetWriter {
          * EXPERIMENTAL: Enforce that binary relations always are backed by multi-maps (instead of
          * being represented as a set of tuples).
          */
-        final ImmutableSetMultimap<IValue, IValue> multimap =
-            TrieSetMultimap_ChampBasedPrototype.<IValue, IValue>of();
+        final ImmutableSetMultimap<IValue, IValue> multimap = DefaultTrieSetMultimap.of();
 
         setContent =
             (TransientSet) new ImmutableSetMultimapAsImmutableSetView<IValue, IValue, ITuple>(
