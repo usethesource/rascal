@@ -31,10 +31,17 @@ import io.usethesource.capsule.DefaultTrieSetMultimap;
 import io.usethesource.capsule.api.deprecated.ImmutableSetMultimap;
 import io.usethesource.capsule.api.deprecated.ImmutableSetMultimapAsImmutableSetView;
 import io.usethesource.capsule.api.deprecated.TransientSet;
+import io.usethesource.capsule.util.EqualityComparator;
 
 class SetWriter implements ISetWriter {
 
   /****************************************/
+
+  @SuppressWarnings("unchecked")
+  static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
+
+  static final EqualityComparator<Object> equivalenceEqualityComparator =
+      (a, b) -> equivalenceComparator.compare(a, b) == 0;
 
   static Predicate<Type> isTuple = (type) -> type.isTuple();
   static Predicate<Type> arityEqualsTwo = (type) -> type.getArity() == 2;
@@ -58,10 +65,6 @@ class SetWriter implements ISetWriter {
       (first, second) -> ValueFactory.getInstance().tuple(first, second);
 
   /****************************************/
-
-  @SuppressWarnings("unchecked")
-  private static final Comparator<Object> equivalenceComparator =
-      EqualityUtils.getEquivalenceComparator();
 
   protected AbstractTypeBag elementTypeBag;
   protected TransientSet<IValue> setContent;
@@ -106,7 +109,8 @@ class SetWriter implements ISetWriter {
          * EXPERIMENTAL: Enforce that binary relations always are backed by multi-maps (instead of
          * being represented as a set of tuples).
          */
-        final ImmutableSetMultimap<IValue, IValue> multimap = DefaultTrieSetMultimap.of();
+        final ImmutableSetMultimap<IValue, IValue> multimap =
+            DefaultTrieSetMultimap.of(equivalenceEqualityComparator);
 
         setContent =
             (TransientSet) new ImmutableSetMultimapAsImmutableSetView<IValue, IValue, ITuple>(

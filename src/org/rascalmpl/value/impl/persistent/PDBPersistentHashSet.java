@@ -11,9 +11,10 @@
  *******************************************************************************/
 package org.rascalmpl.value.impl.persistent;
 
+import static org.rascalmpl.value.impl.persistent.SetWriter.equivalenceComparator;
+import static org.rascalmpl.value.impl.persistent.SetWriter.equivalenceEqualityComparator;
 import static org.rascalmpl.value.impl.persistent.SetWriter.isTupleOfArityTwo;
 
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -26,7 +27,6 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.impl.AbstractSet;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.util.AbstractTypeBag;
-import org.rascalmpl.value.util.EqualityUtils;
 
 import io.usethesource.capsule.DefaultTrieSet;
 import io.usethesource.capsule.DefaultTrieSetMultimap;
@@ -38,10 +38,6 @@ import io.usethesource.capsule.api.deprecated.TransientSet;
 public final class PDBPersistentHashSet extends AbstractSet {
 
   private static final PDBPersistentHashSet EMPTY = new PDBPersistentHashSet();
-
-  @SuppressWarnings("unchecked")
-  private static final Comparator<Object> equivalenceComparator =
-      EqualityUtils.getEquivalenceComparator();
 
   private Type cachedSetType;
   private final AbstractTypeBag elementTypeBag;
@@ -113,8 +109,9 @@ public final class PDBPersistentHashSet extends AbstractSet {
          * EXPERIMENTAL: Enforce that binary relations always are backed by multi-maps (instead of
          * being represented as a set of tuples).
          */
-        
-        final ImmutableSetMultimap<IValue, IValue> multimap = DefaultTrieSetMultimap.of();
+
+        final ImmutableSetMultimap<IValue, IValue> multimap =
+            DefaultTrieSetMultimap.of(equivalenceEqualityComparator);
 
         // NOTE: tuple untyped
         final BiFunction<IValue, IValue, IValue> tupleOf =
