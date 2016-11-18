@@ -14,8 +14,11 @@ package org.rascalmpl.value.impl.persistent;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.impl.AbstractSet;
@@ -25,7 +28,10 @@ import org.rascalmpl.value.util.EqualityUtils;
 
 import io.usethesource.capsule.DefaultTrieSet;
 import io.usethesource.capsule.api.deprecated.ImmutableSet;
+import io.usethesource.capsule.api.deprecated.ImmutableSetMultimap;
+import io.usethesource.capsule.api.deprecated.ImmutableSetMultimapAsImmutableSetView;
 import io.usethesource.capsule.api.deprecated.TransientSet;
+import io.usethesource.capsule.experimental.multimap.TrieSetMultimap_ChampBasedPrototype;
 
 public final class PDBPersistentHashSet extends AbstractSet {
 
@@ -46,8 +52,28 @@ public final class PDBPersistentHashSet extends AbstractSet {
 	public PDBPersistentHashSet(AbstractTypeBag elementTypeBag, ImmutableSet<IValue> content) {
 		Objects.requireNonNull(elementTypeBag);
 		Objects.requireNonNull(content);
-		this.elementTypeBag = elementTypeBag;
-		this.content = content;
+
+		/*
+		 * EXPERIMENTAL: Enforce that empty sets are always represented as a
+		 * TrieSet.
+		 */
+		if (content.isEmpty()) {
+			this.elementTypeBag = elementTypeBag;
+			this.content = DefaultTrieSet.of();
+		} else {
+			this.elementTypeBag = elementTypeBag;
+			this.content = content;
+		}
+
+		/*
+		 * EXPERIMENTAL: Enforce that binary relations always are backed by
+		 * multi-maps (instead of being represented as a set of tuples).
+		 */
+		if ((elementTypeBag.lub().isTuple() && elementTypeBag.lub().getArity() == 2) == true) {
+			assert this.content.getClass() == ImmutableSetMultimapAsImmutableSetView.class;
+		} else {
+			assert this.content.getClass() == DefaultTrieSet.getTargetClass();
+		}
 	}
 
 	@Override
@@ -77,14 +103,58 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
 	@Override
 	public ISet insert(IValue value) {
-		final ImmutableSet<IValue> contentNew = content.__insertEquivalent(value, equivalenceComparator);
+		/*
+		 * EXPERIMENTAL: Enforce that binary relations always are backed by
+		 * multi-maps (instead of being represented as a set of tuples).
+		 */
+		if (content.isEmpty()) {
+			final ImmutableSet<IValue> contentNew;
 
-		if (content == contentNew)
-			return this;
+			if ((value.getType().isTuple() && value.getType().getArity() == 2) == true) {
+				final ImmutableSetMultimap<IValue, IValue> multimap = TrieSetMultimap_ChampBasedPrototype
+						.<IValue, IValue>of();
 
-		final AbstractTypeBag bagNew = elementTypeBag.increase(value.getType());
+				// final BiFunction<IValue, IValue, IValue> tupleOf = (first,
+				// second) -> Tuple.newTuple(first, second);
+				final BiFunction<IValue, IValue, IValue> tupleOf = (first, second) -> getValueFactory().tuple(first,
+						second);
 
-		return new PDBPersistentHashSet(bagNew, contentNew);
+				final BiFunction<IValue, Integer, Object> tupleElementAt = (tuple, position) -> {
+					switch (position) {
+					case 0:
+						return ((ITuple) tuple).get(0);
+					case 1:
+						return ((ITuple) tuple).get(1);
+					default:
+						throw new IllegalStateException();
+					}
+				};
+
+				final Function<IValue, Boolean> tupleChecker = (argument) -> argument instanceof ITuple
+						&& ((ITuple) argument).arity() == 2;
+
+				contentNew = new ImmutableSetMultimapAsImmutableSetView<IValue, IValue, IValue>(multimap, tupleOf,
+						tupleElementAt, tupleChecker).__insertEquivalent(value, equivalenceComparator);
+			} else {
+				contentNew = DefaultTrieSet.<IValue>of().__insertEquivalent(value, equivalenceComparator);
+			}
+
+			if (content == contentNew)
+				return this;
+
+			final AbstractTypeBag bagNew = elementTypeBag.increase(value.getType());
+
+			return new PDBPersistentHashSet(bagNew, contentNew);
+		} else {
+			final ImmutableSet<IValue> contentNew = content.__insertEquivalent(value, equivalenceComparator);
+
+			if (content == contentNew)
+				return this;
+
+			final AbstractTypeBag bagNew = elementTypeBag.increase(value.getType());
+
+			return new PDBPersistentHashSet(bagNew, contentNew);
+		}
 	}
 
 	@Override
@@ -207,13 +277,31 @@ public final class PDBPersistentHashSet extends AbstractSet {
 				two = that.content;
 			}
 
-			final TransientSet<IValue> tmp = one.asTransient();
+			TransientSet<IValue> tmp = one.asTransient(); // non-final due to
+															// conversion
 			boolean modified = false;
 
 			for (IValue key : two) {
-				if (tmp.__insertEquivalent(key, equivalenceComparator)) {
-					modified = true;
-					bag = bag.increase(key.getType());
+				try {
+					if (tmp.__insertEquivalent(key, equivalenceComparator)) {
+						modified = true;
+						bag = bag.increase(key.getType());
+					}
+				} catch (ClassCastException | ArrayIndexOutOfBoundsException e) {
+					// Conversion from ImmutableSetMultimapAsImmutableSetView to
+					// DefaultTrieSet
+					// TODO: use elementTypeBag for deciding upon conversion and
+					// not exception
+
+					TransientSet<IValue> convertedSetContent = DefaultTrieSet.transientOf();
+					convertedSetContent.__insertAll(tmp);
+					tmp = convertedSetContent;
+
+					// retry
+					if (tmp.__insertEquivalent(key, equivalenceComparator)) {
+						modified = true;
+						bag = bag.increase(key.getType());
+					}
 				}
 			}
 
