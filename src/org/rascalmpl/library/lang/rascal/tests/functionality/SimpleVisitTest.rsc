@@ -1,4 +1,4 @@
-module experiments::Compiler::Examples::Tst1
+module lang::rascal::tests::functionality::SimpleVisitTest
 
 data B = and(B lhs, B rhs) | t();
 
@@ -11,5 +11,3 @@ test bool visitTest() {
 }
 
 test bool matchTest() = /t() := and(t(),t());
-
-value main() { return matchTest(); }

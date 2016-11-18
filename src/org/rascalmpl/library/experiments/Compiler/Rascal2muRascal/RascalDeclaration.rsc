@@ -91,6 +91,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   nformals = size(ftype.parameters);
   uid = getLoc2uid(fd@\loc);
   fuid = convert2fuid(uid);
+  
+  //println("argNames = <argNames>, nformals = <nformals>");
  
   enterFunctionScope(fuid);
   
@@ -170,17 +172,19 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
 
 list[str] getParameterNames({Pattern ","}* formals){
      int arity = size(formals);
+    
+     abs_formals = [f | f <- formals];
      names =
      for(int i <- [0 .. arity]){
          str argName = "arg<i>";
          
-         if((Pattern)`<Type pt> <Name pn>` := formals[i]){
+         if((Pattern)`<Type pt> <Name pn>` := abs_formals[i]){
               argName = "<pn>";
-         } else if((Pattern)`<Name pn>` := formals[i]){
+         } else if((Pattern)`<Name pn>` := abs_formals[i]){
               argName = "<pn>";
-         } else if((Pattern) `<Name name> : <Pattern pattern>` := formals[i]){
+         } else if((Pattern) `<Name name> : <Pattern pattern>` := abs_formals[i]){
             argName = "<name>";
-         } else if((Pattern) `<Type tp> <Name name> : <Pattern pattern>` := formals[i]){
+         } else if((Pattern) `<Type tp> <Name name> : <Pattern pattern>` := abs_formals[i]){
             argName = "<name>";
          }
          append argName; 

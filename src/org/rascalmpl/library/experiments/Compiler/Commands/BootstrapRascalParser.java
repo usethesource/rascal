@@ -55,7 +55,7 @@ public class BootstrapRascalParser {
 
 	        Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
 
-	        kernel.bootstrapRascalParser(cmdOpts.getCommandlocsOption("src"));
+	        kernel.bootstrapRascalParser(cmdOpts.getCommandLocsOption("src"));
 	    }
 		catch (Throwable e) {
 		    e.printStackTrace();

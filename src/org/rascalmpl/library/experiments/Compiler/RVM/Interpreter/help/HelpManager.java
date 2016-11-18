@@ -29,6 +29,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.rascalmpl.library.experiments.tutor3.Concept;
 import org.rascalmpl.library.experiments.tutor3.Onthology;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.ISourceLocation;
@@ -36,6 +37,7 @@ import org.rascalmpl.value.ISourceLocation;
 public class HelpManager {
 	
 	private ISourceLocation coursesDir;
+	private PathConfig pcfg;
 	private final int maxSearch = 25;
 	private final PrintWriter stdout;
 	private final PrintWriter stderr;
@@ -43,10 +45,12 @@ public class HelpManager {
 	private final int port = 8000;
     private HelpServer helpServer;
 
-    public HelpManager(ISourceLocation binDir, PrintWriter stdout, PrintWriter stderr){
+    public HelpManager(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr){
+      this.pcfg = pcfg;
       this.stdout = stdout;
       this.stderr = stderr;
      
+      ISourceLocation binDir = pcfg.getBoot();
       coursesDir = URIUtil.correctLocation(binDir.getScheme(), binDir.getAuthority(), binDir.getPath() + "/courses");
 
       try {
@@ -55,6 +59,10 @@ public class HelpManager {
       } catch (IOException e) {
         System.err.println("HelpManager: " + e.getMessage());
       }
+    }
+    
+    PathConfig getPathConfig(){
+      return pcfg;
     }
 	
 	Path copyToTmp(ISourceLocation fromDir) throws IOException{
