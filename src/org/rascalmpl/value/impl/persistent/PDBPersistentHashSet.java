@@ -29,11 +29,11 @@ import org.rascalmpl.value.util.AbstractTypeBag;
 import org.rascalmpl.value.util.EqualityUtils;
 
 import io.usethesource.capsule.DefaultTrieSet;
+import io.usethesource.capsule.DefaultTrieSetMultimap;
 import io.usethesource.capsule.api.deprecated.ImmutableSet;
 import io.usethesource.capsule.api.deprecated.ImmutableSetMultimap;
 import io.usethesource.capsule.api.deprecated.ImmutableSetMultimapAsImmutableSetView;
 import io.usethesource.capsule.api.deprecated.TransientSet;
-import io.usethesource.capsule.experimental.multimap.TrieSetMultimap_ChampBasedPrototype;
 
 public final class PDBPersistentHashSet extends AbstractSet {
 
@@ -113,9 +113,8 @@ public final class PDBPersistentHashSet extends AbstractSet {
          * EXPERIMENTAL: Enforce that binary relations always are backed by multi-maps (instead of
          * being represented as a set of tuples).
          */
-
-        final ImmutableSetMultimap<IValue, IValue> multimap =
-            TrieSetMultimap_ChampBasedPrototype.<IValue, IValue>of();
+        
+        final ImmutableSetMultimap<IValue, IValue> multimap = DefaultTrieSetMultimap.of();
 
         // NOTE: tuple untyped
         final BiFunction<IValue, IValue, IValue> tupleOf =
