@@ -68,7 +68,7 @@ public class RascalC {
             .help("Package name for generating api for Java -> Rascal")
             
             .locOption("src-gen")
-            .locDefault((co) -> (ISourceLocation) co.getCommandlocsOption("src").get(0))
+            .locDefault((co) -> (ISourceLocation) co.getCommandLocsOption("src").get(0))
             .help("Target directory for generated source code")
 
             .boolOption("help") 		
@@ -125,8 +125,8 @@ public class RascalC {
             if (cmdOpts.getCommandBoolOption("noLinking")) {
                 IList programs = kernel.compile(
                         cmdOpts.getModules(),
-                        cmdOpts.getCommandlocsOption("src"),
-                        cmdOpts.getCommandlocsOption("lib"),
+                        cmdOpts.getCommandLocsOption("src"),
+                        cmdOpts.getCommandLocsOption("lib"),
                         cmdOpts.getCommandLocOption("boot"),
                         cmdOpts.getCommandLocOption("bin"), 
                         cmdOpts.getCommandLocOption("reloc"), 
@@ -137,8 +137,8 @@ public class RascalC {
             else {
                 IList programs = kernel.compileAndLink(
                         cmdOpts.getModules(),
-                        cmdOpts.getCommandlocsOption("src"),
-                        cmdOpts.getCommandlocsOption("lib"),
+                        cmdOpts.getCommandLocsOption("src"),
+                        cmdOpts.getCommandLocsOption("lib"),
                         cmdOpts.getCommandLocOption("boot"),
                         cmdOpts.getCommandLocOption("bin"), 
                         cmdOpts.getCommandLocOption("reloc"),

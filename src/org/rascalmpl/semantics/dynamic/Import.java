@@ -506,7 +506,7 @@ public abstract class Import {
 
       @Override
        public ITree visitTreeAmb(ITree arg) {
-         throw new ImplementationError("unexpected ambiguity: " + arg);
+         throw new Ambiguous(arg);
        }
      });
   }
