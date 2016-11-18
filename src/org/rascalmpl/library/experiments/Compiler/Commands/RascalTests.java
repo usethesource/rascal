@@ -79,8 +79,8 @@ public class RascalTests {
 		try {
 		    IBool success = (IBool) kernel.rascalTests(
 		            cmdOpts.getModules(),
-		            cmdOpts.getCommandlocsOption("src"),
-		            cmdOpts.getCommandlocsOption("lib"),
+		            cmdOpts.getCommandLocsOption("src"),
+		            cmdOpts.getCommandLocsOption("lib"),
 		            cmdOpts.getCommandLocOption("boot"),
 		            cmdOpts.getCommandLocOption("bin"), 
 		            cmdOpts.getCommandBoolOption("recompile"), 
