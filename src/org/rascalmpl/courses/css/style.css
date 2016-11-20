@@ -537,5 +537,89 @@ b.conum *{color:inherit!important}
 }
 
 .clickable[clicked=true]{
-	background-color: lightgreen;
+	background-color: #ccffcc;
 }
+
+
+.movable-code {
+    background:#ccf2ff;
+    border: dotted grey 1px;
+    position:relative;
+    z-index: 1000;
+    font-family: "Open Sans","DejaVu Sans", sans-serif;
+    font-size: 14px;
+    line-height: 16px;
+    margin: 0px;
+    padding: 0px;
+    left:50%;
+    width: 25%;
+}
+
+.movable-code[placement="correct"]{
+  background:#ccffcc;
+}
+.movable-code[placement="wrong"]{
+  background:#ffcccc;
+}
+.movable-code[placement="wrong-indent"]{
+  background:#ffff80;
+}
+.movable-code[placement="none"]{
+  background:#ccf2ff;
+}
+
+.movable-code > pre {
+    margin: 0px;
+    padding: 0px;
+    display: inline;
+}
+
+.movable-code-target {
+    border:solid grey 1px;
+    /*margin-top: 20 px;
+    top: 40px;*/
+    left:20px;
+    width:45%;height:100%;
+    /*position:absolute;*/
+    /*background:whitesmoke url('https://s3.amazonaws.com/com.appgrinders.test/images/grid_20.png') repeat;*/
+    background:white;
+  }
+
+.movable-code-src {
+    border:solid grey 0px;
+    /*top: 25px;*/
+    left: 18px;
+    width:99.5%;height:350px;
+    /*position:absolute;*/
+    background: #f7f7f8;
+}
+
+.sortableLeft, .sortableRight {
+    border: 1px solid #eee;
+    background: #f7f7f8;
+    width: 48%;
+    min-height: 20px;
+    list-style-type: none;
+    margin: 0;
+    padding: 5px 0 0 0;
+    float: left;
+    margin-right: 10px;
+}
+.sortableLeft li, .sortableRight li {
+    margin: 0 5px 5px 5px;
+    padding: 5px;
+    border: solid grey 1px;
+    background:#ccf2ff;
+    font-size: 1.2em;
+    width: 95%;
+ }
+
+.fact-item[placement="correct"]{
+	background:#ccffcc;
+}
+
+.fact-item[placement="wrong"]{
+	background:#ffcccc;
+}
+
+
