@@ -17,6 +17,8 @@ syntax Question
     = CodeQuestion
     | ChoiceQuestion
     | ClickQuestion
+    | MoveQuestion
+    | FactQuestion
     ;
 
 syntax CodeQuestion
@@ -42,6 +44,18 @@ lexical YesOrNo = "yes" | "y" | "no" | "n";
 syntax ClickQuestion
     = "clickable" TokenOrCmdList text;
 
+syntax MoveQuestion
+    = "movable" Tokens text Decoy? decoy;
+    
+syntax Decoy
+    = "decoy" Tokens text;
+
+syntax FactQuestion
+    = Fact+ facts;
+    
+syntax Fact
+    = "fact" Tokens leftText "|||" Tokens rightText;
+    
 keyword Reserved
     = "question"
     | "prep"
@@ -52,6 +66,9 @@ keyword Reserved
     | "feedback"
     | "click"
     | "clickable"
+    | "movable"
+    | "decoy"
+    | "fact"
     | "$answer"
     | "$gen" 
     | "$use" 
