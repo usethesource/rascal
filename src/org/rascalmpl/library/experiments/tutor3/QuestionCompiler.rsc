@@ -27,7 +27,7 @@ int countGenAndUse((Cmd) `<EvalCmd c>`){
     return n;
 }
 
-str holeMarkup(int n, int len) = "+++\<div class=\"hole\" id=\"hole<n>\" length=\"<len>\"/\>+++";
+str holeMarkup(int n) = "+++\<div class=\"hole\" id=\"hole<n>\"/\>+++";
 str clickMarkup(int n, str text) = "+++\<span class=\"clickable\" id=\"clickable<n>\" clicked=\"false\" onclick=\"handleClick(\'clickable<n>\')\"\><text>\</span\>+++";
 
 tuple[str quoted, str execute, bool hasHoles, map[str,str] bindings] preprocessCode(int questionId, 
@@ -82,7 +82,7 @@ tuple[str quoted, str execute, bool hasHoles, map[str,str] bindings] preprocessC
             println("visit AnswerCmd: <ans>");
             nholes += 1;
             txt = "<ans.elements>";
-            qt = holeMarkup(nholes, size(txt));
+            qt = holeMarkup(nholes);
             try {
                 gen = [Cmd] "$gen(<txt>)";
                 <qt1, ex> = handleCmd(gen);
@@ -285,7 +285,7 @@ str process(str text, (Question) `<CodeQuestion q>`, PathConfig pcfg){
                                     "module Question<questionId>
                                     '<prep_quoted><"<prep_quoted>" == "" ? "" : "\n">
                                     'test bool <e.name>() = 
-                                    '     <expr_quoted> == <expr_holes ? eval(questionId, expr_executed, prep_executed, pcfg) : holeMarkup(1, 10)>;
+                                    '     <expr_quoted> == <expr_holes ? eval(questionId, expr_executed, prep_executed, pcfg) : holeMarkup(1)>;
                                     '");
     }
     if(prep_holes){
