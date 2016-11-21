@@ -10,12 +10,32 @@ $('.click-question').each(visitClickQuestion);
 $('.move-question').each(visitMoveQuestion);
 $('.fact-question').each(visitFactQuestion);
 
+//JQuery plugin:
+// See http://stackoverflow.com/questions/8100770/auto-scaling-inputtype-text-to-width-of-value
+$.fn.textWidth = function(_text, _font){//get width of text with font.  usage: $("div").textWidth();
+        var fakeEl = $('<span>').hide().appendTo(document.body).text(_text || this.val() || this.text()).css('font', _font || this.css('font')),
+            width = fakeEl.width();
+        fakeEl.remove();
+        return width;
+    };
+
+$.fn.autoresize = function(options){//resizes elements based on content size.  usage: $('input').autoresize({padding:10,minWidth:0,maxWidth:100});
+  options = $.extend({padding:10,minWidth:0,maxWidth:10000}, options||{});
+  $(this).on('input', function() {
+    $(this).css({'width': Math.min(options.maxWidth,Math.max(options.minWidth,$(this).textWidth() + options.padding)),
+                 'border-radius': '20px'});
+  }).trigger('input');
+  return this;
+}
+
+//have <input> resize automatically
+$(".hole").autoresize({padding:20,minWidth:40,maxWidth:300});
+
 // hole
 
 function visitHole(index){
     var id = $( this ).attr('id');
-    var len = $( this ).attr('length');
-    var repl = $('<input type="text" name="' + id + '"\ size="' + len + '">');
+    var repl = $('<input type="text" class="hole" name="' + id + '">');
     $ (this).replaceWith(repl, $(this).children().html());
 }
 
@@ -29,7 +49,7 @@ function handleClick(id){
 // CodeQuestion
 
 function submitCode(idGood, idBad, idFeedback){
-    return "<input type='submit' value='Submit Answer'>"
+    return "<input type='submit' value='Check It'>"
            + "<img id ='" + idGood + "' height='25' width='25' src='/images/good.png' style='display:none;'/>"
            + "<img id ='" + idBad  + "' height='25' width='25' src='/images/bad.png' style='display:none;'/>"
            + "<div id ='" + idFeedback + "''> </div>"
@@ -144,7 +164,7 @@ function validateChoiceQuestion(id, idGood, idBad, idFeedback){
     $("#" + idFeedback).hide(100);
     var checked = $('input[name=' + id + ']:checked');
    
-    if(checked.val() === "yes"){
+    if(checked.val() === "y"){
         $("#" + idGood).show(100);
     } else {
         $("#" + idBad).show(100);
@@ -194,7 +214,7 @@ function validateClickQuestion(id, idGood, idBad, idFeedback){
 // MoveQuestion
 
 var deltax = 20;
-var deltay  = 10;
+var deltay  = 1;
 
 function visitMoveQuestion(index){
     var id = $( this ).attr('id');
@@ -229,7 +249,8 @@ function visitMoveQuestion(index){
                 ui.position.left = ui.position.left - leftRemainder;
             }
         },
-        containment: "parent"
+        containment: "parent",
+        cursor: "pointer"
       });
 
     
@@ -266,16 +287,14 @@ function insideTarget(target, elem){
   return inside(elemRect, targetRect);
 }
 
-function validateIndent(b1, b2){
-  var b1Rect = b1.getBoundingClientRect();
-  var b2Rect = b2.getBoundingClientRect();
-  var indent1 = parseInt($(b1).attr("indent"));
-  var indent2 = parseInt($(b2).attr("indent"));
-  return b1Rect.left - b2Rect.left == (indent1 - indent2) * deltax;
+function validateIndent(firstBox, box){
+  var firstRect = firstBox.getBoundingClientRect();
+  var boxRect = box.getBoundingClientRect();
+  var indent = parseInt($(box).attr("indent"));
+  return boxRect.left - firstRect.left == indent * deltax;
 }
 
 function validateMoveQuestion(id, idGood, idBad, idFeedback){
-
   event.preventDefault();
   $("#" + idBad).hide(100);
   $("#" + idGood).hide(100);
@@ -302,7 +321,7 @@ function validateMoveQuestion(id, idGood, idBad, idFeedback){
     console.log("indexBox", indexBox, box);
     
     if(indexBox >= 0){
-      var indentOK =  index == 0 || validateIndent(insideboxes.get(index-1), box);
+      var indentOK =  index == 0 || validateIndent(insideboxes.get(0), box);
       var indexOK = index == indexBox;
       if(!indentOK){
         wrong_indent += 1;
@@ -367,10 +386,12 @@ function visitFactQuestion(index){
                      + "</form><br>");
 
     $( ".sortableLeft" ).sortable({
-      containment: "parent"
+      containment: "parent",
+      cursor: "pointer"
     }).disableSelection();
     $( ".sortableRight" ).sortable({
-      containment: "parent"
+      containment: "parent",
+      cursor: "pointer"
     }).disableSelection();
 
     $(this).find("li").addClass("ui-state-default");

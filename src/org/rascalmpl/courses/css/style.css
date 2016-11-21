@@ -542,8 +542,10 @@ b.conum *{color:inherit!important}
 
 
 .movable-code {
-    background:#ccf2ff;
+    background:#f1e6da;
+    border-radius:5px;
     border: dotted grey 1px;
+    cursor: pointer;
     position:relative;
     z-index: 1000;
     font-family: "Open Sans","DejaVu Sans", sans-serif;
@@ -565,13 +567,14 @@ b.conum *{color:inherit!important}
   background:#ffff80;
 }
 .movable-code[placement="none"]{
-  background:#ccf2ff;
+  background:#f1e6da;
 }
 
 .movable-code > pre {
     margin: 0px;
     padding: 0px;
     display: inline;
+    border-radius:100px
 }
 
 .movable-code-target {
@@ -597,7 +600,7 @@ b.conum *{color:inherit!important}
 .sortableLeft, .sortableRight {
     border: 1px solid #eee;
     background: #f7f7f8;
-    width: 48%;
+    width: 48.5%;
     min-height: 20px;
     list-style-type: none;
     margin: 0;
@@ -609,10 +612,17 @@ b.conum *{color:inherit!important}
     margin: 0 5px 5px 5px;
     padding: 5px;
     border: solid grey 1px;
-    background:#ccf2ff;
+    background:#f1e6da;
     font-size: 1.2em;
     width: 95%;
  }
+
+.fact-item {
+	border-radius:100px;
+	cursor: pointer;
+	margin-left: auto;
+    margin-right: auto;
+}
 
 .fact-item[placement="correct"]{
 	background:#ccffcc;
