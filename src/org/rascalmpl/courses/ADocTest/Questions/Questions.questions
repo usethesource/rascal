@@ -8,18 +8,10 @@ question Replace text box by a function name and make the test true:
 end
 
 question Which means of transportation is faster:
-    choice Apache Helicopter
-        correct no      
-        feedback The speed of an Apache is 293 km/hour
-    choice High-speed train
-        correct yes
-        feedback  The speed of high-speed train is 570 km/hour
-    choice Ferrari F430
-        correct no
-        feedback The speed of a Ferrari is 315 km/hour
-    choice Hovercraft
-        correct no
-        feedback The speed of a Hovercraft is 137 km/hour
+    choice n ||| Apache Helicopter  ||| The speed of an Apache is 293 km/hour
+    choice y ||| High-speed train   ||| The speed of high-speed train is 570 km/hour
+    choice n ||| Ferrari F430       ||| The speed of a Ferrari is 315 km/hour
+    choice n ||| Hovercraft         ||| The speed of a Hovercraft is 137 km/hour
 end
 
 question Place all code fragments in the white box in the right order with the right indentation
@@ -55,15 +47,15 @@ x #= 1;
 end
 
 question Reorder the following items and make all statements true:
-fact [1,2,3] ||| is a list[int]
-fact {1,2,3} ||| is a set[int]
-fact 123     ||| is an int
-fact "abc"   ||| is a str
+    fact [1,2,3] ||| is a list[int]
+    fact {1,2,3} ||| is a set[int]
+    fact 123     ||| is an int
+    fact "abc"   ||| is a str
 end
 
 question Reorder the following items and make all statements true:
-fact 2      ||| is greater than 1
-fact 5      ||| is less than 6
-fact 12     ||| is equal to 10+2
-fact "abcd" ||| is equal to "ab" + "cd"
+    fact 2      ||| is greater than 1
+    fact 5      ||| is less than 6
+    fact 12     ||| is equal to 10+2
+    fact "abcd" ||| is equal to "ab" + "cd"
 end

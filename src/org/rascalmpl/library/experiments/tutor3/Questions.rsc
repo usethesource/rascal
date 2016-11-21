@@ -34,12 +34,10 @@ syntax ChoiceQuestion
     = Choice+ choices;
 
 syntax Choice
-    =  "choice" Tokens description
-       "correct" YesOrNo correct
-       "feedback" Tokens feedback
+    =  "choice" YesOrNo correct "|||" Tokens description "|||" Tokens feedback
     ;
 
-lexical YesOrNo = "yes" | "y" | "no" | "n";
+lexical YesOrNo = "y" | "n";
     
 syntax ClickQuestion
     = "clickable" TokenOrCmdList text;
