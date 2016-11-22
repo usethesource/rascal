@@ -346,13 +346,13 @@ function validateMoveQuestion(id, idGood, idBad, idFeedback){
     var msg = "";
     if(decoy > 0){
         msg += incorrect_fragments(decoy, "decoy");
-    } else
+    }
     if(missing){
         msg += incorrect_fragments(missing, "missing");
-    } else 
+    } 
     if(wrong_placement > 0){
         msg += incorrect_fragments(wrong_placement, "incorrectly placed");
-    } else
+    }
     if(wrong_indent > 0){
         msg += incorrect_fragments(wrong_indent, "incorrectly indented");
     }
@@ -365,7 +365,7 @@ function validateMoveQuestion(id, idGood, idBad, idFeedback){
 }
 
 function incorrect_fragments(n, msg){
-    return n + " " + msg + " fragment" + (n == 1 ? "" : "s");
+    return n + " " + msg + " fragment" + (n == 1 ? "" : "s") + ". ";
 }
 
 // ---- FactQuestion

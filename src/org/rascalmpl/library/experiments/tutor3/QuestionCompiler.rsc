@@ -309,8 +309,8 @@ str escape(str code){
 
 str removeSpacesAroundHoles(str code){
     return visit(code){
-        case /^[ ]+\+\+\+/ => "+++"
-        case /^\+\+\+[ ]+/ => "+++"
+        case /^[ ]+\+\+\+/ => " +++"
+        case /^\+\+\+[ ]+/ => "+++ "
     };
 }
 
