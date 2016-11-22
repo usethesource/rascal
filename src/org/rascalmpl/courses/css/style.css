@@ -574,18 +574,18 @@ b.conum *{color:inherit!important}
     margin: 0px;
     padding: 0px;
     display: inline;
-    border-radius:100px
+    border-radius:100px;
 }
 
 .movable-code-target {
-    border:solid grey 1px;
+    /*border:solid grey 1px;*/
     /*margin-top: 20 px;
     top: 40px;*/
     left:20px;
     width:45%;height:100%;
     /*position:absolute;*/
     /*background:whitesmoke url('https://s3.amazonaws.com/com.appgrinders.test/images/grid_20.png') repeat;*/
-    background:white;
+    background: #f7f7f8;
   }
 
 .movable-code-src {
