@@ -23,7 +23,7 @@ $.fn.autoresize = function(options){//resizes elements based on content size.  u
   options = $.extend({padding:10,minWidth:0,maxWidth:10000}, options||{});
   $(this).on('input', function() {
     $(this).css({'width': Math.min(options.maxWidth,Math.max(options.minWidth,$(this).textWidth() + options.padding)),
-                 'border-radius': '20px'});
+                 'border-radius': '5px'});
   }).trigger('input');
   return this;
 }
@@ -49,11 +49,11 @@ function handleClick(id){
 // CodeQuestion
 
 function submitCode(idGood, idBad, idFeedback){
-    return "<input type='submit' value='Check It'>"
+    return "<input type='submit' value='Check It' style='clear:left;'>"
            + "<img id ='" + idGood + "' height='25' width='25' src='/images/good.png' style='display:none;'/>"
            + "<img id ='" + idBad  + "' height='25' width='25' src='/images/bad.png' style='display:none;'/>"
-           + "<div id ='" + idFeedback + "''> </div>"
-           + "<br>";
+           + "<div id ='" + idFeedback + "'> </div>"
+           ;
 }
 
 
@@ -226,7 +226,6 @@ function visitMoveQuestion(index){
 
     $( this ).html("<form id='" + idForm + "' class='movable-code-form'>" 
                      + content
-                     + "<br>"
                      + submitCode(idGood, idBad, idFeedback)
                      + "</form><br>");
     $( this ).submit(function(event){
@@ -250,7 +249,8 @@ function visitMoveQuestion(index){
             }
         },
         containment: "parent",
-        cursor: "pointer"
+        cursor: "pointer",
+        cursorAt: { top:0, left: 0 }
       });
 
     
@@ -381,9 +381,9 @@ function visitFactQuestion(index){
 
     $( this ).html("<form id='" + idForm + "'>" 
                      + content
-                     + "<br>"
+                     + "<div style='clear:left;'/>"
                      + submitCode(idGood, idBad, idFeedback)
-                     + "</form><br>");
+                     + "<br></form><br>");
 
     $( ".sortableLeft" ).sortable({
       containment: "parent",
