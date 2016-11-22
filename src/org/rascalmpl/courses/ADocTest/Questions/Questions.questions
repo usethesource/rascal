@@ -14,7 +14,7 @@ question Which means of transportation is faster:
     choice n ||| Hovercraft         ||| The speed of a Hovercraft is 137 km/hour
 end
 
-question Place all code fragments in the white box in the right order with the right indentation
+question Place all code fragments in the grey box in the right order with the right indentation
 movable
 if(x > 0){
   x += 1;
@@ -33,7 +33,7 @@ if($click(x)){
 }
 end
 
-question Place all code fragments in the white box in the right order with the right indentation (and avoid decoys):
+question Place all code fragments in the grey box in the right order with the right indentation (and avoid decoys):
 movable
 if(x > 0){
   x += 1;
