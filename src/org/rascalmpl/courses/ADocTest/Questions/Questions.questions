@@ -1,15 +1,15 @@
-question Replace text box by the result of the intersection and make the test true:
+question Replace the text box by the result of the intersection and make the test true:
     expr setIntersection $eval($gen(set[int]) + $gen(set[int],B)) & $eval($gen(set[int]) + $use(B))
 end
 
-question Replace text box by a function name and make the test true:
+question Replace the text box by a function name and make the test true:
     prep import List;
     expr listFunction $answer(headTail)($gen(list[int][1,10]))
 end
 
 question Which means of transportation is faster:
     choice n ||| Apache Helicopter  ||| The speed of an Apache is 293 km/hour
-    choice y ||| High-speed train   ||| The speed of high-speed train is 570 km/hour
+    choice y ||| High-speed train   ||| The speed of a high-speed train is 570 km/hour
     choice n ||| Ferrari F430       ||| The speed of a Ferrari is 315 km/hour
     choice n ||| Hovercraft         ||| The speed of a Hovercraft is 137 km/hour
 end
