@@ -2361,7 +2361,7 @@ public class BytecodeGenerator implements Opcodes {
 		emitIntValue(j); 				// I
 
 		
-		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, Type.getMethodDescriptor(INT_TYPE, OBJECT_A_TYPE, FRAME_TYPE, INT_TYPE, INT_TYPE),false);
+		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, fname, Type.getMethodDescriptor(INT_TYPE, OBJECT_A_TYPE, INT_TYPE, FRAME_TYPE, INT_TYPE, INT_TYPE),false);
 		mv.visitVarInsn(ISTORE, SP);	// _S
 	}
 	
