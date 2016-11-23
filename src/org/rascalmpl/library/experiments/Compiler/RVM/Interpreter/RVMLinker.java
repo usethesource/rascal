@@ -656,11 +656,19 @@ public class RVMLinker {
 		IList code = (IList) declaration.get("instructions");
 		ISourceLocation src = (ISourceLocation) declaration.get("src");
 		boolean isDefault = false;
+		boolean isTest = false;
+		IMap tags = null;
 		boolean isConcreteArg = false;
 		int abstractFingerprint = 0;
 		int concreteFingerprint = 0;
 		if(!isCoroutine){
 			isDefault = ((IBool) declaration.get("isDefault")).getValue();
+			if(declaration.has("isTest")){   // Transitional for boot
+			  isTest = ((IBool) declaration.get("isTest")).getValue();
+			  tags = ((IMap) declaration.get("tags"));
+			} else {
+			  tags = vf.mapWriter().done();
+			}
 			isConcreteArg = ((IBool) declaration.get("isConcreteArg")).getValue();
 			abstractFingerprint = ((IInteger) declaration.get("abstractFingerprint")).intValue();
 			concreteFingerprint = ((IInteger) declaration.get("concreteFingerprint")).intValue();
@@ -1138,12 +1146,12 @@ public class RVMLinker {
 										 nformals, 
 										 nlocals, 
 										 isDefault, 
-										 localNames, 
+										 isTest, 
+										 tags,
+										 localNames,
 										 maxstack,
-										 isConcreteArg,
-										 abstractFingerprint,
-										 concreteFingerprint, 
-										 codeblock, src, continuationPoints);
+										 isConcreteArg, 
+										 abstractFingerprint, concreteFingerprint, codeblock, src, continuationPoints);
 		
 		IList exceptions = (IList) declaration.get("exceptions");
 		function.attachExceptionTable(exceptions, this);
