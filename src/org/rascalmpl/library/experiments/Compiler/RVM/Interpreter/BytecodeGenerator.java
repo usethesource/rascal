@@ -16,11 +16,12 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.jruby.org.objectweb.asm.Type;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -34,8 +35,6 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
-
-import com.ibm.icu.util.BytesTrie.Iterator;
 
 public class BytecodeGenerator implements Opcodes {
 
@@ -1174,50 +1173,49 @@ public class BytecodeGenerator implements Opcodes {
 	// CallMuPrim1
 	
 	public void emitInlineCallMuPrim1(MuPrimitive muprim, boolean debug) {
-		switch(muprim){
+		switch(muprim.name()){
 		
-		case iterator_hasNext:
+		case "iterator_hasNext":
 			emit_iterator_hasNext(); return;
-		case iterator_next:
+		case "iterator_next":
 			emit_iterator_next(); return;
 			
-		case is_defined:
+		case "is_defined":
 			emit_is_defined(); return;
 			
-		case is_bool :
+		case "is_bool ":
 			emit_is_predicate("isBool"); return;
-		case is_datetime:
+		case "is_datetime":
 			emit_is_predicate("isDateTime"); return;
-		case is_int:
+		case "is_int":
 			emit_is_predicate("isInteger"); return;
-		case is_list:
+		case "is_list":
 			emit_is_predicate("isList"); return;
-		case is_lrel:
+		case "is_lrel":
 			emit_is_predicate("isListRelation"); return;
-		case is_loc:
+		case "is_loc":
 			emit_is_predicate("isSourceLocation"); return;
-		case is_map:
+		case "is_map":
 			emit_is_predicate("isMap"); return;
-		case is_node:
+		case "is_node":
 			emit_is_predicate("isNode"); return;
-		case is_num:
+		case "is_num":
 			emit_is_predicate("isNum"); return;
-		case is_real:
+		case "is_real":
 			emit_is_predicate("isReal"); return;
-		case is_rat:
+		case "is_rat":
 			emit_is_predicate("isRational"); return;
-		case is_rel:
+		case "is_rel":
 			emit_is_predicate("isRelation"); return;
-		case is_set:
+		case "is_set":
 			emit_is_predicate("isSet"); return;
-		case is_str:
+		case "is_str":
 			emit_is_predicate("isString"); return;
-		case is_tuple:
+		case "is_tuple":
 			emit_is_predicate("isTuple"); return;
 			
-		case mint:
+		case "mint":
 			emit_mint(); return;
-		default:
 		}
 		emitInlineCallMuPrim1General(muprim, debug);
 	}
@@ -1310,42 +1308,41 @@ public class BytecodeGenerator implements Opcodes {
 	// CallMuPrim2
 	
 	public void emitInlineCallMuPrim2(MuPrimitive muprim, boolean debug) {
-		switch(muprim){
+		switch(muprim.name()){
 		
-		case equal_mint_mint:
+		case "equal_mint_mint":
 			emitComparisonMinMint(IF_ICMPNE); return; 
-		case greater_equal_mint_mint:
+		case "greater_equal_mint_mint":
 			emitComparisonMinMint(IF_ICMPLT); return; 
-		case greater_mint_mint:
+		case "greater_mint_mint":
 			emitComparisonMinMint(IF_ICMPLE); return;
-		case less_equal_mint_mint:
+		case "less_equal_mint_mint":
 			emitComparisonMinMint(IF_ICMPGT); return; 
-		case less_mint_mint:
+		case "less_mint_mint":
 			emitComparisonMinMint(IF_ICMPGE); return; 
-		case not_equal_mint_mint:
+		case "not_equal_mint_mint":
 			emitComparisonMinMint(IF_ICMPEQ); return; 
 
-		case size_array:
+		case "size_array":
 			emit_size_array(); return;
-		case size_list:
+		case "size_list":
 			emit_size(Type.getInternalName(IList.class)); return;
-		case size_set:
+		case "size_set":
 			emit_size(Type.getInternalName(ISet.class)); return;
-		case size_map:
+		case "size_map":
 			emit_size(Type.getInternalName(IMap.class)); return;
-		case size_str:
+		case "size_str":
 			emit_size(Type.getInternalName(IString.class)); return;
-		case size_tuple:
+		case "size_tuple":
 			emit_size(Type.getInternalName(ITuple.class)); return;
 			
-		case subscript_array_mint:
+		case "subscript_array_mint":
 			emitInlineCallMuPrim2_subscript_array_mint(debug);
 			return;
 			
-		case subscript_list_mint:
+		case "subscript_list_mint":
 			emitInlineCallMuPrim2_subscript_list_mint(debug);
 			return;
-		default:
 		}
 		emitInlineCallMuPrim2General(muprim, debug);
 	}
