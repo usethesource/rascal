@@ -114,7 +114,6 @@ public class BytecodeGenerator implements Opcodes {
 
 	public BytecodeGenerator(Function[] functionStore, OverloadedFunction[] overloadedStore,
 			Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {
-
 		this.functionStore = functionStore;
 		this.overloadedStore = overloadedStore;
 		this.functionMap = functionMap;
@@ -1183,7 +1182,7 @@ public class BytecodeGenerator implements Opcodes {
 		case "is_defined":
 			emit_is_defined(); return;
 			
-		case "is_bool ":
+		case "is_bool":
 			emit_is_predicate("isBool"); return;
 		case "is_datetime":
 			emit_is_predicate("isDateTime"); return;
@@ -2493,7 +2492,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitVarInsn(ALOAD, ACCU);
-		mv.visitMethodInsn(INVOKESTATIC, fullClassName, "debugINSTRUCTION", Type.getMethodDescriptor(VOID_TYPE, FRAME_TYPE, INT_TYPE, OBJECT_TYPE),false);
+		mv.visitMethodInsn(INVOKESTATIC, fullClassName, "debugINSTRUCTION", Type.getMethodDescriptor(VOID_TYPE, Type.getType(String.class), FRAME_TYPE, INT_TYPE, OBJECT_TYPE),false);
 	}
 	
 	public void emitDebugCall1(String ins, int arg1) {
