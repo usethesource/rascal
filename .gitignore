@@ -22,3 +22,4 @@ bootstrap/
 .DS_Store
 /.apt_generated/
 
+dependency-reduced-pom.xml
