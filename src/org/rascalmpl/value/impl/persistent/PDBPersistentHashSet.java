@@ -11,10 +11,6 @@
  *******************************************************************************/
 package org.rascalmpl.value.impl.persistent;
 
-import static org.rascalmpl.value.impl.persistent.SetWriter.equivalenceComparator;
-import static org.rascalmpl.value.impl.persistent.SetWriter.equivalenceEqualityComparator;
-import static org.rascalmpl.value.impl.persistent.SetWriter.isTupleOfArityTwo;
-
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -34,6 +30,8 @@ import io.usethesource.capsule.api.deprecated.ImmutableSet;
 import io.usethesource.capsule.api.deprecated.ImmutableSetMultimap;
 import io.usethesource.capsule.api.deprecated.ImmutableSetMultimapAsImmutableSetView;
 import io.usethesource.capsule.api.deprecated.TransientSet;
+
+import static org.rascalmpl.value.impl.persistent.SetWriter.*;
 
 public final class PDBPersistentHashSet extends AbstractSet {
 
@@ -67,7 +65,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
      * EXPERIMENTAL: Enforce that binary relations always are backed by multi-maps (instead of being
      * represented as a set of tuples).
      */
-    if (isTupleOfArityTwo.test(elementTypeBag.lub())) {
+    if (USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(elementTypeBag.lub())) {
       assert this.content.getClass() == ImmutableSetMultimapAsImmutableSetView.class;
     } else {
       assert this.content.getClass() == DefaultTrieSet.getTargetClass();
@@ -104,7 +102,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
     if (content.isEmpty()) {
       final ImmutableSet<IValue> contentNew;
 
-      if (isTupleOfArityTwo.test(value.getType())) {
+      if (USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(value.getType())) {
         /*
          * EXPERIMENTAL: Enforce that binary relations always are backed by multi-maps (instead of
          * being represented as a set of tuples).
