@@ -37,6 +37,12 @@ class SetWriter implements ISetWriter {
 
   /****************************************/
 
+  static final boolean USE_MULTIMAP_BINARY_RELATIONS = true;
+  // static final boolean USE_MULTIMAP_BINARY_RELATIONS = Boolean.getBoolean(String.format("%s.%s",
+  // "org.rascalmpl.value", "useMultimapBinaryRelations"));
+
+  /****************************************/
+
   @SuppressWarnings("unchecked")
   static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
 
@@ -104,7 +110,7 @@ class SetWriter implements ISetWriter {
     }
 
     if (setContent == null) {
-      if (isTupleOfArityTwo.test(elementType)) {
+      if (USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(elementType)) {
         /*
          * EXPERIMENTAL: Enforce that binary relations always are backed by multi-maps (instead of
          * being represented as a set of tuples).
