@@ -18,6 +18,7 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import org.nustaq.serialization.FSTBasicObjectSerializer;
@@ -45,6 +46,8 @@ public class Function implements Serializable {
 	public int nformals;
 	private int nlocals;
 	boolean isDefault;
+	boolean isTest;
+	IMap tags;
 	int maxstack;
 	public CodeBlock codeblock;
 	public IValue[] constantStore;			
@@ -85,19 +88,18 @@ public class Function implements Serializable {
 		vf = vfactory;
 	}
 	
-	public Function(final String name, final Type ftype, Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
-			 final int maxstack, boolean concreteArg, int abstractFingerprint,
-			int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int ctpt){
+	public Function(final String name, final Type ftype, final Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, boolean isTest, 
+			 final IMap tags, final IMap localNames, final int maxstack,
+			boolean concreteArg, int abstractFingerprint, int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int ctpt){
 		this.name = name;
 		this.ftype = ftype;
-		if(kwType == null){
-		  kwType = TypeFactory.getInstance().tupleEmpty();
-		}
-		this.kwType = kwType;
+		this.kwType = (kwType == null) ? TypeFactory.getInstance().tupleEmpty() : kwType;
 		this.funIn = funIn;
 		this.nformals = nformals;
 		this.setNlocals(nlocals);
 		this.isDefault = isDefault;
+		this.isTest = isTest;
+		this.tags = (tags == null) ? ValueFactoryFactory.getValueFactory().mapWriter().done() : tags;
 		this.localNames = localNames;
 		this.maxstack = maxstack;
 		this.concreteArg = concreteArg;
@@ -108,21 +110,20 @@ public class Function implements Serializable {
 		this.continuationPoints = ctpt ;
 	}
 	
-	Function(final String name, final Type ftype, Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
-			 final int maxstack, boolean concreteArg, int abstractFingerprint,
-			int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int scopeIn, IValue[] constantStore, Type[] typeConstantStore,
-			int[] froms, int[] tos, int[] types, int[] handlers, int[] fromSPs, int lastHandler, int scopeId,
-			boolean isCoroutine, int[] refs, boolean isVarArgs, int ctpt){
+	Function(final String name, final Type ftype, final Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, boolean isTest, 
+			 final IMap tags, final IMap localNames, final int maxstack,
+			boolean concreteArg, int abstractFingerprint, int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int scopeIn,
+			IValue[] constantStore, Type[] typeConstantStore, int[] froms, int[] tos, int[] types, int[] handlers, int[] fromSPs,
+			int lastHandler, int scopeId, boolean isCoroutine, int[] refs, boolean isVarArgs, int ctpt){
 		this.name = name;
 		this.ftype = ftype;
-		if(kwType == null){
-          kwType = TypeFactory.getInstance().tupleEmpty();
-        }
-		this.kwType = kwType;
+        this.kwType = (kwType == null) ? TypeFactory.getInstance().tupleEmpty() : kwType;
 		this.funIn = funIn;
 		this.nformals = nformals;
 		this.setNlocals(nlocals);
 		this.isDefault = isDefault;
+		this.isTest = isTest;
+        this.tags = (tags == null) ? ValueFactoryFactory.getValueFactory().mapWriter().done() : tags;
 		this.localNames = localNames;
 		this.maxstack = maxstack;
 		this.concreteArg = concreteArg;
@@ -319,6 +320,15 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 
 		// boolean isDefault;
 		out.writeObject(fun.isDefault);
+		
+		// boolean isTest;
+		out.writeObject(fun.isTest);
+		
+		// IMap tags;
+		if(fun.tags == null){
+		  fun.tags = ValueFactoryFactory.getValueFactory().mapWriter().done();
+		}
+		out.writeObject(new FSTSerializableIValue(fun.tags));
 
 		// int maxstack;
 		out.writeObject(fun.maxstack);
@@ -440,9 +450,28 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 
 		// boolean isDefault;
 		Boolean isDefault = (Boolean) in.readObject();
-
-		// int maxstack;
-		Integer maxstack = (Integer) in.readObject();
+		
+		Boolean isTest = false;
+		IMap tags = null;
+		o = in.readObject();// transitional for boot
+		
+		Integer maxstack;
+		if(o instanceof Boolean){
+		  isTest = (Boolean) o;
+		  tags = (IMap) in.readObject();
+		  maxstack = (Integer) in.readObject();
+		} else {
+		  maxstack = (Integer) o;
+		}
+//      // Boolean isTest;
+//	     Boolean isTest = (Boolean) in.readObject();
+		
+//      // IMap tags;
+//      IMap tags = (IMap) in.readObject();
+		
+//		
+//		// int maxstack;
+//		Integer maxstack = (Integer) in.readObject();
 
 		// CodeBlock codeblock;
 		CodeBlock codeblock = (CodeBlock) in.readObject();
@@ -511,10 +540,10 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		// int continuationPoints
 		Integer continuationPoints = (Integer) in.readObject();
 		
-		Function func = new Function(name, ftype, kwType, funIn, nformals, nlocals, isDefault, localNames, maxstack, concreteArg, abstractFingerprint, concreteFingerprint, 
-				codeblock, src, scopeIn, constantStore, typeConstantStore,
-				froms, tos, types, handlers, fromSPs, lastHandler, scopeId,
-				isCoroutine, refs, isVarArgs, continuationPoints);
+		Function func = new Function(name, ftype, kwType, funIn, nformals, nlocals, isDefault, isTest, tags, localNames, maxstack, concreteArg, 
+				abstractFingerprint, concreteFingerprint, codeblock, src, scopeIn,
+				constantStore, typeConstantStore, froms, tos, types, handlers, fromSPs,
+				lastHandler, scopeId, isCoroutine, refs, isVarArgs, continuationPoints);
 		func.funId = funId;
 		return func;
 	}
