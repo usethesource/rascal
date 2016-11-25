@@ -124,14 +124,10 @@ public class BytecodeGenerator implements Opcodes {
 	//Function currentFunction;
 	
 	public void buildClass(String packageName, String className, boolean debug) {
-
 		emitClass(packageName,className);
 
 		for (Function f : functionStore) {
-			//System.err.println(f.getName());
-//			currentFunction = f;
 		    emitMethod(f, debug);
-			//System.err.println(f.toString() );
 		}
 		
 		// All functions are created create int based dispatcher
@@ -237,8 +233,6 @@ public class BytecodeGenerator implements Opcodes {
 	 * Generate a method for one RVM function
 	 */
 	public void emitMethod(Function f, boolean debug) {
-	System.err.println("Emitting " + f);
-	debug = true;
 		labelMap.clear(); // New set of labels.
 		catchTargetLabels.clear();
 		catchTargets.clear();
@@ -1642,7 +1636,6 @@ public class BytecodeGenerator implements Opcodes {
 		emitInlineFrameObserve(srcIndex);
 		mv.visitIincInsn(SP, -1);
 		
-		System.err.println(Type.getDescriptor(RascalPrimitive.class));
 		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), prim.name(),
 				Type.getDescriptor(RascalPrimitive.class));
 		
