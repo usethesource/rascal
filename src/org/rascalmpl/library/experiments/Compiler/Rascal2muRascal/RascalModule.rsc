@@ -79,8 +79,6 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, Pat
    	  translateModule(M);
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
-   	 
-   	  generate_tests(modName, M@\loc);
    	  
    	  //println("overloadedFunctions"); for(tp <- getOverloadedFunctions()) println(tp);
    	  // Overloading resolution...	  
@@ -320,19 +318,4 @@ private void importModule((Import) `<SyntaxDefinition syntaxdef>`){ /* nothing t
 
 private default void importModule(Import imp){
     throw "Unimplemented import: <imp>";
-}
-
-/********************************************************************/
-/*                  Translate the tests in a module                 */
-/********************************************************************/
- 
-private void generate_tests(str module_name, loc src){
-   testcode = getTestsInModule();
-   if(!isEmpty(testcode)){
-      code = muBlock([ muCallPrim3("testreport_open", [], src), *testcode, muReturn1(muCallPrim3("testreport_close", [], src)) ]);
-      ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
-      name_testsuite = "<module_name>_testsuite";
-      main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
-      addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, [], Symbol::\tuple([]), "" /*in the root*/, 2, 2, false, true, src, [], (), false, 0, 0, code));
-   }
 }

@@ -21,13 +21,13 @@ import org.rascalmpl.value.ISourceLocation;
 
 public class TestExecutor {
 
-	private final Evaluator eval;
+	private final RVMExecutable executable;
 	private final ITestResultListener testResultListener;
 
-	public TestExecutor(Evaluator eval, ITestResultListener testResultListener){
+	public TestExecutor(RVMExecutable executable, ITestResultListener testResultListener){
 		super();
 
-		this.eval = eval;
+		this.executable = executable;
 		this.testResultListener = testResultListener;
 		// Make listener known to compiler's run-time system
 		ExecutionTools.setTestResultListener(testResultListener);
@@ -36,10 +36,11 @@ public class TestExecutor {
 	public void test(String moduleName, int nTests) {
 		testResultListener.start(moduleName, nTests);
 		try {
-			ISourceLocation src = eval.getRascalResolver().resolveModule(moduleName);
+//			ISourceLocation src = eval.getRascalResolver().resolveModule(moduleName);
 			System.err.println("TestExecutor.test: testing " + moduleName + ", " + nTests + " tests");
-			eval.call("executeTests", src);
-			//System.err.println("TestExecutor.test: testing " + moduleName + " ... done");
+//			eval.call("executeTests", src);
+//			executable.executeTests(rex);
+			System.err.println("TestExecutor.test: testing " + moduleName + " ... done");
 		} 
 		catch (Exception e) {
 			System.err.println("TestExecutor.test: " + moduleName + " unexpected exception: " + e.getMessage());

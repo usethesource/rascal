@@ -9,8 +9,6 @@ import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -120,16 +118,9 @@ public class ExecutionTools {
 				if(!uid_module_init.isEmpty()){
 					rvm.executeRVMProgram("TESTSUITE", executable.getUidModuleInit(), arguments, keywordArguments);
 				}
+				
+				result = executable.executeTests(rex);
 
-				IListWriter w = vf.listWriter();
-				int n = 0;
-				for(String uid_testsuite: executable.getTestSuites()){
-					rex.clearCaches();
-					//System.out.println("Testsuite: " + uid_testsuite);
-					IList test_results = (IList)rvm.executeRVMProgram("TESTSUITE" + n++, uid_testsuite, arguments, keywordArguments);
-					w.insertAll(test_results);
-				}
-				result = w.done();
 			} else {
 				/*
 				 * Standard execution of main function
