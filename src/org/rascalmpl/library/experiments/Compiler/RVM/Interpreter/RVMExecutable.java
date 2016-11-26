@@ -232,7 +232,7 @@ public class RVMExecutable implements Serializable{
 //		return testsuites;
 //	}
 	
-	ArrayList<Function> getTests(){
+	public ArrayList<Function> getTests(){
 	  ArrayList<Function> tests = new ArrayList<>();
 	  for(Function f : functionStore){
 	    if(f.isTest){
@@ -242,7 +242,7 @@ public class RVMExecutable implements Serializable{
 	  return tests;
 	}
 	
-	int getNumberOfTests(){
+	public int getNumberOfTests(){
 	  int nTests = 0;
 	  for(Function f : functionStore){
         if(f.isTest){
@@ -252,7 +252,7 @@ public class RVMExecutable implements Serializable{
       return nTests;
 	}
 	
-	IList executeTests(RascalExecutionContext rex){
+	public IList executeTests(RascalExecutionContext rex){
 	  IListWriter w = vf.listWriter();
 	  for(Function f : functionStore){
 	    if(f.isTest){

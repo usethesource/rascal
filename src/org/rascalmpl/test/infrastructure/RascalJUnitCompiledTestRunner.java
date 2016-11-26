@@ -11,7 +11,6 @@
 package org.rascalmpl.test.infrastructure;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,40 +23,45 @@ import org.junit.runner.Result;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
-import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
-import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.library.experiments.Compiler.Commands.Rascal;
+import org.rascalmpl.library.experiments.Compiler.Commands.RascalC;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.TestExecutor;
+import org.rascalmpl.library.lang.rascal.boot.Kernel;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * A JUnit test runner for compiled Rascal tests.
  * 
- * The current approach is hybrid:
- *  - The Rascal source files are parsed to extract the tests.
- *  - Next the the compiled version of the tests is executed.
- *  - If needed, tests are recompiled.
- *  
- *  To achieve this the Rascal sources of the compiler are loaded in the interpreter.
- *  
- *  In a future version we could skip the parsing phase and extract test info from meta-infor
- *  in the generated code.
- *
+ * The  approach is as follows:
+ *  - The modules to be tested are compiled and linked.
+ *  - Meta-data in the compiled modules is used to determine the number of tests
+ *    and the ignored tests.
+ *  - Next the the tests are executed per compiled module
  */
 public class RascalJUnitCompiledTestRunner extends Runner {
-	private static Evaluator evaluator;
-	private static GlobalEnvironment heap;
-//	private static ModuleEnvironment root;
-	private static PrintWriter stderr;
-	private static PrintWriter stdout;
+    private static Kernel kernel;
+    private static RascalExecutionContext rex;
+    private static IValueFactory vf;
+
+    private static PathConfig pcfg;
 	private Description desc;
 	private String prefix;
 	private HashMap<String, Integer> testsPerModule; 				// number of tests to be executed
@@ -65,32 +69,30 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	int totalTests = 0;
 
 	static {
-//		heap = new GlobalEnvironment();
-//		root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
-//
-		stderr = new PrintWriter(System.err);
-		stdout = new PrintWriter(System.out);
-		
-//		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
-//		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-//		evaluator.getConfiguration().setErrors(true);
-
-		// this can not work reliably with the current URIResolverRegistry:
-//        ISourceLocationInput rascalProject = new RascalProjectInput(RascalJUnitCompiledTestRunner.class);
-//        URIResolverRegistry.getInstance().registerInput(rascalProject);
-//        evaluator.addRascalSearchPath(URIUtil.rootLocation("project"));
-
-		// Import the compiler's Execute module
-		NullRascalMonitor monitor = new NullRascalMonitor();
-		
-//		System.err.println("*********************************************");
-//		System.err.println("**** Loading Compiler (takes a minute!)  ****");
-//		System.err.println("**** Needs JVM arguments: -Xms64m -Xmx1G ****");
-//		
-//		evaluator.doImport(monitor, "experiments::Compiler::Execute");		
-//		
-//		System.err.println("****          Compiler Loaded            ****");
-//		System.err.println("*********************************************");
+	  vf = ValueFactoryFactory.getValueFactory();
+	  try {
+	    pcfg = new PathConfig();
+	  } catch (URISyntaxException e1) {
+	    // TODO Auto-generated catch block
+	    e1.printStackTrace();
+	  }
+	  rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot())
+	      .setTrace(false)
+	      .setProfile(false)
+	      .setVerbose(true)
+	      .build();
+	  try {
+	    kernel = new Kernel(vf, rex, pcfg.getBoot());
+	  } catch (IOException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	  } catch (NoSuchRascalFunction e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	  } catch (URISyntaxException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	  }
 	}  
 	
 	public RascalJUnitCompiledTestRunner(Class<?> clazz) {
@@ -102,10 +104,10 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		try {
 			Object instance = clazz.newInstance();
 			if (instance instanceof IRascalJUnitTestSetup) {
-				((IRascalJUnitTestSetup) instance).setup(evaluator);
+				((IRascalJUnitTestSetup) instance).setup(null);
 			}
 			else {
-				evaluator.addRascalSearchPath(URIUtil.rootLocation("tmp"));
+				//evaluator.addRascalSearchPath(URIUtil.rootLocation("tmp"));
 			}
 		} catch (InstantiationException e) {
 			throw new ImplementationError("Could not setup tests for: " + clazz.getCanonicalName(), e);
@@ -173,27 +175,51 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		this.desc = desc;
 
 		try {
-			List<String> modules = getRecursiveModuleList(evaluator.getValueFactory().sourceLocation("std", "", "/" + prefix.replaceAll("::", "/")));
+			List<String> modules = getRecursiveModuleList(vf.sourceLocation("std", "", "/" + prefix.replaceAll("::", "/")));
+			
+			IListWriter w = vf.listWriter();
 
+			for(String module : modules){
+			  w.append(vf.string(prefix + "::" + module));
+			}
+
+			IList imodules = w.done();
+			IList programs = kernel.compileAndLink(
+			    imodules,
+			    pcfg.getSrcs(),
+			    pcfg.getLibs(),
+			    pcfg.getBoot(),
+			    pcfg.getBin(),
+			    vf.sourceLocation("noreloc", "", ""),
+			    new HashMap<String, IValue>());
+			
+			boolean ok = RascalC.handleMessages(programs);
+			if(!ok){
+			  System.exit(1);
+			}
+			
 			for (String module : modules) {
+			  
 				String name = prefix + "::" + module;
 				
-				evaluator.doImport(new NullRascalMonitor(), name);
+		        ISourceLocation binary = Rascal.findBinary(pcfg.getBin(), name);
+		        RVMExecutable executable = RVMExecutable.read(binary);
 				Description modDesc = Description.createSuiteDescription(name);
 				desc.addChild(modDesc);
 				int ntests = 0;
 				LinkedList<Description> module_ignored = new LinkedList<Description>();
 				
-				for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
-						String test_name = computeTestName(f.getName(), f.getAst().getLocation());
-						Description d = Description.createTestDescription(getClass(), test_name);
-						modDesc.addChild(d);
-						ntests++;
-						
-						if ((f.hasTag("ignore") || f.hasTag("Ignore") || f.hasTag("ignoreCompiler") || f.hasTag("IgnoreCompiler"))) {
-							module_ignored.add(d);
-						}
+				for(Function f : executable.getTests()){
+				  String test_name = computeTestName(f.getName(), f.src);
+                  Description d = Description.createTestDescription(getClass(), test_name);
+                  modDesc.addChild(d);
+                  ntests++;
+                  
+                  if(f.isIgnored()){
+                    module_ignored.add(d);
+                  }
 				}
+				
 				testsPerModule.put(name,  ntests);
 				ignoredPerModule.put(name, module_ignored);
 				System.err.println("Added " + ntests + " tests for module: " + name);
@@ -217,8 +243,17 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 
 		for (Description mod : desc.getChildren()) {
 			
+		  ISourceLocation binary = Rascal.findBinary(pcfg.getBin(), mod.getDisplayName());
+          RVMCore rvmCore = null;
+          try {
+              rvmCore = ExecutionTools.initializedRVM(binary, rex);
+          } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+          }
+          
 			Listener listener = new Listener(notifier, mod);
-			TestExecutor runner = null; //new TestExecutor(listener);
+			TestExecutor runner = new TestExecutor(rvmCore, listener, rex);
 			try {
 				runner.test(mod.getDisplayName(), testsPerModule.get(mod.getClassName())); 
 				for(Description d : ignoredPerModule.get(mod.getClassName())){

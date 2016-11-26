@@ -452,6 +452,16 @@ public abstract class RVMCore {
 		}
 	}
 	
+	public IList executeTests(RascalExecutionContext rex){
+	  IListWriter w = vf.listWriter();
+	  for(Function f : functionStore){
+	    if(f.isTest){
+	      w.append(f.executeTest(rex));
+	    }
+	  }
+	  return w.done();
+	}
+	
 	/************************************************************************************/
 	/*		Abstract methods to execute RVMFunctions and RVMPrograms					*/
 	/************************************************************************************/
