@@ -101,7 +101,7 @@ bool hasMatches(map[&K,&KV] m, Query query) = !isEmpty(m) && evalQuery(m, query)
 
 
 void inspect(str qualifiedModuleName,   // nameof Rascal source module
-          PathConfig pcfg = pathConfig(),// path configuration where binaries are stored
+          PathConfig pcfg,              // path configuration where binaries are stored
           Query select = none(),        // select function names to be shown
           int line = -1,                // select line of function to be shown
           bool listing = false,         // show instruction listing
@@ -394,7 +394,7 @@ void statistics(loc root = |std:///|,
 }
 
 set[loc] getFunctionLocations(
-						   loc src,                  // location of Rascal source file
+						    loc src,                  // location of Rascal source file
    							loc bin = |home:///bin|   // location where binaries are stored
 							){
    rvmLoc = RVMModuleLocation(src, bin);
@@ -408,7 +408,7 @@ set[loc] getFunctionLocations(
 } 
 
 str config(str qualifiedModuleName,                // name of Rascal source module
-            PathConfig pcfg = pathConfig(),
+            PathConfig pcfg,
             Query select = none()){
             
    if(<true, cloc> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
@@ -486,3 +486,19 @@ str config(loc cloc,  Query select = none()){
 //	  println("Config file does not exist");
 //	}    
 // }
+
+void ideSupport(str qualifiedModuleName,   // nameof Rascal source module
+                PathConfig pcfg){         // path configuration where binaries are stored
+     
+   if(<true, cloc> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
+      Configuration c = readBinaryValueFile(#Configuration, cloc);
+      locationTypes = c.locationTypes;
+      definitions = c.definitions;
+      uses = c.uses;
+      println("locationTypes: <locationType>");
+      println("definitions: <definitions>");
+      println("uses: <uses>");
+   } else {
+       return "Config file does not exist for: <qualifiedModuleName>";
+   }                
+}
