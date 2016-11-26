@@ -308,7 +308,7 @@ value allRascalTests(loc bin=|home:///bin-tests-intp|, loc boot=|boot:///|, bool
       println("<prog>: <s>");
   
   println("\nFailed/IGNORED TESTS:");
-  printTestReport(all_results, []);
+  printTestReport(testResults(all_results, []));
   
   if(size(crashes) > 0){
      println("\nCRASHED TESTS:");
