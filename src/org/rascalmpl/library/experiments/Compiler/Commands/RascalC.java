@@ -189,7 +189,7 @@ public class RascalC {
         }
     }
 
-    private static boolean handleMessages(IList programs) {
+    public static boolean handleMessages(IList programs) {
     	boolean failed = false;
 
     	for(IValue iprogram : programs){

@@ -287,7 +287,7 @@ public class Function implements Serializable {
 	}
 	
 	private static final int MAXDEPTH = 5;
-    private static final int TRIES = 500;
+    private static final int TRIES = 5;
 	
     /**
      * Execute current function as test
