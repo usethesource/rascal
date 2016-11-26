@@ -55,7 +55,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public class RascalJUnitCompiledTestRunner extends Runner {
 	private static Evaluator evaluator;
 	private static GlobalEnvironment heap;
-	private static ModuleEnvironment root;
+//	private static ModuleEnvironment root;
 	private static PrintWriter stderr;
 	private static PrintWriter stdout;
 	private Description desc;
@@ -65,15 +65,15 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	int totalTests = 0;
 
 	static {
-		heap = new GlobalEnvironment();
-		root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
-
+//		heap = new GlobalEnvironment();
+//		root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
+//
 		stderr = new PrintWriter(System.err);
 		stdout = new PrintWriter(System.out);
 		
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
-		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-		evaluator.getConfiguration().setErrors(true);
+//		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
+//		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+//		evaluator.getConfiguration().setErrors(true);
 
 		// this can not work reliably with the current URIResolverRegistry:
 //        ISourceLocationInput rascalProject = new RascalProjectInput(RascalJUnitCompiledTestRunner.class);
@@ -83,14 +83,14 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		// Import the compiler's Execute module
 		NullRascalMonitor monitor = new NullRascalMonitor();
 		
-		System.err.println("*********************************************");
-		System.err.println("**** Loading Compiler (takes a minute!)  ****");
-		System.err.println("**** Needs JVM arguments: -Xms64m -Xmx1G ****");
-		
-		evaluator.doImport(monitor, "experiments::Compiler::Execute");		
-		
-		System.err.println("****          Compiler Loaded            ****");
-		System.err.println("*********************************************");
+//		System.err.println("*********************************************");
+//		System.err.println("**** Loading Compiler (takes a minute!)  ****");
+//		System.err.println("**** Needs JVM arguments: -Xms64m -Xmx1G ****");
+//		
+//		evaluator.doImport(monitor, "experiments::Compiler::Execute");		
+//		
+//		System.err.println("****          Compiler Loaded            ****");
+//		System.err.println("*********************************************");
 	}  
 	
 	public RascalJUnitCompiledTestRunner(Class<?> clazz) {
@@ -218,7 +218,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		for (Description mod : desc.getChildren()) {
 			
 			Listener listener = new Listener(notifier, mod);
-			TestExecutor runner = new TestExecutor(evaluator, listener);
+			TestExecutor runner = null; //new TestExecutor(listener);
 			try {
 				runner.test(mod.getDisplayName(), testsPerModule.get(mod.getClassName())); 
 				for(Description d : ignoredPerModule.get(mod.getClassName())){

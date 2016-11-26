@@ -415,7 +415,6 @@ public class RVMLinker {
 		/** Imported functions */
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
-		ArrayList<String> testsuites =  new ArrayList<String>();	// testsuites of imported modules
 
 		IList imported_declarations = (IList) program.get("imported_declarations");
 		for(IValue imp : imported_declarations){
@@ -429,10 +428,8 @@ public class RVMLinker {
 					rootWriter.insert(iname);
 					initializers.add(name);
 				}
-				if(!name.endsWith("_testsuite(list(value());)#0")){
-					//testsuites.add(name);
-					loadInstructions(name, declaration, false);
-				}
+				
+				loadInstructions(name, declaration, false);
 
 				if(eliminateDeadCode){
 
@@ -482,18 +479,14 @@ public class RVMLinker {
 		/** Declarations for main module */
 		
 		String main = "/main()#0";
-		String main_testsuite = /*"/" + moduleName + */ "_testsuite()#0";
 		
-		String mu_main = "/MAIN";
-		String mu_main_testsuite = "/TESTSUITE";
-	
+		String mu_main = "/MAIN";	
 		
 		String module_init = moduleInit(moduleName);
 		String mu_module_init = muModuleInit(moduleName);
 
 		String uid_module_main = "";
 		String uid_module_init = "";
-		String uid_module_main_testsuite = "";
 
 		IList declarations = (IList) main_module.get("declarations");
 		for (IValue ideclaration : declarations) {
@@ -509,16 +502,8 @@ public class RVMLinker {
 					uid_module_main = name;					// Get main's uid in current module
 				}
 				
-				if(name.endsWith(main_testsuite) || name.endsWith(mu_main_testsuite)) {
-					uid_module_main_testsuite = name;		// Get  testsuite's main uid in current module
-				}
-				
 				if(name.endsWith(module_init) || name.endsWith(mu_module_init)) {
 					uid_module_init = name;					// Get module_init's uid in current module
-				}
-				
-				if(name.endsWith("_testsuite(list(value());)#0")){
-					testsuites.add(name);
 				}
 				
 				loadInstructions(name, declaration, false);
@@ -586,11 +571,9 @@ public class RVMLinker {
 								 resolver, 
 								 overloadedStore.toArray(new OverloadedFunction[overloadedStore.size()]),  
 								 initializers,
-								 testsuites, 
 								 uid_module_init, 
 								 uid_module_main, 
-								 uid_module_main_testsuite,
-								 typeStore,
+								 typeStore, 
 								 vf,
 								 jvm);
 	}
@@ -656,11 +639,19 @@ public class RVMLinker {
 		IList code = (IList) declaration.get("instructions");
 		ISourceLocation src = (ISourceLocation) declaration.get("src");
 		boolean isDefault = false;
+		boolean isTest = false;
+		IMap tags = null;
 		boolean isConcreteArg = false;
 		int abstractFingerprint = 0;
 		int concreteFingerprint = 0;
 		if(!isCoroutine){
 			isDefault = ((IBool) declaration.get("isDefault")).getValue();
+			if(declaration.has("isTest")){   // Transitional for boot
+			  isTest = ((IBool) declaration.get("isTest")).getValue();
+			  tags = ((IMap) declaration.get("tags"));
+			} else {
+			  tags = vf.mapWriter().done();
+			}
 			isConcreteArg = ((IBool) declaration.get("isConcreteArg")).getValue();
 			abstractFingerprint = ((IInteger) declaration.get("abstractFingerprint")).intValue();
 			concreteFingerprint = ((IInteger) declaration.get("concreteFingerprint")).intValue();
@@ -1138,12 +1129,12 @@ public class RVMLinker {
 										 nformals, 
 										 nlocals, 
 										 isDefault, 
-										 localNames, 
+										 isTest, 
+										 tags,
+										 localNames,
 										 maxstack,
-										 isConcreteArg,
-										 abstractFingerprint,
-										 concreteFingerprint, 
-										 codeblock, src, continuationPoints);
+										 isConcreteArg, 
+										 abstractFingerprint, concreteFingerprint, codeblock, src, continuationPoints);
 		
 		IList exceptions = (IList) declaration.get("exceptions");
 		function.attachExceptionTable(exceptions, this);

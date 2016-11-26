@@ -356,7 +356,7 @@ list[RVMDeclaration] mulib2rvm(MuModule muLib){
         <maxSP, exceptions> = validate(fun.src, body, []);
         required_frame_size = get_nlocals() + maxSP;
         functions += (fun is muCoroutine) ? COROUTINE(fun.qname, fun. uqname, fun.scopeIn, fun.nformals, get_nlocals(), (), fun.refs, fun.src, required_frame_size, body, [], usedOverloadedFunctions, usedFunctions)
-                                          : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.kwType, fun.scopeIn, fun.nformals, get_nlocals(), (), false, false, false, fun.src, required_frame_size, 
+                                          : FUNCTION(fun.qname, fun.uqname, fun.ftype, fun.kwType, fun.scopeIn, fun.nformals, get_nlocals(), (), false, false, false, false, (), fun.src, required_frame_size, 
                                                      false, 0, 0, body, [], usedOverloadedFunctions, usedFunctions);
     }
     return functions;
@@ -484,6 +484,8 @@ RVMModule mu2rvm(muModule(str module_name,
                                                            fun.isVarArgs, 
                                                            fun.isPublic,
                                                            "default" in fun.modifiers,
+                                                           "test" in fun.modifiers,
+                                                           fun.tags,
                                                            fun.src, 
                                                            required_frame_size, 
                                                            fun.isConcreteArg,
@@ -510,7 +512,7 @@ RVMModule mu2rvm(muModule(str module_name,
   <maxSP, dummy_exceptions> = validate(|init:///|, code, []);
   if(size(code) > 0){
      funMap += ( module_init_fun : FUNCTION(module_init_fun, "init", ftype, Symbol::\tuple([]), "" /*in the root*/, 2, nlocal[module_init_fun], (), 
-                                            false, true, false, src, maxSP + nlocal[module_init_fun], false, 0, 0,
+                                            false, true, false, false, (), src, maxSP + nlocal[module_init_fun], false, 0, 0,
                                     [*code, 
                                      LOADCON(true),
                                      RETURN1(),
@@ -524,13 +526,6 @@ RVMModule mu2rvm(muModule(str module_name,
     iprintln(initializations);
     println("--------------------- INIT");
     iprintln(funMap[module_init_fun]);
-  }
-  
-  main_testsuite = getUID(module_name,[],"TESTSUITE",1);
-  module_init_testsuite = getUID(module_name,[],"#module_init_testsuite",1);
-  if(!funMap[main_testsuite]?) {                        
-     main_testsuite = getFUID(module_name,"testsuite",ftype,0);
-     module_init_testsuite = getFUID(module_name,"#module_init_testsuite",ftype,0);
   }
   
   res = rvmModule(module_name, (module_name: tags), messages, imports, extends, types, symbol_definitions, orderedDeclarations(funMap), [], resolver, overloaded_functions, importGraph, src);

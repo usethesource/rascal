@@ -3,9 +3,18 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
+import java.util.HashMap;
 import java.util.Map;
 
+import org.nustaq.serialization.FSTBasicObjectSerializer;
+import org.nustaq.serialization.FSTClazzInfo;
+import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
+import org.nustaq.serialization.FSTObjectInput;
+import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
+import org.rascalmpl.library.cobra.TypeParameterVisitor;
+import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
+import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
@@ -18,13 +27,8 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
-
-import org.nustaq.serialization.FSTBasicObjectSerializer;
-import org.nustaq.serialization.FSTClazzInfo;
-import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
-import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
 
 /**
  * Function contains all data needed for a single RVM function
@@ -36,6 +40,11 @@ import org.nustaq.serialization.FSTObjectOutput;
 public class Function implements Serializable {
 	private static final long serialVersionUID = -1741144671553091111L;
 	
+	private static final IString ignoreTag = ValueFactoryFactory.getValueFactory().string("ignore");
+	private static final IString IgnoreTag = ValueFactoryFactory.getValueFactory().string("Ignore");
+	private static final IString ignoreCompilerTag = ValueFactoryFactory.getValueFactory().string("ignoreCompiler");
+	private static final IString IgnoreCompilerTag = ValueFactoryFactory.getValueFactory().string("IgnoreCompiler");
+	
 	String name;
 	public Type ftype;
 	public Type kwType;
@@ -45,6 +54,8 @@ public class Function implements Serializable {
 	public int nformals;
 	private int nlocals;
 	boolean isDefault;
+	boolean isTest;
+	IMap tags;
 	int maxstack;
 	public CodeBlock codeblock;
 	public IValue[] constantStore;			
@@ -85,19 +96,18 @@ public class Function implements Serializable {
 		vf = vfactory;
 	}
 	
-	public Function(final String name, final Type ftype, Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
-			 final int maxstack, boolean concreteArg, int abstractFingerprint,
-			int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int ctpt){
+	public Function(final String name, final Type ftype, final Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, boolean isTest, 
+			 final IMap tags, final IMap localNames, final int maxstack,
+			boolean concreteArg, int abstractFingerprint, int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int ctpt){
 		this.name = name;
 		this.ftype = ftype;
-		if(kwType == null){
-		  kwType = TypeFactory.getInstance().tupleEmpty();
-		}
-		this.kwType = kwType;
+		this.kwType = (kwType == null) ? TypeFactory.getInstance().tupleEmpty() : kwType;
 		this.funIn = funIn;
 		this.nformals = nformals;
 		this.setNlocals(nlocals);
 		this.isDefault = isDefault;
+		this.isTest = isTest;
+		this.tags = (tags == null) ? ValueFactoryFactory.getValueFactory().mapWriter().done() : tags;
 		this.localNames = localNames;
 		this.maxstack = maxstack;
 		this.concreteArg = concreteArg;
@@ -108,21 +118,20 @@ public class Function implements Serializable {
 		this.continuationPoints = ctpt ;
 	}
 	
-	Function(final String name, final Type ftype, Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, final IMap localNames, 
-			 final int maxstack, boolean concreteArg, int abstractFingerprint,
-			int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int scopeIn, IValue[] constantStore, Type[] typeConstantStore,
-			int[] froms, int[] tos, int[] types, int[] handlers, int[] fromSPs, int lastHandler, int scopeId,
-			boolean isCoroutine, int[] refs, boolean isVarArgs, int ctpt){
+	Function(final String name, final Type ftype, final Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, boolean isTest, 
+			 final IMap tags, final IMap localNames, final int maxstack,
+			boolean concreteArg, int abstractFingerprint, int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int scopeIn,
+			IValue[] constantStore, Type[] typeConstantStore, int[] froms, int[] tos, int[] types, int[] handlers, int[] fromSPs,
+			int lastHandler, int scopeId, boolean isCoroutine, int[] refs, boolean isVarArgs, int ctpt){
 		this.name = name;
 		this.ftype = ftype;
-		if(kwType == null){
-          kwType = TypeFactory.getInstance().tupleEmpty();
-        }
-		this.kwType = kwType;
+        this.kwType = (kwType == null) ? TypeFactory.getInstance().tupleEmpty() : kwType;
 		this.funIn = funIn;
 		this.nformals = nformals;
 		this.setNlocals(nlocals);
 		this.isDefault = isDefault;
+		this.isTest = isTest;
+        this.tags = (tags == null) ? ValueFactoryFactory.getValueFactory().mapWriter().done() : tags;
 		this.localNames = localNames;
 		this.maxstack = maxstack;
 		this.concreteArg = concreteArg;
@@ -269,6 +278,92 @@ public class Function implements Serializable {
 		return sb.toString();
 	}
 	
+	public boolean isIgnored(){
+	  return    tags.containsKey(ignoreTag) 
+	         || tags.containsKey(IgnoreTag)
+	         || tags.containsKey(ignoreCompilerTag)
+	         || tags.containsKey(IgnoreCompilerTag)
+	         ;
+	}
+	
+	private static final int MAXDEPTH = 5;
+    private static final int TRIES = 500;
+	
+    /**
+     * Execute current function as test
+     **/
+
+    public ITuple executeTest(RascalExecutionContext rex) {
+      if(vf == null){
+        vf = ValueFactoryFactory.getValueFactory();
+      }
+      String fun = name;
+      if(isIgnored()){
+        rex.getTestResultListener().ignored($computeTestName(fun, src), src);
+        return vf.tuple(src,  vf.integer(-1), vf.string(""));
+      }
+      
+      IValue iexpected =  tags.get(vf.string("expected"));
+      String expected = iexpected == null ? "" : ((IString) iexpected).getValue();
+      
+      Type requestedType = ftype.getFieldTypes();
+      int nargs = requestedType.getArity();
+      IValue[] args = new IValue[nargs];
+
+      TypeParameterVisitor tpvisit = new TypeParameterVisitor();
+      HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
+      RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, MAXDEPTH, tpbindings, rex.getTypeStore());
+
+      int tries = nargs == 0 ? 1 : TRIES;
+      boolean passed = true;
+      String message = "";
+      Throwable exception = null;
+      for(int i = 0; i < tries; i++){
+        if(nargs > 0){
+          message = "test fails for arguments: ";
+          ITuple tup = (ITuple) randomValue.generate(requestedType);
+          for(int j = 0; j < nargs; j++){
+            args[j] = tup.get(j);
+            message = message + args[j].toString() + " ";
+          }
+        }
+        try {
+   
+          IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null); 
+          passed = ((IBool) res).getValue();
+          if(!passed){
+            break;
+          }
+        } catch (Thrown e){
+          String ename;
+          if(e.value instanceof IConstructor){
+            ename = ((IConstructor) e.value).getName();
+          } else {
+            ename = e.toString();
+          }
+          if(!ename.equals(expected)){
+            message = e.toString() + message;
+            passed = false;
+            exception = e;
+            break;
+          }
+        }
+        catch (Exception e){
+          message = e.getMessage() + message;
+          passed = false;
+          break;
+        }
+      }
+      if(passed)
+        message = "";
+
+      rex.getTestResultListener().report(passed, $computeTestName(fun, src), src, message, exception);
+      return vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message));
+    }
+    
+    private static String $computeTestName(final String name, final ISourceLocation loc){
+      return name.substring(name.indexOf("/")+1, name.indexOf("(")); // Resembles Function.getPrintableName
+  }
 }
 
 /**
@@ -319,6 +414,15 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 
 		// boolean isDefault;
 		out.writeObject(fun.isDefault);
+		
+		// boolean isTest;
+		out.writeObject(fun.isTest);
+		
+		// IMap tags;
+		if(fun.tags == null){
+		  fun.tags = ValueFactoryFactory.getValueFactory().mapWriter().done();
+		}
+		out.writeObject(new FSTSerializableIValue(fun.tags));
 
 		// int maxstack;
 		out.writeObject(fun.maxstack);
@@ -440,9 +544,28 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 
 		// boolean isDefault;
 		Boolean isDefault = (Boolean) in.readObject();
-
-		// int maxstack;
-		Integer maxstack = (Integer) in.readObject();
+		
+		Boolean isTest = false;
+		IMap tags = null;
+		o = in.readObject();// transitional for boot
+		
+		Integer maxstack;
+		if(o instanceof Boolean){
+		  isTest = (Boolean) o;
+		  tags = (IMap) in.readObject();
+		  maxstack = (Integer) in.readObject();
+		} else {
+		  maxstack = (Integer) o;
+		}
+//      // Boolean isTest;
+//	     Boolean isTest = (Boolean) in.readObject();
+		
+//      // IMap tags;
+//      IMap tags = (IMap) in.readObject();
+		
+//		
+//		// int maxstack;
+//		Integer maxstack = (Integer) in.readObject();
 
 		// CodeBlock codeblock;
 		CodeBlock codeblock = (CodeBlock) in.readObject();
@@ -511,10 +634,10 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		// int continuationPoints
 		Integer continuationPoints = (Integer) in.readObject();
 		
-		Function func = new Function(name, ftype, kwType, funIn, nformals, nlocals, isDefault, localNames, maxstack, concreteArg, abstractFingerprint, concreteFingerprint, 
-				codeblock, src, scopeIn, constantStore, typeConstantStore,
-				froms, tos, types, handlers, fromSPs, lastHandler, scopeId,
-				isCoroutine, refs, isVarArgs, continuationPoints);
+		Function func = new Function(name, ftype, kwType, funIn, nformals, nlocals, isDefault, isTest, tags, localNames, maxstack, concreteArg, 
+				abstractFingerprint, concreteFingerprint, codeblock, src, scopeIn,
+				constantStore, typeConstantStore, froms, tos, types, handlers, fromSPs,
+				lastHandler, scopeId, isCoroutine, refs, isVarArgs, continuationPoints);
 		func.funId = funId;
 		return func;
 	}
