@@ -3,9 +3,18 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
+import java.util.HashMap;
 import java.util.Map;
 
+import org.nustaq.serialization.FSTBasicObjectSerializer;
+import org.nustaq.serialization.FSTClazzInfo;
+import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
+import org.nustaq.serialization.FSTObjectInput;
+import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
+import org.rascalmpl.library.cobra.TypeParameterVisitor;
+import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
+import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
@@ -21,12 +30,6 @@ import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
-import org.nustaq.serialization.FSTBasicObjectSerializer;
-import org.nustaq.serialization.FSTClazzInfo;
-import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
-import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
-
 /**
  * Function contains all data needed for a single RVM function
  *
@@ -36,6 +39,11 @@ import org.nustaq.serialization.FSTObjectOutput;
 
 public class Function implements Serializable {
 	private static final long serialVersionUID = -1741144671553091111L;
+	
+	private static final IString ignoreTag = ValueFactoryFactory.getValueFactory().string("ignore");
+	private static final IString IgnoreTag = ValueFactoryFactory.getValueFactory().string("Ignore");
+	private static final IString ignoreCompilerTag = ValueFactoryFactory.getValueFactory().string("ignoreCompiler");
+	private static final IString IgnoreCompilerTag = ValueFactoryFactory.getValueFactory().string("IgnoreCompiler");
 	
 	String name;
 	public Type ftype;
@@ -270,6 +278,92 @@ public class Function implements Serializable {
 		return sb.toString();
 	}
 	
+	public boolean isIgnored(){
+	  return    tags.containsKey(ignoreTag) 
+	         || tags.containsKey(IgnoreTag)
+	         || tags.containsKey(ignoreCompilerTag)
+	         || tags.containsKey(IgnoreCompilerTag)
+	         ;
+	}
+	
+	private static final int MAXDEPTH = 5;
+    private static final int TRIES = 500;
+	
+    /**
+     * Execute current function as test
+     **/
+
+    public ITuple executeTest(RascalExecutionContext rex) {
+      if(vf == null){
+        vf = ValueFactoryFactory.getValueFactory();
+      }
+      String fun = name;
+      if(isIgnored()){
+        rex.getTestResultListener().ignored($computeTestName(fun, src), src);
+        return vf.tuple(src,  vf.integer(-1), vf.string(""));
+      }
+      
+      IValue iexpected =  tags.get(vf.string("expected"));
+      String expected = iexpected == null ? "" : ((IString) iexpected).getValue();
+      
+      Type requestedType = ftype.getFieldTypes();
+      int nargs = requestedType.getArity();
+      IValue[] args = new IValue[nargs];
+
+      TypeParameterVisitor tpvisit = new TypeParameterVisitor();
+      HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
+      RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, MAXDEPTH, tpbindings, rex.getTypeStore());
+
+      int tries = nargs == 0 ? 1 : TRIES;
+      boolean passed = true;
+      String message = "";
+      Throwable exception = null;
+      for(int i = 0; i < tries; i++){
+        if(nargs > 0){
+          message = "test fails for arguments: ";
+          ITuple tup = (ITuple) randomValue.generate(requestedType);
+          for(int j = 0; j < nargs; j++){
+            args[j] = tup.get(j);
+            message = message + args[j].toString() + " ";
+          }
+        }
+        try {
+   
+          IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null); 
+          passed = ((IBool) res).getValue();
+          if(!passed){
+            break;
+          }
+        } catch (Thrown e){
+          String ename;
+          if(e.value instanceof IConstructor){
+            ename = ((IConstructor) e.value).getName();
+          } else {
+            ename = e.toString();
+          }
+          if(!ename.equals(expected)){
+            message = e.toString() + message;
+            passed = false;
+            exception = e;
+            break;
+          }
+        }
+        catch (Exception e){
+          message = e.getMessage() + message;
+          passed = false;
+          break;
+        }
+      }
+      if(passed)
+        message = "";
+
+      rex.getTestResultListener().report(passed, $computeTestName(fun, src), src, message, exception);
+      return vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message));
+    }
+    
+    private static String $computeTestName(final String name, final ISourceLocation loc){
+      return name.substring(name.indexOf("/")+1, name.indexOf("(")); // Resembles Function.getPrintableName
+  }
 }
 
 /**
