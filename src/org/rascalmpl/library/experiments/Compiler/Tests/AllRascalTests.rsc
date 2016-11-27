@@ -32,6 +32,7 @@ private list[str] basicTests = [
 	"Sets",
 	"SolvedIssues",
 	"Strings",
+	"TestsForTests",
 	"Tuples"					
 ];
 
@@ -66,21 +67,23 @@ private list[str] functionalityTests = [
 "ConcretePatternTests2",
 "ConcretePatternTests3",
 "ConcreteSubscriptAndSliceTests",
+"ConcreteSyntaxKeywordFields",
 "ConcreteSyntaxTests1",
 "ConcreteSyntaxTests2",
 "ConcreteSyntaxTests3", 
 "ConcreteSyntaxTests4",
+"ConcreteSyntaxTests5",
 "ConcreteTerms",
 "DataDeclarationTests",
 "DataTypeTests",
 "DeclarationTests",
 "FunctionCompositionTests",
 "InterpolationTests",
-//"KeywordParameterImportTests1::DiamondTop",
-//"KeywordParameterImportTests1::DiamondLeft",
-//"KeywordParameterImportTests1::DiamondRight",
-//"KeywordParameterImportTests1::DiamondBottom",
-//"KeywordParameterImportTests2::Tests",
+"KeywordParameterImportTests1::DiamondTop",
+"KeywordParameterImportTests1::DiamondLeft",
+"KeywordParameterImportTests1::DiamondRight",
+"KeywordParameterImportTests1::DiamondBottom",
+"KeywordParameterImportTests2::Tests",
 "KeywordParameterTests",
 "LayoutTests",
 "ParsingTests",
@@ -94,15 +97,30 @@ private list[str] functionalityTests = [
 //"ScopeTests",				// OK but OutOfMemory????
 "SetMatchTests1", 
 "SetMatchTests2",
+"SimpleVisitTest",
 "StatementTests",
 "SubscriptTests",
 "TryCatchTests",  				
 "VisitTests"
 ];
 
+private list[str] importTests = [
+"ImportTests1", 
+"ImportTests2",
+"ImportTests3",
+"ImportTests4",
+"ImportTests5",
+"ImportTests6",
+"ImportTests7",
+"ImportTests8", 
+"ImportTests9", 
+"ModuleInitRange"
+];
+
 
 private list[str] libraryTests = [
 "BooleanTests",
+"DateTimeTests",
 "IntegerTests",
 "ListRelationTests",
 "ListTests",
@@ -115,6 +133,7 @@ private list[str] libraryTests = [
 "StringTests",
 "TypeTests",
 "ValueIOTests",
+"analysis::formalconcepts::FCATest",
 "analysis::graphs::GraphTests",
 "analysis::statistics::DescriptiveTests",
 "analysis::statistics::RangeUtils",
@@ -123,17 +142,7 @@ private list[str] libraryTests = [
 "util::SemVerTests"
 ];
 
-private list[str] importTests = [
-"ImportTests1", 
-"ImportTests2",
-"ImportTests3",
-"ImportTests4",
-"ImportTests5",
-"ImportTests6",
-"ImportTests7",
-"ImportTests8", 
-"ModuleInitRange"
-];
+
 
 private list[str] extendTests  = [
 "ABSTRACTTYPE",

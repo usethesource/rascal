@@ -19,6 +19,7 @@ import java.util.regex.Matcher;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
@@ -452,11 +453,11 @@ public abstract class RVMCore {
 		}
 	}
 	
-	public IList executeTests(RascalExecutionContext rex){
+	public IList executeTests(ITestResultListener testResultListener, RascalExecutionContext rex){
 	  IListWriter w = vf.listWriter();
 	  for(Function f : functionStore){
 	    if(f.isTest){
-	      w.append(f.executeTest(rex));
+	      w.append(f.executeTest(null, rex));
 	    }
 	  }
 	  return w.done();
