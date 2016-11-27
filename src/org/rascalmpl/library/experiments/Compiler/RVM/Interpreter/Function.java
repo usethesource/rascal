@@ -11,9 +11,11 @@ import org.nustaq.serialization.FSTClazzInfo;
 import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
+import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
+import org.rascalmpl.test.infrastructure.RascalJUnitCompiledTestRunner;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
@@ -291,16 +293,17 @@ public class Function implements Serializable {
 	
     /**
      * Execute current function as test
+     * @param testResultListener TODO
      **/
 
-    public ITuple executeTest(RascalExecutionContext rex) {
+    public ITuple executeTest(ITestResultListener testResultListener, RascalExecutionContext rex) {
       if(vf == null){
         vf = ValueFactoryFactory.getValueFactory();
       }
       String fun = name;
       if(isIgnored()){
-        rex.getTestResultListener().ignored($computeTestName(fun, src), src);
-        return vf.tuple(src,  vf.integer(-1), vf.string(""));
+        testResultListener.ignored(computeTestName(), src);
+        return vf.tuple(src,  vf.integer(2), vf.string(""));
       }
       
       IValue iexpected =  tags.get(vf.string("expected"));
@@ -357,13 +360,19 @@ public class Function implements Serializable {
       if(passed)
         message = "";
 
-      rex.getTestResultListener().report(passed, $computeTestName(fun, src), src, message, exception);
+      testResultListener.report(passed, computeTestName(), src, message, exception);
       return vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message));
     }
     
-    private static String $computeTestName(final String name, final ISourceLocation loc){
-      return name.substring(name.indexOf("/")+1, name.indexOf("(")); // Resembles Function.getPrintableName
-  }
+//    private static String $computeTestName(final String name, final ISourceLocation loc){
+//      String base = name.substring(name.indexOf("/")+1, name.indexOf("(")); // Resembles Function.getPrintableName
+//      return base + ": <" + loc.getOffset() +"," + loc.getLength() +">";
+//    }
+    
+    public String computeTestName(){
+      String base = name.substring(name.indexOf("/")+1, name.indexOf("(")); // Resembles Function.getPrintableName
+      return base + ": <" + src.getOffset() +"," + src.getLength() +">";
+    }
 }
 
 /**

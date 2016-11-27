@@ -16,6 +16,7 @@ import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
 import org.nustaq.serialization.FSTConfiguration;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
+import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.library.experiments.Compiler.VersionInfo;
 import org.rascalmpl.library.util.SemVer;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -109,10 +110,8 @@ public class RVMExecutable implements Serializable{
 	private Map<String, Integer> resolver;
 	
 	private ArrayList<String> initializers;
-//	private ArrayList<String> testsuites;
 	private String uid_module_init;
 	private String uid_module_main;
-//	private String uid_module_main_testsuite;
 	
 	private byte[] jvmByteCode;
 	private String fullyQualifiedDottedName;
@@ -162,11 +161,9 @@ public class RVMExecutable implements Serializable{
 		this.overloadedStore = overloadedStore;
 		
 		this.initializers = initializers;
-//		this.testsuites = testsuites;
 		
 		this.uid_module_init = uid_module_init;
 		this.uid_module_main = uid_module_main;
-//		this.uid_module_main_testsuite = uid_module_main_testsuite;
 		
 		if(jvm){
 			generateClassFile(false);
@@ -227,10 +224,6 @@ public class RVMExecutable implements Serializable{
 	ArrayList<String> getInitializers() {
 		return initializers;
 	}
-
-//	ArrayList<String> getTestSuites() {
-//		return testsuites;
-//	}
 	
 	public ArrayList<Function> getTests(){
 	  ArrayList<Function> tests = new ArrayList<>();
@@ -242,21 +235,11 @@ public class RVMExecutable implements Serializable{
 	  return tests;
 	}
 	
-	public int getNumberOfTests(){
-	  int nTests = 0;
-	  for(Function f : functionStore){
-        if(f.isTest){
-          nTests++;
-        }
-      }
-      return nTests;
-	}
-	
-	public IList executeTests(RascalExecutionContext rex){
+	public IList executeTests(ITestResultListener testResultListener, RascalExecutionContext rex){
 	  IListWriter w = vf.listWriter();
 	  for(Function f : functionStore){
 	    if(f.isTest){
-	      w.append(f.executeTest(rex));
+	      w.append(f.executeTest(testResultListener, rex));
 	    }
 	  }
 	  return w.done();
@@ -269,10 +252,6 @@ public class RVMExecutable implements Serializable{
 	String getUidModuleMain() {
 		return uid_module_main;
 	}
-
-//	String getUidModuleMainTestsuite() {
-//		return uid_module_main_testsuite;
-//	}
 
 	byte[] getJvmByteCode() {
 		return jvmByteCode;

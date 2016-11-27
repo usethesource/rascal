@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
 
+import org.rascalmpl.interpreter.DefaultTestResultListener;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
@@ -19,11 +20,11 @@ public class ExecutionTools {
 
 	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	private static ITestResultListener testResultListener;		//TODO where should it be used?
-
-	static void setTestResultListener(ITestResultListener trl){
-		testResultListener = trl;
-	}
+//	private static ITestResultListener testResultListener;		//TODO where should it be used?
+//
+//	static void setTestResultListener(ITestResultListener trl){
+//		testResultListener = trl;
+//	}
 	
 	public static RascalExecutionContext makeRex(
 	                ISourceLocation kernel,
@@ -111,15 +112,14 @@ public class ExecutionTools {
 			//long start = Timing.getCpuTime();
 			IValue result = null;
 			String uid_module_init = executable.getUidModuleInit();
+			if(!uid_module_init.isEmpty()){
+              rvm.executeRVMProgram("INIT", executable.getUidModuleInit(), arguments, keywordArguments);
+            }
 			if(rex.getTestSuite()){
 				/*
 				 * Execute as testsuite
 				 */
-				if(!uid_module_init.isEmpty()){
-					rvm.executeRVMProgram("TESTSUITE", executable.getUidModuleInit(), arguments, keywordArguments);
-				}
-				
-				result = executable.executeTests(rex);
+				result = executable.executeTests(new DefaultTestResultListener(rex.getStdOut()), rex);
 
 			} else {
 				/*

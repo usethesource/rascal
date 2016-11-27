@@ -24,7 +24,6 @@ import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.library.experiments.Compiler.Commands.Rascal;
 import org.rascalmpl.library.experiments.Compiler.Commands.RascalC;
@@ -104,6 +103,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		try {
 			Object instance = clazz.newInstance();
 			if (instance instanceof IRascalJUnitTestSetup) {
+			  System.err.println("*** IRascalJUnitTestSetup ***");
 				((IRascalJUnitTestSetup) instance).setup(null);
 			}
 			else {
@@ -135,8 +135,13 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		totalTests = 0;
 	}
 	
-	static protected String computeTestName(String name, ISourceLocation loc) {
-		return name + ": <" + loc.getOffset() +"," + loc.getLength() +">";
+	public static String computeTestName(String name, ISourceLocation loc) {
+	    String base = name;
+	    int slash = name.indexOf("/");
+	    if(slash > 0){
+	      base = name.substring(name.indexOf("/")+1, name.indexOf("(")); // Resembles Function.getPrintableName
+	    }
+	    return base + ": <" + loc.getOffset() +"," + loc.getLength() +">";
 	}
 
 	static protected List<String> getRecursiveModuleList(ISourceLocation root) throws IOException {
@@ -210,7 +215,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 				LinkedList<Description> module_ignored = new LinkedList<Description>();
 				
 				for(Function f : executable.getTests()){
-				  String test_name = computeTestName(f.getName(), f.src);
+				  String test_name = f.computeTestName();
                   Description d = Description.createTestDescription(getClass(), test_name);
                   modDesc.addChild(d);
                   ntests++;
@@ -222,7 +227,6 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 				
 				testsPerModule.put(name,  ntests);
 				ignoredPerModule.put(name, module_ignored);
-				System.err.println("Added " + ntests + " tests for module: " + name);
 				totalTests += ntests;
 			}
 			System.err.println("Total number of tests: " + totalTests);
@@ -281,8 +285,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 			this.module = module;
 		}
 
-		private Description getDescription(String name, ISourceLocation loc) {
-			String testName = computeTestName(name, loc);
+		private Description getDescription(String testName, ISourceLocation loc) {
 
 			for (Description child : module.getChildren()) {
 				if (child.getMethodName().equals(testName)) {
@@ -290,7 +293,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 				}
 			}
 
-			throw new IllegalArgumentException(name + " test was never registered");
+			throw new IllegalArgumentException(testName + " test was never registered");
 		}
 
 		@Override
@@ -300,14 +303,14 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		
 		@Override
 		public void start(String context, int count) {
-			//System.out.println("RascalJunitCompiledTestRunner.start: " + count);
+//			  System.out.println("RascalJunitCompiledTestRunner.start: " + context + ", " + count);
 			notifier.fireTestRunStarted(module);
 		}
 
 		@Override
 		public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable t) {
 			
-			//System.err.println("RascalJunitCompiledTestRunner.report: " + successful + ", test = " + test + ", at " + loc + ", message = " + message);
+//			System.err.println("RascalJunitCompiledTestRunner.report: " + successful + ", test = " + test + ", at " + loc + ", message = " + message);
 			Description desc = getDescription(test, loc);
 			notifier.fireTestStarted(desc);
 
@@ -323,5 +326,6 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		public void done() {
 			notifier.fireTestRunFinished(new Result());
 		}
+
 	}
 }

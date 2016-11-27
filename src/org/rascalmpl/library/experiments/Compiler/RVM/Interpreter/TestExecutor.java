@@ -29,16 +29,14 @@ public class TestExecutor {
 		this.rvmCore = rvmCore;
 		this.testResultListener = testResultListener;
 		this.rex = rex;
-		// Make listener known to compiler's run-time system
-		ExecutionTools.setTestResultListener(testResultListener);
 	}
 
 	public void test(String moduleName, int nTests) {
 		testResultListener.start(moduleName, nTests);
 		try {
-			System.err.println("TestExecutor.test: testing " + moduleName + ", " + nTests + " tests");
-			rvmCore.executeTests(rex);
-			System.err.println("TestExecutor.test: testing " + moduleName + " ... done");
+//			System.err.println("TestExecutor.test: testing " + moduleName + ", " + nTests + " tests");
+			rvmCore.executeTests(testResultListener, rex);
+//			System.err.println("TestExecutor.test: testing " + moduleName + " ... done");
 		} 
 		catch (Exception e) {
 			System.err.println("TestExecutor.test: " + moduleName + " unexpected exception: " + e.getMessage());
