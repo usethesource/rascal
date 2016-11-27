@@ -457,7 +457,7 @@ public abstract class RVMCore {
 	  IListWriter w = vf.listWriter();
 	  for(Function f : functionStore){
 	    if(f.isTest){
-	      w.append(f.executeTest(null, rex));
+	      w.append(f.executeTest(testResultListener, rex));
 	    }
 	  }
 	  return w.done();
