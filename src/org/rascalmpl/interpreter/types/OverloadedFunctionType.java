@@ -13,10 +13,12 @@
 package org.rascalmpl.interpreter.types;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISet;
@@ -43,17 +45,46 @@ public class OverloadedFunctionType extends RascalType {
 	
 	public static class Reifier implements TypeReifier {
 
+	    @Override
+	    public Type getSymbolConstructorType() {
+	        throw new UnsupportedOperationException();
+	    }
+	    
         @Override
-        public Type getSymbolConstructorType() {
-           return symbols().typeSymbolConstructor("overloaded", TF.setType(symbols().symbolADT()), "alternatives");
+        public Set<Type> getSymbolConstructorTypes() {
+           return Arrays.stream(new Type[] { 
+                   symbols().typeSymbolConstructor("overloaded", TF.setType(symbols().symbolADT()), "alternatives"),
+                   deprecatedSymbolType(), // TODO: can be removed after bootstrap
+           }).collect(Collectors.toSet()); 
+        }
+
+        private Type deprecatedSymbolType() {
+            return symbols().typeSymbolConstructor("overloaded", TF.setType(symbols().symbolADT()), "overloads", TF.setType(symbols().symbolADT()), "defaults");
         }
 
         @Override
         public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
             Set<FunctionType> newAlts = new HashSet<>();
             
-            for (IValue alt : ((ISet) symbol.get("alternatives"))) {
-              newAlts.add((FunctionType) symbols().fromSymbol((IConstructor) alt, store, grammar)); 
+            if (symbol.getConstructorType() == deprecatedSymbolType()) {
+                // TODO remove after bootstrap
+                for (IValue alt : ((ISet) symbol.get("overloads"))) {
+                    Type fromSymbol = symbols().fromSymbol((IConstructor) alt, store, grammar);
+                    newAlts.add((FunctionType) fromSymbol); 
+                }
+                for (IValue alt : ((ISet) symbol.get("defaults"))) {
+                    Type fromSymbol = symbols().fromSymbol((IConstructor) alt, store, grammar);
+                    if (fromSymbol.isConstructor()) {
+                        newAlts.add((FunctionType) RTF.functionType(fromSymbol.getAbstractDataType(), fromSymbol.getFieldTypes(), TF.voidType()));
+                    } else {
+                        newAlts.add((FunctionType) fromSymbol);
+                    }
+                }
+            }
+            else {
+                for (IValue alt : ((ISet) symbol.get("alternatives"))) {
+                    newAlts.add((FunctionType) symbols().fromSymbol((IConstructor) alt, store, grammar)); 
+                }
             }
             
             return RTF.overloadedFunctionType(newAlts);

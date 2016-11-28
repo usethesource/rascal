@@ -3,12 +3,14 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
@@ -180,7 +182,8 @@ public class RVMLinker {
 				Integer index = useConstructorName(((IString) fuid).getValue());
 				constrs[alt++] = index;
 			}
-			OverloadedFunction res = new OverloadedFunction(funName, types.symbolToType(funType, new TypeStore()), funs, constrs, scopeIn);
+			
+			OverloadedFunction res = new OverloadedFunction(funName, new TypeReifier(vf).symbolToType(funType, vf.mapWriter().done()), funs, constrs, scopeIn);
 			this.overloadedStore.add(res);
 		}
 	}
