@@ -87,7 +87,7 @@ public class TypeReifier {
             return TypeFactory.getInstance().fromSymbol((IConstructor) typeValue.get("symbol"), store, x -> getAlternatives(definitions, x));
         }
 
-        throw new IllegalArgumentException(typeValue + " is not a reified type");
+        throw new IllegalArgumentException(typeValue + " is not a reified type.");
     }
     
     /**
