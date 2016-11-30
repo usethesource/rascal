@@ -133,6 +133,16 @@ public class TypeReifier {
     }
 
     /**
+     * Reconstruct a type from a reified type value; without declaration side-effect.
+     * If you need a TypeStore reconstructed see the other overload of symbolToType.  
+     * @param typeValue the type value to restore
+     * @param definitions the definition
+     */
+    public Type symbolToType(IConstructor symbol) {
+        return TypeFactory.getInstance().fromSymbol(symbol, new TypeStore(), x -> Collections.emptySet());
+    }
+    
+    /**
      * Reconstruct a type from a reified type value, and declare all types used first using the given definitions 
      * @param typeValue the type value to restore
      * @param definitions the definition
