@@ -29,8 +29,8 @@ public class Types {
 		return tr.typeToValue(t, rex.getTypeStore(), rex.getSymbolDefinitions());
 	}
 	
-	public Type symbolToType(IConstructor symbol, TypeStore store) {
-	    return tr.valueToType(symbol, store);
+	public Type symbolToType(IConstructor symbol) {
+	    return tr.symbolToType(symbol);
 	}
 	
 	public Type loadProduction(IConstructor prod) {
