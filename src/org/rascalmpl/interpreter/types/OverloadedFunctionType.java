@@ -72,6 +72,7 @@ public class OverloadedFunctionType extends RascalType {
                     Type fromSymbol = symbols().fromSymbol((IConstructor) alt, store, grammar);
                     newAlts.add((FunctionType) fromSymbol); 
                 }
+                
                 for (IValue alt : ((ISet) symbol.get("defaults"))) {
                     Type fromSymbol = symbols().fromSymbol((IConstructor) alt, store, grammar);
                     if (fromSymbol.isConstructor()) {

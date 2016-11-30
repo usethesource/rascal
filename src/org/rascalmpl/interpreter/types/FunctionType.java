@@ -14,11 +14,13 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.types;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -50,19 +52,43 @@ public class FunctionType extends RascalType {
 	}
 	
 	public static class Reifier implements TypeReifier {
-
+	    @Override
+	    public Type getSymbolConstructorType() {
+	        throw new UnsupportedOperationException();
+	    }
+	    
         @Override
-        public Type getSymbolConstructorType() {
-           return symbols().typeSymbolConstructor("func", symbols().symbolADT(), "ret", TF.listType(symbols().symbolADT()), "parameters");
+        public Set<Type> getSymbolConstructorTypes() {
+            return Arrays.stream(new Type[] { 
+                    normalFunctionSymbol(),
+                    // TODO: remove this deprecated representation. A prod type is the same as a function type
+                    prodFunctionSymbol()
+            }).collect(Collectors.toSet());
+        }
+
+        private Type prodFunctionSymbol() {
+            return symbols().typeSymbolConstructor("prod", symbols().symbolADT(),  "sort", TF.stringType(), "name", TF.listType(symbols().symbolADT()), "parameters", TF.setType(symbols().attrADT()), "attributes");
+        }
+
+        private Type normalFunctionSymbol() {
+            return symbols().typeSymbolConstructor("func", symbols().symbolADT(), "ret", TF.listType(symbols().symbolADT()), "parameters");
         }
 
         @Override
         public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
-            Type returnType = symbols().fromSymbol((IConstructor) symbol.get("ret"), store, grammar);
-            Type parameters = symbols().fromSymbols((IList) symbol.get("parameters"), store, grammar);
-        
-            // TODO: while merging the other branch had tf.voidType()...    
-            return RTF.functionType(returnType, parameters, TF.tupleEmpty());
+            if (symbol.getConstructorType() == prodFunctionSymbol()) {
+                // TODO remove support for deprecated representation after bootstrap
+                Type returnType = symbols().fromSymbol((IConstructor) symbol.get("sort"), store, grammar);
+                Type parameters = symbols().fromSymbols((IList) symbol.get("parameters"), store, grammar);
+                
+                return RTF.functionType(returnType, parameters, TF.tupleEmpty());
+            } else {
+                Type returnType = symbols().fromSymbol((IConstructor) symbol.get("ret"), store, grammar);
+                Type parameters = symbols().fromSymbols((IList) symbol.get("parameters"), store, grammar);
+
+                // TODO: while merging the other branch had tf.voidType()...    
+                return RTF.functionType(returnType, parameters, TF.tupleEmpty());
+            }
         }
 
         @Override
@@ -83,7 +109,7 @@ public class FunctionType extends RascalType {
                 w.append(arg.asSymbol(vf, store, grammar, done));
             }
             
-            return vf.constructor(getSymbolConstructorType(), ((FunctionType) type).getReturnType().asSymbol(vf, store, grammar, done), w.done());
+            return vf.constructor(normalFunctionSymbol(), ((FunctionType) type).getReturnType().asSymbol(vf, store, grammar, done), w.done());
         }
 	}
 	
