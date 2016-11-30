@@ -310,8 +310,8 @@ public class RVMExecutable implements Serializable{
 		} catch (Exception e) {
 		    if (e.getMessage() != null && e.getMessage().startsWith("Method code too large")) {
 		        // ASM does not provide an indication of _which_ method is too large, so let's find out:
-		        Comparator<Function> c = ((x, y) -> x.codeblock.finalCode.length - y.codeblock.finalCode.length); 
-		        throw new RuntimeException("Function too large: " + Arrays.stream(functionStore).max(c).get());
+		        Comparator<Function> c = ((x, y) -> x.codeblock.finalCode.length - y.codeblock.finalCode.length);
+		        throw new RuntimeException("Function too large: " + Arrays.stream(functionStore).max(c).get(), e);
 		    }
 		    else {
 		        throw e;
@@ -341,8 +341,6 @@ public class RVMExecutable implements Serializable{
 	}
 	
 	public static RVMExecutable read(ISourceLocation rvmExecutable) throws IOException {
-		RVMExecutable executable = null;
-		
 		vf = ValueFactoryFactory.getValueFactory();
 		TypeStore typeStore = RascalValueFactory.getStore(); //new TypeStore(RascalValueFactory.getStore());
 		
@@ -353,34 +351,14 @@ public class RVMExecutable implements Serializable{
 		FSTFunctionSerializer.initSerialization(vf, typeStore);
 		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
 	
-		FSTObjectInput in = null;
-		try {
-			ISourceLocation compIn = rvmExecutable;
-			InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(compIn);
-			in = new FSTObjectInput(fileIn, makeFSTConfig(rvmExecutable));
-//			long before = Timing.getCpuTime();
-			executable = (RVMExecutable) in.readObject(RVMExecutable.class);
-			in.close();
-			in = null;
-			//System.out.println("Reading: " + compIn.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
+		try (InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(rvmExecutable);
+		        FSTObjectInput in = new FSTObjectInput(fileIn, makeFSTConfig(rvmExecutable))) {
+		    return (RVMExecutable) in.readObject(RVMExecutable.class);
 		} catch (ClassNotFoundException c) {
-			throw new IOException("Class not found: " + c.getMessage());
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new IOException(e.getMessage());
+		    throw new IOException("Class not found: " + c.getMessage(), c);
+		} catch (Throwable e) {
+		    throw new IOException(e.getMessage(), e);
 		} 
-		finally {
-			if(in != null){
-				try {
-					in.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-		//executable.rvmProgramLoc = rvmExecutable;
-		return executable;
 	}
 	
 	public NameCompleter completePartialIdentifier(NameCompleter completer, String partialIdentifier) {

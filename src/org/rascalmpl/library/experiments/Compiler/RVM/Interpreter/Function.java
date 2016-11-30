@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.util.Map;
 
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
@@ -164,7 +165,7 @@ public class Function implements Serializable {
 		codeblock.clearForJVM();
 	}
 	
-	public void attachExceptionTable(final IList exceptions, final RVMLinker rascalLinker) {
+	public void attachExceptionTable(final IList exceptions) {
 			froms = new int[exceptions.length()];
 			tos = new int[exceptions.length()];
 			types = new int[exceptions.length()];
@@ -181,7 +182,7 @@ public class Function implements Serializable {
 				ITuple tuple = (ITuple) entry;
 				String from = ((IString) tuple.get(0)).getValue();
 				String to = ((IString) tuple.get(1)).getValue();
-				Type type = rascalLinker.loadProduction((IConstructor) tuple.get(2));
+				Type type = new TypeReifier(vf).symbolToType((IConstructor) tuple.get(2));
 				String handler = ((IString) tuple.get(3)).getValue();
 				int fromSP =  ((IInteger) tuple.get(4)).intValue();
 				
