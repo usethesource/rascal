@@ -1,5 +1,5 @@
 @bootstrapParser
-module lang::rascal::types::tests::AbstractTypeTests
+module lang::rascal::tests::types::AbstractTypeTests
 
 import lang::rascal::types::AbstractType;
 import lang::rascal::\syntax::Rascal;
