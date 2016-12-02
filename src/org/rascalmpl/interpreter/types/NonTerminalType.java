@@ -108,6 +108,7 @@ public class NonTerminalType extends RascalType {
                    RascalValueFactory.Symbol_Parameter,
                    RascalValueFactory.Symbol_LayoutX,
                    RascalValueFactory.Symbol_CharClass,
+                   RascalValueFactory.Production_Default
             }).collect(Collectors.toSet());
         }
         

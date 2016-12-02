@@ -12,6 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.values.uptr;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -320,6 +321,12 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	
 	@Override
 	public IConstructor constructor(Type constructor, IValue[] children, Map<String, IValue> kwParams) throws FactTypeUseException {
+	    if (constructor == null) {
+            throw new NullPointerException();
+        }
+        Arrays.stream(children).forEach(t -> { if (t == null) throw new NullPointerException(); });
+        kwParams.values().stream().forEach(t -> { if (t == null) throw new NullPointerException(); });
+        
 		IConstructor result = specializeConstructor(constructor, children);
 		return result != null 
 				? (kwParams != null && !kwParams.isEmpty() && result.mayHaveKeywordParameters() ? result.asWithKeywordParameters().setParameters(kwParams) : result) 
@@ -328,12 +335,19 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	
 	@Override
 	public IConstructor constructor(Type constructor, IValue... children) throws FactTypeUseException {
+	    if (constructor == null) { throw new NullPointerException(); }
+	    Arrays.stream(children).forEach(t -> { if (t == null) throw new NullPointerException(); });
+	    
 		IConstructor result = specializeConstructor(constructor, children);
 		return result != null ? result : super.constructor(constructor, children);
 	}
 	
 	@Override
 	public IConstructor constructor(Type constructor, Map<String, IValue> annotations, IValue... children) throws FactTypeUseException {
+	    if (constructor == null) { throw new NullPointerException(); }
+        Arrays.stream(children).forEach(t -> { if (t == null) throw new NullPointerException(); });
+        annotations.values().stream().forEach(t -> { if (t == null) throw new NullPointerException(); });
+        
 		IConstructor result = specializeConstructor(constructor, children);
 		return result != null 
 				? result.asAnnotatable().setAnnotations(annotations) 
