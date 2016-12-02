@@ -7973,7 +7973,7 @@ public enum RascalPrimitive {
 	rel_subscript {
 		@Override
 		public int executeN(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity >= 4;
+			//assert arity >= 4;
 			
 			ISet rel = ((ISet) stack[sp - arity]);
 			if(rel.isEmpty()){
