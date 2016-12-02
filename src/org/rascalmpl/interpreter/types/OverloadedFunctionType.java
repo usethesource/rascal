@@ -175,6 +175,15 @@ public class OverloadedFunctionType extends RascalType {
 	}
 	
 	@Override
+	public int getArity() {
+	    int arity = alternatives.stream().findFirst().get().getArity();
+
+	    assert !alternatives.stream().filter(t -> t.getArity() != arity).findAny().isPresent();
+	    
+	    return arity;
+	}
+	
+	@Override
 	protected boolean isSubtypeOfOverloadedFunction(RascalType type) {
 	  OverloadedFunctionType of = (OverloadedFunctionType) type;
 
