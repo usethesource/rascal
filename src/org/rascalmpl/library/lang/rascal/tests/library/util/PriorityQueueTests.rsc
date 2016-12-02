@@ -1,5 +1,6 @@
 module lang::rascal::tests::library::util::PriorityQueueTests
 
+import List;
 import util::PriorityQueue;
 
 test bool prioTest() {
