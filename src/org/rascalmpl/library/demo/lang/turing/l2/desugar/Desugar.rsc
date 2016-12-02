@@ -7,9 +7,9 @@ import demo::lang::turing::l2::ast::Turing;
 	
 public Program expandLoops(Program p) {
   return innermost visit (p) {
-    case [*stats1, loop(n, sts), *stats2] => [*stats1, *renameLabels(n,sts), loop(n-1, sts), *stats2]
+    case [*Statement stats1, loop(n, sts), *Statement stats2] => [*stats1, *renameLabels(n,sts), loop(n-1, sts), *stats2]
       when n > 0
-    case [*stats1, loop(0, sts), *stats2] => [*stats1, *stats2]
+    case [*Statement stats1, loop(0, sts), *Statement stats2] => [*stats1, *stats2]
   }
 }
 
@@ -35,8 +35,8 @@ public Program labelsToLineNumbers(Program p) {
 public Program(Program) desugar = expandLoops o labelsToLineNumbers;
 
 
-public Statement labelToLineNo(jumpAlwaysLabel(n), ren) = jumpAlways(ren[n]); 
-public Statement labelToLineNo(jumpSetLabel(n), ren) = jumpSet(ren[n]); 
-public Statement labelToLineNo(jumpUnsetLabel(n), ren) = jumpUnset(ren[n]);
-public default Statement labelToLineNo(Statement x, ren) = x; 
+public Statement labelToLineNo(Statement: jumpAlwaysLabel(n), map[str,int] ren) = jumpAlways(ren[n]); 
+public Statement labelToLineNo(Statement: jumpSetLabel(n), map[str,int] ren) = jumpSet(ren[n]); 
+public Statement labelToLineNo(Statement: jumpUnsetLabel(n), map[str,int] ren) = jumpUnset(ren[n]);
+public default Statement labelToLineNo(Statement x, map[str,int] ren) = x; 
 
