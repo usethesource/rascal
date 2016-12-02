@@ -1,5 +1,5 @@
 @bootstrapParser
-module lang::rascal::types::tests::AbstractKindTests
+module lang::rascal::tests::types::AbstractKindTests
 
 import lang::rascal::types::AbstractKind;
 import ParseTree;

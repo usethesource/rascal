@@ -1,4 +1,4 @@
-module lang::rascal::types::tests::TypeInstantiationTests
+module lang::rascal::tests::types::TypeInstantiationTests
 
 import lang::rascal::types::TypeInstantiation;
 import Type;
