@@ -8,6 +8,7 @@
  * Contributors:
 
  *   * Davy Landman  - Davy.Landman@cwi.nl - CWI
+ *   * Paul Klint     - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
 package org.rascalmpl.test_compiled;
 
