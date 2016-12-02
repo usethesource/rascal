@@ -1,5 +1,5 @@
 @bootstrapParser
-module lang::rascal::types::tests::UtilTests
+module lang::rascal::tests::types::UtilTests
 
 import Relation;
 import ParseTree;
