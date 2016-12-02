@@ -227,9 +227,11 @@ public class RVMExecutable implements Serializable{
 	
 	public ArrayList<Function> getTests(){
 	  ArrayList<Function> tests = new ArrayList<>();
-	  for(Function f : functionStore){
-	    if(f.isTest){
-	      tests.add(f);
+	  if(functionStore != null){
+	    for(Function f : functionStore){
+	      if(f.isTest){
+	        tests.add(f);
+	      }
 	    }
 	  }
 	  return tests;
@@ -350,10 +352,16 @@ public class RVMExecutable implements Serializable{
 	}
 	
 	public static RVMExecutable read(ISourceLocation rvmExecutable) throws IOException {
+	  return read(rvmExecutable, new TypeStore(RascalValueFactory.getStore()));
+	}
+	
+	public static RVMExecutable read(ISourceLocation rvmExecutable, TypeStore typeStore) throws IOException {
 		RVMExecutable executable = null;
 		
 		vf = ValueFactoryFactory.getValueFactory();
-		TypeStore typeStore = RascalValueFactory.getStore(); //new TypeStore(RascalValueFactory.getStore());
+//		TypeStore typeStore = RascalValueFactory.getStore(); 
+		//TypeStore typeStore = new TypeStore(RascalValueFactory.getStore());
+//		TypeStore typeStore = RascalValueFactory.getStore(); 
 		
 		FSTSerializableType.initSerialization(vf, typeStore);
 		FSTSerializableIValue.initSerialization(vf, typeStore);

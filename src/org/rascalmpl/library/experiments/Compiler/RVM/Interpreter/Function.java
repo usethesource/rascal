@@ -289,7 +289,7 @@ public class Function implements Serializable {
 	}
 	
 	private static final int MAXDEPTH = 5;
-    private static final int TRIES = 5;
+    private static final int TRIES = 500;
 	
     /**
      * Execute current function as test
@@ -309,22 +309,33 @@ public class Function implements Serializable {
       IValue iexpected =  tags.get(vf.string("expected"));
       String expected = iexpected == null ? "" : ((IString) iexpected).getValue();
       
+      IValue imaxDepth = tags.get(vf.string("maxDepth"));
+      int maxDepth = imaxDepth == null ? MAXDEPTH : Integer.parseInt(((IString) imaxDepth).getValue());
+      
+      IValue itries = tags.get(vf.string("tries"));
+      int tries = itries == null ? TRIES : Integer.parseInt(((IString) itries).getValue());
+
       Type requestedType = ftype.getFieldTypes();
       int nargs = requestedType.getArity();
       IValue[] args = new IValue[nargs];
 
       TypeParameterVisitor tpvisit = new TypeParameterVisitor();
       HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
-      RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, MAXDEPTH, tpbindings, rex.getTypeStore());
+      RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, maxDepth, tpbindings, rex.getTypeStore());
 
-      int tries = nargs == 0 ? 1 : TRIES;
+      int actualTries = nargs == 0 ? 1 : tries;
       boolean passed = true;
       String message = "";
       Throwable exception = null;
-      for(int i = 0; i < tries; i++){
+      for(int i = 0; i < actualTries; i++){
         if(nargs > 0){
           message = "test fails for arguments: ";
           ITuple tup = (ITuple) randomValue.generate(requestedType);
+          if(tup == null){
+            System.err.println(name + "(" + nargs + "): " + requestedType + ", " + tup );
+            printTypeStore(rex.getTypeStore());
+        
+          } 
           for(int j = 0; j < nargs; j++){
             args[j] = tup.get(j);
             message = message + args[j].toString() + " ";
@@ -364,14 +375,24 @@ public class Function implements Serializable {
       return vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message));
     }
     
-//    private static String $computeTestName(final String name, final ISourceLocation loc){
-//      String base = name.substring(name.indexOf("/")+1, name.indexOf("(")); // Resembles Function.getPrintableName
-//      return base + ": <" + loc.getOffset() +"," + loc.getLength() +">";
-//    }
-    
-    public String computeTestName(){
-      String base = name.substring(name.indexOf("/")+1, name.indexOf("(")); // Resembles Function.getPrintableName
+    public String computeTestName(){    // Resembles Function.getPrintableName
+      String base = name;
+      int colons = name.lastIndexOf("::");
+      if(colons > 0){
+        base = name.substring(colons+2, name.indexOf("(")).replaceAll("/",  "::"); 
+      } else {
+        base = name.substring(name.indexOf("/")+1, name.indexOf("(")); 
+      }
       return base + ": <" + src.getOffset() +"," + src.getLength() +">";
+    }
+    
+    public static void printTypeStore(TypeStore ts){
+      for(Type adt : ts.getAbstractDataTypes()){
+        System.err.println("adt: " + adt);
+      }
+      for(Type cons : ts.getConstructors()){
+        System.err.println("cons: " + cons);
+      }
     }
 }
 
@@ -650,4 +671,6 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		func.funId = funId;
 		return func;
 	}
+	
+	
 }

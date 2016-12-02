@@ -113,7 +113,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	StringBuilder templateBuilder = null;
 	private final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
-	private IListWriter test_results;
 	private final ISourceLocation bootDir;
 	
 	public RascalExecutionContext(
@@ -145,8 +144,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  }
 	  
 	  this.moduleTags = moduleTags;
-	  this.symbol_definitions = symbol_definitions;
-	  this.typeStore = typeStore == null ? RascalValueFactory.getStore() /*new TypeStore()*/ : typeStore;
+	  this.symbol_definitions = symbol_definitions == null ? vf.mapWriter().done() : symbol_definitions;
+	  this.typeStore = typeStore == null ? /*RascalValueFactory.getStore()*/ new TypeStore() : typeStore;
 	  this.debug = debug;
 	  this.debugRVM = debugRVM;
 	  this.testsuite = testsuite;
