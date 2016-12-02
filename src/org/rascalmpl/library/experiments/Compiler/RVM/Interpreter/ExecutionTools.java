@@ -201,7 +201,7 @@ public class ExecutionTools {
 	  * @throws IOException 
 	  */
 	public static RVMCore initializedRVM(ISourceLocation bin,  RascalExecutionContext rex) throws IOException {
-		 RVMExecutable rvmExecutable  = RVMExecutable.read(bin);
+		 RVMExecutable rvmExecutable  = RVMExecutable.read(bin, rex.getTypeStore());
 
 		 RVMCore rvm = rex.getJVM() ? new RVMJVM(rvmExecutable, rex) : new RVMInterpreter(rvmExecutable, rex);
 
