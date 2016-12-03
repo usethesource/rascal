@@ -39,7 +39,7 @@ public class TestExecutor {
 //			System.err.println("TestExecutor.test: testing " + moduleName + " ... done");
 		} 
 		catch (Exception e) {
-			System.err.println("TestExecutor.test: " + moduleName + " unexpected exception: " + e.getMessage());
+//			System.err.println("TestExecutor.test: " + moduleName + " unexpected exception: " + e.getMessage());
 			throw e;
 		}
 		finally {

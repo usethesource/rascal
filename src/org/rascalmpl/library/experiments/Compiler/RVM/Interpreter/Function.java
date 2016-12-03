@@ -42,10 +42,12 @@ import org.rascalmpl.values.uptr.RascalValueFactory;
 public class Function implements Serializable {
 	private static final long serialVersionUID = -1741144671553091111L;
 	
-	private static final IString ignoreTag = ValueFactoryFactory.getValueFactory().string("ignore");
-	private static final IString IgnoreTag = ValueFactoryFactory.getValueFactory().string("Ignore");
-	private static final IString ignoreCompilerTag = ValueFactoryFactory.getValueFactory().string("ignoreCompiler");
-	private static final IString IgnoreCompilerTag = ValueFactoryFactory.getValueFactory().string("IgnoreCompiler");
+	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	private static final IString ignoreTag = vf.string("ignore");
+	private static final IString IgnoreTag = vf.string("Ignore");
+	private static final IString ignoreCompilerTag = vf.string("ignoreCompiler");
+	private static final IString IgnoreCompilerTag = vf.string("IgnoreCompiler");
+	
 	
 	String name;
 	public Type ftype;
@@ -91,7 +93,6 @@ public class Function implements Serializable {
 	public IMap localNames;
 	
 	// transient fields 
-	transient static IValueFactory vf;
 	transient SoftReference<MemoizationCache<IValue>> memoization;
 	
 	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
@@ -275,7 +276,6 @@ public class Function implements Serializable {
 		for(int i = 0; i < typeConstantStore.length; i++){
 			sb.append("\t type constant "). append(i).append(": "). append(typeConstantStore[i]).append("\n");
 		}
-//		codeblock.toString() ;
 		sb.append(codeblock.toString());
 		return sb.toString();
 	}
@@ -290,6 +290,19 @@ public class Function implements Serializable {
 	
 	private static final int MAXDEPTH = 5;
     private static final int TRIES = 500;
+    
+    public int getTries(){
+      if(ftype.getFieldTypes().getArity() == 0){
+        return 1;
+      }
+      IValue itries = tags.get(vf.string("tries"));
+      return itries == null ? TRIES : Integer.parseInt(((IString) itries).getValue());
+    }
+    
+    public int getDepth(){
+      IValue imaxDepth = tags.get(vf.string("maxDepth"));
+      return imaxDepth == null ? MAXDEPTH : Integer.parseInt(((IString) imaxDepth).getValue());
+    }
 	
     /**
      * Execute current function as test
@@ -297,9 +310,6 @@ public class Function implements Serializable {
      **/
 
     public ITuple executeTest(ITestResultListener testResultListener, RascalExecutionContext rex) {
-      if(vf == null){
-        vf = ValueFactoryFactory.getValueFactory();
-      }
       String fun = name;
       if(isIgnored()){
         testResultListener.ignored(computeTestName(), src);
@@ -309,11 +319,8 @@ public class Function implements Serializable {
       IValue iexpected =  tags.get(vf.string("expected"));
       String expected = iexpected == null ? "" : ((IString) iexpected).getValue();
       
-      IValue imaxDepth = tags.get(vf.string("maxDepth"));
-      int maxDepth = imaxDepth == null ? MAXDEPTH : Integer.parseInt(((IString) imaxDepth).getValue());
-      
-      IValue itries = tags.get(vf.string("tries"));
-      int tries = itries == null ? TRIES : Integer.parseInt(((IString) itries).getValue());
+      int maxDepth = getDepth();
+      int tries = getTries();
 
       Type requestedType = ftype.getFieldTypes();
       int nargs = requestedType.getArity();
@@ -323,11 +330,10 @@ public class Function implements Serializable {
       HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
       RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, maxDepth, tpbindings, rex.getTypeStore());
 
-      int actualTries = nargs == 0 ? 1 : tries;
       boolean passed = true;
       String message = "";
       Throwable exception = null;
-      for(int i = 0; i < actualTries; i++){
+      for(int i = 0; i < tries; i++){
         if(nargs > 0){
           message = "test fails for arguments: ";
           ITuple tup = (ITuple) randomValue.generate(requestedType);
