@@ -69,6 +69,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	private HashMap<String, Integer> testsPerModule; 				// number of tests to be executed
 	private HashMap<String, List<Description>> ignoredPerModule;	// tests to be ignored
 	int totalTests = 0;
+	int totalTestsWithRandom = 0;
 	static String[] IGNORED_DIRECTORIES;
 
 	static {   
@@ -206,6 +207,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	        Description modDesc = Description.createSuiteDescription(qualifiedName);
 	        desc.addChild(modDesc);
 	        int ntests = 0;
+	        int ntests_with_random = 0;
 	        LinkedList<Description> module_ignored = new LinkedList<Description>();
 
 	        for(Function f : executable.getTests()){
@@ -213,6 +215,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	          Description d = Description.createTestDescription(getClass(), test_name);
 	          modDesc.addChild(d);
 	          ntests++;
+	          ntests_with_random += f.getTries();
 
 	          if(f.isIgnored()){
 	            module_ignored.add(d);
@@ -222,19 +225,23 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	        testsPerModule.put(qualifiedName,  ntests);
 	        ignoredPerModule.put(qualifiedName, module_ignored);
 	        totalTests += ntests;
+	        totalTestsWithRandom += ntests_with_random;
 	      }
 	    }
-//	    int totalIgnored = 0;
-//	    for(String name : testsPerModule.keySet()){
-//	      int tests = testsPerModule.get(name);
-//	      if(tests > 0){
-//	        int ignored = ignoredPerModule.get(name).size();
-//	        totalIgnored += ignored;
+	    int totalIgnored = 0;
+	    for(String name : testsPerModule.keySet()){
+	      int tests = testsPerModule.get(name);
+	      if(tests > 0){
+	        int ignored = ignoredPerModule.get(name).size();
+	        totalIgnored += ignored;
 //	        System.err.println(name + ": " + testsPerModule.get(name) + (ignored == 0 ? "" : " (ignored: " + ignored + ")"));
-//	      }
-//	    }
-//	    System.err.println("Total number of tests: " + totalTests);
-//	    System.err.println("Total number ignored : " + totalIgnored);
+	      }
+	    }
+	    System.err.println(prefix + ":");
+	    System.err.println("\ttests: " + totalTests);
+	    System.err.println("\tignored : " + totalIgnored);
+	    System.err.println("\texecuted (using random arguments): " + totalTestsWithRandom);
+	    
 	    return desc;
 	  } catch (IOException e) {
 	    throw new RuntimeException("could not create test suite", e);
@@ -304,8 +311,8 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		
 		@Override
 		public void start(String context, int count) {
-//			  System.out.println("RascalJunitCompiledTestRunner.start: " + context + ", " + count);
-			notifier.fireTestRunStarted(module);
+//		  System.out.println("RascalJunitCompiledTestRunner.start: " + context + ", " + count);
+		  notifier.fireTestRunStarted(module);
 		}
 
 		@Override
