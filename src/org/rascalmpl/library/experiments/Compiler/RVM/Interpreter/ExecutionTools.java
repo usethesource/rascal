@@ -20,12 +20,6 @@ public class ExecutionTools {
 
 	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-//	private static ITestResultListener testResultListener;		//TODO where should it be used?
-//
-//	static void setTestResultListener(ITestResultListener trl){
-//		testResultListener = trl;
-//	}
-	
 	public static RascalExecutionContext makeRex(
 	                ISourceLocation kernel,
 					RVMExecutable rvmExecutable,
@@ -36,11 +30,15 @@ public class ExecutionTools {
 					IBool testsuite, 
 					IBool profile, 
 					IBool trace, 
-					IBool coverage, IBool jvm, RascalSearchPath rascalSearchPath
+					IBool coverage, 
+					IBool jvm, 
+					RascalSearchPath rascalSearchPath,
+					TypeStore typestore
 	) {
 		return RascalExecutionContextBuilder.normalContext(vf, kernel, out != null ? out : new PrintWriter(System.out), err != null ? err : new PrintWriter(System.err))
 			.withModuleTags(rvmExecutable.getModuleTags())
-			.withSymbolDefinitions(	rvmExecutable.getSymbolDefinitions())
+			.withSymbolDefinitions(rvmExecutable.getSymbolDefinitions())
+			.withTypeStore(typestore)
 			.setDebug(debug.getValue())
 			.setDebugRVM(debugRVM.getValue())
 			.setTestsuite(testsuite.getValue())
@@ -55,26 +53,27 @@ public class ExecutionTools {
 	public static RVMExecutable linkProgram(
 					 ISourceLocation rvmProgramLoc,
 					 IConstructor rvmProgram,
-					 IBool jvm	
+					 IBool jvm, 
+					 TypeStore typeStore	
     ) throws IOException {
 		
-		return link(rvmProgram, jvm);
+		return link(rvmProgram, jvm, typeStore);
 	}
 	
 	// Read a RVMExecutable from file
 	
-	public static RVMExecutable load(ISourceLocation rvmExecutableLoc) throws IOException {
-		return RVMExecutable.read(rvmExecutableLoc);
+	public static RVMExecutable load(ISourceLocation rvmExecutableLoc, TypeStore typeStore) throws IOException {
+		return RVMExecutable.read(rvmExecutableLoc, typeStore);
 	}
 	
 	// Create an RVMExecutable given an RVMProgram
 	
 	public static RVMExecutable link(
 			 	IConstructor rvmProgram,
-			 	IBool jvm
+			 	IBool jvm, 
+			 	TypeStore typeStore
 	) throws IOException {
 
-		TypeStore typeStore = new TypeStore();
 		RVMLinker linker = new RVMLinker(vf, typeStore);
 		return linker.link(rvmProgram,	jvm.getValue());
 	}
@@ -175,12 +174,14 @@ public class ExecutionTools {
 	 * @throws IOException 
 	  */
 	public static RVMCore initializedRVM(ISourceLocation kernel, ISourceLocation bin) throws IOException  {
-		 RVMExecutable rvmExecutable = RVMExecutable.read(bin);
-		 RascalExecutionContext rex = 
-				 RascalExecutionContextBuilder.normalContext(vf, bin)
-				 .forModule(rvmExecutable.getModuleName())
-				 .setJVM(true)
-				 .build();
+	  RascalExecutionContext rex = 
+          RascalExecutionContextBuilder.normalContext(vf, bin)
+          //.forModule(rvmExecutable.getModuleName())
+          .setJVM(true)
+          .build();
+		 RVMExecutable rvmExecutable = RVMExecutable.read(bin, rex.getTypeStore());
+		 
+		 rex.setFullModuleName(rvmExecutable.getModuleName());
 
 		 RVMCore rvm = rex.getJVM() ? new RVMJVM(rvmExecutable, rex) : new RVMInterpreter(rvmExecutable, rex);
 
