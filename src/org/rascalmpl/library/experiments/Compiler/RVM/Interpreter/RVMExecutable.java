@@ -351,9 +351,9 @@ public class RVMExecutable implements Serializable{
 		//System.out.println("RVMExecutable.write: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 	}
 	
-	public static RVMExecutable read(ISourceLocation rvmExecutable) throws IOException {
-	  return read(rvmExecutable, new TypeStore(RascalValueFactory.getStore()));
-	}
+//	public static RVMExecutable read(ISourceLocation rvmExecutable) throws IOException {
+//	  return read(rvmExecutable, new TypeStore(RascalValueFactory.getStore()));
+//	}
 	
 	public static RVMExecutable read(ISourceLocation rvmExecutable, TypeStore typeStore) throws IOException {
 		RVMExecutable executable = null;
