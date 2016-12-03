@@ -180,7 +180,7 @@ public class RascalExecutionContextBuilder {
 	    return this;
 	}
 	
-	public RascalExecutionContextBuilder withExisitingTypeStore(TypeStore typeStore) {
+	public RascalExecutionContextBuilder withTypeStore(TypeStore typeStore) {
 	    assert !build;
         this.typeStore = typeStore;
         return this;

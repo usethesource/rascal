@@ -18,6 +18,7 @@ import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.TypeStore;
 
 public class Kernel {
     IValueFactory vf;
@@ -163,7 +164,8 @@ public class Kernel {
 	 */
 	public RVMExecutable compileAndMergeIncremental(IString qname, IBool reuseConfig, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, Map<String, IValue> kwArgs) throws IOException{
 		IConstructor rvmProgram = (IConstructor) rvm.executeRVMFunction(compileAndMergeIncremental, new IValue[] { qname, reuseConfig, srcs, libs, boot, bin }, kwArgs);
-		return ExecutionTools.link(rvmProgram, vf.bool(true));
+		TypeStore typeStore = new TypeStore();
+		return ExecutionTools.link(rvmProgram, vf.bool(true), typeStore);
 	}
 	
 	/**
