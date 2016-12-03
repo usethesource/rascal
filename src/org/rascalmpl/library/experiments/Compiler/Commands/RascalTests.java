@@ -77,7 +77,6 @@ public class RascalTests {
 
 		Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
 		try {
-		  if(!cmdOpts.getCommandLocOption("bin").getPath().contains("/rascal/bootstrap/")){ // transient for boot
 		    IBool success = (IBool) kernel.rascalTests(
 		            cmdOpts.getModules(),
 		            cmdOpts.getCommandLocsOption("src"),
@@ -89,7 +88,6 @@ public class RascalTests {
 
 		    System.exit(success.getValue() ? 0 : 1);
 		  }
-		}
 		catch (Throwable e) {
 		    e.printStackTrace();
 		    System.exit(1);

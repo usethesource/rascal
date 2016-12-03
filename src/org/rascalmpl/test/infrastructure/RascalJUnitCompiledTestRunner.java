@@ -80,7 +80,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	    System.err.println("Could not create tmp as root location");
 	    e1.printStackTrace();
 	    System.exit(-1);
-	  }
+	  } 
 	  RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot())
 	      .setTrace(false)
 	      .setProfile(false)
