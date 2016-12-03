@@ -25,6 +25,7 @@ import org.rascalmpl.test.infrastructure.RecursiveTestSuite;
                 "grammar",
                 "imports", 
                 "library", 
+                "meta",
                 "parser",
                 "syntax",
                 "types"
