@@ -17,5 +17,5 @@ import org.rascalmpl.test.infrastructure.RecursiveTest;
 import org.rascalmpl.test.infrastructure.RecursiveTestSuite;
 
 @RunWith(RecursiveTestSuite.class)
-@RecursiveTest({"types", "compiler"})
+@RecursiveTest({ "compiler", "meta", "types" })
 public class CompilerSuite  { }
