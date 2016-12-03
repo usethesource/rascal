@@ -240,7 +240,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	    System.err.println(prefix + ":");
 	    System.err.println("\ttests: " + totalTests);
 	    System.err.println("\tignored : " + totalIgnored);
-	    System.err.println("\texecuted (using random arguments): " + totalTestsWithRandom);
+	    System.err.println("\texecuted (using random arguments): " + (totalTestsWithRandom - totalIgnored));
 	    
 	    return desc;
 	  } catch (IOException e) {
