@@ -28,7 +28,7 @@ test bool tstFib() = demo("Fib") == experiments::Compiler::Examples::Fib::main()
 test bool tstMoney() = demo("SendMoreMoney") == experiments::Compiler::Examples::SendMoreMoney::main();
 
 // Interpreter does complain about unitialized variables
-// RVM also checks for for unitialized variables (but this may change when we start checking for this)
+// RVM also checks for unitialized variables (but this may change when we start checking for this)
 
 //test bool tst() = demo("UninitializedVariable") == experiments::Compiler::Examples::UninitializedVariable::expectedResult;
 //test bool tst() = demo("UninitializedVariables") == experiments::Compiler::Examples::UninitializedVariables::expectedResult;
