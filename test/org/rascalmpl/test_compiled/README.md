@@ -16,7 +16,11 @@ __Available TestSuites__
 * `SyntaxSuite`: tests for syntax definitions, parser generation and parsing:  _2.5 min_.
 
 __Miscellaneous__
-* The file `IGNORED.config` contains module/directory names that will be ignored
+* The file `IGNORED.config` contains directory names to be ignored.
+  Names may contain `/` or `::` as separator. 
+  Each name should occur on a separate line and maybe followed by a comment (using `//`)
+  and is used in a __substring__ check. A single name can thus suppress complete subdirectories
+  therefore you can better make names as specific as possible/desired.
 
 __Notes__
 * All mentioned times measured on a 2013 MacBook Pro.
