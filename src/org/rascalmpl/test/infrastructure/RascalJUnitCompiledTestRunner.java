@@ -132,7 +132,10 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	  totalTests = 0;
 	}
 	
-	static boolean isAcceptable(String candidate){
+	static boolean isAcceptable(String rootModule, String candidate){
+	   if(!rootModule.isEmpty()){
+	     candidate = rootModule + "::" + candidate;
+	   }
 	  for(String ignore : IGNORED_DIRECTORIES){
 	    if(candidate.contains(ignore)){
 	      System.err.println("Ignoring: " + candidate);
@@ -145,6 +148,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	static protected List<String> getRecursiveModuleList(ISourceLocation root) throws IOException {
 	  List<String> result = new ArrayList<>();
 	  Queue<ISourceLocation> todo = new LinkedList<>();
+	  String rootPath = root.getPath().replaceFirst("/", "").replaceAll("/", "::");
 	  todo.add(root);
 	  while (!todo.isEmpty()) {
 	    ISourceLocation currentDir = todo.poll();
@@ -152,7 +156,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	    for (ISourceLocation ent : URIResolverRegistry.getInstance().list(currentDir)) {
 	      if (ent.getPath().endsWith(".rsc")) {	
 	        String candidate = (prefix.isEmpty() ? "" : (prefix + "::")) + URIUtil.getLocationName(ent).replace(".rsc", "");
-	        if(isAcceptable(candidate)){
+	        if(isAcceptable(rootPath, candidate)){
 	          result.add(candidate);
 	        }
 	      } else {
