@@ -106,8 +106,16 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	  try (InputStream ignoredStream = new FileInputStream(Paths.get(".").toAbsolutePath().normalize().resolve(IGNORED).toString());
 	      Scanner ignoredScanner = new Scanner(ignoredStream, "UTF-8")){
 
-	    String text = ignoredScanner.useDelimiter("\\A").next().replaceAll("/",  "::");
+	    String text = ignoredScanner.useDelimiter("\\A").next();
 	    IGNORED_DIRECTORIES = text.split("\\n");
+	    for(int i = 0; i < IGNORED_DIRECTORIES.length; i++){   // Strip comments
+	      String ignore = IGNORED_DIRECTORIES[i];
+	      int comment = ignore.lastIndexOf("//");
+	      if(comment >= 0){
+	        ignore = ignore.substring(0, comment).trim();
+	      }
+	      IGNORED_DIRECTORIES[i] =  ignore.replaceAll("/",  "::");
+	    }
 	  } catch (IOException e1) {
 	    System.err.println(IGNORED + " not found; no ignored directories");
 	    IGNORED_DIRECTORIES = new String[0];
