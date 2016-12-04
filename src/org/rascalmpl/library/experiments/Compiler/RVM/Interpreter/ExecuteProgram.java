@@ -115,7 +115,7 @@ public class ExecuteProgram {
         
 		RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc, typeStore);
 		if(executable.isValid()){
-	       RascalExecutionContext rex = ExecutionTools.makeRex(null /* kernel not needed in interpreter version */, null, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, ctx.getEvaluator().getRascalResolver(), typeStore);
+	       RascalExecutionContext rex = ExecutionTools.makeRex(null /* kernel not needed in interpreter version */, executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, ctx.getEvaluator().getRascalResolver(), typeStore);
 			// to be able to link the classes necessary for compiling parsers and to link builtins implemented based on jars
             for (ClassLoader l : ctx.getEvaluator().getClassLoaders()) {
                 rex.addClassLoader(l);
