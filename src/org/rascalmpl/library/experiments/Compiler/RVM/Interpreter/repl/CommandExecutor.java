@@ -636,10 +636,9 @@ public class CommandExecutor {
 		IValue result;
 		if(is(imp, "default")){
 			String impName = unparse(get(get(imp, "module"), "name"));
-			if(imports.contains(impName)){
-				return null;
+			if(!imports.contains(impName)){
+			  imports.add(impName);
 			}
-			imports.add(impName);
 			try {
 				forceRecompilation = true;
 				result = executeModule(makeMainOk(), false);
