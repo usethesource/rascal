@@ -350,7 +350,7 @@ void statistics(loc root = |std:///|,
             for(decl <- p.declarations){
                 if(decl is FUNCTION){
                     nfunctions += 1;
-                    locals[decl.name] = decl.nlocals;
+                    locals[decl.qname] = decl.nlocals;
                 } else {
                     ncoroutines += 1;
                 }
@@ -393,19 +393,12 @@ void statistics(loc root = |std:///|,
             '");
 }
 
-set[loc] getFunctionLocations(
-						    loc src,                  // location of Rascal source file
-   							loc bin = |home:///bin|   // location where binaries are stored
-							){
-   rvmLoc = RVMModuleLocation(src, bin);
-   try {
-        p = readBinaryValueFile(#RVMModule, rvmLoc);
-        
-        return {d.src | d <- p.declarations};
-   } catch e: {
-        println("Reading: <rvmLoc>: <e>");
-   }
-} 
+void pconfig(str qualifiedModuleName,                // name of Rascal source module
+            PathConfig pcfg,
+            Query select = none()){
+          
+     println(config(qualifiedModuleName, pcfg, select=select));
+}
 
 str config(str qualifiedModuleName,                // name of Rascal source module
             PathConfig pcfg,
@@ -487,18 +480,17 @@ str config(loc cloc,  Query select = none()){
 //	}    
 // }
 
-void ideSupport(str qualifiedModuleName,   // nameof Rascal source module
-                PathConfig pcfg){         // path configuration where binaries are stored
-     
-   if(<true, cloc> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
-      Configuration c = readBinaryValueFile(#Configuration, cloc);
-      locationTypes = c.locationTypes;
-      definitions = c.definitions;
-      uses = c.uses;
-      println("locationTypes: <locationType>");
-      println("definitions: <definitions>");
-      println("uses: <uses>");
-   } else {
-       return "Config file does not exist for: <qualifiedModuleName>";
-   }                
+set[loc] getFunctionLocations(
+                            str qualifiedModuleName,                  // location of Rascal source file
+                            PathConfig pcfg                  // location where binaries are stored
+                            ){
+   if(<true, rvmLoc> := getDerivedReadLoc(qualifiedModuleName, "rvm.gz", pcfg)){
+       try {
+            p = readBinaryValueFile(#RVMModule, rvmLoc);
+            
+            return {d.src | d <- p.declarations};
+       } catch e: {
+            println("Reading: <rvmLoc>: <e>");
+       }
+   }
 }
