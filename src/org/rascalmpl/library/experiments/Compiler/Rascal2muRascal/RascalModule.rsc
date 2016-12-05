@@ -149,7 +149,7 @@ MuModule relocMuModule(MuModule m, loc reloc, list[loc] srcs){
     }
     m.src = relocLoc(m.src, reloc, srcs);
     m.functions = for(f <- m.functions){
-                      f.src = relocLoc(m.src, reloc, srcs);
+                      f.src = relocLoc(f.src, reloc, srcs);
                       f.body = relocBody(f.body, reloc, srcs);
                       append f;
                   }
