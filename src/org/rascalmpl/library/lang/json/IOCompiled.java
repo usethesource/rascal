@@ -74,7 +74,7 @@ public class IOCompiled extends IO {
     }
 	
 	public IValue fromJSON(IValue type, IString src, RascalExecutionContext rex) {
-		TypeStore store = new TypeStore();
+		TypeStore store = rex.getTypeStore(); // new TypeStore();
 		
 		IConstructor type_cons = ((IConstructor) type);
 

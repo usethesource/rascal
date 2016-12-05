@@ -10,202 +10,271 @@
 
 package org.rascalmpl.test.infrastructure;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Scanner;
 
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
-import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.interpreter.NullRascalMonitor;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
-import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.library.experiments.Compiler.Commands.Rascal;
+import org.rascalmpl.library.experiments.Compiler.Commands.RascalC;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.TestExecutor;
+import org.rascalmpl.library.lang.rascal.boot.Kernel;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * A JUnit test runner for compiled Rascal tests.
  * 
- * The current approach is hybrid:
- *  - The Rascal source files are parsed to extract the tests.
- *  - Next the the compiled version of the tests is executed.
- *  - If needed, tests are recompiled.
+ * The  approach is as follows:
+ *  - The modules to be tested are compiled and linked.
+ *  - Meta-data in the compiled modules is used to determine the number of tests and the ignored tests.
+ *  - The tests are executed per compiled module
  *  
- *  To achieve this the Rascal sources of the compiler are loaded in the interpreter.
- *  
- *  In a future version we could skip the parsing phase and extract test info from meta-infor
- *  in the generated code.
- *
+ * The file IGNORED.config may contain (parts of) module names that will be ignored (using substring comparison)
  */
 public class RascalJUnitCompiledTestRunner extends Runner {
-	private static Evaluator evaluator;
-	private static GlobalEnvironment heap;
-	private static ModuleEnvironment root;
-	private static PrintWriter stderr;
-	private static PrintWriter stdout;
+    private static final String IGNORED = "test/org/rascalmpl/test_compiled/TESTS.ignored";
+    private static Kernel kernel;
+    private static IValueFactory vf;
+
+    private static PathConfig pcfg;
 	private Description desc;
 	private String prefix;
 	private HashMap<String, Integer> testsPerModule; 				// number of tests to be executed
 	private HashMap<String, List<Description>> ignoredPerModule;	// tests to be ignored
 	int totalTests = 0;
+	int totalTestsWithRandom = 0;
+	static String[] IGNORED_DIRECTORIES;
 
-	static {
-		heap = new GlobalEnvironment();
-		root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
+	static {   
+	  vf = ValueFactoryFactory.getValueFactory();
+	  try {
+	    pcfg = new PathConfig();
+	    pcfg.addSourceLoc(URIUtil.rootLocation("tmp"));
+	  } catch (URISyntaxException e1) {
+	    System.err.println("Could not create tmp as root location");
+	    e1.printStackTrace();
+	    System.exit(-1);
+	  } 
+	  RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot())
+	      .setTrace(false)
+	      .setProfile(false)
+	      .setVerbose(true)
+	      .build();
 
-		stderr = new PrintWriter(System.err);
-		stdout = new PrintWriter(System.out);
-		
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
-		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-		evaluator.getConfiguration().setErrors(true);
-
-		// this can not work reliably with the current URIResolverRegistry:
-//        ISourceLocationInput rascalProject = new RascalProjectInput(RascalJUnitCompiledTestRunner.class);
-//        URIResolverRegistry.getInstance().registerInput(rascalProject);
-//        evaluator.addRascalSearchPath(URIUtil.rootLocation("project"));
-
-		// Import the compiler's Execute module
-		NullRascalMonitor monitor = new NullRascalMonitor();
-		
-		System.err.println("*********************************************");
-		System.err.println("**** Loading Compiler (takes a minute!)  ****");
-		System.err.println("**** Needs JVM arguments: -Xms64m -Xmx1G ****");
-		
-		evaluator.doImport(monitor, "experiments::Compiler::Execute");		
-		
-		System.err.println("****          Compiler Loaded            ****");
-		System.err.println("*********************************************");
+	  try {
+	    kernel = new Kernel(vf, rex, pcfg.getBoot());
+	  } catch (IOException | NoSuchRascalFunction | URISyntaxException e) {
+	    System.err.println("Unable to load Rascal Kernel");;
+	    e.printStackTrace();
+	    System.exit(-1);
+	  }
 	}  
 	
 	public RascalJUnitCompiledTestRunner(Class<?> clazz) {
-		this(clazz.getAnnotation(RascalJUnitTestPrefix.class).value());
-		desc = null;
-		testsPerModule = new HashMap<String, Integer>();
-		ignoredPerModule = new HashMap<String, List<Description>>();
-		totalTests = 0;
-		try {
-			Object instance = clazz.newInstance();
-			if (instance instanceof IRascalJUnitTestSetup) {
-				((IRascalJUnitTestSetup) instance).setup(evaluator);
-			}
-			else {
-				evaluator.addRascalSearchPath(URIUtil.rootLocation("tmp"));
-			}
-		} catch (InstantiationException e) {
-			throw new ImplementationError("Could not setup tests for: " + clazz.getCanonicalName(), e);
-		} catch (IllegalAccessException e) {
-			throw new ImplementationError("Could not setup tests for: " + clazz.getCanonicalName(), e);
-		}
+	  this(clazz.getAnnotation(RascalJUnitTestPrefix.class).value());
+	  desc = null;
+	  testsPerModule = new HashMap<String, Integer>();
+	  ignoredPerModule = new HashMap<String, List<Description>>();
+	  totalTests = 0;
+	  try (InputStream ignoredStream = new FileInputStream(Paths.get(".").toAbsolutePath().normalize().resolve(IGNORED).toString());
+	      Scanner ignoredScanner = new Scanner(ignoredStream, "UTF-8")){
+
+	    String text = ignoredScanner.useDelimiter("\\A").next();
+	    
+	    IGNORED_DIRECTORIES = text.split("\\n");
+	    int emptyLines = 0;
+	    for(int i = 0; i < IGNORED_DIRECTORIES.length; i++){   // Strip comments
+	      String ignore = IGNORED_DIRECTORIES[i];
+	      int comment = ignore.indexOf("//");
+	      if(comment >= 0){
+	        ignore = ignore.substring(0, comment);
+	      }
+	      IGNORED_DIRECTORIES[i] =  ignore.replaceAll("/",  "::").trim();
+	      if(IGNORED_DIRECTORIES[i].isEmpty()){
+	        emptyLines++;
+	      }
+	    }
+	    if(emptyLines > 0){                                    // remove empty lines
+	      String[] tmp = new String[IGNORED_DIRECTORIES.length - emptyLines];
+	      int k = 0;
+	      for(int i = 0; i < IGNORED_DIRECTORIES.length; i++){
+	        if(!IGNORED_DIRECTORIES[i].isEmpty()){
+	          tmp[k++] = IGNORED_DIRECTORIES[i];
+	        }
+	      }
+	      IGNORED_DIRECTORIES = tmp;
+	    }
+	  } catch (IOException e1) {
+	    System.err.println(IGNORED + " not found; no ignored directories");
+	    IGNORED_DIRECTORIES = new String[0];
+	  } 
 	}
 	
 	public RascalJUnitCompiledTestRunner(String prefix) {
-	  // remove all the escapes (for example in 'lang::rascal::\syntax')
-		this.prefix = prefix;
+	  this.prefix = prefix.replaceAll("\\\\", ""); // remove all the escapes (for example in 'lang::rascal::\syntax')
 	}
 	
 	@Override
 	public int testCount(){
-		getDescription();
-		System.err.println("testCount: " + totalTests);
-		return totalTests;
+	  getDescription();
+	  System.err.println("testCount: " + totalTests);
+	  return totalTests;
 	}
 	
 	private void cleanUp(){
-		desc = null;
-		testsPerModule = null;
-		ignoredPerModule = null;
-		totalTests = 0;
+	  desc = null;
+	  testsPerModule = null;
+	  ignoredPerModule = null;
+	  totalTests = 0;
 	}
 	
-	static protected String computeTestName(String name, ISourceLocation loc) {
-		return name + ": <" + loc.getOffset() +"," + loc.getLength() +">";
+	static boolean isAcceptable(String rootModule, String candidate){
+	   if(!rootModule.isEmpty()){
+	     candidate = rootModule + "::" + candidate;
+	   }
+	  for(String ignore : IGNORED_DIRECTORIES){
+	    if(candidate.contains(ignore)){
+	      System.err.println("Ignoring: " + candidate);
+	      return false;
+	    }
+	  }
+	  return true;
 	}
 
 	static protected List<String> getRecursiveModuleList(ISourceLocation root) throws IOException {
-		List<String> result = new ArrayList<>();
-		Queue<ISourceLocation> todo = new LinkedList<>();
-		todo.add(root);
-		while (!todo.isEmpty()) {
-			ISourceLocation currentDir = todo.poll();
-			String prefix = currentDir.getPath().replaceFirst(root.getPath(), "").replaceFirst("/", "").replaceAll("/", "::");
-			for (ISourceLocation ent : URIResolverRegistry.getInstance().list(currentDir)) {
-				if (ent.getPath().endsWith(".rsc")) {
-					if (prefix.isEmpty()) {
-						result.add(URIUtil.getLocationName(ent).replace(".rsc", ""));
-					}
-					else {
-						result.add(prefix + "::" + URIUtil.getLocationName(ent).replace(".rsc", ""));
-					}
-				}
-				else {
-					ISourceLocation possibleDir = URIUtil.getChildLocation(currentDir, currentDir.getPath() + "/" + ent);
-					if (URIResolverRegistry.getInstance().isDirectory(possibleDir)) {
-						todo.add(possibleDir);
-					}
-				}
-			}
-		}
-		return result;
-		
+	  List<String> result = new ArrayList<>();
+	  Queue<ISourceLocation> todo = new LinkedList<>();
+	  String rootPath = root.getPath().replaceFirst("/", "").replaceAll("/", "::");
+	  todo.add(root);
+	  while (!todo.isEmpty()) {
+	    ISourceLocation currentDir = todo.poll();
+	    String prefix = currentDir.getPath().replaceFirst(root.getPath(), "").replaceFirst("/", "").replaceAll("/", "::");
+	    for (ISourceLocation ent : URIResolverRegistry.getInstance().list(currentDir)) {
+	      if (ent.getPath().endsWith(".rsc")) {	
+	        String candidate = (prefix.isEmpty() ? "" : (prefix + "::")) + URIUtil.getLocationName(ent).replace(".rsc", "");
+	        if(isAcceptable(rootPath, candidate)){
+	          result.add(candidate);
+	        }
+	      } else {
+	        if (URIResolverRegistry.getInstance().isDirectory(ent) && !todo.contains(ent)){
+	          todo.add(ent);
+	        }
+	      }
+	    }
+	  }
+	  return result;
 	}
 	
 	@Override
 	public Description getDescription() {			
-		if(desc != null)
-			return desc;
-		Description desc = Description.createSuiteDescription(prefix);
-		this.desc = desc;
+	  if(desc != null)
+	    return desc;
+	  Description desc = Description.createSuiteDescription(prefix);
+	  this.desc = desc;
 
-		try {
-			List<String> modules = getRecursiveModuleList(evaluator.getValueFactory().sourceLocation("std", "", "/" + prefix.replaceAll("::", "/")));
+	  URIResolverRegistry resolver = URIResolverRegistry.getInstance();
+	  try {
+	    List<String> modules = getRecursiveModuleList(vf.sourceLocation("std", "", "/" + prefix.replaceAll("::", "/")));
 
-			for (String module : modules) {
-				String name = prefix + "::" + module;
-				
-				evaluator.doImport(new NullRascalMonitor(), name);
-				Description modDesc = Description.createSuiteDescription(name);
-				desc.addChild(modDesc);
-				int ntests = 0;
-				LinkedList<Description> module_ignored = new LinkedList<Description>();
-				
-				for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
-						String test_name = computeTestName(f.getName(), f.getAst().getLocation());
-						Description d = Description.createTestDescription(getClass(), test_name);
-						modDesc.addChild(d);
-						ntests++;
-						
-						if ((f.hasTag("ignore") || f.hasTag("Ignore") || f.hasTag("ignoreCompiler") || f.hasTag("IgnoreCompiler"))) {
-							module_ignored.add(d);
-						}
-				}
-				testsPerModule.put(name,  ntests);
-				ignoredPerModule.put(name, module_ignored);
-				System.err.println("Added " + ntests + " tests for module: " + name);
-				totalTests += ntests;
-			}
-			System.err.println("Total number of tests: " + totalTests);
-			return desc;
-		} catch (IOException e) {
-			throw new RuntimeException("could not create test suite", e);
-		} catch (URISyntaxException e) {
-			throw new RuntimeException("could not create test suite", e);
-		}
+	    for (String module : modules) {
+	      String qualifiedName = (prefix.isEmpty() ? "" : prefix + "::") + module;
+	      RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot()).build();
+	      ISourceLocation binary = Rascal.findBinary(pcfg.getBin(), qualifiedName);
+	      ISourceLocation source =  rex.getRascalSearchPath().resolveModule(qualifiedName);
+
+	      //  Do a sufficient but not complete check on the binary; changes to imports will go unnoticed!
+	      if(!resolver.exists(binary) || resolver.lastModified(source) > resolver.lastModified(binary)){
+	        System.err.println("Compiling: " + qualifiedName);
+	        HashMap<String, IValue> kwparams = new HashMap<>();
+	        kwparams.put("enableAsserts", vf.bool(true));
+	        IList programs = kernel.compileAndLink(
+	            vf.list(vf.string(qualifiedName)),
+	            pcfg.getSrcs(),
+	            pcfg.getLibs(),
+	            pcfg.getBoot(),
+	            pcfg.getBin(),
+	            vf.sourceLocation("noreloc", "", ""),
+	            kwparams);
+	        boolean ok = RascalC.handleMessages(programs);
+	        if(!ok){
+	          System.exit(1);
+	        }
+	      }
+
+	      RVMExecutable executable = RVMExecutable.read(binary, rex.getTypeStore());
+
+	      if(executable.getTests().size() > 0){
+	        Description modDesc = Description.createSuiteDescription(qualifiedName);
+	        desc.addChild(modDesc);
+	        int ntests = 0;
+	        int ntests_with_random = 0;
+	        LinkedList<Description> module_ignored = new LinkedList<Description>();
+
+	        for(Function f : executable.getTests()){
+	          String test_name = f.computeTestName();
+	          Description d = Description.createTestDescription(getClass(), test_name);
+	          modDesc.addChild(d);
+	          ntests++;
+	          ntests_with_random += f.getTries();
+
+	          if(f.isIgnored()){
+	            module_ignored.add(d);
+	          }
+	        }
+
+	        testsPerModule.put(qualifiedName,  ntests);
+	        ignoredPerModule.put(qualifiedName, module_ignored);
+	        totalTests += ntests;
+	        totalTestsWithRandom += ntests_with_random;
+	      }
+	    }
+	    int totalIgnored = 0;
+	    for(String name : testsPerModule.keySet()){
+	      int tests = testsPerModule.get(name);
+	      if(tests > 0){
+	        int ignored = ignoredPerModule.get(name).size();
+	        totalIgnored += ignored;
+//	        System.err.println(name + ": " + testsPerModule.get(name) + (ignored == 0 ? "" : " (ignored: " + ignored + ")"));
+	      }
+	    }
+	    System.err.println(prefix + ":");
+	    System.err.println("\ttests: " + totalTests);
+	    System.err.println("\tignored : " + totalIgnored);
+	    System.err.println("\texecuted (using random arguments): " + (totalTestsWithRandom - totalIgnored));
+	    
+	    return desc;
+	  } catch (IOException e) {
+	    throw new RuntimeException("could not create test suite", e);
+	  } catch (URISyntaxException e) {
+	    throw new RuntimeException("could not create test suite", e);
+	  }
 	}
 
 	@Override
@@ -216,14 +285,19 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		notifier.fireTestRunStarted(desc);
 
 		for (Description mod : desc.getChildren()) {
-			
+		  RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot()).build();
+		  ISourceLocation binary = Rascal.findBinary(pcfg.getBin(), mod.getDisplayName());
+          RVMCore rvmCore = null;
+          try {
+              rvmCore = ExecutionTools.initializedRVM(binary, rex);
+          } catch (IOException e1) {
+            notifier.fireTestFailure(new Failure(mod, e1));
+          }
+          
 			Listener listener = new Listener(notifier, mod);
-			TestExecutor runner = new TestExecutor(evaluator, listener);
+			TestExecutor runner = new TestExecutor(rvmCore, listener, rex);
 			try {
 				runner.test(mod.getDisplayName(), testsPerModule.get(mod.getClassName())); 
-				for(Description d : ignoredPerModule.get(mod.getClassName())){
-					notifier.fireTestIgnored(d);
-				}
 				listener.done();
 			} catch (Exception e) {
 				// Something went totally wrong while running the compiled tests, force all tests in this suite to fail.
@@ -246,8 +320,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 			this.module = module;
 		}
 
-		private Description getDescription(String name, ISourceLocation loc) {
-			String testName = computeTestName(name, loc);
+		private Description getDescription(String testName, ISourceLocation loc) {
 
 			for (Description child : module.getChildren()) {
 				if (child.getMethodName().equals(testName)) {
@@ -255,7 +328,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 				}
 			}
 
-			throw new IllegalArgumentException(name + " test was never registered");
+			throw new IllegalArgumentException(testName + " test was never registered");
 		}
 
 		@Override
@@ -265,18 +338,19 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		
 		@Override
 		public void start(String context, int count) {
-			//System.out.println("RascalJunitCompiledTestRunner.start: " + count);
-			notifier.fireTestRunStarted(module);
+//		  System.out.println("RascalJunitCompiledTestRunner.start: " + context + ", " + count);
+		  notifier.fireTestRunStarted(module);
 		}
 
 		@Override
 		public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable t) {
 			
-			//System.err.println("RascalJunitCompiledTestRunner.report: " + successful + ", test = " + test + ", at " + loc + ", message = " + message);
+//			System.err.println("RascalJunitCompiledTestRunner.report: " + successful + ", test = " + test + ", at " + loc + ", message = " + message);
 			Description desc = getDescription(test, loc);
 			notifier.fireTestStarted(desc);
 
 			if (!successful) {
+//			    System.err.println("RascalJunitCompiledTestRunner.report: " + successful + ", test = " + test + ", at " + loc + ", message = " + message);
 				notifier.fireTestFailure(new Failure(desc, t != null ? t : new AssertionError(message == null ? "test failed" : message)));
 			}
 			else {
@@ -288,5 +362,6 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		public void done() {
 			notifier.fireTestRunFinished(new Result());
 		}
+
 	}
 }

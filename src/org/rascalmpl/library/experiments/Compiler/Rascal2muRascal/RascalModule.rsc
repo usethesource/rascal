@@ -79,8 +79,6 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, Pat
    	  translateModule(M);
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
-   	 
-   	  generate_tests(modName, M@\loc);
    	  
    	  //println("overloadedFunctions"); for(tp <- getOverloadedFunctions()) println(tp);
    	  // Overloading resolution...	  
@@ -149,14 +147,25 @@ MuModule relocMuModule(MuModule m, loc reloc, list[loc] srcs){
     if(reloc.scheme == "noreloc"){
         return m;
     }
-    return
-        visit(m){ 
+    m.src = relocLoc(m.src, reloc, srcs);
+    m.functions = for(f <- m.functions){
+                      f.src = relocLoc(f.src, reloc, srcs);
+                      f.body = relocBody(f.body, reloc, srcs);
+                      append f;
+                  }
+   return m;                                 
+}
+
+MuExp relocBody(MuExp body, loc reloc, list[loc] srcs){
+ return
+        visit(body){ 
         case muOCall3(MuExp fun, list[MuExp] largs, loc src)    => muOCall3(fun, largs, relocLoc(src, reloc, srcs))
         case muOCall4(MuExp fun, Symbol types, list[MuExp] largs, loc src)
                                                                 => muOCall4(fun, types, largs, relocLoc(src, reloc, srcs))
         case muCallPrim2(str name, loc src)                     => muCallPrim2(name, relocLoc(src, reloc, srcs))                
         case muCallPrim3(str name, list[MuExp] exps, loc src)   => muCallPrim3(name, exps, relocLoc(src, reloc, srcs))
-        };                                   
+        case muThrow(MuExp exp, loc src)                        => muThrow(exp, relocLoc(src, reloc, srcs))
+        };    
 }
 
 void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true){
@@ -320,19 +329,4 @@ private void importModule((Import) `<SyntaxDefinition syntaxdef>`){ /* nothing t
 
 private default void importModule(Import imp){
     throw "Unimplemented import: <imp>";
-}
-
-/********************************************************************/
-/*                  Translate the tests in a module                 */
-/********************************************************************/
- 
-private void generate_tests(str module_name, loc src){
-   testcode = getTestsInModule();
-   if(!isEmpty(testcode)){
-      code = muBlock([ muCallPrim3("testreport_open", [], src), *testcode, muReturn1(muCallPrim3("testreport_close", [], src)) ]);
-      ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
-      name_testsuite = "<module_name>_testsuite";
-      main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
-      addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, [], Symbol::\tuple([]), "" /*in the root*/, 2, 2, false, true, src, [], (), false, 0, 0, code));
-   }
 }

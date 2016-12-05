@@ -166,7 +166,7 @@ public class Frame {
 		int start = sp - arity;
 		assert start >= 0;
 		if(!function.isVarArgs) {
-			assert this.sp + arity == function.nformals;
+			//assert this.sp + arity == function.nformals;
 			for(int i = 0; i < arity; i++){
 				this.stack[this.sp++] = stack[start + i]; 
 			}

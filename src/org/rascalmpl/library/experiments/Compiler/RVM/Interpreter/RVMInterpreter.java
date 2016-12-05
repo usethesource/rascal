@@ -84,7 +84,7 @@ public class RVMInterpreter extends RVMCore {
 	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){
 		Function firstFunc = functionStore[func.getFunctions()[0]]; // TODO: null?
 		int arity = posArgs.length + 1;
-		int scopeId = func.env.scopeId;
+		int scopeId = func.env == null ? 0 : func.env.scopeId;
 		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
 		root.sp = arity;
 		
