@@ -8,5 +8,5 @@ BasicM3Tests                        // Waits for Eclipse integration
 AliasTCTests                        // Mysterious loop
 AllRascalTests                      // Is being removed
 StringTemplates                     // Unknown
-CSVIOTests                          // Randomly fails due: inferred types
-Tests/Examples                      // In progress
+CSVIOTests                          // Randomly fails due to "inferred types"
+Tests::Examples                     // In progress
