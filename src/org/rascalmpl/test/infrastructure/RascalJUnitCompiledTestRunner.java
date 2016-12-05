@@ -59,7 +59,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  * The file IGNORED.config may contain (parts of) module names that will be ignored (using substring comparison)
  */
 public class RascalJUnitCompiledTestRunner extends Runner {
-    private static final String IGNORED = "test/org/rascalmpl/test_compiled/IGNORED.config";
+    private static final String IGNORED = "test/org/rascalmpl/test_compiled/TESTS.ignored";
     private static Kernel kernel;
     private static IValueFactory vf;
 
