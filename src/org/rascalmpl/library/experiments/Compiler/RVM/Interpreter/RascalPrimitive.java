@@ -7611,122 +7611,6 @@ public enum RascalPrimitive {
 	},
 
 	/************************************************************************************************/
-	/*					Test reports																*/
-	/************************************************************************************************/
-
-	/**
-	 * Open a test report
-	 * 
-	 * [ ... ] => [ ..., IListWriter w ]
-	 */
-	testreport_open {
-		@Override
-		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
-			rex.setTestResults(vf.listWriter());
-			return null;
-		}
-	},
-
-	/**
-	 * Close a test report
-	 * 
-	 * [ ..., IListWriter w] => [ ..., IList test results ]
-	 */
-	testreport_close {
-		@Override
-		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
-			rex.getTestResultListener().done();
-			return rex.getTestResults().done();
-		}
-	},
-
-	/**
-	 * Execute test results for function fun to a test report
-	 * 
-	 * [ ..., IListWriter w, IString fun, IBool ignore, IString expected, ISourceLocation src ] => [ ..., w ]
-	 */
-	testreport_add {
-		@Override
-		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
-			assert arity == 5; 
-
-			String fun = ((IString) stack[sp - 5]).getValue();
-			boolean ignore =  ((IBool) stack[sp - 4]).getValue();
-			String expected =  ((IString) stack[sp - 3]).getValue();
-			ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
-			//Type argType = (Type) stack[sp - 1];
-
-			if(ignore){
-				rex.getTestResults().append(vf.tuple(src,  vf.integer(2), vf.string("")));
-				rex.getTestResultListener().ignored("", src);
-				return sp - 4;
-			}
-			IConstructor type_cons = ((IConstructor) stack[sp - 1]);
-			Type argType = rex.symbolToType((IConstructor) type_cons.get("symbol"), vf.mapWriter().done()); // TODO: empty set of definitions?
-
-			int nargs = argType.getArity();
-			IValue[] args = new IValue[nargs];
-
-			TypeParameterVisitor tpvisit = new TypeParameterVisitor();
-			Type requestedType = tf.tupleType(argType);
-			HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
-			RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, MAXDEPTH, tpbindings, rex.getTypeStore());
-
-			int tries = nargs == 0 ? 1 : TRIES;
-			boolean passed = true;
-			String message = "";
-			Throwable exception = null;
-			for(int i = 0; i < tries; i++){
-				if(nargs > 0){
-					message = "test fails for arguments: ";
-					ITuple tup = (ITuple) randomValue.generate(argType);
-					for(int j = 0; j < nargs; j++){
-						args[j] = tup.get(j);
-						message = message + args[j].toString() + " ";
-					}
-				}
-				try {
-					//System.err.println("Before executing test " + fun);
-//					for(String fname : rex.getRVM().functionMap.keySet()){
-//						if(fname.contains("companion")) System.err.println("testreport_add: " + fname);
-//					}
-					IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null); 
-					//System.err.println("After executing test " + fun);
-					passed = ((IBool) res).getValue();
-					if(!passed){
-						break;
-					}
-				} catch (Thrown e){
-					String ename;
-					if(e.value instanceof IConstructor){
-						ename = ((IConstructor) e.value).getName();
-					} else {
-						ename = e.toString();
-					}
-					if(!ename.equals(expected)){
-						message = e.toString() + message;
-						passed = false;
-						exception = e;
-						break;
-					}
-				}
-				catch (Exception e){
-					message = e.getMessage() + message;
-					passed = false;
-					break;
-				}
-			}
-			if(passed)
-				message = "";
-			
-			rex.getTestResults().append(vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message)));
-
-			rex.getTestResultListener().report(passed, $computeTestName(fun, src), src, message, exception);
-			return sp - 4;
-		}
-	},
-
-	/************************************************************************************************/
 	/*                               Subscripting													*/
 	/************************************************************************************************/
 
@@ -8085,7 +7969,7 @@ public enum RascalPrimitive {
 	rel_subscript {
 		@Override
 		public int executeN(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity >= 4;
+			//assert arity >= 4;
 			
 			ISet rel = ((ISet) stack[sp - arity]);
 			if(rel.isEmpty()){

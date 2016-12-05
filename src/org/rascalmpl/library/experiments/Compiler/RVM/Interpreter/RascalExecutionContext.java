@@ -12,9 +12,7 @@ import java.util.Stack;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
-import org.rascalmpl.interpreter.DefaultTestResultListener;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
@@ -73,7 +71,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final boolean testsuite;
 	private final boolean profile;
 	private final boolean trace;
-	private final ITestResultListener testResultListener;
 	private IFrameObserver frameObserver;
 	private final IMap symbol_definitions;
 	private RascalSearchPath rascalSearchPath;
@@ -115,7 +112,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	StringBuilder templateBuilder = null;
 	private final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
-	private IListWriter test_results;
 	private final ISourceLocation bootDir;
 	
 	public RascalExecutionContext(
@@ -134,8 +130,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 			boolean coverage, 
 			boolean jvm, 
 			boolean verbose,
-			ITestResultListener testResultListener, 
-			IFrameObserver frameObserver,
+			IFrameObserver frameObserver, 
 			RascalSearchPath rascalSearchPath
 	){
 		
@@ -148,8 +143,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  }
 	  
 	  this.moduleTags = moduleTags;
-	  this.symbol_definitions = symbol_definitions;
-	  this.typeStore = typeStore == null ? RascalValueFactory.getStore() /*new TypeStore()*/ : typeStore;
+	  this.symbol_definitions = symbol_definitions == null ? vf.mapWriter().done() : symbol_definitions;
+	  this.typeStore = typeStore == null ? /*RascalValueFactory.getStore()*/ new TypeStore() : typeStore;
 	  this.debug = debug;
 	  this.debugRVM = debugRVM;
 	  this.testsuite = testsuite;
@@ -177,8 +172,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  this.stderr = stderr;
 	  config = new Configuration();
 	  this.classLoaders = new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader()));
-	  this.testResultListener = (testResultListener == null) ? (ITestResultListener) new DefaultTestResultListener(stderr, verbose)
-	      : testResultListener;
 
 	  if(frameObserver == null){
 	    if(profile){
@@ -458,8 +451,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	Configuration getConfiguration() { return config; }
 	
-	ITestResultListener getTestResultListener() { return testResultListener; }
-	
 	public String getFullModuleName(){ return currentModuleName; }
 	
 	public String getFullModuleNameAsPath() { return currentModuleName.replaceAll("::",  "/") + ".rsc"; }
@@ -474,9 +465,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	Stack<StringBuilder> getTemplateBuilderStack() { return  templateBuilderStack; }
 	
-	IListWriter getTestResults() { return test_results; }
-	
-	void setTestResults(IListWriter writer) { test_results = writer; }
+//	IListWriter getTestResults() { return test_results; }
+//	
+//	void setTestResults(IListWriter writer) { test_results = writer; }
 	
 	boolean bootstrapParser(String moduleName){
 		if(moduleTags != null){

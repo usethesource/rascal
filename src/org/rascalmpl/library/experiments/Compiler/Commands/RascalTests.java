@@ -87,7 +87,7 @@ public class RascalTests {
 		            cmdOpts.getModuleOptionsAsMap());
 
 		    System.exit(success.getValue() ? 0 : 1);
-		}
+		  }
 		catch (Throwable e) {
 		    e.printStackTrace();
 		    System.exit(1);

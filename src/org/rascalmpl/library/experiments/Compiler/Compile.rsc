@@ -109,7 +109,7 @@ RVMModule compile(loc moduleLoc, PathConfig pcfg, loc reloc = |noreloc:///|, boo
 
 @doc{Compile a Rascal source module (given at a location) to RVM}
 RVMModule compile(str qualifiedModuleName, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=false){
-	<cfg, rvmMod> = compile1(qualifiedModuleName, pcfg, reloc=reloc, verbose=verbose);
+	<cfg, rvmMod> = compile1(qualifiedModuleName, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
 	rvmMod1 = recompileDependencies(qualifiedModuleName, rvmMod, cfg, pcfg, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
 	errors = [ e | e:error(_,_) <- rvmMod1.messages];
     warnings = [ w | w:warning(_,_) <- rvmMod1.messages ];

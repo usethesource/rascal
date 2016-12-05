@@ -290,14 +290,14 @@ public class CourseCompiler {
 		err.flush();
 		writeFile(destPath + "/course-compilation-errors.txt", sw.toString());
 		
-//		System.err.println("Removing intermediate files");
-//		
-//		FileVisitor<Path> fileProcessor = new RemoveAdocs();
-//		try {
-//			Files.walkFileTree(destPath, fileProcessor);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+		System.err.println("Removing intermediate files");
+		
+		FileVisitor<Path> fileProcessor = new RemoveAdocs();
+		try {
+			Files.walkFileTree(destPath, fileProcessor);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		System.err.println("Course compilation done");
 	}
 }
