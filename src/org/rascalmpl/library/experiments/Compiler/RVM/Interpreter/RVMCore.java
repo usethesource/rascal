@@ -643,61 +643,6 @@ public abstract class RVMCore {
 		return (repr.length() < w) ? repr : repr.substring(0, w) + "...";
 	}
 	
-//	private static class ProxyInvocationHandler implements InvocationHandler {
-//	  private final RVMCore core;
-//	  private Map<String,IValue> emptyKWParams;
-//	  private Map<Method,OverloadedFunction> overloadedFunctionsByMethod;
-//
-//	  public ProxyInvocationHandler(RVMCore core, Class<?> clazz) {
-//	    this.core = core;
-//	    emptyKWParams = new HashMap<>();
-//	    overloadedFunctionsByMethod = new HashMap<>();
-//	  }
-//	  
-//	  boolean hasKeywordParams(Object[] args){
-//	    // All normal arguments are IValues, a non-IValue must be a keyword proxy
-//	    return args != null && args.length > 0 && !(args[args.length - 1] instanceof IValue);
-//	  }
-//	  
-//	  OverloadedFunction getOverloadedFunction(Method method, Object[] args) throws NoSuchRascalFunction{
-//	    OverloadedFunction f = overloadedFunctionsByMethod.get(method);
-//	    if(f != null){
-//	      return f;
-//	    }
-//
-//	    f = core.getOverloadedFunctionByNameAndArity(method.getName(), method.getParameterCount() - (hasKeywordParams(args) ? 1 : 0));
-//	    overloadedFunctionsByMethod.put(method,  f);
-//	    return f;
-//	  }
-//	  
-//	  Map<String,IValue> getKWArgs(Object kwArgs) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException {
-//	    return ((Java2RascalKWProxy.ProxyInvocationHandler) Proxy.getInvocationHandler(kwArgs)).asMap();
-//	  }
-//
-//	  @Override
-//	  public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-//	    Class<?> returnType = method.getReturnType();
-//	    if(returnType.isAnnotationPresent(RascalKeywordParameters.class)){
-//	      return returnType.cast(Proxy.newProxyInstance(RVMCore.class.getClassLoader(), new Class<?> [] { returnType }, new Java2RascalKWProxy.ProxyInvocationHandler(core.vf, returnType)));
-//	    }
-//	    OverloadedFunction f = getOverloadedFunction(method, args);
-//	    boolean hka = hasKeywordParams(args);
-//	    Map<String,IValue> kwArgs = hka ? getKWArgs(args[args.length - 1]) : emptyKWParams;
-//	    return Marshall.unmarshall(core.executeRVMFunction(f, marshallArgs(args, hka), kwArgs), method.getReturnType());
-//	  }
-//
-//	  private IValue[] marshallArgs(Object[] args, boolean skipKeywordArguments) {
-//	    int len = args.length - (skipKeywordArguments ? 1 : 0);
-//	    IValue[] result = new IValue[len];
-//
-//	    for (int i = 0; i < len; i++) {
-//	      result[i] = Marshall.marshall(core.vf, args[i]);
-//	    }
-//
-//	    return result;
-//	  }
-//	}
-	
 	/********************************************************************************/
 	/*			Auxiliary functions that implement specific instructions and are	*/
 	/*  		used both by RVM interpreter and generated JVM bytecod				*/
