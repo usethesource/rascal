@@ -154,7 +154,7 @@ public class RascalC {
                   for(IValue mod : cmdOpts.getModules()){
                     String moduleName = ((IString) mod).getValue();
                     ISourceLocation binary = Rascal.findBinary(cmdOpts.getCommandLocOption("bin"), moduleName);
-                    RVMExecutable exec = RVMExecutable.read(binary);
+                    RVMExecutable exec = RVMExecutable.read(binary, rex.getTypeStore());
                       
                     try {
                       String api = ApiGen.generate(exec, moduleName, pckg);
@@ -189,7 +189,7 @@ public class RascalC {
         }
     }
 
-    private static boolean handleMessages(IList programs) {
+    public static boolean handleMessages(IList programs) {
     	boolean failed = false;
 
     	for(IValue iprogram : programs){

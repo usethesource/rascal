@@ -4,7 +4,6 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Map;
 
-import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.value.IMap;
@@ -23,7 +22,7 @@ public class RascalExecutionContextBuilder {
 	private String moduleName;
 
 	private boolean testsuite = false;
-	private ITestResultListener testResultListener = null;
+
 	
 	private boolean debug = false;
 	private boolean debugRVM = false;
@@ -64,18 +63,16 @@ public class RascalExecutionContextBuilder {
 
 	/**
 	 * Setup the rascal execution context for test suites
-	 * @param resultListener a specific listener instance or null which will enable the DefaultTestResultListener
 	 */
-	public static RascalExecutionContextBuilder testSuiteContext(IValueFactory vf, ISourceLocation bootDir, ITestResultListener resultListener, PrintWriter stdout, PrintWriter stderr) {
+	public static RascalExecutionContextBuilder testSuiteContext(IValueFactory vf, ISourceLocation bootDir, PrintWriter stdout, PrintWriter stderr) {
 	    RascalExecutionContextBuilder result = normalContext(vf, bootDir, stdout, stderr);
 	    result.testsuite = true;
-	    result.testResultListener = resultListener;
 	    return result;
 	}
 	
 	public RascalExecutionContext build() {
 	    this.build = true;
-	    RascalExecutionContext result = new RascalExecutionContext(vf, bootDir, stdout, stderr, moduleTags, symbolDefinitions, typeStore, debug, debugRVM, testsuite, profile, trace, coverage, jvm, verbose, testResultListener, frameObserver, rascalSearchPath);
+	    RascalExecutionContext result = new RascalExecutionContext(vf, bootDir, stdout, stderr, moduleTags, symbolDefinitions, typeStore, debug, debugRVM, testsuite, profile, trace, coverage, jvm, verbose, frameObserver, rascalSearchPath);
 	    if (this.moduleName != null) {
 	        result.setFullModuleName(moduleName);
 	    }
@@ -183,7 +180,7 @@ public class RascalExecutionContextBuilder {
 	    return this;
 	}
 	
-	public RascalExecutionContextBuilder withExisitingTypeStore(TypeStore typeStore) {
+	public RascalExecutionContextBuilder withTypeStore(TypeStore typeStore) {
 	    assert !build;
         this.typeStore = typeStore;
         return this;

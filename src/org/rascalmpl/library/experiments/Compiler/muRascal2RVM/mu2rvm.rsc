@@ -528,13 +528,6 @@ RVMModule mu2rvm(muModule(str module_name,
     iprintln(funMap[module_init_fun]);
   }
   
-  main_testsuite = getUID(module_name,[],"TESTSUITE",1);
-  module_init_testsuite = getUID(module_name,[],"#module_init_testsuite",1);
-  if(!funMap[main_testsuite]?) {                        
-     main_testsuite = getFUID(module_name,"testsuite",ftype,0);
-     module_init_testsuite = getFUID(module_name,"#module_init_testsuite",ftype,0);
-  }
-  
   res = rvmModule(module_name, (module_name: tags), messages, imports, extends, types, symbol_definitions, orderedDeclarations(funMap), [], resolver, overloaded_functions, importGraph, src);
   return res;
 }

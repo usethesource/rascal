@@ -3,10 +3,21 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.TypeReifier;
+import org.nustaq.serialization.FSTBasicObjectSerializer;
+import org.nustaq.serialization.FSTClazzInfo;
+import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
+import org.nustaq.serialization.FSTObjectInput;
+import org.nustaq.serialization.FSTObjectOutput;
+import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
+import org.rascalmpl.library.cobra.TypeParameterVisitor;
+import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
+import org.rascalmpl.test.infrastructure.RascalJUnitCompiledTestRunner;
+import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
@@ -22,12 +33,6 @@ import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
-import org.nustaq.serialization.FSTBasicObjectSerializer;
-import org.nustaq.serialization.FSTClazzInfo;
-import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
-import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
-
 /**
  * Function contains all data needed for a single RVM function
  *
@@ -37,6 +42,13 @@ import org.nustaq.serialization.FSTObjectOutput;
 
 public class Function implements Serializable {
 	private static final long serialVersionUID = -1741144671553091111L;
+	
+	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	private static final IString ignoreTag = vf.string("ignore");
+	private static final IString IgnoreTag = vf.string("Ignore");
+	private static final IString ignoreCompilerTag = vf.string("ignoreCompiler");
+	private static final IString IgnoreCompilerTag = vf.string("IgnoreCompiler");
+	
 	
 	String name;
 	public Type ftype;
@@ -82,7 +94,6 @@ public class Function implements Serializable {
 	public IMap localNames;
 	
 	// transient fields 
-	transient static IValueFactory vf;
 	transient SoftReference<MemoizationCache<IValue>> memoization;
 	
 	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
@@ -266,11 +277,130 @@ public class Function implements Serializable {
 		for(int i = 0; i < typeConstantStore.length; i++){
 			sb.append("\t type constant "). append(i).append(": "). append(typeConstantStore[i]).append("\n");
 		}
-//		codeblock.toString() ;
 		sb.append(codeblock.toString());
 		return sb.toString();
 	}
 	
+	public boolean isIgnored(){
+	  return    tags.containsKey(ignoreTag) 
+	         || tags.containsKey(IgnoreTag)
+	         || tags.containsKey(ignoreCompilerTag)
+	         || tags.containsKey(IgnoreCompilerTag)
+	         ;
+	}
+	
+	private static final int MAXDEPTH = 5;
+    private static final int TRIES = 500;
+    
+    public int getTries(){
+      if(ftype.getFieldTypes().getArity() == 0){
+        return 1;
+      }
+      IValue itries = tags.get(vf.string("tries"));
+      return itries == null ? TRIES : Integer.parseInt(((IString) itries).getValue());
+    }
+    
+    public int getDepth(){
+      IValue imaxDepth = tags.get(vf.string("maxDepth"));
+      return imaxDepth == null ? MAXDEPTH : Integer.parseInt(((IString) imaxDepth).getValue());
+    }
+	
+    /**
+     * Execute current function as test
+     * @param testResultListener TODO
+     **/
+
+    public ITuple executeTest(ITestResultListener testResultListener, RascalExecutionContext rex) {
+      String fun = name;
+      if(isIgnored()){
+        testResultListener.ignored(computeTestName(), src);
+        return vf.tuple(src,  vf.integer(2), vf.string(""));
+      }
+      
+      IValue iexpected =  tags.get(vf.string("expected"));
+      String expected = iexpected == null ? "" : ((IString) iexpected).getValue();
+      
+      int maxDepth = getDepth();
+      int tries = getTries();
+
+      Type requestedType = ftype.getFieldTypes();
+      int nargs = requestedType.getArity();
+      IValue[] args = new IValue[nargs];
+
+      TypeParameterVisitor tpvisit = new TypeParameterVisitor();
+      HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
+      RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, maxDepth, tpbindings, rex.getTypeStore());
+
+      boolean passed = true;
+      String message = "";
+      Throwable exception = null;
+      for(int i = 0; i < tries; i++){
+        if(nargs > 0){
+          message = "test fails for arguments: ";
+          ITuple tup = (ITuple) randomValue.generate(requestedType);
+          if(tup == null){
+            System.err.println(name + "(" + nargs + "): " + requestedType + ", " + tup );
+            printTypeStore(rex.getTypeStore());
+        
+          } 
+          for(int j = 0; j < nargs; j++){
+            args[j] = tup.get(j);
+            message = message + args[j].toString() + " ";
+          }
+        }
+        try {
+   
+          IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null); 
+          passed = ((IBool) res).getValue();
+          if(!passed){
+            break;
+          }
+        } catch (Thrown e){
+          String ename;
+          if(e.value instanceof IConstructor){
+            ename = ((IConstructor) e.value).getName();
+          } else {
+            ename = e.toString();
+          }
+          if(!ename.equals(expected)){
+            message = e.toString() + message;
+            passed = false;
+            exception = e;
+            break;
+          }
+        }
+        catch (Exception e){
+          message = e.getMessage() + message;
+          passed = false;
+          break;
+        }
+      }
+      if(passed)
+        message = "";
+
+      testResultListener.report(passed, computeTestName(), src, message, exception);
+      return vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message));
+    }
+    
+    public String computeTestName(){    // Resembles Function.getPrintableName
+      String base = name;
+      int colons = name.lastIndexOf("::");
+      if(colons > 0){
+        base = name.substring(colons+2, name.indexOf("(")).replaceAll("/",  "::"); 
+      } else {
+        base = name.substring(name.indexOf("/")+1, name.indexOf("(")); 
+      }
+      return base + ": <" + src.getOffset() +"," + src.getLength() +">";
+    }
+    
+    public static void printTypeStore(TypeStore ts){
+      for(Type adt : ts.getAbstractDataTypes()){
+        System.err.println("adt: " + adt);
+      }
+      for(Type cons : ts.getConstructors()){
+        System.err.println("cons: " + cons);
+      }
+    }
 }
 
 /**
@@ -548,4 +678,6 @@ class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 		func.funId = funId;
 		return func;
 	}
+	
+	
 }

@@ -9,6 +9,7 @@ import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.TypeStore;
 
 
 public class ExecuteProgram {
@@ -27,7 +28,8 @@ public class ExecuteProgram {
 			IBool jvm
 			) throws IOException {
 
-		RVMExecutable exec = ExecutionTools.link(rvmProgram, jvm);
+	    TypeStore typeStore = new TypeStore();
+		RVMExecutable exec = ExecutionTools.link(rvmProgram, jvm, typeStore);
 		exec.write(rvmProgramLoc);
 	}
 	
@@ -47,9 +49,10 @@ public class ExecuteProgram {
 			IEvaluatorContext ctx
 			) throws IOException {
 		
-		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm);
+	    TypeStore typeStore = new TypeStore();
+		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm, typeStore);
 		if(executable.isValid()){
-			RascalExecutionContext rex = ExecutionTools.makeRex(null /* kernel not needed in interpreter version */, executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, ctx.getEvaluator().getRascalResolver());
+			RascalExecutionContext rex = ExecutionTools.makeRex(null /* kernel not needed in interpreter version */, executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, ctx.getEvaluator().getRascalResolver(), typeStore);
 			
 			// to be able to link the classes necessary for compiling parsers and to link builtins implemented based on jars
 			for (ClassLoader l : ctx.getEvaluator().getClassLoaders()) {
@@ -80,10 +83,11 @@ public class ExecuteProgram {
 			RascalExecutionContext rex
 			) throws IOException {
 
-		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm);
+	    TypeStore typeStore = new TypeStore();
+		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm, typeStore);
 
 		if(executable.isValid()){
-			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getBoot(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, rex.getRascalSearchPath());
+			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getBoot(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, rex.getRascalSearchPath(), typeStore);
 			
 			return ExecutionTools.executeProgram(executable, new KWArgs(vf).add(keywordArguments).build(), rex2);
 		} else {
@@ -106,11 +110,12 @@ public class ExecuteProgram {
 			IBool jvm,
 			IEvaluatorContext ctx
 			) throws IOException {
-
-		RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc);
+       
+	    TypeStore typeStore = new TypeStore();
+        
+		RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc, typeStore);
 		if(executable.isValid()){
-			RascalExecutionContext rex = ExecutionTools.makeRex(null /* kernel not needed in interpreter version */, executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, ctx.getEvaluator().getRascalResolver());
-			
+	       RascalExecutionContext rex = ExecutionTools.makeRex(null /* kernel not needed in interpreter version */, executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, ctx.getEvaluator().getRascalResolver(), typeStore);
 			// to be able to link the classes necessary for compiling parsers and to link builtins implemented based on jars
             for (ClassLoader l : ctx.getEvaluator().getClassLoaders()) {
                 rex.addClassLoader(l);
@@ -139,9 +144,11 @@ public class ExecuteProgram {
 			IBool jvm,
 			RascalExecutionContext rex
 			) throws IOException {
-		RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc);
+	    TypeStore typeStore = new TypeStore();
+		RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc, typeStore);
 		if(executable.isValid()){
-			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getBoot(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, rex.getRascalSearchPath());
+			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getBoot(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, rex.getRascalSearchPath(), typeStore);
+			
 			return ExecutionTools.executeProgram(executable, new KWArgs(vf).add(keywordArguments).build(), rex2);
 		} else {
 			throw new IOException("Cannot execute program with errors: " + executable.getErrors().toString());
