@@ -324,10 +324,11 @@ public class CommandExecutor {
 				throw new RascalShellExecutionException(getErrors(modString, rvmConsoleExecutable));
 			}
 		} catch (Thrown e){
-		    IConstructor cons = (IConstructor) e.value;
+		    IConstructor cons = (IConstructor) e.getValue();
 		    StringWriter sw = new StringWriter();
-		    sw.append("Error: ").append(cons.toString());
+		    //sw.append(cons.toString());
 		    e.printStackTrace(new PrintWriter(sw));
+		    debugObserver.exception(e.getFrame(), e);
 			throw new RascalShellExecutionException(sw.toString());
 		} catch (IOException e){
 		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
