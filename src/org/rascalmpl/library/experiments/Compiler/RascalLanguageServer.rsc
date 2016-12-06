@@ -1,24 +1,34 @@
 module experiments::Compiler::RascalLanguageServer
 
 import IO;
-import ValueIO;
+import ValueIO; 
 import Type;
+import Set;
 import util::Reflective;
 import experiments::Compiler::RVM::AST;
 import lang::rascal::types::CheckerConfig;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 
+
+int processId;
+str rootPath;
+ClientCapabilities capabilities;
+
+map[str, ModuleSummary] modules = ();
+PathConfig pcfg;
+
 data ModuleSummary =
     summary(map[loc from, Symbol tp] locationTypes,
             rel[loc from, loc to] useDef);
 
-ModuleSummary ideSupport(
-    str qualifiedModuleName,    // name of Rascal module
+void makeSummary(
+    loc moduleLoc,    // name of Rascal module
     PathConfig pcfg){           // path configuration
-     
+   
+   qualifiedModuleName = getModuleName(moduleLoc, pcfg);
    if(<true, cloc> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
-     println(cloc);
+      println(cloc);
       Configuration c = readBinaryValueFile(#Configuration, cloc);
       store = c.store;
       locationTypes = c.locationTypes;
@@ -32,11 +42,11 @@ ModuleSummary ideSupport(
       for(<use, def> <- use_def){
         println("<use>\n-\> <def>");
       }
-      return summary(locationTypes, use_def);
-      
+      modules[moduleLoc.path] = summary(locationTypes, use_def);
    } else {
        throw "Config file does not exist for: <qualifiedModuleName>";
-   }                
+   }    
+   return;            
 }
 
 /**
@@ -175,47 +185,39 @@ data ServerCapabilities =
      */
     bool renameProvider = false
     );
-    
-data InitializeParams =
-    initializeParams(
-    /**
-     * The process Id of the parent process that started
-     * the server. Is null if the process has not been started by another process.
-     * If the parent process is not alive then the server should exit (see exit notification) its process.
-     */
-     int processId, 
-     /**
-     * The rootPath of the workspace. Is null
-     * if no folder is open.
-     */
-     str rootPath, 
-     /**
-     * User provided initialization options.
-     */
-     PathConfig pcfg,       // value initializationOptions, //<== PathConfig
-     /**
-     * The capabilities provided by the client (editor)
-     */
-     ClientCapabilities capabilities
-     );
 
 data ClientCapabilities =
     clientCapabilities();
     
 //↩️ initialize
 
-int processId;
-str rootPath;
-ClientCapabilities capabilities;
 
-map[str, ModuleSummary] modules;
-PathConfig pcfg;
 
-ServerCapabilities initialize(InitializeParams initializeParams){
-    processId = initializeParams.processId;
-    rootPath = initializeParams.rootPath;
-    capabilities = initializeParams.capabilities;
-    pcfg = initializeParams.pcfg;
+ServerCapabilities initialize(
+    /**
+     * The process Id of the parent process that started
+     * the server. Is null if the process has not been started by another process.
+     * If the parent process is not alive then the server should exit (see exit notification) its process.
+     */
+     int aProcessId, 
+     /**
+     * The rootPath of the workspace. Is null
+     * if no folder is open.
+     */
+     str aRootPath, 
+     /**
+     * User provided initialization options.
+     */
+     PathConfig apcfg,       // value initializationOptions, //<== PathConfig
+     /**
+     * The capabilities provided by the client (editor)
+     */
+     ClientCapabilities theCapabilities
+     ){
+    processId = aProcessId;
+    rootPath = aRootPath;
+    capabilities = theCapabilities;
+    pcfg = apcfg;
     modules = ();
     return serverCapabilities();
 }
@@ -354,7 +356,10 @@ void didClose(TextDocumentIdentifier id){ }
 
 //➡️ textDocument/didOpen
 
-void didOpen(TextDocumentItem textDocument){ }
+void didOpen(TextDocumentIdentifier textDocument){
+    makeSummary(textDocument, pcfg);
+    return;
+}
 
 //➡️ textDocument/didSave
 
@@ -365,6 +370,11 @@ void didSave(TextDocumentIdentifier textDocument) { }
 //↩️ textDocument/hover
 //↩️ textDocument/signatureHelp
 //↩️ textDocument/references
+
+list[loc] references(loc use){
+    return toList(modules[use.path].useDef[use]);
+}
+
 //↩️ textDocument/documentHighlight
 //↩️ textDocument/documentSymbol
 //↩️ textDocument/formatting
@@ -372,12 +382,24 @@ void didSave(TextDocumentIdentifier textDocument) { }
 //↩️ textDocument/onTypeFormatting
 //↩️ textDocument/definition
 
-list[loc] definition(Position pos){
-
-}
+//list[loc] definition(TextD pos){
+//    
+//}
 //↩️ textDocument/codeAction
 //↩️ textDocument/codeLens
 //↩️ codeLens/resolve
 //↩️ textDocument/documentLink
 //↩️ documentLink/resolve
 //↩️ textDocument/rename
+
+value main(){
+    p1 = pathConfig(srcs=[|file:///Users/paulklint/git/rascal/src/org/rascalmpl/library/|]);
+    initialize(0, "", p1, clientCapabilities());
+    facLoc = getModuleLocation("experiments::Compiler::Examples::Fac", p1);
+    println(facLoc);
+    facUse = |file:///Users/paulklint/git/rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Fac.rsc|(237,3,<13,19>,<13,22>);
+    didOpen(facLoc);
+    println(references(facUse));
+    didClose(facLoc);
+    return true;
+}

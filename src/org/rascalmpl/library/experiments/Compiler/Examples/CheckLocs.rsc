@@ -5,7 +5,7 @@ import ValueIO;
 import experiments::Compiler::RVM::AST;
 
 value main(){
-   loc rvmLoc = |compressed+boot:///experiments/Compiler/Execute.rvm.gz|;
+   loc rvmLoc = |boot:///List.rvm.gz|;
    locs = {};
    p = readBinaryValueFile(#RVMModule, rvmLoc);
    visit(p){

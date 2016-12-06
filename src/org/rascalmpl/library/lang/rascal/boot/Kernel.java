@@ -14,6 +14,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
@@ -33,6 +34,11 @@ public class Kernel {
 	private OverloadedFunction rascalTestsRaw;
 	
 	private final RVMCore rvm;
+  private OverloadedFunction makeSummary;
+  private OverloadedFunction getDefinitions;
+  private OverloadedFunction getType;
+  private OverloadedFunction getUses;
+  private OverloadedFunction getDocForDefinition;
 
 	public Kernel(IValueFactory vf, RascalExecutionContext rex) throws IOException, NoSuchRascalFunction, URISyntaxException {
 	    this(vf, rex, URIUtil.correctLocation("boot", "", "/"));
@@ -56,16 +62,20 @@ public class Kernel {
 		this.vf = vf;		   
 		this.rvm = ExecutionTools.initializedRVM(rex.getKernel(), rex);
 
-		compile    		= safeGet("RVMModule compile(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
-		compileN    	= safeGet("list[RVMModule] compile(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
-		compileMuLibrary= safeGet("void compileMuLibrary(list[loc] srcs, list[loc] libs, loc boot, loc bin)");
-		compileAndLink  = safeGet("RVMProgram compileAndLink(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
-		compileAndLinkN = safeGet("list[RVMProgram] compileAndLink(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
-		compileAndMergeIncremental 
-						= safeGet("RVMProgram compileAndMergeIncremental(str qname, bool reuseConfig, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+		compile    		           = safeGet("RVMModule compile(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
+		compileN    	           = safeGet("list[RVMModule] compile(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
+		compileMuLibrary           = safeGet("void compileMuLibrary(list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+		compileAndLink             = safeGet("RVMProgram compileAndLink(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
+		compileAndLinkN            = safeGet("list[RVMProgram] compileAndLink(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
+		compileAndMergeIncremental = safeGet("RVMProgram compileAndMergeIncremental(str qname, bool reuseConfig, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+		rascalTests   	           = safeGet("value rascalTests(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool recompile)");
+		rascalTestsRaw             = safeGet("TestResults rascalTestsRaw(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool recompile)");
+		makeSummary                = safeGet("ModuleSummary makeSummary(str qualifiedModuleName, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+		getDefinitions             = safeGet("set[loc] getDefinitions(ModuleSummary summary, loc use)");
+		getType                    = safeGet("Symbol getType(ModuleSummary summary, loc use)");
+		getUses                    = safeGet("set[loc] getUses(ModuleSummary s, loc def)");
+		getDocForDefinition        = safeGet("str getDocForDefinition(loc def)");
 		
-		rascalTests   	= safeGet("value rascalTests(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool recompile)");
-		rascalTestsRaw  = safeGet("TestResults rascalTestsRaw(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool recompile)");
 //		bootstrapRascalParser = safeGet("void bootstrapRascalParser(loc src)");
 	}
 	
@@ -199,4 +209,57 @@ public class Kernel {
     public IConstructor rascalTestsRaw(IList qnames, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, boolean recompile, Map<String, IValue> kwArgs){
         return (IConstructor) rvm.executeRVMFunction(rascalTestsRaw, new IValue[] { qnames, srcs, libs, boot, bin, vf.bool(recompile) }, kwArgs);
     }
+        
+    /**
+     * @param qualifiedModuleName   Module name
+     * @param srcs    List of source directories
+     * @param libs    List of library directories
+     * @param boot    Boot directory
+     * @param bin     Binary directory
+     * @param kwArgs  Keyword arguments
+     * @return  Summary for this module
+     */
+    public IConstructor makeSummary(IString qualifiedModuleName, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, Map<String, IValue> kwArgs){
+      return (IConstructor) rvm.executeRVMFunction(makeSummary, new IValue[] { qualifiedModuleName, srcs, libs, boot, bin}, kwArgs);
+    }
+    
+    /**
+     * @param summary   A module summary
+     * @param use       A use in this module
+     * @param kwArgs    Keyword arguments
+     * @return All definitions for this use
+     */
+    public ISet getDefinitions(IConstructor summary, ISourceLocation use, Map<String, IValue> kwArgs){
+        return (ISet) rvm.executeRVMFunction(getDefinitions, new IValue[] { summary, use}, kwArgs);
+    }
+        
+    /**
+     * @param summary   A module summary
+     * @param use       A use in this module
+     * @param kwArgs    Keyword arguments
+     * @return  The type of this use
+     */
+    public IConstructor getType(IConstructor summary, ISourceLocation use, Map<String, IValue> kwArgs){
+      return (IConstructor) rvm.executeRVMFunction(getType, new IValue[] { summary, use}, kwArgs);
+    }
+        
+    /**
+     * @param summary   A module summary
+     * @param def       A definition in this module
+     * @param kwArgs    Keyword arguments
+     * @return All uses of this definition
+     */
+    public ISet getUses(IConstructor summary, ISourceLocation def, Map<String, IValue> kwArgs){
+      return (ISet) rvm.executeRVMFunction(getUses, new IValue[] { summary, def}, kwArgs);
+    }
+        
+    /**
+     * @param A definition in some module
+     * @param kwArgs
+     * @return The contents of the doc string of that definition
+     */
+    public IString getDocForDefinition(ISourceLocation def, Map<String, IValue> kwArgs){
+      return (IString) rvm.executeRVMFunction(getDocForDefinition, new IValue[] { def}, kwArgs);
+    }
+    
 }
