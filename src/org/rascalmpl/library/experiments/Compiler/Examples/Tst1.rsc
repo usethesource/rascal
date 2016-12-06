@@ -1,15 +1,9 @@
 module experiments::Compiler::Examples::Tst1
 
-data B = and(B lhs, B rhs) | t();
+import IO;
 
-test bool visitTest() {
-  visit(and(t(),t())) { 
-    case t(): return true; 
-  };
-  
-  return false;
+value main(){
+    loc home = resolveLocation(|cwd://../shapes|);
+    println(home);
+    return true;
 }
-
-test bool matchTest() = /t() := and(t(),t());
-
-value main() { return matchTest(); }
