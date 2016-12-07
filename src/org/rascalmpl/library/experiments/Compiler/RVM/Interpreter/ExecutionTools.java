@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.DefaultTestResultListener;
-import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.value.IBool;

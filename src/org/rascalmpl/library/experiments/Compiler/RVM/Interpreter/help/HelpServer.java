@@ -5,17 +5,13 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.RascalShellExecutionException;
 import org.rascalmpl.library.experiments.tutor3.Feedback;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;

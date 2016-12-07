@@ -112,7 +112,7 @@ public class CommandExecutor {
 		prelude = new Prelude(vf);
 		
 		this.pcfg = pcfg.addSourceLoc(vf.sourceLocation("test-modules", "", ""));
-		System.err.println("CommandExecutor uses: " + pcfg.asConstructor(kernel));
+		
 		this.stdout = stdout;
 		this.stderr = stderr; 
 		
@@ -138,16 +138,16 @@ public class CommandExecutor {
 		w.put(vf.string(consoleInputName), CompiledRascalShellModuleTags);
 		moduleTags = w.done();
 		
-		RascalExecutionContext rex = 
-				RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot(), this.stdout, this.stderr)
-					.withModuleTags(moduleTags)
-					.forModule(shellModuleName)
-					.setJVM(true)					// options for complete repl
-					//.setProfiling(true)
-					.build();
-
-		//kernel = new Kernel(vf, rex);
+//		RascalExecutionContext rex = 
+//				RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot(), this.stdout, this.stderr)
+//					.withModuleTags(moduleTags)
+//					.forModule(shellModuleName)
+//					.setJVM(true)					// options for complete repl
+//					//.setProfiling(true)
+//					.build();
+		
 		kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class).build();
+		System.err.println("CommandExecutor uses: " + pcfg.asConstructor(kernel));
 		
 		variables = new HashMap<>();
 		imports = new ArrayList<>();
@@ -282,15 +282,13 @@ public class CommandExecutor {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation);
 			forceRecompilation = true;
-			System.err.println(pcfg.asConstructor(kernel));
 			IConstructor rvmProgram = kernel.compileAndMergeProgramIncremental(vf.string(consoleInputName), 
 																	reuseConfig, 
 																	pcfg.asConstructor(kernel),
 																	kernel.kw_compileAndMergeProgramIncremental()
 																	);
 			
-			TypeStore typeStore = new TypeStore();
-			rvmConsoleExecutable = ExecutionTools.link(rvmProgram, ValueFactoryFactory.getValueFactory().bool(true), typeStore);
+			rvmConsoleExecutable = ExecutionTools.link(rvmProgram, ValueFactoryFactory.getValueFactory().bool(true), new TypeStore());
 
 			if(noErrors(rvmConsoleExecutable)){
 				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot(), stdout, stderr)

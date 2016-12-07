@@ -13,12 +13,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext but not by the methods called here
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
-import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
-import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
@@ -8718,10 +8715,6 @@ public enum RascalPrimitive {
 	/************************************************************************************
 	 * 					AUXILIARY FUNCTIONS	 (prefixed with $) used in RascalPrimitives	*	
 	 ************************************************************************************/
-
-	private static String $computeTestName(final String name, final ISourceLocation loc){
-		return name.substring(name.indexOf("/")+1, name.indexOf("(")); // Resembles Function.getPrintableName
-	}
 
 	/*
 	 * String templates
