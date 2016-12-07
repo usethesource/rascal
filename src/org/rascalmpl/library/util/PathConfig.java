@@ -9,7 +9,6 @@ import java.util.List;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.library.lang.rascal.boot.IJava2Rascal;
-import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
