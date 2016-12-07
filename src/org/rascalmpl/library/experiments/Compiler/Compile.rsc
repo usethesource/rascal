@@ -121,8 +121,7 @@ RVMModule compile(str qualifiedModuleName, PathConfig pcfg, loc reloc=|noreloc:/
     return rvmMod;
 }
 
-list[RVMModule] compile(list[str] qualifiedModuleNames, PatchConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=false){
-    pcfg =  pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin);
+list[RVMModule] compile(list[str] qualifiedModuleNames, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=false){
     return [ compile(qualifiedModuleName, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts) | qualifiedModuleName <- qualifiedModuleNames ];
 }
 

@@ -12,7 +12,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutio
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.ApiGen;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
-import org.rascalmpl.library.lang.rascal.boot.Kernel;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;

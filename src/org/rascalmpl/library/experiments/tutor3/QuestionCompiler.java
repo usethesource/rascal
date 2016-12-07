@@ -15,12 +15,8 @@ package org.rascalmpl.library.experiments.tutor3;
 import java.io.IOException;
 import java.util.Map;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;

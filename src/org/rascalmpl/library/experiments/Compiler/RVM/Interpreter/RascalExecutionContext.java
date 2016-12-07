@@ -31,7 +31,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Desce
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
@@ -41,7 +40,6 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;

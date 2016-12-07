@@ -15,7 +15,6 @@ import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
-import org.rascalmpl.test.infrastructure.RascalJUnitCompiledTestRunner;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
