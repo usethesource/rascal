@@ -54,7 +54,8 @@ public class RascalCommandCompletion {
                 case "edit":
                 	return null;
                 	
-                case "unimport":  {
+                case "unimport": 
+                case "test": {
                 	OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(line, cursor);
                     if (identifier != null && identifier.offset > m.end("command")) {
                     	Collection<String> suggestions = executor.completeImportedIdentifier(identifier.term);
