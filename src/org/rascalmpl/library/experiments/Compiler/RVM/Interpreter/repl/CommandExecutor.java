@@ -16,7 +16,6 @@ import java.util.TreeSet;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NameCompleter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
@@ -404,9 +403,8 @@ public class CommandExecutor {
 		}
 	}
 	
-	private void undeclareVar(String name){
-		variables.remove(name);
-		moduleVariables.remove("ConsoleInput:" + name);
+	private boolean undeclareVar(String name){
+		return !(variables.remove(name) == null && moduleVariables.remove("ConsoleInput:" + name) == null);
 	}
 	
 	private void updateModuleVariables(Map<IValue,IValue> newModuleVariables){
@@ -779,7 +777,7 @@ public class CommandExecutor {
 		case "declarations":
 		  if(syntaxDefinitions.isEmpty() 
 		      && dataDeclarations.isEmpty() 
-		      &&  functionDeclarations.isEmpty() 
+		      && functionDeclarations.isEmpty() 
 		      && variables.isEmpty()){
 		    stderr.println("No declarations");
 		  } else {
@@ -820,27 +818,39 @@ public class CommandExecutor {
 		case "unimport":
 			if(words.length > 1){
 				for(int i = 1; i <words.length; i++){
-					imports.remove(words[i]);
+					if(imports.remove(words[i])){
+					    stderr.println("Import " + words[i] + "removed");
+					} else {
+					    stderr.println("No import " + words[i] + " found");
+					}
 				}
 			} else {
 				imports = new ArrayList<String>();
+				stderr.println("All imports removed");
 			}
+			executeModule(makeMain("true;"), false);
 			break;
 			
 		case "undeclare":
 			if(words.length > 1){
 				for(int i = 1; i <words.length; i++){
-					undeclareVar(words[i]);
-					syntaxDefinitions.remove(words[i]);
-					functionDeclarations.remove(words[i]);
-					dataDeclarations.remove(words[i]);
+					if(!undeclareVar(words[i]) ||
+					     syntaxDefinitions.remove(words[i]) == null ||
+					     functionDeclarations.remove(words[i]) == null ||
+					     dataDeclarations.remove(words[i]) == null){
+					  stderr.println("No declaration for  " + words[i] + " found");
+					} else {
+					  stderr.println("Declaration for  " + words[i] + " removed");
+					}
 				}
 			} else {
 				variables =  new HashMap<>();
 				syntaxDefinitions = new HashMap<>();
 				functionDeclarations = new HashMap<>();
 				dataDeclarations = new HashMap<>();
+				stderr.println("All declarations removed");
 				}
+			executeModule(makeMain("true;"), false);
 			break;
 		
 		case "break":
@@ -986,16 +996,30 @@ public class CommandExecutor {
   }
 	
 	public Collection<String> completeDeclaredIdentifier(String term) {
-		TreeSet<String> result = null;
-		for(String var : variables.keySet()){
-			if(var.startsWith(term)){
-				if(result == null){
-			    	 result = new TreeSet<String>();
-			     }
-				result.add(var);
-			}
-		}
-		return result;
+	  TreeSet<String> result = new TreeSet<String>();
+	  for(String var : variables.keySet()){
+	    if(var.startsWith(term)){
+	      result.add(var);
+	    }
+	  }
+	  for(String var : syntaxDefinitions.keySet()){
+	    if(var.startsWith(term)){
+	      result.add(var);
+	    }
+	  }
+	  for(String var : functionDeclarations.keySet()){
+	    if(var.startsWith(term)){
+	      result.add(var);
+	    }  
+	  }
+
+	  for(String var : dataDeclarations.keySet()){
+	    if(var.startsWith(term)){
+	      result.add(var);
+	    }  
+	  }
+
+	  return result;
 	}
 	
 	public Collection<String> completeImportedIdentifier(String term) {

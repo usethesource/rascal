@@ -73,6 +73,9 @@ public class RascalFunctionInvocationHandler implements InvocationHandler {
   }
 
   private IValue[] marshallArgs(Object[] args, boolean skipKeywordArguments) {
+    if(args == null || args.length == 0){
+      return new IValue[0];
+    }
     int len = args.length - (skipKeywordArguments ? 1 : 0);
     IValue[] result = new IValue[len];
 
