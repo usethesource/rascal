@@ -93,7 +93,7 @@ public interface IKernel {
    * @param boot    Boot directory
    * @param bin     Binary directory
    * @param kwArgs  Keyword arguments
-   * @return        The result (RVMProgram) of compiling the given module. The linked version (RVMExecutable) is stored as file.
+   * @return The result (RVMProgram) of compiling the given module. The linked version (RVMExecutable) is stored as file.
    */
   public IConstructor compileAndLink(IString qname,  IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, ISourceLocation reloc, KWcompileAndLink kwArgs);
 
@@ -115,7 +115,7 @@ public interface IKernel {
    * @param boot    Boot directory
    * @param bin     Binary directory
    * @param kwArgs  Keyword arguments
-   * @return        A list of resulting RVMExecutables
+   * @return A list of resulting RVMExecutables
    */
   public IList compileAndLink(IList qnames,  IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, ISourceLocation reloc, KWcompileAndLink kwArgs);
 
@@ -129,7 +129,7 @@ public interface IKernel {
    * @param boot    Boot directory
    * @param bin     Binary directory
    * @param kwArgs  Keyword arguments
-   * @return        The compiled and linked (RVMExecutable) version of the given module
+   * @return The compiled and linked (RVMExecutable) version of the given module
    * @throws IOException
    */
   public IConstructor compileAndMergeProgramIncremental(IString qname, IBool reuseConfig, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, KWcompileAndMergeProgramIncremental kwArgs);
@@ -139,8 +139,6 @@ public interface IKernel {
 //      TypeStore typeStore = new TypeStore();
 //      return ExecutionTools.link(rvmProgram, ValueFactoryFactory.getValueFactory().bool(true), typeStore);
 //  }
-  
- // bool jvm=true, bool verbose = false, bool optimize = true
       
   @RascalKeywordParameters
   interface KWcompileAndMergeProgramIncremental {
@@ -167,12 +165,9 @@ public interface IKernel {
    * @param bin     Binary directory
    * @param recompile Recompile when no binary is found
    * @param kwArgs  Keyword arguments
-   * @return        The outcome of the tests
+   * @return The outcome of the tests
    */
   public IValue rascalTests(IList qnames, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, boolean recompile, KWrascalTests kwArgs);
-
-//  bool debug=false, bool debugRVM=false, bool profile=false, 
-//      bool trace= false,  bool coverage=false, bool jvm=true, bool verbose = false
       
   @RascalKeywordParameters
   interface KWrascalTests {
@@ -208,7 +203,7 @@ public interface IKernel {
    * @param boot    Boot directory
    * @param bin     Binary directory
    * @param kwArgs  Keyword arguments
-   * @return  Summary for this module
+   * @return Summary for this module
    */
   public IConstructor makeSummary(IString qualifiedModuleName, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin);
 
@@ -224,7 +219,7 @@ public interface IKernel {
    * @param summary   A module summary
    * @param use       A use in this module
    * @param kwArgs    Keyword arguments
-   * @return  The type of this use
+   * @return The type of this use
    */
   public IConstructor getType(IConstructor summary, ISourceLocation use);
 
