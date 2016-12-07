@@ -126,10 +126,9 @@ public interface IKernel extends IJava2Rascal {
   
   /**
    * Get the vocabulary (all names of declared entities) of the current module (used in rascalShell)
-   * @param kwArgs   Keyword arguments
    * @return Vocabulary
    */
-  public ISet getIncrementalVocabulary(Map<String, IValue> kwArgs);
+  public ISet getIncrementalVocabulary();
 
   /**
    * Run tests in a list of Rascal modules
