@@ -450,7 +450,7 @@ RVMProgram compileAndMergeProgramIncremental(str qualifiedModuleName, bool reuse
     return compileAndMergeProgramIncremental(qualifiedModuleName, reuseConfig,  pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin), jvm=jvm, verbose=verbose, optimize=optimize);
 }
 
-RVMProgram compileAndMergeProgramIncremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg,/*list[loc] srcs, list[loc] libs, loc boot, loc bin,*/ bool jvm=true, bool verbose = false, bool optimize = true){
+RVMProgram compileAndMergeProgramIncremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, bool jvm=true, bool verbose = false, bool optimize = true){
    //pcfg = pathConfig(srcs=[|std:///|, |test-modules:///|], bin=|home:///bin-console|, libs=[|home:///bin-console|]);
    //pcfg = pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin);
    if(!reuseConfig){
