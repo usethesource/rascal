@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -26,10 +27,20 @@ public class RascalCommandCompletion {
                 case "set": {
                     OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(line, cursor);
                     if (identifier != null && identifier.offset > m.end("command")) {
-                        Collection<String> suggestions = commandOptions.stream()
-                                        .filter(s -> s.startsWith(identifier.term))
-                                        .sorted()
-                                        .collect(Collectors.toList());
+                        int atArg = line.split("\\s+").length - 1;
+                        Collection<String> suggestions = new TreeSet<String>();
+                        if(atArg == 1){
+                              suggestions = commandOptions.stream()
+                              .filter(s -> s.startsWith(identifier.term))
+                              .sorted()
+                              .collect(Collectors.toList());
+                        } else {
+                          if("true".startsWith(identifier.term)){
+                            suggestions.add("true");
+                          } else if("false".startsWith(identifier.term)){
+                            suggestions.add("false");
+                          }
+                        }
                         if (suggestions != null && ! suggestions.isEmpty()) {
                             return new CompletionResult(identifier.offset, suggestions);
                         }

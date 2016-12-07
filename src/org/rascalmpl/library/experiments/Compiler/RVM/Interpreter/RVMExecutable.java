@@ -400,39 +400,6 @@ public class RVMExecutable implements Serializable{
 		return executable;
 	}
 	
-	public NameCompleter completePartialIdentifier(NameCompleter completer, String partialIdentifier) {
-		if (partialIdentifier == null || partialIdentifier.isEmpty()) {
-			throw new IllegalArgumentException("The behavior with empty string is undefined.");
-		}
-		if (partialIdentifier.startsWith("\\")) {
-			partialIdentifier = partialIdentifier.substring(1);
-		}
-
-		for(Function fun : functionStore){
-			completer.add(fun.name, partialIdentifier);
-		}
-		
-		for(Type type : constructorStore){
-			completer.add(type.getName(), partialIdentifier);
-		}
-		
-//		for(IValue modVar : moduleVariables.keySet()){
-//			completer.add(modVar.toString(), partialIdentifier);
-//		}
-
-		return completer;
-	}
-	
-	public NameCompleter completePartialModuleIdentifier(NameCompleter completer, String partialIdentifier) {
-		if (partialIdentifier == null || partialIdentifier.isEmpty()) {
-			throw new IllegalArgumentException("The behavior with empty string is undefined.");
-		}
-		if (partialIdentifier.startsWith("\\")) {
-			partialIdentifier = partialIdentifier.substring(1);
-		}
-
-		return completer;
-	}
 }
 	
 class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
