@@ -10,6 +10,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.ApiGen;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
+import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -118,7 +120,8 @@ public class RascalC {
                     .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
                     .build();
 
-            Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
+            //Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
+            IKernel kernel = Java2Rascal.Builder.bridge(vf, cmdOpts.getPathConfig(), IKernel.class).build();
 
             boolean ok = true;
             
@@ -129,9 +132,8 @@ public class RascalC {
                         cmdOpts.getCommandLocsOption("lib"),
                         cmdOpts.getCommandLocOption("boot"),
                         cmdOpts.getCommandLocOption("bin"), 
-                        cmdOpts.getCommandLocOption("reloc"), 
-                        cmdOpts.getModuleOptionsAsMap()); 
-                ok = handleMessages(programs);
+                        cmdOpts.getCommandLocOption("reloc"),
+                        kernel.kw_compile());
                 System.exit(ok ? 0 : 1);
             } 
             else {
@@ -142,7 +144,7 @@ public class RascalC {
                         cmdOpts.getCommandLocOption("boot"),
                         cmdOpts.getCommandLocOption("bin"), 
                         cmdOpts.getCommandLocOption("reloc"),
-                        cmdOpts.getModuleOptionsAsMap());
+                        kernel.kw_compileAndLink());
                 ok = handleMessages(programs);
                 if(!ok){
                   System.exit(1);

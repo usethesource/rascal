@@ -6,6 +6,8 @@ import java.net.URISyntaxException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
+import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IValueFactory;
@@ -75,7 +77,8 @@ public class RascalTests {
                 .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
 				.build();
 
-		Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
+		//Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
+		IKernel kernel = Java2Rascal.Builder.bridge(vf, cmdOpts.getPathConfig(), IKernel.class).build();
 		try {
 		    IBool success = (IBool) kernel.rascalTests(
 		            cmdOpts.getModules(),
@@ -84,7 +87,7 @@ public class RascalTests {
 		            cmdOpts.getCommandLocOption("boot"),
 		            cmdOpts.getCommandLocOption("bin"), 
 		            cmdOpts.getCommandBoolOption("recompile"), 
-		            cmdOpts.getModuleOptionsAsMap());
+		            kernel.kw_rascalTests());
 
 		    System.exit(success.getValue() ? 0 : 1);
 		  }

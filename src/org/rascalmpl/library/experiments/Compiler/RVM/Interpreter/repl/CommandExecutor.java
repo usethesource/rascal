@@ -22,7 +22,11 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutio
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
+import org.rascalmpl.library.lang.rascal.boot.IKernel;
+import org.rascalmpl.library.lang.rascal.boot.IKernel.KWcompileAndMergeProgramIncremental;
+import org.rascalmpl.library.lang.rascal.boot.IKernel.KWrascalTests;
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.library.util.PathConfig;
@@ -50,6 +54,7 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.io.StandardTextWriter;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -100,7 +105,7 @@ public class CommandExecutor {
 	
 	private boolean forceRecompilation = true;
 	private IMap moduleTags;
-	private Kernel kernel;
+	private IKernel kernel;
 	private StandardTextWriter indentedPrettyPrinter;
 	private boolean optimize;
 	
@@ -143,7 +148,8 @@ public class CommandExecutor {
 					//.setProfiling(true)
 					.build();
 
-		kernel = new Kernel(vf, rex);
+		//kernel = new Kernel(vf, rex);
+		kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class).build();
 		
 		variables = new HashMap<>();
 		imports = new ArrayList<>();
@@ -174,14 +180,25 @@ public class CommandExecutor {
 		this.debugObserver = observer;
 	}
 	
-	private Map<String, IValue> makeCompileKwParamsAsMap(){
-		Map<String,IValue> result = new HashMap<>();
-		result.put("verbose", vf.bool(false));
-		result.put("optimize", vf.bool(optimize));
-		result.put("enableAsserts", vf.bool(enableAsserts));
-		return result;
+//	private Map<String, IValue> makeCompileKwParamsAsMap(){
+//		Map<String,IValue> result = new HashMap<>();
+//		result.put("verbose", vf.bool(false));
+//		result.put("optimize", vf.bool(optimize));
+//		result.put("enableAsserts", vf.bool(enableAsserts));
+//		return result;
+//	}
+	
+	private KWrascalTests makeCompileKwParamsAsMap(){
+	  KWrascalTests result = kernel.kw_rascalTests();
+	  result.verbose(false);
+	  return result;
 	}
 	
+	private KWcompileAndMergeProgramIncremental makeCompileAndMergeArgs(){
+	  KWcompileAndMergeProgramIncremental result = kernel.kw_compileAndMergeProgramIncremental();
+	  return result;
+	}
+  
 	private boolean noErrors(RVMExecutable exec){
 		return exec.getErrors().size() == 0;
 	}
@@ -291,14 +308,17 @@ public class CommandExecutor {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation);
 			forceRecompilation = true;
-			rvmConsoleExecutable = kernel.compileAndMergeIncremental(vf.string(consoleInputName), 
+			IConstructor rvmProgram = kernel.compileAndMergeProgramIncremental(vf.string(consoleInputName), 
 																	reuseConfig, 
 																	pcfg.getSrcs(), 
 																	pcfg.getLibs(), 
 																	pcfg.getBoot(), 
 																	pcfg.getBin(), 
-																	makeCompileKwParamsAsMap());
+																	makeCompileAndMergeArgs());
 			
+			TypeStore typeStore = new TypeStore();
+			rvmConsoleExecutable = ExecutionTools.link(rvmProgram, ValueFactoryFactory.getValueFactory().bool(true), typeStore);
+
 			if(noErrors(rvmConsoleExecutable)){
 				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot(), stdout, stderr)
 						.forModule(shellModuleName)

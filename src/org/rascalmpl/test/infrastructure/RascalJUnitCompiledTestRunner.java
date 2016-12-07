@@ -38,6 +38,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.TestExecutor;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
+import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -60,7 +62,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  */
 public class RascalJUnitCompiledTestRunner extends Runner {
     private static final String IGNORED = "test/org/rascalmpl/test_compiled/TESTS.ignored";
-    private static Kernel kernel;
+    private static IKernel kernel;
     private static IValueFactory vf;
 
     private static PathConfig pcfg;
@@ -89,8 +91,9 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	      .build();
 
 	  try {
-	    kernel = new Kernel(vf, rex, pcfg.getBoot());
-	  } catch (IOException | NoSuchRascalFunction | URISyntaxException e) {
+	    //kernel = new Kernel(vf, rex, pcfg.getBoot());
+	    kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class).build();
+	  } catch (IOException e) {
 	    System.err.println("Unable to load Rascal Kernel");;
 	    e.printStackTrace();
 	    System.exit(-1);
@@ -212,8 +215,8 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	      //  Do a sufficient but not complete check on the binary; changes to imports will go unnoticed!
 	      if(!resolver.exists(binary) || resolver.lastModified(source) > resolver.lastModified(binary)){
 	        System.err.println("Compiling: " + qualifiedName);
-	        HashMap<String, IValue> kwparams = new HashMap<>();
-	        kwparams.put("enableAsserts", vf.bool(true));
+//	        HashMap<String, IValue> kwparams = new HashMap<>();
+//	        kwparams.put("enableAsserts", vf.bool(true));
 	        IList programs = kernel.compileAndLink(
 	            vf.list(vf.string(qualifiedName)),
 	            pcfg.getSrcs(),
@@ -221,7 +224,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	            pcfg.getBoot(),
 	            pcfg.getBin(),
 	            vf.sourceLocation("noreloc", "", ""),
-	            kwparams);
+	            kernel.kw_compileAndLink().enableAsserts(true));
 	        boolean ok = RascalC.handleMessages(programs);
 	        if(!ok){
 	          System.exit(1);

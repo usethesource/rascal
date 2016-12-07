@@ -1,9 +1,9 @@
 module experiments::Compiler::Examples::Tst1
 
-import IO;
+int f(int n) = g(n);
+
+int g(int n) = ()[1];
 
 value main(){
-    loc home = resolveLocation(|cwd://../shapes|);
-    println(home);
-    return true;
+    return f(10);
 }

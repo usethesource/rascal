@@ -79,7 +79,6 @@ public class Java2Rascal<RascalInterfaceModule> {
     }
   }
 
-
   private RascalInterfaceModule makeBridge() throws IOException{
     if(trace && profile){
       throw new RuntimeException("Either 'trace' or 'profile' can be set, not both");
@@ -89,7 +88,7 @@ public class Java2Rascal<RascalInterfaceModule> {
             .setTrace(trace)
             .setProfile(profile)
             .build();
-    ISourceLocation binDir = pcfg.getBin();
+    ISourceLocation bootDir = pcfg.getBoot();
     String moduleName = null;
     for(Annotation annotation : interface2Rascal.getAnnotations()){
       if(annotation instanceof RascalModule){
@@ -103,7 +102,7 @@ public class Java2Rascal<RascalInterfaceModule> {
     
     String modulePath = "/" + moduleName.replaceAll("::", "/") + ".rvm.ser.gz";
     
-    RVMCore rvm = ExecutionTools.initializedRVM(URIUtil.correctLocation("compressed+" + binDir.getScheme(), "", binDir.getPath() + modulePath), rex);
+    RVMCore rvm = ExecutionTools.initializedRVM(URIUtil.correctLocation("compressed+" + bootDir.getScheme(), "", bootDir.getPath() + modulePath), rex);
 
     return (RascalInterfaceModule) rvm.asInterface(interface2Rascal);
   }
