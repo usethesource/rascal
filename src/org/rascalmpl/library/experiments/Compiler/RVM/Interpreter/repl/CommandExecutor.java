@@ -10,11 +10,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NameCompleter;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
@@ -71,6 +73,8 @@ public class CommandExecutor {
 	private ISourceLocation consoleInputLocation;
 	private RVMExecutable rvmConsoleExecutable;
 	private RVMExecutable lastRvmConsoleExecutable;
+	
+	private SortedSet<String> vocabulary;
 	
 	private final Prelude prelude;
 	
@@ -170,6 +174,7 @@ public class CommandExecutor {
 		dataDeclarations = new HashMap<>();
 		moduleVariables = new HashMap<>();
 		forceRecompilation = true;
+		vocabulary = null;
 	}
 	
 	public void setDebugObserver(DebugREPLFrameObserver observer){
@@ -308,6 +313,7 @@ public class CommandExecutor {
 				lastRvmConsoleExecutable = rvmConsoleExecutable;
 				updateModuleVariables(rex.getModuleVariables());
 				forceRecompilation = false;
+				vocabulary = null;
 				return val;
 			} else {
 				throw new RascalShellExecutionException(getErrors(modString, rvmConsoleExecutable));
@@ -713,7 +719,8 @@ public class CommandExecutor {
 		return report(
 				sb.append("profile:  ").append(profile).append("\n")
 				  .append("trace:    ").append(trace).append("\n")
-				  .append("coverage: ").append(coverage).toString());
+				  .append("coverage: ").append(coverage).append("\n")
+				  .append("optimize: ").append(optimize).toString());
 	}
 	
 	public IValue evalShellCommand(String[] words) throws RascalShellExecutionException {
@@ -935,12 +942,48 @@ public class CommandExecutor {
 		return stdout;
 	}
 	
-	public Collection<String> completePartialIdentifier(String qualifier, String term) {
-		if(lastRvmConsoleExecutable != null){
-			return lastRvmConsoleExecutable.completePartialIdentifier(new NameCompleter(), term).getResult();
-		}
-		return null;
+//	public Collection<String> completePartialIdentifier(String qualifier, String term) {
+//		if(lastRvmConsoleExecutable != null){
+//			return lastRvmConsoleExecutable.completePartialIdentifier(new NameCompleter(), term).getResult();
+//		}
+//		return null;
+//	}
+	
+	SortedSet<String> getVocabulary(){
+	  if(vocabulary != null){
+	    return vocabulary;
+	  }
+	  ISet names = kernel.getIncrementalVocabulary();
+	  vocabulary = new TreeSet<>();
+	  for(IValue iname : names){
+	    vocabulary.add(((IString) iname).getValue());
+	  }
+	  return vocabulary;
 	}
+	
+	public Collection<String> completePartialIdentifier(String qualifier, String term) {
+	  getVocabulary();
+      return completePartialIdentifier(new NameCompleter(), term).getResult();
+    }
+	
+	private NameCompleter completePartialIdentifier(NameCompleter completer, String partialIdentifier) {
+      if (partialIdentifier == null || partialIdentifier.isEmpty()) {
+          throw new IllegalArgumentException("The behavior with empty string is undefined.");
+      }
+      if (partialIdentifier.startsWith("\\")) {
+          partialIdentifier = partialIdentifier.substring(1);
+      }
+      
+      for(String completeName : vocabulary){
+        completer.add(completeName, partialIdentifier);
+      }
+      
+//    for(IValue modVar : moduleVariables.keySet()){
+//        completer.add(modVar.toString(), partialIdentifier);
+//    }
+
+      return completer;
+  }
 	
 	public Collection<String> completeDeclaredIdentifier(String term) {
 		TreeSet<String> result = null;
