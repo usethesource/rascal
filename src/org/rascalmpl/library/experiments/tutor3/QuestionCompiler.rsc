@@ -235,7 +235,7 @@ public str compileQuestions(str qmodule, PathConfig pcfg) {
     println("compileQuestions: <qmodule>, <pcfg>");
     pcfg = pathConfig(srcs=[|test-modules:///|]+pcfg.srcs,libs=pcfg.libs,bin=pcfg.bin, boot=pcfg.boot,courses=pcfg.courses);
     bn = split("/", qmodule)[-1];
-    qloc = courses[0] + ("/" + qmodule + "/" + bn + ".questions");
+    qloc = pcfg.courses[0] + ("/" + qmodule + "/" + bn + ".questions");
     println("compileQuestions: qloc=<qloc>");
     return compileQuestions(qloc, pcfg);
 }
