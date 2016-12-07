@@ -3,14 +3,9 @@ package org.rascalmpl.library.experiments.Compiler.Commands;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import org.rascalmpl.library.experiments.Compiler.Examples.ISampleFuns;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal.Builder;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
-import org.rascalmpl.library.lang.rascal.boot.Kernel;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -63,25 +58,22 @@ public class CompileMuLibrary {
             .noModuleArgument()
             .handleArgs(args);
 
-            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), cmdOpts.getCommandLocOption("boot"))
-                    .customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
-                    .setTrace(cmdOpts.getCommandBoolOption("trace"))
-                    .setProfile(cmdOpts.getCommandBoolOption("profile"))
-                    //.setJVM(cmdOpts.getCommandBoolOption("jvm"))
-                    .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
-                    .build();
+//            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), cmdOpts.getCommandLocOption("boot"))
+//                    .customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
+//                    .setTrace(cmdOpts.getCommandBoolOption("trace"))
+//                    .setProfile(cmdOpts.getCommandBoolOption("profile"))
+//                    //.setJVM(cmdOpts.getCommandBoolOption("jvm"))
+//                    .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
+//                    .build();
 
-            //Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
             PathConfig pcfg = cmdOpts.getPathConfig();
-            IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class).build();
+            IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class)
+                .trace(cmdOpts.getCommandBoolOption("trace"))
+                .profile(cmdOpts.getCommandBoolOption("profile"))
+                .verbose(cmdOpts.getCommandBoolOption("verbose")).
+                build();
 
-            kernel.compileMuLibrary(
-//                    cmdOpts.getCommandLocsOption("src"),
-//                    cmdOpts.getCommandLocsOption("lib"),
-//                    cmdOpts.getCommandLocOption("boot"),
-//                    cmdOpts.getCommandLocOption("bin"), 
-                    pcfg.asConstructor(kernel),
-                    kernel.kw_compileMu());
+            kernel.compileMuLibrary(pcfg.asConstructor(kernel), kernel.kw_compileMu());
         }
         catch (Throwable e) {
             e.printStackTrace();

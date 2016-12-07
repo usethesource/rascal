@@ -17,7 +17,6 @@ import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalKeywordParameters;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalModule;
-import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -31,32 +30,25 @@ public interface IKernel extends IJava2Rascal {
   /**
    * Compile a Rascal module
    * @param qname   Qualified module name
-   * @param srcs    List of source directories
-   * @param libs    List of library directories
-   * @param boot    Boot directory
-   * @param bin     Binary directory
-   * @param reloc   Relocate locations in binaries to reloc
+   * @param pcfg    PathConfig
    * @param kwArgs  Keyword arguments
    * @return        The result (RVMProgram) of compiling the given module
    */
-  public IConstructor compile(IString qname, IConstructor pcfg, /*IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin,*/ ISourceLocation reloc, KWcompile kwArgs);
+  public IConstructor compile(IString qname, IConstructor pcfg, KWcompile kwArgs);
 
   /**
    * Compile a list of Rascal modules
    * @param qnames  List of qualified module names
-   * @param srcs    List of source directories
-   * @param libs    List of library directories
-   * @param boot    Boot directory
-   * @param bin     Binary directory
-   * @param reloc   Relocate locations in binaries to reloc
+   * @param pcfg    PathConfig
    * @param kwArgs  Keyword arguments
    * @return        A list of RVMPrograms
    */
-  public IList compile(IList qnames, IConstructor pcfg, /*IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin,*/ ISourceLocation reloc, KWcompile kwArgs);
+  public IList compile(IList qnames, IConstructor pcfg, KWcompile kwArgs);
 
   @RascalKeywordParameters
   interface KWcompile {
       KWcompile verbose(boolean val);
+      KWcompile reloc(ISourceLocation val);
       KWcompile optimize(boolean val);
       KWcompile enableAsserts(boolean val);
   }
@@ -64,13 +56,10 @@ public interface IKernel extends IJava2Rascal {
   
   /**
    * Recompile the MuLibrary with a new compiler (used only in bootstrapping stages)
-   * @param srcs    List of source directories
-   * @param libs    List of library directories
-   * @param boot    Boot directory
-   * @param bin     Binary directory
+   * @param pcfg    PathConfig
    * @param kwArgs  Keyword arguments
    */
-  public void compileMuLibrary(IConstructor pcfg, /*IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin,*/ KWcompileMu kwArgs);
+  public void compileMuLibrary(IConstructor pcfg, KWcompileMu kwArgs);
 
   @RascalKeywordParameters
   interface KWcompileMu {
@@ -89,14 +78,11 @@ public interface IKernel extends IJava2Rascal {
   /**
    * Compile and link a Rascal module
    * @param qname   Qualified module name
-   * @param srcs    List of source directories
-   * @param libs    List of library directories
-   * @param boot    Boot directory
-   * @param bin     Binary directory
+   * @param pcfg    PathConfig
    * @param kwArgs  Keyword arguments
    * @return The result (RVMProgram) of compiling the given module. The linked version (RVMExecutable) is stored as file.
    */
-  public IConstructor compileAndLink(IString qname, IConstructor pcfg, /* IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, ISourceLocation reloc,*/ KWcompileAndLink kwArgs);
+  public IConstructor compileAndLink(IString qname, IConstructor pcfg, KWcompileAndLink kwArgs);
 
   @RascalKeywordParameters
   interface KWcompileAndLink {
@@ -111,29 +97,23 @@ public interface IKernel extends IJava2Rascal {
   /**
    * Compile and link a list of Rascal modules. The linked version (RVMExecutable) is stored as file.
    * @param qname   List of qualified module names
-   * @param srcs    List of source directories
-   * @param libs    List of library directories
-   * @param boot    Boot directory
-   * @param bin     Binary directory
+   * @param pcfg    PathConfig
    * @param kwArgs  Keyword arguments
    * @return A list of resulting RVMExecutables
    */
-  public IList compileAndLink(IList qnames, IConstructor pcfg, /*IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, ISourceLocation reloc,*/ KWcompileAndLink kwArgs);
+  public IList compileAndLink(IList qnames, IConstructor pcfg, KWcompileAndLink kwArgs);
 
   /**
    * Incrementally compile and link a Rascal module (used in RascalShell)
    * @param qname   Qualified module name
    * @param reuseConfig 
    *                true if the previous typechcker configuration should be reused
-   * @param srcs    List of source directories
-   * @param libs    List of library directories
-   * @param boot    Boot directory
-   * @param bin     Binary directory
+   * @param pcfg    PathConfig
    * @param kwArgs  Keyword arguments
    * @return The compiled and linked (RVMExecutable) version of the given module
    * @throws IOException
    */
-  public IConstructor compileAndMergeProgramIncremental(IString qname, IBool reuseConfig, IConstructor pcfg,/*IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin,*/ KWcompileAndMergeProgramIncremental kwArgs);
+  public IConstructor compileAndMergeProgramIncremental(IString qname, IBool reuseConfig, IConstructor pcfg, KWcompileAndMergeProgramIncremental kwArgs);
       
   @RascalKeywordParameters
   interface KWcompileAndMergeProgramIncremental {
@@ -154,15 +134,11 @@ public interface IKernel extends IJava2Rascal {
   /**
    * Run tests in a list of Rascal modules
    * @param qnames  List of qualified module name
-   * @param srcs    List of source directories
-   * @param libs    List of library directories
-   * @param boot    Boot directory
-   * @param bin     Binary directory
-   * @param recompile Recompile when no binary is found
+   * @param pcfg    PathConfig
    * @param kwArgs  Keyword arguments
    * @return The outcome of the tests
    */
-  public IValue rascalTests(IList qnames, IConstructor pcfg, /*IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, boolean recompile*/ KWrascalTests kwArgs);
+  public IValue rascalTests(IList qnames, IConstructor pcfg, KWrascalTests kwArgs);
       
   @RascalKeywordParameters
   interface KWrascalTests {
@@ -181,27 +157,20 @@ public interface IKernel extends IJava2Rascal {
   /**
    *  Run tests in a list of Rascal modules
    * @param qnames    List of qualified module name
-   * @param srcs      List of source directories
-   * @param libs      List of library directories
-   * @param boot      Boot directory
-   * @param bin       Binary directory
-   * @param recompile Recompile when no binary is found
+   * @param pcfg    PathConfig
    * @param kwArgs    Keyword arguments
    * @return          The outcome of the tests
    */
-  public IConstructor rascalTestsRaw(IList qnames, IConstructor pcfg, /*IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, boolean recompile,*/ KWrascalTests kwArgs);
+  public IConstructor rascalTestsRaw(IList qnames, IConstructor pcfg, KWrascalTests kwArgs);
 
   /**
    * Create a module summary to implement IDE features
-   * @param qualifiedModuleName   Module name
-   * @param srcs    List of source directories
-   * @param libs    List of library directories
-   * @param boot    Boot directory
-   * @param bin     Binary directory
+   * @param qname   Module name
+   * @param pcfg    PathConfig
    * @param kwArgs  Keyword arguments
    * @return Summary for this module
    */
-  public IConstructor makeSummary(IString qualifiedModuleName, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin);
+  public IConstructor makeSummary(IString qname, IConstructor pcfg);
 
   /**
    * @param summary   A module summary

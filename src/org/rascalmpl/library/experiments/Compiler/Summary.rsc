@@ -51,9 +51,6 @@ ModuleSummary makeSummary(str qualifiedModuleName, PathConfig pcfg){
    return;            
 }
 
-ModuleSummary makeSummary(str qualifiedModuleName, list[loc] srcs, list[loc] libs, loc boot, loc bin)
-    = makeSummary(qualifiedModuleName, pathConfig(srcs=srcs,libs=libs,boot=boot,bin=bin));
-
 @doc{
 .Synopsis
 Get all definitions for a given use.

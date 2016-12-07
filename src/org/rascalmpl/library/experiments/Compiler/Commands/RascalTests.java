@@ -70,26 +70,24 @@ public class RascalTests {
 			
 			.handleArgs(args);
 		
-		RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), cmdOpts.getCommandLocOption("boot"))
-				.customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
-				.setTrace(cmdOpts.getCommandBoolOption("trace"))
-				.setProfile(cmdOpts.getCommandBoolOption("profile"))
-				.forModule(cmdOpts.getModule().getValue())
-                .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
-				.build();
+//		RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), cmdOpts.getCommandLocOption("boot"))
+//				.customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
+//				.setTrace(cmdOpts.getCommandBoolOption("trace"))
+//				.setProfile(cmdOpts.getCommandBoolOption("profile"))
+//				.forModule(cmdOpts.getModule().getValue())
+//                .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
+//				.build();
 
-		//Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
 		PathConfig pcfg = cmdOpts.getPathConfig();
 		IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class).build();
 		try {
-		    IBool success = (IBool) kernel.rascalTests(
-		            cmdOpts.getModules(),
-//		            cmdOpts.getCommandLocsOption("src"),
-//		            cmdOpts.getCommandLocsOption("lib"),
-//		            cmdOpts.getCommandLocOption("boot"),
-//		            cmdOpts.getCommandLocOption("bin"), 
-		            pcfg.asConstructor(kernel),
-		            kernel.kw_rascalTests().recompile(cmdOpts.getCommandBoolOption("recompile")));
+		    IBool success =
+		        (IBool) kernel.rascalTests(cmdOpts.getModules(), pcfg.asConstructor(kernel),
+		                                   kernel.kw_rascalTests().recompile(cmdOpts.getCommandBoolOption("recompile"))
+		                                   .trace(cmdOpts.getCommandBoolOption("trace"))
+		                                   .profile(cmdOpts.getCommandBoolOption("profile"))
+		                                   .verbose(cmdOpts.getCommandBoolOption("verbose"))
+		        );
 
 		    System.exit(success.getValue() ? 0 : 1);
 		  }
