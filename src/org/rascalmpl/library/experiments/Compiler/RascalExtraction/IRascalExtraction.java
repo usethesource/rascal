@@ -13,12 +13,13 @@
 package org.rascalmpl.library.experiments.Compiler.RascalExtraction;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalModule;
+import org.rascalmpl.library.lang.rascal.boot.IJava2Rascal;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 
 @RascalModule("experiments::Compiler::RascalExtraction::RascalExtraction")
-public interface IRascalExtraction {
+public interface IRascalExtraction extends IJava2Rascal {
   /**
    * Extract concepts from the source code of a "remote" Rascal module, i.e. located outside a documentation hierarchy
    * @param parent      The name of the parent concept that will contain the documentation that is extracted from the module

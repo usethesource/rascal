@@ -25,9 +25,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManag
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
-import org.rascalmpl.library.lang.rascal.boot.IKernel.KWcompileAndMergeProgramIncremental;
-import org.rascalmpl.library.lang.rascal.boot.IKernel.KWrascalTests;
-import org.rascalmpl.library.lang.rascal.boot.Kernel;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.Parser;
@@ -179,25 +176,6 @@ public class CommandExecutor {
 	public void setDebugObserver(DebugREPLFrameObserver observer){
 		this.debugObserver = observer;
 	}
-	
-//	private Map<String, IValue> makeCompileKwParamsAsMap(){
-//		Map<String,IValue> result = new HashMap<>();
-//		result.put("verbose", vf.bool(false));
-//		result.put("optimize", vf.bool(optimize));
-//		result.put("enableAsserts", vf.bool(enableAsserts));
-//		return result;
-//	}
-	
-	private KWrascalTests makeCompileKwParamsAsMap(){
-	  KWrascalTests result = kernel.kw_rascalTests();
-	  result.verbose(false);
-	  return result;
-	}
-	
-	private KWcompileAndMergeProgramIncremental makeCompileAndMergeArgs(){
-	  KWcompileAndMergeProgramIncremental result = kernel.kw_compileAndMergeProgramIncremental();
-	  return result;
-	}
   
 	private boolean noErrors(RVMExecutable exec){
 		return exec.getErrors().size() == 0;
@@ -253,24 +231,25 @@ public class CommandExecutor {
 	    }
 	  }
 	  IValue res = kernel.rascalTests(w.done(), 
-	      pcfg.getSrcs(), 
-	      pcfg.getLibs(), 
-	      pcfg.getBoot(), 
-	      pcfg.getBin(), 
-	      true,
-	      makeCompileKwParamsAsMap()
+//	      pcfg.getSrcs(), 
+//	      pcfg.getLibs(), 
+//	      pcfg.getBoot(), 
+//	      pcfg.getBin(), 
+	      pcfg.asConstructor(kernel),
+	      kernel.kw_rascalTests().verbose(false).recompile(true)
 	      );
 	  stderr.println("executeTests: " + res);
 	}
 	
 	public IConstructor executeTestsRaw(String mname){
 	  return kernel.rascalTestsRaw(vf.list(vf.string(mname)), 
-          pcfg.getSrcs(), 
-          pcfg.getLibs(), 
-          pcfg.getBoot(), 
-          pcfg.getBin(), 
-          true,
-          makeCompileKwParamsAsMap());
+//          pcfg.getSrcs(), 
+//          pcfg.getLibs(), 
+//          pcfg.getBoot(), 
+//          pcfg.getBin(), 
+	      pcfg.asConstructor(kernel),
+	      kernel.kw_rascalTests().verbose(false).recompile(true)
+	      );
 	}
 	
 	private IValue executeModule(String main, boolean onlyMainChanged) throws RascalShellExecutionException {
@@ -308,13 +287,16 @@ public class CommandExecutor {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation);
 			forceRecompilation = true;
+			System.err.println(pcfg.asConstructor(kernel));
 			IConstructor rvmProgram = kernel.compileAndMergeProgramIncremental(vf.string(consoleInputName), 
 																	reuseConfig, 
-																	pcfg.getSrcs(), 
+																	pcfg.asConstructor(kernel),
+																	/*pcfg.getSrcs(), 
 																	pcfg.getLibs(), 
 																	pcfg.getBoot(), 
-																	pcfg.getBin(), 
-																	makeCompileAndMergeArgs());
+																	pcfg.getBin(), */
+																	kernel.kw_compileAndMergeProgramIncremental()
+																	);
 			
 			TypeStore typeStore = new TypeStore();
 			rvmConsoleExecutable = ExecutionTools.link(rvmProgram, ValueFactoryFactory.getValueFactory().bool(true), typeStore);
@@ -353,6 +335,7 @@ public class CommandExecutor {
 		} catch (IOException e){
 		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
 		} catch (Exception e){
+		  e.printStackTrace();
 		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
 		}
 	}

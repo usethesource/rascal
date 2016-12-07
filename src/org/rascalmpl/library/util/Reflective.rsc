@@ -73,10 +73,8 @@ public java loc getSearchPathLocation(str filePath);
 
 data PathConfig 
   = pathConfig(list[loc] srcs = [|std:///|],        // List of directories to search for source files
-               list[loc] libs = [|boot:///stdlib|, |std:///|],        
-                                                       // List of directories to search source for derived files
-               //list[loc] projectPath = [],           // List of directories to search for source or derived files in projects
-                                                       // Note: each directory should include the project name as last path element
+               list[loc] libs = [|std:///|],        // List of directories to search source for derived files
+               list[loc] courses = [|courses:///|], // List of locations to search for course source files
                loc bin = |home:///bin/|,            // Global directory for derived files outside projects
                loc boot = |boot+compressed:///|     // Directory with Rascal boot files
               );

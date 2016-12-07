@@ -219,12 +219,12 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 //	        kwparams.put("enableAsserts", vf.bool(true));
 	        IList programs = kernel.compileAndLink(
 	            vf.list(vf.string(qualifiedName)),
-	            pcfg.getSrcs(),
-	            pcfg.getLibs(),
-	            pcfg.getBoot(),
-	            pcfg.getBin(),
-	            vf.sourceLocation("noreloc", "", ""),
-	            kernel.kw_compileAndLink().enableAsserts(true));
+//	            pcfg.getSrcs(),
+//	            pcfg.getLibs(),
+//	            pcfg.getBoot(),
+//	            pcfg.getBin(),
+	            pcfg.asConstructor(kernel),
+	            kernel.kw_compileAndLink().enableAsserts(true).reloc(vf.sourceLocation("noreloc", "", "")));
 	        boolean ok = RascalC.handleMessages(programs);
 	        if(!ok){
 	          System.exit(1);

@@ -10,25 +10,25 @@
  *  
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */ 
-package org.rascalmpl.library.experiments.tutor3;
+package org.rascalmpl.library.lang.rascal.boot;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalModule;
-import org.rascalmpl.library.lang.rascal.boot.IJava2Rascal;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalKeywordParameters;
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.ISourceLocation;
 
-@RascalModule("experiments::tutor3::QuestionCompiler")
-public interface IQuestionCompiler extends IJava2Rascal {
-  
-  /**
-   * Compile a .questions file to .adoc
-   * @param qmodule Qualified name of questions module
-   * @param srcs    List of source directories
-   * @param libs    List of library directories
-   * @param courses List of course directories
-   * @param boot    Boot directory
-   * @param bin     Binary directory
-   * @return Generated code as string. As a side-effect a .adoc file will be generated.
-   */
-  public IString compileQuestions(IString qmodule, IConstructor pcfg);
+public interface IJava2Rascal {
+
+  public IConstructor pathConfig(KWpathConfig kwArgs);
+
+  @RascalKeywordParameters
+  interface KWpathConfig {
+    KWpathConfig srcs(IList val);
+    KWpathConfig libs(IList val);
+    KWpathConfig bin(ISourceLocation val);
+    KWpathConfig boot(ISourceLocation val);
+    KWpathConfig courses(IList val);
+  }
+
+  KWpathConfig kw_pathConfig();
 }

@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalKeywordParameters;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalModule;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -26,7 +27,7 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 
 @RascalModule("lang::rascal::boot::Kernel")
-public interface IKernel {
+public interface IKernel extends IJava2Rascal {
   /**
    * Compile a Rascal module
    * @param qname   Qualified module name
@@ -38,7 +39,7 @@ public interface IKernel {
    * @param kwArgs  Keyword arguments
    * @return        The result (RVMProgram) of compiling the given module
    */
-  public IConstructor compile(IString qname, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, ISourceLocation reloc, KWcompile kwArgs);
+  public IConstructor compile(IString qname, IConstructor pcfg, /*IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin,*/ ISourceLocation reloc, KWcompile kwArgs);
 
   /**
    * Compile a list of Rascal modules
@@ -51,7 +52,7 @@ public interface IKernel {
    * @param kwArgs  Keyword arguments
    * @return        A list of RVMPrograms
    */
-  public IList compile(IList qnames, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, ISourceLocation reloc, KWcompile kwArgs);
+  public IList compile(IList qnames, IConstructor pcfg, /*IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin,*/ ISourceLocation reloc, KWcompile kwArgs);
 
   @RascalKeywordParameters
   interface KWcompile {
@@ -69,7 +70,7 @@ public interface IKernel {
    * @param bin     Binary directory
    * @param kwArgs  Keyword arguments
    */
-  public void compileMuLibrary(IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, KWcompileMu kwArgs);
+  public void compileMuLibrary(IConstructor pcfg, /*IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin,*/ KWcompileMu kwArgs);
 
   @RascalKeywordParameters
   interface KWcompileMu {
@@ -95,7 +96,7 @@ public interface IKernel {
    * @param kwArgs  Keyword arguments
    * @return The result (RVMProgram) of compiling the given module. The linked version (RVMExecutable) is stored as file.
    */
-  public IConstructor compileAndLink(IString qname,  IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, ISourceLocation reloc, KWcompileAndLink kwArgs);
+  public IConstructor compileAndLink(IString qname, IConstructor pcfg, /* IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, ISourceLocation reloc,*/ KWcompileAndLink kwArgs);
 
   @RascalKeywordParameters
   interface KWcompileAndLink {
@@ -117,7 +118,7 @@ public interface IKernel {
    * @param kwArgs  Keyword arguments
    * @return A list of resulting RVMExecutables
    */
-  public IList compileAndLink(IList qnames,  IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, ISourceLocation reloc, KWcompileAndLink kwArgs);
+  public IList compileAndLink(IList qnames, IConstructor pcfg, /*IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, ISourceLocation reloc,*/ KWcompileAndLink kwArgs);
 
   /**
    * Incrementally compile and link a Rascal module (used in RascalShell)
@@ -132,13 +133,7 @@ public interface IKernel {
    * @return The compiled and linked (RVMExecutable) version of the given module
    * @throws IOException
    */
-  public IConstructor compileAndMergeProgramIncremental(IString qname, IBool reuseConfig, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, KWcompileAndMergeProgramIncremental kwArgs);
-    
-//  default public RVMExecutable compileAndMergeIncremental(IString qname, IBool reuseConfig, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, KWcompileAndMergeProgramIncremental kwArgs) throws IOException{
-//      IConstructor rvmProgram = compileAndMergeProgramIncremental(qname, reuseConfig, srcs, libs, boot, bin, kwArgs);
-//      TypeStore typeStore = new TypeStore();
-//      return ExecutionTools.link(rvmProgram, ValueFactoryFactory.getValueFactory().bool(true), typeStore);
-//  }
+  public IConstructor compileAndMergeProgramIncremental(IString qname, IBool reuseConfig, IConstructor pcfg,/*IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin,*/ KWcompileAndMergeProgramIncremental kwArgs);
       
   @RascalKeywordParameters
   interface KWcompileAndMergeProgramIncremental {
@@ -167,7 +162,7 @@ public interface IKernel {
    * @param kwArgs  Keyword arguments
    * @return The outcome of the tests
    */
-  public IValue rascalTests(IList qnames, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, boolean recompile, KWrascalTests kwArgs);
+  public IValue rascalTests(IList qnames, IConstructor pcfg, /*IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, boolean recompile*/ KWrascalTests kwArgs);
       
   @RascalKeywordParameters
   interface KWrascalTests {
@@ -178,6 +173,7 @@ public interface IKernel {
     KWrascalTests coverage(boolean val);
     KWrascalTests jvm(boolean val);
     KWrascalTests verbose(boolean val);
+    KWrascalTests recompile(boolean val);
   } 
   
   KWrascalTests kw_rascalTests();
@@ -193,7 +189,7 @@ public interface IKernel {
    * @param kwArgs    Keyword arguments
    * @return          The outcome of the tests
    */
-  public IConstructor rascalTestsRaw(IList qnames, IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, boolean recompile, KWrascalTests kwArgs);
+  public IConstructor rascalTestsRaw(IList qnames, IConstructor pcfg, /*IList srcs, IList libs, ISourceLocation boot, ISourceLocation bin, boolean recompile,*/ KWrascalTests kwArgs);
 
   /**
    * Create a module summary to implement IDE features
@@ -237,5 +233,4 @@ public interface IKernel {
    * @return The contents of the doc string of that definition
    */
   public IString getDocForDefinition(ISourceLocation def);
-  
 }

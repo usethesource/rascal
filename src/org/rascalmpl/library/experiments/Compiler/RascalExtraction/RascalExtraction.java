@@ -23,20 +23,20 @@ public class RascalExtraction {
 	private RVMCore rvm;
 	
 	public RascalExtraction(IValueFactory vf, PathConfig pcfg) throws IOException{
-		this.vf = vf;
-		if(rvm == null){
-			RascalExecutionContext rex = 
-					RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot() /* TODO needs a kernel location */, System.out, System.err)
-						.setJVM(true)					// options for complete repl
-						.setTrace(false)
-						.build();
-			rvm = ExecutionTools.initializedRVM(rex.getRascalExtraction(), rex);
-		}
-		try {
-			extractDoc = rvm.getOverloadedFunction("tuple[str moduleDoc, list[DeclarationInfo] declarationInfo] extractDoc(str parent, loc moduleLoc)");
-		} catch (NoSuchRascalFunction e) {
-			e.printStackTrace();
-		}
+//		this.vf = vf;
+//		if(rvm == null){
+//			RascalExecutionContext rex = 
+//					RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot() /* TODO needs a kernel location */, System.out, System.err)
+//						.setJVM(true)					// options for complete repl
+//						.setTrace(false)
+//						.build();
+//			rvm = ExecutionTools.initializedRVM(rex.getRascalExtraction(), rex);
+//		}
+//		try {
+//			extractDoc = rvm.getOverloadedFunction("tuple[str moduleDoc, list[DeclarationInfo] declarationInfo] extractDoc(str parent, loc moduleLoc)");
+//		} catch (NoSuchRascalFunction e) {
+//			e.printStackTrace();
+//		}
 	}
 	
 	/**
