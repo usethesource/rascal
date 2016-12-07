@@ -9,6 +9,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutio
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -78,16 +79,17 @@ public class RascalTests {
 				.build();
 
 		//Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
-		IKernel kernel = Java2Rascal.Builder.bridge(vf, cmdOpts.getPathConfig(), IKernel.class).build();
+		PathConfig pcfg = cmdOpts.getPathConfig();
+		IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class).build();
 		try {
 		    IBool success = (IBool) kernel.rascalTests(
 		            cmdOpts.getModules(),
-		            cmdOpts.getCommandLocsOption("src"),
-		            cmdOpts.getCommandLocsOption("lib"),
-		            cmdOpts.getCommandLocOption("boot"),
-		            cmdOpts.getCommandLocOption("bin"), 
-		            cmdOpts.getCommandBoolOption("recompile"), 
-		            kernel.kw_rascalTests());
+//		            cmdOpts.getCommandLocsOption("src"),
+//		            cmdOpts.getCommandLocsOption("lib"),
+//		            cmdOpts.getCommandLocOption("boot"),
+//		            cmdOpts.getCommandLocOption("bin"), 
+		            pcfg.asConstructor(kernel),
+		            kernel.kw_rascalTests().recompile(cmdOpts.getCommandBoolOption("recompile")));
 
 		    System.exit(success.getValue() ? 0 : 1);
 		  }

@@ -267,7 +267,7 @@ public class Onthology {
 			    //questionCompiler = new QuestionCompiler(vf, pcfg);
 			    questionCompiler = Java2Rascal.Builder.bridge(vf, pcfg, IQuestionCompiler.class).build();
 			  }
-			  String qtext = questionCompiler.compileQuestions(vf.string(questionsName.toString()), pcfg.getSrcs(), pcfg.getLibs(), pcfg.getcourses(), pcfg.getBin(), pcfg.getBoot()).getValue();
+			  String qtext = questionCompiler.compileQuestions(vf.string(questionsName.toString()), pcfg.asConstructor(questionCompiler) /*pcfg.getSrcs(), pcfg.getLibs(), pcfg.getcourses(), pcfg.getBin(), pcfg.getBoot()*/).getValue();
 			  System.err.println("qtext: " + qtext);
 			  Concept questionsConcept = new Concept(questionsName, qtext, destPath, libSrcPath);
 			  questionsConcept.setQuestions();
