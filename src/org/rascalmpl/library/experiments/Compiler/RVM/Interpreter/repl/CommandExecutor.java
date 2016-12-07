@@ -101,7 +101,6 @@ public class CommandExecutor {
 	private final String shellModuleName = "CompiledRascalShell";
 	
 	private boolean forceRecompilation = true;
-	private IMap moduleTags;
 	private IKernel kernel;
 	private StandardTextWriter indentedPrettyPrinter;
 	private boolean optimize;
@@ -136,7 +135,6 @@ public class CommandExecutor {
 		w = vf.mapWriter();
 		w.put(vf.string(shellModuleName), CompiledRascalShellModuleTags);
 		w.put(vf.string(consoleInputName), CompiledRascalShellModuleTags);
-		moduleTags = w.done();
 		
 //		RascalExecutionContext rex = 
 //				RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot(), this.stdout, this.stderr)
@@ -315,9 +313,7 @@ public class CommandExecutor {
 				throw new RascalShellExecutionException(getErrors(modString, rvmConsoleExecutable));
 			}
 		} catch (Thrown e){
-		    IConstructor cons = (IConstructor) e.getValue();
 		    StringWriter sw = new StringWriter();
-		    //sw.append(cons.toString());
 		    e.printStackTrace(new PrintWriter(sw));
 		    debugObserver.exception(e.getFrame(), e);
 			throw new RascalShellExecutionException(sw.toString());
