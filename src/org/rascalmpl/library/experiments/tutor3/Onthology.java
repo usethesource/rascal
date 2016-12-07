@@ -35,7 +35,10 @@ import org.apache.lucene.store.FSDirectory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.KWArgs;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
+import org.rascalmpl.library.experiments.Compiler.RascalExtraction.IRascalExtraction;
 import org.rascalmpl.library.experiments.Compiler.RascalExtraction.RascalExtraction;
+import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -63,8 +66,8 @@ public class Onthology {
 	
 	Map<Path,Concept> conceptMap;
 	private IValueFactory vf;
-	private RascalExtraction rascalExtraction;
-	private QuestionCompiler questionCompiler;
+	private IRascalExtraction rascalExtraction;
+	private IQuestionCompiler questionCompiler;
 	private String courseName;
 	
 	private IndexWriter iwriter;
@@ -236,9 +239,10 @@ public class Onthology {
 			  Path remoteConceptName = makeConceptName(aDir);
 			  if(rascalExtraction == null){
 			    // Lazily load the RascalExtraction tool
-			    rascalExtraction = new RascalExtraction(vf, pcfg);
+			    //rascalExtraction = new RascalExtraction(vf, pcfg);
+			    rascalExtraction = Java2Rascal.Builder.bridge(vf, pcfg, IRascalExtraction.class).build();
 			  }
-			  ITuple extracted = rascalExtraction.extractDoc(vf.string(parentName), remoteLoc, new KWArgs(vf).build());
+			  ITuple extracted = rascalExtraction.extractDoc(vf.string(parentName), remoteLoc);
 			  IString remoteConceptText = (IString) extracted.get(0);
 			  IList declarationInfoList = (IList) extracted.get(1);
 			  //System.err.println(remoteConceptText.getValue());
@@ -260,9 +264,10 @@ public class Onthology {
 //			  }
 			  if(questionCompiler == null){
 			    // Lazily load the QuestionCompiler tool
-			    questionCompiler = new QuestionCompiler(vf, pcfg);
+			    //questionCompiler = new QuestionCompiler(vf, pcfg);
+			    questionCompiler = Java2Rascal.Builder.bridge(vf, pcfg, IQuestionCompiler.class).build();
 			  }
-			  String qtext = questionCompiler.compileQuestions(questionsName.toString(), new KWArgs(vf).build());
+			  String qtext = questionCompiler.compileQuestions(vf.string(questionsName.toString()), pcfg.getSrcs(), pcfg.getLibs(), pcfg.getcourses(), pcfg.getBin(), pcfg.getBoot()).getValue();
 			  System.err.println("qtext: " + qtext);
 			  Concept questionsConcept = new Concept(questionsName, qtext, destPath, libSrcPath);
 			  questionsConcept.setQuestions();
