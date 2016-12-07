@@ -356,8 +356,8 @@ public class Function implements Serializable {
           }
         } catch (Thrown e){
           String ename;
-          if(e.value instanceof IConstructor){
-            ename = ((IConstructor) e.value).getName();
+          if(e.getValue() instanceof IConstructor){
+            ename = ((IConstructor) e.getValue()).getName();
           } else {
             ename = e.toString();
           }

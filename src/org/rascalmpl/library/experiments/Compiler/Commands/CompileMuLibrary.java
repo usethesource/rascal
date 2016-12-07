@@ -3,10 +3,15 @@ package org.rascalmpl.library.experiments.Compiler.Commands;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import org.rascalmpl.library.experiments.Compiler.Examples.ISampleFuns;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal.Builder;
+import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.lang.rascal.boot.Kernel;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -66,14 +71,15 @@ public class CompileMuLibrary {
                     .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
                     .build();
 
-            Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
+            //Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
+            IKernel kernel = Java2Rascal.Builder.bridge(vf, cmdOpts.getPathConfig(), IKernel.class).build();
 
             kernel.compileMuLibrary(
                     cmdOpts.getCommandLocsOption("src"),
                     cmdOpts.getCommandLocsOption("lib"),
                     cmdOpts.getCommandLocOption("boot"),
                     cmdOpts.getCommandLocOption("bin"), 
-                    cmdOpts.getModuleOptionsAsMap());
+                    kernel.kw_compileMu());
         }
         catch (Throwable e) {
             e.printStackTrace();

@@ -266,4 +266,11 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
 RVMModule compileIncremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, bool verbose = false, bool optimize = true, bool enableAsserts=false){
     <cfg, rvmMod> = compile1Incremental(qualifiedModuleName, reuseConfig, pcfg, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
     return recompileDependencies(qualifiedModuleName, rvmMod, cfg, pcfg, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
-}    
+}
+
+set[str] getIncrementalVocabulary(){
+    if(previousConfig == noPreviousConfig){
+        return {};
+    }
+    return {name | /RSimpleName(str name) := previousConfig};
+}  
