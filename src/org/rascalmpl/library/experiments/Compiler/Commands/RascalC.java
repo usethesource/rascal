@@ -128,27 +128,17 @@ public class RascalC {
             boolean ok = true;
             
             if (cmdOpts.getCommandBoolOption("noLinking")) {
-                IList programs = kernel.compile(
-                        cmdOpts.getModules(),
-//                        cmdOpts.getCommandLocsOption("src"),
-//                        cmdOpts.getCommandLocsOption("lib"),
-//                        cmdOpts.getCommandLocOption("boot"),
-//                        cmdOpts.getCommandLocOption("bin"), 
-                        pcfg.asConstructor(kernel),
-                        cmdOpts.getCommandLocOption("reloc"),
-                        kernel.kw_compile());
+                IList programs = kernel.compile(cmdOpts.getModules(), pcfg.asConstructor(kernel),
+                                                kernel.kw_compile().reloc(cmdOpts.getCommandLocOption("reloc"))
+                                                );
                 ok = handleMessages(programs);
                 System.exit(ok ? 0 : 1);
             } 
             else {
-                IList programs = kernel.compileAndLink(
-                        cmdOpts.getModules(),
-//                        cmdOpts.getCommandLocsOption("src"),
-//                        cmdOpts.getCommandLocsOption("lib"),
-//                        cmdOpts.getCommandLocOption("boot"),
-//                        cmdOpts.getCommandLocOption("bin"), 
-                        pcfg.asConstructor(kernel),
-                        kernel.kw_compileAndLink().reloc(cmdOpts.getCommandLocOption("reloc")));
+                IList programs = kernel.compileAndLink(cmdOpts.getModules(), pcfg.asConstructor(kernel),
+                                                       kernel.kw_compileAndLink()
+                                                       .reloc(cmdOpts.getCommandLocOption("reloc"))
+                                                       );
                 ok = handleMessages(programs);
                 if(!ok){
                   System.exit(1);
