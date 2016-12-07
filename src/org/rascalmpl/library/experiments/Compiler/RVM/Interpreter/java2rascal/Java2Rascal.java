@@ -40,6 +40,8 @@ public class Java2Rascal<RascalInterfaceModule> {
   private final Class<RascalInterfaceModule> interface2Rascal;
   private boolean trace = false;
   private boolean profile = false;
+  private boolean verbose = false;
+  private boolean jvm = true;
   
   private Java2Rascal(Builder<RascalInterfaceModule> b) {
     this.vf = b.vf;
@@ -53,6 +55,8 @@ public class Java2Rascal<RascalInterfaceModule> {
     Class<IM2> interface2Rascal;
     boolean trace = false;
     boolean profile = false;
+    boolean verbose = false;
+    boolean jvm = true;
 
     static public <IM3> Builder<IM3> bridge(IValueFactory vf, PathConfig pcfg, Class<IM3> interface2Rascal) { 
       return new Builder<IM3>(vf, pcfg, interface2Rascal); 
@@ -64,13 +68,22 @@ public class Java2Rascal<RascalInterfaceModule> {
       this.interface2Rascal = interface2Rascal;
     }
 
-    public Builder<IM2> setProfile(){
-      profile = true;
+    public Builder<IM2> profile(boolean profile){
+      this.profile = profile;
       return this;
     }
 
-    public Builder<IM2> setTrace(){
-      trace = true;
+    public Builder<IM2> trace(boolean trace){
+      this.trace = trace;
+      return this;
+    }
+    public Builder<IM2> verbose(boolean verbose){
+      this.verbose = verbose;
+      return this;
+    }
+    
+    public Builder<IM2> jvm(boolean jvm){
+      this.jvm = jvm;
       return this;
     }
 
@@ -87,6 +100,8 @@ public class Java2Rascal<RascalInterfaceModule> {
         RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot(), System.out, System.err)
             .setTrace(trace)
             .setProfile(profile)
+            .setVerbose(verbose)
+            .setJVM(jvm)
             .build();
     ISourceLocation bootDir = pcfg.getBoot();
     String moduleName = null;

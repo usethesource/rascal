@@ -112,6 +112,7 @@ public class CommandExecutor {
 		prelude = new Prelude(vf);
 		
 		this.pcfg = pcfg.addSourceLoc(vf.sourceLocation("test-modules", "", ""));
+		System.err.println("CommandExecutor uses: " + pcfg.asConstructor(kernel));
 		this.stdout = stdout;
 		this.stderr = stderr; 
 		
@@ -230,25 +231,19 @@ public class CommandExecutor {
 	      return;
 	    }
 	  }
-	  IValue res = kernel.rascalTests(w.done(), 
-//	      pcfg.getSrcs(), 
-//	      pcfg.getLibs(), 
-//	      pcfg.getBoot(), 
-//	      pcfg.getBin(), 
-	      pcfg.asConstructor(kernel),
-	      kernel.kw_rascalTests().verbose(false).recompile(true)
+	  IValue res = kernel.rascalTests(w.done(), pcfg.asConstructor(kernel),
+	                                  kernel.kw_rascalTests()
+	                                  .verbose(false)
+	                                  .recompile(true)
 	      );
 	  stderr.println("executeTests: " + res);
 	}
 	
 	public IConstructor executeTestsRaw(String mname){
-	  return kernel.rascalTestsRaw(vf.list(vf.string(mname)), 
-//          pcfg.getSrcs(), 
-//          pcfg.getLibs(), 
-//          pcfg.getBoot(), 
-//          pcfg.getBin(), 
-	      pcfg.asConstructor(kernel),
-	      kernel.kw_rascalTests().verbose(false).recompile(true)
+	  return kernel.rascalTestsRaw(vf.list(vf.string(mname)), pcfg.asConstructor(kernel),
+	                               kernel.kw_rascalTests()
+	                               .verbose(false)
+	                               .recompile(true)
 	      );
 	}
 	
@@ -291,10 +286,6 @@ public class CommandExecutor {
 			IConstructor rvmProgram = kernel.compileAndMergeProgramIncremental(vf.string(consoleInputName), 
 																	reuseConfig, 
 																	pcfg.asConstructor(kernel),
-																	/*pcfg.getSrcs(), 
-																	pcfg.getLibs(), 
-																	pcfg.getBoot(), 
-																	pcfg.getBin(), */
 																	kernel.kw_compileAndMergeProgramIncremental()
 																	);
 			
