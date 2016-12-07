@@ -431,6 +431,10 @@ RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, loc reloc=|n
 }
 
 RVMProgram compileAndMergeIncremental(str qualifiedModuleName, bool reuseConfig, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool jvm=true, bool verbose = false, bool optimize = true){
+    return compileAndMergeProgramIncremental(qualifiedModuleName, reuseConfig, srcs, libs, boot, bin, jvm=jvm, verbose=verbose, optimize=optimize);
+}
+
+RVMProgram compileAndMergeProgramIncremental(str qualifiedModuleName, bool reuseConfig, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool jvm=true, bool verbose = false, bool optimize = true){
    //pcfg = pathConfig(srcs=[|std:///|, |test-modules:///|], bin=|home:///bin-console|, libs=[|home:///bin-console|]);
    pcfg = pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin);
    if(!reuseConfig){
