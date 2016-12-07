@@ -8,7 +8,10 @@ import java.util.List;
 
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
+import org.rascalmpl.library.lang.rascal.boot.IJava2Rascal;
+import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
@@ -20,7 +23,7 @@ public class PathConfig {
 	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	List<ISourceLocation> srcs;		// List of locations to search for source files
-	List<ISourceLocation> libs; 		// List of locations to search for derived files
+	List<ISourceLocation> libs;     // List of locations to search for derived files
 	List<ISourceLocation> courses; 	// List of locations to search for course source files
 	ISourceLocation bin; 			// Global location for derived files outside projects
 	ISourceLocation boot;			// Location with Rascal boot files
@@ -222,6 +225,9 @@ public class PathConfig {
 		return rascalSearchPath.listModuleEntries(qualifier);
 	}
 	
+	public IConstructor asConstructor(IJava2Rascal j2r){
+	    return j2r.pathConfig(j2r.kw_pathConfig().srcs(getSrcs()).libs(getLibs()).boot(getBoot()).bin(getBin()).courses(getcourses()));
+	  }
 }
 
 class PathContributor implements IRascalSearchPathContributor{

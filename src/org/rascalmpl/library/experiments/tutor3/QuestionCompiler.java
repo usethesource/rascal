@@ -31,35 +31,35 @@ import org.rascalmpl.value.IValueFactory;
 public class QuestionCompiler {
     IValueFactory vf;
     private OverloadedFunction compileQuestions;
-    private final IList srcs;
-    private final IList courses;
-    private final IList libs;
-    private final ISourceLocation bin;
-    private final ISourceLocation boot;
+    private  IList srcs;
+    private  IList courses;
+    private  IList libs;
+    private  ISourceLocation bin;
+    private  ISourceLocation boot;
     
     private RVMCore rvm;
     
     public QuestionCompiler(IValueFactory vf, PathConfig pcfg) throws IOException{
-        this.vf = vf;
-        srcs = pcfg.getSrcs();
-        libs = pcfg.getLibs();
-        bin = pcfg.getBin();
-        boot = pcfg.getBoot();
-        courses = pcfg.getcourses();
-        if(rvm == null){
-            RascalExecutionContext rex = 
-                    RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot() /* TODO needs a kernel location */, System.out, System.err)
-                        .setJVM(true)                   // options for complete repl
-                        .setTrace(false)
-                        .build();
-            rvm = ExecutionTools.initializedRVM(rex.getQuestionCompiler(), rex);
-        }
-        try {
-            compileQuestions = rvm.getOverloadedFunction("str compileQuestions(str qmodule, list[loc] srcs, list[loc] libs, list[loc] courses, loc bin, loc boot)");
-        } catch (NoSuchRascalFunction e) {
-            System.err.println("Function compileQuestions not found");
-            e.printStackTrace();
-        }
+//        this.vf = vf;
+//        srcs = pcfg.getSrcs();
+//        libs = pcfg.getLibs();
+//        bin = pcfg.getBin();
+//        boot = pcfg.getBoot();
+//        courses = pcfg.getcourses();
+//        if(rvm == null){
+//            RascalExecutionContext rex = 
+//                    RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot() /* TODO needs a kernel location */, System.out, System.err)
+//                        .setJVM(true)                   // options for complete repl
+//                        .setTrace(false)
+//                        .build();
+//            rvm = ExecutionTools.initializedRVM(rex.getQuestionCompiler(), rex);
+//        }
+//        try {
+//            compileQuestions = rvm.getOverloadedFunction("str compileQuestions(str qmodule, list[loc] srcs, list[loc] libs, list[loc] courses, loc bin, loc boot)");
+//        } catch (NoSuchRascalFunction e) {
+//            System.err.println("Function compileQuestions not found");
+//            e.printStackTrace();
+//        }
     }
     
     /**

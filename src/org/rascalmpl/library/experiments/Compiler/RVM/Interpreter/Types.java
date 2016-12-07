@@ -484,6 +484,8 @@ public class Types {
 		});	
 	}
 	
+	// Deprecated
+	
 	private static Pattern identifier = Pattern.compile("\\w+");
 	private static Pattern openBracket = Pattern.compile("\\[");
 	private static Pattern closeBracket = Pattern.compile("\\]");
@@ -608,38 +610,7 @@ public class Types {
 	    }  while(s.hasNext(comma));
 	    return flds.toArray();
 	}
-/*
-TODO: MISSING/INCOMPLETE CASES:
-else if (cons == RascalValueFactory.Symbol_Adt) {
-return adtToType(symbol, store);
-}
-else if (cons == RascalValueFactory.Symbol_Alias){
-return aliasToType(symbol, store);
-}
+	
+	// End deprecated
 
-else if (cons == RascalValueFactory.Symbol_Cons) {
-return consToType(symbol, store);
-}
-else if (cons == RascalValueFactory.Symbol_Func) {
-return funcToType(symbol, store);
-}
-else if (cons == RascalValueFactory.Symbol_Label) {
-return symbolToType((IConstructor) symbol.get("symbol"), store);
-}
-
-else if (cons == RascalValueFactory.Symbol_Parameter) {
-return tf.parameterType(((IString) symbol.get("name")).getValue(), symbolToType((IConstructor) symbol.get("bound"), store));
-}
-else if (cons == RascalValueFactory.Symbol_BoundParameter) {
-return tf.parameterType(((IString) symbol.get("name")).getValue(), symbolToType((IConstructor) symbol.get("bound"), store));
-}
-else if (cons == RascalValueFactory.Symbol_ReifiedType) {
-return RascalTypeFactory.getInstance().reifiedType(symbolToType((IConstructor) symbol.get("symbol"), store));
-
-else {
-// We assume the other types are one of the non-terminal symbols
-return RascalTypeFactory.getInstance().nonTerminalType(symbol);
-}
-}
-*/
 }

@@ -72,13 +72,15 @@ public class CompileMuLibrary {
                     .build();
 
             //Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
-            IKernel kernel = Java2Rascal.Builder.bridge(vf, cmdOpts.getPathConfig(), IKernel.class).build();
+            PathConfig pcfg = cmdOpts.getPathConfig();
+            IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class).build();
 
             kernel.compileMuLibrary(
-                    cmdOpts.getCommandLocsOption("src"),
-                    cmdOpts.getCommandLocsOption("lib"),
-                    cmdOpts.getCommandLocOption("boot"),
-                    cmdOpts.getCommandLocOption("bin"), 
+//                    cmdOpts.getCommandLocsOption("src"),
+//                    cmdOpts.getCommandLocsOption("lib"),
+//                    cmdOpts.getCommandLocOption("boot"),
+//                    cmdOpts.getCommandLocOption("bin"), 
+                    pcfg.asConstructor(kernel),
                     kernel.kw_compileMu());
         }
         catch (Throwable e) {

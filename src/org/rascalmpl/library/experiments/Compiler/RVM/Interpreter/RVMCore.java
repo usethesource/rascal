@@ -218,13 +218,9 @@ public abstract class RVMCore {
 	public PrintWriter getStdErr() { return rex.getStdErr(); }
 	
 	public PrintWriter getStdOut() { return rex.getStdOut(); }
-	
-//	URIResolverRegistry getResolverRegistry() { return URIResolverRegistry.getInstance(); }
-	
+		
 	IRascalMonitor getMonitor() {return rex.getMonitor();}
 	
-//	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }
-
 	public IFrameObserver getFrameObserver() {
 		return frameObserver;
 	}
@@ -329,6 +325,7 @@ public abstract class RVMCore {
 	  throw new NoSuchRascalFunction(name);
 	}
 	
+	// deprecated
 	public OverloadedFunction getOverloadedFunction(String signature) throws NoSuchRascalFunction{
 		OverloadedFunction result = null;
 		

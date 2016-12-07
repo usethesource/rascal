@@ -21,6 +21,9 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.TypeStore;
 
+
+// Deprecated
+
 public class Kernel {
   IValueFactory vf;
   private OverloadedFunction compile;
@@ -45,40 +48,40 @@ public class Kernel {
     this(vf, rex, URIUtil.correctLocation("boot", "", "/"));
   }
 
-//  private OverloadedFunction safeGet(String s) {
-//    try {
-//      return rvm.getOverloadedFunction(s);
-//    }
-//    catch (Throwable e) {
-//      // For bootstrapping purposes sometimes unused kernel functions will not bind correctly.
-//      // If such function is not used, this is ok, but we print a warning here to explain
-//      // the subsequent NPE when the function does end up being used:
-//      System.err.println("WARNING: ignoring function " + s);
-//      e.printStackTrace();
-//      return null;
-//    }
-//  }
+  private OverloadedFunction safeGet(String s) {
+    try {
+      return rvm.getOverloadedFunction(s);
+    }
+    catch (Throwable e) {
+      // For bootstrapping purposes sometimes unused kernel functions will not bind correctly.
+      // If such function is not used, this is ok, but we print a warning here to explain
+      // the subsequent NPE when the function does end up being used:
+      System.err.println("WARNING: ignoring function " + s);
+      e.printStackTrace();
+      return null;
+    }
+  }
         
   public Kernel(IValueFactory vf, RascalExecutionContext rex, ISourceLocation bootDir) throws IOException, NoSuchRascalFunction, URISyntaxException {
     this.vf = vf;		   
     this.rvm = ExecutionTools.initializedRVM(rex.getKernel(), rex);
 
-//    compile    		           = safeGet("RVMModule compile(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
-//    compileN    	           = safeGet("list[RVMModule] compile(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
-//    compileMuLibrary           = safeGet("void compileMuLibrary(list[loc] srcs, list[loc] libs, loc boot, loc bin)");
-//    compileAndLink             = safeGet("RVMProgram compileAndLink(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
-//    compileAndLinkN            = safeGet("list[RVMProgram] compileAndLink(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
-//    compileAndMergeProgramIncremental
-//                               = safeGet("RVMProgram compileAndMergeProgramIncremental(str qname, bool reuseConfig, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
-//    getIncrementalVocabulary   = safeGet("ISet getIncrementalVocabulary()");
-//
-//    rascalTests   	           = safeGet("value rascalTests(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool recompile)");
-//    rascalTestsRaw             = safeGet("TestResults rascalTestsRaw(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool recompile)");
-//    makeSummary                = safeGet("ModuleSummary makeSummary(str qualifiedModuleName, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
-//    getDefinitions             = safeGet("set[loc] getDefinitions(ModuleSummary summary, loc use)");
-//    getType                    = safeGet("Symbol getType(ModuleSummary summary, loc use)");
-//    getUses                    = safeGet("set[loc] getUses(ModuleSummary s, loc def)");
-//    getDocForDefinition        = safeGet("str getDocForDefinition(loc def)");
+    compile    		           = safeGet("RVMModule compile(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
+    compileN    	           = safeGet("list[RVMModule] compile(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
+    compileMuLibrary           = safeGet("void compileMuLibrary(list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+    compileAndLink             = safeGet("RVMProgram compileAndLink(str qname, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
+    compileAndLinkN            = safeGet("list[RVMProgram] compileAndLink(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, loc reloc)");
+    compileAndMergeProgramIncremental
+                               = safeGet("RVMProgram compileAndMergeProgramIncremental(str qname, bool reuseConfig, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+    getIncrementalVocabulary   = safeGet("ISet getIncrementalVocabulary()");
+
+    rascalTests   	           = safeGet("value rascalTests(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool recompile)");
+    rascalTestsRaw             = safeGet("TestResults rascalTestsRaw(list[str] qnames, list[loc] srcs, list[loc] libs, loc boot, loc bin, bool recompile)");
+    makeSummary                = safeGet("ModuleSummary makeSummary(str qualifiedModuleName, list[loc] srcs, list[loc] libs, loc boot, loc bin)");
+    getDefinitions             = safeGet("set[loc] getDefinitions(ModuleSummary summary, loc use)");
+    getType                    = safeGet("Symbol getType(ModuleSummary summary, loc use)");
+    getUses                    = safeGet("set[loc] getUses(ModuleSummary s, loc def)");
+    getDocForDefinition        = safeGet("str getDocForDefinition(loc def)");
 
     //		bootstrapRascalParser = safeGet("void bootstrapRascalParser(loc src)");
   }
