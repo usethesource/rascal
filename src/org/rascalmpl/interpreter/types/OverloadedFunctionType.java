@@ -125,7 +125,7 @@ public class OverloadedFunctionType extends RascalType {
             int size = rnd.nextInt(5) + 2;
             Set<FunctionType> alts = new HashSet<>(); 
             Type returnType = next.get();
-            int arity = rnd.nextInt(2);
+            int arity = rnd.nextInt(4);
                     
             while (size-- > 0) {
                 alts.add((FunctionType) RascalTypeFactory.getInstance().functionType(returnType, randomTuple(next, store, rnd, arity), null));
