@@ -125,10 +125,10 @@ public class OverloadedFunctionType extends RascalType {
             int size = rnd.nextInt(5) + 2;
             Set<FunctionType> alts = new HashSet<>(); 
             Type returnType = next.get();
-            int arity = rnd.nextInt(4);
+            int arity = rnd.nextInt(2);
                     
             while (size-- > 0) {
-                alts.add((FunctionType) RascalTypeFactory.getInstance().functionType(returnType, randomTuple(next, store, rnd, arity), randomTuple(next, store, rnd, arity)));
+                alts.add((FunctionType) RascalTypeFactory.getInstance().functionType(returnType, randomTuple(next, store, rnd, arity), null));
             }
             
             return RascalTypeFactory.getInstance().overloadedFunctionType(alts);
@@ -319,8 +319,10 @@ public class OverloadedFunctionType extends RascalType {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if(obj == null)
+		if(obj == null) {
 			return false;
+		}
+		
 		if (obj.getClass().equals(getClass())) {
 			OverloadedFunctionType f = (OverloadedFunctionType) obj;
 			return alternatives.equals(f.alternatives);
@@ -331,16 +333,24 @@ public class OverloadedFunctionType extends RascalType {
 	@Override
 	public int hashCode() {
 		// TODO: better hashCode?
-		return alternatives.hashCode();
+		return 31 + alternatives.hashCode();
 	}
 	
 	@Override
 	public String toString() {
 	    StringBuffer b = new StringBuffer();
 		b.append(getReturnType() + "(");
+		int i = 0;
 		for (FunctionType t : alternatives) {
 		    assert t.getReturnType() == getReturnType();
+		    if (i++ != 0) {
+		        b.append(" + ");
+		    }
 		    b.append(t.getArgumentTypes().toString() + " ");
+		    
+		    if (t.getKeywordParameterTypes() != null) {
+		        b.append(t.getKeywordParameterTypes().toString() + " ");
+		    }
 		}
 		b.append(")");
 		
