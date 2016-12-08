@@ -351,11 +351,9 @@ public class RVMExecutable implements Serializable{
 		//System.out.println("RVMExecutable.write: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 	}
 	
-	public static RVMExecutable read(ISourceLocation rvmExecutable) throws IOException {
+	public static RVMExecutable read(ISourceLocation rvmExecutable, TypeStore typeStore) throws IOException {
 		vf = ValueFactoryFactory.getValueFactory();
-//		TypeStore typeStore = RascalValueFactory.getStore(); 
-		//TypeStore typeStore = new TypeStore(RascalValueFactory.getStore());
-//		TypeStore typeStore = RascalValueFactory.getStore(); 
+//		TypeStore typeStore = new TypeStore(RascalValueFactory.getStore());
 		
 		FSTSerializableType.initSerialization(vf, typeStore);
 		FSTSerializableIValue.initSerialization(vf, typeStore);
