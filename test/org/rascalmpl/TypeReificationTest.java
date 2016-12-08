@@ -33,7 +33,7 @@ public class TypeReificationTest extends TestCase {
     public void testJustRandomTypesWithoutExceptions() {
         TypeFactory tf = TypeFactory.getInstance();
         List<Type> collector = new LinkedList<>();
-        int tries = 5000;
+        int tries = 50000;
         
         for (int i = 0; i < tries; i++) {
             collector.add(tf.randomType());
@@ -71,9 +71,6 @@ public class TypeReificationTest extends TestCase {
                 System.err.println("reified was      : " + reified);
                 System.err.println("reified recovered: " + tr.typeToValue(recovered, store, syntax));
             }
-            else {
-                System.err.println("OK: " + type + " == " + recovered + " for " + reified);
-            }
 
             assertTrue(recovered == type);
         }
@@ -84,7 +81,12 @@ public class TypeReificationTest extends TestCase {
         }
     }
     
-    public void testFuncTypeParameterOrder() {
+    public void testFuncTypeKeywordParameter() {
+        TypeFactory tf = TypeFactory.getInstance();
+        testOne(RascalTypeFactory.getInstance().functionType(tf.voidType(), tf.tupleType(new Type[] {tf.integerType(), tf.realType()}, new String[] {"a", "b"}), tf.tupleType(new Type[] {tf.integerType()},  new String[] {"a"})), new TypeStore());
+    }
+    
+    public void testFuncTypeParametersOrder() {
         TypeFactory tf = TypeFactory.getInstance();
         testOne(RascalTypeFactory.getInstance().functionType(tf.voidType(), tf.tupleType(new Type[] {tf.integerType(), tf.realType()}, new String[] {"a", "b"}), null), new TypeStore());
         testOne(RascalTypeFactory.getInstance().functionType(tf.voidType(), tf.tupleType(tf.integerType(), tf.realType()), null), new TypeStore());
@@ -95,9 +97,9 @@ public class TypeReificationTest extends TestCase {
         TypeStore store = new TypeStore();
         
         for (int i = 0; i < 50; i++) {
-            Type type = tf.randomType();
+            Type type = tf.randomType(store);
             while (!(type instanceof FunctionType)) {
-                type = tf.randomType();
+                type = tf.randomType(store);
             }
             
             testOne(type, store);
@@ -108,9 +110,8 @@ public class TypeReificationTest extends TestCase {
         TypeFactory tf = TypeFactory.getInstance();
         TypeStore store = new TypeStore();
         
-        for (int i = 0; i < 500; i++) {
-            Type type = tf.randomType(store);
-            testOne(type, store);
+        for (int i = 0; i < 10_000; i++) {
+            testOne(tf.randomType(store), store);
         }
     }
 }
