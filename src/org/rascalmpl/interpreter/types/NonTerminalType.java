@@ -15,8 +15,10 @@ package org.rascalmpl.interpreter.types;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.interpreter.TypeReifier.TypeStoreWithSyntax;
@@ -31,6 +33,7 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -157,6 +160,18 @@ public class NonTerminalType extends RascalType {
                     }
                 }
             }
+        }
+
+        @Override
+        public boolean isRecursive() {
+            return true;
+        }
+        
+        @Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+            IValueFactory vf = ValueFactoryFactory.getValueFactory();
+            // TODO: this is not random enough
+            return RascalTypeFactory.getInstance().nonTerminalType(vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(randomLabel(rnd))));
         }
     }
     

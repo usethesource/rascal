@@ -12,8 +12,10 @@
 package org.rascalmpl.interpreter.types;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISetWriter;
@@ -60,6 +62,16 @@ public class ReifiedType extends RascalType {
         public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
                 Set<IConstructor> done) {
             ((ReifiedType) type).arg.asProductions(vf, store, grammar, done);
+        }
+
+        @Override
+        public boolean isRecursive() {
+            return true;
+        }
+        
+        @Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+            return RascalTypeFactory.getInstance().reifiedType(next.get());
         }
 	}
 	
