@@ -73,7 +73,7 @@ public class FunctionType extends RascalType {
         }
 
         private Type normalFunctionSymbol() {
-            return symbols().typeSymbolConstructor("func", symbols().symbolADT(), "ret", TF.listType(symbols().symbolADT()), "parameters");
+            return symbols().typeSymbolConstructor("func", symbols().symbolADT(), "ret", TF.listType(symbols().symbolADT()), "parameters", TF.listType(symbols().symbolADT()), "kwTypes");
         }
 
         @Override
@@ -87,9 +87,10 @@ public class FunctionType extends RascalType {
             } else {
                 Type returnType = symbols().fromSymbol((IConstructor) symbol.get("ret"), store, grammar);
                 Type parameters = symbols().fromSymbols((IList) symbol.get("parameters"), store, grammar);
+                Type kwTypes = symbols().fromSymbols((IList) symbol.get("kwTypes"), store, grammar);
 
                 // TODO: while merging the other branch had tf.voidType()...    
-                return RTF.functionType(returnType, parameters, TF.tupleEmpty());
+                return RTF.functionType(returnType, parameters, kwTypes);
             }
         }
         
@@ -100,7 +101,7 @@ public class FunctionType extends RascalType {
 
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
-            return RascalTypeFactory.getInstance().functionType(next.get(), randomTuple(next, store, rnd), null);
+            return RascalTypeFactory.getInstance().functionType(next.get(), randomTuple(next, store, rnd), rnd.nextBoolean() ? tf().voidType() : randomTuple(next, store, rnd));
         }
         
         @Override
@@ -128,7 +129,23 @@ public class FunctionType extends RascalType {
                 w.append(sym);
             }
             
-            return vf.constructor(normalFunctionSymbol(), ((FunctionType) type).getReturnType().asSymbol(vf, store, grammar, done), w.done());
+            IListWriter kw = vf.listWriter();
+            
+            i = 0;
+            Type kwArgs = ((FunctionType) type).getKeywordParameterTypes();
+            if (kwArgs != null && !kwArgs.isBottom()) {
+                for (Type arg : kwArgs) {
+                    IConstructor sym = arg.asSymbol(vf, store, grammar, done);
+                    if (kwArgs.hasFieldNames()) {
+                        sym = symbols().labelSymbol(vf, sym, kwArgs.getFieldName(i));
+                    }
+                    i++;
+                    kw.append(sym);
+                }
+            }
+            
+            
+            return vf.constructor(normalFunctionSymbol(), ((FunctionType) type).getReturnType().asSymbol(vf, store, grammar, done), w.done(), kw.done());
         }
 	}
 	
@@ -342,9 +359,7 @@ public class FunctionType extends RascalType {
 		if (keywordParameters != null) {
 		    i = 0;
 	        for (Type arg : keywordParameters) {
-	            if (i > 0) {
-	                sb.append(", ");
-	            }
+	            sb.append(", ");
 	            sb.append(arg.toString());
 	            if (argumentTypes.hasFieldNames()) {
 	                sb.append(" " + argumentTypes.getFieldName(i) + " = ...");
