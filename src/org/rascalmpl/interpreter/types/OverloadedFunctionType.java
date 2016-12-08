@@ -55,9 +55,13 @@ public class OverloadedFunctionType extends RascalType {
         @Override
         public Set<Type> getSymbolConstructorTypes() {
            return Arrays.stream(new Type[] { 
-                   symbols().typeSymbolConstructor("overloaded", TF.setType(symbols().symbolADT()), "alternatives"),
+                   normalSymbolType(),
                    deprecatedSymbolType(), // TODO: can be removed after bootstrap
            }).collect(Collectors.toSet()); 
+        }
+
+        private Type normalSymbolType() {
+            return symbols().typeSymbolConstructor("overloaded", TF.setType(symbols().symbolADT()), "alternatives");
         }
 
         private Type deprecatedSymbolType() {
@@ -107,7 +111,7 @@ public class OverloadedFunctionType extends RascalType {
             for (Type alt : ((OverloadedFunctionType) type).getAlternatives()) {
               w.insert(alt.asSymbol(vf, store, grammar, done));
             }
-            return vf.constructor(getSymbolConstructorType(), w.done());
+            return vf.constructor(normalSymbolType(), w.done());
         }
 
         
@@ -120,9 +124,11 @@ public class OverloadedFunctionType extends RascalType {
         public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
             int size = rnd.nextInt(5) + 2;
             Set<FunctionType> alts = new HashSet<>(); 
-            
+            Type returnType = next.get();
+            int arity = rnd.nextInt(4);
+                    
             while (size-- > 0) {
-                alts.add((FunctionType) new FunctionType.Reifier().randomInstance(next, store, rnd));
+                alts.add((FunctionType) RascalTypeFactory.getInstance().functionType(returnType, randomTuple(next, store, rnd, arity), randomTuple(next, store, rnd, arity)));
             }
             
             return RascalTypeFactory.getInstance().overloadedFunctionType(alts);
@@ -330,7 +336,15 @@ public class OverloadedFunctionType extends RascalType {
 	
 	@Override
 	public String toString() {
-		return getReturnType() + " (...)";
+	    StringBuffer b = new StringBuffer();
+		b.append(getReturnType() + "(");
+		for (FunctionType t : alternatives) {
+		    assert t.getReturnType() == getReturnType();
+		    b.append(t.getArgumentTypes().toString() + " ");
+		}
+		b.append(")");
+		
+		return b.toString();
 	}
 	
 	@Override
