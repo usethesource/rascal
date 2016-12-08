@@ -396,11 +396,11 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if(obj == null)
+		if(obj == null) 
 			return false;
 		if (obj.getClass() == getClass()) {
 			NonTerminalType other = (NonTerminalType) obj;
-			return symbol.equals(other.symbol);
+			return symbol.isEqual(other.symbol);
 		}
 		
 		return false;
