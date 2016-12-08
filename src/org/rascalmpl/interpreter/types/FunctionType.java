@@ -18,8 +18,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.value.IConstructor;
@@ -90,7 +92,17 @@ public class FunctionType extends RascalType {
                 return RTF.functionType(returnType, parameters, TF.tupleEmpty());
             }
         }
+        
+        @Override
+        public boolean isRecursive() {
+            return true;
+        }
 
+        @Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+            return RascalTypeFactory.getInstance().functionType(next.get(), randomTuple(next, store, rnd), randomTuple(next, store, rnd));
+        }
+        
         @Override
         public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
                 Set<IConstructor> done) {
