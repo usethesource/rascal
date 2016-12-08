@@ -207,7 +207,7 @@ public class ReifiedType extends RascalType {
 	
 	@Override
 	public int hashCode() {
-		return arg.hashCode();
+		return 2331 + arg.hashCode();
 	}
 
 	@Override

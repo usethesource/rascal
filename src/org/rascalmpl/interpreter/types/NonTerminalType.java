@@ -46,7 +46,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * that implements the connection between Rascal's non-terminals and Rascal types. 
  */
 public class NonTerminalType extends RascalType {
-	private IConstructor symbol;
+	private final IConstructor symbol;
 
 	/*package*/ public NonTerminalType(IConstructor cons) {
 		// TODO refactor this into different factory methods in RascalTypeFactory
@@ -396,8 +396,10 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if(obj == null) 
+		if(obj == null) {
 			return false;
+		}
+		
 		if (obj.getClass() == getClass()) {
 			NonTerminalType other = (NonTerminalType) obj;
 			return symbol.isEqual(other.symbol);
@@ -408,7 +410,7 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	public int hashCode() {
-		return symbol.hashCode();
+		return 133333331 + 1331 * symbol.hashCode();
 	}
 	
 	@Override

@@ -48,7 +48,7 @@ public class FunctionType extends RascalType {
 	private static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 	
 	/*package*/ FunctionType(Type returnType, Type argumentTypes, Type keywordParameters) {
-		this.argumentTypes = argumentTypes.isTuple() ? argumentTypes : TF.tupleType(argumentTypes);
+		this.argumentTypes = argumentTypes.isBottom() ? TF.tupleEmpty() : argumentTypes;
 		this.returnType = returnType;
 		this.keywordParameters = keywordParameters == null ? null : keywordParameters.isBottom() || (keywordParameters.isTuple() && keywordParameters.getArity() == 0) ? null : keywordParameters;
 	}
@@ -100,7 +100,7 @@ public class FunctionType extends RascalType {
 
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
-            return RascalTypeFactory.getInstance().functionType(next.get(), randomTuple(next, store, rnd), randomTuple(next, store, rnd));
+            return RascalTypeFactory.getInstance().functionType(next.get(), randomTuple(next, store, rnd), null);
         }
         
         @Override
@@ -337,6 +337,21 @@ public class FunctionType extends RascalType {
 			}
 			
 			i++;
+		}
+		
+		if (keywordParameters != null) {
+		    i = 0;
+	        for (Type arg : keywordParameters) {
+	            if (i > 0) {
+	                sb.append(", ");
+	            }
+	            sb.append(arg.toString());
+	            if (argumentTypes.hasFieldNames()) {
+	                sb.append(" " + argumentTypes.getFieldName(i) + " = ...");
+	            }
+	            
+	            i++;
+	        }
 		}
 		sb.append(')');
 		return sb.toString();
