@@ -117,8 +117,15 @@ public class FunctionType extends RascalType {
         public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store,  ISetWriter grammar, Set<IConstructor> done) {
             IListWriter w = vf.listWriter();
             
-            for (Type arg : ((FunctionType) type).getArgumentTypes()) {
-                w.append(arg.asSymbol(vf, store, grammar, done));
+            int i = 0;
+            Type args = ((FunctionType) type).getArgumentTypes();
+            for (Type arg : args) {
+                IConstructor sym = arg.asSymbol(vf, store, grammar, done);
+                if (args.hasFieldNames()) {
+                    sym = symbols().labelSymbol(vf, sym, args.getFieldName(i));
+                }
+                i++;
+                w.append(sym);
             }
             
             return vf.constructor(normalFunctionSymbol(), ((FunctionType) type).getReturnType().asSymbol(vf, store, grammar, done), w.done());
@@ -321,10 +328,15 @@ public class FunctionType extends RascalType {
 		sb.append('(');
 		int i = 0;
 		for (Type arg : argumentTypes) {
-			if (i++ > 0) {
+			if (i > 0) {
 				sb.append(", ");
 			}
 			sb.append(arg.toString());
+			if (argumentTypes.hasFieldNames()) {
+			    sb.append(" " + argumentTypes.getFieldName(i));
+			}
+			
+			i++;
 		}
 		sb.append(')');
 		return sb.toString();
