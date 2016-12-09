@@ -5,6 +5,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,6 +24,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
@@ -34,6 +37,7 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
+import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.repl.LimitedWriter;
 import org.rascalmpl.uri.URIUtil;
@@ -71,7 +75,6 @@ public class CommandExecutor {
 	public static String consoleInputPath = "/ConsoleInput.rsc";
 	private ISourceLocation consoleInputLocation;
 	private RVMExecutable rvmConsoleExecutable;
-	private RVMExecutable lastRvmConsoleExecutable;
 	
 	private SortedSet<String> vocabulary;
 	
@@ -81,6 +84,8 @@ public class CommandExecutor {
 	
 	private DebugREPLFrameObserver debugObserver;
 	
+	private IDEServices ideServices;
+	protected final CompiledRascalREPL repl;
 	private HelpManager helpManager;
 	
 	boolean debug;
@@ -108,7 +113,7 @@ public class CommandExecutor {
 	private StandardTextWriter indentedPrettyPrinter;
 	private boolean optimize;
 	
-	public CommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction, URISyntaxException {
+	public CommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices, CompiledRascalREPL repl) throws IOException, NoSuchRascalFunction, URISyntaxException {
 		
 		vf = ValueFactoryFactory.getValueFactory();
 		prelude = new Prelude(vf);
@@ -117,6 +122,8 @@ public class CommandExecutor {
 		
 		this.stdout = stdout;
 		this.stderr = stderr; 
+		this.ideServices = ideServices;
+		this.repl = repl;
 		
 		consoleInputLocation = vf.sourceLocation("test-modules", "", consoleInputName + ".rsc");
 		
@@ -139,16 +146,8 @@ public class CommandExecutor {
 		w.put(vf.string(shellModuleName), CompiledRascalShellModuleTags);
 		w.put(vf.string(consoleInputName), CompiledRascalShellModuleTags);
 		
-//		RascalExecutionContext rex = 
-//				RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot(), this.stdout, this.stderr)
-//					.withModuleTags(moduleTags)
-//					.forModule(shellModuleName)
-//					.setJVM(true)					// options for complete repl
-//					//.setProfiling(true)
-//					.build();
-		
 		kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class).build();
-		System.err.println("CommandExecutor uses: " + pcfg.asConstructor(kernel));
+		startupMessage(pcfg);
 		
 		variables = new HashMap<>();
 		imports = new ArrayList<>();
@@ -163,6 +162,14 @@ public class CommandExecutor {
         //singleLinePrettyPrinter = new StandardTextWriter(false);
          
 		stderr.println("Type 'help' for information or 'quit' to leave");
+	}
+	
+	private void startupMessage(PathConfig pcfg){
+	  System.err.println("srcs:    " + pcfg.getSrcs());
+	  System.err.println("libs:    " + pcfg.getLibs());
+	  System.err.println("courses: " + pcfg.getCourses());
+	  System.err.println("boot:    " + pcfg.getBoot());
+	  System.err.println("bin:     " + pcfg.getBin());
 	}
 	
 	public void reset(){
@@ -309,7 +316,6 @@ public class CommandExecutor {
 						.build();
 						
 				IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, new HashMap<String,IValue>(), rex);
-				lastRvmConsoleExecutable = rvmConsoleExecutable;
 				updateModuleVariables(rex.getModuleVariables());
 				forceRecompilation = false;
 				vocabulary = null;
@@ -768,12 +774,19 @@ public class CommandExecutor {
 	
 		case "help": case "apropos":
 			if(helpManager == null){
-				helpManager = new HelpManager(pcfg, stdout, stderr);
+				helpManager = new HelpManager(pcfg, stdout, stderr, ideServices);
 			}
 			
 			helpManager.handleHelp(words);
 			break;
 			
+		case "edit":
+		  System.err.println("edit: " + words[1]);
+		  ISourceLocation loc = pcfg.getRascalSearchPath().resolveModule(words[1]);
+		  System.err.println("loc: " + loc);
+		  ideServices.edit( Paths.get(loc.getPath()));
+		  break;
+		  
 		case "declarations":
 		  if(syntaxDefinitions.isEmpty() 
 		      && dataDeclarations.isEmpty() 
@@ -952,13 +965,6 @@ public class CommandExecutor {
 		return stdout;
 	}
 	
-//	public Collection<String> completePartialIdentifier(String qualifier, String term) {
-//		if(lastRvmConsoleExecutable != null){
-//			return lastRvmConsoleExecutable.completePartialIdentifier(new NameCompleter(), term).getResult();
-//		}
-//		return null;
-//	}
-	
 	SortedSet<String> getVocabulary(){
 	  if(vocabulary != null){
 	    return vocabulary;
@@ -984,19 +990,16 @@ public class CommandExecutor {
           partialIdentifier = partialIdentifier.substring(1);
       }
       
-      for(String completeName : vocabulary){
+      for(String completeName : vocabulary.tailSet(partialIdentifier)){
         completer.add(completeName, partialIdentifier);
       }
-      
-//    for(IValue modVar : moduleVariables.keySet()){
-//        completer.add(modVar.toString(), partialIdentifier);
-//    }
 
       return completer;
   }
 	
 	public Collection<String> completeDeclaredIdentifier(String term) {
 	  TreeSet<String> result = new TreeSet<String>();
+	  
 	  for(String var : variables.keySet()){
 	    if(var.startsWith(term)){
 	      result.add(var);
@@ -1033,6 +1036,10 @@ public class CommandExecutor {
 			}
 		}
 		return result;
+	}
+	
+	public CompletionResult completeModule(String line, int cursor){
+	  return repl.completeModule(line, cursor);
 	}
 }
 

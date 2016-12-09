@@ -127,7 +127,7 @@ public class PathConfig {
 		return new PathConfig(extendedsrcs, libs, bin, boot);
 	}
 	
-	public IList getcourses() {
+	public IList getCourses() {
 	    return vf.list(courses.toArray(new IValue[0]));
 	}
 	
@@ -225,7 +225,7 @@ public class PathConfig {
 	}
 	
 	public IConstructor asConstructor(IJava2Rascal j2r){
-	    return j2r.pathConfig(j2r.kw_pathConfig().srcs(getSrcs()).libs(getLibs()).boot(getBoot()).bin(getBin()).courses(getcourses()));
+	    return j2r.pathConfig(j2r.kw_pathConfig().srcs(getSrcs()).libs(getLibs()).boot(getBoot()).bin(getBin()).courses(getCourses()));
 	  }
 }
 

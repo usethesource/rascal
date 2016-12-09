@@ -62,9 +62,10 @@ public class RascalCommandCompletion {
                     return null;
                 }
                 	
-                case "edit":
-                	return null;
-                	
+                case "edit": {
+                    CompletionResult suggestions = executor.completeModule(line, cursor);
+                    return suggestions;
+                }
                 case "unimport": 
                 case "test": {
                 	OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(line, cursor);

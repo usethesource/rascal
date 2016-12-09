@@ -24,6 +24,7 @@ import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.BaseRascalREPL;
@@ -45,7 +46,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   static {
 	  	String[] shellVerbValues = {
 		  // General commands
-		  "help", "apropos", "set", "declarations", "modules", "unimport", "undeclare", "quit", "test",
+		  "help", "apropos", "set", "declarations", "modules", "unimport", "undeclare", "quit", "test", "edit",
 		  // Debugging commands
 		  "break", "enable", "disable", "clear", "ignore"
 	  	};
@@ -53,11 +54,13 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   }
   
   private PathConfig pcfg;
+  protected final IDEServices ideServices;
   
-  public CompiledRascalREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal)
+  public CompiledRascalREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal, IDEServices ideServices)
       throws IOException, URISyntaxException {
-    super(pcfg, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal);
+    super(pcfg, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal, ideServices);
     this.pcfg = pcfg;
+    this.ideServices = ideServices;
   }
   
   @Override
@@ -101,15 +104,15 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   }
 
   @Override
-  protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr) throws IOException, URISyntaxException {
+  protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) throws IOException, URISyntaxException {
     try {
-        executor = constructCommandExecutor(pcfg, new PrintWriter(stdout), new PrintWriter(stderr));
+        executor = constructCommandExecutor(pcfg, new PrintWriter(stdout), new PrintWriter(stderr), ideServices);
     } catch (NoSuchRascalFunction e) {
         throw new RuntimeException(e);
     }
   }
   
-  protected abstract CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction, URISyntaxException;
+  protected abstract CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) throws IOException, NoSuchRascalFunction, URISyntaxException;
   
   
   @Override
@@ -192,10 +195,10 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
     }
   }
 
-//  @Override
-//  protected boolean printSpaceAfterFullCompletion() {
-//      return true;
-//  }
+  @Override
+  protected boolean printSpaceAfterFullCompletion() {
+      return false;
+  }
   
   @Override
   protected Collection<String> completeModule(String qualifier, String partialModuleName) {
