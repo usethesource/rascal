@@ -85,7 +85,7 @@ public class Onthology {
 		return new PerFieldAnalyzerWrapper(stdAnalyzer, analyzerMap);
 	}
 
-	public Onthology(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, RascalCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException{
+	public Onthology(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException{
 		this.vf = ValueFactoryFactory.getValueFactory();
 		this.pcfg = pcfg;
 		this.srcPath = srcPath;

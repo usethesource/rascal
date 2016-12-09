@@ -66,25 +66,19 @@ public class RascalTests {
 			.modules("Rascal modules with tests")
 			
 			.handleArgs(args);
-		
-//		RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), cmdOpts.getCommandLocOption("boot"))
-//				.customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
-//				.setTrace(cmdOpts.getCommandBoolOption("trace"))
-//				.setProfile(cmdOpts.getCommandBoolOption("profile"))
-//				.forModule(cmdOpts.getModule().getValue())
-//                .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
-//				.build();
 
 		PathConfig pcfg = cmdOpts.getPathConfig();
 		IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class).build();
 		try {
 		    IBool success =
 		        (IBool) kernel.rascalTests(cmdOpts.getModules(), pcfg.asConstructor(kernel),
-		                                   kernel.kw_rascalTests().recompile(cmdOpts.getCommandBoolOption("recompile"))
+		                                   kernel.kw_rascalTests()
+		                                   .recompile(cmdOpts.getCommandBoolOption("recompile"))
 		                                   .trace(cmdOpts.getCommandBoolOption("trace"))
 		                                   .profile(cmdOpts.getCommandBoolOption("profile"))
 		                                   .verbose(cmdOpts.getCommandBoolOption("verbose"))
 		        );
+		    
 
 		    System.exit(success.getValue() ? 0 : 1);
 		  }

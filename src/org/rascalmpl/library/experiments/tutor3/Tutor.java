@@ -7,6 +7,8 @@ import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.Commands.CommandOptions;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.BasicIDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IValueFactory;
@@ -59,9 +61,10 @@ public class Tutor {
 	    }
 	 
 	  PathConfig pcfg = new PathConfig(cmdOpts.getCommandLocsOption("src"), cmdOpts.getCommandLocsOption("lib"), cmdOpts.getCommandLocOption("bin"), cmdOpts.getCommandLocOption("boot"));
-	  HelpManager hm = new HelpManager(pcfg, new PrintWriter(System.out), new PrintWriter(System.err));
+	  IDEServices ideServices = new BasicIDEServices();
+	  HelpManager hm = new HelpManager(pcfg, new PrintWriter(System.out), new PrintWriter(System.err), ideServices);
 	  
-	  hm.openInBrowser(new URI("http://localhost:" + hm.getPort() + "/TutorHome/index.html"));
+	  ideServices.browse(new URI("http://localhost:" + hm.getPort() + "/TutorHome/index.html"));
 	  Thread.sleep(864000000);  // a hack a day keeps the doctor away (and the debugger close)
 	}
 }

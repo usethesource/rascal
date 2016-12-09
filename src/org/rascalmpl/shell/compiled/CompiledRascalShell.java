@@ -9,6 +9,7 @@ import java.util.jar.Manifest;
 
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.experiments.Compiler.Commands.CommandOptions;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.BasicIDEServices;
 import org.rascalmpl.shell.ManifestRunner;
 import org.rascalmpl.shell.ShellRunner;
 import org.rascalmpl.value.IValueFactory;
@@ -76,7 +77,7 @@ public class CompiledRascalShell  {
 //        runner = new ModuleRunner(new PrintWriter(System.out), new PrintWriter(System.err));
 //      } 
       else {
-        runner = new CompiledREPLRunner(cmdOpts.getPathConfig(), System.in, System.out);
+        runner = new CompiledREPLRunner(cmdOpts.getPathConfig(), System.in, System.out, new BasicIDEServices());
       }
       runner.run(args);
 
