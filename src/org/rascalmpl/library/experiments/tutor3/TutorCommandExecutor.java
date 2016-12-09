@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.RascalShellExecutionException;
@@ -16,7 +17,7 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class RascalCommandExecutor {
+public class TutorCommandExecutor {
 	ISourceLocation screenInputLocation;
 	CommandExecutor executor;
 	StringWriter shellStringWriter;
@@ -24,7 +25,7 @@ public class RascalCommandExecutor {
 	PrintWriter err;
 	String consoleInputPath = "/ConsoleInput.rsc";
 
-	RascalCommandExecutor(PathConfig pcfg, PrintWriter err) throws IOException, NoSuchRascalFunction, URISyntaxException{
+	TutorCommandExecutor(PathConfig pcfg, PrintWriter err, IDEServices ideServices) throws IOException, NoSuchRascalFunction, URISyntaxException{
 		try {
 			IValueFactory vf = ValueFactoryFactory.getValueFactory();
 			screenInputLocation = vf.sourceLocation("home", "", consoleInputPath);
@@ -34,7 +35,7 @@ public class RascalCommandExecutor {
 		this.err = err;
 		shellStringWriter = new StringWriter();
 		shellPrintWriter = new PrintWriter(shellStringWriter);
-		executor = new CommandExecutor(pcfg, shellPrintWriter, shellPrintWriter);
+		executor = new CommandExecutor(pcfg, shellPrintWriter, shellPrintWriter, ideServices, null);
 	
 		try {
 			executor.setDebugObserver(new DebugREPLFrameObserver(null, System.in, System.out, true, true, null, null));
