@@ -13,6 +13,7 @@
 package org.rascalmpl.library.lang.rascal.boot;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalKeywordParameters;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
@@ -31,4 +32,5 @@ public interface IJava2Rascal {
   }
 
   KWpathConfig kw_pathConfig();
+  
 }

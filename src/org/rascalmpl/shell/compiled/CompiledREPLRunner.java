@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
 import org.rascalmpl.shell.ShellRunner;
@@ -20,8 +21,8 @@ public class CompiledREPLRunner extends CompiledRascalREPL  implements ShellRunn
 	
 	private final DebugREPLFrameObserver debugObserver;
 	
-	public CompiledREPLRunner(PathConfig pcfg, InputStream stdin, OutputStream stdout) throws IOException, URISyntaxException {
-		super(pcfg, stdin, stdout, true, true, getHistoryFile(), TerminalFactory.get());
+	public CompiledREPLRunner(PathConfig pcfg, InputStream stdin, OutputStream stdout, IDEServices ideServices) throws IOException, URISyntaxException {
+		super(pcfg, stdin, stdout, true, true, getHistoryFile(), TerminalFactory.get(), ideServices);
 		debugObserver = new DebugREPLFrameObserver(pcfg, reader.getInput(), stdout, true, true, getHistoryFile(), TerminalFactory.get());
 		executor.setDebugObserver(debugObserver);
 		setMeasureCommandTime(true);
@@ -41,8 +42,8 @@ public class CompiledREPLRunner extends CompiledRascalREPL  implements ShellRunn
 	}
 
 	@Override
-	protected CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction, URISyntaxException {
-		return new CommandExecutor(pcfg, stdout, stderr);
+	protected CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) throws IOException, NoSuchRascalFunction, URISyntaxException {
+		return new CommandExecutor(pcfg, stdout, stderr, ideServices, this);
 	}
 
 	@Override
