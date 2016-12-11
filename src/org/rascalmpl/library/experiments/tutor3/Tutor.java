@@ -7,9 +7,9 @@ import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.Commands.CommandOptions;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.BasicIDEServices;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
