@@ -13,7 +13,6 @@
 package org.rascalmpl.library.lang.rascal.boot;
 
 import java.io.IOException;
-import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalKeywordParameters;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalModule;
@@ -201,4 +200,10 @@ public interface IKernel extends IJava2Rascal {
    * @return The contents of the doc string of that definition
    */
   public IString getDocForDefinition(ISourceLocation def);
+  
+  
+  /**
+   * Shutdown this kernel (gives opportunity for observers to report etc)
+   */
+  public void shutdown();
 }
