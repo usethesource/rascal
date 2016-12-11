@@ -7,11 +7,12 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.IDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.BaseREPL;
@@ -180,6 +181,10 @@ public class DebugREPL extends BaseREPL{
 		case "disable":
 			breakPointManager.disableDirective(words);
 			break;
+			
+		case "e":
+		    breakPointManager.edit(Paths.get(currentFrame.src.getPath()));
+		    break;
 			
 		default:
 			IValue v = EvalExpr.eval(words[0], rvm, currentFrame);
