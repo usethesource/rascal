@@ -10,33 +10,52 @@
  *  
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */ 
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop;
+package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices;
 
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.value.ISourceLocation;
 
+/**
+ * IDEServices for a Desktop environment that rely on the
+ * default System browser and editor. File changes are implemented
+ * Java WatchService.
+ *
+ */
 public class BasicIDEServices implements IDEServices {
   
   private WatchService watcher;
   private ConsoleRascalMonitor monitor;
+  private HashSet<Path> roots;
+  private Map<WatchKey,Path> keys;
 
   public BasicIDEServices(){
     monitor = new ConsoleRascalMonitor();
+    roots = new HashSet<>();
   }
 
+  /* (non-Javadoc)
+   * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#browse(java.net.URI)
+   */
   public void browse(URI uri){
     Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
     if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
@@ -50,6 +69,9 @@ public class BasicIDEServices implements IDEServices {
     }
   }
 
+  /* (non-Javadoc)
+   * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#edit(java.nio.file.Path)
+   */
   public void edit(Path path) {
     File file = new File(path.toString());
     Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
@@ -64,24 +86,62 @@ public class BasicIDEServices implements IDEServices {
     }
   }
 
-  public void watch(Path dir) throws IOException{
+  /* (non-Javadoc)
+   * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#watch(java.nio.file.Path)
+   */
+  public void watch(Path root) throws IOException {
     if(watcher == null){
       watcher = FileSystems.getDefault().newWatchService();
+      keys = new HashMap<>();
     }
-    dir.register(watcher,
-        StandardWatchEventKinds.ENTRY_CREATE,
-        StandardWatchEventKinds.ENTRY_DELETE,
-        StandardWatchEventKinds.ENTRY_MODIFY);
+    roots.add(root);
+    registerRecursive(root);
+  }
+  
+  private void registerRecursive(final Path root) throws IOException {
+    Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
+      @Override
+      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        WatchKey key = dir.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
+        keys.put(key,  dir);
+        return FileVisitResult.CONTINUE;
+      }
+    });
+  }
+  
+  /* (non-Javadoc)
+   * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#unwatch(java.nio.file.Path)
+   */
+  public void unwatch(Path root) throws IOException{
+    if(watcher != null && roots.contains(root)){
+      roots.remove(root);
+      watcher.close();
+    }
+    if(!roots.isEmpty()){
+      watcher = FileSystems.getDefault().newWatchService();
+      for(Path path : roots){
+        registerRecursive(path);
+      }
+    }
+  }
+  
+  /* (non-Javadoc)
+   * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#unwatchAll()
+   */
+  public void unwatchAll() throws IOException {
+    if(watcher != null){
+      watcher.close();
+      watcher = null;
+      roots = null;
+    }
   }
 
-  public boolean anyFileChanges() {
-    boolean any = watcher.poll() != null;
-    while(watcher.poll() != null) {
-      // consume all change events
-    }
-    return any;
-  }
-
+  /* (non-Javadoc)
+   * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#fileChanges()
+   */
+  /* (non-Javadoc)
+   * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#fileChanges()
+   */
   public List<Path> fileChanges() {
     List<Path> results = new ArrayList<>();
     WatchKey key;
@@ -96,8 +156,9 @@ public class BasicIDEServices implements IDEServices {
         }
 
         // The filename is the context of the event.
+        @SuppressWarnings("unchecked")
         WatchEvent<Path> ev = (WatchEvent<Path>)event;
-        results.add(ev.context());
+        results.add(keys.get(key).resolve(ev.context()));
       }
 
       // Reset the key -- this step is critical if you want to
@@ -110,59 +171,89 @@ public class BasicIDEServices implements IDEServices {
     }
     return results;
   }
-
-  public void unwatchAll() throws IOException {
-    if(watcher != null){
-      watcher.close();
-      watcher = null;
-    }
+  
+  /* (non-Javadoc)
+   * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#anyFileChanges()
+   */
+  public boolean anyFileChanges() {
+      return fileChanges().size() > 0;
   }
 
+  /* (non-Javadoc)
+   * @see org.rascalmpl.debug.IRascalMonitor#startJob(java.lang.String)
+   */
   @Override
   public void startJob(String name) {
     monitor.startJob(name);
   }
 
+  /* (non-Javadoc)
+   * @see org.rascalmpl.debug.IRascalMonitor#startJob(java.lang.String, int)
+   */
   @Override
   public void startJob(String name, int totalWork) {
     monitor.startJob(name, totalWork);
   }
 
+  /* (non-Javadoc)
+   * @see org.rascalmpl.debug.IRascalMonitor#startJob(java.lang.String, int, int)
+   */
   @Override
   public void startJob(String name, int workShare, int totalWork) {
     monitor.startJob(name, workShare, totalWork);
   }
 
+  /* (non-Javadoc)
+   * @see org.rascalmpl.debug.IRascalMonitor#event(java.lang.String)
+   */
   @Override
   public void event(String name) {
     monitor.event(name);
   }
 
+  /* (non-Javadoc)
+   * @see org.rascalmpl.debug.IRascalMonitor#event(java.lang.String, int)
+   */
   @Override
   public void event(String name, int inc) {
     monitor.event(name,inc);
   }
 
+  /* (non-Javadoc)
+   * @see org.rascalmpl.debug.IRascalMonitor#event(int)
+   */
   @Override
   public void event(int inc) {
     monitor.event(inc);
   }
 
+  /* (non-Javadoc)
+   * @see org.rascalmpl.debug.IRascalMonitor#endJob(boolean)
+   */
   @Override
   public int endJob(boolean succeeded) {
     return monitor.endJob(succeeded);
   }
 
+  /* (non-Javadoc)
+   * @see org.rascalmpl.debug.IRascalMonitor#isCanceled()
+   */
   @Override
   public boolean isCanceled() {
       return monitor.isCanceled();
   }
 
+  /* (non-Javadoc)
+   * @see org.rascalmpl.debug.IRascalMonitor#todo(int)
+   */
   @Override
   public void todo(int work) {
     monitor.todo(work);
   }
 
+  /* (non-Javadoc)
+   * @see org.rascalmpl.debug.IRascalMonitor#warning(java.lang.String, org.rascalmpl.value.ISourceLocation)
+   */
   @Override
   public void warning(String message, ISourceLocation src) {
     monitor.warning(message,  src);
