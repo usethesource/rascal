@@ -38,10 +38,6 @@ public class Java2Rascal<RascalInterfaceModule> {
   private final IValueFactory vf;
   private final PathConfig pcfg;
   private final Class<RascalInterfaceModule> interface2Rascal;
-  private boolean trace = false;
-  private boolean profile = false;
-  private boolean verbose = false;
-  private boolean jvm = true;
   
   private Java2Rascal(Builder<RascalInterfaceModule> b) {
     this.vf = b.vf;
@@ -88,11 +84,11 @@ public class Java2Rascal<RascalInterfaceModule> {
     }
 
     public IM2 build() throws IOException{
-      return new Java2Rascal<IM2>(this).makeBridge();
+      return new Java2Rascal<IM2>(this).makeBridge(trace, profile, verbose, jvm);
     }
   }
 
-  private RascalInterfaceModule makeBridge() throws IOException{
+  private RascalInterfaceModule makeBridge(boolean trace, boolean profile, boolean verbose, boolean jvm) throws IOException{
     if(trace && profile){
       throw new RuntimeException("Either 'trace' or 'profile' can be set, not both");
     }
