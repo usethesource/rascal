@@ -154,62 +154,36 @@ public class ExecutionTools {
 	 * @param executable	RVM exectable
 	 * @return				an initialized RVM instance
 	 */
-	 public static RVMCore initializedRVM(RVMExecutable executable, RascalExecutionContext rex){
-		
-		RVMCore rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVMInterpreter(executable, rex);
-		
-		// Execute initializers of imported modules
-		for(String initializer: executable.getInitializers()){
-			rvm.executeRVMProgram(executable.getModuleName(), initializer, new IValue[0], null);
-		}
-		
-		return rvm;
+	public static RVMCore initializedRVM(RVMExecutable executable, RascalExecutionContext rex){
+
+	  RVMCore rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVMInterpreter(executable, rex);
+
+	  // Execute initializers of imported modules
+	  for(String initializer: executable.getInitializers()){
+	    rvm.executeRVMProgram(executable.getModuleName(), initializer, new IValue[0], null);
+	  }
+
+	  return rvm;
 	}
-	 
-	 /**
-	  * Create initialized RVM given a scheme and path of a compiled binary
-	  * @param bin of compiled binary
-	  * @return initialized RVM
+
+	/**
+	 * Create initialized RVM given a scheme and path of a compiled binary
+	 * @param scheme of compiled binary
+	 * @param path of compiled binary
+	 * @param rex the execution context to be used
+	 * @return initialized RVM
 	 * @throws IOException 
-	  */
-	public static RVMCore initializedRVM(ISourceLocation kernel, ISourceLocation bin) throws IOException  {
-	  RascalExecutionContext rex = 
-          RascalExecutionContextBuilder.normalContext(vf, bin)
-          //.forModule(rvmExecutable.getModuleName())
-          .setJVM(true)
-          .build();
-		 RVMExecutable rvmExecutable = RVMExecutable.read(bin, rex.getTypeStore());
-		 
-		 rex.setFullModuleName(rvmExecutable.getModuleName());
-
-		 RVMCore rvm = rex.getJVM() ? new RVMJVM(rvmExecutable, rex) : new RVMInterpreter(rvmExecutable, rex);
-
-		 // Execute initializers of imported modules
-		 for(String initializer: rvmExecutable.getInitializers()){
-			 rvm.executeRVMProgram(rvmExecutable.getModuleName(), initializer, new IValue[0], null);
-		 }
-
-		 return rvm;
-	 }
-	
-	 /**
-	  * Create initialized RVM given a scheme and path of a compiled binary
-	  * @param scheme of compiled binary
-	  * @param path of compiled binary
-	  * @param rex the execution context to be used
-	  * @return initialized RVM
-	  * @throws IOException 
-	  */
+	 */
 	public static RVMCore initializedRVM(ISourceLocation bin,  RascalExecutionContext rex) throws IOException {
-		 RVMExecutable rvmExecutable  = RVMExecutable.read(bin, rex.getTypeStore());
+	  RVMExecutable rvmExecutable  = RVMExecutable.read(bin, rex.getTypeStore());
 
-		 RVMCore rvm = rex.getJVM() ? new RVMJVM(rvmExecutable, rex) : new RVMInterpreter(rvmExecutable, rex);
+	  RVMCore rvm = rex.getJVM() ? new RVMJVM(rvmExecutable, rex) : new RVMInterpreter(rvmExecutable, rex);
 
-		 // Execute initializers of imported modules
-		 for(String initializer: rvmExecutable.getInitializers()){
-			 rvm.executeRVMProgram(rvmExecutable.getModuleName(), initializer, new IValue[0], null);
-		 }
+	  // Execute initializers of imported modules
+	  for(String initializer: rvmExecutable.getInitializers()){
+	    rvm.executeRVMProgram(rvmExecutable.getModuleName(), initializer, new IValue[0], null);
+	  }
 
-		 return rvm;
-	 }
+	  return rvm;
+	}
 }
