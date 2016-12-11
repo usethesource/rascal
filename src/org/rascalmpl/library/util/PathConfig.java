@@ -1,6 +1,7 @@
 package org.rascalmpl.library.util;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -227,6 +228,16 @@ public class PathConfig {
 	public IConstructor asConstructor(IJava2Rascal j2r){
 	    return j2r.pathConfig(j2r.kw_pathConfig().srcs(getSrcs()).libs(getLibs()).boot(getBoot()).bin(getBin()).courses(getCourses()));
 	  }
+	
+	public String toString(){
+	  StringWriter w = new StringWriter();
+      w.append("srcs:    ").append(getSrcs().toString()).append("\n")
+       .append("libs:    ").append(getLibs().toString()).append("\n")
+       .append("courses: ").append(getCourses().toString()).append("\n")
+       .append("boot:    ").append(getBoot().toString()).append("\n")
+       .append("bin:     ").append(getBin().toString()).append("\n");
+      return w.toString();
+    }
 }
 
 class PathContributor implements IRascalSearchPathContributor{
