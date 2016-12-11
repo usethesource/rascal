@@ -170,6 +170,11 @@ public abstract class RVMCore {
 	  this.frameObserver = (observer == null) ? NullFrameObserver.getInstance() : observer;
 	}
 	
+	public void shutdown(){
+	  frameObserver.report();
+	  System.exit(1);
+	}
+	
 	public Map<IValue, IValue> getModuleVariables() { return moduleVariables; }
 	
 	public void updateModuleVariable(IValue name, IValue newVal){
