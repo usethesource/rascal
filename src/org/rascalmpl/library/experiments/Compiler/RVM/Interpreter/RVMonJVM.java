@@ -742,7 +742,7 @@ public class RVMonJVM extends RVMCore {
 		cf.sp = sp;
 	
 		returnValue = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
-		frameObserver.leave(frame, returnValue);
+		//frameObserver.leave(frame, returnValue);
 		return returnValue;
 	}
 	
