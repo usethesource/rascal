@@ -62,6 +62,9 @@ public class RascalFunctionInvocationHandler implements InvocationHandler {
 
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    if(method.getName().equals("shutdown")){
+      core.shutdown();
+    }
     Class<?> returnType = method.getReturnType();
     if(returnType.isAnnotationPresent(RascalKeywordParameters.class)){
       return returnType.cast(Proxy.newProxyInstance(RVMCore.class.getClassLoader(), new Class<?> [] { returnType }, new Java2RascalKWProxy.ProxyInvocationHandler(core.vf, returnType)));
