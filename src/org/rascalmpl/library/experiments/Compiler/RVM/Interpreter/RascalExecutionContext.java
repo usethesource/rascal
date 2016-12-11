@@ -20,8 +20,8 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.ReifiedType;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.BasicIDEServices;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.IDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CallTraceObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CoverageFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.DebugFrameObserver;
@@ -73,15 +73,17 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final boolean testsuite;
 	private final boolean profile;
 	private final boolean trace;
+	private boolean coverage;
+    private boolean jvm;
+    private boolean verbose;
+    
 	private IFrameObserver frameObserver;
 	private final IMap symbol_definitions;
 	private RascalSearchPath rascalSearchPath;
 	
 	private String currentModuleName;
 	private RVMCore rvm;
-	private boolean coverage;
-	private boolean jvm;
-    private boolean verbose;
+	
 	private final IMap moduleTags;
 	private Map<IValue, IValue> moduleVariables;
 	
@@ -433,6 +435,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	boolean getTrace() { return trace; }
 	
+	boolean getVerbose() { return verbose; }
+	
 	public RVMCore getRVM(){ return rvm; }
 	
 	protected void setRVM(RVMCore rvmCore){ 
@@ -486,10 +490,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	void setTemplateBuilder(StringBuilder sb) { templateBuilder = sb; }
 	
 	Stack<StringBuilder> getTemplateBuilderStack() { return  templateBuilderStack; }
-	
-//	IListWriter getTestResults() { return test_results; }
-//	
-//	void setTestResults(IListWriter writer) { test_results = writer; }
 	
 	boolean bootstrapParser(String moduleName){
 		if(moduleTags != null){
