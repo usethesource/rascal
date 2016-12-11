@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.library.util.PathConfig;
 
@@ -26,13 +27,13 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	
 	private RVMCore rvm;
 	
-	public DebugREPLFrameObserver(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException{
+	public DebugREPLFrameObserver(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal, IDEServices ideServices) throws IOException{
 		this.pcfg = pcfg;
 		this.stdin = stdin;
 		this.stdout = stdout;
 		this.historyFile = file;
 		this.terminal = terminal;
-		this.breakPointManager = new BreakPointManager(pcfg, new PrintWriter(stdout));
+		this.breakPointManager = new BreakPointManager(pcfg, new PrintWriter(stdout), ideServices);
 	}
 	
 	void reset(){
