@@ -24,7 +24,7 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedExcepti
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.IDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
