@@ -24,7 +24,7 @@ import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.IDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.BaseRascalREPL;
@@ -46,9 +46,9 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   static {
 	  	String[] shellVerbValues = {
 		  // General commands
-		  "help", "apropos", "set", "declarations", "modules", "unimport", "undeclare", "quit", "test", "edit",
+		  "apropos", "clean", "declarations", "edit", "help",  /*"modules",*/ "quit", "set", "test", "undeclare", "unimport",    
 		  // Debugging commands
-		  "break", "enable", "disable", "clear", "ignore"
+		  "break", "clear", "disable", "enable", "ignore"
 	  	};
 	  	SHELL_VERBS = new TreeSet<String>(Arrays.asList(shellVerbValues));
   }
@@ -130,6 +130,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 		  String[] words = statement.split(" ");
 		  if(words.length > 0 && SHELL_VERBS.contains(words[0])){
 			  if(words[0].equals("quit")){
+			      executor.shutdown();
 				  stop();
 				  return null;
 			  }
@@ -242,7 +243,6 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
      commandLineOptions.add("profile"); 
      commandLineOptions.add("trace"); 
      commandLineOptions.add("coverage");  
-     commandLineOptions.add("optimize"); 
   }
   @Override
   protected SortedSet<String> getCommandLineOptions() {
