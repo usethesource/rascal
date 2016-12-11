@@ -8,7 +8,7 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.IDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
 import org.rascalmpl.shell.ShellRunner;
@@ -23,7 +23,7 @@ public class CompiledREPLRunner extends CompiledRascalREPL  implements ShellRunn
 	
 	public CompiledREPLRunner(PathConfig pcfg, InputStream stdin, OutputStream stdout, IDEServices ideServices) throws IOException, URISyntaxException {
 		super(pcfg, stdin, stdout, true, true, getHistoryFile(), TerminalFactory.get(), ideServices);
-		debugObserver = new DebugREPLFrameObserver(pcfg, reader.getInput(), stdout, true, true, getHistoryFile(), TerminalFactory.get());
+		debugObserver = new DebugREPLFrameObserver(pcfg, reader.getInput(), stdout, true, true, getHistoryFile(), TerminalFactory.get(), ideServices);
 		executor.setDebugObserver(debugObserver);
 		setMeasureCommandTime(true);
 	}
