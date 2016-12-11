@@ -250,11 +250,20 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool jvm = true, 
            );
 }
 
-value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false,
-                                  bool testsuite=false, bool recompile=false, bool profile=false, bool trace= false, bool enableAsserts=false,
-                                  bool coverage = false, bool jvm = true, bool verbose = false){
+value execute(RVMProgram program, PathConfig pcfg, 
+                map[str,value] keywordArguments = (), 
+                bool debug=false, 
+                bool debugRVM=false,
+                bool testsuite=false, 
+                bool recompile=false, 
+                bool profile=false, 
+                bool trace= false, 
+                bool enableAsserts=false,
+                bool coverage = false, 
+                bool jvm = true, 
+                bool verbose = false){
    startTime = cpuTime();
-   return executeProgram(     program,
+   return executeProgram(  program,
                            keywordArguments,
                            debug, 
                            debugRVM, 
@@ -268,24 +277,70 @@ value execute(RVMProgram program, PathConfig pcfg, map[str,value] keywordArgumen
    //return v;                            
 }
 
-value execute(RVMModule mainModule, PathConfig pcfg, map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false,
-                                    bool testsuite=false, bool recompile=false, bool profile=false, bool trace= false, bool enableAsserts=false,
-                                    bool coverage = false, bool jvm = true, bool verbose = false){  
+value execute(RVMModule mainModule, PathConfig pcfg, 
+                map[str,value] keywordArguments = (), 
+                bool debug=false, 
+                bool debugRVM=false,
+                bool testsuite=false, 
+                bool recompile=false, 
+                bool profile=false,
+                bool trace= false, 
+                bool enableAsserts=false,
+                bool coverage = false, 
+                bool jvm = true, bool 
+                verbose = false){  
    merged = mergeImports(mainModule, pcfg, verbose=verbose, jvm=jvm);
-   return execute(merged, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, testsuite=testsuite,recompile=recompile,
-                  profile=profile,trace=trace, enableAsserts=enableAsserts, coverage=coverage,jvm=jvm,verbose=verbose);             
+   return execute(merged, pcfg, 
+                keywordArguments=keywordArguments, 
+                debug=debug, 
+                debugRVM=debugRVM, 
+                testsuite=testsuite,
+                recompile=recompile,
+                profile=profile,
+                trace=trace, 
+                enableAsserts=enableAsserts, 
+                coverage=coverage,
+                jvm=jvm,
+                verbose=verbose);             
 }
 
 value execute(loc moduleLoc, PathConfig pcfg, map[str,value] 
-              keywordArguments = (), bool debug=false, bool debugRVM=false, bool testsuite=false, bool recompile=false, bool profile=false, 
-              bool trace= false, bool enableAsserts=false, bool coverage=false, bool jvm=true, bool verbose = false) {
-   return execute(getModuleName(moduleLoc, pcfg), pcfg, keywordArguments = keywordArguments, debug=debug, debugRVM=debugRVM, 
-           testsuite=testsuite, profile=profile, trace=trace, enableAsserts=enableAsserts, coverage=coverage,jvm=jvm,verbose=verbose);    
+              keywordArguments = (), 
+              bool debug=false, 
+              bool debugRVM=false, 
+              bool testsuite=false, 
+              bool recompile=false, 
+              bool profile=false, 
+              bool trace= false, 
+              bool enableAsserts=false, 
+              bool coverage=false, 
+              bool jvm=true, 
+              bool verbose = false) {
+   return execute(getModuleName(moduleLoc, pcfg), pcfg, 
+              keywordArguments = keywordArguments, 
+              debug=debug, 
+              debugRVM=debugRVM, 
+              testsuite=testsuite, 
+              profile=profile, 
+              trace=trace, 
+              enableAsserts=enableAsserts, 
+              coverage=coverage,
+              jvm=jvm,
+              verbose=verbose);    
 }
 
 value execute(str qualifiedModuleName, PathConfig pcfg, 
-              map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool testsuite=false, bool recompile=false, 
-              bool profile=false, bool trace= false, bool enableAsserts=false, bool coverage=false, bool jvm=true, bool verbose = false){
+              map[str,value] keywordArguments = (), 
+              bool debug=false, 
+              bool debugRVM=false, 
+              bool testsuite=false, 
+              bool recompile=false, 
+              bool profile=false, 
+              bool trace=false, 
+              bool enableAsserts=false, 
+              bool coverage=false, 
+              bool jvm=true, 
+              bool verbose=false){
    if(!recompile){
       if(<true, compressed> := RVMExecutableCompressedReadLoc(qualifiedModuleName, pcfg)){
          if(verbose) println("Using <compressed>");
@@ -347,8 +402,15 @@ TestResults rascalTestsRaw(list[str] qualifiedModuleNames, list[loc] srcs, list[
 }
                   
 TestResults rascalTestsRaw(list[str] qualifiedModuleNames, PathConfig pcfg, 
-                  map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool recompile=false, bool profile=false, 
-                  bool trace= false,  bool coverage=false, bool jvm=true, bool verbose = false){
+                  map[str,value] keywordArguments = (), 
+                  bool debug=false, 
+                  bool debugRVM=false, 
+                  bool recompile=false, 
+                  bool profile=false, 
+                  bool trace=false,  
+                  bool coverage=false, 
+                  bool jvm=true, 
+                  bool verbose=false){
    lrel[loc,int,str] all_test_results = [];
    
    exceptions = [];
@@ -391,9 +453,26 @@ TestResults rascalTestsRaw(list[str] qualifiedModuleNames, PathConfig pcfg,
 }
 
 value rascalTests(list[str] qualifiedModuleNames, PathConfig pcfg, 
-                  map[str,value] keywordArguments = (), bool debug=false, bool debugRVM=false, bool recompile=false, bool profile=false, 
-                  bool trace= false,  bool coverage=false, bool jvm=true, bool verbose = false){
-   trs = rascalTestsRaw(qualifiedModuleNames, pcfg, keywordArguments=keywordArguments, debug=debug, debugRVM=debugRVM, profile=profile, verbose=verbose, trace=trace, coverage=coverage, jvm=jvm);
+                        map[str,value] keywordArguments = (), 
+                        bool debug=false, 
+                        bool debugRVM=false, 
+                        bool recompile=false, 
+                        bool profile=false, 
+                        bool trace= false,  
+                        bool coverage=false, 
+                        bool jvm=true, bool 
+                        verbose = false){
+   trs = rascalTestsRaw(qualifiedModuleNames, pcfg, 
+                        keywordArguments=keywordArguments, 
+                        debug=debug, 
+                        debugRVM=debugRVM, 
+                        recompile=recompile, 
+                        profile=profile, 
+                        trace=trace,
+                        coverage=coverage,
+                        jvm=jvm,
+                        verbose=verbose
+                       );
    return printTestReport(trs);
 }
 
@@ -422,12 +501,20 @@ list[RVMProgram] compileAndLink(list[str] qualifiedModuleNames, list[loc] srcs, 
     return [ compileAndLink(qualifiedModuleName, pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin), reloc=reloc, jvm=jvm, verbose=verbose, enableAsserts=enableAsserts) | qualifiedModuleName <- qualifiedModuleNames ];        
 } 
 
-list[RVMProgram] compileAndLink(list[str] qualifiedModuleNames, PathConfig pcfg, loc reloc=|noreloc:///|,
-                          bool enableAsserts=false, bool jvm=true, bool verbose = false){
+list[RVMProgram] compileAndLink(list[str] qualifiedModuleNames, PathConfig pcfg, 
+            loc reloc=|noreloc:///|,
+            bool enableAsserts=false, 
+            bool jvm=true, 
+            bool verbose = false){
     return [ compileAndLink(qualifiedModuleName, pcfg, reloc=reloc, jvm=jvm, verbose=verbose, enableAsserts=enableAsserts) | qualifiedModuleName <- qualifiedModuleNames ];        
 }                           
 
-RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, loc reloc=|noreloc:///|, bool jvm=true,  bool enableAsserts=false, bool verbose = false, bool optimize=true){
+RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg, 
+            loc reloc=|noreloc:///|, 
+            bool jvm=true,  
+            bool enableAsserts=false, 
+            bool verbose=false, 
+            bool optimize=true){
    startTime = cpuTime();
    mainModule = compile(qualifiedModuleName, pcfg, reloc=reloc, verbose=verbose, enableAsserts=enableAsserts, optimize=optimize);
    if(verbose) println("Compiling: <(cpuTime() - startTime)/1000000> ms");
@@ -450,7 +537,10 @@ RVMProgram compileAndMergeProgramIncremental(str qualifiedModuleName, bool reuse
     return compileAndMergeProgramIncremental(qualifiedModuleName, reuseConfig,  pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin), jvm=jvm, verbose=verbose, optimize=optimize);
 }
 
-RVMProgram compileAndMergeProgramIncremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, bool jvm=true, bool verbose = false, bool optimize = true){
+RVMProgram compileAndMergeProgramIncremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, 
+            bool jvm=true, 
+            bool verbose=false, 
+            bool optimize=true){
    //pcfg = pathConfig(srcs=[|std:///|, |test-modules:///|], bin=|home:///bin-console|, libs=[|home:///bin-console|]);
    //pcfg = pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin);
    if(!reuseConfig){
