@@ -9,7 +9,7 @@ import java.util.jar.Manifest;
 
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.experiments.Compiler.Commands.CommandOptions;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.desktop.BasicIDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
 import org.rascalmpl.shell.ManifestRunner;
 import org.rascalmpl.shell.ShellRunner;
 import org.rascalmpl.value.IValueFactory;
@@ -18,24 +18,24 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class CompiledRascalShell  {
 
-  private static void printVersionNumber(){
-    try {
-      Enumeration<URL> resources = CompiledRascalShell.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
-      while (resources.hasMoreElements()) {
-        Manifest manifest = new Manifest(resources.nextElement().openStream());
-        String bundleName = manifest.getMainAttributes().getValue("Bundle-Name");
-        if (bundleName != null && bundleName.equals("rascal-shell")) {
-          String result = manifest.getMainAttributes().getValue("Bundle-Version");
-          if (result != null) {
-            System.out.println("Version: " + result);
-            return;
-          }
-        }
-      }
-    } catch (IOException E) {
-    }
-    System.out.println("Version: unknown");
-  }
+//  private static void printVersionNumber(){
+//    try {
+//      Enumeration<URL> resources = CompiledRascalShell.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
+//      while (resources.hasMoreElements()) {
+//        Manifest manifest = new Manifest(resources.nextElement().openStream());
+//        String bundleName = manifest.getMainAttributes().getValue("Bundle-Name");
+//        if (bundleName != null && bundleName.equals("rascal-shell")) {
+//          String result = manifest.getMainAttributes().getValue("Bundle-Version");
+//          if (result != null) {
+//            System.out.println("Version: " + result);
+//            return;
+//          }
+//        }
+//      }
+//    } catch (IOException E) {
+//    }
+//    System.out.println("Version: unknown");
+//  }
 
 
   public static void main(String[] args) throws IOException {
@@ -66,7 +66,7 @@ public class CompiledRascalShell  {
 		System.exit(1);
 	}  
 
-	printVersionNumber();
+//	printVersionNumber();
     RascalManifest mf = new RascalManifest();
     try {
       ShellRunner runner; 
