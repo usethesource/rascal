@@ -81,17 +81,16 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	    e1.printStackTrace();
 	    System.exit(-1);
 	  } 
-	  RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot())
-	      .setTrace(false)
-	      .setProfile(false)
-	      .setVerbose(true)
-	      .build();
 
+	  System.err.println(pcfg);
 	  try {
-	    //kernel = new Kernel(vf, rex, pcfg.getBoot());
-	    kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class).build();
+	    kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class)
+	              .trace(false)
+	              .profile(false)
+	              .verbose(false)
+	              .build();
 	  } catch (IOException e) {
-	    System.err.println("Unable to load Rascal Kernel");;
+	    System.err.println("Unable to load Rascal Kernel");
 	    e.printStackTrace();
 	    System.exit(-1);
 	  }
@@ -106,6 +105,9 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	  try (InputStream ignoredStream = new FileInputStream(Paths.get(".").toAbsolutePath().normalize().resolve(IGNORED).toString());
 	      Scanner ignoredScanner = new Scanner(ignoredStream, "UTF-8")){
 
+	    // TODO: It is probably better to replace this by a call to a JSON reader
+	    // See org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.Settings
+	    
 	    String text = ignoredScanner.useDelimiter("\\A").next();
 	    
 	    IGNORED_DIRECTORIES = text.split("\\n");
