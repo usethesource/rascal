@@ -247,7 +247,7 @@ public class Frame {
 		
 		s.append(")");
 		if(src != null && !isConsoleMainFrame()){
-			s.append(" at ").append(src);
+			s.append("\n\t\tat ").append(src);
 		}
 		return s.toString();
 	}
@@ -292,11 +292,11 @@ public class Frame {
 			String varName = ((IString) entry.getValue()).getValue();
 			int varPos = ((IInteger) entry.getKey()).intValue();
 			Object v = stack[varPos];
-			if(v != null && !varName.equals("map_of_default_values") && v instanceof IValue){
+			if(v != null && !varName.equals("map_of_default_values") && v instanceof IValue && varPos >  this.function.nformals){
 				    if(varName.matches("[0-9]+")){
 				    	varName = "arg " + varName;
 				    }
-					stdout.println("\t" + varName + ": " + RascalPrimitive.$value2string((IValue) v));
+					stdout.println("\t" + varName + ": " + abbrev(RascalPrimitive.$value2string((IValue) v)));
 			}
 		}
 		if(stack[function.nformals-1] instanceof HashMap<?, ?>){
@@ -305,7 +305,8 @@ public class Frame {
 			for(String kwParam : kwParams.keySet()){
 				IValue v = kwParams.get(kwParam);
 				if(v != null){
-					stdout.println("\t" + kwParam + "=" + RascalPrimitive.$value2string(v));
+					stdout.println("\t" + kwParam + "=" + abbrev(RascalPrimitive.$value2string(v))
+					);
 				}
 			}
 		}
