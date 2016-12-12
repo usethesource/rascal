@@ -230,6 +230,11 @@ public abstract class RVMCore {
 		return frameObserver;
 	}
 	
+	public void setFrameObserver(IFrameObserver observer){
+	    frameObserver = observer;
+	    rex.setFrameObserver(observer);
+	}
+	
 	protected String getFunctionName(int n) {
 		for(String fname : functionMap.keySet()) {
 			if(functionMap.get(fname) == n) {
