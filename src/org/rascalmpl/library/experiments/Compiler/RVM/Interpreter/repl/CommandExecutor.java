@@ -107,28 +107,29 @@ public class CommandExecutor {
 	private StandardTextWriter indentedPrettyPrinter;
 
 	private Settings settings;
+	
+	private boolean kernel_coverage;
 	private boolean kernel_debug;
 	private boolean kernel_profile;
 	private boolean kernel_trace;
-	private boolean kernel_coverage;
 	private boolean kernel_verbose;
 
-	private boolean compile_debug;
-	private boolean compile_testsuite;
-	private boolean compile_profile;
-	private boolean compile_trace;
 	private boolean compile_coverage;
-	private boolean compile_verbose;
-	private boolean compile_optimize;
+	private boolean compile_debug;
 	private boolean compile_enableAsserts;
+	private boolean compile_optimize;
+	private boolean compile_profile;
+	private boolean compile_testsuite;
+	private boolean compile_trace;
+	private boolean compile_verbose;
 	
+	private boolean execute_coverage;
 	private boolean execute_debug;
     private boolean execute_debugRVM;
-    private boolean execute_testsuite;
-    private boolean execute_profile;
-    private boolean execute_trace;
-    private boolean execute_coverage;
     private boolean execute_jvm;
+    private boolean execute_profile;
+    private boolean execute_testsuite;
+    private boolean execute_trace;
     private boolean execute_verbose;
     
     private boolean repl_verbose;
@@ -158,31 +159,32 @@ public class CommandExecutor {
 		
 		// options for the kernel
 		
+		kernel_coverage      = settings.getBool("kernel.coverage", false);
 		kernel_debug         = settings.getBool("kernel.debug", false);                            
         kernel_profile       = settings.getBool("kernel.profile", false);
         kernel_trace         = settings.getBool("kernel.trace", false);
-        kernel_coverage      = settings.getBool("kernel.coverage", false);
+        kernel_verbose       = settings.getBool("kernel.verbose", false);
         
         // options for compiler
         
-        compile_debug         = settings.getBool("compile.debug", false);                           
-        compile_testsuite     = settings.getBool("compile.testsuite", false);
-        compile_profile       = settings.getBool("compile.profile", false);
-        compile_trace         = settings.getBool("compile.trace", false);
         compile_coverage      = settings.getBool("compile.coverage", false);
-        compile_verbose       = settings.getBool("compile.verbose", false);
-        compile_optimize      = settings.getBool("compile.optimize", false);
+        compile_debug         = settings.getBool("compile.debug", false);     
         compile_enableAsserts = settings.getBool("compile.enableAsserts", true);
-        
+        compile_optimize      = settings.getBool("compile.optimize", false);
+        compile_profile       = settings.getBool("compile.profile", false);
+        compile_testsuite     = settings.getBool("compile.testsuite", false);
+        compile_trace         = settings.getBool("compile.trace", false);
+        compile_verbose       = settings.getBool("compile.verbose", false);
+       
         // options per executed command
         
+        execute_coverage      = settings.getBool("execute.coverage", false);
 		execute_debug         = settings.getBool("execute.debug", false);							
 		execute_debugRVM      = settings.getBool("execute.debugRVM", false);
-		execute_testsuite     = settings.getBool("execute.testsuite", false);
-		execute_profile       = settings.getBool("execute.profile", false);
-		execute_trace         = settings.getBool("execute.trace", false);
-		execute_coverage      = settings.getBool("execute.coverage", false);
 		execute_jvm           = settings.getBool("execute.jvm", true);
+		execute_profile       = settings.getBool("execute.profile", false);
+		execute_testsuite     = settings.getBool("execute.testsuite", false);
+		execute_trace         = settings.getBool("execute.trace", false);
 		execute_verbose       = settings.getBool("execute.verbose", false);
 		
 		// options for the repl itself
@@ -198,6 +200,8 @@ public class CommandExecutor {
 //		w.put(vf.string(consoleInputName), CompiledRascalShellModuleTags);
 		
 		kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class)
+		        .coverage(kernel_coverage)
+		        .debug(kernel_debug)
 		        .profile(kernel_profile)
 		        .trace(kernel_trace)
 		        .verbose(kernel_verbose)
@@ -243,6 +247,9 @@ public class CommandExecutor {
 	
 	public void setDebugObserver(DebugREPLFrameObserver observer){
 		this.debugObserver = observer;
+		if(kernel_debug){
+		    kernel.setFrameObserver(observer);
+		}
 	}
   
 	private boolean noErrors(RVMExecutable exec){
@@ -274,13 +281,15 @@ public class CommandExecutor {
           String msgKind = msg.getName();
           String txt = ((IString)msg.get("msg")).getValue();
           ISourceLocation src = (ISourceLocation)msg.get("at");
-          String hint = " AT " + src.toString();
+          String origin = " AT " + src.toString();
           if(src.getPath().equals(consoleInputPath)){
               int offset = src.getOffset();
               String subarea = modString.substring(offset, offset + src.getLength());
-              hint = subarea.matches("[a-zA-Z0-9]+") ? "" : " IN '" + subarea + "'";
+              origin = subarea.matches("[a-zA-Z0-9]+") ? "" : " IN '" + subarea + "'";
+          } else if(txt.contains("Cannot import")){
+              origin = "";
           }
-          sw.append(capitalize(msgKind)).append(": ").append(txt).append(hint).append("\n");
+          sw.append(capitalize(msgKind)).append(": ").append(txt).append(origin);
       }
       return sw.toString();
   }
@@ -389,7 +398,7 @@ public class CommandExecutor {
 						.setCoverage(execute_coverage)
 						.setJVM(true)
 						.setVerbose(execute_verbose)
-						.observedBy(debugObserver != null ? debugObserver.getObserverWhenActiveBreakpoints() : null)
+						.observedBy(debugObserver != null ? (kernel_debug ? debugObserver : debugObserver.getObserverWhenActiveBreakpoints()) : null)
 						.build();
 						
 				IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, new HashMap<String,IValue>(), rex);
@@ -407,7 +416,7 @@ public class CommandExecutor {
 		    e.printStackTrace(new PrintWriter(sw));
 		    System.err.println(e);
 		    debugObserver.exception(e.getFrame(), e);
-			throw new RascalShellExecutionException(sw.toString());
+			return null; //throw new RascalShellExecutionException(sw.toString());
 		} catch (IOException e){
 		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
 		} catch (Exception e){

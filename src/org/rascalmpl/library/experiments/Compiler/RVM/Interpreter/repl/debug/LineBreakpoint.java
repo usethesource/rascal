@@ -33,4 +33,9 @@ public class LineBreakpoint extends BreakPoint {
 	public boolean matchOnLeave(Frame frame) {
 		return matchOnObserve(frame);
 	}
+	
+	@Override
+    public String toString(){
+        return "LineBreakpoint " + path + ", line " + lino;
+    }
 }

@@ -182,7 +182,7 @@ public class DebugREPL extends BaseREPL{
 			breakPointManager.disableDirective(words);
 			break;
 			
-		case "e":
+		case "e": case "edit":
 		    breakPointManager.edit(Paths.get(currentFrame.src.getPath()));
 		    break;
 			
@@ -211,6 +211,7 @@ public class DebugREPL extends BaseREPL{
 			"s(tep)           Execute but stop at the first possible occasion",
 			"r(eturn)         Execute until the current function’s return is encountered",
 			"l(isting)        Print lines around current breakpoint",
+			"e(dit)           Edit current module",
 			"b(reak)          Manage break points:",
 			"                 b          List current break points",
 			"                 b <lino>   Set breakpoint at line <lino> in current module",
@@ -234,8 +235,11 @@ public class DebugREPL extends BaseREPL{
 	}
 	
 	private void printStack(){
-		for(Frame f = currentFrame; f != null && !f.src.getPath().equals(CommandExecutor.consoleInputPath); f = f.previousCallFrame) {
+		for(Frame f = currentFrame; 
+		    (f != null && !f.src.getPath().equals(CommandExecutor.consoleInputPath)); 
+		    f = f.previousCallFrame) {
 			stdout.println("\t" + f.toString() /*+ "\t" + f.src*/);
+			stdout.flush();
 		}
 	}
 
