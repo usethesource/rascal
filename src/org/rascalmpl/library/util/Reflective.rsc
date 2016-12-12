@@ -72,6 +72,7 @@ public java loc getModuleLocation(str modulePath);
 public java loc getSearchPathLocation(str filePath);
 
 data PathConfig 
+    // Defaults should be in sync with org.rascalmpl.library.util.PathConfig
   = pathConfig(list[loc] srcs = [|std:///|],        // List of directories to search for source files
                list[loc] courses = [|courses:///|], // List of locations to search for course source files
                loc bin = |home:///bin/|,            // Global directory for derived files outside projects
