@@ -49,55 +49,70 @@ public class Java2Rascal<RascalInterfaceModule> {
     IValueFactory vf;
     PathConfig pcfg;
     Class<IM2> interface2Rascal;
-    boolean trace = false;
-    boolean profile = false;
-    boolean verbose = false;
+    boolean coverage = false;
+    boolean debug = false;
     boolean jvm = true;
-
+    boolean profile = false;
+    boolean trace = false;
+    boolean verbose = false;
+  
     static public <IM3> Builder<IM3> bridge(IValueFactory vf, PathConfig pcfg, Class<IM3> interface2Rascal) { 
       return new Builder<IM3>(vf, pcfg, interface2Rascal); 
     }
 
     private Builder(IValueFactory vf, PathConfig pcfg, Class<IM2> interface2Rascal){
-      this.vf = vf;
-      this.pcfg = pcfg;
-      this.interface2Rascal = interface2Rascal;
+        this.vf = vf;
+        this.pcfg = pcfg;
+        this.interface2Rascal = interface2Rascal;
+    }
+    
+    public Builder<IM2> coverage(boolean coverage){
+        this.coverage = coverage;
+        return this;
+    }
+
+    public Builder<IM2> debug(boolean debug){
+        this.debug = debug;
+        return this;
+    }
+
+    public Builder<IM2> jvm(boolean jvm){
+        this.jvm = jvm;
+        return this;
     }
 
     public Builder<IM2> profile(boolean profile){
-      this.profile = profile;
-      return this;
+        this.profile = profile;
+        return this;
     }
 
     public Builder<IM2> trace(boolean trace){
-      this.trace = trace;
-      return this;
-    }
-    public Builder<IM2> verbose(boolean verbose){
-      this.verbose = verbose;
-      return this;
-    }
-    
-    public Builder<IM2> jvm(boolean jvm){
-      this.jvm = jvm;
-      return this;
+        this.trace = trace;
+        return this;
     }
 
+    public Builder<IM2> verbose(boolean verbose){
+        this.verbose = verbose;
+        return this;
+    }
+    
     public IM2 build() throws IOException{
-      return new Java2Rascal<IM2>(this).makeBridge(trace, profile, verbose, jvm);
+      return new Java2Rascal<IM2>(this).makeBridge(coverage, debug, jvm, profile, trace, verbose);
     }
   }
 
-  private RascalInterfaceModule makeBridge(boolean trace, boolean profile, boolean verbose, boolean jvm) throws IOException{
+  private RascalInterfaceModule makeBridge(boolean coverage, boolean debug, boolean jvm, boolean profile, boolean trace, boolean verbose) throws IOException{
     if(trace && profile){
       throw new RuntimeException("Either 'trace' or 'profile' can be set, not both");
     }
     RascalExecutionContext rex = 
         RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot(), System.out, System.err)
+            .setCoverage(coverage)
             .setTrace(trace)
             .setProfile(profile)
             .setVerbose(verbose)
             .setJVM(jvm)
+            .setDebug(debug)
             .build();
     ISourceLocation bootDir = pcfg.getBoot();
     String moduleName = null;
