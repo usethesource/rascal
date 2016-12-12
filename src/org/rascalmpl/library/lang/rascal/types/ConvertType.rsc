@@ -201,16 +201,16 @@ public Symbol convertFunctionType(FunctionType ft) {
     if ((FunctionType) `<Type t> ( <{TypeArg ","}* tas> )` := ft) {
         l = convertTypeArgList(tas);
         if (size(l) == 0) {
-        	return \func(convertType(t), []);
+        	return \func(convertType(t), [], []);
         } else {
             labels = {fl | \label(fl,_) <- l};
             labelsList = [fl | \label(fl,_) <- l];
             if (size(l) == size(labels) || size(labels) == 0) {
-            	return \func(convertType(t), l);
+            	return \func(convertType(t), l, []);
             } else if (size(labels) > 0 && size(labels) != size(labelsList)) {
-            	return \func(convertType(t), [ (\label(fl,ftype) := li) ? ftype : li | li <- l ])[@errinfo = { error("Non-well-formed type, labels must be distinct", ft@\loc) }];
+            	return \func(convertType(t), [ (\label(fl,ftype) := li) ? ftype : li | li <- l ], [])[@errinfo = { error("Non-well-formed type, labels must be distinct", ft@\loc) }];
             } else if (size(labels) > 0) {
-            	return \func(convertType(t), [ (\label(fl,ftype) := li) ? ftype : li | li <- l ])[@errinfo = { warning("Field name ignored, field names must be provided for all fields or for none", ft@\loc) }];
+            	return \func(convertType(t), [ (\label(fl,ftype) := li) ? ftype : li | li <- l ], [])[@errinfo = { warning("Field name ignored, field names must be provided for all fields or for none", ft@\loc) }];
             }
         } 
     }

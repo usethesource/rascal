@@ -47,9 +47,9 @@ str infoModule(str moduleName, set[DeclarationInfo] info){
 str infoReturns(str returnType, set[DeclarationInfo] info,  bool showDoc = false, bool showSource = false){
     result = "";
     for(di <- info){
-        if(di has declType){
-           switch(di.declType){
-           case \func(Symbol ret, list[Symbol] parameters):
+        if(di has declType) {
+           switch(di.declType) {
+           case \func(Symbol ret, list[Symbol] parameters, _):
                 if(startsWith("<ret>", returnType)){
                    result += report(di, showDoc=showDoc, showSource=showSource);
                 }

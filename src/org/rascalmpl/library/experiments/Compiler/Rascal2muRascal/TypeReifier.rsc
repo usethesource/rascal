@@ -545,10 +545,11 @@ private map[Symbol,Production] reify1(Symbol::\alias(str name, list[Symbol] para
 }
 
 // function
-private map[Symbol,Production] reify1(Symbol::\func(Symbol ret, list[Symbol] parameters), map[Symbol,Production] definitions) {
+private map[Symbol,Production] reify1(Symbol::\func(Symbol ret, list[Symbol] parameters, list[Symbol] kws), map[Symbol,Production] definitions) {
     //println("reify1 function: <ret>, <parameters>, <definitions>");
 	definitions = reify1(ret, definitions);
 	definitions = ( definitions | reify1(sym, it) | Symbol sym <- parameters );
+	definitions = ( definitions | reify1(sym, it) | Symbol sym <- kws );
 	return definitions;
 }
 
