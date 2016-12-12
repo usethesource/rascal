@@ -16,6 +16,7 @@ import java.io.IOException;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalKeywordParameters;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalModule;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -201,6 +202,15 @@ public interface IKernel extends IJava2Rascal {
    */
   public IString getDocForDefinition(ISourceLocation def);
   
+  /*
+   * Some Kernel management methods
+   */
+  
+  /**
+   * Set an IFrameObserver on this Kernel; allows external debugging
+   * @param observer
+   */
+  public void setFrameObserver(IFrameObserver observer);
   
   /**
    * Shutdown this kernel (gives opportunity for observers to report etc)
