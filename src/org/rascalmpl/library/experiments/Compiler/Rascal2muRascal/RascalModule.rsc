@@ -191,7 +191,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
         */
          
        str fuid = getCompanionForUID(uid);
-       Symbol ftype = Symbol::func(getConstructorResultType(\type), [ t | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ]);
+       Symbol ftype = Symbol::func(getConstructorResultType(\type), [ t | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ], []);
        list[str] argNames = [ l | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ];
        tuple[str fuid,int pos] addr = uid2addr[uid];
        int nformals = size(\type.parameters) + 1;
@@ -275,7 +275,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
                //println("**** enter scope <fuidDefault>");
                enterFunctionScope(fuidDefault);
                
-               ftype = Symbol::func(allKWFieldsAndTypes[mainKwf], [ Symbol::\void() ]);
+               ftype = Symbol::func(allKWFieldsAndTypes[mainKwf], [ Symbol::\void() ], []);
                
                kwps = [ muAssign("map_of_default_values", fuidDefault, defaults_pos, muCallMuPrim("make_mmap_str_entry",[])) ];
                  

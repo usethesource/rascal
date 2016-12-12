@@ -495,7 +495,7 @@ void extractScopes(Configuration c){
     	//println("topdecls:");
     	//for(td <- topdecls){ println(td); }
     	
- 		fuid_module_init = getFUID(convert2fuid(muid),"#<module_name>_init",Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]),0);
+ 		fuid_module_init = getFUID(convert2fuid(muid),"#<module_name>_init",Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())],[]),0);
  		
     	for(i <- index(topdecls)) {
     		// Assign a position to module variables
@@ -1363,7 +1363,7 @@ Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`)
 												= \label(getSimpleName(convertName(name)), translateType(tp));
 
 Symbol translateType(t: (FunctionType) `<Type tp> (<{TypeArg ","}* args>)`) 
-												= \func(translateType(tp), [ translateType(arg) | arg <- args]);
+												= \func(translateType(tp), [ translateType(arg) | arg <- args], []);
 									
 Symbol translateType(t: (UserType) `<QualifiedName name>`) {
 	// look up the name in the type environment
