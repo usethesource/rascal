@@ -218,12 +218,13 @@ public class BreakPointManager {
 				return false;
 			}
 			//return doAutoList(frame);
-			return false;
+			return true;
 			
 		case SKIP:
 			if(!isBlackListed(frame)){
 				mode = DEBUG_MODE.STEP;
 				//return doAutoList(frame);
+				return true;
 			}
 			return false;
 	
@@ -238,6 +239,7 @@ public class BreakPointManager {
 				if(bp.matchOnEnter(frame)){
 					mode = DEBUG_MODE.STEP;
 					//return doAutoList(frame);
+					return true;
 				}	
 			}
 		}

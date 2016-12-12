@@ -77,4 +77,6 @@ public abstract class BreakPoint {
 	boolean matchOnLeave(Frame frame) { return false; }
 	
 	boolean matchOnException(Frame frame, Thrown thrown) { return true; }
+	
+	abstract public String toString();
 }
