@@ -393,7 +393,7 @@ RVMModule mu2rvm(muModule(str module_name,
  
   main_fun = getUID(module_name,[],"MAIN",2);
   module_init_fun = getUID(module_name,[],"#<module_name>_init",2);
-  ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
+  ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())],[]);
   fun_names = { fun.qname | MuFunction fun <- functions };
   if(main_fun notin fun_names) {
      main_fun = getFUID(module_name,"main",ftype,0);

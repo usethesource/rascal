@@ -63,6 +63,7 @@ public class FunctionType extends RascalType {
         public Set<Type> getSymbolConstructorTypes() {
             return Arrays.stream(new Type[] { 
                     normalFunctionSymbol(),
+                    oldNormalFunctionSymbol(),
                     // TODO: remove this deprecated representation. A prod type is the same as a function type
                     prodFunctionSymbol()
             }).collect(Collectors.toSet());
@@ -74,6 +75,10 @@ public class FunctionType extends RascalType {
 
         private Type normalFunctionSymbol() {
             return symbols().typeSymbolConstructor("func", symbols().symbolADT(), "ret", TF.listType(symbols().symbolADT()), "parameters", TF.listType(symbols().symbolADT()), "kwTypes");
+        }
+        
+        private Type oldNormalFunctionSymbol() {
+            return symbols().typeSymbolConstructor("func", symbols().symbolADT(), "ret", TF.listType(symbols().symbolADT()), "parameters");
         }
 
         @Override
@@ -87,6 +92,11 @@ public class FunctionType extends RascalType {
             } else {
                 Type returnType = symbols().fromSymbol((IConstructor) symbol.get("ret"), store, grammar);
                 Type parameters = symbols().fromSymbols((IList) symbol.get("parameters"), store, grammar);
+                
+                if (symbol.getConstructorType()  == oldNormalFunctionSymbol()) {
+                    return RTF.functionType(returnType, parameters, TF.tupleEmpty());
+                }
+                
                 Type kwTypes = symbols().fromSymbols((IList) symbol.get("kwTypes"), store, grammar);
 
                 // TODO: while merging the other branch had tf.voidType()...    

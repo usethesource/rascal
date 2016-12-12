@@ -34,7 +34,7 @@ void translate(t: (Toplevel) `<Declaration decl>`) = translate(decl);
 
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <{Variable ","}+ variables> ;`) {
 	module_name = getModuleName();
-    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
+    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())], []);
     enterFunctionScope(getFUID(module_name,"#<module_name>_init",ftype,0));
    	for(var <- variables){
    		addVariableToModule(muVariable("<var.name>"));
